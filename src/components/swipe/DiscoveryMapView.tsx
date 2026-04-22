@@ -20,7 +20,7 @@ import { RealEstateIcon } from '@/components/icons/RealEstateIcon';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
 import { useFilterStore } from '@/state/filterStore';
-import { useAppTheme } from '@/hooks/useAppTheme';
+import useAppTheme from '@/hooks/useAppTheme';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { logger } from '@/utils/prodLogger';

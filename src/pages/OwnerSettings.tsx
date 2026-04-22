@@ -17,7 +17,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { PWAInstallButton } from "@/components/PWAInstallButton";
 import { SwipessLogo } from "@/components/SwipessLogo";
-import { useAppTheme } from "@/hooks/useAppTheme";
+import useAppTheme from "@/hooks/useAppTheme";
 import { cn } from "@/lib/utils";
 
 const fastSpring = { type: "spring" as const, stiffness: 500, damping: 30, mass: 0.8 };

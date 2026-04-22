@@ -11,7 +11,7 @@ import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
 import { toast } from '@/components/ui/sonner';
 import { useAuth } from '@/hooks/useAuth';
-import { useAppTheme } from '@/hooks/useAppTheme';
+import useAppTheme from '@/hooks/useAppTheme';
 import { useVisualTheme } from '@/contexts/VisualThemeContext';
 import CardImage from '@/components/CardImage';
 import { DiscoverySkeleton } from '@/components/ui/DiscoverySkeleton';

@@ -24,7 +24,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { usePersistentReorder } from "@/hooks/usePersistentReorder";
-import { useAppTheme } from "@/hooks/useAppTheme";
+import useAppTheme from "@/hooks/useAppTheme";
 
 const clientCategories = [
   { id: "all", label: "All", icon: Flame },

@@ -9,7 +9,7 @@ import { useOfflineDetection } from '@/hooks/useOfflineDetection';
 import { useErrorReporting } from '@/hooks/useErrorReporting';
 import { useAuth } from '@/hooks/useAuth';
 
-import { useAppTheme } from '@/hooks/useAppTheme';
+import useAppTheme from '@/hooks/useAppTheme';
 import { TopBar } from './TopBar';
 import { BottomNavigation } from './BottomNavigation';
 import { useActiveMode } from '@/hooks/useActiveMode';

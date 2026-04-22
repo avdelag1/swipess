@@ -25,7 +25,7 @@ import { formatDistanceToNow } from '@/utils/timeFormatter';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { notificationTypeConfigs as typeConfigs } from '@/utils/notificationConfigs';
-import { useAppTheme } from '@/hooks/useAppTheme';
+import useAppTheme from '@/hooks/useAppTheme';
 import { cn } from '@/lib/utils';
 import { haptics } from '@/utils/microPolish';
 

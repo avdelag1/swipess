@@ -11,7 +11,7 @@ import { PropertyClientFilters } from '@/components/filters/PropertyClientFilter
 import { MotoClientFilters } from '@/components/filters/MotoClientFilters';
 import { BicycleClientFilters } from '@/components/filters/BicycleClientFilters';
 import { WorkerClientFilters } from '@/components/filters/WorkerClientFilters';
-import { useAppTheme } from '@/hooks/useAppTheme';
+import useAppTheme from '@/hooks/useAppTheme';
 import { getCategoryTextColorClass } from '@/types/filters';
 import { cn } from '@/lib/utils';
 import { DiscoveryFilters } from '@/components/filters/DiscoveryFilters';

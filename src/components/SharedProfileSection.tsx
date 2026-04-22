@@ -13,7 +13,7 @@ import {
   shareViaTwitter,
 } from '@/hooks/useSharing';
 import { useAuth } from '@/hooks/useAuth';
-import { useAppTheme } from '@/hooks/useAppTheme';
+import useAppTheme from '@/hooks/useAppTheme';
 import { cn } from '@/lib/utils';
 
 interface SharedProfileSectionProps {

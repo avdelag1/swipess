@@ -7,7 +7,7 @@ import { useStartConversation } from "@/hooks/useConversations";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Flame, Home, Bike, Briefcase, RefreshCw, Car, Search, SlidersHorizontal, ArrowUpDown } from "lucide-react";
 import { toast } from "@/components/ui/sonner";
-import { useAppTheme } from "@/hooks/useAppTheme";
+import useAppTheme from "@/hooks/useAppTheme";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";

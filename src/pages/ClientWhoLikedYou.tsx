@@ -23,7 +23,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { usePersistentReorder } from "@/hooks/usePersistentReorder";
-import { useAppTheme } from "@/hooks/useAppTheme";
+import useAppTheme from "@/hooks/useAppTheme";
 
 interface InterestedOwner {
   id: string;

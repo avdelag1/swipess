@@ -14,7 +14,7 @@ import { ActivityFeed } from "@/components/ActivityFeed";
 import { VapIdEditModal } from "@/components/VapIdEditModal";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { useAppTheme } from "@/hooks/useAppTheme";
+import useAppTheme from "@/hooks/useAppTheme";
 import { ProfileSkeleton } from "@/components/ui/LayoutSkeletons";
 import { cn } from "@/lib/utils";
 import { triggerHaptic } from "@/utils/haptics";

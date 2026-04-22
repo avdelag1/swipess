@@ -8,7 +8,7 @@ import { StationDrawer } from '@/components/radio/retro/StationDrawer';
 import { FrequencyBand } from '@/components/radio/FrequencyBand';
 import { triggerHaptic } from '@/utils/haptics';
 import { cn } from '@/lib/utils';
-import { useAppTheme } from '@/hooks/useAppTheme';
+import useAppTheme from '@/hooks/useAppTheme';
 import {
   ArrowLeft, ListMusic, Heart, Shuffle,
   SkipBack, SkipForward, Play, Pause

@@ -4,7 +4,7 @@ import { ArrowLeft, Lock, ShieldCheck, Database, Eye, Globe } from "lucide-react
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { SentientHud } from "@/components/SentientHud";
 import { motion, AnimatePresence } from "framer-motion";
-import { useAppTheme } from "@/hooks/useAppTheme";
+import useAppTheme from "@/hooks/useAppTheme";
 import { cn } from "@/lib/utils";
 import { triggerHaptic } from "@/utils/haptics";
 

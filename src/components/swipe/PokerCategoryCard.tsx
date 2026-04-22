@@ -1,6 +1,6 @@
 import { memo, useCallback, useRef, useState, useEffect } from 'react';
 import { ThumbsUp, Sparkles, X } from 'lucide-react';
-import { useAppTheme } from '@/hooks/useAppTheme';
+import useAppTheme from '@/hooks/useAppTheme';
 import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
 import { triggerHaptic } from '@/utils/haptics';
 import {

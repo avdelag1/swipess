@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils';
 import browserImageCompression from 'browser-image-compression';
 import { triggerHaptic } from '@/utils/haptics';
 import { uiSounds } from '@/utils/uiSounds';
-import { useAppTheme } from '@/hooks/useAppTheme';
+import useAppTheme from '@/hooks/useAppTheme';
 
 interface ClientVerificationFlowProps {
   onComplete?: () => void;

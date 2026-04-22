@@ -1,7 +1,7 @@
 import { memo, useEffect } from 'react';
 import { Skeleton } from './skeleton';
 import { cn, runIdleTask } from '@/lib/utils';
-import { useAppTheme } from '@/hooks/useAppTheme';
+import useAppTheme from '@/hooks/useAppTheme';
 
 /**
  * 🚀 DiscoverySkeleton: Premium, Zenith-level skeleton loader

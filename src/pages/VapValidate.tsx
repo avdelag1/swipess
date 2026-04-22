@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { ShieldCheck, CheckCircle2, ChevronLeft, MapPin, Loader2 } from 'lucide-react';
-import { useAppTheme } from '@/hooks/useAppTheme';
+import useAppTheme from '@/hooks/useAppTheme';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';

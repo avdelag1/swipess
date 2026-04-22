@@ -5,7 +5,7 @@ import {
   ChevronDown, Wrench, Check, Globe, ShoppingBag, Key 
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useAppTheme } from '@/hooks/useAppTheme';
+import useAppTheme from '@/hooks/useAppTheme';
 import { VespaIcon } from '@/components/icons/VespaIcon';
 import { BeachBicycleIcon } from '@/components/icons/BeachBicycleIcon';
 import { WorkersIcon } from '@/components/icons/WorkersIcon';

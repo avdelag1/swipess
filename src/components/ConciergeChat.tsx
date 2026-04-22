@@ -16,7 +16,7 @@ import { useAudioVisualizer } from '@/hooks/useAudioVisualizer';
 import { useVoiceTranscribe } from '@/hooks/useVoiceTranscribe';
 import { uiSounds } from '@/utils/uiSounds';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
-import { useAppTheme } from '@/hooks/useAppTheme';
+import useAppTheme from '@/hooks/useAppTheme';
 import { SwipessLogo } from '@/components/SwipessLogo';
 import { toast } from 'sonner';
 import { useModalStore } from '@/state/modalStore';

@@ -8,7 +8,7 @@ import type { QuickFilterCategory } from '@/types/filters';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import ClientFilters from './ClientFilters';
 import { cn } from '@/lib/utils';
-import { useAppTheme } from '@/hooks/useAppTheme';
+import useAppTheme from '@/hooks/useAppTheme';
 import { useSmartListingMatching } from '@/hooks/smartMatching/useSmartListingMatching';
 import { useAuth } from '@/hooks/useAuth';
 

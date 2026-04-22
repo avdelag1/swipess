@@ -23,7 +23,7 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
  * Prevents production crashes if called before the provider is ready.
  * Returns a default 'dark' context and logs a warning in dev.
  */
-export function useAppTheme(): ThemeContextType {
+function useAppTheme(): ThemeContextType {
   const context = useContext(ThemeContext);
   if (!context) {
     // If we're here, it means useAppTheme was called outside of ThemeProvider
@@ -159,3 +159,5 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
+
+export default useAppTheme;

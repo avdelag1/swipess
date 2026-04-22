@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Flame, MessageCircle, X, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useAppTheme } from '@/hooks/useAppTheme';
+import useAppTheme from '@/hooks/useAppTheme';
 
 interface LikeNotificationActionsProps {
   onAccept: () => void;

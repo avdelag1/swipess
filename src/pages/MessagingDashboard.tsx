@@ -38,7 +38,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { triggerHaptic } from '@/utils/haptics';
 import { cn } from '@/lib/utils';
-import { useAppTheme } from '@/hooks/useAppTheme';
+import useAppTheme from '@/hooks/useAppTheme';
 
 export function MessagingDashboard() {
   const { user } = useAuth();

@@ -28,7 +28,7 @@ import { cn } from '@/lib/utils';
 import { useUnreadMessageCount } from '@/hooks/useUnreadMessageCount';
 import { useUnreadNotifications } from '@/hooks/useUnreadNotifications';
 import { prefetchRoute } from '@/utils/routePrefetcher';
-import { useAppTheme } from '@/hooks/useAppTheme';
+import useAppTheme from '@/hooks/useAppTheme';
 import { haptics } from '@/utils/microPolish';
 import { uiSounds } from '@/utils/uiSounds';
 import { useTranslation } from 'react-i18next';

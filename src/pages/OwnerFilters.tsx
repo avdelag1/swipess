@@ -5,7 +5,7 @@ import {
   ChevronLeft, Target, Sparkles, Home, Briefcase, Zap, RotateCcw, Bike
 } from 'lucide-react';
 import { DiscoveryFilters } from '@/components/filters/DiscoveryFilters';
-import { useAppTheme } from '@/hooks/useAppTheme';
+import useAppTheme from '@/hooks/useAppTheme';
 import { useFilterStore } from '@/state/filterStore';
 import { cn } from '@/lib/utils';
 import { haptics } from '@/utils/microPolish';

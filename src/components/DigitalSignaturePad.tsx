@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Trash2, Sparkles, Fingerprint, MousePointer2 } from 'lucide-react';
 import { triggerHaptic } from '@/utils/haptics';
 import { uiSounds } from '@/utils/uiSounds';
-import { useAppTheme } from '@/hooks/useAppTheme';
+import useAppTheme from '@/hooks/useAppTheme';
 import { cn } from '@/lib/utils';
 
 interface LiquidSignaturePadProps {

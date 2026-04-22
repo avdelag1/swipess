@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { useAppTheme } from "@/hooks/useAppTheme";
+import useAppTheme from "@/hooks/useAppTheme";
 import { haptics } from "@/utils/microPolish";
 import { toast } from "@/components/ui/sonner";
 import { NativeBridge } from "@/utils/nativeBridge";

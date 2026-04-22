@@ -6,7 +6,7 @@ import { OwnerClientFilterDialog } from "@/components/OwnerClientFilterDialog";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { toast } from '@/components/ui/sonner';
-import { useAppTheme } from "@/hooks/useAppTheme";
+import useAppTheme from "@/hooks/useAppTheme";
 import { cn } from "@/lib/utils";
 
 const OwnerSavedSearches = () => {

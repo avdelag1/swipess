@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { ReactNode } from "react";
 import { motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
-import { useAppTheme } from "@/hooks/useAppTheme";
+import useAppTheme from "@/hooks/useAppTheme";
 import { SwipessLogo } from "./SwipessLogo";
 
 interface PageHeaderProps {

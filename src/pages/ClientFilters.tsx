@@ -12,7 +12,7 @@ import { WorkerClientFilters } from '@/components/filters/WorkerClientFilters';
 import { useFilterStore } from '@/state/filterStore';
 import { useQueryClient } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
-import { useAppTheme } from '@/hooks/useAppTheme';
+import useAppTheme from '@/hooks/useAppTheme';
 import { haptics } from '@/utils/microPolish';
 import { useCardReset } from '@/hooks/useCardReset';
 

@@ -1,6 +1,6 @@
 import { memo, useRef, useEffect } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { useAppTheme } from '@/hooks/useAppTheme';
+import useAppTheme from '@/hooks/useAppTheme';
 import { formatDistanceToNow } from '@/utils/timeFormatter';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';

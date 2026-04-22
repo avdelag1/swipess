@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Heart, MessageCircle, Share2, ChevronLeft, ChevronRight, ChevronUp, Calendar, MapPin, Bookmark } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
-import { useAppTheme } from '@/hooks/useAppTheme';
+import useAppTheme from '@/hooks/useAppTheme';
 import CardImage from '@/components/CardImage';
 import { EventItem } from '@/types/events';
 

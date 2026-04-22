@@ -12,7 +12,7 @@
 import { WifiOff, RefreshCw, Loader2, Wifi, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { ConnectionStatus } from '@/hooks/useConnectionHealth';
-import { useAppTheme } from '@/hooks/useAppTheme';
+import useAppTheme from '@/hooks/useAppTheme';
 import { cn } from '@/lib/utils';
 
 interface ConnectionErrorScreenProps {

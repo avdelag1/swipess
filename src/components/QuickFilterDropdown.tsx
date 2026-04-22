@@ -4,7 +4,7 @@ import { ChevronRight, Home, Bike, Wrench, X, Users, User, Briefcase, Search, Sl
 import { cn } from '@/lib/utils';
 import { useFilterStore } from '@/state/filterStore';
 import { useShallow } from 'zustand/react/shallow';
-import { useAppTheme } from '@/hooks/useAppTheme';
+import useAppTheme from '@/hooks/useAppTheme';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { haptics } from '@/utils/microPolish';
 import type { QuickFilterCategory, ClientGender, ClientType } from '@/types/filters';
