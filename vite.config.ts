@@ -45,7 +45,7 @@ export default defineConfig(({ mode }) => ({
     include: [
       'react', 'react-dom', 'react-dom/client', 'react/jsx-runtime', 'react/jsx-dev-runtime',
       'scheduler', 'react-router-dom', '@tanstack/react-query', 'zustand', 'zustand/react',
-      '@supabase/supabase-js',
+      '@supabase/supabase-js', 'lucide-react',
     ],
   },
   resolve: {

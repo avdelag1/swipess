@@ -54,7 +54,7 @@ export function AuthProvider({ children, authPromise }: { children: ReactNode, a
         // If auth check hangs, we stop waiting and allow the app to mount (as logged out).
         const result = (await Promise.race([
           checkPromise,
-          new Promise((_, reject) => setTimeout(() => reject(new Error('Auth Timeout')), 4000))
+          new Promise((_, reject) => setTimeout(() => reject(new Error('Auth Timeout')), 10000))
         ])) as any;
         
         const fetchedSession = result?.data?.session ?? null;

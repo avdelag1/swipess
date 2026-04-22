@@ -56,7 +56,7 @@ export default function ClientFilters() {
   return (
     <div className={cn(
       "min-h-screen flex flex-col transition-colors duration-500",
-      isLight ? "bg-[#F8FAFC] text-slate-900" : "bg-[#0A0A0C] text-white"
+      isLight ? "bg-[#F8FAFC] text-slate-900" : "bg-black text-white"
     )}>
       {/* 🛸 CINEMATIC HEADER */}
       <header className={cn(
@@ -89,7 +89,7 @@ export default function ClientFilters() {
                 onClick={handleReset}
                 className={cn(
                   "text-[10px] font-black uppercase tracking-widest transition-colors flex items-center gap-2",
-                  isLight ? "text-slate-400 hover:text-primary" : "text-white/40 hover:text-primary"
+                  isLight ? "text-slate-500 hover:text-primary" : "text-white/40 hover:text-primary"
                 )}
               >
                 <RotateCcw className="w-3.5 h-3.5" />
@@ -106,7 +106,7 @@ export default function ClientFilters() {
                 }}
                 className={cn(
                   "text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2",
-                  isLight ? "text-slate-400 hover:text-orange-500" : "text-white/40 hover:text-orange-400",
+                  isLight ? "text-slate-500 hover:text-orange-500" : "text-white/40 hover:text-orange-400",
                   resetMutation.isPending && "opacity-50 pointer-events-none"
                 )}
               >
@@ -135,7 +135,7 @@ export default function ClientFilters() {
                   "flex flex-col items-center justify-center gap-2 py-5 rounded-[2rem] transition-all duration-300 relative overflow-hidden group",
                   active 
                     ? (isLight ? "bg-slate-900 text-white shadow-xl scale-[1.03] translate-y-[-2px]" : "bg-white text-black shadow-2xl scale-[1.03] translate-y-[-2px]") 
-                    : (isLight ? "text-slate-400 hover:bg-slate-50" : "text-white/40 hover:bg-white/5")
+                    : (isLight ? "text-slate-500 hover:bg-slate-100" : "text-white/40 hover:bg-white/5")
                 )}
               >
                 <Icon className={cn("w-6 h-6", active ? (isLight ? "text-white" : "text-primary") : "opacity-60")} />

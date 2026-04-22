@@ -316,8 +316,8 @@ export default function EventosFeed() {
 
   return (
     <div
-      className="relative w-full flex-grow flex flex-col items-center justify-start bg-transparent overflow-hidden"
-      style={{ minHeight: 'auto', paddingTop: '130px' }}
+      className="relative w-full flex-grow flex flex-col items-center justify-start bg-transparent overflow-hidden min-h-[100dvh]"
+      style={{ paddingTop: '130px' }}
     >
       <div className="absolute inset-0 bg-[#0a0a0b] -z-10" />
       

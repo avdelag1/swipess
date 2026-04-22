@@ -366,10 +366,10 @@ export const BottomNavigation = memo(({
                 </motion.div>
                 {/* Label: Natural height, no clipping */}
                 {!isNarrow && (
-                  <div className="flex items-center justify-center w-full min-h-[14px]">
+                  <div className="flex items-center justify-center w-full min-h-[14px] px-1">
                     <span
                       className={cn(
-                        'tracking-tight transition-all duration-300 relative font-black uppercase italic whitespace-nowrap',
+                        'tracking-tight transition-all duration-300 relative font-black uppercase italic truncate max-w-[56px]',
                         isTablet ? 'text-[10px]' : 'text-[8.5px]',
                       )}
                       style={{

@@ -2,7 +2,6 @@ import { useCallback, useMemo, useState, useEffect, lazy, Suspense } from 'react
 import { useShallow } from 'zustand/react/shallow';
 import { SwipessSwipeContainer } from '@/components/SwipessSwipeContainer';
 import { useFilterStore, useFilterActions } from '@/state/filterStore';
-import { useShallow } from 'zustand/react/shallow';
 import { SwipeAllDashboard } from '@/components/swipe/SwipeAllDashboard';
 import { QuickFilterBar } from '@/components/QuickFilterBar';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -39,8 +38,9 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
 
   // 🚀 PERFORMANCE HYDRATION: Pre-fetch listing data while user is on map phase
   // so the swipe deck is ready instantly when they tap "Start Swiping".
-  // We use useShallow to keep the filter object reference stable unless values change.
-  const dashboardFilters = useFilterStore(useShallow(s => s.getListingFilters()));
+  // We use filterVersion to track changes instead of useShallow on a function that creates new object references.
+  const filterVersion = useFilterStore(s => s.filterVersion);
+  const dashboardFilters = useMemo(() => useFilterStore.getState().getListingFilters(), [filterVersion]);
   
   useSmartListingMatching(
     user?.id,

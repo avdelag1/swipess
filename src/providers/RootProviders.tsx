@@ -132,7 +132,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }
-import { ThemeSyncManager } from "@/components/ThemeSyncManager";
 import { VisualThemeProvider } from "@/contexts/VisualThemeContext";
 import { useNotifications } from "@/hooks/useNotifications";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
