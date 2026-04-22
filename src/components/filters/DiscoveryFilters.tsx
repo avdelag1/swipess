@@ -239,7 +239,7 @@ export function DiscoveryFilters({ category, onApply, initialFilters = {}, activ
 
 
       {/* Demographic Filters */}
-      <Card className="bg-card/30 backdrop-blur-md border-white/5 overflow-hidden rounded-[2rem]">
+      <Card className={cn("backdrop-blur-md overflow-hidden rounded-[2rem]", isLight ? "bg-white/50 border-black/5" : "bg-card/30 border-white/5")}>
         <Collapsible>
           <CollapsibleTrigger className="w-full p-6 flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -266,7 +266,7 @@ export function DiscoveryFilters({ category, onApply, initialFilters = {}, activ
       </Card>
 
       {/* Location Filter & Radius */}
-      <Card className="bg-card/30 backdrop-blur-md border-white/5 overflow-hidden rounded-[2rem]">
+      <Card className={cn("backdrop-blur-md overflow-hidden rounded-[2rem]", isLight ? "bg-white/50 border-black/5" : "bg-card/30 border-white/5")}>
         <CardHeader className="pb-0 pt-6 px-6">
           <div className="flex items-center gap-2">
              <Globe className="w-4 h-4 text-primary" />
@@ -292,13 +292,13 @@ export function DiscoveryFilters({ category, onApply, initialFilters = {}, activ
                 min={1} max={200} step={1} 
                 className="py-2"
              />
-             <p className="text-[9px] text-white/20 font-medium">Radius filtering uses your current GPS or selected location.</p>
+             <p className={cn("text-[9px] font-medium", isLight ? "text-black/40" : "text-white/20")}>Radius filtering uses your current GPS or selected location.</p>
           </div>
         </CardContent>
       </Card>
 
       {/* Budget Filter */}
-      <Card className="bg-card/30 backdrop-blur-md border-white/5 overflow-hidden rounded-[2rem]">
+      <Card className={cn("backdrop-blur-md overflow-hidden rounded-[2rem]", isLight ? "bg-white/50 border-black/5" : "bg-card/30 border-white/5")}>
         <CardHeader className="pb-2">
           <div className="flex items-center gap-2">
              <div className="w-5 h-5 rounded-full bg-[#3B82F6]/10 flex items-center justify-center">
@@ -312,10 +312,14 @@ export function DiscoveryFilters({ category, onApply, initialFilters = {}, activ
             <button
               key={range.value}
               onClick={() => setSelectedBudgetRange(selectedBudgetRange === range.value ? '' : range.value)}
-              className={`py-2 px-3 rounded-xl text-[10px] font-bold uppercase transition-all ${
+              className={cn(
+                "py-2 px-3 rounded-xl text-[10px] font-bold uppercase transition-all",
                 selectedBudgetRange === range.value
-                  ? 'bg-primary text-white' : 'bg-muted/40 text-muted-foreground hover:bg-muted/60'
-              }`}
+                  ? "bg-primary text-white" 
+                  : isLight 
+                    ? "bg-black/[0.04] text-black/60 hover:bg-black/[0.08]" 
+                    : "bg-muted/40 text-muted-foreground hover:bg-muted/60"
+              )}
             >
               {range.label}
             </button>
@@ -326,7 +330,7 @@ export function DiscoveryFilters({ category, onApply, initialFilters = {}, activ
       {/* CATEGORY SPECIFIC FILTERS */}
       {category === 'property' && (
         <>
-          <Card className="bg-card/30 backdrop-blur-md border-white/5 overflow-hidden rounded-[2rem]">
+          <Card className={cn("backdrop-blur-md overflow-hidden rounded-[2rem]", isLight ? "bg-white/50 border-black/5" : "bg-card/30 border-white/5")}>
             <CardHeader className="pb-2">
               <div className="flex items-center gap-2">
                 <div className="w-5 h-5 rounded-full bg-[#3B82F6]/10 flex items-center justify-center">
@@ -395,7 +399,7 @@ export function DiscoveryFilters({ category, onApply, initialFilters = {}, activ
 
       {category === 'motorcycle' && (
         <>
-          <Card className="bg-card/30 backdrop-blur-md border-white/5 overflow-hidden rounded-[2rem]">
+          <Card className={cn("backdrop-blur-md overflow-hidden rounded-[2rem]", isLight ? "bg-white/50 border-black/5" : "bg-card/30 border-white/5")}>
             <CardHeader className="pb-2">
               <span className="text-xs font-black uppercase tracking-widest">Engine Power</span>
             </CardHeader>
@@ -413,7 +417,7 @@ export function DiscoveryFilters({ category, onApply, initialFilters = {}, activ
       )}
 
       {category === 'service' && (
-        <Card className="bg-card/30 backdrop-blur-md border-white/5 overflow-hidden rounded-[2rem]">
+        <Card className={cn("backdrop-blur-md overflow-hidden rounded-[2rem]", isLight ? "bg-white/50 border-black/5" : "bg-card/30 border-white/5")}>
           <CardHeader className="pb-2 px-6 pt-6">
             <div className="flex items-center gap-2">
               <WorkersIcon className="w-4 h-4 text-primary" />
@@ -438,7 +442,9 @@ export function DiscoveryFilters({ category, onApply, initialFilters = {}, activ
                     "py-3 px-3 rounded-2xl text-[10px] font-black uppercase tracking-tight text-left transition-all border",
                     serviceTypes.includes(type.value)
                       ? "bg-primary text-white border-primary shadow-lg shadow-primary/20"
-                      : "bg-muted/30 text-muted-foreground border-white/5 hover:bg-muted/50"
+                      : isLight 
+                        ? "bg-black/[0.04] text-black/60 border-black/5 hover:bg-black/[0.08]" 
+                        : "bg-muted/30 text-muted-foreground border-white/5 hover:bg-muted/50"
                   )}
                 >
                   {type.label}
