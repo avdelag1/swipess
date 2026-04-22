@@ -1,7 +1,5 @@
 /**
- * Swipess Template Engine
- * Generates professional listing descriptions without external APIs
- * Produces natural-sounding, varied content for properties, vehicles, and worker services
+ * Produces natural-sounding, varied content for properties, motorcycles, and worker services
  */
 
 // Utility function to randomly select from array
@@ -235,11 +233,11 @@ function generateLocationBenefits(location, propertyType) {
 }
 
 /**
- * Generate vehicle listing (cars, motorcycles, bicycles)
+ * Generate motorcycle/bicycle listing
  */
-export function generateVehicleListing(data) {
+export function generateTransitListing(data) {
   const {
-    vehicleType,
+    transitType: vehicleType,
     year,
     make,
     model,
@@ -256,12 +254,6 @@ export function generateVehicleListing(data) {
 
   // Opening lines based on vehicle type
   const openings = {
-    car: [
-      `This ${year} ${make} ${model} is ready for its next owner.`,
-      `Presenting a well-maintained ${year} ${make} ${model}.`,
-      `Your next vehicle awaits: ${year} ${make} ${model}.`,
-      `Discover this reliable ${year} ${make} ${model}.`
-    ],
     motorcycle: [
       `Experience the thrill of this ${year} ${make} ${model}.`,
       `Ride in style with this ${year} ${make} ${model}.`,
@@ -277,7 +269,7 @@ export function generateVehicleListing(data) {
   };
 
   const opening = deterministicChoice(
-    openings[vehicleType] || openings.car,
+    openings[vehicleType] || openings.motorcycle,
     `${make}${model}${year}`
   );
 
@@ -285,16 +277,16 @@ export function generateVehicleListing(data) {
   let conditionText = '';
   if (vehicleType !== 'bicycle') {
     if (mileage) {
-      const mileageText = `${mileage.toLocaleString()} miles`;
+      const mileageText = `${mileage.toLocaleString()} KM`;
       if (condition === 'excellent') {
-        conditionText = `With only ${mileageText} on the odometer and in excellent condition, this vehicle has been meticulously maintained.`;
+        conditionText = `With only ${mileageText} and in excellent condition, this ride has been meticulously maintained.`;
       } else if (condition === 'good') {
-        conditionText = `Currently showing ${mileageText} and in good condition, this vehicle has been well cared for.`;
+        conditionText = `Currently showing ${mileageText} and in good condition, this ride has been well cared for.`;
       } else {
-        conditionText = `With ${mileageText}, this vehicle represents solid value.`;
+        conditionText = `With ${mileageText}, this ride represents solid value.`;
       }
     } else if (condition) {
-      conditionText = `The vehicle is in ${condition} condition and has been properly maintained.`;
+      conditionText = `The ride is in ${condition} condition and has been properly maintained.`;
     }
   } else {
     // Bicycle condition
@@ -309,15 +301,6 @@ export function generateVehicleListing(data) {
   let featuresText = '';
   if (features.length > 0) {
     const featureMap = {
-      // Car features
-      leather: 'Premium leather interior',
-      sunroof: 'Sunroof for open-air driving',
-      navigation: 'Built-in navigation system',
-      backup_camera: 'Backup camera for easy parking',
-      bluetooth: 'Bluetooth connectivity',
-      heated_seats: 'Heated seats for comfort',
-      alloy_wheels: 'Stylish alloy wheels',
-
       // Motorcycle features
       abs: 'ABS braking system',
       cruise: 'Cruise control',
@@ -348,7 +331,7 @@ export function generateVehicleListing(data) {
   } else if (vehicleType === 'bicycle') {
     usageText = 'Ideal for commuting, fitness rides, or leisurely weekend outings.';
   } else {
-    usageText = 'This vehicle offers reliable transportation with a comfortable driving experience.';
+    usageText = 'This ride offers reliable transportation with a comfortable experience.';
   }
 
   // Pricing
@@ -437,7 +420,7 @@ export function generateWorkerListing(data) {
   // Service approach
   const approachTemplates = {
     cleaner: 'My approach focuses on thoroughness and respect for your space, ensuring every corner meets high standards.',
-    mechanic: 'I diagnose issues accurately and explain repairs clearly, so you understand exactly what your vehicle needs.',
+    mechanic: 'I diagnose issues accurately and explain repairs clearly, so you understand exactly what your ride needs.',
     electrician: 'Safety and code compliance are my top priorities, along with clean, professional workmanship.',
     plumber: 'From routine maintenance to emergency repairs, I respond promptly and work efficiently to minimize disruption.',
     chef: 'I create memorable dining experiences with fresh ingredients and attention to your preferences.',

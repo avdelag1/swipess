@@ -2,7 +2,7 @@ import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'com.swipess.app',
-  appName: 'Nexus Discovery',
+  appName: 'Swipess',
   webDir: 'dist',
   server: {
     androidScheme: 'https',

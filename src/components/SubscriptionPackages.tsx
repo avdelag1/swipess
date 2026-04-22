@@ -39,7 +39,7 @@ const clientPlans: Plan[] = [
     durationText: '/month',
     benefits: [
       'Communicate with listings and members',
-      'Post properties, services & vehicles',
+      'Post properties, services & motos',
       'Save favorite listings',
       '🤖 AI Concierge — 15 messages/day',
       '📝 AI Listing Creator — 3/month',
@@ -56,7 +56,7 @@ const clientPlans: Plan[] = [
     durationText: '/6 months',
     benefits: [
       'Communicate with listings and members',
-      'Post properties, services & vehicles',
+      'Post properties, services & motos',
       'Save favorite listings',
       '🧠 AI Concierge — 50 messages/day',
       '📝 AI Listing Creator — 10/month',
@@ -75,7 +75,7 @@ const clientPlans: Plan[] = [
     durationText: '/year',
     benefits: [
       'Communicate with listings and members',
-      'Post properties, services & vehicles',
+      'Post properties, services & motos',
       'Save favorite listings',
       '🔥 AI Concierge — Unlimited',
       '📝 AI Listing Creator — Unlimited',

@@ -43,6 +43,8 @@ import { DirectMessageDialog } from './DirectMessageDialog';
 import { isDirectMessagingListing } from '@/utils/directMessaging';
 import { useQueryClient } from '@tanstack/react-query';
 import { LocationRadiusSelector } from './swipe/LocationRadiusSelector';
+import { ReportDialog } from './ReportDialog';
+
 
 
 // FIX #3: Lazy-load modals 
@@ -118,6 +120,8 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   const [messageDialogOpen, setMessageDialogOpen] = useState(false);
   const [directMessageDialogOpen, setDirectMessageDialogOpen] = useState(false);
   const [selectedListing, setSelectedListing] = useState<any | null>(null);
+  const [reportDialogOpen, setReportDialogOpen] = useState(false);
+
 
   // Epic Match State
   const [matchData, setMatchData] = useState<{ client: any, owner: any } | null>(null);
@@ -858,6 +862,17 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     triggerHaptic('light');
   };
 
+  const handleReport = () => {
+    const listing = deckQueueRef.current[currentIndexRef.current];
+    if (listing) {
+      setSelectedListing(listing);
+      setReportDialogOpen(true);
+      triggerHaptic('medium');
+    }
+  };
+
+
+
   const handleMessage = () => {
     const listing = deckQueueRef.current[currentIndexRef.current];
 
@@ -1082,6 +1097,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                   onInsights={handleInsights}
                   onMessage={handleMessage}
                   onShare={handleShare}
+                  onReport={handleReport}
                   onLike={handleButtonLike}
                   onDislike={handleButtonDislike}
                   onDragStart={handleDragStart}
@@ -1248,6 +1264,17 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
             isLoading={isCreatingConversation}
             category={selectedListing?.category}
           />
+
+          {selectedListing && (
+            <ReportDialog
+              open={reportDialogOpen}
+              onOpenChange={setReportDialogOpen}
+              reportedListingId={selectedListing.id}
+              reportedListingTitle={selectedListing.title}
+              reportedUserId={selectedListing.owner_id}
+              category="listing"
+            />
+          )}
         </Suspense>,
         document.body
       )}

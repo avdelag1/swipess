@@ -100,7 +100,7 @@ export function AIListingTrigger({ glassPillStyle }: AIListingTriggerProps) {
                 <h2 className={cn(
                   "text-[10px] font-black uppercase tracking-[0.4em] italic",
                   isLight ? "text-black/40" : "text-white/40"
-                )}>Nexus AI Listing</h2>
+                )}>Swipess AI Listing</h2>
              </div>
              <DialogClose className={cn(
                "p-2 rounded-full transition-colors",

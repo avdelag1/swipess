@@ -16,7 +16,7 @@ type CategoryType = 'property' | 'motorcycle' | 'bicycle' | 'services';
 export default function OwnerFilters() {
   const navigate = useNavigate();
   const { theme, isLight } = useTheme();
-  const isDark = theme === 'dark' || theme === 'nexus-style';
+  const isDark = theme === 'dark' || theme === 'swipess-style';
   
   const storeActiveCategory = useFilterStore(s => s.activeCategory);
   const [activeCategory, setActiveCategory] = useState<CategoryType>((storeActiveCategory as CategoryType) || 'property');

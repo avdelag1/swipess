@@ -169,7 +169,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
         isThemeLight ? "bg-white" : "bg-background"
       )}>
         
-        {/* 🛸 NEXUS HUD HEADER */}
+        {/* 🛸 SWIPESS HUD HEADER */}
         <div className={cn(
             "shrink-0 px-6 py-4 z-20 backdrop-blur-3xl border-b transition-all",
             isThemeLight ? "bg-white/80 border-black/5" : "bg-black/40 border-white/5"

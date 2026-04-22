@@ -195,7 +195,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
         redirectTo: `${window.location.origin}/reset-password`,
       });
       if (error) throw error;
-      toast({ title: 'Nexus Link Sent', description: "Check your neural inbox for reset parameters." });
+      toast({ title: 'Swipess Link Sent', description: "Check your neural inbox for reset parameters." });
       setIsForgotPassword(false);
     } catch (error: any) {
       if (error.errors) {
@@ -538,7 +538,7 @@ function LegendaryLandingPage() {
           <div className="w-1 h-1 rounded-full bg-white/20" />
           <button onClick={() => setLegalModal('terms')} className="hover:text-primary transition-colors">Terms</button>
         </div>
-        <p className="text-[8px] font-black uppercase tracking-[0.4em] text-white/20 italic">© 2026 NEXUS INDUSTRIES</p>
+        <p className="text-[8px] font-black uppercase tracking-[0.4em] text-white/20 italic">© 2026 SWIPESS INDUSTRIES</p>
       </div>
 
       <AnimatePresence>

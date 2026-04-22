@@ -198,7 +198,7 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
         country, city, neighborhood, latitude, longitude,
         intentions, occupation, years_in_city: yearsInCity === '' ? null : Number(yearsInCity),
       });
-      toast.success('Identity Updated', { description: 'Your Nexus profile is now in parity.' });
+      toast.success('Identity Updated', { description: 'Your Swipess profile is now in parity.' });
       onOpenChange(false);
     } catch (error) {
        toast.error('Sync Error');
@@ -227,7 +227,7 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
                     <Sparkles className="w-4 h-4 text-[#EB4898]" />
                     <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white/40 italic">Identity Terminal</span>
                  </div>
-                 <h2 className="text-3xl font-black italic uppercase tracking-tighter text-white">Edit Nexus Profile</h2>
+                 <h2 className="text-3xl font-black italic uppercase tracking-tighter text-white">Edit Swipess Profile</h2>
               </div>
               <div className="flex flex-col items-end gap-2">
                  <div className="h-2 w-32 bg-white/5 rounded-full overflow-hidden border border-white/10">

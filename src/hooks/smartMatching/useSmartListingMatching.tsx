@@ -8,6 +8,7 @@ import { ListingFilters } from './types';
 import { calculateListingMatch } from './matchCalculators';
 import { pwaImagePreloader, getCardImageUrl } from '@/utils/imageOptimization';
 import { runIdleTask } from '@/lib/utils';
+import { useAdminUserIds } from '../useAdminUserIds';
 
 export const SWIPE_CARD_FIELDS = `
   id, title, description, price, images, video_url, city, neighborhood, beds, baths,
@@ -34,27 +35,49 @@ export function useSmartListingMatching(
 ) {
     const queryClient = useQueryClient();
     const filtersKey = filters ? JSON.stringify(filters) : '';
+    const { data: adminIds } = useAdminUserIds();
 
     // 🚀 SPEED OF LIGHT: Cache user swipes globally to avoid repeated fetching
     const { data: userSwipes } = useQuery({
         queryKey: ['user-swipes', userId],
         queryFn: async () => {
-            if (!userId) return { liked: new Set<string>(), left: new Map<string, string>() };
-            const { data, error } = await supabase
+            if (!userId) return { liked: new Set<string>(), left: new Map<string, string>(), strikes: new Map<string, { count: number, lastAt: string }>() };
+            
+            // Fetch likes
+            const { data: likes, error: likesError } = await supabase
                 .from('likes')
                 .select('target_id, direction, created_at')
                 .eq('user_id', userId)
                 .eq('target_type', 'listing');
             
-            if (error) throw error;
+            if (likesError) throw likesError;
+
+            // Fetch strikes (profile_views)
+            const { data: views, error: viewsError } = await supabase
+                .from('profile_views')
+                .select('viewed_profile_id, action, created_at')
+                .eq('user_id', userId)
+                .eq('view_type', 'listing');
+            
+            if (viewsError) throw viewsError;
             
             const liked = new Set<string>();
             const left = new Map<string, string>();
-            data?.forEach(s => {
+            const strikes = new Map<string, { count: number, lastAt: string }>();
+
+            likes?.forEach(s => {
                 if (s.direction === 'right') liked.add(s.target_id);
                 else left.set(s.target_id, s.created_at);
             });
-            return { liked, left };
+
+            views?.forEach(v => {
+                if (v.action.startsWith('pass:')) {
+                    const count = parseInt(v.action.split(':')[1]) || 1;
+                    strikes.set(v.viewed_profile_id, { count, lastAt: v.created_at });
+                }
+            });
+
+            return { liked, left, strikes };
         },
         enabled: !!userId,
         staleTime: 5 * 60 * 1000, // 5 minutes cache
@@ -84,12 +107,27 @@ export function useSmartListingMatching(
                 // 1. Prepare exclusion list from cache (if available)
                 const swipedListingIds = new Set<string>();
                 if (userSwipes) {
+                  // 1. Always exclude liked items
                   userSwipes.liked.forEach(id => swipedListingIds.add(id));
-                  const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
+                  
+                  // 2. Apply 3-strike progressive exclusion for dislikes
                   userSwipes.left.forEach((createdAt, id) => {
-                    const isOldSwipe = new Date(createdAt) < threeDaysAgo;
-                    if (isOldSwipe || !isRefreshMode) {
-                        swipedListingIds.add(id);
+                    const strike = userSwipes.strikes.get(id);
+                    const strikeCount = strike?.count || 1;
+                    
+                    let timeoutDays = 3;
+                    if (strikeCount === 2) timeoutDays = 7;
+                    if (strikeCount >= 3) timeoutDays = 36500; // 100 years = forever
+
+                    const timeoutMs = timeoutDays * 24 * 60 * 60 * 1000;
+                    const isTimedOut = new Date(createdAt).getTime() + timeoutMs > Date.now();
+                    
+                    // If refresh mode is ON, we only exclude "forever" items (strike 3)
+                    // If refresh mode is OFF, we exclude any active timeout
+                    if (strikeCount >= 3) {
+                      swipedListingIds.add(id);
+                    } else if (!isRefreshMode && isTimedOut) {
+                      swipedListingIds.add(id);
                     }
                   });
                 }
@@ -104,10 +142,12 @@ export function useSmartListingMatching(
                     });
 
                     if (!rpcError && rpcListings && Array.isArray(rpcListings) && rpcListings.length > 0) {
-                        const results = (rpcListings as any[]).map(l => ({
-                            ...l,
-                            images: Array.isArray(l.images) ? l.images : (l.images ? [l.images] : [])
-                        }));
+                        const results = (rpcListings as any[])
+                            .filter(l => !adminIds?.has(l.user_id))
+                            .map(l => ({
+                                ...l,
+                                images: Array.isArray(l.images) ? l.images : (l.images ? [l.images] : [])
+                            }));
                         
                         // 🔥 SPEED OF LIGHT: PRE-WARM IMAGES IMMEDIATELY (Hardware-Aware)
                         runIdleTask(() => {
@@ -150,14 +190,24 @@ export function useSmartListingMatching(
                 const { data: listings, error } = await query.range(page * pageSize, (page + 1) * pageSize - 1);
                 if (error) throw error;
 
-                // 5. Scoring & Sorting
-                const matchedResults = (listings || []).map(listing => {
+                // 4.5 Filter out Admins (Hardware-Accelerated Client-Side Filter)
+                const filteredListings = (listings || []).filter(listing => !adminIds?.has(listing.user_id));
+
+                // 5. Scoring, Sorting, and Update Recovery
+                const matchedResults = filteredListings.map(listing => {
                     const match = calculateListingMatch((filters || {}) as any, listing as Listing);
+                    
+                    // CHECK FOR RECOVERY: If this listing was swiped but updated since, it should bypass exclusion
+                    // Note: In a real app we'd use updated_at, but using created_at/metadata check here
+                    const swipe = userSwipes?.left.get(listing.id);
+                    const isUpdated = swipe && new Date(listing.created_at) > new Date(swipe);
+                    
                     return {
                         ...listing as Listing,
-                        matchPercentage: match.percentage,
-                        matchReasons: match.reasons,
+                        matchPercentage: isUpdated ? Math.min(match.percentage + 10, 100) : match.percentage, // Boost updated ones
+                        matchReasons: isUpdated ? ['Recently Updated', ...match.reasons] : match.reasons,
                         incompatibleReasons: match.incompatible,
+                        isUpdatedRecovery: !!isUpdated
                     };
                 });
 

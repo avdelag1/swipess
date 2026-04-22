@@ -79,7 +79,7 @@ export function useSwipeUndo() {
 
       // Remove from likes table (unified swipe storage)
       // Include target_type to match the unique constraint
-      const { error } = await supabase
+      const { error: likesError } = await supabase
         .from('likes')
         .delete()
         .match({
@@ -88,9 +88,45 @@ export function useSwipeUndo() {
           target_type: lastSwipe.targetType
         });
 
-      if (error) {
-        logger.error('[useSwipeUndo] Delete error:', error);
-        throw error;
+      if (likesError) {
+        logger.error('[useSwipeUndo] Delete error:', likesError);
+        throw likesError;
+      }
+
+      // Revert strike in profile_views
+      const { data: view } = await supabase
+        .from('profile_views')
+        .select('action')
+        .match({
+          user_id: user.id,
+          viewed_profile_id: lastSwipe.targetId,
+          view_type: lastSwipe.targetType === 'profile' ? 'profile' : 'listing'
+        })
+        .single();
+
+      if (view?.action?.startsWith('pass:')) {
+        const count = parseInt(view.action.split(':')[1]) || 1;
+        if (count > 1) {
+          // Decrement strike
+          await supabase
+            .from('profile_views')
+            .update({ action: `pass:${count - 1}` })
+            .match({
+              user_id: user.id,
+              viewed_profile_id: lastSwipe.targetId,
+              view_type: lastSwipe.targetType === 'profile' ? 'profile' : 'listing'
+            });
+        } else {
+          // Delete strike
+          await supabase
+            .from('profile_views')
+            .delete()
+            .match({
+              user_id: user.id,
+              viewed_profile_id: lastSwipe.targetId,
+              view_type: lastSwipe.targetType === 'profile' ? 'profile' : 'listing'
+            });
+        }
       }
 
       return lastSwipe;

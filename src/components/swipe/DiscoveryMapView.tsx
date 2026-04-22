@@ -1,5 +1,5 @@
 /**
- * DISCOVERY MAP VIEW — 🛸 RADAR NEXUS v14.0 (Wide-screen Hybrid)
+ * DISCOVERY MAP VIEW — 🛸 RADAR SWIPESS v14.0 (Wide-screen Hybrid)
  * 
  * Final Ergonomic Polish:
  * 1. Balanced Center Hud: Shifted KM selects and Category Matrix to the horizontal center axis.

@@ -19,6 +19,28 @@ export function useRecordProfileView() {
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) throw new Error('Not authenticated');
 
+      let finalAction = action as string;
+
+      // Handle strike system for 'pass' action
+      if (action === 'pass') {
+        // Fetch existing view to see if we have previous passes
+        const { data: existingView } = await supabase
+          .from('profile_views')
+          .select('action')
+          .eq('user_id', user.user.id)
+          .eq('viewed_profile_id', profileId)
+          .eq('view_type', viewType)
+          .single();
+
+        let count = 1;
+        if (existingView?.action?.startsWith('pass:')) {
+          const currentCount = parseInt(existingView.action.split(':')[1]) || 1;
+          count = Math.min(currentCount + 1, 3); // Cap at 3 strikes
+        }
+        finalAction = `pass:${count}`;
+        logger.info(`[useRecordProfileView] Recording strike ${count} for ${profileId}`);
+      }
+
       // NOTE: Using 'as any' because profile_views table is not in auto-generated types
       const { data, error } = await supabase
         .from('profile_views')
@@ -26,7 +48,7 @@ export function useRecordProfileView() {
           user_id: user.user.id,
           viewed_profile_id: profileId,
           view_type: viewType,
-          action,
+          action: finalAction,
           created_at: new Date().toISOString()
         }, {
           onConflict: 'user_id,viewed_profile_id,view_type'
@@ -40,6 +62,7 @@ export function useRecordProfileView() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['profile-views'] });
       queryClient.invalidateQueries({ queryKey: ['excluded-profiles'] });
+      queryClient.invalidateQueries({ queryKey: ['permanently-excluded'] });
     }
   });
 }

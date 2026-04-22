@@ -37,12 +37,12 @@ function SwipessLogoComponent({
               variant === 'white' ? 'text-white' : 'text-black',
               isIcon ? "text-xl" : size === 'xs' ? 'text-sm' : size === 'sm' ? 'text-base' : size === 'md' ? 'text-2xl' : size === 'lg' ? 'text-3xl' : 'text-5xl'
             )}>
-              Nexus
+              Swipess
             </span>
           ) : (
             <img
               src={isIcon ? "/icons/swipess-logo-transparent.png" : "/icons/swipess-wordmark-transparent-v2.png"}
-              alt="Nexus"
+              alt="Swipess"
               draggable={false}
               fetchPriority="high"
               decoding={isIcon ? "async" : "sync"}
@@ -61,4 +61,3 @@ function SwipessLogoComponent({
 }
 
 export const SwipessLogo = memo(SwipessLogoComponent);
-阻

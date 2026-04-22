@@ -72,7 +72,7 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
     return [...new Set(tags)].slice(0, 8);
   }, [clientProfile]);
 
-  const validationUrl = "https://nexus.industries/vap-validate/" + (user?.id || 'unknown');
+  const validationUrl = "https://swipess.com/vap-validate/" + (user?.id || 'unknown');
   const idNumber = "NX-" + (user?.id || 'resident').slice(0, 8).toUpperCase();
   const location = [city, country].filter(Boolean).join(', ');
 
@@ -148,7 +148,7 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
                   <div className="flex items-center justify-between pt-6 border-t" style={{ borderTopColor: theme.tagBorder }}>
                      <div className="flex flex-col">
                         <span className="text-[8px] font-black uppercase tracking-[0.3em] opacity-30" style={{ color: theme.textTertiary }}>Identity Protocol</span>
-                        <span className="text-[7px] font-bold uppercase tracking-[0.15em] opacity-50" style={{ color: theme.textTertiary }}>nexus.industries</span>
+                        <span className="text-[7px] font-bold uppercase tracking-[0.15em] opacity-50" style={{ color: theme.textTertiary }}>swipess.com</span>
                      </div>
                      <div className="rounded-xl p-2 bg-white shadow-2xl">
                         <QRCode value={validationUrl} size={50} level="H" />

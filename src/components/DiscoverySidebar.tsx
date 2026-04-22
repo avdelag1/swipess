@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { motion } from 'framer-motion';
-import { RotateCcw, MessageCircle, Share2, Info, Sparkles, Flame, ThumbsDown } from 'lucide-react';
+import { RotateCcw, MessageCircle, Share2, Info, Sparkles, Flame, ThumbsDown, Flag } from 'lucide-react';
 import { triggerHaptic } from '@/utils/haptics';
 import { cn } from '@/lib/utils';
 
@@ -12,6 +12,7 @@ interface DiscoverySidebarProps {
   onSpeedMeet?: () => void;
   onLike?: () => void;
   onDislike?: () => void;
+  onReport?: () => void;
   canUndo?: boolean;
   matchPercentage?: number;
 }
@@ -26,6 +27,7 @@ export const DiscoverySidebar = memo(({
   onSpeedMeet,
   onLike,
   onDislike,
+  onReport,
   canUndo = false,
   matchPercentage = 0,
 }: DiscoverySidebarProps) => {
@@ -148,6 +150,14 @@ export const DiscoverySidebar = memo(({
           label="Info" 
           colorClass="text-white/80" 
           glowColor="rgba(255,255,255,0.2)" 
+        />
+
+        <ActionIcon 
+          icon={Flag} 
+          onClick={onReport} 
+          label="Report" 
+          colorClass="text-red-500/80" 
+          glowColor="rgba(239,68,68,0.2)" 
         />
 
         {onSpeedMeet && (

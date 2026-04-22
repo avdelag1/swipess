@@ -157,7 +157,7 @@ const OwnerProfile = () => {
               </div>
               <div>
                 <h3 className={cn("text-[14px] font-black uppercase tracking-[0.2em] italic leading-tight", isLight ? "text-black" : "text-white")}>Global Credits</h3>
-                <p className={cn("text-[10px] font-bold uppercase tracking-[0.15em] mt-1.5", isLight ? "text-black/30" : "text-white/30")}>Nexus Messaging Reserve</p>
+                <p className={cn("text-[10px] font-bold uppercase tracking-[0.15em] mt-1.5", isLight ? "text-black/30" : "text-white/30")}>Swipess Messaging Reserve</p>
               </div>
             </div>
             <div className={cn("text-3xl font-black italic tracking-tighter mr-3", isLight ? "text-black" : "text-white")}>

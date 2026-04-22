@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils';
 import { useFilterStore, useFilterActions } from '@/state/filterStore';
 import { triggerHaptic } from '@/utils/haptics';
 import { useTheme } from '@/hooks/useTheme';
+import { useCardReset } from '@/hooks/useCardReset';
 
 interface SwipeExhaustedStateProps {
   categoryLabel: string;
@@ -58,6 +59,7 @@ export const SwipeExhaustedState = ({
   const { setCategories } = useFilterActions();
   const activeCategory = useFilterStore(s => s.activeCategory);
   const setActiveCategory = useFilterStore(s => s.setActiveCategory);
+  const resetMutation = useCardReset();
   const [scanIteration, setScanIteration] = useState(0);
   const [isScanBurstActive, setIsScanBurstActive] = useState(false);
 
@@ -256,6 +258,18 @@ export const SwipeExhaustedState = ({
             
             <Button
               variant="outline"
+              disabled={resetMutation.isPending}
+              onClick={() => {
+                triggerHaptic('heavy');
+                resetMutation.mutate(activeCategory as any || 'all');
+              }}
+              className="h-14 w-14 rounded-2xl bg-white/5 hover:bg-white/10 flex items-center justify-center p-0 shadow-2xl transition-all active:scale-95 border border-white/5 group"
+            >
+              <RotateCcw className={cn("h-5 w-5 text-orange-400 transition-transform group-hover:-rotate-90", resetMutation.isPending && "animate-spin")} />
+            </Button>
+
+            <Button
+              variant="outline"
               onClick={() => {
                 triggerHaptic('medium');
                 (window as any).dispatchEvent(new CustomEvent('open-filters'));
@@ -263,17 +277,6 @@ export const SwipeExhaustedState = ({
               className="h-14 w-14 rounded-2xl bg-white/5 hover:bg-white/10 flex items-center justify-center p-0 shadow-2xl transition-all active:scale-95 border border-white/5"
             >
               <SlidersHorizontal className="h-5 w-5 text-primary" />
-            </Button>
-
-            <Button
-              variant="outline"
-              onClick={() => {
-                triggerHaptic('medium');
-                setActiveCategory(null);
-              }}
-              className="h-14 w-14 rounded-2xl bg-white/5 hover:bg-white/10 flex items-center justify-center p-0 shadow-2xl transition-all active:scale-95 border border-white/5"
-            >
-              <Zap className="h-5 w-5 text-emerald-400" />
             </Button>
           </div>
         </div>

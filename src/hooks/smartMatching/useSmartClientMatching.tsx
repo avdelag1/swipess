@@ -5,6 +5,7 @@ import { logger } from '@/utils/prodLogger';
 import { MatchedClientProfile, ClientFilters } from './types';
 import { pwaImagePreloader, getCardImageUrl } from '@/utils/imageOptimization';
 import { runIdleTask } from '@/lib/utils';
+import { useAdminUserIds } from '../useAdminUserIds';
 
 const CLIENT_FIELDS = `
     user_id, full_name, age, gender, city, country, images, avatar_url,
@@ -12,24 +13,6 @@ const CLIENT_FIELDS = `
     languages_spoken, neighborhood, bio, onboarding_completed
 `;
 
-/**
- * Fetch admin user IDs once and cache for 1 hour.
- * Used to exclude admins from discovery decks.
- */
-function useAdminUserIds() {
-    return useQuery({
-        queryKey: ['admin-user-ids'],
-        queryFn: async () => {
-            const { data } = await supabase
-                .from('user_roles' as any)
-                .select('user_id')
-                .eq('role', 'admin');
-            return new Set<string>((data || []).map((r: any) => r.user_id));
-        },
-        staleTime: 60 * 60 * 1000,
-        gcTime: 2 * 60 * 60 * 1000,
-    });
-}
 
 export function useSmartClientMatching(
     userId?: string,

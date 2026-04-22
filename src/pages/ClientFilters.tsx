@@ -14,6 +14,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
 import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/utils/microPolish';
+import { useCardReset } from '@/hooks/useCardReset';
 
 type CategoryType = 'property' | 'motorcycle' | 'bicycle' | 'services';
 
@@ -21,7 +22,8 @@ export default function ClientFilters() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { theme, isLight } = useTheme();
-  const isDark = theme === 'dark' || theme === 'nexus-style';
+  const isDark = theme === 'dark' || theme === 'swipess-style';
+  const resetMutation = useCardReset();
   
   const [activeCategory, setActiveCategory] = useState<CategoryType>('property');
   const [filters, setFilters] = useState<Record<string, any>>({});
@@ -75,16 +77,36 @@ export default function ClientFilters() {
                 <h1 className="text-3xl font-black italic tracking-tighter uppercase leading-none">Discovery Sector</h1>
               </div>
             </div>
-            <button
-              onClick={handleReset}
-              className={cn(
-                "text-[10px] font-black uppercase tracking-widest transition-colors flex items-center gap-2",
-                isLight ? "text-slate-400 hover:text-primary" : "text-white/40 hover:text-primary"
-              )}
-            >
-              <RotateCcw className="w-3.5 h-3.5" />
-              Reset All
-            </button>
+            <div className="flex items-center gap-4">
+              <button
+                onClick={handleReset}
+                className={cn(
+                  "text-[10px] font-black uppercase tracking-widest transition-colors flex items-center gap-2",
+                  isLight ? "text-slate-400 hover:text-primary" : "text-white/40 hover:text-primary"
+                )}
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                Reset Filters
+              </button>
+              
+              <div className="w-[1px] h-3 bg-white/10" />
+
+              <button
+                disabled={resetMutation.isPending}
+                onClick={() => {
+                  haptics.heavy();
+                  resetMutation.mutate(activeCategory);
+                }}
+                className={cn(
+                  "text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2",
+                  isLight ? "text-slate-400 hover:text-orange-500" : "text-white/40 hover:text-orange-400",
+                  resetMutation.isPending && "opacity-50 pointer-events-none"
+                )}
+              >
+                <Zap className={cn("w-3.5 h-3.5", resetMutation.isPending && "animate-spin")} />
+                Reset Deck
+              </button>
+            </div>
           </div>
         </div>
       </header>

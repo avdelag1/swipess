@@ -628,13 +628,13 @@ export function ConciergeChat({ isOpen, onClose }: { isOpen: boolean; onClose: (
                              "text-sm font-black uppercase tracking-[0.3em] opacity-80",
                              isLight ? "text-black" : "text-white"
                            )}>
-                             {isNexus ? "System Neutral" : "Ready to Help"}
+                             {isSwipess ? "System Neutral" : "Ready to Help"}
                            </h3>
                            <p className={cn(
                              "text-[10px] uppercase tracking-widest",
                              isLight ? "text-black/40" : "text-white/20"
                            )}>
-                             {isNexus ? "Awaiting Command Interface" : "Awaiting user inquiry"}
+                             {isSwipess ? "Awaiting Command Interface" : "Awaiting user inquiry"}
                            </p>
                          </div>
                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-lg">

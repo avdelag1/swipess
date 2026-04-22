@@ -282,7 +282,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
          </SheetContent>
       </Sheet>
       
-      <p className="absolute bottom-4 left-6 text-[8px] font-black uppercase tracking-[0.6em] opacity-10 pointer-events-none z-0">Nexus Admin Dashboard Protocol</p>
+      <p className="absolute bottom-4 left-6 text-[8px] font-black uppercase tracking-[0.6em] opacity-10 pointer-events-none z-0">Swipess Admin Dashboard Protocol</p>
     </div>
   );
 };
