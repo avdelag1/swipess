@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { ChevronDown, Home, DollarSign, Bed, Sparkles, PawPrint, Sofa, Building2, Eye, Car, Calendar, Globe } from 'lucide-react';
+import { ChevronDown, Home, DollarSign, Bed, Sparkles, PawPrint, Sofa, Building2, Eye, Car, Calendar, Globe, Key, Tag, Repeat, Bike, Briefcase } from 'lucide-react';
 import { useSaveClientFilterPreferences } from '@/hooks/useClientFilterPreferences';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -19,6 +19,8 @@ import { VespaIcon } from '@/components/icons/VespaIcon';
 import { BeachBicycleIcon } from '@/components/icons/BeachBicycleIcon';
 import { WorkersIcon } from '@/components/icons/WorkersIcon';
 import { RealEstateIcon } from '@/components/icons/RealEstateIcon';
+import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
+import { triggerHaptic } from '@/utils/haptics';
 
 // Predefined budget ranges for motorcycles (rent)
 const MOTO_RENT_BUDGET_RANGES = [
@@ -197,28 +199,41 @@ export function DiscoveryFilters({ category, onApply, initialFilters = {}, activ
       {/* Interest Type */}
       <div className="space-y-3 px-1 mt-6">
           <div className="flex items-center justify-between px-1">
-            <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Filters</h2>
+            <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Intent</h2>
             <span className="text-[10px] font-black uppercase tracking-widest opacity-40">{category}</span>
           </div>
 
           <div className="flex items-center gap-3 overflow-x-auto no-scrollbar py-2 px-1">
-            {['rent', 'buy', 'both'].map((type) => (
-              <motion.button
-                key={type}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => setInterestType(type)}
-                className={cn(
-                   "flex-shrink-0 focus:outline-none z-10 relative px-10 py-5 border transition-all duration-300 rounded-full text-[11px] font-black uppercase tracking-[0.2em]",
-                   interestType === type
-                    ? "bg-primary text-white border-primary shadow-[0_10px_30px_rgba(var(--brand-primary-rgb),0.3)] scale-[1.05]"
-                    : isLight 
-                      ? "bg-black/[0.04] border-black/10 text-black/60 hover:bg-black/[0.08]" 
-                      : "bg-white/5 border-white/10 text-muted-foreground hover:bg-white/10"
-                 )}
-              >
-                {type}
-              </motion.button>
-            ))}
+            {['rent', 'buy', 'both'].map((type) => {
+              const isActive = interestType === type;
+              const Icon = type === 'rent' ? Key : type === 'buy' ? Tag : Repeat;
+              return (
+                <motion.button
+                  key={type}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => {
+                    triggerHaptic('light');
+                    setInterestType(type);
+                  }}
+                  className={cn(
+                     "flex-shrink-0 flex flex-col items-center justify-center gap-3 min-w-[100px] py-6 border transition-all duration-300 rounded-[2rem] text-[11px] font-black uppercase tracking-[0.2em]",
+                     isActive
+                      ? "bg-primary text-white border-primary shadow-[0_10px_30px_rgba(var(--brand-primary-rgb),0.3)] scale-[1.05] z-10 relative"
+                      : isLight 
+                        ? "bg-black/[0.04] border-black/10 text-black/60 hover:bg-black/[0.08]" 
+                        : "bg-white/5 border-white/10 text-muted-foreground hover:bg-white/10"
+                   )}
+                >
+                  <div className={cn(
+                    "w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300",
+                    isActive ? "bg-white/20 text-white shadow-[0_0_15px_rgba(255,255,255,0.4)]" : "bg-muted/40 text-muted-foreground"
+                  )}>
+                    <Icon className="w-5 h-5" />
+                  </div>
+                  <span>{type}</span>
+                </motion.button>
+              );
+            })}
           </div>
       </div>
 
@@ -442,5 +457,3 @@ export function DiscoveryFilters({ category, onApply, initialFilters = {}, activ
     </div>
   );
 }
-
-

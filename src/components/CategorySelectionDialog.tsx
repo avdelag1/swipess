@@ -343,7 +343,13 @@ export function CategorySelectionDialog({
                           "hover:border-border hover:shadow-md"
                         )}
                       >
-                        <div className="w-10 h-10 rounded-xl bg-muted/60 flex items-center justify-center text-muted-foreground group-hover:text-foreground transition-colors">
+                        <div className={cn(
+                          "w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 shadow-inner",
+                          selectedCategory.id === 'property' ? 'bg-rose-500/20 text-rose-500 shadow-rose-500/10' :
+                          selectedCategory.id === 'motorcycle' ? 'bg-orange-500/20 text-orange-500 shadow-orange-500/10' :
+                          selectedCategory.id === 'bicycle' ? 'bg-violet-500/20 text-violet-500 shadow-violet-500/10' :
+                          'bg-amber-500/20 text-amber-500 shadow-amber-500/10'
+                        )}>
                           {mode.icon}
                         </div>
                         <div className="flex-1">
