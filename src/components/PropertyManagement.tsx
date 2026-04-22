@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { useOwnerListings, type Listing } from '@/hooks/useListings';
 import { useOwnerListingLikes } from '@/hooks/useOwnerListingLikes';
 import { useAuth } from '@/hooks/useAuth';
-import { useTheme } from '@/hooks/useTheme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/sonner';
 import { useQueryClient } from '@tanstack/react-query';
@@ -40,7 +40,7 @@ const getCategoryColor = (category: string) => {
 
 export const PropertyManagement = memo(({ initialCategory, initialMode }: PropertyManagementProps) => {
   const { user: _user } = useAuth();
-  const { theme, isLight } = useTheme();
+  const { theme, isLight } = useAppTheme();
   const { data: listings = [], isLoading, error } = useOwnerListings();
   const { data: listingsWithLikes = [] } = useOwnerListingLikes();
   const [searchTerm, setSearchTerm] = useState('');

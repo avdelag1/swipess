@@ -6,13 +6,13 @@ import { OwnerClientFilterDialog } from "@/components/OwnerClientFilterDialog";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { toast } from '@/components/ui/sonner';
-import { useTheme } from "@/hooks/useTheme";
+import { useAppTheme } from "@/hooks/useAppTheme";
 import { cn } from "@/lib/utils";
 
 const OwnerSavedSearches = () => {
   const [showFilterDialog, setShowFilterDialog] = useState(false);
   const navigate = useNavigate();
-  const { theme } = useTheme();
+  const { theme } = useAppTheme();
   const isLight = theme === 'light';
 
   const handleApplyFilter = (_filterId: string) => {

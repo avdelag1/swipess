@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Flame, MessageCircle, X, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useTheme } from '@/hooks/useTheme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 
 interface LikeNotificationActionsProps {
   onAccept: () => void;
@@ -22,7 +22,7 @@ export function LikeNotificationActions({
   showChat = false,
   onChat,
 }: LikeNotificationActionsProps) {
-  const { theme } = useTheme();
+  const { theme } = useAppTheme();
   const isWhite = theme === 'light';
   const isLoading = isAccepting || isRejecting;
 

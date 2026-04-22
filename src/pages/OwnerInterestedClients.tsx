@@ -24,7 +24,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { usePersistentReorder } from "@/hooks/usePersistentReorder";
-import { useTheme } from "@/hooks/useTheme";
+import { useAppTheme } from "@/hooks/useAppTheme";
 
 const clientCategories = [
   { id: "all", label: "All", icon: Flame },
@@ -35,7 +35,7 @@ const clientCategories = [
 
 const OwnerInterestedClients = () => {
   const { user } = useAuth();
-  const { theme } = useTheme();
+  const { theme } = useAppTheme();
   const isLight = theme === "light";
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");

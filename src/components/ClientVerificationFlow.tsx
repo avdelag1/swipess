@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils';
 import browserImageCompression from 'browser-image-compression';
 import { triggerHaptic } from '@/utils/haptics';
 import { uiSounds } from '@/utils/uiSounds';
-import { useTheme } from '@/hooks/useTheme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 
 interface ClientVerificationFlowProps {
   onComplete?: () => void;
@@ -23,7 +23,7 @@ const steps = [
 
 export function ClientVerificationFlow({ onComplete }: ClientVerificationFlowProps) {
   const { user } = useAuth();
-  const { theme, isLight } = useTheme();
+  const { theme, isLight } = useAppTheme();
   const [step, setStep] = useState(0);
   const [selfieUrl, setSelfieUrl] = useState<string | null>(null);
   const [documentUrl, setDocumentUrl] = useState<string | null>(null);

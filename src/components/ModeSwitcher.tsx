@@ -6,7 +6,7 @@ import { useActiveMode, ActiveMode } from '@/hooks/useActiveMode';
 import { triggerHaptic } from '@/utils/haptics';
 import { uiSounds } from '@/utils/uiSounds';
 import { prefetchRoute } from '@/utils/routePrefetcher';
-import { useTheme } from '@/hooks/useTheme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import { useFilterStore } from '@/state/filterStore';
 
 interface ModeSwitcherProps {

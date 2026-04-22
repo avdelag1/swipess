@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { ReactNode } from "react";
 import { motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
-import { useTheme } from "@/hooks/useTheme";
+import { useAppTheme } from "@/hooks/useAppTheme";
 import { SwipessLogo } from "./SwipessLogo";
 
 interface PageHeaderProps {
@@ -25,7 +25,7 @@ export function PageHeader({
   className = ""
 }: PageHeaderProps) {
   const navigate = useNavigate();
-  const { theme } = useTheme();
+  const { theme } = useAppTheme();
   const isLight = theme === 'light';
 
   const handleBack = () => {

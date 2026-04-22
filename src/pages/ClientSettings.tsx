@@ -18,7 +18,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { PWAInstallButton } from "@/components/PWAInstallButton";
 import { SwipessLogo } from "@/components/SwipessLogo";
-import { useTheme } from "@/hooks/useTheme";
+import { useAppTheme } from "@/hooks/useAppTheme";
 import { cn } from "@/lib/utils";
 
 const fastSpring = { type: "spring" as const, stiffness: 500, damping: 30, mass: 0.8 };
@@ -46,7 +46,7 @@ const ClientSettings = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [activeSection, setActiveSection] = useState<string | null>(null);
-  const { theme } = useTheme();
+  const { theme } = useAppTheme();
   const isLight = theme === 'light';
 
   const settingsGroups: SettingsGroup[] = [

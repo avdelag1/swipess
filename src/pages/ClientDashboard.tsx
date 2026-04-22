@@ -8,7 +8,7 @@ import type { QuickFilterCategory } from '@/types/filters';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import ClientFilters from './ClientFilters';
 import { cn } from '@/lib/utils';
-import { useTheme } from '@/hooks/useTheme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import { useSmartListingMatching } from '@/hooks/smartMatching/useSmartListingMatching';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -23,7 +23,7 @@ interface ClientDashboardProps {
 // 2. Discovery Map (Radar)
 // 3. Swipe Deck (Container)
 export default function ClientDashboard({ onMessageClick }: ClientDashboardProps) {
-  const { theme, isLight } = useTheme();
+  const { theme, isLight } = useAppTheme();
   const activeCategory = useFilterStore(s => s.activeCategory);
   const getListingFilters = useFilterStore(s => s.getListingFilters);
   const { user } = useAuth();

@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Home, Bike, RotateCcw, Users, User, ChevronDown, Wrench, Filter, X, Check } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
-import { useTheme } from '@/hooks/useTheme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import { VespaIcon } from '@/components/icons/VespaIcon';
 import { BeachBicycleIcon } from '@/components/icons/BeachBicycleIcon';
 import { WorkersIcon } from '@/components/icons/WorkersIcon';
@@ -60,7 +60,7 @@ const buttonClass = cn(
 );
 
 function CascadeFilterButtonComponent({ filters, onChange, userRole = 'client' }: CascadeFilterButtonProps) {
-  const { theme } = useTheme();
+  const { theme } = useAppTheme();
   const isDark = theme === 'dark';
   const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);

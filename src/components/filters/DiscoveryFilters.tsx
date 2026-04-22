@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/button';
 import { ClientDemographicFilters } from './ClientDemographicFilters';
 import { EmbeddedLocationFilter } from './EmbeddedLocationFilter';
 import { useFilterStore, useFilterActions } from '@/state/filterStore';
-import { useTheme } from '@/hooks/useTheme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import { cn } from '@/lib/utils';
 import { VespaIcon } from '@/components/icons/VespaIcon';
 import { BeachBicycleIcon } from '@/components/icons/BeachBicycleIcon';
@@ -177,7 +177,7 @@ export function DiscoveryFilters({ category, onApply, initialFilters = {}, activ
     setter(arr.includes(item) ? arr.filter(i => i !== item) : [...arr, item]);
   };
 
-  const { theme } = useTheme();
+  const { theme } = useAppTheme();
   const isLight = theme === 'light';
 
   return (

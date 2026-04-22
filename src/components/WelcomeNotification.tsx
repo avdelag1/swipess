@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Sparkles } from 'lucide-react';
-import { useTheme } from '@/hooks/useTheme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import { cn } from '@/lib/utils';
 
 interface WelcomeNotificationProps {
@@ -10,7 +10,7 @@ interface WelcomeNotificationProps {
 }
 
 export function WelcomeNotification({ isOpen, onClose }: WelcomeNotificationProps) {
-  const { theme } = useTheme();
+  const { theme } = useAppTheme();
   const isDark = theme === 'dark';
 
   const handleClose = useCallback(() => {

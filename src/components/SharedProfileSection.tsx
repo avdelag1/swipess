@@ -13,7 +13,7 @@ import {
   shareViaTwitter,
 } from '@/hooks/useSharing';
 import { useAuth } from '@/hooks/useAuth';
-import { useTheme } from '@/hooks/useTheme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import { cn } from '@/lib/utils';
 
 interface SharedProfileSectionProps {
@@ -29,7 +29,7 @@ export function SharedProfileSection({
 }: SharedProfileSectionProps) {
   const [copied, setCopied] = useState(false);
   const { user } = useAuth();
-  const { theme } = useTheme();
+  const { theme } = useAppTheme();
   const isDark = theme === 'dark';
 
   if (!profileId || !user?.id) return null;

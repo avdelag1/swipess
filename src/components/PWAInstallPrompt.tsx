@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { X, Download, Share, Sparkles } from 'lucide-react';
-import { useTheme } from '@/hooks/useTheme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import { SwipessLogo } from '@/components/SwipessLogo';
 import { cn } from '@/lib/utils';
 
@@ -44,7 +44,7 @@ export function PWAInstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [visible, setVisible] = useState(false);
   const [iosMode, setIosMode] = useState(false);
-  const { theme } = useTheme();
+  const { theme } = useAppTheme();
   const isDark = theme === 'dark';
 
   useEffect(() => {

@@ -19,7 +19,7 @@ import { cn } from '@/lib/utils';
 import { SwipessLogo } from '@/components/SwipessLogo';
 import { SaveButton } from '@/components/SaveButton';
 import { triggerHaptic } from '@/utils/haptics';
-import { useTheme } from '@/hooks/useTheme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 
 const FREE_MESSAGING_CATEGORIES = ['motorcycle', 'bicycle'];
 
@@ -28,7 +28,7 @@ export default function PublicListingPreview() {
   const [searchParams] = useSearchParams();
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { theme, isLight } = useTheme();
+  const { theme, isLight } = useAppTheme();
 
   const [showDirectMessageDialog, setShowDirectMessageDialog] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);

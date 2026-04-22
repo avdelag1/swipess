@@ -12,7 +12,7 @@ import {
 import { ActivityFeed } from "@/components/ActivityFeed";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { useTheme } from "@/hooks/useTheme";
+import { useAppTheme } from "@/hooks/useAppTheme";
 import { triggerHaptic } from "@/utils/haptics";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { cn } from "@/lib/utils";
@@ -25,7 +25,7 @@ const OwnerProfile = () => {
   const { data: ownerProfile, isLoading: profileLoading } = useOwnerProfile();
   const { tokenBalance } = useMessagingQuota();
   const navigate = useNavigate();
-  const { theme } = useTheme();
+  const { theme } = useAppTheme();
   const isLight = theme === 'light';
 
   const isLoading = statsLoading || profileLoading;

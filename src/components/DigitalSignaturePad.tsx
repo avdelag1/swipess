@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Trash2, Sparkles, Fingerprint, MousePointer2 } from 'lucide-react';
 import { triggerHaptic } from '@/utils/haptics';
 import { uiSounds } from '@/utils/uiSounds';
-import { useTheme } from '@/hooks/useTheme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import { cn } from '@/lib/utils';
 
 interface LiquidSignaturePadProps {
@@ -17,7 +17,7 @@ export const DigitalSignaturePad: React.FC<LiquidSignaturePadProps> = ({
   onClear
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const { isLight } = useTheme();
+  const { isLight } = useAppTheme();
   const [isDrawing, setIsDrawing] = useState(false);
   const [hasDrawn, setHasDrawn] = useState(false);
   const [points, setPoints] = useState<{x: number, y: number}[]>([]);

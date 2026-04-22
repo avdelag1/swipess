@@ -14,7 +14,7 @@ import { ActivityFeed } from "@/components/ActivityFeed";
 import { VapIdEditModal } from "@/components/VapIdEditModal";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { useTheme } from "@/hooks/useTheme";
+import { useAppTheme } from "@/hooks/useAppTheme";
 import { ProfileSkeleton } from "@/components/ui/LayoutSkeletons";
 import { cn } from "@/lib/utils";
 import { triggerHaptic } from "@/utils/haptics";
@@ -28,7 +28,7 @@ const ClientProfile = () => {
   const { data: profile, isLoading } = useClientProfile();
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
-  const { theme } = useTheme();
+  const { theme } = useAppTheme();
   const isLight = theme === 'light';
 
   const { data: stats } = useClientStats();

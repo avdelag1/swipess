@@ -13,7 +13,7 @@ import { useHasPremiumFeature } from '@/hooks/useSubscription';
 import { Listing } from '@/hooks/useListings';
 import { PropertyImageGallery } from './PropertyImageGallery';
 import { isDirectMessagingListing } from '@/utils/directMessaging';
-import { useTheme } from '@/hooks/useTheme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 
 interface PropertyDetailsProps {
   listingId: string | null;

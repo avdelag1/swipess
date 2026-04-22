@@ -20,7 +20,7 @@ import { RealEstateIcon } from '@/components/icons/RealEstateIcon';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
 import { useFilterStore } from '@/state/filterStore';
-import { useTheme } from '@/hooks/useTheme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { logger } from '@/utils/prodLogger';
@@ -60,7 +60,7 @@ export const DiscoveryMapView = memo(({
   isEmbedded?: boolean;
   mode?: 'client' | 'owner';
 }) => {
-  const { theme } = useTheme();
+  const { theme } = useAppTheme();
   const isLight = theme === 'light';
   const { user } = useAuth();
   const mapContainerRef = useRef<HTMLDivElement>(null);

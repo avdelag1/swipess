@@ -17,7 +17,7 @@ import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
 import { PageHeader } from '@/components/PageHeader';
 import { triggerHaptic } from '@/utils/haptics';
-import { useTheme } from '@/hooks/useTheme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import { cn } from '@/lib/utils';
 
 interface LegalIssueCategory {
@@ -99,7 +99,7 @@ const legalIssueCategories: LegalIssueCategory[] = [
 const ClientLawyerServices = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { theme } = useTheme();
+  const { theme } = useAppTheme();
   const isLight = theme === 'light';
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
   const [selectedIssue, setSelectedIssue] = useState<{ category: string; subcategory: string } | null>(null);

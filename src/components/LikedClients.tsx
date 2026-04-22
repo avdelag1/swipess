@@ -9,7 +9,7 @@ import {
 import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/components/ui/sonner";
-import { useTheme } from "@/hooks/useTheme";
+import { useAppTheme } from "@/hooks/useAppTheme";
 import { useStartConversation } from "@/hooks/useConversations";
 import { PremiumLikedCard } from "@/components/PremiumLikedCard";
 import { LikedClientInsightsModal } from "@/components/LikedClientInsightsModal";
@@ -43,7 +43,7 @@ const clientCategories = [
 
 export function LikedClients() {
   const { user } = useAuth();
-  const { theme } = useTheme();
+  const { theme } = useAppTheme();
   const isLight = theme === "light";
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");

@@ -35,7 +35,7 @@ import { logger } from '@/utils/prodLogger';
 import { SwipeExhaustedState } from './swipe/SwipeExhaustedState';
 import { Home, RefreshCw, ChevronLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useTheme } from '@/hooks/useTheme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import { SwipeLoadingSkeleton } from './swipe/SwipeLoadingSkeleton';
 import { LocationRadiusSelector } from './swipe/LocationRadiusSelector';
 
@@ -81,7 +81,7 @@ const ClientSwipeContainerComponent = ({
 }: ClientSwipeContainerProps) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { theme, isLight } = useTheme();
+  const { theme, isLight } = useAppTheme();
   // PERF: Get userId from auth to pass to query (avoids getUser() inside queryFn)
   const { user } = useAuth();
   const { data: userRole } = useUserRole(user?.id);

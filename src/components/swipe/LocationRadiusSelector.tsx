@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { Navigation, Minus, Plus, Search, Crosshair } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useTheme } from '@/hooks/useTheme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import { triggerHaptic } from '@/utils/haptics';
 import type { QuickFilterCategory } from '@/types/filters';
 
@@ -88,7 +88,7 @@ export const LocationRadiusSelector = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const panStartRef = useRef<{ x: number; y: number; ox: number; oy: number } | null>(null);
-  const { theme, isLight } = useTheme();
+  const { theme, isLight } = useAppTheme();
   
   const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
   const [mapSize, setMapSize] = useState({ w: 300, h: 400 });

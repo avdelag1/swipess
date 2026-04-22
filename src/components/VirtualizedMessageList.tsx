@@ -1,6 +1,6 @@
 import { memo, useRef, useEffect } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { useTheme } from '@/hooks/useTheme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import { formatDistanceToNow } from '@/utils/timeFormatter';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -109,7 +109,7 @@ export const VirtualizedMessageList = memo(({
   typingUsers,
 }: VirtualizedMessageListProps) => {
   const parentRef = useRef<HTMLDivElement>(null);
-  const { theme } = useTheme();
+  const { theme } = useAppTheme();
   const isThemeLight = theme === 'light' || theme === 'ivanna-style';
 
   const virtualizer = useVirtualizer({

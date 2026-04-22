@@ -38,7 +38,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { triggerHaptic } from '@/utils/haptics';
 import { cn } from '@/lib/utils';
-import { useTheme } from '@/hooks/useTheme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 
 export function MessagingDashboard() {
   const { user } = useAuth();
@@ -53,7 +53,7 @@ export function MessagingDashboard() {
   const { data: fetchedRole } = useUserRole(user?.id);
   const userRole = fetchedRole || 'client';
   const { activeMode } = useActiveMode();
-  const { theme, isLight } = useTheme();
+  const { theme, isLight } = useAppTheme();
 
   const { data: conversations = [], isLoading, refetch, fetchSingleConversation } = useConversations();
   const deleteConversation = useDeleteConversation();

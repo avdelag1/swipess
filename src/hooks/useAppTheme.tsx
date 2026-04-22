@@ -25,14 +25,14 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
  * Prevents production crashes if called before the provider is ready.
  * Returns a default 'dark' context and logs a warning in dev.
  */
-export function useTheme(): ThemeContextType {
+export function useAppTheme(): ThemeContextType {
   const context = useContext(ThemeContext);
   if (!context) {
-    // If we're here, it means useTheme was called outside of ThemeProvider
+    // If we're here, it means useAppTheme was called outside of ThemeProvider
     // or during a race condition in the production bundle.
     // Return a safe fallback to prevent the entire app from crashing.
     if (import.meta.env.DEV) {
-      console.warn('[Theme] useTheme called outside ThemeProvider. Using fallback.');
+      console.warn('[Theme] useAppTheme called outside ThemeProvider. Using fallback.');
     }
     return {
       theme: 'dark',

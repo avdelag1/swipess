@@ -1,7 +1,7 @@
 import { memo, useEffect } from 'react';
 import { Skeleton } from './skeleton';
 import { cn, runIdleTask } from '@/lib/utils';
-import { useTheme } from '@/hooks/useTheme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 
 /**
  * 🚀 DiscoverySkeleton: Premium, Zenith-level skeleton loader
@@ -10,7 +10,7 @@ import { useTheme } from '@/hooks/useTheme';
  * - Predictive orientation: Prefetches critical route assets while visible
  */
 export const DiscoverySkeleton = memo(({ count = 3 }: { count?: number }) => {
-  const { theme } = useTheme();
+  const { theme } = useAppTheme();
   const isLight = theme === 'light';
 
   useEffect(() => {

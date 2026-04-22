@@ -6,7 +6,7 @@ import QRCode from 'react-qr-code';
 import { useAuth } from '@/hooks/useAuth';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useTheme } from '@/hooks/useTheme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import { CARD_THEMES } from './vap-id/cardThemes';
 
 export interface VapIdProps {

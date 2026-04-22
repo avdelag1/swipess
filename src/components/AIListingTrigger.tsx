@@ -20,7 +20,7 @@ interface AIListingTriggerProps {
 export function AIListingTrigger({ glassPillStyle }: AIListingTriggerProps) {
   const { openAIListing } = useModalStore();
   const [open, setOpen] = useState(false);
-  const { isLight } = useTheme();
+  const { isLight } = useAppTheme();
 
   const handleSelect = (category: 'property' | 'motorcycle' | 'bicycle' | 'worker') => {
     triggerHaptic('medium');

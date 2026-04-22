@@ -11,7 +11,7 @@ import { PropertyClientFilters } from '@/components/filters/PropertyClientFilter
 import { MotoClientFilters } from '@/components/filters/MotoClientFilters';
 import { BicycleClientFilters } from '@/components/filters/BicycleClientFilters';
 import { WorkerClientFilters } from '@/components/filters/WorkerClientFilters';
-import { useTheme } from '@/hooks/useTheme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import { getCategoryTextColorClass } from '@/types/filters';
 import { cn } from '@/lib/utils';
 import { DiscoveryFilters } from '@/components/filters/DiscoveryFilters';
@@ -35,7 +35,7 @@ const categoryBase: { id: CategoryType; name: string; icon: React.ElementType }[
 
 export function AdvancedFilters({ isOpen, onClose, userRole, onApplyFilters, currentFilters }: AdvancedFiltersProps) {
   const safeCurrentFilters = currentFilters ?? {};
-  const { theme } = useTheme();
+  const { theme } = useAppTheme();
   const isDark = theme === 'dark';
   const [activeCategory, setActiveCategory] = useState<CategoryType>('property');
   const [filterCounts, setFilterCounts] = useState<Record<CategoryType, number>>({

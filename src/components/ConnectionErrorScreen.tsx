@@ -12,7 +12,7 @@
 import { WifiOff, RefreshCw, Loader2, Wifi, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { ConnectionStatus } from '@/hooks/useConnectionHealth';
-import { useTheme } from '@/hooks/useTheme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import { cn } from '@/lib/utils';
 
 interface ConnectionErrorScreenProps {
@@ -27,7 +27,7 @@ export function ConnectionErrorScreen({ status, retryCount, onRetry }: Connectio
   const isChecking = status === 'checking';
   const isDegraded = status === 'degraded';
   const isDisconnected = status === 'disconnected';
-  const { theme } = useTheme();
+  const { theme } = useAppTheme();
   const isLight = theme === 'light';
 
   const statusConfig = isChecking

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useMemo, useCallback, memo } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
 import { X, MessageCircle, ThumbsUp, Star, UserPlus, Zap, Crown } from 'lucide-react';
-import { useTheme } from '@/hooks/useTheme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import { triggerHaptic } from '@/utils/haptics';
 
 import { notificationTypeConfigs as typeConfigs } from '@/utils/notificationConfigs';
@@ -15,7 +15,7 @@ interface NotificationBarProps {
 }
 
 export const NotificationBar = memo(function NotificationBar({ notifications, onDismiss, onMarkAllRead: _onMarkAllRead, onNotificationClick }: NotificationBarProps) {
-  const { theme } = useTheme();
+  const { theme } = useAppTheme();
   const isLight = theme === 'light';
   const [current, setCurrent] = useState<Notification | null>(null);
   const [visible, setVisible] = useState(false);

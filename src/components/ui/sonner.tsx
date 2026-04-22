@@ -1,10 +1,10 @@
 import { Toaster as Sonner, toast as sonnerToast } from "sonner"
-import { useTheme } from "@/hooks/useTheme"
+import { useAppTheme } from "@/hooks/useAppTheme"
 
 type ToasterProps = React.ComponentProps<typeof Sonner>
 
 const Toaster = ({ ...props }: ToasterProps) => {
-  const { theme } = useTheme();
+  const { theme } = useAppTheme();
 
   return (
     <Sonner

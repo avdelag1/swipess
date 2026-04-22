@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Zap, MessageCircle, Crown, FileText, Check, ChevronDown, ChevronUp, RefreshCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { useTheme } from '@/hooks/useTheme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -102,7 +102,7 @@ interface TokensModalProps {
 }
 
 function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
-  const { theme } = useTheme();
+  const { theme } = useAppTheme();
   const isLight = theme === 'light';
   const { user } = useAuth();
   const { tokens } = useTokens();

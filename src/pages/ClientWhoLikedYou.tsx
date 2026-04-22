@@ -23,7 +23,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { usePersistentReorder } from "@/hooks/usePersistentReorder";
-import { useTheme } from "@/hooks/useTheme";
+import { useAppTheme } from "@/hooks/useAppTheme";
 
 interface InterestedOwner {
   id: string;
@@ -50,7 +50,7 @@ const ownerCategories = [
 
 const ClientWhoLikedYou = () => {
   const { user } = useAuth();
-  const { theme } = useTheme();
+  const { theme } = useAppTheme();
   const isLight = theme === "light";
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");

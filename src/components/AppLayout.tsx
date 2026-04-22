@@ -9,7 +9,7 @@ import { useOfflineDetection } from '@/hooks/useOfflineDetection';
 import { useErrorReporting } from '@/hooks/useErrorReporting';
 import { useAuth } from '@/hooks/useAuth';
 
-import { useTheme } from '@/hooks/useTheme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import { TopBar } from './TopBar';
 import { BottomNavigation } from './BottomNavigation';
 import { useActiveMode } from '@/hooks/useActiveMode';
@@ -29,7 +29,7 @@ interface AppLayoutProps {
 }
 
 export function AppLayout({ children }: AppLayoutProps) {
-  const { theme } = useTheme();
+  const { theme } = useAppTheme();
   const location = useLocation();
   const { user } = useAuth();
   const { navigate } = useAppNavigate();

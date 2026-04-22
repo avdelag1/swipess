@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { useTheme, Theme } from "@/hooks/useTheme";
+import { useAppTheme, Theme } from "@/hooks/useAppTheme";
 import { Paintbrush, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { triggerHaptic } from "@/utils/haptics";
@@ -35,7 +35,7 @@ const THEMES: { id: Theme; name: string; description: string; colors: string[] }
 
 
 export function GlobalThemeSettings() {
-  const { theme: currentTheme, setTheme } = useTheme();
+  const { theme: currentTheme, setTheme } = useAppTheme();
 
   const handleThemeChange = (id: Theme, e: React.MouseEvent) => {
     triggerHaptic('medium');

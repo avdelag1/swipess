@@ -18,7 +18,7 @@ import { VirtualizedMessageList } from '@/components/VirtualizedMessageList';
 import { useContentModeration } from '@/hooks/useContentModeration';
 import { usePrefetchManager } from '@/hooks/usePrefetchManager';
 import { RatingSubmissionDialog } from '@/components/RatingSubmissionDialog';
-import { useTheme } from '@/hooks/useTheme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import { cn } from '@/lib/utils';
 import { usePresence } from '@/hooks/usePresence';
 
@@ -56,7 +56,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
   const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
   const [showActivationBanner, setShowActivationBanner] = useState(false);
   const [showRatingDialog, setShowRatingDialog] = useState(false);
-  const { theme, isLight } = useTheme();
+  const { theme, isLight } = useAppTheme();
   const isThemeLight = isLight;
   const { user } = useAuth();
   const navigate = useNavigate();

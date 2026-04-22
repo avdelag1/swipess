@@ -1,6 +1,6 @@
 import { memo, useCallback, useRef, useState, useEffect } from 'react';
 import { ThumbsUp, Sparkles, X } from 'lucide-react';
-import { useTheme } from '@/hooks/useTheme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
 import { triggerHaptic } from '@/utils/haptics';
 import {
@@ -26,7 +26,7 @@ interface PokerCardProps {
 }
 
 export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false, onCycle, onSelect, onBringToFront }: PokerCardProps) => {
-  const { theme } = useTheme();
+  const { theme } = useAppTheme();
   const isDark = theme !== 'light';
   const x = useMotionValue(0);
   

@@ -28,7 +28,7 @@ import { cn } from '@/lib/utils';
 import { useUnreadMessageCount } from '@/hooks/useUnreadMessageCount';
 import { useUnreadNotifications } from '@/hooks/useUnreadNotifications';
 import { prefetchRoute } from '@/utils/routePrefetcher';
-import { useTheme } from '@/hooks/useTheme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import { haptics } from '@/utils/microPolish';
 import { uiSounds } from '@/utils/uiSounds';
 import { useTranslation } from 'react-i18next';
@@ -82,7 +82,7 @@ export const BottomNavigation = memo(({
   const setModal = useModalStore((s) => s.setModal);
   const { unreadCount: _unreadCount } = useUnreadMessageCount();
   const { unreadCount: _unreadNotifCount } = useUnreadNotifications();
-  const { theme, isLight } = useTheme();
+  const { theme, isLight } = useAppTheme();
 
   const { t } = useTranslation();
 

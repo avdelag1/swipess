@@ -3,10 +3,10 @@ import { motion } from 'framer-motion';
 import { Megaphone } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
-import { useTheme } from '@/hooks/useTheme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 
 export const PromoteCTACard = memo(({ onPromote }: { onPromote: () => void }) => {
-  const { theme } = useTheme();
+  const { theme } = useAppTheme();
   const isLight = theme === 'light';
 
   return (

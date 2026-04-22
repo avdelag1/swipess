@@ -22,7 +22,7 @@ import { CompactRatingDisplay } from '@/components/RatingDisplay';
 import { useUserRatingAggregateEnhanced } from '@/hooks/useRatingSystem';
 import { getWorkScheduleLabel } from '@/constants/profileConstants';
 import { SwipeMatchMeter } from '@/components/swipe/SwipeMatchMeter';
-import { useTheme } from '@/hooks/useTheme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import { useDeviceParallax } from '@/hooks/useDeviceParallax';
 import { DiscoverySidebar } from '@/components/DiscoverySidebar';
 
@@ -257,7 +257,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   const dragControls = useDragControls();
   const dragStartedRef = useRef(false);
   const storedPointerEventRef = useRef<React.PointerEvent | null>(null);
-  const { theme } = useTheme();
+  const { theme } = useAppTheme();
   const _isDark = theme === 'dark';
 
   // Motion values for BOTH X and Y - enables diagonal movement

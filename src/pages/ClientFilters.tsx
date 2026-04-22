@@ -12,7 +12,7 @@ import { WorkerClientFilters } from '@/components/filters/WorkerClientFilters';
 import { useFilterStore } from '@/state/filterStore';
 import { useQueryClient } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
-import { useTheme } from '@/hooks/useTheme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import { haptics } from '@/utils/microPolish';
 import { useCardReset } from '@/hooks/useCardReset';
 
@@ -21,7 +21,7 @@ type CategoryType = 'property' | 'motorcycle' | 'bicycle' | 'services';
 export default function ClientFilters() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { theme, isLight } = useTheme();
+  const { theme, isLight } = useAppTheme();
   const isDark = theme === 'dark' || theme === 'swipess-style';
   const resetMutation = useCardReset();
   

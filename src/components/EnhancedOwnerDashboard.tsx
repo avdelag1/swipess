@@ -20,7 +20,7 @@ const DiscoveryMapView = lazy(() => import('@/components/swipe/DiscoveryMapView'
 import { useFilterActions } from '@/state/filterStore';
 import { triggerHaptic } from '@/utils/haptics';
 import type { QuickFilterCategory } from '@/types/filters';
-import { useTheme } from '@/hooks/useTheme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { DiscoveryFilters } from '@/components/filters/DiscoveryFilters';
 import { useTranslation } from 'react-i18next';
@@ -34,7 +34,7 @@ interface EnhancedOwnerDashboardProps {
 
 const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: EnhancedOwnerDashboardProps) => {
   const { t } = useTranslation();
-  const { theme } = useTheme();
+  const { theme } = useAppTheme();
   const isLight = theme === 'light';
   const [viewMode] = useState<'discovery' | 'insights'>('discovery');
   

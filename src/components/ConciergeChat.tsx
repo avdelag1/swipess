@@ -16,7 +16,7 @@ import { useAudioVisualizer } from '@/hooks/useAudioVisualizer';
 import { useVoiceTranscribe } from '@/hooks/useVoiceTranscribe';
 import { uiSounds } from '@/utils/uiSounds';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
-import { useTheme } from '@/hooks/useTheme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import { SwipessLogo } from '@/components/SwipessLogo';
 import { toast } from 'sonner';
 import { useModalStore } from '@/state/modalStore';
@@ -341,7 +341,7 @@ const ConversationSidebar = memo(({
 ConversationSidebar.displayName = 'ConversationSidebar';
 
 export function ConciergeChat({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
-  const { theme, isLight } = useTheme();
+  const { theme, isLight } = useAppTheme();
   const isSwipess = theme !== 'light';
   const LAST_ACTIVITY_KEY = 'Swipess_ai_last_activity';
 

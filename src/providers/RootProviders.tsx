@@ -5,7 +5,7 @@ import { createIDBPersister } from "@/lib/persister";
 import { BrowserRouter } from "react-router-dom";
 import { LazyMotion, domAnimation } from "framer-motion";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
-import { ThemeProvider, useTheme } from "@/hooks/useTheme";
+import { ThemeProvider, useAppTheme } from "@/hooks/useAppTheme";
 import { ResponsiveProvider } from "@/contexts/ResponsiveContext";
 import { ActiveModeProvider } from "@/hooks/useActiveMode";
 import { PWAProvider } from "@/hooks/usePWAMode";

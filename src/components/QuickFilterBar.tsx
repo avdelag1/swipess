@@ -5,7 +5,7 @@ import {
   ChevronDown, Wrench, Check, Globe, ShoppingBag, Key 
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useTheme } from '@/hooks/useTheme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import { VespaIcon } from '@/components/icons/VespaIcon';
 import { BeachBicycleIcon } from '@/components/icons/BeachBicycleIcon';
 import { WorkersIcon } from '@/components/icons/WorkersIcon';
@@ -175,7 +175,7 @@ function FilterDropdown({
 }
 
 function QuickFilterBarComponent({ filters, onChange, onSelect, className, userRole = 'client' }: QuickFilterBarProps) {
-  const { theme } = useTheme();
+  const { theme } = useAppTheme();
   const isDark = theme === 'dark';
   const handleCategoryToggle = useCallback((categoryId: QuickFilterCategory) => {
     const newCategories = filters.categories.includes(categoryId)

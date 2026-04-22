@@ -7,14 +7,14 @@ import {
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { cn } from '@/lib/utils';
-import { useTheme } from '@/hooks/useTheme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import { triggerHaptic } from '@/utils/haptics';
 import { Button } from '@/components/ui/button';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 
 const NotificationsPage = () => {
   const { notifications, isLoading, markAsRead, deleteNotification, markAllAsRead } = useNotifications();
-  const { isLight, isDark } = useTheme();
+  const { isLight, isDark } = useAppTheme();
   const { navigate } = useAppNavigate();
 
   const getIcon = (type: string) => {

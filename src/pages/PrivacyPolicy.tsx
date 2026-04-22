@@ -4,13 +4,13 @@ import { ArrowLeft, Lock, ShieldCheck, Database, Eye, Globe } from "lucide-react
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { SentientHud } from "@/components/SentientHud";
 import { motion, AnimatePresence } from "framer-motion";
-import { useTheme } from "@/hooks/useTheme";
+import { useAppTheme } from "@/hooks/useAppTheme";
 import { cn } from "@/lib/utils";
 import { triggerHaptic } from "@/utils/haptics";
 
 export default function PrivacyPolicy() {
   const navigate = useNavigate();
-  const { theme, isLight } = useTheme();
+  const { theme, isLight } = useAppTheme();
 
   return (
     <div className={cn("min-h-screen transition-colors duration-500 overflow-x-hidden", isLight ? "bg-white" : "bg-black")}>

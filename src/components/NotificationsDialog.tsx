@@ -10,7 +10,7 @@ import { formatDistanceToNow } from '@/utils/timeFormatter';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useTheme } from '@/hooks/useTheme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import { cn } from '@/lib/utils';
 
 interface NotificationsDialogProps {
@@ -71,7 +71,7 @@ const NotificationIconBg = ({ type, role = 'neutral' }: { type: string; role?: '
 };
 
 export function NotificationsDialog({ isOpen, onClose }: NotificationsDialogProps) {
-  const { theme } = useTheme();
+  const { theme } = useAppTheme();
   const _isDark = theme === 'dark';
   const { notifications, dismissNotification, markAllAsRead, handleNotificationClick } = useNotificationSystem();
   const [activeFilter, setActiveFilter] = useState('all');

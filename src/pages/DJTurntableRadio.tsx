@@ -8,7 +8,7 @@ import { StationDrawer } from '@/components/radio/retro/StationDrawer';
 import { FrequencyBand } from '@/components/radio/FrequencyBand';
 import { triggerHaptic } from '@/utils/haptics';
 import { cn } from '@/lib/utils';
-import { useTheme } from '@/hooks/useTheme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import {
   ArrowLeft, ListMusic, Heart, Shuffle,
   SkipBack, SkipForward, Play, Pause
@@ -25,7 +25,7 @@ export default function DJTurntableRadio() {
     state, loading, play, togglePlayPause, togglePower, changeStation,
     setCity, setVolume, toggleShuffle, toggleFavorite, isStationFavorite,
   } = useRadio();
-  const { theme } = useTheme();
+  const { theme } = useAppTheme();
   const isDark = theme === 'dark';
 
   const [showDrawer, setShowDrawer] = useState(false);

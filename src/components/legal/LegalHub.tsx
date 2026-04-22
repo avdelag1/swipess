@@ -11,7 +11,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { DigitalSignaturePad } from '@/components/DigitalSignaturePad';
 import { triggerHaptic } from '@/utils/haptics';
-import { useTheme } from '@/hooks/useTheme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -19,7 +19,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 type HubView = 'dashboard' | 'browse' | 'editor' | 'signing';
 
 function Badge({ children, className, variant = "secondary" }: { children: React.ReactNode, className?: string, variant?: "secondary" | "primary" }) {
-  const { isLight } = useTheme();
+  const { isLight } = useAppTheme();
   return (
     <span className={cn(
       "px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest italic transition-colors",
@@ -33,7 +33,7 @@ function Badge({ children, className, variant = "secondary" }: { children: React
 
 export function LegalHub() {
   const { user } = useAuth();
-  const { theme, isLight } = useTheme();
+  const { theme, isLight } = useAppTheme();
   const [view, setView] = useState<HubView>('dashboard');
   const [contracts, setContracts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);

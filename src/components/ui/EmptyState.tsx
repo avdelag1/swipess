@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { useTheme } from '@/hooks/useTheme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import { LucideIcon } from 'lucide-react';
 
 interface EmptyStateProps {
@@ -27,7 +27,7 @@ export function EmptyState({
   className,
   accentClass = 'text-[var(--color-brand-accent-2)]',
 }: EmptyStateProps) {
-  const { theme } = useTheme();
+  const { theme } = useAppTheme();
   const isLight = theme === 'light';
 
   return (

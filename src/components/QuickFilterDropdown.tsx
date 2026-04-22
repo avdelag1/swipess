@@ -4,7 +4,7 @@ import { ChevronRight, Home, Bike, Wrench, X, Users, User, Briefcase, Search, Sl
 import { cn } from '@/lib/utils';
 import { useFilterStore } from '@/state/filterStore';
 import { useShallow } from 'zustand/react/shallow';
-import { useTheme } from '@/hooks/useTheme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { haptics } from '@/utils/microPolish';
 import type { QuickFilterCategory, ClientGender, ClientType } from '@/types/filters';
@@ -71,7 +71,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
   const [clickedCategory, setClickedCategory] = useState<QuickFilterCategory | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
-  const { theme } = useTheme();
+  const { theme } = useAppTheme();
   const isDark = theme === 'dark';
 
   const glassBg = isDark ? 'rgba(255, 255, 255, 0.06)' : '#ffffff';

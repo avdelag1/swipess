@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { useTheme } from "@/hooks/useTheme";
+import { useAppTheme } from "@/hooks/useAppTheme";
 import { haptics } from "@/utils/microPolish";
 import { toast } from "@/components/ui/sonner";
 import { NativeBridge } from "@/utils/nativeBridge";
@@ -301,7 +301,7 @@ const _FEATURES = [
 export default function AdvertisePage() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { theme } = useTheme();
+  const { theme } = useAppTheme();
   const isLight = theme === "light";
 
   const [view, setView] = useState<View>("landing");

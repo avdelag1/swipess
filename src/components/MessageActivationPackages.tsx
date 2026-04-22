@@ -11,7 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { STORAGE } from "@/constants/app";
-import { useTheme } from "@/hooks/useTheme";
+import { useAppTheme } from "@/hooks/useAppTheme";
 import { cn } from "@/lib/utils";
 import { NativeBridge } from "@/utils/nativeBridge";
 
@@ -47,7 +47,7 @@ export function MessageActivationPackages({
 }: MessageActivationPackagesProps) {
   const { toast } = useToast();
   const { user } = useAuth();
-  const { theme } = useTheme();
+  const { theme } = useAppTheme();
   const isDark = theme === 'dark';
   const { purchaseProduct, restorePurchases } = useIAP();
   const isNative = Capacitor.isNativePlatform();
@@ -464,7 +464,7 @@ export function MessageActivationPackages({
 }
 
 function Feature({ text, isPremium }: { text: string; isPremium?: boolean }) {
-  const { theme } = useTheme();
+  const { theme } = useAppTheme();
   const isDark = theme === 'dark';
 
   return (

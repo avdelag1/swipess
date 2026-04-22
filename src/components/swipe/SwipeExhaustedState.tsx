@@ -9,7 +9,7 @@ import { deckFadeVariants } from '@/utils/modernAnimations';
 import { cn } from '@/lib/utils';
 import { useFilterStore, useFilterActions } from '@/state/filterStore';
 import { triggerHaptic } from '@/utils/haptics';
-import { useTheme } from '@/hooks/useTheme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import { useCardReset } from '@/hooks/useCardReset';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -56,7 +56,7 @@ export const SwipeExhaustedState = ({
   lat,
   lng,
 }: SwipeExhaustedStateProps) => {
-  const { theme } = useTheme();
+  const { theme } = useAppTheme();
   const { setCategories } = useFilterActions();
   const activeCategory = useFilterStore(s => s.activeCategory);
   const setActiveCategory = useFilterStore(s => s.setActiveCategory);

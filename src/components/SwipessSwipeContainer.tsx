@@ -3,7 +3,7 @@ import { cn } from '@/lib/utils';
 import { useModalStore } from '@/state/modalStore';
 import { createPortal } from 'react-dom';
 import { triggerHaptic } from '@/utils/haptics';
-import { useTheme } from '@/hooks/useTheme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import { SimpleSwipeCard, SimpleSwipeCardRef } from './SimpleSwipeCard';
 import { SwipeActionButtonBar } from './SwipeActionButtonBar';
 import { SwipeExhaustedState } from './swipe/SwipeExhaustedState';
@@ -109,7 +109,7 @@ interface SwipessSwipeContainerProps {
 
 const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsights: _onInsights, onMessageClick: _onMessageClick, locationFilter: _locationFilter, filters }: SwipessSwipeContainerProps) => {
   const navigate = useNavigate();
-  const { theme, isLight } = useTheme();
+  const { theme, isLight } = useAppTheme();
   const [page, setPage] = useState(0);
   const [_swipeDirection, setSwipeDirection] = useState<'left' | 'right' | null>(null);
   const [isCreatingConversation, setIsCreatingConversation] = useState(false);

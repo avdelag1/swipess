@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { PageHeader } from "@/components/PageHeader";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { useTheme } from "@/hooks/useTheme";
+import { useAppTheme } from "@/hooks/useAppTheme";
 
 const fastSpring = { type: "spring" as const, stiffness: 500, damping: 30, mass: 0.8 };
 
@@ -69,7 +69,7 @@ const faqItems: FAQItem[] = [
 export default function FAQClientPage() {
   const _navigate = useNavigate();
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
-  const { theme } = useTheme();
+  const { theme } = useAppTheme();
   const isLight = theme === 'light';
 
   const toggleExpand = (index: number) => {

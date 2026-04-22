@@ -5,7 +5,7 @@ import {
   ChevronLeft, Target, Sparkles, Home, Briefcase, Zap, RotateCcw, Bike
 } from 'lucide-react';
 import { DiscoveryFilters } from '@/components/filters/DiscoveryFilters';
-import { useTheme } from '@/hooks/useTheme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import { useFilterStore } from '@/state/filterStore';
 import { cn } from '@/lib/utils';
 import { haptics } from '@/utils/microPolish';
@@ -15,7 +15,7 @@ type CategoryType = 'property' | 'motorcycle' | 'bicycle' | 'services';
 
 export default function OwnerFilters() {
   const navigate = useNavigate();
-  const { theme, isLight } = useTheme();
+  const { theme, isLight } = useAppTheme();
   const isDark = theme === 'dark' || theme === 'swipess-style';
   
   const storeActiveCategory = useFilterStore(s => s.activeCategory);

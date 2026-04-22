@@ -8,7 +8,7 @@ import { useResponsiveContext } from '@/contexts/ResponsiveContext'
 import { prefetchRoleRoutes, createLinkObserver } from '@/utils/routePrefetcher'
 import { useLayoutEffect } from 'react'
 import { logger } from '@/utils/prodLogger'
-import { useTheme } from '@/hooks/useTheme'
+import { useAppTheme } from '@/hooks/useAppTheme'
 import { useSwipeNavigation } from '@/hooks/useSwipeNavigation'
 import { cn } from '@/lib/utils'
 import { useQueryClient } from '@tanstack/react-query'
@@ -67,7 +67,7 @@ interface DashboardLayoutProps {
 }
 
 export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
-  const { theme, isDark } = useTheme()
+  const { theme, isDark } = useAppTheme()
   const [onboardingChecked, setOnboardingChecked] = useState(false)
   const [showOnboarding, setShowOnboarding] = useState(false)
   const modalStore = useModalStore()

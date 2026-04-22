@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
 import { useModalStore } from '@/state/modalStore';
-import { useTheme } from '@/hooks/useTheme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from 'sonner';
@@ -33,7 +33,7 @@ type WizardStep = 'category' | 'photos' | 'details' | 'processing' | 'review';
 
 export function AIListingWizard() {
   const { showAIListing, aiListingCategory, setModal } = useModalStore();
-  const { theme } = useTheme();
+  const { theme } = useAppTheme();
   const isSwipess = theme === 'Swipess-style';
   const { user } = useAuth();
   const { t } = useTranslation();

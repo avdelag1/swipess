@@ -13,7 +13,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
-import { useTheme } from '@/hooks/useTheme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import { triggerHaptic } from '@/utils/haptics';
 import { useAuth } from '@/hooks/useAuth';
 import { useSmartClientMatching } from '@/hooks/useSmartMatching';
@@ -73,7 +73,7 @@ export default function RoommateMatching() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { theme } = useTheme();
+  const { theme } = useAppTheme();
   const isLight = theme === 'light';
 
   const [currentIndex, setCurrentIndex] = useState(0);

@@ -12,7 +12,7 @@ import { triggerHaptic } from '@/utils/haptics';
 import { predictivePrefetchEvent } from '@/utils/performance';
 import { toast } from '@/components/ui/sonner';
 import { useAuth } from '@/hooks/useAuth';
-import { useTheme } from '@/hooks/useTheme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import { useVisualTheme } from '@/contexts/VisualThemeContext';
 
 // Modular Components
@@ -76,7 +76,7 @@ const AUTOPLAY_DURATION = 6000;
 export default function EventosFeed() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { theme } = useTheme();
+  const { theme } = useAppTheme();
   const { setAmbientColor } = useVisualTheme();
   const isLight = theme === 'light';
   const queryClient = useQueryClient();

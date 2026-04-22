@@ -1,8 +1,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Check, Palette, Sparkles, Eye } from 'lucide-react';
-import { useTheme } from '@/hooks/useTheme';
-import type { Theme } from '@/hooks/useTheme';
+import { useAppTheme } from '@/hooks/useAppTheme';
+import type { Theme } from '@/hooks/useAppTheme';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -73,7 +73,7 @@ interface ThemeSelectorProps {
 }
 
 export function ThemeSelector({ compact = false, showTitle = true }: ThemeSelectorProps) {
-  const { theme, setTheme } = useTheme();
+  const { theme, setTheme } = useAppTheme();
 
   const handleThemeChange = (newTheme: Theme) => {
     setTheme(newTheme);
