@@ -220,15 +220,15 @@ export function DiscoveryFilters({ category, onApply, initialFilters = {}, activ
                      isActive
                       ? "bg-primary text-white border-primary shadow-[0_10px_30px_rgba(var(--brand-primary-rgb),0.3)] scale-[1.05] z-10 relative"
                       : isLight 
-                        ? "bg-black/[0.04] border-black/10 text-black/60 hover:bg-black/[0.08]" 
-                        : "bg-white/5 border-white/10 text-muted-foreground hover:bg-white/10"
+                        ? "bg-white border-slate-200 text-slate-500 hover:bg-slate-50 hover:text-slate-900 shadow-sm" 
+                        : "bg-black/40 border-white/5 text-white/40 hover:bg-white/5 hover:text-white"
                    )}
                 >
                   <div className={cn(
                     "w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300",
-                    isActive ? "bg-white/20 text-white shadow-[0_0_15px_rgba(255,255,255,0.4)]" : "bg-muted/40 text-muted-foreground"
+                    isActive ? "text-white" : ""
                   )}>
-                    <Icon className="w-5 h-5" />
+                    <Icon className="w-6 h-6" />
                   </div>
                   <span>{type}</span>
                 </motion.button>

@@ -56,7 +56,7 @@ export default function ClientFilters() {
   return (
     <div className={cn(
       "min-h-screen flex flex-col transition-colors duration-500",
-      isLight ? "bg-[#F8FAFC] text-slate-900" : "bg-[#0A0A0C] text-white"
+      isLight ? "bg-[#F8FAFC] text-slate-900" : "bg-black text-white"
     )}>
       {/* 🛸 CINEMATIC HEADER */}
       <header className={cn(
