@@ -13,18 +13,52 @@ import "./index.css";
 // pwa-performance.css = hardware overrides
 import "./styles/responsive.css";
 
-// Force reload on Vite preload errors (Failed to fetch dynamically imported module)
+// 🚀 EMERGENCY RECOVERY: Handle Vite preload and script load failures
+// This prevents the infinite reload loop when chunks are missing after a deployment.
+const handleEmergencyRecovery = async (reason: string) => {
+  const reloadCount = parseInt(sessionStorage.getItem('Swipess_emergency_reload_count') || '0', 10);
+  
+  if (reloadCount >= 3) {
+    console.error(`[Emergency] Max recovery attempts reached for: ${reason}. Manual intervention required.`);
+    return;
+  }
+
+  console.warn(`[Emergency] ${reason} detected. Initiating recovery...`);
+  sessionStorage.setItem('Swipess_emergency_reload_count', (reloadCount + 1).toString());
+
+  try {
+    // 1. Unregister all service workers
+    if ('serviceWorker' in navigator) {
+      const regs = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(regs.map(r => r.unregister()));
+    }
+    
+    // 2. Clear all browser caches
+    if ('caches' in window) {
+      const keys = await caches.keys();
+      await Promise.all(keys.map(k => caches.delete(k)));
+    }
+    
+    // 3. Clear version tracking to force fresh check
+    localStorage.removeItem('Swipess_app_version');
+    
+    // 4. Force hard reload from server
+    window.location.reload();
+  } catch (err) {
+    console.error('[Emergency] Recovery failed:', err);
+    window.location.reload();
+  }
+};
+
 window.addEventListener('vite:preloadError', (event) => {
-  console.warn('[Vite] Preload error detected, reloading...');
-  window.location.reload();
+  handleEmergencyRecovery('Vite preload error');
 });
 
 if (typeof window !== 'undefined') {
   window.addEventListener('error', (event: any) => {
     if (event.message?.includes('Failed to fetch dynamically imported module') || 
         (event.target && event.target.tagName === 'SCRIPT')) {
-      console.warn('[App] Script load error detected, reloading...');
-      window.location.reload();
+      handleEmergencyRecovery('Script load error');
     }
   }, true);
 

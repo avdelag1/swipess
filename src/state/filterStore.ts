@@ -142,6 +142,7 @@ export const useFilterStore = create<FilterState>()(
 
     // ACTIONS
     setRadiusKm: (radius) => {
+      logger.info('[FilterStore] radiusKm changed to:', radius);
       set((state) => ({
         radiusKm: radius,
         filterVersion: state.filterVersion + 1,
@@ -149,6 +150,7 @@ export const useFilterStore = create<FilterState>()(
       }));
     },
     setUserLocation: (lat, lon) => {
+      logger.info('[FilterStore] userLocation changed:', lat, lon);
       set((state) => ({ 
         userLatitude: lat, 
         userLongitude: lon,
@@ -157,6 +159,7 @@ export const useFilterStore = create<FilterState>()(
       }));
     },
     updateFilters: (filters: Record<string, any>) => {
+      logger.info('[FilterStore] updateFilters called with:', filters);
       set((state) => {
         const mapped: any = {};
         // Map snake_case from UI components to camelCase store state
@@ -189,6 +192,7 @@ export const useFilterStore = create<FilterState>()(
       });
     },
     clearUserLocation: () => {
+      logger.info('[FilterStore] clearUserLocation');
       set((state) => ({ 
         userLatitude: null, 
         userLongitude: null,
@@ -198,6 +202,7 @@ export const useFilterStore = create<FilterState>()(
     },
     setActiveCategory: (category) => {
       if (get().activeCategory === category) return;
+      logger.info('[FilterStore] activeCategory changed to:', category);
       set((state) => ({
         activeCategory: category,
         categories: category ? [category] : [],

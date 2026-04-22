@@ -538,6 +538,24 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
 
   }, [currentIndex, prefetchListingDetails, isDashboard]); // currentIndex updates on each swipe, triggering reliable prefetch
 
+  // Auto-reset refresh mode when fetching completes or fails
+  useEffect(() => {
+    if (!isFetching && isRefreshMode) {
+      const timer = setTimeout(() => {
+        setIsRefreshMode(false);
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [isFetching, isRefreshMode]);
+
+  // Handle manual refresh
+  const handleRefresh = useCallback(() => {
+    logger.info('[SwipessSwipeContainer] Manual Refresh Triggered');
+    haptics.heavy();
+    setIsRefreshMode(true);
+    // queryClient.invalidateQueries will be triggered by isRefreshMode in queryKey
+  }, []);
+
   // PREDICTIVE PRELOAD: When drag starts, bump card N+2 images to high priority.
   // RecyclingCardStack already preloads N+1 (high) and N+2 (low) after each swipe,
   // but during the ~260ms exit animation N+2 may still be decoding at low priority.

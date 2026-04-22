@@ -106,8 +106,42 @@ export function useSmartListingMatching(
         return () => { channel.unsubscribe(); };
     }, [userId, queryClient]);
 
+    const filtersKey = useMemo(() => {
+        try {
+            return JSON.stringify(filters || {});
+        } catch {
+            return 'invalid-filters';
+        }
+    }, [filters]);
+
+    // STABILITY FIX: Detect if filters changed but the reference stayed the same (or vice versa)
+    const prevFiltersKeyRef = useRef(filtersKey);
+    const prevUserIdRef = useRef(userId);
+    const prevIsRefreshModeRef = useRef(isRefreshMode);
+
+    if (filtersKey !== prevFiltersKeyRef.current || userId !== prevUserIdRef.current || isRefreshMode !== prevIsRefreshModeRef.current) {
+        logger.info('[useSmartListingMatching] Refetch Trigger Detected:', {
+            filtersChanged: filtersKey !== prevFiltersKeyRef.current,
+            userChanged: userId !== prevUserIdRef.current,
+            refreshModeChanged: isRefreshMode !== prevIsRefreshModeRef.current,
+            page
+        });
+        prevFiltersKeyRef.current = filtersKey;
+        prevUserIdRef.current = userId;
+        prevIsRefreshModeRef.current = isRefreshMode;
+    }
+
+    const queryKey = useMemo(() => [
+        'smart-listings', 
+        userId, 
+        filtersKey, 
+        page, 
+        pageSize,
+        isRefreshMode
+    ], [userId, filtersKey, page, pageSize, isRefreshMode]);
+
     return useQuery({
-        queryKey: ['smart-listings', userId, filtersKey, page, pageSize, isRefreshMode],
+        queryKey: queryKey,
         staleTime: 2 * 60 * 1000, // 2 minutes
         gcTime: 15 * 60 * 1000,
         placeholderData: (prev: any) => prev,
