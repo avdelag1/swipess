@@ -1,5 +1,5 @@
-import { Sparkles, Building2, Bike, LayoutGrid, X } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { Sparkles, Building2, Bike, X, ChevronRight } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { 
   Dialog, 
   DialogContent, 
@@ -30,43 +30,27 @@ export function AIListingTrigger({ glassPillStyle }: AIListingTriggerProps) {
   const categories = [
     { 
       id: 'property', 
-      label: 'Property', 
-      description: 'Houses, Condos & Villas',
-      icon: Building2, 
-      color: '#ff4b6b', 
-      bg: 'bg-[#ff4b6b]/15',
-      glow: 'shadow-[#ff4b6b]/30',
-      border: 'border-[#ff4b6b]/40'
+      label: 'Automate Listing Property', 
+      icon: Building2,
+      color: 'text-rose-500'
     },
     { 
       id: 'motorcycle', 
-      label: 'Motorcycle', 
-      description: 'Vespas & Superbikes',
-      icon: MotorcycleIcon, 
-      color: '#ff8a3d', 
-      bg: 'bg-[#ff8a3d]/15',
-      glow: 'shadow-[#ff8a3d]/30',
-      border: 'border-[#ff8a3d]/40'
+      label: 'Motorcycles', 
+      icon: MotorcycleIcon,
+      color: 'text-orange-500'
     },
     { 
       id: 'bicycle', 
       label: 'Bicycle', 
-      description: 'E-Bikes & Road Bikes',
-      icon: Bike, 
-      color: '#b166ff', 
-      bg: 'bg-[#b166ff]/15',
-      glow: 'shadow-[#b166ff]/30',
-      border: 'border-[#b166ff]/40'
+      icon: Bike,
+      color: 'text-violet-500'
     },
     { 
       id: 'worker', 
-      label: 'Worker', 
-      description: 'Cleaners & Helpers',
-      icon: WorkersIcon, 
-      color: '#fbbd23', 
-      bg: 'bg-[#fbbd23]/15',
-      glow: 'shadow-[#fbbd23]/30',
-      border: 'border-[#fbbd23]/40'
+      label: 'Workers', 
+      icon: WorkersIcon,
+      color: 'text-amber-500'
     },
   ] as const;
 
@@ -80,132 +64,82 @@ export function AIListingTrigger({ glassPillStyle }: AIListingTriggerProps) {
             e.stopPropagation();
             triggerHaptic('light');
           }}
-          className="w-10 h-10 flex items-center justify-center p-0 rounded-full relative group"
+          className="w-10 h-10 flex items-center justify-center p-0 rounded-full relative group transition-all duration-300"
           style={glassPillStyle}
           title="Magic AI Listing"
         >
-          <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-purple-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-full" />
           <Sparkles 
             className="w-5 h-5 text-indigo-500 group-hover:text-indigo-400 group-hover:scale-110 transition-all duration-300" 
-            strokeWidth={2.5} 
+            strokeWidth={2} 
           />
-          
-          <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.8)] animate-pulse" />
         </motion.button>
       </DialogTrigger>
       
       <DialogContent 
-        className="!p-0 !border-none !bg-transparent !max-w-[480px] !w-[95vw] !h-auto sm:!max-h-[90vh] overflow-visible shadow-none focus:outline-none"
+        className="!p-0 !border-none !bg-transparent !max-w-[420px] !w-[90vw] !aspect-square overflow-visible shadow-none focus:outline-none"
       >
         <motion.div
-          initial={{ opacity: 0, scale: 0.8, y: 100, rotateX: 20 }}
-          animate={{ opacity: 1, scale: 1, y: 0, rotateX: 0 }}
-          exit={{ opacity: 0, scale: 0.8, y: 100, rotateX: 20 }}
-          transition={{ type: "spring", damping: 20, stiffness: 150 }}
-          className="relative rounded-[4rem] border border-white/20 overflow-hidden shadow-[0_40px_100px_rgba(0,0,0,0.9)] bg-[#0a0a10]"
+          initial={{ opacity: 0, scale: 0.95, y: 10 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.95, y: 10 }}
+          className="relative w-full h-full rounded-[2.5rem] border border-white/10 bg-[#050505]/95 backdrop-blur-3xl overflow-hidden flex flex-col p-6 shadow-[0_20px_80px_rgba(0,0,0,0.9)]"
         >
-          {/* 🌌 CINEMATIC DECORATION */}
-          <div className="absolute inset-0 pointer-events-none">
-             <div className="absolute top-[-10%] left-[-10%] w-[120%] h-[120%] bg-gradient-to-br from-indigo-950/60 via-[#0a0a10] to-purple-950/60" />
-             <div className="absolute top-[-20%] left-[-20%] w-[80%] h-[80%] bg-indigo-500/20 blur-[140px] rounded-full animate-pulse" />
-             <div className="absolute bottom-[-20%] right-[-20%] w-[80%] h-[80%] bg-purple-500/20 blur-[140px] rounded-full animate-pulse" style={{ animationDelay: '1s' }} />
-             <div className="absolute inset-0 opacity-[0.03] mix-blend-overlay bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]" />
-          </div>
+          {/* Subtle Top Accent */}
+          <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-indigo-500/50 to-transparent" />
 
-          {/* 🏰 NEXUS HEADER */}
-          <div className="relative px-12 pt-14 pb-10">
-             <div className="flex items-center justify-between">
-                <div className="flex items-center gap-8">
-                   <div className="relative">
-                      <div className="absolute inset-0 bg-indigo-500 blur-3xl opacity-30 animate-pulse" />
-                      <div className="relative w-20 h-20 rounded-[2rem] bg-indigo-600 flex items-center justify-center shadow-[0_12px_48px_rgba(79,70,229,0.5)] ring-2 ring-white/30 group">
-                         <Sparkles className="w-10 h-10 text-white animate-pulse" strokeWidth={2.5} />
-                      </div>
-                   </div>
-                   <div className="flex flex-col">
-                      <h2 className="text-4xl font-black uppercase italic tracking-[0.05em] text-white leading-none drop-shadow-2xl">Nexus AI</h2>
-                      <div className="flex items-center gap-3 mt-4">
-                         <div className="w-2 h-2 rounded-full bg-indigo-500 animate-ping" />
-                         <p className="text-[11px] text-indigo-400 font-black uppercase tracking-[0.5em] opacity-80">Matrix Deployment v2.8</p>
-                      </div>
-                   </div>
-                </div>
-                <DialogClose className="w-14 h-14 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-all hover:rotate-90 active:scale-90">
-                   <X className="w-6 h-6 text-white/50" />
-                </DialogClose>
+          {/* Header Area */}
+          <div className="flex items-center justify-between mb-6 px-2">
+             <div className="flex items-center gap-3">
+                <Sparkles className="w-4 h-4 text-indigo-500" />
+                <h2 className="text-[10px] font-black uppercase tracking-[0.4em] text-white/40 italic">Nexus AI Listing</h2>
              </div>
+             <DialogClose className="p-2 rounded-full hover:bg-white/5 transition-colors">
+                <X className="w-4 h-4 text-white/20" />
+             </DialogClose>
           </div>
 
-          {/* 🎴 NEXUS GRID */}
-          <div className="relative px-8 pb-10 grid grid-cols-2 gap-6">
+          {/* 4 Large Rectangle Title Buttons */}
+          <div className="flex-1 grid grid-cols-1 gap-3">
              {categories.map((cat, idx) => (
                 <motion.button
                    key={cat.id}
-                   initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                   animate={{ opacity: 1, scale: 1, y: 0 }}
-                   transition={{ delay: 0.2 + idx * 0.1, type: "spring", damping: 15 }}
-                   whileHover={{ y: -10, scale: 1.03 }}
-                   whileTap={{ scale: 0.95 }}
+                   initial={{ opacity: 0, x: -10 }}
+                   animate={{ opacity: 1, x: 0 }}
+                   transition={{ delay: idx * 0.04 }}
+                   whileHover={{ scale: 1.01, backgroundColor: 'rgba(255,255,255,0.03)', borderColor: 'rgba(255,255,255,0.15)' }}
+                   whileTap={{ scale: 0.98 }}
                    onClick={() => handleSelect(cat.id)}
-                   className={cn(
-                      "group relative flex flex-col items-center justify-center p-10 rounded-[3.5rem] border border-white/[0.08] bg-white/[0.03] transition-all duration-500 overflow-hidden min-h-[220px]",
-                      "hover:bg-white/[0.08] hover:border-white/20 hover:shadow-[0_20px_50px_rgba(0,0,0,0.4)]"
-                   )}
+                   className="group relative flex items-center justify-between px-8 rounded-3xl border border-white/[0.04] bg-white/[0.01] transition-all duration-300"
                 >
-                   {/* Background Glow on Hover */}
-                   <div className={cn("absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 blur-2xl", cat.bg)} />
-                   
-                   <div className="relative z-10 flex flex-col items-center gap-8">
+                   <div className="flex items-center gap-6">
                       <div className={cn(
-                         "w-20 h-20 rounded-[1.75rem] flex items-center justify-center transition-all duration-500 group-hover:scale-110 group-hover:rotate-3",
-                         cat.bg,
-                         cat.glow,
-                         "border-2",
-                         cat.border,
-                         "shadow-[inset_0_4px_12px_rgba(255,255,255,0.1)]"
+                        "w-12 h-12 flex items-center justify-center rounded-2xl bg-white/[0.02] border border-white/[0.04] group-hover:scale-110 transition-transform duration-500",
+                        cat.id === 'property' ? 'text-rose-500' :
+                        cat.id === 'motorcycle' ? 'text-orange-500' :
+                        cat.id === 'bicycle' ? 'text-violet-500' :
+                        'text-amber-500'
                       )}>
-                         <cat.icon 
-                            className="w-10 h-10 transition-all duration-300" 
-                            style={{ 
-                               color: cat.color,
-                               filter: `drop-shadow(0 0 12px ${cat.color})`
-                            }} 
-                         />
+                         <cat.icon className="w-6 h-6" />
                       </div>
-                      <div className="text-center">
-                         <h4 className="text-[15px] font-black uppercase tracking-[0.3em] text-white/90 group-hover:text-white transition-colors leading-none italic">
-                            {cat.label}
-                         </h4>
-                         <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/10 group-hover:text-white/40 mt-4 transition-colors">
-                            {cat.description}
-                         </p>
+                      <div className="flex flex-col items-start gap-0.5">
+                        <span className="text-[13px] font-black uppercase tracking-[0.15em] text-white/90 italic transition-colors">
+                           {cat.label}
+                        </span>
+                        <span className="text-[8px] font-black uppercase tracking-[0.2em] text-white/20 group-hover:text-white/40 transition-colors">
+                          {cat.id === 'property' ? 'Residential Matrix' : 
+                           cat.id === 'motorcycle' ? 'Velocity Units' : 
+                           cat.id === 'bicycle' ? 'Pedal Kinetics' : 'Professional Units'}
+                        </span>
                       </div>
                    </div>
+                   <ChevronRight className="w-4 h-4 text-white/10 group-hover:text-white/40 group-hover:translate-x-1 transition-all" />
                 </motion.button>
              ))}
           </div>
 
-          {/* 🦾 NEXUS PROTOCOL BAR */}
-          <div className="relative px-12 py-8 bg-gradient-to-r from-indigo-700 to-purple-800 flex items-center justify-between overflow-hidden">
-             {/* Dynamic Scan Effect */}
-             <motion.div 
-                animate={{ x: ['-200%', '300%'] }} 
-                transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-                className="absolute inset-0 w-1/4 bg-white/30 skew-x-[45deg] blur-2xl opacity-50"
-             />
-             
-             <div className="flex items-center gap-5 relative z-10">
-                <div className="relative w-3 h-3">
-                   <div className="absolute inset-0 bg-white blur-md animate-pulse" />
-                   <div className="relative w-3 h-3 rounded-full bg-white shadow-[0_0_20px_#fff]" />
-                </div>
-                <span className="text-[12px] font-black uppercase tracking-[0.8em] text-white italic drop-shadow-lg">Uplink Active</span>
-             </div>
-             
-             <div className="flex items-center gap-4 relative z-10">
-                <LayoutGrid className="w-5 h-5 text-white/60 animate-pulse" />
-                <span className="text-[11px] font-black uppercase tracking-[0.3em] text-white/40 italic">Nexus V2.8</span>
-             </div>
+          {/* Footer Branding */}
+          <div className="mt-6 pt-5 border-t border-white/5 flex items-center justify-center">
+             <p className="text-[8px] font-black uppercase tracking-[0.5em] text-white/10 italic">Secure Protocol Layer 4.0</p>
           </div>
         </motion.div>
       </DialogContent>
