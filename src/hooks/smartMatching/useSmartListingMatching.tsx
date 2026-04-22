@@ -34,7 +34,6 @@ export function useSmartListingMatching(
     isRefreshMode: boolean = false
 ) {
     const queryClient = useQueryClient();
-    const filtersKey = filters ? JSON.stringify(filters) : '';
     const { data: adminIds } = useAdminUserIds();
 
     // 🚀 SPEED OF LIGHT: Cache user swipes globally to avoid repeated fetching
