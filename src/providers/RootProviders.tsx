@@ -31,7 +31,7 @@ export interface ThemeContextType {
   setTheme: (theme: Theme, coords?: ThemeToggleCoords) => void;
 }
 
-const ThemeContext = React.createContext<ThemeContextType | undefined>(undefined);
+export const ThemeContext = React.createContext<ThemeContextType | undefined>(undefined);
 
 export function useAppTheme(): ThemeContextType {
   const context = React.useContext(ThemeContext);

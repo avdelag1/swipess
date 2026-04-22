@@ -2,7 +2,8 @@ import { memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Moon, Sun, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import useAppTheme from '@/hooks/useAppTheme';
+import { ThemeContext } from '@/hooks/useAppTheme';
+import { useContext } from 'react';
 import { triggerHaptic } from '@/utils/haptics';
 
 type Theme = 'light' | 'dark';
@@ -14,7 +15,9 @@ interface ThemeToggleProps {
 }
 
 function ThemeToggleComponent({ className }: ThemeToggleProps) {
-    const { theme, setTheme } = useAppTheme();
+    const themeContext = useContext(ThemeContext);
+    const theme = themeContext?.theme ?? 'dark';
+    const setTheme = themeContext?.setTheme ?? (() => {});
 
     const handleToggle = (e: React.MouseEvent) => {
         e.preventDefault();
