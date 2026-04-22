@@ -2,6 +2,7 @@ import { useCallback, useMemo, useState, useEffect, lazy, Suspense } from 'react
 import { useShallow } from 'zustand/react/shallow';
 import { SwipessSwipeContainer } from '@/components/SwipessSwipeContainer';
 import { useFilterStore, useFilterActions } from '@/state/filterStore';
+import { useShallow } from 'zustand/react/shallow';
 import { SwipeAllDashboard } from '@/components/swipe/SwipeAllDashboard';
 import { QuickFilterBar } from '@/components/QuickFilterBar';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -28,7 +29,7 @@ interface ClientDashboardProps {
 export default function ClientDashboard({ onMessageClick }: ClientDashboardProps) {
   const { theme, isLight } = useAppTheme();
   const activeCategory = useFilterStore(s => s.activeCategory);
-  const getListingFilters = useFilterStore(s => s.getListingFilters);
+  const dashboardFilters = useFilterStore(useShallow(s => s.getListingFilters()));
   const { user } = useAuth();
   const { setActiveCategory } = useFilterActions();
 
