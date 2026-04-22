@@ -1,4 +1,4 @@
-import { useCallback, useState, useEffect, lazy, Suspense } from 'react';
+import { useCallback, useMemo, useState, useEffect, lazy, Suspense } from 'react';
 import { SwipessSwipeContainer } from '@/components/SwipessSwipeContainer';
 import { useFilterStore, useFilterActions } from '@/state/filterStore';
 import { SwipeAllDashboard } from '@/components/swipe/SwipeAllDashboard';
