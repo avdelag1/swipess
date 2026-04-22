@@ -1,6 +1,5 @@
 @import './styles/tokens.css';
-@import './styles/nexus-theme.css';
-
+@import './styles/matte-themes.css';
 
 
 /* ─── Splash Screen Styles (Inlined in index.html for Performance) ─── */
@@ -19,7 +18,7 @@ html, body, #root {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: hsl(var(--background));
+  background-color: #ffffff;
   font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
@@ -115,9 +114,12 @@ body::-webkit-scrollbar {
 }
 
 .liquid-glass-card {
-  @apply bg-card backdrop-blur-xl transition-all duration-300 overflow-hidden relative;
-  border: none !important;
-  box-shadow: var(--shadow-cinematic-md);
+  @apply backdrop-blur-[64px] transition-all duration-500 overflow-hidden relative;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 
+    var(--shadow-cinematic-md),
+    inset 0 1px 1px rgba(255, 255, 255, 0.15);
   contain: layout style paint;
 }
 
@@ -198,15 +200,14 @@ button:active, [role="button"]:active {
     --ring: 343 99% 62%;
     --radius: 1.25rem;
 
-    /* Semantic UI Tokens for consistency */
-    --btn-primary-bg: #FF4D00;
-    --btn-primary-text: #FFFFFF;
-    --btn-secondary-bg: rgba(0, 0, 0, 0.05);
-    --btn-secondary-text: #111111;
-    --icon-active: #FF4D00;
-    --icon-inactive: rgba(0, 0, 0, 0.6);
-    --nav-bg: rgba(255, 255, 255, 0.8);
-    --nav-border: rgba(0, 0, 0, 0.08);
+    --nav-bg: rgba(255, 255, 255, 0.95);
+    --nav-border: rgba(0, 0, 0, 0.05);
+
+    /* 🧘 HUD TOKEN SYSTEM */
+    --hud-bg: rgba(255, 255, 255, 0.95);
+    --hud-text: #000000;
+    --hud-border: rgba(0, 0, 0, 0.05);
+    --hud-active-bg: rgba(0, 0, 0, 0.05);
   }
   .dark {
     --background: 216 15% 9%;
@@ -223,15 +224,14 @@ button:active, [role="button"]:active {
     --input: 212 14% 18%;
     --ring: 352 83% 58%;
 
-    /* Semantic UI Tokens for consistency */
-    --btn-primary-bg: #FF4D00;
-    --btn-primary-text: #FFFFFF;
-    --btn-secondary-bg: rgba(255, 255, 255, 0.1);
-    --btn-secondary-text: #FFFFFF;
-    --icon-active: #FF6B35;
-    --icon-inactive: rgba(255, 255, 255, 0.6);
-    --nav-bg: rgba(10, 10, 12, 0.8);
-    --nav-border: rgba(255, 255, 255, 0.1);
+    --nav-bg: rgba(10, 10, 12, 0.85);
+    --nav-border: rgba(255, 255, 255, 0.08);
+
+    /* 🧘 HUD TOKEN SYSTEM (DARK) */
+    --hud-bg: rgba(15, 15, 20, 0.95);
+    --hud-text: #ffffff;
+    --hud-border: rgba(255, 255, 255, 0.1);
+    --hud-active-bg: rgba(255, 255, 255, 0.08);
   }
 
   /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
@@ -287,6 +287,14 @@ button:active, [role="button"]:active {
     --shadow-card: 0 20px 40px rgba(0, 0, 0, 0.3);
     --shadow-glow: 0 0 30px rgba(211, 47, 47, 0.3);
     --overlay: rgba(0, 0, 0, 0.6);
+    --nav-bg: rgba(35, 35, 40, 0.75);
+    --nav-border: rgba(255, 255, 255, 0.08);
+
+    /* 🧘 HUD TOKEN SYSTEM (GREY) */
+    --hud-bg: rgba(35, 35, 40, 0.85);
+    --hud-text: #ffffff;
+    --hud-border: rgba(255, 255, 255, 0.1);
+    --hud-active-bg: rgba(255, 255, 255, 0.1);
   }
 
   /* THEME 2: BLACK MATTE (Deep dark mode - like ChatGPT) */
@@ -337,6 +345,14 @@ button:active, [role="button"]:active {
     --shadow-card: 0 20px 40px rgba(0, 0, 0, 0.6);
     --shadow-glow: 0 0 30px rgba(229, 57, 53, 0.4);
     --overlay: rgba(0, 0, 0, 0.8);
+    --nav-bg: rgba(5, 5, 5, 0.95);
+    --nav-border: rgba(255, 255, 255, 0.1);
+
+    /* 🧘 HUD TOKEN SYSTEM (BLACK) */
+    --hud-bg: rgba(5, 5, 5, 0.96);
+    --hud-text: #ffffff;
+    --hud-border: rgba(255, 255, 255, 0.12);
+    --hud-active-bg: rgba(255, 255, 255, 0.1);
   }
 
   /* THEME 3: WHITE MATTE (Clean minimalist - like Apple/Linear) */
@@ -387,6 +403,25 @@ button:active, [role="button"]:active {
     --shadow-card: 0 20px 40px rgba(0, 0, 0, 0.15);
     --shadow-glow: 0 0 30px rgba(198, 40, 40, 0.2);
     --overlay: rgba(0, 0, 0, 0.4);
+    --nav-bg: rgba(255, 255, 255, 0.95);
+    --nav-border: rgba(0, 0, 0, 0.04);
+
+    /* 🧘 HUD TOKEN SYSTEM (WHITE) */
+    --hud-bg: rgba(255, 255, 255, 0.96);
+    --hud-text: #000000;
+    --hud-border: rgba(0, 0, 0, 0.05);
+    --hud-active-bg: rgba(0, 0, 0, 0.05);
+  }
+
+  /* THEME: SWIPESS STYLE (Classic Branding) */
+  .Swipess-style {
+    --background: 0 0% 0%;
+    --foreground: 0 0% 100%;
+    --card: 0 0% 5%;
+    --nav-bg: rgba(255, 255, 255, 0.95);
+    --nav-border: rgba(0, 0, 0, 0.05);
+    --text-primary: 0 0% 100%;
+    --btn-primary-bg: #FF4D00;
   }
 
   /* THEME 4: RED MATTE (Bold Mexican spirit) */
@@ -975,7 +1010,7 @@ button:active, [role="button"]:active {
 
   /* Glassmorphism utilities - OPTIMIZED for Android performance */
   .glass-effect {
-    background: rgba(255, 255, 255, 0.97);
+    background: var(--hud-bg);
     /* backdrop-filter: blur(20px); REMOVED - kills Android performance */
     /* -webkit-backdrop-filter: blur(20px); REMOVED - kills Android performance */
     border: 1px solid rgba(255, 255, 255, 0.3);
@@ -1040,7 +1075,7 @@ button:active, [role="button"]:active {
   .blur-on-scroll.scrolled {
     /* backdrop-filter: blur(20px); REMOVED - kills Android performance */
     /* -webkit-backdrop-filter: blur(20px); REMOVED - kills Android performance */
-    background-color: rgba(255, 255, 255, 0.95);
+    background-color: var(--hud-bg);
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   }

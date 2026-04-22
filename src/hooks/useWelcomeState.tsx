@@ -84,7 +84,7 @@ async function saveWelcomeNotification(userId: string) {
     const notificationData = {
       user_id: userId,
       notification_type: 'system_announcement' as const,
-      title: 'Welcome to Nexus Discovery! 🎉',
+      title: 'Welcome to Swipess! 🎉',
       message: 'Thank you for choosing us! As one of our first users, you have been granted exclusive BETA PRIVILEGE: free tokens and free AI tools for life! Enjoy the elite discovery experience.',
       is_read: false
     };
@@ -95,3 +95,5 @@ async function saveWelcomeNotification(userId: string) {
     logger.error('[Welcome] Failed to save welcome notification:', error);
   }
 }
+
+

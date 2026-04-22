@@ -4,7 +4,7 @@ import { CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   Shield, FileText, HelpCircle, Info, ChevronRight,
-  Scale, Volume2, Building2, Globe, Users, Activity, Settings
+  Scale, Volume2, Building2, Globe, Users
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -268,21 +268,25 @@ const OwnerSettings = () => {
           ))}
         </motion.div>
 
-        {/* App Version - Elegant footer */}
-        <div className="text-center pt-10 pb-12">
+        {/* 🛸 Swipess FOOTER */}
+        <div className="flex flex-col items-center gap-6 pt-16">
           <motion.div
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
             className="flex flex-col items-center gap-6"
           >
-            <SwipessLogo size="md" className="transition-transform duration-500 hover:scale-110 grayscale opacity-40 hover:grayscale-0 hover:opacity-100" />
-            <div className="flex flex-col items-center gap-2">
-              <div className="flex items-center gap-3">
-                <span className="swipess-text text-2xl font-black tracking-tighter uppercase italic opacity-40">Swipess</span>
-                <Badge variant="outline" className="text-[9px] font-black tracking-[0.2em] uppercase py-1 px-3 bg-white/5 border-white/10 text-muted-foreground font-mono">v3.3.0</Badge>
-              </div>
-              <p className="text-[9px] text-muted-foreground font-black uppercase tracking-[0.4em] opacity-20 italic">Elite Discovery Engine</p>
+            <div className={cn("w-16 h-16 rounded-[1.6rem] flex items-center justify-center shadow-2xl border transition-transform duration-500 hover:scale-110", isLight ? "bg-white border-black/5" : "bg-black border-white/10")}>
+               <SwipessLogo size="sm" />
+            </div>
+            <div className="text-center space-y-2">
+               <div className="flex items-center justify-center gap-3">
+                  <span className={cn("text-2xl font-black italic tracking-tighter uppercase", isLight ? "text-black" : "text-white")}>Swipess</span>
+                  <div className="bg-purple-600/10 px-3 py-1 rounded-full border border-purple-600/20">
+                     <span className="text-[9px] font-black text-purple-600 uppercase tracking-widest font-mono">V3.3.1</span>
+                  </div>
+               </div>
+               <p className={cn("text-[9px] font-black uppercase tracking-[0.4em] italic opacity-30", isLight ? "text-black" : "text-white")}>Property Authority Matrix • Elite Discovery</p>
             </div>
           </motion.div>
         </div>

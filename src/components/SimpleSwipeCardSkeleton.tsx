@@ -29,3 +29,5 @@ export const SimpleSwipeCardSkeleton = () => {
     </div>
   );
 };
+
+

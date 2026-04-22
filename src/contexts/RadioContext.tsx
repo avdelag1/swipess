@@ -55,7 +55,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     isShuffle: false,
     favorites: [],
     deadStationIds: [], // Fresh start each session — no permanent blacklist
-    miniPlayerMode: (localStorage.getItem('swipess_radio_mini_player_mode') as 'expanded' | 'minimized' | 'closed') || 'closed',
+    miniPlayerMode: (localStorage.getItem('Swipess_radio_mini_player_mode') as 'expanded' | 'minimized' | 'closed') || 'closed',
   });
 
   const [loading, setLoading] = useState(true);
@@ -556,7 +556,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
 
   const setMiniPlayerMode = useCallback((mode: 'expanded' | 'minimized' | 'closed') => {
     setState(prev => ({ ...prev, miniPlayerMode: mode }));
-    localStorage.setItem('swipess_radio_mini_player_mode', mode);
+    localStorage.setItem('Swipess_radio_mini_player_mode', mode);
   }, []);
 
   const isStationFavorite = useCallback((stationId: string) => state.favorites.includes(stationId), [state.favorites]);
@@ -599,3 +599,5 @@ export function useRadio() {
   }
   return context;
 }
+
+

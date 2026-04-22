@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { PageHeader } from "@/components/PageHeader";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { useTheme } from "@/hooks/useTheme";
 
 const fastSpring = { type: "spring" as const, stiffness: 500, damping: 30, mass: 0.8 };
 
@@ -68,6 +69,8 @@ const faqItems: FAQItem[] = [
 export default function FAQClientPage() {
   const _navigate = useNavigate();
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
 
   const toggleExpand = (index: number) => {
     setExpandedIndex(expandedIndex === index ? null : index);
@@ -92,7 +95,7 @@ export default function FAQClientPage() {
           {faqItems.map((item, index) => (
             <Card
               key={index}
-              className="bg-card border-border overflow-hidden cursor-pointer"
+              className={cn("bg-card border-border overflow-hidden cursor-pointer", isLight ? "bg-black/[0.03]" : "bg-white/[0.03]")}
               onClick={() => toggleExpand(index)}
             >
               <CardContent className="p-0">
@@ -130,18 +133,25 @@ export default function FAQClientPage() {
           transition={{ ...fastSpring, delay: 0.1 }}
           className="mt-8"
         >
-          <Card className="bg-muted/30 border-border">
-            <CardContent className="p-6 text-center">
-              <h3 className="font-semibold text-foreground mb-2">Still need help?</h3>
-              <p className="text-sm text-muted-foreground mb-4">
-                Contact our support team for personalized assistance
+          <Card className={cn("bg-muted/30 border-border rounded-[2.5rem] overflow-hidden", isLight ? "bg-black/[0.05]" : "bg-white/[0.05]")}>
+            <CardContent className="p-10 text-center space-y-6">
+              <h3 className="text-xl font-black uppercase italic tracking-tighter">Still need help?</h3>
+              <p className="text-sm text-muted-foreground">
+                Dispatch a signal to our support team for elite assistance.
               </p>
-              <Button
-                variant="outline"
-                onClick={() => window.location.href = 'mailto:support@swipess.com'}
-              >
-                Contact Support
-              </Button>
+              <div className="flex justify-center pt-4">
+                <Button
+                  onClick={() => window.location.href = 'mailto:support@swipess.com'}
+                  className={cn(
+                    "h-16 px-12 rounded-[2rem] font-black uppercase italic tracking-widest transition-all shadow-2xl active:scale-95",
+                    isLight 
+                      ? "bg-black text-white hover:bg-black/80" 
+                      : "bg-white text-black hover:bg-white/90"
+                  )}
+                >
+                  DISPATCH SUPPORT
+                </Button>
+              </div>
             </CardContent>
           </Card>
         </motion.div>

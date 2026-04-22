@@ -382,7 +382,7 @@ export const useFilterStore = create<FilterState>()(
       },
     })),
     {
-      name: 'swipess-filter-storage', // name of the item in the storage (must be unique)
+      name: 'Swipess-filter-storage', // name of the item in the storage (must be unique)
       partialize: (state) => ({ 
         categories: state.categories, 
         activeCategory: state.activeCategory, 
@@ -425,3 +425,5 @@ export const useFilterActions = () => useFilterStore(useShallow((state) => ({
   resetOwnerFilters: state.resetOwnerFilters,
   resetAllFilters: state.resetAllFilters,
 })));
+
+

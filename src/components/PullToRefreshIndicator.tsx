@@ -47,3 +47,5 @@ export const PullToRefreshIndicator = memo(({ pullDistance, isRefreshing, trigge
 });
 
 PullToRefreshIndicator.displayName = 'PullToRefreshIndicator';
+
+

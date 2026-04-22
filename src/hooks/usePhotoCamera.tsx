@@ -78,3 +78,5 @@ export const usePhotoCamera = (userId: string) => {
     handleCapture,
   };
 };
+
+

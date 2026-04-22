@@ -45,10 +45,11 @@ const buttonVariants = cva(
         link: 'text-primary underline-offset-4 hover:underline shadow-none',
         premium: 'bg-primary text-primary-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.2),0_4px_14px_hsl(var(--primary)/0.3)] hover:brightness-110',
         tinder: 'bg-primary text-primary-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.15),0_3px_10px_hsl(var(--primary)/0.25)]',
-        glass: 'text-foreground bg-white/10 backdrop-blur-2xl',
-        glassStrong: 'text-foreground bg-white/15 backdrop-blur-[32px]',
-        glassLight: 'text-foreground bg-white/70 backdrop-blur-2xl',
+        glass: 'text-foreground bg-foreground/5 dark:bg-white/10 backdrop-blur-2xl border border-foreground/5 dark:border-white/5',
+        glassStrong: 'text-foreground bg-foreground/10 dark:bg-white/15 backdrop-blur-[32px] border border-foreground/10 dark:border-white/10',
+        glassLight: 'text-foreground bg-background/80 dark:bg-white/70 backdrop-blur-2xl border border-foreground/10 dark:border-white/20',
         gradient: 'bg-primary text-primary-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.2),0_4px_14px_hsl(var(--primary)/0.3)] hover:brightness-110',
+
       },
       size: {
         default: 'h-12 px-6 py-3',
@@ -231,3 +232,5 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 Button.displayName = 'Button';
 
 export { Button, buttonVariants };
+
+

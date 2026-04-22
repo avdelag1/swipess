@@ -18,6 +18,19 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 type HubView = 'dashboard' | 'browse' | 'editor' | 'signing';
 
+function Badge({ children, className, variant = "secondary" }: { children: React.ReactNode, className?: string, variant?: "secondary" | "primary" }) {
+  const { isLight } = useTheme();
+  return (
+    <span className={cn(
+      "px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest italic transition-colors",
+      variant === "secondary" ? (isLight ? "bg-black/5 text-black/40" : "bg-white/5 text-white/40") : "bg-primary/20 text-primary border border-primary/20",
+      className
+    )}>
+      {children}
+    </span>
+  );
+}
+
 export function LegalHub() {
   const { user } = useAuth();
   const { theme, isLight } = useTheme();
@@ -204,7 +217,7 @@ export function LegalHub() {
               <div className="flex items-center justify-between px-2">
                 <h3 className={cn("text-xl font-black uppercase tracking-tighter italic", isLight ? "text-black" : "text-white")}>Protocol Templates</h3>
                 <div className="flex gap-2">
-                  <Badge className="bg-primary/20 text-primary border-primary/20">Certified</Badge>
+                  <Badge variant="primary">Certified</Badge>
                 </div>
               </div>
 
@@ -310,7 +323,6 @@ export function LegalHub() {
               animate={{ opacity: 1, scale: 1 }}
               className="space-y-12"
             >
-              {/* 🛸 IMMERSIVE DOC PREVIEW */}
               <div className={cn("relative p-10 rounded-[3rem] border shadow-inner h-[400px] overflow-y-auto no-scrollbar pointer-events-none opacity-80 blur-[0.5px] grayscale", isLight ? "bg-black/5 border-black/5" : "bg-white/5 border-white/10")}>
                 <div className={cn("prose max-w-none font-medium italic text-[13px] leading-relaxed", isLight ? "prose-slate" : "prose-invert")}>
                    <div dangerouslySetInnerHTML={{ __html: activeContract?.content || (selectedTemplate?.content || '') }} />
@@ -340,18 +352,5 @@ export function LegalHub() {
         <span className={cn("text-[9px] font-black uppercase tracking-[0.5em] italic", isLight ? "text-black" : "text-white")}>Swipess Legal Trust Foundation</span>
       </div>
     </div>
-  );
-}
-
-function Badge({ children, className, variant = "secondary" }: any) {
-  const { isLight } = useTheme();
-  return (
-    <span className={cn(
-      "px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest italic transition-colors",
-      variant === "secondary" ? (isLight ? "bg-black/5 text-black/40" : "bg-white/5 text-white/40") : "bg-primary/20 text-primary border border-primary/20",
-      className
-    )}>
-      {children}
-    </span>
   );
 }

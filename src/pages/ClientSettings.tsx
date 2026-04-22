@@ -7,7 +7,7 @@ import {
   Scale, Volume2, Wrench, ShieldCheck, Globe
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { AccountSecurity } from "@/components/AccountSecurity";
 import { DeleteAccountSection } from "@/components/DeleteAccountSection";
 import { SwipeSoundSettings } from "@/components/SwipeSoundSettings";
@@ -269,21 +269,25 @@ const ClientSettings = () => {
           ))}
         </motion.div>
 
-        {/* App Version - Elegant footer */}
-        <div className="text-center pt-10 pb-12">
+        {/* 🛸 Swipess FOOTER */}
+        <div className="flex flex-col items-center gap-6 pt-16">
           <motion.div
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
-            className="flex flex-col items-center gap-4"
+            className="flex flex-col items-center gap-6"
           >
-            <SwipessLogo size="md" className="transition-transform duration-500 hover:scale-110" />
-            <div className="flex flex-col items-center gap-1.5">
-              <div className="flex items-center gap-2">
-                <span className="swipess-text text-xl font-black tracking-tighter text-foreground/80">Swipess</span>
-                <Badge variant="outline" className="text-[10px] font-black tracking-widest uppercase py-0.5 px-2 bg-brand-primary/10 border-brand-primary/20 text-brand-primary font-mono">v3.3.0</Badge>
-              </div>
-              <p className="text-[10px] text-muted-foreground font-black uppercase tracking-[0.25em] opacity-40">Elite Discovery Engine</p>
+            <div className={cn("w-16 h-16 rounded-[1.6rem] flex items-center justify-center shadow-2xl border transition-transform duration-500 hover:scale-110", isLight ? "bg-white border-black/5" : "bg-black border-white/10")}>
+               <SwipessLogo size="sm" />
+            </div>
+            <div className="text-center space-y-2">
+               <div className="flex items-center justify-center gap-3">
+                  <span className={cn("text-2xl font-black italic tracking-tighter uppercase", isLight ? "text-black" : "text-white")}>Swipess</span>
+                  <div className="bg-[#EB4898]/10 px-3 py-1 rounded-full border border-[#EB4898]/20">
+                     <span className="text-[9px] font-black text-[#EB4898] uppercase tracking-widest font-mono">V3.3.1</span>
+                  </div>
+               </div>
+               <p className={cn("text-[9px] font-black uppercase tracking-[0.4em] italic opacity-30", isLight ? "text-black" : "text-white")}>Elite Discovery Engine</p>
             </div>
           </motion.div>
         </div>

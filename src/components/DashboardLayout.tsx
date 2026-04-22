@@ -15,18 +15,8 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useCategories } from '@/state/filterStore'
 import { QuickFilterCategory } from '@/types/filters'
 
-// New Mobile Navigation Components
-import { TopBar } from '@/components/TopBar'
-import { BottomNavigation } from '@/components/BottomNavigation'
-import { AdvancedFilters } from '@/components/AdvancedFilters'
-import { RadioMiniPlayer } from '@/components/RadioMiniPlayer'
-import { IvanaSkyBackground } from '@/components/IvanaSkyBackground'
-
-// Note: TopBar, SwipessLogo, BottomNavigation are now rendered by AppLayout.tsx (global HUD)
-
 // SPEED OF LIGHT HOOKS
 import { useWelcomeState } from "@/hooks/useWelcomeState"
-import { LoadingBar } from './ui/LoadingBar';
 import { GlobalDialogs } from './GlobalDialogs'
 import { useModalStore } from '@/state/modalStore'
 import { useFocusMode } from '@/hooks/useFocusMode'
@@ -34,7 +24,6 @@ import { useScrollDirection } from '@/hooks/useScrollDirection'
 
 // =============================================================================
 // PERFORMANCE FIX: SessionStorage caching for dashboard checks
-// Prevents visible state changes when returning to dashboard
 // =============================================================================
 
 const ONBOARDING_CACHE_KEY = 'dashboard_onboarding_check';
@@ -50,13 +39,9 @@ function getOnboardingCache(userId: string): OnboardingCacheEntry | null {
   try {
     const cached = sessionStorage.getItem(ONBOARDING_CACHE_KEY);
     if (!cached) return null;
-
     const entry: OnboardingCacheEntry = JSON.parse(cached);
-
-    // Validate cache: same user and not expired
     if (entry.userId !== userId) return null;
     if (Date.now() - entry.checkedAt > CACHE_EXPIRY_MS) return null;
-
     return entry;
   } catch {
     return null;
@@ -76,16 +61,6 @@ function setOnboardingCache(userId: string, needsOnboarding: boolean): void {
   }
 }
 
-function _clearOnboardingCache(): void {
-  try {
-    sessionStorage.removeItem(ONBOARDING_CACHE_KEY);
-  } catch {
-    // Ignore
-  }
-}
-
-// =============================================================================
-
 interface DashboardLayoutProps {
   children: ReactNode
   userRole: 'client' | 'owner' | 'admin'
@@ -95,22 +70,20 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   const { theme, isDark } = useTheme()
   const [onboardingChecked, setOnboardingChecked] = useState(false)
   const [showOnboarding, setShowOnboarding] = useState(false)
-  
   const modalStore = useModalStore()
-
   const { navigate } = useAppNavigate();
   const location = useLocation()
   const { user } = useAuth()
   const { restoreDrafts } = useAnonymousDrafts()
   const responsive = useResponsiveContext()
+  const userId = user?.id
+  const cacheCheckedRef = useRef(false);
 
   // 🛡️ HUD MASTER RECOVERY: Ensure UI is visible on mount and every navigation
   useEffect(() => {
-    // Force recovery on mount/navigation
     const recoveryEvent = new CustomEvent('sentient-ui-recovery');
     window.dispatchEvent(recoveryEvent);
     
-    // Safety net: second attempt after 1.5s to ensure splash has cleared
     const safetyCheck = setTimeout(() => {
       window.dispatchEvent(new CustomEvent('sentient-ui-recovery'));
     }, 1500);
@@ -118,10 +91,8 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     return () => clearTimeout(safetyCheck);
   }, [location.pathname]);
 
-  // NEXT-GEN DESIGN: Mouse tracking for liquid glass effects (throttled to ~30fps)
-  // PERF: Disabled on PWA/touch devices to save CPU and battery
+  // NEXT-GEN DESIGN: Mouse tracking for liquid glass effects
   useEffect(() => {
-    // Only enable on desktop with mouse
     const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
     if (isTouchDevice) return;
 
@@ -141,17 +112,9 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     };
   }, []);
 
-  const userId = user?.id
-
-  // Track if we've checked cache synchronously on mount
-  const cacheCheckedRef = useRef(false);
-
-  // PERFORMANCE FIX: Welcome state with DB-backed persistence
   const { shouldShowWelcome: _shouldShowWelcome, dismissWelcome: _dismissWelcome } = useWelcomeState(userId)
-
   const queryClient = useQueryClient();
 
-  // PERF: Defer route prefetching until after first paint
   useEffect(() => {
     if (userRole === 'client' || userRole === 'owner') {
       if ('requestIdleCallback' in window) {
@@ -164,7 +127,6 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     }
   }, [userRole]);
 
-  // PERF: Onboarding check with sessionStorage caching
   useEffect(() => {
     if (!userId || onboardingChecked) return;
 
@@ -173,9 +135,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       const cached = getOnboardingCache(userId);
       if (cached) {
         setOnboardingChecked(true);
-        if (cached.needsOnboarding) {
-          setShowOnboarding(true);
-        }
+        if (cached.needsOnboarding) setShowOnboarding(true);
         return;
       }
     }
@@ -188,12 +148,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
           .eq('user_id', userId)
           .maybeSingle();
 
-        if (error) {
-          setOnboardingCache(userId, false);
-          return;
-        }
-
-        if (!data) {
+        if (error || !data) {
           setOnboardingCache(userId, false);
           return;
         }
@@ -203,9 +158,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
         const needsOnboarding = data?.onboarding_completed === false && hasMinimalData;
         setOnboardingCache(userId, needsOnboarding);
 
-        if (needsOnboarding) {
-          setShowOnboarding(true);
-        }
+        if (needsOnboarding) setShowOnboarding(true);
       } catch (error) {
         setOnboardingCache(userId, false);
       }
@@ -220,15 +173,13 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     }
   }, [userId, onboardingChecked]);
 
-  // Restore anonymous drafts after signup/login
   useEffect(() => {
     if (userId) {
       const pendingAction = sessionStorage.getItem('pending_auth_action');
       if (pendingAction) {
         try {
           const action = JSON.parse(pendingAction);
-          const age = Date.now() - action.timestamp;
-          if (age < 24 * 60 * 60 * 1000) {
+          if (Date.now() - action.timestamp < 24 * 60 * 60 * 1000) {
             restoreDrafts();
           }
           sessionStorage.removeItem('pending_auth_action');
@@ -241,7 +192,6 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-  // SPEED OF LIGHT: Passive Link Observer
   useEffect(() => {
     const observer = createLinkObserver();
     if (!observer || !scrollContainerRef.current) return;
@@ -261,7 +211,6 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     };
   }, [location.pathname]);
 
-  // SCROLL-TO-TOP: Physically instant reset
   useLayoutEffect(() => {
     const el = scrollContainerRef.current;
     if (el) {
@@ -269,46 +218,21 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     }
   }, [location.pathname]);
 
-  const clientSwipePaths = [
-    '/client/dashboard',
-    '/client/profile',
-    '/client/liked-properties',
-    '/messages',
-    '/explore/roommates',
-  ];
-  const ownerSwipePaths = [
-    '/owner/dashboard',
-    '/owner/profile',
-    '/owner/liked-clients',
-    '/owner/properties',
-    '/messages',
-  ];
+  const clientSwipePaths = ['/client/dashboard', '/client/profile', '/client/liked-properties', '/messages', '/explore/roommates'];
+  const ownerSwipePaths = ['/owner/dashboard', '/owner/profile', '/owner/liked-clients', '/owner/properties', '/messages'];
 
-  // IMMERSIVE MODE: Detect swipe dashboard routes for full-bleed card experience
   const isImmersiveDashboard = useMemo(() => {
     const path = location.pathname;
-    // Core routes that should go full-bleed behind the header ONLY for hero effects.
     const immersiveRoutes = [
-      '/client/dashboard',
-      '/owner/dashboard',
-      '/client/liked-properties',
-      '/owner/properties',
-      '/owner/interested-clients',
-      '/owner/liked-clients',
-      '/client/advertise'
+      '/client/dashboard', '/owner/dashboard', '/client/liked-properties',
+      '/owner/properties', '/owner/interested-clients', '/owner/liked-clients', '/client/advertise'
     ];
-
-    const isMatch = immersiveRoutes.some(route => path === route || path === route + '/' || path.startsWith(route + '/')) ||
-      path.includes('discovery') ||
-      path.includes('view-client') ||
-      path.includes('/listing/');
-    
-    return isMatch;
+    return immersiveRoutes.some(route => path === route || path === route + '/' || path.startsWith(route + '/')) ||
+      path.includes('discovery') || path.includes('view-client') || path.includes('/listing/');
   }, [location.pathname]);
 
   const { resetFocus } = useFocusMode(6000);
 
-  // 🧘 IMMERSIVE HUD
   useScrollDirection({
     threshold: 20,
     showAtTop: true,
@@ -320,15 +244,12 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     resetFocus();
   }, [location.pathname, resetFocus]);
 
-  const categories = useCategories();
-  
   const isRadioRoute = useMemo(() => location.pathname.includes('/radio'), [location.pathname]);
   const isCameraRoute = useMemo(() => location.pathname.includes('/camera'), [location.pathname]);
 
   const isFullScreenRoute = useMemo(() => {
     const scrollExclusions = ['likes', 'interested', 'liked'];
     if (scrollExclusions.some(path => location.pathname.includes(path))) return false;
-
     const isRoommatesPageLocal = location.pathname.startsWith('/explore/roommates');
     const isSpecialSubPage = [
       '/client/advertise', '/explore/prices', '/explore/intel', '/explore/tours',
@@ -336,7 +257,6 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       '/privacy-policy', '/terms-of-service', '/legal', '/agl',
       '/subscription/packages', '/notifications', '/explore/eventos'
     ].some(path => location.pathname === path || location.pathname === path + '/');
-
     return isCameraRoute || isRadioRoute || isRoommatesPageLocal || isSpecialSubPage || modalStore.showMapFullscreen;
   }, [location.pathname, isCameraRoute, isRadioRoute, modalStore.showMapFullscreen]);
 
@@ -357,8 +277,6 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       (isImmersiveDashboard || location.pathname.includes('dashboard')) ? (isDark ? "bg-black" : "bg-white") : "bg-background",
       isDark ? "dark dark-matte" : "light white-matte"
     )}>
-
-      {/* Main Content */}
       <main
         ref={scrollContainerRef}
         id="dashboard-scroll-container"

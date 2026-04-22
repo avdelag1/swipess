@@ -29,6 +29,7 @@ export type OwnerClientType = ClientType;
 interface QuickFilterBarProps {
   filters: QuickFilters;
   onChange: (filters: QuickFilters) => void;
+  onSelect?: (categoryId: QuickFilterCategory) => void;
   className?: string;
   userRole?: 'client' | 'owner';
 }
@@ -81,7 +82,8 @@ const smoothButtonClass = cn(
   'active:scale-[0.96]',
   'hover:brightness-110',
   'touch-manipulation',
-  '-webkit-tap-highlight-color-transparent'
+  'outline-none focus:outline-none',
+  '[-webkit-tap-highlight-color:transparent]'
 );
 
 // Dropdown component for compact filters - instant response, no delays
@@ -172,7 +174,7 @@ function FilterDropdown({
   );
 }
 
-function QuickFilterBarComponent({ filters, onChange, className, userRole = 'client' }: QuickFilterBarProps) {
+function QuickFilterBarComponent({ filters, onChange, onSelect, className, userRole = 'client' }: QuickFilterBarProps) {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
   const handleCategoryToggle = useCallback((categoryId: QuickFilterCategory) => {
@@ -190,8 +192,12 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
   const handleCategorySelect = useCallback((categoryId: QuickFilterCategory) => {
     const newCategories: QuickFilterCategory[] = [categoryId];
     saveQuickFilter(newCategories);
-    onChange({ ...filters, categories: newCategories, listingType: 'both' });
-  }, [filters, onChange]);
+    if (onSelect) {
+      onSelect(categoryId);
+    } else {
+      onChange({ ...filters, categories: newCategories, listingType: 'both' });
+    }
+  }, [filters, onChange, onSelect]);
 
   const _handleListingTypeChange = useCallback((type: QuickFilterListingType) => {
     onChange({
@@ -267,10 +273,14 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
                 <button
                   key={option.id}
                   onClick={() => {
-                    if (option.id === 'all') {
-                      onChange({ ...filters, clientType: 'all', clientGender: 'any' });
+                    if (onSelect) {
+                      onSelect(option.id as any);
                     } else {
-                      onChange({ ...filters, clientType: option.id as any });
+                      if (option.id === 'all') {
+                        onChange({ ...filters, clientType: 'all', clientGender: 'any' });
+                      } else {
+                        onChange({ ...filters, clientType: option.id as any });
+                      }
                     }
                   }}
                   className={cn(
@@ -282,12 +292,12 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
                   )}
                   style={{ contain: 'paint', willChange: 'transform, opacity' }}
                 >
-                  <div className="absolute inset-0 bg-black/40 z-10 group-hover:bg-black/20 transition-colors" />
+                    <div className="absolute inset-0 bg-[var(--hud-text)]/10 z-10 group-hover:bg-[var(--hud-text)]/5 transition-colors" />
                 <QuickFilterImage 
                   src={option.image} 
                   alt={option.label}
                 />
-                  <div className="absolute inset-0 flex flex-col items-center justify-center z-20 text-white">
+                  <div className="absolute inset-0 flex flex-col items-center justify-center z-20" style={{ color: 'var(--hud-text)' }}>
                     <div className={cn("mb-1 transition-transform duration-150", isActive && "scale-105")}>
                       {option.icon}
                     </div>
@@ -302,18 +312,6 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
                 </button>
               );
             })}
-          </div>
-          
-          <div className="px-1 pt-1 text-center sm:text-left">
-            <p className={cn(
-                'font-black transition-all duration-150 bg-clip-text text-transparent bg-gradient-to-r',
-                'from-orange-500 via-pink-500 to-rose-500 text-[10px] uppercase tracking-widest'
-              )}
-            >
-              {currentClientType === 'all' 
-                ? '✨ Filtering ALL Active Client Intents ✨' 
-                : `Showing clients looking to ${currentClientType} ✨`}
-            </p>
           </div>
         </div>
       </div>
@@ -362,12 +360,12 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
             )}
             style={{ contain: 'paint', willChange: 'transform, opacity' }}
           >
-            <div className="absolute inset-0 bg-black/40 z-10 group-hover:bg-black/20 transition-colors" />
+            <div className="absolute inset-0 bg-[var(--hud-text)]/10 z-10 group-hover:bg-[var(--hud-text)]/5 transition-colors" />
             <QuickFilterImage 
               src={POKER_CARD_PHOTOS.all || '/images/filters/property.png'} 
               alt="All"
             />
-            <div className="absolute inset-0 flex flex-col items-center justify-center z-20 text-white">
+            <div className="absolute inset-0 flex flex-col items-center justify-center z-20" style={{ color: 'var(--hud-text)' }}>
               <Globe className={cn("w-7 h-7 mb-1 transition-transform duration-150", clientIsAllSelected && "scale-105")} />
               <span className="text-[10px] font-black uppercase tracking-widest">Global</span>
               <span className="text-xl font-black">ALL</span>
@@ -396,12 +394,12 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
                 )}
                 style={{ contain: 'paint', willChange: 'transform, opacity' }}
               >
-                <div className="absolute inset-0 bg-black/40 z-10 group-hover:bg-black/20 transition-colors" />
+                <div className="absolute inset-0 bg-[var(--hud-text)]/10 z-10 group-hover:bg-[var(--hud-text)]/5 transition-colors" />
                 <QuickFilterImage 
                   src={photo} 
                   alt={category.label}
                 />
-                <div className="absolute inset-0 flex flex-col items-center justify-center z-20 text-white">
+                <div className="absolute inset-0 flex flex-col items-center justify-center z-20" style={{ color: 'var(--hud-text)' }}>
                   <div className={cn("mb-1 transition-transform duration-150", isActive && "scale-105")}>
                     {category.icon}
                   </div>
@@ -417,24 +415,12 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
             );
           })}
         </div>
-
-        {/* Status indicator */}
-        <div className="px-1 pt-1">
-          <p className={cn(
-              'font-black transition-all duration-150 bg-clip-text text-transparent bg-gradient-to-r',
-              clientIsAllSelected 
-                ? 'from-orange-500 via-pink-500 to-rose-500 text-[10px] uppercase tracking-widest' 
-                : 'from-muted-foreground/60 to-foreground text-[10px] uppercase tracking-widest opacity-90'
-            )}
-          >
-            {clientIsAllSelected
-              ? '✨ Filtering ALL Active Client Intents ✨'
-              : `✨ Showing ${activeCategoryLabel} Near You ✨`}
-          </p>
-        </div>
       </div>
     </div>
   );
 }
 
 export const QuickFilterBar = memo(QuickFilterBarComponent);
+
+
+

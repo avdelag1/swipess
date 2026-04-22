@@ -253,3 +253,5 @@ export function prefetchNextLikelyRoute(currentPath: string): void {
 export function isRoutePrefetched(path: string): boolean {
   return prefetchedRoutes.has(path);
 }
+
+

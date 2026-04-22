@@ -132,3 +132,5 @@ export const MOCK_EVENTS: EventItem[] = [
     organizer_name: 'Tulum Stays', organizer_whatsapp: '+529847770099', promo_text: 'Members-only rate', discount_tag: '15% OFF', is_free: false, price_text: 'From $2,800 MXN/night',
   },
 ];
+
+

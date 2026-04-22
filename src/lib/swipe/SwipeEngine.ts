@@ -391,3 +391,5 @@ export class SwipeEngine {
 export function createSwipeEngine(config?: Partial<SwipeEngineConfig>): SwipeEngine {
   return new SwipeEngine(config);
 }
+
+

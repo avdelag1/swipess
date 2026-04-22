@@ -961,3 +961,5 @@ export const getTemplatesByRole = (role: 'owner' | 'client'): ContractTemplate[]
 export const getTemplateById = (id: string): ContractTemplate | undefined => {
   return getAllTemplates().find(t => t.id === id);
 };
+
+

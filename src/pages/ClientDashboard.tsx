@@ -1,7 +1,8 @@
-import { useCallback, useState, useEffect } from 'react';
+import { useCallback, useState, useEffect, lazy, Suspense } from 'react';
 import { SwipessSwipeContainer } from '@/components/SwipessSwipeContainer';
 import { useFilterStore, useFilterActions } from '@/state/filterStore';
 import { SwipeAllDashboard } from '@/components/swipe/SwipeAllDashboard';
+import { QuickFilterBar } from '@/components/QuickFilterBar';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { QuickFilterCategory } from '@/types/filters';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
@@ -10,7 +11,8 @@ import { cn } from '@/lib/utils';
 import { useTheme } from '@/hooks/useTheme';
 import { useSmartListingMatching } from '@/hooks/smartMatching/useSmartListingMatching';
 import { useAuth } from '@/hooks/useAuth';
-import { DiscoveryMapView } from '@/components/swipe/DiscoveryMapView';
+
+const DiscoveryMapView = lazy(() => import('@/components/swipe/DiscoveryMapView'));
 
 interface ClientDashboardProps {
   onMessageClick?: () => void;
@@ -91,7 +93,19 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
   const showSwipe = phase === 'swipe' && !!activeCategory;
 
   return (
-    <div className="flex flex-col h-full w-full overflow-hidden bg-background relative">
+    <div className={cn(
+      "flex-1 flex flex-col items-center justify-center p-0 overflow-hidden relative",
+      isLight ? "bg-white" : "bg-[#020202]"
+    )}>
+      {/* 🛸 Swipess ATMOSPHERIC LAYER (Forced for Discovery Phase) */}
+      {!isLight && (
+        <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
+          <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-indigo-900/20 blur-[120px] rounded-full" />
+          <div className="absolute bottom-[-5%] right-[-5%] w-[50%] h-[50%] bg-cyan-900/10 blur-[100px] rounded-full" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.03)_0%,transparent_70%)]" />
+        </div>
+      )}
+
       <AnimatePresence mode="wait">
         {showCards && (
           <motion.div
@@ -100,32 +114,46 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 1.05 }}
             transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-            className="flex flex-col items-center justify-center h-full w-full overflow-hidden"
-            style={{ willChange: 'transform, opacity' }}
+            className="relative flex flex-col items-center w-full h-full overflow-hidden z-10"
+            style={{ 
+              paddingTop: 'calc(var(--top-bar-height) + var(--safe-top) + 20px)',
+              paddingBottom: 'calc(var(--bottom-nav-height) + var(--safe-bottom))',
+              willChange: 'transform, opacity' 
+            }}
           >
-            <SwipeAllDashboard setCategories={handleLaunch} />
+            <div className="flex-1 flex items-center justify-center w-full min-h-0">
+              <SwipeAllDashboard setCategories={(ids: any) => handleLaunch((Array.isArray(ids) ? ids[0] : ids) as QuickFilterCategory)} />
+            </div>
           </motion.div>
         )}
 
         {showMap && selectedCategory && (
           <motion.div
             key={`map-${selectedCategory}`}
-            initial={{ opacity: 0, scale: 0.96 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 1.04 }}
-            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-            className="fixed inset-0 z-[50] flex flex-col overflow-hidden bg-background"
+            initial={{ y: '100%', opacity: 0.5 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: '100%', opacity: 0 }}
+            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            className={cn(
+              "fixed inset-0 z-[10002] flex flex-col overflow-hidden backdrop-blur-2xl rounded-t-[3rem] shadow-[0_-20px_100px_rgba(0,0,0,0.3)]",
+              isLight ? "bg-white/90" : "bg-black/90"
+            )}
             style={{ willChange: 'transform, opacity' }}
           >
-            <DiscoveryMapView 
-              category={selectedCategory} 
-              onBack={handleMapBack}
-              onStartSwiping={handleStartSwiping}
-              onCategoryChange={(cat) => {
-                setSelectedCategory(cat);
-                setActiveCategory(cat);
-              }}
-            />
+            {/* Apple Style Grabber */}
+            <div className="absolute top-3 left-1/2 -translate-x-1/2 w-12 h-1.5 bg-white/20 rounded-full z-[10002]" />
+            
+            <Suspense fallback={<div className="flex-1 bg-black/10 animate-pulse" />}>
+              <DiscoveryMapView 
+                category={selectedCategory} 
+                onBack={handleMapBack}
+                onStartSwiping={handleStartSwiping}
+                onCategoryChange={(cat) => {
+                  setSelectedCategory(cat);
+                  setActiveCategory(cat);
+                }}
+              />
+            </Suspense>
           </motion.div>
         )}
 
@@ -136,7 +164,7 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -20, scale: 0.98 }}
             transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-            className="w-full h-full flex flex-col"
+            className="w-full h-full flex flex-col z-10"
             style={{ willChange: 'transform, opacity' }}
           >
             <SwipessSwipeContainer
@@ -151,12 +179,11 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
       <Sheet open={showFilters} onOpenChange={setShowFilters}>
           <SheetContent side="bottom" className="h-[92vh] p-0 border-none bg-transparent overflow-hidden">
             <div className={cn(
-              "w-full h-full transition-all duration-500 rounded-t-[3.5rem] border-t overflow-y-auto",
-              isLight ? "bg-white/75 backdrop-blur-[40px] saturate-[180%] border-none shadow-[0_-20px_60px_rgba(0,0,0,0.1),inset_0_0_0_1.5px_rgba(255,255,255,0.8)]" : 
-              "bg-black/65 backdrop-blur-[40px] saturate-[180%] border-none shadow-[0_-40px_100px_rgba(0,0,0,0.8),inset_0_0_0_1.5px_rgba(255,255,255,0.15)]"
+              "w-full h-full transition-all duration-500 rounded-t-[3.5rem] border-t overflow-y-auto shadow-2xl",
+              isLight ? "bg-white/95 border-black/5" : "bg-black/95 border-white/10"
             )}>
                <div className="sticky top-0 z-[60] flex items-center justify-center pt-4 pb-2">
-                  <div className="w-12 h-1.5 bg-white/20 rounded-full" />
+                  <div className={cn("w-12 h-1.5 rounded-full", isLight ? "bg-black/10" : "bg-white/20")} />
                </div>
                <div className="px-1 pb-20">
                   <ClientFilters isEmbedded={true} onClose={() => setShowFilters(false)} />
@@ -167,4 +194,3 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
     </div>
   );
 }
-

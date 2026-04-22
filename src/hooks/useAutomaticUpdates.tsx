@@ -26,7 +26,7 @@ export const APP_VERSION = `1.0.${BUILD_TIMESTAMP === 'v1.0.0' ? '999' : BUILD_T
 
 // Storage key for version tracking
 const VERSION_STORAGE_KEY = 'Swipess_app_version';
-const RELOAD_GUARD_KEY = 'swipess_reload_triggered';
+const RELOAD_GUARD_KEY = 'Swipess_reload_triggered';
 const _SW_REGISTRATION_KEY = 'Swipess_sw_registration';
 
 interface UpdateInfo {
@@ -166,7 +166,7 @@ export function useAutomaticUpdates() {
 
     setIsUpdating(true);
     // Mark as seen in session immediately
-    sessionStorage.setItem('swipess_update_seen', 'true');
+    sessionStorage.setItem('Swipess_update_seen', 'true');
     sessionStorage.setItem(RELOAD_GUARD_KEY, (reloadCount + 1).toString());
 
     try {
@@ -221,7 +221,7 @@ export function useAutomaticUpdates() {
           if (newWorker) {
             newWorker.addEventListener('statechange', () => {
               if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                if (sessionStorage.getItem('swipess_update_seen') !== 'true') {
+                if (sessionStorage.getItem('Swipess_update_seen') !== 'true') {
                   performUpdate();
                 }
               }
@@ -254,7 +254,7 @@ export function UpdateNotification() {
   const handleUpdateClick = useCallback(async () => {
     // Immediate local dismissal and session suppression
     setDismissed(true);
-    sessionStorage.setItem('swipess_update_seen', 'true');
+    sessionStorage.setItem('Swipess_update_seen', 'true');
     await performUpdate();
   }, [performUpdate]);
 
@@ -461,3 +461,5 @@ export default {
   UpdateNotification,
   VersionInfo,
 };
+
+

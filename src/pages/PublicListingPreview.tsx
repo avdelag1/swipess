@@ -185,7 +185,7 @@ export default function PublicListingPreview() {
          </div>
       </div>
 
-      {/* 🛸 NEXUS BOTTOM TERMINAL */}
+      {/* 🛸 Swipess BOTTOM TERMINAL */}
       <motion.div
         initial={{ y: '100%' }}
         animate={{ y: 0 }}
@@ -297,3 +297,5 @@ export default function PublicListingPreview() {
     </div>
   );
 }
+
+

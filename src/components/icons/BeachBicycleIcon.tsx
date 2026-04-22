@@ -34,3 +34,5 @@ export function BeachBicycleIcon({ className, ...props }: SVGProps<SVGSVGElement
     </svg>
   );
 }
+
+

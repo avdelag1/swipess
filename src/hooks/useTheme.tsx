@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { logger } from '@/utils/prodLogger';
 
-export type Theme = 'dark' | 'light' | 'cheers' | 'red-matte' | 'amber-matte' | 'pure-black';
+export type Theme = 'dark' | 'light' | 'cheers' | 'red-matte' | 'amber-matte' | 'pure-black' | 'Swipess-style';
 
 export interface ThemeToggleCoords {
   x: number;
@@ -20,9 +20,9 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-const _VALID_THEMES: Theme[] = ['dark', 'light', 'cheers', 'red-matte', 'amber-matte', 'pure-black'];
+const _VALID_THEMES: Theme[] = ['dark', 'light', 'cheers', 'red-matte', 'amber-matte', 'pure-black', 'Swipess-style'];
 const DEFAULT_THEME: Theme = 'dark';
-const STORAGE_KEY = 'swipess_theme_preference';
+const STORAGE_KEY = 'Swipess_theme_preference';
 
 /** Map legacy DB values to new theme names */
 function normalizeTheme(raw: string | null | undefined): Theme {
@@ -31,13 +31,15 @@ function normalizeTheme(raw: string | null | undefined): Theme {
   if (raw === 'red-matte' || raw === 'red') return 'red-matte';
   if (raw === 'amber-matte' || raw === 'amber') return 'amber-matte';
   if (raw === 'pure-black') return 'pure-black';
+  if (raw === 'Swipess-style' || raw === 'cyber' || raw === 'Swipess') return 'Swipess-style';
+  if (raw === 'dark' || raw === 'black-matte' || raw === 'grey-matte') return 'dark';
   return 'dark';
 }
 
 const ALL_THEME_CLASSES = [
   'grey-matte', 'black-matte', 'white-matte', 'red-matte',
   'amber-matte', 'pure-black', 'cheers', 'dark', 'light',
-  'amber', 'red',
+  'amber', 'red', 'Swipess-style'
 ];
 
 /** 
@@ -46,20 +48,25 @@ const ALL_THEME_CLASSES = [
 function applyThemeToDOM(theme: Theme) {
   const root = window.document.documentElement;
   
+  // Check if theme is already applied - avoids "white flash" caused by class removal
+  if (root.classList.contains(theme) && (theme !== 'dark' || root.classList.contains('black-matte'))) {
+    return;
+  }
+
+  // Mark transition start for smooth color shift
+  root.style.colorScheme = (theme === 'light') ? 'light' : 'dark';
+  
   // PERFORMANCE: Only remove if we're actually changing
-  root.classList.remove(...ALL_THEME_CLASSES);
+  root.classList.remove(...ALL_THEME_CLASSES, 'ivanna-style', 'ivana');
 
   // Add the theme class
   root.classList.add(theme);
-
-  // Mark transition start for smooth color shift
-  root.style.colorScheme = (theme === 'light' || theme === 'white-matte') ? 'light' : 'dark';
 
   if (theme === 'dark') {
     root.classList.add('black-matte');
   } else if (theme === 'light') {
     root.classList.add('white-matte');
-  } else if (theme === 'cheers' || theme === 'red-matte' || theme === 'amber-matte' || theme === 'pure-black') {
+  } else if (theme !== 'light') {
     root.classList.add('dark');
   }
 
@@ -72,7 +79,7 @@ function applyThemeToDOM(theme: Theme) {
   }
   
   let targetColor: string;
-  if (theme === 'dark' || theme === 'pure-black') targetColor = '#000000';
+  if (theme === 'dark' || theme === 'pure-black' || theme === 'Swipess-style') targetColor = '#000000';
   else if (theme === 'cheers') targetColor = '#180800';
   else if (theme === 'red-matte') targetColor = '#2d0a0a';
   else if (theme === 'amber-matte') targetColor = '#1a1200';
@@ -121,7 +128,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       if (!cached) setThemeState(DEFAULT_THEME);
       hasLoadedThemeRef.current = false;
     }
-  }, [user?.id, loading]);
+  }, [user?.id, loading, theme]);
 
   useEffect(() => {
     applyThemeToDOM(theme);
@@ -162,7 +169,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   };
 
   const isLight = theme === 'light';
-  const isDark = !isLight; // Cheers and other matte themes are essentially dark
+  const isDark = !isLight;
 
   const value = useMemo(() => ({ theme, isLight, isDark, setTheme }), [theme, isLight, isDark]);
 
@@ -180,4 +187,3 @@ export function useTheme() {
   }
   return context;
 }
-

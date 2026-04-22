@@ -160,3 +160,5 @@ export const uploadPhotoBatch = async (
 
   return results.map(result => result.publicUrl);
 };
+
+

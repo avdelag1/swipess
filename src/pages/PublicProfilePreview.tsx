@@ -206,7 +206,7 @@ export default function PublicProfilePreview() {
           <div className="w-9" />
         )}
 
-        {/* Profile identity pill removed for Nexus aesthetic */}
+        {/* Profile identity pill removed for Swipess aesthetic */}
         <div className="w-12" />
 
         {!user ? (
@@ -396,7 +396,7 @@ export default function PublicProfilePreview() {
             </div>
 
             <p className="text-center text-[10px] font-black uppercase tracking-[0.3em] italic opacity-20 pb-1">
-              Nexus Discovery · Find Your Perfect Match
+              Swipess · Find Your Perfect Match
             </p>
           </div>
         </motion.div>
@@ -404,3 +404,5 @@ export default function PublicProfilePreview() {
     </div>
   );
 }
+
+

@@ -31,7 +31,7 @@ import { useSwipeDeckStore, persistDeckToSession } from '@/state/swipeDeckStore'
 import { useFilterStore, useFilterActions } from '@/state/filterStore';
 import { useShallow } from 'zustand/react/shallow';
 import { useSwipeDismissal } from '@/hooks/useSwipeDismissal';
-import { Home, Bike, Briefcase, ChevronLeft } from 'lucide-react';
+import { Home, Bike, Briefcase, ChevronLeft, Radar, SlidersHorizontal } from 'lucide-react';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { useSwipeSounds } from '@/hooks/useSwipeSounds';
 import { appToast } from '@/utils/appNotification';
@@ -937,7 +937,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
       }
     } catch (err) {
       if (import.meta.env.DEV) {
-        logger.error('[SwipessSwipe] Error starting conversation:', err);
+        logger.error('[SwipessDiscoverySwipe] Error starting conversation:', err);
       }
       appToast.error('Error', err instanceof Error ? err.message : 'Could not start conversation');
     } finally {
@@ -1015,9 +1015,16 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
               lat={userLatitude}
               lng={userLongitude}
               variant="minimal"
+              nodes={useMemo(() => (smartListings || []).map(l => ({
+                id: l.id,
+                lat: l.latitude || 0,
+                lng: l.longitude || 0,
+                label: l.title || 'Found'
+              })), [smartListings])}
             />
         </div>
       )}
+
 
       {/* Card area — flex-1 fills remaining space */}
       <div className={cn(
@@ -1120,13 +1127,15 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
           </AnimatePresence>
       </div>
       {/* BUILD VERSION STAMP - VISUAL PROOF OF UPDATE */}
-      {/* 🚀 QUICK FILTERS: REPOSITIONED BY USER REQUEST (Bottom Near Nav) */}
+      {/* 🚀 QUICK FILTERS: REPOSITIONED BY USER REQUEST (Split on Both Sides) */}
       {(!isLoading || deckQueue.length > 0) && !(storeActiveCategory && deckQueue.length === 0 && !isLoading) && (
-        <div className="absolute bottom-[100px] left-0 right-0 z-[60] w-full flex justify-center px-4 pointer-events-none">
-          <div className="flex gap-4 p-2 rounded-full backdrop-blur-3xl border border-white/10 bg-black/20 pointer-events-auto shadow-2xl">
+        <div className="absolute bottom-[40px] left-0 right-0 z-[60] w-full flex justify-between px-6 pointer-events-none">
+          
+          {/* LEFT SIDE: SECTOR ACQUISITION (Quick Categories) */}
+          <div className="flex gap-3 p-2 rounded-[2rem] backdrop-blur-3xl border border-white/10 bg-black/40 pointer-events-auto shadow-2xl">
             {(userRole === 'owner' ? OWNER_INTENT_CARDS : POKER_CARDS).filter(c => 
               userRole === 'owner' 
-                ? ['all-clients', 'buyers', 'renters', 'hire'].includes(c.id) 
+                ? ['buyers', 'renters', 'hire'].includes(c.id) 
                 : ['property', 'motorcycle', 'services'].includes(c.id)
             ).map((cat: any) => {
               const Icon = cat.icon;
@@ -1134,26 +1143,53 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
               return (
                 <motion.button
                   key={cat.id}
-                  whileTap={{ scale: 0.95 }}
+                  whileTap={{ scale: 0.9 }}
                   onClick={() => {
-                    triggerHaptic('light');
+                    triggerHaptic('medium');
                     setActiveCategory(cat.id);
                   }}
                   className={cn(
-                    "w-12 h-12 rounded-full flex items-center justify-center transition-all relative overflow-hidden border",
+                    "w-14 h-14 rounded-2xl flex items-center justify-center transition-all relative overflow-hidden border",
                     isActive 
-                      ? (isLight ? "text-black border-black/20 bg-white shadow-lg scale-110" : "text-primary border-primary bg-black/60 shadow-[0_0_20px_rgba(255,107,53,0.4)] scale-110")
-                      : (isLight ? "text-black/30 border-black/5 hover:text-black/60" : "text-white/30 border-white/10 hover:text-white/60 bg-black/20")
+                      ? "text-primary border-primary bg-primary/10 shadow-[0_0_20px_rgba(var(--color-brand-primary-rgb),0.3)] scale-110"
+                      : "text-white/40 border-white/5 hover:text-white/60 bg-white/5"
                   )}
                 >
                   <Icon className="w-5 h-5" />
-                  {isActive && <motion.div layoutId="activeCat" className="absolute inset-0 bg-primary/10 -z-10" />}
+                  {isActive && <motion.div layoutId="activeCatLeft" className="absolute inset-0 bg-primary/10 -z-10" />}
                 </motion.button>
               );
             })}
           </div>
+
+          {/* RIGHT SIDE: MARKET INTELLIGENCE (Advanced & Radar) */}
+          <div className="flex gap-3 p-2 rounded-[2rem] backdrop-blur-3xl border border-white/10 bg-black/40 pointer-events-auto shadow-2xl">
+             <motion.button
+               whileTap={{ scale: 0.9 }}
+               onClick={() => {
+                 triggerHaptic('medium');
+                 setRadiusKm(prev => prev === 100 ? 5 : prev + 10);
+               }}
+               className="w-14 h-14 rounded-2xl flex flex-col items-center justify-center border border-white/5 bg-white/5 text-white/40"
+             >
+               <Radar className="w-5 h-5 mb-0.5" />
+               <span className="text-[7px] font-black uppercase text-primary">{radiusKm}K</span>
+             </motion.button>
+
+             <motion.button
+               whileTap={{ scale: 0.9 }}
+               onClick={() => {
+                 triggerHaptic('heavy');
+                 navigate('/client/filters');
+               }}
+               className="w-14 h-14 rounded-2xl flex items-center justify-center border border-primary/40 bg-primary/10 text-primary shadow-[0_0_20px_rgba(var(--color-brand-primary-rgb),0.2)]"
+             >
+               <SlidersHorizontal className="w-5 h-5" />
+             </motion.button>
+          </div>
         </div>
       )}
+
 
       {/* BUILD VERSION STAMP */}
       <div className="absolute bottom-[85px] right-6 z-0 pointer-events-none opacity-20">
@@ -1220,3 +1256,5 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
 };
 
 export const SwipessSwipeContainer = memo(SwipessSwipeContainerComponent);
+
+

@@ -323,3 +323,5 @@ function CollapsibleFilterButtonComponent({ filters, onChange, userRole, classNa
 }
 
 export const CollapsibleFilterButton = memo(CollapsibleFilterButtonComponent);
+
+

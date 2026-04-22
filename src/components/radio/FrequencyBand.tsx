@@ -253,3 +253,5 @@ export function FrequencyBand({
     </div>
   );
 }
+
+

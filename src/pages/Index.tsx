@@ -143,7 +143,7 @@ const Index = () => {
       }
 
       // 4. Sticky Mode Preference: Fastest path (LocalStorage)
-      const cachedMode = localStorage.getItem(`swipess_active_mode_${user.id}`);
+      const cachedMode = localStorage.getItem(`Swipess_active_mode_${user.id}`);
       if (cachedMode === 'client' || cachedMode === 'owner') {
           hasNavigated.current = true;
           logger.log("[Index] Warp-Speed: Navigating to sticky mode", cachedMode);
@@ -151,20 +151,27 @@ const Index = () => {
           return;
       }
 
+      // 4.5. APP-WIDE PROTOCOL: Force start on client regardless of metadata/DB role
+      // This ensures Owners always see the market discovery first.
+      hasNavigated.current = true;
+      navigate('/client/dashboard', { replace: true });
+      return;
+
       // 5. Auth Metadata: Reliable second path (In-memory)
       const metadataRole = user.user_metadata?.role as 'client' | 'owner' | undefined;
-      if (metadataRole) {
+      // ALWAYS start on client first if it's a fresh session or no sticky preference
+      if (metadataRole === 'client') {
           hasNavigated.current = true;
           logger.log("[Index] Warp-Speed: Navigating to metadata role", metadataRole);
-          navigate(`/${metadataRole}/dashboard`, { replace: true });
+          navigate(`/client/dashboard`, { replace: true });
           return;
       }
 
       // 6. DB Role Fallback: If we have the role from the query, use it
-      if (userRole === 'client' || userRole === 'owner') {
+      if (userRole === 'client') {
           hasNavigated.current = true;
           logger.log("[Index] Warp-Speed: Navigating to DB role", userRole);
-          navigate(`/${userRole}/dashboard`, { replace: true });
+          navigate(`/client/dashboard`, { replace: true });
           return;
       }
       
@@ -258,3 +265,5 @@ const Index = () => {
 };
 
 export default Index;
+
+

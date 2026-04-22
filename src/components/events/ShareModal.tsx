@@ -21,7 +21,7 @@ export function ShareModal({
       try {
         await navigator.share({
           title: event.title,
-          text: `Check out ${event.title} in Tulum! Sign up on SwipesS to get connected 🎉`,
+          text: `Check out ${event.title} in Tulum! Sign up on Swipess to get connected 🎉`,
           url: url
         });
         onClose();
@@ -94,3 +94,5 @@ export function ShareModal({
     </AnimatePresence>
   );
 }
+
+

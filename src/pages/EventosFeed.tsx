@@ -315,7 +315,10 @@ export default function EventosFeed() {
   }, [navigate]);
 
   return (
-    <div className={cn("relative w-full h-full min-h-[100dvh] flex flex-col bg-black overflow-hidden")}>
+    <div
+      className="relative w-full flex-grow flex flex-col items-center justify-start bg-transparent overflow-hidden"
+      style={{ minHeight: 'auto', paddingTop: '130px' }}
+    >
       <div className="absolute inset-0 bg-[#0a0a0b] -z-10" />
       
       {/* Floating HUD — hides on scroll down, reappears on scroll up or idle */}
@@ -324,7 +327,7 @@ export default function EventosFeed() {
           "absolute left-0 right-0 z-[100] transform-gpu px-4 pt-8 transition-all duration-300 ease-out",
           hudVisible ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-full pointer-events-none"
         )}
-        style={{ top: 'calc(var(--safe-top, 6px))' }}
+        style={{ top: 'calc(var(--top-bar-height) + var(--safe-top, 6px))' }}
       >
         <div className="flex items-center gap-3">
           <motion.button
@@ -403,7 +406,7 @@ export default function EventosFeed() {
 
       {/* Main Feed */}
       {filteredEvents.length === 0 ? (
-        <div className="absolute inset-0 flex items-center justify-center px-6">
+        <div className="absolute inset-0 flex items-center justify-center px-6 pt-32">
           <div className="w-full max-w-sm rounded-[30px] px-6 py-7 text-center" style={hudGlassStyle}>
             <p className={cn("text-lg font-black tracking-tight", isLight ? "text-foreground" : "text-white")}> 
               {activeCategory === 'likes' ? 'No saved events yet' : 'No events in this category yet'}
@@ -472,3 +475,5 @@ export default function EventosFeed() {
     </div>
   );
 }
+
+

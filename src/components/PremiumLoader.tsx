@@ -9,7 +9,7 @@ interface PremiumLoaderProps {
 }
 
 /**
- * Clean loader — just the SwipesS wordmark, breathing.
+ * Clean loader — just the Swipess wordmark, breathing.
  * Matches the landing page and splash screen feel.
  */
 export function PremiumLoader({ className, size = 'md', full = false }: PremiumLoaderProps) {
@@ -34,3 +34,5 @@ export function PremiumLoader({ className, size = 'md', full = false }: PremiumL
     </div>
   );
 }
+
+

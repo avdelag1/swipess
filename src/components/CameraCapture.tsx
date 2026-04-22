@@ -804,3 +804,5 @@ export function CameraCapture({
 }
 
 export default CameraCapture;
+
+

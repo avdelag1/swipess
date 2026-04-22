@@ -64,3 +64,5 @@ export function useMarkMessagesAsRead(conversationId: string, isActive: boolean)
     };
   }, [conversationId, user?.id, isActive]);
 }
+
+

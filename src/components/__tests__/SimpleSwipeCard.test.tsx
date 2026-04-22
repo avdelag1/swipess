@@ -72,3 +72,5 @@ describe('SimpleSwipeCard Component', () => {
         expect(getByText('Villa')).toBeInTheDocument();
     });
 });
+
+

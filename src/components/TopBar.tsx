@@ -1,7 +1,7 @@
 import { memo, useCallback } from 'react';
 import { useAppNavigate } from "@/hooks/useAppNavigate";
 import { motion } from 'framer-motion';
-import { ChevronLeft, SlidersHorizontal, Radio, Ghost } from 'lucide-react';
+import { ChevronLeft, Radio, Ghost } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
@@ -12,6 +12,8 @@ import { haptics } from '@/utils/microPolish';
 import { ModeSwitcher } from './ModeSwitcher';
 import { NotificationPopover } from './NotificationPopover';
 import { ThemeToggle } from './ThemeToggle';
+import { useModalStore } from '@/state/modalStore';
+import { useFilterStore, useFilterActions } from '@/state/filterStore';
 
 interface TopBarProps {
   onNotificationsClick?: () => void;
@@ -31,7 +33,7 @@ interface TopBarProps {
 
 function TopBarComponent({
   onFilterClick: _onFilterClick,
-  onBack,
+  onBack: propOnBack,
   className,
   userRole,
   transparent: _transparent = false,
@@ -40,18 +42,26 @@ function TopBarComponent({
   const { navigate } = useAppNavigate();
   const { user } = useAuth();
   const { theme, isLight } = useTheme();
+  
+  const activeCategory = useFilterStore(s => s.activeCategory);
+  const { setActiveCategory } = useFilterActions();
 
   const isOwner = userRole === 'owner';
+  
+  // HUD Master Back Logic: Combine prop onBack with Map Back
+  const onBack = propOnBack || (activeCategory ? () => setActiveCategory(null) : undefined);
 
-  const glassSurfaceStyle: React.CSSProperties = {
-    background: _transparent ? 'transparent' : (isLight ? 'rgba(255,255,255,0.75)' : 'rgba(10,10,12,0.65)'),
-    backdropFilter: (_transparent) ? 'none' : 'blur(var(--glass-thick-blur)) saturate(180%) contrast(1.1)',
-    WebkitBackdropFilter: (_transparent) ? 'none' : 'blur(var(--glass-thick-blur)) saturate(180%) contrast(1.1)',
-    borderRadius: '2.5rem',
-    boxShadow: _transparent ? 'none' : (isLight
-      ? '0 10px 40px rgba(0,0,0,0.06), inset 0 0 0 1.5px rgba(255,255,255,0.8)'
-      : '0 20px 60px rgba(0,0,0,0.5), inset 0 0 0 1.5px rgba(255,255,255,0.15)'),
-    border: 'none',
+  // 💎 THE "MATTE FILTER" HUD STYLE 
+  // Enforces a premium, high-opacity frosted glass look that adapts to themes.
+  const glassPillStyle: React.CSSProperties = {
+    background: 'var(--hud-bg)',
+    backdropFilter: 'blur(32px) saturate(210%)',
+    WebkitBackdropFilter: 'blur(32px) saturate(210%)',
+    borderRadius: '3rem',
+    border: '1px solid var(--hud-border)',
+    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.08)',
+    pointerEvents: 'auto',
+    color: 'var(--hud-text)',
   };
 
   const { data: profile } = useQuery({
@@ -72,126 +82,91 @@ function TopBarComponent({
   return (
     <header 
       className={cn(
-        "fixed top-0 left-0 right-0 z-[100] transition-all duration-700 pointer-events-none",
+        "absolute top-0 left-0 right-0 z-[10005] transition-all duration-700 pointer-events-none",
         _transparent ? "h-20" : "h-16",
         className
       )}
       style={{
         paddingTop: 'var(--safe-top)',
-        height: _transparent ? 'auto' : 'calc(var(--top-bar-height) + var(--safe-top))'
+        height: 'calc(var(--top-bar-height) + var(--safe-top))'
       }}
     >
       <div className="h-full w-full max-w-screen-xl mx-auto px-4 flex items-center justify-between relative">
         
-        {/* LEFT CLUSTER: Profile, Back & Mode Switching (Unified Pill) */}
-        <div className="flex-shrink-0 flex items-center pointer-events-none">
-          {(!minimal || onBack) && (
-            <div 
-              className="flex items-center gap-1.5 pointer-events-auto px-1.5 py-1.5 shadow-2xl transition-all duration-300"
-              style={{
-                ...glassSurfaceStyle,
-                background: isLight ? 'rgba(255,255,255,0.7)' : 'rgba(10,10,12,0.15)',
-                borderRadius: '2rem',
-                border: '1px solid rgba(255,255,255,0.15)',
-              }}
+        {/* LEFT CLUSTER: Profile Pill */}
+        <div className="flex items-center gap-2">
+          {onBack ? (
+            <motion.button
+              whileTap={{ scale: 0.9 }}
+              onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); haptics.tap(); onBack(); }}
+              className="w-10 h-10 flex items-center justify-center rounded-full"
+              style={glassPillStyle}
             >
-              {onBack && (
-                <motion.button
-                  whileTap={{ scale: 0.9 }}
-                  onPointerDown={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    haptics.tap();
-                    onBack();
-                  }}
-                  className="w-10 h-10 flex items-center justify-center p-0"
-                >
-                  <ChevronLeft className={cn("w-6 h-6", isLight ? "text-foreground" : "text-white")} />
-                </motion.button>
-              )}
-              
-              {user && (
-                <motion.button
-                  whileTap={{ scale: 0.9 }}
-                  onPointerDown={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    haptics.tap();
-                    navigate(isOwner ? '/owner/profile' : '/client/profile');
-                  }}
-                  className="flex items-center gap-2 pr-2 transition-all duration-200"
-                >
-                  <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-brand-primary/60 shadow-lg ml-0.5">
-                    {profile?.avatar_url ? (
-                      <img
-                        src={profile.avatar_url}
-                        alt="Profile"
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-muted flex items-center justify-center">
-                        <Ghost className="w-5 h-5 opacity-40" />
-                      </div>
-                    )}
-                  </div>
-                  {profile?.full_name && (
-                    <span className={cn(
-                      "text-[11px] font-black uppercase italic tracking-tight whitespace-nowrap flex-shrink-0 max-w-[9ch] truncate",
-                      isLight ? "text-foreground" : "text-white/90"
-                    )}>
-                      {profile.full_name.split(' ')[0]}
-                    </span>
-                  )}
-                </motion.button>
-              )}
+              <ChevronLeft className="w-5 h-5" style={{ color: 'var(--hud-text)' }} />
+            </motion.button>
+          ) : (
+            user && (
+              <motion.button
+                whileTap={{ scale: 0.95 }}
+                onPointerDown={(e) => {
+                  e.preventDefault(); e.stopPropagation();
+                  haptics.tap();
+                  navigate(isOwner ? '/owner/profile' : '/client/profile');
+                }}
+                className="flex items-center gap-2 px-2.5 py-1.5 rounded-full"
+                style={glassPillStyle}
+              >
+                <div className="w-7 h-7 rounded-full overflow-hidden bg-black flex items-center justify-center shrink-0 shadow-sm border border-white/10">
+                   <span className="text-orange-500 font-black text-sm italic">S</span>
+                </div>
+                {profile?.full_name && (
+                  <span className="text-[11px] font-black uppercase tracking-widest mr-1" style={{ color: 'var(--hud-text)' }}>
+                    {profile.full_name.split(' ')[0]}
+                  </span>
+                )}
+              </motion.button>
+            )
+          )}
 
-              {/* Mode Switcher Integrated into Left Unified Pill */}
-              <div className="flex items-center px-1 border-l border-white/10 h-6 ml-1">
-                <ModeSwitcher variant="icon" size="sm" />
-              </div>
+          {/* Mode Switcher Pill */}
+          {!minimal && (
+            <div className="h-10 flex items-center px-4 rounded-full" style={glassPillStyle}>
+              <ModeSwitcher variant="icon" size="sm" />
             </div>
           )}
         </div>
 
-        {/* CENTER: PURGED PER USER REQUEST */}
         <div className="flex-1" />
 
-        {/* RIGHT CLUSTER: Actions (Unified Pill) */}
-        <div className="flex-shrink-0 flex items-center pointer-events-none">
+        {/* RIGHT CLUSTER: Individual Action Pills */}
+        <div className="flex items-center gap-2">
           {!minimal && (
-            <div 
-              className="flex items-center gap-1.5 pointer-events-auto px-1.5 py-1.5 shadow-2xl transition-all duration-300"
-              style={{
-                ...glassSurfaceStyle,
-                background: isLight ? 'rgba(255,255,255,0.7)' : 'rgba(15,15,20,0.12)',
-                borderRadius: '2rem',
-                border: '1px solid rgba(255,255,255,0.15)',
-              }}
-            >
-              <motion.button
+            <>
+               <motion.button
                 whileTap={{ scale: 0.9 }}
                 onPointerDown={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
+                  e.preventDefault(); e.stopPropagation();
                   haptics.tap();
                   navigate('/radio');
                 }}
-                className="w-10 h-10 flex items-center justify-center p-0"
+                className="w-10 h-10 flex items-center justify-center p-0 rounded-full"
+                style={glassPillStyle}
+                title="Radio"
               >
                 <Radio 
-                  className="w-5 h-5 text-brand-primary" 
+                  className="w-5 h-5 text-orange-500" 
                   strokeWidth={2.5} 
                 />
               </motion.button>
 
-              <div className="flex items-center px-1">
+              <div className="w-10 h-10 flex items-center justify-center rounded-full" style={glassPillStyle}>
                 <ThemeToggle />
               </div>
               
-              <div className="flex items-center px-1">
+              <div className="w-10 h-10 flex items-center justify-center rounded-full" style={glassPillStyle}>
                 <NotificationPopover />
               </div>
-            </div>
+            </>
           )}
         </div>
       </div>
@@ -209,3 +184,5 @@ function TopBarComponent({
 }
 
 export const TopBar = memo(TopBarComponent);
+
+

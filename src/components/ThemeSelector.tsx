@@ -42,6 +42,28 @@ const themeOptions: ThemeOption[] = [
       secondary: '#f8f8f8',
       accent: '#3b82f6'
     }
+  },
+  {
+    id: 'cheers',
+    name: 'Cheers',
+    description: 'Animal print & gold',
+    icon: '🐆',
+    colors: {
+      primary: '#180800',
+      secondary: '#362111',
+      accent: '#d4af37'
+    }
+  },
+  {
+    id: 'Swipess-style',
+    name: 'Swipess HUD',
+    description: 'Futuristic glass UI',
+    icon: '🛸',
+    colors: {
+      primary: '#000000',
+      secondary: '#111111',
+      accent: '#00d2ff'
+    }
   }
 ];
 
@@ -252,3 +274,4 @@ export function ThemeSelector({ compact = false, showTitle = true }: ThemeSelect
     </Card>
   );
 }
+

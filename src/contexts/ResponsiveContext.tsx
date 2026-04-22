@@ -105,3 +105,5 @@ export function withResponsive<P extends object>(
 // Re-export types and constants for convenience
 export { BREAKPOINTS };
 export type { BreakpointKey, ResponsiveState };
+
+

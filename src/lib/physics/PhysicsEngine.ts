@@ -379,3 +379,5 @@ export class FrameTimer {
     return this.rafId !== null;
   }
 }
+
+

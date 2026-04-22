@@ -10,8 +10,8 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
 }
 
-const DISMISSED_KEY = 'swipess-pwa-install-dismissed';
-const DISMISSED_FOREVER_KEY = 'swipess-pwa-install-dismissed-forever';
+const DISMISSED_KEY = 'Swipess-pwa-install-dismissed';
+const DISMISSED_FOREVER_KEY = 'Swipess-pwa-install-dismissed-forever';
 const SHOW_DELAY_MS = 5000; // Show after 5s of use for immediate accessibility
 
 function isIOS() {
@@ -124,7 +124,7 @@ export function PWAInstallPrompt() {
                <SwipessLogo size="xs" />
             </div>
             <div>
-              <p className={cn("font-black text-base tracking-tight leading-tight", isDark ? "text-white" : "text-black")}>SWIPESS</p>
+              <p className={cn("font-black text-base tracking-tight leading-tight", isDark ? "text-white" : "text-black")}>Swipess</p>
               <div className="flex items-center gap-1.5">
                 <Sparkles className="w-3 h-3 text-orange-500" />
                 <p className={cn("text-[10px] font-bold uppercase tracking-widest", isDark ? "text-white/40" : "text-black/40")}>Elite Discovery</p>
@@ -185,3 +185,5 @@ export function PWAInstallPrompt() {
     </div>
   );
 }
+
+

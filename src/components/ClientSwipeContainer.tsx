@@ -33,7 +33,7 @@ import { useStartConversation } from '@/hooks/useConversations';
 import { useNavigate } from 'react-router-dom';
 import { logger } from '@/utils/prodLogger';
 import { SwipeExhaustedState } from './swipe/SwipeExhaustedState';
-import { Home, RefreshCw } from 'lucide-react';
+import { Home, RefreshCw, ChevronLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTheme } from '@/hooks/useTheme';
 import { SwipeLoadingSkeleton } from './swipe/SwipeLoadingSkeleton';
@@ -1052,3 +1052,5 @@ export const ClientSwipeContainer = memo(ClientSwipeContainerComponent);
 
 // Also export default for backwards compatibility
 export default ClientSwipeContainer;
+
+

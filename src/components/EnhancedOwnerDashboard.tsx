@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, memo, useMemo, lazy, useCallback } from 'react';
+import { useState, useEffect, useRef, memo, useMemo, lazy, useCallback, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ClientSwipeContainer } from '@/components/ClientSwipeContainer';
 const _ClientInsightsDialog = lazy(() =>
@@ -16,13 +16,14 @@ import { cn } from '@/lib/utils';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { OwnerInsightsDashboard } from '@/components/OwnerInsightsDashboard';
 import { OwnerAllDashboard } from '@/components/swipe/OwnerAllDashboard';
+const DiscoveryMapView = lazy(() => import('@/components/swipe/DiscoveryMapView'));
 import { useFilterActions } from '@/state/filterStore';
 import { triggerHaptic } from '@/utils/haptics';
-import { DiscoveryMapView } from '@/components/swipe/DiscoveryMapView';
 import type { QuickFilterCategory } from '@/types/filters';
 import { useTheme } from '@/hooks/useTheme';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { DiscoveryFilters } from '@/components/filters/DiscoveryFilters';
+import { useTranslation } from 'react-i18next';
 import type { ClientFilters } from '@/hooks/smartMatching/types';
 
 interface EnhancedOwnerDashboardProps {
@@ -32,6 +33,7 @@ interface EnhancedOwnerDashboardProps {
 }
 
 const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: EnhancedOwnerDashboardProps) => {
+  const { t } = useTranslation();
   const { theme } = useTheme();
   const isLight = theme === 'light';
   const [viewMode] = useState<'discovery' | 'insights'>('discovery');
@@ -139,10 +141,10 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
     return (
       <div className={cn("w-full h-full flex flex-col items-center justify-center p-8 transition-colors duration-500", isLight ? "bg-white" : "bg-black")}>
          <div className="relative">
-            <div className="w-24 h-24 rounded-[2.5rem] border-[6px] border-[#EB4898]/10 border-t-[#EB4898] animate-spin shadow-2xl" />
-            <Cpu className="absolute inset-0 m-auto w-8 h-8 text-[#EB4898]/40 animate-pulse" />
+            <div className="w-24 h-24 rounded-[2.5rem] border-[6px] border-primary/10 border-t-primary animate-spin shadow-2xl" />
+            <Cpu className="absolute inset-0 m-auto w-8 h-8 text-primary/40 animate-pulse" />
          </div>
-         <p className="text-[11px] font-black uppercase italic tracking-[0.4em] text-[#EB4898] mt-10 animate-pulse">Syncing Owner Logic...</p>
+         <p className="text-[11px] font-black uppercase italic tracking-[0.4em] text-primary mt-10 animate-pulse">Syncing Owner Logic...</p>
       </div>
     );
   }
@@ -160,7 +162,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
           </div>
           <Button 
             onClick={() => { triggerHaptic('medium'); window.location.reload(); }}
-            className="w-full h-18 rounded-[2rem] bg-[#EB4898] text-white font-black uppercase italic tracking-widest shadow-2xl active:scale-95"
+            className="w-full h-18 rounded-[2rem] bg-primary text-black font-black uppercase italic tracking-widest shadow-2xl active:scale-95"
           >
             Reconnect Terminal
           </Button>
@@ -171,15 +173,16 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
 
   const showCards = !activeCategory && phase === 'cards';
   const showMap = !!activeCategory && phase === 'map';
-  const showSwipe = !!activeCategory && (phase === 'swipe' || phase === 'cards'); // Fallback for swipe
+  const showSwipe = !!activeCategory && (phase === 'swipe' || phase === 'cards'); 
 
   return (
-    <div className={cn("flex flex-col h-full w-full relative transition-colors duration-500", isLight ? "bg-white" : "bg-black")}>
+    <div className={cn("flex flex-col h-full w-full relative transition-colors duration-500 overflow-hidden", isLight ? "bg-white" : "bg-black")}>
       
       {/* 🛸 CINEMATIC ATMOSPHERE */}
-      <div className="absolute inset-x-0 top-0 h-96 pointer-events-none opacity-20">
-         <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[100%] bg-indigo-500/30 blur-[130px] rounded-full" />
-         <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[80%] bg-[#EB4898]/30 blur-[110px] rounded-full" />
+      <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
+        <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-indigo-900/10 blur-[120px] rounded-full" />
+        <div className="absolute bottom-[-5%] right-[-5%] w-[50%] h-[50%] bg-primary/5 blur-[100px] rounded-full" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(var(--color-brand-primary-rgb),0.02)_0%,transparent_70%)]" />
       </div>
 
       <AnimatePresence mode="wait">
@@ -201,27 +204,37 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 1.05 }}
             transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-            className="relative flex flex-col items-center justify-center h-full w-full overflow-hidden z-10"
-            style={{ willChange: 'transform, opacity' }}
+            className="relative flex flex-col items-center w-full h-full overflow-hidden z-10"
+            style={{ 
+              paddingTop: 'calc(var(--top-bar-height) + var(--safe-top) + 20px)',
+              paddingBottom: 'calc(var(--bottom-nav-height) + var(--safe-bottom))',
+              willChange: 'transform, opacity' 
+            }}
           >
-            <OwnerAllDashboard onCardSelect={handleCardSelect} />
+            <div className="flex-1 flex items-center justify-center w-full min-h-0">
+              <OwnerAllDashboard onCardSelect={handleCardSelect} />
+            </div>
           </motion.div>
         ) : showMap && activeCategory ? (
           <motion.div
             key={`owner-map-${activeCategory}`}
-            initial={{ opacity: 0, scale: 0.96 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 1.04 }}
-            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-            className="fixed inset-0 z-[50] flex flex-col overflow-hidden bg-background"
+            initial={{ y: '100%', opacity: 0.5 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: '100%', opacity: 0 }}
+            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            className="fixed inset-0 z-[1000] flex flex-col overflow-hidden bg-black/40 backdrop-blur-xl rounded-t-[3rem] shadow-[0_-20px_60px_rgba(0,0,0,0.5)]"
             style={{ willChange: 'transform, opacity' }}
           >
-            <DiscoveryMapView 
-              category={activeCategory} 
-              onBack={handleDiscoveryBack}
-              onStartSwiping={handleStartSwiping}
-              mode="owner"
-            />
+            <div className="absolute top-3 left-1/2 -translate-x-1/2 w-12 h-1.5 bg-white/20 rounded-full z-[10002]" />
+
+            <Suspense fallback={<div className="flex-1 bg-black/10 animate-pulse" />}>
+              <DiscoveryMapView 
+                category={activeCategory} 
+                onBack={handleDiscoveryBack}
+                onStartSwiping={handleStartSwiping}
+                mode="owner"
+              />
+            </Suspense>
           </motion.div>
         ) : showSwipe ? (
           <motion.div 
@@ -255,7 +268,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
                   <div className="w-12 h-1.5 bg-white/20 rounded-full" />
                </div>
                <div className="px-6 pb-20 pt-4">
-                  <h2 className="text-xl font-black uppercase tracking-widest italic mb-6">Advanced Target Radar</h2>
+                  <h2 className="text-xl font-black uppercase tracking-widest italic mb-6">{t('topbar.targetPlatform')}</h2>
                    <DiscoveryFilters
                     category={activeCategory || 'property'}
                     initialFilters={mergedFilters}
@@ -269,7 +282,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
          </SheetContent>
       </Sheet>
       
-      <p className="absolute bottom-4 left-6 text-[8px] font-black uppercase tracking-[0.6em] opacity-10 pointer-events-none z-0">Nexus Admin Dashboard</p>
+      <p className="absolute bottom-4 left-6 text-[8px] font-black uppercase tracking-[0.6em] opacity-10 pointer-events-none z-0">Nexus Admin Dashboard Protocol</p>
     </div>
   );
 };

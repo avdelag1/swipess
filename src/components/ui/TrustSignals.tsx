@@ -216,3 +216,5 @@ export const ResponseTimeBadge = memo(({ avgResponseMinutes, className }: Respon
 });
 
 ResponseTimeBadge.displayName = 'ResponseTimeBadge';
+
+

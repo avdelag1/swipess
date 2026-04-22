@@ -31,11 +31,20 @@ if (currentLang !== 'en' && LANGUAGES.includes(currentLang)) {
 // Global language switcher wrapper to ensure dynamic loading
 export const changeLanguage = async (lng: string) => {
   if (lng !== 'en' && !i18n.hasResourceBundle(lng, 'translation')) {
-    const module = await import(`./locales/${lng}.json`);
-    i18n.addResourceBundle(lng, 'translation', module.default, true, true);
+    try {
+      const module = await import(`./locales/${lng}.json`);
+      i18n.addResourceBundle(lng, 'translation', module.default, true, true);
+      // Wait for bundle to be recognized by i18next
+      await new Promise(resolve => setTimeout(resolve, 100)); 
+    } catch (err) {
+      console.error(`[i18n] Failed to load ${lng}:`, err);
+    }
   }
   await i18n.changeLanguage(lng);
   localStorage.setItem('language', lng);
+  window.dispatchEvent(new Event('language-changed'));
 };
 
 export default i18n;
+
+

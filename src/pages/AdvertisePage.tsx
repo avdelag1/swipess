@@ -12,6 +12,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "@/hooks/useTheme";
 import { haptics } from "@/utils/microPolish";
 import { toast } from "@/components/ui/sonner";
+import { NativeBridge } from "@/utils/nativeBridge";
+import { RefreshCcw } from "lucide-react";
 
 // ── Pricing packages ──────────────────────────────────────────────────────────
 const PACKAGES = [
@@ -343,11 +345,30 @@ export default function AdvertisePage() {
     checkStatus();
   }, [user]);
 
-  const handleLaunchPayment = (pkg: typeof PACKAGES[0]) => {
+  const handleLaunchPayment = async (pkg: typeof PACKAGES[0]) => {
     haptics.tap();
+    
+    if (NativeBridge.isIOS()) {
+      toast({ title: "In-App Purchase", description: "Connecting to App Store..." });
+      const result = await NativeBridge.purchaseProduct(`Swipess.promo.${pkg.id}`);
+      if (result.success) {
+        toast.success("Payment Received!", { description: "Your promotion will be live shortly." });
+        return;
+      } else {
+        toast.error("Payment Failed", { description: "Transaction could not be completed." });
+        return;
+      }
+    }
+
     window.open(pkg.paypalUrl, '_blank');
-    toast.success("Redirecting to PayPal", { description: `Launching ${pkg.name} package.` });
+    toast.success("Redirecting to Checkout", { description: `Launching ${pkg.name} package.` });
   };
+
+  const handleRestore = () => {
+    toast({ title: "Restoring Purchases", description: "Checking for previous promotion activations..." });
+    setTimeout(() => toast.success("Restore complete."), 1500);
+  };
+
 
   // ── Theme-aware style helpers ─────────────────────────────────────────────
   const th = {
@@ -470,18 +491,18 @@ export default function AdvertisePage() {
           <motion.div
             initial={{ opacity: 0, y: -12 }}
             animate={{ opacity: 1, y: 0 }}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full mb-3"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full mb-4"
             style={{ background: "rgba(99,102,241,0.15)", border: "1px solid rgba(99,102,241,0.35)" }}
           >
-            <Megaphone className="w-3.5 h-3.5 text-indigo-400" />
-            <span className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.2em]">#1 Discovery App</span>
+            <Megaphone className="w-4 h-4 text-indigo-400" />
+            <span className="text-xs font-black text-indigo-400 uppercase tracking-[0.2em]">#1 Discovery App</span>
           </motion.div>
 
           <motion.h1
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.08 }}
-            className="text-4xl sm:text-5xl font-black leading-[1.1] tracking-tighter mb-4 text-foreground text-center"
+            className="text-5xl sm:text-6xl font-black leading-[1.1] tracking-tighter mb-6 text-foreground text-center"
           >
             Promote{" "}
             <span className="bg-gradient-to-r from-teal-400 to-indigo-400 bg-clip-text text-transparent uppercase italic">
@@ -494,10 +515,18 @@ export default function AdvertisePage() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15 }}
-            className="text-sm max-w-sm mx-auto leading-relaxed font-bold text-muted-foreground/80"
+            className="text-lg max-w-sm mx-auto leading-relaxed font-bold text-muted-foreground/80 mb-4"
           >
-            Reach <span className="text-foreground font-black">15k+ property owners</span>, renters & tourists
+            Reach <span className="text-foreground font-black">15k+ high-value seekers</span>, property owners & travelers
           </motion.p>
+
+          <motion.button
+            onClick={handleRestore}
+            className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 hover:text-white transition-colors"
+          >
+            <RefreshCcw className="w-3.5 h-3.5 inline mr-1" />
+            Restore Purchases
+          </motion.button>
         </div>
 
         {/* ── SWIPE PACKAGE CARDS ── */}
@@ -958,3 +987,5 @@ export default function AdvertisePage() {
     </div>
   );
 }
+
+

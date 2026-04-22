@@ -149,7 +149,7 @@ function CascadeFilterButtonComponent({ filters, onChange, userRole = 'client' }
           'border',
           isOpen || hasActiveFilters
             ? 'border-transparent text-white shadow-md'
-            : isDark ? 'bg-muted/50 text-foreground border-border/50' : 'bg-card text-foreground border-border shadow-sm'
+            : 'bg-[var(--hud-bg)] text-[var(--hud-text)] border-[var(--hud-border)] shadow-[0_4px_12px_rgba(0,0,0,0.05)]'
         )}
         style={isOpen || hasActiveFilters ? {
           background: 'linear-gradient(135deg, #f97316 0%, #ec4899 55%, #8b5cf6 100%)',
@@ -358,3 +358,5 @@ function CascadeFilterButtonComponent({ filters, onChange, userRole = 'client' }
 }
 
 export const CascadeFilterButton = memo(CascadeFilterButtonComponent);
+
+

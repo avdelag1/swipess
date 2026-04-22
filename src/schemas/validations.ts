@@ -133,3 +133,5 @@ export type PropertyListingInput = z.infer<typeof propertyListingSchema>;
 export type MessageInput = z.infer<typeof messageSchema>;
 export type ReviewInput = z.infer<typeof reviewSchema>;
 export type SearchFiltersInput = z.infer<typeof searchFiltersSchema>;
+
+

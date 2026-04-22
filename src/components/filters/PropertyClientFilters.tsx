@@ -227,3 +227,5 @@ export function PropertyClientFilters({ onApply, initialFilters = {}, activeCoun
     </div>
   );
 }
+
+

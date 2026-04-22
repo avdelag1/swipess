@@ -180,3 +180,5 @@ export function ListingSuccessCelebration({ isOpen, category, onComplete }: List
     </AnimatePresence>
   );
 }
+
+

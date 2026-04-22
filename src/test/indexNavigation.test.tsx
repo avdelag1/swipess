@@ -111,3 +111,5 @@ describe('Index page navigation logic', () => {
     expect(navigateMock).toHaveBeenCalledWith('/owner/dashboard', { replace: true });
   });
 });
+
+

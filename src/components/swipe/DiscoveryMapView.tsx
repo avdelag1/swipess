@@ -34,13 +34,12 @@ const CATEGORY_META: Record<string, { label: string; accent: string; accentRgb: 
   services:   { label: 'Workers',     accent: '#a855f7', accentRgb: '168,85,247' },
 };
 
-// ——— Slider Constants ——————————————————————————————————————————————————————————————————————
 const MIN_KM = 1;
 const MAX_KM = 100;
 const SLIDER_TRACK_H = 6;
 const THUMB_SIZE = 28;
 
-// Tile layer URLs hoisted to module scope so all effects can reference them.
+// Tile layer URLs
 const LIGHT_TILES = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
 const DARK_TILES = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
 const SATELLITE_TILES = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
@@ -120,9 +119,8 @@ export const DiscoveryMapView = memo(({
             className: 'radar-center',
             html: `
               <div class="relative w-12 h-12 flex items-center justify-center">
-                <div class="absolute inset-0 bg-${meta.accent} opacity-50 rounded-full animate-ping"></div>
-                <div class="absolute inset-2 bg-${meta.accent}/30 rounded-full"></div>
-                <div class="w-5 h-5 bg-white border-[3px] border-[${meta.accent}] rounded-full shadow-[0_0_20px_rgba(59,130,246,0.8)] relative z-10"></div>
+                <div class="absolute inset-0 bg-primary opacity-30 rounded-full animate-ping"></div>
+                <div class="w-5 h-5 bg-white border-[3px] border-primary rounded-full shadow-[0_0_20px_rgba(var(--color-brand-primary-rgb),0.8)] relative z-10"></div>
               </div>
             `,
             iconSize: [48, 48],
@@ -235,7 +233,6 @@ export const DiscoveryMapView = memo(({
     );
   }, [setUserLocation]);
 
-  // Debounce radius update
   useEffect(() => {
     const t = setTimeout(() => { if (localKm !== radiusKm) setRadiusKm(localKm); }, 250);
     return () => clearTimeout(t);
@@ -281,45 +278,45 @@ export const DiscoveryMapView = memo(({
 
   return (
     <div className="relative flex-1 flex flex-col overflow-hidden bg-background">
-      {/* 🛸 TOP HUD */}
+      {/* 🛸 HUD OVERLAYS */}
       <motion.button
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
         onClick={() => { triggerHaptic('light'); onBack(); }}
         className={cn(
-          "absolute top-[calc(env(safe-area-inset-top,0px)+12px)] left-4 z-[2000] flex items-center gap-1.5 px-4 py-2.5 rounded-2xl",
-          "transition-transform active:scale-95 border",
+          "absolute top-[calc(env(safe-area-inset-top,0px)+12px)] left-4 z-[2000] flex items-center justify-center w-12 h-12 rounded-2xl",
+          "transition-all active:scale-90 border",
           isLight
-            ? "bg-white/75 backdrop-blur-[40px] saturate-[180%] border-black/5 text-black shadow-lg"
-            : "bg-black/65 backdrop-blur-[40px] saturate-[180%] border-white/10 text-white shadow-2xl"
+            ? "bg-white/80 backdrop-blur-3xl border-black/5 text-black shadow-lg"
+            : "bg-black/60 backdrop-blur-3xl border-white/10 text-white shadow-2xl"
         )}
       >
-        <ChevronLeft className="w-5 h-5" />
-        <span className="text-[12px] font-black uppercase tracking-[0.2em]">Back</span>
+        <ChevronLeft className="w-6 h-6" strokeWidth={3} />
       </motion.button>
 
       <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
         className="absolute top-[calc(env(safe-area-inset-top,0px)+12px)] left-1/2 -translate-x-1/2 z-[2000] pointer-events-none"
       >
         <div
           className={cn(
-            "px-6 py-2.5 rounded-2xl flex items-center gap-2.5 border",
+            "px-6 h-12 rounded-2xl flex items-center gap-3 border",
             isLight
-              ? "bg-white/75 backdrop-blur-[40px] border-black/5 shadow-lg"
-              : "bg-black/65 backdrop-blur-[40px] border-white/10 shadow-2xl"
+              ? "bg-white/80 backdrop-blur-3xl border-black/5 shadow-lg"
+              : "bg-black/60 backdrop-blur-3xl border-white/10 shadow-2xl"
           )}
         >
           <div
             className="w-2.5 h-2.5 rounded-full animate-pulse"
-            style={{ background: meta.accent }}
+            style={{ background: meta.accent, boxShadow: `0 0 12px ${meta.accent}` }}
           />
-          <span className="text-[12px] font-black uppercase tracking-[0.25em]" style={{ color: meta.accent }}>
+          <span className="text-[11px] font-black uppercase tracking-[0.25em] text-foreground">
             {meta.label}
           </span>
-          <span className={cn("text-[11px] font-bold", isLight ? "text-black/40" : "text-white/40")}>
-            {dotCount} nearby
+          <div className="w-[1px] h-3 bg-foreground/10 mx-1" />
+          <span className="text-[11px] font-bold opacity-40 whitespace-nowrap text-foreground">
+            {dotCount} Signals
           </span>
         </div>
       </motion.div>
@@ -329,7 +326,7 @@ export const DiscoveryMapView = memo(({
           onClick={() => { triggerHaptic('light'); setMapStyle(prev => prev === 'streets' ? 'satellite' : 'streets'); }} 
           className={cn(
             "w-12 h-12 rounded-2xl flex items-center justify-center active:scale-90 transition-all border",
-            isLight ? "bg-white/75 backdrop-blur-[40px] border-black/5 text-black" : "bg-black/65 backdrop-blur-[40px] border-white/10 text-white"
+            isLight ? "bg-white/80 backdrop-blur-3xl border-black/5 text-black shadow-lg" : "bg-black/60 backdrop-blur-3xl border-white/10 text-white shadow-2xl"
           )}
         >
           <Layers className="w-5 h-5" />
@@ -339,7 +336,7 @@ export const DiscoveryMapView = memo(({
           disabled={detecting}
           className={cn(
             "w-12 h-12 rounded-2xl flex items-center justify-center active:scale-90 transition-all border",
-            isLight ? "bg-white/75 backdrop-blur-[40px] border-black/5 text-black" : "bg-black/65 backdrop-blur-[40px] border-white/10 text-white"
+            isLight ? "bg-white/80 backdrop-blur-3xl border-black/5 text-black shadow-lg" : "bg-black/60 backdrop-blur-3xl border-white/10 text-white shadow-2xl"
           )}
         >
           <Navigation className={cn("w-5 h-5", detecting && "animate-spin")} style={userLatitude ? { color: meta.accent } : {}} />
@@ -352,18 +349,18 @@ export const DiscoveryMapView = memo(({
       <motion.div
         initial={{ y: '100%' }}
         animate={{ y: 0 }}
-        transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
         className={cn(
-          "absolute bottom-0 inset-x-0 z-[2000] px-5 pt-6 pb-[calc(1.5rem+env(safe-area-inset-bottom,0px))] flex flex-col gap-5",
+          "absolute bottom-0 inset-x-0 z-[2000] px-5 pt-6 pb-[calc(1.5rem+env(safe-area-inset-bottom,0px))] flex flex-col gap-6",
           isLight
             ? "bg-white/95 backdrop-blur-2xl border-t border-black/5"
-            : "bg-black/95 backdrop-blur-3xl border-t border-white/10"
+            : "bg-black/95 backdrop-blur-3xl border-t border-white/10 shadow-[0_-20px_50px_rgba(0,0,0,0.5)]"
         )}
       >
-        {/* Category Rail (Lovable Style integrated into Wide-screen bottom) */}
-        <div className="flex justify-center -mt-2 mb-1">
+        {/* Category Rail */}
+        <div className="flex justify-center -mt-2">
             <div className={cn(
-               "p-1.5 rounded-[2rem] flex items-center gap-1.5 border transition-all",
+               "p-1.5 rounded-[2.2rem] flex items-center gap-1.5 border transition-all",
                isLight ? "bg-black/5 border-black/5" : "bg-white/5 border-white/5"
             )}>
                 {[
@@ -376,122 +373,89 @@ export const DiscoveryMapView = memo(({
                         key={catItem.id} 
                         onClick={() => { triggerHaptic('light'); onCategoryChange?.(catItem.id as QuickFilterCategory); }} 
                         className={cn(
-                            "h-10 px-4 flex items-center gap-2 rounded-[1.5rem] transition-all whitespace-nowrap", 
+                            "h-11 px-5 flex items-center gap-2.5 rounded-[1.6rem] transition-all whitespace-nowrap", 
                             category === catItem.id 
-                              ? "bg-white text-black shadow-lg" 
-                              : isLight ? "text-black/30 hover:bg-black/5" : "text-white/20 hover:bg-white/5"
+                              ? "bg-white text-black shadow-xl scale-105" 
+                              : isLight ? "text-black/40 hover:bg-black/5" : "text-white/30 hover:bg-white/5"
                         )}
                     >
                         <catItem.icon className="w-4 h-4" />
-                        <span className="text-[9px] font-black uppercase tracking-widest italic">{catItem.label}</span>
+                        <span className="text-[10px] font-black uppercase tracking-widest italic">{catItem.label}</span>
                     </button>
                 ))}
             </div>
         </div>
 
-        <div className="flex items-center justify-between px-2">
-          <span className={cn("text-[10px] font-black uppercase tracking-[0.3em]", isLight ? "text-black/40" : "text-white/40")}>
-            Discovery Radius
-          </span>
-          <div className="flex items-center gap-1">
-            <span className="text-2xl font-black tabular-nums" style={{ color: meta.accent }}>
-              {localKm}
+        <div className="space-y-4 px-2">
+          <div className="flex items-center justify-between">
+            <span className={cn("text-[10px] font-black uppercase tracking-[0.4em] opacity-40 italic", isLight ? "text-black" : "text-white")}>
+              Telemetric Radius
             </span>
-            <span className={cn("text-xs font-bold mt-1", isLight ? "text-black/30" : "text-white/30")}>km</span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-3xl font-black italic tracking-tighter tabular-nums text-primary">
+                {localKm}
+              </span>
+              <span className="text-[10px] font-black uppercase opacity-30 mt-2">KM</span>
+            </div>
           </div>
-        </div>
 
-        <div className="relative w-full select-none" style={{ height: THUMB_SIZE }}>
-          <div
-            ref={sliderRef}
-            className="absolute left-0 right-0 flex items-center"
-            style={{
-              top: '50%', transform: 'translateY(-50%)',
-              height: THUMB_SIZE + 12,
-              touchAction: 'none', cursor: 'pointer',
-            }}
-            onPointerDown={handleSliderPointerDown}
-            onPointerMove={handleSliderPointerMove}
-            onPointerUp={handleSliderPointerUp}
-            onPointerCancel={handleSliderPointerUp}
-          >
+          <div className="relative w-full select-none h-8">
             <div
-              className="absolute left-0 right-0 rounded-full overflow-hidden"
-              style={{
-                top: '50%', transform: 'translateY(-50%)',
-                height: SLIDER_TRACK_H,
-                background: isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.08)',
-              }}
+              ref={sliderRef}
+              className="absolute left-0 right-0 h-full flex items-center"
+              style={{ touchAction: 'none', cursor: 'pointer' }}
+              onPointerDown={handleSliderPointerDown}
+              onPointerMove={handleSliderPointerMove}
+              onPointerUp={handleSliderPointerUp}
+              onPointerCancel={handleSliderPointerUp}
             >
+              <div className={cn("absolute left-0 right-0 h-1.5 rounded-full", isLight ? "bg-black/5" : "bg-white/5")}>
+                <div
+                  className="absolute left-0 top-0 bottom-0 rounded-full bg-primary"
+                  style={{ width: `${sliderRatio * 100}%` }}
+                />
+              </div>
               <div
-                className="absolute left-0 top-0 bottom-0 rounded-full"
+                className="absolute w-7 h-7 rounded-full bg-white shadow-[0_4px_12px_rgba(0,0,0,0.3)] border-[3px] border-primary"
                 style={{
-                  width: `${sliderRatio * 100}%`,
-                  background: meta.accent,
+                  left: `calc(${sliderRatio * 100}% - 14px)`,
+                  pointerEvents: 'none',
                 }}
               />
             </div>
-
-            <div
-              className="absolute rounded-full"
-              style={{
-                width: THUMB_SIZE,
-                height: THUMB_SIZE,
-                top: '50%',
-                left: `calc(${sliderRatio * 100}% - ${THUMB_SIZE / 2}px)`,
-                transform: 'translateY(-50%)',
-                background: '#fff',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
-                pointerEvents: 'none',
-              }}
-            />
           </div>
         </div>
 
-        <motion.button
-          whileTap={{ scale: 0.98 }}
-          onClick={() => { triggerHaptic('medium'); onStartSwiping(); }}
-          className={cn(
-            "relative w-full h-15 rounded-2xl font-black text-[13px] uppercase tracking-[0.25em] flex items-center justify-center gap-2.5 overflow-hidden shadow-2xl",
-          )}
-          style={{
-            background: meta.accent,
-            color: '#fff',
-          }}
+        <Button
+          onClick={() => { triggerHaptic('heavy'); onStartSwiping(); }}
+          className="w-full h-16 rounded-[2rem] bg-primary text-black font-black text-sm uppercase italic tracking-[0.3em] shadow-[0_20px_40px_rgba(var(--color-brand-primary-rgb),0.3)] active:scale-95 transition-all gap-3"
         >
-          <motion.div
-            className="absolute inset-0 pointer-events-none"
-            style={{
-              background: 'linear-gradient(105deg, transparent 30%, rgba(255,255,255,0.2) 48%, rgba(255,255,255,0.05) 52%, transparent 70%)',
-            }}
-            initial={{ x: '-120%' }}
-            animate={{ x: ['-120%', '180%', '180%'] }}
-            transition={{ duration: 1.8, ease: 'easeInOut', repeat: Infinity, repeatDelay: 4 }}
-          />
-          <Zap className="w-4.5 h-4.5" style={{ filter: 'drop-shadow(0 0 4px rgba(255,255,255,0.5))' }} />
-          <span>Start Swiping</span>
+          <Zap className="w-5 h-5 fill-current" />
+          <span>Initialize Discovery</span>
           {dotCount > 0 && (
-            <span className="text-[10px] opacity-60 font-bold normal-case tracking-normal">
-              ({dotCount} found)
-            </span>
+            <span className="text-[10px] opacity-40 font-bold italic normal-case">({dotCount} found)</span>
           )}
-        </motion.button>
+        </Button>
       </motion.div>
 
       <style dangerouslySetInnerHTML={{ __html: `
-        .leaflet-container { width: 100%; height: 100%; outline: none; background: ${isLight ? '#f8fafc' : '#0d0d0f'} !important; }
-        .leaflet-tile { transition: opacity 0.6s ease; ${isLight ? '' : 'filter: brightness(0.4) contrast(1.2) saturate(0.8);'} } 
+        .leaflet-container { width: 100%; height: 100%; outline: none; background: ${isLight ? '#f8fafc' : '#0a0a0b'} !important; }
+        .leaflet-tile { transition: opacity 0.8s ease; ${isLight ? '' : 'filter: brightness(0.4) contrast(1.2) saturate(0.8) invert(1) hue-rotate(180deg);'} } 
         .sentient-radar-circle { 
-            animation: radar-pulse-v14 3.5s infinite ease-in-out; 
-            transition: all 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: radar-pulse-v14 4s infinite ease-in-out; 
+            transition: all 1.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
         @keyframes radar-pulse-v14 {
           0%, 100% { stroke-opacity: 0.8; stroke-width: 2; fill-opacity: 0.1; }
-          50% { stroke-opacity: 0.2; stroke-width: 4; fill-opacity: 0.05; }
+          50% { stroke-opacity: 0.2; stroke-width: 5; fill-opacity: 0.05; }
         }
+        .listing-dot { transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .listing-dot:hover { transform: scale(1.5); z-index: 1000; }
       `}} />
     </div>
   );
 });
 
 DiscoveryMapView.displayName = 'DiscoveryMapView';
+
+export default DiscoveryMapView;

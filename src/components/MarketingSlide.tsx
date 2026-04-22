@@ -196,3 +196,5 @@ const MarketingSlideComponent = ({ slideId }: MarketingSlideProps) => {
 };
 
 export const MarketingSlide = memo(MarketingSlideComponent);
+
+

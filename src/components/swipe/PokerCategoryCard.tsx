@@ -27,7 +27,7 @@ interface PokerCardProps {
 
 export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false, onCycle, onSelect, onBringToFront }: PokerCardProps) => {
   const { theme } = useTheme();
-  const isDark = theme === 'dark';
+  const isDark = theme !== 'light';
   const x = useMotionValue(0);
   
   const [isDragging, setIsDragging] = useState(false);
@@ -36,7 +36,6 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
   const exitScale = useTransform(x, [-200, 0, 200], [0.9, 1, 0.9]);
 
   const photo = POKER_CARD_PHOTOS[card.id] || POKER_CARD_PHOTOS.property;
-  const gradient = POKER_CARD_GRADIENTS[card.id] || POKER_CARD_GRADIENTS.property;
   const [imgReady, setImgReady] = useState(false);
 
   useEffect(() => {
@@ -68,7 +67,7 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
     }
   }, [card.id, onCycle, x]);
 
-  // Stack styling — 🚀 NEXUS v14.0 Reveal Logic
+  // Stack styling — 🚀 Swipess v14.0 Reveal Logic
   const stackY = isCollapsed ? 0 : index * 12; // Deeper stack peeking from bottom
   const stackScale = 1 - (index * 0.04);
   const stackOpacity = index === 0 ? 1 : index === 1 ? 0.9 : index === 2 ? 0.65 : index === 3 ? 0.35 : 0;
@@ -133,9 +132,9 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
           style={{ transform: isTop && isDragging ? 'scale(1.05)' : 'scale(1)' }}
           draggable={false}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-80" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent opacity-95" />
         
-        {/* 🛸 NEXUS METADATA CONTENT */}
+        {/* 🛸 Swipess METADATA CONTENT */}
         <div className="absolute inset-x-0 bottom-0 flex flex-col justify-end p-9 md:p-11 gap-8">
           
           <div className="space-y-2">
@@ -148,7 +147,7 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
               <span className="text-[10px] font-black uppercase tracking-[0.4em] italic text-white/80">{card.description}</span>
             </motion.div>
             
-            <h3 className="text-5xl font-black tracking-[calc(-0.06em)] leading-[0.85] uppercase italic text-white">
+            <h3 className="text-5xl font-black tracking-[calc(-0.06em)] leading-[0.85] uppercase italic text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
               {card.label}
             </h3>
           </div>

@@ -162,3 +162,5 @@ export const DistanceSlider = ({ radiusKm, onRadiusChange, onDetectLocation, det
     </motion.div>
   );
 };
+
+

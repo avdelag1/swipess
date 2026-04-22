@@ -373,3 +373,5 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
     </div>
   );
 }
+
+

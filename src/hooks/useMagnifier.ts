@@ -283,3 +283,5 @@ export function useMagnifier(config: MagnifierConfig = {}): UseMagnifierReturn {
     isHoldPending,
   };
 }
+
+

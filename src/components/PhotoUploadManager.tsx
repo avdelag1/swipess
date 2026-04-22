@@ -99,7 +99,7 @@ export function PhotoUploadManager({
       if (newUrls.length > 0) {
         onPhotosChange([...effectiveCurrentPhotos, ...newUrls]);
         triggerHaptic('success');
-        toast.success("Assets Synced", { description: `${newUrls.length} photos added to your nexus.` });
+        toast.success("Assets Synced", { description: `${newUrls.length} photos added to your Swipess.` });
       }
     } catch (error) {
       logger.error('Upload Error:', error);
@@ -283,3 +283,5 @@ export function PhotoUploadManager({
     setDragOver(false);
   }
 }
+
+

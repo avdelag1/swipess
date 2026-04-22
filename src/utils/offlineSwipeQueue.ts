@@ -241,3 +241,5 @@ export function initOfflineSync(): () => void {
     document.removeEventListener('visibilitychange', handleVisibility);
   };
 }
+
+

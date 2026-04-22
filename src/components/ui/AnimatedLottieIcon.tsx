@@ -113,3 +113,5 @@ export const AnimatedLottieIcon: React.FC<AnimatedLottieIconProps> = ({
     </div>
   );
 };
+
+

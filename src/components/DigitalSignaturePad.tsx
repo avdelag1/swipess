@@ -17,7 +17,7 @@ export const DigitalSignaturePad: React.FC<LiquidSignaturePadProps> = ({
   onClear
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const { theme, isLight } = useTheme();
+  const { isLight } = useTheme();
   const [isDrawing, setIsDrawing] = useState(false);
   const [hasDrawn, setHasDrawn] = useState(false);
   const [points, setPoints] = useState<{x: number, y: number}[]>([]);
@@ -41,19 +41,19 @@ export const DigitalSignaturePad: React.FC<LiquidSignaturePadProps> = ({
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
     ctx.lineWidth = 3;
-    ctx.strokeStyle = '#f43f5e'; // Rose-500
+    ctx.strokeStyle = '#EB4898'; // Swipess Brand Pink
     
     // Add glowing effect
     ctx.shadowBlur = 10;
-    ctx.shadowColor = 'rgba(244, 63, 94, 0.5)';
+    ctx.shadowColor = 'rgba(235, 72, 152, 0.5)';
   }, []);
 
   const getPos = (e: React.MouseEvent | React.TouchEvent | any) => {
     const canvas = canvasRef.current;
     if (!canvas) return { x: 0, y: 0 };
     const rect = canvas.getBoundingClientRect();
-    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    const clientX = (e as React.TouchEvent).touches ? (e as React.TouchEvent).touches[0].clientX : (e as React.MouseEvent).clientX;
+    const clientY = (e as React.TouchEvent).touches ? (e as React.TouchEvent).touches[0].clientY : (e as React.MouseEvent).clientY;
     return {
       x: clientX - rect.left,
       y: clientY - rect.top
@@ -111,8 +111,8 @@ export const DigitalSignaturePad: React.FC<LiquidSignaturePadProps> = ({
   return (
     <div className="w-full space-y-6">
       <div className="relative group">
-        {/* 🛸 ANIMATED BACKGROUND GLOW */}
-        <div className="absolute -inset-2 bg-gradient-to-r from-rose-500/20 via-orange-500/20 to-rose-500/20 rounded-[2.5rem] blur-2xl opacity-40 group-hover:opacity-100 transition duration-1000 group-hover:duration-200" />
+        {/* 🛸 Swipess BRAND GLOW */}
+        <div className="absolute -inset-2 bg-gradient-to-r from-primary/20 via-indigo-500/20 to-primary/20 rounded-[2.5rem] blur-2xl opacity-40 group-hover:opacity-100 transition duration-1000 group-hover:duration-200" />
         
         {/* 🛸 MATTE CONTAINER */}
         <div className={cn(
@@ -139,7 +139,7 @@ export const DigitalSignaturePad: React.FC<LiquidSignaturePadProps> = ({
                 initial={{ opacity: 0.8, scale: 1 }}
                 animate={{ opacity: 0, scale: 0, y: 10 }}
                 transition={{ duration: 0.5 }}
-                className="absolute w-1.5 h-1.5 rounded-full bg-rose-400 blur-[2px]"
+                className="absolute w-1.5 h-1.5 rounded-full bg-primary blur-[2px]"
                 style={{ left: p.x, top: p.y }}
               />
             ))}
@@ -154,11 +154,11 @@ export const DigitalSignaturePad: React.FC<LiquidSignaturePadProps> = ({
                 className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none p-10 text-center"
               >
                 <div className={cn("w-20 h-20 rounded-full border flex items-center justify-center mb-6 animate-pulse", isLight ? "bg-black/5 border-black/5" : "bg-white/5 border-white/10")}>
-                  <Fingerprint className="w-10 h-10 text-rose-500/60" />
+                  <Fingerprint className="w-10 h-10 text-primary/60" />
                 </div>
                 <h4 className={cn("text-base font-black uppercase tracking-[0.3em] italic", isLight ? "text-black/40" : "text-white/40")}>Hold and sign here</h4>
                 <div className="flex items-center gap-3 mt-4">
-                  <MousePointer2 className="w-4 h-4 text-rose-500/40 animate-bounce" />
+                  <MousePointer2 className="w-4 h-4 text-primary/40 animate-bounce" />
                   <span className={cn("text-[10px] font-black uppercase tracking-widest opacity-20", isLight ? "text-black" : "text-white")}>Liquid Signature Pad v2</span>
                 </div>
               </motion.div>
@@ -167,7 +167,7 @@ export const DigitalSignaturePad: React.FC<LiquidSignaturePadProps> = ({
 
           {/* 🛸 TELEMETRY INFO */}
           <div className="absolute bottom-6 left-8 flex items-center gap-3 opacity-30">
-            <Sparkles className="w-4 h-4 text-rose-500" />
+            <Sparkles className="w-4 h-4 text-primary" />
             <span className={cn("text-[9px] font-black uppercase tracking-[0.5em] italic", isLight ? "text-black" : "text-white")}>Encrypted Digital Hash</span>
           </div>
         </div>

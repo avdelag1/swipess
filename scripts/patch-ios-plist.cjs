@@ -14,19 +14,19 @@ const PLIST = path.resolve(__dirname, '..', 'ios', 'App', 'App', 'Info.plist');
 
 const REQUIRED = {
   NSPhotoLibraryUsageDescription:
-    'Swipess needs access to your photo library to upload profile photos and listing images.',
+    'Nexus needs access to your photo library to upload profile photos and listing images.',
   NSPhotoLibraryAddUsageDescription:
-    'Swipess saves downloaded receipts and QR codes to your photo library.',
+    'Nexus saves downloaded receipts and QR codes to your photo library.',
   NSCameraUsageDescription:
-    'Swipess needs camera access to take profile photos and listing images.',
+    'Nexus needs camera access to take profile photos and listing images.',
   NSMicrophoneUsageDescription:
-    'Swipess needs microphone access for voice-to-text messaging with the AI concierge.',
+    'Nexus needs microphone access for voice-to-text messaging with the AI concierge.',
   NSLocationWhenInUseUsageDescription:
-    'Swipess uses your location to show nearby listings and match you with local services.',
+    'Nexus uses your location to show nearby listings and match you with local services.',
   NSFaceIDUsageDescription:
-    'Swipess uses Face ID for secure authentication.',
+    'Nexus uses Face ID for secure authentication.',
   NSContactsUsageDescription:
-    'Swipess can share listings with your contacts if you choose to.',
+    'Nexus can share listings with your contacts if you choose to.',
 };
 
 if (!fs.existsSync(PLIST)) {

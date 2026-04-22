@@ -25,7 +25,7 @@ interface ActiveModeContextType {
 const ActiveModeContext = createContext<ActiveModeContextType | undefined>(undefined);
 
 // Local storage key for persistent mode (survives page refresh)
-const MODE_STORAGE_KEY = 'swipess_active_mode';
+const MODE_STORAGE_KEY = 'Swipess_active_mode';
 const SWITCH_TIMEOUT_MS = 100; // Accelerated cooldown for 'Boom' feel
 
 
@@ -89,17 +89,19 @@ export function ActiveModeProvider({ children }: { children: ReactNode }) {
   const [isSwitching, setIsSwitching] = useState(false);
   const [_isPending, _startTransition] = useTransition();
 
-  // Update initial mode when user changes; reset on logout
   useEffect(() => {
     if (user?.id) {
       // 🚀 SPEED OF LIGHT: Deriving from metadata first is more stable than defaulting to 'client'
       const cached = getCachedMode(user.id);
+      
+      // ROUTE SYNC: If URL explicitly states mode, follow URL first
+      const pathMode = location.pathname.includes('/owner/') ? 'owner' : (location.pathname.includes('/client/') ? 'client' : null);
+      
       const metadataRole = user.user_metadata?.role as ActiveMode | undefined;
-      const initialRole = (cached || metadataRole || 'client') as ActiveMode;
+      const initialRole = (pathMode || cached || metadataRole || 'client') as ActiveMode;
       
       if (initialRole !== localMode) {
         setLocalMode(initialRole);
-        // Persist metadata role to cache if cache was empty
         if (!cached && metadataRole) {
           setCachedMode(user.id, metadataRole);
         }
@@ -110,7 +112,7 @@ export function ActiveModeProvider({ children }: { children: ReactNode }) {
       queryClient.removeQueries({ queryKey: ['active-mode'] });
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.id]);
+  }, [user?.id, location.pathname]);
 
   // Fetch from database in background (only for initial sync)
   const { isLoading, isFetched } = useQuery({
@@ -367,3 +369,5 @@ export function useActiveModeQuery(userId: string | undefined) {
     initialData: getCachedMode(userId) || 'client',
   });
 }
+
+

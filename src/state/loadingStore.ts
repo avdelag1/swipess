@@ -42,3 +42,5 @@ export const useLoadingStore = create<LoadingState>((set) => ({
 
   setProgress: (progress: number) => set({ progress }),
 }));
+
+

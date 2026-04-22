@@ -63,3 +63,5 @@ export const applyFilter = (canvas: HTMLCanvasElement, filter: FilterType): void
 
   ctx.putImageData(imageData, 0, 0);
 };
+
+

@@ -278,3 +278,5 @@ export function PropertyDetails({ listingId, isOpen, onClose, onMessageClick }: 
     </Dialog>
   );
 }
+
+

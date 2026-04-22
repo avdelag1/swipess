@@ -19,7 +19,20 @@ const THEMES: { id: Theme; name: string; description: string; colors: string[] }
     description: 'Deep matte black for focus',
     colors: ['#000000', '#f97316'] 
   },
+  { 
+    id: 'cheers', 
+    name: 'Cheers', 
+    description: 'Warm golden safari energy',
+    colors: ['#180800', '#C8A96B'] 
+  },
+  { 
+    id: 'Swipess-style', 
+    name: 'Zenith Liquid', 
+    description: 'AI-Native high efficiency interface',
+    colors: ['#000000', '#00E5FF', '#121212'] 
+  },
 ];
+
 
 export function GlobalThemeSettings() {
   const { theme: currentTheme, setTheme } = useTheme();
@@ -76,6 +89,9 @@ export function GlobalThemeSettings() {
                   <Check className="w-4 h-4 text-primary-foreground" />
                 </div>
               )}
+              
+              {/* Background preview subtle effect */}
+
             </button>
           ))}
         </div>
@@ -83,3 +99,5 @@ export function GlobalThemeSettings() {
     </Card>
   );
 }
+
+

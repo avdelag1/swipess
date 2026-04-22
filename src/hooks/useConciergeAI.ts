@@ -23,9 +23,9 @@ export interface Conversation {
 
 export type AiCharacter = 'default' | 'kyle' | 'beaugosse' | 'donajkiin' | 'botbetter' | 'lunashanti' | 'ezriyah';
 
-const STORAGE_KEY = 'swipess-ai-conversations';
-const CHARACTER_KEY = 'swipess-ai-character';
-const EGO_KEY = 'swipess-ai-ego';
+const STORAGE_KEY = 'Swipess-ai-conversations';
+const CHARACTER_KEY = 'Swipess-ai-character';
+const EGO_KEY = 'Swipess-ai-ego';
 const MAX_CONVERSATIONS = 20;
 const MAX_MESSAGES = 50;
 
@@ -726,3 +726,5 @@ export function useConciergeAI() {
     isPremium,
   };
 }
+
+

@@ -19,3 +19,5 @@ export const SpeedOfLightPreloader = memo(() => {
 });
 
 SpeedOfLightPreloader.displayName = 'SpeedOfLightPreloader';
+
+

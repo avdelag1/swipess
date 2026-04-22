@@ -205,3 +205,5 @@ function PhotoPreviewComponent({ photos, isOpen, onClose, initialIndex = 0 }: Ph
 
 // Memoize to prevent re-renders
 export const PhotoPreview = memo(PhotoPreviewComponent);
+
+

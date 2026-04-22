@@ -343,3 +343,5 @@ export function LegalDocumentsDialog({ open, onOpenChange }: LegalDocumentsDialo
     </Dialog>
   );
 }
+
+

@@ -1,10 +1,19 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { Navigation, Minus, Plus } from 'lucide-react';
+import { Navigation, Minus, Plus, Search, Crosshair } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from '@/hooks/useTheme';
 import { triggerHaptic } from '@/utils/haptics';
 import type { QuickFilterCategory } from '@/types/filters';
+
+export interface RadarNode {
+  id: string;
+  lat: number;
+  lng: number;
+  label: string;
+  category?: string;
+  price?: string;
+}
 
 export interface LocationRadiusSelectorProps {
   radiusKm: number;
@@ -16,6 +25,7 @@ export interface LocationRadiusSelectorProps {
   lng?: number | null;
   onCategorySelect?: (cat: QuickFilterCategory) => void;
   variant?: 'full' | 'minimal';
+  nodes?: RadarNode[];
 }
 
 const KM_PRESETS = [1, 5, 10, 25, 50, 100];
@@ -57,6 +67,10 @@ const pixelToLatLng = (dx: number, dy: number, lat: number, zoom: number) => {
   return { dLat, dLng };
 };
 
+/**
+ * 🛰️ ZENITH BOUNDLESS RADAR
+ * Immersive, full-page technical discovery engine.
+ */
 export const LocationRadiusSelector = ({
   radiusKm,
   onRadiusChange,
@@ -67,22 +81,21 @@ export const LocationRadiusSelector = ({
   lng,
   onCategorySelect: _onCategorySelect,
   variant = 'full',
+  nodes = [],
 }: LocationRadiusSelectorProps) => {
   const [localKm, setLocalKm] = useState(radiusKm);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const { theme } = useTheme();
-  const isLight = theme === 'light';
-  
-  // Pan state — no inertia. Pan follows the finger only.
-  const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const panStartRef = useRef<{ x: number; y: number; ox: number; oy: number } | null>(null);
+  const { theme, isLight } = useTheme();
+  
+  const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
   const [mapSize, setMapSize] = useState({ w: 300, h: 400 });
 
   const baseLat = lat ?? 20.2114;
   const baseLng = lng ?? -87.4654;
 
-  // Effective center after pan offset
   const zoom = useMemo(() => getZoomForRadius(localKm, baseLat, Math.min(mapSize.w, mapSize.h)), [localKm, baseLat, mapSize]);
   
   const effectiveCenter = useMemo(() => {
@@ -94,15 +107,13 @@ export const LocationRadiusSelector = ({
 
   useEffect(() => { setLocalKm(radiusKm); }, [radiusKm]);
 
-  // Debounce radius update
   useEffect(() => {
     const timer = setTimeout(() => {
       if (localKm !== radiusKm) onRadiusChange(localKm);
-    }, 200);
+    }, 450);
     return () => clearTimeout(timer);
   }, [localKm, radiusKm, onRadiusChange]);
 
-  // Measure container
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
@@ -113,7 +124,6 @@ export const LocationRadiusSelector = ({
     return () => obs.disconnect();
   }, []);
 
-  // Pan handlers — finger-only. No velocity, no decay, no drift.
   const handlePointerDown = useCallback((e: React.PointerEvent) => {
     panStartRef.current = { x: e.clientX, y: e.clientY, ox: panOffset.x, oy: panOffset.y };
     (e.target as HTMLElement).setPointerCapture(e.pointerId);
@@ -130,7 +140,6 @@ export const LocationRadiusSelector = ({
     panStartRef.current = null;
   }, []);
 
-  // 🚀 HIGH PERFORMANCE PROGRESSIVE DRAWING
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas || mapSize.w < 10 || mapSize.h < 10) return;
@@ -150,35 +159,25 @@ export const LocationRadiusSelector = ({
     const offsetY = (tileY - centerTileY) * 256;
 
     const drawOverlay = () => {
-        // Radius disc + dashed border
         const r = Math.min(radiusPx, Math.min(w, h) / 2 - 4);
-
         ctx.beginPath();
         ctx.arc(w / 2, h / 2, r, 0, Math.PI * 2);
         ctx.fillStyle = isLight ? 'rgba(59,130,246,0.08)' : 'rgba(59,130,246,0.14)';
         ctx.fill();
-
         ctx.strokeStyle = isLight ? 'rgba(59,130,246,0.5)' : 'rgba(59,130,246,0.7)';
         ctx.lineWidth = 2;
         ctx.setLineDash([6, 4]);
         ctx.stroke();
         ctx.setLineDash([]);
-
-        // ── Radar center stack (high contrast) ────────────────────
-        // Outer pulse ring
         ctx.beginPath();
         ctx.arc(w / 2, h / 2, 18, 0, Math.PI * 2);
         ctx.strokeStyle = 'rgba(59,130,246,0.45)';
         ctx.lineWidth = 3;
         ctx.stroke();
-
-        // White halo
         ctx.beginPath();
         ctx.arc(w / 2, h / 2, 12, 0, Math.PI * 2);
         ctx.fillStyle = 'rgba(255,255,255,0.92)';
         ctx.fill();
-
-        // Blue dot
         ctx.beginPath();
         ctx.arc(w / 2, h / 2, 7, 0, Math.PI * 2);
         ctx.fillStyle = '#3b82f6';
@@ -188,12 +187,10 @@ export const LocationRadiusSelector = ({
         ctx.stroke();
     };
 
-    // Initial fill + Radar Grid Fallback
     ctx.fillStyle = isLight ? '#f1f5f9' : '#0a0a0b';
     ctx.fillRect(0, 0, w, h);
     
     if (!isLight) {
-        // Draw a subtle 'Radar Grid' so the map never looks 'broken' or blank
         ctx.strokeStyle = 'rgba(59,130,246,0.1)';
         ctx.lineWidth = 0.5;
         for(let i=0; i<w; i+=40) { ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, h); ctx.stroke(); }
@@ -210,14 +207,12 @@ export const LocationRadiusSelector = ({
         const tx = centerTileX + dx;
         const ty = centerTileY + dy;
         const key = `${tx}-${ty}-${zoom}`;
-
         const drawSingleTile = (img: HTMLImageElement) => {
             const drawX = w / 2 - offsetX + dx * 256;
             const drawY = h / 2 - offsetY + dy * 256;
             ctx.drawImage(img, drawX, drawY, 256, 256);
             drawOverlay();
         };
-
         if (TILE_CACHE[key]) {
             drawSingleTile(TILE_CACHE[key]);
         } else {
@@ -231,10 +226,7 @@ export const LocationRadiusSelector = ({
         }
       }
     }
-    
-    // Always draw overlay at least once
     drawOverlay();
-
   }, [effectiveCenter, zoom, radiusPx, isLight, mapSize]);
 
   const handleKmSelect = useCallback((km: number) => {
@@ -242,18 +234,30 @@ export const LocationRadiusSelector = ({
     setLocalKm(km);
   }, []);
 
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const projectedNodes = useMemo(() => {
+    if (!effectiveCenter.lat || !effectiveCenter.lng || nodes.length === 0) return [];
+    const seenPos = new Set<string>();
+    return nodes.map((node, idx) => {
+      const dLat = node.lat - effectiveCenter.lat;
+      const dLng = node.lng - effectiveCenter.lng;
+      const xKm = dLng * 111 * Math.cos(effectiveCenter.lat * Math.PI / 180);
+      const yKm = dLat * 111;
+      const xPos = (xKm / localKm);
+      const yPos = (yKm / localKm);
+      let x = 50 + (xPos * 40);
+      let y = 50 - (yPos * 40);
+      const posKey = `${Math.round(x * 10)},${Math.round(y * 10)}`;
+      if (seenPos.has(posKey)) {
+        const angle = idx * 0.5;
+        const radius = 2 + (idx * 0.1);
+        x += Math.cos(angle) * radius;
+        y += Math.sin(angle) * radius;
+      }
+      seenPos.add(posKey);
+      return { ...node, x, y };
+    }).filter(n => n.x > 2 && n.x < 98 && n.y > 2 && n.y < 98);
+  }, [effectiveCenter, nodes, localKm]);
 
-  useEffect(() => {
-    const container = scrollContainerRef.current;
-    if (!container) return;
-    const active = container.querySelector('[data-active="true"]') as HTMLElement;
-    if (active) {
-      active.scrollIntoView({ inline: 'center', behavior: 'smooth', block: 'nearest' });
-    }
-  }, [localKm]);
-
-  // Dynamic filter for dark mode OSM tiles
   const mapFilter = isLight ? 'none' : 'invert(0.9) hue-rotate(180deg) brightness(0.7) contrast(1.1)';
 
   if (variant === 'minimal') {
@@ -262,8 +266,8 @@ export const LocationRadiusSelector = ({
         <div 
           ref={containerRef}
           className={cn(
-            "w-full h-16 rounded-[2rem] overflow-hidden relative border glass-nano-texture shadow-lg group active:h-24 transition-all duration-300 pointer-events-auto",
-            isLight ? "border-black/5 bg-black/[0.03]" : "border-white/10 bg-white/[0.03] backdrop-blur-3xl"
+            "w-full h-16 rounded-[2rem] overflow-hidden relative transition-all duration-500 cursor-pointer pointer-events-auto border",
+            isLight ? "bg-black/[0.03] border-black/5" : "bg-white/[0.02] border-white/10 backdrop-blur-3xl"
           )}
           style={{ touchAction: 'none' }}
           onPointerDown={handlePointerDown}
@@ -276,58 +280,46 @@ export const LocationRadiusSelector = ({
             style={{ width: '100%', height: '100%', filter: mapFilter }} 
             className="block opacity-90 transition-opacity duration-500" 
           />
-          
-          <div className="absolute inset-0 flex items-center justify-between px-3 pointer-events-none">
-            <div className="flex items-center gap-2 pointer-events-auto">
+          <div className="absolute inset-0 flex items-center justify-between px-4 pointer-events-none z-10">
+            <div className="flex items-center gap-3 pointer-events-auto">
               <button
                 onClick={(e) => { e.stopPropagation(); onDetectLocation(); setPanOffset({ x: 0, y: 0 }); }}
                 disabled={detecting}
                 className={cn(
-                  "w-8 h-8 rounded-full flex items-center justify-center transition-all active:scale-95 bg-black/40 backdrop-blur-md border border-white/10 shadow-xl",
-                  detected ? "text-primary" : "text-white/40"
+                  "w-10 h-10 flex items-center justify-center transition-all opacity-60 hover:opacity-100 active:scale-95",
+                  detected ? "text-primary" : (isLight ? "text-black" : "text-white")
                 )}
               >
-                <Navigation className={cn("w-3.5 h-3.5", detecting && "animate-spin")} />
+                <Crosshair className={cn("w-5 h-5", detecting && "animate-spin")} />
               </button>
-              <div className="bg-black/60 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 shadow-lg">
-                <span className="text-[10px] font-black uppercase tracking-widest text-white/90">
-                  Radar <span className="text-primary">{localKm}KM</span>
+              <div className="px-1 py-1.5">
+                <span className={cn(
+                  "text-[10px] font-black uppercase tracking-[0.2em]",
+                  isLight ? "text-black/80" : "text-white"
+                )}>
+                  Scan <span className="text-primary italic">{localKm}KM</span>
                 </span>
               </div>
             </div>
-            
             <div 
               ref={scrollContainerRef}
               className="flex gap-1 overflow-x-auto scrollbar-none max-w-[140px] pointer-events-auto"
             >
-              {KM_PRESETS.map((km) => {
-                const isActive = localKm === km;
-                return (
-                  <button
-                    key={km}
-                    data-active={isActive}
-                    onClick={() => handleKmSelect(km)}
-                    className={cn(
-                      "flex-shrink-0 h-7 px-2.5 rounded-lg text-[9px] font-black transition-all border",
-                      isActive ? "bg-primary border-primary text-white" : "bg-black/40 backdrop-blur-md border-white/10 text-white/30"
-                    )}
-                  >
-                    {km}k
-                  </button>
-                );
-              })}
+              {KM_PRESETS.map((km) => (
+                <button
+                  key={km}
+                  onClick={() => handleKmSelect(km)}
+                  className={cn(
+                    "h-9 px-4 rounded-xl text-[10px] font-black transition-all uppercase tracking-tighter flex-shrink-0",
+                    localKm === km 
+                      ? (isLight ? "bg-black text-white" : "bg-white text-black shadow-[0_0_30px_rgba(255,255,255,0.2)]") 
+                      : (isLight ? "text-black/30" : "text-white/20")
+                  )}
+                >
+                  {km}k
+                </button>
+              ))}
             </div>
-          </div>
-
-          <div className="absolute bottom-1 left-1/2 -translate-x-1/2 pointer-events-auto opacity-0 group-hover:opacity-100 transition-opacity">
-             <input 
-               type="range"
-               min="1"
-               max="100"
-               value={localKm}
-               onChange={(e) => setLocalKm(parseInt(e.target.value))}
-               className="w-24 h-1 bg-white/20 rounded-full appearance-none cursor-pointer accent-primary"
-             />
           </div>
         </div>
       </div>
@@ -336,7 +328,7 @@ export const LocationRadiusSelector = ({
 
   return (
     <motion.div
-      className="w-full h-full flex flex-col relative"
+      className="w-full h-full flex flex-col relative bg-transparent overflow-hidden"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
     >
@@ -357,82 +349,154 @@ export const LocationRadiusSelector = ({
             style={{ width: '100%', height: '100%', filter: mapFilter }} 
             className="block opacity-90" 
         />
-        <div className={cn(
-          "absolute inset-0 pointer-events-none bg-gradient-to-b from-transparent to-black/40",
-          isLight ? "via-white/20" : "via-transparent"
-        )} />
-
-        <div className="absolute top-4 left-4 right-4 z-10">
-           <div className="w-full flex flex-col gap-3">
-              <div className="flex items-center justify-between">
-                <button
-                  type="button"
-                  onClick={(e) => { e.stopPropagation(); onDetectLocation(); setPanOffset({ x: 0, y: 0 }); }}
-                  disabled={detecting}
-                  className={cn(
-                    "w-10 h-10 rounded-full flex items-center justify-center border transition-all active:scale-90 shadow-2xl",
-                    detected ? "bg-primary border-primary text-white" : "bg-black/60 backdrop-blur-xl border-white/10 text-white/40"
-                  )}
-                >
-                  <Navigation className={cn("w-4 h-4", detecting && "animate-spin")} />
-                </button>
-                
-                <div className="bg-black/60 backdrop-blur-xl border border-white/10 px-4 py-2 rounded-2xl shadow-2xl">
-                   <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white">
-                      Scan Radius: <span className="text-primary">{localKm}km</span>
-                   </span>
-                </div>
-              </div>
-
-              {/* SLIDER DETECTOR ON TOP */}
-              <div className="w-full px-2">
-                 <input 
-                   type="range"
-                   min="1"
-                   max="100"
-                   value={localKm}
-                   onChange={(e) => setLocalKm(parseInt(e.target.value))}
-                   className="w-full h-1.5 bg-white/10 rounded-lg appearance-none cursor-pointer accent-primary"
-                 />
-                 <div className="flex justify-between mt-1 px-0.5">
-                    <span className="text-[8px] font-bold text-white/30">1KM</span>
-                    <span className="text-[8px] font-bold text-white/30">100KM</span>
-                 </div>
-              </div>
-           </div>
+        
+        {/* technical overlays */}
+        <div className="absolute inset-0 pointer-events-none opacity-20">
+          {[...Array(6)].map((_, i) => (
+            <div
+              key={`grid-${i}`}
+              className="absolute border border-primary/20 rounded-full left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+              style={{ width: `${(i + 1) * 35}%`, aspectRatio: '1/1' }}
+            />
+          ))}
         </div>
 
-        <div className="absolute bottom-4 left-4 right-4 z-10 flex gap-2">
-           <div className="flex-1 flex gap-1.5 overflow-x-auto scrollbar-none bg-black/40 backdrop-blur-xl border border-white/10 p-1.5 rounded-2xl">
-              {KM_PRESETS.map((km) => (
-                <button
-                  key={km}
-                  onClick={() => handleKmSelect(km)}
-                  className={cn(
-                    "flex-shrink-0 h-9 min-w-[44px] rounded-xl text-[10px] font-black transition-all",
-                    localKm === km ? "bg-primary text-white shadow-lg" : "text-white/40 hover:text-white"
-                  )}
-                >
-                  {km}k
-                </button>
-              ))}
-           </div>
-           <div className="flex flex-col gap-1.5">
-              <button
-                type="button"
-                onClick={(e) => { e.stopPropagation(); setLocalKm(Math.min(100, localKm + 5)); }}
-                className="w-9 h-9 rounded-xl bg-black/60 backdrop-blur-xl border border-white/10 flex items-center justify-center active:scale-90"
-              >
-                <Plus className="w-3.5 h-3.5 text-white" />
-              </button>
-              <button
-                type="button"
-                onClick={(e) => { e.stopPropagation(); setLocalKm(Math.max(1, localKm - 5)); }}
-                className="w-9 h-9 rounded-xl bg-black/60 backdrop-blur-xl border border-white/10 flex items-center justify-center active:scale-90"
-              >
-                <Minus className="w-3.5 h-3.5 text-white" />
-              </button>
-           </div>
+        {/* Technical Sweep Beam */}
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+          className="absolute inset-0 flex items-center justify-center pointer-events-none"
+        >
+          <div 
+            className="absolute h-[50%] w-[1px] top-0 left-1/2 -translate-x-1/2"
+            style={{ 
+              background: 'linear-gradient(to top, rgba(var(--color-brand-primary-rgb), 0.8), transparent)',
+              boxShadow: '0 0 15px rgba(var(--color-brand-primary-rgb), 0.4)',
+              transformOrigin: 'bottom center'
+            }} 
+          />
+        </motion.div>
+
+        {/* INTEL NODES */}
+        <div className="absolute inset-0 z-20 pointer-events-none">
+          {projectedNodes.map((node, i) => (
+            <motion.div
+              key={node.id}
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: i * 0.05, type: 'spring' }}
+              className="absolute pointer-events-auto"
+              style={{ left: `${node.x}%`, top: `${node.y}%` }}
+            >
+              <div className="relative -translate-x-1/2 -translate-y-1/2 group">
+                <div className="w-5 h-5 rounded-full bg-primary shadow-[0_0_20px_var(--color-brand-primary)] animate-pulse" />
+                <div className="absolute inset-0 w-5 h-5 rounded-full border border-primary animate-ping opacity-40" />
+                
+                <div className="absolute -top-7 left-1/2 -translate-x-1/2 whitespace-nowrap bg-black/60 backdrop-blur-md px-2 py-0.5 rounded-full border border-white/10">
+                   <span className="text-[10px] font-black uppercase tracking-[0.1em] text-white/90 drop-shadow-md">
+                      {node.label.split(' ')[0]}
+                   </span>
+                </div>
+
+                {node.price && (
+                  <div className="absolute top-6 left-1/2 -translate-x-1/2 whitespace-nowrap">
+                    <span className="text-[12px] font-black italic text-primary drop-shadow-lg">
+                       {node.price}
+                    </span>
+                  </div>
+                )}
+                
+                <div className="absolute left-8 top-1/2 -translate-y-1/2 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity bg-black/90 backdrop-blur-xl px-4 py-2 rounded-xl border border-primary/30 pointer-events-none z-[110] shadow-[0_10px_40px_rgba(0,0,0,0.5)]">
+                   <div className="flex flex-col gap-0.5">
+                      <span className="text-[11px] font-black uppercase tracking-widest text-primary">{node.label}</span>
+                      <div className="h-px bg-white/10 w-full my-1" />
+                      <div className="flex justify-between items-center gap-4">
+                        <span className="text-[10px] font-bold text-white/60 uppercase">Protocol Match</span>
+                        <span className="text-[10px] font-black text-emerald-400">98%</span>
+                      </div>
+                   </div>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* HUD UI */}
+        <div className="absolute top-8 left-8 right-8 z-[100] flex flex-col gap-6 pointer-events-none">
+          <div className="flex items-center justify-between pointer-events-auto">
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); triggerHaptic('heavy'); onDetectLocation(); setPanOffset({ x: 0, y: 0 }); }}
+              disabled={detecting}
+              className={cn(
+                "w-14 h-14 rounded-full flex items-center justify-center transition-all backdrop-blur-3xl border border-white/5 shadow-2xl active:scale-90",
+                detected ? "bg-primary text-white" : (isLight ? "bg-white/90 text-black border-black/10" : "bg-black/40 text-white/40")
+              )}
+            >
+              <Navigation className={cn("w-6 h-6", detecting && "animate-spin")} />
+            </button>
+            
+            <div className="flex flex-col items-end gap-1">
+               <div className={cn("backdrop-blur-3xl px-4 py-2 rounded-xl shadow-2xl border border-white/5", isLight ? "bg-white/80" : "bg-black/60")}>
+                  <span className={cn("text-[9px] font-black uppercase tracking-[0.3em] flex items-center gap-2", isLight ? "text-black" : "text-white")}>
+                     <Search className="w-3 h-3 text-primary" />
+                     Telemetric Radius
+                  </span>
+               </div>
+               <span className="text-primary text-2xl font-black italic tracking-tighter">
+                  {localKm}<small className="text-[10px] uppercase ml-1 not-italic">KM</small>
+               </span>
+            </div>
+          </div>
+
+          <div className="w-full px-2 pointer-events-auto">
+             <input 
+               type="range"
+               min="1"
+               max="100"
+               value={localKm}
+               onChange={(e) => setLocalKm(parseInt(e.target.value))}
+               className="w-full h-1 bg-primary/20 rounded-full appearance-none cursor-pointer accent-primary"
+             />
+             <div className="flex justify-between mt-3 px-1">
+                <span className={cn("text-[8px] font-black tracking-[0.2em] opacity-40 uppercase", isLight ? "text-black" : "text-white")}>System: Swipess-Scan-Active</span>
+                <span className={cn("text-[8px] font-black tracking-[0.2em] opacity-40 uppercase", isLight ? "text-black" : "text-white")}>Scale: 1:{localKm}KM</span>
+             </div>
+          </div>
+        </div>
+
+        <div className="absolute bottom-8 left-8 right-8 z-[100] flex gap-3 pointer-events-none">
+          <div className={cn("flex-1 flex gap-2 overflow-x-auto scrollbar-none backdrop-blur-3xl p-2 rounded-2xl shadow-2xl border border-white/5 pointer-events-auto", isLight ? "bg-white/90" : "bg-black/60")}>
+             {KM_PRESETS.map((km) => (
+               <button
+                 key={km}
+                 onClick={() => handleKmSelect(km)}
+                 className={cn(
+                   "flex-shrink-0 h-12 min-w-[58px] rounded-xl text-[10px] font-black transition-all uppercase tracking-tighter",
+                   localKm === km ? (isLight ? "bg-black text-white" : "bg-white text-black") : (isLight ? "text-black/40" : "text-white/20")
+                 )}
+               >
+                 {km}k
+               </button>
+             ))}
+          </div>
+          
+          <div className="flex gap-2 pointer-events-auto">
+             <button
+               type="button"
+               onClick={() => setLocalKm(Math.min(100, localKm + 5))}
+               className={cn("w-12 h-12 rounded-xl backdrop-blur-3xl flex items-center justify-center transition-all border border-white/5 shadow-2xl active:scale-90", isLight ? "bg-white text-black" : "bg-black/60 text-white")}
+             >
+               <Plus className="w-4 h-4" />
+             </button>
+             <button
+               type="button"
+               onClick={() => setLocalKm(Math.max(1, localKm - 5))}
+               className={cn("w-12 h-12 rounded-xl backdrop-blur-3xl flex items-center justify-center transition-all border border-white/5 shadow-2xl active:scale-90", isLight ? "bg-white text-black" : "bg-black/60 text-white")}
+             >
+               <Minus className="w-4 h-4" />
+             </button>
+          </div>
         </div>
       </div>
     </motion.div>

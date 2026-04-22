@@ -20,26 +20,26 @@ function ThemeToggleComponent({ className }: ThemeToggleProps) {
         e.preventDefault();
         e.stopPropagation();
         triggerHaptic('light');
-        const current = CYCLE.indexOf(theme as Theme);
-        const next = CYCLE[(current + 1) % CYCLE.length];
+        const next = theme === 'light' ? 'dark' : 'light';
         setTheme(next, { x: e.clientX, y: e.clientY });
     };
 
     const icon =
         theme === 'light' ? (
-            <Sun strokeWidth={1.5} className="h-4 w-4 sm:h-5 sm:w-5 text-amber-500" />
+            <Sun strokeWidth={1.5} className="h-5 w-5 sm:h-6 sm:w-6 text-amber-500" />
         ) : (
-            <Moon strokeWidth={1.5} className="h-4 w-4 sm:h-5 sm:w-5 text-white/70" />
+            <Moon strokeWidth={1.5} className="h-5 w-5 sm:h-6 sm:w-6 text-black/70" />
         );
+
 
     return (
         <button
             onPointerDown={(e) => e.stopPropagation()}
             onClick={handleToggle}
             className={cn(
-                'relative flex items-center justify-center rounded-xl',
+                'relative flex items-center justify-center rounded-full',
                 'transition-all duration-100 ease-out active:scale-[0.9]',
-                'touch-manipulation h-9 w-9 flex-shrink-0',
+                'touch-manipulation h-10 w-10 flex-shrink-0',
                 className,
             )}
             style={{ backgroundColor: 'transparent', border: 'none', boxShadow: 'none' }}
@@ -62,3 +62,5 @@ function ThemeToggleComponent({ className }: ThemeToggleProps) {
 }
 
 export const ThemeToggle = memo(ThemeToggleComponent);
+
+

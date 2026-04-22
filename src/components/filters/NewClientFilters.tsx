@@ -657,3 +657,5 @@ export function NewClientFilters({ open, onClose, onApply, currentFilters = {} }
     </AnimatePresence>
   );
 }
+
+

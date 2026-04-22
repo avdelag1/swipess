@@ -68,3 +68,5 @@ export async function checkBundleEligibility(userId: string, supabase: any): Pro
 
   return hasClient && hasOwner;
 }
+
+

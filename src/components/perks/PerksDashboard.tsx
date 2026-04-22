@@ -66,7 +66,7 @@ export function PerksDashboard() {
   ];
 
   return (
-    <div className="flex flex-col h-full min-h-0 overflow-hidden">
+    <div className="flex flex-col h-full min-h-0 overflow-hidden pt-[130px]">
       {/* Tab bar */}
       <div className="flex gap-1 px-4 pt-3 pb-2 shrink-0">
         {tabs.map(t => (
@@ -212,3 +212,5 @@ export function PerksDashboard() {
     </div>
   );
 }
+
+

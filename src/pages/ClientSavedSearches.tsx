@@ -15,3 +15,5 @@ const ClientSavedSearches = () => {
 };
 
 export default ClientSavedSearches;
+
+

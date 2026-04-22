@@ -79,3 +79,5 @@ export function WelcomeNotification({ isOpen, onClose }: WelcomeNotificationProp
 }
 
 export default WelcomeNotification;
+
+

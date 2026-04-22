@@ -55,7 +55,7 @@ const OwnerProfile = () => {
         </div>
       </AnimatePresence>
 
-      <div className="w-full max-w-7xl mx-auto p-6 pt-4 pb-12 space-y-8 relative z-10">
+      <div className="w-full max-w-7xl mx-auto p-6 pt-16 pb-12 space-y-8 relative z-10">
         
         {/* 🛸 OWNER HEADER: BRAND GLASS */}
         <div className="flex flex-col items-center text-center gap-6">
@@ -116,7 +116,7 @@ const OwnerProfile = () => {
           </div>
         </div>
 
-        {/* 🛸 METRIC GRID: NEXUS CARDS */}
+        {/* 🛸 METRIC GRID: Swipess CARDS */}
         <div className="grid grid-cols-3 gap-4">
           {[
             { label: 'Network', value: stats?.likedClientsCount ?? 0, icon: Flame, color: 'text-[#EB4898]' },
@@ -292,3 +292,5 @@ const OwnerProfile = () => {
 };
 
 export default OwnerProfile;
+
+

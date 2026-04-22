@@ -244,42 +244,20 @@ export const BottomNavigation = memo(({
           The bar itself is a glass layer so the swipe card content shows
           through, reinforcing the "floating above" feeling. */}
       <div
-        className="pointer-events-auto w-full max-w-[440px] mx-auto glass-pill-nav px-1.5 shadow-[0_30px_80px_rgba(0,0,0,0.5)]"
+        className={cn(
+          "pointer-events-auto w-full max-w-[440px] mx-auto glass-pill-nav px-1.5 shadow-[0_30px_80px_rgba(0,0,0,0.5)]"
+        )}
         style={{
-          background: isLight ? 'rgba(255,255,255,0.75)' : 'rgba(10,10,12,0.65)',
-          backdropFilter: 'blur(var(--glass-thick-blur)) saturate(180%) contrast(1.1)',
-          WebkitBackdropFilter: 'blur(var(--glass-thick-blur)) saturate(180%) contrast(1.1)',
+          background: 'var(--hud-bg)',
+          backdropFilter: 'blur(32px) saturate(280%)',
+          WebkitBackdropFilter: 'blur(32px) saturate(280%)',
           borderRadius: '3rem',
           padding: '4px',
-          boxShadow: isLight 
-            ? '0 20px 50px -10px rgba(0,0,0,0.1), inset 0 0 0 1.5px rgba(255,255,255,0.8)' 
-            : '0 30px 80px rgba(0,0,0,0.65), inset 0 0 0 1.5px rgba(255,255,255,0.15)',
-          border: 'none',
+          boxShadow: '0 20px 50px -10px rgba(0,0,0,0.15)',
+          border: '1px solid var(--hud-border)',
         }}
+
       >
-        {/* LAYER 3: Animated liquid highlight — the bar "shines" like glass */}
-        {/* Atmospheric rim removed per user request for pure floating look */}
-
-        {/* Liquid Ripple FX */}
-        <AnimatePresence>
-          {ripple && (
-            <motion.div
-              key={ripple.id}
-              initial={{ scale: 0, opacity: 0.35 }}
-              animate={{ scale: 4, opacity: 0 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.7, ease: "easeOut" }}
-              className="absolute w-24 h-24 rounded-full pointer-events-none"
-              style={{
-                left: ripple.x - 48,
-                bottom: -10,
-                background: 'radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%)',
-                zIndex: 1.5,
-              }}
-            />
-          )}
-        </AnimatePresence>
-
         {/* Nav items row — SCROLLABLE ZENITH ARCHITECTURE */}
         <div
           ref={scrollRef}
@@ -287,7 +265,7 @@ export const BottomNavigation = memo(({
           data-scroll-axis="x"
           onPointerMove={handlePointerMove}
           className={cn(
-            'relative flex items-center w-full justify-start gap-3 px-4 py-1.5 nav-scroll-hide transform-gpu select-none',
+            'relative flex items-center w-full justify-start gap-1 px-4 py-1.5 nav-scroll-hide transform-gpu select-none',
           )}
           style={{
             zIndex: 2,
@@ -330,8 +308,8 @@ export const BottomNavigation = memo(({
                 aria-label={item.label}
                 aria-current={isActive(item) ? 'page' : undefined}
                 className={cn(
-                  'relative flex flex-col items-center justify-center rounded-2xl gap-1 w-auto flex-shrink-0 h-full',
-                  'touch-manipulation focus-visible:outline-none transform-gpu active:bg-white/10',
+                  'relative flex flex-col items-center justify-center rounded-full gap-1 w-auto flex-shrink-0 h-full',
+                  'touch-manipulation focus-visible:outline-none transform-gpu active:bg-[var(--hud-active-bg)]',
                 )}
                 style={{
                   minWidth: isTablet ? '100px' : (isNarrow ? '54px' : '64px'),
@@ -344,14 +322,12 @@ export const BottomNavigation = memo(({
                   touchAction: 'manipulation',
                   userSelect: 'none',
                   WebkitUserSelect: 'none' as any,
-                  transition: 'all 0.4s cubic-bezier(0.22, 1, 0.36, 1)',
+                  transition: 'all 0.3s cubic-bezier(0.22, 1, 0.36, 1)',
                 }}
               >
-                {/* ── Removed Active Background Indicator per design spec ── */}
-
                 <motion.div
                   className="relative z-10"
-                  animate={{ scale: active ? 1.15 : 1 }}
+                  animate={{ scale: active ? 1.1 : 1 }}
                   transition={{ type: 'spring', stiffness: 500, damping: 30, mass: 0.6 }}
                   style={{ zIndex: 1, display: 'flex', alignItems: 'center', justifyItems: 'center' }}
                 >
@@ -364,7 +340,7 @@ export const BottomNavigation = memo(({
                         animate={{ scale: 1 }}
                         exit={{ scale: 0 }}
                         transition={{ type: 'spring', stiffness: 500, damping: 20 }}
-                        className="absolute -top-1 -right-1 rounded-full px-1.5 h-[16px] z-20 shadow-[0_2px_8px_rgba(255,140,0,0.4)] border-2 border-background flex items-center justify-center text-[10px] font-black text-white"
+                        className="absolute -top-1 -right-1 rounded-full px-1.5 h-[16px] z-20 shadow-[0_2px_8px_rgba(255,140,0,0.4)] border-2 border-[var(--hud-bg)] flex items-center justify-center text-[10px] font-black text-white"
                         style={{ background: 'linear-gradient(135deg,#ff4d00,#ff8c00)' }}
                       >
                         {item.badge}
@@ -379,16 +355,14 @@ export const BottomNavigation = memo(({
                       width: isTablet ? ICON_SIZE_TABLET : (isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE),
                       height: isTablet ? ICON_SIZE_TABLET : (isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE),
                       color: active 
-                        ? (isLight ? '#000000' : activeColor) 
-                        : iconColorInactive,
+                        ? 'var(--hud-text)' 
+                        : 'var(--hud-text)',
+                      opacity: active ? 1 : 0.45,
                       fill: active ? activeColor : 'none',
-                      strokeWidth: active ? 1.8 : 1.5,
-                      filter: active ? (isLight ? 'drop-shadow(0 0 8px rgba(0,0,0,0.15))' : 'drop-shadow(0 0 12px rgba(255,107,53,0.6))') : 'none',
+                      strokeWidth: active ? 2 : 1.5,
+                      filter: 'none',
                     }}
                   />
-                  {active && !isLight && (
-                    <div className="absolute inset-0 bg-brand-primary/20 blur-xl rounded-full scale-150 -z-10" />
-                  )}
                 </motion.div>
                 {/* Label: Natural height, no clipping */}
                 {!isNarrow && (
@@ -396,13 +370,11 @@ export const BottomNavigation = memo(({
                     <span
                       className={cn(
                         'tracking-tight transition-all duration-300 relative font-black uppercase italic whitespace-nowrap',
-                        isTablet ? 'text-[11px]' : 'text-[9px]',
+                        isTablet ? 'text-[10px]' : 'text-[8.5px]',
                       )}
                       style={{
-                        color: active
-                          ? (isLight ? '#000000' : 'var(--color-brand-primary)')
-                          : (isLight ? 'rgba(0,0,0,0.85)' : 'rgba(255,255,255,0.65)'),
-                        opacity: 1,
+                        color: 'var(--hud-text)',
+                        opacity: active ? 1 : 0.65,
                         zIndex: 1,
                       }}
                     >
@@ -430,3 +402,5 @@ export const BottomNavigation = memo(({
 });
 
 BottomNavigation.displayName = 'BottomNavigation';
+
+

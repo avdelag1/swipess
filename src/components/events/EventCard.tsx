@@ -347,3 +347,5 @@ export const EventCard = memo(({
     </div>
   );
 });
+
+

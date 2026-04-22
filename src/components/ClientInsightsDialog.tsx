@@ -949,3 +949,5 @@ function getProfileType(profile: ClientProfile): string {
   if (hasTransport) return 'Transport Seeker';
   return 'General Profile';
 }
+
+

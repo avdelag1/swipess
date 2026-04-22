@@ -185,7 +185,7 @@ export function DiscoveryFilters({ category, onApply, initialFilters = {}, activ
         <div className="flex flex-col">
           <h3 className={cn(
             "text-[10px] font-black uppercase tracking-[0.3em] italic",
-            isLight ? "text-[#3B82F6]" : "text-primary"
+            isLight ? "text-primary" : "text-primary"
           )}>
             Discovery Filters
           </h3>
@@ -197,11 +197,11 @@ export function DiscoveryFilters({ category, onApply, initialFilters = {}, activ
       {/* Interest Type */}
       <div className="space-y-3 px-1 mt-6">
           <div className="flex items-center justify-between px-1">
-            <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-[#3B82F6]">Filters</h2>
+            <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Filters</h2>
             <span className="text-[10px] font-black uppercase tracking-widest opacity-40">{category}</span>
           </div>
 
-          <div className="flex items-center gap-3 overflow-x-auto no-scrollbar py-2">
+          <div className="flex items-center gap-3 overflow-x-auto no-scrollbar py-2 px-1">
             {['rent', 'buy', 'both'].map((type) => (
               <motion.button
                 key={type}
@@ -210,9 +210,9 @@ export function DiscoveryFilters({ category, onApply, initialFilters = {}, activ
                 className={cn(
                    "flex-shrink-0 focus:outline-none z-10 relative px-10 py-5 border transition-all duration-300 rounded-full text-[11px] font-black uppercase tracking-[0.2em]",
                    interestType === type
-                    ? "bg-white text-slate-900 border-white shadow-[0_20px_50px_rgba(0,0,0,0.15)] scale-[1.05]"
+                    ? "bg-primary text-white border-primary shadow-[0_10px_30px_rgba(var(--brand-primary-rgb),0.3)] scale-[1.05]"
                     : isLight 
-                      ? "bg-black/[0.03] border-slate-200/50 text-slate-400 hover:bg-black/[0.06]" 
+                      ? "bg-black/[0.04] border-black/10 text-black/60 hover:bg-black/[0.08]" 
                       : "bg-white/5 border-white/10 text-muted-foreground hover:bg-white/10"
                  )}
               >
@@ -221,6 +221,7 @@ export function DiscoveryFilters({ category, onApply, initialFilters = {}, activ
             ))}
           </div>
       </div>
+
 
       {/* Demographic Filters */}
       <Card className="bg-card/30 backdrop-blur-md border-white/5 overflow-hidden rounded-[2rem]">
@@ -322,55 +323,56 @@ export function DiscoveryFilters({ category, onApply, initialFilters = {}, activ
             <CardContent className="space-y-10 pt-4">
                 {/* BEDROOMS MATRIX */}
                 <div className="space-y-4">
-                  <div className="flex justify-between text-[10px] font-black uppercase text-[#3B82F6] tracking-[0.2em] px-1">
+                  <div className="flex justify-between text-[10px] font-black uppercase text-primary tracking-[0.2em] px-1">
                     <Label>Bedrooms</Label>
                     <span>{bedrooms}+</span>
                   </div>
                   <div className="flex flex-wrap gap-3">
                     {[1, 2, 3, 4, 5, 6].map(n => (
-                      <button 
-                        key={n} 
-                        onClick={() => setBedrooms(n)}
-                        className={cn(
-                          "w-14 h-14 rounded-full text-[11px] font-black transition-all border flex items-center justify-center shadow-sm",
-                          bedrooms === n 
-                            ? "bg-white text-slate-900 border-white shadow-xl scale-110" 
-                            : isLight 
-                              ? "bg-black/5 border-slate-200/50 text-slate-400"
-                              : "bg-white/5 border-white/10 text-muted-foreground"
-                        )}
-                      >
-                        {n}+
-                      </button>
+                       <button 
+                         key={n} 
+                         onClick={() => setBedrooms(n)}
+                         className={cn(
+                           "w-14 h-14 rounded-full text-[11px] font-black transition-all border flex items-center justify-center shadow-sm",
+                           bedrooms === n 
+                             ? "bg-primary text-white border-primary shadow-xl scale-110" 
+                             : isLight 
+                               ? "bg-black/[0.08] border-black/5 text-black/60 hover:bg-black/10"
+                               : "bg-white/5 border-white/10 text-muted-foreground"
+                         )}
+                       >
+                         {n}+
+                       </button>
                     ))}
                   </div>
                 </div>
 
                 {/* BATHROOMS MATRIX */}
                 <div className="space-y-4">
-                  <div className="flex justify-between text-[10px] font-black uppercase text-[#3B82F6] tracking-[0.2em] px-1">
+                  <div className="flex justify-between text-[10px] font-black uppercase text-primary tracking-[0.2em] px-1">
                     <Label>Bathrooms</Label>
                     <span>{bathrooms}+</span>
                   </div>
                   <div className="flex flex-wrap gap-3">
                     {[1, 2, 3, 4].map(n => (
-                      <button 
-                        key={n} 
-                        onClick={() => setBathrooms(n)}
-                        className={cn(
-                          "w-12 h-12 rounded-full text-[11px] font-black transition-all border flex items-center justify-center shadow-sm",
-                          bathrooms === n 
-                            ? "bg-white text-slate-900 border-white shadow-xl scale-110" 
-                            : isLight 
-                              ? "bg-black/5 border-slate-200/50 text-slate-400"
-                              : "bg-white/5 border-white/10 text-muted-foreground"
-                        )}
-                      >
-                        {n}+
-                      </button>
+                       <button 
+                         key={n} 
+                         onClick={() => setBathrooms(n)}
+                         className={cn(
+                           "w-12 h-12 rounded-full text-[11px] font-black transition-all border flex items-center justify-center shadow-sm",
+                           bathrooms === n 
+                             ? "bg-primary text-white border-primary shadow-xl scale-110" 
+                             : isLight 
+                               ? "bg-black/[0.08] border-black/5 text-black/60 hover:bg-black/10"
+                               : "bg-white/5 border-white/10 text-muted-foreground"
+                         )}
+                       >
+                         {n}+
+                       </button>
                     ))}
                   </div>
                 </div>
+
             </CardContent>
           </Card>
         </>
@@ -440,3 +442,5 @@ export function DiscoveryFilters({ category, onApply, initialFilters = {}, activ
     </div>
   );
 }
+
+

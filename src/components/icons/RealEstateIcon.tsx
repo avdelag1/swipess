@@ -24,3 +24,5 @@ export function RealEstateIcon({ className, ...props }: SVGProps<SVGSVGElement>)
     </svg>
   );
 }
+
+

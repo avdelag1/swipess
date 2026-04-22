@@ -155,3 +155,5 @@ export function findCategory(value: string): ServiceCategoryItem | undefined {
 export function getAllCategoryValues(): string[] {
   return SERVICE_CATEGORIES.map(c => c.value);
 }
+
+
