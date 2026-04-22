@@ -548,13 +548,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     }
   }, [isFetching, isRefreshMode]);
 
-  // Handle manual refresh
-  const handleRefresh = useCallback(() => {
-    logger.info('[SwipessSwipeContainer] Manual Refresh Triggered');
-    haptics.heavy();
-    setIsRefreshMode(true);
-    // queryClient.invalidateQueries will be triggered by isRefreshMode in queryKey
-  }, []);
+
 
   // PREDICTIVE PRELOAD: When drag starts, bump card N+2 images to high priority.
   // RecyclingCardStack already preloads N+1 (high) and N+2 (low) after each swipe,
@@ -841,10 +835,11 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     }
   }, []);
 
-  const handleRefresh = async () => {
+  const handleRefresh = useCallback(async () => {
+    logger.info('[SwipessSwipeContainer] Manual Refresh Triggered');
     setIsRefreshing(true);
     setIsRefreshMode(true);
-    triggerHaptic('medium');
+    haptics.heavy();
 
     // Reset local state and refs
     currentIndexRef.current = 0;
@@ -867,7 +862,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     } finally {
       setIsRefreshing(false);
     }
-  };
+  }, [filters, storeActiveCategory, refetchSmart, resetClientDeck]);
 
   const handleInsights = () => {
     // ALWAYS open the "cool window" (insights modal) instead of full page navigation
