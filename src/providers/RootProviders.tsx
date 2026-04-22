@@ -10,6 +10,7 @@ import { ResponsiveProvider } from "@/contexts/ResponsiveContext";
 import { ActiveModeProvider } from "@/hooks/useActiveMode";
 import { PWAProvider } from "@/hooks/usePWAMode";
 import { RadioProvider } from "@/contexts/RadioContext";
+import { ThemeSyncManager } from "@/components/ThemeSyncManager";
 import { VisualThemeProvider } from "@/contexts/VisualThemeContext";
 import { useNotifications } from "@/hooks/useNotifications";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
@@ -137,6 +138,7 @@ export function RootProviders({ children, authPromise }: RootProvidersProps) {
           <VisualThemeProvider>
             <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
               <AuthProvider authPromise={authPromise}>
+                <ThemeSyncManager />
                 <AuthReadySignal />
                 <Suspense fallback={null}>
                   <ZenithPrewarmer />

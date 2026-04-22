@@ -1,7 +1,5 @@
 import { createContext, useContext, useEffect, useState, useRef, useMemo } from 'react';
 import { flushSync } from 'react-dom';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from './useAuth';
 import { logger } from '@/utils/prodLogger';
 
 export type Theme = 'dark' | 'light' | 'cheers' | 'red-matte' | 'amber-matte' | 'pure-black' | 'Swipess-style';
@@ -121,46 +119,12 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     return normalizeTheme(cached);
   });
   
-  const { user, loading } = useAuth();
-  const hasLoadedThemeRef = useRef(false);
-
-  useEffect(() => {
-    if (loading) return;
-
-    if (user?.id && !hasLoadedThemeRef.current) {
-      const loadUserTheme = async () => {
-        try {
-          const { data, error } = await supabase
-            .from('profiles')
-            .select('theme_preference')
-            .eq('user_id', user.id)
-            .maybeSingle();
-
-          if (error) throw error;
-          
-          const dbTheme = normalizeTheme(data?.theme_preference);
-          if (dbTheme !== theme) {
-            setThemeState(dbTheme);
-            localStorage.setItem(STORAGE_KEY, dbTheme);
-          }
-          hasLoadedThemeRef.current = true;
-        } catch (error) {
-          logger.error('Failed to load theme preference:', error);
-        }
-      };
-      loadUserTheme();
-    } else if (!user && !loading) {
-      const cached = localStorage.getItem(STORAGE_KEY);
-      if (!cached) setThemeState(DEFAULT_THEME);
-      hasLoadedThemeRef.current = false;
-    }
-  }, [user?.id, loading, theme]);
 
   useEffect(() => {
     applyThemeToDOM(theme);
   }, [theme]);
 
-  const setTheme = async (newTheme: Theme, coords?: ThemeToggleCoords) => {
+  const setTheme = (newTheme: Theme, coords?: ThemeToggleCoords) => {
     const root = window.document.documentElement;
     root.style.setProperty('--theme-reveal-x', coords ? `${coords.x}px` : '50%');
     root.style.setProperty('--theme-reveal-y', coords ? `${coords.y}px` : '50%');
@@ -180,17 +144,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         setThemeState(newTheme);
         localStorage.setItem(STORAGE_KEY, newTheme);
       });
-    }
-
-    if (user?.id) {
-      try {
-        await supabase
-          .from('profiles')
-          .update({ theme_preference: newTheme })
-          .eq('user_id', user.id);
-      } catch (error) {
-        logger.error('Failed to save theme preference:', error);
-      }
     }
   };
 
