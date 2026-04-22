@@ -24,6 +24,7 @@ import { useTheme } from '@/hooks/useTheme';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { logger } from '@/utils/prodLogger';
+import { Button } from '@/components/ui/button';
 import type { QuickFilterCategory } from '@/types/filters';
 
 // ——— Category display config ——————————————————————————————————————————————————————————————————————
