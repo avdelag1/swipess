@@ -1,6 +1,6 @@
 {
-  "name": "Swipess",
-  "short_name": "Swipess",
+  "name": "Nexus Discovery",
+  "short_name": "Nexus",
   "description": "Your Elite Discovery & Connection Engine.",
   "start_url": "/?pwa=true",
   "scope": "/",
