@@ -20,6 +20,32 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
+/**
+ * 🛡️ SAFE THEME HOOK
+ * Prevents production crashes if called before the provider is ready.
+ * Returns a default 'dark' context and logs a warning in dev.
+ */
+export function useTheme(): ThemeContextType {
+  const context = useContext(ThemeContext);
+  if (!context) {
+    // If we're here, it means useTheme was called outside of ThemeProvider
+    // or during a race condition in the production bundle.
+    // Return a safe fallback to prevent the entire app from crashing.
+    if (import.meta.env.DEV) {
+      console.warn('[Theme] useTheme called outside ThemeProvider. Using fallback.');
+    }
+    return {
+      theme: 'dark',
+      isLight: false,
+      isDark: true,
+      setTheme: () => {
+        if (import.meta.env.DEV) console.warn('[Theme] setTheme called on fallback context.');
+      }
+    };
+  }
+  return context;
+}
+
 const _VALID_THEMES: Theme[] = ['dark', 'light', 'cheers', 'red-matte', 'amber-matte', 'pure-black', 'Swipess-style'];
 const DEFAULT_THEME: Theme = 'dark';
 const STORAGE_KEY = 'Swipess_theme_preference';
@@ -180,10 +206,3 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function useTheme() {
-  const context = useContext(ThemeContext);
-  if (!context) {
-    throw new Error('useTheme must be used within a ThemeProvider');
-  }
-  return context;
-}
