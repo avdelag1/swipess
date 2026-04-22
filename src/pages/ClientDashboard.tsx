@@ -36,13 +36,14 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
 
   // 🚀 PERFORMANCE HYDRATION: Pre-fetch listing data while user is on map phase
   // so the swipe deck is ready instantly when they tap "Start Swiping".
+  const dashboardFilters = getListingFilters();
   useSmartListingMatching(
     user?.id,
     [],
-    getListingFilters(),
+    dashboardFilters,
     0,
-    20,
-    !!activeCategory // Cast to boolean for isRefreshMode
+    20, // pageSize
+    false // isRefreshMode (match container's initial state)
   );
 
   // ─── Actions ─────────────────────────────────────────────────────────────

@@ -22,7 +22,7 @@ export function usePrefetchManager() {
     userId: string,
     filters: any,
     currentPage: number,
-    pageSize: number = 10
+    pageSize: number = 20
   ) => {
     if (!userId) return;
 
@@ -38,7 +38,7 @@ export function usePrefetchManager() {
     prefetchedKeys.current.add(key);
 
     await queryClient.prefetchQuery({
-      queryKey: ['smart-listings', userId, filtersKey, nextPage, false],
+      queryKey: ['smart-listings', userId, filtersKey, nextPage, pageSize, false],
       queryFn: async () => {
         try {
           const { data: rpcListings, error: rpcError } = await (supabase as any).rpc('get_smart_listings', {

@@ -11,6 +11,7 @@ import { useFilterStore, useFilterActions } from '@/state/filterStore';
 import { triggerHaptic } from '@/utils/haptics';
 import { useTheme } from '@/hooks/useTheme';
 import { useCardReset } from '@/hooks/useCardReset';
+import { useAuth } from '@/hooks/useAuth';
 
 interface SwipeExhaustedStateProps {
   categoryLabel: string;
@@ -64,13 +65,19 @@ export const SwipeExhaustedState = ({
   const [isScanBurstActive, setIsScanBurstActive] = useState(false);
 
   // FETCH DATA FOR THE RADAR NODES
-  const { smartListings } = useSmartListingMatching({
-    categories: activeCategory ? [activeCategory as any] : undefined,
-    radiusKm: radiusKm,
-    latitude: lat || undefined,
-    longitude: lng || undefined,
-    limit: 40
-  });
+  const { user } = useAuth();
+  const { data: smartListings } = useSmartListingMatching(
+    user?.id,
+    [],
+    {
+      categories: activeCategory ? [activeCategory as any] : undefined,
+      radiusKm: radiusKm,
+      userLatitude: lat || undefined,
+      userLongitude: lng || undefined,
+    },
+    0,
+    40
+  );
 
   const radarNodes: RadarNode[] = useMemo(() => {
     return (smartListings || []).map(l => ({

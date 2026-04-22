@@ -33,12 +33,12 @@ export async function warmDiscoveryCache(queryClient: QueryClient, userId: strin
   const defaultFilters = JSON.stringify({ category: 'all' });
   
   queryClient.prefetchQuery({
-    queryKey: ['smart-listings', userId, defaultFilters, 0, false],
+    queryKey: ['smart-listings', userId, defaultFilters, 0, 20, false],
     queryFn: async () => {
       const { data } = await (supabase as any).rpc('get_smart_listings', {
         p_user_id: userId,
         p_category: null,
-        p_limit: 10,
+        p_limit: 20,
         p_offset: 0
       });
       
@@ -101,12 +101,12 @@ export async function predictivePrefetchCategory(queryClient: QueryClient, userI
   const filters = JSON.stringify({ category });
   
   queryClient.prefetchQuery({
-    queryKey: ['smart-listings', userId, filters, 0, false],
+    queryKey: ['smart-listings', userId, filters, 0, 20, false],
     queryFn: async () => {
       const { data } = await (supabase as any).rpc('get_smart_listings', {
         p_user_id: userId,
         p_category: category === 'all' ? null : category,
-        p_limit: 10,
+        p_limit: 20,
         p_offset: 0
       });
       

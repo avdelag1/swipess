@@ -33,7 +33,7 @@ export function useCardReset() {
         .from('profile_views')
         .delete()
         .eq('user_id', user.id)
-        .eq('action', 'pass');
+        .ilike('action', 'pass%');
 
       if (targetType === 'listing') {
         viewsQuery = viewsQuery.eq('view_type', 'listing');

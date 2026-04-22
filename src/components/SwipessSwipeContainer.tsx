@@ -463,7 +463,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     isFetching: smartFetching,
     error: smartError,
     refetch: refetchSmart
-  } = useSmartListingMatching(user?.id, [], stableFilters, page, 10, isRefreshMode);
+  } = useSmartListingMatching(user?.id, [], stableFilters, page, 20, isRefreshMode);
 
   const isLoading = smartLoading;
   const isFetching = smartFetching;

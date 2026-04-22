@@ -96,7 +96,7 @@ export function useSmartListingMatching(
     }, [userId, queryClient]);
 
     return useQuery({
-        queryKey: ['smart-listings', userId, filtersKey, page, isRefreshMode],
+        queryKey: ['smart-listings', userId, filtersKey, page, pageSize, isRefreshMode],
         staleTime: 2 * 60 * 1000, // 2 minutes
         gcTime: 15 * 60 * 1000,
         placeholderData: (prev: any) => prev,
