@@ -15,11 +15,13 @@ import { useAuth } from '@/hooks/useAuth';
 
 const DiscoveryMapView = lazy(() => import('@/components/swipe/DiscoveryMapView'));
 
+const DiscoveryMapLoading = lazy(() => import('@/components/swipe/DiscoveryMapLoading'));
+
 interface ClientDashboardProps {
   onMessageClick?: () => void;
 }
 
-// Client Dashboard (v1.0.96-rc2) — 3-phase UX flow:
+// Client Dashboard (v1.0.96-rc3) — 3-phase UX flow:
 // 1. Poker Cards (Dash Fan)
 // 2. Discovery Map (Radar)
 // 3. Swipe Deck (Container)
@@ -147,7 +149,7 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
             {/* Apple Style Grabber */}
             <div className="absolute top-3 left-1/2 -translate-x-1/2 w-12 h-1.5 bg-white/20 rounded-full z-[10002]" />
             
-            <Suspense fallback={<div className="flex-1 bg-black/10 animate-pulse" />}>
+            <Suspense fallback={<DiscoveryMapLoading isLight={isLight} />}>
               <DiscoveryMapView 
                 category={selectedCategory} 
                 onBack={handleMapBack}
