@@ -225,7 +225,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     const path = location.pathname;
     const immersiveRoutes = [
       '/client/dashboard', '/owner/dashboard',
-      '/owner/properties', '/client/advertise'
+      '/client/advertise'
     ];
     return immersiveRoutes.some(route => path === route || path === route + '/' || path.startsWith(route + '/')) ||
       path.includes('discovery') || path.includes('view-client') || path.includes('/listing/');
@@ -298,7 +298,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
           paddingRight: 'max(var(--safe-right), 0px)',
         }}
       >
-        <div className="h-full w-full flex flex-1 min-w-0 flex-col">
+        <div className="min-h-full w-full flex flex-col">
           {children}
         </div>
       </main>

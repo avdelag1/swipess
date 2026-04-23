@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { PropertyManagement } from "@/components/PropertyManagement";
 import { useSearchParams, useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft } from "lucide-react";
+import { AtmosphericLayer } from "@/components/AtmosphericLayer";
 
 const OwnerProperties = () => {
   const navigate = useNavigate();
@@ -30,19 +30,13 @@ const OwnerProperties = () => {
   }, [searchParams, location.hash]);
 
   return (
-    <>
-      <div className="w-full relative pt-24 px-4 sm:px-6 pb-12 bg-background min-h-full">
-        <motion.button
-          onClick={() => navigate('/owner/settings')}
-          whileTap={{ scale: 0.8, transition: { type: "spring", stiffness: 400, damping: 17 } }}
-          className="flex items-center gap-1.5 text-sm font-bold text-muted-foreground hover:text-foreground transition-colors duration-150 mb-6 px-1"
-        >
-          <ArrowLeft className="w-4 h-4" strokeWidth={1.5} />
-          Back
-        </motion.button>
+    <div className="w-full relative min-h-screen bg-transparent">
+      <AtmosphericLayer variant="primary" />
+      
+      <div className="w-full relative px-4 sm:px-6 pb-12 z-10">
         <PropertyManagement initialCategory={initialCategory} initialMode={initialMode} />
       </div>
-    </>
+    </div>
   );
 };
 

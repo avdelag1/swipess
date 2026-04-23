@@ -58,8 +58,8 @@ const ClientProfile = () => {
 
   return (
     <div className={cn(
-      "min-h-full w-full transition-colors duration-500 relative overflow-hidden",
-      "bg-background text-foreground"
+      "min-h-screen w-full transition-colors duration-500 relative overflow-x-hidden",
+      "bg-transparent text-foreground"
     )}>
       <AtmosphericLayer variant="rose" />
 
@@ -137,7 +137,7 @@ const ClientProfile = () => {
               whileTap={{ scale: 0.95 }}
               className={cn(
                  "backdrop-blur-3xl border transition-all duration-500 flex flex-col items-center justify-center p-5 text-center shadow-xl",
-                 "bg-white/[0.03] border-white/[0.08] rounded-[2rem]"
+                 "bg-white/5 backdrop-blur-2xl border-white/10 rounded-[2.5rem]"
               )}
             >
               <stat.icon className={cn("w-6 h-6 mb-3 transition-transform group-hover:scale-110", stat.color)} />
@@ -185,7 +185,7 @@ const ClientProfile = () => {
         >
           <div className={cn(
              "backdrop-blur-3xl rounded-[2.7rem] p-7 flex items-center gap-6 border",
-             isLight ? "bg-white border-white/5" : "bg-background/95 border-white/5"
+              isLight ? "bg-white/60 backdrop-blur-3xl border-black/5" : "bg-white/5 backdrop-blur-3xl border-white/5"
           )}>
             <div className="w-16 h-16 rounded-2xl bg-[#EB4898]/10 flex items-center justify-center border border-[#EB4898]/20">
               <ShieldCheck className="w-8 h-8 text-[#EB4898]" />
@@ -202,7 +202,7 @@ const ClientProfile = () => {
         {profile && completionPercent < 100 && (
           <div className={cn(
              "backdrop-blur-3xl border rounded-[3rem] p-8 space-y-6 transition-all",
-             isLight ? "bg-black/5 border-black/5 shadow-2xl" : "bg-white/[0.03] border-white/5"
+              isLight ? "bg-black/5 border-black/5 shadow-2xl backdrop-blur-2xl" : "bg-white/5 backdrop-blur-2xl border-white/5"
           )}>
             <div className="flex items-center justify-between px-1">
                <div className="flex items-center gap-3">

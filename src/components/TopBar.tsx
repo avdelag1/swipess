@@ -15,7 +15,6 @@ import { ThemeToggle } from './ThemeToggle';
 import { useModalStore } from '@/state/modalStore';
 import { useFilterStore, useFilterActions } from '@/state/filterStore';
 import { AIListingTrigger } from './AIListingTrigger';
-import { appToast } from '@/utils/appNotification';
 
 interface TopBarProps {
   onNotificationsClick?: () => void;
@@ -117,22 +116,31 @@ function TopBarComponent({
               style={glassPillStyle}
             >
               {/* Rounded Square avatar — 'window' style */}
-              <div className="w-8 h-8 rounded-lg overflow-hidden shrink-0 flex items-center justify-center"
+              <div className="w-8 h-8 rounded-[0.7rem] overflow-hidden shrink-0 flex items-center justify-center relative"
                 style={{
-                  background: profile?.avatar_url ? 'transparent' : (isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.1)'),
-                  border: isLight ? '1px solid rgba(0,0,0,0.08)' : '1px solid rgba(255,255,255,0.12)',
+                  background: profile?.avatar_url ? 'transparent' : (isLight ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.06)'),
+                  border: isLight ? '1.5px solid rgba(0,0,0,0.06)' : '1.5px solid rgba(255,255,255,0.1)',
                 }}
               >
                 {profile?.avatar_url ? (
                   <img
                     src={profile.avatar_url}
                     alt="Profile"
-                    className="w-full h-full object-cover rounded-lg"
-                    onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                    className="w-full h-full object-cover"
+                    onError={(e) => { 
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                      const fallback = target.nextElementSibling as HTMLElement;
+                      if (fallback) fallback.style.display = 'flex';
+                    }}
                   />
-                ) : (
-                  <UserCircle className="w-5 h-5" style={{ color: 'var(--hud-text)', opacity: 0.4 }} strokeWidth={1.5} />
-                )}
+                ) : null}
+                <div 
+                  className="absolute inset-0 flex items-center justify-center"
+                  style={{ display: profile?.avatar_url ? 'none' : 'flex' }}
+                >
+                  <UserCircle className="w-5 h-5" style={{ color: 'var(--hud-text)', opacity: 0.35 }} strokeWidth={1.5} />
+                </div>
               </div>
               {profile?.full_name && (
                 <span className="text-[10px] font-black uppercase tracking-[0.15em] opacity-80" style={{ color: 'var(--hud-text)' }}>
@@ -143,6 +151,10 @@ function TopBarComponent({
           )
         )}
 
+          {/* Mode Switcher — Standalone buttons next to profile */}
+          {!minimal && (
+            <ModeSwitcher />
+          )}
         </div>
 
         <div className="flex-1" />
@@ -158,7 +170,7 @@ function TopBarComponent({
                   haptics.tap();
                   navigate('/radio');
                 }}
-                  className="w-11 h-11 shrink-0 rounded-full flex items-center justify-center p-0.5 relative group overflow-hidden"
+                className="w-11 h-11 shrink-0 rounded-full flex items-center justify-center p-0.5 relative group overflow-hidden"
                 style={glassPillStyle}
                 title="Radio"
               >

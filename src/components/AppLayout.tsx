@@ -88,7 +88,6 @@ export function AppLayout({ children }: AppLayoutProps) {
       '/client/dashboard', 
       '/owner/dashboard', 
       '/client/liked-properties',
-      '/owner/properties',
       '/owner/interested-clients',
       '/owner/liked-clients',
       '/client/advertise',

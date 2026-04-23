@@ -13,6 +13,7 @@ import {
   ArrowLeft, Globe, Star, Heart, Shuffle,
   SkipBack, SkipForward, Play, Pause
 } from 'lucide-react';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 /**
  * DJTurntableRadio — Clean FM Tuner interface (Apple-inspired redesign).
@@ -96,7 +97,7 @@ export default function DJTurntableRadio() {
     <main
       id="main-content"
       className={cn(
-        "fixed inset-0 z-[9999] flex flex-col select-none",
+        "fixed inset-0 z-[20000] flex flex-col select-none",
         isDark ? "bg-[#0A0A0A]" : "bg-[#F2F2F7]"
       )}
     >
@@ -154,31 +155,33 @@ export default function DJTurntableRadio() {
       <div className="flex-1 flex flex-col items-center justify-between px-4">
 
         {/* Large Frequency Display */}
-        <div className="flex-1 flex flex-col items-center justify-center min-h-0">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={state.currentStation?.id || 'none'}
-              initial={{ opacity: 0, scale: 1.1, filter: 'blur(8px)' }}
-              animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
-              exit={{ opacity: 0, scale: 0.95, filter: 'blur(8px)' }}
-              transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-              className="text-center"
-            >
-              <div className={cn('text-[72px] sm:text-[88px] font-black leading-none tracking-tight', isDark ? 'text-white' : 'text-slate-900')}>
-                {state.currentStation?.frequency || '93.1'}
-              </div>
-              <div className={cn('text-lg font-black tracking-[0.3em] uppercase mt-1', isDark ? 'text-blue-400' : 'text-primary')}>
-                FM
-              </div>
-              <div className={cn('text-sm font-black mt-4 tracking-widest uppercase', isDark ? 'text-white' : 'text-slate-900')}>
-                {state.currentStation?.name || 'Radio'}
-              </div>
-              <div className={cn('text-[10px] font-black mt-2 tracking-[0.2em] uppercase', isDark ? 'text-white/40' : 'text-slate-400')}>
-                {state.currentStation?.genre || ''}
-              </div>
-            </motion.div>
-          </AnimatePresence>
-        </div>
+        <ScrollArea className="flex-1 h-0 w-full">
+          <div className="flex flex-col items-center justify-center min-h-[300px]">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={state.currentStation?.id || 'none'}
+                initial={{ opacity: 0, scale: 1.1, filter: 'blur(8px)' }}
+                animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
+                exit={{ opacity: 0, scale: 0.95, filter: 'blur(8px)' }}
+                transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                className="text-center"
+              >
+                <div className={cn('text-[72px] sm:text-[88px] font-black leading-none tracking-tight', isDark ? 'text-white' : 'text-slate-900')}>
+                  {state.currentStation?.frequency || '93.1'}
+                </div>
+                <div className={cn('text-lg font-black tracking-[0.3em] uppercase mt-1', isDark ? 'text-blue-400' : 'text-primary')}>
+                  FM
+                </div>
+                <div className={cn('text-sm font-black mt-4 tracking-widest uppercase', isDark ? 'text-white' : 'text-slate-900')}>
+                  {state.currentStation?.name || 'Radio'}
+                </div>
+                <div className={cn('text-[10px] font-black mt-2 tracking-[0.2em] uppercase', isDark ? 'text-white/40' : 'text-slate-400')}>
+                  {state.currentStation?.genre || ''}
+                </div>
+              </motion.div>
+            </AnimatePresence>
+          </div>
+        </ScrollArea>
 
         {/* Frequency Band */}
         <div className="w-full mb-6">
@@ -254,6 +257,7 @@ export default function DJTurntableRadio() {
           {/* Volume slider */}
           <div className="w-full px-10 pb-1">
             <div className="relative w-full h-10 flex items-center">
+              <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent" />
               <div className={cn('absolute w-full h-[4px] rounded-full', isDark ? 'bg-white/[0.08]' : 'bg-black/[0.06]')}>
                 <div
                   className="h-full rounded-full transition-none"

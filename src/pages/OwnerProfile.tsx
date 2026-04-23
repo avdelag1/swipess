@@ -36,12 +36,13 @@ const OwnerProfile = () => {
 
   return (
     <div className={cn(
-      "min-h-full w-full transition-colors duration-500 relative overflow-hidden",
-      "bg-background text-foreground"
+      "min-h-screen w-full transition-colors duration-500 relative overflow-x-hidden",
+      isLight ? "bg-white" : "bg-black",
+      "text-foreground"
     )}>
-      <AtmosphericLayer variant="indigo" />
+      <AtmosphericLayer variant="primary" />
 
-      <div className="w-full max-w-7xl mx-auto p-6 pt-24 pb-12 space-y-12 relative z-10">
+      <div className="w-full max-w-7xl mx-auto p-6 pt-24 pb-12 space-y-16 relative z-10">
         
         {/* 🛸 OWNER HEADER: BRAND GLASS */}
         <div className="flex flex-col items-center text-center gap-8">
@@ -50,32 +51,32 @@ const OwnerProfile = () => {
                whileHover={{ scale: 1.05 }}
                whileTap={{ scale: 0.95 }}
                className={cn(
-                  "w-48 h-48 transition-all duration-500 p-[4px] shadow-3xl",
-                  "rounded-[3.5rem] bg-gradient-to-br from-[#EB4898] via-indigo-500 to-sky-400"
+                  "w-48 h-48 transition-all duration-500 p-[2px] shadow-3xl",
+                  "rounded-3xl bg-gradient-to-br from-[#EB4898] via-indigo-500 to-sky-400"
                )}
             >
               <div
                 className={cn(
                    "w-full h-full overflow-hidden cursor-pointer flex items-center justify-center",
-                   "rounded-[3.4rem] bg-background border border-white/10"
+                   "rounded-[1.4rem] bg-black/40 backdrop-blur-3xl border border-white/10"
                 )}
                 onClick={() => { triggerHaptic('selection'); setShowEditDialog(true); }}
               >
                 {ownerProfile?.profile_images?.[0] ? (
                   <img src={ownerProfile.profile_images[0]} alt="Brand" className="w-full h-full object-cover" />
                 ) : (
-                  <Building2 className={cn("w-16 h-16", isLight ? "text-black/10" : "text-white/20")} />
+                  <UserCircle className={cn("w-16 h-16", isLight ? "text-black/20" : "text-white/20")} />
                 )}
               </div>
             </motion.div>
              <button
                onClick={() => { triggerHaptic('selection'); setShowEditDialog(true); }}
                className={cn(
-                  "absolute -bottom-3 -right-3 w-16 h-16 flex items-center justify-center shadow-2xl transition-all active:scale-90 z-20",
-                  "bg-black text-white rounded-[1.8rem] border border-white/20"
+                  "absolute -bottom-3 -right-3 w-14 h-14 flex items-center justify-center shadow-2xl transition-all active:scale-90 z-20",
+                  "bg-white text-black rounded-2xl border border-black/10"
                )}
             >
-              <Camera className="w-7 h-7" />
+              <Camera className="w-6 h-6" />
             </button>
           </div>
 
@@ -92,9 +93,9 @@ const OwnerProfile = () => {
                  "bg-[#EB4898]/10 border border-[#EB4898]/20"
                )}>
                   <span className={cn(
-                    "text-[10px] font-black uppercase tracking-[0.3em] italic",
-                    "text-[#EB4898]"
-                  )}>Owner Elite</span>
+                     "text-[10px] font-black uppercase tracking-[0.3em] italic",
+                     "text-[#EB4898]"
+                   )}>Owner Elite</span>
                </div>
                <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/20" />
                <span className={cn("text-[10px] font-black uppercase tracking-[0.2em] italic", isLight ? "text-black/30" : "text-white/30")}>{user?.email}</span>
@@ -102,8 +103,8 @@ const OwnerProfile = () => {
           </div>
         </div>
 
-        {/* 🛸 METRIC GRID: Swipess CARDS */}
-        <div className="grid grid-cols-3 gap-4">
+        {/* 🛸 METRIC GRID: SEAMLESS MIRROR */}
+        <div className="grid grid-cols-3 gap-8 py-8 border-y border-white/5">
           {[
             { label: 'Network', value: stats?.likedClientsCount ?? 0, icon: Flame, color: 'text-[#EB4898]' },
             { label: 'Followers', value: stats?.interestedClientsCount ?? 0, icon: ThumbsUp, color: 'text-amber-500' },
@@ -112,52 +113,44 @@ const OwnerProfile = () => {
             <motion.div
               key={i}
               whileTap={{ scale: 0.95 }}
-              className={cn(
-                 "backdrop-blur-3xl border transition-all duration-500 flex flex-col items-center justify-center p-5 text-center shadow-xl",
-                 "bg-white/[0.03] border-white/[0.08] rounded-[2rem]"
-              )}
+              className="flex flex-col items-center justify-center text-center group"
             >
-              <stat.icon className={cn("w-6 h-6 mb-3 transition-transform group-hover:scale-110", stat.color)} />
-              <div className={cn("text-3xl font-black tabular-nums tracking-tighter leading-none", isLight ? "text-slate-950 font-black" : "text-white")}>
+              <stat.icon className={cn("w-6 h-6 mb-4 transition-transform group-hover:scale-110", stat.color)} />
+              <div className={cn("text-4xl font-black tabular-nums tracking-tighter leading-none", isLight ? "text-slate-950" : "text-white")}>
                 {stat.value}
               </div>
-              <div className={cn("text-[10px] font-black uppercase tracking-[0.2em] italic mt-2.5", isLight ? "text-slate-500 font-bold" : "text-white/40")}>{stat.label}</div>
+              <div className={cn("text-[10px] font-black uppercase tracking-[0.2em] italic mt-3 opacity-40")}>{stat.label}</div>
             </motion.div>
           ))}
         </div>
 
-        {/* 🛸 TOKEN HUB: LIQUID GLASS */}
+        {/* 🛸 TOKEN HUB: SEAMLESS MIRROR */}
         <motion.div 
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          className="bg-gradient-to-r from-[#EB4898] via-indigo-600 to-indigo-700 backdrop-blur-3xl p-[2px] rounded-[2.8rem] shadow-2xl cursor-pointer"
+          whileHover={{ scale: 1.01 }}
+          whileTap={{ scale: 0.99 }}
+          className="flex items-center justify-between p-8 rounded-[3rem] bg-white/[0.03] border border-white/5 cursor-pointer"
           onClick={() => { triggerHaptic('light'); navigate('/subscription/packages'); }}
         >
-          <div className={cn(
-             "backdrop-blur-3xl rounded-[2.7rem] p-7 flex items-center justify-between border",
-             isLight ? "bg-white border-white/5" : "bg-background/95 border-white/5"
-          )}>
-            <div className="flex items-center gap-5">
-              <div className="w-16 h-16 rounded-2xl bg-[#EB4898]/10 flex items-center justify-center border border-[#EB4898]/20">
-                <Coins className="w-8 h-8 text-[#EB4898]" />
-              </div>
-              <div>
-                <h3 className={cn("text-[14px] font-black uppercase tracking-[0.2em] italic leading-tight", isLight ? "text-black" : "text-white")}>Global Credits</h3>
-                <p className={cn("text-[10px] font-bold uppercase tracking-[0.15em] mt-1.5", isLight ? "text-black/30" : "text-white/30")}>Swipess Messaging Reserve</p>
-              </div>
+          <div className="flex items-center gap-6">
+            <div className="w-14 h-14 rounded-2xl bg-indigo-500/10 flex items-center justify-center border border-indigo-500/20">
+              <Coins className="w-7 h-7 text-indigo-400" />
             </div>
-            <div className={cn("text-3xl font-black italic tracking-tighter mr-3", isLight ? "text-black" : "text-white")}>
-              {tokenBalance || 0}
+            <div>
+              <h3 className={cn("text-[14px] font-black uppercase tracking-[0.2em] italic leading-tight", isLight ? "text-black" : "text-white")}>Global Credits</h3>
+              <p className={cn("text-[10px] font-bold uppercase tracking-[0.15em] mt-1.5 opacity-30")}>Swipess Messaging Reserve</p>
             </div>
+          </div>
+          <div className={cn("text-4xl font-black italic tracking-tighter", isLight ? "text-black" : "text-white")}>
+            {tokenBalance || 0}
           </div>
         </motion.div>
 
         {/* 🛸 PRIMARY HIGH-FIDELITY ACTIONS */}
-        <div className="max-w-7xl mx-auto space-y-4">
+        <div className="space-y-4">
           <Button
             onClick={() => { triggerHaptic('medium'); setShowEditDialog(true); }}
             className={cn(
-              "w-full h-20 rounded-[2.5rem] font-black uppercase italic tracking-[0.2em] text-[16px] hover:scale-[1.03] active:scale-95 transition-all shadow-2xl border-none shadow-[#EB4898]/20",
+              "w-full h-20 rounded-3xl font-black uppercase italic tracking-[0.2em] text-[16px] transition-all border-none shadow-none",
               isLight ? "bg-slate-950 text-white" : "bg-white !text-slate-950"
             )}
           >
@@ -168,8 +161,7 @@ const OwnerProfile = () => {
           <Button
             onClick={() => { triggerHaptic('medium'); navigate('/client/advertise'); }}
             className={cn(
-               "w-full h-20 rounded-[2.5rem] backdrop-blur-3xl border transition-all active:scale-95",
-               isLight ? "bg-[#EB4898]/5 border-[#EB4898]/20 hover:bg-[#EB4898]/10" : "bg-[#EB4898]/10 border-[#EB4898]/30 hover:bg-[#EB4898]/20"
+               "w-full h-20 rounded-3xl backdrop-blur-3xl border border-white/10 bg-white/5 transition-all active:scale-95"
             )}
           >
             <Megaphone className="w-7 h-7 text-[#EB4898] mr-4" />
@@ -180,20 +172,17 @@ const OwnerProfile = () => {
         </div>
 
         {/* 🛸 ACTION NAV GRID */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-6">
           {[
             { label: 'Outbound', sub: 'Linked Ready', icon: Flame, color: 'text-[#EB4898]', path: '/owner/liked-clients' },
             { label: 'Inbound', sub: 'Active Fans', icon: ThumbsUp, color: 'text-amber-500', path: '/owner/interested-clients' }
           ].map((nav, i) => (
             <motion.button
               key={i}
-              whileTap={{ scale: 0.95 }}
+              whileTap={{ scale: 0.98 }}
               onClick={() => { triggerHaptic('light'); navigate(nav.path); }}
               className={cn(
-                  "backdrop-blur-3xl border rounded-[2.5rem] p-7 flex flex-col gap-6 text-left transition-all",
-                  isLight 
-                    ? "bg-white border-black/10 shadow-xl hover:shadow-2xl hover:translate-y-[-2px] text-black" 
-                    : "bg-white/[0.03] border-white/[0.08] hover:bg-white/10"
+                  "rounded-[2.5rem] p-8 flex flex-col gap-6 text-left transition-all bg-white/[0.03] border border-white/5 hover:bg-white/[0.05]"
                )}
              >
                <div className={cn("w-14 h-14 rounded-2xl flex items-center justify-center bg-white/5 border border-white/10 shadow-lg", nav.color)}>
@@ -201,26 +190,28 @@ const OwnerProfile = () => {
                </div>
                <div>
                  <div className={cn("text-[14px] font-black uppercase tracking-[0.1em] italic leading-tight", isLight ? "text-black" : "text-white")}>{nav.label}</div>
-                 <div className={cn("text-[11px] font-bold mt-1.5 uppercase tracking-widest", isLight ? "text-black/50" : "text-white/30")}>{nav.sub}</div>
+                 <div className={cn("text-[11px] font-bold mt-1.5 uppercase tracking-widest opacity-30")}>{nav.sub}</div>
                </div>
             </motion.button>
           ))}
         </div>
 
         {/* 🛸 ACTIVITY FEED PANEL */}
-        <div className="space-y-6">
+        <div className="space-y-8">
           <div className="flex items-center justify-between px-2">
              <div className="flex items-center gap-3">
                 <div className="w-2 h-2 rounded-full bg-[#EB4898] animate-pulse" />
-                <h3 className={cn("text-[11px] font-black uppercase tracking-[0.3em] italic", isLight ? "text-black/40" : "text-white/40")}>Activity Feed</h3>
+                <h3 className={cn("text-[11px] font-black uppercase tracking-[0.3em] italic opacity-40")}>Activity Feed</h3>
              </div>
              <Sparkles className="w-4 h-4 text-[#EB4898]/40" />
           </div>
           <ActivityFeed />
         </div>
 
-        <div className={cn("p-[4px] rounded-[3rem]", isLight ? "bg-black/5" : "bg-white/5")}>
+        <div className="py-8">
            <SharedProfileSection profileId={user?.id} profileName={ownerProfile?.business_name || 'Your Business'} isClient={false} />
+        </div>
+
         </div>
         
         <div className="flex justify-center pt-8">

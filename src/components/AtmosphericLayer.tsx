@@ -17,9 +17,9 @@ export const AtmosphericLayer = memo(({ variant = 'default' }: AtmosphericLayerP
     switch (variant) {
       case 'primary':
         return {
-          top: isLight ? "bg-orange-100/40" : "bg-primary/10",
-          bottom: isLight ? "bg-orange-50/30" : "bg-primary/5",
-          radial: isLight ? "rgba(255,107,53,0.02)" : "rgba(255,107,53,0.03)"
+          top: isLight ? "bg-slate-100/5" : "bg-primary/2",
+          bottom: isLight ? "bg-slate-50/2" : "bg-primary/1",
+          radial: isLight ? "rgba(255,255,255,0.005)" : "rgba(0,0,0,0.01)"
         };
       case 'rose':
         return {

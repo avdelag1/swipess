@@ -88,21 +88,13 @@ const LandingView = memo(({
         onDragEnd={handleDragEnd}
         onTap={handleTap}
         style={{ x, opacity: logoOpacity, scale: logoScale, filter: logoFilter }}
-        className="cursor-grab active:cursor-grabbing touch-none select-none relative"
+        className="cursor-grab active:cursor-grabbing touch-none select-none relative w-full flex justify-center py-10"
       >
-        <div className="relative">
-          <SwipessLogo 
-            size="3xl" 
-            variant="gradient"
-            className="w-[85vw] max-w-[320px] sm:max-w-[400px] md:max-w-[500px]" 
-          />
+        <div className="relative w-48 h-2 rounded-full bg-white/10 overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.1)]">
           <motion.div
-            className="absolute inset-0 pointer-events-none"
-            style={{
-              background: 'linear-gradient(105deg, transparent 30%, rgba(255,255,255,0.2) 48%, rgba(255,255,255,0.05) 52%, transparent 70%)',
-            }}
-            animate={{ x: ['-120%', '180%'] }}
-            transition={{ duration: 2, ease: 'easeInOut', repeat: Infinity, repeatDelay: 6 }}
+            className="absolute inset-0 bg-white/40"
+            animate={{ x: ['-100%', '100%'] }}
+            transition={{ duration: 1.5, ease: 'easeInOut', repeat: Infinity, repeatDelay: 1 }}
           />
         </div>
       </motion.div>
@@ -132,7 +124,7 @@ const LandingView = memo(({
           transition={{ duration: 3, repeat: Infinity }}
           className="mt-2 text-[11px] uppercase tracking-[0.35em] font-bold text-white/30 italic"
         >
-          or swipe logo to enter →
+          or swipe bar to enter →
         </motion.p>
       </motion.div>
     </motion.div>
@@ -269,9 +261,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
         </button>
 
         <div className="text-center mb-5 pt-4">
-          <div className="flex justify-center mb-4">
-            <SwipessLogo size="md" variant="gradient" />
-          </div>
+          {/* Logo removed from here to appear globally in the header */}
 
           {isForgotPassword ? (
             <>
@@ -532,6 +522,10 @@ function LegendaryLandingPage() {
         <LandingBackgroundEffects mode={view === 'auth' ? 'off' : 'stars'} isLightTheme={false} />
       </div>
 
+      <div className="absolute top-8 left-1/2 -translate-x-1/2 z-40">
+        <SwipessLogo size="sm" variant="icon" />
+      </div>
+
       <AnimatePresence mode="wait">
         {view === 'landing' ? (
           <LandingView key="landing" onEnterAuth={(mode) => { setAuthMode(mode); setView('auth'); }} />
@@ -545,6 +539,8 @@ function LegendaryLandingPage() {
           <button onClick={() => setLegalModal('privacy')} className="hover:text-primary transition-colors">Privacy</button>
           <div className="w-1 h-1 rounded-full bg-white/20" />
           <button onClick={() => setLegalModal('terms')} className="hover:text-primary transition-colors">Terms</button>
+          <div className="w-1 h-1 rounded-full bg-white/20" />
+          <button onClick={() => setLegalModal('terms')} className="hover:text-primary transition-colors">Legal Hub</button>
         </div>
         <p className="text-[8px] font-black uppercase tracking-[0.4em] text-white/20 italic">© 2026 SWIPESS INDUSTRIES</p>
       </div>

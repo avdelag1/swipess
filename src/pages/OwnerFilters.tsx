@@ -125,12 +125,24 @@ export default function OwnerFilters({ isEmbedded, onClose }: OwnerFiltersProps)
               isLight ? "bg-white border-slate-200 shadow-xl" : "bg-white/[0.02] border-white/5"
             )}
           >
-             <DiscoveryFilters 
-               category={activeCategory === 'services' ? 'service' : activeCategory} 
-               onApply={handleApply} 
-               activeCount={0}
-               hideApplyButton={true}
-             />
+            {(() => {
+              const mappedCategory = 
+                activeCategory === 'leads' ? 'property' :
+                activeCategory === 'motos' ? 'motorcycle' :
+                activeCategory === 'bikes' ? 'bicycle' :
+                activeCategory === 'jobs' ? 'service' :
+                activeCategory === 'services' ? 'service' :
+                'property';
+                
+              return (
+                <DiscoveryFilters 
+                  category={mappedCategory as any} 
+                  onApply={handleApply} 
+                  activeCount={0}
+                  hideApplyButton={true}
+                />
+              );
+            })()}
           </motion.div>
         </AnimatePresence>
       </main>

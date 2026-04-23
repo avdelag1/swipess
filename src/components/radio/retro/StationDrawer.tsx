@@ -62,8 +62,8 @@ export const StationDrawer = ({
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 28, stiffness: 220 }}
             className={cn(
-               "fixed bottom-0 left-0 right-0 h-[85vh] z-[101] overflow-hidden flex flex-col",
-               "rounded-t-[2.5rem] border-t modal-liquid-glass p-6",
+               "fixed inset-0 z-[101] overflow-hidden flex flex-col",
+               "modal-liquid-glass p-6",
             )}
             style={{ 
               '--accent-dynamic': accentColor,

@@ -132,7 +132,7 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
           style={{ transform: isTop && isDragging ? 'scale(1.05)' : 'scale(1)' }}
           draggable={false}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent opacity-95" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
         
         {/* 🛸 Swipess METADATA CONTENT */}
         <div className="absolute inset-x-0 bottom-0 flex flex-col justify-end p-9 md:p-11 gap-8">

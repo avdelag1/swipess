@@ -33,32 +33,41 @@ function ModeSwitcherComponent({ className, size = 'sm' }: ModeSwitcherProps) {
 
   const isClient = activeMode === 'client';
 
+  const glassButtonStyle = {
+    background: 'var(--hud-bg)',
+    backdropFilter: 'blur(32px) saturate(210%)',
+    WebkitBackdropFilter: 'blur(32px) saturate(210%)',
+    borderRadius: '1rem',
+    border: '1px solid var(--hud-border)',
+    boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+  };
+
   return (
-    <div 
-      className={cn('flex items-center gap-4', className)}
-    >
+    <div className={cn('flex items-center gap-2', className)}>
       <button
         onClick={() => handleModeSwitch('client')}
         disabled={!canSwitchMode || isSwitching}
         className={cn(
-          "transition-all duration-300 relative rounded-full active:bg-[var(--hud-active-bg)]",
-          isClient ? "opacity-100 scale-110" : "opacity-30 hover:opacity-100"
+          "w-11 h-11 flex items-center justify-center transition-all duration-300 relative rounded-2xl active:scale-90",
+          isClient ? "opacity-100 ring-1 ring-[#f43f5e]/30" : "opacity-40 hover:opacity-100"
         )}
+        style={glassButtonStyle}
+        title="Client Mode"
       >
-        <User className={cn("h-4 w-4", isClient ? "text-[#f43f5e]" : "text-[var(--hud-text)]")} strokeWidth={isClient ? 3 : 2} />
+        <User className={cn("h-4.5 w-4.5", isClient ? "text-[#f43f5e]" : "text-[var(--hud-text)]")} strokeWidth={isClient ? 3 : 2} />
       </button>
-
-      <div className="w-[1px] h-3 bg-[var(--hud-text)]/20" />
 
       <button
         onClick={() => handleModeSwitch('owner')}
         disabled={!canSwitchMode || isSwitching}
         className={cn(
-          "transition-all duration-300 relative rounded-full active:bg-[var(--hud-active-bg)]",
-          !isClient ? "opacity-100 scale-110" : "opacity-30 hover:opacity-100"
+          "w-11 h-11 flex items-center justify-center transition-all duration-300 relative rounded-2xl active:scale-90",
+          !isClient ? "opacity-100 ring-1 ring-[#f97316]/30" : "opacity-40 hover:opacity-100"
         )}
+        style={glassButtonStyle}
+        title="Owner Mode"
       >
-        <UserCheck className={cn("h-4 w-4", !isClient ? "text-[#f97316]" : "text-[var(--hud-text)]")} strokeWidth={!isClient ? 3 : 2} />
+        <UserCheck className={cn("h-4.5 w-4.5", !isClient ? "text-[#f97316]" : "text-[var(--hud-text)]")} strokeWidth={!isClient ? 3 : 2} />
       </button>
     </div>
   );

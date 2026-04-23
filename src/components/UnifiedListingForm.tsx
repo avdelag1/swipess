@@ -477,7 +477,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
           </DialogTitle>
         </DialogHeader>
 
-        <ScrollArea className="flex-1">
+        <ScrollArea className="flex-1 h-0">
           <motion.div
             initial="hidden"
             animate="visible"

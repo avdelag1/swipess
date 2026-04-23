@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, memo, useMemo, lazy, useCallback } from 'react';
+import { useState, useEffect, useRef, memo, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ClientSwipeContainer } from '@/components/ClientSwipeContainer';
 import { useSmartClientMatching } from '@/hooks/useSmartMatching';
@@ -6,7 +6,6 @@ import { useAuth } from '@/hooks/useAuth';
 import { useFilterStore, useFilterActions } from '@/state/filterStore';
 import { useShallow } from 'zustand/react/shallow';
 import { useOwnerClientPreferences } from '@/hooks/useOwnerClientPreferences';
-import { Cpu, Activity, SlidersHorizontal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { OwnerInsightsDashboard } from '@/components/OwnerInsightsDashboard';
@@ -16,8 +15,6 @@ import type { QuickFilterCategory } from '@/types/filters';
 import useAppTheme from '@/hooks/useAppTheme';
 import { useTranslation } from 'react-i18next';
 import type { ClientFilters } from '@/hooks/smartMatching/types';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import OwnerFilters from './OwnerFilters';
 import { AtmosphericLayer } from '@/components/AtmosphericLayer';
 
 interface EnhancedOwnerDashboardProps {
@@ -30,7 +27,6 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
   const { theme } = useAppTheme();
   const isLight = theme === 'light';
   const [viewMode] = useState<'discovery' | 'insights'>('discovery');
-  const [filterOpen, setFilterOpen] = useState(false);
   
   const activeCategory = useFilterStore(s => s.activeCategory);
   const { setCategories, setClientType, setListingType, setActiveCategory } = useFilterActions();
@@ -132,10 +128,10 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
 
   if (isAuthLoading || isPrefsLoading) {
     return (
-      <div className={cn("w-full h-full flex flex-col items-center justify-center p-8 transition-colors duration-500", isLight ? "bg-white" : "bg-black")}>
+      <div className="w-full h-full flex flex-col items-center justify-center p-8 bg-transparent">
          <div className="relative">
             <div className="w-24 h-24 rounded-[2.5rem] border-[6px] border-primary/10 border-t-primary animate-spin shadow-2xl" />
-            <Cpu className="absolute inset-0 m-auto w-8 h-8 text-primary/40 animate-pulse" />
+            <div className="absolute inset-0 m-auto w-8 h-8 bg-primary/40 rounded-full animate-pulse" />
          </div>
          <p className="text-[11px] font-black uppercase italic tracking-[0.4em] text-primary mt-10 animate-pulse">Syncing Owner Logic...</p>
       </div>
@@ -144,10 +140,10 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
 
   if (error) {
     return (
-      <div className={cn("w-full h-full flex items-center justify-center p-8 text-center transition-colors duration-500", isLight ? "bg-white" : "bg-black")}>
+      <div className="w-full h-full flex items-center justify-center p-8 text-center bg-transparent">
         <div className="max-w-sm space-y-10">
           <div className="w-24 h-24 bg-red-500/10 rounded-[2.5rem] flex items-center justify-center mx-auto border border-red-500/20 shadow-2xl">
-            <Activity className="w-10 h-10 text-red-500 animate-bounce" />
+            <div className="w-10 h-10 bg-red-500 rounded-full animate-bounce" />
           </div>
           <div className="space-y-4">
             <h2 className={cn("text-3xl font-black italic tracking-tighter uppercase leading-none", isLight ? "text-black" : "text-white")}>Connection Lost</h2>
@@ -167,8 +163,6 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
   return (
     <div className={cn("flex flex-col h-full w-full relative transition-colors duration-500", isLight ? "bg-white" : "bg-black")}>
       <AtmosphericLayer variant="primary" />
-
-
 
       <AnimatePresence mode="wait">
         {viewMode === 'insights' ? (
@@ -196,7 +190,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
               willChange: 'transform, opacity' 
             }}
           >
-            <div className="flex-1 flex items-center justify-center w-full min-h-0">
+            <div className="flex-1 w-full relative z-10 flex flex-col">
               <OwnerAllDashboard onCardSelect={handleCardSelect} />
             </div>
           </motion.div>
