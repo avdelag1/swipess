@@ -109,20 +109,22 @@
       100%{left:150%}
     }
 
-    @keyframes heartbeat{
-      0%,100%{transform:scale(1);opacity:1}
-      50%{transform:scale(1.02);opacity:0.85}
+    @keyframes heartbeat {
+      0%, 100% { transform: scale(1); filter: brightness(1); }
+      50% { transform: scale(1.04); filter: brightness(1.2) drop-shadow(0 0 20px rgba(255,255,255,0.2)); }
     }
 
     #root{opacity:1;background:#000;min-height:100dvh}
   </style>
 
-  <link rel="preload" as="image" href="/icons/Swipess-wordmark-transparent-v2.png" fetchpriority="high">
+  <link rel="preload" as="image" href="/icons/Swipess-logo-transparent.png" fetchpriority="high">
 
   <link rel="manifest" href="/manifest.json">
-  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="/icons/Swipess-logo-transparent.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-16.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png">
+  <link rel="apple-touch-icon" sizes="1024x1024" href="/icons/Swipess-logo-transparent.png">
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">

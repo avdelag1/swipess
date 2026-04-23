@@ -144,7 +144,7 @@ const AppleAuthButton = ({ onClick }: { onClick: () => void }) => (
   <button
     type="button"
     onClick={onClick}
-    className="group flex h-[64px] w-full items-center justify-center gap-3 rounded-[1.5rem] bg-white text-black active:scale-[0.97] transition-all shadow-[0_10px_25px_rgba(0,0,0,0.2)] border border-white/50"
+    className="group flex h-[64px] w-full items-center justify-center gap-3 rounded-[1.5rem] bg-black text-white active:scale-[0.97] transition-all shadow-[0_10px_25px_rgba(0,0,0,0.4)] border border-white/10 hover:bg-black/90"
   >
     <AppleIcon />
     <span className="text-[17px] font-semibold tracking-tight leading-none pt-0.5">
