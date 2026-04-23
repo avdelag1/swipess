@@ -221,7 +221,7 @@ const OwnerProfile = () => {
            <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              onClick={() => { triggerHaptic('success'); navigate('/subscription/packages'); }}
+              onClick={() => { triggerHaptic('success'); navigate('/owner/dashboard'); }}
               className="w-full h-20 rounded-[2.5rem] bg-gradient-to-r from-[#EB4898] via-indigo-500 to-sky-500 flex items-center justify-center gap-4 active:scale-[0.97] transition-all shadow-[0_25px_60px_rgba(235,72,152,0.3)]"
            >
               <Crown className="w-7 h-7 text-white" />

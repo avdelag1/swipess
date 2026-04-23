@@ -26,7 +26,15 @@ export default function OwnerFilters({ isEmbedded, onClose }: OwnerFiltersProps)
   const storeActiveCategory = useFilterStore(s => s.activeCategory);
   const [activeCategory, setActiveCategory] = useState<CategoryType>((storeActiveCategory as CategoryType) || 'property');
 
-  const handleApply = useCallback(() => {
+  const isFirstMount = useRef(true);
+
+  const handleApply = useCallback((filters?: any) => {
+    // If this is the initial auto-apply from DiscoveryFilters, just skip navigation
+    if (isFirstMount.current) {
+      isFirstMount.current = false;
+      return;
+    }
+
     haptics.success();
     if (isEmbedded && onClose) {
       onClose();

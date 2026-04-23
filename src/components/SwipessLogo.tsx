@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 interface SwipessLogoProps {
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl';
   className?: string;
-  variant?: 'white' | 'black' | 'outline' | 'gradient' | 'icon';
+  variant?: 'white' | 'black' | 'outline' | 'gradient' | 'icon' | 'transparent';
 }
 
 const sizeMap = {
@@ -21,7 +21,7 @@ const sizeMap = {
 function SwipessLogoComponent({
   size = 'md',
   className,
-  variant = 'gradient',
+  variant = 'transparent',
 }: SwipessLogoProps) {
   const isIcon = variant === 'icon';
 
@@ -55,7 +55,7 @@ function SwipessLogoComponent({
                 className={cn(
                   'select-none transition-all duration-300 relative z-10',
                   isIcon ? 'w-full h-full object-contain' : cn('w-auto max-w-full', sizeMap[size]),
-                  'drop-shadow-[0_5px_15px_rgba(0,0,0,0.4)]'
+                  variant === 'transparent' ? '' : 'drop-shadow-[0_5px_15px_rgba(0,0,0,0.4)]'
                 )}
                 style={{
                   imageRendering: 'auto',

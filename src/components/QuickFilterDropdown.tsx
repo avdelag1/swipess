@@ -114,13 +114,20 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target;
-      const isAISearchClick = (target instanceof Element) && target.closest('#ai-search-button');
+      if (!(target instanceof Element)) return;
+
+      const isAISearchClick = target.closest('#ai-search-button');
+      const isPortalClick = target.closest('[data-radix-portal]') || 
+                           target.closest('.radix-select-content') ||
+                           target.closest('.sonner-toast');
+      
       if (
         dropdownRef.current &&
         !dropdownRef.current.contains(target as Node) &&
         buttonRef.current &&
         !buttonRef.current.contains(target as Node) &&
-        !isAISearchClick
+        !isAISearchClick &&
+        !isPortalClick
       ) {
         setIsOpen(false);
         setClickedCategory(null);
