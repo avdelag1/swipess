@@ -130,14 +130,13 @@ export const OwnerAllDashboard = memo(({ onCardSelect }: OwnerAllDashboardProps)
         style={{ minHeight: 'auto' }}
       >
         <motion.div
-          initial={{ opacity: 0, y: 0 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
           className="relative flex items-center justify-center transition-all"
           style={{ 
-            width: '100%',
-            height: 'calc(100svh - 90px)',
-            aspectRatio: `${PK_ASPECT}`,
-            maxHeight: 'none',
+            height: 'min(75svh, 600px)',
+            width: `calc(min(75svh, 600px) * ${PK_ASPECT})`,
+            padding: '0.4rem',
           }}
         >
           {[...cards].reverse().map((card, reversedIdx) => {

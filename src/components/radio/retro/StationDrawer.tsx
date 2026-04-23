@@ -166,17 +166,23 @@ export const StationDrawer = ({
                         
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1">
-                             <span className="text-[9px] font-black px-1.5 py-0.5 rounded-md bg-white/5 text-white/40 border border-white/5">
+                             <span className={cn(
+                               "text-[9px] font-black px-1.5 py-0.5 rounded-md border",
+                               isActive ? "bg-white/10 text-white border-white/20" : "bg-foreground/5 text-foreground/60 border-foreground/10"
+                             )}>
                               {station.frequency}
                             </span>
                             <h3 className={cn(
                               "font-black text-base tracking-tighter transition-colors",
-                              isActive ? "text-foreground" : "text-foreground/70 group-hover:text-foreground"
+                              isActive ? "text-foreground" : "text-foreground/90 group-hover:text-foreground"
                             )}>
                               {station.name.toUpperCase()}
                             </h3>
                           </div>
-                          <p className="text-[11px] text-foreground/40 font-black tracking-widest line-clamp-1 uppercase">
+                          <p className={cn(
+                            "text-[11px] font-black tracking-widest line-clamp-1 uppercase",
+                            isActive ? "text-foreground/60" : "text-foreground/40"
+                          )}>
                             {station.genre} • {station.description}
                           </p>
                         </div>

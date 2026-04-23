@@ -220,7 +220,7 @@ export function DiscoveryFilters({ category, onApply, initialFilters = {}, activ
                        isActive
                         ? "bg-primary text-white border-primary shadow-[0_10px_30px_rgba(var(--brand-primary-rgb),0.3)] scale-[1.05] z-10 relative"
                         : isLight 
-                          ? "bg-white border-slate-300 text-black font-black hover:bg-slate-50 shadow-sm" 
+                          ? "bg-slate-100 border-slate-200 text-slate-900 font-black hover:bg-slate-200 shadow-sm" 
                           : "bg-black/40 border-white/10 text-white font-black hover:bg-white/5 hover:text-white"
                      )}
                 >
@@ -317,7 +317,7 @@ export function DiscoveryFilters({ category, onApply, initialFilters = {}, activ
                   selectedBudgetRange === range.value
                     ? "bg-primary text-white border-primary shadow-xl shadow-primary/30 scale-[1.02]" 
                     : isLight 
-                      ? "bg-white border-slate-300 text-black font-black hover:bg-slate-50" 
+                      ? "bg-slate-100 border-slate-200 text-slate-900 font-black hover:bg-slate-200" 
                       : "bg-white/5 text-white border-white/10 hover:bg-white/10"
                 )}
             >
@@ -356,7 +356,7 @@ export function DiscoveryFilters({ category, onApply, initialFilters = {}, activ
                            bedrooms === n 
                              ? "bg-primary text-white border-primary shadow-xl scale-110" 
                              : isLight 
-                               ? "bg-black/[0.08] border-black/10 text-black/90 hover:bg-black/15 font-black"
+                               ? "bg-slate-100 border-slate-200 text-slate-900 hover:bg-slate-200 font-black"
                                : "bg-white/5 border-white/10 text-muted-foreground"
                          )}
                        >
@@ -382,7 +382,7 @@ export function DiscoveryFilters({ category, onApply, initialFilters = {}, activ
                            bathrooms === n 
                              ? "bg-primary text-white border-primary shadow-xl scale-110" 
                              : isLight 
-                               ? "bg-black/[0.08] border-black/10 text-black/90 hover:bg-black/15 font-black"
+                               ? "bg-slate-100 border-slate-200 text-slate-900 hover:bg-slate-200 font-black"
                                : "bg-white/5 border-white/10 text-muted-foreground"
                          )}
                        >
