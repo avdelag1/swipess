@@ -239,7 +239,7 @@ function QuickFilterBarComponent({ filters, onChange, onSelect, className, userR
     motorcycle: '/images/filters/scooter.png',
     bicycle:    '/images/filters/bicycle.png',
     services:   '/images/filters/workers.png',
-    all:        '/images/filters/property.png',
+    all:        '/images/filters/all.png',
     buyers:     '/images/filters/owner_buyers_card.png',
     renters:    '/images/filters/owner_renters_card.png',
     hire:       '/images/filters/owner_hire_card.png',
@@ -371,7 +371,7 @@ function QuickFilterBarComponent({ filters, onChange, onSelect, className, userR
           >
             <div className="absolute inset-0 bg-[var(--hud-text)]/10 z-10 group-hover:bg-[var(--hud-text)]/5 transition-colors" />
             <QuickFilterImage 
-              src={POKER_CARD_PHOTOS.all || '/images/filters/property.png'} 
+              src={POKER_CARD_PHOTOS['all-clients'] || '/images/filters/all.png'} 
               alt="All"
             />
             <div className={cn(

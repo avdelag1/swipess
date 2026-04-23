@@ -220,6 +220,14 @@ export const OWNER_INTENT_CARDS: OwnerIntentCard[] = [
     accentRgb: '236,72,153',
     icon: Megaphone,
   },
+  {
+    id: 'radio',
+    label: 'Radio',
+    description: 'Sentient Beats',
+    accent: '#f43f5e',
+    accentRgb: '244,63,94',
+    icon: Radio,
+  },
 ];
 
 

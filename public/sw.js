@@ -1,6 +1,6 @@
 /**
  * Ultra-Fast Service Worker - Optimized for lightning-speed loading
- * UPDATED: 2026-04-23T02:17Z - Force Update v5
+ * UPDATED: 2026-04-23T03:15Z - Force Update v6
  * 
  * PWA UPDATE FIX: Aggressive updates to ensure users always get latest version
  * - skipWaiting() called immediately on install for instant activation

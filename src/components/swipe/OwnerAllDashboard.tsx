@@ -87,6 +87,10 @@ export const OwnerAllDashboard = memo(({ onCardSelect }: OwnerAllDashboardProps)
       openAIListing();
       return;
     }
+    if (id === 'radio') {
+      navigate('/radio');
+      return;
+    }
     const card = OWNER_INTENT_CARDS.find(c => c.id === id);
     if (card) onCardSelect(card);
   }, [onCardSelect, navigate]);

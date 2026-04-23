@@ -93,7 +93,8 @@ export default function DJTurntableRadio() {
   const neumBtnActive = 'active:scale-[0.94] transition-transform duration-[40ms]';
 
   return (
-    <div
+    <main
+      id="main-content"
       className={cn(
         "fixed inset-0 z-[9999] flex flex-col select-none",
         isDark ? "bg-[#0A0A0A]" : "bg-[#F2F2F7]"
@@ -102,7 +103,16 @@ export default function DJTurntableRadio() {
       {/* ── Top Bar ── */}
       <div className="flex items-center justify-between px-5 pt-[env(safe-area-inset-top,16px)] pb-3 z-20">
         <button
-          onClick={() => window.history.length > 2 ? navigate(-1) : navigate('/client/dashboard')}
+          onClick={() => {
+            if (window.history.length > 2) {
+              navigate(-1);
+            } else {
+              // Context-aware fallback: Ensure Owners go back to Owner dashboard
+              const path = window.location.pathname;
+              const isOwner = path.includes('/owner/') || localStorage.getItem('last_active_mode') === 'owner';
+              navigate(isOwner ? '/owner/dashboard' : '/client/dashboard');
+            }
+          }}
           className={cn('w-9 h-9 rounded-full flex items-center justify-center', neumBtn, neumBtnActive)}
         >
           <ArrowLeft className={cn('w-4.5 h-4.5', isDark ? 'text-white/60' : 'text-black/50')} />

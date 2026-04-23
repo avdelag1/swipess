@@ -140,19 +140,41 @@
 
   <script>
     window.__APP_INITIALIZED__ = false;
+    var splashVisibleAtLeastUntil = Date.now() + 1200;
+    
     function removeSplash() {
       var loader = document.getElementById('initial-loader');
       var ss = document.getElementById('splash-styles');
-      if (loader && loader.parentNode) loader.remove();
-      if (ss && ss.parentNode) ss.remove();
+      
+      // Add fade out animation
+      if (loader) {
+        loader.style.transition = 'opacity 0.4s ease-out';
+        loader.style.opacity = '0';
+        setTimeout(function() {
+          if (loader && loader.parentNode) loader.remove();
+          if (ss && ss.parentNode) ss.remove();
+        }, 400);
+      }
     }
-    var mountTimer = setTimeout(removeSplash, 4000);
+
+    function triggerSplashRemoval() {
+      var remaining = splashVisibleAtLeastUntil - Date.now();
+      if (remaining > 0) {
+        setTimeout(removeSplash, remaining);
+      } else {
+        removeSplash();
+      }
+    }
+
+    // Fallback: remove splash after 5 seconds no matter what
+    var fallbackTimer = setTimeout(triggerSplashRemoval, 5000);
+
     window.addEventListener('app-rendered', function() {
       window.__APP_INITIALIZED__ = true;
-      clearTimeout(mountTimer);
-      // Slight delay for smooth transition
-      setTimeout(removeSplash, 100);
+      clearTimeout(fallbackTimer);
+      triggerSplashRemoval();
     });
+
     // Dynamic theme-color: sync status bar with app theme
     (function(){
       var meta = document.getElementById('theme-color-meta');
