@@ -306,13 +306,14 @@ function QuickFilterBarComponent({ filters, onChange, onSelect, className, userR
                     <div className={cn(
                       "absolute inset-0 z-10 transition-colors duration-300",
                       isActive 
-                        ? "bg-black/50" 
-                        : "bg-black/75 group-hover:bg-black/65"
+                        ? "bg-black/60" 
+                        : "bg-black/80 group-hover:bg-black/70"
                     )} />
                 <QuickFilterImage 
                   src={option.image} 
                   alt={option.label}
                 />
+
                     <div className={cn(
                       "absolute inset-0 flex flex-col items-center justify-center z-20 transition-all duration-300",
                       isActive ? "text-white" : "text-white/90"
@@ -387,13 +388,14 @@ function QuickFilterBarComponent({ filters, onChange, onSelect, className, userR
             <div className={cn(
               "absolute inset-0 z-10 transition-colors duration-300",
               clientIsAllSelected 
-                ? "bg-black/50" 
-                : "bg-black/75 group-hover:bg-black/65"
+                ? "bg-black/60" 
+                : "bg-black/80 group-hover:bg-black/70"
             )} />
             <QuickFilterImage 
               src={POKER_CARD_PHOTOS['all-clients'] || '/images/filters/all.png'} 
               alt="All"
             />
+
             <div className={cn(
               "absolute inset-0 flex flex-col items-center justify-center z-20 transition-all duration-300",
               clientIsAllSelected ? "text-white" : "text-white/90"
@@ -433,13 +435,14 @@ function QuickFilterBarComponent({ filters, onChange, onSelect, className, userR
                 <div className={cn(
                   "absolute inset-0 z-10 transition-colors duration-300",
                   isActive 
-                    ? "bg-black/50" 
-                    : "bg-black/75 group-hover:bg-black/65"
+                    ? "bg-black/60" 
+                    : "bg-black/80 group-hover:bg-black/70"
                 )} />
                 <QuickFilterImage 
                   src={photo} 
                   alt={category.label}
                 />
+
                 <div className={cn(
                   "absolute inset-0 flex flex-col items-center justify-center z-20 transition-all duration-300",
                   isActive ? "text-white" : "text-white/90"

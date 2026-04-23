@@ -163,24 +163,8 @@ function TopBarComponent({
         <div className="flex shrink-0 items-center gap-2 sm:gap-3">
           {!minimal && (
             <>
-              <motion.button
-                whileTap={{ scale: 0.9 }}
-                onPointerDown={(e) => {
-                  e.preventDefault(); e.stopPropagation();
-                  haptics.tap();
-                  navigate('/radio');
-                }}
-                className="w-11 h-11 shrink-0 rounded-full flex items-center justify-center p-0.5 relative group overflow-hidden"
-                style={glassPillStyle}
-                title="Radio"
-              >
-                <Radio 
-                  className="w-5 h-5 text-[var(--hud-text)] transition-colors group-hover:text-orange-500" 
-                  strokeWidth={2.5} 
-                />
-              </motion.button>
-
               <AIListingTrigger glassPillStyle={glassPillStyle} />
+
 
               <ThemeToggle glassPillStyle={glassPillStyle} />
               

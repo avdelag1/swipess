@@ -297,16 +297,19 @@ export const BottomNavigation = memo(({
                 data-no-cinematic
                 data-instant-feedback
                 onPointerDown={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
                   if (item.path) prefetchRoute(item.path);
                   isDraggingRef.current = false;
                   touchState.current = { x: e.clientX, y: e.clientY };
+                  handleNavClick(item, e);
                 }}
                 onPointerEnter={() => {
                   if (item.path) prefetch(item.path);
                 }}
                 onPointerUp={() => handlePointerUp()}
                 onKeyDown={(e) => handleNavKeyDown(e, item)}
-                onClick={(e) => handleNavClick(item, e)}
+
                 aria-label={item.label}
                 aria-current={isActive(item) ? 'page' : undefined}
                 className={cn(
