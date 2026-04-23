@@ -56,7 +56,7 @@ const MaintenanceRequests = lazyWithRetry(() => import("./pages/MaintenanceReque
 const AdvertisePage = lazyWithRetry(() => import("./pages/AdvertisePage"));
 
 // OWNER PAGES
-const EnhancedOwnerDashboard = lazyWithRetry(() => import("./components/EnhancedOwnerDashboard"));
+const EnhancedOwnerDashboard = lazyWithRetry(() => import("./pages/EnhancedOwnerDashboard"));
 const OwnerProfile = lazyWithRetry(() => import("./pages/OwnerProfile"));
 const OwnerSettings = lazyWithRetry(() => import("./pages/OwnerSettings"));
 const OwnerProperties = lazyWithRetry(() => import("./pages/OwnerProperties"));

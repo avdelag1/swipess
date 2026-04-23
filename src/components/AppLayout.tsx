@@ -54,7 +54,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   useInstantReactivity(); 
 
   const { t } = useTranslation();
-  const [showOwnerFilters, setShowOwnerFilters] = useState(false);
+
   const { filters, setFilters, activeCategory, radiusKm, setRadiusKm } = useFilterStore(
     useShallow((s) => ({
       filters: s.filters,
@@ -65,15 +65,7 @@ export function AppLayout({ children }: AppLayoutProps) {
     }))
   );
 
-  useEffect(() => {
-    const handleOpenFilters = () => {
-      if (location.pathname.includes('/owner/')) {
-        setShowOwnerFilters(true);
-      }
-    };
-    window.addEventListener('open-owner-filters', handleOpenFilters);
-    return () => window.removeEventListener('open-owner-filters', handleOpenFilters);
-  }, [location.pathname]);
+
 
   useEffect(() => {
     const recover = () => window.dispatchEvent(new CustomEvent('sentient-ui-recovery'));
@@ -169,30 +161,7 @@ export function AppLayout({ children }: AppLayoutProps) {
         onClose={() => modalStore.setModal('showVapId', false)}
       />
 
-      {/* 🛸 GLOBAL OWNER FILTER SHEET */}
-      <Sheet open={showOwnerFilters} onOpenChange={setShowOwnerFilters}>
-         <SheetContent side="bottom" className="h-[92vh] p-0 border-none bg-transparent overflow-hidden z-[10006]">
-            <div className="w-full h-full glass-morphism rounded-t-[3.5rem] border-t border-white/10 overflow-y-auto">
-               <div className="sticky top-0 z-[60] flex items-center justify-center pt-4 pb-2">
-                  <div className="w-12 h-1.5 bg-white/20 rounded-full" />
-               </div>
-               <div className="px-6 pb-20 pt-4">
-                  <h2 className="text-xl font-black uppercase tracking-widest italic mb-6">{t('topbar.targetPlatform')}</h2>
-                  <Suspense fallback={<div className="h-40 flex items-center justify-center"><div className="animate-spin rounded-full h-8 w-8 border-t-2 border-primary" /></div>}>
-                    <DiscoveryFilters
-                      category={(activeCategory as any) || 'property'}
-                      onApply={(newFilters) => {
-                        setFilters(newFilters);
-                        setShowOwnerFilters(false);
-                      }}
-                      initialFilters={filters}
-                      activeCount={0}
-                    />
-                  </Suspense>
-               </div>
-            </div>
-         </SheetContent>
-      </Sheet>
+
 
       {!isAuthRoute && !isFullScreen && (!isPublicPreview || !!user) && (
         <SentientHud side="bottom" className="fixed bottom-0 left-0 right-0 z-[9999]">

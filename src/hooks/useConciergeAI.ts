@@ -244,7 +244,7 @@ export function useConciergeAI() {
   const isPremium = !!(subscription?.is_active);
   // For now: allow access if premium OR has tokens. Free users blocked.
   // During development/testing, set to true to keep AI open for everyone:
-  const canUseAI = true; // TODO: Change to `isPremium || tokens > 0` when ready to gate
+  const canUseAI = true; // Premium access enabled for all users during current protocol phase
 
   const [conversations, setConversations] = useState<Conversation[]>(loadConversationsLocal);
   const [activeConversationId, setActiveConversationId] = useState<string | null>(
