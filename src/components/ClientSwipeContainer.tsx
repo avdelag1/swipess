@@ -927,54 +927,8 @@ const ClientSwipeContainerComponent = ({
           </AnimatePresence>
         </div>
         </div>
-
-        {/* 🚀 PREMIUM QUICK FILTERS: REPOSITIONED BY USER REQUEST (Bottom Near Nav) */}
-        {(!isLoading || deckQueue.length > 0) && (
-          <div className="absolute bottom-[calc(7.5rem+env(safe-area-inset-bottom,0px))] left-0 right-0 z-[60] w-full flex justify-center px-4 pointer-events-none">
-            <motion.div 
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              className="flex gap-4 p-2.5 rounded-[2.5rem] backdrop-blur-[40px] border border-white/20 bg-black/40 pointer-events-auto shadow-[0_25px_60px_-15px_rgba(0,0,0,0.6)]"
-            >
-              {(userRole === 'owner' ? OWNER_INTENT_CARDS : POKER_CARDS).filter(c => 
-                userRole === 'owner' 
-                  ? ['all-clients', 'buyers', 'renters', 'hire'].includes(c.id) 
-                  : ['property', 'motorcycle', 'services'].includes(c.id)
-              ).map((cat: any) => {
-                const Icon = cat.icon;
-                const isActive = category === cat.id || (userRole === 'owner' && (filters as any).clientType === (cat as any).clientType);
-                return (
-                  <motion.button
-                    key={cat.id}
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    onClick={() => {
-                      triggerHaptic('medium');
-                      handleMapCategorySelect(cat.id as any);
-                    }}
-                    className={cn(
-                      "w-14 h-14 rounded-full flex items-center justify-center transition-all relative overflow-hidden border-2",
-                      isActive 
-                        ? "text-primary border-primary bg-black/80 shadow-[0_0_25px_rgba(255,107,53,0.5)] scale-110 z-10"
-                        : "text-white/40 border-white/5 hover:text-white/80 bg-white/5 hover:bg-white/10"
-                    )}
-                  >
-                    <Icon className={cn("w-6 h-6", isActive ? "stroke-[3px]" : "stroke-[2px]")} />
-                    {isActive && (
-                      <motion.div 
-                        layoutId="active-pill"
-                        className="absolute inset-0 bg-primary/5 -z-1"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                      />
-                    )}
-                  </motion.button>
-                );
-              })}
-            </motion.div>
-          </div>
-        )}
       </div>
+
 
       {typeof document !== 'undefined' && document.body && createPortal(
         <Suspense fallback={null}>

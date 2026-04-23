@@ -1,7 +1,7 @@
 import { memo, useCallback } from 'react';
 import { useAppNavigate } from "@/hooks/useAppNavigate";
 import { motion } from 'framer-motion';
-import { ChevronLeft, Radio, Ghost } from 'lucide-react';
+import { ChevronLeft, Radio, User } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
@@ -15,8 +15,6 @@ import { ThemeToggle } from './ThemeToggle';
 import { useModalStore } from '@/state/modalStore';
 import { useFilterStore, useFilterActions } from '@/state/filterStore';
 import { AIListingTrigger } from './AIListingTrigger';
-import { SwipessLogo } from './SwipessLogo';
-import { LogOut, LayoutGrid } from 'lucide-react';
 import { appToast } from '@/utils/appNotification';
 
 interface TopBarProps {
@@ -50,18 +48,7 @@ function TopBarComponent({
   const activeCategory = useFilterStore(s => s.activeCategory);
   const { setActiveCategory } = useFilterActions();
 
-  const handleSignOut = useCallback(async () => {
-    try {
-      haptics.impact('medium');
-      await supabase.auth.signOut();
-      // Reset navigation flags in session storage if they exist
-      sessionStorage.removeItem('swipess_nav_complete');
-      appToast.success('Logged Out', 'See you soon at the stars');
-      window.location.href = '/'; // Force reload to landing
-    } catch (err) {
-      console.error('Logout error:', err);
-    }
-  }, []);
+
 
   const isOwner = userRole === 'owner';
   
@@ -119,48 +106,48 @@ function TopBarComponent({
             </motion.button>
           ) : (
             user && (
-              <motion.button
-                whileTap={{ scale: 0.95 }}
-                onPointerDown={(e) => {
-                  e.preventDefault(); e.stopPropagation();
-                  haptics.tap();
-                  navigate(isOwner ? '/owner/profile' : '/client/profile');
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              onPointerDown={(e) => {
+                e.preventDefault(); e.stopPropagation();
+                haptics.tap();
+                navigate(isOwner ? '/owner/profile' : '/client/profile');
+              }}
+              className="flex shrink-0 items-center gap-2 px-2 py-2 pr-3 rounded-full"
+              style={glassPillStyle}
+            >
+              {/* Circular avatar — photo or person-icon placeholder */}
+              <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 flex items-center justify-center"
+                style={{
+                  background: profile?.avatar_url ? 'transparent' : (isLight ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.12)'),
+                  border: isLight ? '1.5px solid rgba(0,0,0,0.12)' : '1.5px solid rgba(255,255,255,0.15)',
                 }}
-                className="flex shrink-0 items-center gap-2 px-3 py-2 rounded-full"
-                style={glassPillStyle}
               >
-                <div className="flex items-center gap-2">
-                  <SwipessLogo variant="icon" className="w-8 h-8" />
-                  {profile?.full_name && (
-                    <span className="text-[11px] font-black uppercase tracking-widest mr-1" style={{ color: 'var(--hud-text)' }}>
-                      {profile.full_name.split(' ')[0]}
-                    </span>
-                  )}
-                </div>
-              </motion.button>
-            )
-          )}
+                {profile?.avatar_url ? (
+                  <img
+                    src={profile.avatar_url}
+                    alt="Profile"
+                    className="w-full h-full object-cover rounded-full"
+                    onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                  />
+                ) : (
+                  <User className="w-4 h-4" style={{ color: 'var(--hud-text)', opacity: 0.5 }} strokeWidth={2} />
+                )}
+              </div>
+              {profile?.full_name && (
+                <span className="text-[11px] font-black uppercase tracking-widest mr-1" style={{ color: 'var(--hud-text)' }}>
+                  {profile.full_name.split(' ')[0]}
+                </span>
+              )}
+            </motion.button>
+          )
+        )}
 
           {/* Mode Switcher Pill */}
           {!minimal && (
             <div className="h-11 flex shrink-0 items-center px-4 rounded-full" style={glassPillStyle}>
               <ModeSwitcher variant="icon" size="sm" />
             </div>
-          )}
-
-          {/* Home/Landing Button */}
-          {user && !onBack && (
-            <motion.button
-              whileTap={{ scale: 0.9 }}
-              onPointerDown={(e) => {
-                e.preventDefault(); e.stopPropagation();
-                handleSignOut();
-              }}
-              className="w-11 h-11 flex shrink-0 items-center justify-center rounded-full bg-black/20 border border-white/10"
-              title="Return to Entry"
-            >
-              <LogOut className="w-5 h-5 text-white/60" />
-            </motion.button>
           )}
         </div>
 
