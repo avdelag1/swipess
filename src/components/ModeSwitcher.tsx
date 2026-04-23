@@ -56,8 +56,11 @@ function ModeSwitcherComponent({ className, size = 'sm' }: ModeSwitcherProps) {
         disabled={!canSwitchMode || isSwitching}
         className={cn(
           "w-11 h-11 flex items-center justify-center transition-all duration-300 relative rounded-2xl",
-          isClient ? "opacity-100" : "opacity-40 hover:opacity-100"
+          isClient 
+            ? "opacity-100" 
+            : (isLight ? "opacity-70 hover:opacity-100" : "opacity-40 hover:opacity-100")
         )}
+
         style={glassButtonStyle(isClient, '#f43f5e')}
         title="Client Mode"
       >
@@ -75,8 +78,11 @@ function ModeSwitcherComponent({ className, size = 'sm' }: ModeSwitcherProps) {
         disabled={!canSwitchMode || isSwitching}
         className={cn(
           "w-11 h-11 flex items-center justify-center transition-all duration-300 relative rounded-2xl",
-          !isClient ? "opacity-100" : "opacity-40 hover:opacity-100"
+          !isClient 
+            ? "opacity-100" 
+            : (isLight ? "opacity-70 hover:opacity-100" : "opacity-40 hover:opacity-100")
         )}
+
         style={glassButtonStyle(!isClient, '#f97316')}
         title="Owner Mode"
       >

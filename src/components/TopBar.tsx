@@ -58,7 +58,8 @@ function TopBarComponent({
     backdropFilter: 'blur(32px) saturate(210%)',
     WebkitBackdropFilter: 'blur(32px) saturate(210%)',
     borderRadius: '3rem',
-    border: isLight ? '1px solid rgba(0,0,0,0.1)' : '1px solid rgba(255,255,255,0.08)',
+    border: isLight ? '1.5px solid rgba(0,0,0,0.15)' : '1px solid rgba(255,255,255,0.08)',
+
     boxShadow: isLight ? '0 4px 12px rgba(0,0,0,0.03)' : '0 8px 32px rgba(0, 0, 0, 0.15)',
     pointerEvents: 'auto',
     color: 'var(--hud-text)',

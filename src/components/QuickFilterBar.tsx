@@ -180,8 +180,9 @@ function FilterDropdown({
 }
 
 function QuickFilterBarComponent({ filters, onChange, onSelect, className, userRole = 'client' }: QuickFilterBarProps) {
-  const { theme } = useAppTheme();
+  const { theme, isLight } = useAppTheme();
   const isDark = theme === 'dark';
+
   const handleCategoryToggle = useCallback((categoryId: QuickFilterCategory) => {
     const newCategories = filters.categories.includes(categoryId)
       ? filters.categories.filter(c => c !== categoryId)
@@ -306,9 +307,10 @@ function QuickFilterBarComponent({ filters, onChange, onSelect, className, userR
                     <div className={cn(
                       "absolute inset-0 z-10 transition-colors duration-300",
                       isActive 
-                        ? "bg-black/60" 
-                        : "bg-black/80 group-hover:bg-black/70"
+                        ? (isLight ? "bg-black/40" : "bg-black/60") 
+                        : (isLight ? "bg-black/75" : "bg-black/85")
                     )} />
+
                 <QuickFilterImage 
                   src={option.image} 
                   alt={option.label}
@@ -388,9 +390,10 @@ function QuickFilterBarComponent({ filters, onChange, onSelect, className, userR
             <div className={cn(
               "absolute inset-0 z-10 transition-colors duration-300",
               clientIsAllSelected 
-                ? "bg-black/60" 
-                : "bg-black/80 group-hover:bg-black/70"
+                ? (isLight ? "bg-black/40" : "bg-black/60") 
+                : (isLight ? "bg-black/75" : "bg-black/85")
             )} />
+
             <QuickFilterImage 
               src={POKER_CARD_PHOTOS['all-clients'] || '/images/filters/all.png'} 
               alt="All"
@@ -435,9 +438,10 @@ function QuickFilterBarComponent({ filters, onChange, onSelect, className, userR
                 <div className={cn(
                   "absolute inset-0 z-10 transition-colors duration-300",
                   isActive 
-                    ? "bg-black/60" 
-                    : "bg-black/80 group-hover:bg-black/70"
+                    ? (isLight ? "bg-black/40" : "bg-black/60") 
+                    : (isLight ? "bg-black/75" : "bg-black/85")
                 )} />
+
                 <QuickFilterImage 
                   src={photo} 
                   alt={category.label}

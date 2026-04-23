@@ -362,7 +362,8 @@ export const BottomNavigation = memo(({
                       color: active 
                         ? (isLight ? 'black' : 'white') 
                         : (isLight ? 'black' : 'white'),
-                      opacity: active ? 1 : 0.65,
+                      opacity: active ? 1 : (isLight ? 0.75 : 0.65),
+
                       fill: active ? activeColor : 'none',
                       strokeWidth: active ? 2 : 1.5,
                       filter: 'none',
@@ -379,7 +380,8 @@ export const BottomNavigation = memo(({
                       )}
                       style={{
                         color: 'var(--hud-text)',
-                        opacity: active ? 1 : 0.65,
+                        opacity: active ? 1 : (isLight ? 0.75 : 0.65),
+
                         zIndex: 1,
                       }}
                     >
