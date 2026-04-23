@@ -10,7 +10,7 @@ import { cn } from '@/lib/utils';
 import useAppTheme from '@/hooks/useAppTheme';
 import { 
   ArrowLeft, Globe, Search, Play, Heart, 
-  MapPin, Radio, Music, Volume2, Sparkles,
+  MapPin, Radio, Volume2, Sparkles,
   Maximize2
 } from 'lucide-react';
 

@@ -1,11 +1,10 @@
-import { memo, useCallback, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { User, UserCheck, Loader2 } from 'lucide-react';
+import { memo, useCallback } from 'react';
+import { motion } from 'framer-motion';
+import { User, UserCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useActiveMode, ActiveMode } from '@/hooks/useActiveMode';
 import { triggerHaptic } from '@/utils/haptics';
 import { uiSounds } from '@/utils/uiSounds';
-import { prefetchRoute } from '@/utils/routePrefetcher';
 import { useFilterStore } from '@/state/filterStore';
 import useAppTheme from '@/hooks/useAppTheme';
 
@@ -15,7 +14,7 @@ interface ModeSwitcherProps {
   variant?: 'toggle' | 'pill' | 'icon';
 }
 
-function ModeSwitcherComponent({ className, size = 'sm' }: ModeSwitcherProps) {
+function ModeSwitcherComponent({ className }: ModeSwitcherProps) {
   const { activeMode, isSwitching, switchMode, canSwitchMode } = useActiveMode();
   const { isLight } = useAppTheme();
   const resetClientFilters = useFilterStore((state) => state.resetClientFilters);

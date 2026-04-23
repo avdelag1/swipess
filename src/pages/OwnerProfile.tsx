@@ -7,10 +7,10 @@ import { useAuth } from "@/hooks/useAuth";
 import { useOwnerStats } from "@/hooks/useOwnerStats";
 import { useOwnerProfile } from "@/hooks/useOwnerProfile";
 import {
-  LogOut, Building2, Camera, Flame, ThumbsUp, Settings, Megaphone, Scale, ChevronRight, Coins, User, UserCircle, Crown, Sparkles
+  LogOut, Building2, Camera, Flame, ThumbsUp, Settings, Megaphone, Scale, Coins, User, UserCircle, Crown, Sparkles
 } from "lucide-react";
 import { ActivityFeed } from "@/components/ActivityFeed";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import useAppTheme from "@/hooks/useAppTheme";
 import { triggerHaptic } from "@/utils/haptics";
@@ -26,7 +26,7 @@ const OwnerProfile = () => {
   const { data: ownerProfile, isLoading: profileLoading } = useOwnerProfile();
   const { tokenBalance } = useMessagingQuota();
   const navigate = useNavigate();
-  const { theme, isLight } = useAppTheme();
+  const { isLight } = useAppTheme();
 
   const isLoading = statsLoading || profileLoading;
 
@@ -104,7 +104,7 @@ const OwnerProfile = () => {
         </div>
 
         {/* 🛸 METRIC GRID: SEAMLESS MIRROR */}
-        <div className="grid grid-cols-3 gap-8 py-8 border-y border-white/5">
+        <div className={cn("grid grid-cols-3 gap-8 py-8 border-y", isLight ? "border-black/5" : "border-white/5")}>
           {[
             { label: 'Network', value: stats?.likedClientsCount ?? 0, icon: Flame, color: 'text-[#EB4898]' },
             { label: 'Followers', value: stats?.interestedClientsCount ?? 0, icon: ThumbsUp, color: 'text-amber-500' },
@@ -128,7 +128,10 @@ const OwnerProfile = () => {
         <motion.div 
           whileHover={{ scale: 1.01 }}
           whileTap={{ scale: 0.99 }}
-          className="flex items-center justify-between p-8 rounded-[3rem] bg-white/[0.03] border border-white/5 cursor-pointer"
+          className={cn(
+            "flex items-center justify-between p-8 rounded-[3rem] cursor-pointer",
+            isLight ? "bg-black/[0.02] border border-black/5" : "bg-white/[0.03] border border-white/5"
+          )}
           onClick={() => { triggerHaptic('light'); navigate('/subscription/packages'); }}
         >
           <div className="flex items-center gap-6">
@@ -161,7 +164,8 @@ const OwnerProfile = () => {
           <Button
             onClick={() => { triggerHaptic('medium'); navigate('/client/advertise'); }}
             className={cn(
-               "w-full h-20 rounded-3xl backdrop-blur-3xl border border-white/10 bg-white/5 transition-all active:scale-95"
+               "w-full h-20 rounded-3xl backdrop-blur-3xl transition-all active:scale-95",
+               isLight ? "bg-black/[0.02] border border-black/5" : "bg-white/5 border border-white/10"
             )}
           >
             <Megaphone className="w-7 h-7 text-[#EB4898] mr-4" />
@@ -182,10 +186,15 @@ const OwnerProfile = () => {
               whileTap={{ scale: 0.98 }}
               onClick={() => { triggerHaptic('light'); navigate(nav.path); }}
               className={cn(
-                  "rounded-[2.5rem] p-8 flex flex-col gap-6 text-left transition-all bg-white/[0.03] border border-white/5 hover:bg-white/[0.05]"
+                  "rounded-[2.5rem] p-8 flex flex-col gap-6 text-left transition-all border",
+                  isLight ? "bg-black/[0.02] border-black/5 hover:bg-black/[0.04]" : "bg-white/[0.03] border-white/5 hover:bg-white/[0.05]"
                )}
              >
-               <div className={cn("w-14 h-14 rounded-2xl flex items-center justify-center bg-white/5 border border-white/10 shadow-lg", nav.color)}>
+               <div className={cn(
+                 "w-14 h-14 rounded-2xl flex items-center justify-center border shadow-lg", 
+                 isLight ? "bg-black/5 border-black/10" : "bg-white/5 border-white/10",
+                 nav.color
+               )}>
                  <nav.icon className="w-7 h-7" />
                </div>
                <div>

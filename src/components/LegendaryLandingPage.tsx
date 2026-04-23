@@ -1,7 +1,7 @@
-import { memo, useState, useRef, useMemo, useEffect } from 'react';
+import { memo, useState, useRef, useEffect } from 'react';
 import { useAppNavigate } from "@/hooks/useAppNavigate";
 import {
-  motion, useMotionValue, useTransform, AnimatePresence, PanInfo, animate
+  motion, AnimatePresence
 } from 'framer-motion';
 import { triggerHaptic } from '@/utils/haptics';
 import { playRandomZen } from '@/utils/sounds';
@@ -16,7 +16,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { loginSchema, signupSchema, forgotPasswordSchema } from '@/schemas/auth';
 import { cn } from '@/lib/utils';
 import { TERMS_PROTOCOL, PRIVACY_PROTOCOL } from './legal/LegalProtocols';
-import { Button } from '@/components/ui/button';
 
 /* ─── Types ─────────────────────────────────────────────── */
 type View = 'landing' | 'auth';
@@ -43,35 +42,7 @@ const LandingView = memo(({
 }: {
   onEnterAuth: (mode: 'login' | 'signup') => void;
 }) => {
-  const x = useMotionValue(0);
-  const logoOpacity = useTransform(x, [0, 100, 220], [1, 0.6, 0]);
-  const logoScale = useTransform(x, [0, 120, 220], [1, 0.96, 0.86]);
-  const logoBlur = useTransform(x, [0, 100, 220], [0, 2, 14]);
-  const logoFilter = useTransform(logoBlur, (v) => `blur(${v}px)`);
-
-  const triggered = useRef(false);
-
-  const handleDragEnd = (_: any, info: PanInfo) => {
-    const shouldSwipe = info.offset.x > 100 || info.velocity.x > 400;
-    if (shouldSwipe) {
-      if (triggered.current) return;
-      triggered.current = true;
-      playRandomZen(0.45);
-      triggerHaptic('success');
-      animate(x, window.innerWidth + 100, { type: 'spring', stiffness: 200, damping: 22, mass: 0.6 });
-      setTimeout(() => onEnterAuth('login'), 280);
-    } else {
-      animate(x, 0, { type: 'spring', stiffness: 600, damping: 32, mass: 0.5 });
-    }
-  };
-
-  const handleTap = () => {
-    if (triggered.current) return;
-    triggered.current = true;
-    triggerHaptic('light');
-    animate(x, window.innerWidth + 100, { type: 'spring', stiffness: 200, damping: 22, mass: 0.6 });
-    setTimeout(() => onEnterAuth('login'), 280);
-  };
+  // Render landing view
 
   return (
     <motion.div
@@ -240,7 +211,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
         {/* Shimmer effect removed as per user request */}
         
         <button
-          onClick={() => { triggerHaptic('light'); isForgotPassword ? setIsForgotPassword(false) : onBack(); }}
+          onClick={() => { triggerHaptic('light'); if (isForgotPassword) { setIsForgotPassword(false); } else { onBack(); } }}
           className="absolute top-4 left-4 w-10 h-10 rounded-2xl bg-white flex items-center justify-center text-black border shadow-xl active:scale-90 transition-all z-20"
           aria-label="Go back"
         >
@@ -491,7 +462,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
 
 /* ─── Root component ─────────────────────────────────────── */
 function LegendaryLandingPage() {
-  const { navigate } = useAppNavigate();
+  // Navigation hook called but unused currently
   const [view, setView] = useState<View>('landing');
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
   const [legalModal, setLegalModal] = useState<'privacy' | 'terms' | null>(null);
