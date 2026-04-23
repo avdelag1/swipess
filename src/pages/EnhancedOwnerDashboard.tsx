@@ -35,9 +35,19 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
   const activeCategory = useFilterStore(s => s.activeCategory);
   const { setCategories, setClientType, setListingType, setActiveCategory } = useFilterActions();
 
-  // 🛰️ PHASE SYNC: Automatic bi-directional synchronization
-  const [phase, setPhase] = useState<'cards' | 'swipe'>(activeCategory ? 'swipe' : 'cards');
+  // 🛸 OWNER DASHBOARD ALWAYS STARTS ON CARDS — clear any stale persisted category on mount
+  // This prevents the dashboard from jumping to swipe phase with no data
+  const [phase, setPhase] = useState<'cards' | 'swipe'>('cards');
 
+  // Clear stale activeCategory on mount so owner always sees card deck first
+  useEffect(() => {
+    if (activeCategory) {
+      setActiveCategory(null);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only on mount
+
+  // 🛰️ PHASE SYNC: Bi-directional sync (after mount)
   useEffect(() => {
     if (activeCategory && phase === 'cards') {
       setPhase('swipe');
@@ -156,31 +166,33 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
 
   return (
     <div className={cn("flex flex-col h-full w-full relative transition-colors duration-500", isLight ? "bg-white" : "bg-black")}>
-      <AtmosphericLayer />
+      <AtmosphericLayer variant="primary" />
 
-      {/* 🚀 QUICK FILTERS SHEET */}
-      <Sheet open={filterOpen} onOpenChange={setFilterOpen}>
-        <SheetTrigger asChild>
-          <motion.button
-            whileTap={{ scale: 0.9 }}
-            className={cn(
-              "absolute top-10 right-6 z-[70] w-12 h-12 flex items-center justify-center rounded-full backdrop-blur-xl border transition-all",
-              isLight ? "bg-white/40 border-slate-200 text-slate-900" : "bg-black/40 border-white/10 text-white"
-            )}
-          >
-            <SlidersHorizontal className="w-5 h-5" />
-          </motion.button>
-        </SheetTrigger>
-        <SheetContent side="bottom" className="h-[85vh] p-0 rounded-t-[3rem] border-t-primary/20 overflow-hidden bg-transparent backdrop-blur-3xl">
-          <div className="absolute inset-0 bg-black/60 -z-10" />
-          <SheetHeader className="px-8 pt-8 pb-4">
-            <SheetTitle className="text-2xl font-black uppercase italic tracking-widest text-white text-center">Lead Refinement</SheetTitle>
-          </SheetHeader>
-          <div className="flex-1 overflow-y-auto px-6 pb-12">
-            <OwnerFilters isEmbedded onClose={() => setFilterOpen(false)} />
-          </div>
-        </SheetContent>
-      </Sheet>
+      {/* 🚀 QUICK FILTERS SHEET — Only visible during swipe phase */}
+      {phase === 'swipe' && (
+        <Sheet open={filterOpen} onOpenChange={setFilterOpen}>
+          <SheetTrigger asChild>
+            <motion.button
+              whileTap={{ scale: 0.9 }}
+              className={cn(
+                "absolute top-10 right-6 z-[70] w-12 h-12 flex items-center justify-center rounded-full backdrop-blur-xl border transition-all",
+                isLight ? "bg-white/40 border-slate-200 text-slate-900" : "bg-black/40 border-white/10 text-white"
+              )}
+            >
+              <SlidersHorizontal className="w-5 h-5" />
+            </motion.button>
+          </SheetTrigger>
+          <SheetContent side="bottom" className="h-[85vh] p-0 rounded-t-[3rem] border-t-primary/20 overflow-hidden bg-transparent backdrop-blur-3xl">
+            <div className="absolute inset-0 bg-black/60 -z-10" />
+            <SheetHeader className="px-8 pt-8 pb-4">
+              <SheetTitle className="text-2xl font-black uppercase italic tracking-widest text-white text-center">Lead Refinement</SheetTitle>
+            </SheetHeader>
+            <div className="flex-1 overflow-y-auto px-6 pb-12">
+              <OwnerFilters isEmbedded onClose={() => setFilterOpen(false)} />
+            </div>
+          </SheetContent>
+        </Sheet>
+      )}
 
       <AnimatePresence mode="wait">
         {viewMode === 'insights' ? (
