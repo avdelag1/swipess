@@ -7,7 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useOwnerStats } from "@/hooks/useOwnerStats";
 import { useOwnerProfile } from "@/hooks/useOwnerProfile";
 import {
-  LogOut, Building2, Camera, Flame, ThumbsUp, Settings, Megaphone, Scale, ChevronRight, Coins, User, Crown, Sparkles
+  LogOut, Building2, Camera, Flame, ThumbsUp, Settings, Megaphone, Scale, ChevronRight, Coins, User, UserCircle, Crown, Sparkles
 } from "lucide-react";
 import { ActivityFeed } from "@/components/ActivityFeed";
 import { motion, AnimatePresence } from "framer-motion";
@@ -210,8 +210,6 @@ const OwnerProfile = () => {
 
         <div className="py-8">
            <SharedProfileSection profileId={user?.id} profileName={ownerProfile?.business_name || 'Your Business'} isClient={false} />
-        </div>
-
         </div>
         
         <div className="flex justify-center pt-8">
