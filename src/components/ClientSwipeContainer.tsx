@@ -826,7 +826,7 @@ const ClientSwipeContainerComponent = ({
 
   return (
     <>
-      <div className="relative w-full h-full overflow-hidden flex flex-col bg-[#0a0a0b]">
+      <div className={cn("relative w-full h-full overflow-hidden flex flex-col", isLight ? "bg-white/40" : "bg-[#0a0a0b]")}>
         {/* Static ambient background */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden -z-10" />
 

@@ -56,15 +56,21 @@ export default function WorldRadioDirectory() {
   return (
     <div className={cn(
       "min-h-screen flex flex-col",
-      isDark ? "bg-[#050505] text-white" : "bg-slate-50 text-slate-900"
+      isDark ? "bg-[#050505] text-white" : "bg-white text-slate-900"
     )}>
       {/* ── HEADER ── */}
-      <header className="sticky top-0 z-30 pt-[env(safe-area-inset-top,20px)] px-6 pb-6 bg-inherit/80 backdrop-blur-2xl border-b border-white/5">
+      <header className={cn(
+        "sticky top-0 z-30 pt-[env(safe-area-inset-top,20px)] px-6 pb-6 backdrop-blur-2xl border-b",
+        isDark ? "bg-black/80 border-white/5" : "bg-white/90 border-black/5"
+      )}>
         <div className="flex items-center justify-between mb-6">
           <motion.button
             whileTap={{ scale: 0.9 }}
             onClick={() => navigate(-1)}
-            className="w-10 h-10 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center"
+            className={cn(
+              "w-10 h-10 rounded-2xl flex items-center justify-center border transition-all active:scale-90",
+              isDark ? "bg-white/5 border-white/10" : "bg-black/5 border-black/10"
+            )}
           >
             <ArrowLeft className="w-5 h-5" />
           </motion.button>
@@ -84,7 +90,10 @@ export default function WorldRadioDirectory() {
 
         {/* Search Bar */}
         <div className="relative group">
-          <div className="absolute left-5 top-1/2 -translate-y-1/2 text-white/30 group-focus-within:text-primary transition-colors">
+          <div className={cn(
+            "absolute left-5 top-1/2 -translate-y-1/2 group-focus-within:text-primary transition-colors",
+            isDark ? "text-white/30" : "text-black/30"
+          )}>
             <Search size={18} />
           </div>
           <input 
@@ -92,7 +101,12 @@ export default function WorldRadioDirectory() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search stations, genres, cities..."
-            className="w-full h-14 bg-white/5 border border-white/10 rounded-2xl pl-14 pr-6 text-sm font-bold placeholder:text-white/20 focus:outline-none focus:border-primary/50 transition-all"
+            className={cn(
+              "w-full h-14 border rounded-2xl pl-14 pr-6 text-sm font-bold transition-all focus:outline-none focus:border-primary/50",
+              isDark 
+                ? "bg-white/5 border-white/10 placeholder:text-white/20 text-white" 
+                : "bg-black/5 border-black/10 placeholder:text-black/20 text-black"
+            )}
           />
         </div>
 

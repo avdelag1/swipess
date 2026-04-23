@@ -47,46 +47,46 @@ const LandingView = memo(({
   return (
     <motion.div
       key="landing"
-      className="absolute inset-0 z-10 flex flex-col items-center justify-center text-center px-4"
+      className="absolute inset-0 z-10 flex flex-col items-center px-6 pb-12 pt-12"
       initial={{ opacity: 1 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
     >
-
-
-      <motion.div
-        className="mb-16"
-        initial={{ opacity: 0, scale: 0.8, y: 20 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        transition={{ delay: 0.2, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-      >
-        <SwipessLogo size="7xl" variant="transparent" />
-        <motion.p 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 0.4 }}
-          transition={{ delay: 1 }}
-          className="text-[10px] font-black uppercase tracking-[0.8em] mt-6 text-white italic"
+      <div className="flex-1 flex flex-col items-center justify-center w-full">
+        <motion.div
+          className="flex flex-col items-center"
+          initial={{ opacity: 0, scale: 0.8, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ delay: 0.2, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
         >
-          Flagship Matrix
-        </motion.p>
-      </motion.div>
+          <SwipessLogo size="8xl" variant="transparent" />
+          <motion.p 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 0.4 }}
+            transition={{ delay: 1 }}
+            className="text-[11px] font-black uppercase tracking-[0.8em] mt-8 text-white italic"
+          >
+            Flagship Matrix
+          </motion.p>
+        </motion.div>
+      </div>
 
       <motion.div
-        className="flex flex-col items-center gap-4 w-full max-w-[320px]"
+        className="flex flex-col items-center gap-4 w-full max-w-sm mt-auto"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5, duration: 0.6 }}
       >
         <button
           onClick={() => { triggerHaptic('medium'); onEnterAuth('login'); }}
-          className="w-full h-16 rounded-[2rem] bg-gradient-to-tr from-white to-white/90 text-black font-black uppercase tracking-[0.2em] text-[17px] shadow-[0_20px_50px_rgba(255,255,255,0.2)] active:scale-[0.97] transition-all flex items-center justify-center gap-3 border border-white/50"
+          className="w-full h-[68px] rounded-[2rem] bg-gradient-to-tr from-white to-white/90 text-black font-black uppercase tracking-[0.2em] text-[17px] shadow-[0_20px_50px_rgba(255,255,255,0.2)] active:scale-[0.97] transition-all flex items-center justify-center gap-3 border border-white/50"
         >
           <LogIn className="w-5 h-5" />
           Sign In
         </button>
         <button
           onClick={() => { triggerHaptic('medium'); onEnterAuth('signup'); }}
-          className="w-full h-16 rounded-[2rem] bg-white/5 backdrop-blur-2xl border border-white/20 text-white font-black uppercase tracking-[0.2em] text-[17px] active:scale-[0.97] transition-all flex items-center justify-center gap-3 hover:bg-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.3)]"
+          className="w-full h-[68px] rounded-[2rem] bg-white/5 backdrop-blur-2xl border border-white/20 text-white font-black uppercase tracking-[0.2em] text-[17px] active:scale-[0.97] transition-all flex items-center justify-center gap-3 hover:bg-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.3)]"
         >
           <Sparkles className="w-5 h-5 text-[#EB4898]" />
           Create Account
@@ -219,7 +219,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
         </button>
 
         <div className="text-center mb-6 pt-6 flex flex-col items-center">
-          <SwipessLogo size="lg" variant="transparent" className="mb-4" />
+          <SwipessLogo size="4xl" variant="transparent" className="mb-6 shrink-0" />
 
           {isForgotPassword ? (
             <>
@@ -232,7 +232,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
             </>
           ) : (
             <>
-              <div className="flex items-center justify-center gap-1.5 bg-black/40 backdrop-blur-md rounded-[1.5rem] p-1 mb-2 border border-white/5 relative">
+              <div className="flex w-full items-center justify-center gap-1.5 bg-black/40 backdrop-blur-md rounded-[1.5rem] p-1 mb-4 border border-white/5 relative">
                 <button
                   type="button"
                   onClick={() => { triggerHaptic('light'); setIsLogin(true); setFieldErrors({}); }}

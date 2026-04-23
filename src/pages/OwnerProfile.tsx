@@ -55,10 +55,10 @@ const OwnerProfile = () => {
                   "rounded-3xl bg-gradient-to-br from-[#EB4898] via-indigo-500 to-sky-400"
                )}
             >
-              <div
                 className={cn(
                    "w-full h-full overflow-hidden cursor-pointer flex items-center justify-center",
-                   "rounded-[1.4rem] bg-black/40 backdrop-blur-3xl border border-white/10"
+                   "rounded-[1.4rem] backdrop-blur-3xl border transition-all duration-500",
+                   isLight ? "bg-white/80 border-black/5 shadow-inner" : "bg-black/40 border-white/10"
                 )}
                 onClick={() => { triggerHaptic('light'); setShowEditDialog(true); }}
               >
@@ -73,7 +73,8 @@ const OwnerProfile = () => {
                onClick={() => { triggerHaptic('light'); setShowEditDialog(true); }}
                className={cn(
                   "absolute -bottom-3 -right-3 w-14 h-14 flex items-center justify-center shadow-2xl transition-all active:scale-90 z-20",
-                  "bg-white text-black rounded-2xl border border-black/10"
+                  isLight ? "bg-slate-950 text-white border-white/20" : "bg-white text-black border-black/10",
+                  "rounded-2xl border"
                )}
             >
               <Camera className="w-6 h-6" />
@@ -153,12 +154,12 @@ const OwnerProfile = () => {
           <Button
             onClick={() => { triggerHaptic('medium'); setShowEditDialog(true); }}
             className={cn(
-              "w-full h-20 rounded-3xl font-black uppercase italic tracking-[0.2em] text-[16px] transition-all border-none shadow-none",
-              isLight ? "bg-slate-950 text-white" : "bg-white !text-slate-950"
+              "w-full h-20 rounded-3xl font-black uppercase italic tracking-[0.2em] text-[16px] transition-all border-none shadow-xl",
+              isLight ? "bg-slate-950 text-white hover:bg-primary" : "bg-white text-slate-950 hover:bg-primary hover:text-white"
             )}
           >
-            <User className={cn("w-7 h-7 mr-4", isLight ? "text-white" : "!text-slate-950")} />
-            <span className={isLight ? "text-white" : "!text-slate-950"}>Control Brand ID</span>
+            <User className="w-7 h-7 mr-4" />
+            <span>Control Brand ID</span>
           </Button>
 
           <Button

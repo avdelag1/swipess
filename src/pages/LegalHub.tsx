@@ -536,7 +536,10 @@ const LegalHub = () => {
                     <div className="h-[1px] flex-1 bg-gradient-to-r from-muted-foreground/10 to-transparent" />
                 </div>
 
-                <div className={cn("rounded-[3rem] p-10 border shadow-3xl grid grid-cols-1 md:grid-cols-2 gap-10", isLight ? "bg-black/5 border-black/5" : "bg-white/[0.04] border-white/5")}>
+                <div className={cn(
+                  "rounded-[3rem] p-10 border shadow-3xl grid grid-cols-1 md:grid-cols-2 gap-10", 
+                  isLight ? "bg-white border-black/5 shadow-sm" : "bg-white/[0.04] border-white/5"
+                )}>
                   {[
                     { id: '01', title: 'Matrix Sync', desc: 'Identify the specific legal category within the authority matrix.' },
                     { id: '02', title: 'Case Audit', desc: 'Provide mission-critical details for immediate situation analysis.' },
@@ -566,7 +569,10 @@ const LegalHub = () => {
                     <div className="h-[1px] flex-1 bg-gradient-to-r from-muted-foreground/10 to-transparent" />
                 </div>
 
-                <div className={cn("rounded-[3rem] border shadow-3xl overflow-hidden", isLight ? "bg-black/5 border-black/5" : "bg-white/[0.04] border-white/5")}>
+                <div className={cn(
+                  "rounded-[3rem] border shadow-3xl overflow-hidden", 
+                  isLight ? "bg-white border-black/5 shadow-sm" : "bg-white/[0.04] border-white/5"
+                )}>
                   {[
                     { icon: FileText, label: 'Terms of Service', doc: 'terms', color: 'text-blue-500' },
                     { icon: Shield, label: 'Privacy Policy', doc: 'privacy', color: 'text-rose-500' },
@@ -586,7 +592,11 @@ const LegalHub = () => {
                         }}
                         className="w-full flex items-center gap-6 p-6 hover:bg-white/[0.02] transition-all text-left group"
                       >
-                        <div className={cn("w-12 h-12 rounded-[1rem] bg-white/[0.03] border border-white/5 flex items-center justify-center shrink-0 transition-transform group-hover:scale-110", item.color)}>
+                        <div className={cn(
+                          "w-12 h-12 rounded-[1rem] flex items-center justify-center shrink-0 transition-transform group-hover:scale-110 border", 
+                          isLight ? "bg-black/5 border-black/5" : "bg-white/[0.03] border-white/5",
+                          item.color
+                        )}>
                           <item.icon className="w-5 h-5" />
                         </div>
                         <div className="flex-1">

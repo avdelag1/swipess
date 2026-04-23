@@ -16,10 +16,10 @@ const sizeMap = {
   '2xl': 'h-28',
   '3xl': 'h-36',
   '4xl': 'h-44',
-  '5xl': 'h-56',
-  '6xl': 'h-72',
-  '7xl': 'h-[450px]',
-  '8xl': 'h-[580px]',
+  '5xl': 'h-24 sm:h-32',
+  '6xl': 'h-32 sm:h-48',
+  '7xl': 'h-40 sm:h-64',
+  '8xl': 'h-48 sm:h-80',
 };
 
 function SwipessLogoComponent({
@@ -51,14 +51,14 @@ function SwipessLogoComponent({
           ) : (
             <div className="relative">
               <img
-                src={isIcon ? "/icons/Swipess-logo-transparent.png" : "/icons/Swipess-wordmark-transparent-v2.png"}
+                src={isIcon ? "/icons/Swipess-logo-transparent.png" : "/icons/Swipess-wordmark-white.png"}
                 alt="Swipess"
                 draggable={false}
                 fetchPriority="high"
                 decoding={isIcon ? "async" : "sync"}
                 className={cn(
                   'select-none transition-all duration-300 relative z-10',
-                  isIcon ? 'w-full h-full object-contain' : cn('w-auto max-w-full', sizeMap[size]),
+                  isIcon ? 'w-full h-full object-contain' : cn('w-auto object-contain max-w-full', sizeMap[size]),
                   variant === 'transparent' ? '' : 'drop-shadow-[0_5px_15px_rgba(0,0,0,0.4)]'
                 )}
                 style={{

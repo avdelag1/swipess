@@ -6,8 +6,10 @@ import {
 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
+import useAppTheme from '@/hooks/useAppTheme';
 
 export function OwnerInsightsDashboard() {
+  const { isLight } = useAppTheme();
   const { data, isLoading } = useOwnerInsights();
 
   if (isLoading) {
@@ -36,10 +38,13 @@ export function OwnerInsightsDashboard() {
       {/* Header with Title */}
       <div className="flex items-center justify-between px-2">
         <div className="space-y-1">
-          <h2 className="text-2xl font-black text-white tracking-tight">Market Insights</h2>
-          <p className="text-[10px] font-black uppercase tracking-[0.25em] text-white/20">Performance Analysis</p>
+          <h2 className={cn("text-2xl font-black tracking-tight", isLight ? "text-slate-900" : "text-white")}>Market Insights</h2>
+          <p className={cn("text-[10px] font-black uppercase tracking-[0.25em]", isLight ? "text-slate-400" : "text-white/20")}>Performance Analysis</p>
         </div>
-        <div className="w-12 h-12 rounded-[18px] bg-white/5 border border-white/10 flex items-center justify-center">
+        <div className={cn(
+          "w-12 h-12 rounded-[18px] flex items-center justify-center border",
+          isLight ? "bg-black/5 border-black/5" : "bg-white/5 border-white/10"
+        )}>
           <Activity className="w-5 h-5 text-primary animate-pulse" />
         </div>
       </div>
@@ -54,20 +59,26 @@ export function OwnerInsightsDashboard() {
             transition={{ delay: i * 0.1 }}
             className="group relative"
           >
-            <div className="absolute -inset-1 bg-gradient-to-b from-white/5 to-transparent rounded-[2rem] opacity-0 group-hover:opacity-100 transition-opacity" />
-            <div className="relative p-5 rounded-[2rem] border border-white/5 bg-white/[0.03] backdrop-blur-xl space-y-3">
+            <div className={cn(
+              "absolute -inset-1 rounded-[2rem] opacity-0 group-hover:opacity-100 transition-opacity",
+              isLight ? "bg-gradient-to-b from-black/5 to-transparent" : "bg-gradient-to-b from-white/5 to-transparent"
+            )} />
+            <div className={cn(
+              "relative p-5 rounded-[2rem] border backdrop-blur-xl space-y-3",
+              isLight ? "bg-white border-black/5 shadow-sm" : "bg-white/[0.03] border-white/5"
+            )}>
               <div className="flex items-center justify-between">
                 <div 
-                  className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg"
-                  style={{ background: `${stat.color}15`, border: `1px solid ${stat.color}30` }}
+                  className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg border"
+                  style={{ background: `${stat.color}15`, borderColor: `${stat.color}30` }}
                 >
                   <stat.icon className="w-5 h-5" style={{ color: stat.color }} />
                 </div>
                 <span className="text-[10px] font-black text-emerald-500">{stat.trend}</span>
               </div>
               <div className="space-y-0.5">
-                <div className="text-xl font-black text-white tracking-tighter">{stat.value}</div>
-                <div className="text-[9px] font-black uppercase tracking-widest text-white/30">{stat.label}</div>
+                <div className={cn("text-xl font-black tracking-tighter", isLight ? "text-slate-900" : "text-white")}>{stat.value}</div>
+                <div className={cn("text-[9px] font-black uppercase tracking-widest", isLight ? "text-slate-400" : "text-white/30")}>{stat.label}</div>
               </div>
             </div>
           </motion.div>
@@ -78,14 +89,17 @@ export function OwnerInsightsDashboard() {
       <motion.div 
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="relative group p-6 rounded-[2.5rem] border border-white/5 bg-white/[0.02] backdrop-blur-3xl overflow-hidden"
+        className={cn(
+          "relative group p-6 rounded-[2.5rem] border backdrop-blur-3xl overflow-hidden",
+          isLight ? "bg-white border-black/5 shadow-sm" : "bg-white/[0.02] border-white/5"
+        )}
       >
         <div className="flex items-center justify-between mb-8">
           <div className="space-y-1">
-            <h3 className="text-sm font-black text-white tracking-tight">Match Convergence</h3>
-            <p className="text-[10px] font-bold text-white/20">Client demand vs. Listing supply</p>
+            <h3 className={cn("text-sm font-black tracking-tight", isLight ? "text-slate-900" : "text-white")}>Match Convergence</h3>
+            <p className={cn("text-[10px] font-bold", isLight ? "text-slate-400" : "text-white/20")}>Client demand vs. Listing supply</p>
           </div>
-          <BarChart3 className="w-5 h-5 text-white/10" />
+          <BarChart3 className={cn("w-5 h-5", isLight ? "text-slate-400" : "text-white/10")} />
         </div>
 
         {/* Visual Graph Mockup */}
@@ -100,7 +114,10 @@ export function OwnerInsightsDashboard() {
             >
               <div className="absolute -inset-1 bg-primary/20 blur-md opacity-0 group-hover/bar:opacity-100 transition-opacity" />
               <div className="w-full h-full rounded-t-lg bg-gradient-to-t from-primary/20 to-primary/80" />
-              <div className="absolute -top-6 left-1/2 -translate-x-1/2 opacity-0 group-hover/bar:opacity-100 transition-opacity text-[10px] font-black text-white">
+              <div className={cn(
+                "absolute -top-6 left-1/2 -translate-x-1/2 opacity-0 group-hover/bar:opacity-100 transition-opacity text-[10px] font-black",
+                isLight ? "text-slate-900" : "text-white"
+              )}>
                 {day.count}
               </div>
             </motion.div>
@@ -110,20 +127,20 @@ export function OwnerInsightsDashboard() {
 
       {/* Active Engagement Summary */}
       <div className={cn(
-        "rounded-[2.5rem] border border-white/5 p-6 space-y-5",
-        "bg-gradient-to-br from-indigo-500/5 to-purple-500/5"
+        "rounded-[2.5rem] border p-6 space-y-5",
+        isLight ? "bg-white border-black/5 shadow-sm" : "bg-gradient-to-br from-indigo-500/5 to-purple-500/5 border-white/5"
       )}>
         <div className="flex items-center gap-3">
           <MessageSquare className="w-5 h-5 text-purple-400" />
-          <span className="text-xs font-black uppercase tracking-widest text-white/60">Engagement Logic</span>
+          <span className={cn("text-xs font-black uppercase tracking-widest", isLight ? "text-slate-500" : "text-white/60")}>Engagement Logic</span>
         </div>
         
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-medium text-white/40">Response Accuracy</span>
-            <span className="text-[11px] font-black text-white">98.2%</span>
+            <span className={cn("text-[11px] font-medium", isLight ? "text-slate-400" : "text-white/40")}>Response Accuracy</span>
+            <span className={cn("text-[11px] font-black", isLight ? "text-slate-900" : "text-white")}>98.2%</span>
           </div>
-          <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+          <div className={cn("h-1.5 w-full rounded-full overflow-hidden", isLight ? "bg-black/5" : "bg-white/5")}>
             <motion.div 
               initial={{ width: 0 }}
               animate={{ width: '98.2%' }}
@@ -132,10 +149,10 @@ export function OwnerInsightsDashboard() {
           </div>
           
           <div className="flex items-center justify-between pt-2">
-            <span className="text-[11px] font-medium text-white/40">Converged Matches</span>
-            <span className="text-[11px] font-black text-white">{data?.conversion_rate}%</span>
+            <span className={cn("text-[11px] font-medium", isLight ? "text-slate-400" : "text-white/40")}>Converged Matches</span>
+            <span className={cn("text-[11px] font-black", isLight ? "text-slate-900" : "text-white")}>{data?.conversion_rate}%</span>
           </div>
-          <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+          <div className={cn("h-1.5 w-full rounded-full overflow-hidden", isLight ? "bg-black/5" : "bg-white/5")}>
             <motion.div 
               initial={{ width: 0 }}
               animate={{ width: `${data?.conversion_rate}%` }}

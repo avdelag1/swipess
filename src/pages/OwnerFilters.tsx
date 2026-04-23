@@ -63,19 +63,28 @@ export default function OwnerFilters({ isEmbedded, onClose }: OwnerFiltersProps)
       {/* HEADER - Only in standalone */}
       {!isEmbedded && (
         <div className="pt-24 px-6 flex items-center justify-between">
-           <button 
-             onClick={() => navigate(-1)}
-             className="w-12 h-12 rounded-full flex items-center justify-center bg-white/10 backdrop-blur-xl border border-white/10"
-           >
-             <ChevronLeft className="w-6 h-6" />
-           </button>
-           <h1 className="text-xl font-black uppercase italic tracking-widest">Filter Matrix</h1>
-           <button 
-             onClick={handleReset}
-             className="w-12 h-12 rounded-full flex items-center justify-center bg-white/10 backdrop-blur-xl border border-white/10"
-           >
-             <RotateCcw className="w-5 h-5" />
-           </button>
+            <button 
+              onClick={() => navigate(-1)}
+              className={cn(
+                "w-12 h-12 rounded-full flex items-center justify-center backdrop-blur-xl border transition-all active:scale-90",
+                isLight ? "bg-black/5 border-black/10 text-black" : "bg-white/10 border-white/10 text-white"
+              )}
+            >
+              <ChevronLeft className="w-6 h-6" />
+            </button>
+            <h1 className={cn(
+              "text-xl font-black uppercase italic tracking-widest",
+              isLight ? "text-slate-900" : "text-white"
+            )}>Filter Matrix</h1>
+            <button 
+              onClick={handleReset}
+              className={cn(
+                "w-12 h-12 rounded-full flex items-center justify-center backdrop-blur-xl border transition-all active:scale-90",
+                isLight ? "bg-black/5 border-black/10 text-black" : "bg-white/10 border-white/10 text-white"
+              )}
+            >
+              <RotateCcw className="w-5 h-5" />
+            </button>
         </div>
       )}
 

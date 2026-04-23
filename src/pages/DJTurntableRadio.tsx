@@ -11,9 +11,10 @@ import { cn } from '@/lib/utils';
 import useAppTheme from '@/hooks/useAppTheme';
 import {
   ArrowLeft, Globe, Star, Heart, Shuffle,
-  SkipBack, SkipForward, Play, Pause
+  SkipBack, SkipForward, Play, Pause, Volume2
 } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { AtmosphericLayer } from '@/components/AtmosphericLayer';
 
 /**
  * DJTurntableRadio — Clean FM Tuner interface (Apple-inspired redesign).
@@ -101,6 +102,8 @@ export default function DJTurntableRadio() {
         isDark ? "bg-[#0A0A0A]" : "bg-[#F2F2F7]"
       )}
     >
+      <AtmosphericLayer variant={isDark ? 'indigo' : 'default'} />
+
       {/* ── Top Bar ── */}
       <div className="flex items-center justify-between px-5 pt-[env(safe-area-inset-top,16px)] pb-3 z-20">
         <button
@@ -256,6 +259,15 @@ export default function DJTurntableRadio() {
 
           {/* Volume slider */}
           <div className="w-full px-10 pb-1">
+            <div className="flex items-center justify-between mb-2 px-1">
+              <div className="flex items-center gap-2 opacity-40">
+                <Volume2 size={12} className={isDark ? 'text-white' : 'text-black'} />
+                <span className={cn("text-[10px] font-black uppercase tracking-widest", isDark ? 'text-white' : 'text-black')}>Volumen</span>
+              </div>
+              <span className={cn("text-[10px] font-black tabular-nums tracking-wider", isDark ? 'text-blue-400' : 'text-primary')}>
+                {Math.round(state.volume * 100)}%
+              </span>
+            </div>
             <div className="relative w-full h-10 flex items-center">
               <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent" />
               <div className={cn('absolute w-full h-[4px] rounded-full', isDark ? 'bg-white/[0.08]' : 'bg-black/[0.06]')}>

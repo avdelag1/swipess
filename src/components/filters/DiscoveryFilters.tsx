@@ -220,7 +220,7 @@ export function DiscoveryFilters({ category, onApply, initialFilters = {}, activ
                        isActive
                         ? "bg-primary text-white border-primary shadow-[0_10px_30px_rgba(var(--brand-primary-rgb),0.3)] scale-[1.05] z-10 relative"
                         : isLight 
-                          ? "bg-slate-100 border-slate-200 text-slate-900 font-black hover:bg-slate-200 shadow-sm" 
+                          ? "bg-white/80 border-black/10 text-black shadow-sm backdrop-blur-md hover:bg-black/5" 
                           : "bg-black/40 border-white/10 text-white font-black hover:bg-white/5 hover:text-white"
                      )}
                 >

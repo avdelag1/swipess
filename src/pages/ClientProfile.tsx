@@ -137,14 +137,15 @@ const ClientProfile = () => {
               whileTap={{ scale: 0.95 }}
               className={cn(
                  "backdrop-blur-3xl border transition-all duration-500 flex flex-col items-center justify-center p-5 text-center shadow-xl",
-                 "bg-white/5 backdrop-blur-2xl border-white/10 rounded-[2.5rem]"
+                 isLight ? "bg-white border-black/5" : "bg-white/5 border-white/10",
+                 "rounded-[2.5rem]"
               )}
             >
               <stat.icon className={cn("w-6 h-6 mb-3 transition-transform group-hover:scale-110", stat.color)} />
-              <div className={cn("text-3xl font-black tabular-nums tracking-tighter leading-none", isLight ? "text-slate-950 font-black" : "text-white")}>
+              <div className={cn("text-3xl font-black tabular-nums tracking-tighter leading-none", isLight ? "text-slate-950" : "text-white")}>
                 {stat.value}
               </div>
-              <div className={cn("text-[10px] font-black uppercase tracking-[0.2em] italic mt-2.5", isLight ? "text-slate-500 font-bold" : "text-white/40")}>{stat.label}</div>
+              <div className={cn("text-[10px] font-black uppercase tracking-[0.2em] italic mt-2.5", isLight ? "text-slate-500" : "text-white/40")}>{stat.label}</div>
             </motion.div>
           ))}
         </div>

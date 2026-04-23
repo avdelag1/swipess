@@ -32,7 +32,7 @@ export const SwipeExhaustedState = ({
   error,
   isInitialLoad = false,
 }: SwipeExhaustedStateProps) => {
-  const { theme } = useAppTheme();
+  const { theme, isLight } = useAppTheme();
   const { setCategories } = useFilterActions();
   const activeCategory = useFilterStore(s => s.activeCategory);
   const setActiveCategory = useFilterStore(s => s.setActiveCategory);
@@ -119,7 +119,10 @@ export const SwipeExhaustedState = ({
                setActiveCategory(null);
                setCategories([]);
              }}
-             className="flex items-center gap-2 px-4 h-11 rounded-2xl shadow-2xl backdrop-blur-3xl border transition-all active:scale-95 group bg-black/60 border-white/10 text-white"
+             className={cn(
+               "flex items-center gap-2 px-4 h-11 rounded-2xl shadow-2xl backdrop-blur-3xl border transition-all active:scale-95 group", 
+               isLight ? "bg-white border-black/10 text-black" : "bg-black/60 border-white/10 text-white"
+             )}
            >
              <ChevronLeft className="w-5 h-5 -ml-1 transition-transform group-hover:-translate-x-1" />
              <span className="text-[10px] font-black uppercase tracking-[0.15em]">Back</span>
@@ -134,27 +137,30 @@ export const SwipeExhaustedState = ({
             className="mb-10 relative"
           >
             <div 
-              className="w-28 h-28 rounded-[2.5rem] bg-white/5 border border-white/10 flex items-center justify-center shadow-2xl relative overflow-hidden group"
+              className={cn(
+                "w-28 h-28 rounded-[2.5rem] flex items-center justify-center shadow-2xl relative overflow-hidden group border transition-all duration-500", 
+                isLight ? "bg-white border-black/5 shadow-inner" : "bg-white/5 border-white/10"
+              )}
               style={{ boxShadow: `0 20px 50px -10px ${activeCatInfo?.color || '#ec4899'}40` }}
             >
               <div className="absolute inset-0 bg-gradient-to-tr from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
               {activeCatInfo ? (
-                <activeCatInfo.icon className="w-12 h-12 text-white" strokeWidth={1.5} />
+                <activeCatInfo.icon className={cn("w-12 h-12", isLight ? "text-slate-900" : "text-white")} strokeWidth={1.5} />
               ) : (
-                <Zap className="w-12 h-12 text-white" strokeWidth={1.5} />
+                <Zap className={cn("w-12 h-12", isLight ? "text-slate-900" : "text-white")} strokeWidth={1.5} />
               )}
             </div>
             <motion.div 
               animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3] }}
               transition={{ duration: 4, repeat: Infinity }}
-              className="absolute -inset-4 border border-white/10 rounded-[3rem] -z-1" 
+              className={cn("absolute -inset-4 border rounded-[3rem] -z-1", isLight ? "border-black/10" : "border-white/10")} 
             />
           </motion.div>
 
-          <h3 className="text-3xl font-black italic tracking-tighter uppercase text-white mb-4 leading-none">
+          <h3 className={cn("text-3xl font-black italic tracking-tighter uppercase mb-4 leading-none", isLight ? "text-black" : "text-white")}>
             Discovery Complete
           </h3>
-          <p className="text-[11px] font-black uppercase tracking-[0.2em] text-white/40 mb-10 leading-relaxed px-4">
+          <p className={cn("text-[11px] font-black uppercase tracking-[0.2em] mb-10 leading-relaxed px-4", isLight ? "text-black/40" : "text-white/40")}>
             You've analyzed all signals in this sector. Recalibrate your range or switch protocols to find new matches.
           </p>
 
@@ -176,7 +182,7 @@ export const SwipeExhaustedState = ({
                   triggerHaptic('heavy');
                   resetMutation.mutate(activeCategory as any || 'all');
                 }}
-                className="flex-1 h-16 rounded-[1.8rem] bg-white/5 hover:bg-white/10 border-white/10 text-white font-black uppercase italic tracking-widest transition-all active:scale-95"
+                className={cn("flex-1 h-16 rounded-[1.8rem] border font-black uppercase italic tracking-widest transition-all active:scale-95", isLight ? "bg-black/5 hover:bg-black/10 border-black/10 text-black" : "bg-white/5 hover:bg-white/10 border-white/10 text-white")}
               >
                 <RotateCcw className={cn("mr-2 w-5 h-5 text-orange-400", resetMutation.isPending && "animate-spin")} />
                 Reset
@@ -188,7 +194,7 @@ export const SwipeExhaustedState = ({
                   triggerHaptic('medium');
                   (window as any).dispatchEvent(new CustomEvent('open-filters'));
                 }}
-                className="w-16 h-16 rounded-[1.8rem] bg-white/5 hover:bg-white/10 border-white/10 flex items-center justify-center p-0 shadow-2xl transition-all active:scale-95"
+                className={cn("w-16 h-16 rounded-[1.8rem] border flex items-center justify-center p-0 shadow-2xl transition-all active:scale-95", isLight ? "bg-black/5 hover:bg-black/10 border-black/10" : "bg-white/5 hover:bg-white/10 border-white/10")}
               >
                 <SlidersHorizontal className="h-5 w-5 text-primary" />
               </Button>
@@ -197,7 +203,7 @@ export const SwipeExhaustedState = ({
         </div>
 
         <div className="absolute bottom-12 left-0 right-0 flex justify-center opacity-20 pointer-events-none">
-          <p className="text-[8px] font-black uppercase tracking-[0.6em] italic">Sector Scan Logic Verified</p>
+          <p className={cn("text-[8px] font-black uppercase tracking-[0.6em] italic", isLight ? "text-black/60" : "text-white")}>Sector Scan Logic Verified</p>
         </div>
       </motion.div>
     </AnimatePresence>
