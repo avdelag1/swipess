@@ -110,12 +110,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   }, [isCameraRoute, isRadioRoute, showAIChat]);
 
   const handleFilterClick = () => {
-    const isOwner = location.pathname.includes('/owner/');
-    if (isOwner) {
-      window.dispatchEvent(new CustomEvent('open-owner-filters'));
-      return;
-    }
-    const role = user?.user_metadata?.role === 'admin' ? 'admin' : activeMode;
+    const role = userRole === 'admin' ? 'admin' : activeMode;
     navigate(`/${role}/filters`);
   };
 
@@ -157,7 +152,7 @@ export function AppLayout({ children }: AppLayoutProps) {
         id="main-content"
         className={cn(
           "w-full flex-1 relative z-0 flex flex-col",
-          isFullScreen && "h-screen overflow-hidden fixed inset-0"
+          (isFullScreen && !location.pathname.includes('/owner/')) && "h-screen overflow-hidden fixed inset-0"
         )}
       >
         <div className="w-full flex-1 flex flex-col">

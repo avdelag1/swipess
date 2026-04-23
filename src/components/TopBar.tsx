@@ -89,7 +89,7 @@ function TopBarComponent({
         height: 'calc(var(--top-bar-height) + var(--safe-top))'
       }}
     >
-      <div className="h-full w-full max-w-[440px] mx-auto px-4 flex items-center justify-between relative">
+      <div className="h-full w-full px-4 flex items-center justify-between relative">
         
         <div className="flex items-center gap-2">
           {onBack ? (
@@ -110,7 +110,7 @@ function TopBarComponent({
                   haptics.tap();
                   navigate(isOwner ? '/owner/profile' : '/client/profile');
                 }}
-                className="flex shrink-0 items-center gap-2 px-2.5 py-1.5 rounded-full max-w-[120px]"
+                className="flex shrink-0 items-center gap-2 px-3 py-2 rounded-full"
                 style={glassPillStyle}
               >
                 <div className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center shrink-0">
@@ -136,7 +136,7 @@ function TopBarComponent({
         <div className="flex-1" />
 
         {/* RIGHT CLUSTER: Individual Action Pills */}
-        <div className="flex shrink-0 items-center gap-1 sm:gap-2">
+        <div className="flex shrink-0 items-center gap-2 sm:gap-3">
           {!minimal && (
             <>
               <motion.button

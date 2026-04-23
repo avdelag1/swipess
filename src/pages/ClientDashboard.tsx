@@ -13,8 +13,6 @@ import useAppTheme from '@/hooks/useAppTheme';
 import { useSmartListingMatching } from '@/hooks/smartMatching/useSmartListingMatching';
 import { useAuth } from '@/hooks/useAuth';
 
-const DiscoveryMapView = lazy(() => import('@/components/swipe/DiscoveryMapView'));
-
 const DiscoveryMapLoading = lazy(() => import('@/components/swipe/DiscoveryMapLoading'));
 
 interface ClientDashboardProps {
@@ -31,8 +29,8 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
   const { user } = useAuth();
   const { setActiveCategory } = useFilterActions();
 
-  // Phase state: 'cards' | 'map' | 'swipe'
-  const [phase, setPhase] = useState<'cards' | 'map' | 'swipe'>(activeCategory ? 'map' : 'cards');
+  // Phase state: 'cards' | 'swipe'
+  const [phase, setPhase] = useState<'cards' | 'swipe'>(activeCategory ? 'swipe' : 'cards');
   const [selectedCategory, setSelectedCategory] = useState<QuickFilterCategory | null>(activeCategory as QuickFilterCategory);
   const [showFilters, setShowFilters] = useState(false);
 
@@ -59,10 +57,9 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
     return () => window.removeEventListener('open-client-filters', handleOpenFilters);
   }, []);
 
-  // 🛰️ DISCOVERY SYNC: If active category is cleared elsewhere (e.g. via 'Back' button in container), 
-  // revert phase to 'cards' to show the Poker Fan.
+  // 🛰️ DISCOVERY SYNC: If active category is cleared elsewhere
   useEffect(() => {
-    if (!activeCategory && (phase === 'map' || phase === 'swipe')) {
+    if (!activeCategory && phase === 'swipe') {
       setPhase('cards');
       setSelectedCategory(null);
     }
@@ -93,9 +90,7 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
   }, [handleStartSwiping]);
 
   // Determine what to show based on phase + store state. 
-  // We MUST be strictly exclusive to avoid "ghost designs" appearing behind.
   const showCards = phase === 'cards' && !activeCategory;
-  const showMap = phase === 'map' && !!activeCategory;
   const showSwipe = phase === 'swipe' && !!activeCategory;
 
   return (
@@ -133,35 +128,7 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
           </motion.div>
         )}
 
-        {showMap && selectedCategory && (
-          <motion.div
-            key={`map-${selectedCategory}`}
-            initial={{ y: '100%', opacity: 0.5 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: '100%', opacity: 0 }}
-            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-            className={cn(
-              "fixed inset-0 z-[10002] flex flex-col overflow-hidden backdrop-blur-2xl rounded-t-[3rem] shadow-[0_-20px_100px_rgba(0,0,0,0.3)]",
-              isLight ? "bg-white/90" : "bg-black/90"
-            )}
-            style={{ willChange: 'transform, opacity' }}
-          >
-            {/* Apple Style Grabber */}
-            <div className="absolute top-3 left-1/2 -translate-x-1/2 w-12 h-1.5 bg-white/20 rounded-full z-[10002]" />
-            
-            <Suspense fallback={<DiscoveryMapLoading isLight={isLight} />}>
-              <DiscoveryMapView 
-                category={selectedCategory} 
-                onBack={handleMapBack}
-                onStartSwiping={handleStartSwiping}
-                onCategoryChange={(cat) => {
-                  setSelectedCategory(cat);
-                  setActiveCategory(cat);
-                }}
-              />
-            </Suspense>
-          </motion.div>
-        )}
+
 
         {showSwipe && (
           <motion.div
