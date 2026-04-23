@@ -20,7 +20,7 @@ import { triggerHaptic } from '@/utils/haptics';
 import useAppTheme from '@/hooks/useAppTheme';
 import { cn } from '@/lib/utils';
 import { useActiveMode } from '@/hooks/useActiveMode';
-import { ArrowLeft, Lock, ShieldCheck, Database, Eye, Globe } from "lucide-react";
+import { ArrowLeft, ShieldCheck, Database, Eye, Globe, UserCheck, User } from "lucide-react";
 
 interface LegalIssueCategory {
   id: string;

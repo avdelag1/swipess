@@ -40,6 +40,7 @@ function ModeSwitcherComponent({ className, size = 'sm' }: ModeSwitcherProps) {
     borderRadius: '1rem',
     border: isActive ? `1.5px solid ${color}` : '1px solid var(--hud-border)',
     boxShadow: isActive ? `0 0 20px ${color}30` : '0 4px 12px rgba(0,0,0,0.05)',
+    pointerEvents: 'auto' as const,
   });
 
   return (
@@ -47,7 +48,11 @@ function ModeSwitcherComponent({ className, size = 'sm' }: ModeSwitcherProps) {
       <motion.button
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.9 }}
-        onClick={() => handleModeSwitch('client')}
+        onPointerDown={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          handleModeSwitch('client');
+        }}
         disabled={!canSwitchMode || isSwitching}
         className={cn(
           "w-11 h-11 flex items-center justify-center transition-all duration-300 relative rounded-2xl",
@@ -62,7 +67,11 @@ function ModeSwitcherComponent({ className, size = 'sm' }: ModeSwitcherProps) {
       <motion.button
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.9 }}
-        onClick={() => handleModeSwitch('owner')}
+        onPointerDown={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          handleModeSwitch('owner');
+        }}
         disabled={!canSwitchMode || isSwitching}
         className={cn(
           "w-11 h-11 flex items-center justify-center transition-all duration-300 relative rounded-2xl",

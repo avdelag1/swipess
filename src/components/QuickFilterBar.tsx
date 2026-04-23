@@ -279,7 +279,9 @@ function QuickFilterBarComponent({ filters, onChange, onSelect, className, userR
               return (
                 <button
                   key={option.originalId}
-                  onClick={() => {
+                  onPointerDown={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
                     if (onSelect) {
                       onSelect(option.id as any);
                     } else {
@@ -304,8 +306,8 @@ function QuickFilterBarComponent({ filters, onChange, onSelect, className, userR
                     <div className={cn(
                       "absolute inset-0 z-10 transition-colors duration-300",
                       isActive 
-                        ? "bg-black/40" 
-                        : "bg-black/60 group-hover:bg-black/50"
+                        ? "bg-black/50" 
+                        : "bg-black/75 group-hover:bg-black/65"
                     )} />
                 <QuickFilterImage 
                   src={option.image} 
@@ -367,7 +369,9 @@ function QuickFilterBarComponent({ filters, onChange, onSelect, className, userR
         <div className="flex items-center justify-center gap-4 overflow-x-auto scrollbar-hide pb-4 stagger-enter" style={{ willChange: 'scroll-position' }}>
           {/* ALL card */}
           <button
-            onClick={() => {
+            onPointerDown={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
               saveQuickFilter([]);
               onChange({ ...filters, categories: [], listingType: 'both' });
             }}
@@ -383,8 +387,8 @@ function QuickFilterBarComponent({ filters, onChange, onSelect, className, userR
             <div className={cn(
               "absolute inset-0 z-10 transition-colors duration-300",
               clientIsAllSelected 
-                ? "bg-black/40" 
-                : "bg-black/60 group-hover:bg-black/50"
+                ? "bg-black/50" 
+                : "bg-black/75 group-hover:bg-black/65"
             )} />
             <QuickFilterImage 
               src={POKER_CARD_PHOTOS['all-clients'] || '/images/filters/all.png'} 
@@ -412,7 +416,11 @@ function QuickFilterBarComponent({ filters, onChange, onSelect, className, userR
             return (
               <button
                 key={category.id}
-                onClick={() => handleCategorySelect(category.id)}
+                onPointerDown={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleCategorySelect(category.id);
+                }}
                 className={cn(
                   smoothButtonClass, 
                   'relative flex-shrink-0 w-28 h-40 rounded-[2.2rem] overflow-hidden border transition-all duration-200 group',
@@ -425,8 +433,8 @@ function QuickFilterBarComponent({ filters, onChange, onSelect, className, userR
                 <div className={cn(
                   "absolute inset-0 z-10 transition-colors duration-300",
                   isActive 
-                    ? "bg-black/40" 
-                    : "bg-black/60 group-hover:bg-black/50"
+                    ? "bg-black/50" 
+                    : "bg-black/75 group-hover:bg-black/65"
                 )} />
                 <QuickFilterImage 
                   src={photo} 

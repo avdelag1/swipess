@@ -38,8 +38,11 @@ function ThemeToggleComponent({ className, glassPillStyle }: ThemeToggleProps) {
 
     return (
         <button
-            onPointerDown={(e) => e.stopPropagation()}
-            onClick={handleToggle}
+            onPointerDown={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleToggle(e as any);
+            }}
             className={cn(
                 'relative flex items-center justify-center rounded-full',
                 'transition-all duration-100 ease-out active:scale-[0.9]',
