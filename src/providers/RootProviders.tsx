@@ -189,7 +189,7 @@ function AuthReadySignal() {
     // This ensures the user sees the "Searching" UI immediately while Auth hydrates.
     const safetyTimer = setTimeout(() => {
       window.dispatchEvent(new CustomEvent('app-rendered'));
-    }, 800);
+    }, 400);
 
     if (initialized) {
       (window as any).__APP_INITIALIZED__ = true;

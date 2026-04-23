@@ -146,7 +146,7 @@
       if (loader && loader.parentNode) loader.remove();
       if (ss && ss.parentNode) ss.remove();
     }
-    var mountTimer = setTimeout(removeSplash, 900);
+    var mountTimer = setTimeout(removeSplash, 400);
     window.addEventListener('app-rendered', function() {
       window.__APP_INITIALIZED__ = true;
       clearTimeout(mountTimer);
