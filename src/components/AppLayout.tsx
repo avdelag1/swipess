@@ -79,6 +79,10 @@ export function AppLayout({ children }: AppLayoutProps) {
     const recover = () => window.dispatchEvent(new CustomEvent('sentient-ui-recovery'));
     recover();
     const frame = requestAnimationFrame(recover);
+    
+    // 🚀 DISPATCH RENDER READY: Notifies index.html to remove splash screen
+    window.dispatchEvent(new CustomEvent('app-rendered'));
+    
     return () => cancelAnimationFrame(frame);
   }, [location.pathname]);
 

@@ -146,11 +146,12 @@
       if (loader && loader.parentNode) loader.remove();
       if (ss && ss.parentNode) ss.remove();
     }
-    var mountTimer = setTimeout(removeSplash, 400);
+    var mountTimer = setTimeout(removeSplash, 4000);
     window.addEventListener('app-rendered', function() {
       window.__APP_INITIALIZED__ = true;
       clearTimeout(mountTimer);
-      removeSplash();
+      // Slight delay for smooth transition
+      setTimeout(removeSplash, 100);
     });
     // Dynamic theme-color: sync status bar with app theme
     (function(){

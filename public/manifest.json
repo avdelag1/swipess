@@ -9,7 +9,7 @@
   "background_color": "#000000",
   "theme_color": "#000000",
   "orientation": "portrait-primary",
-  "id": "com.swipess.app.v4",
+  "id": "com.swipess.app.v5",
   "prefer_related_applications": false,
   "icons": [
     { "src": "/icons/icon-16.png",  "sizes": "16x16",     "type": "image/png", "purpose": "any" },
