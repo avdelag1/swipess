@@ -190,42 +190,18 @@ export const LocationRadiusSelector = ({
     ctx.fillStyle = isLight ? '#f1f5f9' : '#0a0a0b';
     ctx.fillRect(0, 0, w, h);
     
-    if (!isLight) {
+    if (isLight) {
         ctx.strokeStyle = 'rgba(59,130,246,0.1)';
+        ctx.lineWidth = 0.5;
+        for(let i=0; i<w; i+=40) { ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, h); ctx.stroke(); }
+        for(let j=0; j<h; j+=40) { ctx.beginPath(); ctx.moveTo(0, j); ctx.lineTo(w, j); ctx.stroke(); }
+    } else {
+        ctx.strokeStyle = 'rgba(59,130,246,0.15)';
         ctx.lineWidth = 0.5;
         for(let i=0; i<w; i+=40) { ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, h); ctx.stroke(); }
         for(let j=0; j<h; j+=40) { ctx.beginPath(); ctx.moveTo(0, j); ctx.lineTo(w, j); ctx.stroke(); }
     }
 
-    const tilesX = Math.ceil(w / 256) + 2;
-    const tilesY = Math.ceil(h / 256) + 2;
-    const startDx = -Math.ceil(tilesX / 2);
-    const startDy = -Math.ceil(tilesY / 2);
-
-    for (let dx = startDx; dx < startDx + tilesX; dx++) {
-      for (let dy = startDy; dy < startDy + tilesY; dy++) {
-        const tx = centerTileX + dx;
-        const ty = centerTileY + dy;
-        const key = `${tx}-${ty}-${zoom}`;
-        const drawSingleTile = (img: HTMLImageElement) => {
-            const drawX = w / 2 - offsetX + dx * 256;
-            const drawY = h / 2 - offsetY + dy * 256;
-            ctx.drawImage(img, drawX, drawY, 256, 256);
-            drawOverlay();
-        };
-        if (TILE_CACHE[key]) {
-            drawSingleTile(TILE_CACHE[key]);
-        } else {
-            const img = new Image();
-            img.crossOrigin = 'anonymous';
-            img.onload = () => {
-                TILE_CACHE[key] = img;
-                drawSingleTile(img);
-            };
-            img.src = tileUrl(tx, ty, zoom);
-        }
-      }
-    }
     drawOverlay();
   }, [effectiveCenter, zoom, radiusPx, isLight, mapSize]);
 

@@ -117,7 +117,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
     
     setCategories([cat]);
     setActiveCategory(cat);
-    setPhase('map'); 
+    setPhase('swipe'); 
     
     if (card.clientType) setClientType(card.clientType as any);
     if (card.listingType) setListingType(card.listingType as any);

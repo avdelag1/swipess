@@ -71,7 +71,7 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
   const handleLaunch = useCallback((category: QuickFilterCategory) => {
     setSelectedCategory(category);
     setActiveCategory(category);
-    setPhase('map'); // Start with the radar map
+    setPhase('swipe'); // Go directly to swiping, bypassing the map
   }, [setActiveCategory]);
 
   const handleMapBack = useCallback(() => {
