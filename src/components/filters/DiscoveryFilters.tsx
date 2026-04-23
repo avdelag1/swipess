@@ -317,7 +317,7 @@ export function DiscoveryFilters({ category, onApply, initialFilters = {}, activ
                   selectedBudgetRange === range.value
                     ? "bg-primary text-white border-primary shadow-xl shadow-primary/30 scale-[1.02]" 
                     : isLight 
-                      ? "bg-slate-100 border-slate-200 text-slate-900 font-black hover:bg-slate-200" 
+                      ? "bg-white/80 border-black/10 text-black shadow-sm backdrop-blur-md hover:bg-black/5" 
                       : "bg-white/5 text-white border-white/10 hover:bg-white/10"
                 )}
             >
@@ -356,7 +356,7 @@ export function DiscoveryFilters({ category, onApply, initialFilters = {}, activ
                            bedrooms === n 
                              ? "bg-primary text-white border-primary shadow-xl scale-110" 
                              : isLight 
-                               ? "bg-slate-100 border-slate-200 text-slate-900 hover:bg-slate-200 font-black"
+                               ? "bg-white/80 border-black/10 text-black shadow-sm backdrop-blur-md hover:bg-black/5"
                                : "bg-white/5 border-white/10 text-muted-foreground"
                          )}
                        >
@@ -382,7 +382,7 @@ export function DiscoveryFilters({ category, onApply, initialFilters = {}, activ
                            bathrooms === n 
                              ? "bg-primary text-white border-primary shadow-xl scale-110" 
                              : isLight 
-                               ? "bg-slate-100 border-slate-200 text-slate-900 hover:bg-slate-200 font-black"
+                               ? "bg-white/80 border-black/10 text-black shadow-sm backdrop-blur-md hover:bg-black/5"
                                : "bg-white/5 border-white/10 text-muted-foreground"
                          )}
                        >
@@ -443,7 +443,7 @@ export function DiscoveryFilters({ category, onApply, initialFilters = {}, activ
                     serviceTypes.includes(type.value)
                       ? "bg-primary text-white border-primary shadow-lg shadow-primary/20"
                       : isLight 
-                        ? "bg-black/[0.06] text-black/90 border-black/10 hover:bg-black/[0.12] font-black" 
+                        ? "bg-white/80 border-black/10 text-black shadow-sm backdrop-blur-md hover:bg-black/5" 
                         : "bg-muted/30 text-muted-foreground border-white/5 hover:bg-muted/50"
                   )}
                 >

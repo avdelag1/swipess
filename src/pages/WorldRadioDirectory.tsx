@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { QuickFilterImage } from '@/components/ui/QuickFilterImage';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useRadio } from '@/contexts/RadioContext';
@@ -103,7 +104,9 @@ export default function WorldRadioDirectory() {
               "px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest shrink-0 transition-all border",
               selectedCity === 'all'
                 ? "bg-primary text-black border-primary shadow-lg shadow-primary/20"
-                : "bg-white/5 border-white/5 text-white/40 hover:border-white/20"
+                : isDark 
+                  ? "bg-white/5 border-white/5 text-white/40 hover:border-white/20"
+                  : "bg-black/5 border-black/5 text-black/40 hover:border-black/10"
             )}
           >
             All Cities
@@ -115,8 +118,10 @@ export default function WorldRadioDirectory() {
               className={cn(
                 "px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest shrink-0 transition-all border",
                 selectedCity === city.id
-                  ? "bg-white text-black border-white shadow-lg"
-                  : "bg-white/5 border-white/5 text-white/40 hover:border-white/20"
+                  ? (isDark ? "bg-white text-black border-white" : "bg-black text-white border-black") + " shadow-lg"
+                  : isDark 
+                    ? "bg-white/5 border-white/5 text-white/40 hover:border-white/20"
+                    : "bg-black/5 border-black/5 text-black/40 hover:border-black/10"
               )}
             >
               {city.name}
@@ -146,8 +151,10 @@ export default function WorldRadioDirectory() {
                   variants={itemAnim}
                   exit={{ opacity: 0, scale: 0.95 }}
                   className={cn(
-                    "group relative overflow-hidden rounded-[2.5rem] p-5 border border-white/5 transition-all duration-500",
-                    isPlaying ? "bg-white/10" : "bg-white/[0.03] hover:bg-white/[0.06]"
+                    "group relative overflow-hidden rounded-[2.5rem] p-5 border transition-all duration-500",
+                    isPlaying 
+                      ? (isDark ? "bg-white/10 border-white/20" : "bg-black/10 border-black/20")
+                      : (isDark ? "bg-white/[0.03] border-white/5 hover:bg-white/[0.06]" : "bg-black/[0.03] border-black/5 hover:bg-black/[0.06]")
                   )}
                 >
                   <div 
@@ -157,7 +164,17 @@ export default function WorldRadioDirectory() {
 
                   <div className="relative z-10 flex items-center gap-5">
                     <div className="relative w-20 h-20 shrink-0">
-                      <div className="absolute inset-0 bg-black/20 rounded-3xl backdrop-blur-xl border border-white/10" />
+                      <div className="absolute inset-0 bg-black/20 rounded-3xl backdrop-blur-xl border border-white/10 overflow-hidden">
+                        {station.albumArt ? (
+                          <QuickFilterImage 
+                            src={station.albumArt} 
+                            alt={station.name}
+                            className="opacity-60 group-hover:opacity-80 transition-opacity"
+                          />
+                        ) : (
+                          <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-white/10" />
+                        )}
+                      </div>
                       <div className="absolute inset-0 flex items-center justify-center">
                         {isPlaying ? (
                           <div className="flex items-end gap-1 h-6">
@@ -172,7 +189,11 @@ export default function WorldRadioDirectory() {
                             ))}
                           </div>
                         ) : (
-                          <Radio size={32} className="text-white/20" />
+                          !station.albumArt && (
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <Radio size={32} className="text-white/20 animate-pulse" />
+                            </div>
+                          )
                         )}
                       </div>
                       
@@ -186,7 +207,10 @@ export default function WorldRadioDirectory() {
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="px-1.5 py-0.5 rounded-md bg-white/10 text-[9px] font-black text-white/60 border border-white/10">
+                        <span className={cn(
+                          "px-1.5 py-0.5 rounded-md text-[9px] font-black border transition-colors",
+                          isDark ? "bg-white/10 text-white/60 border-white/10" : "bg-black/5 text-black/60 border-black/10"
+                        )}>
                           {station.frequency}
                         </span>
                         <h3 className="font-black text-lg tracking-tighter italic uppercase truncate">

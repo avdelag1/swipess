@@ -137,7 +137,7 @@ function FilterDropdown({
           isActive
             ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20 scale-[1.02]'
             : isLight 
-              ? 'bg-black text-white border-black hover:bg-black/80' 
+              ? 'bg-white/80 border-black/10 text-black shadow-sm backdrop-blur-md hover:bg-black/5' 
               : 'bg-white text-black border-white hover:bg-white/80'
         )}
       >

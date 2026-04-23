@@ -14,11 +14,18 @@ interface QuickFilterImageProps {
  */
 export function QuickFilterImage({ src, alt, className }: QuickFilterImageProps) {
   const [isReady, setIsReady] = useState(false);
+  const [hasError, setHasError] = useState(false);
   const imgRef = useRef<HTMLImageElement>(null);
 
   useEffect(() => {
-    if (!src) return;
+    if (!src) {
+      setHasError(true);
+      return;
+    }
     
+    setHasError(false);
+    setIsReady(false);
+
     // Check if already cached by SpeedOfLightPreloader
     if ((window as any).__Swipess_cache?.[src]) {
       setIsReady(true);
@@ -34,37 +41,51 @@ export function QuickFilterImage({ src, alt, className }: QuickFilterImageProps)
         (window as any).__Swipess_cache[src] = true;
       })
       .catch(() => {
+        // Even if decode fails, we might still be able to show it
+        // but we'll let the img tag's onError handle the actual "broken" state
         setIsReady(true);
       });
   }, [src]);
 
   return (
     <>
-      {/* Gradient placeholder */}
+      {/* Gradient placeholder / Fallback */}
       <div 
         className={cn(
-          "absolute inset-0 bg-gradient-to-br from-muted via-muted/80 to-muted/60 transition-opacity duration-500",
-          isReady ? "opacity-0" : "opacity-100"
+          "absolute inset-0 transition-opacity duration-500",
+          hasError 
+            ? "bg-slate-800 opacity-100" 
+            : (isReady ? "opacity-0" : "bg-gradient-to-br from-muted via-muted/80 to-muted/60 opacity-100")
         )} 
-      />
-      {/* Actual image — slides in after decode, breathing starts immediately */}
-      <img
-        ref={imgRef}
-        src={src}
-        alt={alt}
-        loading="eager"
-        decoding="async"
-        className={cn(
-          "absolute inset-0 w-full h-full object-cover",
-          isReady ? "animate-photo-slide-in" : "opacity-0",
-          className
+      >
+        {hasError && (
+          <div className="absolute inset-0 flex items-center justify-center opacity-20">
+            <div className="w-12 h-12 rounded-full border-2 border-white/20" />
+          </div>
         )}
-        style={{ 
-          animation: isReady 
-            ? 'photo-slide-in 0.4s cubic-bezier(0.2,0,0,1) forwards, photo-swim 14s ease-in-out 0.4s infinite' 
-            : 'none' 
-        }}
-      />
+      </div>
+
+      {/* Actual image — slides in after decode, breathing starts immediately */}
+      {!hasError && (
+        <img
+          ref={imgRef}
+          src={src}
+          alt={alt}
+          loading="eager"
+          decoding="async"
+          onError={() => setHasError(true)}
+          className={cn(
+            "absolute inset-0 w-full h-full object-cover",
+            isReady ? "animate-photo-slide-in" : "opacity-0",
+            className
+          )}
+          style={{ 
+            animation: isReady 
+              ? 'photo-slide-in 0.4s cubic-bezier(0.2,0,0,1) forwards, photo-swim 14s ease-in-out 0.4s infinite' 
+              : 'none' 
+          }}
+        />
+      )}
     </>
   );
 }

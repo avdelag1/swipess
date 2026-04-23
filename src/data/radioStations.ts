@@ -153,7 +153,8 @@ export const radioStations: RadioStation[] = [
     streamUrl: 'https://ice1.somafm.com/beatblender-128-mp3',
     city: 'miami',
     genre: 'Deep House',
-    description: 'Ultra-lux house vibes'
+    description: 'Ultra-lux house vibes',
+    albumArt: 'https://images.unsplash.com/photo-1571330735066-03aaa9429d89?auto=format&fit=crop&q=80&w=400'
   },
   {
     id: 'miami-2',
@@ -162,7 +163,8 @@ export const radioStations: RadioStation[] = [
     streamUrl: 'https://ice1.somafm.com/sf1033-128-mp3',
     city: 'miami',
     genre: 'EDM',
-    description: 'Miami Electronic Music'
+    description: 'Miami Electronic Music',
+    albumArt: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&q=80&w=400'
   },
   {
     id: 'miami-3',
@@ -171,7 +173,8 @@ export const radioStations: RadioStation[] = [
     streamUrl: 'https://ice1.somafm.com/groovesalad-128-mp3',
     city: 'miami',
     genre: 'Chillout',
-    description: 'Downtempo Beats'
+    description: 'Downtempo Beats',
+    albumArt: 'https://images.unsplash.com/photo-1514525253344-f81bad00a926?auto=format&fit=crop&q=80&w=400'
   },
   {
     id: 'miami-4',
@@ -180,7 +183,8 @@ export const radioStations: RadioStation[] = [
     streamUrl: 'https://ice1.somafm.com/lush-128-mp3',
     city: 'miami',
     genre: 'Downtempo',
-    description: 'Tropical Rhythms'
+    description: 'Tropical Rhythms',
+    albumArt: 'https://images.unsplash.com/photo-1493225255756-d9584f8606e9?auto=format&fit=crop&q=80&w=400'
   },
   {
     id: 'miami-5',
@@ -254,7 +258,8 @@ export const radioStations: RadioStation[] = [
     streamUrl: 'https://ice1.somafm.com/sonicuniverse-128-mp3',
     city: 'new-york',
     genre: 'Jazz',
-    description: 'Real NY Jazz'
+    description: 'Real NY Jazz',
+    albumArt: 'https://images.unsplash.com/photo-1511192336575-5a79af67a629?auto=format&fit=crop&q=80&w=400'
   },
   {
     id: 'ny-3',
@@ -263,7 +268,8 @@ export const radioStations: RadioStation[] = [
     streamUrl: 'https://ice1.somafm.com/seven-128-mp3',
     city: 'new-york',
     genre: '70s Pop',
-    description: 'Classic NY'
+    description: 'Classic NY',
+    albumArt: 'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?auto=format&fit=crop&q=80&w=400'
   },
   {
     id: 'ny-4',
@@ -337,7 +343,8 @@ export const radioStations: RadioStation[] = [
     streamUrl: 'https://ice1.somafm.com/cliqhop-128-mp3',
     city: 'ibiza',
     genre: 'Electronic',
-    description: 'The Soul of Ibiza'
+    description: 'The Soul of Ibiza',
+    albumArt: 'https://images.unsplash.com/photo-1571330735066-03aaa9429d89?auto=format&fit=crop&q=80&w=400'
   },
   {
     id: 'ibiza-2',
@@ -346,7 +353,8 @@ export const radioStations: RadioStation[] = [
     streamUrl: 'https://ice1.somafm.com/beatblender-128-mp3',
     city: 'ibiza',
     genre: 'House',
-    description: 'Deep Vibes'
+    description: 'Deep Vibes',
+    albumArt: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&q=80&w=400'
   },
   {
     id: 'ibiza-3',
@@ -355,7 +363,8 @@ export const radioStations: RadioStation[] = [
     streamUrl: 'https://ice1.somafm.com/dronezone-128-mp3',
     city: 'ibiza',
     genre: 'Chill',
-    description: 'Beach Club'
+    description: 'Beach Club',
+    albumArt: 'https://images.unsplash.com/photo-1514525253344-f81bad00a926?auto=format&fit=crop&q=80&w=400'
   },
   {
     id: 'ibiza-4',
@@ -429,7 +438,8 @@ export const radioStations: RadioStation[] = [
     streamUrl: 'https://ice1.somafm.com/groovesalad-128-mp3',
     city: 'tulum',
     genre: 'Deep House',
-    description: 'Sunset & Jungle beats'
+    description: 'Sunset & Jungle beats',
+    albumArt: 'https://images.unsplash.com/photo-1493225255756-d9584f8606e9?auto=format&fit=crop&q=80&w=400'
   },
   {
     id: 'tulum-2',
@@ -438,7 +448,8 @@ export const radioStations: RadioStation[] = [
     streamUrl: 'https://ice1.somafm.com/lush-128-mp3',
     city: 'tulum',
     genre: 'Chillout',
-    description: 'Vocal Bliss'
+    description: 'Vocal Bliss',
+    albumArt: 'https://images.unsplash.com/photo-1454486326920-d4443bc37478?auto=format&fit=crop&q=80&w=400'
   },
   {
     id: 'tulum-3',

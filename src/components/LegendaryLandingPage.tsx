@@ -84,7 +84,24 @@ const LandingView = memo(({
 
 
       <motion.div
-        className="mt-12 flex flex-col items-center gap-4 w-full max-w-[320px]"
+        className="mb-16"
+        initial={{ opacity: 0, scale: 0.8, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ delay: 0.2, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+      >
+        <SwipessLogo size="7xl" variant="transparent" />
+        <motion.p 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 0.4 }}
+          transition={{ delay: 1 }}
+          className="text-[10px] font-black uppercase tracking-[0.8em] mt-6 text-white italic"
+        >
+          Flagship Matrix
+        </motion.p>
+      </motion.div>
+
+      <motion.div
+        className="flex flex-col items-center gap-4 w-full max-w-[320px]"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5, duration: 0.6 }}
@@ -230,8 +247,8 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
           <ArrowLeft className="w-5 h-5" />
         </button>
 
-        <div className="text-center mb-2 pt-2">
-          {/* Logo removed from here to appear globally in the header */}
+        <div className="text-center mb-6 pt-6 flex flex-col items-center">
+          <SwipessLogo size="lg" variant="transparent" className="mb-4" />
 
           {isForgotPassword ? (
             <>
@@ -492,9 +509,7 @@ function LegendaryLandingPage() {
         <LandingBackgroundEffects mode={view === 'auth' ? 'off' : 'stars'} isLightTheme={false} />
       </div>
 
-      <div className="absolute top-10 left-1/2 -translate-x-1/2 z-40">
-        <SwipessLogo size="xl" variant="transparent" />
-      </div>
+
 
       <AnimatePresence mode="wait">
         {view === 'landing' ? (

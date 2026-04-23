@@ -7,6 +7,7 @@ import { triggerHaptic } from '@/utils/haptics';
 import { uiSounds } from '@/utils/uiSounds';
 import { prefetchRoute } from '@/utils/routePrefetcher';
 import { useFilterStore } from '@/state/filterStore';
+import useAppTheme from '@/hooks/useAppTheme';
 
 interface ModeSwitcherProps {
   className?: string;
@@ -16,6 +17,7 @@ interface ModeSwitcherProps {
 
 function ModeSwitcherComponent({ className, size = 'sm' }: ModeSwitcherProps) {
   const { activeMode, isSwitching, switchMode, canSwitchMode } = useActiveMode();
+  const { isLight } = useAppTheme();
   const resetClientFilters = useFilterStore((state) => state.resetClientFilters);
   const resetOwnerFilters = useFilterStore((state) => state.resetOwnerFilters);
 

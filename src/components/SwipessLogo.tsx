@@ -2,7 +2,7 @@ import { memo } from 'react';
 import { cn } from '@/lib/utils';
 
 interface SwipessLogoProps {
-  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl';
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | '5xl' | '6xl' | '7xl' | '8xl';
   className?: string;
   variant?: 'white' | 'black' | 'outline' | 'gradient' | 'icon' | 'transparent';
 }
@@ -16,6 +16,10 @@ const sizeMap = {
   '2xl': 'h-28',
   '3xl': 'h-36',
   '4xl': 'h-44',
+  '5xl': 'h-56',
+  '6xl': 'h-72',
+  '7xl': 'h-[450px]',
+  '8xl': 'h-[580px]',
 };
 
 function SwipessLogoComponent({

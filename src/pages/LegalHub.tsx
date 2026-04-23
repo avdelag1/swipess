@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { QuickFilterImage } from '@/components/ui/QuickFilterImage';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -223,12 +224,31 @@ const LegalHub = () => {
              title={isOwner ? "OWNER LEGAL HUB" : "TENANT LEGAL HUB"} 
              showBack={true} 
            />
-           <div className="flex flex-col gap-1 px-1">
-             <p className={cn("text-[11px] font-black uppercase tracking-[0.3em] italic opacity-40 leading-relaxed", isLight ? "text-black" : "text-white")}>
-               Professional Legal Authority Matrix v15.0
-             </p>
-             
-             {/* 🛸 AUTHORIZATION STATUS */}
+            <div className="flex flex-col gap-1 px-1">
+              <p className={cn("text-[11px] font-black uppercase tracking-[0.3em] italic opacity-40 leading-relaxed", isLight ? "text-black" : "text-white")}>
+                Professional Legal Authority Matrix v15.0
+              </p>
+              
+              {/* 🛸 LEGAL HERO VISUAL */}
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.98 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="mt-8 relative w-full h-48 rounded-[3rem] overflow-hidden border border-white/10 shadow-2xl"
+              >
+                <QuickFilterImage 
+                  src="/images/filters/owner_lawyer_card.png" 
+                  alt="Legal Authority"
+                  className="opacity-60"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-8">
+                  <div className="flex items-center gap-3">
+                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white/60">Live Legal Protocol Active</span>
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* 🛸 AUTHORIZATION STATUS */}
              <motion.div 
                initial={{ opacity: 0, y: 10 }}
                animate={{ opacity: 1, y: 0 }}
@@ -355,12 +375,17 @@ const LegalHub = () => {
 
                 <div className={cn("rounded-[2.8rem] overflow-hidden border shadow-3xl", isLight ? "bg-black/5 border-black/5" : "bg-white/[0.04] border-white/5")}>
                   <ScrollArea className="max-h-[500px]">
-                    <div className="divide-y divide-white/5">
+                    <div className={cn("divide-y", isLight ? "divide-black/10" : "divide-white/5")}>
                       {categories.map((category) => (
                         <div key={category.id}>
                           <button
                             onClick={() => handleCategoryClick(category.id)}
-                            className={cn("w-full p-8 flex items-center gap-6 transition-all text-left group hover:bg-white/[0.02]", expandedCategory === category.id && "bg-white/[0.02]")}
+                            className={cn(
+                              "w-full p-8 flex items-center gap-6 transition-all text-left group",
+                              expandedCategory === category.id 
+                                ? (isLight ? "bg-black/5" : "bg-white/[0.04]") 
+                                : (isLight ? "hover:bg-black/[0.02]" : "hover:bg-white/[0.02]")
+                            )}
                           >
                             <div className={cn(
                               "w-14 h-14 rounded-[1.2rem] flex items-center justify-center shrink-0 border shadow-xl group-hover:scale-110 transition-transform",
@@ -570,7 +595,7 @@ const LegalHub = () => {
                         </div>
                         <ChevronRight className="w-5 h-5 opacity-20" />
                       </button>
-                      {idx < arr.length - 1 && <div className="h-[1px] w-full bg-white/5" />}
+                      {idx < arr.length - 1 && <div className={cn("h-[1px] w-full", isLight ? "bg-black/10" : "bg-white/5")} />}
                     </div>
                   ))}
                 </div>
