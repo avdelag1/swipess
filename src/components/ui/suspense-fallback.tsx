@@ -50,9 +50,8 @@ export function SuspenseFallback({ className, minimal = false }: SuspenseFallbac
     );
   }
 
-  // FALLBACK: Return null — the index.html CSS splash already covers loading.
-  // Showing a second React-rendered logo creates a jarring duplicate.
-  return null;
+  // FALLBACK: Show premium loader
+  return <PremiumLoader full />;
 }
 
 export default SuspenseFallback;

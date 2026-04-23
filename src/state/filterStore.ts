@@ -61,6 +61,8 @@ interface FilterState {
   amenities: string[];
   propertyTypes: string[];
   serviceTypes: string[];
+  motoTypes: string[];
+  bicycleTypes: string[];
   furnished: boolean;
   petFriendly: boolean;
   
@@ -86,6 +88,8 @@ interface FilterState {
   setAmenities: (amenities: string[]) => void;
   setPropertyTypes: (types: string[]) => void;
   setServiceTypes: (types: string[]) => void;
+  setMotoTypes: (types: string[]) => void;
+  setBicycleTypes: (types: string[]) => void;
   setFilters: (filters: Partial<QuickFilters>) => void;
   updateFilters: (filters: Partial<FilterState>) => void;
   resetClientFilters: () => void;
@@ -111,6 +115,10 @@ interface ClientFiltersShape {
   nationalities?: string[];
   categories?: string[];
   genders?: string[];
+  propertyTypes?: string[];
+  motoTypes?: string[];
+  bicycleTypes?: string[];
+  genders?: string[];
 }
 
 export const useFilterStore = create<FilterState>()(
@@ -135,6 +143,8 @@ export const useFilterStore = create<FilterState>()(
     amenities: [],
     propertyTypes: [],
     serviceTypes: [],
+    motoTypes: [],
+    bicycleTypes: [],
     furnished: false,
     petFriendly: false,
     filterVersion: 0,
@@ -321,6 +331,20 @@ export const useFilterStore = create<FilterState>()(
         lastChangedAt: Date.now(),
       }));
     },
+    setMotoTypes: (types) => {
+      set((state) => ({
+        motoTypes: types,
+        filterVersion: state.filterVersion + 1,
+        lastChangedAt: Date.now(),
+      }));
+    },
+    setBicycleTypes: (types) => {
+      set((state) => ({
+        bicycleTypes: types,
+        filterVersion: state.filterVersion + 1,
+        lastChangedAt: Date.now(),
+      }));
+    },
     setFilters: (filters) => {
       set((state) => ({
         ...(filters.categories !== undefined && { categories: filters.categories }),
@@ -408,6 +432,8 @@ export const useFilterStore = create<FilterState>()(
         userLatitude: state.userLatitude ?? undefined,
         userLongitude: state.userLongitude ?? undefined,
         serviceCategory: state.serviceTypes.length > 0 ? state.serviceTypes : undefined,
+        motoTypes: state.motoTypes.length > 0 ? state.motoTypes : undefined,
+        bicycleTypes: state.bicycleTypes.length > 0 ? state.bicycleTypes : undefined,
         petFriendly: state.petFriendly || undefined,
         furnished: state.furnished || undefined,
       };
@@ -422,6 +448,9 @@ export const useFilterStore = create<FilterState>()(
         budgetRange: state.clientBudgetRange ?? undefined,
         nationalities: state.clientNationalities.length > 0 ? state.clientNationalities : undefined,
         categories: state.categories.map(mapCategoryToDb),
+        propertyTypes: state.propertyTypes.length > 0 ? state.propertyTypes : undefined,
+        motoTypes: state.motoTypes.length > 0 ? state.motoTypes : undefined,
+        bicycleTypes: state.bicycleTypes.length > 0 ? state.bicycleTypes : undefined,
       };
     },
     hasActiveFilters: (role) => {

@@ -1,5 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Heart, Play, Music, Globe, Star } from 'lucide-react';
+import { X, Heart, Play, Music, Globe, Star, LayoutGrid, ChevronRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { radioStations, cityThemes } from '@/data/radioStations';
 import { RadioStation, CityLocation } from '@/types/radio';
 import { cn } from '@/lib/utils';
@@ -30,6 +31,7 @@ export const StationDrawer = ({
   onStationSelect,
   onToggleFavorite
 }: StationDrawerProps) => {
+  const navigate = useNavigate();
   // Use current city's theme or Miami default
   const theme = cityThemes[currentCity] || cityThemes['miami'];
   const accentColor = theme.primaryColor;
@@ -111,6 +113,24 @@ export const StationDrawer = ({
                 ))}
               </div>
             )}
+
+            {/* Global Directory Link */}
+            <motion.button
+              whileTap={{ scale: 0.98 }}
+              onClick={() => { triggerHaptic('medium'); onClose(); navigate('/radio/directory'); }}
+              className="w-full mb-6 p-4 rounded-3xl bg-primary/10 border border-primary/20 flex items-center justify-between group hover:bg-primary/20 transition-all"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-primary/20 flex items-center justify-center text-primary">
+                  <LayoutGrid size={20} />
+                </div>
+                <div className="text-left">
+                  <p className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">Full Experience</p>
+                  <h4 className="text-sm font-black text-foreground italic uppercase tracking-tight">Global Directory</h4>
+                </div>
+              </div>
+              <ChevronRight size={20} className="text-primary opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0" />
+            </motion.button>
 
             {/* Station List */}
             <div className="flex-1 overflow-y-auto pr-2 scrollbar-hide space-y-3 stagger-enter">

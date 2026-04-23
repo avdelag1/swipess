@@ -43,17 +43,24 @@ function OwnerDiscovery() {
   const [isCreatingConversation, setIsCreatingConversation] = useState(false);
 
   // Sync with global store
-  const filters = useFilterStore(s => s.filters);
+  // Sync with global store
+  const clientAgeRange = useFilterStore(s => s.clientAgeRange);
+  const clientGender = useFilterStore(s => s.clientGender);
+  const petFriendly = useFilterStore(s => s.petFriendly);
+  const propertyTypes = useFilterStore(s => s.propertyTypes);
+  const motoTypes = useFilterStore(s => s.motoTypes);
+  const bicycleTypes = useFilterStore(s => s.bicycleTypes);
 
   const clientFilters: ClientFilters | undefined = useMemo(() => {
     const mapped: ClientFilters = {};
-    if (filters.age_min !== undefined) mapped.ageRange = [filters.age_min, filters.age_max || 100];
-    if (filters.gender_preference && filters.gender_preference !== 'any') mapped.genders = [filters.gender_preference];
-    if (filters.has_pets_filter && filters.has_pets_filter !== 'any') mapped.hasPets = filters.has_pets_filter === 'yes';
-    if (filters.property_types && filters.property_types.length > 0) mapped.propertyTypes = filters.property_types;
-    if (filters.moto_types && filters.moto_types.length > 0) mapped.motoTypes = filters.moto_types;
+    if (clientAgeRange) mapped.ageRange = clientAgeRange;
+    if (clientGender && clientGender !== 'any') mapped.genders = [clientGender];
+    if (petFriendly) mapped.hasPets = true;
+    if (propertyTypes && propertyTypes.length > 0) mapped.propertyTypes = propertyTypes;
+    if (motoTypes && motoTypes.length > 0) mapped.motoTypes = motoTypes;
+    if (bicycleTypes && bicycleTypes.length > 0) mapped.bicycleTypes = bicycleTypes;
     return Object.keys(mapped).length > 0 ? mapped : undefined;
-  }, [filters]);
+  }, [clientAgeRange, clientGender, petFriendly, propertyTypes, motoTypes, bicycleTypes]);
 
   const { data: clients = [], isLoading } = useSmartClientMatching(
     user?.id, 

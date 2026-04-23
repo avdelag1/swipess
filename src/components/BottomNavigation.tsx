@@ -22,7 +22,7 @@ import {
   Users2, ShieldCheck,
   Megaphone, PartyPopper, Scale,
   Zap, SlidersHorizontal, Sparkles,
-  Ticket, IdCard, BadgePercent
+  Ticket, IdCard, BadgePercent, Radio
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUnreadMessageCount } from '@/hooks/useUnreadMessageCount';
@@ -121,6 +121,7 @@ export const BottomNavigation = memo(({
     { id: 'vapid', icon: IdCard, label: 'ID Card', onClick: () => setModal('showVapId', true) },
     { id: 'search', icon: SlidersHorizontal, label: 'Filter', onClick: onFilterClick },
     { id: 'events', icon: PartyPopper, label: 'Events', path: '/explore/eventos' },
+    { id: 'radio', icon: Radio, label: 'Radio', path: '/radio' },
     { id: 'perks', icon: BadgePercent, label: 'Perks', path: '/client/perks' },
   ];
 
@@ -134,6 +135,7 @@ export const BottomNavigation = memo(({
     { id: 'messages', icon: MessageCircle, label: 'Messages', path: '/messages' },
     { id: 'promote', icon: Megaphone, label: 'Promote', path: '/client/advertise' },
     { id: 'legal', icon: Scale, label: 'Legal', path: '/owner/legal-services' },
+    { id: 'radio', icon: Radio, label: 'Radio', path: '/radio' },
     { id: 'filters', icon: SlidersHorizontal, label: 'Filter', onClick: onFilterClick },
   ];
 

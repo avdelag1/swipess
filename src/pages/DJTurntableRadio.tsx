@@ -10,7 +10,7 @@ import { triggerHaptic } from '@/utils/haptics';
 import { cn } from '@/lib/utils';
 import useAppTheme from '@/hooks/useAppTheme';
 import {
-  ArrowLeft, ListMusic, Heart, Shuffle,
+  ArrowLeft, Globe, Star, Heart, Shuffle,
   SkipBack, SkipForward, Play, Pause
 } from 'lucide-react';
 
@@ -145,7 +145,7 @@ export default function DJTurntableRadio() {
           onClick={() => { setShowDrawer(true); triggerHaptic('medium'); }}
           className={cn('w-9 h-9 rounded-full flex items-center justify-center', neumBtn, neumBtnActive)}
         >
-          <ListMusic className={cn('w-3.5 h-3.5', isDark ? 'text-white' : 'text-slate-900')} strokeWidth={2.5} />
+          <Globe className={cn('w-3.5 h-3.5', isDark ? 'text-white' : 'text-slate-900')} strokeWidth={2.5} />
         </button>
         </div>
       </div>
@@ -244,7 +244,7 @@ export default function DJTurntableRadio() {
               onClick={() => { setShowFavoritesDrawer(true); triggerHaptic('medium'); }}
               className={cn('w-12 h-12 rounded-full flex items-center justify-center relative', neumBtn, neumBtnActive)}
             >
-              <ListMusic className={cn('w-5 h-5', isDark ? 'text-white/35' : 'text-black/30')} />
+              <Star className={cn('w-5 h-5', isDark ? 'text-white/35' : 'text-black/30')} />
               {state.favorites.length > 0 && (
                 <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-red-500" />
               )}

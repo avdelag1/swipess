@@ -68,12 +68,12 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
   }, [card.id, onCycle, x]);
 
   // Stack styling — 🚀 Swipess v14.0 Reveal Logic
-  const stackY = isCollapsed ? 0 : index * 12; // Deeper stack peeking from bottom
-  const stackScale = 1 - (index * 0.04);
-  const stackOpacity = index === 0 ? 1 : index === 1 ? 0.9 : index === 2 ? 0.65 : index === 3 ? 0.35 : 0;
-  const stackedFilter = isTop ? undefined : `brightness(${0.92 - index * 0.1}) blur(${index * 1.5}px)`;
+  const stackY = isCollapsed ? 0 : index * 14; // Deeper stack peeking from bottom
+  const stackScale = 1 - (index * 0.045);
+  const stackOpacity = index === 0 ? 1 : Math.max(0, 0.9 - (index * 0.2));
+  const stackedFilter = isTop ? undefined : `brightness(${0.92 - index * 0.08}) blur(${index * 1.2}px)`;
 
-  if (index > 3) return null;
+  if (index > 7) return null;
 
   return (
     <motion.div

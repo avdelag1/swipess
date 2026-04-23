@@ -9,6 +9,7 @@ import {
   Mail, Lock, User, ArrowLeft, Sparkles, ChevronRight, Check, LogIn, X, Eye, EyeOff, ShieldCheck, ShieldAlert, BadgeCheck
 } from 'lucide-react';
 import { SwipessLogo } from './SwipessLogo';
+import { MainLogoPage } from './MainLogoPage';
 import LandingBackgroundEffects from './LandingBackgroundEffects';
 import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
@@ -19,7 +20,7 @@ import { TERMS_PROTOCOL, PRIVACY_PROTOCOL } from './legal/LegalProtocols';
 import { Button } from '@/components/ui/button';
 
 /* ─── Types ─────────────────────────────────────────────── */
-type View = 'landing' | 'auth';
+type View = 'main-logo' | 'landing' | 'auth';
 
 /* ─── Brand SVG Icons (Apple HIG–compliant) ──────────────── */
 const AppleIcon = () => (
@@ -507,7 +508,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
 /* ─── Root component ─────────────────────────────────────── */
 function LegendaryLandingPage() {
   const { navigate } = useAppNavigate();
-  const [view, setView] = useState<View>('landing');
+  const [view, setView] = useState<View>('main-logo');
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
   const [legalModal, setLegalModal] = useState<'privacy' | 'terms' | null>(null);
 
@@ -525,7 +526,9 @@ function LegendaryLandingPage() {
       </div>
 
       <AnimatePresence mode="wait">
-        {view === 'landing' ? (
+        {view === 'main-logo' ? (
+          <MainLogoPage key="main-logo" onEnter={() => setView('landing')} />
+        ) : view === 'landing' ? (
           <LandingView key="landing" onEnterAuth={(mode) => { setAuthMode(mode); setView('auth'); }} />
         ) : (
           <AuthView key="auth" onBack={() => setView('landing')} initialMode={authMode} />
