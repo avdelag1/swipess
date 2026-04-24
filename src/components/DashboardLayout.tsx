@@ -252,7 +252,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     if (scrollExclusions.some(path => location.pathname.includes(path))) return false;
     const isRoommatesPageLocal = location.pathname.startsWith('/explore/roommates');
     const isSpecialSubPage = [
-      '/client/advertise', '/explore/prices', '/explore/intel', '/explore/tours',
+      '/explore/prices', '/explore/intel', '/explore/tours',
       '/documents', '/escrow', '/admin/eventos', '/about', '/contact',
       '/privacy-policy', '/terms-of-service', '/legal', '/agl',
       '/subscription/packages', '/notifications', '/explore/eventos'

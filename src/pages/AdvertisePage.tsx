@@ -476,7 +476,7 @@ export default function AdvertisePage() {
   // ── LANDING PAGE ────────────────────────────────────────────────────────────
   if (view === "landing") {
     return (
-      <div className="w-full relative pb-40 min-h-screen overflow-y-auto overflow-x-hidden touch-pan-y" style={{ background: th.pageBg }}>
+      <div className="w-full relative pb-40 h-auto" style={{ background: th.pageBg }}>
         {/* Subtle gradient blobs */}
         <div className="fixed inset-0 overflow-hidden pointer-events-none">
           <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] rounded-full blur-[120px]"
@@ -663,7 +663,7 @@ export default function AdvertisePage() {
 
   // ── FORM ────────────────────────────────────────────────────────────────────
   return (
-    <div className="w-full min-h-screen flex flex-col pb-20" style={{ background: th.pageBg }}>
+    <div className="w-full h-auto flex flex-col pb-20" style={{ background: th.pageBg }}>
       {/* Header */}
       <div className="flex items-center gap-3 px-4 pt-20 pb-3">
         <div className="flex-1">
