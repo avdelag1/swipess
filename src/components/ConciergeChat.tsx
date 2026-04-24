@@ -403,63 +403,108 @@ export function ConciergeChat({ isOpen, onClose }: { isOpen: boolean; onClose: (
     if (messages.length > 0) localStorage.setItem(LAST_ACTIVITY_KEY, Date.now().toString());
   }, [messages]);
 
-  // Voice Interaction Logic
+  // ── Voice + Auto-Send Logic ────────────────────────────────────────────────
   const [isListening, setIsListening] = useState(false);
-  // Audio visualizer removed to fix typescript error with isListening as boolean
-  const [autoSend, setAutoSend] = useState(() => {
-    try { return localStorage.getItem('concierge-auto-send') === 'true'; } catch { return false; }
-  });
   const [countdown, setCountdown] = useState<number | null>(null);
   const recognitionRef = useRef<any>(null);
-  const countdownRef = useRef<any>(null);
-  const autoSendRef = useRef(autoSend);
-  const speechSupported = typeof window !== 'undefined' && ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window);
+  const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const inputRef = useRef('');               // always tracks latest input value
+  const isListeningRef = useRef(false);      // stable ref for recognition callbacks
+  const SILENCE_SECONDS = 3;
+
+  // Keep inputRef in sync so the send callback never has a stale closure
+  useEffect(() => { inputRef.current = input; }, [input]);
+  useEffect(() => { isListeningRef.current = isListening; }, [isListening]);
+
+  const speechSupported = typeof window !== 'undefined' &&
+    ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window);
+
+  // Cancel the silence countdown without sending
+  const cancelCountdown = useCallback(() => {
+    if (countdownRef.current) { clearInterval(countdownRef.current); countdownRef.current = null; }
+    setCountdown(null);
+    triggerHaptic('light');
+  }, []);
+
+  // Start/reset the 3-second silence countdown
+  const armSilenceCountdown = useCallback(() => {
+    if (countdownRef.current) { clearInterval(countdownRef.current); countdownRef.current = null; }
+    setCountdown(SILENCE_SECONDS);
+    countdownRef.current = setInterval(() => {
+      setCountdown(prev => {
+        if (prev !== null && prev <= 1) {
+          clearInterval(countdownRef.current!);
+          countdownRef.current = null;
+          // Fire send with the freshest input value
+          const text = inputRef.current.trim();
+          if (text) {
+            sendMessage(text);
+            setInput('');
+            triggerHaptic('heavy');
+            uiSounds.playTap();
+          }
+          // Keep mic on so user can keep talking
+          return null;
+        }
+        return prev !== null ? prev - 1 : null;
+      });
+    }, 1000);
+  }, [sendMessage]);
 
   const startListening = useCallback(() => {
     if (!speechSupported) return;
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    const recognition = new SpeechRecognition();
+    const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    const recognition = new SR();
     recognition.continuous = true;
     recognition.interimResults = true;
-    recognition.onstart = () => { setIsListening(true); triggerHaptic('medium'); uiSounds.playMicOn(); };
+    recognition.lang = 'en-US';
+
+    recognition.onstart = () => {
+      setIsListening(true);
+      triggerHaptic('medium');
+      uiSounds.playMicOn();
+    };
+
     recognition.onresult = (e: any) => {
       let interim = '';
-      let final = '';
+      let finalText = '';
       for (let i = e.resultIndex; i < e.results.length; i++) {
-        if (e.results[i].isFinal) final += e.results[i][0].transcript;
+        if (e.results[i].isFinal) finalText += e.results[i][0].transcript;
         else interim += e.results[i][0].transcript;
       }
-      setInput(prev => final ? final : prev + interim);
-      if (autoSendRef.current && final) {
-         if (countdownRef.current) clearInterval(countdownRef.current);
-         setCountdown(2);
-         countdownRef.current = setInterval(() => {
-           setCountdown(p => {
-             if (p && p <= 1) {
-               clearInterval(countdownRef.current);
-               sendMessage(input);
-               setInput('');
-               setIsListening(false);
-               recognition.stop();
-               return null;
-             }
-             return p ? p - 1 : null;
-           });
-         }, 1000);
+      // Show interim text; overwrite with final when available
+      if (finalText) {
+        setInput(finalText);
+        // Final speech = silence is coming → arm countdown
+        armSilenceCountdown();
+      } else {
+        setInput(interim);
+        // New interim speech = user is still talking → cancel any countdown
+        cancelCountdown();
       }
     };
-    recognition.onend = () => { if (isListening) recognition.start(); };
+
+    // soundend fires when mic stops picking up any audio at all
+    recognition.onsoundend = () => { armSilenceCountdown(); };
+
+    // Restart recognition if it stops by itself (browser idle timeout)
+    recognition.onend = () => {
+      if (isListeningRef.current) {
+        try { recognition.start(); } catch { /* already restarting */ }
+      }
+    };
+
     recognitionRef.current = recognition;
     recognition.start();
-  }, [speechSupported, sendMessage, input]);
+  }, [speechSupported, armSilenceCountdown, cancelCountdown]);
 
   const stopListening = useCallback(() => {
+    isListeningRef.current = false;
     setIsListening(false);
-    if (recognitionRef.current) recognitionRef.current.stop();
-    if (countdownRef.current) clearInterval(countdownRef.current);
-    setCountdown(null);
+    recognitionRef.current?.stop();
+    cancelCountdown();
     uiSounds.playMicOff();
-  }, []);
+  }, [cancelCountdown]);
 
   const handleSend = () => {
     if (!input.trim() || isLoading) return;
@@ -726,14 +771,31 @@ export function ConciergeChat({ isOpen, onClose }: { isOpen: boolean; onClose: (
 
                                   <AnimatePresence>
                                      {countdown !== null && (
-                                       <motion.div 
-                                         initial={{ opacity: 0, x: -10 }}
-                                         animate={{ opacity: 1, x: 0 }}
-                                         exit={{ opacity: 0, x: -10 }}
-                                         className="px-4 h-12 rounded-2xl bg-primary text-black flex items-center gap-2 text-[10px] font-black"
+                                       <motion.div
+                                         initial={{ opacity: 0, scale: 0.8 }}
+                                         animate={{ opacity: 1, scale: 1 }}
+                                         exit={{ opacity: 0, scale: 0.8 }}
+                                         className="flex items-center gap-1.5"
                                        >
-                                          <Timer className="w-4 h-4" />
-                                          AUTO-SEND: {countdown}S
+                                         {/* Countdown pill */}
+                                         <div className="relative h-10 px-3 rounded-2xl flex items-center gap-2 text-[10px] font-black overflow-hidden"
+                                           style={{ background: 'linear-gradient(135deg,#ff3d00,#ff7c40)', boxShadow: '0 0 18px rgba(255,61,0,0.5)' }}>
+                                           <motion.div
+                                             className="absolute inset-0 bg-white/15"
+                                             animate={{ opacity: [0.1, 0.3, 0.1] }}
+                                             transition={{ duration: 0.8, repeat: Infinity }}
+                                           />
+                                           <Timer className="w-3.5 h-3.5 text-white relative z-10" />
+                                           <span className="text-white relative z-10 tabular-nums">SENDING IN {countdown}s</span>
+                                         </div>
+                                         {/* Cancel X button */}
+                                         <button
+                                           onClick={cancelCountdown}
+                                           className="w-10 h-10 rounded-2xl flex items-center justify-center bg-white/10 hover:bg-white/20 active:scale-90 transition-all"
+                                           aria-label="Cancel auto-send"
+                                         >
+                                           <X className="w-4 h-4 text-white/70" />
+                                         </button>
                                        </motion.div>
                                      )}
                                   </AnimatePresence>
