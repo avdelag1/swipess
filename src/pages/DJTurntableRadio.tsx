@@ -83,8 +83,8 @@ export default function DJTurntableRadio() {
   }, [play]);
 
   const neumBtn = isDark
-    ? 'bg-white/[0.08] border border-white/[0.1] shadow-[0_8px_30px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.1)]'
-    : 'bg-white border border-slate-200 shadow-[6px_6px_20px_rgba(0,0,0,0.06),-4px_-4px_15px_rgba(255,255,255,0.9)]';
+    ? 'bg-white/[0.12] border border-white/[0.15] shadow-[0_8px_32px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.15)]'
+    : 'bg-white border border-slate-300 shadow-[6px_6px_22px_rgba(0,0,0,0.08),-4px_-4px_18px_rgba(255,255,255,1)]';
 
   const neumBtnActive = 'active:scale-[0.94] transition-transform duration-[40ms]';
 
@@ -137,23 +137,37 @@ export default function DJTurntableRadio() {
 
         {/* Large Frequency Display */}
         <div className="flex-1 flex flex-col items-center justify-center w-full min-h-[250px] relative">
-          <AnimatePresence mode="wait">
+          {/* Record Player Visualizer */}
+          <div className="absolute inset-0 flex items-center justify-center z-0 overflow-hidden pointer-events-none">
+            {/* Spinning Record */}
             <motion.div
-              key={state.currentStation?.id || 'none'}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="absolute inset-0 z-0 flex items-center justify-center pointer-events-none overflow-hidden"
+              animate={state.isPlaying ? { rotate: 360 } : {}}
+              transition={{ repeat: Infinity, duration: 6, ease: "linear" }}
+              className={cn(
+                "w-[240px] h-[240px] sm:w-[320px] sm:h-[320px] rounded-full relative shadow-2xl",
+                "border-[12px] border-black/90 ring-1 ring-white/20",
+                isDark ? "shadow-black/60" : "shadow-black/20"
+              )}
+              style={{
+                background: `radial-gradient(circle, #222 30%, #111 60%, #000 100%)`,
+              }}
             >
-              <div className="absolute inset-0 opacity-[0.08] blur-3xl scale-125">
+              {/* Record Grooves */}
+              <div className="absolute inset-0 rounded-full border border-white/5 opacity-20" style={{ backgroundImage: 'repeating-radial-gradient(circle, transparent 0, transparent 2px, rgba(255,255,255,0.05) 3px)' }} />
+              
+              {/* Album Art Label */}
+              <div className="absolute inset-[30%] rounded-full overflow-hidden border-4 border-black/40 shadow-inner">
                 <img 
                   src={state.currentStation?.albumArt || "https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?auto=format&fit=crop&q=80&w=800"} 
                   className="w-full h-full object-cover"
                   alt=""
                 />
               </div>
+              
+              {/* Spindle Hole */}
+              <div className="absolute inset-[47%] rounded-full bg-black/80 border border-white/20 shadow-inner" />
             </motion.div>
-          </AnimatePresence>
+          </div>
 
           <AnimatePresence mode="wait">
             <motion.div
@@ -164,14 +178,14 @@ export default function DJTurntableRadio() {
               transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
               className="text-center relative z-10"
             >
-              <div className={cn('text-[72px] sm:text-[88px] font-black leading-none tracking-tight', isDark ? 'text-white' : 'text-black')}>
-                {state.currentStation?.frequency || '93.1'}
+              <div className={cn('text-[82px] sm:text-[96px] font-black leading-none tracking-tight drop-shadow-[0_8px_32px_rgba(0,0,0,0.4)]', isDark ? 'text-white' : 'text-black')}>
+                {state.currentStation?.frequency || '95.7'}
               </div>
-              <div className={cn('text-lg font-black tracking-[0.3em] uppercase mt-1', isDark ? 'text-blue-400' : 'text-primary')}>
+              <div className={cn('text-lg font-black tracking-[0.4em] uppercase mt-1 drop-shadow-sm', isDark ? 'text-blue-400' : 'text-primary')}>
                 FM
               </div>
-              <div className={cn('text-sm font-black mt-4 tracking-widest uppercase', isDark ? 'text-white' : 'text-black')}>
-                {state.currentStation?.name || 'Radio'}
+              <div className={cn('text-sm font-black mt-4 tracking-widest uppercase opacity-90 drop-shadow-md', isDark ? 'text-white' : 'text-black')}>
+                {state.currentStation?.name || 'Golden Oldies'}
               </div>
             </motion.div>
           </AnimatePresence>
@@ -211,17 +225,27 @@ export default function DJTurntableRadio() {
             <button
               onClick={() => { togglePlayPause(); triggerHaptic('heavy'); }}
               style={{
-                background: '#ffffff',
+                background: isDark ? '#ffffff' : '#1a1a1a',
                 boxShadow: isDark
-                  ? '0 0 0 1px rgba(255,255,255,0.3), 0 15px 50px rgba(255,255,255,0.4), 0 4px 20px rgba(255,255,255,0.25)'
-                  : '0 15px 45px rgba(0,0,0,0.12)',
+                  ? '0 0 0 1px rgba(255,255,255,0.3), 0 20px 60px rgba(255,255,255,0.5), 0 10px 30px rgba(255,255,255,0.3)'
+                  : '0 20px 60px rgba(0,0,0,0.25), 0 10px 30px rgba(0,0,0,0.15)',
               }}
-              className="w-20 h-20 rounded-full flex items-center justify-center relative transition-all duration-300 active:scale-95"
+              className="w-24 h-24 rounded-full flex items-center justify-center relative transition-all duration-300 active:scale-90 hover:scale-105 z-20"
             >
               {state.isPlaying
-                ? <Pause className="w-8 h-8 text-white" fill="currentColor" />
-                : <Play className="w-8 h-8 ml-1 text-white" fill="currentColor" />
+                ? <Pause className={cn("w-10 h-10", isDark ? "text-black" : "text-white")} fill="currentColor" />
+                : <Play className={cn("w-10 h-10 ml-1", isDark ? "text-black" : "text-white")} fill="currentColor" />
               }
+              
+              {/* Playback Ripple Effect */}
+              {state.isPlaying && (
+                <motion.div
+                  initial={{ scale: 0.8, opacity: 0.5 }}
+                  animate={{ scale: 1.5, opacity: 0 }}
+                  transition={{ repeat: Infinity, duration: 2, ease: "easeOut" }}
+                  className={cn("absolute inset-0 rounded-full z-[-1]", isDark ? "bg-white/20" : "bg-black/10")}
+                />
+              )}
             </button>
 
             <button

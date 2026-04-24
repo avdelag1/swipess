@@ -130,6 +130,15 @@ export const cityThemes: Record<CityLocation, CityTheme> = {
     gradient: 'linear-gradient(135deg, #9c27b0 0%, #f06292 100%)',
     description: 'Zen and Relaxation'
   },
+  'american-retro': {
+    id: 'american-retro',
+    name: 'American Oldies',
+    primaryColor: '#b71c1c',
+    secondaryColor: '#ffffff',
+    accentColor: '#1a237e',
+    gradient: 'linear-gradient(135deg, #b71c1c 0%, #ffffff 50%, #1a237e 100%)',
+    description: 'The Golden Age of American Music'
+  },
   'bongs': {
     id: 'bongs',
     name: 'Bowls & Gongs',
@@ -1213,6 +1222,58 @@ export const radioStations: RadioStation[] = [
     city: 'tulum',
     genre: 'Electronic',
     description: 'The official Swipess beach frequency'
+  },
+  
+  // American Retro - The Golden Age
+  {
+    id: 'retro-1',
+    name: 'Golden Oldies 50s/60s',
+    frequency: '95.7',
+    streamUrl: 'https://ice6.abacast.com/wboc-thevaultmp3-48',
+    city: 'american-retro',
+    genre: 'Oldies',
+    description: 'Rock & Roll roots from the 50s and 60s',
+    albumArt: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800'
+  },
+  {
+    id: 'retro-2',
+    name: '70s Super Hits',
+    frequency: '101.5',
+    streamUrl: 'https://ice1.somafm.com/seven-128-mp3',
+    city: 'american-retro',
+    genre: '70s Pop',
+    description: 'Disco, Rock, and Soul from the groovy 70s',
+    albumArt: 'https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?auto=format&fit=crop&q=80&w=800'
+  },
+  {
+    id: 'retro-3',
+    name: 'Awesome 80s',
+    frequency: '104.9',
+    streamUrl: 'https://ice1.somafm.com/u80s-128-mp3',
+    city: 'american-retro',
+    genre: '80s Pop',
+    description: 'Neon lights and synthesizer sunsets',
+    albumArt: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&q=80&w=800'
+  },
+  {
+    id: 'retro-4',
+    name: '90s Fresh Air',
+    frequency: '98.3',
+    streamUrl: 'https://ice1.somafm.com/freshair-128-mp3',
+    city: 'american-retro',
+    genre: '90s Alternative',
+    description: 'Grunge, Britpop, and the best of the 90s',
+    albumArt: 'https://images.unsplash.com/photo-1542204172-132c3970b555?auto=format&fit=crop&q=80&w=800'
+  },
+  {
+    id: 'retro-5',
+    name: 'Motown Classics',
+    frequency: '89.1',
+    streamUrl: 'https://ice1.somafm.com/seven-128-mp3',
+    city: 'american-retro',
+    genre: 'Soul/Motown',
+    description: 'The legendary sound of Detroit soul',
+    albumArt: 'https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?auto=format&fit=crop&q=80&w=800'
   }
 ];
 
