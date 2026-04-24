@@ -9,6 +9,7 @@ import {
   Mail, Lock, User, ArrowLeft, Sparkles, ChevronRight, Check, LogIn, X, Eye, EyeOff, ShieldCheck, ShieldAlert, BadgeCheck
 } from 'lucide-react';
 import { SwipessLogo } from './SwipessLogo';
+import { uiSounds } from '@/utils/uiSounds';
 import LandingBackgroundEffects from './LandingBackgroundEffects';
 import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
@@ -47,12 +48,12 @@ const LandingView = memo(({
   return (
     <motion.div
       key="landing"
-      className="absolute inset-0 z-10 flex flex-col items-center px-6 pb-12 pt-12"
+      className="absolute inset-0 z-10 flex flex-col items-center justify-center px-6 pb-12"
       initial={{ opacity: 1 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
     >
-      <div className="flex flex-col items-center justify-center w-full mt-12 mb-10">
+      <div className="flex flex-col items-center justify-center w-full mb-10">
         <motion.div
           className="flex flex-col items-center"
           initial={{ opacity: 0, scale: 0.8, y: 20 }}
@@ -78,14 +79,14 @@ const LandingView = memo(({
         transition={{ delay: 0.5, duration: 0.6 }}
       >
         <button
-          onClick={() => { triggerHaptic('medium'); onEnterAuth('login'); }}
+          onClick={() => { uiSounds.playTap(); triggerHaptic('medium'); onEnterAuth('login'); }}
           className="w-full h-[52px] rounded-2xl bg-white text-black font-black uppercase tracking-[0.15em] text-[14px] shadow-[0_15px_30px_rgba(255,255,255,0.15)] active:scale-[0.97] transition-all flex items-center justify-center gap-2.5 border-none"
         >
           <LogIn className="w-4 h-4" />
           Sign In
         </button>
         <button
-          onClick={() => { triggerHaptic('medium'); onEnterAuth('signup'); }}
+          onClick={() => { uiSounds.playTap(); triggerHaptic('medium'); onEnterAuth('signup'); }}
           className="w-full h-[52px] rounded-2xl bg-white text-black font-black uppercase tracking-[0.15em] text-[14px] shadow-[0_15px_30px_rgba(255,255,255,0.15)] active:scale-[0.97] transition-all flex items-center justify-center gap-2.5 border-none"
         >
           <Sparkles className="w-4 h-4 text-black/40" />
@@ -203,6 +204,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
   };
 
   const handleSocialLogin = async (provider: 'apple' | 'google') => {
+    uiSounds.playTap();
     triggerHaptic('light');
     await signInWithOAuth(provider, selectedRole);
   };
@@ -219,7 +221,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
         {/* Shimmer effect removed as per user request */}
         
         <button
-          onClick={() => { triggerHaptic('light'); if (isForgotPassword) { setIsForgotPassword(false); } else { onBack(); } }}
+          onClick={() => { uiSounds.playTap(); triggerHaptic('light'); if (isForgotPassword) { setIsForgotPassword(false); } else { onBack(); } }}
           className="absolute top-4 left-4 w-10 h-10 rounded-2xl bg-white flex items-center justify-center text-black border shadow-xl active:scale-90 transition-all z-20"
           aria-label="Go back"
         >
