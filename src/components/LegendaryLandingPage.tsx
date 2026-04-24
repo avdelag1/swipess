@@ -91,6 +91,14 @@ const LandingView = memo(({
           <Sparkles className="w-4 h-4 text-black/40" />
           Create Account
         </button>
+
+        <div className="flex items-center gap-4 text-[9px] font-black uppercase tracking-[0.3em] text-white/30 italic mt-4">
+          <button onClick={() => setLegalModal('privacy')} className="hover:text-primary transition-colors">Privacy</button>
+          <div className="w-1 h-1 rounded-full bg-white/10" />
+          <button onClick={() => setLegalModal('terms')} className="hover:text-primary transition-colors">Terms</button>
+          <div className="w-1 h-1 rounded-full bg-white/10" />
+          <button onClick={() => setLegalModal('terms')} className="hover:text-primary transition-colors">Legal Hub</button>
+        </div>
       </motion.div>
     </motion.div>
   );
@@ -497,23 +505,7 @@ function LegendaryLandingPage() {
       </AnimatePresence>
 
       <AnimatePresence>
-        {view === 'landing' && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="absolute bottom-8 left-0 right-0 z-20 flex flex-col items-center gap-1.5 opacity-30 hover:opacity-80 transition-opacity"
-          >
-            <div className="flex items-center gap-5 text-[9px] font-black uppercase tracking-[0.3em] text-white italic">
-              <button onClick={() => setLegalModal('privacy')} className="hover:text-primary transition-colors">Privacy</button>
-              <div className="w-1 h-1 rounded-full bg-white/20" />
-              <button onClick={() => setLegalModal('terms')} className="hover:text-primary transition-colors">Terms</button>
-              <div className="w-1 h-1 rounded-full bg-white/20" />
-              <button onClick={() => setLegalModal('terms')} className="hover:text-primary transition-colors">Legal Hub</button>
-            </div>
-            <p className="text-[8px] font-black uppercase tracking-[0.4em] text-white/20 italic">© 2026 SWIPESS INDUSTRIES</p>
-          </motion.div>
-        )}
+        {/* Absolute footer removed and moved up into main stack */}
       </AnimatePresence>
 
       <AnimatePresence>
