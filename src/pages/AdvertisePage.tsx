@@ -175,16 +175,23 @@ function PromoSwipeCard({
           : "0 4px 20px rgba(0,0,0,0.2)",
       }}
     >
+      {/* Background image fallback color */}
+      <div className="absolute inset-0 bg-[#1a1a1a]" />
+      
       {/* Background image */}
       <img 
         src={pkg.image} 
         className="absolute inset-0 w-full h-full object-cover" 
         alt={pkg.name}
         loading={index === 0 ? "eager" : "lazy"}
+        onError={(e) => {
+          // Fallback if image fails to load
+          (e.target as HTMLImageElement).style.display = 'none';
+        }}
       />
       
-      {/* Gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
+      {/* Gradient overlay — intensified for text clarity */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent" />
       
       {/* Popular badge */}
       {(pkg as any).popular && (
@@ -476,7 +483,7 @@ export default function AdvertisePage() {
   // ── LANDING PAGE ────────────────────────────────────────────────────────────
   if (view === "landing") {
     return (
-      <div className="w-full relative pb-40 h-auto" style={{ background: th.pageBg }}>
+      <div className="w-full relative pb-40 h-full min-h-screen overflow-y-auto overflow-x-hidden touch-pan-y" style={{ background: th.pageBg }}>
         {/* Subtle gradient blobs */}
         <div className="fixed inset-0 overflow-hidden pointer-events-none">
           <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] rounded-full blur-[120px]"

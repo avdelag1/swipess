@@ -15,11 +15,39 @@ html, body, #root {
   -ms-overflow-style: none;
   overflow-x: hidden;
   -webkit-touch-callout: none;
-  text-rendering: optimizeLegibility;
+  text-rendering: optimizeSpeed;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: #ffffff;
   font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  /* 🏎️ GPU ACCELERATION INJECTION */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000;
+  overscroll-behavior-y: none;
+}
+
+/* 🚀 FLAGSHIP LAYOUT CONTAINMENT */
+.glass-nano-texture {
+  contain: paint layout style;
+  will-change: transform, opacity;
+  transform: translateZ(0);
+}
+
+.zenith-interaction-isolation {
+  isolation: isolate;
+  contain: content;
+}
+
+.gpu-ultra {
+  transform: translate3d(0,0,0);
+  will-change: transform;
+}
+
+/* 🏎️ OFF-SCREEN OPTIMIZATION */
+.offscreen-hidden {
+  content-visibility: auto;
+  contain-intrinsic-size: 0 500px;
 }
 
 /* 🎨 ARTISTIC FONT UTILITY */
@@ -92,7 +120,9 @@ body::-webkit-scrollbar {
 
 .glass-nano-texture {
   position: relative;
-  contain: layout style;
+  contain: paint layout style;
+  /* Reduce layout thrashing */
+  will-change: transform;
 }
 .glass-nano-texture::before {
   content: "";

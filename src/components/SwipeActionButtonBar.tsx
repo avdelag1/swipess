@@ -61,47 +61,47 @@ const VARIANTS: Record<Variant, VariantCfg> = {
     glow: '0 0 20px rgba(255, 107, 53, 0.4)',
     glowIntense: '0 0 40px rgba(255, 107, 53, 0.5)',
     dropShadow: 'var(--shadow-cinematic-primary)',
-    circleBg: 'rgba(255, 107, 53, 0.15)',
-    circleBorder: 'none',
+    circleBg: 'rgba(255, 107, 53, 0.35)', // Increased opacity
+    circleBorder: '1px solid rgba(255, 255, 255, 0.4)',
   },
   dislike: {
     iconColor: '#ef4444',
     glow: '0 0 20px rgba(239, 68, 68, 0.4)',
     glowIntense: '0 0 40px rgba(239, 68, 68, 0.5)',
     dropShadow: '0 12px 24px -6px rgba(239, 68, 68, 0.45)',
-    circleBg: 'rgba(239, 68, 68, 0.15)',
-    circleBorder: 'none',
+    circleBg: 'rgba(239, 68, 68, 0.35)', // Increased opacity
+    circleBorder: '1px solid rgba(255, 255, 255, 0.4)',
   },
   amber: {
     iconColor: '#f59e0b',
     glow: '0 0 16px rgba(245, 158, 11, 0.35)',
     glowIntense: '0 0 32px rgba(245, 158, 11, 0.45)',
     dropShadow: '0 8px 16px -4px rgba(245, 158, 11, 0.4)',
-    circleBg: 'rgba(245, 158, 11, 0.15)',
-    circleBorder: 'none',
+    circleBg: 'rgba(245, 158, 11, 0.35)', // Increased opacity
+    circleBorder: '1px solid rgba(255, 255, 255, 0.4)',
   },
   cyan: {
     iconColor: '#06b6d4',
     glow: '0 0 16px rgba(6, 182, 212, 0.35)',
     glowIntense: '0 0 32px rgba(6, 182, 212, 0.45)',
     dropShadow: '0 8px 16px -4px rgba(6, 182, 212, 0.4)',
-    circleBg: 'rgba(6, 182, 212, 0.15)',
-    circleBorder: 'none',
+    circleBg: 'rgba(6, 182, 212, 0.35)', // Increased opacity
+    circleBorder: '1px solid rgba(255, 255, 255, 0.4)',
   },
   purple: {
     iconColor: '#a855f7',
     glow: '0 0 16px rgba(168, 85, 247, 0.35)',
     glowIntense: '0 0 32px rgba(168, 85, 247, 0.45)',
     dropShadow: '0 8px 16px -4px rgba(168, 85, 247, 0.4)',
-    circleBg: 'rgba(168, 85, 247, 0.15)',
-    circleBorder: 'none',
+    circleBg: 'rgba(168, 85, 247, 0.35)', // Increased opacity
+    circleBorder: '1px solid rgba(255, 255, 255, 0.4)',
   },
   gold: {
     iconColor: '#FFD700',
     glow: '0 0 20px rgba(255, 215, 0, 0.4)',
     glowIntense: '0 0 40px rgba(255, 215, 0, 0.6)',
     dropShadow: '0 12px 24px -6px rgba(255, 215, 0, 0.45)',
-    circleBg: 'rgba(255, 215, 0, 0.15)',
+    circleBg: 'rgba(255, 215, 0, 0.25)', // Increased opacity
     circleBorder: 'none',
   },
   default: {

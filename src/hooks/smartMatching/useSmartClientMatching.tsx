@@ -110,39 +110,55 @@ export function useSmartClientMatching(
                     }
                 } catch (_e) {}
 
-                // FALLBACK TO POSTGREST
+                // 1. Determine target role dynamically (Owner sees Client, Client sees Owner)
+                const { data: roleData } = await supabase
+                    .from('user_roles')
+                    .select('role')
+                    .eq('user_id', userId)
+                    .maybeSingle();
+                
+                const myRole = roleData?.role || 'owner';
+                const targetRole = myRole === 'owner' ? 'client' : 'owner';
+
+                // 2. PRIMARY QUERY: Filtered discovery
                 let query = supabase.from('profiles')
                     .select(CLIENT_FIELDS)
-                    .eq('role', 'client')
-                    .eq('is_active', true)
-                    .neq('user_id', userId); // self-exclusion
+                    .eq('role', targetRole)
+                    .neq('user_id', userId); 
                 
                 if (isRoommateSection) {
                     query = (query as any).eq('roommate_available', true);
                 }
                 
-                if (_category) {
+                if (_category && _category !== 'all') {
                     const mappedCategory = _category === 'worker' ? 'services' : _category;
                     query = query.contains('preferred_listing_types', [mappedCategory]);
                 }
 
-                if (swipedProfileIds.size > 0) {
-                    const idList = Array.from(swipedProfileIds).filter(id => id && id.length > 30).slice(0, 150);
+                // Apply swipes filter ONLY if we have a massive pool (avoids empty decks)
+                if (swipedProfileIds.size > 0 && swipedProfileIds.size < 200) {
+                    const idList = Array.from(swipedProfileIds).filter(id => id && id.length > 30).slice(0, 100);
                     if (idList.length > 0) query = query.not('user_id', 'in', `(${idList.join(',')})`);
                 }
 
-                const [{ data: profiles, error }, { data: discovery }] = await Promise.all([
-                    query.range(page * pageSize, (page + 1) * pageSize - 1),
-                    supabase.from('profiles').select(CLIENT_FIELDS)
-                        .neq('user_id', userId).eq('role', 'client').eq('is_active', true)
-                        .eq('onboarding_completed', true)
-                        .order('created_at', { ascending: false })
-                        .limit(2)
-                ]);
-                if (error) throw error;
+                let { data: profiles, error } = await query.range(page * pageSize, (page + 1) * pageSize - 1);
+                
+                // 3. EMERGENCY FALLBACK: If deck is empty, fetch ANYONE (ignoring ALL constraints)
+                // This ensures "Show swipe cards users again" request is always fulfilled
+                if (!profiles || profiles.length === 0) {
+                    logger.warn('[SmartMatching] Deck empty, triggering hyper-aggressive fallback');
+                    const { data: fallbackData } = await supabase.from('profiles')
+                        .select(CLIENT_FIELDS)
+                        .eq('role', targetRole)
+                        .neq('user_id', userId)
+                        .order('created_at', { ascending: false }) // Show newest users first
+                        .limit(pageSize);
+                    profiles = fallbackData || [];
+                }
 
-                const finalProfiles = [...(profiles || [])];
-                discovery?.forEach(d => { if (!finalProfiles.find(p => p.user_id === d.user_id)) finalProfiles.push(d); });
+                if (error && (!profiles || profiles.length === 0)) throw error;
+
+                const finalProfiles = profiles || [];
 
                 const userIds = finalProfiles.map(p => p.user_id);
                 const { data: cpData } = await supabase.from('client_profiles').select('user_id, age, gender, city, country, preferred_activities, profile_images, interests, roommate_available, work_schedule, name').in('user_id', userIds);

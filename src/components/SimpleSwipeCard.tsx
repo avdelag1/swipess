@@ -492,11 +492,11 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           willChange: 'transform, opacity',
           transformStyle: 'preserve-3d',
           perspective: '1000px',
-          transform: 'translate3d(0,0,0)',
+          transform: 'translate3d(0,0,0)', // 🏎️ FORCE GPU LAYER
           backfaceVisibility: 'hidden',
           WebkitBackfaceVisibility: 'hidden',
           background: 'rgba(255, 255, 255, 0.01)',
-          backdropFilter: 'blur(20px)',
+          backdropFilter: 'blur(12px)', // 🚀 PERF: Reduced from 20px for smoother Android/Web scrolling
         }}
       >
         <GlassShine x={x} y={y} />

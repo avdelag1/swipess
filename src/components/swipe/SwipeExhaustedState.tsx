@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 import { useFilterStore, useFilterActions } from '@/state/filterStore';
 import { triggerHaptic } from '@/utils/haptics';
 import useAppTheme from '@/hooks/useAppTheme';
-import { RefreshCw, RotateCcw, Zap, SlidersHorizontal, ChevronLeft, Home, Bike, Briefcase } from 'lucide-react';
+import { RefreshCw, RotateCcw, Zap, SlidersHorizontal, ChevronLeft, Home, Bike, Briefcase, Search } from 'lucide-react';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { Button } from '@/components/ui/button';
 import { useCardReset } from '@/hooks/useCardReset';
@@ -38,21 +38,6 @@ export const SwipeExhaustedState = ({
   const setActiveCategory = useFilterStore(s => s.setActiveCategory);
   const resetMutation = useCardReset();
   const [scanIteration, setScanIteration] = useState(0);
-  const [isScanBurstActive, setIsScanBurstActive] = useState(false);
-
-  useEffect(() => {
-    if (scanIteration === 0) return;
-    setIsScanBurstActive(true);
-    const timeout = window.setTimeout(() => {
-      setIsScanBurstActive(false);
-    }, 6000);
-    return () => window.clearTimeout(timeout);
-  }, [scanIteration]);
-
-  const handleCategorySwitch = (catId: string) => {
-    triggerHaptic('medium');
-    setCategories([catId as any]);
-  };
 
   const handleRefreshClick = () => {
     triggerHaptic('medium');
@@ -60,7 +45,7 @@ export const SwipeExhaustedState = ({
     onRefresh();
   };
 
-  const activeCatInfo = activeCategory ? CATEGORY_ICONS[activeCategory] : null;
+  const activeCatInfo = activeCategory ? CATEGORY_ICONS[activeCategory] : CATEGORY_ICONS.all;
 
   if (error && isInitialLoad) {
     return (
@@ -104,14 +89,40 @@ export const SwipeExhaustedState = ({
         exit="exit" 
         className="relative z-50 h-full w-full overflow-hidden flex flex-col items-center justify-center bg-transparent px-6"
       >
-        <div className="absolute inset-0 pointer-events-none z-0">
+        {/* ATMOSPHERIC BACKGROUND RADAR */}
+        <div className="absolute inset-0 pointer-events-none z-0 flex items-center justify-center overflow-hidden">
+          <motion.div 
+            animate={{ 
+              scale: [1, 2, 3],
+              opacity: [0.3, 0.1, 0]
+            }}
+            transition={{ 
+              duration: 4, 
+              repeat: Infinity,
+              ease: "easeOut"
+            }}
+            className="absolute w-[300px] h-[300px] rounded-full border border-primary/20"
+          />
+          <motion.div 
+            animate={{ 
+              scale: [1, 1.5, 2],
+              opacity: [0.2, 0.05, 0]
+            }}
+            transition={{ 
+              duration: 4, 
+              delay: 1.3,
+              repeat: Infinity,
+              ease: "easeOut"
+            }}
+            className="absolute w-[300px] h-[300px] rounded-full border border-primary/10"
+          />
           <div 
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] rounded-full blur-[120px] opacity-20"
+            className="absolute w-[500px] h-[500px] rounded-full blur-[120px] opacity-20"
             style={{ background: activeCatInfo?.color || '#ec4899' }}
           />
         </div>
 
-        {/* BACK TO QUICK FILTERS */}
+        {/* TOP BAR ACTION */}
         <div className="absolute top-4 left-4 z-[90]">
            <button
              onClick={() => {
@@ -121,60 +132,82 @@ export const SwipeExhaustedState = ({
              }}
              className={cn(
                "flex items-center gap-2 px-4 h-11 rounded-2xl shadow-2xl backdrop-blur-3xl border transition-all active:scale-95 group", 
-               isLight ? "bg-white border-black/10 text-black" : "bg-black/60 border-white/10 text-white"
+               isLight ? "bg-white border-black/10 text-black" : "bg-black/80 border-white/20 text-white"
              )}
            >
              <ChevronLeft className="w-5 h-5 -ml-1 transition-transform group-hover:-translate-x-1" />
-             <span className="text-[10px] font-black uppercase tracking-[0.15em]">Back</span>
+             <span className="text-[10px] font-black uppercase tracking-[0.15em]">Sectors</span>
            </button>
         </div>
 
-        <div className="relative flex flex-col items-center text-center max-w-sm z-10">
+        <div className="relative flex flex-col items-center text-center max-w-sm z-10 w-full">
           <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ type: 'spring', damping: 15 }}
             className="mb-10 relative"
           >
+            {/* CENTRAL ICON CONTEXT */}
             <div 
               className={cn(
-                "w-28 h-28 rounded-[2.5rem] flex items-center justify-center shadow-2xl relative overflow-hidden group border transition-all duration-500", 
-                isLight ? "bg-white border-black/5 shadow-inner" : "bg-white/5 border-white/10"
+                "w-32 h-32 rounded-[2.8rem] flex items-center justify-center shadow-2xl relative overflow-hidden group border transition-all duration-700", 
+                isLight ? "bg-white border-black/5" : "bg-black/40 border-white/20 backdrop-blur-3xl"
               )}
-              style={{ boxShadow: `0 20px 50px -10px ${activeCatInfo?.color || '#ec4899'}40` }}
             >
-              <div className="absolute inset-0 bg-gradient-to-tr from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+              <motion.div 
+                animate={{ rotate: 360 }}
+                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                className="absolute inset-0 opacity-10 bg-[url('/noise.png')] bg-repeat"
+              />
+              <div className="absolute inset-0 bg-gradient-to-tr from-primary/20 via-transparent to-transparent opacity-40" />
+              
+              {/* RADAR SWEEP LINE */}
+              <motion.div 
+                animate={{ rotate: 360 }}
+                transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                className="absolute inset-0 z-0 origin-center"
+              >
+                <div className="absolute top-0 left-1/2 w-[1px] h-1/2 bg-primary/40 blur-[1px]" />
+              </motion.div>
+
               {activeCatInfo ? (
-                <activeCatInfo.icon className={cn("w-12 h-12", isLight ? "text-slate-900" : "text-white")} strokeWidth={1.5} />
+                <activeCatInfo.icon className={cn("w-14 h-14 relative z-10", isLight ? "text-slate-900" : "text-white")} strokeWidth={1.2} />
               ) : (
-                <Zap className={cn("w-12 h-12", isLight ? "text-slate-900" : "text-white")} strokeWidth={1.5} />
+                <Search className={cn("w-14 h-14 relative z-10", isLight ? "text-slate-900" : "text-white")} strokeWidth={1.2} />
               )}
             </div>
-            <motion.div 
-              animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3] }}
-              transition={{ duration: 4, repeat: Infinity }}
-              className={cn("absolute -inset-4 border rounded-[3rem] -z-1", isLight ? "border-black/10" : "border-white/10")} 
-            />
+
+            {/* PULSE RINGS */}
+            {[1, 2].map((i) => (
+              <motion.div 
+                key={i}
+                animate={{ scale: [1, 1.4], opacity: [0.4, 0] }}
+                transition={{ duration: 3, delay: i * 1.5, repeat: Infinity }}
+                className={cn("absolute -inset-4 border rounded-[3.5rem] -z-1", isLight ? "border-black/10" : "border-white/10")} 
+              />
+            ))}
           </motion.div>
 
-          <h3 className={cn("text-3xl font-black italic tracking-tighter uppercase mb-4 leading-none", isLight ? "text-black" : "text-white")}>
-            Discovery Complete
-          </h3>
-          <p className={cn("text-[11px] font-black uppercase tracking-[0.2em] mb-10 leading-relaxed px-4", isLight ? "text-black/40" : "text-white/40")}>
-            You've analyzed all signals in this sector. Recalibrate your range or switch protocols to find new matches.
-          </p>
+          <div className="space-y-2 mb-12">
+            <h3 className={cn("text-4xl font-black italic tracking-tighter uppercase leading-none", isLight ? "text-black" : "text-white")}>
+              Signals Faded
+            </h3>
+            <p className={cn("text-[10px] font-black uppercase tracking-[0.25em] leading-relaxed px-8", isLight ? "text-black/50" : "text-white/50")}>
+              Current coordinates analyzed. Recalibrate range or reset protocol to discover new opportunities.
+            </p>
+          </div>
 
-          <div className="flex flex-col gap-3 w-full">
+          <div className="flex flex-col gap-4 w-full px-2">
             <Button
               onClick={handleRefreshClick}
               disabled={isRefreshing}
-              className="h-16 w-full rounded-[1.8rem] bg-primary text-black font-black uppercase italic tracking-widest shadow-[0_15px_35px_rgba(var(--color-brand-primary-rgb),0.3)] active:scale-95 transition-all flex items-center justify-center gap-3 border-none"
+              className="h-20 w-full rounded-[2.2rem] bg-primary text-black font-black uppercase italic tracking-widest shadow-[0_20px_50px_rgba(var(--color-brand-primary-rgb),0.4)] active:scale-[0.98] transition-all flex items-center justify-center gap-4 border-none text-base"
             >
-              <RefreshCw className={cn("w-5 h-5", isRefreshing && "animate-spin")} />
-              {isRefreshing ? 'Tuning Intelligence...' : 'Relaunch Scan'}
+              <RefreshCw className={cn("w-6 h-6", isRefreshing && "animate-spin")} />
+              {isRefreshing ? 'Recalibrating...' : 'Refresh Intel'}
             </Button>
             
-            <div className="flex gap-3">
+            <div className="flex gap-4">
               <Button
                 variant="outline"
                 disabled={resetMutation.isPending}
@@ -182,10 +215,10 @@ export const SwipeExhaustedState = ({
                   triggerHaptic('heavy');
                   resetMutation.mutate(activeCategory as any || 'all');
                 }}
-                className={cn("flex-1 h-16 rounded-[1.8rem] border font-black uppercase italic tracking-widest transition-all active:scale-95", isLight ? "bg-black/5 hover:bg-black/10 border-black/10 text-black" : "bg-white/5 hover:bg-white/10 border-white/10 text-white")}
+                className={cn("flex-1 h-18 rounded-[2rem] border font-black uppercase italic tracking-widest transition-all active:scale-95 text-xs", isLight ? "bg-black/5 hover:bg-black/10 border-black/10 text-black" : "bg-white/5 hover:bg-white/10 border-white/20 text-white backdrop-blur-md")}
               >
                 <RotateCcw className={cn("mr-2 w-5 h-5 text-orange-400", resetMutation.isPending && "animate-spin")} />
-                Reset
+                Reset Session
               </Button>
               
               <Button
@@ -194,16 +227,18 @@ export const SwipeExhaustedState = ({
                   triggerHaptic('medium');
                   (window as any).dispatchEvent(new CustomEvent('open-filters'));
                 }}
-                className={cn("w-16 h-16 rounded-[1.8rem] border flex items-center justify-center p-0 shadow-2xl transition-all active:scale-95", isLight ? "bg-black/5 hover:bg-black/10 border-black/10" : "bg-white/5 hover:bg-white/10 border-white/10")}
+                className={cn("w-18 h-18 rounded-[2rem] border flex items-center justify-center p-0 shadow-2xl transition-all active:scale-95", isLight ? "bg-black/5 hover:bg-black/10 border-black/10" : "bg-white/5 hover:bg-white/10 border-white/20 backdrop-blur-md")}
               >
-                <SlidersHorizontal className="h-5 w-5 text-primary" />
+                <SlidersHorizontal className="h-6 w-6 text-primary" />
               </Button>
             </div>
           </div>
         </div>
 
-        <div className="absolute bottom-12 left-0 right-0 flex justify-center opacity-20 pointer-events-none">
-          <p className={cn("text-[8px] font-black uppercase tracking-[0.6em] italic", isLight ? "text-black/60" : "text-white")}>Sector Scan Logic Verified</p>
+        {/* BOTTOM DECOR */}
+        <div className="absolute bottom-10 left-0 right-0 flex flex-col items-center gap-2 opacity-30 pointer-events-none">
+          <div className="w-12 h-[2px] bg-primary/50 rounded-full" />
+          <p className={cn("text-[7px] font-black uppercase tracking-[0.8em] italic", isLight ? "text-black/60" : "text-white")}>Sector Logic Verified</p>
         </div>
       </motion.div>
     </AnimatePresence>

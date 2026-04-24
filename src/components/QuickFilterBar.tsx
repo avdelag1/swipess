@@ -298,8 +298,8 @@ function QuickFilterBarComponent({ filters, onChange, onSelect, className, userR
                   'relative flex-shrink-0 overflow-hidden border transition-all duration-200 group',
                   isGlobalAll ? 'w-32 h-52 rounded-[3.5rem]' : 'w-28 h-40 rounded-[2.2rem]',
                   isActive 
-                    ? 'border-primary ring-2 ring-primary ring-offset-2 scale-[1.03] shadow-lg border-[2px]' 
-                    : 'border-white/70 shadow-md border-[2px]'
+                    ? 'border-primary ring-2 ring-primary ring-offset-2 scale-[1.03] shadow-lg border-[3px]' 
+                    : 'border-white shadow-md border-[2px]' // Opaque border
                   )}
                   style={{ contain: 'paint', willChange: 'transform, opacity' }}
                 >
@@ -307,9 +307,12 @@ function QuickFilterBarComponent({ filters, onChange, onSelect, className, userR
                     <div className={cn(
                       "absolute inset-0 z-10 transition-colors duration-300",
                       isActive 
-                        ? (isLight ? "bg-black/25" : "bg-black/35") 
-                        : (isLight ? "bg-black/60" : "bg-black/70")
+                        ? (isLight ? "bg-black/20" : "bg-black/30") 
+                        : (isLight ? "bg-black/55" : "bg-black/65") // Even darker for maximum text punch
                     )} />
+                    
+                    {/* Bottom vignette for text readability */}
+                    <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/80 via-black/40 to-transparent z-15 pointer-events-none" />
 
                 <QuickFilterImage 
                   src={option.image} 
@@ -438,8 +441,8 @@ function QuickFilterBarComponent({ filters, onChange, onSelect, className, userR
                 <div className={cn(
                   "absolute inset-0 z-10 transition-colors duration-300",
                   isActive 
-                    ? (isLight ? "bg-black/25" : "bg-black/35") 
-                    : (isLight ? "bg-black/60" : "bg-black/70")
+                    ? (isLight ? "bg-black/15" : "bg-black/25") 
+                    : (isLight ? "bg-black/45" : "bg-black/55")
                 )} />
 
                 <QuickFilterImage 
