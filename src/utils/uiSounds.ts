@@ -170,7 +170,7 @@ class SoundEngine {
         type: 'sine',
         startFreq: 1000,
         endFreq: 800,
-        gainAmount: 0.02,
+        gainAmount: 0.25,
         duration: 0.025,
       });
     } catch (_e) {}

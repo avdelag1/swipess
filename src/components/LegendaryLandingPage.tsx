@@ -81,14 +81,14 @@ const LandingView = memo(({
         transition={{ delay: 0.5, duration: 0.6 }}
       >
         <button
-          onClick={() => { uiSounds.playTap(); triggerHaptic('medium'); onEnterAuth('login'); }}
+          onClick={() => { uiSounds.playTap(); playRandomZen(0.2); triggerHaptic('medium'); onEnterAuth('login'); }}
           className="w-full h-[52px] rounded-2xl bg-white text-black font-black uppercase tracking-[0.15em] text-[14px] shadow-[0_15px_30px_rgba(255,255,255,0.15)] active:scale-[0.97] transition-all flex items-center justify-center gap-2.5 border-none"
         >
           <LogIn className="w-4 h-4" />
           Sign In
         </button>
         <button
-          onClick={() => { uiSounds.playTap(); triggerHaptic('medium'); onEnterAuth('signup'); }}
+          onClick={() => { uiSounds.playTap(); playRandomZen(0.2); triggerHaptic('medium'); onEnterAuth('signup'); }}
           className="w-full h-[52px] rounded-2xl bg-white text-black font-black uppercase tracking-[0.15em] text-[14px] shadow-[0_15px_30px_rgba(255,255,255,0.15)] active:scale-[0.97] transition-all flex items-center justify-center gap-2.5 border-none"
         >
           <Sparkles className="w-4 h-4 text-black/40" />
@@ -207,6 +207,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
 
   const handleSocialLogin = async (provider: 'apple' | 'google') => {
     uiSounds.playTap();
+    playRandomZen(0.2);
     triggerHaptic('light');
     await signInWithOAuth(provider, selectedRole);
   };
@@ -223,7 +224,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
         {/* Shimmer effect removed as per user request */}
         
         <button
-          onClick={() => { uiSounds.playTap(); triggerHaptic('light'); if (isForgotPassword) { setIsForgotPassword(false); } else { onBack(); } }}
+          onClick={() => { uiSounds.playTap(); playRandomZen(0.15); triggerHaptic('light'); if (isForgotPassword) { setIsForgotPassword(false); } else { onBack(); } }}
           className="absolute top-4 left-4 w-10 h-10 rounded-2xl bg-white flex items-center justify-center text-black border shadow-xl active:scale-90 transition-all z-20"
           aria-label="Go back"
         >
