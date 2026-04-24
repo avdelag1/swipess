@@ -37,11 +37,13 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
 
   const photo = POKER_CARD_PHOTOS[card.id] || POKER_CARD_PHOTOS.property;
   const [imgReady, setImgReady] = useState(false);
+  const fallbackGradient = POKER_CARD_GRADIENTS[card.id] || POKER_CARD_GRADIENTS.property;
 
   useEffect(() => {
     const img = new Image();
     img.src = photo;
     img.onload = () => setImgReady(true);
+    img.onerror = () => setImgReady(false);
   }, [photo]);
 
   const handleDragEnd = useCallback((_: any, info: any) => {
@@ -121,7 +123,10 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
       transition={{ ...PK_SPRING }}
       className="select-none touch-none"
     >
-      <div className="w-full h-full relative overflow-hidden transition-colors duration-500 bg-black rounded-[2.5rem] shadow-2xl">
+      <div
+        className="w-full h-full relative overflow-hidden transition-colors duration-500 bg-black rounded-[2.5rem] shadow-2xl"
+        style={{ backgroundImage: !imgReady ? fallbackGradient : undefined }}
+      >
         {/* Photo & Gradient Base */}
         <motion.img
           src={photo}
