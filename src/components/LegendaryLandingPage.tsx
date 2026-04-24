@@ -220,7 +220,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
     >
-      <div className="w-full max-w-sm bg-[#0d0d0f]/90 backdrop-blur-[40px] border border-white/10 rounded-[2.5rem] p-5 sm:p-6 shadow-[0_40px_100px_-20px_rgba(0,0,0,0.9)] relative overflow-hidden shrink-0">
+      <div className="w-full max-w-sm bg-[#0d0d0f]/90 backdrop-blur-[40px] border border-white/10 rounded-[2rem] p-4 sm:p-5 shadow-[0_40px_100px_-20px_rgba(0,0,0,0.9)] relative overflow-hidden shrink-0">
         {/* Shimmer effect removed as per user request */}
         
         <button
@@ -251,7 +251,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
                   onClick={() => { triggerHaptic('light'); setIsLogin(true); setFieldErrors({}); }}
                   className={cn(
                     "flex-1 py-2.5 rounded-2xl text-[9px] font-black uppercase tracking-[0.2em] transition-all duration-300 z-10",
-                    isLogin ? "text-black" : "text-white/60 hover:text-white/80"
+                    isLogin ? "text-black" : "text-white hover:text-white/80"
                   )}
                 >
                   Sign In
@@ -261,7 +261,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
                   onClick={() => { triggerHaptic('light'); setIsLogin(false); setFieldErrors({}); }}
                   className={cn(
                     "flex-1 py-2.5 rounded-2xl text-[9px] font-black uppercase tracking-[0.2em] transition-all duration-300 z-10",
-                    !isLogin ? "text-black" : "text-white/60 hover:text-white/80"
+                    !isLogin ? "text-black" : "text-white hover:text-white/80"
                   )}
                 >
                   Sign Up
@@ -276,7 +276,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
                   transition={{ type: 'spring', stiffness: 350, damping: 30 }}
                 />
               </div>
-              <p className="text-[8px] font-black tracking-[0.25em] text-white/40 uppercase">
+              <p className="text-[8px] font-black tracking-[0.25em] text-white/90 uppercase">
                 {isLogin ? 'Welcome back' : 'Start your journey'}
               </p>
             </>
@@ -301,7 +301,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
         <form onSubmit={handleSubmit} className="space-y-2.5" noValidate>
           {!isLogin && !isForgotPassword && (
              <div className="flex flex-col gap-1 mb-1">
-                <p className="text-[7px] font-black uppercase tracking-[0.4em] text-white/20 ml-1">Identity Protocol</p>
+                <p className="text-[7px] font-black uppercase tracking-[0.4em] text-white/50 ml-1">Identity Protocol</p>
                 <div className="grid grid-cols-2 gap-2">
                    <button
                      type="button"
@@ -437,7 +437,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
           )}
 
           {!isLogin && !isForgotPassword && (
-            <div className="text-[8px] font-bold uppercase tracking-widest text-white/30 text-center px-2 leading-relaxed mt-1">
+            <div className="text-[8px] font-bold uppercase tracking-widest text-white/60 text-center px-2 leading-relaxed mt-1">
               By joining, you agree to{' '}
               <button 
                 type="button" 
