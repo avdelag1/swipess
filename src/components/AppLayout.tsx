@@ -65,7 +65,12 @@ export function AppLayout({ children }: AppLayoutProps) {
     recover();
     const frame = requestAnimationFrame(recover);
     
-    // 🚀 DISPATCH RENDER READY: Notifies index.html to remove splash screen
+    // 🚀 ZENITH READY SIGNAL:
+    // Notifies RootProviders that the layout shell is mounted.
+    // This allows the splash screen to fade out ONLY when content is ready.
+    window.dispatchEvent(new CustomEvent('zenith-ready'));
+    
+    // Fallback for legacy listeners
     window.dispatchEvent(new CustomEvent('app-rendered'));
     
     return () => cancelAnimationFrame(frame);

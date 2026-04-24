@@ -72,19 +72,42 @@ function AuthReadySignal() {
   const { initialized } = useAuth();
 
   useEffect(() => {
-    // 🚀 SPEED OF LIGHT: Force splash removal after 150ms regardless of Auth status
-    // This ensures the user sees the "Searching" UI immediately while Auth hydrates.
-    const safetyTimer = setTimeout(() => {
-      window.dispatchEvent(new CustomEvent('app-rendered'));
-    }, 150);
-
-    if (initialized) {
+    // 🚀 ZENITH ONE-RUN PROTOCOL:
+    // We only remove the splash once:
+    // 1. Auth is initialized
+    // 2. The layout sends the 'zenith-ready' signal (meaning first paint happened)
+    
+    let isReady = false;
+    
+    const handleReady = () => {
+      if (isReady) return;
+      isReady = true;
       (window as any).__APP_INITIALIZED__ = true;
       (window as any).__APP_MOUNTED__ = true;
       window.dispatchEvent(new CustomEvent('app-rendered'));
-      clearTimeout(safetyTimer);
+    };
+
+    // If we are on the landing page (no user), we fire it after a short delay
+    // If we have a user, we wait for the 'zenith-ready' event from the dashboard
+    const safetyTimer = setTimeout(() => {
+       handleReady();
+    }, 2500); // Increased safety buffer to allow for component loading
+
+    window.addEventListener('zenith-ready', handleReady);
+
+    if (initialized) {
+       // If auth initialized but no user, we can release the splash sooner 
+       // as there's no dashboard to wait for.
+       const session = (window as any).supabase?.auth?.getSession();
+       if (!session) {
+         setTimeout(handleReady, 100);
+       }
     }
-    return () => clearTimeout(safetyTimer);
+
+    return () => {
+      clearTimeout(safetyTimer);
+      window.removeEventListener('zenith-ready', handleReady);
+    };
   }, [initialized]);
 
   return null;

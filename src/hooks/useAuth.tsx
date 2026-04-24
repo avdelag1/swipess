@@ -411,20 +411,23 @@ export function AuthProvider({ children, authPromise }: { children: ReactNode, a
 
         const targetPath = actualRole === 'client' ? '/client/dashboard' : '/owner/dashboard';
 
-        // AUTO-REFRESH: Invalidate all queries to force fresh data on sign-in
-        // This ensures the swipe deck and other dashboard data is refreshed
-        queryClient.invalidateQueries();
-
-        appToast.success("Welcome back!", "Loading your dashboard...");
-
-        // 🚀 ONE-SHOT HYDRATION: Await profile setup BEFORE navigating to the dashboard.
-        // This prevents the 'Missing Profile' 404s that crash the dashboard during initial render.
+        // 🚀 ONE-SHOT HYDRATION: Parallelize profile setup and route pre-fetching
+        // This ensures the JS chunks are in cache AND the DB record exists BEFORE we navigate.
         try {
-          await createProfileIfMissing(data.user!, actualRole);
+          const { prefetchRoute } = await import('@/utils/routePrefetcher');
+          
+          // Race profile creation with a timeout to avoid hanging the login
+          await Promise.all([
+            createProfileIfMissing(data.user!, actualRole).catch(e => logger.warn('[Auth] Setup error:', e)),
+            prefetchRoute(targetPath).catch(() => {}),
+            prefetchRoute('/messages').catch(() => {}),
+            queryClient.invalidateQueries()
+          ]);
         } catch (setupError) {
-          logger.warn('[Auth] Background profile setup failed or timed out:', setupError);
+          logger.warn('[Auth] One-shot hydration partial failure:', setupError);
         }
 
+        appToast.success("Welcome back!", "Loading your dashboard...");
         navigate(targetPath, { replace: true });
         return { error: null };
       }
