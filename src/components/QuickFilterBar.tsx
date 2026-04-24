@@ -241,14 +241,14 @@ function QuickFilterBarComponent({ filters, onChange, onSelect, className, userR
 
   // Category preview photos for breathing effect (using high-end assets)
   const categoryPhotos: Record<string, string> = {
-    property:   '/images/filters/property.png',
-    motorcycle: '/images/filters/scooter.png',
-    bicycle:    '/images/filters/bicycle.png',
-    services:   '/images/filters/workers.png',
-    all:        '/images/filters/all.png',
-    buyers:     '/images/filters/owner_buyers_card.png',
-    renters:    '/images/filters/owner_renters_card.png',
-    hire:       '/images/filters/owner_hire_card.png',
+    property:   '/images/filters/property.jpg',
+    motorcycle: '/images/filters/scooter.jpg',
+    bicycle:    '/images/filters/bicycle.jpg',
+    services:   '/images/filters/workers.jpg',
+    all:        '/images/filters/all.jpg',
+    buyers:     '/images/filters/owner_buyers_card.jpg',
+    renters:    '/images/filters/owner_renters_card.jpg',
+    hire:       '/images/filters/owner_hire_card.jpg',
   };
   // Owner Quick Filters - Specialized for client intent
   if (userRole === 'owner') {
@@ -395,7 +395,7 @@ function QuickFilterBarComponent({ filters, onChange, onSelect, className, userR
             )} />
 
             <QuickFilterImage 
-              src={POKER_CARD_PHOTOS['all-clients'] || '/images/filters/all.png'} 
+              src={POKER_CARD_PHOTOS['all-clients'] || '/images/filters/all.jpg'} 
               alt="All"
             />
 

@@ -236,7 +236,7 @@ const LegalHub = () => {
                 className="mt-8 relative w-full h-48 rounded-[3rem] overflow-hidden border border-white/10 shadow-2xl"
               >
                 <QuickFilterImage 
-                  src="/images/filters/owner_lawyer_card.png" 
+                  src="/images/filters/owner_lawyer_card.jpg" 
                   alt="Legal Authority"
                   className="opacity-60"
                 />

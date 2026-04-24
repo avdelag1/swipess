@@ -162,8 +162,8 @@ deferredInit(async () => {
     if ('serviceWorker' in navigator && !isPreviewHost) {
       navigator.serviceWorker.register('/sw.js', { scope: '/' })
         .then(reg => {
-          // Check for updates every 10 seconds while the app is active
-          setInterval(() => reg.update(), 10000);
+          // Check for updates once per hour — not every 10s
+          setInterval(() => reg.update(), 60 * 60 * 1000);
           
           // If a new worker was waiting, skip waiting immediately
           if (reg.waiting) {

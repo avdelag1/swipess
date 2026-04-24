@@ -54,8 +54,8 @@ export function PWAInstallButton({ className }: { className?: string }) {
               </button>
 
               <div className="flex flex-col items-center text-center gap-4">
-                <div className="w-20 h-20 rounded-2xl overflow-hidden shadow-2xl mb-2">
-                  <img src="/icons/Swipess-logo.png" alt="Swipess" className="w-full h-full object-cover" />
+                <div className="w-40 h-12 overflow-hidden mb-2 flex items-center justify-center">
+                  <img src="/icons/Swipess-wordmark-white.svg" alt="Swipess" className="w-full h-full object-contain" onError={(e) => { (e.target as HTMLImageElement).src = '/icons/Swipess-wordmark-512.png'; }} />
                 </div>
                 
                 <h3 className="text-xl font-black tracking-tight">Install Swipess</h3>

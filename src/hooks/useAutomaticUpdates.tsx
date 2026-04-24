@@ -198,22 +198,16 @@ export function useAutomaticUpdates() {
   const checkUpdates = useCallback(async () => {
     const info = checkForUpdates();
     if (info.available) {
-      performUpdate();
+      // Surface the banner — don't auto-reload while the user is active
+      _setUpdateInfo(info);
     }
-  }, [performUpdate]);
-
+  }, []);
 
   useEffect(() => {
-    // Only run the initial check once on mount
+    // Run once on mount only — no focus polling
     checkUpdates();
 
-    // Also check when app gains focus
-    const handleFocus = () => {
-      if (!isUpdating) checkUpdates();
-    };
-    window.addEventListener('focus', handleFocus);
-
-    // Filter service worker updates
+    // Listen for SW update events but only surface the banner, never auto-reload
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.ready.then((registration) => {
         registration.addEventListener('updatefound', () => {
@@ -222,7 +216,7 @@ export function useAutomaticUpdates() {
             newWorker.addEventListener('statechange', () => {
               if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
                 if (sessionStorage.getItem('Swipess_update_seen') !== 'true') {
-                  performUpdate();
+                  _setUpdateInfo({ available: true, needsRefresh: true });
                 }
               }
             });
@@ -230,9 +224,7 @@ export function useAutomaticUpdates() {
         });
       });
     }
-
-    return () => window.removeEventListener('focus', handleFocus);
-  }, [checkUpdates, isUpdating]);
+  }, [checkUpdates]);
 
   return {
     updateInfo,
@@ -372,57 +364,8 @@ function checkHtmlVersionMismatch(): boolean {
  */
 export function useForceUpdateOnVersionChange() {
   useEffect(() => {
-    // In dev mode, skip forced updates — version changes every load
-    if (import.meta.env.DEV) {
-      markVersionAsInstalled();
-      return;
-    }
-
-    // GUARD 1: Session-level cooldown — only trigger one reload per session
-    const alreadyReloaded = sessionStorage.getItem(RELOAD_GUARD_KEY);
-    if (alreadyReloaded && parseInt(alreadyReloaded, 10) >= 2) return;
-
-    // GUARD 2: Minimum time on page — don't reload within the first 30s of a fresh load
-    // This prevents the infinite reload loop on initial page visits
-    const pageLoadTime = performance.now();
-    if (pageLoadTime < 30000) {
-      // Only silently mark the version as installed on fresh load
-      // and skip the forced update — user just arrived
-      const storedVersion = localStorage.getItem(VERSION_STORAGE_KEY);
-      if (!storedVersion) {
-        markVersionAsInstalled();
-      }
-
-      // Schedule a deferred check after the user has been on the page for 30s
-      const timer = setTimeout(() => {
-        const stillMismatch = checkHtmlVersionMismatch();
-        const versionChanged = localStorage.getItem(VERSION_STORAGE_KEY) !== BUILD_TIMESTAMP;
-        if (stillMismatch || versionChanged) {
-          // Check if already reached cap during the wait
-          const currentReloads = parseInt(sessionStorage.getItem(RELOAD_GUARD_KEY) || '0', 10);
-          if (currentReloads < 2) {
-             forceAppUpdate();
-          }
-        } else {
-          markVersionAsInstalled();
-        }
-      }, 30000);
-
-      return () => clearTimeout(timer);
-    }
-
-    // If already been on page 30s+ (e.g. focus regain), do the normal check
-    const storedVersion = localStorage.getItem(VERSION_STORAGE_KEY);
-    if (storedVersion && storedVersion !== BUILD_TIMESTAMP) {
-      forceAppUpdate();
-      return;
-    }
-
-    if (checkHtmlVersionMismatch()) {
-      forceAppUpdate();
-      return;
-    }
-
+    // Mark the current version as seen — never auto-reload mid-session.
+    // The UpdateNotification banner handles user-initiated updates.
     markVersionAsInstalled();
   }, []);
 }

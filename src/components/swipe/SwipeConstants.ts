@@ -132,22 +132,22 @@ export const PK_SPRING = { type: 'spring' as const, stiffness: 260, damping: 22,
 // These are chosen to be premium, diverse, and human-centric (Tulum/European/American).
 // UPDATED: Standardizing on Flagship Human-Centric Aesthetic.
 export const POKER_CARD_PHOTOS: Record<string, string> = {
-  property:   '/images/filters/property.png',
-  motorcycle: '/images/filters/scooter.png',
-  bicycle:    '/images/filters/bicycle.png',
-  services:   '/images/filters/workers.png',
-  all:        '/images/filters/all.png',
-  radio:      '/images/filters/radio.png',
-  vap:        '/images/filters/resident_card.png',
-  
+  property:   '/images/filters/property.jpg',
+  motorcycle: '/images/filters/scooter.jpg',
+  bicycle:    '/images/filters/bicycle.jpg',
+  services:   '/images/filters/workers.jpg',
+  all:        '/images/filters/all.jpg',
+  radio:      '/images/filters/radio.jpg',
+  vap:        '/images/filters/resident_card.jpg',
+
   // Owner intent cards
-  buyers:        '/images/filters/owner_buyers_card.png',
-  renters:       '/images/filters/owner_renters_card.png',
-  hire:          '/images/filters/owner_hire_card.png',
-  'all-clients': '/images/filters/all.png',
-  lawyer:        '/images/filters/owner_lawyer_card.png',
-  promote:       '/images/filters/owner_promote_card.png',
-  'ai-listing':  '/images/filters/ai_listing_card.png',
+  buyers:        '/images/filters/owner_buyers_card.jpg',
+  renters:       '/images/filters/owner_renters_card.jpg',
+  hire:          '/images/filters/owner_hire_card.jpg',
+  'all-clients': '/images/filters/all.jpg',
+  lawyer:        '/images/filters/owner_lawyer_card.jpg',
+  promote:       '/images/filters/owner_promote_card.jpg',
+  'ai-listing':  '/images/filters/ai_listing_card.jpg',
 };
 
 // ─── Owner quick-filter intent cards ────────────────────────────────────────

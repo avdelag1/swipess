@@ -52,27 +52,27 @@ export function calculateListingMatch(preferences: ClientFilterPreferences, list
         criteria.push({
             weight: 25,
             matches: priceInRange,
-            reason: `Price $${listing.price} fits your budget`,
-            incompatibleReason: `Price $${listing.price} is outside your budget range`
+            reason: `Price $${listing.price} within flexible budget`,
+            incompatibleReason: `Price $${listing.price} outside flexible budget range`
         });
     }
 
     // Bedrooms matching for properties
-    if (listing.category === 'property' && preferences.min_bedrooms && preferences.max_bedrooms) {
+    if ((listing.category === 'property' || listing.beds) && preferences.min_bedrooms && preferences.max_bedrooms) {
         criteria.push({
             weight: 15,
             matches: (listing.beds ?? 0) >= preferences.min_bedrooms && (listing.beds ?? 0) <= preferences.max_bedrooms,
-            reason: `${listing.beds ?? 0}-bedroom matches your search`,
+            reason: `${listing.beds ?? 0} beds matches requirement (${preferences.min_bedrooms}-${preferences.max_bedrooms})`,
             incompatibleReason: `${listing.beds ?? 0} beds is outside your ${preferences.min_bedrooms}-${preferences.max_bedrooms} range`
         });
     }
 
     // Property type matching
-    if (listing.category === 'property' && preferences.property_types?.length && listing.property_type) {
+    if ((listing.category === 'property' || listing.property_type) && preferences.property_types?.length && listing.property_type) {
         criteria.push({
             weight: 15,
             matches: preferences.property_types.includes(listing.property_type),
-            reason: `${listing.property_type} is a preferred property type`,
+            reason: `Property type ${listing.property_type} matches preferences`,
             incompatibleReason: `${listing.property_type} isn't in your preferred types`
         });
     }
@@ -92,7 +92,7 @@ export function calculateListingMatch(preferences: ClientFilterPreferences, list
         criteria.push({
             weight: 12,
             matches: !!listing.pet_friendly,
-            reason: 'Pet-friendly (Requirement satisfied)',
+            reason: 'Pet-friendly property',
             incompatibleReason: 'Not pet-friendly (Requires pets)'
         });
     }
@@ -222,7 +222,7 @@ export function calculateClientMatch(ownerPrefs: any, clientProfile: any): {
             criteria.push({
                 weight: 20,
                 matches: budgetInRange,
-                reason: `Budget ($${clientBudget}) aligns with your range`,
+                reason: `Budget $${clientBudget} in range`,
                 incompatibleReason: `Budget ($${clientBudget}) is outside your filter`
             });
         }
@@ -242,6 +242,23 @@ export function calculateClientMatch(ownerPrefs: any, clientProfile: any): {
         });
     }
 
+    // Children compatibility
+    if (ownerPrefs.allows_children !== undefined) {
+        const clientHasChildren = clientProfile.has_children || false;
+        const childrenCompatible = ownerPrefs.allows_children || !clientHasChildren;
+        if (!childrenCompatible) {
+            incompatibleReasons.push('Has children but not allowed');
+        }
+    }
+
+    // Smoking habit compatibility
+    if (ownerPrefs.smoking_habit && clientProfile.smoking_habit) {
+        const smokingCompatible = ownerPrefs.smoking_habit === clientProfile.smoking_habit;
+        if (!smokingCompatible) {
+            incompatibleReasons.push('Smoking habits incompatible');
+        }
+    }
+
     // Occupation alignment
     if (ownerPrefs.preferred_occupations?.length && clientProfile.work_schedule) {
         criteria.push({
@@ -258,7 +275,7 @@ export function calculateClientMatch(ownerPrefs: any, clientProfile: any): {
         criteria.push({
             weight: 10,
             matches: genderMatch,
-            reason: `Gender matches your search preference`,
+            reason: `Gender ${clientProfile.gender} matches preferences`,
             incompatibleReason: `Gender does not match your filter`
         });
     }
@@ -268,7 +285,7 @@ export function calculateClientMatch(ownerPrefs: any, clientProfile: any): {
         criteria.push({
             weight: 15,
             matches: true,
-            reason: 'Verified and completed profile',
+            reason: 'Verified profile',
             incompatibleReason: ''
         });
     }

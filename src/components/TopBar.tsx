@@ -1,7 +1,7 @@
 import { memo, useCallback } from 'react';
 import { useAppNavigate } from "@/hooks/useAppNavigate";
 import { motion } from 'framer-motion';
-import { ChevronLeft, Radio, UserCircle } from 'lucide-react';
+import { ChevronLeft, UserCircle } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
@@ -12,10 +12,7 @@ import { haptics } from '@/utils/microPolish';
 import { ModeSwitcher } from './ModeSwitcher';
 import { NotificationPopover } from './NotificationPopover';
 import { ThemeToggle } from './ThemeToggle';
-import { useModalStore } from '@/state/modalStore';
 import { useFilterStore, useFilterActions } from '@/state/filterStore';
-import { AIListingTrigger } from './AIListingTrigger';
-import { SwipessLogo } from './SwipessLogo';
 
 interface TopBarProps {
   onNotificationsClick?: () => void;
@@ -23,6 +20,7 @@ interface TopBarProps {
   onAISearchClick?: () => void;
   onFilterClick?: (e?: React.PointerEvent | React.MouseEvent) => void;
   onBack?: () => void;
+  onCenterTap?: () => void;
   className?: string;
   showFilters?: boolean;
   userRole?: 'client' | 'owner' | 'admin';
@@ -36,6 +34,7 @@ interface TopBarProps {
 function TopBarComponent({
   onFilterClick: _onFilterClick,
   onBack: propOnBack,
+  onCenterTap,
   className,
   userRole,
   transparent: _transparent = false,
@@ -158,32 +157,23 @@ function TopBarComponent({
           )}
         </div>
 
-        <div className="flex-1 flex justify-center">
-          <SwipessLogo size="sm" variant="transparent" className="opacity-90 group-hover:opacity-100 transition-opacity" />
-        </div>
+        {onCenterTap ? (
+          <motion.button
+            className="flex-1 h-full pointer-events-auto"
+            whileTap={{ opacity: 0.7 }}
+            onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); haptics.tap(); onCenterTap(); }}
+            aria-label="Go to dashboard"
+          />
+        ) : (
+          <div className="flex-1" />
+        )}
 
         {/* RIGHT CLUSTER: Individual Action Pills */}
         <div className="flex shrink-0 items-center gap-2 sm:gap-3">
           {!minimal && (
             <>
-              <AIListingTrigger glassPillStyle={glassPillStyle} />
-
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => { haptics.impact('light'); navigate('/radio'); }}
-                className={cn(
-                  "p-2 w-10 h-10 flex items-center justify-center rounded-full transition-all duration-300",
-                  "text-white/80 hover:text-white"
-                )}
-                style={glassPillStyle}
-                aria-label="Sentient Radio"
-              >
-                <Radio className="w-5 h-5" strokeWidth={2.5} />
-              </motion.button>
-
               <ThemeToggle glassPillStyle={glassPillStyle} />
-              
+
               <NotificationPopover glassPillStyle={glassPillStyle} />
             </>
           )}

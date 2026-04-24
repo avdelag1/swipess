@@ -76,7 +76,7 @@ describe('Index page navigation logic', () => {
     expect(navigateMock).toHaveBeenCalledWith('/client/dashboard', { replace: true });
   });
 
-  it('redirects existing owner based on DB role', () => {
+  it('redirects existing owner to client dashboard first (APP-WIDE PROTOCOL)', () => {
     const user = {
       id: 'u2',
       created_at: '2020-01-01T00:00:00Z',
@@ -108,7 +108,8 @@ describe('Index page navigation logic', () => {
     } as any);
 
     render(<Index />);
-    expect(navigateMock).toHaveBeenCalledWith('/owner/dashboard', { replace: true });
+    // APP-WIDE PROTOCOL: Always start on client dashboard regardless of role
+    expect(navigateMock).toHaveBeenCalledWith('/client/dashboard', { replace: true });
   });
 });
 

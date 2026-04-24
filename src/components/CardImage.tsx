@@ -154,7 +154,7 @@ const CardImage = memo(({
 
           {/* Branded Pulse */}
           <div className="relative z-10 flex flex-col items-center gap-4 opacity-20 scale-75 lg:scale-100">
-            <SwipessLogo variant="icon" className="w-12 h-12 grayscale" />
+            <SwipessLogo variant="white" size="sm" className="opacity-60" />
             <div className="flex gap-1">
               {[0, 1, 2].map(i => (
                 <motion.div 

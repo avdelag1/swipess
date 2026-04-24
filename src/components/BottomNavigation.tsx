@@ -116,6 +116,7 @@ export const BottomNavigation = memo(({
     { id: 'dashboard', icon: Zap, label: 'Dashboard', path: '/client/dashboard' },
     { id: 'profile', icon: CircleUser, label: 'Profile', path: '/client/profile' },
     { id: 'likes', icon: Flame, label: 'Likes', path: '/client/liked-properties' },
+    { id: 'radio', icon: Radio, label: 'Radio', path: '/radio' },
     { id: 'ai', icon: Sparkles, label: 'AI Bot', onClick: openAIChat, isSpecial: true },
     { id: 'messages', icon: MessageCircle, label: 'Messages', path: '/messages' },
     { id: 'roommates', icon: Users2, label: 'Roommates', path: '/explore/roommates' },

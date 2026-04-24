@@ -2,6 +2,8 @@ import { describe, it, expect, vi } from 'vitest';
 import { render } from '@testing-library/react';
 import { SimpleSwipeCard } from '../SimpleSwipeCard';
 import { Listing } from '@/hooks/useListings';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import React from 'react';
 
 // Mock dependencies that rely on browser/API features
 vi.mock('@/utils/haptics', () => ({
@@ -27,6 +29,20 @@ vi.mock('@/hooks/useMagnifier', () => ({
     })),
 }));
 
+const queryClient = new QueryClient({
+    defaultOptions: {
+        queries: {
+            retry: false,
+        },
+    },
+});
+
+const wrapper = ({ children }: { children: React.ReactNode }) => (
+    <QueryClientProvider client={queryClient}>
+        {children}
+    </QueryClientProvider>
+);
+
 describe('SimpleSwipeCard Component', () => {
     const mockListing: Listing = {
         id: 'mock-id-123',
@@ -51,7 +67,8 @@ describe('SimpleSwipeCard Component', () => {
                 listing={mockListing}
                 onSwipe={handleSwipe}
                 isTop={true}
-            />
+            />,
+            { wrapper }
         );
 
         expect(container).toBeTruthy();
@@ -63,7 +80,8 @@ describe('SimpleSwipeCard Component', () => {
                 listing={mockListing}
                 onSwipe={vi.fn()}
                 isTop={true}
-            />
+            />,
+            { wrapper }
         );
 
         // Check for property specifics usually rendered by PropertyCardInfo

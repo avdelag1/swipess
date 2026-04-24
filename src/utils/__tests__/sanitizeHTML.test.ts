@@ -19,7 +19,7 @@ describe('sanitizeHTML', () => {
 
     it('removes javascript: protocols from links', () => {
         const input = '<a href="javascript:alert(1)">Link</a>';
-        expect(sanitizeHTML(input)).toBe('<a href="">Link</a>'); // Replaces with empty href
+        expect(sanitizeHTML(input)).toBe('<a>Link</a>'); // DOMPurify removes dangerous href attributes
     });
 
     it('strips <iframe> elements', () => {

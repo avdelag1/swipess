@@ -29,7 +29,7 @@ export function sanitizeHTML(html: string): string {
       'a', 'img',
     ],
     ALLOWED_ATTR: [
-      'href', 'src', 'alt', 'title', 'class', 'id',
+      'href', 'src', 'alt', 'title', 'class', 'id', 'style',
       'width', 'height', 'target', 'rel',
       'colspan', 'rowspan',
     ],

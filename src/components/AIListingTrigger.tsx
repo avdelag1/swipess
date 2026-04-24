@@ -58,7 +58,10 @@ export function AIListingTrigger({ glassPillStyle }: AIListingTriggerProps) {
       <DialogTrigger asChild>
         <motion.button
           whileTap={{ scale: 0.9 }}
-          onClick={() => {
+          onClick={() => setOpen(true)}
+          onPointerDown={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
             triggerHaptic('light');
           }}
           style={glassPillStyle}

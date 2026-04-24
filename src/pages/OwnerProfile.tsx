@@ -7,17 +7,15 @@ import { useAuth } from "@/hooks/useAuth";
 import { useOwnerStats } from "@/hooks/useOwnerStats";
 import { useOwnerProfile } from "@/hooks/useOwnerProfile";
 import {
-  LogOut, Building2, Camera, Flame, ThumbsUp, Settings, Megaphone, Scale, Coins, User, UserCircle, Crown, Sparkles
+  LogOut, Building2, Camera, Flame, ThumbsUp, Settings, Megaphone, Scale, Coins, User, UserCircle, Crown, Sparkles, Zap
 } from "lucide-react";
 import { ActivityFeed } from "@/components/ActivityFeed";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import useAppTheme from "@/hooks/useAppTheme";
 import { triggerHaptic } from "@/utils/haptics";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { cn } from "@/lib/utils";
 import { useMessagingQuota } from "@/hooks/useMessagingQuota";
-import { AtmosphericLayer } from "@/components/AtmosphericLayer";
 import { useModalStore } from "@/state/modalStore";
 
 const OwnerProfile = () => {
@@ -28,7 +26,6 @@ const OwnerProfile = () => {
   const { tokenBalance } = useMessagingQuota();
   const { setModal } = useModalStore();
   const navigate = useNavigate();
-  const { isLight } = useAppTheme();
 
   const isLoading = statsLoading || profileLoading;
 
@@ -37,256 +34,254 @@ const OwnerProfile = () => {
   }
 
   return (
-    <div className={cn(
-      "min-h-screen w-full transition-colors duration-500 relative overflow-x-hidden",
-      isLight ? "bg-white" : "bg-black",
-      "text-foreground"
-    )}>
-      {/* 🛸 Global AtmosphericLayer handled by PersistentDashboardLayout */}
+    <div className="min-h-screen w-full relative overflow-x-hidden bg-[#030308] text-white">
 
-      <div className="w-full max-w-7xl mx-auto p-6 pt-24 pb-12 space-y-16 relative z-10">
-        
-        {/* 🛸 OWNER HEADER: BRAND GLASS */}
-        <div className="flex flex-col items-center text-center gap-8">
+      {/* Nexus Grid Background */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div
+          className="absolute inset-0 opacity-[0.035]"
+          style={{
+            backgroundImage: `
+              linear-gradient(rgba(0,212,255,0.8) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(0,212,255,0.8) 1px, transparent 1px)
+            `,
+            backgroundSize: '48px 48px',
+          }}
+        />
+        <div className="absolute top-[-20%] left-[-10%] w-[70%] h-[60%] bg-cyan-500/8 rounded-full blur-[140px]" />
+        <div className="absolute bottom-[10%] right-[-10%] w-[50%] h-[50%] bg-violet-600/8 rounded-full blur-[120px]" />
+        <div className="absolute top-[40%] left-[30%] w-[40%] h-[40%] bg-blue-600/5 rounded-full blur-[100px]" />
+      </div>
+
+      <div className="w-full max-w-7xl mx-auto p-6 pt-24 pb-12 space-y-10 relative z-10">
+
+        {/* NEXUS OPERATOR BADGE */}
+        <div className="flex items-center justify-center">
+          <div className="flex items-center gap-2 px-4 py-1.5 rounded-full border border-cyan-500/20 bg-cyan-500/5">
+            <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+            <span className="text-[9px] font-black uppercase tracking-[0.4em] text-cyan-400">Nexus Operator</span>
+          </div>
+        </div>
+
+        {/* IDENTITY CORE */}
+        <div className="flex flex-col items-center text-center gap-6">
           <div className="relative">
-             <motion.div 
-               whileHover={{ scale: 1.05 }}
-               whileTap={{ scale: 0.95 }}
-               className={cn(
-                  "w-48 h-48 transition-all duration-500 p-[2px] shadow-3xl",
-                  "rounded-3xl bg-gradient-to-br from-[#EB4898] via-indigo-500 to-sky-400"
-               )}
+            <motion.div
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.96 }}
+              className="w-44 h-44 p-[2px] shadow-[0_0_60px_rgba(0,212,255,0.2)]"
+              style={{
+                borderRadius: '2rem',
+                background: 'linear-gradient(135deg, #00D4FF, #7C3AED, #0EA5E9)',
+              }}
             >
               <div
-                className={cn(
-                   "w-full h-full overflow-hidden cursor-pointer flex items-center justify-center",
-                   "rounded-[1.4rem] backdrop-blur-3xl border transition-all duration-500",
-                   isLight ? "bg-white/80 border-black/5 shadow-inner" : "bg-black/40 border-white/10"
-                )}
+                className="w-full h-full overflow-hidden cursor-pointer flex items-center justify-center bg-[#080C14] border border-white/5"
+                style={{ borderRadius: '1.85rem' }}
                 onClick={() => { triggerHaptic('light'); setShowEditDialog(true); }}
               >
                 {ownerProfile?.profile_images?.[0] ? (
                   <img src={ownerProfile.profile_images[0]} alt="Brand" className="w-full h-full object-cover" />
                 ) : (
-                  <UserCircle className={cn("w-16 h-16", isLight ? "text-black/20" : "text-white/20")} />
+                  <UserCircle className="w-16 h-16 text-white/10" />
                 )}
               </div>
             </motion.div>
-             <button
-               onClick={() => { triggerHaptic('light'); setShowEditDialog(true); }}
-               className={cn(
-                  "absolute -bottom-3 -right-3 w-14 h-14 flex items-center justify-center shadow-2xl transition-all active:scale-90 z-20",
-                  isLight ? "bg-slate-950 text-white border-white/20" : "bg-white text-black border-black/10",
-                  "rounded-2xl border"
-               )}
+
+            {/* Scan ring */}
+            <motion.div
+              className="absolute inset-[-6px] rounded-[2.4rem] border border-cyan-500/20 pointer-events-none"
+              animate={{ opacity: [0.4, 0.8, 0.4] }}
+              transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
+            />
+
+            <button
+              onClick={() => { triggerHaptic('light'); setShowEditDialog(true); }}
+              className="absolute -bottom-3 -right-3 w-12 h-12 flex items-center justify-center shadow-2xl transition-all active:scale-90 z-20 bg-[#0EA5E9] rounded-2xl border border-cyan-300/20"
             >
-              <Camera className="w-6 h-6" />
+              <Camera className="w-5 h-5 text-white" />
             </button>
           </div>
 
-          <div className="space-y-3">
-            <h1 className={cn(
-              "text-6xl font-black uppercase italic tracking-tighter leading-none transition-all",
-              isLight ? "text-black" : "text-white"
-            )}>
+          <div className="space-y-2">
+            <h1 className="text-5xl font-black uppercase italic tracking-tighter leading-none text-white">
               {ownerProfile?.business_name || 'Brand'}
             </h1>
-            <div className="flex items-center justify-center gap-3">
-               <div className={cn(
-                 "px-4 py-1.5 rounded-full transition-all",
-                 "bg-[#EB4898]/10 border border-[#EB4898]/20"
-               )}>
-                  <span className={cn(
-                     "text-[10px] font-black uppercase tracking-[0.3em] italic",
-                     "text-[#EB4898]"
-                   )}>Owner Elite</span>
-               </div>
-               <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/20" />
-               <span className={cn("text-[10px] font-black uppercase tracking-[0.2em] italic", isLight ? "text-black/30" : "text-white/30")}>{user?.email}</span>
+            <div className="flex items-center justify-center gap-3 mt-2">
+              <span className="text-[10px] font-black uppercase tracking-[0.25em] text-white/25">{user?.email}</span>
             </div>
           </div>
         </div>
 
-        {/* 🛸 METRIC GRID: SEAMLESS MIRROR */}
-        <div className={cn("grid grid-cols-3 gap-8 py-8 border-y", isLight ? "border-black/5" : "border-white/5")}>
+        {/* NEXUS METRIC GRID */}
+        <div className="grid grid-cols-3 gap-3">
           {[
-            { label: 'Network', value: stats?.likedClientsCount ?? 0, icon: Flame, color: 'text-[#EB4898]' },
-            { label: 'Followers', value: stats?.interestedClientsCount ?? 0, icon: ThumbsUp, color: 'text-amber-500' },
-            { label: 'Assets', value: stats?.activeProperties ?? 0, icon: Building2, color: 'text-sky-500' },
+            { label: 'Network', value: stats?.likedClientsCount ?? 0, icon: Flame, color: 'text-cyan-400', border: 'border-cyan-500/15', glow: 'rgba(0,212,255,0.15)' },
+            { label: 'Followers', value: stats?.interestedClientsCount ?? 0, icon: ThumbsUp, color: 'text-violet-400', border: 'border-violet-500/15', glow: 'rgba(124,58,237,0.15)' },
+            { label: 'Assets', value: stats?.activeProperties ?? 0, icon: Building2, color: 'text-blue-400', border: 'border-blue-500/15', glow: 'rgba(59,130,246,0.15)' },
           ].map((stat, i) => (
             <motion.div
               key={i}
               whileTap={{ scale: 0.95 }}
-              className="flex flex-col items-center justify-center text-center group"
+              className="flex flex-col items-center justify-center text-center p-5 rounded-3xl border bg-white/[0.02]"
+              style={{ borderColor: `rgba(255,255,255,0.06)`, boxShadow: `inset 0 0 30px ${stat.glow}` }}
             >
-              <stat.icon className={cn("w-6 h-6 mb-4 transition-transform group-hover:scale-110", stat.color)} />
-              <div className={cn("text-4xl font-black tabular-nums tracking-tighter leading-none", isLight ? "text-slate-950" : "text-white")}>
+              <stat.icon className={cn("w-5 h-5 mb-3", stat.color)} />
+              <div className="text-4xl font-black tabular-nums tracking-tighter leading-none text-white">
                 {stat.value}
               </div>
-              <div className={cn("text-[10px] font-black uppercase tracking-[0.2em] italic mt-3 opacity-40")}>{stat.label}</div>
+              <div className="text-[9px] font-black uppercase tracking-[0.2em] mt-2 text-white/30">{stat.label}</div>
             </motion.div>
           ))}
         </div>
 
-        {/* 🛸 TOKEN HUB: SEAMLESS MIRROR */}
-        <motion.div 
+        {/* POWER CORE */}
+        <motion.div
           whileHover={{ scale: 1.01 }}
           whileTap={{ scale: 0.99 }}
-          className={cn(
-            "flex items-center justify-between p-8 rounded-[3rem] cursor-pointer",
-            isLight ? "bg-black/[0.02] border border-black/5" : "bg-white/[0.03] border border-white/5"
-          )}
+          className="flex items-center justify-between p-6 rounded-3xl cursor-pointer border border-white/[0.06] bg-white/[0.02]"
+          style={{ boxShadow: 'inset 0 0 40px rgba(0,212,255,0.06)' }}
           onClick={() => { triggerHaptic('light'); navigate('/subscription/packages'); }}
         >
-          <div className="flex items-center gap-6">
-            <div className="w-14 h-14 rounded-2xl bg-indigo-500/10 flex items-center justify-center border border-indigo-500/20">
-              <Coins className="w-7 h-7 text-indigo-400" />
+          <div className="flex items-center gap-5">
+            <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 flex items-center justify-center border border-cyan-500/20">
+              <Coins className="w-6 h-6 text-cyan-400" />
             </div>
             <div>
-              <h3 className={cn("text-[14px] font-black uppercase tracking-[0.2em] italic leading-tight", isLight ? "text-black" : "text-white")}>Global Credits</h3>
-              <p className={cn("text-[10px] font-bold uppercase tracking-[0.15em] mt-1.5 opacity-30")}>Swipess Messaging Reserve</p>
+              <h3 className="text-[13px] font-black uppercase tracking-[0.2em] italic text-white leading-tight">Global Credits</h3>
+              <p className="text-[9px] font-bold uppercase tracking-[0.15em] mt-1 text-white/25">Swipess Messaging Reserve</p>
             </div>
           </div>
-          <div className={cn("text-4xl font-black italic tracking-tighter", isLight ? "text-black" : "text-white")}>
+          <div className="text-4xl font-black italic tracking-tighter text-cyan-400">
             {tokenBalance || 0}
           </div>
         </motion.div>
 
-        {/* 🛸 PRIMARY HIGH-FIDELITY ACTIONS */}
-        <div className="space-y-4">
+        {/* PRIMARY ACTIONS */}
+        <div className="space-y-3">
           <Button
             onClick={() => { triggerHaptic('heavy'); setModal('showAIListing', true); }}
-            className={cn(
-              "w-full h-24 rounded-[2.5rem] relative overflow-hidden transition-all active:scale-95 group border-none shadow-2xl",
-              "bg-gradient-to-br from-indigo-600 via-purple-600 to-rose-500 text-white"
-            )}
+            className="w-full h-24 rounded-3xl relative overflow-hidden transition-all active:scale-95 border-none shadow-2xl"
+            style={{ background: 'linear-gradient(135deg, #6366F1, #7C3AED, #EC4899)' }}
           >
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.4),transparent_70%)] opacity-50 group-hover:opacity-80 transition-opacity" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.35),transparent_70%)] pointer-events-none" />
             <div className="relative z-10 flex items-center justify-center gap-4">
               <Sparkles className="w-8 h-8 animate-pulse text-white" />
               <div className="text-left">
-                <span className="block text-[18px] font-black uppercase italic tracking-[0.2em] leading-none">Magic AI Listing</span>
-                <span className="block text-[9px] font-black uppercase tracking-[0.3em] opacity-60 mt-1">Flagship Intelligence v4</span>
+                <span className="block text-[18px] font-black uppercase italic tracking-[0.2em] leading-none text-white">Magic AI Listing</span>
+                <span className="block text-[9px] font-black uppercase tracking-[0.3em] text-white/60 mt-1">Flagship Intelligence v4</span>
               </div>
             </div>
-            <div className="absolute -bottom-6 -right-6 w-24 h-24 bg-white/10 rounded-full blur-3xl group-hover:bg-white/20 transition-all" />
           </Button>
 
           <Button
             onClick={() => { triggerHaptic('medium'); setShowEditDialog(true); }}
-            className={cn(
-              "w-full h-20 rounded-3xl font-black uppercase italic tracking-[0.2em] text-[16px] transition-all border-none shadow-xl",
-              isLight ? "bg-slate-950 text-white hover:bg-primary" : "bg-white text-slate-950 hover:bg-primary hover:text-white"
-            )}
+            className="w-full h-16 rounded-2xl font-black uppercase italic tracking-[0.2em] text-[15px] transition-all border-none text-white"
+            style={{
+              background: 'linear-gradient(135deg, #00D4FF, #0EA5E9, #7C3AED)',
+              boxShadow: '0 20px 50px rgba(0,212,255,0.25)',
+            }}
           >
-            <User className="w-7 h-7 mr-4" />
+            <User className="w-6 h-6 mr-3" />
             <span>Control Brand ID</span>
           </Button>
 
           <Button
             onClick={() => { triggerHaptic('medium'); navigate('/client/advertise'); }}
-            className={cn(
-               "w-full h-20 rounded-3xl backdrop-blur-3xl transition-all active:scale-95",
-               isLight ? "bg-black/[0.02] border border-black/5" : "bg-white/5 border border-white/10"
-            )}
+            className="w-full h-16 rounded-2xl transition-all active:scale-95 border border-white/[0.08] bg-white/[0.03] hover:bg-white/[0.05]"
           >
-            <Megaphone className="w-7 h-7 text-[#EB4898] mr-4" />
-            <span className="bg-gradient-to-r from-[#EB4898] via-orange-500 to-amber-500 bg-clip-text text-transparent font-black uppercase italic tracking-[0.2em] text-[15px]">
+            <Megaphone className="w-6 h-6 text-violet-400 mr-3" />
+            <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-violet-400 bg-clip-text text-transparent font-black uppercase italic tracking-[0.2em] text-[14px]">
               Promote Your Event
             </span>
           </Button>
         </div>
 
-        {/* 🛸 ACTION NAV GRID */}
-        <div className="grid grid-cols-2 gap-6">
+        {/* ACTION NAV GRID */}
+        <div className="grid grid-cols-2 gap-4">
           {[
-            { label: 'Outbound', sub: 'Linked Ready', icon: Flame, color: 'text-[#EB4898]', path: '/owner/liked-clients' },
-            { label: 'Inbound', sub: 'Active Fans', icon: ThumbsUp, color: 'text-amber-500', path: '/owner/interested-clients' }
+            { label: 'Outbound', sub: 'Linked Ready', icon: Flame, color: 'text-cyan-400', path: '/owner/liked-clients', glow: 'rgba(0,212,255,0.08)' },
+            { label: 'Inbound', sub: 'Active Fans', icon: ThumbsUp, color: 'text-violet-400', path: '/owner/interested-clients', glow: 'rgba(124,58,237,0.08)' },
           ].map((nav, i) => (
             <motion.button
               key={i}
-              whileTap={{ scale: 0.98 }}
+              whileTap={{ scale: 0.97 }}
               onClick={() => { triggerHaptic('light'); navigate(nav.path); }}
-              className={cn(
-                  "rounded-[2.5rem] p-8 flex flex-col gap-6 text-left transition-all border",
-                  isLight ? "bg-black/[0.02] border-black/5 hover:bg-black/[0.04]" : "bg-white/[0.03] border-white/5 hover:bg-white/[0.05]"
-               )}
-             >
-               <div className={cn(
-                 "w-14 h-14 rounded-2xl flex items-center justify-center border shadow-lg", 
-                 isLight ? "bg-black/5 border-black/10" : "bg-white/5 border-white/10",
-                 nav.color
-               )}>
-                 <nav.icon className="w-7 h-7" />
-               </div>
-               <div>
-                 <div className={cn("text-[14px] font-black uppercase tracking-[0.1em] italic leading-tight", isLight ? "text-black" : "text-white")}>{nav.label}</div>
-                 <div className={cn("text-[11px] font-bold mt-1.5 uppercase tracking-widest opacity-30")}>{nav.sub}</div>
-               </div>
+              className="rounded-3xl p-7 flex flex-col gap-5 text-left border border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.04] transition-all"
+              style={{ boxShadow: `inset 0 0 30px ${nav.glow}` }}
+            >
+              <div className="w-12 h-12 rounded-2xl flex items-center justify-center border border-white/[0.08] bg-white/[0.04]">
+                <nav.icon className={cn("w-6 h-6", nav.color)} />
+              </div>
+              <div>
+                <div className="text-[13px] font-black uppercase tracking-[0.1em] italic text-white leading-tight">{nav.label}</div>
+                <div className="text-[10px] font-bold mt-1 uppercase tracking-widest text-white/25">{nav.sub}</div>
+              </div>
             </motion.button>
           ))}
         </div>
 
-        {/* 🛸 ACTIVITY FEED PANEL */}
-        <div className="space-y-8">
-          <div className="flex items-center justify-between px-2">
-             <div className="flex items-center gap-3">
-                <div className="w-2 h-2 rounded-full bg-[#EB4898] animate-pulse" />
-                <h3 className={cn("text-[11px] font-black uppercase tracking-[0.3em] italic opacity-40")}>Activity Feed</h3>
-             </div>
-             <Sparkles className="w-4 h-4 text-[#EB4898]/40" />
+        {/* ACTIVITY FEED */}
+        <div className="space-y-6">
+          <div className="flex items-center justify-between px-1">
+            <div className="flex items-center gap-3">
+              <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+              <h3 className="text-[10px] font-black uppercase tracking-[0.35em] text-white/30">Activity Feed</h3>
+            </div>
+            <Zap className="w-4 h-4 text-cyan-400/30" />
           </div>
           <ActivityFeed />
         </div>
 
-        <div className="py-8">
-           <SharedProfileSection profileId={user?.id} profileName={ownerProfile?.business_name || 'Your Business'} isClient={false} />
-        </div>
-        
-        <div className="flex justify-center pt-8">
-           <LanguageToggle />
+        <div className="py-4">
+          <SharedProfileSection profileId={user?.id} profileName={ownerProfile?.business_name || 'Your Business'} isClient={false} />
         </div>
 
-        {/* 🛸 NAVIGATION STACK: GLASS BUTTONS */}
-        <div className="space-y-4 pt-10">
-           <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => { triggerHaptic('success'); navigate('/owner/dashboard'); }}
-              className="w-full h-20 rounded-[2.5rem] bg-gradient-to-r from-[#EB4898] via-indigo-500 to-sky-500 flex items-center justify-center gap-4 active:scale-[0.97] transition-all shadow-[0_25px_60px_rgba(235,72,152,0.3)]"
-           >
-              <Crown className="w-7 h-7 text-white" />
-              <span className="text-[16px] font-black uppercase italic tracking-[0.2em] text-white">Owner Dashboard</span>
-           </motion.button>
+        <div className="flex justify-center pt-4">
+          <LanguageToggle />
+        </div>
 
-           <div className="grid grid-cols-1 gap-4 text-center">
-              {[
-                { label: 'Legal Center', icon: Scale, path: '/legal' },
-                { label: 'Account Settings', icon: Settings, path: '/owner/settings' },
-                { label: 'Sign Out', icon: LogOut, path: 'signout', urgent: true }
-              ].map(btn => (
-                 <motion.button
-                  key={btn.label}
-                  whileHover={{ x: 5 }}
-                  onClick={() => { 
-                    triggerHaptic('medium'); 
-                    if (btn.path === 'signout') signOut(); 
-                    else navigate(btn.path); 
-                  }}
-                  className={cn(
-                    "w-full h-18 rounded-[2.5rem] backdrop-blur-md flex items-center px-12 gap-6 active:scale-[0.97] transition-all border",
-                    btn.urgent 
-                      ? "bg-red-500/10 border-red-500/20 text-red-500" 
-                      : isLight 
-                        ? "bg-white border-black/15 text-black shadow-md" 
-                        : "bg-white/5 border-white/5 text-white/80"
-                  )}
-                >
-                  <btn.icon className={cn("w-6 h-6", btn.urgent ? "text-red-500" : isLight ? "text-black/50" : "text-white/30")} />
-                  <span className={cn("text-[13px] font-black uppercase tracking-[0.2em] italic", isLight ? "text-black" : "text-white/80")}>{btn.label}</span>
-                </motion.button>
-              ))}
-           </div>
+        {/* NAV STACK */}
+        <div className="space-y-3 pt-6">
+          <motion.button
+            whileTap={{ scale: 0.98 }}
+            onClick={() => { triggerHaptic('success'); navigate('/owner/dashboard'); }}
+            className="w-full h-16 rounded-2xl flex items-center justify-center gap-4 active:scale-[0.97] transition-all text-white font-black uppercase italic tracking-[0.2em] text-[15px]"
+            style={{
+              background: 'linear-gradient(135deg, #00D4FF, #0EA5E9, #7C3AED)',
+              boxShadow: '0 20px 50px rgba(0,212,255,0.2)',
+            }}
+          >
+            <Crown className="w-6 h-6 text-white" />
+            <span>Owner Dashboard</span>
+          </motion.button>
+
+          <div className="grid grid-cols-1 gap-3">
+            {[
+              { label: 'Legal Center', icon: Scale, path: '/legal' },
+              { label: 'Account Settings', icon: Settings, path: '/owner/settings' },
+              { label: 'Sign Out', icon: LogOut, path: 'signout', urgent: true },
+            ].map(btn => (
+              <motion.button
+                key={btn.label}
+                whileHover={{ x: 4 }}
+                onClick={() => {
+                  triggerHaptic('medium');
+                  if (btn.path === 'signout') signOut();
+                  else navigate(btn.path);
+                }}
+                className={cn(
+                  "w-full h-14 rounded-2xl flex items-center px-8 gap-5 active:scale-[0.97] transition-all border",
+                  btn.urgent
+                    ? "bg-red-500/10 border-red-500/20 text-red-400"
+                    : "bg-white/[0.03] border-white/[0.06] text-white/70 hover:bg-white/[0.05]"
+                )}
+              >
+                <btn.icon className={cn("w-5 h-5", btn.urgent ? "text-red-400" : "text-white/25")} />
+                <span className="text-[12px] font-black uppercase tracking-[0.2em] italic">{btn.label}</span>
+              </motion.button>
+            ))}
+          </div>
         </div>
 
         <div className="h-24" />
@@ -298,5 +293,3 @@ const OwnerProfile = () => {
 };
 
 export default OwnerProfile;
-
-

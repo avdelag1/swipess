@@ -91,7 +91,7 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.9, opacity: 0, y: 30 }}
             onClick={(e) => e.stopPropagation()}
-            className="relative w-[92vw] max-w-[560px]"
+            className="relative w-[85vw] max-w-[480px] min-h-[85vh] max-h-[85vh] flex flex-col"
           >
             <div className="flex items-center justify-between mb-3 px-1">
               <button onClick={cycleTheme} className="h-9 w-9 flex items-center justify-center rounded-full bg-white/10 border border-white/15">
@@ -107,51 +107,51 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
               key={themeIndex}
               initial={{ opacity: 0.7 }}
               animate={{ opacity: 1 }}
-              className="relative rounded-[2.5rem] overflow-hidden shadow-2xl border border-white/10"
+              className="relative rounded-[2.5rem] overflow-hidden shadow-2xl border border-white/10 flex-1 flex flex-col"
               style={{ background: theme.background }}
             >
-              <div className="relative z-10 p-8 sm:p-10">
-                <div className="flex gap-8 mb-10">
+              <div className="relative z-10 p-6 sm:p-8 flex-1 flex flex-col">
+                <div className="flex gap-6 mb-8">
                   <div className="relative shrink-0">
-                    <div className="w-[120px] h-[150px] rounded-[2rem] overflow-hidden shadow-2xl border-2 border-white/10">
+                    <div className="w-[160px] h-[200px] rounded-[2rem] overflow-hidden shadow-2xl border-2 border-white/10">
                       {avatarUrl ? <img src={avatarUrl} alt={name} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-4xl font-black" style={{ color: theme.accentColor, background: theme.tagBg }}>{name.charAt(0)}</div>}
                     </div>
                   </div>
 
                   <div className="flex-1 min-w-0 pt-2 space-y-5">
-                    <div className="flex flex-col gap-2">
+                    <div className="flex flex-col gap-3">
                        <div className="flex items-center gap-2">
-                          <ShieldCheck size={18} style={{ color: theme.accentColor }} />
-                          <span className="text-[10px] font-black uppercase tracking-[0.4em] italic" style={{ color: theme.accentColor }}>Authorized Resident</span>
+                          <ShieldCheck size={22} style={{ color: theme.accentColor }} />
+                          <span className="text-[12px] font-black uppercase tracking-[0.4em] italic" style={{ color: theme.accentColor }}>Authorized Resident</span>
                        </div>
-                       <h3 className="text-3xl font-black leading-none tracking-tighter italic uppercase" style={{ color: theme.textPrimary }}>{name}</h3>
+                       <h3 className="text-4xl font-black leading-none tracking-tighter italic uppercase" style={{ color: theme.textPrimary }}>{name}</h3>
                     </div>
-                    <div className="space-y-3">
-                       {occupation && <span className="text-[12px] font-black uppercase tracking-widest italic" style={{ color: theme.accentColor }}>{occupation}</span>}
+                    <div className="space-y-4">
+                       {occupation && <span className="text-[14px] font-black uppercase tracking-widest italic" style={{ color: theme.accentColor }}>{occupation}</span>}
                        <div className="flex flex-col gap-2 opacity-60">
-                          {location && <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest" style={{ color: theme.textSecondary }}><MapPin size={14} /><span>{location}</span></div>}
-                          <span className="text-[9px] font-mono tracking-widest" style={{ color: theme.textTertiary }}>TXID: {idNumber}</span>
+                          {location && <div className="flex items-center gap-2 text-[13px] font-bold uppercase tracking-widest" style={{ color: theme.textSecondary }}><MapPin size={16} /><span>{location}</span></div>}
+                          <span className="text-[11px] font-mono tracking-widest" style={{ color: theme.textTertiary }}>TXID: {idNumber}</span>
                        </div>
                     </div>
                   </div>
                 </div>
 
-                {bio && <div className="rounded-[1.5rem] p-6 mb-8 border" style={{ background: `${theme.tagBg}44`, border: `1px solid ${theme.tagBorder}` }}><p className="text-[13px] leading-relaxed italic font-medium" style={{ color: theme.textSecondary }}>{bio}</p></div>}
+                {bio && <div className="rounded-[1.5rem] p-6 mb-8 border" style={{ background: `${theme.tagBg}44`, border: `1px solid ${theme.tagBorder}` }}><p className="text-[14px] leading-relaxed italic font-medium" style={{ color: theme.textSecondary }}>{bio}</p></div>}
 
-                <div className="space-y-6">
+                <div className="space-y-6 flex-1 flex flex-col">
                   {allTags.length > 0 && (
                     <div className="flex flex-wrap gap-2">
-                      {allTags.map(tag => <span key={tag} className="rounded-full px-4 py-2 text-[10px] font-black uppercase italic tracking-widest border" style={{ background: theme.tagBg, border: `1px solid ${theme.tagBorder}`, color: theme.tagText }}>{tag}</span>)}
+                      {allTags.map(tag => <span key={tag} className="rounded-full px-5 py-2 text-[11px] font-black uppercase italic tracking-widest border" style={{ background: theme.tagBg, border: `1px solid ${theme.tagBorder}`, color: theme.tagText }}>{tag}</span>)}
                     </div>
                   )}
 
-                  <div className="flex items-center justify-between pt-6 border-t" style={{ borderTopColor: theme.tagBorder }}>
+                  <div className="flex items-center justify-between pt-6 border-t mt-auto" style={{ borderTopColor: theme.tagBorder }}>
                      <div className="flex flex-col">
-                        <span className="text-[8px] font-black uppercase tracking-[0.3em] opacity-30" style={{ color: theme.textTertiary }}>Identity Protocol</span>
-                        <span className="text-[7px] font-bold uppercase tracking-[0.15em] opacity-50" style={{ color: theme.textTertiary }}>swipess.app</span>
+                        <span className="text-[9px] font-black uppercase tracking-[0.3em] opacity-30" style={{ color: theme.textTertiary }}>Identity Protocol</span>
+                        <span className="text-[8px] font-bold uppercase tracking-[0.15em] opacity-50" style={{ color: theme.textTertiary }}>swipess.app</span>
                      </div>
-                     <div className="rounded-xl p-2 bg-white shadow-2xl">
-                        <QRCode value={validationUrl} size={50} level="H" />
+                     <div className="rounded-xl p-3 bg-white shadow-2xl">
+                        <QRCode value={validationUrl} size={70} level="H" />
                      </div>
                   </div>
                 </div>

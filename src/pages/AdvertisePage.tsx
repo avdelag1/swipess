@@ -26,7 +26,7 @@ const PACKAGES = [
     price: 4.99,
     duration: "week",
     durationLabel: "/ week",
-    image: "/images/promo/card_starter.jpg",
+    image: "/images/promo/promo_1.png",
     perks: [
       "Your event shown to property owners, renters & digital nomads",
       "1 photo with your listing card",
@@ -45,7 +45,7 @@ const PACKAGES = [
     price: 6.99,
     duration: "3months",
     durationLabel: "/ 3 months",
-    image: "/images/promo/card_growth.jpg",
+    image: "/images/promo/promo_3.png",
     perks: [
       "Featured badge — stand out in the feed",
       "Up to 5 photos to showcase your event",
@@ -65,7 +65,7 @@ const PACKAGES = [
     price: 9.99,
     duration: "6months",
     durationLabel: "/ 6 months",
-    image: "/images/promo/card_premium.jpg",
+    image: "/images/promo/promo_5.png",
     perks: [
       "Top of feed — first thing users see",
       "Unlimited photos & rich media",
@@ -477,7 +477,7 @@ export default function AdvertisePage() {
   // ── LANDING PAGE ────────────────────────────────────────────────────────────
   if (view === "landing") {
     return (
-      <div className="w-full relative pb-20" style={{ background: th.pageBg }}>
+      <div className="w-full relative pb-20 min-h-screen overflow-y-auto" style={{ background: th.pageBg }}>
         {/* Subtle gradient blobs */}
         <div className="fixed inset-0 overflow-hidden pointer-events-none">
           <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] rounded-full blur-[120px]"

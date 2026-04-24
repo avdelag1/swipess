@@ -304,21 +304,21 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
                      type="button"
                      onClick={() => { triggerHaptic('light'); setSelectedRole('client'); }}
                      className={cn(
-                       "py-2 rounded-xl text-[8px] font-black uppercase tracking-widest transition-all border",
+                       "py-3 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all border",
                        selectedRole === 'client' ? "bg-white text-black border-white shadow-[0_0_20px_rgba(255,255,255,0.4)]" : "bg-white/10 text-white/60 border-white/10 hover:bg-white/20"
                      )}
                    >
-                     Seeker
+                     Client
                    </button>
                    <button
                      type="button"
                      onClick={() => { triggerHaptic('light'); setSelectedRole('owner'); }}
                      className={cn(
-                       "py-2 rounded-xl text-[8px] font-black uppercase tracking-widest transition-all border",
+                       "py-3 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all border",
                        selectedRole === 'owner' ? "bg-white text-black border-white shadow-[0_0_20px_rgba(255,255,255,0.4)]" : "bg-white/10 text-white/60 border-white/10 hover:bg-white/20"
                      )}
                    >
-                     Authority
+                     Owner
                    </button>
                 </div>
              </div>
@@ -486,6 +486,36 @@ function LegendaryLandingPage() {
     const handleOpenLegal = (e: any) => setLegalModal(e.detail);
     window.addEventListener('open-legal', handleOpenLegal);
     return () => window.removeEventListener('open-legal', handleOpenLegal);
+  }, []);
+
+  // Unlock Web Audio + HTMLAudio policy on very first tap anywhere on the page
+  useEffect(() => {
+    let unlocked = false;
+    const unlock = () => {
+      if (unlocked) return;
+      unlocked = true;
+      try {
+        const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+        const ctx = new AudioContextClass();
+        const buf = ctx.createBuffer(1, 1, 22050);
+        const src = ctx.createBufferSource();
+        src.buffer = buf;
+        src.connect(ctx.destination);
+        src.start(0);
+        if (ctx.state === 'suspended') ctx.resume();
+      } catch (_) {}
+      // Also unlock HTMLAudio by playing a 0-duration silent audio
+      try {
+        const silent = new Audio();
+        silent.play().catch(() => {});
+      } catch (_) {}
+    };
+    document.addEventListener('pointerdown', unlock, { once: true, passive: true });
+    document.addEventListener('touchstart', unlock, { once: true, passive: true });
+    return () => {
+      document.removeEventListener('pointerdown', unlock);
+      document.removeEventListener('touchstart', unlock);
+    };
   }, []);
 
   return (

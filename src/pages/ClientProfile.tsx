@@ -7,19 +7,17 @@ import { useClientProfile } from "@/hooks/useClientProfile";
 import { useAuth } from "@/hooks/useAuth";
 import {
   LogOut, User, Camera, Sparkles, Crown,
-  Flame, ThumbsUp, Settings, MessageSquare, Megaphone, ChevronRight, Scale, ShieldCheck
+  Flame, ThumbsUp, Settings, MessageSquare, Megaphone, ChevronRight, Scale, ShieldCheck, Zap
 } from "lucide-react";
 import { useClientStats } from "@/hooks/useClientStats";
 import { ActivityFeed } from "@/components/ActivityFeed";
 import { VapIdEditModal } from "@/components/VapIdEditModal";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import useAppTheme from "@/hooks/useAppTheme";
 import { ProfileSkeleton } from "@/components/ui/LayoutSkeletons";
 import { cn } from "@/lib/utils";
 import { triggerHaptic } from "@/utils/haptics";
 import { LanguageToggle } from "@/components/LanguageToggle";
-import { AtmosphericLayer } from "@/components/AtmosphericLayer";
 
 const ClientProfile = () => {
   const [showEditDialog, setShowEditDialog] = useState(false);
@@ -29,7 +27,6 @@ const ClientProfile = () => {
   const { data: profile, isLoading } = useClientProfile();
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
-  const { theme, isLight } = useAppTheme();
 
   const { data: stats } = useClientStats();
 
@@ -57,232 +54,250 @@ const ClientProfile = () => {
   }
 
   return (
-    <div className={cn(
-      "min-h-screen w-full transition-colors duration-500 relative overflow-x-hidden",
-      "bg-transparent text-foreground"
-    )}>
-      <AtmosphericLayer variant="rose" />
+    <div className="min-h-screen w-full relative overflow-x-hidden bg-[#030308] text-white">
 
-      <div className="w-full max-w-7xl mx-auto p-6 pt-24 pb-12 space-y-12 relative z-10">
-        
-        {/* 🛸 HERO HEADER: MEGA AVATAR CYCLE */}
-        <div className="flex flex-col items-center text-center gap-8">
+      {/* Nexus Grid Background */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div
+          className="absolute inset-0 opacity-[0.035]"
+          style={{
+            backgroundImage: `
+              linear-gradient(rgba(124,58,237,0.8) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(124,58,237,0.8) 1px, transparent 1px)
+            `,
+            backgroundSize: '48px 48px',
+          }}
+        />
+        <div className="absolute top-[-20%] right-[-10%] w-[60%] h-[60%] bg-violet-600/8 rounded-full blur-[140px]" />
+        <div className="absolute bottom-[10%] left-[-10%] w-[50%] h-[50%] bg-cyan-500/6 rounded-full blur-[120px]" />
+        <div className="absolute top-[45%] right-[25%] w-[40%] h-[30%] bg-blue-600/5 rounded-full blur-[100px]" />
+      </div>
+
+      <div className="w-full max-w-7xl mx-auto p-6 pt-24 pb-12 space-y-10 relative z-10">
+
+        {/* NEXUS MEMBER BADGE */}
+        <div className="flex items-center justify-center">
+          <div className="flex items-center gap-2 px-4 py-1.5 rounded-full border border-violet-500/20 bg-violet-500/5">
+            <div className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse" />
+            <span className="text-[9px] font-black uppercase tracking-[0.4em] text-violet-400">Nexus Member</span>
+          </div>
+        </div>
+
+        {/* IDENTITY CORE */}
+        <div className="flex flex-col items-center text-center gap-6">
           <div className="relative">
-            <motion.div 
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className={cn(
-                 "w-48 h-48 transition-all duration-500 p-[4px] shadow-3xl",
-                 "rounded-[3.5rem] bg-gradient-to-br from-[#EB4898] via-indigo-500 to-orange-400"
-              )}
+            <motion.div
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.96 }}
+              className="w-44 h-44 p-[2px] shadow-[0_0_60px_rgba(124,58,237,0.25)]"
+              style={{
+                borderRadius: '3.5rem',
+                background: 'linear-gradient(135deg, #7C3AED, #0EA5E9, #00D4FF)',
+              }}
             >
               <div
-                className={cn(
-                   "w-full h-full overflow-hidden cursor-pointer flex items-center justify-center",
-                   "rounded-[3.4rem] bg-background border border-white/10"
-                )}
+                className="w-full h-full overflow-hidden cursor-pointer flex items-center justify-center bg-[#080C14] border border-white/5"
+                style={{ borderRadius: '3.4rem' }}
                 onClick={() => { triggerHaptic('light'); if (profile?.profile_images?.length) { handlePhotoClick(0); } else { setShowEditDialog(true); } }}
               >
                 {profile?.profile_images?.[0] ? (
                   <img src={profile.profile_images[0]} alt="Profile" className="w-full h-full object-cover" />
                 ) : (
-                  <User className={cn("w-14 h-14", isLight ? "text-black/10" : "text-white/20")} />
+                  <User className="w-14 h-14 text-white/10" />
                 )}
               </div>
             </motion.div>
-            
+
+            {/* Scan ring */}
+            <motion.div
+              className="absolute inset-[-6px] border border-violet-500/20 pointer-events-none"
+              style={{ borderRadius: '4rem' }}
+              animate={{ opacity: [0.3, 0.7, 0.3] }}
+              transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+            />
+
             <button
               onClick={() => { triggerHaptic('light'); setShowEditDialog(true); }}
-              className={cn(
-                "absolute -bottom-3 -right-3 w-16 h-16 flex items-center justify-center shadow-2xl transition-all active:scale-90 z-20",
-                "bg-brand-primary text-white rounded-[1.8rem] shadow-xl border border-white/20"
-              )}
+              className="absolute -bottom-3 -right-3 w-12 h-12 flex items-center justify-center shadow-2xl transition-all active:scale-90 z-20 rounded-[1.5rem] border border-violet-300/20"
+              style={{ background: 'linear-gradient(135deg, #7C3AED, #0EA5E9)' }}
             >
-              <Camera className="w-7 h-7" />
+              <Camera className="w-5 h-5 text-white" />
             </button>
           </div>
 
-          <div className="space-y-3">
-            <h1 className={cn(
-              "text-6xl font-black uppercase italic tracking-tighter leading-none transition-all",
-              isLight ? "text-black" : "text-white"
-            )}>
+          <div className="space-y-2">
+            <h1 className="text-5xl font-black uppercase italic tracking-tighter leading-none text-white">
               {profile?.name || 'Profile'}
             </h1>
-            <div className="flex items-center justify-center gap-3">
-              <div className={cn(
-                "px-4 py-1.5 rounded-full transition-all",
-                "bg-[#EB4898]/10 border border-[#EB4898]/20"
-              )}>
-                 <span className={cn(
-                   "text-[10px] font-black uppercase tracking-[0.3em] italic",
-                   "text-[#EB4898]"
-                 )}>Resident Pillar</span>
-              </div>
-              <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/20" />
-              <span className={cn("text-[10px] font-black uppercase tracking-[0.2em] italic", isLight ? "text-black/30" : "text-white/30")}>{user?.email}</span>
+            <div className="flex items-center justify-center gap-3 mt-2">
+              <span className="text-[10px] font-black uppercase tracking-[0.25em] text-white/25">{user?.email}</span>
             </div>
           </div>
         </div>
 
-        {/* 🛸 HUD STATS GRID */}
-        <div className="grid grid-cols-3 gap-4">
+        {/* HUD STATS GRID */}
+        <div className="grid grid-cols-3 gap-3">
           {[
-            { label: 'Likes', value: stats?.likesReceived ?? 0, icon: ThumbsUp, color: 'text-[#EB4898]' },
-            { label: 'Matches', value: stats?.matchesCount ?? 0, icon: Sparkles, color: 'text-amber-500' },
-            { label: 'Chats', value: stats?.activeChats ?? 0, icon: MessageSquare, color: 'text-sky-500' },
+            { label: 'Likes', value: stats?.likesReceived ?? 0, icon: ThumbsUp, color: 'text-violet-400', glow: 'rgba(124,58,237,0.15)' },
+            { label: 'Matches', value: stats?.matchesCount ?? 0, icon: Sparkles, color: 'text-cyan-400', glow: 'rgba(0,212,255,0.15)' },
+            { label: 'Chats', value: stats?.activeChats ?? 0, icon: MessageSquare, color: 'text-blue-400', glow: 'rgba(59,130,246,0.15)' },
           ].map((stat, i) => (
             <motion.div
               key={i}
               whileTap={{ scale: 0.95 }}
-              className={cn(
-                 "backdrop-blur-3xl border transition-all duration-500 flex flex-col items-center justify-center p-5 text-center shadow-xl",
-                 isLight ? "bg-white border-black/5" : "bg-white/5 border-white/10",
-                 "rounded-[2.5rem]"
-              )}
+              className="flex flex-col items-center justify-center p-5 text-center rounded-3xl border border-white/[0.06] bg-white/[0.02]"
+              style={{ boxShadow: `inset 0 0 30px ${stat.glow}` }}
             >
-              <stat.icon className={cn("w-6 h-6 mb-3 transition-transform group-hover:scale-110", stat.color)} />
-              <div className={cn("text-3xl font-black tabular-nums tracking-tighter leading-none", isLight ? "text-slate-950" : "text-white")}>
+              <stat.icon className={cn("w-5 h-5 mb-3", stat.color)} />
+              <div className="text-3xl font-black tabular-nums tracking-tighter leading-none text-white">
                 {stat.value}
               </div>
-              <div className={cn("text-[10px] font-black uppercase tracking-[0.2em] italic mt-2.5", isLight ? "text-slate-500" : "text-white/40")}>{stat.label}</div>
+              <div className="text-[9px] font-black uppercase tracking-[0.2em] mt-2 text-white/30">{stat.label}</div>
             </motion.div>
           ))}
         </div>
 
-        {/* 🛸 PRIMARY HIGH-FIDELITY ACTIONS */}
-        <div className="space-y-4">
+        {/* PRIMARY ACTIONS */}
+        <div className="space-y-3">
           <Button
             onClick={() => { triggerHaptic('medium'); setShowEditDialog(true); }}
-            className={cn(
-              "w-full h-20 rounded-[2.5rem] font-black uppercase italic tracking-[0.2em] text-[16px] hover:scale-[1.03] active:scale-95 transition-all shadow-2xl border-none shadow-[#EB4898]/20",
-              isLight ? "bg-black text-white" : "bg-white !text-black"
-            )}
+            className="w-full h-16 rounded-2xl font-black uppercase italic tracking-[0.2em] text-[15px] transition-all border-none text-white"
+            style={{
+              background: 'linear-gradient(135deg, #7C3AED, #0EA5E9, #00D4FF)',
+              boxShadow: '0 20px 50px rgba(124,58,237,0.25)',
+            }}
           >
-            <User className={cn("w-7 h-7 mr-4", isLight ? "text-white" : "!text-black")} />
-            <span className={isLight ? "text-white" : "!text-black"}>Control Identity</span>
+            <User className="w-6 h-6 mr-3 text-white" />
+            <span className="text-white">Control Identity</span>
           </Button>
 
           <Button
             onClick={() => { triggerHaptic('medium'); navigate('/client/advertise'); }}
-            className={cn(
-               "w-full h-20 rounded-[2.5rem] backdrop-blur-3xl border transition-all active:scale-95",
-               isLight ? "bg-[#EB4898]/5 border-[#EB4898]/20 hover:bg-[#EB4898]/10" : "bg-[#EB4898]/10 border-[#EB4898]/30 hover:bg-[#EB4898]/20"
-            )}
+            className="w-full h-16 rounded-2xl border border-white/[0.08] bg-white/[0.03] hover:bg-white/[0.05] transition-all active:scale-95"
           >
-            <Megaphone className="w-7 h-7 text-[#EB4898] mr-4" />
-            <span className="bg-gradient-to-r from-[#EB4898] via-orange-500 to-amber-500 bg-clip-text text-transparent font-black uppercase italic tracking-[0.2em] text-[15px]">
+            <Megaphone className="w-6 h-6 text-violet-400 mr-3" />
+            <span className="bg-gradient-to-r from-violet-400 via-blue-400 to-cyan-400 bg-clip-text text-transparent font-black uppercase italic tracking-[0.2em] text-[14px]">
               Promote Your Event
             </span>
           </Button>
         </div>
 
-        {/* 🛸 RESIDENT AUTHORITY CARD */}
+        {/* VERIFIED RESIDENT CARD */}
         <motion.div
-           whileHover={{ scale: 1.02 }}
-           whileTap={{ scale: 0.98 }}
-           className="p-[2px] rounded-[2.8rem] bg-gradient-to-r from-[#EB4898] via-indigo-500 to-orange-500 shadow-3xl transition-all cursor-pointer"
-           onClick={() => { triggerHaptic('light'); setIsVapModalOpen(true); }}
+          whileHover={{ scale: 1.01 }}
+          whileTap={{ scale: 0.98 }}
+          className="p-[1.5px] rounded-3xl cursor-pointer"
+          style={{ background: 'linear-gradient(135deg, #7C3AED, #0EA5E9, #00D4FF)' }}
+          onClick={() => { triggerHaptic('light'); setIsVapModalOpen(true); }}
         >
-          <div className={cn(
-             "backdrop-blur-3xl rounded-[2.7rem] p-7 flex items-center gap-6 border",
-              isLight ? "bg-white/60 backdrop-blur-3xl border-black/5" : "bg-white/5 backdrop-blur-3xl border-white/5"
-          )}>
-            <div className="w-16 h-16 rounded-2xl bg-[#EB4898]/10 flex items-center justify-center border border-[#EB4898]/20">
-              <ShieldCheck className="w-8 h-8 text-[#EB4898]" />
+          <div className="bg-[#080C14] rounded-3xl p-6 flex items-center gap-5 border border-transparent">
+            <div className="w-14 h-14 rounded-2xl bg-violet-500/10 flex items-center justify-center border border-violet-500/20">
+              <ShieldCheck className="w-7 h-7 text-violet-400" />
             </div>
             <div className="flex-1">
-              <h3 className={cn("text-[14px] font-black uppercase tracking-[0.2em] italic leading-tight", isLight ? "text-black" : "text-white")}>Verified Resident</h3>
-              <p className={cn("text-[10px] font-bold uppercase tracking-[0.15em] mt-1.5", isLight ? "text-black/30" : "text-white/30")}>Status: Verified Pillar</p>
+              <h3 className="text-[13px] font-black uppercase tracking-[0.2em] italic text-white leading-tight">Verified Resident</h3>
+              <p className="text-[9px] font-bold uppercase tracking-[0.15em] mt-1 text-white/25">Status: Verified Member</p>
             </div>
-            <ChevronRight className={cn("w-6 h-6", isLight ? "text-black/10" : "text-white/10")} />
+            <ChevronRight className="w-5 h-5 text-white/15" />
           </div>
         </motion.div>
 
-        {/* 🛸 PARITY HUD */}
-        {profile && completionPercent < 100 && (
-          <div className={cn(
-             "backdrop-blur-3xl border rounded-[3rem] p-8 space-y-6 transition-all",
-              isLight ? "bg-black/5 border-black/5 shadow-2xl backdrop-blur-2xl" : "bg-white/5 backdrop-blur-2xl border-white/5"
-          )}>
-            <div className="flex items-center justify-between px-1">
-               <div className="flex items-center gap-3">
-                 <Sparkles className="w-5 h-5 text-[#EB4898]" />
-                 <span className={cn("text-[11px] font-black uppercase tracking-[0.3em] italic", isLight ? "text-black/40" : "text-white/50")}>Profile Completion</span>
-               </div>
-               <span className={cn("text-2xl font-black italic tracking-tighter", isLight ? "text-black" : "text-white")}>{completionPercent}%</span>
-            </div>
-            
-            <div className={cn("h-4 w-full rounded-full overflow-hidden p-[3px] border", isLight ? "bg-black/5 border-black/10" : "bg-white/5 border-white/10")}>
-               <motion.div 
-                 initial={{ width: 0 }}
-                 animate={{ width: `${completionPercent}%` }}
-                 className="h-full bg-gradient-to-r from-[#EB4898] via-indigo-500 to-orange-400 rounded-full shadow-[0_0_20px_rgba(235,72,152,0.6)]" 
-               />
-            </div>
-          </div>
-        )}
+        {/* PROFILE COMPLETION */}
+        <AnimatePresence>
+          {profile && completionPercent < 100 && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="border border-white/[0.06] rounded-3xl p-7 space-y-5 bg-white/[0.02]"
+              style={{ boxShadow: 'inset 0 0 40px rgba(124,58,237,0.06)' }}
+            >
+              <div className="flex items-center justify-between px-1">
+                <div className="flex items-center gap-3">
+                  <Sparkles className="w-4 h-4 text-violet-400" />
+                  <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white/35">Profile Completion</span>
+                </div>
+                <span className="text-2xl font-black italic tracking-tighter text-white">{completionPercent}%</span>
+              </div>
 
-        {/* 🛸 GLOBAL PULSE FEED */}
-        <div className="space-y-8">
-          <div className="flex items-center justify-between px-2">
-             <div className="flex items-center gap-3">
-                <div className="w-2 h-2 rounded-full bg-[#EB4898] animate-pulse" />
-                <h3 className={cn("text-[11px] font-black uppercase tracking-[0.3em] italic", isLight ? "text-black/40" : "text-white/40")}>Global Swipess Pulse</h3>
-             </div>
-             <Sparkles className="w-4 h-4 text-[#EB4898]/40" />
+              <div className="h-3 w-full rounded-full overflow-hidden bg-white/[0.04] border border-white/[0.06]">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${completionPercent}%` }}
+                  className="h-full rounded-full"
+                  style={{
+                    background: 'linear-gradient(90deg, #7C3AED, #0EA5E9, #00D4FF)',
+                    boxShadow: '0 0 15px rgba(124,58,237,0.6)',
+                  }}
+                />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* GLOBAL PULSE FEED */}
+        <div className="space-y-5">
+          <div className="flex items-center justify-between px-1">
+            <div className="flex items-center gap-3">
+              <div className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse" />
+              <h3 className="text-[10px] font-black uppercase tracking-[0.35em] text-white/30">Global Pulse</h3>
+            </div>
+            <Zap className="w-4 h-4 text-violet-400/30" />
           </div>
           <ActivityFeed />
         </div>
 
-        <div className={cn("p-[4px] rounded-[3rem]", isLight ? "bg-black/5" : "bg-white/5")}>
-           <SharedProfileSection profileId={user?.id} profileName={profile?.name || 'Your Profile'} isClient={true} />
-        </div>
-        
-        <div className="flex justify-center pt-8">
-           <LanguageToggle />
+        <div className="p-[1.5px] rounded-3xl" style={{ background: 'linear-gradient(135deg, rgba(124,58,237,0.3), rgba(14,165,233,0.3))' }}>
+          <div className="bg-[#080C14] rounded-3xl">
+            <SharedProfileSection profileId={user?.id} profileName={profile?.name || 'Your Profile'} isClient={true} />
+          </div>
         </div>
 
-        {/* 🛸 SYSTEM AUTHORITY STACK */}
-        <div className="space-y-4 pt-10">
-           <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => { triggerHaptic('success'); navigate('/client/dashboard'); }}
-              className="w-full h-20 rounded-[2.5rem] bg-gradient-to-r from-[#EB4898] via-indigo-600 to-indigo-800 flex items-center justify-center gap-4 active:scale-[0.97] transition-all shadow-[0_25px_60px_rgba(235,72,152,0.3)]"
-           >
-              <Crown className="w-7 h-7 text-white" />
-              <span className="text-[16px] font-black uppercase italic tracking-[0.2em] text-white">Member Dashboard</span>
-           </motion.button>
+        <div className="flex justify-center pt-4">
+          <LanguageToggle />
+        </div>
 
-           <div className="grid grid-cols-1 gap-4">
-              {[
-                { label: 'Legal Terminal', icon: Scale, path: '/client/legal-services' },
-                { label: 'Account Settings', icon: Settings, path: '/client/settings' },
-                { label: 'Sign Out', icon: LogOut, path: 'signout', urgent: true }
-              ].map(btn => (
-                 <motion.button
-                  key={btn.label}
-                  whileHover={{ x: 5 }}
-                  onClick={() => { 
-                    triggerHaptic('medium'); 
-                    if (btn.path === 'signout') signOut(); 
-                    else navigate(btn.path); 
-                  }}
-                  className={cn(
-                    "w-full h-18 rounded-[2.5rem] backdrop-blur-md flex items-center px-12 gap-6 active:scale-[0.97] transition-all border",
-                    btn.urgent 
-                      ? "bg-red-500/10 border-red-500/20 text-red-500" 
-                      : isLight 
-                        ? "bg-white border-black/15 text-black shadow-md" 
-                        : "bg-white/5 border-white/5 text-white/80"
-                  )}
-                >
-                  <btn.icon className={cn("w-6 h-6", btn.urgent ? "text-red-500" : isLight ? "text-black/60" : "text-white/30")} />
-                  <span className={cn("text-[13px] font-black uppercase tracking-[0.2em] italic", isLight ? "text-black" : "text-white/80")}>{btn.label}</span>
-                </motion.button>
-              ))}
-           </div>
+        {/* SYSTEM AUTHORITY STACK */}
+        <div className="space-y-3 pt-6">
+          <motion.button
+            whileTap={{ scale: 0.98 }}
+            onClick={() => { triggerHaptic('success'); navigate('/client/dashboard'); }}
+            className="w-full h-16 rounded-2xl flex items-center justify-center gap-4 active:scale-[0.97] transition-all text-white font-black uppercase italic tracking-[0.2em] text-[15px]"
+            style={{
+              background: 'linear-gradient(135deg, #7C3AED, #0EA5E9, #00D4FF)',
+              boxShadow: '0 20px 50px rgba(124,58,237,0.2)',
+            }}
+          >
+            <Crown className="w-6 h-6 text-white" />
+            <span>Member Dashboard</span>
+          </motion.button>
+
+          <div className="grid grid-cols-1 gap-3">
+            {[
+              { label: 'Legal Terminal', icon: Scale, path: '/client/legal-services' },
+              { label: 'Account Settings', icon: Settings, path: '/client/settings' },
+              { label: 'Sign Out', icon: LogOut, path: 'signout', urgent: true },
+            ].map(btn => (
+              <motion.button
+                key={btn.label}
+                whileHover={{ x: 4 }}
+                onClick={() => {
+                  triggerHaptic('medium');
+                  if (btn.path === 'signout') signOut();
+                  else navigate(btn.path);
+                }}
+                className={cn(
+                  "w-full h-14 rounded-2xl flex items-center px-8 gap-5 active:scale-[0.97] transition-all border",
+                  btn.urgent
+                    ? "bg-red-500/10 border-red-500/20 text-red-400"
+                    : "bg-white/[0.03] border-white/[0.06] text-white/70 hover:bg-white/[0.05]"
+                )}
+              >
+                <btn.icon className={cn("w-5 h-5", btn.urgent ? "text-red-400" : "text-white/25")} />
+                <span className="text-[12px] font-black uppercase tracking-[0.2em] italic">{btn.label}</span>
+              </motion.button>
+            ))}
+          </div>
         </div>
 
         <div className="h-24" />
@@ -290,10 +305,9 @@ const ClientProfile = () => {
 
       <ClientProfileDialog open={showEditDialog} onOpenChange={setShowEditDialog} />
       <PhotoPreview photos={profile?.profile_images || []} isOpen={showPhotoPreview} onClose={() => setShowPhotoPreview(false)} initialIndex={selectedPhotoIndex} />
+      <VapIdEditModal isOpen={isVapModalOpen} onClose={() => setIsVapModalOpen(false)} />
     </div>
   );
 };
 
 export default ClientProfile;
-
-

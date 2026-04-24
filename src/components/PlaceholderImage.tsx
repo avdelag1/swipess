@@ -49,13 +49,12 @@ const PlaceholderImage: React.FC<PlaceholderImageProps> = ({ name }) => {
       {/* Logo */}
       <div style={{ position: 'relative', marginBottom: 20 }}>
         <img
-          src="/icons/Swipess-logo.png"
+          src="/icons/Swipess-wordmark-transparent-v2.png"
           alt="Swipess"
           style={{
-            width: 88,
-            height: 88,
+            width: 140,
+            height: 44,
             objectFit: 'contain',
-            borderRadius: 20,
             filter: 'drop-shadow(0 0 18px rgba(228, 0, 124, 0.55))',
           }}
         />
