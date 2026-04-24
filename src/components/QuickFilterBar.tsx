@@ -137,8 +137,8 @@ function FilterDropdown({
           isActive
             ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20 scale-[1.02]'
             : isLight 
-              ? 'bg-white/95 border-black/30 text-black shadow-md backdrop-blur-md hover:bg-black/5' 
-              : 'bg-black/95 border-white/40 text-white shadow-2xl backdrop-blur-xl hover:bg-black/40'
+              ? 'bg-white/80 border-black/10 text-black shadow-sm backdrop-blur-md hover:bg-black/5' 
+              : 'bg-white text-black border-white hover:bg-white/80'
         )}
       >
         {icon && <span className="opacity-80">{icon}</span>}
@@ -298,8 +298,8 @@ function QuickFilterBarComponent({ filters, onChange, onSelect, className, userR
                   'relative flex-shrink-0 overflow-hidden border transition-all duration-200 group',
                   isGlobalAll ? 'w-32 h-52 rounded-[3.5rem]' : 'w-28 h-40 rounded-[2.2rem]',
                   isActive 
-                    ? 'border-primary ring-2 ring-primary ring-offset-2 scale-[1.03] shadow-lg border-[3px]' 
-                    : 'border-white shadow-md border-[2px]' // Opaque border
+                    ? 'border-primary ring-2 ring-primary ring-offset-2 scale-[1.03] shadow-lg' 
+                    : 'border-white/20 shadow-md'
                   )}
                   style={{ contain: 'paint', willChange: 'transform, opacity' }}
                 >
@@ -307,12 +307,9 @@ function QuickFilterBarComponent({ filters, onChange, onSelect, className, userR
                     <div className={cn(
                       "absolute inset-0 z-10 transition-colors duration-300",
                       isActive 
-                        ? (isLight ? "bg-black/20" : "bg-black/30") 
-                        : (isLight ? "bg-black/55" : "bg-black/65") // Even darker for maximum text punch
+                        ? (isLight ? "bg-black/30" : "bg-black/40") 
+                        : (isLight ? "bg-black/45" : "bg-black/55")
                     )} />
-                    
-                    {/* Bottom vignette for text readability */}
-                    <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/80 via-black/40 to-transparent z-15 pointer-events-none" />
 
                 <QuickFilterImage 
                   src={option.image} 
@@ -329,7 +326,7 @@ function QuickFilterBarComponent({ filters, onChange, onSelect, className, userR
                       )}>
                         {option.icon}
                       </div>
-                      <span className="text-[10px] font-black uppercase tracking-[0.2em] mb-0.5 drop-shadow-md">{option.description}</span>
+                      <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-90 mb-0.5 drop-shadow-md">{option.description}</span>
                       <span className={cn("font-black whitespace-nowrap uppercase tracking-tighter drop-shadow-lg", isGlobalAll ? "text-2xl" : "text-sm")}>{option.label}</span>
                     </div>
                   {isActive && (
@@ -378,41 +375,50 @@ function QuickFilterBarComponent({ filters, onChange, onSelect, className, userR
             onPointerDown={(e) => {
               e.preventDefault();
               e.stopPropagation();
+              haptics.tap();
               saveQuickFilter([]);
               onChange({ ...filters, categories: [], listingType: 'both' });
             }}
             className={cn(
-              smoothButtonClass, 
+              smoothButtonClass,
               'relative flex-shrink-0 w-32 h-52 rounded-[3.5rem] overflow-hidden border transition-all duration-200 group',
-              clientIsAllSelected 
-                ? 'border-primary ring-2 ring-primary ring-offset-2 scale-[1.03] shadow-lg border-[2px]' 
-                : 'border-white/70 shadow-md border-[2px]'
+              clientIsAllSelected
+                ? 'border-primary ring-2 ring-primary ring-offset-2 scale-[1.08] shadow-[0_0_40px_rgba(255,107,107,0.6)] brightness-110'
+                : 'border-white/20 shadow-md opacity-85 hover:opacity-100 hover:scale-[1.02]'
             )}
-            style={{ contain: 'paint', willChange: 'transform, opacity' }}
+            style={{ contain: 'paint', willChange: 'transform, opacity, filter' }}
           >
+            {/* Radar scanning effect on active */}
+            {clientIsAllSelected && (
+              <div className="absolute inset-0 z-15 pointer-events-none">
+                <div className="absolute inset-0 rounded-[3rem] bg-gradient-to-br from-purple-400/20 via-transparent to-transparent animate-pulse" />
+                <div className="absolute inset-0 rounded-[3rem] border border-purple-400/40 animate-[pulse_2s_ease-in-out_infinite]" />
+              </div>
+            )}
+
             <div className={cn(
               "absolute inset-0 z-10 transition-colors duration-300",
-              clientIsAllSelected 
-                ? (isLight ? "bg-black/25" : "bg-black/35") 
-                : (isLight ? "bg-black/60" : "bg-black/70")
+              clientIsAllSelected
+                ? (isLight ? "bg-black/30" : "bg-black/40")
+                : (isLight ? "bg-black/45" : "bg-black/55")
             )} />
 
-            <QuickFilterImage 
-              src={POKER_CARD_PHOTOS['all-clients'] || '/images/filters/all.jpg'} 
+            <QuickFilterImage
+              src={POKER_CARD_PHOTOS['all-clients'] || '/images/filters/all.jpg'}
               alt="All"
             />
 
             <div className={cn(
               "absolute inset-0 flex flex-col items-center justify-center z-20 transition-all duration-300",
-              clientIsAllSelected ? "text-white" : "text-white"
+              clientIsAllSelected ? "text-white" : "text-white/90"
             )}>
-              <Globe className={cn("w-7 h-7 mb-1 transition-all duration-300", clientIsAllSelected && "scale-110 drop-shadow-[0_0_12px_rgba(255,255,255,0.8)]")} />
-              <span className="text-[10px] font-black uppercase tracking-[0.2em] mb-0.5">Global</span>
+              <Globe className={cn("w-8 h-8 mb-1 transition-all duration-300", clientIsAllSelected && "scale-125 drop-shadow-[0_0_20px_rgba(168,85,247,0.9)]")} />
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-80 mb-0.5">Global</span>
               <span className="text-2xl font-black uppercase tracking-tighter drop-shadow-md">ALL</span>
             </div>
             {clientIsAllSelected && (
-              <div className="absolute top-2 right-2 z-30 w-5 h-5 bg-orange-500 rounded-full flex items-center justify-center">
-                <Check className="w-3 h-3 text-white" />
+              <div className="absolute top-2 right-2 z-30 w-6 h-6 bg-gradient-to-br from-purple-400 to-purple-600 rounded-full flex items-center justify-center shadow-lg shadow-purple-500/50 animate-pulse">
+                <Check className="w-3.5 h-3.5 text-white drop-shadow-md" />
               </div>
             )}
           </button>
@@ -427,26 +433,35 @@ function QuickFilterBarComponent({ filters, onChange, onSelect, className, userR
                 onPointerDown={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
+                  haptics.tap();
                   handleCategorySelect(category.id);
                 }}
                 className={cn(
-                  smoothButtonClass, 
+                  smoothButtonClass,
                   'relative flex-shrink-0 w-28 h-40 rounded-[2.2rem] overflow-hidden border transition-all duration-200 group',
-                  isActive 
-                    ? 'border-primary ring-1 ring-primary ring-offset-2 scale-[1.03] shadow-lg border-[2px]' 
-                    : 'border-white/70 shadow-md border-[2px]'
+                  isActive
+                    ? 'border-primary ring-2 ring-primary ring-offset-2 scale-[1.08] shadow-[0_0_30px_rgba(255,107,107,0.6)] brightness-110'
+                    : 'border-white/20 shadow-md opacity-85 hover:opacity-100 hover:scale-[1.02]'
                 )}
-                style={{ contain: 'paint', willChange: 'transform, opacity' }}
+                style={{ contain: 'paint', willChange: 'transform, opacity, filter' }}
               >
+                {/* Radar scanning effect on active */}
+                {isActive && (
+                  <div className="absolute inset-0 z-15 pointer-events-none">
+                    <div className="absolute inset-0 rounded-[2rem] bg-gradient-to-br from-orange-400/20 via-transparent to-transparent animate-pulse" />
+                    <div className="absolute inset-0 rounded-[2rem] border border-orange-400/40 animate-[pulse_2s_ease-in-out_infinite]" />
+                  </div>
+                )}
+
                 <div className={cn(
                   "absolute inset-0 z-10 transition-colors duration-300",
-                  isActive 
-                    ? (isLight ? "bg-black/15" : "bg-black/25") 
+                  isActive
+                    ? (isLight ? "bg-black/30" : "bg-black/40")
                     : (isLight ? "bg-black/45" : "bg-black/55")
                 )} />
 
-                <QuickFilterImage 
-                  src={photo} 
+                <QuickFilterImage
+                  src={photo}
                   alt={category.label}
                 />
 
@@ -454,15 +469,15 @@ function QuickFilterBarComponent({ filters, onChange, onSelect, className, userR
                   "absolute inset-0 flex flex-col items-center justify-center z-20 transition-all duration-300",
                   isActive ? "text-white" : "text-white/90"
                 )}>
-                  <div className={cn("mb-1 transition-all duration-300", isActive && "scale-110 drop-shadow-[0_0_15px_rgba(255,255,255,0.9)]")}>
+                  <div className={cn("mb-1 transition-all duration-300", isActive && "scale-125 drop-shadow-[0_0_20px_rgba(255,165,0,0.9)]")}>
                     {category.icon}
                   </div>
                   <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-80 mb-0.5">Filter</span>
                   <span className="text-sm font-black whitespace-nowrap uppercase tracking-tight drop-shadow-md">{category.label}</span>
                 </div>
                 {isActive && (
-                  <div className="absolute top-2 right-2 z-30 w-5 h-5 bg-orange-500 rounded-full flex items-center justify-center">
-                    <Check className="w-3 h-3 text-white" />
+                  <div className="absolute top-2 right-2 z-30 w-6 h-6 bg-gradient-to-br from-orange-400 to-orange-600 rounded-full flex items-center justify-center shadow-lg shadow-orange-500/50 animate-pulse">
+                    <Check className="w-3.5 h-3.5 text-white drop-shadow-md" />
                   </div>
                 )}
               </button>
