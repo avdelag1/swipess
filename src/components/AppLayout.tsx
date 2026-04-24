@@ -93,8 +93,8 @@ export function AppLayout({ children }: AppLayoutProps) {
   }, [location.pathname]);
 
   const isFullScreen = useMemo(() => {
-    return isCameraRoute || showAIChat;
-  }, [isCameraRoute, showAIChat]);
+    return isCameraRoute || showAIChat || isRadioRoute;
+  }, [isCameraRoute, showAIChat, isRadioRoute]);
 
   const handleFilterClick = () => {
     const role = userRole === 'admin' ? 'admin' : activeMode;
