@@ -224,11 +224,21 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
 
   const isImmersiveDashboard = useMemo(() => {
     const path = location.pathname;
-    const immersiveRoutes = [
-      '/client/dashboard', '/owner/dashboard',
+    // Only the primary swipe card discovery and specific immersive listing views should be locked
+    const lockedRoutes = [
+      '/client/dashboard', 
+      '/owner/dashboard',
+      '/client/discovery',
+      '/owner/discovery'
     ];
-    return immersiveRoutes.some(route => path === route || path === route + '/' || path.startsWith(route + '/')) ||
-      path.includes('discovery') || path.includes('view-client') || path.includes('/listing/');
+    
+    const isLocked = lockedRoutes.some(route => path === route || path === route + '/');
+    const isSpecialImmersive = path.includes('/listing/') || path.includes('view-client');
+    
+    // Explicitly exclude profile and legal routes from being "immersive" (non-scrollable)
+    if (path.includes('/profile') || path.includes('/legal')) return false;
+    
+    return isLocked || isSpecialImmersive;
   }, [location.pathname]);
 
   const { resetFocus } = useFocusMode(6000);
@@ -273,8 +283,8 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
 
   return (
     <div className={cn(
-      "dashboard-root w-full h-full min-h-0 relative flex flex-col overflow-hidden",
-      (isImmersiveDashboard || location.pathname.includes('dashboard')) ? (isDark ? "bg-black" : "bg-white") : "bg-background",
+      "dashboard-root w-full min-h-[100dvh] relative flex flex-col",
+      (isFullScreenRoute || isZeroScrollDashboard || isImmersiveDashboard) ? "h-screen overflow-hidden" : "overflow-x-hidden",
       isDark ? "dark dark-matte" : "light white-matte"
     )}>
       <main
@@ -284,9 +294,9 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
           window.dispatchEvent(new CustomEvent('sentient-ui-recovery'));
         }}
         className={cn(
-          "flex-1 w-full h-full min-h-0 relative z-0 touch-pan-y overscroll-y-contain",
+          "flex-1 w-full relative z-0 touch-pan-y",
           isRadioRoute ? "overflow-visible" 
-            : (isZeroScrollDashboard || isImmersiveDashboard) ? "overflow-hidden"
+            : (isZeroScrollDashboard || isImmersiveDashboard) ? "h-full overflow-hidden"
             : "overflow-y-auto overflow-x-hidden",
           "shadow-none",
           (location.pathname === '/explore/eventos' || location.pathname === '/explore/eventos/' || isImmersiveDashboard || location.pathname.includes('dashboard')) ? (isDark ? "bg-black" : "bg-white") : "bg-background"

@@ -7,7 +7,7 @@ export function AnimatedOutlet() {
 
   return (
     <div
-      className="h-full min-h-0 w-full flex flex-col flex-1"
+      className="min-h-full w-full flex flex-col flex-1"
       style={{ position: 'relative' }}
     >
       <Suspense fallback={<SuspenseFallback minimal />}>
