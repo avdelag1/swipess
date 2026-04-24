@@ -169,6 +169,19 @@ function TopBarComponent({
             <>
               <AIListingTrigger glassPillStyle={glassPillStyle} />
 
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => { haptics.impact('light'); navigate('/radio'); }}
+                className={cn(
+                  glassPillStyle,
+                  "p-2 w-10 h-10 flex items-center justify-center rounded-full transition-all duration-300",
+                  "text-white/80 hover:text-white"
+                )}
+                aria-label="Sentient Radio"
+              >
+                <Radio className="w-5 h-5" strokeWidth={2.5} />
+              </motion.button>
 
               <ThemeToggle glassPillStyle={glassPillStyle} />
               

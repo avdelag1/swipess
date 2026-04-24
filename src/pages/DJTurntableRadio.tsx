@@ -101,10 +101,11 @@ export default function DJTurntableRadio() {
           onClick={() => { triggerHaptic('light'); navigate(-1); }}
           className={cn('w-10 h-10 flex items-center justify-center rounded-full', neumBtn, neumBtnActive)}
         >
-          <ArrowLeft className="w-5 h-5 text-white" />
+          <ArrowLeft className={cn("w-5 h-5", isDark ? "text-white" : "text-black")} />
         </button>
 
-        <div className="flex-1 flex justify-center">
+        <div className="flex-1 flex justify-center items-center gap-2">
+          <Radio className={cn("w-4 h-4", isDark ? "text-blue-400" : "text-primary")} strokeWidth={3} />
           <SwipessLogo size="sm" variant="transparent" />
         </div>
 
@@ -112,7 +113,7 @@ export default function DJTurntableRadio() {
           onClick={() => setShowDrawer(true)}
           className={cn('w-10 h-10 flex items-center justify-center rounded-full', neumBtn, neumBtnActive)}
         >
-          <ListMusic className="w-5 h-5 text-white" />
+          <ListMusic className={cn("w-5 h-5", isDark ? "text-white" : "text-black")} />
         </button>
       </div>
 
@@ -120,14 +121,14 @@ export default function DJTurntableRadio() {
       <div className="flex-1 flex flex-col items-center justify-between px-4">
         
         {/* Info cluster */}
-        <div className="flex flex-col items-center mt-2">
+        <div className="flex flex-col items-center mt-2 text-center">
           <p className={cn("text-xs font-black uppercase tracking-[0.3em]", isDark ? "text-blue-400" : "text-primary")}>
             {state.currentStation?.frequency || '93.1'}
           </p>
-          <h2 className={cn("text-2xl font-black truncate tracking-tighter mt-1", isDark ? "text-white" : "text-slate-900")}>
+          <h2 className={cn("text-2xl font-black truncate tracking-tighter mt-1", isDark ? "text-white" : "text-black")}>
             {state.currentStation?.name || 'Radio'}
           </h2>
-          <p className={cn("text-[10px] font-bold uppercase tracking-[0.2em] opacity-60 mt-2 flex items-center gap-2", isDark ? "text-white" : "text-slate-900")}>
+          <p className={cn("text-[10px] font-bold uppercase tracking-[0.2em] opacity-60 mt-2 flex items-center gap-2", isDark ? "text-white" : "text-black")}>
             <span className={cn("w-1.5 h-1.5 rounded-full animate-pulse", isDark ? "bg-blue-400" : "bg-primary")} />
             Live from {state.currentCity || 'Mars'}
           </p>
@@ -144,7 +145,7 @@ export default function DJTurntableRadio() {
               transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
               className="text-center"
             >
-              <div className={cn('text-[72px] sm:text-[88px] font-black leading-none tracking-tight', isDark ? 'text-white' : 'text-slate-900')}>
+              <div className={cn('text-[72px] sm:text-[88px] font-black leading-none tracking-tight', isDark ? 'text-white' : 'text-black')}>
                 {state.currentStation?.frequency || '93.1'}
               </div>
               <div className={cn('text-lg font-black tracking-[0.3em] uppercase mt-1', isDark ? 'text-blue-400' : 'text-primary')}>
