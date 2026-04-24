@@ -51,20 +51,38 @@ function SwipessLogoComponent({
           ) : (
             <div className="relative">
               <img
-                src={isIcon ? "/icons/Swipess-logo-transparent.png" : "/icons/Swipess-wordmark-white.png"}
+                src={isIcon ? "/icons/Swipess-logo-transparent.png" : "/icons/Swipess-wordmark-transparent.png"}
                 alt="Swipess"
                 draggable={false}
                 fetchPriority="high"
                 decoding={isIcon ? "async" : "sync"}
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.style.display = 'none';
+                  const fallback = target.nextElementSibling as HTMLElement;
+                  if (fallback) fallback.style.display = 'flex';
+                }}
                 className={cn(
                   'select-none transition-all duration-300 relative z-10',
                   isIcon ? 'w-full h-full object-contain' : cn('w-auto object-contain max-w-full', sizeMap[size]),
-                  variant === 'transparent' ? '' : 'drop-shadow-[0_5px_15px_rgba(0,0,0,0.4)]'
+                  'drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)] group-hover:drop-shadow-[0_8px_24px_rgba(0,0,0,0.7)]'
                 )}
                 style={{
                   imageRendering: 'auto',
+                  filter: variant === 'gradient' ? 'drop-shadow(0 0 15px rgba(255,255,255,0.25)) brightness(1.1)' : undefined
                 }}
               />
+              <div 
+                className="hidden items-center justify-center"
+                aria-hidden="true"
+              >
+                <span className={cn(
+                  "font-black tracking-[-0.05em] italic uppercase text-white",
+                  isIcon ? "text-xl" : size === 'xs' ? 'text-sm' : size === 'sm' ? 'text-base' : size === 'md' ? 'text-2xl' : size === 'lg' ? 'text-3xl' : 'text-5xl'
+                )}>
+                  Swipess
+                </span>
+              </div>
               {variant === 'gradient' && !isIcon && (
                 <div className="absolute -inset-4 bg-primary/5 blur-xl rounded-full opacity-50 pointer-events-none -z-1" />
               )}

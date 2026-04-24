@@ -59,7 +59,7 @@ const LandingView = memo(({
           animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={{ delay: 0.2, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
         >
-          <SwipessLogo size="8xl" variant="transparent" />
+          <SwipessLogo size="8xl" variant="gradient" />
           <motion.p 
             initial={{ opacity: 0 }}
             animate={{ opacity: 0.4 }}
@@ -202,12 +202,12 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
   return (
     <motion.div
       key="auth"
-      className="absolute inset-0 flex flex-col items-center justify-start sm:justify-center p-4 pt-32 sm:pt-40 pb-20 z-20 overflow-y-auto no-scrollbar"
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 1.1 }}
+      className="absolute inset-0 flex flex-col items-center justify-center p-4 z-20 overflow-y-auto no-scrollbar"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
     >
-      <div className="w-full max-w-sm bg-[#0d0d0f]/85 backdrop-blur-[40px] border border-white/10 rounded-3xl p-5 sm:p-6 shadow-[0_30px_70px_-15px_rgba(0,0,0,0.8)] relative overflow-hidden my-auto shrink-0">
+      <div className="w-full max-w-sm bg-[#0d0d0f]/90 backdrop-blur-[40px] border border-white/10 rounded-[2.5rem] p-6 sm:p-8 shadow-[0_40px_100px_-20px_rgba(0,0,0,0.9)] relative overflow-hidden shrink-0">
         {/* Shimmer effect removed as per user request */}
         
         <button
@@ -219,7 +219,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
         </button>
 
         <div className="text-center mb-6 pt-6 flex flex-col items-center">
-          <SwipessLogo size="4xl" variant="transparent" className="mb-6 shrink-0" />
+          <SwipessLogo size="2xl" variant="gradient" className="mb-6 shrink-0 mx-auto" />
 
           {isForgotPassword ? (
             <>
@@ -257,8 +257,8 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
                   className="absolute top-1 bottom-1 rounded-[1.1rem] bg-white shadow-[0_5px_15px_rgba(255,255,255,0.3)]"
                   initial={false}
                   animate={{ 
-                    left: isLogin ? '1%' : '50.5%',
-                    right: isLogin ? '50.5%' : '1%'
+                    left: isLogin ? '4px' : 'calc(50% + 2px)',
+                    width: 'calc(50% - 6px)'
                   }}
                   transition={{ type: 'spring', stiffness: 350, damping: 30 }}
                 />
