@@ -69,7 +69,7 @@ const LandingView = memo(({
             transition={{ delay: 1 }}
             className="text-[10px] font-black uppercase tracking-[0.6em] mt-6 text-white italic"
           >
-            Flagship Matrix
+            Premium Discovery
           </motion.p>
         </motion.div>
       </div>
@@ -276,7 +276,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
                 />
               </div>
               <p className="text-[8px] font-black tracking-[0.25em] text-white/40 uppercase">
-                {isLogin ? 'Welcome back' : 'Join the matrix'}
+                {isLogin ? 'Welcome back' : 'Start your journey'}
               </p>
             </>
           )}
@@ -467,7 +467,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
               <>
                 <LogIn className="w-4 h-4" />
                 <span>
-                  {isForgotPassword ? 'Reset Terminal' : isLogin ? 'Enter Matrix' : 'Create Account'}
+                  {isForgotPassword ? 'Reset Terminal' : isLogin ? 'Launch Swipess' : 'Create Account'}
                 </span>
               </>
             )}

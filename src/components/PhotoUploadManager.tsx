@@ -119,7 +119,7 @@ export function PhotoUploadManager({
               <div className="flex items-center gap-2">
                 <Sparkles className="w-4 h-4 text-[#EB4898]" />
                 <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/60 italic">
-                  Gallery Matrix ({currentPhotos.length}/{maxPhotos})
+                  Gallery Engine ({currentPhotos.length}/{maxPhotos})
                 </span>
               </div>
             </div>

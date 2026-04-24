@@ -229,7 +229,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
     return (
       <div className={cn("w-full transition-colors duration-500 min-h-[50vh] flex flex-col items-center justify-center gap-6", isLight ? "bg-white" : "bg-black")}>
           <div className="w-16 h-16 border-t-2 border-indigo-500 rounded-full animate-spin shadow-2xl" />
-          <p className={cn("text-[10px] font-black uppercase tracking-[0.4em] italic opacity-30", isLight ? "text-black" : "text-white")}>Synchronizing Matrix...</p>
+          <p className={cn("text-[10px] font-black uppercase tracking-[0.4em] italic opacity-30", isLight ? "text-black" : "text-white")}>Synchronizing Listings...</p>
       </div>
     );
   }
@@ -278,12 +278,12 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
             <OwnerListingsStats listings={listings} isLight={isLight} />
         </div>
 
-        {/* 🛸 MATRIX CONTROLS */}
+        {/* 🛸 ASSET CONTROLS */}
         <div className="flex flex-col lg:flex-row gap-6 px-6">
             <div className="relative flex-1 group">
                 <Search className={cn("absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 opacity-40 z-10", isLight ? "text-black" : "text-white")} />
                 <Input
-                    placeholder="SCAN MATRIX..."
+                    placeholder="SEARCH ASSETS..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className={cn(
@@ -420,7 +420,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
                               : 'bg-white/[0.06] text-white border-white/10 hover:bg-white/10'
                           )}
                         >
-                          <option value="available">Matrix Available</option>
+                          <option value="available">Status: Active</option>
                           <option value="active">Active Stream</option>
                           <option value="rented">Asset Rented</option>
                           <option value="sold">Asset Terminated (Sold)</option>
@@ -481,7 +481,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
                             <AlertDialogHeader>
                               <AlertDialogTitle className={cn("text-3xl font-black uppercase italic tracking-tighter", isLight ? "text-black" : "text-white")}>Purge Listing?</AlertDialogTitle>
                               <AlertDialogDescription className={cn("text-[14px] font-bold leading-relaxed italic opacity-40", isLight ? "text-black" : "text-white")}>
-                                This action will permanently remove <span className="text-rose-500">"{listing.title}"</span> from the global matrix. This cannot be undone.
+                                This action will permanently remove <span className="text-rose-500">"{listing.title}"</span> from the global ecosystem. This cannot be undone.
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter className="mt-10 gap-4">
@@ -490,7 +490,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
                                 onClick={() => handleDeleteProperty(listing)}
                                 className="h-14 px-8 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-black uppercase italic tracking-widest text-[10px] shadow-2xl shadow-rose-600/30"
                               >
-                                Purge Matrix
+                                Purge Listing
                               </AlertDialogAction>
                             </AlertDialogFooter>
                           </AlertDialogContent>
@@ -522,11 +522,11 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
                 )}
               </div>
               <h3 className={cn("font-black text-3xl tracking-tighter uppercase italic mb-4", isLight ? "text-black" : "text-white")}>
-                {searchTerm ? 'Scan Negative' : 'Matrix Empty'}
+                {searchTerm ? 'Scan Negative' : 'Gallery Empty'}
               </h3>
               <p className={cn("text-[14px] font-bold leading-relaxed italic opacity-30 max-w-xs mx-auto mb-12", isLight ? "text-black" : "text-white")}>
                 {searchTerm
-                  ? 'No assets found matching current scan parameters. Adjust matrix query.'
+                  ? 'No assets found matching current scan parameters. Adjust filters.'
                   : 'Your asset inventory is currently offline. Deploy your first listing to begin broadcast.'}
               </p>
               {!searchTerm && (
@@ -581,7 +581,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
         description={`${sharingListing?.title} - $${sharingListing?.price?.toLocaleString() || ''}`}
       />
 
-      <p className="fixed bottom-10 left-10 text-[8px] font-black uppercase tracking-[1em] opacity-10 pointer-events-none z-0">Asset Matrix Terminal v4.0</p>
+      <p className="fixed bottom-10 left-10 text-[8px] font-black uppercase tracking-[1em] opacity-10 pointer-events-none z-0">Asset Gallery Terminal v4.0</p>
     </div>
   );
 });

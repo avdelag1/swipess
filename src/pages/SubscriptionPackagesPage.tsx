@@ -367,7 +367,7 @@ export default function SubscriptionPackagesPage() {
             </div>
             <div className="space-y-3 text-center group">
               <Zap className="w-8 h-8 text-brand-primary mx-auto mb-3 group-hover:scale-110 transition-transform" />
-              <h5 className="text-xs font-black uppercase text-white tracking-[0.2em]">Priority Matrix</h5>
+              <h5 className="text-xs font-black uppercase text-white tracking-[0.2em]">Priority Support</h5>
               <p className="text-[10px] font-bold text-muted-foreground/40 leading-relaxed uppercase tracking-widest">Direct source access <br />unlocked now</p>
             </div>
             <div className="space-y-3 text-center group">

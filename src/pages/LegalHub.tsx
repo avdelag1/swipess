@@ -226,7 +226,7 @@ const LegalHub = () => {
            />
             <div className="flex flex-col gap-1 px-1">
               <p className={cn("text-[11px] font-black uppercase tracking-[0.3em] italic opacity-40 leading-relaxed", isLight ? "text-black" : "text-white")}>
-                Professional Legal Authority Matrix v15.0
+                Professional Legal Ecosystem v15.0
               </p>
               
               {/* 🛸 LEGAL HERO VISUAL */}
@@ -348,9 +348,9 @@ const LegalHub = () => {
                     <CheckCircle2 className="w-10 h-10 text-emerald-400" />
                   </div>
                   <div className="space-y-3">
-                    <h3 className={cn("text-3xl font-black uppercase italic tracking-tighter", isLight ? "text-black" : "text-white")}>Matrix Updated!</h3>
+                    <h3 className={cn("text-3xl font-black uppercase italic tracking-tighter", isLight ? "text-black" : "text-white")}>Request Logged</h3>
                     <p className={cn("text-[14px] font-bold tracking-tight opacity-60 leading-relaxed", isLight ? "text-black" : "text-white")}>
-                      Your legal help request has been dispatched to the authority matrix. Our team will audit your case and get back to you with available protocols.
+                      Your legal help request has been dispatched to the Swipess legal team. Our team will audit your case and get back to you with available protocols.
                     </p>
                   </div>
                   <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
@@ -369,7 +369,7 @@ const LegalHub = () => {
               {/* Category Selection */}
               <div className="space-y-6">
                 <div className="px-1 flex items-center gap-4">
-                  <span className={cn("text-[11px] font-black uppercase tracking-[0.3em] opacity-40 italic", isLight ? "text-black" : "text-white")}>Authority Matrix</span>
+                  <span className={cn("text-[11px] font-black uppercase tracking-[0.3em] opacity-40 italic", isLight ? "text-black" : "text-white")}>Legal Ecosystem</span>
                   <div className="h-[1px] flex-1 bg-gradient-to-r from-muted-foreground/10 to-transparent" />
                 </div>
 
@@ -518,7 +518,7 @@ const LegalHub = () => {
                             ) : (
                               <>
                                 <Send className="w-5 h-5 mr-3" />
-                                Dispatch Case to Matrix
+                                Submit Case
                               </>
                             )}
                           </Button>
@@ -541,7 +541,7 @@ const LegalHub = () => {
                   isLight ? "bg-white border-black/5 shadow-sm" : "bg-white/[0.04] border-white/5"
                 )}>
                   {[
-                    { id: '01', title: 'Matrix Sync', desc: 'Identify the specific legal category within the authority matrix.' },
+                    { id: '01', title: 'Legal Sync', desc: 'Identify the specific legal category within the Swipess ecosystem.' },
                     { id: '02', title: 'Case Audit', desc: 'Provide mission-critical details for immediate situation analysis.' },
                     { id: '03', title: 'Expert Match', desc: 'Our elite legal team reviews and dispatches resolution options.' },
                     { id: '04', title: 'Secure Link', desc: 'Your assigned lawyer initiates contact via secure terminal.' }
@@ -577,7 +577,7 @@ const LegalHub = () => {
                     { icon: FileText, label: 'Terms of Service', doc: 'terms', color: 'text-blue-500' },
                     { icon: Shield, label: 'Privacy Policy', doc: 'privacy', color: 'text-rose-500' },
                     { icon: BookOpen, label: 'Acceptable Use (AGL)', doc: 'agl', color: 'text-purple-500' },
-                    { icon: Scale, label: 'Contracts Matrix', path: isOwner ? '/owner/contracts' : '/client/contracts', color: 'text-emerald-500' },
+                    { icon: Scale, label: 'Contract Protocols', path: isOwner ? '/owner/contracts' : '/client/contracts', color: 'text-emerald-500' },
                   ].map((item, idx, arr) => (
                     <div key={item.label}>
                       <button
@@ -601,7 +601,7 @@ const LegalHub = () => {
                         </div>
                         <div className="flex-1">
                           <div className={cn("text-sm font-black uppercase italic tracking-tight", isLight ? "text-black" : "text-white")}>{item.label}</div>
-                          <div className={cn("text-[10px] font-bold uppercase tracking-widest opacity-30 mt-0.5", isLight ? "text-black" : "text-white")}>Execute Document Matrix</div>
+                          <div className={cn("text-[10px] font-bold uppercase tracking-widest opacity-30 mt-0.5", isLight ? "text-black" : "text-white")}>Execute Document Sync</div>
                         </div>
                         <ChevronRight className="w-5 h-5 opacity-20" />
                       </button>
@@ -626,7 +626,7 @@ const LegalHub = () => {
                 isOwner ? "text-purple-500" : "text-rose-500"
               )}
             >
-              <ChevronLeft className="w-4 h-4" /> Back to Matrix
+              <ChevronLeft className="w-4 h-4" /> Back to Hub
             </button>
 
             <div className="space-y-4">
@@ -727,7 +727,7 @@ const LegalHub = () => {
                   isOwner ? "bg-purple-600 hover:bg-purple-500 text-white" : "bg-rose-600 hover:bg-rose-700 text-white"
                 )}
               >
-                RETURN TO MATRIX
+                RETURN TO HUB
               </Button>
             </div>
           </motion.div>

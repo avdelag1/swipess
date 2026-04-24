@@ -285,7 +285,7 @@ const OwnerSettings = () => {
                      <span className="text-[9px] font-black text-purple-600 uppercase tracking-widest font-mono">V3.3.1</span>
                   </div>
                </div>
-               <p className={cn("text-[9px] font-black uppercase tracking-[0.4em] italic opacity-30", isLight ? "text-black" : "text-white")}>Property Authority Matrix • Elite Discovery</p>
+               <p className={cn("text-[9px] font-black uppercase tracking-[0.4em] italic opacity-30", isLight ? "text-black" : "text-white")}>Property Authority Network • Elite Discovery</p>
             </div>
           </motion.div>
         </div>

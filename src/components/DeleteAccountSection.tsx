@@ -65,7 +65,7 @@ export function DeleteAccountSection() {
         </div>
         <h2 className={cn("text-3xl font-black uppercase italic tracking-tighter leading-none", isLight ? "text-black" : "text-white")}>Delete Swipess Identity</h2>
         <p className="text-sm font-medium opacity-40 leading-relaxed">
-          Deleting your account is permanent. All property data, matches, and configurations will be scrubbed from our neural matrix.
+          Deleting your account is permanent. All property data, matches, and configurations will be scrubbed from our ecosystem.
         </p>
       </div>
 

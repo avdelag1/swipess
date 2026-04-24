@@ -147,7 +147,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
           </div>
           <div className="space-y-4">
             <h2 className={cn("text-3xl font-black italic tracking-tighter uppercase leading-none", isLight ? "text-black" : "text-white")}>Connection Lost</h2>
-            <p className="text-[11px] font-black uppercase tracking-widest opacity-40 leading-relaxed">The owner matching engine is temporarily unreachable. Attempting matrix re-sync.</p>
+            <p className="text-[11px] font-black uppercase tracking-widest opacity-40 leading-relaxed">The owner matching engine is temporarily unreachable. Attempting re-sync.</p>
           </div>
           <Button 
             onClick={() => { triggerHaptic('medium'); window.location.reload(); }}
