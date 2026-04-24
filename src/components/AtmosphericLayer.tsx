@@ -4,13 +4,15 @@ import useAppTheme from '@/hooks/useAppTheme';
 
 interface AtmosphericLayerProps {
   variant?: 'default' | 'primary' | 'indigo' | 'rose';
+  opacity?: number;
+  speed?: number;
 }
 
 /**
  * 🛸 ATMOSPHERIC LAYER
  * Provides consistent visual depth, gradients, and soft glow effects.
  */
-export const AtmosphericLayer = memo(({ variant = 'default' }: AtmosphericLayerProps) => {
+export const AtmosphericLayer = memo(({ variant = 'default', opacity = 0.05, speed = 1 }: AtmosphericLayerProps) => {
   const { isLight } = useAppTheme();
 
   const getGradients = () => {
@@ -45,7 +47,10 @@ export const AtmosphericLayer = memo(({ variant = 'default' }: AtmosphericLayerP
   const colors = getGradients();
 
   return (
-    <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
+    <div 
+      className="absolute inset-0 pointer-events-none overflow-hidden z-0"
+      style={{ opacity }}
+    >
       <div className={cn(
         "absolute top-[-10%] left-[-10%] w-[80%] h-[60%] blur-[120px] rounded-full transition-colors duration-1000",
         colors.top

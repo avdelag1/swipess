@@ -96,24 +96,22 @@ export default function DJTurntableRadio() {
       <AtmosphericLayer variant={isDark ? 'indigo' : 'default'} />
 
       {/* ── Top Bar ── */}
-      <div className="flex items-center justify-between px-5 pt-[calc(var(--safe-top,0px)+12px)] pb-3 z-20 relative">
-        <button 
-          onClick={() => { triggerHaptic('light'); navigate(-1); }}
-          className={cn('w-10 h-10 flex items-center justify-center rounded-full', neumBtn, neumBtnActive)}
-        >
-          <ArrowLeft className={cn("w-5 h-5", isDark ? "text-white" : "text-black")} />
-        </button>
-
-        <div className="flex-1 flex justify-center items-center gap-2">
-          <Radio className={cn("w-4 h-4", isDark ? "text-blue-400" : "text-primary")} strokeWidth={3} />
-          <SwipessLogo size="xs" variant="transparent" />
+      {/* ── Radio Info & List Toggle ── */}
+      <div className="flex items-center justify-between px-6 pt-4 pb-2 z-20 relative">
+        <div className="flex flex-col">
+          <p className={cn("text-[10px] font-black uppercase tracking-[0.3em]", isDark ? "text-blue-400" : "text-primary")}>
+            {state.currentStation?.frequency || '93.1'} FM
+          </p>
+          <h2 className={cn("text-xl font-black truncate tracking-tighter", isDark ? "text-white" : "text-black")}>
+            {state.currentStation?.name || 'Radio'}
+          </h2>
         </div>
 
         <button 
-          onClick={() => setShowDrawer(true)}
-          className={cn('w-10 h-10 flex items-center justify-center rounded-full', neumBtn, neumBtnActive)}
+          onClick={() => { triggerHaptic('medium'); setShowDrawer(true); }}
+          className={cn('w-12 h-12 flex items-center justify-center rounded-2xl', neumBtn, neumBtnActive)}
         >
-          <ListMusic className={cn("w-5 h-5", isDark ? "text-white" : "text-black")} />
+          <ListMusic className={cn("w-6 h-6", isDark ? "text-white" : "text-black")} />
         </button>
       </div>
 
@@ -121,14 +119,8 @@ export default function DJTurntableRadio() {
       <div className="flex-1 flex flex-col items-center justify-between px-4">
         
         {/* Info cluster */}
-        <div className="flex flex-col items-center mt-2 text-center">
-          <p className={cn("text-xs font-black uppercase tracking-[0.3em]", isDark ? "text-blue-400" : "text-primary")}>
-            {state.currentStation?.frequency || '93.1'}
-          </p>
-          <h2 className={cn("text-2xl font-black truncate tracking-tighter mt-1", isDark ? "text-white" : "text-black")}>
-            {state.currentStation?.name || 'Radio'}
-          </h2>
-          <p className={cn("text-[10px] font-bold uppercase tracking-[0.2em] opacity-60 mt-2 flex items-center gap-2", isDark ? "text-white" : "text-black")}>
+        <div className="flex flex-col items-center text-center">
+          <p className={cn("text-[10px] font-bold uppercase tracking-[0.2em] opacity-60 flex items-center gap-2", isDark ? "text-white" : "text-black")}>
             <span className={cn("w-1.5 h-1.5 rounded-full animate-pulse", isDark ? "bg-blue-400" : "bg-primary")} />
             Live from {state.currentCity || 'Mars'}
           </p>
@@ -187,7 +179,7 @@ export default function DJTurntableRadio() {
         </div>
 
         {/* ── Playback Controls ── */}
-        <div className="flex flex-col items-center gap-5 w-full pb-8">
+        <div className="flex flex-col items-center gap-5 w-full pb-32">
           
           <div className="flex items-center gap-5">
             <button

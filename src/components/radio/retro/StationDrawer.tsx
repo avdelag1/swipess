@@ -53,7 +53,7 @@ export const StationDrawer = ({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/80 backdrop-blur-md z-[100]"
+            className="fixed inset-0 bg-black/80 backdrop-blur-md z-[10099]"
           />
 
           <motion.div
@@ -62,7 +62,7 @@ export const StationDrawer = ({
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 28, stiffness: 220 }}
             className={cn(
-               "fixed inset-0 z-[101] overflow-hidden flex flex-col",
+               "fixed inset-0 z-[10100] overflow-hidden flex flex-col",
                "modal-liquid-glass p-6",
             )}
             style={{ 
