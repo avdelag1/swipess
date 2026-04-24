@@ -226,14 +226,12 @@ export default function DJTurntableRadio() {
               className={cn(
                 'w-20 h-20 rounded-full flex items-center justify-center relative',
                 neumBtnActive,
-                isDark
-                  ? 'bg-white shadow-[0_8px_30px_rgba(255,255,255,0.15)]'
-                  : 'bg-black shadow-[0_8px_30px_rgba(0,0,0,0.2)]'
+                'bg-black shadow-[0_8px_30px_rgba(0,0,0,0.5)] border border-white/10'
               )}
             >
               {state.isPlaying
-                ? <Pause className={cn('w-8 h-8', isDark ? 'text-black' : 'text-white')} fill="currentColor" />
-                : <Play className={cn('w-8 h-8 ml-1', isDark ? 'text-black' : 'text-white')} fill="currentColor" />
+                ? <Pause className="w-8 h-8 text-white" fill="currentColor" />
+                : <Play className="w-8 h-8 ml-1 text-white" fill="currentColor" />
               }
             </button>
 

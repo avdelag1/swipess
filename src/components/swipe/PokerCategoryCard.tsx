@@ -86,7 +86,7 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
       }}
       onDragEnd={handleDragEnd}
       onTap={() => {
-        if (!isDragging) {
+        if (!isDragging && Math.abs(x.get()) < 10) {
           if (isTop) {
             triggerHaptic('medium');
             onSelect(card.id);
