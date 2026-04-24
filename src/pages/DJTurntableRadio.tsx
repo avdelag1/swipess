@@ -196,20 +196,21 @@ export default function DJTurntableRadio() {
               onClick={() => { changeStation('prev'); triggerHaptic('medium'); }}
               className={cn('w-14 h-14 rounded-full flex items-center justify-center', neumBtn, neumBtnActive)}
             >
-              <SkipBack className={cn('w-6 h-6', isDark ? 'text-white/50' : 'text-black/60')} fill="currentColor" />
+              <SkipBack className={cn('w-6 h-6', isDark ? 'text-white' : 'text-black')} fill="currentColor" />
             </button>
 
             <button
               onClick={() => { togglePlayPause(); triggerHaptic('heavy'); }}
               className={cn(
-                'w-20 h-20 rounded-full flex items-center justify-center relative',
+                'w-20 h-20 rounded-full flex items-center justify-center relative transition-all duration-300',
                 neumBtnActive,
-                'bg-black shadow-[0_8px_30px_rgba(0,0,0,0.5)] border border-white/10'
+                'bg-white border transition-all duration-300',
+                isDark ? 'shadow-[0_15px_45px_rgba(255,255,255,0.25)] border-white/20' : 'shadow-[0_15px_45px_rgba(0,0,0,0.12)] border-slate-200'
               )}
             >
               {state.isPlaying
-                ? <Pause className="w-8 h-8 text-white" fill="currentColor" />
-                : <Play className="w-8 h-8 ml-1 text-white" fill="currentColor" />
+                ? <Pause className="w-8 h-8 text-black" fill="currentColor" />
+                : <Play className="w-8 h-8 ml-1 text-black" fill="currentColor" />
               }
             </button>
 

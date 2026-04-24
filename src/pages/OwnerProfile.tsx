@@ -18,6 +18,7 @@ import { LanguageToggle } from "@/components/LanguageToggle";
 import { cn } from "@/lib/utils";
 import { useMessagingQuota } from "@/hooks/useMessagingQuota";
 import { AtmosphericLayer } from "@/components/AtmosphericLayer";
+import { useModalStore } from "@/state/modalStore";
 
 const OwnerProfile = () => {
   const [showEditDialog, setShowEditDialog] = useState(false);
@@ -25,6 +26,7 @@ const OwnerProfile = () => {
   const { data: stats, isLoading: statsLoading } = useOwnerStats();
   const { data: ownerProfile, isLoading: profileLoading } = useOwnerProfile();
   const { tokenBalance } = useMessagingQuota();
+  const { setModal } = useModalStore();
   const navigate = useNavigate();
   const { isLight } = useAppTheme();
 
@@ -152,6 +154,24 @@ const OwnerProfile = () => {
 
         {/* 🛸 PRIMARY HIGH-FIDELITY ACTIONS */}
         <div className="space-y-4">
+          <Button
+            onClick={() => { triggerHaptic('heavy'); setModal('showAIListing', true); }}
+            className={cn(
+              "w-full h-24 rounded-[2.5rem] relative overflow-hidden transition-all active:scale-95 group border-none shadow-2xl",
+              "bg-gradient-to-br from-indigo-600 via-purple-600 to-rose-500 text-white"
+            )}
+          >
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.4),transparent_70%)] opacity-50 group-hover:opacity-80 transition-opacity" />
+            <div className="relative z-10 flex items-center justify-center gap-4">
+              <Sparkles className="w-8 h-8 animate-pulse text-white" />
+              <div className="text-left">
+                <span className="block text-[18px] font-black uppercase italic tracking-[0.2em] leading-none">Magic AI Listing</span>
+                <span className="block text-[9px] font-black uppercase tracking-[0.3em] opacity-60 mt-1">Flagship Intelligence v4</span>
+              </div>
+            </div>
+            <div className="absolute -bottom-6 -right-6 w-24 h-24 bg-white/10 rounded-full blur-3xl group-hover:bg-white/20 transition-all" />
+          </Button>
+
           <Button
             onClick={() => { triggerHaptic('medium'); setShowEditDialog(true); }}
             className={cn(

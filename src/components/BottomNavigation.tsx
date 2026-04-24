@@ -131,10 +131,11 @@ export const BottomNavigation = memo(({
   const ownerNavItems: NavItem[] = [
     { id: 'dashboard', icon: Zap, label: 'Dashboard', path: '/owner/dashboard' },
     { id: 'profile', icon: CircleUser, label: 'Profile', path: '/owner/profile' },
+    { id: 'ai-listing', icon: Sparkles, label: 'AI Listing', onClick: () => setModal('showAIListing', true), isSpecial: true },
     { id: 'likes', icon: Flame, label: 'Likes', path: '/owner/liked-clients' },
-    { id: 'ai', icon: Sparkles, label: 'AI Bot', onClick: openAIChat, isSpecial: true },
     { id: 'listings', icon: Building2, label: 'Listings', path: '/owner/properties' },
     { id: 'messages', icon: MessageCircle, label: 'Messages', path: '/messages' },
+    { id: 'ai', icon: Sparkles, label: 'AI Bot', onClick: openAIChat, isSpecial: true },
     { id: 'promote', icon: Megaphone, label: 'Promote', path: '/client/advertise' },
     { id: 'filters', icon: SlidersHorizontal, label: 'Filter', onClick: onFilterClick },
   ];

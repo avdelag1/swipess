@@ -63,14 +63,19 @@ export function AIListingTrigger({ glassPillStyle }: AIListingTriggerProps) {
             e.stopPropagation();
             triggerHaptic('light');
           }}
-          className="w-11 h-11 flex items-center justify-center p-0 rounded-full relative group transition-all duration-300"
-          style={glassPillStyle}
+          className={cn(
+            "w-11 h-11 flex items-center justify-center p-0 rounded-full relative group transition-all duration-500",
+            "bg-gradient-to-br from-indigo-600 via-purple-600 to-rose-500 shadow-[0_0_15px_rgba(99,102,241,0.4)]"
+          )}
           title="Magic AI Listing"
         >
+          <div className="absolute inset-0 rounded-full bg-white opacity-0 group-hover:opacity-20 transition-opacity" />
           <Sparkles 
-            className="w-5 h-5 text-indigo-500 group-hover:text-indigo-400 group-hover:scale-110 transition-all duration-300" 
-            strokeWidth={2} 
+            className="w-5 h-5 text-white group-hover:scale-110 transition-all duration-300 drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]" 
+            strokeWidth={2.5} 
           />
+          {/* Pulsing ring for flagship visibility */}
+          <div className="absolute inset-0 rounded-full border-2 border-white/20 animate-[ping_3s_infinite] opacity-50" />
         </motion.button>
       </DialogTrigger>
       

@@ -286,7 +286,8 @@ function RadioMiniPlayerInner() {
                   onClick={handleTogglePlay}
                   className={cn(
                     "w-14 h-14 rounded-full flex items-center justify-center shadow-2xl active:scale-90 transition-all",
-                    isLight ? "bg-slate-900 text-white" : "bg-white text-black"
+                    "bg-white text-black border",
+                    isLight ? "border-slate-200" : "border-white/20"
                   )}
                 >
                   {state.isPlaying ? (
