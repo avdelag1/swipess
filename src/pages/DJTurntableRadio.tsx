@@ -10,7 +10,7 @@ import { triggerHaptic } from '@/utils/haptics';
 import { cn } from '@/lib/utils';
 import useAppTheme from '@/hooks/useAppTheme';
 import {
-  ArrowLeft, Globe, Star, Heart, Shuffle,
+  ArrowLeft, Globe, Star, Heart, Shuffle, Radio,
   SkipBack, SkipForward, Play, Pause, Volume2, ListMusic
 } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -90,7 +90,7 @@ export default function DJTurntableRadio() {
 
   return (
     <div 
-      className="relative w-full h-full flex flex-col bg-[#0A0A0A] overflow-hidden"
+      className={cn("relative w-full h-full flex flex-col overflow-hidden transition-colors duration-500", isDark ? "bg-[#0A0A0A]" : "bg-white")}
       id="main-radio-content"
     >
       <AtmosphericLayer variant={isDark ? 'indigo' : 'default'} />
@@ -106,7 +106,7 @@ export default function DJTurntableRadio() {
 
         <div className="flex-1 flex justify-center items-center gap-2">
           <Radio className={cn("w-4 h-4", isDark ? "text-blue-400" : "text-primary")} strokeWidth={3} />
-          <SwipessLogo size="sm" variant="transparent" />
+          <SwipessLogo size="xs" variant="transparent" />
         </div>
 
         <button 
@@ -135,7 +135,25 @@ export default function DJTurntableRadio() {
         </div>
 
         {/* Large Frequency Display */}
-        <div className="flex-1 flex flex-col items-center justify-center w-full min-h-[250px]">
+        <div className="flex-1 flex flex-col items-center justify-center w-full min-h-[250px] relative">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={state.currentStation?.id || 'none'}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 z-0 flex items-center justify-center pointer-events-none overflow-hidden"
+            >
+              <div className="absolute inset-0 opacity-[0.08] blur-3xl scale-125">
+                <img 
+                  src={state.currentStation?.albumArt || "https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?auto=format&fit=crop&q=80&w=800"} 
+                  className="w-full h-full object-cover"
+                  alt=""
+                />
+              </div>
+            </motion.div>
+          </AnimatePresence>
+
           <AnimatePresence mode="wait">
             <motion.div
               key={state.currentStation?.id || 'none'}
@@ -143,7 +161,7 @@ export default function DJTurntableRadio() {
               animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
               exit={{ opacity: 0, scale: 0.95, filter: 'blur(8px)' }}
               transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-              className="text-center"
+              className="text-center relative z-10"
             >
               <div className={cn('text-[72px] sm:text-[88px] font-black leading-none tracking-tight', isDark ? 'text-white' : 'text-black')}>
                 {state.currentStation?.frequency || '93.1'}

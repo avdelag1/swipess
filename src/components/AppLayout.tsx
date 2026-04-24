@@ -140,7 +140,7 @@ export function AppLayout({ children }: AppLayoutProps) {
         className={cn(
           "w-full flex-1 relative z-0 flex flex-col",
           // 🛡️ RADIO PROTECTION: Ensure Radio/Camera routes are always fixed/fullscreen
-          isFullScreen && "h-screen overflow-hidden fixed inset-0"
+          isFullScreen && "h-[100dvh] overflow-hidden fixed inset-0"
         )}
       >
         <div className="w-full flex-1 flex flex-col">
