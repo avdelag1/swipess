@@ -21,6 +21,7 @@ import { GlobalDialogs } from './GlobalDialogs'
 import { useModalStore } from '@/state/modalStore'
 import { useFocusMode } from '@/hooks/useFocusMode'
 import { useScrollDirection } from '@/hooks/useScrollDirection'
+import { RadioMiniPlayer } from './RadioMiniPlayer'
 
 // =============================================================================
 // PERFORMANCE FIX: SessionStorage caching for dashboard checks
@@ -305,6 +306,9 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
 
       {/* ZENITH GLOBAL DIALOGS */}
       <GlobalDialogs userRole={userRole} />
+
+      {/* PERSISTENT RADIO MINI PLAYER */}
+      <RadioMiniPlayer />
     </div>
   )
 }
