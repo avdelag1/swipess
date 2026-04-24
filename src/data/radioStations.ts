@@ -1274,7 +1274,38 @@ export const radioStations: RadioStation[] = [
     genre: 'Soul/Motown',
     description: 'The legendary sound of Detroit soul',
     albumArt: 'https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?auto=format&fit=crop&q=80&w=800'
+  },
+  {
+    id: 'retro-6',
+    name: 'The 50s Channel',
+    frequency: '92.5',
+    streamUrl: 'https://ais-sa1.duplexfb.com/radio/8000/radio.mp3',
+    city: 'american-retro',
+    genre: '50s Rock & Roll',
+    description: 'The birth of Rock & Roll 24/7',
+    albumArt: 'https://images.unsplash.com/photo-1571330735066-03aaa9429d89?auto=format&fit=crop&q=80&w=800'
+  },
+  {
+    id: 'retro-7',
+    name: 'Pure 70s Soul',
+    frequency: '97.1',
+    streamUrl: 'https://ice1.somafm.com/seven-128-mp3',
+    city: 'american-retro',
+    genre: '70s Soul',
+    description: 'Smooth grooves and deep soul from the 70s',
+    albumArt: 'https://images.unsplash.com/photo-1493225255756-d9584f8606e9?auto=format&fit=crop&q=80&w=800'
+  },
+  {
+    id: 'retro-8',
+    name: 'Classic American Top 40',
+    frequency: '100.1',
+    streamUrl: 'https://ice1.somafm.com/freshair-128-mp3',
+    city: 'american-retro',
+    genre: 'Retro Pop',
+    description: 'The biggest hits of the golden era',
+    albumArt: 'https://images.unsplash.com/photo-1459749411177-042180ce673b?auto=format&fit=crop&q=80&w=800'
   }
+
 ];
 
 export function getStationsByCity(city: CityLocation): RadioStation[] {

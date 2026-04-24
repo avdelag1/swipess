@@ -52,6 +52,98 @@ const DEMO_CLIENTS: any[] = [
     lifestyle_tags: ['Pet Friendly', 'Yoga Daily'],
     bio: 'Art director seeking a sun-drenched studio. Love minimalism and natural light.',
     onboarding_completed: true
+  },
+  {
+    user_id: 'demo-client-4',
+    full_name: 'Julian Sterling',
+    age: 34,
+    gender: 'male',
+    city: 'New York',
+    country: 'USA',
+    images: ['https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=1200'],
+    interests: ['Venture Capital', 'Sailing', 'Espresso'],
+    lifestyle_tags: ['High Net Worth', 'Urban Professional'],
+    bio: 'Seeking an executive residence for short-term project stays. Priority on privacy and high-speed infrastructure.',
+    onboarding_completed: true
+  },
+  {
+    user_id: 'demo-client-5',
+    full_name: 'Amara Okafor',
+    age: 27,
+    gender: 'female',
+    city: 'Lagos',
+    country: 'Nigeria',
+    images: ['https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&q=80&w=1200'],
+    interests: ['Afrobeats', 'Fashion Design', 'Urban Exploration'],
+    lifestyle_tags: ['Creative Professional', 'Weekend Adventurer'],
+    bio: 'Fashion designer looking for a studio space with character. Need inspiration from the surroundings.',
+    onboarding_completed: true
+  },
+  {
+    user_id: 'demo-client-6',
+    full_name: 'Liam Henderson',
+    age: 28,
+    gender: 'male',
+    city: 'London',
+    country: 'UK',
+    images: ['https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=1200'],
+    interests: ['Rugby', 'Historical Fiction', 'Craft Beer'],
+    lifestyle_tags: ['Social Butterfly', 'Gym Regular'],
+    bio: 'Junior partner at a law firm. Looking for a modern apartment with easy access to the Tube.',
+    onboarding_completed: true
+  },
+  {
+    user_id: 'demo-client-7',
+    full_name: 'Yuki Tanaka',
+    age: 24,
+    gender: 'female',
+    city: 'Tokyo',
+    country: 'Japan',
+    images: ['https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=1200'],
+    interests: ['Hyper-local Travel', 'Robotics', 'Tea Ceremony'],
+    lifestyle_tags: ['Digital Artist', 'Zen Practice'],
+    bio: 'Finding beauty in the small things. Seeking a creative collective or a minimalist condo with a rooftop view.',
+    onboarding_completed: true
+  },
+  {
+    user_id: 'demo-client-8',
+    full_name: 'Alexei Ivanov',
+    age: 33,
+    gender: 'male',
+    city: 'Dubai',
+    country: 'UAE',
+    images: ['https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=1200'],
+    interests: ['Classic Cars', 'Desert Safari', 'Fintech'],
+    lifestyle_tags: ['Ultra-High Net Worth', 'Private Jet Travel'],
+    bio: 'Restoring a vintage car collection. Looking for a high-security villa with a 10-car garage and climate control.',
+    onboarding_completed: true
+  }
+,
+  {
+    user_id: 'demo-client-7',
+    full_name: 'Yuki Tanaka',
+    age: 24,
+    gender: 'female',
+    city: 'Tokyo',
+    country: 'Japan',
+    images: ['https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=1200'],
+    interests: ['Anime Art', 'Tea Ceremonies', 'Photography'],
+    lifestyle_tags: ['Quiet Observer', 'Minimalist'],
+    bio: 'Photography student looking for a shared living space with other creatives. Budget-conscious but style-focused.',
+    onboarding_completed: true
+  },
+  {
+    user_id: 'demo-client-8',
+    full_name: 'David Van der Berg',
+    age: 30,
+    gender: 'male',
+    city: 'Cape Town',
+    country: 'South Africa',
+    images: ['https://images.unsplash.com/photo-1504257432389-52343af06ae3?auto=format&fit=crop&q=80&w=1200'],
+    interests: ['Mountain Biking', 'Wine Tasting', 'Architecture'],
+    lifestyle_tags: ['Outdoor Enthusiast', 'Remote Worker'],
+    bio: 'Software engineer working remotely. Need a place with a view of Table Mountain and a solid workspace.',
+    onboarding_completed: true
   }
 ];
 

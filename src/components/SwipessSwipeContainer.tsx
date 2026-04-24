@@ -12,6 +12,8 @@ import type { QuickFilterCategory } from '@/types/filters';
 import { getActiveCategoryInfo, POKER_CARDS, OWNER_INTENT_CARDS } from './swipe/SwipeConstants';
 import { SwipeAllDashboard } from './swipe/SwipeAllDashboard';
 import { MatchCelebrateModal } from './swipe/MatchCelebrateModal';
+import { ClientPreferencesDialog } from './ClientPreferencesDialog';
+import { OwnerClientFilterDialog } from './OwnerClientFilterDialog';
 import { preloadImageToCache } from '@/lib/swipe/imageCache';
 import { imageCache } from '@/lib/swipe/cardImageCache';
 import { PrefetchScheduler } from '@/lib/swipe/PrefetchScheduler';
@@ -31,7 +33,7 @@ import { useSwipeDeckStore, persistDeckToSession } from '@/state/swipeDeckStore'
 import { useFilterStore, useFilterActions } from '@/state/filterStore';
 import { useShallow } from 'zustand/react/shallow';
 import { useSwipeDismissal } from '@/hooks/useSwipeDismissal';
-import { Home, Bike, Briefcase, ChevronLeft, Radar, SlidersHorizontal } from 'lucide-react';
+import { Home, Bike, Briefcase, ChevronLeft, Radar, SlidersHorizontal, LayoutGrid } from 'lucide-react';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { useSwipeSounds } from '@/hooks/useSwipeSounds';
 import { appToast } from '@/utils/appNotification';
@@ -119,6 +121,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
   const [isRefreshMode, setIsRefreshMode] = useState(false);
   const [messageDialogOpen, setMessageDialogOpen] = useState(false);
   const [directMessageDialogOpen, setDirectMessageDialogOpen] = useState(false);
+  const [filterDialogOpen, setFilterDialogOpen] = useState(false);
   const [selectedListing, setSelectedListing] = useState<any | null>(null);
   const [reportDialogOpen, setReportDialogOpen] = useState(false);
 
@@ -233,6 +236,15 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
   useEffect(() => {
     const t = setTimeout(() => { isMountSettledRef.current = true; }, 400);
     return () => clearTimeout(t);
+  }, []);
+
+  useEffect(() => {
+    const handleOpenFilters = () => {
+      triggerHaptic('medium');
+      setFilterDialogOpen(true);
+    };
+    window.addEventListener('open-filters', handleOpenFilters);
+    return () => window.removeEventListener('open-filters', handleOpenFilters);
   }, []);
   // A single reset path prevents duplicate state mutations that cause React error #185.
 
@@ -1190,30 +1202,34 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
               </div>
             </motion.button>
 
-            {/* Sub-Actions: Radar & Intel */}
+            {/* Sub-Actions: Intel & Switch */}
             <div className="flex items-center gap-2 w-full">
-               <motion.button
-                 whileTap={{ scale: 0.95 }}
-                 onClick={() => {
-                    triggerHaptic('medium');
-                    navigate('/client/filters');
-                 }}
-                 className="flex-1 h-12 rounded-2xl bg-white/10 backdrop-blur-3xl border border-white/20 flex items-center justify-center gap-2"
-               >
-                 <SlidersHorizontal className="w-4 h-4 text-white/70" />
-                 <span className="text-[10px] font-black uppercase tracking-widest text-white/80">Intel Center</span>
-               </motion.button>
+                <motion.button
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => {
+                     triggerHaptic('medium');
+                     setFilterDialogOpen(true);
+                  }}
+                  className="flex-1 h-12 rounded-2xl bg-white/10 backdrop-blur-3xl border border-white/20 flex items-center justify-center gap-2"
+                >
+                  <SlidersHorizontal className="w-4 h-4 text-white/70" />
+                  <span className="text-[10px] font-black uppercase tracking-widest text-white/80">Intel Center</span>
+                </motion.button>
 
                <motion.button
                  whileTap={{ scale: 0.95 }}
                  onClick={() => {
                     triggerHaptic('medium');
-                    setRadiusKm(radiusKm === 100 ? 5 : radiusKm + 10);
+                    // Simple cycle for now or we could open a small menu
+                    const categories = ['property', 'motorcycle', 'bicycle', 'services'];
+                    const currentIndex = categories.indexOf(activeCategory || 'property');
+                    const nextIndex = (currentIndex + 1) % categories.length;
+                    setActiveCategory(categories[nextIndex] as any);
                  }}
                  className="flex-1 h-12 rounded-2xl bg-white/10 backdrop-blur-3xl border border-white/20 flex items-center justify-center gap-2"
                >
-                 <Radar className="w-4 h-4 text-white/70 animate-spin-slow" />
-                 <span className="text-[10px] font-black uppercase tracking-widest text-white/80">{radiusKm}km Scan</span>
+                 <LayoutGrid className="w-4 h-4 text-white/70" />
+                 <span className="text-[10px] font-black uppercase tracking-widest text-white/80">Switch Deck</span>
                </motion.button>
             </div>
           </div>
@@ -1277,6 +1293,19 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
             isLoading={isCreatingConversation}
             category={selectedListing?.category}
           />
+
+          {/* DYNAMIC FILTER DIALOGS */}
+          {userRole === 'owner' ? (
+            <OwnerClientFilterDialog
+              open={filterDialogOpen}
+              onOpenChange={setFilterDialogOpen}
+            />
+          ) : (
+            <ClientPreferencesDialog
+              open={filterDialogOpen}
+              onOpenChange={setFilterDialogOpen}
+            />
+          )}
 
           {selectedListing && (
             <ReportDialog

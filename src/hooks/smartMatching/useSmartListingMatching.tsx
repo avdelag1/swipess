@@ -115,7 +115,43 @@ const DEMO_LISTINGS: any[] = [
     is_active: true,
     status: 'active',
     created_at: new Date().toISOString()
+  },
+  {
+    id: 'demo-6',
+    title: 'Minimalist Tulum Villa',
+    description: 'Solar powered, jungle surrounded. The perfect retreat for digital nomads seeking peace and ultra-fast fiber optic.',
+    price: 3800,
+    currency: 'USD',
+    images: ['https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?auto=format&fit=crop&q=80&w=1200'],
+    city: 'Tulum',
+    category: 'property',
+    listing_type: 'rent',
+    property_type: 'villa',
+    beds: 2,
+    baths: 2,
+    square_footage: 1500,
+    is_active: true,
+    status: 'active',
+    created_at: new Date().toISOString()
+  },
+  {
+    id: 'demo-7',
+    title: 'Vintage Porsche 911',
+    description: 'Air-cooled perfection. Fully restored. A time capsule on wheels that turns heads at every corner.',
+    price: 125000,
+    currency: 'USD',
+    images: ['https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&q=80&w=1200'],
+    city: 'Los Angeles',
+    category: 'motorcycle',
+    listing_type: 'sell',
+    vehicle_brand: 'Porsche',
+    vehicle_model: '911 Carrera',
+    year: 1989,
+    is_active: true,
+    status: 'active',
+    created_at: new Date().toISOString()
   }
+
 ];
 
 export function useSmartListingMatching(

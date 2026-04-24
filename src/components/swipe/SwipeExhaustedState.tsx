@@ -15,6 +15,7 @@ interface SwipeExhaustedStateProps {
   onRefresh: () => void;
   error?: any;
   isInitialLoad?: boolean;
+  role?: 'client' | 'owner';
 }
 
 const CATEGORY_ICONS: Record<string, { icon: any; label: string; color: string }> = {
@@ -31,6 +32,7 @@ export const SwipeExhaustedState = ({
   onRefresh,
   error,
   isInitialLoad = false,
+  role = 'client'
 }: SwipeExhaustedStateProps) => {
   const { theme, isLight } = useAppTheme();
   const { setCategories } = useFilterActions();
@@ -128,8 +130,8 @@ export const SwipeExhaustedState = ({
           />
         </div>
 
-        {/* TOP BAR ACTION */}
-        <div className="absolute top-4 left-4 z-[90]">
+        {/* TOP BAR ACTION - Significant padding to clear system UI and header buttons */}
+        <div className="absolute top-12 left-8 z-[90]">
            <button
              onClick={() => {
                triggerHaptic('medium');
@@ -137,16 +139,16 @@ export const SwipeExhaustedState = ({
                setCategories([]);
              }}
              className={cn(
-               "flex items-center gap-2 px-4 h-11 rounded-2xl shadow-2xl backdrop-blur-3xl border transition-all active:scale-95 group", 
-               isLight ? "bg-white border-black/10 text-black" : "bg-black/80 border-white/20 text-white"
+               "flex items-center gap-3 px-6 h-14 rounded-[1.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.3)] backdrop-blur-3xl border transition-all active:scale-95 group", 
+               isLight ? "bg-white/90 border-black/10 text-black" : "bg-black/40 border-white/20 text-white"
              )}
            >
              <ChevronLeft className="w-5 h-5 -ml-1 transition-transform group-hover:-translate-x-1" />
-             <span className="text-[10px] font-black uppercase tracking-[0.15em]">Sectors</span>
+             <span className="text-[12px] font-black uppercase tracking-[0.25em]">Back</span>
            </button>
         </div>
 
-        <div className="relative flex flex-col items-center text-center max-w-sm z-10 w-full">
+        <div className="relative flex flex-col items-center text-center max-w-sm z-10 w-full pt-[18dvh] pb-20">
           <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
@@ -194,12 +196,15 @@ export const SwipeExhaustedState = ({
             ))}
           </motion.div>
 
-          <div className="space-y-2 mb-12">
-            <h3 className={cn("text-4xl font-black italic tracking-tighter uppercase leading-none", isLight ? "text-black" : "text-white")}>
-              Signals Faded
+          <div className="space-y-3 mb-14 px-4">
+            <h3 className={cn("text-5xl font-black italic tracking-tighter uppercase leading-none", isLight ? "text-black" : "text-white")}>
+              {role === 'owner' ? 'Horizon Clear' : 'Signals Faded'}
             </h3>
-            <p className={cn("text-[10px] font-black uppercase tracking-[0.25em] leading-relaxed px-8", isLight ? "text-black/50" : "text-white/50")}>
-              Current coordinates analyzed. Recalibrate range or reset protocol to discover new opportunities.
+            <p className={cn("text-[11px] font-bold uppercase tracking-[0.2em] leading-relaxed", isLight ? "text-black/60" : "text-white/60")}>
+              {role === 'owner' 
+                ? 'You have analyzed all active clients in this sector. Recalibrate your radar parameters to find new matches.'
+                : 'Current coordinates analyzed. Recalibrate range or reset protocol to discover new opportunities.'
+              }
             </p>
           </div>
 
@@ -234,16 +239,49 @@ export const SwipeExhaustedState = ({
               <div className="absolute inset-0 bg-primary/10 opacity-0 group-hover:opacity-100 transition-opacity" />
             </button>
 
+            <div className="flex gap-4 w-full">
+              <button
+                onClick={handleRefreshClick}
+                disabled={isRefreshing}
+                className={cn(
+                  "flex-1 h-20 rounded-[2rem] flex items-center justify-center gap-4 transition-all active:scale-95 border-2 shadow-[0_25px_60px_-15px_rgba(var(--color-brand-primary-rgb),0.3)]",
+                  isLight ? "bg-black border-white/20 text-white" : "bg-white border-black/10 text-black"
+                )}
+              >
+                <RefreshCw className={cn("w-6 h-6", isRefreshing && "animate-spin")} />
+                <div className="flex flex-col items-start">
+                  <span className="text-[14px] font-black uppercase tracking-wider leading-none mb-1">Relaunch Scan</span>
+                  <span className="text-[8px] font-black uppercase tracking-[0.2em] opacity-50">Deep Sync Active</span>
+                </div>
+              </button>
+
+              <button
+                onClick={() => {
+                  triggerHaptic('medium');
+                  (window as any).dispatchEvent(new CustomEvent('open-filters'));
+                }}
+                className={cn(
+                  "w-20 h-20 rounded-[2rem] flex items-center justify-center transition-all active:scale-95 border-2 shadow-2xl group",
+                  isLight ? "bg-white border-black/10 text-primary" : "bg-black/60 border-white/20 text-primary"
+                )}
+              >
+                <SlidersHorizontal className="w-8 h-8 group-hover:scale-110 transition-transform" />
+              </button>
+            </div>
+
             <button
-              onClick={handleRefreshClick}
-              disabled={isRefreshing}
+              disabled={resetMutation.isPending}
+              onClick={() => {
+                triggerHaptic('heavy');
+                resetMutation.mutate(activeCategory as any || 'all');
+              }}
               className={cn(
-                "w-full h-14 rounded-[1.8rem] flex items-center justify-center gap-3 transition-all active:scale-95 border",
-                isLight ? "bg-white border-black/10 text-black/60" : "bg-black/40 border-white/10 text-white/60"
+                "w-full h-12 rounded-[1.2rem] flex items-center justify-center gap-2 transition-all opacity-40 hover:opacity-100 active:scale-95",
+                isLight ? "text-black" : "text-white"
               )}
             >
-              <RefreshCw className={cn("w-4 h-4", isRefreshing && "animate-spin")} />
-              <span className="text-[10px] font-black uppercase tracking-widest">{isRefreshing ? 'Scanning...' : 'Refresh Radar'}</span>
+              <RotateCcw className={cn("w-4 h-4", resetMutation.isPending && "animate-spin")} />
+              <span className="text-[9px] font-black uppercase tracking-[0.3em]">Factory Reset Sector</span>
             </button>
           </motion.div>
         </div>

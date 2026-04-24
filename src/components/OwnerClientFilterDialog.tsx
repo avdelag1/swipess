@@ -296,8 +296,8 @@ export function OwnerClientFilterDialog({ open, onOpenChange }: OwnerClientFilte
               mass: 0.8,
             }}
           >
-            <DialogContent className="bg-background/95 backdrop-blur-xl max-w-2xl w-[calc(100vw-2rem)] sm:w-[95vw] h-[calc(100vh-4rem)] sm:h-[85vh] max-h-[90vh] flex flex-col p-0 rounded-t-[32px] sm:rounded-[32px] border border-border/30">
-              <DialogHeader className="shrink-0 px-4 sm:px-6 pt-4 sm:pt-6 pb-2 border-b">
+            <DialogContent className="bg-background/95 backdrop-blur-3xl max-w-2xl w-[calc(100vw-1rem)] sm:w-[90vw] h-[80vh] max-h-[85vh] flex flex-col p-0 rounded-t-[2.5rem] sm:rounded-[2.5rem] border border-white/10 shadow-2xl mt-20">
+              <DialogHeader className="shrink-0 px-6 pt-6 pb-3 border-b border-border/5">
                 <div className="flex items-center gap-3">
                   <div className="rounded-2xl bg-primary/10 p-2.5">
                     <Filter className="h-5 w-5 text-primary" />

@@ -199,8 +199,8 @@ export function ClientPreferencesDialog({ open, onOpenChange }: ClientPreference
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-4xl h-[90vh] flex flex-col p-0">
-        <DialogHeader className="px-6 py-4 border-b">
+      <DialogContent className="sm:max-w-4xl h-[80vh] max-h-[85vh] w-[calc(100vw-1rem)] flex flex-col p-0 rounded-t-[2.5rem] sm:rounded-[2.5rem] border border-white/10 shadow-2xl mt-20 bg-background/95 backdrop-blur-3xl">
+        <DialogHeader className="px-6 py-4 border-b border-border/5">
           <DialogTitle>My Preferences</DialogTitle>
         </DialogHeader>
 

@@ -172,10 +172,7 @@ function RadioMiniPlayerInner() {
                   <Radio className={cn("w-6 h-6", isLight ? "text-slate-600" : "text-white")} strokeWidth={1.8} />
                 )}
                 
-                {state.isPlaying && (
-                  <div className="absolute inset-0 rounded-full border-2 border-blue-400/30 animate-ping-slow" />
-                )}
-             </m.button>
+              </m.button>
 
              {/* Mini quick controls on hover */}
              <AnimatePresence>

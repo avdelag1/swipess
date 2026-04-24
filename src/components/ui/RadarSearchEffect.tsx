@@ -7,7 +7,7 @@
 
 import { memo, CSSProperties, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { User } from 'lucide-react';
+import { User, Radio, SlidersHorizontal, LayoutGrid, ChevronLeft } from 'lucide-react';
 
 interface RadarSearchEffectProps {
   size?: number;
