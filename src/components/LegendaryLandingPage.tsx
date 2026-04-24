@@ -40,8 +40,10 @@ const GoogleIcon = () => (
 /* ─── Landing view ───────────────────────────────────────── */
 const LandingView = memo(({
   onEnterAuth,
+  onOpenLegal,
 }: {
   onEnterAuth: (mode: 'login' | 'signup') => void;
+  onOpenLegal: (modal: 'privacy' | 'terms') => void;
 }) => {
   // Render landing view
 
@@ -94,11 +96,11 @@ const LandingView = memo(({
         </button>
 
         <div className="flex items-center gap-4 text-[9px] font-black uppercase tracking-[0.3em] text-white/30 italic mt-4">
-          <button onClick={() => setLegalModal('privacy')} className="hover:text-primary transition-colors">Privacy</button>
+          <button onClick={() => onOpenLegal('privacy')} className="hover:text-primary transition-colors">Privacy</button>
           <div className="w-1 h-1 rounded-full bg-white/10" />
-          <button onClick={() => setLegalModal('terms')} className="hover:text-primary transition-colors">Terms</button>
+          <button onClick={() => onOpenLegal('terms')} className="hover:text-primary transition-colors">Terms</button>
           <div className="w-1 h-1 rounded-full bg-white/10" />
-          <button onClick={() => setLegalModal('terms')} className="hover:text-primary transition-colors">Legal Hub</button>
+          <button onClick={() => onOpenLegal('terms')} className="hover:text-primary transition-colors">Legal Hub</button>
         </div>
       </motion.div>
     </motion.div>
@@ -500,7 +502,11 @@ function LegendaryLandingPage() {
 
       <AnimatePresence mode="wait">
         {view === 'landing' ? (
-          <LandingView key="landing" onEnterAuth={(mode) => { setAuthMode(mode); setView('auth'); }} />
+          <LandingView 
+            key="landing" 
+            onEnterAuth={(mode) => { setAuthMode(mode); setView('auth'); }} 
+            onOpenLegal={(modal) => setLegalModal(modal)}
+          />
         ) : (
           <AuthView key="auth" onBack={() => setView('landing')} initialMode={authMode} />
         )}
