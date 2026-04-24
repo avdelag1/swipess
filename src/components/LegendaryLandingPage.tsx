@@ -86,9 +86,9 @@ const LandingView = memo(({
         </button>
         <button
           onClick={() => { triggerHaptic('medium'); onEnterAuth('signup'); }}
-          className="w-full h-[52px] rounded-2xl bg-white/5 backdrop-blur-3xl border border-white/10 text-white font-black uppercase tracking-[0.15em] text-[14px] active:scale-[0.97] transition-all flex items-center justify-center gap-2.5 hover:bg-white/10 shadow-[0_10px_20px_rgba(0,0,0,0.2)]"
+          className="w-full h-[52px] rounded-2xl bg-white text-black font-black uppercase tracking-[0.15em] text-[14px] shadow-[0_15px_30px_rgba(255,255,255,0.15)] active:scale-[0.97] transition-all flex items-center justify-center gap-2.5 border-none"
         >
-          <Sparkles className="w-4 h-4 text-primary" />
+          <Sparkles className="w-4 h-4 text-black/40" />
           Create Account
         </button>
       </motion.div>
