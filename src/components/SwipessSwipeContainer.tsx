@@ -1239,6 +1239,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
           )}>FLAGSHIP BUILD v1.0.96-rc4</span>
       </div>
     </div>
+    </div>
 
       {/* Action buttons now live inside the card via DiscoverySidebar */}
 
