@@ -202,10 +202,8 @@ export default function DJTurntableRadio() {
             <button
               onClick={() => { togglePlayPause(); triggerHaptic('heavy'); }}
               className={cn(
-                'w-20 h-20 rounded-full flex items-center justify-center relative transition-all duration-300',
-                neumBtnActive,
-                'bg-white border transition-all duration-300',
-                isDark ? 'shadow-[0_15px_45px_rgba(255,255,255,0.25)] border-white/20' : 'shadow-[0_15px_45px_rgba(0,0,0,0.12)] border-slate-200'
+                'w-20 h-20 rounded-full flex items-center justify-center relative transition-all duration-300 bg-white border border-white shadow-2xl',
+                isDark ? 'shadow-[0_15px_50px_rgba(255,255,255,0.35)]' : 'shadow-[0_15px_45px_rgba(0,0,0,0.12)]'
               )}
             >
               {state.isPlaying
