@@ -33,6 +33,7 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
   const resetClientFilters = useFilterStore(s => s.resetClientFilters);
 
   const [localFilters, setLocalFilters] = useState<Record<string, any>>(getListingFilters());
+  const [isScanning, setIsScanning] = useState(false);
 
   const handleApply = useCallback(() => {
     haptics.success();
@@ -61,13 +62,13 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
 
   return (
     <div className={cn(
-      "flex flex-col transition-colors duration-500",
-      !isEmbedded && "min-h-screen",
+      "flex flex-col transition-colors duration-500 overflow-y-auto",
+      !isEmbedded && "min-h-screen pb-32",
       isLight ? (isEmbedded ? "bg-transparent" : "bg-[#F8FAFC]") : (isEmbedded ? "bg-transparent" : "bg-black"),
       isLight ? "text-slate-900" : "text-white"
     )}>
       {!isEmbedded && (
-        <div className="pt-24 px-6 flex items-center justify-between">
+        <div className="pt-32 px-6 flex items-center justify-between">
             <button 
               onClick={() => navigate(-1)}
               className={cn(
@@ -164,16 +165,23 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            onClick={handleApply}
+            onClick={() => {
+              setIsScanning(true);
+              setTimeout(() => {
+                handleApply();
+                setIsScanning(false);
+              }, 2200);
+            }}
+            disabled={isScanning}
             className={cn(
               "w-full h-20 rounded-[2.5rem] font-black uppercase italic tracking-[0.2em] text-xl shadow-[0_30px_70px_rgba(0,0,0,0.5)] flex items-center justify-center gap-4 group transition-all",
               isLight ? "bg-slate-900 text-white" : "bg-white text-black",
-              "hover:bg-primary hover:text-white"
+              "hover:bg-primary hover:text-white disabled:opacity-50"
             )}
           >
-            <Sparkles className="w-6 h-6 animate-pulse group-hover:scale-110 transition-transform" />
+            <Sparkles className={cn("w-6 h-6 animate-pulse group-hover:scale-110 transition-transform", isScanning && "animate-spin")} />
             <span className="text-sm font-black uppercase italic tracking-[0.2em]">
-              TARGET INTELLIGENCE
+              {isScanning ? 'CALIBRATING...' : 'TARGET INTELLIGENCE'}
             </span>
           </motion.button>
           
@@ -189,6 +197,60 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
           </button>
         </div>
       </div>
+
+      {/* 🛸 CINEMATIC SCANNING OVERLAY */}
+      <AnimatePresence>
+        {isScanning && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[1000] flex flex-col items-center justify-center bg-black/80 backdrop-blur-2xl pointer-events-auto"
+          >
+            {/* Pulsing Core */}
+            <motion.div
+              animate={{ 
+                scale: [1, 1.2, 1],
+                opacity: [0.3, 0.6, 0.3]
+              }}
+              transition={{ repeat: Infinity, duration: 2 }}
+              className="absolute w-[500px] h-[500px] rounded-full bg-primary/20 blur-[120px]"
+            />
+            
+            {/* Scanning Ring */}
+            <div className="relative w-64 h-64 flex items-center justify-center">
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ repeat: Infinity, duration: 4, ease: "linear" }}
+                className="absolute inset-0 border-2 border-dashed border-primary/40 rounded-full"
+              />
+              <motion.div
+                animate={{ rotate: -360 }}
+                transition={{ repeat: Infinity, duration: 3, ease: "linear" }}
+                className="absolute inset-4 border border-white/20 rounded-full"
+              />
+              <Search className="w-16 h-16 text-primary animate-pulse" strokeWidth={1} />
+            </div>
+
+            <motion.div
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.2 }}
+              className="mt-12 text-center"
+            >
+              <h2 className="text-2xl font-black uppercase italic tracking-[0.4em] text-white">Targeting Nexus</h2>
+              <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-primary mt-2">Optimizing Signal Parameters...</p>
+            </motion.div>
+
+            {/* Scanning Line */}
+            <motion.div 
+              animate={{ top: ['0%', '100%', '0%'] }}
+              transition={{ repeat: Infinity, duration: 3, ease: "linear" }}
+              className="absolute left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-primary to-transparent shadow-[0_0_20px_rgba(255,107,53,0.8)] z-10 opacity-40"
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

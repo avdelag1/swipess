@@ -125,15 +125,7 @@ function RadioMiniPlayerInner() {
           )}
         >
           <div className="relative w-8 h-8 rounded-full overflow-hidden flex items-center justify-center">
-            {state.isPlaying ? (
-              <div className="flex gap-0.5 items-end h-3">
-                <m.div animate={{ height: [4, 12, 6, 12, 4] }} transition={{ repeat: Infinity, duration: 0.8 }} className="w-0.5 bg-blue-400 rounded-full" />
-                <m.div animate={{ height: [6, 4, 12, 4, 6] }} transition={{ repeat: Infinity, duration: 1, delay: 0.2 }} className="w-0.5 bg-blue-400 rounded-full" />
-                <m.div animate={{ height: [12, 6, 4, 6, 12] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0.4 }} className="w-0.5 bg-blue-400 rounded-full" />
-              </div>
-            ) : (
-                <Radio className={cn("w-4 h-4", isLight ? "text-slate-400" : "text-white/40")} />
-            )}
+            <Radio className={cn("w-4 h-4", isLight ? "text-slate-400" : "text-white/40", state.isPlaying && "animate-pulse")} />
             <m.div 
                animate={state.isPlaying ? { rotate: 360 } : {}} 
                transition={{ repeat: Infinity, duration: 8, ease: "linear" }}

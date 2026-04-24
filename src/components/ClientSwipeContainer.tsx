@@ -929,63 +929,66 @@ const ClientSwipeContainerComponent = ({
         </div>
         </div>
 
-        {/* 🛸 QUICK FILTERS: REPOSITIONED BY USER REQUEST (Split on Both Sides) */}
+        {/* 🛸 DASHBOARD CONTROLS: Unified Text-Based Interface */}
         {(!isLoading || deckQueue.length > 0) && (
-          <div className="absolute bottom-[40px] left-0 right-0 z-[60] w-full md:max-w-[440px] md:mx-auto flex justify-between px-6 pointer-events-none">
+          <div className="absolute bottom-[60px] left-0 right-0 z-[60] flex flex-col items-center gap-4 px-6 pointer-events-none">
             
-            {/* LEFT SIDE: SECTOR ACQUISITION (Quick Categories) */}
-            <div className="flex gap-3 p-2 rounded-[2rem] backdrop-blur-3xl border border-white/10 bg-black/40 pointer-events-auto shadow-2xl">
+            {/* Main Switcher */}
+            <div className="flex items-center gap-1.5 p-1.5 rounded-full backdrop-blur-3xl border border-white/10 bg-black/40 pointer-events-auto shadow-2xl">
               {OWNER_INTENT_CARDS.filter(c => 
                 ['buyers', 'renters', 'hire'].includes(c.id) 
               ).map((cat: any) => {
-                const Icon = cat.icon;
                 const isActive = storeActiveCategory === cat.id;
                 return (
                   <motion.button
                     key={cat.id}
-                    whileTap={{ scale: 0.9 }}
+                    whileTap={{ scale: 0.95 }}
                     onClick={() => {
                       triggerHaptic('medium');
                       setActiveCategory(cat.id);
                     }}
                     className={cn(
-                      "w-14 h-14 rounded-2xl flex items-center justify-center transition-all relative overflow-hidden border",
+                      "px-5 py-2.5 rounded-full transition-all duration-300 relative text-[10px] font-black uppercase tracking-[0.15em] italic",
                       isActive 
-                        ? "text-primary border-primary bg-primary/10 shadow-[0_0_200px_rgba(var(--color-brand-primary-rgb),0.3)] scale-110"
-                        : "text-white/40 border-white/5 hover:text-white/60 bg-white/5"
+                        ? "text-primary bg-white/5 shadow-[0_0_40px_rgba(var(--color-brand-primary-rgb),0.2)]"
+                        : "text-white/30 hover:text-white/60"
                     )}
                   >
-                    <Icon className="w-5 h-5" />
-                    {isActive && <motion.div layoutId="activeCatLeftOwner" className="absolute inset-0 bg-primary/10 -z-10" />}
+                    {cat.label}
+                    {isActive && (
+                      <motion.div 
+                        layoutId="activeTabUnderline" 
+                        className="absolute bottom-0 left-1/4 right-1/4 h-[1px] bg-primary/60" 
+                      />
+                    )}
                   </motion.button>
                 );
               })}
             </div>
 
-            {/* RIGHT SIDE: RADAR NEXUS (Advanced Filters) */}
-            <div className="flex gap-3 p-2 rounded-[2rem] backdrop-blur-3xl border border-white/10 bg-black/40 pointer-events-auto shadow-2xl">
-               <motion.button
-                 whileTap={{ scale: 0.9 }}
+            {/* Sub Controls: Intel & Radar */}
+            <div className="flex gap-4 pointer-events-auto">
+               <button
                  onClick={() => {
                    triggerHaptic('medium');
                    navigate('/owner/filters');
                  }}
-                 className="w-14 h-14 rounded-2xl flex flex-col items-center justify-center border border-white/5 bg-white/5 text-white/40"
+                 className="flex flex-col items-center opacity-40 hover:opacity-100 transition-opacity"
                >
-                 <SlidersHorizontal className="w-5 h-5 mb-0.5" />
-                 <span className="text-[7px] font-black uppercase text-primary">INTEL</span>
-               </motion.button>
+                 <span className="text-[9px] font-black uppercase tracking-[0.2em] italic text-primary drop-shadow-[0_0_8px_rgba(var(--color-brand-primary-rgb),0.5)]">INTELLIGENCE</span>
+               </button>
 
-               <motion.button
-                 whileTap={{ scale: 0.9 }}
+               <div className="w-[1px] h-3 bg-white/10 self-center" />
+
+               <button
                  onClick={() => {
                    triggerHaptic('medium');
+                   navigate('/owner/filters');
                  }}
-                 className="w-14 h-14 rounded-2xl flex flex-col items-center justify-center border border-white/5 bg-white/5 text-white/40"
+                 className="flex flex-col items-center opacity-40 hover:opacity-100 transition-opacity"
                >
-                 <Radar className="w-5 h-5 mb-0.5" />
-                 <span className="text-[7px] font-black uppercase text-primary">RADAR</span>
-               </motion.button>
+                 <span className="text-[9px] font-black uppercase tracking-[0.2em] italic text-primary drop-shadow-[0_0_8px_rgba(var(--color-brand-primary-rgb),0.5)]">RADAR SCAN</span>
+               </button>
             </div>
           </div>
         )}

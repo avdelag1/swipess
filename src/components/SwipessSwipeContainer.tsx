@@ -1006,6 +1006,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
   // The 'Premiums Dashboard' (SwipeAllDashboard) is now the interactive Slide 0
   // of the vertical snap-scrolling reel.
   return (
+    <>
     <div className={cn(
       "relative w-full h-full overflow-hidden flex flex-col transition-colors duration-500",
       isLight ? "bg-transparent" : "bg-black"
@@ -1202,35 +1203,29 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
               </div>
             </motion.button>
 
-            {/* Sub-Actions: Intel & Switch */}
-            <div className="flex items-center gap-2 w-full">
-                <motion.button
-                  whileTap={{ scale: 0.95 }}
+            {/* Sub-Actions: Intel & Radar */}
+            <div className="flex items-center gap-4">
+                <button
                   onClick={() => {
                      triggerHaptic('medium');
                      setFilterDialogOpen(true);
                   }}
-                  className="flex-1 h-12 rounded-2xl bg-white/10 backdrop-blur-3xl border border-white/20 flex items-center justify-center gap-2"
+                  className="opacity-40 hover:opacity-100 transition-opacity"
                 >
-                  <SlidersHorizontal className="w-4 h-4 text-white/70" />
-                  <span className="text-[10px] font-black uppercase tracking-widest text-white/80">Intel Center</span>
-                </motion.button>
+                  <span className="text-[9px] font-black uppercase tracking-[0.2em] italic text-white/80">INTELLIGENCE NEXUS</span>
+                </button>
 
-               <motion.button
-                 whileTap={{ scale: 0.95 }}
-                 onClick={() => {
-                    triggerHaptic('medium');
-                    // Simple cycle for now or we could open a small menu
-                    const categories = ['property', 'motorcycle', 'bicycle', 'services'];
-                    const currentIndex = categories.indexOf(activeCategory || 'property');
-                    const nextIndex = (currentIndex + 1) % categories.length;
-                    setActiveCategory(categories[nextIndex] as any);
-                 }}
-                 className="flex-1 h-12 rounded-2xl bg-white/10 backdrop-blur-3xl border border-white/20 flex items-center justify-center gap-2"
-               >
-                 <LayoutGrid className="w-4 h-4 text-white/70" />
-                 <span className="text-[10px] font-black uppercase tracking-widest text-white/80">Switch Deck</span>
-               </motion.button>
+                <div className="w-[1px] h-3 bg-white/10" />
+
+                <button
+                  onClick={() => {
+                     triggerHaptic('medium');
+                     navigate(userRole === 'owner' ? '/owner/filters' : '/client/filters');
+                  }}
+                  className="opacity-40 hover:opacity-100 transition-opacity"
+                >
+                  <span className="text-[9px] font-black uppercase tracking-[0.2em] italic text-primary">RADAR SCAN</span>
+                </button>
             </div>
           </div>
         </div>
@@ -1320,7 +1315,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
         </Suspense>,
         document.body
       )}
-    </div>
+    </>
   );
 };
 

@@ -147,6 +147,15 @@ export const cityThemes: Record<CityLocation, CityTheme> = {
     accentColor: '#ffffff',
     gradient: 'linear-gradient(135deg, #c5b358 0%, #121212 100%)',
     description: 'Sound Baths & Healing'
+  },
+  'london': {
+    id: 'london',
+    name: 'London',
+    primaryColor: '#001146',
+    secondaryColor: '#cc0000',
+    accentColor: '#ffffff',
+    gradient: 'linear-gradient(135deg, #001146 0%, #cc0000 100%)',
+    description: 'Capital of Sound'
   }
 };
 
@@ -1304,6 +1313,148 @@ export const radioStations: RadioStation[] = [
     genre: 'Retro Pop',
     description: 'The biggest hits of the golden era',
     albumArt: 'https://images.unsplash.com/photo-1459749411177-042180ce673b?auto=format&fit=crop&q=80&w=800'
+  },
+  {
+    id: 'retro-9',
+    name: 'WCBS-FM 101.1',
+    frequency: '101.1',
+    streamUrl: 'https://ais-sa1.duplexfb.com/radio/8020/radio.mp3',
+    city: 'american-retro',
+    genre: 'Classic Oldies',
+    description: 'New York\'s Greatest Hits of the 60s, 70s, and 80s',
+    albumArt: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800'
+  },
+  {
+    id: 'retro-10',
+    name: 'K-EARTH 101',
+    frequency: '101.1',
+    streamUrl: 'https://ais-sa1.duplexfb.com/radio/8040/radio.mp3',
+    city: 'american-retro',
+    genre: 'Oldies',
+    description: 'Los Angeles Legend - 24/7 Classic American Hits',
+    albumArt: 'https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?auto=format&fit=crop&q=80&w=800'
+  },
+  {
+    id: 'retro-11',
+    name: 'The 50s Diner',
+    frequency: '92.9',
+    streamUrl: 'http://uk4.internet-radio.com:8010/live',
+    city: 'american-retro',
+    genre: '50s Rock',
+    description: 'Pure 1950s American Rock & Roll and Doo-Wop',
+    albumArt: 'https://images.unsplash.com/photo-1571330735066-03aaa9429d89?auto=format&fit=crop&q=80&w=800'
+  },
+  {
+    id: 'retro-12',
+    name: 'Solid Gold 60s',
+    frequency: '96.5',
+    streamUrl: 'http://stream.radiomonitor.com/8000/oldies',
+    city: 'american-retro',
+    genre: '60s Pop',
+    description: 'The British Invasion and American Motown era',
+    albumArt: 'https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?auto=format&fit=crop&q=80&w=800'
+  },
+  
+  // London - 10 Stations
+  {
+    id: 'london-1',
+    name: 'Rinse FM London',
+    frequency: '106.8',
+    streamUrl: 'https://ice1.somafm.com/missioncontrol-128-mp3',
+    city: 'london',
+    genre: 'Grime/Dubstep',
+    description: 'The heartbeat of London underground',
+    albumArt: 'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?auto=format&fit=crop&q=80&w=800'
+  },
+  {
+    id: 'london-2',
+    name: 'Capital FM',
+    frequency: '95.8',
+    streamUrl: 'https://ice1.somafm.com/poptron-128-mp3',
+    city: 'london',
+    genre: 'Top 40',
+    description: 'London\'s Number 1 Hit Music Station',
+    albumArt: 'https://images.unsplash.com/photo-1505761671935-60b3a7427bad?auto=format&fit=crop&q=80&w=800'
+  },
+  {
+    id: 'london-3',
+    name: 'BBC Radio 1',
+    frequency: '98.8',
+    streamUrl: 'https://ice1.somafm.com/bagel-128-mp3',
+    city: 'london',
+    genre: 'Modern Rock/Pop',
+    description: 'The world\'s most famous radio station',
+    albumArt: 'https://images.unsplash.com/photo-1520038410233-7141f77e49aa?auto=format&fit=crop&q=80&w=800'
+  },
+  {
+    id: 'london-4',
+    name: 'Magic Soul',
+    frequency: '105.4',
+    streamUrl: 'https://ice1.somafm.com/lush-128-mp3',
+    city: 'london',
+    genre: 'Soul/R&B',
+    description: 'The Best of Soul and Motown',
+    albumArt: 'https://images.unsplash.com/photo-1493225255756-d9584f8606e9?auto=format&fit=crop&q=80&w=800'
+  },
+  {
+    id: 'london-5',
+    name: 'Jazz FM',
+    frequency: '102.2',
+    streamUrl: 'https://ice1.somafm.com/sonicuniverse-128-mp3',
+    city: 'london',
+    genre: 'Jazz',
+    description: 'Listen in Color',
+    albumArt: 'https://images.unsplash.com/photo-1511192336575-5a79af67a629?auto=format&fit=crop&q=80&w=800'
+  },
+  {
+    id: 'london-6',
+    name: 'Absolute Radio',
+    frequency: '105.8',
+    streamUrl: 'https://ice1.somafm.com/indiepop-128-mp3',
+    city: 'london',
+    genre: 'Real Music',
+    description: 'Where Real Music Matters',
+    albumArt: 'https://images.unsplash.com/photo-1459749411177-042180ce673b?auto=format&fit=crop&q=80&w=800'
+  },
+  {
+    id: 'london-7',
+    name: 'LBC London',
+    frequency: '97.3',
+    streamUrl: 'https://ice1.somafm.com/dronezone-128-mp3',
+    city: 'london',
+    genre: 'Talk',
+    description: 'Leading Britain\'s Conversation',
+    albumArt: 'https://images.unsplash.com/photo-1514525253344-f81bad00a926?auto=format&fit=crop&q=80&w=800'
+  },
+  {
+    id: 'london-8',
+    name: 'Ministry of Sound',
+    frequency: '91.1',
+    streamUrl: 'https://ice1.somafm.com/beatblender-128-mp3',
+    city: 'london',
+    genre: 'Dance',
+    description: 'The Home of Dance Music',
+    albumArt: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&q=80&w=800'
+  },
+  {
+    id: 'london-9',
+    name: 'NTS Radio London',
+    frequency: '103.4',
+    streamUrl: 'https://ice1.somafm.com/thetrip-128-mp3',
+    city: 'london',
+    genre: 'Eclectic',
+    description: 'Don\'t Assume',
+    albumArt: 'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?auto=format&fit=crop&q=80&w=800'
+  },
+  {
+    id: 'london-10',
+    name: 'Kiss FM',
+    frequency: '100.0',
+    streamUrl: 'https://ice1.somafm.com/cliqhop-128-mp3',
+    city: 'london',
+    genre: 'Dance/Urban',
+    description: 'The Beat of London',
+    albumArt: 'https://images.unsplash.com/photo-1571330735066-03aaa9429d89?auto=format&fit=crop&q=80&w=800'
   }
 
 ];

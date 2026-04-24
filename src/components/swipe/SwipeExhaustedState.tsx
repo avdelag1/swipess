@@ -131,7 +131,7 @@ export const SwipeExhaustedState = ({
         </div>
 
         {/* TOP BAR ACTION - Significant padding to clear system UI and header buttons */}
-        <div className="absolute top-12 left-8 z-[90]">
+        <div className="absolute top-32 left-8 z-[90]">
            <button
              onClick={() => {
                triggerHaptic('medium');
@@ -148,7 +148,7 @@ export const SwipeExhaustedState = ({
            </button>
         </div>
 
-        <div className="relative flex flex-col items-center text-center max-w-sm z-10 w-full pt-[18dvh] pb-20">
+        <div className="relative flex flex-col items-center text-center max-w-sm z-10 w-full pt-[26dvh] pb-20">
           <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}

@@ -25,6 +25,7 @@ export default function OwnerFilters({ isEmbedded, onClose }: OwnerFiltersProps)
   
   const storeActiveCategory = useFilterStore(s => s.activeCategory);
   const [activeCategory, setActiveCategory] = useState<CategoryType>((storeActiveCategory as CategoryType) || 'property');
+  const [isScanning, setIsScanning] = useState(false);
 
   const isFirstMount = useRef(true);
 
@@ -57,12 +58,14 @@ export default function OwnerFilters({ isEmbedded, onClose }: OwnerFiltersProps)
 
   const content = (
     <div className={cn(
-      "flex flex-col h-full",
-      !isEmbedded && (isLight ? "bg-[#F8FAFC] text-slate-900" : "bg-black text-white")
+      "flex flex-col transition-colors duration-500 overflow-y-auto",
+      !isEmbedded && "min-h-screen pb-48",
+      isLight ? (isEmbedded ? "bg-transparent" : "bg-[#F8FAFC]") : (isEmbedded ? "bg-transparent" : "bg-black"),
+      isLight ? "text-slate-900" : "text-white"
     )}>
       {/* HEADER - Only in standalone */}
       {!isEmbedded && (
-        <div className="pt-24 px-6 flex items-center justify-between">
+        <div className="pt-32 px-6 flex items-center justify-between">
             <button 
               onClick={() => navigate(-1)}
               className={cn(
@@ -166,27 +169,99 @@ export default function OwnerFilters({ isEmbedded, onClose }: OwnerFiltersProps)
 
       {/* 🛸 ENGAGEMENT FOOTER */}
       <div className={cn(
-        "fixed bottom-8 left-0 right-0 px-6 z-50",
-        isEmbedded ? "relative bottom-auto px-0 mt-8" : ""
+        "px-6 z-50",
+        isEmbedded ? "mt-8 pb-12" : "fixed bottom-12 left-0 right-0"
       )}>
         <div className="max-w-md mx-auto">
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            onClick={handleApply}
+            onClick={() => {
+              setIsScanning(true);
+              setTimeout(() => {
+                handleApply();
+                setIsScanning(false);
+              }, 2200);
+            }}
+            disabled={isScanning}
             className={cn(
-              "w-full h-16 md:h-20 rounded-[2.5rem] font-black uppercase italic tracking-[0.2em] text-lg md:text-xl shadow-[0_30px_70px_rgba(0,0,0,0.5)] flex items-center justify-center gap-4 group transition-all",
+              "w-full h-20 rounded-[2.5rem] font-black uppercase italic tracking-[0.2em] text-xl shadow-[0_30px_70px_rgba(0,0,0,0.5)] flex items-center justify-center gap-4 group transition-all",
               isLight ? "bg-slate-900 text-white" : "bg-white text-black",
-              "hover:bg-primary hover:text-white"
+              "hover:bg-primary hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
             )}
           >
-            <Sparkles className="w-6 h-6 md:w-7 md:h-7 animate-pulse group-hover:scale-110 transition-transform" />
+            <Sparkles className={cn("w-6 h-6 md:w-7 md:h-7 animate-pulse group-hover:scale-110 transition-transform", isScanning && "animate-spin")} />
             <span className="text-sm font-black uppercase italic tracking-[0.2em]">
-              INITIATE RADAR SCAN
+              {isScanning ? 'CALIBRATING...' : 'INITIATE RADAR SCAN'}
             </span>
           </motion.button>
+
+          <button 
+            onClick={handleReset}
+            className={cn(
+              "w-full mt-4 flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-widest opacity-40 hover:opacity-100 transition-opacity",
+              isLight ? "text-black" : "text-white"
+            )}
+          >
+            <RotateCcw className="w-3 h-3" />
+            Reset Radar
+          </button>
         </div>
       </div>
+
+      {/* 🛸 CINEMATIC SCANNING OVERLAY */}
+      <AnimatePresence>
+        {isScanning && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[1000] flex flex-col items-center justify-center bg-black/80 backdrop-blur-2xl pointer-events-auto"
+          >
+            {/* Pulsing Core */}
+            <motion.div
+              animate={{ 
+                scale: [1, 1.2, 1],
+                opacity: [0.3, 0.6, 0.3]
+              }}
+              transition={{ repeat: Infinity, duration: 2 }}
+              className="absolute w-[500px] h-[500px] rounded-full bg-primary/20 blur-[120px]"
+            />
+            
+            {/* Scanning Ring */}
+            <div className="relative w-64 h-64 flex items-center justify-center">
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ repeat: Infinity, duration: 4, ease: "linear" }}
+                className="absolute inset-0 border-2 border-dashed border-primary/40 rounded-full"
+              />
+              <motion.div
+                animate={{ rotate: -360 }}
+                transition={{ repeat: Infinity, duration: 3, ease: "linear" }}
+                className="absolute inset-4 border border-white/20 rounded-full"
+              />
+              <Target className="w-16 h-16 text-primary animate-pulse" strokeWidth={1} />
+            </div>
+
+            <motion.div
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.2 }}
+              className="mt-12 text-center"
+            >
+              <h2 className="text-2xl font-black uppercase italic tracking-[0.4em] text-white">Calibrating Radar</h2>
+              <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-primary mt-2">Accessing Global Node Matrix...</p>
+            </motion.div>
+
+            {/* Scanning Line */}
+            <motion.div 
+              animate={{ top: ['0%', '100%', '0%'] }}
+              transition={{ repeat: Infinity, duration: 3, ease: "linear" }}
+              className="absolute left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-primary to-transparent shadow-[0_0_20px_rgba(255,107,53,0.8)] z-10 opacity-40"
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 

@@ -306,8 +306,6 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       {/* ZENITH GLOBAL DIALOGS */}
       <GlobalDialogs userRole={userRole} />
 
-      {/* PERSISTENT RADIO MINI PLAYER */}
-      <RadioMiniPlayer />
     </div>
   )
 }
