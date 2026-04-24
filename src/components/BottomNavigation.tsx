@@ -257,8 +257,8 @@ export const BottomNavigation = memo(({
           WebkitBackdropFilter: 'blur(32px) saturate(280%)',
           borderRadius: '3rem',
           padding: '4px',
-          boxShadow: '0 20px 50px -10px rgba(0,0,0,0.15)',
-          border: '1px solid var(--hud-border)',
+          boxShadow: '0 25px 60px -10px rgba(0,0,0,0.4)',
+          border: '1px solid rgba(255, 255, 255, 0.25)',
         }}
 
       >
@@ -363,7 +363,7 @@ export const BottomNavigation = memo(({
                       color: active 
                         ? (isLight ? 'black' : 'white') 
                         : (isLight ? 'black' : 'white'),
-                      opacity: active ? 1 : (isLight ? 0.75 : 0.65),
+                      opacity: active ? 1 : 0.85,
 
                       fill: active ? activeColor : 'none',
                       strokeWidth: active ? 2 : 1.5,
@@ -381,7 +381,7 @@ export const BottomNavigation = memo(({
                       )}
                       style={{
                         color: 'var(--hud-text)',
-                        opacity: active ? 1 : (isLight ? 0.75 : 0.65),
+                        opacity: active ? 1 : 0.85,
 
                         zIndex: 1,
                       }}

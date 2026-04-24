@@ -213,11 +213,11 @@ function PromoSwipeCard({
         {/* Package name & icon */}
         <div className="flex items-center gap-3">
           <div className="w-11 h-11 rounded-2xl flex items-center justify-center"
-            style={{ background: `rgba(${pkg.colorRgb}, 0.5)`, backdropFilter: "blur(12px)", border: `1px solid rgba(${pkg.colorRgb}, 0.6)` }}>
+            style={{ background: `rgba(${pkg.colorRgb}, 0.65)`, backdropFilter: "blur(12px)", border: `1px solid rgba(${pkg.colorRgb}, 0.8)` }}>
             <span className="text-white">{pkg.icon}</span>
           </div>
           <div>
-            <div className="text-[10px] font-black uppercase tracking-[0.2em] text-white/80">{pkg.tagline}</div>
+            <div className="text-[10px] font-black uppercase tracking-[0.2em] text-white">{pkg.tagline}</div>
             <div className="text-xl font-black text-white tracking-tight">{pkg.name}</div>
           </div>
         </div>
@@ -225,15 +225,15 @@ function PromoSwipeCard({
         {/* Price */}
         <div className="flex items-baseline gap-2">
           <span className="text-5xl font-black text-white">${pkg.price.toFixed(2)}</span>
-          <span className="text-sm font-bold text-white/80 uppercase tracking-wider">USD {pkg.durationLabel}</span>
+          <span className="text-sm font-bold text-white uppercase tracking-wider">USD {pkg.durationLabel}</span>
         </div>
 
         {/* Perks */}
         <div className="space-y-2">
           {pkg.perks.map(perk => (
-            <div key={perk} className="flex items-start gap-2 text-[11px] text-white/80 font-medium leading-relaxed">
+            <div key={perk} className="flex items-start gap-2 text-[11px] text-white font-medium leading-relaxed">
               <div className="w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"
-                style={{ background: `rgba(${pkg.colorRgb}, 0.4)` }}>
+                style={{ background: `rgba(${pkg.colorRgb}, 0.6)` }}>
                 <Check className="w-2.5 h-2.5 text-white" />
               </div>
               <span>{perk}</span>
@@ -330,7 +330,6 @@ export default function AdvertisePage() {
           .eq("user_id", user.id)
           .in("status", ["approved", "pending"])
           .order("created_at", { ascending: false });
-        
         if (!error && data && data.length > 0) {
           const approved = data.find((s: any) => s.status === 'approved');
           const pending = data.find((s: any) => s.status === 'pending');

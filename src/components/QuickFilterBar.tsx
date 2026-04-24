@@ -137,8 +137,8 @@ function FilterDropdown({
           isActive
             ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20 scale-[1.02]'
             : isLight 
-              ? 'bg-white/80 border-black/10 text-black shadow-sm backdrop-blur-md hover:bg-black/5' 
-              : 'bg-white text-black border-white hover:bg-white/80'
+              ? 'bg-white/80 border-black/20 text-black shadow-sm backdrop-blur-md hover:bg-black/5' 
+              : 'bg-black/60 border-white/20 text-white shadow-xl backdrop-blur-xl hover:bg-black/40'
         )}
       >
         {icon && <span className="opacity-80">{icon}</span>}
@@ -298,8 +298,8 @@ function QuickFilterBarComponent({ filters, onChange, onSelect, className, userR
                   'relative flex-shrink-0 overflow-hidden border transition-all duration-200 group',
                   isGlobalAll ? 'w-32 h-52 rounded-[3.5rem]' : 'w-28 h-40 rounded-[2.2rem]',
                   isActive 
-                    ? 'border-primary ring-2 ring-primary ring-offset-2 scale-[1.03] shadow-lg' 
-                    : 'border-white/20 shadow-md'
+                    ? 'border-primary ring-2 ring-primary ring-offset-2 scale-[1.03] shadow-lg border-[2px]' 
+                    : 'border-white/40 shadow-md border-[1.5px]'
                   )}
                   style={{ contain: 'paint', willChange: 'transform, opacity' }}
                 >
@@ -382,8 +382,8 @@ function QuickFilterBarComponent({ filters, onChange, onSelect, className, userR
               smoothButtonClass, 
               'relative flex-shrink-0 w-32 h-52 rounded-[3.5rem] overflow-hidden border transition-all duration-200 group',
               clientIsAllSelected 
-                ? 'border-primary ring-2 ring-primary ring-offset-2 scale-[1.03] shadow-lg' 
-                : 'border-white/20 shadow-md'
+                ? 'border-primary ring-2 ring-primary ring-offset-2 scale-[1.03] shadow-lg border-[2px]' 
+                : 'border-white/40 shadow-md border-[1.5px]'
             )}
             style={{ contain: 'paint', willChange: 'transform, opacity' }}
           >
@@ -430,8 +430,8 @@ function QuickFilterBarComponent({ filters, onChange, onSelect, className, userR
                   smoothButtonClass, 
                   'relative flex-shrink-0 w-28 h-40 rounded-[2.2rem] overflow-hidden border transition-all duration-200 group',
                   isActive 
-                    ? 'border-primary ring-1 ring-primary ring-offset-2 scale-[1.03] shadow-lg' 
-                    : 'border-white/20 shadow-md'
+                    ? 'border-primary ring-1 ring-primary ring-offset-2 scale-[1.03] shadow-lg border-[2px]' 
+                    : 'border-white/40 shadow-md border-[1.5px]'
                 )}
                 style={{ contain: 'paint', willChange: 'transform, opacity' }}
               >

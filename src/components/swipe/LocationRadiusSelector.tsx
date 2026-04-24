@@ -53,8 +53,8 @@ export const LocationRadiusSelector = memo(({
         className={cn(
           "flex items-center gap-2 h-10 px-3.5 rounded-full backdrop-blur-xl border transition-all",
           isLight
-            ? "bg-white/80 border-black/10 text-black shadow-md"
-            : "bg-black/80 border-white/20 text-white shadow-xl"
+            ? "bg-white/80 border-black/20 text-black shadow-md"
+            : "bg-black/80 border-white/40 text-white shadow-xl"
         )}
       >
         <MapPin className={cn(
@@ -90,8 +90,8 @@ export const LocationRadiusSelector = memo(({
           detected
             ? "bg-primary/30 border-primary/40 text-primary shadow-[0_0_15px_rgba(236,72,153,0.3)]"
             : isLight
-              ? "bg-white/80 border-black/10 text-black/60"
-              : "bg-black/80 border-white/20 text-white/60"
+              ? "bg-white/80 border-black/20 text-black/90"
+              : "bg-black/80 border-white/40 text-white/95"
         )}
         title="Detect GPS location"
       >

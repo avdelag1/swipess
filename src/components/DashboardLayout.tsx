@@ -226,7 +226,6 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     const path = location.pathname;
     const immersiveRoutes = [
       '/client/dashboard', '/owner/dashboard',
-      '/client/advertise'
     ];
     return immersiveRoutes.some(route => path === route || path === route + '/' || path.startsWith(route + '/')) ||
       path.includes('discovery') || path.includes('view-client') || path.includes('/listing/');

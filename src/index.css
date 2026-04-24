@@ -257,8 +257,8 @@ button:active, [role="button"]:active {
     /* 🧘 HUD TOKEN SYSTEM (DARK) */
     --hud-bg: rgba(15, 15, 20, 0.95);
     --hud-text: #ffffff;
-    --hud-border: rgba(255, 255, 255, 0.1);
-    --hud-active-bg: rgba(255, 255, 255, 0.08);
+    --hud-border: rgba(255, 255, 255, 0.25);
+    --hud-active-bg: rgba(255, 255, 255, 0.12);
   }
 
   /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
@@ -320,8 +320,8 @@ button:active, [role="button"]:active {
     /* 🧘 HUD TOKEN SYSTEM (GREY) */
     --hud-bg: rgba(35, 35, 40, 0.85);
     --hud-text: #ffffff;
-    --hud-border: rgba(255, 255, 255, 0.1);
-    --hud-active-bg: rgba(255, 255, 255, 0.1);
+    --hud-border: rgba(255, 255, 255, 0.25);
+    --hud-active-bg: rgba(255, 255, 255, 0.15);
   }
 
   /* THEME 2: BLACK MATTE (Deep dark mode - like ChatGPT) */
@@ -378,8 +378,8 @@ button:active, [role="button"]:active {
     /* 🧘 HUD TOKEN SYSTEM (BLACK) */
     --hud-bg: rgba(5, 5, 5, 0.96);
     --hud-text: #ffffff;
-    --hud-border: rgba(255, 255, 255, 0.12);
-    --hud-active-bg: rgba(255, 255, 255, 0.1);
+    --hud-border: rgba(255, 255, 255, 0.3);
+    --hud-active-bg: rgba(255, 255, 255, 0.15);
   }
 
   /* THEME 3: WHITE MATTE (Clean minimalist - like Apple/Linear) */

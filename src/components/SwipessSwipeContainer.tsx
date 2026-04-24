@@ -1152,7 +1152,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
         <div className="absolute bottom-[40px] left-0 right-0 z-[60] w-full md:max-w-[440px] md:mx-auto flex justify-between px-6 pointer-events-none">
           
           {/* LEFT SIDE: SECTOR ACQUISITION (Quick Categories) */}
-          <div className="flex gap-3 p-2.5 rounded-[2.2rem] backdrop-blur-3xl border border-white/15 bg-black/75 pointer-events-auto shadow-2xl">
+          <div className="flex gap-3 p-2.5 rounded-[2.2rem] backdrop-blur-3xl border border-white/30 bg-black/80 pointer-events-auto shadow-2xl">
             {(userRole === 'owner' ? OWNER_INTENT_CARDS : POKER_CARDS).filter(c => 
               userRole === 'owner' 
                 ? ['buyers', 'renters', 'hire'].includes(c.id) 
@@ -1172,7 +1172,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
                     "w-14 h-14 rounded-2xl flex items-center justify-center transition-all relative overflow-hidden border",
                     isActive 
                       ? "text-primary border-primary bg-primary/20 shadow-[0_0_25px_rgba(var(--color-brand-primary-rgb),0.4)] scale-110"
-                      : "text-white/60 border-white/10 hover:text-white/90 bg-white/10"
+                      : "text-white/90 border-white/30 hover:text-white bg-white/15"
                   )}
                 >
                   <Icon className="w-5 h-5" />
@@ -1183,14 +1183,14 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
           </div>
 
           {/* RIGHT SIDE: MARKET INTELLIGENCE (Advanced & Radar) */}
-          <div className="flex gap-3 p-2.5 rounded-[2.2rem] backdrop-blur-3xl border border-white/15 bg-black/75 pointer-events-auto shadow-2xl">
+          <div className="flex gap-3 p-2.5 rounded-[2.2rem] backdrop-blur-3xl border border-white/30 bg-black/80 pointer-events-auto shadow-2xl">
              <motion.button
                whileTap={{ scale: 0.9 }}
                onClick={() => {
                  triggerHaptic('medium');
                  navigate('/client/filters');
                }}
-               className="w-14 h-14 rounded-2xl flex flex-col items-center justify-center border border-white/10 bg-white/10 text-white/80"
+               className="w-14 h-14 rounded-2xl flex flex-col items-center justify-center border border-white/30 bg-white/20 text-white"
              >
                <SlidersHorizontal className="w-5 h-5 mb-0.5" />
                <span className="text-[8px] font-black uppercase text-primary">INTEL</span>
@@ -1202,7 +1202,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
                  triggerHaptic('medium');
                  setRadiusKm(radiusKm === 100 ? 5 : radiusKm + 10);
                }}
-               className="w-14 h-14 rounded-2xl flex flex-col items-center justify-center border border-white/10 bg-white/10 text-white/80"
+               className="w-14 h-14 rounded-2xl flex flex-col items-center justify-center border border-white/30 bg-white/20 text-white"
              >
                <Radar className="w-5 h-5 mb-0.5" />
                <span className="text-[8px] font-black uppercase text-primary">{radiusKm}K</span>
