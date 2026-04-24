@@ -59,7 +59,7 @@ export const OwnerAllDashboard = memo(({ onCardSelect }: OwnerAllDashboardProps)
       return;
     }
     if (id === 'promote') {
-      navigate('/promote');
+      navigate('/client/advertise');
       return;
     }
     if (id === 'ai-listing') {
