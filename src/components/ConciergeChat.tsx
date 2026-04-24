@@ -408,12 +408,12 @@ export function ConciergeChat({ isOpen, onClose }: { isOpen: boolean; onClose: (
   const [countdown, setCountdown] = useState<number | null>(null);
   const recognitionRef = useRef<any>(null);
   const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const inputRef = useRef('');               // always tracks latest input value
+  const inputValueRef = useRef('');          // always tracks latest input value
   const isListeningRef = useRef(false);      // stable ref for recognition callbacks
   const SILENCE_SECONDS = 3;
 
-  // Keep inputRef in sync so the send callback never has a stale closure
-  useEffect(() => { inputRef.current = input; }, [input]);
+  // Keep inputValueRef in sync so the send callback never has a stale closure
+  useEffect(() => { inputValueRef.current = input; }, [input]);
   useEffect(() => { isListeningRef.current = isListening; }, [isListening]);
 
   const speechSupported = typeof window !== 'undefined' &&
@@ -436,7 +436,7 @@ export function ConciergeChat({ isOpen, onClose }: { isOpen: boolean; onClose: (
           clearInterval(countdownRef.current!);
           countdownRef.current = null;
           // Fire send with the freshest input value
-          const text = inputRef.current.trim();
+          const text = inputValueRef.current.trim();
           if (text) {
             sendMessage(text);
             setInput('');
