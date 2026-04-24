@@ -15,7 +15,6 @@ import { ThemeToggle } from './ThemeToggle';
 import { useModalStore } from '@/state/modalStore';
 import { useFilterStore, useFilterActions } from '@/state/filterStore';
 import { AIListingTrigger } from './AIListingTrigger';
-import { SwipessLogo } from './SwipessLogo';
 
 interface TopBarProps {
   onNotificationsClick?: () => void;
@@ -23,6 +22,7 @@ interface TopBarProps {
   onAISearchClick?: () => void;
   onFilterClick?: (e?: React.PointerEvent | React.MouseEvent) => void;
   onBack?: () => void;
+  onCenterTap?: () => void;
   className?: string;
   showFilters?: boolean;
   userRole?: 'client' | 'owner' | 'admin';
@@ -36,6 +36,7 @@ interface TopBarProps {
 function TopBarComponent({
   onFilterClick: _onFilterClick,
   onBack: propOnBack,
+  onCenterTap,
   className,
   userRole,
   transparent: _transparent = false,
@@ -159,9 +160,16 @@ function TopBarComponent({
           )}
         </div>
 
-        <div className="flex-1 flex justify-center">
-          <SwipessLogo size="sm" variant="transparent" className="opacity-90 group-hover:opacity-100 transition-opacity" />
-        </div>
+        {onCenterTap ? (
+          <motion.button
+            className="flex-1 h-full pointer-events-auto"
+            whileTap={{ opacity: 0.7 }}
+            onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); haptics.tap(); onCenterTap(); }}
+            aria-label="Go to dashboard"
+          />
+        ) : (
+          <div className="flex-1" />
+        )}
 
         {/* RIGHT CLUSTER: Individual Action Pills */}
         <div className="flex shrink-0 items-center gap-2 sm:gap-3">

@@ -129,6 +129,11 @@ export function AppLayout({ children }: AppLayoutProps) {
             onFilterClick={handleFilterClick}
             transparent={isImmersive}
             showBack={location.pathname !== '/client/dashboard' && location.pathname !== '/owner/dashboard'}
+            onCenterTap={
+              location.pathname !== '/client/dashboard' && location.pathname !== '/owner/dashboard'
+                ? () => navigate(`/${activeMode}/dashboard`)
+                : undefined
+            }
           />
         </SentientHud>
       )}
