@@ -23,53 +23,7 @@ import { ShareModal } from '@/components/events/ShareModal';
 import { CATEGORIES } from '@/data/eventsData';
 import { EventItem } from '@/types/events';
 
-/** Scroll-direction tracker for the HUD: hides on scroll-down, shows on scroll-up or idle */
-function useHudVisibility(scrollRef: React.RefObject<HTMLDivElement | null>) {
-  const [visible, setVisible] = useState(true);
-  const lastY = useRef(0);
-  const idleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const ticking = useRef(false);
 
-  useEffect(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-
-    const onScroll = () => {
-      if (ticking.current) return;
-      ticking.current = true;
-      requestAnimationFrame(() => {
-        const y = el.scrollTop;
-        const delta = y - lastY.current;
-
-        // At the very top — always show
-        if (y <= 10) {
-          setVisible(true);
-        } else if (delta > 6) {
-          // scrolling down — hide
-          setVisible(false);
-        } else if (delta < -6) {
-          // scrolling up — show
-          setVisible(true);
-        }
-
-        lastY.current = y;
-        ticking.current = false;
-
-        // Show again after user stops scrolling for 1.2s
-        if (idleTimer.current) clearTimeout(idleTimer.current);
-        idleTimer.current = setTimeout(() => setVisible(true), 1200);
-      });
-    };
-
-    el.addEventListener('scroll', onScroll, { passive: true });
-    return () => {
-      el.removeEventListener('scroll', onScroll);
-      if (idleTimer.current) clearTimeout(idleTimer.current);
-    };
-  }, [scrollRef]);
-
-  return visible;
-}
 
 const AUTOPLAY_DURATION = 6000;
 
@@ -81,7 +35,6 @@ export default function EventosFeed() {
   const isLight = theme === 'light';
   const queryClient = useQueryClient();
   const parentRef = useRef<HTMLDivElement>(null);
-  const hudVisible = useHudVisibility(parentRef);
   const [activeIdx, setActiveIdx] = useState(0);
   const [activeCategory, setActiveCategory] = useState('all');
 
@@ -230,7 +183,7 @@ export default function EventosFeed() {
 
   // Scroll & Virtualization
   useEffect(() => {
-    const el = parentRef.current;
+    const el = document.getElementById('dashboard-scroll-container') || parentRef.current;
     if (!el) return;
 
     const handleScroll = () => {
@@ -248,8 +201,8 @@ export default function EventosFeed() {
 
   const rowVirtualizer = useVirtualizer({
     count: filteredEvents.length,
-    getScrollElement: () => parentRef.current,
-    estimateSize: () => parentRef.current?.clientHeight || window.innerHeight || 800,
+    getScrollElement: () => document.getElementById('dashboard-scroll-container') || (typeof window !== 'undefined' ? window : null),
+    estimateSize: () => window.innerHeight || 800,
     overscan: 2,
     initialOffset: 0,
   });
@@ -320,26 +273,15 @@ export default function EventosFeed() {
     >
       <div className="absolute inset-0 bg-[#0a0a0b] -z-10" />
       
-      {/* Floating HUD — hides on scroll down, reappears on scroll up or idle */}
+      {/* Floating HUD — now handled by global SentientHud logic, this local wrapper just for custom styling */}
       <div 
         className={cn(
-          "absolute left-0 right-0 z-[100] transform-gpu px-4 pt-4 transition-all duration-300 ease-out",
-          hudVisible ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-full pointer-events-none"
+          "fixed left-0 right-0 z-[100] transform-gpu px-4 pt-4 transition-all duration-300 ease-out",
+          "opacity-100 translate-y-0"
         )}
         style={{ top: '0px' }}
       >
-        <div className="flex items-center gap-3">
-          <motion.button
-            whileTap={{ scale: 0.9 }}
-            onClick={() => { triggerHaptic('light'); navigate(-1); }}
-            className={cn(
-              "w-12 h-12 rounded-2xl flex items-center justify-center transition-all shrink-0",
-              isLight ? "text-slate-900" : "text-white"
-            )}
-            style={hudGlassStyle}
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </motion.button>
+        <div className="flex items-center gap-3 mt-12">
 
           <div className="flex-1 flex gap-2 overflow-x-auto no-scrollbar scroll-smooth py-2">
             {CATEGORIES.map((cat) => {
@@ -432,7 +374,7 @@ export default function EventosFeed() {
       ) : (
         <div 
           ref={parentRef} 
-          className="w-full h-full overflow-y-scroll snap-y snap-mandatory no-scrollbar overscroll-contain touch-pan-y scroll-smooth"
+          className="w-full flex-1"
         >
           <div style={{ height: `${rowVirtualizer.getTotalSize()}px`, position: 'relative' }}>
             {rowVirtualizer.getVirtualItems().map((virtualRow) => {
@@ -444,7 +386,7 @@ export default function EventosFeed() {
                   key={virtualRow.key} 
                   className="absolute top-0 left-0 w-full snap-start snap-always"
                   style={{ 
-                    height: '100%', 
+                    height: '100vh', 
                     width: '100%',
                     transform: `translateY(${virtualRow.start}px)`
                   }}

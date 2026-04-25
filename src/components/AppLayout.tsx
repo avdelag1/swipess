@@ -99,8 +99,8 @@ export function AppLayout({ children }: AppLayoutProps) {
   }, [location.pathname]);
 
   const isFullScreen = useMemo(() => {
-    return isCameraRoute || showAIChat || isRadioRoute || location.pathname.startsWith('/explore/eventos');
-  }, [isCameraRoute, showAIChat, isRadioRoute, location.pathname]);
+    return isCameraRoute || showAIChat || isRadioRoute;
+  }, [isCameraRoute, showAIChat, isRadioRoute]);
 
   const isRootTab = useMemo(() => {
     return [
@@ -140,7 +140,7 @@ export function AppLayout({ children }: AppLayoutProps) {
       </Suspense>
   
       {!isAuthRoute && !isFullScreen && (!isPublicPreview || !!user) && (
-        <SentientHud side="top" className="fixed top-0 left-0 right-0 z-[10005]">
+        <SentientHud side="top" className="fixed top-0 left-0 right-0 z-[10005]" scrollTargetSelector="#dashboard-scroll-container">
           <TopBar
             userRole={userRole}
             onMessageActivationsClick={handleMessageActivationsClick}
@@ -179,7 +179,7 @@ export function AppLayout({ children }: AppLayoutProps) {
 
 
       {!isAuthRoute && !isFullScreen && (!isPublicPreview || !!user) && isRootTab && (
-        <SentientHud side="bottom" className="fixed bottom-0 left-0 right-0 z-[9999]">
+        <SentientHud side="bottom" className="fixed bottom-0 left-0 right-0 z-[9999]" scrollTargetSelector="#dashboard-scroll-container">
           <BottomNavigation
             userRole={userRole}
             onFilterClick={handleFilterClick}

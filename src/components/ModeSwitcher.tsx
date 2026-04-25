@@ -36,17 +36,15 @@ function ModeSwitcherComponent({ className }: ModeSwitcherProps) {
 
   const glassButtonStyle = (isActive: boolean, color: string) => ({
     background: isActive 
-      ? (isLight ? `${color}15` : `${color}20`) 
-      : (isLight ? 'rgba(255, 255, 255, 0.8)' : 'var(--hud-bg)'),
-    backdropFilter: 'blur(32px) saturate(210%)',
-    WebkitBackdropFilter: 'blur(32px) saturate(210%)',
+      ? (isLight ? `${color}15` : `${color}25`) 
+      : (isLight ? 'rgba(255, 255, 255, 0.7)' : 'rgba(10, 15, 30, 0.4)'),
+    backdropFilter: 'blur(40px) saturate(250%)',
+    WebkitBackdropFilter: 'blur(40px) saturate(250%)',
     borderRadius: '1.2rem',
-    border: isActive 
-      ? `1.5px solid ${color}` 
-      : (isLight ? '1px solid rgba(0,0,0,0.05)' : '1px solid var(--hud-border)'),
+    border: 'none', // No frames as requested
     boxShadow: isActive 
-      ? (isLight ? `0 10px 25px ${color}20` : `0 0 20px ${color}30`) 
-      : (isLight ? '0 4px 12px rgba(0,0,0,0.03)' : '0 4px 12px rgba(0,0,0,0.05)'),
+      ? (isLight ? `0 10px 25px ${color}20` : `0 0 30px ${color}40`) 
+      : (isLight ? '0 4px 12px rgba(0,0,0,0.03)' : '0 10px 30px rgba(0,0,0,0.2)'),
     pointerEvents: 'auto' as const,
   });
 

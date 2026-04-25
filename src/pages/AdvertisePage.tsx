@@ -483,7 +483,7 @@ export default function AdvertisePage() {
   // ── LANDING PAGE ────────────────────────────────────────────────────────────
   if (view === "landing") {
     return (
-      <div className="w-full relative pb-40 h-full min-h-screen overflow-y-auto overflow-x-hidden touch-pan-y" style={{ background: th.pageBg }}>
+      <div className="w-full relative pb-64 min-h-[110vh]" style={{ background: th.pageBg }}>
         {/* Subtle gradient blobs */}
         <div className="fixed inset-0 overflow-hidden pointer-events-none">
           <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] rounded-full blur-[120px]"

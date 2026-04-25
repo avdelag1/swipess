@@ -18,7 +18,7 @@ interface PageHeaderProps {
 export function PageHeader({
   title,
   subtitle,
-  showBack = true,
+  showBack = false,
   onBack,
   backTo,
   actions,
@@ -80,6 +80,4 @@ export function PageHeader({
       )}
     </div>
   );
-}
-
 

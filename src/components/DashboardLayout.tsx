@@ -263,9 +263,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     
     const isRoommatesPageLocal = location.pathname.startsWith('/explore/roommates');
     const isSpecialSubPage = [
-      '/explore/prices', '/explore/intel', '/explore/tours',
-      '/documents', '/escrow', '/admin/eventos', '/about', '/contact',
-      '/subscription/packages', '/notifications', '/explore/eventos'
+      '/documents', '/escrow'
     ].some(path => location.pathname === path || location.pathname === path + '/');
     
     return isCameraRoute || isRadioRoute || isRoommatesPageLocal || isSpecialSubPage;

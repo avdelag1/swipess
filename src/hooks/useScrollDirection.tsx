@@ -160,16 +160,6 @@ export function useScrollDirection({
       });
     };
 
-    // ⚡ INTERACTION RECOVERY: Reset visibility on ANY user input
-    // This allows the bars to reappear if the user touches the screen, 
-    // even if they are still scrolled halfway down.
-    const resetOnInteraction = () => {
-      setIsVisible(true);
-      // Reset the baseline so the next scroll 'down' hides them again
-      const target = findScrollContainer();
-      lastTriggerY.current = getCurrentScrollY(target);
-    };
-
     // DOCUMENT-LEVEL CAPTURE: Catches ALL scroll events in the capture phase
     // This ensures we catch scrolls in any container, not just the target
     document.addEventListener('scroll', handleScroll, { capture: true, passive: true });
@@ -177,10 +167,6 @@ export function useScrollDirection({
     // Also listen on window for page-level scrolls
     window.addEventListener('scroll', handleScroll, { passive: true });
 
-    // Listen for interaction events (click, touch) to force visibility
-    document.addEventListener('touchstart', resetOnInteraction, { capture: true, passive: true });
-    document.addEventListener('mousedown', resetOnInteraction, { capture: true, passive: true });
-    
     // REBIND CHECK: Periodically verify we're tracking the right container
     // This handles cases where the DOM changes after navigation
     rebindIntervalRef.current = window.setInterval(() => {

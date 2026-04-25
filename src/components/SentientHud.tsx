@@ -50,7 +50,7 @@ export function SentientHud({
     resetTrigger: location.pathname
   });
 
-  const isVisible = !isFocused && isScrollVisible;
+  const isVisible = isScrollVisible;
 
   const isTranslate = mode === 'both' || mode === 'translate';
   const isFade = mode === 'both' || mode === 'fade';
