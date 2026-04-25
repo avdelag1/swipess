@@ -73,7 +73,7 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
       style={{ height: 'calc(100dvh - var(--top-bar-height, 60px) - var(--safe-top, 0px))', paddingBottom: 'calc(var(--bottom-nav-height, 72px) + var(--safe-bottom, 0px) + 24px)' }}
     >
       {!isEmbedded && (
-        <div className="flex items-center justify-between mb-8 pt-4">
+        <div className="mb-8 pt-4">
           <div>
             <h1 className={cn(
               "text-4xl font-black uppercase italic tracking-[-0.05em] leading-none",
@@ -85,17 +85,6 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
               "text-[10px] font-black uppercase tracking-[0.4em] opacity-40 mt-1",
               isLight ? "text-slate-900" : "text-white"
             )}>Sector Calibration</p>
-          </div>
-          <div className="flex items-center gap-2">
-            <button 
-              onClick={() => navigate('/client/dashboard')}
-              className={cn(
-                "w-10 h-10 rounded-full flex items-center justify-center transition-all active:scale-90",
-                isLight ? "bg-slate-100 text-slate-900" : "bg-white/10 text-white"
-              )}
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </button>
           </div>
         </div>
       )}
@@ -158,7 +147,7 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
               exit={{ opacity: 0, x: -20 }}
               className="space-y-6 pb-20"
             >
-              <button 
+              <button
                 onClick={() => setActiveCategory(null)}
                 className={cn(
                   "flex items-center gap-2 text-[10px] font-black uppercase tracking-widest opacity-50 hover:opacity-100 transition-opacity",
@@ -167,6 +156,28 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
               >
                 <ChevronLeft className="w-4 h-4" /> Back to Nexus
               </button>
+
+              {/* Category switcher */}
+              <div className="flex gap-2 overflow-x-auto no-scrollbar pb-2">
+                {CATEGORIES.map((cat) => (
+                  <button
+                    key={cat.id}
+                    onClick={() => setActiveCategory(cat.id)}
+                    className={cn(
+                      "px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest border transition-all active:scale-95 whitespace-nowrap",
+                      activeCategory === cat.id
+                        ? isLight
+                          ? "bg-slate-900 text-white border-slate-900"
+                          : "bg-primary text-white border-primary"
+                        : isLight
+                        ? "bg-slate-100 text-slate-900 border-slate-200 hover:bg-slate-200"
+                        : "bg-white/10 text-white/70 border-white/10 hover:bg-white/20"
+                    )}
+                  >
+                    {cat.label}
+                  </button>
+                ))}
+              </div>
 
               <h2 className={cn(
                 "text-5xl font-black uppercase italic tracking-[-0.05em] mb-2",
