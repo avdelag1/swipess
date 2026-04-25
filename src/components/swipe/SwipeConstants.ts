@@ -125,7 +125,7 @@ export const POKER_FAN_ROTATION = 8; // degrees per card in the fan
 // Softer thresholds + spring for a comfortable, iOS-style swipe feel.
 export const PK_DIST_THRESHOLD = 80;
 export const PK_VEL_THRESHOLD  = 260;
-export const PK_SPRING = { type: 'spring' as const, stiffness: 260, damping: 22, mass: 0.9 };
+export const PK_SPRING = { type: 'spring' as const, stiffness: 400, damping: 30, mass: 0.6 };
 
 // ─── Photo Registry ──────────────────────────────────────────────────────────
 // Primary: Curated high-fidelity lifestyle photos that represent the Swipess demographic.

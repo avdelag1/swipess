@@ -48,7 +48,7 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
       } else {
         navigate('/client/dashboard');
       }
-    }, 2000);
+    }, 1000);
   }, [navigate, queryClient, updateFilters, localFilters, isEmbedded, onClose]);
 
   const handleReset = useCallback(() => {
@@ -73,31 +73,30 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
       style={{ height: 'calc(100dvh - var(--top-bar-height, 60px) - var(--safe-top, 0px))', paddingBottom: 'calc(var(--bottom-nav-height, 72px) + var(--safe-bottom, 0px) + 24px)' }}
     >
       {!isEmbedded && (
-        <div className="mb-8 pt-4">
-          <div>
-            <h1 className={cn(
-              "text-4xl font-black uppercase italic tracking-[-0.05em] leading-none",
-              isLight ? "text-slate-900" : "text-white"
-            )}>
-              Intelligence <span className="text-primary">Nexus</span>
-            </h1>
-            <p className={cn(
-              "text-[10px] font-black uppercase tracking-[0.4em] opacity-40 mt-1",
-              isLight ? "text-slate-900" : "text-white"
-            )}>Sector Calibration</p>
-          </div>
+        <div className="mb-6 pt-4">
+          <h1 className={cn(
+            "text-4xl font-black uppercase italic tracking-[-0.05em] leading-none",
+            isLight ? "text-slate-900" : "text-white"
+          )}>
+            Swipes <span className="text-primary">Filter</span>
+          </h1>
+          <p className={cn(
+            "text-[10px] font-black uppercase tracking-[0.4em] opacity-40 mt-1",
+            isLight ? "text-slate-900" : "text-white"
+          )}>Find Your Match</p>
         </div>
       )}
 
       {/* 🛸 RADAR CALIBRATION GRID */}
-      <div className="w-full max-w-2xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 relative z-10">
+      <div className="w-full max-w-2xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-200 relative z-10">
         <AnimatePresence mode="wait">
           {!activeCategory ? (
             <motion.div
               key="selector"
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95 }}
+              exit={{ opacity: 0, scale: 0.97 }}
+              transition={{ duration: 0.15 }}
               className="grid grid-cols-1 gap-4 pt-4"
             >
               {/* Back to previous page */}
@@ -153,9 +152,10 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
           ) : (
             <motion.div
               key="filters"
-              initial={{ opacity: 0, x: 20 }}
+              initial={{ opacity: 0, x: 12 }}
               animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
+              exit={{ opacity: 0, x: -12 }}
+              transition={{ duration: 0.15 }}
               className="space-y-6 pb-20"
             >
               <button

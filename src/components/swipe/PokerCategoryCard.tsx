@@ -124,7 +124,7 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
       className="select-none touch-none"
     >
       <div
-        className="w-full h-full relative overflow-hidden transition-colors duration-500 bg-black rounded-[2.5rem] shadow-2xl"
+        className="w-full h-full relative overflow-hidden transition-colors duration-100 bg-black rounded-[2.5rem] shadow-2xl"
         style={{ backgroundImage: !imgReady ? fallbackGradient : undefined }}
       >
         {/* Photo & Gradient Base */}
@@ -133,7 +133,7 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
           alt={card.label}
           initial={{ opacity: 0 }}
           animate={{ opacity: imgReady ? 1 : 0 }}
-          className="absolute inset-0 w-full h-full object-cover transition-transform duration-700"
+          className="absolute inset-0 w-full h-full object-cover transition-transform duration-200"
           style={{ transform: isTop && isDragging ? 'scale(1.05)' : 'scale(1)' }}
           draggable={false}
         />

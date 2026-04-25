@@ -59,7 +59,7 @@ export default function OwnerFilters({ isEmbedded, onClose }: OwnerFiltersProps)
   const content = (
     <div
       className={cn(
-        "flex flex-col transition-colors duration-500 overflow-y-auto scrollbar-hide",
+        "flex flex-col transition-colors duration-150 overflow-y-auto scrollbar-hide",
         isLight ? (isEmbedded ? "bg-transparent" : "bg-[#F8FAFC]") : (isEmbedded ? "bg-transparent" : "bg-black"),
         isLight ? "text-slate-900" : "text-white"
       )}
@@ -69,9 +69,9 @@ export default function OwnerFilters({ isEmbedded, onClose }: OwnerFiltersProps)
       {!isEmbedded && (
         <div className="pt-8 px-6 flex items-center justify-between">
             <h1 className={cn(
-              "text-xl font-black uppercase italic tracking-widest",
+              "text-4xl font-black uppercase italic tracking-[-0.05em] leading-none",
               isLight ? "text-slate-900" : "text-white"
-            )}>RADAR NEXUS</h1>
+            )}>Swipes <span className="text-primary">Radar</span></h1>
             <button
               onClick={handleReset}
               className={cn(
