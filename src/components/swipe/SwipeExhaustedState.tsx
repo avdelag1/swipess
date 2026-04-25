@@ -14,6 +14,7 @@ interface SwipeExhaustedStateProps {
   error?: any;
   isInitialLoad?: boolean;
   role?: 'client' | 'owner';
+  radiusKm?: number;
 }
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -33,7 +34,8 @@ export const SwipeExhaustedState = ({
   onRefresh,
   error,
   isInitialLoad = false,
-  role = 'client'
+  role = 'client',
+  radiusKm = 50
 }: SwipeExhaustedStateProps) => {
   const { isLight } = useAppTheme();
   const { setCategories } = useFilterActions();
@@ -130,6 +132,11 @@ export const SwipeExhaustedState = ({
               )} />
             </motion.div>
           )}
+
+          {/* Distance/Radius Info */}
+          <div className={cn("text-xs font-bold uppercase tracking-wider mb-8 opacity-70", isLight ? "text-black" : "text-white")}>
+            Searching within {radiusKm} km
+          </div>
 
           {/* Change Sector Button */}
           <motion.button
