@@ -10,7 +10,6 @@ import { SwipeExhaustedState } from './swipe/SwipeExhaustedState';
 import { SwipeLoadingSkeleton } from './swipe/SwipeLoadingSkeleton';
 import type { QuickFilterCategory } from '@/types/filters';
 import { getActiveCategoryInfo, POKER_CARDS, OWNER_INTENT_CARDS } from './swipe/SwipeConstants';
-import { SwipeAllDashboard } from './swipe/SwipeAllDashboard';
 import { MatchCelebrateModal } from './swipe/MatchCelebrateModal';
 import { ClientPreferencesDialog } from './ClientPreferencesDialog';
 import { OwnerClientFilterDialog } from './OwnerClientFilterDialog';
@@ -1016,9 +1015,9 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
         isLight ? "bg-transparent" : "bg-black"
       )} />
 
-      {/* Top Controls — LEAVE ONLY BACK BUTTON AND RADAR HERE */}
-      {(!isLoading || deckQueue.length > 0) && !(storeActiveCategory && deckQueue.length === 0 && !isLoading) && (
-        <div className="absolute top-0 left-0 right-0 z-[60] w-full flex items-center justify-between px-6 pt-10 pb-4">
+      {/* Top Controls — BACK BUTTON only shows when a category is active */}
+      {storeActiveCategory && (!isLoading || deckQueue.length > 0) && (
+        <div className="absolute top-0 left-0 right-0 z-[60] w-full flex items-center justify-between px-6 pt-3 pb-4">
             {/* Back / Reset Category */}
             <motion.button
               whileTap={{ scale: 0.9 }}
@@ -1063,20 +1062,9 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
 
         <div className="w-full h-full flex items-center justify-center pointer-events-auto">
           <AnimatePresence mode="sync" initial={false}>
-            {!storeActiveCategory ? (
-              <motion.div 
-                key="category-stack"
-                initial={false}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 1.05 }}
-                transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
-                className="w-full h-full flex flex-col items-center justify-center max-w-[700px] mx-auto"
-              >
-                <SwipeAllDashboard setCategories={setActiveCategory} />
-              </motion.div>
-            ) : deckQueue.length > 0 && currentIndex < deckQueue.length ? (
-              <motion.div 
-                key={`deck-${storeActiveCategory}`}
+            {deckQueue.length > 0 && currentIndex < deckQueue.length ? (
+              <motion.div
+                key={`deck-${storeActiveCategory ?? 'all'}`}
                 initial={{ opacity: 0, scale: 1.05 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
@@ -1160,9 +1148,12 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
           </AnimatePresence>
       </div>
 
-      {/* 🚀 ZENITH DISCOVERY HUD: Clean, Text-based Switcher (Replaces cluttered icons) */}
-      {(!isLoading || deckQueue.length > 0) && (
-        <div className="absolute bottom-[42px] left-0 right-0 z-[100] flex flex-col items-center pointer-events-none px-6">
+      {/* 🚀 ZENITH DISCOVERY HUD: Clean, Text-based Switcher */}
+      {(!isLoading || deckQueue.length > 0) && storeActiveCategory && (
+        <div
+          className="absolute left-0 right-0 z-[100] flex flex-col items-center pointer-events-none px-6"
+          style={{ bottom: 'calc(var(--bottom-nav-height, 72px) + var(--safe-bottom, 0px) + 8px)' }}
+        >
           
           <div className="flex flex-col items-center gap-4 w-full max-w-[360px] pointer-events-auto">
             {/* 🛸 THE SECTOR SWITCHER */}

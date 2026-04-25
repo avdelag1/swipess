@@ -200,6 +200,7 @@ html {
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --top-bar-height: 60px;
+  --bottom-nav-height: 72px;
 }
 
 body {
