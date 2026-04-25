@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback } from 'react';
 import { SwipessSwipeContainer } from '@/components/SwipessSwipeContainer';
 import { useFilterStore, useFilterActions } from '@/state/filterStore';
 import { QuickFilterBar } from '@/components/QuickFilterBar';
@@ -17,16 +17,15 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
   const { user } = useAuth();
   const { setActiveCategory, setCategories } = useFilterActions();
 
+  // Get filter state
   const filterVersion = useFilterStore(s => s.filterVersion);
   const filters = useFilterStore(s => s.getListingFilters());
   const quickFilters = useFilterStore(s => ({
     categories: s.categories,
     listingType: s.listingType,
-    clientGender: s.clientGender,
-    clientType: s.clientType,
   }));
 
-  // Pre-fetch listing data during render for instant swipe deck
+  // Pre-fetch data
   useSmartListingMatching(user?.id, [], filters, 0, 20, false);
 
   const handleCategorySelect = useCallback((category: QuickFilterCategory) => {
@@ -34,29 +33,30 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
   }, [setActiveCategory]);
 
   const handleFilterChange = useCallback((newFilters: any) => {
-    setCategories(newFilters.categories ?? []);
+    setCategories(newFilters.categories || []);
   }, [setCategories]);
 
   return (
-    <div className={cn(
-      "flex-1 flex flex-col overflow-hidden relative w-full h-full",
-      isLight ? "bg-white" : "bg-[#020202]"
-    )}>
-      {/* Quick Filter Bar — always visible at the top, below the TopBar */}
-      <div
-        className="relative z-20 w-full"
-        style={{ paddingTop: 'calc(var(--top-bar-height, 56px) + var(--safe-top, 0px) + 4px)' }}
-      >
-        <QuickFilterBar
-          filters={quickFilters}
-          onChange={handleFilterChange}
-          onSelect={handleCategorySelect}
-          userRole="client"
-        />
-      </div>
+    <div
+      className={cn(
+        "flex-1 flex flex-col overflow-hidden relative w-full h-full",
+        isLight ? "bg-white" : "bg-[#020202]"
+      )}
+      style={{
+        paddingTop: 'calc(var(--top-bar-height, 60px) + var(--safe-top, 0px))',
+        paddingBottom: 'calc(var(--bottom-nav-height, 72px) + var(--safe-bottom, 0px))',
+      }}
+    >
+      {/* Quick Filter Bar */}
+      <QuickFilterBar
+        filters={quickFilters}
+        onChange={handleFilterChange}
+        onSelect={handleCategorySelect}
+        userRole="client"
+      />
 
-      {/* Swipe Deck — always shows cards, filtered by active category or ALL if none */}
-      <div className="flex-1 relative overflow-hidden">
+      {/* Swipe Deck */}
+      <div className="flex-1 relative overflow-hidden w-full">
         <SwipessSwipeContainer
           onListingTap={() => {}}
           onInsights={() => {}}
