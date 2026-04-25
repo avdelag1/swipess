@@ -1187,6 +1187,17 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
                   detecting={locationDetecting}
                   detected={locationDetected}
                   categoryName={currentCategoryName}
+                  activeCategory={storeActiveCategory}
+                  onCategoryChange={(cat) => {
+                    triggerHaptic('medium');
+                    setActiveCategory(cat as any);
+                    setCategories([cat] as any);
+                  }}
+                  onOpenFilters={() => {
+                    triggerHaptic('light');
+                    setFilterDialogOpen(true);
+                  }}
+                  role={userRole === 'owner' ? 'owner' : 'client'}
                 />
               </motion.div>
             )}
