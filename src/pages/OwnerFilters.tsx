@@ -59,11 +59,11 @@ export default function OwnerFilters({ isEmbedded, onClose }: OwnerFiltersProps)
   const content = (
     <div
       className={cn(
-        "flex flex-col transition-colors duration-150 overflow-y-auto scrollbar-hide",
+        "flex flex-col transition-colors duration-150 min-h-screen",
         isLight ? (isEmbedded ? "bg-transparent" : "bg-[#F8FAFC]") : (isEmbedded ? "bg-transparent" : "bg-black"),
         isLight ? "text-slate-900" : "text-white"
       )}
-      style={!isEmbedded ? { height: 'calc(100dvh - var(--top-bar-height, 60px) - var(--safe-top, 0px))', paddingBottom: 'calc(var(--bottom-nav-height, 72px) + var(--safe-bottom, 0px) + 24px)' } : undefined}
+      style={!isEmbedded ? { paddingBottom: 'calc(var(--bottom-nav-height, 72px) + var(--safe-bottom, 0px) + 24px)', paddingTop: 'calc(var(--top-bar-height, 60px) + 24px)' } : undefined}
     >
       {/* HEADER - Only in standalone */}
       {!isEmbedded && (
@@ -123,7 +123,7 @@ export default function OwnerFilters({ isEmbedded, onClose }: OwnerFiltersProps)
 
       {/* 🛸 RADAR CALIBRATION GRID */}
       <main className={cn(
-        "container mx-auto px-6 max-w-4xl flex-1 overflow-y-auto pb-32",
+        "container mx-auto px-6 max-w-4xl flex-1 pb-32",
         isEmbedded ? "px-0" : ""
       )}>
         <AnimatePresence mode="wait">

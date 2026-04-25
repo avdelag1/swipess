@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { useStartConversation } from "@/hooks/useConversations";
 import { PremiumLikedCard } from "@/components/PremiumLikedCard";
 import { cn } from "@/lib/utils";
+import { PageHeader } from "@/components/PageHeader";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -159,15 +160,9 @@ const ClientWhoLikedYou = () => {
   );
 
   return (
-    <div className="w-full relative flex flex-col pb-40 overflow-y-auto scrollbar-hide" data-no-swipe-nav="true" style={{ height: 'calc(100dvh - var(--top-bar-height, 60px) - var(--safe-top, 0px))' }}>
+    <div className="w-full relative flex flex-col pb-40 min-h-screen" data-no-swipe-nav="true">
       <div className="p-4 pt-24 sm:p-8 sm:pt-24 max-w-7xl mx-auto">
-        {/* Badge */}
-        <div className="flex items-center justify-end mb-8 relative z-10">
-          <div className="px-4 py-2 rounded-2xl bg-[var(--color-brand-accent-2)]/10 border border-[var(--color-brand-accent-2)]/20 text-[var(--color-brand-accent-2)] text-xs font-black uppercase tracking-widest flex items-center gap-2 shadow-[0_0_15px_rgba(228,0,124,0.1)]">
-            <ThumbsUp className="w-4 h-4" />
-            Fan Base
-          </div>
-        </div>
+        <PageHeader title="Fan Base" subtitle="Interested Entities" showBack={true} />
 
         {/* Category filter tabs */}
         <div className="flex gap-3 mb-6 overflow-x-auto scrollbar-hide pb-2 pt-2">

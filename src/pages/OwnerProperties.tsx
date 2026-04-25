@@ -30,17 +30,16 @@ const OwnerProperties = () => {
   }, [searchParams, location.hash]);
 
   return (
-    <div className="w-full relative bg-transparent overflow-y-auto scrollbar-hide" style={{ height: 'calc(100dvh - var(--top-bar-height, 60px) - var(--safe-top, 0px))' }}>
+    <div className="w-full bg-background p-4 pb-32 min-h-screen">
       <AtmosphericLayer variant="primary" />
       
-      <div className="w-full relative px-4 sm:px-6 pb-12 z-10 h-full overflow-y-auto">
+      <div className="w-full relative px-4 pt-24 pb-32 bg-background min-h-screen">
         <PropertyManagement initialCategory={initialCategory} initialMode={initialMode} />
       </div>
     </div>
   );
 };
 
-export default OwnerProperties;
 
 
 

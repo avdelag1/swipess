@@ -181,7 +181,7 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
   ];
 
   return (
-    <div className="w-full relative flex flex-col pb-40 overflow-y-auto scrollbar-hide" data-no-swipe-nav="true" style={{ height: 'calc(100dvh - var(--top-bar-height, 60px) - var(--safe-top, 0px))' }}>
+    <div className="w-full relative flex flex-col pb-40 min-h-screen" data-no-swipe-nav="true">
       <div className="flex-1 flex flex-col p-4 pt-24 sm:p-8 sm:pt-24 max-w-7xl mx-auto w-full">
         {/* Category tabs and Sync button */}
         <div className="flex items-center justify-between gap-4 mb-8">

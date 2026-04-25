@@ -45,17 +45,17 @@ export function PageHeader({
           <motion.button
             onClick={handleBack}
             whileTap={{ scale: 0.9, transition: { type: 'spring', stiffness: 400, damping: 17 } }}
-            className="shrink-0 flex items-center justify-center gap-1.5 px-4 h-11 rounded-xl text-sm font-semibold transition-all duration-150 active:scale-95 touch-manipulation min-w-[44px]"
+            className="shrink-0 flex items-center justify-center gap-1.5 px-4 h-11 rounded-2xl text-[10px] font-black uppercase tracking-widest italic transition-all duration-300 active:scale-95 backdrop-blur-[40px]"
             style={isLight ? {
               color: '#000000',
-              background: 'rgba(255,255,255,1.0)',
-              border: '1.5px solid rgba(0,0,0,0.18)',
-              boxShadow: '0 2px 10px rgba(0,0,0,0.08)',
+              background: 'rgba(255, 255, 255, 0.7)',
+              border: 'none',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.06)',
             } : {
               color: 'white',
-              background: 'rgba(255,255,255,0.15)',
-              border: '1.5px solid rgba(255,255,255,0.25)',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.4)',
+              background: 'rgba(10, 15, 30, 0.4)',
+              border: 'none',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
             }}
           >
             <ArrowLeft className="w-4 h-4" />

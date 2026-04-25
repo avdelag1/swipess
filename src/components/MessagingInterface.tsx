@@ -277,7 +277,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
         </div>
 
         {/* Message Feed */}
-        <div className="flex-1 relative min-h-0 bg-background/30" ref={messagesContainerRef}>
+        <div id="chat-scroll-container" className="flex-1 relative min-h-0 bg-background/30" ref={messagesContainerRef}>
             {showConnecting && (
               <div className="absolute top-2 left-0 right-0 z-50 flex justify-center px-6">
                 <div className="bg-amber-500/10 backdrop-blur-3xl border border-amber-500/20 px-6 py-2 rounded-full flex items-center gap-3">

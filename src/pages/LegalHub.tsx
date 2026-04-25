@@ -205,7 +205,7 @@ const LegalHub = () => {
   );
 
   return (
-    <div className="w-full bg-background relative selection:bg-rose-500/30 overflow-x-hidden overflow-y-auto scrollbar-hide" style={{ height: 'calc(100dvh - var(--top-bar-height, 60px) - var(--safe-top, 0px))' }}>
+    <div className="w-full bg-background relative selection:bg-rose-500/30 overflow-x-hidden min-h-screen">
       
       {/* 🛸 ATMOSPHERIC ATMOSPHERE */}
       <div className="absolute inset-0 pointer-events-none opacity-20 overflow-hidden">
@@ -216,7 +216,7 @@ const LegalHub = () => {
          <div className="absolute bottom-[20%] right-[-5%] w-[40%] h-[30%] bg-indigo-500/20 blur-[100px] rounded-full" />
       </div>
 
-      <div className="max-w-4xl mx-auto px-6 pt-24 pb-48 relative z-10 space-y-12">
+      <main className="container mx-auto px-6 pt-24 pb-48 relative z-10 space-y-12">
         
         {/* 🛸 HEADER */}
         <div className="space-y-4">
@@ -374,7 +374,6 @@ const LegalHub = () => {
                 </div>
 
                 <div className={cn("rounded-[2.8rem] overflow-hidden border shadow-3xl", isLight ? "bg-black/5 border-black/5" : "bg-white/[0.04] border-white/5")}>
-                  <ScrollArea className="max-h-[500px]">
                     <div className={cn("divide-y", isLight ? "divide-black/10" : "divide-white/5")}>
                       {categories.map((category) => (
                         <div key={category.id}>
@@ -448,7 +447,6 @@ const LegalHub = () => {
                         </div>
                       ))}
                     </div>
-                  </ScrollArea>
                 </div>
               </div>
 

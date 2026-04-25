@@ -82,7 +82,7 @@ export function LegalHub() {
 
   return (
     <div className={cn(
-      "relative min-h-[80vh] w-full backdrop-blur-3xl rounded-[3rem] border overflow-hidden shadow-2xl transition-colors duration-500",
+      "relative w-full backdrop-blur-3xl rounded-[3rem] border shadow-2xl transition-colors duration-500",
       isLight ? "bg-white/80 border-black/5" : "bg-black/50 border-white/10"
     )}>
       {/* 🛸 BACKGROUND DECOR */}
@@ -108,7 +108,7 @@ export function LegalHub() {
         )}
       </div>
 
-      <div className="relative z-10 p-8 h-[calc(80vh-100px)] overflow-y-auto no-scrollbar">
+      <div className="relative z-10 p-8">
         <AnimatePresence mode="wait">
           {view === 'dashboard' && (
             <motion.div 

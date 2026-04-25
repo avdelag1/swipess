@@ -316,8 +316,7 @@ export default function EventosFeed() {
 
   return (
     <div
-      className="relative w-full flex-col items-center justify-start bg-transparent overflow-hidden"
-      style={{ height: 'calc(100dvh - var(--top-bar-height, 60px) - var(--safe-top, 0px))' }}
+      className="relative w-full flex flex-col items-center justify-start bg-transparent min-h-screen"
     >
       <div className="absolute inset-0 bg-[#0a0a0b] -z-10" />
       

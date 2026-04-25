@@ -209,7 +209,7 @@ export function MessagingDashboard() {
   }
 
   return (
-    <div className={cn("w-full transition-colors duration-500 relative overflow-y-auto scrollbar-hide", isLight ? "bg-white" : "bg-black")} style={{ height: 'calc(100dvh - var(--top-bar-height, 60px) - var(--safe-top, 0px))' }}>
+    <div className={cn("w-full transition-colors duration-500 relative min-h-screen", isLight ? "bg-white" : "bg-black")}>
       <AtmosphericLayer variant="rose" />
 
       <MessageActivationBanner isVisible={showActivationBanner} onClose={() => setShowActivationBanner(false)} userRole={userRole} variant="conversation-limit" />

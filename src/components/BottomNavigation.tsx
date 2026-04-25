@@ -252,13 +252,13 @@ export const BottomNavigation = memo(({
           "pointer-events-auto w-full max-w-[440px] mx-auto glass-pill-nav px-1.5 shadow-[0_30px_80px_rgba(0,0,0,0.5)]"
         )}
         style={{
-          background: 'var(--hud-bg)',
-          backdropFilter: 'blur(32px) saturate(280%)',
-          WebkitBackdropFilter: 'blur(32px) saturate(280%)',
+          background: isLight ? 'rgba(255, 255, 255, 0.7)' : 'rgba(10, 15, 30, 0.4)',
+          backdropFilter: 'blur(40px) saturate(280%)',
+          WebkitBackdropFilter: 'blur(40px) saturate(280%)',
           borderRadius: '3rem',
           padding: '4px',
-          boxShadow: '0 25px 60px -10px rgba(0,0,0,0.4)',
-          border: '1px solid rgba(255, 255, 255, 0.25)',
+          boxShadow: isLight ? '0 15px 40px rgba(0,0,0,0.08)' : '0 25px 60px -10px rgba(0,0,0,0.4)',
+          border: 'none',
         }}
 
       >

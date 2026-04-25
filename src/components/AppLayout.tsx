@@ -102,6 +102,18 @@ export function AppLayout({ children }: AppLayoutProps) {
     return isCameraRoute || showAIChat || isRadioRoute || location.pathname.startsWith('/explore/eventos');
   }, [isCameraRoute, showAIChat, isRadioRoute, location.pathname]);
 
+  const isRootTab = useMemo(() => {
+    return [
+      '/client/dashboard', '/owner/dashboard', '/admin/dashboard',
+      '/client/liked-properties', '/owner/liked-clients', '/owner/interested-clients',
+      '/client/properties', '/owner/properties',
+      '/messages',
+      '/client/filters', '/owner/filters',
+      '/client/discovery', '/owner/discovery',
+      '/explore/roommates', '/explore/eventos'
+    ].some(path => location.pathname === path || location.pathname === path + '/');
+  }, [location.pathname]);
+
   const handleFilterClick = () => {
     const role = userRole === 'admin' ? 'admin' : activeMode;
     navigate(`/${role}/filters`);
@@ -166,7 +178,7 @@ export function AppLayout({ children }: AppLayoutProps) {
 
 
 
-      {!isAuthRoute && !isFullScreen && (!isPublicPreview || !!user) && (
+      {!isAuthRoute && !isFullScreen && (!isPublicPreview || !!user) && isRootTab && (
         <SentientHud side="bottom" className="fixed bottom-0 left-0 right-0 z-[9999]">
           <BottomNavigation
             userRole={userRole}

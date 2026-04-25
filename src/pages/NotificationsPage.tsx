@@ -11,6 +11,7 @@ import useAppTheme from '@/hooks/useAppTheme';
 import { triggerHaptic } from '@/utils/haptics';
 import { Button } from '@/components/ui/button';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
+import { PageHeader } from '@/components/PageHeader';
 
 const NotificationsPage = () => {
   const { notifications, markNotificationAsRead, dismissNotification, markAllAsRead } = useNotificationSystem();
@@ -42,23 +43,15 @@ const NotificationsPage = () => {
 
   return (
     <div className={cn(
-      "w-full pb-20 overflow-y-auto scrollbar-hide",
+      "w-full pb-20 min-h-screen",
       isDark ? "bg-[#0a0a0c]" : "bg-white"
-    )} style={{ height: 'calc(100dvh - var(--top-bar-height, 60px) - var(--safe-top, 0px))' }}>
-      <header className={cn(
-        "sticky top-0 z-50 px-6 py-4 backdrop-blur-3xl border-b transition-all",
-        isDark ? "bg-[#0a0a0c]/80 border-white/5" : "bg-white/80 border-black/5"
-      )}>
-        <div className="max-w-2xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-2 h-2 rounded-full bg-brand-primary animate-pulse" />
-            <h1 className={cn(
-              "text-xl font-black uppercase italic tracking-tighter",
-              isLight ? "text-slate-900" : "text-white"
-            )}>Pulse Feed</h1>
-          </div>
-          
-          {notifications.length > 0 && (
+    )}>
+      <div className="max-w-2xl mx-auto px-6 pt-24">
+        <PageHeader 
+          title="Pulse Feed" 
+          subtitle="System Intelligence Updates" 
+          showBack={true}
+          actions={notifications.length > 0 ? (
             <Button 
               variant="ghost" 
               size="sm" 
@@ -67,11 +60,11 @@ const NotificationsPage = () => {
             >
               Clear Unread
             </Button>
-          )}
-        </div>
-      </header>
+          ) : undefined}
+        />
+      </div>
 
-      <div className="max-w-2xl mx-auto px-4 pt-20">
+      <div className="max-w-2xl mx-auto px-4 pt-10">
         <div className="space-y-4">
           {notifications.length === 0 ? (
             <motion.div 

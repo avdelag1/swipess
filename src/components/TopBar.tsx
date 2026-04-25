@@ -55,15 +55,16 @@ function TopBarComponent({
   const onBack = propOnBack || (showBack ? () => window.history.length > 2 ? navigate(-1) : navigate(`/${isOwner ? 'owner' : 'client'}/dashboard`) : (activeCategory ? () => setActiveCategory(null) : undefined));
 
   const glassPillStyle: React.CSSProperties = {
-    background: 'var(--hud-bg)',
-    backdropFilter: 'blur(32px) saturate(210%)',
-    WebkitBackdropFilter: 'blur(32px) saturate(210%)',
+    background: isLight 
+      ? 'rgba(255, 255, 255, 0.7)' 
+      : 'rgba(10, 15, 30, 0.4)', // Subtle blue tint for dark mode
+    backdropFilter: 'blur(40px) saturate(250%)',
+    WebkitBackdropFilter: 'blur(40px) saturate(250%)',
     borderRadius: '3rem',
-    border: isLight ? '1.5px solid rgba(0,0,0,0.15)' : '1.5px solid rgba(255,255,255,0.25)',
-
-    boxShadow: isLight ? '0 4px 12px rgba(0,0,0,0.03)' : '0 8px 32px rgba(0, 0, 0, 0.15)',
+    border: 'none', // No frames as requested
+    boxShadow: isLight ? '0 10px 30px rgba(0,0,0,0.05)' : '0 20px 50px rgba(0, 0, 0, 0.3)',
     pointerEvents: 'auto',
-    color: 'var(--hud-text)',
+    color: isLight ? '#000000' : 'var(--hud-text)',
   };
 
   const { data: profile } = useQuery({
@@ -84,7 +85,7 @@ function TopBarComponent({
   return (
     <header 
       className={cn(
-        "absolute top-0 left-0 right-0 z-[10005] transition-all duration-700 pointer-events-none",
+        "fixed top-0 left-0 right-0 z-[10005] transition-all duration-500 pointer-events-none",
         _transparent ? "h-20" : "h-16",
         className
       )}
@@ -103,7 +104,7 @@ function TopBarComponent({
               className="w-11 h-11 flex shrink-0 items-center justify-center rounded-full"
               style={glassPillStyle}
             >
-              <ChevronLeft className="w-5 h-5" style={{ color: 'var(--hud-text)' }} />
+              <ChevronLeft className="w-5 h-5" style={{ color: isLight ? '#000000' : 'var(--hud-text)' }} />
             </motion.button>
           ) : (
             user && (

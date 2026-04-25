@@ -144,9 +144,9 @@ export const POKER_CARD_PHOTOS: Record<string, string> = {
   buyers:        '/images/filters/owner_buyers_card.jpg',
   renters:       '/images/filters/owner_renters_card.jpg',
   hire:          '/images/filters/owner_hire_card.jpg',
-  'all-clients': '/images/filters/owner_all_clients.jpg',
+  'all-clients': '/images/filters/owner_all_clients.png',
   lawyer:        '/images/filters/owner_lawyer_card.jpg',
-  promote:       '/images/filters/owner_promote_card.jpg',
+  promote:       '/images/filters/owner_promote_card.png',
   'ai-listing':  '/images/filters/ai_listing_card.jpg',
 };
 

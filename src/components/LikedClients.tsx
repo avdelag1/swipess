@@ -157,7 +157,7 @@ export function LikedClients() {
   }, [likedClients, selectedCategory, searchTerm, filterSafeOnly, sortBy]);
 
   return (
-    <div className="w-full relative flex flex-col pb-40 overflow-y-auto scrollbar-hide" data-no-swipe-nav="true" style={{ height: 'calc(100dvh - var(--top-bar-height, 60px) - var(--safe-top, 0px))' }}>
+    <div className="w-full relative flex flex-col min-h-screen" data-no-swipe-nav="true">
       <div className="flex-1 flex flex-col p-4 pt-24 sm:p-8 sm:pt-24 max-w-7xl mx-auto w-full">
         <div className="flex items-center justify-between mb-8">
             <h1 className="text-2xl font-black italic uppercase tracking-tighter">Your Talents</h1>
@@ -198,7 +198,7 @@ export function LikedClients() {
               whileTap={{ scale: 0.96 }}
               className={cn(
                 "flex items-center gap-2.5 px-6 py-3.5 rounded-3xl text-sm font-black whitespace-nowrap transition-all border",
-                selectedCategory === id ? "bg-primary border-primary text-white shadow-lg" : "bg-white/[0.04] border-white/[0.08] text-muted-foreground"
+                selectedCategory === id ? "bg-primary border-primary text-white shadow-lg" : (isLight ? "bg-black/5 border-black/10 text-slate-600 hover:bg-black/10" : "bg-white/[0.04] border-white/[0.08] text-muted-foreground")
               )}
             >
               <Icon className="w-4 h-4" />
@@ -213,7 +213,10 @@ export function LikedClients() {
             placeholder="Search talents..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full h-14 rounded-2xl pl-14 pr-6 font-bold bg-white/[0.04] border border-white/[0.08] focus:border-primary transition-all outline-none"
+            className={cn(
+              "w-full h-14 rounded-2xl pl-14 pr-6 font-bold transition-all outline-none border",
+              isLight ? "bg-black/5 border-black/10 focus:border-primary text-black placeholder:text-black/40" : "bg-white/[0.04] border-white/[0.08] focus:border-primary text-white"
+            )}
           />
         </div>
 
@@ -225,7 +228,7 @@ export function LikedClients() {
               onClick={() => setSortBy(opt as SortOption)}
               className={cn(
                 "px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all active:scale-95 whitespace-nowrap",
-                sortBy === opt ? "bg-primary border-primary text-white" : "bg-white/[0.04] border-white/[0.08] text-muted-foreground"
+                sortBy === opt ? "bg-primary border-primary text-white" : (isLight ? "bg-black/5 border-black/10 text-slate-600" : "bg-white/[0.04] border-white/[0.08] text-muted-foreground")
               )}
             >
               {opt}

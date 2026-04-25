@@ -79,6 +79,8 @@ export function useScrollDirection({
     // Fallback chain for common scroll containers
     const fallbacks = [
       '#dashboard-scroll-container',
+      '#chat-scroll-container',
+      '#messages-scroll-container',
       'main[class*="overflow"]',
       '[id*="scroll-container"]',
       'main',
