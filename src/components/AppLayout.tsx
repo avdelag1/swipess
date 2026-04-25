@@ -99,8 +99,8 @@ export function AppLayout({ children }: AppLayoutProps) {
   }, [location.pathname]);
 
   const isFullScreen = useMemo(() => {
-    return isCameraRoute || showAIChat || isRadioRoute;
-  }, [isCameraRoute, showAIChat, isRadioRoute]);
+    return isCameraRoute || showAIChat || isRadioRoute || location.pathname.startsWith('/explore/eventos');
+  }, [isCameraRoute, showAIChat, isRadioRoute, location.pathname]);
 
   const handleFilterClick = () => {
     const role = userRole === 'admin' ? 'admin' : activeMode;
@@ -134,9 +134,9 @@ export function AppLayout({ children }: AppLayoutProps) {
             onMessageActivationsClick={handleMessageActivationsClick}
             onFilterClick={handleFilterClick}
             transparent={isImmersive}
-            showBack={location.pathname !== '/client/dashboard' && location.pathname !== '/owner/dashboard'}
+            showBack={!location.pathname.match(/^\/(client|owner|admin)\/dashboard\/?$/)}
             onCenterTap={
-              location.pathname !== '/client/dashboard' && location.pathname !== '/owner/dashboard'
+              !location.pathname.match(/^\/(client|owner|admin)\/dashboard\/?$/)
                 ? () => navigate(`/${activeMode}/dashboard`)
                 : undefined
             }

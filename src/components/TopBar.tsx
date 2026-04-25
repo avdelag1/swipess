@@ -34,6 +34,7 @@ interface TopBarProps {
 function TopBarComponent({
   onFilterClick: _onFilterClick,
   onBack: propOnBack,
+  showBack,
   onCenterTap,
   className,
   userRole,
@@ -51,7 +52,7 @@ function TopBarComponent({
 
   const isOwner = userRole === 'owner';
   
-  const onBack = propOnBack || (activeCategory ? () => setActiveCategory(null) : undefined);
+  const onBack = propOnBack || (showBack ? () => window.history.length > 2 ? navigate(-1) : navigate(`/${isOwner ? 'owner' : 'client'}/dashboard`) : (activeCategory ? () => setActiveCategory(null) : undefined));
 
   const glassPillStyle: React.CSSProperties = {
     background: 'var(--hud-bg)',
