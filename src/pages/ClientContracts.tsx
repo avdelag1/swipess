@@ -7,7 +7,7 @@ const ClientContracts = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="w-full min-h-screen bg-background p-4 pb-32">
+    <div className="w-full bg-background p-4 pb-32 overflow-y-auto scrollbar-hide" style={{ height: 'calc(100dvh - var(--top-bar-height, 60px) - var(--safe-top, 0px))' }}>
       <div className="max-w-4xl mx-auto space-y-6">
         {/* Back nav */}
         <motion.button

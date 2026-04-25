@@ -140,7 +140,7 @@ const ClientSettings = () => {
 
   if (activeSection === 'security') {
     return (
-      <div className="w-full relative px-4 pt-24 pb-32 bg-background min-h-screen">
+      <div className="w-full relative px-4 pt-24 pb-32 bg-background overflow-y-auto scrollbar-hide" style={{ height: 'calc(100dvh - var(--top-bar-height, 60px) - var(--safe-top, 0px))' }}>
         <AtmosphericLayer variant="primary" />
         <div className="max-w-3xl mx-auto relative z-10">
           <PageHeader title={t('settings.security')} subtitle={t('settings.securityDesc')} showBack={true} onBack={() => setActiveSection(null)} />
@@ -165,7 +165,7 @@ const ClientSettings = () => {
 
   if (activeSection === 'verification') {
     return (
-      <div className="w-full relative px-4 pt-24 pb-32 bg-background min-h-screen">
+      <div className="w-full relative px-4 pt-24 pb-32 bg-background overflow-y-auto scrollbar-hide" style={{ height: 'calc(100dvh - var(--top-bar-height, 60px) - var(--safe-top, 0px))' }}>
         <AtmosphericLayer variant="rose" />
         <div className="max-w-3xl mx-auto relative z-10">
           <PageHeader title={t('settings.verification')} subtitle={t('settings.verificationDesc')} showBack={true} onBack={() => setActiveSection(null)} />
@@ -179,7 +179,7 @@ const ClientSettings = () => {
 
   if (activeSection === 'language') {
     return (
-      <div className="w-full relative px-4 pt-24 pb-32 bg-background min-h-screen">
+      <div className="w-full relative px-4 pt-24 pb-32 bg-background overflow-y-auto scrollbar-hide" style={{ height: 'calc(100dvh - var(--top-bar-height, 60px) - var(--safe-top, 0px))' }}>
         <AtmosphericLayer variant="indigo" />
         <div className="max-w-3xl mx-auto relative z-10">
           <PageHeader title={t('settings.language')} subtitle={t('settings.languageDesc')} showBack={true} onBack={() => setActiveSection(null)} />
@@ -193,7 +193,7 @@ const ClientSettings = () => {
 
   if (activeSection === 'preferences') {
     return (
-      <div className="w-full relative px-4 pt-24 pb-32 bg-background min-h-screen">
+      <div className="w-full relative px-4 pt-24 pb-32 bg-background overflow-y-auto scrollbar-hide" style={{ height: 'calc(100dvh - var(--top-bar-height, 60px) - var(--safe-top, 0px))' }}>
         <AtmosphericLayer variant="default" />
         <div className="max-w-3xl mx-auto relative z-10">
           <PageHeader title={t('settings.preferences')} subtitle={t('settings.preferencesDesc')} showBack={true} onBack={() => setActiveSection(null)} />

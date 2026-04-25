@@ -34,7 +34,7 @@ const OwnerProfile = () => {
   }
 
   return (
-    <div className="min-h-screen w-full relative overflow-x-hidden bg-[#030308] text-white">
+    <div className="w-full relative overflow-x-hidden overflow-y-auto scrollbar-hide bg-[#030308] text-white" style={{ height: 'calc(100dvh - var(--top-bar-height, 60px) - var(--safe-top, 0px))' }}>
 
       {/* Nexus Grid Background */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">

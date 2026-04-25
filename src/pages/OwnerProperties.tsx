@@ -30,7 +30,7 @@ const OwnerProperties = () => {
   }, [searchParams, location.hash]);
 
   return (
-    <div className="w-full relative min-h-screen bg-transparent">
+    <div className="w-full relative bg-transparent overflow-y-auto scrollbar-hide" style={{ height: 'calc(100dvh - var(--top-bar-height, 60px) - var(--safe-top, 0px))' }}>
       <AtmosphericLayer variant="primary" />
       
       <div className="w-full relative px-4 sm:px-6 pb-12 z-10">

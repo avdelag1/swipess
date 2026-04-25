@@ -159,7 +159,7 @@ const ClientWhoLikedYou = () => {
   );
 
   return (
-    <div className="w-full relative flex flex-col pb-40" data-no-swipe-nav="true">
+    <div className="w-full relative flex flex-col pb-40 overflow-y-auto scrollbar-hide" data-no-swipe-nav="true" style={{ height: 'calc(100dvh - var(--top-bar-height, 60px) - var(--safe-top, 0px))' }}>
       <div className="p-4 pt-24 sm:p-8 sm:pt-24 max-w-7xl mx-auto">
         {/* Badge */}
         <div className="flex items-center justify-end mb-8 relative z-10">

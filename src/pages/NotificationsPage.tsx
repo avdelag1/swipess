@@ -42,9 +42,9 @@ const NotificationsPage = () => {
 
   return (
     <div className={cn(
-      "min-h-full w-full pb-20",
+      "w-full pb-20 overflow-y-auto scrollbar-hide",
       isDark ? "bg-[#0a0a0c]" : "bg-white"
-    )}>
+    )} style={{ height: 'calc(100dvh - var(--top-bar-height, 60px) - var(--safe-top, 0px))' }}>
       <header className={cn(
         "sticky top-0 z-50 px-6 py-4 backdrop-blur-3xl border-b transition-all",
         isDark ? "bg-[#0a0a0c]/80 border-white/5" : "bg-white/80 border-black/5"

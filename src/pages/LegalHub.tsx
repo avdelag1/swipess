@@ -205,7 +205,7 @@ const LegalHub = () => {
   );
 
   return (
-    <div className="w-full min-h-screen bg-background relative selection:bg-rose-500/30 overflow-x-hidden">
+    <div className="w-full bg-background relative selection:bg-rose-500/30 overflow-x-hidden overflow-y-auto scrollbar-hide" style={{ height: 'calc(100dvh - var(--top-bar-height, 60px) - var(--safe-top, 0px))' }}>
       
       {/* 🛸 ATMOSPHERIC ATMOSPHERE */}
       <div className="absolute inset-0 pointer-events-none opacity-20 overflow-hidden">
