@@ -143,6 +143,7 @@ const ClientSwipeContainerComponent = ({
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         setUserLocation(pos.coords.latitude, pos.coords.longitude);
+        setRadiusKm(5); // Auto-set to 5km when location is detected
         setLocationDetected(true);
         setLocationDetecting(false);
       },
@@ -151,7 +152,7 @@ const ClientSwipeContainerComponent = ({
       },
       { timeout: 8000, maximumAge: 60000 }
     );
-  }, [setUserLocation]);
+  }, [setUserLocation, setRadiusKm]);
 
   // CRITICAL: Filter out own profile from cached deck items
   const _filterOwnProfile = useCallback((items: any[], userId: string | undefined) => {

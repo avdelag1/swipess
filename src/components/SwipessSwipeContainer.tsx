@@ -147,6 +147,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         setUserLocation(pos.coords.latitude, pos.coords.longitude);
+        setRadiusKm(5); // Auto-set to 5km when location is detected
         setLocationDetected(true);
         setLocationDetecting(false);
       },
@@ -155,7 +156,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
       },
       { timeout: 8000, maximumAge: 60000 }
     );
-  }, [setUserLocation]);
+  }, [setUserLocation, setRadiusKm]);
 
 
 
