@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, memo } from 'react';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -39,7 +39,7 @@ interface EmbeddedLocationFilterProps {
   defaultOpen?: boolean;
 }
 
-export function EmbeddedLocationFilter({
+export const EmbeddedLocationFilter = memo(function EmbeddedLocationFilter({
   country,
   setCountry,
   city,

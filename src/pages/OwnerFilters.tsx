@@ -2,7 +2,7 @@ import { useState, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Target, Sparkles, Home, Briefcase, Zap, RotateCcw, Bike
+  Target, Sparkles, Home, Briefcase, Zap, RotateCcw, Bike, ChevronLeft
 } from 'lucide-react';
 import { DiscoveryFilters } from '@/components/filters/DiscoveryFilters';
 import useAppTheme from '@/hooks/useAppTheme';
@@ -30,12 +30,11 @@ export default function OwnerFilters({ isEmbedded, onClose }: OwnerFiltersProps)
   const isFirstMount = useRef(true);
 
   const handleApply = useCallback((filters?: any) => {
-    // If this is the initial auto-apply from DiscoveryFilters, just skip navigation
-    if (isFirstMount.current) {
-      isFirstMount.current = false;
-      return;
-    }
+    // We just want to stay on the page when filters are auto-applied from DiscoveryFilters
+    console.info('[OwnerFilters] handleApply called, skipping navigation for auto-sync');
+  }, []);
 
+  const handleFinalApply = useCallback(() => {
     haptics.success();
     if (isEmbedded && onClose) {
       onClose();
@@ -68,14 +67,25 @@ export default function OwnerFilters({ isEmbedded, onClose }: OwnerFiltersProps)
       {/* HEADER - Only in standalone */}
       {!isEmbedded && (
         <div className="pt-8 px-6 flex items-center justify-between">
-            <h1 className={cn(
-              "text-4xl font-black uppercase italic tracking-[-0.05em] leading-none",
-              isLight ? "text-slate-900" : "text-white"
-            )}>Swipess <span className="text-primary">Radar</span></h1>
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => navigate('/owner/dashboard')}
+                className={cn(
+                  "w-12 h-12 rounded-full flex items-center justify-center backdrop-blur-xl border transition-all active:scale-90 shadow-xl",
+                  isLight ? "bg-white border-slate-200 text-black" : "bg-white/10 border-white/10 text-white"
+                )}
+              >
+                <ChevronLeft className="w-6 h-6" />
+              </button>
+              <h1 className={cn(
+                "text-3xl sm:text-4xl font-black uppercase italic tracking-[-0.05em] leading-none",
+                isLight ? "text-slate-900" : "text-white"
+              )}>Swipess <span className="text-primary">Radar</span></h1>
+            </div>
             <button
               onClick={handleReset}
               className={cn(
-                "w-12 h-12 rounded-full flex items-center justify-center backdrop-blur-xl border transition-all active:scale-90",
+                "w-12 h-12 rounded-full flex items-center justify-center backdrop-blur-xl border transition-all active:scale-90 shadow-lg",
                 isLight ? "bg-black/5 border-black/10 text-black" : "bg-white/10 border-white/10 text-white"
               )}
             >
@@ -172,7 +182,7 @@ export default function OwnerFilters({ isEmbedded, onClose }: OwnerFiltersProps)
             onClick={() => {
               setIsScanning(true);
               setTimeout(() => {
-                handleApply();
+                handleFinalApply();
                 setIsScanning(false);
               }, 2200);
             }}

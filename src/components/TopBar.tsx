@@ -54,15 +54,16 @@ function TopBarComponent({
   
   const onBack = propOnBack || (showBack ? () => window.history.length > 2 ? navigate(-1) : navigate(`/${isOwner ? 'owner' : 'client'}/dashboard`) : (activeCategory ? () => setActiveCategory(null) : undefined));
 
-  const glassPillStyle: React.CSSProperties = {
     background: isLight 
-      ? 'rgba(255, 255, 255, 0.7)' 
-      : 'rgba(10, 15, 30, 0.4)', // Subtle blue tint for dark mode
-    backdropFilter: 'blur(40px) saturate(250%)',
-    WebkitBackdropFilter: 'blur(40px) saturate(250%)',
+      ? 'rgba(255, 255, 255, 0.75)' 
+      : 'rgba(15, 25, 55, 0.45)', // Richer blue glass for Swipess Dark
+    backdropFilter: 'blur(36px) saturate(280%)',
+    WebkitBackdropFilter: 'blur(36px) saturate(280%)',
     borderRadius: '3rem',
-    border: 'none', // No frames as requested
-    boxShadow: isLight ? '0 10px 30px rgba(0,0,0,0.05)' : '0 20px 50px rgba(0, 0, 0, 0.3)',
+    border: 'none',
+    boxShadow: isLight 
+      ? '0 12px 40px rgba(0,0,0,0.06), inset 0 0 0 1px rgba(255,255,255,0.4)' 
+      : '0 25px 70px -10px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255,255,255,0.05)',
     pointerEvents: 'auto',
     color: isLight ? '#000000' : 'var(--hud-text)',
   };
@@ -85,13 +86,14 @@ function TopBarComponent({
   return (
     <header 
       className={cn(
-        "fixed top-0 left-0 right-0 z-[10005] transition-all duration-500 pointer-events-none",
-        _transparent ? "h-20" : "h-16",
+        "relative w-full transition-all duration-500 pointer-events-none",
         className
       )}
       style={{
         paddingTop: 'var(--safe-top)',
-        height: 'calc(var(--top-bar-height) + var(--safe-top))'
+        height: 'calc(var(--top-bar-height) + var(--safe-top))',
+        background: 'transparent',
+        border: 'none'
       }}
     >
       <div className="h-full w-full px-4 flex items-center justify-between relative">

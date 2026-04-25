@@ -224,21 +224,26 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
 
   const isImmersiveDashboard = useMemo(() => {
     const path = location.pathname;
-    // Primary swipe card discovery and specific immersive listing views should be locked
+    // Primary swipe card discovery should be locked to prevent double scroll
     const lockedRoutes = [
       '/client/dashboard', 
       '/owner/dashboard',
+      '/client/dashboard/',
+      '/owner/dashboard/',
       '/client/discovery',
       '/owner/discovery'
     ];
     
-    const isLocked = lockedRoutes.some(route => path === route || path === route + '/');
-    const isSpecialImmersive = path.includes('/listing/') || path.includes('view-client');
+    const isLocked = lockedRoutes.some(route => path === route);
     
-    // Profiles and legal hub MUST scroll
-    if (path.includes('/profile') || path.includes('/legal') || path.includes('/settings')) return false;
+    // Profiles, legal hub, advertise, and events MUST scroll
+    const mustScroll = [
+      '/profile', '/legal', '/settings', '/advertise', '/eventos', '/perks', '/view-client', '/listing/'
+    ].some(r => path.includes(r));
     
-    return isLocked || isSpecialImmersive;
+    if (mustScroll) return false;
+    
+    return isLocked;
   }, [location.pathname]);
 
   const { resetFocus } = useFocusMode(6000);
@@ -297,12 +302,11 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
           isRadioRoute ? "overflow-visible" 
             : (isZeroScrollDashboard || isImmersiveDashboard) ? "h-full overflow-hidden"
             : "overflow-y-auto overflow-x-hidden",
-          "shadow-none",
-          (location.pathname === '/explore/eventos' || location.pathname === '/explore/eventos/' || isImmersiveDashboard || location.pathname.includes('dashboard')) ? (isDark ? "bg-black" : "bg-white") : "bg-background"
+          "shadow-none bg-transparent"
         )}
         style={{
           paddingTop: (isFullScreenRoute || isImmersiveDashboard) ? '0px' : 'calc(var(--top-bar-height) + var(--safe-top))',
-          paddingBottom: (isFullScreenRoute || isZeroScrollDashboard) ? '0px' : 'calc(80px + env(safe-area-inset-bottom, 20px))',
+          paddingBottom: (isFullScreenRoute || isZeroScrollDashboard) ? '0px' : 'calc(var(--bottom-nav-height, 72px) + var(--safe-bottom, 0px) + 24px)',
           paddingLeft: 'max(var(--safe-left), 0px)',
           paddingRight: 'max(var(--safe-right), 0px)',
         }}

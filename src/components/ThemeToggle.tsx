@@ -47,7 +47,7 @@ function ThemeToggleComponent({ className, glassPillStyle }: ThemeToggleProps) {
                 'touch-manipulation h-11 w-11 flex-shrink-0',
                 className,
             )}
-            style={{ ...glassPillStyle, backgroundColor: 'transparent' }}
+            style={glassPillStyle}
             aria-label={`Theme: ${theme}. Tap to cycle`}
             title={`Current: ${theme}`}
         >

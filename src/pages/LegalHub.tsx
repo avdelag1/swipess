@@ -218,58 +218,12 @@ const LegalHub = () => {
       <main className="container mx-auto px-4 sm:px-6 pt-28 pb-48 relative z-10 space-y-12">
         
         {/* 🛸 PREMIUM HEADER SECTION */}
-        <div className="space-y-6">
-            <div className="flex flex-col gap-2">
-              <h1 className={cn(
-                "text-4xl sm:text-6xl font-black uppercase italic tracking-tighter leading-none",
-                isLight ? "text-black" : "text-white"
-              )}>
-                {isOwner ? "LEGAL HUB" : "TENANT HUB"}
-              </h1>
-              <p className={cn("text-[11px] font-black uppercase tracking-[0.4em] italic opacity-40 leading-relaxed", isLight ? "text-black" : "text-white")}>
-                Professional Legal Ecosystem v15.0
-              </p>
-            </div>
-            
-            {/* 🛸 AUTHORIZATION STATUS */}
-            <motion.div 
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className={cn(
-                "p-6 rounded-[2.5rem] border backdrop-blur-3xl flex items-center justify-between transition-all",
-                isLight ? "bg-black/5 border-black/5 shadow-sm" : "bg-white/[0.04] border-white/5 shadow-2xl"
-              )}
-            >
-              <div className="flex items-center gap-5">
-                <div className={cn(
-                  "w-14 h-14 rounded-[1.2rem] flex items-center justify-center text-white font-black italic shadow-2xl transition-transform",
-                  isOwner ? "bg-purple-600 shadow-purple-500/20" : "bg-rose-600 shadow-rose-500/20"
-                )}>
-                  <Shield className="w-7 h-7" />
-                </div>
-                <div>
-                  <p className={cn("text-[9px] uppercase tracking-[0.4em] font-black opacity-30", isLight ? "text-black" : "text-white")}>Verified Account</p>
-                  <h4 className={cn("text-[15px] font-black italic tracking-tighter truncate max-w-[120px] sm:max-w-none uppercase", isLight ? "text-black" : "text-white")}>
-                    {user?.email?.split('@')[0]}
-                  </h4>
-                </div>
-              </div>
-              <Badge variant="outline" className={cn(
-                "px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest italic border-none shadow-sm",
-                isOwner ? "bg-purple-500/10 text-purple-400" : "bg-emerald-500/10 text-emerald-400"
-              )}>
-                {isOwner ? "Owner Mode" : "Tenant Mode"}
-              </Badge>
-            </motion.div>
-        </div>
-
         {currentDoc !== 'hub' ? (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-12">
             <button 
               onClick={() => { haptics.tap(); setCurrentDoc('hub'); }}
               className={cn(
-                "flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.4em] italic mb-8 hover:opacity-70 transition-opacity",
-                isOwner ? "text-purple-500" : "text-rose-500"
+                "flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.4em] italic mb-8 hover:opacity-70 transition-opacity text-primary"
               )}
             >
               <ChevronLeft className="w-4 h-4" /> Back to Hub

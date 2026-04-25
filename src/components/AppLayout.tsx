@@ -82,20 +82,30 @@ export function AppLayout({ children }: AppLayoutProps) {
   const isRadioRoute = location.pathname.includes('/radio');
 
   const isImmersive = useMemo(() => {
-    const immersiveRoutes = [
+    const path = location.pathname;
+    
+    // Primary swipe discovery routes
+    const dashboardRoutes = [
       '/client/dashboard', 
       '/owner/dashboard', 
-      '/client/liked-properties',
-      '/owner/interested-clients',
-      '/owner/liked-clients',
-      '/client/advertise',
-      '/explore/eventos',
-      '/client/profile',
-      '/owner/profile'
     ];
-    return immersiveRoutes.some(r => location.pathname.startsWith(r)) || 
-           location.pathname.includes('discovery') || 
-           location.pathname.includes('/listing/');
+    
+    const isDashboard = dashboardRoutes.some(r => path === r || path === r + '/');
+    
+    // Explicitly scrollable routes
+    const mustScroll = [
+      '/profile', 
+      '/advertise', 
+      '/eventos', 
+      '/legal', 
+      '/settings',
+      '/listing/',
+      '/view-client'
+    ].some(r => path.includes(r));
+
+    if (mustScroll) return false;
+    
+    return isDashboard || path.includes('discovery');
   }, [location.pathname]);
 
   const isFullScreen = useMemo(() => {

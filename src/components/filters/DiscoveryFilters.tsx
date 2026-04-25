@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, memo, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
@@ -71,11 +71,19 @@ interface DiscoveryFiltersProps {
   hideApplyButton?: boolean;
 }
 
-export function DiscoveryFilters({ category, onApply, initialFilters = {}, activeCount: _activeCount, hideApplyButton = false }: DiscoveryFiltersProps) {
+export const DiscoveryFilters = memo(function DiscoveryFilters({ category, onApply, initialFilters = {}, activeCount: _activeCount, hideApplyButton = false }: DiscoveryFiltersProps) {
   const savePreferencesMutation = useSaveClientFilterPreferences();
-  const radiusKm = useFilterStore(s => s.radiusKm);
+  const storeRadiusKm = useFilterStore(s => s.radiusKm);
   const setRadiusKm = useFilterStore(s => s.setRadiusKm);
   const { setServiceTypes: setStoreServiceTypes, setPropertyTypes: setStorePropertyTypes } = useFilterActions() as any;
+
+  // LOCAL UI STATE FOR SMOOTH SLIDERS
+  const [localRadiusKm, setLocalRadiusKm] = useState(storeRadiusKm);
+  
+  // Sync local radius with store if store changes externally
+  useEffect(() => {
+    setLocalRadiusKm(storeRadiusKm);
+  }, [storeRadiusKm]);
 
   // SHARED STATE
   const [interestType, setInterestType] = useState(initialFilters.interest_type || 'both');
@@ -161,17 +169,22 @@ export function DiscoveryFilters({ category, onApply, initialFilters = {}, activ
     });
   };
 
-  // Auto-notify with debounce
+  // Auto-notify with debounce to prevent re-render loops and UI lag
   useEffect(() => {
-    const budgetValues = getBudgetValues();
-    onApply({
-      category, interest_type: interestType, selected_budget_range: selectedBudgetRange,
-      budget_min: budgetValues.min, budget_max: budgetValues.max,
-      location_neighborhoods: locationNeighborhoods,
-      property_types: propertyTypes, bedrooms_min: bedrooms,
-      moto_types: motoTypes, engine_cc_min: engineRange[0]
-    });
-  }, [category, interestType, selectedBudgetRange, locationNeighborhoods, propertyTypes, bedrooms, motoTypes, engineRange]);
+    const timer = setTimeout(() => {
+      const budgetValues = getBudgetValues();
+      onApply({
+        category, interest_type: interestType, selected_budget_range: selectedBudgetRange,
+        budget_min: budgetValues.min, budget_max: budgetValues.max,
+        location_neighborhoods: locationNeighborhoods,
+        property_types: propertyTypes, bedrooms_min: bedrooms,
+        moto_types: motoTypes, engine_cc_min: engineRange[0],
+        radius_km: localRadiusKm
+      });
+    }, 800);
+
+    return () => clearTimeout(timer);
+  }, [category, interestType, selectedBudgetRange, locationNeighborhoods, propertyTypes, bedrooms, motoTypes, engineRange, localRadiusKm, onApply]);
 
   const toggleItem = (arr: string[], item: string, setter: (val: string[]) => void) => {
     setter(arr.includes(item) ? arr.filter(i => i !== item) : [...arr, item]);
@@ -284,13 +297,14 @@ export function DiscoveryFilters({ category, onApply, initialFilters = {}, activ
           <div className="pt-2 space-y-4">
              <div className="flex justify-between items-center">
                <Label className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Search Radius</Label>
-               <Badge className="bg-primary/10 text-primary border-primary/20 text-[10px] font-black">{radiusKm} KM</Badge>
+               <Badge className="bg-primary/10 text-primary border-primary/20 text-[10px] font-black">{localRadiusKm} KM</Badge>
              </div>
              <Slider 
-                value={[radiusKm]} 
-                onValueChange={(v) => setRadiusKm(v[0])} 
+                value={[localRadiusKm]} 
+                onValueChange={(v) => setLocalRadiusKm(v[0])}
+                onValueCommit={(v) => setRadiusKm(v[0])}
                 min={1} max={200} step={1} 
-                className="py-2"
+                className="py-4 cursor-pointer"
              />
              <p className={cn("text-[9px] font-medium", isLight ? "text-black/70" : "text-white/20")}>Radius filtering uses your current GPS or selected location.</p>
           </div>
