@@ -396,7 +396,22 @@ export function useSmartListingMatching(
                 if (error) throw error;
 
                 // 4.5 Filter out Admins (Hardware-Accelerated Client-Side Filter)
-                const filteredListings = (listings || []).filter(listing => !adminIds?.has(listing.user_id));
+                const adminFiltered = (listings || []).filter(listing => !adminIds?.has(listing.user_id));
+
+                // 4.6 Distance filter — only applied when user has a GPS fix
+                const userLat = filters?.userLatitude;
+                const userLon = filters?.userLongitude;
+                const radiusKm = filters?.radiusKm ?? 50;
+                const filteredListings = (userLat != null && userLon != null)
+                    ? adminFiltered.filter(listing => {
+                        if (listing.latitude == null || listing.longitude == null) return true; // no coords = include
+                        const dLat = (listing.latitude - userLat) * Math.PI / 180;
+                        const dLon = (listing.longitude - userLon) * Math.PI / 180;
+                        const a = Math.sin(dLat/2)**2 + Math.cos(userLat * Math.PI/180) * Math.cos(listing.latitude * Math.PI/180) * Math.sin(dLon/2)**2;
+                        const km = 6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+                        return km <= radiusKm;
+                    })
+                    : adminFiltered;
 
                 // 5. Scoring, Sorting, and Update Recovery
                 const matchedResults = filteredListings.map(listing => {

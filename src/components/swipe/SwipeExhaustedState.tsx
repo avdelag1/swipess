@@ -50,7 +50,7 @@ export const SwipeExhaustedState = ({
   const categories = role === 'owner' ? ownerCategories : clientCategories;
 
   return (
-    <div className="relative z-50 h-full w-full flex flex-col items-center justify-center bg-transparent px-6">
+    <div className="relative z-50 h-full w-full flex flex-col items-center justify-center bg-transparent px-6 pt-16">
       <div className="flex flex-col items-center text-center w-full max-w-md gap-6">
         {/* Message */}
         <div className="space-y-2">

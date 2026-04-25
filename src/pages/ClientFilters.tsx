@@ -189,7 +189,7 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
                 {activeCategory === 'services' && <WorkerClientFilters onApply={(f) => setLocalFilters(f)} initialFilters={localFilters} activeCount={0} />}
               </div>
 
-              <div className="flex flex-col gap-4 sticky bottom-0 pt-4 z-20">
+              <div className="flex flex-col gap-4 pt-6">
                 <button
                   onClick={handleScan}
                   disabled={isScanning}
