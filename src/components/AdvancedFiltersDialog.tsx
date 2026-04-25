@@ -131,65 +131,55 @@ export function AdvancedFilters({ isOpen, onClose, userRole, onApplyFilters, cur
           "flex flex-col p-0 gap-0 overflow-hidden",
           isMobile
             ? "w-full h-full max-w-full max-h-full inset-0 top-0 translate-x-0 translate-y-0 rounded-none border-0 bg-background"
-            : "max-w-2xl h-[70vh] sm:h-[75vh] max-h-[600px] top-[50%] bg-background border-border shadow-[0_20px_60px_rgba(0,0,0,0.5)]"
+            : "max-w-2xl w-[95vw] h-[85vh] max-h-[800px] top-[50%] bg-background border-border shadow-[0_30px_90px_rgba(0,0,0,0.6)] rounded-[3rem]"
         )}
       >
         {/* Header - Theme Aware */}
         <DialogHeader className={cn(
-          "shrink-0 border-b border-border transition-all text-foreground",
-          "bg-background pt-8 pb-4 px-8"
+          "shrink-0 border-b border-border/5 transition-all text-foreground",
+          "bg-background/80 backdrop-blur-xl pt-10 pb-6 px-10"
         )}>
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-4">
               <div className={cn(
-                "rounded-xl bg-primary/10",
-                isMobile ? "p-3" : "p-2"
+                "w-12 h-12 rounded-2xl flex items-center justify-center",
+                isDark ? "bg-white text-black shadow-[0_0_20px_rgba(255,255,255,0.2)]" : "bg-slate-900 text-white"
               )}>
-                <Sparkles className={cn(
-                  "text-primary",
-                  isMobile ? "w-6 h-6" : "w-5 h-5"
-                )} />
+                <Sparkles className="w-6 h-6" />
               </div>
               <div>
                 <DialogTitle className={cn(
-                  "font-bold",
-                  isMobile ? "text-2xl" : "text-lg sm:text-xl"
+                  "font-black uppercase italic tracking-tight leading-none",
+                  isMobile ? "text-3xl" : "text-2xl"
                 )}>
-                  {userRole === 'owner' ? 'Find Clients' : 'Filter Listings'}
+                  Sector <span className="text-primary">Calibration</span>
                 </DialogTitle>
                 <p className={cn(
-                  "text-muted-foreground mt-0.5",
-                  isMobile ? "text-sm" : "text-xs sm:text-sm"
+                  "text-[10px] font-black uppercase tracking-[0.3em] opacity-40 mt-1.5",
+                  isDark ? "text-white" : "text-slate-900"
                 )}>
-                  {userRole === 'owner'
-                    ? 'Customize your ideal client profile'
-                    : 'Find exactly what you\'re looking for'}
+                  {userRole === 'owner' ? 'Discovery Parameters' : 'Nexus Preferences'}
                 </p>
               </div>
             </div>
             <Button
               variant="ghost"
-              size={isMobile ? "default" : "sm"}
+              size="icon"
               onClick={handleReset}
-              className={cn(
-                "text-muted-foreground hover:text-foreground gap-1.5",
-                isMobile ? "h-10 px-3" : "h-8"
-              )}
+              className="w-10 h-10 rounded-full bg-muted/20 hover:bg-muted/40 transition-all active:scale-90"
+              title="Reset Calibration"
             >
-              <RotateCcw className={cn(isMobile ? "w-4 h-4" : "w-3.5 h-3.5")} />
-              <span className={isMobile ? "inline" : "hidden sm:inline"}>Reset</span>
+              <RotateCcw className="w-4 h-4 opacity-60" />
             </Button>
           </div>
         </DialogHeader>
 
-        {/* Category Tabs - Theme Aware */}
         <div className={cn(
-          "shrink-0 border-b border-border bg-muted/30 px-8 py-4"
+          "shrink-0 bg-muted/10 px-10 py-5"
         )}>
           <Tabs value={activeCategory} onValueChange={(value) => setActiveCategory(value as CategoryType)} className="w-full">
             <TabsList className={cn(
-              "w-full grid grid-cols-4 p-1.5 rounded-[1.4rem] bg-muted border border-border",
-              isMobile ? "h-16 gap-1" : "h-14"
+              "w-full grid grid-cols-4 p-1.5 rounded-[2rem] bg-muted/40 border border-border/5 backdrop-blur-xl h-16"
             )}>
               {categoryBase.map((cat) => {
                 const Icon = cat.icon;
@@ -199,20 +189,14 @@ export function AdvancedFilters({ isOpen, onClose, userRole, onApplyFilters, cur
                   <TabsTrigger
                     key={cat.id}
                     value={cat.id}
-                    className={cn(
-                      "relative rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all duration-200",
-                      isMobile && "min-h-[56px]" // Larger touch target
-                    )}
+                    className="relative rounded-[1.4rem] data-[state=active]:bg-background data-[state=active]:shadow-lg transition-all duration-300"
                   >
-                    <div className="flex flex-col items-center gap-0.5">
+                    <div className="flex flex-col items-center gap-1">
                       <Icon className={cn(
-                        activeCategory === cat.id ? categoryColor : 'text-muted-foreground',
-                        isMobile ? "w-5 h-5" : "w-4 h-4"
+                        activeCategory === cat.id ? categoryColor : 'opacity-30',
+                        "w-5 h-5"
                       )} />
-                      <span className={cn(
-                        "font-medium truncate max-w-full",
-                        isMobile ? "text-xs" : "text-[10px] sm:text-xs"
-                      )}>{cat.name}</span>
+                      <span className="text-[9px] font-black uppercase tracking-widest truncate">{cat.name}</span>
                     </div>
                     <AnimatePresence>
                       {count > 0 && (
@@ -222,10 +206,7 @@ export function AdvancedFilters({ isOpen, onClose, userRole, onApplyFilters, cur
                           exit={{ scale: 0 }}
                           className="absolute -top-1 -right-1"
                         >
-                          <Badge className={cn(
-                            "rounded-full px-1 font-bold shadow-sm bg-primary text-primary-foreground",
-                            isMobile ? "h-5 min-w-[20px] text-xs" : "h-4 min-w-[16px] text-[10px]"
-                          )}>
+                          <Badge className="h-5 min-w-[20px] rounded-full px-1 font-black bg-primary text-white text-[10px] shadow-lg">
                             {count}
                           </Badge>
                         </motion.div>

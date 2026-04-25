@@ -1017,10 +1017,10 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
         isLight ? "bg-transparent" : "bg-black"
       )} />
 
-      {/* Top Controls — LEAVE ONLY BACK BUTTON AND RADAR HERE */}
+      {/* 🛸 TOP HUD CLUSTER — Grouped for cohesion */}
       {(!isLoading || deckQueue.length > 0) && !(storeActiveCategory && deckQueue.length === 0 && !isLoading) && (
-        <div className="absolute top-0 left-0 right-0 z-[60] w-full flex flex-col pt-10 px-4">
-            <div className="flex items-center justify-between px-2 mb-2">
+        <div className="absolute top-0 left-0 right-0 z-[60] w-full flex flex-col pt-10 px-6 items-center">
+            <div className="w-full max-w-[700px] flex items-center justify-between">
                 {/* Back / Reset Category */}
                 <motion.button
                   whileTap={{ scale: 0.9 }}
@@ -1029,30 +1029,34 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
                     setActiveCategory(null);
                   }}
                   className={cn(
-                    "w-10 h-10 flex items-center justify-center transition-colors rounded-full backdrop-blur-xl border",
-                    isLight ? "bg-white/70 border-black/10 text-black/60 hover:text-black" : "bg-black/60 border-white/10 text-white/60 hover:text-white"
+                    "w-11 h-11 flex items-center justify-center transition-all rounded-full backdrop-blur-3xl border shadow-2xl",
+                    isLight 
+                      ? "bg-white/90 border-black/5 text-black shadow-black/5" 
+                      : "bg-black/40 border-white/10 text-white shadow-black/20"
                   )}
                 >
                   <ChevronLeft className="w-5 h-5" />
                 </motion.button>
 
                 {/* Radar Context (Top Right) */}
-                <LocationRadiusSelector
-                  radiusKm={radiusKm}
-                  onRadiusChange={setRadiusKm as any}
-                  onDetectLocation={detectLocation}
-                  detecting={locationDetecting}
-                  detected={locationDetected}
-                  lat={userLatitude}
-                  lng={userLongitude}
-                  variant="minimal"
-                  nodes={useMemo(() => (smartListings || []).map(l => ({
-                    id: l.id,
-                    lat: l.latitude || 0,
-                    lng: l.longitude || 0,
-                    label: l.title || 'Found'
-                  })), [smartListings])}
-                />
+                <div className="relative">
+                  <LocationRadiusSelector
+                    radiusKm={radiusKm}
+                    onRadiusChange={setRadiusKm as any}
+                    onDetectLocation={detectLocation}
+                    detecting={locationDetecting}
+                    detected={locationDetected}
+                    lat={userLatitude}
+                    lng={userLongitude}
+                    variant="minimal"
+                    nodes={useMemo(() => (smartListings || []).map(l => ({
+                      id: l.id,
+                      lat: l.latitude || 0,
+                      lng: l.longitude || 0,
+                      label: l.title || 'Found'
+                    })), [smartListings])}
+                  />
+                </div>
             </div>
 
             {/* 🛰️ PERSISTENT CATEGORY ANCHOR — Keep categories visible during swiping */}

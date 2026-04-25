@@ -33,7 +33,8 @@ import { useStartConversation } from '@/hooks/useConversations';
 import { useNavigate } from 'react-router-dom';
 import { logger } from '@/utils/prodLogger';
 import { SwipeExhaustedState } from './swipe/SwipeExhaustedState';
-import { Home, RefreshCw, ChevronLeft, Radar, SlidersHorizontal } from 'lucide-react';
+import { Home, RefreshCw, ChevronLeft, Radar, SlidersHorizontal, MapPin } from 'lucide-react';
+import { LocationRadiusSelector } from './swipe/LocationRadiusSelector';
 import { cn } from '@/lib/utils';
 import useAppTheme from '@/hooks/useAppTheme';
 import { SwipeLoadingSkeleton } from './swipe/SwipeLoadingSkeleton';
@@ -127,6 +128,31 @@ const ClientSwipeContainerComponent = ({
 
   // PERF: Get initial state ONCE using getState() - no subscription
   // This is synchronous and doesn't cause re-renders when store updates
+  const radiusKm = useFilterStore(s => s.radiusKm);
+  const setRadiusKm = useFilterStore(s => s.setRadiusKm);
+  const userLatitude = useFilterStore(s => s.userLatitude);
+  const userLongitude = useFilterStore(s => s.userLongitude);
+  const setUserLocation = useFilterStore(s => s.setUserLocation);
+  
+  const [locationDetecting, setLocationDetecting] = useState(false);
+  const [locationDetected, setLocationDetected] = useState(false);
+
+  const detectLocation = useCallback(() => {
+    if (!navigator.geolocation) return;
+    setLocationDetecting(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setUserLocation(pos.coords.latitude, pos.coords.longitude);
+        setLocationDetected(true);
+        setLocationDetecting(false);
+      },
+      () => {
+        setLocationDetecting(false);
+      },
+      { timeout: 8000, maximumAge: 60000 }
+    );
+  }, [setUserLocation]);
+
   // CRITICAL: Filter out own profile from cached deck items
   const _filterOwnProfile = useCallback((items: any[], userId: string | undefined) => {
     if (!userId) return items;
@@ -831,26 +857,76 @@ const ClientSwipeContainerComponent = ({
         {/* Static ambient background */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden -z-10" />
 
-        {/* Top Controls — IN FLOW, not absolute (matches client-side pattern) */}
-        {deckQueue.length > 0 && currentIndex < deckQueue.length && (
-          <div className="absolute top-0 left-0 right-0 z-50 w-full flex flex-col items-center">
-              <div className="w-full flex items-center justify-between px-6 pt-10 pb-4">
-                {/* Back (Top Left) */}
-                <motion.button
-                  whileTap={{ scale: 0.9 }}
-                  onClick={() => navigate(-1)}
-                  className={cn(
-                    "w-10 h-10 flex items-center justify-center transition-all rounded-full backdrop-blur-md border",
-                    isLight ? "bg-white/10 border-black/5 text-black/70 hover:text-black" : "bg-black/20 border-white/5 text-white/70 hover:text-white"
-                  )}
-                >
-                  <ChevronLeft className="w-5 h-5" />
-                </motion.button>
+        {/* Top Controls — Centered HUB (Flagship Moscow Standard) */}
+        <div className="absolute top-0 left-0 right-0 z-50 w-full flex flex-col items-center pointer-events-none pt-10 px-6">
+          <div className="w-full max-w-[700px] flex items-center justify-between pointer-events-auto">
+              {/* Back to Sectors (Flagship Glass Button) */}
+              <motion.button
+                whileTap={{ scale: 0.9 }}
+                onClick={() => {
+                  triggerHaptic('light');
+                  setActiveCategory(null);
+                }}
+                className={cn(
+                  "w-11 h-11 flex items-center justify-center transition-all rounded-full backdrop-blur-3xl border shadow-2xl",
+                  isLight 
+                    ? "bg-white/90 border-black/5 text-black" 
+                    : "bg-black/40 border-white/10 text-white shadow-black/20"
+                )}
+                title="Back to Sectors"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </motion.button>
 
-                <div className="flex items-center gap-2" />
+              {/* Center Radar Cluster */}
+              <div className="flex items-center gap-3">
+                <LocationRadiusSelector
+                  radiusKm={radiusKm}
+                  onRadiusChange={setRadiusKm as any}
+                  onDetectLocation={detectLocation}
+                  detecting={locationDetecting}
+                  detected={locationDetected}
+                  lat={userLatitude}
+                  lng={userLongitude}
+                  variant="minimal"
+                  nodes={useMemo(() => (externalProfiles || []).map(p => ({
+                    id: p.user_id || p.id,
+                    lat: p.latitude || 0,
+                    lng: p.longitude || 0,
+                    label: p.name || 'Found'
+                  })), [externalProfiles])}
+                />
               </div>
+
+              {/* Advanced Filters Trigger */}
+              <button
+                onClick={() => {
+                  triggerHaptic('medium');
+                  navigate('/owner/filters');
+                }}
+                className={cn(
+                  "w-11 h-11 flex items-center justify-center transition-all rounded-full backdrop-blur-3xl border shadow-2xl",
+                  isLight 
+                    ? "bg-white/90 border-black/5 text-black" 
+                    : "bg-black/40 border-white/10 text-white shadow-black/20"
+                )}
+              >
+                <SlidersHorizontal className="w-5 h-5" />
+              </button>
           </div>
-        )}
+          
+          {/* Sector Badge Indicator */}
+          <motion.div 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mt-4 px-5 py-2 rounded-full backdrop-blur-3xl border border-white/10 bg-black/20 shadow-2xl flex items-center gap-2"
+          >
+            <labels.Icon className={cn("w-3 h-3", labels.color)} />
+            <span className="text-[9px] font-black uppercase tracking-[0.2em] italic text-white/90">
+              {labels.plural}
+            </span>
+          </motion.div>
+        </div>
         <div className="flex-1 relative flex flex-col items-center justify-center px-1.5 pt-1 z-10 min-h-0">
         <div className="w-full h-full flex items-center justify-center pointer-events-auto">
           <AnimatePresence mode="popLayout" initial={false}>
@@ -929,9 +1005,12 @@ const ClientSwipeContainerComponent = ({
         </div>
         </div>
 
-        {/* 🛸 DASHBOARD CONTROLS: Unified Text-Based Interface */}
+        {/* 🛸 DASHBOARD CONTROLS: Centered Interface */}
         {(!isLoading || deckQueue.length > 0) && (
-          <div className="absolute bottom-[60px] left-0 right-0 z-[60] flex flex-col items-center gap-4 px-6 pointer-events-none">
+          <div className="absolute bottom-[60px] left-0 right-0 z-[60] flex flex-col items-center pointer-events-none">
+            <div className="w-full max-w-[700px] flex flex-col items-center gap-4 px-6 pointer-events-none">
+              {/* Bottom buttons (already centered via flex-col items-center) */}
+              <div className="w-full flex flex-col items-center gap-4 pointer-events-none">
             
             {/* Main Switcher */}
             <div className="flex items-center gap-1.5 p-1.5 rounded-full backdrop-blur-3xl border border-white/10 bg-black/40 pointer-events-auto shadow-2xl">

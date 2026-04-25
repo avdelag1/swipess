@@ -69,60 +69,116 @@ export const SwipeExhaustedState = ({
   }
 
   return (
-    <div className="relative z-50 h-full w-full flex flex-col items-center justify-center bg-transparent px-6">
-      <div className="flex flex-col items-center text-center max-w-md w-full gap-6">
-        {/* Logo */}
-        <img
-          src="/icons/Swipess-wordmark-white.svg"
-          alt="Swipess"
-          className={cn("h-10 object-contain", isLight && "invert")}
-        />
-
-        {/* Searching Text */}
-        <h2 className={cn("text-3xl font-black tracking-tight leading-tight", isLight ? "text-black" : "text-white")}>
-          Searching for {categoryLabel}
-        </h2>
-
-        {/* Fixed-height pulse container — prevents layout shift */}
-        <div className="h-24 flex items-center justify-center">
-          {pulseVisible && (
+    <div className="relative z-50 h-full w-full flex flex-col items-center justify-center bg-transparent px-6 py-20">
+      <div className="flex flex-col items-center text-center max-w-md w-full gap-10">
+        
+        {/* 🛸 NEXUS STATUS INDICATOR */}
+        <div className="relative">
+          <motion.div
+            animate={{ 
+              scale: [1, 1.1, 1],
+              opacity: [0.3, 0.6, 0.3]
+            }}
+            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+            className={cn(
+              "absolute inset-0 rounded-full blur-3xl",
+              isLight ? "bg-primary/20" : "bg-primary/40"
+            )}
+            style={{ width: '200px', height: '200px', transform: 'translate(-50%, -50%)', left: '50%', top: '50%' }}
+          />
+          
+          <div className="relative h-32 w-32 flex items-center justify-center">
             <motion.div
-              animate={{ scale: [1, 1.2], opacity: [0.5, 0.9] }}
-              transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-              className={cn("w-16 h-16 rounded-full", isLight ? "bg-black/20" : "bg-white/20")}
+              animate={{ rotate: 360 }}
+              transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+              className="absolute inset-0 border-2 border-dashed border-primary/30 rounded-full"
             />
-          )}
+            <motion.div
+              animate={{ scale: [0.8, 1, 0.8], opacity: [0.5, 1, 0.5] }}
+              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+              className={cn(
+                "w-16 h-16 rounded-full flex items-center justify-center shadow-[0_0_30px_rgba(var(--primary),0.5)]",
+                isLight ? "bg-black text-white" : "bg-white text-black"
+              )}
+            >
+              <RotateCcw className="w-8 h-8 animate-spin-slow" />
+            </motion.div>
+          </div>
         </div>
 
-        {/* Distance */}
-        <div className={cn(
-          "px-5 py-2 rounded-full font-bold uppercase text-sm border",
-          isLight ? "bg-black/10 text-black border-black/20" : "bg-white/10 text-white border-white/20"
-        )}>
-          {radiusKm} km radius
+        <div className="space-y-4">
+          <motion.p 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-[10px] font-black uppercase tracking-[0.5em] text-primary"
+          >
+            Nexus Pulse Active
+          </motion.p>
+          
+          <h2 className={cn(
+            "text-5xl font-black tracking-tighter uppercase italic leading-[0.9]",
+            isLight ? "text-black" : "text-white"
+          )}>
+            Searching <br />
+            <span className="text-primary">{categoryLabel}</span>
+          </h2>
+          
+          <p className="text-muted-foreground text-xs font-medium uppercase tracking-widest opacity-60">
+            Expanding sector depth to {radiusKm} KM
+          </p>
         </div>
 
-        {/* Change Sector Button */}
-        <button
-          onClick={() => {
-            triggerHaptic('heavy');
-            const cycle = role === 'owner'
-              ? ['buyers', 'renters', 'hire']
-              : ['property', 'motorcycle', 'bicycle', 'services'];
-            const currentIdx = cycle.indexOf(activeCategory as any);
-            const nextIdx = (currentIdx + 1) % cycle.length;
-            setActiveCategory(cycle[nextIdx] as any);
-            setCategories([cycle[nextIdx]] as any);
-          }}
+        {/* Action HUD */}
+        <div className="flex flex-col w-full gap-4 pt-4">
+          <button
+            onClick={() => {
+              triggerHaptic('heavy');
+              const cycle = role === 'owner'
+                ? ['buyers', 'renters', 'hire']
+                : ['property', 'motorcycle', 'bicycle', 'services'];
+              const currentIdx = cycle.indexOf(activeCategory as any);
+              const nextIdx = (currentIdx + 1) % cycle.length;
+              setActiveCategory(cycle[nextIdx] as any);
+              setCategories([cycle[nextIdx]] as any);
+            }}
+      {/* 🚀 ACTION NEXUS */}
+      <div className="flex flex-col gap-4 w-full max-w-sm">
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={onRefresh}
           className={cn(
-            "px-8 py-3 rounded-full font-black uppercase text-sm transition-all active:scale-95 border",
-            isLight
-              ? "bg-black text-white border-black/20 hover:bg-black/80"
-              : "bg-white text-black border-white/20 hover:bg-white/80"
+            "w-full h-16 rounded-[2rem] font-black uppercase italic tracking-[0.2em] shadow-2xl flex items-center justify-center gap-3 transition-all",
+            isLight ? "bg-black text-white" : "bg-white text-black"
           )}
         >
-          Change Sector
-        </button>
+          {isRefreshing ? (
+            <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
+          ) : (
+            <RefreshCw className="w-5 h-5" />
+          )}
+          <span>Recalibrate Radar</span>
+        </motion.button>
+
+        {/* 🛸 BACK TO SECTORS - ADDED FOR PERSISTENCE */}
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={() => {
+            // Trigger sector reset via state if prop not provided
+            // This ensures user can always get back to the poker cards
+            const setActiveCategory = useFilterStore.getState().setActiveCategory;
+            setActiveCategory(null);
+          }}
+          className={cn(
+            "w-full h-14 rounded-[2rem] font-black uppercase italic tracking-[0.2em] border transition-all flex items-center justify-center gap-3",
+            isLight ? "bg-white/50 border-black/10 text-black" : "bg-white/5 border-white/10 text-white"
+          )}
+        >
+          <ChevronLeft className="w-4 h-4" />
+          <span>Switch Sector</span>
+        </motion.button>
+      </div>
       </div>
     </div>
   );

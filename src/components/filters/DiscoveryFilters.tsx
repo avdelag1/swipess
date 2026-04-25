@@ -221,7 +221,7 @@ export function DiscoveryFilters({ category, onApply, initialFilters = {}, activ
                         ? "bg-primary text-white border-primary shadow-[0_10px_30px_rgba(var(--brand-primary-rgb),0.3)] scale-[1.05] z-10 relative"
                         : isLight 
                           ? "bg-white/80 border-black/10 text-black shadow-sm backdrop-blur-md hover:bg-black/5" 
-                          : "bg-black/40 border-white/10 text-white font-black hover:bg-white/5 hover:text-white"
+                          : "bg-white/10 border-white/10 text-white font-black hover:bg-white/20"
                      )}
                 >
                   <div className={cn(

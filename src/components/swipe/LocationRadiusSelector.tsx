@@ -45,74 +45,78 @@ export const LocationRadiusSelector = memo(({
   const nearbyCount = nodes.length;
 
   return (
-    <div className="relative flex flex-col items-end gap-2">
-      {/* Compact Pill — Always visible */}
-      <motion.button
-        whileTap={{ scale: 0.92 }}
-        onClick={toggleExpand}
+    <div className="flex items-center gap-2">
+      <motion.div
+        layout
         className={cn(
-          "flex items-center gap-2 h-10 px-3.5 rounded-full backdrop-blur-xl border transition-all",
+          "flex items-center gap-1 p-1 rounded-full backdrop-blur-3xl border transition-all shadow-2xl",
           isLight
-            ? "bg-white/80 border-black/20 text-black shadow-md"
-            : "bg-black/80 border-white/40 text-white shadow-xl"
+            ? "bg-white/80 border-black/10 shadow-black/5"
+            : "bg-black/60 border-white/10 shadow-black/20"
         )}
       >
-        <MapPin className={cn(
-          "w-4 h-4 transition-colors",
-          detected ? "text-primary" : "text-current"
-        )} />
-        <span className="text-[11px] font-black uppercase tracking-wider">
-          {radiusKm} <span className="text-[9px] opacity-50 italic">km</span>
-        </span>
-        {nearbyCount > 0 && (
-          <span className={cn(
-            "text-[9px] font-black px-1.5 py-0.5 rounded-full",
-            isLight ? "bg-primary/10 text-primary" : "bg-primary/20 text-primary"
-          )}>
-            {nearbyCount}
-          </span>
-        )}
-        <motion.div
-          animate={{ rotate: expanded ? 180 : 0 }}
-          transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+        {/* GPS QUICK-DETECT */}
+        <motion.button
+          whileTap={{ scale: 0.85 }}
+          onClick={onDetectLocation}
+          disabled={detecting}
+          className={cn(
+            "w-9 h-9 flex items-center justify-center rounded-full transition-all",
+            detected
+              ? "bg-primary text-white shadow-[0_0_15px_rgba(236,72,153,0.4)]"
+              : isLight
+                ? "bg-slate-100 text-slate-900 hover:bg-slate-200"
+                : "bg-white/10 text-white hover:bg-white/20"
+          )}
+          title="Detect GPS location"
         >
-          <ChevronDown className="w-3 h-3 opacity-70" />
-        </motion.div>
-      </motion.button>
+          <Navigation className={cn("w-4 h-4", detecting && "animate-spin")} />
+        </motion.button>
 
-      {/* GPS Quick-Detect */}
-      <motion.button
-        whileTap={{ scale: 0.85 }}
-        onClick={onDetectLocation}
-        disabled={detecting}
-        className={cn(
-          "w-10 h-10 flex items-center justify-center rounded-full backdrop-blur-xl border transition-all",
-          detected
-            ? "bg-primary/30 border-primary/40 text-primary shadow-[0_0_15px_rgba(236,72,153,0.3)]"
-            : isLight
-              ? "bg-white/80 border-black/20 text-black/90"
-              : "bg-black/80 border-white/40 text-white/95"
-        )}
-        title="Detect GPS location"
-      >
-        <Navigation className={cn("w-4 h-4", detecting && "animate-spin")} />
-      </motion.button>
+        {/* RADIUS TOGGLE */}
+        <motion.button
+          whileTap={{ scale: 0.95 }}
+          onClick={toggleExpand}
+          className={cn(
+            "flex items-center gap-2 h-9 px-3 rounded-full transition-all",
+            isLight ? "hover:bg-slate-50" : "hover:bg-white/5"
+          )}
+        >
+          <MapPin className={cn(
+            "w-3.5 h-3.5",
+            detected ? "text-primary" : "opacity-40"
+          )} />
+          <span className="text-[11px] font-black uppercase italic tracking-wider">
+            {radiusKm}<span className="text-[9px] opacity-40 lowercase ml-0.5">km</span>
+          </span>
+          <motion.div
+            animate={{ rotate: expanded ? 180 : 0 }}
+            transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+          >
+            <ChevronDown className="w-3 h-3 opacity-30" />
+          </motion.div>
+        </motion.button>
+      </motion.div>
 
       {/* Expanded Slider Panel */}
       <AnimatePresence>
         {expanded && (
           <motion.div
-            initial={{ opacity: 0, y: -8, scale: 0.95 }}
+            initial={{ opacity: 0, y: 12, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -8, scale: 0.95 }}
-            transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+            exit={{ opacity: 0, y: 12, scale: 0.95 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
             className={cn(
-              "absolute top-12 right-0 w-72 rounded-3xl border backdrop-blur-3xl p-4 z-50 shadow-2xl",
+              "absolute top-14 right-0 w-72 rounded-[2.5rem] border backdrop-blur-3xl p-5 z-[100] shadow-[0_30px_60px_rgba(0,0,0,0.5)]",
               isLight
-                ? "bg-white/90 border-black/5"
-                : "bg-black/90 border-white/10"
+                ? "bg-white border-black/5"
+                : "bg-[#0a0a0a] border-white/10"
             )}
           >
+             <div className="mb-4">
+                <h4 className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40 mb-1">Sector Depth</h4>
+                <p className="text-xs font-bold italic opacity-80">Adjust scanning radius</p>
+             </div>
             <DistanceSlider
               radiusKm={radiusKm}
               onRadiusChange={onRadiusChange}
@@ -120,6 +124,14 @@ export const LocationRadiusSelector = memo(({
               detecting={detecting}
               detected={detected}
             />
+            <div className="mt-4 pt-4 border-t border-white/5">
+                <button 
+                  onClick={() => setExpanded(false)}
+                  className="w-full py-3 rounded-2xl bg-white/5 text-[10px] font-black uppercase tracking-widest hover:bg-white/10 transition-colors"
+                >
+                  Close Sensor
+                </button>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
