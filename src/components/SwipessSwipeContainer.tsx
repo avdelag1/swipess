@@ -1021,22 +1021,24 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
         isLight ? "bg-transparent" : "bg-black"
       )} />
 
-      {/* Radar — always visible top-right, no back button */}
-      <div className="absolute top-0 right-0 z-[60] pointer-events-none px-4 pt-3">
-        <div className="pointer-events-auto">
-          <LocationRadiusSelector
-            radiusKm={radiusKm}
-            onRadiusChange={setRadiusKm as any}
-            onDetectLocation={detectLocation}
-            detecting={locationDetecting}
-            detected={locationDetected}
-            lat={userLatitude}
-            lng={userLongitude}
-            variant="minimal"
-            nodes={radarNodes}
-          />
+      {/* Radar — visible only when browsing cards, hidden during exhausted state */}
+      {(deckQueue.length > 0 && currentIndex < deckQueue.length) || isLoading || isFetching || !isMountSettledRef.current ? (
+        <div className="absolute top-0 right-0 z-[60] pointer-events-none px-4 pt-3">
+          <div className="pointer-events-auto">
+            <LocationRadiusSelector
+              radiusKm={radiusKm}
+              onRadiusChange={setRadiusKm as any}
+              onDetectLocation={detectLocation}
+              detecting={locationDetecting}
+              detected={locationDetected}
+              lat={userLatitude}
+              lng={userLongitude}
+              variant="minimal"
+              nodes={radarNodes}
+            />
+          </div>
         </div>
-      </div>
+      ) : null}
 
 
       {/* Card area — flex-1 fills remaining space; overflow-hidden here keeps swipe cards contained */}

@@ -133,10 +133,20 @@ export const SwipeExhaustedState = ({
             </motion.div>
           )}
 
-          {/* Distance/Radius Info */}
-          <div className={cn("text-xs font-bold uppercase tracking-wider mb-8 opacity-70", isLight ? "text-black" : "text-white")}>
-            Searching within {radiusKm} km
-          </div>
+          {/* Distance/Radius Info — PROMINENT */}
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.1 }}
+            className={cn(
+              "mb-10 px-6 py-3 rounded-full font-black uppercase tracking-wider border",
+              isLight
+                ? "bg-black/10 text-black border-black/20"
+                : "bg-white/10 text-white border-white/20"
+            )}
+          >
+            {radiusKm} km radius
+          </motion.div>
 
           {/* Change Sector Button */}
           <motion.button
