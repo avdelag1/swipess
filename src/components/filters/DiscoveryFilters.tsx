@@ -476,4 +476,4 @@ export const DiscoveryFilters = memo(function DiscoveryFilters({ category, onApp
       )}
     </div>
   );
-}
+});
