@@ -10,7 +10,6 @@ import { SwipeExhaustedState } from './swipe/SwipeExhaustedState';
 import { SwipeLoadingSkeleton } from './swipe/SwipeLoadingSkeleton';
 import type { QuickFilterCategory } from '@/types/filters';
 import { getActiveCategoryInfo, POKER_CARDS, OWNER_INTENT_CARDS } from './swipe/SwipeConstants';
-import { SwipeAllDashboard } from './swipe/SwipeAllDashboard';
 import { MatchCelebrateModal } from './swipe/MatchCelebrateModal';
 import { ClientPreferencesDialog } from './ClientPreferencesDialog';
 import { OwnerClientFilterDialog } from './OwnerClientFilterDialog';
@@ -33,7 +32,7 @@ import { useSwipeDeckStore, persistDeckToSession } from '@/state/swipeDeckStore'
 import { useFilterStore, useFilterActions } from '@/state/filterStore';
 import { useShallow } from 'zustand/react/shallow';
 import { useSwipeDismissal } from '@/hooks/useSwipeDismissal';
-import { Home, Bike, Briefcase, ChevronLeft, Radar, SlidersHorizontal, LayoutGrid } from 'lucide-react';
+import { Home, Bike, Briefcase, Radar, SlidersHorizontal, LayoutGrid } from 'lucide-react';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { useSwipeSounds } from '@/hooks/useSwipeSounds';
 import { appToast } from '@/utils/appNotification';
@@ -44,7 +43,6 @@ import { MessageConfirmationDialog } from './MessageConfirmationDialog';
 import { DirectMessageDialog } from './DirectMessageDialog';
 import { isDirectMessagingListing } from '@/utils/directMessaging';
 import { useQueryClient } from '@tanstack/react-query';
-import { QuickFilterBar } from '@/components/QuickFilterBar';
 import { LocationRadiusSelector } from './swipe/LocationRadiusSelector';
 import { ReportDialog } from './ReportDialog';
 
@@ -1003,13 +1001,31 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
     }
   }, []);
 
-  // ── RENDER — UINFIED DISCOVERY REEL ──────────────────────────────────────
-  // The 'Premiums Dashboard' (SwipeAllDashboard) is now the interactive Slide 0
-  // of the vertical snap-scrolling reel.
+
+  const radarNodes = useMemo(() => (smartListings || []).map(l => ({
+    id: l.id,
+    lat: l.latitude || 0,
+    lng: l.longitude || 0,
+    label: l.title || 'Found'
+  })), [smartListings]);
+
+  // Category cycle for switcher button
+  const CLIENT_CYCLE: (QuickFilterCategory | null)[] = ['property', 'motorcycle', 'bicycle', 'services'];
+  const OWNER_CYCLE: (QuickFilterCategory | null)[] = ['buyers', 'renters', 'hire'];
+
+  const handleCycleCategory = useCallback(() => {
+    triggerHaptic('heavy');
+    const cycle = userRole === 'owner' ? OWNER_CYCLE : CLIENT_CYCLE;
+    const currentIdx = cycle.indexOf(storeActiveCategory as any);
+    const nextIdx = (currentIdx + 1) % cycle.length;
+    setActiveCategory(cycle[nextIdx] as any);
+  }, [storeActiveCategory, userRole, setActiveCategory]);
+
+  // ── RENDER ────────────────────────────────────────────────────────────────
   return (
     <>
     <div className={cn(
-      "relative w-full h-full overflow-hidden flex flex-col transition-colors duration-500",
+      "relative w-full h-full flex flex-col transition-colors duration-500",
       isLight ? "bg-transparent" : "bg-black"
     )}>
       <div className={cn(
@@ -1017,93 +1033,37 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
         isLight ? "bg-transparent" : "bg-black"
       )} />
 
-      {/* 🛸 TOP HUD CLUSTER — Grouped for cohesion */}
-      {(!isLoading || deckQueue.length > 0) && !(storeActiveCategory && deckQueue.length === 0 && !isLoading) && (
-        <div className="absolute top-0 left-0 right-0 z-[60] w-full flex flex-col pt-10 px-6 items-center">
-            <div className="w-full max-w-[700px] flex items-center justify-between">
-                {/* Back / Reset Category */}
-                <motion.button
-                  whileTap={{ scale: 0.9 }}
-                  onClick={() => {
-                    triggerHaptic('light');
-                    setActiveCategory(null);
-                  }}
-                  className={cn(
-                    "w-11 h-11 flex items-center justify-center transition-all rounded-full backdrop-blur-3xl border shadow-2xl",
-                    isLight 
-                      ? "bg-white/90 border-black/5 text-black shadow-black/5" 
-                      : "bg-black/40 border-white/10 text-white shadow-black/20"
-                  )}
-                >
-                  <ChevronLeft className="w-5 h-5" />
-                </motion.button>
-
-                {/* Radar Context (Top Right) */}
-                <div className="relative">
-                  <LocationRadiusSelector
-                    radiusKm={radiusKm}
-                    onRadiusChange={setRadiusKm as any}
-                    onDetectLocation={detectLocation}
-                    detecting={locationDetecting}
-                    detected={locationDetected}
-                    lat={userLatitude}
-                    lng={userLongitude}
-                    variant="minimal"
-                    nodes={useMemo(() => (smartListings || []).map(l => ({
-                      id: l.id,
-                      lat: l.latitude || 0,
-                      lng: l.longitude || 0,
-                      label: l.title || 'Found'
-                    })), [smartListings])}
-                  />
-                </div>
-            </div>
-
-            {/* 🛰️ PERSISTENT CATEGORY ANCHOR — Keep categories visible during swiping */}
-            {storeActiveCategory && (
-              <motion.div 
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="w-full scale-90 origin-top transform-gpu"
-              >
-                <QuickFilterBar 
-                  filters={useFilterStore.getState().getListingFilters()} 
-                  onChange={(f) => {
-                    if (f.categories.length === 1) {
-                      setActiveCategory(f.categories[0]);
-                    } else if (f.categories.length === 0) {
-                      setActiveCategory(null);
-                    }
-                  }}
-                />
-              </motion.div>
-            )}
+      {/* Radar — visible only when browsing cards, hidden during exhausted state */}
+      {(deckQueue.length > 0 && currentIndex < deckQueue.length) || isLoading || isFetching || !isMountSettledRef.current ? (
+        <div className="absolute top-0 right-0 z-[60] pointer-events-none px-4 pt-3">
+          <div className="pointer-events-auto">
+            <LocationRadiusSelector
+              radiusKm={radiusKm}
+              onRadiusChange={setRadiusKm as any}
+              onDetectLocation={detectLocation}
+              detecting={locationDetecting}
+              detected={locationDetected}
+              lat={userLatitude}
+              lng={userLongitude}
+              variant="minimal"
+              nodes={radarNodes}
+            />
+          </div>
         </div>
-      )}
+      ) : null}
 
 
-      {/* Card area — flex-1 fills remaining space */}
+      {/* Card area — flex-1 fills remaining space; overflow-hidden here keeps swipe cards contained */}
       <div className={cn(
-        "flex-1 relative flex flex-col items-center justify-center px-0 pt-0 z-10 pointer-events-none min-h-0",
+        "flex-1 relative flex flex-col items-center justify-center px-0 pt-0 z-10 pointer-events-none min-h-0 overflow-hidden",
         (storeActiveCategory && deckQueue.length > 0 && currentIndex < deckQueue.length) ? "pb-0" : ""
       )}>
 
         <div className="w-full h-full flex items-center justify-center pointer-events-auto">
           <AnimatePresence mode="sync" initial={false}>
-            {!storeActiveCategory ? (
-              <motion.div 
-                key="category-stack"
-                initial={false}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 1.05 }}
-                transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
-                className="w-full h-full flex flex-col items-center justify-center max-w-[700px] mx-auto"
-              >
-                <SwipeAllDashboard setCategories={setActiveCategory} />
-              </motion.div>
-            ) : deckQueue.length > 0 && currentIndex < deckQueue.length ? (
-              <motion.div 
-                key={`deck-${storeActiveCategory}`}
+            {deckQueue.length > 0 && currentIndex < deckQueue.length ? (
+              <motion.div
+                key={`deck-${storeActiveCategory ?? 'all'}`}
                 initial={{ opacity: 0, scale: 1.05 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
@@ -1187,84 +1147,26 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
           </AnimatePresence>
       </div>
 
-      {/* 🚀 ZENITH DISCOVERY HUD: Clean, Text-based Switcher (Replaces cluttered icons) */}
-      {(!isLoading || deckQueue.length > 0) && (
-        <div className="absolute bottom-[42px] left-0 right-0 z-[100] flex flex-col items-center pointer-events-none px-6">
-          
-          <div className="flex flex-col items-center gap-4 w-full max-w-[360px] pointer-events-auto">
-            {/* 🛸 THE SECTOR SWITCHER */}
-            <motion.button
-              whileTap={{ scale: 0.96 }}
-              onClick={() => {
-                triggerHaptic('heavy');
-                // Cycle through main categories
-                const categories: QuickFilterCategory[] = userRole === 'owner' 
-                  ? ['buyers', 'renters', 'hire'] 
-                  : ['property', 'motorcycle', 'services', 'bicycle'];
-                const currentIdx = categories.indexOf(storeActiveCategory as QuickFilterCategory);
-                const nextIdx = (currentIdx + 1) % categories.length;
-                setActiveCategory(categories[nextIdx]);
-              }}
-              className={cn(
-                "group relative w-full h-16 flex items-center justify-between px-6 rounded-[2rem] overflow-hidden transition-all",
-                "backdrop-blur-[40px] border border-white/40 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.5)]",
-                "bg-gradient-to-r from-black/80 via-black/90 to-black/80"
-              )}
-            >
-              {/* Inner Glow */}
-              <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-              
-              <div className="flex flex-col items-start">
-                <span className="text-[10px] font-black uppercase tracking-[0.25em] text-white/40 mb-0.5">Active Sector</span>
-                <span className="text-[15px] font-black uppercase tracking-wider text-white flex items-center gap-2">
-                  {storeActiveCategory?.replace(/-/g, ' ') || 'All Sectors'}
-                  <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse shadow-[0_0_8px_rgba(var(--color-brand-primary-rgb),0.8)]" />
-                </span>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <div className="h-8 w-[1px] bg-white/10 mx-1" />
-                <span className="text-[11px] font-bold text-primary tracking-tight group-hover:translate-x-1 transition-transform">
-                  TAP TO SWITCH
-                </span>
-              </div>
-            </motion.button>
-
-            {/* Sub-Actions: Intel & Radar */}
-            <div className="flex items-center gap-4">
-                <button
-                  onClick={() => {
-                     triggerHaptic('medium');
-                     setFilterDialogOpen(true);
-                  }}
-                  className="opacity-40 hover:opacity-100 transition-opacity"
-                >
-                  <span className="text-[9px] font-black uppercase tracking-[0.2em] italic text-white/80">INTELLIGENCE NEXUS</span>
-                </button>
-
-                <div className="w-[1px] h-3 bg-white/10" />
-
-                <button
-                  onClick={() => {
-                     triggerHaptic('medium');
-                     navigate(userRole === 'owner' ? '/owner/filters' : '/client/filters');
-                  }}
-                  className="opacity-40 hover:opacity-100 transition-opacity"
-                >
-                  <span className="text-[9px] font-black uppercase tracking-[0.2em] italic text-primary">RADAR SCAN</span>
-                </button>
-            </div>
-          </div>
+      {/* Category Switcher — simple button to change listing type */}
+      {deckQueue.length > 0 && currentIndex < deckQueue.length && (
+        <div
+          className="absolute left-0 right-0 z-[100] flex justify-center pointer-events-none px-6"
+          style={{ bottom: 'calc(var(--bottom-nav-height, 72px) + var(--safe-bottom, 0px) + 12px)' }}
+        >
+          <button
+            onClick={handleCycleCategory}
+            className={cn(
+              "pointer-events-auto px-6 py-2 rounded-full font-black uppercase text-xs transition-all active:scale-95 border",
+              isLight
+                ? "bg-black text-white border-white/20 hover:bg-black/80"
+                : "bg-white text-black border-black/20 hover:bg-white/80"
+            )}
+          >
+            Switch Category
+          </button>
         </div>
       )}
 
-      {/* BUILD VERSION STAMP */}
-      <div className="absolute bottom-[85px] right-6 z-0 pointer-events-none opacity-20">
-          <span className={cn(
-            "text-[8px] font-black uppercase tracking-[0.4em]",
-            isLight ? "text-black" : "text-white"
-          )}>FLAGSHIP BUILD v1.0.96-rc4</span>
-      </div>
     </div>
     </div>
 
