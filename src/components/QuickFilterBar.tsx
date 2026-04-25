@@ -297,9 +297,9 @@ function QuickFilterBarComponent({ filters, onChange, onSelect, className, userR
                     smoothButtonClass, 
                   'relative flex-shrink-0 overflow-hidden border transition-all duration-200 group',
                   isGlobalAll ? 'w-32 h-52 rounded-[3.5rem]' : 'w-28 h-40 rounded-[2.2rem]',
-                  isActive 
-                    ? 'border-primary ring-2 ring-primary ring-offset-2 scale-[1.03] shadow-lg' 
-                    : 'border-white/20 shadow-md'
+                  isActive
+                    ? 'border-primary ring-2 ring-primary ring-offset-2 scale-[1.03] shadow-lg'
+                    : 'border-white/60 shadow-md'
                   )}
                   style={{ contain: 'paint', willChange: 'transform, opacity' }}
                 >
@@ -318,7 +318,7 @@ function QuickFilterBarComponent({ filters, onChange, onSelect, className, userR
 
                     <div className={cn(
                       "absolute inset-0 flex flex-col items-center justify-center z-20 transition-all duration-300",
-                      isActive ? "text-white" : "text-white/90"
+                      "text-white"
                     )}>
                       <div className={cn(
                         "mb-1 transition-all duration-300 drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]", 
@@ -326,7 +326,7 @@ function QuickFilterBarComponent({ filters, onChange, onSelect, className, userR
                       )}>
                         {option.icon}
                       </div>
-                      <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-90 mb-0.5 drop-shadow-md">{option.description}</span>
+                      <span className="text-[10px] font-black uppercase tracking-[0.2em] mb-0.5 drop-shadow-md">{option.description}</span>
                       <span className={cn("font-black whitespace-nowrap uppercase tracking-tighter drop-shadow-lg", isGlobalAll ? "text-2xl" : "text-sm")}>{option.label}</span>
                     </div>
                   {isActive && (
@@ -384,7 +384,7 @@ function QuickFilterBarComponent({ filters, onChange, onSelect, className, userR
               'relative flex-shrink-0 w-32 h-52 rounded-[3.5rem] overflow-hidden border transition-all duration-200 group',
               clientIsAllSelected
                 ? 'border-primary ring-2 ring-primary ring-offset-2 scale-[1.08] shadow-[0_0_40px_rgba(255,107,107,0.6)] brightness-110'
-                : 'border-white/20 shadow-md opacity-85 hover:opacity-100 hover:scale-[1.02]'
+                : 'border-white/60 shadow-md hover:brightness-110 hover:scale-[1.02]'
             )}
             style={{ contain: 'paint', willChange: 'transform, opacity, filter' }}
           >
@@ -410,10 +410,10 @@ function QuickFilterBarComponent({ filters, onChange, onSelect, className, userR
 
             <div className={cn(
               "absolute inset-0 flex flex-col items-center justify-center z-20 transition-all duration-300",
-              clientIsAllSelected ? "text-white" : "text-white/90"
+              "text-white"
             )}>
               <Globe className={cn("w-8 h-8 mb-1 transition-all duration-300", clientIsAllSelected && "scale-125 drop-shadow-[0_0_20px_rgba(168,85,247,0.9)]")} />
-              <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-80 mb-0.5">Global</span>
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] mb-0.5">Global</span>
               <span className="text-2xl font-black uppercase tracking-tighter drop-shadow-md">ALL</span>
             </div>
             {clientIsAllSelected && (
@@ -441,7 +441,7 @@ function QuickFilterBarComponent({ filters, onChange, onSelect, className, userR
                   'relative flex-shrink-0 w-28 h-40 rounded-[2.2rem] overflow-hidden border transition-all duration-200 group',
                   isActive
                     ? 'border-primary ring-2 ring-primary ring-offset-2 scale-[1.08] shadow-[0_0_30px_rgba(255,107,107,0.6)] brightness-110'
-                    : 'border-white/20 shadow-md opacity-85 hover:opacity-100 hover:scale-[1.02]'
+                    : 'border-white/60 shadow-md hover:brightness-110 hover:scale-[1.02]'
                 )}
                 style={{ contain: 'paint', willChange: 'transform, opacity, filter' }}
               >
@@ -467,12 +467,12 @@ function QuickFilterBarComponent({ filters, onChange, onSelect, className, userR
 
                 <div className={cn(
                   "absolute inset-0 flex flex-col items-center justify-center z-20 transition-all duration-300",
-                  isActive ? "text-white" : "text-white/90"
+                  "text-white"
                 )}>
                   <div className={cn("mb-1 transition-all duration-300", isActive && "scale-125 drop-shadow-[0_0_20px_rgba(255,165,0,0.9)]")}>
                     {category.icon}
                   </div>
-                  <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-80 mb-0.5">Filter</span>
+                  <span className="text-[10px] font-black uppercase tracking-[0.2em] mb-0.5">Filter</span>
                   <span className="text-sm font-black whitespace-nowrap uppercase tracking-tight drop-shadow-md">{category.label}</span>
                 </div>
                 {isActive && (
