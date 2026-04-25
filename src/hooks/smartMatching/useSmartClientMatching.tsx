@@ -286,15 +286,13 @@ export function useSmartClientMatching(
 
                 let { data: profiles, error } = await query.range(page * pageSize, (page + 1) * pageSize - 1);
 
-                // 3. DEMO FALLBACK: If first page and no category-filtered results, show demo
-                // This ensures users see demo cards immediately when a category is selected
-                if ((!profiles || profiles.length === 0) && page === 0 && _category && _category !== 'all') {
-                    logger.warn('[SmartMatching] No results for category ' + _category + ', showing demo cards');
-                    // Fall through to demo fallback below (line 315)
-                }
-                // 4. EMERGENCY FALLBACK: If deck is empty on non-first-pages, fetch ANYONE
-                else if ((!profiles || profiles.length === 0) && page > 0) {
-                    logger.warn('[SmartMatching] Deck empty on page ' + page + ', triggering hyper-aggressive fallback');
+                // 3. DEMO FALLBACK: If first page and category-specific query returns nothing, show demo
+                // Skip aggressive fallback in this case - let it fall through to demo at line 336
+                const shouldShowDemoIfEmpty = page === 0 && _category && _category !== 'all';
+
+                // 4. EMERGENCY FALLBACK: Fetch ANYONE if deck is empty AND we're not deferring to demo
+                if ((!profiles || profiles.length === 0) && !shouldShowDemoIfEmpty) {
+                    logger.warn('[SmartMatching] Deck empty, triggering hyper-aggressive fallback (page=' + page + ', category=' + _category + ')');
                     const { data: fallbackData } = await supabase.from('profiles')
                         .select(CLIENT_FIELDS)
                         .eq('role', targetRole)
