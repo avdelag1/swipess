@@ -54,6 +54,7 @@ function TopBarComponent({
   
   const onBack = propOnBack || (showBack ? () => window.history.length > 2 ? navigate(-1) : navigate(`/${isOwner ? 'owner' : 'client'}/dashboard`) : (activeCategory ? () => setActiveCategory(null) : undefined));
 
+  const glassPillStyle: React.CSSProperties = {
     background: isLight 
       ? 'rgba(255, 255, 255, 0.75)' 
       : 'rgba(15, 25, 55, 0.45)', // Richer blue glass for Swipess Dark
