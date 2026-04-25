@@ -32,7 +32,7 @@ import { useSwipeDeckStore, persistDeckToSession } from '@/state/swipeDeckStore'
 import { useFilterStore, useFilterActions } from '@/state/filterStore';
 import { useShallow } from 'zustand/react/shallow';
 import { useSwipeDismissal } from '@/hooks/useSwipeDismissal';
-import { Home, Bike, Briefcase, Radar, SlidersHorizontal, LayoutGrid } from 'lucide-react';
+import { Home, Bike, Briefcase, ChevronLeft } from 'lucide-react';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { useSwipeSounds } from '@/hooks/useSwipeSounds';
 import { appToast } from '@/utils/appNotification';
@@ -43,6 +43,7 @@ import { MessageConfirmationDialog } from './MessageConfirmationDialog';
 import { DirectMessageDialog } from './DirectMessageDialog';
 import { isDirectMessagingListing } from '@/utils/directMessaging';
 import { useQueryClient } from '@tanstack/react-query';
+import { SwipeAllDashboard } from './swipe/SwipeAllDashboard';
 import { LocationRadiusSelector } from './swipe/LocationRadiusSelector';
 import { ReportDialog } from './ReportDialog';
 
@@ -1022,6 +1023,39 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
   }, [storeActiveCategory, userRole, setActiveCategory]);
 
   // ── RENDER ────────────────────────────────────────────────────────────────
+
+  // Phase 1: No category selected — show the category picker (POKER_CARDS)
+  if (!storeActiveCategory) {
+    return (
+      <>
+        <div className="relative w-full h-full">
+          <SwipeAllDashboard setCategories={(cat) => {
+            setActiveCategory(cat as any);
+            setCategories([cat] as any);
+          }} />
+        </div>
+        {typeof document !== 'undefined' && document.body && createPortal(
+          <Suspense fallback={null}>
+            {userRole === 'owner' ? (
+              <OwnerClientFilterDialog open={filterDialogOpen} onOpenChange={setFilterDialogOpen} />
+            ) : (
+              <ClientPreferencesDialog open={filterDialogOpen} onOpenChange={setFilterDialogOpen} />
+            )}
+          </Suspense>,
+          document.body
+        )}
+      </>
+    );
+  }
+
+  const categoryNames: Record<string, string> = {
+    property: 'Properties', motorcycle: 'Motorcycles', bicycle: 'Bicycles',
+    services: 'Services', buyers: 'Buyers', renters: 'Renters', hire: 'Workers',
+  };
+  const currentCategoryName = categoryNames[storeActiveCategory] || storeActiveCategory;
+  const hasCards = deckQueue.length > 0 && currentIndex < deckQueue.length;
+  const isLoadingCards = isLoading || isFetching || !isMountSettledRef.current;
+
   return (
     <>
     <div className={cn(
@@ -1033,8 +1067,28 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
         isLight ? "bg-transparent" : "bg-black"
       )} />
 
-      {/* Radar — visible only when browsing cards, hidden during exhausted state */}
-      {(deckQueue.length > 0 && currentIndex < deckQueue.length) || isLoading || isFetching || !isMountSettledRef.current ? (
+      {/* Back button + Category label — always visible in Phase 2 */}
+      <div className="absolute top-3 left-4 z-[70] flex items-center gap-3 pointer-events-auto">
+        <button
+          onClick={() => {
+            triggerHaptic('light');
+            setActiveCategory(null as any);
+            setCategories([] as any);
+          }}
+          className={cn(
+            "flex items-center justify-center w-10 h-10 rounded-full border transition-all active:scale-90",
+            isLight ? "bg-white border-black/10 text-black" : "bg-black/80 border-white/20 text-white"
+          )}
+        >
+          <ChevronLeft className="w-5 h-5" />
+        </button>
+        <span className={cn("text-sm font-black uppercase tracking-wider", isLight ? "text-black" : "text-white")}>
+          {currentCategoryName}
+        </span>
+      </div>
+
+      {/* Radar — visible only when cards are present */}
+      {hasCards && (
         <div className="absolute top-0 right-0 z-[60] pointer-events-none px-4 pt-3">
           <div className="pointer-events-auto">
             <LocationRadiusSelector
@@ -1050,13 +1104,12 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
             />
           </div>
         </div>
-      ) : null}
-
+      )}
 
       {/* Card area — flex-1 fills remaining space; overflow-hidden here keeps swipe cards contained */}
       <div className={cn(
         "flex-1 relative flex flex-col items-center justify-center px-0 pt-0 z-10 pointer-events-none min-h-0 overflow-hidden",
-        (storeActiveCategory && deckQueue.length > 0 && currentIndex < deckQueue.length) ? "pb-0" : ""
+        hasCards ? "pb-0" : ""
       )}>
 
         <div className="w-full h-full flex items-center justify-center pointer-events-auto">
@@ -1127,20 +1180,13 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
                 exit={{ opacity: 0 }}
                 className="w-full h-full z-50 overflow-hidden"
               >
-                <SwipeExhaustedState 
-                  {...({
-                    onRefresh: handleRefresh,
-                    isRefreshing,
-                    radiusKm,
-                    onRadiusChange: setRadiusKm as any,
-                    onDetectLocation: detectLocation,
-                    detecting: locationDetecting,
-                    detected: locationDetected,
-                    error,
-                    role: userRole === 'owner' ? 'owner' : 'client',
-                    lat: userLatitude,
-                    lng: userLongitude
-                  } as any)}
+                <SwipeExhaustedState
+                  radiusKm={radiusKm}
+                  onRadiusChange={setRadiusKm as any}
+                  onDetectLocation={detectLocation}
+                  detecting={locationDetecting}
+                  detected={locationDetected}
+                  categoryName={currentCategoryName}
                 />
               </motion.div>
             )}
