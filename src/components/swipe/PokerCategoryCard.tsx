@@ -152,7 +152,10 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
               <span className="text-[10px] font-black uppercase tracking-[0.4em] italic text-white/80">{card.description}</span>
             </motion.div>
             
-            <h3 className="text-5xl font-black tracking-[calc(-0.06em)] leading-[0.85] uppercase italic text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
+            <h3 className={cn(
+              "font-black tracking-[calc(-0.06em)] leading-[0.85] uppercase italic text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]",
+              card.label.length <= 8 ? "text-5xl" : card.label.length <= 10 ? "text-4xl" : "text-3xl"
+            )}>
               {card.label}
             </h3>
           </div>

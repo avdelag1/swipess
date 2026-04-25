@@ -66,7 +66,7 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
 
   return (
     <div className={cn(
-      "flex-1 flex flex-col p-4 relative overflow-y-auto scrollbar-hide pb-24",
+      "w-full flex flex-col p-4 relative pb-24",
       isLight ? "bg-white text-slate-900" : "bg-[#020202] text-white"
     )}>
       {!isEmbedded && (
@@ -98,7 +98,7 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
       )}
 
       {/* 🛸 RADAR CALIBRATION GRID */}
-      <div className="flex-1 w-full max-w-2xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 relative z-10">
+      <div className="w-full max-w-2xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 relative z-10">
         <AnimatePresence mode="wait">
           {!activeCategory ? (
             <motion.div 

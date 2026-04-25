@@ -1194,8 +1194,8 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
                     setCategories([cat] as any);
                   }}
                   onOpenFilters={() => {
-                    triggerHaptic('light');
-                    setFilterDialogOpen(true);
+                    triggerHaptic('medium');
+                    navigate(userRole === 'owner' ? '/owner/filters' : '/client/filters');
                   }}
                   role={userRole === 'owner' ? 'owner' : 'client'}
                 />

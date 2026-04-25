@@ -58,8 +58,8 @@ export default function OwnerFilters({ isEmbedded, onClose }: OwnerFiltersProps)
 
   const content = (
     <div className={cn(
-      "flex flex-col transition-colors duration-500 overflow-y-auto",
-      !isEmbedded && "min-h-screen pb-48",
+      "flex flex-col transition-colors duration-500",
+      !isEmbedded && "pb-48",
       isLight ? (isEmbedded ? "bg-transparent" : "bg-[#F8FAFC]") : (isEmbedded ? "bg-transparent" : "bg-black"),
       isLight ? "text-slate-900" : "text-white"
     )}>
