@@ -249,7 +249,7 @@ export default function EventosFeed() {
   const rowVirtualizer = useVirtualizer({
     count: filteredEvents.length,
     getScrollElement: () => parentRef.current,
-    estimateSize: () => window.innerHeight || 800,
+    estimateSize: () => parentRef.current?.clientHeight || window.innerHeight || 800,
     overscan: 2,
     initialOffset: 0,
   });
@@ -316,25 +316,26 @@ export default function EventosFeed() {
 
   return (
     <div
-      className="relative w-full flex-grow flex flex-col items-center justify-start bg-transparent overflow-hidden min-h-[100dvh]"
-      style={{ paddingTop: '130px' }}
+      className="relative w-full flex-col items-center justify-start bg-transparent overflow-hidden"
+      style={{ height: 'calc(100dvh - var(--top-bar-height, 60px) - var(--safe-top, 0px))' }}
     >
       <div className="absolute inset-0 bg-[#0a0a0b] -z-10" />
       
       {/* Floating HUD — hides on scroll down, reappears on scroll up or idle */}
       <div 
         className={cn(
-          "absolute left-0 right-0 z-[100] transform-gpu px-4 pt-8 transition-all duration-300 ease-out",
+          "absolute left-0 right-0 z-[100] transform-gpu px-4 pt-4 transition-all duration-300 ease-out",
           hudVisible ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-full pointer-events-none"
         )}
-        style={{ top: 'calc(var(--top-bar-height) + var(--safe-top, 6px))' }}
+        style={{ top: '0px' }}
       >
         <div className="flex items-center gap-3">
           <motion.button
             whileTap={{ scale: 0.9 }}
             onClick={() => { triggerHaptic('light'); navigate(-1); }}
             className={cn(
-              "w-12 h-12 rounded-2xl flex items-center justify-center transition-all shrink-0"
+              "w-12 h-12 rounded-2xl flex items-center justify-center transition-all shrink-0",
+              isLight ? "text-slate-900" : "text-white"
             )}
             style={hudGlassStyle}
           >
@@ -444,7 +445,7 @@ export default function EventosFeed() {
                   key={virtualRow.key} 
                   className="absolute top-0 left-0 w-full snap-start snap-always"
                   style={{ 
-                    height: '100dvh', 
+                    height: '100%', 
                     width: '100%',
                     transform: `translateY(${virtualRow.start}px)`
                   }}
