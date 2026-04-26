@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, memo, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ClientSwipeContainer } from '@/components/ClientSwipeContainer';
+import { LocationRadiusSelector } from '@/components/swipe/LocationRadiusSelector';
 import { useSmartClientMatching } from '@/hooks/useSmartMatching';
 import { useAuth } from '@/hooks/useAuth';
 import { useFilterStore, useFilterActions } from '@/state/filterStore';
@@ -33,6 +34,35 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
   const phase = activeCategory ? 'swipe' : 'cards';
 
   const { user, loading: isAuthLoading } = useAuth();
+
+  // Persistent radius HUD state — survives deck reloads and demo fallbacks
+  const { radiusKm, setRadiusKm, lat, lng } = useFilterStore(useShallow(s => ({
+    radiusKm: s.radiusKm,
+    setRadiusKm: s.setRadiusKm,
+    lat: s.userLatitude,
+    lng: s.userLongitude,
+  })));
+  const [detecting, setDetecting] = useState(false);
+  const [detected, setDetected] = useState(!!lat && !!lng);
+
+  const handleDetectLocation = useCallback(() => {
+    if (!navigator.geolocation) return;
+    setDetecting(true);
+    triggerHaptic('medium');
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        useFilterStore.getState().setUserLocation(pos.coords.latitude, pos.coords.longitude);
+        setDetecting(false);
+        setDetected(true);
+        triggerHaptic('success');
+      },
+      () => {
+        setDetecting(false);
+        triggerHaptic('warning');
+      },
+      { timeout: 8000, maximumAge: 60000 }
+    );
+  }, []);
 
   // Hydrate owner filter store from DB on mount
   const { preferences: ownerPrefs, isLoading: isPrefsLoading } = useOwnerClientPreferences();
@@ -96,13 +126,9 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
 
   const handleCardSelect = useCallback((card: any) => {
     triggerHaptic('medium');
-    // For owner intent cards, use card.id (buyers/renters/hire/all-clients) as the category
-    // card.category is undefined for OWNER_INTENT_CARDS which use id and clientType instead
     const cat = (card.id || card.category || 'buyers') as QuickFilterCategory;
-
     setCategories([cat]);
     setActiveCategory(cat);
-
     if (card.clientType) setClientType(card.clientType as any);
     if (card.listingType) setListingType(card.listingType as any);
   }, [setClientType, setListingType, setActiveCategory, setCategories]);
@@ -192,8 +218,34 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
           </motion.div>
         )}
       </AnimatePresence>
-      
-      {/* 📡 PERSISTENT HUD: Swipess Flagship v1.0.96-rc4 */}
+
+      {/* 📡 PERSISTENT RADIUS HUD — always visible in swipe phase, collapses to pill */}
+      <AnimatePresence>
+        {phase === 'swipe' && (
+          <motion.div
+            key="radius-hud"
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.3 }}
+            className="fixed z-[10010] pointer-events-none"
+            style={{
+              top: 'calc(var(--top-bar-height, 60px) + var(--safe-top, 0px) + 10px)',
+              right: '16px',
+            }}
+          >
+            <LocationRadiusSelector
+              radiusKm={radiusKm}
+              onRadiusChange={setRadiusKm as any}
+              onDetectLocation={handleDetectLocation}
+              detecting={detecting}
+              detected={detected}
+              title="clients"
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <p className="absolute bottom-4 left-6 text-[8px] font-black uppercase tracking-[0.6em] opacity-10 pointer-events-none z-0">Swipess FLAGSHIP v1.0.96-rc4</p>
     </div>
   );
