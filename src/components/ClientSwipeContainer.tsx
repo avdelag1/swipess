@@ -1012,32 +1012,6 @@ const ClientSwipeContainerComponent = ({
               })}
             </div>
 
-            {/* Sub Controls: Intel & Radar */}
-            <div className="flex gap-4 pointer-events-auto">
-               <motion.button
-                 whileTap={{ scale: 0.95 }}
-                 onClick={() => {
-                   triggerHaptic('medium');
-                   navigate('/owner/filters');
-                 }}
-                 className="flex flex-col items-center opacity-70 hover:opacity-100 transition-opacity"
-               >
-                 <span className="text-[9px] font-black uppercase tracking-[0.2em] italic text-primary drop-shadow-[0_0_8px_rgba(var(--color-brand-primary-rgb),0.5)]">INTELLIGENCE</span>
-               </motion.button>
-
-               <div className="w-[1px] h-3 bg-white/10 self-center" />
-
-               <motion.button
-                 whileTap={{ scale: 0.95 }}
-                 onClick={() => {
-                   triggerHaptic('medium');
-                   navigate('/owner/filters');
-                 }}
-                 className="flex flex-col items-center opacity-70 hover:opacity-100 transition-opacity"
-               >
-                 <span className="text-[9px] font-black uppercase tracking-[0.2em] italic text-primary drop-shadow-[0_0_8px_rgba(var(--color-brand-primary-rgb),0.5)]">RADAR SCAN</span>
-               </motion.button>
-            </div>
           </div>
         </div>
       </div>
