@@ -76,11 +76,11 @@ export const DistanceSlider = ({ radiusKm, onRadiusChange, onDetectLocation, det
           <div className="flex flex-col">
             <span className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] leading-none mb-1">Scanning</span>
             <span className="text-xs font-black text-primary leading-none uppercase italic tracking-wider">
-              {clientType === 'buy' ? 'Buyers' : 
-               clientType === 'rent' ? 'Renters' : 
-               clientType === 'hire' ? 'Workers' : 
-               clientType === 'all' ? 'Everyone' : 
-               activeCategory ? activeCategory : 'Clients'}
+              {activeCategory === 'all-clients' ? 'Everyone' : 
+               activeCategory === 'buyers' ? 'Buyers' : 
+               activeCategory === 'renters' ? 'Renters' : 
+               activeCategory === 'hire' ? 'Workers' : 
+               activeCategory ? activeCategory.replace(/-/g, ' ') : 'Clients'}
             </span>
           </div>
         </div>

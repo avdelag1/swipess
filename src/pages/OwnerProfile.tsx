@@ -258,7 +258,7 @@ const OwnerProfile = () => {
 
           <div className="grid grid-cols-1 gap-3">
             {[
-              { label: 'Legal Center', icon: Scale, path: '/legal' },
+              { label: 'Legal Center', icon: Scale, path: '/owner/legal-services' },
               { label: 'Account Settings', icon: Settings, path: '/owner/settings' },
               { label: 'Sign Out', icon: LogOut, path: 'signout', urgent: true },
             ].map(btn => (

@@ -68,8 +68,8 @@ export const SwipeExhaustedState = ({
         {/* Distance slider — centered, the main control */}
         {onRadiusChange && onDetectLocation && (
           <div className={cn(
-            "w-full rounded-3xl border p-3 relative",
-            isLight ? "bg-white border-black/10" : "bg-white/5 border-white/10"
+            "w-full rounded-[2.5rem] border p-6 relative transition-all",
+            isLight ? "bg-white border-black/10 shadow-2xl" : "bg-[#0d0d0d]/80 border-white/10 shadow-[0_30px_80px_rgba(0,0,0,0.4)]"
           )}>
             {/* Main filter icon button — top-right of slider */}
             {onOpenFilters && (

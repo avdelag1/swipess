@@ -17,10 +17,12 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
 import { PageHeader } from '@/components/PageHeader';
-import { triggerHaptic } from '@/utils/haptics';
+import { haptics } from '@/utils/microPolish';
 import useAppTheme from '@/hooks/useAppTheme';
 import { cn } from '@/lib/utils';
 import { useActiveMode } from '@/hooks/useActiveMode';
+import { AtmosphericLayer } from '@/components/AtmosphericLayer';
+import { Helmet } from 'react-helmet-async';
 import { ArrowLeft, ShieldCheck, Database, Eye, Globe, UserCheck, User } from "lucide-react";
 
 interface LegalIssueCategory {
@@ -206,14 +208,14 @@ const LegalHub = () => {
   return (
     <div className="w-full bg-background relative selection:bg-rose-500/30 min-h-screen">
       
-      {/* 🛸 ATMOSPHERIC ATMOSPHERE */}
-      <div className="fixed inset-0 pointer-events-none opacity-20 overflow-hidden z-0">
-         <div className={cn(
-           "absolute top-[-10%] left-[-10%] w-[60%] h-[40%] blur-[130px] rounded-full",
-           isOwner ? "bg-purple-500/30" : "bg-rose-500/30"
-         )} />
-         <div className="absolute bottom-[20%] right-[-5%] w-[40%] h-[30%] bg-indigo-500/20 blur-[100px] rounded-full" />
-      </div>
+      {/* 🛸 ZENITH SEO ARCHITECTURE */}
+      <Helmet>
+        <title>Legal Center | Swipess Authority</title>
+        <meta name="description" content="Secure legal terminal for Swipess protocols, terms of use, and professional legal dispatch." />
+      </Helmet>
+
+      {/* 🛸 ATMOSPHERIC DEPTH */}
+      <AtmosphericLayer variant={isOwner ? "indigo" : "rose"} opacity={0.15} />
 
       <main className="container mx-auto px-4 sm:px-6 pt-28 pb-48 relative z-10 space-y-12">
         
@@ -318,11 +320,14 @@ const LegalHub = () => {
 
             <div className="flex justify-center pt-10">
               <Button
-                onClick={() => { haptics.tap(); setCurrentDoc('hub'); }}
+                variant="outline"
                 className={cn(
-                  "h-16 px-16 rounded-full font-black uppercase italic tracking-[0.2em] shadow-2xl active:scale-95 transition-all text-[12px]",
-                  isOwner ? "bg-purple-600 hover:bg-purple-500 text-white" : "bg-rose-600 hover:bg-rose-700 text-white"
+                  "w-full h-14 rounded-2xl font-black uppercase italic tracking-[0.2em] transition-all active:scale-[0.98] border-2",
+                  isOwner 
+                    ? "border-purple-500/20 text-purple-400 bg-purple-500/5 hover:bg-purple-500/10" 
+                    : "border-rose-500/20 text-rose-400 bg-rose-500/5 hover:bg-rose-500/10"
                 )}
+                onClick={() => { haptics.tap(); setCurrentDoc('hub'); }}
               >
                 RETURN TO HUB
               </Button>
@@ -339,11 +344,13 @@ const LegalHub = () => {
                 isOwner ? "from-purple-500 to-indigo-500" : "from-rose-500 to-rose-300"
               )} />
               <CardContent className="space-y-10">
-                <div className={cn(
-                  "w-24 h-24 rounded-[2rem] flex items-center justify-center mx-auto shadow-2xl border mb-6",
-                  isOwner ? "bg-purple-500/20 border-purple-500/30 text-purple-400" : "bg-rose-500/20 border-rose-500/30 text-rose-400"
-                )}>
-                  <ShieldCheck className="w-12 h-12" />
+                <div className={cn("w-24 h-24 rounded-full flex items-center justify-center shadow-2xl mx-auto mb-6 animate-pulse", isOwner ? "bg-purple-500 shadow-purple-500/40" : "bg-rose-500 shadow-rose-500/40")}>
+                  <motion.div
+                    animate={{ scale: [1, 1.1, 1] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                  >
+                    <CheckCircle2 className="w-12 h-12 text-white" />
+                  </motion.div>
                 </div>
                 <div className="space-y-3">
                   <h3 className={cn("text-4xl font-black uppercase italic tracking-tighter", isLight ? "text-black" : "text-white")}>Request Logged</h3>
@@ -351,11 +358,32 @@ const LegalHub = () => {
                     Your legal help request has been dispatched to the Swipess legal team. Our team will audit your case and get back to you with available protocols.
                   </p>
                 </div>
+                <div className="pt-8 w-full max-w-xs mx-auto">
+                  <Button
+                    onClick={() => { haptics.tap(); setCurrentDoc('hub'); }}
+                    className={cn(
+                      "w-full h-16 rounded-2xl font-black uppercase italic tracking-widest text-[11px] shadow-2xl transition-all active:scale-95",
+                      isOwner ? "bg-purple-600 hover:bg-purple-500" : "bg-rose-600 hover:bg-rose-700"
+                    )}
+                  >
+                    Return to Hub
+                  </Button>
+                </div>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-                  <Button variant="outline" onClick={handleReset} className={cn("h-14 px-8 rounded-2xl font-black uppercase italic tracking-widest text-[11px]", isLight ? "bg-black/5 border-black/10" : "bg-white/5 border-white/10")}>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => { haptics.tap(); handleReset(); }} 
+                    className={cn("h-14 px-8 rounded-2xl font-black uppercase italic tracking-widest text-[11px]", isLight ? "bg-black/5 border-black/10 text-black/70" : "bg-white/5 border-white/10 text-white/70")}
+                  >
                     New Request
                   </Button>
-                  <Button onClick={() => navigate(isOwner ? '/owner/dashboard' : '/client/dashboard')} className={cn("h-14 px-8 rounded-2xl text-white font-black uppercase italic tracking-widest text-[11px] shadow-xl", isOwner ? "bg-purple-600" : "bg-rose-600")}>
+                  <Button 
+                    onClick={() => { haptics.tap(); navigate(isOwner ? '/owner/dashboard' : '/client/dashboard'); }} 
+                    className={cn(
+                      "h-14 px-8 rounded-2xl text-white font-black uppercase italic tracking-widest text-[11px] shadow-xl", 
+                      isOwner ? "bg-purple-600 hover:bg-purple-500 shadow-purple-500/20" : "bg-rose-600 hover:bg-rose-700 shadow-rose-500/20"
+                    )}
+                  >
                     Return to Dashboard
                   </Button>
                 </div>
@@ -364,7 +392,6 @@ const LegalHub = () => {
           </motion.div>
         ) : (
           <div className="space-y-16">
-            {/* 🛸 DIRECT DISPATCH CARD */}
             <Card className={cn(
               "rounded-[3rem] overflow-hidden border shadow-3xl relative group transition-all duration-500",
               isLight ? "bg-black/5 border-black/5 shadow-sm" : "bg-white/[0.04] border-white/5 shadow-2xl"
@@ -392,7 +419,6 @@ const LegalHub = () => {
               </CardContent>
             </Card>
 
-            {/* Category Selection */}
             <div className="space-y-8">
               <div className="px-1 flex items-center gap-4">
                 <span className={cn("text-[11px] font-black uppercase tracking-[0.3em] opacity-40 italic", isLight ? "text-black" : "text-white")}>Legal Protocols</span>
@@ -478,7 +504,6 @@ const LegalHub = () => {
                 </div>
               </div>
 
-              {/* Case Audit section */}
               <AnimatePresence>
                 {selectedIssue && (
                   <motion.div
@@ -526,13 +551,13 @@ const LegalHub = () => {
                         <div className="flex flex-col sm:flex-row gap-4">
                           <Button
                             variant="ghost"
-                            onClick={handleReset}
+                            onClick={() => { haptics.tap(); handleReset(); }}
                             className={cn("h-16 flex-1 rounded-[2rem] font-black uppercase italic tracking-widest text-[11px]", isLight ? "hover:bg-black/5" : "hover:bg-white/5")}
                           >
                             Reset Audit
                           </Button>
                           <Button
-                            onClick={handleSubmitRequest}
+                            onClick={() => { haptics.success(); handleSubmitRequest(); }}
                             disabled={isSubmitting || !description.trim()}
                             className={cn(
                               "h-16 flex-[2] rounded-[2rem] text-white font-black uppercase italic tracking-widest text-[11px] shadow-2xl transition-all active:scale-95",
@@ -555,7 +580,6 @@ const LegalHub = () => {
                 )}
               </AnimatePresence>
 
-              {/* 🛸 LEGAL DOCUMENTS GRID */}
               <div className="space-y-8 pt-10">
                 <div className="px-1 flex items-center gap-4">
                     <span className={cn("text-[11px] font-black uppercase tracking-[0.3em] opacity-40 italic", isLight ? "text-black" : "text-white")}>Digital Protocols</span>

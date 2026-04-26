@@ -1,12 +1,15 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, HelpCircle, Mail, MessageSquare } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { PageHeader } from "@/components/PageHeader";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import useAppTheme from "@/hooks/useAppTheme";
+import { haptics } from "@/utils/microPolish";
+import { AtmosphericLayer } from "@/components/AtmosphericLayer";
+import { Helmet } from "react-helmet-async";
 
 const fastSpring = { type: "spring" as const, stiffness: 500, damping: 30, mass: 0.8 };
 
@@ -75,89 +78,118 @@ const faqItems: FAQItem[] = [
 ];
 
 export default function FAQOwnerPage() {
-  const _navigate = useNavigate();
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
-  const { theme } = useAppTheme();
-  const isLight = theme === 'light';
+  const { theme, isLight } = useAppTheme();
 
   const toggleExpand = (index: number) => {
+    haptics.tap();
     setExpandedIndex(expandedIndex === index ? null : index);
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-3xl mx-auto px-4 pt-4 pb-24">
+    <div className="min-h-screen bg-background relative overflow-hidden">
+      <Helmet>
+        <title>FAQ & Help | Swipess Owner</title>
+        <meta name="description" content="Common questions and support for Swipess property owners." />
+      </Helmet>
+
+      <AtmosphericLayer />
+
+      <div className="relative z-10 max-w-3xl mx-auto px-4 pt-6 pb-32">
         <PageHeader
-          title="FAQ & Help"
-          subtitle="Common questions for property owners"
+          title="Terminal Support"
+          subtitle="Frequently Asked Questions for Property Owners"
           showBack={true}
           backTo="/owner/settings"
+          icon={<HelpCircle className="w-8 h-8 text-purple-500" />}
+          accentColor="purple"
         />
 
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={fastSpring}
-          className="space-y-3"
-        >
-          {faqItems.map((item, index) => (
-            <Card
-              key={index}
-              className={cn("bg-card border-border overflow-hidden cursor-pointer", isLight ? "bg-black/[0.03]" : "bg-white/[0.03]")}
-              onClick={() => toggleExpand(index)}
-            >
-              <CardContent className="p-0">
-                <div className="flex items-center justify-between p-4">
-                  <span className="font-medium text-foreground pr-4">{item.question}</span>
-                  <ChevronDown
-                    className={cn(
-                      "w-5 h-5 text-muted-foreground transition-transform flex-shrink-0",
-                      expandedIndex === index && "rotate-180"
-                    )}
-                  />
-                </div>
-                <AnimatePresence>
-                  {expandedIndex === index && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: "auto", opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.2 }}
-                    >
-                      <div className="px-4 pb-4 text-muted-foreground text-sm border-t border-border pt-3">
-                        {item.answer}
-                      </div>
-                    </motion.div>
+        <div className="mt-12 space-y-4">
+          <AnimatePresence mode="popLayout">
+            {faqItems.map((item, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ ...fastSpring, delay: index * 0.05 }}
+              >
+                <Card
+                  className={cn(
+                    "overflow-hidden cursor-pointer transition-all duration-300 border",
+                    expandedIndex === index 
+                      ? (isLight ? "bg-white border-purple-500/20 shadow-xl" : "bg-white/10 border-purple-500/30 shadow-2xl shadow-purple-500/10")
+                      : (isLight ? "bg-black/[0.02] border-black/5 hover:bg-black/[0.04]" : "bg-white/[0.03] border-white/5 hover:bg-white/[0.05]")
                   )}
-                </AnimatePresence>
-              </CardContent>
-            </Card>
-          ))}
-        </motion.div>
+                  onClick={() => toggleExpand(index)}
+                >
+                  <CardContent className="p-0">
+                    <div className="flex items-center justify-between p-6">
+                      <span className={cn(
+                        "font-black uppercase italic tracking-tight transition-colors",
+                        expandedIndex === index ? "text-purple-500" : "text-foreground/80"
+                      )}>
+                        {item.question}
+                      </span>
+                      <div className={cn(
+                        "w-8 h-8 rounded-full flex items-center justify-center transition-all",
+                        expandedIndex === index ? "bg-purple-500 text-white rotate-180" : "bg-black/5 text-muted-foreground"
+                      )}>
+                        <ChevronDown className="w-4 h-4" />
+                      </div>
+                    </div>
+                    <AnimatePresence>
+                      {expandedIndex === index && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
+                        >
+                          <div className={cn(
+                            "px-6 pb-6 text-sm font-medium leading-relaxed italic border-t pt-4",
+                            isLight ? "text-black/60 border-black/5" : "text-white/60 border-white/5"
+                          )}>
+                            {item.answer}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </div>
 
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ ...fastSpring, delay: 0.1 }}
-          className="mt-8"
+          transition={{ ...fastSpring, delay: 0.4 }}
+          className="mt-20"
         >
-          <Card className={cn("bg-muted/30 border-border rounded-[2.5rem] overflow-hidden", isLight ? "bg-black/[0.05]" : "bg-white/[0.05]")}>
-            <CardContent className="p-10 text-center space-y-6">
-              <h3 className="text-xl font-black uppercase italic tracking-tighter">Still need help?</h3>
-              <p className="text-sm text-muted-foreground">
-                Dispatch a signal to our support team for elite assistance.
-              </p>
+          <Card className={cn(
+            "rounded-[3rem] overflow-hidden border relative group",
+            isLight ? "bg-purple-50 border-purple-100 shadow-sm" : "bg-purple-500/5 border-purple-500/20 shadow-2xl"
+          )}>
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-transparent to-transparent opacity-50" />
+            <CardContent className="p-10 text-center space-y-8 relative z-10">
+              <div className="w-20 h-20 rounded-3xl bg-purple-500/10 flex items-center justify-center mx-auto mb-2 border border-purple-500/20">
+                <MessageSquare className="w-10 h-10 text-purple-500" />
+              </div>
+              <div className="space-y-3">
+                <h3 className="text-3xl font-black uppercase italic tracking-tighter">Still need help?</h3>
+                <p className="text-[14px] font-bold opacity-60 italic leading-relaxed max-w-sm mx-auto">
+                  Our elite support protocols are available 24/7 to resolve your terminal challenges.
+                </p>
+              </div>
               <div className="flex justify-center pt-4">
                 <Button
-                  onClick={() => window.location.href = 'mailto:support@swipess.app'}
-                  className={cn(
-                    "h-16 px-12 rounded-[2rem] font-black uppercase italic tracking-widest transition-all shadow-2xl active:scale-95",
-                    isLight 
-                      ? "bg-black text-white hover:bg-black/80" 
-                      : "bg-white text-black hover:bg-white/90"
-                  )}
+                  onClick={() => { haptics.success(); window.location.href = 'mailto:support@swipess.app'; }}
+                  className="h-16 px-12 rounded-[2rem] bg-purple-600 hover:bg-purple-700 text-white font-black uppercase italic tracking-widest transition-all shadow-2xl shadow-purple-500/20 active:scale-95"
                 >
-                  DISPATCH SUPPORT
+                  DISPATCH SIGNAL
+                  <Mail className="w-5 h-5 ml-4" />
                 </Button>
               </div>
             </CardContent>

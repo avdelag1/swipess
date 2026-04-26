@@ -216,29 +216,18 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
                 insightsOpen={false}
                 category={activeCategory || 'default'}
                 filters={mergedFilters}
+                radiusKm={radiusKm}
+                onRadiusChange={setRadiusKm}
+                onDetectLocation={detectLocation}
+                detecting={locationDetecting}
+                detected={locationDetected}
               />
             </div>
           </motion.div>
         )}
       </AnimatePresence>
       
-      {/* 🛰️ PERSISTENT HUD: Location Radius Selector — Mirroring Client side parity */}
-      {typeof document !== 'undefined' && document.body && !showSkeletons && createPortal(
-        <div className="fixed top-[calc(var(--safe-top)+12px)] left-1/2 -translate-x-1/2 z-[10010] pointer-events-none">
-          <div className="pointer-events-auto">
-            <LocationRadiusSelector 
-              radiusKm={radiusKm}
-              onRadiusChange={(km) => setRadiusKm(km)}
-              onDetectLocation={detectLocation}
-              detecting={locationDetecting}
-              detected={locationDetected}
-              title={activeCategory ? activeCategory.charAt(0).toUpperCase() + activeCategory.slice(1) : "Clients"}
-            />
-          </div>
-        </div>,
-        document.body
-      )}
-
+      {/* 📡 PERSISTENT HUD: Swipess Flagship v1.0.96-rc4 */}
       <p className="absolute bottom-4 left-6 text-[8px] font-black uppercase tracking-[0.6em] opacity-10 pointer-events-none z-0">Swipess FLAGSHIP v1.0.96-rc4</p>
     </div>
   );

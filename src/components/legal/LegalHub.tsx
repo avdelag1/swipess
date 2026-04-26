@@ -31,7 +31,7 @@ function Badge({ children, className, variant = "secondary" }: { children: React
   );
 }
 
-export function LegalHub() {
+export function ContractsVault() {
   const { user } = useAuth();
   const { theme, isLight } = useAppTheme();
   const [view, setView] = useState<HubView>('dashboard');
@@ -96,7 +96,7 @@ export function LegalHub() {
             <ShieldCheck className="w-6 h-6 text-primary" />
           </div>
           <div>
-            <h2 className={cn("text-xl font-black tracking-tight uppercase italic", isLight ? "text-black" : "text-white")}>Legal Hub</h2>
+            <h2 className={cn("text-xl font-black tracking-tight uppercase italic", isLight ? "text-black" : "text-white")}>Contracts Vault</h2>
             <p className={cn("text-[10px] font-black uppercase tracking-[0.2em] opacity-20", isLight ? "text-black" : "text-white")}>Secured Digital Protocols v2.0</p>
           </div>
         </div>
