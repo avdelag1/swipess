@@ -41,6 +41,7 @@ import useAppTheme from '@/hooks/useAppTheme';
 // FIX: Lazy-load modals via portal 
 const ShareDialog = lazy(() => import('./ShareDialog').then(m => ({ default: m.ShareDialog })));
 const MessageConfirmationDialog = lazy(() => import('./MessageConfirmationDialog').then(m => ({ default: m.MessageConfirmationDialog })));
+import { OWNER_INTENT_CARDS } from './swipe/SwipeConstants';
 
 
 
