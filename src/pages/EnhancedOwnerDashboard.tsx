@@ -34,12 +34,6 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
   // Derive phase directly from activeCategory — no intermediate state, no race conditions
   const phase = activeCategory ? 'swipe' : 'cards';
 
-  // Clear stale persisted category on mount so owner always sees card picker first
-  useEffect(() => {
-    setActiveCategory(null);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   const { user, loading: isAuthLoading } = useAuth();
 
   // Hydrate owner filter store from DB on mount
