@@ -50,24 +50,24 @@ export const LocationRadiusSelector = memo(({
       <motion.div
         layout
         className={cn(
-          "flex items-center gap-1 p-1 rounded-full backdrop-blur-3xl border transition-all shadow-2xl",
+          "flex items-center gap-2 p-2 rounded-full backdrop-blur-3xl border transition-all shadow-2xl",
           isLight
-            ? "bg-white/80 border-black/10 shadow-black/5"
-            : "bg-black/60 border-white/10 shadow-black/20"
+            ? "bg-white/85 border-black/10 shadow-black/10"
+            : "bg-black/70 border-white/15 shadow-black/30"
         )}
       >
         {/* GPS QUICK-DETECT */}
         <motion.button
-          whileTap={{ scale: 0.85 }}
+          whileTap={{ scale: 0.88 }}
           onClick={onDetectLocation}
           disabled={detecting}
           className={cn(
-            "w-9 h-9 flex items-center justify-center rounded-full transition-all",
+            "w-10 h-10 flex items-center justify-center rounded-full transition-all flex-shrink-0",
             detected
-              ? "bg-primary text-white shadow-[0_0_15px_rgba(236,72,153,0.4)]"
+              ? "bg-primary text-white shadow-[0_0_20px_rgba(236,72,153,0.5)]"
               : isLight
                 ? "bg-slate-100 text-slate-900 hover:bg-slate-200"
-                : "bg-white/10 text-white hover:bg-white/20"
+                : "bg-white/15 text-white hover:bg-white/25"
           )}
           title="Detect GPS location"
         >
@@ -76,19 +76,19 @@ export const LocationRadiusSelector = memo(({
 
         {/* RADIUS TOGGLE */}
         <motion.button
-          whileTap={{ scale: 0.95 }}
+          whileTap={{ scale: 0.93 }}
           onClick={toggleExpand}
           className={cn(
-            "flex items-center gap-2 h-9 px-3 rounded-full transition-all",
-            isLight ? "hover:bg-slate-50" : "hover:bg-white/5"
+            "flex items-center gap-2 h-10 px-4 rounded-full transition-all flex-shrink-0",
+            isLight ? "hover:bg-slate-100" : "hover:bg-white/10"
           )}
         >
           <MapPin className={cn(
-            "w-3.5 h-3.5",
-            detected ? "text-primary" : "opacity-40"
+            "w-4 h-4",
+            detected ? "text-primary" : "opacity-50"
           )} />
-          <span className="text-[11px] font-black uppercase italic tracking-wider">
-            {radiusKm}<span className="text-[9px] opacity-40 lowercase ml-0.5">km</span>
+          <span className="text-[12px] font-black uppercase italic tracking-wider">
+            {radiusKm}<span className="text-[10px] opacity-50 lowercase ml-1">km</span>
           </span>
           <motion.div
             animate={{ rotate: expanded ? 180 : 0 }}
@@ -103,12 +103,12 @@ export const LocationRadiusSelector = memo(({
       <AnimatePresence>
         {expanded && (
           <motion.div
-            initial={{ opacity: 0, y: 12, scale: 0.95 }}
+            initial={{ opacity: 0, y: 10, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 12, scale: 0.95 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+            exit={{ opacity: 0, y: 10, scale: 0.95 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 20 }}
             className={cn(
-              "absolute top-14 right-0 w-72 rounded-[2.5rem] border backdrop-blur-3xl p-5 z-[100] shadow-[0_30px_60px_rgba(0,0,0,0.5)] pointer-events-auto",
+              "absolute top-16 right-0 w-80 rounded-[2.5rem] border backdrop-blur-3xl p-6 z-[100] shadow-[0_30px_60px_rgba(0,0,0,0.5)] pointer-events-auto",
               isLight
                 ? "bg-white border-black/5"
                 : "bg-[#0a0a0a] border-white/10"
@@ -125,11 +125,16 @@ export const LocationRadiusSelector = memo(({
               detecting={detecting}
               detected={detected}
             />
-            <div className="mt-4 pt-4 border-t border-white/5">
+            <div className={cn("mt-5 pt-5 border-t", isLight ? "border-black/10" : "border-white/10")}>
                 <motion.button
                   whileTap={{ scale: 0.95 }}
                   onClick={() => setExpanded(false)}
-                  className="w-full py-3 rounded-2xl bg-white/5 text-[10px] font-black uppercase tracking-widest hover:bg-white/10 transition-colors"
+                  className={cn(
+                    "w-full py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-colors",
+                    isLight
+                      ? "bg-black/5 hover:bg-black/10"
+                      : "bg-white/8 hover:bg-white/15"
+                  )}
                 >
                   Close Sensor
                 </motion.button>
