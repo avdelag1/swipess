@@ -227,7 +227,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
             {/* 📡 HUD is now managed inside ClientSwipeContainer to maintain parity with Client side discovery */}
 
 
-            <div className="flex-1 min-h-0">
+            <div className="flex-1 min-h-0 h-full">
               <ClientSwipeContainer
                 onClientTap={handleClientTap}
                 onInsights={handleInsights}

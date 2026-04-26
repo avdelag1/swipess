@@ -862,14 +862,21 @@ const ClientSwipeContainerComponent = ({
 
   return (
     <>
-      <div className={cn("relative w-full h-full overflow-hidden flex flex-col", isLight ? "bg-white/40" : "bg-[#0a0a0b]")}>
+      <div className={cn(
+        "relative w-full h-full flex flex-col transition-colors duration-500 min-h-0",
+        isLight ? "bg-transparent" : "bg-black"
+      )}>
+        <div className={cn(
+          "absolute inset-0 pointer-events-none -z-10 transition-colors duration-500",
+          isLight ? "bg-transparent" : "bg-black"
+        )} />
+
         {/* Static ambient background */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden -z-10" />
 
         {/* Header Controls — Unified with Swipess Standard */}
         <div className="absolute top-3 left-4 z-[70] flex items-center gap-3 pointer-events-auto">
-          <motion.button
-            whileTap={{ scale: 0.9 }}
+          <button
             onClick={() => {
               if (!canClickBack) return;
               triggerHaptic('light');
@@ -884,7 +891,7 @@ const ClientSwipeContainerComponent = ({
             title="Back to Sectors"
           >
             <ChevronLeft className="w-5 h-5" />
-          </motion.button>
+          </button>
           <span className={cn("text-sm font-black uppercase tracking-wider", isLight ? "text-black" : "text-white")}>
             {labels.plural}
           </span>
