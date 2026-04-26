@@ -287,8 +287,8 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
 
   return (
     <div className={cn(
-      "dashboard-root w-full min-h-screen relative flex flex-col",
-      (isFullScreenRoute || isZeroScrollDashboard || isImmersiveDashboard) ? "h-screen overflow-hidden" : "overflow-x-hidden",
+      "dashboard-root w-full relative flex flex-col",
+      (isFullScreenRoute || isZeroScrollDashboard || isImmersiveDashboard) ? "h-screen overflow-hidden" : "h-[100dvh] overflow-hidden",
       isDark ? "dark dark-matte" : "light white-matte"
     )}>
       <main

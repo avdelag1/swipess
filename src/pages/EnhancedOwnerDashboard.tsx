@@ -31,26 +31,14 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
   const activeCategory = useFilterStore(s => s.activeCategory);
   const { setCategories, setClientType, setListingType, setActiveCategory } = useFilterActions();
 
-  // 🛸 OWNER DASHBOARD ALWAYS STARTS ON CARDS — clear any stale persisted category on mount
-  // This prevents the dashboard from jumping to swipe phase with no data
-  const [phase, setPhase] = useState<'cards' | 'swipe'>('cards');
+  // Derive phase directly from activeCategory — no intermediate state, no race conditions
+  const phase = activeCategory ? 'swipe' : 'cards';
 
-  // Clear stale activeCategory on mount so owner always sees card deck first
+  // Clear stale persisted category on mount so owner always sees card picker first
   useEffect(() => {
-    if (activeCategory) {
-      setActiveCategory(null);
-    }
+    setActiveCategory(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Only on mount
-
-  // 🛰️ PHASE SYNC: Bi-directional sync (after mount)
-  useEffect(() => {
-    if (activeCategory && phase === 'cards') {
-      setPhase('swipe');
-    } else if (!activeCategory && phase === 'swipe') {
-      setPhase('cards');
-    }
-  }, [activeCategory, phase]);
+  }, []);
 
   const { user, loading: isAuthLoading } = useAuth();
 

@@ -198,8 +198,8 @@ const OwnerInterestedClients = () => {
   );
 
   return (
-    <div className="w-full relative flex flex-col pb-40 min-h-screen" data-no-swipe-nav="true">
-      <div className="p-4 pt-24 sm:p-8 sm:pt-24 max-w-7xl mx-auto">
+    <div className="w-full relative flex flex-col" data-no-swipe-nav="true">
+      <div className="p-4 pt-4 sm:p-8 sm:pt-6 max-w-7xl mx-auto">
         <PageHeader title="Interested Clients" subtitle="Top Demand Entities" showBack={true} />
 
         {/* Category filter tabs */}

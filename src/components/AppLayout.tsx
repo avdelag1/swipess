@@ -150,7 +150,7 @@ export function AppLayout({ children }: AppLayoutProps) {
       </Suspense>
   
       {!isAuthRoute && !isFullScreen && (!isPublicPreview || !!user) && (
-        <SentientHud side="top" className="fixed top-0 left-0 right-0 z-[10005]" scrollTargetSelector="#dashboard-scroll-container">
+        <SentientHud side="top" className="fixed top-0 left-0 right-0 z-[10005]" scrollTargetSelector="#dashboard-scroll-container" alwaysVisible={!isImmersive}>
           <TopBar
             userRole={userRole}
             onMessageActivationsClick={handleMessageActivationsClick}
@@ -189,7 +189,7 @@ export function AppLayout({ children }: AppLayoutProps) {
 
 
       {!isAuthRoute && !isFullScreen && (!isPublicPreview || !!user) && isRootTab && (
-        <SentientHud side="bottom" className="fixed bottom-0 left-0 right-0 z-[9999]" scrollTargetSelector="#dashboard-scroll-container">
+        <SentientHud side="bottom" className="fixed bottom-0 left-0 right-0 z-[9999]" scrollTargetSelector="#dashboard-scroll-container" alwaysVisible={!isImmersive}>
           <BottomNavigation
             userRole={userRole}
             onFilterClick={handleFilterClick}

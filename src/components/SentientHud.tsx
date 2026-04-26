@@ -6,8 +6,8 @@ import { cn } from '@/lib/utils';
 
 interface SentientHudProps {
   children: React.ReactNode;
-  /** 
-   * Selector for the scrollable element to monitor. 
+  /**
+   * Selector for the scrollable element to monitor.
    * Defaults to window if not provided.
    */
   scrollTargetSelector?: string;
@@ -25,6 +25,8 @@ interface SentientHudProps {
    */
   side?: 'top' | 'bottom';
   className?: string;
+  /** When true, always visible — no auto-hide on scroll */
+  alwaysVisible?: boolean;
 }
 
 /**
@@ -38,11 +40,12 @@ export function SentientHud({
   threshold = 20,
   mode = 'both',
   side = 'top',
-  className
+  className,
+  alwaysVisible = false,
 }: SentientHudProps) {
   const location = useLocation();
   const { isFocused } = useFocusMode(7000);
-  
+
   const { isVisible: isScrollVisible } = useScrollDirection({
     threshold,
     showAtTop: true,
@@ -50,7 +53,7 @@ export function SentientHud({
     resetTrigger: location.pathname
   });
 
-  const isVisible = isScrollVisible;
+  const isVisible = alwaysVisible || isScrollVisible;
 
   const isTranslate = mode === 'both' || mode === 'translate';
   const isFade = mode === 'both' || mode === 'fade';
