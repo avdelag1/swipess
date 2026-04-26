@@ -44,6 +44,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
   })));
   const [detecting, setDetecting] = useState(false);
   const [detected, setDetected] = useState(!!lat && !!lng);
+  const [hudExpanded, setHudExpanded] = useState(false);
 
   const handleDetectLocation = useCallback(() => {
     if (!navigator.geolocation) return;
@@ -97,6 +98,15 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
       setClientNationalities(nationalities);
     }
   }, [ownerPrefs, storeGender, setClientGender, setClientAgeRange, setClientBudgetRange, setClientNationalities]);
+
+  // Auto-expand radius selector when entering swipe phase
+  useEffect(() => {
+    if (phase === 'swipe') {
+      setHudExpanded(true);
+    } else {
+      setHudExpanded(false);
+    }
+  }, [phase]);
 
   const storeFilterVersion = useFilterStore((s) => s.filterVersion);
   const clientFilters = useMemo(() => {
@@ -241,6 +251,8 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
               detecting={detecting}
               detected={detected}
               title="clients"
+              expanded={hudExpanded}
+              onExpandedChange={setHudExpanded}
             />
           </motion.div>
         )}

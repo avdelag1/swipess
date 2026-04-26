@@ -817,8 +817,8 @@ const ClientSwipeContainerComponent = ({
         {/* 📡 Radar HUD removed from skeleton to prevent double-render flash */}
 
         <div className="relative flex-1 w-full">
-          <div className="absolute inset-0 rounded-3xl overflow-hidden bg-muted/30 animate-pulse">
-            <div className="absolute inset-0 bg-gradient-to-br from-muted/50 via-muted/30 to-muted/50">
+          <div className="absolute inset-0 rounded-3xl overflow-hidden bg-white/8 animate-pulse">
+            <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-white/5 to-white/10">
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer"
                 style={{ animationDuration: '1.5s', backgroundSize: '200% 100%' }} />
             </div>
