@@ -113,26 +113,26 @@ export const LocationRadiusSelector = memo(({
         </motion.button>
       </motion.div>
 
-      {/* Expanded Slider Panel */}
+      {/* Expanded Slider Panel — fixed to viewport, full-width below top bar */}
       <AnimatePresence>
         {expanded && (
           <motion.div
-            initial={{ opacity: 0, y: 10, scale: 0.95 }}
+            initial={{ opacity: 0, y: -10, scale: 0.97 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 10, scale: 0.95 }}
-            transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-            style={{ pointerEvents: 'auto' }}
+            exit={{ opacity: 0, y: -10, scale: 0.97 }}
+            transition={{ type: 'spring', stiffness: 350, damping: 28 }}
+            style={{ pointerEvents: 'auto', top: 'calc(var(--top-bar-height, 64px) + var(--safe-top, 0px) + 8px)' }}
             className={cn(
-              "absolute top-16 left-1/2 -translate-x-1/2 w-80 rounded-[2.5rem] border backdrop-blur-3xl p-6 z-[100] shadow-[0_30px_60px_rgba(0,0,0,0.5)]",
+              "fixed left-4 right-4 mx-auto max-w-sm rounded-[2.5rem] border backdrop-blur-3xl p-6 z-[10009] shadow-[0_30px_80px_rgba(0,0,0,0.6)]",
               isLight
-                ? "bg-white border-black/5"
-                : "bg-[#0a0a0a] border-white/10"
+                ? "bg-white/95 border-black/10"
+                : "bg-[#0d0d0d]/95 border-white/10"
             )}
           >
-             <div className="mb-4">
-                <h4 className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40 mb-1">Sector Depth</h4>
-                <p className="text-xs font-bold italic opacity-80">{title ? `Looking for ${title}` : 'Adjust scanning radius'}</p>
-             </div>
+            <div className="mb-5">
+              <h4 className="text-[10px] font-black uppercase tracking-[0.3em] opacity-40 mb-1">Sector Depth</h4>
+              <p className="text-sm font-black italic opacity-90">{title ? `Scanning for ${title}` : 'Adjust scanning radius'}</p>
+            </div>
             <DistanceSlider
               radiusKm={radiusKm}
               onRadiusChange={onRadiusChange}
@@ -141,18 +141,18 @@ export const LocationRadiusSelector = memo(({
               detected={detected}
             />
             <div className={cn("mt-5 pt-5 border-t", isLight ? "border-black/10" : "border-white/10")}>
-                <motion.button
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => isControlled ? onExpandedChange?.(false) : setInternalExpanded(false)}
-                  className={cn(
-                    "w-full py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-colors",
-                    isLight
-                      ? "bg-black/5 hover:bg-black/10"
-                      : "bg-white/8 hover:bg-white/15"
-                  )}
-                >
-                  Close Sensor
-                </motion.button>
+              <motion.button
+                whileTap={{ scale: 0.95 }}
+                onClick={() => isControlled ? onExpandedChange?.(false) : setInternalExpanded(false)}
+                className={cn(
+                  "w-full py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-colors",
+                  isLight
+                    ? "bg-black/5 hover:bg-black/10"
+                    : "bg-white/8 hover:bg-white/15"
+                )}
+              >
+                Done
+              </motion.button>
             </div>
           </motion.div>
         )}

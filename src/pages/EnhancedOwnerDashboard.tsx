@@ -111,6 +111,15 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
   const [detected, setDetected] = useState(!!lat && !!lng);
   const kmExpanded = useFilterStore(s => s.kmHudExpanded);
   const setKmExpanded = useFilterStore(s => s.setKmHudExpanded);
+
+  // Auto-open the km panel when entering swipe mode, auto-close when leaving
+  useEffect(() => {
+    if (phase === 'swipe') {
+      setKmExpanded(true);
+    } else {
+      setKmExpanded(false);
+    }
+  }, [phase, setKmExpanded]);
   
   const radarNodes = useMemo(() => (clientProfiles || []).map(p => ({
     id: p.user_id || p.id,
