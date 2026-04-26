@@ -248,11 +248,14 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
 
       <p className="absolute bottom-4 left-6 text-[8px] font-black uppercase tracking-[0.6em] opacity-10 pointer-events-none z-0">Swipess FLAGSHIP v1.0.96-rc4</p>
 
-      {/* 📡 Radar HUD — Managed at the Dashboard level for absolute persistence and parity */}
-      {typeof document !== 'undefined' && document.body && !initialLoading && createPortal(
-        <div className="fixed top-[calc(var(--safe-top)+12px)] left-1/2 -translate-x-1/2 z-[10010] pointer-events-none">
+      {/* 📡 Radar HUD — Always mounted so expanded state is never reset by loading changes */}
+      {createPortal(
+        <div
+          className="fixed left-1/2 -translate-x-1/2 z-[10010] pointer-events-none"
+          style={{ top: 'calc(var(--safe-top, 0px) + 12px)' }}
+        >
           <div className="pointer-events-auto">
-            <LocationRadiusSelector 
+            <LocationRadiusSelector
               radiusKm={radiusKm}
               onRadiusChange={setRadiusKm as any}
               onDetectLocation={handleDetectLocation}
