@@ -303,9 +303,16 @@ export default function WorldRadioDirectory() {
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                 <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center">
-                    <Maximize2 size={14} className="text-white/40" />
-                 </div>
+                 <button
+                   onClick={(e) => {
+                     e.stopPropagation();
+                     navigate('/radio');
+                   }}
+                   className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
+                   title="Open full player"
+                 >
+                    <Maximize2 size={14} className="text-white" />
+                 </button>
               </div>
             </button>
           </motion.div>
