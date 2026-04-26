@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { QuickFilterImage } from '@/components/ui/QuickFilterImage';
 import { motion, AnimatePresence } from 'framer-motion';
+import { AtmosphericLayer } from '@/components/AtmosphericLayer';
 import { useNavigate } from 'react-router-dom';
 import { useRadio } from '@/contexts/RadioContext';
 import { radioStations, cityThemes } from '@/data/radioStations';
@@ -58,6 +59,7 @@ export default function WorldRadioDirectory() {
       "min-h-screen flex flex-col",
       isDark ? "bg-[#050505] text-white" : "bg-white text-slate-900"
     )}>
+      <AtmosphericLayer />
       {/* ── HEADER ── */}
       <header className={cn(
         "sticky top-0 z-30 pt-[env(safe-area-inset-top,20px)] px-6 pb-6 backdrop-blur-2xl border-b",
@@ -161,7 +163,6 @@ export default function WorldRadioDirectory() {
               return (
                 <motion.div
                   key={station.id}
-                  layout
                   variants={itemAnim}
                   exit={{ opacity: 0, scale: 0.95 }}
                   className={cn(

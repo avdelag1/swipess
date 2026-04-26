@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useRadio } from '@/contexts/RadioContext';
-import { cityThemes, getStationById, getStationsByCity } from '@/data/radioStations';
+import { getStationById, getStationsByCity } from '@/data/radioStations';
 import { CityLocation } from '@/types/radio';
 import { StationDrawer } from '@/components/radio/retro/StationDrawer';
 import { FrequencyBand } from '@/components/radio/FrequencyBand';
@@ -10,12 +10,10 @@ import { triggerHaptic } from '@/utils/haptics';
 import { cn } from '@/lib/utils';
 import useAppTheme from '@/hooks/useAppTheme';
 import {
-  ArrowLeft, Globe, Star, Heart, Shuffle, Radio,
+  ArrowLeft, Star, Heart,
   SkipBack, SkipForward, Play, Pause, Volume2, ListMusic
 } from 'lucide-react';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { AtmosphericLayer } from '@/components/AtmosphericLayer';
-import { SwipessLogo } from '@/components/SwipessLogo';
 
 /**
  * DJTurntableRadio — Clean FM Tuner interface (Apple-inspired redesign).
@@ -25,8 +23,8 @@ import { SwipessLogo } from '@/components/SwipessLogo';
 export default function DJTurntableRadio() {
   const navigate = useNavigate();
   const {
-    state, loading, play, togglePlayPause, togglePower, changeStation,
-    setCity, setVolume, toggleShuffle, toggleFavorite, isStationFavorite,
+    state, play, togglePlayPause, togglePower, changeStation,
+    setCity, setVolume, toggleFavorite, isStationFavorite,
   } = useRadio();
   const { isDark } = useAppTheme();
 
@@ -93,7 +91,7 @@ export default function DJTurntableRadio() {
       className={cn("relative w-full h-full flex flex-col overflow-hidden transition-colors duration-500", isDark ? "bg-[#0A0A0A]" : "bg-white")}
       id="main-radio-content"
     >
-      {/* 🛸 Global AtmosphericLayer is handled by PersistentDashboardLayout */}
+      <AtmosphericLayer />
 
       {/* ── Top Bar ── */}
       <div className="flex items-center justify-between px-4 pt-4 pb-2 z-20 relative gap-3">

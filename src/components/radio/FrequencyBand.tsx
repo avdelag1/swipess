@@ -43,6 +43,13 @@ export function FrequencyBand({
   // State for the current band position (offset from center)
   const offsetRef = useRef(freqToX(currentFrequency));
   const [renderOffset, setRenderOffset] = useState(freqToX(currentFrequency));
+  const [containerWidth, setContainerWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 390);
+
+  useEffect(() => {
+    const handleResize = () => setContainerWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Touch tracking
   const dragging = useRef(false);
@@ -199,8 +206,7 @@ export function FrequencyBand({
     ticks.push({ freq: rounded, isMajor, isStation });
   }
 
-  const containerWidth = typeof window !== 'undefined' ? window.innerWidth : 390;
-  const bandTranslate = containerWidth / 2 - renderOffset;
+    const bandTranslate = containerWidth / 2 - renderOffset;
 
   return (
     <div ref={containerRef} className={`relative overflow-hidden cursor-grab active:cursor-grabbing ${className}`} style={{ height: 80, touchAction: 'none' }}>

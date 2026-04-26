@@ -33,16 +33,14 @@ import { useStartConversation } from '@/hooks/useConversations';
 import { useNavigate } from 'react-router-dom';
 import { logger } from '@/utils/prodLogger';
 import { SwipeExhaustedState } from './swipe/SwipeExhaustedState';
-import { Home, RefreshCw, ChevronLeft, Radar, SlidersHorizontal, MapPin } from 'lucide-react';
+import { Home, RefreshCw, ChevronLeft, SlidersHorizontal } from 'lucide-react';
 import { LocationRadiusSelector } from './swipe/LocationRadiusSelector';
 import { cn } from '@/lib/utils';
 import useAppTheme from '@/hooks/useAppTheme';
-import { SwipeLoadingSkeleton } from './swipe/SwipeLoadingSkeleton';
 
 // FIX: Lazy-load modals via portal 
 const ShareDialog = lazy(() => import('./ShareDialog').then(m => ({ default: m.ShareDialog })));
 const MessageConfirmationDialog = lazy(() => import('./MessageConfirmationDialog').then(m => ({ default: m.MessageConfirmationDialog })));
-import { POKER_CARDS, OWNER_INTENT_CARDS } from './swipe/SwipeConstants';
 
 
 
@@ -71,10 +69,9 @@ const ClientSwipeContainerComponent = ({
 }: ClientSwipeContainerProps) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { theme, isLight } = useAppTheme();
+  const { isLight } = useAppTheme();
   // PERF: Get userId from auth to pass to query (avoids getUser() inside queryFn)
   const { user } = useAuth();
-  const { data: userRole } = useUserRole(user?.id);
 
   // Dynamic labels based on category
   const getCategoryLabel = () => {
@@ -100,14 +97,11 @@ const ClientSwipeContainerComponent = ({
     }
   }, [storeActiveCategory, category]);
 
-  const handleMapCategorySelect = useCallback((nextCategory: 'property' | 'motorcycle' | 'bicycle' | 'services') => {
-    setActiveCategory(nextCategory);
-  }, [setActiveCategory]);
+
 
   const [isCreatingConversation, setIsCreatingConversation] = useState(false);
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
   const [_swipeDirection, setSwipeDirection] = useState<'left' | 'right' | null>(null);
-  const [isRefreshing, setIsRefreshing] = useState(false);
   const [messageDialogOpen, setMessageDialogOpen] = useState(false);
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
   const cardRef = useRef<SimpleOwnerSwipeCardRef>(null);
@@ -151,6 +145,13 @@ const ClientSwipeContainerComponent = ({
   
   const [locationDetecting, setLocationDetecting] = useState(false);
   const [locationDetected, setLocationDetected] = useState(false);
+
+  const radarNodes = useMemo(() => (externalProfiles || []).map(p => ({
+    id: p.user_id || p.id,
+    lat: p.latitude || 0,
+    lng: p.longitude || 0,
+    label: p.name || 'Found'
+  })), [externalProfiles]);
 
   const detectLocation = useCallback(() => {
     if (!navigator.geolocation) return;
@@ -709,29 +710,7 @@ const ClientSwipeContainerComponent = ({
     }
   }, [handleSwipe]);
 
-  const handleRefresh = useCallback(async () => {
-    setIsRefreshing(true);
-    setIsRefreshMode(false);
-    triggerHaptic('medium');
 
-    // Reset local state and refs
-    currentIndexRef.current = 0;
-    setCurrentIndex(0);
-    deckQueueRef.current = [];
-    swipedIdsRef.current.clear();
-    setPage(0);
-
-    // Reset store
-    resetOwnerDeck(category);
-
-    try {
-      await refetch();
-    } catch (_err) {
-      appToast.error('Refresh failed', 'Please try again.');
-    } finally {
-      setIsRefreshing(false);
-    }
-  }, [refetch, resetOwnerDeck, category]);
 
   const handleInsights = useCallback((clientId: string) => {
     navigate(`/owner/view-client/${clientId}`);
@@ -898,24 +877,21 @@ const ClientSwipeContainerComponent = ({
               </motion.button>
 
               {/* Center Radar Cluster */}
-              <div className="flex items-center gap-3">
-                <LocationRadiusSelector
-                  radiusKm={radiusKm}
-                  onRadiusChange={setRadiusKm as any}
-                  onDetectLocation={detectLocation}
-                  detecting={locationDetecting}
-                  detected={locationDetected}
-                  lat={userLatitude}
-                  lng={userLongitude}
-                  variant="minimal"
-                  nodes={useMemo(() => (externalProfiles || []).map(p => ({
-                    id: p.user_id || p.id,
-                    lat: p.latitude || 0,
-                    lng: p.longitude || 0,
-                    label: p.name || 'Found'
-                  })), [externalProfiles])}
-                />
-              </div>
+              {topCard && (
+                <div className="flex items-center gap-3">
+                  <LocationRadiusSelector
+                    radiusKm={radiusKm}
+                    onRadiusChange={setRadiusKm as any}
+                    onDetectLocation={detectLocation}
+                    detecting={locationDetecting}
+                    detected={locationDetected}
+                    lat={userLatitude}
+                    lng={userLongitude}
+                    variant="minimal"
+                    nodes={radarNodes}
+                  />
+                </div>
+              )}
 
               {/* Advanced Filters Trigger */}
               <motion.button

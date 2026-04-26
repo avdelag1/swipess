@@ -1,4 +1,4 @@
-import { memo, useState, useCallback, useEffect } from 'react';
+import { memo, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MapPin, Navigation, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -30,9 +30,9 @@ export const LocationRadiusSelector = memo(({
   onDetectLocation,
   detecting,
   detected,
-  lat,
-  lng,
-  variant = 'minimal',
+  lat: _lat,
+  lng: _lng,
+  variant: _variant = 'minimal',
   nodes = [],
 }: LocationRadiusSelectorProps) => {
   const { isLight } = useAppTheme();
@@ -42,8 +42,6 @@ export const LocationRadiusSelector = memo(({
   const toggleExpand = useCallback(() => {
     setExpanded(prev => !prev);
   }, []);
-
-  const nearbyCount = nodes.length;
 
   return (
     <div className="relative flex items-center gap-2 pointer-events-auto" style={{ pointerEvents: 'auto' }}>
