@@ -92,9 +92,10 @@ const ClientSwipeContainerComponent = ({
       case 'motorcycle': return { singular: 'Motorcycle', plural: 'Motorcycles', searchText: 'Searching for Motorcycles', Icon: MotorcycleIcon, color: 'text-orange-500' };
       case 'services':
       case 'worker':
-      case 'hire': return { singular: 'Job', plural: 'Workers', searchText: 'Searching for Workers', Icon: Wrench, color: 'text-purple-500' };
+      case 'hire': return { singular: 'Service', plural: 'Services', searchText: 'Searching for Service Clients', Icon: Wrench, color: 'text-purple-500' };
       case 'buyers': return { singular: 'Buyer', plural: 'Buyers', searchText: 'Searching for Buyers', Icon: Users, color: 'text-pink-500' };
       case 'renters': return { singular: 'Renter', plural: 'Renters', searchText: 'Searching for Renters', Icon: Users, color: 'text-orange-500' };
+      case 'all-clients': return { singular: 'Client', plural: 'All Clients', searchText: 'Searching for Clients', Icon: Users, color: 'text-cyan-500' };
       default: return { singular: 'Client', plural: 'Clients', searchText: 'Searching for Clients', Icon: Users, color: 'text-pink-500' };
     }
   };
