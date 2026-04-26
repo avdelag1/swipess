@@ -46,9 +46,10 @@ export const LocationRadiusSelector = memo(({
   const nearbyCount = nodes.length;
 
   return (
-    <div className="relative flex items-center gap-2 pointer-events-auto">
+    <div className="relative flex items-center gap-2 pointer-events-auto" style={{ pointerEvents: 'auto' }}>
       <motion.div
         layout
+        style={{ pointerEvents: 'auto' }}
         className={cn(
           "flex items-center gap-2 p-2 rounded-full backdrop-blur-3xl border transition-all shadow-2xl",
           isLight
@@ -61,6 +62,7 @@ export const LocationRadiusSelector = memo(({
           whileTap={{ scale: 0.88 }}
           onClick={onDetectLocation}
           disabled={detecting}
+          style={{ pointerEvents: 'auto' }}
           className={cn(
             "w-10 h-10 flex items-center justify-center rounded-full transition-all flex-shrink-0",
             detected
@@ -78,6 +80,7 @@ export const LocationRadiusSelector = memo(({
         <motion.button
           whileTap={{ scale: 0.93 }}
           onClick={toggleExpand}
+          style={{ pointerEvents: 'auto' }}
           className={cn(
             "flex items-center gap-2 h-10 px-4 rounded-full transition-all flex-shrink-0",
             isLight ? "hover:bg-slate-100" : "hover:bg-white/10"
@@ -107,8 +110,9 @@ export const LocationRadiusSelector = memo(({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
             transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+            style={{ pointerEvents: 'auto' }}
             className={cn(
-              "absolute top-16 right-0 w-80 rounded-[2.5rem] border backdrop-blur-3xl p-6 z-[100] shadow-[0_30px_60px_rgba(0,0,0,0.5)] pointer-events-auto",
+              "absolute top-16 right-0 w-80 rounded-[2.5rem] border backdrop-blur-3xl p-6 z-[100] shadow-[0_30px_60px_rgba(0,0,0,0.5)]",
               isLight
                 ? "bg-white border-black/5"
                 : "bg-[#0a0a0a] border-white/10"
