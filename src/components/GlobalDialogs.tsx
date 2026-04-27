@@ -33,40 +33,42 @@ const ConciergeChat = lazyWithRetry(() => import('@/components/ConciergeChat').t
 const ReportDialog = lazyWithRetry(() => import('@/components/ReportDialog').then(m => ({ default: m.ReportDialog })));
 
 const ConciergeChatFallback = memo(() => (
-  <div className="fixed inset-0 z-[10000] flex flex-col bg-background">
-    {/* Header Skeleton */}
-    <div className="h-16 flex items-center justify-between px-5 border-b border-border/10 bg-background/50 backdrop-blur-xl">
-      <div className="flex items-center gap-3">
-        <div className="w-9 h-9 rounded-xl bg-muted/20 animate-pulse" />
-        <div className="space-y-2">
-          <div className="h-2.5 w-24 rounded-full bg-foreground/10 animate-pulse" />
-          <div className="h-2 w-16 rounded-full bg-muted/10 animate-pulse" />
+  <div className="fixed inset-0 z-[10000] bg-black/60 backdrop-blur-xl flex items-end md:items-center justify-center">
+    <div className="relative w-full h-full md:max-w-3xl md:h-[90vh] md:rounded-[3rem] border border-[#FF3D00]/20 flex flex-col overflow-hidden bg-[#050505] shadow-[0_0_50px_rgba(255,61,0,0.1)]">
+      {/* 🛸 Ambient Background */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-[#FF3D00]/10 blur-[120px] rounded-full" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-blue-600/10 blur-[120px] rounded-full" />
+      </div>
+
+      {/* Header Skeleton */}
+      <div className="h-20 flex items-center justify-between px-6 border-b border-white/5 bg-black/40 backdrop-blur-3xl relative z-10">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/5 animate-pulse" />
+          <div className="space-y-2">
+            <div className="h-3 w-32 rounded-full bg-white/10 animate-pulse" />
+            <div className="h-2 w-20 rounded-full bg-white/5 animate-pulse" />
+          </div>
+        </div>
+        <div className="flex gap-3">
+          <div className="h-12 w-32 rounded-2xl bg-white/5 border border-white/5 animate-pulse" />
+          <div className="h-12 w-12 rounded-2xl bg-white/5 border border-white/5 animate-pulse" />
         </div>
       </div>
-      <div className="flex gap-2">
-        <div className="h-10 w-10 rounded-xl bg-muted/10 animate-pulse" />
-        <div className="h-10 w-10 rounded-xl bg-muted/10 animate-pulse" />
+      
+      {/* Content Skeleton */}
+      <div className="flex-1 p-8 space-y-10 overflow-hidden relative z-10 flex flex-col items-center justify-center">
+        <div className="w-24 h-24 rounded-[3rem] border border-primary/10 flex items-center justify-center bg-primary/5 animate-pulse" />
+        <div className="space-y-3 text-center">
+           <div className="h-4 w-48 rounded-full bg-white/10 mx-auto animate-pulse" />
+           <div className="h-2 w-32 rounded-full bg-white/5 mx-auto animate-pulse" />
+        </div>
       </div>
-    </div>
-    
-    {/* Content Skeleton */}
-    <div className="flex-1 p-6 space-y-8 overflow-hidden">
-      <div className="flex flex-col items-end space-y-2">
-        <div className="h-14 w-[70%] rounded-2xl rounded-br-md bg-primary/5 animate-pulse" />
-        <div className="h-3 w-20 rounded-full bg-primary/10 animate-pulse" />
+      
+      {/* Input Skeleton */}
+      <div className="p-8 border-t border-white/5 pb-[calc(env(safe-area-inset-bottom,0px)+32px)] bg-black/40 backdrop-blur-xl relative z-10">
+        <div className="h-16 w-full rounded-[2.2rem] bg-white/5 border border-white/5 animate-pulse" />
       </div>
-      <div className="flex flex-col items-start space-y-2">
-        <div className="h-24 w-[85%] rounded-2xl rounded-bl-md bg-muted/10 animate-pulse" />
-        <div className="h-3 w-28 rounded-full bg-muted/20 animate-pulse" />
-      </div>
-      <div className="flex flex-col items-end space-y-2">
-        <div className="h-16 w-[60%] rounded-2xl rounded-br-md bg-primary/5 animate-pulse" />
-      </div>
-    </div>
-    
-    {/* Input Skeleton */}
-    <div className="p-4 border-t border-border/10 pb-[calc(env(safe-area-inset-bottom,0px)+16px)] bg-background">
-      <div className="h-16 w-full rounded-2xl bg-muted/10 border border-border/5 animate-pulse" />
     </div>
   </div>
 ));

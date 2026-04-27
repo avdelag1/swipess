@@ -333,6 +333,28 @@ export const BottomNavigation = memo(({
                   transition: 'all 0.3s cubic-bezier(0.22, 1, 0.36, 1)',
                 }}
               >
+                {/* Active Indicator Pill */}
+                {active && (
+                  <motion.div
+                    layoutId="nav-pill"
+                    className={cn(
+                      "absolute inset-1 rounded-full z-0 border",
+                      isLight 
+                        ? "bg-white border-black/5 shadow-[0_4px_12px_rgba(0,0,0,0.06)]" 
+                        : "bg-white/10 border-white/10 shadow-[0_4px_12px_rgba(0,0,0,0.2)]"
+                    )}
+                    initial={false}
+                    transition={{
+                      type: "spring",
+                      stiffness: 400,
+                      damping: 35,
+                      mass: 0.8
+                    }}
+                  >
+                    <div className="absolute inset-0 rounded-full opacity-30 bg-gradient-to-br from-primary/20 to-transparent" />
+                  </motion.div>
+                )}
+
                 <motion.div
                   className="relative z-10"
                   animate={{ scale: active ? 1.1 : 1 }}
@@ -363,13 +385,13 @@ export const BottomNavigation = memo(({
                       width: isTablet ? ICON_SIZE_TABLET : (isNarrow ? 16 : ICON_SIZE),
                       height: isTablet ? ICON_SIZE_TABLET : (isNarrow ? 16 : ICON_SIZE),
                       color: active
-                        ? (isLight ? 'black' : 'white')
-                        : (isLight ? 'black' : 'white'),
-                      opacity: active ? 1 : 0.85,
+                        ? (isLight ? '#000000' : '#FFFFFF')
+                        : (isLight ? 'rgba(0,0,0,0.4)' : 'rgba(255,255,255,0.4)'),
+                      opacity: 1,
 
                       fill: active ? activeColor : 'none',
-                      strokeWidth: active ? 2 : 1.5,
-                      filter: 'none',
+                      strokeWidth: active ? 2.5 : 1.5,
+                      filter: active && !isLight ? 'drop-shadow(0 0 8px var(--color-brand-primary))' : 'none',
                     }}
                   />
                 </motion.div>
@@ -382,9 +404,10 @@ export const BottomNavigation = memo(({
                         isTablet ? 'text-[11px] max-w-[56px]' : 'text-[8px] max-w-[40px]',
                       )}
                       style={{
-                        color: 'var(--hud-text)',
-                        opacity: active ? 1 : 0.85,
-
+                        color: active 
+                          ? (isLight ? '#000000' : '#FFFFFF') 
+                          : (isLight ? 'rgba(0,0,0,0.4)' : 'rgba(255,255,255,0.4)'),
+                        opacity: 1,
                         zIndex: 1,
                       }}
                     >

@@ -458,7 +458,7 @@ const LegalHub = () => {
                         )}
                       </button>
 
-                      <AnimatePresence>
+                      <AnimatePresence mode="wait">
                         {expandedCategory === category.id && (
                           <motion.div
                             initial={{ height: 0, opacity: 0 }}
@@ -504,7 +504,7 @@ const LegalHub = () => {
                 </div>
               </div>
 
-              <AnimatePresence>
+              <AnimatePresence mode="wait">
                 {selectedIssue && (
                   <motion.div
                     initial={{ opacity: 0, y: 30 }}

@@ -135,7 +135,7 @@ function FilterDropdown({
           smoothButtonClass,
           'flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest italic transition-all',
           isActive
-            ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20 scale-[1.02]'
+            ? 'bg-primary text-black shadow-lg shadow-primary/20 scale-[1.02]'
             : isLight 
               ? 'bg-white/80 border-black/10 text-black shadow-sm backdrop-blur-md hover:bg-black/5' 
               : 'bg-white text-black border-white hover:bg-white/80'
@@ -318,7 +318,7 @@ function QuickFilterBarComponent({ filters, onChange, onSelect, className, userR
 
                     <div className={cn(
                       "absolute inset-0 flex flex-col items-center justify-center z-20 transition-all duration-300",
-                      "text-white"
+                      "text-black font-black"
                     )}>
                       <div className={cn(
                         "mb-1 transition-all duration-300 drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]", 
@@ -410,7 +410,7 @@ function QuickFilterBarComponent({ filters, onChange, onSelect, className, userR
 
             <div className={cn(
               "absolute inset-0 flex flex-col items-center justify-center z-20 transition-all duration-300",
-              "text-white"
+              "text-black font-black"
             )}>
               <Globe className={cn("w-8 h-8 mb-1 transition-all duration-300", clientIsAllSelected && "scale-125 drop-shadow-[0_0_20px_rgba(168,85,247,0.9)]")} />
               <span className="text-[10px] font-black uppercase tracking-[0.2em] mb-0.5">Global</span>
@@ -467,7 +467,7 @@ function QuickFilterBarComponent({ filters, onChange, onSelect, className, userR
 
                 <div className={cn(
                   "absolute inset-0 flex flex-col items-center justify-center z-20 transition-all duration-300",
-                  "text-white"
+                  "text-black font-black"
                 )}>
                   <div className={cn("mb-1 transition-all duration-300", isActive && "scale-125 drop-shadow-[0_0_20px_rgba(255,165,0,0.9)]")}>
                     {category.icon}

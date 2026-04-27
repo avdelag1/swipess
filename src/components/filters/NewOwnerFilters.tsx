@@ -140,8 +140,8 @@ function SegmentedControl<T extends string>({
   options: { id: T; label: string }[];
   value: T | undefined;
   onChange: (value: T) => void;
-  layoutGroup?: string;
 }) {
+  const { isLight } = useAppTheme();
   return (
     <div className="flex rounded-xl bg-muted/30 p-1 gap-0.5 shadow-[inset_0_1px_3px_rgba(0,0,0,0.2)]">
       {options.map((opt) => {
@@ -155,7 +155,7 @@ function SegmentedControl<T extends string>({
             className={cn(
               "relative flex-1 py-2.5 px-3 rounded-lg text-xs font-semibold transition-colors duration-200 z-10",
               isActive
-                ? "text-primary-foreground"
+                ? (isLight ? "text-black" : "text-primary-foreground")
                 : "text-muted-foreground hover:text-foreground"
             )}
           >
@@ -231,6 +231,7 @@ function PillToggle({
   isActive: boolean;
   onClick: () => void;
 }) {
+  const { isLight } = useAppTheme();
   return (
     <motion.button
       whileTap={{ scale: 0.93 }}
@@ -242,7 +243,10 @@ function PillToggle({
       className={cn(
         "py-2 px-3.5 rounded-full text-xs font-medium transition-all duration-200 flex items-center gap-1.5 border",
         isActive
-          ? "bg-gradient-to-r from-primary/90 to-primary/70 border-primary/50 text-primary-foreground shadow-sm shadow-primary/20"
+          ? cn(
+              "bg-gradient-to-r from-primary/90 to-primary/70 border-primary/50 shadow-sm shadow-primary/20",
+              isLight ? "text-black" : "text-primary-foreground"
+            )
           : "bg-transparent border-border/50 text-muted-foreground hover:border-primary/30 hover:bg-muted/20"
       )}
     >
@@ -265,6 +269,7 @@ function ToggleSwitch({
   isActive: boolean;
   onClick: () => void;
 }) {
+  const { isLight } = useAppTheme();
   return (
     <motion.button
       whileTap={{ scale: 0.98 }}
@@ -289,7 +294,10 @@ function ToggleSwitch({
         <motion.div
           animate={{ x: isActive ? 16 : 2 }}
           transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-          className="absolute top-1 w-4 h-4 rounded-full bg-primary-foreground shadow-sm"
+          className={cn(
+            "absolute top-1 w-4 h-4 rounded-full shadow-sm",
+            isLight ? "bg-black" : "bg-primary-foreground"
+          )}
         />
       </div>
     </motion.button>
@@ -297,6 +305,7 @@ function ToggleSwitch({
 }
 
 export function NewOwnerFilters({ open, onClose, onApply, currentFilters = {} }: NewOwnerFiltersProps) {
+  const { isLight } = useAppTheme();
   const [filters, setFilters] = useState<OwnerFilters>(currentFilters);
   const activeLifestyleTags = new Set(filters.lifestyleTags || []);
   const _activeLanguages = new Set(filters.languages || []);

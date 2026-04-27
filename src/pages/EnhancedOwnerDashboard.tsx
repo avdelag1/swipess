@@ -186,10 +186,10 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
         ) : ownerPhase === 'cards' ? (
           <motion.div
             key="owner-dash-fan"
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 1.05 }}
-            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 1.1, y: -20 }}
+            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
             className="relative flex-1 flex flex-col items-center w-full overflow-hidden z-10"
             style={{
               paddingTop: 'calc(var(--top-bar-height) + var(--safe-top))',
@@ -204,10 +204,10 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
         ) : ownerPhase === 'kilometer' ? (
           <motion.div
             key="owner-dash-kilometer"
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -50 }}
-            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            initial={{ opacity: 0, x: 100, filter: 'blur(10px)' }}
+            animate={{ opacity: 1, x: 0, filter: 'blur(0px)' }}
+            exit={{ opacity: 0, x: -100, filter: 'blur(10px)' }}
+            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
             className="flex-1 min-h-0 relative z-20 flex flex-col w-full h-full"
             style={{
               paddingTop: 'calc(var(--top-bar-height, 60px) + var(--safe-top, 0px))',
@@ -235,10 +235,10 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
         ) : (
           <motion.div
             key="owner-dash-swipe"
-            initial={{ opacity: 0, y: 40, scale: 0.96 }}
+            initial={{ opacity: 0, y: 60, scale: 0.94 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -30, scale: 0.98 }}
-            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+            exit={{ opacity: 0, y: -40, scale: 0.98 }}
+            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
             className="flex-1 min-h-0 relative z-10 flex flex-col w-full h-full"
             style={{
               willChange: 'transform, opacity',
@@ -311,16 +311,27 @@ const OwnerKilometerView = ({
         </div>
 
         {/* Main Slider Area */}
-        <div className={cn(
-          "w-full rounded-[3rem] border p-8 relative shadow-2xl",
-          isLight ? "bg-white border-black/10" : "bg-black/60 border-white/10"
-        )}>
-          <div className="mb-6">
-            <h4 className="text-[10px] font-black uppercase tracking-[0.4em] opacity-40 mb-2">Sector Depth</h4>
-            <p className="text-lg font-black italic opacity-90">Scanning {radiusKm}km range</p>
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className={cn(
+            "w-full rounded-[3.5rem] border p-10 relative shadow-[0_40px_100px_rgba(0,0,0,0.15)]",
+            isLight ? "bg-white/80 border-black/5 backdrop-blur-md" : "bg-black/60 border-white/10 backdrop-blur-xl"
+          )}
+        >
+          <div className="mb-8">
+            <h4 className="text-[10px] font-black uppercase tracking-[0.5em] opacity-40 mb-3">Sector Depth</h4>
+            <div className="flex items-baseline gap-2">
+              <span className="text-5xl font-black italic tracking-tighter text-primary">{radiusKm}</span>
+              <span className="text-xl font-black italic opacity-40 uppercase">Kilometers</span>
+            </div>
+            <p className={cn("text-[11px] font-bold uppercase tracking-widest mt-2", isLight ? "text-black/50" : "text-white/50")}>
+              Scanning {title.toLowerCase()} in your vicinity
+            </p>
           </div>
 
-          <div className="py-4">
+          <div className="py-6">
             <DistanceSlider
               radiusKm={radiusKm}
               onRadiusChange={onRadiusChange}
@@ -329,7 +340,7 @@ const OwnerKilometerView = ({
               detected={detected}
             />
           </div>
-        </div>
+        </motion.div>
 
         {/* Action Button */}
         <motion.button
@@ -337,7 +348,7 @@ const OwnerKilometerView = ({
           whileTap={{ scale: 0.98 }}
           onClick={onNext}
           className={cn(
-            "w-full h-20 rounded-[2.5rem] bg-primary text-white font-black uppercase italic tracking-[0.2em] text-xl shadow-[0_20px_50px_rgba(236,72,153,0.3)] flex items-center justify-center gap-3"
+            "w-full h-20 rounded-[2.5rem] bg-primary font-black uppercase italic tracking-[0.2em] text-xl shadow-[0_20px_50px_rgba(236,72,153,0.3)] flex items-center justify-center gap-3 text-black",
           )}
         >
           <span>Initiate Scan</span>

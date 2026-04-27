@@ -246,7 +246,7 @@ button:active, [role="button"]:active {
     --background: 0 0% 100%;
     --foreground: 0 0% 7%;
     --primary: 343 99% 62%;
-    --primary-foreground: 0 0% 100%;
+    --primary-foreground: 0 0% 0%;
     --secondary: 0 0% 96%;
     --secondary-foreground: 0 0% 10%;
     --accent: 343 99% 62%;
@@ -271,7 +271,7 @@ button:active, [role="button"]:active {
     --background: 216 15% 9%;
     --foreground: 0 0% 100%;
     --primary: 352 83% 58%;
-    --primary-foreground: 0 0% 100%;
+    --primary-foreground: 0 0% 0%;
     --secondary: 212 14% 15%;
     --secondary-foreground: 0 0% 100%;
     --accent: 352 83% 58%;
@@ -305,7 +305,7 @@ button:active, [role="button"]:active {
     --card: 0 0% 23%;
     --card-foreground: 0 0% 91%;
     --primary: 0 100% 50%;
-    --primary-foreground: 0 0% 100%;
+    --primary-foreground: 0 0% 0%;
     --secondary: 0 0% 27%;
     --secondary-foreground: 0 0% 91%;
     --muted: 0 0% 27%;
@@ -363,7 +363,7 @@ button:active, [role="button"]:active {
     --card: 0 0% 10%;
     --card-foreground: 0 0% 96%;
     --primary: 0 100% 60%;
-    --primary-foreground: 0 0% 100%;
+    --primary-foreground: 0 0% 0%;
     --secondary: 0 0% 15%;
     --secondary-foreground: 0 0% 96%;
     --muted: 0 0% 15%;
@@ -421,7 +421,7 @@ button:active, [role="button"]:active {
     --card: 0 0% 100%;
     --card-foreground: 0 0% 10%;
     --primary: 0 100% 50%;
-    --primary-foreground: 0 0% 100%;
+    --primary-foreground: 0 0% 0%;
     --secondary: 0 0% 94%;
     --secondary-foreground: 0 0% 10%;
     --muted: 0 0% 94%;
@@ -490,7 +490,7 @@ button:active, [role="button"]:active {
     --card: 0 65% 12%;
     --card-foreground: 0 100% 92%;
     --primary: 0 100% 61%;
-    --primary-foreground: 0 0% 100%;
+    --primary-foreground: 0 0% 0%;
     --secondary: 0 65% 16%;
     --secondary-foreground: 0 100% 92%;
     --muted: 0 65% 16%;
@@ -532,7 +532,7 @@ button:active, [role="button"]:active {
     --card: 35 65% 11%;
     --card-foreground: 40 100% 92%;
     --primary: 38 92% 50%;
-    --primary-foreground: 0 0% 100%;
+    --primary-foreground: 0 0% 0%;
     --secondary: 35 65% 15%;
     --secondary-foreground: 40 100% 92%;
     --muted: 35 65% 15%;

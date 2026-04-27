@@ -77,7 +77,7 @@ export const LocationRadiusSelector = memo(({
           className={cn(
             "w-10 h-10 flex items-center justify-center rounded-full transition-all flex-shrink-0",
             detected
-              ? "bg-primary text-white shadow-[0_0_20px_rgba(236,72,153,0.5)]"
+              ? cn("bg-primary shadow-[0_0_20px_rgba(236,72,153,0.5)]", isLight ? "text-black" : "text-white")
               : isLight
                 ? "bg-slate-100 text-slate-900 hover:bg-slate-200"
                 : "bg-white/15 text-white hover:bg-white/25"

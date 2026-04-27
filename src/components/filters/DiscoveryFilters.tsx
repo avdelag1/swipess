@@ -231,7 +231,7 @@ export const DiscoveryFilters = memo(function DiscoveryFilters({ category, onApp
                     className={cn(
                        "flex-shrink-0 flex flex-col items-center justify-center gap-3 min-w-[100px] py-6 border transition-all duration-300 rounded-[2rem] text-[11px] font-black uppercase tracking-[0.2em]",
                        isActive
-                        ? "bg-primary text-white border-primary shadow-[0_10px_30px_rgba(var(--brand-primary-rgb),0.3)] scale-[1.05] z-10 relative"
+                        ? "bg-primary border-primary shadow-[0_10px_30px_rgba(var(--brand-primary-rgb),0.3)] scale-[1.05] z-10 relative text-black"
                         : isLight 
                           ? "bg-white/80 border-black/10 text-black shadow-sm backdrop-blur-md hover:bg-black/5" 
                           : "bg-white/10 border-white/10 text-white font-black hover:bg-white/20"
@@ -329,7 +329,7 @@ export const DiscoveryFilters = memo(function DiscoveryFilters({ category, onApp
                 className={cn(
                   "py-4 px-6 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] transition-all border",
                   selectedBudgetRange === range.value
-                    ? "bg-primary text-white border-primary shadow-xl shadow-primary/30 scale-[1.02]" 
+                    ? "bg-primary border-primary shadow-xl shadow-primary/30 scale-[1.02] text-black" 
                     : isLight 
                       ? "bg-white/80 border-black/10 text-black shadow-sm backdrop-blur-md hover:bg-black/5" 
                       : "bg-white/5 text-white border-white/10 hover:bg-white/10"
@@ -365,14 +365,14 @@ export const DiscoveryFilters = memo(function DiscoveryFilters({ category, onApp
                        <button 
                          key={n} 
                          onClick={() => setBedrooms(n)}
-                         className={cn(
-                           "w-14 h-14 rounded-full text-[11px] font-black transition-all border flex items-center justify-center shadow-sm",
-                           bedrooms === n 
-                             ? "bg-primary text-white border-primary shadow-xl scale-110" 
-                             : isLight 
-                               ? "bg-white/80 border-black/10 text-black shadow-sm backdrop-blur-md hover:bg-black/5"
-                               : "bg-white/5 border-white/10 text-muted-foreground"
-                         )}
+                          className={cn(
+                            "w-14 h-14 rounded-full text-[11px] font-black transition-all border flex items-center justify-center shadow-sm",
+                            bedrooms === n 
+                              ? "bg-primary border-primary shadow-xl scale-110 text-black" 
+                              : isLight 
+                                ? "bg-white/80 border-black/10 text-black shadow-sm backdrop-blur-md hover:bg-black/5"
+                                : "bg-white/5 border-white/10 text-muted-foreground"
+                          )}
                        >
                          {n}+
                        </button>
@@ -391,14 +391,14 @@ export const DiscoveryFilters = memo(function DiscoveryFilters({ category, onApp
                        <button 
                          key={n} 
                          onClick={() => setBathrooms(n)}
-                         className={cn(
-                           "w-12 h-12 rounded-full text-[11px] font-black transition-all border flex items-center justify-center shadow-sm",
-                           bathrooms === n 
-                             ? "bg-primary text-white border-primary shadow-xl scale-110" 
-                             : isLight 
-                               ? "bg-white/80 border-black/10 text-black shadow-sm backdrop-blur-md hover:bg-black/5"
-                               : "bg-white/5 border-white/10 text-muted-foreground"
-                         )}
+                          className={cn(
+                            "w-12 h-12 rounded-full text-[11px] font-black transition-all border flex items-center justify-center shadow-sm",
+                            bathrooms === n 
+                              ? "bg-primary border-primary shadow-xl scale-110 text-black" 
+                              : isLight 
+                                ? "bg-white/80 border-black/10 text-black shadow-sm backdrop-blur-md hover:bg-black/5"
+                                : "bg-white/5 border-white/10 text-muted-foreground"
+                          )}
                        >
                          {n}+
                        </button>
@@ -452,14 +452,14 @@ export const DiscoveryFilters = memo(function DiscoveryFilters({ category, onApp
                 <button
                   key={type.value}
                   onClick={() => toggleItem(serviceTypes, type.value, setServiceTypes)}
-                  className={cn(
-                    "py-3 px-3 rounded-2xl text-[10px] font-black uppercase tracking-tight text-left transition-all border",
-                    serviceTypes.includes(type.value)
-                      ? "bg-primary text-white border-primary shadow-lg shadow-primary/20"
-                      : isLight 
-                        ? "bg-white/80 border-black/10 text-black shadow-sm backdrop-blur-md hover:bg-black/5" 
-                        : "bg-muted/30 text-muted-foreground border-white/5 hover:bg-muted/50"
-                  )}
+                    className={cn(
+                      "py-3 px-3 rounded-2xl text-[10px] font-black uppercase tracking-tight text-left transition-all border",
+                      serviceTypes.includes(type.value)
+                        ? "bg-primary border-primary shadow-lg shadow-primary/20 text-black"
+                        : isLight 
+                          ? "bg-white/80 border-black/10 text-black shadow-sm backdrop-blur-md hover:bg-black/5" 
+                          : "bg-muted/30 text-muted-foreground border-white/5 hover:bg-muted/50"
+                    )}
                 >
                   {type.label}
                 </button>
