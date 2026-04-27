@@ -355,59 +355,8 @@ export function useSmartClientMatching(
                     });
                 }
 
-                // 🚀 EMERGENCY DEMO FALLBACK: If results are zero, manifest high-fidelity demo cards
-                // This ensures the 'Wow' reaction even on a fresh database.
-                if (results.length < 5 && page === 0) {
-                    logger.info('[SmartClientMatching] Appending high-fidelity demo cards');
-                    const existingDemoIds = new Set(results.map(r => r.id));
-                    let demoCandidates = DEMO_CLIENTS.filter(c => !existingDemoIds.has(c.user_id));
-
-                    // Filter demo clients by client_type if a specific category was selected
-                    if (_category && ['buyers', 'renters', 'hire'].includes(_category)) {
-                        const clientTypeMap: Record<string, string> = {
-                            'buyers': 'buyer',
-                            'renters': 'renter',
-                            'hire': 'hire'
-                        };
-                        const targetType = clientTypeMap[_category];
-                        demoCandidates = demoCandidates.filter(c => c.client_type === targetType);
-                    }
-
-                    const newDemos = demoCandidates.map(c => ({
-                        id: c.user_id,
-                        user_id: c.user_id,
-                        name: c.full_name,
-                        age: c.age,
-                        gender: c.gender,
-                        interests: c.interests,
-                        preferred_activities: [],
-                        location: { city: c.city },
-                        lifestyle_tags: c.lifestyle_tags,
-                        profile_images: c.images,
-                        matchPercentage: 88 + Math.floor(Math.random() * 10),
-                        matchReasons: ['Profile available', 'Highly compatible'],
-                        incompatibleReasons: [],
-                        verified: true,
-                        roommate_available: c.roommate_available ?? false,
-                        city: c.city,
-                        country: c.country,
-                        work_schedule: 'Flexible',
-                        latitude: c.latitude,
-                        longitude: c.longitude,
-                        isDemo: true,
-                        occupation: c.occupation,
-                        client_type: c.client_type,
-                        bio: c.bio
-                    })) as MatchedClientProfile[];
-                    
-                    results = [...results, ...newDemos];
-                }
-
-                runIdleTask(() => {
-                    const isHighPerformance = (navigator as any).deviceMemory >= 4 || !('deviceMemory' in navigator);
-                    const imagesToPrewarm = results.flatMap(p => p.profile_images || []).slice(0, isHighPerformance ? 25 : 10);
-                    pwaImagePreloader.batchPreload(imagesToPrewarm.map(url => getCardImageUrl(url)));
-                });
+                // 🚀 DEMO FALLBACK REMOVED: Show the "Adjust Radius" page instead of fake demo data
+                // This gives users clear feedback when no real matches exist nearby
 
                 return results.sort((a, b) => b.matchPercentage - a.matchPercentage);
             } catch (err) {
