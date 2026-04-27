@@ -1,8 +1,6 @@
 import { useState, useEffect, useRef, memo, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ClientSwipeContainer } from '@/components/ClientSwipeContainer';
-import { LocationRadiusSelector } from '@/components/swipe/LocationRadiusSelector';
-import { DistanceSlider } from '@/components/swipe/DistanceSlider';
 import { useSmartClientMatching } from '@/hooks/useSmartMatching';
 import { useAuth } from '@/hooks/useAuth';
 import { useFilterStore, useFilterActions } from '@/state/filterStore';
@@ -35,36 +33,6 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
   const phase = activeCategory ? 'swipe' : 'cards';
 
   const { user, loading: isAuthLoading } = useAuth();
-
-  // Persistent radius HUD state — survives deck reloads and demo fallbacks
-  const { radiusKm, setRadiusKm, lat, lng } = useFilterStore(useShallow(s => ({
-    radiusKm: s.radiusKm,
-    setRadiusKm: s.setRadiusKm,
-    lat: s.userLatitude,
-    lng: s.userLongitude,
-  })));
-  const [detecting, setDetecting] = useState(false);
-  const [detected, setDetected] = useState(!!lat && !!lng);
-  const [hudExpanded, setHudExpanded] = useState(false);
-
-  const handleDetectLocation = useCallback(() => {
-    if (!navigator.geolocation) return;
-    setDetecting(true);
-    triggerHaptic('medium');
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        useFilterStore.getState().setUserLocation(pos.coords.latitude, pos.coords.longitude);
-        setDetecting(false);
-        setDetected(true);
-        triggerHaptic('success');
-      },
-      () => {
-        setDetecting(false);
-        triggerHaptic('warning');
-      },
-      { timeout: 8000, maximumAge: 60000 }
-    );
-  }, []);
 
   // Hydrate owner filter store from DB on mount
   const { preferences: ownerPrefs, isLoading: isPrefsLoading } = useOwnerClientPreferences();
@@ -99,15 +67,6 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
       setClientNationalities(nationalities);
     }
   }, [ownerPrefs, storeGender, setClientGender, setClientAgeRange, setClientBudgetRange, setClientNationalities]);
-
-  // Auto-expand radius selector when entering swipe phase
-  useEffect(() => {
-    if (phase === 'swipe') {
-      setHudExpanded(true);
-    } else {
-      setHudExpanded(false);
-    }
-  }, [phase]);
 
   const storeFilterVersion = useFilterStore((s) => s.filterVersion);
   const clientFilters = useMemo(() => {
@@ -226,145 +185,6 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
                 filters={mergedFilters}
               />
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* 📡 PERSISTENT RADIUS HUD — full-screen overlay when expanded, pill when collapsed */}
-      <AnimatePresence>
-        {phase === 'swipe' && hudExpanded && (
-          <motion.div
-            key="radius-hud-expanded"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="fixed inset-0 z-[10005] bg-black/40 backdrop-blur-sm pointer-events-auto"
-            onClick={() => setHudExpanded(false)}
-          />
-        )}
-        {phase === 'swipe' && (
-          <motion.div
-            key="radius-hud"
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.3 }}
-            className={cn(
-              "fixed z-[10010] pointer-events-auto",
-              hudExpanded ? "inset-0 flex items-center justify-center" : ""
-            )}
-            style={!hudExpanded ? {
-              top: 'calc(var(--top-bar-height, 60px) + var(--safe-top, 0px) + 10px)',
-              right: '16px',
-            } : {}}
-          >
-            {hudExpanded ? (
-              <motion.div
-                initial={{ scale: 0.95, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.95, opacity: 0 }}
-                transition={{ type: 'spring', stiffness: 350, damping: 28 }}
-                className={cn(
-                  "w-full max-w-md mx-auto px-6 rounded-[2.5rem] border backdrop-blur-3xl p-8 relative",
-                  isLight
-                    ? "bg-white/95 border-black/10"
-                    : "bg-[#0d0d0d]/95 border-white/10"
-                )}
-              >
-                <button
-                  onClick={() => setHudExpanded(false)}
-                  className={cn(
-                    "absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full transition-all active:scale-90",
-                    isLight ? "hover:bg-black/5" : "hover:bg-white/10"
-                  )}
-                  title="Close"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-
-                <div className="space-y-6">
-                  <div>
-                    <h3 className="text-[10px] font-black uppercase tracking-[0.3em] opacity-40 mb-2">Sector Depth</h3>
-                    <p className="text-lg font-black italic">Scanning for clients</p>
-                  </div>
-
-                  <DistanceSlider
-                    radiusKm={radiusKm}
-                    onRadiusChange={setRadiusKm as any}
-                    onDetectLocation={handleDetectLocation}
-                    detecting={detecting}
-                    detected={detected}
-                  />
-
-                  <div className={cn("space-y-2 pt-4 border-t", isLight ? "border-black/10" : "border-white/10")}>
-                    <p className={cn("text-[10px] font-bold uppercase tracking-widest opacity-50", isLight ? "text-black" : "text-white")}>
-                      Quick Filter
-                    </p>
-                    <div className="grid grid-cols-3 gap-2">
-                      {[
-                        { id: 'buyers', label: 'Buyers' },
-                        { id: 'renters', label: 'Renters' },
-                        { id: 'hire', label: 'Services' }
-                      ].map((cat) => (
-                        <button
-                          key={cat.id}
-                          onClick={() => {
-                            triggerHaptic('medium');
-                            setActiveCategory(cat.id as any);
-                          }}
-                          className={cn(
-                            "py-2 px-3 rounded-full text-xs font-black uppercase tracking-wider transition-all active:scale-95 border",
-                            activeCategory === cat.id
-                              ? isLight
-                                ? "bg-black text-white border-black/30"
-                                : "bg-white/20 text-white border-white/30"
-                              : isLight
-                              ? "bg-white/50 text-black border-black/10 hover:bg-white/70"
-                              : "bg-white/10 text-white border-white/10 hover:bg-white/20"
-                          )}
-                        >
-                          {cat.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <button
-                    onClick={() => setHudExpanded(false)}
-                    className={cn(
-                      "w-full py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-colors",
-                      isLight
-                        ? "bg-black/5 hover:bg-black/10"
-                        : "bg-white/8 hover:bg-white/15"
-                    )}
-                  >
-                    Done
-                  </button>
-                </div>
-              </motion.div>
-            ) : (
-              <div
-                className="fixed z-[10010] pointer-events-auto"
-                style={{
-                  top: 'calc(var(--top-bar-height, 60px) + var(--safe-top, 0px) + 10px)',
-                  right: '16px',
-                }}
-              >
-                <LocationRadiusSelector
-                  radiusKm={radiusKm}
-                  onRadiusChange={setRadiusKm as any}
-                  onDetectLocation={handleDetectLocation}
-                  detecting={detecting}
-                  detected={detected}
-                  title="clients"
-                  expanded={false}
-                  onExpandedChange={setHudExpanded}
-                />
-              </div>
-            )}
           </motion.div>
         )}
       </AnimatePresence>
