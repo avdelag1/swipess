@@ -63,14 +63,35 @@ export const AtmosphericLayer = memo(({ variant = 'default', opacity = 0.08, spe
       className="absolute inset-0 pointer-events-none overflow-hidden z-0"
       style={{ opacity }}
     >
-      <div className={cn(
-        "absolute top-[-15%] left-[-15%] w-[90%] h-[70%] blur-[140px] rounded-full transition-colors duration-1000",
-        colors.top
-      )} />
-      <div className={cn(
-        "absolute bottom-[-10%] right-[-10%] w-[80%] h-[60%] blur-[120px] rounded-full transition-colors duration-1000",
-        colors.bottom
-      )} />
+      {/* 🔮 LIQUID DEPTH: Reacts to DashboardLayout's mouse tracking */}
+      <div 
+        className="absolute inset-[-10%] transition-transform duration-1000 ease-out"
+        style={{
+          transform: 'translate(calc(var(--mouse-x, 50%) * 0.02 - 1%), calc(var(--mouse-y, 50%) * 0.02 - 1%))'
+        }}
+      >
+        <div className={cn(
+          "absolute top-[-15%] left-[-15%] w-[90%] h-[70%] blur-[160px] rounded-full transition-colors duration-1000",
+          colors.top
+        )} />
+        <div className={cn(
+          "absolute bottom-[-10%] right-[-10%] w-[80%] h-[60%] blur-[140px] rounded-full transition-colors duration-1000",
+          colors.bottom
+        )} />
+      </div>
+
+      {/* 🧘 SENTIENT NODES: Slow drifting particles for liveness */}
+      <div className="absolute inset-0 opacity-40">
+        <div className={cn(
+          "absolute top-[20%] left-[30%] w-64 h-64 blur-[100px] rounded-full animate-float-slow",
+          isLight ? "bg-primary/5" : "bg-primary/10"
+        )} style={{ animationDelay: '0s' }} />
+        <div className={cn(
+          "absolute bottom-[30%] right-[20%] w-80 h-80 blur-[120px] rounded-full animate-float-slow",
+          isLight ? "bg-blue-400/5" : "bg-blue-400/10"
+        )} style={{ animationDelay: '-4s', animationDirection: 'reverse' }} />
+      </div>
+
       <div className={cn(
         "absolute inset-0 transition-opacity duration-1000",
         `bg-[radial-gradient(circle_at_center,${colors.radial}_0%,transparent_80%)]`

@@ -157,6 +157,12 @@ export function AppLayout({ children }: AppLayoutProps) {
         </SentientHud>
       )}
 
+      {/* 🌑 ATMOSPHERIC VIGNETTE: Subtle edge darkening for focus depth */}
+      <div className="fixed inset-0 pointer-events-none z-[1] opacity-60 mix-blend-multiply" 
+        style={{ 
+          background: 'radial-gradient(circle at center, transparent 40%, rgba(0,0,0,0.15) 100%)' 
+        }} 
+      />
 
       {/* 🛸 NO-LOCK MAIN CONTAINER: Allows children to expand the body natively */}
       <main

@@ -790,6 +790,17 @@ button:active, [role="button"]:active {
     to { filter: blur(0); opacity: 1; }
   }
 
+  @keyframes float-slow {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(30px, -50px) scale(1.1); }
+    66% { transform: translate(-20px, 40px) scale(0.9); }
+  }
+
+  .animate-float-slow {
+    animation: float-slow 20s ease-in-out infinite;
+    will-change: transform;
+  }
+
   .gradient-text {
     background: linear-gradient(135deg, hsl(0, 100%, 55%), hsl(0, 100%, 45%));
     -webkit-background-clip: text;

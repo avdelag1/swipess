@@ -67,6 +67,9 @@ function TopBarComponent({
       : '0 25px 70px -10px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255,255,255,0.05)',
     pointerEvents: 'auto',
     color: isLight ? '#000000' : 'var(--hud-text)',
+    // 🔮 SENTIENT GLOW: React to mouse position
+    transform: 'translate3d(calc(var(--mouse-x, 50%) * 0.005 - 0.25%), calc(var(--mouse-y, 50%) * 0.005 - 0.25%), 0)',
+    transition: 'transform 0.4s cubic-bezier(0.32, 0.72, 0, 1)'
   };
 
   const { data: profile } = useQuery({
