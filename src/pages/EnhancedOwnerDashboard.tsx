@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, memo, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ClientSwipeContainer } from '@/components/ClientSwipeContainer';
 import { LocationRadiusSelector } from '@/components/swipe/LocationRadiusSelector';
+import { DistanceSlider } from '@/components/swipe/DistanceSlider';
 import { useSmartClientMatching } from '@/hooks/useSmartMatching';
 import { useAuth } from '@/hooks/useAuth';
 import { useFilterStore, useFilterActions } from '@/state/filterStore';
@@ -290,14 +291,12 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
                     <p className="text-lg font-black italic">Scanning for clients</p>
                   </div>
 
-                  <LocationRadiusSelector
+                  <DistanceSlider
                     radiusKm={radiusKm}
                     onRadiusChange={setRadiusKm as any}
                     onDetectLocation={handleDetectLocation}
                     detecting={detecting}
                     detected={detected}
-                    title="clients"
-                    expanded={false}
                   />
 
                   <div className={cn("space-y-2 pt-4 border-t", isLight ? "border-black/10" : "border-white/10")}>
@@ -347,15 +346,24 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
                 </div>
               </motion.div>
             ) : (
-              <LocationRadiusSelector
-                radiusKm={radiusKm}
-                onRadiusChange={setRadiusKm as any}
-                onDetectLocation={handleDetectLocation}
-                detecting={detecting}
-                detected={detected}
-                title="clients"
-                expanded={false}
-              />
+              <div
+                className="fixed z-[10010] pointer-events-auto"
+                style={{
+                  top: 'calc(var(--top-bar-height, 60px) + var(--safe-top, 0px) + 10px)',
+                  right: '16px',
+                }}
+              >
+                <LocationRadiusSelector
+                  radiusKm={radiusKm}
+                  onRadiusChange={setRadiusKm as any}
+                  onDetectLocation={handleDetectLocation}
+                  detecting={detecting}
+                  detected={detected}
+                  title="clients"
+                  expanded={false}
+                  onExpandedChange={setHudExpanded}
+                />
+              </div>
             )}
           </motion.div>
         )}
