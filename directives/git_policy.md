@@ -1,32 +1,25 @@
-# OPERATIONAL SOP: Git Branch Policy
+# OPERATIONAL SOP: GitHub Sync Policy
 
-To maintain synchronization between the active session and the production `main` branch, all changes MUST be pushed to both locations simultaneously.
+Lovable manages the working repository sync. Agents must not run local `git add`, `git commit`, `git pull`, or `git push` commands from the sandbox.
 
-## 📋 The Mirror Protocol
+## Mirror Protocol
 
-Whenever you finish a task and are ready to commit:
+Repository-to-repository sync is handled by GitHub Actions:
 
-1. **Commit your changes locally**
-   ```bash
-   git add .
-   git commit -m "feat: your description"
-   ```
+1. Changes made in Lovable sync to the Lovable-connected GitHub repository.
+2. `.github/workflows/mirror-to-original.yml` mirrors `main` from that repository into the original repository.
+3. `.github/workflows/sync-from-original.yml` opens a pull request when the original repository has new changes that need to come back into the Lovable-connected repository.
 
-2. **Push to both targets**
-   ```bash
-   # Push to the main branch
-   git push origin HEAD:main
-   
-   # Push to the session branch
-   git push origin HEAD
-   ```
+## Required GitHub configuration
 
-## ⚠️ Why this matters
-- **`HEAD:main`**: Keeps the live production/main environment up to date with your improvements.
-- **`HEAD`**: Keeps the specific collaboration branch in sync so stop-hooks and PR automation stay green.
+Add a repository secret named `MIRROR_REPO_TOKEN` to the Lovable-connected GitHub repository. It must be a fine-grained GitHub token with:
 
-Never skip either push.
+- Repository access to both repositories.
+- Contents: Read and Write.
+- Pull requests: Read and Write.
+
+Optionally add repository variable `MIRROR_TARGET_REPOSITORY` with the value `owner/repo` if the original repository is not `avdelag1/swipess`.
 
 ---
 
-*Last Updated: 2026-04-21*
+*Last Updated: 2026-04-28*
