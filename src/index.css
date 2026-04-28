@@ -2137,14 +2137,13 @@ html[data-navigation-direction="back"] {
    never silently render white-on-white or white-on-light.
    ============================================================ */
 
-/* 1. Any element whose Tailwind class explicitly forces a white
-      background must use dark text — never inherit white. */
-button.bg-white,
-a.bg-white,
-[role="button"].bg-white,
-button[class*=" bg-white "]:not([class*="bg-white/"]),
-button[class$=" bg-white"]:not([class*="bg-white/"]) {
-  color: hsl(var(--foreground));
+/* 1. Any element whose Tailwind class forces a white background
+      AND also a white text class must be corrected to black —
+      this is the white-on-white case Apple reviewers flag. */
+button.bg-white.text-white,
+a.bg-white.text-white,
+[role="button"].bg-white.text-white {
+  color: #0a0a0a !important;
 }
 
 /* 2. Tactile pressed state for every interactive control.
