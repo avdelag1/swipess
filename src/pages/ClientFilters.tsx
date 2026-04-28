@@ -71,7 +71,7 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
         "w-full flex flex-col p-4 relative min-h-screen",
         isLight ? "bg-white text-slate-900" : "bg-[#020202] text-white"
       )}
-      style={{ paddingBottom: 'calc(var(--bottom-nav-height, 72px) + var(--safe-bottom, 0px) + 24px)', paddingTop: 'calc(var(--top-bar-height, 60px) + 24px)' }}
+      style={{ paddingBottom: 'calc(var(--bottom-nav-height, 72px) + var(--safe-bottom, 0px) + 24px)' }}
     >
       {!isEmbedded && (
         <div className="mb-6 pt-4">

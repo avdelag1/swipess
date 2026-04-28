@@ -1,7 +1,7 @@
 import { memo, useCallback } from 'react';
 import { useAppNavigate } from "@/hooks/useAppNavigate";
 import { motion } from 'framer-motion';
-import { ChevronLeft, UserCircle } from 'lucide-react';
+import { ChevronLeft, UserCircle, Ticket } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
@@ -13,6 +13,7 @@ import { ModeSwitcher } from './ModeSwitcher';
 import { NotificationPopover } from './NotificationPopover';
 import { ThemeToggle } from './ThemeToggle';
 import { useFilterStore, useFilterActions } from '@/state/filterStore';
+import { useModalStore } from '@/state/modalStore';
 
 interface TopBarProps {
   onNotificationsClick?: () => void;
@@ -44,7 +45,8 @@ function TopBarComponent({
   const { navigate } = useAppNavigate();
   const { user } = useAuth();
   const { isLight } = useAppTheme();
-  
+  const setModal = useModalStore(s => s.setModal);
+
   const activeCategory = useFilterStore(s => s.activeCategory);
   const { setActiveCategory } = useFilterActions();
 
@@ -180,6 +182,16 @@ function TopBarComponent({
         <div className="flex shrink-0 items-center gap-2 sm:gap-3">
           {!minimal && (
             <>
+              <motion.button
+                whileTap={{ scale: 0.9 }}
+                onClick={() => { haptics.tap(); setModal('showTokensModal', true); }}
+                className="w-9 h-9 flex shrink-0 items-center justify-center rounded-full"
+                style={glassPillStyle}
+                aria-label="Tokens"
+              >
+                <Ticket className="w-4 h-4" style={{ color: isLight ? '#000000' : 'var(--hud-text)' }} strokeWidth={2} />
+              </motion.button>
+
               <ThemeToggle glassPillStyle={glassPillStyle} />
 
               <NotificationPopover glassPillStyle={glassPillStyle} />

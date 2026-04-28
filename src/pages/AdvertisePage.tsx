@@ -493,7 +493,7 @@ export default function AdvertisePage() {
         </div>
 
         {/* ── COMPACT HERO ── */}
-        <div className="relative px-5 pt-28 pb-3 text-center">
+        <div className="relative px-5 pt-4 pb-3 text-center">
           <motion.div
             initial={{ opacity: 0, y: -12 }}
             animate={{ opacity: 1, y: 0 }}
@@ -672,7 +672,7 @@ export default function AdvertisePage() {
   return (
     <div className="w-full h-auto flex flex-col pb-20" style={{ background: th.pageBg }}>
       {/* Header */}
-      <div className="flex items-center gap-3 px-4 pt-20 pb-3">
+      <div className="flex items-center gap-3 px-4 pt-4 pb-3">
         <div className="flex-1">
           <h1 className="text-sm font-black" style={{ color: th.text }}>Promote Your Event</h1>
           <p className="text-[11px]" style={{ color: th.textDim }}>Step {stepIdx + 1} of {steps.length}</p>

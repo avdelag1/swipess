@@ -217,7 +217,7 @@ const LegalHub = () => {
       {/* 🛸 ATMOSPHERIC DEPTH */}
       <AtmosphericLayer variant={isOwner ? "indigo" : "rose"} opacity={0.15} />
 
-      <main className="container mx-auto px-4 sm:px-6 pt-28 pb-48 relative z-10 space-y-12">
+      <main className="container mx-auto px-4 sm:px-6 pt-4 pb-48 relative z-10 space-y-12">
         
         {/* 🛸 PREMIUM HEADER SECTION */}
         <AnimatePresence mode="wait">

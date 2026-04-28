@@ -53,7 +53,7 @@ const OwnerProfile = () => {
         <div className="absolute top-[40%] left-[30%] w-[40%] h-[40%] bg-blue-600/5 rounded-full blur-[100px]" />
       </div>
 
-      <div className="w-full max-w-7xl mx-auto p-6 pt-24 pb-12 space-y-10 relative z-10">
+      <div className="w-full max-w-7xl mx-auto p-6 pt-4 pb-12 space-y-10 relative z-10">
 
         {/* SWIPESS OPERATOR BADGE */}
         <div className="flex items-center justify-center">

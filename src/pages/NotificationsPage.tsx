@@ -46,7 +46,7 @@ const NotificationsPage = () => {
       "w-full pb-20 min-h-screen",
       isDark ? "bg-[#0a0a0c]" : "bg-white"
     )}>
-      <div className="max-w-2xl mx-auto px-6 pt-24">
+      <div className="max-w-2xl mx-auto px-6 pt-4">
         <PageHeader 
           title="Pulse Feed" 
           subtitle="System Intelligence Updates" 

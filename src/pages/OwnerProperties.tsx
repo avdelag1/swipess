@@ -33,7 +33,7 @@ const OwnerProperties = () => {
     <div className="w-full bg-background p-4 pb-32 min-h-screen">
       <AtmosphericLayer variant="primary" />
       
-      <div className="w-full relative px-4 pt-24 pb-32 bg-background min-h-screen">
+      <div className="w-full relative px-4 pt-4 bg-background min-h-screen">
         <PropertyManagement initialCategory={initialCategory} initialMode={initialMode} />
       </div>
     </div>

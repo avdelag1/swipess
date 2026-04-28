@@ -138,7 +138,7 @@ const OwnerSettings = () => {
 
   if (activeSection === 'security') {
     return (
-      <div className="w-full relative px-4 pt-24 pb-32 bg-background min-h-screen">
+      <div className="w-full relative px-4 pt-4 pb-32 bg-background min-h-screen">
         <AtmosphericLayer variant="indigo" />
         <div className="max-w-3xl mx-auto relative z-10">
           <PageHeader title={t('settings.security')} subtitle={t('settings.securityDesc')} showBack={true} onBack={() => setActiveSection(null)} />
@@ -163,7 +163,7 @@ const OwnerSettings = () => {
 
   if (activeSection === 'language') {
     return (
-      <div className="w-full relative px-4 pt-24 pb-32 bg-background min-h-screen">
+      <div className="w-full relative px-4 pt-4 pb-32 bg-background min-h-screen">
         <AtmosphericLayer variant="indigo" />
         <div className="max-w-3xl mx-auto relative z-10">
           <PageHeader title={t('settings.language')} subtitle={t('settings.languageDesc')} showBack={true} onBack={() => setActiveSection(null)} />
@@ -177,7 +177,7 @@ const OwnerSettings = () => {
 
   if (activeSection === 'preferences') {
     return (
-      <div className="w-full relative px-4 pt-24 pb-32 bg-background min-h-screen">
+      <div className="w-full relative px-4 pt-4 pb-32 bg-background min-h-screen">
         <AtmosphericLayer variant="default" />
         <div className="max-w-3xl mx-auto relative z-10">
           <PageHeader title={t('settings.preferences')} subtitle={t('settings.preferencesDesc')} showBack={true} onBack={() => setActiveSection(null)} />
@@ -194,7 +194,7 @@ const OwnerSettings = () => {
     <div className="w-full relative px-6 pb-40 bg-background min-h-screen">
       <AtmosphericLayer variant="indigo" />
 
-      <div className="max-w-3xl mx-auto space-y-12 pt-24 relative z-10">
+      <div className="max-w-3xl mx-auto space-y-12 pt-4 relative z-10">
         
         {/* 🛸 OWNER MEGA-HEADER */}
         <div className="space-y-3">
