@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
+import useAppTheme from '@/hooks/useAppTheme';
 
 /**
  * CINEMATIC OWNER FILTERS — Premium Bottom Sheet
@@ -140,6 +141,7 @@ function SegmentedControl<T extends string>({
   options: { id: T; label: string }[];
   value: T | undefined;
   onChange: (value: T) => void;
+  layoutGroup?: string;
 }) {
   const { isLight } = useAppTheme();
   return (

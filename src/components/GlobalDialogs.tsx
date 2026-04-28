@@ -11,6 +11,7 @@ import { useClientProfiles } from '@/hooks/useClientProfiles';
 import { useWelcomeState } from '@/hooks/useWelcomeState';
 import { useFilterStore } from '@/state/filterStore';
 import { DeferredDialog } from './DeferredDialog';
+import { cn } from '@/lib/utils';
 
 // 🚀 SPEED OF LIGHT: LAZY WITH RETRY HARDENING
 const AdvancedFiltersDialog = lazyWithRetry(() => import('@/components/AdvancedFiltersDialog'));
@@ -35,7 +36,7 @@ const ReportDialog = lazyWithRetry(() => import('@/components/ReportDialog').the
 
 const ConciergeChatFallback = memo(() => {
   const { isLight, theme } = useAppTheme();
-  const isSwipess = theme === 'dark' || theme === 'black-matte' || theme === 'grey-matte';
+  const isSwipess = theme === 'dark' || !isLight;
 
   return (
     <div className="fixed inset-0 z-[10000] bg-black/60 backdrop-blur-xl flex items-end md:items-center justify-center">

@@ -15,7 +15,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { 
   Zap, Filter, CheckCircle2, Sparkles, Waves, Sun, Activity, 
   Coffee, Dribbble, Wifi, Shield, Heart, PawPrint, Building2, 
-  Map, Car, Bicycle, Stethoscope, Globe, Languages, Users, 
+  Map, Car, Bike, Stethoscope, Globe, Languages, Users, 
   Target, TrendingUp, Wallet, Calendar, Camera, ChevronRight,
   Search, Info, Settings, Wind, Thermometer, Droplets, Mountain
 } from 'lucide-react'
