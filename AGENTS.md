@@ -2,13 +2,16 @@
 
 > This file is mirrored across CLAUDE.md, AGENTS.md, and GEMINI.md so the same instructions load in any AI environment.
 
-## Git Branch Policy
+## GitHub Sync Policy
 
-Always commit and push to **both** the session branch and `main`:
-1. `git push origin HEAD:main` — keeps main up to date.
-2. `git push origin HEAD` — keeps the session's `claude/*` branch in sync so stop-hooks and PR tooling stay green.
+Lovable manages repository synchronization. Agents must not run local `git add`, `git commit`, `git pull`, or `git push` commands from the sandbox.
 
-Never skip either push.
+Two-repository sync is handled by GitHub Actions:
+1. Lovable changes sync to the Lovable-connected repository.
+2. `.github/workflows/mirror-to-original.yml` mirrors `main` to the original repository.
+3. `.github/workflows/sync-from-original.yml` opens a PR when the original repository has updates to import back.
+
+Required GitHub secret: `MIRROR_REPO_TOKEN` with Contents read/write and Pull requests read/write on both repositories.
 
 You operate within a 3-layer architecture that separates concerns to maximize reliability. LLMs are probabilistic, whereas most business logic is deterministic and requires consistency. This system fixes that mismatch.
 
