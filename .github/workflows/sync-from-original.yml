@@ -1,0 +1,81 @@
+name: Sync from original repository
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '*/30 * * * *'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+env:
+  SOURCE_REPOSITORY: ${{ vars.MIRROR_TARGET_REPOSITORY || 'avdelag1/swipess' }}
+  SYNC_BRANCH: sync/original-main
+
+jobs:
+  sync:
+    name: Open PR with original repo updates
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Lovable-connected repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.MIRROR_REPO_TOKEN || github.token }}
+
+      - name: Validate sync configuration
+        env:
+          MIRROR_TOKEN: ${{ secrets.MIRROR_REPO_TOKEN }}
+        run: |
+          if [ "${SOURCE_REPOSITORY}" = "${GITHUB_REPOSITORY}" ]; then
+            echo "Source repository is the same as this repository; nothing to import."
+            exit 0
+          fi
+
+          if [ -z "${MIRROR_TOKEN}" ]; then
+            echo "MIRROR_REPO_TOKEN is missing. Add a GitHub fine-grained PAT with Contents read/write access to both repositories."
+            exit 1
+          fi
+
+      - name: Merge original repo main into sync branch
+        env:
+          MIRROR_TOKEN: ${{ secrets.MIRROR_REPO_TOKEN }}
+        run: |
+          if [ "${SOURCE_REPOSITORY}" = "${GITHUB_REPOSITORY}" ]; then
+            exit 0
+          fi
+
+          git config user.name "swipess-sync-bot"
+          git config user.email "actions@github.com"
+          git remote add original "https://x-access-token:${MIRROR_TOKEN}@github.com/${SOURCE_REPOSITORY}.git"
+          git fetch origin main
+          git fetch original main
+          git checkout -B "${SYNC_BRANCH}" origin/main
+          git merge --no-edit original/main
+          if git diff --quiet origin/main..HEAD; then
+            echo "No upstream changes to import."
+            exit 0
+          fi
+          git push origin "${SYNC_BRANCH}" --force
+
+      - name: Create or update sync pull request
+        env:
+          GH_TOKEN: ${{ secrets.MIRROR_REPO_TOKEN }}
+        run: |
+          if [ "${SOURCE_REPOSITORY}" = "${GITHUB_REPOSITORY}" ]; then
+            exit 0
+          fi
+
+          existing_pr="$(gh pr list --repo "${GITHUB_REPOSITORY}" --head "${SYNC_BRANCH}" --json number --jq '.[0].number // empty')"
+          if [ -n "${existing_pr}" ]; then
+            gh pr comment "${existing_pr}" --repo "${GITHUB_REPOSITORY}" --body "Synced latest changes from ${SOURCE_REPOSITORY}."
+          else
+            gh pr create \
+              --repo "${GITHUB_REPOSITORY}" \
+              --base main \
+              --head "${SYNC_BRANCH}" \
+              --title "Sync updates from ${SOURCE_REPOSITORY}" \
+              --body "Imports the latest main-branch changes from ${SOURCE_REPOSITORY} into the Lovable-connected repository."
+          fi
