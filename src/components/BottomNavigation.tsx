@@ -252,8 +252,10 @@ export const BottomNavigation = memo(({
         )}
         style={{
           background: isLight ? 'rgba(255, 255, 255, 0.92)' : 'rgba(10, 15, 30, 0.55)',
-          backdropFilter: 'blur(40px) saturate(280%)',
-          WebkitBackdropFilter: 'blur(40px) saturate(280%)',
+          // Reduced from blur(40) — visually equivalent against a busy
+          // background, but ~3x cheaper per frame on the always-on bar.
+          backdropFilter: 'blur(22px) saturate(220%)',
+          WebkitBackdropFilter: 'blur(22px) saturate(220%)',
           borderRadius: isTablet ? '3rem' : '0',
           padding: '4px',
           boxShadow: isLight
@@ -335,33 +337,18 @@ export const BottomNavigation = memo(({
                   transition: 'all 0.3s cubic-bezier(0.22, 1, 0.36, 1)',
                 }}
               >
-                {/* Active Indicator Pill */}
-                {active && (
-                  <motion.div
-                    layoutId="nav-pill"
-                    className={cn(
-                      "absolute inset-1 rounded-full z-0 border",
-                      isLight 
-                        ? "bg-white border-black/5 shadow-[0_4px_12px_rgba(0,0,0,0.06)]" 
-                        : "bg-white/10 border-white/10 shadow-[0_4px_12px_rgba(0,0,0,0.2)]"
-                    )}
-                    initial={false}
-                    transition={{
-                      type: "spring",
-                      stiffness: 400,
-                      damping: 35,
-                      mass: 0.8
-                    }}
-                  >
-                    <div className="absolute inset-0 rounded-full opacity-30 bg-gradient-to-br from-primary/20 to-transparent" />
-                  </motion.div>
-                )}
+                {/* No per-button frame — the bar is already a pill. Active
+                    state is communicated by the icon color alone. */}
 
-                <motion.div
+                <div
                   className="relative z-10"
-                  animate={{ scale: active ? 1.1 : 1 }}
-                  transition={{ type: 'spring', stiffness: 500, damping: 30, mass: 0.6 }}
-                  style={{ zIndex: 1, display: 'flex', alignItems: 'center', justifyItems: 'center' }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transform: active ? 'scale(1.06)' : 'scale(1)',
+                    transition: 'transform 180ms cubic-bezier(0.32, 0.72, 0, 1)',
+                  }}
                 >
 
                   {/* Notification badge */}
@@ -380,36 +367,34 @@ export const BottomNavigation = memo(({
                     )}
                   </AnimatePresence>
 
-                  {/* Icon: filled with brand color when active, outline when inactive */}
+                  {/* Icon: brand-colored when active, muted when inactive.
+                      No frame, no glow — just color. */}
                   <Icon
-                    className="transition-all duration-300 ease-out"
                     style={{
                       width: isTablet ? ICON_SIZE_TABLET : (isNarrow ? 16 : ICON_SIZE),
                       height: isTablet ? ICON_SIZE_TABLET : (isNarrow ? 16 : ICON_SIZE),
                       color: active
-                        ? (isLight ? '#000000' : '#FFFFFF')
-                        : (isLight ? 'rgba(0,0,0,0.7)' : 'rgba(255,255,255,0.78)'),
-                      opacity: 1,
-
-                      fill: active ? activeColor : 'none',
-                      strokeWidth: active ? 2.5 : 1.9,
-                      filter: active && !isLight ? 'drop-shadow(0 0 8px var(--color-brand-primary))' : 'none',
+                        ? '#FF4D00'
+                        : (isLight ? 'rgba(0,0,0,0.62)' : 'rgba(255,255,255,0.7)'),
+                      fill: 'none',
+                      strokeWidth: active ? 2.4 : 1.9,
+                      transition: 'color 160ms ease-out, stroke-width 160ms ease-out',
                     }}
                   />
-                </motion.div>
-                {/* Label: Natural height, no clipping */}
+                </div>
+                {/* Label */}
                 {!isNarrow && (
                   <div className="flex items-center justify-center w-full min-h-[12px] px-0.5">
                     <span
                       className={cn(
-                        'tracking-tight transition-all duration-300 relative font-black uppercase italic truncate',
+                        'tracking-tight relative font-black uppercase italic truncate',
                         isTablet ? 'text-[11px] max-w-[56px]' : 'text-[8px] max-w-[40px]',
                       )}
                       style={{
                         color: active
-                          ? (isLight ? '#000000' : '#FFFFFF')
-                          : (isLight ? 'rgba(0,0,0,0.7)' : 'rgba(255,255,255,0.78)'),
-                        opacity: 1,
+                          ? '#FF4D00'
+                          : (isLight ? 'rgba(0,0,0,0.62)' : 'rgba(255,255,255,0.7)'),
+                        transition: 'color 160ms ease-out',
                         zIndex: 1,
                       }}
                     >

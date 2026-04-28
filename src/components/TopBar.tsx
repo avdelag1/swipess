@@ -60,8 +60,11 @@ function TopBarComponent({
     background: isLight
       ? 'rgba(255, 255, 255, 0.92)'
       : 'rgba(15, 25, 55, 0.55)',
-    backdropFilter: 'blur(36px) saturate(280%)',
-    WebkitBackdropFilter: 'blur(36px) saturate(280%)',
+    // Blur cost scales with radius squared. 22px is visually ~indistinguishable
+    // from 36px against a busy background but ~2.6x cheaper to composite each
+    // frame — and these pills are always on screen.
+    backdropFilter: 'blur(22px) saturate(220%)',
+    WebkitBackdropFilter: 'blur(22px) saturate(220%)',
     borderRadius: '3rem',
     border: 'none',
     boxShadow: isLight
@@ -69,8 +72,9 @@ function TopBarComponent({
       : '0 25px 70px -10px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255,255,255,0.12)',
     pointerEvents: 'auto',
     color: isLight ? '#000000' : 'var(--hud-text)',
-    transform: 'translate3d(calc(var(--mouse-x, 50%) * 0.005 - 0.25%), calc(var(--mouse-y, 50%) * 0.005 - 0.25%), 0)',
-    transition: 'transform 0.4s cubic-bezier(0.32, 0.72, 0, 1)'
+    // No mouse-tracking transform — the parent already runs a global mousemove
+    // listener that updates --mouse-x/y; reading them here causes per-frame
+    // repaints of every pill on desktop and is wasted on touch devices.
   };
 
   const { data: profile } = useQuery({

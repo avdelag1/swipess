@@ -12,18 +12,19 @@ export function AnimatedOutlet() {
       className="min-h-full w-full flex flex-col flex-1"
       style={{ position: 'relative' }}
     >
-      <AnimatePresence mode="wait">
+      {/* No mode="wait" — that holds the old screen on-screen for the full exit
+          duration before painting the new one, which makes navigation feel
+          laggy. Default cross-fade lets the new page paint immediately while
+          the old one fades out. Filter/scale removed to keep it cheap. */}
+      <AnimatePresence>
         <motion.div
           key={location.pathname}
-          initial={{ opacity: 0, filter: 'blur(8px)', scale: 0.99, y: 4 }}
-          animate={{ opacity: 1, filter: 'blur(0px)', scale: 1, y: 0 }}
-          exit={{ opacity: 0, filter: 'blur(8px)', scale: 1.01, y: -4 }}
-          transition={{ 
-            duration: 0.4, 
-            ease: [0.22, 1, 0.36, 1],
-            opacity: { duration: 0.25 }
-          }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
           className="flex-1 w-full flex flex-col"
+          style={{ position: 'absolute', inset: 0 }}
         >
           <Suspense fallback={<SuspenseFallback minimal />}>
             {outlet}
@@ -33,5 +34,3 @@ export function AnimatedOutlet() {
     </div>
   );
 }
-
-

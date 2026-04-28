@@ -59,7 +59,6 @@ export function useScrollDirection({
   const showAtTopRef = useRef(showAtTop);
   const targetSelectorRef = useRef(targetSelector);
   const currentTargetRef = useRef<Element | null>(null);
-  const rebindIntervalRef = useRef<number | null>(null);
   
   // Update refs when props change
   thresholdRef.current = threshold;
@@ -167,19 +166,12 @@ export function useScrollDirection({
     // Also listen on window for page-level scrolls
     window.addEventListener('scroll', handleScroll, { passive: true });
 
-    // REBIND CHECK: Periodically verify we're tracking the right container
-    // This handles cases where the DOM changes after navigation
-    rebindIntervalRef.current = window.setInterval(() => {
-      const newTarget = findScrollContainer();
-      if (newTarget !== currentTargetRef.current) {
-        currentTargetRef.current = newTarget;
-        // Reset baseline when container changes
-        if (newTarget) {
-          lastTriggerY.current = newTarget.scrollTop;
-        }
-      }
-    }, 1000);
-    
+    // The container is rebound when `resetTrigger` (route pathname) changes
+    // because that's when the React tree actually swaps it. The previous
+    // 1Hz polling fired forever in the background and forced a DOM query
+    // every second — pure waste on every device.
+
+
     // Initialize scroll position
     const initialTarget = findScrollContainer();
     currentTargetRef.current = initialTarget;
@@ -199,10 +191,6 @@ export function useScrollDirection({
 
       if (animationFrameId) {
         cancelAnimationFrame(animationFrameId);
-      }
-
-      if (rebindIntervalRef.current) {
-        clearInterval(rebindIntervalRef.current);
       }
     };
   }, [findScrollContainer, getCurrentScrollY, resetTrigger]);
