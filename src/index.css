@@ -2127,3 +2127,62 @@ html[data-navigation-direction="back"] {
 
 .leaflet-container { width: 100%; height: 100%; background: #f1f5f9; outline: none; }
 .leaflet-control-attribution { display: none !important; }
+
+/* ============================================================
+   APPLE A11Y SAFETY NET — Button/Chip contrast guarantees
+   ------------------------------------------------------------
+   Apple App Review flags any control whose pressed / selected
+   state is not visually distinct, or where text fails minimum
+   contrast. These rules act as a global guard so a control can
+   never silently render white-on-white or white-on-light.
+   ============================================================ */
+
+/* 1. Any element whose Tailwind class explicitly forces a white
+      background must use dark text — never inherit white. */
+button.bg-white,
+a.bg-white,
+[role="button"].bg-white,
+button[class*=" bg-white "]:not([class*="bg-white/"]),
+button[class$=" bg-white"]:not([class*="bg-white/"]) {
+  color: hsl(var(--foreground));
+}
+
+/* 2. Tactile pressed state for every interactive control.
+      Even when a component forgets to define an :active style,
+      users get clear feedback that their tap was registered. */
+button:not(:disabled):active,
+[role="button"]:not([aria-disabled="true"]):active,
+a[href]:active {
+  filter: brightness(0.92);
+  transition: filter 80ms ease-out;
+}
+
+/* 3. Apple HIG requires a visible focus indicator for keyboard
+      and switch-control users. Many components rely on default
+      browser outlines that we strip via Tailwind reset. */
+button:focus-visible,
+[role="button"]:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid hsl(var(--ring, var(--primary)));
+  outline-offset: 2px;
+  border-radius: inherit;
+}
+
+/* 4. Selected / aria-pressed safety: if a toggle is "on" but
+      the author forgot to style it, give it a brand outline so
+      reviewers can see the selection. */
+[aria-pressed="true"]:not([data-styled="true"]),
+[aria-selected="true"]:not([data-styled="true"]),
+[data-state="on"]:not([data-styled="true"]),
+[data-state="active"]:not([data-styled="true"]) {
+  box-shadow: inset 0 0 0 2px hsl(var(--primary));
+}
+
+/* 5. Disabled controls must stay legible — never invisible. */
+button:disabled,
+[aria-disabled="true"] {
+  opacity: 0.55;
+}
