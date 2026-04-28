@@ -143,7 +143,7 @@ const DEMO_CLIENTS: any[] = [
 
 export function useSmartClientMatching(
     userId?: string,
-    _category?: 'property' | 'motorcycle' | 'bicycle' | 'services' | 'worker',
+    _category?: 'property' | 'motorcycle' | 'bicycle' | 'services' | 'worker' | 'all' | 'all-clients' | 'buyers' | 'renters' | 'hire',
     page: number = 0,
     pageSize: number = 10,
     isRefreshMode: boolean = false,
@@ -270,7 +270,7 @@ export function useSmartClientMatching(
 
                 // Support both listing type filters (property/motorcycle/bicycle/services)
                 // AND client type filters (buyers/renters/hire) for owner side
-                if (_category && _category !== 'all') {
+                if (_category && _category !== 'all' && _category !== 'all-clients') {
                     const isClientType = ['buyers', 'renters', 'hire'].includes(_category);
                     if (isClientType) {
                         // Owner side: filter by client_type field

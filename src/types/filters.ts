@@ -13,7 +13,11 @@ export type QuickFilterCategory =
   | 'property'
   | 'motorcycle'  // ALWAYS use 'motorcycle' not 'moto'
   | 'bicycle'
-  | 'services';   // UI name (maps to 'worker' in database)
+  | 'services'   // UI name (maps to 'worker' in database)
+  | 'all-clients'
+  | 'buyers'
+  | 'renters'
+  | 'hire';
 
 /**
  * Listing types for property rentals
