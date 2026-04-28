@@ -158,7 +158,7 @@ const Index = () => {
       return;
 
       // 5. Auth Metadata: Reliable second path (In-memory)
-      const metadataRole = user.user_metadata?.role as 'client' | 'owner' | undefined;
+      const metadataRole = user?.user_metadata?.role as 'client' | 'owner' | undefined;
       // ALWAYS start on client first if it's a fresh session or no sticky preference
       if (metadataRole === 'client') {
           hasNavigated.current = true;

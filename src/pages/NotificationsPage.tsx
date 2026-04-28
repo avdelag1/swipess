@@ -88,7 +88,7 @@ const NotificationsPage = () => {
                 onClick={() => { triggerHaptic('light'); markNotificationAsRead(notif.id); }}
                 className={cn(
                   "group relative p-5 rounded-[2.5rem] border transition-all cursor-pointer active:scale-[0.98]",
-                  notif.read_at 
+                  notif.read 
                     ? (isDark ? "bg-white/[0.02] border-white/5 opacity-60" : "bg-black/5 border-black/5 opacity-60")
                     : (isDark ? "bg-white/5 border-white/10 shadow-2xl" : "bg-white border-black/10 shadow-xl")
                 )}
@@ -96,7 +96,7 @@ const NotificationsPage = () => {
                 <div className="flex gap-5">
                   <div className={cn(
                     "w-12 h-12 rounded-2xl flex items-center justify-center bg-white/5 border border-white/10 shrink-0",
-                    !notif.read_at && "bg-brand-primary/10 border-brand-primary/20"
+                    !notif.read && "bg-brand-primary/10 border-brand-primary/20"
                   )}>
                     {getIcon(notif.type)}
                   </div>
@@ -105,9 +105,9 @@ const NotificationsPage = () => {
                     <div className="flex items-center justify-between gap-2">
                        <span className={cn(
                          "text-[10px] font-black uppercase tracking-widest italic opacity-40 mb-1 block",
-                         !notif.read_at && "text-brand-primary opacity-100"
+                          !notif.read && "text-brand-primary opacity-100"
                         )}>
-                         {notif.type || 'Alert'} — {formatDistanceToNow(new Date(notif.created_at), { addSuffix: true })}
+                         {notif.type || 'Alert'} — {formatDistanceToNow(notif.timestamp, { addSuffix: true })}
                        </span>
                     </div>
                     
@@ -115,7 +115,7 @@ const NotificationsPage = () => {
                       {notif.title}
                     </h3>
                     <p className={cn("text-[12px] font-medium opacity-50 mt-1 line-clamp-2", isLight ? "text-slate-600" : "text-slate-400")}>
-                      {notif.content}
+                      {notif.message}
                     </p>
                   </div>
 
@@ -126,7 +126,7 @@ const NotificationsPage = () => {
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
-                    {!notif.read_at && (
+                    {!notif.read && (
                        <button
                         onClick={(e) => { e.stopPropagation(); triggerHaptic('success'); markNotificationAsRead(notif.id); }}
                         className="p-2 rounded-xl bg-brand-primary/10 hover:bg-brand-primary/20 text-brand-primary transition-colors"

@@ -201,7 +201,7 @@ export default function EventosFeed() {
 
   const rowVirtualizer = useVirtualizer({
     count: filteredEvents.length,
-    getScrollElement: () => document.getElementById('dashboard-scroll-container') || (typeof window !== 'undefined' ? window : null),
+    getScrollElement: () => document.getElementById('dashboard-scroll-container') || parentRef.current,
     estimateSize: () => window.innerHeight || 800,
     overscan: 2,
     initialOffset: 0,
