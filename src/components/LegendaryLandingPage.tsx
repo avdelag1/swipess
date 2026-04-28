@@ -115,24 +115,24 @@ const LandingView = memo(({
       >
         <button
           onClick={() => { triggerHaptic('medium'); onEnterAuth('login'); }}
-          className="w-full h-14 rounded-[2rem] bg-[#FF4D00] text-white font-black uppercase tracking-[0.25em] text-[12px] shadow-[0_15px_45px_rgba(255,77,0,0.3)] active:scale-[0.97] transition-all flex items-center justify-center gap-3"
+          className="w-full h-14 rounded-[2rem] bg-[#FF4D00] text-white font-black uppercase tracking-[0.25em] text-[12px] shadow-[0_15px_45px_rgba(255,77,0,0.45)] active:scale-[0.97] transition-all flex items-center justify-center gap-3 border border-white/10"
         >
           <LogIn className="w-4 h-4" />
           Sign In
         </button>
         <button
           onClick={() => { triggerHaptic('medium'); onEnterAuth('signup'); }}
-          className="w-full h-14 rounded-[2rem] bg-white/10 backdrop-blur-md border border-white/15 text-white font-black uppercase tracking-[0.25em] text-[12px] active:scale-[0.97] transition-all flex items-center justify-center gap-3 hover:bg-white/15"
+          className="w-full h-14 rounded-[2rem] bg-white text-black font-black uppercase tracking-[0.25em] text-[12px] shadow-[0_12px_36px_rgba(255,255,255,0.18)] active:scale-[0.97] transition-all flex items-center justify-center gap-3 hover:bg-white/95"
         >
-          <Sparkles className="w-4 h-4" />
+          <Sparkles className="w-4 h-4 text-[#FF4D00]" />
           Create Account
         </button>
         <motion.p
-          animate={{ opacity: [0.15, 0.4, 0.15] }}
+          animate={{ opacity: [0.4, 0.85, 0.4] }}
           transition={{ duration: 3, repeat: Infinity }}
-          className="mt-2 text-[9px] uppercase tracking-[0.35em] font-bold text-white/60 italic"
+          className="mt-2 text-[9px] uppercase tracking-[0.35em] font-bold text-white italic"
         >
-          or swipe logo to enter →
+          or swipe logo to enter &rarr;
         </motion.p>
       </motion.div>
     </motion.div>
@@ -300,7 +300,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
           ) : (
             <>
               {/* ─── Fix #1: Prominent Login / Sign Up tab toggle ─── */}
-              <div className="flex items-center justify-center gap-1 bg-white/5 rounded-2xl p-1 mb-3">
+              <div className="flex items-center justify-center gap-1 bg-white/10 rounded-2xl p-1 mb-3 border border-white/10">
                 <button
                   type="button"
                   onClick={() => { triggerHaptic('light'); setIsLogin(true); setFieldErrors({}); }}
@@ -308,7 +308,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
                     "flex-1 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-[0.15em] transition-all",
                     isLogin
                       ? "bg-[#FF4D00] text-white shadow-lg"
-                      : "text-white/70 hover:text-white/60"
+                      : "text-white/85 hover:text-white"
                   )}
                 >
                   Sign In
@@ -320,7 +320,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
                     "flex-1 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-[0.15em] transition-all",
                     !isLogin
                       ? "bg-[#FF4D00] text-white shadow-lg"
-                      : "text-white/70 hover:text-white/60"
+                      : "text-white/85 hover:text-white"
                   )}
                 >
                   Sign Up
@@ -454,9 +454,9 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
         {!isForgotPassword && (
           <div className="mt-5 space-y-3">
             <div className="flex items-center gap-4">
-               <div className="flex-1 h-[1px] bg-white/5" />
-               <span className="text-[9px] font-bold text-white/60 uppercase tracking-[0.2em]">or continue with</span>
-               <div className="flex-1 h-[1px] bg-white/5" />
+               <div className="flex-1 h-[1px] bg-white/15" />
+               <span className="text-[9px] font-bold text-white/85 uppercase tracking-[0.2em]">or continue with</span>
+               <div className="flex-1 h-[1px] bg-white/15" />
             </div>
             
             <div className="grid grid-cols-1 gap-2.5">

@@ -57,19 +57,18 @@ function TopBarComponent({
   const onBack = propOnBack || (showBack ? () => window.history.length > 2 ? navigate(-1) : navigate(`/${isOwner ? 'owner' : 'client'}/dashboard`) : (activeCategory ? () => setActiveCategory(null) : undefined));
 
   const glassPillStyle: React.CSSProperties = {
-    background: isLight 
-      ? 'rgba(255, 255, 255, 0.75)' 
-      : 'rgba(15, 25, 55, 0.45)', // Richer blue glass for Swipess Dark
+    background: isLight
+      ? 'rgba(255, 255, 255, 0.92)'
+      : 'rgba(15, 25, 55, 0.55)',
     backdropFilter: 'blur(36px) saturate(280%)',
     WebkitBackdropFilter: 'blur(36px) saturate(280%)',
     borderRadius: '3rem',
     border: 'none',
-    boxShadow: isLight 
-      ? '0 12px 40px rgba(0,0,0,0.06), inset 0 0 0 1px rgba(255,255,255,0.4)' 
-      : '0 25px 70px -10px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255,255,255,0.05)',
+    boxShadow: isLight
+      ? '0 12px 40px rgba(0,0,0,0.12), inset 0 0 0 1px rgba(0,0,0,0.08)'
+      : '0 25px 70px -10px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255,255,255,0.12)',
     pointerEvents: 'auto',
     color: isLight ? '#000000' : 'var(--hud-text)',
-    // 🔮 SENTIENT GLOW: React to mouse position
     transform: 'translate3d(calc(var(--mouse-x, 50%) * 0.005 - 0.25%), calc(var(--mouse-y, 50%) * 0.005 - 0.25%), 0)',
     transition: 'transform 0.4s cubic-bezier(0.32, 0.72, 0, 1)'
   };
@@ -185,11 +184,26 @@ function TopBarComponent({
               <motion.button
                 whileTap={{ scale: 0.9 }}
                 onClick={() => { haptics.tap(); setModal('showTokensModal', true); }}
-                className="w-9 h-9 flex shrink-0 items-center justify-center rounded-full"
-                style={glassPillStyle}
+                className="w-9 h-9 flex shrink-0 items-center justify-center rounded-full relative overflow-hidden"
+                style={{
+                  ...glassPillStyle,
+                  background: isLight
+                    ? 'linear-gradient(135deg, rgba(245,158,11,0.18), rgba(249,115,22,0.14))'
+                    : 'linear-gradient(135deg, rgba(245,158,11,0.28), rgba(249,115,22,0.22))',
+                  boxShadow: isLight
+                    ? '0 8px 24px -6px rgba(245,158,11,0.35), inset 0 0 0 1px rgba(245,158,11,0.35)'
+                    : '0 12px 32px -8px rgba(245,158,11,0.45), inset 0 0 0 1px rgba(245,158,11,0.4)',
+                }}
                 aria-label="Tokens"
               >
-                <Ticket className="w-4 h-4" style={{ color: isLight ? '#000000' : 'var(--hud-text)' }} strokeWidth={2} />
+                <Ticket
+                  className="w-4 h-4"
+                  style={{
+                    color: '#fbbf24',
+                    filter: 'drop-shadow(0 0 6px rgba(251,191,36,0.6))',
+                  }}
+                  strokeWidth={2.4}
+                />
               </motion.button>
 
               <ThemeToggle glassPillStyle={glassPillStyle} />

@@ -251,12 +251,14 @@ export const BottomNavigation = memo(({
           isTablet ? "mx-auto w-fit max-w-full" : "w-full"
         )}
         style={{
-          background: isLight ? 'rgba(255, 255, 255, 0.7)' : 'rgba(10, 15, 30, 0.4)',
+          background: isLight ? 'rgba(255, 255, 255, 0.92)' : 'rgba(10, 15, 30, 0.55)',
           backdropFilter: 'blur(40px) saturate(280%)',
           WebkitBackdropFilter: 'blur(40px) saturate(280%)',
           borderRadius: isTablet ? '3rem' : '0',
           padding: '4px',
-          boxShadow: isLight ? '0 15px 40px rgba(0,0,0,0.08)' : '0 25px 60px -10px rgba(0,0,0,0.4)',
+          boxShadow: isLight
+            ? '0 15px 40px rgba(0,0,0,0.14), inset 0 0 0 1px rgba(0,0,0,0.06)'
+            : '0 25px 60px -10px rgba(0,0,0,0.4), inset 0 0 0 1px rgba(255,255,255,0.08)',
           border: 'none',
         }}
 
@@ -386,11 +388,11 @@ export const BottomNavigation = memo(({
                       height: isTablet ? ICON_SIZE_TABLET : (isNarrow ? 16 : ICON_SIZE),
                       color: active
                         ? (isLight ? '#000000' : '#FFFFFF')
-                        : (isLight ? 'rgba(0,0,0,0.4)' : 'rgba(255,255,255,0.4)'),
+                        : (isLight ? 'rgba(0,0,0,0.7)' : 'rgba(255,255,255,0.78)'),
                       opacity: 1,
 
                       fill: active ? activeColor : 'none',
-                      strokeWidth: active ? 2.5 : 1.5,
+                      strokeWidth: active ? 2.5 : 1.9,
                       filter: active && !isLight ? 'drop-shadow(0 0 8px var(--color-brand-primary))' : 'none',
                     }}
                   />
@@ -404,9 +406,9 @@ export const BottomNavigation = memo(({
                         isTablet ? 'text-[11px] max-w-[56px]' : 'text-[8px] max-w-[40px]',
                       )}
                       style={{
-                        color: active 
-                          ? (isLight ? '#000000' : '#FFFFFF') 
-                          : (isLight ? 'rgba(0,0,0,0.4)' : 'rgba(255,255,255,0.4)'),
+                        color: active
+                          ? (isLight ? '#000000' : '#FFFFFF')
+                          : (isLight ? 'rgba(0,0,0,0.7)' : 'rgba(255,255,255,0.78)'),
                         opacity: 1,
                         zIndex: 1,
                       }}
