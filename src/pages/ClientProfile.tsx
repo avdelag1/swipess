@@ -91,9 +91,9 @@ const ClientProfile = () => {
             <motion.div
               whileHover={{ scale: 1.04 }}
               whileTap={{ scale: 0.96 }}
-              className="w-44 h-44 p-[2px] shadow-[0_0_60px_rgba(124,58,237,0.25)]"
+              className="w-36 h-36 p-[2px] shadow-[0_0_60px_rgba(124,58,237,0.25)]"
               style={{
-                borderRadius: '3.5rem',
+                borderRadius: '3rem',
                 background: 'linear-gradient(135deg, #7C3AED, #0EA5E9, #00D4FF)',
               }}
             >

@@ -71,9 +71,9 @@ const OwnerProfile = () => {
             <motion.div
               whileHover={{ scale: 1.04 }}
               whileTap={{ scale: 0.96 }}
-              className="w-44 h-44 p-[2px] shadow-[0_0_60px_rgba(0,212,255,0.2)]"
+              className="w-36 h-36 p-[2px] shadow-[0_0_60px_rgba(0,212,255,0.2)]"
               style={{
-                borderRadius: '2rem',
+                borderRadius: '1.8rem',
                 background: 'linear-gradient(135deg, #00D4FF, #7C3AED, #0EA5E9)',
               }}
             >

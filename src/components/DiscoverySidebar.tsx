@@ -66,7 +66,7 @@ export const DiscoverySidebar = memo(({
         "group relative rounded-2xl flex flex-col items-center justify-center transition-all pointer-events-auto",
         "bg-black/65 backdrop-blur-xl border border-white/10",
         disabled ? "opacity-70 grayscale cursor-not-allowed" : "hover:bg-black/80 active:scale-90",
-        size === 'large' ? "w-14 h-14" : "w-12 h-12"
+        size === 'large' ? "w-12 h-12" : "w-11 h-11"
       )}
     >
       <div 

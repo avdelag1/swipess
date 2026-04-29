@@ -247,7 +247,7 @@ const ClientSettings = () => {
                       className="w-full flex items-center gap-5 py-5 px-6 transition-all text-left"
                     >
                       <div
-                        className="w-11 h-11 rounded-[14px] flex items-center justify-center flex-shrink-0 shadow-lg border border-white/10"
+                        className="w-10 h-10 rounded-[12px] flex items-center justify-center flex-shrink-0 shadow-lg border border-white/10"
                         style={{ background: item.bg }}
                       >
                         <item.icon className="w-5 h-5 text-white shadow-sm" />

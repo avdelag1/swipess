@@ -16,6 +16,7 @@ import type { QuickFilterCategory } from '@/types/filters';
 import useAppTheme from '@/hooks/useAppTheme';
 import type { ClientFilters } from '@/hooks/smartMatching/types';
 import { AtmosphericLayer } from '@/components/AtmosphericLayer';
+import { OWNER_INTENT_CARDS } from '@/components/swipe/CardData';
 
 interface EnhancedOwnerDashboardProps {
   onClientInsights?: (clientId: string) => void;

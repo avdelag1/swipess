@@ -36,7 +36,7 @@ const VELOCITY_THRESHOLD = 280; // Velocity to trigger swipe
 const FALLBACK_PLACEHOLDER = ''; // Empty → CardImage renders branded PlaceholderImage
 
 // Max rotation angle (degrees) based on horizontal position
-const MAX_ROTATION = 18; // Elegant, less dramatic rotation
+const MAX_ROTATION = 14; // Even smoother, more premium pivot
 
 // Calculate exit distance dynamically
 const getExitDistance = () => typeof window !== 'undefined' ? window.innerWidth * 1.5 : 800;

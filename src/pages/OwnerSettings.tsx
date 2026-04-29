@@ -238,10 +238,10 @@ const OwnerSettings = () => {
                     >
                       {/* iOS-style colored icon badge with depth */}
                       <div
-                        className="w-14 h-14 rounded-[1.2rem] flex items-center justify-center flex-shrink-0 shadow-2xl border border-white/10"
+                        className="w-12 h-12 rounded-[1.2rem] flex items-center justify-center flex-shrink-0 shadow-2xl border border-white/10"
                         style={{ background: item.bg }}
                       >
-                        <item.icon className="w-6 h-6 text-white shadow-sm" />
+                        <item.icon className="w-5 h-5 text-white shadow-sm" />
                       </div>
 
                       <div className="flex-1">
