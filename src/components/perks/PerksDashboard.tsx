@@ -66,7 +66,7 @@ export function PerksDashboard() {
   ];
 
   return (
-    <div className="flex flex-col h-full min-h-0 overflow-hidden pt-[130px]">
+    <div className="flex flex-col min-h-full pt-[130px]">
       {/* Tab bar */}
       <div className="flex gap-1 px-4 pt-3 pb-2 shrink-0">
         {tabs.map(t => (
@@ -86,7 +86,7 @@ export function PerksDashboard() {
         ))}
       </div>
 
-      <div className="flex-1 overflow-y-auto min-h-0 px-4 pb-6">
+      <div className="flex-1 px-4 pb-6">
         <AnimatePresence mode="wait">
           {tab === 'home' && (
             <motion.div key="home" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.2 }}>

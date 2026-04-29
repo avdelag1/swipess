@@ -16,9 +16,9 @@ import { motion, useMotionValue, useTransform, PanInfo, animate, useDragControls
 import { triggerHaptic } from '@/utils/haptics';
 import { getCardImageUrl } from '@/utils/imageOptimization';
 import { Listing } from '@/hooks/useListings';
-import { MatchedListing } from '@/hooks/useSmartMatching';
+import { MatchedListing, MatchedClientProfile } from '@/hooks/useSmartMatching';
 import { useMagnifier } from '@/hooks/useMagnifier';
-import { PropertyCardInfo, VehicleCardInfo, ServiceCardInfo } from '@/components/ui/CardInfoHierarchy';
+import { PropertyCardInfo, VehicleCardInfo, ServiceCardInfo, ClientCardInfo } from '@/components/ui/CardInfoHierarchy';
 import { CompactRatingDisplay } from '@/components/RatingDisplay';
 import { useListingRatingAggregate } from '@/hooks/useRatingSystem';
 import CardImage from '@/components/CardImage';
@@ -88,7 +88,7 @@ const GlassShine = ({ x, y }: { x: MotionValue<number>; y: MotionValue<number> }
 };
 
 interface SimpleSwipeCardProps {
-  listing: Listing | MatchedListing;
+  listing: Listing | MatchedListing | MatchedClientProfile;
   onSwipe: (direction: 'left' | 'right') => void;
   onInsights?: () => void;
   isTop?: boolean;
@@ -111,7 +111,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   const isDragging = useRef(false);
   const hasExited = useRef(false);
   const isExitingRef = useRef(false);
-  const lastListingIdRef = useRef(listing.id);
+  const lastListingIdRef = useRef(listing.id || (listing as any).user_id);
   const dragStartY = useRef(0);
   const dragControls = useDragControls();
   const dragStartedRef = useRef(false);
@@ -186,20 +186,32 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
 
   const images = useMemo(() => {
     let result: string[] = [];
-    if (listing.video_url) {
-      result.push('video_attachment');
-    }
-    if (Array.isArray(listing.images) && listing.images.length > 0) {
-      result = [...result, ...listing.images];
-    } else if (listing.image_url) {
-      result.push(listing.image_url);
+    
+    // Check if it's a profile or a listing
+    const isProfile = (listing as any).profile_images || (listing as any).name;
+    
+    if (isProfile) {
+      if (Array.isArray((listing as any).profile_images) && (listing as any).profile_images.length > 0) {
+        result = (listing as any).profile_images;
+      } else if ((listing as any).avatar_url) {
+        result = [(listing as any).avatar_url];
+      }
+    } else {
+      if ((listing as any).video_url) {
+        result.push((listing as any).video_url);
+      }
+      if (Array.isArray((listing as any).images) && (listing as any).images.length > 0) {
+        result = [...result, ...(listing as any).images];
+      } else if ((listing as any).image_url) {
+        result.push((listing as any).image_url);
+      }
     }
 
     if (result.length === 0) {
       return [FALLBACK_PLACEHOLDER];
     }
     return result;
-  }, [listing.images, listing.image_url, listing.video_url]);
+  }, [listing]);
 
   const imageCount = images.length;
   const currentImage = images[currentImageIndex] || FALLBACK_PLACEHOLDER;
@@ -221,9 +233,10 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   // Reset state when listing changes - but ONLY if we're not mid-exit
   // This prevents the snap-back glitch caused by resetting during exit animation
   useEffect(() => {
+    const currentId = listing.id || (listing as any).user_id;
     // Check if this is a genuine listing change (not a re-render during exit)
-    if (listing.id !== lastListingIdRef.current) {
-      lastListingIdRef.current = listing.id;
+    if (currentId !== lastListingIdRef.current) {
+      lastListingIdRef.current = currentId;
 
       // Only reset if we're not currently in an exit animation
       if (!isExitingRef.current) {
@@ -233,7 +246,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
         y.set(0);
       }
     }
-  }, [listing.id, x, y]);
+  }, [listing.id, (listing as any).user_id, x, y]);
 
   // Magnifier hook for press-and-hold zoom
   const { containerRef, pointerHandlers: magnifierPointerHandlers, isActive: isMagnifierActive } = useMagnifier({
@@ -614,30 +627,58 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
               )}
             </div>
 
-            {listing.category === 'vehicle' || listing.vehicle_type ? (
-              <VehicleCardInfo
-                price={listing.price || 0}
-                priceType={listing.rental_duration_type === 'monthly' ? 'month' : 'day'}
-                make={listing.vehicle_brand ?? undefined}
-                model={listing.vehicle_model ?? undefined}
-                year={listing.year ?? undefined}
-                location={listing.city ?? undefined}
-                isVerified={(listing as any).has_verified_documents ?? undefined}
-                photoIndex={currentImageIndex}
-                className="!text-white !space-y-0"
-              />
-            ) : listing.category === 'worker' || listing.category === 'services' || (listing as any).service_category ? (
-              <ServiceCardInfo
-                hourlyRate={listing.price || 0}
-                pricingUnit={(listing as any).pricing_unit || 'hr'}
-                serviceName={(listing as any).service_category || listing.title || 'Service'}
-                name={listing.title}
-                location={listing.city ?? undefined}
-                isVerified={(listing as any).has_verified_documents ?? undefined}
-                photoIndex={currentImageIndex}
-                className="!text-white !space-y-0"
-              />
-            ) : (
+            const isProfile = (listing as any).profile_images || (listing as any).name;
+
+            if (isProfile) {
+              const profile = listing as MatchedClientProfile;
+              return (
+                <ClientCardInfo
+                  name={profile.name}
+                  age={profile.age}
+                  budgetMin={profile.budget_min}
+                  budgetMax={profile.budget_max}
+                  location={profile.city}
+                  occupation={(profile as any).occupation || (profile as any).client_type}
+                  isVerified={profile.verified}
+                  photoIndex={currentImageIndex}
+                  workSchedule={profile.work_schedule}
+                  className="!text-white !space-y-0"
+                />
+              );
+            }
+
+            if (listing.category === 'vehicle' || listing.vehicle_type) {
+              return (
+                <VehicleCardInfo
+                  price={listing.price || 0}
+                  priceType={listing.rental_duration_type === 'monthly' ? 'month' : 'day'}
+                  make={listing.vehicle_brand ?? undefined}
+                  model={listing.vehicle_model ?? undefined}
+                  year={listing.year ?? undefined}
+                  location={listing.city ?? undefined}
+                  isVerified={(listing as any).has_verified_documents ?? undefined}
+                  photoIndex={currentImageIndex}
+                  className="!text-white !space-y-0"
+                />
+              );
+            } 
+            
+            if (listing.category === 'worker' || listing.category === 'services' || (listing as any).service_category) {
+              return (
+                <ServiceCardInfo
+                  hourlyRate={listing.price || 0}
+                  pricingUnit={(listing as any).pricing_unit || 'hr'}
+                  serviceName={(listing as any).service_category || listing.title || 'Service'}
+                  name={listing.title}
+                  location={listing.city ?? undefined}
+                  isVerified={(listing as any).has_verified_documents ?? undefined}
+                  photoIndex={currentImageIndex}
+                  className="!text-white !space-y-0"
+                />
+              );
+            }
+
+            return (
               <PropertyCardInfo
                 price={listing.price || 0}
                 priceType={listing.rental_duration_type === 'monthly' ? 'month' : 'night'}
@@ -649,7 +690,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
                 photoIndex={currentImageIndex}
                 className="!text-white !space-y-0"
               />
-            )}
+            );
           </motion.div>
         </div>
 

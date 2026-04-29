@@ -207,7 +207,7 @@ const ClientSettings = () => {
   }
 
   return (
-    <div className="w-full relative px-6 pb-40 bg-background min-h-screen overflow-hidden">
+    <div className="w-full relative px-6 pb-40 bg-background min-h-screen">
       <AtmosphericLayer variant="primary" />
       
       <div className="max-w-3xl mx-auto space-y-12 pt-4 relative z-10">
