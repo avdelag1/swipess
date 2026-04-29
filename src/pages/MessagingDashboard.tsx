@@ -266,7 +266,7 @@ export function MessagingDashboard() {
                 } : {
                   backgroundColor: isLight ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.04)',
                   borderColor: isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.06)',
-                  color: isLight ? 'rgba(0,0,0,0.65)' : 'rgba(255,255,255,0.65)'
+                  color: isLight ? '#000000' : '#ffffff'
                 }}
               >
                 <filter.icon className="w-3.5 h-3.5" />

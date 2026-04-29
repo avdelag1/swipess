@@ -305,7 +305,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
                           color: 'white',
                           boxShadow: '0 6px 20px rgba(255,77,0,0.35)'
                         } : {
-                          color: isLight ? 'rgba(0,0,0,0.55)' : 'rgba(255,255,255,0.55)'
+                          color: isLight ? '#000000' : '#ffffff'
                         }}
                     >
                         <tab.icon className="w-4 h-4" />

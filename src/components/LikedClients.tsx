@@ -205,7 +205,7 @@ export function LikedClients() {
               } : {
                 backgroundColor: isLight ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.04)',
                 borderColor: isLight ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.08)',
-                color: isLight ? 'rgba(0,0,0,0.6)' : 'rgba(255,255,255,0.6)'
+                color: isLight ? '#000000' : '#ffffff'
               }}
             >
               <Icon className="w-4 h-4" />
@@ -241,7 +241,7 @@ export function LikedClients() {
               } : {
                 backgroundColor: isLight ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.04)',
                 borderColor: isLight ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.08)',
-                color: isLight ? 'rgba(0,0,0,0.6)' : 'rgba(255,255,255,0.6)'
+                color: isLight ? '#000000' : '#ffffff'
               }}
             >
               {opt}

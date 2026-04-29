@@ -117,7 +117,7 @@ export default function OwnerFilters({ isEmbedded, onClose }: OwnerFiltersProps)
                   boxShadow: '0 8px 24px rgba(255,77,0,0.4)',
                   transform: 'scale(1.03)'
                 } : {
-                  color: isLight ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.5)'
+                  color: isLight ? '#000000' : '#ffffff'
                 }}
               >
                 <Icon className="w-5 h-5" />
