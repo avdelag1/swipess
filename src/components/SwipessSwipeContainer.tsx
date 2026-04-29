@@ -1173,7 +1173,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
       </div>
 
     </div>
-    </div>
 
       {/* Action buttons — horizontal bar below the card */}
       {hasCards && (
@@ -1206,7 +1205,9 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
         </div>
       )}
 
-      {/* Action buttons now live inside the card via DiscoverySidebar */}
+    </div>
+
+      {/* Action buttons now live in the bar below the card */}
 
       {/* Epic Match Celebration Modal */}
       {matchData && (
