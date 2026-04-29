@@ -1122,7 +1122,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-                className="relative w-[94%] h-[85%] max-w-[420px] max-h-[800px] mx-auto"
+                className="relative w-full h-[calc(100%-20px)] max-w-[380px] mx-auto"
               >
                 {/* Back card (Peek) */}
                 {currentIndex + 1 < deckQueue.length && (
@@ -1131,7 +1131,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
                     style={{
                       scale: nextCardScale,
                       opacity: nextCardOpacity,
-                      y: 8, // slight vertical offset for premium stack feel
                       willChange: 'transform, opacity',
                     }}
                   >
