@@ -54,7 +54,13 @@ const ClientProfile = () => {
   }
 
   return (
-    <div className="w-full relative overflow-x-hidden min-h-screen bg-[#030308] text-white">
+    <div
+      className="w-full relative overflow-x-hidden min-h-screen bg-[#030308] text-white"
+      style={{
+        paddingTop: 'calc(var(--top-bar-height, 60px) + var(--safe-top, 0px))',
+        paddingBottom: 'calc(var(--bottom-nav-height, 72px) + var(--safe-bottom, 0px))',
+      }}
+    >
 
       {/* Swipess Grid Background */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
@@ -73,7 +79,7 @@ const ClientProfile = () => {
         <div className="absolute top-[45%] right-[25%] w-[40%] h-[30%] bg-blue-600/5 rounded-full blur-[100px]" />
       </div>
 
-      <div className="w-full max-w-7xl mx-auto p-6 pt-24 pb-12 space-y-10 relative z-10">
+      <div className="w-full max-w-7xl mx-auto px-6 pt-6 pb-8 space-y-8 relative z-10">
 
         {/* SWIPESS MEMBER BADGE */}
         <div className="flex items-center justify-center">
