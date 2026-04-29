@@ -13,7 +13,7 @@
 
 import { memo, useRef, useState, useCallback, useMemo, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { motion, useMotionValue, useTransform, PanInfo, animate, useDragControls } from 'framer-motion';
-import { MapPin, DollarSign, Briefcase } from 'lucide-react';
+import { MapPin, DollarSign, Briefcase, Flag, Share2 } from 'lucide-react';
 import { triggerHaptic } from '@/utils/haptics';
 import { cn } from '@/lib/utils';
 
@@ -226,6 +226,7 @@ interface SimpleOwnerSwipeCardProps {
   onInsights?: () => void;
   onMessage?: () => void;
   onShare?: () => void;
+  onReport?: () => void;
   onUndo?: () => void;
   onLike?: () => void;
   onDislike?: () => void;
@@ -233,6 +234,7 @@ interface SimpleOwnerSwipeCardProps {
   isTop?: boolean;
   fullScreen?: boolean;
   externalX?: any;
+  onDragStart?: () => void;
 }
 
 const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, SimpleOwnerSwipeCardProps>(({
@@ -243,12 +245,14 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   onInsights,
   onMessage,
   onShare,
+  onReport,
   onUndo,
   onLike,
   onDislike,
   canUndo,
   isTop = true,
   fullScreen = false,
+  onDragStart,
 }, ref) => {
   const isDragging = useRef(false);
   const hasExited = useRef(false);
@@ -724,6 +728,32 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
               ))}
             </div>
           )}
+
+          {/* In-Card Navigation Buttons (Tinder Style) */}
+          <div className="absolute top-[calc(var(--safe-top,0px)+80px)] left-6 right-6 z-40 flex justify-between pointer-events-none">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                triggerHaptic('light');
+                onShare?.();
+              }}
+              className="w-10 h-10 rounded-full bg-black/30 backdrop-blur-md border border-white/20 flex items-center justify-center text-white active:scale-90 transition-all pointer-events-auto"
+              title="Share Profile"
+            >
+              <Share2 className="w-5 h-5" strokeWidth={1.5} />
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                triggerHaptic('medium');
+                onReport?.();
+              }}
+              className="w-10 h-10 rounded-full bg-black/30 backdrop-blur-md border border-white/20 flex items-center justify-center text-white/70 active:scale-90 transition-all pointer-events-auto"
+              title="Report Profile"
+            >
+              <Flag className="w-5 h-5" strokeWidth={1.5} />
+            </button>
+          </div>
         </div>
 
         <motion.div

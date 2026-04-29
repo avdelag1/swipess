@@ -1079,7 +1079,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
   return (
     <>
     <div className={cn(
-      "fixed inset-0 w-full h-[100dvh] flex flex-col transition-colors duration-500",
+      "absolute inset-0 w-full h-full flex flex-col transition-colors duration-500 overflow-hidden",
       isLight ? "bg-transparent" : "bg-black"
     )}>
       <div className={cn(
@@ -1109,7 +1109,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
 
       {/* Card area — flex-1 fills remaining space; overflow-hidden here keeps swipe cards contained */}
       <div className={cn(
-        "flex-1 relative flex flex-col items-center justify-center px-0 pt-0 z-10 pointer-events-none min-h-0 overflow-hidden",
+        "flex-1 relative flex flex-col items-center justify-center px-0 pt-0 z-10 pointer-events-auto min-h-0 overflow-hidden",
         hasCards ? "pb-0" : ""
       )}>
 
@@ -1153,6 +1153,8 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
                     handleInsights();
                     if (onListingTap) onListingTap(topCard.id);
                   }}
+                  onShare={handleShare}
+                  onReport={() => console.log('Report', topCard.id)}
                   onDragStart={handleDragStart}
                   isTop={true}
                   externalX={topCardX}
@@ -1200,6 +1202,10 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
             onLike={handleButtonLike}
             onDislike={handleButtonDislike}
             onShare={handleShare}
+            onInsights={() => {
+              handleInsights();
+              if (onListingTap) onListingTap(topCard.id);
+            }}
             onUndo={undoLastSwipe}
             onMessage={handleMessage}
             onCycleCategory={handleCycleCategory}

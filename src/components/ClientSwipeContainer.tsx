@@ -908,7 +908,7 @@ const ClientSwipeContainerComponent = ({
 
         {/* 📡 Radar HUD removed from here — now managed at the Dashboard level for persistence */}
 
-        <div className="flex-1 relative flex flex-col items-center justify-center px-1.5 pt-1 z-10 min-h-0">
+        <div className="flex-1 relative flex flex-col items-center justify-center z-10 min-h-0 pointer-events-auto">
         <div className="w-full h-full flex items-center justify-center pointer-events-auto">
           <AnimatePresence mode="popLayout" initial={false}>
             {topCard ? (
@@ -949,9 +949,11 @@ const ClientSwipeContainerComponent = ({
                   onInsights={() => handleInsights(topCard.user_id)}
                   onMessage={() => handleConnect(topCard.user_id)}
                   onShare={handleShare}
+                  onReport={() => console.log('Report', topCard.user_id)}
                   onUndo={undoLastSwipe}
                   onLike={handleButtonLike}
                   onDislike={handleButtonDislike}
+                  onInsights={() => onListingTap?.(topCard.user_id)}
                   canUndo={canUndo}
                   isTop={true}
                   externalX={topCardX}
@@ -996,9 +998,9 @@ const ClientSwipeContainerComponent = ({
               onLike={handleButtonLike}
               onDislike={handleButtonDislike}
               onShare={handleShare}
+              onInsights={() => onListingTap?.(topCard.user_id)}
               onUndo={undoLastSwipe}
               onMessage={() => handleConnect(topCard.user_id)}
-              onCycleCategory={handleCycleCategory}
               canUndo={canUndo}
             />
           </div>

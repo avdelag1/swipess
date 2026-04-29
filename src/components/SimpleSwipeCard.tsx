@@ -26,6 +26,7 @@ import { imageCache } from '@/lib/swipe/cardImageCache';
 import { useDeviceParallax } from '@/hooks/useDeviceParallax';
 import useAppTheme from '@/hooks/useAppTheme';
 import { cn } from '@/lib/utils';
+import { Flag, Share2 } from 'lucide-react';
 
 // Exposed interface for parent to trigger swipe animations
 export interface SimpleSwipeCardRef {
@@ -99,6 +100,8 @@ interface SimpleSwipeCardProps {
   externalY?: MotionValue<number>;
   /** Called when drag gesture starts — lets parent kick off N+2 image preload */
   onDragStart?: () => void;
+  onShare?: () => void;
+  onReport?: () => void;
 }
 
 const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardProps>(({
@@ -109,6 +112,8 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   externalX,
   externalY,
   onDragStart,
+  onShare,
+  onReport,
 }, ref) => {
   const { isLight } = useAppTheme();
   const isDragging = useRef(false);
@@ -554,6 +559,32 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
               ))}
             </div>
           )}
+
+          {/* In-Card Navigation Buttons (Tinder Style) */}
+          <div className="absolute top-[calc(var(--safe-top,0px)+80px)] left-6 right-6 z-40 flex justify-between pointer-events-none">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                triggerHaptic('light');
+                onShare?.();
+              }}
+              className="w-10 h-10 rounded-full bg-black/30 backdrop-blur-md border border-white/20 flex items-center justify-center text-white active:scale-90 transition-all pointer-events-auto"
+              title="Share Listing"
+            >
+              <Share2 className="w-5 h-5" strokeWidth={1.5} />
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                triggerHaptic('medium');
+                onReport?.();
+              }}
+              className="w-10 h-10 rounded-full bg-black/30 backdrop-blur-md border border-white/20 flex items-center justify-center text-white/70 active:scale-90 transition-all pointer-events-auto"
+              title="Report Listing"
+            >
+              <Flag className="w-5 h-5" strokeWidth={1.5} />
+            </button>
+          </div>
         </div>
 
         <motion.div
