@@ -870,7 +870,8 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
     resetClientDeck();
 
     try {
-      await refetchSmart();
+      await queryClient.invalidateQueries({ queryKey: ['smart-listing-matches'] });
+      await queryClient.invalidateQueries({ queryKey: ['smart-client-matches'] });
       const refreshCategoryInfo = getActiveCategoryInfo(filters, storeActiveCategory);
       const refreshLabel = String(refreshCategoryInfo?.plural || 'Listings').toLowerCase();
       appToast.success(`${String(refreshCategoryInfo?.plural || 'Listings')} Refreshed`, `Showing ${refreshLabel} you passed on. Liked ones stay saved!`);
@@ -879,7 +880,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
     } finally {
       setIsRefreshing(false);
     }
-  }, [filters, storeActiveCategory, refetchSmart, resetClientDeck]);
+  }, [filters, storeActiveCategory, queryClient, resetClientDeck]);
 
   const handleInsights = () => {
     // ALWAYS open the "cool window" (insights modal) instead of full page navigation
