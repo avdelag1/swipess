@@ -627,70 +627,68 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
               )}
             </div>
 
-            const isProfile = (listing as any).profile_images || (listing as any).name;
-
-            if (isProfile) {
-              const profile = listing as MatchedClientProfile;
+            {(() => {
+              const isProfile = (listing as any).profile_images || (listing as any).name;
+              if (isProfile) {
+                const profile = listing as MatchedClientProfile;
+                return (
+                  <ClientCardInfo
+                    name={profile.name}
+                    age={profile.age}
+                    budgetMin={profile.budget_min}
+                    budgetMax={profile.budget_max}
+                    location={profile.city}
+                    occupation={(profile as any).occupation || (profile as any).client_type}
+                    isVerified={profile.verified}
+                    photoIndex={currentImageIndex}
+                    workSchedule={profile.work_schedule}
+                    className="!text-white !space-y-0"
+                  />
+                );
+              }
+              if ((listing as any).category === 'vehicle' || (listing as any).vehicle_type) {
+                return (
+                  <VehicleCardInfo
+                    price={(listing as any).price || 0}
+                    priceType={(listing as any).rental_duration_type === 'monthly' ? 'month' : 'day'}
+                    make={(listing as any).vehicle_brand ?? undefined}
+                    model={(listing as any).vehicle_model ?? undefined}
+                    year={(listing as any).year ?? undefined}
+                    location={(listing as any).city ?? undefined}
+                    isVerified={(listing as any).has_verified_documents ?? undefined}
+                    photoIndex={currentImageIndex}
+                    className="!text-white !space-y-0"
+                  />
+                );
+              }
+              if ((listing as any).category === 'worker' || (listing as any).category === 'services' || (listing as any).service_category) {
+                return (
+                  <ServiceCardInfo
+                    hourlyRate={(listing as any).price || 0}
+                    pricingUnit={(listing as any).pricing_unit || 'hr'}
+                    serviceName={(listing as any).service_category || (listing as any).title || 'Service'}
+                    name={(listing as any).title}
+                    location={(listing as any).city ?? undefined}
+                    isVerified={(listing as any).has_verified_documents ?? undefined}
+                    photoIndex={currentImageIndex}
+                    className="!text-white !space-y-0"
+                  />
+                );
+              }
               return (
-                <ClientCardInfo
-                  name={profile.name}
-                  age={profile.age}
-                  budgetMin={profile.budget_min}
-                  budgetMax={profile.budget_max}
-                  location={profile.city}
-                  occupation={(profile as any).occupation || (profile as any).client_type}
-                  isVerified={profile.verified}
-                  photoIndex={currentImageIndex}
-                  workSchedule={profile.work_schedule}
-                  className="!text-white !space-y-0"
-                />
-              );
-            }
-
-            if (listing.category === 'vehicle' || listing.vehicle_type) {
-              return (
-                <VehicleCardInfo
-                  price={listing.price || 0}
-                  priceType={listing.rental_duration_type === 'monthly' ? 'month' : 'day'}
-                  make={listing.vehicle_brand ?? undefined}
-                  model={listing.vehicle_model ?? undefined}
-                  year={listing.year ?? undefined}
-                  location={listing.city ?? undefined}
+                <PropertyCardInfo
+                  price={(listing as any).price || 0}
+                  priceType={(listing as any).rental_duration_type === 'monthly' ? 'month' : 'night'}
+                  propertyType={(listing as any).property_type ?? undefined}
+                  beds={(listing as any).beds ?? undefined}
+                  baths={(listing as any).baths ?? undefined}
+                  location={(listing as any).city ?? undefined}
                   isVerified={(listing as any).has_verified_documents ?? undefined}
                   photoIndex={currentImageIndex}
                   className="!text-white !space-y-0"
                 />
               );
-            } 
-            
-            if (listing.category === 'worker' || listing.category === 'services' || (listing as any).service_category) {
-              return (
-                <ServiceCardInfo
-                  hourlyRate={listing.price || 0}
-                  pricingUnit={(listing as any).pricing_unit || 'hr'}
-                  serviceName={(listing as any).service_category || listing.title || 'Service'}
-                  name={listing.title}
-                  location={listing.city ?? undefined}
-                  isVerified={(listing as any).has_verified_documents ?? undefined}
-                  photoIndex={currentImageIndex}
-                  className="!text-white !space-y-0"
-                />
-              );
-            }
-
-            return (
-              <PropertyCardInfo
-                price={listing.price || 0}
-                priceType={listing.rental_duration_type === 'monthly' ? 'month' : 'night'}
-                propertyType={listing.property_type ?? undefined}
-                beds={listing.beds ?? undefined}
-                baths={listing.baths ?? undefined}
-                location={listing.city ?? undefined}
-                isVerified={(listing as any).has_verified_documents ?? undefined}
-                photoIndex={currentImageIndex}
-                className="!text-white !space-y-0"
-              />
-            );
+            })()}
           </motion.div>
         </div>
 
