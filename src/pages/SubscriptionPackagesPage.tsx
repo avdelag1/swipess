@@ -203,7 +203,7 @@ export default function SubscriptionPackagesPage() {
           <motion.button
             whileTap={{ scale: 0.9 }}
             onClick={() => navigate(userRole === 'owner' ? '/owner/dashboard' : '/client/dashboard')}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/5 border border-white/5 text-xs font-black uppercase tracking-widest text-white/60 hover:text-white transition-colors"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-foreground/5 border border-foreground/10 text-xs font-black uppercase tracking-widest text-foreground/60 hover:text-foreground transition-colors"
           >
             <ChevronLeft className="w-5 h-5" />
             Back
@@ -222,7 +222,7 @@ export default function SubscriptionPackagesPage() {
               The Sentient Experience
             </span>
           </div>
-          <h1 className="text-5xl sm:text-6xl font-black tracking-tighter text-white mb-8 uppercase">
+          <h1 className="text-5xl sm:text-6xl font-black tracking-tighter text-foreground mb-8 uppercase">
             Own the <span className="text-brand-accent-2 italic">Network</span>
           </h1>
           <p className="text-base font-bold text-muted-foreground leading-relaxed max-w-xl mx-auto px-4">
@@ -261,7 +261,7 @@ export default function SubscriptionPackagesPage() {
                   </div>
 
                   {/* Plan name */}
-                  <h3 className="text-2xl font-black text-white mb-2 uppercase tracking-widest">{plan.name}</h3>
+                  <h3 className="text-2xl font-black text-foreground mb-2 uppercase tracking-widest">{plan.name}</h3>
                   {'aiTier' in plan && (
                     <span className={cn(
                       "inline-flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.2em] px-3 py-1.5 rounded-xl mb-4",
@@ -276,10 +276,10 @@ export default function SubscriptionPackagesPage() {
 
                   {/* Price */}
                   <div className="flex items-baseline gap-2 mb-8">
-                    <span className="text-5xl sm:text-6xl font-black text-white tracking-tighter">
+                    <span className="text-5xl sm:text-6xl font-black text-foreground tracking-tighter">
                       ${plan.price}
                     </span>
-                    <span className="text-xs font-black text-white/40 uppercase tracking-widest leading-loose">
+                    <span className="text-xs font-black text-foreground/40 uppercase tracking-widest leading-loose">
                       MXN {plan.durationText}
                     </span>
                   </div>
@@ -291,7 +291,7 @@ export default function SubscriptionPackagesPage() {
                     {plan.benefits.map((benefit, i) => (
                       <div key={i} className="flex items-start gap-4">
                         <Check className={cn("w-5 h-5 flex-shrink-0 mt-1", style.checkColor)} />
-                        <span className="text-sm font-bold text-white/90 leading-snug uppercase tracking-tight">{benefit}</span>
+                        <span className="text-sm font-bold text-foreground/90 leading-snug uppercase tracking-tight">{benefit}</span>
                       </div>
                     ))}
                   </div>
@@ -306,11 +306,11 @@ export default function SubscriptionPackagesPage() {
                     )}>
                       <div className="flex items-center gap-2 mb-3">
                         <Sparkles className={cn("w-4 h-4", style.checkColor)} />
-                        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40">Swipess Intelligence Benefits</span>
+                        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-foreground/40">Swipess Intelligence Benefits</span>
                       </div>
                       {(plan as any).aiFeatures.map((feature: string, i: number) => (
                         <div key={i} className="flex items-start gap-3">
-                          <span className="text-sm font-bold text-white leading-relaxed">{feature}</span>
+                          <span className="text-sm font-bold text-foreground leading-relaxed">{feature}</span>
                         </div>
                       ))}
                     </div>
@@ -345,7 +345,7 @@ export default function SubscriptionPackagesPage() {
 
           {/*  App Store Subscription Policy Disclosure (Guideline 3.1.2) */}
           <div className="max-w-2xl text-center px-6 space-y-6">
-            <p className="text-[10px] font-bold text-white/30 uppercase tracking-widest leading-relaxed">
+            <p className="text-[10px] font-bold text-foreground/30 uppercase tracking-widest leading-relaxed">
               Payment will be charged to your Apple ID account at the confirmation of purchase. Subscription automatically renews unless it is canceled at least 24 hours before the end of the current period. Your account will be charged for renewal within 24 hours prior to the end of the current period. You can manage and cancel your subscriptions by going to your account settings on the App Store after purchase.
             </p>
             <div className="flex items-center justify-center gap-8">
@@ -357,22 +357,22 @@ export default function SubscriptionPackagesPage() {
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-12 w-full px-6">
             <div className="space-y-3 text-center group">
               <Shield className="w-8 h-8 text-brand-primary mx-auto mb-3 group-hover:scale-110 transition-transform" />
-              <h5 className="text-xs font-black uppercase text-white tracking-[0.2em]">Secure Gateway</h5>
+              <h5 className="text-xs font-black uppercase text-foreground tracking-[0.2em]">Secure Gateway</h5>
               <p className="text-[10px] font-bold text-muted-foreground/40 leading-relaxed uppercase tracking-widest">Protected by Enterprise <br />Payment Protocols</p>
             </div>
             <div className="space-y-3 text-center group">
               <Clock className="w-8 h-8 text-brand-primary mx-auto mb-3 group-hover:scale-110 transition-transform" />
-              <h5 className="text-xs font-black uppercase text-white tracking-[0.2em]">Instant Hydration</h5>
+              <h5 className="text-xs font-black uppercase text-foreground tracking-[0.2em]">Instant Hydration</h5>
               <p className="text-[10px] font-bold text-muted-foreground/40 leading-relaxed uppercase tracking-widest">Digital assets unlock <br />immediately</p>
             </div>
             <div className="space-y-3 text-center group">
               <Zap className="w-8 h-8 text-brand-primary mx-auto mb-3 group-hover:scale-110 transition-transform" />
-              <h5 className="text-xs font-black uppercase text-white tracking-[0.2em]">Priority Support</h5>
+              <h5 className="text-xs font-black uppercase text-foreground tracking-[0.2em]">Priority Support</h5>
               <p className="text-[10px] font-bold text-muted-foreground/40 leading-relaxed uppercase tracking-widest">Direct source access <br />unlocked now</p>
             </div>
             <div className="space-y-3 text-center group">
               <Sparkles className="w-8 h-8 text-brand-primary mx-auto mb-3 group-hover:scale-110 transition-transform" />
-              <h5 className="text-xs font-black uppercase text-white tracking-[0.2em]">Concierge Elite</h5>
+              <h5 className="text-xs font-black uppercase text-foreground tracking-[0.2em]">Concierge Elite</h5>
               <p className="text-[10px] font-bold text-muted-foreground/40 leading-relaxed uppercase tracking-widest">24/7 Human-AI <br />Hybrid Assistance</p>
             </div>
           </div>

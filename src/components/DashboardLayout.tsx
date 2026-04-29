@@ -224,26 +224,18 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
 
   const isImmersiveDashboard = useMemo(() => {
     const path = location.pathname;
-    // Primary swipe card discovery should be locked to prevent double scroll
-    const lockedRoutes = [
-      '/client/dashboard', 
-      '/owner/dashboard',
+    // EXACT MATCH ONLY — only the primary swipe decks are scroll-locked.
+    // Every other route (messages, likes, properties, settings, profile,
+    // escrow, documents, filters, notifications, etc.) gets overflow-y-auto.
+    const locked = new Set([
+      '/client/dashboard',
       '/client/dashboard/',
+      '/owner/dashboard',
       '/owner/dashboard/',
       '/client/discovery',
-      '/owner/discovery'
-    ];
-    
-    const isLocked = lockedRoutes.some(route => path === route);
-    
-    // Profiles, legal hub, advertise, and events MUST scroll
-    const mustScroll = [
-      '/profile', '/legal', '/settings', '/advertise', '/eventos', '/perks', '/view-client', '/listing/'
-    ].some(r => path.includes(r));
-    
-    if (mustScroll) return false;
-    
-    return isLocked;
+      '/owner/discovery',
+    ]);
+    return locked.has(path);
   }, [location.pathname]);
 
   const { resetFocus } = useFocusMode(6000);
@@ -268,7 +260,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     
     const isRoommatesPageLocal = location.pathname.startsWith('/explore/roommates');
     const isSpecialSubPage = [
-      '/documents', '/escrow'
+      // Full screen camera/roommate pages stay edge-to-edge
     ].some(path => location.pathname === path || location.pathname === path + '/');
     
     return isCameraRoute || isRadioRoute || isRoommatesPageLocal || isSpecialSubPage;
@@ -287,8 +279,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
 
   return (
     <div className={cn(
-      "dashboard-root w-full relative flex flex-col",
-      (isFullScreenRoute || isZeroScrollDashboard || isImmersiveDashboard) ? "h-screen overflow-hidden" : "h-[100dvh] overflow-hidden",
+      "dashboard-root w-full h-full flex flex-col relative overflow-hidden",
       isDark ? "dark dark-matte" : "light white-matte"
     )}>
       <main
@@ -301,7 +292,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
           "flex-1 w-full relative z-0 touch-pan-y",
           isRadioRoute ? "overflow-visible" 
             : (isZeroScrollDashboard || isImmersiveDashboard) ? "h-full overflow-hidden"
-            : "overflow-y-auto overflow-x-hidden",
+            : "overflow-y-auto overflow-x-hidden scroll-area-momentum",
           "shadow-none bg-transparent"
         )}
         style={{

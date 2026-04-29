@@ -84,28 +84,15 @@ export function AppLayout({ children }: AppLayoutProps) {
   const isImmersive = useMemo(() => {
     const path = location.pathname;
     
-    // Primary swipe discovery routes
-    const dashboardRoutes = [
-      '/client/dashboard', 
-      '/owner/dashboard', 
+    // ONLY the two primary swipe discovery decks should be immersive (no scroll).
+    // Everything else — messages, likes, properties, settings, profile, escrow,
+    // documents, subscriptions — must scroll via DashboardLayout's scroll container.
+    const swipeOnlyRoutes = [
+      '/client/dashboard',
+      '/owner/dashboard',
     ];
     
-    const isDashboard = dashboardRoutes.some(r => path === r || path === r + '/');
-    
-    // Explicitly scrollable routes
-    const mustScroll = [
-      '/profile', 
-      '/advertise', 
-      '/eventos', 
-      '/legal', 
-      '/settings',
-      '/listing/',
-      '/view-client'
-    ].some(r => path.includes(r));
-
-    if (mustScroll) return false;
-    
-    return isDashboard || path.includes('discovery');
+    return swipeOnlyRoutes.some(r => path === r || path === r + '/');
   }, [location.pathname]);
 
   const isFullScreen = useMemo(() => {
