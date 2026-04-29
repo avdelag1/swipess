@@ -24,6 +24,8 @@ import { useListingRatingAggregate } from '@/hooks/useRatingSystem';
 import CardImage from '@/components/CardImage';
 import { imageCache } from '@/lib/swipe/cardImageCache';
 import { useDeviceParallax } from '@/hooks/useDeviceParallax';
+import useAppTheme from '@/hooks/useAppTheme';
+import { cn } from '@/lib/utils';
 
 // Exposed interface for parent to trigger swipe animations
 export interface SimpleSwipeCardRef {
@@ -108,6 +110,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   externalY,
   onDragStart,
 }, ref) => {
+  const { isLight } = useAppTheme();
   const isDragging = useRef(false);
   const hasExited = useRef(false);
   const isExitingRef = useRef(false);
@@ -413,7 +416,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   if (!isTop) {
     return (
       <div
-        className="absolute inset-x-2 bottom-4 top-4 rounded-[32px] overflow-hidden shadow-sm"
+        className="absolute inset-x-2 bottom-4 top-4 rounded-none sm:rounded-[32px] overflow-hidden shadow-sm"
         style={{
           pointerEvents: 'none',
           backgroundColor: 'rgba(255, 255, 255, 0.03)',
@@ -483,7 +486,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           transition: { type: 'spring', stiffness: 400, damping: 28, mass: 0.6 }
         }}
         // Photo swim effect now lives on the <img> inside CardImage (CSS keyframes)
-        className="flex-1 cursor-grab active:cursor-grabbing select-none touch-none relative rounded-[24px] overflow-hidden shadow-[0_32px_64px_-16px_rgba(0,0,0,0.5),0_16px_32px_-8px_rgba(0,0,0,0.3)] glass-nano-texture pointer-events-auto border border-white/10 zenith-interaction-isolation gpu-ultra"
+        className="flex-1 cursor-grab active:cursor-grabbing select-none touch-none relative w-full h-full sm:rounded-[24px] sm:shadow-[0_32px_64px_-16px_rgba(0,0,0,0.5),0_16px_32px_-8px_rgba(0,0,0,0.3)] glass-nano-texture pointer-events-auto border-none zenith-interaction-isolation gpu-ultra"
         style={{
           x,
           y,
@@ -530,10 +533,10 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           )}
 
           {/* Premium Top Safe Zone Header Dark Fade */}
-          <div className="absolute top-0 left-0 right-0 h-[15%] bg-gradient-to-b from-black/80 via-black/40 to-transparent pointer-events-none z-20" />
+          <div className="absolute top-0 left-0 right-0 h-[25%] bg-gradient-to-b from-background via-background/60 to-transparent pointer-events-none z-20" />
           
           {imageCount > 1 && (
-            <div className="absolute top-3 left-3 right-3 flex gap-1.5 z-20">
+            <div className="absolute top-[calc(var(--safe-top,0px)+56px)] left-3 right-3 flex gap-1.5 z-20">
               {Array.from({ length: imageCount }).map((_, idx) => (
                 <div
                   key={idx}
@@ -598,7 +601,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
         {/* 🚀 PREMIUM INFUSION: Dissolving Info Overlay in bottom-left */}
         <div
           key={`info-${currentImageIndex % 4}`}
-          className="absolute left-6 bottom-24 z-30 pointer-events-none max-w-[80%]"
+          className="absolute left-6 bottom-[210px] z-30 pointer-events-none max-w-[80%]"
           style={{ 
             contain: 'layout paint',
             transform: 'translateZ(0)',
@@ -695,10 +698,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
 
         {/* Global Dark Gradient for contrast */}
         <div 
-          className="absolute inset-x-0 bottom-0 h-1/2 pointer-events-none z-10"
-          style={{
-            background: 'linear-gradient(to top, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.15) 50%, transparent 100%)'
-          }}
+          className="absolute inset-x-0 bottom-0 h-1/2 pointer-events-none z-10 bg-gradient-to-t from-background via-background/60 to-transparent"
         />
 
         {/* Verified Badge - Left corner higher up */}

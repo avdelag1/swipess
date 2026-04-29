@@ -234,8 +234,6 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
             className="flex-1 min-h-0 relative z-10 flex flex-col w-full"
             style={{
               willChange: 'transform, opacity',
-              paddingTop: 'calc(var(--top-bar-height, 60px) + var(--safe-top, 0px))',
-              paddingBottom: 'calc(var(--bottom-nav-height, 72px) + var(--safe-bottom, 0px))'
             }}
           >
             <div className="flex-1 min-h-0 h-full">

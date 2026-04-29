@@ -884,7 +884,7 @@ const ClientSwipeContainerComponent = ({
         <div className="absolute inset-0 pointer-events-none overflow-hidden -z-10" />
 
         {/* Header Controls — Unified with Swipess Standard */}
-        <div className="absolute top-3 left-4 z-[70] flex items-center gap-3 pointer-events-auto">
+        <div className="absolute top-[calc(var(--safe-top,0px)+16px)] left-4 z-[70] flex items-center gap-3 pointer-events-auto">
           <button
             onClick={() => {
               if (!canClickBack) return;
@@ -918,12 +918,12 @@ const ClientSwipeContainerComponent = ({
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 1.1, y: -20 }}
                 transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                className="relative w-full h-[calc(100%-20px)] max-w-[380px] mx-auto"
+                className="absolute inset-0 w-full h-[100dvh] sm:h-full sm:max-w-[480px] sm:mx-auto overflow-hidden"
               >
                 {/* Back card (Peek) */}
                 {_nextCard && (
                   <motion.div 
-                    className="absolute inset-0 z-10"
+                    className="absolute inset-0 w-full h-full z-10"
                     style={{
                       scale: nextCardScale,
                       opacity: nextCardOpacity,
@@ -989,9 +989,9 @@ const ClientSwipeContainerComponent = ({
         </div>
 
 
-        {/* 🛸 ACTION BAR: Single unified row below the card */}
+        {/* 🛸 ACTION BAR: Floating over the card near the bottom nav */}
         {topCard && (
-          <div className="shrink-0 flex justify-center z-[60] pointer-events-auto">
+          <div className="absolute bottom-[calc(var(--bottom-nav-height,72px)+16px)] left-0 right-0 z-[60] flex justify-center pointer-events-auto">
             <SwipeActionButtonBar
               onLike={handleButtonLike}
               onDislike={handleButtonDislike}

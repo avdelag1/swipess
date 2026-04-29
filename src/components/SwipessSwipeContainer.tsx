@@ -1079,7 +1079,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
   return (
     <>
     <div className={cn(
-      "relative w-full h-full flex flex-col transition-colors duration-500",
+      "fixed inset-0 w-full h-[100dvh] flex flex-col transition-colors duration-500",
       isLight ? "bg-transparent" : "bg-black"
     )}>
       <div className={cn(
@@ -1087,8 +1087,8 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
         isLight ? "bg-transparent" : "bg-black"
       )} />
 
-      {/* Back button + Category label — always visible in Phase 2 */}
-      <div className="absolute top-3 left-4 z-[70] flex items-center gap-3 pointer-events-auto">
+      {/* Header Controls — Unified with Swipess Standard */}
+      <div className="absolute top-[calc(var(--safe-top,0px)+16px)] left-4 z-[70] flex items-center gap-3 pointer-events-auto">
         <button
           onClick={() => {
             triggerHaptic('light');
@@ -1122,12 +1122,12 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-                className="relative w-full h-[calc(100%-20px)] max-w-[380px] mx-auto"
+                className="absolute inset-0 w-full h-[100dvh] sm:h-full sm:max-w-[480px] sm:mx-auto overflow-hidden"
               >
                 {/* Back card (Peek) */}
                 {currentIndex + 1 < deckQueue.length && (
                   <motion.div
-                    className="absolute inset-0 z-10"
+                    className="absolute inset-0 w-full h-full z-10"
                     style={{
                       scale: nextCardScale,
                       opacity: nextCardOpacity,
@@ -1193,9 +1193,9 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
 
     </div>
 
-      {/* Action buttons — horizontal bar below the card */}
+      {/* Action buttons — Floating over the card near bottom nav */}
       {hasCards && (
-        <div className="shrink-0 flex justify-center z-[100] pointer-events-auto">
+        <div className="absolute bottom-[calc(var(--bottom-nav-height,72px)+16px)] left-0 right-0 z-[100] flex justify-center pointer-events-auto">
           <SwipeActionButtonBar
             onLike={handleButtonLike}
             onDislike={handleButtonDislike}

@@ -30,8 +30,7 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
         isLight ? "bg-white" : "bg-[#020202]"
       )}
       style={{
-        paddingTop: 'calc(var(--top-bar-height, 60px) + var(--safe-top, 0px))',
-        paddingBottom: 'calc(var(--bottom-nav-height, 72px) + var(--safe-bottom, 0px))',
+        willChange: 'transform',
       }}
     >
 

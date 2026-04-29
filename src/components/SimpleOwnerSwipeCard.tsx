@@ -659,9 +659,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           WebkitTapHighlightColor: 'transparent',
           WebkitTouchCallout: 'none',
           transform: 'translateZ(0)',
-          borderRadius: fullScreen ? '0px' : '24px',
-          boxShadow: fullScreen ? 'none' : '0 32px 64px -16px rgba(0,0,0,0.5), 0 16px 32px -8px rgba(0,0,0,0.3)',
-          border: '1px solid rgba(255, 255, 255, 0.08)',
+          border: 'none',
           background: 'rgba(255, 255, 255, 0.01)',
           // backdrop-filter removed from the dragged motion.div — it forced a
           // full recomposite on every frame and was the main shake/flicker
@@ -669,7 +667,8 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
         } as any}
         className={cn(
           "flex-1 cursor-grab active:cursor-grabbing select-none touch-none relative overflow-hidden",
-          !fullScreen && "shadow-[0_32px_64px_-16px_rgba(0,0,0,0.5),0_16px_32px_-8px_rgba(0,0,0,0.3)]"
+          "w-full h-full sm:rounded-[24px]",
+          !fullScreen && "sm:shadow-[0_32px_64px_-16px_rgba(0,0,0,0.5),0_16px_32px_-8px_rgba(0,0,0,0.3)]"
         )}
       >
         {/* Glass Shine */}
@@ -689,7 +688,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
 
         <div
           ref={containerRef}
-          className={cn("absolute inset-0 w-full h-full overflow-hidden", !fullScreen && "rounded-[24px]")}
+          className={cn("absolute inset-0 w-full h-full overflow-hidden sm:rounded-[24px]")}
           onClick={handleImageTap}
           style={{ touchAction: 'none' }}
         >
@@ -702,11 +701,11 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           />
 
           {/* Premium Top Safe Zone Header Dark Fade */}
-          <div className="absolute top-0 left-0 right-0 h-[15%] bg-gradient-to-b from-black/80 via-black/40 to-transparent pointer-events-none z-20" />
+          <div className="absolute top-0 left-0 right-0 h-[25%] bg-gradient-to-b from-background via-background/60 to-transparent pointer-events-none z-20" />
 
           {imageCount > 1 && (
             <div 
-              className="absolute top-3 left-3 right-3 z-30 flex gap-1.5 transform-gpu" 
+              className="absolute top-[calc(var(--safe-top,0px)+56px)] left-3 right-3 z-30 flex gap-1.5 transform-gpu" 
             >
                {images.map((_, idx) => (
                 <div
@@ -748,17 +747,13 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
 
 
         <div
-          className="absolute left-0 right-0 bottom-0 z-15 pointer-events-none"
-          style={{
-            height: '60%',
-            background: 'linear-gradient(to top, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.2) 50%, transparent 100%)',
-          }}
+          className="absolute left-0 right-0 bottom-0 z-15 pointer-events-none h-[60%] bg-gradient-to-t from-background via-background/60 to-transparent"
         />
 
         <div
           key={`info-${currentImageIndex % 4}`}
           className={cn(
-            "absolute left-6 bottom-24 z-30 pointer-events-none flex flex-col justify-end max-w-[85%]",
+            "absolute left-6 bottom-[210px] z-30 pointer-events-none flex flex-col justify-end max-w-[85%]",
             fullScreen && "pb-[calc(100px+var(--safe-bottom))]"
           )}
         >
