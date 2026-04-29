@@ -16,9 +16,10 @@ import { OwnerClientFilterDialog } from './OwnerClientFilterDialog';
 import { preloadImageToCache } from '@/lib/swipe/imageCache';
 import { imageCache } from '@/lib/swipe/cardImageCache';
 import { PrefetchScheduler } from '@/lib/swipe/PrefetchScheduler';
-import { useSmartListingMatching, ListingFilters } from '@/hooks/useSmartMatching';
+import { useSmartListingMatching, useSmartClientMatching, ListingFilters, MatchedClientProfile, ClientFilters } from '@/hooks/useSmartMatching';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserRole } from '@/hooks/useUserRole';
+import { useActiveMode } from '@/hooks/useActiveMode';
 import { swipeQueue } from '@/lib/swipe/SwipeQueue';
 import { imagePreloadController } from '@/lib/swipe/ImagePreloadController';
 import { useCanAccessMessaging } from '@/hooks/useMessaging';
@@ -111,6 +112,7 @@ interface SwipessSwipeContainerProps {
 
 const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights, onMessageClick, locationFilter: _locationFilter, filters }: SwipessSwipeContainerProps) => {
   const navigate = useNavigate();
+  const { activeMode } = useActiveMode();
   const { theme, isLight } = useAppTheme();
   const [page, setPage] = useState(0);
   const [_swipeDirection, setSwipeDirection] = useState<'left' | 'right' | null>(null);
@@ -472,35 +474,51 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
   // Get listings with filters - PERF: pass userId to avoid getUser() inside queryFn
   const {
     data: smartListings = [],
-    isLoading: smartLoading,
-    isFetching: smartFetching,
-    error: smartError,
-    refetch: refetchSmart
-  } = useSmartListingMatching(user?.id, [], stableFilters, page, 20, isRefreshMode);
+    isLoading: smartListingsLoading,
+    isFetching: smartListingsFetching,
+    error: smartListingsError,
+  } = useSmartListingMatching(user?.id, [], stableFilters, page, 20, isRefreshMode && activeMode === 'client');
 
-  const isLoading = smartLoading;
-  const isFetching = smartFetching;
-  const error = smartError;
+  const {
+    data: smartClients = [],
+    isLoading: smartClientsLoading,
+    isFetching: smartClientsFetching,
+    error: smartClientsError,
+  } = useSmartClientMatching(
+    user?.id, 
+    activeCategory as any, 
+    page, 
+    20, 
+    isRefreshMode && activeMode === 'owner', 
+    stableFilters as unknown as ClientFilters,
+    false,
+    activeMode !== 'owner'
+  );
+
+  const smartData = activeMode === 'owner' ? smartClients : smartListings;
+  const isLoading = activeMode === 'owner' ? smartClientsLoading : smartListingsLoading;
+  const isFetching = activeMode === 'owner' ? smartClientsFetching : smartListingsFetching;
+  const error = activeMode === 'owner' ? smartClientsError : smartListingsError;
 
   // PERF FIX: Cheap signature using first ID + last ID + length (avoids expensive join)
   // This prevents unnecessary deck updates when React Query returns same data with new reference
   const listingIdsSignature = useMemo(() => {
-    if (smartListings.length === 0) return '';
-    return `${smartListings[0]?.id || ''}_${smartListings[smartListings.length - 1]?.id || ''}_${smartListings.length}`;
-  }, [smartListings]);
+    if (smartData.length === 0) return '';
+    return `${smartData[0]?.id || ''}_${smartData[smartData.length - 1]?.id || ''}_${smartData.length}`;
+  }, [smartData]);
 
   // Determine if we have genuinely new data (not just reference change)
   if (listingIdsSignature !== prevListingIdsRef.current && listingIdsSignature.length > 0) {
     const currentIds = new Set(deckQueueRef.current.map(l => l.id));
-    const newIds = smartListings.filter(l => !currentIds.has(l.id) && !swipedIdsRef.current.has(l.id));
+    const newIds = smartData.filter(l => !currentIds.has(l.id) && !swipedIdsRef.current.has(l.id));
     hasNewListingsRef.current = newIds.length > 0;
     prevListingIdsRef.current = listingIdsSignature;
 
     // SPEED OF LIGHT: Synchronous Hydration
     // Populating the ref during render ensures zero skeleton flicker on mount
-    if (deckQueueRef.current.length === 0 && smartListings.length > 0) {
-      deckQueueRef.current = smartListings;
-      setDeckLength(smartListings.length);
+    if (deckQueueRef.current.length === 0 && smartData.length > 0) {
+      deckQueueRef.current = smartData;
+      setDeckLength(smartData.length);
     }
   }
 
@@ -1196,8 +1214,8 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
             className={cn(
               "px-6 py-2 rounded-full font-black uppercase text-xs transition-all active:scale-95 border",
               isLight
-                ? "bg-black text-white border-white/20 hover:bg-black/80"
-                : "bg-white text-black border-black/20 hover:bg-white/80"
+                ? "bg-white text-black border-black/10 hover:bg-black/5"
+                : "bg-black text-white border-white/20 hover:bg-black/80"
             )}
           >
             Switch Category

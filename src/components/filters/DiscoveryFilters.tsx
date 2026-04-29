@@ -231,7 +231,7 @@ export const DiscoveryFilters = memo(function DiscoveryFilters({ category, onApp
                     className={cn(
                        "flex-shrink-0 flex flex-col items-center justify-center gap-3 min-w-[100px] py-6 border transition-all duration-300 rounded-[2rem] text-[11px] font-black uppercase tracking-[0.2em]",
                        isActive
-                        ? "bg-primary border-primary shadow-[0_10px_30px_rgba(var(--brand-primary-rgb),0.3)] scale-[1.05] z-10 relative text-black"
+                        ? cn("bg-primary border-primary shadow-[0_10px_30px_rgba(var(--brand-primary-rgb),0.3)] scale-[1.05] z-10 relative", "text-primary-foreground")
                         : isLight 
                           ? "bg-white/80 border-black/10 text-black shadow-sm backdrop-blur-md hover:bg-black/5" 
                           : "bg-white/10 border-white/10 text-white font-black hover:bg-white/20"
@@ -239,7 +239,7 @@ export const DiscoveryFilters = memo(function DiscoveryFilters({ category, onApp
                 >
                   <div className={cn(
                     "w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-300",
-                    isActive ? "text-white" : "text-primary/60"
+                    isActive ? "text-primary-foreground" : "text-primary/60"
                   )}>
                     <Icon className="w-8 h-8" />
                   </div>
@@ -306,7 +306,7 @@ export const DiscoveryFilters = memo(function DiscoveryFilters({ category, onApp
                 min={1} max={200} step={1} 
                 className="py-4 cursor-pointer"
              />
-             <p className={cn("text-[9px] font-medium", isLight ? "text-black/70" : "text-white/20")}>Radius filtering uses your current GPS or selected location.</p>
+             <p className={cn("text-[9px] font-medium", isLight ? "text-black/70" : "text-white/40")}>Radius filtering uses your current GPS or selected location.</p>
           </div>
         </CardContent>
       </Card>
@@ -329,7 +329,7 @@ export const DiscoveryFilters = memo(function DiscoveryFilters({ category, onApp
                 className={cn(
                   "py-4 px-6 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] transition-all border",
                   selectedBudgetRange === range.value
-                    ? "bg-primary border-primary shadow-xl shadow-primary/30 scale-[1.02] text-black" 
+                    ? cn("bg-primary border-primary shadow-xl shadow-primary/30 scale-[1.02]", "text-primary-foreground") 
                     : isLight 
                       ? "bg-white/80 border-black/10 text-black shadow-sm backdrop-blur-md hover:bg-black/5" 
                       : "bg-white/5 text-white border-white/10 hover:bg-white/10"
@@ -368,10 +368,10 @@ export const DiscoveryFilters = memo(function DiscoveryFilters({ category, onApp
                           className={cn(
                             "w-14 h-14 rounded-full text-[11px] font-black transition-all border flex items-center justify-center shadow-sm",
                             bedrooms === n 
-                              ? "bg-primary border-primary shadow-xl scale-110 text-black" 
+                              ? cn("bg-primary border-primary shadow-xl scale-110", "text-primary-foreground") 
                               : isLight 
                                 ? "bg-white/80 border-black/10 text-black shadow-sm backdrop-blur-md hover:bg-black/5"
-                                : "bg-white/5 border-white/10 text-muted-foreground"
+                                : "bg-white/5 border-white/10 text-white/60"
                           )}
                        >
                          {n}+
@@ -394,10 +394,10 @@ export const DiscoveryFilters = memo(function DiscoveryFilters({ category, onApp
                           className={cn(
                             "w-12 h-12 rounded-full text-[11px] font-black transition-all border flex items-center justify-center shadow-sm",
                             bathrooms === n 
-                              ? "bg-primary border-primary shadow-xl scale-110 text-black" 
+                              ? cn("bg-primary border-primary shadow-xl scale-110", "text-primary-foreground") 
                               : isLight 
                                 ? "bg-white/80 border-black/10 text-black shadow-sm backdrop-blur-md hover:bg-black/5"
-                                : "bg-white/5 border-white/10 text-muted-foreground"
+                                : "bg-white/5 border-white/10 text-white/60"
                           )}
                        >
                          {n}+
@@ -455,10 +455,10 @@ export const DiscoveryFilters = memo(function DiscoveryFilters({ category, onApp
                     className={cn(
                       "py-3 px-3 rounded-2xl text-[10px] font-black uppercase tracking-tight text-left transition-all border",
                       serviceTypes.includes(type.value)
-                        ? "bg-primary border-primary shadow-lg shadow-primary/20 text-black"
+                        ? cn("bg-primary border-primary shadow-lg shadow-primary/20", "text-primary-foreground")
                         : isLight 
                           ? "bg-white/80 border-black/10 text-black shadow-sm backdrop-blur-md hover:bg-black/5" 
-                          : "bg-muted/30 text-muted-foreground border-white/5 hover:bg-muted/50"
+                          : "bg-white/10 border-white/10 text-white hover:bg-white/20"
                     )}
                 >
                   {type.label}

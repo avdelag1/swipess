@@ -24,6 +24,12 @@ interface EnhancedOwnerDashboardProps {
   filters?: any;
 }
 
+// 🛡️ Safety fallback to prevent crashes if imports fail
+const SAFE_INTENT_CARDS = OWNER_INTENT_CARDS || [];
+if (!OWNER_INTENT_CARDS) {
+  console.error("Critical: OWNER_INTENT_CARDS is not defined in EnhancedOwnerDashboard. Check CardData.ts exports.");
+}
+
 const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: EnhancedOwnerDashboardProps) => {
   const { theme } = useAppTheme();
   const isLight = theme === 'light';
@@ -232,7 +238,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
               detecting={locationDetecting}
               detected={locationDetected}
               // Pass the full card for better labeling
-              activeCard={OWNER_INTENT_CARDS.find(c => c.id === activeCategory)}
+              activeCard={SAFE_INTENT_CARDS.find(c => c.id === activeCategory)}
             />
           </motion.div>
         ) : (
@@ -352,11 +358,11 @@ const OwnerKilometerView = ({
           whileTap={{ scale: 0.98 }}
           onClick={onNext}
           className={cn(
-            "w-full h-20 rounded-[2.5rem] bg-primary font-black uppercase italic tracking-[0.2em] text-xl shadow-[0_20px_50px_rgba(236,72,153,0.3)] flex items-center justify-center gap-3 text-black",
+            "w-full h-20 rounded-[2.5rem] bg-primary font-black uppercase italic tracking-[0.2em] text-xl shadow-[0_20px_50px_rgba(236,72,153,0.3)] flex items-center justify-center gap-3 text-primary-foreground",
           )}
         >
-          <span className="text-black">Initiate Scan</span>
-          <ChevronRight className="w-6 h-6 text-black" />
+          <span className="text-primary-foreground">Initiate Scan</span>
+          <ChevronRight className="w-6 h-6 text-primary-foreground" />
         </motion.button>
 
         <p className={cn("text-center text-[10px] font-bold uppercase tracking-widest opacity-40", isLight ? "text-black" : "text-white")}>

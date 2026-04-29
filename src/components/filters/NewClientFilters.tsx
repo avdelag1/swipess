@@ -370,8 +370,8 @@ export function NewClientFilters({ open, onClose, onApply, currentFilters = {} }
           </div>
 
           {/* Scrollable Content */}
-          <ScrollArea className="max-h-[65vh]">
-            <div className="px-5 pb-28 space-y-4">
+          <ScrollArea className="max-h-[65vh]" style={{ touchAction: 'pan-y' }}>
+            <div className="px-5 pb-28 space-y-4 touch-pan-y">
 
               {/* Category Selection — Color-coded cards */}
               <div className="space-y-2.5">
@@ -646,7 +646,7 @@ export function NewClientFilters({ open, onClose, onApply, currentFilters = {} }
               >
                 Apply Filters
                 {activeFilterCount > 0 && (
-                  <Badge className="ml-2 bg-white/20 text-white border-none text-xs px-2">
+                  <Badge className="ml-2 bg-primary-foreground/20 text-primary-foreground border-none text-[9px] px-1.5 py-0">
                     {activeFilterCount}
                   </Badge>
                 )}
