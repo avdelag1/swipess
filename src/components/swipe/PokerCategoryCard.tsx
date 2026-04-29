@@ -1,4 +1,4 @@
-import { memo, useCallback, useRef, useState, useEffect } from 'react';
+import { memo, useCallback, useRef, useState, useEffect, useMemo } from 'react';
 import { ThumbsUp, Sparkles, X } from 'lucide-react';
 import useAppTheme from '@/hooks/useAppTheme';
 import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
@@ -25,6 +25,9 @@ interface PokerCardProps {
   cardHeight?: number;
 }
 
+// Module-level cache so re-mounts (cycling through deck) don't re-flash imgReady=false
+const _loadedPokerImages = new Set<string>();
+
 export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false, onCycle, onSelect, onBringToFront }: PokerCardProps) => {
   const { theme } = useAppTheme();
   const isDark = theme !== 'light';
@@ -34,15 +37,22 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
   const dragTilt = useTransform(x, [-200, 0, 200], [-8, 0, 8]);
   const exitOpacity = useTransform(x, [-200, -100, 0, 100, 200], [0, 1, 1, 1, 0]);
   const exitScale = useTransform(x, [-200, 0, 200], [0.9, 1, 0.9]);
+  // Compositor-driven photo zoom — driven by drag motion value, not React re-renders.
+  // Tiny zoom (1 → 1.04) tracks the drag distance smoothly without fighting the parent transform.
+  const photoScale = useTransform(x, [-200, 0, 200], [1.04, 1, 1.04]);
 
   const photo = POKER_CARD_PHOTOS[card.id] || POKER_CARD_PHOTOS.property;
-  const [imgReady, setImgReady] = useState(false);
+  const [imgReady, setImgReady] = useState(() => _loadedPokerImages.has(photo));
   const fallbackGradient = POKER_CARD_GRADIENTS[card.id] || POKER_CARD_GRADIENTS.property;
 
   useEffect(() => {
+    if (_loadedPokerImages.has(photo)) {
+      setImgReady(true);
+      return;
+    }
     const img = new Image();
     img.src = photo;
-    img.onload = () => setImgReady(true);
+    img.onload = () => { _loadedPokerImages.add(photo); setImgReady(true); };
     img.onerror = () => setImgReady(false);
   }, [photo]);
 
@@ -70,10 +80,13 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
   }, [card.id, onCycle, x]);
 
   // Stack styling — 🚀 Swipess v14.0 Reveal Logic
-  const stackY = isCollapsed ? 0 : index * 14; // Deeper stack peeking from bottom
-  const stackScale = 1 - (index * 0.045);
-  const stackOpacity = index === 0 ? 1 : Math.max(0, 0.9 - (index * 0.2));
-  const stackedFilter = isTop ? undefined : `brightness(${0.92 - index * 0.08}) blur(${index * 1.2}px)`;
+  // Memoized so background-card filter doesn't recompute on every render → no flicker.
+  const { stackY, stackScale, stackOpacity, stackedFilter } = useMemo(() => ({
+    stackY: isCollapsed ? 0 : index * 14,
+    stackScale: 1 - (index * 0.045),
+    stackOpacity: index === 0 ? 1 : Math.max(0, 0.9 - (index * 0.2)),
+    stackedFilter: isTop ? undefined : `brightness(${0.92 - index * 0.08}) blur(${index * 1.2}px)`,
+  }), [index, isCollapsed, isTop]);
 
   if (index > 7) return null;
 
@@ -119,6 +132,9 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
         cursor: isTop ? (isDragging ? 'grabbing' : 'grab') : 'pointer',
         touchAction: 'none',
         willChange: 'transform, opacity',
+        transform: 'translateZ(0)',
+        backfaceVisibility: 'hidden',
+        WebkitBackfaceVisibility: 'hidden',
       } as any}
       transition={{ ...PK_SPRING }}
       className="select-none touch-none"
@@ -127,14 +143,19 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
         className="w-full h-full relative overflow-hidden transition-colors duration-100 bg-black rounded-[2.5rem] shadow-2xl"
         style={{ backgroundImage: !imgReady ? fallbackGradient : undefined }}
       >
-        {/* Photo & Gradient Base */}
+        {/* Photo & Gradient Base — compositor-only zoom driven by motion value, no inline transform fight */}
         <motion.img
           src={photo}
           alt={card.label}
-          initial={{ opacity: 0 }}
+          initial={{ opacity: imgReady ? 1 : 0 }}
           animate={{ opacity: imgReady ? 1 : 0 }}
-          className="absolute inset-0 w-full h-full object-cover transition-transform duration-200"
-          style={{ transform: isTop && isDragging ? 'scale(1.05)' : 'scale(1)' }}
+          transition={{ duration: 0.25 }}
+          className="absolute inset-0 w-full h-full object-cover"
+          style={{
+            scale: isTop ? photoScale : 1,
+            willChange: isTop ? 'transform' : undefined,
+            backfaceVisibility: 'hidden',
+          }}
           draggable={false}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
