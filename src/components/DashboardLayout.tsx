@@ -222,20 +222,12 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   const clientSwipePaths = ['/client/dashboard', '/client/profile', '/client/liked-properties', '/messages', '/explore/roommates'];
   const ownerSwipePaths = ['/owner/dashboard', '/owner/profile', '/owner/liked-clients', '/owner/properties', '/messages'];
 
-  const isImmersiveDashboard = useMemo(() => {
+  // SINGLE SOURCE OF TRUTH: only the two swipe deck routes are locked.
+  // Every other route scrolls inside this container.
+  const isSwipeDeck = useMemo(() => {
     const path = location.pathname;
-    // EXACT MATCH ONLY — only the primary swipe decks are scroll-locked.
-    // Every other route (messages, likes, properties, settings, profile,
-    // escrow, documents, filters, notifications, etc.) gets overflow-y-auto.
-    const locked = new Set([
-      '/client/dashboard',
-      '/client/dashboard/',
-      '/owner/dashboard',
-      '/owner/dashboard/',
-      '/client/discovery',
-      '/owner/discovery',
-    ]);
-    return locked.has(path);
+    return path === '/client/dashboard' || path === '/client/dashboard/' ||
+           path === '/owner/dashboard'  || path === '/owner/dashboard/';
   }, [location.pathname]);
 
   const { resetFocus } = useFocusMode(6000);
@@ -285,21 +277,22 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       <main
         ref={scrollContainerRef}
         id="dashboard-scroll-container"
-        onPointerDown={() => {
-          window.dispatchEvent(new CustomEvent('sentient-ui-recovery'));
-        }}
+        onPointerDown={() => window.dispatchEvent(new CustomEvent('sentient-ui-recovery'))}
         className={cn(
           "flex-1 w-full relative z-0 touch-pan-y",
-          isRadioRoute ? "overflow-visible" 
-            : (isZeroScrollDashboard || isImmersiveDashboard) ? "h-full overflow-hidden"
+          isRadioRoute
+            ? "overflow-visible"
+            : isSwipeDeck
+            ? "h-full overflow-hidden"
             : "overflow-y-auto overflow-x-hidden scroll-area-momentum",
           "shadow-none bg-transparent"
         )}
         style={{
-          paddingTop: (isFullScreenRoute || isImmersiveDashboard) ? '0px' : 'calc(var(--top-bar-height) + var(--safe-top))',
-          paddingBottom: (isFullScreenRoute || isZeroScrollDashboard) ? '0px' : 'calc(var(--bottom-nav-height, 72px) + var(--safe-bottom, 0px) + 24px)',
-          paddingLeft: 'max(var(--safe-left), 0px)',
-          paddingRight: 'max(var(--safe-right), 0px)',
+          // Always pad for HUD so content is never hidden under TopBar/BottomNav
+          paddingTop: isSwipeDeck || isRadioRoute ? '0px' : 'calc(var(--top-bar-height, 60px) + var(--safe-top, 0px))',
+          paddingBottom: isSwipeDeck || isRadioRoute ? '0px' : 'calc(var(--bottom-nav-height, 72px) + var(--safe-bottom, 0px) + 16px)',
+          paddingLeft: 'max(var(--safe-left, 0px), 0px)',
+          paddingRight: 'max(var(--safe-right, 0px), 0px)',
         }}
       >
         <div className="min-h-full w-full flex flex-col">

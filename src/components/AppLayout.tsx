@@ -81,18 +81,16 @@ export function AppLayout({ children }: AppLayoutProps) {
   const isCameraRoute = location.pathname.includes('/camera');
   const isRadioRoute = location.pathname.includes('/radio');
 
-  const isImmersive = useMemo(() => {
+  // AppLayout is ALWAYS a fixed shell — it never scrolls itself.
+  // DashboardLayout's #dashboard-scroll-container owns all authenticated-page scrolling.
+  // Public standalone pages (outside DashboardLayout) scroll via the main container below.
+  const isInsideDashboard = useMemo(() => {
     const path = location.pathname;
-    
-    // ONLY the two primary swipe discovery decks should be immersive (no scroll).
-    // Everything else — messages, likes, properties, settings, profile, escrow,
-    // documents, subscriptions — must scroll via DashboardLayout's scroll container.
-    const swipeOnlyRoutes = [
-      '/client/dashboard',
-      '/owner/dashboard',
-    ];
-    
-    return swipeOnlyRoutes.some(r => path === r || path === r + '/');
+    // These routes go through PersistentDashboardLayout → DashboardLayout
+    // They must NOT scroll at AppLayout level — DashboardLayout handles it
+    const publicRoutes = ['/', '/reset-password', '/legal', '/about', '/faq/', '/listing/', '/profile/', '/vap-validate/', '/payment/'];
+    const isPublic = publicRoutes.some(r => path === r || path.startsWith(r));
+    return !isPublic;
   }, [location.pathname]);
 
   const isFullScreen = useMemo(() => {
@@ -151,13 +149,14 @@ export function AppLayout({ children }: AppLayoutProps) {
         }} 
       />
 
-      {/* 🛸 NO-LOCK MAIN CONTAINER: Allows children to expand the body natively */}
+      {/* SHELL CONTAINER: Always fixed-height. DashboardLayout handles scrolling inside. */}
       <main
         id="main-content"
         className={cn(
           "w-full flex-1 relative z-0 flex flex-col",
-          // 🛡️ ZENITH PROTECTION: Ensure Dashboards are never double-scrollable
-          (isImmersive || isFullScreen) ? "h-full overflow-hidden" : "overflow-y-auto scroll-area-momentum"
+          // Dashboard pages: overflow-hidden, DashboardLayout scrolls internally
+          // Public/standalone pages: overflow-y-auto, scroll at this level
+          (isInsideDashboard || isFullScreen) ? "overflow-hidden" : "overflow-y-auto scroll-area-momentum"
         )}
       >
         <div className="w-full flex-1 flex flex-col">
