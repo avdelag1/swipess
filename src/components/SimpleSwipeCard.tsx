@@ -455,7 +455,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   }
 
   return (
-    <div className="absolute inset-0 flex flex-col pointer-events-none">
+    <div className="absolute inset-0 flex flex-col pointer-events-auto">
       <motion.div
         drag
         dragControls={dragControls}
@@ -491,7 +491,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           transition: { type: 'spring', stiffness: 400, damping: 28, mass: 0.6 }
         }}
         // Photo swim effect now lives on the <img> inside CardImage (CSS keyframes)
-        className="flex-1 cursor-grab active:cursor-grabbing select-none touch-none relative w-full h-full sm:rounded-[24px] sm:shadow-[0_32px_64px_-16px_rgba(0,0,0,0.5),0_16px_32px_-8px_rgba(0,0,0,0.3)] glass-nano-texture pointer-events-auto border-none zenith-interaction-isolation gpu-ultra"
+        className="flex-1 cursor-grab active:cursor-grabbing select-none touch-none relative w-full h-full overflow-hidden sm:rounded-[24px] sm:shadow-[0_32px_64px_-16px_rgba(0,0,0,0.5),0_16px_32px_-8px_rgba(0,0,0,0.3)] pointer-events-auto border-none gpu-ultra"
         style={{
           x,
           y,
@@ -537,8 +537,14 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
             />
           )}
 
-          {/* Premium Top Safe Zone Header Dark Fade */}
-          <div className="absolute top-0 left-0 right-0 h-[25%] bg-gradient-to-b from-background via-background/60 to-transparent pointer-events-none z-20" />
+          {/* Cinema Top Fade — dark vignette behind header, fades to clear photo */}
+          <div
+            className="absolute top-0 left-0 right-0 pointer-events-none z-20"
+            style={{
+              height: '30%',
+              background: 'linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.25) 40%, rgba(0,0,0,0.05) 70%, transparent 100%)',
+            }}
+          />
           
           {imageCount > 1 && (
             <div className="absolute top-[calc(var(--safe-top,0px)+56px)] left-3 right-3 flex gap-1.5 z-20">
@@ -727,9 +733,13 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           </motion.div>
         </div>
 
-        {/* Global Dark Gradient for contrast */}
-        <div 
-          className="absolute inset-x-0 bottom-0 h-1/2 pointer-events-none z-10 bg-gradient-to-t from-background via-background/60 to-transparent"
+        {/* Cinema Bottom Fade — dark vignette behind info + nav, fades to clear photo */}
+        <div
+          className="absolute inset-x-0 bottom-0 pointer-events-none z-10"
+          style={{
+            height: '55%',
+            background: 'linear-gradient(to top, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.35) 30%, rgba(0,0,0,0.08) 60%, transparent 100%)',
+          }}
         />
 
         {/* Verified Badge - Left corner higher up */}

@@ -704,8 +704,14 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
             fullScreen={fullScreen}
           />
 
-          {/* Premium Top Safe Zone Header Dark Fade */}
-          <div className="absolute top-0 left-0 right-0 h-[25%] bg-gradient-to-b from-background via-background/60 to-transparent pointer-events-none z-20" />
+          {/* Cinema Top Fade — dark vignette behind header, fades to clear photo */}
+          <div
+            className="absolute top-0 left-0 right-0 pointer-events-none z-20"
+            style={{
+              height: '30%',
+              background: 'linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.25) 40%, rgba(0,0,0,0.05) 70%, transparent 100%)',
+            }}
+          />
 
           {imageCount > 1 && (
             <div 
@@ -776,8 +782,13 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
 
 
 
+        {/* Cinema Bottom Fade — dark vignette behind info + nav, fades to clear photo */}
         <div
-          className="absolute left-0 right-0 bottom-0 z-15 pointer-events-none h-[60%] bg-gradient-to-t from-background via-background/60 to-transparent"
+          className="absolute left-0 right-0 bottom-0 z-15 pointer-events-none"
+          style={{
+            height: '55%',
+            background: 'linear-gradient(to top, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.35) 30%, rgba(0,0,0,0.08) 60%, transparent 100%)',
+          }}
         />
 
         <div
