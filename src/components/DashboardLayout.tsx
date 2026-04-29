@@ -266,7 +266,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   useSwipeNavigation({
     paths: userRole === 'client' ? clientSwipePaths : userRole === 'owner' ? ownerSwipePaths : [],
     containerSelector: '#dashboard-scroll-container',
-    enabled: userRole !== 'admin' && !isImmersiveDashboard && location.pathname !== '/client/liked-properties' && location.pathname !== '/owner/liked-clients',
+    enabled: userRole !== 'admin' && !isSwipeDeck && location.pathname !== '/client/liked-properties' && location.pathname !== '/owner/liked-clients',
   });
 
   return (

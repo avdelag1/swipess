@@ -131,7 +131,7 @@ export function AppLayout({ children }: AppLayoutProps) {
             userRole={userRole}
             onMessageActivationsClick={handleMessageActivationsClick}
             onFilterClick={handleFilterClick}
-            transparent={isImmersive}
+            transparent={location.pathname === '/client/dashboard' || location.pathname === '/owner/dashboard'}
             showBack={!location.pathname.match(/^\/(client|owner|admin)\/dashboard\/?$/)}
             onCenterTap={
               !location.pathname.match(/^\/(client|owner|admin)\/dashboard\/?$/)
