@@ -94,18 +94,13 @@ const PlaceholderImage = memo(({ name }: { name?: string | null }) => {
         backdropFilter: 'blur(20px)',
       }}
     >
-      <div className="w-28 h-28 rounded-full bg-white/5 flex items-center justify-center mb-8 shadow-[0_20px_60px_rgba(0,0,0,0.3)] relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/15 to-transparent" />
-        <img
-          src="/icons/Swipess-logo.png"
-          alt="Logo"
-          className="w-14 h-14 relative z-10 opacity-80"
-          draggable={false}
-        />
+      <div className="mb-6 flex flex-col items-center">
+        <h1 className="text-4xl font-black italic tracking-tighter text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.8)] uppercase">SWIPESS</h1>
+        <div className="h-1 w-12 bg-white/40 mt-2 rounded-full" />
       </div>
       <h3 className="text-white text-2xl font-black tracking-tight mb-2 uppercase">{name || 'Client'}</h3>
-      <p className="text-white/50 text-xs font-bold uppercase tracking-widest leading-relaxed">
-        Visual identity is being processed<br/>by the sentient engine
+      <p className="text-white/70 text-sm font-bold uppercase tracking-wider leading-relaxed">
+        No photos available yet
       </p>
     </div>
   );
@@ -259,8 +254,8 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   const isExitingRef = useRef(false);
   const lastProfileIdRef = useRef(profile?.user_id || '');
   const dragStartY = useRef(0);
-  const dragControls = useDragControls();
   const dragStartedRef = useRef(false);
+  const dragControls = useDragControls();
   const storedPointerEventRef = useRef<React.PointerEvent | null>(null);
   const { theme } = useAppTheme();
   const _isDark = theme === 'dark';
@@ -415,14 +410,12 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
         if (isHoldPending()) {
           magnifierPointerHandlers.onPointerUp(e);
         }
-        // Start the drag
+        // Native drag will automatically start via motion.div
         dragStartedRef.current = true;
-        isDragging.current = true;
-        triggerHaptic('light');
-        dragControls.start(storedPointerEventRef.current.nativeEvent);
+        dragControls.start(storedPointerEventRef.current);
       }
     }
-  }, [isMagnifierActive, isHoldPending, magnifierPointerHandlers, dragControls]);
+  }, [magnifierPointerHandlers, isMagnifierActive, dragControls]);
 
   const handleUnifiedPointerUp = useCallback((e: React.PointerEvent) => {
     magnifierPointerHandlers.onPointerUp(e);
@@ -508,10 +501,10 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   }, [onSwipe, x, y]);
 
   const handleCardTap = useCallback(() => {
-    if (!isDragging.current && onDetails) {
-      onDetails();
+    if (!isDragging.current && _onTap) {
+      _onTap();
     }
-  }, [onDetails]);
+  }, [_onTap]);
 
   const handleImageTap = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
@@ -539,6 +532,9 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
     else if (onInsights) {
       triggerHaptic('light');
       onInsights();
+    } else if (_onTap) {
+      triggerHaptic('light');
+      _onTap();
     }
   }, [imageCount, onInsights, isMagnifierActive]);
 
@@ -627,9 +623,9 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
         dragListener={false}
         dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
         dragElastic={0.9}
-        dragMomentum={false}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
+        dragDirectionLock={false}
         onClick={handleCardTap}
         onPointerDown={handleUnifiedPointerDown}
         onPointerMove={(e) => {
@@ -710,10 +706,10 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           <div
             className="absolute top-0 left-0 right-0 pointer-events-none z-20"
             style={{
-              height: '28%',
+              height: '35%',
               background: _isDark
-                ? 'linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.3) 40%, rgba(0,0,0,0.05) 75%, transparent 100%)'
-                : 'linear-gradient(to bottom, rgba(255,255,255,0.75) 0%, rgba(255,255,255,0.4) 40%, rgba(255,255,255,0.05) 75%, transparent 100%)',
+                ? 'linear-gradient(to bottom, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.6) 30%, rgba(0,0,0,0) 100%)'
+                : 'linear-gradient(to bottom, rgba(255,255,255,1) 0%, rgba(255,255,255,0.7) 30%, rgba(255,255,255,0) 100%)',
             }}
           />
 
@@ -790,10 +786,21 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
         <div
           className="absolute left-0 right-0 bottom-0 z-15 pointer-events-none"
           style={{
-            height: '50%',
+            height: '60%',
             background: _isDark
-              ? 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.35) 35%, rgba(0,0,0,0.05) 65%, transparent 100%)'
-              : 'linear-gradient(to top, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.4) 35%, rgba(255,255,255,0.05) 65%, transparent 100%)',
+              ? 'linear-gradient(to top, rgba(0,0,0,0.98) 0%, rgba(0,0,0,0.7) 35%, rgba(0,0,0,0) 100%)'
+              : 'linear-gradient(to top, rgba(255,255,255,1) 0%, rgba(255,255,255,0.8) 35%, rgba(255,255,255,0) 100%)',
+          }}
+        />
+
+        {/* Cinema Top Fade — immersive header blending */}
+        <div
+          className="absolute left-0 right-0 top-0 z-15 pointer-events-none"
+          style={{
+            height: '150px',
+            background: _isDark
+              ? 'linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 100%)'
+              : 'linear-gradient(to bottom, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0) 100%)',
           }}
         />
 

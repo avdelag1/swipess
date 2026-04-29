@@ -17,6 +17,8 @@ import { OWNER_INTENT_CARDS } from '@/components/swipe/CardData';
 import useAppTheme from '@/hooks/useAppTheme';
 import type { ClientFilters } from '@/hooks/smartMatching/types';
 import { AtmosphericLayer } from '@/components/AtmosphericLayer';
+import { useNavigate } from 'react-router-dom';
+import { SwipeInsightsModal } from '@/components/SwipeInsightsModal';
 
 interface EnhancedOwnerDashboardProps {
   onClientInsights?: (clientId: string) => void;
@@ -31,6 +33,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
   const { theme } = useAppTheme();
   const isLight = theme === 'light';
   const [viewMode] = useState<'discovery' | 'insights'>('discovery');
+  const navigate = useNavigate();
 
   const activeCategory = useFilterStore(s => s.activeCategory);
   const { setCategories, setClientType, setListingType, setActiveCategory } = useFilterActions();
@@ -117,12 +120,22 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
     mergedFilters as ClientFilters
   );
 
+  const [selectedProfileId, setSelectedProfileId] = useState<string | null>(null);
+
   const handleClientTap = useCallback((clientId: string) => {
-    onClientInsights?.(clientId);
+    if (onClientInsights) {
+      onClientInsights(clientId);
+    } else {
+      setSelectedProfileId(clientId);
+    }
   }, [onClientInsights]);
 
   const handleInsights = useCallback((clientId: string) => {
-    onClientInsights?.(clientId);
+    if (onClientInsights) {
+      onClientInsights(clientId);
+    } else {
+      setSelectedProfileId(clientId);
+    }
   }, [onClientInsights]);
 
   const handleCardSelect = useCallback((card: any) => {
@@ -238,17 +251,20 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
           >
             <div className="flex-1 min-h-0 h-full">
               <ClientSwipeContainer
-                onClientTap={handleClientTap}
-                onInsights={handleInsights}
-                onMessageClick={onMessageClick}
+                category={activeCategory as any}
                 profiles={clientProfiles}
                 isLoading={isLoading}
-                error={error}
-                insightsOpen={false}
-                category={activeCategory || 'default'}
-                filters={mergedFilters}
+                onBack={() => { triggerHaptic('light'); setOwnerPhase('kilometer'); }}
+                onClientInsights={handleClientTap}
               />
             </div>
+            {typeof document !== 'undefined' && document.body && (
+              <SwipeInsightsModal
+                open={!!selectedProfileId}
+                onOpenChange={(open) => !open && setSelectedProfileId(null)}
+                profile={clientProfiles.find(p => p.user_id === selectedProfileId)}
+              />
+            )}
           </motion.div>
         )}
       </AnimatePresence>

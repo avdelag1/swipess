@@ -48,16 +48,19 @@ const PlaceholderImage: React.FC<PlaceholderImageProps> = ({ name }) => {
 
       {/* Logo */}
       <div style={{ position: 'relative', marginBottom: 20 }}>
-        <img
-          src="/icons/Swipess-wordmark-transparent-v2.png"
-          alt="Swipess"
-          style={{
-            width: 140,
-            height: 44,
-            objectFit: 'contain',
-            filter: 'drop-shadow(0 0 18px rgba(228, 0, 124, 0.55))',
+        <span 
+          style={{ 
+            color: 'white', 
+            fontSize: '36px', 
+            fontWeight: 900, 
+            fontStyle: 'italic', 
+            letterSpacing: '0.05em',
+            textTransform: 'uppercase',
+            textShadow: '0 4px 12px rgba(228, 0, 124, 0.5)'
           }}
-        />
+        >
+          SWIPESS
+        </span>
       </div>
 
       {/* Listing name (if provided) */}
@@ -81,16 +84,15 @@ const PlaceholderImage: React.FC<PlaceholderImageProps> = ({ name }) => {
       {/* Tagline */}
       <p
         style={{
-          color: 'rgba(255,255,255,0.45)',
-          fontSize: 13,
-          fontWeight: 500,
+          color: 'rgba(255,255,255,0.7)',
+          fontSize: 14,
+          fontWeight: 600,
           textAlign: 'center',
-          letterSpacing: '0.04em',
-          textTransform: 'uppercase',
+          letterSpacing: '0.02em',
           padding: '0 32px',
         }}
       >
-        Photos coming soon
+        No photos available yet
       </p>
     </div>
   );

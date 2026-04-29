@@ -1089,7 +1089,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
 
       {/* Header Controls — ONLY visible when NO cards (radar/empty state) */}
       {!hasCards && (
-        <div className="absolute top-[calc(var(--safe-top,0px)+16px)] left-4 z-[70] flex items-center gap-3 pointer-events-auto">
+        <div className="absolute top-[calc(var(--safe-top,0px)+64px)] left-4 z-[70] flex items-center gap-3 pointer-events-auto">
           <button
             onClick={() => {
               triggerHaptic('light');
@@ -1124,7 +1124,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-                className="absolute inset-0 w-full h-[100dvh] sm:h-full sm:max-w-[480px] sm:mx-auto overflow-hidden"
+                className="absolute inset-0 w-full h-[100dvh] sm:h-full sm:max-w-[480px] sm:mx-auto"
               >
                 {/* Back card (Peek) */}
                 {currentIndex + 1 < deckQueue.length && (

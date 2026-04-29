@@ -885,7 +885,7 @@ const ClientSwipeContainerComponent = ({
 
         {/* Header Controls — ONLY visible when NO cards (e.g. radar/kilometer screen) */}
         {!topCard && (
-          <div className="absolute top-[calc(var(--safe-top,0px)+16px)] left-4 z-[70] flex items-center gap-3 pointer-events-auto">
+          <div className="absolute top-[calc(var(--safe-top,0px)+64px)] left-4 z-[70] flex items-center gap-3 pointer-events-auto">
             <button
               onClick={() => {
                 if (!canClickBack) return;
@@ -920,26 +920,9 @@ const ClientSwipeContainerComponent = ({
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 1.1, y: -20 }}
                 transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                className="absolute inset-0 w-full h-[100dvh] sm:h-full sm:max-w-[480px] sm:mx-auto overflow-hidden"
+                className="absolute inset-0 w-full h-[100dvh] sm:h-full sm:max-w-[480px] sm:mx-auto"
               >
-                {/* Back card (Peek) */}
-                {_nextCard && (
-                  <motion.div 
-                    className="absolute inset-0 w-full h-full z-10"
-                    style={{
-                      scale: nextCardScale,
-                      opacity: nextCardOpacity,
-                      willChange: 'transform, opacity',
-                    }}
-                  >
-                    <SimpleOwnerSwipeCard
-                      key={_nextCard.user_id}
-                      profile={_nextCard}
-                      onSwipe={() => { }}
-                      isTop={false}
-                    />
-                  </motion.div>
-                )}
+
 
                 {/* Front card */}
                 <SimpleOwnerSwipeCard
@@ -1000,7 +983,7 @@ const ClientSwipeContainerComponent = ({
               onLike={handleButtonLike}
               onDislike={handleButtonDislike}
               onShare={handleShare}
-              onInsights={() => onListingTap?.(topCard.user_id)}
+              onInsights={() => handleInsights(topCard.user_id)}
               onUndo={undoLastSwipe}
               onMessage={() => handleConnect(topCard.user_id)}
               canUndo={canUndo}

@@ -86,7 +86,7 @@ function NotificationItem({ notification, onClick, onDismiss, index }: Notificat
     >
       {/* Swipe to dismiss indicator — shown behind card */}
       <div className="absolute inset-0 bg-destructive/10 flex items-center justify-end px-6 pointer-events-none">
-        <Trash2 className="w-5 h-5 text-destructive animate-pulse" />
+        <Trash2 className="w-5 h-5 text-destructive" />
       </div>
       
       <Card
@@ -137,7 +137,7 @@ function NotificationItem({ notification, onClick, onDismiss, index }: Notificat
               
               {/* Unread indicator dot */}
               {!notification.read && (
-                <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-primary border-2 border-background animate-pulse" />
+                <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-primary border-2 border-background" />
               )}
             </div>
 
@@ -355,7 +355,7 @@ export function NotificationPopover({ className, children, glassPillStyle }: Not
         <DialogContent
           hideCloseButton
           className={cn(
-            "w-[min(calc(100vw-1rem),440px)] p-0 rounded-2xl bg-background border border-border/60 shadow-2xl",
+            "w-[min(calc(100vw-1rem),440px)] p-0 !rounded-[24px] bg-background border border-border/60 shadow-2xl",
             "overflow-hidden gap-0",
             className
           )}

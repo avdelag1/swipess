@@ -14,7 +14,7 @@
 
 import { memo, useCallback, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Share2, RotateCcw, MessageCircle, Flame, ThumbsDown, Sparkles } from 'lucide-react';
+import { Share2, RotateCcw, MessageCircle, Flame, ThumbsDown, Info, Smartphone } from 'lucide-react';
 import { triggerHaptic } from '@/utils/haptics';
 import { AnimatedLottieIcon } from './ui/AnimatedLottieIcon';
 
@@ -314,11 +314,11 @@ function SwipeActionButtonBarComponent({
             onClick={onInsights}
             disabled={disabled}
             size="small"
-            variant="gold"
+            variant="cyan"
             ariaLabel="Insights"
             index={4}
           >
-            <Sparkles className="w-full h-full" strokeWidth={1.5} />
+            <Smartphone className="w-full h-full" strokeWidth={1.5} />
           </ActionButton>
         )}
       </div>

@@ -460,8 +460,6 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
     <div className="absolute inset-0 flex flex-col pointer-events-auto">
       <motion.div
         drag
-        dragControls={dragControls}
-        dragListener={false}
         dragMomentum={false}
         dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
         dragElastic={0.55}

@@ -74,12 +74,12 @@ export const SwipeLoadingSkeleton = () => (
         {/* Center Loading Status */}
         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
            <motion.div 
-             animate={{ opacity: [0.3, 0.7, 0.3] }}
+             animate={{ opacity: [0.5, 1, 0.5] }}
              transition={{ duration: 2, repeat: Infinity }}
              className="text-center"
            >
-             <h3 className="text-white/20 text-[10px] font-black uppercase tracking-[1em] ml-[1em]">Scanning</h3>
-             <p className="text-primary/40 text-[8px] font-bold uppercase tracking-[0.5em] mt-2 ml-[0.5em]">Synchronizing Local Data</p>
+             <h3 className="text-white text-3xl font-black uppercase tracking-widest italic drop-shadow-lg">SWIPESS</h3>
+             <p className="text-white/70 text-xs font-bold uppercase tracking-[0.2em] mt-3">Loading profiles...</p>
            </motion.div>
         </div>
       </div>
