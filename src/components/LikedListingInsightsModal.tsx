@@ -2,7 +2,7 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { MapPin, Bed, Bath, Square, DollarSign, MessageCircle, Sparkles, Trash2, Ban, Flag, ChevronLeft, ChevronRight, X, Star, ArrowLeft } from 'lucide-react';
+import { MapPin, Bed, Bath, Square, DollarSign, MessageCircle, Sparkles, Trash2, Ban, Flag, ChevronLeft, ChevronRight, X, Star, ArrowLeft, Share2 } from 'lucide-react';
 import { PropertyImageGallery } from './PropertyImageGallery';
 import { useNavigate } from 'react-router-dom';
 import { useStartConversation } from '@/hooks/useConversations';
@@ -29,6 +29,8 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { ReportDialog } from './ReportDialog';
+import { ShareDialog } from './ShareDialog';
 
 interface LikedListingInsightsModalProps {
   open: boolean;
@@ -46,9 +48,8 @@ function LikedListingInsightsModalComponent({ open, onOpenChange, listing }: Lik
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showBlockDialog, setShowBlockDialog] = useState(false);
   const [showReportDialog, setShowReportDialog] = useState(false);
+  const [showShareDialog, setShowShareDialog] = useState(false);
   const [showRatingDialog, setShowRatingDialog] = useState(false);
-  const [reportReason, setReportReason] = useState('');
-  const [reportDetails, setReportDetails] = useState('');
 
   // Fetch rating aggregate for this listing
   const { data: ratingAggregate } = useListingRatingAggregate(listing?.id);
@@ -140,44 +141,7 @@ function LikedListingInsightsModalComponent({ open, onOpenChange, listing }: Lik
     }
   });
 
-  // Report mutation
-  const reportMutation = useMutation({
-    mutationFn: async ({ reason, details }: { reason: string; details: string }) => {
-      const { data: user } = await supabase.auth.getUser();
-      if (!user.user || !listing?.owner_id) throw new Error('Not authenticated');
 
-      const { error } = await supabase
-        .from('user_reports')
-        .insert({
-          reporter_id: user.user.id,
-          reported_user_id: listing.owner_id,
-          report_reason: reason,
-          report_details: details,
-          status: 'pending'
-        });
-
-      if (error) {
-        logger.error('Report submission error:', error);
-        throw error;
-      }
-    },
-    onSuccess: () => {
-      toast({
-        title: 'Report submitted',
-        description: "We'll review it shortly.",
-      });
-      setShowReportDialog(false);
-      setReportReason('');
-      setReportDetails('');
-    },
-    onError: () => {
-      toast({
-        title: 'Error',
-        description: 'Failed to submit report.',
-        variant: 'destructive',
-      });
-    }
-  });
 
   const handleDelete = () => {
     setShowDeleteDialog(true);
@@ -200,17 +164,6 @@ function LikedListingInsightsModalComponent({ open, onOpenChange, listing }: Lik
     setShowReportDialog(true);
   };
 
-  const handleSubmitReport = () => {
-    if (!reportReason) {
-      toast({
-        title: 'Error',
-        description: 'Please select a reason for your report.',
-        variant: 'destructive',
-      });
-      return;
-    }
-    reportMutation.mutate({ reason: reportReason, details: reportDetails });
-  };
 
   const handlePrevImage = () => {
     setCurrentImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
@@ -471,7 +424,11 @@ function LikedListingInsightsModalComponent({ open, onOpenChange, listing }: Lik
                 {isCreatingConversation ? 'Starting...' : 'Message Owner'}
               </Button>
 
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-4 gap-2">
+                <Button onClick={() => setShowShareDialog(true)} variant="ghost" size="sm"
+                  className="h-10 bg-blue-500/[0.07] hover:bg-blue-500/[0.15] border border-blue-500/20 text-blue-400 rounded-xl text-[11px] font-black uppercase tracking-wide">
+                  <Share2 className="w-3.5 h-3.5 mr-1.5" /> Share
+                </Button>
                 <Button onClick={handleDelete} variant="ghost" size="sm"
                   className="h-10 bg-red-500/[0.07] hover:bg-red-500/[0.15] border border-red-500/20 text-red-400 rounded-xl text-[11px] font-black uppercase tracking-wide"
                   disabled={deleteMutation.isPending}>
@@ -483,8 +440,7 @@ function LikedListingInsightsModalComponent({ open, onOpenChange, listing }: Lik
                   <Ban className="w-3.5 h-3.5 mr-1.5" /> Block
                 </Button>
                 <Button onClick={handleReport} variant="ghost" size="sm"
-                  className="h-10 bg-amber-500/[0.07] hover:bg-amber-500/[0.15] border border-amber-500/20 text-amber-400 rounded-xl text-[11px] font-black uppercase tracking-wide"
-                  disabled={reportMutation.isPending}>
+                  className="h-10 bg-amber-500/[0.07] hover:bg-amber-500/[0.15] border border-amber-500/20 text-amber-400 rounded-xl text-[11px] font-black uppercase tracking-wide">
                   <Flag className="w-3.5 h-3.5 mr-1.5" /> Report
                 </Button>
               </div>
@@ -552,64 +508,26 @@ function LikedListingInsightsModalComponent({ open, onOpenChange, listing }: Lik
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Report Dialog */}
-      <Dialog open={showReportDialog} onOpenChange={setShowReportDialog}>
-        <DialogContent className="sm:max-w-md rounded-2xl">
-          <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <Flag className="w-5 h-5 text-yellow-500" />
-              <h3 className="text-lg font-semibold">Report Property/Owner</h3>
-            </div>
-            <div className="space-y-3">
-              <Label>Reason for report</Label>
-              <RadioGroup value={reportReason} onValueChange={setReportReason} className="space-y-2">
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="fake_listing" id="fake_listing" />
-                  <Label htmlFor="fake_listing" className="font-normal">Fake or misleading listing</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="inappropriate" id="inappropriate" />
-                  <Label htmlFor="inappropriate" className="font-normal">Inappropriate content</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="scam" id="scam" />
-                  <Label htmlFor="scam" className="font-normal">Suspected scam</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="discrimination" id="discrimination" />
-                  <Label htmlFor="discrimination" className="font-normal">Discrimination</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="other" id="other" />
-                  <Label htmlFor="other" className="font-normal">Other</Label>
-                </div>
-              </RadioGroup>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="details">Additional details (optional)</Label>
-              <Textarea
-                id="details"
-                placeholder="Please provide any additional information..."
-                value={reportDetails}
-                onChange={(e) => setReportDetails(e.target.value)}
-                className="min-h-[100px] rounded-xl"
-              />
-            </div>
-            <div className="flex gap-2 pt-2">
-              <Button variant="outline" onClick={() => setShowReportDialog(false)} className="flex-1 rounded-xl">
-                Cancel
-              </Button>
-              <Button
-                onClick={handleSubmitReport}
-                disabled={!reportReason || reportMutation.isPending}
-                className="flex-1 bg-yellow-600 hover:bg-yellow-700 text-white rounded-xl"
-              >
-                {reportMutation.isPending ? "Submitting..." : "Submit Report"}
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+      {/* Report and Share Dialogs */}
+      {listing && (
+        <>
+          <ReportDialog
+            open={showReportDialog}
+            onOpenChange={setShowReportDialog}
+            targetId={listing.id}
+            targetType="listing"
+            reportedUserId={listing.owner_id}
+            targetName={listing.title}
+          />
+          <ShareDialog
+            open={showShareDialog}
+            onOpenChange={setShowShareDialog}
+            listingId={listing.id}
+            title={listing.title}
+            description={listing.description}
+          />
+        </>
+      )}
 
       {/* Rating Submission Dialog */}
       {listing && (

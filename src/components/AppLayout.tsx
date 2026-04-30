@@ -158,7 +158,7 @@ export function AppLayout({ children }: AppLayoutProps) {
           !isAuthRoute && !isFullScreen && !isRadioRoute && !isCameraRoute && "pt-[var(--top-bar-height)]",
           // Dashboard pages: overflow-hidden, DashboardLayout scrolls internally
           // Public/standalone pages: overflow-y-auto, scroll at this level
-          (isInsideDashboard || isFullScreen) ? "overflow-hidden" : "overflow-y-auto scroll-area-momentum"
+          (isInsideDashboard || isFullScreen) ? "overflow-hidden" : "overflow-y-auto scroll-area-momentum pb-[var(--bottom-nav-height)]"
         )}
       >
         <div className="w-full flex-1 flex flex-col">

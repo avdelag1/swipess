@@ -27,7 +27,7 @@ export function MaintenanceGate({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
-  if (unlocked) return <>{children}</>;
+  return <>{children}</>;
 
   const handleLogoTap = () => {
     if (resetTimer.current) clearTimeout(resetTimer.current);

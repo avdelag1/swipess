@@ -257,7 +257,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
         id="dashboard-scroll-container"
         className={cn(
           "flex-1 flex flex-col relative w-full",
-          isSwipeDeck ? "overflow-hidden touch-none" : "overflow-y-auto scroll-area-momentum"
+          isSwipeDeck ? "overflow-hidden touch-none" : "overflow-y-auto scroll-area-momentum pb-[var(--bottom-nav-height)]"
         )}
         style={{
           WebkitOverflowScrolling: 'touch',

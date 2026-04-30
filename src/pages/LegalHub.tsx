@@ -572,7 +572,7 @@ const LegalHub = () => {
                           <Button
                             variant="ghost"
                             onClick={() => { haptics.tap(); handleReset(); }}
-                            className={cn("h-16 flex-1 rounded-[2rem] font-black uppercase italic tracking-widest text-[11px]", isLight ? "hover:bg-black/5" : "hover:bg-white/5")}
+                            className={cn("h-16 flex-1 rounded-[2rem] font-black uppercase italic tracking-widest text-[11px]", isLight ? "text-black hover:bg-black/5" : "text-white hover:bg-white/5")}
                           >
                             Reset Audit
                           </Button>
