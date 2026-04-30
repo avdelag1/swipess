@@ -195,7 +195,8 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
                   triggerHaptic('medium');
                   onSelect(card.id);
                 }}
-                className="w-full h-14 rounded-2xl font-black uppercase italic tracking-widest transition-all hover:scale-[1.02] active:scale-95 bg-white text-black hover:bg-white/90 shadow-lg"
+                className="w-full h-14 rounded-2xl font-black uppercase italic tracking-widest transition-all hover:scale-[1.02] active:scale-95 text-black shadow-[0_18px_40px_rgba(0,0,0,0.35)] ring-1 ring-white/40"
+                style={{ background: 'rgba(255,255,255,0.96)', backdropFilter: 'blur(8px)' }}
               >
                 Engage Discovery
               </button>
