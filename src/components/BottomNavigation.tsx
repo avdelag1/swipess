@@ -256,7 +256,8 @@ export const BottomNavigation = memo(({
           // background, but ~3x cheaper per frame on the always-on bar.
           backdropFilter: 'blur(22px) saturate(220%)',
           WebkitBackdropFilter: 'blur(22px) saturate(220%)',
-          borderRadius: isTablet ? '3rem' : '0',
+          // Always a fully rounded pill — feels premium on every viewport.
+          borderRadius: '3rem',
           padding: '4px',
           boxShadow: isLight
             ? '0 15px 40px rgba(0,0,0,0.14), inset 0 0 0 1px rgba(0,0,0,0.06)'
