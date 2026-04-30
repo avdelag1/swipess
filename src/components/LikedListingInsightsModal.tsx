@@ -275,223 +275,182 @@ function LikedListingInsightsModalComponent({ open, onOpenChange, listing }: Lik
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent
-          className="w-full max-w-2xl h-[90vh] max-h-[90vh] p-0 overflow-hidden bg-background border-0 rounded-3xl"
+          className="w-full max-w-lg h-[92dvh] max-h-[92dvh] p-0 overflow-hidden bg-[#0a0a0f] border-0 rounded-[2.5rem]"
           hideCloseButton
         >
           <div className="flex flex-col h-full relative">
-            {/* Persistent Back/Close — always visible */}
-            <div className="absolute top-3 left-3 right-3 z-30 flex items-center justify-between pointer-events-none">
+            {/* Floating nav buttons */}
+            <div className="absolute top-4 left-4 right-4 z-30 flex items-center justify-between pointer-events-none">
               <button
                 onClick={() => onOpenChange(false)}
-                title="Back"
                 aria-label="Back"
-                className="pointer-events-auto w-10 h-10 rounded-full bg-black/50 hover:bg-black/70 text-white flex items-center justify-center transition-all backdrop-blur-sm"
+                className="pointer-events-auto w-10 h-10 rounded-full bg-black/50 hover:bg-black/70 text-white flex items-center justify-center transition-all backdrop-blur-xl border border-white/10"
               >
-                <ChevronLeft className="w-6 h-6" />
+                <ArrowLeft className="w-5 h-5" />
               </button>
               <button
                 onClick={() => onOpenChange(false)}
-                title="Close Details"
-                aria-label="Close Details"
-                className="pointer-events-auto w-10 h-10 rounded-full bg-black/50 hover:bg-black/70 text-white flex items-center justify-center transition-all backdrop-blur-sm"
+                aria-label="Close"
+                className="pointer-events-auto w-10 h-10 rounded-full bg-black/50 hover:bg-black/70 text-white flex items-center justify-center transition-all backdrop-blur-xl border border-white/10"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" />
               </button>
             </div>
 
-            {/* Hero Image Section */}
+            {/* Hero Image */}
             <div className="relative flex-shrink-0">
               {images.length > 0 ? (
-                <div className="relative aspect-[16/10] w-full">
+                <div className="relative h-[44vw] max-h-[280px] min-h-[200px] w-full overflow-hidden rounded-t-[2.5rem]">
                   <img
                     src={images[currentImageIndex]}
                     alt={`Property photo ${currentImageIndex + 1}`}
                     className="w-full h-full object-cover cursor-pointer"
                     onClick={handleImageClick}
                   />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0f] via-[#0a0a0f]/20 to-transparent pointer-events-none" />
 
-                  {/* Navigation Arrows */}
                   {images.length > 1 && (
                     <>
-                      <button
-                        onClick={handlePrevImage}
-                        title="Previous Image"
-                        aria-label="Previous Image"
-                        className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/50 hover:bg-black/70 text-white flex items-center justify-center transition-all backdrop-blur-sm"
-                      >
-                        <ChevronLeft className="w-6 h-6" />
+                      <button onClick={handlePrevImage} aria-label="Previous Image"
+                        className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/50 text-white flex items-center justify-center backdrop-blur-md border border-white/10 active:scale-90 transition-all">
+                        <ChevronLeft className="w-5 h-5" />
                       </button>
-                      <button
-                        onClick={handleNextImage}
-                        title="Next Image"
-                        aria-label="Next Image"
-                        className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/50 hover:bg-black/70 text-white flex items-center justify-center transition-all backdrop-blur-sm"
-                      >
-                        <ChevronRight className="w-6 h-6" />
+                      <button onClick={handleNextImage} aria-label="Next Image"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/50 text-white flex items-center justify-center backdrop-blur-md border border-white/10 active:scale-90 transition-all">
+                        <ChevronRight className="w-5 h-5" />
                       </button>
                     </>
                   )}
 
-                  {/* Photo Counter & Badges */}
-                  <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <Badge className="bg-gradient-to-r from-red-500 to-orange-500 text-white border-0 px-3 py-1">
-                        <Sparkles className="w-3 h-3 mr-1" />
-                        Liked
-                      </Badge>
-                      <Badge className="bg-black/60 text-white border-0 px-3 py-1 backdrop-blur-sm">
-                        <Star className="w-3 h-3 mr-1 fill-yellow-400 text-yellow-400" />
-                        {ratingAggregate?.displayed_rating?.toFixed(1) || '5.0'}
-                        <span className="text-white/70 ml-1">({ratingAggregate?.total_ratings || 0})</span>
-                      </Badge>
-                    </div>
-                    {images.length > 1 && (
-                      <div className="bg-black/60 text-white px-3 py-1.5 rounded-full text-sm font-medium backdrop-blur-sm">
-                        {currentImageIndex + 1} / {images.length}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Thumbnail Strip */}
+                  {/* Dot indicators */}
                   {images.length > 1 && (
-                    <div className="absolute bottom-[-28px] left-0 right-0 flex justify-center gap-1.5 px-4 z-20">
+                    <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-1.5">
                       {images.slice(0, 8).map((_: any, idx: number) => (
-                        <button
-                          key={idx}
-                          onClick={() => setCurrentImageIndex(idx)}
-                          title={`View image ${idx + 1}`}
-                          aria-label={`View image ${idx + 1}`}
-                          className={`h-1.5 rounded-full transition-all duration-200 ${
-                            idx === currentImageIndex
-                              ? 'w-6 bg-primary'
-                              : 'w-1.5 bg-muted-foreground/40 hover:bg-muted-foreground/60'
-                          }`}
+                        <button key={idx} onClick={() => setCurrentImageIndex(idx)} aria-label={`Image ${idx + 1}`}
+                          className={`rounded-full transition-all duration-300 ${idx === currentImageIndex ? 'w-5 h-1.5 bg-white' : 'w-1.5 h-1.5 bg-white/40'}`}
                         />
                       ))}
                     </div>
                   )}
+
+                  {/* Status badges */}
+                  <div className="absolute bottom-8 left-4 flex items-center gap-2">
+                    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#EB4898]/90 backdrop-blur-md">
+                      <Sparkles className="w-3 h-3 text-white" />
+                      <span className="text-[10px] font-black uppercase tracking-widest text-white">Liked</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/60 backdrop-blur-md border border-white/10">
+                      <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
+                      <span className="text-[11px] font-black text-white">{ratingAggregate?.displayed_rating?.toFixed(1) || '5.0'}</span>
+                      <span className="text-[10px] text-white/50">({ratingAggregate?.total_ratings || 0})</span>
+                    </div>
+                  </div>
                 </div>
               ) : (
-                <div className="aspect-[16/10] w-full bg-muted flex items-center justify-center pt-14">
-                  <span className="text-muted-foreground">No images</span>
+                <div className="h-[200px] w-full bg-[#1a1a2e] rounded-t-[2.5rem] flex items-center justify-center">
+                  <MapPin className="w-12 h-12 text-white/20" />
                 </div>
               )}
             </div>
 
-            {/* Content Section - Scrollable */}
+            {/* Scrollable Content */}
             <ScrollArea className="flex-1 min-h-0">
-              <div className="p-4 sm:p-6 space-y-4 pt-8 pb-6">
-                {/* Title & Address */}
-                <div className="space-y-2">
-                  <h2 className="text-xl sm:text-2xl font-bold leading-tight">{listing.title}</h2>
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <MapPin className="w-4 h-4 flex-shrink-0" />
-                    <span className="text-sm">{listing.address}</span>
-                  </div>
+              <div className="px-5 pt-4 pb-6 space-y-5">
+                {/* Title & Location */}
+                <div>
+                  <h2 className="text-[22px] font-black text-white leading-tight tracking-tight">{listing.title}</h2>
+                  {listing.address && (
+                    <div className="flex items-center gap-1.5 mt-1.5">
+                      <MapPin className="w-3.5 h-3.5 text-white/40 flex-shrink-0" />
+                      <span className="text-[12px] text-white/50 font-medium">{listing.address}</span>
+                    </div>
+                  )}
                 </div>
 
-                {/* Quick Stats */}
+                {/* Stats Grid */}
                 <div className="grid grid-cols-4 gap-2">
-                  <div className="flex flex-col items-center p-3 bg-rose-500/10 rounded-xl">
-                    <DollarSign className="w-5 h-5 text-rose-500 mb-1" />
-                    <span className="text-lg font-bold text-rose-500">${listing.price?.toLocaleString()}</span>
-                    <span className="text-[10px] text-muted-foreground uppercase">per month</span>
+                  <div className="flex flex-col items-center p-3 bg-[#EB4898]/[0.1] rounded-2xl border border-[#EB4898]/20">
+                    <DollarSign className="w-4 h-4 text-[#EB4898] mb-1" />
+                    <span className="text-[15px] font-black text-[#EB4898]">${(listing.price || 0).toLocaleString()}</span>
+                    <span className="text-[9px] text-white/30 uppercase font-black tracking-wider mt-0.5">/ mo</span>
                   </div>
-                  {listing.beds && (
-                    <div className="flex flex-col items-center p-3 bg-blue-500/10 rounded-xl">
-                      <Bed className="w-5 h-5 text-blue-500 mb-1" />
-                      <span className="text-lg font-bold">{listing.beds}</span>
-                      <span className="text-[10px] text-muted-foreground uppercase">beds</span>
+                  {listing.beds ? (
+                    <div className="flex flex-col items-center p-3 bg-blue-500/[0.08] rounded-2xl border border-blue-500/20">
+                      <Bed className="w-4 h-4 text-blue-400 mb-1" />
+                      <span className="text-[15px] font-black text-white">{listing.beds}</span>
+                      <span className="text-[9px] text-white/30 uppercase font-black tracking-wider mt-0.5">beds</span>
                     </div>
-                  )}
-                  {listing.baths && (
-                    <div className="flex flex-col items-center p-3 bg-purple-500/10 rounded-xl">
-                      <Bath className="w-5 h-5 text-purple-500 mb-1" />
-                      <span className="text-lg font-bold">{listing.baths}</span>
-                      <span className="text-[10px] text-muted-foreground uppercase">baths</span>
+                  ) : <div />}
+                  {listing.baths ? (
+                    <div className="flex flex-col items-center p-3 bg-purple-500/[0.08] rounded-2xl border border-purple-500/20">
+                      <Bath className="w-4 h-4 text-purple-400 mb-1" />
+                      <span className="text-[15px] font-black text-white">{listing.baths}</span>
+                      <span className="text-[9px] text-white/30 uppercase font-black tracking-wider mt-0.5">baths</span>
                     </div>
-                  )}
-                  {listing.square_footage && (
-                    <div className="flex flex-col items-center p-3 bg-orange-500/10 rounded-xl">
-                      <Square className="w-5 h-5 text-orange-500 mb-1" />
-                      <span className="text-lg font-bold">{listing.square_footage}</span>
-                      <span className="text-[10px] text-muted-foreground uppercase">sqft</span>
+                  ) : <div />}
+                  {listing.square_footage ? (
+                    <div className="flex flex-col items-center p-3 bg-orange-500/[0.08] rounded-2xl border border-orange-500/20">
+                      <Square className="w-4 h-4 text-orange-400 mb-1" />
+                      <span className="text-[15px] font-black text-white">{listing.square_footage}</span>
+                      <span className="text-[9px] text-white/30 uppercase font-black tracking-wider mt-0.5">sqft</span>
                     </div>
-                  )}
+                  ) : <div />}
                 </div>
 
-                {/* Description - Sentient Cascade */}
+                {/* Description */}
                 {listing.description && (
-                  <motion.div 
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.1, duration: 0.5 }}
-                    className="space-y-2"
-                  >
-                    <h4 className="font-semibold text-sm uppercase tracking-wide text-muted-foreground">About</h4>
-                    <p className="text-sm leading-relaxed font-medium text-foreground/90">{listing.description}</p>
-                  </motion.div>
+                  <div className="space-y-2">
+                    <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">About</h4>
+                    <p className="text-[13px] leading-relaxed text-white/70 font-medium">{listing.description}</p>
+                  </div>
                 )}
 
-                {/* Features - Staggered Chips */}
-                <motion.div 
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.15, duration: 0.4 }}
-                  className="space-y-2"
-                >
-                  <h4 className="font-semibold text-sm uppercase tracking-wide text-muted-foreground">Features</h4>
+                {/* Tags */}
+                <div className="space-y-2">
+                  <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">Details</h4>
                   <div className="flex flex-wrap gap-2">
                     {listing.property_type && (
-                      <Badge variant="secondary" className="bg-blue-500/10 text-blue-600 dark:text-blue-400 border-0 font-black">
-                        {listing.property_type}
-                      </Badge>
+                      <span className="px-3 py-1.5 rounded-xl bg-blue-500/10 border border-blue-500/20 text-[11px] font-black text-blue-400 uppercase tracking-wide">{listing.property_type}</span>
                     )}
                     {listing.furnished && (
-                      <Badge variant="secondary" className="bg-purple-500/10 text-purple-600 dark:text-purple-400 border-0 font-black">
-                        {listing.furnished}
-                      </Badge>
+                      <span className="px-3 py-1.5 rounded-xl bg-purple-500/10 border border-purple-500/20 text-[11px] font-black text-purple-400 uppercase tracking-wide">{listing.furnished}</span>
                     )}
                     {listing.pet_friendly && (
-                      <Badge variant="secondary" className="bg-rose-500/10 text-rose-600 dark:text-rose-400 border-0 font-black">
-                        Pet Friendly
-                      </Badge>
+                      <span className="px-3 py-1.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-[11px] font-black text-rose-400 uppercase tracking-wide">Pet Friendly</span>
                     )}
-                    <Badge variant="secondary" className={cn(
-                      "border-0 font-black tracking-widest uppercase",
-                      listing.status === 'available'
-                        ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400'
-                        : 'bg-muted text-muted-foreground'
-                    )}>
-                      {listing.status}
-                    </Badge>
+                    {listing.status && (
+                      <span className={cn(
+                        "px-3 py-1.5 rounded-xl text-[11px] font-black uppercase tracking-wide",
+                        listing.status === 'available'
+                          ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-400'
+                          : 'bg-white/5 border border-white/10 text-white/40'
+                      )}>{listing.status}</span>
+                    )}
                   </div>
-                </motion.div>
+                </div>
 
                 {/* Amenities */}
                 {listing.amenities && listing.amenities.length > 0 && (
                   <div className="space-y-2">
-                    <h4 className="font-semibold text-sm uppercase tracking-wide text-muted-foreground">Amenities</h4>
-                    <div className="flex flex-wrap gap-2">
+                    <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">Amenities</h4>
+                    <div className="flex flex-wrap gap-1.5">
                       {listing.amenities.map((amenity: string) => (
-                        <Badge key={`amenity-${amenity}`} variant="outline" className="text-xs">
-                          {amenity}
-                        </Badge>
+                        <span key={`amenity-${amenity}`} className="px-2.5 py-1 rounded-lg bg-white/[0.05] border border-white/10 text-[11px] text-white/60">{amenity}</span>
                       ))}
                     </div>
                   </div>
                 )}
 
-                {/* Rating Section */}
-                <div className="space-y-3 pt-2">
-                  <h4 className="font-semibold text-sm uppercase tracking-wide text-muted-foreground">Rating & Reviews</h4>
-                  <div className="p-4 bg-muted/30 rounded-xl">
+                {/* Rating */}
+                <div className="space-y-2">
+                  <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">Rating & Reviews</h4>
+                  <div className="p-4 bg-white/[0.03] rounded-2xl border border-white/[0.07]">
                     <CompactRatingDisplay aggregate={ratingAggregate || null} showReviews={true} />
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => setShowRatingDialog(true)}
-                      className="mt-3 w-full rounded-xl"
+                      className="mt-3 w-full rounded-xl bg-amber-500/10 border-amber-500/20 text-amber-400 hover:bg-amber-500/20"
                     >
                       <Star className="w-4 h-4 mr-2" />
                       Rate this Property
@@ -501,49 +460,32 @@ function LikedListingInsightsModalComponent({ open, onOpenChange, listing }: Lik
               </div>
             </ScrollArea>
 
-            {/* Action Buttons - Fixed at Bottom */}
-            <div className="flex-shrink-0 p-4 border-t bg-background/80 backdrop-blur-sm space-y-3">
-              {/* Primary Action */}
+            {/* Action Dock */}
+            <div className="flex-shrink-0 px-4 pb-5 pt-3 border-t border-white/[0.06] bg-[#0d0d14]/95 backdrop-blur-xl space-y-2.5">
               <Button
                 onClick={handleMessage}
                 disabled={isCreatingConversation || !listing}
-                className="w-full h-12 mexican-pink-premium font-semibold text-base rounded-xl"
+                className="w-full h-13 bg-gradient-to-r from-[#EB4898] to-[#FF4D00] hover:brightness-110 text-white font-black text-sm uppercase tracking-wider rounded-2xl shadow-lg shadow-[#EB4898]/20 border-0 active:scale-[0.98] transition-all"
               >
                 <MessageCircle className="w-5 h-5 mr-2" />
                 {isCreatingConversation ? 'Starting...' : 'Message Owner'}
               </Button>
 
-              {/* Secondary Actions */}
               <div className="grid grid-cols-3 gap-2">
-                <Button
-                  onClick={handleDelete}
-                  variant="outline"
-                  size="sm"
-                  className="h-10 bg-red-500/10 hover:bg-red-500/20 border-red-500/30 text-red-600 dark:text-red-400 rounded-xl"
-                  disabled={deleteMutation.isPending}
-                >
-                  <Trash2 className="w-4 h-4 mr-1.5" />
-                  Delete
+                <Button onClick={handleDelete} variant="ghost" size="sm"
+                  className="h-10 bg-red-500/[0.07] hover:bg-red-500/[0.15] border border-red-500/20 text-red-400 rounded-xl text-[11px] font-black uppercase tracking-wide"
+                  disabled={deleteMutation.isPending}>
+                  <Trash2 className="w-3.5 h-3.5 mr-1.5" /> Remove
                 </Button>
-                <Button
-                  onClick={handleBlock}
-                  variant="outline"
-                  size="sm"
-                  className="h-10 bg-orange-500/10 hover:bg-orange-500/20 border-orange-500/30 text-orange-600 dark:text-orange-400 rounded-xl"
-                  disabled={blockMutation.isPending}
-                >
-                  <Ban className="w-4 h-4 mr-1.5" />
-                  Block
+                <Button onClick={handleBlock} variant="ghost" size="sm"
+                  className="h-10 bg-orange-500/[0.07] hover:bg-orange-500/[0.15] border border-orange-500/20 text-orange-400 rounded-xl text-[11px] font-black uppercase tracking-wide"
+                  disabled={blockMutation.isPending}>
+                  <Ban className="w-3.5 h-3.5 mr-1.5" /> Block
                 </Button>
-                <Button
-                  onClick={handleReport}
-                  variant="outline"
-                  size="sm"
-                  className="h-10 bg-yellow-500/10 hover:bg-yellow-500/20 border-yellow-500/30 text-yellow-600 dark:text-yellow-400 rounded-xl"
-                  disabled={reportMutation.isPending}
-                >
-                  <Flag className="w-4 h-4 mr-1.5" />
-                  Report
+                <Button onClick={handleReport} variant="ghost" size="sm"
+                  className="h-10 bg-amber-500/[0.07] hover:bg-amber-500/[0.15] border border-amber-500/20 text-amber-400 rounded-xl text-[11px] font-black uppercase tracking-wide"
+                  disabled={reportMutation.isPending}>
+                  <Flag className="w-3.5 h-3.5 mr-1.5" /> Report
                 </Button>
               </div>
             </div>

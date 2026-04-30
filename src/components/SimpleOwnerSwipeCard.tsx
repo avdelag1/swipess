@@ -616,7 +616,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   }
 
   return (
-    <div className="absolute inset-0 flex flex-col">
+    <div className="absolute inset-x-2 top-1 bottom-0 flex flex-col">
       <motion.div
         drag
         dragControls={dragControls}
@@ -669,8 +669,8 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
         } as any}
         className={cn(
           "flex-1 cursor-grab active:cursor-grabbing select-none touch-none relative overflow-hidden",
-          "w-full h-full sm:rounded-[24px]",
-          !fullScreen && "sm:shadow-[0_32px_64px_-16px_rgba(0,0,0,0.5),0_16px_32px_-8px_rgba(0,0,0,0.3)]"
+          "w-full h-full rounded-[24px]",
+          !fullScreen && "shadow-[0_32px_64px_-16px_rgba(0,0,0,0.5),0_16px_32px_-8px_rgba(0,0,0,0.3)]"
         )}
       >
         {/* Glass Shine */}
@@ -690,7 +690,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
 
         <div
           ref={containerRef}
-          className={cn("absolute inset-0 w-full h-full overflow-hidden sm:rounded-[24px]")}
+          className={cn("absolute inset-0 w-full h-full overflow-hidden rounded-[24px]")}
           onClick={handleImageTap}
           style={{ touchAction: 'none' }}
         >
