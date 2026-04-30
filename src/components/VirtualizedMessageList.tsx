@@ -33,65 +33,72 @@ interface VirtualizedMessageListProps {
 }
 
 // Memoized message bubble
-const MessageBubble = memo(({ 
-  message, 
-  isMyMessage, 
+const MessageBubble = memo(({
+  message,
+  isMyMessage,
   otherUserRole,
   isThemeLight
-}: { 
-  message: MessageType; 
-  isMyMessage: boolean; 
+}: {
+  message: MessageType;
+  isMyMessage: boolean;
   otherUserRole: string;
   isThemeLight: boolean;
 }) => {
   return (
-    <div className={cn("flex mb-2 px-4", isMyMessage ? 'justify-end' : 'justify-start')}>
+    <motion.div
+      initial={{ opacity: 0, y: 8, scale: 0.96 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
+      className={cn("flex mb-2.5 px-4", isMyMessage ? 'justify-end' : 'justify-start')}
+    >
       <div
         className={cn(
-          "max-w-[80%] px-5 py-3.5 shadow-sm transition-all duration-300",
+          "max-w-[78%] px-4 py-3 transition-all duration-200",
           isMyMessage
-            ? "bg-gradient-to-br from-[#EB4898] via-[#FF1493] to-orange-500 text-white rounded-[1.8rem] rounded-br-[0.4rem] shadow-[#EB4898]/20"
+            ? "bg-gradient-to-br from-[#EB4898] to-[#c0392b] text-white rounded-[1.5rem] rounded-br-[0.35rem] shadow-[0_4px_20px_rgba(235,72,152,0.3)]"
             : cn(
-                "backdrop-blur-3xl border rounded-[1.8rem] rounded-bl-[0.4rem]",
-                isThemeLight 
-                  ? "bg-slate-100 border-slate-200 text-slate-900" 
-                  : "bg-white/[0.04] border-white/[0.08] text-white"
+                "border rounded-[1.5rem] rounded-bl-[0.35rem]",
+                isThemeLight
+                  ? "bg-white border-black/[0.07] text-slate-800 shadow-sm"
+                  : "bg-white/[0.07] border-white/[0.08] text-white backdrop-blur-xl"
               )
         )}
       >
         <p className={cn(
-          "text-[14px] font-bold break-words whitespace-pre-wrap leading-relaxed tracking-tight",
-          isMyMessage ? "text-white" : (isThemeLight ? "text-slate-900" : "text-white")
+          "text-[14px] font-medium break-words whitespace-pre-wrap leading-relaxed",
+          isMyMessage ? "text-white" : (isThemeLight ? "text-slate-800" : "text-white/90")
         )}>
           {message.message_text}
         </p>
         <div className={cn(
-            "text-[8px] mt-2 font-black uppercase tracking-widest opacity-70 text-right italic",
-            isMyMessage ? "text-white/80" : (isThemeLight ? "text-slate-500" : "text-white/70")
+          "text-[9px] mt-1.5 font-semibold text-right",
+          isMyMessage ? "text-white/60" : (isThemeLight ? "text-black/30" : "text-white/30")
         )}>
           {formatDistanceToNow(new Date(message.created_at), { addSuffix: false })}
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 });
 
 MessageBubble.displayName = 'MessageBubble';
 
 const TypingIndicator = memo(({ isThemeLight }: { isThemeLight: boolean }) => (
-  <motion.div 
+  <motion.div
     initial={{ opacity: 0, y: 10 }}
     animate={{ opacity: 1, y: 0 }}
-    className="flex justify-start items-end gap-2 mt-4 px-6 pb-4"
+    className="flex justify-start items-end gap-2 mt-2 px-5 pb-4"
   >
     <div className={cn(
-      "px-5 py-4 backdrop-blur-3xl border rounded-[1.8rem] rounded-bl-[0.4rem]",
-      isThemeLight ? "bg-slate-100 border-slate-200" : "bg-white/[0.04] border-white/[0.08]"
+      "px-4 py-3 rounded-[1.5rem] rounded-bl-[0.35rem] border",
+      isThemeLight
+        ? "bg-white border-black/[0.07] shadow-sm"
+        : "bg-white/[0.07] border-white/[0.08] backdrop-blur-xl"
     )}>
       <div className="flex items-center gap-1.5">
-        <span className="w-1.5 h-1.5 bg-[#EB4898] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-        <span className="w-1.5 h-1.5 bg-[#EB4898] rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-        <span className="w-1.5 h-1.5 bg-[#EB4898] rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+        <span className="w-2 h-2 bg-[#EB4898] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+        <span className="w-2 h-2 bg-[#EB4898] rounded-full animate-bounce" style={{ animationDelay: '120ms' }} />
+        <span className="w-2 h-2 bg-[#EB4898] rounded-full animate-bounce" style={{ animationDelay: '240ms' }} />
       </div>
     </div>
   </motion.div>

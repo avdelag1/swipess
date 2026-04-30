@@ -175,52 +175,62 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
 
       <div className={cn(
         "flex-1 flex flex-col h-full overflow-hidden transition-colors duration-500",
-        isThemeLight ? "bg-white" : "bg-background"
+        isThemeLight ? "bg-[#f5f5f7]" : "bg-[#0a0a0f]"
       )}>
-        
-        {/* 🛸 SWIPESS HUD HEADER */}
+
+        {/* NEXUS HUD HEADER */}
         <div className={cn(
-            "shrink-0 px-6 py-4 z-20 backdrop-blur-3xl border-b transition-all",
-            isThemeLight ? "bg-white/80 border-black/5" : "bg-black/40 border-white/5"
+            "shrink-0 px-5 py-4 z-20 backdrop-blur-3xl border-b transition-all",
+            isThemeLight
+              ? "bg-white/90 border-black/[0.06] shadow-sm"
+              : "bg-[#0d0d14]/90 border-white/[0.06] shadow-[0_1px_0_rgba(255,255,255,0.04)]"
         )}>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             <button
               onClick={onBack}
               aria-label="Go back to conversations"
               className={cn(
-                 "shrink-0 flex items-center justify-center w-11 h-11 rounded-2xl active:scale-90 transition-all",
-                 isThemeLight ? "bg-black/5 text-black" : "bg-white/[0.08] text-white"
+                 "shrink-0 flex items-center justify-center w-10 h-10 rounded-2xl active:scale-90 transition-all",
+                 isThemeLight ? "bg-black/[0.06] text-black hover:bg-black/10" : "bg-white/[0.07] text-white hover:bg-white/[0.12]"
               )}
             >
-              <ChevronLeft className={cn("w-5 h-5", isThemeLight ? "text-black" : "text-white")} />
+              <ChevronLeft className="w-5 h-5" />
             </button>
 
             <div className="flex-1 flex items-center gap-3 min-w-0">
               <div className="relative shrink-0">
                 <div className={cn(
-                  "p-[1.5px] rounded-full",
-                  otherUser.role === 'owner' ? "bg-gradient-to-br from-[#8B5CF6] to-[#6366F1]" : "bg-gradient-to-br from-[#007AFF] to-[#5856D6]"
+                  "p-[2px] rounded-full",
+                  otherUser.role === 'owner'
+                    ? "bg-gradient-to-br from-[#a78bfa] via-[#8B5CF6] to-[#6366F1]"
+                    : "bg-gradient-to-br from-[#38bdf8] via-[#007AFF] to-[#5856D6]"
                 )}>
-                  <Avatar className="w-10 h-10 border-[1.5px] border-background">
+                  <Avatar className={cn("w-10 h-10 border-2", isThemeLight ? "border-white" : "border-[#0d0d14]")}>
                     <AvatarImage src={otherUser.avatar_url} />
-                    <AvatarFallback className="bg-muted text-foreground text-xs font-bold">
+                    <AvatarFallback className={cn("text-xs font-black", isThemeLight ? "bg-slate-100 text-slate-700" : "bg-[#1a1a2e] text-white")}>
                       {otherUser.full_name?.charAt(0) || '?'}
                     </AvatarFallback>
                   </Avatar>
                 </div>
                 <div className={cn(
-                  "absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-background",
-                  isOnline ? "bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]" : "bg-slate-500"
+                  "absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2",
+                  isThemeLight ? "border-white" : "border-[#0d0d14]",
+                  isOnline
+                    ? "bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.8)]"
+                    : "bg-slate-500"
                 )} />
               </div>
               <div className="flex flex-col min-w-0">
-                <h3 className={cn("font-black text-[15px] uppercase italic tracking-tighter truncate leading-none", isThemeLight ? "text-black" : "text-white")}>
+                <h3 className={cn("font-black text-[15px] uppercase tracking-tight truncate leading-none", isThemeLight ? "text-black" : "text-white")}>
                   {otherUser.full_name}
                 </h3>
-                <div className="flex items-center gap-1.5">
-                   <div className={cn("w-1 h-1 rounded-full", isOnline ? "bg-green-500 animate-pulse" : "bg-white/20")} />
-                   <span className={cn("text-[9px] font-black uppercase tracking-[0.2em] italic", isOnline ? "text-green-500" : "opacity-70")}>
-                    {isOnline ? 'Online' : 'Offline'}
+                <div className="flex items-center gap-1.5 mt-0.5">
+                  <div className={cn("w-1 h-1 rounded-full", isOnline ? "bg-emerald-400 animate-pulse" : "bg-slate-500")} />
+                  <span className={cn(
+                    "text-[9px] font-black uppercase tracking-[0.18em]",
+                    isOnline ? "text-emerald-400" : (isThemeLight ? "text-black/30" : "text-white/25")
+                  )}>
+                    {isOnline ? 'Active Now' : 'Offline'}
                   </span>
                 </div>
               </div>
@@ -229,27 +239,37 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
             <div className="flex gap-2 shrink-0">
               <button
                 onClick={() => setShowRatingDialog(true)}
-                className={cn("w-10 h-10 rounded-2xl flex items-center justify-center transition-all", isThemeLight ? "bg-amber-500/10 text-amber-600" : "bg-white/5 text-amber-400")}
+                className={cn("w-10 h-10 rounded-2xl flex items-center justify-center transition-all",
+                  isThemeLight ? "bg-amber-50 text-amber-500 hover:bg-amber-100" : "bg-amber-500/[0.08] text-amber-400 hover:bg-amber-500/[0.15]"
+                )}
               >
-                <Star className="w-5 h-5 fill-current" />
+                <Star className="w-4.5 h-4.5 fill-current" />
               </button>
-              
+
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button className={cn("w-10 h-10 rounded-2xl flex items-center justify-center transition-all", isThemeLight ? "bg-black/5 text-black" : "bg-white/5 text-white/70")}>
-                    <MoreVertical className="w-5 h-5" />
+                  <button className={cn("w-10 h-10 rounded-2xl flex items-center justify-center transition-all",
+                    isThemeLight ? "bg-black/[0.06] text-black hover:bg-black/10" : "bg-white/[0.07] text-white/60 hover:bg-white/[0.12]"
+                  )}>
+                    <MoreVertical className="w-4.5 h-4.5" />
                   </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="rounded-[1.5rem] bg-[#121214] border-white/10 p-2 shadow-2xl text-white backdrop-blur-xl">
-                  <DropdownMenuItem className="p-4 rounded-[1rem] focus:bg-white/10 cursor-pointer font-black uppercase tracking-widest text-[9px]">
-                    <Info className="w-4 h-4 mr-3" /> View Profile
+                <DropdownMenuContent align="end" className="rounded-[1.5rem] bg-[#0e0e18] border-white/[0.08] p-2 shadow-2xl text-white backdrop-blur-xl min-w-[200px]">
+                  <DropdownMenuItem className="p-4 rounded-[1rem] focus:bg-white/[0.07] cursor-pointer font-black uppercase tracking-widest text-[9px] gap-3">
+                    <Info className="w-4 h-4" /> View Profile
                   </DropdownMenuItem>
-                  <DropdownMenuSeparator className="bg-white/5 my-2" />
-                  <DropdownMenuItem className="p-4 rounded-[1rem] focus:bg-amber-500/20 text-amber-500 cursor-pointer font-black uppercase tracking-widest text-[9px]" onClick={() => (window as any).dispatchEvent(new CustomEvent('open-report', { detail: { reportedUserId: otherUser.id, reportCategory: 'user_profile' } }))}>
-                    <ShieldAlert className="w-4 h-4 mr-3" /> Report Entity
+                  <DropdownMenuSeparator className="bg-white/[0.06] my-1.5" />
+                  <DropdownMenuItem
+                    className="p-4 rounded-[1rem] focus:bg-amber-500/[0.12] text-amber-400 cursor-pointer font-black uppercase tracking-widest text-[9px] gap-3"
+                    onClick={() => (window as any).dispatchEvent(new CustomEvent('open-report', { detail: { reportedUserId: otherUser.id, reportCategory: 'user_profile' } }))}
+                  >
+                    <ShieldAlert className="w-4 h-4" /> Report
                   </DropdownMenuItem>
-                  <DropdownMenuItem className="p-4 rounded-[1rem] focus:bg-red-500/20 text-red-500 cursor-pointer font-black uppercase tracking-widest text-[9px]" onClick={() => { if (confirm('Block this entity permanently?')) { blockUser.mutate(otherUser.id); onBack(); } }}>
-                    <Ban className="w-4 h-4 mr-3" /> Block Entity
+                  <DropdownMenuItem
+                    className="p-4 rounded-[1rem] focus:bg-red-500/[0.12] text-red-400 cursor-pointer font-black uppercase tracking-widest text-[9px] gap-3"
+                    onClick={() => { if (confirm('Block this entity permanently?')) { blockUser.mutate(otherUser.id); onBack(); } }}
+                  >
+                    <Ban className="w-4 h-4" /> Block
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -257,127 +277,163 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
           </div>
 
           {listing && (
-              <motion.div 
-                initial={{ opacity: 0, y: -10 }} 
-                animate={{ opacity: 1, y: 0 }}
-                className={cn("mt-4 p-3 rounded-2xl flex items-center gap-4 border", isThemeLight ? "bg-black/5 border-black/5" : "bg-white/[0.04] border-white/5")}
-              >
-                 <div className="w-12 h-12 rounded-xl overflow-hidden shadow-xl shrink-0">
-                    <img src={listing.images?.[0]} className="w-full h-full object-cover" />
-                 </div>
-                 <div className="flex-1 min-w-0">
-                    <h4 className={cn("text-[10px] font-black uppercase italic tracking-widest truncate leading-none", isThemeLight ? "text-black" : "text-white")}>{listing.title}</h4>
-                    <p className="text-[#EB4898] text-[12px] font-black italic mt-1">${listing.price?.toLocaleString()}</p>
-                 </div>
-                 <div className="px-3 py-1 bg-[#EB4898]/10 rounded-full border border-[#EB4898]/20">
-                    <span className="text-[8px] font-black uppercase text-[#EB4898] tracking-widest italic">{listing.category}</span>
-                 </div>
-              </motion.div>
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              className={cn(
+                "mt-4 p-3 rounded-2xl flex items-center gap-3 border",
+                isThemeLight ? "bg-[#f0f0f5] border-black/[0.06]" : "bg-white/[0.04] border-white/[0.06]"
+              )}
+            >
+              <div className="w-11 h-11 rounded-xl overflow-hidden shadow-lg shrink-0">
+                <img src={listing.images?.[0]} className="w-full h-full object-cover" alt={listing.title} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h4 className={cn("text-[10px] font-black uppercase tracking-widest truncate leading-none", isThemeLight ? "text-black" : "text-white")}>{listing.title}</h4>
+                <p className="text-[#EB4898] text-[11px] font-black mt-1">${listing.price?.toLocaleString()}</p>
+              </div>
+              <div className="px-2.5 py-1 bg-[#EB4898]/10 rounded-full border border-[#EB4898]/20">
+                <span className="text-[8px] font-black uppercase text-[#EB4898] tracking-widest">{listing.category}</span>
+              </div>
+            </motion.div>
           )}
         </div>
 
         {/* Message Feed */}
-        <div id="chat-scroll-container" className="flex-1 relative min-h-0 bg-background/30" ref={messagesContainerRef}>
-            {showConnecting && (
-              <div className="absolute top-2 left-0 right-0 z-50 flex justify-center px-6">
-                <div className="bg-amber-500/10 backdrop-blur-3xl border border-amber-500/20 px-6 py-2 rounded-full flex items-center gap-3">
-                  <div className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse" />
-                  <span className="text-[9px] font-bold uppercase tracking-widest text-amber-500">Wait: Reconnecting...</span>
-                </div>
+        <div
+          id="chat-scroll-container"
+          className={cn("flex-1 relative min-h-0", isThemeLight ? "bg-[#f5f5f7]" : "bg-[#0a0a0f]")}
+          ref={messagesContainerRef}
+        >
+          {showConnecting && (
+            <div className="absolute top-3 left-0 right-0 z-50 flex justify-center px-6">
+              <div className={cn(
+                "backdrop-blur-3xl border px-5 py-2 rounded-full flex items-center gap-2.5",
+                isThemeLight ? "bg-amber-50 border-amber-200" : "bg-amber-500/[0.08] border-amber-500/20"
+              )}>
+                <div className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse" />
+                <span className="text-[9px] font-black uppercase tracking-widest text-amber-500">Reconnecting...</span>
               </div>
-            )}
+            </div>
+          )}
 
-            {messages.length === 0 ? (
-              <div className="h-full flex flex-col items-center justify-center text-center p-10 opacity-70">
-                <Sparkles className="w-12 h-12 mb-6 animate-pulse" />
-                <h3 className="text-xl font-black uppercase italic tracking-tighter">Start Chatting</h3>
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] mt-3 max-w-[200px] leading-relaxed">System ready for messages. Send your first message now.</p>
+          {messages.length === 0 ? (
+            <div className="h-full flex flex-col items-center justify-center text-center p-10">
+              <div className={cn(
+                "w-20 h-20 rounded-3xl flex items-center justify-center mb-6",
+                isThemeLight ? "bg-[#EB4898]/[0.08]" : "bg-[#EB4898]/[0.07]"
+              )}>
+                <Sparkles className="w-9 h-9 text-[#EB4898]" />
               </div>
-            ) : (
-              <VirtualizedMessageList
-                messages={messages}
-                currentUserId={user?.id || ''}
-                otherUserRole={otherUser.role}
-                typingUsers={typingUsers}
-              />
-            )}
-            <div ref={messagesEndRef} />
+              <h3 className={cn("text-xl font-black uppercase tracking-tight", isThemeLight ? "text-black" : "text-white")}>New Connection</h3>
+              <p className={cn("text-[10px] font-bold uppercase tracking-[0.15em] mt-3 max-w-[180px] leading-relaxed", isThemeLight ? "text-black/40" : "text-white/30")}>
+                Say hello and start the conversation
+              </p>
+            </div>
+          ) : (
+            <VirtualizedMessageList
+              messages={messages}
+              currentUserId={user?.id || ''}
+              otherUserRole={otherUser.role}
+              typingUsers={typingUsers}
+            />
+          )}
+          <div ref={messagesEndRef} />
         </div>
 
-        {/* 🛸 COMMAND INPUT */}
-        <div className={cn("p-6 backdrop-blur-3xl border-t transition-all", isThemeLight ? "bg-white/90" : "bg-background/50")}>
-          
+        {/* NEXUS COMMAND INPUT */}
+        <div className={cn(
+          "shrink-0 px-4 pb-5 pt-3 backdrop-blur-3xl border-t transition-all",
+          isThemeLight ? "bg-white/90 border-black/[0.06]" : "bg-[#0d0d14]/90 border-white/[0.05]"
+        )}>
+
           <AnimatePresence>
-              {showEmojiPicker && (
-                <motion.div 
-                  initial={{ height: 0, opacity: 0 }} 
-                  animate={{ height: 'auto', opacity: 1 }} 
-                  exit={{ height: 0, opacity: 0 }} 
-                  className="pb-4 flex flex-wrap gap-2 justify-center"
-                >
-                    {QUICK_EMOJIS.map(emoji => (
-                        <button 
-                          key={emoji} 
-                          type="button"
-                          onClick={() => { setNewMessage(p => p + emoji); setShowEmojiPicker(false); }} 
-                          className="w-10 h-10 flex items-center justify-center text-xl rounded-xl hover:bg-white/10 transition-all active:scale-90"
-                        >
-                          {emoji}
-                        </button>
-                    ))}
-                </motion.div>
-              )}
+            {showEmojiPicker && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                className="pb-3 overflow-hidden"
+              >
+                <div className="flex flex-wrap gap-1.5 justify-center py-2">
+                  {QUICK_EMOJIS.map(emoji => (
+                    <button
+                      key={emoji}
+                      type="button"
+                      onClick={() => { setNewMessage(p => p + emoji); setShowEmojiPicker(false); }}
+                      className={cn(
+                        "w-10 h-10 flex items-center justify-center text-xl rounded-xl transition-all active:scale-90",
+                        isThemeLight ? "hover:bg-black/[0.06]" : "hover:bg-white/[0.07]"
+                      )}
+                    >
+                      {emoji}
+                    </button>
+                  ))}
+                </div>
+              </motion.div>
+            )}
           </AnimatePresence>
 
-          <form onSubmit={handleSendMessage} className="flex gap-3 items-center">
+          <form onSubmit={handleSendMessage} className="flex gap-2.5 items-center">
             <button
-                type="button"
-                onClick={() => setShowEmojiPicker(p => !p)}
-                className={cn("shrink-0 w-14 h-14 rounded-2xl flex items-center justify-center transition-all border", isThemeLight ? "bg-black/5 border-black/5 text-black" : "bg-white/5 border-white/10 text-white/70")}
+              type="button"
+              onClick={() => setShowEmojiPicker(p => !p)}
+              className={cn(
+                "shrink-0 w-12 h-12 rounded-2xl flex items-center justify-center transition-all border",
+                showEmojiPicker
+                  ? "bg-[#EB4898]/[0.12] border-[#EB4898]/30 text-[#EB4898]"
+                  : (isThemeLight
+                      ? "bg-black/[0.05] border-black/[0.06] text-black/50 hover:bg-black/[0.09]"
+                      : "bg-white/[0.05] border-white/[0.07] text-white/40 hover:bg-white/[0.09]")
+              )}
             >
               <Smile className="w-5 h-5" />
             </button>
 
             <div className="flex-1 relative">
-                <input
-                  value={newMessage}
-                  onChange={(e) => { setNewMessage(e.target.value); if (e.target.value.trim()) startTyping(); else stopTyping(); }}
-                  placeholder={isAtLimit ? "LIMIT REACHED" : "TRANSMIT LOGS..."}
-                  className={cn(
-                      "w-full h-14 pl-6 pr-6 rounded-2xl text-[14px] font-bold outline-none transition-all border",
-                      isThemeLight ? "bg-black/5 border-black/5 text-black" : "bg-white/[0.05] border-white/5 text-white placeholder:text-white/20"
-                  )}
-                  disabled={sendMessage.isPending || isAtLimit}
-                />
+              <input
+                value={newMessage}
+                onChange={(e) => { setNewMessage(e.target.value); if (e.target.value.trim()) startTyping(); else stopTyping(); }}
+                placeholder={isAtLimit ? "LIMIT REACHED" : "Message..."}
+                className={cn(
+                  "w-full h-12 pl-5 pr-5 rounded-2xl text-[14px] font-medium outline-none transition-all border focus:ring-2 focus:ring-[#EB4898]/20",
+                  isThemeLight
+                    ? "bg-[#f0f0f5] border-black/[0.07] text-black placeholder:text-black/30 focus:border-[#EB4898]/30 focus:bg-white"
+                    : "bg-white/[0.05] border-white/[0.07] text-white placeholder:text-white/20 focus:border-[#EB4898]/30 focus:bg-white/[0.07]"
+                )}
+                disabled={sendMessage.isPending || isAtLimit}
+              />
             </div>
 
             <motion.button
               type="submit"
               disabled={!newMessage.trim() || sendMessage.isPending || isAtLimit}
               className={cn(
-                "shrink-0 w-14 h-14 rounded-2xl flex items-center justify-center transition-all",
-                newMessage.trim() && !isAtLimit 
-                  ? "bg-gradient-to-br from-[#EB4898] to-[#FF4D00] text-white shadow-lg shadow-[#EB4898]/20" 
-                  : (isThemeLight ? "bg-black/5 text-black/20 border border-black/5" : "bg-white/5 text-white/20 border border-white/5")
+                "shrink-0 w-12 h-12 rounded-2xl flex items-center justify-center transition-all",
+                newMessage.trim() && !isAtLimit
+                  ? "bg-gradient-to-br from-[#EB4898] to-[#FF4D00] text-white shadow-lg shadow-[#EB4898]/25 hover:brightness-110"
+                  : (isThemeLight ? "bg-black/[0.05] text-black/20 border border-black/[0.06]" : "bg-white/[0.05] text-white/15 border border-white/[0.07]")
               )}
               whileTap={{ scale: 0.9 }}
             >
-              <Send className="w-5 h-5" />
+              <Send className="w-4.5 h-4.5" />
             </motion.button>
           </form>
 
           {hasMonthlyLimit && (
-              <div className="flex justify-center mt-4">
-                  <div className={cn(
-                    "px-4 py-1.5 rounded-full border flex items-center gap-2", 
-                    isAtLimit ? "bg-red-500/10 border-red-500/20" : "bg-[#EB4898]/5 border-[#EB4898]/10"
-                  )}>
-                      <Zap className={cn("w-3.5 h-3.5", isAtLimit ? "text-red-500" : "text-[#EB4898]")} />
-                      <span className={cn("text-[9px] font-black uppercase tracking-widest italic", isAtLimit ? "text-red-500" : "text-[#EB4898]/60")}>
-                        {isAtLimit ? 'Monthly Quota Exceeded' : `${messagesRemaining} Messages Remaining`}
-                      </span>
-                  </div>
+            <div className="flex justify-center mt-3">
+              <div className={cn(
+                "px-4 py-1.5 rounded-full border flex items-center gap-2",
+                isAtLimit
+                  ? "bg-red-500/[0.08] border-red-500/20"
+                  : (isThemeLight ? "bg-[#EB4898]/[0.06] border-[#EB4898]/15" : "bg-[#EB4898]/[0.05] border-[#EB4898]/10")
+              )}>
+                <Zap className={cn("w-3 h-3", isAtLimit ? "text-red-500" : "text-[#EB4898]")} />
+                <span className={cn("text-[9px] font-black uppercase tracking-widest", isAtLimit ? "text-red-500" : "text-[#EB4898]/70")}>
+                  {isAtLimit ? 'Monthly Quota Exceeded' : `${messagesRemaining} left this month`}
+                </span>
               </div>
+            </div>
           )}
         </div>
 

@@ -266,79 +266,66 @@ function QuickFilterBarComponent({ filters, onChange, onSelect, className, userR
     return (
       <div
         data-no-swipe-nav
-        className={cn(
-          'bg-transparent px-3 pt-2 pb-3',
-          className
-        )}
+        className={cn('bg-transparent px-4 pt-2 pb-3', className)}
       >
-        <div className="max-w-screen-xl mx-auto pt-1">
-          <div className="flex items-center gap-4 overflow-x-auto scrollbar-hide pb-4 stagger-enter" style={{ willChange: 'scroll-position' }}>
-            {ownerOptions.map((option) => {
-              const isActive = currentClientType === option.id;
-              const isGlobalAll = option.originalId === 'all-clients';
-              
-              return (
-                <button
-                  key={option.originalId}
-                  onPointerDown={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    if (onSelect) {
-                      onSelect(option.id as any);
+        <div className="flex items-center justify-center gap-3 overflow-x-auto scrollbar-hide pb-4" style={{ willChange: 'scroll-position' }}>
+          {ownerOptions.map((option) => {
+            const isActive = currentClientType === option.id;
+            const isGlobalAll = option.originalId === 'all-clients';
+
+            return (
+              <button
+                key={option.originalId}
+                onPointerDown={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  if (onSelect) {
+                    onSelect(option.id as any);
+                  } else {
+                    if (option.id === 'all') {
+                      onChange({ ...filters, clientType: 'all', clientGender: 'any' });
                     } else {
-                      if (option.id === 'all') {
-                        onChange({ ...filters, clientType: 'all', clientGender: 'any' });
-                      } else {
-                        onChange({ ...filters, clientType: option.id as any });
-                      }
+                      onChange({ ...filters, clientType: option.id as any });
                     }
-                  }}
-                  className={cn(
-                    smoothButtonClass, 
-                  'relative flex-shrink-0 overflow-hidden border transition-all duration-200 group',
-                  isGlobalAll ? 'w-32 h-52 rounded-[3.5rem]' : 'w-28 h-40 rounded-[2.2rem]',
+                  }
+                }}
+                className={cn(
+                  smoothButtonClass,
+                  'relative flex-shrink-0 overflow-hidden border transition-all duration-200',
+                  isGlobalAll ? 'w-28 h-44 rounded-[3rem]' : 'w-24 h-36 rounded-[2rem]',
                   isActive
-                    ? 'border-primary ring-2 ring-primary ring-offset-2 scale-[1.03] shadow-lg'
-                    : 'border-white/60 shadow-md'
-                  )}
-                  style={{ contain: 'paint', willChange: 'transform, opacity' }}
-                >
-                    {/* Unified Premium Overlay for better text contrast */}
-                    <div className={cn(
-                      "absolute inset-0 z-10 transition-colors duration-300",
-                      isActive 
-                        ? (isLight ? "bg-white/40" : "bg-black/40") 
-                        : (isLight ? "bg-white/60" : "bg-black/60")
-                    )} />
-
-                <QuickFilterImage 
-                  src={option.image} 
-                  alt={option.label}
-                />
-
-                    <div className={cn(
-                      "absolute inset-0 flex flex-col items-center justify-center z-20 transition-all duration-300",
-                      isLight ? "text-black" : "text-white",
-                      "font-black"
-                    )}>
-                      <div className={cn(
-                        "mb-1 transition-all duration-300 drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]", 
-                        isActive && (isGlobalAll ? "scale-110 drop-shadow-[0_0_15px_rgba(255,255,255,0.9)]" : "scale-115 drop-shadow-[0_0_20px_rgba(255,255,255,1)]")
-                      )}>
-                        {option.icon}
-                      </div>
-                      <span className="text-[10px] font-black uppercase tracking-[0.2em] mb-0.5 drop-shadow-md">{option.description}</span>
-                      <span className={cn("font-black whitespace-nowrap uppercase tracking-tighter drop-shadow-lg", isGlobalAll ? "text-2xl" : "text-sm")}>{option.label}</span>
-                    </div>
-                  {isActive && (
-                    <div className="absolute top-2 right-2 z-30 w-5 h-5 bg-orange-500 rounded-full flex items-center justify-center">
-                      <Check className="w-3 h-3 text-white" />
-                    </div>
-                  )}
-                </button>
-              );
-            })}
-          </div>
+                    ? 'border-primary/80 ring-2 ring-primary/60 ring-offset-1 ring-offset-transparent scale-[1.06] shadow-[0_8px_32px_rgba(235,72,152,0.35)]'
+                    : (isLight ? 'border-black/15 shadow-md' : 'border-white/15 shadow-md')
+                )}
+                style={{ contain: 'paint', willChange: 'transform, opacity' }}
+              >
+                <div className={cn(
+                  "absolute inset-0 z-10 transition-colors duration-300",
+                  isActive
+                    ? (isLight ? "bg-white/35" : "bg-black/35")
+                    : (isLight ? "bg-white/55" : "bg-black/55")
+                )} />
+                <QuickFilterImage src={option.image} alt={option.label} />
+                <div className={cn(
+                  "absolute inset-0 flex flex-col items-center justify-center z-20 transition-all duration-300",
+                  isLight ? "text-black" : "text-white",
+                  "font-black"
+                )}>
+                  <div className={cn("mb-1 transition-all duration-300 drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]",
+                    isActive && "scale-110 drop-shadow-[0_0_18px_rgba(255,255,255,0.95)]")}>
+                    {option.icon}
+                  </div>
+                  <span className="text-[9px] font-black uppercase tracking-[0.2em] mb-0.5 drop-shadow-md opacity-80">{option.description}</span>
+                  <span className={cn("font-black whitespace-nowrap uppercase tracking-tighter drop-shadow-lg", isGlobalAll ? "text-xl" : "text-xs")}>{option.label}</span>
+                </div>
+                {isActive && (
+                  <div className="absolute top-2 right-2 z-30 w-5 h-5 bg-[#EB4898] rounded-full flex items-center justify-center shadow-lg shadow-[#EB4898]/40">
+                    <Check className="w-3 h-3 text-white" />
+                  </div>
+                )}
+              </button>
+            );
+          })}
         </div>
       </div>
     );
@@ -363,130 +350,118 @@ function QuickFilterBarComponent({ filters, onChange, onSelect, className, userR
   return (
     <div
       data-no-swipe-nav
-      className={cn(
-        'bg-transparent px-3 pt-2 pb-3',
-        className
-      )}
+      className={cn('bg-transparent px-4 pt-2 pb-3', className)}
     >
-      <div className="max-w-screen-xl mx-auto pt-1">
-        {/* Main filter cards — horizontal scroll */}
-        <div className="flex items-center gap-4 overflow-x-auto scrollbar-hide pb-4 stagger-enter" style={{ willChange: 'scroll-position' }}>
-          {/* ALL card */}
-          <button
-            onPointerDown={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              haptics.tap();
-              saveQuickFilter([]);
-              onChange({ ...filters, categories: [], listingType: 'both' });
-            }}
-            className={cn(
-              smoothButtonClass,
-              'relative flex-shrink-0 w-32 h-52 rounded-[3.5rem] overflow-hidden border transition-all duration-200 group',
-              clientIsAllSelected
-                ? 'border-primary ring-2 ring-primary ring-offset-2 scale-[1.08] shadow-[0_0_40px_rgba(255,107,107,0.6)] brightness-110'
-                : 'border-white/60 shadow-md hover:brightness-110 hover:scale-[1.02]'
-            )}
-            style={{ contain: 'paint', willChange: 'transform, opacity, filter' }}
-          >
-            {/* Radar scanning effect on active */}
-            {clientIsAllSelected && (
-              <div className="absolute inset-0 z-15 pointer-events-none">
-                <div className="absolute inset-0 rounded-[3rem] bg-gradient-to-br from-purple-400/20 via-transparent to-transparent animate-pulse" />
-                <div className="absolute inset-0 rounded-[3rem] border border-purple-400/40 animate-[pulse_2s_ease-in-out_infinite]" />
-              </div>
-            )}
-
-            <div className={cn(
-              "absolute inset-0 z-10 transition-colors duration-300",
-              clientIsAllSelected
-                ? (isLight ? "bg-white/40" : "bg-black/40")
-                : (isLight ? "bg-white/60" : "bg-black/60")
-            )} />
-
-            <QuickFilterImage
-              src={POKER_CARD_PHOTOS['all-clients'] || '/images/filters/all.jpg'}
-              alt="All"
-            />
-
-            <div className={cn(
-              "absolute inset-0 flex flex-col items-center justify-center z-20 transition-all duration-300",
-              isLight ? "text-black" : "text-white",
-              "font-black"
-            )}>
-              <Globe className={cn("w-8 h-8 mb-1 transition-all duration-300", clientIsAllSelected && "scale-125 drop-shadow-[0_0_20px_rgba(168,85,247,0.9)]")} />
-              <span className="text-[10px] font-black uppercase tracking-[0.2em] mb-0.5">Global</span>
-              <span className="text-2xl font-black uppercase tracking-tighter drop-shadow-md">ALL</span>
+      {/* Main filter cards — centered horizontal scroll */}
+      <div className="flex items-center justify-center gap-3 overflow-x-auto scrollbar-hide pb-4" style={{ willChange: 'scroll-position' }}>
+        {/* ALL card */}
+        <button
+          onPointerDown={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            haptics.tap();
+            saveQuickFilter([]);
+            onChange({ ...filters, categories: [], listingType: 'both' });
+          }}
+          className={cn(
+            smoothButtonClass,
+            'relative flex-shrink-0 w-28 h-44 rounded-[3rem] overflow-hidden border transition-all duration-200',
+            clientIsAllSelected
+              ? 'border-primary/80 ring-2 ring-primary/60 ring-offset-1 ring-offset-transparent scale-[1.08] shadow-[0_8px_40px_rgba(168,85,247,0.5)] brightness-110'
+              : (isLight ? 'border-black/15 shadow-md' : 'border-white/15 shadow-md')
+          )}
+          style={{ contain: 'paint', willChange: 'transform, opacity, filter' }}
+        >
+          {clientIsAllSelected && (
+            <div className="absolute inset-0 z-15 pointer-events-none">
+              <div className="absolute inset-0 rounded-[3rem] bg-gradient-to-br from-purple-400/15 via-transparent to-transparent animate-pulse" />
             </div>
-            {clientIsAllSelected && (
-              <div className="absolute top-2 right-2 z-30 w-6 h-6 bg-gradient-to-br from-purple-400 to-purple-600 rounded-full flex items-center justify-center shadow-lg shadow-purple-500/50 animate-pulse">
-                <Check className="w-3.5 h-3.5 text-white drop-shadow-md" />
-              </div>
-            )}
-          </button>
+          )}
 
-          {categories.map((category) => {
-            const isActive = filters.categories.includes(category.id);
-            const photo = categoryPhotos[category.id];
-            
-            return (
-              <button
-                key={category.id}
-                onPointerDown={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  haptics.tap();
-                  handleCategorySelect(category.id);
-                }}
-                className={cn(
-                  smoothButtonClass,
-                  'relative flex-shrink-0 w-28 h-40 rounded-[2.2rem] overflow-hidden border transition-all duration-200 group',
-                  isActive
-                    ? 'border-primary ring-2 ring-primary ring-offset-2 scale-[1.08] shadow-[0_0_30px_rgba(255,107,107,0.6)] brightness-110'
-                    : 'border-white/60 shadow-md hover:brightness-110 hover:scale-[1.02]'
-                )}
-                style={{ contain: 'paint', willChange: 'transform, opacity, filter' }}
-              >
-                {/* Radar scanning effect on active */}
-                {isActive && (
-                  <div className="absolute inset-0 z-15 pointer-events-none">
-                    <div className="absolute inset-0 rounded-[2rem] bg-gradient-to-br from-orange-400/20 via-transparent to-transparent animate-pulse" />
-                    <div className="absolute inset-0 rounded-[2rem] border border-orange-400/40 animate-[pulse_2s_ease-in-out_infinite]" />
-                  </div>
-                )}
+          <div className={cn(
+            "absolute inset-0 z-10 transition-colors duration-300",
+            clientIsAllSelected
+              ? (isLight ? "bg-white/35" : "bg-black/35")
+              : (isLight ? "bg-white/55" : "bg-black/55")
+          )} />
 
-                <div className={cn(
-                  "absolute inset-0 z-10 transition-colors duration-300",
-                  isActive
-                    ? (isLight ? "bg-white/40" : "bg-black/40")
-                    : (isLight ? "bg-white/60" : "bg-black/60")
-                )} />
+          <QuickFilterImage
+            src={POKER_CARD_PHOTOS['all-clients'] || '/images/filters/all.jpg'}
+            alt="All"
+          />
 
-                <QuickFilterImage
-                  src={photo}
-                  alt={category.label}
-                />
+          <div className={cn(
+            "absolute inset-0 flex flex-col items-center justify-center z-20 transition-all duration-300",
+            isLight ? "text-black" : "text-white",
+            "font-black"
+          )}>
+            <Globe className={cn("w-7 h-7 mb-1 transition-all duration-300", clientIsAllSelected && "scale-125 drop-shadow-[0_0_18px_rgba(168,85,247,0.95)]")} />
+            <span className="text-[9px] font-black uppercase tracking-[0.2em] mb-0.5 opacity-80">Global</span>
+            <span className="text-xl font-black uppercase tracking-tighter drop-shadow-md">ALL</span>
+          </div>
+          {clientIsAllSelected && (
+            <div className="absolute top-2 right-2 z-30 w-5 h-5 bg-[#EB4898] rounded-full flex items-center justify-center shadow-lg shadow-[#EB4898]/40">
+              <Check className="w-3 h-3 text-white" />
+            </div>
+          )}
+        </button>
 
-                <div className={cn(
-                  "absolute inset-0 flex flex-col items-center justify-center z-20 transition-all duration-300",
-                  isLight ? "text-black" : "text-white",
-                  "font-black"
-                )}>
-                  <div className={cn("mb-1 transition-all duration-300", isActive && "scale-125 drop-shadow-[0_0_20px_rgba(255,165,0,0.9)]")}>
-                    {category.icon}
-                  </div>
-                  <span className="text-[10px] font-black uppercase tracking-[0.2em] mb-0.5">Filter</span>
-                  <span className="text-sm font-black whitespace-nowrap uppercase tracking-tight drop-shadow-md">{category.label}</span>
+        {categories.map((category) => {
+          const isActive = filters.categories.includes(category.id);
+          const photo = categoryPhotos[category.id];
+
+          return (
+            <button
+              key={category.id}
+              onPointerDown={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                haptics.tap();
+                handleCategorySelect(category.id);
+              }}
+              className={cn(
+                smoothButtonClass,
+                'relative flex-shrink-0 w-24 h-36 rounded-[2rem] overflow-hidden border transition-all duration-200',
+                isActive
+                  ? 'border-primary/80 ring-2 ring-primary/60 ring-offset-1 ring-offset-transparent scale-[1.08] shadow-[0_8px_32px_rgba(235,72,152,0.4)] brightness-110'
+                  : (isLight ? 'border-black/15 shadow-md' : 'border-white/15 shadow-md')
+              )}
+              style={{ contain: 'paint', willChange: 'transform, opacity, filter' }}
+            >
+              {isActive && (
+                <div className="absolute inset-0 z-15 pointer-events-none">
+                  <div className="absolute inset-0 rounded-[2rem] bg-gradient-to-br from-orange-400/15 via-transparent to-transparent animate-pulse" />
                 </div>
-                {isActive && (
-                  <div className="absolute top-2 right-2 z-30 w-6 h-6 bg-gradient-to-br from-orange-400 to-orange-600 rounded-full flex items-center justify-center shadow-lg shadow-orange-500/50 animate-pulse">
-                    <Check className="w-3.5 h-3.5 text-white drop-shadow-md" />
-                  </div>
-                )}
-              </button>
-            );
-          })}
-        </div>
+              )}
+
+              <div className={cn(
+                "absolute inset-0 z-10 transition-colors duration-300",
+                isActive
+                  ? (isLight ? "bg-white/35" : "bg-black/35")
+                  : (isLight ? "bg-white/55" : "bg-black/55")
+              )} />
+
+              <QuickFilterImage src={photo} alt={category.label} />
+
+              <div className={cn(
+                "absolute inset-0 flex flex-col items-center justify-center z-20 transition-all duration-300",
+                isLight ? "text-black" : "text-white",
+                "font-black"
+              )}>
+                <div className={cn("mb-1 transition-all duration-300", isActive && "scale-125 drop-shadow-[0_0_18px_rgba(255,165,0,0.95)]")}>
+                  {category.icon}
+                </div>
+                <span className="text-[9px] font-black uppercase tracking-[0.2em] mb-0.5 opacity-80">Filter</span>
+                <span className="text-xs font-black whitespace-nowrap uppercase tracking-tight drop-shadow-md">{category.label}</span>
+              </div>
+              {isActive && (
+                <div className="absolute top-2 right-2 z-30 w-5 h-5 bg-[#EB4898] rounded-full flex items-center justify-center shadow-lg shadow-[#EB4898]/40">
+                  <Check className="w-3 h-3 text-white" />
+                </div>
+              )}
+            </button>
+          );
+        })}
       </div>
     </div>
   );

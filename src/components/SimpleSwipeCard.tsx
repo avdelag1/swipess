@@ -423,7 +423,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   if (!isTop) {
     return (
       <div
-        className="absolute inset-x-2 bottom-4 top-4 rounded-none sm:rounded-[32px] overflow-hidden shadow-sm"
+        className="absolute inset-x-2 bottom-4 top-4 rounded-[28px] overflow-hidden shadow-sm"
         style={{
           pointerEvents: 'none',
           backgroundColor: 'rgba(255, 255, 255, 0.03)',
@@ -457,7 +457,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   }
 
   return (
-    <div className="absolute inset-0 flex flex-col pointer-events-auto">
+    <div className="absolute inset-x-2 top-1 bottom-0 flex flex-col pointer-events-auto">
       <motion.div
         drag
         dragMomentum={false}
@@ -485,13 +485,13 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           handlePointerLeaveForTilt();
         }}
         initial={{ scale: 0.97, opacity: 0.85 }}
-        animate={{ 
+        animate={{
           scale: 1,
           opacity: 1,
           transition: { type: 'spring', stiffness: 400, damping: 28, mass: 0.6 }
         }}
         // Photo swim effect now lives on the <img> inside CardImage (CSS keyframes)
-        className="flex-1 cursor-grab active:cursor-grabbing select-none touch-none relative w-full h-full overflow-hidden sm:rounded-[24px] sm:shadow-[0_32px_64px_-16px_rgba(0,0,0,0.5),0_16px_32px_-8px_rgba(0,0,0,0.3)] pointer-events-auto border-none gpu-ultra"
+        className="flex-1 cursor-grab active:cursor-grabbing select-none touch-none relative w-full h-full overflow-hidden rounded-[24px] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.5),0_16px_32px_-8px_rgba(0,0,0,0.3)] pointer-events-auto border-none gpu-ultra"
         style={{
           x,
           y,
