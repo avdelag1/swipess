@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, memo, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ClientSwipeContainer } from '@/components/ClientSwipeContainer';
+import { SwipessSwipeContainer } from '@/components/SwipessSwipeContainer';
 import { useSmartClientMatching } from '@/hooks/useSmartMatching';
 import { useAuth } from '@/hooks/useAuth';
 import { useFilterStore, useFilterActions } from '@/state/filterStore';
@@ -10,7 +11,7 @@ import { cn } from '@/lib/utils';
 import { OwnerInsightsDashboard } from '@/components/OwnerInsightsDashboard';
 import { OwnerAllDashboard } from '@/components/swipe/OwnerAllDashboard';
 import { triggerHaptic } from '@/utils/haptics';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Users, Building2, Zap } from 'lucide-react';
 import { DistanceSlider } from '@/components/swipe/DistanceSlider';
 import type { QuickFilterCategory } from '@/types/filters';
 import { OWNER_INTENT_CARDS } from '@/components/swipe/CardData';
@@ -19,6 +20,8 @@ import type { ClientFilters } from '@/hooks/smartMatching/types';
 import { AtmosphericLayer } from '@/components/AtmosphericLayer';
 import { useNavigate } from 'react-router-dom';
 import { SwipeInsightsModal } from '@/components/SwipeInsightsModal';
+
+const OWNER_SWIPE_MODE_KEY = 'swipess_owner_swipe_mode';
 
 interface EnhancedOwnerDashboardProps {
   onClientInsights?: (clientId: string) => void;
@@ -149,6 +152,24 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
     if (card.listingType) setListingType(card.listingType as any);
   }, [setClientType, setListingType, setActiveCategory, setCategories, setOwnerPhase]);
 
+  // Clients ⇆ Listings toggle — persisted in localStorage
+  const [ownerSwipeMode, setOwnerSwipeModeState] = useState<'clients' | 'listings'>(() => {
+    try { return (localStorage.getItem(OWNER_SWIPE_MODE_KEY) as 'clients' | 'listings') || 'clients'; } catch { return 'clients'; }
+  });
+  const setOwnerSwipeMode = useCallback((mode: 'clients' | 'listings') => {
+    triggerHaptic('light');
+    setOwnerSwipeModeState(mode);
+    try { localStorage.setItem(OWNER_SWIPE_MODE_KEY, mode); } catch {}
+  }, []);
+
+  // Quick-access: jump straight to swipe deck with 'all-clients' default
+  const quickAccessSwipeDeck = useCallback(() => {
+    triggerHaptic('medium');
+    setCategories(['all-clients']);
+    setActiveCategory('all-clients');
+    setOwnerPhase('swipe');
+  }, [setCategories, setActiveCategory, setOwnerPhase]);
+
   // Skip radius → jump straight to swipe deck
   const jumpToSwipeDeck = useCallback(() => {
     triggerHaptic('medium');
@@ -206,6 +227,23 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
               willChange: 'transform, opacity'
             }}
           >
+            {/* Quick-access chip — skip card selection, jump straight to swipe */}
+            <motion.button
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4, duration: 0.4 }}
+              onClick={quickAccessSwipeDeck}
+              className={cn(
+                "absolute top-4 right-4 z-20 flex items-center gap-1.5 px-3.5 py-2 rounded-2xl border text-[10px] font-black uppercase tracking-[0.2em] transition-all active:scale-95",
+                isLight
+                  ? "bg-white/80 border-black/10 text-black/70 shadow-sm hover:bg-white"
+                  : "bg-white/[0.08] border-white/[0.12] text-white/70 hover:bg-white/[0.14]"
+              )}
+              style={{ backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}
+            >
+              <Zap className="w-3 h-3" />
+              Show Deck
+            </motion.button>
             <div className="flex-1 w-full relative z-10 flex flex-col justify-center">
               <OwnerAllDashboard onCardSelect={handleCardSelect} />
             </div>
@@ -237,7 +275,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
             />
           </motion.div>
         ) : (
-          /* SWIPE PHASE — always shows ClientSwipeContainer (client profiles only) */
+          /* SWIPE PHASE — Clients or Listings, toggled by owner */
           <motion.div
             key="owner-dash-swipe"
             initial={{ opacity: 0, y: 60, scale: 0.94 }}
@@ -245,19 +283,80 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
             exit={{ opacity: 0, y: -40, scale: 0.98 }}
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
             className="flex-1 min-h-0 relative z-10 flex flex-col w-full"
-            style={{
-              willChange: 'transform, opacity',
-            }}
+            style={{ willChange: 'transform, opacity' }}
           >
-            <div className="flex-1 min-h-0 h-full">
-              <ClientSwipeContainer
-                category={activeCategory as any}
-                profiles={clientProfiles}
-                isLoading={isLoading}
-                onBack={() => { triggerHaptic('light'); setOwnerPhase('kilometer'); }}
-                onClientInsights={handleClientTap}
-              />
+            {/* Clients ⇆ Listings toggle chip */}
+            <div
+              className="absolute top-4 right-4 z-30 flex items-center gap-1 p-1 rounded-2xl border"
+              style={{
+                background: isLight ? 'rgba(255,255,255,0.88)' : 'rgba(15,20,40,0.65)',
+                backdropFilter: 'blur(20px)',
+                WebkitBackdropFilter: 'blur(20px)',
+                borderColor: isLight ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.10)',
+                boxShadow: isLight ? '0 6px 20px rgba(0,0,0,0.08)' : '0 8px 28px rgba(0,0,0,0.35)',
+              }}
+            >
+              <button
+                onClick={() => setOwnerSwipeMode('clients')}
+                className={cn(
+                  "flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-[0.15em] transition-all",
+                  ownerSwipeMode === 'clients'
+                    ? "bg-[#f43f5e] text-white shadow-sm"
+                    : (isLight ? "text-black/50 hover:text-black/80" : "text-white/50 hover:text-white/80")
+                )}
+              >
+                <Users className="w-3 h-3" />
+                Clients
+              </button>
+              <button
+                onClick={() => setOwnerSwipeMode('listings')}
+                className={cn(
+                  "flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-[0.15em] transition-all",
+                  ownerSwipeMode === 'listings'
+                    ? "bg-[#f97316] text-white shadow-sm"
+                    : (isLight ? "text-black/50 hover:text-black/80" : "text-white/50 hover:text-white/80")
+                )}
+              >
+                <Building2 className="w-3 h-3" />
+                Listings
+              </button>
             </div>
+
+            <AnimatePresence mode="wait">
+              {ownerSwipeMode === 'clients' ? (
+                <motion.div
+                  key="swipe-clients"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 20 }}
+                  transition={{ duration: 0.25 }}
+                  className="flex-1 min-h-0 h-full"
+                >
+                  <ClientSwipeContainer
+                    category={activeCategory as any}
+                    profiles={clientProfiles}
+                    isLoading={isLoading}
+                    onBack={() => { triggerHaptic('light'); setOwnerPhase('kilometer'); }}
+                    onClientInsights={handleClientTap}
+                  />
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="swipe-listings"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.25 }}
+                  className="flex-1 min-h-0 h-full"
+                >
+                  <SwipessSwipeContainer
+                    onListingTap={() => {}}
+                    filters={mergedFilters as any}
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
+
             {typeof document !== 'undefined' && document.body && (
               <SwipeInsightsModal
                 open={!!selectedProfileId}
