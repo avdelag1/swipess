@@ -47,7 +47,9 @@ export const SwipeExhaustedState = ({
     { id: 'hire', label: 'Services' },
   ];
 
-  const categories = role === 'owner' ? ownerCategories : clientCategories;
+  // Filter out the active category so the grid doesn't show "switch to current"
+  const allCategories = role === 'owner' ? ownerCategories : clientCategories;
+  const categories = allCategories.filter((c) => c.id !== activeCategory);
 
   return (
     <div className="relative z-50 h-full w-full flex flex-col items-center justify-center bg-transparent px-6 pt-16">
@@ -68,10 +70,10 @@ export const SwipeExhaustedState = ({
         {/* Distance slider — centered, the main control */}
         {onRadiusChange && onDetectLocation && (
           <div className={cn(
-            "w-full rounded-[2.5rem] border p-6 relative transition-all",
+            "w-full rounded-[2.5rem] border p-6 pt-12 relative transition-all",
             isLight ? "bg-white border-black/10 shadow-2xl" : "bg-[#0d0d0d]/80 border-white/10 shadow-[0_30px_80px_rgba(0,0,0,0.4)]"
           )}>
-            {/* Main filter icon button — top-right of slider */}
+            {/* Main filter icon button — top-right of slider, isolated above slider content */}
             {onOpenFilters && (
               <button
                 onClick={() => {
@@ -79,10 +81,11 @@ export const SwipeExhaustedState = ({
                   onOpenFilters();
                 }}
                 className={cn(
-                  "absolute top-3 right-3 p-2 rounded-lg transition-all active:scale-90",
-                  isLight ? "hover:bg-black/5" : "hover:bg-white/10"
+                  "absolute top-3 right-3 z-10 w-9 h-9 flex items-center justify-center rounded-xl transition-all active:scale-90",
+                  isLight ? "bg-black/5 hover:bg-black/10" : "bg-white/8 hover:bg-white/15"
                 )}
                 title="Open advanced filters"
+                aria-label="Open advanced filters"
               >
                 <SlidersHorizontal className="w-4 h-4 text-primary" />
               </button>
@@ -108,7 +111,10 @@ export const SwipeExhaustedState = ({
             <p className={cn("text-[10px] font-bold uppercase tracking-widest opacity-50", isLight ? "text-black" : "text-white")}>
               Or try another
             </p>
-            <div className={cn("grid gap-2", role === 'owner' ? 'grid-cols-3' : 'grid-cols-2')}>
+            <div className={cn(
+              "grid gap-2",
+              categories.length >= 3 ? 'grid-cols-3' : categories.length === 2 ? 'grid-cols-2' : 'grid-cols-1'
+            )}>
               {categories.map((cat) => (
                 <button
                   key={cat.id}
