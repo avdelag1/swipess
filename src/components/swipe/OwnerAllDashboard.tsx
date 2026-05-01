@@ -6,10 +6,6 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import {
   OWNER_INTENT_CARDS,
   OwnerIntentCard,
-  PK_W,
-  PK_H,
-  OWNER_PK_H,
-  PK_ASPECT,
   POKER_CARD_PHOTOS,
 } from './SwipeConstants';
 import { deckFadeVariants } from '@/utils/modernAnimations';
