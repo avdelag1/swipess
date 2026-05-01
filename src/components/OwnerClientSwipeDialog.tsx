@@ -2,9 +2,9 @@
 import { useState, lazy, Suspense } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ClientSwipeContainer } from '@/components/ClientSwipeContainer';
-// Lazy-load the 50kb ClientInsightsDialog — only needed when insights panel opens
-const ClientInsightsDialog = lazy(() =>
-  import('@/components/ClientInsightsDialog').then(m => ({ default: m.ClientInsightsDialog }))
+// Lazy-load the 50kb LikedClientInsightsModal — only needed when insights panel opens
+const LikedClientInsightsModal = lazy(() =>
+  import('@/components/LikedClientInsightsModal').then(m => ({ default: m.LikedClientInsightsModal }))
 );
 import { useClientProfiles } from '@/hooks/useClientProfiles';
 
@@ -51,13 +51,13 @@ export function OwnerClientSwipeDialog({ open, onOpenChange }: OwnerClientSwipeD
       </Dialog>
 
       <Suspense fallback={null}>
-        <ClientInsightsDialog
+        <LikedClientInsightsModal
           open={showInsights}
           onOpenChange={(open) => {
             setShowInsights(open);
             if (!open) setSelectedClientId(null);
           }}
-          profile={selectedProfile || null}
+          client={selectedProfile || null}
         />
       </Suspense>
     </>

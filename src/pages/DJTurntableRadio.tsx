@@ -84,7 +84,7 @@ export default function DJTurntableRadio() {
     ? 'bg-white/10 border border-white/5 backdrop-blur-md'
     : 'bg-black/5 border border-black/5 backdrop-blur-md';
 
-  const neumBtnActive = 'active:scale-[0.94] transition-transform duration-[40ms]';
+  const neumBtnActive = 'active:scale-[0.94] transition-transform';
 
   return (
     <div 
