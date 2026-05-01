@@ -60,7 +60,7 @@ export function AIListingWizard() {
   const [category, setCategory] = useState<typeof CATEGORIES[number]['id'] | null>(null);
   const [prompt, setPrompt] = useState('');
   const [price, setPrice] = useState('');
-  const [location, setLocation] = useState('');
+  const [cityLocation, setCityLocation] = useState('');
   const [images, setImages] = useState<string[]>([]);
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -89,7 +89,7 @@ export function AIListingWizard() {
       setCategory(null);
       setPrompt('');
       setPrice('');
-      setLocation('');
+      setCityLocation('');
       setImages([]);
       setImageFiles([]);
       setAiResult(null);
@@ -132,7 +132,7 @@ export function AIListingWizard() {
       Category: ${category}
       Base Information: 
       - Price: ${price}
-      - Location: ${location}
+      - Location: ${cityLocation}
       - Narrative: ${prompt}
       
       Return ONLY a JSON object with the following structure (do not include markdown):
@@ -170,7 +170,7 @@ export function AIListingWizard() {
           category,
           images: uploadedUrls,
           price: parsed.price || Number(price) || 0,
-          city: parsed.city || location || 'Tulum'
+          city: parsed.city || cityLocation || 'Tulum'
         });
         setStep('review');
         triggerHaptic('success');
@@ -393,8 +393,8 @@ export function AIListingWizard() {
                                  <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-cyan-400 opacity-70" />
                                  <input
                                     type="text"
-                                    value={location}
-                                    onChange={(e) => setLocation(e.target.value)}
+                                    value={cityLocation}
+                                    onChange={(e) => setCityLocation(e.target.value)}
                                     placeholder="Tulum, MX"
                                     className={cn("w-full h-14 pl-12 pr-6 rounded-2xl text-sm font-bold transition-all uppercase", inputCls)}
                                  />
