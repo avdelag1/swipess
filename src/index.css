@@ -203,7 +203,7 @@ html {
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --top-bar-height: 72px;
-  --bottom-nav-height: 80px;
+  --bottom-nav-height: 64px;
 }
 
 body {

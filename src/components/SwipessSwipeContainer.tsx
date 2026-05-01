@@ -1207,7 +1207,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
 
       {/* Action buttons — Floating over the card near bottom nav */}
       {hasCards && (
-        <div className="absolute bottom-[calc(var(--bottom-nav-height,72px)+16px)] left-0 right-0 z-[100] flex justify-center pointer-events-auto">
+        <div className="absolute bottom-[calc(var(--bottom-nav-height,64px)+8px)] left-0 right-0 z-[100] flex justify-center pointer-events-auto">
           <SwipeActionButtonBar
             onLike={handleButtonLike}
             onDislike={handleButtonDislike}

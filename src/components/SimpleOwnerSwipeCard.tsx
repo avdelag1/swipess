@@ -13,7 +13,7 @@
 
 import { memo, useRef, useState, useCallback, useMemo, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { motion, useMotionValue, useTransform, PanInfo, animate, useDragControls } from 'framer-motion';
-import { MapPin, DollarSign, Briefcase, Flag, Share2 } from 'lucide-react';
+import { MapPin, DollarSign, Briefcase, Flag, Share2, ThumbsUp, ThumbsDown } from 'lucide-react';
 import { triggerHaptic } from '@/utils/haptics';
 import { cn } from '@/lib/utils';
 
@@ -616,7 +616,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   }
 
   return (
-    <div className="absolute inset-x-2 top-1 bottom-0 flex flex-col">
+    <div className="absolute inset-0 flex flex-col">
       <motion.div
         drag
         dragControls={dragControls}
@@ -774,21 +774,69 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           </div>
         </div>
 
+        {/* LIKE stamp — shown top-right when swiping right */}
         <motion.div
-          className="absolute top-28 left-8 z-30 pointer-events-none"
-          style={{ opacity: likeOpacity }}
+          className="absolute top-10 right-6 z-30 pointer-events-none"
+          style={{ opacity: likeOpacity, willChange: 'opacity' }}
         >
-          <div className="px-6 py-3 rounded-xl border-4 border-emerald-500 text-emerald-500 font-black text-3xl tracking-wider" style={{ transform: 'rotate(-12deg)' }}>
-            YES!
+          <div className="flex flex-col items-center gap-1.5" style={{ transform: 'rotate(15deg) translateZ(0)' }}>
+            <div
+              className="w-[72px] h-[72px] rounded-full flex items-center justify-center"
+              style={{
+                background: 'rgba(16,185,129,0.15)',
+                backdropFilter: 'blur(8px)',
+                border: '3px solid #10b981',
+                boxShadow: '0 0 28px rgba(16,185,129,0.55), inset 0 0 12px rgba(16,185,129,0.15)',
+              }}
+            >
+              <ThumbsUp className="w-9 h-9 text-emerald-400" fill="currentColor" strokeWidth={0} />
+            </div>
+            <div
+              className="px-4 py-1 rounded-lg"
+              style={{
+                border: '2.5px solid #10b981',
+                background: 'rgba(16,185,129,0.12)',
+                backdropFilter: 'blur(6px)',
+                boxShadow: '0 0 18px rgba(16,185,129,0.4)',
+              }}
+            >
+              <span className="font-black text-xl tracking-[0.18em] uppercase text-emerald-400" style={{ textShadow: '0 0 14px rgba(16,185,129,0.9)' }}>
+                LIKE
+              </span>
+            </div>
           </div>
         </motion.div>
 
+        {/* NOPE stamp — shown top-left when swiping left */}
         <motion.div
-          className="absolute top-28 right-8 z-30 pointer-events-none"
-          style={{ opacity: passOpacity }}
+          className="absolute top-10 left-6 z-30 pointer-events-none"
+          style={{ opacity: passOpacity, willChange: 'opacity' }}
         >
-          <div className="px-6 py-3 rounded-xl border-4 border-red-600 text-red-600 font-black text-3xl tracking-wider" style={{ transform: 'rotate(12deg)' }}>
-            NOPE
+          <div className="flex flex-col items-center gap-1.5" style={{ transform: 'rotate(-15deg) translateZ(0)' }}>
+            <div
+              className="px-5 py-2.5 rounded-xl"
+              style={{
+                border: '3px solid #f43f5e',
+                background: 'rgba(244,63,94,0.12)',
+                backdropFilter: 'blur(8px)',
+                boxShadow: '0 0 28px rgba(244,63,94,0.5), inset 0 0 12px rgba(244,63,94,0.1)',
+              }}
+            >
+              <span className="font-black text-4xl tracking-[0.15em] uppercase text-rose-400" style={{ textShadow: '0 0 16px rgba(244,63,94,0.9)' }}>
+                NOPE
+              </span>
+            </div>
+            <div
+              className="w-[52px] h-[52px] rounded-full flex items-center justify-center"
+              style={{
+                background: 'rgba(244,63,94,0.15)',
+                backdropFilter: 'blur(6px)',
+                border: '2.5px solid #f43f5e',
+                boxShadow: '0 0 18px rgba(244,63,94,0.45)',
+              }}
+            >
+              <ThumbsDown className="w-6 h-6 text-rose-400" fill="currentColor" strokeWidth={0} />
+            </div>
           </div>
         </motion.div>
 
@@ -830,7 +878,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
         <div
           key={`info-${currentImageIndex % 4}`}
           className={cn(
-            "absolute left-6 bottom-[210px] z-30 pointer-events-none flex flex-col justify-end max-w-[85%]",
+            "absolute left-6 bottom-[178px] z-30 pointer-events-none flex flex-col justify-end max-w-[85%]",
             fullScreen && "pb-[calc(100px+var(--safe-bottom))]"
           )}
         >

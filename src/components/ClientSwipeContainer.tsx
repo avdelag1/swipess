@@ -980,7 +980,7 @@ const ClientSwipeContainerComponent = ({
 
         {/* 🛸 ACTION BAR: Floating over the card near the bottom nav */}
         {topCard && (
-          <div className="absolute bottom-[calc(var(--bottom-nav-height,72px)+16px)] left-0 right-0 z-[60] flex justify-center pointer-events-auto">
+          <div className="absolute bottom-[calc(var(--bottom-nav-height,64px)+8px)] left-0 right-0 z-[60] flex justify-center pointer-events-auto">
             <SwipeActionButtonBar
               onLike={handleButtonLike}
               onDislike={handleButtonDislike}
