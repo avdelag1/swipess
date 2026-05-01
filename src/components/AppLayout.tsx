@@ -20,6 +20,7 @@ import { cn } from '@/lib/utils';
 import { SentientHud } from './SentientHud';
 import { VapIdCardModal } from './VapIdCardModal';
 import { RadioMiniPlayer } from './RadioMiniPlayer';
+import { uiSounds } from '@/utils/uiSounds'; // ZENITH AUDIO ENGINE
 
 const NotificationSystem = lazy(() =>
   import('@/components/NotificationSystem').then(m => ({ default: m.NotificationSystem }))
@@ -72,8 +73,27 @@ export function AppLayout({ children }: AppLayoutProps) {
     
     // Fallback for legacy listeners
     window.dispatchEvent(new CustomEvent('app-rendered'));
+
+    // 🧘 ZEN TAP: Global click listener for meditation bowl sounds
+    const handleGlobalTap = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      const isInteractive = target.closest('button, a, input, select, [role="button"]');
+      
+      const isDashboard = location.pathname === '/client/dashboard' || location.pathname === '/owner/dashboard';
+
+      if (isInteractive) {
+        uiSounds.playWaterDrop();
+      } else if (isDashboard) {
+        uiSounds.playZenBowl();
+      }
+    };
+
+    window.addEventListener('mousedown', handleGlobalTap);
     
-    return () => cancelAnimationFrame(frame);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener('mousedown', handleGlobalTap);
+    };
   }, [location.pathname]);
 
   const isPublicPreview = location.pathname.startsWith('/listing/') || location.pathname.startsWith('/profile/');

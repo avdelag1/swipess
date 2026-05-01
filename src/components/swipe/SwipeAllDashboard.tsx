@@ -66,17 +66,18 @@ export const SwipeAllDashboard = memo(({ setCategories }: SwipeAllDashboardProps
 
   return (
     <div
-      className="relative w-full flex-grow flex flex-col items-center justify-center bg-transparent overflow-hidden"
-      style={{ minHeight: 'auto' }}
+      className="relative flex-1 flex flex-col items-center justify-center bg-transparent overflow-hidden"
     >
       {/* 🛸 Swipess CENTERED STACK v14.0 */}
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="relative flex items-center justify-center transition-all"
+        className="relative flex-none flex items-center justify-center transition-all"
         style={{ 
-          height: 'min(75svh, 600px)',
-          width: `calc(min(75svh, 600px) * ${PK_ASPECT})`,
+          height: 'min(90svh, 800px)',
+          width: 'calc(min(90svh, 800px) * 0.66667)',
+          aspectRatio: '520 / 780',
+          flex: 'none'
         }}
       >
       {[...cards].reverse().map((card, reversedIdx) => {

@@ -131,53 +131,48 @@ export default function DJTurntableRadio() {
         {/* Large Frequency Display */}
         <div className="flex-1 flex flex-col items-center justify-center w-full min-h-[300px] relative">
           {/* Record Player Visualizer */}
-          <div className="absolute inset-0 flex items-center justify-center z-0 overflow-hidden pointer-events-none">
+          <div className="absolute inset-0 flex items-center justify-center z-0 pointer-events-none">
             {/* Spinning Record */}
             <motion.div
               animate={state.isPlaying ? { rotate: 360 } : {}}
-              transition={{ repeat: Infinity, duration: 6, ease: "linear" }}
+              transition={{ repeat: Infinity, duration: 10, ease: "linear" }}
               className={cn(
-                "w-[260px] h-[260px] sm:w-[340px] sm:h-[340px] rounded-full relative shadow-2xl",
-                isDark ? "shadow-black/60" : "shadow-black/20"
+                "w-[280px] h-[280px] sm:w-[400px] sm:h-[400px] rounded-full relative shadow-[0_30px_90px_rgba(0,0,0,0.5)]",
+                isDark ? "shadow-black" : "shadow-black/20"
               )}
               style={{
                 background: `radial-gradient(circle, #222 30%, #111 60%, #000 100%)`,
               }}
             >
               {/* Record Grooves */}
-              <div className="absolute inset-0 rounded-full border border-white/5 opacity-20" style={{ backgroundImage: 'repeating-radial-gradient(circle, transparent 0, transparent 2px, rgba(255,255,255,0.05) 3px)' }} />
+              <div className="absolute inset-0 rounded-full border border-white/5 opacity-30" style={{ backgroundImage: 'repeating-radial-gradient(circle, transparent 0, transparent 2px, rgba(255,255,255,0.05) 3px)' }} />
               
-              {/* Yellow Smiley Label */}
-              <div className="absolute inset-[32%] rounded-full bg-yellow-400 flex items-center justify-center shadow-lg overflow-hidden border-2 border-black/10">
-                <Smile size={64} className="text-black stroke-[2.5]" />
-              </div>
             </motion.div>
           </div>
 
           <AnimatePresence mode="wait">
             <motion.div
-              key={state.currentStation?.id || 'none'}
-              initial={{ opacity: 0, scale: 1.1, filter: 'blur(8px)' }}
-              animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
-              exit={{ opacity: 0, scale: 0.95, filter: 'blur(8px)' }}
-              transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-              className="text-center relative z-10"
+              key={state.currentStation?.id}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="flex flex-col items-center mt-8 mb-4 relative z-10"
             >
-              <div className={cn('text-[82px] sm:text-[96px] font-black leading-none tracking-tight drop-shadow-[0_8px_32px_rgba(0,0,0,0.4)]', isDark ? 'text-white' : 'text-black')}>
-                {state.currentStation?.frequency || '95.7'}
+              <div className={cn('text-[3.5rem] font-black tracking-[-0.05em] leading-none italic', isDark ? 'text-white' : 'text-black')}>
+                {state.currentStation?.frequency || '94.2'}
               </div>
-              <div className={cn('text-lg font-black tracking-[0.4em] uppercase mt-1 drop-shadow-sm', isDark ? 'text-blue-400' : 'text-primary')}>
-                FM
+              <div className={cn('text-xs font-black tracking-[0.4em] uppercase opacity-40 mt-1', isDark ? 'text-blue-400' : 'text-primary')}>
+                FM Stereo
               </div>
-              <div className={cn('text-sm font-black mt-4 tracking-widest uppercase opacity-90 drop-shadow-md', isDark ? 'text-white' : 'text-black')}>
-                {state.currentStation?.name || 'Golden Oldies'}
+              <div className={cn('text-sm font-black mt-4 tracking-[0.2em] uppercase opacity-90', isDark ? 'text-white' : 'text-black')}>
+                {state.currentStation?.name || 'Discovery Radio'}
               </div>
             </motion.div>
           </AnimatePresence>
         </div>
 
         {/* Frequency Band */}
-        <div className="w-full mb-6">
+        <div className="w-full mb-12">
           <FrequencyBand
             stationFrequencies={stationFrequencies}
             currentFrequency={currentFrequency}
@@ -187,74 +182,65 @@ export default function DJTurntableRadio() {
         </div>
 
         {/* ── Playback Controls ── */}
-        <div className="flex flex-col items-center gap-8 w-full pb-20">
+        <div className="flex flex-col items-center gap-10 w-full pb-20">
           
-          <div className="flex items-center gap-5">
+          <div className="flex items-center gap-8">
             <button
               onClick={() => { if (state.currentStation) { toggleFavorite(state.currentStation.id); triggerHaptic('success'); } }}
-              className={cn('w-12 h-12 rounded-full flex items-center justify-center', neumBtn, neumBtnActive)}
+              className={cn('w-12 h-12 rounded-full flex items-center justify-center transition-all', neumBtn, neumBtnActive)}
             >
               <Heart
-                className={cn('w-5 h-5', isStationFavorite(state.currentStation?.id || '') ? 'text-red-500' : (isDark ? 'text-white/35' : 'text-black/50'))}
+                className={cn('w-5 h-5', isStationFavorite(state.currentStation?.id || '') ? 'text-rose-500' : (isDark ? 'text-white/35' : 'text-black/50'))}
                 fill={isStationFavorite(state.currentStation?.id || '') ? 'currentColor' : 'none'}
               />
             </button>
 
             <button
               onClick={() => { changeStation('prev'); triggerHaptic('medium'); }}
-              className={cn('w-14 h-14 rounded-full flex items-center justify-center', neumBtn, neumBtnActive)}
+              className={cn('w-14 h-14 rounded-full flex items-center justify-center transition-all', neumBtn, neumBtnActive)}
             >
               <SkipBack className={cn('w-6 h-6', isDark ? 'text-white' : 'text-black')} fill="currentColor" />
             </button>
 
+            {/* 🛸 PRIMARY PLAY BUTTON */}
             <button
               onClick={() => { togglePlayPause(); triggerHaptic('heavy'); }}
               className={cn(
-                "w-24 h-24 rounded-full flex items-center justify-center relative transition-all duration-300 active:scale-90 hover:scale-105 z-20 border-2",
-                isDark ? "bg-white text-black border-white" : "bg-black text-white border-black"
+                "w-24 h-24 rounded-full flex items-center justify-center transition-all duration-300 active:scale-90 hover:scale-105 z-20 shadow-xl",
+                "bg-white text-black border border-black/5"
               )}
             >
               {state.isPlaying
-                ? <Pause className="w-10 h-10" fill="currentColor" />
-                : <Play className="w-10 h-10 ml-1" fill="currentColor" />
+                ? <Pause className="w-10 h-10 text-black" fill="currentColor" />
+                : <Play className="w-10 h-10 ml-1 text-black" fill="currentColor" />
               }
-              
-              {/* Playback Ripple Effect */}
-              {state.isPlaying && (
-                <motion.div
-                  initial={{ scale: 0.8, opacity: 0.5 }}
-                  animate={{ scale: 1.5, opacity: 0 }}
-                  transition={{ repeat: Infinity, duration: 2, ease: "easeOut" }}
-                  className={cn("absolute inset-0 rounded-full z-[-1]", isDark ? "bg-white/20" : "bg-black/10")}
-                />
-              )}
             </button>
 
             <button
               onClick={() => { changeStation('next'); triggerHaptic('medium'); }}
-              className={cn('w-14 h-14 rounded-full flex items-center justify-center', neumBtn, neumBtnActive)}
+              className={cn('w-14 h-14 rounded-full flex items-center justify-center transition-all', neumBtn, neumBtnActive)}
             >
               <SkipForward className={cn('w-6 h-6', isDark ? 'text-white' : 'text-black')} fill="currentColor" />
             </button>
 
             <button
               onClick={() => { setShowFavoritesDrawer(true); triggerHaptic('medium'); }}
-              className={cn('w-12 h-12 rounded-full flex items-center justify-center relative', neumBtn, neumBtnActive)}
+              className={cn('w-12 h-12 rounded-full flex items-center justify-center relative transition-all', neumBtn, neumBtnActive)}
             >
               <Star className={cn('w-5 h-5', isDark ? 'text-white/35' : 'text-black/50')} />
               {state.favorites.length > 0 && (
-                <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-red-500" />
+                <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]" />
               )}
             </button>
           </div>
 
-          <div className="w-full px-10">
-            <div className="flex items-center justify-between mb-2 px-1">
-              <div className="flex items-center gap-2 opacity-40">
-                <Volume2 size={12} className={isDark ? 'text-white' : 'text-black'} />
-                <span className={cn("text-[10px] font-black uppercase tracking-widest", isDark ? 'text-white' : 'text-black')}>Volume</span>
+          <div className="w-full px-12 max-w-sm">
+            <div className="flex items-center justify-between mb-3 px-1">
+              <div className="flex items-center gap-3 opacity-40">
+                <Volume2 size={14} className={isDark ? 'text-white' : 'text-black'} />
+                <span className={cn("text-[10px] font-black uppercase tracking-[0.2em]", isDark ? 'text-white' : 'text-black')}>Acoustics</span>
               </div>
-              <span className={cn("text-[10px] font-black tabular-nums tracking-wider", isDark ? 'text-blue-400' : 'text-primary')}>
+              <span className={cn("text-[10px] font-black tabular-nums tracking-widest", isDark ? 'text-blue-400' : 'text-primary')}>
                 {Math.round(state.volume * 100)}%
               </span>
             </div>

@@ -19,8 +19,8 @@ const SubscriptionPackages = lazyWithRetry(() => import("@/components/Subscripti
 const LegalDocumentsDialog = lazyWithRetry(() => import("@/components/LegalDocumentsDialog").then(m => ({ default: m.LegalDocumentsDialog })));
 const ClientProfileDialog = lazyWithRetry(() => import("@/components/ClientProfileDialog").then(m => ({ default: m.ClientProfileDialog })));
 const PropertyDetails = lazyWithRetry(() => import("@/components/PropertyDetails").then(m => ({ default: m.PropertyDetails })));
-const PropertyInsightsDialog = lazyWithRetry(() => import("@/components/PropertyInsightsDialog").then(m => ({ default: m.PropertyInsightsDialog })));
-const ClientInsightsDialog = lazyWithRetry(() => import("@/components/ClientInsightsDialog").then(m => ({ default: m.ClientInsightsDialog })));
+const LikedListingInsightsModal = lazyWithRetry(() => import("@/components/LikedListingInsightsModal").then(m => ({ default: m.LikedListingInsightsModal })));
+const LikedClientInsightsModal = lazyWithRetry(() => import("@/components/LikedClientInsightsModal").then(m => ({ default: m.LikedClientInsightsModal })));
 const OwnerSettingsDialog = lazyWithRetry(() => import('@/components/OwnerSettingsDialog').then(m => ({ default: m.OwnerSettingsDialog })));
 const OwnerProfileDialog = lazyWithRetry(() => import('@/components/OwnerProfileDialog').then(m => ({ default: m.OwnerProfileDialog })));
 const OwnerClientSwipeDialog = lazyWithRetry(() => import('@/components/OwnerClientSwipeDialog'));
@@ -193,7 +193,7 @@ export const GlobalDialogs = memo(({ userRole }: GlobalDialogsProps) => {
           </DeferredDialog>
 
           <DeferredDialog when={store.showPropertyInsights}>
-            <PropertyInsightsDialog
+            <LikedListingInsightsModal
               open={store.showPropertyInsights}
               onOpenChange={(val: boolean) => store.setModal('showPropertyInsights', val)}
               listing={selectedListing || null}
@@ -212,10 +212,10 @@ export const GlobalDialogs = memo(({ userRole }: GlobalDialogsProps) => {
       {userRole === 'owner' && (
         <>
           <DeferredDialog when={store.showClientInsights}>
-            <ClientInsightsDialog
+            <LikedClientInsightsModal
               open={store.showClientInsights}
               onOpenChange={(val: boolean) => store.setModal('showClientInsights', val)}
-              profile={selectedProfile || null}
+              client={selectedProfile || null}
             />
           </DeferredDialog>
 
