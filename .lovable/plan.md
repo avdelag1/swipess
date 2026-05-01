@@ -1,56 +1,70 @@
-# Three-Part Fix Plan
+## Goal
 
-## 1. Healing bowl tap sounds on landing page (pre-auth)
+Three things, no scope creep:
 
-**Problem:** `LegendaryLandingPage.tsx` calls `triggerHaptic(...)` on every tap but never plays an audio bowl. Sound assets exist in `public/sounds/` (e.g. `singing-bowl-gong-69238.mp3`, `bell-meditation-75335.mp3`, the chakra series).
+1. Owner side must load again (currently white-screens / boundary error).
+2. The owner poker-card deck and the quick-filter row must sit centered within the safe area between the TopBar and BottomNav on a 393×779 viewport.
+3. No extra background frames around cards or filter rails. The TopBar pill, mode-switcher pill, bottom-nav pill, and notification circle stay exactly as they are.
 
-**Fix:**
-- Create a small util `src/utils/landingSounds.ts` that exposes `playLandingTap()`:
-  - Pre-loads a pool of 3–4 calming bowl sounds (singing bowl, meditation bell, sacral chakra, tuning fork).
-  - Picks one randomly per tap so it doesn't get repetitive.
-  - Volume capped at ~0.35, fully fail-silent on autoplay block.
-  - Uses a single shared `AudioContext`-free `<audio>` element pool to avoid GC stutter.
-- In `LegendaryLandingPage.tsx`, wrap the existing `triggerHaptic('medium'/'light')` calls on the main CTA buttons (Login, Sign up, Apple, Google, tab toggles) with `playLandingTap()`. Only on the landing surface — not after auth.
-- Trigger a one-time `unlock()` on first user interaction (most browsers require a gesture before audio works).
+## Findings
 
-## 2. Quick-filter swipe cards: stop the shaking & flickering
+- Console shows React **error #426** (a Suspense boundary received an update before it finished hydrating). On the Owner route this fires through `EnhancedOwnerDashboard → OwnerAllDashboard`, which lazy-resolves modal/route state inside its render path and reads `useModalStore.getState()` from inside a click handler created during the same Suspense pass.
+- `OwnerAllDashboard` sizes the deck with `height: min(75svh, 600px)`. With `--top-bar-height` + `--safe-top` + `--bottom-nav-height` + `--safe-bottom` already eating ~150–170px on a 779-tall device, 75svh = ~584px overflows the parent flex container, so the deck visually pushes under the bottom nav and the quick-filter row gets clipped.
+- `EnhancedOwnerDashboard` wraps the deck in two stacked centering layers (`flex flex-col items-center` + `flex flex-col justify-center`) which together with the loader/skeleton block create an extra translucent panel behind the cards.
+- `OwnerKilometerView` adds a `rounded-[3.5rem] border ... backdrop-blur-xl` panel — that is the extra "frame background" the user is calling out on the owner side.
+- `OwnerClientSwipeDialog` still passes `onClientTap` correctly; no schema mismatch there.
 
-**Problem (in `PokerCategoryCard.tsx`):**
-- `<motion.img>` uses inline `style={{ transform: isTop && isDragging ? 'scale(1.05)' : 'scale(1)' }}` which **fights** the parent `motion.div`'s drag transform → causes per-frame layout reflow → visible shake.
-- Card animates `y`, `opacity`, `scale` AND the parent has `willChange: 'transform, opacity'`, but the photo `<img>` re-renders `transform` on every drag tick.
-- `useEffect` re-creates a new `Image()` on every photo change which can flash `imgReady=false` → flicker on re-cycle.
-- Stack `filter: blur()` recomputes on each render of background cards → jitter.
+## Plan
 
-**Fix:**
-- Move photo zoom to a **CSS class toggle** (`data-dragging="true"` + CSS transition) instead of inline style swap, so the browser keeps it on the compositor layer.
-- Replace the photo zoom with a `useTransform(x, ...)` driven scale on the image itself (compositor-only, no re-renders).
-- Use the shared `imageCache` (`src/lib/swipe/imageCache.ts` / `cardImageCache.ts`) so `imgReady` stays `true` after first load and doesn't flicker on cycle.
-- Pre-rasterize the blurred background cards: compute `filter` once via `useMemo(..., [index])` and apply via `style` only when index changes.
-- Add `transform: translateZ(0)` and `backface-visibility: hidden` on the card root to force GPU layer (prevents subpixel jitter on iOS Safari).
-- Soften spring slightly: `PK_SPRING` stiffness 400 → 320, damping 30 → 28 — feels smoother without losing snap.
+### 1. Fix owner-side crash (React #426)
 
-## 3. Owner side: actually see the real swipe cards (listings + clients)
+Edit `src/pages/EnhancedOwnerDashboard.tsx`:
+- Wrap the `<AnimatePresence>` body in a single `<Suspense fallback={null}>` so Framer Motion's deferred children cannot bubble a suspending update past the route boundary.
+- Remove the `typeof document !== 'undefined' && document.body && (...)` guard around `<SwipeInsightsModal>` — it forces the modal to mount/unmount on every render and is part of what triggers the boundary update; render the modal unconditionally with its own `open` prop.
 
-**Problem:** `EnhancedOwnerDashboard.tsx` forces this 3-phase flow: `cards` (poker quick-filter fan) → `kilometer` (radius slider) → `swipe` (real ClientSwipeContainer). The user can't jump past the quick filter to test the real deck.
+Edit `src/components/swipe/OwnerAllDashboard.tsx`:
+- Move the `useModalStore.getState()` lookup out of the inline `handleSelect` closure into a top-level `const openAIListing = useModalStore(s => s.openAIListing)` so the click path is pure and stable.
+- Keep the existing image preload effect (already safe).
 
-**Fix:**
-- Add a **"Skip to Swipe Deck"** secondary button on the kilometer page (next to "Initiate Scan") that goes straight to `swipe` phase using a sensible default radius (50 km) and category (`all-clients` if none picked).
-- Add a small persistent **"Show Swipe Deck"** quick-action chip in the top-right of the `cards` (poker) phase header. One tap → set `activeCategory = 'all-clients'`, `ownerPhase = 'swipe'`, bypassing kilometer.
-- Also add a separate mode for **listings** (currently owner only sees client profiles via `useSmartClientMatching`). Add a toggle on the swipe phase header: `Clients ⇆ Listings`. When in Listings mode, render the `SwipessSwipeContainer` (same one client side uses) so owner can preview/test the real listing deck their clients will see.
-- Persist the last-used owner mode (clients vs listings) in localStorage so testing is sticky.
+### 2. Center the owner deck in the safe viewport
 
-## Files to touch
+Edit `src/pages/EnhancedOwnerDashboard.tsx` (cards phase only):
+- Replace the deck wrapper sizing with a true safe-area calculation:
+  - parent: `flex-1 min-h-0` (already there) and remove the inner duplicate `flex flex-col justify-center` wrapper.
+  - the motion container keeps `paddingTop: calc(var(--top-bar-height) + var(--safe-top))` and `paddingBottom: calc(var(--bottom-nav-height) + var(--safe-bottom) + 16px)`.
 
-```text
-src/utils/landingSounds.ts                       (new)
-src/components/LegendaryLandingPage.tsx          (wire playLandingTap into tap handlers)
-src/components/swipe/PokerCategoryCard.tsx       (compositor zoom, GPU layer, cached img)
-src/components/swipe/SwipeConstants.ts           (soften PK_SPRING)
-src/pages/EnhancedOwnerDashboard.tsx             (skip-to-swipe chip, clients/listings toggle)
+Edit `src/components/swipe/OwnerAllDashboard.tsx`:
+- Replace the hard `height: min(75svh, 600px)` with a container-relative size:
+  - `height: min(100%, 600px)` on the deck stage,
+  - `width: calc(min(100%, 600px) * ${PK_ASPECT})`,
+  - keep `aspect-ratio` as fallback for older WebKit.
+- Remove `min-height: auto` inline style (redundant).
+
+This makes the deck consume only the height actually available between TopBar and BottomNav, so it's mathematically centered on every device including 393×779.
+
+### 3. Strip extra frames, preserve existing button pills
+
+Edit `src/pages/EnhancedOwnerDashboard.tsx`:
+- Drop the loader's `bg-white/5 rounded-3xl` skeleton blocks; keep the spinner only (no panel chrome behind it).
+- Remove the `OwnerKilometerView` outer `rounded-[3.5rem] border bg-white/80|bg-black/60 backdrop-blur-*` panel. Keep the slider, the radius readout, and the buttons exactly as they are — they already carry their own surfaces.
+- Remove the absolute `Swipess FLAGSHIP v1.0.97` watermark (visual noise the user did not ask for).
+
+Edit `src/components/swipe/SwipeExhaustedState.tsx`:
+- Confirm the quick-filter row has no wrapper card; if a `bg-*/border-*/backdrop-blur-*` parent is present around the category grid + filter button, remove it. Buttons retain their per-button glass pill (already implemented in the previous turn).
+
+Do **not** touch:
+- `TopBar.tsx`, `ModeSwitcher.tsx`, `BottomNavigation.tsx`, `NotificationPopover.tsx` — user explicitly likes the current pill/circle treatment.
+- Swipe physics, `SimpleOwnerSwipeCard`, or any routing.
+
+## Files to edit
+
+```
+src/pages/EnhancedOwnerDashboard.tsx
+src/components/swipe/OwnerAllDashboard.tsx
+src/components/swipe/SwipeExhaustedState.tsx
 ```
 
-## Out of scope
+## Verification
 
-- No backend / RLS changes.
-- No changes to swipe physics for the **real** ClientSwipeContainer (only the poker quick-filter cards).
-- No new audio assets — only uses the existing `public/sounds/*` library.
+- `npx tsc --noEmit` → 0 errors.
+- Manual: `/owner/dashboard` renders the fanned poker deck centered with no console error #426; quick-filter row sits within the safe area; no halo panel behind the slider on the kilometer step; TopBar / BottomNav pills unchanged.

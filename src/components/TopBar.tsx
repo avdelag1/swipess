@@ -107,7 +107,7 @@ function TopBarComponent({
     >
       <div className="h-full w-full px-4 flex items-center justify-between relative">
         
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 pointer-events-auto">
           {onBack ? (
             <motion.button
               whileTap={{ scale: 0.9 }}
@@ -182,7 +182,7 @@ function TopBarComponent({
         )}
 
         {/* RIGHT CLUSTER: Individual Action Pills */}
-        <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+        <div className="flex shrink-0 items-center gap-1.5 sm:gap-2 pointer-events-auto">
           {!minimal && (
             <>
               <motion.button

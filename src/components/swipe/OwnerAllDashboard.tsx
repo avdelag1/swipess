@@ -6,10 +6,6 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import {
   OWNER_INTENT_CARDS,
   OwnerIntentCard,
-  PK_W,
-  PK_H,
-  OWNER_PK_H,
-  PK_ASPECT,
   POKER_CARD_PHOTOS,
 } from './SwipeConstants';
 import { deckFadeVariants } from '@/utils/modernAnimations';
@@ -26,6 +22,8 @@ export interface OwnerAllDashboardProps {
 export const OwnerAllDashboard = memo(({ onCardSelect }: OwnerAllDashboardProps) => {
   const [cards, setCards] = useState([...OWNER_INTENT_CARDS]);
   const navigate = useNavigate();
+  // Stable selector — avoids reading store inside click handler during a Suspense pass
+  const openAIListing = useModalStore((s) => s.openAIListing);
 
   useEffect(() => {
     // Preload all owner card images safely on mount to prevent TDZ ReferenceError
@@ -63,7 +61,6 @@ export const OwnerAllDashboard = memo(({ onCardSelect }: OwnerAllDashboardProps)
       return;
     }
     if (id === 'ai-listing') {
-      const { openAIListing } = useModalStore.getState();
       openAIListing();
       return;
     }
@@ -73,7 +70,7 @@ export const OwnerAllDashboard = memo(({ onCardSelect }: OwnerAllDashboardProps)
     }
     const card = OWNER_INTENT_CARDS.find(c => c.id === id);
     if (card) onCardSelect(card);
-  }, [onCardSelect, navigate]);
+  }, [onCardSelect, navigate, openAIListing]);
 
   const handleBringToFront = useCallback((index: number) => {
     triggerHaptic('light');
@@ -116,11 +113,7 @@ export const OwnerAllDashboard = memo(({ onCardSelect }: OwnerAllDashboardProps)
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="relative flex items-center justify-center transition-all"
-          style={{ 
-            height: 'min(75svh, 600px)',
-            width: `calc(min(75svh, 600px) * ${PK_ASPECT})`,
-          }}
+          className="relative flex items-center justify-center transition-all w-full h-full sm:max-w-[480px] sm:mx-auto"
         >
           {[...cards].reverse().map((card, reversedIdx) => {
             const index = cards.length - 1 - reversedIdx;

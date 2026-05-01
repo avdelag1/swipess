@@ -264,7 +264,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   });
 
   // Fetch rating aggregate for this listing
-  const { data: ratingAggregate, isLoading: isRatingLoading } = useListingRatingAggregate(listing.id, listing.category);
+  const { data: ratingAggregate, isLoading: isRatingLoading } = useListingRatingAggregate(listing.id, (listing as any).category);
 
   // Unified pointer down handler: starts magnifier hold timer AND stores event for potential drag
   const handleUnifiedPointerDown = useCallback((e: React.PointerEvent) => {
@@ -431,9 +431,9 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           border: '1px solid rgba(255, 255, 255, 0.05)',
         }}
       >
-        {currentImage === 'video_attachment' && listing.video_url ? (
+        {currentImage === 'video_attachment' && (listing as any).video_url ? (
           <video
-            src={listing.video_url}
+            src={(listing as any).video_url}
             autoPlay
             muted
             loop
@@ -445,8 +445,8 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           <div className="absolute inset-0 opacity-60">
             <CardImage 
               src={currentImage} 
-              alt={listing.title || 'Listing'} 
-              name={listing.title} 
+              alt={(listing as any).title || 'Listing'} 
+              name={(listing as any).title} 
               direction={photoDirection} 
               priority={false} 
             />
@@ -517,9 +517,9 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           className="absolute inset-0 overflow-hidden" 
           onClick={handleImageTap}
         >
-          {currentImage === 'video_attachment' && listing.video_url ? (
+          {currentImage === 'video_attachment' && (listing as any).video_url ? (
             <video
-              src={listing.video_url}
+              src={(listing as any).video_url}
               autoPlay
               muted
               loop
@@ -530,8 +530,8 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           ) : (
             <CardImage 
               src={currentImage} 
-              alt={listing.title || 'Listing'} 
-              name={listing.title} 
+              alt={(listing as any).title || 'Listing'} 
+              name={(listing as any).title} 
               direction={photoDirection} 
               priority={isTop}
             />
@@ -663,7 +663,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
                   className="text-white"
                 />
               </div>
-              {listing.has_verified_documents && (
+              {(listing as any).has_verified_documents && (
                 <div className="px-2.5 py-1 rounded-full bg-emerald-500/20 backdrop-blur-md border border-emerald-500/30">
                   <span className="text-[10px] font-black uppercase tracking-wider text-emerald-400">Elite</span>
                 </div>
@@ -747,7 +747,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
         />
 
         {/* Verified Badge - Left corner higher up */}
-        {listing.has_verified_documents && (
+        {(listing as any).has_verified_documents && (
           <div className="absolute top-16 left-6 z-40">
              <div className="relative px-3 py-1.5 rounded-full flex items-center gap-2 bg-black/40 backdrop-blur-md border border-white/10">
                <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,1)]" />

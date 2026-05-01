@@ -307,11 +307,11 @@ export function NotificationPopover({ className, children, glassPillStyle }: Not
       variant="ghost"
       size="icon"
       className={cn(
-        "relative h-10 w-10 transition-all duration-200",
-        "hover:scale-105 active:scale-95 group rounded-full",
-        "touch-manipulation"
+        "relative h-9 w-9 shrink-0 transition-all duration-200",
+        "hover:scale-105 active:scale-95 group !rounded-full",
+        "touch-manipulation overflow-hidden"
       )}
-      style={glassPillStyle}
+      style={{ ...glassPillStyle, borderRadius: '9999px' }}
       onClick={(e) => {
         haptics.tap();
         setIsOpen(true);
@@ -355,7 +355,7 @@ export function NotificationPopover({ className, children, glassPillStyle }: Not
         <DialogContent
           hideCloseButton
           className={cn(
-            "w-[min(calc(100vw-1rem),440px)] p-0 !rounded-[24px] bg-background border border-border/60 shadow-2xl",
+            "w-[min(calc(100vw-1rem),440px)] p-0 !rounded-[28px] bg-background border border-border/60 shadow-2xl",
             "overflow-hidden gap-0",
             className
           )}
