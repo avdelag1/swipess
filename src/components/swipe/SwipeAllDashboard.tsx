@@ -67,7 +67,7 @@ export const SwipeAllDashboard = memo(({ setCategories }: SwipeAllDashboardProps
   return (
     <div
       className="relative flex-1 flex flex-col items-center justify-start bg-transparent"
-      style={{ paddingTop: '4px', paddingBottom: 'var(--bottom-nav-height, 80px)' }}
+      style={{ paddingTop: 'var(--top-bar-height, 72px)', paddingBottom: 'var(--bottom-nav-height, 80px)' }}
     >
       {/* 🛸 Swipess CENTERED STACK v14.0 */}
       <motion.div

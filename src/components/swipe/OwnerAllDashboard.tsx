@@ -109,7 +109,7 @@ export const OwnerAllDashboard = memo(({ onCardSelect }: OwnerAllDashboardProps)
         animate="animate"
         exit="exit"
         className="relative flex-1 flex flex-col items-center justify-start bg-transparent"
-        style={{ paddingTop: '4px', paddingBottom: 'var(--bottom-nav-height, 80px)' }}
+        style={{ paddingTop: 'var(--top-bar-height, 72px)', paddingBottom: 'var(--bottom-nav-height, 80px)' }}
       >
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
