@@ -165,7 +165,7 @@ const CardImage = memo(({
 
   return (
     <div
-      className={cn("absolute inset-0 w-full h-full", !fullScreen && "rounded-[24px]")}
+      className={cn("absolute inset-0 w-full h-full", !fullScreen && "rounded-[2.5rem]")}
       style={{
         transform: 'translateZ(0)',
         touchAction: 'none',
@@ -189,7 +189,7 @@ const CardImage = memo(({
       <img
         src={src}
         alt={alt}
-        className={cn("absolute inset-0 w-full h-full", !fullScreen && "rounded-[24px]", loaded ? "" : "")}
+        className={cn("absolute inset-0 w-full h-full", !fullScreen && "rounded-[2.5rem]", loaded ? "" : "")}
         style={{
           objectFit: 'cover',
           objectPosition: 'center',
@@ -594,7 +594,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
     // Non-top card: GLASS PEEK
     return (
       <div
-        className="absolute inset-x-2 bottom-4 top-4 rounded-[24px] overflow-hidden shadow-sm"
+        className="absolute inset-x-2 bottom-4 top-4 rounded-[2.5rem] overflow-hidden shadow-sm"
         style={{
           pointerEvents: 'none',
           backgroundColor: 'rgba(255, 255, 255, 0.03)',
@@ -669,7 +669,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
         } as any}
         className={cn(
           "flex-1 cursor-grab active:cursor-grabbing select-none touch-none relative overflow-hidden",
-          "w-full h-full rounded-[24px]",
+          "w-full h-full rounded-[2.5rem]",
           !fullScreen && "shadow-[0_32px_64px_-16px_rgba(0,0,0,0.5),0_16px_32px_-8px_rgba(0,0,0,0.3)]"
         )}
       >
@@ -690,7 +690,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
 
         <div
           ref={containerRef}
-          className={cn("absolute inset-0 w-full h-full overflow-hidden rounded-[24px]")}
+          className={cn("absolute inset-0 w-full h-full overflow-hidden rounded-[2.5rem]")}
           onClick={handleImageTap}
           style={{ touchAction: 'none' }}
         >
@@ -797,7 +797,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
         {/* Edge vignette — perimeter inset shadow that outlines the rounded corners
             so the card always reads as a physical object */}
         <div
-          className="absolute inset-0 pointer-events-none z-[25] rounded-[24px]"
+          className="absolute inset-0 pointer-events-none z-[25] rounded-[2.5rem]"
           style={{
             boxShadow: _isDark
               ? 'inset 0 0 0 1.5px rgba(255,255,255,0.08), inset 0 0 50px rgba(0,0,0,0.45)'

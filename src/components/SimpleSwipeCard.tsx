@@ -423,7 +423,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   if (!isTop) {
     return (
       <div
-        className="absolute inset-x-2 bottom-4 top-4 rounded-[28px] overflow-hidden shadow-sm"
+        className="absolute inset-x-2 bottom-4 top-4 rounded-[2.5rem] overflow-hidden shadow-sm"
         style={{
           pointerEvents: 'none',
           backgroundColor: 'rgba(255, 255, 255, 0.03)',
@@ -491,7 +491,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           transition: { type: 'spring', stiffness: 400, damping: 28, mass: 0.6 }
         }}
         // Photo swim effect now lives on the <img> inside CardImage (CSS keyframes)
-        className="flex-1 cursor-grab active:cursor-grabbing select-none touch-none relative w-full h-full overflow-hidden rounded-[24px] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.5),0_16px_32px_-8px_rgba(0,0,0,0.3)] pointer-events-auto border-none gpu-ultra"
+        className="flex-1 cursor-grab active:cursor-grabbing select-none touch-none relative w-full h-full overflow-hidden rounded-[2.5rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.5),0_16px_32px_-8px_rgba(0,0,0,0.3)] pointer-events-auto border-none gpu-ultra"
         style={{
           x,
           y,
@@ -749,7 +749,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
         {/* Edge vignette — perimeter inset shadow that outlines the rounded corners
             so the card always reads as a physical object */}
         <div
-          className="absolute inset-0 pointer-events-none z-[25] rounded-[24px]"
+          className="absolute inset-0 pointer-events-none z-[25] rounded-[2.5rem]"
           style={{
             boxShadow: isLight
               ? 'inset 0 0 0 1.5px rgba(0,0,0,0.10), inset 0 0 40px rgba(0,0,0,0.18)'
