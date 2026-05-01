@@ -117,13 +117,7 @@ export const OwnerAllDashboard = memo(({ onCardSelect }: OwnerAllDashboardProps)
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="relative flex items-center justify-center transition-all"
-          style={{
-            height: 'min(100%, 600px)',
-            width: `calc(min(100%, 600px) * ${PK_ASPECT})`,
-            aspectRatio: `${PK_ASPECT}`,
-            maxHeight: '100%',
-          }}
+          className="relative flex items-center justify-center transition-all w-full h-full sm:max-w-[480px] sm:mx-auto"
         >
           {[...cards].reverse().map((card, reversedIdx) => {
             const index = cards.length - 1 - reversedIdx;
