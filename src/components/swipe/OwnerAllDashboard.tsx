@@ -26,6 +26,8 @@ export interface OwnerAllDashboardProps {
 export const OwnerAllDashboard = memo(({ onCardSelect }: OwnerAllDashboardProps) => {
   const [cards, setCards] = useState([...OWNER_INTENT_CARDS]);
   const navigate = useNavigate();
+  // Stable selector — avoids reading store inside click handler during a Suspense pass
+  const openAIListing = useModalStore((s) => s.openAIListing);
 
   useEffect(() => {
     // Preload all owner card images safely on mount to prevent TDZ ReferenceError
@@ -63,7 +65,6 @@ export const OwnerAllDashboard = memo(({ onCardSelect }: OwnerAllDashboardProps)
       return;
     }
     if (id === 'ai-listing') {
-      const { openAIListing } = useModalStore.getState();
       openAIListing();
       return;
     }
@@ -73,7 +74,7 @@ export const OwnerAllDashboard = memo(({ onCardSelect }: OwnerAllDashboardProps)
     }
     const card = OWNER_INTENT_CARDS.find(c => c.id === id);
     if (card) onCardSelect(card);
-  }, [onCardSelect, navigate]);
+  }, [onCardSelect, navigate, openAIListing]);
 
   const handleBringToFront = useCallback((index: number) => {
     triggerHaptic('light');
@@ -117,9 +118,11 @@ export const OwnerAllDashboard = memo(({ onCardSelect }: OwnerAllDashboardProps)
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           className="relative flex items-center justify-center transition-all"
-          style={{ 
-            height: 'min(75svh, 600px)',
-            width: `calc(min(75svh, 600px) * ${PK_ASPECT})`,
+          style={{
+            height: 'min(100%, 600px)',
+            width: `calc(min(100%, 600px) * ${PK_ASPECT})`,
+            aspectRatio: `${PK_ASPECT}`,
+            maxHeight: '100%',
           }}
         >
           {[...cards].reverse().map((card, reversedIdx) => {

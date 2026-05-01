@@ -69,10 +69,7 @@ export const SwipeExhaustedState = ({
 
         {/* Distance slider — centered, the main control */}
         {onRadiusChange && onDetectLocation && (
-          <div className={cn(
-            "w-full rounded-[2.5rem] border p-6 pt-12 relative transition-all",
-            isLight ? "bg-white border-black/10 shadow-2xl" : "bg-[#0d0d0d]/80 border-white/10 shadow-[0_30px_80px_rgba(0,0,0,0.4)]"
-          )}>
+          <div className="w-full relative pt-12">
             {/* Main filter icon button — top-right of slider, isolated above slider content */}
             {onOpenFilters && (
               <button
@@ -81,8 +78,8 @@ export const SwipeExhaustedState = ({
                   onOpenFilters();
                 }}
                 className={cn(
-                  "absolute top-3 right-3 z-10 w-9 h-9 flex items-center justify-center rounded-xl transition-all active:scale-90",
-                  isLight ? "bg-black/5 hover:bg-black/10" : "bg-white/8 hover:bg-white/15"
+                  "absolute top-0 right-0 z-10 w-10 h-10 flex items-center justify-center rounded-full transition-all active:scale-90 border",
+                  isLight ? "bg-white/80 border-black/10 hover:bg-white" : "bg-white/10 border-white/15 hover:bg-white/20"
                 )}
                 title="Open advanced filters"
                 aria-label="Open advanced filters"

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, memo, useMemo, useCallback } from 'react';
+import { useState, useEffect, useRef, memo, useMemo, useCallback, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ClientSwipeContainer } from '@/components/ClientSwipeContainer';
 import { useSmartClientMatching } from '@/hooks/useSmartMatching';
@@ -162,6 +162,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
     <div className={cn("flex flex-col flex-1 min-h-0 w-full relative transition-colors duration-500", isLight ? "bg-white" : "bg-black")}>
       <AtmosphericLayer variant="primary" />
 
+      <Suspense fallback={null}>
       <AnimatePresence mode="wait">
         {showSkeletons ? (
           <motion.div
@@ -176,10 +177,6 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
               <div className="absolute inset-0 m-auto w-6 h-6 bg-primary/40 rounded-full animate-pulse" />
             </div>
             <p className="text-[10px] font-black uppercase italic tracking-[0.4em] text-primary/60 animate-pulse">Synchronizing Swipess Logic...</p>
-            <div className="w-full max-w-sm space-y-3 pt-8">
-              <div className="h-24 w-full bg-white/5 rounded-3xl animate-pulse" />
-              <div className="h-24 w-full bg-white/5 rounded-3xl animate-pulse opacity-50" />
-            </div>
           </motion.div>
         ) : viewMode === 'insights' ? (
           <motion.div
@@ -202,13 +199,11 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
             className="relative flex-1 flex flex-col items-center w-full overflow-hidden z-10"
             style={{
               paddingTop: 'calc(var(--top-bar-height) + var(--safe-top))',
-              paddingBottom: 'calc(var(--bottom-nav-height) + var(--safe-bottom) + 20px)',
+              paddingBottom: 'calc(var(--bottom-nav-height) + var(--safe-bottom) + 16px)',
               willChange: 'transform, opacity'
             }}
           >
-            <div className="flex-1 w-full relative z-10 flex flex-col justify-center">
-              <OwnerAllDashboard onCardSelect={handleCardSelect} />
-            </div>
+            <OwnerAllDashboard onCardSelect={handleCardSelect} />
           </motion.div>
         ) : ownerPhase === 'kilometer' ? (
           <motion.div
@@ -258,18 +253,16 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
                 onInsights={handleClientTap}
               />
             </div>
-            {typeof document !== 'undefined' && document.body && (
-              <SwipeInsightsModal
-                open={!!selectedProfileId}
-                onOpenChange={(open) => !open && setSelectedProfileId(null)}
-                profile={clientProfiles.find(p => p.user_id === selectedProfileId)}
-              />
-            )}
+            <SwipeInsightsModal
+              open={!!selectedProfileId}
+              onOpenChange={(open) => !open && setSelectedProfileId(null)}
+              profile={clientProfiles.find(p => p.user_id === selectedProfileId)}
+            />
           </motion.div>
         )}
       </AnimatePresence>
+      </Suspense>
 
-      <p className="absolute bottom-4 left-6 text-[8px] font-black uppercase tracking-[0.6em] opacity-10 pointer-events-none z-0">Swipess FLAGSHIP v1.0.97</p>
     </div>
   );
 };
@@ -321,10 +314,7 @@ const OwnerKilometerView = ({
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className={cn(
-            "w-full rounded-[3.5rem] border p-10 relative shadow-[0_40px_100px_rgba(0,0,0,0.15)]",
-            isLight ? "bg-white/80 border-black/5 backdrop-blur-md" : "bg-black/60 border-white/10 backdrop-blur-xl"
-          )}
+          className="w-full relative px-2"
         >
           <div className="mb-8">
             <h4 className={cn("text-[10px] font-black uppercase tracking-[0.5em] opacity-40 mb-3", isLight ? "text-black" : "text-white")}>Sector Depth</h4>

@@ -1,77 +1,70 @@
-## Problem
+## Goal
 
-Reviewing the screenshots, there are recurring visual issues across the app:
+Three things, no scope creep:
 
-1. **Landing page (signed out)** — `SIGN IN` and `CREATE ACCOUNT` pills have very dark glass with near-black bold text on top → text barely readable. Spacing between buttons is tight.
-2. **Auth page** — `SIGN IN / SIGN UP` segmented tabs are dark gray on dark background with dark text → unreadable. Email/Password input borders blend into the card. Input icons too low contrast.
-3. **Dashboard top bar** — Profile pill ("CLIENT1"), `User`, `UserCheck`, `Ticket`, `Theme`, `Notification` pills are crammed onto one row at 392px width. The mode-switcher icons sit awkwardly behind/overlapping the orange `UserCheck` "active" glow, and the ticket/theme/notification pills feel disconnected (different shapes/sizes/colors). On mobile, they overflow the visual rhythm.
-4. **Adjust Radius screen** — "Auto" pill overlaps the floating filter button (top-right square button is half-covered by the AUTO chip). "Or try another" grid has 4 buttons but only 3 labelled (one empty) — looks broken. The two-tone slider gradient clashes with the otherwise white sheet.
-5. **Owner "All Clients" card** — Top of card is pushed too far down because of empty space below the top bar; bottom navigation overlaps the card's bottom edge.
-6. **Empty profile preview** — `SHARE` (dark) and `REPORT` (white) buttons have inverted styles → REPORT looks like the primary CTA. Text is barely visible. Action buttons row at the bottom overlaps the bottom nav.
-7. **Engage Discovery button** — White pill with bold black italic text sits on top of a busy photo; readable but not consistent with the rest of the app's dark glass language.
+1. Owner side must load again (currently white-screens / boundary error).
+2. The owner poker-card deck and the quick-filter row must sit centered within the safe area between the TopBar and BottomNav on a 393×779 viewport.
+3. No extra background frames around cards or filter rails. The TopBar pill, mode-switcher pill, bottom-nav pill, and notification circle stay exactly as they are.
 
-These are the "white button = white text" type readability problems the user is describing.
+## Findings
+
+- Console shows React **error #426** (a Suspense boundary received an update before it finished hydrating). On the Owner route this fires through `EnhancedOwnerDashboard → OwnerAllDashboard`, which lazy-resolves modal/route state inside its render path and reads `useModalStore.getState()` from inside a click handler created during the same Suspense pass.
+- `OwnerAllDashboard` sizes the deck with `height: min(75svh, 600px)`. With `--top-bar-height` + `--safe-top` + `--bottom-nav-height` + `--safe-bottom` already eating ~150–170px on a 779-tall device, 75svh = ~584px overflows the parent flex container, so the deck visually pushes under the bottom nav and the quick-filter row gets clipped.
+- `EnhancedOwnerDashboard` wraps the deck in two stacked centering layers (`flex flex-col items-center` + `flex flex-col justify-center`) which together with the loader/skeleton block create an extra translucent panel behind the cards.
+- `OwnerKilometerView` adds a `rounded-[3.5rem] border ... backdrop-blur-xl` panel — that is the extra "frame background" the user is calling out on the owner side.
+- `OwnerClientSwipeDialog` still passes `onClientTap` correctly; no schema mismatch there.
 
 ## Plan
 
-### 1. Establish two reusable button surface tokens
-In `src/index.css`, formalize two button surface variants with guaranteed contrast in both themes:
+### 1. Fix owner-side crash (React #426)
 
-- `.btn-glass-primary` — opaque white/near-white in dark mode, deep charcoal in light mode, with **always-dark text in dark mode? No → always-contrasting text** via `color: hsl(var(--surface-fg))`.
-- `.btn-glass-secondary` — translucent glass with `color: hsl(var(--foreground))`.
+Edit `src/pages/EnhancedOwnerDashboard.tsx`:
+- Wrap the `<AnimatePresence>` body in a single `<Suspense fallback={null}>` so Framer Motion's deferred children cannot bubble a suspending update past the route boundary.
+- Remove the `typeof document !== 'undefined' && document.body && (...)` guard around `<SwipeInsightsModal>` — it forces the modal to mount/unmount on every render and is part of what triggers the boundary update; render the modal unconditionally with its own `open` prop.
 
-This removes the "white background + white text" trap by binding text color to the surface, not the theme.
+Edit `src/components/swipe/OwnerAllDashboard.tsx`:
+- Move the `useModalStore.getState()` lookup out of the inline `handleSelect` closure into a top-level `const openAIListing = useModalStore(s => s.openAIListing)` so the click path is pure and stable.
+- Keep the existing image preload effect (already safe).
 
-### 2. Landing page (`LegendaryLandingPage.tsx`)
-- Increase `SIGN IN` / `CREATE ACCOUNT` pill background opacity (`rgba(255,255,255,0.08)` → `0.14`) and add `inset 0 0 0 1px rgba(255,255,255,0.18)` border so the pill is visible against the starfield.
-- Bump text from `font-black` near-black to `text-white` with `tracking-[0.25em]`.
-- Add `gap-4` between the two buttons (currently looks cramped).
+### 2. Center the owner deck in the safe viewport
 
-### 3. Auth page segmented tabs
-- Active tab: white background + black text. Inactive: transparent with white/70 text. Currently both look identical dark.
-- Inputs: increase border to `border-white/15`, icon color `text-white/60`, placeholder `text-white/50`.
+Edit `src/pages/EnhancedOwnerDashboard.tsx` (cards phase only):
+- Replace the deck wrapper sizing with a true safe-area calculation:
+  - parent: `flex-1 min-h-0` (already there) and remove the inner duplicate `flex flex-col justify-center` wrapper.
+  - the motion container keeps `paddingTop: calc(var(--top-bar-height) + var(--safe-top))` and `paddingBottom: calc(var(--bottom-nav-height) + var(--safe-bottom) + 16px)`.
 
-### 4. TopBar (`TopBar.tsx` + `ModeSwitcher.tsx`)
-- **Group the mode switcher into one segmented pill** instead of two side-by-side glass squares. One rounded pill with two halves; only the active half lights up (rose for client, orange for owner). Eliminates the visual "two random icons floating" look.
-- Reduce right-cluster gap on small viewports: `gap-1.5 sm:gap-2`.
-- Make all right-side action buttons identical 36px circles with the same `glassPillStyle` — currently the Tokens button has its own purple-tinted style that fights the others. Keep the purple icon, but drop the colored background so it visually matches Theme + Notification.
-- When user has a name, truncate to first letter only on viewports ≤ 360px to prevent overflow.
+Edit `src/components/swipe/OwnerAllDashboard.tsx`:
+- Replace the hard `height: min(75svh, 600px)` with a container-relative size:
+  - `height: min(100%, 600px)` on the deck stage,
+  - `width: calc(min(100%, 600px) * ${PK_ASPECT})`,
+  - keep `aspect-ratio` as fallback for older WebKit.
+- Remove `min-height: auto` inline style (redundant).
 
-### 5. Adjust Radius screen (`SwipeExhaustedState.tsx`)
-- Move the floating filter button so it doesn't collide with the `AUTO` chip (z-index + top offset).
-- "Or try another" grid: filter the category list to omit the current category and render a clean grid where each cell is filled (no empty slot).
-- Replace the candy-pink slider with a single accent color matching the primary brand for consistency.
+This makes the deck consume only the height actually available between TopBar and BottomNav, so it's mathematically centered on every device including 393×779.
 
-### 6. Empty profile preview (`ClientProfilePreview.tsx` or equivalent)
-- Swap SHARE/REPORT styling: SHARE = primary white pill with black text, REPORT = secondary outlined ghost pill (red text).
-- Add bottom padding equal to `var(--bottom-nav-height) + var(--safe-bottom) + 16px` so the action row clears the bottom nav.
+### 3. Strip extra frames, preserve existing button pills
 
-### 7. Card "Engage Discovery" button (`PokerCategoryCard.tsx`)
-- Keep the white pill but reduce its opacity to `rgba(255,255,255,0.95)` and add a subtle ring so it integrates with the card photo instead of looking pasted on. Text stays black bold italic.
+Edit `src/pages/EnhancedOwnerDashboard.tsx`:
+- Drop the loader's `bg-white/5 rounded-3xl` skeleton blocks; keep the spinner only (no panel chrome behind it).
+- Remove the `OwnerKilometerView` outer `rounded-[3.5rem] border bg-white/80|bg-black/60 backdrop-blur-*` panel. Keep the slider, the radius readout, and the buttons exactly as they are — they already carry their own surfaces.
+- Remove the absolute `Swipess FLAGSHIP v1.0.97` watermark (visual noise the user did not ask for).
 
-### 8. Bottom navigation
-- Verify it sits on a solid surface so the cards above don't bleed into it. Add a top hairline `border-t border-white/8` on dark mode.
+Edit `src/components/swipe/SwipeExhaustedState.tsx`:
+- Confirm the quick-filter row has no wrapper card; if a `bg-*/border-*/backdrop-blur-*` parent is present around the category grid + filter button, remove it. Buttons retain their per-button glass pill (already implemented in the previous turn).
 
-## Technical Details
+Do **not** touch:
+- `TopBar.tsx`, `ModeSwitcher.tsx`, `BottomNavigation.tsx`, `NotificationPopover.tsx` — user explicitly likes the current pill/circle treatment.
+- Swipe physics, `SimpleOwnerSwipeCard`, or any routing.
 
-Files to edit:
-- `src/index.css` — add `.btn-glass-primary` / `.btn-glass-secondary` utility classes with surface-bound text color.
-- `src/components/LegendaryLandingPage.tsx` — landing pill styling + spacing.
-- `src/pages/Auth.tsx` (or equivalent auth page) — segmented tab + input contrast.
-- `src/components/TopBar.tsx` — unify right-cluster pill styling, responsive gaps.
-- `src/components/ModeSwitcher.tsx` — refactor to single segmented pill with two halves.
-- `src/components/swipe/SwipeExhaustedState.tsx` — fix AUTO/filter overlap, fix "try another" grid, slider color.
-- `src/components/ClientProfilePreview.tsx` — swap SHARE/REPORT hierarchy, bottom padding.
-- `src/components/swipe/PokerCategoryCard.tsx` — soften Engage Discovery pill.
-- `src/components/BottomNavigation.tsx` — top hairline.
+## Files to edit
 
-No changes to swipe physics, routing, or business logic. No new dependencies. All changes are visual + layout.
+```
+src/pages/EnhancedOwnerDashboard.tsx
+src/components/swipe/OwnerAllDashboard.tsx
+src/components/swipe/SwipeExhaustedState.tsx
+```
 
-## What I will NOT touch
+## Verification
 
-- Swipe drag mechanics (`SwipeConstants.ts`, drag handlers).
-- Routing.
-- GitHub sync workflows.
-- Backend / Supabase.
-
-After approval I will implement, then run TypeScript check.
+- `npx tsc --noEmit` → 0 errors.
+- Manual: `/owner/dashboard` renders the fanned poker deck centered with no console error #426; quick-filter row sits within the safe area; no halo panel behind the slider on the kilometer step; TopBar / BottomNav pills unchanged.
