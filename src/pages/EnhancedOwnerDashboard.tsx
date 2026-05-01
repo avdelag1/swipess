@@ -314,10 +314,7 @@ const OwnerKilometerView = ({
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className={cn(
-            "w-full rounded-[3.5rem] border p-10 relative shadow-[0_40px_100px_rgba(0,0,0,0.15)]",
-            isLight ? "bg-white/80 border-black/5 backdrop-blur-md" : "bg-black/60 border-white/10 backdrop-blur-xl"
-          )}
+          className="w-full relative px-2"
         >
           <div className="mb-8">
             <h4 className={cn("text-[10px] font-black uppercase tracking-[0.5em] opacity-40 mb-3", isLight ? "text-black" : "text-white")}>Sector Depth</h4>
