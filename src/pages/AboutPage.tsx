@@ -69,7 +69,7 @@ export default function AboutPage() {
 
       <AtmosphericLayer />
 
-      <div className="relative z-10 max-w-4xl mx-auto px-4 pt-6 pb-32">
+      <div className="relative z-10 max-w-4xl mx-auto px-4 pt-[env(safe-area-inset-top)] pb-32">
         <PageHeader
           title="Our Mission"
           subtitle="The Architecture of Modern Real Estate"

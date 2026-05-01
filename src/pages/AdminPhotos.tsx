@@ -178,7 +178,7 @@ export default function AdminPhotos() {
     events.find(e => e.image_url === photo.publicUrl);
 
   return (
-    <div className="min-h-screen bg-background p-4 pb-24 max-w-5xl mx-auto">
+    <div className="min-h-screen bg-background p-4 pt-[env(safe-area-inset-top)] pb-24 max-w-5xl mx-auto">
       <PageHeader
         title="Photo Library"
         subtitle={`admin-uploads bucket · ${photos.length} photos`}

@@ -10,7 +10,7 @@ import { triggerHaptic } from '@/utils/haptics';
 import { cn } from '@/lib/utils';
 import useAppTheme from '@/hooks/useAppTheme';
 import {
-  ArrowLeft, Star, Heart,
+  ArrowLeft, Star, Heart, Smile,
   SkipBack, SkipForward, Play, Pause, Volume2, ListMusic
 } from 'lucide-react';
 import { AtmosphericLayer } from '@/components/AtmosphericLayer';
@@ -81,8 +81,8 @@ export default function DJTurntableRadio() {
   }, [play]);
 
   const neumBtn = isDark
-    ? 'bg-white/[0.12] border border-white/[0.15] shadow-[0_8px_32px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.15)]'
-    : 'bg-white border border-slate-300 shadow-[6px_6px_22px_rgba(0,0,0,0.08),-4px_-4px_18px_rgba(255,255,255,1)]';
+    ? 'bg-white/10 border border-white/5 backdrop-blur-md'
+    : 'bg-black/5 border border-black/5 backdrop-blur-md';
 
   const neumBtnActive = 'active:scale-[0.94] transition-transform duration-[40ms]';
 
@@ -129,7 +129,7 @@ export default function DJTurntableRadio() {
         </div>
 
         {/* Large Frequency Display */}
-        <div className="flex-1 flex flex-col items-center justify-center w-full min-h-[250px] relative">
+        <div className="flex-1 flex flex-col items-center justify-center w-full min-h-[300px] relative">
           {/* Record Player Visualizer */}
           <div className="absolute inset-0 flex items-center justify-center z-0 overflow-hidden pointer-events-none">
             {/* Spinning Record */}
@@ -137,8 +137,7 @@ export default function DJTurntableRadio() {
               animate={state.isPlaying ? { rotate: 360 } : {}}
               transition={{ repeat: Infinity, duration: 6, ease: "linear" }}
               className={cn(
-                "w-[240px] h-[240px] sm:w-[320px] sm:h-[320px] rounded-full relative shadow-2xl",
-                "border-[12px] border-black/90 ring-1 ring-white/20",
+                "w-[260px] h-[260px] sm:w-[340px] sm:h-[340px] rounded-full relative shadow-2xl",
                 isDark ? "shadow-black/60" : "shadow-black/20"
               )}
               style={{
@@ -148,17 +147,10 @@ export default function DJTurntableRadio() {
               {/* Record Grooves */}
               <div className="absolute inset-0 rounded-full border border-white/5 opacity-20" style={{ backgroundImage: 'repeating-radial-gradient(circle, transparent 0, transparent 2px, rgba(255,255,255,0.05) 3px)' }} />
               
-              {/* Album Art Label */}
-              <div className="absolute inset-[30%] rounded-full overflow-hidden border-4 border-black/40 shadow-inner">
-                <img 
-                  src={state.currentStation?.albumArt || "https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?auto=format&fit=crop&q=80&w=800"} 
-                  className="w-full h-full object-cover"
-                  alt=""
-                />
+              {/* Yellow Smiley Label */}
+              <div className="absolute inset-[32%] rounded-full bg-yellow-400 flex items-center justify-center shadow-lg overflow-hidden border-2 border-black/10">
+                <Smile size={64} className="text-black stroke-[2.5]" />
               </div>
-              
-              {/* Spindle Hole */}
-              <div className="absolute inset-[47%] rounded-full bg-black/80 border border-white/20 shadow-inner" />
             </motion.div>
           </div>
 
@@ -195,7 +187,7 @@ export default function DJTurntableRadio() {
         </div>
 
         {/* ── Playback Controls ── */}
-        <div className="flex flex-col items-center gap-5 w-full pb-32">
+        <div className="flex flex-col items-center gap-8 w-full pb-20">
           
           <div className="flex items-center gap-5">
             <button
@@ -217,17 +209,14 @@ export default function DJTurntableRadio() {
 
             <button
               onClick={() => { togglePlayPause(); triggerHaptic('heavy'); }}
-              style={{
-                background: isDark ? '#ffffff' : '#1a1a1a',
-                boxShadow: isDark
-                  ? '0 0 0 1px rgba(255,255,255,0.3), 0 20px 60px rgba(255,255,255,0.5), 0 10px 30px rgba(255,255,255,0.3)'
-                  : '0 20px 60px rgba(0,0,0,0.25), 0 10px 30px rgba(0,0,0,0.15)',
-              }}
-              className="w-24 h-24 rounded-full flex items-center justify-center relative transition-all duration-300 active:scale-90 hover:scale-105 z-20"
+              className={cn(
+                "w-24 h-24 rounded-full flex items-center justify-center relative transition-all duration-300 active:scale-90 hover:scale-105 z-20 border-2",
+                isDark ? "bg-white text-black border-white" : "bg-black text-white border-black"
+              )}
             >
               {state.isPlaying
-                ? <Pause className={cn("w-10 h-10", isDark ? "text-black" : "text-white")} fill="currentColor" />
-                : <Play className={cn("w-10 h-10 ml-1", isDark ? "text-black" : "text-white")} fill="currentColor" />
+                ? <Pause className="w-10 h-10" fill="currentColor" />
+                : <Play className="w-10 h-10 ml-1" fill="currentColor" />
               }
               
               {/* Playback Ripple Effect */}

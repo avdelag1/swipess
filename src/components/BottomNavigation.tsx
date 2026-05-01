@@ -321,7 +321,7 @@ export const BottomNavigation = memo(({
                 aria-current={isActive(item) ? 'page' : undefined}
                 className={cn(
                   'relative flex flex-col items-center justify-center rounded-full gap-1 w-auto flex-shrink-0 h-full',
-                  'touch-manipulation focus-visible:outline-none transform-gpu active:bg-[var(--hud-active-bg)]',
+                  'touch-manipulation focus-visible:outline-none transform-gpu',
                 )}
                 style={{
                   minWidth: 'clamp(42px, 10vw, 54px)',

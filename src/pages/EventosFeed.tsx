@@ -316,11 +316,11 @@ export default function EventosFeed() {
                   }}
                 >
                   <Icon 
-                    className={cn("w-4 h-4 transition-all duration-300 relative z-10", active ? "scale-110" : "text-white/40")} 
+                    className={cn("w-4 h-4 transition-all duration-300 relative z-10", active ? "scale-110" : (isLight ? "text-black/40" : "text-white/40"))} 
                     style={{ color: active ? '#fff' : undefined }} 
                   />
                   <span 
-                    className={cn("text-[11px] font-black uppercase tracking-[0.12em] transition-all duration-300 relative z-10", active ? "" : "text-white/40")}
+                    className={cn("text-[11px] font-black uppercase tracking-[0.12em] transition-all duration-300 relative z-10", active ? "" : (isLight ? "text-black/40" : "text-white/40"))}
                     style={{ color: active ? '#fff' : undefined }}
                   >
                     {cat.label}
@@ -360,7 +360,7 @@ export default function EventosFeed() {
               onClick={() => setActiveCategory('all')}
               className={cn(
                 "mt-5 inline-flex h-11 items-center justify-center rounded-full px-5 text-sm font-black tracking-tight transition-transform active:scale-[0.98]",
-                isLight ? "text-foreground" : "text-white"
+                isLight ? "text-black" : "text-white"
               )}
               style={{
                 ...hudGlassStyle,

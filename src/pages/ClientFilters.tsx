@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Sparkles, ChevronLeft, ChevronRight, Search, RotateCcw, Home, Bike, Briefcase, Zap, Radar
+  ChevronLeft, ChevronRight, RotateCcw, Home, Bike, Briefcase, Radar
 } from 'lucide-react';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { PropertyClientFilters } from '@/components/filters/PropertyClientFilters';
@@ -14,7 +14,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
 import useAppTheme from '@/hooks/useAppTheme';
 import { haptics } from '@/utils/microPolish';
-import { useCardReset } from '@/hooks/useCardReset';
+
 import type { QuickFilterCategory } from '@/types/filters';
 
 interface ClientFiltersProps {
@@ -69,7 +69,7 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
   return (
     <div
       className={cn(
-        "w-full flex flex-col p-4 relative min-h-full",
+        "w-full flex flex-col p-4 pt-[env(safe-area-inset-top)] relative min-h-full",
         isLight ? "bg-white text-slate-900" : "bg-[#020202] text-white"
       )}
       style={{ paddingBottom: 'calc(var(--bottom-nav-height, 72px) + var(--safe-bottom, 0px) + 24px)' }}
