@@ -117,7 +117,10 @@ export function AppLayout({ children }: AppLayoutProps) {
     const path = location.pathname;
     const isRadio = path.startsWith('/radio');
     const isCamera = path.startsWith('/camera');
-    return isCamera || isRadio || showAIChat;
+    // Dashboard swipe pages are full-bleed — top bar floats transparently over them
+    const isSwipeDashboard = path === '/client/dashboard' || path === '/owner/dashboard' ||
+      path === '/client/dashboard/' || path === '/owner/dashboard/';
+    return isCamera || isRadio || showAIChat || isSwipeDashboard;
   }, [location.pathname, showAIChat]);
 
   const handleFilterClick = () => {
