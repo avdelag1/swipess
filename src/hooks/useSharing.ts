@@ -41,8 +41,7 @@ export function useCreateShare() {
         throw new Error('Must specify either sharedListingId or sharedProfileId');
       }
 
-      // Generate share URL - use environment URL or current origin
-      const baseUrl = import.meta.env.VITE_APP_URL || window.location.origin;
+      const baseUrl = 'https://swipess.app';
       let shareUrl = '';
       if (params.sharedListingId) {
         shareUrl = `${baseUrl}/listing/${params.sharedListingId}`;
@@ -92,7 +91,7 @@ export function useIncrementShareClicks() {
 
 // Generate shareable URL - always use production domain with referral tracking
 export function generateShareUrl(params: ShareUrlParams): string {
-  const baseUrl = import.meta.env.VITE_APP_URL || window.location.origin;
+  const baseUrl = 'https://swipess.app';
   let url = baseUrl;
 
   if (params.listingId) {
@@ -101,9 +100,11 @@ export function generateShareUrl(params: ShareUrlParams): string {
     url = `${baseUrl}/profile/${params.profileId}`;
   }
 
-  // Add referral ID if provided
+  // Add a short referral code — strip dashes, take first 10 chars so the
+  // raw UUID is never exposed in the displayed link.
   if (params.referralId) {
-    url += `?ref=${params.referralId}`;
+    const refCode = params.referralId.replace(/-/g, '').slice(0, 10);
+    url += `?ref=${refCode}`;
   }
 
   return url;
