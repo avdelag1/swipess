@@ -22,7 +22,7 @@ import {
   Users2, ShieldCheck,
   Megaphone, PartyPopper, Scale,
   Zap, SlidersHorizontal, Sparkles,
-  IdCard, BadgePercent, Radio
+  IdCard, BadgePercent, Radio, Ticket
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUnreadMessageCount } from '@/hooks/useUnreadMessageCount';
@@ -75,6 +75,7 @@ export const TAP_SPRING = {
 export const BottomNavigation = memo(({
   userRole,
   onFilterClick,
+  onListingsClick,
   className,
 }: BottomNavigationProps) => {
   const { navigate, prefetch } = useAppNavigate();
@@ -117,12 +118,13 @@ export const BottomNavigation = memo(({
   const clientNavItems: NavItem[] = [
     { id: 'dashboard', icon: Zap, label: 'Dashboard', path: '/client/dashboard' },
     { id: 'profile', icon: CircleUser, label: 'Profile', path: '/client/profile' },
-    { id: 'likes', icon: Flame, label: 'Likes', path: '/client/liked-properties' },
-    { id: 'messages', icon: MessageCircle, label: 'Messages', path: '/messages' },
+    { id: 'likes', icon: Flame, label: 'Likes', path: '/client/liked-properties', onClick: onListingsClick },
     { id: 'ai', icon: Sparkles, label: 'AI Bot', onClick: openAIChat, isSpecial: true },
+    { id: 'messages', icon: MessageCircle, label: 'Messages', path: '/messages' },
     { id: 'vapid', icon: IdCard, label: 'ID Card', onClick: () => setModal('showVapId', true) },
     { id: 'events', icon: PartyPopper, label: 'Events', path: '/explore/eventos' },
     { id: 'roommates', icon: Users2, label: 'Roommates', path: '/explore/roommates' },
+    { id: 'tokens', icon: Ticket, label: 'Tokens', onClick: () => setModal('showTokensModal', true) },
     { id: 'search', icon: SlidersHorizontal, label: 'Filter', onClick: onFilterClick },
     { id: 'perks', icon: BadgePercent, label: 'Perks', path: '/client/perks' },
     { id: 'radio', icon: Radio, label: 'Radio', path: '/radio' },
@@ -133,9 +135,10 @@ export const BottomNavigation = memo(({
     { id: 'dashboard', icon: Zap, label: 'Dashboard', path: '/owner/dashboard' },
     { id: 'profile', icon: CircleUser, label: 'Profile', path: '/owner/profile' },
     { id: 'likes', icon: Flame, label: 'Likes', path: '/owner/liked-clients' },
+    { id: 'ai', icon: Sparkles, label: 'AI Bot', onClick: openAIChat, isSpecial: true },
+    { id: 'listings', icon: Building2, label: 'Listings', path: '/owner/properties', onClick: onListingsClick },
     { id: 'messages', icon: MessageCircle, label: 'Messages', path: '/messages' },
     { id: 'ai-listing', icon: Sparkles, label: 'AI Listing', onClick: () => setModal('showAIListing', true), isSpecial: true },
-    { id: 'listings', icon: Building2, label: 'Listings', path: '/owner/properties' },
     { id: 'legal', icon: Scale, label: 'Legal', path: '/owner/legal-services' },
     { id: 'promote', icon: Megaphone, label: 'Promote', path: '/client/advertise' },
     { id: 'filters', icon: SlidersHorizontal, label: 'Filter', onClick: onFilterClick },
@@ -219,7 +222,7 @@ export const BottomNavigation = memo(({
         navigate(item.path);
       }
     },
-    [navigate, location.pathname, setCategories],
+    [navigate, location.pathname, setCategories, showAIListing, showAIChat, setModal],
   );
 
   const handleNavKeyDown = useCallback(
@@ -431,5 +434,3 @@ export const BottomNavigation = memo(({
 });
 
 BottomNavigation.displayName = 'BottomNavigation';
-
-

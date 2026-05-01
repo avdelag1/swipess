@@ -1,7 +1,7 @@
 import { memo, useCallback } from 'react';
 import { useAppNavigate } from "@/hooks/useAppNavigate";
 import { motion } from 'framer-motion';
-import { ChevronLeft, UserCircle, Ticket } from 'lucide-react';
+import { ChevronLeft, UserCircle, Ticket, Radio, Ghost, Zap, SlidersHorizontal, MessageCircle } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
@@ -15,6 +15,7 @@ import { ThemeToggle } from './ThemeToggle';
 import { useFilterStore, useFilterActions } from '@/state/filterStore';
 import { useModalStore } from '@/state/modalStore';
 import { TAP_SPRING } from './BottomNavigation';
+import { AIListingTrigger } from './AIListingTrigger';
 
 interface TopBarProps {
   onNotificationsClick?: () => void;
@@ -34,14 +35,15 @@ interface TopBarProps {
 }
 
 function TopBarComponent({
-  onFilterClick: _onFilterClick,
+  onFilterClick,
   onBack: propOnBack,
-  showBack,
-  onCenterTap,
+  onMessageActivationsClick,
   className,
   userRole,
   transparent: _transparent = false,
   minimal = false,
+  showBack,
+  onCenterTap,
 }: TopBarProps) {
   const { navigate } = useAppNavigate();
   const { user } = useAuth();
@@ -51,8 +53,6 @@ function TopBarComponent({
   const activeCategory = useFilterStore(s => s.activeCategory);
   const { setActiveCategory } = useFilterActions();
 
-
-
   const isOwner = userRole === 'owner';
   
   const onBack = propOnBack || (showBack ? () => window.history.length > 2 ? navigate(-1) : navigate(`/${isOwner ? 'owner' : 'client'}/dashboard`) : (activeCategory ? () => setActiveCategory(null) : undefined));
@@ -61,9 +61,6 @@ function TopBarComponent({
     background: isLight
       ? 'rgba(255, 255, 255, 0.92)'
       : 'rgba(15, 25, 55, 0.55)',
-    // Blur cost scales with radius squared. 22px is visually ~indistinguishable
-    // from 36px against a busy background but ~2.6x cheaper to composite each
-    // frame — and these pills are always on screen.
     backdropFilter: 'blur(32px) saturate(210%)',
     WebkitBackdropFilter: 'blur(32px) saturate(210%)',
     borderRadius: '3rem',
@@ -73,9 +70,6 @@ function TopBarComponent({
       : '0 20px 50px -12px rgba(0, 0, 0, 0.5)',
     pointerEvents: 'auto',
     color: isLight ? '#000000' : 'var(--hud-text)',
-    // No mouse-tracking transform — the parent already runs a global mousemove
-    // listener that updates --mouse-x/y; reading them here causes per-frame
-    // repaints of every pill on desktop and is wasted on touch devices.
   };
 
   const { data: profile } = useQuery({
@@ -113,7 +107,7 @@ function TopBarComponent({
             <motion.button
               transition={TAP_SPRING}
               whileTap={{ scale: 0.9 }}
-               onClick={() => { haptics.tap(); onBack(); }}
+              onClick={() => { haptics.tap(); onBack(); }}
               className="w-9 h-9 flex shrink-0 items-center justify-center rounded-full"
               style={glassPillStyle}
             >
@@ -121,51 +115,60 @@ function TopBarComponent({
             </motion.button>
           ) : (
             user && (
-            <motion.button
-              transition={TAP_SPRING}
-              whileTap={{ scale: 0.95 }}
-                onClick={() => {
-                  haptics.tap();
-                  navigate(isOwner ? '/owner/profile' : '/client/profile');
-                }}
-              className="flex shrink-0 items-center gap-2.5 px-2 py-1.5 pr-3.5 rounded-2xl"
-              style={glassPillStyle}
-            >
-              {/* Rounded Square avatar — 'window' style */}
-              <div className="w-7 h-7 rounded-[0.6rem] overflow-hidden shrink-0 flex items-center justify-center relative"
-                style={{
-                  background: profile?.avatar_url ? 'transparent' : (isLight ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.06)'),
-                  border: 'none',
-                }}
-              >
-                {profile?.avatar_url ? (
-                  <img
-                    src={profile.avatar_url}
-                    alt="Profile"
-                    className="w-full h-full object-cover"
-                    onError={(e) => { 
-                      const target = e.target as HTMLImageElement;
-                      target.style.display = 'none';
-                      const fallback = target.nextElementSibling as HTMLElement;
-                      if (fallback) fallback.style.display = 'flex';
-                    }}
-                  />
-                ) : null}
-                <div 
-                  className="absolute inset-0 flex items-center justify-center"
-                  style={{ display: profile?.avatar_url ? 'none' : 'flex' }}
+              <div className="flex items-center gap-2">
+                <motion.button
+                  transition={TAP_SPRING}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => {
+                    haptics.tap();
+                    navigate(isOwner ? '/owner/profile' : '/client/profile');
+                  }}
+                  className="flex shrink-0 items-center gap-2.5 px-2 py-1.5 pr-3.5 rounded-2xl"
+                  style={glassPillStyle}
                 >
-                  <UserCircle className="w-5 h-5" style={{ color: 'var(--hud-text)', opacity: 0.35 }} strokeWidth={1.5} />
+                  <div className="w-7 h-7 rounded-[0.6rem] overflow-hidden shrink-0 flex items-center justify-center relative"
+                    style={{
+                      background: profile?.avatar_url ? 'transparent' : (isLight ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.06)'),
+                      border: 'none',
+                    }}
+                  >
+                    {profile?.avatar_url ? (
+                      <img
+                        src={profile.avatar_url}
+                        alt="Profile"
+                        className="w-full h-full object-cover"
+                        onError={(e) => { 
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = 'none';
+                          const fallback = target.nextElementSibling as HTMLElement;
+                          if (fallback) fallback.style.display = 'flex';
+                        }}
+                      />
+                    ) : null}
+                    <div 
+                      className="absolute inset-0 flex items-center justify-center"
+                      style={{ display: profile?.avatar_url ? 'none' : 'flex' }}
+                    >
+                      <UserCircle className="w-5 h-5" style={{ color: 'var(--hud-text)', opacity: 0.35 }} strokeWidth={1.5} />
+                    </div>
+                  </div>
+                  {profile?.full_name && (
+                    <span className="text-[11px] font-black uppercase tracking-[0.15em] opacity-80" style={{ color: 'var(--hud-text)' }}>
+                      {profile.full_name.split(' ')[0]}
+                    </span>
+                  )}
+                </motion.button>
+                
+                {/* Brand Logo - The "Heather Bottle" / Glass Pill Logo */}
+                <div 
+                  className="hidden md:flex h-11 items-center px-5 rounded-full"
+                  style={glassPillStyle}
+                >
+                  <span className="swipess-logo-sm text-lg">Swipess</span>
                 </div>
               </div>
-              {profile?.full_name && (
-                <span className="text-[11px] font-black uppercase tracking-[0.15em] opacity-80" style={{ color: 'var(--hud-text)' }}>
-                  {profile.full_name.split(' ')[0]}
-                </span>
-              )}
-            </motion.button>
-          )
-        )}
+            )
+          )}
 
           {/* Mode Switcher — Standalone buttons next to profile */}
           {!minimal && (
@@ -214,6 +217,84 @@ function TopBarComponent({
                 />
               </motion.button>
 
+              <motion.button
+                transition={TAP_SPRING}
+                whileTap={{ scale: 0.9 }}
+                onPointerDown={(e) => {
+                  e.preventDefault(); e.stopPropagation();
+                  haptics.tap();
+                  navigate('/radio');
+                }}
+                className="w-11 h-11 shrink-0 rounded-full flex items-center justify-center p-0.5 relative group overflow-hidden"
+                style={glassPillStyle}
+                title="Radio"
+              >
+                <Radio 
+                  className="w-5 h-5 text-[var(--hud-text)] transition-colors group-hover:text-orange-500" 
+                  strokeWidth={2.5} 
+                />
+              </motion.button>
+
+              <motion.button
+                transition={TAP_SPRING}
+                whileTap={{ scale: 0.9 }}
+                onPointerDown={(e) => {
+                  e.preventDefault(); e.stopPropagation();
+                  haptics.tap();
+                  navigate(isOwner ? '/owner/dashboard' : '/client/dashboard');
+                }}
+                className="w-11 h-11 shrink-0 rounded-full flex items-center justify-center p-0.5 relative group overflow-hidden"
+                style={glassPillStyle}
+                title="Dashboard"
+              >
+                <Zap 
+                  className="w-5 h-5 text-[var(--hud-text)] transition-colors group-hover:text-yellow-500" 
+                  strokeWidth={2.5} 
+                />
+              </motion.button>
+
+              {onFilterClick && (
+                <motion.button
+                  transition={TAP_SPRING}
+                  whileTap={{ scale: 0.9 }}
+                  onPointerDown={(e) => {
+                    e.preventDefault(); e.stopPropagation();
+                    haptics.tap();
+                    onFilterClick(e);
+                  }}
+                  className="w-11 h-11 shrink-0 rounded-full flex items-center justify-center p-0.5 relative group overflow-hidden"
+                  style={glassPillStyle}
+                  title="Filters"
+                >
+                  <SlidersHorizontal 
+                    className="w-5 h-5 text-[var(--hud-text)] transition-colors group-hover:text-blue-500" 
+                    strokeWidth={2.5} 
+                  />
+                </motion.button>
+              )}
+
+              {onMessageActivationsClick && (
+                <motion.button
+                  transition={TAP_SPRING}
+                  whileTap={{ scale: 0.9 }}
+                  onPointerDown={(e) => {
+                    e.preventDefault(); e.stopPropagation();
+                    haptics.tap();
+                    onMessageActivationsClick();
+                  }}
+                  className="w-11 h-11 shrink-0 rounded-full flex items-center justify-center p-0.5 relative group overflow-hidden"
+                  style={glassPillStyle}
+                  title="Messages & Activations"
+                >
+                  <MessageCircle 
+                    className="w-5 h-5 text-[var(--hud-text)] transition-colors group-hover:text-indigo-500" 
+                    strokeWidth={2.5} 
+                  />
+                </motion.button>
+              )}
+
+              <AIListingTrigger glassPillStyle={glassPillStyle} />
+
               <ThemeToggle glassPillStyle={glassPillStyle} />
 
               <NotificationPopover glassPillStyle={glassPillStyle} />
@@ -235,5 +316,3 @@ function TopBarComponent({
 }
 
 export const TopBar = memo(TopBarComponent);
-
-
