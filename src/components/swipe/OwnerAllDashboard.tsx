@@ -7,6 +7,7 @@ import {
   OWNER_INTENT_CARDS,
   OwnerIntentCard,
   POKER_CARD_PHOTOS,
+  PK_ASPECT,
 } from './SwipeConstants';
 import { deckFadeVariants } from '@/utils/modernAnimations';
 import { PokerCategoryCard } from './PokerCategoryCard';
@@ -113,7 +114,11 @@ export const OwnerAllDashboard = memo(({ onCardSelect }: OwnerAllDashboardProps)
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="relative flex items-center justify-center transition-all w-full h-full sm:max-w-[480px] sm:mx-auto"
+          className="relative flex items-center justify-center transition-all"
+          style={{ 
+            height: 'min(75svh, 600px)',
+            width: `calc(min(75svh, 600px) * ${PK_ASPECT})`,
+          }}
         >
           {[...cards].reverse().map((card, reversedIdx) => {
             const index = cards.length - 1 - reversedIdx;
