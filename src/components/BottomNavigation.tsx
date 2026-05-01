@@ -81,6 +81,8 @@ export const BottomNavigation = memo(({
   const location = useLocation();
   const setCategories = useFilterStore((s) => s.setCategories);
   const setModal = useModalStore((s) => s.setModal);
+  const showAIListing = useModalStore((s) => s.showAIListing);
+  const showAIChat = useModalStore((s) => s.showAIChat);
   const { unreadCount: _unreadCount } = useUnreadMessageCount();
   const { unreadCount: _unreadNotifCount } = useUnreadNotifications();
   const { theme, isLight } = useAppTheme();
@@ -202,6 +204,12 @@ export const BottomNavigation = memo(({
         const x = (event as any).clientX - rect.left;
         setRipple({ x, id: Math.random().toString() });
         setTimeout(() => setRipple(null), 800);
+      }
+
+      // Close any open full-screen modals before navigating to a new page
+      if (item.path) {
+        if (showAIListing) setModal('showAIListing', false);
+        if (showAIChat) setModal('showAIChat', false);
       }
 
       // Haptics already triggered on PointerDown if applicable
