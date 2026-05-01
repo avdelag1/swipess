@@ -92,7 +92,7 @@ const LandingView = memo(({
         <div className="relative">
           <SwipessLogo 
             size="3xl" 
-            variant="white"
+            variant="transparent"
             className="w-[65vw] max-w-[280px] sm:max-w-[340px] md:max-w-[420px]" 
           />
           <motion.div
@@ -285,7 +285,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
 
         <div className="text-center mb-5 pt-4">
           <div className="flex justify-center mb-4">
-            <SwipessLogo size="md" variant="white" />
+            <SwipessLogo size="md" variant="transparent" />
           </div>
 
           {isForgotPassword ? (
