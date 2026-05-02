@@ -14,6 +14,7 @@ import { toast } from '@/components/ui/sonner';
 import { useAuth } from '@/hooks/useAuth';
 import useAppTheme from '@/hooks/useAppTheme';
 import { useVisualTheme } from '@/contexts/VisualThemeContext';
+import { useTranslation } from 'react-i18next';
 
 // Modular Components
 import { EventCard } from '@/components/events/EventCard';
@@ -32,6 +33,7 @@ export default function EventosFeed() {
   const { user } = useAuth();
   const { theme } = useAppTheme();
   const { setAmbientColor } = useVisualTheme();
+  const { t } = useTranslation();
   const isLight = theme === 'light';
   const queryClient = useQueryClient();
   const parentRef = useRef<HTMLDivElement>(null);
@@ -316,11 +318,11 @@ export default function EventosFeed() {
                   }}
                 >
                   <Icon 
-                    className={cn("w-4 h-4 transition-all duration-300 relative z-10", active ? "scale-110" : "text-white/40")} 
+                    className={cn("w-4 h-4 transition-all duration-300 relative z-10", active ? "scale-110" : (isLight ? "text-black/40" : "text-white/40"))} 
                     style={{ color: active ? '#fff' : undefined }} 
                   />
                   <span 
-                    className={cn("text-[11px] font-black uppercase tracking-[0.12em] transition-all duration-300 relative z-10", active ? "" : "text-white/40")}
+                    className={cn("text-[11px] font-black uppercase tracking-[0.12em] transition-all duration-300 relative z-10", active ? "" : (isLight ? "text-black/40" : "text-white/40"))}
                     style={{ color: active ? '#fff' : undefined }}
                   >
                     {cat.label}
@@ -351,23 +353,23 @@ export default function EventosFeed() {
         <div className="absolute inset-0 flex items-center justify-center px-6 pt-32">
           <div className="w-full max-w-sm rounded-[30px] px-6 py-7 text-center" style={hudGlassStyle}>
             <p className={cn("text-lg font-black tracking-tight", isLight ? "text-foreground" : "text-white")}> 
-              {activeCategory === 'likes' ? 'No saved events yet' : 'No events in this category yet'}
+              {activeCategory === 'likes' ? t('events.noLikedEvents') : t('events.noEvents')}
             </p>
             <p className={cn("mt-2 text-sm", isLight ? "text-foreground/70" : "text-white/70")}>
-              Try another vibe or jump back to everything.
+              {t('events.noEventsDesc')}
             </p>
             <button
               onClick={() => setActiveCategory('all')}
               className={cn(
                 "mt-5 inline-flex h-11 items-center justify-center rounded-full px-5 text-sm font-black tracking-tight transition-transform active:scale-[0.98]",
-                isLight ? "text-foreground" : "text-white"
+                isLight ? "text-black" : "text-white"
               )}
               style={{
                 ...hudGlassStyle,
                 background: isLight ? 'rgba(255,255,255,0.56)' : 'rgba(255,255,255,0.12)',
               }}
             >
-              Show all events
+              {t('events.allEvents')}
             </button>
           </div>
         </div>

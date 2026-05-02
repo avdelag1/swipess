@@ -1,56 +1,49 @@
-# Three-Part Fix Plan
+## Why nothing is rendering
 
-## 1. Healing bowl tap sounds on landing page (pre-auth)
+The preview is currently blank for header buttons / nav buttons because the project has **8 TypeScript build errors** (reported by the build system). When the build fails, the dashboard chunks don't mount and the `TopBar` / `BottomNavigation` controls disappear with them. Both bars are mounted unconditionally in `AppLayout.tsx`, so the only reason they aren't visible is the broken build.
 
-**Problem:** `LegendaryLandingPage.tsx` calls `triggerHaptic(...)` on every tap but never plays an audio bowl. Sound assets exist in `public/sounds/` (e.g. `singing-bowl-gong-69238.mp3`, `bell-meditation-75335.mp3`, the chakra series).
+Once the build is green, the bars come back. Then the only remaining visual ask is: **no frame/background on the header itself** — just the round pill buttons floating over the swipe deck.
 
-**Fix:**
-- Create a small util `src/utils/landingSounds.ts` that exposes `playLandingTap()`:
-  - Pre-loads a pool of 3–4 calming bowl sounds (singing bowl, meditation bell, sacral chakra, tuning fork).
-  - Picks one randomly per tap so it doesn't get repetitive.
-  - Volume capped at ~0.35, fully fail-silent on autoplay block.
-  - Uses a single shared `AudioContext`-free `<audio>` element pool to avoid GC stutter.
-- In `LegendaryLandingPage.tsx`, wrap the existing `triggerHaptic('medium'/'light')` calls on the main CTA buttons (Login, Sign up, Apple, Google, tab toggles) with `playLandingTap()`. Only on the landing surface — not after auth.
-- Trigger a one-time `unlock()` on first user interaction (most browsers require a gesture before audio works).
+---
 
-## 2. Quick-filter swipe cards: stop the shaking & flickering
+## Plan
 
-**Problem (in `PokerCategoryCard.tsx`):**
-- `<motion.img>` uses inline `style={{ transform: isTop && isDragging ? 'scale(1.05)' : 'scale(1)' }}` which **fights** the parent `motion.div`'s drag transform → causes per-frame layout reflow → visible shake.
-- Card animates `y`, `opacity`, `scale` AND the parent has `willChange: 'transform, opacity'`, but the photo `<img>` re-renders `transform` on every drag tick.
-- `useEffect` re-creates a new `Image()` on every photo change which can flash `imgReady=false` → flicker on re-cycle.
-- Stack `filter: blur()` recomputes on each render of background cards → jitter.
+### 1. Fix the 8 build errors (unblocks the preview)
 
-**Fix:**
-- Move photo zoom to a **CSS class toggle** (`data-dragging="true"` + CSS transition) instead of inline style swap, so the browser keeps it on the compositor layer.
-- Replace the photo zoom with a `useTransform(x, ...)` driven scale on the image itself (compositor-only, no re-renders).
-- Use the shared `imageCache` (`src/lib/swipe/imageCache.ts` / `cardImageCache.ts`) so `imgReady` stays `true` after first load and doesn't flicker on cycle.
-- Pre-rasterize the blurred background cards: compute `filter` once via `useMemo(..., [index])` and apply via `style` only when index changes.
-- Add `transform: translateZ(0)` and `backface-visibility: hidden` on the card root to force GPU layer (prevents subpixel jitter on iOS Safari).
-- Soften spring slightly: `PK_SPRING` stiffness 400 → 320, damping 30 → 28 — feels smoother without losing snap.
+| # | File | Fix |
+|---|------|-----|
+| 1 | `src/components/DigitalSignaturePad.tsx:108` | `uiSounds.playSwoosh()` doesn't exist. Replace with `uiSounds.playTap()` (which does exist in `src/utils/uiSounds.ts`). |
+| 2 | `src/components/LikedClientInsightsModal.tsx:507, 517` | Missing `cn` import. Add `import { cn } from '@/lib/utils';`. |
+| 3 | `src/components/LikedClientInsightsModal.tsx:656` | `ReportDialog` has no `targetId` / `targetType` / `targetName` props. Real props are `reportedUserId`, `reportedListingId`, `reportedUserName`, `category`. Replace usage with the correct props (`reportedUserId={client.user_id}`, `reportedUserName={client.name}`, `category="user_profile"`). |
+| 4 | `src/components/LikedListingInsightsModal.tsx:679` | Same `ReportDialog` prop mismatch. Replace with `reportedListingId={listing.id}`, `reportedUserId={listing.owner_id}`, `reportedListingTitle={listing.title}`, `category="listing"`. |
+| 5 | `src/components/GlobalDialogs.tsx:218` | `LikedClientInsightsModal` expects a `LikedClient` (full_name, bio, images, liked_at) but receives a `ClientProfile`. Map the profile to the `LikedClient` shape inline (fill `full_name`, `bio`, `images`, `liked_at` from the profile, defaulting empty strings/arrays/`new Date().toISOString()` when missing). |
+| 6 | `src/components/OwnerClientSwipeDialog.tsx:60` | Same mapping problem. Apply the same `ClientProfile → LikedClient` adapter before passing to the modal. |
+| 7 | `src/components/PropertyManagement.tsx:439` | `ChevronRight` used but not imported. Add `ChevronRight` to the existing `lucide-react` import on line 14. |
 
-## 3. Owner side: actually see the real swipe cards (listings + clients)
+### 2. Remove the header frame (visual fix the user asked for)
 
-**Problem:** `EnhancedOwnerDashboard.tsx` forces this 3-phase flow: `cards` (poker quick-filter fan) → `kilometer` (radius slider) → `swipe` (real ClientSwipeContainer). The user can't jump past the quick filter to test the real deck.
+In `src/components/TopBar.tsx`:
 
-**Fix:**
-- Add a **"Skip to Swipe Deck"** secondary button on the kilometer page (next to "Initiate Scan") that goes straight to `swipe` phase using a sensible default radius (50 km) and category (`all-clients` if none picked).
-- Add a small persistent **"Show Swipe Deck"** quick-action chip in the top-right of the `cards` (poker) phase header. One tap → set `activeCategory = 'all-clients'`, `ownerPhase = 'swipe'`, bypassing kilometer.
-- Also add a separate mode for **listings** (currently owner only sees client profiles via `useSmartClientMatching`). Add a toggle on the swipe phase header: `Clients ⇆ Listings`. When in Listings mode, render the `SwipessSwipeContainer` (same one client side uses) so owner can preview/test the real listing deck their clients will see.
-- Persist the last-used owner mode (clients vs listings) in localStorage so testing is sticky.
+- The `<header>` already has `background: 'transparent'` and `border: 'none'` — that's correct. Confirm and keep.
+- Audit `AppLayout.tsx` and `SentientHud.tsx` wrappers around `<TopBar>` — neither should add a background or border. Both currently look clean (`pointer-events-none` only). No changes expected here, but verify in pass.
+- The user complained about a frame appearing on the header. Likely culprit: a stray container/outline inherited from the surrounding HUD or a leftover background on the `<header>` element from a previous edit. The current code in `TopBar.tsx` is clean, but we will explicitly **remove any backdrop / shadow / border on the `<header>` and its inner row**, leaving only the individual button pills (`glassPillStyle`) and the `ModeSwitcher` pill — those are the "buttons with their own frames" the user said they want to keep.
 
-## Files to touch
+### 3. Verification
 
-```text
-src/utils/landingSounds.ts                       (new)
-src/components/LegendaryLandingPage.tsx          (wire playLandingTap into tap handlers)
-src/components/swipe/PokerCategoryCard.tsx       (compositor zoom, GPU layer, cached img)
-src/components/swipe/SwipeConstants.ts           (soften PK_SPRING)
-src/pages/EnhancedOwnerDashboard.tsx             (skip-to-swipe chip, clients/listings toggle)
-```
+- After the edits, the harness rebuilds; confirm 0 TypeScript errors.
+- Reload `/owner/dashboard` and `/client/dashboard`:
+  - Header pills (profile, mode switcher, tokens, radio, dashboard, filter, AI, theme, notifications) are visible and tappable.
+  - Bottom navigation bar pill is visible and tappable.
+  - No outer frame/background behind the header — only the individual round buttons float over the swipe deck.
 
-## Out of scope
+### Files touched
 
-- No backend / RLS changes.
-- No changes to swipe physics for the **real** ClientSwipeContainer (only the poker quick-filter cards).
-- No new audio assets — only uses the existing `public/sounds/*` library.
+- `src/components/DigitalSignaturePad.tsx`
+- `src/components/LikedClientInsightsModal.tsx`
+- `src/components/LikedListingInsightsModal.tsx`
+- `src/components/GlobalDialogs.tsx`
+- `src/components/OwnerClientSwipeDialog.tsx`
+- `src/components/PropertyManagement.tsx`
+- `src/components/TopBar.tsx` (only if any residual frame styling is found)
+
+No database, no schema, no logic changes — purely build fixes + the header-frame cleanup you asked for.

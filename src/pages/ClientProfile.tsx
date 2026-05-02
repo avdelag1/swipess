@@ -19,9 +19,11 @@ import { cn } from "@/lib/utils";
 import { triggerHaptic } from "@/utils/haptics";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import useAppTheme from "@/hooks/useAppTheme";
+import { useTranslation } from 'react-i18next';
 
 const ClientProfile = () => {
   const { isLight } = useAppTheme();
+  const { t } = useTranslation();
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showPhotoPreview, setShowPhotoPreview] = useState(false);
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
@@ -140,9 +142,9 @@ const ClientProfile = () => {
         {/* HUD STATS GRID */}
         <div className="grid grid-cols-3 gap-3">
           {[
-            { label: 'Likes', value: stats?.likesReceived ?? 0, icon: ThumbsUp, color: 'text-violet-400', glow: 'rgba(124,58,237,0.15)' },
-            { label: 'Matches', value: stats?.matchesCount ?? 0, icon: Sparkles, color: 'text-cyan-400', glow: 'rgba(0,212,255,0.15)' },
-            { label: 'Chats', value: stats?.activeChats ?? 0, icon: MessageSquare, color: 'text-blue-400', glow: 'rgba(59,130,246,0.15)' },
+            { label: t('nav.likes'), value: stats?.likesReceived ?? 0, icon: ThumbsUp, color: 'text-violet-400', glow: 'rgba(124,58,237,0.15)' },
+            { label: t('dashboard.totalMatches'), value: stats?.matchesCount ?? 0, icon: Sparkles, color: 'text-cyan-400', glow: 'rgba(0,212,255,0.15)' },
+            { label: t('nav.messages'), value: stats?.activeChats ?? 0, icon: MessageSquare, color: 'text-blue-400', glow: 'rgba(59,130,246,0.15)' },
           ].map((stat, i) => (
             <motion.div
               key={i}
@@ -170,16 +172,17 @@ const ClientProfile = () => {
             }}
           >
             <User className="w-6 h-6 mr-3 text-white" />
-            <span className="text-white">Control Identity</span>
+            <span className="text-white">{t('profile.editProfile')}</span>
           </Button>
 
           <Button
             onClick={() => { triggerHaptic('medium'); navigate('/client/advertise'); }}
-            className={cn("w-full h-16 rounded-2xl border transition-all active:scale-95", isLight ? "border-slate-200 bg-slate-50 hover:bg-slate-100" : "border-white/[0.08] bg-white/[0.03] hover:bg-white/[0.05]")}
+            className={cn("w-full h-16 rounded-2xl border transition-all active:scale-95", isLight ? "border-slate-200 bg-slate-50 hover:bg-slate-100" : "border-violet-500/20 hover:border-violet-500/35")}
+            style={!isLight ? { background: 'rgba(124,58,237,0.05)' } : undefined}
           >
             <Megaphone className="w-6 h-6 text-violet-400 mr-3" />
             <span className="bg-gradient-to-r from-violet-400 via-blue-400 to-cyan-400 bg-clip-text text-transparent font-black uppercase italic tracking-[0.2em] text-[14px]">
-              Promote Your Event
+              {t('nav.promote')}
             </span>
           </Button>
         </div>
@@ -217,7 +220,7 @@ const ClientProfile = () => {
               <div className="flex items-center justify-between px-1">
                 <div className="flex items-center gap-3">
                   <Sparkles className="w-4 h-4 text-violet-400" />
-                  <span className={cn("text-[10px] font-black uppercase tracking-[0.3em]", isLight ? "text-slate-500" : "text-white/35")}>Profile Completion</span>
+                  <span className={cn("text-[10px] font-black uppercase tracking-[0.3em]", isLight ? "text-slate-500" : "text-white/35")}>{t('profile.completeness')}</span>
                 </div>
                 <span className={cn("text-2xl font-black italic tracking-tighter", isLight ? "text-slate-900" : "text-white")}>{completionPercent}%</span>
               </div>
@@ -271,14 +274,14 @@ const ClientProfile = () => {
             }}
           >
             <Crown className="w-6 h-6 text-white" />
-            <span>Member Dashboard</span>
+            <span>{t('nav.dashboard')}</span>
           </motion.button>
 
           <div className="grid grid-cols-1 gap-3">
             {[
-              { label: 'Legal Terminal', icon: Scale, path: '/client/legal-services' },
-              { label: 'Account Settings', icon: Settings, path: '/client/settings' },
-              { label: 'Sign Out', icon: LogOut, path: 'signout', urgent: true },
+              { label: t('nav.legal'), icon: Scale, path: '/client/legal-services' },
+              { label: t('nav.settings'), icon: Settings, path: '/client/settings' },
+              { label: t('actions.signOut'), icon: LogOut, path: 'signout', urgent: true },
             ].map(btn => (
               <motion.button
                 key={btn.label}

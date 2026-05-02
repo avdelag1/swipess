@@ -6,7 +6,7 @@ import {
 import { triggerHaptic } from '@/utils/haptics';
 import { playRandomZen } from '@/utils/sounds';
 import {
-  Mail, Lock, User, ArrowLeft, Sparkles, ChevronRight, Check, LogIn, X
+  Mail, Lock, User, ArrowLeft, Sparkles, Check, LogIn, X
 } from 'lucide-react';
 import { SwipessLogo } from './SwipessLogo';
 import LandingBackgroundEffects, { type EffectMode } from './LandingBackgroundEffects';
@@ -92,7 +92,7 @@ const LandingView = memo(({
         <div className="relative">
           <SwipessLogo 
             size="3xl" 
-            variant="white"
+            variant="transparent"
             className="w-[65vw] max-w-[280px] sm:max-w-[340px] md:max-w-[420px]" 
           />
           <motion.div
@@ -173,11 +173,9 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
   const [confirmPassword, setConfirmPassword] = useState('');
   const [name, setName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [rememberMe, setRememberMe] = useState(true);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const { signIn, signUp, signInWithOAuth } = useAuth();
 
-  /* Clear field errors when switching modes */
   useEffect(() => {
     setFieldErrors({});
   }, [isLogin, isForgotPassword]);
@@ -207,7 +205,6 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
     }
   };
 
-  /* ─── Fix #7: Inline validation before submit ─── */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isForgotPassword) return handleForgotPassword(e);
@@ -220,12 +217,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
         if (!email.trim()) errs.email = 'Email is required';
         else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errs.email = 'Enter a valid email address';
         if (!password.trim()) errs.password = 'Password is required';
-        if (Object.keys(errs).length > 0) {
-          setFieldErrors(errs);
-          setIsLoading(false);
-          triggerHaptic('error');
-          return;
-        }
+        if (Object.keys(errs).length > 0) { setFieldErrors(errs); setIsLoading(false); triggerHaptic('error'); return; }
         const validated = loginSchema.parse({ email, password });
         await signIn(validated.email, validated.password);
       } else {
@@ -237,12 +229,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
         else if (password.length < 6) errs.password = 'Must be at least 6 characters';
         if (!confirmPassword.trim()) errs.confirmPassword = 'Please confirm your password';
         else if (password !== confirmPassword) errs.confirmPassword = 'Passwords do not match';
-        if (Object.keys(errs).length > 0) {
-          setFieldErrors(errs);
-          setIsLoading(false);
-          triggerHaptic('error');
-          return;
-        }
+        if (Object.keys(errs).length > 0) { setFieldErrors(errs); setIsLoading(false); triggerHaptic('error'); return; }
         const validated = signupSchema.parse({ name, email, password });
         await signUp(validated.email, validated.password, 'client', validated.name);
       }
@@ -264,206 +251,165 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
     await signInWithOAuth(provider, 'client');
   };
 
+  const inputCls = (hasError?: boolean) => cn(
+    "pl-11 h-[52px] bg-white/[0.06] border-white/10 text-white placeholder:text-white/40 rounded-2xl focus:border-[#FF4D00]/60 transition-all font-semibold text-sm",
+    hasError && "border-red-500/70 focus:border-red-500"
+  );
+
   return (
     <motion.div
       key="auth"
-      className="absolute inset-0 flex flex-col items-center justify-center p-6 z-20 overflow-y-auto"
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 1.1 }}
+      className="absolute inset-0 flex flex-col z-20 overflow-y-auto"
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
     >
-      {/* 🛸 GLASS FORM PANEL */}
-      <div className="w-full max-w-sm bg-[#0d0d0f]/80 backdrop-blur-3xl border border-white/5 rounded-[2.5rem] p-7 shadow-2xl relative overflow-hidden my-auto">
-        
-        <button
-          onClick={() => { playRandomZen(0.3); triggerHaptic('light'); isForgotPassword ? setIsForgotPassword(false) : onBack(); }}
-          className="absolute top-5 left-5 w-10 h-10 rounded-2xl bg-white/5 flex items-center justify-center text-white/70 border border-white/5 active:scale-90 transition-all z-20"
-          aria-label="Go back"
+      {/* Back button */}
+      <button
+        onClick={() => { playRandomZen(0.3); triggerHaptic('light'); isForgotPassword ? setIsForgotPassword(false) : onBack(); }}
+        className="absolute top-12 left-6 w-11 h-11 rounded-full bg-white/8 flex items-center justify-center text-white/60 active:scale-90 transition-all z-30"
+        aria-label="Go back"
+      >
+        <ArrowLeft className="w-5 h-5" />
+      </button>
+
+      <div className="flex flex-col items-center justify-center min-h-full px-6 py-20 w-full max-w-sm mx-auto">
+        {/* Logo */}
+        <motion.div
+          className="mb-8"
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.05 }}
         >
-          <ArrowLeft className="w-4 h-4" />
-        </button>
+          <SwipessLogo size="md" variant="transparent" />
+        </motion.div>
 
-        <div className="text-center mb-5 pt-4">
-          <div className="flex justify-center mb-4">
-            <SwipessLogo size="md" variant="white" />
-          </div>
+        {/* Mode switcher — two clean separate buttons */}
+        {!isForgotPassword && (
+          <motion.div
+            className="flex gap-2 w-full mb-8"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+          >
+            <button
+              type="button"
+              onClick={() => { playRandomZen(0.3); triggerHaptic('light'); setIsLogin(true); setFieldErrors({}); }}
+              className={cn(
+                "flex-1 h-12 rounded-[1.6rem] font-black uppercase tracking-[0.2em] text-[11px] transition-all active:scale-[0.97]",
+                isLogin
+                  ? "bg-[#FF4D00] text-white shadow-[0_8px_30px_rgba(255,77,0,0.4)]"
+                  : "bg-white/8 text-white/50 hover:text-white/80"
+              )}
+            >
+              Sign In
+            </button>
+            <button
+              type="button"
+              onClick={() => { playRandomZen(0.3); triggerHaptic('light'); setIsLogin(false); setFieldErrors({}); }}
+              className={cn(
+                "flex-1 h-12 rounded-[1.6rem] font-black uppercase tracking-[0.2em] text-[11px] transition-all active:scale-[0.97]",
+                !isLogin
+                  ? "bg-white text-black shadow-[0_8px_30px_rgba(255,255,255,0.2)]"
+                  : "bg-white/8 text-white/50 hover:text-white/80"
+              )}
+            >
+              Sign Up
+            </button>
+          </motion.div>
+        )}
 
-          {isForgotPassword ? (
-            <>
-              <h1 className="text-2xl font-black italic tracking-tighter text-white uppercase leading-none mb-2">
-                Reset Password
-              </h1>
-              <p className="text-[11px] font-bold tracking-[0.2em] text-white/75 uppercase">
-                Enter your email to receive a reset link
-              </p>
-            </>
-          ) : (
-            <>
-              {/* ─── Fix #1: Prominent Login / Sign Up tab toggle ─── */}
-              <div className="flex items-center justify-center gap-1 bg-white/10 rounded-2xl p-1 mb-3 border border-white/10">
-                <button
-                  type="button"
-                  onClick={() => { playRandomZen(0.3); triggerHaptic('light'); setIsLogin(true); setFieldErrors({}); }}
-                  className={cn(
-                    "flex-1 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-[0.15em] transition-all",
-                    isLogin
-                      ? "bg-[#FF4D00] text-white shadow-lg"
-                      : "text-white/85 hover:text-white"
-                  )}
-                >
-                  Sign In
-                </button>
-                <button
-                  type="button"
-                  onClick={() => { playRandomZen(0.3); triggerHaptic('light'); setIsLogin(false); setFieldErrors({}); }}
-                  className={cn(
-                    "flex-1 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-[0.15em] transition-all",
-                    !isLogin
-                      ? "bg-[#FF4D00] text-white shadow-lg"
-                      : "text-white/85 hover:text-white"
-                  )}
-                >
-                  Sign Up
-                </button>
-              </div>
-              <p className="text-[11px] font-bold tracking-[0.2em] text-white/75 uppercase">
-                {isLogin ? 'Welcome back' : 'Create your account'}
-              </p>
-            </>
-          )}
-        </div>
+        {isForgotPassword && (
+          <motion.div className="w-full mb-6 text-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+            <p className="text-[11px] font-bold tracking-[0.25em] text-white/50 uppercase">Reset Password</p>
+          </motion.div>
+        )}
 
-        {/* ─── Fix #5 & #7: Standard labels + inline validation ─── */}
-        <form onSubmit={handleSubmit} className="space-y-3" noValidate>
+        {/* Form */}
+        <motion.form
+          onSubmit={handleSubmit}
+          className="space-y-3 w-full"
+          noValidate
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+        >
           {!isLogin && !isForgotPassword && (
             <div>
               <div className="relative">
-                <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/70" />
-                <Input
-                  value={name}
-                  onChange={(e) => { setName(e.target.value); setFieldErrors(prev => ({ ...prev, name: '' })); }}
-                  placeholder="Your Name"
-                  autoComplete="name"
-                  className={cn(
-                    "pl-11 h-[52px] bg-black/60 border-white/10 text-white placeholder:text-white/70 rounded-2xl focus:border-[#FF4D00]/50 transition-all font-semibold text-sm",
-                    fieldErrors.name && "border-red-500/70 focus:border-red-500"
-                  )}
-                />
+                <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+                <Input value={name} onChange={(e) => { setName(e.target.value); setFieldErrors(p => ({ ...p, name: '' })); }} placeholder="Your Name" autoComplete="name" className={inputCls(!!fieldErrors.name)} />
               </div>
-              {fieldErrors.name && <p className="text-red-400 text-[10px] font-semibold mt-1 ml-3 animate-in fade-in slide-in-from-top-1">{fieldErrors.name}</p>}
+              {fieldErrors.name && <p className="text-red-400 text-[10px] font-semibold mt-1 ml-3">{fieldErrors.name}</p>}
             </div>
           )}
 
           <div>
             <div className="relative">
-              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/70" />
-              <Input
-                type="email"
-                value={email}
-                onChange={(e) => { setEmail(e.target.value); setFieldErrors(prev => ({ ...prev, email: '' })); }}
-                placeholder="Email"
-                autoComplete="email"
-                className={cn(
-                  "pl-11 h-[52px] bg-black/60 border-white/10 text-white placeholder:text-white/70 rounded-2xl focus:border-[#FF4D00]/50 transition-all font-semibold text-sm",
-                  fieldErrors.email && "border-red-500/70 focus:border-red-500"
-                )}
-              />
+              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+              <Input type="email" value={email} onChange={(e) => { setEmail(e.target.value); setFieldErrors(p => ({ ...p, email: '' })); }} placeholder="Email" autoComplete="email" className={inputCls(!!fieldErrors.email)} />
             </div>
-            {fieldErrors.email && <p className="text-red-400 text-[10px] font-semibold mt-1 ml-3 animate-in fade-in slide-in-from-top-1">{fieldErrors.email}</p>}
+            {fieldErrors.email && <p className="text-red-400 text-[10px] font-semibold mt-1 ml-3">{fieldErrors.email}</p>}
           </div>
 
           {!isForgotPassword && (
             <div>
               <div className="relative">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/70" />
-                <Input
-                  type="password"
-                  value={password}
-                  onChange={(e) => { setPassword(e.target.value); setFieldErrors(prev => ({ ...prev, password: '' })); }}
-                  placeholder="Password"
-                  autoComplete={isLogin ? "current-password" : "new-password"}
-                  className={cn(
-                    "pl-11 h-[52px] bg-black/60 border-white/10 text-white placeholder:text-white/70 rounded-2xl focus:border-[#FF4D00]/50 transition-all font-semibold text-sm",
-                    fieldErrors.password && "border-red-500/70 focus:border-red-500"
-                  )}
-                />
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+                <Input type="password" value={password} onChange={(e) => { setPassword(e.target.value); setFieldErrors(p => ({ ...p, password: '' })); }} placeholder="Password" autoComplete={isLogin ? "current-password" : "new-password"} className={inputCls(!!fieldErrors.password)} />
               </div>
-              {fieldErrors.password && <p className="text-red-400 text-[10px] font-semibold mt-1 ml-3 animate-in fade-in slide-in-from-top-1">{fieldErrors.password}</p>}
+              {fieldErrors.password && <p className="text-red-400 text-[10px] font-semibold mt-1 ml-3">{fieldErrors.password}</p>}
             </div>
           )}
 
           {!isLogin && !isForgotPassword && (
             <div>
               <div className="relative">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/70" />
-                <Input
-                  type="password"
-                  value={confirmPassword}
-                  onChange={(e) => { setConfirmPassword(e.target.value); setFieldErrors(prev => ({ ...prev, confirmPassword: '' })); }}
-                  placeholder="Confirm Password"
-                  autoComplete="new-password"
-                  className={cn(
-                    "pl-11 h-[52px] bg-black/60 border-white/10 text-white placeholder:text-white/70 rounded-2xl focus:border-[#FF4D00]/50 transition-all font-semibold text-sm",
-                    fieldErrors.confirmPassword && "border-red-500/70 focus:border-red-500"
-                  )}
-                />
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+                <Input type="password" value={confirmPassword} onChange={(e) => { setConfirmPassword(e.target.value); setFieldErrors(p => ({ ...p, confirmPassword: '' })); }} placeholder="Confirm Password" autoComplete="new-password" className={inputCls(!!fieldErrors.confirmPassword)} />
               </div>
-              {fieldErrors.confirmPassword && <p className="text-red-400 text-[10px] font-semibold mt-1 ml-3 animate-in fade-in slide-in-from-top-1">{fieldErrors.confirmPassword}</p>}
+              {fieldErrors.confirmPassword && <p className="text-red-400 text-[10px] font-semibold mt-1 ml-3">{fieldErrors.confirmPassword}</p>}
             </div>
           )}
 
           {isLogin && !isForgotPassword && (
-            <div className="flex items-center justify-between px-1 pt-1">
-               <button 
-                 type="button" 
-                 onClick={() => { triggerHaptic('light'); setRememberMe(!rememberMe); }}
-                 className="flex items-center gap-2 group transition-all"
-               >
-                  <div className={cn(
-                    "w-5 h-5 rounded-md border-2 transition-all flex items-center justify-center",
-                    rememberMe ? "bg-[#FF4D00] border-[#FF4D00] scale-110" : "border-white/10 group-hover:border-white/20"
-                  )}>
-                    {rememberMe && <Check className="w-3 h-3 text-white stroke-[4px]" />}
-                  </div>
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-white/70 group-hover:text-white transition-colors">Remember me</span>
-               </button>
-               
-               {/* ─── Fix #6: Single clear "Forgot Password?" link ─── */}
-               <button 
-                 type="button" 
-                 onClick={() => { triggerHaptic('light'); setIsForgotPassword(true); }}
-                 className="text-[10px] font-bold uppercase tracking-widest text-[#FF4D00] hover:text-[#FF4D00]/80 transition-all"
-               >
-                 Forgot Password?
-               </button>
+            <div className="flex justify-end px-1 pt-1">
+              <button type="button" onClick={() => { triggerHaptic('light'); setIsForgotPassword(true); }} className="text-[10px] font-bold uppercase tracking-widest text-white/40 hover:text-[#FF4D00] transition-colors">
+                Forgot Password?
+              </button>
             </div>
           )}
 
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="w-full h-[52px] rounded-2xl bg-[#FF4D00] text-white font-black uppercase tracking-[0.25em] text-[13px] shadow-[0_12px_40px_rgba(255,77,0,0.35)] active:scale-[0.98] transition-all flex items-center justify-center gap-3 border-none mt-3 disabled:opacity-50 disabled:pointer-events-none"
-          >
-            <Sparkles className="w-4 h-4 !text-white" />
-            <span className="drop-shadow-md !text-white">
+          {/* Primary CTA */}
+          <div className="pt-2">
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full h-14 rounded-[2rem] bg-[#FF4D00] text-white font-black uppercase tracking-[0.25em] text-[13px] shadow-[0_12px_40px_rgba(255,77,0,0.4)] active:scale-[0.97] transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:pointer-events-none"
+            >
+              <Sparkles className="w-4 h-4" />
               {isLoading ? 'Please wait...' : isForgotPassword ? 'Send Reset Link' : isLogin ? 'Sign In' : 'Create Account'}
-            </span>
-          </button>
-        </form>
-
-        {!isForgotPassword && (
-          <div className="mt-5 space-y-3">
-            <div className="flex items-center gap-4">
-               <div className="flex-1 h-[1px] bg-white/15" />
-               <span className="text-[9px] font-bold text-white/85 uppercase tracking-[0.2em]">or continue with</span>
-               <div className="flex-1 h-[1px] bg-white/15" />
-            </div>
-            
-            <div className="grid grid-cols-1 gap-2.5">
-              <AppleAuthButton onClick={() => handleSocialLogin('apple')} />
-              <GoogleAuthButton onClick={() => handleSocialLogin('google')} />
-            </div>
+            </button>
           </div>
+        </motion.form>
+
+        {/* Social auth */}
+        {!isForgotPassword && (
+          <motion.div
+            className="mt-6 space-y-3 w-full"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2 }}
+          >
+            <div className="flex items-center gap-4">
+              <div className="flex-1 h-px bg-white/10" />
+              <span className="text-[9px] font-bold text-white/30 uppercase tracking-[0.25em]">or continue with</span>
+              <div className="flex-1 h-px bg-white/10" />
+            </div>
+            <AppleAuthButton onClick={() => handleSocialLogin('apple')} />
+            <GoogleAuthButton onClick={() => handleSocialLogin('google')} />
+          </motion.div>
         )}
       </div>
     </motion.div>
@@ -482,7 +428,7 @@ function LegendaryLandingPage() {
       {/* 🛸 ATMOSPHERIC BACKGROUND */}
       <div className="fixed inset-0 pointer-events-none">
         <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,rgba(235,72,152,0.08)_0%,transparent_70%)]" />
-        <LandingBackgroundEffects mode={view === 'auth' ? 'off' : 'stars'} isLightTheme={false} />
+        <LandingBackgroundEffects mode="stars" isLightTheme={false} />
       </div>
 
       <AnimatePresence mode="wait">

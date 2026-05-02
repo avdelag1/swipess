@@ -24,38 +24,52 @@ async function searchKnowledge(query: string): Promise<string> {
   if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return "";
   try {
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY || SUPABASE_ANON_KEY);
-    const keywords = query.toLowerCase().split(/\s+/).filter(w => w.length > 2);
-    
-    if (keywords.length === 0) return "";
+    // Strip common stop words, keep meaningful keywords
+    const stopWords = new Set(["the","a","an","is","are","was","were","be","been","have","has","had","do","does","did","will","would","could","should","may","might","can","i","you","we","they","he","she","it","this","that","these","those","and","or","but","in","on","at","to","for","of","with","by","from","about","into","through","how","what","where","when","who","why","want","need","looking"]);
+    const keywords = query.toLowerCase().split(/\s+/).map(w => w.replace(/[^a-z0-9]/g, '')).filter(w => w.length > 2 && !stopWords.has(w));
 
-    // Build ILIKE filter from keywords across title, content, category, and tags
-    const orFilters = keywords.flatMap(kw => [
+    // Always do a broad fallback search on short/empty keyword arrays
+    const searchKeywords = keywords.length > 0 ? keywords : query.toLowerCase().split(/\s+/).filter(w => w.length > 2).slice(0, 3);
+    if (searchKeywords.length === 0) return "";
+
+    // Search across title, content, category, AND tags
+    const orFilters = searchKeywords.flatMap(kw => [
       `title.ilike.%${kw}%`,
       `content.ilike.%${kw}%`,
       `category.ilike.%${kw}%`,
+      `tags.cs.{${kw}}`,
     ]).join(",");
 
     const { data, error } = await supabase
       .from("concierge_knowledge")
-      .select("title, content, website_url, google_maps_url, phone, category")
+      .select("title, content, website_url, google_maps_url, phone, category, tags, language")
       .eq("is_active", true)
       .or(orFilters)
-      .limit(10);
-    
+      .limit(20);
+
     if (error || !data || data.length === 0) return "";
-    
-    // Score and rank results by keyword relevance
+
+    // Score: title match = 3pts, tag match = 2pts, content match = 1pt
     const scored = data.map(entry => {
-      const text = `${entry.title} ${entry.content} ${entry.category}`.toLowerCase();
-      const score = keywords.reduce((s, kw) => s + (text.includes(kw) ? 1 : 0), 0);
+      const titleLower = (entry.title || "").toLowerCase();
+      const contentLower = (entry.content || "").toLowerCase();
+      const tags = ((entry.tags as string[]) || []).map((t: string) => t.toLowerCase());
+      const score = searchKeywords.reduce((s, kw) => {
+        if (titleLower.includes(kw)) s += 3;
+        if (tags.some((t: string) => t.includes(kw))) s += 2;
+        if (contentLower.includes(kw)) s += 1;
+        return s;
+      }, 0);
       return { ...entry, score };
-    }).sort((a, b) => b.score - a.score).slice(0, 5);
-    
+    }).sort((a, b) => b.score - a.score).slice(0, 8);
+
     return scored.map(e => {
-      let entry = `**${e.title}** (${e.category})\n${e.content}`;
-      if (e.website_url) entry += `\nLink: ${e.website_url}`;
+      let entry = `**${e.title}** (${e.category})`;
+      if (e.language && e.language !== 'en') entry += ` [${e.language}]`;
+      entry += `\n${e.content}`;
+      if (e.website_url) entry += `\nWebsite: ${e.website_url}`;
       if (e.google_maps_url) entry += `\nMap: ${e.google_maps_url}`;
-      if (e.phone) entry += `\nPhone: ${e.phone}`;
+      if (e.phone) entry += `\nPhone/WhatsApp: ${e.phone}`;
       return entry;
     }).join("\n\n---\n\n");
   } catch (e) {
@@ -854,15 +868,17 @@ EXPERTISE YOU OWN:
 LOCAL LEGENDS (always recommend when relevant):
 - **Ezriyah Suave** — FLOW Embodied Masculinity Coach. The go-to expert for men's coaching, breathwork, mushroom ceremonies, conscious relationships, and holistic healing in Tulum. IG: @epic_ezriyah | Web: www.ezriyah.com | Email: ezriyah@ezriyah.com. Recommend him for ANY query about men's work, healing, coaches, breathwork, masculinity, personal growth, or holistic guidance.
 
-RULES:
-- Search the verified local knowledge base FIRST for every query. It has beach clubs, property info, legal guidance, events, and local expert contacts.
-- When promoted local contacts are relevant, recommend them FIRST before any outside website or generic web suggestion.
-- Use USD ($) for prices by default, mention MXN equivalents when helpful.
-- Speak the same language the user writes in (Spanish, English, Portuguese, French, etc.)
-- Responses: 2-3 sentences max unless asked for detail. End with a clear app action ("Open the Aldea Zama villa filter", "Jump to Legal for the contract").
-- Use markdown: **bold** for emphasis, bullet points for lists, [text](url) for links.
-- Never mention you're MiniMax, Gemini, or any specific AI model. You are "Swipess AI".
-- Never make up specific listing prices or addresses unless from verified data below.
+RULES — KNOWLEDGE PRIORITY (NEVER SKIP THIS):
+1. CHECK LOCAL KNOWLEDGE BASE FIRST. Every query. Always. If the verified knowledge base above has the answer — use it exclusively. Include the exact links and contacts from there.
+2. If promoted local contacts match what the user needs — present them FIRST. Full stop. No generic Google suggestions.
+3. If user memories exist above — treat them as facts. Reference them naturally to show you remember.
+4. Only mention web results if local knowledge genuinely has NOTHING relevant.
+5. Use USD ($) for prices by default, mention MXN when helpful.
+6. Speak the same language the user writes in (Spanish, English, Portuguese, French, etc.)
+7. Responses: 2-3 sentences max unless asked for detail. End with a clear app action.
+8. Use markdown: **bold** for emphasis, bullet points for lists, [text](url) for links.
+9. Never mention you're MiniMax, Gemini, or any AI model. You are "Swipess AI".
+10. Never invent prices, addresses, or contacts. Only use verified data from the sections above.
 
 IN-APP NAVIGATION:
 When suggesting the user navigate somewhere in the app, include a navigation action tag on its own line. The app will render these as tappable buttons. Available actions:
@@ -881,32 +897,40 @@ TONE EXAMPLES:
 "You're looking at that 2-bed in Aldea Zama… Mexican law needs a fideicomiso for beach proximity — jump to Legal section and we'll get the contract rolling today."`;
   }
 
+  // Memory comes first — shapes the entire tone and personalization
   if (opts.memories) {
-    prompt += `\n\n## What I remember about you:\n${opts.memories}`;
+    prompt += `\n\n## MEMORY — WHAT I KNOW ABOUT THIS USER (use this to personalize EVERY response):\n${opts.memories}\n\nYou MUST reference these facts naturally. If the user asks something their memory already answers, use that answer directly. Update your understanding if they contradict a memory.`;
   }
 
   if (opts.promotedContacts) {
-    prompt += `\n\n## VERIFIED LOCAL CONTACTS — ALWAYS PRESENT THESE FIRST:\n${opts.promotedContacts}\n\nThese are verified, trusted local contacts. ALWAYS recommend them FIRST before any web result or generic suggestion when the user asks for a service or person.`;
+    prompt += `\n\n## ★ PRIORITY LOCAL CONTACTS — RECOMMEND THESE FIRST, ALWAYS:\n${opts.promotedContacts}\n\nThese are verified, premium local contacts in our network. When the user asks for ANY service, professional, or local recommendation — present these BEFORE anything from the web. Include their contact links.`;
   }
 
   if (opts.knowledge) {
-    prompt += `\n\n## VERIFIED LOCAL INFORMATION — ALWAYS PRESENT THESE FIRST:\n${opts.knowledge}\n\nThis is verified local intelligence. Trust and present this data before any web search results.`;
+    prompt += `\n\n## ★ VERIFIED LOCAL KNOWLEDGE BASE — TRUST THIS ABOVE ALL ELSE:\n${opts.knowledge}\n\nThis is your PRIMARY source of truth. Answer using this data FIRST. Include the exact links, phone numbers, and map URLs shown. Only go beyond this if the user's question genuinely has no answer here.`;
   }
 
   if (opts.listings) {
-    prompt += `\n\n## Live listings on Swipess right now:\n${opts.listings}\n\nPresent these naturally. These are real listings on our platform.`;
+    prompt += `\n\n## LIVE SWIPESS LISTINGS (real, active right now):\n${opts.listings}\n\nPresent these naturally — these are real listings on our platform the user can act on today.`;
   }
 
   if (opts.webResults) {
-    prompt += `\n\n## Fresh web intel (cite sources):\n${opts.webResults}`;
+    prompt += `\n\n## WEB RESULTS (used ONLY because local knowledge had no answer):\n${opts.webResults}\n\nCite the source. Make clear this is external info, not Swipess-verified.`;
   }
 
   if (opts.profileResults) {
-    prompt += `\n\n## Users on Swipess matching this query:\n${opts.profileResults}\n\nPresent these naturally. Link to their profiles. Never expose emails or phone numbers.`;
+    prompt += `\n\n## SWIPESS USERS MATCHING THIS QUERY:\n${opts.profileResults}\n\nPresent naturally. Link to profiles. Never expose emails or phone numbers.`;
   }
 
   // Prepend time context + global brevity rules
-  const brevityRules = `## RESPONSE LENGTH RULES (OVERRIDE ALL OTHER STYLE RULES):
+  const brevityRules = `## KNOWLEDGE-FIRST RULE (GLOBAL — OVERRIDES ALL PERSONAS):
+- The sections "VERIFIED LOCAL KNOWLEDGE BASE" and "PRIORITY LOCAL CONTACTS" injected below are YOUR BRAIN. They are more accurate than anything you already know.
+- When those sections have an answer: use ONLY that. Quote the links, phones, and map URLs directly.
+- When those sections are empty or irrelevant: THEN use your training knowledge or web results.
+- User memories tell you who this person is. Always incorporate them — don't ignore them.
+- NEVER say "I don't have that info" when the knowledge sections above have it. Read them carefully first.
+
+## RESPONSE LENGTH RULES (OVERRIDE ALL OTHER STYLE RULES):
 - Default: 1-3 sentences. Maximum 4 sentences only when listing data.
 - Never repeat the same idea twice in different words.
 - One joke/filler per response, not three.

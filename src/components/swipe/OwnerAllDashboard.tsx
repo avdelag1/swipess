@@ -6,11 +6,8 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import {
   OWNER_INTENT_CARDS,
   OwnerIntentCard,
-  PK_W,
-  PK_H,
-  OWNER_PK_H,
-  PK_ASPECT,
   POKER_CARD_PHOTOS,
+  PK_ASPECT,
 } from './SwipeConstants';
 import { deckFadeVariants } from '@/utils/modernAnimations';
 import { PokerCategoryCard } from './PokerCategoryCard';
@@ -26,6 +23,8 @@ export interface OwnerAllDashboardProps {
 export const OwnerAllDashboard = memo(({ onCardSelect }: OwnerAllDashboardProps) => {
   const [cards, setCards] = useState([...OWNER_INTENT_CARDS]);
   const navigate = useNavigate();
+  // Stable selector — avoids reading store inside click handler during a Suspense pass
+  const openAIListing = useModalStore((s) => s.openAIListing);
 
   useEffect(() => {
     // Preload all owner card images safely on mount to prevent TDZ ReferenceError
@@ -63,7 +62,6 @@ export const OwnerAllDashboard = memo(({ onCardSelect }: OwnerAllDashboardProps)
       return;
     }
     if (id === 'ai-listing') {
-      const { openAIListing } = useModalStore.getState();
       openAIListing();
       return;
     }
@@ -73,7 +71,7 @@ export const OwnerAllDashboard = memo(({ onCardSelect }: OwnerAllDashboardProps)
     }
     const card = OWNER_INTENT_CARDS.find(c => c.id === id);
     if (card) onCardSelect(card);
-  }, [onCardSelect, navigate]);
+  }, [onCardSelect, navigate, openAIListing]);
 
   const handleBringToFront = useCallback((index: number) => {
     triggerHaptic('light');
@@ -110,18 +108,19 @@ export const OwnerAllDashboard = memo(({ onCardSelect }: OwnerAllDashboardProps)
         initial="initial"
         animate="animate"
         exit="exit"
-        className="relative w-full flex-grow flex flex-col items-center justify-start bg-transparent overflow-hidden"
-        style={{ minHeight: 'auto' }}
+        className="relative flex-1 flex flex-col items-center justify-start bg-transparent"
+        style={{ paddingTop: 'var(--top-bar-height, 72px)', paddingBottom: 'var(--bottom-nav-height, 80px)' }}
       >
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="relative flex items-center justify-center transition-all"
+          className="relative flex-none flex items-center justify-center transition-all"
           style={{
-            height: 'min(80svh, 660px)',
-            maxHeight: 'calc(100svh - var(--bottom-nav-height, 64px) - var(--safe-bottom, 0px) - var(--safe-top, 0px) - 40px)',
-            width: `calc(min(80svh, 660px) * ${PK_ASPECT})`,
-            maxWidth: 'calc(100vw - 32px)',
+            height: 'calc(100dvh - var(--top-bar-height, 72px) - var(--bottom-nav-height, 80px) - 8px)',
+            width: 'calc((100dvh - var(--top-bar-height, 72px) - var(--bottom-nav-height, 80px) - 8px) * 0.66667)',
+            maxWidth: '100%',
+            aspectRatio: '520 / 780',
+            flex: 'none'
           }}
         >
           {[...cards].reverse().map((card, reversedIdx) => {

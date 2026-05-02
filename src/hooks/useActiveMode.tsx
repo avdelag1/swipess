@@ -25,7 +25,7 @@ interface ActiveModeContextType {
 const ActiveModeContext = createContext<ActiveModeContextType | undefined>(undefined);
 
 // Local storage key for persistent mode (survives page refresh)
-const MODE_STORAGE_KEY = 'Swipess_active_mode';
+const MODE_STORAGE_KEY = 'zenith_active_mode';
 const SWITCH_TIMEOUT_MS = 100; // Accelerated cooldown for 'Boom' feel
 
 

@@ -41,10 +41,13 @@ export function OwnerInsightsDashboard() {
           <h2 className={cn("text-2xl font-black tracking-tight", isLight ? "text-slate-900" : "text-white")}>Market Insights</h2>
           <p className={cn("text-[10px] font-black uppercase tracking-[0.25em]", isLight ? "text-slate-400" : "text-white/20")}>Performance Analysis</p>
         </div>
-        <div className={cn(
-          "w-12 h-12 rounded-[18px] flex items-center justify-center border",
-          isLight ? "bg-black/5 border-black/5" : "bg-white/5 border-white/10"
-        )}>
+        <div
+          className="w-12 h-12 rounded-[18px] flex items-center justify-center border"
+          style={isLight
+            ? { background: 'rgba(0,0,0,0.04)', borderColor: 'rgba(0,0,0,0.06)' }
+            : { background: 'rgba(59,130,246,0.1)', borderColor: 'rgba(59,130,246,0.2)', boxShadow: 'inset 0 0 16px rgba(59,130,246,0.15)' }
+          }
+        >
           <Activity className="w-5 h-5 text-primary animate-pulse" />
         </div>
       </div>
@@ -63,10 +66,13 @@ export function OwnerInsightsDashboard() {
               "absolute -inset-1 rounded-[2rem] opacity-0 group-hover:opacity-100 transition-opacity",
               isLight ? "bg-gradient-to-b from-black/5 to-transparent" : "bg-gradient-to-b from-white/5 to-transparent"
             )} />
-            <div className={cn(
-              "relative p-5 rounded-[2rem] border backdrop-blur-xl space-y-3",
-              isLight ? "bg-white border-black/5 shadow-sm" : "bg-white/[0.03] border-white/5"
-            )}>
+            <div
+              className={cn(
+                "relative p-5 rounded-[2rem] border backdrop-blur-xl space-y-3",
+                isLight ? "bg-white border-black/5 shadow-sm" : "border-white/[0.06]"
+              )}
+              style={!isLight ? { background: 'rgba(255,255,255,0.02)', boxShadow: `inset 0 0 28px ${stat.color}22` } : undefined}
+            >
               <div className="flex items-center justify-between">
                 <div 
                   className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg border"
@@ -91,8 +97,9 @@ export function OwnerInsightsDashboard() {
         animate={{ opacity: 1, scale: 1 }}
         className={cn(
           "relative group p-6 rounded-[2.5rem] border backdrop-blur-3xl overflow-hidden",
-          isLight ? "bg-white border-black/5 shadow-sm" : "bg-white/[0.02] border-white/5"
+          isLight ? "bg-white border-black/5 shadow-sm" : "border-indigo-500/15"
         )}
+        style={!isLight ? { background: 'rgba(255,255,255,0.015)', boxShadow: 'inset 0 0 40px rgba(99,102,241,0.08)' } : undefined}
       >
         <div className="flex items-center justify-between mb-8">
           <div className="space-y-1">

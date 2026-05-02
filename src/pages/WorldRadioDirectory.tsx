@@ -39,21 +39,6 @@ export default function WorldRadioDirectory() {
     play(station);
   };
 
-  const staggerContainer = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.05
-      }
-    }
-  };
-
-  const itemAnim = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0 }
-  };
-
   return (
     <div className={cn(
       "h-[100dvh] overflow-y-auto overflow-x-hidden flex flex-col relative",
@@ -248,18 +233,21 @@ export default function WorldRadioDirectory() {
                           onClick={() => handleStationPlay(station)}
                           className={cn(
                             "flex-1 h-10 rounded-xl flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest transition-all",
-                            isPlaying ? "bg-white text-black" : "bg-white/10 text-white hover:bg-white/20"
+                            isPlaying 
+                              ? "bg-white text-black" 
+                              : (isDark ? "bg-white/10 text-white hover:bg-white/20" : "bg-black/10 text-black hover:bg-black/20")
                           )}
                         >
                           {isPlaying ? <Volume2 size={14} /> : <Play size={14} fill="currentColor" />}
                           {isPlaying ? 'Playing' : 'Tune In'}
                         </button>
-                        
                         <button
-                          onClick={() => { triggerHaptic('light'); toggleFavorite(station.id); }}
+                          onClick={() => toggleFavorite(station.id)}
                           className={cn(
                             "w-10 h-10 rounded-xl flex items-center justify-center border transition-all",
-                            isFav ? "bg-rose-500/10 border-rose-500/20 text-rose-500" : "bg-white/5 border-white/5 text-white/20 hover:border-white/10"
+                            isFav 
+                              ? "bg-rose-500/10 border-rose-500/20 text-rose-500" 
+                              : (isDark ? "bg-white/5 border-white/5 text-white/20 hover:border-white/10" : "bg-black/5 border-black/5 text-black/20 hover:border-black/10")
                           )}
                         >
                           <Heart size={16} fill={isFav ? "currentColor" : "none"} />

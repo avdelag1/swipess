@@ -48,7 +48,7 @@ export function PropertyPreviewDialog({
               />
             </div>
           ) : (
-            <div className="relative h-80 rounded-lg overflow-hidden bg-muted/30 flex items-center justify-center">
+            <div className="relative h-80 rounded-lg overflow-hidden bg-white/5 border border-white/10 flex items-center justify-center">
               <div className="text-center space-y-2">
                 <div className="text-6xl text-muted-foreground">🏠</div>
                 <p className="text-muted-foreground">No images uploaded</p>
@@ -86,7 +86,7 @@ export function PropertyPreviewDialog({
             {/* Property Stats */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {property.beds && (
-                <div className="flex items-center gap-3 p-4 bg-muted/30 rounded-lg">
+                <div className="flex items-center gap-3 p-4 bg-white/5 border border-white/10 rounded-lg">
                   <Bed className="w-6 h-6 text-primary" />
                   <div>
                     <div className="font-semibold">{property.beds}</div>
@@ -98,7 +98,7 @@ export function PropertyPreviewDialog({
               )}
               
               {property.baths && (
-                <div className="flex items-center gap-3 p-4 bg-muted/30 rounded-lg">
+                <div className="flex items-center gap-3 p-4 bg-white/5 border border-white/10 rounded-lg">
                   <Bath className="w-6 h-6 text-primary" />
                   <div>
                     <div className="font-semibold">{property.baths}</div>
@@ -110,7 +110,7 @@ export function PropertyPreviewDialog({
               )}
               
               {property.square_footage && (
-                <div className="flex items-center gap-3 p-4 bg-muted/30 rounded-lg">
+                <div className="flex items-center gap-3 p-4 bg-white/5 border border-white/10 rounded-lg">
                   <Square className="w-6 h-6 text-primary" />
                   <div>
                     <div className="font-semibold">{property.square_footage}</div>
@@ -120,7 +120,7 @@ export function PropertyPreviewDialog({
               )}
               
               {property.parking_spaces !== undefined && (
-                <div className="flex items-center gap-3 p-4 bg-muted/30 rounded-lg">
+                <div className="flex items-center gap-3 p-4 bg-white/5 border border-white/10 rounded-lg">
                   <Car className="w-6 h-6 text-primary" />
                   <div>
                     <div className="font-semibold">{property.parking_spaces}</div>

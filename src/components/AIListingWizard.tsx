@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   X, Sparkles, Plus, Image, ChevronRight, 
@@ -31,16 +32,35 @@ const CATEGORIES = [
 
 export function AIListingWizard() {
   const { showAIListing, aiListingCategory, setModal } = useModalStore();
-  const { theme } = useAppTheme();
+  const { theme, isLight } = useAppTheme();
   const isSwipess = theme === 'Swipess-style';
   const { user } = useAuth();
   const { t } = useTranslation();
+  const location = useLocation();
+
+  // Theme-aware class helpers
+  const modalBg = isLight ? 'bg-white border-black/10' : 'bg-black border-white/10';
+  const headerBorder = isLight ? 'border-black/8' : 'border-white/5';
+  const textPrimary = isLight ? 'text-black' : 'text-white';
+  const textMuted = isLight ? 'text-black/50' : 'text-white/50';
+  const textSubtle = isLight ? 'text-black/30' : 'text-white/30';
+  const inputCls = isLight
+    ? 'bg-black/5 border border-black/10 focus:border-cyan-500/50 focus:ring-0 text-black placeholder:text-black/20'
+    : 'bg-white/5 border border-white/5 focus:border-cyan-500/50 focus:ring-0 text-white placeholder:text-white/10';
+  const cardCls = isLight
+    ? 'bg-black/5 border-black/10 hover:border-cyan-500/30 hover:bg-black/10 shadow-[0_4px_20px_rgba(0,0,0,0.1)]'
+    : 'bg-black/40 border-white/10 hover:border-cyan-500/30 hover:bg-white/10 shadow-[0_4px_20px_rgba(0,0,0,0.5)]';
+  const reviewCardCls = isLight ? 'border-black/8 bg-black/5 backdrop-blur-xl' : 'border-white/5 bg-white/5 backdrop-blur-xl';
+  const closeBtnCls = isLight
+    ? 'bg-black/5 hover:bg-black/10 rounded-2xl transition-all border border-black/8'
+    : 'bg-white/5 hover:bg-white/10 rounded-2xl transition-all border border-white/5';
+  const dividerCls = isLight ? 'bg-black/10' : 'bg-white/10';
   
   const [step, setStep] = useState<WizardStep>('category');
   const [category, setCategory] = useState<typeof CATEGORIES[number]['id'] | null>(null);
   const [prompt, setPrompt] = useState('');
   const [price, setPrice] = useState('');
-  const [location, setLocation] = useState('');
+  const [cityLocation, setCityLocation] = useState('');
   const [images, setImages] = useState<string[]>([]);
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -54,6 +74,14 @@ export function AIListingWizard() {
     }
   }, [aiListingCategory]);
 
+  // Close modal automatically when user navigates to another page
+  useEffect(() => {
+    if (showAIListing) {
+      setModal('showAIListing', false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.pathname]);
+
   const handleClose = () => {
     setModal('showAIListing', false);
     setTimeout(() => {
@@ -61,7 +89,7 @@ export function AIListingWizard() {
       setCategory(null);
       setPrompt('');
       setPrice('');
-      setLocation('');
+      setCityLocation('');
       setImages([]);
       setImageFiles([]);
       setAiResult(null);
@@ -104,7 +132,7 @@ export function AIListingWizard() {
       Category: ${category}
       Base Information: 
       - Price: ${price}
-      - Location: ${location}
+      - Location: ${cityLocation}
       - Narrative: ${prompt}
       
       Return ONLY a JSON object with the following structure (do not include markdown):
@@ -142,7 +170,7 @@ export function AIListingWizard() {
           category,
           images: uploadedUrls,
           price: parsed.price || Number(price) || 0,
-          city: parsed.city || location || 'Tulum'
+          city: parsed.city || cityLocation || 'Tulum'
         });
         setStep('review');
         triggerHaptic('success');
@@ -172,7 +200,8 @@ export function AIListingWizard() {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           className={cn(
-            "fixed inset-0 z-[10000] bg-black/80 backdrop-blur-2xl flex items-center justify-center p-0 sm:p-6",
+            "fixed inset-0 z-[10000] backdrop-blur-2xl flex items-center justify-center p-0 sm:p-6",
+            isLight ? "bg-black/30" : "bg-black/80",
             showFinalForm && "pointer-events-none opacity-0"
           )}
         >
@@ -181,8 +210,9 @@ export function AIListingWizard() {
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.95, opacity: 0, y: 30 }}
             className={cn(
-              "w-full max-w-2xl h-[100dvh] sm:h-[85vh] overflow-hidden sm:rounded-[3rem] border flex flex-col shadow-[0_40px_100px_rgba(0,0,0,1)] relative",
-              "bg-black border-white/10"
+              "w-full max-w-2xl h-[100dvh] sm:h-[85vh] overflow-hidden sm:rounded-[3rem] border flex flex-col relative",
+              isLight ? "shadow-[0_40px_100px_rgba(0,0,0,0.2)]" : "shadow-[0_40px_100px_rgba(0,0,0,1)]",
+              modalBg
             )}
           >
             {/* Ambient Background */}
@@ -192,13 +222,13 @@ export function AIListingWizard() {
             </div>
 
             {/* Header */}
-            <div className="shrink-0 flex items-center justify-between px-8 py-6 border-b border-white/5 relative z-10">
+            <div className={cn("shrink-0 flex items-center justify-between px-8 py-6 border-b relative z-10", headerBorder)}>
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 flex items-center justify-center border border-cyan-500/20 shadow-inner">
                   <Sparkles className="w-6 h-6 text-cyan-400" />
                 </div>
                 <div>
-                  <h2 className="text-base font-black uppercase tracking-[0.1em] text-white italic">Swipess {t('topbar.intelligence')}</h2>
+                  <h2 className={cn("text-base font-black uppercase tracking-[0.1em] italic", textPrimary)}>Swipess {t('topbar.intelligence')}</h2>
                   <div className="flex items-center gap-2 mt-1">
                     <span className="text-[10px] opacity-70 font-bold uppercase tracking-widest leading-none">{t('topbar.autonomousLayer')}</span>
                     <div className="w-1 h-1 bg-cyan-500 rounded-full animate-pulse" />
@@ -207,9 +237,9 @@ export function AIListingWizard() {
               </div>
               <button 
                 onClick={handleClose} 
-                className="w-11 h-11 flex items-center justify-center bg-white/5 hover:bg-white/10 rounded-2xl transition-all border border-white/5"
+                className={cn("w-11 h-11 flex items-center justify-center", closeBtnCls)}
               >
-                <X className="w-5 h-5 text-white/70" />
+                <X className={cn("w-5 h-5", isLight ? "text-black/60" : "text-white/70")} />
               </button>
             </div>
 
@@ -226,8 +256,8 @@ export function AIListingWizard() {
                       className="space-y-10"
                     >
                       <div className="space-y-3">
-                        <h3 className="text-3xl font-black tracking-tighter text-white uppercase italic leading-none">{t('topbar.targetPlatform')}</h3>
-                        <p className="text-[11px] text-white/50 leading-relaxed uppercase tracking-[0.2em] max-w-sm">Select the deployment sector for your new Swipess artifact. flagship intelligence will optimize for the target audience.</p>
+                        <h3 className={cn("text-3xl font-black tracking-tighter uppercase italic leading-none", textPrimary)}>{t('topbar.targetPlatform')}</h3>
+                        <p className={cn("text-[11px] leading-relaxed uppercase tracking-[0.2em] max-w-sm", textMuted)}>Select the deployment sector for your new Swipess artifact. flagship intelligence will optimize for the target audience.</p>
                       </div>
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -241,14 +271,14 @@ export function AIListingWizard() {
                             }}
                             className={cn(
                               "flex items-center gap-5 p-6 rounded-[2rem] border transition-all active:scale-[0.98] text-left group relative overflow-hidden",
-                              "bg-black/40 border-white/10 hover:border-cyan-500/30 hover:bg-white/10 shadow-[0_4px_20px_rgba(0,0,0,0.5)]"
+                              cardCls
                             )}
                           >
-                            <div className={cn("w-16 h-16 rounded-2xl flex items-center justify-center border shadow-inner transition-all group-hover:scale-110", cat.bg, "border-white/5")}>
+                            <div className={cn("w-16 h-16 rounded-2xl flex items-center justify-center border shadow-inner transition-all group-hover:scale-110", cat.bg, isLight ? "border-black/5" : "border-white/5")}>
                               <cat.icon className={cn("w-8 h-8", cat.id === 'motorcycle' ? '' : cat.color)} />
                             </div>
                             <div>
-                                <span className="text-base font-black uppercase tracking-wider text-white group-hover:text-cyan-400 transition-colors italic">{cat.label}</span>
+                                <span className={cn("text-base font-black uppercase tracking-wider group-hover:text-cyan-400 transition-colors italic", textPrimary)}>{cat.label}</span>
                                 <p className="text-[10px] opacity-50 font-bold uppercase tracking-[0.1em] mt-1">{t('topbar.deployProtocol')}</p>
                             </div>
                           </button>
@@ -274,8 +304,8 @@ export function AIListingWizard() {
                       </button>
 
                       <div className="space-y-4">
-                        <h3 className="text-3xl font-black tracking-tighter text-white uppercase italic leading-none">Visual Proof</h3>
-                        <p className="text-[11px] text-white/60 leading-relaxed uppercase tracking-[0.2em]">Upload high-fidelity imagery of the asset. swipess.appputer vision will extract secondary attributes.</p>
+                        <h3 className={cn("text-3xl font-black tracking-tighter uppercase italic leading-none", textPrimary)}>Visual Proof</h3>
+                        <p className={cn("text-[11px] leading-relaxed uppercase tracking-[0.2em]", textMuted)}>Upload high-fidelity imagery of the asset. swipess.appputer vision will extract secondary attributes.</p>
                       </div>
 
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
@@ -285,7 +315,7 @@ export function AIListingWizard() {
                                   key={`file-${i}`}
                                   initial={{ scale: 0.8, opacity: 0 }}
                                   animate={{ scale: 1, opacity: 1 }}
-                                  className="aspect-square rounded-3xl overflow-hidden border border-white/10 relative group shadow-2xl"
+                                  className={cn("aspect-square rounded-3xl overflow-hidden border relative group shadow-2xl", isLight ? "border-black/10" : "border-white/10")}
                                 >
                                   <img src={URL.createObjectURL(file)} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                                   <button 
@@ -299,12 +329,12 @@ export function AIListingWizard() {
                             </AnimatePresence>
                             <button
                               onClick={handleImageAdd}
-                              className="aspect-square rounded-[2rem] border-2 border-dashed border-white/10 flex flex-col items-center justify-center gap-3 hover:bg-cyan-500/5 hover:border-cyan-500/40 transition-all group shadow-inner"
+                              className={cn("aspect-square rounded-[2rem] border-2 border-dashed flex flex-col items-center justify-center gap-3 hover:bg-cyan-500/5 hover:border-cyan-500/40 transition-all group shadow-inner", isLight ? "border-black/15" : "border-white/10")}
                             >
-                              <div className="p-3 rounded-2xl bg-white/5 border border-white/5 group-hover:bg-cyan-500/20 group-hover:border-cyan-400/30 transition-all">
+                              <div className={cn("p-3 rounded-2xl border group-hover:bg-cyan-500/20 group-hover:border-cyan-400/30 transition-all", isLight ? "bg-black/5 border-black/5" : "bg-white/5 border-white/5")}>
                                 <Camera className="w-6 h-6 text-cyan-400 opacity-70 group-hover:opacity-100" />
                               </div>
-                              <span className="text-[9px] font-black uppercase tracking-[0.2em] opacity-70 text-white">Add Intel</span>
+                              <span className={cn("text-[9px] font-black uppercase tracking-[0.2em] opacity-70", textPrimary)}>Add Intel</span>
                             </button>
                       </div>
 
@@ -338,14 +368,14 @@ export function AIListingWizard() {
                       </button>
 
                       <div className="space-y-4">
-                        <h3 className="text-3xl font-black tracking-tighter text-white uppercase italic leading-none">Intel Stream</h3>
-                        <p className="text-[11px] text-white/60 leading-relaxed uppercase tracking-[0.2em]">Provide the core metrics and narrative. AI will synthesize and optimize for maximum conversion.</p>
+                        <h3 className={cn("text-3xl font-black tracking-tighter uppercase italic leading-none", textPrimary)}>Intel Stream</h3>
+                        <p className={cn("text-[11px] leading-relaxed uppercase tracking-[0.2em]", textMuted)}>Provide the core metrics and narrative. AI will synthesize and optimize for maximum conversion.</p>
                       </div>
 
                       <div className="space-y-6">
                         <div className="grid grid-cols-2 gap-4">
                            <div className="space-y-3">
-                              <label className="text-[10px] font-black uppercase tracking-[0.2em] text-white/60 ml-2">Market Price</label>
+                              <label className={cn("text-[10px] font-black uppercase tracking-[0.2em] ml-2", textMuted)}>Market Price</label>
                               <div className="relative">
                                  <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-cyan-400 opacity-70" />
                                  <input
@@ -353,20 +383,20 @@ export function AIListingWizard() {
                                     value={price}
                                     onChange={(e) => setPrice(e.target.value)}
                                     placeholder="2,500"
-                                    className="w-full h-14 pl-12 pr-6 rounded-2xl bg-white/5 border border-white/5 focus:border-cyan-500/50 focus:ring-0 text-sm font-bold text-white transition-all uppercase placeholder:text-white/10"
+                                    className={cn("w-full h-14 pl-12 pr-6 rounded-2xl text-sm font-bold transition-all uppercase", inputCls)}
                                  />
                               </div>
                            </div>
                            <div className="space-y-3">
-                              <label className="text-[10px] font-black uppercase tracking-[0.2em] text-white/60 ml-2">City Node</label>
+                              <label className={cn("text-[10px] font-black uppercase tracking-[0.2em] ml-2", textMuted)}>City Node</label>
                               <div className="relative">
                                  <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-cyan-400 opacity-70" />
                                  <input
                                     type="text"
-                                    value={location}
-                                    onChange={(e) => setLocation(e.target.value)}
+                                    value={cityLocation}
+                                    onChange={(e) => setCityLocation(e.target.value)}
                                     placeholder="Tulum, MX"
-                                    className="w-full h-14 pl-12 pr-6 rounded-2xl bg-white/5 border border-white/5 focus:border-cyan-500/50 focus:ring-0 text-sm font-bold text-white transition-all uppercase placeholder:text-white/10"
+                                    className={cn("w-full h-14 pl-12 pr-6 rounded-2xl text-sm font-bold transition-all uppercase", inputCls)}
                                  />
                               </div>
                            </div>
@@ -377,21 +407,21 @@ export function AIListingWizard() {
                            {category === 'property' && (
                               <>
                                  <div className="space-y-3">
-                                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-white/60 ml-2">Total Beds</label>
+                                    <label className={cn("text-[10px] font-black uppercase tracking-[0.2em] ml-2", textMuted)}>Total Beds</label>
                                     <input
                                        type="number"
                                        onChange={(e) => setAiResult((prev: any) => ({ ...prev, beds: Number(e.target.value) }))}
                                        placeholder="2"
-                                       className="w-full h-12 px-6 rounded-xl bg-white/5 border border-white/5 focus:border-cyan-500/50 focus:ring-0 text-sm font-bold text-white transition-all uppercase placeholder:text-white/10"
+                                       className={cn("w-full h-12 px-6 rounded-xl text-sm font-bold transition-all uppercase", inputCls)}
                                     />
                                  </div>
                                  <div className="space-y-3">
-                                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-white/60 ml-2">Bathrooms</label>
+                                    <label className={cn("text-[10px] font-black uppercase tracking-[0.2em] ml-2", textMuted)}>Bathrooms</label>
                                     <input
                                        type="number"
                                        onChange={(e) => setAiResult((prev: any) => ({ ...prev, baths: Number(e.target.value) }))}
                                        placeholder="1"
-                                       className="w-full h-12 px-6 rounded-xl bg-white/5 border border-white/5 focus:border-cyan-500/50 focus:ring-0 text-sm font-bold text-white transition-all uppercase placeholder:text-white/10"
+                                       className={cn("w-full h-12 px-6 rounded-xl text-sm font-bold transition-all uppercase", inputCls)}
                                     />
                                  </div>
                               </>
@@ -399,47 +429,47 @@ export function AIListingWizard() {
                            {(category === 'motorcycle' || category === 'bicycle') && (
                               <>
                                  <div className="space-y-3">
-                                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-white/60 ml-2">Brand / Maker</label>
+                                    <label className={cn("text-[10px] font-black uppercase tracking-[0.2em] ml-2", textMuted)}>Brand / Maker</label>
                                     <input
                                        type="text"
                                        onChange={(e) => setAiResult((prev: any) => ({ ...prev, brand: e.target.value }))}
                                        placeholder="Honda / BMW"
-                                       className="w-full h-12 px-6 rounded-xl bg-white/5 border border-white/5 focus:border-cyan-500/50 focus:ring-0 text-sm font-bold text-white transition-all uppercase placeholder:text-white/10"
+                                       className={cn("w-full h-12 px-6 rounded-xl text-sm font-bold transition-all uppercase", inputCls)}
                                     />
                                  </div>
                                  <div className="space-y-3">
-                                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-white/60 ml-2">Model Year</label>
+                                    <label className={cn("text-[10px] font-black uppercase tracking-[0.2em] ml-2", textMuted)}>Model Year</label>
                                     <input
                                        type="text"
                                        onChange={(e) => setAiResult((prev: any) => ({ ...prev, year: e.target.value }))}
                                        placeholder="2023"
-                                       className="w-full h-12 px-6 rounded-xl bg-white/5 border border-white/5 focus:border-cyan-500/50 focus:ring-0 text-sm font-bold text-white transition-all uppercase placeholder:text-white/10"
+                                       className={cn("w-full h-12 px-6 rounded-xl text-sm font-bold transition-all uppercase", inputCls)}
                                     />
                                  </div>
                               </>
                            )}
                            {category === 'worker' && (
                               <div className="col-span-2 space-y-3">
-                                 <label className="text-[10px] font-black uppercase tracking-[0.2em] text-white/60 ml-2">Service Field</label>
+                                 <label className={cn("text-[10px] font-black uppercase tracking-[0.2em] ml-2", textMuted)}>Service Field</label>
                                  <input
                                     type="text"
                                     onChange={(e) => setAiResult((prev: any) => ({ ...prev, service_category: e.target.value }))}
                                     placeholder="Web Dev / Electrician / Designer..."
-                                    className="w-full h-12 px-6 rounded-xl bg-white/5 border border-white/5 focus:border-cyan-500/50 focus:ring-0 text-sm font-bold text-white transition-all uppercase placeholder:text-white/10"
+                                    className={cn("w-full h-12 px-6 rounded-xl text-sm font-bold transition-all uppercase", inputCls)}
                                  />
                               </div>
                            )}
                         </div>
 
                         <div className="space-y-3">
-                          <label className="text-[10px] font-black uppercase tracking-[0.2em] text-white/60 ml-2">Deployment Narrative</label>
+                          <label className={cn("text-[10px] font-black uppercase tracking-[0.2em] ml-2", textMuted)}>Deployment Narrative</label>
                           <div className="relative">
                              <Search className="absolute left-5 top-5 w-4 h-4 text-cyan-400 opacity-60" />
                              <textarea
                                value={prompt}
                                onChange={(e) => setPrompt(e.target.value)}
                                placeholder="Voice your description... E.g. 'Stunning ocean view property with private pool' or 'Professional web developer with 5 years experience in React'..."
-                               className="w-full h-40 p-5 pl-14 rounded-[2rem] bg-white/5 border border-white/5 focus:border-cyan-500/50 focus:ring-0 transition-all text-sm leading-relaxed text-white placeholder:text-white/10 resize-none italic"
+                               className={cn("w-full h-40 p-5 pl-14 rounded-[2rem] transition-all text-sm leading-relaxed resize-none italic", inputCls)}
                              />
                           </div>
                         </div>
@@ -497,12 +527,12 @@ export function AIListingWizard() {
                       </div>
 
                       <div className="text-center space-y-4">
-                         <h3 className="text-2xl font-black text-white uppercase italic tracking-tighter">Manifesting Intel</h3>
+                         <h3 className={cn("text-2xl font-black uppercase italic tracking-tighter", textPrimary)}>Manifesting Intel</h3>
                          <div className="flex flex-col gap-2 items-center">
                             <span className="text-[11px] font-black text-cyan-400 uppercase tracking-[0.3em]">Neural Synthesis Active</span>
                             <div className="flex items-center gap-4">
                                <div className="h-0.5 w-12 bg-gradient-to-r from-transparent to-white/10" />
-                               <span className="text-[9px] font-bold text-white/60 uppercase tracking-[0.4em]">Flagship Intelligence</span>
+                               <span className={cn("text-[9px] font-bold uppercase tracking-[0.4em]", textSubtle)}>Flagship Intelligence</span>
                                <div className="h-0.5 w-12 bg-gradient-to-l from-transparent to-white/10" />
                             </div>
                          </div>
@@ -519,12 +549,13 @@ export function AIListingWizard() {
                       className="space-y-10"
                     >
                       <div className="space-y-3">
-                        <h3 className="text-3xl font-black tracking-tighter text-white uppercase italic leading-none">Target Manifested</h3>
-                        <p className="text-[11px] text-white/70 leading-relaxed uppercase tracking-[0.2em]">Autonomous refinement complete. Validate the synthesized data before final deployment.</p>
+                        <h3 className={cn("text-3xl font-black tracking-tighter uppercase italic leading-none", textPrimary)}>Target Manifested</h3>
+                        <p className={cn("text-[11px] leading-relaxed uppercase tracking-[0.2em]", textMuted)}>Autonomous refinement complete. Validate the synthesized data before final deployment.</p>
                       </div>
 
                       <div className={cn(
-                        "p-8 rounded-[3rem] border border-white/5 bg-white/5 backdrop-blur-xl relative group overflow-hidden shadow-2xl",
+                        "p-8 rounded-[3rem] border relative group overflow-hidden shadow-2xl",
+                        reviewCardCls,
                       )}>
                         <div className="absolute top-0 right-0 p-4 opacity-20">
                            <Check className="w-10 h-10 text-cyan-400" />
@@ -533,37 +564,37 @@ export function AIListingWizard() {
                         <div className="space-y-6 relative z-10">
                            <div className="space-y-1">
                              <span className="text-[10px] font-black uppercase tracking-widest text-cyan-400/60">Optimized Title</span>
-                             <p className="text-xl font-black italic text-white leading-tight">{aiResult?.title}</p>
+                             <p className={cn("text-xl font-black italic leading-tight", textPrimary)}>{aiResult?.title}</p>
                            </div>
                            
                            <div className="grid grid-cols-2 gap-8">
                                <div className="space-y-1">
                                  <span className="text-[10px] font-black uppercase tracking-widest text-cyan-400/60">Price Node</span>
-                                 <p className="text-2xl font-black italic text-white">${aiResult?.price?.toLocaleString()}</p>
+                                 <p className={cn("text-2xl font-black italic", textPrimary)}>${aiResult?.price?.toLocaleString()}</p>
                                </div>
                                <div className="space-y-1 text-right">
                                  <span className="text-[10px] font-black uppercase tracking-widest text-cyan-400/60">Geo Location</span>
-                                 <p className="text-base font-bold text-white uppercase italic">{aiResult?.city || 'Tulum'}</p>
+                                 <p className={cn("text-base font-bold uppercase italic", textPrimary)}>{aiResult?.city || 'Tulum'}</p>
                                </div>
                            </div>
 
-                           <div className="h-px bg-white/10" />
+                           <div className={cn("h-px", dividerCls)} />
 
                            <div className="space-y-2">
                              <span className="text-[10px] font-black uppercase tracking-widest text-cyan-400/60">Syndicated Narrative</span>
                              <div className="max-h-32 overflow-y-auto Swipess-scroll pr-2">
-                                <p className="text-xs text-white/50 leading-relaxed italic">{aiResult?.description}</p>
+                                <p className={cn("text-xs leading-relaxed italic", textMuted)}>{aiResult?.description}</p>
                              </div>
                            </div>
                         </div>
                         
                         {/* Status Bar */}
-                        <div className="mt-8 pt-6 border-t border-white/5 flex items-center justify-between">
+                        <div className={cn("mt-8 pt-6 border-t flex items-center justify-between", headerBorder)}>
                            <div className="flex items-center gap-2">
                               <div className="w-2 h-2 bg-cyan-500 rounded-full animate-pulse" />
-                              <span className="text-[9px] font-black uppercase tracking-widest text-white/70">Market Ready</span>
+                              <span className={cn("text-[9px] font-black uppercase tracking-widest", textMuted)}>Market Ready</span>
                            </div>
-                           <span className="text-[9px] font-black uppercase tracking-widest text-white/70">v4.0.0 Sentinel</span>
+                           <span className={cn("text-[9px] font-black uppercase tracking-widest", textMuted)}>v4.0.0 Sentinel</span>
                         </div>
                       </div>
 
@@ -577,7 +608,7 @@ export function AIListingWizard() {
                         </Button>
                         <button 
                            onClick={() => setStep('details')}
-                           className="w-full py-4 text-[10px] font-black uppercase tracking-widest text-white/20 hover:text-cyan-400 transition-all italic"
+                           className={cn("w-full py-4 text-[10px] font-black uppercase tracking-widest hover:text-cyan-400 transition-all italic", textSubtle)}
                         >
                            Recalibrate Intelligence
                         </button>

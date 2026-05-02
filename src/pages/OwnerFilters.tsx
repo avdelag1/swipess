@@ -21,7 +21,7 @@ interface OwnerFiltersProps {
 export default function OwnerFilters({ isEmbedded, onClose }: OwnerFiltersProps) {
   const navigate = useNavigate();
   const { theme, isLight } = useAppTheme();
-  const isDark = theme === 'dark' || theme === 'Swipess-style';
+  const isDark = theme === 'dark';
   
   const storeActiveCategory = useFilterStore(s => s.activeCategory);
   const [activeCategory, setActiveCategory] = useState<CategoryType>((storeActiveCategory as CategoryType) || 'property');
@@ -80,7 +80,7 @@ export default function OwnerFilters({ isEmbedded, onClose }: OwnerFiltersProps)
               <h1 className={cn(
                 "text-3xl sm:text-4xl font-black uppercase italic tracking-[-0.05em] leading-none",
                 isLight ? "text-slate-900" : "text-white"
-              )}>Swipess <span className="text-primary">Radar</span></h1>
+              )}>Radar</h1>
             </div>
             <button
               onClick={handleReset}

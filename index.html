@@ -27,7 +27,7 @@
       // 2. Predictive Chunk Loading
       // We check the role from storage to pre-load the right dashboard JS immediately.
       try {
-        const lastRole = localStorage.getItem('swipess_user_role') || 'client';
+        const lastRole = localStorage.getItem('zenith_user_role') || 'client';
         // We can't know the exact hash here without a complex build setup, 
         // but we can signal the browser to prioritize the eventual fetch.
         window.__PREDICTED_ROLE = lastRole;
@@ -58,28 +58,28 @@
   <!-- Fonts: using system font stack for instant LCP -->
 
   <meta name="app-version" content="2026.04.21.FINAL-1.0">
-  <!-- FORCE RELOAD CACHE BUSTER: SWIPESS v1.0 -->
-  <title>Swipess</title>
-  <meta name="description" content="Swipess — Immersive discovery and target selection engine.">
+  <!-- FORCE RELOAD CACHE BUSTER: ZENITH v1.0 -->
+  <title>Zenith</title>
+  <meta name="description" content="Zenith — Immersive discovery and target selection engine.">
 
   <!-- Open Graph / Facebook / WhatsApp / Instagram -->
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://www.swipess.com/">
-  <meta property="og:title" content="Swipess">
+  <meta property="og:url" content="https://www.zenith.com/">
+  <meta property="og:title" content="Zenith">
   <meta property="og:description" content="Immersive discovery and target selection engine.">
-  <meta property="og:image" content="https://www.swipess.com/og-image.jpg">
+  <meta property="og:image" content="https://www.zenith.com/og-image.jpg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:site_name" content="Swipess">
+  <meta property="og:site_name" content="Zenith">
   <meta property="og:locale" content="en_US">
 
   <!-- Twitter / X -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Swipess">
+  <meta name="twitter:title" content="Zenith">
   <meta name="twitter:description" content="Immersive discovery and target selection engine.">
-  <meta name="twitter:image" content="https://www.swipess.com/og-image.jpg">
+  <meta name="twitter:image" content="https://www.zenith.com/og-image.jpg">
 
-  <link rel="canonical" href="https://www.swipess.com/">
+  <link rel="canonical" href="https://www.zenith.com/">
   
   <style>
     *{touch-action:manipulation;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
@@ -89,7 +89,7 @@
     #root{opacity:1;background:#000;min-height:100dvh}
   </style>
 
-  <link rel="preload" as="image" href="/icons/Swipess-wordmark-512.png" fetchpriority="high">
+  <link rel="preload" as="image" href="/icons/wordmark-white.svg" fetchpriority="high">
 
   <link rel="manifest" href="/manifest.json">
   <link rel="icon" type="image/png" sizes="512x512" href="/icons/icon-512.png?v=3">
@@ -100,8 +100,8 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Swipess">
-  <meta name="application-name" content="Swipess">
+  <meta name="apple-mobile-web-app-title" content="Zenith">
+  <meta name="application-name" content="Zenith">
   <!-- Speculation rules removed — prefetching handled by routePrefetcher.ts -->
   <style>
     .static-splash { position: fixed; inset: 0; background: #000; z-index: 99999; display: flex; align-items: center; justify-content: center; transition: opacity 0.4s ease-out, visibility 0.4s; }
@@ -117,8 +117,7 @@
 <body>
   <div id="static-splash" class="static-splash">
     <div class="splash-content">
-      <img src="/icons/Swipess-wordmark-white.svg" alt="Swipess" class="splash-logo" onload="this.classList.add('loaded')" onerror="this.style.display='none'; document.getElementById('splash-text').style.display='block'" />
-      <div id="splash-text" class="splash-text" style="display: none;">Swipess</div>
+      <div id="splash-text" class="splash-text">SENTIENT</div>
     </div>
   </div>
   <div id="root"></div>

@@ -2,17 +2,18 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { MapPin, User, Calendar, MessageCircle, CheckCircle, Trash2, Ban, Flag, ChevronLeft, ChevronRight, X, Briefcase, Sparkles, Star, Share2 } from 'lucide-react';
+import { MapPin, User, Calendar, MessageCircle, CheckCircle, Trash2, Ban, Flag, ChevronLeft, ChevronRight, X, Briefcase, Sparkles, Star, Share2, TrendingUp, Zap, Clock, Target, Users, Shield, Award, ThumbsUp, Eye } from 'lucide-react';
 import { PropertyImageGallery } from './PropertyImageGallery';
 import { useNavigate } from 'react-router-dom';
 import { useStartConversation } from '@/hooks/useConversations';
 import { toast } from '@/components/ui/sonner';
-import { useState, useEffect, useCallback, memo } from 'react';
+import { useState, useEffect, useCallback, memo, useMemo } from 'react';
 import { logger } from '@/utils/prodLogger';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { CompactRatingDisplay } from './RatingDisplay';
 import { RatingSubmissionDialog } from './RatingSubmissionDialog';
+import { cn } from '@/lib/utils';
 import { useUserRatingAggregate } from '@/hooks/useRatingSystem';
 import {
   AlertDialog,
@@ -71,6 +72,45 @@ function LikedClientInsightsModalComponent({ open, onOpenChange, client }: Liked
 
   // Fetch rating aggregate for this client
   const { data: ratingAggregate } = useUserRatingAggregate(client?.user_id);
+
+  // Calculate renter insights based on client data
+  const renterInsights = useMemo(() => {
+    if (!client) return null;
+
+    const interestCount = client.interests?.length || 0;
+    const hasBio = !!client.bio && client.bio.length > 50;
+    const hasOccupation = !!client.occupation;
+    const isVerified = !!client.verified;
+    const hasIncome = !!client.monthly_income;
+
+    // Calculate readiness score (0-100)
+    let readinessScore = 0;
+    if (isVerified) readinessScore += 30;
+    if (hasOccupation) readinessScore += 20;
+    if (hasIncome) readinessScore += 20;
+    if (hasBio) readinessScore += 15;
+    if (interestCount >= 3) readinessScore += 15;
+    else if (interestCount >= 1) readinessScore += 5;
+
+    // Activity level based on profile completion
+    const activityLevel = readinessScore >= 80 ? 'Very High' : readinessScore >= 50 ? 'High' : 'Moderate';
+    
+    // Match potential
+    const matchPotential = readinessScore >= 75 ? 'Excellent' : readinessScore >= 50 ? 'Strong' : 'Good';
+
+    // Determining the "Why this renter" highlight
+    let highlight = "Serious candidate with verified background.";
+    if (!isVerified && hasOccupation) highlight = "Professionally stable candidate.";
+    if (readinessScore < 50) highlight = "New explorer looking for the right fit.";
+
+    return {
+      readinessScore: Math.min(100, readinessScore),
+      activityLevel,
+      matchPotential,
+      highlight,
+      isHotProspect: readinessScore >= 85,
+    };
+  }, [client]);
 
   const clientImages = client?.profile_images || client?.images || [];
 
@@ -307,6 +347,12 @@ function LikedClientInsightsModalComponent({ open, onOpenChange, client }: Liked
                       <Sparkles className="w-3 h-3 text-white" />
                       <span className="text-[10px] font-black uppercase tracking-widest text-white">Liked</span>
                     </div>
+                    {renterInsights?.isHotProspect && (
+                      <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-red-600/90 backdrop-blur-md">
+                        <Zap className="w-3 h-3 text-white" />
+                        <span className="text-[10px] font-black uppercase tracking-widest text-white">Hot Prospect</span>
+                      </div>
+                    )}
                     {client.verified && (
                       <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/80 backdrop-blur-md">
                         <CheckCircle className="w-3 h-3 text-white" />
@@ -410,13 +456,82 @@ function LikedClientInsightsModalComponent({ open, onOpenChange, client }: Liked
                       </div>
                     </div>
                     <div className="flex items-center gap-3 p-3.5 bg-white/[0.03] rounded-2xl border border-white/[0.07]">
-                      <MapPin className="w-5 h-5 text-white/20 flex-shrink-0" />
+                      <Eye className="w-5 h-5 text-white/20 flex-shrink-0" />
                       <div>
                         <p className="text-[12px] font-black text-white">Photos</p>
                         <p className="text-[10px] text-white/35">{clientImages.length} uploaded</p>
                       </div>
                     </div>
                   </div>
+
+                  {/* Behavioral Insights */}
+                  {renterInsights && (
+                    <div className="space-y-3">
+                      <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">Behavioral Insights</h4>
+                      <div className="grid grid-cols-2 gap-2">
+                        <div className="p-3 bg-white/[0.03] rounded-2xl border border-white/[0.07]">
+                          <div className="flex items-center gap-2 mb-1">
+                            <TrendingUp className="w-3.5 h-3.5 text-blue-400" />
+                            <span className="text-[10px] text-white/40 uppercase font-black">Readiness</span>
+                          </div>
+                          <div className="text-lg font-black text-white">{renterInsights.readinessScore}%</div>
+                        </div>
+                        <div className="p-3 bg-white/[0.03] rounded-2xl border border-white/[0.07]">
+                          <div className="flex items-center gap-2 mb-1">
+                            <Zap className="w-3.5 h-3.5 text-rose-400" />
+                            <span className="text-[10px] text-white/40 uppercase font-black">Activity</span>
+                          </div>
+                          <div className="text-sm font-black text-white">{renterInsights.activityLevel}</div>
+                        </div>
+                        <div className="p-3 bg-white/[0.03] rounded-2xl border border-white/[0.07]">
+                          <div className="flex items-center gap-2 mb-1">
+                            <Target className="w-3.5 h-3.5 text-emerald-400" />
+                            <span className="text-[10px] text-white/40 uppercase font-black">Match Pot.</span>
+                          </div>
+                          <div className="text-sm font-black text-white">{renterInsights.matchPotential}</div>
+                        </div>
+                        <div className="p-3 bg-white/[0.03] rounded-2xl border border-white/[0.07]">
+                          <div className="flex items-center gap-2 mb-1">
+                            <Clock className="w-3.5 h-3.5 text-amber-400" />
+                            <span className="text-[10px] text-white/40 uppercase font-black">Last Seen</span>
+                          </div>
+                          <div className="text-sm font-black text-white">Today</div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Readiness Assessment */}
+                  {renterInsights && (
+                    <div className="space-y-2">
+                      <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">Readiness Assessment</h4>
+                      <div className={cn(
+                        "p-4 rounded-2xl border backdrop-blur-md",
+                        renterInsights.readinessScore >= 80 ? 'bg-emerald-500/5 border-emerald-500/20' :
+                        renterInsights.readinessScore >= 50 ? 'bg-blue-500/5 border-blue-500/20' :
+                        'bg-amber-500/5 border-amber-500/20'
+                      )}>
+                        <div className="flex items-center gap-2 mb-2">
+                          {renterInsights.readinessScore >= 80 ? <Award className="w-4 h-4 text-emerald-400" /> :
+                           renterInsights.readinessScore >= 50 ? <ThumbsUp className="w-4 h-4 text-blue-400" /> :
+                           <CheckCircle className="w-4 h-4 text-amber-400" />}
+                          <span className={cn(
+                            "text-[12px] font-black uppercase tracking-wider",
+                            renterInsights.readinessScore >= 80 ? 'text-emerald-400' :
+                            renterInsights.readinessScore >= 50 ? 'text-blue-400' :
+                            'text-amber-400'
+                          )}>
+                            {renterInsights.readinessScore >= 80 ? 'Elite Candidate' :
+                             renterInsights.readinessScore >= 50 ? 'Strong Candidate' :
+                             'Regular Candidate'}
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-white/50 leading-relaxed font-medium">
+                          {renterInsights.highlight}
+                        </p>
+                      </div>
+                    </div>
+                  )}
 
                   {/* Rating */}
                   <div className="space-y-2">
@@ -539,10 +654,9 @@ function LikedClientInsightsModalComponent({ open, onOpenChange, client }: Liked
           <ReportDialog
             open={showReportDialog}
             onOpenChange={setShowReportDialog}
-            targetId={client.user_id}
-            targetType="user_profile"
             reportedUserId={client.user_id}
-            targetName={client.name}
+            reportedUserName={client.name}
+            category="user_profile"
           />
           <ShareDialog
             open={showShareDialog}

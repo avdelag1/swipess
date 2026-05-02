@@ -68,7 +68,7 @@ const clientPremiumPlans = [
     label: 'BEST VALUE',
     price: 299,
     durationText: '/year',
-    aiTier: 'Sentient Unlimited',
+    aiTier: 'Swipess Unlimited',
     benefits: [
       '⚡ Zero-Commission Network (Direct Owners)',
       '⚖️ Priority Legal Support & Dispute Help',
@@ -79,7 +79,7 @@ const clientPremiumPlans = [
     ],
     aiFeatures: [
       '🔥 AI Concierge — Unlimited 24/7 Access',
-      '🧠 Full "Vibe" Sentient Memory Sync',
+      '🧠 Full "Vibe" Memory Sync',
       '📝 AI Listing Creator — Unlimited',
       '🗺️ Local Insider Knowledge (Hidden Spots)',
       '⚡ Direct-to-Source Contact Unlocking',
@@ -219,14 +219,14 @@ export default function SubscriptionPackagesPage() {
           <div className="inline-flex items-center gap-2 mb-6">
             <Zap className="w-8 h-8 text-brand-accent-2 animate-pulse" />
             <span className="text-xs font-black uppercase tracking-[0.25em] text-muted-foreground/80">
-              The Sentient Experience
+              The Swipess Experience
             </span>
           </div>
           <h1 className="text-5xl sm:text-6xl font-black tracking-tighter text-foreground mb-8 uppercase">
             Own the <span className="text-brand-accent-2 italic">Network</span>
           </h1>
           <p className="text-base font-bold text-muted-foreground leading-relaxed max-w-xl mx-auto px-4">
-            Stop paying commissions. Start resonating. Unlock direct access to owners, verified legal support, and unlimited Sentient AI assistance.
+            Stop paying commissions. Start resonating. Unlock direct access to owners, verified legal support, and unlimited AI assistance.
           </p>
         </motion.div>
       </div>
@@ -325,7 +325,7 @@ export default function SubscriptionPackagesPage() {
                       isHighlight && "shadow-amber-500/20"
                     )}
                   >
-                    {isHighlight ? 'Upgrade to Elite' : 'Choose Plan'}
+                    {isHighlight ? 'Upgrade to Swipess Pro' : 'Activate Access'}
                   </Button>
                 </div>
               </motion.div>

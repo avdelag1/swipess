@@ -284,7 +284,7 @@ export default function AdminEventos() {
   if (!isAdmin) return null;
 
   return (
-    <div className="min-h-screen bg-background p-4 pb-24 max-w-2xl mx-auto">
+    <div className="min-h-screen bg-background p-4 pt-[env(safe-area-inset-top)] pb-24 max-w-2xl mx-auto">
       <PageHeader
         title="Manage Events"
         subtitle="Create and manage Eventos & Experiencias"

@@ -11,7 +11,7 @@ import useAppTheme from '@/hooks/useAppTheme';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/sonner';
 import { useQueryClient } from '@tanstack/react-query';
-import { Home, Plus, Edit, Trash2, Eye, MapPin, Search, Bike, Zap, Sparkles, ImageIcon, Share2, Briefcase, CheckCircle, ThumbsUp } from 'lucide-react';
+import { Home, Plus, Edit, Trash2, Eye, MapPin, Search, Bike, Zap, Sparkles, ImageIcon, Share2, Briefcase, CheckCircle, ThumbsUp, ChevronRight } from 'lucide-react';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { ListingPreviewDialog } from '@/components/ListingPreviewDialog';
 import { UnifiedListingForm } from '@/components/UnifiedListingForm';
@@ -235,7 +235,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
   }
 
   return (
-    <div className={cn("w-full transition-colors duration-500", isLight ? "bg-white" : "bg-black")}>
+    <div className={cn("w-full transition-colors duration-500", "bg-background")}>
       
       {/* 🛸 CINEMATIC BACKGROUND GLOW */}
       <div className="fixed inset-0 pointer-events-none opacity-20 z-0">
@@ -291,56 +291,28 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
                 />
             </div>
             
-            {/* Scrollable filter tabs with left/right fade-edge indicators */}
-            <div className="relative flex-shrink-0">
-              {/* right fade — tells the user there are more tabs to scroll */}
-              <div
-                className="absolute right-0 top-0 bottom-0 w-10 z-10 pointer-events-none rounded-r-[2.5rem]"
-                style={{
-                  background: isLight
-                    ? 'linear-gradient(to left, rgba(255,255,255,0.95) 0%, transparent 100%)'
-                    : 'linear-gradient(to left, rgba(10,15,30,0.95) 0%, transparent 100%)',
-                }}
-              />
-              {/* left fade */}
-              <div
-                className="absolute left-0 top-0 bottom-0 w-6 z-10 pointer-events-none rounded-l-[2.5rem]"
-                style={{
-                  background: isLight
-                    ? 'linear-gradient(to right, rgba(255,255,255,0.9) 0%, transparent 100%)'
-                    : 'linear-gradient(to right, rgba(10,15,30,0.9) 0%, transparent 100%)',
-                }}
-              />
-              <div className={cn(
-                  "flex items-center gap-2 p-2 rounded-[2.5rem] overflow-x-auto no-scrollbar",
-                  isLight ? 'bg-black/[0.05] border border-black/[0.06]' : 'bg-white/[0.06] border border-white/[0.06]'
-              )}>
-                  {tabItems.map((tab) => (
-                      <button
-                          key={tab.id}
-                          onClick={() => { triggerHaptic('light'); setActiveTab(tab.id); }}
-                          className="flex items-center gap-2 px-5 h-12 rounded-[2rem] transition-all whitespace-nowrap flex-shrink-0"
-                          style={activeTab === tab.id ? {
+            <div className="flex flex-col gap-4">
+                <div className="flex items-center gap-1 overflow-x-auto no-scrollbar w-full py-1">
+                    {tabItems.map((tab) => (
+                        <button
+                            key={tab.id}
+                            onClick={() => { triggerHaptic('light'); setActiveTab(tab.id); }}
+                            className="flex-none flex items-center gap-2 px-5 h-11 rounded-[2rem] transition-all whitespace-nowrap font-black uppercase tracking-widest italic text-[11px]"
+                            style={activeTab === tab.id ? {
                             backgroundColor: '#FF4D00',
                             color: 'white',
-                            boxShadow: '0 6px 20px rgba(255,77,0,0.35)'
-                          } : {
-                            color: isLight ? 'rgba(0,0,0,0.75)' : 'rgba(255,255,255,0.75)',
-                          }}
-                      >
-                          <tab.icon className="w-3.5 h-3.5 flex-shrink-0" />
-                          <span className="text-[10px] font-black uppercase tracking-widest italic">{tab.label}</span>
-                          {tab.count > 0 && (
-                            <span className={cn(
-                              "text-[9px] font-black px-1.5 py-0.5 rounded-full",
-                              activeTab === tab.id
-                                ? 'bg-white/25 text-white'
-                                : isLight ? 'bg-black/10 text-black' : 'bg-white/15 text-white'
-                            )}>{tab.count}</span>
-                          )}
-                      </button>
-                  ))}
-              </div>
+                            boxShadow: '0 8px 24px rgba(255,77,0,0.4)'
+                            } : {
+                            color: isLight ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.5)',
+                            backgroundColor: 'transparent'
+                            }}
+                        >
+                            <tab.icon className="w-4 h-4" />
+                            <span>{tab.label}</span>
+                            {tab.count > 0 && <span className="opacity-40 ml-1">[{tab.count}]</span>}
+                        </button>
+                    ))}
+                </div>
             </div>
         </div>
 
@@ -435,71 +407,84 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
                         )}
                       </div>
 
-                      {/* 🛸 TELEMETRY SELECTOR */}
+                      {/* 🛸 STATUS TERMINAL */}
                       <div className={cn("pt-4 border-t", isLight ? 'border-black/5' : 'border-white/5')}>
-                        <p className={cn("text-[9px] font-black uppercase tracking-widest opacity-70 mb-3", isLight ? "text-black" : "text-white")}>Availability Status</p>
-                        <select
-                          value={availabilityStatus[listing.id] || listing.status || 'active'}
-                          onChange={(e) => handleAvailabilityChange(listing, e.target.value)}
-                          className={cn(
-                            "w-full px-4 h-12 text-[10px] font-black uppercase tracking-widest rounded-2xl border transition-all cursor-pointer outline-none ring-0",
-                            isLight 
-                              ? 'bg-black/[0.04] text-black border-black/5 hover:bg-black/10' 
-                              : 'bg-white/[0.06] text-white border-white/10 hover:bg-white/10'
-                          )}
-                        >
-                          <option value="available">Status: Active</option>
-                          <option value="active">Active Stream</option>
-                          <option value="rented">Asset Rented</option>
-                          <option value="sold">Asset Terminated (Sold)</option>
-                          <option value="pending">Pending Validation</option>
-                          <option value="maintenance">Maintenance Mode</option>
-                        </select>
+                        <p className={cn("text-[9px] font-black uppercase tracking-[0.3em] opacity-40 mb-3 ml-1", isLight ? "text-black" : "text-white")}>Operational Status</p>
+                        <div className="relative group/select">
+                          <div className={cn(
+                            "absolute left-4 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full animate-pulse",
+                            availabilityStatus[listing.id] === 'active' || availabilityStatus[listing.id] === 'available' ? 'bg-emerald-500' :
+                            availabilityStatus[listing.id] === 'maintenance' ? 'bg-amber-500' : 'bg-blue-500'
+                          )} />
+                          <select
+                            value={availabilityStatus[listing.id] || listing.status || 'active'}
+                            onChange={(e) => handleAvailabilityChange(listing, e.target.value)}
+                            className={cn(
+                              "w-full pl-9 pr-10 h-14 text-[10px] font-black uppercase tracking-[0.25em] rounded-2xl border transition-all cursor-pointer outline-none ring-0 appearance-none italic",
+                              isLight 
+                                ? 'bg-black/[0.03] text-black border-black/5 hover:bg-black/[0.06] hover:border-black/10' 
+                                : 'bg-white/[0.04] text-white border-white/5 hover:bg-white/[0.08] hover:border-white/10'
+                            )}
+                          >
+                            <option value="available">Status: Available</option>
+                            <option value="active">Status: Active</option>
+                            <option value="rented">Status: Rented</option>
+                            <option value="sold">Status: Terminated</option>
+                            <option value="pending">Status: Pending</option>
+                            <option value="maintenance">Status: Maintenance</option>
+                          </select>
+                          <ChevronRight className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 opacity-40 rotate-90 pointer-events-none" />
+                        </div>
                       </div>
 
                       {/* 🛸 ACTION TERMINAL */}
-                      <div className="grid grid-cols-4 gap-4 pt-2">
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4 border-t border-black/5 dark:border-white/5">
                         <motion.button
-                          whileTap={{ scale: 0.9 }}
+                          whileTap={{ scale: 0.94 }}
                           className={cn(
-                            "flex items-center justify-center h-14 rounded-2xl transition-all shadow-xl",
-                            isLight ? "bg-black text-white hover:bg-black/80" : "bg-white text-black hover:bg-white/80"
+                            "flex flex-col items-center justify-center gap-2 h-20 rounded-2xl transition-all border group/btn shadow-sm",
+                            isLight 
+                              ? "bg-white border-black/5 text-black hover:bg-black/[0.02]" 
+                              : "bg-white/5 border-white/5 text-white hover:bg-white/8"
                           )}
                           onClick={() => handleViewProperty(listing)}
-                          title="View Data"
                         >
-                          <Eye className="w-5 h-5" />
+                          <Eye className="w-6 h-6 opacity-60 group-hover/btn:opacity-100" />
+                          <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40 group-hover/btn:opacity-60">View</span>
                         </motion.button>
+
                         <motion.button
-                          whileTap={{ scale: 0.9 }}
+                          whileTap={{ scale: 0.94 }}
                           className={cn(
-                            "flex items-center justify-center h-14 rounded-2xl bg-indigo-500 text-white transition-all shadow-xl shadow-indigo-500/20 hover:bg-indigo-600"
+                            "flex flex-col items-center justify-center gap-2 h-20 rounded-2xl bg-indigo-500/5 border border-indigo-500/10 text-indigo-500 transition-all hover:bg-indigo-500/10 group/btn"
                           )}
                           onClick={() => handleShareListing(listing)}
-                          title="Broadcast Asset"
                         >
-                          <Share2 className="w-5 h-5" />
+                          <Share2 className="w-6 h-6 opacity-60 group-hover/btn:opacity-100" />
+                          <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-60">Share</span>
                         </motion.button>
+
                         <motion.button
-                          whileTap={{ scale: 0.9 }}
+                          whileTap={{ scale: 0.94 }}
                           className={cn(
-                            "flex items-center justify-center h-14 rounded-2xl bg-[#EB4898] text-white transition-all shadow-xl shadow-[#EB4898]/20 hover:bg-[#EB4898]/90"
+                            "flex flex-col items-center justify-center gap-2 h-20 rounded-2xl bg-[#EB4898]/5 border border-[#EB4898]/10 text-[#EB4898] transition-all hover:bg-[#EB4898]/10 group/btn"
                           )}
                           onClick={() => handleEditProperty(listing)}
-                          title="Modify Intel"
                         >
-                          <Edit className="w-5 h-5" />
+                          <Edit className="w-6 h-6 opacity-60 group-hover/btn:opacity-100" />
+                          <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-60">Edit</span>
                         </motion.button>
+
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
                             <motion.button
-                              whileTap={{ scale: 0.9 }}
+                              whileTap={{ scale: 0.94 }}
                               className={cn(
-                                "flex items-center justify-center h-14 rounded-2xl bg-rose-600 text-white transition-all shadow-xl shadow-rose-600/20 hover:bg-rose-700"
+                                "flex flex-col items-center justify-center gap-2 h-20 rounded-2xl bg-rose-500/5 border border-rose-500/10 text-rose-500 transition-all hover:bg-rose-500/10 group/btn"
                               )}
-                              title="Purge Asset"
                             >
-                              <Trash2 className="w-5 h-5" />
+                              <Trash2 className="w-6 h-6 opacity-60 group-hover/btn:opacity-100" />
+                              <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-60">Purge</span>
                             </motion.button>
                           </AlertDialogTrigger>
                           <AlertDialogContent className={cn(
@@ -535,8 +520,8 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               className={cn(
-                "flex flex-col items-center justify-center py-32 text-center rounded-[4rem] border mx-6 backdrop-blur-3xl",
-                isLight ? "bg-black/[0.02] border-black/5" : "bg-white/[0.02] border-white/5"
+                "flex flex-col items-center justify-center py-32 text-center backdrop-blur-3xl",
+                isLight ? "bg-black/[0.01]" : "bg-white/[0.01]"
               )}
             >
               <div className={cn(

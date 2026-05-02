@@ -152,8 +152,8 @@ const ClientSettings = () => {
             </div>
             <div className="space-y-3 px-2">
               <div className="space-y-1">
-                <h3 className="text-sm font-black uppercase tracking-widest text-destructive">Destructive Actions</h3>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground opacity-40">Proceed with absolute caution</p>
+                <h3 className="text-sm font-black uppercase tracking-widest text-destructive">{t('settings.destructiveActions')}</h3>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground opacity-40">{t('settings.proceedWithCaution')}</p>
               </div>
               <DeleteAccountSection />
             </div>
@@ -215,9 +215,9 @@ const ClientSettings = () => {
         <div className="space-y-3">
            <div className="flex items-center gap-3">
               <div className="w-1.5 h-1.5 rounded-full bg-[#EB4898] animate-pulse" />
-              <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[#EB4898] italic">Identity Config</span>
+              <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[#EB4898] italic">{t('settings.identityConfig')}</span>
            </div>
-           <h1 className={cn("text-4xl font-black uppercase italic tracking-tighter leading-none", isLight ? "text-black" : "text-white")}>System Settings</h1>
+           <h1 className={cn("text-4xl font-black uppercase italic tracking-tighter leading-none", isLight ? "text-black" : "text-white")}>{t('settings.systemSettings')}</h1>
            <PWAInstallButton className="pt-2" />
         </div>
 
@@ -289,12 +289,12 @@ const ClientSettings = () => {
             </div>
             <div className="text-center space-y-2">
                <div className="flex items-center justify-center gap-3">
-                  <span className={cn("text-2xl font-black italic tracking-tighter uppercase", isLight ? "text-black" : "text-white")}>Swipess</span>
+                  <span className={cn("text-2xl font-black italic tracking-tighter uppercase", isLight ? "text-black" : "text-white")}>SWIPESS PRO</span>
                   <div className="bg-[#EB4898]/10 px-3 py-1 rounded-full border border-[#EB4898]/20">
                      <span className="text-[9px] font-black text-[#EB4898] uppercase tracking-widest font-mono">V3.3.1</span>
                   </div>
                </div>
-               <p className={cn("text-[9px] font-black uppercase tracking-[0.4em] italic opacity-30", isLight ? "text-black" : "text-white")}>Elite Discovery Engine</p>
+               <p className={cn("text-[9px] font-black uppercase tracking-[0.4em] italic opacity-30", isLight ? "text-black" : "text-white")}>{t('settings.eliteDiscovery')}</p>
             </div>
           </motion.div>
         </div>

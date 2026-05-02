@@ -34,60 +34,64 @@ function ModeSwitcherComponent({ className }: ModeSwitcherProps) {
 
   const isClient = activeMode === 'client';
 
-  const glassButtonStyle = (isActive: boolean, color: string) => ({
-    background: isActive 
-      ? (isLight ? `${color}15` : `${color}25`) 
-      : (isLight ? 'rgba(255, 255, 255, 0.75)' : 'rgba(15, 25, 55, 0.45)'),
-    backdropFilter: 'blur(36px) saturate(280%)',
-    WebkitBackdropFilter: 'blur(36px) saturate(280%)',
-    borderRadius: '1.2rem',
-    border: 'none',
-    boxShadow: isActive 
-      ? (isLight ? `0 12px 30px ${color}20` : `0 0 40px ${color}50`) 
-      : (isLight ? '0 6px 20px rgba(0,0,0,0.04)' : '0 15px 40px rgba(0,0,0,0.3)'),
-    pointerEvents: 'auto' as const,
-  });
+  // Single segmented pill containing both halves — eliminates the "two random
+  // glass squares floating" look and visually anchors the mode-switch as one
+  // control. Only the active half shows colored fill.
+  const containerStyle: React.CSSProperties = {
+    background: isLight
+      ? 'rgba(255, 255, 255, 0.85)'
+      : 'rgba(10, 15, 35, 0.45)',
+    backdropFilter: 'blur(24px) saturate(180%)',
+    WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+    borderRadius: '1.25rem',
+    border: isLight ? '1px solid rgba(0,0,0,0.04)' : '1px solid rgba(255,255,255,0.06)',
+    boxShadow: isLight ? '0 4px 12px rgba(0,0,0,0.03)' : '0 4px 16px rgba(0,0,0,0.2)',
+    height: '32px',
+  };
+
+  const halfBase = "w-7 h-7 flex items-center justify-center transition-all duration-200 relative rounded-[0.85rem]";
 
   return (
-    <div className={cn('flex items-center gap-2', className)}>
+    <div
+      className={cn('flex items-center gap-0.5 p-1 pointer-events-auto', className)}
+      style={containerStyle}
+    >
       <motion.button
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.9 }}
-        onClick={(e) => {
-          handleModeSwitch('client');
-        }}
+        whileTap={{ scale: 0.92 }}
+        onClick={() => handleModeSwitch('client')}
         disabled={!canSwitchMode || isSwitching}
-        className={cn(
-          "w-9 h-9 flex items-center justify-center transition-all duration-300 relative rounded-xl",
-          isClient 
-            ? "opacity-100" 
-            : (isLight ? "opacity-70 hover:opacity-100" : "opacity-70 hover:opacity-100")
-        )}
-
-        style={glassButtonStyle(isClient, '#f43f5e')}
+        className={cn(halfBase)}
+        style={{
+          background: isClient
+            ? (isLight ? 'rgba(244, 63, 94, 0.12)' : 'rgba(244, 63, 94, 0.22)')
+            : 'transparent',
+        }}
         title="Client Mode"
+        aria-pressed={isClient}
       >
-        <User className={cn("h-5 w-5", isClient ? "text-[#f43f5e]" : "text-[var(--hud-text)]")} strokeWidth={isClient ? 2.5 : 1.5} />
+        <User
+          className={cn('h-[18px] w-[18px]', isClient ? 'text-[#f43f5e]' : 'text-[var(--hud-text)] opacity-60')}
+          strokeWidth={isClient ? 2.5 : 1.8}
+        />
       </motion.button>
 
       <motion.button
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.9 }}
-        onClick={(e) => {
-          handleModeSwitch('owner');
-        }}
+        whileTap={{ scale: 0.92 }}
+        onClick={() => handleModeSwitch('owner')}
         disabled={!canSwitchMode || isSwitching}
-        className={cn(
-          "w-9 h-9 flex items-center justify-center transition-all duration-300 relative rounded-xl",
-          !isClient 
-            ? "opacity-100" 
-            : (isLight ? "opacity-70 hover:opacity-100" : "opacity-70 hover:opacity-100")
-        )}
-
-        style={glassButtonStyle(!isClient, '#f97316')}
+        className={cn(halfBase)}
+        style={{
+          background: !isClient
+            ? (isLight ? 'rgba(249, 115, 22, 0.14)' : 'rgba(249, 115, 22, 0.24)')
+            : 'transparent',
+        }}
         title="Owner Mode"
+        aria-pressed={!isClient}
       >
-        <UserCheck className={cn("h-5 w-5", !isClient ? "text-[#f97316]" : "text-[var(--hud-text)]")} strokeWidth={!isClient ? 2.5 : 1.5} />
+        <UserCheck
+          className={cn('h-[18px] w-[18px]', !isClient ? 'text-[#f97316]' : 'text-[var(--hud-text)] opacity-60')}
+          strokeWidth={!isClient ? 2.5 : 1.8}
+        />
       </motion.button>
     </div>
   );

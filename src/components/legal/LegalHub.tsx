@@ -172,7 +172,7 @@ export function ContractsVault() {
                     >
                       <div className="flex items-center gap-6">
                         <div className={cn("w-16 h-16 rounded-[1.2rem] border flex items-center justify-center transition-colors", isLight ? "bg-black/5 border-black/5 group-hover:bg-primary/10 group-hover:border-primary/20" : "bg-white/5 border-white/10 group-hover:bg-primary/10 group-hover:border-primary/20")}>
-                          <FileText className={cn("w-7 h-7 text-white/70 group-hover:text-primary transition-colors")} />
+                          <FileText className={cn("w-7 h-7 group-hover:text-primary transition-colors", isLight ? "text-black/40" : "text-white/70")} />
                         </div>
                         <div className="space-y-1.5">
                           <h4 className={cn("text-base font-black tracking-tighter uppercase italic transition-colors", isLight ? "text-black group-hover:text-primary" : "text-white group-hover:text-primary")}>{contract.title}</h4>
@@ -238,7 +238,7 @@ export function ContractsVault() {
                     
                     <div className="relative flex items-center gap-6">
                       <div className={cn("w-14 h-14 rounded-2xl border flex items-center justify-center group-hover:scale-110 transition-transform", isLight ? "bg-black/5 border-black/5" : "bg-white/5 border-white/10")}>
-                        <PenTool className="w-7 h-7 text-white/20 group-hover:text-primary transition-colors" />
+                        <PenTool className={cn("w-7 h-7 group-hover:text-primary transition-colors", isLight ? "text-black/10" : "text-white/20")} />
                       </div>
                       <div className="flex-1 space-y-1">
                         <h4 className={cn("text-base font-black tracking-tighter uppercase italic", isLight ? "text-black" : "text-white")}>{template.name}</h4>

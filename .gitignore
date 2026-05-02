@@ -57,3 +57,4 @@ parse_errors.py
 push_error.txt
 app_layout_lint.txt
 dump.sql
+.dyad/

@@ -80,8 +80,8 @@ const OwnerSettings = () => {
       items: [
         {
           icon: Building2,
-          label: 'Brand Assets',
-          description: 'View, edit, and create your listings',
+          label: t('settings.brandAssets'),
+          description: t('settings.brandAssetsDesc'),
           bg: 'linear-gradient(135deg, #1e3a8a, #3b82f6)',
           route: '/owner/properties',
         },
@@ -106,8 +106,8 @@ const OwnerSettings = () => {
       items: [
         {
           icon: Users,
-          label: "Partner Sync",
-          description: "Invite a partner to find shared matches",
+          label: t('settings.partnerSync'),
+          description: t('settings.partnerSyncDesc'),
           bg: 'linear-gradient(135deg, #db2777, #f472b6)',
           route: '/partner/sync',
         },
@@ -150,8 +150,8 @@ const OwnerSettings = () => {
             </div>
             <div className="space-y-3 px-2">
               <div className="space-y-1">
-                <h3 className="text-sm font-black uppercase tracking-widest text-destructive">Destructive Actions</h3>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground opacity-40">Proceed with absolute caution</p>
+                <h3 className="text-sm font-black uppercase tracking-widest text-destructive">{t('settings.destructiveActions')}</h3>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground opacity-40">{t('settings.proceedWithCaution')}</p>
               </div>
               <DeleteAccountSection />
             </div>
@@ -200,9 +200,9 @@ const OwnerSettings = () => {
         <div className="space-y-3">
            <div className="flex items-center gap-3">
               <div className="w-1.5 h-1.5 rounded-full bg-purple-500 animate-pulse" />
-              <span className="text-[10px] font-black uppercase tracking-[0.4em] text-purple-500 italic">Owner Config</span>
+              <span className="text-[10px] font-black uppercase tracking-[0.4em] text-purple-500 italic">{t('settings.ownerConfig')}</span>
            </div>
-           <h1 className={cn("text-4xl font-black uppercase italic tracking-tighter leading-none", isLight ? "text-black" : "text-white")}>System Settings</h1>
+           <h1 className={cn("text-4xl font-black uppercase italic tracking-tighter leading-none", isLight ? "text-black" : "text-white")}>{t('settings.systemSettings')}</h1>
            <PWAInstallButton className="pt-2" />
         </div>
 
@@ -280,12 +280,12 @@ const OwnerSettings = () => {
             </div>
             <div className="text-center space-y-2">
                <div className="flex items-center justify-center gap-3">
-                  <span className={cn("text-2xl font-black italic tracking-tighter uppercase", isLight ? "text-black" : "text-white")}>Swipess</span>
+                  <span className={cn("text-2xl font-black italic tracking-tighter uppercase", isLight ? "text-black" : "text-white")}>SWIPESS PRO</span>
                   <div className="bg-purple-600/10 px-3 py-1 rounded-full border border-purple-600/20">
                      <span className="text-[9px] font-black text-purple-600 uppercase tracking-widest font-mono">V3.3.1</span>
                   </div>
                </div>
-               <p className={cn("text-[9px] font-black uppercase tracking-[0.4em] italic opacity-30", isLight ? "text-black" : "text-white")}>Property Authority Network • Elite Discovery</p>
+               <p className={cn("text-[9px] font-black uppercase tracking-[0.4em] italic opacity-30", isLight ? "text-black" : "text-white")}>{t('settings.propertyAuthority')}</p>
             </div>
           </motion.div>
         </div>

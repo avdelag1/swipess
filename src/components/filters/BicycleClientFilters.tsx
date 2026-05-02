@@ -1,13 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
 import { Label } from '@/components/ui/label';
-import { Slider } from '@/components/ui/slider';
-import { Badge } from '@/components/ui/badge';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { ChevronDown } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { ClientDemographicFilters } from './ClientDemographicFilters';
 import { EmbeddedLocationFilter } from './EmbeddedLocationFilter';
+import useAppTheme from '@/hooks/useAppTheme';
+import { cn } from '@/lib/utils';
 
 const BICYCLE_TYPES = [
   { value: 'road', label: 'Road' },
@@ -33,6 +30,10 @@ interface BicycleClientFiltersProps {
 }
 
 export function BicycleClientFilters({ onApply, initialFilters = {}, activeCount }: BicycleClientFiltersProps) {
+  const { isLight } = useAppTheme();
+  const activePill = 'bg-primary border-primary text-primary-foreground shadow-sm scale-[1.03]';
+  const inactivePill = isLight ? 'bg-white border-black/10 text-black hover:bg-black/5 shadow-sm' : 'bg-white/8 border-white/10 text-white hover:bg-white/12';
+  const sectionLabel = isLight ? 'text-black/50' : 'text-white/40';
   const [bicycleTypes, setBicycleTypes] = useState<string[]>((initialFilters.bicycle_types as string[]) || []);
   const [selectedPriceRange, setSelectedPriceRange] = useState<string>((initialFilters.selected_price_range as string) || '');
   const [electricAssist, setElectricAssist] = useState((initialFilters.electric_assist as boolean) ?? false);
@@ -87,68 +88,56 @@ export function BicycleClientFilters({ onApply, initialFilters = {}, activeCount
   }, [bicycleTypes, selectedPriceRange, electricAssist, includesLock, includesHelmet, includesBasket, genderPreference, nationalities, languages, ageRange, locationCountries, locationCities, locationNeighborhoods]);
 
   return (
-    <div className="space-y-4 p-4">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold">Bicycle Filters</h3>
-        <Badge variant="secondary">{activeCount} active</Badge>
+    <div className="space-y-5 p-2">
+      <div className="flex items-center justify-between px-1">
+        <span className={cn('text-[10px] font-black uppercase tracking-widest', sectionLabel)}>Bicycle Filters</span>
+        {activeCount > 0 && <span className={cn('text-[10px] font-bold px-2 py-0.5 rounded-full', isLight ? 'bg-primary/10 text-primary' : 'bg-primary/20 text-primary')}>{activeCount} active</span>}
       </div>
 
       {/* Price Range */}
-      <div className="space-y-2">
-        <Label className="font-medium">Price Range</Label>
+      <div className="space-y-2.5">
+        <span className={cn('text-[10px] font-black uppercase tracking-widest px-1', sectionLabel)}>Price Range</span>
         <div className="flex flex-wrap gap-2">
           {BIKE_PRICE_RANGES.map((range) => (
-            <Badge
+            <button
               key={range.value}
-              variant={selectedPriceRange === range.value ? "default" : "outline"}
-              className={`cursor-pointer transition-all duration-200 hover:scale-105 py-2 px-3 ${
-                selectedPriceRange === range.value ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'
-              }`}
               onClick={() => setSelectedPriceRange(selectedPriceRange === range.value ? '' : range.value)}
+              className={cn('rounded-2xl border text-[11px] font-black uppercase tracking-widest px-4 py-2 transition-all duration-200 active:scale-95', selectedPriceRange === range.value ? activePill : inactivePill)}
             >
               {range.label}
-            </Badge>
+            </button>
           ))}
         </div>
       </div>
 
       {/* Bicycle Type */}
-      <Collapsible>
-        <CollapsibleTrigger className="flex items-center justify-between w-full">
-          <Label>Bicycle Type</Label>
-          <ChevronDown className="h-4 w-4" />
-        </CollapsibleTrigger>
-        <CollapsibleContent className="pt-2 space-y-2">
+      <div className="space-y-2.5">
+        <span className={cn('text-[10px] font-black uppercase tracking-widest px-1', sectionLabel)}>Bicycle Type</span>
+        <div className="flex flex-wrap gap-2">
           {BICYCLE_TYPES.map((type) => (
-            <div key={type.value} className="flex items-center space-x-2">
-              <Checkbox
-                id={`bike_type_${type.value}`}
-                checked={bicycleTypes.includes(type.value)}
-                onCheckedChange={() => toggleArrayValue(bicycleTypes, type.value, setBicycleTypes)}
-              />
-              <label htmlFor={`bike_type_${type.value}`} className="text-sm cursor-pointer">{type.label}</label>
-            </div>
+            <button
+              key={type.value}
+              onClick={() => toggleArrayValue(bicycleTypes, type.value, setBicycleTypes)}
+              className={cn('rounded-2xl border text-[11px] font-black uppercase tracking-widest px-4 py-2 transition-all duration-200 active:scale-95', bicycleTypes.includes(type.value) ? activePill : inactivePill)}
+            >
+              {type.label}
+            </button>
           ))}
-        </CollapsibleContent>
-      </Collapsible>
+        </div>
+      </div>
 
       {/* Toggles */}
-      <div className="flex items-center justify-between">
-        <Label>Electric Assist</Label>
-        <Switch checked={electricAssist} onCheckedChange={setElectricAssist} />
-      </div>
-      <div className="flex items-center justify-between">
-        <Label>Includes Lock</Label>
-        <Switch checked={includesLock} onCheckedChange={setIncludesLock} />
-      </div>
-      <div className="flex items-center justify-between">
-        <Label>Includes Helmet</Label>
-        <Switch checked={includesHelmet} onCheckedChange={setIncludesHelmet} />
-      </div>
-      <div className="flex items-center justify-between">
-        <Label>Includes Basket</Label>
-        <Switch checked={includesBasket} onCheckedChange={setIncludesBasket} />
-      </div>
+      {[
+        { label: 'Electric Assist', checked: electricAssist, onChange: setElectricAssist },
+        { label: 'Includes Lock', checked: includesLock, onChange: setIncludesLock },
+        { label: 'Includes Helmet', checked: includesHelmet, onChange: setIncludesHelmet },
+        { label: 'Includes Basket', checked: includesBasket, onChange: setIncludesBasket },
+      ].map(({ label, checked, onChange }) => (
+        <div key={label} className={cn('flex items-center justify-between py-2 px-1 rounded-xl', isLight ? 'hover:bg-black/3' : 'hover:bg-white/3')}>
+          <Label className={cn('text-[11px] font-black uppercase tracking-widest cursor-pointer', isLight ? 'text-black' : 'text-white')}>{label}</Label>
+          <Switch checked={checked} onCheckedChange={onChange} />
+        </div>
+      ))}
 
       {/* Location */}
       <EmbeddedLocationFilter

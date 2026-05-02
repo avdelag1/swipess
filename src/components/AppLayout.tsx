@@ -20,6 +20,7 @@ import { cn } from '@/lib/utils';
 import { SentientHud } from './SentientHud';
 import { VapIdCardModal } from './VapIdCardModal';
 import { RadioMiniPlayer } from './RadioMiniPlayer';
+import { uiSounds } from '@/utils/uiSounds'; // ZENITH AUDIO ENGINE
 
 const NotificationSystem = lazy(() =>
   import('@/components/NotificationSystem').then(m => ({ default: m.NotificationSystem }))
@@ -46,7 +47,12 @@ export function AppLayout({ children }: AppLayoutProps) {
   const { activeMode } = useActiveMode();
   const { isRefreshing, pullDistance, triggered } = usePullToRefresh();
 
-  const userRole = user?.user_metadata?.role === 'admin' ? 'admin' : activeMode;
+  const userRole = useMemo<'client' | 'owner' | 'admin'>(() => {
+    if (user?.user_metadata?.role === 'admin') return 'admin';
+    if (location.pathname.startsWith('/owner/')) return 'owner';
+    if (location.pathname.startsWith('/client/')) return 'client';
+    return activeMode;
+  }, [activeMode, location.pathname, user?.user_metadata?.role]);
 
   useKeyboardShortcuts();
   useFocusManagement();
@@ -72,8 +78,27 @@ export function AppLayout({ children }: AppLayoutProps) {
     
     // Fallback for legacy listeners
     window.dispatchEvent(new CustomEvent('app-rendered'));
+
+    // 🧘 ZEN TAP: Global click listener for meditation bowl sounds
+    const handleGlobalTap = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      const isInteractive = target.closest('button, a, input, select, [role="button"]');
+      
+      const isDashboard = location.pathname === '/client/dashboard' || location.pathname === '/owner/dashboard';
+
+      if (isInteractive) {
+        uiSounds.playWaterDrop();
+      } else if (isDashboard) {
+        uiSounds.playZenBowl();
+      }
+    };
+
+    window.addEventListener('mousedown', handleGlobalTap);
     
-    return () => cancelAnimationFrame(frame);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener('mousedown', handleGlobalTap);
+    };
   }, [location.pathname]);
 
   const isPublicPreview = location.pathname.startsWith('/listing/') || location.pathname.startsWith('/profile/');
@@ -93,12 +118,20 @@ export function AppLayout({ children }: AppLayoutProps) {
     return !isPublic;
   }, [location.pathname]);
 
+  const isSwipeDashboard = useMemo(() => {
+    const path = location.pathname;
+    return path === '/client/dashboard' || path === '/owner/dashboard' ||
+      path === '/client/dashboard/' || path === '/owner/dashboard/';
+  }, [location.pathname]);
+
   const isFullScreen = useMemo(() => {
     const path = location.pathname;
     const isRadio = path.startsWith('/radio');
     const isCamera = path.startsWith('/camera');
-    return isCamera || isRadio || showAIChat;
-  }, [location.pathname, showAIChat]);
+    return isCamera || isRadio || showAIChat || isSwipeDashboard;
+  }, [location.pathname, showAIChat, isSwipeDashboard]);
+
+  const showAppChrome = !isAuthRoute && !isRadioRoute && !isCameraRoute && !showAIChat && (!isPublicPreview || !!user);
 
   const handleFilterClick = () => {
     const role = userRole === 'admin' ? 'admin' : activeMode;
@@ -116,7 +149,7 @@ export function AppLayout({ children }: AppLayoutProps) {
     <div className={cn(
       "w-full h-[100dvh] flex flex-col relative selection:bg-brand-primary/30 overflow-hidden", 
       "bg-background",
-      theme === 'Swipess-style' && "Swipess-style"
+      theme === 'Zenith-style' && "Zenith-style"
     )}>
       <PullToRefreshIndicator pullDistance={pullDistance} isRefreshing={isRefreshing} triggered={triggered} />
       <SkipToMainContent />
@@ -125,8 +158,8 @@ export function AppLayout({ children }: AppLayoutProps) {
         <NotificationSystem />
       </Suspense>
   
-      {!isAuthRoute && !isFullScreen && !isRadioRoute && !isCameraRoute && (!isPublicPreview || !!user) && (
-        <SentientHud side="top" className="fixed top-0 left-0 right-0 z-[10005]" scrollTargetSelector="#dashboard-scroll-container">
+      {showAppChrome && (
+        <SentientHud side="top" className="fixed top-0 left-0 right-0 z-[10005]" scrollTargetSelector="#dashboard-scroll-container" alwaysVisible={true}>
           <TopBar
             userRole={userRole}
             onMessageActivationsClick={handleMessageActivationsClick}
@@ -142,20 +175,13 @@ export function AppLayout({ children }: AppLayoutProps) {
         </SentientHud>
       )}
 
-      {/* 🌑 ATMOSPHERIC VIGNETTE: Subtle edge darkening for focus depth */}
-      <div className="fixed inset-0 pointer-events-none z-[1] opacity-60 mix-blend-multiply" 
-        style={{ 
-          background: 'radial-gradient(circle at center, transparent 40%, rgba(0,0,0,0.15) 100%)' 
-        }} 
-      />
-
       {/* SHELL CONTAINER: Always fixed-height. DashboardLayout handles scrolling inside. */}
       <main
         id="main-content"
         className={cn(
           "w-full flex-1 relative z-0 flex flex-col",
           // Push content down below the fixed header
-          !isAuthRoute && !isFullScreen && !isRadioRoute && !isCameraRoute && "pt-[var(--top-bar-height)]",
+          !isAuthRoute && !isFullScreen && !isRadioRoute && !isCameraRoute && !isInsideDashboard && "pt-[var(--top-bar-height)]",
           // Dashboard pages: overflow-hidden, DashboardLayout scrolls internally
           // Public/standalone pages: overflow-y-auto, scroll at this level
           (isInsideDashboard || isFullScreen) ? "overflow-hidden" : "overflow-y-auto scroll-area-momentum pb-[var(--bottom-nav-height)]"
@@ -173,8 +199,8 @@ export function AppLayout({ children }: AppLayoutProps) {
 
 
 
-      {!isAuthRoute && !isFullScreen && !isRadioRoute && !isCameraRoute && (!isPublicPreview || !!user) && (
-        <SentientHud side="bottom" className="fixed bottom-0 left-0 right-0 z-[9999]" scrollTargetSelector="#dashboard-scroll-container">
+      {showAppChrome && (
+        <SentientHud side="bottom" className="fixed bottom-0 left-0 right-0 z-[10005]" scrollTargetSelector="#dashboard-scroll-container" alwaysVisible={true}>
           <BottomNavigation
             userRole={userRole}
             onFilterClick={handleFilterClick}

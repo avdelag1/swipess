@@ -1,12 +1,12 @@
 import { memo } from 'react';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
 import { MapPin, Star, Clock, MessageCircle } from 'lucide-react';
 import { findCategory } from '@/data/serviceCategories';
 import { PRICING_UNITS } from '@/components/WorkerListingForm';
 import { SaveButton } from '@/components/SaveButton';
 import { triggerHaptic } from '@/utils/haptics';
-import CardImage from '@/components/CardImage';
+import { SwipessLogo } from '@/components/SwipessLogo';
+import { getCardImageUrl } from '@/utils/imageOptimization';
 
 export interface WorkerListing {
   id: string;
@@ -35,110 +35,117 @@ interface WorkerCardProps {
 export const WorkerCard = memo(({ worker, onContact, priority = false }: WorkerCardProps) => {
   const categoryInfo = findCategory(worker.service_category || '');
   const pricingInfo = PRICING_UNITS.find(p => p.value === worker.pricing_unit);
+  const imageUrl = worker.images?.[0];
+  const optimizedImage = imageUrl ? getCardImageUrl(imageUrl, 600) : null;
 
   return (
-    <Card className="overflow-hidden rounded-2xl transition-all shadow-sm border-border/40 bg-card hover:shadow-lg hover:border-border/60 group">
-      <div className="relative aspect-[4/3] bg-muted overflow-hidden">
-        <CardImage 
-          src={worker.images?.[0]} 
-          alt={worker.title ?? 'Worker'} 
-          name={worker.title || undefined}
-          priority={priority}
+    <div className="relative w-full aspect-[3/4] sm:aspect-[4/5] rounded-[32px] overflow-hidden group shadow-2xl bg-black">
+      {/* Background Layer */}
+      {optimizedImage ? (
+        <img 
+          src={optimizedImage} 
+          alt={worker.title || 'Service'} 
+          className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+          loading={priority ? 'eager' : 'lazy'}
         />
-        <Badge className="absolute top-2 left-2 bg-background/90 backdrop-blur-sm z-10">
-          {categoryInfo?.icon} {categoryInfo?.label || worker.service_category}
-        </Badge>
+      ) : (
+        <div className="absolute inset-0 w-full h-full bg-black flex flex-col items-center justify-center p-6 text-center">
+          <div className="scale-75 opacity-40 mb-6">
+             <SwipessLogo isIcon={false} size="md" variant="white" />
+          </div>
+          <p className="text-white/40 text-[10px] font-black uppercase tracking-widest leading-relaxed">
+            Waiting for users to upload their photos
+          </p>
+        </div>
+      )}
+
+      {/* Dark Vignette Overlay for Text Legibility */}
+      <div className="absolute inset-x-0 bottom-0 h-[70%] bg-gradient-to-t from-black/95 via-black/50 to-transparent pointer-events-none" />
+
+      {/* Top Badges */}
+      <div className="absolute top-5 left-5 right-5 flex justify-between z-10 pointer-events-none">
+        <div className="px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center gap-2">
+           <span className="text-[10px] font-black text-white tracking-widest uppercase">
+             {categoryInfo?.icon} {categoryInfo?.label || worker.service_category}
+           </span>
+        </div>
+        
         {pricingInfo && (
-          <Badge className="absolute top-2 right-2 bg-rose-500/90 text-white backdrop-blur-sm z-10">
-            {pricingInfo.label}
-          </Badge>
+          <div className="px-3 py-1.5 rounded-full bg-rose-500/80 backdrop-blur-md border border-rose-500/20 flex items-center gap-2">
+             <span className="text-[10px] font-black text-white tracking-widest uppercase">
+               {pricingInfo.label}
+             </span>
+          </div>
         )}
       </div>
 
-      <CardContent className="p-4 space-y-3">
-        {/* Title and Owner */}
-        <div>
-          <h3 className="font-semibold text-lg line-clamp-1">{worker.title}</h3>
-          {worker.owner && (
-            <div className="flex items-center gap-2 mt-1">
-              <div className="w-5 h-5 rounded-full overflow-hidden bg-muted">
-                {worker.owner.avatar_url ? (
-                  <img src={worker.owner.avatar_url} alt={worker.owner.full_name || ''} className="w-full h-full object-cover" />
-                ) : (
-                  <div className="w-full h-full bg-primary/20" />
-                )}
-              </div>
-              <span className="text-sm text-muted-foreground">{worker.owner.full_name}</span>
-            </div>
-          )}
+      {/* Content Layer (Bottom Left Aligned) */}
+      <div className="absolute inset-x-0 bottom-0 p-5 flex flex-col justify-end z-10 pointer-events-none">
+        {/* Title and Price */}
+        <div className="flex items-end justify-between gap-4 mb-2">
+          <h3 className="text-2xl font-black text-white leading-none tracking-tighter line-clamp-2">
+            {worker.title || 'Untitled Service'}
+          </h3>
+          <div className="flex flex-col items-end shrink-0">
+            <span className="text-xl font-black text-white tracking-tighter font-mono">
+              {(worker.price ?? 0) > 0 ? `$${worker.price}` : 'Quote'}
+            </span>
+          </div>
         </div>
 
-        {/* Description */}
-        {worker.description && (
-          <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">{worker.description}</p>
-        )}
+        {/* Location & Tags */}
+        <p className="text-[11px] font-bold text-white/60 uppercase tracking-widest mb-3 flex items-center gap-1.5">
+          <MapPin className="w-3 h-3" />
+          {worker.city || 'Location not set'}
+        </p>
 
-        {/* Details */}
-        <div className="flex flex-wrap gap-2 text-xs">
-          {worker.city && (
-            <span className="flex items-center gap-1 text-muted-foreground">
-              <MapPin className="w-3 h-3" />
-              {worker.city}
-            </span>
-          )}
+        {/* Insight Pills */}
+        <div className="flex flex-wrap gap-1.5 mb-5">
           {worker.experience_years && (
-            <span className="flex items-center gap-1 text-muted-foreground">
-              <Star className="w-3 h-3" />
+            <Badge variant="outline" className="text-[10px] font-bold py-1 px-3 bg-black/40 backdrop-blur-md border border-white/20 text-white rounded-full flex items-center gap-1.5 whitespace-nowrap">
+              <Star className="w-3 h-3 text-amber-400" />
               {worker.experience_years} yrs exp
-            </span>
+            </Badge>
           )}
           {worker.availability && (
-            <span className="flex items-center gap-1 text-muted-foreground">
-              <Clock className="w-3 h-3" />
-              {worker.availability.slice(0, 20)}...
-            </span>
+            <Badge variant="outline" className="text-[10px] font-bold py-1 px-3 bg-black/40 backdrop-blur-md border border-white/20 text-white rounded-full flex items-center gap-1.5 whitespace-nowrap">
+              <Clock className="w-3 h-3 text-blue-400" />
+              {worker.availability.slice(0, 15)}
+            </Badge>
+          )}
+          {worker.owner?.full_name && (
+            <Badge variant="outline" className="text-[10px] font-bold py-1 px-3 bg-black/40 backdrop-blur-md border border-white/20 text-white rounded-full flex items-center gap-1.5 whitespace-nowrap">
+              {worker.owner.avatar_url ? (
+                 <img src={worker.owner.avatar_url} className="w-4 h-4 rounded-full" />
+              ) : (
+                 <div className="w-4 h-4 rounded-full bg-primary/40" />
+              )}
+              {worker.owner.full_name}
+            </Badge>
           )}
         </div>
 
-        {/* Price and Action */}
-        <div className="flex items-center justify-between pt-3 mt-1 border-t border-border/40">
-          <div className="flex flex-col">
-            <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-tight leading-none mb-1">Price</span>
-            <div className="flex items-baseline gap-1">
-              <span className="font-black text-xl tracking-tighter text-foreground font-mono">
-                {(worker.price ?? 0) > 0 ? `$${worker.price}` : 'Quote'}
-              </span>
-              {(worker.price ?? 0) > 0 && pricingInfo && (
-                <span className="text-[10px] font-bold text-muted-foreground/80 lowercase">
-                  /{pricingInfo.label.replace('Per ', '')}
-                </span>
-              )}
-            </div>
-          </div>
-          
-          <div className="flex items-center gap-2.5">
-            <SaveButton 
-              targetId={worker.id}
-              targetType="listing"
-              className="w-11 h-11 rounded-2xl bg-muted/40 border border-border/20 backdrop-blur-md"
-              variant="circular"
-            />
-            <button
-              onClick={() => {
-                triggerHaptic('light');
-                onContact(worker.owner_id);
-              }}
-              className="group relative flex items-center justify-center gap-2 px-6 h-11 rounded-2xl text-[11px] font-black uppercase tracking-widest text-white transition-all active:scale-95 bg-gradient-to-br from-rose-500 via-pink-600 to-orange-500 shadow-xl shadow-rose-500/20 overflow-hidden"
-            >
-              <div className="absolute inset-0 bg-white/20 -translate-x-full group-hover:animate-sweep" />
-              <MessageCircle className="w-3.5 h-3.5" />
-              <span>Contact</span>
-            </button>
-          </div>
+        {/* Action Buttons */}
+        <div className="flex items-center gap-3 pt-2 pointer-events-auto">
+          <SaveButton 
+            targetId={worker.id}
+            targetType="listing"
+            className="w-12 h-12 rounded-full bg-black/40 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all shrink-0 text-white"
+            variant="circular"
+          />
+
+          <button 
+            onClick={() => {
+              triggerHaptic('light');
+              onContact(worker.owner_id);
+            }}
+            className="flex-1 h-12 flex items-center justify-center gap-2 rounded-full text-[11px] font-black uppercase tracking-widest text-white transition-all active:scale-95 bg-gradient-to-r from-rose-500 via-pink-600 to-orange-500 shadow-lg shadow-rose-500/25"
+          >
+            <MessageCircle className="h-4 w-4" />
+            <span>Contact</span>
+          </button>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 });
-
-

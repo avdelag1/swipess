@@ -1,13 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
-import { Badge } from '@/components/ui/badge';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ChevronDown } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { ClientDemographicFilters } from './ClientDemographicFilters';
 import { EmbeddedLocationFilter } from './EmbeddedLocationFilter';
+import useAppTheme from '@/hooks/useAppTheme';
+import { cn } from '@/lib/utils';
 
 const MOTO_TYPES = [
   { value: 'sport', label: 'Sport' },
@@ -33,6 +33,11 @@ interface MotoClientFiltersProps {
 }
 
 export function MotoClientFilters({ onApply, initialFilters = {}, activeCount }: MotoClientFiltersProps) {
+  const { isLight } = useAppTheme();
+  const activePill = 'bg-primary border-primary text-primary-foreground shadow-sm scale-[1.03]';
+  const inactivePill = isLight ? 'bg-white border-black/10 text-black hover:bg-black/5 shadow-sm' : 'bg-white/8 border-white/10 text-white hover:bg-white/12';
+  const sectionLabel = isLight ? 'text-black/50' : 'text-white/40';
+  const triggerCls = cn('flex items-center justify-between w-full py-2 px-1 rounded-xl transition-colors text-[11px] font-black uppercase tracking-widest', isLight ? 'hover:bg-black/5 text-black' : 'hover:bg-white/5 text-white');
   const [motoTypes, setMotoTypes] = useState<string[]>((initialFilters.moto_types as string[]) || []);
   const [selectedPriceRange, setSelectedPriceRange] = useState<string>((initialFilters.selected_price_range as string) || '');
   const [yearRange, setYearRange] = useState([
@@ -97,74 +102,77 @@ export function MotoClientFilters({ onApply, initialFilters = {}, activeCount }:
   }, [motoTypes, selectedPriceRange, yearRange, engineCcRange, includesHelmet, includesGear, hasAbs, genderPreference, nationalities, languages, ageRange, locationCountries, locationCities, locationNeighborhoods]);
 
   return (
-    <div className="space-y-4 p-4">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold">Motorcycle Filters</h3>
-        <Badge variant="secondary">{activeCount} active</Badge>
+    <div className="space-y-5 p-2">
+      <div className="flex items-center justify-between px-1">
+        <span className={cn('text-[10px] font-black uppercase tracking-widest', sectionLabel)}>Motorcycle Filters</span>
+        {activeCount > 0 && <span className={cn('text-[10px] font-bold px-2 py-0.5 rounded-full', isLight ? 'bg-primary/10 text-primary' : 'bg-primary/20 text-primary')}>{activeCount} active</span>}
       </div>
 
       {/* Price Range */}
-      <div className="space-y-2">
-        <Label className="font-medium">Price Range</Label>
+      <div className="space-y-2.5">
+        <span className={cn('text-[10px] font-black uppercase tracking-widest px-1', sectionLabel)}>Price Range</span>
         <div className="flex flex-wrap gap-2">
           {MOTO_PRICE_RANGES.map((range) => (
-            <Badge
+            <button
               key={range.value}
-              variant={selectedPriceRange === range.value ? "default" : "outline"}
-              className={`cursor-pointer transition-all duration-200 hover:scale-105 py-2 px-3 ${
-                selectedPriceRange === range.value ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'
-              }`}
               onClick={() => setSelectedPriceRange(selectedPriceRange === range.value ? '' : range.value)}
+              className={cn('rounded-2xl border text-[11px] font-black uppercase tracking-widest px-4 py-2 transition-all duration-200 active:scale-95', selectedPriceRange === range.value ? activePill : inactivePill)}
             >
               {range.label}
-            </Badge>
+            </button>
           ))}
         </div>
       </div>
 
       {/* Moto Type */}
-      <Collapsible>
-        <CollapsibleTrigger className="flex items-center justify-between w-full">
-          <Label>Motorcycle Type</Label>
-          <ChevronDown className="h-4 w-4" />
-        </CollapsibleTrigger>
-        <CollapsibleContent className="pt-2 space-y-2">
+      <div className="space-y-2.5">
+        <span className={cn('text-[10px] font-black uppercase tracking-widest px-1', sectionLabel)}>Motorcycle Type</span>
+        <div className="flex flex-wrap gap-2">
           {MOTO_TYPES.map((type) => (
-            <div key={type.value} className="flex items-center space-x-2">
-              <Checkbox
-                id={`moto_type_${type.value}`}
-                checked={motoTypes.includes(type.value)}
-                onCheckedChange={() => toggleArrayValue(motoTypes, type.value, setMotoTypes)}
-              />
-              <label htmlFor={`moto_type_${type.value}`} className="text-sm cursor-pointer">{type.label}</label>
-            </div>
+            <button
+              key={type.value}
+              onClick={() => toggleArrayValue(motoTypes, type.value, setMotoTypes)}
+              className={cn('rounded-2xl border text-[11px] font-black uppercase tracking-widest px-4 py-2 transition-all duration-200 active:scale-95', motoTypes.includes(type.value) ? activePill : inactivePill)}
+            >
+              {type.label}
+            </button>
           ))}
+        </div>
+      </div>
+
+      {/* Year Range */}
+      <Collapsible>
+        <CollapsibleTrigger className={triggerCls}>
+          <span>Year: {yearRange[0]} – {yearRange[1]}</span>
+          <ChevronDown className="h-3.5 w-3.5 opacity-50" />
+        </CollapsibleTrigger>
+        <CollapsibleContent className="pt-3 px-1">
+          <Slider min={2000} max={new Date().getFullYear()} step={1} value={yearRange} onValueChange={setYearRange} />
         </CollapsibleContent>
       </Collapsible>
 
-      {/* Year Range */}
-      <div className="space-y-2">
-        <Label className="font-medium">Year: {yearRange[0]} - {yearRange[1]}</Label>
-        <Slider min={2000} max={new Date().getFullYear()} step={1} value={yearRange} onValueChange={setYearRange} />
-      </div>
-
       {/* Engine CC */}
-      <div className="space-y-2">
-        <Label className="font-medium">Engine: {engineCcRange[0]}cc - {engineCcRange[1]}cc</Label>
-        <Slider min={50} max={1800} step={50} value={engineCcRange} onValueChange={setEngineCcRange} />
-      </div>
+      <Collapsible>
+        <CollapsibleTrigger className={triggerCls}>
+          <span>Engine: {engineCcRange[0]}cc – {engineCcRange[1]}cc</span>
+          <ChevronDown className="h-3.5 w-3.5 opacity-50" />
+        </CollapsibleTrigger>
+        <CollapsibleContent className="pt-3 px-1">
+          <Slider min={50} max={1800} step={50} value={engineCcRange} onValueChange={setEngineCcRange} />
+        </CollapsibleContent>
+      </Collapsible>
 
       {/* Toggles */}
-      <div className="flex items-center justify-between">
-        <Label>Includes Helmet</Label>
+      <div className={cn('flex items-center justify-between py-2 px-1 rounded-xl', isLight ? 'hover:bg-black/3' : 'hover:bg-white/3')}>
+        <Label className={cn('text-[11px] font-black uppercase tracking-widest cursor-pointer', isLight ? 'text-black' : 'text-white')}>Includes Helmet</Label>
         <Switch checked={includesHelmet} onCheckedChange={setIncludesHelmet} />
       </div>
-      <div className="flex items-center justify-between">
-        <Label>Includes Gear</Label>
+      <div className={cn('flex items-center justify-between py-2 px-1 rounded-xl', isLight ? 'hover:bg-black/3' : 'hover:bg-white/3')}>
+        <Label className={cn('text-[11px] font-black uppercase tracking-widest cursor-pointer', isLight ? 'text-black' : 'text-white')}>Includes Gear</Label>
         <Switch checked={includesGear} onCheckedChange={setIncludesGear} />
       </div>
-      <div className="flex items-center justify-between">
-        <Label>Has ABS</Label>
+      <div className={cn('flex items-center justify-between py-2 px-1 rounded-xl', isLight ? 'hover:bg-black/3' : 'hover:bg-white/3')}>
+        <Label className={cn('text-[11px] font-black uppercase tracking-widest cursor-pointer', isLight ? 'text-black' : 'text-white')}>Has ABS</Label>
         <Switch checked={hasAbs} onCheckedChange={setHasAbs} />
       </div>
 

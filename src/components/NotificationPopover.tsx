@@ -244,7 +244,8 @@ export function NotificationPopover({ className, children, glassPillStyle }: Not
   const navigate = useNavigate();
   const themeContext = useContext(ThemeContext);
   const theme = themeContext?.theme ?? 'dark';
-  const isDark = theme === 'dark';
+  const isLight = theme === 'light';
+  const isDark = !isLight;
   
   const { 
     notifications, 
@@ -307,11 +308,11 @@ export function NotificationPopover({ className, children, glassPillStyle }: Not
       variant="ghost"
       size="icon"
       className={cn(
-        "relative h-10 w-10 transition-all duration-200",
-        "hover:scale-105 active:scale-95 group rounded-full",
-        "touch-manipulation"
+        "relative h-8 w-8 shrink-0 transition-all duration-300",
+        "hover:opacity-90 active:scale-[0.96] group !rounded-[1rem]",
+        "touch-manipulation overflow-hidden"
       )}
-      style={glassPillStyle}
+      style={{ ...glassPillStyle }}
       onClick={(e) => {
         haptics.tap();
         setIsOpen(true);
@@ -320,10 +321,10 @@ export function NotificationPopover({ className, children, glassPillStyle }: Not
     >
       <div className="relative">
         <Bell
-          strokeWidth={1.5}
+          strokeWidth={1.8}
           className={cn(
-            "h-5 w-5 transition-colors duration-150",
-            "text-[var(--hud-text)]",
+            "h-4 w-4 transition-colors duration-150",
+            isLight ? "text-black" : "text-[var(--hud-text)]",
             "opacity-80 group-hover:opacity-100"
           )}
         />
@@ -355,7 +356,7 @@ export function NotificationPopover({ className, children, glassPillStyle }: Not
         <DialogContent
           hideCloseButton
           className={cn(
-            "w-[min(calc(100vw-1rem),440px)] p-0 !rounded-[24px] bg-background border border-border/60 shadow-2xl",
+            "w-[min(calc(100vw-1rem),440px)] p-0 !rounded-[28px] bg-background shadow-2xl",
             "overflow-hidden gap-0",
             className
           )}
@@ -418,7 +419,7 @@ export function NotificationPopover({ className, children, glassPillStyle }: Not
 
             {/* Tabs */}
             <Tabs value={activeFilter} onValueChange={setActiveFilter} className="w-full">
-              <div className="px-2 py-2 border-b border-border/30">
+              <div className="px-2 py-2">
                 <TabsList className="flex w-full rounded-xl p-1 h-auto gap-0.5 bg-muted/40">
                   <TabsTrigger
                     value="all"
@@ -480,7 +481,7 @@ export function NotificationPopover({ className, children, glassPillStyle }: Not
 
           {/* Footer */}
           {notifications.length > 0 && (
-            <div className="px-4 py-3 border-t border-border/40 bg-muted/20">
+            <div className="px-4 py-3 bg-muted/20">
               <Button
                 variant="outline"
                 className="w-full gap-2 h-10 text-sm font-semibold border-border/40 hover:bg-muted/50 transition-colors"

@@ -591,24 +591,15 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
       : null;
 
   if (!isTop) {
-    // Non-top card: GLASS PEEK
     return (
-      <div
-        className="absolute inset-x-2 bottom-4 top-4 rounded-[2.5rem] overflow-hidden shadow-sm"
-        style={{
-          pointerEvents: 'none',
-          backgroundColor: 'rgba(255, 255, 255, 0.03)',
-          backdropFilter: 'blur(12px)',
-          border: '1px solid rgba(255, 255, 255, 0.05)',
-        }}
-      >
-        <div className="absolute inset-0 opacity-60">
-          <CardImage 
-            src={currentImage} 
-            alt={profile.name || 'Client'} 
-            name={profile.name} 
-            fullScreen={fullScreen} 
-            priority={false} 
+      <div className="absolute inset-0 overflow-hidden" style={{ pointerEvents: 'none' }}>
+        <div className="absolute inset-0 opacity-50">
+          <CardImage
+            src={currentImage}
+            alt={profile.name || 'Client'}
+            name={profile.name}
+            fullScreen={true}
+            priority={false}
           />
         </div>
       </div>
@@ -667,11 +658,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           // full recomposite on every frame and was the main shake/flicker
           // source. Background blur is handled by the photo layer below.
         } as any}
-        className={cn(
-          "flex-1 cursor-grab active:cursor-grabbing select-none touch-none relative overflow-hidden",
-          "w-full h-full rounded-[2.5rem]",
-          !fullScreen && "shadow-[0_32px_64px_-16px_rgba(0,0,0,0.5),0_16px_32px_-8px_rgba(0,0,0,0.3)]"
-        )}
+        className="flex-1 cursor-grab active:cursor-grabbing select-none touch-none relative overflow-hidden w-full h-full rounded-none"
       >
         {/* Glass Shine */}
         <motion.div
@@ -690,26 +677,32 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
 
         <div
           ref={containerRef}
-          className={cn("absolute inset-0 w-full h-full overflow-hidden rounded-[2.5rem]")}
+          className="absolute inset-0 w-full h-full overflow-hidden"
           onClick={handleImageTap}
           style={{ touchAction: 'none' }}
         >
-          <CardImage 
-            src={currentImage} 
-            alt={profile.name || 'Client'} 
-            name={profile.name} 
+          <CardImage
+            src={currentImage}
+            alt={profile.name || 'Client'}
+            name={profile.name}
             priority={isTop}
-            fullScreen={fullScreen}
+            fullScreen={true}
           />
 
-          {/* Cinema Top Fade — theme-aware vignette behind header buttons */}
+          {/* Cinema Top Fade */}
           <div
             className="absolute top-0 left-0 right-0 pointer-events-none z-20"
             style={{
-              height: '35%',
-              background: _isDark
-                ? 'linear-gradient(to bottom, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.6) 30%, rgba(0,0,0,0) 100%)'
-                : 'linear-gradient(to bottom, rgba(255,255,255,1) 0%, rgba(255,255,255,0.7) 30%, rgba(255,255,255,0) 100%)',
+              height: '22%',
+              background: 'linear-gradient(to bottom, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.25) 55%, transparent 100%)',
+            }}
+          />
+          {/* Cinema Bottom Fade */}
+          <div
+            className="absolute bottom-0 left-0 right-0 pointer-events-none z-20"
+            style={{
+              height: '52%',
+              background: 'linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.6) 30%, rgba(0,0,0,0.2) 60%, transparent 100%)',
             }}
           />
 
@@ -735,7 +728,8 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
             </div>
           )}
 
-          {/* In-Card Navigation Buttons — Theme-Aware, Always Visible */}
+          {/* In-Card Navigation Buttons — consistent contrast across themes.
+              Share = primary action (white solid). Report = ghost with red accent. */}
           <div className="absolute top-[calc(var(--safe-top,0px)+80px)] left-4 right-4 z-40 flex justify-between pointer-events-none">
             <button
               onClick={(e) => {
@@ -743,16 +737,11 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
                 triggerHaptic('light');
                 onShare?.();
               }}
-              className={cn(
-                "flex items-center gap-1.5 px-4 py-2.5 rounded-full backdrop-blur-md active:scale-90 transition-all pointer-events-auto shadow-lg",
-                _isDark
-                  ? "bg-black/60 border border-white/25 text-white"
-                  : "bg-black/80 border border-black/10 text-white"
-              )}
+              className="flex items-center gap-1.5 px-4 py-2.5 rounded-full backdrop-blur-md active:scale-95 transition-all pointer-events-auto shadow-lg bg-white text-black border border-black/10"
               title="Share Profile"
             >
-              <Share2 className="w-4 h-4" strokeWidth={2} />
-              <span className="text-[10px] font-bold uppercase tracking-wider">Share</span>
+              <Share2 className="w-4 h-4" strokeWidth={2.2} />
+              <span className="text-[10px] font-black uppercase tracking-wider">Share</span>
             </button>
             <button
               onClick={(e) => {
@@ -760,16 +749,11 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
                 triggerHaptic('medium');
                 onReport?.();
               }}
-              className={cn(
-                "flex items-center gap-1.5 px-4 py-2.5 rounded-full backdrop-blur-md active:scale-90 transition-all pointer-events-auto shadow-lg",
-                _isDark
-                  ? "bg-red-600/50 border border-red-400/30 text-white"
-                  : "bg-red-600/90 border border-red-500/20 text-white"
-              )}
+              className="flex items-center gap-1.5 px-4 py-2.5 rounded-full backdrop-blur-md active:scale-95 transition-all pointer-events-auto shadow-lg bg-black/55 text-red-300 border border-red-400/40"
               title="Report Profile"
             >
-              <Flag className="w-4 h-4" strokeWidth={2} />
-              <span className="text-[10px] font-bold uppercase tracking-wider">Report</span>
+              <Flag className="w-4 h-4" strokeWidth={2.2} />
+              <span className="text-[10px] font-black uppercase tracking-wider">Report</span>
             </button>
           </div>
         </div>
@@ -878,7 +862,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
         <div
           key={`info-${currentImageIndex % 4}`}
           className={cn(
-            "absolute left-6 bottom-[178px] z-30 pointer-events-none flex flex-col justify-end max-w-[85%]",
+            "absolute left-5 right-5 bottom-[calc(var(--bottom-nav-height,72px)+100px)] z-30 pointer-events-none flex flex-col justify-end",
             fullScreen && "pb-[calc(100px+var(--safe-bottom))]"
           )}
         >

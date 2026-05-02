@@ -143,7 +143,7 @@ const Index = () => {
       }
 
       // 4. Sticky Mode Preference: Fastest path (LocalStorage)
-      const cachedMode = localStorage.getItem(`Swipess_active_mode_${user.id}`);
+      const cachedMode = localStorage.getItem(`zenith_active_mode_${user.id}`);
       if (cachedMode === 'client' || cachedMode === 'owner') {
           hasNavigated.current = true;
           logger.log("[Index] Warp-Speed: Navigating to sticky mode", cachedMode);

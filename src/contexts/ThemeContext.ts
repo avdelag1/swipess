@@ -1,7 +1,7 @@
 import React from 'react';
 import { flushSync } from 'react-dom';
 
-export type Theme = 'dark' | 'light' | 'cheers' | 'red-matte' | 'amber-matte' | 'pure-black' | 'Swipess-style';
+export type Theme = 'dark' | 'light' | 'cheers' | 'red-matte' | 'amber-matte' | 'pure-black' | 'Zenith-style';
 
 export interface ThemeToggleCoords {
   x: number;
@@ -32,7 +32,7 @@ export function useAppTheme(): ThemeContextType {
 }
 
 const DEFAULT_THEME: Theme = 'dark';
-const STORAGE_KEY = 'Swipess_theme_preference';
+const STORAGE_KEY = 'zenith_theme_preference';
 
 function normalizeTheme(raw: string | null | undefined): Theme {
   if (raw === 'light' || raw === 'white-matte') return 'light';
@@ -40,7 +40,7 @@ function normalizeTheme(raw: string | null | undefined): Theme {
   if (raw === 'red-matte' || raw === 'red') return 'red-matte';
   if (raw === 'amber-matte' || raw === 'amber') return 'amber-matte';
   if (raw === 'pure-black') return 'pure-black';
-  if (raw === 'Swipess-style' || raw === 'cyber' || raw === 'Swipess') return 'Swipess-style';
+  if (raw === 'Zenith-style' || raw === 'cyber' || raw === 'Zenith') return 'Zenith-style';
   if (raw === 'dark' || raw === 'black-matte' || raw === 'grey-matte') return 'dark';
   return 'dark';
 }
@@ -48,7 +48,7 @@ function normalizeTheme(raw: string | null | undefined): Theme {
 const ALL_THEME_CLASSES = [
   'grey-matte', 'black-matte', 'white-matte', 'red-matte',
   'amber-matte', 'pure-black', 'cheers', 'dark', 'light',
-  'amber', 'red', 'Swipess-style'
+  'amber', 'red', 'Zenith-style'
 ];
 
 function applyThemeToDOM(theme: Theme) {
@@ -69,7 +69,7 @@ function applyThemeToDOM(theme: Theme) {
     document.head.appendChild(meta);
   }
   let targetColor: string;
-  if (theme === 'dark' || theme === 'pure-black' || theme === 'Swipess-style') targetColor = '#000000';
+  if (theme === 'dark' || theme === 'pure-black' || theme === 'Zenith-style') targetColor = '#000000';
   else if (theme === 'cheers') targetColor = '#180800';
   else if (theme === 'red-matte') targetColor = '#2d0a0a';
   else if (theme === 'amber-matte') targetColor = '#1a1200';

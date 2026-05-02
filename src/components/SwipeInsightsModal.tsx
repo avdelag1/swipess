@@ -162,7 +162,7 @@ export function SwipeInsightsModal({ open, onOpenChange, listing, profile }: Swi
               transform: 'translateZ(0)',
             }}
           >
-            <DialogContent className={`w-[calc(100%-16px)] max-w-[400px] sm:max-w-lg max-h-[70vh] overflow-y-auto overflow-x-hidden transition-opacity duration-75 p-0 ${isDragging ? 'opacity-90' : ''}`} style={{ overscrollBehavior: 'contain' }}>
+            <DialogContent className={`dark w-[calc(100%-16px)] max-w-[400px] sm:max-w-lg max-h-[70vh] overflow-y-auto overflow-x-hidden transition-opacity duration-75 p-0 rounded-[32px] border border-white/10 bg-black/40 backdrop-blur-3xl shadow-2xl text-white ${isDragging ? 'opacity-90' : ''}`} style={{ overscrollBehavior: 'contain' }}>
               <div className="px-3 sm:px-4 py-3 sm:py-4 w-full max-w-full overflow-x-hidden">
               <DialogHeader className="mb-2 sm:mb-3">
                 <DialogTitle className="text-sm sm:text-lg font-bold flex items-center gap-2">

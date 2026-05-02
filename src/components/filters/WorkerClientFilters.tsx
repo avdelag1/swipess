@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
-import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ChevronDown } from 'lucide-react';
@@ -12,6 +11,8 @@ import { ClientDemographicFilters } from './ClientDemographicFilters';
 import { EmbeddedLocationFilter } from './EmbeddedLocationFilter';
 import { WORK_TYPES, SCHEDULE_TYPES, DAYS_OF_WEEK, TIME_SLOTS, LOCATION_TYPES, EXPERIENCE_LEVELS } from '../WorkerListingForm';
 import { SERVICE_GROUPS, getGroupedCategories } from '@/data/serviceCategories';
+import useAppTheme from '@/hooks/useAppTheme';
+import { cn } from '@/lib/utils';
 const _COMMON_SKILLS = ['Communication', 'Time Management', 'Problem Solving', 'Teamwork', 'Adaptability', 'Organization', 'Customer Service', 'Technical Skills'];
 
 // Predefined hourly rate ranges for workers
@@ -31,6 +32,11 @@ interface WorkerClientFiltersProps {
 
 export function WorkerClientFilters({ onApply, initialFilters = {}, activeCount }: WorkerClientFiltersProps) {
   const _savePreferencesMutation = useSaveClientFilterPreferences();
+  const { isLight } = useAppTheme();
+  const activePill = 'bg-primary border-primary text-primary-foreground shadow-sm scale-[1.03]';
+  const inactivePill = isLight ? 'bg-white border-black/10 text-black hover:bg-black/5 shadow-sm' : 'bg-white/8 border-white/10 text-white hover:bg-white/12';
+  const sectionLabel = isLight ? 'text-black/50' : 'text-white/40';
+  const triggerCls = cn('flex items-center justify-between w-full py-2 px-1 rounded-xl transition-colors text-[11px] font-black uppercase tracking-widest', isLight ? 'hover:bg-black/5 text-black' : 'hover:bg-white/5 text-white');
 
   // Service filters
   const [serviceCategories, setServiceCategories] = useState<string[]>(initialFilters.service_categories || []);
@@ -201,38 +207,33 @@ export function WorkerClientFilters({ onApply, initialFilters = {}, activeCount 
   };
 
   return (
-    <div className="space-y-4 p-4">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold">Worker/Service Filters</h3>
-        <Badge variant="secondary">{activeCount} active</Badge>
+    <div className="space-y-5 p-2">
+      <div className="flex items-center justify-between px-1">
+        <span className={cn('text-[10px] font-black uppercase tracking-widest', sectionLabel)}>Worker Filters</span>
+        {activeCount > 0 && <span className={cn('text-[10px] font-bold px-2 py-0.5 rounded-full', isLight ? 'bg-primary/10 text-primary' : 'bg-primary/20 text-primary')}>{activeCount} active</span>}
       </div>
 
       {/* Hourly Rate Range */}
-      <div className="space-y-2">
-        <Label className="font-medium">Hourly Rate Range</Label>
+      <div className="space-y-2.5">
+        <span className={cn('text-[10px] font-black uppercase tracking-widest px-1', sectionLabel)}>Hourly Rate</span>
         <div className="flex flex-wrap gap-2">
           {WORKER_RATE_RANGES.map((range) => (
-            <Badge
+            <button
               key={range.value}
-              variant={selectedRateRange === range.value ? "default" : "outline"}
-              className={`cursor-pointer transition-all duration-200 hover:scale-105 py-2 px-3 ${
-                selectedRateRange === range.value
-                  ? 'bg-primary text-primary-foreground'
-                  : 'hover:bg-muted'
-              }`}
               onClick={() => setSelectedRateRange(selectedRateRange === range.value ? '' : range.value)}
+              className={cn('rounded-2xl border text-[11px] font-black uppercase tracking-widest px-4 py-2 transition-all duration-200 active:scale-95', selectedRateRange === range.value ? activePill : inactivePill)}
             >
               {range.label}
-            </Badge>
+            </button>
           ))}
         </div>
       </div>
 
       {/* Service Categories — Grouped */}
       <Collapsible>
-        <CollapsibleTrigger className="flex items-center justify-between w-full">
-          <Label>Service Type</Label>
-          <ChevronDown className="h-4 w-4" />
+        <CollapsibleTrigger className={triggerCls}>
+          <span>Service Type</span>
+          <ChevronDown className="h-3.5 w-3.5 opacity-50" />
         </CollapsibleTrigger>
         <CollapsibleContent className="pt-2 space-y-1">
           {SERVICE_GROUPS.map(group => {
@@ -267,9 +268,9 @@ export function WorkerClientFilters({ onApply, initialFilters = {}, activeCount 
 
       {/* Work Type */}
       <Collapsible>
-        <CollapsibleTrigger className="flex items-center justify-between w-full">
-          <Label>Work Type</Label>
-          <ChevronDown className="h-4 w-4" />
+        <CollapsibleTrigger className={triggerCls}>
+          <span>Work Type</span>
+          <ChevronDown className="h-3.5 w-3.5 opacity-50" />
         </CollapsibleTrigger>
         <CollapsibleContent className="pt-2 space-y-2">
           {WORK_TYPES.map((type) => (
@@ -289,9 +290,9 @@ export function WorkerClientFilters({ onApply, initialFilters = {}, activeCount 
 
       {/* Schedule Type */}
       <Collapsible>
-        <CollapsibleTrigger className="flex items-center justify-between w-full">
-          <Label>Schedule Type</Label>
-          <ChevronDown className="h-4 w-4" />
+        <CollapsibleTrigger className={triggerCls}>
+          <span>Schedule Type</span>
+          <ChevronDown className="h-3.5 w-3.5 opacity-50" />
         </CollapsibleTrigger>
         <CollapsibleContent className="pt-2 space-y-2">
           {SCHEDULE_TYPES.map((type) => (
@@ -311,9 +312,9 @@ export function WorkerClientFilters({ onApply, initialFilters = {}, activeCount 
 
       {/* Days Available */}
       <Collapsible>
-        <CollapsibleTrigger className="flex items-center justify-between w-full">
-          <Label>Days Available</Label>
-          <ChevronDown className="h-4 w-4" />
+        <CollapsibleTrigger className={triggerCls}>
+          <span>Days Available</span>
+          <ChevronDown className="h-3.5 w-3.5 opacity-50" />
         </CollapsibleTrigger>
         <CollapsibleContent className="pt-2 grid grid-cols-3 gap-2">
           {DAYS_OF_WEEK.map((day) => (
@@ -333,9 +334,9 @@ export function WorkerClientFilters({ onApply, initialFilters = {}, activeCount 
 
       {/* Time Slots */}
       <Collapsible>
-        <CollapsibleTrigger className="flex items-center justify-between w-full">
-          <Label>Time Availability</Label>
-          <ChevronDown className="h-4 w-4" />
+        <CollapsibleTrigger className={triggerCls}>
+          <span>Time Availability</span>
+          <ChevronDown className="h-3.5 w-3.5 opacity-50" />
         </CollapsibleTrigger>
         <CollapsibleContent className="pt-2 space-y-2">
           {TIME_SLOTS.map((slot) => (
@@ -355,9 +356,9 @@ export function WorkerClientFilters({ onApply, initialFilters = {}, activeCount 
 
       {/* Location Type */}
       <Collapsible>
-        <CollapsibleTrigger className="flex items-center justify-between w-full">
-          <Label>Service Location</Label>
-          <ChevronDown className="h-4 w-4" />
+        <CollapsibleTrigger className={triggerCls}>
+          <span>Service Location</span>
+          <ChevronDown className="h-3.5 w-3.5 opacity-50" />
         </CollapsibleTrigger>
         <CollapsibleContent className="pt-2 space-y-2">
           {LOCATION_TYPES.map((locType) => (
@@ -377,9 +378,9 @@ export function WorkerClientFilters({ onApply, initialFilters = {}, activeCount 
 
       {/* Experience Level */}
       <Collapsible>
-        <CollapsibleTrigger className="flex items-center justify-between w-full">
-          <Label>Experience Level</Label>
-          <ChevronDown className="h-4 w-4" />
+        <CollapsibleTrigger className={triggerCls}>
+          <span>Experience Level</span>
+          <ChevronDown className="h-3.5 w-3.5 opacity-50" />
         </CollapsibleTrigger>
         <CollapsibleContent className="pt-2 space-y-2">
           {EXPERIENCE_LEVELS.map((level) => (
@@ -411,9 +412,9 @@ export function WorkerClientFilters({ onApply, initialFilters = {}, activeCount 
 
       {/* Required Languages */}
       <Collapsible>
-        <CollapsibleTrigger className="flex items-center justify-between w-full">
-          <Label>Required Languages</Label>
-          <ChevronDown className="h-4 w-4" />
+        <CollapsibleTrigger className={triggerCls}>
+          <span>Required Languages</span>
+          <ChevronDown className="h-3.5 w-3.5 opacity-50" />
         </CollapsibleTrigger>
         <CollapsibleContent className="pt-2 space-y-2">
           {commonLanguages.map((lang) => (
@@ -433,9 +434,9 @@ export function WorkerClientFilters({ onApply, initialFilters = {}, activeCount 
 
       {/* Service Details */}
       <Collapsible>
-        <CollapsibleTrigger className="flex items-center justify-between w-full">
-          <Label>Service Requirements</Label>
-          <ChevronDown className="h-4 w-4" />
+        <CollapsibleTrigger className={triggerCls}>
+          <span>Service Requirements</span>
+          <ChevronDown className="h-3.5 w-3.5 opacity-50" />
         </CollapsibleTrigger>
         <CollapsibleContent className="pt-2 space-y-3">
           <div className="space-y-2">
