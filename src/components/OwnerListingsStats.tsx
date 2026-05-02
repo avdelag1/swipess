@@ -80,12 +80,7 @@ export function OwnerListingsStats({ listings, isLight = false }: OwnerListingsS
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.05, duration: 0.4 }}
           >
-            <div className={cn(
-              "relative rounded-[2.2rem] shadow-2xl transition-all duration-300 overflow-hidden",
-              isLight
-                ? "bg-black/[0.03]"
-                : "bg-white/[0.04] backdrop-blur-3xl"
-            )}>
+            <div className="relative rounded-[2.2rem] transition-all duration-300 overflow-hidden">
               <div className="relative p-5 sm:p-6">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
@@ -127,10 +122,7 @@ export function OwnerListingsStats({ listings, isLight = false }: OwnerListingsS
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.25, duration: 0.4 }}
         >
-          <div className={cn(
-            "rounded-[2.5rem] shadow-2xl relative overflow-hidden",
-            isLight ? "bg-black/[0.03]" : "bg-white/[0.04] backdrop-blur-3xl"
-          )}>
+          <div className="rounded-[2.5rem] relative overflow-hidden">
             <div className="p-6 sm:p-8">
               <div className="flex items-center justify-between mb-4">
                 <h4 className={cn("text-[10px] font-black uppercase tracking-[0.3em] italic", isLight ? 'text-black opacity-50' : 'text-white opacity-50')}>Asset Breakdown</h4>
