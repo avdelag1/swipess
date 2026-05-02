@@ -1,7 +1,7 @@
 import { memo, useCallback } from 'react';
 import { useAppNavigate } from "@/hooks/useAppNavigate";
 import { motion } from 'framer-motion';
-import { ChevronLeft, UserCircle, Ticket, Radio, Ghost, Zap, SlidersHorizontal, MessageCircle } from 'lucide-react';
+import { ChevronLeft, UserCircle, Ticket } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
@@ -187,23 +187,6 @@ function TopBarComponent({
         <div className="flex shrink-0 items-center gap-1.5 sm:gap-2 pointer-events-auto">
           {!minimal && (
             <>
-              {/* DISCOVERY FILTERS — Quick access next to Tokens */}
-              <motion.button
-                whileTap={{ scale: 0.95 }}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onFilterClick?.();
-                }}
-                className="w-8 flex items-center justify-center rounded-[1rem]"
-                style={glassPillStyle}
-                title="Filters"
-              >
-                <SlidersHorizontal 
-                  className={cn("h-4 w-4", isLight ? "text-black" : "text-primary")} 
-                  strokeWidth={2.5}
-                />
-              </motion.button>
-
               <motion.button
                 transition={TAP_SPRING}
                 whileTap={{ scale: 0.95 }}
