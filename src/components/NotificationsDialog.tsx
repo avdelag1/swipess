@@ -103,7 +103,7 @@ export function NotificationsDialog({ isOpen, onClose }: NotificationsDialogProp
         <DialogHeader className="shrink-0 px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-4 border-b border-border/40 bg-background">
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-              <div className="p-2 sm:p-2.5 rounded-xl bg-muted/50 shrink-0">
+              <div className="p-2 sm:p-2.5 rounded-xl bg-white/5 border border-white/10 shrink-0">
                 <Bell className="w-5 h-5 sm:w-5 sm:h-5 text-foreground/70" />
               </div>
               <div className="min-w-0">
@@ -130,7 +130,7 @@ export function NotificationsDialog({ isOpen, onClose }: NotificationsDialogProp
 
         <Tabs value={activeFilter} onValueChange={setActiveFilter} className="flex-1 flex flex-col min-h-0">
           <div className="shrink-0 px-4 sm:px-6 py-2 sm:py-3 border-b border-border/30">
-            <TabsList className="flex w-full bg-muted/30 rounded-xl p-1 h-auto gap-0.5">
+            <TabsList className="flex w-full bg-white/5 border border-white/10 rounded-xl p-1 h-auto gap-0.5">
               <TabsTrigger
                 value="all"
                 className="flex-1 min-w-0 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm rounded-lg py-1.5 px-2 text-xs font-medium transition-all text-muted-foreground"
@@ -174,7 +174,7 @@ export function NotificationsDialog({ isOpen, onClose }: NotificationsDialogProp
                     className="flex flex-col items-center justify-center py-10 sm:py-14 text-center"
                   >
                     <div className="mb-4">
-                      <div className="p-4 sm:p-5 rounded-2xl bg-muted/30">
+                      <div className="p-4 sm:p-5 rounded-2xl bg-white/5 border border-white/10">
                         <Bell className="w-7 h-7 sm:w-8 sm:h-8 text-muted-foreground/40" />
                       </div>
                     </div>

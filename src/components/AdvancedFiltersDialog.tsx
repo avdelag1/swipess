@@ -166,7 +166,7 @@ export function AdvancedFilters({ isOpen, onClose, userRole, onApplyFilters, cur
               variant="ghost"
               size="icon"
               onClick={handleReset}
-              className="w-10 h-10 rounded-full bg-muted/20 hover:bg-muted/40 transition-all active:scale-90"
+              className="w-10 h-10 rounded-full bg-white/5 border border-white/10 hover:bg-white/5 border border-white/10 transition-all active:scale-90"
               title="Reset Calibration"
             >
               <RotateCcw className="w-4 h-4 opacity-60" />
@@ -175,11 +175,11 @@ export function AdvancedFilters({ isOpen, onClose, userRole, onApplyFilters, cur
         </DialogHeader>
 
         <div className={cn(
-          "shrink-0 bg-muted/10 px-10 py-5"
+          "shrink-0 bg-white/5 border border-white/10 px-10 py-5"
         )}>
           <Tabs value={activeCategory} onValueChange={(value) => setActiveCategory(value as CategoryType)} className="w-full">
             <TabsList className={cn(
-              "w-full grid grid-cols-4 p-1.5 rounded-[2rem] bg-muted/40 border border-border/5 backdrop-blur-xl h-16"
+              "w-full grid grid-cols-4 p-1.5 rounded-[2rem] bg-white/5 border border-white/10 backdrop-blur-xl h-16"
             )}>
               {categoryBase.map((cat) => {
                 const Icon = cat.icon;

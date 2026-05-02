@@ -202,7 +202,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
             <motion.button
               whileTap={{ scale: 0.9 }}
               onClick={handleClearFilters}
-              className="text-xs font-semibold px-3 py-1 rounded-full bg-gradient-to-r from-pink-500 to-orange-500 text-white transition-colors touch-manipulation"
+              className="text-xs font-semibold px-3 py-1 rounded-full bg-gradient-to-r from-pink-500 to-orange-500 text-black transition-colors touch-manipulation"
             >
               {t('actions.clear')}
             </motion.button>
@@ -354,7 +354,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
               <div className="flex items-center gap-3 sm:gap-4">
                 <span className={cn(
                   'p-2 sm:p-2.5 rounded-xl',
-                  isAllActive ? 'bg-gradient-to-br from-pink-500 to-orange-500 text-white shadow-md' : 'bg-pink-500/10 text-pink-500'
+                  isAllActive ? 'bg-gradient-to-br from-pink-500 to-orange-500 text-black shadow-md' : 'bg-pink-500/10 text-pink-500'
                 )}>
                   <Search strokeWidth={1.5} className="w-5 h-5" />
                 </span>
@@ -488,7 +488,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
               initial={{ scale: 0, rotate: -45 }}
               animate={{ scale: 1, rotate: 0 }}
               exit={{ scale: 0, rotate: 45 }}
-              className="bg-gradient-to-br from-orange-500 to-pink-600 text-white text-[10px] sm:text-xs font-black rounded-lg w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center shadow-md shadow-pink-500/40"
+              className="bg-gradient-to-br from-orange-500 to-pink-600 text-black text-[10px] sm:text-xs font-black rounded-lg w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center shadow-md shadow-pink-500/40"
             >
               {activeFilterCount}
             </motion.span>

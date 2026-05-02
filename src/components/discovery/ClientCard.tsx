@@ -1,12 +1,12 @@
 import { memo } from 'react';
-import { motion } from 'framer-motion';
-import { Card, CardContent } from '@/components/ui/card';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { MessageCircle, User } from 'lucide-react';
 import { SaveButton } from '@/components/SaveButton';
 import { triggerHaptic } from '@/utils/haptics';
 import { MatchedClientProfile } from '@/hooks/useSmartMatching';
+import { SwipessLogo } from '@/components/SwipessLogo';
+import { cn } from '@/lib/utils';
+import { getCardImageUrl } from '@/utils/imageOptimization';
 
 interface ClientCardProps {
   client: MatchedClientProfile;
@@ -15,94 +15,107 @@ interface ClientCardProps {
 }
 
 export const ClientCard = memo(({ client, onConnect, onViewProfile }: ClientCardProps) => {
+  const imageUrl = client.avatar_url || (client as any).profile_images?.[0];
+  const optimizedImage = imageUrl ? getCardImageUrl(imageUrl, 600) : null;
+
   return (
-    <Card className="hover:shadow-lg transition-all duration-300 border-border/40 bg-card/60 backdrop-blur-sm group rounded-3xl overflow-hidden">
-      <CardContent className="p-5">
-        <div className="flex items-start gap-4 mb-4">
-          <Avatar className="h-14 w-14 ring-2 ring-border/20 group-hover:ring-primary/20 transition-all">
-            <AvatarImage src={client.avatar_url || (client as any).profile_images?.[0]} />
-            <AvatarFallback className="bg-primary/10 text-primary font-black uppercase text-xl">
-              {client.name?.[0]}
-            </AvatarFallback>
-          </Avatar>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2">
-              <h3 className="font-black text-lg truncate tracking-tight">{client.name}</h3>
-              {client.verified && (
-                <Badge variant="default" className="text-[9px] font-black uppercase tracking-widest bg-emerald-500 hover:bg-emerald-600">
-                  Verified
-                </Badge>
-              )}
-            </div>
-            <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
-              {client.age} yrs • {client.city || 'Location not set'}
-            </p>
+    <div className="relative w-full aspect-[3/4] sm:aspect-[4/5] rounded-[32px] overflow-hidden group shadow-2xl bg-black">
+      {/* Background Layer */}
+      {optimizedImage ? (
+        <img 
+          src={optimizedImage} 
+          alt={client.name || 'Client'} 
+          className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+        />
+      ) : (
+        <div className="absolute inset-0 w-full h-full bg-black flex flex-col items-center justify-center p-6 text-center">
+          <div className="scale-75 opacity-40 mb-6">
+             <SwipessLogo isIcon={false} size="md" variant="white" />
           </div>
+          <p className="text-white/40 text-[10px] font-black uppercase tracking-widest leading-relaxed">
+            Waiting for users to upload their photos
+          </p>
         </div>
+      )}
 
-        {/* Match Score Visualizer */}
-        <div className="mb-4 bg-muted/20 p-3 rounded-2xl border border-border/10">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Match Compatibility</span>
-            <span className="text-[10px] font-black text-primary uppercase">
-              {client.matchPercentage}%
+      {/* Dark Vignette Overlay for Text Legibility */}
+      <div className="absolute inset-x-0 bottom-0 h-[60%] bg-gradient-to-t from-black/95 via-black/50 to-transparent pointer-events-none" />
+
+      {/* Top Badges */}
+      <div className="absolute top-5 left-5 flex gap-2 z-10">
+        <div className="px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center gap-2">
+           <span className="text-[9px] font-black text-[#EB4898] tracking-widest uppercase">{client.matchPercentage}% Match</span>
+        </div>
+      </div>
+
+      {/* Content Layer (Bottom Left Aligned) */}
+      <div className="absolute inset-x-0 bottom-0 p-5 flex flex-col justify-end z-10 pointer-events-none">
+        {/* Name and Age */}
+        <div className="flex items-end gap-2.5 mb-1.5">
+          <h3 className="text-3xl font-black text-white leading-none tracking-tighter">
+            {client.name || 'Unknown'}
+          </h3>
+          {client.age && (
+            <span className="text-2xl font-medium text-white/90 leading-none">
+              {client.age}
             </span>
-          </div>
-          <div className="w-full bg-muted/40 rounded-full h-1.5 overflow-hidden">
-            <motion.div 
-              initial={{ width: 0 }}
-              animate={{ width: `${client.matchPercentage}%` }}
-              transition={{ duration: 1, ease: "easeOut" }}
-              className="bg-gradient-to-r from-primary to-indigo-500 h-full rounded-full"
-            />
-          </div>
+          )}
+          {client.verified && (
+            <div className="mb-1 w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center shrink-0">
+               <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+            </div>
+          )}
         </div>
 
-        {/* Match Reasons (Micro-tags) */}
+        {/* Location & Tags */}
+        <p className="text-[11px] font-bold text-white/60 uppercase tracking-widest mb-3">
+          {client.city || 'Location not set'}
+        </p>
+
+        {/* Insight Pills */}
         {client.matchReasons && client.matchReasons.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mb-5">
             {client.matchReasons.slice(0, 3).map((reason, idx) => (
-              <Badge key={idx} variant="outline" className="text-[8px] font-black uppercase tracking-tight py-0.5 px-2 bg-muted/20 border-border/10 text-muted-foreground">
+              <Badge key={idx} variant="outline" className="text-[10px] font-bold py-1 px-3 bg-black/40 backdrop-blur-md border border-white/20 text-white rounded-full whitespace-nowrap">
                 {reason}
               </Badge>
             ))}
           </div>
         )}
 
-        {/* Action System */}
-        <div className="flex items-center gap-2.5 pt-4 border-t border-border/40">
-          <SaveButton 
-            targetId={client.user_id}
-            targetType="profile"
-            className="w-12 h-12 rounded-2xl bg-muted/30 border border-border/10 backdrop-blur-md hover:bg-muted/50 transition-all"
-            variant="circular"
-          />
-          
-          <button 
-            onClick={() => {
-              triggerHaptic('light');
-              onConnect(client.user_id);
-            }}
-            className="group relative flex-1 h-12 flex items-center justify-center gap-2 rounded-2xl text-[10px] font-black uppercase tracking-widest text-white transition-all active:scale-95 bg-gradient-to-br from-indigo-500 via-blue-600 to-indigo-700 shadow-xl shadow-indigo-500/20 overflow-hidden"
-          >
-            <div className="absolute inset-0 bg-white/20 -translate-x-full group-hover:animate-sweep" />
-            <MessageCircle className="h-4 w-4" />
-            <span>Connect</span>
-          </button>
-
+        {/* Action Buttons */}
+        <div className="flex items-center gap-3 pt-2 pointer-events-auto">
           <button 
             onClick={() => {
               triggerHaptic('light');
               onViewProfile(client.user_id);
             }}
-            className="w-12 h-12 flex items-center justify-center rounded-2xl bg-muted/30 border border-border/10 text-muted-foreground hover:text-foreground transition-all active:scale-95 shadow-sm"
+            className="w-12 h-12 flex items-center justify-center rounded-full bg-black/40 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 transition-all active:scale-95 shrink-0"
             title="Profile details"
           >
             <User className="w-5 h-5" />
           </button>
+
+          <button 
+            onClick={() => {
+              triggerHaptic('light');
+              onConnect(client.user_id);
+            }}
+            className="flex-1 h-12 flex items-center justify-center gap-2 rounded-full text-[11px] font-black uppercase tracking-widest text-white transition-all active:scale-95 bg-gradient-to-r from-indigo-500 via-blue-600 to-indigo-700 shadow-lg shadow-indigo-500/25"
+          >
+            <MessageCircle className="h-4 w-4" />
+            <span>Connect</span>
+          </button>
+
+          <SaveButton 
+            targetId={client.user_id}
+            targetType="profile"
+            className="w-12 h-12 rounded-full bg-black/40 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all shrink-0 text-white"
+            variant="circular"
+          />
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 });
 
