@@ -8,7 +8,7 @@ interface AmbientMeshProps {
 }
 
 /**
- * 🌌 SENTIENT AMBIENT MESH SYSTEM
+ * 🌌 SWIPESS AMBIENT MESH SYSTEM
  * Generates a high-performance, GPU-accelerated animated mesh gradient 
  * that reacts to the category color passed to it. It creates a sense 
  * of physical depth and organic life in the background.

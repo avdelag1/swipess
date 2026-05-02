@@ -17,10 +17,10 @@ import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useModalStore } from '@/state/modalStore';
 import { useInstantReactivity } from '@/hooks/useInstantReactivity';
 import { cn } from '@/lib/utils';
-import { SentientHud } from './SentientHud';
+import { SwipessHud } from './SwipessHud';
 import { VapIdCardModal } from './VapIdCardModal';
 import { RadioMiniPlayer } from './RadioMiniPlayer';
-import { uiSounds } from '@/utils/uiSounds'; // ZENITH AUDIO ENGINE
+import { uiSounds } from '@/utils/uiSounds'; // SWIPESS AUDIO ENGINE
 
 const NotificationSystem = lazy(() =>
   import('@/components/NotificationSystem').then(m => ({ default: m.NotificationSystem }))
@@ -67,14 +67,14 @@ export function AppLayout({ children }: AppLayoutProps) {
 
 
   useEffect(() => {
-    const recover = () => window.dispatchEvent(new CustomEvent('sentient-ui-recovery'));
+    const recover = () => window.dispatchEvent(new CustomEvent('swipess-ui-recovery'));
     recover();
     const frame = requestAnimationFrame(recover);
     
-    // 🚀 ZENITH READY SIGNAL:
+    // 🚀 SWIPESS READY SIGNAL:
     // Notifies RootProviders that the layout shell is mounted.
     // This allows the splash screen to fade out ONLY when content is ready.
-    window.dispatchEvent(new CustomEvent('zenith-ready'));
+    window.dispatchEvent(new CustomEvent('swipess-ready'));
     
     // Fallback for legacy listeners
     window.dispatchEvent(new CustomEvent('app-rendered'));
@@ -159,7 +159,7 @@ export function AppLayout({ children }: AppLayoutProps) {
       </Suspense>
   
       {showAppChrome && (
-        <SentientHud side="top" className="fixed top-0 left-0 right-0 z-[10005]" scrollTargetSelector="#dashboard-scroll-container" alwaysVisible={true}>
+        <SwipessHud side="top" className="fixed top-0 left-0 right-0 z-[10005]" scrollTargetSelector="#dashboard-scroll-container" alwaysVisible={true}>
           <TopBar
             userRole={userRole}
             onMessageActivationsClick={handleMessageActivationsClick}
@@ -172,7 +172,7 @@ export function AppLayout({ children }: AppLayoutProps) {
                 : undefined
             }
           />
-        </SentientHud>
+        </SwipessHud>
       )}
 
       {/* SHELL CONTAINER: Always fixed-height. DashboardLayout handles scrolling inside. */}
@@ -200,13 +200,13 @@ export function AppLayout({ children }: AppLayoutProps) {
 
 
       {showAppChrome && (
-        <SentientHud side="bottom" className="fixed bottom-0 left-0 right-0 z-[10005]" scrollTargetSelector="#dashboard-scroll-container" alwaysVisible={true}>
+        <SwipessHud side="bottom" className="fixed bottom-0 left-0 right-0 z-[10005]" scrollTargetSelector="#dashboard-scroll-container" alwaysVisible={true}>
           <BottomNavigation
             userRole={userRole}
             onFilterClick={handleFilterClick}
             onListingsClick={handleListingsClick}
           />
-        </SentientHud>
+        </SwipessHud>
       )}
 
       {/* 📻 CONNECTED RADIO: Floating player bubble - Hidden on radio/full-screen routes */}

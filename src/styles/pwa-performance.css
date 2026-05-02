@@ -385,7 +385,7 @@ label:active,
     .app-header.header-hidden,
     .app-bottom-bar.nav-hidden {
         transform: none !important;
-        /* opacity: 0 !important; <--- Commented out to prevent conflict with Sentient UI logic */
+        /* opacity: 0 !important; <--- Commented out to prevent conflict with Swipess UI logic */
         filter: none !important;
     }
 

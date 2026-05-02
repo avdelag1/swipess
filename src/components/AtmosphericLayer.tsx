@@ -106,7 +106,7 @@ export const AtmosphericLayer = memo(({ variant = 'default', opacity = 0.08, spe
         )} />
       </div>
 
-      {/* 🧘 SENTIENT NODES: Slow drifting particles for liveness */}
+      {/* 🧘 SWIPESS NODES: Slow drifting particles for liveness */}
       <div className="absolute inset-0 opacity-40">
         <div className={cn(
           "absolute top-[20%] left-[30%] w-64 h-64 blur-[100px] rounded-full animate-float-slow",

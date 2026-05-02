@@ -190,7 +190,7 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
       // User triggered stars should ALWAYS play sound & notify UI
       if (x !== undefined && y !== undefined && !disableSoundsRef.current) {
         playRandomZen(0.2);
-        // Dispatch event so Sentient UI can react
+        // Dispatch event so Swipess UI can react
         window.dispatchEvent(new CustomEvent('STAR_SPAWNED', { detail: { x, y } }));
       }
     };

@@ -82,11 +82,11 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
 
   // 🛡️ HUD MASTER RECOVERY: Ensure UI is visible on mount and every navigation
   useEffect(() => {
-    const recoveryEvent = new CustomEvent('sentient-ui-recovery');
+    const recoveryEvent = new CustomEvent('swipess-ui-recovery');
     window.dispatchEvent(recoveryEvent);
     
     const safetyCheck = setTimeout(() => {
-      window.dispatchEvent(new CustomEvent('sentient-ui-recovery'));
+      window.dispatchEvent(new CustomEvent('swipess-ui-recovery'));
     }, 1500);
 
     return () => clearTimeout(safetyCheck);

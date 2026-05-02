@@ -275,7 +275,7 @@ export default function EventosFeed() {
     >
       <div className="absolute inset-0 bg-[#0a0a0b] -z-10" />
       
-      {/* Floating HUD — now handled by global SentientHud logic, this local wrapper just for custom styling */}
+      {/* Floating HUD — now handled by global SwipessHud logic, this local wrapper just for custom styling */}
       <div 
         className={cn(
           "fixed left-0 right-0 z-[100] transform-gpu px-4 pt-4 transition-all duration-300 ease-out",

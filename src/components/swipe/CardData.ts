@@ -41,7 +41,7 @@ export const POKER_CARDS: PokerCardData[] = [
   { id: 'motorcycle', label: 'Motorcycles', description: 'Bikes & scooters',     accent: '#f97316', accentRgb: '249,115,22', icon: VespaIcon  },
   { id: 'bicycle',    label: 'Bicycles',    description: 'City & mountain',      accent: '#f43f5e', accentRgb: '244,63,94', icon: BeachBicycleIcon   },
   { id: 'services',   label: 'Workers',     description: 'Skilled freelancers',  accent: '#a855f7', accentRgb: '168,85,247', icon: WorkersIcon  },
-  { id: 'radio',      label: 'Radio',       description: 'Sentient Beats',       accent: '#f43f5e', accentRgb: '244,63,94',  icon: Radio },
+  { id: 'radio',      label: 'Radio',       description: 'Swipess Beats',       accent: '#f43f5e', accentRgb: '244,63,94',  icon: Radio },
   { id: 'all',        label: 'All',         description: 'Browse everything',    accent: '#06b6d4', accentRgb: '6,182,212', icon: Sparkles   },
   { id: 'vap',        label: 'Resident Card', description: 'Local Discounts',    accent: '#10b981', accentRgb: '168,85,247', icon: ShieldCheck },
 ];
@@ -110,7 +110,7 @@ export const OWNER_INTENT_CARDS: OwnerIntentCard[] = [
   {
     id: 'radio',
     label: 'Radio',
-    description: 'Sentient Beats',
+    description: 'Swipess Beats',
     accent: '#f43f5e',
     accentRgb: '244,63,94',
     icon: Radio,

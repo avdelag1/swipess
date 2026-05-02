@@ -92,7 +92,7 @@ export function PremiumSortableGrid<T extends { id: string }>({
       const newIndex = localItems.findIndex(item => item.id === targetId);
 
       if (oldIndex !== -1 && newIndex !== -1) {
-        // TACTILE FEEDBACK: Sentient swap confirmation
+        // TACTILE FEEDBACK: Swipess swap confirmation
         triggerHaptic('light');
 
         setLocalItems(prev => {

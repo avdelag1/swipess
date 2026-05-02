@@ -59,27 +59,27 @@
 
   <meta name="app-version" content="2026.04.21.FINAL-1.0">
   <!-- FORCE RELOAD CACHE BUSTER: ZENITH v1.0 -->
-  <title>Zenith</title>
-  <meta name="description" content="Zenith — Immersive discovery and target selection engine.">
+  <title>Swipess</title>
+  <meta name="description" content="Swipess — Immersive discovery and target selection engine.">
 
   <!-- Open Graph / Facebook / WhatsApp / Instagram -->
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://www.zenith.com/">
-  <meta property="og:title" content="Zenith">
+  <meta property="og:title" content="Swipess">
   <meta property="og:description" content="Immersive discovery and target selection engine.">
-  <meta property="og:image" content="https://www.zenith.com/og-image.jpg">
+  <meta property="og:image" content="https://www.swipess.com/og-image.jpg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:site_name" content="Zenith">
+  <meta property="og:site_name" content="Swipess">
   <meta property="og:locale" content="en_US">
 
   <!-- Twitter / X -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Zenith">
+  <meta name="twitter:title" content="Swipess">
   <meta name="twitter:description" content="Immersive discovery and target selection engine.">
   <meta name="twitter:image" content="https://www.zenith.com/og-image.jpg">
 
-  <link rel="canonical" href="https://www.zenith.com/">
+  <link rel="canonical" href="https://www.swipess.com/">
   
   <style>
     *{touch-action:manipulation;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
@@ -100,8 +100,8 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Zenith">
-  <meta name="application-name" content="Zenith">
+  <meta name="apple-mobile-web-app-title" content="Swipess">
+  <meta name="application-name" content="Swipess">
   <!-- Speculation rules removed — prefetching handled by routePrefetcher.ts -->
   <style>
     .static-splash { position: fixed; inset: 0; background: #000; z-index: 99999; display: flex; align-items: center; justify-content: center; transition: opacity 0.4s ease-out, visibility 0.4s; }
@@ -117,7 +117,7 @@
 <body>
   <div id="static-splash" class="static-splash">
     <div class="splash-content">
-      <div id="splash-text" class="splash-text">SENTIENT</div>
+      <div id="splash-text" class="splash-text">SWIPESS</div>
     </div>
   </div>
   <div id="root"></div>
@@ -131,8 +131,8 @@
           setTimeout(() => splash.remove(), 400);
         }
       };
-      // Listen for React hydration signal
-      window.addEventListener('app-rendered', fadeOut);
+      // Listen for Swipess hydration signal
+      window.addEventListener('swipess-ready', fadeOut);
       // Fallback: window load + small buffer
       window.addEventListener('load', () => setTimeout(fadeOut, 200));
       // Ultimate safety fallback

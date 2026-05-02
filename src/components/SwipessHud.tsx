@@ -4,7 +4,7 @@ import { useScrollDirection } from '@/hooks/useScrollDirection';
 import { useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 
-interface SentientHudProps {
+interface SwipessHudProps {
   children: React.ReactNode;
   /**
    * Selector for the scrollable element to monitor.
@@ -30,11 +30,11 @@ interface SentientHudProps {
 }
 
 /**
- * 🧘 SENTIENT HUD WRAPPER
+ * 🧘 SWIPESS HUD WRAPPER
  * Automatically hides/shows its children based on scroll direction and idle focus mode.
  * Use this for headers, footers, and floating buttons to create an immersive experience.
  */
-export function SentientHud({
+export function SwipessHud({
   children,
   scrollTargetSelector,
   threshold = 20,
@@ -42,7 +42,7 @@ export function SentientHud({
   side = 'top',
   className,
   alwaysVisible = false,
-}: SentientHudProps) {
+}: SwipessHudProps) {
   const location = useLocation();
   const { isFocused } = useFocusMode(7000);
 
