@@ -117,9 +117,9 @@ export default function FAQOwnerPage() {
                 <Card
                   className={cn(
                     "overflow-hidden cursor-pointer transition-all duration-300 border",
-                    expandedIndex === index 
-                      ? (isLight ? "bg-white border-purple-500/20 shadow-xl" : "bg-white/10 border-purple-500/30 shadow-2xl shadow-purple-500/10")
-                      : (isLight ? "bg-black/[0.02] border-black/5 hover:bg-black/[0.04]" : "bg-white/[0.03] border-white/5 hover:bg-white/[0.05]")
+                    expandedIndex === index
+                      ? (isLight ? "bg-white border-purple-500/20 shadow-xl shadow-purple-500/5" : "bg-purple-500/5 border-purple-500/25 shadow-2xl shadow-purple-500/10")
+                      : (isLight ? "bg-transparent border-black/8 hover:bg-black/[0.02]" : "bg-transparent border-white/[0.07] hover:bg-white/[0.03]")
                   )}
                   onClick={() => toggleExpand(index)}
                 >

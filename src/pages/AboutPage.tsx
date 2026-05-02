@@ -121,8 +121,10 @@ export default function AboutPage() {
               {ownerBenefits.map((benefit, index) => (
                 <Card key={index} className={cn(
                   "rounded-3xl border transition-all hover:scale-[1.02]",
-                  isLight ? "bg-white border-black/5" : "bg-white/[0.02] border-white/5"
-                )}>
+                  isLight ? "bg-white border-black/5" : "border-purple-500/15"
+                )}
+                  style={!isLight ? { background: 'rgba(255,255,255,0.02)', boxShadow: 'inset 0 0 24px rgba(168,85,247,0.08)' } : undefined}
+                >
                   <CardContent className="p-6 flex gap-5">
                     <div className="flex-shrink-0 w-12 h-12 rounded-2xl bg-purple-500/10 flex items-center justify-center border border-purple-500/20">
                       <benefit.icon className="w-6 h-6 text-purple-500" />
@@ -152,8 +154,10 @@ export default function AboutPage() {
               {clientBenefits.map((benefit, index) => (
                 <Card key={index} className={cn(
                   "rounded-3xl border transition-all hover:scale-[1.02]",
-                  isLight ? "bg-white border-black/5" : "bg-white/[0.02] border-white/5"
-                )}>
+                  isLight ? "bg-white border-black/5" : "border-rose-500/15"
+                )}
+                  style={!isLight ? { background: 'rgba(255,255,255,0.02)', boxShadow: 'inset 0 0 24px rgba(244,63,94,0.07)' } : undefined}
+                >
                   <CardContent className="p-6 flex gap-5">
                     <div className="flex-shrink-0 w-12 h-12 rounded-2xl bg-rose-500/10 flex items-center justify-center border border-rose-500/20">
                       <benefit.icon className="w-6 h-6 text-rose-500" />
@@ -176,10 +180,13 @@ export default function AboutPage() {
           transition={{ ...fastSpring, delay: 0.3 }}
           className="mt-16"
         >
-          <Card className={cn(
-            "rounded-[3rem] border overflow-hidden",
-            isLight ? "bg-black/[0.02] border-black/5" : "bg-white/[0.02] border-white/5"
-          )}>
+          <Card
+            className={cn(
+              "rounded-[3rem] border overflow-hidden",
+              isLight ? "bg-black/[0.02] border-black/5" : "border-primary/15"
+            )}
+            style={!isLight ? { background: 'rgba(255,255,255,0.015)', boxShadow: 'inset 0 0 40px rgba(var(--color-primary-rgb),0.07)' } : undefined}
+          >
             <CardContent className="p-10">
               <div className="flex items-center gap-4 mb-10">
                 <Sparkles className="w-6 h-6 text-primary" />

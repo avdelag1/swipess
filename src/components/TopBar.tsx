@@ -213,6 +213,10 @@ function TopBarComponent({
 
               <ThemeToggle glassPillStyle={glassPillStyle} />
 
+              {isOwner && (
+                <AIListingTrigger glassPillStyle={glassPillStyle} />
+              )}
+
               <NotificationPopover glassPillStyle={glassPillStyle} />
             </>
           )}

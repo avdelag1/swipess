@@ -190,7 +190,8 @@ const OwnerProfile = () => {
 
           <Button
             onClick={() => { triggerHaptic('medium'); navigate('/client/advertise'); }}
-            className={cn("w-full h-16 rounded-2xl transition-all active:scale-95 border", isLight ? "border-slate-200 bg-slate-50 hover:bg-slate-100" : "border-white/[0.08] bg-white/[0.03] hover:bg-white/[0.05]")}
+            className={cn("w-full h-16 rounded-2xl transition-all active:scale-95 border", isLight ? "border-slate-200 bg-slate-50 hover:bg-slate-100" : "border-violet-500/20 hover:border-violet-500/35")}
+          style={!isLight ? { background: 'rgba(124,58,237,0.05)' } : undefined}
           >
             <Megaphone className="w-6 h-6 text-violet-400 mr-3" />
             <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-violet-400 bg-clip-text text-transparent font-black uppercase italic tracking-[0.2em] text-[14px]">
