@@ -708,24 +708,24 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           />
 
           {imageCount > 1 && (
-            <div 
-              className="absolute top-[calc(var(--safe-top,0px)+56px)] left-3 right-3 z-30 flex gap-1.5 transform-gpu" 
-            >
-               {images.map((_, idx) => (
-                <div
-                  key={idx}
-                  className="h-[2px] flex-1 rounded-full transition-all duration-500 overflow-hidden bg-white/20"
-                >
-                  <motion.div 
-                    initial={false}
-                    animate={{ 
-                      x: idx < currentImageIndex ? '0%' : idx === currentImageIndex ? '0%' : '-100%',
-                      opacity: idx === currentImageIndex ? 1 : 0.5
-                    }}
-                    className="w-full h-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.8)]"
-                  />
-                </div>
-              ))}
+            <div className="absolute top-[calc(var(--safe-top,0px)+16px)] inset-x-0 flex justify-center z-30 pointer-events-none transform-gpu">
+              <div className="flex gap-1.5 w-full max-w-[140px] px-2">
+                {images.map((_, idx) => (
+                  <div
+                    key={idx}
+                    className="h-[2.5px] flex-1 rounded-full transition-all duration-500 overflow-hidden bg-white/25"
+                  >
+                    <motion.div 
+                      initial={false}
+                      animate={{ 
+                        x: idx < currentImageIndex ? '0%' : idx === currentImageIndex ? '0%' : '-100%',
+                        opacity: idx === currentImageIndex ? 1 : 0.5
+                      }}
+                      className="w-full h-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.9)]"
+                    />
+                  </div>
+                ))}
+              </div>
             </div>
           )}
 

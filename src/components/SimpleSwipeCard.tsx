@@ -453,6 +453,8 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
     <div className="absolute inset-0 flex flex-col pointer-events-auto">
       <motion.div
         drag
+        dragControls={dragControls}
+        dragListener={false}
         dragMomentum={false}
         dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
         dragElastic={0.55}
@@ -550,22 +552,24 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           />
           
           {imageCount > 1 && (
-            <div className="absolute top-[calc(var(--safe-top,0px)+56px)] left-3 right-3 flex gap-1.5 z-20">
-              {Array.from({ length: imageCount }).map((_, idx) => (
-                <div
-                  key={idx}
-                  className="h-[2px] flex-1 rounded-full transition-all duration-500 overflow-hidden bg-white/20"
-                >
-                  <motion.div 
-                    initial={false}
-                    animate={{ 
-                      x: idx < currentImageIndex ? '0%' : idx === currentImageIndex ? '0%' : '-100%',
-                      opacity: idx === currentImageIndex ? 1 : 0.5
-                    }}
-                    className="w-full h-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.8)]"
-                  />
-                </div>
-              ))}
+            <div className="absolute top-[calc(var(--safe-top,0px)+16px)] inset-x-0 flex justify-center z-20 pointer-events-none">
+              <div className="flex gap-1.5 w-full max-w-[140px] px-2">
+                {Array.from({ length: imageCount }).map((_, idx) => (
+                  <div
+                    key={idx}
+                    className="h-[2.5px] flex-1 rounded-full transition-all duration-500 overflow-hidden bg-white/25"
+                  >
+                    <motion.div 
+                      initial={false}
+                      animate={{ 
+                        x: idx < currentImageIndex ? '0%' : idx === currentImageIndex ? '0%' : '-100%',
+                        opacity: idx === currentImageIndex ? 1 : 0.5
+                      }}
+                      className="w-full h-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.9)]"
+                    />
+                  </div>
+                ))}
+              </div>
             </div>
           )}
 
