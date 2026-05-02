@@ -123,7 +123,7 @@ function TopBarComponent({
                     haptics.tap();
                     navigate(isOwner ? '/owner/profile' : '/client/profile');
                   }}
-                  className="flex shrink-0 items-center gap-2.5 px-2 py-1.5 pr-3.5 rounded-2xl"
+                  className="flex shrink-0 items-center gap-2.5 px-2 py-1.5 pr-3.5 rounded-full"
                   style={glassPillStyle}
                 >
                   <div className="w-7 h-7 rounded-[0.6rem] overflow-hidden shrink-0 flex items-center justify-center relative"

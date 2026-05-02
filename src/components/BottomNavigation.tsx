@@ -271,8 +271,8 @@ export const BottomNavigation = memo(({
           borderRadius: '3rem',
           padding: '4px',
           boxShadow: isLight
-            ? '0 15px 40px rgba(0,0,0,0.14), inset 0 0 0 1px rgba(0,0,0,0.06)'
-            : '0 25px 60px -10px rgba(0,0,0,0.4), inset 0 0 0 1px rgba(255,255,255,0.08)',
+            ? '0 15px 40px rgba(0,0,0,0.14)'
+            : '0 25px 60px -10px rgba(0,0,0,0.4)',
           border: 'none',
         }}
 
