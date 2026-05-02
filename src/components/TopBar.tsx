@@ -15,7 +15,6 @@ import { ThemeToggle } from './ThemeToggle';
 import { useFilterStore, useFilterActions } from '@/state/filterStore';
 import { useModalStore } from '@/state/modalStore';
 import { TAP_SPRING } from './BottomNavigation';
-import { AIListingTrigger } from './AIListingTrigger';
 
 interface TopBarProps {
   onNotificationsClick?: () => void;
@@ -212,10 +211,6 @@ function TopBarComponent({
               </motion.button>
 
               <ThemeToggle glassPillStyle={glassPillStyle} />
-
-              {isOwner && (
-                <AIListingTrigger glassPillStyle={glassPillStyle} />
-              )}
 
               <NotificationPopover glassPillStyle={glassPillStyle} />
             </>
