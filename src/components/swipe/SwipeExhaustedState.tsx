@@ -38,13 +38,13 @@ export const SwipeExhaustedState = ({
     { id: 'property', label: 'Properties' },
     { id: 'motorcycle', label: 'Motorcycles' },
     { id: 'bicycle', label: 'Bicycles' },
-    { id: 'services', label: 'Services' },
+    { id: 'services', label: 'Workers' },
   ];
 
   const ownerCategories = [
     { id: 'buyers', label: 'Buyers' },
     { id: 'renters', label: 'Renters' },
-    { id: 'hire', label: 'Services' },
+    { id: 'hire', label: 'Workers' },
   ];
 
   // Filter out the active category so the grid doesn't show "switch to current"
@@ -58,7 +58,7 @@ export const SwipeExhaustedState = ({
         <div className="space-y-2">
           <p className={cn(
             "text-[10px] font-black uppercase tracking-[0.3em] mb-1 italic",
-            isLoading ? (isLight ? "text-black/40" : "text-white/40") : "text-primary drop-shadow-[0_0_10px_rgba(236,72,153,0.3)]"
+            isLoading ? (isLight ? "text-black/60" : "text-white/40") : "text-primary drop-shadow-[0_0_10px_rgba(236,72,153,0.3)]"
           )}>
             {isLoading ? `Initializing Sector Scan...` : `No ${categoryName} Found Nearby`}
           </p>
@@ -79,12 +79,12 @@ export const SwipeExhaustedState = ({
                 }}
                 className={cn(
                   "absolute top-0 right-0 z-10 w-10 h-10 flex items-center justify-center rounded-full transition-all active:scale-90 border",
-                  isLight ? "bg-white/80 border-black/10 hover:bg-white" : "bg-white/10 border-white/15 hover:bg-white/20"
+                  isLight ? "bg-white border-black/20 shadow-md hover:bg-gray-50" : "bg-white/10 border-white/15 hover:bg-white/20"
                 )}
                 title="Open advanced filters"
                 aria-label="Open advanced filters"
               >
-                <SlidersHorizontal className="w-4 h-4 text-primary" />
+                <SlidersHorizontal className={cn("w-4 h-4", isLight ? "text-black" : "text-primary")} />
               </button>
             )}
 
@@ -98,14 +98,14 @@ export const SwipeExhaustedState = ({
           </div>
         )}
 
-        <p className={cn("text-xs", isLight ? "text-black/40" : "text-white/40")}>
+        <p className={cn("text-xs font-bold", isLight ? "text-black/60" : "text-white/40")}>
           Move the slider to search further
         </p>
 
         {/* Quick filter switcher — allows changing category without going back */}
         {onCategoryChange && (
           <div className="w-full space-y-2 mt-2">
-            <p className={cn("text-[10px] font-bold uppercase tracking-widest opacity-50", isLight ? "text-black" : "text-white")}>
+            <p className={cn("text-[10px] font-black uppercase tracking-widest", isLight ? "text-black" : "text-white")}>
               Or try another
             </p>
             <div className={cn(
@@ -120,13 +120,13 @@ export const SwipeExhaustedState = ({
                     onCategoryChange(cat.id);
                   }}
                   className={cn(
-                    "py-2 px-3 rounded-full text-xs font-black uppercase tracking-wider transition-all active:scale-95 border",
+                    "py-2 px-3 rounded-full text-xs font-black uppercase tracking-wider transition-all active:scale-95 border shadow-sm",
                     activeCategory === cat.id
                       ? isLight
-                        ? "bg-black text-white border-black/30"
+                        ? "bg-black text-white border-black"
                         : "bg-white/20 text-white border-white/30"
                       : isLight
-                      ? "bg-white/50 text-black border-black/10 hover:bg-white/70"
+                      ? "bg-white text-black border-black/20 hover:bg-gray-50"
                       : "bg-white/10 text-white border-white/10 hover:bg-white/20"
                   )}
                 >
