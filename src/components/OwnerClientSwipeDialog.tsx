@@ -28,8 +28,27 @@ export function OwnerClientSwipeDialog({ open, onOpenChange }: OwnerClientSwipeD
     handleInsights(clientId);
   };
 
-  const selectedProfile = selectedClientId
+  const selectedProfileRaw = selectedClientId
     ? clientProfiles?.find(p => p.user_id === selectedClientId)
+    : null;
+
+  const selectedProfile = selectedProfileRaw
+    ? {
+        id: String(selectedProfileRaw.id ?? selectedProfileRaw.user_id),
+        user_id: selectedProfileRaw.user_id,
+        full_name: selectedProfileRaw.name || '',
+        name: selectedProfileRaw.name || '',
+        age: selectedProfileRaw.age || 0,
+        bio: '',
+        profile_images: selectedProfileRaw.profile_images || [],
+        images: selectedProfileRaw.profile_images || [],
+        location: selectedProfileRaw.location,
+        liked_at: new Date().toISOString(),
+        gender: selectedProfileRaw.gender,
+        city: selectedProfileRaw.city,
+        interests: selectedProfileRaw.interests,
+        verified: selectedProfileRaw.verified,
+      }
     : null;
 
   return (

@@ -215,7 +215,22 @@ export const GlobalDialogs = memo(({ userRole }: GlobalDialogsProps) => {
             <LikedClientInsightsModal
               open={store.showClientInsights}
               onOpenChange={(val: boolean) => store.setModal('showClientInsights', val)}
-              client={selectedProfile || null}
+              client={selectedProfile ? {
+                id: String(selectedProfile.id ?? selectedProfile.user_id),
+                user_id: selectedProfile.user_id,
+                full_name: selectedProfile.name || '',
+                name: selectedProfile.name || '',
+                age: selectedProfile.age || 0,
+                bio: '',
+                profile_images: selectedProfile.profile_images || [],
+                images: selectedProfile.profile_images || [],
+                location: selectedProfile.location,
+                liked_at: new Date().toISOString(),
+                gender: selectedProfile.gender,
+                city: selectedProfile.city,
+                interests: selectedProfile.interests,
+                verified: selectedProfile.verified,
+              } : null}
             />
           </DeferredDialog>
 
