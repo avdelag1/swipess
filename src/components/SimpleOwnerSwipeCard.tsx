@@ -591,24 +591,15 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
       : null;
 
   if (!isTop) {
-    // Non-top card: GLASS PEEK
     return (
-      <div
-        className="absolute inset-x-2 bottom-4 top-4 rounded-[24px] overflow-hidden shadow-sm"
-        style={{
-          pointerEvents: 'none',
-          backgroundColor: 'rgba(255, 255, 255, 0.03)',
-          backdropFilter: 'blur(12px)',
-          border: '1px solid rgba(255, 255, 255, 0.05)',
-        }}
-      >
-        <div className="absolute inset-0 opacity-60">
-          <CardImage 
-            src={currentImage} 
-            alt={profile.name || 'Client'} 
-            name={profile.name} 
-            fullScreen={fullScreen} 
-            priority={false} 
+      <div className="absolute inset-0 overflow-hidden" style={{ pointerEvents: 'none' }}>
+        <div className="absolute inset-0 opacity-50">
+          <CardImage
+            src={currentImage}
+            alt={profile.name || 'Client'}
+            name={profile.name}
+            fullScreen={true}
+            priority={false}
           />
         </div>
       </div>
@@ -616,7 +607,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   }
 
   return (
-    <div className="absolute inset-x-2 top-1 bottom-0 flex flex-col">
+    <div className="absolute inset-0 flex flex-col">
       <motion.div
         drag
         dragControls={dragControls}
@@ -667,11 +658,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           // full recomposite on every frame and was the main shake/flicker
           // source. Background blur is handled by the photo layer below.
         } as any}
-        className={cn(
-          "flex-1 cursor-grab active:cursor-grabbing select-none touch-none relative overflow-hidden",
-          "w-full h-full rounded-[24px]",
-          !fullScreen && "shadow-[0_32px_64px_-16px_rgba(0,0,0,0.5),0_16px_32px_-8px_rgba(0,0,0,0.3)]"
-        )}
+        className="flex-1 cursor-grab active:cursor-grabbing select-none touch-none relative overflow-hidden w-full h-full rounded-none"
       >
         {/* Glass Shine */}
         <motion.div
@@ -690,26 +677,32 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
 
         <div
           ref={containerRef}
-          className={cn("absolute inset-0 w-full h-full overflow-hidden rounded-[24px]")}
+          className="absolute inset-0 w-full h-full overflow-hidden"
           onClick={handleImageTap}
           style={{ touchAction: 'none' }}
         >
-          <CardImage 
-            src={currentImage} 
-            alt={profile.name || 'Client'} 
-            name={profile.name} 
+          <CardImage
+            src={currentImage}
+            alt={profile.name || 'Client'}
+            name={profile.name}
             priority={isTop}
-            fullScreen={fullScreen}
+            fullScreen={true}
           />
 
-          {/* Cinema Top Fade — theme-aware vignette behind header buttons */}
+          {/* Cinema Top Fade */}
           <div
             className="absolute top-0 left-0 right-0 pointer-events-none z-20"
             style={{
-              height: '35%',
-              background: _isDark
-                ? 'linear-gradient(to bottom, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.6) 30%, rgba(0,0,0,0) 100%)'
-                : 'linear-gradient(to bottom, rgba(255,255,255,1) 0%, rgba(255,255,255,0.7) 30%, rgba(255,255,255,0) 100%)',
+              height: '22%',
+              background: 'linear-gradient(to bottom, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.25) 55%, transparent 100%)',
+            }}
+          />
+          {/* Cinema Bottom Fade */}
+          <div
+            className="absolute bottom-0 left-0 right-0 pointer-events-none z-20"
+            style={{
+              height: '52%',
+              background: 'linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.6) 30%, rgba(0,0,0,0.2) 60%, transparent 100%)',
             }}
           />
 
@@ -810,7 +803,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
         <div
           key={`info-${currentImageIndex % 4}`}
           className={cn(
-            "absolute left-6 bottom-[210px] z-30 pointer-events-none flex flex-col justify-end max-w-[85%]",
+            "absolute left-5 right-5 bottom-[calc(var(--bottom-nav-height,72px)+100px)] z-30 pointer-events-none flex flex-col justify-end",
             fullScreen && "pb-[calc(100px+var(--safe-bottom))]"
           )}
         >
