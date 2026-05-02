@@ -46,7 +46,7 @@ function SwipessLogoComponent({
               variant === 'white' ? 'text-white' : 'text-black',
               isIcon ? "text-xl" : size === 'xs' ? 'text-sm' : size === 'sm' ? 'text-base' : size === 'md' ? 'text-2xl' : size === 'lg' ? 'text-3xl' : 'text-5xl'
             )}>
-              SENTIENT
+              SWIPESS
             </span>
           ) : (
             <div className="relative">
@@ -84,7 +84,7 @@ function SwipessLogoComponent({
                   "font-black tracking-[-0.05em] italic uppercase text-white",
                   isIcon ? "text-xl" : size === 'xs' ? 'text-sm' : size === 'sm' ? 'text-base' : size === 'md' ? 'text-2xl' : size === 'lg' ? 'text-3xl' : 'text-5xl'
                 )}>
-                  SENTIENT
+                  SWIPESS
                 </span>
               </div>
               {variant === 'gradient' && !isIcon && (

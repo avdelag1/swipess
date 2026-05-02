@@ -446,7 +446,7 @@ function LegendaryLandingPage() {
           <div className="w-1 h-1 rounded-full bg-white/20" />
           <button onClick={() => setLegalModal('terms')} className="hover:text-[#EB4898] transition-colors">Terms</button>
         </div>
-        <p className="text-[8px] font-black uppercase tracking-[0.4em] text-white/20 italic">© 2026 Zenith</p>
+        <p className="text-[8px] font-black uppercase tracking-[0.4em] text-white/20 italic">© 2026 Swipess</p>
       </div>
 
       {/* 🛸 LEGAL POPUP MODAL */}
@@ -477,7 +477,7 @@ function LegendaryLandingPage() {
             <div className="flex-1 overflow-y-auto pr-2 space-y-6 text-white/80 scrollbar-none pb-12">
                {legalModal === 'terms' ? (
                  <div className="space-y-5">
-                    <p className="text-sm font-bold leading-relaxed text-white">By initializing the Zenith experience, you agree to be bound by these Legal Protocols. Access is denied to non-compliant entities.</p>
+                    <p className="text-sm font-bold leading-relaxed text-white">By initializing the Swipess experience, you agree to be bound by these Legal Protocols. Access is denied to non-compliant entities.</p>
                     <div className="h-px bg-white/10 my-6" />
                     
                     <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-[#EB4898] mb-2">01 — Entity Eligibility</h3>
@@ -491,7 +491,7 @@ function LegendaryLandingPage() {
                  </div>
                ) : (
                  <div className="space-y-5">
-                    <p className="text-sm font-bold leading-relaxed text-white">We value your privacy and security. Zenith uses advanced end-to-end encryption for sensitive data.</p>
+                    <p className="text-sm font-bold leading-relaxed text-white">We value your privacy and security. Swipess uses advanced end-to-end encryption for sensitive data.</p>
                     <div className="h-px bg-white/10 my-6" />
                     
                     <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-[#EB4898] mb-2">01 — Data Collection</h3>

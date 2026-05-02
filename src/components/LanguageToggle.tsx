@@ -10,11 +10,7 @@ import { changeLanguage as i18nChangeLanguage } from '@/i18n/index';
 const languages = [
   { code: 'en', label: 'English',  nativeLabel: 'English',   flag: '🇺🇸' },
   { code: 'es', label: 'Spanish',  nativeLabel: 'Español',   flag: '🇲🇽' },
-  { code: 'fr', label: 'French',   nativeLabel: 'Français',  flag: '🇫🇷' },
-  { code: 'de', label: 'German',   nativeLabel: 'Deutsch',   flag: '🇩🇪' },
   { code: 'it', label: 'Italian',  nativeLabel: 'Italiano',  flag: '🇮🇹' },
-  { code: 'zh', label: 'Chinese',  nativeLabel: '中文',       flag: '🇨🇳' },
-  { code: 'ja', label: 'Japanese', nativeLabel: '日本語',     flag: '🇯🇵' },
   { code: 'ru', label: 'Russian',  nativeLabel: 'Русский',   flag: '🇷🇺' },
 ];
 

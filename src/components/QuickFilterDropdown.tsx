@@ -7,6 +7,7 @@ import { useShallow } from 'zustand/react/shallow';
 import useAppTheme from '@/hooks/useAppTheme';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { haptics } from '@/utils/microPolish';
+import { useTranslation } from 'react-i18next';
 import type { QuickFilterCategory, ClientGender, ClientType } from '@/types/filters';
 
 // Re-export unified types
@@ -72,6 +73,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
   const dropdownRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const { theme } = useAppTheme();
+  const { t } = useTranslation();
   const isDark = theme === 'dark';
 
   const glassBg = isDark ? 'rgba(255, 255, 255, 0.06)' : '#ffffff';
@@ -194,7 +196,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
         <div className="flex items-center justify-between px-4 py-3 border-b border-border">
           <div className="flex items-center gap-2">
             <SlidersHorizontal className="w-4 h-4 text-muted-foreground" />
-            <span className="text-sm font-semibold text-foreground">Filter Clients</span>
+            <span className="text-sm font-semibold text-foreground">{t('filters.title')}</span>
           </div>
           {activeFilterCount > 0 && (
             <motion.button
@@ -202,7 +204,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
               onClick={handleClearFilters}
               className="text-xs font-semibold px-3 py-1 rounded-full bg-gradient-to-r from-pink-500 to-orange-500 text-white transition-colors touch-manipulation"
             >
-              Clear
+              {t('actions.clear')}
             </motion.button>
           )}
         </div>
@@ -210,7 +212,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
         <div className="py-3 px-4 space-y-4 max-h-[65vh] overflow-y-auto">
           {/* Categories */}
           <div>
-            <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-2">Category</p>
+            <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-2">{t('filters.category')}</p>
             <div className="grid grid-cols-2 gap-1.5">
               {/* ALL option for owner */}
               <motion.button
@@ -227,7 +229,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
                 )}
               >
                 <Search className="w-4 h-4" />
-                <span>All</span>
+                <span>{t('filters.all')}</span>
               </motion.button>
               
               {categoryOptionBase.map((option) => {
@@ -254,7 +256,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
 
           {/* Gender */}
           <div>
-            <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-2">Gender</p>
+            <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-2">{t('filters.gender')}</p>
             <div className="flex gap-1.5">
               {genderOptions.map((option) => {
                 const isActive = clientGender === option.id;
@@ -280,7 +282,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
 
           {/* Client Type */}
           <div>
-            <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-2">Looking For</p>
+            <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-2">{t('filters.lookingFor')}</p>
             <div className="grid grid-cols-2 gap-1.5">
               {clientTypeOptions.map((option) => {
                 const isActive = clientType === option.id;
@@ -315,7 +317,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
       <div className="bg-card border border-border rounded-2xl shadow-2xl overflow-hidden w-[min(calc(100vw-1.5rem),400px)]">
         {/* Header */}
         <div className="flex items-center justify-between px-4 sm:px-5 py-4 sm:py-5 border-b border-border">
-          <span className="text-base sm:text-lg font-semibold text-foreground">Select Category</span>
+          <span className="text-base sm:text-lg font-semibold text-foreground">{t('filters.title')}</span>
           {activeFilterCount > 0 && (
             <motion.button
               whileHover={{ scale: 1.1 }}
@@ -356,7 +358,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
                 )}>
                   <Search strokeWidth={1.5} className="w-5 h-5" />
                 </span>
-                <span className="font-medium text-base sm:text-lg">All</span>
+                <span className="font-medium text-base sm:text-lg">{t('filters.all')}</span>
               </div>
             </motion.button>
           </motion.div>

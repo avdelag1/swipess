@@ -42,6 +42,7 @@ import { cn } from '@/lib/utils';
 import useAppTheme from '@/hooks/useAppTheme';
 import { AtmosphericLayer } from '@/components/AtmosphericLayer';
 import { X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export function MessagingDashboard() {
   const { user } = useAuth();
@@ -57,6 +58,7 @@ export function MessagingDashboard() {
   const userRole = fetchedRole || 'client';
   const { activeMode } = useActiveMode();
   const { theme, isLight } = useAppTheme();
+  const { t } = useTranslation();
 
   const { data: conversations = [], isLoading, refetch, fetchSingleConversation } = useConversations();
   const deleteConversation = useDeleteConversation();
@@ -221,8 +223,8 @@ export function MessagingDashboard() {
               <MessageCircle className="w-8 h-8" />
            </div>
            <div className="flex flex-col">
-              <span className="text-[10px] font-black uppercase tracking-[0.4em] italic text-[#EB4898]">Messages</span>
-              <h1 className={cn("text-4xl font-black uppercase italic tracking-tighter leading-none mt-1", isLight ? "text-black" : "text-white")}>Direct Messages</h1>
+              <span className="text-[10px] font-black uppercase tracking-[0.4em] italic text-[#EB4898]">{t('messages.title')}</span>
+              <h1 className={cn("text-4xl font-black uppercase italic tracking-tighter leading-none mt-1", isLight ? "text-black" : "text-white")}>{t('messages.title')}</h1>
            </div>
         </div>
 
@@ -380,8 +382,8 @@ export function MessagingDashboard() {
               <div className="w-20 h-20 rounded-[1.8rem] bg-indigo-500/10 flex items-center justify-center mb-10 border border-indigo-500/20">
                  <MessageCircle className="w-10 h-10 text-indigo-500 animate-pulse" />
               </div>
-              <h3 className={cn("text-2xl font-black uppercase italic tracking-tighter mb-4", isLight ? "text-black" : "text-white")}>No Messages</h3>
-              <p className={cn("text-[11px] font-black uppercase tracking-[0.2em] opacity-30 text-center max-w-lg leading-relaxed", isLight ? "text-black/30" : "text-white/30")}>No messages yet. Connect with someone to start chatting.</p>
+              <h3 className={cn("text-2xl font-black uppercase italic tracking-tighter mb-4", isLight ? "text-black" : "text-white")}>{t('messages.noMessages')}</h3>
+              <p className={cn("text-[11px] font-black uppercase tracking-[0.2em] opacity-30 text-center max-w-lg leading-relaxed", isLight ? "text-black/30" : "text-white/30")}>{t('messages.startConversation')}</p>
             </motion.div>
           )}
         </div>

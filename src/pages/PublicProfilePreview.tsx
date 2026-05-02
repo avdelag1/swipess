@@ -396,7 +396,7 @@ export default function PublicProfilePreview() {
             </div>
 
             <p className="text-center text-[10px] font-black uppercase tracking-[0.3em] italic opacity-20 pb-1">
-              Zenith · Find Your Perfect Match
+              Swipess · Find Your Perfect Match
             </p>
           </div>
         </motion.div>

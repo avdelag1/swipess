@@ -57,7 +57,7 @@ export default function VapValidate() {
         <div className="flex items-center gap-2">
           <ShieldCheck className={cn("w-5 h-5", isLight ? "text-primary" : "text-white")} />
           <span className={cn("text-xs font-bold tracking-widest uppercase", isLight ? "text-black/60" : "text-white/60")}>
-            Zenith Resident Portal
+            Swipess Resident Portal
           </span>
         </div>
         <div className="w-9" />
@@ -111,7 +111,7 @@ export default function VapValidate() {
             </div>
           </div>
           <p className={cn("text-xs text-center mt-8", isLight ? "text-zinc-400" : "text-zinc-600")}>
-            Discounts at participating locations apply. ID provided by Zenith.
+            Discounts at participating locations apply. ID provided by Swipess.
           </p>
         </motion.div>
       ) : (

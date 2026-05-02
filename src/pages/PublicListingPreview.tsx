@@ -209,7 +209,7 @@ export default function PublicListingPreview() {
                <Badge className={cn("text-[10px] font-black uppercase italic tracking-widest px-3 py-1.5 rounded-[0.8rem] border", 
                   mode === 'sale' ? "bg-amber-500/10 text-amber-500 border-amber-500/20" : "bg-indigo-500/10 text-indigo-400 border-indigo-500/20"
                )}>
-                  {mode === 'sale' ? 'Liquidation' : 'Zenith Residency'}
+                  {mode === 'sale' ? 'Liquidation' : 'Swipess Residency'}
                </Badge>
                {(listing as any).verified && (
                  <Badge className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-black uppercase italic tracking-widest px-3 py-1.5 rounded-[0.8rem]">
@@ -221,7 +221,7 @@ export default function PublicListingPreview() {
             {/* IDENTITY CORE */}
             <div className="flex items-start justify-between gap-6 px-1">
                <div className="space-y-3 flex-1">
-                  <h1 className="text-4xl font-black italic tracking-tighter leading-none uppercase">{listing.title || 'Zenith Asset'}</h1>
+                  <h1 className="text-4xl font-black italic tracking-tighter leading-none uppercase">{listing.title || 'Swipess Asset'}</h1>
                   <div className="flex items-center gap-2 opacity-40">
                     <MapPin className="w-4 h-4" />
                     <span className="text-[11px] font-black uppercase tracking-widest truncate max-w-[200px]">{listing.city || 'Tulum'}, {listing.neighborhood || 'Tulum Central'}</span>

@@ -288,7 +288,7 @@ const LegalHub = () => {
                   ))}
 
                   {currentDoc === 'terms' && [
-                    { id: '01', icon: Gavel, title: 'Ecosystem Acceptance', content: 'By accessing the Zenith terminal, you agree to be bound by these Operating Terms. Access is strictly restricted to compliant identities.' },
+                    { id: '01', icon: Gavel, title: 'Ecosystem Acceptance', content: 'By accessing the Swipess terminal, you agree to be bound by these Operating Terms. Access is strictly restricted to compliant identities.' },
                     { id: '02', icon: UserCheck, title: 'Eligibility Node', content: 'You must be at least 18 years of age and possess full legal capacity to enter into binding digital real estate agreements.' },
                     { id: '03', icon: CheckCircle2, title: 'Cipher Security', content: 'You are exclusively responsible for your account credentials. You must report any unauthorized terminal access immediately.' },
                     { id: '04', icon: Scale, title: 'Conduct Protocol', content: 'Users shall not transmit fraudulent telemetry, harass peers, or attempt to bypass security layers. Violations result in permanent lockout.' },

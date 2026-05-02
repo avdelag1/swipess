@@ -10,7 +10,7 @@ const resources: Record<string, any> = {
   en: { translation: en }
 };
 
-const LANGUAGES = ['es', 'it', 'fr', 'de', 'zh', 'ja', 'ru'];
+const LANGUAGES = ['es', 'it', 'ru'];
 
 // Initialize with static 'en' to prevent hydration mismatch or lag
 i18n.use(initReactI18next).init({
