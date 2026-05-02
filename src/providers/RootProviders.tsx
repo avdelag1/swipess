@@ -27,9 +27,9 @@ import { useForceUpdateOnVersionChange } from "@/hooks/useAutomaticUpdates";
 import { useProfileAutoSync, useEnsureSpecializedProfile } from "@/hooks/useProfileAutoSync";
 import { useConnectionHealth } from "@/hooks/useConnectionHealth";
 import { ConnectionErrorScreen } from "@/components/ConnectionErrorScreen";
-// PERF: Lazy-load ZenithPrewarmer — its deps (routePrefetcher, performance) are heavy
+// PERF: Lazy-load SwipessPrewarmer — its deps (routePrefetcher, performance) are heavy
 // It only activates after auth resolves, so no need in critical boot path
-const ZenithPrewarmer = lazy(() => import("@/components/ZenithPrewarmer").then(m => ({ default: m.ZenithPrewarmer })));
+const SwipessPrewarmer = lazy(() => import("@/components/SwipessPrewarmer").then(m => ({ default: m.SwipessPrewarmer })));
 
 // ──────────────────────────────────────────────────────────────────────────────
 // Performance-First Query Client Configuration
@@ -73,10 +73,10 @@ function AuthReadySignal() {
   const { initialized } = useAuth();
 
   useEffect(() => {
-    // 🚀 ZENITH ONE-RUN PROTOCOL:
+    // 🚀 SWIPESS ONE-RUN PROTOCOL:
     // We only remove the splash once:
     // 1. Auth is initialized
-    // 2. The layout sends the 'zenith-ready' signal (meaning first paint happened)
+    // 2. The layout sends the 'swipess-ready' signal (meaning first paint happened)
     
     let isReady = false;
     
@@ -89,12 +89,12 @@ function AuthReadySignal() {
     };
 
     // If we are on the landing page (no user), we fire it after a short delay
-    // If we have a user, we wait for the 'zenith-ready' event from the dashboard
+    // If we have a user, we wait for the 'swipess-ready' event from the dashboard
     const safetyTimer = setTimeout(() => {
        handleReady();
     }, 2500); // Increased safety buffer to allow for component loading
 
-    window.addEventListener('zenith-ready', handleReady);
+    window.addEventListener('swipess-ready', handleReady);
 
     if (initialized) {
        // If auth initialized but no user, we can release the splash sooner 
@@ -107,7 +107,7 @@ function AuthReadySignal() {
 
     return () => {
       clearTimeout(safetyTimer);
-      window.removeEventListener('zenith-ready', handleReady);
+      window.removeEventListener('swipess-ready', handleReady);
     };
   }, [initialized]);
 
@@ -173,7 +173,7 @@ export function RootProviders({ children, authPromise }: RootProvidersProps) {
                 <AuthProvider authPromise={authPromise}>
                   <AuthReadySignal />
                   <Suspense fallback={null}>
-                    <ZenithPrewarmer />
+                    <SwipessPrewarmer />
                   </Suspense>
                   <ActiveModeProvider>
                     <ThemeProvider>

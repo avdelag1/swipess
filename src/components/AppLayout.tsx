@@ -149,7 +149,7 @@ export function AppLayout({ children }: AppLayoutProps) {
     <div className={cn(
       "w-full h-[100dvh] flex flex-col relative selection:bg-brand-primary/30 overflow-hidden", 
       "bg-background",
-      theme === 'Zenith-style' && "Zenith-style"
+      theme === 'Swipess-style' && "Swipess-style"
     )}>
       <PullToRefreshIndicator pullDistance={pullDistance} isRefreshing={isRefreshing} triggered={triggered} />
       <SkipToMainContent />

@@ -73,7 +73,7 @@ export function PersistentDashboardLayout() {
     <ChunkErrorBoundary>
     <DashboardLayout userRole={userRole}>
       <div
-        id="zenith-dashboard-root"
+        id="swipess-dashboard-root"
         className="flex min-h-full w-full flex-1 flex-col"
       >
         <AnimatedOutlet />

@@ -208,7 +208,7 @@ const LegalHub = () => {
   return (
     <div className="w-full bg-background relative selection:bg-rose-500/30 min-h-screen">
       
-      {/* 🛸 ZENITH SEO ARCHITECTURE */}
+      {/* 🛸 SWIPESS SEO ARCHITECTURE */}
       <Helmet>
         <title>Legal Center | Swipess Authority</title>
         <meta name="description" content="Secure legal terminal for Swipess protocols, terms of use, and professional legal dispatch." />

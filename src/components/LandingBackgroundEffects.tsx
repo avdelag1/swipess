@@ -280,7 +280,7 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
         const depthSpeed = star.size * star.driftSpeed;
         star.baseY -= depthSpeed;
         
-        // 🚀 ZENITH: Star Repulsion
+        // 🚀 SWIPESS: Star Repulsion
         // Stars move away from the touch/mouse position
         if (pointerRef.current.isActive || pointerRef.current.isDown) {
           const dx = star.x - pointerRef.current.x;

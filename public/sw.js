@@ -133,7 +133,7 @@ self.addEventListener('message', (event) => {
   }
 });
 
-// 🚀 ZENITH: Native Background Sync
+// 🚀 SWIPESS: Native Background Sync
 // Allows the app to complete swipes or messages even if the user
 // closes the app while offline.
 self.addEventListener('sync', (event) => {

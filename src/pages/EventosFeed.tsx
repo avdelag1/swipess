@@ -122,7 +122,7 @@ export default function EventosFeed() {
     }
   });
 
-  // 3. Fetch Events (Zenith Optimized)
+  // 3. Fetch Events (Swipess Optimized)
   const { data: rawEvents } = useQuery({
     queryKey: ['eventos', 'v4'],
     queryFn: async (): Promise<EventItem[]> => {

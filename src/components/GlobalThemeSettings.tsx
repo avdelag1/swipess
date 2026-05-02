@@ -27,7 +27,7 @@ const THEMES: { id: Theme; name: string; description: string; colors: string[] }
   },
   { 
     id: 'Swipess-style', 
-    name: 'Zenith Liquid', 
+    name: 'Swipess Liquid', 
     description: 'AI-Native high efficiency interface',
     colors: ['#000000', '#00E5FF', '#121212'] 
   },

@@ -55,6 +55,7 @@ export function DirectMessageDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
+        hideCloseButton
         className="max-w-[400px] p-0 overflow-hidden rounded-[32px] border border-white/10 bg-black/40 backdrop-blur-2xl shadow-2xl"
       >
         {/* Animated Background Gradients */}

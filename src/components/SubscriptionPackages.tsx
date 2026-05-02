@@ -231,7 +231,7 @@ export function SubscriptionPackages({ isOpen = true, onClose, reason, userRole 
                        isHighlight && "shadow-amber-500/20"
                     )}
                   >
-                    {isHighlight ? 'Upgrade to Zenith' : 'Activate Access'}
+                    {isHighlight ? 'Upgrade to Swipess' : 'Activate Access'}
                   </motion.button>
                 </div>
               </motion.div>

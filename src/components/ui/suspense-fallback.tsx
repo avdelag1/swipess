@@ -17,7 +17,7 @@ if (typeof window !== 'undefined') {
 }
 
 /**
- * 🚀 PRODUCTION-READY ZENITH SKELETON
+ * 🚀 PRODUCTION-READY SWIPESS SKELETON
  * 
  * Instead of a generic loader, we show a context-aware skeleton
  * that matches the layout of the page the user is navigating to.

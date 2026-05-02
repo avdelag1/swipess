@@ -592,8 +592,8 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
 
   if (!isTop) {
     return (
-      <div className="absolute inset-0 overflow-hidden" style={{ pointerEvents: 'none' }}>
-        <div className="absolute inset-0 opacity-50">
+      <div className="absolute inset-0 overflow-hidden rounded-[28px]" style={{ pointerEvents: 'none' }}>
+        <div className="absolute inset-0">
           <CardImage
             src={currentImage}
             alt={profile.name || 'Client'}
@@ -653,12 +653,13 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           WebkitTouchCallout: 'none',
           transform: 'translateZ(0)',
           border: 'none',
-          background: 'rgba(255, 255, 255, 0.01)',
+          background: '#000',
+          boxShadow: '0 20px 60px rgba(0,0,0,0.5), 0 8px 24px rgba(0,0,0,0.3)',
           // backdrop-filter removed from the dragged motion.div — it forced a
           // full recomposite on every frame and was the main shake/flicker
           // source. Background blur is handled by the photo layer below.
         } as any}
-        className="flex-1 cursor-grab active:cursor-grabbing select-none touch-none relative overflow-hidden w-full h-full rounded-none"
+        className="flex-1 cursor-grab active:cursor-grabbing select-none touch-none relative overflow-hidden w-full h-full rounded-[28px]"
       >
         {/* Glass Shine */}
         <motion.div

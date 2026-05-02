@@ -37,7 +37,7 @@ html, body, #root {
   transform: translateZ(0);
 }
 
-.zenith-interaction-isolation {
+.swipess-interaction-isolation {
   isolation: isolate;
   contain: content;
 }

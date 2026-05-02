@@ -84,7 +84,7 @@ const authPromise = supabase.auth.getSession()
   .then(res => res || { data: { session: null }, error: null })
   .catch(() => ({ data: { session: null }, error: null }));
 
-// 🚀 ZENITH: ZERO-LATENCY HAPTIC PROTOCOL (Optimized)
+// 🚀 SWIPESS: ZERO-LATENCY HAPTIC PROTOCOL (Optimized)
 const initHaptics = () => {
   document.addEventListener('pointerdown', (e) => {
     const target = (e.target as HTMLElement).closest('button, [role="button"], .interactive, .swipe-card');

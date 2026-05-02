@@ -1146,21 +1146,23 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
                 )}
 
                 {/* Front card */}
-                <SimpleSwipeCard
-                  key={topCard?.id}
-                  ref={cardRef}
-                  listing={topCard}
-                  onSwipe={handleSwipe}
-                  onInsights={() => {
-                    handleInsights();
-                    if (onListingTap) onListingTap(topCard.id);
-                  }}
-                  onShare={handleShare}
-                  onReport={() => console.log('Report', topCard.id)}
-                  onDragStart={handleDragStart}
-                  isTop={true}
-                  externalX={topCardX}
-                />
+                <div className="absolute inset-0 w-full h-full z-20">
+                  <SimpleSwipeCard
+                    key={topCard?.id}
+                    ref={cardRef}
+                    listing={topCard}
+                    onSwipe={handleSwipe}
+                    onInsights={() => {
+                      handleInsights();
+                      if (onListingTap) onListingTap(topCard.id);
+                    }}
+                    onShare={handleShare}
+                    onReport={() => console.log('Report', topCard.id)}
+                    onDragStart={handleDragStart}
+                    isTop={true}
+                    externalX={topCardX}
+                  />
+                </div>
               </motion.div>
             ) : (
               <motion.div

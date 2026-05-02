@@ -217,7 +217,7 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={(v) => { triggerHaptic('light'); onOpenChange(v); }}>
-      <DialogContent className="sm:max-w-3xl max-h-[92vh] flex flex-col p-0 gap-0 border border-white/5 bg-[#0a0a0c] overflow-hidden rounded-[3rem] shadow-[0_0_80px_rgba(0,0,0,0.9)]">
+      <DialogContent hideCloseButton className="sm:max-w-3xl max-h-[92vh] flex flex-col p-0 gap-0 border border-white/5 bg-[#0a0a0c] overflow-hidden rounded-[3rem] shadow-[0_0_80px_rgba(0,0,0,0.9)]">
         
         {/* 🛸 SWIPESS HEADER */}
         <div className="relative px-8 pt-8 pb-6 border-b border-white/5 bg-gradient-to-b from-white/[0.03] to-transparent">

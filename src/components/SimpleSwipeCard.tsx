@@ -423,18 +423,18 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   if (!isTop) {
     return (
       <div
-        className="absolute inset-0 overflow-hidden"
+        className="absolute inset-0 overflow-hidden rounded-[28px]"
         style={{ pointerEvents: 'none' }}
       >
         {currentImage === 'video_attachment' && (listing as any).video_url ? (
           <video
             src={(listing as any).video_url}
             autoPlay muted loop playsInline
-            className="absolute inset-0 w-full h-full object-cover opacity-50"
+            className="absolute inset-0 w-full h-full object-cover"
             style={{ pointerEvents: 'none' }}
           />
         ) : (
-          <div className="absolute inset-0 opacity-50">
+          <div className="absolute inset-0">
             <CardImage
               src={currentImage}
               alt={(listing as any).title || 'Listing'}
@@ -484,7 +484,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           transition: { type: 'spring', stiffness: 400, damping: 28, mass: 0.6 }
         }}
         // Photo swim effect now lives on the <img> inside CardImage (CSS keyframes)
-        className="flex-1 cursor-grab active:cursor-grabbing select-none touch-none relative w-full h-full overflow-hidden rounded-none pointer-events-auto border-none gpu-ultra"
+        className="flex-1 cursor-grab active:cursor-grabbing select-none touch-none relative w-full h-full overflow-hidden rounded-[28px] pointer-events-auto border-none gpu-ultra"
         style={{
           x,
           y,
@@ -498,7 +498,8 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           transform: 'translate3d(0,0,0)', // 🏎️ FORCE GPU LAYER
           backfaceVisibility: 'hidden',
           WebkitBackfaceVisibility: 'hidden',
-          background: 'rgba(255, 255, 255, 0.01)',
+          background: '#000',
+          boxShadow: '0 20px 60px rgba(0,0,0,0.5), 0 8px 24px rgba(0,0,0,0.3)',
           // No backdrop-filter on the moving card — backdrop-filter forces
           // the browser to recomposite the entire card area on every drag
           // frame, which is the primary source of the shake/flicker.

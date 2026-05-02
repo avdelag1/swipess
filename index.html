@@ -27,7 +27,7 @@
       // 2. Predictive Chunk Loading
       // We check the role from storage to pre-load the right dashboard JS immediately.
       try {
-        const lastRole = localStorage.getItem('zenith_user_role') || 'client';
+        const lastRole = localStorage.getItem('swipess_user_role') || 'client';
         // We can't know the exact hash here without a complex build setup, 
         // but we can signal the browser to prioritize the eventual fetch.
         window.__PREDICTED_ROLE = lastRole;
@@ -57,14 +57,14 @@
 
   <!-- Fonts: using system font stack for instant LCP -->
 
-  <meta name="app-version" content="2026.04.21.FINAL-1.0">
-  <!-- FORCE RELOAD CACHE BUSTER: ZENITH v1.0 -->
+  <meta name="app-version" content="2026.05.02.FINAL-1.1">
+  <!-- FORCE RELOAD CACHE BUSTER: SWIPESS v1.1 -->
   <title>Swipess</title>
   <meta name="description" content="Swipess — Immersive discovery and target selection engine.">
 
   <!-- Open Graph / Facebook / WhatsApp / Instagram -->
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://www.zenith.com/">
+  <meta property="og:url" content="https://www.swipess.com/">
   <meta property="og:title" content="Swipess">
   <meta property="og:description" content="Immersive discovery and target selection engine.">
   <meta property="og:image" content="https://www.swipess.com/og-image.jpg">
@@ -77,7 +77,7 @@
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Swipess">
   <meta name="twitter:description" content="Immersive discovery and target selection engine.">
-  <meta name="twitter:image" content="https://www.zenith.com/og-image.jpg">
+  <meta name="twitter:image" content="https://www.swipess.com/og-image.jpg">
 
   <link rel="canonical" href="https://www.swipess.com/">
   
@@ -89,7 +89,7 @@
     #root{opacity:1;background:#000;min-height:100dvh}
   </style>
 
-  <link rel="preload" as="image" href="/icons/wordmark-white.svg" fetchpriority="high">
+  <link rel="preload" as="image" href="/icons/Swipess-wordmark-white.svg" fetchpriority="high">
 
   <link rel="manifest" href="/manifest.json">
   <link rel="icon" type="image/png" sizes="512x512" href="/icons/icon-512.png?v=3">
@@ -108,16 +108,15 @@
     .static-splash.fade-out { opacity: 0; visibility: hidden; }
     .splash-content { display: flex; flex-direction: column; align-items: center; animation: breathing 2.2s ease-in-out infinite; }
     @keyframes breathing { 0%, 100% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.05); opacity: 1; } }
-    .splash-logo { height: 40px; width: auto; opacity: 0; transition: opacity 0.3s ease-in; }
+    .splash-logo { height: 48px; width: auto; opacity: 0; transition: opacity 0.4s ease-in; filter: drop-shadow(0 0 20px rgba(255,255,255,0.15)); }
     .splash-logo.loaded { opacity: 1; }
-    .splash-text { font-family: sans-serif; font-weight: 900; color: #fff; font-style: italic; letter-spacing: -0.05em; text-transform: uppercase; font-size: 24px; }
   </style>
 </head>
 
 <body>
   <div id="static-splash" class="static-splash">
     <div class="splash-content">
-      <div id="splash-text" class="splash-text">SWIPESS</div>
+      <img id="splash-logo" class="splash-logo" src="/icons/Swipess-wordmark-white.svg" alt="Swipess" onload="this.classList.add('loaded')" />
     </div>
   </div>
   <div id="root"></div>

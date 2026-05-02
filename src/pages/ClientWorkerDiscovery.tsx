@@ -17,7 +17,7 @@ import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
 import { WorkerCard, type WorkerListing } from '@/components/discovery/WorkerCard';
 
-// 🚀 ZENITH: Explicit field selection to minimize payload
+// 🚀 SWIPESS: Explicit field selection to minimize payload
 const WORKER_FIELDS = `
   id, title, description, price, images, city, service_category, 
   pricing_unit, experience_years, availability, owner_id, created_at, status,
@@ -78,7 +78,7 @@ export default function ClientWorkerDiscovery() {
     overscan: 6,
   });
 
-  // 🚀 ZENITH: Optimized contact handler with stable reference
+  // 🚀 SWIPESS: Optimized contact handler with stable reference
   const handleContact = useCallback(async (userId: string) => {
     if (contactingId) return;
     setContactingId(userId);
@@ -138,7 +138,7 @@ export default function ClientWorkerDiscovery() {
           </button>
         </div>
 
-        {/* 🚀 ZENITH: Smooth Filter Bar */}
+        {/* 🚀 SWIPESS: Smooth Filter Bar */}
         <div className="flex gap-1.5 overflow-x-auto pb-1 no-scrollbar -mx-4 px-4">
           {HIRE_DURATION_FILTERS.map((filter) => (
             <button
@@ -212,7 +212,7 @@ export default function ClientWorkerDiscovery() {
                   <WorkerCard
                     worker={worker}
                     onContact={handleContact}
-                    // 🚀 ZENITH: Prioritize first two visible items for instant paint
+                    // 🚀 SWIPESS: Prioritize first two visible items for instant paint
                     priority={virtualRow.index <= 1}
                   />
                 </div>

@@ -4,7 +4,7 @@ import { cn, runIdleTask } from '@/lib/utils';
 import useAppTheme from '@/hooks/useAppTheme';
 
 /**
- * 🚀 DiscoverySkeleton: Premium, Zenith-level skeleton loader
+ * 🚀 DiscoverySkeleton: Premium, Swipess-level skeleton loader
  * - Mimics the 'ClientCard' and 'EventCard' hierarchy
  * - Staggered implementation for 'Speed of Light' experience
  * - Predictive orientation: Prefetches critical route assets while visible

@@ -269,7 +269,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
         </div>
       </main>
 
-      {/* ZENITH GLOBAL DIALOGS */}
+      {/* SWIPESS GLOBAL DIALOGS */}
       <GlobalDialogs userRole={userRole} />
 
     </div>

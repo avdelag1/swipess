@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 
 /**
- * ZENITH GLOBAL MODAL STORE
+ * SWIPESS GLOBAL MODAL STORE
  * 
  * Centralizes all modal visibility states to prevent the DashboardLayout
  * from re-rendering its shell (TopBar/BottomNav) when a modal opens.

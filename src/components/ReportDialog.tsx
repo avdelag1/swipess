@@ -92,7 +92,7 @@ export function ReportDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-0 border-none bg-transparent shadow-none">
+      <DialogContent hideCloseButton className="max-w-2xl max-h-[90vh] overflow-y-auto p-0 border-none bg-transparent shadow-none">
         <div className={cn(
           "m-4 rounded-[2.5rem] backdrop-blur-[40px] border overflow-hidden shadow-3xl transition-all duration-700",
           isLight ? "bg-white/80 border-black/5" : "bg-black/80 border-white/5"

@@ -191,7 +191,7 @@ export function useListings(excludeSwipedIds: string[] = [], options: { enabled?
     retryDelay: 1000,
   });
 
-  // 🚀 ZENITH: SHADOW PREFETCH
+  // 🚀 SWIPESS: SHADOW PREFETCH
   // Background-preloads the first 5 listing images and next 3 videos to eliminate discovery lag
   useEffect(() => {
     if (query.data && query.data.length > 0) {

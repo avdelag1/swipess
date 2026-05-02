@@ -272,7 +272,7 @@ export const BottomNavigation = memo(({
         }}
 
       >
-        {/* Nav items row — SCROLLABLE ZENITH ARCHITECTURE */}
+        {/* Nav items row — SCROLLABLE SWIPESS ARCHITECTURE */}
         <div
           ref={scrollRef}
           data-no-swipe-nav

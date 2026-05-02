@@ -62,7 +62,7 @@ export function SwipessHud({
     <div 
       className={cn(
         "transition-all duration-500",
-        // 🚀 ZENITH: Pointer-events Bypass Pattern
+        // 🚀 SWIPESS: Pointer-events Bypass Pattern
         // The container is fixed but must NEVER block touches to the content behind it.
         // We set pointer-events-none on the wrapper and pointer-events-auto on the children.
         "pointer-events-none",
