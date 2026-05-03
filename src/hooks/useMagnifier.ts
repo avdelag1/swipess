@@ -121,22 +121,12 @@ export function useMagnifier(config: MagnifierConfig = {}): UseMagnifierReturn {
       } catch (_err) { /* ignore if already captured */ }
     }
 
-    // FIX: Walk up from <img> past container AND its parent (motion.div with overflow-hidden)
-    // This prevents the zoomed image from being clipped by parent divs
-    const img = imageRef.current;
-    const container = containerRef.current;
-    if (img && container) {
-      savedOverflowsRef.current = [];
-      // Walk up 2 levels past container to also clear overflow on the drag wrapper (motion.div)
-      const stopAt = container.parentElement?.parentElement || container.parentElement;
-      let el: HTMLElement | null = img.parentElement;
-      while (el && el !== stopAt) {
-        savedOverflowsRef.current.push({ el, overflow: el.style.overflow });
-        el.style.overflow = 'visible';
-        el = el.parentElement;
-      }
-    }
+    // KEEP the rounded card clip intact — do NOT walk up past the image's
+    // immediate container. The zoomed image stays inside the card's rounded
+    // bounds, which prevents the ghost square frame from appearing.
+    savedOverflowsRef.current = [];
 
+    const img = imageRef.current;
     if (img) {
       img.style.transition = 'transform 0.18s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
     }
@@ -214,6 +204,13 @@ export function useMagnifier(config: MagnifierConfig = {}): UseMagnifierReturn {
 
     // Store the event target for later pointer capture
     const target = e.currentTarget;
+
+    // Capture pointer immediately so all subsequent moves route here
+    // even before the magnifier activates. This prevents Framer Motion's
+    // drag listener from stealing pan events once we zoom.
+    try {
+      (target as HTMLElement).setPointerCapture(e.pointerId);
+    } catch (_err) { /* ignore */ }
 
     holdTimerRef.current = window.setTimeout(() => {
       if (startPosRef.current) {

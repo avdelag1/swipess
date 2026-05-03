@@ -1111,11 +1111,11 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
 
       {/* Card area — flex-1 fills remaining space; overflow-hidden here keeps swipe cards contained */}
       <div className={cn(
-        "flex-1 relative flex flex-col items-center justify-center px-0 z-10 pointer-events-auto min-h-0 overflow-hidden",
-        hasCards ? "pb-[var(--bottom-nav-height,72px)]" : ""
+        "flex-1 relative flex flex-col items-center justify-center px-3 pt-2 pb-3 z-10 pointer-events-auto min-h-0 overflow-hidden",
+        hasCards ? "pb-[calc(var(--bottom-nav-height,72px)+12px)]" : ""
       )}>
 
-        <div className="w-full h-full flex items-center justify-center pointer-events-auto">
+        <div className="relative w-full h-full max-w-[440px] mx-auto flex items-center justify-center pointer-events-auto">
           <AnimatePresence mode="sync" initial={false}>
             {deckQueue.length > 0 && currentIndex < deckQueue.length ? (
               <motion.div
@@ -1124,7 +1124,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-                className="absolute inset-0 w-full h-full sm:max-w-[480px] sm:mx-auto flex flex-col items-center justify-center"
+                className="absolute inset-0 w-full h-full flex flex-col items-center justify-center"
               >
                 {/* Back card (Peek) */}
                 {currentIndex + 1 < deckQueue.length && (

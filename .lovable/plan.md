@@ -1,49 +1,89 @@
-## Why nothing is rendering
+# Tinder-Style Swipe Card: Edges, Clean Zoom, Pan-While-Zoomed
 
-The preview is currently blank for header buttons / nav buttons because the project has **8 TypeScript build errors** (reported by the build system). When the build fails, the dashboard chunks don't mount and the `TopBar` / `BottomNavigation` controls disappear with them. Both bars are mounted unconditionally in `AppLayout.tsx`, so the only reason they aren't visible is the broken build.
+Three precise issues to fix on `/client/dashboard` (and the equivalent owner deck):
 
-Once the build is green, the bars come back. Then the only remaining visual ask is: **no frame/background on the header itself** — just the round pill buttons floating over the swipe deck.
+1. The card currently fills the entire viewport edge-to-edge. You want it slightly inset so the rounded corners and a thin background "frame" are visible around it (Tinder feel).
+2. When you press-and-hold to zoom, two ghost frames appear — a square frame (the card's outer rounded box / overflow being released) and a rectangle frame (the bottom Insights / info overlay).
+3. While zoomed, dragging the finger does not reliably pan the photo.
 
 ---
 
-## Plan
+## 1. Card sizing — let the background show through
 
-### 1. Fix the 8 build errors (unblocks the preview)
+**File:** `src/components/SwipessSwipeContainer.tsx` (deck wrapper, ~line 1118–1166)
 
-| # | File | Fix |
-|---|------|-----|
-| 1 | `src/components/DigitalSignaturePad.tsx:108` | `uiSounds.playSwoosh()` doesn't exist. Replace with `uiSounds.playTap()` (which does exist in `src/utils/uiSounds.ts`). |
-| 2 | `src/components/LikedClientInsightsModal.tsx:507, 517` | Missing `cn` import. Add `import { cn } from '@/lib/utils';`. |
-| 3 | `src/components/LikedClientInsightsModal.tsx:656` | `ReportDialog` has no `targetId` / `targetType` / `targetName` props. Real props are `reportedUserId`, `reportedListingId`, `reportedUserName`, `category`. Replace usage with the correct props (`reportedUserId={client.user_id}`, `reportedUserName={client.name}`, `category="user_profile"`). |
-| 4 | `src/components/LikedListingInsightsModal.tsx:679` | Same `ReportDialog` prop mismatch. Replace with `reportedListingId={listing.id}`, `reportedUserId={listing.owner_id}`, `reportedListingTitle={listing.title}`, `category="listing"`. |
-| 5 | `src/components/GlobalDialogs.tsx:218` | `LikedClientInsightsModal` expects a `LikedClient` (full_name, bio, images, liked_at) but receives a `ClientProfile`. Map the profile to the `LikedClient` shape inline (fill `full_name`, `bio`, `images`, `liked_at` from the profile, defaulting empty strings/arrays/`new Date().toISOString()` when missing). |
-| 6 | `src/components/OwnerClientSwipeDialog.tsx:60` | Same mapping problem. Apply the same `ClientProfile → LikedClient` adapter before passing to the modal. |
-| 7 | `src/components/PropertyManagement.tsx:439` | `ChevronRight` used but not imported. Add `ChevronRight` to the existing `lucide-react` import on line 14. |
+The deck currently uses `absolute inset-0 w-full h-full sm:max-w-[480px]`. Replace the outer card-area wrapper so the card stack:
+- Has horizontal padding (`px-3`) and a small top/bottom inset (`pt-2 pb-3`) on mobile.
+- On larger viewports keeps `max-w-[440px]` and is centered.
+- Uses `relative` instead of `absolute inset-0` for the card stack motion.div, with explicit `flex-1` and rounded inner area, so the parent background (white in light / black in dark) shows around the card edges.
 
-### 2. Remove the header frame (visual fix the user asked for)
+Result: a visible 12–16 px gutter on the sides and a slim margin under the top bar / above the action buttons. The rounded card corners read as a real, floating object.
 
-In `src/components/TopBar.tsx`:
+## 2. Clean zoom — hide every UI frame while pressed
 
-- The `<header>` already has `background: 'transparent'` and `border: 'none'` — that's correct. Confirm and keep.
-- Audit `AppLayout.tsx` and `SentientHud.tsx` wrappers around `<TopBar>` — neither should add a background or border. Both currently look clean (`pointer-events-none` only). No changes expected here, but verify in pass.
-- The user complained about a frame appearing on the header. Likely culprit: a stray container/outline inherited from the surrounding HUD or a leftover background on the `<header>` element from a previous edit. The current code in `TopBar.tsx` is clean, but we will explicitly **remove any backdrop / shadow / border on the `<header>` and its inner row**, leaving only the individual button pills (`glassPillStyle`) and the `ModeSwitcher` pill — those are the "buttons with their own frames" the user said they want to keep.
+**File:** `src/components/SimpleSwipeCard.tsx`
 
-### 3. Verification
+Currently `useMagnifier` walks up the DOM and sets `overflow: visible` on parents so the image can scale past the card. That removes the rounded clip and reveals the card's outer square + the bottom info overlay + gradients. Two changes:
 
-- After the edits, the harness rebuilds; confirm 0 TypeScript errors.
-- Reload `/owner/dashboard` and `/client/dashboard`:
-  - Header pills (profile, mode switcher, tokens, radio, dashboard, filter, AI, theme, notifications) are visible and tappable.
-  - Bottom navigation bar pill is visible and tappable.
-  - No outer frame/background behind the header — only the individual round buttons float over the swipe deck.
+a) Track `magnifierActive` as React state via the hook's existing `onActiveChange` callback. Pass `onActiveChange={setIsZoomed}` when calling `useMagnifier`.
 
-### Files touched
+b) When `isZoomed === true`, hide every visual chrome layer behind the image:
+   - Top progress dots (`imageCount > 1` block)
+   - Top + bottom cinema fades (lines 538–552)
+   - In-card Share / Report buttons (line 577–608)
+   - Bottom info overlay (`PropertyCardInfo` / `ClientCardInfo` block, line 696–791)
+   - Bottom theme vignette (line 794–802)
+   - Edge vignette / inset border (line 806–813)
+   - Verified badge (line 816–825)
+   - LIKE / NOPE stamps (already opacity-driven, but force opacity 0 too)
 
-- `src/components/DigitalSignaturePad.tsx`
-- `src/components/LikedClientInsightsModal.tsx`
-- `src/components/LikedListingInsightsModal.tsx`
-- `src/components/GlobalDialogs.tsx`
-- `src/components/OwnerClientSwipeDialog.tsx`
-- `src/components/PropertyManagement.tsx`
-- `src/components/TopBar.tsx` (only if any residual frame styling is found)
+   Implementation: wrap each chrome element with `style={{ opacity: isZoomed ? 0 : undefined, transition: 'opacity 120ms' }}` (or a single conditional CSS class on the card root that fades children via `[data-zoomed=true] .chrome { opacity: 0; }`).
 
-No database, no schema, no logic changes — purely build fixes + the header-frame cleanup you asked for.
+c) Keep the photo's rounded clipping intact during zoom. Instead of letting the magnifier hook strip `overflow: hidden` from ancestors, change the hook so it leaves the **image container's own** `rounded-[28px] overflow-hidden` alone and only widens overflow on the outer drag wrapper. The image stays inside the rounded card; the user just pans around the high-res content. This single change kills the square ghost frame entirely.
+
+**File:** `src/hooks/useMagnifier.ts`
+
+In `activateMagnifier`, stop walking up to `containerRef.parentElement.parentElement`. Walk up only to the immediate `containerRef.current` and stop. The image will scale within the card's own rounded clip, so no parent frame leaks.
+
+## 3. Pan with finger while zoomed
+
+The hook already supports this in `onPointerMove` (it calls `updateMagnifier` and `e.preventDefault()` while active). The reason panning currently feels broken is that **pointer capture is being requested on the wrong target** — `target` is set from `e.currentTarget` (the motion.div), but Framer Motion's drag system also attaches listeners that compete.
+
+Fix in `SimpleSwipeCard.tsx` `handleUnifiedPointerMove` (line 279):
+- When `isMagnifierActive()` returns true, call `e.stopPropagation()` and `e.preventDefault()` BEFORE delegating to `magnifierPointerHandlers.onPointerMove(e)`. This prevents Framer's drag listener from interpreting the same pointer move as a drag.
+- Also gate `handlePointerMoveForTilt` so it does not run while zoomed.
+
+Fix in `useMagnifier.ts` `onPointerDown`:
+- Capture pointer immediately on `e.currentTarget` at the moment the hold timer fires (already done) — but also call `(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId)` right at pointer down, so the same element receives all subsequent move events even before the 300 ms hold completes. This guarantees `onPointerMove` reaches the magnifier without being intercepted.
+
+## Files to modify
+
+- `src/components/SwipessSwipeContainer.tsx` — card stack wrapper sizing (gutters)
+- `src/components/SimpleSwipeCard.tsx` — fade chrome layers when zoomed; harden pointer routing during zoom
+- `src/hooks/useMagnifier.ts` — limit overflow walk to the image container; aggressive pointer capture
+
+No other files, no DB changes, no routing changes.
+
+## Visual outcome
+
+```text
+┌─────────────────────────────┐
+│   [<] [persona]   [☀][🔔]   │  ← top bar
+│                             │
+│   ╭───────────────────────╮ │  ← card with visible 12px gutter
+│   │                       │ │
+│   │      LISTING PHOTO    │ │
+│   │                       │ │
+│   │   $35,000  /night     │ │
+│   ╰───────────────────────╯ │
+│                             │
+│   ↩  👎  💬  🔥  📱         │  ← action bar
+│ DASH  PROFILE  LIKES …      │  ← bottom nav
+└─────────────────────────────┘
+```
+
+When you press and hold:
+- All overlays (price card, gradients, badges, side buttons, progress dots) fade to 0 in ~120 ms.
+- The photo fills the rounded card with `scale: 2.8`.
+- Moving your finger pans the zoomed photo smoothly until you release.
+- On release, overlays fade back in.
