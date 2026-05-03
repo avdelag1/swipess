@@ -453,7 +453,7 @@ function LikedListingInsightsModalComponent({ open, onOpenChange, listing }: Lik
                       <span className={cn(
                         "px-3 py-1.5 rounded-xl text-[11px] font-black uppercase tracking-wide",
                         listing.status === 'available'
-                          ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-400'
+                          ? 'bg-violet-500/10 border border-violet-500/20 text-violet-400'
                           : 'bg-white/5 border border-white/10 text-white/40'
                       )}>{listing.status}</span>
                     )}

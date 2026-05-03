@@ -1156,7 +1156,13 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
                       if (onListingTap) onListingTap(topCard.id);
                     }}
                     onShare={handleShare}
-                    onReport={() => console.log('Report', topCard.id)}
+                    onReport={() => {
+                      setSelectedListing(topCard as any);
+                      setReportedUserId(topCard.user_id || (topCard as any).owner_id);
+                      setReportedItemTitle((topCard as any).name || (topCard as any).title || '');
+                      triggerHaptic('medium');
+                      setReportDialogOpen(true);
+                    }}
                     onDragStart={handleDragStart}
                     isTop={true}
                     externalX={topCardX}

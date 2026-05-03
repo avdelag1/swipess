@@ -32,8 +32,8 @@ export const LoadingBar = () => {
           exit={{ opacity: 0, scaleY: 0 }}
           className="fixed top-0 left-0 right-0 h-[3px] z-[9999] pointer-events-none origin-top"
           style={{
-            background: 'linear-gradient(90deg, #ec4899, #f97316)',
-            boxShadow: '0 0 10px rgba(249,115,22,0.6)',
+            background: 'linear-gradient(90deg, #ec4899, #8b5cf6)',
+            boxShadow: '0 0 10px rgba(139,92,246,0.6)',
           }}
         >
           {/* Progress fill */}
@@ -72,7 +72,7 @@ export const LoadingBar = () => {
               transition={{ duration: 0.8, repeat: Infinity }}
               className="absolute -bottom-[20px] left-0 right-0 h-[30px]"
               style={{
-                background: 'radial-gradient(ellipse at top, rgba(249,115,22,0.2) 0%, transparent 70%)',
+                background: 'radial-gradient(ellipse at top, rgba(139,92,246,0.2) 0%, transparent 70%)',
               }}
             />
           )}

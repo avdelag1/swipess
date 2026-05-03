@@ -41,7 +41,7 @@ export function PropertyClientFilters({ onApply, initialFilters = {}, activeCoun
   const { isLight } = useAppTheme();
   const activePill = 'bg-primary border-primary text-primary-foreground shadow-sm scale-[1.03]';
   const inactivePill = isLight
-    ? 'bg-white border-black/10 text-black hover:bg-black/5 shadow-sm'
+    ? 'bg-black/5 border-black/10 text-black hover:bg-black/10 shadow-sm'
     : 'bg-white/8 border-white/10 text-white hover:bg-white/12';
   const sectionLabel = isLight ? 'text-black/50' : 'text-white/40';
   const triggerCls = cn('flex items-center justify-between w-full py-2 px-1 rounded-xl transition-colors text-[11px] font-black uppercase tracking-widest', isLight ? 'hover:bg-black/5 text-black' : 'hover:bg-white/5 text-white');

@@ -121,13 +121,13 @@ export default function AboutPage() {
               {ownerBenefits.map((benefit, index) => (
                 <Card key={index} className={cn(
                   "rounded-3xl border transition-all hover:scale-[1.02]",
-                  isLight ? "bg-white border-black/5" : "border-purple-500/15"
+                  isLight ? "bg-white border-black/5" : "border-violet-500/15"
                 )}
-                  style={!isLight ? { background: 'rgba(255,255,255,0.02)', boxShadow: 'inset 0 0 24px rgba(168,85,247,0.08)' } : undefined}
+                  style={!isLight ? { background: 'rgba(255,255,255,0.02)', boxShadow: 'inset 0 0 24px rgba(139,92,246,0.08)' } : undefined}
                 >
                   <CardContent className="p-6 flex gap-5">
-                    <div className="flex-shrink-0 w-12 h-12 rounded-2xl bg-purple-500/10 flex items-center justify-center border border-purple-500/20">
-                      <benefit.icon className="w-6 h-6 text-purple-500" />
+                    <div className="flex-shrink-0 w-12 h-12 rounded-2xl bg-violet-500/10 flex items-center justify-center border border-violet-500/20">
+                      <benefit.icon className="w-6 h-6 text-violet-500" />
                     </div>
                     <div className="space-y-1">
                       <h3 className="font-black uppercase italic tracking-tight text-[13px]">{benefit.title}</h3>
@@ -217,7 +217,7 @@ export default function AboutPage() {
         {/* App Version */}
         <div className="text-center mt-16 pb-12">
           <div className={cn("inline-flex items-center gap-2 px-4 py-1.5 rounded-full border", isLight ? "bg-black/5 border-black/5" : "bg-white/5 border-white/5")}>
-             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+             <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
              <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40 italic">System Protocol v4.0.0 — Nexus</span>
           </div>
         </div>

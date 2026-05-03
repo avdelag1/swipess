@@ -18,7 +18,7 @@ interface ClientVerificationFlowProps {
 const steps = [
   { id: 'selfie', title: 'Selfie Check', description: 'Real-time face verification', icon: Camera, color: '#EB4898' },
   { id: 'document', title: 'Identity Verification', description: 'National ID or Passport', icon: FileCheck, color: '#3b82f6' },
-  { id: 'review', title: 'Manual Review', description: 'Securing your identity', icon: ShieldCheck, color: '#10b981' },
+  { id: 'review', title: 'Manual Review', description: 'Securing your identity', icon: ShieldCheck, color: '#8b5cf6' },
 ];
 
 export function ClientVerificationFlow({ onComplete }: ClientVerificationFlowProps) {
@@ -143,7 +143,7 @@ export function ClientVerificationFlow({ onComplete }: ClientVerificationFlowPro
                   isActive ? "border-primary bg-primary/10" :
                   "border-white/5 bg-white/5 opacity-70"
                 )}
-                style={isActive ? { borderColor: s.color, backgroundColor: `${s.color}20` } : (isDone ? { backgroundColor: '#10b981', borderColor: '#10b981' } : {})}
+                style={isActive ? { borderColor: s.color, backgroundColor: `${s.color}20` } : (isDone ? { backgroundColor: '#EB4898', borderColor: '#EB4898' } : {})}
               >
                 {isDone ? (
                   <Check className="w-6 h-6 text-primary-foreground" />
@@ -282,14 +282,14 @@ export function ClientVerificationFlow({ onComplete }: ClientVerificationFlowPro
                 <div className="flex items-center justify-center gap-10">
                   <div className="relative">
                     <img src={selfieUrl!} className="w-24 h-24 rounded-full object-cover border-4 border-[#EB4898] shadow-2xl" alt="Selfie" />
-                    <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center border-4 border-black">
+                    <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-rose-500 flex items-center justify-center border-4 border-black">
                       <Check className="w-4 h-4 text-white" />
                     </div>
                   </div>
                   <ChevronRight className="w-6 h-6 text-white/10" />
                   <div className="relative">
                     <img src={documentUrl!} className="w-28 h-20 rounded-xl object-cover border-2 border-white/10" alt="ID" />
-                    <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center border-4 border-black">
+                    <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-rose-500 flex items-center justify-center border-4 border-black">
                       <Check className="w-3 h-3 text-white" />
                     </div>
                   </div>
@@ -306,7 +306,7 @@ export function ClientVerificationFlow({ onComplete }: ClientVerificationFlowPro
                 <Button
                   onClick={handleSubmit}
                   disabled={submitting}
-                  className="w-full h-16 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white font-black uppercase tracking-[0.25em] text-[11px] shadow-[0_0_30px_rgba(16,185,129,0.3)] transition-all active:scale-[0.98]"
+                  className="w-full h-16 rounded-2xl bg-rose-500 hover:bg-rose-600 text-white font-black uppercase tracking-[0.25em] text-[11px] shadow-[0_0_30px_rgba(235,72,152,0.3)] transition-all active:scale-[0.98]"
                 >
                   {submitting ? 'AUTHENTICATING...' : 'CONFIRM SUBMISSION'}
                 </Button>

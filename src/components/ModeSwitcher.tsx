@@ -82,14 +82,14 @@ function ModeSwitcherComponent({ className }: ModeSwitcherProps) {
         className={cn(halfBase)}
         style={{
           background: !isClient
-            ? (isLight ? 'rgba(249, 115, 22, 0.14)' : 'rgba(249, 115, 22, 0.24)')
+            ? (isLight ? 'rgba(139, 92, 246, 0.14)' : 'rgba(139, 92, 246, 0.24)')
             : 'transparent',
         }}
         title="Owner Mode"
         aria-pressed={!isClient}
       >
         <UserCheck
-          className={cn('h-[18px] w-[18px]', !isClient ? 'text-[#f97316]' : 'text-[var(--hud-text)] opacity-60')}
+          className={cn('h-[18px] w-[18px]', !isClient ? 'text-[#8b5cf6]' : 'text-[var(--hud-text)] opacity-60')}
           strokeWidth={!isClient ? 2.5 : 1.8}
         />
       </motion.button>

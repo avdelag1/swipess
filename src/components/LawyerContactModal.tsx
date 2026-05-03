@@ -143,8 +143,8 @@ export function LawyerContactModal({ isOpen, onClose }: LawyerContactModalProps)
                 </form>
               ) : (
                 <div className="py-12 flex flex-col items-center text-center space-y-6">
-                  <div className="w-20 h-20 rounded-[2rem] bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 shadow-[0_0_40px_rgba(16,185,129,0.2)]">
-                    <CheckCircle2 className="w-10 h-10 text-emerald-500" />
+                  <div className="w-20 h-20 rounded-[2rem] bg-violet-500/10 flex items-center justify-center border border-violet-500/20 shadow-[0_0_40px_rgba(139,92,246,0.2)]">
+                    <CheckCircle2 className="w-10 h-10 text-violet-500" />
                   </div>
                   <div className="space-y-2">
                     <h4 className="text-2xl font-black tracking-tight text-white uppercase italic">Inquiry Received</h4>

@@ -108,54 +108,54 @@ export function ShareDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="max-w-sm p-0 overflow-hidden rounded-[32px] border border-white/10 bg-[#121212] shadow-2xl"
+        className="max-w-sm p-0 overflow-hidden rounded-[40px] border border-white/10 bg-[#0A0A0A] shadow-[0_32px_80px_rgba(0,0,0,0.8)]"
       >
-        {/* Animated Background Gradients */}
-        <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/20 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-32 h-32 bg-blue-500/20 rounded-full blur-3xl pointer-events-none" />
+        {/* 🛸 NEXUS ATMOSPHERE */}
+        <div className="absolute top-[-20%] right-[-20%] w-[80%] h-[80%] bg-rose-500/10 rounded-full blur-[100px] pointer-events-none" />
+        <div className="absolute bottom-[-20%] left-[-20%] w-[80%] h-[80%] bg-violet-600/10 rounded-full blur-[100px] pointer-events-none" />
 
         {/* Header Section */}
-        <div className="relative px-6 py-8 flex flex-col items-center text-center border-b border-white/5">
+        <div className="relative px-8 pt-10 pb-6 flex flex-col items-center text-center">
           <motion.div 
-            initial={{ scale: 0.9, opacity: 0 }}
+            initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="w-16 h-16 rounded-[24px] bg-[#1e1e1e] border border-white/10 flex items-center justify-center mb-4 shadow-lg shadow-purple-500/10"
+            className="w-20 h-20 rounded-[30px] bg-gradient-to-br from-rose-500/20 to-violet-600/20 border border-white/10 flex items-center justify-center mb-6 shadow-2xl backdrop-blur-xl"
           >
-            <Share2 className="w-8 h-8 text-white" strokeWidth={1.5} />
+            <Share2 className="w-10 h-10 text-white" strokeWidth={1.5} />
           </motion.div>
-          <h2 className="text-xl font-black text-white tracking-tight mb-1.5">Share Connection</h2>
-          <p className="text-xs font-medium text-white/60">
-            Recommend {listingId ? 'this listing' : 'this profile'} to your network
+          <h2 className="text-2xl font-black text-white tracking-tight leading-none mb-2">Share Connection</h2>
+          <p className="text-[11px] font-black text-white/30 uppercase tracking-[0.2em]">
+            Spread the Swipess vibe
           </p>
         </div>
 
-        <div className="p-6 space-y-6 relative z-10">
-          {/* Direct Link */}
-          <div className="space-y-3">
-            <div className="flex gap-2">
-              <div className="relative flex-1">
-                <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+        <div className="p-8 space-y-8 relative z-10">
+          {/* Direct Link Section */}
+          <div className="space-y-4">
+            <div className="flex gap-3">
+              <div className="relative flex-1 group">
+                <div className="absolute inset-0 bg-white/5 rounded-[20px] blur opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
                   <Link2 className="w-4 h-4 text-white/40" />
                 </div>
                 <Input 
                   value={shareUrl} 
                   readOnly 
-                  className="w-full h-12 pl-9 rounded-[20px] border-white/10 bg-[#1e1e1e] text-white text-xs font-mono focus-visible:ring-1 focus-visible:ring-purple-500/50" 
+                  className="w-full h-14 pl-11 rounded-[22px] border-white/5 bg-[#121212] text-white text-[11px] font-mono tracking-tighter focus-visible:ring-1 focus-visible:ring-rose-500/30" 
                 />
               </div>
               <Button
                 onClick={handleCopyLink}
-                className="h-12 px-6 rounded-[20px] bg-white text-black hover:bg-white/90 font-bold active:scale-95 transition-all shadow-lg"
+                className="h-14 px-8 rounded-[22px] bg-white text-black hover:bg-white/90 font-black uppercase tracking-widest text-xs active:scale-95 transition-all shadow-xl border-none"
               >
                 <AnimatePresence mode="wait">
                   {copied ? (
-                    <motion.div key="check" initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }} className="flex items-center gap-2">
-                      <Check className="w-4 h-4" />
-                      <span>Copied!</span>
+                    <motion.div key="check" initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.5, opacity: 0 }} className="flex items-center gap-2">
+                      <Check className="w-4 h-4 stroke-[3px]" />
                     </motion.div>
                   ) : (
-                    <motion.div key="copy" initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }} className="flex items-center gap-2">
-                      <span>Copy</span>
+                    <motion.div key="copy" initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.5, opacity: 0 }}>
+                      Copy
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -163,69 +163,60 @@ export function ShareDialog({
             </div>
           </div>
 
-          {/* Social Grid */}
-          <div className="grid grid-cols-4 gap-3">
+          {/* Premium Social Grid */}
+          <div className="grid grid-cols-4 gap-4">
             {typeof navigator !== 'undefined' && typeof navigator.share === 'function' && (
               <button
                 onClick={handleNativeShare}
-                className="flex flex-col items-center justify-center gap-2 h-20 rounded-[20px] bg-[#1e1e1e] border border-white/5 hover:bg-[#2a2a2a] transition-colors active:scale-95"
+                className="flex flex-col items-center justify-center gap-3 h-24 rounded-[28px] bg-white/5 border border-white/5 hover:bg-white/10 transition-all active:scale-95 group"
               >
-                <div className="w-8 h-8 rounded-full bg-white text-black flex items-center justify-center shadow-lg">
-                  <Smartphone className="w-4 h-4" />
+                <div className="w-10 h-10 rounded-2xl bg-white text-black flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-transform">
+                  <Smartphone className="w-5 h-5" />
                 </div>
-                <span className="text-[10px] font-bold text-white/70">More</span>
+                <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">More</span>
               </button>
             )}
-            <button
-              onClick={() => handleSocialShare('whatsapp', () => shareViaWhatsApp(shareUrl, shareText))}
-              className="flex flex-col items-center justify-center gap-2 h-20 rounded-[20px] bg-[#1e1e1e] border border-white/5 hover:bg-[#25D366]/20 hover:border-[#25D366]/30 transition-colors active:scale-95 group"
-            >
-              <div className="w-8 h-8 rounded-full bg-[#25D366]/10 text-[#25D366] group-hover:bg-[#25D366] group-hover:text-white flex items-center justify-center transition-colors">
-                <MessageCircle className="w-4 h-4" />
-              </div>
-              <span className="text-[10px] font-bold text-white/70">WhatsApp</span>
-            </button>
-            <button
-              onClick={() => handleSocialShare('twitter', () => shareViaTwitter(shareUrl, shareText))}
-              className="flex flex-col items-center justify-center gap-2 h-20 rounded-[20px] bg-[#1e1e1e] border border-white/5 hover:bg-[#1DA1F2]/20 hover:border-[#1DA1F2]/30 transition-colors active:scale-95 group"
-            >
-              <div className="w-8 h-8 rounded-full bg-[#1DA1F2]/10 text-[#1DA1F2] group-hover:bg-[#1DA1F2] group-hover:text-white flex items-center justify-center transition-colors">
-                <Twitter className="w-4 h-4" />
-              </div>
-              <span className="text-[10px] font-bold text-white/70">X</span>
-            </button>
-            <button
-              onClick={() => handleSocialShare('sms', () => shareViaSMS(shareUrl, shareText))}
-              className="flex flex-col items-center justify-center gap-2 h-20 rounded-[20px] bg-[#1e1e1e] border border-white/5 hover:bg-purple-500/20 hover:border-purple-500/30 transition-colors active:scale-95 group"
-            >
-              <div className="w-8 h-8 rounded-full bg-purple-500/10 text-purple-400 group-hover:bg-purple-500 group-hover:text-white flex items-center justify-center transition-colors">
-                <Send className="w-4 h-4" />
-              </div>
-              <span className="text-[10px] font-bold text-white/70">SMS</span>
-            </button>
+            
+            {[
+              { id: 'whatsapp', icon: MessageCircle, label: 'Chat', handler: () => shareViaWhatsApp(shareUrl, shareText) },
+              { id: 'twitter', icon: Twitter, label: 'X', handler: () => shareViaTwitter(shareUrl, shareText) },
+              { id: 'sms', icon: Send, label: 'SMS', handler: () => shareViaSMS(shareUrl, shareText) }
+            ].map((platform) => (
+              <button
+                key={platform.id}
+                onClick={() => handleSocialShare(platform.id, platform.handler)}
+                className="flex flex-col items-center justify-center gap-3 h-24 rounded-[28px] bg-white/5 border border-white/5 hover:bg-white/10 transition-all active:scale-95 group"
+              >
+                <div className="w-10 h-10 rounded-2xl bg-white/5 text-white flex items-center justify-center border border-white/10 shadow-lg transform group-hover:scale-110 transition-transform">
+                  <platform.icon className="w-5 h-5" />
+                </div>
+                <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">{platform.label}</span>
+              </button>
+            ))}
           </div>
 
-          {/* Email Quick Send */}
-          <div className="space-y-3 pt-2">
-            <div className="flex gap-2">
-              <div className="relative flex-1">
-                <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+          {/* Email Quick Send - Nexus Style */}
+          <div className="space-y-4 pt-2">
+            <div className="flex gap-3">
+              <div className="relative flex-1 group">
+                <div className="absolute inset-0 bg-white/5 rounded-[20px] blur opacity-0 group-focus-within:opacity-100 transition-opacity" />
+                <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
                   <Mail className="w-4 h-4 text-white/40" />
                 </div>
                 <Input
                   type="email"
-                  placeholder="Enter email to send"
+                  placeholder="E-mail connection"
                   value={recipientEmail}
                   onChange={(e) => setRecipientEmail(e.target.value)}
-                  className="w-full h-12 pl-9 rounded-[20px] border-white/10 bg-[#1e1e1e] text-white text-xs focus-visible:ring-1 focus-visible:ring-purple-500/50"
+                  className="w-full h-14 pl-11 rounded-[22px] border-white/5 bg-[#121212] text-white text-xs focus-visible:ring-1 focus-visible:ring-rose-500/30 transition-all"
                 />
               </div>
               <Button
                 onClick={handleEmailShare}
                 disabled={!recipientEmail}
-                className="h-12 w-12 rounded-[20px] p-0 bg-[#1e1e1e] text-white hover:bg-[#2a2a2a] border border-white/10 active:scale-95 transition-all"
+                className="h-14 w-14 rounded-[22px] p-0 bg-white/5 text-white hover:bg-white/10 border border-white/5 active:scale-95 transition-all"
               >
-                <Send className="w-4 h-4" />
+                <Send className="w-5 h-5" />
               </Button>
             </div>
           </div>

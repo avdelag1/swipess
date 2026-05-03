@@ -232,9 +232,9 @@ export const DiscoveryFilters = memo(function DiscoveryFilters({ category, onApp
                        "flex-shrink-0 flex flex-col items-center justify-center gap-3 min-w-[100px] py-6 border transition-all duration-300 rounded-[2rem] text-[11px] font-black uppercase tracking-[0.2em]",
                        isActive
                         ? cn("bg-primary border-primary shadow-[0_10px_30px_rgba(var(--brand-primary-rgb),0.3)] scale-[1.05] z-10 relative", "text-primary-foreground")
-                        : isLight 
-                          ? "bg-white/80 border-black/10 text-black shadow-sm backdrop-blur-md hover:bg-black/10" 
-                          : "bg-white/10 border-white/10 text-white font-black hover:bg-white/20"
+                        : (isLight 
+                           ? "bg-black/5 border-black/10 text-black shadow-sm backdrop-blur-md hover:bg-black/10" 
+                           : "bg-white/10 border-white/10 text-white font-black hover:bg-white/20")
                      )}
                 >
                   <div className={cn(
@@ -331,7 +331,7 @@ export const DiscoveryFilters = memo(function DiscoveryFilters({ category, onApp
                   selectedBudgetRange === range.value
                     ? cn("bg-primary border-primary shadow-xl shadow-primary/30 scale-[1.02]", "text-primary-foreground") 
                     : isLight 
-                      ? "bg-white border-black/10 text-black shadow-sm backdrop-blur-md hover:bg-black/5" 
+                      ? "bg-black/5 border-black/10 text-black shadow-sm backdrop-blur-md hover:bg-black/10" 
                       : "bg-white/5 text-white border-white/10 hover:bg-white/10"
                 )}
             >
@@ -370,7 +370,7 @@ export const DiscoveryFilters = memo(function DiscoveryFilters({ category, onApp
                             bedrooms === n 
                               ? cn("bg-primary border-primary shadow-xl scale-110", "text-primary-foreground") 
                               : isLight 
-                                ? "bg-white border-black/10 text-black shadow-sm backdrop-blur-md hover:bg-black/5"
+                                ? "bg-black/5 border-black/10 text-black shadow-sm backdrop-blur-md hover:bg-black/10"
                                 : "bg-white/5 border-white/10 text-white/60"
                           )}
                        >
@@ -396,7 +396,7 @@ export const DiscoveryFilters = memo(function DiscoveryFilters({ category, onApp
                             bathrooms === n 
                               ? cn("bg-primary border-primary shadow-xl scale-110", "text-primary-foreground") 
                               : isLight 
-                                ? "bg-white border-black/10 text-black shadow-sm backdrop-blur-md hover:bg-black/5"
+                                ? "bg-black/5 border-black/10 text-black shadow-sm backdrop-blur-md hover:bg-black/10"
                                 : "bg-white/5 border-white/10 text-white/60"
                           )}
                        >
@@ -457,7 +457,7 @@ export const DiscoveryFilters = memo(function DiscoveryFilters({ category, onApp
                       serviceTypes.includes(type.value)
                         ? cn("bg-primary border-primary shadow-lg shadow-primary/20", "text-primary-foreground")
                         : isLight 
-                          ? "bg-white border-black/10 text-black shadow-sm backdrop-blur-md hover:bg-black/5" 
+                          ? "bg-black/5 border-black/10 text-black shadow-sm backdrop-blur-md hover:bg-black/10" 
                           : "bg-white/10 border-white/10 text-white hover:bg-white/20"
                     )}
                 >

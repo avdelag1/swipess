@@ -261,10 +261,10 @@ export function MessagingDashboard() {
                 onClick={() => { setActiveFilter(filter.id as any); triggerHaptic('light'); }}
                 className="flex items-center gap-2.5 px-6 py-3 rounded-full text-[9px] font-black uppercase tracking-widest transition-all shrink-0 border"
                 style={activeFilter === filter.id ? {
-                  backgroundColor: '#FF4D00',
-                  borderColor: '#FF4D00',
+                  backgroundColor: '#EB4898',
+                  borderColor: '#EB4898',
                   color: 'white',
-                  boxShadow: '0 6px 20px rgba(255,77,0,0.35)'
+                  boxShadow: '0 8px 24px rgba(235,72,152,0.4)'
                 } : {
                   backgroundColor: 'transparent',
                   borderColor: isLight ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.08)',

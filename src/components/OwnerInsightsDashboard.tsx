@@ -27,10 +27,10 @@ export function OwnerInsightsDashboard() {
   }
 
   const stats = [
-    { label: 'Total Views', value: Math.round(data?.total_views || 0), icon: Eye, color: '#3b82f6', trend: '+12%' },
+    { label: 'Total Views', value: Math.round(data?.total_views || 0), icon: Eye, color: '#8b5cf6', trend: '+12%' },
     { label: 'Engagement', value: data?.total_likes || 0, icon: Heart, color: '#f43f5e', trend: '+5%' },
-    { label: 'Matches', value: data?.total_matches || 0, icon: Users, color: '#10b981', trend: '+18%' },
-    { label: 'Revenue Est.', value: `$${data?.revenue_projection || 0}`, icon: DollarSign, color: '#f59e0b', trend: '+24%' },
+    { label: 'Matches', value: data?.total_matches || 0, icon: Users, color: '#6366f1', trend: '+18%' },
+    { label: 'Revenue Est.', value: `$${data?.revenue_projection || 0}`, icon: DollarSign, color: '#ec4899', trend: '+24%' },
   ];
 
   return (
@@ -80,7 +80,7 @@ export function OwnerInsightsDashboard() {
                 >
                   <stat.icon className="w-5 h-5" style={{ color: stat.color }} />
                 </div>
-                <span className="text-[10px] font-black text-emerald-500">{stat.trend}</span>
+                <span className="text-[10px] font-black text-rose-500">{stat.trend}</span>
               </div>
               <div className="space-y-0.5">
                 <div className={cn("text-xl font-black tracking-tighter", isLight ? "text-slate-900" : "text-white")}>{stat.value}</div>

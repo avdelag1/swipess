@@ -25,10 +25,10 @@ const tokenTierConfig = {
   },
   standard: {
     icon: Zap,
-    gradient: 'from-blue-500/10 to-transparent',
-    border: 'border-blue-500 shadow-sm',
-    iconBg: 'bg-blue-50 text-blue-600 dark:bg-blue-500/20 dark:text-blue-300',
-    button: 'bg-blue-600 hover:bg-blue-500 text-white',
+    gradient: 'from-violet-500/10 to-transparent',
+    border: 'border-violet-500 shadow-sm',
+    iconBg: 'bg-violet-50 text-violet-600 dark:bg-violet-500/20 dark:text-violet-300',
+    button: 'bg-violet-600 hover:bg-violet-500 text-white',
   },
   premium: {
     icon: Crown,
@@ -353,7 +353,7 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
                                   <div className="space-y-2">
                                     {plan.benefits.map((b, i) => (
                                       <div key={i} className="flex items-start gap-3">
-                                        <Check className="w-4 h-4 text-emerald-500 mt-0.5 flex-shrink-0" />
+                                        <Check className="w-4 h-4 text-rose-500 mt-0.5 flex-shrink-0" />
                                         <span className="text-sm font-bold text-foreground/90">{b}</span>
                                       </div>
                                     ))}

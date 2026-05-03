@@ -242,7 +242,7 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
                   onClick={() => { handleReset(); setActiveCategory(null); }}
                   className={cn(
                     "w-full h-16 rounded-[2rem] flex items-center justify-center gap-2 transition-all",
-                    isLight ? "bg-slate-100 text-slate-900 hover:bg-slate-200" : "bg-white/10 text-white hover:bg-white/20"
+                    isLight ? "bg-black/5 border border-black/10 text-slate-900 hover:bg-black/10" : "bg-white/10 text-white hover:bg-white/20"
                   )}
                 >
                   <RotateCcw className="w-4 h-4" />

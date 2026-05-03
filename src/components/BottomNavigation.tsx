@@ -357,10 +357,10 @@ export const BottomNavigation = memo(({
                       style={{
                         background: `${activeColor}20`,
                         boxShadow: 'inset 0 2px 4px rgba(255,255,255,0.2)',
-                        border: '1px solid rgba(255, 77, 0, 0.3)',
+                        border: '1px solid rgba(235, 72, 152, 0.3)',
                       }}
                     >
-                      <div className="absolute inset-0 bg-gradient-to-tr from-[#ff4d00]/20 to-[#a855f7]/20 rounded-full blur-[2px]" />
+                      <div className="absolute inset-0 bg-gradient-to-tr from-[#EB4898]/20 to-[#8b5cf6]/20 rounded-full blur-[2px]" />
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -385,7 +385,7 @@ export const BottomNavigation = memo(({
                         exit={{ scale: 0 }}
                         transition={{ type: 'spring', stiffness: 500, damping: 20 }}
                         className="absolute -top-1 -right-1 rounded-full px-1.5 h-[16px] z-20 shadow-[0_2px_8px_rgba(255,140,0,0.4)] border-2 border-[var(--hud-bg)] flex items-center justify-center text-[11px] font-black text-white"
-                        style={{ background: 'linear-gradient(135deg,#ff4d00,#ff8c00)' }}
+                        style={{ background: 'linear-gradient(135deg,#EB4898,#8b5cf6)' }}
                       >
                         {item.badge}
                       </motion.span>
@@ -399,11 +399,11 @@ export const BottomNavigation = memo(({
                       width: isTablet ? ICON_SIZE_TABLET : (isNarrow ? 16 : ICON_SIZE),
                       height: isTablet ? ICON_SIZE_TABLET : (isNarrow ? 16 : ICON_SIZE),
                       color: active
-                        ? (item.id === 'likes' ? '#FF8C00' : 
-                           item.id === 'ai' ? '#BF00FF' : 
-                           item.id === 'discover' || item.id === 'dashboard' ? '#00D2FF' : 
-                           item.id === 'messages' ? '#00FFF2' : 
-                           item.id === 'settings' || item.id === 'profile' ? '#FF007F' : '#FF4D00')
+                        ? (item.id === 'likes' ? '#f43f5e' : 
+                           item.id === 'ai' ? '#8b5cf6' : 
+                           item.id === 'discover' || item.id === 'dashboard' ? '#ec4899' : 
+                           item.id === 'messages' ? '#8b5cf6' : 
+                           item.id === 'settings' || item.id === 'profile' ? '#ec4899' : '#EB4898')
                         : (isLight ? '#000000' : 'rgba(255,255,255,0.7)'),
                       fill: 'none',
                       strokeWidth: active ? 2.4 : 1.9,
@@ -421,11 +421,11 @@ export const BottomNavigation = memo(({
                       )}
                       style={{
                         color: active
-                          ? (item.id === 'likes' ? '#FF8C00' : 
-                             item.id === 'ai' ? '#BF00FF' : 
-                             item.id === 'discover' || item.id === 'dashboard' ? '#00D2FF' : 
-                             item.id === 'messages' ? '#00FFF2' : 
-                             item.id === 'settings' || item.id === 'profile' ? '#FF007F' : '#FF4D00')
+                          ? (item.id === 'likes' ? '#f43f5e' : 
+                             item.id === 'ai' ? '#8b5cf6' : 
+                             item.id === 'discover' || item.id === 'dashboard' ? '#ec4899' : 
+                             item.id === 'messages' ? '#8b5cf6' : 
+                             item.id === 'settings' || item.id === 'profile' ? '#ec4899' : '#EB4898')
                           : (isLight ? '#000000' : 'rgba(255,255,255,0.7)'),
                         transition: 'color 160ms ease-out',
                         zIndex: 1,

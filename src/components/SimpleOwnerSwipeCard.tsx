@@ -773,24 +773,24 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
             <div
               className="w-[72px] h-[72px] rounded-full flex items-center justify-center"
               style={{
-                background: 'rgba(16,185,129,0.15)',
+                background: 'rgba(139,92,246,0.15)',
                 backdropFilter: 'blur(8px)',
-                border: '3px solid #10b981',
-                boxShadow: '0 0 28px rgba(16,185,129,0.55), inset 0 0 12px rgba(16,185,129,0.15)',
+                border: '3px solid #8b5cf6',
+                boxShadow: '0 0 28px rgba(139,92,246,0.55), inset 0 0 12px rgba(139,92,246,0.15)',
               }}
             >
-              <ThumbsUp className="w-9 h-9 text-emerald-400" fill="currentColor" strokeWidth={0} />
+              <ThumbsUp className="w-9 h-9 text-violet-400" fill="currentColor" strokeWidth={0} />
             </div>
             <div
               className="px-4 py-1 rounded-lg"
               style={{
-                border: '2.5px solid #10b981',
-                background: 'rgba(16,185,129,0.12)',
+                border: '2.5px solid #8b5cf6',
+                background: 'rgba(139,92,246,0.12)',
                 backdropFilter: 'blur(6px)',
-                boxShadow: '0 0 18px rgba(16,185,129,0.4)',
+                boxShadow: '0 0 18px rgba(139,92,246,0.4)',
               }}
             >
-              <span className="font-black text-xl tracking-[0.18em] uppercase bg-gradient-to-br from-orange-400 to-red-500 bg-clip-text text-transparent" style={{ filter: 'drop-shadow(0 0 10px rgba(255,87,34,0.6))' }}>
+              <span className="font-black text-xl tracking-[0.18em] uppercase bg-gradient-to-br from-rose-400 to-violet-500 bg-clip-text text-transparent" style={{ filter: 'drop-shadow(0 0 10px rgba(244,63,94,0.6))' }}>
                 FIRE
               </span>
             </div>
@@ -945,6 +945,21 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
             )}
           </motion.div>
         </div>
+
+        {/* Verified Badge - Left corner higher up */}
+        {profile.verified && (
+          <div
+            className="absolute top-16 left-6 z-40 transition-opacity duration-150"
+            style={{ opacity: isMagnifierActive() ? 0 : 1 }}
+          >
+             <div className="relative px-3 py-1.5 rounded-full flex items-center gap-2 bg-black/40 backdrop-blur-md border border-white/10">
+               <div className="w-2 h-2 rounded-full bg-violet-500 shadow-[0_0_8px_rgba(139,92,246,1)]" />
+               <span className="text-[10px] font-black uppercase tracking-[0.1em] text-white">
+                 Verified
+               </span>
+             </div>
+          </div>
+        )}
       </motion.div>
     </div>
   );

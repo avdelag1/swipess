@@ -132,7 +132,7 @@ export function AccountSecurity({ userRole }: AccountSecurityProps) {
         onCheckedChange={onToggle} 
         disabled={disabled}
         className={cn(
-          "data-[state=checked]:bg-emerald-500",
+          "data-[state=checked]:bg-rose-500",
           !isLight && "bg-white/10"
         )}
       />
@@ -145,10 +145,10 @@ export function AccountSecurity({ userRole }: AccountSecurityProps) {
       <div className="space-y-6">
         <div className="flex items-center justify-between px-2">
            <div className="flex items-center gap-3">
-              <Shield className="w-4 h-4 text-emerald-500" />
-              <span className="text-[10px] font-black uppercase tracking-[0.4em] text-emerald-500 italic">Security Status</span>
+              <Shield className="w-4 h-4 text-rose-500" />
+              <span className="text-[10px] font-black uppercase tracking-[0.4em] text-rose-500 italic">Security Status</span>
            </div>
-           <span className={cn("text-xl font-black italic", securityScore() >= 80 ? "text-emerald-500" : "text-amber-500")}>
+           <span className={cn("text-xl font-black italic", securityScore() >= 80 ? "text-rose-500" : "text-violet-500")}>
              {securityScore()}% SECURE
            </span>
         </div>
@@ -159,7 +159,7 @@ export function AccountSecurity({ userRole }: AccountSecurityProps) {
             animate={{ width: `${securityScore()}%` }}
             className={cn(
               "h-full rounded-full transition-all duration-1000",
-              securityScore() >= 80 ? "bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.4)]" : "bg-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.4)]"
+              securityScore() >= 80 ? "bg-rose-500 shadow-[0_0_15px_rgba(235,72,152,0.4)]" : "bg-violet-500 shadow-[0_0_15px_rgba(139,92,246,0.4)]"
             )}
           />
         </div>

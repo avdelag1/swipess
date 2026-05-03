@@ -29,10 +29,10 @@ const Toaster = ({ ...props }: ToasterProps) => {
             "group-[.toast]:bg-white/8 group-[.toast]:text-white/70 group-[.toast]:rounded-lg group-[.toast]:px-3 group-[.toast]:py-1.5 hover:group-[.toast]:bg-white/12",
           title: "group-[.toast]:text-white group-[.toast]:font-semibold group-[.toast]:text-sm group-[.toast]:tracking-normal",
           icon: "group-[.toast]:w-4 group-[.toast]:h-4 group-[.toast]:opacity-80",
-          success: "group-[.toaster]:border-l-emerald-500",
+          success: "group-[.toaster]:border-l-rose-500",
           error: "group-[.toaster]:border-l-red-500",
           warning: "group-[.toaster]:border-l-amber-400",
-          info: "group-[.toaster]:border-l-sky-400",
+          info: "group-[.toaster]:border-l-violet-500",
         },
       }}
       {...props}

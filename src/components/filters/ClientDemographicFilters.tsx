@@ -47,6 +47,9 @@ const petFilterOptions = [
   { value: 'no_pets', label: 'No Pets' }
 ];
 
+import useAppTheme from '@/hooks/useAppTheme';
+import { cn } from '@/lib/utils';
+
 export function ClientDemographicFilters({
   genderPreference,
   setGenderPreference,
@@ -61,6 +64,8 @@ export function ClientDemographicFilters({
   languages,
   setLanguages
 }: ClientDemographicFiltersProps) {
+  const { isLight } = useAppTheme();
+  
   return (
     <>
       <Collapsible defaultOpen className="space-y-2">
@@ -72,7 +77,7 @@ export function ClientDemographicFilters({
           <div className="space-y-2">
             <Label className="text-sm">Gender Preference</Label>
             <Select value={genderPreference} onValueChange={setGenderPreference}>
-              <SelectTrigger>
+              <SelectTrigger className={cn(isLight && "bg-black/5 border-black/10")}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -103,6 +108,7 @@ export function ClientDemographicFilters({
               {relationshipStatusOptions.map((status) => (
                 <div key={status} className="flex items-center space-x-2">
                   <Checkbox
+                    className={cn(isLight && "bg-black/5 border-black/20")}
                     checked={relationshipStatus.includes(status)}
                     onCheckedChange={(checked) => {
                       if (checked) {
@@ -121,7 +127,7 @@ export function ClientDemographicFilters({
           <div className="space-y-2">
             <Label className="text-sm">Pet Ownership</Label>
             <Select value={hasPetsFilter} onValueChange={setHasPetsFilter}>
-              <SelectTrigger>
+              <SelectTrigger className={cn(isLight && "bg-black/5 border-black/10")}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -148,6 +154,7 @@ export function ClientDemographicFilters({
               {nationalityOptions.map((nationality) => (
                 <div key={nationality} className="flex items-center space-x-2">
                   <Checkbox
+                    className={cn(isLight && "bg-black/5 border-black/20")}
                     checked={nationalities.includes(nationality)}
                     onCheckedChange={(checked) => {
                       if (checked) {
@@ -169,6 +176,7 @@ export function ClientDemographicFilters({
               {languageOptions.map((language) => (
                 <div key={language} className="flex items-center space-x-2">
                   <Checkbox
+                    className={cn(isLight && "bg-black/5 border-black/20")}
                     checked={languages.includes(language)}
                     onCheckedChange={(checked) => {
                       if (checked) {

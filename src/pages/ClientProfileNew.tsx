@@ -276,14 +276,14 @@ const ClientProfileNew = () => {
                   onClick={() => navigate('/radio')}
                   className="w-full flex items-center gap-3 p-4 hover:bg-muted/50 transition-colors border-b border-border"
                 >
-                  <Radio className="w-5 h-5 text-emerald-500" />
+                  <Radio className="w-5 h-5 text-rose-500" />
                   <span className="flex-1 text-left text-foreground">Radio Player</span>
                 </button>
                 <button
                   onClick={() => navigate('/client/contracts')}
                   className="w-full flex items-center gap-3 p-4 hover:bg-muted/50 transition-colors border-b border-border"
                 >
-                  <FileText className="w-5 h-5 text-blue-500" />
+                  <FileText className="w-5 h-5 text-indigo-500" />
                   <span className="flex-1 text-left text-foreground">My Contracts</span>
                 </button>
                 <button
@@ -297,14 +297,14 @@ const ClientProfileNew = () => {
                   onClick={() => setShowShareDialog(true)}
                   className="w-full flex items-center gap-3 p-4 hover:bg-muted/50 transition-colors border-b border-border"
                 >
-                  <Share2 className="w-5 h-5 text-purple-500" />
+                  <Share2 className="w-5 h-5 text-violet-500" />
                   <span className="flex-1 text-left text-foreground">Share Profile</span>
                 </button>
                 <button
                   onClick={() => navigate('/subscription-packages')}
                   className="w-full flex items-center gap-3 p-4 hover:bg-muted/50 transition-colors border-b border-border"
                 >
-                  <Crown className="w-5 h-5 text-amber-500" />
+                  <Crown className="w-5 h-5 text-rose-500" />
                   <span className="flex-1 text-left text-foreground">Subscription</span>
                 </button>
                 <button

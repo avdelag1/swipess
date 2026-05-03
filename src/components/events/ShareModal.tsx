@@ -72,8 +72,8 @@ export function ShareModal({
                 <span className="text-[10px] font-black text-white uppercase tracking-widest">Send</span>
               </button>
               <button onClick={handleWhatsAppShare} className="flex flex-col items-center gap-3 p-4 rounded-3xl bg-white/5 border border-white/10 active:scale-95 transition-all">
-                <div className="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center">
-                  <MessageCircle className="w-6 h-6 text-green-400" />
+                <div className="w-12 h-12 rounded-full bg-rose-500/20 flex items-center justify-center">
+                  <MessageCircle className="w-6 h-6 text-rose-400" />
                 </div>
                 <span className="text-[10px] font-black text-white uppercase tracking-widest">WhatsApp</span>
               </button>

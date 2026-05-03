@@ -767,8 +767,8 @@ export function ConciergeChat({ isOpen, onClose }: { isOpen: boolean; onClose: (
                          <div className={cn(
                           "flex-1 flex items-center rounded-3xl border transition-all duration-500 relative group overflow-hidden shadow-inner",
                           isLight && !isSwipess 
-                            ? "bg-slate-100 border-black/10 focus-within:border-black focus-within:bg-white" 
-                            : "bg-[#0A0A0A] border-white/10 focus-within:border-cyan-500/50 focus-within:bg-black focus-within:shadow-[0_0_40px_rgba(34,211,238,0.1)]"
+                            ? "bg-slate-100 border-black/10 focus-within:border-black/30 focus-within:bg-white" 
+                            : "bg-[#0A0A0A] border-white/10 focus-within:border-white/30 focus-within:bg-black"
                         )}>
                             <textarea
                               ref={inputRef}
@@ -796,7 +796,7 @@ export function ConciergeChat({ isOpen, onClose }: { isOpen: boolean; onClose: (
                                           : "bg-white/5 text-white/70 hover:text-white"
                                     )}
                                   >
-                                     <Mic className={cn("w-5 h-5", isListening && "animate-pulse")} />
+                                     <Mic className={cn("w-5 h-5", isListening && "animate-pulse", !isListening && isLight && !isSwipess ? "text-black" : "text-white")} />
                                      {isListening && (
                                        <motion.div 
                                          className="absolute inset-0 bg-white/20"
@@ -804,27 +804,6 @@ export function ConciergeChat({ isOpen, onClose }: { isOpen: boolean; onClose: (
                                          transition={{ duration: 1.5, repeat: Infinity }}
                                        />
                                      )}
-                                  </button>
-                                  
-                                  <button 
-                                    onClick={() => {
-                                      setAutoSendEnabled(!autoSendEnabled);
-                                      triggerHaptic('light');
-                                      if (autoSendEnabled) {
-                                        cancelCountdown(); // Disable countdown if turning off
-                                      } else if (isListening) {
-                                        armSilenceCountdown(); // Arm if turning on while listening
-                                      }
-                                    }}
-                                    title={autoSendEnabled ? "Auto-Send Enabled" : "Auto-Send Disabled"}
-                                    className={cn(
-                                      "w-12 h-12 flex items-center justify-center rounded-2xl transition-all",
-                                      autoSendEnabled 
-                                        ? "bg-[#FF3D00]/20 text-[#FF3D00]" 
-                                        : isLight && !isSwipess ? "bg-slate-200 text-slate-400 hover:text-slate-600" : "bg-white/5 text-white/40 hover:text-white/70"
-                                    )}
-                                  >
-                                     <Timer className="w-5 h-5" />
                                   </button>
 
 

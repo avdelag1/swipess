@@ -137,7 +137,7 @@ export function ContractsVault() {
                       {contracts.filter(c => c.status === 'sent' && !c.client_signature).length}
                     </p>
                   </div>
-                  <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-emerald-500 italic mt-6">
+                  <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-primary italic mt-6">
                     <Clock className="w-3 h-3" />
                     <span>Real-time Syncing</span>
                   </div>
@@ -179,8 +179,8 @@ export function ContractsVault() {
                           <div className="flex items-center gap-4">
                             <span className={cn(
                               "text-[8px] font-black uppercase tracking-widest px-3 py-1 rounded-full border",
-                              contract.status === 'signed' ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-500" :
-                              contract.status === 'sent' ? "bg-amber-500/10 border-amber-500/20 text-amber-500" :
+                              contract.status === 'signed' ? "bg-primary/10 border-primary/20 text-primary" :
+                              contract.status === 'sent' ? "bg-violet-500/10 border-violet-500/20 text-violet-500" :
                               isLight ? "bg-black/5 border-black/10 text-black/70" : "bg-white/5 border-white/10 text-white/70"
                             )}>
                               {contract.status}
@@ -302,17 +302,17 @@ export function ContractsVault() {
                   </div>
                </div>
 
-               <Button 
-                 onClick={() => {
-                   triggerHaptic('success');
-                   toast.success('Legal Draft Synthesized');
-                   setView('dashboard');
-                 }}
-                 className="w-full h-20 rounded-[2.5rem] bg-emerald-500 hover:bg-emerald-600 text-white font-black uppercase tracking-[0.3em] text-[12px] italic shadow-2xl shadow-emerald-500/20 transition-all hover:scale-[1.01]"
-               >
-                 Initialize Protocol Draft
-                 <CheckCircle2 className="w-5 h-5 ml-4" />
-               </Button>
+                <Button 
+                  onClick={() => {
+                    triggerHaptic('success');
+                    toast.success('Legal Draft Synthesized');
+                    setView('dashboard');
+                  }}
+                  className="w-full h-20 rounded-[2.5rem] bg-primary hover:bg-primary/90 text-white font-black uppercase tracking-[0.3em] text-[12px] italic shadow-2xl shadow-primary/20 transition-all hover:scale-[1.01]"
+                >
+                  Initialize Protocol Draft
+                  <CheckCircle2 className="w-5 h-5 ml-4" />
+                </Button>
             </motion.div>
           )}
 

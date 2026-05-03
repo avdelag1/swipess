@@ -30,13 +30,20 @@ export const DiscoverySkeleton = memo(({ count = 3 }: { count?: number }) => {
           className={cn(
             "relative w-full rounded-[2.5rem] p-5 border backdrop-blur-xl overflow-hidden shadow-2xl transition-all duration-700",
             isLight 
-              ? "bg-white/40 border-slate-200/50" 
-              : "bg-black/40 border-white/10",
+              ? "bg-white/60 border-slate-200/50" 
+              : "bg-black/60 border-white/[0.08]",
             i === 1 && "opacity-80",
             i === 2 && "opacity-60",
             i >= 3 && "opacity-70"
           )}
         >
+          {/* Nexus Atmospheric Glow */}
+          {!isLight && (
+            <div className="absolute -top-20 -right-20 w-40 h-40 bg-primary/10 blur-[80px] pointer-events-none" />
+          )}
+          {!isLight && (
+            <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-violet-500/10 blur-[80px] pointer-events-none" />
+          )}
           {/* Main Visual Placeholder */}
           <div className="flex items-center gap-5">
             <Skeleton className="w-24 h-24 rounded-[1.8rem] shrink-0" />

@@ -354,7 +354,7 @@ function LikedClientInsightsModalComponent({ open, onOpenChange, client }: Liked
                       </div>
                     )}
                     {client.verified && (
-                      <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/80 backdrop-blur-md">
+                      <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-violet-500/80 backdrop-blur-md border border-white/10">
                         <CheckCircle className="w-3 h-3 text-white" />
                         <span className="text-[10px] font-black uppercase tracking-widest text-white">Verified</span>
                       </div>
@@ -382,7 +382,7 @@ function LikedClientInsightsModalComponent({ open, onOpenChange, client }: Liked
                   <div>
                     <h2 className="text-[22px] font-black text-white leading-tight tracking-tight flex items-center gap-2">
                       {client.name}
-                      {client.verified && <CheckCircle className="w-5 h-5 text-emerald-400 flex-shrink-0" />}
+                      {client.verified && <CheckCircle className="w-5 h-5 text-violet-400 flex-shrink-0" />}
                     </h2>
                     <div className="flex flex-wrap items-center gap-3 mt-2">
                       {client.age && (
@@ -446,10 +446,10 @@ function LikedClientInsightsModalComponent({ open, onOpenChange, client }: Liked
                   <div className="grid grid-cols-2 gap-2.5">
                     <div className={`flex items-center gap-3 p-3.5 rounded-2xl border ${
                       client.verified
-                        ? 'bg-emerald-500/[0.07] border-emerald-500/20'
+                        ? 'bg-violet-500/[0.07] border-violet-500/20'
                         : 'bg-white/[0.03] border-white/[0.07]'
                     }`}>
-                      <CheckCircle className={`w-5 h-5 flex-shrink-0 ${client.verified ? 'text-emerald-400' : 'text-white/20'}`} />
+                      <CheckCircle className={`w-5 h-5 flex-shrink-0 ${client.verified ? 'text-violet-400' : 'text-white/20'}`} />
                       <div>
                         <p className="text-[12px] font-black text-white">ID Verified</p>
                         <p className="text-[10px] text-white/35">{client.verified ? 'Confirmed' : 'Pending'}</p>
@@ -507,17 +507,17 @@ function LikedClientInsightsModalComponent({ open, onOpenChange, client }: Liked
                       <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">Readiness Assessment</h4>
                       <div className={cn(
                         "p-4 rounded-2xl border backdrop-blur-md",
-                        renterInsights.readinessScore >= 80 ? 'bg-emerald-500/5 border-emerald-500/20' :
+                        renterInsights.readinessScore >= 80 ? 'bg-violet-500/5 border-violet-500/20' :
                         renterInsights.readinessScore >= 50 ? 'bg-blue-500/5 border-blue-500/20' :
                         'bg-amber-500/5 border-amber-500/20'
                       )}>
                         <div className="flex items-center gap-2 mb-2">
-                          {renterInsights.readinessScore >= 80 ? <Award className="w-4 h-4 text-emerald-400" /> :
+                          {renterInsights.readinessScore >= 80 ? <Award className="w-4 h-4 text-violet-400" /> :
                            renterInsights.readinessScore >= 50 ? <ThumbsUp className="w-4 h-4 text-blue-400" /> :
                            <CheckCircle className="w-4 h-4 text-amber-400" />}
                           <span className={cn(
                             "text-[12px] font-black uppercase tracking-wider",
-                            renterInsights.readinessScore >= 80 ? 'text-emerald-400' :
+                            renterInsights.readinessScore >= 80 ? 'text-violet-400' :
                             renterInsights.readinessScore >= 50 ? 'text-blue-400' :
                             'text-amber-400'
                           )}>

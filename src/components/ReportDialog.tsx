@@ -94,21 +94,24 @@ export function ReportDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent hideCloseButton className="max-w-2xl max-h-[90vh] overflow-y-auto p-0 border-none bg-transparent shadow-none">
         <div className={cn(
-          "m-4 rounded-[2.5rem] backdrop-blur-[40px] border overflow-hidden shadow-3xl transition-all duration-700",
-          isLight ? "bg-white/80 border-black/5" : "bg-black/80 border-white/5"
+          "m-4 rounded-[2.5rem] backdrop-blur-[40px] border overflow-hidden shadow-3xl transition-all duration-700 relative",
+          isLight ? "bg-white/90 border-black/5" : "bg-black/80 border-white/5"
         )}>
-          <div className="p-8 pb-4">
+          {/* NEXUS GRADIENT BORDER INFUSION */}
+          <div className="absolute inset-0 pointer-events-none rounded-[2.5rem] border-[1.5px] border-transparent [mask-image:linear-gradient(white,white)] before:absolute before:inset-[-1.5px] before:rounded-[2.5rem] before:border-[1.5px] before:border-transparent before:bg-gradient-to-br before:from-rose-500/40 before:via-violet-600/40 before:to-rose-400/40 before:[mask-image:linear-gradient(white,white)_padding-box,linear-gradient(white,white)] before:[mask-composite:exclude]" />
+
+          <div className="p-8 pb-4 relative z-10">
             <DialogHeader className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                   <div className="w-10 h-10 rounded-2xl bg-red-500/10 flex items-center justify-center">
-                      <Flag className="w-5 h-5 text-red-500" />
+                   <div className="w-10 h-10 rounded-2xl bg-rose-500/10 flex items-center justify-center border border-rose-500/20">
+                      <Flag className="w-5 h-5 text-rose-500" />
                    </div>
                    <div className="flex-1">
                       <DialogTitle className={cn("text-2xl font-black uppercase italic tracking-tighter leading-none", isLight ? "text-black" : "text-white")}>
                         Report {category === 'listing' ? 'Listing' : category === 'user_profile' ? 'User' : 'Content'}
                       </DialogTitle>
-                      <div className="text-[10px] font-black uppercase tracking-[0.3em] text-red-500/60 mt-1">Community Safety Protocol</div>
+                      <div className="text-[10px] font-black uppercase tracking-[0.3em] text-rose-500/60 mt-1">Nexus Security Protocol</div>
                    </div>
                 </div>
                 <Button 
@@ -121,20 +124,20 @@ export function ReportDialog({
                 </Button>
               </div>
               <DialogDescription className="text-sm font-medium opacity-70 leading-relaxed pt-2">
-                Help us keep the Swipess ecosystem clean. Your report will be reviewed by our neural moderation matrix.
+                Maintain the integrity of the Swipess collective. Your report will be analyzed by our neural moderation matrix.
                 {(reportedUserName || reportedListingTitle) && (
                   <span className={cn(
                     "block mt-3 text-[11px] font-black uppercase tracking-widest p-3 rounded-xl border",
                     isLight ? "bg-black/5 border-black/5 text-black" : "bg-white/5 border-white/5 text-white"
                   )}>
-                    Reporting: {reportedUserName || reportedListingTitle}
+                    Subject: {reportedUserName || reportedListingTitle}
                   </span>
                 )}
               </DialogDescription>
             </DialogHeader>
           </div>
 
-          <div className="px-8 pb-8">
+          <div className="px-8 pb-8 relative z-10">
             <form onSubmit={handleSubmit} className="space-y-8 mt-4">
               <div className="space-y-4">
                 <Label className="text-[10px] font-black uppercase tracking-[0.4em] text-muted-foreground opacity-70 ml-1">Incident Category</Label>
@@ -150,17 +153,17 @@ export function ReportDialog({
                         <Label
                           htmlFor={type}
                           className={cn(
-                            "flex items-start gap-4 p-5 rounded-[1.5rem] border transition-all duration-300 cursor-pointer",
+                            "flex items-start gap-4 p-5 rounded-[1.5rem] border transition-all duration-300 cursor-pointer group",
                             selectedReportType === type
-                              ? "bg-red-500/10 border-red-500/30 shadow-[0_0_20px_rgba(239,68,68,0.1)]"
+                              ? "bg-rose-500/10 border-rose-500/30 shadow-[0_0_20px_rgba(235,72,152,0.1)]"
                               : isLight ? "bg-black/[0.03] border-black/5 hover:bg-black/[0.06]" : "bg-white/[0.03] border-white/5 hover:bg-white/[0.06]"
                           )}
                         >
                           <div className="mt-1">
-                            <RadioGroupItem value={type} id={type} className={isLight ? "border-black/20" : "border-white/20"} />
+                            <RadioGroupItem value={type} id={type} className={cn(selectedReportType === type ? "border-rose-500" : (isLight ? "border-black/20" : "border-white/20"))} />
                           </div>
                           <div className="flex-1">
-                            <div className={cn("text-[14px] font-black uppercase italic tracking-tight", isLight ? "text-black" : "text-white")}>
+                            <div className={cn("text-[14px] font-black uppercase italic tracking-tight transition-colors", selectedReportType === type ? "text-rose-400" : (isLight ? "text-black" : "text-white"))}>
                               {REPORT_TYPE_LABELS[type]}
                             </div>
                             <div className="text-[10px] font-bold uppercase tracking-widest opacity-70 mt-1 leading-relaxed">
@@ -183,22 +186,22 @@ export function ReportDialog({
                     className="space-y-3"
                   >
                     <Label htmlFor="description" className="text-[10px] font-black uppercase tracking-[0.4em] text-muted-foreground opacity-70 ml-1">
-                      Neural Details <span className="text-red-500">*</span>
+                      Neural Details <span className="text-rose-500">*</span>
                     </Label>
                     <Textarea
                       id="description"
                       value={description}
                       onChange={(e) => setDescription(e.target.value)}
-                      placeholder="Describe the issue in detail..."
+                      placeholder="Provide additional context for our neural agents..."
                       className={cn(
-                        "min-h-[140px] rounded-[1.5rem] p-5 font-medium placeholder:opacity-20 resize-none focus:border-red-500/30 transition-all",
+                        "min-h-[140px] rounded-[1.5rem] p-5 font-medium placeholder:opacity-20 resize-none focus:border-rose-500/30 transition-all",
                         isLight ? "bg-black/[0.03] border-black/10 focus:bg-black/[0.05]" : "bg-white/[0.03] border-white/10 focus:bg-white/[0.05]"
                       )}
                       required
                     />
                     <div className="flex items-center gap-2 px-2 opacity-70">
-                       <Shield className="w-3 h-3" />
-                       <p className="text-[9px] font-black uppercase tracking-widest">Confidential Submission • 24h SLA</p>
+                       <Shield className="w-3 h-3 text-rose-500" />
+                       <p className="text-[9px] font-black uppercase tracking-widest">Confidential Submission • Real-time Sync</p>
                     </div>
                   </motion.div>
                 )}
@@ -212,15 +215,14 @@ export function ReportDialog({
                   className={cn("flex-1 h-14 rounded-[1.2rem] font-bold uppercase tracking-widest transition-all", isLight ? "border-black/10 hover:bg-black/5" : "border-white/10 hover:bg-white/5")}
                   disabled={createReport.isPending}
                 >
-                  Abord
+                  Cancel
                 </Button>
                 <Button
                   type="submit"
-                  variant="destructive"
-                  className="flex-1 h-14 rounded-[1.2rem] font-black uppercase italic tracking-widest shadow-2xl"
+                  className="flex-1 h-14 rounded-[1.2rem] font-black uppercase italic tracking-widest shadow-2xl bg-gradient-to-r from-rose-500 to-violet-600 hover:brightness-110 text-white border-0 transition-all active:scale-[0.98]"
                   disabled={!selectedReportType || !description.trim() || createReport.isPending}
                 >
-                  {createReport.isPending ? 'Syncing...' : 'Submit Protocol'}
+                  {createReport.isPending ? 'Syncing...' : 'Submit Report'}
                 </Button>
               </div>
             </form>

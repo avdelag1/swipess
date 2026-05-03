@@ -512,7 +512,7 @@ export default function AdminEventos() {
                           variant="outline"
                           size="sm"
                           title="Approve submission"
-                          className="h-10 px-4 rounded-xl border-emerald-500/30 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 active:scale-95 transition-all font-black text-xs uppercase tracking-widest"
+                          className="h-10 px-4 rounded-xl border-violet-500/30 bg-violet-500/10 text-violet-400 hover:bg-violet-500/20 active:scale-95 transition-all font-black text-xs uppercase tracking-widest"
                           onClick={() => handleApproveSubmission(sub.id)}
                         >
                           <CheckCircle className="w-4 h-4 mr-2" /> Approve

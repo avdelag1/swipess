@@ -22,12 +22,12 @@ const NotificationsPage = () => {
   const getIcon = (type: string) => {
     switch (type) {
       case 'like': return <Heart className="w-5 h-5 text-rose-500 fill-rose-500" />;
-      case 'match': return <Sparkles className="w-5 h-5 text-amber-500" />;
-      case 'message': return <MessageCircle className="w-5 h-5 text-sky-500" />;
-      case 'system': return <Info className="w-5 h-5 text-blue-500" />;
-      case 'location': return <MapPin className="w-5 h-5 text-emerald-500" />;
+      case 'match': return <Sparkles className="w-5 h-5 text-violet-500" />;
+      case 'message': return <MessageCircle className="w-5 h-5 text-rose-500" />;
+      case 'system': return <Info className="w-5 h-5 text-indigo-500" />;
+      case 'location': return <MapPin className="w-5 h-5 text-rose-500" />;
       case 'verification': return <UserCheck className="w-5 h-5 text-indigo-500" />;
-      case 'alert': return <AlertTriangle className="w-5 h-5 text-orange-500" />;
+      case 'alert': return <AlertTriangle className="w-5 h-5 text-rose-500" />;
       default: return <Bell className="w-5 h-5 text-slate-400" />;
     }
   };
