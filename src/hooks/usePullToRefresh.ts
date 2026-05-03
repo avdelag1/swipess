@@ -6,6 +6,10 @@ interface PullToRefreshOptions {
   containerRef?: React.RefObject<HTMLElement>;
   /** Whether to disable pull-to-refresh */
   disabled?: boolean;
+  /** Distance threshold to trigger refresh (px) */
+  threshold?: number;
+  /** Optional custom refresh callback */
+  onRefresh?: () => void | Promise<void>;
 }
 
 /**

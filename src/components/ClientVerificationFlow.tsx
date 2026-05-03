@@ -82,7 +82,7 @@ export function ClientVerificationFlow({ onComplete }: ClientVerificationFlowPro
     if (!user || !selfieUrl || !documentUrl) return;
     
     triggerHaptic('heavy');
-    uiSounds.playPing(1.5);
+    uiSounds.playPing();
     setSubmitting(true);
     
     try {

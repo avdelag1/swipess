@@ -205,6 +205,22 @@ class SoundEngine {
       this.tone({ type: 'sine', startFreq: 440, endFreq: 220, gainAmount: 0.018, duration: 0.08 });
     } catch (_e) {}
   }
+
+  public playPop(_volume: number = 1) {
+    try {
+      this.init();
+      if (!this.ctx) return;
+      this.tone({ type: 'sine', startFreq: 600, endFreq: 200, gainAmount: 0.06, duration: 0.05 });
+    } catch (_e) {}
+  }
+
+  public playMessageSent() {
+    try {
+      this.init();
+      if (!this.ctx) return;
+      this.tone({ type: 'sine', startFreq: 880, endFreq: 1320, gainAmount: 0.04, duration: 0.08 });
+    } catch (_e) {}
+  }
 }
 
 export const uiSounds = new SoundEngine();

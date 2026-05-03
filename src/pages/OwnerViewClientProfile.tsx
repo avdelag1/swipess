@@ -79,7 +79,9 @@ export default function OwnerViewClientProfile() {
 
   const insights = useMemo(() => {
     if (!client) return null;
-    const completeness = (client.images?.length || 0) * 20 + (client.bio ? 20 : 0);
+    const imgs = (client as any).images;
+    const imgCount = Array.isArray(imgs) ? imgs.length : 0;
+    const completeness = imgCount * 20 + (client.bio ? 20 : 0);
     return {
       views: Math.floor(Math.random() * 50) + 120,
       weeklyGrowth: Math.floor(Math.random() * 15) + 5,

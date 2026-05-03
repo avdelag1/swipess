@@ -1,6 +1,7 @@
 import { motion, AnimatePresence, PanInfo } from 'framer-motion';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Listing } from '@/hooks/useListings';
 import { MatchedClientProfile } from '@/hooks/useSmartMatching';
 import { Eye, MapPin, DollarSign, Calendar, Shield, CheckCircle, Star, Bed, Bath, Square, Anchor, Bike, Car, Home, Zap, Clock, TrendingUp, ThumbsUp, Sparkles, Users, Gauge, Ruler, Flame, X, ArrowLeft, ChevronLeft, ChevronRight, Fuel, ShieldCheck, Heart, Share2, Award, Info } from 'lucide-react';
