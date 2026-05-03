@@ -491,6 +491,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
         }}
         // Photo swim effect now lives on the <img> inside CardImage (CSS keyframes)
         className="flex-1 cursor-grab active:cursor-grabbing select-none touch-none relative w-full h-full overflow-hidden rounded-[28px] pointer-events-auto border-none gpu-ultra"
+        data-zoomed={isZoomed ? 'true' : 'false'}
         style={{
           x,
           y,
@@ -540,23 +541,28 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
 
           {/* Cinema Top Fade */}
           <div
-            className="absolute top-0 left-0 right-0 pointer-events-none z-20"
+            className="absolute top-0 left-0 right-0 pointer-events-none z-20 transition-opacity duration-150"
             style={{
               height: '22%',
               background: 'linear-gradient(to bottom, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.25) 55%, transparent 100%)',
+              opacity: isZoomed ? 0 : 1,
             }}
           />
           {/* Cinema Bottom Fade — ensures buttons + info float above photo */}
           <div
-            className="absolute bottom-0 left-0 right-0 pointer-events-none z-20"
+            className="absolute bottom-0 left-0 right-0 pointer-events-none z-20 transition-opacity duration-150"
             style={{
               height: '52%',
               background: 'linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.6) 30%, rgba(0,0,0,0.2) 60%, transparent 100%)',
+              opacity: isZoomed ? 0 : 1,
             }}
           />
           
           {imageCount > 1 && (
-            <div className="absolute top-[calc(var(--safe-top,0px)+16px)] inset-x-0 flex justify-center z-20 pointer-events-none">
+            <div
+              className="absolute top-[calc(var(--safe-top,0px)+16px)] inset-x-0 flex justify-center z-20 pointer-events-none transition-opacity duration-150"
+              style={{ opacity: isZoomed ? 0 : 1 }}
+            >
               <div className="flex gap-1.5 w-full max-w-[140px] px-2">
                 {Array.from({ length: imageCount }).map((_, idx) => (
                   <div
@@ -579,9 +585,9 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
 
           {/* In-Card Utility Buttons — bottom-right, out of the stamp zone */}
           <motion.div
-            className="absolute bottom-[calc(var(--bottom-nav-height,72px)+110px)] right-4 z-30 flex flex-col gap-2 pointer-events-none"
+            className="absolute bottom-[calc(var(--bottom-nav-height,72px)+110px)] right-4 z-30 flex flex-col gap-2 pointer-events-none transition-opacity duration-150"
             style={{
-              opacity: useTransform(
+              opacity: isZoomed ? 0 : useTransform(
                 [likeOpacity, passOpacity] as any,
                 ([l, p]: number[]) => 1 - Math.max(l, p)
               ),
@@ -699,10 +705,11 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
         {/* 🚀 PREMIUM INFUSION: Dissolving Info Overlay in bottom-left */}
         <div
           key={`info-${currentImageIndex % 4}`}
-          className="absolute left-5 right-5 bottom-[calc(var(--bottom-nav-height,72px)+100px)] z-30 pointer-events-none"
+          className="absolute left-5 right-5 bottom-[calc(var(--bottom-nav-height,72px)+100px)] z-30 pointer-events-none transition-opacity duration-150"
           style={{ 
             contain: 'layout paint',
             transform: 'translateZ(0)',
+            opacity: isZoomed ? 0 : 1,
           }}
         >
           <motion.div
@@ -796,29 +803,34 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
 
         {/* Cinema Bottom Fade — theme-aware vignette behind nav + action buttons */}
         <div
-          className="absolute inset-x-0 bottom-0 pointer-events-none z-10"
+          className="absolute inset-x-0 bottom-0 pointer-events-none z-10 transition-opacity duration-150"
           style={{
             height: '55%',
             background: isLight
               ? 'linear-gradient(to top, rgba(255,255,255,0.88) 0%, rgba(255,255,255,0.5) 35%, rgba(255,255,255,0.06) 65%, transparent 100%)'
               : 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.45) 35%, rgba(0,0,0,0.06) 65%, transparent 100%)',
+            opacity: isZoomed ? 0 : 1,
           }}
         />
 
         {/* Edge vignette — perimeter inset shadow that outlines the rounded corners
             so the card always reads as a physical object */}
         <div
-          className="absolute inset-0 pointer-events-none z-[25] rounded-[2.5rem]"
+          className="absolute inset-0 pointer-events-none z-[25] rounded-[2.5rem] transition-opacity duration-150"
           style={{
             boxShadow: isLight
               ? 'inset 0 0 0 1.5px rgba(0,0,0,0.10), inset 0 0 40px rgba(0,0,0,0.18)'
               : 'inset 0 0 0 1.5px rgba(255,255,255,0.08), inset 0 0 50px rgba(0,0,0,0.45)',
+            opacity: isZoomed ? 0 : 1,
           }}
         />
 
         {/* Verified Badge - Left corner higher up */}
         {(listing as any).has_verified_documents && (
-          <div className="absolute top-16 left-6 z-40">
+          <div
+            className="absolute top-16 left-6 z-40 transition-opacity duration-150"
+            style={{ opacity: isZoomed ? 0 : 1 }}
+          >
              <div className="relative px-3 py-1.5 rounded-full flex items-center gap-2 bg-black/40 backdrop-blur-md border border-white/10">
                <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,1)]" />
                <span className="text-[10px] font-black uppercase tracking-[0.1em] text-white">
