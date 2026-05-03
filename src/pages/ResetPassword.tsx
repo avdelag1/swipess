@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
@@ -6,7 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/useToast";
-import { Loader2, Lock, Eye, EyeOff, Check, X, Shield, KeyRound, ArrowLeft } from "lucide-react";
+import { Loader2, Lock, Eye, EyeOff, Check, X, ArrowLeft, Sparkles } from "lucide-react";
+import { SwipessLogo } from "@/components/SwipessLogo";
+import { cn } from "@/lib/utils";
 
 // Password strength checker
 const checkPasswordStrength = (password: string) => {
@@ -26,68 +28,6 @@ const checkPasswordStrength = (password: string) => {
     color: score <= 1 ? 'bg-red-500' : score === 2 ? 'bg-orange-500' : score === 3 ? 'bg-yellow-500' : 'bg-rose-500',
   };
 };
-
-const ResetPassword = () => {
-  const navigate = useNavigate();
-  const { toast } = useToast();
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
-
-  const passwordStrength = useMemo(() => checkPasswordStrength(password), [password]);
-  const passwordsMatch = password && confirmPassword && password === confirmPassword;
-
-  const handleResetPassword = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (password !== confirmPassword) {
-      toast({
-        title: "Passwords don't match",
-        description: "Please make sure both passwords are identical.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (passwordStrength.score < 4) {
-      toast({
-        title: "Password too weak",
-        description: "Password must be at least 8 characters and contain uppercase, lowercase, and a number.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      const { error } = await supabase.auth.updateUser({
-        password: password
-      });
-
-      if (error) throw error;
-
-      toast({
-        title: "Password updated successfully",
-        description: "You can now log in with your new password.",
-      });
-
-      // Redirect to home page after 2 seconds
-      setTimeout(() => {
-        navigate("/");
-      }, 2000);
-    } catch (error: unknown) {
-      toast({
-        title: "Error updating password",
-        description: error instanceof Error ? error.message : "Please try again or request a new reset link.",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
 
 // Nexus particles component
 const NexusParticles = () => (
@@ -393,9 +333,3 @@ const ResetPassword = () => {
 };
 
 export default ResetPassword;
-  );
-};
-
-export default ResetPassword;
-
-
