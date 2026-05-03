@@ -202,9 +202,10 @@ export default function DJTurntableRadio() {
             </button>
 
             {/* Play / Pause: The Pulse */}
-            <button
+            <motion.button
               onClick={() => { togglePlayPause(); triggerHaptic('heavy'); }}
-              className="w-16 h-16 sm:w-20 sm:h-20 rounded-[2rem] flex items-center justify-center active:scale-90 transition-all shadow-2xl relative overflow-hidden group"
+              whileTap={{ scale: 0.92 }}
+              className="w-16 h-16 sm:w-20 sm:h-20 rounded-[2rem] flex items-center justify-center transition-all shadow-2xl relative overflow-hidden group"
               style={{ background: '#FF3D00' }}
             >
               <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
