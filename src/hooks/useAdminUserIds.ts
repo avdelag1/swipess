@@ -11,13 +11,14 @@ export function useAdminUserIds() {
     return useQuery({
         queryKey: ['admin-user-ids'],
         queryFn: async () => {
-            // Fetch users with admin roles from profiles table
-            // We use the profiles table directly as it's the source of truth for discovery
+            // Source of truth for roles is the `user_roles` table, NOT profiles.role
+            // (profiles.role is unreliable / often empty). Admins must NEVER appear
+            // in any discovery deck or insights view.
             const { data, error } = await supabase
-                .from('profiles')
-                .select('user_id')
-                .or('role.ilike.%admin%');
-            
+                .from('user_roles')
+                .select('user_id, role')
+                .eq('role', 'admin');
+
             if (error) {
                 console.error('[useAdminUserIds] Error fetching admins:', error);
                 return new Set<string>();
