@@ -17,35 +17,39 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Skip guard
+        id: guard
+        run: |
+          if [ "${TARGET_REPOSITORY}" = "${GITHUB_REPOSITORY}" ]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Checkout Lovable-connected repository
+        if: steps.guard.outputs.skip != 'true'
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Validate mirror configuration
+        if: steps.guard.outputs.skip != 'true'
         env:
           MIRROR_TOKEN: ${{ secrets.MIRROR_REPO_TOKEN }}
         run: |
-          if [ "${TARGET_REPOSITORY}" = "${GITHUB_REPOSITORY}" ]; then
-            echo "Target repository is the same as this repository; nothing to mirror."
-            exit 0
-          fi
-
           if [ -z "${MIRROR_TOKEN}" ]; then
-            echo "MIRROR_REPO_TOKEN is missing. Add a GitHub fine-grained PAT with Contents read/write access to ${TARGET_REPOSITORY}."
+            echo "::error::MIRROR_REPO_TOKEN is missing. Add a GitHub fine-grained PAT with Contents read/write access to ${TARGET_REPOSITORY}."
             exit 1
           fi
 
       - name: Mirror current main to original repository
+        if: steps.guard.outputs.skip != 'true'
         env:
           MIRROR_TOKEN: ${{ secrets.MIRROR_REPO_TOKEN }}
         run: |
-          if [ "${TARGET_REPOSITORY}" = "${GITHUB_REPOSITORY}" ]; then
-            exit 0
-          fi
-
           git config user.name "swipess-sync-bot"
           git config user.email "actions@github.com"
           git remote add original "https://x-access-token:${MIRROR_TOKEN}@github.com/${TARGET_REPOSITORY}.git"
           git fetch original main || true
-          git push original HEAD:main --force-with-lease
+          # Force-push because the Lovable-connected repo is the source of truth.
+          git push original HEAD:main --force

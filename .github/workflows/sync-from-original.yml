@@ -1,52 +1,55 @@
 name: Sync from original repository
 
 on:
-  workflow_dispatch:
   schedule:
-    - cron: '*/30 * * * *'
+    - cron: '0 * * * *' # Every hour
+  workflow_dispatch:
 
 permissions:
   contents: write
   pull-requests: write
 
 env:
-  SOURCE_REPOSITORY: ${{ vars.MIRROR_TARGET_REPOSITORY || 'avdelag1/swipess' }}
-  SYNC_BRANCH: sync/original-main
+  SOURCE_REPOSITORY: 'avdelag1/swipess'
+  SYNC_BRANCH: 'sync-upstream-main'
 
 jobs:
   sync:
-    name: Open PR with original repo updates
+    name: Import changes from upstream
     runs-on: ubuntu-latest
 
     steps:
+      - name: Skip guard
+        id: guard
+        run: |
+          if [ "${SOURCE_REPOSITORY}" = "${GITHUB_REPOSITORY}" ]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Checkout Lovable-connected repository
+        if: steps.guard.outputs.skip != 'true'
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
           token: ${{ secrets.MIRROR_REPO_TOKEN || github.token }}
 
       - name: Validate sync configuration
+        if: steps.guard.outputs.skip != 'true'
         env:
           MIRROR_TOKEN: ${{ secrets.MIRROR_REPO_TOKEN }}
         run: |
-          if [ "${SOURCE_REPOSITORY}" = "${GITHUB_REPOSITORY}" ]; then
-            echo "Source repository is the same as this repository; nothing to import."
-            exit 0
-          fi
-
           if [ -z "${MIRROR_TOKEN}" ]; then
-            echo "MIRROR_REPO_TOKEN is missing. Add a GitHub fine-grained PAT with Contents read/write access to both repositories."
+            echo "::error::MIRROR_REPO_TOKEN is missing. Add a GitHub fine-grained PAT with Contents read/write access to both repositories."
             exit 1
           fi
 
       - name: Merge original repo main into sync branch
+        if: steps.guard.outputs.skip != 'true'
         env:
           MIRROR_TOKEN: ${{ secrets.MIRROR_REPO_TOKEN }}
         run: |
-          if [ "${SOURCE_REPOSITORY}" = "${GITHUB_REPOSITORY}" ]; then
-            exit 0
-          fi
-
           git config user.name "swipess-sync-bot"
           git config user.email "actions@github.com"
           git remote add original "https://x-access-token:${MIRROR_TOKEN}@github.com/${SOURCE_REPOSITORY}.git"
@@ -61,13 +64,10 @@ jobs:
           git push origin "${SYNC_BRANCH}" --force
 
       - name: Create or update sync pull request
+        if: steps.guard.outputs.skip != 'true'
         env:
           GH_TOKEN: ${{ secrets.MIRROR_REPO_TOKEN }}
         run: |
-          if [ "${SOURCE_REPOSITORY}" = "${GITHUB_REPOSITORY}" ]; then
-            exit 0
-          fi
-
           existing_pr="$(gh pr list --repo "${GITHUB_REPOSITORY}" --head "${SYNC_BRANCH}" --json number --jq '.[0].number // empty')"
           if [ -n "${existing_pr}" ]; then
             gh pr comment "${existing_pr}" --repo "${GITHUB_REPOSITORY}" --body "Synced latest changes from ${SOURCE_REPOSITORY}."

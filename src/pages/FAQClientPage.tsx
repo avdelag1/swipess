@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 import useAppTheme from "@/hooks/useAppTheme";
 import { haptics } from "@/utils/microPolish";
 import { AtmosphericLayer } from "@/components/AtmosphericLayer";
-import { Helmet } from "react-helmet-async";
+import { Helmet } from 'react-helmet-async';
 
 const fastSpring = { type: "spring" as const, stiffness: 500, damping: 30, mass: 0.8 };
 
