@@ -93,7 +93,7 @@ const LandingView = memo(({
           <SwipessLogo 
             size="3xl" 
             variant="transparent"
-            className="w-[65vw] max-w-[280px] sm:max-w-[340px] md:max-w-[420px]" 
+            className="w-[65vw] max-w-[280px] sm:max-w-[340px] md:max-w-[420px] aspect-[4/1] min-h-[70px] sm:min-h-[85px] md:min-h-[105px]" 
           />
           <motion.div
             className="absolute inset-0 pointer-events-none"

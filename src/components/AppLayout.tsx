@@ -1,4 +1,4 @@
-import { Suspense, lazy, useMemo, useEffect, useState, useRef } from 'react';
+import { Suspense, lazy, useMemo, useEffect, useState, useRef, useLayoutEffect } from 'react';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { PullToRefreshIndicator } from '@/components/PullToRefreshIndicator';
 
@@ -8,19 +8,20 @@ import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { useOfflineDetection } from '@/hooks/useOfflineDetection';
 import { useErrorReporting } from '@/hooks/useErrorReporting';
 import { useAuth } from '@/hooks/useAuth';
-
 import useAppTheme from '@/hooks/useAppTheme';
-import { TopBar } from './TopBar';
-import { BottomNavigation } from './BottomNavigation';
 import { useActiveMode } from '@/hooks/useActiveMode';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useModalStore } from '@/state/modalStore';
 import { useInstantReactivity } from '@/hooks/useInstantReactivity';
 import { cn } from '@/lib/utils';
-import { SwipessHud } from './SwipessHud';
-import { VapIdCardModal } from './VapIdCardModal';
-import { RadioMiniPlayer } from './RadioMiniPlayer';
-import { VoiceConciergeButton } from './VoiceConciergeButton';
+
+const TopBar = lazy(() => import('./TopBar').then(m => ({ default: m.TopBar })));
+const BottomNavigation = lazy(() => import('./BottomNavigation').then(m => ({ default: m.BottomNavigation })));
+const RadioMiniPlayer = lazy(() => import('./RadioMiniPlayer').then(m => ({ default: m.RadioMiniPlayer })));
+const VoiceConciergeButton = lazy(() => import('./VoiceConciergeButton').then(m => ({ default: m.VoiceConciergeButton })));
+const SwipessHud = lazy(() => import('./SwipessHud').then(m => ({ default: m.SwipessHud })));
+const VapIdCardModal = lazy(() => import('./VapIdCardModal').then(m => ({ default: m.VapIdCardModal })));
+
 import { uiSounds } from '@/utils/uiSounds'; // SWIPESS AUDIO ENGINE
 
 const NotificationSystem = lazy(() =>
@@ -173,20 +174,22 @@ export function AppLayout({ children }: AppLayoutProps) {
       </Suspense>
   
       {showAppChrome && (
-        <SwipessHud side="top" className="fixed top-0 left-0 right-0 z-[10005]" scrollTargetSelector="#dashboard-scroll-container" alwaysVisible={true}>
-          <TopBar
-            userRole={userRole}
-            onMessageActivationsClick={handleMessageActivationsClick}
-            onFilterClick={handleFilterClick}
-            transparent={location.pathname === '/client/dashboard' || location.pathname === '/owner/dashboard'}
-            showBack={!location.pathname.match(/^\/(client|owner|admin)\/dashboard\/?$/)}
-            onCenterTap={
-              !location.pathname.match(/^\/(client|owner|admin)\/dashboard\/?$/)
-                ? () => navigate(`/${activeMode}/dashboard`)
-                : undefined
-            }
-          />
-        </SwipessHud>
+        <Suspense fallback={null}>
+          <SwipessHud side="top" className="fixed top-0 left-0 right-0 z-[10005]" scrollTargetSelector="#dashboard-scroll-container" alwaysVisible={true}>
+            <TopBar
+              userRole={userRole}
+              onMessageActivationsClick={handleMessageActivationsClick}
+              onFilterClick={handleFilterClick}
+              transparent={location.pathname === '/client/dashboard' || location.pathname === '/owner/dashboard'}
+              showBack={!location.pathname.match(/^\/(client|owner|admin)\/dashboard\/?$/)}
+              onCenterTap={
+                !location.pathname.match(/^\/(client|owner|admin)\/dashboard\/?$/)
+                  ? () => navigate(`/${activeMode}/dashboard`)
+                  : undefined
+              }
+            />
+          </SwipessHud>
+        </Suspense>
       )}
 
       {/* SHELL CONTAINER: Always fixed-height. DashboardLayout handles scrolling inside. */}
@@ -214,22 +217,36 @@ export function AppLayout({ children }: AppLayoutProps) {
 
 
       {showAppChrome && (
-        <SwipessHud side="bottom" className="fixed bottom-0 left-0 right-0 z-[10005]" scrollTargetSelector="#dashboard-scroll-container" alwaysVisible={true}>
-          <BottomNavigation
-            userRole={userRole}
-            onFilterClick={handleFilterClick}
-            onListingsClick={handleListingsClick}
-          />
-        </SwipessHud>
+        <Suspense fallback={null}>
+          <SwipessHud side="bottom" className="fixed bottom-0 left-0 right-0 z-[10005]" scrollTargetSelector="#dashboard-scroll-container" alwaysVisible={true}>
+            <BottomNavigation
+              userRole={userRole}
+              onFilterClick={handleFilterClick}
+              onListingsClick={handleListingsClick}
+            />
+          </SwipessHud>
+        </Suspense>
       )}
 
       {/* 📻 CONNECTED RADIO: Floating player bubble - Hidden on radio/full-screen routes */}
-      {!isFullScreen && <RadioMiniPlayer />}
+      {showAppChrome && !isFullScreen && (
+        <Suspense fallback={null}>
+          <RadioMiniPlayer />
+        </Suspense>
+      )}
       
       {/* 🤖 VOICE CONCIERGE: Left-side floating assistant */}
-      {!isFullScreen && <VoiceConciergeButton />}
-    </div>
-  );
-}
+      {showAppChrome && !isFullScreen && (
+        <Suspense fallback={null}>
+          <VoiceConciergeButton />
+        </Suspense>
+      )}
+
+      <Suspense fallback={null}>
+        <VapIdCardModal
+          isOpen={modalStore.showVapId}
+          onClose={() => modalStore.setModal('showVapId', false)}
+        />
+      </Suspense>
 
 

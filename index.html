@@ -12,7 +12,7 @@
   <!-- System fonts — no external font loading needed -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Caveat:wght@400..700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800;900&family=Caveat:wght@700&display=swap" rel="stylesheet">
 
 
   <script>
@@ -57,7 +57,7 @@
 
   <!-- Fonts: using system font stack for instant LCP -->
 
-  <meta name="app-version" content="2026.05.02.FINAL-1.1">
+  <meta name="app-version" content="2026.05.03.SPEED-1.2">
   <!-- FORCE RELOAD CACHE BUSTER: SWIPESS v1.1 -->
   <title>Swipess</title>
   <meta name="description" content="Swipess — Immersive discovery and target selection engine.">
@@ -101,12 +101,11 @@
   <meta name="apple-mobile-web-app-title" content="Swipess">
   <meta name="application-name" content="Swipess">
   <!-- Speculation rules removed — prefetching handled by routePrefetcher.ts -->
-  <style>
-    .static-splash { position: fixed; inset: 0; background: #000; z-index: 99999; display: flex; align-items: center; justify-content: center; transition: opacity 0.4s ease-out, visibility 0.4s; }
-    .static-splash.fade-out { opacity: 0; visibility: hidden; }
-    .splash-content { display: flex; flex-direction: column; align-items: center; animation: breathing 2.2s ease-in-out infinite; }
-    @keyframes breathing { 0%, 100% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.05); opacity: 1; } }
-    .splash-logo { height: 48px; width: auto; opacity: 0; transition: opacity 0.4s ease-in; filter: drop-shadow(0 0 20px rgba(255,255,255,0.15)); }
+    .static-splash { position: fixed; inset: 0; background: #000; z-index: 99999; display: flex; align-items: center; justify-content: center; }
+    .static-splash.fade-out { opacity: 0; visibility: hidden; transition: opacity 0.4s ease-out, visibility 0.4s; }
+    .splash-content { display: flex; flex-direction: column; align-items: center; animation: breathing 2.2s ease-in-out infinite; width: 100%; }
+    @keyframes breathing { 0%, 100% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.03); opacity: 1; } }
+    .splash-logo { height: 48px; width: auto; opacity: 0; transition: opacity 0.3s ease-in; filter: drop-shadow(0 0 20px rgba(255,255,255,0.15)); contain: content; }
     .splash-logo.loaded { opacity: 1; }
   </style>
 </head>

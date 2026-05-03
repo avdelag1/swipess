@@ -68,7 +68,7 @@ function SwipessLogoComponent({
                 }}
                 className={cn(
                   'select-none transition-all duration-300 relative z-10',
-                  isIcon ? 'w-full h-full object-contain' : cn('w-auto object-contain max-w-full', sizeMap[size]),
+                  isIcon ? 'w-full h-full object-contain' : cn('w-full h-full object-contain max-w-full', sizeMap[size]),
                   'drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)] group-hover:drop-shadow-[0_8px_24px_rgba(0,0,0,0.7)]'
                 )}
                 style={{
