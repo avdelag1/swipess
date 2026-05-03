@@ -1,20 +1,20 @@
 /**
- * SWIPE ACTION BUTTON BAR — Phantom Icon Design
+ * SWIPE ACTION BUTTON BAR — Nexus Phantom Design
  *
  * Frameless, backgroundless floating icons with expressive shadows and glow.
- * Zero backdrop-filter blur layers for maximum PWA performance.
+ * Optimized for performance with high-fidelity visual feedback.
  *
  * BUTTON ORDER (LEFT → RIGHT):
- *   1. Return/Undo  (small) — amber
+ *   1. Return/Undo  (small) — green
  *   2. Dislike      (large) — red
- *   3. Share        (small) — purple
- *   4. Like         (large) — orange/fire
- *   5. Message      (small) — cyan
+ *   3. Message      (small) — blue
+ *   4. Like         (large) — fire/orange
+ *   5. Insights     (small) — cyan/eye
  */
 
 import { memo, useCallback, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Share2, Undo2, MessageCircle, Flame, ThumbsDown, Eye, Info } from 'lucide-react';
+import { Undo2, MessageCircle, Flame, ThumbsDown, Eye, RotateCcw } from 'lucide-react';
 import { triggerHaptic } from '@/utils/haptics';
 import { AnimatedLottieIcon } from './ui/AnimatedLottieIcon';
 import useAppTheme from '@/hooks/useAppTheme';
@@ -34,8 +34,6 @@ interface SwipeActionButtonBarProps {
 }
 
 // ── SPRING CONFIGS ────────────────────────────────────────────────────────────
-const _TAP_SPRING = { type: 'spring' as const, stiffness: 460, damping: 26, mass: 0.55 } as const;
-const _ICON_SPRING = { type: 'spring' as const, stiffness: 520, damping: 28 } as const;
 const ENTRY_SPRING = { type: 'spring' as const, stiffness: 340, damping: 26, mass: 0.7 } as const;
 
 // ── DIMENSIONS ────────────────────────────────────────────────────────────────
@@ -43,85 +41,62 @@ const LARGE_CSS = 'clamp(44px, 11vw, 54px)';
 const SMALL_CSS = 'clamp(38px, 9vw, 44px)';
 const LARGE_ICON = 26;
 const SMALL_ICON = 18;
-const GAP_CSS = 'clamp(6px, 1.5vw, 12px)';
 const TAP_SCALE = 0.92;
 
 // ── VARIANT CONFIGS ───────────────────────────────────────────────────────────
-type Variant = 'default' | 'like' | 'dislike' | 'amber' | 'blue' | 'purple' | 'gold' | 'green';
+type Variant = 'default' | 'like' | 'dislike' | 'amber' | 'blue' | 'cyan' | 'purple' | 'gold' | 'green';
 
 interface VariantCfg {
   iconColor: string;
   glow: string;
-  glowIntense: string;
-  dropShadow: string;
   circleBg: string;
-  circleBorder: string;
 }
 
 const VARIANTS: Record<Variant, VariantCfg> = {
   like: {
-    iconColor: '#FF5722', // Deep Orange / Fire
+    iconColor: '#FF5722', // Fire Orange
     glow: '0 0 24px rgba(255, 87, 34, 0.45)',
-    glowIntense: '0 0 45px rgba(255, 87, 34, 0.6)',
-    dropShadow: 'var(--shadow-cinematic-primary)',
     circleBg: 'rgba(255, 87, 34, 0.35)',
-    circleBorder: '1px solid rgba(255, 255, 255, 0.4)',
   },
   dislike: {
     iconColor: '#EF4444', // Red
     glow: '0 0 20px rgba(239, 68, 68, 0.4)',
-    glowIntense: '0 0 40px rgba(239, 68, 68, 0.5)',
-    dropShadow: '0 12px 24px -6px rgba(239, 68, 68, 0.45)',
     circleBg: 'rgba(239, 68, 68, 0.35)',
-    circleBorder: '1px solid rgba(255, 255, 255, 0.4)',
+  },
+  green: {
+    iconColor: '#22C55E', // Green
+    glow: '0 0 16px rgba(34, 197, 94, 0.35)',
+    circleBg: 'rgba(34, 197, 94, 0.35)',
+  },
+  blue: {
+    iconColor: '#3B82F6', // Blue
+    glow: '0 0 16px rgba(59, 130, 246, 0.35)',
+    circleBg: 'rgba(59, 130, 246, 0.35)',
+  },
+  cyan: {
+    iconColor: '#06b6d4', // Cyan
+    glow: '0 0 16px rgba(6, 182, 212, 0.35)',
+    circleBg: 'rgba(6, 182, 212, 0.35)',
   },
   amber: {
     iconColor: '#f59e0b',
     glow: '0 0 16px rgba(245, 158, 11, 0.35)',
-    glowIntense: '0 0 32px rgba(245, 158, 11, 0.45)',
-    dropShadow: '0 8px 16px -4px rgba(245, 158, 11, 0.4)',
     circleBg: 'rgba(245, 158, 11, 0.35)',
-    circleBorder: '1px solid rgba(255, 255, 255, 0.4)',
   },
-  green: {
-    iconColor: '#22C55E', // Vivid Green
-    glow: '0 0 16px rgba(34, 197, 94, 0.35)',
-    glowIntense: '0 0 32px rgba(34, 197, 94, 0.45)',
-    dropShadow: '0 8px 16px -4px rgba(34, 197, 94, 0.4)',
-    circleBg: 'rgba(34, 197, 94, 0.35)',
-    circleBorder: '1px solid rgba(255, 255, 255, 0.4)',
-  },
-  blue: {
-    iconColor: '#3B82F6', // Vivid Blue
-    glow: '0 0 16px rgba(59, 130, 246, 0.35)',
-    glowIntense: '0 0 32px rgba(59, 130, 246, 0.45)',
-    dropShadow: '0 8px 16px -4px rgba(59, 130, 246, 0.4)',
-    circleBg: 'rgba(59, 130, 246, 0.35)',
-    circleBorder: '1px solid rgba(255, 255, 255, 0.4)',
-  },
-  pink: {
-    iconColor: '#EB4898', // Nexus Neon Pink
-    glow: '0 0 16px rgba(235, 72, 152, 0.35)',
-    glowIntense: '0 0 32px rgba(235, 72, 152, 0.45)',
-    dropShadow: '0 8px 16px -4px rgba(235, 72, 152, 0.4)',
-    circleBg: 'rgba(235, 72, 152, 0.35)',
-    circleBorder: '1px solid rgba(255, 255, 255, 0.4)',
+  purple: {
+    iconColor: '#A855F7',
+    glow: '0 0 16px rgba(168, 85, 247, 0.35)',
+    circleBg: 'rgba(168, 85, 247, 0.35)',
   },
   gold: {
     iconColor: '#FFD700',
     glow: '0 0 20px rgba(255, 215, 0, 0.4)',
-    glowIntense: '0 0 40px rgba(255, 215, 0, 0.6)',
-    dropShadow: '0 12px 24px -6px rgba(255, 215, 0, 0.45)',
-    circleBg: 'rgba(255, 215, 0, 0.25)', 
-    circleBorder: 'none',
+    circleBg: 'rgba(255, 215, 0, 0.25)',
   },
   default: {
     iconColor: 'currentColor',
     glow: '0 0 14px rgba(255,255,255,0.1)',
-    glowIntense: '0 0 28px rgba(255,255,255,0.2)',
-    dropShadow: 'var(--shadow-cinematic-sm)',
     circleBg: 'var(--secondary)',
-    circleBorder: '1px solid var(--border)',
   },
 };
 
@@ -146,7 +121,6 @@ const ActionButton = memo(({
   isLight?: boolean;
 }) => {
   const [isPressed, setIsPressed] = useState(false);
-
   const cfg = VARIANTS[variant];
   const btnSizeCss = size === 'large' ? LARGE_CSS : SMALL_CSS;
   const iconSize = size === 'large' ? LARGE_ICON : SMALL_ICON;
@@ -155,11 +129,9 @@ const ActionButton = memo(({
     if (disabled) return;
     e.stopPropagation();
     e.preventDefault();
-
     if (variant === 'like') triggerHaptic('success');
     else if (variant === 'dislike') triggerHaptic('warning');
     else triggerHaptic('light');
-
     onClick();
   }, [disabled, variant, onClick]);
 
@@ -187,14 +159,12 @@ const ActionButton = memo(({
         opacity: disabled ? 0.35 : 1,
         cursor: disabled ? 'not-allowed' : 'pointer',
         padding: 0,
-        overflow: 'visible',
         position: 'relative',
         flexShrink: 0,
         color: variant === 'default' ? 'var(--foreground)' : cfg.iconColor
       }}
       className="flex items-center justify-center touch-manipulation select-none"
     >
-      {/* 🚀 ATMOSPHERIC DEPTH: Multi-layered cinematic shadows — theme-aware */}
       <div
         className="absolute inset-0 rounded-full transition-all duration-300 pointer-events-none"
         style={{
@@ -202,46 +172,32 @@ const ActionButton = memo(({
           boxShadow: isPressed 
             ? 'none' 
             : isLight
-              ? `0 8px 20px -6px ${cfg.iconColor}55, 0 4px 8px -4px ${cfg.iconColor}33`
-              : `0 12px 24px -10px ${cfg.iconColor}66, 0 4px 6px -4px ${cfg.iconColor}44`,
+              ? `0 8px 20px -6px ${cfg.iconColor}55`
+              : `0 12px 24px -10px ${cfg.iconColor}66`,
           filter: 'blur(10px)',
-          transform: isPressed ? 'scale(0.9)' : 'scale(1)',
           opacity: isPressed ? 0 : (isLight ? 0.55 : 0.45),
         }}
       />
-
-      {/* 🚀 TACTILE MATERIAL: Convex -> Concave — theme-aware surfaces */}
       <div
         className="absolute inset-0 rounded-full pointer-events-none"
         style={{
           background: isPressed 
-            ? `radial-gradient(circle at center, ${cfg.iconColor}33 0%, transparent 100%)`
+            ? `${cfg.iconColor}33`
             : isLight
               ? `linear-gradient(145deg, ${cfg.iconColor}18 0%, ${cfg.iconColor}08 100%)`
               : `linear-gradient(145deg, ${cfg.iconColor}22 0%, ${cfg.iconColor}05 100%)`,
           boxShadow: isPressed
-            ? isLight
-              ? `inset 0 4px 10px rgba(0,0,0,0.15), inset 0 -4px 10px rgba(255,255,255,0.3)`
-              : `inset 0 4px 10px rgba(0,0,0,0.5), inset 0 -4px 10px rgba(255,255,255,0.05)`
-            : isLight
-              ? `0 6px 14px rgba(0,0,0,0.12), 0 2px 4px rgba(0,0,0,0.08), inset 0 2px 4px rgba(255,255,255,0.7)`
-              : `0 8px 16px rgba(0,0,0,0.3), inset 0 2px 4px rgba(255,255,255,0.1)`,
+            ? (isLight ? 'inset 0 2px 6px rgba(0,0,0,0.1)' : 'inset 0 4px 10px rgba(0,0,0,0.5)')
+            : (isLight ? '0 4px 8px rgba(0,0,0,0.08), inset 0 1px 2px rgba(255,255,255,0.7)' : '0 8px 16px rgba(0,0,0,0.3)'),
           border: isLight ? `1px solid ${cfg.iconColor}30` : '1px solid rgba(255,255,255,0.05)',
-          transform: isPressed ? 'scale(0.96)' : 'scale(1)',
           transition: 'all 0.15s cubic-bezier(0.2, 0, 0, 1)',
         }}
       />
-      
-      {/* Icon with deep colored drop-shadow */}
-      <div 
-        className="relative z-10 transition-transform duration-200"
-        style={{ transform: isPressed ? 'scale(0.92) translateY(1px)' : 'scale(1)' }}
-      >
+      <div className="relative z-10">
         <AnimatedLottieIcon
           iconId={variant === 'like' ? 'heart' : variant === 'dislike' ? 'dislike' : variant}
           active={isPressed}
           size={iconSize}
-          className="relative z-10"
           inactiveIcon={children}
         />
       </div>
@@ -251,11 +207,9 @@ const ActionButton = memo(({
 
 ActionButton.displayName = 'ActionButton';
 
-// ── BUTTON BAR ────────────────────────────────────────────────────────────────
 export const SwipeActionButtonBar = memo(({
   onLike,
   onDislike,
-  onShare,
   onInsights,
   onUndo,
   onMessage,
@@ -266,11 +220,8 @@ export const SwipeActionButtonBar = memo(({
   const { isLight } = useAppTheme();
 
   return (
-    <div
-      className={`flex items-center gap-6 pointer-events-auto overflow-visible ${className}`}
-    >
+    <div className={`flex items-center gap-6 pointer-events-auto overflow-visible ${className}`}>
       <AnimatePresence mode="popLayout" initial={false}>
-        {/* Undo Button (Green) */}
         {onUndo && (
           <ActionButton
             onClick={onUndo}
@@ -281,11 +232,9 @@ export const SwipeActionButtonBar = memo(({
             index={0}
             isLight={isLight}
           >
-            <Undo2 className="w-full h-full" strokeWidth={2.5} />
+            <RotateCcw className="w-full h-full" strokeWidth={2} />
           </ActionButton>
         )}
-
-        {/* Dislike Button (Red / ThumbsDown) */}
         <ActionButton
           onClick={onDislike}
           disabled={disabled}
@@ -295,10 +244,8 @@ export const SwipeActionButtonBar = memo(({
           index={1}
           isLight={isLight}
         >
-          <ThumbsDown className="w-full h-full" strokeWidth={2.5} />
+          <ThumbsDown className="w-full h-full" strokeWidth={2} />
         </ActionButton>
-
-        {/* Message/Connect Button (Blue) */}
         {onMessage && (
           <ActionButton
             onClick={onMessage}
@@ -312,8 +259,6 @@ export const SwipeActionButtonBar = memo(({
             <MessageCircle className="w-full h-full" strokeWidth={2} />
           </ActionButton>
         )}
-
-        {/* Like Button (Orange / Flame) */}
         <ActionButton
           onClick={onLike}
           disabled={disabled}
@@ -325,14 +270,12 @@ export const SwipeActionButtonBar = memo(({
         >
           <Flame className="w-full h-full" fill="currentColor" strokeWidth={0} />
         </ActionButton>
-
-        {/* Insights/Eye Button */}
         {onInsights && (
           <ActionButton
             onClick={onInsights}
             disabled={disabled}
             size="small"
-            variant="blue"
+            variant="cyan"
             ariaLabel="Insights"
             index={4}
             isLight={isLight}

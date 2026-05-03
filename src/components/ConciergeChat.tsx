@@ -23,10 +23,6 @@ import { toast } from 'sonner';
 import { useModalStore } from '@/state/modalStore';
 import { useFilterStore } from '@/state/filterStore';
 
-// Character avatar images (assuming they exist or using fallback)
-// import avatarDefault from '@/assets/avatars/avatar-default.png';
-// ... others
-
 const LANGUAGES = [
   { code: 'en', label: 'English' },
   { code: 'es', label: 'Español' },
@@ -55,7 +51,6 @@ function formatConvoDate(date: Date) {
   return date.toLocaleDateString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 }
 
-/* ─── NAV Tag Parsing ─── */
 const NAV_PATTERN = /\[NAV:(\/[^\]]+)\]/g;
 
 const NAV_LABELS: Record<string, string> = {
@@ -80,13 +75,11 @@ function parseNavActions(content: string): {
   const draftActions: { category: string; data: any }[] = [];
   let filterAction = null;
   
-  // Parse NAV tags
   let cleanContent = content.replace(NAV_PATTERN, (_, path) => {
     navPaths.push(path);
     return '';
   });
 
-  // Parse DRAFT tags: [DRAFT:category:json]
   const DRAFT_PATTERN = /\[DRAFT:([^:]+):(\{[\s\S]*?\})\]/g;
   cleanContent = cleanContent.replace(DRAFT_PATTERN, (_, category, jsonData) => {
     try {
@@ -97,7 +90,6 @@ function parseNavActions(content: string): {
     return '';
   });
 
-  // Parse FILTER tags: [FILTER:json]
   const FILTER_PATTERN = /\[FILTER:(\{[\s\S]*?\})\]/g;
   cleanContent = cleanContent.replace(FILTER_PATTERN, (_, jsonData) => {
     try {
@@ -113,7 +105,6 @@ function parseNavActions(content: string): {
   return { cleanContent, navPaths, draftActions, filterAction };
 }
 
-/* ─── Privacy Portal ─── */
 const ConciergePrivacyPortal = memo(({ onAccept, isSwipess }: { onAccept: () => void, isSwipess: boolean }) => (
   <div className={cn(
     "flex-1 flex flex-col items-center justify-center p-8 relative z-10 space-y-6 text-center h-full",
@@ -155,7 +146,6 @@ const ConciergePrivacyPortal = memo(({ onAccept, isSwipess }: { onAccept: () => 
 ));
 ConciergePrivacyPortal.displayName = 'ConciergePrivacyPortal';
 
-/* ─── Message Bubble ─── */
 const MessageBubble = memo(({ message, isUser, isSwipess, onCopy, onDelete, onTranslate, onResend, onNavigate, onDraft, onFilter, onSpeak, speakingMsgId, isSpeaking }: { 
   message: ChatMessage, isUser: boolean, isSwipess: boolean,
   onCopy: () => void, onDelete: () => void, onTranslate?: (l:string)=>void,
@@ -170,10 +160,8 @@ const MessageBubble = memo(({ message, isUser, isSwipess, onCopy, onDelete, onTr
     [message.content, isUser]
   );
 
-  // Auto-apply filters if they appear in the latest assistant message
   useEffect(() => {
     if (!isUser && filterAction && onFilter) {
-      // Delay slightly to allow the user to read the confirmation
       const timer = setTimeout(() => onFilter(filterAction), 1500);
       return () => clearTimeout(timer);
     }
@@ -285,7 +273,6 @@ const MessageBubble = memo(({ message, isUser, isSwipess, onCopy, onDelete, onTr
 });
 MessageBubble.displayName = 'MessageBubble';
 
-/* ─── Typing Indicator ─── */
 const TypingIndicator = ({ isSwipess }: { isSwipess: boolean }) => (
   <div className="flex justify-start mb-4">
     <div className={cn(
@@ -305,7 +292,6 @@ const TypingIndicator = ({ isSwipess }: { isSwipess: boolean }) => (
   </div>
 );
 
-/* ─── Circular Arc Energy Gauge ─── */
 const ArcGauge = memo(({ level, color, isLoading, icon: Icon }: {
   level: number; color: string; isLoading: boolean;
   icon: React.ElementType;
@@ -355,7 +341,6 @@ const HeaderIcon = ({ isLoading }: { isLoading: boolean }) => (
   </motion.div>
 );
 
-/* ─── Conversation Sidebar ─── */
 const ConversationSidebar = memo(({
   conversations, activeId, onSelect, onDelete, onNew, onClose, isSwipess
 }: {
@@ -443,12 +428,10 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [characterPanelOpen, setCharacterPanelOpen] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLTextAreaElement>(null);
   
   const { speak, stop: stopSpeaking, isSpeaking } = useSpeechSynthesis();
   const [speakingMsgId, setSpeakingMsgId] = useState<string | null>(null);
 
-  // 🚀 NEXUS AUDIO: Play welcome sound when concierge opens
   const hasPlayedOpenSound = useRef(false);
   useEffect(() => {
     if (isOpen && !hasPlayedOpenSound.current) {
@@ -470,7 +453,6 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
     }
   };
 
-  // Character definitions
   const CHARACTER_OPTIONS: { key: AiCharacter; label: string; subtitle: string; icon: typeof Sparkles; color: string; bgColor: string; }[] = [
     { key: 'default', label: 'Swipess AI', subtitle: 'Global Discovery', icon: Sparkles, color: 'text-[#FF3D00]', bgColor: 'bg-[#FF3D00]/20' },
     { key: 'kyle', label: 'Kyle', subtitle: 'Market Hustler', icon: Flame, color: 'text-orange-400', bgColor: 'bg-orange-500/20' },
@@ -480,8 +462,6 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
     { key: 'lunashanti', label: 'Luna Shanti', subtitle: 'Boho Spirit', icon: Moon, color: 'text-violet-300', bgColor: 'bg-violet-500/20' },
     { key: 'ezriyah', label: 'Ezriyah', subtitle: 'Integration Coach', icon: Sun, color: 'text-teal-400', bgColor: 'bg-teal-500/20' },
   ];
-
-  const currentChar = CHARACTER_OPTIONS.find(c => c.key === activeCharacter) || CHARACTER_OPTIONS[0];
 
   const arcColor = useMemo(() => {
     const colorMap: Record<string, string> = {
@@ -496,7 +476,6 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
     return colorMap[activeCharacter] || 'var(--color-brand-primary)';
   }, [activeCharacter]);
 
-  // Session Management
   useEffect(() => {
     if (isOpen) {
       const lastActivity = parseInt(localStorage.getItem(LAST_ACTIVITY_KEY) || '0', 10);
@@ -510,17 +489,15 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
     if (messages.length > 0) localStorage.setItem(LAST_ACTIVITY_KEY, Date.now().toString());
   }, [messages]);
 
-  // ── Voice + Auto-Send Logic ────────────────────────────────────────────────
   const [isListening, setIsListening] = useState(false);
   const [countdown, setCountdown] = useState<number | null>(null);
   const [autoSendEnabled, setAutoSendEnabled] = useState(true);
   const recognitionRef = useRef<any>(null);
   const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const inputValueRef = useRef('');          // always tracks latest input value
-  const isListeningRef = useRef(false);      // stable ref for recognition callbacks
+  const inputValueRef = useRef('');
+  const isListeningRef = useRef(false);
   const autoSendEnabledRef = useRef(true);
   
-  // Use the more robust hook for platform fallbacks (iOS/Mobile)
   const { 
     start: startTranscribe, 
     stop: stopTranscribe, 
@@ -530,28 +507,23 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
   useEffect(() => {
     autoSendEnabledRef.current = autoSendEnabled;
   }, [autoSendEnabled]);
-  const SILENCE_SECONDS = 3;
 
-  // Keep refs in sync
   useEffect(() => { inputValueRef.current = input; }, [input]);
   useEffect(() => { isListeningRef.current = isListening; }, [isListening]);
-  useEffect(() => { autoSendEnabledRef.current = autoSendEnabled; }, [autoSendEnabled]);
 
   const speechSupported = typeof window !== 'undefined' &&
     ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window);
 
-  // Cancel the silence countdown without sending
   const cancelCountdown = useCallback(() => {
     if (countdownRef.current) { clearInterval(countdownRef.current); countdownRef.current = null; }
     setCountdown(null);
     triggerHaptic('light');
   }, []);
 
-  // Start/reset the 3-second silence countdown
   const armSilenceCountdown = useCallback(() => {
     if (!autoSendEnabledRef.current) return;
     if (countdownRef.current) { clearInterval(countdownRef.current); countdownRef.current = null; }
-    setCountdown(SILENCE_SECONDS);
+    setCountdown(3);
     countdownRef.current = setInterval(() => {
       setCountdown(prev => {
         if (prev !== null && prev <= 1) {
@@ -573,14 +545,13 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
 
   const startListening = useCallback(async () => {
     if (!speechSupported) {
-      // Fallback to Transcribe Hook for non-SpeechRecognition browsers
       const success = await startTranscribe();
       if (success) {
         setIsListening(true);
         triggerHaptic('medium');
         uiSounds.playMicOn();
       } else {
-        toast.error('Microphone Access Denied', { description: 'Please check your browser permissions.' });
+        toast.error('Microphone Access Denied');
       }
       return;
     }
@@ -597,16 +568,6 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
       uiSounds.playMicOn();
     };
 
-    recognition.onerror = (event: any) => {
-      console.error('[SpeechRecognition] error:', event.error);
-      if (event.error === 'not-allowed') {
-        toast.error('Microphone Access Blocked', { description: 'Enable microphone access in your settings.' });
-      } else {
-        // Silently restart or handle
-        stopListening();
-      }
-    };
-
     recognition.onresult = (e: any) => {
       let interim = '';
       let finalText = '';
@@ -619,18 +580,32 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
         setInput(prev => (prev.trim() + ' ' + finalText).trim());
         if (autoSendEnabledRef.current) armSilenceCountdown();
       } else if (interim) {
-        // We show the current interim, but we don't overwrite the whole buffer to preserve manual edits
         cancelCountdown();
       }
     };
 
     recognition.onsoundend = () => { 
-      if (autoSendEnabledRef.current) armSilenceCountdown(); 
+      if (isListeningRef.current) armSilenceCountdown(); 
     };
 
     recognition.onend = () => {
       if (isListeningRef.current) {
-        try { recognition.start(); } catch { /* ignore */ }
+        try { 
+          recognition.start(); 
+        } catch (err) {
+          console.warn('[SpeechRecognition] Restart failed:', err);
+          setIsListening(false);
+          isListeningRef.current = false;
+        }
+      }
+    };
+
+    recognition.onerror = (e: any) => {
+      console.error('[SpeechRecognition] Error:', e.error);
+      if (e.error === 'not-allowed') {
+        toast.error('Microphone access denied');
+        setIsListening(false);
+        isListeningRef.current = false;
       }
     };
 
@@ -646,7 +621,6 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
       recognitionRef.current.stop();
       recognitionRef.current = null;
     } else {
-      // If we were using the hook fallback
       const text = await stopTranscribe();
       if (text) {
         setInput(prev => (prev.trim() + ' ' + text).trim());
@@ -681,10 +655,6 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
     triggerHaptic('heavy');
   };
 
-  const handleTranslate = (lang: string) => {
-    sendMessage(`Translate your last response to ${lang}`);
-  };
-
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, [messages, isLoading]);
@@ -693,13 +663,7 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
     <AnimatePresence>
       {isOpen && (
         <div className={cn("fixed inset-0 z-[60] flex items-center justify-center p-0 sm:p-6 transition-all duration-500", isLight && !isSwipess ? "bg-black/10 backdrop-blur-md" : "bg-black/40 backdrop-blur-xl")}>
-          <motion.div 
-            initial={{ opacity: 0 }} 
-            animate={{ opacity: 1 }} 
-            exit={{ opacity: 0 }}
-            onClick={onClose}
-            className="absolute inset-0"
-          />
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="absolute inset-0" />
           
           <motion.div
             layoutId="concierge-panel"
@@ -711,7 +675,6 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                isLight && !isSwipess ? "bg-white border-black/10" : "bg-black border-white/10"
              )}
           >
-            {/* Ambient Background Glow */}
             {isSwipess && (
               <div className="absolute inset-0 pointer-events-none z-0">
                 <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-[#FF3D00]/10 blur-[120px] rounded-full animate-pulse" />
@@ -721,15 +684,7 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
 
             <AnimatePresence>
               {sidebarOpen && (
-                <ConversationSidebar 
-                  conversations={conversations}
-                  activeId={activeConversationId}
-                  onSelect={switchConversation}
-                  onDelete={deleteConversation}
-                  onNew={() => { createConversation(); setSidebarOpen(false); }}
-                  onClose={() => setSidebarOpen(false)}
-                  isSwipess={isSwipess}
-                />
+                <ConversationSidebar conversations={conversations} activeId={activeConversationId} onSelect={switchConversation} onDelete={deleteConversation} onNew={() => { createConversation(); setSidebarOpen(false); }} onClose={() => setSidebarOpen(false)} isSwipess={isSwipess} />
               )}
             </AnimatePresence>
 
@@ -741,19 +696,12 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
               }} isSwipess={isSwipess} />
             ) : (
               <div className="flex-1 flex flex-col relative z-10 overflow-hidden">
-                {/* Header: Slender, Flagship Nexus Style */}
                 <header className={cn(
                   "h-16 shrink-0 flex items-center justify-between px-6 border-b transition-all duration-500 relative z-30", 
                   isLight && !isSwipess ? "border-slate-200 bg-white/80 backdrop-blur-md" : "border-white/5 bg-black/60 backdrop-blur-3xl"
                 )}>
                   <div className="flex items-center gap-4">
-                    <button 
-                      onClick={() => { triggerHaptic('light'); setSidebarOpen(true); }}
-                      className={cn(
-                        "w-10 h-10 flex items-center justify-center rounded-xl transition-all border group", 
-                        isLight && !isSwipess ? "bg-slate-100 border-slate-200 hover:bg-slate-200" : "bg-white/5 border-white/10 hover:bg-white/20"
-                      )}
-                    >
+                    <button onClick={() => { triggerHaptic('light'); setSidebarOpen(true); }} className={cn("w-10 h-10 flex items-center justify-center rounded-xl transition-all border group", isLight && !isSwipess ? "bg-slate-100 border-slate-200 hover:bg-slate-200" : "bg-white/5 border-white/10 hover:bg-white/20")}>
                       <Menu className={cn("w-4 h-4 transition-transform group-hover:scale-110", isLight && !isSwipess ? "text-slate-600" : "text-white/60")} />
                     </button>
                     <div className="flex flex-col relative">
@@ -768,258 +716,157 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                   <div className="flex items-center gap-2">
                     <Popover open={characterPanelOpen} onOpenChange={setCharacterPanelOpen}>
                       <PopoverTrigger asChild>
-                        <button className={cn(
-                          "flex items-center gap-2.5 px-3 py-1.5 rounded-2xl border transition-all hover:scale-[1.02] active:scale-95", 
-                          isLight && !isSwipess ? "bg-slate-50 border-slate-200" : "bg-white/5 border-white/10"
-                        )}>
+                        <button className={cn("flex items-center gap-2.5 px-3 py-1.5 rounded-2xl border transition-all hover:scale-[1.02] active:scale-95", isLight && !isSwipess ? "bg-slate-50 border-slate-200" : "bg-white/5 border-white/10")}>
                            <div className="text-right hidden sm:block">
-                              <p className={cn("text-[9px] font-black uppercase tracking-widest", isLight && !isSwipess ? "text-slate-800" : "text-white")}>{currentChar.label}</p>
-                              <p className="text-[7px] font-black text-[#FF3D00] uppercase tracking-tighter opacity-80">{currentChar.subtitle}</p>
+                              <p className={cn("text-[9px] font-black uppercase tracking-widest", isLight && !isSwipess ? "text-slate-900" : "text-white")}>{CHARACTER_OPTIONS.find(c => c.key === activeCharacter)?.label}</p>
+                              <p className="text-[7px] font-bold opacity-40 uppercase tracking-tighter -mt-0.5">{CHARACTER_OPTIONS.find(c => c.key === activeCharacter)?.subtitle}</p>
                            </div>
-                           <div className="relative p-[1px] rounded-full overflow-hidden">
-                             <div className="absolute inset-0 bg-gradient-to-tr from-[#FF3D00] via-white to-[#FF3D00] animate-spin" />
-                             <div className="relative bg-black rounded-full p-0.5">
-                              <ArcGauge level={egoLevel} color={arcColor} isLoading={isLoading} icon={currentChar.icon} />
-                             </div>
-                           </div>
+                           <ArcGauge level={egoLevel} color={arcColor} isLoading={isLoading} icon={CHARACTER_OPTIONS.find(c => c.key === activeCharacter)?.icon || Sparkles} />
                         </button>
                       </PopoverTrigger>
-                      <PopoverContent className="w-64 p-2 rounded-[2.5rem] bg-black/95 backdrop-blur-2xl border-white/10 shadow-3xl z-[10001]" align="end">
-                         <div className="p-4 border-b border-white/5 mb-2">
-                            <span className="text-[9px] font-black uppercase tracking-[0.4em] text-white/60 italic">SELECT ARCHETYPE</span>
-                         </div>
-                         <div className="space-y-1">
-                            {CHARACTER_OPTIONS.map(char => (
-                              <button
-                                key={char.key}
-                                onClick={() => { setActiveCharacter(char.key); setCharacterPanelOpen(false); triggerHaptic('medium'); }}
-                                className={cn(
-                                  "w-full flex items-center gap-4 p-3 rounded-2xl transition-all",
-                                  activeCharacter === char.key ? "bg-[#FF3D00]/10 border border-[#FF3D00]/20" : "hover:bg-white/5 border border-transparent"
-                                )}
-                              >
-                                <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center", char.bgColor)}>
-                                   <char.icon className={cn("w-5 h-5", char.color)} />
-                                </div>
-                                <div className="text-left">
-                                   <p className="text-[11px] font-black uppercase tracking-wider text-white">{char.label}</p>
-                                   <p className="text-[9px] font-bold opacity-70 uppercase">{char.subtitle}</p>
-                                </div>
-                                {activeCharacter === char.key && <Check className="ml-auto w-4 h-4 text-[#FF3D00]" />}
-                              </button>
-                            ))}
-                         </div>
+                      <PopoverContent side="bottom" align="end" className={cn("w-72 p-2 rounded-3xl border shadow-2xl z-[70]", isLight && !isSwipess ? "bg-white border-slate-200" : "bg-black/95 border-white/10 backdrop-blur-3xl")}>
+                        <div className="p-3 mb-2">
+                          <h4 className="text-[10px] font-black uppercase tracking-widest text-white/40 italic">Select Logic Profile</h4>
+                        </div>
+                        <div className="space-y-1">
+                          {CHARACTER_OPTIONS.map((c) => (
+                            <button
+                              key={c.key}
+                              onClick={() => { setActiveCharacter(c.key); setCharacterPanelOpen(false); triggerHaptic('light'); }}
+                              className={cn("w-full flex items-center gap-3 p-3 rounded-2xl transition-all group", activeCharacter === c.key ? "bg-primary/10 border border-primary/20" : "hover:bg-white/5 border border-transparent")}
+                            >
+                              <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center transition-all", c.bgColor)}>
+                                <c.icon className={cn("w-5 h-5", c.color)} />
+                              </div>
+                              <div className="text-left">
+                                <p className={cn("text-[11px] font-black uppercase tracking-widest", activeCharacter === c.key ? "text-primary" : "text-white")}>{c.label}</p>
+                                <p className="text-[8px] font-bold opacity-40 uppercase tracking-tighter">{c.subtitle}</p>
+                              </div>
+                              {activeCharacter === c.key && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-primary" />}
+                            </button>
+                          ))}
+                        </div>
                       </PopoverContent>
                     </Popover>
 
-                    <button 
-                      onClick={onClose}
-                      className={cn(
-                        "w-10 h-10 flex items-center justify-center rounded-xl transition-all border group", 
-                        isLight && !isSwipess ? "bg-slate-100 border-slate-200 hover:bg-slate-200" : "bg-white/5 border-white/10 hover:bg-white/20"
-                      )}
-                    >
-                      <X className={cn("w-4 h-4 transition-transform group-hover:rotate-90", isLight && !isSwipess ? "text-slate-600" : "text-white/60")} />
+                    <button onClick={onClose} className={cn("w-10 h-10 flex items-center justify-center rounded-xl transition-all border group", isLight && !isSwipess ? "bg-slate-100 border-slate-200 hover:bg-red-500 hover:border-red-500" : "bg-white/5 border-white/10 hover:bg-white/20")}>
+                      <X className={cn("w-4 h-4 transition-transform group-hover:scale-110", isLight && !isSwipess ? "text-slate-600 group-hover:text-white" : "text-white/60")} />
                     </button>
                   </div>
                 </header>
 
-                <div className={cn("flex-1 overflow-hidden relative flex flex-col transition-colors duration-500", isLight && !isSwipess ? "bg-white" : "bg-black")}>
-                   <div 
-                     ref={scrollRef}
-                     className="flex-1 overflow-y-auto Swipess-scroll p-6 space-y-4 relative"
-                   >
-                     {messages.length === 0 ? (
-                       <div className="h-full flex flex-col items-center justify-center p-12 text-center space-y-8">
-                         <motion.div 
-                           animate={{ scale: [1, 1.05, 1], rotate: [0, 5, -5, 0] }}
-                           transition={{ duration: 5, repeat: Infinity }}
-                           className="w-24 h-24 rounded-[3rem] border border-primary/10 flex items-center justify-center bg-primary/5 shadow-xl"
-                         >
-                           <Sparkles className="w-10 h-10 text-primary opacity-60" />
-                         </motion.div>
-                         <div className="space-y-1.5">
-                           <h3 className={cn(
-                              "text-[15px] font-black uppercase tracking-[0.4em] italic",
-                              isLight ? "text-black" : "text-white"
-                            )}>
-                              {isSwipess ? "INTEL CORE ACTIVE" : "Ready to Help"}
-                            </h3>
-                            <p className={cn(
-                              "text-[10px] uppercase tracking-[0.3em] font-black",
-                              isLight ? "text-black/70" : "text-[#FF3D00]/60"
-                            )}>
-                              {isSwipess ? "AWAITING COMMAND SIGNAL" : "Awaiting user inquiry"}
-                            </p>
-                         </div>
-                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-lg">
-                           {["Luxury Beach Villas", "Hidden Cenotes Guide", "Best Tulum Coworking", "Yacht Charters"].map(s => (
-                             <button 
-                               key={s} 
-                               onClick={() => setInput(s)}
-                               className={cn(
-                                 "px-6 py-5 rounded-[2rem] border text-[11px] font-black uppercase tracking-widest transition-all text-left flex justify-between items-center group shadow-md",
-                                 isLight && !isSwipess
-                                   ? "bg-slate-50 border-slate-200 text-slate-700 hover:bg-primary/5 hover:border-primary/30"
-                                   : "bg-[#0A0A0A] border-white/10 text-white/70 hover:bg-[#FF3D00]/10 hover:border-[#FF3D00]/30"
-                               )}
-                             >
-                               {s}
-                               <ArrowRight className={cn("w-4 h-4 opacity-0 group-hover:opacity-100 transition-all translate-x-[-10px] group-hover:translate-x-0", isLight && !isSwipess ? "text-primary" : "text-[#FF3D00]")} />
-                             </button>
-                           ))}
-                         </div>
+                <div ref={scrollRef} className="flex-1 overflow-y-auto px-6 py-8 scroll-smooth custom-scrollbar">
+                  {messages.length === 0 ? (
+                    <div className="h-full flex flex-col items-center justify-center text-center space-y-6 opacity-30">
+                       <SwipessLogo className="w-16 h-16 animate-pulse" />
+                       <div>
+                          <p className="text-[10px] font-black uppercase tracking-[0.4em]">Ready for discovery</p>
+                          <p className="text-[8px] font-bold uppercase tracking-widest mt-1">Start by typing or speaking your request</p>
                        </div>
-                     ) : (
-                       messages.map((m) => (
-                         <MessageBubble 
-                           key={m.id}
-                           message={m}
-                           isUser={m.role === 'user'}
-                           isSwipess={isSwipess}
-                           onCopy={() => handleCopy(m.content)}
-                           onDelete={() => deleteMessage(m.id)}
-                           onTranslate={m.role === 'assistant' ? handleTranslate : undefined}
-                           onResend={m.role === 'user' ? () => resendMessage(m.id) : undefined}
-                           onNavigate={handleNavigate}
-                           onDraft={(cat, data) => {
-                             triggerHaptic('heavy');
-                             useModalStore.getState().openAIListing(cat, data);
-                             onClose();
-                           }}
-                           onFilter={(filters) => {
-                             triggerHaptic('success');
-                             useFilterStore.getState().updateFilters(filters);
-                             toast.success("Filters updated via Intelligence Core");
-                             onClose();
-                           }}
-                           onSpeak={m.role === 'assistant' ? handleSpeak : undefined}
-                           speakingMsgId={speakingMsgId}
-                            isSpeaking={speakingMsgId === m.id}
-                          />
-                        ))
-                      )}
                     </div>
-                        <div className={cn("p-6 pb-[calc(env(safe-area-inset-bottom,0px)+24px)] border-t relative z-20", isLight && !isSwipess ? "bg-white border-slate-200" : "bg-black border-white/5")}>
-                           <div className="relative group">
-                              <div className={cn(
-                               "flex items-end gap-2 p-3 rounded-[2.8rem] border transition-all duration-500 relative overflow-hidden shadow-2xl",
-                               isLight && !isSwipess 
-                                 ? "bg-slate-100 border-black/10 focus-within:border-primary/30 focus-within:bg-white" 
-                                 : "bg-white/[0.03] backdrop-blur-3xl border-white/10 focus-within:border-[#FF3D00]/40 focus-within:bg-black/80"
-                             )}>
-                                 {/* LEFT ACTIONS: Tactical Control Hub */}
-                                 <div className="flex flex-col gap-2 p-1">
-                                    <button 
-                                      onClick={isListening ? stopListening : startListening}
-                                      className={cn(
-                                        "w-12 h-12 flex items-center justify-center rounded-[22px] transition-all relative overflow-hidden active:scale-90",
-                                       isListening 
-                                         ? "bg-[#FF3D00] text-white shadow-[0_0_25px_rgba(255,61,0,0.6)]" 
-                                         : isLight && !isSwipess 
-                                           ? "bg-slate-200 text-slate-700 hover:bg-slate-300 border border-black/5" 
-                                           : "bg-white/10 text-white hover:text-white border border-white/10"
-                                      )}
-                                    >
-                                       <Mic className={cn("w-5 h-5", isListening && "animate-pulse")} />
-                                       {isListening && (
-                                         <motion.div 
-                                           className="absolute inset-0 bg-white/30"
-                                           animate={{ opacity: [0, 0.4, 0] }}
-                                           transition={{ duration: 1, repeat: Infinity }}
-                                         />
-                                       )}
-                                    </button>
+                  ) : (
+                    messages.map((m) => (
+                      <MessageBubble 
+                        key={m.id} 
+                        message={m} 
+                        isUser={m.role === 'user'} 
+                        isSwipess={isSwipess}
+                        onCopy={() => handleCopy(m.content)}
+                        onDelete={() => deleteMessage(m.id)}
+                        onTranslate={handleTranslate}
+                        onResend={() => resendMessage(m.id)}
+                        onNavigate={handleNavigate}
+                        onFilter={(f) => { useFilterStore.getState().setFilters(f); toast.success('Search Logic Updated'); }}
+                        onSpeak={handleSpeak}
+                        speakingMsgId={speakingMsgId}
+                        isSpeaking={isSpeaking}
+                      />
+                    ))
+                  )}
+                  {isLoading && <TypingIndicator isSwipess={isSwipess} />}
+                </div>
 
-                                    <button 
-                                       onClick={() => {
-                                         setAutoSendEnabled(!autoSendEnabled);
-                                         triggerHaptic('light');
-                                       }}
-                                       className={cn(
-                                         "w-12 h-12 flex flex-col items-center justify-center rounded-[22px] transition-all relative overflow-hidden active:scale-90 border",
-                                         autoSendEnabled 
-                                           ? "bg-[#FF3D00] text-white border-[#FF3D00]/40 shadow-[0_0_15px_rgba(255,61,0,0.3)]" 
-                                           : isLight && !isSwipess
-                                             ? "bg-white text-slate-400 border-slate-200"
-                                             : "bg-white/5 text-white/40 border-white/10 hover:text-white/70"
-                                       )}
-                                       title={autoSendEnabled ? "Auto-Send Active" : "Manual Send Only"}
-                                     >
-                                        <Zap className={cn("w-4 h-4 mb-0.5", autoSendEnabled && "fill-current")} />
-                                        <span className="text-[7px] font-black uppercase tracking-tighter">Auto</span>
-                                     </button>
-                                 </div>
+                <footer className={cn(
+                  "p-4 sm:p-6 transition-all duration-500 border-t relative z-20",
+                  isLight && !isSwipess ? "bg-white border-slate-100" : "bg-black border-white/5"
+                )}>
+                  <AnimatePresence>
+                    {countdown !== null && (
+                      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9 }} className="absolute -top-12 left-1/2 -translate-x-1/2 flex items-center gap-3 px-4 py-2 rounded-full bg-cyan-500/10 border border-cyan-500/30 backdrop-blur-xl shadow-[0_0_20px_rgba(34,211,238,0.2)]">
+                         <div className="relative w-5 h-5">
+                            <svg className="w-full h-full -rotate-90">
+                               <circle cx="10" cy="10" r="8" fill="none" stroke="rgba(34,211,238,0.1)" strokeWidth="2" />
+                               <motion.circle cx="10" cy="10" r="8" fill="none" stroke="#22d3ee" strokeWidth="2" strokeDasharray={50} animate={{ strokeDashoffset: 50 * (1 - countdown / 3) }} />
+                            </svg>
+                            <span className="absolute inset-0 flex items-center justify-center text-[8px] font-black text-cyan-400">{countdown}</span>
+                         </div>
+                         <span className="text-[10px] font-black uppercase tracking-widest text-cyan-400">AUTO-SENDING</span>
+                         <button onClick={cancelCountdown} className="p-1 rounded-full hover:bg-white/10 transition-all">
+                            <X className="w-3 h-3 text-white/50" />
+                         </button>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
 
-                                 {/* TEXT AREA: Directive Input */}
-                                 <div className="flex-1 relative pb-2 min-h-[100px] flex flex-col justify-end">
-                                    <AnimatePresence>
-                                       {countdown !== null && (
-                                         <motion.div
-                                           initial={{ opacity: 0, y: 10, scale: 0.9 }}
-                                           animate={{ opacity: 1, y: 0, scale: 1 }}
-                                           exit={{ opacity: 0, y: 10, scale: 0.9 }}
-                                           className="flex items-center gap-1.5 mb-2 ml-2"
-                                         >
-                                           <div className="relative h-9 px-4 rounded-2xl flex items-center gap-2 text-[10px] font-black overflow-hidden"
-                                             style={{ background: 'linear-gradient(135deg,#ff3d00,#ff7c40)', boxShadow: '0 10px 25px rgba(255,61,0,0.4)' }}>
-                                             <Timer className="w-3.5 h-3.5 text-white animate-pulse" />
-                                             <span className="text-white tabular-nums tracking-widest uppercase">AUTO-SENDING IN {countdown}S</span>
-                                             <div className="absolute inset-0 bg-white/10 animate-pulse" />
-                                           </div>
-                                           <button
-                                             onClick={cancelCountdown}
-                                             className="w-9 h-9 rounded-2xl flex items-center justify-center bg-white/10 hover:bg-white/20 transition-all border border-white/20"
-                                           >
-                                             <X className="w-4 h-4 text-white" />
-                                           </button>
-                                         </motion.div>
-                                       )}
-                                    </AnimatePresence>
-
-                                    <textarea
-                                      ref={inputRef}
-                                      value={input}
-                                      onChange={(e) => setInput(e.target.value)}
-                                      onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
-                                      placeholder={isListening ? "Listening for directive..." : "Transmitting Directive..."}
-                                      className={cn(
-                                        "w-full bg-transparent border-none focus:ring-0 focus:outline-none text-[15px] py-2 px-4 resize-none max-h-48 min-h-[50px] font-medium outline-none transition-all",
-                                        isLight && !isSwipess ? "text-slate-900 placeholder:text-slate-400" : "text-white placeholder:text-white/30"
-                                      )}
-                                      rows={1}
-                                    />
+                  <div className="max-w-3xl mx-auto flex items-end gap-3">
+                    <div className={cn("flex-1 relative flex items-end rounded-3xl transition-all duration-500 border group", isLight && !isSwipess ? "bg-slate-50 border-slate-200 focus-within:border-primary/50" : "bg-white/5 border-white/10 focus-within:border-[#FF3D00]/50")}>
+                       <textarea
+                         value={input}
+                         onChange={(e) => { setInput(e.target.value); cancelCountdown(); }}
+                         placeholder={isListening ? "Listening... Speak now" : "Inquire for discovery..."}
+                         rows={1}
+                         className={cn("w-full bg-transparent border-none focus:ring-0 py-4 px-5 text-sm resize-none custom-scrollbar min-h-[56px] max-h-32 transition-all", isListening && "text-cyan-400 placeholder:text-cyan-400/40")}
+                         onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
+                       />
+                       <div className="pr-2 pb-2 flex items-center gap-1.5">
+                         <Popover>
+                           <PopoverTrigger asChild>
+                              <button className="p-2.5 rounded-2xl hover:bg-white/5 transition-all opacity-40 hover:opacity-100">
+                                 <Plus className="w-4 h-4" />
+                              </button>
+                           </PopoverTrigger>
+                           <PopoverContent side="top" className="w-48 p-1 rounded-2xl border bg-black/90 border-white/10 backdrop-blur-xl">
+                              <button onClick={() => { setAutoSendEnabled(!autoSendEnabled); triggerHaptic('light'); }} className="w-full flex items-center justify-between p-3 rounded-xl hover:bg-white/5 transition-all">
+                                 <span className="text-[10px] font-black uppercase tracking-widest text-white/70">Auto-Send</span>
+                                 <div className={cn("w-8 h-4 rounded-full relative transition-all", autoSendEnabled ? "bg-cyan-500" : "bg-white/10")}>
+                                    <div className={cn("absolute top-1 w-2 h-2 rounded-full bg-white transition-all", autoSendEnabled ? "right-1" : "left-1")} />
                                  </div>
-                                 
-                                 {/* RIGHT ACTION: Execute Button */}
-                                 <div className="p-1">
-                                    <button 
-                                      onClick={handleSend}
-                                      disabled={!input.trim() || isLoading}
-                                      className={cn(
-                                        "w-14 h-14 flex items-center justify-center rounded-[26px] shadow-2xl transition-all active:scale-95 group border",
-                                        (input.trim() && !isLoading) 
-                                          ? "bg-[#FF3D00] text-white border-[#FF3D00]/50 shadow-[0_15px_35px_rgba(255,61,0,0.5)]" 
-                                          : isLight && !isSwipess
-                                            ? "bg-slate-100 text-slate-300 border-slate-200"
-                                            : "bg-white/5 text-white/10 border-white/5"
-                                      )}
-                                    >
-                                       <Send className={cn("w-6 h-6 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1", input.trim() && "drop-shadow-[0_0_12px_rgba(255,255,255,0.6)]")} />
-                                    </button>
-                                 </div>
-                              </div>
-                           </div>
-                        </div>
-                        </div>
-                        </div>
-                     )}
-                  </motion.div>
-               </div>
+                              </button>
+                           </PopoverContent>
+                         </Popover>
+                         
+                         <button 
+                           onPointerDown={startListening}
+                           onPointerUp={stopListening}
+                           onPointerCancel={stopListening}
+                           className={cn("p-2.5 rounded-2xl transition-all relative group", isListening ? "bg-cyan-500 text-white shadow-[0_0_20px_rgba(34,211,238,0.5)] scale-110" : "hover:bg-white/5 opacity-40 hover:opacity-100")}
+                         >
+                            {isListening ? <Mic className="w-4 h-4 animate-pulse" /> : <Mic className="w-4 h-4" />}
+                            {isListening && (
+                               <motion.div className="absolute -inset-1 rounded-2xl border border-cyan-400" animate={{ opacity: [0.5, 0, 0.5], scale: [1, 1.2, 1] }} transition={{ duration: 1.5, repeat: Infinity }} />
+                            )}
+                         </button>
+                       </div>
+                    </div>
+                    
+                    <button
+                      onClick={handleSend}
+                      disabled={!input.trim() || isLoading}
+                      className={cn("h-14 w-14 rounded-3xl flex items-center justify-center transition-all shadow-xl active:scale-90", isSwipess ? "bg-[#FF3D00] hover:bg-[#FF4D00] shadow-[#FF3D00]/20" : "bg-primary hover:bg-primary/90", (!input.trim() || isLoading) && "opacity-20 grayscale pointer-events-none")}
+                    >
+                      {isLoading ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5 text-white" />}
+                    </button>
+                  </div>
+                </footer>
+              </div>
             )}
-         </AnimatePresence>,
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>,
     document.body
   );
 }
 
+ConciergeChatComponent.displayName = 'ConciergeChat';
 export const ConciergeChat = memo(ConciergeChatComponent);

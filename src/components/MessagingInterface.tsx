@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Send, AlertCircle, Zap, ChevronLeft, Info, Star, Smile, Sparkles, MoreVertical, ShieldAlert, Ban, Mic, MicOff, Timer, X, CreditCard, Coins } from 'lucide-react';
+import { triggerHaptic } from '@/utils/haptics';
+import { uiSounds } from '@/utils/uiSounds';
 import { useConversationMessages, useSendMessage } from '@/hooks/useConversations';
 import { useRealtimeChat } from '@/hooks/useRealtimeChat';
 import { useMarkMessagesAsRead } from '@/hooks/useMarkMessagesAsRead';
@@ -21,8 +23,6 @@ import { RatingSubmissionDialog } from '@/components/RatingSubmissionDialog';
 import { TokensModal } from '@/components/TokensModal';
 import useAppTheme from '@/hooks/useAppTheme';
 import { cn } from '@/lib/utils';
-import { triggerHaptic } from '@/utils/haptics';
-import { uiSounds } from '@/utils/uiSounds';
 import { usePresence } from '@/hooks/usePresence';
 import { useBlockUser } from '@/hooks/useBlocking';
 import {
@@ -129,15 +129,48 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
     return scrollHeight - scrollTop - clientHeight < 100;
   }, []);
 
-  // ── Voice Logic ────────────────────────────────────────────────
+  // ── Voice + Auto-Send Logic (Parity with Concierge) ──
   const [isListening, setIsListening] = useState(false);
+  const [countdown, setCountdown] = useState<number | null>(null);
   const recognitionRef = useRef<any>(null);
+  const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const inputValueRef = useRef('');
   const isListeningRef = useRef(false);
+  const SILENCE_SECONDS = 3;
 
+  useEffect(() => { inputValueRef.current = newMessage; }, [newMessage]);
   useEffect(() => { isListeningRef.current = isListening; }, [isListening]);
 
   const speechSupported = typeof window !== 'undefined' &&
     ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window);
+
+  const cancelCountdown = useCallback(() => {
+    if (countdownRef.current) { clearInterval(countdownRef.current); countdownRef.current = null; }
+    setCountdown(null);
+    triggerHaptic('light');
+  }, []);
+
+  const armSilenceCountdown = useCallback(() => {
+    if (countdownRef.current) { clearInterval(countdownRef.current); countdownRef.current = null; }
+    setCountdown(SILENCE_SECONDS);
+    countdownRef.current = setInterval(() => {
+      setCountdown(prev => {
+        if (prev !== null && prev <= 1) {
+          clearInterval(countdownRef.current!);
+          countdownRef.current = null;
+          const text = inputValueRef.current.trim();
+          if (text) {
+            sendMessage.mutate({ conversationId, message: text });
+            setNewMessage('');
+            triggerHaptic('heavy');
+            uiSounds.playTap();
+          }
+          return null;
+        }
+        return prev !== null ? prev - 1 : null;
+      });
+    }, 1000);
+  }, [sendMessage, conversationId]);
 
   const startListening = useCallback(() => {
     if (!speechSupported) return;
@@ -162,34 +195,45 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
       }
       if (finalText) {
         setNewMessage(finalText);
+        armSilenceCountdown();
       } else {
         setNewMessage(interim);
+        cancelCountdown();
       }
     };
 
+    recognition.onsoundend = () => { if (isListeningRef.current) armSilenceCountdown(); };
+    
     recognition.onend = () => {
       if (isListeningRef.current) {
-        try { recognition.start(); } catch { /* ignore */ }
+        try { recognition.start(); } catch (err) { setIsListening(false); isListeningRef.current = false; }
+      }
+    };
+
+    recognition.onerror = (e: any) => {
+      if (e.error === 'not-allowed') {
+        setIsListening(false);
+        isListeningRef.current = false;
       }
     };
 
     recognitionRef.current = recognition;
     recognition.start();
-  }, [speechSupported]);
+  }, [speechSupported, armSilenceCountdown, cancelCountdown]);
 
   const stopListening = useCallback(() => {
     isListeningRef.current = false;
     setIsListening(false);
     recognitionRef.current?.stop();
+    cancelCountdown();
     uiSounds.playMicOff();
-  }, []);
+  }, [cancelCountdown]);
 
   useEffect(() => {
     const messageCountIncreased = messages.length > previousMessageCountRef.current;
     
     if (messageCountIncreased) {
       const lastMessage = messages[messages.length - 1];
-      // Only play notification sound if the message is from the other user
       if (lastMessage && lastMessage.sender_id !== user?.id) {
         uiSounds.playNotification();
       }
@@ -247,7 +291,6 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
         isThemeLight ? "bg-[#ffffff]" : "bg-[#000000]"
       )}>
 
-        {/* NEXUS HUD HEADER */}
         <div className={cn(
             "shrink-0 px-5 py-4 z-20 border-b transition-all",
             isThemeLight
@@ -257,7 +300,6 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
           <div className="flex items-center gap-3">
             <button
               onClick={onBack}
-              aria-label="Go back to conversations"
               className={cn(
                  "shrink-0 flex items-center justify-center w-10 h-10 rounded-2xl active:scale-90 transition-all",
                  isThemeLight ? "bg-black/[0.06] text-black hover:bg-black/10" : "bg-white/[0.07] text-white hover:bg-white/[0.12]"
@@ -390,7 +432,6 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
           )}
         </div>
 
-        {/* Message Feed */}
         <div
           id="chat-scroll-container"
           className={cn("flex-1 relative min-h-0", isThemeLight ? "bg-[#f5f5f7]" : "bg-[#050505]")}
@@ -431,18 +472,12 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
           <div ref={messagesEndRef} />
         </div>
 
-        {/* NEXUS COMMAND INPUT */}
         <div className={cn(
           "shrink-0 px-4 pb-6 pt-4 backdrop-blur-3xl border-t transition-all",
           isThemeLight ? "bg-white/90 border-black/[0.06]" : "bg-[#050505]/90 border-white/[0.05]"
         )}>
 
-          {/* 💎 PREMIUM UPGRADE BAR */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-4"
-          >
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-4">
             <button
               onClick={() => setShowUpgradeDialog(true)}
               className="w-full p-4 rounded-[1.5rem] bg-gradient-to-r from-rose-500 via-violet-600 to-rose-500 border border-white/20 flex items-center justify-between group hover:scale-[1.02] transition-all active:scale-[0.98] shadow-xl shadow-rose-500/20"
@@ -453,13 +488,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
                 </div>
                 <div className="text-left">
                   <div className="flex items-center gap-2">
-                    <motion.p 
-                      animate={{ opacity: [0.7, 1, 0.7] }}
-                      transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                      className="text-[11px] font-black text-white uppercase tracking-[0.2em] leading-none"
-                    >
-                      Unlimited Messages
-                    </motion.p>
+                    <motion.p animate={{ opacity: [0.7, 1, 0.7] }} transition={{ duration: 2, repeat: Infinity, ease: "linear" }} className="text-[11px] font-black text-white uppercase tracking-[0.2em] leading-none">Unlimited Messages</motion.p>
                     <div className="px-1.5 py-0.5 rounded-md bg-white text-rose-500 text-[7px] font-black uppercase tracking-widest shadow-sm">Active</div>
                   </div>
                   <p className="text-[9px] font-bold text-white/60 uppercase tracking-widest mt-1.5">Unlock the full Nexus experience</p>
@@ -473,23 +502,10 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
 
           <AnimatePresence>
             {showEmojiPicker && (
-              <motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: 'auto', opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                className="pb-4 overflow-hidden"
-              >
+              <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="pb-4 overflow-hidden">
                 <div className="flex flex-wrap gap-2 justify-center py-2">
                   {QUICK_EMOJIS.map(emoji => (
-                    <button
-                      key={emoji}
-                      type="button"
-                      onClick={() => { setNewMessage(p => p + emoji); setShowEmojiPicker(false); }}
-                      className={cn(
-                        "w-10 h-10 flex items-center justify-center text-xl rounded-xl transition-all active:scale-90",
-                        isThemeLight ? "hover:bg-black/[0.06]" : "hover:bg-white/[0.07]"
-                      )}
-                    >
+                    <button key={emoji} type="button" onClick={() => { setNewMessage(p => p + emoji); setShowEmojiPicker(false); }} className={cn("w-10 h-10 flex items-center justify-center text-xl rounded-xl transition-all active:scale-90", isThemeLight ? "hover:bg-black/[0.06]" : "hover:bg-white/[0.07]")}>
                       {emoji}
                     </button>
                   ))}
@@ -498,90 +514,73 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
             )}
           </AnimatePresence>
 
-          <form onSubmit={handleSendMessage} className="flex gap-3 items-center">
+          <form onSubmit={handleSendMessage} className="flex gap-3 items-center relative">
             <button
               type="button"
               onClick={() => setShowEmojiPicker(p => !p)}
-              className={cn(
-                "shrink-0 w-12 h-12 rounded-2xl flex items-center justify-center transition-all border",
-                showEmojiPicker
-                  ? "bg-rose-500/[0.12] border-rose-500/30 text-rose-500"
-                  : (isThemeLight
-                      ? "bg-black/[0.05] border-black/[0.06] text-black/50 hover:bg-black/[0.09]"
-                      : "bg-white/[0.05] border-white/[0.07] text-white/40 hover:bg-white/[0.09]")
-              )}
+              className={cn("shrink-0 w-12 h-12 rounded-2xl flex items-center justify-center transition-all border", showEmojiPicker ? "bg-rose-500/[0.12] border-rose-500/30 text-rose-500" : (isThemeLight ? "bg-black/[0.05] border-black/[0.06] text-black/50 hover:bg-black/[0.09]" : "bg-white/[0.05] border-white/[0.07] text-white/40 hover:bg-white/[0.09]"))}
             >
               <Smile className="w-6 h-6" />
             </button>
 
             <div className="flex-1 relative flex items-center group">
-              <div className="absolute inset-0 bg-gradient-to-r from-rose-500/10 to-violet-600/10 rounded-2xl blur opacity-0 group-focus-within:opacity-100 transition-opacity" />
               <input
                 value={newMessage}
                 onChange={(e) => { setNewMessage(e.target.value); if (e.target.value.trim()) startTyping(); else stopTyping(); }}
                 onFocus={() => { if (isListening) stopListening(); }}
-                placeholder={isListening ? "Streaming voice..." : "Nexus command..."}
+                placeholder={isAtLimit ? "LIMIT REACHED" : isListening ? "Listening..." : "Message..."}
                 className={cn(
-                  "relative w-full h-14 pl-6 pr-14 rounded-2xl text-[15px] font-bold outline-none transition-all border",
-                  isThemeLight
-                    ? "bg-white border-black/10 text-black placeholder:text-black/30 focus:border-rose-500/30"
-                    : "bg-[#121212] border-white/5 text-white placeholder:text-white/10 focus:border-rose-500/30"
+                  "flex-1 h-12 pl-5 pr-12 rounded-2xl text-[14px] font-medium outline-none transition-all border focus:ring-2 focus:ring-[#EB4898]/20",
+                  isThemeLight ? "bg-white border-black/10 text-black placeholder:text-black/30" : "bg-[#121212] border-white/5 text-white placeholder:text-white/10"
                 )}
                 disabled={sendMessage.isPending || isAtLimit}
               />
               
-              <div className="absolute right-2 flex items-center gap-1">
+              {speechSupported && (
                 <button
                   type="button"
                   onClick={isListening ? stopListening : startListening}
-                  className={cn(
-                    "w-10 h-10 rounded-xl flex items-center justify-center transition-all",
-                    isListening 
-                      ? "bg-rose-500 text-white shadow-[0_0_20px_rgba(235,72,152,0.5)] animate-pulse" 
-                      : (isThemeLight ? "text-black hover:text-rose-500" : "text-white/20 hover:text-rose-500")
-                  )}
+                  className={cn("absolute right-1 w-10 h-10 rounded-xl flex items-center justify-center transition-all", isListening ? "bg-red-500 text-white shadow-[0_0_15px_rgba(239,68,68,0.4)] animate-pulse" : (isThemeLight ? "text-black/40 hover:text-rose-500" : "text-white/20 hover:text-rose-500"))}
                 >
-                  {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+                  {isListening ? <MicOff className="w-4.5 h-4.5" /> : <Mic className="w-4.5 h-4.5" />}
                 </button>
-              </div>
+              )}
             </div>
 
-            <motion.button
+            <AnimatePresence>
+              {countdown !== null && (
+                <motion.div initial={{ opacity: 0, scale: 0.9, y: 10 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 10 }} className="absolute bottom-full left-0 right-0 mb-4 flex items-center gap-2 z-50">
+                  <div className="flex-1 h-12 px-4 rounded-[1.5rem] flex items-center gap-3 overflow-hidden shadow-[0_20px_50px_rgba(235,72,152,0.4)] border border-white/20" style={{ background: 'linear-gradient(135deg, #EB4898 0%, #FF4D00 100%)' }}>
+                    <motion.div className="absolute inset-0 bg-white/20" animate={{ opacity: [0, 0.4, 0] }} transition={{ duration: 1.5, repeat: Infinity }} />
+                    <motion.div className="absolute bottom-0 left-0 h-1 bg-white/40" initial={{ width: '100%' }} animate={{ width: '0%' }} transition={{ duration: SILENCE_SECONDS, ease: 'linear' }} />
+                    <div className="relative z-10 flex items-center justify-center w-6 h-6 rounded-full bg-white/20 backdrop-blur-md">
+                      <Timer className="w-3.5 h-3.5 text-white animate-pulse" />
+                    </div>
+                    <div className="flex flex-col relative z-10">
+                      <span className="text-[8px] font-black uppercase tracking-[0.2em] text-white/70 leading-none mb-0.5">Auto-Transmit</span>
+                      <span className="text-[12px] font-black text-white leading-none tabular-nums">SENDING IN {countdown}S</span>
+                    </div>
+                  </div>
+                  <button onClick={cancelCountdown} className="w-12 h-12 rounded-2xl flex items-center justify-center bg-white text-black shadow-xl active:scale-90 transition-all border border-black/10">
+                    <X className="w-5 h-5 stroke-[3px]" />
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            <button
               type="submit"
               disabled={!newMessage.trim() || sendMessage.isPending || isAtLimit}
-              className={cn(
-                "shrink-0 w-14 h-14 rounded-2xl flex items-center justify-center transition-all",
-                newMessage.trim() && !isAtLimit
-                  ? "bg-white text-black shadow-xl hover:scale-105 active:scale-95"
-                  : (isThemeLight ? "bg-black/[0.05] text-black/10 border border-black/[0.06]" : "bg-white/[0.05] text-white/10 border border-white/[0.05]")
-              )}
+              className={cn("shrink-0 w-14 h-14 rounded-2xl flex items-center justify-center transition-all", newMessage.trim() && !isAtLimit ? "bg-white text-black shadow-xl hover:scale-105 active:scale-95" : (isThemeLight ? "bg-black/[0.05] text-black/10 border border-black/[0.06]" : "bg-white/[0.05] text-white/10 border border-white/[0.05]"))}
             >
               <Send className="w-6 h-6" />
-            </motion.button>
+            </button>
           </form>
         </div>
 
-        {/* Modals */}
-        <MessageActivationPackages
-          isOpen={showUpgradeDialog}
-          onClose={() => setShowUpgradeDialog(false)}
-          userRole={currentUserRole}
-        />
-
-        <TokensModal
-          open={showTokensModal}
-          onOpenChange={setShowTokensModal}
-        />
-
-        <RatingSubmissionDialog
-          open={showRatingDialog}
-          onOpenChange={setShowRatingDialog}
-          targetId={listing?.id || otherUser.id}
-          targetType={listing?.id ? 'listing' : 'user'}
-          targetName={listing?.title || otherUser.full_name}
-          categoryId={listing?.id ? (listing.category === 'vehicle' ? 'vehicle' : 'property') : 'client'}
-          onSuccess={() => setShowRatingDialog(false)}
-        />
+        <MessageActivationPackages isOpen={showUpgradeDialog} onClose={() => setShowUpgradeDialog(false)} userRole={currentUserRole} />
+        <TokensModal open={showTokensModal} onOpenChange={setShowTokensModal} />
+        <RatingSubmissionDialog open={showRatingDialog} onOpenChange={setShowRatingDialog} targetId={listing?.id || otherUser.id} targetType={listing?.id ? 'listing' : 'user'} targetName={listing?.title || otherUser.full_name} categoryId={listing?.id ? (listing.category === 'vehicle' ? 'vehicle' : 'property') : 'client'} onSuccess={() => setShowRatingDialog(false)} />
       </div>
     </>
   );

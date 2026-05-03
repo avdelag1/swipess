@@ -1,5 +1,5 @@
 /**
- * TINDER-STYLE SWIPE CARD
+ * TINDER-STYLE SWIPE CARD — Nexus Edition
  *
  * Full diagonal movement with physics-based animations.
  * Card follows finger freely in any direction with natural rotation.
@@ -9,6 +9,7 @@
  * - Rotation based on drag position (pivot from bottom)
  * - Spring physics for snap-back and exit
  * - Next card visible underneath with scale/opacity anticipation
+ * - Advanced "Nexus" Zoom (Hold to Magnify)
  */
 
 import { memo, useRef, useState, useCallback, useMemo, useEffect, forwardRef, useImperativeHandle } from 'react';
@@ -25,69 +26,24 @@ import CardImage from '@/components/CardImage';
 import { imageCache } from '@/lib/swipe/cardImageCache';
 import useAppTheme from '@/hooks/useAppTheme';
 import { cn } from '@/lib/utils';
-import { Flag, Share2, ThumbsUp, ThumbsDown } from 'lucide-react';
+import { ThumbsUp, ThumbsDown, Flame } from 'lucide-react';
 
-// Exposed interface for parent to trigger swipe animations
 export interface SimpleSwipeCardRef {
   triggerSwipe: (direction: 'left' | 'right') => void;
 }
 
-// Tinder-style thresholds
-const SWIPE_THRESHOLD = 65; // Distance to trigger swipe
-const VELOCITY_THRESHOLD = 280; // Velocity to trigger swipe
-const FALLBACK_PLACEHOLDER = ''; // Empty → CardImage renders branded PlaceholderImage
+const SWIPE_THRESHOLD = 65;
+const VELOCITY_THRESHOLD = 280;
+const FALLBACK_PLACEHOLDER = '';
+const MAX_ROTATION = 14;
 
-// Max rotation angle (degrees) based on horizontal position
-const MAX_ROTATION = 14; // Even smoother, more premium pivot
-
-// Calculate exit distance dynamically
 const getExitDistance = () => typeof window !== 'undefined' ? window.innerWidth * 1.5 : 800;
 
-/**
- * SPRING CONFIGS - Tinder-tuned physics
- */
 const SPRING_CONFIGS = {
-  // SNAPPY: Quick response, minimal overshoot
-  SNAPPY: { stiffness: 600, damping: 30, mass: 0.8 },
-  // HIGH-PERFORMANCE SILK: Hyper-responsive drag return
   SILK: { stiffness: 500, damping: 25, mass: 0.4 },
-  // SOFT: Playful with bounce - EXTREMELY FUN FEEL
-  SOFT: { stiffness: 250, damping: 18, mass: 1.1 },
 };
 
-const ACTIVE_SPRING = SPRING_CONFIGS.SILK; // Hyper-snappy iOS feel
-
-/**
- * FAST GLASS SHINE ANIMATION
- * Creates a "moving reflection" that follows the user's drag, hardware accelerated.
- */
-const GlassShine = ({ x, y }: { x: MotionValue<number>; y: MotionValue<number> }) => {
-  const shineX = useTransform(x, [-300, 300], ['-50%', '150%']);
-  const shineY = useTransform(y, [-300, 300], ['-50%', '150%']);
-  const shineOpacity = useTransform(
-    [x, y],
-    ([latestX, latestY]: any) => {
-      const distance = Math.sqrt(latestX ** 2 + latestY ** 2);
-      return Math.min(0.4, distance / 400);
-    }
-  );
-
-  return (
-    <motion.div
-      className="absolute inset-0 z-10 pointer-events-none overflow-hidden"
-      style={{ opacity: shineOpacity }}
-    >
-      <motion.div
-        className="absolute w-[200%] h-[200%] bg-gradient-radial from-white/30 via-transparent to-transparent"
-        style={{
-          x: shineX,
-          y: shineY,
-          transform: 'translate(-50%, -50%)',
-        }}
-      />
-    </motion.div>
-  );
-};
+const ACTIVE_SPRING = SPRING_CONFIGS.SILK;
 
 interface SimpleSwipeCardProps {
   listing: Listing | MatchedListing | MatchedClientProfile;
@@ -96,10 +52,8 @@ interface SimpleSwipeCardProps {
   onShare?: () => void;
   onReport?: () => void;
   isTop?: boolean;
-  /** Optional shared MotionValue from parent — lets container animate the card below in real-time */
   externalX?: MotionValue<number>;
   externalY?: MotionValue<number>;
-  /** Called when drag gesture starts — lets parent kick off N+2 image preload */
   onDragStart?: () => void;
 }
 
@@ -111,60 +65,32 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   externalX,
   externalY,
   onDragStart,
-  onShare,
-  onReport,
 }, ref) => {
   const { isLight } = useAppTheme();
   const isDragging = useRef(false);
   const hasExited = useRef(false);
   const isExitingRef = useRef(false);
   const lastListingIdRef = useRef(listing.id || (listing as any).user_id);
-  const dragStartY = useRef(0);
   const dragControls = useDragControls();
   const dragStartedRef = useRef(false);
   const storedPointerEventRef = useRef<React.PointerEvent | null>(null);
 
-  // Motion values for BOTH X and Y - enables diagonal movement
-  // Always create internal values (hooks must not be conditional)
-  // Use external MotionValue if provided so the parent can observe drag position in real-time
   const _internalX = useMotionValue(0);
   const _internalY = useMotionValue(0);
   const x = externalX ?? _internalX;
   const y = externalY ?? _internalY;
 
-  // Tinder-style rotation: pivots from bottom of card based on X drag
-  // When you drag right, card rotates clockwise (positive rotation)
-  // Rotation is proportional to X position, giving natural "pivot" feel
   const cardRotate = useTransform(x, [-300, 0, 300], [-MAX_ROTATION, 0, MAX_ROTATION]);
-
-  // Card opacity stays at 1 during drag for max smoothness (no compositing flicker)
-  // Only fade slightly at extreme positions to hint at exit
-  const cardOpacity = useTransform(
-    x,
-    [-300, -150, 0, 150, 300],
-    [0.7, 1, 1, 1, 0.7]
-  );
-
-  // Like/Pass overlay opacity based on X position
+  const cardOpacity = useTransform(x, [-300, -150, 0, 150, 300], [0.7, 1, 1, 1, 0.7]);
   const likeOpacity = useTransform(x, [0, SWIPE_THRESHOLD * 0.5, SWIPE_THRESHOLD], [0, 0.5, 1]);
   const passOpacity = useTransform(x, [-SWIPE_THRESHOLD, -SWIPE_THRESHOLD * 0.5, 0], [1, 0.5, 0]);
 
-
-
-  const containerRectRef = useRef<DOMRect | null>(null);
-
-
-
-  // Image state
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [photoDirection, setPhotoDirection] = useState<'left' | 'right'>('right');
 
   const images = useMemo(() => {
     let result: string[] = [];
-    
-    // Check if it's a profile or a listing
     const isProfile = (listing as any).profile_images || (listing as any).name;
-    
     if (isProfile) {
       if (Array.isArray((listing as any).profile_images) && (listing as any).profile_images.length > 0) {
         result = (listing as any).profile_images;
@@ -172,30 +98,21 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
         result = [(listing as any).avatar_url];
       }
     } else {
-      if ((listing as any).video_url) {
-        result.push((listing as any).video_url);
-      }
+      if ((listing as any).video_url) result.push((listing as any).video_url);
       if (Array.isArray((listing as any).images) && (listing as any).images.length > 0) {
         result = [...result, ...(listing as any).images];
       } else if ((listing as any).image_url) {
         result.push((listing as any).image_url);
       }
     }
-
-    if (result.length === 0) {
-      return [FALLBACK_PLACEHOLDER];
-    }
-    return result;
+    return result.length === 0 ? [FALLBACK_PLACEHOLDER] : result;
   }, [listing]);
 
   const imageCount = images.length;
   const currentImage = images[currentImageIndex] || FALLBACK_PLACEHOLDER;
 
-  // AGGRESSIVE PRELOAD: When this card is on top, preload ALL its images immediately
-  // This ensures instant photo switching when user taps left/right
   useEffect(() => {
     if (!isTop || images.length <= 1) return;
-
     images.forEach((imageUrl) => {
       if (imageUrl && imageUrl !== FALLBACK_PLACEHOLDER && !imageCache.has(imageUrl)) {
         const img = new Image();
@@ -205,15 +122,10 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
     });
   }, [isTop, images, listing.id]);
 
-  // Reset state when listing changes - but ONLY if we're not mid-exit
-  // This prevents the snap-back glitch caused by resetting during exit animation
   useEffect(() => {
     const currentId = listing.id || (listing as any).user_id;
-    // Check if this is a genuine listing change (not a re-render during exit)
     if (currentId !== lastListingIdRef.current) {
       lastListingIdRef.current = currentId;
-
-      // Only reset if we're not currently in an exit animation
       if (!isExitingRef.current) {
         hasExited.current = false;
         setCurrentImageIndex(0);
@@ -223,47 +135,34 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
     }
   }, [listing.id, (listing as any).user_id, x, y]);
 
-  // Magnifier hook for press-and-hold zoom
   const [isZoomed, setIsZoomed] = useState(false);
   const { containerRef, pointerHandlers: magnifierPointerHandlers, isActive: isMagnifierActive, wasActive: wasMagnifierActive } = useMagnifier({
-    scale: 2.8, // Edge-to-edge zoom level
-    holdDelay: 380, // Slightly longer to ensure swipe intent is clear
+    scale: 2.8,
+    holdDelay: 380,
     enabled: isTop,
     onActiveChange: setIsZoomed,
   });
 
-  // Fetch rating aggregate for this listing
   const { data: ratingAggregate, isLoading: isRatingLoading } = useListingRatingAggregate(listing.id, (listing as any).category);
 
-  // Unified pointer down handler: starts magnifier hold timer AND stores event for potential drag
   const handleUnifiedPointerDown = useCallback((e: React.PointerEvent) => {
     if (!isTop) return;
     dragStartedRef.current = false;
     storedPointerEventRef.current = e;
-    // Start magnifier hold timer
     magnifierPointerHandlers.onPointerDown(e);
   }, [isTop, magnifierPointerHandlers]);
 
-  // Unified pointer move: decides between magnifier pan vs starting drag
   const handleUnifiedPointerMove = useCallback((e: React.PointerEvent) => {
-    // 1. If currently zoomed, MAGNIFIER OWNS THE POINTER.
     if (isMagnifierActive()) {
       e.stopPropagation();
-      if (e.cancelable) e.preventDefault();
       magnifierPointerHandlers.onPointerMove(e);
       return;
     }
-    
-    // 2. If we haven't started a drag yet, check if we should
     if (storedPointerEventRef.current && !dragStartedRef.current) {
       const dx = Math.abs(e.clientX - (storedPointerEventRef.current as any).clientX);
       const dy = Math.abs(e.clientY - (storedPointerEventRef.current as any).clientY);
-      
-      // Swipe threshold: 18px move starts the swipe and KILLS the hold timer
       if (dx > 18 || dy > 18) {
-        // Cancel any pending magnifier hold timer IMMEDIATELY
         magnifierPointerHandlers.onPointerUp(e); 
-        
         dragStartedRef.current = true;
         isDragging.current = true;
         dragControls.start((storedPointerEventRef.current as any).nativeEvent);
@@ -276,14 +175,8 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
     magnifierPointerHandlers.onPointerUp(e);
   }, [magnifierPointerHandlers]);
 
-  const handleUnifiedPointerCancel = useCallback((e: React.PointerEvent) => {
-    storedPointerEventRef.current = null;
-    magnifierPointerHandlers.onPointerUp(e);
-  }, [magnifierPointerHandlers]);
-
   const handleDragStart = useCallback((_: any, info: PanInfo) => {
     isDragging.current = true;
-    dragStartY.current = info.point.y;
     triggerHaptic('light');
     onDragStart?.();
   }, [onDragStart]);
@@ -294,7 +187,6 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
     const velocityX = info.velocity.x;
     const velocityY = info.velocity.y;
 
-    // 🏎️ MULTI-DIMENSIONAL SWIPE: L/R for High Intent, UP for Fast Pass
     const isHorizontalSwipe = Math.abs(sweepX) > SWIPE_THRESHOLD || Math.abs(velocityX) > VELOCITY_THRESHOLD;
     const isVerticalUpSwipe = sweepY < -SWIPE_THRESHOLD || velocityY < -VELOCITY_THRESHOLD;
 
@@ -305,66 +197,43 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
       triggerHaptic(direction === 'right' ? 'success' : 'warning');
       onSwipe(direction);
     } else if (isVerticalUpSwipe) {
-      // 🚀 FAST PASS (FLICK UP)
       hasExited.current = true;
       isExitingRef.current = true;
       triggerHaptic('light');
-      onSwipe('left'); // Flick Up = Pass
+      onSwipe('left');
     } else {
-      // Snap back to center
       animate(x, 0, { type: 'spring', ...ACTIVE_SPRING });
       animate(y, 0, { type: 'spring', ...ACTIVE_SPRING });
     }
-
-    setTimeout(() => {
-      isDragging.current = false;
-    }, 100);
+    setTimeout(() => { isDragging.current = false; }, 100);
   }, [onSwipe, x, y]);
 
-  const handleCardTap = useCallback(() => {
-    // Card tap does nothing by default
-  }, []);
-
   const handleImageTap = useCallback((e: React.MouseEvent) => {
-    // 🛸 NEXUS GESTURE LOCK: If we just finished a zoom (wasMagnifierActive),
-    // block this tap to prevent the photo from "jumping" on finger lift.
-    if (isMagnifierActive() || wasMagnifierActive()) {
-      return;
-    }
-
+    if (isMagnifierActive() || wasMagnifierActive()) return;
     const rect = e.currentTarget.getBoundingClientRect();
     const clickX = e.clientX - rect.left;
     const width = rect.width;
 
-    // LEFT 33% - Prev image
     if (imageCount > 1 && clickX < width * 0.33) {
       setPhotoDirection('left');
       setCurrentImageIndex(prev => prev === 0 ? imageCount - 1 : prev - 1);
       triggerHaptic('light');
-    }
-    // RIGHT 33% - Next image
-    else if (imageCount > 1 && clickX > width * 0.67) {
+    } else if (imageCount > 1 && clickX > width * 0.67) {
       setPhotoDirection('right');
       setCurrentImageIndex(prev => prev === imageCount - 1 ? 0 : prev + 1);
       triggerHaptic('light');
-    }
-    // MIDDLE 34% or any click on single image - Open Insights
-    else if (onInsights) {
+    } else if (onInsights) {
       triggerHaptic('light');
       onInsights();
     }
-  }, [imageCount, onInsights, isMagnifierActive]);
+  }, [imageCount, onInsights, isMagnifierActive, wasMagnifierActive]);
 
   const handleButtonSwipe = useCallback((direction: 'left' | 'right') => {
     if (hasExited.current) return;
     hasExited.current = true;
     isExitingRef.current = true;
-
     triggerHaptic(direction === 'right' ? 'success' : 'warning');
-
     const exitX = direction === 'right' ? getExitDistance() : -getExitDistance();
-    const _exitY = direction === 'left' && !isDragging.current ? -getExitDistance() : 0; // Vertical lift for passes
-
     let swipeFired = false;
     const fireSwipe = () => {
       if (swipeFired) return;
@@ -372,20 +241,8 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
       isExitingRef.current = false;
       onSwipe(direction);
     };
-
-    animate(x, exitX, {
-      type: 'tween',
-      duration: 0.26,
-      ease: [0.32, 0, 0.67, 0],
-      onComplete: fireSwipe,
-    });
-
-    animate(y, direction === 'right' ? -60 : 32, {
-      type: 'tween',
-      duration: 0.26,
-      ease: [0.32, 0, 0.67, 0],
-    });
-
+    animate(x, exitX, { type: 'tween', duration: 0.26, ease: [0.32, 0, 0.67, 0], onComplete: fireSwipe });
+    animate(y, direction === 'right' ? -60 : 32, { type: 'tween', duration: 0.26, ease: [0.32, 0, 0.67, 0] });
     setTimeout(fireSwipe, 300);
   }, [onSwipe, x, y]);
 
@@ -395,29 +252,17 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
 
   if (!isTop) {
     return (
-      <div
-        className="absolute inset-0 overflow-hidden rounded-[2.5rem]"
-        style={{ pointerEvents: 'none' }}
-      >
-        {currentImage === 'video_attachment' && (listing as any).video_url ? (
-          <video
-            src={(listing as any).video_url}
-            autoPlay muted loop playsInline
-            className="absolute inset-0 w-full h-full object-cover"
-            style={{ pointerEvents: 'none' }}
+      <div className="absolute inset-0 overflow-hidden rounded-[2.5rem]" style={{ pointerEvents: 'none' }}>
+        <div className="absolute inset-0">
+          <CardImage
+            src={currentImage}
+            alt={(listing as any).title || 'Listing'}
+            name={(listing as any).title}
+            direction={photoDirection}
+            priority={false}
+            fullScreen={true}
           />
-        ) : (
-          <div className="absolute inset-0">
-            <CardImage
-              src={currentImage}
-              alt={(listing as any).title || 'Listing'}
-              name={(listing as any).title}
-              direction={photoDirection}
-              priority={false}
-              fullScreen={true}
-            />
-          </div>
-        )}
+        </div>
       </div>
     );
   }
@@ -433,46 +278,38 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
         dragElastic={0.55}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
-        onClick={handleCardTap}
         onPointerDown={handleUnifiedPointerDown}
-        onPointerUp={(e) => {
-          handleUnifiedPointerUp(e);
+        onPointerMove={handleUnifiedPointerMove}
+        onPointerUp={handleUnifiedPointerUp}
+        onPointerCancel={handleUnifiedPointerUp}
+        initial={{ scale: 0.97, opacity: 0.85 }}
+        animate={{
+          scale: 1,
+          opacity: 1,
+          transition: { type: 'spring', stiffness: 400, damping: 28, mass: 0.6 }
         }}
-        onPointerCancel={(e) => {
-          handleUnifiedPointerCancel(e);
-        }}
-        // Photo swim effect now lives on the <img> inside CardImage (CSS keyframes)
-        className="flex-1 cursor-grab active:cursor-grabbing select-none touch-none relative w-full h-full overflow-hidden rounded-[2.5rem] pointer-events-auto border-none gpu-ultra"
-        data-zoomed={isZoomed ? 'true' : 'false'}
+        className="flex-1 cursor-grab active:cursor-grabbing select-none touch-none relative w-full h-full overflow-hidden rounded-[2.5rem] border-none gpu-ultra"
         style={{
           x,
           y,
           rotate: cardRotate,
           opacity: cardOpacity,
           willChange: 'transform, opacity',
-          perspective: '1000px',
-          transform: 'translate3d(0,0,0)', // 🏎️ FORCE GPU LAYER
+          transform: 'translate3d(0,0,0)',
           backfaceVisibility: 'hidden',
-          WebkitBackfaceVisibility: 'hidden',
           boxShadow: '0 25px 80px -15px rgba(0,0,0,0.7), 0 10px 30px -10px rgba(0,0,0,0.5)',
           background: '#000',
         }}
       >
-        
-        <GlassShine x={x} y={y} />
         <div 
           ref={containerRef as any}
           className="absolute inset-0 overflow-hidden" 
           onClick={handleImageTap}
-          data-swipe-card-image="true"
         >
           {currentImage === 'video_attachment' && (listing as any).video_url ? (
             <video
               src={(listing as any).video_url}
-              autoPlay
-              muted
-              loop
-              playsInline
+              autoPlay muted loop playsInline
               className="absolute inset-0 w-full h-full object-cover"
               style={{ zIndex: 1 }}
             />
@@ -488,7 +325,6 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
             />
           )}
 
-          {/* Cinema Top Fade — 🚀 NEXUS POLISH: Deeper fade for header button contrast */}
           <div
             className="absolute top-0 left-0 right-0 pointer-events-none z-20 transition-opacity duration-200"
             style={{
@@ -497,7 +333,6 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
               opacity: isZoomed ? 0 : 1,
             }}
           />
-          {/* Cinema Bottom Fade — ensures buttons + info float above photo */}
           <div
             className="absolute bottom-0 left-0 right-0 pointer-events-none z-20 transition-opacity duration-200"
             style={{
@@ -516,10 +351,9 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
                 {Array.from({ length: imageCount }).map((_, idx) => (
                   <div
                     key={idx}
-                    className="h-[2.5px] flex-1 rounded-full transition-all duration-500 overflow-hidden bg-white/25"
+                    className="h-[2.5px] flex-1 rounded-full overflow-hidden bg-white/25"
                   >
                     <motion.div 
-                      initial={false}
                       animate={{ 
                         x: idx < currentImageIndex ? '0%' : idx === currentImageIndex ? '0%' : '-100%',
                         opacity: idx === currentImageIndex ? 1 : 0.5
@@ -531,126 +365,37 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
               </div>
             </div>
           )}
-
-
         </div>
 
-        {/* LIKE stamp — shown top-right when swiping right */}
-        <motion.div
-          className="absolute top-10 right-6 z-50 pointer-events-none"
-          style={{
-            opacity: likeOpacity,
-            willChange: 'opacity',
-          }}
-        >
-          <div
-            className="flex flex-col items-center gap-1.5"
-            style={{ transform: 'rotate(15deg) translateZ(0)' }}
-          >
-            <div
-              className="w-[72px] h-[72px] rounded-full flex items-center justify-center"
-              style={{
-                background: 'rgba(255,77,0,0.15)',
-                backdropFilter: 'blur(8px)',
-                border: '3px solid #FF4D00',
-                boxShadow: '0 0 28px rgba(255,77,0,0.55), inset 0 0 12px rgba(255,77,0,0.15)',
-              }}
-            >
-              <ThumbsUp className="w-9 h-9 text-orange-400" fill="currentColor" strokeWidth={0} />
-            </div>
-            <div
-              className="px-4 py-1 rounded-lg"
-              style={{
-                border: '2.5px solid #FF4D00',
-                background: 'rgba(255,77,0,0.12)',
-                backdropFilter: 'blur(6px)',
-                boxShadow: '0 0 18px rgba(255,77,0,0.4)',
-              }}
-            >
-              <span
-                className="font-black text-xl tracking-[0.18em] uppercase bg-gradient-to-br from-orange-400 to-pink-500 bg-clip-text text-transparent"
-                style={{ filter: 'drop-shadow(0 0 10px rgba(255,77,0,0.6))' }}
-              >
-                FIRE
-              </span>
-            </div>
+        <motion.div className="absolute top-10 right-6 z-50 pointer-events-none" style={{ opacity: likeOpacity }}>
+          <div className="flex flex-col items-center gap-1.5" style={{ transform: 'rotate(15deg)' }}>
+             <div className="w-[72px] h-[72px] rounded-full flex items-center justify-center bg-orange-500/20 border-2 border-orange-500 shadow-[0_0_20px_rgba(255,87,34,0.5)]">
+               <ThumbsUp className="w-9 h-9 text-orange-500" fill="currentColor" strokeWidth={0} />
+             </div>
           </div>
         </motion.div>
 
-        {/* NOPE stamp — shown top-left when swiping left */}
-        <motion.div
-          className="absolute top-10 left-6 z-50 pointer-events-none"
-          style={{
-            opacity: passOpacity,
-            willChange: 'opacity',
-          }}
-        >
-          <div
-            className="flex flex-col items-center gap-1.5"
-            style={{ transform: 'rotate(-15deg) translateZ(0)' }}
-          >
-            <div
-              className="px-5 py-2.5 rounded-xl"
-              style={{
-                border: '3px solid #f43f5e',
-                background: 'rgba(244,63,94,0.12)',
-                backdropFilter: 'blur(8px)',
-                boxShadow: '0 0 28px rgba(244,63,94,0.5), inset 0 0 12px rgba(244,63,94,0.1)',
-              }}
-            >
-              <span
-                className="font-black text-4xl tracking-[0.15em] uppercase text-rose-400"
-                style={{ textShadow: '0 0 16px rgba(244,63,94,0.9)' }}
-              >
-                NOPE
-              </span>
-            </div>
-            <div
-              className="w-[52px] h-[52px] rounded-full flex items-center justify-center"
-              style={{
-                background: 'rgba(244,63,94,0.15)',
-                backdropFilter: 'blur(6px)',
-                border: '2.5px solid #f43f5e',
-                boxShadow: '0 0 18px rgba(244,63,94,0.45)',
-              }}
-            >
-              <ThumbsDown className="w-6 h-6 text-rose-400" fill="currentColor" strokeWidth={0} />
-            </div>
+        <motion.div className="absolute top-10 left-6 z-50 pointer-events-none" style={{ opacity: passOpacity }}>
+          <div className="flex flex-col items-center gap-1.5" style={{ transform: 'rotate(-15deg)' }}>
+             <div className="px-5 py-2.5 rounded-xl border-3 border-rose-500 bg-rose-500/20 shadow-[0_0_20px_rgba(244,63,94,0.5)]">
+               <span className="font-black text-4xl text-rose-500">NOPE</span>
+             </div>
           </div>
         </motion.div>
 
-        {/* 🚀 PREMIUM INFUSION: Dissolving Info Overlay in bottom-left */}
         <div
-          key={`info-${currentImageIndex % 4}`}
           className="absolute left-5 right-5 bottom-[calc(var(--bottom-nav-height,72px)+100px)] z-30 pointer-events-none transition-opacity duration-150"
-          style={{ 
-            contain: 'layout paint',
-            transform: 'translateZ(0)',
-            opacity: isZoomed ? 0 : 1,
-          }}
+          style={{ opacity: isZoomed ? 0 : 1 }}
         >
           <motion.div
-            initial={{ opacity: 0, x: -10, filter: 'blur(8px)' }}
-            animate={{ opacity: 1, x: 0, filter: 'blur(0px)' }}
-            transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
             className="space-y-1.5"
           >
             <div className="flex items-center gap-2 mb-2">
-              <div
-                className="inline-flex rounded-full px-3 py-1 bg-black/80 border border-white/10 shadow-lg"
-              >
-                <CompactRatingDisplay
-                  aggregate={ratingAggregate as any}
-                  isLoading={isRatingLoading}
-                  showReviews={false}
-                  className="text-white"
-                />
+              <div className="inline-flex rounded-full px-3 py-1 bg-black/80 border border-white/10 shadow-lg">
+                <CompactRatingDisplay aggregate={ratingAggregate as any} isLoading={isRatingLoading} showReviews={false} className="text-white" />
               </div>
-              {(listing as any).has_verified_documents && (
-                <div className="px-2.5 py-1 rounded-full bg-orange-950/60 border border-orange-500/30">
-                  <span className="text-[10px] font-black uppercase tracking-wider text-orange-400">Elite</span>
-                </div>
-              )}
             </div>
 
             {(() => {
@@ -672,30 +417,16 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
                   />
                 );
               }
-              if ((listing as any).category === 'vehicle' || (listing as any).vehicle_type) {
+              if ((listing as any).category === 'vehicle') {
                 return (
                   <VehicleCardInfo
                     price={(listing as any).price || 0}
-                    priceType={(listing as any).listing_type === 'sale' || ((listing as any).price > 10000 && !(listing as any).rental_duration_type) ? 'sale' : (listing as any).rental_duration_type === 'monthly' ? 'month' : 'day'}
-                    make={(listing as any).vehicle_brand ?? undefined}
-                    model={(listing as any).vehicle_model ?? undefined}
-                    year={(listing as any).year ?? undefined}
-                    location={(listing as any).city ?? undefined}
-                    isVerified={(listing as any).has_verified_documents ?? undefined}
-                    photoIndex={currentImageIndex}
-                    className="!text-white !space-y-0"
-                  />
-                );
-              }
-              if ((listing as any).category === 'worker' || (listing as any).category === 'services' || (listing as any).service_category) {
-                return (
-                  <ServiceCardInfo
-                    hourlyRate={(listing as any).price || 0}
-                    pricingUnit={(listing as any).pricing_unit || 'hr'}
-                    serviceName={(listing as any).service_category || (listing as any).title || 'Service'}
-                    name={(listing as any).title}
-                    location={(listing as any).city ?? undefined}
-                    isVerified={(listing as any).has_verified_documents ?? undefined}
+                    priceType={(listing as any).listing_type === 'sale' ? 'sale' : (listing as any).rental_duration_type === 'monthly' ? 'month' : 'day'}
+                    make={(listing as any).vehicle_brand}
+                    model={(listing as any).vehicle_model}
+                    year={(listing as any).year}
+                    location={(listing as any).city}
+                    isVerified={(listing as any).has_verified_documents}
                     photoIndex={currentImageIndex}
                     className="!text-white !space-y-0"
                   />
@@ -704,12 +435,12 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
               return (
                 <PropertyCardInfo
                   price={(listing as any).price || 0}
-                  priceType={(listing as any).listing_type === 'sale' || ((listing as any).price > 15000 && !(listing as any).rental_duration_type) ? 'sale' : (listing as any).rental_duration_type === 'monthly' ? 'month' : 'night'}
-                  propertyType={(listing as any).property_type ?? undefined}
-                  beds={(listing as any).beds ?? undefined}
-                  baths={(listing as any).baths ?? undefined}
-                  location={(listing as any).city ?? undefined}
-                  isVerified={(listing as any).has_verified_documents ?? undefined}
+                  priceType={(listing as any).listing_type === 'sale' ? 'sale' : (listing as any).rental_duration_type === 'monthly' ? 'month' : 'night'}
+                  propertyType={(listing as any).property_type}
+                  beds={(listing as any).beds}
+                  baths={(listing as any).baths}
+                  location={(listing as any).city}
+                  isVerified={(listing as any).has_verified_documents}
                   photoIndex={currentImageIndex}
                   className="!text-white !space-y-0"
                 />
@@ -718,7 +449,6 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           </motion.div>
         </div>
 
-        {/* Cinema Bottom Fade — theme-aware vignette behind nav + action buttons */}
         <div
           className="absolute inset-x-0 bottom-0 pointer-events-none z-10 transition-opacity duration-200"
           style={{
@@ -730,19 +460,11 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           }}
         />
 
-
-
-        {/* Verified Badge - Left corner higher up */}
         {(listing as any).has_verified_documents && (
-          <div
-            className="absolute top-16 left-6 z-40 transition-opacity duration-150"
-            style={{ opacity: isZoomed ? 0 : 1 }}
-          >
+          <div className="absolute top-16 left-6 z-40 transition-opacity duration-150" style={{ opacity: isZoomed ? 0 : 1 }}>
              <div className="relative px-3 py-1.5 rounded-full flex items-center gap-2 bg-black/40 backdrop-blur-md border border-white/10">
                <div className="w-2 h-2 rounded-full bg-violet-500 shadow-[0_0_8px_rgba(139,92,246,1)]" />
-               <span className="text-[10px] font-black uppercase tracking-[0.1em] text-white">
-                 Verified
-               </span>
+               <span className="text-[10px] font-black uppercase tracking-[0.1em] text-white">Verified</span>
              </div>
           </div>
         )}
@@ -751,6 +473,5 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   );
 });
 
+SimpleSwipeCardComponent.displayName = 'SimpleSwipeCard';
 export const SimpleSwipeCard = memo(SimpleSwipeCardComponent);
-
-

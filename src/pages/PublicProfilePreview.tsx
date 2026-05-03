@@ -440,15 +440,4 @@ export default function PublicProfilePreview() {
   );
 }
 
-      <ShareDialog
-        open={showShareDialog}
-        onOpenChange={setShowShareDialog}
-        profileId={id}
-        title={profile.full_name || 'Anonymous User'}
-        description={`✨ Discover ${profile.full_name || 'this user'} on Swipess. Immersive discovery for properties, vehicles, and connections.`}
-      />
-    </div>
-  );
-}
-
 
