@@ -258,9 +258,9 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
 
   // Magnifier hook for press-and-hold zoom
   const [isZoomed, setIsZoomed] = useState(false);
-  const { containerRef, pointerHandlers: magnifierPointerHandlers, isActive: isMagnifierActive } = useMagnifier({
+  const { containerRef, pointerHandlers: magnifierPointerHandlers, isActive: isMagnifierActive, wasActive: wasMagnifierActive } = useMagnifier({
     scale: 2.8, // Edge-to-edge zoom level
-    holdDelay: 300,
+    holdDelay: 380, // Slightly longer to ensure swipe intent is clear
     enabled: isTop,
     onActiveChange: setIsZoomed,
   });
@@ -279,6 +279,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
 
   // Unified pointer move: decides between magnifier pan vs starting drag
   const handleUnifiedPointerMove = useCallback((e: React.PointerEvent) => {
+    // 1. If currently zoomed, MAGNIFIER OWNS THE POINTER.
     if (isMagnifierActive()) {
       e.stopPropagation();
       if (e.cancelable) e.preventDefault();
@@ -286,14 +287,16 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
       return;
     }
     
+    // 2. If we haven't started a drag yet, check if we should
     if (storedPointerEventRef.current && !dragStartedRef.current) {
       const dx = Math.abs(e.clientX - (storedPointerEventRef.current as any).clientX);
       const dy = Math.abs(e.clientY - (storedPointerEventRef.current as any).clientY);
       
-      // Start drag only if we move more than a minor threshold
-      if (dx > 10 || dy > 10) {
-        // Cancel any pending magnifier hold timer
-        magnifierPointerHandlers.onPointerUp(e);
+      // Swipe threshold: 18px move starts the swipe and KILLS the hold timer
+      if (dx > 18 || dy > 18) {
+        // Cancel any pending magnifier hold timer IMMEDIATELY
+        magnifierPointerHandlers.onPointerUp(e); 
+        
         dragStartedRef.current = true;
         isDragging.current = true;
         dragControls.start((storedPointerEventRef.current as any).nativeEvent);
@@ -359,7 +362,9 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   }, []);
 
   const handleImageTap = useCallback((e: React.MouseEvent) => {
-    if (isMagnifierActive()) {
+    // 🛸 NEXUS GESTURE LOCK: If we just finished a zoom (wasMagnifierActive),
+    // block this tap to prevent the photo from "jumping" on finger lift.
+    if (isMagnifierActive() || wasMagnifierActive()) {
       return;
     }
 
@@ -427,7 +432,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   if (!isTop) {
     return (
       <div
-        className="absolute inset-0 overflow-hidden rounded-[28px]"
+        className="absolute inset-0 overflow-hidden rounded-[2.5rem]"
         style={{ pointerEvents: 'none' }}
       >
         {currentImage === 'video_attachment' && (listing as any).video_url ? (
@@ -490,7 +495,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           transition: { type: 'spring', stiffness: 400, damping: 28, mass: 0.6 }
         }}
         // Photo swim effect now lives on the <img> inside CardImage (CSS keyframes)
-        className="flex-1 cursor-grab active:cursor-grabbing select-none touch-none relative w-full h-full overflow-hidden rounded-[28px] pointer-events-auto border-none gpu-ultra"
+        className="flex-1 cursor-grab active:cursor-grabbing select-none touch-none relative w-full h-full overflow-hidden rounded-[2.5rem] pointer-events-auto border-none gpu-ultra"
         data-zoomed={isZoomed ? 'true' : 'false'}
         style={{
           x,
@@ -541,7 +546,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
 
           {/* Cinema Top Fade — 🚀 NEXUS POLISH: Deeper fade for header button contrast */}
           <div
-            className="absolute top-0 left-0 right-0 pointer-events-none z-20 transition-opacity duration-150"
+            className="absolute top-0 left-0 right-0 pointer-events-none z-20 transition-opacity duration-200"
             style={{
               height: '42%',
               background: 'linear-gradient(to bottom, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.5) 30%, rgba(0,0,0,0.2) 65%, transparent 100%)',
@@ -550,7 +555,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           />
           {/* Cinema Bottom Fade — ensures buttons + info float above photo */}
           <div
-            className="absolute bottom-0 left-0 right-0 pointer-events-none z-20 transition-opacity duration-150"
+            className="absolute bottom-0 left-0 right-0 pointer-events-none z-20 transition-opacity duration-200"
             style={{
               height: '65%',
               background: 'linear-gradient(to top, rgba(0,0,0,0.98) 0%, rgba(0,0,0,0.8) 20%, rgba(0,0,0,0.4) 55%, transparent 100%)',
@@ -599,7 +604,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
                 triggerHaptic('light');
                 onShare?.();
               }}
-              className="w-9 h-9 rounded-full bg-white/90 dark:bg-black/40 backdrop-blur-md border border-black/10 dark:border-white/15 flex items-center justify-center text-black/80 dark:text-white/80 active:scale-90 transition-all pointer-events-auto"
+              className="w-9 h-9 rounded-full bg-white dark:bg-[#1A1A1A] border border-black/10 dark:border-white/15 flex items-center justify-center text-black/80 dark:text-white/80 active:scale-90 transition-all pointer-events-auto shadow-xl"
               title="Share Listing"
             >
               <Share2 className="w-4 h-4" strokeWidth={1.8} />
@@ -610,7 +615,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
                 triggerHaptic('medium');
                 onReport?.();
               }}
-              className="w-9 h-9 rounded-full bg-white/90 dark:bg-black/40 backdrop-blur-md border border-black/10 dark:border-white/15 flex items-center justify-center text-black/50 dark:text-white/50 active:scale-90 transition-all pointer-events-auto"
+              className="w-9 h-9 rounded-full bg-white dark:bg-[#1A1A1A] border border-black/10 dark:border-white/15 flex items-center justify-center text-black/50 dark:text-white/50 active:scale-90 transition-all pointer-events-auto shadow-xl"
               title="Report Listing"
             >
               <Flag className="w-4 h-4" strokeWidth={1.8} />
@@ -720,7 +725,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           >
             <div className="flex items-center gap-2 mb-2">
               <div
-                className="inline-flex rounded-full px-3 py-1 bg-black/40 backdrop-blur-md border border-white/10 shadow-lg"
+                className="inline-flex rounded-full px-3 py-1 bg-black/80 border border-white/10 shadow-lg"
               >
                 <CompactRatingDisplay
                   aggregate={ratingAggregate as any}
@@ -730,7 +735,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
                 />
               </div>
               {(listing as any).has_verified_documents && (
-                <div className="px-2.5 py-1 rounded-full bg-violet-500/20 backdrop-blur-md border border-violet-500/30">
+                <div className="px-2.5 py-1 rounded-full bg-violet-950/60 border border-violet-500/30">
                   <span className="text-[10px] font-black uppercase tracking-wider text-violet-400">Elite</span>
                 </div>
               )}
@@ -803,12 +808,12 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
 
         {/* Cinema Bottom Fade — theme-aware vignette behind nav + action buttons */}
         <div
-          className="absolute inset-x-0 bottom-0 pointer-events-none z-10 transition-opacity duration-150"
+          className="absolute inset-x-0 bottom-0 pointer-events-none z-10 transition-opacity duration-200"
           style={{
-            height: '55%',
+            height: '65%',
             background: isLight
-              ? 'linear-gradient(to top, rgba(255,255,255,0.88) 0%, rgba(255,255,255,0.5) 35%, rgba(255,255,255,0.06) 65%, transparent 100%)'
-              : 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.45) 35%, rgba(0,0,0,0.06) 65%, transparent 100%)',
+              ? 'linear-gradient(to top, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.6) 30%, rgba(255,255,255,0.06) 65%, transparent 100%)'
+              : 'linear-gradient(to top, rgba(0,0,0,0.98) 0%, rgba(0,0,0,0.6) 30%, rgba(0,0,0,0.06) 65%, transparent 100%)',
             opacity: isZoomed ? 0 : 1,
           }}
         />

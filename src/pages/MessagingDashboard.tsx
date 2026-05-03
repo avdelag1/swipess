@@ -354,7 +354,7 @@ export function MessagingDashboard() {
                               <Archive className="w-4 h-4 mr-3" /> {conversation.status === 'archived' ? 'Unarchive' : 'Archive'}
                             </DropdownMenuItem>
                             <DropdownMenuSeparator className="bg-white/5 my-2" />
-                            <DropdownMenuItem className="p-4 rounded-[1.2rem] focus:bg-amber-500/20 text-amber-500 cursor-pointer font-black uppercase tracking-widest text-[9px]" onClick={e => { e.stopPropagation(); (window as any).dispatchEvent(new CustomEvent('open-report', { detail: { reportedUserId: conversation.other_user?.id, reportCategory: 'user_profile' } })); }}>
+                            <DropdownMenuItem className="p-4 rounded-[1.2rem] focus:bg-amber-500/20 text-amber-500 cursor-pointer font-black uppercase tracking-widest text-[9px]" onClick={e => { e.stopPropagation(); (window as any).dispatchEvent(new CustomEvent('open-report', { detail: { reportedUserId: conversation.other_user?.id, reportedUserAge: conversation.other_user?.age, reportCategory: 'user_profile' } })); }}>
                               <ShieldAlert className="w-4 h-4 mr-3" /> Report Entity
                             </DropdownMenuItem>
                             <DropdownMenuItem className="p-4 rounded-[1.2rem] focus:bg-red-500/20 text-red-500 cursor-pointer font-black uppercase tracking-widest text-[9px]" onClick={e => { e.stopPropagation(); if (confirm('Block this entity permanently?')) blockUser.mutate(conversation.other_user!.id); }}>

@@ -16,11 +16,11 @@ export interface Conversation {
   created_at: string;
   updated_at: string;
   // Joined data
-  other_user?: {
     id: string;
     full_name: string;
     avatar_url?: string;
     role: string;
+    age?: number;
   };
   last_message?: {
     content: string;
@@ -86,9 +86,8 @@ export function useConversations() {
           if (c.owner_id) userIds.add(c.owner_id);
         });
 
-        // Batch fetch profiles and listings
         const [profilesResult, listingsResult] = await Promise.all([
-          supabase.from('profiles').select('user_id, full_name, avatar_url').in('user_id', Array.from(userIds)),
+          supabase.from('profiles').select('user_id, full_name, avatar_url, age').in('user_id', Array.from(userIds)),
           data.some((c: any) => c.listing_id)
             ? supabase.from('listings').select('id, title, price, images, category, mode, address, city').in('id', data.filter((c: any) => c.listing_id).map((c: any) => c.listing_id))
             : Promise.resolve({ data: [] as any[], error: null })
@@ -155,7 +154,8 @@ export function useConversations() {
               id: otherUserId,
               full_name: otherUserProfile.full_name,
               avatar_url: otherUserProfile.avatar_url,
-              role: otherUserRole
+              role: otherUserRole,
+              age: otherUserProfile.age
             } : undefined,
             last_message: lastMessagesMap.get(conversation.id),
             listing: listingData || undefined
@@ -268,7 +268,7 @@ export function useConversations() {
       const isClient = data.client_id === user.id;
 
       const [profileResult, listingResult, messagesResult] = await Promise.all([
-        otherUserId ? supabase.from('profiles').select('user_id, full_name, avatar_url').eq('user_id', otherUserId).maybeSingle() : Promise.resolve({ data: null }),
+        otherUserId ? supabase.from('profiles').select('user_id, full_name, avatar_url, age').eq('user_id', otherUserId).maybeSingle() : Promise.resolve({ data: null }),
         data.listing_id ? supabase.from('listings').select('id, title, price, images, category, mode, address, city').eq('id', data.listing_id).maybeSingle() : Promise.resolve({ data: null }),
         supabase.from('conversation_messages').select('conversation_id, content, message_text, created_at, sender_id, is_read').eq('conversation_id', conversationId).order('created_at', { ascending: false }).limit(1)
       ]);
@@ -289,7 +289,8 @@ export function useConversations() {
           id: otherUserId ?? '',
           full_name: otherUserProfile.full_name ?? '',
           avatar_url: otherUserProfile.avatar_url ?? undefined,
-          role: otherUserRole
+          role: otherUserRole,
+          age: otherUserProfile.age
         } : undefined,
         last_message: (messagesResult as any).data?.[0],
         listing: (listingResult as any).data || undefined

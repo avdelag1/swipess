@@ -375,12 +375,12 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   }, [profile?.user_id, x, y]);
 
 
-  // Magnifier hook for press-and-hold zoom - MUST be called before any callbacks that use it
-  const { containerRef, pointerHandlers: magnifierPointerHandlers, isActive: isMagnifierActive, isHoldPending } = useMagnifier({
+  const [isZoomed, setIsZoomed] = useState(false);
+  const { containerRef, pointerHandlers: magnifierPointerHandlers, isActive: isMagnifierActive, wasActive: wasMagnifierActive, isHoldPending } = useMagnifier({
     scale: 2.8,
-    holdDelay: 300, // snappier 'automatic' zoom
+    holdDelay: 380, // Slightly longer to ensure swipe intent is clear
     enabled: isTop,
-    onActiveChange: setMagnifierActive,
+    onActiveChange: setIsZoomed,
   });
 
   // Unified pointer down handler
@@ -393,29 +393,31 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
 
   // Unified pointer move: decides between magnifier pan vs starting drag
   const handleUnifiedPointerMove = useCallback((e: React.PointerEvent) => {
-    // If magnifier zoom is active, delegate to magnifier panning
+    // 1. If magnifier zoom is active, delegate to magnifier panning
     if (isMagnifierActive()) {
       magnifierPointerHandlers.onPointerMove(e);
       return;
     }
 
-    // Not zoomed — check if we should start a drag
+    // 2. Not zoomed — check if we should start a drag
     if (storedPointerEventRef.current && !dragStartedRef.current) {
       const startX = storedPointerEventRef.current.clientX;
       const startY = storedPointerEventRef.current.clientY;
       const dx = Math.abs(e.clientX - startX);
       const dy = Math.abs(e.clientY - startY);
-      if (dx > 10 || dy > 10) {
+      
+      // Swipe threshold: 18px move starts the swipe and KILLS the hold timer
+      if (dx > 18 || dy > 18) {
         // Cancel any pending magnifier hold timer
         if (isHoldPending()) {
           magnifierPointerHandlers.onPointerUp(e);
         }
-        // Native drag will automatically start via motion.div
+        
         dragStartedRef.current = true;
         dragControls.start(storedPointerEventRef.current);
       }
     }
-  }, [magnifierPointerHandlers, isMagnifierActive, dragControls]);
+  }, [magnifierPointerHandlers, isMagnifierActive, dragControls, isHoldPending]);
 
   const handleUnifiedPointerUp = useCallback((e: React.PointerEvent) => {
     magnifierPointerHandlers.onPointerUp(e);
@@ -497,7 +499,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
 
     setTimeout(() => {
       isDragging.current = false;
-    }, 100);
+    }, 150);
   }, [onSwipe, x, y]);
 
   const handleCardTap = useCallback(() => {
@@ -509,8 +511,9 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   const handleImageTap = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
 
-    // Don't handle tap if magnifier is active - allows zoom to work
-    if (isMagnifierActive()) {
+    // 🛸 NEXUS GESTURE LOCK: If we just finished a zoom (wasMagnifierActive),
+    // block this tap to prevent the photo from "jumping" on finger lift.
+    if (isMagnifierActive() || wasMagnifierActive()) {
       return;
     }
 
@@ -592,7 +595,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
 
   if (!isTop) {
     return (
-      <div className="absolute inset-0 overflow-hidden rounded-[28px]" style={{ pointerEvents: 'none' }}>
+      <div className="absolute inset-0 overflow-hidden rounded-[2.5rem]" style={{ pointerEvents: 'none' }}>
         <div className="absolute inset-0">
           <CardImage
             src={currentImage}
@@ -659,7 +662,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           // full recomposite on every frame and was the main shake/flicker
           // source. Background blur is handled by the photo layer below.
         } as any}
-        className="flex-1 cursor-grab active:cursor-grabbing select-none touch-none relative overflow-hidden w-full h-full rounded-[28px]"
+        className="flex-1 cursor-grab active:cursor-grabbing select-none touch-none relative w-full h-full overflow-hidden rounded-[2.5rem] pointer-events-auto border-none gpu-ultra"
       >
         {/* Glass Shine */}
         <motion.div
@@ -692,23 +695,28 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
 
           {/* Cinema Top Fade — 🚀 NEXUS POLISH: Deeper fade for header button contrast */}
           <div
-            className="absolute top-0 left-0 right-0 pointer-events-none z-20"
+            className="absolute top-0 left-0 right-0 pointer-events-none z-20 transition-opacity duration-200"
             style={{
               height: '42%',
               background: 'linear-gradient(to bottom, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.5) 30%, rgba(0,0,0,0.2) 65%, transparent 100%)',
+              opacity: isZoomed ? 0 : 1,
             }}
           />
           {/* Cinema Bottom Fade — ensures buttons + info float above photo */}
           <div
-            className="absolute bottom-0 left-0 right-0 pointer-events-none z-20"
+            className="absolute bottom-0 left-0 right-0 pointer-events-none z-20 transition-opacity duration-200"
             style={{
               height: '65%',
               background: 'linear-gradient(to top, rgba(0,0,0,0.98) 0%, rgba(0,0,0,0.8) 20%, rgba(0,0,0,0.4) 55%, transparent 100%)',
+              opacity: isZoomed ? 0 : 1,
             }}
           />
 
           {imageCount > 1 && (
-            <div className="absolute top-[calc(var(--safe-top,0px)+16px)] inset-x-0 flex justify-center z-30 pointer-events-none transform-gpu">
+            <div 
+              className="absolute top-[calc(var(--safe-top,0px)+16px)] inset-x-0 flex justify-center z-30 pointer-events-none transform-gpu transition-opacity duration-200"
+              style={{ opacity: isZoomed ? 0 : 1 }}
+            >
               <div className="flex gap-1.5 w-full max-w-[140px] px-2">
                 {images.map((_, idx) => (
                   <div
@@ -731,9 +739,9 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
 
           {/* In-Card Utility Buttons — bottom-right, out of the stamp zone */}
           <motion.div
-            className="absolute bottom-[calc(var(--bottom-nav-height,72px)+110px)] right-4 z-30 flex flex-col gap-2 pointer-events-none"
+            className="absolute bottom-[calc(var(--bottom-nav-height,72px)+110px)] right-4 z-30 flex flex-col gap-2 pointer-events-none transition-opacity duration-200"
             style={{
-              opacity: useTransform(
+              opacity: isZoomed ? 0 : useTransform(
                 [likeOpacity, passOpacity] as any,
                 ([l, p]: number[]) => 1 - Math.max(l, p)
               ),
@@ -745,7 +753,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
                 triggerHaptic('light');
                 onShare?.();
               }}
-              className="w-9 h-9 rounded-full bg-white/90 dark:bg-black/40 backdrop-blur-md border border-black/10 dark:border-white/15 flex items-center justify-center text-black/80 dark:text-white/80 active:scale-90 transition-all pointer-events-auto"
+              className="w-9 h-9 rounded-full bg-white dark:bg-[#1A1A1A] border border-black/10 dark:border-white/15 flex items-center justify-center text-black/80 dark:text-white/80 active:scale-90 transition-all pointer-events-auto shadow-xl"
               title="Share Profile"
             >
               <Share2 className="w-4 h-4" strokeWidth={1.8} />
@@ -756,7 +764,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
                 triggerHaptic('medium');
                 onReport?.();
               }}
-              className="w-9 h-9 rounded-full bg-white/90 dark:bg-black/40 backdrop-blur-md border border-black/10 dark:border-white/15 flex items-center justify-center text-black/50 dark:text-white/50 active:scale-90 transition-all pointer-events-auto"
+              className="w-9 h-9 rounded-full bg-white dark:bg-[#1A1A1A] border border-black/10 dark:border-white/15 flex items-center justify-center text-black/50 dark:text-white/50 active:scale-90 transition-all pointer-events-auto shadow-xl"
               title="Report Profile"
             >
               <Flag className="w-4 h-4" strokeWidth={1.8} />
@@ -845,12 +853,13 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
 
         {/* Cinema Bottom Fade — theme-aware vignette behind nav + action buttons */}
         <div
-          className="absolute left-0 right-0 bottom-0 z-15 pointer-events-none"
+          className="absolute left-0 right-0 bottom-0 z-15 pointer-events-none transition-opacity duration-200"
           style={{
-            height: '60%',
+            height: '65%',
             background: _isDark
-              ? 'linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.55) 35%, rgba(0,0,0,0) 100%)'
+              ? 'linear-gradient(to top, rgba(0,0,0,0.98) 0%, rgba(0,0,0,0.6) 30%, rgba(0,0,0,0) 100%)'
               : 'linear-gradient(to top, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.65) 35%, rgba(255,255,255,0) 100%)',
+            opacity: isZoomed ? 0 : 1,
           }}
         />
 
@@ -888,7 +897,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
                     compact
                   />
                 )}
-                <div className="inline-flex rounded-full px-3 py-1.5 bg-black/35 backdrop-blur-[10px] border border-white/10">
+                <div className="inline-flex rounded-full px-3 py-1.5 bg-black/80 border border-white/10">
                   <CompactRatingDisplay
                     aggregate={ratingAggregate ?? null}
                     isLoading={isRatingLoading}
@@ -904,7 +913,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
             {currentImageIndex % 4 === 1 && (
               <>
                 {budgetText && (
-                  <div className="bg-black/20 backdrop-blur-md border border-white/5 rounded-2xl p-4 w-fit">
+                  <div className="bg-black border border-white/10 rounded-2xl p-4 w-fit shadow-2xl">
                     <div className="text-[10px] text-white/50 font-black uppercase tracking-[0.2em] mb-1">Target Budget</div>
                     <div className="flex items-center gap-1.5 text-white">
                       <DollarSign className="w-5 h-5 text-rose-500" />
@@ -913,7 +922,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
                   </div>
                 )}
                 {!budgetText && profile.work_schedule && (
-                  <div className="bg-black/20 backdrop-blur-md border border-white/5 rounded-2xl p-4 w-fit">
+                  <div className="bg-black border border-white/10 rounded-2xl p-4 w-fit shadow-2xl">
                     <div className="text-[10px] text-white/50 font-black uppercase tracking-[0.2em] mb-1">Work Life</div>
                     <div className="flex items-center gap-1.5 text-white">
                       <Briefcase className="w-5 h-5 text-purple-500" />
@@ -925,7 +934,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
             )}
 
             {currentImageIndex % 4 === 2 && profile.city && (
-              <div className="bg-black/20 backdrop-blur-md border border-white/5 rounded-2xl p-4 w-fit">
+              <div className="bg-black border border-white/10 rounded-2xl p-4 w-fit shadow-2xl">
                 <div className="text-[10px] text-white/50 font-black uppercase tracking-[0.2em] mb-1">Sector</div>
                 <div className="flex items-center gap-1.5 text-white">
                   <MapPin className="w-5 h-5 text-orange-500" />
@@ -937,7 +946,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
             {currentImageIndex % 4 === 3 && (
               <div className="flex flex-wrap gap-2">
                 {(profile.interests?.slice(0, 3) || ['Quiet & Clean']).map((interest, i) => (
-                  <div key={i} className="px-4 py-2 rounded-xl bg-white/5 backdrop-blur-md border border-white/10 text-white font-black text-[10px] uppercase tracking-widest">
+                  <div key={i} className="px-4 py-2 rounded-xl bg-black border border-white/10 text-white font-black text-[10px] uppercase tracking-widest shadow-xl">
                     {interest}
                   </div>
                 ))}
@@ -952,7 +961,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
             className="absolute top-16 left-6 z-40 transition-opacity duration-150"
             style={{ opacity: isMagnifierActive() ? 0 : 1 }}
           >
-             <div className="relative px-3 py-1.5 rounded-full flex items-center gap-2 bg-black/40 backdrop-blur-md border border-white/10">
+             <div className="relative px-3 py-1.5 rounded-full flex items-center gap-2 bg-black/80 border border-white/10 shadow-xl">
                <div className="w-2 h-2 rounded-full bg-violet-500 shadow-[0_0_8px_rgba(139,92,246,1)]" />
                <span className="text-[10px] font-black uppercase tracking-[0.1em] text-white">
                  Verified

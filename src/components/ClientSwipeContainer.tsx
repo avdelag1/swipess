@@ -913,16 +913,16 @@ const ClientSwipeContainerComponent = ({
         {/* 📡 Radar HUD removed from here — now managed at the Dashboard level for persistence */}
 
         <div className="flex-1 relative flex flex-col items-center justify-center z-10 min-h-0 pointer-events-auto">
-        <div className="w-full h-full flex items-center justify-center pointer-events-auto">
+        <div className="relative w-full h-full max-w-[440px] mx-auto flex items-center justify-center pointer-events-auto">
           <AnimatePresence mode="popLayout" initial={false}>
             {topCard ? (
               <motion.div 
                 key={`deck-${category}-${topCard.user_id}`}
-                initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 1.1, y: -20 }}
-                transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                className="absolute inset-0 w-full h-[100dvh] sm:h-full p-1 pt-[calc(var(--safe-top,0px)+68px)] pb-[calc(var(--bottom-nav-height,72px)+12px)] md:max-w-3xl lg:max-w-5xl mx-auto"
+                initial={{ opacity: 0, scale: 1.05 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                className="absolute inset-0 w-full h-full flex flex-col items-center justify-center p-1.5 pt-[calc(var(--safe-top,0px)+72px)] pb-[calc(var(--bottom-nav-height,72px)+16px)] mx-auto"
               >
 
 

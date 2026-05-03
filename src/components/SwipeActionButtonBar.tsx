@@ -241,57 +241,48 @@ const ActionButton = memo(({
 ActionButton.displayName = 'ActionButton';
 
 // ── BUTTON BAR ────────────────────────────────────────────────────────────────
-function SwipeActionButtonBarComponent({
+export function SwipeActionButtonBar({
   onLike,
   onDislike,
   onShare,
   onInsights,
   onUndo,
   onMessage,
-  onSpeedMeet,
   onCycleCategory,
   canUndo = false,
   disabled = false,
-  className = '',
 }: SwipeActionButtonBarProps) {
+  // Use popLayout to prevent layout shifts when buttons appear/disappear
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 18, scale: 0.94 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={{ ...ENTRY_SPRING, delay: 0.05 }}
-      className={`relative flex items-center justify-center ${className}`}
-      style={{
-        padding: '10px 20px',
-        transform: 'translateZ(0)',
-        zIndex: 100,
-      }}
-    >
-      <div
-        className="relative flex items-center justify-center"
-        style={{ gap: GAP_CSS }}
-      >
-        <ActionButton
-          onClick={onUndo || (() => {})}
-          disabled={disabled || !canUndo}
-          size="small"
-          variant="green"
-          ariaLabel="Undo"
-          index={0}
-        >
-          <RotateCcw className="w-full h-full" strokeWidth={1.5} />
-        </ActionButton>
+    <div className="flex items-center gap-4 px-6 py-4 rounded-[32px] bg-black/40 border border-white/5 shadow-2xl pointer-events-auto overflow-visible">
+      <AnimatePresence mode="popLayout" initial={false}>
+        {/* Undo Button - Always First if available */}
+        {onUndo && (
+          <ActionButton
+            onClick={onUndo}
+            disabled={disabled || !canUndo}
+            size="small"
+            variant="white"
+            ariaLabel="Undo"
+            index={0}
+          >
+            <Undo2 className="w-full h-full" strokeWidth={2} />
+          </ActionButton>
+        )}
 
+        {/* Dislike Button */}
         <ActionButton
           onClick={onDislike}
           disabled={disabled}
           size="large"
-          variant="dislike"
-          ariaLabel="Pass"
+          variant="red"
+          ariaLabel="Dislike"
           index={1}
         >
-          <ThumbsDown className="w-full h-full" strokeWidth={1.8} />
+          <X className="w-full h-full" strokeWidth={3} />
         </ActionButton>
 
+        {/* Insights/Details Button */}
         {onInsights && (
           <ActionButton
             onClick={onInsights}
@@ -301,21 +292,23 @@ function SwipeActionButtonBarComponent({
             ariaLabel="Insights"
             index={2}
           >
-            <Info className="w-full h-full" strokeWidth={1.5} />
+            <Info className="w-full h-full" strokeWidth={2} />
           </ActionButton>
         )}
 
+        {/* Like Button */}
         <ActionButton
           onClick={onLike}
           disabled={disabled}
           size="large"
-          variant="like"
+          variant="green"
           ariaLabel="Like"
           index={3}
         >
-          <Flame className="w-full h-full" strokeWidth={1.8} />
+          <Heart className="w-full h-full" fill="currentColor" strokeWidth={0} />
         </ActionButton>
 
+        {/* Message/Connect Button */}
         {onMessage && (
           <ActionButton
             onClick={onMessage}
@@ -326,6 +319,19 @@ function SwipeActionButtonBarComponent({
             index={4}
           >
             <MessageCircle className="w-full h-full" strokeWidth={1.5} />
+          </ActionButton>
+        )}
+
+        {onShare && (
+          <ActionButton
+            onClick={onShare}
+            disabled={disabled}
+            size="small"
+            variant="purple"
+            ariaLabel="Share"
+            index={5}
+          >
+            <Share2 className="w-full h-full" strokeWidth={1.5} />
           </ActionButton>
         )}
       </div>

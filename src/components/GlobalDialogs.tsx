@@ -1,5 +1,5 @@
 import { lazyWithRetry } from '@/utils/lazyRetry';
-import { memo, useState, useEffect, useMemo } from 'react';
+import { memo, useState, useEffect } from 'react';
 import { useAppTheme } from '@/hooks/useAppTheme';
 import { TokensModal } from './TokensModal';
 import { useModalStore } from '@/state/modalStore';
@@ -96,7 +96,6 @@ const ConciergeChatFallback = memo(() => {
 
 ConciergeChatFallback.displayName = 'ConciergeChatFallback';
 
-
 interface GlobalDialogsProps {
   userRole: 'client' | 'owner' | 'admin';
 }
@@ -113,7 +112,8 @@ export const GlobalDialogs = memo(({ userRole }: GlobalDialogsProps) => {
     reportedListingId?: string;
     reportedUserName?: string;
     reportedListingTitle?: string;
-    category: 'user_profile' | 'listing' | 'message' | 'review';
+    reportedUserAge?: number | string;
+    category: 'user_profile' | 'listing' | 'message' | 'review' | 'any';
   }>({ open: false, category: 'user_profile' });
 
   useEffect(() => {
@@ -127,7 +127,10 @@ export const GlobalDialogs = memo(({ userRole }: GlobalDialogsProps) => {
     return () => window.removeEventListener('open-report', handleOpenReport);
   }, []);
 
-  useEffect(() => { const t = setTimeout(() => setIsWarmedUp(true), 2000); return () => clearTimeout(t); }, []);
+  useEffect(() => { 
+    const t = setTimeout(() => setIsWarmedUp(true), 2000); 
+    return () => clearTimeout(t); 
+  }, []);
 
   // DATA FETCHING (Lazy-enabled)
   const { data: listings = [] } = useListings([], {
@@ -316,7 +319,8 @@ export const GlobalDialogs = memo(({ userRole }: GlobalDialogsProps) => {
           reportedListingId={reportState.reportedListingId}
           reportedUserName={reportState.reportedUserName}
           reportedListingTitle={reportState.reportedListingTitle}
-          category={reportState.category}
+          reportedUserAge={reportState.reportedUserAge}
+          category={reportState.category as any}
         />
       </DeferredDialog>
     </>
@@ -324,5 +328,3 @@ export const GlobalDialogs = memo(({ userRole }: GlobalDialogsProps) => {
 });
 
 GlobalDialogs.displayName = 'GlobalDialogs';
-
-

@@ -45,7 +45,16 @@ export function AppLayout({ children }: AppLayoutProps) {
   const modalStore = useModalStore();
   const { showAIChat, showAIListing } = modalStore;
   const { activeMode } = useActiveMode();
-  const { isRefreshing, pullDistance, triggered } = usePullToRefresh();
+  
+  const isSwipeDashboard = useMemo(() => {
+    const path = location.pathname;
+    return path === '/client/dashboard' || path === '/owner/dashboard' ||
+      path === '/client/dashboard/' || path === '/owner/dashboard/';
+  }, [location.pathname]);
+
+  const { isRefreshing, pullDistance, triggered } = usePullToRefresh({
+    disabled: isSwipeDashboard
+  });
 
   const userRole = useMemo<'client' | 'owner' | 'admin'>(() => {
     if (user?.user_metadata?.role === 'admin') return 'admin';

@@ -110,21 +110,20 @@ export function ShareDialog({
       <DialogContent
         className="max-w-sm p-0 overflow-hidden rounded-[40px] border border-white/10 bg-[#0A0A0A] shadow-[0_32px_80px_rgba(0,0,0,0.8)]"
       >
-        {/* 🛸 NEXUS ATMOSPHERE */}
-        <div className="absolute top-[-20%] right-[-20%] w-[80%] h-[80%] bg-rose-500/10 rounded-full blur-[100px] pointer-events-none" />
-        <div className="absolute bottom-[-20%] left-[-20%] w-[80%] h-[80%] bg-violet-600/10 rounded-full blur-[100px] pointer-events-none" />
+        {/* 🛸 NEXUS ATMOSPHERE: Subtle ambient glows instead of deep blur backgrounds */}
+        <div className="absolute top-0 right-0 w-full h-1/2 bg-gradient-to-b from-rose-500/5 to-transparent pointer-events-none" />
 
         {/* Header Section */}
-        <div className="relative px-8 pt-10 pb-6 flex flex-col items-center text-center">
+        <div className="relative px-8 pt-10 pb-6 flex flex-col items-center text-center border-b border-white/[0.03]">
           <motion.div 
-            initial={{ scale: 0.8, opacity: 0 }}
+            initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="w-20 h-20 rounded-[30px] bg-gradient-to-br from-rose-500/20 to-violet-600/20 border border-white/10 flex items-center justify-center mb-6 shadow-2xl backdrop-blur-xl"
+            className="w-16 h-16 rounded-[24px] bg-[#1A1A1A] border border-white/10 flex items-center justify-center mb-5 shadow-xl"
           >
-            <Share2 className="w-10 h-10 text-white" strokeWidth={1.5} />
+            <Share2 className="w-8 h-8 text-white" strokeWidth={1.5} />
           </motion.div>
-          <h2 className="text-2xl font-black text-white tracking-tight leading-none mb-2">Share Connection</h2>
-          <p className="text-[11px] font-black text-white/30 uppercase tracking-[0.2em]">
+          <h2 className="text-xl font-bold text-white tracking-tight leading-none mb-2">Share Connection</h2>
+          <p className="text-[10px] font-bold text-white/40 uppercase tracking-[0.2em]">
             Spread the Swipess vibe
           </p>
         </div>
@@ -132,29 +131,28 @@ export function ShareDialog({
         <div className="p-8 space-y-8 relative z-10">
           {/* Direct Link Section */}
           <div className="space-y-4">
-            <div className="flex gap-3">
+            <div className="flex gap-2">
               <div className="relative flex-1 group">
-                <div className="absolute inset-0 bg-white/5 rounded-[20px] blur opacity-0 group-hover:opacity-100 transition-opacity" />
                 <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
-                  <Link2 className="w-4 h-4 text-white/40" />
+                  <Link2 className="w-4 h-4 text-white/30" />
                 </div>
                 <Input 
                   value={shareUrl} 
                   readOnly 
-                  className="w-full h-14 pl-11 rounded-[22px] border-white/5 bg-[#121212] text-white text-[11px] font-mono tracking-tighter focus-visible:ring-1 focus-visible:ring-rose-500/30" 
+                  className="w-full h-12 pl-11 rounded-[16px] border-white/5 bg-[#161616] text-white text-[10px] font-mono tracking-tight focus-visible:ring-1 focus-visible:ring-rose-500/30" 
                 />
               </div>
               <Button
                 onClick={handleCopyLink}
-                className="h-14 px-8 rounded-[22px] bg-white text-black hover:bg-white/90 font-black uppercase tracking-widest text-xs active:scale-95 transition-all shadow-xl border-none"
+                className="h-12 px-6 rounded-[16px] bg-white text-black hover:bg-gray-200 font-bold uppercase tracking-widest text-[10px] active:scale-95 transition-all shadow-lg border-none"
               >
                 <AnimatePresence mode="wait">
                   {copied ? (
-                    <motion.div key="check" initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.5, opacity: 0 }} className="flex items-center gap-2">
-                      <Check className="w-4 h-4 stroke-[3px]" />
+                    <motion.div key="check" initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.8, opacity: 0 }} className="flex items-center gap-2">
+                      <Check className="w-3.5 h-3.5 stroke-[3px]" />
                     </motion.div>
                   ) : (
-                    <motion.div key="copy" initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.5, opacity: 0 }}>
+                    <motion.div key="copy" initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.8, opacity: 0 }}>
                       Copy
                     </motion.div>
                   )}
@@ -163,17 +161,17 @@ export function ShareDialog({
             </div>
           </div>
 
-          {/* Premium Social Grid */}
-          <div className="grid grid-cols-4 gap-4">
+          {/* Social Grid: Clean and Professional */}
+          <div className="grid grid-cols-4 gap-3">
             {typeof navigator !== 'undefined' && typeof navigator.share === 'function' && (
               <button
                 onClick={handleNativeShare}
-                className="flex flex-col items-center justify-center gap-3 h-24 rounded-[28px] bg-white/5 border border-white/5 hover:bg-white/10 transition-all active:scale-95 group"
+                className="flex flex-col items-center justify-center gap-2.5 h-20 rounded-[20px] bg-[#1A1A1A] border border-white/[0.05] hover:bg-[#222] transition-all active:scale-95 group"
               >
-                <div className="w-10 h-10 rounded-2xl bg-white text-black flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-transform">
-                  <Smartphone className="w-5 h-5" />
+                <div className="w-9 h-9 rounded-xl bg-white text-black flex items-center justify-center shadow-md">
+                  <Smartphone className="w-4 h-4" />
                 </div>
-                <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">More</span>
+                <span className="text-[9px] font-bold text-white/30 uppercase tracking-widest">More</span>
               </button>
             )}
             
@@ -185,42 +183,42 @@ export function ShareDialog({
               <button
                 key={platform.id}
                 onClick={() => handleSocialShare(platform.id, platform.handler)}
-                className="flex flex-col items-center justify-center gap-3 h-24 rounded-[28px] bg-white/5 border border-white/5 hover:bg-white/10 transition-all active:scale-95 group"
+                className="flex flex-col items-center justify-center gap-2.5 h-20 rounded-[20px] bg-[#1A1A1A] border border-white/[0.05] hover:bg-[#222] transition-all active:scale-95 group"
               >
-                <div className="w-10 h-10 rounded-2xl bg-white/5 text-white flex items-center justify-center border border-white/10 shadow-lg transform group-hover:scale-110 transition-transform">
-                  <platform.icon className="w-5 h-5" />
+                <div className="w-9 h-9 rounded-xl bg-[#262626] text-white flex items-center justify-center border border-white/[0.05] shadow-md">
+                  <platform.icon className="w-4 h-4" />
                 </div>
-                <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">{platform.label}</span>
+                <span className="text-[9px] font-bold text-white/30 uppercase tracking-widest">{platform.label}</span>
               </button>
             ))}
           </div>
 
-          {/* Email Quick Send - Nexus Style */}
+          {/* Email Quick Send */}
           <div className="space-y-4 pt-2">
-            <div className="flex gap-3">
-              <div className="relative flex-1 group">
-                <div className="absolute inset-0 bg-white/5 rounded-[20px] blur opacity-0 group-focus-within:opacity-100 transition-opacity" />
+            <div className="flex gap-2">
+              <div className="relative flex-1">
                 <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
-                  <Mail className="w-4 h-4 text-white/40" />
+                  <Mail className="w-4 h-4 text-white/30" />
                 </div>
                 <Input
                   type="email"
-                  placeholder="E-mail connection"
+                  placeholder="Email to share"
                   value={recipientEmail}
                   onChange={(e) => setRecipientEmail(e.target.value)}
-                  className="w-full h-14 pl-11 rounded-[22px] border-white/5 bg-[#121212] text-white text-xs focus-visible:ring-1 focus-visible:ring-rose-500/30 transition-all"
+                  className="w-full h-12 pl-11 rounded-[16px] border-white/5 bg-[#161616] text-white text-[11px] focus-visible:ring-1 focus-visible:ring-rose-500/30 transition-all"
                 />
               </div>
               <Button
                 onClick={handleEmailShare}
                 disabled={!recipientEmail}
-                className="h-14 w-14 rounded-[22px] p-0 bg-white/5 text-white hover:bg-white/10 border border-white/5 active:scale-95 transition-all"
+                className="h-12 w-12 rounded-[16px] p-0 bg-[#1A1A1A] text-white hover:bg-[#222] border border-white/[0.05] active:scale-95 transition-all"
               >
-                <Send className="w-5 h-5" />
+                <Send className="w-4 h-4" />
               </Button>
             </div>
           </div>
         </div>
+
       </DialogContent>
     </Dialog>
   );

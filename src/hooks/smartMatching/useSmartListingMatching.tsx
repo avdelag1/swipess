@@ -145,7 +145,7 @@ const DEMO_LISTINGS: any[] = [
     description: 'Transforming spaces into experiences. 10+ years of luxury residential design. Expert in sustainable materials and premium finishes.',
     price: 150, pricing_unit: 'hour', currency: 'USD',
     images: ['https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=1200'],
-    city: 'Tulum', category: 'services',
+    city: 'Tulum', category: 'worker',
     service_category: 'Interior Design', experience_years: 12, experience_level: 'expert',
     latitude: 20.2114, longitude: -87.6044, // ~15km west
     is_active: true, status: 'active', created_at: new Date().toISOString()
@@ -156,7 +156,7 @@ const DEMO_LISTINGS: any[] = [
     description: 'Specializing in React, Node.js and AI integrations. Available for premium software architecture and product launches.',
     price: 120, pricing_unit: 'hour', currency: 'USD',
     images: ['https://images.unsplash.com/photo-1573164773711-33023fd666cb?auto=format&fit=crop&q=80&w=1200'],
-    city: 'Playa del Carmen', category: 'services',
+    city: 'Playa del Carmen', category: 'worker',
     service_category: 'Software Development', experience_years: 8, experience_level: 'expert',
     latitude: 20.2114, longitude: -87.1274, // ~37km east
     is_active: true, status: 'active', created_at: new Date().toISOString()
@@ -167,7 +167,7 @@ const DEMO_LISTINGS: any[] = [
     description: 'Certified strength & conditioning coach. Outdoor sessions on the beach or cenotes. Nutrition planning included.',
     price: 60, pricing_unit: 'hour', currency: 'USD',
     images: ['https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&q=80&w=1200'],
-    city: 'Tulum', category: 'services',
+    city: 'Tulum', category: 'worker',
     service_category: 'Personal Training', experience_years: 6, experience_level: 'intermediate',
     latitude: 20.2454, longitude: -87.4654, // ~4km north
     is_active: true, status: 'active', created_at: new Date().toISOString()
@@ -329,7 +329,7 @@ export function useSmartListingMatching(
                 try {
                     const { data: rpcListings, error: rpcError } = await (supabase as any).rpc('get_smart_listings', {
                         p_user_id: userId,
-                        p_category: (filtersKey.includes('"category":"all"') || !filters?.category) ? null : filters.category,
+                        p_category: (filtersKey.includes('"category":"all"') || !filters?.category) ? null : normalizeCategoryName(filters.category),
                         p_limit: pageSize,
                         p_offset: page * pageSize
                     });
@@ -428,7 +428,8 @@ export function useSmartListingMatching(
                     const filteredDemos = DEMO_LISTINGS.filter(l => {
                         if (existingDemoIds.has(l.id)) return false;
                         if (filters?.category && filters.category !== 'all') {
-                            return l.category === normalizeCategoryName(filters.category);
+                            const normalized = normalizeCategoryName(filters.category);
+                            return l.category === normalized;
                         }
                         return true;
                     });

@@ -40,6 +40,7 @@ interface MessagingInterfaceProps {
     full_name: string;
     avatar_url?: string;
     role: 'client' | 'owner';
+    age?: number;
   };
   listing?: {
     id: string;
@@ -341,7 +342,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
                   <DropdownMenuSeparator className="bg-white/[0.06] my-1.5" />
                   <DropdownMenuItem
                     className="p-4 rounded-[1rem] focus:bg-amber-500/[0.12] text-amber-400 cursor-pointer font-black uppercase tracking-widest text-[9px] gap-3"
-                    onClick={() => (window as any).dispatchEvent(new CustomEvent('open-report', { detail: { reportedUserId: otherUser.id, reportCategory: 'user_profile' } }))}
+                    onClick={() => (window as any).dispatchEvent(new CustomEvent('open-report', { detail: { reportedUserId: otherUser.id, reportedUserAge: otherUser.age, reportCategory: 'user_profile' } }))}
                   >
                     <ShieldAlert className="w-4 h-4" /> Report
                   </DropdownMenuItem>
