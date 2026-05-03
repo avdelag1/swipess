@@ -38,6 +38,7 @@ interface UseMagnifierReturn {
     onPointerLeave: (e: React.PointerEvent) => void;
   };
   isActive: () => boolean;
+  wasActive: () => boolean;
   isHoldPending: () => boolean;
 }
 

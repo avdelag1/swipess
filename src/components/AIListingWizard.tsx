@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   X, Sparkles, Plus, Image, ChevronRight, 
   Check, Loader2, Wand2, ArrowLeft, Camera,
-  Building2, Bike, Briefcase, Zap, DollarSign, MapPin, Search
+  Building2, Bike, Briefcase, Zap, DollarSign, MapPin, Search, Mic
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -20,6 +20,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useTranslation } from 'react-i18next';
 import { useVoiceTranscribe } from '@/hooks/useVoiceTranscribe';
 import { refineWithKimi } from '@/lib/kimi';
+import { UnifiedListingForm } from './UnifiedListingForm';
 
 type WizardStep = 'category' | 'photos' | 'details' | 'processing' | 'review';
 

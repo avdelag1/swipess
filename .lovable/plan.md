@@ -1,89 +1,120 @@
-# Tinder-Style Swipe Card: Edges, Clean Zoom, Pan-While-Zoomed
 
-Three precise issues to fix on `/client/dashboard` (and the equivalent owner deck):
+# End-to-End App Stabilization Plan
 
-1. The card currently fills the entire viewport edge-to-edge. You want it slightly inset so the rounded corners and a thin background "frame" are visible around it (Tinder feel).
-2. When you press-and-hold to zoom, two ghost frames appear — a square frame (the card's outer rounded box / overflow being released) and a rectangle frame (the bottom Insights / info overlay).
-3. While zoomed, dragging the finger does not reliably pan the photo.
+Goal: take Swipess from "almost-there" to shippable. Fix every TypeScript error, simplify the theme system to the two-color rule you defined (white bg → dark text, black bg → light text), wire up missing UI bits (tokens chip in TopBar, notifications), confirm admin exclusion is global, harden Supabase wiring (notifications, likes, matches, conversations, geolocation), and clean repo debt — without breaking swipe physics, routing, or brand.
 
----
+## 1. TypeScript & Build Health (zero `tsc` errors)
 
-## 1. Card sizing — let the background show through
+Fix each error from `tsc-errors-utf8.txt` at the source (state slice / interface), not by patching consumers:
 
-**File:** `src/components/SwipessSwipeContainer.tsx` (deck wrapper, ~line 1118–1166)
+- **filterStore**: add back `filters` getter + `setServiceTypes` / `setPropertyTypes` actions (or remove their callers in `DiscoveryFilters.tsx` / `AppLayout.tsx`).
+- **modalStore**: add `showMapFullscreen` to `ModalState` (used by `DashboardLayout`).
+- **SoundEngine**: add `playMessageSent`; fix `useVoiceVisualizer` return type so `pulse` exists and `analyser` arg type matches.
+- **SwipeExhaustedStateProps**: extend to accept `radiusKm`, `onRadiusChange`, `onDetectLocation`, `detecting`, `detected`, `error`, `role`, `lat`, `lng`. Fix `setIndex` callback signature in `SwipessSwipeContainer.tsx:1189`.
+- **Filter sub-components** (`PropertyClientFilters`, `MotoClientFilters`, `BicycleClientFilters`, `WorkerClientFilters`): make `activeCount` optional or pass it from `ClientFilters.tsx`.
+- **OwnerFilters.tsx**: import `useRef`; align `CategoryType` union with `'leads' | 'motos' | 'bikes' | 'jobs'` literals.
+- **Null safety**: `ClientProfileNew` (`profile?.interests?.length ?? 0`), `Index.tsx` (`user!` guard), `WorldRadioDirectory` (`s.genre ?? ''`).
+- **Misc**: import `EmptyState` in `LikedClients.tsx`; restore or remove `EnhancedOwnerDashboard` lazy import; type the `notif`/`i` params in `NotificationsPage`; align `useNotifications` hook to actually return `notifications`, `isLoading`, `markAsRead`, `deleteNotification`, `markAllAsRead`.
+- **VirtualizedMessageList**: drop the dead `'ivanna-style'` comparison.
+- **RootProviders.tsx:79**: fix theme comparison against the current `Theme` union.
+- **lazyComponentLoader**: remove or fix the `EnhancedOwnerDashboard` import.
 
-The deck currently uses `absolute inset-0 w-full h-full sm:max-w-[480px]`. Replace the outer card-area wrapper so the card stack:
-- Has horizontal padding (`px-3`) and a small top/bottom inset (`pt-2 pb-3`) on mobile.
-- On larger viewports keeps `max-w-[440px]` and is centered.
-- Uses `relative` instead of `absolute inset-0` for the card stack motion.div, with explicit `flex-1` and rounded inner area, so the parent background (white in light / black in dark) shows around the card edges.
+Result: `tsc --noEmit` passes; build is green.
 
-Result: a visible 12–16 px gutter on the sides and a slim margin under the top bar / above the action buttons. The rounded card corners read as a real, floating object.
+## 2. Theme Simplification (the "two-color rule")
 
-## 2. Clean zoom — hide every UI frame while pressed
+Centralize so every component reads ONE boolean and never branches on theme strings:
 
-**File:** `src/components/SimpleSwipeCard.tsx`
+- In `ThemeContext`, expose `isLight: boolean` derived from the active theme (light/Swipess-style daylight = true; dark/cheers/Swipess-style dark = false).
+- Codemod across the ~30 files in `remaining_islight.txt`:
+  - Remove every local `const isLight = theme === 'light' || theme === 'ivanna-style'`.
+  - Replace with `const { isLight } = useAppTheme()`.
+  - Collapse multi-theme ternaries into the two-state rule:
+    - Surfaces: `isLight ? 'bg-white' : 'bg-black'` (or the existing `bg-background` token, which already does this).
+    - Text: `isLight ? 'text-black' : 'text-white'` (prefer `text-foreground`).
+- Remove dead theme strings (`ivanna-style`, `red-matte`, `amber-matte`, `pure-black`) from the `Theme` union, `GlobalThemeSettings`, and any switch/compare site. Keep the four sanctioned themes: `light`, `dark`, `cheers`, `Swipess-style`.
+- Result: filters and chrome become unambiguous — white bg = black text, black bg = white text — across the whole app.
 
-Currently `useMagnifier` walks up the DOM and sets `overflow: visible` on parents so the image can scale past the card. That removes the rounded clip and reveals the card's outer square + the bottom info overlay + gradients. Two changes:
+## 3. TopBar: Tokens chip + correct buttons
 
-a) Track `magnifierActive` as React state via the hook's existing `onActiveChange` callback. Pass `onActiveChange={setIsZoomed}` when calling `useMagnifier`.
+- Add a **Tokens chip** to `TopBar` (right cluster, just before the Filters button) showing the user's remaining message activations / tokens, tapping → `/subscription/packages`. Source: `message_activations` table (already exists) plus any token wallet field.
+- Verify owner vs client TopBar slots: owner does NOT need Perks; client keeps Perks via BottomNavigation.
+- Make sure the header is truly frameless on dashboard routes (transparent prop already in place — confirm no residual `border-b` or `bg-card` leaks).
 
-b) When `isZoomed === true`, hide every visual chrome layer behind the image:
-   - Top progress dots (`imageCount > 1` block)
-   - Top + bottom cinema fades (lines 538–552)
-   - In-card Share / Report buttons (line 577–608)
-   - Bottom info overlay (`PropertyCardInfo` / `ClientCardInfo` block, line 696–791)
-   - Bottom theme vignette (line 794–802)
-   - Edge vignette / inset border (line 806–813)
-   - Verified badge (line 816–825)
-   - LIKE / NOPE stamps (already opacity-driven, but force opacity 0 too)
+## 4. BottomNavigation audit (per role)
 
-   Implementation: wrap each chrome element with `style={{ opacity: isZoomed ? 0 : undefined, transition: 'opacity 120ms' }}` (or a single conditional CSS class on the card root that fades children via `[data-zoomed=true] .chrome { opacity: 0; }`).
+- Client: Dashboard, Liked, Messages, Perks, Profile.
+- Owner: Dashboard, Properties (Listings), Insights (Liked Clients), Messages, Profile.
+- Confirm icons render and tap targets are 44px+. No Perks on owner side (per your call).
 
-c) Keep the photo's rounded clipping intact during zoom. Instead of letting the magnifier hook strip `overflow: hidden` from ancestors, change the hook so it leaves the **image container's own** `rounded-[28px] overflow-hidden` alone and only widens overflow on the outer drag wrapper. The image stays inside the rounded card; the user just pans around the high-res content. This single change kills the square ghost frame entirely.
+## 5. Admin exclusion (global)
 
-**File:** `src/hooks/useMagnifier.ts`
+- `useAdminUserIds` now reads `user_roles` (good). Wire it into:
+  - `useDiscoveryListings` / client deck builder (filter out listings whose `user_id`/`owner_id` is admin).
+  - Owner client deck (`useClientProfiles`) — exclude admin `user_id`s.
+  - `LikedClients` / `OwnerInterestedClients` lists.
+  - Conversation list (hide threads with admin counterpart unless the admin is the support channel — TBD).
+- Add a unit-style guard so admin profiles never appear even if cache is stale (filter at render too).
 
-In `activateMagnifier`, stop walking up to `containerRef.parentElement.parentElement`. Walk up only to the immediate `containerRef.current` and stop. The image will scale within the card's own rounded clip, so no parent frame leaks.
+## 6. Owner-side Insights/Message/Share parity
 
-## 3. Pan with finger while zoomed
+Mirror the client-side flows in `ClientSwipeContainer` action handlers:
 
-The hook already supports this in `onPointerMove` (it calls `updateMagnifier` and `e.preventDefault()` while active). The reason panning currently feels broken is that **pointer capture is being requested on the wrong target** — `target` is set from `e.currentTarget` (the motion.div), but Framer Motion's drag system also attaches listeners that compete.
+- **Insights**: `LikedClientInsightsModal` — show full client profile (photos carousel, age, intents, languages, location, verified badge, interests). Same layout grammar as `LikedListingInsightsModal`.
+- **Message**: open the unified message composer using `conversations` (create if missing with `client_id` = liked user, `owner_id` = current owner). Respect `message_activations` quota.
+- **Share**: same share sheet used on client side, writing to `content_shares` with `shared_profile_id`.
 
-Fix in `SimpleSwipeCard.tsx` `handleUnifiedPointerMove` (line 279):
-- When `isMagnifierActive()` returns true, call `e.stopPropagation()` and `e.preventDefault()` BEFORE delegating to `magnifierPointerHandlers.onPointerMove(e)`. This prevents Framer's drag listener from interpreting the same pointer move as a drag.
-- Also gate `handlePointerMoveForTilt` so it does not run while zoomed.
+## 7. Geolocation (real, precise, opt-in)
 
-Fix in `useMagnifier.ts` `onPointerDown`:
-- Capture pointer immediately on `e.currentTarget` at the moment the hold timer fires (already done) — but also call `(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId)` right at pointer down, so the same element receives all subsequent move events even before the 300 ms hold completes. This guarantees `onPointerMove` reaches the magnifier without being intercepted.
+- One-tap "Detect my location" in the exhausted state and in filters → `navigator.geolocation.getCurrentPosition` with permission UX.
+- Persist `latitude`/`longitude` on `client_profiles` and `listings` (already columns) and on `owner_profiles` if applicable.
+- Distance queries: add a Postgres RPC `nearby_listings(lat, lng, radius_km, category)` using the haversine formula (no PostGIS extension needed; if PostGIS is enabled, prefer `ST_DWithin`). Same for `nearby_clients` for owner discovery.
+- Show "X.X km away" chip on every card (properties, motos, bikes, workers, clients).
+- Fallback: manual city/neighborhood input writes coords via geocoding (or skips distance).
 
-## Files to modify
+## 8. Notifications end-to-end
 
-- `src/components/SwipessSwipeContainer.tsx` — card stack wrapper sizing (gutters)
-- `src/components/SimpleSwipeCard.tsx` — fade chrome layers when zoomed; harden pointer routing during zoom
-- `src/hooks/useMagnifier.ts` — limit overflow walk to the image container; aggressive pointer capture
+- Fix `useNotifications` to actually subscribe to `notifications` table changes (already realtime-capable), expose: `notifications`, `isLoading`, `markAsRead`, `markAllAsRead`, `deleteNotification`.
+- `NotificationsPage` renders the list; tap → deep-link via `link_url`/`metadata`.
+- Triggers we need (DB side) — confirm or add via migration:
+  - On new `likes` row where target is a user/listing → notify target's owner.
+  - On new `matches` → notify both parties (flame alert).
+  - On new `conversation_messages` → notify recipient.
+- Web Push: VAPID keys already set. Verify `send-push-notification` edge function fires on the events above.
 
-No other files, no DB changes, no routing changes.
+## 9. Supabase wiring sanity pass
 
-## Visual outcome
+- Confirm RLS for: `likes` (insert with own user_id), `matches` (read by both parties), `conversations`/`messages` (participant-only via `is_conversation_participant`), `notifications` (own only).
+- Confirm `handle_new_user` trigger creates `profiles` + default `client` role (it does).
+- Add an idempotent migration to ensure realtime publication includes `messages`, `conversations`, `notifications`, `likes`, `matches`.
+- No changes to admin-app-managed tables (business_partners, concierge_knowledge, events, discount_offers) — read-only from this app.
 
-```text
-┌─────────────────────────────┐
-│   [<] [persona]   [☀][🔔]   │  ← top bar
-│                             │
-│   ╭───────────────────────╮ │  ← card with visible 12px gutter
-│   │                       │ │
-│   │      LISTING PHOTO    │ │
-│   │                       │ │
-│   │   $35,000  /night     │ │
-│   ╰───────────────────────╯ │
-│                             │
-│   ↩  👎  💬  🔥  📱         │  ← action bar
-│ DASH  PROFILE  LIKES …      │  ← bottom nav
-└─────────────────────────────┘
-```
+## 10. Repo housekeeping
 
-When you press and hold:
-- All overlays (price card, gradients, badges, side buttons, progress dots) fade to 0 in ~120 ms.
-- The photo fills the rounded card with `scale: 2.8`.
-- Moving your finger pans the zoomed photo smoothly until you release.
-- On release, overlays fade back in.
+- Delete committed debug artifacts: `tsc-errors-utf8.txt`, `isLight_*.txt`, `remaining_islight.txt`, `find_undeclared_islight.cjs`, `check_islight.cjs`.
+- Keep a single lockfile: **`bun.lock`** (project uses bun). Delete `package-lock.json` and `pnpm-lock.yaml` if present.
+- No git operations from sandbox — Lovable's GitHub Actions handle the mirror to your original repo and Vercel.
+
+## Out of scope (intentionally untouched)
+
+- Swipe physics, card stack recycling, parallax — preserved as-is.
+- Admin App (separate codebase) — we only consume its data.
+- Theme aesthetic — we simplify the matrix, we do not redesign.
+
+## Technical notes
+
+- Files most-touched: `src/state/filterStore.ts`, `src/state/modalStore.ts`, `src/contexts/ThemeContext.ts`, `src/components/TopBar.tsx`, `src/components/BottomNavigation.tsx`, `src/components/SwipessSwipeContainer.tsx`, `src/components/SwipeExhaustedState.tsx`, `src/components/ClientSwipeContainer.tsx`, `src/components/LikedClientInsightsModal.tsx`, `src/hooks/useNotifications.ts`, `src/hooks/useAdminUserIds.ts`, `src/pages/ClientFilters.tsx`, `src/pages/OwnerFilters.tsx`, `src/pages/NotificationsPage.tsx`, plus the ~30 files in the isLight codemod.
+- One Supabase migration: distance RPC + (if missing) realtime publication adds + notification triggers.
+- One edge-function check: `send-push-notification` invoked by triggers.
+
+## Acceptance checks
+
+1. `tsc --noEmit` clean.
+2. App builds, dashboard renders frameless on both roles.
+3. Tokens chip visible in TopBar; tap routes to packages.
+4. Switching theme between Daylight ↔ Midnight flips every surface to the two-color rule with no broken contrast.
+5. Admin accounts never appear in any deck, list, or insights view.
+6. Owner can tap a liked client → full Insights modal, message, share — parity with client side.
+7. "Detect my location" populates lat/lng; cards show distance; radius slider returns nearby results.
+8. Likes/matches/messages each fire a `notifications` row + push; bell page lists, marks read, deletes.
+9. Repo has one lockfile and zero debug `.txt` files.

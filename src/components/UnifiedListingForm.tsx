@@ -28,6 +28,7 @@ import { useAnonymousDrafts } from '@/hooks/useAnonymousDrafts';
 import { useAuth } from '@/hooks/useAuth';
 import { ListingVideoUpload } from './video/ListingVideoUpload';
 import { ListingSuccessCelebration } from './ListingSuccessCelebration';
+import { uiSounds } from '@/utils/uiSounds';
 import { Loader2 } from 'lucide-react';
 
 interface EditingListing {
