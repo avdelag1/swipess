@@ -9,6 +9,9 @@ import { SwipeActionButtonBar } from './SwipeActionButtonBar';
 import { SwipeExhaustedState } from './swipe/SwipeExhaustedState';
 import { SwipeLoadingSkeleton } from './swipe/SwipeLoadingSkeleton';
 import type { QuickFilterCategory } from '@/types/filters';
+
+const CLIENT_CYCLE: QuickFilterCategory[] = ['property', 'motorcycle', 'bicycle', 'services'];
+const OWNER_CYCLE: QuickFilterCategory[] = ['all-clients', 'buyers', 'renters', 'hire'];
 import { getActiveCategoryInfo, POKER_CARDS, OWNER_INTENT_CARDS } from './swipe/SwipeConstants';
 import { MatchCelebrateModal } from './swipe/MatchCelebrateModal';
 import { ClientPreferencesDialog } from './ClientPreferencesDialog';

@@ -568,10 +568,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
           userRole={currentUserRole}
         />
 
-        <TokensModal
-          open={showTokensModal}
-          onOpenChange={setShowTokensModal}
-        />
+        <TokensModal />
 
         <RatingSubmissionDialog
           open={showRatingDialog}

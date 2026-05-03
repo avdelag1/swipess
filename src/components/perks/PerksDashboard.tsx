@@ -193,7 +193,7 @@ export function PerksDashboard() {
 
           {tab === 'businesses' && (
             <motion.div key="businesses" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
-              <BusinessList partners={partners} />
+              <BusinessList partners={partners} onShowQR={() => setQrOpen(true)} />
             </motion.div>
           )}
 
@@ -205,7 +205,7 @@ export function PerksDashboard() {
         </AnimatePresence>
       </div>
 
-      <ResidentQRModal open={qrOpen} onOpenChange={setQrOpen} />
+      <ResidentQRModal isOpen={qrOpen} onClose={() => setQrOpen(false)} />
     </div>
   );
 }

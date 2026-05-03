@@ -79,7 +79,9 @@ export default function OwnerViewClientProfile() {
 
   const insights = useMemo(() => {
     if (!client) return null;
-    const completeness = (client.images?.length || 0) * 20 + (client.bio ? 20 : 0);
+    const imgs = (client as any).images;
+    const imgCount = Array.isArray(imgs) ? imgs.length : 0;
+    const completeness = imgCount * 20 + (client.bio ? 20 : 0);
     return {
       views: Math.floor(Math.random() * 50) + 120,
       weeklyGrowth: Math.floor(Math.random() * 15) + 5,
@@ -149,7 +151,7 @@ export default function OwnerViewClientProfile() {
 
   return (
     <div className="min-h-screen bg-black text-white selection:bg-rose-500/30 overflow-x-hidden relative">
-      <AtmosphericLayer variant="sunset" opacity={0.12} />
+      <AtmosphericLayer variant="rose" opacity={0.12} />
       
       {/* 🛸 NEXUS HEADER */}
       <div className="sticky top-0 z-50 bg-black/60 backdrop-blur-2xl border-b border-white/5">
@@ -197,8 +199,8 @@ export default function OwnerViewClientProfile() {
               
               <div className="flex flex-col items-end gap-3">
                 <div className="w-20 h-20 rounded-[28px] bg-white/5 border border-white/10 overflow-hidden shadow-2xl transform rotate-3 hover:rotate-0 transition-transform">
-                  {client.images?.[0] ? (
-                    <img src={client.images[0]} alt="" className="w-full h-full object-cover" />
+                  {Array.isArray((client as any).images) && (client as any).images[0] ? (
+                    <img src={(client as any).images[0] as string} alt="" className="w-full h-full object-cover" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
                       <User className="w-8 h-8 text-white/10" />
@@ -215,7 +217,7 @@ export default function OwnerViewClientProfile() {
                <div className="px-4 py-2.5 rounded-2xl bg-black border border-white/10 flex items-center gap-2 shadow-lg">
                   <CompactRatingDisplay aggregate={ratingAggregate || null} isLoading={isRatingLoading} showReviews={false} />
                </div>
-               {client.verified && (
+                {(client as any).verified && (
                  <div className="px-4 py-2.5 rounded-2xl bg-rose-500/10 border border-rose-500/20 flex items-center gap-2">
                     <ShieldCheck className="w-4 h-4 text-rose-500" />
                     <span className="text-[10px] font-black uppercase tracking-widest text-rose-500">Verified</span>
