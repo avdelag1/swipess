@@ -12,8 +12,11 @@ import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { toast } from '@/components/ui/sonner';
 import { logger } from '@/utils/prodLogger';
+import { AtmosphericLayer } from '@/components/AtmosphericLayer';
+import { triggerHaptic } from '@/utils/haptics';
+import { uiSounds } from '@/utils/uiSounds';
+import { cn } from '@/lib/utils';
 
 const NATIONALITY_OPTIONS = [
   'United States', 'Canada', 'Mexico', 'United Kingdom', 'Germany', 'France', 'Spain', 'Italy',
@@ -130,12 +133,15 @@ export function OnboardingFlow({ open, onComplete }: OnboardingFlowProps) {
 
   const handleNext = () => {
     if (currentStep < steps.length - 1) {
+      triggerHaptic('medium');
+      uiSounds.playStarShoot();
       setCurrentStep(currentStep + 1);
     }
   };
 
   const handleBack = () => {
     if (currentStep > 0) {
+      triggerHaptic('light');
       setCurrentStep(currentStep - 1);
     }
   };
@@ -456,22 +462,36 @@ export function OnboardingFlow({ open, onComplete }: OnboardingFlowProps) {
   return (
     <Dialog open={open} onOpenChange={(isOpen) => { if (!isOpen) handleSkip(); }}>
       <DialogContent
-        className="sm:max-w-2xl bg-gradient-to-br from-slate-900/95 via-slate-800/95 to-slate-900/95 backdrop-blur-xl border border-white/10 text-white"
+        className="sm:max-w-2xl bg-black border-white/5 text-white overflow-hidden p-0 rounded-[2.5rem]"
       >
-        <DialogHeader>
-          <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-red-400 to-red-500 bg-clip-text text-transparent">
-            {steps[currentStep].title}
-          </DialogTitle>
-        </DialogHeader>
-
-        {/* Progress Bar */}
-        <div className="space-y-2 mb-4">
-          <div className="flex justify-between text-sm text-white/60">
-            <span>Step {currentStep + 1} of {steps.length}</span>
-            <span>{Math.round(progress)}%</span>
-          </div>
-          <Progress value={progress} className="h-2" />
+        <div className="absolute inset-0 pointer-events-none">
+          <AtmosphericLayer variant="nexus" opacity={0.1} />
         </div>
+
+        <div className="relative z-10 p-6 sm:p-10 flex flex-col h-full max-h-[90vh]">
+          <DialogHeader className="mb-6">
+            <DialogTitle className="text-3xl font-black italic uppercase tracking-tighter bg-gradient-to-r from-[#FF4D00] to-[#EB4898] bg-clip-text text-transparent">
+              {steps[currentStep].title}
+            </DialogTitle>
+          </DialogHeader>
+
+          {/* Progress Bar: Liquid Design */}
+          <div className="space-y-2 mb-8">
+            <div className="flex justify-between text-[10px] font-black uppercase tracking-[0.2em] text-white/30 italic">
+              <span>Protocol {currentStep + 1} of {steps.length}</span>
+              <span>{Math.round(progress)}% Integrity</span>
+            </div>
+            <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden relative">
+              <motion.div 
+                className="h-full bg-gradient-to-r from-[#FF4D00] to-[#EB4898] relative"
+                initial={{ width: 0 }}
+                animate={{ width: `${progress}%` }}
+                transition={{ type: "spring", stiffness: 100, damping: 20 }}
+              >
+                <div className="absolute top-0 right-0 h-full w-4 bg-white/40 blur-sm" />
+              </motion.div>
+            </div>
+          </div>
 
         {/* Step Content */}
         <div className="min-h-[400px]">
@@ -480,24 +500,25 @@ export function OnboardingFlow({ open, onComplete }: OnboardingFlowProps) {
           </AnimatePresence>
         </div>
 
-        {/* Navigation Buttons */}
-        <div className="flex justify-between pt-4 border-t border-white/10">
-          <div className="flex gap-2">
-            <Button
-              variant="ghost"
-              onClick={handleBack}
-              disabled={currentStep === 0}
-              className="text-white/70 hover:text-white hover:bg-white/10"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back
-            </Button>
+        {/* Navigation Buttons: Tactical Grid */}
+        <div className="mt-auto flex justify-between items-center gap-4 pt-8 border-t border-white/5">
+          <div className="flex gap-3">
+            {currentStep > 0 && (
+              <Button
+                variant="ghost"
+                onClick={handleBack}
+                className="h-12 px-6 rounded-2xl text-white/40 hover:text-white hover:bg-white/5 font-black uppercase tracking-widest text-[10px] italic transition-all"
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Reverse
+              </Button>
+            )}
             <Button
               variant="ghost"
               onClick={handleSkip}
-              className="text-white/50 hover:text-white hover:bg-white/10"
+              className="h-12 px-6 rounded-2xl text-white/20 hover:text-white/40 hover:bg-white/5 font-black uppercase tracking-widest text-[10px] italic transition-all"
             >
-              Skip for Now
+              Skip Protocol
             </Button>
           </div>
 
@@ -505,20 +526,21 @@ export function OnboardingFlow({ open, onComplete }: OnboardingFlowProps) {
             <Button
               onClick={handleNext}
               disabled={!canProceed()}
-              className="bg-gradient-to-r from-red-600 to-red-500 hover:from-red-700 hover:to-red-600"
+              className="h-12 px-8 rounded-2xl bg-white text-black hover:bg-white/90 font-black uppercase tracking-widest text-[10px] italic shadow-[0_10px_30px_rgba(255,255,255,0.1)] active:scale-95 transition-all disabled:opacity-30"
             >
-              Next
+              Next Phase
               <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
           ) : (
             <Button
               onClick={handleComplete}
               disabled={isLoading}
-              className="bg-gradient-to-r from-rose-500 to-rose-500 hover:from-rose-600 hover:to-rose-600"
+              className="h-12 px-8 rounded-2xl bg-[#FF4D00] text-white hover:bg-[#FF3D00] font-black uppercase tracking-widest text-[10px] italic shadow-[0_10px_30px_rgba(255,77,0,0.3)] active:scale-95 transition-all"
             >
-              {isLoading ? 'Completing...' : 'Start Swiping!'}
+              {isLoading ? 'Syncing...' : 'Initialize Swipess'}
             </Button>
           )}
+        </div>
         </div>
       </DialogContent>
     </Dialog>

@@ -2,7 +2,8 @@ import { cn } from '@/lib/utils';
 import useAppTheme from '@/hooks/useAppTheme';
 import { triggerHaptic } from '@/utils/haptics';
 import { DistanceSlider } from './DistanceSlider';
-import { SlidersHorizontal } from 'lucide-react';
+import { SlidersHorizontal, Search } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface SwipeExhaustedStateProps {
   radiusKm?: number;
@@ -52,8 +53,50 @@ export const SwipeExhaustedState = ({
   const categories = allCategories.filter((c) => c.id !== activeCategory);
 
   return (
-    <div className="relative z-50 h-full w-full flex flex-col items-center justify-center bg-transparent px-6 pt-16">
-      <div className="flex flex-col items-center text-center w-full max-w-md gap-6">
+    <div className="relative z-50 h-full w-full flex flex-col items-center justify-center bg-transparent px-6 overflow-hidden">
+      {/* Discovery Pulse Animation */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+        <AnimatePresence>
+          {(isLoading || !detected) && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="relative flex items-center justify-center"
+            >
+              {[1, 2, 3].map((i) => (
+                <motion.div
+                  key={i}
+                  initial={{ scale: 0.5, opacity: 0 }}
+                  animate={{ 
+                    scale: [0.5, 2.5], 
+                    opacity: [0.3, 0] 
+                  }}
+                  transition={{ 
+                    duration: 3, 
+                    repeat: Infinity, 
+                    delay: i * 0.8,
+                    ease: "easeOut" 
+                  }}
+                  className={cn(
+                    "absolute rounded-full border border-primary/40",
+                    i === 1 ? "w-40 h-40" : i === 2 ? "w-60 h-60" : "w-80 h-80"
+                  )}
+                />
+              ))}
+              <motion.div 
+                animate={{ scale: [1, 1.1, 1] }}
+                transition={{ duration: 2, repeat: Infinity }}
+                className="relative z-10 w-24 h-24 rounded-full bg-primary/10 backdrop-blur-xl border border-primary/20 flex items-center justify-center shadow-[0_0_40px_rgba(236,72,153,0.2)]"
+              >
+                <Search className="w-8 h-8 text-primary opacity-60" />
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      <div className="flex flex-col items-center text-center w-full max-w-md gap-6 relative z-10">
         {/* Message */}
         <div className="space-y-2">
           <p className={cn(

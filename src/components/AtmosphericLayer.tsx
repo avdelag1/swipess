@@ -3,7 +3,7 @@ import { cn } from '@/lib/utils';
 import useAppTheme from '@/hooks/useAppTheme';
 
 interface AtmosphericLayerProps {
-  variant?: 'default' | 'primary' | 'indigo' | 'rose';
+  variant?: 'default' | 'primary' | 'indigo' | 'rose' | 'nexus';
   opacity?: number;
   speed?: number;
 }
@@ -42,6 +42,12 @@ export const AtmosphericLayer = memo(({ variant = 'default', opacity = 0.08, spe
 
   const getGradients = () => {
     switch (variant) {
+      case 'nexus':
+        return {
+          top: "bg-[#FF4D00]/15",
+          bottom: "bg-[#EB4898]/15",
+          radial: "rgba(255,77,0,0.05)"
+        };
       case 'primary':
         return {
           top: isLight ? "bg-blue-400/10" : "bg-primary/5",
@@ -74,9 +80,9 @@ export const AtmosphericLayer = memo(({ variant = 'default', opacity = 0.08, spe
         };
       default:
         return {
-          top: isLight ? "bg-slate-200/30" : "bg-indigo-900/12",
-          bottom: isLight ? "bg-blue-100/25" : "bg-primary/6",
-          radial: isLight ? "rgba(15,23,42,0.02)" : "rgba(255,107,53,0.03)"
+          top: isLight ? "bg-slate-200/30" : "bg-[#FF4D00]/[0.08]",
+          bottom: isLight ? "bg-blue-100/25" : "bg-[#EB4898]/[0.08]",
+          radial: isLight ? "rgba(15,23,42,0.02)" : "rgba(255,77,0,0.03)"
         };
     }
   };
@@ -106,15 +112,15 @@ export const AtmosphericLayer = memo(({ variant = 'default', opacity = 0.08, spe
         )} />
       </div>
 
-      {/* 🧘 SWIPESS NODES: Slow drifting particles for liveness */}
+      {/* 🧘 NEXUS NODES: Slow drifting particles for liveness */}
       <div className="absolute inset-0 opacity-40">
         <div className={cn(
           "absolute top-[20%] left-[30%] w-64 h-64 blur-[100px] rounded-full animate-float-slow",
-          isLight ? "bg-primary/5" : "bg-primary/10"
+          isLight ? "bg-[#FF4D00]/5" : "bg-[#FF4D00]/10"
         )} style={{ animationDelay: '0s' }} />
         <div className={cn(
           "absolute bottom-[30%] right-[20%] w-80 h-80 blur-[120px] rounded-full animate-float-slow",
-          isLight ? "bg-blue-400/5" : "bg-blue-400/10"
+          isLight ? "bg-[#EB4898]/5" : "bg-[#EB4898]/10"
         )} style={{ animationDelay: '-4s', animationDirection: 'reverse' }} />
       </div>
 

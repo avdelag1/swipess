@@ -89,123 +89,162 @@ const ResetPassword = () => {
     }
   };
 
-  // Floating fire particles component
-  const FireParticles = () => (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      {Array.from({ length: 8 }).map((_, i) => (
-        <motion.div
-          key={i}
-          className="absolute"
-          style={{
-            width: `${2 + Math.random() * 4}px`,
-            height: `${4 + Math.random() * 8}px`,
-            background: `linear-gradient(45deg, ${i % 3 === 0 ? '#f97316' : i % 3 === 1 ? '#fbbf24' : '#ea580c'
-              }, transparent)`,
-            boxShadow: `0 0 ${8 + Math.random() * 16}px ${i % 3 === 0 ? '#f97316' : '#fbbf24'
-              }60`,
-            borderRadius: '50%',
-            left: `${Math.random() * 100}%`,
-            bottom: '-10px',
-          }}
-          animate={{
-            y: [0, -(window.innerHeight * 0.8 + Math.random() * 200)],
-            x: [0, (Math.random() - 0.5) * 100],
-            opacity: [0, 0.8, 0.6, 0],
-            scale: [0.3, 1, 0.8, 0.2],
-          }}
-          transition={{
-            duration: 8 + Math.random() * 6,
-            repeat: Infinity,
-            ease: "easeOut",
-            delay: Math.random() * 4,
-          }}
-        />
-      ))}
-    </div>
-  );
+// Nexus particles component
+const NexusParticles = () => (
+  <div className="absolute inset-0 overflow-hidden pointer-events-none">
+    {Array.from({ length: 12 }).map((_, i) => (
+      <motion.div
+        key={i}
+        className="absolute"
+        style={{
+          width: `${1 + Math.random() * 3}px`,
+          height: `${1 + Math.random() * 3}px`,
+          background: i % 2 === 0 ? '#FF4D00' : '#EB4898',
+          boxShadow: `0 0 ${10 + Math.random() * 20}px ${i % 2 === 0 ? '#FF4D00' : '#EB4898'}`,
+          borderRadius: '50%',
+          left: `${Math.random() * 100}%`,
+          top: `${Math.random() * 100}%`,
+        }}
+        animate={{
+          scale: [0, 1, 0],
+          opacity: [0, 0.8, 0],
+          x: [0, (Math.random() - 0.5) * 50],
+          y: [0, (Math.random() - 0.5) * 50],
+        }}
+        transition={{
+          duration: 3 + Math.random() * 4,
+          repeat: Infinity,
+          ease: "easeInOut",
+          delay: Math.random() * 2,
+        }}
+      />
+    ))}
+  </div>
+);
+
+const ResetPassword = () => {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const passwordStrength = useMemo(() => checkPasswordStrength(password), [password]);
+  const passwordsMatch = password && confirmPassword && password === confirmPassword;
+
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (password !== confirmPassword) {
+      toast({
+        title: "Access Sync Failed",
+        description: "Credentials do not match the target parity.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (passwordStrength.score < 4) {
+      toast({
+        title: "Insecure Protocol",
+        description: "Password complexity must meet Nexus standards (8+ chars, Case, Numbers).",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: password
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Protocol Updated",
+        description: "Security sync complete. Accessing gateway...",
+      });
+
+      setTimeout(() => {
+        navigate("/");
+      }, 1500);
+    } catch (error: unknown) {
+      toast({
+        title: "Sync Error",
+        description: error instanceof Error ? error.message : "Please try again or request a new reset link.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4 relative overflow-hidden">
-      <FireParticles />
+    <div className="min-h-screen flex items-center justify-center bg-black p-4 relative overflow-hidden">
+      <NexusParticles />
 
       {/* Ambient glow effects */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-orange-500/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl" />
+        <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-[#FF4D00]/5 rounded-full blur-[120px]" />
+        <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-[#EB4898]/5 rounded-full blur-[120px]" />
       </div>
 
       <motion.div
         className="w-full max-w-md relative z-10"
-        initial={{ opacity: 0, y: 20, scale: 0.95 }}
+        initial={{ opacity: 0, y: 20, scale: 0.98 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.4, ease: "easeOut" }}
+        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
       >
         {/* Back Button */}
         <motion.button
           onClick={() => navigate("/")}
-          className="mb-6 flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors group"
+          className="mb-8 flex items-center gap-2 text-white/40 hover:text-white/80 transition-all group"
           whileHover={{ x: -4 }}
           whileTap={{ scale: 0.95 }}
         >
-          <ArrowLeft className="w-5 h-5 transition-transform group-hover:-translate-x-1" />
-          <span className="text-sm font-medium">Back to Home</span>
+          <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
+          <span className="text-[10px] font-black uppercase tracking-[0.3em] italic">Back to Gateway</span>
         </motion.button>
 
         {/* Logo and Header */}
         <motion.div
-          className="text-center mb-8"
+          className="text-center mb-10"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
-          <motion.div
-            className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-orange-500 via-amber-500 to-yellow-500 rounded-3xl mb-5 shadow-[0_0_60px_rgba(251,146,60,0.3)]"
-            animate={{
-              boxShadow: [
-                '0 0 40px rgba(251,146,60,0.3)',
-                '0 0 60px rgba(251,146,60,0.5)',
-                '0 0 40px rgba(251,146,60,0.3)',
-              ]
-            }}
-            transition={{ duration: 2, repeat: Infinity }}
-          >
-            <motion.div
-              animate={{
-                scale: [1, 1.1, 1],
-                rotate: [0, 5, -5, 0],
-              }}
-              transition={{ duration: 3, repeat: Infinity }}
-            >
-              <KeyRound className="w-10 h-10 text-white drop-shadow-lg" />
-            </motion.div>
-          </motion.div>
+          <div className="inline-flex items-center justify-center mb-8">
+            <SwipessLogo size="lg" variant="transparent" />
+          </div>
 
-          <h2 className="text-3xl font-bold text-foreground mb-2">Reset Password</h2>
-          <p className="text-muted-foreground">
-            Create a strong, secure password for your account
+          <h2 className="text-3xl font-black italic uppercase text-white tracking-tighter mb-2">Reset Password</h2>
+          <p className="text-[11px] font-bold uppercase tracking-[0.3em] text-white/30 italic">
+            Initialize Strong Access Protocol
           </p>
         </motion.div>
 
         {/* Main Card */}
         <motion.div
-          className="bg-card/80 backdrop-blur-2xl border border-amber-500/30 rounded-3xl p-8 shadow-[0_0_60px_rgba(251,146,60,0.2)]"
+          className="bg-white/[0.03] backdrop-blur-3xl border border-white/10 rounded-[2.5rem] p-8 sm:p-10 shadow-2xl relative overflow-hidden"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
-          <form onSubmit={handleResetPassword} className="space-y-5">
+          {/* Subtle liquid border overlay */}
+          <div className="absolute inset-0 pointer-events-none border border-white/5 rounded-[2.5rem]" />
+          
+          <form onSubmit={handleResetPassword} className="space-y-6">
             {/* New Password Field */}
-            <motion.div
-              className="space-y-2"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.25 }}
-            >
-              <Label htmlFor="password" className="text-sm font-medium text-muted-foreground">
-                New Password
+            <div className="space-y-2.5">
+              <Label className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40 ml-1 italic">
+                New Protocol Code
               </Label>
               <div className="relative group">
-                <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-foreground transition-colors" />
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20 group-focus-within:text-[#FF4D00] transition-colors" />
                 <Input
                   id="password"
                   name="password"
@@ -213,65 +252,60 @@ const ResetPassword = () => {
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter new password"
+                  placeholder="Enter secret code"
                   required
-                  minLength={8}
-                  disabled={loading}
-                  className="pl-12 pr-12 h-14 text-base"
+                  className="pl-12 pr-12 h-14 bg-white/5 border-white/10 text-white rounded-2xl focus:ring-2 focus:ring-[#FF4D00]/20 focus:border-[#FF4D00]/50 transition-all font-semibold"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-white/20 hover:text-white/60 transition-colors"
                 >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
 
               {/* Password Strength Indicator */}
               {password && (
                 <motion.div
-                  className="space-y-3 pt-2"
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
+                  className="space-y-4 pt-3"
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
                 >
-                  {/* Strength Bar */}
-                  <div className="flex items-center gap-3">
-                    <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
+                  <div className="flex items-center gap-4">
+                    <div className="flex-1 h-1 bg-white/5 rounded-full overflow-hidden">
                       <motion.div
-                        className={`h-full ${passwordStrength.color} rounded-full`}
+                        className="h-full bg-gradient-to-r from-[#FF4D00] to-[#EB4898] rounded-full"
                         initial={{ width: 0 }}
                         animate={{ width: `${(passwordStrength.score / 4) * 100}%` }}
-                        transition={{ duration: 0.3 }}
+                        transition={{ duration: 0.5, ease: "circOut" }}
                       />
                     </div>
-                    <span className={`text-xs font-medium ${passwordStrength.score <= 1 ? 'text-red-400' :
-                        passwordStrength.score === 2 ? 'text-orange-400' :
-                          passwordStrength.score === 3 ? 'text-yellow-400' : 'text-rose-400'
-                      }`}>
+                    <span className="text-[9px] font-black uppercase tracking-widest text-primary italic">
                       {passwordStrength.label}
                     </span>
                   </div>
 
-                  {/* Requirements Checklist */}
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-2 gap-y-2 gap-x-4">
                     {[
-                      { key: 'length', label: '8+ characters' },
-                      { key: 'lowercase', label: 'Lowercase' },
-                      { key: 'uppercase', label: 'Uppercase' },
-                      { key: 'number', label: 'Number' },
+                      { key: 'length', label: '8+ CHARS' },
+                      { key: 'lowercase', label: 'LOWERCASE' },
+                      { key: 'uppercase', label: 'UPPERCASE' },
+                      { key: 'number', label: 'NUMBER' },
                     ].map(({ key, label }) => (
                       <div
                         key={key}
-                        className={`flex items-center gap-2 text-xs ${passwordStrength.checks[key as keyof typeof passwordStrength.checks]
-                            ? 'text-rose-400'
-                            : 'text-muted-foreground'
-                          }`}
+                        className={cn(
+                          "flex items-center gap-2 text-[9px] font-black tracking-widest transition-colors",
+                          passwordStrength.checks[key as keyof typeof passwordStrength.checks]
+                            ? 'text-[#EB4898]'
+                            : 'text-white/10'
+                        )}
                       >
                         {passwordStrength.checks[key as keyof typeof passwordStrength.checks] ? (
-                          <Check className="w-3.5 h-3.5" />
+                          <Check className="w-3 h-3" strokeWidth={3} />
                         ) : (
-                          <X className="w-3.5 h-3.5" />
+                          <X className="w-3 h-3" />
                         )}
                         <span>{label}</span>
                       </div>
@@ -279,20 +313,15 @@ const ResetPassword = () => {
                   </div>
                 </motion.div>
               )}
-            </motion.div>
+            </div>
 
             {/* Confirm Password Field */}
-            <motion.div
-              className="space-y-2"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-            >
-              <Label htmlFor="confirmPassword" className="text-sm font-medium text-muted-foreground">
-                Confirm Password
+            <div className="space-y-2.5">
+              <Label className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40 ml-1 italic">
+                Verify Protocol
               </Label>
               <div className="relative group">
-                <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-foreground transition-colors" />
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20 group-focus-within:text-[#EB4898] transition-colors" />
                 <Input
                   id="confirmPassword"
                   name="confirmPassword"
@@ -300,90 +329,70 @@ const ResetPassword = () => {
                   type={showConfirmPassword ? "text" : "password"}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="Confirm new password"
+                  placeholder="Repeat secret code"
                   required
-                  minLength={8}
-                  disabled={loading}
-                  className={`pl-12 pr-12 h-14 text-base ${confirmPassword && (passwordsMatch ? 'border-rose-500/50' : 'border-red-500/50')
-                    }`}
+                  className={cn(
+                    "pl-12 pr-12 h-14 bg-white/5 border-white/10 text-white rounded-2xl focus:ring-2 transition-all font-semibold",
+                    confirmPassword && (passwordsMatch ? 'focus:ring-[#EB4898]/20 focus:border-[#EB4898]/50' : 'focus:ring-red-500/20 border-red-500/30 focus:border-red-500')
+                  )}
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-white/20 hover:text-white/60 transition-colors"
                 >
-                  {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
-
-              {/* Password match indicator */}
-              {confirmPassword && (
-                <motion.div
-                  className={`flex items-center gap-2 text-xs ${passwordsMatch ? 'text-rose-400' : 'text-red-400'}`}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                >
-                  {passwordsMatch ? (
-                    <>
-                      <Check className="w-3.5 h-3.5" />
-                      <span>Passwords match</span>
-                    </>
-                  ) : (
-                    <>
-                      <X className="w-3.5 h-3.5" />
-                      <span>Passwords do not match</span>
-                    </>
-                  )}
-                </motion.div>
-              )}
-            </motion.div>
+            </div>
 
             {/* Submit Button */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.35 }}
-            >
+            <div className="pt-4">
               <Button
                 type="submit"
                 disabled={loading || !passwordsMatch || passwordStrength.score < 4}
-                className="w-full h-14 text-base font-bold bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500 text-white shadow-lg hover:shadow-[0_8px_32px_rgba(251,146,60,0.4)] transition-all mt-4 relative overflow-hidden group disabled:opacity-50"
+                className="w-full h-16 text-[12px] font-black uppercase italic tracking-[0.25em] bg-[#FF4D00] text-white rounded-2xl shadow-[0_15px_45px_rgba(255,77,0,0.3)] hover:brightness-110 active:scale-[0.96] transition-all relative overflow-hidden group disabled:opacity-30 disabled:pointer-events-none"
               >
                 {/* Shimmer effect */}
                 <motion.div
                   className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full"
                   animate={{ x: ['100%', '-100%'] }}
-                  transition={{ duration: 2.5, repeat: Infinity, repeatDelay: 1 }}
+                  transition={{ duration: 2, repeat: Infinity, repeatDelay: 1 }}
                 />
 
                 {loading ? (
-                  <>
-                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                    Updating Password...
-                  </>
+                  <span className="flex items-center gap-3">
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    Syncing...
+                  </span>
                 ) : (
-                  <span className="flex items-center gap-2 relative z-10">
-                    <Shield className="w-5 h-5" />
-                    Update Password
+                  <span className="flex items-center gap-3 relative z-10">
+                    <Sparkles className="w-5 h-5" />
+                    Authorize Update
                   </span>
                 )}
               </Button>
-            </motion.div>
+            </div>
           </form>
         </motion.div>
 
         {/* Security Notice */}
         <motion.div
-          className="flex items-center justify-center gap-2 mt-6 text-muted-foreground"
+          className="flex items-center justify-center gap-3 mt-10 text-white/20"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
         >
-          <Shield className="w-4 h-4" />
-          <span className="text-xs">Your password is encrypted and secure</span>
+          <div className="w-1 h-1 rounded-full bg-white/20" />
+          <span className="text-[8px] font-black uppercase tracking-[0.4em] italic">Nexus Security Standard E2E</span>
+          <div className="w-1 h-1 rounded-full bg-white/20" />
         </motion.div>
       </motion.div>
     </div>
+  );
+};
+
+export default ResetPassword;
   );
 };
 

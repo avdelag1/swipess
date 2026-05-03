@@ -27,7 +27,7 @@ export function OwnerInsightsDashboard() {
   }
 
   const stats = [
-    { label: 'Total Views', value: Math.round(data?.total_views || 0), icon: Eye, color: '#8b5cf6', trend: '+12%' },
+    { label: 'Total Views', value: Math.round(data?.total_views || 0), icon: Eye, color: '#EB4898', trend: '+12%' },
     { label: 'Engagement', value: data?.total_likes || 0, icon: Heart, color: '#f43f5e', trend: '+5%' },
     { label: 'Matches', value: data?.total_matches || 0, icon: Users, color: '#6366f1', trend: '+18%' },
     { label: 'Revenue Est.', value: `$${data?.revenue_projection || 0}`, icon: DollarSign, color: '#ec4899', trend: '+24%' },

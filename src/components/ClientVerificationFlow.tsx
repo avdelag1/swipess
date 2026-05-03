@@ -18,7 +18,7 @@ interface ClientVerificationFlowProps {
 const steps = [
   { id: 'selfie', title: 'Selfie Check', description: 'Real-time face verification', icon: Camera, color: '#EB4898' },
   { id: 'document', title: 'Identity Verification', description: 'National ID or Passport', icon: FileCheck, color: '#3b82f6' },
-  { id: 'review', title: 'Manual Review', description: 'Securing your identity', icon: ShieldCheck, color: '#8b5cf6' },
+  { id: 'review', title: 'Manual Review', description: 'Securing your identity', icon: ShieldCheck, color: '#EB4898' },
 ];
 
 export function ClientVerificationFlow({ onComplete }: ClientVerificationFlowProps) {

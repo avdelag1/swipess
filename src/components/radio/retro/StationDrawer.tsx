@@ -105,9 +105,9 @@ export const StationDrawer = ({
                     onShuffle(filteredStations);
                     onClose();
                   }}
-                  className="flex items-center gap-2 px-4 py-2 rounded-xl bg-foreground/5 hover:bg-foreground/10 text-foreground/60 transition-all active:scale-95 border border-foreground/5"
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl transition-all active:scale-95 border group bg-primary/10 border-primary/20 text-primary hover:bg-primary/20"
                 >
-                  <Shuffle size={14} />
+                  <Shuffle size={14} className="group-hover:rotate-180 transition-transform duration-500" />
                   <span className="text-[10px] font-black uppercase tracking-widest italic">Shuffle</span>
                 </button>
               )}

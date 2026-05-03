@@ -39,39 +39,63 @@ function ModeSwitcherComponent({ className }: ModeSwitcherProps) {
   // control. Only the active half shows colored fill.
   const containerStyle: React.CSSProperties = {
     background: isLight
-      ? 'rgba(255, 255, 255, 0.92)'
-      : 'rgba(10, 15, 35, 0.45)',
-    backdropFilter: 'blur(24px) saturate(180%)',
-    WebkitBackdropFilter: 'blur(24px) saturate(180%)',
-    borderRadius: '1.25rem',
-    border: isLight ? '1px solid rgba(0,0,0,0.10)' : '1px solid rgba(255,255,255,0.06)',
-    boxShadow: isLight ? '0 2px 8px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04)' : '0 4px 16px rgba(0,0,0,0.2)',
-    height: '32px',
+      ? 'rgba(255, 255, 255, 0.94)'
+      : 'rgba(255, 255, 255, 0.03)',
+    backdropFilter: 'blur(20px) saturate(160%)',
+    WebkitBackdropFilter: 'blur(20px) saturate(160%)',
+    borderRadius: '0.85rem',
+    border: isLight ? '1px solid rgba(0,0,0,0.03)' : '1px solid rgba(255,255,255,0.03)',
+    boxShadow: isLight 
+      ? '0 1px 4px rgba(0,0,0,0.02)' 
+      : '0 4px 16px rgba(0,0,0,0.1)',
+    height: '30px',
+    position: 'relative',
+    overflow: 'hidden',
+    padding: '3px',
+    display: 'flex',
+    alignItems: 'center',
+    minWidth: '58px'
   };
-
-  const halfBase = "w-7 h-7 flex items-center justify-center transition-all duration-200 relative rounded-[0.85rem]";
 
   return (
     <div
-      className={cn('flex items-center gap-0.5 p-1 pointer-events-auto', className)}
+      className={cn('pointer-events-auto', className)}
       style={containerStyle}
     >
+      {/* Sliding indicator */}
+      <motion.div
+        className="absolute z-0"
+        initial={false}
+        animate={{
+          x: isClient ? 0 : 28,
+          width: 24,
+          height: 24,
+          background: isClient 
+            ? 'linear-gradient(135deg, #FF4D00, #FF8C00)' 
+            : 'linear-gradient(135deg, #EB4898, #FF4D00)',
+        }}
+        transition={{
+          type: "spring",
+          stiffness: 500,
+          damping: 35
+        }}
+        style={{
+          borderRadius: '0.75rem',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+        }}
+      />
+
       <motion.button
         whileTap={{ scale: 0.92 }}
         onClick={() => handleModeSwitch('client')}
         disabled={!canSwitchMode || isSwitching}
-        className={cn(halfBase)}
-        style={{
-          background: isClient
-            ? (isLight ? 'rgba(244, 63, 94, 0.12)' : 'rgba(244, 63, 94, 0.22)')
-            : 'transparent',
-        }}
+        className="w-6.5 h-6.5 flex-1 flex items-center justify-center relative z-10"
         title="Client Mode"
         aria-pressed={isClient}
       >
         <User
-          className={cn('h-[18px] w-[18px]', isClient ? 'text-[#f43f5e]' : 'text-[var(--hud-text)] opacity-60')}
-          strokeWidth={isClient ? 2.5 : 1.8}
+          className={cn('h-3.5 w-3.5 transition-colors duration-300', isClient ? 'text-white' : 'text-slate-400')}
+          strokeWidth={isClient ? 2.5 : 2}
         />
       </motion.button>
 
@@ -79,18 +103,13 @@ function ModeSwitcherComponent({ className }: ModeSwitcherProps) {
         whileTap={{ scale: 0.92 }}
         onClick={() => handleModeSwitch('owner')}
         disabled={!canSwitchMode || isSwitching}
-        className={cn(halfBase)}
-        style={{
-          background: !isClient
-            ? (isLight ? 'rgba(139, 92, 246, 0.14)' : 'rgba(139, 92, 246, 0.24)')
-            : 'transparent',
-        }}
+        className="w-6.5 h-6.5 flex-1 flex items-center justify-center relative z-10"
         title="Owner Mode"
         aria-pressed={!isClient}
       >
         <UserCheck
-          className={cn('h-[18px] w-[18px]', !isClient ? 'text-[#8b5cf6]' : 'text-[var(--hud-text)] opacity-60')}
-          strokeWidth={!isClient ? 2.5 : 1.8}
+          className={cn('h-3.5 w-3.5 transition-colors duration-300', !isClient ? 'text-white' : 'text-slate-400')}
+          strokeWidth={!isClient ? 2.5 : 2}
         />
       </motion.button>
     </div>

@@ -160,15 +160,38 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
 
   return (
     <div className={cn("flex flex-col flex-1 min-h-0 w-full relative transition-colors duration-500", isLight ? "bg-white" : "bg-black")}>
-      <AtmosphericLayer variant="primary" />
+      <AtmosphericLayer variant="nexus" />
 
       {/* 🛸 NEXUS DASHBOARD TOGGLE */}
-      <div className="absolute top-[calc(var(--top-bar-height,60px)+12px)] left-1/2 -translate-x-1/2 z-[40] flex p-1 rounded-2xl bg-black/40 backdrop-blur-3xl border border-white/10 shadow-2xl">
+      <div className="absolute top-[calc(var(--top-bar-height,60px)+12px)] left-1/2 -translate-x-1/2 z-[40] flex p-1 rounded-2xl bg-black/40 backdrop-blur-3xl border border-white/10 shadow-2xl min-w-[200px]">
+        {/* Sliding Indicator */}
+        <motion.div
+          className="absolute h-9 rounded-xl z-0"
+          initial={false}
+          animate={{
+            x: viewMode === 'discovery' ? 4 : 100,
+            width: 96,
+            background: viewMode === 'discovery' 
+              ? 'linear-gradient(135deg, #FF4D00, #FF6B00)' 
+              : 'linear-gradient(135deg, #EB4898, #C026D3)',
+          }}
+          transition={{
+            type: "spring",
+            stiffness: 400,
+            damping: 30
+          }}
+          style={{
+            boxShadow: viewMode === 'discovery' 
+              ? '0 4px 15px rgba(255,77,0,0.3)' 
+              : '0 4px 15px rgba(235,72,152,0.3)',
+          }}
+        />
+
         <button
           onClick={() => { setViewMode('discovery'); triggerHaptic('light'); }}
           className={cn(
-            "px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
-            viewMode === 'discovery' ? "bg-primary text-white shadow-[0_0_15px_rgba(var(--color-brand-primary-rgb),0.4)]" : "text-white/40 hover:text-white/60"
+            "flex-1 h-9 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all relative z-10",
+            viewMode === 'discovery' ? "text-white" : "text-white/40 hover:text-white/60"
           )}
         >
           Discovery
@@ -176,8 +199,8 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
         <button
           onClick={() => { setViewMode('insights'); triggerHaptic('light'); }}
           className={cn(
-            "px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
-            viewMode === 'insights' ? "bg-primary text-white shadow-[0_0_15px_rgba(var(--color-brand-primary-rgb),0.4)]" : "text-white/40 hover:text-white/60"
+            "flex-1 h-9 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all relative z-10",
+            viewMode === 'insights' ? "text-white" : "text-white/40 hover:text-white/60"
           )}
         >
           Insights
@@ -192,13 +215,28 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="flex-1 flex flex-col items-center justify-center p-8 space-y-6 z-10"
+            className="flex-1 flex flex-col items-center justify-center p-8 z-10"
           >
-            <div className="relative">
-              <div className="w-20 h-20 rounded-[2.2rem] border-[4px] border-primary/10 border-t-primary animate-spin shadow-2xl" />
-              <div className="absolute inset-0 m-auto w-6 h-6 bg-primary/40 rounded-full animate-pulse" />
+            <div className="w-full max-w-sm space-y-4">
+              <div className="w-20 h-20 mx-auto rounded-[2.2rem] bg-gradient-to-br from-[#FF4D00] to-[#EB4898] animate-pulse blur-xl opacity-20 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+              <div className="relative z-10 space-y-6 text-center">
+                <div className="flex justify-center">
+                  <div className="w-16 h-16 rounded-[1.8rem] bg-white/[0.03] border border-white/10 flex items-center justify-center animate-bounce shadow-2xl backdrop-blur-xl">
+                    <SwipessLogo size="xs" variant="transparent" />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <div className="h-1 w-32 mx-auto bg-white/5 rounded-full overflow-hidden">
+                    <motion.div 
+                      className="h-full bg-primary"
+                      animate={{ x: ['-100%', '100%'] }}
+                      transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                    />
+                  </div>
+                  <p className="text-[10px] font-black uppercase italic tracking-[0.4em] text-white/30">Synchronizing Core Logic...</p>
+                </div>
+              </div>
             </div>
-            <p className="text-[10px] font-black uppercase italic tracking-[0.4em] text-primary/60 animate-pulse">Synchronizing Core Logic...</p>
           </motion.div>
         ) : viewMode === 'insights' ? (
           <motion.div

@@ -148,26 +148,26 @@ export default function OwnerViewClientProfile() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white selection:bg-rose-500/30 overflow-x-hidden relative">
-      <AtmosphericLayer variant="sunset" opacity={0.12} />
+    <div className="min-h-screen bg-[#020202] text-white selection:bg-[#EB4898]/30 overflow-x-hidden relative">
+      <AtmosphericLayer variant="nexus" opacity={0.15} />
       
       {/* 🛸 NEXUS HEADER */}
-      <div className="sticky top-0 z-50 bg-black/60 backdrop-blur-2xl border-b border-white/5">
+      <div className="sticky top-0 z-50 bg-black/40 backdrop-blur-3xl border-b border-white/5">
         <div className="container max-w-[440px] mx-auto px-6 py-4 flex items-center justify-between">
           <button 
-            onClick={() => navigate(-1)}
+            onClick={() => { triggerHaptic('light'); navigate(-1); }}
             className="w-10 h-10 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white/40 hover:bg-white/10 hover:text-white transition-all active:scale-90"
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
           
-          <div className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xl">
-             <Zap className="w-4 h-4 text-rose-500 fill-current" />
-             <span className="text-[10px] font-black uppercase tracking-widest text-white">Profile Insights</span>
+          <div className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-[#EB4898]/5 border border-[#EB4898]/20 backdrop-blur-xl">
+             <Zap className="w-4 h-4 text-[#EB4898] fill-current animate-pulse" />
+             <span className="text-[10px] font-black uppercase tracking-widest text-[#EB4898] italic">Nexus Insights</span>
           </div>
 
           <button 
-            onClick={() => navigate(-1)}
+            onClick={() => { triggerHaptic('light'); navigate(-1); }}
             className="w-10 h-10 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white/40 hover:bg-white/10 hover:text-white transition-all active:scale-90"
           >
             <X className="w-5 h-5" />
@@ -177,48 +177,48 @@ export default function OwnerViewClientProfile() {
 
       <div className="container max-w-[440px] mx-auto px-4 pt-6 pb-40 space-y-6 relative z-10">
         
-        {/* 💎 PROFILE HERO CARD — 🚀 NEXUS PARITY: Wrap in card container */}
-        <div className="p-6 rounded-[2.5rem] bg-zinc-950 border border-white/10 shadow-2xl relative overflow-hidden group">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-rose-500/5 rounded-full blur-3xl -translate-y-32 translate-x-32" />
+        {/* 💎 PROFILE HERO CARD */}
+        <div className="p-6 rounded-[2.5rem] bg-zinc-950/40 backdrop-blur-2xl border border-white/10 shadow-2xl relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-[#FF4D00]/10 rounded-full blur-3xl -translate-y-32 translate-x-32" />
           
           <div className="space-y-6 relative z-10">
             <div className="flex items-start justify-between">
               <div className="space-y-1.5">
-                <h1 className="text-4xl font-black tracking-tighter uppercase leading-[0.9] break-words max-w-[240px]">
+                <h1 className="text-4xl font-black tracking-tighter uppercase leading-[0.9] break-words max-w-[240px] italic">
                   {client.full_name || 'Anonymous'}
                 </h1>
                 <div className="flex items-center gap-2">
-                  <MapPin className="w-3.5 h-3.5 text-rose-500" />
-                  <p className="text-[11px] font-bold text-white/40 uppercase tracking-widest">
-                    {client.age ? `${client.age} • ` : ''}{client.city || 'Verified Location'}
+                  <MapPin className="w-3.5 h-3.5 text-[#FF4D00]" />
+                  <p className="text-[11px] font-bold text-white/40 uppercase tracking-widest italic">
+                    {client.age ? `${client.age} • ` : ''}{client.city || 'Nexus Sector'}
                   </p>
                 </div>
               </div>
               
               <div className="flex flex-col items-end gap-3">
-                <div className="w-20 h-20 rounded-[28px] bg-white/5 border border-white/10 overflow-hidden shadow-2xl transform rotate-3 hover:rotate-0 transition-transform">
+                <div className="w-20 h-20 rounded-[28px] bg-white/5 border border-white/10 overflow-hidden shadow-2xl transform rotate-3 hover:rotate-0 transition-transform cursor-pointer">
                   {client.images?.[0] ? (
                     <img src={client.images[0]} alt="" className="w-full h-full object-cover" />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center">
+                    <div className="w-full h-full flex items-center justify-center bg-white/[0.02]">
                       <User className="w-8 h-8 text-white/10" />
                     </div>
                   )}
                 </div>
-                <div className="px-2.5 py-1 rounded-lg bg-violet-500/20 border border-violet-500/30">
-                   <span className="text-[10px] font-black uppercase tracking-tighter text-violet-400">Elite Rank</span>
+                <div className="px-2.5 py-1 rounded-lg bg-[#FF4D00]/20 border border-[#FF4D00]/30 shadow-[0_0_15px_rgba(255,77,0,0.2)]">
+                   <span className="text-[10px] font-black uppercase tracking-tighter text-[#FF4D00] italic">Elite Rank</span>
                 </div>
               </div>
             </div>
 
             <div className="flex items-center gap-3">
-               <div className="px-4 py-2.5 rounded-2xl bg-black border border-white/10 flex items-center gap-2 shadow-lg">
+               <div className="px-4 py-2.5 rounded-2xl bg-black/60 border border-white/10 flex items-center gap-2 shadow-lg backdrop-blur-xl">
                   <CompactRatingDisplay aggregate={ratingAggregate || null} isLoading={isRatingLoading} showReviews={false} />
                </div>
                {client.verified && (
-                 <div className="px-4 py-2.5 rounded-2xl bg-rose-500/10 border border-rose-500/20 flex items-center gap-2">
-                    <ShieldCheck className="w-4 h-4 text-rose-500" />
-                    <span className="text-[10px] font-black uppercase tracking-widest text-rose-500">Verified</span>
+                 <div className="px-4 py-2.5 rounded-2xl bg-[#EB4898]/10 border border-[#EB4898]/20 flex items-center gap-2 shadow-[0_0_20px_rgba(235,72,152,0.1)]">
+                    <ShieldCheck className="w-4 h-4 text-[#EB4898]" />
+                    <span className="text-[10px] font-black uppercase tracking-widest text-[#EB4898] italic">Verified</span>
                  </div>
                )}
             </div>
@@ -227,76 +227,76 @@ export default function OwnerViewClientProfile() {
 
         {/* 📊 HERO STATS GRID */}
         <div className="grid grid-cols-2 gap-3">
-          <div className="p-6 rounded-[32px] bg-zinc-950 border border-white/10 shadow-xl group hover:bg-zinc-900 transition-all">
+          <div className="p-6 rounded-[32px] bg-zinc-950/40 backdrop-blur-xl border border-white/10 shadow-xl group hover:bg-zinc-900/60 transition-all cursor-default">
             <div className="flex items-center gap-2 mb-3">
-              <div className="w-8 h-8 rounded-xl bg-rose-500/20 flex items-center justify-center border border-rose-500/20">
-                <Eye className="w-4 h-4 text-rose-400" />
+              <div className="w-8 h-8 rounded-xl bg-[#FF4D00]/10 flex items-center justify-center border border-[#FF4D00]/20">
+                <Eye className="w-4 h-4 text-[#FF4D00]" />
               </div>
-              <span className="text-[10px] font-black uppercase tracking-widest text-white/30">Engagement</span>
+              <span className="text-[10px] font-black uppercase tracking-widest text-white/30 italic">Engagement</span>
             </div>
-            <div className="text-3xl font-black text-white">{insights?.views}</div>
-            <div className="flex items-center gap-1 mt-2 text-rose-400">
+            <div className="text-3xl font-black text-white tabular-nums tracking-tighter">{insights?.views}</div>
+            <div className="flex items-center gap-1 mt-2 text-[#FF4D00]">
               <TrendingUp className="w-3 h-3" />
-              <span className="text-[9px] font-black uppercase">+{insights?.weeklyGrowth} Trending</span>
+              <span className="text-[9px] font-black uppercase italic">+{insights?.weeklyGrowth} Velocity</span>
             </div>
           </div>
 
-          <div className="p-6 rounded-[32px] bg-zinc-950 border border-white/10 shadow-xl group hover:bg-zinc-900 transition-all">
+          <div className="p-6 rounded-[32px] bg-zinc-950/40 backdrop-blur-xl border border-white/10 shadow-xl group hover:bg-zinc-900/60 transition-all cursor-default">
             <div className="flex items-center gap-2 mb-3">
-              <div className="w-8 h-8 rounded-xl bg-violet-500/20 flex items-center justify-center border border-violet-500/20">
-                <Zap className="w-4 h-4 text-violet-400 fill-current" />
+              <div className="w-8 h-8 rounded-xl bg-[#EB4898]/10 flex items-center justify-center border border-[#EB4898]/20">
+                <Zap className="w-4 h-4 text-[#EB4898] fill-current" />
               </div>
-              <span className="text-[10px] font-black uppercase tracking-widest text-white/30">Match Score</span>
+              <span className="text-[10px] font-black uppercase tracking-widest text-white/30 italic">Nexus Parity</span>
             </div>
-            <div className="text-3xl font-black text-white">{insights?.qualityScore}/10</div>
-            <div className="flex items-center gap-1 mt-2 text-violet-400">
+            <div className="text-3xl font-black text-white tabular-nums tracking-tighter">{insights?.qualityScore}/10</div>
+            <div className="flex items-center gap-1 mt-2 text-[#EB4898]">
               <Sparkles className="w-3 h-3" />
-              <span className="text-[9px] font-black uppercase">Platinum</span>
+              <span className="text-[9px] font-black uppercase italic">Platinum</span>
             </div>
           </div>
         </div>
 
         {/* 🎯 ANALYTICS SECTION */}
         <div className="space-y-4">
-          <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-white/30 ml-2">Reliability Profile</h3>
+          <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-white/30 ml-2 italic">Reliability Profile</h3>
           
           <div className="space-y-3">
-            <div className="p-6 rounded-[32px] bg-zinc-950 border border-white/10 shadow-2xl relative overflow-hidden group">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-rose-500/5 rounded-full blur-3xl -translate-y-8 translate-x-8" />
+            <div className="p-6 rounded-[32px] bg-zinc-950/40 backdrop-blur-xl border border-white/10 shadow-2xl relative overflow-hidden group">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-[#FF4D00]/5 rounded-full blur-3xl -translate-y-8 translate-x-8" />
               <div className="flex items-center justify-between mb-5">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-2xl bg-black border border-white/10 flex items-center justify-center shadow-lg">
-                     <ShieldCheck className="w-6 h-6 text-rose-500" />
+                  <div className="w-12 h-12 rounded-2xl bg-black/60 border border-white/10 flex items-center justify-center shadow-lg">
+                     <ShieldCheck className="w-6 h-6 text-[#FF4D00]" />
                   </div>
                   <div>
-                    <p className="text-[10px] font-black text-white/40 uppercase tracking-widest leading-none mb-1.5">Response Integrity</p>
-                    <p className="text-xl font-black text-white uppercase tracking-tight">Active Communicator</p>
+                    <p className="text-[10px] font-black text-white/40 uppercase tracking-widest leading-none mb-1.5 italic">Response Integrity</p>
+                    <p className="text-xl font-black text-white uppercase tracking-tight italic">Active Communicator</p>
                   </div>
                 </div>
-                <div className="text-3xl font-black text-rose-500">{insights?.responseRate}%</div>
+                <div className="text-3xl font-black text-[#FF4D00] tabular-nums italic">{insights?.responseRate}%</div>
               </div>
-              <div className="w-full h-2.5 bg-black rounded-full overflow-hidden border border-white/5 shadow-inner">
+              <div className="w-full h-2.5 bg-black/40 rounded-full overflow-hidden border border-white/5 shadow-inner">
                 <motion.div 
                   initial={{ width: 0 }}
                   animate={{ width: `${insights?.responseRate}%` }}
-                  className="h-full bg-gradient-to-r from-rose-500 to-violet-600 rounded-full"
+                  className="h-full bg-gradient-to-r from-[#FF4D00] to-[#EB4898] rounded-full shadow-[0_0_10px_rgba(255,77,0,0.3)]"
                 />
               </div>
             </div>
 
-            <div className="p-6 rounded-[32px] bg-zinc-950 border border-white/10 shadow-xl">
+            <div className="p-6 rounded-[32px] bg-zinc-950/40 backdrop-blur-xl border border-white/10 shadow-xl">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-2xl bg-black border border-white/10 flex items-center justify-center shadow-lg">
-                     <Clock className="w-6 h-6 text-violet-400" />
+                  <div className="w-12 h-12 rounded-2xl bg-black/60 border border-white/10 flex items-center justify-center shadow-lg">
+                     <Clock className="w-6 h-6 text-[#EB4898]" />
                   </div>
                   <div>
-                    <p className="text-[10px] font-black text-white/40 uppercase tracking-widest leading-none mb-1.5">Average Response</p>
-                    <p className="text-xl font-black text-white uppercase tracking-tight">Instant Sync</p>
+                    <p className="text-[10px] font-black text-white/40 uppercase tracking-widest leading-none mb-1.5 italic">Average Response</p>
+                    <p className="text-xl font-black text-white uppercase tracking-tight italic">Instant Sync</p>
                   </div>
                 </div>
-                <div className="px-4 py-2 rounded-xl bg-violet-500/10 border border-violet-500/20">
-                  <span className="text-sm font-black text-violet-400 uppercase tracking-widest">&lt; {insights?.avgResponseTime}H</span>
+                <div className="px-4 py-2 rounded-xl bg-[#EB4898]/10 border border-[#EB4898]/20 shadow-[0_0_15px_rgba(235,72,152,0.1)]">
+                  <span className="text-sm font-black text-[#EB4898] uppercase tracking-widest italic tabular-nums">&lt; {insights?.avgResponseTime}H</span>
                 </div>
               </div>
             </div>
@@ -306,33 +306,33 @@ export default function OwnerViewClientProfile() {
         {/* 📦 PREFERENCES / INTENT */}
         {preferences && (
           <div className="space-y-4">
-            <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-white/30 ml-2">Market Demand</h3>
+            <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-white/30 ml-2 italic">Market Demand</h3>
             
             <div className="space-y-3">
               {/* Property Intent */}
               {preferences.interested_in_properties && (
-                <div className="p-6 rounded-[32px] bg-zinc-950 border border-white/10 shadow-2xl relative overflow-hidden group">
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl -translate-y-8 translate-x-8" />
+                <div className="p-6 rounded-[32px] bg-zinc-950/40 backdrop-blur-xl border border-white/10 shadow-2xl relative overflow-hidden group">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-[#EB4898]/5 rounded-full blur-3xl -translate-y-8 translate-x-8" />
                   <div className="flex items-center gap-4 mb-6">
-                    <div className="w-14 h-14 rounded-[22px] bg-blue-500/20 flex items-center justify-center border border-blue-500/20 shadow-lg">
-                      <Home className="w-7 h-7 text-blue-400" />
+                    <div className="w-14 h-14 rounded-[22px] bg-[#EB4898]/10 flex items-center justify-center border border-[#EB4898]/20 shadow-lg">
+                      <Home className="w-7 h-7 text-[#EB4898]" />
                     </div>
                     <div>
-                      <p className="text-[10px] font-black text-white/40 uppercase tracking-widest leading-none mb-1.5">Sector Focus</p>
-                      <p className="text-2xl font-black text-white uppercase tracking-tighter">Luxury Residential</p>
+                      <p className="text-[10px] font-black text-white/40 uppercase tracking-widest leading-none mb-1.5 italic">Sector Focus</p>
+                      <p className="text-2xl font-black text-white uppercase tracking-tighter italic">Luxury Residential</p>
                     </div>
                   </div>
                   
                   <div className="grid grid-cols-2 gap-6 pt-6 border-t border-white/5">
                     <div className="space-y-1">
-                       <p className="text-[9px] font-black text-white/30 uppercase tracking-widest">Target Budget</p>
-                       <p className="text-lg font-black text-white tracking-tighter">
+                       <p className="text-[9px] font-black text-white/30 uppercase tracking-widest italic">Target Budget</p>
+                       <p className="text-lg font-black text-white tracking-tighter tabular-nums">
                          ${preferences.min_price?.toLocaleString() || '0'} - ${preferences.max_price?.toLocaleString() || '∞'}
                        </p>
                     </div>
                     <div className="space-y-1">
-                       <p className="text-[9px] font-black text-white/30 uppercase tracking-widest">Specifications</p>
-                       <p className="text-lg font-black text-white tracking-tighter uppercase">
+                       <p className="text-[9px] font-black text-white/30 uppercase tracking-widest italic">Specifications</p>
+                       <p className="text-lg font-black text-white tracking-tighter uppercase italic">
                          {preferences.min_bedrooms || 0}+ BR • {preferences.min_bathrooms || 0}+ BA
                        </p>
                     </div>
@@ -342,21 +342,21 @@ export default function OwnerViewClientProfile() {
 
               {/* Vehicle Intent */}
               {preferences.interested_in_motorcycles && (
-                <div className="p-6 rounded-[32px] bg-zinc-950 border border-white/10 shadow-2xl relative overflow-hidden group">
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/10 rounded-full blur-3xl -translate-y-8 translate-x-8" />
+                <div className="p-6 rounded-[32px] bg-zinc-950/40 backdrop-blur-xl border border-white/10 shadow-2xl relative overflow-hidden group">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-[#FF4D00]/5 rounded-full blur-3xl -translate-y-8 translate-x-8" />
                   <div className="flex items-center gap-4 mb-6">
-                    <div className="w-14 h-14 rounded-[22px] bg-orange-500/20 flex items-center justify-center border border-orange-500/20 shadow-lg">
-                      <Car className="w-7 h-7 text-orange-400" />
+                    <div className="w-14 h-14 rounded-[22px] bg-[#FF4D00]/10 flex items-center justify-center border border-[#FF4D00]/20 shadow-lg">
+                      <Car className="w-7 h-7 text-[#FF4D00]" />
                     </div>
                     <div>
-                      <p className="text-[10px] font-black text-white/40 uppercase tracking-widest leading-none mb-1.5">Asset Interest</p>
-                      <p className="text-2xl font-black text-white uppercase tracking-tighter">Premium Automotive</p>
+                      <p className="text-[10px] font-black text-white/40 uppercase tracking-widest leading-none mb-1.5 italic">Asset Interest</p>
+                      <p className="text-2xl font-black text-white uppercase tracking-tighter italic">Premium Automotive</p>
                     </div>
                   </div>
                   
                   <div className="flex flex-wrap gap-2.5">
                     {preferences.moto_types?.map(type => (
-                      <div key={type} className="px-4 py-2 rounded-xl bg-black border border-white/10 text-[10px] font-black uppercase tracking-widest text-white/70 shadow-md">
+                      <div key={type} className="px-4 py-2 rounded-xl bg-black/60 border border-white/10 text-[10px] font-black uppercase tracking-widest text-white/70 shadow-md backdrop-blur-md italic">
                         {type}
                       </div>
                     ))}
@@ -366,20 +366,20 @@ export default function OwnerViewClientProfile() {
 
               {/* Yacht Intent */}
               {preferences.interested_in_yachts && (
-                <div className="p-6 rounded-[32px] bg-zinc-950 border border-white/10 shadow-2xl relative overflow-hidden group">
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-500/10 rounded-full blur-3xl -translate-y-8 translate-x-8" />
+                <div className="p-6 rounded-[32px] bg-zinc-950/40 backdrop-blur-xl border border-white/10 shadow-2xl relative overflow-hidden group">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-[#EB4898]/5 rounded-full blur-3xl -translate-y-8 translate-x-8" />
                   <div className="flex items-center gap-4 mb-6">
-                    <div className="w-14 h-14 rounded-[22px] bg-cyan-500/20 flex items-center justify-center border border-cyan-500/20 shadow-lg">
-                      <Ship className="w-7 h-7 text-cyan-400" />
+                    <div className="w-14 h-14 rounded-[22px] bg-[#EB4898]/10 flex items-center justify-center border border-[#EB4898]/20 shadow-lg">
+                      <Ship className="w-7 h-7 text-[#EB4898]" />
                     </div>
                     <div>
-                      <p className="text-[10px] font-black text-white/40 uppercase tracking-widest leading-none mb-1.5">Maritime Profile</p>
-                      <p className="text-2xl font-black text-white uppercase tracking-tighter">Luxury Vessels</p>
+                      <p className="text-[10px] font-black text-white/40 uppercase tracking-widest leading-none mb-1.5 italic">Maritime Profile</p>
+                      <p className="text-2xl font-black text-white uppercase tracking-tighter italic">Luxury Vessels</p>
                     </div>
                   </div>
                   
-                  <div className="p-4 rounded-2xl bg-black border border-white/5 shadow-inner">
-                    <p className="text-[11px] text-white/60 font-bold uppercase tracking-widest leading-relaxed">
+                  <div className="p-4 rounded-2xl bg-black/60 border border-white/5 shadow-inner backdrop-blur-md">
+                    <p className="text-[11px] text-white/60 font-bold uppercase tracking-widest leading-relaxed italic">
                       Seeking vessels <span className="text-white">{preferences.yacht_length_min || 0}ft+</span> in <span className="text-white">{preferences.yacht_condition?.[0] || 'Premium'}</span> condition.
                     </p>
                   </div>
@@ -391,24 +391,27 @@ export default function OwnerViewClientProfile() {
 
         {/* 🎯 MARKET SENTIMENT */}
         <div className="space-y-4">
-           <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-white/30 ml-2">Market Sentiment</h3>
+           <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-white/30 ml-2 italic">Market Sentiment</h3>
            <div className={cn(
-             "p-8 rounded-[40px] border shadow-2xl relative overflow-hidden",
+             "p-8 rounded-[40px] border shadow-2xl relative overflow-hidden backdrop-blur-2xl transition-all",
              insights?.demandLevel === 'high' 
-               ? "bg-rose-500/10 border-rose-500/20" 
-               : "bg-zinc-950 border-white/10"
+               ? "bg-[#FF4D00]/10 border-[#FF4D00]/20 shadow-[0_0_40px_rgba(255,77,0,0.1)]" 
+               : "bg-zinc-950/40 border-white/10"
            )}>
               <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full blur-[80px] -translate-y-24 translate-x-12" />
-              <div className="flex items-center gap-5 mb-5">
-                <div className="w-14 h-14 rounded-[24px] bg-white text-black flex items-center justify-center shadow-2xl transform -rotate-3">
+              <div className="flex items-center gap-5 mb-5 relative z-10">
+                <div className={cn(
+                  "w-14 h-14 rounded-[24px] flex items-center justify-center shadow-2xl transform -rotate-3 transition-colors",
+                  insights?.demandLevel === 'high' ? "bg-[#FF4D00] text-white" : "bg-white text-black"
+                )}>
                   {insights?.demandLevel === 'high' ? <Flame className="w-7 h-7 fill-current" /> : <TrendingUp className="w-7 h-7" />}
                 </div>
                 <div>
-                  <p className="text-[12px] font-black text-white/50 uppercase tracking-widest leading-none mb-2">Discovery Velocity</p>
-                  <p className="text-2xl font-black text-white uppercase tracking-tighter leading-none">{insights?.demandLevel === 'high' ? 'High Traction' : 'Steady Growth'}</p>
+                  <p className="text-[12px] font-black text-white/50 uppercase tracking-widest leading-none mb-2 italic">Discovery Velocity</p>
+                  <p className="text-2xl font-black text-white uppercase tracking-tighter leading-none italic">{insights?.demandLevel === 'high' ? 'High Traction' : 'Steady Growth'}</p>
                 </div>
               </div>
-              <p className="text-[12px] text-white/50 font-bold leading-relaxed uppercase tracking-wide">
+              <p className="text-[12px] text-white/50 font-bold leading-relaxed uppercase tracking-wide italic relative z-10">
                 {insights?.demandLevel === 'high' 
                   ? 'This profile is currently receiving peak engagement from elite owners. Secure a connection before availability shifts.' 
                   : 'A reliable prospect with consistent platform presence. Ideal for owners seeking stable, high-value connections.'}
@@ -418,35 +421,35 @@ export default function OwnerViewClientProfile() {
 
         {/* 📦 CONFIG DETAILS */}
         <div className="space-y-4 pb-8">
-           <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-white/30 ml-2">Profile Analytics</h3>
+           <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-white/30 ml-2 italic">Profile Analytics</h3>
            <div className="grid grid-cols-2 gap-3">
-              <div className="p-5 rounded-[28px] bg-zinc-950 border border-white/10 flex items-center gap-4 shadow-xl">
-                <div className="w-10 h-10 rounded-xl bg-black border border-white/10 flex items-center justify-center shadow-md">
-                   <Award className="w-5 h-5 text-rose-500" />
+              <div className="p-5 rounded-[28px] bg-zinc-950/40 backdrop-blur-xl border border-white/10 flex items-center gap-4 shadow-xl">
+                <div className="w-10 h-10 rounded-xl bg-black/60 border border-white/10 flex items-center justify-center shadow-md">
+                   <Award className="w-5 h-5 text-[#FF4D00]" />
                 </div>
                 <div>
-                   <p className="text-[10px] font-black text-white/30 uppercase tracking-widest leading-none mb-1.5">Tier</p>
-                   <p className="text-base font-black text-white uppercase tracking-tight">Top 1%</p>
+                   <p className="text-[10px] font-black text-white/30 uppercase tracking-widest leading-none mb-1.5 italic">Tier</p>
+                   <p className="text-base font-black text-white uppercase tracking-tight italic">Top 1%</p>
                 </div>
               </div>
-              <div className="p-5 rounded-[28px] bg-zinc-950 border border-white/10 flex items-center gap-4 shadow-xl">
-                <div className="w-10 h-10 rounded-xl bg-black border border-white/10 flex items-center justify-center shadow-md">
-                   <Shield className="w-5 h-5 text-violet-500" />
+              <div className="p-5 rounded-[28px] bg-zinc-950/40 backdrop-blur-xl border border-white/10 flex items-center gap-4 shadow-xl">
+                <div className="w-10 h-10 rounded-xl bg-black/60 border border-white/10 flex items-center justify-center shadow-md">
+                   <Shield className="w-5 h-5 text-[#EB4898]" />
                 </div>
                 <div>
-                   <p className="text-[10px] font-black text-white/30 uppercase tracking-widest leading-none mb-1.5">Health</p>
-                   <p className="text-base font-black text-white uppercase tracking-tight">Prime</p>
+                   <p className="text-[10px] font-black text-white/30 uppercase tracking-widest leading-none mb-1.5 italic">Health</p>
+                   <p className="text-base font-black text-white uppercase tracking-tight italic">Prime</p>
                 </div>
               </div>
            </div>
         </div>
       </div>
 
-      {/* 🛸 NEXUS ACTION DOCK — 🚀 NEXUS PARITY: Standard Swipe Button Bar */}
+      {/* 🛸 NEXUS ACTION DOCK */}
       <div className="fixed bottom-[calc(var(--bottom-nav-height,64px)+16px)] left-0 right-0 z-[100] flex justify-center pointer-events-auto">
         <SwipeActionButtonBar
           onLike={handleLike}
-          onDislike={() => navigate(-1)}
+          onDislike={() => { triggerHaptic('medium'); navigate(-1); }}
           onShare={handleShare}
           onMessage={handleConnect}
           canUndo={false}

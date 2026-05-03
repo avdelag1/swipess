@@ -32,7 +32,7 @@ export const LoadingBar = () => {
           exit={{ opacity: 0, scaleY: 0 }}
           className="fixed top-0 left-0 right-0 h-[3px] z-[9999] pointer-events-none origin-top"
           style={{
-            background: 'linear-gradient(90deg, #ec4899, #8b5cf6)',
+            background: 'linear-gradient(90deg, #FF4D00, #EB4898)',
             boxShadow: '0 0 10px rgba(139,92,246,0.6)',
           }}
         >

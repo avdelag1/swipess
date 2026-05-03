@@ -224,7 +224,8 @@ export function useSmartClientMatching(
                         let finalClients = (rpcClients as any[])
                             .filter(c => c.user_id !== userId)
                             .filter(c => !adminIds?.has(c.user_id))
-                            .filter(c => c.role === 'client');
+                            .filter(c => c.role === 'client')
+                            .filter(c => (c.client_type || '') !== 'business');
 
                         if (isRoommateSection) {
                           finalClients = finalClients.filter(c => c.roommate_available || (c as any).roommate_active);
@@ -324,6 +325,7 @@ export function useSmartClientMatching(
 
                 let results = finalProfiles
                     .filter(p => !adminIds?.has(p.user_id)) // admin exclusion
+                    .filter(p => (p as any).client_type !== 'business') // business/place exclusion
                     .map(p => {
                     const cp = cpMap.get(p.user_id);
                     return {

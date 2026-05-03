@@ -341,10 +341,10 @@ function QuickFilterBarComponent({ filters, onChange, onSelect, className, userR
 
   // Per-category accent colors (active state) - Ultra Premium Gradients
   const _categoryColors: Record<string, { bg: string; shadow: string; border: string; overlay: string }> = {
-    property:   { bg: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',   shadow: '0 4px 16px rgba(16,185,129,0.5)',   border: 'rgba(16,185,129,0.8)',  overlay: 'linear-gradient(135deg, rgba(16,185,129,0.72) 0%, rgba(5,150,105,0.72) 100%)' },
-    motorcycle: { bg: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',   shadow: '0 4px 16px rgba(249,115,22,0.5)',   border: 'rgba(249,115,22,0.8)',  overlay: 'linear-gradient(135deg, rgba(249,115,22,0.72) 0%, rgba(234,88,12,0.72) 100%)' },
-    bicycle:    { bg: 'linear-gradient(135deg, #a855f7 0%, #9333ea 100%)',   shadow: '0 4px 16px rgba(168,85,247,0.5)',   border: 'rgba(168,85,247,0.8)', overlay: 'linear-gradient(135deg, rgba(168,85,247,0.72) 0%, rgba(147,51,234,0.72) 100%)' },
-    services:   { bg: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',   shadow: '0 4px 16px rgba(245,158,11,0.5)',   border: 'rgba(245,158,11,0.8)',  overlay: 'linear-gradient(135deg, rgba(245,158,11,0.72) 0%, rgba(217,119,6,0.72) 100%)' },
+    property:   { bg: 'linear-gradient(135deg, #FF4D00 0%, #FF8C00 100%)',   shadow: '0 4px 16px rgba(255,77,0,0.5)',   border: 'rgba(255,77,0,0.8)',  overlay: 'linear-gradient(135deg, rgba(255,77,0,0.72) 0%, rgba(255,140,0,0.72) 100%)' },
+    motorcycle: { bg: 'linear-gradient(135deg, #FF4D00 0%, #EB4898 100%)',   shadow: '0 4px 16px rgba(255,77,0,0.5)',   border: 'rgba(255,77,0,0.8)',  overlay: 'linear-gradient(135deg, rgba(255,77,0,0.72) 0%, rgba(235,72,152,0.72) 100%)' },
+    bicycle:    { bg: 'linear-gradient(135deg, #EB4898 0%, #FF4D00 100%)',   shadow: '0 4px 16px rgba(235,72,152,0.5)',   border: 'rgba(235,72,152,0.8)', overlay: 'linear-gradient(135deg, rgba(235,72,152,0.72) 0%, rgba(255,77,0,0.72) 100%)' },
+    services:   { bg: 'linear-gradient(135deg, #EB4898 0%, #FF00FF 100%)',   shadow: '0 4px 16px rgba(235,72,152,0.5)',   border: 'rgba(235,72,152,0.8)',  overlay: 'linear-gradient(135deg, rgba(235,72,152,0.72) 0%, rgba(255,0,255,0.72) 100%)' },
   };
 
   const _allSelectedShadow = '0 4px 20px rgba(236,72,153,0.55)';
@@ -371,14 +371,14 @@ function QuickFilterBarComponent({ filters, onChange, onSelect, className, userR
             smoothButtonClass,
             'relative flex-shrink-0 w-28 h-44 rounded-[3rem] overflow-hidden border transition-all duration-200',
             clientIsAllSelected
-              ? 'border-primary/80 ring-2 ring-primary/60 ring-offset-1 ring-offset-transparent scale-[1.08] shadow-[0_8px_40px_rgba(168,85,247,0.5)] brightness-110'
+              ? 'border-primary/80 ring-2 ring-primary/60 ring-offset-1 ring-offset-transparent scale-[1.08] shadow-[0_8px_40px_rgba(255,77,0,0.5)] brightness-110'
               : (isLight ? 'border-black/15 shadow-md' : 'border-white/15 shadow-md')
           )}
           style={{ contain: 'paint', willChange: 'transform, opacity, filter' }}
         >
           {clientIsAllSelected && (
             <div className="absolute inset-0 z-15 pointer-events-none">
-              <div className="absolute inset-0 rounded-[3rem] bg-gradient-to-br from-purple-400/15 via-transparent to-transparent animate-pulse" />
+              <div className="absolute inset-0 rounded-[3rem] bg-gradient-to-br from-[#FF4D00]/15 via-transparent to-transparent animate-pulse" />
             </div>
           )}
 

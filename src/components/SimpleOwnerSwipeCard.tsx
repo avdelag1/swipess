@@ -23,7 +23,6 @@ import { useUserRatingAggregateEnhanced } from '@/hooks/useRatingSystem';
 import { getWorkScheduleLabel } from '@/constants/profileConstants';
 import { SwipeMatchMeter } from '@/components/swipe/SwipeMatchMeter';
 import useAppTheme from '@/hooks/useAppTheme';
-import { useDeviceParallax } from '@/hooks/useDeviceParallax';
 
 
 
@@ -289,36 +288,9 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   const likeOpacity = useTransform(x, [0, SWIPE_THRESHOLD * 0.5, SWIPE_THRESHOLD], [0, 0.5, 1]);
   const passOpacity = useTransform(x, [-SWIPE_THRESHOLD, -SWIPE_THRESHOLD * 0.5, 0], [1, 0.5, 0]);
 
-  // 🚀 FLAGSHIP FEATURE: 3D Perspective Tilt based on pointer pos & Device Gyroscope
-  const pointerRotateX = useMotionValue(0);
-  const pointerRotateY = useMotionValue(0);
-  const { tiltX: gyroTiltX, tiltY: gyroTiltY } = useDeviceParallax(0.4);
 
-  const rotateX = useTransform(pointerRotateX, (val) => val - gyroTiltY);
-  const rotateY = useTransform(pointerRotateY, (val) => val + gyroTiltX);
 
-  const handlePointerMoveForTilt = useCallback((e: React.PointerEvent) => {
-    // Skip parallax tilt while dragging — feeding rotateX/rotateY into the
-    // drag transform produces visible shake on touch screens.
-    if (!isTop || isDragging.current) return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    const xPos = e.clientX - rect.left;
-    const yPos = e.clientY - rect.top;
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
-    
-    // Calculate relative offset (-1 to 1)
-    const rotateYVal = ((xPos - centerX) / centerX) * 6; // Max 6 deg tilt
-    const rotateXVal = ((centerY - yPos) / centerY) * 6; // Max 6 deg tilt
-    
-    pointerRotateY.set(rotateYVal);
-    pointerRotateX.set(rotateXVal);
-  }, [isTop, pointerRotateX, pointerRotateY]);
 
-  const handlePointerLeaveForTilt = useCallback(() => {
-    animate(pointerRotateX, 0, { duration: 0.5 });
-    animate(pointerRotateY, 0, { duration: 0.5 });
-  }, [pointerRotateX, pointerRotateY]);
 
   // Fetch user rating aggregate for this client profile
   const { data: ratingAggregate, isLoading: isRatingLoading } = useUserRatingAggregateEnhanced(profile?.user_id);
@@ -431,14 +403,10 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
     dragStartedRef.current = false;
   }, [magnifierPointerHandlers]);
 
-  const handleDragStart = useCallback((event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+  const handleDragStart = useCallback((_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
     isDragging.current = true;
     dragStartY.current = info.point.y;
-    // Clear any in-progress parallax tilt so the drag rotation isn't stacked
-    // on top of stale rotateX/rotateY values (cause of the shake on grab).
-    pointerRotateX.set(0);
-    pointerRotateY.set(0);
-  }, [pointerRotateX, pointerRotateY]);
+  }, []);
 
   const handleDragEnd = useCallback((_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
     if (hasExited.current) return;
@@ -623,16 +591,8 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
         dragDirectionLock={false}
         onClick={handleCardTap}
         onPointerDown={handleUnifiedPointerDown}
-        onPointerMove={(e) => {
-          handleUnifiedPointerMove(e);
-          if (!isDragging.current) {
-            handlePointerMoveForTilt(e);
-          }
-        }}
-        onPointerLeave={handlePointerLeaveForTilt}
         onPointerUp={(e) => {
           handleUnifiedPointerUp(e);
-          handlePointerLeaveForTilt();
         }}
         className={cn(
           "flex-1 cursor-grab active:cursor-grabbing select-none touch-none relative w-full h-full overflow-hidden rounded-[2.5rem] pointer-events-auto border-none gpu-ultra",
@@ -641,12 +601,9 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           x,
           y,
           rotate: cardRotate,
-          rotateX,
-          rotateY,
           opacity: cardOpacity,
           transformOrigin: 'bottom center',
           willChange: 'transform, opacity',
-          transformStyle: 'preserve-3d',
           perspective: '1000px',
           backfaceVisibility: 'hidden',
           WebkitBackfaceVisibility: 'hidden',
@@ -654,12 +611,8 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           WebkitTapHighlightColor: 'transparent',
           WebkitTouchCallout: 'none',
           transform: 'translateZ(0)',
-          border: 'none',
+          boxShadow: '0 25px 80px -15px rgba(0,0,0,0.7), 0 10px 30px -10px rgba(0,0,0,0.5)',
           background: '#000',
-          boxShadow: '0 20px 60px rgba(0,0,0,0.5), 0 8px 24px rgba(0,0,0,0.3)',
-          // backdrop-filter removed from the dragged motion.div — it forced a
-          // full recomposite on every frame and was the main shake/flicker
-          // source. Background blur is handled by the photo layer below.
         } as any}
       >
         {/* Glass Shine */}
@@ -690,6 +643,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
             name={profile.name}
             priority={isTop}
             fullScreen={true}
+            animate={!isZoomed}
           />
 
           {/* Cinema Top Fade — 🚀 NEXUS POLISH: Deeper fade for header button contrast */}
@@ -736,39 +690,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
             </div>
           )}
 
-          {/* In-Card Utility Buttons — bottom-right, out of the stamp zone */}
-          <motion.div
-            className="absolute bottom-[calc(var(--bottom-nav-height,72px)+110px)] right-4 z-30 flex flex-col gap-2 pointer-events-none transition-opacity duration-200"
-            style={{
-              opacity: isZoomed ? 0 : useTransform(
-                [likeOpacity, passOpacity] as any,
-                ([l, p]: number[]) => 1 - Math.max(l, p)
-              ),
-            }}
-          >
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                triggerHaptic('light');
-                onShare?.();
-              }}
-              className="w-9 h-9 rounded-full bg-white dark:bg-[#1A1A1A] border border-black/10 dark:border-white/15 flex items-center justify-center text-black/80 dark:text-white/80 active:scale-90 transition-all pointer-events-auto shadow-xl"
-              title="Share Profile"
-            >
-              <Share2 className="w-4 h-4" strokeWidth={1.8} />
-            </button>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                triggerHaptic('medium');
-                onReport?.();
-              }}
-              className="w-9 h-9 rounded-full bg-white dark:bg-[#1A1A1A] border border-black/10 dark:border-white/15 flex items-center justify-center text-amber-600 dark:text-amber-500 active:scale-90 transition-all pointer-events-auto shadow-xl"
-              title="Report Profile"
-            >
-              <Flag className="w-4 h-4 fill-current" strokeWidth={1.8} />
-            </button>
-          </motion.div>
+
         </div>
 
         {/* LIKE stamp — shown top-right when swiping right */}
@@ -780,24 +702,24 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
             <div
               className="w-[72px] h-[72px] rounded-full flex items-center justify-center"
               style={{
-                background: 'rgba(139,92,246,0.15)',
+                background: 'rgba(255,77,0,0.15)',
                 backdropFilter: 'blur(8px)',
-                border: '3px solid #8b5cf6',
-                boxShadow: '0 0 28px rgba(139,92,246,0.55), inset 0 0 12px rgba(139,92,246,0.15)',
+                border: '3px solid #FF4D00',
+                boxShadow: '0 0 28px rgba(255,77,0,0.55), inset 0 0 12px rgba(255,77,0,0.15)',
               }}
             >
-              <ThumbsUp className="w-9 h-9 text-violet-400" fill="currentColor" strokeWidth={0} />
+              <ThumbsUp className="w-9 h-9 text-orange-400" fill="currentColor" strokeWidth={0} />
             </div>
             <div
               className="px-4 py-1 rounded-lg"
               style={{
-                border: '2.5px solid #8b5cf6',
-                background: 'rgba(139,92,246,0.12)',
+                border: '2.5px solid #FF4D00',
+                background: 'rgba(255,77,0,0.12)',
                 backdropFilter: 'blur(6px)',
-                boxShadow: '0 0 18px rgba(139,92,246,0.4)',
+                boxShadow: '0 0 18px rgba(255,77,0,0.4)',
               }}
             >
-              <span className="font-black text-xl tracking-[0.18em] uppercase bg-gradient-to-br from-rose-400 to-violet-500 bg-clip-text text-transparent" style={{ filter: 'drop-shadow(0 0 10px rgba(244,63,94,0.6))' }}>
+              <span className="font-black text-xl tracking-[0.18em] uppercase bg-gradient-to-br from-orange-400 to-pink-500 bg-clip-text text-transparent" style={{ filter: 'drop-shadow(0 0 10px rgba(255,77,0,0.6))' }}>
                 FIRE
               </span>
             </div>
@@ -839,16 +761,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
 
 
 
-        {/* Edge vignette — perimeter inset shadow that outlines the rounded corners
-            so the card always reads as a physical object */}
-        <div
-          className="absolute inset-0 pointer-events-none z-[25] rounded-[2.5rem]"
-          style={{
-            boxShadow: _isDark
-              ? 'inset 0 0 0 1.5px rgba(255,255,255,0.08), inset 0 0 50px rgba(0,0,0,0.45)'
-              : 'inset 0 0 0 1.5px rgba(0,0,0,0.10), inset 0 0 40px rgba(0,0,0,0.18)',
-          }}
-        />
+
 
         {/* Cinema Bottom Fade — theme-aware vignette behind nav + action buttons */}
         <div

@@ -8,6 +8,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { ClientInsightsDashboard } from '@/components/ClientInsightsDashboard';
 import { motion, AnimatePresence } from 'framer-motion';
 import { triggerHaptic } from '@/utils/haptics';
+import { AtmosphericLayer } from '@/components/AtmosphericLayer';
+import { SwipessLogo } from '@/components/SwipessLogo';
 
 interface ClientDashboardProps {
   onMessageClick?: () => void;
@@ -37,13 +39,38 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
         willChange: 'transform',
       }}
     >
+      <AtmosphericLayer variant="nexus" />
+
       {/* 🛸 NEXUS DASHBOARD TOGGLE */}
-      <div className="absolute top-[calc(var(--top-bar-height,60px)+12px)] left-1/2 -translate-x-1/2 z-[40] flex p-1 rounded-2xl bg-black/40 backdrop-blur-3xl border border-white/10 shadow-2xl">
+      <div className="absolute top-[calc(var(--top-bar-height,60px)+12px)] left-1/2 -translate-x-1/2 z-[40] flex p-1 rounded-2xl bg-black/40 backdrop-blur-3xl border border-white/10 shadow-2xl min-w-[200px]">
+        {/* Sliding Indicator */}
+        <motion.div
+          className="absolute h-9 rounded-xl z-0"
+          initial={false}
+          animate={{
+            x: viewMode === 'discovery' ? 4 : 100,
+            width: 96,
+            background: viewMode === 'discovery' 
+              ? 'linear-gradient(135deg, #FF4D00, #FF6B00)' 
+              : 'linear-gradient(135deg, #EB4898, #C026D3)',
+          }}
+          transition={{
+            type: "spring",
+            stiffness: 400,
+            damping: 30
+          }}
+          style={{
+            boxShadow: viewMode === 'discovery' 
+              ? '0 4px 15px rgba(255,77,0,0.3)' 
+              : '0 4px 15px rgba(235,72,152,0.3)',
+          }}
+        />
+
         <button
           onClick={() => { setViewMode('discovery'); triggerHaptic('light'); }}
           className={cn(
-            "px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
-            viewMode === 'discovery' ? "bg-primary text-white shadow-[0_0_15px_rgba(var(--color-brand-primary-rgb),0.4)]" : "text-white/40 hover:text-white/60"
+            "flex-1 h-9 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all relative z-10",
+            viewMode === 'discovery' ? "text-white" : "text-white/40 hover:text-white/60"
           )}
         >
           Discovery
@@ -51,8 +78,8 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
         <button
           onClick={() => { setViewMode('insights'); triggerHaptic('light'); }}
           className={cn(
-            "px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
-            viewMode === 'insights' ? "bg-primary text-white shadow-[0_0_15px_rgba(var(--color-brand-primary-rgb),0.4)]" : "text-white/40 hover:text-white/60"
+            "flex-1 h-9 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all relative z-10",
+            viewMode === 'insights' ? "text-white" : "text-white/40 hover:text-white/60"
           )}
         >
           Insights

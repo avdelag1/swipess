@@ -23,7 +23,6 @@ import { CompactRatingDisplay } from '@/components/RatingDisplay';
 import { useListingRatingAggregate } from '@/hooks/useRatingSystem';
 import CardImage from '@/components/CardImage';
 import { imageCache } from '@/lib/swipe/cardImageCache';
-import { useDeviceParallax } from '@/hooks/useDeviceParallax';
 import useAppTheme from '@/hooks/useAppTheme';
 import { cn } from '@/lib/utils';
 import { Flag, Share2, ThumbsUp, ThumbsDown } from 'lucide-react';
@@ -150,43 +149,11 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   const likeOpacity = useTransform(x, [0, SWIPE_THRESHOLD * 0.5, SWIPE_THRESHOLD], [0, 0.5, 1]);
   const passOpacity = useTransform(x, [-SWIPE_THRESHOLD, -SWIPE_THRESHOLD * 0.5, 0], [1, 0.5, 0]);
 
-  // 🚀 FLAGSHIP FEATURE: 3D Perspective Tilt based on pointer pos & Device Gyroscope
-  const pointerRotateX = useMotionValue(0);
-  const pointerRotateY = useMotionValue(0);
-  const { tiltX: gyroTiltX, tiltY: gyroTiltY } = useDeviceParallax(0.4);
 
-  const rotateX = useTransform(pointerRotateX, (val) => val - gyroTiltY);
-  const rotateY = useTransform(pointerRotateY, (val) => val + gyroTiltX);
 
   const containerRectRef = useRef<DOMRect | null>(null);
 
-  const handlePointerMoveForTilt = useCallback((e: React.PointerEvent) => {
-    if (!isTop || isDragging.current) return;
-    
-    // PERF: Retrieve rect once and cache it to avoid forced reflow (1.3ms savings per move)
-    if (!containerRectRef.current) {
-      containerRectRef.current = e.currentTarget.getBoundingClientRect();
-    }
-    const rect = containerRectRef.current;
-    
-    const xPos = e.clientX - rect.left;
-    const yPos = e.clientY - rect.top;
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
 
-    // Calculate relative offset (-1 to 1)
-    const rotateYVal = ((xPos - centerX) / centerX) * 8; // Max 8 deg tilt
-    const rotateXVal = ((centerY - yPos) / centerY) * 8; // Max 8 deg tilt
-
-    pointerRotateY.set(rotateYVal);
-    pointerRotateX.set(rotateXVal);
-  }, [isTop, pointerRotateX, pointerRotateY]);
-
-  const handlePointerLeaveForTilt = useCallback(() => {
-    containerRectRef.current = null; // Clear cache on leave
-    animate(pointerRotateX, 0, { duration: 0.5 });
-    animate(pointerRotateY, 0, { duration: 0.5 });
-  }, [pointerRotateX, pointerRotateY]);
 
   // Image state
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -317,12 +284,9 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   const handleDragStart = useCallback((_: any, info: PanInfo) => {
     isDragging.current = true;
     dragStartY.current = info.point.y;
-    // Reset pointer tilt so the drag rotation isn't added on top of a stale tilt.
-    pointerRotateX.set(0);
-    pointerRotateY.set(0);
     triggerHaptic('light');
     onDragStart?.();
-  }, [onDragStart, pointerRotateX, pointerRotateY]);
+  }, [onDragStart]);
 
   const handleDragEnd = useCallback((_: any, info: PanInfo) => {
     const sweepX = info.offset.x;
@@ -471,22 +435,11 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
         onDragEnd={handleDragEnd}
         onClick={handleCardTap}
         onPointerDown={handleUnifiedPointerDown}
-        onPointerMove={(e) => {
-          handleUnifiedPointerMove(e);
-          // Skip the parallax tilt entirely while dragging — its rotateX/rotateY
-          // fights the drag rotation and produces visible flicker on touch.
-          if (!isDragging.current) {
-            handlePointerMoveForTilt(e);
-          }
-        }}
-        onPointerLeave={handlePointerLeaveForTilt}
         onPointerUp={(e) => {
           handleUnifiedPointerUp(e);
-          handlePointerLeaveForTilt();
         }}
         onPointerCancel={(e) => {
           handleUnifiedPointerCancel(e);
-          handlePointerLeaveForTilt();
         }}
         // Photo swim effect now lives on the <img> inside CardImage (CSS keyframes)
         className="flex-1 cursor-grab active:cursor-grabbing select-none touch-none relative w-full h-full overflow-hidden rounded-[2.5rem] pointer-events-auto border-none gpu-ultra"
@@ -495,22 +448,17 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           x,
           y,
           rotate: cardRotate,
-          rotateX,
-          rotateY,
           opacity: cardOpacity,
           willChange: 'transform, opacity',
-          transformStyle: 'preserve-3d',
           perspective: '1000px',
           transform: 'translate3d(0,0,0)', // 🏎️ FORCE GPU LAYER
           backfaceVisibility: 'hidden',
           WebkitBackfaceVisibility: 'hidden',
+          boxShadow: '0 25px 80px -15px rgba(0,0,0,0.7), 0 10px 30px -10px rgba(0,0,0,0.5)',
           background: '#000',
-          boxShadow: '0 20px 60px rgba(0,0,0,0.5), 0 8px 24px rgba(0,0,0,0.3)',
-          // No backdrop-filter on the moving card — backdrop-filter forces
-          // the browser to recomposite the entire card area on every drag
-          // frame, which is the primary source of the shake/flicker.
         }}
       >
+        
         <GlassShine x={x} y={y} />
         <div 
           ref={containerRef as any}
@@ -536,6 +484,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
               direction={photoDirection}
               priority={isTop}
               fullScreen={true}
+              animate={!isZoomed}
             />
           )}
 
@@ -583,39 +532,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
             </div>
           )}
 
-          {/* In-Card Utility Buttons — bottom-right, out of the stamp zone */}
-          <motion.div
-            className="absolute bottom-[calc(var(--bottom-nav-height,72px)+110px)] right-4 z-30 flex flex-col gap-2 pointer-events-none transition-opacity duration-150"
-            style={{
-              opacity: isZoomed ? 0 : useTransform(
-                [likeOpacity, passOpacity] as any,
-                ([l, p]: number[]) => 1 - Math.max(l, p)
-              ),
-            }}
-          >
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                triggerHaptic('light');
-                onShare?.();
-              }}
-              className="w-9 h-9 rounded-full bg-white dark:bg-[#1A1A1A] border border-black/10 dark:border-white/15 flex items-center justify-center text-black/80 dark:text-white/80 active:scale-90 transition-all pointer-events-auto shadow-xl"
-              title="Share Listing"
-            >
-              <Share2 className="w-4 h-4" strokeWidth={1.8} />
-            </button>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                triggerHaptic('medium');
-                onReport?.();
-              }}
-              className="w-9 h-9 rounded-full bg-white dark:bg-[#1A1A1A] border border-black/10 dark:border-white/15 flex items-center justify-center text-amber-600 dark:text-amber-500 active:scale-90 transition-all pointer-events-auto shadow-xl"
-              title="Report Listing"
-            >
-              <Flag className="w-4 h-4 fill-current" strokeWidth={1.8} />
-            </button>
-          </motion.div>
+
         </div>
 
         {/* LIKE stamp — shown top-right when swiping right */}
@@ -633,26 +550,26 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
             <div
               className="w-[72px] h-[72px] rounded-full flex items-center justify-center"
               style={{
-                background: 'rgba(139,92,246,0.15)',
+                background: 'rgba(255,77,0,0.15)',
                 backdropFilter: 'blur(8px)',
-                border: '3px solid #8b5cf6',
-                boxShadow: '0 0 28px rgba(139,92,246,0.55), inset 0 0 12px rgba(139,92,246,0.15)',
+                border: '3px solid #FF4D00',
+                boxShadow: '0 0 28px rgba(255,77,0,0.55), inset 0 0 12px rgba(255,77,0,0.15)',
               }}
             >
-              <ThumbsUp className="w-9 h-9 text-violet-400" fill="currentColor" strokeWidth={0} />
+              <ThumbsUp className="w-9 h-9 text-orange-400" fill="currentColor" strokeWidth={0} />
             </div>
             <div
               className="px-4 py-1 rounded-lg"
               style={{
-                border: '2.5px solid #8b5cf6',
-                background: 'rgba(139,92,246,0.12)',
+                border: '2.5px solid #FF4D00',
+                background: 'rgba(255,77,0,0.12)',
                 backdropFilter: 'blur(6px)',
-                boxShadow: '0 0 18px rgba(139,92,246,0.4)',
+                boxShadow: '0 0 18px rgba(255,77,0,0.4)',
               }}
             >
               <span
-                className="font-black text-xl tracking-[0.18em] uppercase bg-gradient-to-br from-rose-400 to-violet-500 bg-clip-text text-transparent"
-                style={{ filter: 'drop-shadow(0 0 10px rgba(244,63,94,0.6))' }}
+                className="font-black text-xl tracking-[0.18em] uppercase bg-gradient-to-br from-orange-400 to-pink-500 bg-clip-text text-transparent"
+                style={{ filter: 'drop-shadow(0 0 10px rgba(255,77,0,0.6))' }}
               >
                 FIRE
               </span>
@@ -730,8 +647,8 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
                 />
               </div>
               {(listing as any).has_verified_documents && (
-                <div className="px-2.5 py-1 rounded-full bg-violet-950/60 border border-violet-500/30">
-                  <span className="text-[10px] font-black uppercase tracking-wider text-violet-400">Elite</span>
+                <div className="px-2.5 py-1 rounded-full bg-orange-950/60 border border-orange-500/30">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-orange-400">Elite</span>
                 </div>
               )}
             </div>
@@ -759,7 +676,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
                 return (
                   <VehicleCardInfo
                     price={(listing as any).price || 0}
-                    priceType={(listing as any).rental_duration_type === 'monthly' ? 'month' : 'day'}
+                    priceType={(listing as any).listing_type === 'sale' || ((listing as any).price > 10000 && !(listing as any).rental_duration_type) ? 'sale' : (listing as any).rental_duration_type === 'monthly' ? 'month' : 'day'}
                     make={(listing as any).vehicle_brand ?? undefined}
                     model={(listing as any).vehicle_model ?? undefined}
                     year={(listing as any).year ?? undefined}
@@ -787,7 +704,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
               return (
                 <PropertyCardInfo
                   price={(listing as any).price || 0}
-                  priceType={(listing as any).rental_duration_type === 'monthly' ? 'month' : 'night'}
+                  priceType={(listing as any).listing_type === 'sale' || ((listing as any).price > 15000 && !(listing as any).rental_duration_type) ? 'sale' : (listing as any).rental_duration_type === 'monthly' ? 'month' : 'night'}
                   propertyType={(listing as any).property_type ?? undefined}
                   beds={(listing as any).beds ?? undefined}
                   baths={(listing as any).baths ?? undefined}
@@ -813,17 +730,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           }}
         />
 
-        {/* Edge vignette — perimeter inset shadow that outlines the rounded corners
-            so the card always reads as a physical object */}
-        <div
-          className="absolute inset-0 pointer-events-none z-[25] rounded-[2.5rem] transition-opacity duration-150"
-          style={{
-            boxShadow: isLight
-              ? 'inset 0 0 0 1.5px rgba(0,0,0,0.10), inset 0 0 40px rgba(0,0,0,0.18)'
-              : 'inset 0 0 0 1.5px rgba(255,255,255,0.08), inset 0 0 50px rgba(0,0,0,0.45)',
-            opacity: isZoomed ? 0 : 1,
-          }}
-        />
+
 
         {/* Verified Badge - Left corner higher up */}
         {(listing as any).has_verified_documents && (

@@ -14,7 +14,7 @@
 
 import { memo, useCallback, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Share2, Undo2, MessageCircle, Heart, X, Info } from 'lucide-react';
+import { Share2, Undo2, MessageCircle, Flame, ThumbsDown, Eye, Info } from 'lucide-react';
 import { triggerHaptic } from '@/utils/haptics';
 import { AnimatedLottieIcon } from './ui/AnimatedLottieIcon';
 import useAppTheme from '@/hooks/useAppTheme';
@@ -60,7 +60,7 @@ interface VariantCfg {
 
 const VARIANTS: Record<Variant, VariantCfg> = {
   like: {
-    iconColor: '#ff5722', // Deeper fire orange
+    iconColor: '#FF5722', // Deep Orange / Fire
     glow: '0 0 24px rgba(255, 87, 34, 0.45)',
     glowIntense: '0 0 45px rgba(255, 87, 34, 0.6)',
     dropShadow: 'var(--shadow-cinematic-primary)',
@@ -68,7 +68,7 @@ const VARIANTS: Record<Variant, VariantCfg> = {
     circleBorder: '1px solid rgba(255, 255, 255, 0.4)',
   },
   dislike: {
-    iconColor: '#ef4444',
+    iconColor: '#EF4444', // Red
     glow: '0 0 20px rgba(239, 68, 68, 0.4)',
     glowIntense: '0 0 40px rgba(239, 68, 68, 0.5)',
     dropShadow: '0 12px 24px -6px rgba(239, 68, 68, 0.45)',
@@ -84,27 +84,27 @@ const VARIANTS: Record<Variant, VariantCfg> = {
     circleBorder: '1px solid rgba(255, 255, 255, 0.4)',
   },
   green: {
-    iconColor: '#10b981', // Cool green
-    glow: '0 0 16px rgba(16, 185, 129, 0.35)',
-    glowIntense: '0 0 32px rgba(16, 185, 129, 0.45)',
-    dropShadow: '0 8px 16px -4px rgba(16, 185, 129, 0.4)',
-    circleBg: 'rgba(16, 185, 129, 0.35)',
+    iconColor: '#22C55E', // Vivid Green
+    glow: '0 0 16px rgba(34, 197, 94, 0.35)',
+    glowIntense: '0 0 32px rgba(34, 197, 94, 0.45)',
+    dropShadow: '0 8px 16px -4px rgba(34, 197, 94, 0.4)',
+    circleBg: 'rgba(34, 197, 94, 0.35)',
     circleBorder: '1px solid rgba(255, 255, 255, 0.4)',
   },
   blue: {
-    iconColor: '#3b82f6', // Beautiful blue
+    iconColor: '#3B82F6', // Vivid Blue
     glow: '0 0 16px rgba(59, 130, 246, 0.35)',
     glowIntense: '0 0 32px rgba(59, 130, 246, 0.45)',
     dropShadow: '0 8px 16px -4px rgba(59, 130, 246, 0.4)',
     circleBg: 'rgba(59, 130, 246, 0.35)',
     circleBorder: '1px solid rgba(255, 255, 255, 0.4)',
   },
-  purple: {
-    iconColor: '#a855f7',
-    glow: '0 0 16px rgba(168, 85, 247, 0.35)',
-    glowIntense: '0 0 32px rgba(168, 85, 247, 0.45)',
-    dropShadow: '0 8px 16px -4px rgba(168, 85, 247, 0.4)',
-    circleBg: 'rgba(168, 85, 247, 0.35)', // Increased opacity
+  pink: {
+    iconColor: '#EB4898', // Nexus Neon Pink
+    glow: '0 0 16px rgba(235, 72, 152, 0.35)',
+    glowIntense: '0 0 32px rgba(235, 72, 152, 0.45)',
+    dropShadow: '0 8px 16px -4px rgba(235, 72, 152, 0.4)',
+    circleBg: 'rgba(235, 72, 152, 0.35)',
     circleBorder: '1px solid rgba(255, 255, 255, 0.4)',
   },
   gold: {
@@ -112,7 +112,7 @@ const VARIANTS: Record<Variant, VariantCfg> = {
     glow: '0 0 20px rgba(255, 215, 0, 0.4)',
     glowIntense: '0 0 40px rgba(255, 215, 0, 0.6)',
     dropShadow: '0 12px 24px -6px rgba(255, 215, 0, 0.45)',
-    circleBg: 'rgba(255, 215, 0, 0.25)', // Increased opacity
+    circleBg: 'rgba(255, 215, 0, 0.25)', 
     circleBorder: 'none',
   },
   default: {
@@ -267,38 +267,25 @@ export const SwipeActionButtonBar = memo(({
 
   return (
     <div
-      className={`flex items-center gap-4 px-6 py-4 rounded-[32px] shadow-2xl pointer-events-auto overflow-visible ${className}`}
-      style={{
-        background: isLight
-          ? 'rgba(255, 255, 255, 0.92)'
-          : 'rgba(0, 0, 0, 0.40)',
-        backdropFilter: 'blur(24px) saturate(180%)',
-        WebkitBackdropFilter: 'blur(24px) saturate(180%)',
-        border: isLight
-          ? '1px solid rgba(0, 0, 0, 0.08)'
-          : '1px solid rgba(255, 255, 255, 0.05)',
-        boxShadow: isLight
-          ? '0 8px 32px rgba(0, 0, 0, 0.10), 0 2px 8px rgba(0, 0, 0, 0.06)'
-          : '0 12px 40px rgba(0, 0, 0, 0.40)',
-      }}
+      className={`flex items-center gap-6 pointer-events-auto overflow-visible ${className}`}
     >
       <AnimatePresence mode="popLayout" initial={false}>
-        {/* Undo Button - Always First if available */}
+        {/* Undo Button (Green) */}
         {onUndo && (
           <ActionButton
             onClick={onUndo}
             disabled={disabled || !canUndo}
             size="small"
-            variant="amber"
+            variant="green"
             ariaLabel="Undo"
             index={0}
             isLight={isLight}
           >
-            <Undo2 className="w-full h-full" strokeWidth={2} />
+            <Undo2 className="w-full h-full" strokeWidth={2.5} />
           </ActionButton>
         )}
 
-        {/* Dislike Button */}
+        {/* Dislike Button (Red / ThumbsDown) */}
         <ActionButton
           onClick={onDislike}
           disabled={disabled}
@@ -308,25 +295,25 @@ export const SwipeActionButtonBar = memo(({
           index={1}
           isLight={isLight}
         >
-          <X className="w-full h-full" strokeWidth={3} />
+          <ThumbsDown className="w-full h-full" strokeWidth={2.5} />
         </ActionButton>
 
-        {/* Insights/Details Button */}
-        {onInsights && (
+        {/* Message/Connect Button (Blue) */}
+        {onMessage && (
           <ActionButton
-            onClick={onInsights}
+            onClick={onMessage}
             disabled={disabled}
             size="small"
-            variant="purple"
-            ariaLabel="Insights"
+            variant="blue"
+            ariaLabel="Message"
             index={2}
             isLight={isLight}
           >
-            <Info className="w-full h-full" strokeWidth={2} />
+            <MessageCircle className="w-full h-full" strokeWidth={2} />
           </ActionButton>
         )}
 
-        {/* Like Button */}
+        {/* Like Button (Orange / Flame) */}
         <ActionButton
           onClick={onLike}
           disabled={disabled}
@@ -336,36 +323,21 @@ export const SwipeActionButtonBar = memo(({
           index={3}
           isLight={isLight}
         >
-          <Heart className="w-full h-full" fill="currentColor" strokeWidth={0} />
+          <Flame className="w-full h-full" fill="currentColor" strokeWidth={0} />
         </ActionButton>
 
-        {/* Message/Connect Button */}
-        {onMessage && (
+        {/* Insights/Eye Button */}
+        {onInsights && (
           <ActionButton
-            onClick={onMessage}
+            onClick={onInsights}
             disabled={disabled}
             size="small"
             variant="blue"
-            ariaLabel="Message"
+            ariaLabel="Insights"
             index={4}
             isLight={isLight}
           >
-            <MessageCircle className="w-full h-full" strokeWidth={1.5} />
-          </ActionButton>
-        )}
-
-        {/* Share Button */}
-        {onShare && (
-          <ActionButton
-            onClick={onShare}
-            disabled={disabled}
-            size="small"
-            variant="purple"
-            ariaLabel="Share"
-            index={5}
-            isLight={isLight}
-          >
-            <Share2 className="w-full h-full" strokeWidth={1.5} />
+            <Eye className="w-full h-full" strokeWidth={2} />
           </ActionButton>
         )}
       </AnimatePresence>

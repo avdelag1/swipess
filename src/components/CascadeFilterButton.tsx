@@ -152,7 +152,7 @@ function CascadeFilterButtonComponent({ filters, onChange, userRole = 'client' }
             : 'bg-[var(--hud-bg)] text-[var(--hud-text)] border-[var(--hud-border)] shadow-[0_4px_12px_rgba(0,0,0,0.05)]'
         )}
         style={isOpen || hasActiveFilters ? {
-          background: 'linear-gradient(135deg, #f97316 0%, #ec4899 55%, #8b5cf6 100%)',
+          background: 'linear-gradient(135deg, #FF4D00 0%, #EB4898 100%)',
           boxShadow: '0 4px 14px rgba(249,115,22,0.45)',
         } : undefined}
       >

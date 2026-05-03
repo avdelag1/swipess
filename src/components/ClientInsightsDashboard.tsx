@@ -2,7 +2,7 @@ import { useClientInsights } from '@/hooks/useClientInsights';
 import { motion } from 'framer-motion';
 import { 
   BarChart3, TrendingUp, Users, Heart, 
-  MessageSquare, Zap, Activity, Eye, Trophy, Star
+  MessageSquare, Zap, Activity, Eye, Trophy, Star, Sparkles
 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
@@ -14,90 +14,83 @@ export function ClientInsightsDashboard() {
 
   if (isLoading) {
     return (
-      <div className="p-6 space-y-6">
-        <div className="grid grid-cols-2 gap-4">
-          <Skeleton className="h-32 rounded-[2.5rem]" />
-          <Skeleton className="h-32 rounded-[2.5rem]" />
-          <Skeleton className="h-32 rounded-[2.5rem]" />
-          <Skeleton className="h-32 rounded-[2.5rem]" />
+      <div className="p-8 space-y-8">
+        <div className="grid grid-cols-2 gap-5">
+          <Skeleton className="h-36 rounded-[2.5rem] bg-white/[0.03]" />
+          <Skeleton className="h-36 rounded-[2.5rem] bg-white/[0.03]" />
+          <Skeleton className="h-36 rounded-[2.5rem] bg-white/[0.03]" />
+          <Skeleton className="h-36 rounded-[2.5rem] bg-white/[0.03]" />
         </div>
-        <Skeleton className="h-48 rounded-[3rem]" />
+        <Skeleton className="h-56 rounded-[3rem] bg-white/[0.03]" />
       </div>
     );
   }
 
   const stats = [
-    { label: 'Profiles Seen', value: data?.profiles_viewed || 0, icon: Eye, color: '#8b5cf6', trend: '+24%' },
-    { label: 'Likes Sent', value: data?.total_likes || 0, icon: Heart, color: '#f43f5e', trend: '+12%' },
-    { label: 'Matches', value: data?.total_matches || 0, icon: Users, color: '#6366f1', trend: '+8%' },
-    { label: 'Tokens Earned', value: data?.tokens_earned || 0, icon: Trophy, color: '#fbbf24', trend: '+45%' },
+    { label: 'Discovery Range', value: data?.profiles_viewed || 0, icon: Eye, color: '#FF4D00', trend: '+24%' },
+    { label: 'Signal Output', value: data?.total_likes || 0, icon: Heart, color: '#EB4898', trend: '+12%' },
+    { label: 'Active Syncs', value: data?.total_matches || 0, icon: Users, color: '#FF4D00', trend: '+8%' },
+    { label: 'Nexus Credits', value: data?.tokens_earned || 0, icon: Trophy, color: '#EB4898', trend: '+45%' },
   ];
 
   return (
-    <div className="p-6 space-y-8 pb-40 relative">
+    <div className="p-6 space-y-10 pb-48 relative overflow-hidden">
       {/* 🛸 NEXUS ATMOSPHERE */}
-      <div className="absolute top-[-10%] left-[-10%] w-[80%] h-[80%] bg-[#EB4898]/5 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[80%] h-[80%] bg-violet-600/5 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden">
+        <div className="absolute top-[-15%] left-[-15%] w-[80%] h-[80%] bg-[#EB4898]/5 rounded-full blur-[140px]" />
+        <div className="absolute bottom-[-15%] right-[-15%] w-[80%] h-[80%] bg-[#FF4D00]/5 rounded-full blur-[140px]" />
+      </div>
 
       {/* Header with Title */}
-      <div className="flex items-center justify-between px-2 relative z-10">
-        <div className="space-y-1">
-          <h2 className={cn("text-3xl font-black tracking-tight italic uppercase", isLight ? "text-slate-900" : "text-white")}>Personal Insights</h2>
-          <p className={cn("text-[10px] font-black uppercase tracking-[0.4em] opacity-40", isLight ? "text-slate-400" : "text-white")}>Your Discovery Intelligence</p>
+      <div className="flex items-end justify-between px-3 relative z-10">
+        <div className="space-y-2">
+          <h2 className="text-4xl font-black tracking-tighter italic uppercase text-white leading-none">Intelligence</h2>
+          <p className="text-[10px] font-black uppercase tracking-[0.6em] text-[#EB4898] italic">Discovery Protocol Active</p>
         </div>
-        <div
-          className="w-12 h-12 rounded-[22px] flex items-center justify-center border backdrop-blur-xl"
-          style={isLight
-            ? { background: 'rgba(0,0,0,0.04)', borderColor: 'rgba(0,0,0,0.06)' }
-            : { background: 'rgba(235,72,152,0.1)', borderColor: 'rgba(235,72,152,0.2)', boxShadow: 'inset 0 0 16px rgba(235,72,152,0.15)' }
-          }
-        >
-          <Zap className="w-5 h-5 text-[#EB4898] animate-pulse fill-current" />
+        <div className="w-14 h-14 rounded-[24px] flex items-center justify-center bg-[#EB4898]/10 border border-[#EB4898]/20 backdrop-blur-3xl shadow-[0_0_30px_rgba(235,72,152,0.15)]">
+          <Zap className="w-6 h-6 text-[#EB4898] animate-pulse fill-current" />
         </div>
       </div>
 
       {/* Stats Grid — 🚀 NEXUS POLISH */}
-      <div className="grid grid-cols-2 gap-4 relative z-10">
+      <div className="grid grid-cols-2 gap-5 relative z-10">
         {stats.map((stat, i) => (
           <motion.div
             key={stat.label}
-            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            initial={{ opacity: 0, y: 30, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ delay: i * 0.1, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ delay: i * 0.1, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
             className="group relative"
           >
-            <div className={cn(
-              "relative p-5 rounded-[2.5rem] border backdrop-blur-2xl space-y-4 overflow-hidden",
-              isLight ? "bg-white/80 border-black/5 shadow-xl" : "bg-white/[0.03] border-white/[0.08]"
-            )}
-            style={!isLight ? { boxShadow: `inset 0 0 32px ${stat.color}15` } : undefined}
+            <div className="relative p-6 rounded-[32px] border bg-[#0F0F0F]/60 border-white/5 backdrop-blur-3xl space-y-5 overflow-hidden transition-all hover:bg-white/[0.05] hover:border-white/10"
+              style={{ boxShadow: `inset 0 0 32px ${stat.color}08` }}
             >
               <div className="flex items-center justify-between">
                 <div 
-                  className="w-10 h-10 rounded-[18px] flex items-center justify-center shadow-lg border"
-                  style={{ background: `${stat.color}20`, borderColor: `${stat.color}30` }}
+                  className="w-12 h-12 rounded-[20px] flex items-center justify-center shadow-2xl border"
+                  style={{ background: `${stat.color}15`, borderColor: `${stat.color}25` }}
                 >
-                  <stat.icon className="w-5 h-5" style={{ color: stat.color }} />
+                  <stat.icon className="w-6 h-6" style={{ color: stat.color }} />
                 </div>
-                <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
-                  <TrendingUp className="w-2.5 h-2.5 text-emerald-400" />
-                  <span className="text-[9px] font-black text-emerald-400">{stat.trend}</span>
+                <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
+                  <TrendingUp className="w-3 h-3 text-emerald-400" />
+                  <span className="text-[10px] font-black text-emerald-400 tabular-nums">{stat.trend}</span>
                 </div>
               </div>
               
-              <div className="space-y-1">
-                <div className={cn("text-2xl font-black tracking-tighter leading-none", isLight ? "text-slate-900" : "text-white")}>{stat.value}</div>
-                <div className={cn("text-[9px] font-black uppercase tracking-[0.2em] opacity-40", isLight ? "text-slate-400" : "text-white")}>{stat.label}</div>
+              <div className="space-y-1.5">
+                <div className="text-3xl font-black tracking-tighter leading-none text-white italic tabular-nums">{stat.value}</div>
+                <div className="text-[9px] font-black uppercase tracking-[0.25em] text-white/30 italic">{stat.label}</div>
               </div>
 
-              {/* THE "BOTTLE" — Progress indicator */}
-              <div className="h-1.5 w-full bg-black/5 dark:bg-white/5 rounded-full overflow-hidden">
+              {/* PROGRESS INDICATOR */}
+              <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
                 <motion.div 
                   initial={{ width: 0 }}
-                  animate={{ width: `${60 + Math.random() * 35}%` }}
-                  transition={{ delay: 0.5 + (i * 0.1), duration: 1.5, ease: 'easeOut' }}
+                  animate={{ width: `${65 + Math.random() * 30}%` }}
+                  transition={{ delay: 0.7 + (i * 0.1), duration: 2, ease: [0.16, 1, 0.3, 1] }}
                   className="h-full rounded-full"
-                  style={{ background: `linear-gradient(to right, ${stat.color}88, ${stat.color})` }}
+                  style={{ background: `linear-gradient(to right, ${stat.color}44, ${stat.color})`, boxShadow: `0 0 10px ${stat.color}44` }}
                 />
               </div>
             </div>
@@ -107,47 +100,41 @@ export function ClientInsightsDashboard() {
 
       {/* Main Graph Placeholder — High Fidelity */}
       <motion.div 
-        initial={{ opacity: 0, scale: 0.98, y: 20 }}
+        initial={{ opacity: 0, scale: 0.98, y: 30 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
-        className={cn(
-          "relative group p-6 rounded-[3rem] border backdrop-blur-3xl overflow-hidden z-10",
-          isLight ? "bg-white/80 border-black/5 shadow-xl" : "bg-white/[0.02] border-indigo-500/20"
-        )}
-        style={!isLight ? { boxShadow: 'inset 0 0 40px rgba(99,102,241,0.1)' } : undefined}
+        transition={{ delay: 0.5, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+        className="relative group p-8 rounded-[40px] border bg-[#0F0F0F]/60 border-white/5 backdrop-blur-3xl overflow-hidden z-10"
+        style={{ boxShadow: 'inset 0 0 50px rgba(235,72,152,0.05)' }}
       >
-        <div className="flex items-center justify-between mb-8">
-          <div className="space-y-1">
-            <h3 className={cn("text-base font-black tracking-tight uppercase italic", isLight ? "text-slate-900" : "text-white")}>Discovery Velocity</h3>
-            <p className={cn("text-[10px] font-black uppercase tracking-widest opacity-40", isLight ? "text-slate-400" : "text-white")}>Daily Interaction Activity</p>
+        <div className="flex items-center justify-between mb-10">
+          <div className="space-y-2">
+            <h3 className="text-xl font-black tracking-tighter uppercase italic text-white">Market Velocity</h3>
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#FF4D00] italic">Real-time Interaction Flux</p>
           </div>
-          <div className="p-2 rounded-xl bg-white/5 border border-white/10">
-            <BarChart3 className={cn("w-5 h-5", isLight ? "text-slate-400" : "text-white/40")} />
+          <div className="p-3 rounded-2xl bg-white/5 border border-white/10 shadow-2xl">
+            <Activity className="w-6 h-6 text-white/60" />
           </div>
         </div>
 
         {/* Visual Graph Mockup */}
-        <div className="h-40 flex items-end justify-between gap-3 px-2 mb-2">
+        <div className="h-48 flex items-end justify-between gap-4 px-1 mb-4">
           {data?.recent_activity.map((day, i) => (
             <motion.div 
               key={i}
               initial={{ height: 0 }}
               animate={{ height: `${Math.max(20, (day.count / 60) * 100)}%` }}
-              transition={{ delay: i * 0.1 + 0.5, duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+              transition={{ delay: i * 0.1 + 0.8, duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
               className="relative w-full group/bar"
             >
-              <div className="absolute -inset-1 bg-primary/20 blur-lg opacity-0 group-hover/bar:opacity-100 transition-opacity" />
-              <div className="w-full h-full rounded-2xl bg-gradient-to-t from-primary/10 via-primary/40 to-primary/80 border-t border-white/20" />
-              <div className={cn(
-                "absolute -top-7 left-1/2 -translate-x-1/2 opacity-0 group-hover/bar:opacity-100 transition-all duration-300 text-[10px] font-black py-1 px-2 rounded-lg bg-white/10 backdrop-blur-md border border-white/20",
-                isLight ? "text-slate-900" : "text-white"
-              )}>
-                {day.count}
+              <div className="absolute -inset-2 bg-[#EB4898]/20 blur-xl opacity-0 group-hover/bar:opacity-100 transition-opacity duration-500" />
+              <div className="w-full h-full rounded-2xl bg-gradient-to-t from-[#EB4898]/10 via-[#EB4898]/50 to-[#EB4898] border-t border-white/20 shadow-[0_-5px_15px_rgba(235,72,152,0.3)]" />
+              <div className="absolute -top-10 left-1/2 -translate-x-1/2 opacity-0 group-hover/bar:opacity-100 transition-all duration-300 text-[10px] font-black py-1.5 px-3 rounded-xl bg-black/80 backdrop-blur-xl border border-white/20 text-white shadow-2xl whitespace-nowrap">
+                {day.count} Syncs
               </div>
             </motion.div>
           ))}
         </div>
-        <div className="flex justify-between px-2 text-[8px] font-black uppercase tracking-[0.2em] opacity-30">
+        <div className="flex justify-between px-2 text-[9px] font-black uppercase tracking-[0.4em] text-white/20 italic">
           <span>Mon</span>
           <span>Tue</span>
           <span>Wed</span>
@@ -159,67 +146,77 @@ export function ClientInsightsDashboard() {
       </motion.div>
 
       {/* Gamification Matrix */}
-      <div className={cn(
-        "rounded-[3rem] border p-7 space-y-6 relative z-10 overflow-hidden",
-        isLight ? "bg-white/80 border-black/5 shadow-xl" : "bg-gradient-to-br from-indigo-500/5 via-transparent to-purple-500/5 border-white/[0.08]"
-      )}>
+      <motion.div 
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.6, duration: 0.7 }}
+        className="rounded-[40px] border p-8 space-y-8 relative z-10 overflow-hidden bg-gradient-to-br from-[#FF4D00]/5 via-transparent to-[#EB4898]/5 border-white/5 backdrop-blur-3xl"
+      >
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
-              <Star className="w-5 h-5 text-amber-400" />
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 rounded-[22px] bg-[#FF4D00]/10 border border-[#FF4D00]/20 flex items-center justify-center shadow-2xl">
+              <Star className="w-7 h-7 text-[#FF4D00] fill-[#FF4D00]/20" />
             </div>
-            <div className="space-y-0.5">
-              <span className={cn("text-[10px] font-black uppercase tracking-widest", isLight ? "text-slate-500" : "text-white/40")}>Rewards Progress</span>
-              <p className="text-sm font-black text-white uppercase italic">Elite Status Pending</p>
+            <div className="space-y-1">
+              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[#FF4D00] italic">Elite Status</span>
+              <p className="text-lg font-black text-white uppercase italic tracking-tighter leading-none">Apex Authority</p>
             </div>
           </div>
           <div className="text-right">
-            <p className="text-[10px] font-black text-[#EB4898] uppercase tracking-widest">Nexus Verified</p>
-            <div className="flex gap-0.5 justify-end mt-1">
-              {[1, 2, 3].map(i => (
+            <p className="text-[10px] font-black text-[#EB4898] uppercase tracking-[0.4em] italic animate-pulse">Nexus Confirmed</p>
+            <div className="flex gap-1 justify-end mt-2">
+              {[1, 2, 3, 4].map(i => (
                 <motion.div 
                   key={i}
-                  animate={{ opacity: [0.2, 1, 0.2] }}
-                  transition={{ repeat: Infinity, duration: 1.5, delay: i * 0.2 }}
-                  className="w-1 h-1 rounded-full bg-[#EB4898]" 
+                  animate={{ opacity: [0.3, 1, 0.3], scale: [1, 1.2, 1] }}
+                  transition={{ repeat: Infinity, duration: 2, delay: i * 0.3 }}
+                  className="w-1.5 h-1.5 rounded-full bg-[#EB4898] shadow-[0_0_8px_rgba(235,72,152,0.8)]" 
                 />
               ))}
             </div>
           </div>
         </div>
         
-        <div className="space-y-5">
-          <div className="space-y-2">
+        <div className="space-y-6">
+          <div className="space-y-3">
             <div className="flex items-center justify-between px-1">
-              <span className={cn("text-[10px] font-black uppercase tracking-widest", isLight ? "text-slate-400" : "text-white/50")}>Discovery Score</span>
-              <span className={cn("text-xs font-black", isLight ? "text-slate-900" : "text-white")}>84.5%</span>
+              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40 italic">Sync Frequency</span>
+              <div className="flex items-center gap-2">
+                 <Sparkles className="w-3 h-3 text-[#FF4D00]" />
+                 <span className="text-xs font-black text-white tabular-nums tracking-widest">84.5%</span>
+              </div>
             </div>
-            <div className={cn("h-2 w-full rounded-full overflow-hidden", isLight ? "bg-black/5" : "bg-white/5")}>
+            <div className="h-2.5 w-full bg-white/5 rounded-full overflow-hidden border border-white/[0.03] p-[2px]">
               <motion.div 
                 initial={{ width: 0 }}
                 animate={{ width: '84.5%' }}
-                transition={{ duration: 1.8, ease: 'easeOut' }}
-                className="h-full bg-gradient-to-r from-amber-500 to-orange-500 shadow-[0_0_15px_rgba(245,158,11,0.4)]" 
+                transition={{ duration: 2, ease: [0.16, 1, 0.3, 1] }}
+                className="h-full rounded-full bg-gradient-to-r from-[#FF4D00] to-[#EB4898] shadow-[0_0_20px_rgba(255,77,0,0.5)]" 
               />
             </div>
           </div>
           
-          <div className="space-y-2">
+          <div className="space-y-3">
             <div className="flex items-center justify-between px-1">
-              <span className={cn("text-[10px] font-black uppercase tracking-widest", isLight ? "text-slate-400" : "text-white/50")}>Match Affinity</span>
-              <span className={cn("text-xs font-black", isLight ? "text-slate-900" : "text-white")}>{data?.match_rate}%</span>
+              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40 italic">Match Affinity</span>
+              <div className="flex items-center gap-2">
+                 <Heart className="w-3 h-3 text-[#EB4898]" />
+                 <span className="text-xs font-black text-white tabular-nums tracking-widest">{data?.match_rate}%</span>
+              </div>
             </div>
-            <div className={cn("h-2 w-full rounded-full overflow-hidden", isLight ? "bg-black/5" : "bg-white/5")}>
+            <div className="h-2.5 w-full bg-white/5 rounded-full overflow-hidden border border-white/[0.03] p-[2px]">
               <motion.div 
                 initial={{ width: 0 }}
                 animate={{ width: `${data?.match_rate}%` }}
-                transition={{ duration: 1.8, ease: 'easeOut', delay: 0.2 }}
-                className="h-full bg-gradient-to-r from-[#EB4898] to-purple-500 shadow-[0_0_15px_rgba(235,72,152,0.4)]" 
+                transition={{ duration: 2, ease: [0.16, 1, 0.3, 1], delay: 0.3 }}
+                className="h-full rounded-full bg-gradient-to-r from-[#EB4898] to-[#FF4D00] shadow-[0_0_20px_rgba(235,72,152,0.5)]" 
               />
             </div>
           </div>
         </div>
-      </div>
+      </motion.div>
+
+      <p className="text-center text-[10px] font-black uppercase tracking-[0.6em] text-white/10 italic pt-10">Nexus Intelligence Engine v4.0</p>
     </div>
   );
 }

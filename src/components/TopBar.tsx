@@ -58,19 +58,22 @@ function TopBarComponent({
 
   const glassPillStyle: React.CSSProperties = {
     background: isLight
-      ? 'rgba(255, 255, 255, 0.92)'
-      : 'rgba(10, 15, 35, 0.45)',
-    backdropFilter: 'blur(24px) saturate(180%)',
-    WebkitBackdropFilter: 'blur(24px) saturate(180%)',
-    borderRadius: '1.25rem',
-    border: isLight ? '1px solid rgba(0,0,0,0.10)' : '1px solid rgba(255,255,255,0.06)',
-    boxShadow: isLight ? '0 2px 8px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04)' : '0 4px 16px rgba(0,0,0,0.2)',
+      ? 'rgba(255, 255, 255, 0.94)'
+      : 'rgba(255, 255, 255, 0.03)',
+    backdropFilter: 'blur(20px) saturate(160%)',
+    WebkitBackdropFilter: 'blur(20px) saturate(160%)',
+    borderRadius: '1rem',
+    border: isLight ? '1px solid rgba(0,0,0,0.04)' : '1px solid rgba(255,255,255,0.03)',
+    boxShadow: isLight 
+      ? '0 1px 4px rgba(0,0,0,0.02)' 
+      : '0 4px 20px rgba(0,0,0,0.15)',
     pointerEvents: 'auto',
     color: isLight ? '#000000' : 'var(--hud-text)',
-    height: '32px',
+    height: '30px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
+    transition: 'all 0.3s cubic-bezier(0.22, 1, 0.36, 1)',
   };
 
   const { data: profile } = useQuery({
@@ -103,16 +106,16 @@ function TopBarComponent({
     >
       <div className="h-full w-full px-4 flex items-center justify-between relative">
         
-        <div className="flex items-center gap-2 pointer-events-auto">
+        <div className="flex items-center gap-2.5 pointer-events-auto">
           {onBack ? (
             <motion.button
               transition={TAP_SPRING}
-              whileTap={{ scale: 0.95 }}
+              whileTap={{ scale: 0.94, y: 1 }}
               onClick={() => { haptics.tap(); onBack(); }}
-              className="px-2.5 flex shrink-0 items-center justify-center rounded-[1rem]"
+              className="px-2.5 flex shrink-0 items-center justify-center rounded-[0.85rem]"
               style={glassPillStyle}
             >
-              <ChevronLeft className="w-4 h-4" style={{ color: isLight ? '#000000' : 'var(--hud-text)' }} />
+              <ChevronLeft className="w-3.5 h-3.5" style={{ color: isLight ? '#000000' : 'var(--hud-text)' }} />
             </motion.button>
           ) : (
             user && (
@@ -124,13 +127,12 @@ function TopBarComponent({
                     haptics.tap();
                     navigate(isOwner ? '/owner/profile' : '/client/profile');
                   }}
-                  className="flex shrink-0 items-center gap-2 px-2.5 rounded-[1rem]"
+                  className="flex shrink-0 items-center gap-1.5 px-1.5 rounded-[0.85rem] group"
                   style={glassPillStyle}
                 >
-                  <div className="w-6 h-6 rounded-[0.5rem] overflow-hidden shrink-0 flex items-center justify-center relative"
+                  <div className="w-5.5 h-5.5 rounded-[0.5rem] overflow-hidden shrink-0 flex items-center justify-center relative shadow-sm"
                     style={{
-                      background: profile?.avatar_url ? 'transparent' : (isLight ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.06)'),
-                      border: 'none',
+                      background: profile?.avatar_url ? 'transparent' : 'linear-gradient(135deg, #FF4D00, #EB4898)',
                     }}
                   >
                     {profile?.avatar_url ? (
@@ -150,11 +152,14 @@ function TopBarComponent({
                       className="absolute inset-0 flex items-center justify-center"
                       style={{ display: profile?.avatar_url ? 'none' : 'flex' }}
                     >
-                      <UserCircle className="w-4 h-4" style={{ color: 'var(--hud-text)', opacity: 0.35 }} strokeWidth={1.5} />
+                      <UserCircle className="w-3.5 h-3.5 text-white drop-shadow-sm" strokeWidth={2.5} />
                     </div>
                   </div>
                   {profile?.full_name && (
-                    <span className="text-[10px] font-black uppercase tracking-[0.1em] opacity-80" style={{ color: 'var(--hud-text)' }}>
+                    <span 
+                      className="hidden sm:inline-block text-[9px] font-black uppercase tracking-[0.12em] transition-colors pr-1"
+                      style={{ color: isLight ? 'rgba(0,0,0,0.7)' : 'rgba(255,255,255,0.8)' }}
+                    >
                       {profile.full_name.split(' ')[0]}
                     </span>
                   )}
@@ -190,21 +195,21 @@ function TopBarComponent({
                 transition={TAP_SPRING}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => { haptics.tap(); setModal('showTokensModal', true); }}
-                className="w-8 flex shrink-0 items-center justify-center rounded-[1rem] relative overflow-hidden"
+                className="w-7.5 flex shrink-0 items-center justify-center rounded-[0.85rem] relative overflow-hidden"
                 style={{
                   ...glassPillStyle,
                   background: isLight
                     ? 'rgba(0, 0, 0, 0.05)'
-                    : 'linear-gradient(135deg, rgba(124, 58, 237, 0.42), rgba(79, 70, 229, 0.38))',
-                  border: isLight ? '1px solid rgba(0,0,0,0.04)' : '1px solid rgba(255,255,255,0.08)',
+                    : 'linear-gradient(135deg, rgba(255, 77, 0, 0.25), rgba(235, 72, 152, 0.15))',
+                  border: isLight ? '1px solid rgba(0,0,0,0.03)' : '1px solid rgba(255,255,255,0.06)',
                 }}
                 aria-label="Tokens"
               >
                 <Ticket
-                  className="w-3.5 h-3.5"
+                  className="w-3 h-3"
                   style={{
-                    color: isLight ? '#000000' : '#8b5cf6',
-                    filter: isLight ? 'none' : 'drop-shadow(0 0 6px rgba(139, 92, 246, 0.6))',
+                    color: isLight ? '#000000' : '#FF4D00',
+                    filter: isLight ? 'none' : 'drop-shadow(0 0 6px rgba(255, 77, 0, 0.4))',
                   }}
                   strokeWidth={2.4}
                 />

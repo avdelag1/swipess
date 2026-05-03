@@ -520,6 +520,13 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
   const isListeningRef = useRef(false);      // stable ref for recognition callbacks
   const autoSendEnabledRef = useRef(true);
   
+  // Use the more robust hook for platform fallbacks (iOS/Mobile)
+  const { 
+    start: startTranscribe, 
+    stop: stopTranscribe, 
+    isRecording: isTranscribingActive 
+  } = useVoiceTranscribe();
+
   useEffect(() => {
     autoSendEnabledRef.current = autoSendEnabled;
   }, [autoSendEnabled]);
@@ -564,8 +571,20 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
     }, 1000);
   }, [sendMessage]);
 
-  const startListening = useCallback(() => {
-    if (!speechSupported) return;
+  const startListening = useCallback(async () => {
+    if (!speechSupported) {
+      // Fallback to Transcribe Hook for non-SpeechRecognition browsers
+      const success = await startTranscribe();
+      if (success) {
+        setIsListening(true);
+        triggerHaptic('medium');
+        uiSounds.playMicOn();
+      } else {
+        toast.error('Microphone Access Denied', { description: 'Please check your browser permissions.' });
+      }
+      return;
+    }
+
     const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     const recognition = new SR();
     recognition.continuous = true;
@@ -578,6 +597,16 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
       uiSounds.playMicOn();
     };
 
+    recognition.onerror = (event: any) => {
+      console.error('[SpeechRecognition] error:', event.error);
+      if (event.error === 'not-allowed') {
+        toast.error('Microphone Access Blocked', { description: 'Enable microphone access in your settings.' });
+      } else {
+        // Silently restart or handle
+        stopListening();
+      }
+    };
+
     recognition.onresult = (e: any) => {
       let interim = '';
       let finalText = '';
@@ -585,41 +614,52 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
         if (e.results[i].isFinal) finalText += e.results[i][0].transcript;
         else interim += e.results[i][0].transcript;
       }
-      // Show interim text; overwrite with final when available
+      
       if (finalText) {
-        setInput(finalText);
-        // Final speech = silence is coming → arm countdown if enabled
+        setInput(prev => (prev.trim() + ' ' + finalText).trim());
         if (autoSendEnabledRef.current) armSilenceCountdown();
-      } else {
-        setInput(interim);
-        // New interim speech = user is still talking → cancel any countdown
+      } else if (interim) {
+        // We show the current interim, but we don't overwrite the whole buffer to preserve manual edits
         cancelCountdown();
       }
     };
 
-    // soundend fires when mic stops picking up any audio at all
     recognition.onsoundend = () => { 
       if (autoSendEnabledRef.current) armSilenceCountdown(); 
     };
 
-    // Restart recognition if it stops by itself (browser idle timeout)
     recognition.onend = () => {
       if (isListeningRef.current) {
-        try { recognition.start(); } catch { /* already restarting */ }
+        try { recognition.start(); } catch { /* ignore */ }
       }
     };
 
     recognitionRef.current = recognition;
     recognition.start();
-  }, [speechSupported, armSilenceCountdown, cancelCountdown]);
+  }, [speechSupported, startTranscribe, armSilenceCountdown, cancelCountdown]);
 
-  const stopListening = useCallback(() => {
+  const stopListening = useCallback(async () => {
     isListeningRef.current = false;
     setIsListening(false);
-    recognitionRef.current?.stop();
+    
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
+      recognitionRef.current = null;
+    } else {
+      // If we were using the hook fallback
+      const text = await stopTranscribe();
+      if (text) {
+        setInput(prev => (prev.trim() + ' ' + text).trim());
+        if (autoSendEnabledRef.current) {
+          sendMessage(text);
+          setInput('');
+        }
+      }
+    }
+    
     cancelCountdown();
     uiSounds.playMicOff();
-  }, [cancelCountdown]);
+  }, [stopTranscribe, cancelCountdown, sendMessage]);
 
   const handleSend = () => {
     if (!input.trim() || isLoading) return;
@@ -667,8 +707,8 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.95, opacity: 0, y: 40 }}
             className={cn(
-               "relative w-full max-w-4xl h-[100dvh] sm:h-[85vh] flex flex-col sm:rounded-[3rem] overflow-hidden border shadow-[0_40px_120px_rgba(0,0,0,0.8)]",
-               isLight && !isSwipess ? "bg-white border-black/10" : "bg-[#050505] border-white/10"
+               "relative w-full max-w-4xl h-[100dvh] sm:h-[88vh] flex flex-col sm:rounded-[3.5rem] overflow-hidden border shadow-[0_40px_150px_rgba(0,0,0,0.9)] transition-colors duration-700",
+               isLight && !isSwipess ? "bg-white border-black/10" : "bg-black border-white/10"
              )}
           >
             {/* Ambient Background Glow */}
@@ -701,44 +741,50 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
               }} isSwipess={isSwipess} />
             ) : (
               <div className="flex-1 flex flex-col relative z-10 overflow-hidden">
-                {/* Header */}
-                <header className={cn("h-20 shrink-0 flex items-center justify-between px-6 border-b", isLight && !isSwipess ? "border-slate-200 bg-white" : "border-white/5 bg-[#0A0A0A]")}>
+                {/* Header: Slender, Flagship Nexus Style */}
+                <header className={cn(
+                  "h-16 shrink-0 flex items-center justify-between px-6 border-b transition-all duration-500 relative z-30", 
+                  isLight && !isSwipess ? "border-slate-200 bg-white/80 backdrop-blur-md" : "border-white/5 bg-black/60 backdrop-blur-3xl"
+                )}>
                   <div className="flex items-center gap-4">
                     <button 
                       onClick={() => { triggerHaptic('light'); setSidebarOpen(true); }}
-                      className={cn("w-12 h-12 flex items-center justify-center rounded-2xl transition-all border", isLight && !isSwipess ? "bg-slate-100 border-slate-200 hover:bg-slate-200" : "bg-white/5 border-white/5 hover:bg-white/10")}
+                      className={cn(
+                        "w-10 h-10 flex items-center justify-center rounded-xl transition-all border group", 
+                        isLight && !isSwipess ? "bg-slate-100 border-slate-200 hover:bg-slate-200" : "bg-white/5 border-white/10 hover:bg-white/20"
+                      )}
                     >
-                      <Menu className={cn("w-5 h-5", isLight && !isSwipess ? "text-slate-600" : "text-white/60")} />
+                      <Menu className={cn("w-4 h-4 transition-transform group-hover:scale-110", isLight && !isSwipess ? "text-slate-600" : "text-white/60")} />
                     </button>
                     <div className="flex flex-col relative">
-                       <span className={cn("text-[13px] font-black uppercase tracking-[0.4em] italic", isSwipess ? "text-[#FF3D00] brand-glow" : isLight ? "text-primary" : "text-[#FF3D00]")}>INTEL INTERFACE</span>
+                       <span className={cn("text-[11px] font-black uppercase tracking-[0.5em] italic", isSwipess ? "text-[#FF3D00] brand-glow" : isLight ? "text-primary" : "text-[#FF3D00]")}>INTEL CORE</span>
                        <div className="flex items-center gap-1.5">
                           <div className={cn("w-1 h-1 rounded-full animate-pulse", isSwipess ? "bg-[#FF3D00]" : "bg-primary")} />
-                          <span className={cn("text-[9px] font-bold tracking-widest uppercase", isLight && !isSwipess ? "text-slate-400" : "text-white/60")}>System: Operational</span>
+                          <span className={cn("text-[8px] font-black tracking-widest uppercase opacity-40", isLight && !isSwipess ? "text-slate-900" : "text-white")}>System: Operational</span>
                        </div>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2">
                     <Popover open={characterPanelOpen} onOpenChange={setCharacterPanelOpen}>
                       <PopoverTrigger asChild>
-                        <button className={cn("flex items-center gap-3 px-4 py-2 rounded-2xl border transition-all", isLight && !isSwipess ? "bg-slate-100 border-slate-200 hover:bg-slate-200" : "bg-white/5 border-white/5 hover:bg-white/10")}>
+                        <button className={cn(
+                          "flex items-center gap-2.5 px-3 py-1.5 rounded-2xl border transition-all hover:scale-[1.02] active:scale-95", 
+                          isLight && !isSwipess ? "bg-slate-50 border-slate-200" : "bg-white/5 border-white/10"
+                        )}>
                            <div className="text-right hidden sm:block">
-                              <p className={cn("text-[10px] font-black uppercase tracking-widest", isLight && !isSwipess ? "text-slate-800" : "text-white")}>{currentChar.label}</p>
-                              <p className="text-[8px] font-bold text-primary uppercase tracking-tighter">{currentChar.subtitle}</p>
+                              <p className={cn("text-[9px] font-black uppercase tracking-widest", isLight && !isSwipess ? "text-slate-800" : "text-white")}>{currentChar.label}</p>
+                              <p className="text-[7px] font-black text-[#FF3D00] uppercase tracking-tighter opacity-80">{currentChar.subtitle}</p>
                            </div>
                            <div className="relative p-[1px] rounded-full overflow-hidden">
-                             <div className="absolute inset-0 bg-gradient-to-tr from-primary via-white to-primary animate-spin" />
+                             <div className="absolute inset-0 bg-gradient-to-tr from-[#FF3D00] via-white to-[#FF3D00] animate-spin" />
                              <div className="relative bg-black rounded-full p-0.5">
                               <ArcGauge level={egoLevel} color={arcColor} isLoading={isLoading} icon={currentChar.icon} />
                              </div>
-                              <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-black rounded-full border border-white/10 flex items-center justify-center">
-                                 <ChevronDown className="w-2.5 h-2.5 text-white/70" />
-                              </div>
                            </div>
                         </button>
                       </PopoverTrigger>
-                      <PopoverContent className="w-64 p-2 rounded-[2.5rem] bg-black border-white/10 shadow-3xl z-[10001]" align="end">
+                      <PopoverContent className="w-64 p-2 rounded-[2.5rem] bg-black/95 backdrop-blur-2xl border-white/10 shadow-3xl z-[10001]" align="end">
                          <div className="p-4 border-b border-white/5 mb-2">
                             <span className="text-[9px] font-black uppercase tracking-[0.4em] text-white/60 italic">SELECT ARCHETYPE</span>
                          </div>
@@ -749,7 +795,7 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                                 onClick={() => { setActiveCharacter(char.key); setCharacterPanelOpen(false); triggerHaptic('medium'); }}
                                 className={cn(
                                   "w-full flex items-center gap-4 p-3 rounded-2xl transition-all",
-                                  activeCharacter === char.key ? "bg-primary/10 border border-primary/20" : "hover:bg-white/5 border border-transparent"
+                                  activeCharacter === char.key ? "bg-[#FF3D00]/10 border border-[#FF3D00]/20" : "hover:bg-white/5 border border-transparent"
                                 )}
                               >
                                 <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center", char.bgColor)}>
@@ -759,7 +805,7 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                                    <p className="text-[11px] font-black uppercase tracking-wider text-white">{char.label}</p>
                                    <p className="text-[9px] font-bold opacity-70 uppercase">{char.subtitle}</p>
                                 </div>
-                                {activeCharacter === char.key && <Check className="ml-auto w-4 h-4 text-primary" />}
+                                {activeCharacter === char.key && <Check className="ml-auto w-4 h-4 text-[#FF3D00]" />}
                               </button>
                             ))}
                          </div>
@@ -768,14 +814,17 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
 
                     <button 
                       onClick={onClose}
-                      className={cn("w-12 h-12 flex items-center justify-center rounded-2xl transition-all border", isLight && !isSwipess ? "bg-slate-100 border-slate-200 hover:bg-slate-200" : "bg-white/5 border-white/5 hover:bg-white/10")}
+                      className={cn(
+                        "w-10 h-10 flex items-center justify-center rounded-xl transition-all border group", 
+                        isLight && !isSwipess ? "bg-slate-100 border-slate-200 hover:bg-slate-200" : "bg-white/5 border-white/10 hover:bg-white/20"
+                      )}
                     >
-                      <X className={cn("w-5 h-5", isLight && !isSwipess ? "text-slate-600" : "text-white/60")} />
+                      <X className={cn("w-4 h-4 transition-transform group-hover:rotate-90", isLight && !isSwipess ? "text-slate-600" : "text-white/60")} />
                     </button>
                   </div>
                 </header>
 
-                <div className={cn("flex-1 overflow-hidden relative flex flex-col", isLight && !isSwipess ? "bg-white" : "bg-[#050505]")}>
+                <div className={cn("flex-1 overflow-hidden relative flex flex-col transition-colors duration-500", isLight && !isSwipess ? "bg-white" : "bg-black")}>
                    <div 
                      ref={scrollRef}
                      className="flex-1 overflow-y-auto Swipess-scroll p-6 space-y-4 relative"
@@ -851,33 +900,33 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                         ))
                       )}
                     </div>
-                        <div className={cn("p-6 pb-[calc(env(safe-area-inset-bottom,0px)+24px)] border-t relative z-20", isLight && !isSwipess ? "bg-white border-slate-200" : "bg-[#0A0A0A] border-white/5")}>
+                        <div className={cn("p-6 pb-[calc(env(safe-area-inset-bottom,0px)+24px)] border-t relative z-20", isLight && !isSwipess ? "bg-white border-slate-200" : "bg-black border-white/5")}>
                            <div className="relative group">
                               <div className={cn(
-                               "flex items-end gap-2 p-2 rounded-[2.5rem] border transition-all duration-500 relative overflow-hidden shadow-2xl",
+                               "flex items-end gap-2 p-3 rounded-[2.8rem] border transition-all duration-500 relative overflow-hidden shadow-2xl",
                                isLight && !isSwipess 
-                                 ? "bg-slate-100 border-black/10 focus-within:border-black/30 focus-within:bg-white" 
-                                 : "bg-white/[0.03] backdrop-blur-2xl border-white/10 focus-within:border-white/30 focus-within:bg-black"
+                                 ? "bg-slate-100 border-black/10 focus-within:border-primary/30 focus-within:bg-white" 
+                                 : "bg-white/[0.03] backdrop-blur-3xl border-white/10 focus-within:border-[#FF3D00]/40 focus-within:bg-black/80"
                              )}>
                                  {/* LEFT ACTIONS: Tactical Control Hub */}
                                  <div className="flex flex-col gap-2 p-1">
                                     <button 
                                       onClick={isListening ? stopListening : startListening}
                                       className={cn(
-                                        "w-12 h-12 flex items-center justify-center rounded-[20px] transition-all relative overflow-hidden active:scale-90",
+                                        "w-12 h-12 flex items-center justify-center rounded-[22px] transition-all relative overflow-hidden active:scale-90",
                                        isListening 
-                                         ? "bg-[#FF3D00] text-white shadow-[0_0_20px_rgba(255,61,0,0.5)]" 
-                                          : isLight && !isSwipess 
-                                            ? "bg-slate-200 text-black hover:bg-slate-300" 
-                                            : "bg-white/5 text-white/70 hover:text-white border border-white/5"
+                                         ? "bg-[#FF3D00] text-white shadow-[0_0_25px_rgba(255,61,0,0.6)]" 
+                                         : isLight && !isSwipess 
+                                           ? "bg-slate-200 text-slate-700 hover:bg-slate-300 border border-black/5" 
+                                           : "bg-white/10 text-white hover:text-white border border-white/10"
                                       )}
                                     >
                                        <Mic className={cn("w-5 h-5", isListening && "animate-pulse")} />
                                        {isListening && (
                                          <motion.div 
-                                           className="absolute inset-0 bg-white/20"
-                                           animate={{ opacity: [0, 0.3, 0] }}
-                                           transition={{ duration: 1.5, repeat: Infinity }}
+                                           className="absolute inset-0 bg-white/30"
+                                           animate={{ opacity: [0, 0.4, 0] }}
+                                           transition={{ duration: 1, repeat: Infinity }}
                                          />
                                        )}
                                     </button>
@@ -888,10 +937,12 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                                          triggerHaptic('light');
                                        }}
                                        className={cn(
-                                         "w-12 h-12 flex flex-col items-center justify-center rounded-[20px] transition-all relative overflow-hidden active:scale-90",
+                                         "w-12 h-12 flex flex-col items-center justify-center rounded-[22px] transition-all relative overflow-hidden active:scale-90 border",
                                          autoSendEnabled 
-                                           ? "bg-[#FF3D00]/10 text-[#FF3D00] border border-[#FF3D00]/30" 
-                                           : "bg-white/5 text-white/20 border border-white/10"
+                                           ? "bg-[#FF3D00] text-white border-[#FF3D00]/40 shadow-[0_0_15px_rgba(255,61,0,0.3)]" 
+                                           : isLight && !isSwipess
+                                             ? "bg-white text-slate-400 border-slate-200"
+                                             : "bg-white/5 text-white/40 border-white/10 hover:text-white/70"
                                        )}
                                        title={autoSendEnabled ? "Auto-Send Active" : "Manual Send Only"}
                                      >
@@ -910,16 +961,17 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                                            exit={{ opacity: 0, y: 10, scale: 0.9 }}
                                            className="flex items-center gap-1.5 mb-2 ml-2"
                                          >
-                                           <div className="relative h-8 px-3 rounded-xl flex items-center gap-2 text-[9px] font-black overflow-hidden"
-                                             style={{ background: 'linear-gradient(135deg,#ff3d00,#ff7c40)', boxShadow: '0 0 18px rgba(255,61,0,0.3)' }}>
-                                             <Timer className="w-3 h-3 text-white" />
-                                             <span className="text-white tabular-nums">AUTO-SENDING IN {countdown}S</span>
+                                           <div className="relative h-9 px-4 rounded-2xl flex items-center gap-2 text-[10px] font-black overflow-hidden"
+                                             style={{ background: 'linear-gradient(135deg,#ff3d00,#ff7c40)', boxShadow: '0 10px 25px rgba(255,61,0,0.4)' }}>
+                                             <Timer className="w-3.5 h-3.5 text-white animate-pulse" />
+                                             <span className="text-white tabular-nums tracking-widest uppercase">AUTO-SENDING IN {countdown}S</span>
+                                             <div className="absolute inset-0 bg-white/10 animate-pulse" />
                                            </div>
                                            <button
                                              onClick={cancelCountdown}
-                                             className="w-8 h-8 rounded-xl flex items-center justify-center bg-white/10 hover:bg-white/20 transition-all border border-white/5"
+                                             className="w-9 h-9 rounded-2xl flex items-center justify-center bg-white/10 hover:bg-white/20 transition-all border border-white/20"
                                            >
-                                             <X className="w-3.5 h-3.5 text-white/70" />
+                                             <X className="w-4 h-4 text-white" />
                                            </button>
                                          </motion.div>
                                        )}
@@ -932,8 +984,8 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                                       onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
                                       placeholder={isListening ? "Listening for directive..." : "Transmitting Directive..."}
                                       className={cn(
-                                        "w-full bg-transparent border-none focus:ring-0 focus:outline-none text-sm py-2 px-4 resize-none max-h-48 min-h-[50px] font-medium outline-none transition-all",
-                                        isLight && !isSwipess ? "text-slate-900 placeholder:text-slate-400" : "text-white placeholder:text-white/20"
+                                        "w-full bg-transparent border-none focus:ring-0 focus:outline-none text-[15px] py-2 px-4 resize-none max-h-48 min-h-[50px] font-medium outline-none transition-all",
+                                        isLight && !isSwipess ? "text-slate-900 placeholder:text-slate-400" : "text-white placeholder:text-white/30"
                                       )}
                                       rows={1}
                                     />
@@ -945,13 +997,15 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                                       onClick={handleSend}
                                       disabled={!input.trim() || isLoading}
                                       className={cn(
-                                        "w-14 h-14 flex items-center justify-center rounded-[24px] shadow-2xl transition-all active:scale-95 group",
+                                        "w-14 h-14 flex items-center justify-center rounded-[26px] shadow-2xl transition-all active:scale-95 group border",
                                         (input.trim() && !isLoading) 
-                                          ? "bg-[#FF3D00] text-white shadow-[0_15px_30px_rgba(255,61,0,0.4)]" 
-                                          : "bg-white/5 text-white/10 border border-white/5"
+                                          ? "bg-[#FF3D00] text-white border-[#FF3D00]/50 shadow-[0_15px_35px_rgba(255,61,0,0.5)]" 
+                                          : isLight && !isSwipess
+                                            ? "bg-slate-100 text-slate-300 border-slate-200"
+                                            : "bg-white/5 text-white/10 border-white/5"
                                       )}
                                     >
-                                       <Send className={cn("w-6 h-6 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1", input.trim() && "drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]")} />
+                                       <Send className={cn("w-6 h-6 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1", input.trim() && "drop-shadow-[0_0_12px_rgba(255,255,255,0.6)]")} />
                                     </button>
                                  </div>
                               </div>

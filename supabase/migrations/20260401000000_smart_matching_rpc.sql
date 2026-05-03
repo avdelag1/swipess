@@ -42,6 +42,7 @@ $$;
 
 -- 2. SMART CLIENT MATCHING (For Owners)
 -- Efficiently selects user profiles that the owner hasn't swiped/liked yet.
+-- 🚀 HARDENED: Only returns users with 'client' role, excluding businesses and admins.
 CREATE OR REPLACE FUNCTION get_smart_clients(
   p_user_id UUID,
   p_limit INTEGER DEFAULT 20,
@@ -56,6 +57,7 @@ BEGIN
   SELECT p.*
   FROM public.profiles p
   WHERE p.id != p_user_id
+    AND p.role = 'client' -- Only actual clients
     AND p.id NOT IN (
       SELECT target_id 
       FROM public.likes 

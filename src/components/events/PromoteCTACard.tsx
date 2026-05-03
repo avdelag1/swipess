@@ -18,7 +18,7 @@ export const PromoteCTACard = memo(({ onPromote }: { onPromote: () => void }) =>
     >
       {/* Glow blobs */}
       <div className="absolute top-1/4 left-0 w-64 h-64 rounded-full opacity-20 blur-[80px] pointer-events-none bg-[radial-gradient(circle,#f97316,transparent)]" />
-      <div className="absolute bottom-1/4 right-0 w-64 h-64 rounded-full opacity-20 blur-[80px] pointer-events-none bg-[radial-gradient(circle,#a855f7,transparent)]" />
+      <div className="absolute bottom-1/4 right-0 w-64 h-64 rounded-full opacity-20 blur-[80px] pointer-events-none bg-[radial-gradient(circle,#EB4898,transparent)]" />
 
       <motion.div
         initial={{ opacity: 0, y: 40 }}
@@ -35,7 +35,7 @@ export const PromoteCTACard = memo(({ onPromote }: { onPromote: () => void }) =>
           <div className="text-[11px] font-black uppercase tracking-[0.3em] text-orange-400/80 mb-3">For Businesses</div>
           <h2 className={cn("text-4xl font-black leading-[1] tracking-tighter mb-3", isLight ? "text-black" : "text-white")}>
             Want to<br />
-            <span className="bg-gradient-to-br from-[#f97316] to-[#a855f7] bg-clip-text text-transparent">
+            <span className="bg-gradient-to-br from-[#FF4D00] to-[#EB4898] bg-clip-text text-transparent">
               Promote here?
             </span>
           </h2>
@@ -56,7 +56,7 @@ export const PromoteCTACard = memo(({ onPromote }: { onPromote: () => void }) =>
         <motion.button
           whileTap={{ scale: 0.95 }}
           onClick={() => { triggerHaptic('medium'); onPromote(); }}
-          className="w-full max-w-[280px] py-5 rounded-[2rem] font-black text-white flex items-center justify-center gap-3 bg-gradient-to-br from-[#f97316] to-[#a855f7] shadow-[0_12px_40px_rgba(249,115,22,0.35)] active:scale-95 transition-transform"
+          className="w-full max-w-[280px] py-5 rounded-[2rem] font-black text-white flex items-center justify-center gap-3 bg-gradient-to-br from-[#FF4D00] to-[#EB4898] shadow-[0_12px_40px_rgba(255,77,0,0.35)] active:scale-95 transition-transform"
           data-testid="btn-promote-event"
           title="Promote my event"
         >

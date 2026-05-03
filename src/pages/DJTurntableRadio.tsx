@@ -134,12 +134,12 @@ export default function DJTurntableRadio() {
             className="flex flex-col items-center"
           >
             <span
-              className="font-black italic leading-none select-none"
+              className="font-black italic leading-none select-none transition-all duration-700"
               style={{
-                fontSize: 'clamp(5rem, 22vw, 7rem)',
+                fontSize: 'clamp(4rem, 18vw, 7.5rem)',
                 color: textPrimary,
-                letterSpacing: '-0.04em',
-                textShadow: isDark ? '0 0 60px rgba(255,255,255,0.08)' : 'none',
+                letterSpacing: '-0.05em',
+                textShadow: isDark ? '0 10px 80px rgba(255,61,0,0.15)' : 'none',
               }}
             >
               {state.currentStation?.frequency || '94.2'}
@@ -189,71 +189,82 @@ export default function DJTurntableRadio() {
         style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 32px)' }}
       >
         {/* Controls row */}
-        <div className="flex items-center gap-6">
-          {/* Heart */}
-          <button
-            onClick={() => { if (state.currentStation) { toggleFavorite(state.currentStation.id); triggerHaptic('success'); } }}
-            className="w-12 h-12 rounded-full flex items-center justify-center active:scale-90 transition-transform"
-            style={{ background: btnBg, border: `1px solid ${btnBorder}` }}
-          >
-            <Heart
-              size={18}
-              style={{ color: isFav ? '#FF3B30' : textMuted }}
-              fill={isFav ? '#FF3B30' : 'none'}
-            />
-          </button>
+        <div className="flex flex-col items-center gap-6 sm:gap-8 w-full">
+          {/* Primary Controls: Floating Tactical Hub */}
+          <div className="flex items-center justify-center gap-4 sm:gap-8 relative">
+            {/* Skip back */}
+            <button
+              onClick={() => { changeStation('prev'); triggerHaptic('medium'); }}
+              className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center active:scale-90 transition-all border group"
+              style={{ background: btnBg, borderColor: btnBorder, color: textPrimary }}
+            >
+              <SkipBack size={18} fill="currentColor" className="transition-transform group-hover:-translate-x-0.5" />
+            </button>
 
-          {/* Skip back */}
-          <button
-            onClick={() => { changeStation('prev'); triggerHaptic('medium'); }}
-            className="w-14 h-14 rounded-full flex items-center justify-center active:scale-90 transition-transform"
-            style={{ background: btnBg, border: `1px solid ${btnBorder}`, color: textPrimary }}
-          >
-            <SkipBack size={22} fill="currentColor" />
-          </button>
+            {/* Play / Pause: The Pulse */}
+            <button
+              onClick={() => { togglePlayPause(); triggerHaptic('heavy'); }}
+              className="w-16 h-16 sm:w-20 sm:h-20 rounded-[2rem] flex items-center justify-center active:scale-90 transition-all shadow-2xl relative overflow-hidden group"
+              style={{ background: '#FF3D00' }}
+            >
+              <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+              {state.isPlaying
+                ? <Pause size={24} className="text-white fill-white" />
+                : <Play size={24} className="text-white fill-white translate-x-0.5" />
+              }
+            </motion.button>
 
-          {/* Play / Pause */}
-          <button
-            onClick={() => { togglePlayPause(); triggerHaptic('heavy'); }}
-            className="w-20 h-20 rounded-full flex items-center justify-center active:scale-90 transition-transform shadow-xl"
-            style={{ background: textPrimary }}
-          >
-            {state.isPlaying
-              ? <Pause size={28} style={{ color: bg }} fill={bg} />
-              : <Play size={28} style={{ color: bg, marginLeft: 3 }} fill={bg} />
-            }
-          </button>
+            {/* Skip forward */}
+            <button
+              onClick={() => { changeStation('next'); triggerHaptic('medium'); }}
+              className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center active:scale-90 transition-all border group"
+              style={{ background: btnBg, borderColor: btnBorder, color: textPrimary }}
+            >
+              <SkipForward size={18} fill="currentColor" className="transition-transform group-hover:translate-x-0.5" />
+            </button>
+          </div>
 
-          {/* Skip forward */}
-          <button
-            onClick={() => { changeStation('next'); triggerHaptic('medium'); }}
-            className="w-14 h-14 rounded-full flex items-center justify-center active:scale-90 transition-transform"
-            style={{ background: btnBg, border: `1px solid ${btnBorder}`, color: textPrimary }}
-          >
-            <SkipForward size={22} fill="currentColor" />
-          </button>
+          {/* Secondary Actions Row: Glass Micro-Controls */}
+          <div className="flex items-center justify-center gap-8 sm:gap-14">
+            {/* Heart (Likes) */}
+            <button
+              onClick={() => { if (state.currentStation) { toggleFavorite(state.currentStation.id); triggerHaptic('success'); } }}
+              className="w-10 h-10 rounded-xl flex items-center justify-center active:scale-90 transition-all border group"
+              style={{ background: btnBg, borderColor: isFav ? '#FF3D00' : btnBorder }}
+              title="Like Station"
+            >
+              <Heart
+                size={16}
+                style={{ color: isFav ? '#FF3D00' : textMuted }}
+                fill={isFav ? '#FF3D00' : 'none'}
+                className={cn("transition-all", isFav && "drop-shadow-[0_0_8px_rgba(255,61,0,0.5)]")}
+              />
+            </button>
 
-          <button
-            onClick={() => { triggerHaptic('medium'); shuffleAndPlay(cityStations); }}
-            className="w-12 h-12 rounded-full flex items-center justify-center active:scale-90 transition-transform"
-            style={{ 
-              background: state.isShuffle ? 'rgba(255,61,0,0.2)' : btnBg, 
-              border: `1px solid ${state.isShuffle ? 'rgba(255,61,0,0.4)' : btnBorder}`, 
-              color: state.isShuffle ? '#FF3B30' : textPrimary 
-            }}
-            title="Shuffle City Stations"
-          >
-            <Shuffle size={18} className={state.isShuffle ? "animate-spin-slow" : ""} />
-          </button>
+            {/* Shuffle */}
+            <button
+              onClick={() => { triggerHaptic('medium'); shuffleAndPlay(cityStations); }}
+              className="w-10 h-10 rounded-xl flex items-center justify-center active:scale-90 transition-all border group"
+              style={{ 
+                background: state.isShuffle ? 'rgba(255,61,0,0.1)' : btnBg, 
+                borderColor: state.isShuffle ? '#FF3D00' : btnBorder, 
+                color: state.isShuffle ? '#FF3D00' : textPrimary 
+              }}
+              title="Shuffle City Stations"
+            >
+              <Shuffle size={16} className={cn("transition-transform duration-700", state.isShuffle ? "rotate-180" : "group-hover:rotate-45")} />
+            </button>
 
-          {/* Favorites */}
-          <button
-            onClick={() => { setDrawerMode('favorites'); setShowDrawer(true); triggerHaptic('medium'); }}
-            className="w-12 h-12 rounded-full flex items-center justify-center active:scale-90 transition-transform"
-            style={{ background: btnBg, border: `1px solid ${btnBorder}`, color: textPrimary }}
-          >
-            <Star size={18} fill="currentColor" />
-          </button>
+            {/* Favorites (Star) */}
+            <button
+              onClick={() => { setDrawerMode('favorites'); setShowDrawer(true); triggerHaptic('medium'); }}
+              className="w-10 h-10 rounded-xl flex items-center justify-center active:scale-90 transition-all border"
+              style={{ background: btnBg, borderColor: btnBorder, color: textPrimary }}
+              title="View Favorites"
+            >
+              <Star size={16} fill={isDark ? "white" : "black"} className="opacity-40" />
+            </button>
+          </div>
         </div>
 
         {/* Volume */}

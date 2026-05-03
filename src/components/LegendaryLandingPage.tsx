@@ -6,10 +6,10 @@ import {
 import { triggerHaptic } from '@/utils/haptics';
 import { uiSounds } from '@/utils/uiSounds';
 import {
-  Mail, Lock, User, ArrowLeft, Sparkles, Check, LogIn, X
+  Mail, Lock, User, ArrowLeft, Sparkles, Check, LogIn, X, Eye, EyeOff
 } from 'lucide-react';
 import { SwipessLogo } from './SwipessLogo';
-import LandingBackgroundEffects, { type EffectMode } from './LandingBackgroundEffects';
+import { AtmosphericLayer } from './AtmosphericLayer';
 import { Input } from '@/components/ui/input';
 import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
@@ -122,9 +122,9 @@ const LandingView = memo(({
         </button>
         <button
           onClick={() => { triggerHaptic('medium'); onEnterAuth('signup'); }}
-          className="w-full h-14 rounded-[2rem] bg-white text-black font-black uppercase tracking-[0.25em] text-[12px] shadow-[0_12px_36px_rgba(255,255,255,0.18)] active:scale-[0.97] transition-all flex items-center justify-center gap-3 hover:bg-white/95"
+          className="w-full h-14 rounded-[2rem] bg-gradient-to-r from-[#EB4898] to-[#FF4D00] text-white font-black uppercase tracking-[0.25em] text-[12px] shadow-[0_12px_36px_rgba(235,72,152,0.25)] active:scale-[0.97] transition-all flex items-center justify-center gap-3 hover:opacity-90"
         >
-          <Sparkles className="w-4 h-4 text-[#FF4D00]" />
+          <Sparkles className="w-4 h-4" />
           Create Account
         </button>
         <motion.p
@@ -168,6 +168,7 @@ const GoogleAuthButton = ({ onClick }: { onClick: () => void }) => (
 const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, initialMode?: 'login' | 'signup' }) => {
   const [isLogin, setIsLogin] = useState(initialMode === 'login');
   const [isForgotPassword, setIsForgotPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -176,8 +177,12 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const { signIn, signUp, signInWithOAuth } = useAuth();
 
+  // Animation state for error shaking
+  const [shakeTrigger, setShakeTrigger] = useState(0);
+
   useEffect(() => {
     setFieldErrors({});
+    setShowPassword(false);
   }, [isLogin, isForgotPassword]);
 
   const handleForgotPassword = async (e: React.FormEvent) => {
@@ -187,12 +192,14 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
     try {
       const validated = forgotPasswordSchema.parse({ email });
       const { error } = await supabase.auth.resetPasswordForEmail(validated.email, {
-        redirectTo: 'https://swipess.app/reset-password',
+        redirectTo: `${window.location.origin}/reset-password`,
       });
       if (error) throw error;
       toast({ title: 'Reset Link Sent', description: "Check your inbox for reset instructions." });
       setIsForgotPassword(false);
     } catch (error: any) {
+      setShakeTrigger(prev => prev + 1);
+      triggerHaptic('error');
       if (error.errors) {
         const errs: Record<string, string> = {};
         error.errors.forEach((e: any) => { if (e.path?.[0]) errs[e.path[0]] = e.message; });
@@ -217,7 +224,15 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
         if (!email.trim()) errs.email = 'Email is required';
         else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errs.email = 'Enter a valid email address';
         if (!password.trim()) errs.password = 'Password is required';
-        if (Object.keys(errs).length > 0) { setFieldErrors(errs); setIsLoading(false); triggerHaptic('error'); return; }
+        
+        if (Object.keys(errs).length > 0) { 
+          setFieldErrors(errs); 
+          setIsLoading(false); 
+          triggerHaptic('error');
+          setShakeTrigger(prev => prev + 1);
+          return; 
+        }
+        
         const validated = loginSchema.parse({ email, password });
         await signIn(validated.email, validated.password);
       } else {
@@ -229,11 +244,21 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
         else if (password.length < 6) errs.password = 'Must be at least 6 characters';
         if (!confirmPassword.trim()) errs.confirmPassword = 'Please confirm your password';
         else if (password !== confirmPassword) errs.confirmPassword = 'Passwords do not match';
-        if (Object.keys(errs).length > 0) { setFieldErrors(errs); setIsLoading(false); triggerHaptic('error'); return; }
+        
+        if (Object.keys(errs).length > 0) { 
+          setFieldErrors(errs); 
+          setIsLoading(false); 
+          triggerHaptic('error');
+          setShakeTrigger(prev => prev + 1);
+          return; 
+        }
+        
         const validated = signupSchema.parse({ name, email, password });
         await signUp(validated.email, validated.password, 'client', validated.name);
       }
     } catch (error: any) {
+      setShakeTrigger(prev => prev + 1);
+      triggerHaptic('error');
       if (error.errors) {
         const errs: Record<string, string> = {};
         error.errors.forEach((e: any) => { if (e.path?.[0]) errs[e.path[0]] = e.message; });
@@ -252,23 +277,24 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
   };
 
   const inputCls = (hasError?: boolean) => cn(
-    "pl-11 h-[52px] bg-white/[0.06] border-white/10 text-white placeholder:text-white/40 rounded-2xl focus:border-[#FF4D00]/60 transition-all font-semibold text-sm",
-    hasError && "border-red-500/70 focus:border-red-500"
+    "pl-11 h-[54px] bg-white/[0.03] border-white/5 text-white placeholder:text-white/20 rounded-2xl transition-all font-bold text-sm",
+    "focus:ring-1 focus:ring-[#FF4D00]/30 focus:border-[#FF4D00]/40 focus:bg-white/[0.07] backdrop-blur-md",
+    hasError && "border-red-500/40 focus:border-red-500/60 focus:ring-red-500/20"
   );
 
   return (
     <motion.div
       key="auth"
-      className="absolute inset-0 flex flex-col z-20 overflow-y-auto"
+      className="absolute inset-0 flex flex-col z-20 overflow-y-auto scrollbar-none"
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
-      transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
     >
       {/* Back button */}
       <button
         onClick={() => { uiSounds.playStarShoot(); triggerHaptic('light'); isForgotPassword ? setIsForgotPassword(false) : onBack(); }}
-        className="absolute top-12 left-6 w-11 h-11 rounded-full bg-white/8 flex items-center justify-center text-white/60 active:scale-90 transition-all z-30"
+        className="absolute top-12 left-6 w-11 h-11 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/60 active:scale-90 transition-all z-30 backdrop-blur-xl"
         aria-label="Go back"
       >
         <ArrowLeft className="w-5 h-5" />
@@ -285,10 +311,10 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
           <SwipessLogo size="md" variant="transparent" />
         </motion.div>
 
-        {/* Mode switcher — two clean separate buttons */}
+        {/* Mode switcher */}
         {!isForgotPassword && (
           <motion.div
-            className="flex gap-2 w-full mb-8"
+            className="flex gap-1.5 w-full mb-8 p-1 rounded-[2rem] bg-white/[0.02] border border-white/5 backdrop-blur-2xl"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
@@ -297,10 +323,10 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
               type="button"
               onClick={() => { uiSounds.playStarShoot(); triggerHaptic('light'); setIsLogin(true); setFieldErrors({}); }}
               className={cn(
-                "flex-1 h-12 rounded-[1.6rem] font-black uppercase tracking-[0.2em] text-[11px] transition-all active:scale-[0.97]",
+                "flex-1 h-12 rounded-[1.8rem] font-black uppercase tracking-[0.2em] text-[10px] transition-all active:scale-[0.97]",
                 isLogin
-                  ? "bg-[#FF4D00] text-white shadow-[0_8px_30px_rgba(255,77,0,0.4)]"
-                  : "bg-white/8 text-white/50 hover:text-white/80"
+                  ? "bg-[#FF4D00] text-white shadow-[0_10px_30px_rgba(255,77,0,0.4)]"
+                  : "text-white/30 hover:text-white/50"
               )}
             >
               Sign In
@@ -309,10 +335,10 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
               type="button"
               onClick={() => { uiSounds.playStarShoot(); triggerHaptic('light'); setIsLogin(false); setFieldErrors({}); }}
               className={cn(
-                "flex-1 h-12 rounded-[1.6rem] font-black uppercase tracking-[0.2em] text-[11px] transition-all active:scale-[0.97]",
+                "flex-1 h-12 rounded-[1.8rem] font-black uppercase tracking-[0.2em] text-[10px] transition-all active:scale-[0.97]",
                 !isLogin
-                  ? "bg-white text-black shadow-[0_8px_30px_rgba(255,255,255,0.2)]"
-                  : "bg-white/8 text-white/50 hover:text-white/80"
+                  ? "bg-[#EB4898] text-white shadow-[0_10px_30px_rgba(235,72,152,0.3)]"
+                  : "text-white/30 hover:text-white/50"
               )}
             >
               Sign Up
@@ -322,74 +348,105 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
 
         {isForgotPassword && (
           <motion.div className="w-full mb-6 text-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-            <p className="text-[11px] font-bold tracking-[0.25em] text-white/50 uppercase">Reset Password</p>
+            <p className="text-[10px] font-black tracking-[0.3em] text-white/50 uppercase italic">Security Protocol — Reset</p>
           </motion.div>
         )}
 
-        {/* Form */}
+        {/* Form with shake animation */}
         <motion.form
           onSubmit={handleSubmit}
-          className="space-y-3 w-full"
+          className="space-y-3.5 w-full"
           noValidate
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15 }}
+          animate={shakeTrigger > 0 ? {
+            x: [0, -10, 10, -10, 10, 0],
+            transition: { duration: 0.4 }
+          } : {}}
+          key={`form-shake-${shakeTrigger}`}
         >
           {!isLogin && !isForgotPassword && (
-            <div>
-              <div className="relative">
-                <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
-                <Input value={name} onChange={(e) => { setName(e.target.value); setFieldErrors(p => ({ ...p, name: '' })); }} placeholder="Your Name" autoComplete="name" className={inputCls(!!fieldErrors.name)} />
-              </div>
-              {fieldErrors.name && <p className="text-red-400 text-[10px] font-semibold mt-1 ml-3">{fieldErrors.name}</p>}
+            <div className="relative group">
+              <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 group-focus-within:text-[#FF4D00] transition-colors" />
+              <Input 
+                value={name} 
+                onChange={(e) => { setName(e.target.value); setFieldErrors(p => ({ ...p, name: '' })); }} 
+                placeholder="Your Name" 
+                autoComplete="name" 
+                className={inputCls(!!fieldErrors.name)} 
+              />
+              {fieldErrors.name && <p className="text-red-500/90 text-[10px] font-bold mt-1.5 ml-3 uppercase tracking-wider">{fieldErrors.name}</p>}
             </div>
           )}
 
-          <div>
-            <div className="relative">
-              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
-              <Input type="email" value={email} onChange={(e) => { setEmail(e.target.value); setFieldErrors(p => ({ ...p, email: '' })); }} placeholder="Email" autoComplete="email" className={inputCls(!!fieldErrors.email)} />
-            </div>
-            {fieldErrors.email && <p className="text-red-400 text-[10px] font-semibold mt-1 ml-3">{fieldErrors.email}</p>}
+          <div className="relative group">
+            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 group-focus-within:text-[#FF4D00] transition-colors" />
+            <Input 
+              type="email" 
+              value={email} 
+              onChange={(e) => { setEmail(e.target.value); setFieldErrors(p => ({ ...p, email: '' })); }} 
+              placeholder="Email" 
+              autoComplete="email" 
+              className={inputCls(!!fieldErrors.email)} 
+            />
+            {fieldErrors.email && <p className="text-red-500/90 text-[10px] font-bold mt-1.5 ml-3 uppercase tracking-wider">{fieldErrors.email}</p>}
           </div>
 
           {!isForgotPassword && (
-            <div>
-              <div className="relative">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
-                <Input type="password" value={password} onChange={(e) => { setPassword(e.target.value); setFieldErrors(p => ({ ...p, password: '' })); }} placeholder="Password" autoComplete={isLogin ? "current-password" : "new-password"} className={inputCls(!!fieldErrors.password)} />
-              </div>
-              {fieldErrors.password && <p className="text-red-400 text-[10px] font-semibold mt-1 ml-3">{fieldErrors.password}</p>}
+            <div className="relative group">
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 group-focus-within:text-[#FF4D00] transition-colors" />
+              <Input 
+                type={showPassword ? "text" : "password"} 
+                value={password} 
+                onChange={(e) => { setPassword(e.target.value); setFieldErrors(p => ({ ...p, password: '' })); }} 
+                placeholder="Password" 
+                autoComplete={isLogin ? "current-password" : "new-password"} 
+                className={cn(inputCls(!!fieldErrors.password), "pr-12")} 
+              />
+              <button
+                type="button"
+                onClick={() => { triggerHaptic('light'); setShowPassword(!showPassword); }}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-white/20 hover:text-white/60 transition-colors"
+                title={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+              {fieldErrors.password && <p className="text-red-500/90 text-[10px] font-bold mt-1.5 ml-3 uppercase tracking-wider">{fieldErrors.password}</p>}
             </div>
           )}
 
           {!isLogin && !isForgotPassword && (
-            <div>
-              <div className="relative">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
-                <Input type="password" value={confirmPassword} onChange={(e) => { setConfirmPassword(e.target.value); setFieldErrors(p => ({ ...p, confirmPassword: '' })); }} placeholder="Confirm Password" autoComplete="new-password" className={inputCls(!!fieldErrors.confirmPassword)} />
-              </div>
-              {fieldErrors.confirmPassword && <p className="text-red-400 text-[10px] font-semibold mt-1 ml-3">{fieldErrors.confirmPassword}</p>}
+            <div className="relative group">
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 group-focus-within:text-[#FF4D00] transition-colors" />
+              <Input 
+                type={showPassword ? "text" : "password"} 
+                value={confirmPassword} 
+                onChange={(e) => { setConfirmPassword(e.target.value); setFieldErrors(p => ({ ...p, confirmPassword: '' })); }} 
+                placeholder="Confirm Password" 
+                autoComplete="new-password" 
+                className={inputCls(!!fieldErrors.confirmPassword)} 
+              />
+              {fieldErrors.confirmPassword && <p className="text-red-500/90 text-[10px] font-bold mt-1.5 ml-3 uppercase tracking-wider">{fieldErrors.confirmPassword}</p>}
             </div>
           )}
 
           {isLogin && !isForgotPassword && (
-            <div className="flex justify-end px-1 pt-1">
-              <button type="button" onClick={() => { triggerHaptic('light'); setIsForgotPassword(true); }} className="text-[10px] font-bold uppercase tracking-widest text-white/40 hover:text-[#FF4D00] transition-colors">
-                Forgot Password?
+            <div className="flex justify-end px-1 pt-0.5">
+              <button type="button" onClick={() => { triggerHaptic('light'); setIsForgotPassword(true); }} className="text-[9px] font-black uppercase tracking-[0.2em] text-white/30 hover:text-[#FF4D00] transition-colors italic">
+                Forgot Access Code?
               </button>
             </div>
           )}
 
           {/* Primary CTA */}
-          <div className="pt-2">
+          <div className="pt-6 relative group">
+            <div className="absolute inset-x-4 -bottom-2 h-10 bg-[#FF4D00]/20 blur-[30px] opacity-0 group-hover:opacity-100 transition-opacity rounded-full pointer-events-none" />
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full h-14 rounded-[2rem] bg-[#FF4D00] text-white font-black uppercase tracking-[0.25em] text-[13px] shadow-[0_12px_40px_rgba(255,77,0,0.4)] active:scale-[0.97] transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:pointer-events-none"
+              className="w-full h-15 rounded-[2.5rem] bg-gradient-to-r from-[#FF4D00] to-[#EB4898] text-white font-black uppercase tracking-[0.3em] text-[13px] shadow-[0_20px_50px_rgba(255,77,0,0.4)] active:scale-[0.96] transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:pointer-events-none relative overflow-hidden group/btn"
             >
-              <Sparkles className="w-4 h-4" />
-              {isLoading ? 'Please wait...' : isForgotPassword ? 'Send Reset Link' : isLogin ? 'Sign In' : 'Create Account'}
+              <div className="absolute inset-0 bg-white/10 opacity-0 group-hover/btn:opacity-100 transition-opacity" />
+              <Sparkles className="w-4 h-4 transition-transform group-hover/btn:rotate-12 group-hover/btn:scale-110" />
+              {isLoading ? 'Processing...' : isForgotPassword ? 'Send Reset Link' : isLogin ? 'Authorize Session' : 'Create Identity'}
             </button>
           </div>
         </motion.form>
@@ -397,15 +454,15 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
         {/* Social auth */}
         {!isForgotPassword && (
           <motion.div
-            className="mt-6 space-y-3 w-full"
+            className="mt-8 space-y-3.5 w-full"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2 }}
           >
-            <div className="flex items-center gap-4">
-              <div className="flex-1 h-px bg-white/10" />
-              <span className="text-[9px] font-bold text-white/30 uppercase tracking-[0.25em]">or continue with</span>
-              <div className="flex-1 h-px bg-white/10" />
+            <div className="flex items-center gap-5">
+              <div className="flex-1 h-px bg-white/5" />
+              <span className="text-[8px] font-black text-white/20 uppercase tracking-[0.4em] italic">Nexus Gateway</span>
+              <div className="flex-1 h-px bg-white/5" />
             </div>
             <AppleAuthButton onClick={() => handleSocialLogin('apple')} />
             <GoogleAuthButton onClick={() => handleSocialLogin('google')} />
@@ -426,9 +483,9 @@ function LegendaryLandingPage() {
   return (
     <div className="h-screen h-dvh relative overflow-hidden bg-black text-white">
       {/* 🛸 ATMOSPHERIC BACKGROUND */}
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,rgba(235,72,152,0.08)_0%,transparent_70%)]" />
-        <LandingBackgroundEffects mode="stars" isLightTheme={false} />
+      <div className="fixed inset-0 pointer-events-none bg-black">
+        <AtmosphericLayer variant="nexus" opacity={0.15} />
+        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,rgba(235,72,152,0.1)_0%,transparent_70%)]" />
       </div>
 
       <AnimatePresence mode="wait">

@@ -38,7 +38,7 @@ export function OwnerListingsStats({ listings, isLight = false }: OwnerListingsS
       title: 'Total Views',
       value: totalViews.toLocaleString(),
       icon: Eye,
-      color: '#a855f7',
+      color: '#EB4898',
       description: 'All time',
       trend: totalViews > 100 ? '+' : ''
     },
@@ -64,7 +64,7 @@ export function OwnerListingsStats({ listings, isLight = false }: OwnerListingsS
   const categoryBreakdown = [
     { name: 'Properties', count: propertiesCount, icon: Home, color: '#f43f5e' },
     { name: 'Motorcycles', count: motorcyclesCount, icon: MotorcycleIcon, color: '#f97316' },
-    { name: 'Bicycles', count: bicyclesCount, icon: Bike, color: '#a855f7' },
+    { name: 'Bicycles', count: bicyclesCount, icon: Bike, color: '#EB4898' },
     { name: 'Services', count: workersCount, icon: Activity, color: '#3b82f6' },
     { name: 'Vehicles', count: vehiclesCount, icon: Car, color: '#eab308' },
   ].filter(c => c.count > 0);

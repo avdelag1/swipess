@@ -336,7 +336,7 @@ export function useSmartListingMatching(
 
                     if (!rpcError && rpcListings && Array.isArray(rpcListings) && rpcListings.length > 0) {
                         const results = (rpcListings as any[])
-                            .filter(l => !adminIds?.has(l.user_id))
+                            .filter(l => !adminIds?.has(l.user_id) && ['property', 'motorcycle', 'bicycle', 'worker', 'services'].includes(l.category))
                             .map(l => ({
                                 ...l,
                                 images: Array.isArray(l.images) ? l.images : (l.images ? [l.images] : [])
@@ -374,6 +374,10 @@ export function useSmartListingMatching(
                 if (filters?.category && filters.category !== 'all') {
                     const normalized = normalizeCategoryName(filters.category);
                     if (normalized) query = query.eq('category', normalized);
+                } else {
+                    // CRITICAL: Restrict to only the 4 allowed categories on client side
+                    // This prevents "places" or "businesses" from leaking into the feed
+                    query = query.in('category', ['property', 'motorcycle', 'bicycle', 'worker', 'services']);
                 }
 
                 if (filters?.serviceCategory && filters.serviceCategory.length > 0) {
