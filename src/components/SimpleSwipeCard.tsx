@@ -102,8 +102,6 @@ interface SimpleSwipeCardProps {
   externalY?: MotionValue<number>;
   /** Called when drag gesture starts — lets parent kick off N+2 image preload */
   onDragStart?: () => void;
-  onShare?: () => void;
-  onReport?: () => void;
 }
 
 const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardProps>(({

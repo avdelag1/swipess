@@ -39,13 +39,13 @@ function ModeSwitcherComponent({ className }: ModeSwitcherProps) {
   // control. Only the active half shows colored fill.
   const containerStyle: React.CSSProperties = {
     background: isLight
-      ? 'rgba(255, 255, 255, 0.85)'
+      ? 'rgba(255, 255, 255, 0.92)'
       : 'rgba(10, 15, 35, 0.45)',
     backdropFilter: 'blur(24px) saturate(180%)',
     WebkitBackdropFilter: 'blur(24px) saturate(180%)',
     borderRadius: '1.25rem',
-    border: isLight ? '1px solid rgba(0,0,0,0.04)' : '1px solid rgba(255,255,255,0.06)',
-    boxShadow: isLight ? '0 4px 12px rgba(0,0,0,0.03)' : '0 4px 16px rgba(0,0,0,0.2)',
+    border: isLight ? '1px solid rgba(0,0,0,0.10)' : '1px solid rgba(255,255,255,0.06)',
+    boxShadow: isLight ? '0 2px 8px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04)' : '0 4px 16px rgba(0,0,0,0.2)',
     height: '32px',
   };
 

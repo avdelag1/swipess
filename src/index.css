@@ -471,14 +471,14 @@ button:active, [role="button"]:active {
     --shadow-card: 0 20px 40px rgba(0, 0, 0, 0.15);
     --shadow-glow: 0 0 30px rgba(198, 40, 40, 0.2);
     --overlay: rgba(0, 0, 0, 0.4);
-    --nav-bg: rgba(255, 255, 255, 0.95);
-    --nav-border: rgba(0, 0, 0, 0.04);
+    --nav-bg: rgba(255, 255, 255, 0.96);
+    --nav-border: rgba(0, 0, 0, 0.10);
 
     /* 🧘 HUD TOKEN SYSTEM (WHITE) */
     --hud-bg: rgba(255, 255, 255, 0.96);
     --hud-text: #000000;
-    --hud-border: rgba(0, 0, 0, 0.05);
-    --hud-active-bg: rgba(0, 0, 0, 0.05);
+    --hud-border: rgba(0, 0, 0, 0.10);
+    --hud-active-bg: rgba(0, 0, 0, 0.06);
   }
 
   /* THEME: SWIPESS STYLE (Classic Branding) */

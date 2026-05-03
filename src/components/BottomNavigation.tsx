@@ -261,13 +261,13 @@ export const BottomNavigation = memo(({
           isTablet ? "mx-auto w-fit max-w-full" : "w-full"
         )}
         style={{
-          background: isLight ? 'rgba(255, 255, 255, 0.98)' : 'rgba(10, 15, 30, 0.55)',
+          background: isLight ? 'rgba(255, 255, 255, 0.96)' : 'rgba(10, 15, 30, 0.55)',
           backdropFilter: 'blur(32px) saturate(220%)',
           WebkitBackdropFilter: 'blur(32px) saturate(220%)',
           borderRadius: '3rem',
           padding: '4px',
-          boxShadow: 'none',
-          border: 'none',
+          boxShadow: isLight ? '0 -1px 8px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.06)' : 'none',
+          border: isLight ? '1px solid rgba(0,0,0,0.08)' : 'none',
         }}
 
       >

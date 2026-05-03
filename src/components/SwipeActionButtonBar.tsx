@@ -17,6 +17,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Share2, Undo2, MessageCircle, Heart, X, Info } from 'lucide-react';
 import { triggerHaptic } from '@/utils/haptics';
 import { AnimatedLottieIcon } from './ui/AnimatedLottieIcon';
+import useAppTheme from '@/hooks/useAppTheme';
 
 interface SwipeActionButtonBarProps {
   onLike: () => void;
@@ -133,6 +134,7 @@ const ActionButton = memo(({
   children,
   ariaLabel,
   index = 0,
+  isLight = false,
 }: {
   onClick: () => void;
   disabled?: boolean;
@@ -141,6 +143,7 @@ const ActionButton = memo(({
   children: React.ReactNode;
   ariaLabel: string;
   index?: number;
+  isLight?: boolean;
 }) => {
   const [isPressed, setIsPressed] = useState(false);
 
@@ -174,7 +177,7 @@ const ActionButton = memo(({
       transition={{ ...ENTRY_SPRING, delay: index * 0.05 }}
       whileTap={{ 
         scale: TAP_SCALE,
-        y: 3, // 🚀 PHYSICAL DEPRESS: Simulates button travel distance
+        y: 3,
         transition: { type: 'spring', stiffness: 600, damping: 15 }
       }}
       style={{
@@ -191,30 +194,39 @@ const ActionButton = memo(({
       }}
       className="flex items-center justify-center touch-manipulation select-none"
     >
-      {/* 🚀 ATMOSPHERIC DEPTH: Multi-layered cinematic shadows */}
+      {/* 🚀 ATMOSPHERIC DEPTH: Multi-layered cinematic shadows — theme-aware */}
       <div
         className="absolute inset-0 rounded-full transition-all duration-300 pointer-events-none"
         style={{
           background: isPressed ? 'transparent' : cfg.glow,
           boxShadow: isPressed 
             ? 'none' 
-            : `0 12px 24px -10px ${cfg.iconColor}66, 0 4px 6px -4px ${cfg.iconColor}44`,
+            : isLight
+              ? `0 8px 20px -6px ${cfg.iconColor}55, 0 4px 8px -4px ${cfg.iconColor}33`
+              : `0 12px 24px -10px ${cfg.iconColor}66, 0 4px 6px -4px ${cfg.iconColor}44`,
           filter: 'blur(10px)',
           transform: isPressed ? 'scale(0.9)' : 'scale(1)',
-          opacity: isPressed ? 0 : 0.45,
+          opacity: isPressed ? 0 : (isLight ? 0.55 : 0.45),
         }}
       />
 
-      {/* 🚀 TACTILE MATERIAL: Convex -> Concave Morph */}
+      {/* 🚀 TACTILE MATERIAL: Convex -> Concave — theme-aware surfaces */}
       <div
-        className="absolute inset-0 rounded-full pointer-events-none border border-white/5"
+        className="absolute inset-0 rounded-full pointer-events-none"
         style={{
           background: isPressed 
-            ? `radial-gradient(circle at center, ${cfg.iconColor}33 0%, transparent 100%)` // Concave (Inward)
-            : `linear-gradient(145deg, ${cfg.iconColor}22 0%, ${cfg.iconColor}05 100%)`, // Convex (Outward)
+            ? `radial-gradient(circle at center, ${cfg.iconColor}33 0%, transparent 100%)`
+            : isLight
+              ? `linear-gradient(145deg, ${cfg.iconColor}18 0%, ${cfg.iconColor}08 100%)`
+              : `linear-gradient(145deg, ${cfg.iconColor}22 0%, ${cfg.iconColor}05 100%)`,
           boxShadow: isPressed
-            ? `inset 0 4px 10px rgba(0,0,0,0.5), inset 0 -4px 10px rgba(255,255,255,0.05)` // Depressed
-            : `0 8px 16px rgba(0,0,0,0.3), inset 0 2px 4px rgba(255,255,255,0.1)`, // Raised
+            ? isLight
+              ? `inset 0 4px 10px rgba(0,0,0,0.15), inset 0 -4px 10px rgba(255,255,255,0.3)`
+              : `inset 0 4px 10px rgba(0,0,0,0.5), inset 0 -4px 10px rgba(255,255,255,0.05)`
+            : isLight
+              ? `0 6px 14px rgba(0,0,0,0.12), 0 2px 4px rgba(0,0,0,0.08), inset 0 2px 4px rgba(255,255,255,0.7)`
+              : `0 8px 16px rgba(0,0,0,0.3), inset 0 2px 4px rgba(255,255,255,0.1)`,
+          border: isLight ? `1px solid ${cfg.iconColor}30` : '1px solid rgba(255,255,255,0.05)',
           transform: isPressed ? 'scale(0.96)' : 'scale(1)',
           transition: 'all 0.15s cubic-bezier(0.2, 0, 0, 1)',
         }}
@@ -251,8 +263,25 @@ export const SwipeActionButtonBar = memo(({
   disabled = false,
   className = '',
 }: SwipeActionButtonBarProps) => {
+  const { isLight } = useAppTheme();
+
   return (
-    <div className={`flex items-center gap-4 px-6 py-4 rounded-[32px] bg-black/40 border border-white/5 shadow-2xl pointer-events-auto overflow-visible ${className}`}>
+    <div
+      className={`flex items-center gap-4 px-6 py-4 rounded-[32px] shadow-2xl pointer-events-auto overflow-visible ${className}`}
+      style={{
+        background: isLight
+          ? 'rgba(255, 255, 255, 0.92)'
+          : 'rgba(0, 0, 0, 0.40)',
+        backdropFilter: 'blur(24px) saturate(180%)',
+        WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+        border: isLight
+          ? '1px solid rgba(0, 0, 0, 0.08)'
+          : '1px solid rgba(255, 255, 255, 0.05)',
+        boxShadow: isLight
+          ? '0 8px 32px rgba(0, 0, 0, 0.10), 0 2px 8px rgba(0, 0, 0, 0.06)'
+          : '0 12px 40px rgba(0, 0, 0, 0.40)',
+      }}
+    >
       <AnimatePresence mode="popLayout" initial={false}>
         {/* Undo Button - Always First if available */}
         {onUndo && (
@@ -263,6 +292,7 @@ export const SwipeActionButtonBar = memo(({
             variant="amber"
             ariaLabel="Undo"
             index={0}
+            isLight={isLight}
           >
             <Undo2 className="w-full h-full" strokeWidth={2} />
           </ActionButton>
@@ -276,6 +306,7 @@ export const SwipeActionButtonBar = memo(({
           variant="dislike"
           ariaLabel="Dislike"
           index={1}
+          isLight={isLight}
         >
           <X className="w-full h-full" strokeWidth={3} />
         </ActionButton>
@@ -289,6 +320,7 @@ export const SwipeActionButtonBar = memo(({
             variant="purple"
             ariaLabel="Insights"
             index={2}
+            isLight={isLight}
           >
             <Info className="w-full h-full" strokeWidth={2} />
           </ActionButton>
@@ -302,6 +334,7 @@ export const SwipeActionButtonBar = memo(({
           variant="like"
           ariaLabel="Like"
           index={3}
+          isLight={isLight}
         >
           <Heart className="w-full h-full" fill="currentColor" strokeWidth={0} />
         </ActionButton>
@@ -315,6 +348,7 @@ export const SwipeActionButtonBar = memo(({
             variant="blue"
             ariaLabel="Message"
             index={4}
+            isLight={isLight}
           >
             <MessageCircle className="w-full h-full" strokeWidth={1.5} />
           </ActionButton>
@@ -329,6 +363,7 @@ export const SwipeActionButtonBar = memo(({
             variant="purple"
             ariaLabel="Share"
             index={5}
+            isLight={isLight}
           >
             <Share2 className="w-full h-full" strokeWidth={1.5} />
           </ActionButton>

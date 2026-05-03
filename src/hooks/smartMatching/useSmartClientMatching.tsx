@@ -223,7 +223,8 @@ export function useSmartClientMatching(
                     if (!rpcError && rpcClients && Array.isArray(rpcClients) && rpcClients.length > 0) {
                         let finalClients = (rpcClients as any[])
                             .filter(c => c.user_id !== userId)
-                            .filter(c => !adminIds?.has(c.user_id));
+                            .filter(c => !adminIds?.has(c.user_id))
+                            .filter(c => c.role === 'client');
 
                         if (isRoommateSection) {
                           finalClients = finalClients.filter(c => c.roommate_available || (c as any).roommate_active);

@@ -22,12 +22,13 @@ CREATE TABLE IF NOT EXISTS public.featured_listings (
 );
 
 ALTER TABLE public.featured_listings ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Anyone can view featured listings" ON public.featured_listings;
 CREATE POLICY "Anyone can view featured listings" ON public.featured_listings FOR SELECT USING (true);
-
 -- 3. Porting Tulum Business Database to expert_knowledge
 -- This covers the full list requested by the user.
 INSERT INTO public.expert_knowledge (category, title, content, google_maps_url, phone, website_url, tags, language)
-VALUES
+SELECT v.category, v.title, v.content, v.google_maps_url, v.phone, v.website_url, v.tags::text[], v.language
+FROM (VALUES
 -- RESTAURANTS & BEACH CLUBS
 ('Restaurant / Beach Club', 'Hartwood Tulum', 'Wood-fired Mexican (legendary). Reservations: Email exactly 1 month ahead; walk-ins possible after 3 PM.', 'Carretera Tulum-Boca Paila Km 7.6, Zona Hotelera', '', 'https://www.hartwoodtulum.com', '{"@hartwoodtulum", "reservations"}', 'en'),
 ('Restaurant / Beach Club', 'Arca Tulum', 'Contemporary Mexican / wood-fired fine dining. Book 2–3 weeks ahead via WhatsApp or email.', 'Carretera Tulum-Boca Paila Km 7.6, Zona Hotelera', '+52 984 177 2231', 'https://arcatulum.com', '{"@arcatulum", "fine-dining"}', 'en'),
@@ -52,16 +53,24 @@ VALUES
 -- HOSTELS
 ('Hostel', 'Straw Hat Hostel & Rooftop Bar', 'Backpacker-friendly bar with a social rooftop.', 'Avenida Tulum 89, Tulum Centro', '', '', '{"backpackers"}', 'en'),
 ('Hostel', 'Che Tulum Hostel & Bar', 'Adults Only social hostel in Centro.', 'Tulum Centro', '', '', '{"social"}', 'en')
-ON CONFLICT DO NOTHING;
+) AS v(category, title, content, google_maps_url, phone, website_url, tags, language)
+WHERE NOT EXISTS (
+  SELECT 1 FROM public.expert_knowledge ek WHERE ek.title = v.title
+);
 
 -- 4. Linking Featured Listings to the Slot System
 INSERT INTO public.featured_listings (listing_id, slot)
-VALUES
+SELECT v.listing_id::uuid, v.slot
+FROM (VALUES
   ('f1e1b1a1-1111-4444-a1a1-111111111111', 'top'),
   ('f2e2b2a2-2222-4444-b2b2-222222222222', 'top'),
   ('f3e3b3a3-3333-4444-c3c3-333333333333', 'top'),
   ('f4e4b4a4-4444-4444-d4d4-444444444444', 'top')
-ON CONFLICT (listing_id, slot) DO NOTHING;
+) AS v(listing_id, slot)
+WHERE NOT EXISTS (
+  SELECT 1 FROM public.featured_listings fl 
+  WHERE fl.listing_id = v.listing_id::uuid AND fl.slot = v.slot
+);
 
 -- 5. Cleanup redundant tables
 -- Since we have consolidated into expert_knowledge, concierge_knowledge is no longer needed.
