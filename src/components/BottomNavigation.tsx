@@ -189,7 +189,6 @@ export const BottomNavigation = memo(({
       isDraggingRef.current = false;
 
       haptics.tap();
-      uiSounds.playTap();
 
       if (item.path === location.pathname) {
         haptics.tap();
@@ -416,8 +415,8 @@ export const BottomNavigation = memo(({
                   <div className="flex items-center justify-center w-full min-h-[12px] px-0.5">
                     <span
                       className={cn(
-                        'tracking-wide relative font-black uppercase truncate',
-                        isTablet ? 'text-[11px] max-w-[56px]' : 'text-[8px] max-w-[40px]',
+                        'tracking-wide relative font-black uppercase whitespace-nowrap',
+                        isTablet ? 'text-[11px]' : 'text-[8px]',
                       )}
                       style={{
                         color: active

@@ -615,8 +615,9 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
         drag
         dragControls={dragControls}
         dragListener={false}
+        dragMomentum={false}
         dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
-        dragElastic={0.9}
+        dragElastic={0.55}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
         dragDirectionLock={false}
@@ -633,11 +634,9 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           handleUnifiedPointerUp(e);
           handlePointerLeaveForTilt();
         }}
-        animate={{ 
-          scale: 1, 
-          transition: { type: 'spring', stiffness: 400, damping: 28 }
-        }}
-        // Photo swim effect now lives on the <img> inside CardImage (CSS keyframes)
+        className={cn(
+          "flex-1 cursor-grab active:cursor-grabbing select-none touch-none relative w-full h-full overflow-hidden rounded-[2.5rem] pointer-events-auto border-none gpu-ultra",
+        )}
         style={{
           x,
           y,
@@ -662,7 +661,6 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           // full recomposite on every frame and was the main shake/flicker
           // source. Background blur is handled by the photo layer below.
         } as any}
-        className="flex-1 cursor-grab active:cursor-grabbing select-none touch-none relative w-full h-full overflow-hidden rounded-[2.5rem] pointer-events-auto border-none gpu-ultra"
       >
         {/* Glass Shine */}
         <motion.div
@@ -684,6 +682,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           className="absolute inset-0 w-full h-full overflow-hidden"
           onClick={handleImageTap}
           style={{ touchAction: 'none' }}
+          data-swipe-card-image="true"
         >
           <CardImage
             src={currentImage}
@@ -764,10 +763,10 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
                 triggerHaptic('medium');
                 onReport?.();
               }}
-              className="w-9 h-9 rounded-full bg-white dark:bg-[#1A1A1A] border border-black/10 dark:border-white/15 flex items-center justify-center text-black/50 dark:text-white/50 active:scale-90 transition-all pointer-events-auto shadow-xl"
+              className="w-9 h-9 rounded-full bg-white dark:bg-[#1A1A1A] border border-black/10 dark:border-white/15 flex items-center justify-center text-amber-600 dark:text-amber-500 active:scale-90 transition-all pointer-events-auto shadow-xl"
               title="Report Profile"
             >
-              <Flag className="w-4 h-4" strokeWidth={1.8} />
+              <Flag className="w-4 h-4 fill-current" strokeWidth={1.8} />
             </button>
           </motion.div>
         </div>

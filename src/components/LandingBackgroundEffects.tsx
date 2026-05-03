@@ -1,6 +1,6 @@
 import { memo, useEffect, useRef, useCallback } from 'react';
 import { cn } from '@/lib/utils';
-import { playRandomZen } from '@/utils/sounds';
+import { uiSounds } from '@/utils/uiSounds';
 
 export type EffectMode = 'off' | 'stars' | 'sunset';
 
@@ -189,7 +189,7 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
 
       // User triggered stars should ALWAYS play sound & notify UI
       if (x !== undefined && y !== undefined && !disableSoundsRef.current) {
-        playRandomZen(0.2);
+        uiSounds.playStarShoot();
         // Dispatch event so Swipess UI can react
         window.dispatchEvent(new CustomEvent('STAR_SPAWNED', { detail: { x, y } }));
       }
@@ -250,7 +250,7 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
       if (mode === 'stars') {
         spawnShootingStar(e.clientX, e.clientY);
       } else if (mode === 'sunset') {
-        if (!disableSoundsRef.current) playRandomZen(0.15);
+        if (!disableSoundsRef.current) uiSounds.playZenBowl();
         const hh = window.innerHeight;
         if (e.clientY > hh * 0.6) {
           spawnRipple(e.clientX, e.clientY);

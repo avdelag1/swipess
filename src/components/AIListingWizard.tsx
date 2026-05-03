@@ -32,7 +32,7 @@ const CATEGORIES = [
 
 
 export function AIListingWizard() {
-  const { showAIListing, aiListingCategory, setModal } = useModalStore();
+  const { showAIListing, aiListingCategory, aiListingDraft, setModal } = useModalStore();
   const { theme, isLight } = useAppTheme();
   const isSwipess = theme === 'Swipess-style';
   const { user } = useAuth();
@@ -71,11 +71,17 @@ export function AIListingWizard() {
   const [isRefining, setIsRefining] = useState(false);
 
   useEffect(() => {
-    if (aiListingCategory) {
+    if (aiListingDraft) {
+      setAiResult(aiListingDraft);
+      if (aiListingDraft.category) setCategory(aiListingDraft.category);
+      // If we have a draft, we skip details and go straight to review
+      // but we might need photos first if they aren't provided
+      setStep(imageFiles.length > 0 || aiListingDraft.images?.length > 0 ? 'review' : 'photos');
+    } else if (aiListingCategory) {
       setCategory(aiListingCategory);
       setStep('photos');
     }
-  }, [aiListingCategory]);
+  }, [aiListingCategory, aiListingDraft]);
 
   // Close modal automatically when user navigates to another page
   useEffect(() => {
@@ -431,9 +437,47 @@ export function AIListingWizard() {
                         Modify Visual Proof
                       </button>
 
-                      <div className="space-y-4">
+                       <div className="space-y-4">
                         <h3 className={cn("text-3xl font-black tracking-tighter uppercase italic leading-none", textPrimary)}>Intel Stream</h3>
-                        <p className={cn("text-[11px] leading-relaxed uppercase tracking-[0.2em]", textMuted)}>Provide the core metrics and narrative. AI will synthesize and optimize for maximum conversion.</p>
+                        <p className={cn("text-[11px] leading-relaxed uppercase tracking-[0.2em]", textMuted)}>Describe your listing naturally. Our flagship intelligence will categorize, price, and optimize the narrative automatically.</p>
+                      </div>
+
+                      {/* Primary Voice Hub */}
+                      <div className="relative group">
+                        <div className={cn(
+                          "p-8 rounded-[3rem] border-2 border-dashed flex flex-col items-center justify-center gap-6 transition-all duration-500",
+                          isRecording 
+                            ? "bg-red-500/10 border-red-500/40 shadow-[0_0_50px_rgba(239,68,68,0.2)]" 
+                            : "bg-cyan-500/5 border-cyan-500/20 hover:bg-cyan-500/10 hover:border-cyan-500/40"
+                        )}>
+                          <button
+                            onClick={handleVoiceToggle}
+                            className={cn(
+                              "w-24 h-24 rounded-full flex items-center justify-center transition-all duration-500 shadow-2xl relative overflow-hidden group",
+                              isRecording ? "bg-red-500 scale-110" : "bg-cyan-500 hover:scale-105"
+                            )}
+                          >
+                            {isRecording ? (
+                              <motion.div 
+                                className="absolute inset-0 bg-white/20"
+                                animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0, 0.5] }}
+                                transition={{ duration: 1.5, repeat: Infinity }}
+                              />
+                            ) : (
+                              <div className="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                            )}
+                            <Mic className={cn("w-10 h-10 text-black relative z-10", isRecording && "animate-pulse")} />
+                          </button>
+                          
+                          <div className="text-center space-y-1">
+                            <p className={cn("text-[11px] font-black uppercase tracking-[0.3em]", isRecording ? "text-red-400" : "text-cyan-400")}>
+                              {isRecording ? "TRANSMITTING INTEL..." : "TAP TO DESCRIBE"}
+                            </p>
+                            <p className={cn("text-[9px] font-bold uppercase tracking-widest opacity-40", textPrimary)}>
+                              {isRecording ? "TALK NATURALLY NOW" : "VOICE-TO-LISTING ACTIVE"}
+                            </p>
+                          </div>
+                        </div>
                       </div>
 
                       <div className="space-y-6">
@@ -525,9 +569,8 @@ export function AIListingWizard() {
                            )}
                         </div>
 
-                         <div className="space-y-3">
                           <div className="flex items-center justify-between ml-2">
-                             <label className={cn("text-[10px] font-black uppercase tracking-[0.2em]", textMuted)}>Deployment Narrative</label>
+                             <label className={cn("text-[10px] font-black uppercase tracking-[0.2em]", textMuted)}>Manual Override / Refinement</label>
                              <div className="flex gap-2">
                                {prompt.trim().length > 10 && (
                                  <button 
@@ -536,21 +579,9 @@ export function AIListingWizard() {
                                    className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-[9px] font-black uppercase tracking-widest text-cyan-400 hover:bg-cyan-500/20 transition-all disabled:opacity-50"
                                  >
                                    {isRefining ? <Loader2 className="w-3 h-3 animate-spin" /> : <Wand2 className="w-3 h-3" />}
-                                   Refine
+                                   Refine Intel
                                  </button>
                                )}
-                               <button 
-                                 onClick={handleVoiceToggle}
-                                 className={cn(
-                                   "flex items-center gap-1.5 px-3 py-1 rounded-full border text-[9px] font-black uppercase tracking-widest transition-all",
-                                   isRecording 
-                                     ? "bg-red-500 border-red-400 text-white animate-pulse" 
-                                     : isLight ? "bg-black/5 border-black/10 text-black/60" : "bg-white/5 border-white/10 text-white/60"
-                                 )}
-                               >
-                                 <Mic className={cn("w-3 h-3", isRecording && "animate-bounce")} />
-                                 {isRecording ? 'Listening' : 'Voice'}
-                               </button>
                              </div>
                           </div>
                           <div className="relative">
@@ -571,7 +602,6 @@ export function AIListingWizard() {
                              )}
                           </div>
                         </div>
-                      </div>
 
                       <div className="pt-4 px-1 pb-10">
                         <Button

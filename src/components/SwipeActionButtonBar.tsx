@@ -13,8 +13,8 @@
  */
 
 import { memo, useCallback, useState } from 'react';
-import { motion } from 'framer-motion';
-import { Share2, RotateCcw, MessageCircle, Flame, ThumbsDown, Info, Smartphone } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Share2, Undo2, MessageCircle, Heart, X, Info } from 'lucide-react';
 import { triggerHaptic } from '@/utils/haptics';
 import { AnimatedLottieIcon } from './ui/AnimatedLottieIcon';
 
@@ -124,7 +124,6 @@ const VARIANTS: Record<Variant, VariantCfg> = {
   },
 };
 
-// ── GLOW BURST ────────────────────────────────────────────────────────────────
 // ── ACTION BUTTON ─────────────────────────────────────────────────────────────
 const ActionButton = memo(({
   onClick,
@@ -241,20 +240,19 @@ const ActionButton = memo(({
 ActionButton.displayName = 'ActionButton';
 
 // ── BUTTON BAR ────────────────────────────────────────────────────────────────
-export function SwipeActionButtonBar({
+export const SwipeActionButtonBar = memo(({
   onLike,
   onDislike,
   onShare,
   onInsights,
   onUndo,
   onMessage,
-  onCycleCategory,
   canUndo = false,
   disabled = false,
-}: SwipeActionButtonBarProps) {
-  // Use popLayout to prevent layout shifts when buttons appear/disappear
+  className = '',
+}: SwipeActionButtonBarProps) => {
   return (
-    <div className="flex items-center gap-4 px-6 py-4 rounded-[32px] bg-black/40 border border-white/5 shadow-2xl pointer-events-auto overflow-visible">
+    <div className={`flex items-center gap-4 px-6 py-4 rounded-[32px] bg-black/40 border border-white/5 shadow-2xl pointer-events-auto overflow-visible ${className}`}>
       <AnimatePresence mode="popLayout" initial={false}>
         {/* Undo Button - Always First if available */}
         {onUndo && (
@@ -262,7 +260,7 @@ export function SwipeActionButtonBar({
             onClick={onUndo}
             disabled={disabled || !canUndo}
             size="small"
-            variant="white"
+            variant="amber"
             ariaLabel="Undo"
             index={0}
           >
@@ -275,7 +273,7 @@ export function SwipeActionButtonBar({
           onClick={onDislike}
           disabled={disabled}
           size="large"
-          variant="red"
+          variant="dislike"
           ariaLabel="Dislike"
           index={1}
         >
@@ -301,7 +299,7 @@ export function SwipeActionButtonBar({
           onClick={onLike}
           disabled={disabled}
           size="large"
-          variant="green"
+          variant="like"
           ariaLabel="Like"
           index={3}
         >
@@ -322,6 +320,7 @@ export function SwipeActionButtonBar({
           </ActionButton>
         )}
 
+        {/* Share Button */}
         {onShare && (
           <ActionButton
             onClick={onShare}
@@ -334,11 +333,9 @@ export function SwipeActionButtonBar({
             <Share2 className="w-full h-full" strokeWidth={1.5} />
           </ActionButton>
         )}
-      </div>
-    </motion.div>
+      </AnimatePresence>
+    </div>
   );
-}
+});
 
-export const SwipeActionButtonBar = memo(SwipeActionButtonBarComponent);
-
-
+SwipeActionButtonBar.displayName = 'SwipeActionButtonBar';

@@ -36,12 +36,13 @@ interface ModalState {
   showAIChat: boolean;
   showAIListing: boolean;
   aiListingCategory: 'property' | 'motorcycle' | 'bicycle' | 'worker' | null;
+  aiListingDraft: any | null;
   showVapId: boolean;
   showTokensModal: boolean;
 
   // Actions
-  setModal: (key: keyof Omit<ModalState, 'setModal' | 'selectedListingId' | 'selectedProfileId' | 'subscriptionReason' | 'aiListingCategory'>, value: boolean) => void;
-  openAIListing: (category?: 'property' | 'motorcycle' | 'bicycle' | 'worker') => void;
+  setModal: (key: keyof Omit<ModalState, 'setModal' | 'selectedListingId' | 'selectedProfileId' | 'subscriptionReason' | 'aiListingCategory' | 'aiListingDraft'>, value: boolean) => void;
+  openAIListing: (category?: 'property' | 'motorcycle' | 'bicycle' | 'worker', draft?: any) => void;
   openPropertyDetails: (id: string) => void;
   openPropertyInsights: (id: string) => void;
   openClientInsights: (id: string) => void;
@@ -72,12 +73,17 @@ export const useModalStore = create<ModalState>((set) => ({
   showAIChat: false,
   showAIListing: false,
   aiListingCategory: null,
+  aiListingDraft: null,
   showVapId: false,
   showTokensModal: false,
 
   setModal: (key, value) => set({ [key]: value }),
   
-  openAIListing: (category) => set({ aiListingCategory: category || null, showAIListing: true }),
+  openAIListing: (category, draft) => set({ 
+    aiListingCategory: category || null, 
+    aiListingDraft: draft || null,
+    showAIListing: true 
+  }),
   openPropertyDetails: (id) => set({ selectedListingId: id, showPropertyDetails: true }),
   openPropertyInsights: (id) => set({ selectedListingId: id, showPropertyInsights: true }),
   openClientInsights: (id) => set({ selectedProfileId: id, showClientInsights: true }),
@@ -101,6 +107,7 @@ export const useModalStore = create<ModalState>((set) => ({
     showAIChat: false,
     showAIListing: false,
     aiListingCategory: null,
+    aiListingDraft: null,
     showVapId: false,
     showTokensModal: false,
   }),

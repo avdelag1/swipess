@@ -20,6 +20,8 @@ import { SwipessLogo } from '@/components/SwipessLogo';
 import { SaveButton } from '@/components/SaveButton';
 import { triggerHaptic } from '@/utils/haptics';
 import useAppTheme from '@/hooks/useAppTheme';
+import { SEO } from '@/components/SEO';
+import { ShareDialog } from '@/components/ShareDialog';
 
 const FREE_MESSAGING_CATEGORIES = ['motorcycle', 'bicycle'];
 
@@ -31,6 +33,7 @@ export default function PublicListingPreview() {
   const { theme, isLight } = useAppTheme();
 
   const [showDirectMessageDialog, setShowDirectMessageDialog] = useState(false);
+  const [showShareDialog, setShowShareDialog] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [imgLoaded, setImgLoaded] = useState(false);
 
@@ -123,6 +126,13 @@ export default function PublicListingPreview() {
 
   return (
     <div className={cn("fixed inset-0 overflow-hidden transition-colors duration-500", isLight ? "bg-white" : "bg-black")}>
+      <SEO 
+        title={listing.title || 'Swipess Asset'}
+        description={`${listing.beds || 0} Beds • ${listing.baths || 0} Baths • ${listing.city || 'Tulum'} — $${listing.price?.toLocaleString()}`}
+        image={images[0] || 'https://swipess.app/og-image-nexus.png'}
+        url={`https://swipess.app/listing/${id}`}
+        type="website"
+      />
       
       {/* 🛸 CINEMATIC IMAGE MATRIX */}
       <div className="absolute inset-x-0 top-0 h-[65%] overflow-hidden">
@@ -174,12 +184,15 @@ export default function PublicListingPreview() {
          <div className="bg-black/30 backdrop-blur-xl border border-white/10 px-4 py-2 rounded-full h-12 flex items-center shadow-2xl">
             <SwipessLogo size="sm" variant="white" />
          </div>
-         <div className="flex gap-2 pointer-events-auto">
-            <button className="w-12 h-12 rounded-[1.2rem] bg-black/30 backdrop-blur-xl border border-white/10 flex items-center justify-center text-white active:scale-90 shadow-2xl">
+          <div className="flex gap-2 pointer-events-auto">
+            <button 
+               onClick={() => { triggerHaptic('light'); setShowShareDialog(true); }}
+               className="w-12 h-12 rounded-[1.2rem] bg-black/30 backdrop-blur-xl border border-white/10 flex items-center justify-center text-white active:scale-90 shadow-2xl"
+            >
                <Share2 className="w-5 h-5" />
             </button>
             <SaveButton targetId={listing.id} targetType="listing" className="w-12 h-12 rounded-[1.2rem] shadow-2xl" variant="circular" />
-         </div>
+          </div>
       </div>
 
       {/* 🛸 Swipess BOTTOM TERMINAL */}
@@ -292,8 +305,30 @@ export default function PublicListingPreview() {
           category={category}
         />
       )}
+      
+      <ShareDialogWrapper 
+        open={showShareDialog} 
+        onOpenChange={setShowShareDialog} 
+        listing={listing} 
+        id={id} 
+      />
     </div>
   );
 }
+
+function ShareDialogWrapper({ open, onOpenChange, listing, id }: any) {
+  if (!listing) return null;
+  return (
+    <ShareDialog
+      open={open}
+      onOpenChange={onOpenChange}
+      listingId={id}
+      title={listing.title || 'Elite Swipess Asset'}
+      description={`💎 ${listing.title || 'Asset'} — ${listing.beds || 0}B/${listing.baths || 0}B in ${listing.city || 'Tulum'} for $${listing.price?.toLocaleString()}. Discover more on Swipess.`}
+    />
+  );
+}
+
+
 
 

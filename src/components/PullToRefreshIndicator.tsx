@@ -62,53 +62,60 @@ export const PullToRefreshIndicator = memo(({ pullDistance, isRefreshing, trigge
             {/* 💎 GLASS CONTAINER */}
             <div
               className={cn(
-                "w-14 h-14 rounded-full flex items-center justify-center relative overflow-hidden transition-all duration-300",
-                "bg-white/10 dark:bg-black/40 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl",
-                triggered && "border-brand-primary/50 shadow-brand-primary/20",
+                "w-16 h-16 rounded-full flex items-center justify-center relative overflow-hidden transition-all duration-300",
+                "bg-white/10 dark:bg-black/60 backdrop-blur-2xl border border-white/20 dark:border-white/10 shadow-2xl",
+                triggered && "border-brand-primary shadow-brand-primary/40",
                 isRefreshing && "animate-pulse"
               )}
             >
-              {/* 💧 LIQUID FILL: Fills up the circle as you pull */}
+              {/* 💧 LIQUID FILL: Premium wave animation */}
               <motion.div 
-                className="absolute bottom-0 left-0 right-0 bg-brand-primary/20"
+                className="absolute bottom-0 left-0 right-0 bg-brand-primary/30"
                 style={{ height: `${progress * 100}%` }}
-                animate={isRefreshing ? { height: '100%', opacity: [0.2, 0.4, 0.2] } : {}}
+                animate={isRefreshing ? { 
+                  height: ['100%', '95%', '100%'],
+                  opacity: [0.3, 0.5, 0.3],
+                } : {}}
+                transition={isRefreshing ? { duration: 2, repeat: Infinity } : {}}
               />
 
               {/* 🔄 ROTATING RING (Only visible while refreshing) */}
               {isRefreshing && (
                 <motion.div
-                  className="absolute inset-1 rounded-full border-2 border-t-brand-primary border-r-brand-primary border-b-transparent border-l-transparent"
+                  className="absolute inset-1.5 rounded-full border-[3px] border-t-brand-primary border-r-transparent border-b-transparent border-l-transparent"
                   animate={{ rotate: 360 }}
                   transition={{ duration: 0.8, repeat: Infinity, ease: "linear" }}
                 />
               )}
 
-              {/* 🏷️ LOGO */}
+              {/* 🏷️ LOGO: Larger and more vibrant */}
               <div 
                 className="relative z-10 transition-transform duration-200"
-                style={{ transform: `rotate(${isRefreshing ? 0 : rotation}deg)` }}
+                style={{ 
+                  transform: `rotate(${isRefreshing ? 0 : rotation}deg) scale(${isRefreshing ? 1.1 : 1})`,
+                  filter: (triggered || isRefreshing) ? 'drop-shadow(0 0 12px rgba(255,255,255,0.8))' : 'none'
+                }}
               >
                 <SwipessLogo 
                   variant="white" 
-                  size="sm" 
+                  size="md" 
                   className={cn(
                     "transition-all duration-300",
-                    (triggered || isRefreshing) ? "text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]" : "text-white/40"
+                    (triggered || isRefreshing) ? "opacity-100" : "opacity-40"
                   )} 
                 />
               </div>
             </div>
 
-            {/* 🚀 TRIGGER LABEL: Shown when threshold met */}
+            {/* 🚀 TRIGGER LABEL: Premium typography */}
             {triggered && !isRefreshing && (
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 20 }}
+                animate={{ opacity: 1, y: 24 }}
                 className="absolute top-full left-1/2 -translate-x-1/2"
               >
-                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-primary whitespace-nowrap bg-black/60 backdrop-blur-md px-2 py-0.5 rounded-full border border-brand-primary/30">
-                  Release to Refresh
+                <span className="text-[11px] font-bold uppercase tracking-[0.25em] text-white whitespace-nowrap bg-brand-primary/80 backdrop-blur-md px-3 py-1 rounded-full border border-white/20 shadow-lg">
+                  Refresh Swipess
                 </span>
               </motion.div>
             )}

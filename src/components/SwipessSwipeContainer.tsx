@@ -822,15 +822,15 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
         "flex-1 relative flex w-full h-full items-center justify-center px-0 z-10 pointer-events-auto min-h-0 overflow-hidden"
       )}>
         <div className="relative w-full h-full max-w-[440px] mx-auto flex items-center justify-center pointer-events-auto">
-          <AnimatePresence mode="sync" initial={false}>
+          <AnimatePresence mode="sync" initial={true}>
             {deckQueue.length > 0 && currentIndex < deckQueue.length ? (
               <motion.div
                 key={`deck-${storeActiveCategory ?? 'all'}`}
-                initial={{ opacity: 0, scale: 1.05 }}
+                initial={{ opacity: 0, scale: 1.02 }}
                 animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-                className="absolute inset-0 w-full h-full flex flex-col items-center justify-center p-1.5 pt-[calc(var(--safe-top,0px)+72px)] pb-[calc(var(--bottom-nav-height,72px)+16px)] mx-auto"
+                exit={{ opacity: 0, scale: 0.98 }}
+                transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                className="absolute inset-0 w-full h-full flex flex-col items-center justify-center p-1.5 pt-[calc(var(--safe-top,0px)+72px)] pb-[calc(var(--bottom-nav-height,72px)+16px)] mx-auto transform-gpu"
               >
                 {currentIndex + 1 < deckQueue.length && (
                   <motion.div

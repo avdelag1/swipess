@@ -912,39 +912,58 @@ const ClientSwipeContainerComponent = ({
 
         {/* 📡 Radar HUD removed from here — now managed at the Dashboard level for persistence */}
 
-        <div className="flex-1 relative flex flex-col items-center justify-center z-10 min-h-0 pointer-events-auto">
+        <div className="flex-1 relative flex w-full h-full items-center justify-center px-0 z-10 pointer-events-auto min-h-0 overflow-hidden">
         <div className="relative w-full h-full max-w-[440px] mx-auto flex items-center justify-center pointer-events-auto">
-          <AnimatePresence mode="popLayout" initial={false}>
+          <AnimatePresence mode="sync" initial={true}>
             {topCard ? (
               <motion.div 
-                key={`deck-${category}-${topCard.user_id}`}
-                initial={{ opacity: 0, scale: 1.05 }}
+                key={`deck-${category}`}
+                initial={{ opacity: 0, scale: 1.02 }}
                 animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-                className="absolute inset-0 w-full h-full flex flex-col items-center justify-center p-1.5 pt-[calc(var(--safe-top,0px)+72px)] pb-[calc(var(--bottom-nav-height,72px)+16px)] mx-auto"
+                exit={{ opacity: 0, scale: 0.98 }}
+                transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                className="absolute inset-0 w-full h-full flex flex-col items-center justify-center p-1.5 pt-[calc(var(--safe-top,0px)+72px)] pb-[calc(var(--bottom-nav-height,72px)+16px)] mx-auto transform-gpu"
               >
-
+                {/* 🚀 STACKED ARCHITECTURE: Next card preview underneath */}
+                {currentIndex + 1 < deckQueue.length && (
+                  <motion.div
+                    className="absolute inset-0 w-full h-full z-10"
+                    style={{
+                      scale: nextCardScale,
+                      opacity: nextCardOpacity,
+                      willChange: 'transform, opacity',
+                    }}
+                  >
+                    <SimpleOwnerSwipeCard
+                      key={deckQueue[currentIndex + 1].user_id}
+                      profile={deckQueue[currentIndex + 1]}
+                      onSwipe={() => { }}
+                      isTop={false}
+                    />
+                  </motion.div>
+                )}
 
                 {/* Front card */}
-                <SimpleOwnerSwipeCard
-                  key={topCard.user_id}
-                  ref={cardRef}
-                  profile={topCard}
-                  onSwipe={handleSwipe}
-                  onTap={() => onClientTap(topCard.user_id)}
-                  onInsights={() => handleInsights(topCard.user_id)}
-                  onMessage={() => handleConnect(topCard.user_id)}
-                  onShare={handleShare}
-                  onReport={() => { triggerHaptic('medium'); setReportDialogOpen(true); }}
-                  onUndo={undoLastSwipe}
-                  onLike={handleButtonLike}
-                  onDislike={handleButtonDislike}
-                  canUndo={canUndo}
-                  isTop={true}
-                  fullScreen={true}
-                  externalX={topCardX}
-                />
+                <div className="absolute inset-0 w-full h-full z-20">
+                  <SimpleOwnerSwipeCard
+                    key={topCard.user_id}
+                    ref={cardRef}
+                    profile={topCard}
+                    onSwipe={handleSwipe}
+                    onTap={() => onClientTap(topCard.user_id)}
+                    onInsights={() => handleInsights(topCard.user_id)}
+                    onMessage={() => handleConnect(topCard.user_id)}
+                    onShare={handleShare}
+                    onReport={() => { triggerHaptic('medium'); setReportDialogOpen(true); }}
+                    onUndo={undoLastSwipe}
+                    onLike={handleButtonLike}
+                    onDislike={handleButtonDislike}
+                    canUndo={canUndo}
+                    isTop={true}
+                    fullScreen={true}
+                    externalX={topCardX}
+                  />
+                </div>
               </motion.div>
             ) : (
               <motion.div

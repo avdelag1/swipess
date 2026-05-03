@@ -94,6 +94,8 @@ interface SimpleSwipeCardProps {
   listing: Listing | MatchedListing | MatchedClientProfile;
   onSwipe: (direction: 'left' | 'right') => void;
   onInsights?: () => void;
+  onShare?: () => void;
+  onReport?: () => void;
   isTop?: boolean;
   /** Optional shared MotionValue from parent — lets container animate the card below in real-time */
   externalX?: MotionValue<number>;
@@ -488,12 +490,6 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           handleUnifiedPointerCancel(e);
           handlePointerLeaveForTilt();
         }}
-        initial={{ scale: 0.97, opacity: 0.85 }}
-        animate={{
-          scale: 1,
-          opacity: 1,
-          transition: { type: 'spring', stiffness: 400, damping: 28, mass: 0.6 }
-        }}
         // Photo swim effect now lives on the <img> inside CardImage (CSS keyframes)
         className="flex-1 cursor-grab active:cursor-grabbing select-none touch-none relative w-full h-full overflow-hidden rounded-[2.5rem] pointer-events-auto border-none gpu-ultra"
         data-zoomed={isZoomed ? 'true' : 'false'}
@@ -522,6 +518,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           ref={containerRef as any}
           className="absolute inset-0 overflow-hidden" 
           onClick={handleImageTap}
+          data-swipe-card-image="true"
         >
           {currentImage === 'video_attachment' && (listing as any).video_url ? (
             <video
@@ -615,10 +612,10 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
                 triggerHaptic('medium');
                 onReport?.();
               }}
-              className="w-9 h-9 rounded-full bg-white dark:bg-[#1A1A1A] border border-black/10 dark:border-white/15 flex items-center justify-center text-black/50 dark:text-white/50 active:scale-90 transition-all pointer-events-auto shadow-xl"
+              className="w-9 h-9 rounded-full bg-white dark:bg-[#1A1A1A] border border-black/10 dark:border-white/15 flex items-center justify-center text-amber-600 dark:text-amber-500 active:scale-90 transition-all pointer-events-auto shadow-xl"
               title="Report Listing"
             >
-              <Flag className="w-4 h-4" strokeWidth={1.8} />
+              <Flag className="w-4 h-4 fill-current" strokeWidth={1.8} />
             </button>
           </motion.div>
         </div>

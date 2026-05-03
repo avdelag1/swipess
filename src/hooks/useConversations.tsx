@@ -16,6 +16,7 @@ export interface Conversation {
   created_at: string;
   updated_at: string;
   // Joined data
+  other_user?: {
     id: string;
     full_name: string;
     avatar_url?: string;

@@ -186,11 +186,20 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
 
   useEffect(() => {
     const messageCountIncreased = messages.length > previousMessageCountRef.current;
+    
+    if (messageCountIncreased) {
+      const lastMessage = messages[messages.length - 1];
+      // Only play notification sound if the message is from the other user
+      if (lastMessage && lastMessage.sender_id !== user?.id) {
+        uiSounds.playNotification();
+      }
+    }
+    
     previousMessageCountRef.current = messages.length;
     if (messageCountIncreased && isScrolledToBottom()) {
       messagesEndRef.current?.scrollIntoView({ behavior: 'instant' });
     }
-  }, [messages, isScrolledToBottom]);
+  }, [messages, isScrolledToBottom, user?.id]);
 
   const { moderate } = useContentModeration();
 

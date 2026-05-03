@@ -20,6 +20,7 @@ import { cn } from '@/lib/utils';
 import { SwipessHud } from './SwipessHud';
 import { VapIdCardModal } from './VapIdCardModal';
 import { RadioMiniPlayer } from './RadioMiniPlayer';
+import { VoiceConciergeButton } from './VoiceConciergeButton';
 import { uiSounds } from '@/utils/uiSounds'; // SWIPESS AUDIO ENGINE
 
 const NotificationSystem = lazy(() =>
@@ -71,6 +72,15 @@ export function AppLayout({ children }: AppLayoutProps) {
 
   const { t } = useTranslation();
 
+  // 🚀 NEXUS AUDIO: Welcome sound on startup or login
+  const hasPlayedWelcome = useRef(false);
+  useEffect(() => {
+    if (user && !hasPlayedWelcome.current) {
+      uiSounds.playWelcome();
+      hasPlayedWelcome.current = true;
+    }
+  }, [user]);
+
   // Filters removed from here since they are unused
 
 
@@ -93,12 +103,11 @@ export function AppLayout({ children }: AppLayoutProps) {
       const target = e.target as HTMLElement;
       const isInteractive = target.closest('button, a, input, select, [role="button"]');
       
-      const isDashboard = location.pathname === '/client/dashboard' || location.pathname === '/owner/dashboard';
-
-      if (isInteractive) {
-        uiSounds.playWaterDrop();
-      } else if (isDashboard) {
-        uiSounds.playZenBowl();
+      // 🚫 EXCLUDE PHOTO TAPS: User specifically requested NO SOUND on photo changes
+      const isCardImage = target.closest('[data-swipe-card-image]');
+      
+      if (isInteractive && !isCardImage) {
+        uiSounds.playTap();
       }
     };
 
@@ -127,11 +136,7 @@ export function AppLayout({ children }: AppLayoutProps) {
     return !isPublic;
   }, [location.pathname]);
 
-  const isSwipeDashboard = useMemo(() => {
-    const path = location.pathname;
-    return path === '/client/dashboard' || path === '/owner/dashboard' ||
-      path === '/client/dashboard/' || path === '/owner/dashboard/';
-  }, [location.pathname]);
+
 
   const isFullScreen = useMemo(() => {
     const path = location.pathname;
@@ -220,6 +225,9 @@ export function AppLayout({ children }: AppLayoutProps) {
 
       {/* 📻 CONNECTED RADIO: Floating player bubble - Hidden on radio/full-screen routes */}
       {!isFullScreen && <RadioMiniPlayer />}
+      
+      {/* 🤖 VOICE CONCIERGE: Left-side floating assistant */}
+      {!isFullScreen && <VoiceConciergeButton />}
     </div>
   );
 }

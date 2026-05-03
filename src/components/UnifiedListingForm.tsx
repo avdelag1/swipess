@@ -351,6 +351,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
         toast.success(`${selectedCategory} listing updated successfully`);
         handleClose();
       } else {
+        uiSounds.playUploadComplete();
         setShowCelebration(true);
         // handleClose() will be called after celebration via onComplete
       }

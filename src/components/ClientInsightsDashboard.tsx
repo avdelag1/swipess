@@ -1,36 +1,36 @@
-import { useOwnerInsights } from '@/hooks/useOwnerInsights';
+import { useClientInsights } from '@/hooks/useClientInsights';
 import { motion } from 'framer-motion';
 import { 
   BarChart3, TrendingUp, Users, Heart, 
-  MessageSquare, DollarSign, Activity, Eye 
+  MessageSquare, Zap, Activity, Eye, Trophy, Star
 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 import useAppTheme from '@/hooks/useAppTheme';
 
-export function OwnerInsightsDashboard() {
+export function ClientInsightsDashboard() {
   const { isLight } = useAppTheme();
-  const { data, isLoading } = useOwnerInsights();
+  const { data, isLoading } = useClientInsights();
 
   if (isLoading) {
     return (
       <div className="p-6 space-y-6">
         <div className="grid grid-cols-2 gap-4">
-          <Skeleton className="h-32 rounded-3xl" />
-          <Skeleton className="h-32 rounded-3xl" />
-          <Skeleton className="h-32 rounded-3xl" />
-          <Skeleton className="h-32 rounded-3xl" />
+          <Skeleton className="h-32 rounded-[2.5rem]" />
+          <Skeleton className="h-32 rounded-[2.5rem]" />
+          <Skeleton className="h-32 rounded-[2.5rem]" />
+          <Skeleton className="h-32 rounded-[2.5rem]" />
         </div>
-        <Skeleton className="h-48 rounded-3xl" />
+        <Skeleton className="h-48 rounded-[3rem]" />
       </div>
     );
   }
 
   const stats = [
-    { label: 'Total Views', value: Math.round(data?.total_views || 0), icon: Eye, color: '#8b5cf6', trend: '+12%' },
-    { label: 'Engagement', value: data?.total_likes || 0, icon: Heart, color: '#f43f5e', trend: '+5%' },
-    { label: 'Matches', value: data?.total_matches || 0, icon: Users, color: '#6366f1', trend: '+18%' },
-    { label: 'Revenue Est.', value: `$${data?.revenue_projection || 0}`, icon: DollarSign, color: '#ec4899', trend: '+24%' },
+    { label: 'Profiles Seen', value: data?.profiles_viewed || 0, icon: Eye, color: '#8b5cf6', trend: '+24%' },
+    { label: 'Likes Sent', value: data?.total_likes || 0, icon: Heart, color: '#f43f5e', trend: '+12%' },
+    { label: 'Matches', value: data?.total_matches || 0, icon: Users, color: '#6366f1', trend: '+8%' },
+    { label: 'Tokens Earned', value: data?.tokens_earned || 0, icon: Trophy, color: '#fbbf24', trend: '+45%' },
   ];
 
   return (
@@ -42,8 +42,8 @@ export function OwnerInsightsDashboard() {
       {/* Header with Title */}
       <div className="flex items-center justify-between px-2 relative z-10">
         <div className="space-y-1">
-          <h2 className={cn("text-3xl font-black tracking-tight italic uppercase", isLight ? "text-slate-900" : "text-white")}>Nexus Market Insights</h2>
-          <p className={cn("text-[10px] font-black uppercase tracking-[0.4em] opacity-40", isLight ? "text-slate-400" : "text-white")}>Real-time Performance Analysis</p>
+          <h2 className={cn("text-3xl font-black tracking-tight italic uppercase", isLight ? "text-slate-900" : "text-white")}>Personal Insights</h2>
+          <p className={cn("text-[10px] font-black uppercase tracking-[0.4em] opacity-40", isLight ? "text-slate-400" : "text-white")}>Your Discovery Intelligence</p>
         </div>
         <div
           className="w-12 h-12 rounded-[22px] flex items-center justify-center border backdrop-blur-xl"
@@ -94,7 +94,7 @@ export function OwnerInsightsDashboard() {
               <div className="h-1.5 w-full bg-black/5 dark:bg-white/5 rounded-full overflow-hidden">
                 <motion.div 
                   initial={{ width: 0 }}
-                  animate={{ width: `${70 + Math.random() * 25}%` }}
+                  animate={{ width: `${60 + Math.random() * 35}%` }}
                   transition={{ delay: 0.5 + (i * 0.1), duration: 1.5, ease: 'easeOut' }}
                   className="h-full rounded-full"
                   style={{ background: `linear-gradient(to right, ${stat.color}88, ${stat.color})` }}
@@ -118,8 +118,8 @@ export function OwnerInsightsDashboard() {
       >
         <div className="flex items-center justify-between mb-8">
           <div className="space-y-1">
-            <h3 className={cn("text-base font-black tracking-tight uppercase italic", isLight ? "text-slate-900" : "text-white")}>Convergence Flow</h3>
-            <p className={cn("text-[10px] font-black uppercase tracking-widest opacity-40", isLight ? "text-slate-400" : "text-white")}>Market Velocity Tracker</p>
+            <h3 className={cn("text-base font-black tracking-tight uppercase italic", isLight ? "text-slate-900" : "text-white")}>Discovery Velocity</h3>
+            <p className={cn("text-[10px] font-black uppercase tracking-widest opacity-40", isLight ? "text-slate-400" : "text-white")}>Daily Interaction Activity</p>
           </div>
           <div className="p-2 rounded-xl bg-white/5 border border-white/10">
             <BarChart3 className={cn("w-5 h-5", isLight ? "text-slate-400" : "text-white/40")} />
@@ -132,7 +132,7 @@ export function OwnerInsightsDashboard() {
             <motion.div 
               key={i}
               initial={{ height: 0 }}
-              animate={{ height: `${Math.max(15, (day.count / 25) * 100)}%` }}
+              animate={{ height: `${Math.max(20, (day.count / 60) * 100)}%` }}
               transition={{ delay: i * 0.1 + 0.5, duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
               className="relative w-full group/bar"
             >
@@ -158,23 +158,23 @@ export function OwnerInsightsDashboard() {
         </div>
       </motion.div>
 
-      {/* Engagement Matrix */}
+      {/* Gamification Matrix */}
       <div className={cn(
         "rounded-[3rem] border p-7 space-y-6 relative z-10 overflow-hidden",
         isLight ? "bg-white/80 border-black/5 shadow-xl" : "bg-gradient-to-br from-indigo-500/5 via-transparent to-purple-500/5 border-white/[0.08]"
       )}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center">
-              <MessageSquare className="w-5 h-5 text-purple-400" />
+            <div className="w-10 h-10 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
+              <Star className="w-5 h-5 text-amber-400" />
             </div>
             <div className="space-y-0.5">
-              <span className={cn("text-[10px] font-black uppercase tracking-widest", isLight ? "text-slate-500" : "text-white/40")}>Interaction Logic</span>
-              <p className="text-sm font-black text-white uppercase italic">Nexus AI Verified</p>
+              <span className={cn("text-[10px] font-black uppercase tracking-widest", isLight ? "text-slate-500" : "text-white/40")}>Rewards Progress</span>
+              <p className="text-sm font-black text-white uppercase italic">Elite Status Pending</p>
             </div>
           </div>
           <div className="text-right">
-            <p className="text-[10px] font-black text-[#EB4898] uppercase tracking-widest">Active Scan</p>
+            <p className="text-[10px] font-black text-[#EB4898] uppercase tracking-widest">Nexus Verified</p>
             <div className="flex gap-0.5 justify-end mt-1">
               {[1, 2, 3].map(i => (
                 <motion.div 
@@ -191,28 +191,28 @@ export function OwnerInsightsDashboard() {
         <div className="space-y-5">
           <div className="space-y-2">
             <div className="flex items-center justify-between px-1">
-              <span className={cn("text-[10px] font-black uppercase tracking-widest", isLight ? "text-slate-400" : "text-white/50")}>Response Precision</span>
-              <span className={cn("text-xs font-black", isLight ? "text-slate-900" : "text-white")}>98.2%</span>
+              <span className={cn("text-[10px] font-black uppercase tracking-widest", isLight ? "text-slate-400" : "text-white/50")}>Discovery Score</span>
+              <span className={cn("text-xs font-black", isLight ? "text-slate-900" : "text-white")}>84.5%</span>
             </div>
             <div className={cn("h-2 w-full rounded-full overflow-hidden", isLight ? "bg-black/5" : "bg-white/5")}>
               <motion.div 
                 initial={{ width: 0 }}
-                animate={{ width: '98.2%' }}
+                animate={{ width: '84.5%' }}
                 transition={{ duration: 1.8, ease: 'easeOut' }}
-                className="h-full bg-gradient-to-r from-purple-500 to-indigo-500 shadow-[0_0_15px_rgba(168,85,247,0.4)]" 
+                className="h-full bg-gradient-to-r from-amber-500 to-orange-500 shadow-[0_0_15px_rgba(245,158,11,0.4)]" 
               />
             </div>
           </div>
           
           <div className="space-y-2">
             <div className="flex items-center justify-between px-1">
-              <span className={cn("text-[10px] font-black uppercase tracking-widest", isLight ? "text-slate-400" : "text-white/50")}>Matched Affinity</span>
-              <span className={cn("text-xs font-black", isLight ? "text-slate-900" : "text-white")}>{data?.conversion_rate}%</span>
+              <span className={cn("text-[10px] font-black uppercase tracking-widest", isLight ? "text-slate-400" : "text-white/50")}>Match Affinity</span>
+              <span className={cn("text-xs font-black", isLight ? "text-slate-900" : "text-white")}>{data?.match_rate}%</span>
             </div>
             <div className={cn("h-2 w-full rounded-full overflow-hidden", isLight ? "bg-black/5" : "bg-white/5")}>
               <motion.div 
                 initial={{ width: 0 }}
-                animate={{ width: `${data?.conversion_rate}%` }}
+                animate={{ width: `${data?.match_rate}%` }}
                 transition={{ duration: 1.8, ease: 'easeOut', delay: 0.2 }}
                 className="h-full bg-gradient-to-r from-[#EB4898] to-purple-500 shadow-[0_0_15px_rgba(235,72,152,0.4)]" 
               />
@@ -223,5 +223,3 @@ export function OwnerInsightsDashboard() {
     </div>
   );
 }
-
-

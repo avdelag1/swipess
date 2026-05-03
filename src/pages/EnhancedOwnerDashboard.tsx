@@ -32,7 +32,7 @@ const SAFE_INTENT_CARDS = OWNER_INTENT_CARDS || [];
 const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: EnhancedOwnerDashboardProps) => {
   const { theme } = useAppTheme();
   const isLight = theme === 'light';
-  const [viewMode] = useState<'discovery' | 'insights'>('discovery');
+  const [viewMode, setViewMode] = useState<'discovery' | 'insights'>('discovery');
   const navigate = useNavigate();
 
   const activeCategory = useFilterStore(s => s.activeCategory);
@@ -162,6 +162,28 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
     <div className={cn("flex flex-col flex-1 min-h-0 w-full relative transition-colors duration-500", isLight ? "bg-white" : "bg-black")}>
       <AtmosphericLayer variant="primary" />
 
+      {/* 🛸 NEXUS DASHBOARD TOGGLE */}
+      <div className="absolute top-[calc(var(--top-bar-height,60px)+12px)] left-1/2 -translate-x-1/2 z-[40] flex p-1 rounded-2xl bg-black/40 backdrop-blur-3xl border border-white/10 shadow-2xl">
+        <button
+          onClick={() => { setViewMode('discovery'); triggerHaptic('light'); }}
+          className={cn(
+            "px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
+            viewMode === 'discovery' ? "bg-primary text-white shadow-[0_0_15px_rgba(var(--color-brand-primary-rgb),0.4)]" : "text-white/40 hover:text-white/60"
+          )}
+        >
+          Discovery
+        </button>
+        <button
+          onClick={() => { setViewMode('insights'); triggerHaptic('light'); }}
+          className={cn(
+            "px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
+            viewMode === 'insights' ? "bg-primary text-white shadow-[0_0_15px_rgba(var(--color-brand-primary-rgb),0.4)]" : "text-white/40 hover:text-white/60"
+          )}
+        >
+          Insights
+        </button>
+      </div>
+
       <Suspense fallback={null}>
       <AnimatePresence mode="wait">
         {showSkeletons ? (
@@ -185,7 +207,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -20, scale: 0.98 }}
             transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
-            className="flex-1 overflow-y-auto z-10"
+            className="flex-1 overflow-y-auto z-10 pt-20"
           >
             <OwnerInsightsDashboard />
           </motion.div>

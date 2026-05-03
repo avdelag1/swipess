@@ -12,9 +12,13 @@ import {
   Sparkles, Globe
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Share2 } from 'lucide-react';
+import { triggerHaptic } from '@/utils/haptics';
 import { STORAGE } from '@/constants/app';
 import { cn } from '@/lib/utils';
 import { SwipessLogo } from '@/components/SwipessLogo';
+import { SEO } from '@/components/SEO';
+import { ShareDialog } from '@/components/ShareDialog';
 
 export default function PublicProfilePreview() {
   const { id } = useParams<{ id: string }>();
@@ -23,6 +27,7 @@ export default function PublicProfilePreview() {
   const navigate = useNavigate();
   const { theme, isDark } = useAppTheme();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [showShareDialog, setShowShareDialog] = useState(false);
   const [imgLoaded, setImgLoaded] = useState(false);
 
   const canGoBack = typeof window !== 'undefined' && window.history.length > 1;
@@ -139,6 +144,13 @@ export default function PublicProfilePreview() {
       "fixed inset-0 overflow-hidden",
       isDark ? "bg-black" : "bg-white"
     )}>
+      <SEO 
+        title={`${profile.full_name || 'Anonymous'} — Discover on Swipess`}
+        description={`${profile.bio || 'Elite discovery on Swipess.'} ${profile.city ? `Located in ${profile.city}.` : ''}`}
+        image={allImages[0] || 'https://swipess.app/og-image-nexus.png'}
+        url={`https://swipess.app/profile/${id}`}
+        type="profile"
+      />
 
       {/* ── BACKGROUND IMAGE ─────────────────────────────────────────── */}
       <div className="absolute inset-0">
@@ -207,7 +219,13 @@ export default function PublicProfilePreview() {
         )}
 
         {/* Profile identity pill removed for Swipess aesthetic */}
-        <div className="w-12" />
+        <motion.button
+          onClick={() => { triggerHaptic('light'); setShowShareDialog(true); }}
+          whileTap={{ scale: 0.88 }}
+          className="w-9 h-9 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center text-white shadow-lg"
+        >
+          <Share2 className="w-4 h-4" />
+        </motion.button>
 
         {!user ? (
           <motion.button
@@ -401,6 +419,14 @@ export default function PublicProfilePreview() {
           </div>
         </motion.div>
       </div>
+
+      <ShareDialog
+        open={showShareDialog}
+        onOpenChange={setShowShareDialog}
+        profileId={id}
+        title={profile.full_name || 'Anonymous User'}
+        description={`✨ Discover ${profile.full_name || 'this user'} on Swipess. Immersive discovery for properties, vehicles, and connections.`}
+      />
     </div>
   );
 }

@@ -4,7 +4,7 @@ import {
   motion, useMotionValue, useTransform, AnimatePresence, PanInfo, animate
 } from 'framer-motion';
 import { triggerHaptic } from '@/utils/haptics';
-import { playRandomZen } from '@/utils/sounds';
+import { uiSounds } from '@/utils/uiSounds';
 import {
   Mail, Lock, User, ArrowLeft, Sparkles, Check, LogIn, X
 } from 'lucide-react';
@@ -55,7 +55,7 @@ const LandingView = memo(({
     if (shouldSwipe) {
       if (triggered.current) return;
       triggered.current = true;
-      playRandomZen(0.45);
+      uiSounds.playStarShoot();
       triggerHaptic('success');
       animate(x, window.innerWidth + 100, { type: 'spring', stiffness: 200, damping: 22, mass: 0.6 });
       setTimeout(() => onEnterAuth('login'), 280);
@@ -267,7 +267,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
     >
       {/* Back button */}
       <button
-        onClick={() => { playRandomZen(0.3); triggerHaptic('light'); isForgotPassword ? setIsForgotPassword(false) : onBack(); }}
+        onClick={() => { uiSounds.playStarShoot(); triggerHaptic('light'); isForgotPassword ? setIsForgotPassword(false) : onBack(); }}
         className="absolute top-12 left-6 w-11 h-11 rounded-full bg-white/8 flex items-center justify-center text-white/60 active:scale-90 transition-all z-30"
         aria-label="Go back"
       >
@@ -295,7 +295,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
           >
             <button
               type="button"
-              onClick={() => { playRandomZen(0.3); triggerHaptic('light'); setIsLogin(true); setFieldErrors({}); }}
+              onClick={() => { uiSounds.playStarShoot(); triggerHaptic('light'); setIsLogin(true); setFieldErrors({}); }}
               className={cn(
                 "flex-1 h-12 rounded-[1.6rem] font-black uppercase tracking-[0.2em] text-[11px] transition-all active:scale-[0.97]",
                 isLogin
@@ -307,7 +307,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
             </button>
             <button
               type="button"
-              onClick={() => { playRandomZen(0.3); triggerHaptic('light'); setIsLogin(false); setFieldErrors({}); }}
+              onClick={() => { uiSounds.playStarShoot(); triggerHaptic('light'); setIsLogin(false); setFieldErrors({}); }}
               className={cn(
                 "flex-1 h-12 rounded-[1.6rem] font-black uppercase tracking-[0.2em] text-[11px] transition-all active:scale-[0.97]",
                 !isLogin
