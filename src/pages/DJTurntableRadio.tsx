@@ -8,13 +8,13 @@ import { StationDrawer } from '@/components/radio/retro/StationDrawer';
 import { triggerHaptic } from '@/utils/haptics';
 import { cn } from '@/lib/utils';
 import useAppTheme from '@/hooks/useAppTheme';
-import { ArrowLeft, Heart, SkipBack, SkipForward, Play, Pause, Volume2, ListMusic, Star } from 'lucide-react';
+import { ArrowLeft, Heart, SkipBack, SkipForward, Play, Pause, Volume2, ListMusic, Star, Shuffle } from 'lucide-react';
 
 export default function DJTurntableRadio() {
   const navigate = useNavigate();
   const {
     state, play, togglePlayPause, togglePower, changeStation,
-    setCity, setVolume, toggleFavorite, isStationFavorite,
+    setCity, setVolume, toggleFavorite, isStationFavorite, shuffleAndPlay
   } = useRadio();
   const { isDark } = useAppTheme();
 
@@ -233,6 +233,19 @@ export default function DJTurntableRadio() {
             <SkipForward size={22} fill="currentColor" />
           </button>
 
+          <button
+            onClick={() => { triggerHaptic('medium'); shuffleAndPlay(cityStations); }}
+            className="w-12 h-12 rounded-full flex items-center justify-center active:scale-90 transition-transform"
+            style={{ 
+              background: state.isShuffle ? 'rgba(255,61,0,0.2)' : btnBg, 
+              border: `1px solid ${state.isShuffle ? 'rgba(255,61,0,0.4)' : btnBorder}`, 
+              color: state.isShuffle ? '#FF3B30' : textPrimary 
+            }}
+            title="Shuffle City Stations"
+          >
+            <Shuffle size={18} className={state.isShuffle ? "animate-spin-slow" : ""} />
+          </button>
+
           {/* Favorites */}
           <button
             onClick={() => { setDrawerMode('favorites'); setShowDrawer(true); triggerHaptic('medium'); }}
@@ -299,6 +312,7 @@ export default function DJTurntableRadio() {
         onCitySelect={handleCitySelect}
         onStationSelect={handleStationSelect}
         onToggleFavorite={toggleFavorite}
+        onShuffle={shuffleAndPlay}
       />
     </div>
   );

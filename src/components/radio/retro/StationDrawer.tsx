@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Heart, Play, Music, Globe, Star, LayoutGrid, ChevronRight } from 'lucide-react';
+import { X, Heart, Play, Music, Globe, Star, LayoutGrid, ChevronRight, Shuffle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { radioStations, cityThemes } from '@/data/radioStations';
 import { RadioStation, CityLocation } from '@/types/radio';
@@ -17,6 +17,7 @@ interface StationDrawerProps {
   onCitySelect: (city: CityLocation) => void;
   onStationSelect: (stationId: string) => void;
   onToggleFavorite: (stationId: string) => void;
+  onShuffle?: (stations: RadioStation[]) => void;
 }
 
 export const StationDrawer = ({
@@ -29,7 +30,8 @@ export const StationDrawer = ({
   favorites,
   onCitySelect,
   onStationSelect,
-  onToggleFavorite
+  onToggleFavorite,
+  onShuffle
 }: StationDrawerProps) => {
   const navigate = useNavigate();
   // Use current city's theme or Miami default
@@ -89,6 +91,26 @@ export const StationDrawer = ({
               >
                 <X size={24} />
               </button>
+            </div>
+
+            {/* Shuffle Action */}
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-[10px] font-black tracking-[0.2em] text-foreground/40 uppercase">
+                {isFavoritesView ? 'FAVORITE SIGNAL' : `${currentCity.toUpperCase()} SIGNAL`}
+              </span>
+              {onShuffle && filteredStations.length > 0 && (
+                <button
+                  onClick={() => {
+                    triggerHaptic('medium');
+                    onShuffle(filteredStations);
+                    onClose();
+                  }}
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl bg-foreground/5 hover:bg-foreground/10 text-foreground/60 transition-all active:scale-95 border border-foreground/5"
+                >
+                  <Shuffle size={14} />
+                  <span className="text-[10px] font-black uppercase tracking-widest italic">Shuffle</span>
+                </button>
+              )}
             </div>
 
             {!isFavoritesView && (

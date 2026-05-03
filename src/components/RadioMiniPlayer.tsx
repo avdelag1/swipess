@@ -1,14 +1,14 @@
 import { useCallback, useRef, useState, useEffect } from 'react';
 import { m, AnimatePresence } from 'framer-motion';
 import { useRadio } from '@/contexts/RadioContext';
-import { Play, Pause, SkipBack, SkipForward, X, Radio, Volume2, VolumeX, Heart, Star } from 'lucide-react';
+import { Play, Pause, SkipBack, SkipForward, X, Radio, Volume2, VolumeX, Heart, Star, Shuffle } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { triggerHaptic } from '@/utils/haptics';
 import { cn } from '@/lib/utils';
 import useAppTheme from '@/hooks/useAppTheme';
 
 function RadioMiniPlayerInner() {
-  const { state, togglePlayPause, changeStation, pause, setMiniPlayerMode, setVolume, toggleFavorite, isStationFavorite } = useRadio();
+  const { state, togglePlayPause, changeStation, pause, setMiniPlayerMode, setVolume, toggleFavorite, isStationFavorite, shuffleAndPlay } = useRadio();
   const { isLight } = useAppTheme();
   const navigate = useNavigate();
   const location = useLocation();
@@ -207,6 +207,14 @@ function RadioMiniPlayerInner() {
                 title="Liked Stations"
               >
                 <Star className="w-5 h-5" />
+              </button>
+
+              <button 
+                onClick={(e) => { e.stopPropagation(); shuffleAndPlay(); triggerHaptic('medium'); }} 
+                className={cn("w-10 h-10 rounded-full flex items-center justify-center active:scale-90", state.isShuffle ? "text-primary" : (isLight ? "text-slate-400" : "text-white/40"))}
+                title="Shuffle All"
+              >
+                <Shuffle className={cn("w-5 h-5", state.isShuffle && "animate-spin-slow")} />
               </button>
 
               <button 

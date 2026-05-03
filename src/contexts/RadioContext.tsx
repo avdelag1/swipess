@@ -5,6 +5,7 @@ import { RadioStation, CityLocation, RadioPlayerState } from '@/types/radio';
 import { getStationsByCity, getStationById, radioStations } from '@/data/radioStations';
 import { logger } from '@/utils/prodLogger';
 import { appToast } from '@/utils/appNotification';
+import { uiSounds } from '@/utils/uiSounds';
 
 /** Fisher-Yates shuffle — returns a new shuffled array, never starting with excludeId */
 function shuffleArray<T extends { id: string }>(arr: T[], excludeId?: string): T[] {
@@ -32,7 +33,8 @@ interface RadioContextType {
   changeStation: (direction: 'next' | 'prev') => void;
   setCity: (city: CityLocation) => void;
   setVolume: (volume: number) => void;
-  toggleShuffle: () => void;
+  toggleShuffle: (stations?: RadioStation[]) => void;
+  shuffleAndPlay: (stations?: RadioStation[]) => void;
   toggleFavorite: (stationId: string) => void;
   isStationFavorite: (stationId: string) => boolean;
   playPlaylist: (stationIds: string[]) => void;
@@ -534,11 +536,12 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
 
   const volSyncTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const toggleShuffle = useCallback(() => {
+  const toggleShuffle = useCallback((customStations?: RadioStation[]) => {
     const newShuffle = !state.isShuffle;
     if (newShuffle) {
       const currentId = state.currentStation?.id;
-      shuffleQueueRef.current = shuffleArray(activeStations, currentId);
+      const targetStations = customStations || activeStations;
+      shuffleQueueRef.current = shuffleArray(targetStations, currentId);
       shuffleIndexRef.current = 0;
     } else {
       shuffleQueueRef.current = [];
@@ -546,7 +549,21 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     }
     setState(prev => ({ ...prev, isShuffle: newShuffle }));
     savePreferences({ isShuffle: newShuffle });
-  }, [state.isShuffle, state.currentStation]);
+  }, [state.isShuffle, state.currentStation, activeStations]);
+
+  const shuffleAndPlay = useCallback((customStations?: RadioStation[]) => {
+    const targetStations = customStations || activeStations;
+    if (targetStations.length === 0) return;
+    const shuffled = shuffleArray(targetStations);
+    play(shuffled[0]);
+    uiSounds.playStarShoot();
+    
+    // Also enable shuffle mode with the new queue
+    shuffleQueueRef.current = shuffled;
+    shuffleIndexRef.current = 0;
+    setState(prev => ({ ...prev, isShuffle: true }));
+    savePreferences({ isShuffle: true });
+  }, [activeStations, play]);
 
   
 
@@ -596,13 +613,14 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     setCity,
     setVolume,
     toggleShuffle,
+    shuffleAndPlay,
     toggleFavorite,
     isStationFavorite,
     playPlaylist,
     playFavorites,
     setMiniPlayerMode,
     getFrequencyData,
-  }), [state, loading, error, play, pause, togglePlayPause, togglePower, changeStation, setCity, setVolume, toggleShuffle, toggleFavorite, isStationFavorite, playPlaylist, playFavorites, setMiniPlayerMode, getFrequencyData]);
+  }), [state, loading, error, play, pause, togglePlayPause, togglePower, changeStation, setCity, setVolume, toggleShuffle, shuffleAndPlay, toggleFavorite, isStationFavorite, playPlaylist, playFavorites, setMiniPlayerMode, getFrequencyData]);
 
   return <RadioContext.Provider value={value}>{children}</RadioContext.Provider>;
 }

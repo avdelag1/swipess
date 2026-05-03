@@ -1,4 +1,4 @@
-import { Suspense, lazy, useMemo, useEffect, useState } from 'react';
+import { Suspense, lazy, useMemo, useEffect, useState, useRef } from 'react';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { PullToRefreshIndicator } from '@/components/PullToRefreshIndicator';
 

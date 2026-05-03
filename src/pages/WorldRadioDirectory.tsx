@@ -12,13 +12,13 @@ import useAppTheme from '@/hooks/useAppTheme';
 import { 
   ArrowLeft, Globe, Search, Play, Heart, 
   MapPin, Radio, Volume2, Sparkles,
-  Maximize2
+  Maximize2, Shuffle
 } from 'lucide-react';
 
 export default function WorldRadioDirectory() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { state, play, toggleFavorite, isStationFavorite } = useRadio();
+  const { state, play, toggleFavorite, isStationFavorite, shuffleAndPlay } = useRadio();
   const { isDark } = useAppTheme();
   const [searchQuery, setSearchQuery] = useState('');
   
@@ -84,6 +84,22 @@ export default function WorldRadioDirectory() {
               <span className="text-[9px] font-black tracking-widest uppercase">Global Frequency Network</span>
             </div>
           </div>
+          
+          <button
+            onClick={() => {
+              triggerHaptic('medium');
+              shuffleAndPlay(filteredStations);
+            }}
+            className={cn(
+              "flex items-center gap-2 px-4 py-2 rounded-full transition-all active:scale-95 border group",
+              isDark 
+                ? "bg-primary/10 border-primary/20 text-primary hover:bg-primary/20" 
+                : "bg-primary text-black border-primary shadow-lg shadow-primary/20"
+            )}
+          >
+            <Shuffle size={14} className="group-hover:rotate-180 transition-transform duration-500" />
+            <span className="text-[10px] font-black uppercase tracking-widest italic">Shuffle</span>
+          </button>
         </div>
 
         {/* Search Bar */}
