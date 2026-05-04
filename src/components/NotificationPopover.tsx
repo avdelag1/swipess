@@ -27,6 +27,7 @@ import { useNavigate } from 'react-router-dom';
 import { notificationTypeConfigs as typeConfigs } from '@/utils/notificationConfigs';
 import { ThemeContext } from '@/hooks/useAppTheme';
 import { useContext } from 'react';
+import { useDeckHasCards } from '@/hooks/useDeckHasCards';
 import { cn } from '@/lib/utils';
 import { haptics } from '@/utils/microPolish';
 
@@ -298,6 +299,8 @@ export function NotificationPopover({ className, children, glassPillStyle }: Not
     navigate('/notifications');
   }, [navigate]);
 
+  const _hasCards = useDeckHasCards();
+  const _bellColor = _hasCards ? '#0A0A0A' : '#FFFFFF';
   const triggerButton = children || (
     <Button
       variant="ghost"
@@ -316,12 +319,12 @@ export function NotificationPopover({ className, children, glassPillStyle }: Not
     >
       <div className="relative">
         <Bell
-          strokeWidth={2.1}
+          strokeWidth={1.9}
           className={cn(
-            "h-4 w-4 transition-colors duration-150",
-            "text-foreground",
-            "opacity-80 group-hover:opacity-100"
+            "h-[18px] w-[18px] transition-colors duration-150",
+            "opacity-90 group-hover:opacity-100"
           )}
+          style={{ color: _bellColor }}
         />
         {/* Notification badge */}
         <AnimatePresence>

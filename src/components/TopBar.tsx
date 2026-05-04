@@ -128,7 +128,7 @@ function TopBarComponent({
               style={{ ...glassPillStyle, width: '36px' }}
               aria-label="Back"
             >
-              <ChevronLeft className="w-[20px] h-[20px]" strokeWidth={2.8} style={{ color: iconColor }} />
+              <ChevronLeft className="w-[20px] h-[20px]" strokeWidth={1.9} style={{ color: iconColor }} />
             </motion.button>
           ) : (
             user && (
@@ -214,7 +214,7 @@ function TopBarComponent({
                       color: iconColor,
                       filter: isLight ? 'none' : 'drop-shadow(0 0 8px rgba(228,0,124,0.65))',
                     }}
-                    strokeWidth={2.6}
+                    strokeWidth={1.9}
                   />
                 </motion.button>
 

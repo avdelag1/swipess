@@ -83,7 +83,7 @@ function ModeSwitcherComponent({ className }: ModeSwitcherProps) {
         <UserRound
           className="h-[20px] w-[20px] transition-colors duration-300"
           style={{ color: isClient ? baseColor : `${baseColor}99` }}
-          strokeWidth={isClient ? 3 : 2.6}
+          strokeWidth={isClient ? 2.1 : 1.8}
         />
       </motion.button>
 
@@ -99,7 +99,7 @@ function ModeSwitcherComponent({ className }: ModeSwitcherProps) {
         <BriefcaseBusiness
           className="h-[20px] w-[20px] transition-colors duration-300"
           style={{ color: !isClient ? baseColor : `${baseColor}99` }}
-          strokeWidth={!isClient ? 3 : 2.6}
+          strokeWidth={!isClient ? 2.1 : 1.8}
         />
       </motion.button>
     </div>
