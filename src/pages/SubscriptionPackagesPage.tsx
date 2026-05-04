@@ -92,12 +92,12 @@ const clientPremiumPlans = [
 
 const accentStyles = {
   blue: {
-    border: 'border-blue-500/30',
-    badge: 'bg-blue-500/20 text-blue-400 border border-blue-500/20',
+    border: 'border-white/15',
+    badge: 'bg-white/10 text-foreground border border-white/15',
     glow: '',
-    button: 'bg-gradient-to-r from-blue-600 to-blue-400',
-    checkColor: 'text-blue-400',
-    topGradient: 'from-blue-500/15 via-transparent to-transparent',
+    button: 'bg-gradient-to-r from-zinc-900 to-zinc-700 text-white',
+    checkColor: 'text-foreground',
+    topGradient: 'from-white/10 via-transparent to-transparent',
     priceShadow: '',
   },
   pink: {
@@ -267,7 +267,7 @@ export default function SubscriptionPackagesPage() {
                       "inline-flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.2em] px-3 py-1.5 rounded-xl mb-4",
                       plan.accent === 'gold' ? "bg-amber-500/20 text-amber-400" :
                       plan.accent === 'pink' ? "bg-pink-500/20 text-pink-400" :
-                      "bg-blue-500/20 text-blue-400"
+                      "bg-white/10 text-foreground"
                     )}>
                       <Sparkles className="w-4 h-4" />
                       {(plan as any).aiTier}
@@ -302,7 +302,7 @@ export default function SubscriptionPackagesPage() {
                       "p-5 rounded-[1.8rem] mb-8 space-y-3.5 border",
                       plan.accent === 'gold' ? "bg-amber-500/10 border-amber-500/20 shadow-[inset_0_0_20px_rgba(245,158,11,0.05)]" :
                       plan.accent === 'pink' ? "bg-pink-500/10 border-pink-500/20 shadow-[inset_0_0_20px_rgba(236,72,153,0.05)]" :
-                      "bg-blue-500/10 border-blue-500/20 shadow-[inset_0_0_20px_rgba(59,130,246,0.05)]"
+                      "bg-white/5 border-white/10 shadow-[inset_0_0_20px_rgba(255,255,255,0.04)]"
                     )}>
                       <div className="flex items-center gap-2 mb-3">
                         <Sparkles className={cn("w-4 h-4", style.checkColor)} />
