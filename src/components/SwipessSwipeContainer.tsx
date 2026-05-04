@@ -605,17 +605,12 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
     playSwipeSound(direction);
     setSwipeDirection(direction);
 
-    setTimeout(() => {
-      if (pendingSwipeRef.current?.listing.id === listing.id) {
-        flushPendingSwipe();
-      }
-    }, 350);
+    flushPendingSwipe();
   }, [flushPendingSwipe, playSwipeSound]);
 
   const handleSwipe = useCallback((direction: 'left' | 'right') => {
     const listing = deckQueueRef.current[currentIndexRef.current];
     if (!listing) return;
-    playSwipeSound(direction);
     executeSwipe(direction);
 
     const imagesToPreload: string[] = [];
