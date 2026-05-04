@@ -134,6 +134,31 @@ export function useMagnifier(config: MagnifierConfig = {}): UseMagnifierReturn {
       } catch (_err) { /* ignore if already captured */ }
     }
 
+    // Robust fallback: window-level listeners ensure we keep receiving
+    // pointer moves even if the native pointer capture is silently dropped
+    // (e.g. iOS long-press, callouts, or focus changes after ~700ms).
+    const handleWindowMove = (ev: PointerEvent) => {
+      if (!magnifierState.current.isActive) return;
+      if (pointerIdRef.current !== null && ev.pointerId !== pointerIdRef.current) return;
+      ev.preventDefault();
+      updateMagnifier(ev.clientX, ev.clientY);
+    };
+    const handleWindowUp = (ev: PointerEvent) => {
+      if (pointerIdRef.current !== null && ev.pointerId !== pointerIdRef.current) return;
+      deactivateMagnifier();
+    };
+    const handleContextMenu = (ev: Event) => { ev.preventDefault(); };
+    window.addEventListener('pointermove', handleWindowMove, { passive: false });
+    window.addEventListener('pointerup', handleWindowUp);
+    window.addEventListener('pointercancel', handleWindowUp);
+    window.addEventListener('contextmenu', handleContextMenu);
+    windowListenersRef.current = () => {
+      window.removeEventListener('pointermove', handleWindowMove as any);
+      window.removeEventListener('pointerup', handleWindowUp as any);
+      window.removeEventListener('pointercancel', handleWindowUp as any);
+      window.removeEventListener('contextmenu', handleContextMenu);
+    };
+
     savedOverflowsRef.current = [];
 
     const img = imageRef.current;
@@ -179,6 +204,11 @@ export function useMagnifier(config: MagnifierConfig = {}): UseMagnifierReturn {
       } catch (_err) { /* ignore */ }
     }
     pointerIdRef.current = null;
+
+    if (windowListenersRef.current) {
+      try { windowListenersRef.current(); } catch (_e) { /* ignore */ }
+      windowListenersRef.current = null;
+    }
 
     for (const { el, overflow } of savedOverflowsRef.current) {
       el.style.overflow = overflow || '';
