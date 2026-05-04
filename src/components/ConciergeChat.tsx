@@ -790,8 +790,8 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                   </AnimatePresence>
 
                   <div className="max-w-3xl mx-auto flex items-center gap-3">
-                    <div className={cn("flex-1 relative flex items-end rounded-3xl transition-all duration-500 border group", isLight && !isSwipess ? "bg-slate-50 border-slate-200 focus-within:border-primary/50" : "bg-white/5 border-white/10 focus-within:border-[#FF3D00]/50")}>
-                       <div className="pl-2 pb-2 flex items-center gap-1.5">
+                    <div className={cn("flex-1 relative flex items-center rounded-3xl transition-all duration-500 border group", isLight && !isSwipess ? "bg-slate-50 border-slate-200 focus-within:border-primary/50" : "bg-white/5 border-white/10 focus-within:border-[#FF3D00]/50")}>
+                       <div className="pl-2 flex items-center gap-1.5 self-center">
                            <Popover>
                              <PopoverTrigger asChild>
                                  <button className={cn("p-2.5 rounded-2xl transition-all border", isLight && !isSwipess ? "bg-foreground/15 border-foreground/20 text-foreground hover:bg-foreground/25" : "bg-white/10 border-white/10 text-white hover:bg-white/15")} aria-label="Auto-send timer">
@@ -828,7 +828,7 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                          onChange={(e) => { setInput(e.target.value); cancelCountdown(); }}
                          placeholder={isListening ? "Listening... Speak now" : "Inquire for discovery..."}
                          rows={1}
-                         className={cn("w-full bg-transparent border-none focus:ring-0 py-4 pl-2 pr-5 text-sm resize-none custom-scrollbar min-h-[56px] max-h-32 transition-all", isListening && "text-cyan-400 placeholder:text-cyan-400/40")}
+                         className={cn("w-full bg-transparent border-none focus:ring-0 py-4 pl-2 pr-5 text-sm resize-none custom-scrollbar min-h-[56px] max-h-32 leading-6 transition-all self-center", isListening && "text-cyan-400 placeholder:text-cyan-400/40")}
                          onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
                        />
                     </div>
