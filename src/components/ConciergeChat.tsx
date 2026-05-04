@@ -817,15 +817,7 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
 
                   <div className="max-w-3xl mx-auto flex items-end gap-3">
                     <div className={cn("flex-1 relative flex items-end rounded-3xl transition-all duration-500 border group", isLight && !isSwipess ? "bg-slate-50 border-slate-200 focus-within:border-primary/50" : "bg-white/5 border-white/10 focus-within:border-[#FF3D00]/50")}>
-                       <textarea
-                         value={input}
-                         onChange={(e) => { setInput(e.target.value); cancelCountdown(); }}
-                         placeholder={isListening ? "Listening... Speak now" : "Inquire for discovery..."}
-                         rows={1}
-                         className={cn("w-full bg-transparent border-none focus:ring-0 py-4 px-5 text-sm resize-none custom-scrollbar min-h-[56px] max-h-32 transition-all", isListening && "text-cyan-400 placeholder:text-cyan-400/40")}
-                         onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
-                       />
-                       <div className="pr-2 pb-2 flex items-center gap-1.5">
+                       <div className="pl-2 pb-2 flex items-center gap-1.5">
                          <Popover>
                            <PopoverTrigger asChild>
                               <button className="p-2.5 rounded-2xl hover:bg-white/5 transition-all opacity-40 hover:opacity-100">
@@ -841,8 +833,8 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                               </button>
                            </PopoverContent>
                          </Popover>
-                         
-                         <button 
+
+                         <button
                            onPointerDown={startListening}
                            onPointerUp={stopListening}
                            onPointerCancel={stopListening}
@@ -854,6 +846,14 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                             )}
                          </button>
                        </div>
+                       <textarea
+                         value={input}
+                         onChange={(e) => { setInput(e.target.value); cancelCountdown(); }}
+                         placeholder={isListening ? "Listening... Speak now" : "Inquire for discovery..."}
+                         rows={1}
+                         className={cn("w-full bg-transparent border-none focus:ring-0 py-4 pl-2 pr-5 text-sm resize-none custom-scrollbar min-h-[56px] max-h-32 transition-all", isListening && "text-cyan-400 placeholder:text-cyan-400/40")}
+                         onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
+                       />
                     </div>
                     
                     <button

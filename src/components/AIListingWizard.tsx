@@ -84,9 +84,10 @@ export function AIListingWizard() {
     }
   }, [aiListingCategory, aiListingDraft]);
 
-  // Close modal automatically when user navigates to another page
+  // Close modal automatically when user navigates to another page (skip initial mount)
+  const initialPathRef = useRef(location.pathname);
   useEffect(() => {
-    if (showAIListing) {
+    if (location.pathname !== initialPathRef.current && showAIListing) {
       setModal('showAIListing', false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
