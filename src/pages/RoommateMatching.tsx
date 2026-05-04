@@ -19,6 +19,7 @@ import { useSmartClientMatching } from '@/hooks/useSmartMatching';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { AtmosphericLayer } from '@/components/AtmosphericLayer';
+import { useFilterStore, useFilterActions } from '@/state/filterStore';
 
 const InfoPill = ({ icon: Icon, label, value }: { icon: any, label: string, value: string }) => {
   const { isLight } = useAppTheme();
@@ -42,7 +43,14 @@ export default function RoommateMatching() {
   const { activeMode } = useActiveMode();
   const { t } = useTranslation();
   const { user } = useAuth();
-  
+  const { setActiveCategory } = useFilterActions();
+
+  // Set category on mount to hide global artifacts like microphone
+  useEffect(() => {
+    setActiveCategory('roommates' as any);
+    return () => setActiveCategory(null);
+  }, [setActiveCategory]);
+
   const [showFilters, setShowFilters] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);

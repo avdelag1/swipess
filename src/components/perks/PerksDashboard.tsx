@@ -9,10 +9,14 @@ import { DiscountHistory } from './DiscountHistory';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
 
+import { useFilterStore, useFilterActions } from '@/state/filterStore';
+import useAppTheme from '@/hooks/useAppTheme';
+
 type Tab = 'home' | 'businesses' | 'history';
 
 export function PerksDashboard() {
   const { user } = useAuth();
+  const { isLight } = useAppTheme();
   const [tab, setTab] = useState<Tab>('home');
   const [qrOpen, setQrOpen] = useState(false);
   const [redemptions, setRedemptions] = useState<any[]>([]);
@@ -67,7 +71,11 @@ export function PerksDashboard() {
   ];
 
   return (
-    <div className="flex flex-col min-h-full pt-0 relative bg-zinc-950/20 backdrop-blur-3xl">
+    <div className={cn(
+      "flex flex-col min-h-full pt-0 relative transition-colors duration-500",
+      isLight ? "bg-slate-50/80" : "bg-zinc-950/20",
+      "backdrop-blur-3xl"
+    )}>
       {/* 🛸 NEXUS ATMOSPHERE */}
       <div className="fixed top-[-10%] left-[-10%] w-[120%] h-[120%] pointer-events-none z-0">
         <div className="absolute top-0 left-1/4 w-[50%] h-[50%] bg-rose-500/10 rounded-full blur-[120px] animate-pulse" />
