@@ -11,7 +11,7 @@
 // IMPORTANT: __BUILD_TIME__ is replaced with an ISO timestamp by the Vite
 // sw-build-time-plugin at build time. In dev mode the literal string is used
 // as the version (safe — SW is unregistered in dev anyway).
-const SW_VERSION = '__BUILD_TIME__' === '__BUILD_TIME__' ? '2026-04-24T02-icon-fix' : '__BUILD_TIME__';
+const SW_VERSION = '__BUILD_TIME__' === '__BUILD_TIME__' ? '2026-05-04T18-offline-shell' : '__BUILD_TIME__';
 const CACHE_VERSION = `swipess-${SW_VERSION}`;
 const CACHE_NAME = CACHE_VERSION;
 const STATIC_CACHE = `${CACHE_NAME}-static`;
@@ -278,20 +278,23 @@ self.addEventListener('fetch', (event) => {
           const cache = await caches.open(DYNAMIC_CACHE);
           const cachedResponse = await cache.match(request);
           if (cachedResponse) return cachedResponse;
-          
-          // Serve any available index.html as ultimate fallback
-          const indexResponse = await caches.match('/index.html');
-          if (indexResponse) return indexResponse;
+
+          // App-shell fallback: try every known entry to avoid the native
+          // browser error page (e.g. ERR_NAME_NOT_RESOLVED) on refresh.
+          for (const path of ['/index.html', '/', '/manifest.json']) {
+            const r = await caches.match(path);
+            if (r && r.ok) return r;
+          }
         } catch (e) {
           console.error('[SW] Fallback error:', e);
         }
-        
-        // Final fail-safe: return a valid Response to avoid ERR_FAILED
-        return new Response("Service Unavailable", { 
-          status: 503, 
-          statusText: "Service Unavailable", 
-          headers: { 'Content-Type': 'text/plain' } 
-        });
+
+        // Final fail-safe: return a friendly offline HTML page so users
+        // never see the raw WebView/Chrome error screen on refresh.
+        return new Response(
+          `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Swipess — Reconnecting</title><style>html,body{margin:0;height:100%;background:#0A0A0A;color:#fff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,sans-serif;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px}.w{max-width:320px}.d{width:10px;height:10px;border-radius:999px;background:#EB4898;margin:0 auto 18px;box-shadow:0 0 24px #EB4898;animation:p 1.4s ease-in-out infinite}@keyframes p{0%,100%{opacity:.4;transform:scale(.9)}50%{opacity:1;transform:scale(1.15)}}h1{font-size:18px;font-weight:800;letter-spacing:.04em;margin:0 0 8px}p{font-size:13px;opacity:.6;margin:0 0 20px;line-height:1.5}button{appearance:none;border:none;background:#EB4898;color:#fff;font-weight:800;letter-spacing:.18em;text-transform:uppercase;font-size:11px;padding:14px 22px;border-radius:999px;box-shadow:0 12px 32px rgba(235,72,152,.45)}</style></head><body><div class="w"><div class="d"></div><h1>Reconnecting</h1><p>Swipess is offline right now. Check your connection and try again.</p><button onclick="location.reload()">Retry</button></div></body></html>`,
+          { status: 200, headers: { 'Content-Type': 'text/html; charset=utf-8' } }
+        );
       })
     );
     return;
