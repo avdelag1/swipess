@@ -72,10 +72,8 @@ function ModeSwitcherComponent({ className }: ModeSwitcherProps) {
         aria-pressed={isClient}
       >
         <UserRound
-          className={cn(
-            'h-[17px] w-[17px] transition-colors duration-300',
-            isClient ? 'text-primary' : (isLight ? 'text-black/70' : 'text-white/85'),
-          )}
+          className="h-[17px] w-[17px] transition-colors duration-300"
+          style={{ color: '#ef4444' }}
           strokeWidth={isClient ? 2.6 : 2.2}
         />
       </motion.button>
@@ -90,10 +88,8 @@ function ModeSwitcherComponent({ className }: ModeSwitcherProps) {
         aria-pressed={!isClient}
       >
         <BriefcaseBusiness
-          className={cn(
-            'h-[17px] w-[17px] transition-colors duration-300',
-            !isClient ? 'text-primary' : (isLight ? 'text-black/70' : 'text-white/85'),
-          )}
+          className="h-[17px] w-[17px] transition-colors duration-300"
+          style={{ color: '#f97316' }}
           strokeWidth={!isClient ? 2.6 : 2.2}
         />
       </motion.button>
