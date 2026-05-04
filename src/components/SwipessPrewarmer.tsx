@@ -32,6 +32,22 @@ export const SwipessPrewarmer = () => {
       prefetchRoute(dashboardPath);
       prefetchRoute(profilePath);
       prefetchRoute('/messages');
+      // Hot follow-up routes users hit right after dashboard
+      prefetchRoute(role === 'owner' ? '/owner/filters' : '/client/filters');
+      prefetchRoute('/explore');
+      prefetchRoute('/notifications');
+
+      // Pre-decode poker filter card photos so the quick-filter deck snaps in
+      try {
+        const { POKER_CARD_PHOTOS } = await import('@/components/swipe/CardData');
+        Object.values(POKER_CARD_PHOTOS).forEach((src) => {
+          const img = new Image();
+          (img as any).fetchPriority = 'high';
+          img.decoding = 'async';
+          img.src = src as string;
+          if ('decode' in img) img.decode().catch(() => {});
+        });
+      } catch {}
 
       // 1. Pre-warm Discover Data (High Priority)
       // We use the exact key structure from useSmartListingMatching for 'Default' filter state

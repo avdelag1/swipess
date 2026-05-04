@@ -23,10 +23,9 @@ export function useAppNavigate() {
   };
 
   const appNavigate = (to: string | number, options?: any) => {
-    triggerHaptic('light');
+    try { triggerHaptic('light'); } catch {}
 
     const performNavigation = () => {
-      // 🚀 REACT 18 TRANSITION: Mark navigation as non-blocking
       _startTransition(() => {
         if (typeof to === 'number') {
           navigate(to);
@@ -36,12 +35,18 @@ export function useAppNavigate() {
       });
     };
 
-    // 🚀 MEGAMHERTZ INSTANT SPEED: GPU View Transitions API bypasses JS frame latency
-    if (document.startViewTransition) {
-      document.startViewTransition(() => {
+    // GPU View Transitions API — never let it block navigation
+    try {
+      if (typeof document !== 'undefined' && (document as any).startViewTransition) {
+        const transition = (document as any).startViewTransition(() => {
+          performNavigation();
+        });
+        // Safety: if the transition promise rejects/hangs, the nav still ran inside the callback.
+        if (transition?.finished?.catch) transition.finished.catch(() => {});
+      } else {
         performNavigation();
-      });
-    } else {
+      }
+    } catch {
       performNavigation();
     }
   };
