@@ -281,7 +281,9 @@ export function AuthProvider({ children, authPromise }: { children: ReactNode, a
         return { error: new Error('User already registered') };
       }
 
-      const redirectUrl = 'https://swipess.app';
+      const redirectUrl = typeof window !== 'undefined' && window.location?.origin
+        ? window.location.origin
+        : 'https://swipess.lovable.app';
 
       const { data, error } = await supabase.auth.signUp({
         email,

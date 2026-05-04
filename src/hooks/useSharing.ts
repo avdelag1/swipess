@@ -1,3 +1,13 @@
+// Resolve the public-facing base URL. Uses the current origin when running in
+// the browser so shared links stay on whatever domain the user is on
+// (preview, lovable.app, custom). Falls back to the published domain on SSR.
+const PUBLIC_FALLBACK = 'https://swipess.lovable.app';
+function getShareBaseUrl(): string {
+  if (typeof window !== 'undefined' && window.location?.origin) {
+    return window.location.origin;
+  }
+  return PUBLIC_FALLBACK;
+}
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { logger } from '@/utils/prodLogger';
@@ -41,7 +51,7 @@ export function useCreateShare() {
         throw new Error('Must specify either sharedListingId or sharedProfileId');
       }
 
-      const baseUrl = 'https://swipess.app';
+      const baseUrl = getShareBaseUrl();
       let shareUrl = '';
       if (params.sharedListingId) {
         shareUrl = `${baseUrl}/listing/${params.sharedListingId}`;
@@ -91,7 +101,7 @@ export function useIncrementShareClicks() {
 
 // Generate shareable URL - always use production domain with referral tracking
 export function generateShareUrl(params: ShareUrlParams): string {
-  const baseUrl = 'https://swipess.app';
+  const baseUrl = getShareBaseUrl();
   let url = baseUrl;
 
   if (params.listingId) {
