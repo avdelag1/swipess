@@ -155,23 +155,23 @@ export function SwipeInsightsModal({ open, onOpenChange, listing, profile }: Swi
               onClick={() => onOpenChange(false)}
               className={cn(
                 "w-10 h-10 rounded-2xl flex items-center justify-center active:scale-90 transition-all",
-                isLight ? "bg-slate-100 text-slate-700 border border-slate-200" : "bg-white/5 border border-white/10 text-white/70"
+                isLight ? "bg-slate-900 text-white border border-slate-900 shadow-md" : "bg-white/10 border border-white/20 text-white"
               )}
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
             <div className={cn(
               "flex items-center gap-2 px-3.5 py-2 rounded-2xl backdrop-blur-xl",
-              isLight ? "bg-slate-100 border border-slate-200" : "bg-white/5 border border-white/10"
+              isLight ? "bg-slate-900 text-white border border-slate-900 shadow-md" : "bg-white/10 border border-white/20"
             )}>
               {meta.icon}
-              <span className={cn("text-[11px] font-semibold uppercase tracking-wider", textPri)}>{meta.label}</span>
+              <span className={cn("text-[11px] font-semibold uppercase tracking-wider", isLight ? "text-white" : textPri)}>{meta.label}</span>
             </div>
             <button
               onClick={() => onOpenChange(false)}
               className={cn(
                 "w-10 h-10 rounded-2xl flex items-center justify-center active:scale-90 transition-all",
-                isLight ? "bg-slate-100 text-slate-700 border border-slate-200" : "bg-white/5 border border-white/10 text-white/70"
+                isLight ? "bg-slate-900 text-white border border-slate-900 shadow-md" : "bg-white/10 border border-white/20 text-white"
               )}
             >
               <X className="w-5 h-5" />
@@ -288,8 +288,8 @@ export function SwipeInsightsModal({ open, onOpenChange, listing, profile }: Swi
             <Button
               onClick={() => onOpenChange(false)}
               className={cn(
-                "w-full h-14 rounded-2xl font-bold text-base tracking-wide active:scale-[0.98] transition-all",
-                isLight ? "bg-slate-900 text-white hover:bg-slate-800" : "bg-white text-black hover:bg-white/90"
+                "w-full h-14 rounded-2xl font-bold text-base tracking-wide active:scale-[0.98] transition-all border-0 shadow-lg",
+                isLight ? "!bg-slate-900 !text-white hover:!bg-slate-800" : "!bg-white !text-black hover:!bg-white/90"
               )}
             >
               Close

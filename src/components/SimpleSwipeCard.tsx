@@ -254,7 +254,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
 
   if (!isTop) {
     return (
-      <div className="absolute inset-0 overflow-hidden" style={{ pointerEvents: 'none', borderRadius: 0 }}>
+      <div className="absolute inset-0 overflow-hidden" style={{ pointerEvents: 'none', borderRadius: 28 }}>
         <div className="absolute inset-0">
           <CardImage
             src={currentImage}
@@ -299,7 +299,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           willChange: 'transform, opacity',
           transform: 'translate3d(0,0,0)',
           backfaceVisibility: 'hidden',
-          borderRadius: 0,
+          borderRadius: 28,
           boxShadow: 'none',
           background: 'hsl(var(--background))',
         }}

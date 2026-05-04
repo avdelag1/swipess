@@ -830,6 +830,15 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
         "flex-1 relative flex w-full h-full items-center justify-center px-0 z-10 pointer-events-auto min-h-0 overflow-hidden"
       )}>
         <div className="relative w-full h-full mx-auto flex items-center justify-center pointer-events-auto md:max-w-[560px]">
+          {/* Rounded backdrop matches card corners so deck blends into background */}
+          <div
+            aria-hidden
+            className={cn(
+              "absolute inset-2 -z-10 transition-colors duration-500",
+              isLight ? "bg-white" : "bg-black"
+            )}
+            style={{ borderRadius: 28 }}
+          />
           <AnimatePresence mode="sync" initial={true}>
             {deckQueue.length > 0 && currentIndex < deckQueue.length ? (
               <motion.div
