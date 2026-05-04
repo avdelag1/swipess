@@ -206,7 +206,7 @@ const CardImage = memo(({
         loading={priority ? "eager" : "lazy"}
         decoding={priority ? "sync" : "async"}
         fetchPriority={priority ? "high" : "auto"}
-        className={cn("")}
+        className="swipe-card-image"
         style={{
           position: 'absolute',
           inset: 0,
@@ -221,7 +221,6 @@ const CardImage = memo(({
           filter: loaded ? 'saturate(1.08) contrast(1.03)' : 'none',
           animation: (_animate && loaded) ? 'photo-swim 12s ease-in-out infinite' : 'none',
           willChange: (_animate && loaded) ? 'transform' : 'auto',
-          WebkitUserDrag: 'none',
           WebkitTouchCallout: 'none',
           WebkitUserSelect: 'none',
           userSelect: 'none',
