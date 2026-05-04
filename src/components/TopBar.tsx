@@ -78,13 +78,6 @@ function TopBarComponent({
     transition: 'all 0.3s cubic-bezier(0.22, 1, 0.36, 1)',
   };
 
-  const initials = (profile?.full_name || user?.email || '?')
-    .split(' ')
-    .map((s: string) => s[0])
-    .filter(Boolean)
-    .slice(0, 2)
-    .join('')
-    .toUpperCase();
 
   const { data: profile } = useQuery({
     queryKey: ['topbar-user-profile', user?.id],
@@ -100,6 +93,14 @@ function TopBarComponent({
       return data;
     },
   });
+
+  const initials = (profile?.full_name || user?.email || '?')
+    .split(/[\s@.]/)
+    .map((s: string) => s[0])
+    .filter(Boolean)
+    .slice(0, 2)
+    .join('')
+    .toUpperCase();
 
   return (
     <header 
