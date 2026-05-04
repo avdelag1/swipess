@@ -7,6 +7,7 @@ import { triggerHaptic } from '@/utils/haptics';
 import { uiSounds } from '@/utils/uiSounds';
 import { useFilterStore } from '@/state/filterStore';
 import useAppTheme from '@/hooks/useAppTheme';
+import { useDeckHasCards } from '@/hooks/useDeckHasCards';
 
 interface ModeSwitcherProps {
   className?: string;
@@ -17,6 +18,8 @@ interface ModeSwitcherProps {
 function ModeSwitcherComponent({ className }: ModeSwitcherProps) {
   const { activeMode, isSwitching, switchMode, canSwitchMode } = useActiveMode();
   const { isLight } = useAppTheme();
+  const hasCards = useDeckHasCards();
+  const baseColor = hasCards ? '#0A0A0A' : '#FFFFFF';
   const resetClientFilters = useFilterStore((state) => state.resetClientFilters);
   const resetOwnerFilters = useFilterStore((state) => state.resetOwnerFilters);
 
@@ -79,7 +82,7 @@ function ModeSwitcherComponent({ className }: ModeSwitcherProps) {
       >
         <UserRound
           className="h-[20px] w-[20px] transition-colors duration-300"
-          style={{ color: '#ef4444' }}
+          style={{ color: isClient ? baseColor : `${baseColor}99` }}
           strokeWidth={isClient ? 3 : 2.6}
         />
       </motion.button>
@@ -95,7 +98,7 @@ function ModeSwitcherComponent({ className }: ModeSwitcherProps) {
       >
         <BriefcaseBusiness
           className="h-[20px] w-[20px] transition-colors duration-300"
-          style={{ color: '#f97316' }}
+          style={{ color: !isClient ? baseColor : `${baseColor}99` }}
           strokeWidth={!isClient ? 3 : 2.6}
         />
       </motion.button>

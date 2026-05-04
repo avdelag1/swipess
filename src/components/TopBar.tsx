@@ -12,6 +12,7 @@ import { ModeSwitcher } from './ModeSwitcher';
 import { NotificationPopover } from './NotificationPopover';
 import { ThemeToggle } from './ThemeToggle';
 import { useFilterStore, useFilterActions } from '@/state/filterStore';
+import { useDeckHasCards } from '@/hooks/useDeckHasCards';
 import { useModalStore } from '@/state/modalStore';
 import { TAP_SPRING } from './BottomNavigation';
 
@@ -47,6 +48,9 @@ function TopBarComponent({
   const { user } = useAuth();
   const { isLight } = useAppTheme();
   const setModal = useModalStore(s => s.setModal);
+  const hasCards = useDeckHasCards();
+  // Over swipe cards (bright photos) -> dark icons. Otherwise -> light icons.
+  const iconColor = hasCards ? '#0A0A0A' : '#FFFFFF';
 
   const activeCategory = useFilterStore(s => s.activeCategory);
   const { setActiveCategory } = useFilterActions();
@@ -124,7 +128,7 @@ function TopBarComponent({
               style={{ ...glassPillStyle, width: '36px' }}
               aria-label="Back"
             >
-              <ChevronLeft className="w-[20px] h-[20px]" strokeWidth={2.8} style={{ color: isLight ? '#000000' : 'var(--hud-text)' }} />
+              <ChevronLeft className="w-[20px] h-[20px]" strokeWidth={2.8} style={{ color: iconColor }} />
             </motion.button>
           ) : (
             user && (
@@ -207,7 +211,7 @@ function TopBarComponent({
                   <Crown
                     className="w-[20px] h-[20px]"
                     style={{
-                      color: '#E4007C',
+                      color: iconColor,
                       filter: isLight ? 'none' : 'drop-shadow(0 0 8px rgba(228,0,124,0.65))',
                     }}
                     strokeWidth={2.6}

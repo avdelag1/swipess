@@ -34,6 +34,7 @@ import { useTranslation } from 'react-i18next';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useFilterStore } from '@/state/filterStore';
 import { useModalStore } from '@/state/modalStore';
+import { useDeckHasCards } from '@/hooks/useDeckHasCards';
 
 const ICON_SIZE = 24;
 const ICON_SIZE_COMPACT = 22;
@@ -85,6 +86,8 @@ export const BottomNavigation = memo(({
   const { unreadCount: _unreadCount } = useUnreadMessageCount();
   const { unreadCount: _unreadNotifCount } = useUnreadNotifications();
   const { isLight } = useAppTheme();
+  const hasCards = useDeckHasCards();
+  const navBase = hasCards ? '#0A0A0A' : '#FFFFFF';
 
   const { t } = useTranslation();
 
@@ -377,7 +380,7 @@ export const BottomNavigation = memo(({
                     style={{
                       width: isTablet ? ICON_SIZE_TABLET : (isNarrow ? 16 : ICON_SIZE),
                       height: isTablet ? ICON_SIZE_TABLET : (isNarrow ? 16 : ICON_SIZE),
-                      color: active ? '#E4007C' : 'rgba(228,0,124,0.55)',
+                      color: active ? '#E4007C' : (hasCards ? 'rgba(0,0,0,0.78)' : 'rgba(255,255,255,0.92)'),
                       fill: 'none',
                       strokeWidth: active ? 2.8 : 2.4,
                       transition: 'color 160ms ease-out, stroke-width 160ms ease-out',
@@ -393,7 +396,7 @@ export const BottomNavigation = memo(({
                         isTablet ? 'text-[11px]' : 'text-[8px]',
                       )}
                       style={{
-                        color: active ? '#E4007C' : 'rgba(228,0,124,0.65)',
+                        color: active ? '#E4007C' : (hasCards ? 'rgba(0,0,0,0.78)' : 'rgba(255,255,255,0.92)'),
                         transition: 'color 160ms ease-out',
                         zIndex: 1,
                       }}
