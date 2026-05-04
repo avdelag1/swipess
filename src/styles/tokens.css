@@ -115,6 +115,10 @@
   --glass-ultra-border: rgba(255, 255, 255, 0.25);
   --glass-ultra-shadow: 0 30px 90px rgba(0,0,0,0.5), inset 0 0 30px rgba(255,255,255,0.1);
 
+  /* ── Swipe Deck Frame ── */
+  --swipe-deck-frame: 0 0% 0%;
+  --swipe-deck-frame-soft: 0 0% 2%;
+
   /* ── Spacing System ── */
   --space-xs: 4px;
   --space-sm: 8px;
