@@ -601,7 +601,7 @@ function LikedListingInsightsModalComponent({ open, onOpenChange, listing }: Lik
                       className="mt-3 w-full rounded-xl bg-amber-500/10 border-amber-500/20 text-amber-400 hover:bg-amber-500/20"
                     >
                       <Star className="w-4 h-4 mr-2" />
-                      Rate this Property
+                      Rate this {propertyInsights?.entityLabel ?? 'Listing'}
                     </Button>
                   </div>
                 </div>
