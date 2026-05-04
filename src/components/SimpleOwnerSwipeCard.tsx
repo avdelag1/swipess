@@ -438,7 +438,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
 
         {isTop && (onReport || onShare) && (
           <div
-            className="absolute top-[calc(var(--safe-top,0px)+14px)] right-4 z-40 flex items-center gap-2 transition-opacity duration-150"
+            className="absolute right-5 bottom-[calc(var(--bottom-nav-height,72px)+100px)] z-40 flex flex-col items-end gap-2 transition-opacity duration-150"
             style={{ opacity: isZoomed ? 0 : 1 }}
           >
             {onShare && (
@@ -447,9 +447,9 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
                 onPointerDown={(e) => e.stopPropagation()}
                 onClick={(e) => { e.stopPropagation(); onShare(profile); }}
                 aria-label="Share profile"
-                className="w-9 h-9 rounded-full flex items-center justify-center bg-black/45 backdrop-blur-md border border-white/15 active:scale-95 transition-all duration-150 hover:bg-black/60"
+                className="w-10 h-10 rounded-full flex items-center justify-center bg-black/55 backdrop-blur-md border border-white/15 active:scale-95 transition-all duration-150 hover:bg-black/70 shadow-lg"
               >
-                <Share2 className="w-4 h-4 text-white/90" strokeWidth={2.2} />
+                <Share2 className="w-4 h-4 text-white" strokeWidth={2.2} />
               </button>
             )}
             {onReport && (
@@ -458,9 +458,9 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
                 onPointerDown={(e) => e.stopPropagation()}
                 onClick={(e) => { e.stopPropagation(); onReport(); }}
                 aria-label="Report profile"
-                className="w-9 h-9 rounded-full flex items-center justify-center bg-black/45 backdrop-blur-md border border-white/15 active:scale-95 transition-all duration-150 hover:bg-black/60"
+                className="w-10 h-10 rounded-full flex items-center justify-center bg-black/55 backdrop-blur-md border border-white/15 active:scale-95 transition-all duration-150 hover:bg-black/70 shadow-lg"
               >
-                <Flag className="w-4 h-4 text-white/90" strokeWidth={2.2} />
+                <Flag className="w-4 h-4 text-white" strokeWidth={2.2} />
               </button>
             )}
           </div>
