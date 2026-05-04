@@ -381,8 +381,8 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
                style={{ height: '58%', background: 'linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.78) 18%, rgba(0,0,0,0.5) 40%, rgba(0,0,0,0.22) 65%, rgba(0,0,0,0.06) 85%, transparent 100%)', opacity: isZoomed ? 0 : 1 }} />
 
           {imageCount > 1 && (
-            <div className="absolute top-[calc(var(--safe-top,0px)+16px)] inset-x-0 flex justify-center z-20 pointer-events-none" style={{ opacity: isZoomed ? 0 : 1 }}>
-              <div className="flex gap-1.5 w-full max-w-[140px] px-2">
+            <div className="absolute top-[calc(var(--safe-top,0px)+72px)] inset-x-0 flex justify-center z-20 pointer-events-none" style={{ opacity: isZoomed ? 0 : 1 }}>
+              <div className="flex gap-1 w-full max-w-[110px] px-2">
                 {images.map((_, idx) => (
                   <div key={idx} className="h-[2.5px] flex-1 rounded-full overflow-hidden bg-white/25">
                     <motion.div animate={{ x: idx < currentImageIndex ? '0%' : idx === currentImageIndex ? '0%' : '-100%', opacity: idx === currentImageIndex ? 1 : 0.5 }}
