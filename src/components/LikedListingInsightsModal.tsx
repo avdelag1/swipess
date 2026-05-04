@@ -661,10 +661,10 @@ function LikedListingInsightsModalComponent({ open, onOpenChange, listing }: Lik
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
               <Trash2 className="w-5 h-5 text-red-500" />
-              Remove from Liked Properties
+              Remove from Liked {propertyInsights?.entityLabel ? `${propertyInsights.entityLabel}s` : 'Items'}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to remove this property from your liked list? You can always like it again later.
+              Are you sure you want to remove this {propertyInsights?.entityLabelLower ?? 'item'} from your liked list? You can always like it again later.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
