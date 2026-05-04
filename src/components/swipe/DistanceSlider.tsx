@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useFilterStore } from '@/state/filterStore';
-import { MapPin, Navigation } from 'lucide-react';
+import { MapPin } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, useSpring, useMotionValue, useTransform } from 'framer-motion';
 import useAppTheme from '@/hooks/useAppTheme';
