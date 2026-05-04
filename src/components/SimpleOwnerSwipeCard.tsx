@@ -356,9 +356,9 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           <CardImage src={currentImage} alt={profile.name || 'Client'} name={profile.name} priority={isTop} fullScreen={true} />
 
           <div className="absolute top-0 left-0 right-0 pointer-events-none z-20"
-               style={{ height: '42%', background: 'linear-gradient(to bottom, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.5) 30%, rgba(0,0,0,0.2) 65%, transparent 100%)', opacity: isZoomed ? 0 : 1 }} />
+               style={{ height: '28%', background: 'linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.22) 40%, transparent 100%)', opacity: isZoomed ? 0 : 1 }} />
           <div className="absolute bottom-0 left-0 right-0 pointer-events-none z-20"
-               style={{ height: '65%', background: 'linear-gradient(to top, rgba(0,0,0,0.98) 0%, rgba(0,0,0,0.8) 20%, rgba(0,0,0,0.4) 55%, transparent 100%)', opacity: isZoomed ? 0 : 1 }} />
+               style={{ height: '46%', background: 'linear-gradient(to top, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0.45) 30%, rgba(0,0,0,0.15) 60%, transparent 100%)', opacity: isZoomed ? 0 : 1 }} />
 
           {imageCount > 1 && (
             <div className="absolute top-[calc(var(--safe-top,0px)+16px)] inset-x-0 flex justify-center z-20 pointer-events-none" style={{ opacity: isZoomed ? 0 : 1 }}>
@@ -423,7 +423,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
         </div>
 
         <div className="absolute inset-x-0 bottom-0 pointer-events-none z-10"
-             style={{ height: '65%', background: isLight ? 'linear-gradient(to top, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.6) 30%, transparent 100%)' : 'linear-gradient(to top, rgba(0,0,0,0.98) 0%, rgba(0,0,0,0.6) 30%, transparent 100%)', opacity: isZoomed ? 0 : 1 }} />
+             style={{ height: '42%', background: isLight ? 'linear-gradient(to top, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.3) 35%, transparent 100%)' : 'linear-gradient(to top, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.32) 35%, transparent 100%)', opacity: isZoomed ? 0 : 1 }} />
 
         {profile.verified && (
           <div className="absolute top-16 left-6 z-40" style={{ opacity: isZoomed ? 0 : 1 }}>
