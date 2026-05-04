@@ -1,4 +1,5 @@
 
+import { useEffect, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { logger } from '@/utils/prodLogger';
@@ -93,8 +94,8 @@ async function fetchOwnProfile(uid: string) {
 export function useClientProfile() {
   // SECURITY: Scope cache by authenticated user id so a previous user's
   // profile can never appear for a different signed-in user.
-  const [uid, setUid] = (require('react') as typeof import('react')).useState<string | null>(null);
-  (require('react') as typeof import('react')).useEffect(() => {
+  const [uid, setUid] = useState<string | null>(null);
+  useEffect(() => {
     let active = true;
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (active) setUid(session?.user?.id ?? null);
