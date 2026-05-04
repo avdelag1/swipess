@@ -258,7 +258,7 @@ function LikedListingInsightsModalComponent({ open, onOpenChange, listing }: Lik
     if (!listing?.owner_id) {
       toast({
         title: 'Error',
-        description: 'Property owner information not available',
+        description: `${propertyInsights?.ownerLabel ?? 'Owner'} information not available`,
         variant: 'destructive',
       });
       return;
@@ -274,7 +274,7 @@ function LikedListingInsightsModalComponent({ open, onOpenChange, listing }: Lik
       const result = await startConversation.mutateAsync({
         otherUserId: listing.owner_id,
         listingId: listing.id,
-        initialMessage: `Hi! I'm interested in your property: ${listing.title}. Could you tell me more about it?`,
+        initialMessage: `Hi! I'm interested in your ${propertyInsights?.entityLabelLower ?? 'listing'}: ${listing.title}. Could you tell me more about it?`,
         canStartNewConversation: true,
       });
 
