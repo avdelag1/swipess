@@ -1,61 +1,62 @@
-## Goal
+# Profile polish + Core engagement systems audit
 
-Make swipe cards visually fill the entire screen (rounded corners preserved), guarantee responsiveness across phones/tablets/iPads/desktop, raise PWA performance via aggressive prefetching/caching, and fix low-contrast white icons/buttons (notably the AI chat Send button).
+## 1. Profile page — theme-aware photo background + visible initial
 
----
+**Files:** `src/pages/ClientProfileNew.tsx`, `src/pages/OwnerProfile.tsx`
 
-## 1. Full-Bleed Swipe Card (rounded corners kept)
+- Wrap the profile photo / initial-letter container with a background that follows the active theme:
+  - Light theme → `bg-white` with dark initial letter (`text-zinc-900`)
+  - Dark theme → `bg-black` with white initial letter (`text-white`)
+- Use the existing `useAppTheme()` `isLight` flag (already used in `TopBar`) for switching.
+- Ensure the first letter of the user's name (`full_name?.[0]?.toUpperCase()`) renders centered when no photo is set, and remains readable over the matching background.
+- Keep dimensions, ring, and shadow tokens unchanged (Structural Protection rule).
 
-Files: `src/components/SwipessSwipeContainer.tsx`, `src/components/SimpleSwipeCard.tsx`, `src/components/SimpleOwnerSwipeCard.tsx`, `src/components/DashboardLayout.tsx`.
+## 2. Tokens icon → Mexican Pink
 
-- Container `flex-1` area: remove inner horizontal padding so card spans `100vw` and stretches vertically from just under the safe-area top (header buttons row) to just above the bottom nav bar (action buttons + nav).
-- `SimpleSwipeCard` wrapper: keep `border-radius: var(--radius-md)` but bump card to `inset: 0` of the available stage. Use CSS env safe-area insets so notched devices don't clip:
-  - top: `calc(var(--safe-top,0px) + 4px)`
-  - bottom: `calc(var(--bottom-nav-height,64px) + 8px)`
-  - left/right: `4px` (subtle margin so rounded corners breathe).
-- Same change to `SimpleOwnerSwipeCard`.
-- Image element: ensure `object-cover` + `width:100%; height:100%` (already true) so photo fills card edge-to-edge under the gradients.
+**File:** `src/components/TopBar.tsx` (line ~210, the `Crown` icon for Tokens)
 
-## 2. Responsive Across Devices
+- Replace the current purple `#8b5cf6` with **Mexican Pink `#E4007C`**.
+- Update the dark-theme drop-shadow glow to match: `drop-shadow(0 0 8px rgba(228,0,124,0.6))`.
+- Add a semantic token `--mexican-pink: 328 100% 45%` in `src/styles/tokens.css` and a Tailwind alias `mexican-pink` so the color is reusable (per design system rule: no hardcoded hex outside tokens).
 
-- Tablet/iPad/desktop (≥768px): cap card width at `min(100vw, 560px)` and center, keep full height; this avoids ultra-wide stretched photos while still feeling immersive.
-- Phones (<768px): true edge-to-edge.
-- Implement via Tailwind responsive classes on the card stage container in `SwipessSwipeContainer.tsx`.
-- Verify `--bottom-nav-height` and `--safe-top` are written in `DashboardLayout` for ALL routes (currently authoritative there per memory).
+## 3. Verify Find / Search listings flow
 
-## 3. PWA Performance (fast cold start + offline)
+**Files to inspect & repair if broken:** `src/components/filters/DiscoveryFilters.tsx`, `src/state/filterStore.ts`, `src/hooks/useDiscoveryListings*` (or equivalent), `src/lib/swipe/SwipeQueue.ts`.
 
-Files: `vite.config.ts`, `public/sw.js`, `src/lib/swipe/ImagePreloadController.ts`.
+- Confirm filter changes persist to `client_filter_preferences` and immediately re-query the discovery deck.
+- Confirm category / price / location filters narrow results (not silently bypassed).
+- Add an empty-state radar message when nothing matches.
 
-- Tighten Workbox runtime caching:
-  - HTML: `NetworkFirst`, 3s timeout (already required).
-  - JS/CSS: `StaleWhileRevalidate`, 1y maxAge.
-  - Images (Supabase storage + same-origin): `CacheFirst`, maxEntries 300, 30 days.
-  - Supabase REST GETs (listings, profiles): `StaleWhileRevalidate`, 5 min, 100 entries.
-- Preload first 5 deck cards' ALL images (not just 3) the moment the deck resolves, via `imagePreloadController.preloadBatch`.
-- Add `<link rel="preconnect">` + `dns-prefetch` for Supabase URL in `index.html`.
-- Add `loading="eager"` + `fetchpriority="high"` on the top card image, `loading="lazy"` on the rest.
-- Keep `navigateFallbackDenylist: [/^\/~oauth/]` and disable SW in iframe/preview.
+## 4. Notifications — in-app + push
 
-## 4. White Icon/Text Contrast Pass
+- **In-app:** verify `useNotificationSystem` + `NotificationBar` fire on new `likes`, `matches`, `conversation_messages` (real-time channels). Ensure RLS allows the recipient to `SELECT` the row that triggered the notification.
+- **Outside the app (push):**
+  - Confirm `usePushNotifications.subscribe()` is invoked from a user-action (Settings) — required by Apple/PWA.
+  - Verify `send-push-notification` edge function is invoked from triggers in: new like, new match, new message.
+  - Check `VAPID_PUBLIC_KEY` is wired in client and server. Inspect recent edge logs for failures and patch.
 
-Problem: many white-on-white-ish glass buttons are invisible on bright photos. Notable: AI chat Send button arrow.
+## 5. Likes / Matches / Messages
 
-- In `ConciergeChat.tsx`: send button — change to solid brand orange background with white icon, add `shadow-md` and `border border-white/20`. Disabled state stays muted.
-- Audit pass for buttons using `bg-white/X border-white/Y` with white icons over photos (header buttons in `SwipessSwipeContainer`, share/report on `SimpleSwipeCard`):
-  - Wrap icon in stronger backdrop: `bg-black/55 backdrop-blur-md` (already present on some) — apply same standard everywhere.
-  - Icon `stroke-white` with `drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)]` so it pops on any image.
-- Tokenize via a new utility class `.glass-icon-btn` in `src/styles/premium-polish.css` so future buttons stay consistent.
+- **Likes:** confirm `useSwipeWithMatch` writes `{ user_id, target_id, target_type, direction }` and that an opposite right-swipe creates a `matches` row.
+- **Matches:** confirm `matches` insert triggers (a) notification to both users, (b) creation of a `conversations` row (client_id/owner_id/listing_id).
+- **Messages:** confirm `conversation_messages` insert updates `conversations.last_message_at`, marks unread for the recipient, and pushes a notification.
+- Patch any missing pieces (likely: missing notification insert on match, missing push trigger on message).
 
-## 5. Apple Compliance Sanity Checks
+## 6. Share + Report
 
-- Respect notches via `env(safe-area-inset-*)` everywhere card and nav touch screen edges.
-- All tap targets ≥44×44pt (audit action button row — already 64–72px ✓).
-- No hidden gestures conflicting with iOS swipe-back; keep `touch-action: pan-y` on scrollers (already in memory).
+- **Share:** verify `content_shares` insert succeeds (RLS already allows). Make sure share buttons on swipe card + profile call the same util and copy a working `share_url` (deep link to `/listing/:id` or `/profile/:id`).
+- **Report:** verify the report modal writes to `user_reports` with `reporter_id = auth.uid()`. Ensure admins can `SELECT` reports — add an RLS policy `has_role(auth.uid(), 'admin')` for SELECT/UPDATE if missing. Add admin notification (insert into `notifications` for each admin) so reports surface in the admin dashboard.
 
----
+## 7. QA pass
 
-## Out of Scope
+- Smoke test: swipe right on a listing as Client A logged in as Owner B simultaneously → expect like, match, conversation, in-app banner, push notification.
+- Smoke test: send a message → recipient receives in-app + push.
+- Smoke test: report a listing → admin sees it in admin queue.
+- Visual: verify Mexican-Pink Tokens icon contrast in both themes and profile photo background swaps cleanly with theme toggle.
 
-- Logic changes to swipe physics, routing, or backend.
-- Complete visual redesign — this is refinement only.
+## Technical notes
+
+- Use existing `has_role()` helper for any admin RLS additions; never store roles on profile.
+- All new colors via semantic tokens (`hsl(var(--mexican-pink))`).
+- No structural rewrites; enhancements only, per Structural Protection Rule.
+- Push subscribe must remain user-initiated (no auto-prompt on load) to satisfy Apple/PWA policy.
