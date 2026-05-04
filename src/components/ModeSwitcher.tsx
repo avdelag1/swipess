@@ -37,11 +37,11 @@ function ModeSwitcherComponent({ className }: ModeSwitcherProps) {
   const BUTTON_SIZE = 36;
 
   const containerStyle: React.CSSProperties = {
-    background: isLight ? 'rgba(255,255,255,0.55)' : 'rgba(20,20,20,0.42)',
-    backdropFilter: 'blur(18px) saturate(160%)',
+    background: isLight ? 'rgba(255,255,255,0.18)' : 'rgba(255,255,255,0.08)',
+    backdropFilter: 'blur(28px) saturate(180%)',
     WebkitBackdropFilter: 'blur(18px) saturate(160%)',
     borderRadius: 9999,
-    border: isLight ? '1px solid rgba(255,255,255,0.7)' : '1px solid rgba(255,255,255,0.14)',
+    border: isLight ? '1px solid rgba(255,255,255,0.45)' : '1px solid rgba(255,255,255,0.18)',
     boxShadow: isLight
       ? '0 6px 18px -8px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.9)'
       : '0 8px 22px -10px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.08)',
