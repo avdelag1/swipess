@@ -28,7 +28,7 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
     <div
       className={cn(
         "flex-1 flex flex-col relative w-full min-h-0",
-        isLight ? "bg-white" : "bg-[#020202]"
+        isLight ? "bg-swipe-frame-soft" : "bg-swipe-frame"
       )}
       style={{
         willChange: 'transform',
