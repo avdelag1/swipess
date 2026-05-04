@@ -105,25 +105,16 @@ export default function RoommateMatching() {
       <AtmosphericLayer variant="nexus" />
 
       {/* ── IMMERSIVE CONTROLS ── */}
-      <div className="fixed top-[calc(var(--top-bar-height,72px)+12px)] inset-x-6 z-[60] flex items-center pointer-events-none">
-        <motion.button
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          onClick={() => navigate(`/${activeMode}/dashboard`)}
-          className="w-11 h-11 rounded-2xl bg-black/55 backdrop-blur-2xl border border-white/15 flex items-center justify-center text-white pointer-events-auto shadow-xl"
-        >
-          <ArrowLeft className="w-5 h-5" />
-        </motion.button>
-
-        <div className="flex-1 flex justify-center gap-2 pointer-events-auto">
+      <div className="fixed top-[calc(var(--top-bar-height,72px)+12px)] inset-x-0 z-[60] flex items-center justify-center px-6 pointer-events-none">
+        <div className="flex items-center gap-2 pointer-events-auto">
           <motion.button
             whileTap={{ scale: 0.95 }}
             onClick={() => { triggerHaptic('light'); setRoommateVisible(!roommateVisible); }}
             className={cn(
               "px-4 h-11 rounded-2xl border backdrop-blur-xl flex items-center gap-2 transition-all shadow-xl",
               roommateVisible
-                ? isLight ? "bg-rose-500/95 border-rose-300 text-white" : "bg-rose-500/30 border-rose-400/60 text-rose-100"
-                : isLight ? "bg-white/95 border-slate-300 text-slate-700" : "bg-black/55 border-white/20 text-white/80"
+                ? isLight ? "bg-rose-500 border-rose-600 text-white" : "bg-rose-500/30 border-rose-400/60 text-rose-100"
+                : isLight ? "bg-white border-slate-300 text-slate-800" : "bg-black/55 border-white/20 text-white/80"
             )}
             style={{ willChange: 'transform, opacity' }}
           >
@@ -139,18 +130,17 @@ export default function RoommateMatching() {
           <motion.button
             whileTap={{ scale: 0.88 }}
             onClick={() => setShowFilters(true)}
+            aria-label="Filters"
             className={cn(
-              "w-11 h-11 rounded-2xl flex items-center justify-center border backdrop-blur-xl shadow-xl transition-all",
-              isLight ? "bg-white/95 border-slate-300 text-slate-700" : "bg-black/55 border-white/20 text-white"
+              "px-4 h-11 rounded-2xl flex items-center gap-2 border backdrop-blur-xl shadow-xl transition-all",
+              isLight ? "bg-white border-slate-300 text-slate-800" : "bg-black/55 border-white/20 text-white"
             )}
             style={{ willChange: 'transform, opacity' }}
           >
             <Settings2 className="w-4 h-4" />
+            <span className="text-xs font-semibold tracking-wide">Filters</span>
           </motion.button>
         </div>
-
-        {/* Spacer to balance the centered group against the left back-button */}
-        <div className="w-11 h-11 shrink-0" aria-hidden />
       </div>
 
       {/* ── CARD STACK AREA ── */}
