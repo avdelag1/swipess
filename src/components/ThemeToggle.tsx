@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 import { ThemeContext } from '@/hooks/useAppTheme';
 import { useContext } from 'react';
 import { triggerHaptic } from '@/utils/haptics';
+import { useDeckHasCards } from '@/hooks/useDeckHasCards';
 
 type Theme = 'light' | 'dark';
 
@@ -19,6 +20,8 @@ function ThemeToggleComponent({ className, glassPillStyle }: ThemeToggleProps) {
     const themeContext = useContext(ThemeContext);
     const theme = themeContext?.theme ?? 'dark';
     const setTheme = themeContext?.setTheme ?? (() => {});
+    const hasCards = useDeckHasCards();
+    const iconColor = hasCards ? '#0A0A0A' : '#FFFFFF';
 
     const handleToggle = (e: React.MouseEvent) => {
         e.preventDefault();
@@ -30,9 +33,9 @@ function ThemeToggleComponent({ className, glassPillStyle }: ThemeToggleProps) {
 
     const icon =
         theme === 'light' ? (
-            <Sun strokeWidth={2.1} className="h-4 w-4 text-foreground" />
+            <Sun strokeWidth={1.9} className="h-[18px] w-[18px]" style={{ color: iconColor }} />
         ) : (
-            <Moon strokeWidth={2.1} className="h-4 w-4 text-primary" />
+            <Moon strokeWidth={1.9} className="h-[18px] w-[18px]" style={{ color: iconColor }} />
         );
 
 
