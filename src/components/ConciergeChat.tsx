@@ -1,9 +1,9 @@
 import { useState, useCallback, useRef, useEffect, useMemo, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  X, Send, Mic, MicOff, Sparkles, Plus, 
-  Trash2, Menu, Check, Zap, Flame, Sun, Crown, Moon, 
-  Globe, Copy, Languages, Timer, ArrowRight, RefreshCw, ChevronLeft, ChevronDown, Volume2, VolumeX
+  X, Send, Mic, Sparkles, Plus, 
+  Trash2, Menu, Zap, Flame, Sun, Crown, Moon, 
+  Copy, Languages, Timer, ArrowRight, RefreshCw, Volume2, VolumeX
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -12,7 +12,6 @@ import { createPortal } from 'react-dom';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
 import { useConciergeAI, ChatMessage, Conversation, AiCharacter } from '@/hooks/useConciergeAI';
-import { useAudioVisualizer } from '@/hooks/useAudioVisualizer';
 import { useVoiceTranscribe } from '@/hooks/useVoiceTranscribe';
 import { uiSounds } from '@/utils/uiSounds';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
@@ -20,32 +19,7 @@ import useAppTheme from '@/hooks/useAppTheme';
 import { useSpeechSynthesis } from '@/hooks/useSpeechSynthesis';
 import { SwipessLogo } from '@/components/SwipessLogo';
 import { toast } from 'sonner';
-import { useModalStore } from '@/state/modalStore';
 import { useFilterStore } from '@/state/filterStore';
-
-const LANGUAGES = [
-  { code: 'en', label: 'English' },
-  { code: 'es', label: 'Español' },
-  { code: 'fr', label: 'Français' },
-  { code: 'de', label: 'Deutsch' },
-  { code: 'it', label: 'Italiano' },
-  { code: 'zh', label: '中文' },
-  { code: 'ja', label: '日本語' },
-  { code: 'ru', label: 'Русский' },
-];
-
-function formatTime(date: Date) {
-  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-}
-
-function formatDate(date: Date) {
-  const today = new Date();
-  if (date.toDateString() === today.toDateString()) return 'Today';
-  const yesterday = new Date(today);
-  yesterday.setDate(yesterday.getDate() - 1);
-  if (date.toDateString() === yesterday.toDateString()) return 'Yesterday';
-  return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
-}
 
 function formatConvoDate(date: Date) {
   return date.toLocaleDateString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
