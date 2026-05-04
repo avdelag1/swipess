@@ -253,15 +253,15 @@ export const BottomNavigation = memo(({
           isTablet ? "mx-auto w-fit max-w-full" : "w-full"
         )}
         style={{
-          background: isLight ? 'rgba(255,255,255,0.65)' : 'rgba(18,18,20,0.55)',
-          backdropFilter: 'blur(24px) saturate(180%)',
-          WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+          background: isLight ? 'rgba(255,255,255,0.22)' : 'rgba(255,255,255,0.08)',
+          backdropFilter: 'blur(32px) saturate(200%)',
+          WebkitBackdropFilter: 'blur(32px) saturate(200%)',
           borderRadius: '3rem',
           padding: '4px',
           boxShadow: isLight
-            ? '0 10px 30px -12px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.9)'
-            : '0 14px 34px -14px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.08)',
-          border: isLight ? '1px solid rgba(255,255,255,0.7)' : '1px solid rgba(255,255,255,0.12)',
+            ? '0 8px 24px -10px rgba(0,0,0,0.14), inset 0 1px 0 rgba(255,255,255,0.7)'
+            : '0 10px 28px -12px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.12)',
+          border: isLight ? '1px solid rgba(255,255,255,0.5)' : '1px solid rgba(255,255,255,0.18)',
         }}
       >
         {/* Nav items row — SCROLLABLE SWIPESS ARCHITECTURE */}
