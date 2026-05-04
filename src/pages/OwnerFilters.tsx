@@ -103,9 +103,9 @@ export default function OwnerFilters({ isEmbedded, onClose }: OwnerFiltersProps)
                   !active && "text-foreground"
                 )}
                 style={active ? {
-                  backgroundColor: '#FF4D00',
-                  color: 'white',
-                  boxShadow: '0 8px 24px rgba(255,77,0,0.4)',
+                  backgroundColor: 'hsl(var(--primary))',
+                  color: 'hsl(var(--primary-foreground))',
+                  boxShadow: '0 8px 24px hsl(var(--primary) / 0.35)',
                   transform: 'scale(1.03)'
                 } : undefined}
                 {...(!active ? { 'data-inactive': true } : {})}
@@ -172,7 +172,7 @@ export default function OwnerFilters({ isEmbedded, onClose }: OwnerFiltersProps)
             }}
             disabled={isScanning}
             className="w-full h-20 rounded-[2.5rem] font-black uppercase italic tracking-[0.2em] text-xl flex items-center justify-center gap-4 group transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-            style={{ backgroundColor: '#FF4D00', color: 'white', boxShadow: '0 20px 50px rgba(255,77,0,0.4)' }}
+            style={{ backgroundColor: 'hsl(var(--primary))', color: 'hsl(var(--primary-foreground))', boxShadow: '0 20px 50px hsl(var(--primary) / 0.35)' }}
           >
             <Sparkles className={cn("w-6 h-6 md:w-7 md:h-7 animate-pulse group-hover:scale-110 transition-transform", isScanning && "animate-spin")} />
             <span className="text-sm font-black uppercase italic tracking-[0.2em]">
