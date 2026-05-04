@@ -357,7 +357,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
                 {Array.from({ length: imageCount }).map((_, idx) => (
                   <div
                     key={idx}
-                    className="h-[2.5px] flex-1 rounded-full overflow-hidden bg-white/25"
+                    className="h-[3px] flex-1 rounded-full overflow-hidden bg-black/45 ring-1 ring-white/20 shadow-[0_1px_3px_rgba(0,0,0,0.6)]"
                   >
                     <motion.div 
                       animate={{ 
