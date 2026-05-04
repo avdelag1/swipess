@@ -206,6 +206,7 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
             <Route path="/promote" element={<Navigate to="/client/advertise" replace />} />
             <Route path="*" element={<ChunkErrorBoundary><Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><NotFound /></AnimatedPage></Suspense></ChunkErrorBoundary>} />
           </Routes>
+          </Suspense>
           </TooltipProvider>
         </AppLayout>
       </RootProviders>
