@@ -26,7 +26,7 @@ import CardImage from '@/components/CardImage';
 import { imageCache } from '@/lib/swipe/cardImageCache';
 import useAppTheme from '@/hooks/useAppTheme';
 import { cn } from '@/lib/utils';
-import { ThumbsUp, ThumbsDown, Flame, Flag } from 'lucide-react';
+import { ThumbsUp, ThumbsDown, Flame, Flag, Share2 } from 'lucide-react';
 
 export interface SimpleSwipeCardRef {
   triggerSwipe: (direction: 'left' | 'right') => void;
@@ -66,6 +66,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   externalY,
   onDragStart,
   onReport,
+  onShare,
 }, ref) => {
   const { isLight } = useAppTheme();
   const isDragging = useRef(false);
@@ -470,20 +471,34 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           </div>
         )}
 
-        {isTop && onReport && (
-          <button
-            type="button"
-            onPointerDown={(e) => e.stopPropagation()}
-            onClick={(e) => {
-              e.stopPropagation();
-              onReport();
-            }}
-            aria-label="Report listing"
-            className="absolute top-[calc(var(--safe-top,0px)+14px)] right-4 z-40 w-9 h-9 rounded-full flex items-center justify-center bg-black/45 backdrop-blur-md border border-white/15 active:scale-95 transition-all duration-150 hover:bg-black/60"
+        {isTop && (onReport || onShare) && (
+          <div
+            className="absolute top-[calc(var(--safe-top,0px)+14px)] right-4 z-40 flex items-center gap-2 transition-opacity duration-150"
             style={{ opacity: isZoomed ? 0 : 1 }}
           >
-            <Flag className="w-4 h-4 text-white/90" strokeWidth={2.2} />
-          </button>
+            {onShare && (
+              <button
+                type="button"
+                onPointerDown={(e) => e.stopPropagation()}
+                onClick={(e) => { e.stopPropagation(); onShare(); }}
+                aria-label="Share listing"
+                className="w-9 h-9 rounded-full flex items-center justify-center bg-black/45 backdrop-blur-md border border-white/15 active:scale-95 transition-all duration-150 hover:bg-black/60"
+              >
+                <Share2 className="w-4 h-4 text-white/90" strokeWidth={2.2} />
+              </button>
+            )}
+            {onReport && (
+              <button
+                type="button"
+                onPointerDown={(e) => e.stopPropagation()}
+                onClick={(e) => { e.stopPropagation(); onReport(); }}
+                aria-label="Report listing"
+                className="w-9 h-9 rounded-full flex items-center justify-center bg-black/45 backdrop-blur-md border border-white/15 active:scale-95 transition-all duration-150 hover:bg-black/60"
+              >
+                <Flag className="w-4 h-4 text-white/90" strokeWidth={2.2} />
+              </button>
+            )}
+          </div>
         )}
       </motion.div>
     </div>

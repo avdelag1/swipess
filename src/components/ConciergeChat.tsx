@@ -117,29 +117,32 @@ const ConciergePrivacyPortal = memo(({ onAccept, isSwipess }: { onAccept: () => 
       <Sparkles className={cn("w-10 h-10 animate-pulse text-primary")} />
     </div>
     <h2 className={cn(
-      "text-3xl font-black tracking-tight uppercase italic",
+      "text-3xl font-bold tracking-tight",
       isSwipess ? "text-white" : "text-foreground"
     )}>
       {isSwipess ? "Swipess Intel" : "Concierge AI"}
     </h2>
     <p className={cn(
-      "text-xs leading-relaxed max-w-[280px]",
+      "text-sm leading-relaxed max-w-[300px]",
       isSwipess ? "text-white/50" : "text-muted-foreground"
     )}>
-      Initialize the discovery interface. Your inquiries are handled with absolute confidentiality and processed by flagship-grade intelligence.
+      Start a private conversation with your AI concierge. Your messages are confidential and powered by top-tier intelligence.
     </p>
     
-    <div className="p-5 rounded-2xl border text-[10px] leading-tight text-center bg-white/5 border-white/5 text-white/70">
-      <p className="font-black uppercase tracking-[0.2em] mb-2 text-[11px] text-white/80">AI Disclaimer</p>
+    <div className={cn(
+      "p-4 rounded-2xl border text-xs leading-snug text-center",
+      isSwipess ? "bg-white/5 border-white/10 text-white/70" : "bg-muted/40 border-border text-muted-foreground"
+    )}>
+      <p className={cn("font-semibold mb-1.5 text-[11px]", isSwipess ? "text-white/80" : "text-foreground")}>AI Disclaimer</p>
       Swipess AI provides automated recommendations for informational purposes only. It is not a substitute for professional real estate, legal, or financial advice.
     </div>
 
     <div className="w-full space-y-3 mt-6">
       <Button 
         onClick={onAccept}
-        className="w-full h-14 rounded-2xl bg-primary hover:bg-primary/90 active:scale-95 transition-all text-white font-black uppercase tracking-[0.2em] text-[11px] shadow-[0_20px_40px_rgba(var(--color-brand-primary-rgb),0.3)]"
+        className="w-full h-14 rounded-2xl bg-primary hover:bg-primary/90 active:scale-95 transition-all text-primary-foreground font-semibold tracking-wide text-sm shadow-lg"
       >
-        Authorize Session
+        Start Session
       </Button>
     </div>
   </div>
