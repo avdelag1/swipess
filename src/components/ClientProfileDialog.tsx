@@ -22,6 +22,7 @@ import {
 import { logger } from '@/utils/prodLogger';
 import { validateContent } from '@/utils/contactInfoValidation';
 import { triggerHaptic } from '@/utils/haptics';
+import useAppTheme from '@/hooks/useAppTheme';
 
 import {
   NATIONALITY_OPTIONS,
@@ -41,6 +42,7 @@ type Props = {
 };
 
 function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
+  const { isLight } = useAppTheme();
   const { data } = useClientProfile();
   const saveMutation = useSaveClientProfile();
 
@@ -217,10 +219,10 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={(v) => { triggerHaptic('light'); onOpenChange(v); }}>
-      <DialogContent hideCloseButton className="sm:max-w-3xl max-h-[92vh] flex flex-col p-0 gap-0 border border-white/5 bg-[#020202] overflow-hidden rounded-[2.5rem] shadow-[0_0_80px_rgba(0,0,0,0.95)]">
+      <DialogContent hideCloseButton className={cn("client-profile-dialog sm:max-w-3xl max-h-[92vh] flex flex-col p-0 gap-0 overflow-hidden rounded-[2.5rem]", isLight ? "light-profile-dialog border-border bg-background text-foreground shadow-[0_30px_90px_hsl(var(--foreground)/0.16)]" : "border-border bg-background text-foreground shadow-[0_0_80px_hsl(var(--background)/0.95)]")}>
         
         {/* 🛸 NEXUS ATMOSPHERIC LAYER */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-20">
+        <div className={cn("absolute inset-0 pointer-events-none overflow-hidden", isLight ? "opacity-[0.04]" : "opacity-20")}>
           <div
             className="absolute inset-0"
             style={{
@@ -234,17 +236,17 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
         </div>
 
         {/* 🛸 NEXUS HEADER */}
-        <div className="relative px-8 pt-8 pb-6 border-b border-white/5 bg-gradient-to-b from-white/[0.04] to-transparent z-10">
+        <div className={cn("relative px-8 pt-8 pb-6 border-b z-10", isLight ? "border-border bg-gradient-to-b from-muted/50 to-transparent" : "border-border bg-gradient-to-b from-foreground/[0.04] to-transparent")}>
            <div className="flex items-center justify-between">
               <div className="space-y-1">
                  <div className="flex items-center gap-2">
                     <Sparkles className="w-4 h-4 text-[#EB4898] animate-pulse" />
-                    <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white/50 italic">Nexus Identity Terminal</span>
+                     <span className="text-[10px] font-black uppercase tracking-[0.4em] text-muted-foreground italic">Nexus Identity Terminal</span>
                  </div>
-                 <h2 className="text-3xl font-black italic uppercase tracking-tighter text-white drop-shadow-sm">Edit Profile</h2>
+                  <h2 className="text-3xl font-black italic uppercase tracking-tighter text-foreground drop-shadow-sm">Edit Profile</h2>
               </div>
               <div className="flex flex-col items-end gap-2">
-                 <div className="h-2 w-32 bg-white/5 rounded-full overflow-hidden border border-white/10 shadow-inner">
+                  <div className="h-2 w-32 bg-foreground/5 rounded-full overflow-hidden border border-border shadow-inner">
                     <motion.div 
                       className="h-full bg-gradient-to-r from-[#EB4898] to-[#FF4D00]" 
                       initial={{ width: 0 }}
@@ -256,7 +258,7 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
               </div>
            </div>
            
-           <button onClick={() => { triggerHaptic('light'); onOpenChange(false); }} className="absolute -top-2 -right-2 sm:top-6 sm:right-6 w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/40 hover:text-white transition-all active:scale-90 hover:bg-white/10">
+           <button onClick={() => { triggerHaptic('light'); onOpenChange(false); }} className="absolute -top-2 -right-2 sm:top-6 sm:right-6 w-10 h-10 rounded-full flex items-center justify-center text-foreground/55 hover:text-foreground transition-all active:scale-90 hover:bg-foreground/5">
              <X className="w-5 h-5" />
            </button>
         </div>
@@ -431,19 +433,19 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
         </div>
 
         {/* 🛸 NEXUS FOOTER ACTIONS */}
-        <div className="px-8 py-6 border-t border-white/5 bg-gradient-to-t from-white/[0.04] to-transparent flex items-center justify-between gap-4 z-10 relative">
+        <div className={cn("px-8 py-6 border-t flex items-center justify-between gap-4 z-10 relative", isLight ? "border-border bg-gradient-to-t from-muted/50 to-transparent" : "border-border bg-gradient-to-t from-foreground/[0.04] to-transparent")}>
            <Button 
              variant="ghost" 
              onClick={() => onOpenChange(false)}
-             className="h-14 px-8 rounded-2xl font-black italic uppercase tracking-widest text-white/40 hover:text-white hover:bg-white/5"
+              className="h-14 px-8 rounded-2xl font-black italic uppercase tracking-widest text-foreground/55 hover:text-foreground hover:bg-foreground/5"
            >
               Cancel
            </Button>
            
-           <Button 
+            <Button 
               onClick={handleSave}
               disabled={saveMutation.isPending}
-              className="h-14 pl-8 pr-10 rounded-2xl font-black italic uppercase tracking-[0.2em] shadow-2xl active:scale-95 transition-all group border-none text-white overflow-hidden relative"
+               className="keep-white h-14 pl-8 pr-10 rounded-2xl font-black italic uppercase tracking-[0.2em] shadow-2xl active:scale-95 transition-all group border-none text-white overflow-hidden relative"
               style={{ background: 'linear-gradient(135deg, #FF4D00, #EB4898)' }}
            >
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.2),transparent_70%)] pointer-events-none" />
