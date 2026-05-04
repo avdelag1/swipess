@@ -31,6 +31,7 @@ jobs:
         uses: actions/checkout@v5
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Validate mirror configuration
         if: steps.guard.outputs.skip != 'true'
@@ -51,6 +52,7 @@ jobs:
           set -euo pipefail
           git config user.name "swipess-sync-bot"
           git config user.email "actions@github.com"
+          git config --local --unset-all http.https://github.com/.extraheader || true
           git remote add original "https://x-access-token:${MIRROR_TOKEN}@github.com/${TARGET_REPOSITORY}.git"
           git fetch original main --depth=1 || true
           # Force-push because the Lovable-connected repo is the source of truth.
