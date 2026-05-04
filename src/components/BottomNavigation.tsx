@@ -382,7 +382,7 @@ export const BottomNavigation = memo(({
                       height: isTablet ? ICON_SIZE_TABLET : (isNarrow ? 16 : ICON_SIZE),
                       color: active ? '#E4007C' : (hasCards ? 'rgba(0,0,0,0.78)' : 'rgba(255,255,255,0.92)'),
                       fill: 'none',
-                      strokeWidth: active ? 2.8 : 2.4,
+                      strokeWidth: active ? 2 : 1.7,
                       transition: 'color 160ms ease-out, stroke-width 160ms ease-out',
                     }}
                   />
