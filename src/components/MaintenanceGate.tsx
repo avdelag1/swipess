@@ -5,6 +5,9 @@ const REQUIRED_TAPS = 8;
 const TAP_RESET_MS = 1500;
 
 export function MaintenanceGate({ children }: { children: React.ReactNode }) {
+  // Maintenance gate disabled — always pass through
+  return <>{children}</>;
+  // eslint-disable-next-line no-unreachable
   const [unlocked, setUnlocked] = useState<boolean>(() => {
     if (typeof window === "undefined") return false;
     return sessionStorage.getItem(STORAGE_KEY) === "true";
