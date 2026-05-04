@@ -253,15 +253,10 @@ export const BottomNavigation = memo(({
           isTablet ? "mx-auto w-fit max-w-full" : "w-full"
         )}
         style={{
-          background: isLight ? 'rgba(255,255,255,0.22)' : 'rgba(255,255,255,0.08)',
-          backdropFilter: 'blur(32px) saturate(200%)',
-          WebkitBackdropFilter: 'blur(32px) saturate(200%)',
-          borderRadius: '3rem',
+          background: 'transparent',
+          border: 'none',
+          boxShadow: 'none',
           padding: '4px',
-          boxShadow: isLight
-            ? '0 8px 24px -10px rgba(0,0,0,0.14), inset 0 1px 0 rgba(255,255,255,0.7)'
-            : '0 10px 28px -12px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.12)',
-          border: isLight ? '1px solid rgba(255,255,255,0.5)' : '1px solid rgba(255,255,255,0.18)',
         }}
       >
         {/* Nav items row — SCROLLABLE SWIPESS ARCHITECTURE */}
@@ -334,6 +329,13 @@ export const BottomNavigation = memo(({
                   userSelect: 'none',
                   WebkitUserSelect: 'none' as any,
                   transition: 'all 0.3s cubic-bezier(0.22, 1, 0.36, 1)',
+                  background: isLight ? 'rgba(255,255,255,0.22)' : 'rgba(255,255,255,0.08)',
+                  backdropFilter: 'blur(28px) saturate(180%)',
+                  WebkitBackdropFilter: 'blur(28px) saturate(180%)',
+                  border: isLight ? '1px solid rgba(255,255,255,0.5)' : '1px solid rgba(255,255,255,0.18)',
+                  boxShadow: isLight
+                    ? '0 4px 14px -6px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.6)'
+                    : '0 6px 18px -8px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.12)',
                 }}
               >
                 {/* Active state is color-only: no nested pill/frame behind icons. */}
