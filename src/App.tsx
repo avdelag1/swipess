@@ -122,6 +122,7 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
             <PWAInstallPrompt />
           </Suspense>
 
+          <Suspense fallback={<SuspenseFallback />}>
           <Routes>
             <Route path="/" element={<SignupErrorBoundary><Index /></SignupErrorBoundary>} />
             <Route path="/reset-password" element={<Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><ResetPassword /></AnimatedPage></Suspense>} />
