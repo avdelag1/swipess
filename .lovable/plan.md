@@ -1,47 +1,47 @@
-# Fix: `useActiveMode must be used within an ActiveModeProvider`
+# App-Wide Polish Pass — Titles & Copy Consistency
 
-## Root cause
+Goal: prepare for App Store review by ensuring every page/section has a correct, well-organized title and that no screen mislabels content (e.g. a worker/vehicle/user shown as "Property" in the insights modal).
 
-The error is **not** a missing Provider. The Provider IS mounted (visible in the React component stack, wrapping everything below it).
+## 1. Fix the Insights Modal mislabeling
 
-The real issue: two different module instances of `src/hooks/useActiveMode.tsx` are loaded at the same time (visible from the `?t=...` cache-bust timestamps in the stack — one is `1777931364183`, the other is `1777930982912`). Each instance calls `createContext()` and produces its own context object. The Provider publishes value into Context-A; the consumer reads from Context-B and gets `undefined` → throws.
+`src/components/LikedListingInsightsModal.tsx` is the offender — it hardcodes "Property" everywhere even when the liked item is a worker, vehicle, motorcycle, bicycle, or roommate profile.
 
-This happens because:
-- `useActiveMode.tsx` exports the Context, the Provider, AND the consumer hook all from one file.
-- `PersistentDashboardLayout` is loaded via `lazyWithRetry`, which lives in its own chunk.
-- After a chunk-retry reload or HMR refresh, the lazy chunk re-imports the hook file with a new `?t=` query, while the eager bundle still references the old one.
+Introduce a single derived `entityLabel` based on the existing category logic (`isWorker`, `isVehicle`, `isMotorcycle`, `isBicycle`, `isProperty`) and a matching plural/owner term:
 
-The same class of bug was already fixed for the theme system — `ThemeContext` lives in its own dedicated file separate from `ThemeProvider`. We apply the same pattern here.
+| Category | Singular | Owner term |
+|---|---|---|
+| property / room / house | Listing | Owner |
+| worker / services | Professional | Provider |
+| motorcycle / bicycle / vehicle | Vehicle | Seller |
+| roommate | Roommate | User |
 
-## Changes
+Replace the hardcoded "Property" / "property" / "owner" strings at lines 152, 159, 253, 269, 329, 596, 656, 659, 726 and the "Message Owner" CTA (line 611) with the dynamic label. Same treatment for the `<AlertDialogTitle>` "Remove from Liked Properties".
 
-### 1. Create `src/contexts/ActiveModeContext.ts` (new)
+## 2. Sweep page titles for organization
 
-Tiny stable module that owns ONLY:
-- `ActiveMode` type
-- `ActiveModeContextType` interface
-- `ActiveModeContext = createContext<ActiveModeContextType | undefined>(undefined)`
+Audit and align every page so the `PageHeader title/subtitle` (and `<Helmet><title>`) reflects the actual content. Concrete targets:
 
-No React component code, no side effects → not subject to HMR re-evaluation, so every importer (eager or lazy) shares the exact same context instance.
+- **Owner side**
+  - `OwnerInterestedClients.tsx`: confirm "Interested Clients / Top Demand"
+  - `OwnerLikedClients.tsx`, `OwnerProperties.tsx`, `OwnerSavedSearches.tsx`, `OwnerSecurity.tsx`, `OwnerSettings.tsx`, `OwnerContracts.tsx`, `OwnerFilters.tsx`, `OwnerNewListing.tsx`, `OwnerProfile.tsx`, `OwnerViewClientProfile.tsx` — verify each header reads naturally for an owner (no "Property" leak when viewing a person).
+- **Client side**
+  - `ClientLikedProperties.tsx` (rename header to "Liked Listings" since it can include workers/vehicles), `ClientWhoLikedYou.tsx`, `ClientSavedSearches.tsx`, `ClientSecurity.tsx`, `ClientSettings.tsx`, `ClientContracts.tsx`, `ClientPerks.tsx`, `ClientWorkerDiscovery.tsx`, `ClientProfile.tsx`.
+- **Shared/utility**
+  - `MessagingDashboard`, `NotificationsPage`, `LegalHub`, `FAQClientPage`, `FAQOwnerPage`, `AboutPage`, `SubscriptionPackagesPage`, `EventosFeed`, `EventoDetail`, `RoommateMatching`, `LocalIntel`, `PriceTracker`, `DocumentVault`, `MaintenanceRequests`, `WorldRadioDirectory`, `DJTurntableRadio`, `AdvertisePage`, `VideoTours`.
+- **Document title** — add/normalize `<Helmet><title>... | Swipess</title>` per the branding rule (currently only a few pages set it).
 
-### 2. Update `src/hooks/useActiveMode.tsx`
+For each page: title = what this screen *is*, subtitle = a short intent line. No emojis. Use existing `PageHeader` component and i18n strings where already present.
 
-- Remove the local `createContext` and the `ActiveModeContextType` interface declaration.
-- Import `ActiveModeContext`, `ActiveModeContextType`, and `ActiveMode` from `@/contexts/ActiveModeContext`.
-- Re-export `ActiveMode` so existing `import { ActiveMode } from '@/hooks/useActiveMode'` keeps working (used by `ModeSwitcher.tsx`).
-- Keep `ActiveModeProvider`, `useActiveMode`, and `useActiveModeQuery` exports unchanged.
+## 3. Quick QA pass
 
-### 3. No changes required to consumers
+After edits, spot-check on `/client/dashboard`, `/owner/dashboard`, `/messages`, `/notifications`, `/client/liked`, `/owner/interested`, and the Insights modal opened from a worker card and a vehicle card to confirm labels render correctly.
 
-All current imports (`ActiveModeProvider`, `useActiveMode`, `ActiveMode`) keep their existing paths via the re-exports.
+## Out of scope
+- No layout, color, or component restructuring.
+- No new translation keys unless a string is already i18n-wired.
+- No changes to swipe physics, routing, or backend.
 
-## Why this fully fixes it
-
-Once the Context object lives in a leaf module with no JSX, Vite/HMR has no reason to invalidate it across chunks. Eager bundle and lazy `PersistentDashboardLayout` chunk both resolve to the same `ActiveModeContext` singleton, so `useContext` returns the live value the Provider published.
-
-## Files touched
-
-- **Add**: `src/contexts/ActiveModeContext.ts`
-- **Edit**: `src/hooks/useActiveMode.tsx`
-
-No other files, no DB changes, no behavior changes.
+## Technical notes
+- All copy edits stay inside JSX/string literals — no schema or hook changes.
+- Insights modal: derive `entityLabel` once inside the existing `propertyInsights` `useMemo` and reuse it; keep variable names (`propertyInsights`, `isProperty`) intact to avoid touching logic.
+- Preserve semantic tokens; do not introduce hardcoded colors.
