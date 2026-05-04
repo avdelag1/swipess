@@ -829,7 +829,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
       <div className={cn(
         "flex-1 relative flex w-full h-full items-center justify-center px-0 z-10 pointer-events-auto min-h-0 overflow-hidden"
       )}>
-        <div className="relative w-[calc(100%+8px)] h-[calc(100%+8px)] -mx-1 -my-1 mx-auto flex items-center justify-center pointer-events-auto md:max-w-[572px]">
+        <div className="relative w-full h-full mx-auto flex items-center justify-center pointer-events-auto md:max-w-[572px]">
           {/* Rounded backdrop matches card corners so deck blends into background */}
           <div
             aria-hidden
