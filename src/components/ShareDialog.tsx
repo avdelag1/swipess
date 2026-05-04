@@ -2,17 +2,14 @@ import { useState } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Share2, Link2, Mail, MessageCircle, Send, Check, Twitter, Smartphone, X, Instagram, Music2 } from 'lucide-react';
+import { Share2, Link2, Mail, Send, Check, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import {
   useCreateShare,
   copyToClipboard,
   shareViaNavigator,
-  shareViaWhatsApp,
-  shareViaTwitter,
   shareViaEmail,
-  shareViaSMS,
   generateShareUrl,
 } from '@/hooks/useSharing';
 import { useAuth } from '@/hooks/useAuth';
@@ -64,22 +61,16 @@ export function ShareDialog({
     const shared = await shareViaNavigator({ title, text: shareText, url: shareUrl });
     if (shared) {
       await createShare.mutateAsync({ sharedListingId: listingId, sharedProfileId: profileId, shareMethod: 'other' });
+    } else {
+      // Fallback: copy link if native share unavailable or dismissed without sharing
+      const ok = await copyToClipboard(shareUrl);
+      if (ok) {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+        toast.success('Link copied to clipboard');
+        await createShare.mutateAsync({ sharedListingId: listingId, sharedProfileId: profileId, shareMethod: 'link_copied' });
+      }
     }
-  };
-
-  const handleSocialShare = async (platform: string, handler: () => void) => {
-    triggerHaptic('light');
-    handler();
-    await createShare.mutateAsync({ sharedListingId: listingId, sharedProfileId: profileId, shareMethod: platform as any });
-  };
-
-  // Instagram & TikTok have no public web share intent — copy the link and open the app
-  // so the user can paste it into a Story / bio / post.
-  const shareViaCopyAndOpen = async (openUrl: string, platformLabel: string) => {
-    const ok = await copyToClipboard(`${shareText}\n${shareUrl}`);
-    if (ok) toast.success(`Link copied — paste it in ${platformLabel}`);
-    else toast.error('Could not copy link');
-    window.open(openUrl, '_blank', 'noopener,noreferrer');
   };
 
   const handleEmailShare = async () => {
@@ -172,54 +163,16 @@ export function ShareDialog({
             </Button>
           </div>
 
-          {/* Social grid */}
-          <div className="grid grid-cols-4 gap-2.5">
-            {typeof navigator !== 'undefined' && typeof navigator.share === 'function' && (
-              <button
-                onClick={handleNativeShare}
-                className={cn(
-                  "flex flex-col items-center justify-center gap-2 h-20 rounded-2xl border active:scale-95 transition-all",
-                  isLight
-                    ? "bg-white border-slate-200 shadow-[0_8px_20px_-10px_rgba(15,23,42,0.18)] hover:shadow-[0_12px_28px_-10px_rgba(15,23,42,0.28)]"
-                    : "bg-[#161616] border-white/[0.06] hover:bg-[#1d1d1d]"
-                )}
-              >
-                <div className={cn(
-                  "w-9 h-9 rounded-xl flex items-center justify-center shadow-sm",
-                  isLight ? "bg-slate-900 text-white" : "bg-white text-black"
-                )}>
-                  <Smartphone className="w-4 h-4" />
-                </div>
-                <span className={cn("text-[10px] font-bold uppercase tracking-wider", isLight ? "text-slate-700" : "text-white/60")}>More</span>
-              </button>
-            )}
-            {[
-              { id: 'whatsapp', icon: MessageCircle, label: 'WhatsApp', handler: () => shareViaWhatsApp(shareUrl, shareText) },
-              { id: 'twitter', icon: Twitter, label: 'X', handler: () => shareViaTwitter(shareUrl, shareText) },
-              { id: 'instagram', icon: Instagram, label: 'Instagram', handler: () => shareViaCopyAndOpen('https://www.instagram.com/', 'your Instagram Story') },
-              { id: 'tiktok', icon: Music2, label: 'TikTok', handler: () => shareViaCopyAndOpen('https://www.tiktok.com/upload', 'your TikTok caption') },
-              { id: 'sms', icon: Send, label: 'SMS', handler: () => shareViaSMS(shareUrl, shareText) },
-            ].map((p) => (
-              <button
-                key={p.id}
-                onClick={() => handleSocialShare(p.id, p.handler)}
-                className={cn(
-                  "flex flex-col items-center justify-center gap-2 h-20 rounded-2xl border active:scale-95 transition-all",
-                  isLight
-                    ? "bg-white border-slate-200 shadow-[0_8px_20px_-10px_rgba(15,23,42,0.18)] hover:shadow-[0_12px_28px_-10px_rgba(15,23,42,0.28)]"
-                    : "bg-[#161616] border-white/[0.06] hover:bg-[#1d1d1d]"
-                )}
-              >
-                <div className={cn(
-                  "w-9 h-9 rounded-xl flex items-center justify-center border shadow-sm",
-                  isLight ? "bg-slate-100 text-slate-900 border-slate-300" : "bg-[#262626] text-white border-white/[0.06]"
-                )}>
-                  <p.icon className="w-4 h-4" />
-                </div>
-                <span className={cn("text-[10px] font-bold uppercase tracking-wider", isLight ? "text-slate-700" : "text-white/60")}>{p.label}</span>
-              </button>
-            ))}
-          </div>
+          {/* Single unified Share button — uses the OS native share sheet
+              (WhatsApp, Instagram, X, TikTok, SMS, Mail, etc.) and falls
+              back to copy-to-clipboard on desktop browsers. */}
+          <Button
+            onClick={handleNativeShare}
+            className="w-full h-14 rounded-2xl font-bold uppercase tracking-wider text-xs active:scale-[0.98] transition-all border-none bg-primary !text-primary-foreground hover:bg-primary/90 shadow-[0_14px_30px_-10px_hsl(var(--primary)/0.55)] flex items-center justify-center gap-2"
+          >
+            <Share2 className="w-4 h-4" strokeWidth={2.2} />
+            Share via…
+          </Button>
 
           {/* Email */}
           <div className="flex gap-2">
