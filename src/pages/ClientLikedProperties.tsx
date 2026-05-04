@@ -158,7 +158,7 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["liked-properties"] });
-      toast.success("Property removed from your likes");
+      toast.success("Removed from your likes");
       setShowDeleteDialog(false);
       setPropertyToDelete(null);
     },
