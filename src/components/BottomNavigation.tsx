@@ -255,7 +255,7 @@ export const BottomNavigation = memo(({
         style={{
           background: isLight ? 'rgba(255,255,255,0.22)' : 'rgba(255,255,255,0.08)',
           backdropFilter: 'blur(32px) saturate(200%)',
-          WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(32px) saturate(200%)',
           borderRadius: '3rem',
           padding: '4px',
           boxShadow: isLight
