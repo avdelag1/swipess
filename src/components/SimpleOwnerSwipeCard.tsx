@@ -14,7 +14,7 @@
 
 import { memo, useRef, useState, useCallback, useMemo, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { motion, useMotionValue, useTransform, PanInfo, animate, useDragControls } from 'framer-motion';
-import { MapPin, DollarSign, Briefcase, ThumbsUp, ThumbsDown } from 'lucide-react';
+import { MapPin, DollarSign, Briefcase, ThumbsUp, ThumbsDown, Flag } from 'lucide-react';
 import { triggerHaptic } from '@/utils/haptics';
 import { cn } from '@/lib/utils';
 import { useMagnifier } from '@/hooks/useMagnifier';
@@ -144,6 +144,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   isTop = true,
   onDragStart,
   externalX,
+  onReport,
 }, ref) => {
   const isDragging = useRef(false);
   const hasExited = useRef(false);
@@ -432,6 +433,22 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
                <span className="text-[10px] font-black uppercase tracking-widest text-white">Verified</span>
              </div>
           </div>
+        )}
+
+        {isTop && onReport && (
+          <button
+            type="button"
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={(e) => {
+              e.stopPropagation();
+              onReport();
+            }}
+            aria-label="Report profile"
+            className="absolute top-[calc(var(--safe-top,0px)+14px)] right-4 z-40 w-9 h-9 rounded-full flex items-center justify-center bg-black/45 backdrop-blur-md border border-white/15 active:scale-95 transition-all duration-150 hover:bg-black/60"
+            style={{ opacity: isZoomed ? 0 : 1 }}
+          >
+            <Flag className="w-4 h-4 text-white/90" strokeWidth={2.2} />
+          </button>
         )}
       </motion.div>
     </div>
