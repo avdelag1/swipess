@@ -33,7 +33,7 @@ const CATEGORIES = [
 
 export function AIListingWizard() {
   const { showAIListing, aiListingCategory, aiListingDraft, setModal } = useModalStore();
-  const { theme, isLight } = useAppTheme();
+  const { isLight } = useAppTheme();
   const { user } = useAuth();
   const { t } = useTranslation();
   const location = useLocation();
