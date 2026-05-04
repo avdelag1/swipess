@@ -7,6 +7,13 @@ import { useFilterStore } from '@/state/filterStore';
  * Used by the TopBar / ModeSwitcher / BottomNavigation to flip icon colors
  * (black over bright cards, white over dark empty frame).
  */
+/**
+ * Returns true when the UI should use DARK icons:
+ *  - On dashboards with at least one swipe card visible (bright card behind icons)
+ *  - On every non-dashboard route (default app surface is light)
+ *
+ * Returns false ONLY on a dashboard that currently has no cards (dark empty frame).
+ */
 export function useDeckHasCards(): boolean {
   const { pathname } = useLocation();
   const clientCount = useSwipeDeckStore((s) => s.clientDeck.deckItems.length - s.clientDeck.currentIndex);
@@ -22,5 +29,6 @@ export function useDeckHasCards(): boolean {
     if (!deck) return false;
     return deck.deckItems.length - deck.currentIndex > 0;
   }
-  return false;
+  // Off-dashboard surfaces are light → use dark icons
+  return true;
 }
