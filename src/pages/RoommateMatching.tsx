@@ -9,7 +9,6 @@ import { useTranslation } from 'react-i18next';
 import { triggerHaptic } from '@/utils/haptics';
 import { cn } from '@/lib/utils';
 import useAppTheme from '@/hooks/useAppTheme';
-import { useActiveMode } from '@/hooks/useActiveMode';
 import { SimpleOwnerSwipeCard, SimpleOwnerSwipeCardRef } from '@/components/SimpleOwnerSwipeCard';
 import { SwipeActionButtonBar } from '@/components/SwipeActionButtonBar';
 import { RoommateFiltersSheet } from '@/components/filters/RoommateFiltersSheet';
@@ -38,7 +37,6 @@ const InfoPill = ({ icon: Icon, label, value }: { icon: any, label: string, valu
 
 export default function RoommateMatching() {
   const { isLight } = useAppTheme();
-  const { activeMode } = useActiveMode();
   const { t } = useTranslation();
   const { user } = useAuth();
   const { setActiveCategory } = useFilterActions();
