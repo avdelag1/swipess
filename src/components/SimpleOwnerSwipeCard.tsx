@@ -143,6 +143,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   onInsights,
   isTop = true,
   onDragStart,
+  externalX,
 }, ref) => {
   const isDragging = useRef(false);
   const hasExited = useRef(false);
@@ -153,7 +154,8 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   const storedPointerEventRef = useRef<React.PointerEvent | null>(null);
   const { isLight } = useAppTheme();
 
-  const x = useMotionValue(0);
+  const _internalX = useMotionValue(0);
+  const x = externalX ?? _internalX;
   const y = useMotionValue(0);
 
   const cardRotate = useTransform(x, [-300, 0, 300], [-MAX_ROTATION, 0, MAX_ROTATION]);
