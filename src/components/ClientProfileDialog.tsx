@@ -241,12 +241,12 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
               <div className="space-y-1">
                  <div className="flex items-center gap-2">
                     <Sparkles className="w-4 h-4 text-[#EB4898] animate-pulse" />
-                    <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white/50 italic">Nexus Identity Terminal</span>
+                     <span className="text-[10px] font-black uppercase tracking-[0.4em] text-muted-foreground italic">Nexus Identity Terminal</span>
                  </div>
-                 <h2 className="text-3xl font-black italic uppercase tracking-tighter text-white drop-shadow-sm">Edit Profile</h2>
+                  <h2 className="text-3xl font-black italic uppercase tracking-tighter text-foreground drop-shadow-sm">Edit Profile</h2>
               </div>
               <div className="flex flex-col items-end gap-2">
-                 <div className="h-2 w-32 bg-white/5 rounded-full overflow-hidden border border-white/10 shadow-inner">
+                  <div className="h-2 w-32 bg-foreground/5 rounded-full overflow-hidden border border-border shadow-inner">
                     <motion.div 
                       className="h-full bg-gradient-to-r from-[#EB4898] to-[#FF4D00]" 
                       initial={{ width: 0 }}
@@ -258,7 +258,7 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
               </div>
            </div>
            
-           <button onClick={() => { triggerHaptic('light'); onOpenChange(false); }} className="absolute -top-2 -right-2 sm:top-6 sm:right-6 w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/40 hover:text-white transition-all active:scale-90 hover:bg-white/10">
+           <button onClick={() => { triggerHaptic('light'); onOpenChange(false); }} className="absolute -top-2 -right-2 sm:top-6 sm:right-6 w-10 h-10 rounded-full flex items-center justify-center text-foreground/55 hover:text-foreground transition-all active:scale-90 hover:bg-foreground/5">
              <X className="w-5 h-5" />
            </button>
         </div>
