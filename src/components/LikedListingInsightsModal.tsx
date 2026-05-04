@@ -334,7 +334,7 @@ function LikedListingInsightsModalComponent({ open, onOpenChange, listing }: Lik
                 <div className="relative h-[44vw] max-h-[280px] min-h-[200px] w-full overflow-hidden rounded-t-[2.5rem]">
                   <img
                     src={images[currentImageIndex]}
-                    alt={`Property photo ${currentImageIndex + 1}`}
+                    alt={`${propertyInsights?.entityLabel ?? 'Listing'} photo ${currentImageIndex + 1}`}
                     className="w-full h-full object-cover cursor-pointer"
                     onClick={handleImageClick}
                   />
