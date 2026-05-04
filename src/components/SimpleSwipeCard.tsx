@@ -66,6 +66,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   externalY,
   onDragStart,
   onReport,
+  onShare,
 }, ref) => {
   const { isLight } = useAppTheme();
   const isDragging = useRef(false);
