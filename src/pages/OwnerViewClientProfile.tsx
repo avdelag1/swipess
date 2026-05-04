@@ -13,6 +13,7 @@ import { toast } from 'sonner';
 import { ClientFilterPreferences } from '@/hooks/useClientFilterPreferences';
 import { useStartConversation } from '@/hooks/useConversations';
 import { useState, useMemo } from 'react';
+import useAppTheme from '@/hooks/useAppTheme';
 import { logger } from '@/utils/prodLogger';
 import { SwipeActionButtonBar } from '@/components/SwipeActionButtonBar';
 import { AtmosphericLayer } from '@/components/AtmosphericLayer';
@@ -28,6 +29,7 @@ export default function OwnerViewClientProfile() {
   const [isCreatingConversation, setIsCreatingConversation] = useState(false);
   const startConversation = useStartConversation();
   const { data: ratingAggregate, isLoading: isRatingLoading } = useUserRatingAggregate(clientId);
+  const { isLight } = useAppTheme();
 
   const { data: client, isLoading, error: _error } = useQuery({
     queryKey: ['client-profile', clientId],
@@ -118,8 +120,8 @@ export default function OwnerViewClientProfile() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="w-12 h-12 rounded-full border-2 border-rose-500/20 border-t-rose-500 animate-spin" />
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="w-12 h-12 rounded-full border-2 border-primary/20 border-t-primary animate-spin" />
       </div>
     );
   }
@@ -150,11 +152,19 @@ export default function OwnerViewClientProfile() {
   };
 
   return (
-    <div className="min-h-screen bg-[#020202] text-white selection:bg-[#EB4898]/30 overflow-x-hidden relative">
-      <AtmosphericLayer variant="nexus" opacity={0.15} />
+    <div
+      className={cn(
+        "min-h-screen overflow-x-hidden relative selection:bg-primary/30",
+        isLight ? "bg-background text-foreground" : "bg-[#020202] text-white",
+      )}
+    >
+      {!isLight && <AtmosphericLayer variant="nexus" opacity={0.15} />}
       
       {/* 🛸 NEXUS HEADER */}
-      <div className="sticky top-0 z-50 bg-black/40 backdrop-blur-3xl border-b border-white/5">
+      <div className={cn(
+        "sticky top-0 z-50 backdrop-blur-3xl border-b",
+        isLight ? "bg-background/70 border-border/60" : "bg-black/40 border-white/5",
+      )}>
         <div className="container max-w-[440px] mx-auto px-6 py-4 flex items-center justify-between">
           <button 
             onClick={() => { triggerHaptic('light'); navigate(-1); }}
