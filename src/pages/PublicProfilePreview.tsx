@@ -52,11 +52,11 @@ export default function PublicProfilePreview() {
       if (!id) throw new Error('No profile ID');
       const { data, error } = await supabase
         .from('profiles')
-        .select('user_id, full_name, city, avatar_url, bio, images, interests, nationality, languages_spoken, lifestyle_tags, age, gender, neighborhood, country, verified')
+        .select('user_id, full_name, city, avatar_url, bio, images, interests, nationality, languages_spoken, lifestyle_tags, age, gender, neighborhood, country')
         .eq('user_id', id)
         .maybeSingle();
       if (error) throw error;
-      return data;
+      return data as any;
     },
     enabled: !!id,
   });

@@ -199,8 +199,8 @@ export default function OwnerViewClientProfile() {
               
               <div className="flex flex-col items-end gap-3">
                 <div className="w-20 h-20 rounded-[28px] bg-white/5 border border-white/10 overflow-hidden shadow-2xl transform rotate-3 hover:rotate-0 transition-transform cursor-pointer">
-                  {client.images?.[0] ? (
-                    <img src={client.images[0]} alt="" className="w-full h-full object-cover" />
+                  {Array.isArray((client as any).images) && (client as any).images[0] ? (
+                    <img src={(client as any).images[0]} alt="" className="w-full h-full object-cover" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center bg-white/[0.02]">
                       <User className="w-8 h-8 text-white/10" />
@@ -217,7 +217,7 @@ export default function OwnerViewClientProfile() {
                <div className="px-4 py-2.5 rounded-2xl bg-black/60 border border-white/10 flex items-center gap-2 shadow-lg backdrop-blur-xl">
                   <CompactRatingDisplay aggregate={ratingAggregate || null} isLoading={isRatingLoading} showReviews={false} />
                </div>
-               {client.verified && (
+                {(client as any).verified && (
                  <div className="px-4 py-2.5 rounded-2xl bg-[#EB4898]/10 border border-[#EB4898]/20 flex items-center gap-2 shadow-[0_0_20px_rgba(235,72,152,0.1)]">
                     <ShieldCheck className="w-4 h-4 text-[#EB4898]" />
                     <span className="text-[10px] font-black uppercase tracking-widest text-[#EB4898] italic">Verified</span>

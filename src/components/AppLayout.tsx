@@ -245,7 +245,7 @@ export function AppLayout({ children }: AppLayoutProps) {
           isOpen={modalStore.showVapId}
           onClose={() => modalStore.setModal('showVapId', false)}
         />
-        <GlobalDialogs />
+        <GlobalDialogs userRole={userRole} />
       </Suspense>
     </div>
   );

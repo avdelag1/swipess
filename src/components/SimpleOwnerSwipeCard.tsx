@@ -126,6 +126,14 @@ interface SimpleOwnerSwipeCardProps {
   onMessage?: () => void;
   isTop?: boolean;
   onDragStart?: () => void;
+  onShare?: (profile: ClientProfile) => void;
+  onReport?: () => void;
+  onUndo?: () => void;
+  onLike?: () => void;
+  onDislike?: () => void;
+  canUndo?: boolean;
+  fullScreen?: boolean;
+  externalX?: any;
 }
 
 const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, SimpleOwnerSwipeCardProps>(({
@@ -382,7 +390,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
               <div className="inline-flex rounded-full px-3 py-1 bg-black/80 border border-white/10">
                 <CompactRatingDisplay aggregate={ratingAggregate as any} isLoading={isRatingLoading} showReviews={false} className="text-white" />
               </div>
-              <SwipeMatchMeter score={85} size="sm" />
+              <SwipeMatchMeter percentage={85} compact />
             </div>
             
             <h2 className="text-3xl font-black text-white italic tracking-tighter uppercase drop-shadow-lg">
