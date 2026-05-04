@@ -147,8 +147,8 @@ export default function PublicListingPreview() {
       <SEO 
         title={listing.title || 'Swipess Asset'}
         description={`${listing.beds || 0} Beds • ${listing.baths || 0} Baths • ${listing.city || 'Tulum'} — $${listing.price?.toLocaleString()}`}
-        image={images[0] || 'https://swipess.app/og-image-nexus.png'}
-        url={`https://swipess.app/listing/${id}`}
+        image={images[0] || `${typeof window !== 'undefined' ? window.location.origin : 'https://swipess.lovable.app'}/og-image-nexus.png`}
+        url={`${typeof window !== 'undefined' ? window.location.origin : 'https://swipess.lovable.app'}/listing/${id}`}
         type="website"
       />
 
