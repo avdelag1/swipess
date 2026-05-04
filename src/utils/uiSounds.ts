@@ -5,29 +5,33 @@
  */
 
 const NEXUS_SOUNDS = {
-  WELCOME: "https://pastewaves.com/api/audio/33d22bda-0431-4e50-b93a-ed7003f55e55/download",
-  LIKE: "https://pastewaves.com/api/audio/cb3373a6-ed8d-4f14-8527-443c5aece1dd/download",
-  DISLIKE: "https://pastewaves.com/api/audio/439dda73-a0b5-478c-a9af-aba9dd75e411/download",
-  NOTIFICATION: "https://pastewaves.com/api/audio/33d22bda-0431-4e50-b93a-ed7003f55e55/download",
-  UPLOAD: "https://pastewaves.com/api/audio/cb3373a6-ed8d-4f14-8527-443c5aece1dd/download",
+  WELCOME:      "/sounds/singing-bowl-gong-69238.mp3",
+  LIKE:         "/sounds/duck-quack-like.mp3",
+  DISLIKE:      "/sounds/deep-meditation-bell-hit-heart-dislike.mp3",
+  NOTIFICATION: "/sounds/text-notification-96707.mp3",
+  UPLOAD:       "/sounds/achievement-unlocked-463070.mp3",
 };
 
 const STAR_SOUNDS = [
-  "https://pastewaves.com/api/audio/e57f365a-5a0f-498a-ab33-ccf503077ebf/download",
-  "https://pastewaves.com/api/audio/48e1614f-4e5d-4800-b5a9-b0b38814bead/download",
-  "https://pastewaves.com/api/audio/4e03067c-86a0-4607-b8c8-7c1b8d36573c/download",
-  "https://pastewaves.com/api/audio/cfed8bfe-e71d-483c-ad86-96c9328a9d65/download",
-  "https://pastewaves.com/api/audio/a6f6d509-ecb8-4709-974a-91248003b056/download",
-  "https://pastewaves.com/api/audio/4ccdaaf6-9b06-4de2-86ec-5f888687d779/download",
-  "https://pastewaves.com/api/audio/f6dfc34d-7cce-4f5f-9ad4-3fea3f867723/download",
-  "https://pastewaves.com/api/audio/d1fb7ed9-11d0-447a-a179-9635d22bcab1/download",
-  "https://pastewaves.com/api/audio/8191c8e6-222e-469f-a232-b9e81bb4b6f5/download",
-  // Legacy Zen mix for depth
+  "/sounds/bells-1-72261.mp3",
   "/sounds/bells-2-31725.mp3",
   "/sounds/bell-a-99888.mp3",
   "/sounds/tuning-fork-440-hz-resonance-22406.mp3",
   "/sounds/singing-bowl-gong-69238.mp3",
-  "/sounds/bell-meditation-75335.mp3"
+  "/sounds/bell-meditation-75335.mp3",
+  "/sounds/gong-bell-singing-bowl-modified-61150.mp3",
+  "/sounds/deep-meditation-bell-hit-crown-chakra-7-186973.mp3",
+  "/sounds/deep-meditation-bell-hit-heart-chakra-4-186970.mp3",
+  "/sounds/deep-meditation-bell-hit-third-eye-chakra-6-186972.mp3",
+  "/sounds/deep-meditation-bell-hit-throat-chakra-5-186971.mp3",
+];
+
+const BOWL_SOUNDS = [
+  "/sounds/singing-bowl-gong-69238.mp3",
+  "/sounds/gong-bell-singing-bowl-modified-61150.mp3",
+  "/sounds/large-gong-2-232438.mp3",
+  "/sounds/bell-meditation-75335.mp3",
+  "/sounds/deep-meditation-bell-hit-root-chakra-1-174455.mp3",
 ];
 
 interface ToneOptions {
@@ -145,12 +149,8 @@ class SoundEngine {
   }
 
   public playZenBowl() {
-    try {
-      this.init();
-      if (!this.ctx) return;
-      const fundamental = 174.61;
-      this.tone({ type: 'sine', startFreq: fundamental, gainAmount: 0.12, duration: 3.0, attack: 0.08 });
-    } catch (_e) {}
+    const url = BOWL_SOUNDS[Math.floor(Math.random() * BOWL_SOUNDS.length)];
+    this.loadAndPlay(url, 0.45);
   }
 
   public playTap() {
