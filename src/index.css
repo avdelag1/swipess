@@ -18,7 +18,7 @@ html, body, #root {
   text-rendering: optimizeSpeed;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #ffffff;
+  background-color: hsl(var(--background));
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   /* 🏎️ GPU ACCELERATION INJECTION */
   transform: translateZ(0);
@@ -80,6 +80,11 @@ html, body, #root {
 
 .dark-matte { background-color: #000000 !important; color: #FFFFFF !important; }
 .white-matte { background-color: #FFFFFF !important; color: #000000 !important; }
+
+body.swipe-deck-active,
+body.swipe-deck-active #root {
+  background-color: hsl(var(--swipe-deck-frame)) !important;
+}
 
 /* Cheers theme: wrap body in cheetah-warm background */
 .cheers #root, .cheers body {
