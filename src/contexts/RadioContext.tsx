@@ -22,6 +22,23 @@ function shuffleArray<T extends { id: string }>(arr: T[], excludeId?: string): T
   return a;
 }
 
+/**
+ * Reorder a shuffled queue so recently-played stations are pushed to the back.
+ * Guarantees no station from `recent` appears in the first N slots (where
+ * N = min(recent.length, queue.length-1)). Prevents 2-3 quick repeats.
+ */
+function avoidRecent<T extends { id: string }>(queue: T[], recent: string[]): T[] {
+  if (queue.length <= 1 || recent.length === 0) return queue;
+  const recentSet = new Set(recent);
+  const fresh: T[] = [];
+  const stale: T[] = [];
+  for (const item of queue) {
+    if (recentSet.has(item.id)) stale.push(item);
+    else fresh.push(item);
+  }
+  return [...fresh, ...stale];
+}
+
 interface RadioContextType {
   state: RadioPlayerState;
   loading: boolean;
@@ -109,6 +126,15 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
   // Shuffle queue: pre-shuffled list of ALL stations
   const shuffleQueueRef = useRef<RadioStation[]>([]);
   const shuffleIndexRef = useRef<number>(0);
+  // Track the last N played station ids so shuffle never repeats within window
+  const recentPlayedRef = useRef<string[]>([]);
+  const RECENT_WINDOW = 8;
+  const pushRecent = (id: string) => {
+    const arr = recentPlayedRef.current.filter(x => x !== id);
+    arr.push(id);
+    while (arr.length > RECENT_WINDOW) arr.shift();
+    recentPlayedRef.current = arr;
+  };
 
   // Filter out dead stations from the master list
   const activeStations = useMemo(() => {
@@ -485,8 +511,9 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       if (direction === 'next') {
         nextIndex = shuffleIndexRef.current + 1;
         if (nextIndex >= shuffleQueueRef.current.length) {
-          const lastId = shuffleQueueRef.current[shuffleQueueRef.current.length - 1]?.id;
-          shuffleQueueRef.current = shuffleArray(radioStations, lastId);
+          // Re-shuffle and push recently-played stations to the back of queue
+          const reshuffled = shuffleArray(radioStations, state.currentStation?.id);
+          shuffleQueueRef.current = avoidRecent(reshuffled, recentPlayedRef.current);
           nextIndex = 0;
         }
       } else {
@@ -494,7 +521,10 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       }
       shuffleIndexRef.current = nextIndex;
       const station = shuffleQueueRef.current[nextIndex];
-      if (station) play(station);
+      if (station) {
+        pushRecent(station.id);
+        play(station);
+      }
       return;
     }
 
@@ -554,16 +584,25 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
   const shuffleAndPlay = useCallback((customStations?: RadioStation[]) => {
     const targetStations = customStations || activeStations;
     if (targetStations.length === 0) return;
-    const shuffled = shuffleArray(targetStations);
-    play(shuffled[0]);
+    const currentId = state.currentStation?.id;
+    // Build queue, avoiding repeats of current + recently-played stations
+    const baseShuffle = shuffleArray(targetStations, currentId);
+    const queue = avoidRecent(baseShuffle, [
+      ...(currentId ? [currentId] : []),
+      ...recentPlayedRef.current,
+    ]);
+    const first = queue[0];
+    if (!first) return;
+    pushRecent(first.id);
+    play(first);
     uiSounds.playStarShoot();
-    
+
     // Also enable shuffle mode with the new queue
-    shuffleQueueRef.current = shuffled;
+    shuffleQueueRef.current = queue;
     shuffleIndexRef.current = 0;
     setState(prev => ({ ...prev, isShuffle: true }));
     savePreferences({ isShuffle: true });
-  }, [activeStations, play]);
+  }, [activeStations, play, state.currentStation]);
 
   
 
