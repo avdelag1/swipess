@@ -291,12 +291,10 @@ const ClientProfile = () => {
                   "w-full h-14 rounded-2xl flex items-center px-8 gap-5 active:scale-[0.97] transition-all border shadow-sm backdrop-blur-xl",
                   btn.urgent
                     ? "bg-red-500/10 border-red-500/20 text-red-400"
-                    : isLight
-                      ? "bg-white border-black/10 text-slate-700 hover:bg-black/[0.02]"
-                      : "bg-white/[0.02] border-white/[0.06] text-white/70 hover:bg-white/[0.05]"
+                    : "bg-card border-border text-foreground hover:bg-secondary"
                 )}
               >
-                <btn.icon className={cn("w-5 h-5", btn.urgent ? "text-red-400" : isLight ? "text-slate-500" : "text-white/25")} />
+                <btn.icon className={cn("w-5 h-5", btn.urgent ? "text-red-400" : "text-foreground/80")} />
                 <span className="text-[12px] font-black uppercase tracking-[0.2em] italic">{btn.label}</span>
               </motion.button>
             ))}
