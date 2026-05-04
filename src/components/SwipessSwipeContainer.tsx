@@ -798,11 +798,11 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
     <>
     <div className={cn(
       "absolute inset-0 w-full h-full flex flex-col transition-colors duration-500 overflow-hidden",
-      isLight ? "bg-transparent" : "bg-black"
+      "bg-swipe-frame"
     )}>
       <div className={cn(
         "absolute inset-0 pointer-events-none -z-10 transition-colors duration-500",
-        isLight ? "bg-transparent" : "bg-black"
+        "bg-swipe-frame"
       )} />
 
       {!hasCards && (
@@ -835,7 +835,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
             aria-hidden
             className={cn(
               "absolute inset-0 -z-10 transition-colors duration-500",
-              isLight ? "bg-white" : "bg-black"
+              "bg-swipe-frame"
             )}
             style={{ borderRadius: 32 }}
           />
