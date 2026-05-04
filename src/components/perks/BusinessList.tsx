@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import useAppTheme from '@/hooks/useAppTheme';
 import { motion } from 'framer-motion';
 import { Search, QrCode, Store } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -11,6 +12,7 @@ interface BusinessListProps {
 }
 
 export function BusinessList({ partners, onShowQR }: BusinessListProps) {
+  const { isLight } = useAppTheme();
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('All');
 
@@ -32,7 +34,10 @@ export function BusinessList({ partners, onShowQR }: BusinessListProps) {
           placeholder="Search partners..."
           value={search}
           onChange={e => setSearch(e.target.value)}
-          className="w-full pl-8 pr-3 py-2.5 rounded-xl bg-muted/50 border border-border/50 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
+          className={cn(
+            "w-full pl-8 pr-3 py-2.5 rounded-xl text-sm transition-all focus:outline-none focus:ring-2 focus:ring-primary/30",
+            isLight ? "bg-black/[0.03] border-black/[0.05] text-black placeholder:text-black/30" : "bg-muted/50 border border-border/50 text-foreground placeholder:text-muted-foreground"
+          )}
         />
       </div>
 
@@ -44,9 +49,9 @@ export function BusinessList({ partners, onShowQR }: BusinessListProps) {
             onClick={() => setCategory(cat)}
             className={cn(
               'shrink-0 px-3 py-1.5 rounded-full text-[11px] font-semibold transition-all',
-              category === cat
-                ? 'bg-primary text-primary-foreground'
-                : 'bg-muted/60 text-muted-foreground'
+                category === cat
+                  ? 'bg-primary text-primary-foreground'
+                  : isLight ? 'bg-black/[0.05] text-black/60' : 'bg-muted/60 text-muted-foreground'
             )}
           >
             {cat}
@@ -59,7 +64,10 @@ export function BusinessList({ partners, onShowQR }: BusinessListProps) {
         {filtered.map(partner => (
           <motion.div
             key={partner.id}
-            className="flex items-center gap-3 p-3 rounded-xl bg-card border border-border/40 shadow-sm"
+            className={cn(
+              "flex items-center gap-3 p-3 rounded-xl transition-all shadow-sm",
+              isLight ? "bg-white border-black/[0.05]" : "bg-card border-border/40"
+            )}
             whileTap={{ scale: 0.98 }}
           >
             <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 overflow-hidden">
@@ -70,8 +78,8 @@ export function BusinessList({ partners, onShowQR }: BusinessListProps) {
               )}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-foreground truncate">{partner.name}</p>
-              <p className="text-[10px] text-muted-foreground capitalize">{partner.category}</p>
+              <p className={cn("text-sm font-semibold truncate", isLight ? "text-black" : "text-foreground")}>{partner.name}</p>
+              <p className={cn("text-[10px] capitalize", isLight ? "text-black/40" : "text-muted-foreground")}>{partner.category}</p>
               {partner.custom_discount_text && (
                 <p className="text-[10px] text-emerald-500 font-medium mt-0.5">{partner.custom_discount_text}</p>
               )}

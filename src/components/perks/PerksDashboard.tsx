@@ -139,14 +139,20 @@ export function PerksDashboard() {
 
               {/* Stats Grid */}
               <div className="grid grid-cols-2 gap-3 mt-4">
-                <div className="rounded-[24px] bg-white/5 border border-white/10 p-5 backdrop-blur-xl group hover:bg-white/10 transition-all">
+                <div className={cn(
+                  "rounded-[24px] p-5 backdrop-blur-xl group transition-all",
+                  isLight ? "bg-black/[0.03] border-black/[0.05]" : "bg-white/5 border-white/10 hover:bg-white/10"
+                )}>
                   <div className="flex items-center gap-2 text-rose-500 mb-2">
                     <Zap size={16} className="fill-current" />
                     <span className="text-[10px] font-black uppercase tracking-widest text-white/30">Total Saved</span>
                   </div>
                   <div className="text-2xl font-black text-white tracking-tight">${stats.totalSaved.toLocaleString()}</div>
                 </div>
-                <div className="rounded-[24px] bg-white/5 border border-white/10 p-5 backdrop-blur-xl group hover:bg-white/10 transition-all">
+                <div className={cn(
+                  "rounded-[24px] p-5 backdrop-blur-xl group transition-all",
+                  isLight ? "bg-black/[0.03] border-black/[0.05]" : "bg-white/5 border-white/10 hover:bg-white/10"
+                )}>
                   <div className="flex items-center gap-2 text-violet-400 mb-2">
                     <Award size={16} />
                     <span className="text-[10px] font-black uppercase tracking-widest text-white/30">Locations</span>
@@ -178,7 +184,10 @@ export function PerksDashboard() {
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: idx * 0.1 }}
                       onClick={() => triggerHaptic('light')}
-                      className="p-4 rounded-[24px] bg-white/5 border border-white/10 flex items-center gap-4 hover:bg-white/10 transition-all cursor-pointer group"
+                      className={cn(
+                        "p-4 rounded-[24px] flex items-center gap-4 transition-all cursor-pointer group backdrop-blur-xl",
+                        isLight ? "bg-black/[0.03] border border-black/[0.05]" : "bg-white/5 border border-white/10 hover:bg-white/10"
+                      )}
                     >
                       <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-rose-500/20 to-violet-600/20 flex items-center justify-center shrink-0 overflow-hidden border border-white/5 shadow-inner">
                         {offer.business_partners?.logo_url ? (
