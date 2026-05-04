@@ -14,7 +14,7 @@ export const SWIPE_CARD_FIELDS = `
   id, title, description, price, images, video_url, city, neighborhood, beds, baths,
   square_footage, category, listing_type, property_type, vehicle_brand,
   vehicle_model, year, mileage, amenities, pet_friendly, furnished,
-  owner_id, user_id, created_at, currency,
+  owner_id, created_at, currency,
   service_category, pricing_unit, experience_years, experience_level,
   skills, days_available, time_slots_available, work_type, schedule_type,
   location_type, service_radius_km, minimum_booking_hours,
@@ -336,7 +336,7 @@ export function useSmartListingMatching(
 
                     if (!rpcError && rpcListings && Array.isArray(rpcListings) && rpcListings.length > 0) {
                         const results = (rpcListings as any[])
-                            .filter(l => !adminIds?.has(l.user_id) && ['property', 'motorcycle', 'bicycle', 'worker', 'services'].includes(l.category))
+                            .filter(l => !adminIds?.has(l.owner_id) && ['property', 'motorcycle', 'bicycle', 'worker', 'services'].includes(l.category))
                             .map(l => ({
                                 ...l,
                                 images: Array.isArray(l.images) ? l.images : (l.images ? [l.images] : [])
@@ -358,7 +358,7 @@ export function useSmartListingMatching(
                 // 2. BUILD SECURE POSTGREST QUERY (Fallback)
                 let query = supabase.from('listings').select(SWIPE_CARD_FIELDS)
                     .eq('status', 'active')
-                    .neq('user_id', userId); // self-exclusion
+                    .neq('owner_id', userId); // self-exclusion
 
                 // 3. Apply excluded IDs (Fallback path)
                 if (swipedListingIds.size > 0) {
@@ -388,7 +388,7 @@ export function useSmartListingMatching(
                 if (error) throw error;
 
                 // 4.5 Filter out Admins (Hardware-Accelerated Client-Side Filter)
-                const adminFiltered = (listings || []).filter(listing => !adminIds?.has(listing.user_id));
+                const adminFiltered = (listings || []).filter(listing => !adminIds?.has(listing.owner_id));
 
                 // 4.6 Distance filter — only applied when user has a GPS fix
                 const userLat = filters?.userLatitude;
