@@ -19,7 +19,7 @@ html, body, #root {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: #ffffff;
-  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   /* 🏎️ GPU ACCELERATION INJECTION */
   transform: translateZ(0);
   backface-visibility: hidden;
@@ -37,7 +37,7 @@ html, body, #root {
   transform: translateZ(0);
 }
 
-.zenith-interaction-isolation {
+.swipess-interaction-isolation {
   isolation: isolate;
   contain: content;
 }
@@ -60,7 +60,7 @@ html, body, #root {
 
 /* 🚀 PERFORMANCE FONT UTILITY */
 .font-structural {
-  font-family: 'Poppins', sans-serif;
+  font-family: 'Inter', sans-serif;
 }
 
 /* Force background color in dark/matte themes — eliminates white frame bleed */
@@ -110,6 +110,15 @@ body::-webkit-scrollbar {
 @keyframes photo-slide-in {
   0% { opacity: 0; transform: scale(1.05) translateY(10px); }
   100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 8s linear infinite;
 }
 
 @keyframes photo-swim {
@@ -203,7 +212,7 @@ html {
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --top-bar-height: 72px;
-  --bottom-nav-height: 80px;
+  --bottom-nav-height: 64px;
 }
 
 body {
@@ -462,14 +471,14 @@ button:active, [role="button"]:active {
     --shadow-card: 0 20px 40px rgba(0, 0, 0, 0.15);
     --shadow-glow: 0 0 30px rgba(198, 40, 40, 0.2);
     --overlay: rgba(0, 0, 0, 0.4);
-    --nav-bg: rgba(255, 255, 255, 0.95);
-    --nav-border: rgba(0, 0, 0, 0.04);
+    --nav-bg: rgba(255, 255, 255, 0.96);
+    --nav-border: rgba(0, 0, 0, 0.10);
 
     /* 🧘 HUD TOKEN SYSTEM (WHITE) */
     --hud-bg: rgba(255, 255, 255, 0.96);
     --hud-text: #000000;
-    --hud-border: rgba(0, 0, 0, 0.05);
-    --hud-active-bg: rgba(0, 0, 0, 0.05);
+    --hud-border: rgba(0, 0, 0, 0.10);
+    --hud-active-bg: rgba(0, 0, 0, 0.06);
   }
 
   /* THEME: SWIPESS STYLE (Classic Branding) */
@@ -614,7 +623,8 @@ button:active, [role="button"]:active {
 
     /* Faster transitions on mobile - no !important to avoid janky framer-motion */
     * {
-      transition-duration: 150ms;
+      transition-duration: 200ms;
+      transition-timing-function: cubic-bezier(0.2, 0, 0, 1);
     }
 
     /* Disable box-shadow animations (expensive repaints) */
@@ -1565,7 +1575,7 @@ body {
   scrollbar-color: hsl(var(--muted-foreground) / 0.3) transparent;
 }
 
-/* ===== RADAR SENTIENT PULSE ===== */
+/* ===== RADAR SWIPESS PULSE ===== */
 @keyframes radar-pulse {
   0% { transform: scale(1); opacity: 1; }
   50% { transform: scale(1.5); opacity: 0.4; }
@@ -2121,6 +2131,20 @@ html[data-navigation-direction="back"] {
     transform: translateY(-1px);
     box-shadow: 0 4px 20px -4px hsl(var(--primary) / 0.08);
   }
+}
+
+/* Static pill shape applied as CSS so it renders before React hydrates —
+   prevents the FOUC square-frame flash on app load/reload */
+.glass-pill-nav {
+  border-radius: 2.5rem !important;
+  overflow: hidden;
+}
+
+/* Nav buttons: never show default browser outline or rectangular focus ring */
+.app-bottom-bar button {
+  outline: none !important;
+  -webkit-tap-highlight-color: transparent !important;
+  border: none !important;
 }
 
 .dark .glass-pill-nav {

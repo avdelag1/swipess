@@ -28,6 +28,7 @@ import { useAnonymousDrafts } from '@/hooks/useAnonymousDrafts';
 import { useAuth } from '@/hooks/useAuth';
 import { ListingVideoUpload } from './video/ListingVideoUpload';
 import { ListingSuccessCelebration } from './ListingSuccessCelebration';
+import { uiSounds } from '@/utils/uiSounds';
 import { Loader2 } from 'lucide-react';
 
 interface EditingListing {
@@ -351,6 +352,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
         toast.success(`${selectedCategory} listing updated successfully`);
         handleClose();
       } else {
+        uiSounds.playUploadComplete();
         setShowCelebration(true);
         // handleClose() will be called after celebration via onComplete
       }
@@ -683,7 +685,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
                       "absolute inset-[-100%]",
                       selectedCategory === 'property' && "bg-[conic-gradient(from_0deg,transparent_0%,transparent_30%,#10b981_50%,#059669_70%,transparent_100%)]",
                       selectedCategory === 'motorcycle' && "bg-[conic-gradient(from_0deg,transparent_0%,transparent_30%,#f97316_50%,#ea580c_70%,transparent_100%)]",
-                      selectedCategory === 'bicycle' && "bg-[conic-gradient(from_0deg,transparent_0%,transparent_30%,#a855f7_50%,#9333ea_70%,transparent_100%)]",
+                      selectedCategory === 'bicycle' && "bg-[conic-gradient(from_0deg,transparent_0%,transparent_30%,#EB4898_50%,#FF4D00_70%,transparent_100%)]",
                       selectedCategory === 'worker' && "bg-[conic-gradient(from_0deg,transparent_0%,transparent_30%,#f59e0b_50%,#d97706_70%,transparent_100%)]"
                     )}
                     animate={{ rotate: 360 }}

@@ -214,7 +214,7 @@ export function LegalDocumentsDialog({ open, onOpenChange }: LegalDocumentsDialo
         <ScrollArea className="flex-1 overflow-y-auto px-6 py-4">
         <div className="space-y-6">
           {/* Upload Section */}
-          <Card className="bg-muted/50 border-border/50">
+          <Card className="bg-white/5 border border-white/10 border-border/50">
             <CardHeader>
               <CardTitle className="text-foreground text-lg">Upload New Document</CardTitle>
             </CardHeader>
@@ -223,7 +223,7 @@ export function LegalDocumentsDialog({ open, onOpenChange }: LegalDocumentsDialo
                 <div className="space-y-2">
                   <Label htmlFor="document-type" className="text-foreground">Document Type</Label>
                   <Select value={selectedDocumentType} onValueChange={setSelectedDocumentType}>
-                    <SelectTrigger className="bg-muted/50 border-border text-foreground">
+                    <SelectTrigger className="bg-white/5 border border-white/10 border-border text-foreground">
                       <SelectValue placeholder="Select document type" />
                     </SelectTrigger>
                     <SelectContent className="bg-card border-border text-foreground">
@@ -245,7 +245,7 @@ export function LegalDocumentsDialog({ open, onOpenChange }: LegalDocumentsDialo
                       accept=".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx"
                       onChange={handleFileSelect}
                       disabled={isUploading || !selectedDocumentType}
-                      className="bg-muted/50 border-border text-foreground file:bg-secondary file:border-0 file:text-foreground"
+                      className="bg-white/5 border border-white/10 border-border text-foreground file:bg-secondary file:border-0 file:text-foreground"
                     />
                     <Button
                       onClick={() => fileInputRef.current?.click()}
@@ -268,7 +268,7 @@ export function LegalDocumentsDialog({ open, onOpenChange }: LegalDocumentsDialo
           </Card>
 
           {/* Documents List */}
-          <Card className="bg-muted/50 border-border/50">
+          <Card className="bg-white/5 border border-white/10 border-border/50">
             <CardHeader>
               <CardTitle className="text-foreground text-lg">Your Documents ({documents.length})</CardTitle>
             </CardHeader>
@@ -284,7 +284,7 @@ export function LegalDocumentsDialog({ open, onOpenChange }: LegalDocumentsDialo
               ) : (
                 <div className="space-y-3">
                   {documents.map((doc) => (
-                    <div key={doc.id} className="flex items-center justify-between p-4 bg-muted/30 rounded-xl border border-border/50">
+                    <div key={doc.id} className="flex items-center justify-between p-4 bg-white/5 border border-white/10 rounded-xl border border-border/50">
                       <div className="flex items-center gap-4 flex-1">
                         <File className="w-8 h-8 text-blue-400 flex-shrink-0" />
                         <div className="flex-1 min-w-0">

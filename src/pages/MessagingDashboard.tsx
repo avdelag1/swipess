@@ -42,6 +42,7 @@ import { cn } from '@/lib/utils';
 import useAppTheme from '@/hooks/useAppTheme';
 import { AtmosphericLayer } from '@/components/AtmosphericLayer';
 import { X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export function MessagingDashboard() {
   const { user } = useAuth();
@@ -57,6 +58,7 @@ export function MessagingDashboard() {
   const userRole = fetchedRole || 'client';
   const { activeMode } = useActiveMode();
   const { theme, isLight } = useAppTheme();
+  const { t } = useTranslation();
 
   const { data: conversations = [], isLoading, refetch, fetchSingleConversation } = useConversations();
   const deleteConversation = useDeleteConversation();
@@ -209,7 +211,7 @@ export function MessagingDashboard() {
   }
 
   return (
-    <div className={cn("w-full transition-colors duration-500 relative", isLight ? "bg-white" : "bg-black")}>
+    <div className={cn("w-full min-h-[100dvh] transition-colors duration-500 relative", isLight ? "bg-[#ffffff]" : "bg-[#000000]")}>
       <AtmosphericLayer variant="rose" />
 
       <MessageActivationBanner isVisible={showActivationBanner} onClose={() => setShowActivationBanner(false)} userRole={userRole} variant="conversation-limit" />
@@ -221,8 +223,8 @@ export function MessagingDashboard() {
               <MessageCircle className="w-8 h-8" />
            </div>
            <div className="flex flex-col">
-              <span className="text-[10px] font-black uppercase tracking-[0.4em] italic text-[#EB4898]">Messages</span>
-              <h1 className={cn("text-4xl font-black uppercase italic tracking-tighter leading-none mt-1", isLight ? "text-black" : "text-white")}>Direct Messages</h1>
+              <span className="text-[10px] font-black uppercase tracking-[0.4em] italic text-[#EB4898]">{t('messages.title')}</span>
+              <h1 className={cn("text-4xl font-black uppercase italic tracking-tighter leading-none mt-1", isLight ? "text-black" : "text-white")}>{t('messages.title')}</h1>
            </div>
         </div>
 
@@ -233,7 +235,7 @@ export function MessagingDashboard() {
               placeholder="SEARCH NAMES..." 
               className={cn(
                 "w-full pl-14 pr-14 h-16 rounded-[2.2rem] text-[14px] outline-none transition-all font-black uppercase tracking-widest border",
-                isLight ? "bg-black/5 border-black/5 text-black placeholder:text-black/20" : "bg-white/[0.04] border-white/5 text-white placeholder:text-white/20 focus:border-white/10"
+                isLight ? "bg-white border-black/5 text-black placeholder:text-black/30 shadow-sm" : "bg-[#0d0d14] border-white/5 text-white placeholder:text-white/20 focus:border-white/10"
               )}
               value={searchQuery} 
               onChange={(e) => setSearchQuery(e.target.value)} 
@@ -259,14 +261,14 @@ export function MessagingDashboard() {
                 onClick={() => { setActiveFilter(filter.id as any); triggerHaptic('light'); }}
                 className="flex items-center gap-2.5 px-6 py-3 rounded-full text-[9px] font-black uppercase tracking-widest transition-all shrink-0 border"
                 style={activeFilter === filter.id ? {
-                  backgroundColor: '#FF4D00',
-                  borderColor: '#FF4D00',
+                  backgroundColor: '#EB4898',
+                  borderColor: '#EB4898',
                   color: 'white',
-                  boxShadow: '0 6px 20px rgba(255,77,0,0.35)'
+                  boxShadow: '0 8px 24px rgba(235,72,152,0.4)'
                 } : {
-                  backgroundColor: isLight ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.04)',
-                  borderColor: isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.06)',
-                  color: isLight ? '#000000' : '#ffffff'
+                  backgroundColor: 'transparent',
+                  borderColor: isLight ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.08)',
+                  color: isLight ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.45)'
                 }}
               >
                 <filter.icon className="w-3.5 h-3.5" />
@@ -293,10 +295,10 @@ export function MessagingDashboard() {
                 >
                   <button 
                     className={cn(
-                      "w-full flex items-center gap-5 p-5 rounded-[2.2rem] text-left transition-all border group relative overflow-hidden",
+                      "w-full flex items-center gap-5 p-6 rounded-[2.2rem] text-left transition-all border group relative overflow-hidden",
                       isUnread 
-                        ? (isLight ? "bg-black/5 border-black/10 shadow-lg" : "bg-white/[0.04] border-white/10 shadow-2xl") 
-                        : (isLight ? "bg-transparent border-black/5 hover:bg-black/[0.02]" : "bg-transparent border-white/[0.03] hover:bg-white/[0.02] hover:border-white/5")
+                        ? (isLight ? "bg-white border-black/10 shadow-[0_15px_40px_rgba(0,0,0,0.08)]" : "bg-[#0d0d14] border-white/10 shadow-[0_15px_40px_rgba(0,0,0,0.5)]") 
+                        : (isLight ? "bg-white border-black/[0.04] hover:bg-black/[0.01]" : "bg-[#08080c] border-white/[0.04] hover:bg-white/[0.01]")
                     )} 
                     onClick={() => { triggerHaptic('medium'); setSelectedConversationId(conversation.id); }}
                   >
@@ -352,7 +354,7 @@ export function MessagingDashboard() {
                               <Archive className="w-4 h-4 mr-3" /> {conversation.status === 'archived' ? 'Unarchive' : 'Archive'}
                             </DropdownMenuItem>
                             <DropdownMenuSeparator className="bg-white/5 my-2" />
-                            <DropdownMenuItem className="p-4 rounded-[1.2rem] focus:bg-amber-500/20 text-amber-500 cursor-pointer font-black uppercase tracking-widest text-[9px]" onClick={e => { e.stopPropagation(); (window as any).dispatchEvent(new CustomEvent('open-report', { detail: { reportedUserId: conversation.other_user?.id, reportCategory: 'user_profile' } })); }}>
+                            <DropdownMenuItem className="p-4 rounded-[1.2rem] focus:bg-amber-500/20 text-amber-500 cursor-pointer font-black uppercase tracking-widest text-[9px]" onClick={e => { e.stopPropagation(); (window as any).dispatchEvent(new CustomEvent('open-report', { detail: { reportedUserId: conversation.other_user?.id, reportedUserAge: conversation.other_user?.age, reportCategory: 'user_profile' } })); }}>
                               <ShieldAlert className="w-4 h-4 mr-3" /> Report Entity
                             </DropdownMenuItem>
                             <DropdownMenuItem className="p-4 rounded-[1.2rem] focus:bg-red-500/20 text-red-500 cursor-pointer font-black uppercase tracking-widest text-[9px]" onClick={e => { e.stopPropagation(); if (confirm('Block this entity permanently?')) blockUser.mutate(conversation.other_user!.id); }}>
@@ -373,15 +375,15 @@ export function MessagingDashboard() {
                initial={{ opacity: 0 }} 
                animate={{ opacity: 1 }}
                className={cn(
-                 "py-32 flex flex-col items-center justify-center rounded-[3.5rem] border",
-                 isLight ? "bg-black/5 border-black/5" : "bg-white/[0.02] border-white/[0.05]"
+                 "py-32 flex flex-col items-center justify-center rounded-[3.5rem] border shadow-sm",
+                 isLight ? "bg-white/40 border-black/5 backdrop-blur-md" : "bg-white/[0.02] border-white/[0.05]"
                )}
             >
               <div className="w-20 h-20 rounded-[1.8rem] bg-indigo-500/10 flex items-center justify-center mb-10 border border-indigo-500/20">
                  <MessageCircle className="w-10 h-10 text-indigo-500 animate-pulse" />
               </div>
-              <h3 className={cn("text-2xl font-black uppercase italic tracking-tighter mb-4", isLight ? "text-black" : "text-white")}>No Messages</h3>
-              <p className={cn("text-[11px] font-black uppercase tracking-[0.2em] opacity-30 text-center max-w-lg leading-relaxed", isLight ? "text-black/30" : "text-white/30")}>No messages yet. Connect with someone to start chatting.</p>
+              <h3 className={cn("text-2xl font-black uppercase italic tracking-tighter mb-4", isLight ? "text-black" : "text-white")}>{t('messages.noMessages')}</h3>
+              <p className={cn("text-[11px] font-black uppercase tracking-[0.2em] opacity-30 text-center max-w-lg leading-relaxed", isLight ? "text-black/30" : "text-white/30")}>{t('messages.startConversation')}</p>
             </motion.div>
           )}
         </div>

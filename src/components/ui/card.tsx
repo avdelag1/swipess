@@ -12,7 +12,7 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
     <div
       ref={ref}
       className={cn(
-        "rounded-[var(--radius-lg)] border border-[var(--glass-border)] bg-card/95 text-card-foreground shadow-[var(--shadow-soft-md)] transition-shadow duration-300 ease-out touch-manipulation",
+        "rounded-[var(--radius-lg)] border border-[var(--glass-border)] bg-card text-card-foreground shadow-[var(--shadow-soft-md)] transition-shadow duration-300 ease-out touch-manipulation",
         variant === "interactive" && "hover:shadow-[var(--shadow-soft-lg)] hover:-translate-y-1 transition-all duration-300 ease-out",
         className
       )}

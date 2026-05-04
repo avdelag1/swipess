@@ -3,7 +3,7 @@ import { triggerHaptic } from '@/utils/haptics';
 
 export function useInstantReactivity() {
   useEffect(() => {
-    // ━━━━━━━ ZENITH PROTOCOL: Speed of Light Interaction Engine ━━━━━━━ //
+    // ━━━━━━━ SWIPESS PROTOCOL: Speed of Light Interaction Engine ━━━━━━━ //
     // Bypasses React's event loop completely to provide 0ms visual and haptic
     // feedback on any interactive element before the `onClick` event registers.
     

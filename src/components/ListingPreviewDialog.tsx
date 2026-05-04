@@ -82,7 +82,7 @@ export function ListingPreviewDialog({
                 />
               </div>
             ) : (
-              <div className="relative h-48 sm:h-64 lg:h-80 rounded-lg overflow-hidden bg-muted/30 flex items-center justify-center">
+              <div className="relative h-48 sm:h-64 lg:h-80 rounded-lg overflow-hidden bg-white/5 border border-white/10 flex items-center justify-center">
                 <div className="text-center space-y-2">
                   <div className="text-muted-foreground">
                     {getCategoryIcon("w-12 h-12 sm:w-16 sm:h-16")}
@@ -141,7 +141,7 @@ export function ListingPreviewDialog({
               {category === 'property' && (
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 lg:gap-4">
                   {listing.beds && (
-                    <div className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 bg-muted/30 rounded-lg">
+                    <div className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 bg-white/5 border border-white/10 rounded-lg">
                       <Bed className="w-5 h-5 sm:w-6 sm:h-6 text-primary shrink-0" />
                       <div className="min-w-0">
                         <div className="font-semibold text-sm sm:text-base truncate">{listing.beds}</div>
@@ -153,7 +153,7 @@ export function ListingPreviewDialog({
                   )}
 
                   {listing.baths && (
-                    <div className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 bg-muted/30 rounded-lg">
+                    <div className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 bg-white/5 border border-white/10 rounded-lg">
                       <Bath className="w-5 h-5 sm:w-6 sm:h-6 text-primary shrink-0" />
                       <div className="min-w-0">
                         <div className="font-semibold text-sm sm:text-base truncate">{listing.baths}</div>
@@ -165,7 +165,7 @@ export function ListingPreviewDialog({
                   )}
 
                   {listing.square_footage && (
-                    <div className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 bg-muted/30 rounded-lg">
+                    <div className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 bg-white/5 border border-white/10 rounded-lg">
                       <Square className="w-5 h-5 sm:w-6 sm:h-6 text-primary shrink-0" />
                       <div className="min-w-0">
                         <div className="font-semibold text-sm sm:text-base truncate">{listing.square_footage}</div>
@@ -175,7 +175,7 @@ export function ListingPreviewDialog({
                   )}
 
                   {listing.parking_spaces !== undefined && (
-                    <div className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 bg-muted/30 rounded-lg">
+                    <div className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 bg-white/5 border border-white/10 rounded-lg">
                       <Car className="w-5 h-5 sm:w-6 sm:h-6 text-primary shrink-0" />
                       <div className="min-w-0">
                         <div className="font-semibold text-sm sm:text-base truncate">{listing.parking_spaces}</div>
@@ -189,7 +189,7 @@ export function ListingPreviewDialog({
               {category === 'yacht' && (
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3 lg:gap-4">
                   {listing.length_m && (
-                    <div className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 bg-muted/30 rounded-lg">
+                    <div className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 bg-white/5 border border-white/10 rounded-lg">
                       <Anchor className="w-5 h-5 sm:w-6 sm:h-6 text-primary shrink-0" />
                       <div className="min-w-0">
                         <div className="font-semibold text-sm sm:text-base truncate">{listing.length_m}m</div>
@@ -198,7 +198,7 @@ export function ListingPreviewDialog({
                     </div>
                   )}
                   {listing.berths && (
-                    <div className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 bg-muted/30 rounded-lg">
+                    <div className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 bg-white/5 border border-white/10 rounded-lg">
                       <Bed className="w-5 h-5 sm:w-6 sm:h-6 text-primary shrink-0" />
                       <div className="min-w-0">
                         <div className="font-semibold text-sm sm:text-base truncate">{listing.berths}</div>
@@ -207,7 +207,7 @@ export function ListingPreviewDialog({
                     </div>
                   )}
                   {listing.max_passengers && (
-                    <div className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 bg-muted/30 rounded-lg">
+                    <div className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 bg-white/5 border border-white/10 rounded-lg">
                       <Users className="w-5 h-5 sm:w-6 sm:h-6 text-primary shrink-0" />
                       <div className="min-w-0">
                         <div className="font-semibold text-sm sm:text-base truncate">{listing.max_passengers}</div>
@@ -221,7 +221,7 @@ export function ListingPreviewDialog({
               {category === 'motorcycle' && (
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3 lg:gap-4">
                   {listing.engine_cc && (
-                    <div className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 bg-muted/30 rounded-lg">
+                    <div className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 bg-white/5 border border-white/10 rounded-lg">
                       <Motorcycle className="w-5 h-5 sm:w-6 sm:h-6 text-primary shrink-0" />
                       <div className="min-w-0">
                         <div className="font-semibold text-sm sm:text-base truncate">{listing.engine_cc}cc</div>
@@ -230,7 +230,7 @@ export function ListingPreviewDialog({
                     </div>
                   )}
                   {listing.mileage && (
-                    <div className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 bg-muted/30 rounded-lg">
+                    <div className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 bg-white/5 border border-white/10 rounded-lg">
                       <Car className="w-5 h-5 sm:w-6 sm:h-6 text-primary shrink-0" />
                       <div className="min-w-0">
                         <div className="font-semibold text-sm sm:text-base truncate">{listing.mileage?.toLocaleString()}</div>
@@ -239,7 +239,7 @@ export function ListingPreviewDialog({
                     </div>
                   )}
                   {(listing.condition || listing.vehicle_condition) && (
-                    <div className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 bg-muted/30 rounded-lg">
+                    <div className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 bg-white/5 border border-white/10 rounded-lg">
                       <div className="min-w-0">
                         <div className="font-semibold text-sm sm:text-base truncate capitalize">{listing.condition || listing.vehicle_condition}</div>
                         <div className="text-[10px] sm:text-xs text-muted-foreground truncate">Condition</div>
@@ -252,7 +252,7 @@ export function ListingPreviewDialog({
               {category === 'bicycle' && (
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3 lg:gap-4">
                   {listing.frame_size && (
-                    <div className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 bg-muted/30 rounded-lg">
+                    <div className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 bg-white/5 border border-white/10 rounded-lg">
                       <Bike className="w-5 h-5 sm:w-6 sm:h-6 text-primary shrink-0" />
                       <div className="min-w-0">
                         <div className="font-semibold text-sm sm:text-base truncate">{listing.frame_size}</div>
@@ -261,7 +261,7 @@ export function ListingPreviewDialog({
                     </div>
                   )}
                   {listing.electric_assist && (
-                    <div className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 bg-muted/30 rounded-lg">
+                    <div className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 bg-white/5 border border-white/10 rounded-lg">
                       <div className="text-xl sm:text-2xl">⚡</div>
                       <div className="min-w-0">
                         <div className="font-semibold text-sm sm:text-base truncate">Electric</div>
@@ -272,7 +272,7 @@ export function ListingPreviewDialog({
                     </div>
                   )}
                   {(listing.condition || listing.vehicle_condition) && (
-                    <div className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 bg-muted/30 rounded-lg">
+                    <div className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 bg-white/5 border border-white/10 rounded-lg">
                       <div className="min-w-0">
                         <div className="font-semibold text-sm sm:text-base truncate capitalize">{listing.condition || listing.vehicle_condition}</div>
                         <div className="text-[10px] sm:text-xs text-muted-foreground truncate">Condition</div>
@@ -285,7 +285,7 @@ export function ListingPreviewDialog({
               {category === 'vehicle' && (
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3 lg:gap-4">
                   {listing.mileage && (
-                    <div className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 bg-muted/30 rounded-lg">
+                    <div className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 bg-white/5 border border-white/10 rounded-lg">
                       <Car className="w-5 h-5 sm:w-6 sm:h-6 text-primary shrink-0" />
                       <div className="min-w-0">
                         <div className="font-semibold text-sm sm:text-base truncate">{listing.mileage?.toLocaleString()}</div>
@@ -294,7 +294,7 @@ export function ListingPreviewDialog({
                     </div>
                   )}
                   {listing.transmission_type && (
-                    <div className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 bg-muted/30 rounded-lg">
+                    <div className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 bg-white/5 border border-white/10 rounded-lg">
                       <div className="min-w-0">
                         <div className="font-semibold text-sm sm:text-base truncate capitalize">{listing.transmission_type}</div>
                         <div className="text-[10px] sm:text-xs text-muted-foreground truncate">Trans</div>
@@ -302,7 +302,7 @@ export function ListingPreviewDialog({
                     </div>
                   )}
                   {listing.vehicle_condition && (
-                    <div className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 bg-muted/30 rounded-lg">
+                    <div className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 bg-white/5 border border-white/10 rounded-lg">
                       <div className="min-w-0">
                         <div className="font-semibold text-sm sm:text-base truncate capitalize">{listing.vehicle_condition}</div>
                         <div className="text-[10px] sm:text-xs text-muted-foreground truncate">Condition</div>
@@ -367,17 +367,17 @@ export function ListingPreviewDialog({
 
             {/* Stats */}
             <div className="grid grid-cols-3 gap-2 sm:gap-4 text-center">
-              <div className="space-y-1 sm:space-y-2 p-2 sm:p-3 bg-muted/20 rounded-lg">
+              <div className="space-y-1 sm:space-y-2 p-2 sm:p-3 bg-white/5 border border-white/10 rounded-lg">
                 <Eye className="w-4 h-4 sm:w-5 sm:h-5 mx-auto text-muted-foreground" />
                 <div className="text-lg sm:text-xl lg:text-2xl font-bold text-primary">{listing.views || 0}</div>
                 <div className="text-[10px] sm:text-xs text-muted-foreground">Views</div>
               </div>
-              <div className="space-y-1 sm:space-y-2 p-2 sm:p-3 bg-muted/20 rounded-lg">
+              <div className="space-y-1 sm:space-y-2 p-2 sm:p-3 bg-white/5 border border-white/10 rounded-lg">
                 <Flame className="w-4 h-4 sm:w-5 sm:h-5 mx-auto text-muted-foreground" />
                 <div className="text-lg sm:text-xl lg:text-2xl font-bold text-primary">{listing.likes || 0}</div>
                 <div className="text-[10px] sm:text-xs text-muted-foreground">Flames</div>
               </div>
-              <div className="space-y-1 sm:space-y-2 p-2 sm:p-3 bg-muted/20 rounded-lg">
+              <div className="space-y-1 sm:space-y-2 p-2 sm:p-3 bg-white/5 border border-white/10 rounded-lg">
                 <MessageSquare className="w-4 h-4 sm:w-5 sm:h-5 mx-auto text-muted-foreground" />
                 <div className="text-lg sm:text-xl lg:text-2xl font-bold text-primary">{listing.contacts || 0}</div>
                 <div className="text-[10px] sm:text-xs text-muted-foreground">Contacts</div>

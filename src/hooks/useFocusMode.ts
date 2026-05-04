@@ -10,7 +10,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
  * 
  * UPGRADES:
  * - Window-level listeners for cross-browser stability
- * - custom 'sentient-ui-recovery' event for manual triggers
+ * - custom 'swipess-ui-recovery' event for manual triggers
  * - Interaction throttling to prevent focus while active
  */
 export function useFocusMode(timeout: number = 6000) {
@@ -67,7 +67,7 @@ export function useFocusMode(timeout: number = 6000) {
     // 🌍 BROADCAST RECOVERY: Listen for a custom event that any component can fire 
     // to bring the UI back (e.g. after a swipe or a card dismiss)
     const handleBroadcast = () => handleInteraction();
-    window.addEventListener('sentient-ui-recovery', handleBroadcast);
+    window.addEventListener('swipess-ui-recovery', handleBroadcast);
     
     events.forEach(event => {
       document.addEventListener(event, handleInteraction, captureOptions);
@@ -82,7 +82,7 @@ export function useFocusMode(timeout: number = 6000) {
       if (timerRef.current) {
         clearTimeout(timerRef.current);
       }
-      window.removeEventListener('sentient-ui-recovery', handleBroadcast);
+      window.removeEventListener('swipess-ui-recovery', handleBroadcast);
       events.forEach(event => {
         document.removeEventListener(event, handleInteraction, { capture: true });
         window.removeEventListener(event, handleInteraction, { capture: true });

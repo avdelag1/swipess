@@ -7,8 +7,8 @@ const OwnerContracts = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="w-full bg-background p-4 pb-32 overflow-y-auto scrollbar-hide" style={{ height: 'calc(100dvh - var(--top-bar-height, 60px) - var(--safe-top, 0px))' }}>
-      <div className="max-w-4xl mx-auto space-y-6">
+    <div className="w-full bg-background pb-32 overflow-y-auto scrollbar-hide" style={{ height: 'calc(100dvh - var(--top-bar-height, 60px) - var(--safe-top, 0px))' }}>
+      <div className="w-full px-6 pt-10 space-y-6">
         {/* Back nav (Owner Hub) */}
         <motion.button
           onClick={() => navigate('/owner/dashboard')}

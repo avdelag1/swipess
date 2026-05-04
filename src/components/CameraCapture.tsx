@@ -600,17 +600,7 @@ export function CameraCapture({
           </motion.button>
 
           {/* Effects/Filters */}
-          <motion.button
-            whileTap={{ scale: 0.9 }}
-            onClick={() => setShowFiltersPanel(true)}
-            className={`w-12 h-12 rounded-full flex items-center justify-center text-white ${
-              selectedFilter !== 'none' || portraitConfig.enabled || nightConfig.enabled
-                ? 'bg-red-500/50'
-                : 'bg-black/30'
-            }`}
-          >
-            <Sparkles className="w-6 h-6" />
-          </motion.button>
+
 
           {/* Settings */}
           <motion.button

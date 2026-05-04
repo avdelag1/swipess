@@ -143,7 +143,7 @@ const Index = () => {
       }
 
       // 4. Sticky Mode Preference: Fastest path (LocalStorage)
-      const cachedMode = localStorage.getItem(`Swipess_active_mode_${user.id}`);
+      const cachedMode = localStorage.getItem(`swipess_active_mode_${user.id}`);
       if (cachedMode === 'client' || cachedMode === 'owner') {
           hasNavigated.current = true;
           logger.log("[Index] Warp-Speed: Navigating to sticky mode", cachedMode);
@@ -220,14 +220,14 @@ const Index = () => {
   }, [user, initialized]);
 
   if (!initialized || loading) {
-    return <SuspenseFallback />;
+    return <div className="flex-1 min-h-[60vh]" />;
   }
 
   // User exists but still loading role/redirection
   if (user && (isLoadingRole || (isNewUser && !userRole) || !hasNavigated.current)) {
     return (
       <>
-        <SuspenseFallback />
+        <div className="flex-1 min-h-[60vh]" />
         
         {showEscapeHatch && (
           <div 
@@ -235,7 +235,7 @@ const Index = () => {
             style={{ animation: 'fadeSlideUp 0.4s ease-out forwards' }}
           >
             <style>{`@keyframes fadeSlideUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}`}</style>
-            <div className="bg-card/80 backdrop-blur-xl border border-border p-5 rounded-2xl shadow-2xl max-w-sm text-center">
+            <div className="bg-background border border-border p-5 rounded-2xl shadow-2xl max-w-sm text-center">
               <p className="text-foreground font-medium text-sm mb-3">Taking longer than usual...</p>
               <button
                 onClick={() => { window.location.href = '/?clear-cache=1'; }}
@@ -261,7 +261,7 @@ const Index = () => {
   }
 
   // Final fallback while navigating
-  return <SuspenseFallback />;
+  return <div className="flex-1 min-h-[60vh]" />;
 };
 
 export default Index;

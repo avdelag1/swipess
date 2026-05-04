@@ -4,10 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Home, RefreshCw } from "lucide-react";
 import { motion } from "framer-motion";
 import { logger } from "@/utils/prodLogger";
+import { useTranslation } from 'react-i18next';
 
 const NotFound = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   useEffect(() => {
     logger.error(
@@ -109,7 +111,7 @@ const NotFound = () => {
           transition={{ delay: 0.3 }}
           className="text-gray-300 text-lg"
         >
-          This page doesn't exist or has been moved.
+          {t('errors.pageNotFoundDesc')}
         </motion.p>
 
         <motion.p
@@ -133,7 +135,7 @@ const NotFound = () => {
             size="lg"
           >
             <Home className="mr-2 h-5 w-5" />
-            Return to Home
+            {t('errors.goHome')}
           </Button>
           <Button
             onClick={handleClearCache}

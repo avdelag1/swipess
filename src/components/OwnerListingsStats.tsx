@@ -38,7 +38,7 @@ export function OwnerListingsStats({ listings, isLight = false }: OwnerListingsS
       title: 'Total Views',
       value: totalViews.toLocaleString(),
       icon: Eye,
-      color: '#a855f7',
+      color: '#EB4898',
       description: 'All time',
       trend: totalViews > 100 ? '+' : ''
     },
@@ -64,7 +64,7 @@ export function OwnerListingsStats({ listings, isLight = false }: OwnerListingsS
   const categoryBreakdown = [
     { name: 'Properties', count: propertiesCount, icon: Home, color: '#f43f5e' },
     { name: 'Motorcycles', count: motorcyclesCount, icon: MotorcycleIcon, color: '#f97316' },
-    { name: 'Bicycles', count: bicyclesCount, icon: Bike, color: '#a855f7' },
+    { name: 'Bicycles', count: bicyclesCount, icon: Bike, color: '#EB4898' },
     { name: 'Services', count: workersCount, icon: Activity, color: '#3b82f6' },
     { name: 'Vehicles', count: vehiclesCount, icon: Car, color: '#eab308' },
   ].filter(c => c.count > 0);
@@ -80,38 +80,32 @@ export function OwnerListingsStats({ listings, isLight = false }: OwnerListingsS
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.05, duration: 0.4 }}
           >
-            <div className={cn(
-              "relative rounded-[2.2rem] shadow-2xl transition-all duration-300 overflow-hidden",
-              isLight
-                ? "bg-black/[0.03]"
-                : "bg-white/[0.04] backdrop-blur-3xl"
-            )}>
+            <div className="relative rounded-[2.2rem] transition-all duration-300 overflow-hidden">
               <div className="relative p-5 sm:p-6">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
-                    <p className={cn("text-[10px] font-black uppercase tracking-[0.2em] truncate italic", isLight ? 'text-slate-500' : 'text-white/70')}>
+                    <p className={cn("text-[9px] font-black uppercase tracking-[0.25em] italic", isLight ? 'text-slate-500' : 'text-white/60')}>
                       {stat.title}
                     </p>
-                    <div className="flex items-baseline gap-1 mt-2.5">
-                      <h3 className={cn("text-3xl sm:text-4xl font-black tracking-tighter uppercase italic truncate", isLight ? "text-slate-950" : "text-white")}>
+                    <div className="flex items-baseline gap-1.5 mt-2">
+                      <h3 className={cn("text-2xl sm:text-3xl font-black tracking-tighter uppercase italic leading-none", isLight ? "text-slate-950" : "text-white")}
+                        style={{ wordBreak: 'break-all' }}
+                      >
                         {stat.value}
                       </h3>
                       {stat.trend && (
-                        <TrendingUp className="w-4 h-4 text-primary" strokeWidth={4} />
+                        <TrendingUp className="w-3.5 h-3.5 flex-shrink-0" style={{ color: stat.color }} strokeWidth={3} />
                       )}
                     </div>
-                    <p className={cn("text-[9px] font-black uppercase tracking-[0.3em] mt-2 italic", isLight ? 'text-slate-400' : 'text-white/60')}>
+                    <p className={cn("text-[9px] font-black uppercase tracking-[0.25em] mt-1.5 italic", isLight ? 'text-slate-400' : 'text-white/50')}>
                       {stat.description}
                     </p>
                   </div>
-                  <div className="relative">
-                    <div className="absolute inset-0 blur-2xl opacity-20 rounded-full" style={{ background: stat.color }} />
-                    <div className={cn(
-                        "w-12 h-12 rounded-2xl flex items-center justify-center relative z-10",
-                        isLight ? "bg-white shadow-sm" : "bg-black/40"
-                    )}>
-                        <stat.icon className="w-5 h-5" style={{ color: stat.color }} />
-                    </div>
+                  <div
+                    className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                    style={{ background: `${stat.color}18`, border: `1.5px solid ${stat.color}30` }}
+                  >
+                    <stat.icon className="w-4 h-4" style={{ color: stat.color }} />
                   </div>
                 </div>
               </div>
@@ -127,10 +121,7 @@ export function OwnerListingsStats({ listings, isLight = false }: OwnerListingsS
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.25, duration: 0.4 }}
         >
-          <div className={cn(
-            "rounded-[2.5rem] shadow-2xl relative overflow-hidden",
-            isLight ? "bg-black/[0.03]" : "bg-white/[0.04] backdrop-blur-3xl"
-          )}>
+          <div className="rounded-[2.5rem] relative overflow-hidden">
             <div className="p-6 sm:p-8">
               <div className="flex items-center justify-between mb-4">
                 <h4 className={cn("text-[10px] font-black uppercase tracking-[0.3em] italic", isLight ? 'text-black opacity-50' : 'text-white opacity-50')}>Asset Breakdown</h4>

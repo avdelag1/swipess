@@ -49,7 +49,7 @@ export function MessageActivationBanner({
           className="fixed top-[env(safe-area-inset-top)] left-0 right-0 z-50 px-4 pt-4"
         >
           <div className="max-w-4xl mx-auto">
-            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#007AFF]/95 to-[#5856D6]/95 backdrop-blur-xl border border-white/20 shadow-2xl">
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-rose-500/95 via-violet-600/95 to-rose-500/95 backdrop-blur-xl border border-white/20 shadow-2xl">
               {/* Animated background gradient */}
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer" />
 
@@ -72,7 +72,7 @@ export function MessageActivationBanner({
                     <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                       <Button
                         onClick={handleGetActivations}
-                        className="bg-white hover:bg-white/95 text-[#007AFF] font-bold shadow-xl shadow-white/20 transition-all duration-200 active:scale-95"
+                        className="bg-white hover:bg-white/95 text-rose-500 font-black uppercase tracking-widest text-[10px] shadow-xl shadow-white/20 transition-all duration-200 active:scale-95"
                         size="sm"
                       >
                         {bannerContent.ctaText}
@@ -95,7 +95,7 @@ export function MessageActivationBanner({
                         <span>Premium plans include monthly message credits + visibility boost!</span>
                       </div>
                       <div className="flex items-center gap-2 text-xs text-white font-medium">
-                        <MessageCircle className="w-3.5 h-3.5 text-cyan-300" />
+                        <MessageCircle className="w-3.5 h-3.5 text-rose-300" />
                         <span>💬 Free messaging for motorcycles & bicycles!</span>
                       </div>
                     </div>

@@ -39,7 +39,7 @@ interface CardInfoProps {
 
 interface PropertyCardInfoProps extends CardInfoProps {
   price: number;
-  priceType?: 'month' | 'night' | 'year';
+  priceType?: 'month' | 'night' | 'year' | 'sale';
   propertyType?: string;
   beds?: number;
   baths?: number;
@@ -61,7 +61,7 @@ export const PropertyCardInfo = memo(({
   className,
   photoIndex = 0,
 }: PropertyCardInfoProps) => {
-  const priceLabel = priceType === 'month' ? '/mo' : priceType === 'night' ? '/night' : '/yr';
+  const priceLabel = priceType === 'month' ? '/mo' : priceType === 'night' ? '/night' : priceType === 'sale' ? '' : '/yr';
   const normalizedIndex = photoIndex % 4;
 
   return (

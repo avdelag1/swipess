@@ -105,7 +105,7 @@ export const DigitalSignaturePad: React.FC<LiquidSignaturePadProps> = ({
     setPoints([]);
     onClear?.();
     triggerHaptic('medium');
-    uiSounds.playSwoosh();
+    uiSounds.playTap();
   }, [onClear]);
 
   return (

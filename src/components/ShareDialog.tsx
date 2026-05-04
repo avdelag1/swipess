@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Share2, Link2, Mail, MessageCircle, Send, Check, Facebook, Twitter } from 'lucide-react';
+import { Share2, Link2, Mail, MessageCircle, Send, Check, Facebook, Twitter, Smartphone } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import {
@@ -17,6 +17,7 @@ import {
   generateShareUrl,
 } from '@/hooks/useSharing';
 import { useAuth } from '@/hooks/useAuth';
+import { triggerHaptic } from '@/utils/haptics';
 
 interface ShareDialogProps {
   open: boolean;
@@ -40,18 +41,17 @@ export function ShareDialog({
   const createShare = useCreateShare();
   const { user } = useAuth();
 
-  // Include user's ID as referral ID for tracking
   const shareUrl = generateShareUrl({ listingId, profileId, referralId: user?.id });
   const shareText = description || `Check out ${title} on Swipess!`;
 
   const handleCopyLink = async () => {
+    triggerHaptic('medium');
     const success = await copyToClipboard(shareUrl);
     if (success) {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
       toast.success('Link copied to clipboard!');
 
-      // Track the share
       await createShare.mutateAsync({
         sharedListingId: listingId,
         sharedProfileId: profileId,
@@ -63,6 +63,7 @@ export function ShareDialog({
   };
 
   const handleNativeShare = async () => {
+    triggerHaptic('light');
     const shared = await shareViaNavigator({
       title,
       text: shareText,
@@ -78,30 +79,13 @@ export function ShareDialog({
     }
   };
 
-  const handleWhatsAppShare = async () => {
-    shareViaWhatsApp(shareUrl, shareText);
+  const handleSocialShare = async (platform: string, handler: () => void) => {
+    triggerHaptic('light');
+    handler();
     await createShare.mutateAsync({
       sharedListingId: listingId,
       sharedProfileId: profileId,
-      shareMethod: 'whatsapp',
-    });
-  };
-
-  const handleFacebookShare = async () => {
-    shareViaFacebook(shareUrl);
-    await createShare.mutateAsync({
-      sharedListingId: listingId,
-      sharedProfileId: profileId,
-      shareMethod: 'facebook',
-    });
-  };
-
-  const handleTwitterShare = async () => {
-    shareViaTwitter(shareUrl, shareText);
-    await createShare.mutateAsync({
-      sharedListingId: listingId,
-      sharedProfileId: profileId,
-      shareMethod: 'twitter',
+      shareMethod: platform as any,
     });
   };
 
@@ -110,7 +94,7 @@ export function ShareDialog({
       toast.error('Please enter an email address');
       return;
     }
-
+    triggerHaptic('light');
     shareViaEmail(shareUrl, title, shareText);
     await createShare.mutateAsync({
       sharedListingId: listingId,
@@ -121,72 +105,55 @@ export function ShareDialog({
     setRecipientEmail('');
   };
 
-  const handleSMSShare = async () => {
-    shareViaSMS(shareUrl, shareText);
-    await createShare.mutateAsync({
-      sharedListingId: listingId,
-      sharedProfileId: profileId,
-      shareMethod: 'sms',
-    });
-  };
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="max-w-md p-0 overflow-hidden rounded-[2rem] border border-purple-500/20 shadow-2xl"
-        style={{ boxShadow: '0 0 0 1px rgba(168,85,247,0.12), 0 24px 80px rgba(0,0,0,0.2), 0 0 40px rgba(168,85,247,0.08)' }}
+        className="max-w-sm p-0 overflow-hidden rounded-[40px] border border-white/10 bg-[#0A0A0A] shadow-[0_32px_80px_rgba(0,0,0,0.8)]"
       >
-        {/* Header */}
-        <div
-          className="relative px-5 py-4 border-b border-purple-500/15 overflow-hidden"
-          style={{ background: 'linear-gradient(135deg, rgba(88,28,135,0.18) 0%, rgba(168,85,247,0.08) 100%)' }}
-        >
-          {/* Animated shimmer top line */}
-          <div
-            className="absolute top-0 left-0 right-0 h-[2px] pointer-events-none"
-            style={{
-              background: 'linear-gradient(90deg, transparent, rgba(168,85,247,0.8), rgba(216,180,254,1), rgba(168,85,247,0.8), transparent)',
-              backgroundSize: '200% 100%',
-              animation: 'share-shimmer 2.5s ease-in-out infinite',
-            }}
-          />
-          <div className="flex items-center gap-3">
-            <div
-              className="w-10 h-10 rounded-2xl flex items-center justify-center border border-purple-400/30 flex-shrink-0"
-              style={{ background: 'linear-gradient(135deg, #581c87 0%, #7c3aed 50%, #a855f7 100%)', boxShadow: '0 4px 16px rgba(168,85,247,0.35)' }}
-            >
-              <Share2 className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <h2 className="font-bold text-base text-foreground leading-none mb-1">Share with Friends</h2>
-              <p className="text-[11px] text-muted-foreground">
-                Recommend {listingId ? 'this listing' : 'this profile'} to someone you know
-              </p>
-            </div>
-          </div>
+        {/* 🛸 NEXUS ATMOSPHERE: Subtle ambient glows instead of deep blur backgrounds */}
+        <div className="absolute top-0 right-0 w-full h-1/2 bg-gradient-to-b from-rose-500/5 to-transparent pointer-events-none" />
+
+        {/* Header Section */}
+        <div className="relative px-8 pt-10 pb-6 flex flex-col items-center text-center border-b border-white/[0.03]">
+          <motion.div 
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="w-16 h-16 rounded-[24px] bg-[#1A1A1A] border border-white/10 flex items-center justify-center mb-5 shadow-xl"
+          >
+            <Share2 className="w-8 h-8 text-white" strokeWidth={1.5} />
+          </motion.div>
+          <h2 className="text-xl font-bold text-white tracking-tight leading-none mb-2">Share Connection</h2>
+          <p className="text-[10px] font-bold text-white/40 uppercase tracking-[0.2em]">
+            Spread the Swipess vibe
+          </p>
         </div>
 
-        <div className="p-5 space-y-5">
-          {/* Copy Link */}
-          <div className="space-y-2">
-            <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground/60">Share Link</label>
+        <div className="p-8 space-y-8 relative z-10">
+          {/* Direct Link Section */}
+          <div className="space-y-4">
             <div className="flex gap-2">
-              <Input value={shareUrl} readOnly className="flex-1 rounded-xl border-border/60 bg-muted/40 text-xs font-mono" />
+              <div className="relative flex-1 group">
+                <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+                  <Link2 className="w-4 h-4 text-white/30" />
+                </div>
+                <Input 
+                  value={shareUrl} 
+                  readOnly 
+                  className="w-full h-12 pl-11 rounded-[16px] border-white/5 bg-[#161616] text-white text-[10px] font-mono tracking-tight focus-visible:ring-1 focus-visible:ring-rose-500/30" 
+                />
+              </div>
               <Button
                 onClick={handleCopyLink}
-                variant="outline"
-                className="min-w-[90px] rounded-xl border-purple-500/25 hover:bg-purple-500/10 hover:border-purple-500/40"
+                className="h-12 px-6 rounded-[16px] bg-white text-black hover:bg-gray-200 font-bold uppercase tracking-widest text-[10px] active:scale-95 transition-all shadow-lg border-none"
               >
                 <AnimatePresence mode="wait">
                   {copied ? (
-                    <motion.div key="check" initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }} className="flex items-center gap-1.5">
-                      <Check className="w-4 h-4 text-rose-500" />
-                      <span className="text-xs font-semibold">Copied!</span>
+                    <motion.div key="check" initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.8, opacity: 0 }} className="flex items-center gap-2">
+                      <Check className="w-3.5 h-3.5 stroke-[3px]" />
                     </motion.div>
                   ) : (
-                    <motion.div key="copy" initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }} className="flex items-center gap-1.5">
-                      <Link2 className="w-4 h-4" />
-                      <span className="text-xs font-semibold">Copy</span>
+                    <motion.div key="copy" initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.8, opacity: 0 }}>
+                      Copy
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -194,83 +161,65 @@ export function ShareDialog({
             </div>
           </div>
 
-          {/* Social Share */}
-          <div className="space-y-2.5">
-            <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground/60">Share via</label>
-            <div className="grid grid-cols-2 gap-2.5">
-              {typeof navigator !== 'undefined' && typeof navigator.share === 'function' && (
-                <Button
-                  onClick={handleNativeShare}
-                  variant="outline"
-                  className="col-span-2 w-full justify-start gap-3 rounded-xl bg-primary/8 hover:bg-primary/15 border-primary/20 text-primary font-semibold"
-                >
-                  <Share2 className="w-4 h-4" />
-                  Instagram, TikTok, Snapchat & More
-                </Button>
-              )}
-              <Button onClick={handleWhatsAppShare} variant="outline"
-                className="w-full justify-start gap-2.5 rounded-xl hover:bg-rose-50 dark:hover:bg-rose-950/25 border-border/60 font-medium">
-                <MessageCircle className="w-4 h-4 text-rose-500" />
-                WhatsApp
-              </Button>
-              <Button onClick={handleFacebookShare} variant="outline"
-                className="w-full justify-start gap-2.5 rounded-xl hover:bg-blue-50 dark:hover:bg-blue-950/25 border-border/60 font-medium">
-                <Facebook className="w-4 h-4 text-blue-600" />
-                Facebook
-              </Button>
-              <Button onClick={handleTwitterShare} variant="outline"
-                className="w-full justify-start gap-2.5 rounded-xl hover:bg-sky-50 dark:hover:bg-sky-950/25 border-border/60 font-medium">
-                <Twitter className="w-4 h-4 text-sky-500" />
-                Twitter / X
-              </Button>
-              <Button onClick={handleSMSShare} variant="outline"
-                className="w-full justify-start gap-2.5 rounded-xl border-border/60 font-medium">
-                <Send className="w-4 h-4 text-purple-500" />
-                SMS
-              </Button>
-            </div>
+          {/* Social Grid: Clean and Professional */}
+          <div className="grid grid-cols-4 gap-3">
+            {typeof navigator !== 'undefined' && typeof navigator.share === 'function' && (
+              <button
+                onClick={handleNativeShare}
+                className="flex flex-col items-center justify-center gap-2.5 h-20 rounded-[20px] bg-[#1A1A1A] border border-white/[0.05] hover:bg-[#222] transition-all active:scale-95 group"
+              >
+                <div className="w-9 h-9 rounded-xl bg-white text-black flex items-center justify-center shadow-md">
+                  <Smartphone className="w-4 h-4" />
+                </div>
+                <span className="text-[9px] font-bold text-white/30 uppercase tracking-widest">More</span>
+              </button>
+            )}
+            
+            {[
+              { id: 'whatsapp', icon: MessageCircle, label: 'Chat', handler: () => shareViaWhatsApp(shareUrl, shareText) },
+              { id: 'twitter', icon: Twitter, label: 'X', handler: () => shareViaTwitter(shareUrl, shareText) },
+              { id: 'sms', icon: Send, label: 'SMS', handler: () => shareViaSMS(shareUrl, shareText) }
+            ].map((platform) => (
+              <button
+                key={platform.id}
+                onClick={() => handleSocialShare(platform.id, platform.handler)}
+                className="flex flex-col items-center justify-center gap-2.5 h-20 rounded-[20px] bg-[#1A1A1A] border border-white/[0.05] hover:bg-[#222] transition-all active:scale-95 group"
+              >
+                <div className="w-9 h-9 rounded-xl bg-[#262626] text-white flex items-center justify-center border border-white/[0.05] shadow-md">
+                  <platform.icon className="w-4 h-4" />
+                </div>
+                <span className="text-[9px] font-bold text-white/30 uppercase tracking-widest">{platform.label}</span>
+              </button>
+            ))}
           </div>
 
-          {/* Email */}
-          <div className="space-y-2">
-            <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground/60">Share via Email</label>
+          {/* Email Quick Send */}
+          <div className="space-y-4 pt-2">
             <div className="flex gap-2">
-              <Input
-                type="email"
-                placeholder="friend@example.com"
-                value={recipientEmail}
-                onChange={(e) => setRecipientEmail(e.target.value)}
-                className="flex-1 rounded-xl border-border/60 bg-muted/40"
-              />
+              <div className="relative flex-1">
+                <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+                  <Mail className="w-4 h-4 text-white/30" />
+                </div>
+                <Input
+                  type="email"
+                  placeholder="Email to share"
+                  value={recipientEmail}
+                  onChange={(e) => setRecipientEmail(e.target.value)}
+                  className="w-full h-12 pl-11 rounded-[16px] border-white/5 bg-[#161616] text-white text-[11px] focus-visible:ring-1 focus-visible:ring-rose-500/30 transition-all"
+                />
+              </div>
               <Button
                 onClick={handleEmailShare}
-                variant="outline"
                 disabled={!recipientEmail}
-                className="rounded-xl border-purple-500/25 hover:bg-purple-500/10 font-semibold"
+                className="h-12 w-12 rounded-[16px] p-0 bg-[#1A1A1A] text-white hover:bg-[#222] border border-white/[0.05] active:scale-95 transition-all"
               >
-                <Mail className="w-4 h-4 mr-1.5" />
-                Send
+                <Send className="w-4 h-4" />
               </Button>
             </div>
-          </div>
-
-          {/* Footer note */}
-          <div className="p-3 rounded-2xl bg-muted/30 border border-border/40">
-            <p className="text-xs text-muted-foreground text-center font-medium">
-              Your friends will love this recommendation! 🎉
-            </p>
           </div>
         </div>
 
-        <style>{`
-          @keyframes share-shimmer {
-            0%   { background-position: -200% center; }
-            100% { background-position: 200% center; }
-          }
-        `}</style>
       </DialogContent>
     </Dialog>
   );
 }
-
-

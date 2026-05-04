@@ -1,14 +1,14 @@
 import { useCallback, useRef, useState, useEffect } from 'react';
 import { m, AnimatePresence } from 'framer-motion';
 import { useRadio } from '@/contexts/RadioContext';
-import { Play, Pause, SkipBack, SkipForward, X, Radio, Volume2, VolumeX } from 'lucide-react';
+import { Play, Pause, SkipBack, SkipForward, X, Radio, Volume2, VolumeX, Heart, Star, Shuffle } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { triggerHaptic } from '@/utils/haptics';
 import { cn } from '@/lib/utils';
 import useAppTheme from '@/hooks/useAppTheme';
 
 function RadioMiniPlayerInner() {
-  const { state, togglePlayPause, changeStation, pause, setMiniPlayerMode, setVolume } = useRadio();
+  const { state, togglePlayPause, changeStation, pause, setMiniPlayerMode, setVolume, toggleFavorite, isStationFavorite, shuffleAndPlay } = useRadio();
   const { isLight } = useAppTheme();
   const navigate = useNavigate();
   const location = useLocation();
@@ -175,25 +175,62 @@ function RadioMiniPlayerInner() {
             </button>
 
             {/* Controls */}
-            <div className="flex items-center justify-between px-4 pb-5 pt-1">
-              <button onClick={handleMute} className={cn("w-10 h-10 rounded-full flex items-center justify-center active:scale-90", isLight ? "text-slate-400" : "text-white/60")}>
-                {state.volume > 0 ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
-              </button>
-              <div className="flex items-center gap-2">
-                <button onClick={handlePrev} className={cn("w-10 h-10 rounded-full flex items-center justify-center active:scale-90", isLight ? "text-slate-400" : "text-white/70")}>
-                  <SkipBack className="w-5 h-5 fill-current" />
-                </button>
-                <button
-                  onClick={handleTogglePlay}
-                  className="w-14 h-14 rounded-full flex items-center justify-center shadow-2xl active:scale-90 bg-white text-black border border-black/10"
+            <div className="px-4 pb-5 pt-1 flex flex-col gap-3">
+              <div className="flex items-center justify-center gap-3">
+                <button 
+                  onClick={(e) => { e.stopPropagation(); toggleFavorite(station.id); triggerHaptic('light'); }} 
+                  className={cn(
+                    "w-10 h-10 rounded-full flex items-center justify-center active:scale-90 transition-colors", 
+                    isStationFavorite(station.id) ? "text-rose-500" : (isLight ? "text-slate-400" : "text-white/40")
+                  )}
+                  title="Like Station"
                 >
-                  {state.isPlaying ? <Pause className="w-7 h-7 fill-current" /> : <Play className="w-7 h-7 fill-current ml-1" />}
+                  <Heart className={cn("w-5 h-5", isStationFavorite(station.id) && "fill-current")} />
                 </button>
-                <button onClick={handleNext} className={cn("w-10 h-10 rounded-full flex items-center justify-center active:scale-90", isLight ? "text-slate-400" : "text-white/70")}>
-                  <SkipForward className="w-5 h-5 fill-current" />
+                
+                <div className="flex items-center gap-2">
+                  <button onClick={handlePrev} className={cn("w-10 h-10 rounded-full flex items-center justify-center active:scale-90", isLight ? "text-slate-400" : "text-white/70")}>
+                    <SkipBack className="w-5 h-5 fill-current" />
+                  </button>
+                  <button
+                    onClick={handleTogglePlay}
+                    className="w-14 h-14 rounded-full flex items-center justify-center shadow-2xl active:scale-90 bg-white text-black border border-black/10"
+                  >
+                    {state.isPlaying ? <Pause className="w-7 h-7 fill-current" /> : <Play className="w-7 h-7 fill-current ml-1" />}
+                  </button>
+                  <button onClick={handleNext} className={cn("w-10 h-10 rounded-full flex items-center justify-center active:scale-90", isLight ? "text-slate-400" : "text-white/70")}>
+                    <SkipForward className="w-5 h-5 fill-current" />
+                  </button>
+                </div>
+
+                <button 
+                  onClick={(e) => { e.stopPropagation(); navigate('/radio/directory?filter=favorites'); triggerHaptic('medium'); }} 
+                  className={cn("w-10 h-10 rounded-full flex items-center justify-center active:scale-90", isLight ? "text-slate-400" : "text-white/40")}
+                  title="Liked Stations"
+                >
+                  <Star className="w-5 h-5" />
                 </button>
               </div>
-              <div className="w-10" />
+
+              <div className="flex items-center justify-center gap-6 pt-1 border-t border-white/5">
+                <button 
+                  onClick={(e) => { e.stopPropagation(); shuffleAndPlay(); triggerHaptic('medium'); }} 
+                  className={cn("flex items-center gap-2 px-3 py-1.5 rounded-full active:scale-90 transition-all", state.isShuffle ? "text-primary bg-primary/10" : (isLight ? "text-slate-400 hover:bg-slate-100" : "text-white/40 hover:bg-white/5"))}
+                  title="Shuffle All"
+                >
+                  <Shuffle className={cn("w-4 h-4", state.isShuffle && "animate-spin-slow")} />
+                  <span className="text-[9px] font-black uppercase tracking-widest italic">Shuffle</span>
+                </button>
+
+                <button 
+                  onClick={(e) => { e.stopPropagation(); navigate('/radio/directory'); triggerHaptic('medium'); }} 
+                  className={cn("flex items-center gap-2 px-3 py-1.5 rounded-full active:scale-90 transition-all", isLight ? "text-slate-400 hover:bg-slate-100" : "text-white/40 hover:bg-white/5")}
+                  title="All Stations"
+                >
+                  <Radio className="w-4 h-4" />
+                  <span className="text-[9px] font-black uppercase tracking-widest italic">Directory</span>
+                </button>
+              </div>
             </div>
           </div>
         </m.div>

@@ -22,12 +22,12 @@ const NotificationsPage = () => {
   const getIcon = (type: string) => {
     switch (type) {
       case 'like': return <Heart className="w-5 h-5 text-rose-500 fill-rose-500" />;
-      case 'match': return <Sparkles className="w-5 h-5 text-amber-500" />;
-      case 'message': return <MessageCircle className="w-5 h-5 text-sky-500" />;
-      case 'system': return <Info className="w-5 h-5 text-blue-500" />;
-      case 'location': return <MapPin className="w-5 h-5 text-emerald-500" />;
+      case 'match': return <Sparkles className="w-5 h-5 text-violet-500" />;
+      case 'message': return <MessageCircle className="w-5 h-5 text-rose-500" />;
+      case 'system': return <Info className="w-5 h-5 text-indigo-500" />;
+      case 'location': return <MapPin className="w-5 h-5 text-rose-500" />;
       case 'verification': return <UserCheck className="w-5 h-5 text-indigo-500" />;
-      case 'alert': return <AlertTriangle className="w-5 h-5 text-orange-500" />;
+      case 'alert': return <AlertTriangle className="w-5 h-5 text-rose-500" />;
       default: return <Bell className="w-5 h-5 text-slate-400" />;
     }
   };
@@ -72,8 +72,8 @@ const NotificationsPage = () => {
               animate={{ opacity: 1, scale: 1 }}
               className="flex flex-col items-center justify-center py-32 text-center"
             >
-              <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mb-6 border border-white/5">
-                <Bell className="w-10 h-10 text-slate-600" />
+              <div className={cn("w-20 h-20 rounded-full flex items-center justify-center mb-6 border", isDark ? "bg-white/5 border-white/5" : "bg-black/5 border-black/5")}>
+                <Bell className={cn("w-10 h-10", isDark ? "text-slate-600" : "text-slate-400")} />
               </div>
               <h2 className="text-lg font-black uppercase italic tracking-wider opacity-60">Silence is Golden</h2>
               <p className="text-xs font-medium opacity-30 mt-2">Check back later for system updates</p>
@@ -95,8 +95,10 @@ const NotificationsPage = () => {
               >
                 <div className="flex gap-5">
                   <div className={cn(
-                    "w-12 h-12 rounded-2xl flex items-center justify-center bg-white/5 border border-white/10 shrink-0",
-                    !notif.read && "bg-brand-primary/10 border-brand-primary/20"
+                    "w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 border",
+                    !notif.read 
+                      ? "bg-brand-primary/10 border-brand-primary/20"
+                      : isDark ? "bg-white/5 border-white/10" : "bg-black/5 border-black/10"
                   )}>
                     {getIcon(notif.type)}
                   </div>

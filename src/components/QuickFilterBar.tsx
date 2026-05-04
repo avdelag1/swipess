@@ -302,8 +302,8 @@ function QuickFilterBarComponent({ filters, onChange, onSelect, className, userR
                 <div className={cn(
                   "absolute inset-0 z-10 transition-colors duration-300",
                   isActive
-                    ? (isLight ? "bg-white/35" : "bg-black/35")
-                    : (isLight ? "bg-white/55" : "bg-black/55")
+                    ? (isLight ? "bg-white/30" : "bg-black/35")
+                    : (isLight ? "bg-white/60" : "bg-black/55")
                 )} />
                 <QuickFilterImage src={option.image} alt={option.label} />
                 <div className={cn(
@@ -311,12 +311,16 @@ function QuickFilterBarComponent({ filters, onChange, onSelect, className, userR
                   isLight ? "text-black" : "text-white",
                   "font-black"
                 )}>
-                  <div className={cn("mb-1 transition-all duration-300 drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]",
-                    isActive && "scale-110 drop-shadow-[0_0_18px_rgba(255,255,255,0.95)]")}>
+                  <div className={cn("mb-1 transition-all duration-300",
+                    isLight ? "drop-shadow-[0_1px_4px_rgba(255,255,255,0.8)]" : "drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]",
+                    isActive && (isLight ? "scale-110 drop-shadow-[0_0_12px_rgba(0,0,0,0.25)]" : "scale-110 drop-shadow-[0_0_18px_rgba(255,255,255,0.95)]"))}>
                     {option.icon}
                   </div>
-                  <span className="text-[9px] font-black uppercase tracking-[0.2em] mb-0.5 drop-shadow-md opacity-80">{option.description}</span>
-                  <span className={cn("font-black whitespace-nowrap uppercase tracking-tighter drop-shadow-lg", isGlobalAll ? "text-xl" : "text-xs")}>{option.label}</span>
+                  <span className={cn("text-[9px] font-black uppercase tracking-[0.2em] mb-0.5 opacity-80",
+                    isLight ? "drop-shadow-[0_1px_2px_rgba(255,255,255,0.9)]" : "drop-shadow-md")}>{option.description}</span>
+                  <span className={cn("font-black whitespace-nowrap uppercase tracking-tighter",
+                    isLight ? "drop-shadow-[0_1px_3px_rgba(255,255,255,0.8)]" : "drop-shadow-lg",
+                    isGlobalAll ? "text-xl" : "text-xs")}>{option.label}</span>
                 </div>
                 {isActive && (
                   <div className="absolute top-2 right-2 z-30 w-5 h-5 bg-[#EB4898] rounded-full flex items-center justify-center shadow-lg shadow-[#EB4898]/40">
@@ -337,10 +341,10 @@ function QuickFilterBarComponent({ filters, onChange, onSelect, className, userR
 
   // Per-category accent colors (active state) - Ultra Premium Gradients
   const _categoryColors: Record<string, { bg: string; shadow: string; border: string; overlay: string }> = {
-    property:   { bg: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',   shadow: '0 4px 16px rgba(16,185,129,0.5)',   border: 'rgba(16,185,129,0.8)',  overlay: 'linear-gradient(135deg, rgba(16,185,129,0.72) 0%, rgba(5,150,105,0.72) 100%)' },
-    motorcycle: { bg: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',   shadow: '0 4px 16px rgba(249,115,22,0.5)',   border: 'rgba(249,115,22,0.8)',  overlay: 'linear-gradient(135deg, rgba(249,115,22,0.72) 0%, rgba(234,88,12,0.72) 100%)' },
-    bicycle:    { bg: 'linear-gradient(135deg, #a855f7 0%, #9333ea 100%)',   shadow: '0 4px 16px rgba(168,85,247,0.5)',   border: 'rgba(168,85,247,0.8)', overlay: 'linear-gradient(135deg, rgba(168,85,247,0.72) 0%, rgba(147,51,234,0.72) 100%)' },
-    services:   { bg: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',   shadow: '0 4px 16px rgba(245,158,11,0.5)',   border: 'rgba(245,158,11,0.8)',  overlay: 'linear-gradient(135deg, rgba(245,158,11,0.72) 0%, rgba(217,119,6,0.72) 100%)' },
+    property:   { bg: 'linear-gradient(135deg, #FF4D00 0%, #FF8C00 100%)',   shadow: '0 4px 16px rgba(255,77,0,0.5)',   border: 'rgba(255,77,0,0.8)',  overlay: 'linear-gradient(135deg, rgba(255,77,0,0.72) 0%, rgba(255,140,0,0.72) 100%)' },
+    motorcycle: { bg: 'linear-gradient(135deg, #FF4D00 0%, #EB4898 100%)',   shadow: '0 4px 16px rgba(255,77,0,0.5)',   border: 'rgba(255,77,0,0.8)',  overlay: 'linear-gradient(135deg, rgba(255,77,0,0.72) 0%, rgba(235,72,152,0.72) 100%)' },
+    bicycle:    { bg: 'linear-gradient(135deg, #EB4898 0%, #FF4D00 100%)',   shadow: '0 4px 16px rgba(235,72,152,0.5)',   border: 'rgba(235,72,152,0.8)', overlay: 'linear-gradient(135deg, rgba(235,72,152,0.72) 0%, rgba(255,77,0,0.72) 100%)' },
+    services:   { bg: 'linear-gradient(135deg, #EB4898 0%, #FF00FF 100%)',   shadow: '0 4px 16px rgba(235,72,152,0.5)',   border: 'rgba(235,72,152,0.8)',  overlay: 'linear-gradient(135deg, rgba(235,72,152,0.72) 0%, rgba(255,0,255,0.72) 100%)' },
   };
 
   const _allSelectedShadow = '0 4px 20px rgba(236,72,153,0.55)';
@@ -367,22 +371,22 @@ function QuickFilterBarComponent({ filters, onChange, onSelect, className, userR
             smoothButtonClass,
             'relative flex-shrink-0 w-28 h-44 rounded-[3rem] overflow-hidden border transition-all duration-200',
             clientIsAllSelected
-              ? 'border-primary/80 ring-2 ring-primary/60 ring-offset-1 ring-offset-transparent scale-[1.08] shadow-[0_8px_40px_rgba(168,85,247,0.5)] brightness-110'
+              ? 'border-primary/80 ring-2 ring-primary/60 ring-offset-1 ring-offset-transparent scale-[1.08] shadow-[0_8px_40px_rgba(255,77,0,0.5)] brightness-110'
               : (isLight ? 'border-black/15 shadow-md' : 'border-white/15 shadow-md')
           )}
           style={{ contain: 'paint', willChange: 'transform, opacity, filter' }}
         >
           {clientIsAllSelected && (
             <div className="absolute inset-0 z-15 pointer-events-none">
-              <div className="absolute inset-0 rounded-[3rem] bg-gradient-to-br from-purple-400/15 via-transparent to-transparent animate-pulse" />
+              <div className="absolute inset-0 rounded-[3rem] bg-gradient-to-br from-[#FF4D00]/15 via-transparent to-transparent animate-pulse" />
             </div>
           )}
 
           <div className={cn(
             "absolute inset-0 z-10 transition-colors duration-300",
             clientIsAllSelected
-              ? (isLight ? "bg-white/35" : "bg-black/35")
-              : (isLight ? "bg-white/55" : "bg-black/55")
+              ? (isLight ? "bg-white/30" : "bg-black/35")
+              : (isLight ? "bg-white/60" : "bg-black/55")
           )} />
 
           <QuickFilterImage
@@ -395,9 +399,13 @@ function QuickFilterBarComponent({ filters, onChange, onSelect, className, userR
             isLight ? "text-black" : "text-white",
             "font-black"
           )}>
-            <Globe className={cn("w-7 h-7 mb-1 transition-all duration-300", clientIsAllSelected && "scale-125 drop-shadow-[0_0_18px_rgba(168,85,247,0.95)]")} />
-            <span className="text-[9px] font-black uppercase tracking-[0.2em] mb-0.5 opacity-80">Global</span>
-            <span className="text-xl font-black uppercase tracking-tighter drop-shadow-md">ALL</span>
+            <Globe className={cn("w-7 h-7 mb-1 transition-all duration-300",
+              isLight ? "drop-shadow-[0_1px_4px_rgba(255,255,255,0.8)]" : "",
+              clientIsAllSelected && (isLight ? "scale-125 drop-shadow-[0_0_12px_rgba(0,0,0,0.25)]" : "scale-125 drop-shadow-[0_0_18px_rgba(168,85,247,0.95)]"))} />
+            <span className={cn("text-[9px] font-black uppercase tracking-[0.2em] mb-0.5 opacity-80",
+              isLight ? "drop-shadow-[0_1px_2px_rgba(255,255,255,0.9)]" : "")}>Global</span>
+            <span className={cn("text-xl font-black uppercase tracking-tighter",
+              isLight ? "drop-shadow-[0_1px_3px_rgba(255,255,255,0.8)]" : "drop-shadow-md")}>ALL</span>
           </div>
           {clientIsAllSelected && (
             <div className="absolute top-2 right-2 z-30 w-5 h-5 bg-[#EB4898] rounded-full flex items-center justify-center shadow-lg shadow-[#EB4898]/40">
@@ -437,8 +445,8 @@ function QuickFilterBarComponent({ filters, onChange, onSelect, className, userR
               <div className={cn(
                 "absolute inset-0 z-10 transition-colors duration-300",
                 isActive
-                  ? (isLight ? "bg-white/35" : "bg-black/35")
-                  : (isLight ? "bg-white/55" : "bg-black/55")
+                  ? (isLight ? "bg-white/30" : "bg-black/35")
+                  : (isLight ? "bg-white/60" : "bg-black/55")
               )} />
 
               <QuickFilterImage src={photo} alt={category.label} />
@@ -448,11 +456,15 @@ function QuickFilterBarComponent({ filters, onChange, onSelect, className, userR
                 isLight ? "text-black" : "text-white",
                 "font-black"
               )}>
-                <div className={cn("mb-1 transition-all duration-300", isActive && "scale-125 drop-shadow-[0_0_18px_rgba(255,165,0,0.95)]")}>
+                <div className={cn("mb-1 transition-all duration-300",
+                  isLight ? "drop-shadow-[0_1px_4px_rgba(255,255,255,0.8)]" : "",
+                  isActive && (isLight ? "scale-125 drop-shadow-[0_0_12px_rgba(0,0,0,0.25)]" : "scale-125 drop-shadow-[0_0_18px_rgba(255,165,0,0.95)]"))}>
                   {category.icon}
                 </div>
-                <span className="text-[9px] font-black uppercase tracking-[0.2em] mb-0.5 opacity-80">Filter</span>
-                <span className="text-xs font-black whitespace-nowrap uppercase tracking-tight drop-shadow-md">{category.label}</span>
+                <span className={cn("text-[9px] font-black uppercase tracking-[0.2em] mb-0.5 opacity-80",
+                  isLight ? "drop-shadow-[0_1px_2px_rgba(255,255,255,0.9)]" : "")}>Filter</span>
+                <span className={cn("text-xs font-black whitespace-nowrap uppercase tracking-tight",
+                  isLight ? "drop-shadow-[0_1px_3px_rgba(255,255,255,0.8)]" : "drop-shadow-md")}>{category.label}</span>
               </div>
               {isActive && (
                 <div className="absolute top-2 right-2 z-30 w-5 h-5 bg-[#EB4898] rounded-full flex items-center justify-center shadow-lg shadow-[#EB4898]/40">

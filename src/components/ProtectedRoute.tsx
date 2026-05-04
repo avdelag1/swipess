@@ -6,23 +6,17 @@ interface ProtectedRouteProps {
   children: React.ReactNode;
 }
 
-import { PremiumLoader } from "@/components/PremiumLoader";
+
 
 /**
  * PRODUCTION-READY UNIFIED LOADER
  * Matches index.html splash exactly for a seamless transition
  */
 function ProtectedRouteLoadingSkeleton() {
-  // 🚀 SPEED OF LIGHT: Show a themed backdrop instead of null
-  // This prevents the 'black hole' flash during authenticated redirects.
-  return (
-    <div className="fixed inset-0 bg-black flex items-center justify-center z-[9999]">
-      <div className="w-full h-full relative overflow-hidden">
-        {/* Shooting stars background matched exactly to the landing/dashboard style */}
-        <div className="absolute inset-0 bg-[#020202] opacity-100" />
-      </div>
-    </div>
-  );
+  // Transparent placeholder — keeps the viewport stable during auth check
+  // without flashing a black screen. The background color of the app shell
+  // already provides visual continuity.
+  return <div className="fixed inset-0 bg-background z-[9999]" />;
 }
 
 

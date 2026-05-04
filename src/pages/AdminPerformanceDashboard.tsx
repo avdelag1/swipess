@@ -125,13 +125,13 @@ const AUDIT_ISSUES: AuditIssue[] = [
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function scoreColor(score: number) {
-  if (score >= 90) return 'text-emerald-500';
+  if (score >= 90) return 'text-violet-500';
   if (score >= 50) return 'text-amber-500';
   return 'text-red-500';
 }
 
 function _scoreBg(score: number) {
-  if (score >= 90) return 'bg-emerald-500/10 border-emerald-500/30';
+  if (score >= 90) return 'bg-violet-500/10 border-violet-500/30';
   if (score >= 50) return 'bg-amber-500/10 border-amber-500/30';
   return 'bg-red-500/10 border-red-500/30';
 }
@@ -144,14 +144,14 @@ function vitalStatus(metric: VitalMetric): 'good' | 'needs-improvement' | 'poor'
 }
 
 function vitalColor(status: ReturnType<typeof vitalStatus>) {
-  if (status === 'good') return 'text-emerald-500';
+  if (status === 'good') return 'text-violet-500';
   if (status === 'needs-improvement') return 'text-amber-500';
   if (status === 'poor') return 'text-red-500';
   return 'text-muted-foreground';
 }
 
 function vitalBg(status: ReturnType<typeof vitalStatus>) {
-  if (status === 'good') return 'border-emerald-500/30 bg-emerald-500/5';
+  if (status === 'good') return 'border-violet-500/30 bg-violet-500/5';
   if (status === 'needs-improvement') return 'border-amber-500/30 bg-amber-500/5';
   if (status === 'poor') return 'border-red-500/30 bg-red-500/5';
   return 'border-border bg-card';
@@ -351,7 +351,7 @@ export default function AdminPerformanceDashboard() {
               <span className="w-2 h-2 rounded-full bg-amber-500 shrink-0" />50–89 Needs work
             </div>
             <div className="flex items-center justify-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />90–100 Good
+              <span className="w-2 h-2 rounded-full bg-violet-500 shrink-0" />90–100 Good
             </div>
           </div>
         </motion.section>
@@ -388,7 +388,7 @@ export default function AdminPerformanceDashboard() {
                       {metric.icon}
                       <span className="text-xs font-semibold">{metric.name}</span>
                     </div>
-                    {status === 'good' && <CheckCircle className="w-3.5 h-3.5 text-emerald-500" />}
+                    {status === 'good' && <CheckCircle className="w-3.5 h-3.5 text-violet-500" />}
                     {status === 'poor' && <XCircle className="w-3.5 h-3.5 text-red-500" />}
                     {status === 'needs-improvement' && <AlertTriangle className="w-3.5 h-3.5 text-amber-500" />}
                     {status === 'waiting' && <Info className="w-3.5 h-3.5 text-muted-foreground" />}

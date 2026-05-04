@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Heart, Play, Music, Globe, Star, LayoutGrid, ChevronRight } from 'lucide-react';
+import { X, Heart, Play, Music, Globe, Star, LayoutGrid, ChevronRight, Shuffle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { radioStations, cityThemes } from '@/data/radioStations';
 import { RadioStation, CityLocation } from '@/types/radio';
@@ -17,6 +17,7 @@ interface StationDrawerProps {
   onCitySelect: (city: CityLocation) => void;
   onStationSelect: (stationId: string) => void;
   onToggleFavorite: (stationId: string) => void;
+  onShuffle?: (stations: RadioStation[]) => void;
 }
 
 export const StationDrawer = ({
@@ -29,7 +30,8 @@ export const StationDrawer = ({
   favorites,
   onCitySelect,
   onStationSelect,
-  onToggleFavorite
+  onToggleFavorite,
+  onShuffle
 }: StationDrawerProps) => {
   const navigate = useNavigate();
   // Use current city's theme or Miami default
@@ -62,18 +64,14 @@ export const StationDrawer = ({
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 28, stiffness: 220 }}
             className={cn(
-               "fixed inset-0 z-[10100] overflow-hidden flex flex-col",
-               "modal-liquid-glass p-6",
+               "fixed inset-0 z-[10100] w-screen h-[100dvh] overflow-hidden flex flex-col bg-background p-6 pt-[calc(env(safe-area-inset-top)+1.5rem)]",
             )}
             style={{ 
               '--accent-dynamic': accentColor,
               '--accent-dynamic-alpha': `${accentColor}20`
             } as React.CSSProperties}
           >
-            {/* Liquid Shine Overlay */}
-            <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-70">
-               <div className="liquid-glass-highlight--animated absolute inset-0" />
-            </div>
+
 
             {/* Header */}
             <div className="flex items-center justify-between mb-8">
@@ -93,6 +91,26 @@ export const StationDrawer = ({
               >
                 <X size={24} />
               </button>
+            </div>
+
+            {/* Shuffle Action */}
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-[10px] font-black tracking-[0.2em] text-foreground/40 uppercase">
+                {isFavoritesView ? 'FAVORITE SIGNAL' : `${currentCity.toUpperCase()} SIGNAL`}
+              </span>
+              {onShuffle && filteredStations.length > 0 && (
+                <button
+                  onClick={() => {
+                    triggerHaptic('medium');
+                    onShuffle(filteredStations);
+                    onClose();
+                  }}
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl transition-all active:scale-95 border group bg-primary/10 border-primary/20 text-primary hover:bg-primary/20"
+                >
+                  <Shuffle size={14} className="group-hover:rotate-180 transition-transform duration-500" />
+                  <span className="text-[10px] font-black uppercase tracking-widest italic">Shuffle</span>
+                </button>
+              )}
             </div>
 
             {!isFavoritesView && (

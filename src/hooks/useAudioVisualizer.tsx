@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 
 /**
- * 🛰️ Sentient Audio Visualizer Hook v1.0
+ * 🛰️ Swipess Audio Visualizer Hook v1.0
  * Provides real-time frequency data for immersive UI animations.
  * Integrates with MediaStream from useVoiceTranscribe or any audio source.
  */

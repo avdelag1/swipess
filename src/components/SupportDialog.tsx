@@ -106,18 +106,18 @@ export function SupportDialog({ isOpen, onClose, userRole }: SupportDialogProps)
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case 'urgent': return 'bg-red-500/10 text-red-500';
-      case 'high': return 'bg-red-500/10 text-red-500';
+      case 'low': return 'bg-violet-500/10 text-violet-500';
       case 'medium': return 'bg-amber-500/10 text-amber-500';
-      case 'low': return 'bg-emerald-500/10 text-emerald-500';
-      default: return 'bg-gray-500/10 text-gray-500';
+      case 'high': return 'bg-rose-500/10 text-rose-500';
+      default: return 'bg-muted text-muted-foreground';
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'open': return 'bg-blue-500/10 text-blue-500';
-      case 'in_progress': return 'bg-purple-500/10 text-purple-500';
-      case 'resolved': return 'bg-emerald-500/10 text-emerald-500';
+      case 'open': return 'bg-violet-500/10 text-violet-500';
+      case 'in_progress': return 'bg-amber-500/10 text-amber-500';
+      case 'resolved': return 'bg-rose-500/10 text-rose-500';
       case 'closed': return 'bg-gray-500/10 text-gray-500';
       default: return 'bg-gray-500/10 text-gray-500';
     }

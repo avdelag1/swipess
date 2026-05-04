@@ -191,7 +191,7 @@ export function SubscriptionPackages({ isOpen = true, onClose, reason, userRole 
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 + index * 0.08, duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
                 className={cn(
-                   "flex-1 flex flex-col rounded-[2rem] border backdrop-blur-3xl bg-card/40 p-6 relative overflow-hidden",
+                   "flex-1 flex flex-col rounded-[2rem] border bg-background p-6 relative overflow-hidden",
                    style.border,
                    isHighlight && "ring-2 ring-amber-500/20 shadow-[0_20px_60px_rgba(245,158,11,0.15)]"
                 )}
@@ -231,7 +231,7 @@ export function SubscriptionPackages({ isOpen = true, onClose, reason, userRole 
                        isHighlight && "shadow-amber-500/20"
                     )}
                   >
-                    {isHighlight ? 'Upgrade to Zenith' : 'Activate Access'}
+                    {isHighlight ? 'Upgrade to Swipess' : 'Activate Access'}
                   </motion.button>
                 </div>
               </motion.div>

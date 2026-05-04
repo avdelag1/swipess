@@ -82,11 +82,11 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
 
   // 🛡️ HUD MASTER RECOVERY: Ensure UI is visible on mount and every navigation
   useEffect(() => {
-    const recoveryEvent = new CustomEvent('sentient-ui-recovery');
+    const recoveryEvent = new CustomEvent('swipess-ui-recovery');
     window.dispatchEvent(recoveryEvent);
     
     const safetyCheck = setTimeout(() => {
-      window.dispatchEvent(new CustomEvent('sentient-ui-recovery'));
+      window.dispatchEvent(new CustomEvent('swipess-ui-recovery'));
     }, 1500);
 
     return () => clearTimeout(safetyCheck);
@@ -261,8 +261,6 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
         )}
         style={{
           WebkitOverflowScrolling: 'touch',
-          scrollPaddingTop: 'var(--top-bar-height, 60px)',
-          scrollPaddingBottom: 'var(--bottom-nav-height, 72px)',
         }}
       >
         {/* INNER WRAPPER: Ensures flex-grow works correctly for child pages */}
@@ -271,7 +269,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
         </div>
       </main>
 
-      {/* ZENITH GLOBAL DIALOGS */}
+      {/* SWIPESS GLOBAL DIALOGS */}
       <GlobalDialogs userRole={userRole} />
 
     </div>

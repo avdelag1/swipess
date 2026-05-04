@@ -199,7 +199,7 @@ const OwnerInterestedClients = () => {
 
   return (
     <div className="w-full relative flex flex-col min-h-full" data-no-swipe-nav="true">
-      <div className="p-4 pt-4 sm:p-8 sm:pt-6 max-w-7xl mx-auto">
+      <div className="w-full px-6 pt-10 pb-32">
         <PageHeader title="Interested Clients" subtitle="Top Demand Entities" showBack={true} />
 
         {/* Category filter tabs */}
@@ -212,9 +212,9 @@ const OwnerInterestedClients = () => {
               className={cn(
                 "flex items-center gap-2.5 px-6 py-3.5 rounded-3xl text-sm font-black whitespace-nowrap transition-all flex-shrink-0 border",
                 selectedCategory === id
-                  ? "bg-[var(--color-brand-accent-2)] border-[var(--color-brand-accent-2)] text-white shadow-[0_8px_24px_rgba(228,0,124,0.4)]"
+                  ? (isLight ? "bg-black text-white" : "bg-[var(--color-brand-accent-2)] border-[var(--color-brand-accent-2)] text-white shadow-[0_8px_24px_rgba(228,0,124,0.4)]")
                   : isLight
-                  ? "bg-white border-border/40 text-muted-foreground hover:text-foreground hover:bg-secondary shadow-sm"
+                  ? "bg-white border-border/40 text-black/60 font-black hover:text-black hover:bg-black/5 shadow-sm"
                   : "bg-white/[0.04] border-white/[0.08] text-white/50 hover:text-white hover:bg-white/[0.08]"
               )}
             >
@@ -261,6 +261,7 @@ const OwnerInterestedClients = () => {
               <div key={client.id} className="rounded-[2rem]" style={{ touchAction: 'pan-y' }}>
                 <PremiumLikedCard
                   type="profile"
+                  isLight={isLight}
                   data={client}
                   onAction={(action) => handleAction(action, client)}
                 />

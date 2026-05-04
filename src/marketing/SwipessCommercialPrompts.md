@@ -13,11 +13,11 @@ Hey [Client Name]! 🌴
 
 I’m excited to share something we’ve been building to completely change how you experience Tulum: **Swipess**.
 
-Stop paying "Gringo Taxes" and middleman markups. Swipess is the first **Sentient Local Network** that puts the power back in your hands.
+Stop paying "Gringo Taxes" and middleman markups. Swipess is the first **Intelligent Local Network** that puts the power back in your hands.
 
 **Why you need it:**
 1. 🏠 **Direct to Owner**: Rent or buy properties directly from the source. Zero commissions.
-2. 🧠 **Sentient AI Concierge**: Meet "Vibe," your AI expert. It learns your style and finds you anything—from luxury villas to a private chef or a last-minute scooter—in seconds.
+2. 🧠 **Intelligent AI Concierge**: Meet "Vibe," your AI expert. It learns your style and finds you anything—from luxury villas to a private chef or a last-minute scooter—in seconds.
 3. ⚖️ **Legal Peace of Mind**: Integrated legal support. Every deal is backed by on-demand lawyers.
 4. 🎶 **The Full Loop**: Enjoy our exclusive local radio, find hidden parties/events, and even match with the perfect roommate.
 
@@ -39,7 +39,7 @@ Let’s resonate with Tulum, properly. 🌪
 
 Tired of the middleman friction? So were we. Welcome to **Swipess** — the OS for your life in Tulum. 🌴✨
 
-We didn't just build an app; we built a **Sentient Network**.
+We didn't just build an app; we built an **Intelligent Network**.
 
 💎 **Direct Access**: No agents, no "fixers," no BS. Connect directly with owners.
 🧠 **AI Intelligence**: Your personal Concierge (Vibe) learns who you are to find precisely what you need.
@@ -52,11 +52,11 @@ Stop searching. Start resonating.
 
 [Link in Bio] 🔗
 
-#Swipess #TulumLifestyle #SentientNetwork #TulumRealEstate #DigitalNomadTulum #DirectToSource
+#Swipess #TulumLifestyle #IntelligentNetwork #TulumRealEstate #DigitalNomadTulum #DirectToSource
 
 ---
 
 ## ⚡ Pro-Tips for Selling:
-- **Mention the "Sentient" aspect**: Clients love the idea of an AI that *remembers* them.
+- **Mention the "Intelligent" aspect**: Clients love the idea of an AI that *remembers* them.
 - **Focus on Savings**: Highlight that one yearly subscription saves them thousands in middleman fees.
 - **The "Safety" Hook**: In Tulum, legal safety is a huge selling point. Mention the lawyers!

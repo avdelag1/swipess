@@ -78,8 +78,6 @@ export const SwipeLoadingSkeleton = () => (
              transition={{ duration: 2, repeat: Infinity }}
              className="text-center"
            >
-             <h3 className="text-white text-3xl font-black uppercase tracking-widest italic drop-shadow-lg">SWIPESS</h3>
-             <p className="text-white/70 text-xs font-bold uppercase tracking-[0.2em] mt-3">Loading profiles...</p>
            </motion.div>
         </div>
       </div>

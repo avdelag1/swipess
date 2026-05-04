@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, memo, useMemo, useCallback } from 'react';
+import { useState, useEffect, useRef, memo, useMemo, useCallback, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ClientSwipeContainer } from '@/components/ClientSwipeContainer';
 import { useSmartClientMatching } from '@/hooks/useSmartMatching';
@@ -32,7 +32,7 @@ const SAFE_INTENT_CARDS = OWNER_INTENT_CARDS || [];
 const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: EnhancedOwnerDashboardProps) => {
   const { theme } = useAppTheme();
   const isLight = theme === 'light';
-  const [viewMode] = useState<'discovery' | 'insights'>('discovery');
+  const [viewMode, setViewMode] = useState<'discovery' | 'insights'>('discovery');
   const navigate = useNavigate();
 
   const activeCategory = useFilterStore(s => s.activeCategory);
@@ -160,8 +160,56 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
 
   return (
     <div className={cn("flex flex-col flex-1 min-h-0 w-full relative transition-colors duration-500", isLight ? "bg-white" : "bg-black")}>
-      <AtmosphericLayer variant="primary" />
+      <AtmosphericLayer variant="nexus" />
 
+      {/* 🛸 NEXUS DASHBOARD TOGGLE - Restricted to Kilometer Phase per User Request */}
+      {(ownerPhase === 'kilometer') && (
+        <div className="absolute top-[calc(var(--top-bar-height,60px)+12px)] left-1/2 -translate-x-1/2 z-[40] flex p-1 rounded-2xl bg-black/40 backdrop-blur-3xl border border-white/10 shadow-2xl min-w-[200px]">
+          {/* Sliding Indicator */}
+          <motion.div
+            className="absolute h-9 rounded-xl z-0"
+            initial={false}
+            animate={{
+              x: viewMode === 'discovery' ? 4 : 100,
+              width: 96,
+              background: viewMode === 'discovery' 
+                ? 'linear-gradient(135deg, #FF4D00, #FF6B00)' 
+                : 'linear-gradient(135deg, #EB4898, #C026D3)',
+            }}
+            transition={{
+              type: "spring",
+              stiffness: 400,
+              damping: 30
+            }}
+            style={{
+              boxShadow: viewMode === 'discovery' 
+                ? '0 4px 15px rgba(255,77,0,0.3)' 
+                : '0 4px 15px rgba(235,72,152,0.3)',
+            }}
+          />
+  
+          <button
+            onClick={() => { setViewMode('discovery'); triggerHaptic('light'); }}
+            className={cn(
+              "flex-1 h-9 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all relative z-10",
+              viewMode === 'discovery' ? "text-white" : "text-white/40 hover:text-white/60"
+            )}
+          >
+            Discovery
+          </button>
+          <button
+            onClick={() => { setViewMode('insights'); triggerHaptic('light'); }}
+            className={cn(
+              "flex-1 h-9 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all relative z-10",
+              viewMode === 'insights' ? "text-white" : "text-white/40 hover:text-white/60"
+            )}
+          >
+            Insights
+          </button>
+        </div>
+      )}
+
+      <Suspense fallback={null}>
       <AnimatePresence mode="wait">
         {showSkeletons ? (
           <motion.div
@@ -169,16 +217,27 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="flex-1 flex flex-col items-center justify-center p-8 space-y-6 z-10"
+            className="flex-1 flex flex-col items-center justify-center p-8 z-10"
           >
-            <div className="relative">
-              <div className="w-20 h-20 rounded-[2.2rem] border-[4px] border-primary/10 border-t-primary animate-spin shadow-2xl" />
-              <div className="absolute inset-0 m-auto w-6 h-6 bg-primary/40 rounded-full animate-pulse" />
-            </div>
-            <p className="text-[10px] font-black uppercase italic tracking-[0.4em] text-primary/60 animate-pulse">Synchronizing Swipess Logic...</p>
-            <div className="w-full max-w-sm space-y-3 pt-8">
-              <div className="h-24 w-full bg-white/5 rounded-3xl animate-pulse" />
-              <div className="h-24 w-full bg-white/5 rounded-3xl animate-pulse opacity-50" />
+            <div className="w-full max-w-sm space-y-4">
+              <div className="w-20 h-20 mx-auto rounded-[2.2rem] bg-gradient-to-br from-[#FF4D00] to-[#EB4898] animate-pulse blur-xl opacity-20 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+              <div className="relative z-10 space-y-6 text-center">
+                <div className="flex justify-center">
+                  <div className="w-16 h-16 rounded-[1.8rem] bg-white/[0.03] border border-white/10 flex items-center justify-center animate-bounce shadow-2xl backdrop-blur-xl">
+                    <SwipessLogo size="xs" variant="transparent" />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <div className="h-1 w-32 mx-auto bg-white/5 rounded-full overflow-hidden">
+                    <motion.div 
+                      className="h-full bg-primary"
+                      animate={{ x: ['-100%', '100%'] }}
+                      transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                    />
+                  </div>
+                  <p className="text-[10px] font-black uppercase italic tracking-[0.4em] text-white/30">Synchronizing Core Logic...</p>
+                </div>
+              </div>
             </div>
           </motion.div>
         ) : viewMode === 'insights' ? (
@@ -188,7 +247,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -20, scale: 0.98 }}
             transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
-            className="flex-1 overflow-y-auto z-10"
+            className="flex-1 overflow-y-auto z-10 pt-20"
           >
             <OwnerInsightsDashboard />
           </motion.div>
@@ -199,16 +258,12 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 1.1, y: -20 }}
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-            className="relative flex-1 flex flex-col items-center w-full overflow-hidden z-10"
+            className="absolute inset-0 flex flex-col items-center justify-center z-10"
             style={{
-              paddingTop: 'calc(var(--top-bar-height) + var(--safe-top))',
-              paddingBottom: 'calc(var(--bottom-nav-height) + var(--safe-bottom) + 20px)',
               willChange: 'transform, opacity'
             }}
           >
-            <div className="flex-1 w-full relative z-10 flex flex-col justify-center">
-              <OwnerAllDashboard onCardSelect={handleCardSelect} />
-            </div>
+            <OwnerAllDashboard onCardSelect={handleCardSelect} />
           </motion.div>
         ) : ownerPhase === 'kilometer' ? (
           <motion.div
@@ -258,18 +313,16 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
                 onInsights={handleClientTap}
               />
             </div>
-            {typeof document !== 'undefined' && document.body && (
-              <SwipeInsightsModal
-                open={!!selectedProfileId}
-                onOpenChange={(open) => !open && setSelectedProfileId(null)}
-                profile={clientProfiles.find(p => p.user_id === selectedProfileId)}
-              />
-            )}
+            <SwipeInsightsModal
+              open={!!selectedProfileId}
+              onOpenChange={(open) => !open && setSelectedProfileId(null)}
+              profile={clientProfiles.find(p => p.user_id === selectedProfileId)}
+            />
           </motion.div>
         )}
       </AnimatePresence>
+      </Suspense>
 
-      <p className="absolute bottom-4 left-6 text-[8px] font-black uppercase tracking-[0.6em] opacity-10 pointer-events-none z-0">Swipess FLAGSHIP v1.0.97</p>
     </div>
   );
 };
@@ -321,10 +374,7 @@ const OwnerKilometerView = ({
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className={cn(
-            "w-full rounded-[3.5rem] border p-10 relative shadow-[0_40px_100px_rgba(0,0,0,0.15)]",
-            isLight ? "bg-white/80 border-black/5 backdrop-blur-md" : "bg-black/60 border-white/10 backdrop-blur-xl"
-          )}
+          className="w-full relative px-2"
         >
           <div className="mb-8">
             <h4 className={cn("text-[10px] font-black uppercase tracking-[0.5em] opacity-40 mb-3", isLight ? "text-black" : "text-white")}>Sector Depth</h4>

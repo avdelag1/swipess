@@ -15,7 +15,7 @@ export function useIAP() {
   const [isInitializing, setIsInitializing] = useState(true);
 
   useEffect(() => {
-    // 🛸 SENTIENT IAP INITIALIZATION
+    // 🛸 SWIPESS IAP INITIALIZATION
     // In a real build, we would initialize StoreKit/Google Play here
     console.log('[IAP] Initializing Store Context...');
     

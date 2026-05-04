@@ -145,15 +145,15 @@ const ClientSettings = () => {
         <div className="max-w-3xl mx-auto relative z-10">
           <PageHeader title={t('settings.security')} subtitle={t('settings.securityDesc')} showBack={true} onBack={() => setActiveSection(null)} />
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={fastSpring} className="space-y-6 pt-10">
-            <div className="rounded-[2.5rem] overflow-hidden bg-card/40 backdrop-blur-2xl border border-border shadow-2xl">
+            <div className="rounded-[2.5rem] overflow-hidden bg-background border border-border shadow-2xl">
               <CardContent className="p-8">
                 <AccountSecurity userRole="client" />
               </CardContent>
             </div>
             <div className="space-y-3 px-2">
               <div className="space-y-1">
-                <h3 className="text-sm font-black uppercase tracking-widest text-destructive">Destructive Actions</h3>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground opacity-40">Proceed with absolute caution</p>
+                <h3 className="text-sm font-black uppercase tracking-widest text-destructive">{t('settings.destructiveActions')}</h3>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground opacity-40">{t('settings.proceedWithCaution')}</p>
               </div>
               <DeleteAccountSection />
             </div>
@@ -215,9 +215,9 @@ const ClientSettings = () => {
         <div className="space-y-3">
            <div className="flex items-center gap-3">
               <div className="w-1.5 h-1.5 rounded-full bg-[#EB4898] animate-pulse" />
-              <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[#EB4898] italic">Identity Config</span>
+              <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[#EB4898] italic">{t('settings.identityConfig')}</span>
            </div>
-           <h1 className={cn("text-4xl font-black uppercase italic tracking-tighter leading-none", isLight ? "text-black" : "text-white")}>System Settings</h1>
+           <h1 className={cn("text-4xl font-black uppercase italic tracking-tighter leading-none", isLight ? "text-black" : "text-white")}>{t('settings.systemSettings')}</h1>
            <PWAInstallButton className="pt-2" />
         </div>
 
@@ -234,7 +234,7 @@ const ClientSettings = () => {
                 <div className="h-px flex-1 bg-gradient-to-r from-muted-foreground/20 to-transparent" />
               </div>
 
-              <div className="rounded-[32px] overflow-hidden bg-card/40 backdrop-blur-2xl border border-border shadow-2xl">
+              <div className="rounded-[32px] overflow-hidden bg-background border border-border shadow-2xl">
                 {group.items.map((item, idx) => (
                   <div key={item.label}>
                     <motion.button
@@ -289,12 +289,12 @@ const ClientSettings = () => {
             </div>
             <div className="text-center space-y-2">
                <div className="flex items-center justify-center gap-3">
-                  <span className={cn("text-2xl font-black italic tracking-tighter uppercase", isLight ? "text-black" : "text-white")}>Swipess</span>
+                  <span className={cn("text-2xl font-black italic tracking-tighter uppercase", isLight ? "text-black" : "text-white")}>SWIPESS PRO</span>
                   <div className="bg-[#EB4898]/10 px-3 py-1 rounded-full border border-[#EB4898]/20">
-                     <span className="text-[9px] font-black text-[#EB4898] uppercase tracking-widest font-mono">V3.3.1</span>
+                     <span className="text-[9px] font-black text-[#EB4898] uppercase tracking-widest font-mono">V4.0.0</span>
                   </div>
                </div>
-               <p className={cn("text-[9px] font-black uppercase tracking-[0.4em] italic opacity-30", isLight ? "text-black" : "text-white")}>Elite Discovery Engine</p>
+               <p className={cn("text-[9px] font-black uppercase tracking-[0.4em] italic opacity-30", isLight ? "text-black" : "text-white")}>{t('settings.eliteDiscovery')}</p>
             </div>
           </motion.div>
         </div>

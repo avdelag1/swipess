@@ -113,7 +113,7 @@ function _SegmentedControl({
   onChange: (value: string) => void;
 }) {
   return (
-    <div className="flex rounded-xl bg-muted/50 p-1 gap-1">
+    <div className="flex rounded-xl bg-white/5 border border-white/10 p-1 gap-1">
       {options.map((opt) => {
         const isActive = value === opt.id;
         return (
@@ -444,7 +444,7 @@ export function OwnerClientFilterDialog({ open, onOpenChange }: OwnerClientFilte
                     <div className="grid grid-cols-2 gap-3 sm:gap-4">
                       <div>
                         <Label className="text-sm text-muted-foreground">Min Age</Label>
-                        <div className="flex rounded-xl bg-muted/50 p-1 gap-1 mt-1">
+                        <div className="flex rounded-xl bg-white/5 border border-white/10 p-1 gap-1 mt-1">
                           {[18, 21, 25, 30, 35, 40].map((age) => {
                             const isActive = minAge === age;
                             return (
@@ -466,7 +466,7 @@ export function OwnerClientFilterDialog({ open, onOpenChange }: OwnerClientFilte
                       </div>
                       <div>
                         <Label className="text-sm text-muted-foreground">Max Age</Label>
-                        <div className="flex rounded-xl bg-muted/50 p-1 gap-1 mt-1">
+                        <div className="flex rounded-xl bg-white/5 border border-white/10 p-1 gap-1 mt-1">
                           {[30, 35, 40, 50, 60, 65].map((age) => {
                             const isActive = maxAge === age;
                             return (

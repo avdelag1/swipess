@@ -25,7 +25,7 @@
   "categories": ["lifestyle", "business", "social", "travel", "productivity"],
   "shortcuts": [
     { "name": "Discover Feed", "short_name": "Discover", "description": "Explore the elite feed", "url": "/client/dashboard", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }] },
-    { "name": "AI Concierge", "short_name": "AI Chat", "description": "Talk to your sentient assistant", "url": "/concierge", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "AI Concierge", "short_name": "AI Chat", "description": "Talk to your Swipess assistant", "url": "/concierge", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }] },
     { "name": "Radio & Vibe", "short_name": "Radio", "description": "Listen to the vibration", "url": "/radio", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }] }
   ],
   "screenshots": [

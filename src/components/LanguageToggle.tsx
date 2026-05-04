@@ -10,11 +10,7 @@ import { changeLanguage as i18nChangeLanguage } from '@/i18n/index';
 const languages = [
   { code: 'en', label: 'English',  nativeLabel: 'English',   flag: '🇺🇸' },
   { code: 'es', label: 'Spanish',  nativeLabel: 'Español',   flag: '🇲🇽' },
-  { code: 'fr', label: 'French',   nativeLabel: 'Français',  flag: '🇫🇷' },
-  { code: 'de', label: 'German',   nativeLabel: 'Deutsch',   flag: '🇩🇪' },
   { code: 'it', label: 'Italian',  nativeLabel: 'Italiano',  flag: '🇮🇹' },
-  { code: 'zh', label: 'Chinese',  nativeLabel: '中文',       flag: '🇨🇳' },
-  { code: 'ja', label: 'Japanese', nativeLabel: '日本語',     flag: '🇯🇵' },
   { code: 'ru', label: 'Russian',  nativeLabel: 'Русский',   flag: '🇷🇺' },
 ];
 
@@ -36,7 +32,7 @@ export function LanguageToggle() {
   };
 
   return (
-    <div className="rounded-2xl border border-border bg-card/50 backdrop-blur-xl p-4">
+    <div className="rounded-2xl border border-border bg-background p-4">
       <div className="flex items-center gap-3 mb-4">
         <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
           <Globe className="w-4.5 h-4.5 text-primary" />
@@ -56,7 +52,7 @@ export function LanguageToggle() {
               "flex flex-col items-center justify-center gap-1 py-3 px-1 rounded-xl border text-center transition-all",
               current === lang.code
                 ? "bg-primary/10 border-primary/40 text-primary"
-                : "bg-card/50 border-border text-muted-foreground hover:bg-card/80 hover:text-foreground"
+                : "bg-background border-border text-muted-foreground hover:text-foreground hover:border-primary/20"
             )}
           >
             <span className="text-xl leading-none">{lang.flag}</span>

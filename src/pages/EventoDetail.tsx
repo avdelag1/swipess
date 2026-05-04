@@ -500,7 +500,7 @@ export default function EventoDetail() {
             <motion.button
               whileTap={{ scale: 0.95 }}
               onClick={handleWhatsApp}
-              className="flex-1 flex items-center justify-center gap-3.5 py-5 rounded-[2rem] font-black text-white uppercase tracking-[0.25em] text-[12px] shadow-2xl shadow-emerald-500/40 relative overflow-hidden group active:scale-95 transition-all"
+              className="flex-1 flex items-center justify-center gap-3.5 py-5 rounded-[2rem] font-black text-white uppercase tracking-[0.25em] text-[12px] shadow-2xl shadow-rose-500/40 relative overflow-hidden group active:scale-95 transition-all"
               style={{ background: 'linear-gradient(135deg, #25D366, #128C7E)' }}
             >
               <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
