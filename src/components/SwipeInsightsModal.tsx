@@ -288,8 +288,8 @@ export function SwipeInsightsModal({ open, onOpenChange, listing, profile }: Swi
             <Button
               onClick={() => onOpenChange(false)}
               className={cn(
-                "w-full h-14 rounded-2xl font-bold text-base tracking-wide active:scale-[0.98] transition-all",
-                isLight ? "bg-slate-900 text-white hover:bg-slate-800" : "bg-white text-black hover:bg-white/90"
+                "w-full h-14 rounded-2xl font-bold text-base tracking-wide active:scale-[0.98] transition-all border-0 shadow-lg",
+                isLight ? "!bg-slate-900 !text-white hover:!bg-slate-800" : "!bg-white !text-black hover:!bg-white/90"
               )}
             >
               Close
