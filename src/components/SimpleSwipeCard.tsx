@@ -301,7 +301,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           backfaceVisibility: 'hidden',
           borderRadius: 28,
           boxShadow: 'none',
-          background: 'hsl(var(--background))',
+          background: 'hsl(var(--swipe-deck-frame))',
         }}
       >
         <div 
