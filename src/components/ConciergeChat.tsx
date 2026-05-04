@@ -305,19 +305,6 @@ const ArcGauge = memo(({ level, color, isLoading, icon: Icon }: {
 });
 ArcGauge.displayName = 'ArcGauge';
 
-const HeaderIcon = ({ isLoading }: { isLoading: boolean }) => (
-  <motion.div
-    className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20"
-    animate={isLoading ? {
-      scale: [1, 1.1, 1],
-      boxShadow: ['0 0 0px rgba(var(--color-brand-primary-rgb),0)', '0 0 20px rgba(var(--color-brand-primary-rgb),0.3)', '0 0 0px rgba(var(--color-brand-primary-rgb),0)']
-    } : { scale: 1 }}
-    transition={isLoading ? { duration: 2, repeat: Infinity, ease: 'easeInOut' } : { duration: 0.3 }}
-  >
-    <Sparkles className="w-5 h-5 text-primary" />
-  </motion.div>
-);
-
 const ConversationSidebar = memo(({
   conversations, activeId, onSelect, onDelete, onNew, onClose, isSwipess
 }: {
@@ -395,7 +382,7 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
 
   const {
     messages, conversations, activeConversationId, isLoading,
-    sendMessage, resendMessage, deleteMessage, stopGeneration,
+    sendMessage, resendMessage, deleteMessage,
     createConversation, switchConversation, deleteConversation,
     activeCharacter, setActiveCharacter, egoLevel,
   } = useConciergeAI();
@@ -477,8 +464,7 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
   
   const { 
     start: startTranscribe, 
-    stop: stopTranscribe, 
-    isRecording: isTranscribingActive 
+    stop: stopTranscribe,
   } = useVoiceTranscribe();
 
   useEffect(() => {
@@ -626,7 +612,7 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
     triggerHaptic('light');
   };
 
-  const handleTranslate = useCallback((text: string) => {
+  const handleTranslate = useCallback((_text: string) => {
     triggerHaptic('light');
     toast.info('Translation initialization...');
     // Real implementation would call the AI translate function
