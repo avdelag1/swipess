@@ -815,7 +815,7 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                     )}
                   </AnimatePresence>
 
-                  <div className="max-w-3xl mx-auto flex items-end gap-3">
+                  <div className="max-w-3xl mx-auto flex items-center gap-3">
                     <div className={cn("flex-1 relative flex items-end rounded-3xl transition-all duration-500 border group", isLight && !isSwipess ? "bg-slate-50 border-slate-200 focus-within:border-primary/50" : "bg-white/5 border-white/10 focus-within:border-[#FF3D00]/50")}>
                        <div className="pl-2 pb-2 flex items-center gap-1.5">
                          <Popover>
@@ -859,9 +859,9 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                     <button
                       onClick={handleSend}
                       disabled={!input.trim() || isLoading}
-                      className={cn("h-14 w-14 rounded-3xl flex items-center justify-center transition-all shadow-xl active:scale-90", isSwipess ? "bg-[#FF3D00] hover:bg-[#FF4D00] shadow-[#FF3D00]/20" : "bg-primary hover:bg-primary/90", (!input.trim() || isLoading) && "opacity-20 grayscale pointer-events-none")}
+                      className={cn("h-14 w-14 shrink-0 rounded-3xl flex items-center justify-center transition-all shadow-xl active:scale-90", isSwipess ? "bg-[#FF3D00] hover:bg-[#FF4D00] shadow-[#FF3D00]/20" : "bg-primary hover:bg-primary/90", (!input.trim() || isLoading) && "opacity-60 pointer-events-none")}
                     >
-                      {isLoading ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5 text-white" />}
+                      {isLoading ? <RefreshCw className="w-5 h-5 text-white animate-spin" /> : <Send className="w-5 h-5 text-white" />}
                     </button>
                   </div>
                 </footer>
