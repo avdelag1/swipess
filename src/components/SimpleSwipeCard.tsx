@@ -452,10 +452,10 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
         <div
           className="absolute inset-x-0 bottom-0 pointer-events-none z-10 transition-opacity duration-200"
           style={{
-            height: '65%',
+            height: '42%',
             background: isLight
-              ? 'linear-gradient(to top, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.6) 30%, rgba(255,255,255,0.06) 65%, transparent 100%)'
-              : 'linear-gradient(to top, rgba(0,0,0,0.98) 0%, rgba(0,0,0,0.6) 30%, rgba(0,0,0,0.06) 65%, transparent 100%)',
+              ? 'linear-gradient(to top, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.3) 35%, transparent 100%)'
+              : 'linear-gradient(to top, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.32) 35%, transparent 100%)',
             opacity: isZoomed ? 0 : 1,
           }}
         />
