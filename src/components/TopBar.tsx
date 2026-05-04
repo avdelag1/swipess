@@ -123,7 +123,7 @@ function TopBarComponent({
               transition={TAP_SPRING}
               whileTap={{ scale: 0.94 }}
               onClick={() => { haptics.tap(); onBack(); }}
-              className="flex shrink-0 items-center justify-center rounded-[1rem]"
+              className="flex shrink-0 items-center justify-center rounded-full"
               style={{ ...glassPillStyle, width: '36px' }}
               aria-label="Back"
             >
