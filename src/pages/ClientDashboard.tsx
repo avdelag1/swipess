@@ -19,6 +19,7 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
   const { isLight } = useAppTheme();
   const { user } = useAuth();
   const [viewMode, setViewMode] = useState<'discovery' | 'insights'>('discovery');
+  const activeCategory = useFilterStore(s => s.activeCategory);
 
   const filterVersion = useFilterStore(s => s.filterVersion);
   const filters = useMemo(
