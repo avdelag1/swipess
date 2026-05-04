@@ -178,7 +178,7 @@ const MessageBubble = memo(({ message, isUser, isSwipess, onCopy, onDelete, onTr
       onClick={() => { triggerHaptic('light'); setShowActions(!showActions); }}
     >
       <div className={cn(
-        "p-4 rounded-2xl text-sm leading-relaxed break-words relative overflow-hidden transition-all duration-500",
+        isUser 
           ? (isSwipess ? 'bg-[#FF3D00] text-white rounded-br-md shadow-[0_10px_30px_rgba(255,61,0,0.3)]' : 'bg-primary text-primary-foreground rounded-br-md shadow-md')
           : (isSwipess ? 'bg-white/[0.04] backdrop-blur-3xl border border-white/10 text-white rounded-bl-md' : 'bg-white border-black/[0.05] text-black rounded-bl-md shadow-sm')
       )}>
