@@ -790,7 +790,7 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                   </AnimatePresence>
 
                   <div className="max-w-3xl mx-auto flex items-center gap-3">
-                    <div className={cn("flex-1 relative flex items-center rounded-3xl transition-all duration-500 border group", isLight && !isSwipess ? "bg-slate-50 border-slate-200 focus-within:border-primary/50" : "bg-white/5 border-white/10 focus-within:border-[#FF3D00]/50")}>
+                    <div className={cn("flex-1 min-w-0 relative flex items-center rounded-3xl transition-all duration-500 border group", isLight && !isSwipess ? "bg-slate-50 border-slate-200 focus-within:border-primary/50" : "bg-white/5 border-white/10 focus-within:border-primary/50")}>
                        <div className="pl-2 flex items-center gap-1.5 self-center">
                            <Popover>
                              <PopoverTrigger asChild>
@@ -833,23 +833,22 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                        />
                     </div>
                     
-                      <button
-                        onClick={handleSend}
-                        disabled={!input.trim() || isLoading}
-                        className={cn(
-                          "h-14 min-w-16 shrink-0 rounded-full inline-flex items-center justify-center gap-1.5 px-4 transition-all active:scale-90 ring-2 border shadow-[0_18px_42px_hsl(var(--primary)/0.42)] [&_svg]:block",
-                          "bg-primary text-primary-foreground border-primary/30 ring-primary/35 hover:bg-primary/90 hover:shadow-[0_22px_54px_hsl(var(--primary)/0.5)]",
-                          (!input.trim() || isLoading) && "opacity-70 grayscale"
-                        )}
-                        aria-label="Send message"
-                      >
-                        {isLoading ? (
-                          <RefreshCw className="h-6 w-6 animate-spin" />
-                        ) : (
-                          <CornerDownLeft className="h-6 w-6" strokeWidth={3.2} />
-                        )}
-                        <span className="text-[10px] font-black uppercase tracking-widest leading-none hidden sm:inline">Enter</span>
-                      </button>
+                       <button
+                         onClick={handleSend}
+                         disabled={!input.trim() || isLoading}
+                         className={cn(
+                           "h-14 w-14 shrink-0 rounded-full inline-flex items-center justify-center transition-all active:scale-90 border shadow-[0_18px_42px_hsl(var(--primary)/0.42)]",
+                           "bg-primary text-primary-foreground border-primary/30 hover:bg-primary/90 hover:shadow-[0_22px_54px_hsl(var(--primary)/0.5)]",
+                           (!input.trim() || isLoading) && "opacity-60"
+                         )}
+                         aria-label="Send message"
+                       >
+                         {isLoading ? (
+                           <RefreshCw className="h-6 w-6 animate-spin" strokeWidth={2.4} />
+                         ) : (
+                           <Send className="h-6 w-6" strokeWidth={2.4} />
+                         )}
+                       </button>
                   </div>
                 </footer>
               </div>
