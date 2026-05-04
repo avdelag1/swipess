@@ -1,8 +1,7 @@
-import { memo, useCallback } from 'react';
+import { memo } from 'react';
 import { useAppNavigate } from "@/hooks/useAppNavigate";
 import { motion } from 'framer-motion';
-import { ChevronLeft, UserCircle, Ticket } from 'lucide-react';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { ChevronLeft, Ticket } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -53,28 +52,39 @@ function TopBarComponent({
   const { setActiveCategory } = useFilterActions();
 
   const isOwner = userRole === 'owner';
-  
+
   const onBack = propOnBack || (showBack ? () => window.history.length > 2 ? navigate(-1) : navigate(`/${isOwner ? 'owner' : 'client'}/dashboard`) : (activeCategory ? () => setActiveCategory(null) : undefined));
 
+  // Unified pill — 36px height, consistent radius, layered elevation.
+  // Applied to back button, profile chip, mode switcher, and every action pill
+  // so the header reads as a single, perfectly aligned glass row.
   const glassPillStyle: React.CSSProperties = {
     background: isLight
-      ? 'rgba(255, 255, 255, 0.94)'
-      : 'rgba(255, 255, 255, 0.03)',
-    backdropFilter: 'blur(20px) saturate(160%)',
-    WebkitBackdropFilter: 'blur(20px) saturate(160%)',
+      ? 'rgba(255, 255, 255, 0.86)'
+      : 'rgba(255, 255, 255, 0.045)',
+    backdropFilter: 'blur(24px) saturate(180%)',
+    WebkitBackdropFilter: 'blur(24px) saturate(180%)',
     borderRadius: '1rem',
-    border: isLight ? '1px solid rgba(0,0,0,0.04)' : '1px solid rgba(255,255,255,0.03)',
-    boxShadow: isLight 
-      ? '0 1px 4px rgba(0,0,0,0.02)' 
-      : '0 4px 20px rgba(0,0,0,0.15)',
+    border: isLight ? '1px solid rgba(0,0,0,0.06)' : '1px solid rgba(255,255,255,0.06)',
+    boxShadow: isLight
+      ? '0 1px 2px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.04)'
+      : '0 1px 0 rgba(255,255,255,0.04) inset, 0 4px 18px rgba(0,0,0,0.35)',
     pointerEvents: 'auto',
     color: isLight ? '#000000' : 'var(--hud-text)',
-    height: '30px',
+    height: '36px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     transition: 'all 0.3s cubic-bezier(0.22, 1, 0.36, 1)',
   };
+
+  const initials = (profile?.full_name || user?.email || '?')
+    .split(' ')
+    .map((s: string) => s[0])
+    .filter(Boolean)
+    .slice(0, 2)
+    .join('')
+    .toUpperCase();
 
   const { data: profile } = useQuery({
     queryKey: ['topbar-user-profile', user?.id],
@@ -110,56 +120,62 @@ function TopBarComponent({
           {onBack ? (
             <motion.button
               transition={TAP_SPRING}
-              whileTap={{ scale: 0.94, y: 1 }}
+              whileTap={{ scale: 0.94 }}
               onClick={() => { haptics.tap(); onBack(); }}
-              className="px-2.5 flex shrink-0 items-center justify-center rounded-[0.85rem]"
-              style={glassPillStyle}
+              className="flex shrink-0 items-center justify-center rounded-[1rem]"
+              style={{ ...glassPillStyle, width: '36px' }}
+              aria-label="Back"
             >
-              <ChevronLeft className="w-3.5 h-3.5" style={{ color: isLight ? '#000000' : 'var(--hud-text)' }} />
+              <ChevronLeft className="w-4 h-4" strokeWidth={2.4} style={{ color: isLight ? '#000000' : 'var(--hud-text)' }} />
             </motion.button>
           ) : (
             user && (
-              <div className="flex items-center gap-2">
-                <motion.button
-                  transition={TAP_SPRING}
-                  whileTap={{ scale: 0.96 }}
-                  onClick={() => {
-                    haptics.tap();
-                    navigate(isOwner ? '/owner/profile' : '/client/profile');
+              <motion.button
+                transition={TAP_SPRING}
+                whileTap={{ scale: 0.96 }}
+                onClick={() => {
+                  haptics.tap();
+                  navigate(isOwner ? '/owner/profile' : '/client/profile');
+                }}
+                className="flex shrink-0 items-center gap-1.5 pl-1 pr-2.5 rounded-[1rem] group"
+                style={glassPillStyle}
+                aria-label="Open profile"
+              >
+                <div
+                  className="w-7 h-7 rounded-full overflow-hidden shrink-0 flex items-center justify-center relative"
+                  style={{
+                    background: isOwner
+                      ? 'linear-gradient(135deg, #8B5CF6, #6366F1)'
+                      : 'linear-gradient(135deg, #EB4898, #8B5CF6)',
+                    boxShadow: isOwner
+                      ? '0 0 0 1px rgba(255,255,255,0.18) inset, 0 0 12px rgba(139,92,246,0.45)'
+                      : '0 0 0 1px rgba(255,255,255,0.18) inset, 0 0 12px rgba(235,72,152,0.45)',
                   }}
-                  className="flex shrink-0 items-center gap-1.5 px-1.5 rounded-[0.85rem] group"
-                  style={glassPillStyle}
                 >
-                  <div className="w-6 h-6 rounded-full overflow-hidden shrink-0 flex items-center justify-center relative shadow-sm ring-1 ring-white/10"
-                    style={{ background: isLight ? 'rgba(0,0,0,0.03)' : 'rgba(255,255,255,0.08)' }}
-                  >
-                    {user?.user_metadata?.avatar_url ? (
-                      <img
-                        src={user.user_metadata.avatar_url}
-                        alt="Profile"
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div 
-                        className="absolute inset-0 flex items-center justify-center"
-                        style={{ display: profile?.avatar_url ? 'none' : 'flex' }}
-                      >
-                        <UserCircle className="w-3.5 h-3.5 text-white drop-shadow-sm" strokeWidth={2.5} />
-                      </div>
-                    )}
-                  </div>
-                  {profile?.full_name && (
-                    <span 
-                      className="hidden sm:inline-block text-[9px] font-black uppercase tracking-[0.12em] transition-colors pr-1"
-                      style={{ color: isLight ? 'rgba(0,0,0,0.7)' : 'rgba(255,255,255,0.8)' }}
+                  {profile?.avatar_url || user?.user_metadata?.avatar_url ? (
+                    <img
+                      src={profile?.avatar_url || user?.user_metadata?.avatar_url}
+                      alt="Profile"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <span
+                      className="text-[10px] font-black tracking-tight text-white drop-shadow-sm"
+                      style={{ letterSpacing: '0.02em' }}
                     >
-                      {profile.full_name.split(' ')[0]}
+                      {initials}
                     </span>
                   )}
-                </motion.button>
-                
-
-              </div>
+                </div>
+                {profile?.full_name && (
+                  <span
+                    className="hidden sm:inline-block text-[10px] font-black uppercase tracking-[0.12em]"
+                    style={{ color: isLight ? 'rgba(0,0,0,0.78)' : 'rgba(255,255,255,0.88)', fontVariantNumeric: 'tabular-nums' }}
+                  >
+                    {profile.full_name.split(' ')[0]}
+                  </span>
+                )}
+              </motion.button>
             )
           )}
 
@@ -181,32 +197,39 @@ function TopBarComponent({
         )}
 
         {/* RIGHT CLUSTER: Individual Action Pills */}
-        <div className="flex shrink-0 items-center gap-1.5 sm:gap-2 pointer-events-auto">
+          <div className="flex shrink-0 items-center gap-2 pointer-events-auto">
           {!minimal && (
             <>
-              <motion.button
-                transition={TAP_SPRING}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => { haptics.tap(); setModal('showTokensModal', true); }}
-                className="w-7.5 flex shrink-0 items-center justify-center rounded-[0.85rem] relative overflow-hidden"
-                style={{
-                  ...glassPillStyle,
-                  background: isLight
-                    ? 'rgba(0, 0, 0, 0.05)'
-                    : 'linear-gradient(135deg, rgba(255, 77, 0, 0.25), rgba(235, 72, 152, 0.15))',
-                  border: isLight ? '1px solid rgba(0,0,0,0.03)' : '1px solid rgba(255,255,255,0.06)',
-                }}
-                aria-label="Tokens"
-              >
-                <Ticket
-                  className="w-3 h-3"
+                <motion.button
+                  transition={TAP_SPRING}
+                  whileTap={{ scale: 0.92 }}
+                  onClick={() => { haptics.tap(); setModal('showTokensModal', true); }}
+                  className="flex shrink-0 items-center justify-center rounded-[1rem] relative overflow-hidden"
                   style={{
-                    color: isLight ? '#000000' : '#FF4D00',
-                    filter: isLight ? 'none' : 'drop-shadow(0 0 6px rgba(255, 77, 0, 0.4))',
+                    ...glassPillStyle,
+                    width: '36px',
+                    background: isLight
+                      ? 'linear-gradient(135deg, rgba(255,77,0,0.10), rgba(235,72,152,0.08))'
+                      : 'linear-gradient(135deg, rgba(255,77,0,0.28), rgba(235,72,152,0.18))',
+                    border: isLight ? '1px solid rgba(255,77,0,0.18)' : '1px solid rgba(255,255,255,0.08)',
                   }}
-                  strokeWidth={2.4}
-                />
-              </motion.button>
+                  aria-label="Tokens"
+                >
+                  {/* Top inner highlight for depth */}
+                  <span
+                    aria-hidden
+                    className="pointer-events-none absolute inset-x-0 top-0 h-px"
+                    style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent)' }}
+                  />
+                  <Ticket
+                    className="w-4 h-4"
+                    style={{
+                      color: isLight ? '#FF4D00' : '#FF6B1A',
+                      filter: isLight ? 'none' : 'drop-shadow(0 0 8px rgba(255, 77, 0, 0.55))',
+                    }}
+                    strokeWidth={2.2}
+                  />
+                </motion.button>
 
               <ThemeToggle glassPillStyle={glassPillStyle} />
 
