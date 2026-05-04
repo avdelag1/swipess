@@ -717,8 +717,8 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                               <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center transition-all", c.bgColor)}>
                                 <c.icon className={cn("w-5 h-5", c.color)} />
                               </div>
-                              <div className="text-left">
-                                <p className={cn("text-[11px] font-black uppercase tracking-widest", activeCharacter === c.key ? "text-primary" : "text-white")}>{c.label}</p>
+                              <div className="text-left flex-1 min-w-0">
+                                <p className={cn("text-[11px] font-black uppercase tracking-widest", activeCharacter === c.key ? "text-primary" : "text-white")}>{c.label} <span className="opacity-40 font-bold">— {c.tagline}</span></p>
                                 <p className="text-[8px] font-bold opacity-40 uppercase tracking-tighter">{c.subtitle}</p>
                               </div>
                               {activeCharacter === c.key && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-primary" />}
