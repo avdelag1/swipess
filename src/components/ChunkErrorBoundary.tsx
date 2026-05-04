@@ -1,5 +1,7 @@
 import { Component, ReactNode } from 'react';
 
+const RELOAD_KEY = '__swipess_chunk_reload__';
+
 interface Props {
   children: ReactNode;
 }
@@ -18,6 +20,15 @@ export class ChunkErrorBoundary extends Component<Props, State> {
       msg.includes('Loading chunk') ||
       msg.includes('Failed to fetch')
     ) {
+      // One-shot auto-reload for stale deploys — prevents permanent white screen
+      try {
+        const last = Number(sessionStorage.getItem(RELOAD_KEY) || '0');
+        if (Date.now() - last > 30000) {
+          sessionStorage.setItem(RELOAD_KEY, String(Date.now()));
+          window.location.reload();
+          return { hasChunkError: true };
+        }
+      } catch {}
       return { hasChunkError: true };
     }
     return null;
