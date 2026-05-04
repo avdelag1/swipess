@@ -212,6 +212,11 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
            path === '/owner/dashboard'  || path === '/owner/dashboard/';
   }, [location.pathname]);
 
+  useEffect(() => {
+    document.body.classList.toggle('swipe-deck-active', isSwipeDeck);
+    return () => document.body.classList.remove('swipe-deck-active');
+  }, [isSwipeDeck]);
+
   const { resetFocus } = useFocusMode(6000);
 
   useScrollDirection({
@@ -250,14 +255,15 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   return (
     <div className={cn(
       "dashboard-root w-full h-full flex flex-col relative overflow-hidden",
-      isDark ? "dark dark-matte" : "light white-matte"
+      isDark ? "dark dark-matte" : "light white-matte",
+      isSwipeDeck && "bg-swipe-frame"
     )}>
       <main
         ref={scrollContainerRef}
         id="dashboard-scroll-container"
         className={cn(
           "flex-1 flex flex-col relative w-full",
-          isSwipeDeck ? "overflow-hidden touch-none" : "overflow-y-auto scroll-area-momentum"
+          isSwipeDeck ? "overflow-hidden touch-none bg-swipe-frame" : "overflow-y-auto scroll-area-momentum"
         )}
         style={{
           WebkitOverflowScrolling: 'touch',
