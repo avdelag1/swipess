@@ -16,6 +16,7 @@ import { Building2, Bike, Briefcase, Check, Camera, Mail, Sparkles, Target, X, S
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
+import useAppTheme from '@/hooks/useAppTheme';
 
 import { OWNER_SERVICE_OFFERING_OPTIONS as SERVICE_OFFERING_OPTIONS } from '@/constants/profileConstants';
 
@@ -25,6 +26,7 @@ type Props = {
 };
 
 function OwnerProfileDialogComponent({ open, onOpenChange }: Props) {
+  const { isLight } = useAppTheme();
   const { data } = useOwnerProfile();
   const saveMutation = useSaveOwnerProfile();
 
@@ -93,10 +95,10 @@ function OwnerProfileDialogComponent({ open, onOpenChange }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={(v) => { triggerHaptic('light'); onOpenChange(v); }}>
-      <DialogContent hideCloseButton className="sm:max-w-3xl max-h-[92vh] flex flex-col p-0 gap-0 border border-white/5 bg-[#0a0a0c] overflow-hidden rounded-[3rem] shadow-[0_0_80px_rgba(0,0,0,1)]">
+      <DialogContent hideCloseButton className={cn("owner-profile-dialog sm:max-w-3xl max-h-[92vh] flex flex-col p-0 gap-0 overflow-hidden rounded-[3rem]", isLight ? "light-profile-dialog border-border bg-background text-foreground shadow-[0_30px_90px_hsl(var(--foreground)/0.16)]" : "border-border bg-background text-foreground shadow-[0_0_80px_hsl(var(--background)/1)]")}>
         
         {/* 🛸 BRAND TERMINAL HEADER */}
-        <div className="relative px-8 pt-8 pb-6 border-b border-white/5 bg-gradient-to-b from-white/[0.03] to-transparent">
+        <div className={cn("relative px-8 pt-8 pb-6 border-b", isLight ? "border-border bg-gradient-to-b from-muted/50 to-transparent" : "border-border bg-gradient-to-b from-foreground/[0.03] to-transparent")}>
            <div className="flex items-center justify-between">
               <div className="space-y-1">
                  <div className="flex items-center gap-2">
