@@ -257,17 +257,17 @@ export const BottomNavigation = memo(({
           through, reinforcing the "floating above" feeling. */}
       <div
         className={cn(
-          "pointer-events-auto glass-pill-nav px-1.5",
+          "pointer-events-auto px-1.5",
           isTablet ? "mx-auto w-fit max-w-full" : "w-full"
         )}
         style={{
-          background: isLight ? 'rgba(255, 255, 255, 0.96)' : 'rgba(10, 15, 30, 0.55)',
-          backdropFilter: 'blur(32px) saturate(220%)',
-          WebkitBackdropFilter: 'blur(32px) saturate(220%)',
+          background: 'transparent',
+          backdropFilter: 'none',
+          WebkitBackdropFilter: 'none',
           borderRadius: '3rem',
           padding: '4px',
-          boxShadow: isLight ? '0 -1px 8px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.06)' : 'none',
-          border: isLight ? '1px solid rgba(0,0,0,0.08)' : 'none',
+          boxShadow: 'none',
+          border: 'none',
         }}
 
       >

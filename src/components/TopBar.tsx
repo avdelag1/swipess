@@ -55,17 +55,15 @@ function TopBarComponent({
 
   const onBack = propOnBack || (showBack ? () => window.history.length > 2 ? navigate(-1) : navigate(`/${isOwner ? 'owner' : 'client'}/dashboard`) : (activeCategory ? () => setActiveCategory(null) : undefined));
 
-  // Unified 44px touch target with a 36px visual core: fixes the cramped,
-  // misaligned controls while preserving the compact Apple-style header.
+  // Frameless icon buttons — the page already provides a glass surface,
+  // so each control sits as a clean floating icon without a second pill.
   const glassPillStyle: React.CSSProperties = {
-    background: isLight ? 'hsl(var(--background) / 0.88)' : 'hsl(var(--card) / 0.52)',
-    backdropFilter: 'blur(28px) saturate(180%)',
-    WebkitBackdropFilter: 'blur(28px) saturate(180%)',
+    background: 'transparent',
+    border: 'none',
+    boxShadow: 'none',
+    backdropFilter: 'none',
+    WebkitBackdropFilter: 'none',
     borderRadius: '9999px',
-    border: isLight ? '1px solid hsl(var(--border) / 0.7)' : '1px solid hsl(var(--foreground) / 0.1)',
-    boxShadow: isLight
-      ? '0 1px 1px hsl(var(--foreground) / 0.04), 0 10px 26px hsl(var(--foreground) / 0.08), inset 0 1px 0 hsl(var(--background) / 0.85)'
-      : '0 1px 0 hsl(var(--foreground) / 0.09) inset, 0 12px 30px hsl(var(--background) / 0.45)',
     pointerEvents: 'auto',
     color: 'hsl(var(--foreground))',
     height: '36px',
@@ -205,19 +203,9 @@ function TopBarComponent({
                   style={{
                     ...glassPillStyle,
                     width: '36px',
-                    background: isLight
-                      ? 'linear-gradient(135deg, hsl(var(--primary) / 0.16), hsl(var(--accent) / 0.1))'
-                      : 'linear-gradient(135deg, hsl(var(--primary) / 0.36), hsl(var(--accent) / 0.2))',
-                    border: isLight ? '1px solid hsl(var(--primary) / 0.24)' : '1px solid hsl(var(--foreground) / 0.1)',
                   }}
                   aria-label="Tokens"
                 >
-                  {/* Top inner highlight for depth */}
-                  <span
-                    aria-hidden
-                    className="pointer-events-none absolute inset-x-0 top-0 h-px"
-                    style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent)' }}
-                  />
                   <Crown
                     className="w-4 h-4"
                     style={{

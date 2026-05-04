@@ -1,72 +1,52 @@
 ## Goal
 
-Bring the top header to Apple-review quality (profile chip, mode switcher, tokens, theme, notifications) and audit the live wiring between Filters → Discovery, Likes → Chat, and Roommate Match.
+Strip the redundant rectangular/pill backgrounds from the header (TopBar) buttons and the bottom navigation bar so the icons sit on the existing app glass surface without a second framed layer behind them.
 
-## Part 1 — TopBar visual polish (`src/components/TopBar.tsx`, `src/components/ModeSwitcher.tsx`)
+## What's there today
 
-Current issues spotted in code:
-- Pills are only 30px tall — too small, fails Apple's 44pt touch target guideline.
-- Profile chip uses `UserCircle` lucide icon as fallback inside a 24px circle — looks weak, low fidelity.
-- Tokens / Theme / Notification pills are squares with inconsistent widths (`w-7.5` is invalid Tailwind, silently does nothing).
-- ModeSwitcher uses bespoke 30px height that doesn't align vertically with the other pills.
-- No real elevation hierarchy — all pills share the same flat shadow.
+- **`src/components/TopBar.tsx`** — Every header control (back, profile, tokens/Crown, theme, notifications) is wrapped in a `glassPillStyle` rounded pill: `background hsl(var(--card)/0.52)`, blur 28px, border, drop shadow, and a 36px height. The Crown button additionally layers a primary→accent gradient frame. This produces the visible rectangle/pill background per button.
+- **`src/components/ThemeToggle.tsx`** and **`src/components/NotificationPopover.tsx`** receive that same `glassPillStyle` from TopBar and render their trigger inside it.
+- **`src/components/BottomNavigation.tsx`** — Wraps the entire item row in a glass container (`glass-pill-nav`, white/dark fill, 32px blur, border, shadow, 3rem radius). Individual items are transparent unless active; the visible frame is this outer container.
+- **`src/components/ModeSwitcher.tsx`** — Already a single connected glass pill (kept as-is per recent work).
 
-Changes:
-1. **Unified pill system**: introduce one `glassPillStyle` with `height: 36px`, min-width 36px, radius `1rem`, shared elevation tokens. Apply to profile chip, tokens, theme, notifications, back button, mode switcher container — so they line up perfectly on a single baseline.
-2. **Profile chip upgrade**:
-   - 28px avatar inside the pill (was 24).
-   - Real `Avatar`/`AvatarImage`/`AvatarFallback` (already imported but unused) — fallback shows user initials on a rose→violet gradient instead of generic `UserCircle`.
-   - Subtle 1px inner ring + 2px outer rose glow when on client mode, violet glow on owner mode (ties to Nexus palette).
-   - First-name label uses tabular-nums and slightly tighter tracking.
-3. **Action pills (Tokens / Theme / Notifications)**:
-   - Replace `w-7.5` (invalid) with proper `w-9` (36px) square pills.
-   - Icon size 16px, stroke 2.2.
-   - Tokens pill keeps the orange→rose gradient but with a softer inner highlight (top 1px white@8%) for depth.
-   - Add `whileTap={{ scale: 0.92 }}` consistently and a 120ms spring.
-4. **ModeSwitcher**:
-   - Match 36px height of siblings.
-   - Sliding indicator becomes a proper rounded-rectangle pill (not a square), 28×28, with the rose→violet client gradient and violet→indigo owner gradient (Nexus palette per directive).
-   - Disabled state: 50% opacity instead of nothing.
-5. **Back button**: same 36px pill, ChevronLeft 16px, identical glass treatment so the left cluster reads as one unit.
-6. **Light/dark parity**: tighten light-mode borders to `rgba(0,0,0,0.06)` and shadow to `0 1px 2px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.04)` for the layered depth required by the design memory.
+## Changes
 
-No structural changes — same components, same props, same layout slots. Visual + proportion refinement only (per the Structural Protection Rule in project knowledge).
+### 1. TopBar — remove per-button pill frames
 
-## Part 2 — Connection audit (read-only verification + targeted fixes)
+In `src/components/TopBar.tsx`:
 
-For each flow I'll open the relevant files, confirm the wiring is intact post-sync, and patch only what's broken:
+- Replace `glassPillStyle` with a frame-less `iconButtonStyle`: no `background`, no `border`, no `boxShadow`, no `backdropFilter`. Keep only sizing (36×36), centering, color, and the tap transition. This makes each control a clean floating icon.
+- Apply this style to the back button, profile chip, and Crown/Tokens button. For the Crown button, drop the gradient/border overlay and the inner top highlight `<span>`; render the Crown icon alone with its existing color/drop-shadow so it still reads as the "premium" accent without a frame.
+- Pass the same frameless style down to `<ThemeToggle glassPillStyle={...} />` and `<NotificationPopover glassPillStyle={...} />` (prop name kept for compatibility) so their triggers also lose the pill background. The notification badge dot stays.
+- Profile button: keep the circular avatar (it's the avatar itself, not a frame), but remove the surrounding pill `background`/`border`/`boxShadow`. The name chip text stays inline next to the avatar.
 
-1. **Filters ↔ Discovery**
-   - `src/state/filterStore.ts` → `getListingFilters()` / `getClientFilters()`.
-   - `src/hooks/smartMatching/useSmartListingMatching.tsx` and `useSmartClientMatching.tsx` consume `filterVersion` from the store.
-   - Verify `ClientDashboard` and the owner equivalent re-memoize on `filterVersion` (already does for client — confirm owner mirror).
-   - Verify `OwnerClientFilterDialog` and `AdvancedFiltersDialog` write back through the same store actions.
+### 2. BottomNavigation — remove outer rectangle frame
 
-2. **Likes / Matches → Messaging**
-   - `useSwipeWithMatch` → `likes` table → match detection → `conversations` row creation.
-   - `MessagingInterface.tsx` was just refactored for `TokensModal` — confirm the conversation list still subscribes to the right realtime channel and that `is_conversation_participant` RPC is used in RLS.
-   - `useUnreadMessageCount` badge feeds BottomNavigation — confirm query key matches.
+In `src/components/BottomNavigation.tsx`:
 
-3. **Roommate Matching**
-   - `src/pages/RoommateMatching.tsx` was just patched with a category cast.
-   - Confirm it uses the same `SwipessSwipeContainer` deck and that `roommate_available` toggle on `client_profiles` is what filters the pool (per the Roommate Matching memory).
-   - Confirm the swipe writes to `likes` with `target_type` and triggers the same match flow as Discovery.
+- On the wrapper `<div className="pointer-events-auto glass-pill-nav …">`, drop the inline `background`, `border`, `boxShadow`, `backdropFilter`/`WebkitBackdropFilter`, and the rounded-3rem visible fill. Keep the layout (`padding`, `width`, centering) so item spacing is unchanged.
+- Remove the `glass-pill-nav` class from this element to prevent the CSS-defined glass surface from re-introducing the frame. (We leave the class definition alone in case it's used elsewhere — quick `rg` confirmation will be done at edit time; if unused we can also delete the rule.)
+- Active-item treatment stays: the `layoutId="bottomNavActivePill"` highlight remains so the selected tab still gets its subtle gradient pill. That's the per-button glass the user referred to as "already there".
+- No changes to icons, labels, scroll behavior, haptics, or routing.
 
-4. **AI Concierge sanity** (light pass): just confirm the edge function still receives auth and that `ai-concierge` is still wired in `ConciergeChat.tsx` after the sync.
+### 3. Touch / safe-area preservation
 
-Any wiring break found will be fixed in the same pass with minimal diff.
+- Keep `paddingBottom: calc(8px + env(safe-area-inset-bottom))` on the nav so the bar still clears the home indicator.
+- Keep TopBar `paddingTop: calc(var(--safe-top) + 6px)` and the 36px touch targets, so accessibility/tap area is unchanged.
+
+## Files touched
+
+- `src/components/TopBar.tsx`
+- `src/components/ThemeToggle.tsx` (only if its internal styling re-applies a frame — verified at edit time)
+- `src/components/NotificationPopover.tsx` (same caveat)
+- `src/components/BottomNavigation.tsx`
 
 ## Out of scope
 
-- No layout/architecture changes.
-- No new components or features.
-- No swipe physics changes.
-- No backend/migration changes unless an audit finding requires one (will surface as a question first).
+- ModeSwitcher (already unified).
+- Any logic, routing, swipe physics, or filter behavior.
+- Color tokens / theme variables.
 
-## Files expected to change
+## Verification
 
-- `src/components/TopBar.tsx`
-- `src/components/ModeSwitcher.tsx`
-- `src/components/NotificationPopover.tsx` (only the trigger pill class — to match)
-- `src/components/ThemeToggle.tsx` (only the trigger pill class — to match)
-- Plus targeted patches in any audit finding (likely 0–2 files in `useSmartClientMatching.tsx`, `MessagingInterface.tsx`, or `RoommateMatching.tsx`).
+After implementation: header shows icons floating on the page background with no per-button pills; bottom nav shows the row of icons with only the active item highlighted, no outer rectangle. Light + dark mode both checked. Active route highlight, badges, and haptics still fire.
