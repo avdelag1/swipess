@@ -620,24 +620,26 @@ function LikedListingInsightsModalComponent({ open, onOpenChange, listing }: Lik
               </Button>
 
               <div className="grid grid-cols-4 gap-2">
-                <Button onClick={() => setShowShareDialog(true)} variant="ghost" size="sm"
-                  className="h-10 bg-blue-500/[0.07] hover:bg-blue-500/[0.15] border border-blue-500/20 text-blue-400 rounded-xl text-[11px] font-black uppercase tracking-wide">
-                  <Share2 className="w-3.5 h-3.5 mr-1.5" /> Share
-                </Button>
-                <Button onClick={handleDelete} variant="ghost" size="sm"
-                  className="h-10 bg-red-500/[0.07] hover:bg-red-500/[0.15] border border-red-500/20 text-red-400 rounded-xl text-[11px] font-black uppercase tracking-wide"
-                  disabled={deleteMutation.isPending}>
-                  <Trash2 className="w-3.5 h-3.5 mr-1.5" /> Remove
-                </Button>
-                <Button onClick={handleBlock} variant="ghost" size="sm"
-                  className="h-10 bg-orange-500/[0.07] hover:bg-orange-500/[0.15] border border-orange-500/20 text-orange-400 rounded-xl text-[11px] font-black uppercase tracking-wide"
-                  disabled={blockMutation.isPending}>
-                  <Ban className="w-3.5 h-3.5 mr-1.5" /> Block
-                </Button>
-                <Button onClick={handleReport} variant="ghost" size="sm"
-                  className="h-10 bg-amber-500/[0.07] hover:bg-amber-500/[0.15] border border-amber-500/20 text-amber-400 rounded-xl text-[11px] font-black uppercase tracking-wide">
-                  <Flag className="w-3.5 h-3.5 mr-1.5" /> Report
-                </Button>
+                <button onClick={() => setShowShareDialog(true)}
+                  className="h-10 flex flex-col items-center justify-center gap-1 text-blue-400 active:scale-90 transition-transform">
+                  <Share2 className="w-5 h-5" strokeWidth={1.8} />
+                  <span className="text-[9px] font-black uppercase tracking-wide">Share</span>
+                </button>
+                <button onClick={handleDelete} disabled={deleteMutation.isPending}
+                  className="h-10 flex flex-col items-center justify-center gap-1 text-red-400 active:scale-90 transition-transform disabled:opacity-40">
+                  <Trash2 className="w-5 h-5" strokeWidth={1.8} />
+                  <span className="text-[9px] font-black uppercase tracking-wide">Remove</span>
+                </button>
+                <button onClick={handleBlock} disabled={blockMutation.isPending}
+                  className="h-10 flex flex-col items-center justify-center gap-1 text-orange-400 active:scale-90 transition-transform disabled:opacity-40">
+                  <Ban className="w-5 h-5" strokeWidth={1.8} />
+                  <span className="text-[9px] font-black uppercase tracking-wide">Block</span>
+                </button>
+                <button onClick={handleReport}
+                  className="h-10 flex flex-col items-center justify-center gap-1 text-amber-400 active:scale-90 transition-transform">
+                  <Flag className="w-5 h-5" strokeWidth={1.8} />
+                  <span className="text-[9px] font-black uppercase tracking-wide">Report</span>
+                </button>
               </div>
             </div>
           </div>
