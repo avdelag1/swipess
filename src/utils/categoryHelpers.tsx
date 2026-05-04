@@ -2,14 +2,20 @@ import React from 'react';
 import { Home, Bike, Briefcase } from 'lucide-react';
 import { logger } from '@/utils/prodLogger';
 
-// Custom motorcycle icon with configurable stroke
+// Motorcycle wheel + sport helmet icon (replaces classic motorcycle silhouette)
 export const MotorcycleIcon = ({ className, strokeWidth = 2 }: { className?: string; strokeWidth?: number | string }) => (
   <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="5" cy="17" r="3" />
-    <circle cx="19" cy="17" r="3" />
-    <path d="M9 17h6" />
-    <path d="M19 17l-2-5h-4l-3-4H6l1 4" />
-    <path d="M14 7h3l2 5" />
+    {/* Sport helmet */}
+    <path d="M6 7.5a6 6 0 0 1 12 0v1.5H6z" />
+    <path d="M8.5 7.5h7" />
+    {/* Wheel */}
+    <circle cx="12" cy="16" r="5.5" />
+    <circle cx="12" cy="16" r="1" />
+    {/* Spokes */}
+    <path d="M12 10.5v11" />
+    <path d="M6.5 16h11" />
+    <path d="M8.1 12.1l7.8 7.8" />
+    <path d="M15.9 12.1l-7.8 7.8" />
   </svg>
 );
 
