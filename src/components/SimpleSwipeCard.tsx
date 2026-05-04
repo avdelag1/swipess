@@ -334,16 +334,16 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           <div
             className="absolute top-0 left-0 right-0 pointer-events-none z-20 transition-opacity duration-200"
             style={{
-              height: '28%',
-              background: 'linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.22) 40%, transparent 100%)',
+              height: '38%',
+              background: 'linear-gradient(to bottom, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.65) 25%, rgba(0,0,0,0.35) 55%, rgba(0,0,0,0.12) 80%, transparent 100%)',
               opacity: isZoomed ? 0 : 1,
             }}
           />
           <div
             className="absolute bottom-0 left-0 right-0 pointer-events-none z-20 transition-opacity duration-200"
             style={{
-              height: '46%',
-              background: 'linear-gradient(to top, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0.45) 30%, rgba(0,0,0,0.15) 60%, transparent 100%)',
+              height: '58%',
+              background: 'linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.78) 18%, rgba(0,0,0,0.5) 40%, rgba(0,0,0,0.22) 65%, rgba(0,0,0,0.06) 85%, transparent 100%)',
               opacity: isZoomed ? 0 : 1,
             }}
           />
