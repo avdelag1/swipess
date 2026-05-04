@@ -442,7 +442,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full h-15 rounded-[2.5rem] bg-gradient-to-r from-[#FF4D00] to-[#EB4898] text-white font-black uppercase tracking-[0.3em] text-[13px] shadow-[0_20px_50px_rgba(255,77,0,0.4)] active:scale-[0.96] transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:pointer-events-none relative overflow-hidden group/btn"
+              className="w-full h-15 rounded-[2.5rem] bg-white text-black font-black uppercase tracking-[0.3em] text-[13px] shadow-[0_20px_50px_rgba(255,255,255,0.18)] active:scale-[0.96] transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:pointer-events-none relative overflow-hidden group/btn border border-white/20"
             >
               <div className="absolute inset-0 bg-white/10 opacity-0 group-hover/btn:opacity-100 transition-opacity" />
               <Sparkles className="w-4 h-4 transition-transform group-hover/btn:rotate-12 group-hover/btn:scale-110" />
