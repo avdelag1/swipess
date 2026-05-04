@@ -114,6 +114,16 @@ export function AuthProvider({ children, authPromise }: { children: ReactNode, a
 
         logger.log('[Auth] State change:', event, session?.user?.email);
 
+        // SECURITY: When the authenticated user changes (different id, or
+        // signing in/out), purge ALL React Query caches to prevent any
+        // previous user's data from leaking into the new session.
+        const prevUid = (window as any).__lovable_last_uid as string | undefined;
+        const nextUid = session?.user?.id;
+        if (prevUid !== nextUid) {
+          queryClient.clear();
+          (window as any).__lovable_last_uid = nextUid;
+        }
+
         // Update state immediately
         setSession(session);
         setUser(session?.user ?? null);
