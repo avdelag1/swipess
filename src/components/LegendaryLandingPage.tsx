@@ -115,14 +115,14 @@ const LandingView = memo(({
       >
         <button
           onClick={() => { triggerHaptic('medium'); onEnterAuth('login'); }}
-          className="w-full h-14 rounded-[2rem] bg-[#FF4D00] text-white font-black uppercase tracking-[0.25em] text-[12px] shadow-[0_15px_45px_rgba(255,77,0,0.45)] active:scale-[0.97] transition-all flex items-center justify-center gap-3 border border-white/10"
+          className="w-full h-14 rounded-[2rem] bg-white text-black font-black uppercase tracking-[0.25em] text-[12px] shadow-[0_15px_45px_rgba(255,255,255,0.18)] active:scale-[0.97] transition-all flex items-center justify-center gap-3 border border-white/20"
         >
           <LogIn className="w-4 h-4" />
           Sign In
         </button>
         <button
           onClick={() => { triggerHaptic('medium'); onEnterAuth('signup'); }}
-          className="w-full h-14 rounded-[2rem] bg-gradient-to-r from-[#EB4898] to-[#FF4D00] text-white font-black uppercase tracking-[0.25em] text-[12px] shadow-[0_12px_36px_rgba(235,72,152,0.25)] active:scale-[0.97] transition-all flex items-center justify-center gap-3 hover:opacity-90"
+          className="w-full h-14 rounded-[2rem] bg-black text-white font-black uppercase tracking-[0.25em] text-[12px] shadow-[0_12px_36px_rgba(0,0,0,0.55)] active:scale-[0.97] transition-all flex items-center justify-center gap-3 border border-white/20 hover:opacity-90"
         >
           <Sparkles className="w-4 h-4" />
           Create Account
@@ -325,7 +325,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
               className={cn(
                 "flex-1 h-12 rounded-[1.8rem] font-black uppercase tracking-[0.2em] text-[10px] transition-all active:scale-[0.97]",
                 isLogin
-                  ? "bg-[#FF4D00] text-white shadow-[0_10px_30px_rgba(255,77,0,0.4)]"
+                  ? "bg-white text-black shadow-[0_10px_30px_rgba(255,255,255,0.18)]"
                   : "text-white/30 hover:text-white/50"
               )}
             >
@@ -337,7 +337,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
               className={cn(
                 "flex-1 h-12 rounded-[1.8rem] font-black uppercase tracking-[0.2em] text-[10px] transition-all active:scale-[0.97]",
                 !isLogin
-                  ? "bg-[#EB4898] text-white shadow-[0_10px_30px_rgba(235,72,152,0.3)]"
+                  ? "bg-black text-white border border-white/20 shadow-[0_10px_30px_rgba(0,0,0,0.5)]"
                   : "text-white/30 hover:text-white/50"
               )}
             >
