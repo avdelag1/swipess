@@ -29,7 +29,7 @@ export default defineConfig(({ mode }) => ({
     },
     {
       name: 'critical-preload-plugin',
-      transformIndexHtml(html, ctx) {
+      transformIndexHtml(html: string, ctx: any) {
         if (!ctx.bundle) return html;
         const preloads: string[] = [];
         for (const [_key, chunk] of Object.entries(ctx.bundle)) {

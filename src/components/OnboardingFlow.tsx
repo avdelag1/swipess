@@ -43,6 +43,7 @@ interface OnboardingFlowProps {
 
 export function OnboardingFlow({ open, onComplete }: OnboardingFlowProps) {
   const { user } = useAuth();
+  const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
 

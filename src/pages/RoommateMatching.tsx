@@ -66,7 +66,7 @@ export default function RoommateMatching() {
   });
 
   const cardRef = useRef<SimpleOwnerSwipeCardRef>(null);
-  const { data: profiles = [], isLoading } = useSmartClientMatching(user?.id, 'roommates', 0, 50, false, currentFilters);
+  const { data: profiles = [], isLoading } = useSmartClientMatching(user?.id, 'all-clients' as any, 0, 50, false, currentFilters, true);
   
   const topCard = profiles[currentIndex];
   const nextCard = profiles[currentIndex + 1];
