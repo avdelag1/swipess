@@ -353,22 +353,19 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
             className="absolute top-[calc(var(--safe-top,0px)+72px)] inset-x-0 flex justify-center z-20 pointer-events-none transition-opacity duration-150"
               style={{ opacity: isZoomed ? 0 : 1 }}
             >
-            <div className="flex gap-1 w-full max-w-[110px] px-2">
-                {Array.from({ length: imageCount }).map((_, idx) => (
-                  <div
-                    key={idx}
-                    className="h-[3px] flex-1 rounded-full overflow-hidden bg-black/45 ring-1 ring-white/20 shadow-[0_1px_3px_rgba(0,0,0,0.6)]"
-                  >
-                    <motion.div 
-                      animate={{ 
-                        x: idx < currentImageIndex ? '0%' : idx === currentImageIndex ? '0%' : '-100%',
-                        opacity: idx === currentImageIndex ? 1 : 0.5
-                      }}
-                      className="w-full h-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.9)]"
-                    />
-                  </div>
-                ))}
-              </div>
+            <div className="flex gap-1.5 items-center justify-center">
+              {Array.from({ length: imageCount }).map((_, idx) => (
+                <motion.div
+                  key={idx}
+                  animate={{
+                    scale: idx === currentImageIndex ? 1 : 0.75,
+                    opacity: idx === currentImageIndex ? 1 : 0.55,
+                  }}
+                  transition={{ duration: 0.15 }}
+                  className="w-1.5 h-1.5 rounded-full bg-white shadow-[0_1px_3px_rgba(0,0,0,0.7)] ring-1 ring-black/20"
+                />
+              ))}
+            </div>
             </div>
           )}
         </div>
