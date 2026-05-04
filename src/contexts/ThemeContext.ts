@@ -32,7 +32,7 @@ export function useAppTheme(): ThemeContextType {
 }
 
 const DEFAULT_THEME: Theme = 'dark';
-const STORAGE_KEY = 'Swipess_theme_preference';
+const STORAGE_KEY = 'swipess_theme_preference';
 
 function normalizeTheme(raw: string | null | undefined): Theme {
   if (raw === 'light' || raw === 'white-matte') return 'light';

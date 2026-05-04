@@ -218,8 +218,8 @@ const CardImage = memo(({
           zIndex: 3,
           transformOrigin: 'center',
           filter: loaded ? 'saturate(1.08) contrast(1.03)' : 'none',
-          animation: loaded ? 'photo-swim 12s ease-in-out infinite' : 'none',
-          willChange: loaded ? 'transform' : 'auto',
+          animation: (_animate && loaded) ? 'photo-swim 12s ease-in-out infinite' : 'none',
+          willChange: (_animate && loaded) ? 'transform' : 'auto',
         }}
         onLoad={() => {
           if (src) imageCache.set(src, true);

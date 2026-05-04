@@ -159,16 +159,16 @@ export const categoryConfig: Record<QuickFilterCategory, CategoryConfig> = {
     icon: '🛠️',
     color: 'bg-purple-500', // Legacy fallback
     colorClassName: {
-      dark: 'bg-emerald-600',
-      light: 'bg-emerald-500'
+      dark: 'bg-rose-600',
+      light: 'bg-rose-500'
     },
     gradientClassName: {
-      dark: 'from-emerald-600 to-green-600',
-      light: 'from-emerald-500 to-green-500'
+      dark: 'from-rose-600 to-violet-600',
+      light: 'from-rose-500 to-violet-500'
     },
     textColorClassName: {
-      dark: 'text-emerald-400',
-      light: 'text-emerald-600'
+      dark: 'text-rose-400',
+      light: 'text-rose-600'
     },
     description: 'Workers, contractors, services'
   },
@@ -193,10 +193,10 @@ export const categoryConfig: Record<QuickFilterCategory, CategoryConfig> = {
   renters: {
     label: 'Renters',
     icon: 'key',
-    color: 'bg-emerald-500',
-    colorClassName: { dark: 'bg-emerald-600', light: 'bg-emerald-500' },
-    gradientClassName: { dark: 'from-emerald-600 to-teal-600', light: 'from-emerald-500 to-teal-500' },
-    textColorClassName: { dark: 'text-emerald-400', light: 'text-emerald-600' },
+    color: 'bg-indigo-500',
+    colorClassName: { dark: 'bg-indigo-600', light: 'bg-indigo-500' },
+    gradientClassName: { dark: 'from-indigo-600 to-violet-600', light: 'from-indigo-500 to-violet-500' },
+    textColorClassName: { dark: 'text-indigo-400', light: 'text-indigo-600' },
     description: 'Move-ready renters'
   },
   hire: {

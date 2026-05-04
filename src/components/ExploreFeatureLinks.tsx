@@ -43,7 +43,7 @@ export function ExploreFeatureLinks({ isClient: _isClient = true }: ExploreFeatu
           "text-white shadow-[0_8px_16px_rgba(168,85,247,0.25)] border border-white/10"
         )}
         style={{
-          background: 'linear-gradient(135deg, #a855f7 0%, #8b5cf6 100%)',
+          background: 'linear-gradient(135deg, #FF4D00 0%, #EB4898 100%)',
         }}
       >
         <Building2 className="w-4 h-4 text-white relative z-10" />

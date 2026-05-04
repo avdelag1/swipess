@@ -46,7 +46,7 @@ function SwipessLogoComponent({
               variant === 'white' ? 'text-white' : 'text-black',
               isIcon ? "text-xl" : size === 'xs' ? 'text-sm' : size === 'sm' ? 'text-base' : size === 'md' ? 'text-2xl' : size === 'lg' ? 'text-3xl' : 'text-5xl'
             )}>
-              Swipess
+              SWIPESS
             </span>
           ) : (
             <div className="relative">
@@ -68,7 +68,7 @@ function SwipessLogoComponent({
                 }}
                 className={cn(
                   'select-none transition-all duration-300 relative z-10',
-                  isIcon ? 'w-full h-full object-contain' : cn('w-auto object-contain max-w-full', sizeMap[size]),
+                  isIcon ? 'w-full h-full object-contain' : cn('w-full h-full object-contain max-w-full', sizeMap[size]),
                   'drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)] group-hover:drop-shadow-[0_8px_24px_rgba(0,0,0,0.7)]'
                 )}
                 style={{
@@ -84,7 +84,7 @@ function SwipessLogoComponent({
                   "font-black tracking-[-0.05em] italic uppercase text-white",
                   isIcon ? "text-xl" : size === 'xs' ? 'text-sm' : size === 'sm' ? 'text-base' : size === 'md' ? 'text-2xl' : size === 'lg' ? 'text-3xl' : 'text-5xl'
                 )}>
-                  Swipess
+                  SWIPESS
                 </span>
               </div>
               {variant === 'gradient' && !isIcon && (

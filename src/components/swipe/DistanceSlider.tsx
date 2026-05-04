@@ -1,8 +1,9 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { useFilterStore } from '@/state/filterStore';
 import { MapPin, Navigation } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, useSpring, useMotionValue, useTransform } from 'framer-motion';
+import useAppTheme from '@/hooks/useAppTheme';
 
 export interface DistanceSliderProps {
   radiusKm: number;
@@ -20,6 +21,7 @@ export interface DistanceSliderProps {
  * The store/parent is only updated on pointer release to avoid flooding Zustand.
  */
 export const DistanceSlider = ({ radiusKm, onRadiusChange, onDetectLocation, detecting, detected }: DistanceSliderProps) => {
+  const { isLight } = useAppTheme();
   const maxKm = 100;
   const clientType = useFilterStore(s => s.clientType);
   const activeCategory = useFilterStore(s => s.activeCategory);
@@ -85,8 +87,8 @@ export const DistanceSlider = ({ radiusKm, onRadiusChange, onDetectLocation, det
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <div className="px-2.5 py-1 rounded-md bg-muted/50 border border-border/50 shadow-inner">
-            <span className="text-sm font-black text-primary tracking-tight">
+          <div className="px-2.5 py-1 rounded-full flex items-center justify-center">
+            <span className={cn("text-sm font-black tracking-tight", isLight ? "text-black" : "text-primary")}>
               {localKm} <span className="text-[10px] opacity-60 italic">km</span>
             </span>
           </div>
@@ -98,11 +100,13 @@ export const DistanceSlider = ({ radiusKm, onRadiusChange, onDetectLocation, det
               "flex items-center gap-1.5 h-8 px-3 rounded-xl text-[10px] font-black uppercase tracking-tight border transition-all",
               detected
                 ? "bg-primary border-primary text-white shadow-[0_0_15px_rgba(236,72,153,0.3)] animate-gps-pulse"
+                : isLight
+                ? "bg-white border-black/20 text-black hover:bg-gray-50 shadow-sm"
                 : "bg-background border-border text-muted-foreground hover:border-primary/50"
             )}
             title="Detect my current GPS location"
           >
-            <Navigation className={cn("w-3 h-3", detecting && "animate-spin")} />
+            <Navigation className={cn("w-3 h-3", detecting && "animate-spin", isLight && !detected ? "text-black" : "")} />
             {detecting ? '…' : detected ? 'FIXED' : 'AUTO'}
           </motion.button>
         </div>

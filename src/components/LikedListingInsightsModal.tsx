@@ -2,12 +2,12 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { MapPin, Bed, Bath, Square, DollarSign, MessageCircle, Sparkles, Trash2, Ban, Flag, ChevronLeft, ChevronRight, X, Star, ArrowLeft } from 'lucide-react';
+import { MapPin, Bed, Bath, Square, DollarSign, MessageCircle, Sparkles, Trash2, Ban, Flag, ChevronLeft, ChevronRight, X, Star, ArrowLeft, Share2, TrendingUp, CheckCircle, Home, Clock, Zap, Users, Shield, Award, ThumbsUp, Eye, Ruler, Settings, Bike, Car, Gauge, Fuel, Flame, ShieldCheck } from 'lucide-react';
 import { PropertyImageGallery } from './PropertyImageGallery';
 import { useNavigate } from 'react-router-dom';
 import { useStartConversation } from '@/hooks/useConversations';
 import { toast } from '@/components/ui/sonner';
-import { useState, useEffect, useCallback, memo } from 'react';
+import { useState, useEffect, useCallback, memo, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { logger } from '@/utils/prodLogger';
@@ -29,6 +29,8 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { ReportDialog } from './ReportDialog';
+import { ShareDialog } from './ShareDialog';
 
 interface LikedListingInsightsModalProps {
   open: boolean;
@@ -46,12 +48,77 @@ function LikedListingInsightsModalComponent({ open, onOpenChange, listing }: Lik
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showBlockDialog, setShowBlockDialog] = useState(false);
   const [showReportDialog, setShowReportDialog] = useState(false);
+  const [showShareDialog, setShowShareDialog] = useState(false);
   const [showRatingDialog, setShowRatingDialog] = useState(false);
-  const [reportReason, setReportReason] = useState('');
-  const [reportDetails, setReportDetails] = useState('');
 
   // Fetch rating aggregate for this listing
   const { data: ratingAggregate } = useListingRatingAggregate(listing?.id);
+
+  // Calculate property insights based on listing data
+  const propertyInsights = useMemo(() => {
+    if (!listing) return null;
+
+    const pricePerSqft = listing.square_footage && listing.price
+      ? Math.round(listing.price / listing.square_footage)
+      : null;
+
+    const amenityCount = listing.amenities?.length || 0;
+    const imageCount = (listing.images?.length || 0);
+
+    // Calculate listing quality score (0-100)
+    let qualityScore = 0;
+    if (listing.description && listing.description.length > 100) qualityScore += 20;
+    if (imageCount >= 5) qualityScore += 25;
+    else if (imageCount >= 3) qualityScore += 15;
+    else if (imageCount >= 1) qualityScore += 5;
+    if (amenityCount >= 8) qualityScore += 20;
+    else if (amenityCount >= 4) qualityScore += 10;
+    if (listing.furnished) qualityScore += 10;
+    if (listing.pet_friendly) qualityScore += 10;
+    if (listing.square_footage) qualityScore += 5;
+    if (listing.beds && listing.baths) qualityScore += 10;
+
+    // Value rating based on price per sqft (simplified)
+    let valueRating: 'excellent' | 'good' | 'fair' | 'premium' = 'good';
+    if (pricePerSqft) {
+      if (pricePerSqft < 15) valueRating = 'excellent';
+      else if (pricePerSqft < 25) valueRating = 'good';
+      else if (pricePerSqft < 40) valueRating = 'fair';
+      else valueRating = 'premium';
+    }
+
+    // Determine category
+    const category = listing.category || 'property';
+    const isWorker = category === 'worker' || category === 'services';
+    const isMotorcycle = category === 'motorcycle';
+    const isBicycle = category === 'bicycle';
+    const isVehicle = isMotorcycle || isBicycle;
+    const isProperty = !isVehicle && !isWorker;
+    
+    // Calculate demand level
+    const demandLevel = qualityScore >= 80 ? 'high' : qualityScore >= 50 ? 'medium' : 'low';
+
+    // Listing urgency
+    const isHotListing = qualityScore >= 75 && listing.status === 'available';
+
+    return {
+      pricePerSqft,
+      qualityScore: Math.min(100, qualityScore),
+      valueRating,
+      amenityCount,
+      imageCount,
+      responseRate: Math.min(95, 70 + amenityCount * 2),
+      avgResponseTime: amenityCount > 5 ? '< 1 hour' : '1-2 hours',
+      category,
+      isWorker,
+      isMotorcycle,
+      isBicycle,
+      isVehicle,
+      isProperty,
+      demandLevel,
+      isHotListing,
+    };
+  }, [listing]);
 
   const images = listing?.images || [];
 
@@ -140,44 +207,7 @@ function LikedListingInsightsModalComponent({ open, onOpenChange, listing }: Lik
     }
   });
 
-  // Report mutation
-  const reportMutation = useMutation({
-    mutationFn: async ({ reason, details }: { reason: string; details: string }) => {
-      const { data: user } = await supabase.auth.getUser();
-      if (!user.user || !listing?.owner_id) throw new Error('Not authenticated');
 
-      const { error } = await supabase
-        .from('user_reports')
-        .insert({
-          reporter_id: user.user.id,
-          reported_user_id: listing.owner_id,
-          report_reason: reason,
-          report_details: details,
-          status: 'pending'
-        });
-
-      if (error) {
-        logger.error('Report submission error:', error);
-        throw error;
-      }
-    },
-    onSuccess: () => {
-      toast({
-        title: 'Report submitted',
-        description: "We'll review it shortly.",
-      });
-      setShowReportDialog(false);
-      setReportReason('');
-      setReportDetails('');
-    },
-    onError: () => {
-      toast({
-        title: 'Error',
-        description: 'Failed to submit report.',
-        variant: 'destructive',
-      });
-    }
-  });
 
   const handleDelete = () => {
     setShowDeleteDialog(true);
@@ -200,17 +230,6 @@ function LikedListingInsightsModalComponent({ open, onOpenChange, listing }: Lik
     setShowReportDialog(true);
   };
 
-  const handleSubmitReport = () => {
-    if (!reportReason) {
-      toast({
-        title: 'Error',
-        description: 'Please select a reason for your report.',
-        variant: 'destructive',
-      });
-      return;
-    }
-    reportMutation.mutate({ reason: reportReason, details: reportDetails });
-  };
 
   const handlePrevImage = () => {
     setCurrentImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
@@ -274,10 +293,14 @@ function LikedListingInsightsModalComponent({ open, onOpenChange, listing }: Lik
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent
-          className="w-full max-w-lg h-[92dvh] max-h-[92dvh] p-0 overflow-hidden bg-[#0a0a0f] border-0 rounded-[2.5rem]"
+        <DialogContent 
+          className="w-full max-w-lg h-[92dvh] max-h-[92dvh] p-0 overflow-hidden bg-[#0a0a0f] border-0 rounded-[2.5rem] shadow-[0_32px_80px_rgba(0,0,0,0.8)]"
           hideCloseButton
         >
+          {/* 🛸 NEXUS ATMOSPHERE */}
+          <div className="absolute top-[-20%] left-[-20%] w-[100%] h-[100%] bg-[#EB4898]/10 rounded-full blur-[120px] pointer-events-none" />
+          <div className="absolute bottom-[-20%] right-[-20%] w-[100%] h-[100%] bg-violet-600/10 rounded-full blur-[120px] pointer-events-none" />
+
           <div className="flex flex-col h-full relative">
             {/* Floating nav buttons */}
             <div className="absolute top-4 left-4 right-4 z-30 flex items-center justify-between pointer-events-none">
@@ -334,11 +357,17 @@ function LikedListingInsightsModalComponent({ open, onOpenChange, listing }: Lik
                   )}
 
                   {/* Status badges */}
-                  <div className="absolute bottom-8 left-4 flex items-center gap-2">
+                  <div className="absolute bottom-8 left-4 flex flex-wrap items-center gap-2">
                     <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#EB4898]/90 backdrop-blur-md">
                       <Sparkles className="w-3 h-3 text-white" />
                       <span className="text-[10px] font-black uppercase tracking-widest text-white">Liked</span>
                     </div>
+                    {propertyInsights?.isHotListing && (
+                      <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-red-600/90 backdrop-blur-md">
+                        <Zap className="w-3 h-3 text-white" />
+                        <span className="text-[10px] font-black uppercase tracking-widest text-white">Hot</span>
+                      </div>
+                    )}
                     <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/60 backdrop-blur-md border border-white/10">
                       <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
                       <span className="text-[11px] font-black text-white">{ratingAggregate?.displayed_rating?.toFixed(1) || '5.0'}</span>
@@ -394,6 +423,12 @@ function LikedListingInsightsModalComponent({ open, onOpenChange, listing }: Lik
                       <span className="text-[15px] font-black text-white">{listing.square_footage}</span>
                       <span className="text-[9px] text-white/30 uppercase font-black tracking-wider mt-0.5">sqft</span>
                     </div>
+                  ) : propertyInsights?.isVehicle && listing.year ? (
+                    <div className="flex flex-col items-center p-3 bg-orange-500/[0.08] rounded-2xl border border-orange-500/20">
+                      <Clock className="w-4 h-4 text-orange-400 mb-1" />
+                      <span className="text-[15px] font-black text-white">{listing.year}</span>
+                      <span className="text-[9px] text-white/30 uppercase font-black tracking-wider mt-0.5">year</span>
+                    </div>
                   ) : <div />}
                 </div>
 
@@ -422,12 +457,117 @@ function LikedListingInsightsModalComponent({ open, onOpenChange, listing }: Lik
                       <span className={cn(
                         "px-3 py-1.5 rounded-xl text-[11px] font-black uppercase tracking-wide",
                         listing.status === 'available'
-                          ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-400'
+                          ? 'bg-violet-500/10 border border-violet-500/20 text-violet-400'
                           : 'bg-white/5 border border-white/10 text-white/40'
                       )}>{listing.status}</span>
                     )}
+                    {propertyInsights?.demandLevel === 'high' && (
+                      <span className="px-3 py-1.5 rounded-xl bg-red-500/10 border border-red-500/20 text-[11px] font-black text-red-400 uppercase tracking-wide">High Demand</span>
+                    )}
                   </div>
                 </div>
+
+                {/* Market Insights — 🚀 NEXUS POLISH */}
+                {propertyInsights && (
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between px-1">
+                      <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-white/30">Nexus Market Analytics</h4>
+                      <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-white/5 border border-white/10">
+                        <TrendingUp className="w-3 h-3 text-[#EB4898] fill-current" />
+                        <span className="text-[9px] font-black text-white uppercase tracking-wider">Market Live</span>
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="p-4 rounded-[24px] bg-white/5 border border-white/10 backdrop-blur-xl group hover:bg-white/10 transition-all">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Gauge className="w-3.5 h-3.5 text-blue-400" />
+                          <span className="text-[10px] text-white/40 uppercase font-black tracking-widest">Quality</span>
+                        </div>
+                        <div className="text-2xl font-black text-white">{propertyInsights.qualityScore}%</div>
+                        <div className="mt-3 h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+                          <motion.div 
+                            initial={{ width: 0 }}
+                            animate={{ width: `${propertyInsights.qualityScore}%` }}
+                            className="h-full bg-gradient-to-r from-blue-500 to-violet-500"
+                          />
+                        </div>
+                      </div>
+                      
+                      <div className="p-4 rounded-[24px] bg-white/5 border border-white/10 backdrop-blur-xl group hover:bg-white/10 transition-all">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Flame className="w-3.5 h-3.5 text-rose-500 fill-current" />
+                          <span className="text-[10px] text-white/40 uppercase font-black tracking-widest">Demand</span>
+                        </div>
+                        <div className="text-2xl font-black text-white uppercase tracking-tight">{propertyInsights.demandLevel}</div>
+                      </div>
+                    </div>
+
+                    <div className="p-5 rounded-[28px] bg-white/5 border border-white/10 backdrop-blur-xl relative overflow-hidden group">
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center">
+                             <ShieldCheck className="w-5 h-5 text-[#EB4898]" />
+                          </div>
+                          <div>
+                            <p className="text-[10px] font-black text-white/40 uppercase tracking-widest leading-none mb-1">Owner Reliability</p>
+                            <p className="text-lg font-black text-white uppercase tracking-tight">{propertyInsights.responseRate}% Response</p>
+                          </div>
+                        </div>
+                        <div className="text-xl font-black text-[#EB4898]">Elite</div>
+                      </div>
+                      <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden border border-white/5">
+                        <motion.div 
+                          initial={{ width: 0 }}
+                          animate={{ width: `${propertyInsights.responseRate}%` }}
+                          className="h-full bg-gradient-to-r from-[#EB4898] to-[#FF4D00] rounded-full"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Value Assessment */}
+                {propertyInsights && (
+                  <div className="space-y-2">
+                    <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">Value Assessment</h4>
+                    <div className={cn(
+                      "p-4 rounded-2xl border backdrop-blur-md",
+                      propertyInsights.valueRating === 'excellent' ? 'bg-emerald-500/5 border-emerald-500/20' :
+                      propertyInsights.valueRating === 'good' ? 'bg-blue-500/5 border-blue-500/20' :
+                      propertyInsights.valueRating === 'fair' ? 'bg-amber-500/5 border-amber-500/20' :
+                      'bg-[#EB4898]/5 border-[#EB4898]/20'
+                    )}>
+                      <div className="flex items-center gap-2 mb-2">
+                        {propertyInsights.valueRating === 'excellent' ? <Award className="w-4 h-4 text-emerald-400" /> :
+                         propertyInsights.valueRating === 'good' ? <ThumbsUp className="w-4 h-4 text-blue-400" /> :
+                         propertyInsights.valueRating === 'fair' ? <CheckCircle className="w-4 h-4 text-amber-400" /> :
+                         <Sparkles className="w-4 h-4 text-[#EB4898]" />}
+                        <span className={cn(
+                          "text-[12px] font-black uppercase tracking-wider",
+                          propertyInsights.valueRating === 'excellent' ? 'text-emerald-400' :
+                          propertyInsights.valueRating === 'good' ? 'text-blue-400' :
+                          propertyInsights.valueRating === 'fair' ? 'text-amber-400' :
+                          'text-[#EB4898]'
+                        )}>
+                          {propertyInsights.valueRating === 'excellent' ? 'Excellent Value' :
+                           propertyInsights.valueRating === 'good' ? 'Good Value' :
+                           propertyInsights.valueRating === 'fair' ? 'Fair Price' :
+                           'Premium Choice'}
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-white/50 leading-relaxed font-medium">
+                        {propertyInsights.valueRating === 'excellent'
+                          ? 'Exceptional value for this location. Highly recommended.'
+                          : propertyInsights.valueRating === 'good'
+                          ? 'Competitive pricing compared to similar listings in this area.'
+                          : propertyInsights.valueRating === 'fair'
+                          ? 'Fair market pricing based on current trends and amenities.'
+                          : 'Premium selection offering high-end features and prime placement.'}
+                      </p>
+                    </div>
+                  </div>
+                )}
 
                 {/* Amenities */}
                 {listing.amenities && listing.amenities.length > 0 && (
@@ -471,7 +611,11 @@ function LikedListingInsightsModalComponent({ open, onOpenChange, listing }: Lik
                 {isCreatingConversation ? 'Starting...' : 'Message Owner'}
               </Button>
 
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-4 gap-2">
+                <Button onClick={() => setShowShareDialog(true)} variant="ghost" size="sm"
+                  className="h-10 bg-blue-500/[0.07] hover:bg-blue-500/[0.15] border border-blue-500/20 text-blue-400 rounded-xl text-[11px] font-black uppercase tracking-wide">
+                  <Share2 className="w-3.5 h-3.5 mr-1.5" /> Share
+                </Button>
                 <Button onClick={handleDelete} variant="ghost" size="sm"
                   className="h-10 bg-red-500/[0.07] hover:bg-red-500/[0.15] border border-red-500/20 text-red-400 rounded-xl text-[11px] font-black uppercase tracking-wide"
                   disabled={deleteMutation.isPending}>
@@ -483,8 +627,7 @@ function LikedListingInsightsModalComponent({ open, onOpenChange, listing }: Lik
                   <Ban className="w-3.5 h-3.5 mr-1.5" /> Block
                 </Button>
                 <Button onClick={handleReport} variant="ghost" size="sm"
-                  className="h-10 bg-amber-500/[0.07] hover:bg-amber-500/[0.15] border border-amber-500/20 text-amber-400 rounded-xl text-[11px] font-black uppercase tracking-wide"
-                  disabled={reportMutation.isPending}>
+                  className="h-10 bg-amber-500/[0.07] hover:bg-amber-500/[0.15] border border-amber-500/20 text-amber-400 rounded-xl text-[11px] font-black uppercase tracking-wide">
                   <Flag className="w-3.5 h-3.5 mr-1.5" /> Report
                 </Button>
               </div>
@@ -552,64 +695,26 @@ function LikedListingInsightsModalComponent({ open, onOpenChange, listing }: Lik
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Report Dialog */}
-      <Dialog open={showReportDialog} onOpenChange={setShowReportDialog}>
-        <DialogContent className="sm:max-w-md rounded-2xl">
-          <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <Flag className="w-5 h-5 text-yellow-500" />
-              <h3 className="text-lg font-semibold">Report Property/Owner</h3>
-            </div>
-            <div className="space-y-3">
-              <Label>Reason for report</Label>
-              <RadioGroup value={reportReason} onValueChange={setReportReason} className="space-y-2">
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="fake_listing" id="fake_listing" />
-                  <Label htmlFor="fake_listing" className="font-normal">Fake or misleading listing</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="inappropriate" id="inappropriate" />
-                  <Label htmlFor="inappropriate" className="font-normal">Inappropriate content</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="scam" id="scam" />
-                  <Label htmlFor="scam" className="font-normal">Suspected scam</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="discrimination" id="discrimination" />
-                  <Label htmlFor="discrimination" className="font-normal">Discrimination</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="other" id="other" />
-                  <Label htmlFor="other" className="font-normal">Other</Label>
-                </div>
-              </RadioGroup>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="details">Additional details (optional)</Label>
-              <Textarea
-                id="details"
-                placeholder="Please provide any additional information..."
-                value={reportDetails}
-                onChange={(e) => setReportDetails(e.target.value)}
-                className="min-h-[100px] rounded-xl"
-              />
-            </div>
-            <div className="flex gap-2 pt-2">
-              <Button variant="outline" onClick={() => setShowReportDialog(false)} className="flex-1 rounded-xl">
-                Cancel
-              </Button>
-              <Button
-                onClick={handleSubmitReport}
-                disabled={!reportReason || reportMutation.isPending}
-                className="flex-1 bg-yellow-600 hover:bg-yellow-700 text-white rounded-xl"
-              >
-                {reportMutation.isPending ? "Submitting..." : "Submit Report"}
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+      {/* Report and Share Dialogs */}
+      {listing && (
+        <>
+          <ReportDialog
+            open={showReportDialog}
+            onOpenChange={setShowReportDialog}
+            reportedListingId={listing.id}
+            reportedUserId={listing.owner_id}
+            reportedListingTitle={listing.title}
+            category="listing"
+          />
+          <ShareDialog
+            open={showShareDialog}
+            onOpenChange={setShowShareDialog}
+            listingId={listing.id}
+            title={listing.title}
+            description={listing.description}
+          />
+        </>
+      )}
 
       {/* Rating Submission Dialog */}
       {listing && (

@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { QuickFilterImage } from '@/components/ui/QuickFilterImage';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AtmosphericLayer } from '@/components/AtmosphericLayer';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useRadio } from '@/contexts/RadioContext';
 import { radioStations, cityThemes } from '@/data/radioStations';
 import { CityLocation } from '@/types/radio';
@@ -12,15 +12,19 @@ import useAppTheme from '@/hooks/useAppTheme';
 import { 
   ArrowLeft, Globe, Search, Play, Heart, 
   MapPin, Radio, Volume2, Sparkles,
-  Maximize2
+  Maximize2, Shuffle
 } from 'lucide-react';
 
 export default function WorldRadioDirectory() {
   const navigate = useNavigate();
-  const { state, play, toggleFavorite, isStationFavorite } = useRadio();
+  const [searchParams] = useSearchParams();
+  const { state, play, toggleFavorite, isStationFavorite, shuffleAndPlay } = useRadio();
   const { isDark } = useAppTheme();
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCity, setSelectedCity] = useState<CityLocation | 'all'>('all');
+  
+  // Initialize with 'favorites' if param exists
+  const initialFilter = searchParams.get('filter') === 'favorites' ? 'favorites' : 'all';
+  const [selectedCity, setSelectedCity] = useState<CityLocation | 'all' | 'favorites'>(initialFilter as any);
 
   const cities = useMemo(() => Object.values(cityThemes), []);
 
@@ -29,29 +33,23 @@ export default function WorldRadioDirectory() {
       const matchesSearch = s.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           (s.genre?.toLowerCase().includes(searchQuery.toLowerCase()) || false) ||
                           s.city.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesCity = selectedCity === 'all' || s.city === selectedCity;
-      return matchesSearch && matchesCity;
+      
+      let matchesFilter = true;
+      if (selectedCity === 'all') {
+        matchesFilter = true;
+      } else if (selectedCity === 'favorites') {
+        matchesFilter = isStationFavorite(s.id);
+      } else {
+        matchesFilter = s.city === selectedCity;
+      }
+      
+      return matchesSearch && matchesFilter;
     });
-  }, [searchQuery, selectedCity]);
+  }, [searchQuery, selectedCity, isStationFavorite]);
 
   const handleStationPlay = (station: any) => {
     triggerHaptic('medium');
     play(station);
-  };
-
-  const staggerContainer = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.05
-      }
-    }
-  };
-
-  const itemAnim = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0 }
   };
 
   return (
@@ -63,8 +61,8 @@ export default function WorldRadioDirectory() {
 
       {/* 🛸 STICKY HEADER — Stays on top, doesn't overlap cards */}
       <div className={cn(
-        "sticky top-0 z-50 pt-[calc(env(safe-area-inset-top)+12px)] pb-4 px-6 backdrop-blur-xl border-b transition-colors",
-        isDark ? "bg-[#050505]/80 border-white/5" : "bg-white/80 border-black/5"
+        "sticky top-0 z-50 pt-[calc(env(safe-area-inset-top)+12px)] pb-4 px-6 border-b transition-colors",
+        isDark ? "bg-[#050505] border-white/5" : "bg-white border-black/5"
       )}>
         <div className="flex items-center mb-4 gap-4">
           <button
@@ -86,6 +84,22 @@ export default function WorldRadioDirectory() {
               <span className="text-[9px] font-black tracking-widest uppercase">Global Frequency Network</span>
             </div>
           </div>
+          
+          <button
+            onClick={() => {
+              triggerHaptic('medium');
+              shuffleAndPlay(filteredStations);
+            }}
+            className={cn(
+              "flex items-center gap-2 px-4 py-2 rounded-full transition-all active:scale-95 border group",
+              isDark 
+                ? "bg-primary/10 border-primary/20 text-primary hover:bg-primary/20" 
+                : "bg-primary text-black border-primary shadow-lg shadow-primary/20"
+            )}
+          >
+            <Shuffle size={14} className="group-hover:rotate-180 transition-transform duration-500" />
+            <span className="text-[10px] font-black uppercase tracking-widest italic">Shuffle</span>
+          </button>
         </div>
 
         {/* Search Bar */}
@@ -113,9 +127,9 @@ export default function WorldRadioDirectory() {
         {/* City Filter scroller */}
         <div className="flex gap-2.5 overflow-x-auto no-scrollbar -mx-2 px-2">
           <button
-            onClick={() => setSelectedCity('all')}
+            onClick={() => { setSelectedCity('all'); triggerHaptic('light'); }}
             className={cn(
-              "px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shrink-0 transition-all border",
+              "px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest shrink-0 transition-all border",
               selectedCity === 'all'
                 ? "bg-primary text-black border-primary shadow-lg shadow-primary/20"
                 : isDark
@@ -123,7 +137,22 @@ export default function WorldRadioDirectory() {
                   : "bg-black/5 border-black/5 text-black/40 hover:border-black/10"
             )}
           >
-            All Cities
+            All Signal
+          </button>
+          
+          <button
+            onClick={() => { setSelectedCity('favorites'); triggerHaptic('light'); }}
+            className={cn(
+              "px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest shrink-0 transition-all border flex items-center gap-2",
+              selectedCity === 'favorites'
+                ? "bg-rose-500 text-white border-rose-500 shadow-lg shadow-rose-500/20"
+                : isDark
+                  ? "bg-white/5 border-white/5 text-white/40 hover:border-white/20"
+                  : "bg-black/5 border-black/5 text-black/40 hover:border-black/10"
+            )}
+          >
+            <Heart size={10} fill={selectedCity === 'favorites' ? "white" : "none"} />
+            Liked
           </button>
           {cities.map(city => (
             <button
@@ -248,18 +277,21 @@ export default function WorldRadioDirectory() {
                           onClick={() => handleStationPlay(station)}
                           className={cn(
                             "flex-1 h-10 rounded-xl flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest transition-all",
-                            isPlaying ? "bg-white text-black" : "bg-white/10 text-white hover:bg-white/20"
+                            isPlaying 
+                              ? "bg-white text-black" 
+                              : (isDark ? "bg-white/10 text-white hover:bg-white/20" : "bg-black/10 text-black hover:bg-black/20")
                           )}
                         >
                           {isPlaying ? <Volume2 size={14} /> : <Play size={14} fill="currentColor" />}
                           {isPlaying ? 'Playing' : 'Tune In'}
                         </button>
-                        
                         <button
-                          onClick={() => { triggerHaptic('light'); toggleFavorite(station.id); }}
+                          onClick={() => toggleFavorite(station.id)}
                           className={cn(
                             "w-10 h-10 rounded-xl flex items-center justify-center border transition-all",
-                            isFav ? "bg-rose-500/10 border-rose-500/20 text-rose-500" : "bg-white/5 border-white/5 text-white/20 hover:border-white/10"
+                            isFav 
+                              ? "bg-rose-500/10 border-rose-500/20 text-rose-500" 
+                              : (isDark ? "bg-white/5 border-white/5 text-white/20 hover:border-white/10" : "bg-black/5 border-black/5 text-black/20 hover:border-black/10")
                           )}
                         >
                           <Heart size={16} fill={isFav ? "currentColor" : "none"} />

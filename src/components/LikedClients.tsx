@@ -158,7 +158,7 @@ export function LikedClients() {
 
   return (
     <div className="w-full relative flex flex-col" data-no-swipe-nav="true">
-      <div className="flex-1 flex flex-col p-4 pt-4 sm:p-8 sm:pt-6 max-w-7xl mx-auto w-full">
+      <div className="flex-1 flex flex-col px-6 pt-10 pb-32 w-full">
         <div className="flex items-center justify-between mb-8">
             <h1 className="text-2xl font-black italic uppercase tracking-tighter">Your Talents</h1>
             <div className="flex items-center gap-3">

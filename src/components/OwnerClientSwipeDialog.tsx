@@ -2,9 +2,9 @@
 import { useState, lazy, Suspense } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ClientSwipeContainer } from '@/components/ClientSwipeContainer';
-// Lazy-load the 50kb ClientInsightsDialog — only needed when insights panel opens
-const ClientInsightsDialog = lazy(() =>
-  import('@/components/ClientInsightsDialog').then(m => ({ default: m.ClientInsightsDialog }))
+// Lazy-load the 50kb LikedClientInsightsModal — only needed when insights panel opens
+const LikedClientInsightsModal = lazy(() =>
+  import('@/components/LikedClientInsightsModal').then(m => ({ default: m.LikedClientInsightsModal }))
 );
 import { useClientProfiles } from '@/hooks/useClientProfiles';
 
@@ -28,8 +28,27 @@ export function OwnerClientSwipeDialog({ open, onOpenChange }: OwnerClientSwipeD
     handleInsights(clientId);
   };
 
-  const selectedProfile = selectedClientId
+  const selectedProfileRaw = selectedClientId
     ? clientProfiles?.find(p => p.user_id === selectedClientId)
+    : null;
+
+  const selectedProfile = selectedProfileRaw
+    ? {
+        id: String(selectedProfileRaw.id ?? selectedProfileRaw.user_id),
+        user_id: selectedProfileRaw.user_id,
+        full_name: selectedProfileRaw.name || '',
+        name: selectedProfileRaw.name || '',
+        age: selectedProfileRaw.age || 0,
+        bio: '',
+        profile_images: selectedProfileRaw.profile_images || [],
+        images: selectedProfileRaw.profile_images || [],
+        location: selectedProfileRaw.location,
+        liked_at: new Date().toISOString(),
+        gender: selectedProfileRaw.gender,
+        city: selectedProfileRaw.city,
+        interests: selectedProfileRaw.interests,
+        verified: selectedProfileRaw.verified,
+      }
     : null;
 
   return (
@@ -51,13 +70,13 @@ export function OwnerClientSwipeDialog({ open, onOpenChange }: OwnerClientSwipeD
       </Dialog>
 
       <Suspense fallback={null}>
-        <ClientInsightsDialog
+        <LikedClientInsightsModal
           open={showInsights}
           onOpenChange={(open) => {
             setShowInsights(open);
             if (!open) setSelectedClientId(null);
           }}
-          profile={selectedProfile || null}
+          client={selectedProfile || null}
         />
       </Suspense>
     </>

@@ -12,7 +12,7 @@ export function DashboardSkeleton() {
   return (
     <div className="flex flex-col h-full w-full max-w-lg mx-auto p-4 space-y-6 animate-pulse">
       {/* Main Swipe Card Placeholder - Full Bleed Design */}
-      <Card className="relative flex-1 rounded-[2.5rem] overflow-hidden border-none shadow-2xl bg-black/40 backdrop-blur-xl aspect-[3/4] md:aspect-auto">
+      <Card className="relative flex-1 rounded-[2.5rem] overflow-hidden border-none shadow-2xl bg-muted aspect-[3/4] md:aspect-auto">
         <div className="absolute inset-x-5 bottom-12 space-y-4">
           <div className="flex items-center gap-3">
             <Skeleton className="h-8 w-48 rounded-lg" />

@@ -49,7 +49,7 @@ export function useSwipeNavigation({
     navigatedRef.current = false;
     const touch = e.touches[0];
     
-    // 🚀 ZENITH: Cached Container Lookup + GPU Prep
+    // 🚀 SWIPESS: Cached Container Lookup + GPU Prep
     if (!containerRef.current) {
       containerRef.current = document.querySelector(containerSelector) as HTMLElement | null;
     }

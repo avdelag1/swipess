@@ -83,13 +83,14 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[10001] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+          className="fixed inset-0 z-[10001] flex items-center justify-center bg-black/70 backdrop-blur-xl p-4"
           onClick={onClose}
         >
           <motion.div
-            initial={{ scale: 0.9, opacity: 0, y: 30 }}
+            initial={{ scale: 0.8, opacity: 0, y: 100 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
-            exit={{ scale: 0.9, opacity: 0, y: 30 }}
+            exit={{ scale: 0.8, opacity: 0, y: 100 }}
+            transition={{ type: 'spring', damping: 25, stiffness: 300, mass: 0.8 }}
             onClick={(e) => e.stopPropagation()}
             className="relative w-[85vw] max-w-[480px] min-h-[85vh] max-h-[85vh] flex flex-col"
           >

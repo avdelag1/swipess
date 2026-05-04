@@ -29,7 +29,7 @@ const SheetOverlay = React.forwardRef<
 SheetOverlay.displayName = SheetPrimitive.Overlay.displayName
 
 const sheetVariants = cva(
-  "fixed z-[10002] gap-4 bg-background/95 backdrop-blur-md p-6 shadow-2xl transition ease-in-out data-&lsqb;state=open&rsqb;:animate-in data-&lsqb;state=closed&rsqb;:animate-out data-&lsqb;state=closed&rsqb;:duration-[160ms] data-&lsqb;state=open&rsqb;:duration-[220ms] border border-white/20",
+  "fixed z-[10002] gap-4 bg-background p-6 shadow-[0_32px_80px_rgba(0,0,0,0.6)] transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-150 data-[state=open]:duration-200 border border-white/10",
   {
     variants: {
       side: {
@@ -63,7 +63,7 @@ const SheetContent = React.forwardRef<
       {...props}
     >
       {children}
-      <SheetPrimitive.Close className="absolute right-4 top-4 rounded-full p-2 flex items-center justify-center opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-&lsqb;state=open&rsqb;:bg-secondary">
+      <SheetPrimitive.Close className="absolute right-4 top-4 rounded-full p-2 flex items-center justify-center opacity-70 transition-opacity hover:opacity-100 focus:outline-none disabled:pointer-events-none data-[state=open]:bg-secondary bg-secondary border border-white/10">
         <X className="h-4 w-4" />
         <span className="sr-only">Close</span>
       </SheetPrimitive.Close>

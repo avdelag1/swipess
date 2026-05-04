@@ -80,10 +80,9 @@ export {
   POKER_CARD_GRADIENTS
 } from './CardData';
 
-export const PK_W = 380;
-export const PK_H = 560;
-export const OWNER_PK_H = 580;
-export const PK_ASPECT = PK_W / PK_H;
+export const PK_W = 520;
+export const PK_H = 780;
+export const PK_ASPECT = 0.66667; // 520 / 780
 
 export const FOLDER_OFFSET_X = 30;
 export const FOLDER_OFFSET_Y = 0;

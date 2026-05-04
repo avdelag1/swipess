@@ -7,12 +7,12 @@ import { prefetchRoute } from '@/utils/routePrefetcher';
 import { warmDiscoveryCache } from '@/utils/performance';
 
 /**
- * 🚀 ZenithPrewarmer: Predictive data & asset pre-fetching
+ * 🚀 SwipessPrewarmer: Predictive data & asset pre-fetching
  * - Silently warms the React Query cache based on user role
  * - Pre-fetches high-priority brand assets
  * - Essential for 'Speed of Light' navigation experience
  */
-export const ZenithPrewarmer = () => {
+export const SwipessPrewarmer = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
@@ -24,7 +24,7 @@ export const ZenithPrewarmer = () => {
       const dashboardPath = role === 'owner' ? '/owner/dashboard' : '/client/dashboard';
       const profilePath = role === 'owner' ? '/owner/profile' : '/client/profile';
       
-      logger.info(`[ZenithPrewarmer] Warming cache for ${role} role...`);
+      logger.info(`[SwipessPrewarmer] Warming cache for ${role} role...`);
 
       // 🔥 SPEED OF LIGHT: Start fetching the DASHBOARD CODE immediately
       // This ensures the JS chunk is in the browser cache before they click.

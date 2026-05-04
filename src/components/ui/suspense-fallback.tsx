@@ -1,59 +1,30 @@
-import { PremiumLoader } from '../PremiumLoader';
-import { DashboardSkeleton, ProfileSkeleton, MessageSkeleton } from './LayoutSkeletons';
+/**
+ * 🚀 NEXUS SUSPENSE FALLBACK
+ * 
+ * NEVER shows the full Swipess logo splash between pages.
+ * Instead, renders a minimal, invisible-feeling transition that lets
+ * the persistent layout (header, nav, bottom bar) stay on screen.
+ * 
+ * For Apple review: page transitions must feel instant. A full-screen
+ * branded loader between every page looks broken and amateurish.
+ */
 
 interface SuspenseFallbackProps {
   className?: string;
   minimal?: boolean;
 }
 
-// Global flag so we only show full loader on true cold start
-let _hasCompletedFirstRender = false;
-
-if (typeof window !== 'undefined') {
-  setTimeout(() => { _hasCompletedFirstRender = true; }, 2000);
-  window.addEventListener('app-rendered', () => {
-    _hasCompletedFirstRender = true;
-  });
-}
-
-/**
- * 🚀 PRODUCTION-READY ZENITH SKELETON
- * 
- * Instead of a generic loader, we show a context-aware skeleton
- * that matches the layout of the page the user is navigating to.
- * This gives an 'instant' feel as if the app is already loaded.
- */
 export function SuspenseFallback({ className, minimal = false }: SuspenseFallbackProps) {
-  const pathname = typeof window !== 'undefined' ? window.location.pathname : '';
-  
-  // 1. Dashboard Routes
-  if (pathname.includes('/dashboard')) {
-    return <DashboardSkeleton />;
-  }
-  
-  // 2. Profile Routes
-  if (pathname.includes('/profile') || pathname.includes('/settings')) {
-    return <ProfileSkeleton />;
-  }
-  
-  // 3. Messaging Routes
-  if (pathname.includes('/messages')) {
-    return <MessageSkeleton />;
-  }
-  
-  // 4. Discovery/Filter Routes
-  if (pathname.includes('/filters') || pathname.includes('/clients/') || pathname.includes('/worker/')) {
-    return (
-      <div className="p-4 overflow-hidden h-full">
-        <DashboardSkeleton />
-      </div>
-    );
-  }
-
-  // FALLBACK: Show premium loader
-  return <PremiumLoader full />;
+  // ALWAYS return a minimal, transparent placeholder.
+  // The persistent layout (TopBar, BottomNav) stays visible at all times,
+  // so the user never sees a jarring full-screen loader between pages.
+  return (
+    <div
+      className={`flex-1 w-full min-h-[60vh] ${className ?? ''}`}
+      aria-busy="true"
+      aria-label="Loading content"
+    />
+  );
 }
 
 export default SuspenseFallback;
-
-

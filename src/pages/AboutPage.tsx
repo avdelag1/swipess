@@ -69,7 +69,7 @@ export default function AboutPage() {
 
       <AtmosphericLayer />
 
-      <div className="relative z-10 max-w-4xl mx-auto px-4 pt-6 pb-32">
+      <div className="relative z-10 max-w-4xl mx-auto px-4 pt-[env(safe-area-inset-top)] pb-32">
         <PageHeader
           title="Our Mission"
           subtitle="The Architecture of Modern Real Estate"
@@ -121,11 +121,13 @@ export default function AboutPage() {
               {ownerBenefits.map((benefit, index) => (
                 <Card key={index} className={cn(
                   "rounded-3xl border transition-all hover:scale-[1.02]",
-                  isLight ? "bg-white border-black/5" : "bg-white/[0.02] border-white/5"
-                )}>
+                  isLight ? "bg-white border-black/5" : "border-violet-500/15"
+                )}
+                  style={!isLight ? { background: 'rgba(255,255,255,0.02)', boxShadow: 'inset 0 0 24px rgba(139,92,246,0.08)' } : undefined}
+                >
                   <CardContent className="p-6 flex gap-5">
-                    <div className="flex-shrink-0 w-12 h-12 rounded-2xl bg-purple-500/10 flex items-center justify-center border border-purple-500/20">
-                      <benefit.icon className="w-6 h-6 text-purple-500" />
+                    <div className="flex-shrink-0 w-12 h-12 rounded-2xl bg-violet-500/10 flex items-center justify-center border border-violet-500/20">
+                      <benefit.icon className="w-6 h-6 text-violet-500" />
                     </div>
                     <div className="space-y-1">
                       <h3 className="font-black uppercase italic tracking-tight text-[13px]">{benefit.title}</h3>
@@ -152,8 +154,10 @@ export default function AboutPage() {
               {clientBenefits.map((benefit, index) => (
                 <Card key={index} className={cn(
                   "rounded-3xl border transition-all hover:scale-[1.02]",
-                  isLight ? "bg-white border-black/5" : "bg-white/[0.02] border-white/5"
-                )}>
+                  isLight ? "bg-white border-black/5" : "border-rose-500/15"
+                )}
+                  style={!isLight ? { background: 'rgba(255,255,255,0.02)', boxShadow: 'inset 0 0 24px rgba(244,63,94,0.07)' } : undefined}
+                >
                   <CardContent className="p-6 flex gap-5">
                     <div className="flex-shrink-0 w-12 h-12 rounded-2xl bg-rose-500/10 flex items-center justify-center border border-rose-500/20">
                       <benefit.icon className="w-6 h-6 text-rose-500" />
@@ -176,10 +180,13 @@ export default function AboutPage() {
           transition={{ ...fastSpring, delay: 0.3 }}
           className="mt-16"
         >
-          <Card className={cn(
-            "rounded-[3rem] border overflow-hidden",
-            isLight ? "bg-black/[0.02] border-black/5" : "bg-white/[0.02] border-white/5"
-          )}>
+          <Card
+            className={cn(
+              "rounded-[3rem] border overflow-hidden",
+              isLight ? "bg-black/[0.02] border-black/5" : "border-primary/15"
+            )}
+            style={!isLight ? { background: 'rgba(255,255,255,0.015)', boxShadow: 'inset 0 0 40px rgba(var(--color-primary-rgb),0.07)' } : undefined}
+          >
             <CardContent className="p-10">
               <div className="flex items-center gap-4 mb-10">
                 <Sparkles className="w-6 h-6 text-primary" />
@@ -209,9 +216,9 @@ export default function AboutPage() {
 
         {/* App Version */}
         <div className="text-center mt-16 pb-12">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-black/5 border border-black/5">
-             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-             <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40 italic">System Protocol v2.0.4 - Optimized</span>
+          <div className={cn("inline-flex items-center gap-2 px-4 py-1.5 rounded-full border", isLight ? "bg-black/5 border-black/5" : "bg-white/5 border-white/5")}>
+             <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
+             <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40 italic">System Protocol v4.0.0 — Nexus</span>
           </div>
         </div>
       </div>

@@ -1,38 +1,92 @@
 /**
- * UISounds - iOS-Grade Synthetic Audio
- * Uses Web Audio API to create premium tactile sounds without asset files.
- * All sounds tuned for Apple-level subtlety and clarity.
+ * UISounds - Nexus Grade High-Fidelity Audio
+ * Integrates premium external assets with synthetic fallback.
+ * Tuned for a cinematic, tactile user experience.
  */
+
+const NEXUS_SOUNDS = {
+  WELCOME: "https://pastewaves.com/api/audio/33d22bda-0431-4e50-b93a-ed7003f55e55/download",
+  LIKE: "https://pastewaves.com/api/audio/cb3373a6-ed8d-4f14-8527-443c5aece1dd/download",
+  DISLIKE: "https://pastewaves.com/api/audio/439dda73-a0b5-478c-a9af-aba9dd75e411/download",
+  NOTIFICATION: "https://pastewaves.com/api/audio/33d22bda-0431-4e50-b93a-ed7003f55e55/download",
+  UPLOAD: "https://pastewaves.com/api/audio/cb3373a6-ed8d-4f14-8527-443c5aece1dd/download",
+};
+
+const STAR_SOUNDS = [
+  "https://pastewaves.com/api/audio/e57f365a-5a0f-498a-ab33-ccf503077ebf/download",
+  "https://pastewaves.com/api/audio/48e1614f-4e5d-4800-b5a9-b0b38814bead/download",
+  "https://pastewaves.com/api/audio/4e03067c-86a0-4607-b8c8-7c1b8d36573c/download",
+  "https://pastewaves.com/api/audio/cfed8bfe-e71d-483c-ad86-96c9328a9d65/download",
+  "https://pastewaves.com/api/audio/a6f6d509-ecb8-4709-974a-91248003b056/download",
+  "https://pastewaves.com/api/audio/4ccdaaf6-9b06-4de2-86ec-5f888687d779/download",
+  "https://pastewaves.com/api/audio/f6dfc34d-7cce-4f5f-9ad4-3fea3f867723/download",
+  "https://pastewaves.com/api/audio/d1fb7ed9-11d0-447a-a179-9635d22bcab1/download",
+  "https://pastewaves.com/api/audio/8191c8e6-222e-469f-a232-b9e81bb4b6f5/download",
+  // Legacy Zen mix for depth
+  "/sounds/bells-2-31725.mp3",
+  "/sounds/bell-a-99888.mp3",
+  "/sounds/tuning-fork-440-hz-resonance-22406.mp3",
+  "/sounds/singing-bowl-gong-69238.mp3",
+  "/sounds/bell-meditation-75335.mp3"
+];
+
+interface ToneOptions {
+  type?: OscillatorType;
+  startFreq: number;
+  endFreq?: number;
+  gainAmount: number;
+  duration: number;
+  delay?: number;
+  attack?: number;
+  decay?: number;
+}
 
 class SoundEngine {
   private ctx: AudioContext | null = null;
+  private audioCache: Record<string, HTMLAudioElement> = {};
 
   private init() {
+    if (typeof window === 'undefined') return;
     if (!this.ctx) {
       const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
-      this.ctx = new AudioContextClass();
+      if (AudioContextClass) {
+        this.ctx = new AudioContextClass();
+      }
     }
-    if (this.ctx.state === 'suspended') {
+    if (this.ctx && this.ctx.state === 'suspended') {
       this.ctx.resume();
     }
   }
 
-  private tone({
-    type = 'sine',
-    startFreq,
-    endFreq,
-    gainAmount,
-    duration,
-    delay = 0,
-  }: {
-    type?: OscillatorType;
-    startFreq: number;
-    endFreq?: number;
-    gainAmount: number;
-    duration: number;
-    delay?: number;
-  }) {
+  private loadAndPlay(url: string, volume: number = 0.5) {
+    if (typeof window === 'undefined') return;
+    try {
+      if (!this.audioCache[url]) {
+        this.audioCache[url] = new Audio(url);
+        this.audioCache[url].preload = 'auto';
+      }
+      const audio = this.audioCache[url];
+      audio.volume = volume;
+      audio.currentTime = 0;
+      audio.play().catch(() => {
+        // Silently handle autoplay blocks
+      });
+    } catch (e) {
+      console.error("Audio error:", e);
+    }
+  }
+
+  private tone(options: ToneOptions) {
     if (!this.ctx) return;
+    const {
+      type = 'sine',
+      startFreq,
+      endFreq,
+      gainAmount,
+      duration,
+      delay = 0,
+      attack = 0.005
+    } = options;
 
     const now = this.ctx.currentTime + delay;
     const osc = this.ctx.createOscillator();
@@ -45,7 +99,7 @@ class SoundEngine {
     }
 
     gain.gain.setValueAtTime(0.0001, now);
-    gain.gain.linearRampToValueAtTime(gainAmount, now + 0.005);
+    gain.gain.linearRampToValueAtTime(gainAmount, now + attack);
     gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
 
     osc.connect(gain);
@@ -55,185 +109,84 @@ class SoundEngine {
     osc.stop(now + duration);
   }
 
-  public playPing(intensity: number = 1) {
+  // 🚀 NEXUS CORE SOUNDS
+  public playWelcome() {
+    this.loadAndPlay(NEXUS_SOUNDS.WELCOME, 0.6);
+  }
+
+  public playLike() {
+    this.loadAndPlay(NEXUS_SOUNDS.LIKE, 0.7);
+  }
+
+  public playDislike() {
+    this.loadAndPlay(NEXUS_SOUNDS.DISLIKE, 0.5);
+  }
+
+  public playNotification() {
+    this.loadAndPlay(NEXUS_SOUNDS.NOTIFICATION, 0.4);
+  }
+
+  public playUploadComplete() {
+    this.loadAndPlay(NEXUS_SOUNDS.UPLOAD, 0.5);
+  }
+
+  public playStarShoot() {
+    const randomUrl = STAR_SOUNDS[Math.floor(Math.random() * STAR_SOUNDS.length)];
+    this.loadAndPlay(randomUrl, 0.3);
+  }
+
+  // 🧪 TACTILE SYNTHETIC SOUNDS (Refined)
+  public playWaterDrop() {
     try {
       this.init();
       if (!this.ctx) return;
-
-      // iOS-style crystalline ping — two-note shimmer
-      this.tone({
-        type: 'sine',
-        startFreq: 1100 * intensity,
-        endFreq: 880 * intensity,
-        gainAmount: 0.03 * intensity,
-        duration: 0.08,
-      });
-      this.tone({
-        type: 'triangle',
-        startFreq: 1650 * intensity,
-        endFreq: 1320 * intensity,
-        gainAmount: 0.015 * intensity,
-        duration: 0.06,
-        delay: 0.015,
-      });
+      this.tone({ type: 'sine', startFreq: 1400, endFreq: 1800, gainAmount: 0.1, duration: 0.08, attack: 0.005 });
     } catch (_e) {}
   }
 
-  public playPop() {
+  public playZenBowl() {
     try {
       this.init();
       if (!this.ctx) return;
-
-      // Soft bubble pop — rounded low-to-high
-      this.tone({
-        type: 'sine',
-        startFreq: 300,
-        endFreq: 520,
-        gainAmount: 0.045,
-        duration: 0.04,
-      });
-      this.tone({
-        type: 'triangle',
-        startFreq: 600,
-        endFreq: 440,
-        gainAmount: 0.02,
-        duration: 0.04,
-        delay: 0.02,
-      });
+      const fundamental = 174.61;
+      this.tone({ type: 'sine', startFreq: fundamental, gainAmount: 0.12, duration: 3.0, attack: 0.08 });
     } catch (_e) {}
   }
 
-  public playSwoosh() {
+  public playTap() {
+    // 🪵 SUBTLE TACTILE POP
     try {
       this.init();
       if (!this.ctx) return;
-
-      const noise = this.ctx.createBufferSource();
-      const bufferSize = this.ctx.sampleRate * 0.2;
-      const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
-      const data = buffer.getChannelData(0);
-
-      for (let i = 0; i < bufferSize; i++) {
-        data[i] = Math.random() * 2 - 1;
-      }
-
-      noise.buffer = buffer;
-
-      const filter = this.ctx.createBiquadFilter();
-      filter.type = 'lowpass';
-      filter.frequency.setValueAtTime(2000, this.ctx.currentTime);
-      filter.frequency.exponentialRampToValueAtTime(100, this.ctx.currentTime + 0.2);
-
-      const gain = this.ctx.createGain();
-      gain.gain.setValueAtTime(0.02, this.ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.2);
-
-      noise.connect(filter);
-      filter.connect(gain);
-      gain.connect(this.ctx.destination);
-
-      noise.start();
+      this.tone({ type: 'sine', startFreq: 300, endFreq: 150, gainAmount: 0.05, duration: 0.03 });
     } catch (_e) {}
+  }
+
+  public playPing() {
+    this.playWaterDrop();
+  }
+
+  public playCategorySelect() {
+    try {
+      this.init();
+      if (!this.ctx) return;
+      this.tone({ type: 'sine', startFreq: 800, endFreq: 1200, gainAmount: 0.04, duration: 0.04, attack: 0.005 });
+    } catch (_e) {}
+  }
+
+  public playCardSwipe(direction: 'left' | 'right' = 'right') {
+    if (direction === 'right') {
+      this.playLike();
+    } else {
+      this.playDislike();
+    }
   }
 
   public playSwitch() {
     try {
       this.init();
       if (!this.ctx) return;
-
-      // iOS toggle switch — clean two-note click
-      this.tone({
-        type: 'sine',
-        startFreq: 1046,
-        endFreq: 784,
-        gainAmount: 0.025,
-        duration: 0.045,
-      });
-      this.tone({
-        type: 'triangle',
-        startFreq: 1568,
-        endFreq: 1175,
-        gainAmount: 0.012,
-        duration: 0.035,
-        delay: 0.02,
-      });
-    } catch (_e) {}
-  }
-
-  public playTap() {
-    try {
-      this.init();
-      if (!this.ctx) return;
-
-      // Minimal haptic tap — barely-there click
-      this.tone({
-        type: 'sine',
-        startFreq: 1000,
-        endFreq: 800,
-        gainAmount: 0.25,
-        duration: 0.025,
-      });
-    } catch (_e) {}
-  }
-
-  /** Card swipe whoosh — quick directional sweep */
-  public playCardSwipe(direction: 'left' | 'right' = 'right') {
-    try {
-      this.init();
-      if (!this.ctx) return;
-
-      const ctx = this.ctx;
-      const now = ctx.currentTime;
-
-      // Filtered noise burst
-      const noise = ctx.createBufferSource();
-      const len = Math.round(ctx.sampleRate * 0.12);
-      const buf = ctx.createBuffer(1, len, ctx.sampleRate);
-      const ch = buf.getChannelData(0);
-      for (let i = 0; i < len; i++) ch[i] = Math.random() * 2 - 1;
-      noise.buffer = buf;
-
-      const filter = ctx.createBiquadFilter();
-      filter.type = 'bandpass';
-      filter.Q.value = 1.2;
-      const freqStart = direction === 'right' ? 1400 : 2000;
-      const freqEnd = direction === 'right' ? 2800 : 800;
-      filter.frequency.setValueAtTime(freqStart, now);
-      filter.frequency.exponentialRampToValueAtTime(freqEnd, now + 0.1);
-
-      const gain = ctx.createGain();
-      gain.gain.setValueAtTime(0.0001, now);
-      gain.gain.linearRampToValueAtTime(0.018, now + 0.015);
-      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.12);
-
-      noise.connect(filter);
-      filter.connect(gain);
-      gain.connect(ctx.destination);
-      noise.start(now);
-      noise.stop(now + 0.12);
-
-      // Subtle tonal accent
-      this.tone({
-        type: 'sine',
-        startFreq: direction === 'right' ? 660 : 880,
-        endFreq: direction === 'right' ? 880 : 660,
-        gainAmount: 0.012,
-        duration: 0.07,
-        delay: 0.01,
-      });
-    } catch (_e) {}
-  }
-
-  /** Category select — bright staccato confirmation */
-  public playCategorySelect() {
-    try {
-      this.init();
-      if (!this.ctx) return;
-
-      // Three-note rising arpeggio (C6-E6-G6) — very fast, very quiet
-      this.tone({ type: 'sine', startFreq: 1047, endFreq: 1047, gainAmount: 0.022, duration: 0.04 });
-      this.tone({ type: 'sine', startFreq: 1319, endFreq: 1319, gainAmount: 0.02, duration: 0.035, delay: 0.03 });
-      this.tone({ type: 'triangle', startFreq: 1568, endFreq: 1568, gainAmount: 0.016, duration: 0.05, delay: 0.055 });
+      this.tone({ type: 'sine', startFreq: 660, endFreq: 440, gainAmount: 0.012, duration: 0.06 });
     } catch (_e) {}
   }
 
@@ -241,9 +194,7 @@ class SoundEngine {
     try {
       this.init();
       if (!this.ctx) return;
-
-      this.tone({ type: 'triangle', startFreq: 340, endFreq: 520, gainAmount: 0.028, duration: 0.09 });
-      this.tone({ type: 'sine', startFreq: 660, endFreq: 920, gainAmount: 0.015, duration: 0.07, delay: 0.025 });
+      this.tone({ type: 'sine', startFreq: 220, endFreq: 440, gainAmount: 0.02, duration: 0.1 });
     } catch (_e) {}
   }
 
@@ -251,34 +202,25 @@ class SoundEngine {
     try {
       this.init();
       if (!this.ctx) return;
-
-      this.tone({ type: 'triangle', startFreq: 680, endFreq: 360, gainAmount: 0.024, duration: 0.08 });
-      this.tone({ type: 'sine', startFreq: 320, endFreq: 250, gainAmount: 0.012, duration: 0.06, delay: 0.02 });
+      this.tone({ type: 'sine', startFreq: 440, endFreq: 220, gainAmount: 0.018, duration: 0.08 });
     } catch (_e) {}
   }
 
-  public playAutoSendOn() {
+  public playPop(_volume: number = 1) {
     try {
       this.init();
       if (!this.ctx) return;
-
-      this.tone({ type: 'sine', startFreq: 380, endFreq: 420, gainAmount: 0.018, duration: 0.05 });
-      this.tone({ type: 'sine', startFreq: 520, endFreq: 580, gainAmount: 0.02, duration: 0.05, delay: 0.04 });
-      this.tone({ type: 'triangle', startFreq: 700, endFreq: 820, gainAmount: 0.018, duration: 0.07, delay: 0.075 });
+      this.tone({ type: 'sine', startFreq: 600, endFreq: 200, gainAmount: 0.06, duration: 0.05 });
     } catch (_e) {}
   }
 
-  public playAutoSendOff() {
+  public playMessageSent() {
     try {
       this.init();
       if (!this.ctx) return;
-
-      this.tone({ type: 'triangle', startFreq: 720, endFreq: 520, gainAmount: 0.02, duration: 0.06 });
-      this.tone({ type: 'sine', startFreq: 460, endFreq: 300, gainAmount: 0.015, duration: 0.08, delay: 0.035 });
+      this.tone({ type: 'sine', startFreq: 880, endFreq: 1320, gainAmount: 0.04, duration: 0.08 });
     } catch (_e) {}
   }
 }
 
 export const uiSounds = new SoundEngine();
-
-

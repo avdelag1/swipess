@@ -2,17 +2,19 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { MapPin, User, Calendar, MessageCircle, CheckCircle, Trash2, Ban, Flag, ChevronLeft, ChevronRight, X, Briefcase, Sparkles, Star } from 'lucide-react';
+import { MapPin, User, Calendar, MessageCircle, CheckCircle, Trash2, Ban, Flag, ChevronLeft, ChevronRight, X, Briefcase, Sparkles, Star, Share2, TrendingUp, Zap, Clock, Target, Users, Shield, Award, ThumbsUp, Eye, Flame, ShieldCheck } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { PropertyImageGallery } from './PropertyImageGallery';
 import { useNavigate } from 'react-router-dom';
 import { useStartConversation } from '@/hooks/useConversations';
 import { toast } from '@/components/ui/sonner';
-import { useState, useEffect, useCallback, memo } from 'react';
+import { useState, useEffect, useCallback, memo, useMemo } from 'react';
 import { logger } from '@/utils/prodLogger';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { CompactRatingDisplay } from './RatingDisplay';
 import { RatingSubmissionDialog } from './RatingSubmissionDialog';
+import { cn } from '@/lib/utils';
 import { useUserRatingAggregate } from '@/hooks/useRatingSystem';
 import {
   AlertDialog,
@@ -27,6 +29,8 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { ReportDialog } from './ReportDialog';
+import { ShareDialog } from './ShareDialog';
 
 interface LikedClient {
   id: string;
@@ -64,12 +68,50 @@ function LikedClientInsightsModalComponent({ open, onOpenChange, client }: Liked
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showBlockDialog, setShowBlockDialog] = useState(false);
   const [showReportDialog, setShowReportDialog] = useState(false);
+  const [showShareDialog, setShowShareDialog] = useState(false);
   const [showRatingDialog, setShowRatingDialog] = useState(false);
-  const [reportReason, setReportReason] = useState('');
-  const [reportDetails, setReportDetails] = useState('');
 
   // Fetch rating aggregate for this client
   const { data: ratingAggregate } = useUserRatingAggregate(client?.user_id);
+
+  // Calculate renter insights based on client data
+  const renterInsights = useMemo(() => {
+    if (!client) return null;
+
+    const interestCount = client.interests?.length || 0;
+    const hasBio = !!client.bio && client.bio.length > 50;
+    const hasOccupation = !!client.occupation;
+    const isVerified = !!client.verified;
+    const hasIncome = !!client.monthly_income;
+
+    // Calculate readiness score (0-100)
+    let readinessScore = 0;
+    if (isVerified) readinessScore += 30;
+    if (hasOccupation) readinessScore += 20;
+    if (hasIncome) readinessScore += 20;
+    if (hasBio) readinessScore += 15;
+    if (interestCount >= 3) readinessScore += 15;
+    else if (interestCount >= 1) readinessScore += 5;
+
+    // Activity level based on profile completion
+    const activityLevel = readinessScore >= 80 ? 'Very High' : readinessScore >= 50 ? 'High' : 'Moderate';
+    
+    // Match potential
+    const matchPotential = readinessScore >= 75 ? 'Excellent' : readinessScore >= 50 ? 'Strong' : 'Good';
+
+    // Determining the "Why this renter" highlight
+    let highlight = "Serious candidate with verified background.";
+    if (!isVerified && hasOccupation) highlight = "Professionally stable candidate.";
+    if (readinessScore < 50) highlight = "New explorer looking for the right fit.";
+
+    return {
+      readinessScore: Math.min(100, readinessScore),
+      activityLevel,
+      matchPotential,
+      highlight,
+      isHotProspect: readinessScore >= 85,
+    };
+  }, [client]);
 
   const clientImages = client?.profile_images || client?.images || [];
 
@@ -165,44 +207,7 @@ function LikedClientInsightsModalComponent({ open, onOpenChange, client }: Liked
     }
   });
 
-  // Report mutation
-  const reportMutation = useMutation({
-    mutationFn: async ({ reason, details }: { reason: string; details: string }) => {
-      const { data: user } = await supabase.auth.getUser();
-      if (!user.user || !client) throw new Error('Not authenticated');
 
-      const { error } = await supabase
-        .from('user_reports')
-        .insert({
-          reporter_id: user.user.id,
-          reported_user_id: client.user_id,
-          report_reason: reason,
-          report_details: details,
-          status: 'pending'
-        });
-
-      if (error) {
-        logger.error('Report submission error:', error);
-        throw error;
-      }
-    },
-    onSuccess: () => {
-      toast({
-        title: 'Report submitted',
-        description: "We'll review it shortly.",
-      });
-      setShowReportDialog(false);
-      setReportReason('');
-      setReportDetails('');
-    },
-    onError: () => {
-      toast({
-        title: 'Error',
-        description: 'Failed to submit report.',
-        variant: 'destructive',
-      });
-    }
-  });
 
   const handleDelete = () => {
     setShowDeleteDialog(true);
@@ -225,17 +230,6 @@ function LikedClientInsightsModalComponent({ open, onOpenChange, client }: Liked
     setShowReportDialog(true);
   };
 
-  const handleSubmitReport = () => {
-    if (!reportReason) {
-      toast({
-        title: 'Error',
-        description: 'Please select a reason for your report.',
-        variant: 'destructive',
-      });
-      return;
-    }
-    reportMutation.mutate({ reason: reportReason, details: reportDetails });
-  };
 
   const handlePrevImage = () => {
     setCurrentImageIndex((prev) => (prev === 0 ? clientImages.length - 1 : prev - 1));
@@ -291,9 +285,13 @@ function LikedClientInsightsModalComponent({ open, onOpenChange, client }: Liked
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent
-          className="w-full max-w-lg h-[92dvh] max-h-[92dvh] p-0 overflow-hidden bg-[#0a0a0f] border-0 rounded-[2.5rem]"
+          className="w-full max-w-lg h-[92dvh] max-h-[92dvh] p-0 overflow-hidden bg-[#0a0a0f] border-0 rounded-[2.5rem] shadow-[0_32px_80px_rgba(0,0,0,0.8)]"
           hideCloseButton
         >
+          {/* 🛸 NEXUS ATMOSPHERE */}
+          <div className="absolute top-[-20%] left-[-20%] w-[100%] h-[100%] bg-[#EB4898]/10 rounded-full blur-[120px] pointer-events-none" />
+          <div className="absolute bottom-[-20%] right-[-20%] w-[100%] h-[100%] bg-violet-600/10 rounded-full blur-[120px] pointer-events-none" />
+
           <div className="flex flex-col h-full">
             {/* Floating nav buttons */}
             <div className="absolute top-4 left-4 right-4 z-30 flex items-center justify-between pointer-events-none">
@@ -354,8 +352,14 @@ function LikedClientInsightsModalComponent({ open, onOpenChange, client }: Liked
                       <Sparkles className="w-3 h-3 text-white" />
                       <span className="text-[10px] font-black uppercase tracking-widest text-white">Liked</span>
                     </div>
+                    {renterInsights?.isHotProspect && (
+                      <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-red-600/90 backdrop-blur-md">
+                        <Zap className="w-3 h-3 text-white" />
+                        <span className="text-[10px] font-black uppercase tracking-widest text-white">Hot Prospect</span>
+                      </div>
+                    )}
                     {client.verified && (
-                      <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/80 backdrop-blur-md">
+                      <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-violet-500/80 backdrop-blur-md border border-white/10">
                         <CheckCircle className="w-3 h-3 text-white" />
                         <span className="text-[10px] font-black uppercase tracking-widest text-white">Verified</span>
                       </div>
@@ -383,7 +387,7 @@ function LikedClientInsightsModalComponent({ open, onOpenChange, client }: Liked
                   <div>
                     <h2 className="text-[22px] font-black text-white leading-tight tracking-tight flex items-center gap-2">
                       {client.name}
-                      {client.verified && <CheckCircle className="w-5 h-5 text-emerald-400 flex-shrink-0" />}
+                      {client.verified && <CheckCircle className="w-5 h-5 text-violet-400 flex-shrink-0" />}
                     </h2>
                     <div className="flex flex-wrap items-center gap-3 mt-2">
                       {client.age && (
@@ -447,23 +451,86 @@ function LikedClientInsightsModalComponent({ open, onOpenChange, client }: Liked
                   <div className="grid grid-cols-2 gap-2.5">
                     <div className={`flex items-center gap-3 p-3.5 rounded-2xl border ${
                       client.verified
-                        ? 'bg-emerald-500/[0.07] border-emerald-500/20'
+                        ? 'bg-violet-500/[0.07] border-violet-500/20'
                         : 'bg-white/[0.03] border-white/[0.07]'
                     }`}>
-                      <CheckCircle className={`w-5 h-5 flex-shrink-0 ${client.verified ? 'text-emerald-400' : 'text-white/20'}`} />
+                      <CheckCircle className={`w-5 h-5 flex-shrink-0 ${client.verified ? 'text-violet-400' : 'text-white/20'}`} />
                       <div>
                         <p className="text-[12px] font-black text-white">ID Verified</p>
                         <p className="text-[10px] text-white/35">{client.verified ? 'Confirmed' : 'Pending'}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3 p-3.5 bg-white/[0.03] rounded-2xl border border-white/[0.07]">
-                      <MapPin className="w-5 h-5 text-white/20 flex-shrink-0" />
+                      <Eye className="w-5 h-5 text-white/20 flex-shrink-0" />
                       <div>
                         <p className="text-[12px] font-black text-white">Photos</p>
                         <p className="text-[10px] text-white/35">{clientImages.length} uploaded</p>
                       </div>
                     </div>
                   </div>
+
+                  {/* Behavioral Insights — 🚀 NEXUS POLISH */}
+                  {renterInsights && (
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between px-1">
+                        <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-white/30">Nexus Behavioral Analysis</h4>
+                        <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-white/5 border border-white/10">
+                          <Zap className="w-3 h-3 text-[#EB4898] fill-current" />
+                          <span className="text-[9px] font-black text-white uppercase tracking-wider">Live Insights</span>
+                        </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="p-4 rounded-[24px] bg-white/5 border border-white/10 backdrop-blur-xl group hover:bg-white/10 transition-all">
+                          <div className="flex items-center gap-2 mb-2">
+                            <TrendingUp className="w-3.5 h-3.5 text-blue-400" />
+                            <span className="text-[10px] text-white/40 uppercase font-black tracking-widest">Readiness</span>
+                          </div>
+                          <div className="text-2xl font-black text-white">{renterInsights.readinessScore}%</div>
+                          <div className="mt-3 h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+                            <motion.div 
+                              initial={{ width: 0 }}
+                              animate={{ width: `${renterInsights.readinessScore}%` }}
+                              className="h-full bg-gradient-to-r from-blue-500 to-violet-500"
+                            />
+                          </div>
+                        </div>
+                        
+                        <div className="p-4 rounded-[24px] bg-white/5 border border-white/10 backdrop-blur-xl group hover:bg-white/10 transition-all">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Flame className="w-3.5 h-3.5 text-rose-500 fill-current" />
+                            <span className="text-[10px] text-white/40 uppercase font-black tracking-widest">Activity</span>
+                          </div>
+                          <div className="text-2xl font-black text-white uppercase tracking-tight">{renterInsights.activityLevel}</div>
+                        </div>
+                      </div>
+
+                      <div className="p-5 rounded-[28px] bg-white/5 border border-white/10 backdrop-blur-xl relative overflow-hidden group">
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center">
+                               <ShieldCheck className="w-5 h-5 text-[#EB4898]" />
+                            </div>
+                            <div>
+                              <p className="text-[10px] font-black text-white/40 uppercase tracking-widest leading-none mb-1">Match Convergence</p>
+                              <p className="text-lg font-black text-white uppercase tracking-tight">{renterInsights.matchPotential} Potential</p>
+                            </div>
+                          </div>
+                          <div className="text-xl font-black text-[#EB4898]">Elite</div>
+                        </div>
+                        <p className="text-[11px] text-white/50 leading-relaxed font-medium mb-4">
+                          {renterInsights.highlight}
+                        </p>
+                        <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden border border-white/5">
+                          <motion.div 
+                            initial={{ width: 0 }}
+                            animate={{ width: '88%' }}
+                            className="h-full bg-gradient-to-r from-[#EB4898] to-[#FF4D00] rounded-full"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                   {/* Rating */}
                   <div className="space-y-2">
@@ -496,7 +563,11 @@ function LikedClientInsightsModalComponent({ open, onOpenChange, client }: Liked
                 {isCreatingConversation ? 'Starting...' : 'Send Message'}
               </Button>
 
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-4 gap-2">
+                <Button onClick={() => setShowShareDialog(true)} variant="ghost" size="sm"
+                  className="h-10 bg-blue-500/[0.07] hover:bg-blue-500/[0.15] border border-blue-500/20 text-blue-400 rounded-xl text-[11px] font-black uppercase tracking-wide">
+                  <Share2 className="w-3.5 h-3.5 mr-1.5" /> Share
+                </Button>
                 <Button onClick={handleDelete} variant="ghost" size="sm"
                   className="h-10 bg-red-500/[0.07] hover:bg-red-500/[0.15] border border-red-500/20 text-red-400 rounded-xl text-[11px] font-black uppercase tracking-wide"
                   disabled={deleteMutation.isPending}>
@@ -508,8 +579,7 @@ function LikedClientInsightsModalComponent({ open, onOpenChange, client }: Liked
                   <Ban className="w-3.5 h-3.5 mr-1.5" /> Block
                 </Button>
                 <Button onClick={handleReport} variant="ghost" size="sm"
-                  className="h-10 bg-amber-500/[0.07] hover:bg-amber-500/[0.15] border border-amber-500/20 text-amber-400 rounded-xl text-[11px] font-black uppercase tracking-wide"
-                  disabled={reportMutation.isPending}>
+                  className="h-10 bg-amber-500/[0.07] hover:bg-amber-500/[0.15] border border-amber-500/20 text-amber-400 rounded-xl text-[11px] font-black uppercase tracking-wide">
                   <Flag className="w-3.5 h-3.5 mr-1.5" /> Report
                 </Button>
               </div>
@@ -577,64 +647,25 @@ function LikedClientInsightsModalComponent({ open, onOpenChange, client }: Liked
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Report Dialog */}
-      <Dialog open={showReportDialog} onOpenChange={setShowReportDialog}>
-        <DialogContent className="sm:max-w-md rounded-2xl">
-          <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <Flag className="w-5 h-5 text-yellow-500" />
-              <h3 className="text-lg font-semibold">Report Client</h3>
-            </div>
-            <div className="space-y-3">
-              <Label>Reason for report</Label>
-              <RadioGroup value={reportReason} onValueChange={setReportReason} className="space-y-2">
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="fake_profile" id="fake_profile" />
-                  <Label htmlFor="fake_profile" className="font-normal">Fake or misleading profile</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="inappropriate" id="inappropriate" />
-                  <Label htmlFor="inappropriate" className="font-normal">Inappropriate content</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="harassment" id="harassment" />
-                  <Label htmlFor="harassment" className="font-normal">Harassment or abusive behavior</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="spam" id="spam" />
-                  <Label htmlFor="spam" className="font-normal">Spam or scam</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="other" id="other" />
-                  <Label htmlFor="other" className="font-normal">Other</Label>
-                </div>
-              </RadioGroup>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="details">Additional details (optional)</Label>
-              <Textarea
-                id="details"
-                placeholder="Please provide any additional information..."
-                value={reportDetails}
-                onChange={(e) => setReportDetails(e.target.value)}
-                className="min-h-[100px] rounded-xl"
-              />
-            </div>
-            <div className="flex gap-2 pt-2">
-              <Button variant="outline" onClick={() => setShowReportDialog(false)} className="flex-1 rounded-xl">
-                Cancel
-              </Button>
-              <Button
-                onClick={handleSubmitReport}
-                disabled={!reportReason || reportMutation.isPending}
-                className="flex-1 bg-yellow-600 hover:bg-yellow-700 text-white rounded-xl"
-              >
-                {reportMutation.isPending ? "Submitting..." : "Submit Report"}
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+      {/* Report and Share Dialogs */}
+      {client && (
+        <>
+          <ReportDialog
+            open={showReportDialog}
+            onOpenChange={setShowReportDialog}
+            reportedUserId={client.user_id}
+            reportedUserName={client.name}
+            category="user_profile"
+          />
+          <ShareDialog
+            open={showShareDialog}
+            onOpenChange={setShowShareDialog}
+            profileId={client.user_id}
+            title={client.name}
+            description={client.bio}
+          />
+        </>
+      )}
 
       {/* Rating Submission Dialog */}
       {client && (

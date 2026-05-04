@@ -3,12 +3,12 @@ import { useCallback, memo } from 'react';
 import { triggerHaptic } from '@/utils/haptics';
 
 /**
- * 🚀 ZenithLink: The fastest link in the universe
+ * 🚀 SwipessLink: The fastest link in the universe
  * - Automatically prefetches the route's JS chunk on hover/touch
  * - Integrated haptic feedback for premium feel
  * - Eliminates 'Loading...' flickers for navigated pages
  */
-export const ZenithLink = memo(({ 
+export const SwipessLink = memo(({ 
   to, 
   children, 
   prefetch = true,
@@ -26,7 +26,7 @@ export const ZenithLink = memo(({
     // For now, we'll use a custom window event that App.tsx can listen to if we want global prefetching,
     // or just let the browser handle the connection pre-warming.
     
-    const prefetchEvent = new CustomEvent('zenith-prefetch', { detail: { path: to } });
+    const prefetchEvent = new CustomEvent('swipess-prefetch', { detail: { path: to } });
     window.dispatchEvent(prefetchEvent);
   }, [to, prefetch]);
 

@@ -5,33 +5,22 @@ import { useRadio } from '@/contexts/RadioContext';
 import { getStationById, getStationsByCity } from '@/data/radioStations';
 import { CityLocation } from '@/types/radio';
 import { StationDrawer } from '@/components/radio/retro/StationDrawer';
-import { FrequencyBand } from '@/components/radio/FrequencyBand';
 import { triggerHaptic } from '@/utils/haptics';
 import { cn } from '@/lib/utils';
 import useAppTheme from '@/hooks/useAppTheme';
-import {
-  ArrowLeft, Star, Heart,
-  SkipBack, SkipForward, Play, Pause, Volume2, ListMusic
-} from 'lucide-react';
-import { AtmosphericLayer } from '@/components/AtmosphericLayer';
+import { ArrowLeft, Heart, SkipBack, SkipForward, Play, Pause, Volume2, ListMusic, Star, Shuffle } from 'lucide-react';
 
-/**
- * DJTurntableRadio — Clean FM Tuner interface (Apple-inspired redesign).
- * Horizontal touch-draggable frequency band, large frequency display,
- * premium controls.
- */
 export default function DJTurntableRadio() {
   const navigate = useNavigate();
   const {
     state, play, togglePlayPause, togglePower, changeStation,
-    setCity, setVolume, toggleFavorite, isStationFavorite,
+    setCity, setVolume, toggleFavorite, isStationFavorite, shuffleAndPlay
   } = useRadio();
   const { isDark } = useAppTheme();
 
   const [showDrawer, setShowDrawer] = useState(false);
-  const [showFavoritesDrawer, setShowFavoritesDrawer] = useState(false);
+  const [drawerMode, setDrawerMode] = useState<'all' | 'favorites'>('all');
 
-  // POWER ON / INITIALIZATION GUARD
   const hasInitRef = useRef(false);
   useEffect(() => {
     if (hasInitRef.current) return;
@@ -40,7 +29,6 @@ export default function DJTurntableRadio() {
     if (!state.isPlaying) play();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Keyboard shortcuts
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement) return;
@@ -57,15 +45,6 @@ export default function DJTurntableRadio() {
   }, [state.volume, togglePlayPause, changeStation, setVolume]);
 
   const cityStations = useMemo(() => getStationsByCity(state.currentCity), [state.currentCity]);
-  const stationFrequencies = useMemo(() => cityStations.map(s => parseFloat(s.frequency) || 93.1), [cityStations]);
-  const currentFrequency = parseFloat(state.currentStation?.frequency || '93.1');
-
-  const handleFrequencyChange = useCallback((freq: number) => {
-    const station = cityStations.find(s => Math.abs(parseFloat(s.frequency) - freq) < 0.15);
-    if (station && station.id !== state.currentStation?.id) {
-      play(station);
-    }
-  }, [cityStations, state.currentStation, play]);
 
   const handleCitySelect = useCallback((city: CityLocation) => {
     setCity(city);
@@ -77,235 +56,267 @@ export default function DJTurntableRadio() {
     if (station) play(station);
     triggerHaptic('medium');
     setShowDrawer(false);
-    setShowFavoritesDrawer(false);
   }, [play]);
 
-  const neumBtn = isDark
-    ? 'bg-white/[0.12] border border-white/[0.15] shadow-[0_8px_32px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.15)]'
-    : 'bg-white border border-slate-300 shadow-[6px_6px_22px_rgba(0,0,0,0.08),-4px_-4px_18px_rgba(255,255,255,1)]';
+  const bg = isDark ? '#080808' : '#f5f5f5';
+  const glowColor = isDark ? 'rgba(255,60,0,0.12)' : 'rgba(255,60,0,0.07)';
+  const textPrimary = isDark ? '#ffffff' : '#000000';
+  const textMuted = isDark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.35)';
+  const btnBg = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
+  const btnBorder = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
 
-  const neumBtnActive = 'active:scale-[0.94] transition-transform duration-[40ms]';
+  const isFav = isStationFavorite(state.currentStation?.id || '');
 
   return (
-    <div 
-      className={cn("relative w-full h-full flex flex-col overflow-hidden transition-colors duration-500", isDark ? "bg-[#0A0A0A]" : "bg-white")}
-      id="main-radio-content"
+    <div
+      className="relative w-full h-full flex flex-col overflow-hidden"
+      style={{ background: bg }}
     >
-      <AtmosphericLayer variant="primary" />
-      
-      {/* ── Top Navigation ── */}
-      <div className="w-full flex justify-between items-center px-6 pt-[calc(env(safe-area-inset-top)+20px)] relative z-20">
+      {/* Ambient glow */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background: `radial-gradient(ellipse 70% 50% at 50% 40%, ${glowColor}, transparent 70%)`,
+        }}
+      />
+
+      {/* Top bar */}
+      <div
+        className="relative z-10 w-full flex items-center justify-between px-5"
+        style={{ paddingTop: 'calc(env(safe-area-inset-top) + 16px)', paddingBottom: 12 }}
+      >
         <button
           onClick={() => navigate('/dashboard')}
-          className={cn(
-            "w-12 h-12 rounded-full flex items-center justify-center transition-all active:scale-90",
-            isDark ? "bg-white/10 text-white hover:bg-white/20" : "bg-black/5 text-black hover:bg-black/10"
-          )}
+          className="w-11 h-11 rounded-full flex items-center justify-center active:scale-90 transition-transform"
+          style={{ background: btnBg, border: `1px solid ${btnBorder}`, color: textPrimary }}
         >
-          <ArrowLeft size={20} />
+          <ArrowLeft size={18} />
         </button>
 
         <button
-          onClick={() => { navigate('/radio/directory'); triggerHaptic('medium'); }}
-          className={cn(
-            "w-12 h-12 rounded-full flex items-center justify-center transition-all active:scale-90",
-            isDark ? "bg-white/10 text-white hover:bg-white/20" : "bg-black/5 text-black hover:bg-black/10"
-          )}
-          title="Radio Directory"
+          onClick={() => { triggerHaptic('medium'); navigate('/radio/directory'); }}
+          className="w-11 h-11 rounded-full flex items-center justify-center active:scale-90 transition-transform"
+          style={{ background: btnBg, border: `1px solid ${btnBorder}`, color: textPrimary }}
         >
-          <ListMusic size={20} />
+          <ListMusic size={18} />
         </button>
       </div>
 
-      {/* ── Main Content ── */}
-      <div className="flex-1 flex flex-col items-center justify-between px-4 pb-32">
-        
-        {/* Info cluster */}
-        <div className="flex flex-col items-center text-center relative w-full mb-8">
-          <p className={cn("text-[10px] font-black uppercase tracking-[0.3em] opacity-60 flex items-center gap-2", isDark ? "text-white" : "text-black")}>
-            <span className={cn("w-2 h-2 rounded-full animate-pulse", isDark ? "bg-blue-400" : "bg-primary")} />
-            Live from {state.currentCity || 'Miami'}
-          </p>
+      {/* Center — station info */}
+      <div className="flex-1 flex flex-col items-center justify-center relative z-10 px-6">
+
+        {/* Live badge */}
+        <div className="flex items-center gap-2 mb-10">
+          <span
+            className="w-2 h-2 rounded-full"
+            style={{
+              background: '#FF3B30',
+              boxShadow: state.isPlaying ? '0 0 8px #FF3B30' : 'none',
+              animation: state.isPlaying ? 'pulse 2s infinite' : 'none',
+            }}
+          />
+          <span
+            className="text-[10px] font-bold uppercase tracking-[0.35em]"
+            style={{ color: textMuted }}
+          >
+            {state.currentCity || 'Miami'}
+          </span>
         </div>
 
-        {/* Large Frequency Display */}
-        <div className="flex-1 flex flex-col items-center justify-center w-full min-h-[250px] relative">
-          {/* Record Player Visualizer */}
-          <div className="absolute inset-0 flex items-center justify-center z-0 overflow-hidden pointer-events-none">
-            {/* Spinning Record */}
-            <motion.div
-              animate={state.isPlaying ? { rotate: 360 } : {}}
-              transition={{ repeat: Infinity, duration: 6, ease: "linear" }}
-              className={cn(
-                "w-[240px] h-[240px] sm:w-[320px] sm:h-[320px] rounded-full relative shadow-2xl",
-                "border-[12px] border-black/90 ring-1 ring-white/20",
-                isDark ? "shadow-black/60" : "shadow-black/20"
-              )}
+        {/* Frequency */}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={state.currentStation?.id || 'default'}
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -16 }}
+            transition={{ duration: 0.25, ease: [0.25, 0, 0, 1] }}
+            className="flex flex-col items-center"
+          >
+            <span
+              className="font-black italic leading-none select-none transition-all duration-700"
               style={{
-                background: `radial-gradient(circle, #222 30%, #111 60%, #000 100%)`,
+                fontSize: 'clamp(4rem, 18vw, 7.5rem)',
+                color: textPrimary,
+                letterSpacing: '-0.05em',
+                textShadow: isDark ? '0 10px 80px rgba(255,61,0,0.15)' : 'none',
               }}
             >
-              {/* Record Grooves */}
-              <div className="absolute inset-0 rounded-full border border-white/5 opacity-20" style={{ backgroundImage: 'repeating-radial-gradient(circle, transparent 0, transparent 2px, rgba(255,255,255,0.05) 3px)' }} />
-              
-              {/* Album Art Label */}
-              <div className="absolute inset-[30%] rounded-full overflow-hidden border-4 border-black/40 shadow-inner">
-                <img 
-                  src={state.currentStation?.albumArt || "https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?auto=format&fit=crop&q=80&w=800"} 
-                  className="w-full h-full object-cover"
-                  alt=""
-                />
-              </div>
-              
-              {/* Spindle Hole */}
-              <div className="absolute inset-[47%] rounded-full bg-black/80 border border-white/20 shadow-inner" />
-            </motion.div>
-          </div>
+              {state.currentStation?.frequency || '94.2'}
+            </span>
 
-          <AnimatePresence mode="wait">
+            <span
+              className="text-[10px] font-bold uppercase tracking-[0.5em] mt-2"
+              style={{ color: '#FF3B30', opacity: 0.8 }}
+            >
+              FM Stereo
+            </span>
+
+            <span
+              className="text-sm font-bold uppercase tracking-[0.18em] mt-5 text-center"
+              style={{ color: textPrimary, opacity: 0.75 }}
+            >
+              {state.currentStation?.name || 'Discovery Radio'}
+            </span>
+          </motion.div>
+        </AnimatePresence>
+
+        {/* Waveform bars — only when playing */}
+        <div className="flex items-end gap-[3px] mt-10 h-6">
+          {Array.from({ length: 16 }).map((_, i) => (
             <motion.div
-              key={state.currentStation?.id || 'none'}
-              initial={{ opacity: 0, scale: 1.1, filter: 'blur(8px)' }}
-              animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
-              exit={{ opacity: 0, scale: 0.95, filter: 'blur(8px)' }}
-              transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-              className="text-center relative z-10"
-            >
-              <div className={cn('text-[82px] sm:text-[96px] font-black leading-none tracking-tight drop-shadow-[0_8px_32px_rgba(0,0,0,0.4)]', isDark ? 'text-white' : 'text-black')}>
-                {state.currentStation?.frequency || '95.7'}
-              </div>
-              <div className={cn('text-lg font-black tracking-[0.4em] uppercase mt-1 drop-shadow-sm', isDark ? 'text-blue-400' : 'text-primary')}>
-                FM
-              </div>
-              <div className={cn('text-sm font-black mt-4 tracking-widest uppercase opacity-90 drop-shadow-md', isDark ? 'text-white' : 'text-black')}>
-                {state.currentStation?.name || 'Golden Oldies'}
-              </div>
-            </motion.div>
-          </AnimatePresence>
+              key={i}
+              className="w-[3px] rounded-full"
+              style={{ background: '#FF3B30', opacity: state.isPlaying ? 0.7 : 0.15 }}
+              animate={state.isPlaying ? {
+                height: ['6px', `${8 + Math.random() * 16}px`, '6px'],
+              } : { height: '4px' }}
+              transition={{
+                duration: 0.5 + Math.random() * 0.5,
+                repeat: Infinity,
+                repeatType: 'mirror',
+                delay: i * 0.06,
+                ease: 'easeInOut',
+              }}
+            />
+          ))}
         </div>
+      </div>
 
-        {/* Frequency Band */}
-        <div className="w-full mb-6">
-          <FrequencyBand
-            stationFrequencies={stationFrequencies}
-            currentFrequency={currentFrequency}
-            onFrequencyChange={handleFrequencyChange}
-            isDark={isDark}
-          />
-        </div>
-
-        {/* ── Playback Controls ── */}
-        <div className="flex flex-col items-center gap-5 w-full pb-32">
-          
-          <div className="flex items-center gap-5">
-            <button
-              onClick={() => { if (state.currentStation) { toggleFavorite(state.currentStation.id); triggerHaptic('success'); } }}
-              className={cn('w-12 h-12 rounded-full flex items-center justify-center', neumBtn, neumBtnActive)}
-            >
-              <Heart
-                className={cn('w-5 h-5', isStationFavorite(state.currentStation?.id || '') ? 'text-red-500' : (isDark ? 'text-white/35' : 'text-black/50'))}
-                fill={isStationFavorite(state.currentStation?.id || '') ? 'currentColor' : 'none'}
-              />
-            </button>
-
+      {/* Bottom — controls + volume */}
+      <div
+        className="relative z-10 flex flex-col items-center gap-8 px-8"
+        style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 32px)' }}
+      >
+        {/* Controls row */}
+        <div className="flex flex-col items-center gap-6 sm:gap-8 w-full">
+          {/* Primary Controls: Floating Tactical Hub */}
+          <div className="flex items-center justify-center gap-4 sm:gap-8 relative">
+            {/* Skip back */}
             <button
               onClick={() => { changeStation('prev'); triggerHaptic('medium'); }}
-              className={cn('w-14 h-14 rounded-full flex items-center justify-center', neumBtn, neumBtnActive)}
+              className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center active:scale-90 transition-all border group"
+              style={{ background: btnBg, borderColor: btnBorder, color: textPrimary }}
             >
-              <SkipBack className={cn('w-6 h-6', isDark ? 'text-white' : 'text-black')} fill="currentColor" />
+              <SkipBack size={18} fill="currentColor" className="transition-transform group-hover:-translate-x-0.5" />
             </button>
 
-            <button
+            {/* Play / Pause: The Pulse */}
+            <motion.button
               onClick={() => { togglePlayPause(); triggerHaptic('heavy'); }}
-              style={{
-                background: isDark ? '#ffffff' : '#1a1a1a',
-                boxShadow: isDark
-                  ? '0 0 0 1px rgba(255,255,255,0.3), 0 20px 60px rgba(255,255,255,0.5), 0 10px 30px rgba(255,255,255,0.3)'
-                  : '0 20px 60px rgba(0,0,0,0.25), 0 10px 30px rgba(0,0,0,0.15)',
-              }}
-              className="w-24 h-24 rounded-full flex items-center justify-center relative transition-all duration-300 active:scale-90 hover:scale-105 z-20"
+              whileTap={{ scale: 0.92 }}
+              className="w-16 h-16 sm:w-20 sm:h-20 rounded-[2rem] flex items-center justify-center transition-all shadow-2xl relative overflow-hidden group"
+              style={{ background: '#FF3D00' }}
             >
+              <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
               {state.isPlaying
-                ? <Pause className={cn("w-10 h-10", isDark ? "text-black" : "text-white")} fill="currentColor" />
-                : <Play className={cn("w-10 h-10 ml-1", isDark ? "text-black" : "text-white")} fill="currentColor" />
+                ? <Pause size={24} className="text-white fill-white" />
+                : <Play size={24} className="text-white fill-white translate-x-0.5" />
               }
-              
-              {/* Playback Ripple Effect */}
-              {state.isPlaying && (
-                <motion.div
-                  initial={{ scale: 0.8, opacity: 0.5 }}
-                  animate={{ scale: 1.5, opacity: 0 }}
-                  transition={{ repeat: Infinity, duration: 2, ease: "easeOut" }}
-                  className={cn("absolute inset-0 rounded-full z-[-1]", isDark ? "bg-white/20" : "bg-black/10")}
-                />
-              )}
-            </button>
+            </motion.button>
 
+            {/* Skip forward */}
             <button
               onClick={() => { changeStation('next'); triggerHaptic('medium'); }}
-              className={cn('w-14 h-14 rounded-full flex items-center justify-center', neumBtn, neumBtnActive)}
+              className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center active:scale-90 transition-all border group"
+              style={{ background: btnBg, borderColor: btnBorder, color: textPrimary }}
             >
-              <SkipForward className={cn('w-6 h-6', isDark ? 'text-white' : 'text-black')} fill="currentColor" />
+              <SkipForward size={18} fill="currentColor" className="transition-transform group-hover:translate-x-0.5" />
             </button>
+          </div>
 
+          {/* Secondary Actions Row: Glass Micro-Controls */}
+          <div className="flex items-center justify-center gap-8 sm:gap-14">
+            {/* Heart (Likes) */}
             <button
-              onClick={() => { setShowFavoritesDrawer(true); triggerHaptic('medium'); }}
-              className={cn('w-12 h-12 rounded-full flex items-center justify-center relative', neumBtn, neumBtnActive)}
+              onClick={() => { if (state.currentStation) { toggleFavorite(state.currentStation.id); triggerHaptic('success'); } }}
+              className="w-10 h-10 rounded-xl flex items-center justify-center active:scale-90 transition-all border group"
+              style={{ background: btnBg, borderColor: isFav ? '#FF3D00' : btnBorder }}
+              title="Like Station"
             >
-              <Star className={cn('w-5 h-5', isDark ? 'text-white/35' : 'text-black/50')} />
-              {state.favorites.length > 0 && (
-                <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-red-500" />
-              )}
+              <Heart
+                size={16}
+                style={{ color: isFav ? '#FF3D00' : textMuted }}
+                fill={isFav ? '#FF3D00' : 'none'}
+                className={cn("transition-all", isFav && "drop-shadow-[0_0_8px_rgba(255,61,0,0.5)]")}
+              />
+            </button>
+
+            {/* Shuffle */}
+            <button
+              onClick={() => { triggerHaptic('medium'); shuffleAndPlay(cityStations); }}
+              className="w-10 h-10 rounded-xl flex items-center justify-center active:scale-90 transition-all border group"
+              style={{ 
+                background: state.isShuffle ? 'rgba(255,61,0,0.1)' : btnBg, 
+                borderColor: state.isShuffle ? '#FF3D00' : btnBorder, 
+                color: state.isShuffle ? '#FF3D00' : textPrimary 
+              }}
+              title="Shuffle City Stations"
+            >
+              <Shuffle size={16} className={cn("transition-transform duration-700", state.isShuffle ? "rotate-180" : "group-hover:rotate-45")} />
+            </button>
+
+            {/* Favorites (Star) */}
+            <button
+              onClick={() => { setDrawerMode('favorites'); setShowDrawer(true); triggerHaptic('medium'); }}
+              className="w-10 h-10 rounded-xl flex items-center justify-center active:scale-90 transition-all border"
+              style={{ background: btnBg, borderColor: btnBorder, color: textPrimary }}
+              title="View Favorites"
+            >
+              <Star size={16} fill={isDark ? "white" : "black"} className="opacity-40" />
             </button>
           </div>
+        </div>
 
-          <div className="w-full px-10">
-            <div className="flex items-center justify-between mb-2 px-1">
-              <div className="flex items-center gap-2 opacity-40">
-                <Volume2 size={12} className={isDark ? 'text-white' : 'text-black'} />
-                <span className={cn("text-[10px] font-black uppercase tracking-widest", isDark ? 'text-white' : 'text-black')}>Volume</span>
-              </div>
-              <span className={cn("text-[10px] font-black tabular-nums tracking-wider", isDark ? 'text-blue-400' : 'text-primary')}>
-                {Math.round(state.volume * 100)}%
-              </span>
-            </div>
-            <div className="relative w-full h-10 flex items-center">
-              <div className={cn('absolute w-full h-[4px] rounded-full', isDark ? 'bg-white/[0.08]' : 'bg-black/[0.06]')}>
-                <div
-                  className="h-full rounded-full transition-none"
-                  style={{
-                    width: `${state.volume * 100}%`,
-                    background: isDark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.25)',
-                  }}
-                />
-              </div>
-              <input
-                type="range"
-                min="0"
-                max="1"
-                step="0.01"
-                value={state.volume}
-                onChange={(e) => {
-                  const val = parseFloat(e.target.value);
-                  setVolume(val);
-                  if (Math.floor(val * 20) !== Math.floor(state.volume * 20)) triggerHaptic('light');
-                }}
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                aria-label="Volume"
-              />
+        {/* Volume */}
+        <div className="w-full flex items-center gap-3">
+          <Volume2 size={14} style={{ color: textMuted, flexShrink: 0 }} />
+          <div className="relative flex-1 h-8 flex items-center">
+            <div
+              className="absolute w-full h-[3px] rounded-full"
+              style={{ background: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' }}
+            >
               <div
-                className={cn('absolute w-5 h-5 rounded-full pointer-events-none', isDark ? 'bg-white' : 'bg-black')}
-                style={{ left: `calc(${state.volume * 100}% - 10px)` }}
+                className="h-full rounded-full"
+                style={{
+                  width: `${state.volume * 100}%`,
+                  background: textPrimary,
+                  opacity: 0.6,
+                }}
               />
             </div>
+            <input
+              type="range"
+              min="0"
+              max="1"
+              step="0.01"
+              value={state.volume}
+              onChange={(e) => {
+                const val = parseFloat(e.target.value);
+                setVolume(val);
+                if (Math.floor(val * 20) !== Math.floor(state.volume * 20)) triggerHaptic('light');
+              }}
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+              aria-label="Volume"
+            />
+            <div
+              className="absolute w-4 h-4 rounded-full pointer-events-none shadow-md"
+              style={{ left: `calc(${state.volume * 100}% - 8px)`, background: textPrimary }}
+            />
           </div>
+          <span
+            className="text-[10px] font-bold tabular-nums w-8 text-right"
+            style={{ color: textMuted }}
+          >
+            {Math.round(state.volume * 100)}
+          </span>
         </div>
       </div>
 
       <StationDrawer
-        isOpen={showDrawer || showFavoritesDrawer}
-        onClose={() => { setShowDrawer(false); setShowFavoritesDrawer(false); }}
-        isFavoritesView={showFavoritesDrawer}
+        isOpen={showDrawer}
+        onClose={() => setShowDrawer(false)}
+        isFavoritesView={drawerMode === 'favorites'}
         currentCity={state.currentCity}
         currentStation={state.currentStation}
         isPlaying={state.isPlaying}
@@ -313,6 +324,7 @@ export default function DJTurntableRadio() {
         onCitySelect={handleCitySelect}
         onStationSelect={handleStationSelect}
         onToggleFavorite={toggleFavorite}
+        onShuffle={shuffleAndPlay}
       />
     </div>
   );

@@ -57,7 +57,7 @@ export function AIListingTrigger({ glassPillStyle }: AIListingTriggerProps) {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <motion.button
-          whileTap={{ scale: 0.9 }}
+          whileTap={{ scale: 0.96 }}
           onClick={() => setOpen(true)}
           onPointerDown={(e) => {
             e.preventDefault();
@@ -66,18 +66,18 @@ export function AIListingTrigger({ glassPillStyle }: AIListingTriggerProps) {
           }}
           style={glassPillStyle}
           className={cn(
-            "w-11 h-11 flex items-center justify-center p-0 rounded-full relative group transition-all duration-500",
-            "bg-gradient-to-br from-indigo-600 via-purple-600 to-rose-500 shadow-[0_0_15px_rgba(99,102,241,0.4)]"
+            "w-8 h-8 flex items-center justify-center p-0 rounded-[1rem] relative group transition-all duration-500",
+            "bg-gradient-to-br from-indigo-600 via-purple-600 to-rose-500 shadow-[0_4px_15px_rgba(99,102,241,0.3)]"
           )}
           title="Magic AI Listing"
         >
-          <div className="absolute inset-0 rounded-full bg-white opacity-0 group-hover:opacity-20 transition-opacity" />
+          <div className="absolute inset-0 rounded-[1rem] bg-white opacity-0 group-hover:opacity-20 transition-opacity" />
           <Sparkles 
-            className="w-5 h-5 text-white group-hover:scale-110 transition-all duration-300 drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]" 
+            className="w-4 h-4 text-white group-hover:scale-105 transition-all duration-300 drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]" 
             strokeWidth={2.5} 
           />
           {/* Pulsing ring for flagship visibility */}
-          <div className="absolute inset-0 rounded-full border-2 border-white/20 animate-[ping_3s_infinite] opacity-50" />
+          <div className="absolute inset-0 rounded-[1rem] border-2 border-white/20 animate-[ping_3s_infinite] opacity-50" />
         </motion.button>
       </DialogTrigger>
       

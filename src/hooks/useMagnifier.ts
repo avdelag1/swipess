@@ -38,6 +38,7 @@ interface UseMagnifierReturn {
     onPointerLeave: (e: React.PointerEvent) => void;
   };
   isActive: () => boolean;
+  wasActive: () => boolean;
   isHoldPending: () => boolean;
 }
 
@@ -56,6 +57,9 @@ export function useMagnifier(config: MagnifierConfig = {}): UseMagnifierReturn {
   const startPosRef = useRef<{ x: number; y: number } | null>(null);
   const pointerIdRef = useRef<number | null>(null);
   const savedOverflowsRef = useRef<{ el: HTMLElement; overflow: string }[]>([]);
+
+  const wasActiveRef = useRef(false);
+  const isMovingRef = useRef(false);
 
   const magnifierState = useRef<MagnifierState>({
     isActive: false,
@@ -85,16 +89,30 @@ export function useMagnifier(config: MagnifierConfig = {}): UseMagnifierReturn {
     return null;
   }, []);
 
-  const applyZoomPan = useCallback((clientX: number, clientY: number) => {
+  const currentPosRef = useRef({ x: 0, y: 0 });
+  const targetPosRef = useRef({ x: 0, y: 0 });
+
+  const applyZoomPan = useCallback((clientX: number, clientY: number, immediate = false) => {
     const container = containerRef.current;
     const img = imageRef.current || findImage();
     if (!container || !img) return;
 
     const rect = container.getBoundingClientRect();
 
+    // SMOOTHING: Use lerp to prevent jittery movement
+    if (immediate) {
+      currentPosRef.current = { x: clientX, y: clientY };
+    } else {
+      const lerp = 0.15; // Smooth but responsive
+      currentPosRef.current.x += (clientX - currentPosRef.current.x) * lerp;
+      currentPosRef.current.y += (clientY - currentPosRef.current.y) * lerp;
+    }
+
+    const { x, y } = currentPosRef.current;
+
     // Clamp finger position to container bounds for smooth edge behavior
-    const nx = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
-    const ny = Math.max(0, Math.min(1, (clientY - rect.top) / rect.height));
+    const nx = Math.max(0, Math.min(1, (x - rect.left) / rect.width));
+    const ny = Math.max(0, Math.min(1, (y - rect.top) / rect.height));
 
     const maxTx = ((scale - 1) / 2) * rect.width;
     const maxTy = ((scale - 1) / 2) * rect.height;
@@ -109,6 +127,8 @@ export function useMagnifier(config: MagnifierConfig = {}): UseMagnifierReturn {
   }, [scale, findImage]);
 
   const activateMagnifier = useCallback((x: number, y: number, target: Element | null) => {
+    if (isMovingRef.current) return;
+    
     magnifierState.current = { isActive: true, x, y };
     triggerHaptic('light');
     onActiveChange?.(true);
@@ -121,40 +141,34 @@ export function useMagnifier(config: MagnifierConfig = {}): UseMagnifierReturn {
       } catch (_err) { /* ignore if already captured */ }
     }
 
-    // FIX: Walk up from <img> past container AND its parent (motion.div with overflow-hidden)
-    // This prevents the zoomed image from being clipped by parent divs
-    const img = imageRef.current;
-    const container = containerRef.current;
-    if (img && container) {
-      savedOverflowsRef.current = [];
-      // Walk up 2 levels past container to also clear overflow on the drag wrapper (motion.div)
-      const stopAt = container.parentElement?.parentElement || container.parentElement;
-      let el: HTMLElement | null = img.parentElement;
-      while (el && el !== stopAt) {
-        savedOverflowsRef.current.push({ el, overflow: el.style.overflow });
-        el.style.overflow = 'visible';
-        el = el.parentElement;
-      }
-    }
+    savedOverflowsRef.current = [];
 
+    const img = imageRef.current;
     if (img) {
       img.style.transition = 'transform 0.18s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
     }
-    applyZoomPan(x, y);
+    applyZoomPan(x, y, true);
 
     setTimeout(() => {
       if (imageRef.current && magnifierState.current.isActive) {
         imageRef.current.style.transition = 'none';
       }
     }, 200);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [applyZoomPan, findImage]);
+  }, [applyZoomPan, findImage, onActiveChange]);
 
   const deactivateMagnifier = useCallback(() => {
     if (!magnifierState.current.isActive && !holdTimerRef.current) return;
+    
     const wasActive = magnifierState.current.isActive;
     magnifierState.current = { isActive: false, x: 0, y: 0 };
-    if (wasActive) onActiveChange?.(false);
+    
+    if (wasActive) {
+      onActiveChange?.(false);
+      wasActiveRef.current = true;
+      setTimeout(() => {
+        wasActiveRef.current = false;
+      }, 150); // Grace period to prevent photo changes on lift
+    }
 
     if (holdTimerRef.current) {
       clearTimeout(holdTimerRef.current);
@@ -173,7 +187,6 @@ export function useMagnifier(config: MagnifierConfig = {}): UseMagnifierReturn {
     }
     pointerIdRef.current = null;
 
-    // FIX: Restore all saved overflow values
     for (const { el, overflow } of savedOverflowsRef.current) {
       el.style.overflow = overflow || '';
     }
@@ -190,8 +203,8 @@ export function useMagnifier(config: MagnifierConfig = {}): UseMagnifierReturn {
     }
 
     startPosRef.current = null;
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    isMovingRef.current = false;
+  }, [onActiveChange]);
 
   const updateMagnifier = useCallback((x: number, y: number) => {
     if (!magnifierState.current.isActive) return;
@@ -200,7 +213,7 @@ export function useMagnifier(config: MagnifierConfig = {}): UseMagnifierReturn {
 
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
     rafRef.current = requestAnimationFrame(() => {
-      applyZoomPan(x, y);
+      applyZoomPan(x, y, false);
     });
   }, [applyZoomPan]);
 
@@ -211,12 +224,16 @@ export function useMagnifier(config: MagnifierConfig = {}): UseMagnifierReturn {
 
     pointerIdRef.current = e.pointerId;
     startPosRef.current = { x: e.clientX, y: e.clientY };
+    isMovingRef.current = false;
 
-    // Store the event target for later pointer capture
     const target = e.currentTarget;
 
+    try {
+      (target as HTMLElement).setPointerCapture(e.pointerId);
+    } catch (_err) { /* ignore */ }
+
     holdTimerRef.current = window.setTimeout(() => {
-      if (startPosRef.current) {
+      if (startPosRef.current && !isMovingRef.current) {
         activateMagnifier(startPosRef.current.x, startPosRef.current.y, target);
       }
     }, holdDelay);
@@ -225,7 +242,6 @@ export function useMagnifier(config: MagnifierConfig = {}): UseMagnifierReturn {
   const onPointerMove = useCallback((e: React.PointerEvent) => {
     if (!e.isPrimary) return;
 
-    // If zoomed, ALWAYS follow the finger — this is the key behavior
     if (magnifierState.current.isActive) {
       e.preventDefault();
       e.stopPropagation();
@@ -233,24 +249,23 @@ export function useMagnifier(config: MagnifierConfig = {}): UseMagnifierReturn {
       return;
     }
 
-    // Before activation: update start position if finger moves slightly
-    // This way activation uses the CURRENT finger position, not the stale initial one
     if (holdTimerRef.current && startPosRef.current) {
       const dx = Math.abs(e.clientX - startPosRef.current.x);
       const dy = Math.abs(e.clientY - startPosRef.current.y);
-      // Only cancel if clearly swiping (large movement)
-      if (dx > 15 || dy > 15) {
+      
+      // If they move too much, it's a swipe, not a hold
+      // LOOSENED: 25px tolerance for natural finger micro-movement
+      if (dx > 25 || dy > 25) {
+        isMovingRef.current = true;
         clearTimeout(holdTimerRef.current);
         holdTimerRef.current = null;
-        startPosRef.current = null;
-      } else {
-        // Keep updating position so activation zooms where finger IS
-        startPosRef.current = { x: e.clientX, y: e.clientY };
       }
+      // CRITICAL: Do NOT update startPosRef.current here. 
+      // Keeping it locked to the initial onPointerDown position prevents "photo swimming" 
+      // where the zoom center drifts while the user is still waiting for activation.
     }
   }, [updateMagnifier]);
 
-  // ONLY deactivate on finger lift — NOT on leave
   const onPointerUp = useCallback((e: React.PointerEvent) => {
     if (!e.isPrimary) return;
     deactivateMagnifier();
@@ -261,12 +276,12 @@ export function useMagnifier(config: MagnifierConfig = {}): UseMagnifierReturn {
     deactivateMagnifier();
   }, [deactivateMagnifier]);
 
-  // Do NOT deactivate on pointer leave — pointer capture keeps tracking
   const onPointerLeave = useCallback((_e: React.PointerEvent) => {
-    // Intentionally empty: zoom stays active until finger lifts
+    // Keep active
   }, []);
 
   const isActive = useCallback(() => magnifierState.current.isActive, []);
+  const wasActive = useCallback(() => wasActiveRef.current, []);
   const isHoldPending = useCallback(() => holdTimerRef.current !== null, []);
 
   return {
@@ -280,6 +295,7 @@ export function useMagnifier(config: MagnifierConfig = {}): UseMagnifierReturn {
       onPointerLeave,
     },
     isActive,
+    wasActive,
     isHoldPending,
   };
 }
