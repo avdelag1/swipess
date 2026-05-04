@@ -132,8 +132,8 @@ export function useMagnifier(config: MagnifierConfig = {}): UseMagnifierReturn {
 
     if (target instanceof HTMLElement) {
       target.style.touchAction = 'none';
-      target.style.webkitTouchCallout = 'none';
-      target.style.webkitUserSelect = 'none';
+      target.style.setProperty('-webkit-touch-callout', 'none');
+      target.style.setProperty('-webkit-user-select', 'none');
       target.style.userSelect = 'none';
     }
 
