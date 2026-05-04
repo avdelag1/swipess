@@ -85,6 +85,10 @@ export function useMagnifier(config: MagnifierConfig = {}): UseMagnifierReturn {
     if (!containerRef.current) return null;
     const img = containerRef.current.querySelector('img');
     if (img && img.complete) {
+      img.draggable = false;
+      img.style.pointerEvents = 'none';
+      img.style.setProperty('-webkit-user-drag', 'none');
+      img.style.setProperty('-webkit-touch-callout', 'none');
       imageRef.current = img;
       return img;
     }
@@ -227,12 +231,14 @@ export function useMagnifier(config: MagnifierConfig = {}): UseMagnifierReturn {
       rafRef.current = null;
     }
 
-    // Release pointer capture
-    if (containerRef.current && pointerIdRef.current !== null) {
+    // Release pointer capture from the same element that captured it.
+    const captureTarget = activeTargetRef.current || containerRef.current;
+    if (captureTarget && pointerIdRef.current !== null) {
       try {
-        containerRef.current.releasePointerCapture(pointerIdRef.current);
+        captureTarget.releasePointerCapture(pointerIdRef.current);
       } catch (_err) { /* ignore */ }
     }
+    activeTargetRef.current = null;
     pointerIdRef.current = null;
 
     if (windowListenersRef.current) {
