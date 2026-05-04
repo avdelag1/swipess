@@ -2,7 +2,7 @@ import { useState, useCallback, useRef, useEffect, useMemo, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   X, Send, Mic, Sparkles, Plus, 
-  Trash2, Menu, Zap, Flame, Sun, Crown, Moon, 
+  Trash2, Menu, Zap, Flame, Sun, Crown, Moon, History, ArrowUp,
   Copy, Languages, Timer, ArrowRight, RefreshCw, Volume2, VolumeX
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
