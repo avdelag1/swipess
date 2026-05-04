@@ -22,6 +22,23 @@ function shuffleArray<T extends { id: string }>(arr: T[], excludeId?: string): T
   return a;
 }
 
+/**
+ * Reorder a shuffled queue so recently-played stations are pushed to the back.
+ * Guarantees no station from `recent` appears in the first N slots (where
+ * N = min(recent.length, queue.length-1)). Prevents 2-3 quick repeats.
+ */
+function avoidRecent<T extends { id: string }>(queue: T[], recent: string[]): T[] {
+  if (queue.length <= 1 || recent.length === 0) return queue;
+  const recentSet = new Set(recent);
+  const fresh: T[] = [];
+  const stale: T[] = [];
+  for (const item of queue) {
+    if (recentSet.has(item.id)) stale.push(item);
+    else fresh.push(item);
+  }
+  return [...fresh, ...stale];
+}
+
 interface RadioContextType {
   state: RadioPlayerState;
   loading: boolean;
@@ -109,6 +126,15 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
   // Shuffle queue: pre-shuffled list of ALL stations
   const shuffleQueueRef = useRef<RadioStation[]>([]);
   const shuffleIndexRef = useRef<number>(0);
+  // Track the last N played station ids so shuffle never repeats within window
+  const recentPlayedRef = useRef<string[]>([]);
+  const RECENT_WINDOW = 8;
+  const pushRecent = (id: string) => {
+    const arr = recentPlayedRef.current.filter(x => x !== id);
+    arr.push(id);
+    while (arr.length > RECENT_WINDOW) arr.shift();
+    recentPlayedRef.current = arr;
+  };
 
   // Filter out dead stations from the master list
   const activeStations = useMemo(() => {
