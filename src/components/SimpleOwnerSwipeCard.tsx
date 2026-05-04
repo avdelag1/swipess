@@ -104,7 +104,7 @@ const CardImage = memo(({
   if (isPlaceholder) return <PlaceholderImage name={name} />;
 
   return (
-    <div className="absolute inset-0 w-full h-full" style={{ zIndex: 1, overflow: 'hidden', borderRadius: fullScreen ? 'var(--radius-md)' : undefined }}>
+    <div className="absolute inset-0 w-full h-full" style={{ zIndex: 1, overflow: 'hidden', borderRadius: 0 }}>
       <div className="absolute inset-0 bg-zinc-800" style={{ opacity: loaded ? 0 : 1, transition: 'opacity 150ms ease-out' }} />
       <img
         src={src}
@@ -114,7 +114,7 @@ const CardImage = memo(({
         style={{
           transition: 'opacity 150ms ease-out',
           animation: loaded ? 'photo-swim 12s ease-in-out infinite' : 'none',
-          borderRadius: fullScreen ? 'var(--radius-md)' : undefined,
+          borderRadius: 0,
           WebkitTouchCallout: 'none',
           WebkitUserSelect: 'none',
           userSelect: 'none',
@@ -331,7 +331,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
 
   if (!isTop) {
     return (
-      <div className="absolute inset-0 overflow-hidden" style={{ pointerEvents: 'none', borderRadius: 'var(--radius-md)' }}>
+      <div className="absolute inset-0 overflow-hidden" style={{ pointerEvents: 'none', borderRadius: 0 }}>
         <div className="absolute inset-0">
           <CardImage src={currentImage} alt={profile.name || 'Client'} name={profile.name} fullScreen={true} />
         </div>
@@ -360,7 +360,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
         style={{
           x, y, rotate: cardRotate, opacity: cardOpacity, willChange: 'transform, opacity',
           transform: 'translate3d(0,0,0)', backfaceVisibility: 'hidden',
-          borderRadius: 'var(--radius-md)',
+          borderRadius: 0,
           boxShadow: 'none',
           background: 'hsl(var(--background))',
         }}
