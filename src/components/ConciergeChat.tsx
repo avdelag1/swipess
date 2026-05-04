@@ -33,7 +33,7 @@ const NAV_LABELS: Record<string, string> = {
   '/client/profile': 'My Profile',
   '/client/settings': 'Settings',
   '/subscription/packages': 'View Packages',
-  '/client/liked': 'Liked Properties',
+  '/client/liked': 'Liked Listings',
   '/owner/listings': 'My Listings',
   '/legal': 'Legal Section',
   '/events': 'Browse Events',

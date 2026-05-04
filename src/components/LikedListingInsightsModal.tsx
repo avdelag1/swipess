@@ -101,6 +101,11 @@ function LikedListingInsightsModalComponent({ open, onOpenChange, listing }: Lik
     // Listing urgency
     const isHotListing = qualityScore >= 75 && listing.status === 'available';
 
+    // Human-friendly entity labels
+    const entityLabel = isWorker ? 'Professional' : isVehicle ? 'Vehicle' : category === 'roommate' ? 'Roommate' : 'Listing';
+    const entityLabelLower = entityLabel.toLowerCase();
+    const ownerLabel = isWorker ? 'Provider' : isVehicle ? 'Seller' : category === 'roommate' ? 'User' : 'Owner';
+
     return {
       pricePerSqft,
       qualityScore: Math.min(100, qualityScore),
@@ -117,6 +122,9 @@ function LikedListingInsightsModalComponent({ open, onOpenChange, listing }: Lik
       isProperty,
       demandLevel,
       isHotListing,
+      entityLabel,
+      entityLabelLower,
+      ownerLabel,
     };
   }, [listing]);
 
@@ -149,14 +157,14 @@ function LikedListingInsightsModalComponent({ open, onOpenChange, listing }: Lik
       queryClient.invalidateQueries({ queryKey: ['liked-properties'] });
       toast({
         title: 'Removed from favorites',
-        description: 'Property removed from your liked list.',
+        description: `${propertyInsights?.entityLabel ?? 'Item'} removed from your liked list.`,
       });
       onOpenChange(false);
     },
     onError: () => {
       toast({
         title: 'Error',
-        description: 'Failed to remove property from liked list.',
+        description: `Failed to remove ${propertyInsights?.entityLabelLower ?? 'item'} from liked list.`,
         variant: 'destructive',
       });
     }
@@ -250,7 +258,7 @@ function LikedListingInsightsModalComponent({ open, onOpenChange, listing }: Lik
     if (!listing?.owner_id) {
       toast({
         title: 'Error',
-        description: 'Property owner information not available',
+        description: `${propertyInsights?.ownerLabel ?? 'Owner'} information not available`,
         variant: 'destructive',
       });
       return;
@@ -266,7 +274,7 @@ function LikedListingInsightsModalComponent({ open, onOpenChange, listing }: Lik
       const result = await startConversation.mutateAsync({
         otherUserId: listing.owner_id,
         listingId: listing.id,
-        initialMessage: `Hi! I'm interested in your property: ${listing.title}. Could you tell me more about it?`,
+        initialMessage: `Hi! I'm interested in your ${propertyInsights?.entityLabelLower ?? 'listing'}: ${listing.title}. Could you tell me more about it?`,
         canStartNewConversation: true,
       });
 
@@ -326,7 +334,7 @@ function LikedListingInsightsModalComponent({ open, onOpenChange, listing }: Lik
                 <div className="relative h-[44vw] max-h-[280px] min-h-[200px] w-full overflow-hidden rounded-t-[2.5rem]">
                   <img
                     src={images[currentImageIndex]}
-                    alt={`Property photo ${currentImageIndex + 1}`}
+                    alt={`${propertyInsights?.entityLabel ?? 'Listing'} photo ${currentImageIndex + 1}`}
                     className="w-full h-full object-cover cursor-pointer"
                     onClick={handleImageClick}
                   />
@@ -593,7 +601,7 @@ function LikedListingInsightsModalComponent({ open, onOpenChange, listing }: Lik
                       className="mt-3 w-full rounded-xl bg-amber-500/10 border-amber-500/20 text-amber-400 hover:bg-amber-500/20"
                     >
                       <Star className="w-4 h-4 mr-2" />
-                      Rate this Property
+                      Rate this {propertyInsights?.entityLabel ?? 'Listing'}
                     </Button>
                   </div>
                 </div>
@@ -608,7 +616,7 @@ function LikedListingInsightsModalComponent({ open, onOpenChange, listing }: Lik
                 className="w-full h-13 bg-gradient-to-r from-[#EB4898] to-[#FF4D00] hover:brightness-110 text-white font-black text-sm uppercase tracking-wider rounded-2xl shadow-lg shadow-[#EB4898]/20 border-0 active:scale-[0.98] transition-all"
               >
                 <MessageCircle className="w-5 h-5 mr-2" />
-                {isCreatingConversation ? 'Starting...' : 'Message Owner'}
+                {isCreatingConversation ? 'Starting...' : `Message ${propertyInsights?.ownerLabel ?? 'Owner'}`}
               </Button>
 
               <div className="grid grid-cols-4 gap-2">
@@ -653,10 +661,10 @@ function LikedListingInsightsModalComponent({ open, onOpenChange, listing }: Lik
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
               <Trash2 className="w-5 h-5 text-red-500" />
-              Remove from Liked Properties
+              Remove from Liked {propertyInsights?.entityLabel ? `${propertyInsights.entityLabel}s` : 'Items'}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to remove this property from your liked list? You can always like it again later.
+              Are you sure you want to remove this {propertyInsights?.entityLabelLower ?? 'item'} from your liked list? You can always like it again later.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -723,7 +731,7 @@ function LikedListingInsightsModalComponent({ open, onOpenChange, listing }: Lik
           onOpenChange={setShowRatingDialog}
           targetId={listing.id}
           targetType="listing"
-          targetName={listing.title || 'This Property'}
+          targetName={listing.title || `This ${propertyInsights?.entityLabel ?? 'Listing'}`}
           categoryId="property"
           onSuccess={() => {
             toast({
