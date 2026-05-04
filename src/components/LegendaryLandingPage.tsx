@@ -115,14 +115,14 @@ const LandingView = memo(({
       >
         <button
           onClick={() => { triggerHaptic('medium'); onEnterAuth('login'); }}
-          className="w-full h-14 rounded-[2rem] bg-white text-black font-black uppercase tracking-[0.25em] text-[12px] shadow-[0_15px_45px_rgba(255,255,255,0.18)] active:scale-[0.97] transition-all flex items-center justify-center gap-3 border border-white/20"
+          className="w-full h-14 rounded-[2rem] bg-gradient-to-b from-[#FF6A1A] to-[#FF4D00] text-white font-black uppercase tracking-[0.25em] text-[12px] shadow-[0_15px_45px_rgba(255,77,0,0.45)] active:scale-[0.97] transition-all flex items-center justify-center gap-3 border border-white/15"
         >
           <LogIn className="w-4 h-4" />
           Sign In
         </button>
         <button
           onClick={() => { triggerHaptic('medium'); onEnterAuth('signup'); }}
-          className="w-full h-14 rounded-[2rem] bg-black text-white font-black uppercase tracking-[0.25em] text-[12px] shadow-[0_12px_36px_rgba(0,0,0,0.55)] active:scale-[0.97] transition-all flex items-center justify-center gap-3 border border-white/20 hover:opacity-90"
+          className="w-full h-14 rounded-[2rem] bg-white/[0.06] backdrop-blur-xl text-white font-black uppercase tracking-[0.25em] text-[12px] shadow-[0_12px_36px_rgba(0,0,0,0.45)] active:scale-[0.97] transition-all flex items-center justify-center gap-3 border border-white/20 hover:bg-white/[0.1]"
         >
           <Sparkles className="w-4 h-4" />
           Create Account
@@ -325,7 +325,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
               className={cn(
                 "flex-1 h-12 rounded-[1.8rem] font-black uppercase tracking-[0.2em] text-[10px] transition-all active:scale-[0.97]",
                 isLogin
-                  ? "bg-white text-black shadow-[0_10px_30px_rgba(255,255,255,0.18)]"
+                  ? "bg-gradient-to-b from-[#FF6A1A] to-[#FF4D00] text-white shadow-[0_10px_30px_rgba(255,77,0,0.4)]"
                   : "text-white/30 hover:text-white/50"
               )}
             >
@@ -337,7 +337,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
               className={cn(
                 "flex-1 h-12 rounded-[1.8rem] font-black uppercase tracking-[0.2em] text-[10px] transition-all active:scale-[0.97]",
                 !isLogin
-                  ? "bg-black text-white border border-white/20 shadow-[0_10px_30px_rgba(0,0,0,0.5)]"
+                  ? "bg-gradient-to-b from-[#FF6A1A] to-[#FF4D00] text-white shadow-[0_10px_30px_rgba(255,77,0,0.4)]"
                   : "text-white/30 hover:text-white/50"
               )}
             >
@@ -442,7 +442,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full h-15 rounded-[2.5rem] bg-white text-black font-black uppercase tracking-[0.3em] text-[13px] shadow-[0_20px_50px_rgba(255,255,255,0.18)] active:scale-[0.96] transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:pointer-events-none relative overflow-hidden group/btn border border-white/20"
+              className="w-full h-15 rounded-[2.5rem] bg-gradient-to-b from-[#FF6A1A] to-[#FF4D00] text-white font-black uppercase tracking-[0.3em] text-[13px] shadow-[0_20px_50px_rgba(255,77,0,0.45)] active:scale-[0.96] transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:pointer-events-none relative overflow-hidden group/btn border border-white/15"
             >
               <div className="absolute inset-0 bg-white/10 opacity-0 group-hover/btn:opacity-100 transition-opacity" />
               <Sparkles className="w-4 h-4 transition-transform group-hover/btn:rotate-12 group-hover/btn:scale-110" />
