@@ -1,58 +1,47 @@
-# Speed-of-Light Polish Pass
+# Fix: `useActiveMode must be used within an ActiveModeProvider`
 
-Goal: every tap feels instant, every page route is reliable, quick filter cards snap in without flicker or layout shift, and all buttons give crisp feedback. No structural rewrites — pure refinement on top of the existing architecture.
+## Root cause
 
----
+The error is **not** a missing Provider. The Provider IS mounted (visible in the React component stack, wrapping everything below it).
 
-## 1. Navigation reliability (fix the "buttons/pages don't work" feel)
+The real issue: two different module instances of `src/hooks/useActiveMode.tsx` are loaded at the same time (visible from the `?t=...` cache-bust timestamps in the stack — one is `1777931364183`, the other is `1777930982912`). Each instance calls `createContext()` and produces its own context object. The Provider publishes value into Context-A; the consumer reads from Context-B and gets `undefined` → throws.
 
-- **Harden `useAppNavigate`**: wrap `document.startViewTransition` callback in a try/catch and `requestAnimationFrame` so a failed transition never blocks the route change. Fallback path already exists; ensure it always runs.
-- **Sweep all pages for `<Link to="...">` vs `onClick={() => navigate(...)}` inconsistencies** on primary CTAs (Landing, SignIn, SignUp, Client/Owner Dashboard top bar, Explore hub, Filters cards). Standardize on `useAppNavigate` so prefetch + haptic fire on every nav.
-- **Confirm route table in `App.tsx`** has lazy chunks for: `/client/filters`, `/owner/filters`, `/explore`, `/messages`, `/notifications`, `/client/perks`, `/client/liked`, `/owner/properties`, `/subscription`. Add `prefetchRoute` on hover/pointerdown for nav bar items (extend existing pattern).
-- **Guard the `ChunkErrorBoundary`** with a one-shot auto-reload when a `ChunkLoadError` is caught (stale deploy = white screen today).
+This happens because:
+- `useActiveMode.tsx` exports the Context, the Provider, AND the consumer hook all from one file.
+- `PersistentDashboardLayout` is loaded via `lazyWithRetry`, which lives in its own chunk.
+- After a chunk-retry reload or HMR refresh, the lazy chunk re-imports the hook file with a new `?t=` query, while the eager bundle still references the old one.
 
-## 2. Quick filter cards — instant + flicker-free
+The same class of bug was already fixed for the theme system — `ThemeContext` lives in its own dedicated file separate from `ThemeProvider`. We apply the same pattern here.
 
-- **Preload filter card images** (`POKER_CARD_PHOTOS`) at app boot via the existing `Resource Loading Strategy` pattern, with `fetchPriority="high"` and `decode()` warm-up.
-- **Switch filter grid to CSS containment** (`contain: layout paint style`) and fixed aspect-ratio wrappers to eliminate layout shift while images decode.
-- **Replace any conditional mount transitions** with a stable mount + opacity fade (150ms) keyed on image `onLoad` to prevent the "pop-in" flash.
-- **Memoize the filter card list** (`React.memo` + stable keys) so re-renders from filter selection don't re-mount siblings.
-- **Persist last selected filter instantly** to local state before the network round-trip (optimistic UI), then reconcile with `client_filter_preferences`.
+## Changes
 
-## 3. Button responsiveness everywhere
+### 1. Create `src/contexts/ActiveModeContext.ts` (new)
 
-- **Audit primary buttons** (Landing CTAs, Auth submit, Dashboard floating actions, swipe like/pass, filter chips, Explore tiles) and ensure each has:
-  - `:active` scale 0.96 + 80ms ease-out (per Interaction Responsiveness memory)
-  - Haptic on pointerdown (not click) for sub-100ms perceived latency
-  - `touch-action: manipulation` to remove the 300ms tap delay where missing
-  - `disabled` state that visibly dims and blocks double-fire
-- **Wrap async button handlers** with an in-flight ref to prevent duplicate submits (signup/login already had a duplicate-AI-send pattern — apply same to nav buttons that fetch).
+Tiny stable module that owns ONLY:
+- `ActiveMode` type
+- `ActiveModeContextType` interface
+- `ActiveModeContext = createContext<ActiveModeContextType | undefined>(undefined)`
 
-## 4. Page-level perceived speed
+No React component code, no side effects → not subject to HMR re-evaluation, so every importer (eager or lazy) shares the exact same context instance.
 
-- **Add route-level skeletons** for Filters, Liked, Messages, Notifications (currently fall back to `null` Suspense). Skeletons match final layout to kill CLS.
-- **Bump `SwipessPrewarmer` priority**: prefetch `/client/filters` and `/explore` chunks alongside dashboard since users hit those next.
-- **Defer non-critical effects** on first paint: push `useNotifications`, `usePushNotifications`, and `useEnsureSpecializedProfile` behind the existing 100ms `AppLifecycleManager` gate (already done) — verify nothing else runs synchronously in providers.
+### 2. Update `src/hooks/useActiveMode.tsx`
 
-## 5. Swipe deck micro-polish (carry-over from last session)
+- Remove the local `createContext` and the `ActiveModeContextType` interface declaration.
+- Import `ActiveModeContext`, `ActiveModeContextType`, and `ActiveMode` from `@/contexts/ActiveModeContext`.
+- Re-export `ActiveMode` so existing `import { ActiveMode } from '@/hooks/useActiveMode'` keeps working (used by `ModeSwitcher.tsx`).
+- Keep `ActiveModeProvider`, `useActiveMode`, and `useActiveModeQuery` exports unchanged.
 
-- Verify the dark frame fix from last turn still holds in light mode after route changes (toggle `swipe-deck-active` class on body cleanup).
-- Confirm card image `border-radius: inherit` covers all corners on the 393×731 viewport — no white bleed.
+### 3. No changes required to consumers
 
----
+All current imports (`ActiveModeProvider`, `useActiveMode`, `ActiveMode`) keep their existing paths via the re-exports.
 
-## Files likely touched
+## Why this fully fixes it
 
-- `src/hooks/useAppNavigate.ts` (transition guard)
-- `src/components/ChunkErrorBoundary.tsx` (auto-reload)
-- `src/pages/ClientFilters.tsx`, `src/pages/OwnerFilters.tsx` (card grid + memo + preload)
-- `src/components/SwipessPrewarmer.tsx` (extend prefetch list)
-- `src/visual/PremiumButton.tsx` + scattered button usages (active/haptic/touch-action sweep)
-- `src/App.tsx` (Suspense skeletons per route)
-- `src/components/LegendaryLandingPage.tsx`, auth pages (CTA standardization)
+Once the Context object lives in a leaf module with no JSX, Vite/HMR has no reason to invalidate it across chunks. Eager bundle and lazy `PersistentDashboardLayout` chunk both resolve to the same `ActiveModeContext` singleton, so `useContext` returns the live value the Provider published.
 
-## Out of scope
+## Files touched
 
-- No new features, no layout architecture changes, no swipe physics changes (per evolution doctrine: enhance, don't mutate).
+- **Add**: `src/contexts/ActiveModeContext.ts`
+- **Edit**: `src/hooks/useActiveMode.tsx`
 
-Approve and I'll execute the full sweep in one pass.
+No other files, no DB changes, no behavior changes.
