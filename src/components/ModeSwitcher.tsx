@@ -39,22 +39,24 @@ function ModeSwitcherComponent({ className }: ModeSwitcherProps) {
   // control. Only the active half shows colored fill.
   const containerStyle: React.CSSProperties = {
     background: isLight
-      ? 'rgba(255, 255, 255, 0.94)'
-      : 'rgba(255, 255, 255, 0.03)',
-    backdropFilter: 'blur(20px) saturate(160%)',
-    WebkitBackdropFilter: 'blur(20px) saturate(160%)',
-    borderRadius: '0.85rem',
-    border: isLight ? '1px solid rgba(0,0,0,0.03)' : '1px solid rgba(255,255,255,0.03)',
-    boxShadow: isLight 
-      ? '0 1px 4px rgba(0,0,0,0.02)' 
-      : '0 4px 16px rgba(0,0,0,0.1)',
-    height: '30px',
+      ? 'rgba(255, 255, 255, 0.86)'
+      : 'rgba(255, 255, 255, 0.045)',
+    backdropFilter: 'blur(24px) saturate(180%)',
+    WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+    borderRadius: '1rem',
+    border: isLight ? '1px solid rgba(0,0,0,0.06)' : '1px solid rgba(255,255,255,0.06)',
+    boxShadow: isLight
+      ? '0 1px 2px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.04)'
+      : '0 1px 0 rgba(255,255,255,0.04) inset, 0 4px 18px rgba(0,0,0,0.35)',
+    height: '36px',
     position: 'relative',
     overflow: 'hidden',
-    padding: '3px',
+    padding: '4px',
     display: 'flex',
     alignItems: 'center',
-    minWidth: '58px'
+    minWidth: '68px',
+    opacity: !canSwitchMode || isSwitching ? 0.55 : 1,
+    transition: 'opacity 0.2s ease',
   };
 
   return (
@@ -67,21 +69,19 @@ function ModeSwitcherComponent({ className }: ModeSwitcherProps) {
         className="absolute z-0"
         initial={false}
         animate={{
-          x: isClient ? 0 : 28,
-          width: 24,
-          height: 24,
-          background: isClient 
-            ? 'linear-gradient(135deg, #FF4D00, #FF8C00)' 
-            : 'linear-gradient(135deg, #EB4898, #FF4D00)',
+          x: isClient ? 0 : 30,
+          width: 28,
+          height: 28,
+          background: isClient
+            ? 'linear-gradient(135deg, #EB4898, #8B5CF6)'
+            : 'linear-gradient(135deg, #8B5CF6, #6366F1)',
         }}
-        transition={{
-          type: "spring",
-          stiffness: 500,
-          damping: 35
-        }}
+        transition={{ type: 'spring', stiffness: 500, damping: 35 }}
         style={{
-          borderRadius: '0.75rem',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+          borderRadius: '0.85rem',
+          boxShadow: isClient
+            ? '0 4px 14px rgba(235,72,152,0.4)'
+            : '0 4px 14px rgba(139,92,246,0.4)',
         }}
       />
 
@@ -89,13 +89,13 @@ function ModeSwitcherComponent({ className }: ModeSwitcherProps) {
         whileTap={{ scale: 0.92 }}
         onClick={() => handleModeSwitch('client')}
         disabled={!canSwitchMode || isSwitching}
-        className="w-6.5 h-6.5 flex-1 flex items-center justify-center relative z-10"
+        className="h-7 w-7 flex items-center justify-center relative z-10"
         title="Client Mode"
         aria-pressed={isClient}
       >
         <User
-          className={cn('h-3.5 w-3.5 transition-colors duration-300', isClient ? 'text-white' : 'text-slate-400')}
-          strokeWidth={isClient ? 2.5 : 2}
+          className={cn('h-4 w-4 transition-colors duration-300', isClient ? 'text-white' : (isLight ? 'text-slate-500' : 'text-slate-400'))}
+          strokeWidth={isClient ? 2.6 : 2.1}
         />
       </motion.button>
 
@@ -103,13 +103,13 @@ function ModeSwitcherComponent({ className }: ModeSwitcherProps) {
         whileTap={{ scale: 0.92 }}
         onClick={() => handleModeSwitch('owner')}
         disabled={!canSwitchMode || isSwitching}
-        className="w-6.5 h-6.5 flex-1 flex items-center justify-center relative z-10"
+        className="h-7 w-7 flex items-center justify-center relative z-10"
         title="Owner Mode"
         aria-pressed={!isClient}
       >
         <UserCheck
-          className={cn('h-3.5 w-3.5 transition-colors duration-300', !isClient ? 'text-white' : 'text-slate-400')}
-          strokeWidth={!isClient ? 2.5 : 2}
+          className={cn('h-4 w-4 transition-colors duration-300', !isClient ? 'text-white' : (isLight ? 'text-slate-500' : 'text-slate-400'))}
+          strokeWidth={!isClient ? 2.6 : 2.1}
         />
       </motion.button>
     </div>
