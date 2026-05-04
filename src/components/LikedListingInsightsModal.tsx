@@ -157,14 +157,14 @@ function LikedListingInsightsModalComponent({ open, onOpenChange, listing }: Lik
       queryClient.invalidateQueries({ queryKey: ['liked-properties'] });
       toast({
         title: 'Removed from favorites',
-        description: 'Property removed from your liked list.',
+        description: `${propertyInsights?.entityLabel ?? 'Item'} removed from your liked list.`,
       });
       onOpenChange(false);
     },
     onError: () => {
       toast({
         title: 'Error',
-        description: 'Failed to remove property from liked list.',
+        description: `Failed to remove ${propertyInsights?.entityLabelLower ?? 'item'} from liked list.`,
         variant: 'destructive',
       });
     }
