@@ -158,34 +158,14 @@ const ActionButton = memo(forwardRef<HTMLButtonElement, any>(function ActionButt
       className="flex items-center justify-center touch-manipulation select-none"
     >
       <div
-        className="absolute inset-0 rounded-full transition-all duration-300 pointer-events-none"
+        className="relative z-10"
         style={{
-          background: isPressed ? 'transparent' : cfg.glow,
-          boxShadow: isPressed 
-            ? 'none' 
-            : isLight
-              ? `0 8px 20px -6px ${cfg.iconColor}55`
-              : `0 12px 24px -10px ${cfg.iconColor}66`,
-          filter: 'blur(10px)',
-          opacity: isPressed ? 0 : (isLight ? 0.55 : 0.45),
+          filter: isPressed
+            ? `drop-shadow(0 2px 4px ${cfg.iconColor}55)`
+            : `drop-shadow(0 4px 12px ${cfg.iconColor}55)`,
+          transition: 'filter 0.15s ease',
         }}
-      />
-      <div
-        className="absolute inset-0 rounded-full pointer-events-none"
-        style={{
-          background: isPressed 
-            ? `${cfg.iconColor}33`
-            : isLight
-              ? `linear-gradient(145deg, ${cfg.iconColor}18 0%, ${cfg.iconColor}08 100%)`
-              : `linear-gradient(145deg, ${cfg.iconColor}22 0%, ${cfg.iconColor}05 100%)`,
-          boxShadow: isPressed
-            ? (isLight ? 'inset 0 2px 6px rgba(0,0,0,0.1)' : 'inset 0 4px 10px rgba(0,0,0,0.5)')
-            : (isLight ? '0 4px 8px rgba(0,0,0,0.08), inset 0 1px 2px rgba(255,255,255,0.7)' : '0 8px 16px rgba(0,0,0,0.3)'),
-          border: isLight ? `1px solid ${cfg.iconColor}30` : '1px solid rgba(255,255,255,0.05)',
-          transition: 'all 0.15s cubic-bezier(0.2, 0, 0, 1)',
-        }}
-      />
-      <div className="relative z-10">
+      >
         <AnimatedLottieIcon
           iconId={variant === 'like' ? 'heart' : variant === 'dislike' ? 'dislike' : variant}
           active={isPressed}
