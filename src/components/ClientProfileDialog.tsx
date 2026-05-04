@@ -433,11 +433,11 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
         </div>
 
         {/* 🛸 NEXUS FOOTER ACTIONS */}
-        <div className="px-8 py-6 border-t border-white/5 bg-gradient-to-t from-white/[0.04] to-transparent flex items-center justify-between gap-4 z-10 relative">
+        <div className={cn("px-8 py-6 border-t flex items-center justify-between gap-4 z-10 relative", isLight ? "border-border bg-gradient-to-t from-muted/50 to-transparent" : "border-border bg-gradient-to-t from-foreground/[0.04] to-transparent")}>
            <Button 
              variant="ghost" 
              onClick={() => onOpenChange(false)}
-             className="h-14 px-8 rounded-2xl font-black italic uppercase tracking-widest text-white/40 hover:text-white hover:bg-white/5"
+              className="h-14 px-8 rounded-2xl font-black italic uppercase tracking-widest text-foreground/55 hover:text-foreground hover:bg-foreground/5"
            >
               Cancel
            </Button>
