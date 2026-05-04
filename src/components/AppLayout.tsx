@@ -167,7 +167,6 @@ export function AppLayout({ children }: AppLayoutProps) {
       "bg-background",
       theme === 'Swipess-style' && "Swipess-style"
     )}>
-      <PullToRefreshIndicator pullDistance={pullDistance} isRefreshing={isRefreshing} triggered={triggered} />
       <SkipToMainContent />
       
       <Suspense fallback={null}>
