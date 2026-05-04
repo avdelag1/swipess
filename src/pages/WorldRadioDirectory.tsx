@@ -213,36 +213,38 @@ export default function WorldRadioDirectory() {
 
                   <div className="relative z-10 flex items-center gap-5">
                     <div className="relative w-20 h-20 shrink-0">
-                      <div className="absolute inset-0 bg-black/20 rounded-3xl backdrop-blur-xl border border-white/10 overflow-hidden">
+                      <div
+                        className="absolute inset-0 rounded-3xl overflow-hidden border border-white/10 shadow-lg flex items-center justify-center"
+                        style={{
+                          background: station.albumArt
+                            ? undefined
+                            : `linear-gradient(135deg, ${theme.primaryColor}, ${theme.primaryColor}55)`,
+                        }}
+                      >
                         {station.albumArt ? (
-                          <QuickFilterImage 
-                            src={station.albumArt} 
+                          <QuickFilterImage
+                            src={station.albumArt}
                             alt={station.name}
-                            className="opacity-60 group-hover:opacity-80 transition-opacity"
+                            className="opacity-90 group-hover:opacity-100 transition-opacity"
                           />
                         ) : (
-                          <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-white/10" />
+                          <span className="text-white font-black text-2xl tracking-tighter italic drop-shadow-lg">
+                            {station.name.slice(0, 2).toUpperCase()}
+                          </span>
                         )}
                       </div>
                       <div className="absolute inset-0 flex items-center justify-center">
-                        {isPlaying ? (
+                        {isPlaying && (
                           <div className="flex items-end gap-1 h-6">
                             {[1, 2, 3, 4].map(i => (
                               <motion.div
                                 key={i}
                                 animate={{ height: ['20%', '100%', '40%', '80%', '20%'] }}
                                 transition={{ repeat: Infinity, duration: 1, delay: i * 0.2 }}
-                                className="w-1 rounded-full"
-                                style={{ backgroundColor: theme.primaryColor }}
+                                className="w-1 rounded-full bg-white drop-shadow-lg"
                               />
                             ))}
                           </div>
-                        ) : (
-                          !station.albumArt && (
-                            <div className="absolute inset-0 flex items-center justify-center">
-                              <Radio size={32} className="text-white/20 animate-pulse" />
-                            </div>
-                          )
                         )}
                       </div>
                       
@@ -279,10 +281,10 @@ export default function WorldRadioDirectory() {
                         <button
                           onClick={() => handleStationPlay(station)}
                           className={cn(
-                            "flex-1 h-10 rounded-xl flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest transition-all",
-                            isPlaying 
-                              ? "bg-primary text-primary-foreground shadow-lg shadow-primary/30" 
-                              : (isDark ? "bg-white/10 text-white hover:bg-white/20" : "bg-foreground text-background hover:opacity-90")
+                            "flex-1 h-10 rounded-xl flex items-center justify-center gap-2 text-[11px] font-black uppercase tracking-widest transition-all active:scale-[0.97] shadow-md",
+                            isPlaying
+                              ? "bg-primary text-primary-foreground shadow-primary/40"
+                              : "bg-primary text-primary-foreground hover:bg-primary/90 shadow-primary/30"
                           )}
                         >
                           {isPlaying ? <Volume2 size={14} /> : <Play size={14} fill="currentColor" />}
@@ -291,13 +293,14 @@ export default function WorldRadioDirectory() {
                         <button
                           onClick={() => toggleFavorite(station.id)}
                           className={cn(
-                            "w-10 h-10 rounded-xl flex items-center justify-center border transition-all",
-                            isFav 
-                              ? "bg-rose-500/10 border-rose-500/30 text-rose-500" 
-                              : (isDark ? "bg-white/5 border-white/5 text-white/20 hover:border-white/10" : "bg-card border-border text-foreground/40 hover:border-foreground/20")
+                            "w-10 h-10 rounded-xl flex items-center justify-center border transition-all active:scale-95",
+                            isFav
+                              ? "bg-rose-500 border-rose-500 text-white shadow-lg shadow-rose-500/30"
+                              : (isDark ? "bg-white/10 border-white/15 text-white hover:bg-white/20" : "bg-foreground/10 border-foreground/15 text-foreground hover:bg-foreground/15")
                           )}
+                          aria-label={isFav ? "Remove from favorites" : "Add to favorites"}
                         >
-                          <Heart size={16} fill={isFav ? "currentColor" : "none"} />
+                          <Heart size={16} fill={isFav ? "currentColor" : "none"} strokeWidth={2.4} />
                         </button>
                       </div>
                     </div>
@@ -333,15 +336,26 @@ export default function WorldRadioDirectory() {
           >
             <button
               onClick={() => navigate('/radio')}
-              className="w-full p-4 rounded-[2rem] bg-black/80 backdrop-blur-3xl border border-white/10 shadow-2xl flex items-center justify-between"
+              className={cn(
+                "w-full p-4 rounded-[2rem] backdrop-blur-3xl border shadow-2xl flex items-center justify-between transition-colors",
+                isDark
+                  ? "bg-black/80 border-white/10"
+                  : "bg-foreground text-background border-foreground/20 shadow-foreground/20"
+              )}
             >
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-primary/20 flex items-center justify-center">
+                <div className={cn(
+                  "w-12 h-12 rounded-2xl flex items-center justify-center",
+                  "bg-primary/25"
+                )}>
                   <Sparkles size={20} className="text-primary animate-pulse" />
                 </div>
                 <div className="text-left">
                   <p className="text-[8px] font-black text-primary uppercase tracking-widest">Now Playing</p>
-                  <h4 className="text-sm font-black text-white italic uppercase tracking-tight">
+                  <h4 className={cn(
+                    "text-sm font-black italic uppercase tracking-tight",
+                    isDark ? "text-white" : "text-background"
+                  )}>
                     {state.currentStation.name}
                   </h4>
                 </div>
@@ -352,10 +366,13 @@ export default function WorldRadioDirectory() {
                      e.stopPropagation();
                      navigate('/radio');
                    }}
-                   className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
+                   className={cn(
+                     "w-9 h-9 rounded-full flex items-center justify-center transition-colors",
+                     isDark ? "bg-white/10 hover:bg-white/20 text-white" : "bg-background/15 hover:bg-background/25 text-background"
+                   )}
                    title="Open full player"
                  >
-                    <Maximize2 size={14} className="text-white" />
+                    <Maximize2 size={14} />
                  </button>
               </div>
             </button>
