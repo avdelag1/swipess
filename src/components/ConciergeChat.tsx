@@ -862,9 +862,11 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                     <button
                       onClick={handleSend}
                       disabled={!input.trim() || isLoading}
-                      className={cn("h-14 w-14 shrink-0 rounded-3xl flex items-center justify-center transition-all shadow-xl active:scale-90", isSwipess ? "bg-[#FF3D00] hover:bg-[#FF4D00] shadow-[#FF3D00]/20" : "bg-primary hover:bg-primary/90", (!input.trim() || isLoading) && "opacity-60 pointer-events-none")}
+                      className={cn("h-14 w-14 shrink-0 rounded-3xl flex items-center justify-center transition-all shadow-xl active:scale-90 ring-1", isSwipess ? "bg-[#FF3D00] hover:bg-[#FF4D00] shadow-[#FF3D00]/30 ring-white/10" : "bg-foreground hover:bg-foreground/90 ring-foreground/20 shadow-black/30", (!input.trim() || isLoading) && "opacity-60 pointer-events-none")}
                     >
-                      {isLoading ? <RefreshCw className="w-5 h-5 text-white animate-spin" /> : <Send className="w-5 h-5 text-white" />}
+                      {isLoading
+                        ? <RefreshCw className={cn("w-5 h-5 animate-spin", isSwipess ? "text-white" : "text-background")} />
+                        : <Send className={cn("w-5 h-5", isSwipess ? "text-white" : "text-background")} strokeWidth={2.5} />}
                     </button>
                   </div>
                 </footer>
