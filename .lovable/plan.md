@@ -1,52 +1,79 @@
-## Goal
+## Scope
 
-Strip the redundant rectangular/pill backgrounds from the header (TopBar) buttons and the bottom navigation bar so the icons sit on the existing app glass surface without a second framed layer behind them.
+Three things, all triggered from `/owner/dashboard` and `/client/liked-properties`:
 
-## What's there today
+1. Bring back the **GPS Detect** button on the kilometer/radar slider.
+2. Replace gray pill buttons with white-on-light / glass-on-dark across **client + owner Likes** pages.
+3. Investigate why the user sees what they call "mock listings" instead of their original ones.
 
-- **`src/components/TopBar.tsx`** — Every header control (back, profile, tokens/Crown, theme, notifications) is wrapped in a `glassPillStyle` rounded pill: `background hsl(var(--card)/0.52)`, blur 28px, border, drop shadow, and a 36px height. The Crown button additionally layers a primary→accent gradient frame. This produces the visible rectangle/pill background per button.
-- **`src/components/ThemeToggle.tsx`** and **`src/components/NotificationPopover.tsx`** receive that same `glassPillStyle` from TopBar and render their trigger inside it.
-- **`src/components/BottomNavigation.tsx`** — Wraps the entire item row in a glass container (`glass-pill-nav`, white/dark fill, 32px blur, border, shadow, 3rem radius). Individual items are transparent unless active; the visible frame is this outer container.
-- **`src/components/ModeSwitcher.tsx`** — Already a single connected glass pill (kept as-is per recent work).
+---
 
-## Changes
+## 1. Radar GPS button — `src/components/swipe/DistanceSlider.tsx`
 
-### 1. TopBar — remove per-button pill frames
+Currently the header row only renders the `MapPin` *icon* (decorative) and the km readout. The clickable detect-location button was removed. The component already receives `onDetectLocation`, `detecting`, `detected` as props — they're unused.
 
-In `src/components/TopBar.tsx`:
+Plan: turn the existing `MapPin` chip into a proper **button** placed between "Scanning <Category>" label and the km readout (centered). It will:
 
-- Replace `glassPillStyle` with a frame-less `iconButtonStyle`: no `background`, no `border`, no `boxShadow`, no `backdropFilter`. Keep only sizing (36×36), centering, color, and the tap transition. This makes each control a clean floating icon.
-- Apply this style to the back button, profile chip, and Crown/Tokens button. For the Crown button, drop the gradient/border overlay and the inner top highlight `<span>`; render the Crown icon alone with its existing color/drop-shadow so it still reads as the "premium" accent without a frame.
-- Pass the same frameless style down to `<ThemeToggle glassPillStyle={...} />` and `<NotificationPopover glassPillStyle={...} />` (prop name kept for compatibility) so their triggers also lose the pill background. The notification badge dot stays.
-- Profile button: keep the circular avatar (it's the avatar itself, not a frame), but remove the surrounding pill `background`/`border`/`boxShadow`. The name chip text stays inline next to the avatar.
+- Call `onDetectLocation()` on press, with haptic.
+- Show three visual states: idle (MapPin), detecting (spinner), detected (Crosshair / pulse ring).
+- Theme-aware: white surface + black icon + soft shadow on light; dark glass + cyan icon on dark. Uses semantic tokens, no hardcoded grays.
+- 40px circular target, accessible label, `aria-pressed={detected}`.
 
-### 2. BottomNavigation — remove outer rectangle frame
+No layout shift — replaces the existing decorative icon container.
 
-In `src/components/BottomNavigation.tsx`:
+---
 
-- On the wrapper `<div className="pointer-events-auto glass-pill-nav …">`, drop the inline `background`, `border`, `boxShadow`, `backdropFilter`/`WebkitBackdropFilter`, and the rounded-3rem visible fill. Keep the layout (`padding`, `width`, centering) so item spacing is unchanged.
-- Remove the `glass-pill-nav` class from this element to prevent the CSS-defined glass surface from re-introducing the frame. (We leave the class definition alone in case it's used elsewhere — quick `rg` confirmation will be done at edit time; if unused we can also delete the rule.)
-- Active-item treatment stays: the `layoutId="bottomNavActivePill"` highlight remains so the selected tab still gets its subtle gradient pill. That's the per-button glass the user referred to as "already there".
-- No changes to icons, labels, scroll behavior, haptics, or routing.
+## 2. Likes pages — gray-button cleanup
 
-### 3. Touch / safe-area preservation
+Files:
+- `src/pages/ClientLikedProperties.tsx` (client side)
+- `src/components/LikedClients.tsx` (owner side)
+- `src/components/PremiumLikedCard.tsx` (shared card; has `bg-secondary`, `bg-muted`, `border-border` chips that look gray on light)
 
-- Keep `paddingBottom: calc(8px + env(safe-area-inset-bottom))` on the nav so the bar still clears the home indicator.
-- Keep TopBar `paddingTop: calc(var(--safe-top) + 6px)` and the 36px touch targets, so accessibility/tap area is unchanged.
+Changes (light theme = "white filter"):
+- Category pills, sort pills, search bar, refresh button: `bg-white` + `border-black/8` + soft shadow `0 4px 12px rgba(0,0,0,0.04)` instead of the current `bg-black/5 / bg-white/[0.04]` gray.
+- Selected state stays bold black-on-white.
+- Inside `PremiumLikedCard`: the metadata chips (`bg-secondary border-border`) and secondary action button (`bg-secondary hover:bg-muted`) → switch to `bg-white border-black/8 shadow-sm` on light, keep dark variant unchanged.
+- Empty/skeleton placeholders: replace `bg-muted` with `bg-black/[0.04]` on light so they don't read as a flat gray slab.
 
-## Files touched
+Owner Likes (`LikedClients.tsx`) gets the same pill / search / button treatment so client + owner stay visually consistent.
 
-- `src/components/TopBar.tsx`
-- `src/components/ThemeToggle.tsx` (only if its internal styling re-applies a frame — verified at edit time)
-- `src/components/NotificationPopover.tsx` (same caveat)
-- `src/components/BottomNavigation.tsx`
+---
+
+## 3. "I see mock data instead of my listings"
+
+DB check (already run): `listings` table has 20 active rows. Many of them have `owner_id = NULL` — these are seeded demo rows (Brompton, Harley, BMW R1250GS, Interior Designer, etc.) created on 2026-02-13. Real user listings (incl. "Luv-a-Tulum Penthouse" implied in screenshot) exist with proper `owner_id`.
+
+So the user's "real" listings are still in the DB; what they see as "mock" is the **seed data mixed in** with real ones (no `owner_id`). Nothing is broken in the data layer — the discovery feed is just including the seeds.
+
+Plan: in `useListings.tsx` (and the smart matching listing fetch path), filter out rows with `owner_id IS NULL` so only real, owned listings are shown in the swipe deck and Likes feed. This makes the demo seeds invisible to end users without deleting them.
+
+```ts
+// src/hooks/useListings.tsx — add to the active-listings query
+.eq('status','active')
+.not('owner_id','is',null)
+```
+
+Same `.not('owner_id','is',null)` filter added wherever the swipe deck or owner feed reads from `listings` (smart matching).
+
+If, after that, the user still sees fewer listings than expected, the next step is to look at their specific `owner_id` and confirm the rows are still there — but based on the DB snapshot there are real listings with non-null owners ready to display.
+
+---
 
 ## Out of scope
 
-- ModeSwitcher (already unified).
-- Any logic, routing, swipe physics, or filter behavior.
-- Color tokens / theme variables.
+- Not deleting seed rows (keeps preview demos working for new accounts).
+- Not changing radar physics, swipe logic, or routing.
 
-## Verification
+---
 
-After implementation: header shows icons floating on the page background with no per-button pills; bottom nav shows the row of icons with only the active item highlighted, no outer rectangle. Light + dark mode both checked. Active route highlight, badges, and haptics still fire.
+## Files to edit
+
+```text
+src/components/swipe/DistanceSlider.tsx       (GPS button)
+src/pages/ClientLikedProperties.tsx           (white pills, search, refresh)
+src/components/LikedClients.tsx               (owner side parity)
+src/components/PremiumLikedCard.tsx           (chips + secondary action)
+src/hooks/useListings.tsx                     (filter owner_id NULL seeds)
+src/hooks/smartMatching/useSmartListingMatching.tsx  (same filter)
+```
