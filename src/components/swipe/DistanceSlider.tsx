@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useFilterStore } from '@/state/filterStore';
-import { MapPin, Navigation } from 'lucide-react';
+import { MapPin } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, useSpring, useMotionValue, useTransform } from 'framer-motion';
 import useAppTheme from '@/hooks/useAppTheme';
@@ -92,23 +92,6 @@ export const DistanceSlider = ({ radiusKm, onRadiusChange, onDetectLocation, det
               {localKm} <span className="text-[10px] opacity-60 italic">km</span>
             </span>
           </div>
-          <motion.button
-            whileTap={{ scale: 0.95 }}
-            onClick={onDetectLocation}
-            disabled={detecting}
-            className={cn(
-              "flex items-center gap-1.5 h-8 px-3 rounded-xl text-[10px] font-black uppercase tracking-tight border transition-all",
-              detected
-                ? "bg-primary border-primary text-white shadow-[0_0_15px_rgba(236,72,153,0.3)] animate-gps-pulse"
-                : isLight
-                ? "bg-white border-black/20 text-black hover:bg-gray-50 shadow-sm"
-                : "bg-background border-border text-muted-foreground hover:border-primary/50"
-            )}
-            title="Detect my current GPS location"
-          >
-            <Navigation className={cn("w-3 h-3", detecting && "animate-spin", isLight && !detected ? "text-black" : "")} />
-            {detecting ? '…' : detected ? 'FIXED' : 'AUTO'}
-          </motion.button>
         </div>
       </motion.div>
       
