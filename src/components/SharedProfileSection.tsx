@@ -156,15 +156,20 @@ export function SharedProfileSection({
       animate={{ opacity: 1, y: 0 }}
       transition={{ type: 'spring', stiffness: 500, damping: 30 }}
     >
-      <Card className={cn("backdrop-blur-3xl rounded-[2.5rem] shadow-3xl border", isDark ? "bg-white/[0.03] border-white/5" : "bg-black/5 border-black/5")}>
+      <Card className={cn(
+        "backdrop-blur-3xl rounded-[2.5rem] border overflow-hidden",
+        isDark
+          ? "bg-[#0E0E10] border-white/[0.06] shadow-[0_24px_60px_-20px_rgba(0,0,0,0.6)]"
+          : "bg-white border-slate-200 shadow-[0_24px_60px_-24px_rgba(15,23,42,0.18)]"
+      )}>
         <CardContent className="p-7">
           <div className="flex items-center gap-5 mb-6">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#EB4898]/20 to-[#EB4898]/5 border border-[#EB4898]/20 flex items-center justify-center flex-shrink-0 shadow-2xl">
-              <Gift className="w-7 h-7 text-[#EB4898]" />
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#EB4898] to-[#FF7AB6] flex items-center justify-center flex-shrink-0 shadow-[0_14px_32px_-10px_rgba(235,72,152,0.55)]">
+              <Gift className="w-7 h-7 text-white" strokeWidth={2.4} />
             </div>
             <div className="min-w-0">
-              <h3 className={cn("font-black uppercase italic tracking-tight text-lg", isDark ? "text-white" : "text-gray-900")}>Share & Earn</h3>
-              <p className={cn("text-[10px] font-black uppercase tracking-widest opacity-70 mt-1", isDark ? "text-white" : "text-gray-900")}>
+              <h3 className={cn("font-black uppercase italic tracking-tight text-lg", isDark ? "text-white" : "text-slate-900")}>Share & Earn</h3>
+              <p className={cn("text-[10px] font-bold uppercase tracking-widest mt-1", isDark ? "text-white/55" : "text-slate-500")}>
                 Get free messages for referrals
               </p>
             </div>
@@ -173,8 +178,8 @@ export function SharedProfileSection({
           {/* Copy Link */}
           <div className="flex gap-3 mb-6">
             <div className={cn(
-              "flex-1 px-5 py-4 border rounded-[1.5rem] text-[11px] font-black uppercase tracking-wider truncate flex items-center shadow-inner", 
-              isDark ? "bg-black/40 border-white/5 text-white/70" : "bg-black/5 border-black/5 text-black/70"
+              "flex-1 px-5 py-4 border rounded-[1.5rem] text-[11px] font-bold tracking-tight truncate flex items-center",
+              isDark ? "bg-white/[0.04] border-white/[0.08] text-white/80" : "bg-slate-50 border-slate-200 text-slate-700"
             )}>
               {shareUrl}
             </div>
@@ -182,10 +187,7 @@ export function SharedProfileSection({
               onClick={handleCopyLink}
               variant="outline"
               size="icon"
-              className={cn(
-                "shrink-0 h-14 w-14 rounded-[1.5rem] transition-all active:scale-90 border-none shadow-xl", 
-                isDark ? "bg-white text-black hover:bg-white/90" : "bg-black text-white hover:bg-black/90"
-              )}
+              className="shrink-0 h-14 w-14 rounded-[1.5rem] transition-all active:scale-90 border-none bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_14px_30px_-10px_hsl(var(--primary)/0.55)]"
             >
               <AnimatePresence mode="wait">
                 {copied ? (
@@ -207,17 +209,17 @@ export function SharedProfileSection({
               <button
                 key={i}
                 onClick={btn.onClick}
-                className={cn(
-                  "flex flex-col items-center gap-2 group transition-all active:scale-90"
-                )}
+                className="flex flex-col items-center gap-2 group transition-all active:scale-90"
               >
                 <div className={cn(
-                  "w-14 h-14 rounded-2xl flex items-center justify-center border transition-all shadow-lg",
-                  isDark ? "bg-white/10 border-white/15 group-hover:bg-white/20" : "bg-white border-black/10 group-hover:bg-white/90"
+                  "w-14 h-14 rounded-2xl flex items-center justify-center border transition-all",
+                  isDark
+                    ? "bg-white/[0.06] border-white/10 group-hover:bg-white/[0.12]"
+                    : "bg-white border-slate-200 shadow-[0_8px_20px_-10px_rgba(15,23,42,0.18)] group-hover:shadow-[0_12px_28px_-10px_rgba(15,23,42,0.28)]"
                 )}>
                   {btn.icon}
                 </div>
-                <span className={cn("text-[9px] font-black uppercase tracking-widest opacity-70 group-hover:opacity-100", isDark ? "text-white" : "text-black")}>{btn.label}</span>
+                <span className={cn("text-[9px] font-black uppercase tracking-widest", isDark ? "text-white/70 group-hover:text-white" : "text-slate-700 group-hover:text-slate-900")}>{btn.label}</span>
               </button>
             ))}
           </div>
