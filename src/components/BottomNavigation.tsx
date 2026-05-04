@@ -343,26 +343,7 @@ export const BottomNavigation = memo(({
                   transition: 'all 0.3s cubic-bezier(0.22, 1, 0.36, 1)',
                 }}
               >
-                {/* Active Pill Background */}
-                <AnimatePresence>
-                  {active && (
-                    <motion.div
-                      layoutId="bottomNavActivePill"
-                      className="absolute inset-0 rounded-full z-0 pointer-events-none"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-                      style={{
-                        background: `${activeColor}20`,
-                        boxShadow: 'inset 0 2px 4px rgba(255,255,255,0.2)',
-                        border: '1px solid rgba(255, 77, 0, 0.3)',
-                      }}
-                    >
-                      <div className="absolute inset-0 bg-gradient-to-tr from-[#FF4D00]/20 to-[#EB4898]/20 rounded-full blur-[2px]" />
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                {/* Active state is color-only: no nested pill/frame behind icons. */}
 
                 <div
                   className="relative z-10"
