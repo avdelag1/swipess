@@ -57,6 +57,7 @@ export function useMagnifier(config: MagnifierConfig = {}): UseMagnifierReturn {
   const startPosRef = useRef<{ x: number; y: number } | null>(null);
   const pointerIdRef = useRef<number | null>(null);
   const savedOverflowsRef = useRef<{ el: HTMLElement; overflow: string }[]>([]);
+  const windowListenersRef = useRef<(() => void) | null>(null);
 
   const wasActiveRef = useRef(false);
   const isMovingRef = useRef(false);
