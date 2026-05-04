@@ -196,7 +196,7 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
                   selectedCategory === id
                     ? (isLight ? "bg-black text-white shadow-xl shadow-black/10 border-black" : "bg-[var(--color-brand-accent-2)] text-white shadow-lg shadow-[var(--color-brand-accent-2)]/20 border-[var(--color-brand-accent-2)]")
                     : isLight
-                    ? "bg-white border-black/5 text-black/50 font-black hover:text-black hover:bg-black/[0.02] shadow-sm"
+                    ? "bg-white border-black/8 text-black/70 font-black hover:text-black shadow-[0_4px_12px_rgba(0,0,0,0.04)]"
                     : "bg-white/[0.04] border-white/[0.08] text-muted-foreground hover:text-foreground hover:bg-white/[0.08]"
                 )}
               >
@@ -214,7 +214,7 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
             disabled={isLoading || isFetching}
             className={cn(
               "flex items-center justify-center w-12 h-12 rounded-2xl transition-all active:scale-95 disabled:opacity-50 shadow-sm border",
-              isLight ? "bg-white border-black/5 text-black/40 hover:text-black" : "bg-secondary/80 border-border/50 text-muted-foreground hover:text-foreground"
+              isLight ? "bg-white border-black/8 text-black/60 hover:text-black shadow-[0_4px_12px_rgba(0,0,0,0.04)]" : "bg-secondary/80 border-border/50 text-muted-foreground hover:text-foreground"
             )}          >
             <RefreshCw className={cn("w-4 h-4", (isLoading || isFetching) && "animate-spin")} />
           </button>
@@ -233,7 +233,7 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
             className={cn(
               "w-full h-14 rounded-2xl pl-14 pr-6 font-bold focus:border-[var(--color-brand-accent-2)] transition-all outline-none text-sm",
               isLight
-                ? "bg-white border border-black/5 text-foreground placeholder-black/20 shadow-sm"
+                ? "bg-white border border-black/8 text-foreground placeholder-black/30 shadow-[0_4px_12px_rgba(0,0,0,0.04)]"
                 : "bg-white/[0.04] border border-white/[0.08] text-foreground placeholder-muted-foreground"
             )}
           />
@@ -252,7 +252,7 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
                     sortBy === opt.value
                       ? (isLight ? "bg-black text-white shadow-md border-black" : "bg-[var(--color-brand-accent-2)] border-[var(--color-brand-accent-2)] text-white shadow-md")
                       : isLight
-                      ? "bg-white border-black/5 text-black/40 font-black hover:text-black hover:bg-black/[0.02]"
+                      ? "bg-white border-black/8 text-black/70 font-black hover:text-black shadow-[0_2px_8px_rgba(0,0,0,0.04)]"
                       : "bg-white/[0.04] border-white/[0.08] text-muted-foreground"
                   )}
                 >
