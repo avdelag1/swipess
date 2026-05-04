@@ -112,7 +112,7 @@ const ActionButton = memo(forwardRef<HTMLButtonElement, any>(function ActionButt
   isLight = false,
 }: any, ref) {
   const [isPressed, setIsPressed] = useState(false);
-  const cfg = VARIANTS[variant];
+  const cfg = VARIANTS[variant as keyof typeof VARIANTS];
   const btnSizeCss = size === 'large' ? LARGE_CSS : SMALL_CSS;
   const iconSize = size === 'large' ? LARGE_ICON : SMALL_ICON;
 
