@@ -58,16 +58,16 @@ function TopBarComponent({
   // Liquid Glass icon buttons — readable over any swipe-card backdrop.
   const glassPillStyle: React.CSSProperties = {
     background: isLight
-      ? 'rgba(255,255,255,0.55)'
-      : 'rgba(20,20,20,0.42)',
+      ? 'rgba(255,255,255,0.18)'
+      : 'rgba(255,255,255,0.08)',
     border: isLight
-      ? '1px solid rgba(255,255,255,0.7)'
-      : '1px solid rgba(255,255,255,0.14)',
+      ? '1px solid rgba(255,255,255,0.45)'
+      : '1px solid rgba(255,255,255,0.18)',
     boxShadow: isLight
-      ? '0 6px 18px -8px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.9)'
-      : '0 8px 22px -10px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.08)',
-    backdropFilter: 'blur(18px) saturate(160%)',
-    WebkitBackdropFilter: 'blur(18px) saturate(160%)',
+      ? '0 4px 14px -6px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.6)'
+      : '0 6px 18px -8px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.12)',
+    backdropFilter: 'blur(28px) saturate(180%)',
+    WebkitBackdropFilter: 'blur(28px) saturate(180%)',
     borderRadius: '9999px',
     pointerEvents: 'auto',
     color: 'hsl(var(--foreground))',
