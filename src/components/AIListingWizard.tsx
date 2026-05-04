@@ -45,14 +45,14 @@ export function AIListingWizard() {
   const textMuted = isLight ? 'text-black/50' : 'text-white/50';
   const textSubtle = isLight ? 'text-black/30' : 'text-white/30';
   const inputCls = isLight
-    ? 'bg-black/5 border border-black/10 focus:border-cyan-500/50 focus:ring-0 text-black placeholder:text-black/20'
+    ? 'bg-white border border-black/10 focus:border-cyan-500/50 focus:ring-0 text-black placeholder:text-black/30 shadow-[0_2px_8px_rgba(0,0,0,0.04)]'
     : 'bg-white/5 border border-white/5 focus:border-cyan-500/50 focus:ring-0 text-white placeholder:text-white/10';
   const cardCls = isLight
-    ? 'bg-black/5 border-black/10 hover:border-cyan-500/30 hover:bg-black/10 shadow-[0_4px_20px_rgba(0,0,0,0.1)]'
+    ? 'bg-white border-black/8 hover:border-cyan-500/40 hover:bg-white shadow-[0_8px_24px_rgba(0,0,0,0.06)]'
     : 'bg-black/40 border-white/10 hover:border-cyan-500/30 hover:bg-white/10 shadow-[0_4px_20px_rgba(0,0,0,0.5)]';
-  const reviewCardCls = isLight ? 'border-black/8 bg-black/5 backdrop-blur-xl' : 'border-white/5 bg-white/5 backdrop-blur-xl';
+  const reviewCardCls = isLight ? 'border-black/8 bg-white shadow-[0_8px_24px_rgba(0,0,0,0.06)]' : 'border-white/5 bg-white/5 backdrop-blur-xl';
   const closeBtnCls = isLight
-    ? 'bg-black/5 hover:bg-black/10 rounded-2xl transition-all border border-black/8'
+    ? 'bg-white hover:bg-black/5 rounded-2xl transition-all border border-black/10 shadow-[0_2px_8px_rgba(0,0,0,0.06)]'
     : 'bg-white/5 hover:bg-white/10 rounded-2xl transition-all border border-white/5';
   const dividerCls = isLight ? 'bg-black/10' : 'bg-white/10';
   
@@ -268,11 +268,10 @@ export function AIListingWizard() {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           className={cn(
-            "fixed inset-0 z-[10000] backdrop-blur-2xl flex items-start sm:items-center justify-center p-0 sm:p-6",
-            isLight ? "bg-black/30" : "bg-black/80",
+            "fixed inset-0 z-[2147483000] backdrop-blur-2xl flex items-start sm:items-center justify-center p-0 sm:p-6",
+            isLight ? "bg-white/40" : "bg-black/80",
             showFinalForm && "pointer-events-none opacity-0"
           )}
-          style={{ paddingBottom: 'calc(var(--bottom-nav-height, 80px) + env(safe-area-inset-bottom, 0px))' }}
         >
           <motion.div
             initial={{ scale: 0.95, opacity: 0, y: 30 }}
