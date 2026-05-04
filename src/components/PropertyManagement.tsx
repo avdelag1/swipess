@@ -456,7 +456,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
                         <motion.button
                           whileTap={{ scale: 0.94 }}
                           className={cn(
-                            "flex flex-col items-center justify-center gap-2 h-20 rounded-2xl bg-indigo-500/5 border border-indigo-500/10 text-indigo-500 transition-all hover:bg-indigo-500/10 group/btn"
+                            "flex flex-col items-center justify-center gap-2 h-20 rounded-2xl bg-white/5 border border-white/10 text-foreground transition-all hover:bg-white/10 group/btn"
                           )}
                           onClick={() => handleShareListing(listing)}
                         >
