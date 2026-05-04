@@ -172,9 +172,9 @@ function PropertyImageGalleryComponent({
       >
         <div className="relative w-full h-full flex flex-col">
           {/* Header */}
-          <div className="absolute top-0 left-0 right-0 z-20 p-4 bg-gradient-to-b from-black/60 to-transparent">
+          <div className="absolute top-0 left-0 right-0 z-20 p-4 bg-gradient-to-b from-black/80 via-black/50 to-transparent">
             <div className="flex items-center justify-between text-white">
-              <div className="text-lg font-medium">
+              <div className="text-lg font-bold drop-shadow-lg">
                 {currentIndex + 1} of {images.length}
               </div>
               <div className="flex items-center gap-2">
@@ -182,7 +182,7 @@ function PropertyImageGalleryComponent({
                   variant="ghost"
                   size="icon"
                   onClick={() => setIsZoomed(!isZoomed)}
-                  className="text-white hover:bg-white/20"
+                  className="text-white bg-black/60 hover:bg-black/80 backdrop-blur-md border border-white/20 rounded-full"
                 >
                   {isZoomed ? <ZoomOut className="w-5 h-5" /> : <ZoomIn className="w-5 h-5" />}
                 </Button>
@@ -190,7 +190,7 @@ function PropertyImageGalleryComponent({
                   variant="ghost"
                   size="icon"
                   onClick={onClose}
-                  className="text-white hover:bg-white/20"
+                  className="text-white bg-black/60 hover:bg-black/80 backdrop-blur-md border border-white/20 rounded-full"
                 >
                   <X className="w-5 h-5" />
                 </Button>
@@ -234,7 +234,7 @@ function PropertyImageGalleryComponent({
               <Button
                 variant="ghost"
                 size="icon"
-                className="absolute left-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 h-12 w-12"
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-white bg-black/60 hover:bg-black/80 backdrop-blur-md border border-white/20 rounded-full h-12 w-12"
                 onClick={goToPrevious}
               >
                 <ChevronLeft className="w-6 h-6" />
@@ -242,7 +242,7 @@ function PropertyImageGalleryComponent({
               <Button
                 variant="ghost"
                 size="icon"
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 h-12 w-12"
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-white bg-black/60 hover:bg-black/80 backdrop-blur-md border border-white/20 rounded-full h-12 w-12"
                 onClick={goToNext}
               >
                 <ChevronRight className="w-6 h-6" />
