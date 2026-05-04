@@ -25,7 +25,7 @@ export default function VapValidate() {
 
       const { data: client } = await supabase
         .from('client_profiles')
-        .select('occupation, nationality')
+        .select('nationality')
         .eq('user_id', id!)
         .maybeSingle();
 
@@ -33,7 +33,7 @@ export default function VapValidate() {
       return {
         name: profile.full_name || 'Resident',
         location: [profile.city, profile.country].filter(Boolean).join(', '),
-        occupation: client?.occupation || '',
+        occupation: '',
         nationality: client?.nationality || '',
         memberSince,
       };
