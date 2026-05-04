@@ -147,10 +147,7 @@ export function ShareDialog({
             </div>
             <Button
               onClick={handleCopyLink}
-              className={cn(
-                "h-12 px-5 rounded-2xl font-bold uppercase tracking-wider text-xs active:scale-95 transition-all border-none shadow-md",
-                isLight ? "bg-slate-900 !text-white hover:bg-slate-800" : "bg-white !text-black hover:bg-white/90"
-              )}
+              className="h-12 px-5 rounded-2xl font-bold uppercase tracking-wider text-xs active:scale-95 transition-all border-none bg-primary !text-primary-foreground hover:bg-primary/90 shadow-[0_14px_30px_-10px_hsl(var(--primary)/0.55)]"
             >
               <AnimatePresence mode="wait">
                 {copied ? (
@@ -173,7 +170,9 @@ export function ShareDialog({
                 onClick={handleNativeShare}
                 className={cn(
                   "flex flex-col items-center justify-center gap-2 h-20 rounded-2xl border active:scale-95 transition-all",
-                  isLight ? "bg-slate-50 border-slate-200 hover:bg-slate-100" : "bg-[#161616] border-white/[0.06] hover:bg-[#1d1d1d]"
+                  isLight
+                    ? "bg-white border-slate-200 shadow-[0_8px_20px_-10px_rgba(15,23,42,0.18)] hover:shadow-[0_12px_28px_-10px_rgba(15,23,42,0.28)]"
+                    : "bg-[#161616] border-white/[0.06] hover:bg-[#1d1d1d]"
                 )}
               >
                 <div className={cn(
@@ -195,7 +194,9 @@ export function ShareDialog({
                 onClick={() => handleSocialShare(p.id, p.handler)}
                 className={cn(
                   "flex flex-col items-center justify-center gap-2 h-20 rounded-2xl border active:scale-95 transition-all",
-                  isLight ? "bg-slate-50 border-slate-200 hover:bg-slate-100" : "bg-[#161616] border-white/[0.06] hover:bg-[#1d1d1d]"
+                  isLight
+                    ? "bg-white border-slate-200 shadow-[0_8px_20px_-10px_rgba(15,23,42,0.18)] hover:shadow-[0_12px_28px_-10px_rgba(15,23,42,0.28)]"
+                    : "bg-[#161616] border-white/[0.06] hover:bg-[#1d1d1d]"
                 )}
               >
                 <div className={cn(
@@ -232,10 +233,11 @@ export function ShareDialog({
               onClick={handleEmailShare}
               disabled={!recipientEmail}
               className={cn(
-                "h-12 w-12 rounded-2xl p-0 active:scale-95 transition-all",
+                "h-12 w-12 rounded-2xl p-0 active:scale-95 transition-all border-none",
+                "bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_14px_30px_-10px_hsl(var(--primary)/0.55)]",
                 isLight
-                  ? "bg-slate-900 text-white hover:bg-slate-800 border-none shadow-md disabled:bg-slate-200 disabled:text-slate-400"
-                  : "bg-[#1A1A1A] text-white hover:bg-[#222] border border-white/[0.06]"
+                  ? "disabled:bg-slate-100 disabled:text-slate-400 disabled:shadow-none"
+                  : "disabled:bg-white/[0.06] disabled:text-white/30 disabled:shadow-none"
               )}
             >
               <Send className="w-4 h-4" />
