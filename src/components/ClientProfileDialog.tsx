@@ -219,7 +219,7 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={(v) => { triggerHaptic('light'); onOpenChange(v); }}>
-      <DialogContent hideCloseButton className={cn("sm:max-w-3xl max-h-[92vh] flex flex-col p-0 gap-0 overflow-hidden rounded-[2.5rem]", isLight ? "border-border bg-background text-foreground shadow-[0_30px_90px_hsl(var(--foreground)/0.16)]" : "border-border bg-background text-foreground shadow-[0_0_80px_hsl(var(--background)/0.95)]")}>
+      <DialogContent hideCloseButton className={cn("client-profile-dialog sm:max-w-3xl max-h-[92vh] flex flex-col p-0 gap-0 overflow-hidden rounded-[2.5rem]", isLight ? "light-profile-dialog border-border bg-background text-foreground shadow-[0_30px_90px_hsl(var(--foreground)/0.16)]" : "border-border bg-background text-foreground shadow-[0_0_80px_hsl(var(--background)/0.95)]")}>
         
         {/* 🛸 NEXUS ATMOSPHERIC LAYER */}
         <div className={cn("absolute inset-0 pointer-events-none overflow-hidden", isLight ? "opacity-[0.04]" : "opacity-20")}>
@@ -442,10 +442,10 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
               Cancel
            </Button>
            
-           <Button 
+            <Button 
               onClick={handleSave}
               disabled={saveMutation.isPending}
-              className="h-14 pl-8 pr-10 rounded-2xl font-black italic uppercase tracking-[0.2em] shadow-2xl active:scale-95 transition-all group border-none text-white overflow-hidden relative"
+               className="keep-white h-14 pl-8 pr-10 rounded-2xl font-black italic uppercase tracking-[0.2em] shadow-2xl active:scale-95 transition-all group border-none text-white overflow-hidden relative"
               style={{ background: 'linear-gradient(135deg, #FF4D00, #EB4898)' }}
            >
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.2),transparent_70%)] pointer-events-none" />
