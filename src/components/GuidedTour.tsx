@@ -11,6 +11,7 @@ export function GuidedTour() {
 
   useEffect(() => {
     if (!isActive || !step) return;
+    if (step.welcome) { setTargetRect(null); return; }
     const findTarget = () => {
       const el = document.querySelector(step.target);
       if (el) {
