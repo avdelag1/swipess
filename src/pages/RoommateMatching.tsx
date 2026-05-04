@@ -5,7 +5,6 @@ import {
   Settings2, ShieldCheck, Zap,
   MessageCircle, Eye, EyeOff
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { triggerHaptic } from '@/utils/haptics';
 import { cn } from '@/lib/utils';
@@ -38,7 +37,6 @@ const InfoPill = ({ icon: Icon, label, value }: { icon: any, label: string, valu
 };
 
 export default function RoommateMatching() {
-  const navigate = useNavigate();
   const { isLight } = useAppTheme();
   const { activeMode } = useActiveMode();
   const { t } = useTranslation();
