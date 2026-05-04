@@ -140,15 +140,6 @@ export default function OwnerViewClientProfile() {
     );
   }
 
-  const handleLike = () => {
-    triggerHaptic('success');
-    toast.success('Added to Liked Clients');
-  };
-
-  const handleShare = () => {
-    triggerHaptic('light');
-    toast.info('Share options coming soon');
-  };
 
   return (
     <div
