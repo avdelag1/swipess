@@ -616,7 +616,7 @@ function LikedListingInsightsModalComponent({ open, onOpenChange, listing }: Lik
                 className="w-full h-13 bg-gradient-to-r from-[#EB4898] to-[#FF4D00] hover:brightness-110 text-white font-black text-sm uppercase tracking-wider rounded-2xl shadow-lg shadow-[#EB4898]/20 border-0 active:scale-[0.98] transition-all"
               >
                 <MessageCircle className="w-5 h-5 mr-2" />
-                {isCreatingConversation ? 'Starting...' : 'Message Owner'}
+                {isCreatingConversation ? 'Starting...' : `Message ${propertyInsights?.ownerLabel ?? 'Owner'}`}
               </Button>
 
               <div className="grid grid-cols-4 gap-2">
