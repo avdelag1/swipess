@@ -104,13 +104,23 @@ const CardImage = memo(({
   if (isPlaceholder) return <PlaceholderImage name={name} />;
 
   return (
-    <div className="absolute inset-0 w-full h-full" style={{ zIndex: 1, overflow: 'hidden' }}>
+    <div className="absolute inset-0 w-full h-full" style={{ zIndex: 1, overflow: 'hidden', borderRadius: fullScreen ? 'var(--radius-md)' : undefined }}>
       <div className="absolute inset-0 bg-zinc-800" style={{ opacity: loaded ? 0 : 1, transition: 'opacity 150ms ease-out' }} />
       <img
         src={src}
         alt={alt}
+        draggable={false}
         className={cn("absolute inset-0 w-full h-full object-cover", loaded ? "opacity-100" : "opacity-0")}
-        style={{ transition: 'opacity 150ms ease-out', animation: loaded ? 'photo-swim 12s ease-in-out infinite' : 'none' }}
+        style={{
+          transition: 'opacity 150ms ease-out',
+          animation: loaded ? 'photo-swim 12s ease-in-out infinite' : 'none',
+          borderRadius: fullScreen ? 'var(--radius-md)' : undefined,
+          WebkitTouchCallout: 'none',
+          WebkitUserSelect: 'none',
+          userSelect: 'none',
+        }}
+        onDragStart={(event) => event.preventDefault()}
+        onContextMenu={(event) => event.preventDefault()}
         onLoad={() => { imageCache.set(src, true); setLoaded(true); }}
         onError={() => setError(true)}
       />
