@@ -1,7 +1,7 @@
 import { useState, useCallback, useRef, useEffect, useMemo, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  X, Send, Mic, Sparkles, Plus, 
+  X, Send, Mic, Sparkles, Plus, CornerDownLeft,
   Trash2, Menu, Zap, Flame, Sun, Crown, Moon, History, ArrowUp,
   Copy, Languages, Timer, ArrowRight, RefreshCw, Volume2, VolumeX
 } from 'lucide-react';
@@ -833,20 +833,23 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                        />
                     </div>
                     
-                     <button
-                       onClick={handleSend}
+                      <button
+                        onClick={handleSend}
                         disabled={!input.trim() || isLoading}
-                         className={cn(
-                           "h-14 w-14 shrink-0 rounded-full flex items-center justify-center transition-all shadow-2xl active:scale-90 ring-2",
-                           "bg-primary text-primary-foreground hover:bg-primary/90 shadow-primary/40 ring-primary/30",
-                           (!input.trim() || isLoading) && "opacity-50"
-                         )}
+                        className={cn(
+                          "h-14 min-w-16 shrink-0 rounded-full inline-flex items-center justify-center gap-1.5 px-4 transition-all active:scale-90 ring-2 border shadow-[0_18px_42px_hsl(var(--primary)/0.42)] [&_svg]:block",
+                          "bg-primary text-primary-foreground border-primary/30 ring-primary/35 hover:bg-primary/90 hover:shadow-[0_22px_54px_hsl(var(--primary)/0.5)]",
+                          (!input.trim() || isLoading) && "opacity-70 grayscale"
+                        )}
                         aria-label="Send message"
-                     >
-                       {isLoading
-                          ? <RefreshCw className="w-6 h-6 animate-spin" />
-                          : <ArrowUp className="w-6 h-6" strokeWidth={3} />}
-                     </button>
+                      >
+                        {isLoading ? (
+                          <RefreshCw className="h-6 w-6 animate-spin" />
+                        ) : (
+                          <CornerDownLeft className="h-6 w-6" strokeWidth={3.2} />
+                        )}
+                        <span className="text-[10px] font-black uppercase tracking-widest leading-none hidden sm:inline">Enter</span>
+                      </button>
                   </div>
                 </footer>
               </div>
