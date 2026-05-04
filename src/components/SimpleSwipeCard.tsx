@@ -423,7 +423,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
                 return (
                   <VehicleCardInfo
                     price={(listing as any).price || 0}
-                    priceType={(listing as any).listing_type === 'sale' ? 'sale' : (listing as any).rental_duration_type === 'monthly' ? 'month' : 'day'}
+                    priceType={(listing as any).listing_type === 'rental' ? ((listing as any).rental_duration_type === 'monthly' ? 'month' : 'day') : 'sale'}
                     make={(listing as any).vehicle_brand}
                     model={(listing as any).vehicle_model}
                     year={(listing as any).year}
@@ -437,7 +437,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
               return (
                 <PropertyCardInfo
                   price={(listing as any).price || 0}
-                  priceType={(listing as any).listing_type === 'sale' ? 'sale' : (listing as any).rental_duration_type === 'monthly' ? 'month' : 'night'}
+                  priceType={(listing as any).listing_type === 'rental' ? ((listing as any).rental_duration_type === 'monthly' ? 'month' : 'night') : 'sale'}
                   propertyType={(listing as any).property_type}
                   beds={(listing as any).beds}
                   baths={(listing as any).baths}
