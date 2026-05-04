@@ -210,8 +210,8 @@ function TopBarComponent({
                   <Crown
                     className="w-4 h-4"
                     style={{
-                      color: '#8b5cf6',
-                      filter: isLight ? 'none' : 'drop-shadow(0 0 8px rgba(139,92,246,0.6))',
+                      color: '#E4007C',
+                      filter: isLight ? 'none' : 'drop-shadow(0 0 8px rgba(228,0,124,0.65))',
                     }}
                     strokeWidth={2.2}
                   />

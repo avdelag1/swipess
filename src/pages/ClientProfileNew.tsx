@@ -19,6 +19,8 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Progress } from "@/components/ui/progress";
+import useAppTheme from "@/hooks/useAppTheme";
+import { cn } from "@/lib/utils";
 
 const fastSpring = { type: "spring" as const, stiffness: 600, damping: 28, mass: 0.6 };
 const stagger = { staggerChildren: 0.06, delayChildren: 0.02 };
@@ -28,6 +30,7 @@ const childVariant = {
 };
 
 const ClientProfileNew = () => {
+  const { isLight } = useAppTheme();
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showPhotoPreview, setShowPhotoPreview] = useState(false);
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
@@ -103,7 +106,10 @@ const ClientProfileNew = () => {
           >
             <div className="relative">
               <div
-                className="w-20 h-20 rounded-full bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center overflow-hidden cursor-pointer"
+                className={cn(
+                  "w-20 h-20 rounded-full flex items-center justify-center overflow-hidden cursor-pointer border",
+                  isLight ? "bg-white border-black/10" : "bg-black border-white/10"
+                )}
                 onClick={() => profile?.profile_images?.length ? handlePhotoClick(0) : setShowEditDialog(true)}
               >
                 {profile?.profile_images?.[0] ? (
@@ -113,7 +119,12 @@ const ClientProfileNew = () => {
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <User className="w-10 h-10 text-primary-foreground" />
+                  <span className={cn(
+                    "text-3xl font-bold tracking-tight",
+                    isLight ? "text-zinc-900" : "text-white"
+                  )}>
+                    {(profile?.name || user?.email || '?').trim().charAt(0).toUpperCase()}
+                  </span>
                 )}
               </div>
               <button
