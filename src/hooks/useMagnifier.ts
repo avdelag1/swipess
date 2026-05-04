@@ -58,6 +58,7 @@ export function useMagnifier(config: MagnifierConfig = {}): UseMagnifierReturn {
   const pointerIdRef = useRef<number | null>(null);
   const savedOverflowsRef = useRef<{ el: HTMLElement; overflow: string }[]>([]);
   const windowListenersRef = useRef<(() => void) | null>(null);
+  const activeTargetRef = useRef<HTMLElement | null>(null);
 
   const wasActiveRef = useRef(false);
   const isMovingRef = useRef(false);
@@ -84,6 +85,10 @@ export function useMagnifier(config: MagnifierConfig = {}): UseMagnifierReturn {
     if (!containerRef.current) return null;
     const img = containerRef.current.querySelector('img');
     if (img && img.complete) {
+      img.draggable = false;
+      img.style.pointerEvents = 'none';
+      img.style.setProperty('-webkit-user-drag', 'none');
+      img.style.setProperty('-webkit-touch-callout', 'none');
       imageRef.current = img;
       return img;
     }
@@ -127,6 +132,14 @@ export function useMagnifier(config: MagnifierConfig = {}): UseMagnifierReturn {
     triggerHaptic('light');
     onActiveChange?.(true);
     findImage();
+    activeTargetRef.current = target as HTMLElement | null;
+
+    if (target instanceof HTMLElement) {
+      target.style.touchAction = 'none';
+      target.style.setProperty('-webkit-touch-callout', 'none');
+      target.style.setProperty('-webkit-user-select', 'none');
+      target.style.userSelect = 'none';
+    }
 
     // Capture pointer so we keep getting events even if finger leaves the element
     if (target && pointerIdRef.current !== null) {
@@ -154,10 +167,15 @@ export function useMagnifier(config: MagnifierConfig = {}): UseMagnifierReturn {
       }
     };
     const handleContextMenu = (ev: Event) => { ev.preventDefault(); };
+    const handleDragStart = (ev: DragEvent) => { ev.preventDefault(); };
+    const handleGesture = (ev: Event) => { ev.preventDefault(); };
     window.addEventListener('pointermove', handleWindowMove, { passive: false });
     window.addEventListener('pointerup', handleWindowUp);
     window.addEventListener('pointercancel', handleWindowUp);
     window.addEventListener('contextmenu', handleContextMenu);
+    window.addEventListener('dragstart', handleDragStart);
+    window.addEventListener('gesturestart', handleGesture);
+    window.addEventListener('gesturechange', handleGesture);
     // Prevent iOS text selection / callout from hijacking the gesture
     const handleSelectStart = (ev: Event) => { ev.preventDefault(); };
     const handleTouchMove = (ev: TouchEvent) => { ev.preventDefault(); };
@@ -168,6 +186,9 @@ export function useMagnifier(config: MagnifierConfig = {}): UseMagnifierReturn {
       window.removeEventListener('pointerup', handleWindowUp as any);
       window.removeEventListener('pointercancel', handleWindowUp as any);
       window.removeEventListener('contextmenu', handleContextMenu);
+      window.removeEventListener('dragstart', handleDragStart);
+      window.removeEventListener('gesturestart', handleGesture);
+      window.removeEventListener('gesturechange', handleGesture);
       window.removeEventListener('selectstart', handleSelectStart);
       window.removeEventListener('touchmove', handleTouchMove as any);
     };
@@ -210,12 +231,14 @@ export function useMagnifier(config: MagnifierConfig = {}): UseMagnifierReturn {
       rafRef.current = null;
     }
 
-    // Release pointer capture
-    if (containerRef.current && pointerIdRef.current !== null) {
+    // Release pointer capture from the same element that captured it.
+    const captureTarget = activeTargetRef.current || containerRef.current;
+    if (captureTarget && pointerIdRef.current !== null) {
       try {
-        containerRef.current.releasePointerCapture(pointerIdRef.current);
+        captureTarget.releasePointerCapture(pointerIdRef.current);
       } catch (_err) { /* ignore */ }
     }
+    activeTargetRef.current = null;
     pointerIdRef.current = null;
 
     if (windowListenersRef.current) {

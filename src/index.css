@@ -47,6 +47,14 @@ html, body, #root {
   will-change: transform;
 }
 
+.swipe-card-image {
+  -webkit-user-drag: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  pointer-events: none;
+}
+
 /* 🏎️ OFF-SCREEN OPTIMIZATION */
 .offscreen-hidden {
   content-visibility: auto;

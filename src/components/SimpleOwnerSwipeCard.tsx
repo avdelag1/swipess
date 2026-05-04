@@ -104,13 +104,23 @@ const CardImage = memo(({
   if (isPlaceholder) return <PlaceholderImage name={name} />;
 
   return (
-    <div className="absolute inset-0 w-full h-full" style={{ zIndex: 1, overflow: 'hidden' }}>
+    <div className="absolute inset-0 w-full h-full" style={{ zIndex: 1, overflow: 'hidden', borderRadius: fullScreen ? 'var(--radius-md)' : undefined }}>
       <div className="absolute inset-0 bg-zinc-800" style={{ opacity: loaded ? 0 : 1, transition: 'opacity 150ms ease-out' }} />
       <img
         src={src}
         alt={alt}
+        draggable={false}
         className={cn("absolute inset-0 w-full h-full object-cover", loaded ? "opacity-100" : "opacity-0")}
-        style={{ transition: 'opacity 150ms ease-out', animation: loaded ? 'photo-swim 12s ease-in-out infinite' : 'none' }}
+        style={{
+          transition: 'opacity 150ms ease-out',
+          animation: loaded ? 'photo-swim 12s ease-in-out infinite' : 'none',
+          borderRadius: fullScreen ? 'var(--radius-md)' : undefined,
+          WebkitTouchCallout: 'none',
+          WebkitUserSelect: 'none',
+          userSelect: 'none',
+        }}
+        onDragStart={(event) => event.preventDefault()}
+        onContextMenu={(event) => event.preventDefault()}
         onLoad={() => { imageCache.set(src, true); setLoaded(true); }}
         onError={() => setError(true)}
       />
@@ -321,7 +331,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
 
   if (!isTop) {
     return (
-      <div className="absolute inset-0 overflow-hidden" style={{ pointerEvents: 'none' }}>
+      <div className="absolute inset-0 overflow-hidden" style={{ pointerEvents: 'none', borderRadius: 'var(--radius-md)' }}>
         <div className="absolute inset-0">
           <CardImage src={currentImage} alt={profile.name || 'Client'} name={profile.name} fullScreen={true} />
         </div>
@@ -350,11 +360,19 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
         style={{
           x, y, rotate: cardRotate, opacity: cardOpacity, willChange: 'transform, opacity',
           transform: 'translate3d(0,0,0)', backfaceVisibility: 'hidden',
+          borderRadius: 'var(--radius-md)',
           boxShadow: 'none',
-          background: '#000',
+          background: 'hsl(var(--background))',
         }}
       >
-        <div ref={containerRef} className="absolute inset-0 overflow-hidden" onClick={handleImageTap}>
+        <div
+          ref={containerRef}
+          className="absolute inset-0 overflow-hidden"
+          style={{ borderRadius: 'inherit', WebkitUserSelect: 'none', userSelect: 'none', touchAction: 'none' }}
+          onClick={handleImageTap}
+          onDragStart={(event) => event.preventDefault()}
+          onContextMenu={(event) => event.preventDefault()}
+        >
           <CardImage src={currentImage} alt={profile.name || 'Client'} name={profile.name} priority={isTop} fullScreen={true} />
 
           <div className="absolute top-0 left-0 right-0 pointer-events-none z-20"
