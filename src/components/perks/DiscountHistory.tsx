@@ -2,6 +2,7 @@ import { useMemo, useCallback } from 'react';
 import useAppTheme from '@/hooks/useAppTheme';
 import { motion } from 'framer-motion';
 import { Download, Zap, Calendar } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface DiscountHistoryProps {
   redemptions: any[];

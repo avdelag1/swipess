@@ -63,9 +63,6 @@ export function useMagnifier(config: MagnifierConfig = {}): UseMagnifierReturn {
   const wasActiveRef = useRef(false);
   const isMovingRef = useRef(false);
 
-  const wasActiveRef = useRef(false);
-  const isMovingRef = useRef(false);
-
   const magnifierState = useRef<MagnifierState>({
     isActive: false,
     x: 0,
