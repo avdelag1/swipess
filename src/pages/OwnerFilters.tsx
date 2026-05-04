@@ -98,7 +98,10 @@ export default function OwnerFilters({ isEmbedded, onClose }: OwnerFiltersProps)
               <button
                 key={cat.id}
                 onClick={() => { haptics.tap(); setActiveCategory(cat.id as CategoryType); }}
-                className="flex flex-col items-center justify-center gap-1.5 py-4 rounded-[2rem] transition-all duration-300 relative overflow-hidden group"
+                className={cn(
+                  "flex flex-col items-center justify-center gap-1.5 py-4 rounded-[2rem] transition-all duration-300 relative overflow-hidden group",
+                  !active && "text-foreground"
+                )}
                 style={active ? {
                   backgroundColor: '#FF4D00',
                   color: 'white',
