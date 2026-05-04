@@ -51,8 +51,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   
   const isSwipeDashboard = useMemo(() => {
     const path = location.pathname;
-    return path === '/client/dashboard' || path === '/owner/dashboard' ||
-      path === '/client/dashboard/' || path === '/owner/dashboard/';
+    return path.startsWith('/client/dashboard') || path.startsWith('/owner/dashboard');
   }, [location.pathname]);
 
   const { isRefreshing, pullDistance, triggered } = usePullToRefresh({

@@ -6,15 +6,21 @@ import { triggerHaptic } from '@/utils/haptics';
 import { cn } from '@/lib/utils';
 import useAppTheme from '@/hooks/useAppTheme';
 import { useLocation } from 'react-router-dom';
+import { useFilterStore } from '@/state/filterStore';
 
 export function VoiceConciergeButton() {
   const { isLight } = useAppTheme();
   const location = useLocation();
   const { setModal, showAIChat } = useModalStore();
-
+  const activeCategory = useFilterStore(s => s.activeCategory);
+  const isRoommates = location.pathname.includes('/explore/roommates');
   const isDashboard = location.pathname.includes('/dashboard');
   const isExplore = location.pathname.includes('/explore');
   
+  // Hide on specific swipe-heavy routes or when actively swiping a category
+  if (isRoommates || activeCategory) return null;
+  
+  // Only show on other dashboard/explore hubs
   if (!isDashboard && !isExplore) return null;
   if (showAIChat) return null;
 
