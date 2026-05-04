@@ -219,10 +219,10 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={(v) => { triggerHaptic('light'); onOpenChange(v); }}>
-      <DialogContent hideCloseButton className="sm:max-w-3xl max-h-[92vh] flex flex-col p-0 gap-0 border border-white/5 bg-[#020202] overflow-hidden rounded-[2.5rem] shadow-[0_0_80px_rgba(0,0,0,0.95)]">
+      <DialogContent hideCloseButton className={cn("sm:max-w-3xl max-h-[92vh] flex flex-col p-0 gap-0 overflow-hidden rounded-[2.5rem]", isLight ? "border-border bg-background text-foreground shadow-[0_30px_90px_hsl(var(--foreground)/0.16)]" : "border-border bg-background text-foreground shadow-[0_0_80px_hsl(var(--background)/0.95)]")}>
         
         {/* 🛸 NEXUS ATMOSPHERIC LAYER */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-20">
+        <div className={cn("absolute inset-0 pointer-events-none overflow-hidden", isLight ? "opacity-[0.04]" : "opacity-20")}>
           <div
             className="absolute inset-0"
             style={{
@@ -236,7 +236,7 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
         </div>
 
         {/* 🛸 NEXUS HEADER */}
-        <div className="relative px-8 pt-8 pb-6 border-b border-white/5 bg-gradient-to-b from-white/[0.04] to-transparent z-10">
+        <div className={cn("relative px-8 pt-8 pb-6 border-b z-10", isLight ? "border-border bg-gradient-to-b from-muted/50 to-transparent" : "border-border bg-gradient-to-b from-foreground/[0.04] to-transparent")}>
            <div className="flex items-center justify-between">
               <div className="space-y-1">
                  <div className="flex items-center gap-2">
