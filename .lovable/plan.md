@@ -1,47 +1,41 @@
-# App-Wide Polish Pass — Titles & Copy Consistency
+# Full App Polish & Performance Audit
 
-Goal: prepare for App Store review by ensuring every page/section has a correct, well-organized title and that no screen mislabels content (e.g. a worker/vehicle/user shown as "Property" in the insights modal).
+A focused pass to fix two real bugs surfaced in the console and elevate the "instant + buttery" feel across the app, without touching architecture, swipe physics, or routing.
 
-## 1. Fix the Insights Modal mislabeling
+## Bugs to fix (confirmed from console)
 
-`src/components/LikedListingInsightsModal.tsx` is the offender — it hardcodes "Property" everywhere even when the liked item is a worker, vehicle, motorcycle, bicycle, or roommate profile.
+1. **Duplicate React keys in `SwipeActionButtonBar`** — AnimatePresence is warning about non-unique keys, which causes flicker and dropped exit animations on the floating action icons.
+   - Make each motion child key uniquely derived (action id + card id), and ensure stable keys across re-renders.
 
-Introduce a single derived `entityLabel` based on the existing category logic (`isWorker`, `isVehicle`, `isMotorcycle`, `isBicycle`, `isProperty`) and a matching plural/owner term:
+2. **`column client_profiles.occupation does not exist`** — a query is selecting a removed column, throwing on every dashboard load.
+   - Locate the offending `.select(...)` (likely in a profile/insights hook) and remove `occupation` or replace with the current field. Verify against the live schema before changing.
 
-| Category | Singular | Owner term |
-|---|---|---|
-| property / room / house | Listing | Owner |
-| worker / services | Professional | Provider |
-| motorcycle / bicycle / vehicle | Vehicle | Seller |
-| roommate | Roommate | User |
+## Speed & "instant" feel
 
-Replace the hardcoded "Property" / "property" / "owner" strings at lines 152, 159, 253, 269, 329, 596, 656, 659, 726 and the "Message Owner" CTA (line 611) with the dynamic label. Same treatment for the `<AlertDialogTitle>` "Remove from Liked Properties".
+- **Tap latency**: audit `useInstantReactivity` to also fire on `:active` for elements without pointer events (Safari edge case), and ensure `touch-action: manipulation` on all primary buttons to kill the 300ms tap delay where still present.
+- **Route transitions**: confirm `useAppNavigate` prefetch fires on `pointerdown` (intent), not `click`, on bottom nav and header buttons. Add prefetch to any nav buttons missing it (Insights modal, filter chips, profile tiles).
+- **Suspense fallbacks**: replace any remaining blank `min-h-[60vh]` placeholders on hot routes (Dashboard, Filters, Liked) with a 1-frame skeleton matching final layout to avoid layout shift.
 
-## 2. Sweep page titles for organization
+## Smoothness & micro-interactions
 
-Audit and align every page so the `PageHeader title/subtitle` (and `<Helmet><title>`) reflects the actual content. Concrete targets:
+- **Swipe action bar**: add `will-change: transform, filter` only while pressed (remove after) to avoid permanent layer promotion; keep the new frameless drop-shadow look.
+- **Card stack**: verify `RecyclingCardStack` slot rotation reattaches engine on the same frame as the DOM swap (already uses rAF — confirm no double rAF), preventing the brief unresponsive window after a fast swipe.
+- **Scroll**: ensure `overscroll-behavior: contain` on scroll containers in Liked, Insights, and Filters to stop rubber-band leaking into the page.
+- **Modals**: standardize open/close to 220ms ease-out / 180ms ease-in across `LikedListingInsightsModal`, `TokensModal`, and Concierge sheet for a unified rhythm.
 
-- **Owner side**
-  - `OwnerInterestedClients.tsx`: confirm "Interested Clients / Top Demand"
-  - `OwnerLikedClients.tsx`, `OwnerProperties.tsx`, `OwnerSavedSearches.tsx`, `OwnerSecurity.tsx`, `OwnerSettings.tsx`, `OwnerContracts.tsx`, `OwnerFilters.tsx`, `OwnerNewListing.tsx`, `OwnerProfile.tsx`, `OwnerViewClientProfile.tsx` — verify each header reads naturally for an owner (no "Property" leak when viewing a person).
-- **Client side**
-  - `ClientLikedProperties.tsx` (rename header to "Liked Listings" since it can include workers/vehicles), `ClientWhoLikedYou.tsx`, `ClientSavedSearches.tsx`, `ClientSecurity.tsx`, `ClientSettings.tsx`, `ClientContracts.tsx`, `ClientPerks.tsx`, `ClientWorkerDiscovery.tsx`, `ClientProfile.tsx`.
-- **Shared/utility**
-  - `MessagingDashboard`, `NotificationsPage`, `LegalHub`, `FAQClientPage`, `FAQOwnerPage`, `AboutPage`, `SubscriptionPackagesPage`, `EventosFeed`, `EventoDetail`, `RoommateMatching`, `LocalIntel`, `PriceTracker`, `DocumentVault`, `MaintenanceRequests`, `WorldRadioDirectory`, `DJTurntableRadio`, `AdvertisePage`, `VideoTours`.
-- **Document title** — add/normalize `<Helmet><title>... | Swipess</title>` per the branding rule (currently only a few pages set it).
+## Visual hierarchy polish (no layout changes)
 
-For each page: title = what this screen *is*, subtitle = a short intent line. No emojis. Use existing `PageHeader` component and i18n strings where already present.
-
-## 3. Quick QA pass
-
-After edits, spot-check on `/client/dashboard`, `/owner/dashboard`, `/messages`, `/notifications`, `/client/liked`, `/owner/interested`, and the Insights modal opened from a worker card and a vehicle card to confirm labels render correctly.
+- **Header / nav icon contrast**: confirm the dark-icons-when-not-on-deck logic from `useDeckHasCards` covers the Filters page and Insights modal back-state (icons currently can read white over light backgrounds for a frame).
+- **Typography rhythm**: bump primary titles on empty-state and Filters pages to the 28–32 / 14–16 power ratio defined in the design memory; tighten letter-spacing on uppercase CTAs to `0.22em`.
+- **Shadow scaling**: align floating action shadow blurs to the 4 / 12 / 24 / 60 ladder so the swipe bar, FABs, and modals feel hierarchically layered instead of equal-weight.
 
 ## Out of scope
-- No layout, color, or component restructuring.
-- No new translation keys unless a string is already i18n-wired.
-- No changes to swipe physics, routing, or backend.
+
+- No changes to swipe physics, routing, auth, or DB schema.
+- No new components or pages.
+- No copy/translation changes beyond fixing the Insights titles already shipped.
 
 ## Technical notes
-- All copy edits stay inside JSX/string literals — no schema or hook changes.
-- Insights modal: derive `entityLabel` once inside the existing `propertyInsights` `useMemo` and reuse it; keep variable names (`propertyInsights`, `isProperty`) intact to avoid touching logic.
-- Preserve semantic tokens; do not introduce hardcoded colors.
+
+- Files most likely touched: `src/components/SwipeActionButtonBar.tsx`, the hook selecting `client_profiles.*` (search `'occupation'` across `src/`), `src/hooks/useInstantReactivity.ts`, `src/components/AnimatedOutlet.tsx`, `src/hooks/useDeckHasCards.ts`, a few page-level CSS tweaks.
+- Verification: reload Client Dashboard → no duplicate-key warning, no `42703` query error, swipe + nav feel instant, header icons remain legible across routes.

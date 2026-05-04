@@ -52,7 +52,7 @@ export function VapIdEditModal({ isOpen, onClose }: Props) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('client_profiles')
-        .select('bio, occupation, city, nationality, years_in_city, languages, interests, personality_traits, preferred_activities')
+        .select('bio, city, nationality, years_in_city, languages, interests, personality_traits, preferred_activities')
         .eq('user_id', user!.id)
         .maybeSingle();
       if (error) throw error;

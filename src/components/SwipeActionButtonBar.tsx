@@ -196,6 +196,7 @@ export const SwipeActionButtonBar = memo(({
       <AnimatePresence mode="popLayout" initial={false}>
         {onUndo && (
           <ActionButton
+            key="action-undo"
             onClick={onUndo}
             disabled={disabled || !canUndo}
             size="small"
@@ -208,6 +209,7 @@ export const SwipeActionButtonBar = memo(({
           </ActionButton>
         )}
         <ActionButton
+          key="action-dislike"
           onClick={onDislike}
           disabled={disabled}
           size="large"
@@ -220,6 +222,7 @@ export const SwipeActionButtonBar = memo(({
         </ActionButton>
         {onMessage && (
           <ActionButton
+            key="action-message"
             onClick={onMessage}
             disabled={disabled}
             size="small"
@@ -232,6 +235,7 @@ export const SwipeActionButtonBar = memo(({
           </ActionButton>
         )}
         <ActionButton
+          key="action-like"
           onClick={onLike}
           disabled={disabled}
           size="large"
@@ -244,6 +248,7 @@ export const SwipeActionButtonBar = memo(({
         </ActionButton>
         {onInsights && (
           <ActionButton
+            key="action-insights"
             onClick={onInsights}
             disabled={disabled}
             size="small"
