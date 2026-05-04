@@ -15,7 +15,6 @@ import { useStartConversation } from '@/hooks/useConversations';
 import { useState, useMemo } from 'react';
 import useAppTheme from '@/hooks/useAppTheme';
 import { logger } from '@/utils/prodLogger';
-import { SwipeActionButtonBar } from '@/components/SwipeActionButtonBar';
 import { AtmosphericLayer } from '@/components/AtmosphericLayer';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
