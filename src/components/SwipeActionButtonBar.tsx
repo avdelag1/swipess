@@ -12,7 +12,7 @@
  *   5. Insights     (small) — cyan/eye
  */
 
-import { memo, useCallback, useState } from 'react';
+import { memo, useCallback, useState, forwardRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Undo2, MessageCircle, Flame, ThumbsDown, Eye, RotateCcw } from 'lucide-react';
 import { triggerHaptic } from '@/utils/haptics';
@@ -101,7 +101,7 @@ const VARIANTS: Record<Variant, VariantCfg> = {
 };
 
 // ── ACTION BUTTON ─────────────────────────────────────────────────────────────
-const ActionButton = memo(({
+const ActionButton = memo(forwardRef<HTMLButtonElement, any>(function ActionButton({
   onClick,
   disabled = false,
   size = 'small',
@@ -110,16 +110,7 @@ const ActionButton = memo(({
   ariaLabel,
   index = 0,
   isLight = false,
-}: {
-  onClick: () => void;
-  disabled?: boolean;
-  size?: 'small' | 'large';
-  variant?: Variant;
-  children: React.ReactNode;
-  ariaLabel: string;
-  index?: number;
-  isLight?: boolean;
-}) => {
+}: any, ref) {
   const [isPressed, setIsPressed] = useState(false);
   const cfg = VARIANTS[variant];
   const btnSizeCss = size === 'large' ? LARGE_CSS : SMALL_CSS;
@@ -137,6 +128,7 @@ const ActionButton = memo(({
 
   return (
     <motion.button
+      ref={ref}
       onClick={handleClick}
       disabled={disabled}
       aria-label={ariaLabel}
@@ -203,9 +195,9 @@ const ActionButton = memo(({
       </div>
     </motion.button>
   );
-});
+}));
 
-ActionButton.displayName = 'ActionButton';
+(ActionButton as any).displayName = 'ActionButton';
 
 export const SwipeActionButtonBar = memo(({
   onLike,
