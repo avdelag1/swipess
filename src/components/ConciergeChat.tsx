@@ -827,12 +827,12 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                     
                     <button
                       onClick={handleSend}
-                      disabled={!input.trim() || isLoading}
-                       className={cn(
-                         "h-14 min-w-[78px] shrink-0 rounded-3xl flex items-center justify-center gap-2 px-4 transition-all shadow-2xl active:scale-90 ring-1 font-black uppercase tracking-widest text-[10px]",
-                         isSwipess ? "bg-primary text-primary-foreground hover:bg-primary/90 shadow-primary/30 ring-primary/20" : "bg-foreground text-background hover:bg-foreground/90 ring-foreground/25 shadow-foreground/25",
-                         (!input.trim() || isLoading) && "pointer-events-none saturate-75"
-                       )}
+                       disabled={!input.trim() || isLoading}
+                        className={cn(
+                          "h-14 min-w-[78px] shrink-0 rounded-3xl flex items-center justify-center gap-2 px-4 transition-all shadow-2xl active:scale-90 ring-1 font-black uppercase tracking-widest text-[10px]",
+                          isSwipess ? "bg-primary text-primary-foreground hover:bg-primary/90 shadow-primary/30 ring-primary/20" : "bg-foreground text-background hover:bg-foreground/90 ring-foreground/25 shadow-foreground/25",
+                          (!input.trim() || isLoading) && "opacity-60"
+                        )}
                        aria-label="Send message"
                     >
                       {isLoading
