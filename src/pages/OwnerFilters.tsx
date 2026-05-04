@@ -59,8 +59,8 @@ export default function OwnerFilters({ isEmbedded, onClose }: OwnerFiltersProps)
     <div
       className={cn(
         "flex flex-col transition-colors duration-150 min-h-full",
-        isLight ? (isEmbedded ? "bg-transparent" : "bg-[#F8FAFC]") : (isEmbedded ? "bg-transparent" : "bg-black"),
-        isLight ? "text-slate-900" : "text-white"
+        isEmbedded ? "bg-transparent" : "bg-background",
+        "text-foreground"
       )}
       style={!isEmbedded ? { paddingBottom: 'calc(var(--bottom-nav-height, 72px) + var(--safe-bottom, 0px) + 24px)' } : undefined}
     >
@@ -70,24 +70,15 @@ export default function OwnerFilters({ isEmbedded, onClose }: OwnerFiltersProps)
             <div className="flex items-center gap-4">
               <button
                 onClick={() => navigate('/owner/dashboard')}
-                className={cn(
-                  "w-12 h-12 rounded-full flex items-center justify-center backdrop-blur-xl border transition-all active:scale-90 shadow-xl",
-                  isLight ? "bg-white border-slate-200 text-black" : "bg-white/10 border-white/10 text-white"
-                )}
+                className="w-12 h-12 rounded-full flex items-center justify-center backdrop-blur-xl border border-border bg-card text-foreground transition-all active:scale-90 shadow-xl"
               >
                 <ChevronLeft className="w-6 h-6" />
               </button>
-              <h1 className={cn(
-                "text-3xl sm:text-4xl font-black uppercase italic tracking-[-0.05em] leading-none",
-                isLight ? "text-slate-900" : "text-white"
-              )}>Radar</h1>
+              <h1 className="text-3xl sm:text-4xl font-black uppercase italic tracking-[-0.05em] leading-none text-foreground">Radar</h1>
             </div>
             <button
               onClick={handleReset}
-              className={cn(
-                "w-12 h-12 rounded-full flex items-center justify-center backdrop-blur-xl border transition-all active:scale-90 shadow-lg",
-                isLight ? "bg-black/5 border-black/10 text-black" : "bg-white/10 border-white/10 text-white"
-              )}
+              className="w-12 h-12 rounded-full flex items-center justify-center backdrop-blur-xl border border-border bg-secondary text-foreground transition-all active:scale-90 shadow-lg"
             >
               <RotateCcw className="w-5 h-5" />
             </button>
@@ -99,10 +90,7 @@ export default function OwnerFilters({ isEmbedded, onClose }: OwnerFiltersProps)
         "container mx-auto px-6 py-6 max-w-4xl",
         isEmbedded ? "px-0" : ""
       )}>
-        <div className={cn(
-          "grid grid-cols-4 gap-2 p-1.5 rounded-[2.5rem] border",
-          isLight ? "bg-white border-slate-200 shadow-sm" : "bg-white/[0.03] border-white/5"
-        )}>
+        <div className="grid grid-cols-4 gap-2 p-1.5 rounded-[2.5rem] border border-border bg-card/80 backdrop-blur-xl shadow-sm">
           {categories.map((cat) => {
             const Icon = cat.icon;
             const active = activeCategory === cat.id;
@@ -116,9 +104,8 @@ export default function OwnerFilters({ isEmbedded, onClose }: OwnerFiltersProps)
                   color: 'white',
                   boxShadow: '0 8px 24px rgba(255,77,0,0.4)',
                   transform: 'scale(1.03)'
-                } : {
-                  color: isLight ? '#000000' : '#ffffff'
-                }}
+                } : undefined}
+                {...(!active ? { 'data-inactive': true } : {})}
               >
                 <Icon className="w-5 h-5" />
                 <span className="text-[9px] font-black uppercase tracking-tighter">{cat.name}</span>
@@ -140,10 +127,7 @@ export default function OwnerFilters({ isEmbedded, onClose }: OwnerFiltersProps)
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.98, y: -10 }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className={cn(
-              "p-6 md:p-10 rounded-[3rem] border backdrop-blur-3xl",
-              isLight ? "bg-white border-slate-200 shadow-xl" : "bg-white/[0.02] border-white/5"
-            )}
+            className="p-6 md:p-10 rounded-[3rem] border border-border bg-card/70 backdrop-blur-3xl shadow-xl"
           >
             {(() => {
               const mappedCategory = 
@@ -195,10 +179,7 @@ export default function OwnerFilters({ isEmbedded, onClose }: OwnerFiltersProps)
 
           <button 
             onClick={handleReset}
-            className={cn(
-              "w-full mt-4 flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-widest opacity-40 hover:opacity-100 transition-opacity",
-              isLight ? "text-black" : "text-white"
-            )}
+            className="w-full mt-4 flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-widest text-foreground/70 hover:text-foreground transition-opacity"
           >
             <RotateCcw className="w-3 h-3" />
             Reset Radar
