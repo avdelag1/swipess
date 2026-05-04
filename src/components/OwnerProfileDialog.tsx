@@ -241,10 +241,11 @@ function OwnerProfileDialogComponent({ open, onOpenChange }: Props) {
            <Button 
               onClick={handleSave}
               disabled={saveMutation.isPending}
-              className="h-14 pl-8 pr-10 rounded-2xl bg-white text-black font-black italic uppercase tracking-[0.2em] shadow-[0_20px_40px_rgba(255,255,255,0.1)] active:scale-95 transition-all group border-none"
+              className="keep-white h-14 pl-8 pr-10 rounded-2xl font-black italic uppercase tracking-[0.2em] shadow-2xl active:scale-95 transition-all group border-none text-primary-foreground"
+              style={{ background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)))' }}
            >
-              <Save className="w-4 h-4 mr-2 group-hover:rotate-12 transition-transform !text-black" />
-              <span className="!text-black">{saveMutation.isPending ? 'Syncing...' : 'Save Brand Identity'}</span>
+              <Save className="w-4 h-4 mr-2 group-hover:rotate-12 transition-transform text-primary-foreground" />
+              <span className="text-primary-foreground">{saveMutation.isPending ? 'Syncing...' : 'Save Brand Identity'}</span>
            </Button>
         </div>
       </DialogContent>
