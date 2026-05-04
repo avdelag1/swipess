@@ -9,7 +9,7 @@ export function AnimatedOutlet() {
 
   return (
     <div
-      className="min-h-full w-full flex flex-col flex-1"
+      className="min-h-full w-full flex flex-col flex-1 bg-background"
       style={{ position: 'relative' }}
     >
       {/* No mode="wait" — that holds the old screen on-screen for the full exit
@@ -23,7 +23,7 @@ export function AnimatedOutlet() {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
-          className="flex-1 w-full flex flex-col"
+          className="flex-1 w-full flex flex-col bg-background"
           style={{ position: 'absolute', inset: 0 }}
         >
           <Suspense fallback={<SuspenseFallback minimal />}>
