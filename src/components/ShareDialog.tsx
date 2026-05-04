@@ -147,7 +147,10 @@ export function ShareDialog({
             </div>
             <Button
               onClick={handleCopyLink}
-              className="h-12 px-5 rounded-2xl font-bold uppercase tracking-wider text-xs active:scale-95 transition-all border-none bg-primary !text-primary-foreground hover:bg-primary/90 shadow-[0_14px_30px_-10px_hsl(var(--primary)/0.55)]"
+              className={cn(
+                "h-12 px-5 rounded-2xl font-bold uppercase tracking-wider text-xs active:scale-95 transition-all border-0 shadow-lg",
+                isLight ? "!bg-slate-900 !text-white hover:!bg-slate-800" : "!bg-white !text-black hover:!bg-white/90"
+              )}
             >
               <AnimatePresence mode="wait">
                 {copied ? (
@@ -168,7 +171,10 @@ export function ShareDialog({
               back to copy-to-clipboard on desktop browsers. */}
           <Button
             onClick={handleNativeShare}
-            className="w-full h-14 rounded-2xl font-bold uppercase tracking-wider text-xs active:scale-[0.98] transition-all border-none bg-primary !text-primary-foreground hover:bg-primary/90 shadow-[0_14px_30px_-10px_hsl(var(--primary)/0.55)] flex items-center justify-center gap-2"
+            className={cn(
+              "w-full h-14 rounded-2xl font-bold uppercase tracking-wider text-xs active:scale-[0.98] transition-all border-0 shadow-lg flex items-center justify-center gap-2",
+              isLight ? "!bg-slate-900 !text-white hover:!bg-slate-800" : "!bg-white !text-black hover:!bg-white/90"
+            )}
           >
             <Share2 className="w-4 h-4" strokeWidth={2.2} />
             Share via…
@@ -197,8 +203,8 @@ export function ShareDialog({
               onClick={handleEmailShare}
               disabled={!recipientEmail}
               className={cn(
-                "h-12 w-12 rounded-2xl p-0 active:scale-95 transition-all border-none",
-                "bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_14px_30px_-10px_hsl(var(--primary)/0.55)]",
+                "h-12 w-12 rounded-2xl p-0 active:scale-95 transition-all border-0 shadow-lg",
+                isLight ? "!bg-slate-900 !text-white hover:!bg-slate-800" : "!bg-white !text-black hover:!bg-white/90",
                 isLight
                   ? "disabled:bg-slate-100 disabled:text-slate-400 disabled:shadow-none"
                   : "disabled:bg-white/[0.06] disabled:text-white/30 disabled:shadow-none"
