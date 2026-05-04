@@ -2147,6 +2147,29 @@ html[data-navigation-direction="back"] {
   border: none !important;
 }
 
+.app-bottom-bar [aria-current="page"] {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.light-profile-dialog :where(h3, label, input, button, [role="combobox"], [data-radix-select-trigger]) {
+  color: hsl(var(--foreground)) !important;
+}
+
+.light-profile-dialog :where(p, .text-white\/40, .text-white\/50, .text-white\/60, .text-white\/70) {
+  color: hsl(var(--muted-foreground)) !important;
+}
+
+.light-profile-dialog :where(input, [role="combobox"], [data-radix-select-trigger]) {
+  background: hsl(var(--muted) / 0.35) !important;
+  border-color: hsl(var(--border)) !important;
+}
+
+.light-profile-dialog .keep-white,
+.light-profile-dialog .keep-white * {
+  color: hsl(var(--primary-foreground)) !important;
+}
+
 .dark .glass-pill-nav {
   background: rgba(10, 15, 30, 0.2);
   border-color: rgba(255, 255, 255, 0.05);
