@@ -731,7 +731,7 @@ function LikedListingInsightsModalComponent({ open, onOpenChange, listing }: Lik
           onOpenChange={setShowRatingDialog}
           targetId={listing.id}
           targetType="listing"
-          targetName={listing.title || 'This Property'}
+          targetName={listing.title || `This ${propertyInsights?.entityLabel ?? 'Listing'}`}
           categoryId="property"
           onSuccess={() => {
             toast({
