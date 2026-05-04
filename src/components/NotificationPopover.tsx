@@ -211,11 +211,6 @@ function EmptyState({ filter }: { filter: string }) {
         <div className="w-20 h-20 rounded-2xl bg-muted/30 flex items-center justify-center">
           <Bell className="w-9 h-9 text-muted-foreground/30" />
         </div>
-        <motion.div
-          animate={{ scale: [1, 1.1, 1] }}
-          transition={{ duration: 2, repeat: Infinity }}
-          className="absolute inset-0 rounded-2xl border-2 border-primary/20"
-        />
       </div>
       <h3 className="text-base font-semibold mb-2 text-foreground">
         {filter === 'all' ? 'No notifications yet' : 
