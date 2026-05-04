@@ -254,8 +254,8 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
                 category={activeCategory as any}
                 profiles={clientProfiles}
                 isLoading={isLoading}
-                onBack={() => { triggerHaptic('light'); setOwnerPhase('kilometer'); }}
-                onClientInsights={handleClientTap}
+                onClientTap={handleClientTap}
+                onInsights={handleClientTap}
               />
             </div>
             {typeof document !== 'undefined' && document.body && (
