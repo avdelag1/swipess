@@ -511,8 +511,9 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       if (direction === 'next') {
         nextIndex = shuffleIndexRef.current + 1;
         if (nextIndex >= shuffleQueueRef.current.length) {
-          const lastId = shuffleQueueRef.current[shuffleQueueRef.current.length - 1]?.id;
-          shuffleQueueRef.current = shuffleArray(radioStations, lastId);
+          // Re-shuffle and push recently-played stations to the back of queue
+          const reshuffled = shuffleArray(radioStations, state.currentStation?.id);
+          shuffleQueueRef.current = avoidRecent(reshuffled, recentPlayedRef.current);
           nextIndex = 0;
         }
       } else {
@@ -520,7 +521,10 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       }
       shuffleIndexRef.current = nextIndex;
       const station = shuffleQueueRef.current[nextIndex];
-      if (station) play(station);
+      if (station) {
+        pushRecent(station.id);
+        play(station);
+      }
       return;
     }
 
@@ -580,16 +584,25 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
   const shuffleAndPlay = useCallback((customStations?: RadioStation[]) => {
     const targetStations = customStations || activeStations;
     if (targetStations.length === 0) return;
-    const shuffled = shuffleArray(targetStations);
-    play(shuffled[0]);
+    const currentId = state.currentStation?.id;
+    // Build queue, avoiding repeats of current + recently-played stations
+    const baseShuffle = shuffleArray(targetStations, currentId);
+    const queue = avoidRecent(baseShuffle, [
+      ...(currentId ? [currentId] : []),
+      ...recentPlayedRef.current,
+    ]);
+    const first = queue[0];
+    if (!first) return;
+    pushRecent(first.id);
+    play(first);
     uiSounds.playStarShoot();
-    
+
     // Also enable shuffle mode with the new queue
-    shuffleQueueRef.current = shuffled;
+    shuffleQueueRef.current = queue;
     shuffleIndexRef.current = 0;
     setState(prev => ({ ...prev, isShuffle: true }));
     savePreferences({ isShuffle: true });
-  }, [activeStations, play]);
+  }, [activeStations, play, state.currentStation]);
 
   
 
