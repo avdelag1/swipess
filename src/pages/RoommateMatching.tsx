@@ -2,7 +2,7 @@ import { useState, useMemo, useRef, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Users, MapPin, Briefcase, Clock, Sparkles, X, 
-  ArrowLeft, Settings2, ShieldCheck, Zap,
+  Settings2, ShieldCheck, Zap,
   MessageCircle, Eye, EyeOff
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
