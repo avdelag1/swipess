@@ -21,6 +21,7 @@ const RadioMiniPlayer = lazy(() => import('./RadioMiniPlayer').then(m => ({ defa
 const VoiceConciergeButton = lazy(() => import('./VoiceConciergeButton').then(m => ({ default: m.VoiceConciergeButton })));
 const SwipessHud = lazy(() => import('./SwipessHud').then(m => ({ default: m.SwipessHud })));
 const VapIdCardModal = lazy(() => import('./VapIdCardModal').then(m => ({ default: m.VapIdCardModal })));
+const GlobalDialogs = lazy(() => import('./GlobalDialogs').then(m => ({ default: m.GlobalDialogs })));
 
 import { uiSounds } from '@/utils/uiSounds'; // SWIPESS AUDIO ENGINE
 
@@ -143,7 +144,8 @@ export function AppLayout({ children }: AppLayoutProps) {
     const path = location.pathname;
     const isRadio = path.startsWith('/radio');
     const isCamera = path.startsWith('/camera');
-    return isCamera || isRadio || showAIChat || isSwipeDashboard;
+    const isRoommates = path.startsWith('/explore/roommates');
+    return isCamera || isRadio || showAIChat || isSwipeDashboard || isRoommates;
   }, [location.pathname, showAIChat, isSwipeDashboard]);
 
   const showAppChrome = !isAuthRoute && !isRadioRoute && !isCameraRoute && !showAIChat && (!isPublicPreview || !!user);
@@ -244,6 +246,7 @@ export function AppLayout({ children }: AppLayoutProps) {
           isOpen={modalStore.showVapId}
           onClose={() => modalStore.setModal('showVapId', false)}
         />
+        <GlobalDialogs />
       </Suspense>
     </div>
   );

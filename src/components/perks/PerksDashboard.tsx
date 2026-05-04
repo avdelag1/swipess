@@ -67,10 +67,12 @@ export function PerksDashboard() {
   ];
 
   return (
-    <div className="flex flex-col min-h-full pt-0 bg-black relative">
+    <div className="flex flex-col min-h-full pt-0 relative bg-zinc-950/20 backdrop-blur-3xl">
       {/* 🛸 NEXUS ATMOSPHERE */}
-      <div className="fixed top-[-20%] left-[-20%] w-[80%] h-[80%] bg-rose-500/10 rounded-full blur-[120px] pointer-events-none" />
-      <div className="fixed bottom-[-20%] right-[-20%] w-[80%] h-[80%] bg-violet-600/10 rounded-full blur-[120px] pointer-events-none" />
+      <div className="fixed top-[-10%] left-[-10%] w-[120%] h-[120%] pointer-events-none z-0">
+        <div className="absolute top-0 left-1/4 w-[50%] h-[50%] bg-rose-500/10 rounded-full blur-[120px] animate-pulse" />
+        <div className="absolute bottom-0 right-1/4 w-[50%] h-[50%] bg-violet-600/10 rounded-full blur-[120px] animate-pulse" style={{ animationDelay: '1s' }} />
+      </div>
 
       {/* Tab bar */}
       <div className="relative flex gap-1.5 px-5 pt-4 pb-2 shrink-0 z-10">

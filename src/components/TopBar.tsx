@@ -130,30 +130,23 @@ function TopBarComponent({
                   className="flex shrink-0 items-center gap-1.5 px-1.5 rounded-[0.85rem] group"
                   style={glassPillStyle}
                 >
-                  <div className="w-5.5 h-5.5 rounded-[0.5rem] overflow-hidden shrink-0 flex items-center justify-center relative shadow-sm"
-                    style={{
-                      background: profile?.avatar_url ? 'transparent' : 'linear-gradient(135deg, #FF4D00, #EB4898)',
-                    }}
+                  <div className="w-6 h-6 rounded-full overflow-hidden shrink-0 flex items-center justify-center relative shadow-sm ring-1 ring-white/10"
+                    style={{ background: isLight ? 'rgba(0,0,0,0.03)' : 'rgba(255,255,255,0.08)' }}
                   >
-                    {profile?.avatar_url ? (
+                    {user?.user_metadata?.avatar_url ? (
                       <img
-                        src={profile.avatar_url}
+                        src={user.user_metadata.avatar_url}
                         alt="Profile"
                         className="w-full h-full object-cover"
-                        onError={(e) => { 
-                          const target = e.target as HTMLImageElement;
-                          target.style.display = 'none';
-                          const fallback = target.nextElementSibling as HTMLElement;
-                          if (fallback) fallback.style.display = 'flex';
-                        }}
                       />
-                    ) : null}
-                    <div 
-                      className="absolute inset-0 flex items-center justify-center"
-                      style={{ display: profile?.avatar_url ? 'none' : 'flex' }}
-                    >
-                      <UserCircle className="w-3.5 h-3.5 text-white drop-shadow-sm" strokeWidth={2.5} />
-                    </div>
+                    ) : (
+                      <div 
+                        className="absolute inset-0 flex items-center justify-center"
+                        style={{ display: profile?.avatar_url ? 'none' : 'flex' }}
+                      >
+                        <UserCircle className="w-3.5 h-3.5 text-white drop-shadow-sm" strokeWidth={2.5} />
+                      </div>
+                    )}
                   </div>
                   {profile?.full_name && (
                     <span 

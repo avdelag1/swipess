@@ -649,6 +649,13 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
     triggerHaptic('light');
   };
 
+  const handleTranslate = useCallback((text: string) => {
+    triggerHaptic('light');
+    toast.info('Translation initialization...');
+    // Real implementation would call the AI translate function
+    // For now we just acknowledge the request to stop the ReferenceError
+  }, []);
+
   const handleNavigate = (path: string) => {
     appNavigate(path);
     onClose();
