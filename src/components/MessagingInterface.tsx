@@ -579,7 +579,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
         </div>
 
         <MessageActivationPackages isOpen={showUpgradeDialog} onClose={() => setShowUpgradeDialog(false)} userRole={currentUserRole} />
-        <TokensModal open={showTokensModal} onOpenChange={setShowTokensModal} />
+        {showTokensModal && <TokensModal />}
         <RatingSubmissionDialog open={showRatingDialog} onOpenChange={setShowRatingDialog} targetId={listing?.id || otherUser.id} targetType={listing?.id ? 'listing' : 'user'} targetName={listing?.title || otherUser.full_name} categoryId={listing?.id ? (listing.category === 'vehicle' ? 'vehicle' : 'property') : 'client'} onSuccess={() => setShowRatingDialog(false)} />
       </div>
     </>

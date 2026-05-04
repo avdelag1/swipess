@@ -14,7 +14,7 @@ export default defineConfig(({ mode }) => ({
       drop: ['console', 'debugger'],
     },
   } : {}),
-  plugins: [
+  plugins: ([
     react(),
     {
       name: 'sw-build-time-plugin',
@@ -40,7 +40,7 @@ export default defineConfig(({ mode }) => ({
         return html.replace('</head>', `${preloads.slice(0, 1).join('')}</head>`);
       }
     }
-  ],
+  ] as any),
   optimizeDeps: {
     include: [
       'react', 'react-dom', 'react-dom/client', 'react/jsx-runtime', 'react/jsx-dev-runtime',
