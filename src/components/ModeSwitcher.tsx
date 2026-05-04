@@ -53,13 +53,14 @@ function ModeSwitcherComponent({ className }: ModeSwitcherProps) {
   const pillStyle: React.CSSProperties = {
     width: BUTTON_SIZE,
     height: BUTTON_SIZE,
-    background: isLight ? 'rgba(255,255,255,0.22)' : 'rgba(255,255,255,0.08)',
-    backdropFilter: 'blur(28px) saturate(180%)',
-    WebkitBackdropFilter: 'blur(28px) saturate(180%)',
-    border: isLight ? '1px solid rgba(255,255,255,0.5)' : '1px solid rgba(255,255,255,0.18)',
-    boxShadow: isLight
-      ? '0 4px 14px -6px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.6)'
-      : '0 6px 18px -8px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.12)',
+    background: 'transparent',
+    backdropFilter: 'none',
+    WebkitBackdropFilter: 'none',
+    border: 'none',
+    boxShadow: 'none',
+    filter: isLight
+      ? 'drop-shadow(0 1px 2px rgba(0,0,0,0.22))'
+      : 'drop-shadow(0 1px 3px rgba(0,0,0,0.55))',
   };
 
   return (
@@ -77,9 +78,9 @@ function ModeSwitcherComponent({ className }: ModeSwitcherProps) {
         aria-pressed={isClient}
       >
         <UserRound
-          className="h-[17px] w-[17px] transition-colors duration-300"
+          className="h-[20px] w-[20px] transition-colors duration-300"
           style={{ color: '#ef4444' }}
-          strokeWidth={isClient ? 2.6 : 2.2}
+          strokeWidth={isClient ? 3 : 2.6}
         />
       </motion.button>
 
@@ -93,9 +94,9 @@ function ModeSwitcherComponent({ className }: ModeSwitcherProps) {
         aria-pressed={!isClient}
       >
         <BriefcaseBusiness
-          className="h-[17px] w-[17px] transition-colors duration-300"
+          className="h-[20px] w-[20px] transition-colors duration-300"
           style={{ color: '#f97316' }}
-          strokeWidth={!isClient ? 2.6 : 2.2}
+          strokeWidth={!isClient ? 3 : 2.6}
         />
       </motion.button>
     </div>

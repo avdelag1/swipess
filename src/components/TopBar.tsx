@@ -55,19 +55,13 @@ function TopBarComponent({
 
   const onBack = propOnBack || (showBack ? () => window.history.length > 2 ? navigate(-1) : navigate(`/${isOwner ? 'owner' : 'client'}/dashboard`) : (activeCategory ? () => setActiveCategory(null) : undefined));
 
-  // Liquid Glass icon buttons — readable over any swipe-card backdrop.
+  // Frameless Apple-style icon buttons — no pill, no glass. Bold icons only.
   const glassPillStyle: React.CSSProperties = {
-    background: isLight
-      ? 'rgba(255,255,255,0.18)'
-      : 'rgba(255,255,255,0.08)',
-    border: isLight
-      ? '1px solid rgba(255,255,255,0.45)'
-      : '1px solid rgba(255,255,255,0.18)',
-    boxShadow: isLight
-      ? '0 4px 14px -6px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.6)'
-      : '0 6px 18px -8px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.12)',
-    backdropFilter: 'blur(28px) saturate(180%)',
-    WebkitBackdropFilter: 'blur(28px) saturate(180%)',
+    background: 'transparent',
+    border: 'none',
+    boxShadow: 'none',
+    backdropFilter: 'none',
+    WebkitBackdropFilter: 'none',
     borderRadius: '9999px',
     pointerEvents: 'auto',
     color: 'hsl(var(--foreground))',
@@ -76,6 +70,9 @@ function TopBarComponent({
     alignItems: 'center',
     justifyContent: 'center',
     transition: 'all 0.3s cubic-bezier(0.22, 1, 0.36, 1)',
+    filter: isLight
+      ? 'drop-shadow(0 1px 2px rgba(0,0,0,0.22))'
+      : 'drop-shadow(0 1px 3px rgba(0,0,0,0.55))',
   };
 
 
@@ -127,7 +124,7 @@ function TopBarComponent({
               style={{ ...glassPillStyle, width: '36px' }}
               aria-label="Back"
             >
-              <ChevronLeft className="w-4 h-4" strokeWidth={2.4} style={{ color: isLight ? '#000000' : 'var(--hud-text)' }} />
+              <ChevronLeft className="w-[20px] h-[20px]" strokeWidth={2.8} style={{ color: isLight ? '#000000' : 'var(--hud-text)' }} />
             </motion.button>
           ) : (
             user && (
@@ -208,12 +205,12 @@ function TopBarComponent({
                   aria-label="Tokens"
                 >
                   <Crown
-                    className="w-4 h-4"
+                    className="w-[20px] h-[20px]"
                     style={{
                       color: '#E4007C',
                       filter: isLight ? 'none' : 'drop-shadow(0 0 8px rgba(228,0,124,0.65))',
                     }}
-                    strokeWidth={2.2}
+                    strokeWidth={2.6}
                   />
                 </motion.button>
 

@@ -253,15 +253,16 @@ export const BottomNavigation = memo(({
           isTablet ? "mx-auto w-fit max-w-full" : "w-full"
         )}
         style={{
-          background: isLight ? 'rgba(255,255,255,0.55)' : 'rgba(20,20,24,0.55)',
-          backdropFilter: 'blur(32px) saturate(180%)',
-          WebkitBackdropFilter: 'blur(32px) saturate(180%)',
-          border: isLight ? '1px solid rgba(255,255,255,0.7)' : '1px solid rgba(255,255,255,0.12)',
-          borderRadius: '999px',
-          boxShadow: isLight
-            ? '0 10px 30px -12px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.7)'
-            : '0 14px 36px -14px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.08)',
+          background: 'transparent',
+          backdropFilter: 'none',
+          WebkitBackdropFilter: 'none',
+          border: 'none',
+          borderRadius: '0',
+          boxShadow: 'none',
           padding: '4px',
+          filter: isLight
+            ? 'drop-shadow(0 1px 2px rgba(0,0,0,0.18))'
+            : 'drop-shadow(0 1px 3px rgba(0,0,0,0.6))',
         }}
       >
         {/* Nav items row — SCROLLABLE SWIPESS ARCHITECTURE */}
@@ -384,7 +385,7 @@ export const BottomNavigation = memo(({
                            item.id === 'settings' || item.id === 'profile' ? '#FF4D00' : '#EB4898')
                         : (isLight ? 'rgba(0,0,0,0.78)' : 'rgba(255,255,255,0.92)'),
                       fill: 'none',
-                      strokeWidth: active ? 2.4 : 1.9,
+                      strokeWidth: active ? 2.8 : 2.4,
                       transition: 'color 160ms ease-out, stroke-width 160ms ease-out',
                     }}
                   />
