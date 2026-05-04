@@ -447,15 +447,25 @@ export default function OwnerViewClientProfile() {
         </div>
       </div>
 
-      {/* 🛸 NEXUS ACTION DOCK */}
-      <div className="fixed bottom-[calc(var(--bottom-nav-height,64px)+16px)] left-0 right-0 z-[100] flex justify-center pointer-events-auto">
-        <SwipeActionButtonBar
-          onLike={handleLike}
-          onDislike={() => { triggerHaptic('medium'); navigate(-1); }}
-          onShare={handleShare}
-          onMessage={handleConnect}
-          canUndo={false}
-        />
+      {/* 🛸 SINGLE MESSAGE FAB — Insights page only allows messaging */}
+      <div className="fixed bottom-[calc(var(--bottom-nav-height,64px)+20px)] left-0 right-0 z-[100] flex justify-center pointer-events-none">
+        <motion.button
+          initial={{ opacity: 0, y: 20, scale: 0.9 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ type: 'spring', stiffness: 380, damping: 26 }}
+          whileTap={{ scale: 0.94 }}
+          onClick={handleConnect}
+          disabled={isCreatingConversation}
+          className="pointer-events-auto h-14 px-7 rounded-full flex items-center gap-3 font-black uppercase italic tracking-[0.2em] text-[12px] disabled:opacity-50"
+          style={{
+            background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)))',
+            color: 'hsl(var(--primary-foreground))',
+            boxShadow: '0 18px 40px hsl(var(--primary) / 0.45), inset 0 1px 0 hsl(var(--primary-foreground) / 0.3)',
+          }}
+        >
+          <MessageCircle className="w-5 h-5" strokeWidth={2.4} />
+          <span>Message</span>
+        </motion.button>
       </div>
     </div>
   );
