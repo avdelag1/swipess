@@ -1,10 +1,21 @@
-// Resolve the public-facing base URL. Uses the current origin when running in
-// the browser so shared links stay on whatever domain the user is on
-// (preview, lovable.app, custom). Falls back to the published domain on SSR.
+// Always share via the canonical Swipess production domain so recipients
+// never see preview/iframe hosts (e.g. id-preview--*.lovable.app) and links
+// don't carry third-party branding into WhatsApp / Instagram / Facebook.
+// Only swap to a custom domain — never to a preview/sandbox host.
 const PUBLIC_FALLBACK = 'https://swipess.lovable.app';
 function getShareBaseUrl(): string {
   if (typeof window !== 'undefined' && window.location?.origin) {
-    return window.location.origin;
+    const origin = window.location.origin;
+    const host = window.location.hostname || '';
+    const isPreview =
+      host.includes('id-preview--') ||
+      host.includes('lovableproject.com') ||
+      host.includes('sandbox') ||
+      host.endsWith('.lovable.dev') ||
+      host === 'localhost' ||
+      host.startsWith('127.') ||
+      host.startsWith('192.168.');
+    if (!isPreview) return origin;
   }
   return PUBLIC_FALLBACK;
 }
