@@ -22,6 +22,7 @@ import {
 import { logger } from '@/utils/prodLogger';
 import { validateContent } from '@/utils/contactInfoValidation';
 import { triggerHaptic } from '@/utils/haptics';
+import useAppTheme from '@/hooks/useAppTheme';
 
 import {
   NATIONALITY_OPTIONS,
@@ -41,6 +42,7 @@ type Props = {
 };
 
 function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
+  const { isLight } = useAppTheme();
   const { data } = useClientProfile();
   const saveMutation = useSaveClientProfile();
 
