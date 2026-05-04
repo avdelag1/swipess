@@ -5,7 +5,7 @@ import { useCallback, useRef, useState } from 'react';
  *
  * Records audio via MediaRecorder (works on iOS Safari, in-app browsers, Android,
  * desktop) and sends it to the `voice-transcribe` edge function for STT via the
- * Lovable AI gateway. Used as a fallback when the Web Speech API is unavailable
+ * Production AI gateway. Used as a fallback when the Web Speech API is unavailable
  * or denied — which is the case on most iOS Safari configurations that Apple
  * App Review will test against.
  */

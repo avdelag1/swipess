@@ -75,7 +75,6 @@ const hostname = window.location.hostname;
 const isPreviewHost = import.meta.env.DEV
   || hostname === 'localhost'
   || hostname === '127.0.0.1'
-  || hostname.includes('lovableproject.com')
   || hostname.includes('id-preview--');
 const PREVIEW_CACHE_RESET_KEY = 'Swipess-preview-cache-reset-v1';
 

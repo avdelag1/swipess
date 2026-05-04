@@ -2,13 +2,16 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Share2, MessageCircle, ExternalLink } from 'lucide-react';
 import { toast } from '@/components/ui/sonner';
 import { EventItem } from '@/types/events';
+import { generateShareUrl } from '@/hooks/useSharing';
+import { useAuth } from '@/hooks/useAuth';
 
 export function ShareModal({
   event, open, onClose
 }: {
   event: EventItem; open: boolean; onClose: () => void;
 }) {
-  const url = `${window.location.origin}/explore/eventos/${event.id}`;
+  const { user } = useAuth();
+  const url = generateShareUrl({ eventId: event.id, referralId: user?.id });
   
   const handleCopy = () => {
     navigator.clipboard.writeText(url);

@@ -10,6 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useTranslation } from 'react-i18next';
 import { triggerHaptic } from '@/utils/haptics';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
+import { generateShareUrl } from '@/hooks/useSharing';
 
 interface EventDetail {
   id: string;
@@ -221,14 +222,16 @@ export default function EventoDetail() {
 
   const handleShare = async () => {
     triggerHaptic('light');
+    const shareUrl = generateShareUrl({ eventId: id, referralId: user?.id });
+    
     if (navigator.share && event) {
       await navigator.share({
         title: event.title,
         text: `Check out ${event.title} on Swipess!`,
-        url: window.location.href,
+        url: shareUrl,
       }).catch(() => {});
     } else {
-      await navigator.clipboard.writeText(window.location.href);
+      await navigator.clipboard.writeText(shareUrl);
       toast({ title: t('eventos.linkCopied') });
     }
   };
