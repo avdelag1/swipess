@@ -101,6 +101,11 @@ function LikedListingInsightsModalComponent({ open, onOpenChange, listing }: Lik
     // Listing urgency
     const isHotListing = qualityScore >= 75 && listing.status === 'available';
 
+    // Human-friendly entity labels
+    const entityLabel = isWorker ? 'Professional' : isVehicle ? 'Vehicle' : category === 'roommate' ? 'Roommate' : 'Listing';
+    const entityLabelLower = entityLabel.toLowerCase();
+    const ownerLabel = isWorker ? 'Provider' : isVehicle ? 'Seller' : category === 'roommate' ? 'User' : 'Owner';
+
     return {
       pricePerSqft,
       qualityScore: Math.min(100, qualityScore),
@@ -117,6 +122,9 @@ function LikedListingInsightsModalComponent({ open, onOpenChange, listing }: Lik
       isProperty,
       demandLevel,
       isHotListing,
+      entityLabel,
+      entityLabelLower,
+      ownerLabel,
     };
   }, [listing]);
 
