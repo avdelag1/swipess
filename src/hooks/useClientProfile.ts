@@ -75,11 +75,7 @@ async function resolveAuthenticatedUserId() {
   throw new Error('Auth session missing. Please sign in again.');
 }
 
-async function fetchOwnProfile() {
-  const { data: { session } } = await supabase.auth.getSession();
-  const uid = session?.user?.id;
-  if (!uid) return null;
-
+async function fetchOwnProfile(uid: string) {
   const { data, error } = await supabase
     .from('client_profiles')
     .select('*')
@@ -95,11 +91,24 @@ async function fetchOwnProfile() {
 }
 
 export function useClientProfile() {
+  // SECURITY: Scope cache by authenticated user id so a previous user's
+  // profile can never appear for a different signed-in user.
+  const [uid, setUid] = (require('react') as typeof import('react')).useState<string | null>(null);
+  (require('react') as typeof import('react')).useEffect(() => {
+    let active = true;
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (active) setUid(session?.user?.id ?? null);
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, s) => {
+      if (active) setUid(s?.user?.id ?? null);
+    });
+    return () => { active = false; subscription.unsubscribe(); };
+  }, []);
+
   return useQuery({
-    queryKey: ['client-profile-own'],
-    queryFn: fetchOwnProfile,
-    // INSTANT NAVIGATION: Keep previous data during refetch to prevent UI blanking
-    placeholderData: (prev) => prev,
+    queryKey: ['client-profile-own', uid],
+    queryFn: () => fetchOwnProfile(uid as string),
+    enabled: !!uid,
     staleTime: 2 * 60 * 1000, // 2 minutes - auto-sync keeps data fresh
     gcTime: 10 * 60 * 1000, // 10 minutes cache
     refetchOnWindowFocus: true, // AUTO-SYNC: refresh when user returns to app
