@@ -206,10 +206,10 @@ export function MessageActivationPackages({
         };
       case 'standard':
         return {
-          gradient: 'from-blue-600/5 to-transparent',
-          border: 'border-blue-500',
-          badge: isDark ? 'bg-blue-500/30 text-blue-200' : 'bg-blue-50 text-blue-700 font-black',
-          button: 'bg-blue-600 hover:bg-blue-500 text-white shadow-ram-button',
+          gradient: 'from-white/5 to-transparent',
+          border: isDark ? 'border-white/20' : 'border-zinc-300',
+          badge: isDark ? 'bg-white/10 text-white' : 'bg-zinc-100 text-zinc-900 font-black',
+          button: isDark ? 'bg-zinc-900 hover:bg-zinc-800 text-white shadow-ram-button border border-white/10' : 'bg-black hover:bg-zinc-800 text-white shadow-ram-button',
           glow: 'active', // triggers .ram-card.active styles
           cardClass: 'ram-card',
         };
