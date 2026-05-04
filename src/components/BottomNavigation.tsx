@@ -253,15 +253,16 @@ export const BottomNavigation = memo(({
           isTablet ? "mx-auto w-fit max-w-full" : "w-full"
         )}
         style={{
-          background: 'transparent',
-          backdropFilter: 'none',
-          WebkitBackdropFilter: 'none',
+          background: isLight ? 'rgba(255,255,255,0.65)' : 'rgba(18,18,20,0.55)',
+          backdropFilter: 'blur(24px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(24px) saturate(180%)',
           borderRadius: '3rem',
           padding: '4px',
-          boxShadow: 'none',
-          border: 'none',
+          boxShadow: isLight
+            ? '0 10px 30px -12px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.9)'
+            : '0 14px 34px -14px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.08)',
+          border: isLight ? '1px solid rgba(255,255,255,0.7)' : '1px solid rgba(255,255,255,0.12)',
         }}
-
       >
         {/* Nav items row — SCROLLABLE SWIPESS ARCHITECTURE */}
         <div
@@ -376,7 +377,7 @@ export const BottomNavigation = memo(({
                            item.id === 'discover' || item.id === 'dashboard' ? '#FF4D00' : 
                            item.id === 'messages' ? '#EB4898' : 
                            item.id === 'settings' || item.id === 'profile' ? '#FF4D00' : '#EB4898')
-                        : (isLight ? '#000000' : 'rgba(255,255,255,0.7)'),
+                        : (isLight ? 'rgba(0,0,0,0.78)' : 'rgba(255,255,255,0.92)'),
                       fill: 'none',
                       strokeWidth: active ? 2.4 : 1.9,
                       transition: 'color 160ms ease-out, stroke-width 160ms ease-out',
@@ -398,7 +399,7 @@ export const BottomNavigation = memo(({
                              item.id === 'discover' || item.id === 'dashboard' ? '#FF4D00' : 
                              item.id === 'messages' ? '#EB4898' : 
                              item.id === 'settings' || item.id === 'profile' ? '#FF4D00' : '#EB4898')
-                          : (isLight ? '#000000' : 'rgba(255,255,255,0.7)'),
+                          : (isLight ? 'rgba(0,0,0,0.78)' : 'rgba(255,255,255,0.92)'),
                         transition: 'color 160ms ease-out',
                         zIndex: 1,
                       }}

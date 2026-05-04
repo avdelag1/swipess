@@ -37,13 +37,17 @@ function ModeSwitcherComponent({ className }: ModeSwitcherProps) {
   const BUTTON_SIZE = 36;
 
   const containerStyle: React.CSSProperties = {
-    background: 'transparent',
-    backdropFilter: 'none',
-    WebkitBackdropFilter: 'none',
+    background: isLight ? 'rgba(255,255,255,0.55)' : 'rgba(20,20,20,0.42)',
+    backdropFilter: 'blur(18px) saturate(160%)',
+    WebkitBackdropFilter: 'blur(18px) saturate(160%)',
     borderRadius: 9999,
-    border: 'none',
-    boxShadow: 'none',
+    border: isLight ? '1px solid rgba(255,255,255,0.7)' : '1px solid rgba(255,255,255,0.14)',
+    boxShadow: isLight
+      ? '0 6px 18px -8px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.9)'
+      : '0 8px 22px -10px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.08)',
     height: BUTTON_SIZE,
+    paddingLeft: 4,
+    paddingRight: 4,
     position: 'relative',
     display: 'flex',
     alignItems: 'center',
@@ -70,9 +74,9 @@ function ModeSwitcherComponent({ className }: ModeSwitcherProps) {
         <UserRound
           className={cn(
             'h-[17px] w-[17px] transition-colors duration-300',
-            isClient ? 'text-primary' : 'text-foreground/60',
+            isClient ? 'text-primary' : (isLight ? 'text-black/70' : 'text-white/85'),
           )}
-          strokeWidth={isClient ? 2.4 : 2}
+          strokeWidth={isClient ? 2.6 : 2.2}
         />
       </motion.button>
 
@@ -88,9 +92,9 @@ function ModeSwitcherComponent({ className }: ModeSwitcherProps) {
         <BriefcaseBusiness
           className={cn(
             'h-[17px] w-[17px] transition-colors duration-300',
-            !isClient ? 'text-primary' : 'text-foreground/60',
+            !isClient ? 'text-primary' : (isLight ? 'text-black/70' : 'text-white/85'),
           )}
-          strokeWidth={!isClient ? 2.4 : 2}
+          strokeWidth={!isClient ? 2.6 : 2.2}
         />
       </motion.button>
     </div>
