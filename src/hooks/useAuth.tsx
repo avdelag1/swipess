@@ -465,7 +465,7 @@ export function AuthProvider({ children, authPromise }: { children: ReactNode, a
       // Store role before OAuth redirect
       localStorage.setItem('pendingOAuthRole', role);
 
-      const { data, error } = await supabase.auth.signInWithOAuth({
+      const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
           redirectTo: window.location.origin + window.location.pathname,

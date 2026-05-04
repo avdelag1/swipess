@@ -1,8 +1,8 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  X, Sparkles, Plus, Image, ChevronRight, 
+  X, Sparkles, ChevronRight, 
   Check, Loader2, Wand2, ArrowLeft, Camera,
   Building2, Bike, Briefcase, Zap, DollarSign, MapPin, Search, Mic
 } from 'lucide-react';
@@ -16,7 +16,6 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from 'sonner';
 import { uploadPhotoBatch } from '@/utils/photoUpload';
 import { useAuth } from '@/hooks/useAuth';
-import { supabase } from '@/integrations/supabase/client';
 import { useTranslation } from 'react-i18next';
 import { useVoiceTranscribe } from '@/hooks/useVoiceTranscribe';
 import { refineWithKimi } from '@/lib/kimi';
@@ -35,7 +34,6 @@ const CATEGORIES = [
 export function AIListingWizard() {
   const { showAIListing, aiListingCategory, aiListingDraft, setModal } = useModalStore();
   const { theme, isLight } = useAppTheme();
-  const isSwipess = theme === 'Swipess-style';
   const { user } = useAuth();
   const { t } = useTranslation();
   const location = useLocation();
@@ -63,7 +61,6 @@ export function AIListingWizard() {
   const [prompt, setPrompt] = useState('');
   const [price, setPrice] = useState('');
   const [cityLocation, setCityLocation] = useState('');
-  const [images, setImages] = useState<string[]>([]);
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [aiResult, setAiResult] = useState<any>(null);
@@ -101,7 +98,6 @@ export function AIListingWizard() {
       setPrompt('');
       setPrice('');
       setCityLocation('');
-      setImages([]);
       setImageFiles([]);
       setAiResult(null);
     }, 300);
