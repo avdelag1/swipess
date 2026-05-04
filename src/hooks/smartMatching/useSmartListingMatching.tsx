@@ -388,7 +388,7 @@ export function useSmartListingMatching(
                 if (error) throw error;
 
                 // 4.5 Filter out Admins (Hardware-Accelerated Client-Side Filter)
-                const adminFiltered = (listings || []).filter(listing => !adminIds?.has(listing.owner_id));
+                const adminFiltered = (listings || []).filter(listing => !listing.owner_id || !adminIds?.has(listing.owner_id));
 
                 // 4.6 Distance filter — only applied when user has a GPS fix
                 const userLat = filters?.userLatitude;
