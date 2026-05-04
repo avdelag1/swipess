@@ -350,7 +350,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
         style={{
           x, y, rotate: cardRotate, opacity: cardOpacity, willChange: 'transform, opacity',
           transform: 'translate3d(0,0,0)', backfaceVisibility: 'hidden',
-          boxShadow: '0 25px 80px -15px rgba(0,0,0,0.7), 0 10px 30px -10px rgba(0,0,0,0.5)',
+          boxShadow: 'none',
           background: '#000',
         }}
       >
