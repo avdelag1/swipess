@@ -569,9 +569,9 @@ function LegendaryLandingPage() {
                    triggerHaptic('medium');
                    setLegalModal(null);
                  }} 
-                 className="w-full h-14 bg-[#EB4898] text-white font-black uppercase italic tracking-widest rounded-2xl shadow-[0_0_30px_rgba(235,72,152,0.3)] hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2"
+                 className="w-full h-14 bg-gradient-to-b from-[#FF6FAF] to-[#EB4898] text-white font-black uppercase tracking-[0.25em] text-[12px] rounded-[2rem] shadow-[0_15px_45px_rgba(235,72,152,0.55)] hover:brightness-110 active:scale-[0.97] transition-all flex items-center justify-center gap-3 border border-white/15"
                >
-                 <Check className="w-5 h-5" /> I Accept & Acknowledge
+                 <Check className="w-4 h-4" strokeWidth={3} /> I Agree & Continue
                </button>
             </div>
           </motion.div>
