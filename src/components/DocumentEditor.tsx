@@ -234,7 +234,7 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
               Export PDF
             </Button>
             {onSave && (
-              <Button size="sm" onClick={handleSave} className="bg-blue-600 hover:bg-blue-700">
+              <Button size="sm" onClick={handleSave} className="bg-zinc-900 hover:bg-black text-white border border-white/10">
                 Save Document
               </Button>
             )}
