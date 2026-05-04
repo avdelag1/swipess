@@ -35,9 +35,9 @@ import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useFilterStore } from '@/state/filterStore';
 import { useModalStore } from '@/state/modalStore';
 
-const ICON_SIZE = 18;
-const ICON_SIZE_COMPACT = 16;
-const ICON_SIZE_TABLET = 24;
+const ICON_SIZE = 24;
+const ICON_SIZE_COMPACT = 22;
+const ICON_SIZE_TABLET = 28;
 const TOUCH_TARGET = 32;
 const TOUCH_TARGET_TABLET = 46;
 
@@ -377,13 +377,7 @@ export const BottomNavigation = memo(({
                     style={{
                       width: isTablet ? ICON_SIZE_TABLET : (isNarrow ? 16 : ICON_SIZE),
                       height: isTablet ? ICON_SIZE_TABLET : (isNarrow ? 16 : ICON_SIZE),
-                      color: active
-                        ? (item.id === 'likes' ? '#FF4D00' : 
-                           item.id === 'ai' ? '#EB4898' : 
-                           item.id === 'discover' || item.id === 'dashboard' ? '#FF4D00' : 
-                           item.id === 'messages' ? '#EB4898' : 
-                           item.id === 'settings' || item.id === 'profile' ? '#FF4D00' : '#EB4898')
-                        : (isLight ? 'rgba(0,0,0,0.78)' : 'rgba(255,255,255,0.92)'),
+                      color: active ? '#E4007C' : 'rgba(228,0,124,0.55)',
                       fill: 'none',
                       strokeWidth: active ? 2.8 : 2.4,
                       transition: 'color 160ms ease-out, stroke-width 160ms ease-out',
@@ -399,13 +393,7 @@ export const BottomNavigation = memo(({
                         isTablet ? 'text-[11px]' : 'text-[8px]',
                       )}
                       style={{
-                        color: active
-                          ? (item.id === 'likes' ? '#FF4D00' : 
-                             item.id === 'ai' ? '#EB4898' : 
-                             item.id === 'discover' || item.id === 'dashboard' ? '#FF4D00' : 
-                             item.id === 'messages' ? '#EB4898' : 
-                             item.id === 'settings' || item.id === 'profile' ? '#FF4D00' : '#EB4898')
-                          : (isLight ? 'rgba(0,0,0,0.78)' : 'rgba(255,255,255,0.92)'),
+                        color: active ? '#E4007C' : 'rgba(228,0,124,0.65)',
                         transition: 'color 160ms ease-out',
                         zIndex: 1,
                       }}
