@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef, createContext, useContext, ReactNode, useMemo, useTransition } from 'react';
+import { useState, useCallback, useEffect, useRef, useContext, ReactNode, useMemo, useTransition } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -8,21 +8,10 @@ import { logger } from '@/utils/prodLogger';
 import { triggerHaptic } from '@/utils/haptics';
 import { useSwipeDeckStore } from '@/state/swipeDeckStore';
 import { useFilterStore } from '@/state/filterStore';
+import { ActiveModeContext, type ActiveMode, type ActiveModeContextType } from '@/contexts/ActiveModeContext';
 
-export type ActiveMode = 'client' | 'owner';
-
-interface ActiveModeContextType {
-  activeMode: ActiveMode;
-  isLoading: boolean;
-  isSwitching: boolean;
-  initialized: boolean; // TRUE when both auth and initial mode fetch are done
-  switchMode: (newMode: ActiveMode) => void;
-  toggleMode: () => void;
-  syncMode: (newMode: ActiveMode) => void;
-  canSwitchMode: boolean;
-}
-
-const ActiveModeContext = createContext<ActiveModeContextType | undefined>(undefined);
+// Re-export for backwards compatibility with existing imports
+export type { ActiveMode, ActiveModeContextType };
 
 // Local storage key for persistent mode (survives page refresh)
 const MODE_STORAGE_KEY = 'swipess_active_mode';
