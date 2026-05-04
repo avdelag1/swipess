@@ -43,8 +43,8 @@ function ThemeToggleComponent({ className, glassPillStyle }: ThemeToggleProps) {
             }}
             className={cn(
                 'relative flex items-center justify-center rounded-[1rem]',
-                'transition-all duration-200 ease-out active:scale-[0.96]',
-                'touch-manipulation h-8 w-8 flex-shrink-0',
+                'transition-all duration-200 ease-out active:scale-[0.92]',
+                'touch-manipulation h-9 w-9 flex-shrink-0',
                 className,
             )}
             style={glassPillStyle}
