@@ -41,7 +41,7 @@ import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { useSwipeSounds } from '@/hooks/useSwipeSounds';
 import { appToast } from '@/utils/appNotification';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { motion, AnimatePresence, useMotionValue, useTransform, animate } from 'framer-motion';
+import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
 import { logger } from '@/utils/prodLogger';
 import { MessageConfirmationDialog } from './MessageConfirmationDialog';
 import { DirectMessageDialog } from './DirectMessageDialog';
@@ -503,6 +503,15 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
 
   const deckQueue = deckQueueRef.current;
   const topCard = currentIndex < deckQueue.length ? deckQueue[currentIndex] : null;
+  const topCardIdentity = topCard?.id || topCard?.user_id || '';
+
+  useEffect(() => {
+    topCardX.stop();
+    topCardX.set(0);
+    pendingSwipeRef.current = null;
+    isSwipeAnimatingRef.current = false;
+    setSwipeDirection(null);
+  }, [topCardIdentity, filterSignature, activeMode, topCardX]);
 
   const flushPendingSwipe = useCallback(() => {
     const pending = pendingSwipeRef.current;
@@ -512,7 +521,8 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
     pendingSwipeRef.current = null;
     isSwipeAnimatingRef.current = false;
 
-    animate(topCardX, 0, { type: 'spring', stiffness: 500, damping: 35, mass: 0.4 });
+    topCardX.stop();
+    topCardX.set(0);
     hasSwipedRef.current = true;
     setCurrentIndex(newIndex);
     markClientSwiped(listing.id);
@@ -595,17 +605,12 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
     playSwipeSound(direction);
     setSwipeDirection(direction);
 
-    setTimeout(() => {
-      if (pendingSwipeRef.current?.listing.id === listing.id) {
-        flushPendingSwipe();
-      }
-    }, 350);
+    flushPendingSwipe();
   }, [flushPendingSwipe, playSwipeSound]);
 
   const handleSwipe = useCallback((direction: 'left' | 'right') => {
     const listing = deckQueueRef.current[currentIndexRef.current];
     if (!listing) return;
-    playSwipeSound(direction);
     executeSwipe(direction);
 
     const imagesToPreload: string[] = [];

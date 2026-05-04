@@ -517,6 +517,14 @@ const ClientSwipeContainerComponent = ({
     }
   }, [clientProfiles, isLoading, setOwnerDeck, category, isOwnerReady, markOwnerReady, dismissedIds, user?.id]);
 
+  const topCardIdentity = deckQueueRef.current[currentIndex]?.user_id || deckQueueRef.current[currentIndex]?.id || '';
+
+  useEffect(() => {
+    topCardX.stop();
+    topCardX.set(0);
+    setSwipeDirection(null);
+  }, [topCardIdentity, filterSignature, category, topCardX]);
+
   // INSTANT SWIPE: Update UI immediately, fire DB operations in background
   const executeSwipe = useCallback((direction: 'left' | 'right') => {
     const profile = deckQueueRef.current[currentIndexRef.current];
@@ -536,6 +544,9 @@ const ClientSwipeContainerComponent = ({
     }
 
     const newIndex = currentIndexRef.current + 1;
+
+    topCardX.stop();
+    topCardX.set(0);
 
     // 1. UPDATE UI STATE FIRST (INSTANT)
     setSwipeDirection(direction);
@@ -652,10 +663,6 @@ const ClientSwipeContainerComponent = ({
     ]).catch(err => {
       logger.error('[ClientSwipeContainer] Background swipe tasks failed:', err);
     });
-
-    // Reset shared motion value BEFORE React re-render so new top card
-    // mounts with x=0 (prevents stale rotation/opacity on the incoming card)
-    topCardX.set(0);
 
     // Clear direction for next swipe
     setTimeout(() => setSwipeDirection(null), 300);

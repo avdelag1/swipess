@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import { useAppNavigate } from "@/hooks/useAppNavigate";
 import { motion } from 'framer-motion';
-import { ChevronLeft, Ticket } from 'lucide-react';
+import { ChevronLeft, UserRound, Crown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -55,22 +55,19 @@ function TopBarComponent({
 
   const onBack = propOnBack || (showBack ? () => window.history.length > 2 ? navigate(-1) : navigate(`/${isOwner ? 'owner' : 'client'}/dashboard`) : (activeCategory ? () => setActiveCategory(null) : undefined));
 
-  // Unified pill — 36px height, consistent radius, layered elevation.
-  // Applied to back button, profile chip, mode switcher, and every action pill
-  // so the header reads as a single, perfectly aligned glass row.
+  // Unified 44px touch target with a 36px visual core: fixes the cramped,
+  // misaligned controls while preserving the compact Apple-style header.
   const glassPillStyle: React.CSSProperties = {
-    background: isLight
-      ? 'rgba(255, 255, 255, 0.86)'
-      : 'rgba(255, 255, 255, 0.045)',
-    backdropFilter: 'blur(24px) saturate(180%)',
-    WebkitBackdropFilter: 'blur(24px) saturate(180%)',
-    borderRadius: '1rem',
-    border: isLight ? '1px solid rgba(0,0,0,0.06)' : '1px solid rgba(255,255,255,0.06)',
+    background: isLight ? 'hsl(var(--background) / 0.88)' : 'hsl(var(--card) / 0.52)',
+    backdropFilter: 'blur(28px) saturate(180%)',
+    WebkitBackdropFilter: 'blur(28px) saturate(180%)',
+    borderRadius: '9999px',
+    border: isLight ? '1px solid hsl(var(--border) / 0.7)' : '1px solid hsl(var(--foreground) / 0.1)',
     boxShadow: isLight
-      ? '0 1px 2px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.04)'
-      : '0 1px 0 rgba(255,255,255,0.04) inset, 0 4px 18px rgba(0,0,0,0.35)',
+      ? '0 1px 1px hsl(var(--foreground) / 0.04), 0 10px 26px hsl(var(--foreground) / 0.08), inset 0 1px 0 hsl(var(--background) / 0.85)'
+      : '0 1px 0 hsl(var(--foreground) / 0.09) inset, 0 12px 30px hsl(var(--background) / 0.45)',
     pointerEvents: 'auto',
-    color: isLight ? '#000000' : 'var(--hud-text)',
+    color: 'hsl(var(--foreground))',
     height: '36px',
     display: 'flex',
     alignItems: 'center',
@@ -117,7 +114,7 @@ function TopBarComponent({
     >
       <div className="h-full w-full px-4 flex items-center justify-between relative">
         
-        <div className="flex items-center gap-2.5 pointer-events-auto">
+        <div className="flex min-w-0 items-center gap-2 pointer-events-auto">
           {onBack ? (
             <motion.button
               transition={TAP_SPRING}
@@ -138,7 +135,7 @@ function TopBarComponent({
                   haptics.tap();
                   navigate(isOwner ? '/owner/profile' : '/client/profile');
                 }}
-                className="flex shrink-0 items-center gap-1.5 pl-1 pr-2.5 rounded-[1rem] group"
+                className="flex shrink-0 items-center gap-1.5 rounded-full pl-1 pr-2 group"
                 style={glassPillStyle}
                 aria-label="Open profile"
               >
@@ -146,11 +143,11 @@ function TopBarComponent({
                   className="w-7 h-7 rounded-full overflow-hidden shrink-0 flex items-center justify-center relative"
                   style={{
                     background: isOwner
-                      ? 'linear-gradient(135deg, #8B5CF6, #6366F1)'
-                      : 'linear-gradient(135deg, #EB4898, #8B5CF6)',
+                      ? 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)))'
+                      : 'linear-gradient(135deg, hsl(var(--accent)), hsl(var(--primary)))',
                     boxShadow: isOwner
-                      ? '0 0 0 1px rgba(255,255,255,0.18) inset, 0 0 12px rgba(139,92,246,0.45)'
-                      : '0 0 0 1px rgba(255,255,255,0.18) inset, 0 0 12px rgba(235,72,152,0.45)',
+                      ? '0 0 0 1px hsl(var(--foreground) / 0.16) inset, 0 0 18px hsl(var(--primary) / 0.38)'
+                      : '0 0 0 1px hsl(var(--foreground) / 0.16) inset, 0 0 18px hsl(var(--accent) / 0.38)',
                   }}
                 >
                   {profile?.avatar_url || user?.user_metadata?.avatar_url ? (
@@ -160,18 +157,17 @@ function TopBarComponent({
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <span
-                      className="text-[10px] font-black tracking-tight text-white drop-shadow-sm"
-                      style={{ letterSpacing: '0.02em' }}
-                    >
-                      {initials}
-                    </span>
+                    initials === '?' ? <UserRound className="h-4 w-4 text-primary-foreground" strokeWidth={2.4} /> : (
+                      <span className="text-[10px] font-black text-primary-foreground drop-shadow-sm">
+                        {initials}
+                      </span>
+                    )
                   )}
                 </div>
                 {profile?.full_name && (
                   <span
-                    className="hidden sm:inline-block text-[10px] font-black uppercase tracking-[0.12em]"
-                    style={{ color: isLight ? 'rgba(0,0,0,0.78)' : 'rgba(255,255,255,0.88)', fontVariantNumeric: 'tabular-nums' }}
+                    className="hidden max-w-[74px] truncate sm:inline-block text-[10px] font-black uppercase tracking-[0.08em] text-foreground/80"
+                    style={{ fontVariantNumeric: 'tabular-nums' }}
                   >
                     {profile.full_name.split(' ')[0]}
                   </span>
@@ -205,14 +201,14 @@ function TopBarComponent({
                   transition={TAP_SPRING}
                   whileTap={{ scale: 0.92 }}
                   onClick={() => { haptics.tap(); setModal('showTokensModal', true); }}
-                  className="flex shrink-0 items-center justify-center rounded-[1rem] relative overflow-hidden"
+                  className="flex shrink-0 items-center justify-center rounded-full relative overflow-hidden"
                   style={{
                     ...glassPillStyle,
                     width: '36px',
                     background: isLight
-                      ? 'linear-gradient(135deg, rgba(255,77,0,0.10), rgba(235,72,152,0.08))'
-                      : 'linear-gradient(135deg, rgba(255,77,0,0.28), rgba(235,72,152,0.18))',
-                    border: isLight ? '1px solid rgba(255,77,0,0.18)' : '1px solid rgba(255,255,255,0.08)',
+                      ? 'linear-gradient(135deg, hsl(var(--primary) / 0.16), hsl(var(--accent) / 0.1))'
+                      : 'linear-gradient(135deg, hsl(var(--primary) / 0.36), hsl(var(--accent) / 0.2))',
+                    border: isLight ? '1px solid hsl(var(--primary) / 0.24)' : '1px solid hsl(var(--foreground) / 0.1)',
                   }}
                   aria-label="Tokens"
                 >
@@ -222,11 +218,11 @@ function TopBarComponent({
                     className="pointer-events-none absolute inset-x-0 top-0 h-px"
                     style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent)' }}
                   />
-                  <Ticket
+                  <Crown
                     className="w-4 h-4"
                     style={{
-                      color: isLight ? '#FF4D00' : '#FF6B1A',
-                      filter: isLight ? 'none' : 'drop-shadow(0 0 8px rgba(255, 77, 0, 0.55))',
+                      color: 'hsl(var(--primary))',
+                      filter: isLight ? 'none' : 'drop-shadow(0 0 8px hsl(var(--primary) / 0.55))',
                     }}
                     strokeWidth={2.2}
                   />

@@ -56,6 +56,13 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
     img.onerror = () => setImgReady(false);
   }, [photo]);
 
+  useEffect(() => {
+    if (!isTop) return;
+    x.stop();
+    x.set(0);
+    setIsDragging(false);
+  }, [card.id, isTop, x]);
+
   const handleDragEnd = useCallback((_: any, info: any) => {
     const dist = info.offset.x;
     const vel = info.velocity.x;
@@ -95,6 +102,7 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
       drag={isTop ? 'x' : false}
       dragConstraints={{ left: 0, right: 0 }}
       dragElastic={0.6}
+      dragMomentum={false}
       onDragStart={() => {
         setIsDragging(true);
         triggerHaptic('light');
