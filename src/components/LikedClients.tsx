@@ -169,7 +169,11 @@ export function LikedClients() {
                       onClick={() => setFilterSafeOnly(!filterSafeOnly)}
                       className={cn(
                         "flex items-center gap-2 px-4 py-2.5 rounded-2xl border transition-all active:scale-95",
-                        filterSafeOnly ? "bg-primary border-primary text-white shadow-md" : "bg-secondary border-border text-muted-foreground"
+                        filterSafeOnly
+                          ? "bg-primary border-primary text-white shadow-md"
+                          : isLight
+                          ? "bg-white border-black/8 text-black/70 shadow-[0_4px_12px_rgba(0,0,0,0.04)]"
+                          : "bg-white/[0.04] border-white/[0.08] text-muted-foreground"
                       )}
                     >
                       {filterSafeOnly ? <ShieldCheck className="w-4 h-4" /> : <ShieldAlert className="w-4 h-4" />}
@@ -203,9 +207,10 @@ export function LikedClients() {
                 color: 'white',
                 boxShadow: '0 6px 20px rgba(255,77,0,0.35)'
               } : {
-                backgroundColor: isLight ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.04)',
+                backgroundColor: isLight ? '#ffffff' : 'rgba(255,255,255,0.04)',
                 borderColor: isLight ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.08)',
-                color: isLight ? '#000000' : '#ffffff'
+                color: isLight ? '#1a1a1a' : '#ffffff',
+                boxShadow: isLight ? '0 4px 12px rgba(0,0,0,0.04)' : 'none'
               }}
             >
               <Icon className="w-4 h-4" />
@@ -222,7 +227,7 @@ export function LikedClients() {
             onChange={(e) => setSearchTerm(e.target.value)}
             className={cn(
               "w-full h-14 rounded-2xl pl-14 pr-6 font-bold transition-all outline-none border",
-              isLight ? "bg-black/5 border-black/10 focus:border-primary text-black placeholder:text-black/40" : "bg-white/[0.04] border-white/[0.08] focus:border-primary text-white"
+              isLight ? "bg-white border-black/8 focus:border-primary text-black placeholder:text-black/40 shadow-[0_4px_12px_rgba(0,0,0,0.04)]" : "bg-white/[0.04] border-white/[0.08] focus:border-primary text-white"
             )}
           />
         </div>
@@ -239,9 +244,10 @@ export function LikedClients() {
                 borderColor: '#FF4D00',
                 color: 'white'
               } : {
-                backgroundColor: isLight ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.04)',
+                backgroundColor: isLight ? '#ffffff' : 'rgba(255,255,255,0.04)',
                 borderColor: isLight ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.08)',
-                color: isLight ? '#000000' : '#ffffff'
+                color: isLight ? '#1a1a1a' : '#ffffff',
+                boxShadow: isLight ? '0 2px 8px rgba(0,0,0,0.04)' : 'none'
               }}
             >
               {opt}
