@@ -127,9 +127,9 @@ export default function PublicProfilePreview() {
           <div className="w-24 h-24 rounded-[32px] bg-white/5 flex items-center justify-center mx-auto mb-8 border border-white/10 backdrop-blur-xl">
             <User className="w-12 h-12 text-white/20" />
           </div>
-          <h1 className="text-3xl font-black text-white uppercase tracking-tighter mb-3 italic">Profile Lost</h1>
-          <p className="text-white/40 mb-10 uppercase tracking-widest text-[11px] font-bold leading-relaxed">
-            This sector is currently unreachable. The profile may have been encrypted or removed.
+          <h1 className="text-3xl font-bold text-white tracking-tight mb-3">Profile Not Found</h1>
+          <p className="text-white/50 mb-10 text-sm leading-relaxed">
+            This profile is no longer available. It may have been removed or set to private.
           </p>
           <Button 
             onClick={() => { triggerHaptic('medium'); navigate('/'); }} 
@@ -226,7 +226,7 @@ export default function PublicProfilePreview() {
           )}
           <div className="px-4 py-2 rounded-2xl bg-[#EB4898]/10 border border-[#EB4898]/20 backdrop-blur-2xl flex items-center gap-2">
             <Zap className="w-4 h-4 text-[#EB4898] fill-current animate-pulse" />
-            <span className="text-[10px] font-black uppercase tracking-widest text-[#EB4898] italic">Live Profile</span>
+            <span className="text-[10px] font-bold uppercase tracking-widest text-[#EB4898]">Live Profile</span>
           </div>
         </div>
 
@@ -372,8 +372,8 @@ export default function PublicProfilePreview() {
                 <div className="w-12 h-12 rounded-[20px] bg-[#FF4D00] flex items-center justify-center flex-shrink-0 shadow-[0_0_20px_rgba(255,77,0,0.4)]">
                   <Lock className="w-5 h-5 text-white" />
                 </div>
-                <p className="text-[11px] font-black uppercase tracking-widest text-white/60 leading-relaxed italic">
-                  Complete your Nexus identity to unlock full metadata and direct sync.
+                <p className="text-[12px] font-medium text-white/70 leading-relaxed">
+                  Sign in to see the full profile and connect directly.
                 </p>
               </motion.div>
             )}
@@ -387,17 +387,17 @@ export default function PublicProfilePreview() {
                     className="w-full rounded-[24px] bg-gradient-to-r from-[#FF4D00] to-[#EB4898] hover:opacity-90 text-white font-black h-16 text-sm uppercase tracking-widest shadow-[0_10px_30px_rgba(255,77,0,0.3)] active:scale-[0.98] transition-all"
                     onClick={() => { triggerHaptic('success'); navigate(`/?returnTo=/profile/${id}`); }}
                   >
-                    <UserPlus className="w-5 h-5 mr-3" />
-                    Initialize Identity
+                     <UserPlus className="w-5 h-5 mr-3" />
+                    Create Account
                   </Button>
                   <Button
                     size="lg"
                     variant="outline"
-                    className="w-full rounded-[24px] h-14 font-black uppercase tracking-widest text-[11px] border-white/10 bg-white/5 hover:bg-white/10 active:scale-[0.98] transition-all italic"
+                    className="w-full rounded-[24px] h-14 font-semibold tracking-wide text-sm border-white/10 bg-white/5 hover:bg-white/10 active:scale-[0.98] transition-all text-white"
                     onClick={() => { triggerHaptic('medium'); navigate('/'); }}
                   >
                     <LogIn className="w-4 h-4 mr-3" />
-                    Authorized Login
+                    Sign In
                   </Button>
                 </>
               ) : (
@@ -408,22 +408,22 @@ export default function PublicProfilePreview() {
                     onClick={handleViewFullProfile}
                   >
                     <Sparkles className="w-5 h-5 mr-3" />
-                    Sync Full Profile
+                    View Full Profile
                   </Button>
                   <Button
                     size="lg"
                     variant="outline"
-                    className="w-full rounded-[24px] h-14 font-black uppercase tracking-widest text-[11px] border-white/10 bg-white/5 hover:bg-white/10 active:scale-[0.98] transition-all italic"
+                    className="w-full rounded-[24px] h-14 font-semibold tracking-wide text-sm border-white/10 bg-white/5 hover:bg-white/10 active:scale-[0.98] transition-all text-white"
                     onClick={() => { triggerHaptic('medium'); navigate('/client/dashboard'); }}
                   >
-                    Back to Nexus
+                    Back to Dashboard
                   </Button>
                 </>
               )}
             </div>
 
-            <p className="text-center text-[10px] font-black uppercase tracking-[0.4em] italic opacity-20 pb-2">
-              Nexus Protocol · Discovery Standard 2.0
+            <p className="text-center text-[10px] font-semibold uppercase tracking-[0.3em] opacity-30 pb-2 text-white">
+              Powered by Swipess
             </p>
           </div>
         </motion.div>
