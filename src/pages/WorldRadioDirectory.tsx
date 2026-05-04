@@ -55,21 +55,21 @@ export default function WorldRadioDirectory() {
   return (
     <div className={cn(
       "h-[100dvh] overflow-y-auto overflow-x-hidden flex flex-col relative",
-      isDark ? "bg-[#050505] text-white" : "bg-white text-slate-900"
+      isDark ? "bg-[#050505] text-white" : "bg-background text-foreground"
     )}>
       <AtmosphericLayer variant="primary" />
 
       {/* 🛸 STICKY HEADER — Stays on top, doesn't overlap cards */}
       <div className={cn(
         "sticky top-0 z-50 pt-[calc(env(safe-area-inset-top)+12px)] pb-4 px-6 border-b transition-colors",
-        isDark ? "bg-[#050505] border-white/5" : "bg-white border-black/5"
+        isDark ? "bg-[#050505] border-white/5" : "bg-background/80 backdrop-blur-xl border-border/40"
       )}>
         <div className="flex items-center mb-4 gap-4">
           <button
             onClick={() => navigate('/radio')}
             className={cn(
               "w-10 h-10 flex items-center justify-center rounded-full transition-colors hover:scale-105",
-              isDark ? "bg-white/10 hover:bg-white/20" : "bg-black/5 hover:bg-black/10"
+              isDark ? "bg-white/10 hover:bg-white/20" : "bg-foreground/5 hover:bg-foreground/10 border border-border/50"
             )}
             title="Back to Radio"
           >
@@ -94,7 +94,7 @@ export default function WorldRadioDirectory() {
               "flex items-center gap-2 px-4 py-2 rounded-full transition-all active:scale-95 border group",
               isDark 
                 ? "bg-primary/10 border-primary/20 text-primary hover:bg-primary/20" 
-                : "bg-primary text-black border-primary shadow-lg shadow-primary/20"
+                : "bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/30"
             )}
           >
             <Shuffle size={14} className="group-hover:rotate-180 transition-transform duration-500" />
@@ -119,7 +119,7 @@ export default function WorldRadioDirectory() {
               "w-full h-12 border rounded-2xl pl-14 pr-6 text-sm font-bold transition-all focus:outline-none focus:border-primary/50",
               isDark
                 ? "bg-white/5 border-white/10 placeholder:text-white/20 text-white"
-                : "bg-black/5 border-black/10 placeholder:text-black/20 text-black"
+                : "bg-card border-border placeholder:text-muted-foreground text-foreground"
             )}
           />
         </div>
@@ -131,10 +131,10 @@ export default function WorldRadioDirectory() {
             className={cn(
               "px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest shrink-0 transition-all border",
               selectedCity === 'all'
-                ? "bg-primary text-black border-primary shadow-lg shadow-primary/20"
+                ? "bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/30"
                 : isDark
                   ? "bg-white/5 border-white/5 text-white/40 hover:border-white/20"
-                  : "bg-black/5 border-black/5 text-black/40 hover:border-black/10"
+                  : "bg-card border-border text-foreground/70 hover:border-foreground/20"
             )}
           >
             All Signal
@@ -145,10 +145,10 @@ export default function WorldRadioDirectory() {
             className={cn(
               "px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest shrink-0 transition-all border flex items-center gap-2",
               selectedCity === 'favorites'
-                ? "bg-rose-500 text-white border-rose-500 shadow-lg shadow-rose-500/20"
+                ? "bg-rose-500 text-white border-rose-500 shadow-lg shadow-rose-500/30"
                 : isDark
                   ? "bg-white/5 border-white/5 text-white/40 hover:border-white/20"
-                  : "bg-black/5 border-black/5 text-black/40 hover:border-black/10"
+                  : "bg-card border-border text-foreground/70 hover:border-foreground/20"
             )}
           >
             <Heart size={10} fill={selectedCity === 'favorites' ? "white" : "none"} />
@@ -161,10 +161,10 @@ export default function WorldRadioDirectory() {
               className={cn(
                 "px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shrink-0 transition-all border",
                 selectedCity === city.id
-                  ? (isDark ? "bg-white text-black border-white" : "bg-black text-white border-black") + " shadow-lg"
+                  ? (isDark ? "bg-white text-black border-white" : "bg-foreground text-background border-foreground") + " shadow-lg"
                   : isDark
                     ? "bg-white/5 border-white/5 text-white/40 hover:border-white/20"
-                    : "bg-black/5 border-black/5 text-black/40 hover:border-black/10"
+                    : "bg-card border-border text-foreground/70 hover:border-foreground/20"
               )}
             >
               {city.name}
@@ -195,8 +195,8 @@ export default function WorldRadioDirectory() {
                     "group relative overflow-hidden rounded-[2.5rem] p-5 border transition-all duration-500",
                     isOffline ? "opacity-40 grayscale-[0.5] scale-[0.98] pointer-events-none" : "opacity-100",
                     isPlaying 
-                      ? (isDark ? "bg-white/10 border-white/20" : "bg-black/10 border-black/20")
-                      : (isDark ? "bg-white/[0.03] border-white/5 hover:bg-white/[0.06]" : "bg-black/[0.03] border-black/5 hover:bg-black/[0.06]")
+                      ? (isDark ? "bg-white/10 border-white/20" : "bg-primary/5 border-primary/30")
+                      : (isDark ? "bg-white/[0.03] border-white/5 hover:bg-white/[0.06]" : "bg-card border-border hover:border-foreground/15 shadow-sm")
                   )}
                 >
                   {isOffline && (
@@ -258,7 +258,7 @@ export default function WorldRadioDirectory() {
                       <div className="flex items-center gap-2 mb-1">
                         <span className={cn(
                           "px-1.5 py-0.5 rounded-md text-[9px] font-black border transition-colors",
-                          isDark ? "bg-white/10 text-white/60 border-white/10" : "bg-black/5 text-black/60 border-black/10"
+                          isDark ? "bg-white/10 text-white/60 border-white/10" : "bg-foreground/5 text-foreground/70 border-border"
                         )}>
                           {station.frequency}
                         </span>
@@ -267,7 +267,10 @@ export default function WorldRadioDirectory() {
                         </h3>
                       </div>
                       
-                      <p className="text-[10px] font-bold text-white/40 tracking-widest uppercase mb-3 flex items-center gap-2">
+                      <p className={cn(
+                        "text-[10px] font-bold tracking-widest uppercase mb-3 flex items-center gap-2",
+                        isDark ? "text-white/40" : "text-muted-foreground"
+                      )}>
                         <MapPin size={10} style={{ color: theme.primaryColor }} />
                         {station.city} • {station.genre}
                       </p>
@@ -278,8 +281,8 @@ export default function WorldRadioDirectory() {
                           className={cn(
                             "flex-1 h-10 rounded-xl flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest transition-all",
                             isPlaying 
-                              ? "bg-white text-black" 
-                              : (isDark ? "bg-white/10 text-white hover:bg-white/20" : "bg-black/10 text-black hover:bg-black/20")
+                              ? "bg-primary text-primary-foreground shadow-lg shadow-primary/30" 
+                              : (isDark ? "bg-white/10 text-white hover:bg-white/20" : "bg-foreground text-background hover:opacity-90")
                           )}
                         >
                           {isPlaying ? <Volume2 size={14} /> : <Play size={14} fill="currentColor" />}
@@ -290,8 +293,8 @@ export default function WorldRadioDirectory() {
                           className={cn(
                             "w-10 h-10 rounded-xl flex items-center justify-center border transition-all",
                             isFav 
-                              ? "bg-rose-500/10 border-rose-500/20 text-rose-500" 
-                              : (isDark ? "bg-white/5 border-white/5 text-white/20 hover:border-white/10" : "bg-black/5 border-black/5 text-black/20 hover:border-black/10")
+                              ? "bg-rose-500/10 border-rose-500/30 text-rose-500" 
+                              : (isDark ? "bg-white/5 border-white/5 text-white/20 hover:border-white/10" : "bg-card border-border text-foreground/40 hover:border-foreground/20")
                           )}
                         >
                           <Heart size={16} fill={isFav ? "currentColor" : "none"} />
