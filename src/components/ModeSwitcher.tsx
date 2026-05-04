@@ -38,19 +38,28 @@ function ModeSwitcherComponent({ className }: ModeSwitcherProps) {
 
   const containerStyle: React.CSSProperties = {
     background: 'transparent',
-    backdropFilter: 'none',
-    WebkitBackdropFilter: 'none',
-    borderRadius: 9999,
     border: 'none',
     boxShadow: 'none',
     height: BUTTON_SIZE,
     position: 'relative',
     display: 'flex',
     alignItems: 'center',
-    gap: 2,
+    gap: 6,
     boxSizing: 'border-box',
     opacity: !canSwitchMode || isSwitching ? 0.55 : 1,
     transition: 'opacity 0.2s ease',
+  };
+
+  const pillStyle: React.CSSProperties = {
+    width: BUTTON_SIZE,
+    height: BUTTON_SIZE,
+    background: isLight ? 'rgba(255,255,255,0.22)' : 'rgba(255,255,255,0.08)',
+    backdropFilter: 'blur(28px) saturate(180%)',
+    WebkitBackdropFilter: 'blur(28px) saturate(180%)',
+    border: isLight ? '1px solid rgba(255,255,255,0.5)' : '1px solid rgba(255,255,255,0.18)',
+    boxShadow: isLight
+      ? '0 4px 14px -6px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.6)'
+      : '0 6px 18px -8px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.12)',
   };
 
   return (
@@ -63,16 +72,14 @@ function ModeSwitcherComponent({ className }: ModeSwitcherProps) {
         onClick={() => handleModeSwitch('client')}
         disabled={!canSwitchMode || isSwitching}
         className="flex items-center justify-center relative z-10 rounded-full"
-        style={{ width: BUTTON_SIZE, height: BUTTON_SIZE, background: 'transparent', border: 'none', boxShadow: 'none' }}
+        style={pillStyle}
         title="Client Mode"
         aria-pressed={isClient}
       >
         <UserRound
-          className={cn(
-            'h-[17px] w-[17px] transition-colors duration-300',
-            isClient ? 'text-primary' : 'text-foreground/60',
-          )}
-          strokeWidth={isClient ? 2.4 : 2}
+          className="h-[17px] w-[17px] transition-colors duration-300"
+          style={{ color: '#ef4444' }}
+          strokeWidth={isClient ? 2.6 : 2.2}
         />
       </motion.button>
 
@@ -81,16 +88,14 @@ function ModeSwitcherComponent({ className }: ModeSwitcherProps) {
         onClick={() => handleModeSwitch('owner')}
         disabled={!canSwitchMode || isSwitching}
         className="flex items-center justify-center relative z-10 rounded-full"
-        style={{ width: BUTTON_SIZE, height: BUTTON_SIZE, background: 'transparent', border: 'none', boxShadow: 'none' }}
+        style={pillStyle}
         title="Owner Mode"
         aria-pressed={!isClient}
       >
         <BriefcaseBusiness
-          className={cn(
-            'h-[17px] w-[17px] transition-colors duration-300',
-            !isClient ? 'text-primary' : 'text-foreground/60',
-          )}
-          strokeWidth={!isClient ? 2.4 : 2}
+          className="h-[17px] w-[17px] transition-colors duration-300"
+          style={{ color: '#f97316' }}
+          strokeWidth={!isClient ? 2.6 : 2.2}
         />
       </motion.button>
     </div>

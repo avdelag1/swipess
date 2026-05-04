@@ -72,9 +72,7 @@ export function PerksDashboard() {
 
   return (
     <div className={cn(
-      "flex flex-col min-h-full pt-0 relative transition-colors duration-500",
-      isLight ? "bg-white" : "bg-zinc-950/20",
-      "backdrop-blur-3xl"
+      "flex flex-col min-h-full pt-0 relative transition-colors duration-500 bg-background/60 backdrop-blur-3xl"
     )}>
       {/* 🛸 NEXUS ATMOSPHERE */}
       <div className="fixed top-[-10%] left-[-10%] w-[120%] h-[120%] pointer-events-none z-0">
@@ -89,10 +87,14 @@ export function PerksDashboard() {
             key={t.id}
             onClick={() => { triggerHaptic('light'); setTab(t.id); }}
             className={cn(
-              'flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all duration-300',
+              'flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 border',
               tab === t.id
-                ? 'bg-white text-black shadow-[0_8px_20px_rgba(255,255,255,0.1)]'
-                : 'bg-white/5 text-white/40 hover:bg-white/10 hover:text-white border border-white/5'
+                ? (isLight
+                    ? 'bg-foreground text-background border-transparent shadow-lg'
+                    : 'bg-white text-black border-transparent shadow-[0_8px_20px_rgba(255,255,255,0.15)]')
+                : (isLight
+                    ? 'bg-card text-foreground/70 hover:bg-secondary border-border'
+                    : 'bg-white/5 text-white/70 hover:bg-white/10 hover:text-white border-white/10')
             )}
           >
             <t.icon size={14} className={tab === t.id ? 'text-rose-500' : ''} />
@@ -139,20 +141,14 @@ export function PerksDashboard() {
 
               {/* Stats Grid */}
               <div className="grid grid-cols-2 gap-3 mt-4">
-                <div className={cn(
-                  "rounded-[24px] p-5 backdrop-blur-xl group transition-all",
-                  isLight ? "bg-black/[0.03] border-black/[0.05]" : "bg-white/5 border-white/10 hover:bg-white/10"
-                )}>
+                <div className="rounded-[24px] bg-white/5 border border-white/10 p-5 backdrop-blur-xl group hover:bg-white/10 transition-all">
                   <div className="flex items-center gap-2 text-rose-500 mb-2">
                     <Zap size={16} className="fill-current" />
                     <span className="text-[10px] font-black uppercase tracking-widest text-white/30">Total Saved</span>
                   </div>
                   <div className="text-2xl font-black text-white tracking-tight">${stats.totalSaved.toLocaleString()}</div>
                 </div>
-                <div className={cn(
-                  "rounded-[24px] p-5 backdrop-blur-xl group transition-all",
-                  isLight ? "bg-black/[0.03] border-black/[0.05]" : "bg-white/5 border-white/10 hover:bg-white/10"
-                )}>
+                <div className="rounded-[24px] bg-white/5 border border-white/10 p-5 backdrop-blur-xl group hover:bg-white/10 transition-all">
                   <div className="flex items-center gap-2 text-violet-400 mb-2">
                     <Award size={16} />
                     <span className="text-[10px] font-black uppercase tracking-widest text-white/30">Locations</span>
@@ -184,10 +180,7 @@ export function PerksDashboard() {
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: idx * 0.1 }}
                       onClick={() => triggerHaptic('light')}
-                      className={cn(
-                        "p-4 rounded-[24px] flex items-center gap-4 transition-all cursor-pointer group backdrop-blur-xl",
-                        isLight ? "bg-black/[0.03] border border-black/[0.05]" : "bg-white/5 border border-white/10 hover:bg-white/10"
-                      )}
+                      className="p-4 rounded-[24px] bg-white/5 border border-white/10 flex items-center gap-4 hover:bg-white/10 transition-all cursor-pointer group"
                     >
                       <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-rose-500/20 to-violet-600/20 flex items-center justify-center shrink-0 overflow-hidden border border-white/5 shadow-inner">
                         {offer.business_partners?.logo_url ? (

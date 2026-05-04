@@ -220,7 +220,7 @@ export const SwipeActionButtonBar = memo(({
   const { isLight } = useAppTheme();
 
   return (
-    <div className={`flex items-center gap-6 pointer-events-auto overflow-visible ${className}`}>
+    <div className={`flex items-center justify-center gap-6 pointer-events-auto overflow-visible w-full ${className}`}>
       <AnimatePresence mode="popLayout" initial={false}>
         {onUndo && (
           <ActionButton

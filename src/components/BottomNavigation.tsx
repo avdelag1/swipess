@@ -249,19 +249,20 @@ export const BottomNavigation = memo(({
           through, reinforcing the "floating above" feeling. */}
       <div
         className={cn(
-          "pointer-events-auto px-1.5",
+          "pointer-events-auto",
           isTablet ? "mx-auto w-fit max-w-full" : "w-full"
         )}
         style={{
-          background: 'transparent',
-          backdropFilter: 'none',
-          WebkitBackdropFilter: 'none',
-          borderRadius: '3rem',
+          background: isLight ? 'rgba(255,255,255,0.55)' : 'rgba(20,20,24,0.55)',
+          backdropFilter: 'blur(32px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(32px) saturate(180%)',
+          border: isLight ? '1px solid rgba(255,255,255,0.7)' : '1px solid rgba(255,255,255,0.12)',
+          borderRadius: '999px',
+          boxShadow: isLight
+            ? '0 10px 30px -12px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.7)'
+            : '0 14px 36px -14px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.08)',
           padding: '4px',
-          boxShadow: 'none',
-          border: 'none',
         }}
-
       >
         {/* Nav items row — SCROLLABLE SWIPESS ARCHITECTURE */}
         <div
@@ -333,6 +334,11 @@ export const BottomNavigation = memo(({
                   userSelect: 'none',
                   WebkitUserSelect: 'none' as any,
                   transition: 'all 0.3s cubic-bezier(0.22, 1, 0.36, 1)',
+                  background: active
+                    ? (isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.10)')
+                    : 'transparent',
+                  border: 'none',
+                  boxShadow: 'none',
                 }}
               >
                 {/* Active state is color-only: no nested pill/frame behind icons. */}
@@ -376,7 +382,7 @@ export const BottomNavigation = memo(({
                            item.id === 'discover' || item.id === 'dashboard' ? '#FF4D00' : 
                            item.id === 'messages' ? '#EB4898' : 
                            item.id === 'settings' || item.id === 'profile' ? '#FF4D00' : '#EB4898')
-                        : (isLight ? '#000000' : 'rgba(255,255,255,0.7)'),
+                        : (isLight ? 'rgba(0,0,0,0.78)' : 'rgba(255,255,255,0.92)'),
                       fill: 'none',
                       strokeWidth: active ? 2.4 : 1.9,
                       transition: 'color 160ms ease-out, stroke-width 160ms ease-out',
@@ -398,7 +404,7 @@ export const BottomNavigation = memo(({
                              item.id === 'discover' || item.id === 'dashboard' ? '#FF4D00' : 
                              item.id === 'messages' ? '#EB4898' : 
                              item.id === 'settings' || item.id === 'profile' ? '#FF4D00' : '#EB4898')
-                          : (isLight ? '#000000' : 'rgba(255,255,255,0.7)'),
+                          : (isLight ? 'rgba(0,0,0,0.78)' : 'rgba(255,255,255,0.92)'),
                         transition: 'color 160ms ease-out',
                         zIndex: 1,
                       }}

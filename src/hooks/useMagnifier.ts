@@ -57,6 +57,11 @@ export function useMagnifier(config: MagnifierConfig = {}): UseMagnifierReturn {
   const startPosRef = useRef<{ x: number; y: number } | null>(null);
   const pointerIdRef = useRef<number | null>(null);
   const savedOverflowsRef = useRef<{ el: HTMLElement; overflow: string }[]>([]);
+  const windowListenersRef = useRef<(() => void) | null>(null);
+  const activeTargetRef = useRef<HTMLElement | null>(null);
+
+  const wasActiveRef = useRef(false);
+  const isMovingRef = useRef(false);
 
   const wasActiveRef = useRef(false);
   const isMovingRef = useRef(false);
@@ -83,6 +88,10 @@ export function useMagnifier(config: MagnifierConfig = {}): UseMagnifierReturn {
     if (!containerRef.current) return null;
     const img = containerRef.current.querySelector('img');
     if (img && img.complete) {
+      img.draggable = false;
+      img.style.pointerEvents = 'none';
+      img.style.setProperty('-webkit-user-drag', 'none');
+      img.style.setProperty('-webkit-touch-callout', 'none');
       imageRef.current = img;
       return img;
     }
@@ -99,15 +108,8 @@ export function useMagnifier(config: MagnifierConfig = {}): UseMagnifierReturn {
 
     const rect = container.getBoundingClientRect();
 
-    // SMOOTHING: Use lerp to prevent jittery movement
-    if (immediate) {
-      currentPosRef.current = { x: clientX, y: clientY };
-    } else {
-      const lerp = 0.15; // Smooth but responsive
-      currentPosRef.current.x += (clientX - currentPosRef.current.x) * lerp;
-      currentPosRef.current.y += (clientY - currentPosRef.current.y) * lerp;
-    }
-
+    // Track finger 1:1 — zoom view follows the finger immediately as it pans across the card
+    currentPosRef.current = { x: clientX, y: clientY };
     const { x, y } = currentPosRef.current;
 
     // Clamp finger position to container bounds for smooth edge behavior
@@ -133,6 +135,14 @@ export function useMagnifier(config: MagnifierConfig = {}): UseMagnifierReturn {
     triggerHaptic('light');
     onActiveChange?.(true);
     findImage();
+    activeTargetRef.current = target as HTMLElement | null;
+
+    if (target instanceof HTMLElement) {
+      target.style.touchAction = 'none';
+      target.style.setProperty('-webkit-touch-callout', 'none');
+      target.style.setProperty('-webkit-user-select', 'none');
+      target.style.userSelect = 'none';
+    }
 
     // Capture pointer so we keep getting events even if finger leaves the element
     if (target && pointerIdRef.current !== null) {
@@ -140,6 +150,51 @@ export function useMagnifier(config: MagnifierConfig = {}): UseMagnifierReturn {
         (target as HTMLElement).setPointerCapture(pointerIdRef.current);
       } catch (_err) { /* ignore if already captured */ }
     }
+
+    // Robust fallback: window-level listeners ensure we keep receiving
+    // pointer moves even if the native pointer capture is silently dropped
+    // (e.g. iOS long-press, callouts, or focus changes after ~700ms).
+    const handleWindowMove = (ev: PointerEvent) => {
+      if (!magnifierState.current.isActive) return;
+      if (pointerIdRef.current !== null && ev.pointerId !== pointerIdRef.current) return;
+      ev.preventDefault();
+      updateMagnifier(ev.clientX, ev.clientY);
+    };
+    const handleWindowUp = (ev: PointerEvent) => {
+      if (pointerIdRef.current !== null && ev.pointerId !== pointerIdRef.current) return;
+      // Only deactivate on real pointer up (finger lift), not on cancel.
+      // iOS fires pointercancel during long-press / callout / scroll attempts —
+      // we want the zoom to persist until the user actually lifts their finger.
+      if (ev.type === 'pointerup') {
+        deactivateMagnifier();
+      }
+    };
+    const handleContextMenu = (ev: Event) => { ev.preventDefault(); };
+    const handleDragStart = (ev: DragEvent) => { ev.preventDefault(); };
+    const handleGesture = (ev: Event) => { ev.preventDefault(); };
+    window.addEventListener('pointermove', handleWindowMove, { passive: false });
+    window.addEventListener('pointerup', handleWindowUp);
+    window.addEventListener('pointercancel', handleWindowUp);
+    window.addEventListener('contextmenu', handleContextMenu);
+    window.addEventListener('dragstart', handleDragStart);
+    window.addEventListener('gesturestart', handleGesture);
+    window.addEventListener('gesturechange', handleGesture);
+    // Prevent iOS text selection / callout from hijacking the gesture
+    const handleSelectStart = (ev: Event) => { ev.preventDefault(); };
+    const handleTouchMove = (ev: TouchEvent) => { ev.preventDefault(); };
+    window.addEventListener('selectstart', handleSelectStart);
+    window.addEventListener('touchmove', handleTouchMove, { passive: false });
+    windowListenersRef.current = () => {
+      window.removeEventListener('pointermove', handleWindowMove as any);
+      window.removeEventListener('pointerup', handleWindowUp as any);
+      window.removeEventListener('pointercancel', handleWindowUp as any);
+      window.removeEventListener('contextmenu', handleContextMenu);
+      window.removeEventListener('dragstart', handleDragStart);
+      window.removeEventListener('gesturestart', handleGesture);
+      window.removeEventListener('gesturechange', handleGesture);
+      window.removeEventListener('selectstart', handleSelectStart);
+      window.removeEventListener('touchmove', handleTouchMove as any);
+    };
 
     savedOverflowsRef.current = [];
 
@@ -179,13 +234,20 @@ export function useMagnifier(config: MagnifierConfig = {}): UseMagnifierReturn {
       rafRef.current = null;
     }
 
-    // Release pointer capture
-    if (containerRef.current && pointerIdRef.current !== null) {
+    // Release pointer capture from the same element that captured it.
+    const captureTarget = activeTargetRef.current || containerRef.current;
+    if (captureTarget && pointerIdRef.current !== null) {
       try {
-        containerRef.current.releasePointerCapture(pointerIdRef.current);
+        captureTarget.releasePointerCapture(pointerIdRef.current);
       } catch (_err) { /* ignore */ }
     }
+    activeTargetRef.current = null;
     pointerIdRef.current = null;
+
+    if (windowListenersRef.current) {
+      try { windowListenersRef.current(); } catch (_e) { /* ignore */ }
+      windowListenersRef.current = null;
+    }
 
     for (const { el, overflow } of savedOverflowsRef.current) {
       el.style.overflow = overflow || '';
@@ -273,6 +335,8 @@ export function useMagnifier(config: MagnifierConfig = {}): UseMagnifierReturn {
 
   const onPointerCancel = useCallback((e: React.PointerEvent) => {
     if (!e.isPrimary) return;
+    // If zoom is active, ignore cancel — only finger-lift (pointerup) ends it.
+    if (magnifierState.current.isActive) return;
     deactivateMagnifier();
   }, [deactivateMagnifier]);
 

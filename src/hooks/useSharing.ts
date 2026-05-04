@@ -1,3 +1,24 @@
+// Always share via the canonical Swipess production domain so recipients
+// never see preview/iframe hosts (e.g. id-preview--*.lovable.app) and links
+// don't carry third-party branding into WhatsApp / Instagram / Facebook.
+// Only swap to a custom domain — never to a preview/sandbox host.
+const PUBLIC_FALLBACK = 'https://swipess.lovable.app';
+function getShareBaseUrl(): string {
+  if (typeof window !== 'undefined' && window.location?.origin) {
+    const origin = window.location.origin;
+    const host = window.location.hostname || '';
+    const isPreview =
+      host.includes('id-preview--') ||
+      host.includes('lovableproject.com') ||
+      host.includes('sandbox') ||
+      host.endsWith('.lovable.dev') ||
+      host === 'localhost' ||
+      host.startsWith('127.') ||
+      host.startsWith('192.168.');
+    if (!isPreview) return origin;
+  }
+  return PUBLIC_FALLBACK;
+}
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { logger } from '@/utils/prodLogger';
@@ -42,11 +63,13 @@ export function useCreateShare() {
         throw new Error('Must specify either sharedListingId or sharedProfileId');
       }
 
-      const shareUrl = generateShareUrl({ 
-        listingId: params.sharedListingId, 
-        profileId: params.sharedProfileId,
-        referralId: user.id
-      });
+      const baseUrl = getShareBaseUrl();
+      let shareUrl = '';
+      if (params.sharedListingId) {
+        shareUrl = `${baseUrl}/listing/${params.sharedListingId}`;
+      } else if (params.sharedProfileId) {
+        shareUrl = `${baseUrl}/profile/${params.sharedProfileId}`;
+      }
 
       // Track the share in database
       const { data: _data, error } = await supabase
@@ -90,7 +113,7 @@ export function useIncrementShareClicks() {
 
 // Generate shareable URL - always use production domain with referral tracking
 export function generateShareUrl(params: ShareUrlParams): string {
-  const baseUrl = 'https://swipess.app';
+  const baseUrl = getShareBaseUrl();
   let url = baseUrl;
 
   if (params.listingId) {
@@ -101,11 +124,11 @@ export function generateShareUrl(params: ShareUrlParams): string {
     url = `${baseUrl}/explore/eventos/${params.eventId}`;
   }
 
-  // Add a short referral code — strip dashes, take first 8 chars 
-  // to keep links clean and professional.
+  // Add a short referral code — strip dashes, take first 10 chars so the
+  // raw UUID is never exposed in the displayed link.
   if (params.referralId) {
-    const refCode = params.referralId.replace(/-/g, '').slice(0, 8);
-    url += (url.includes('?') ? '&' : '?') + `ref=${refCode}`;
+    const refCode = params.referralId.replace(/-/g, '').slice(0, 10);
+    url += `?ref=${refCode}`;
   }
 
   return url;

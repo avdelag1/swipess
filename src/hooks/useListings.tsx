@@ -154,6 +154,7 @@ export function useListings(excludeSwipedIds: string[] = [], options: { enabled?
           .from('listings')
           .select(SWIPE_CARD_FIELDS)
           .eq('status', 'active')
+          // Show all active listings (seed + real)
           .order('created_at', { ascending: false });
 
         // CRITICAL: Exclude own listings

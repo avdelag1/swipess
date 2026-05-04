@@ -14,7 +14,7 @@
 
 import { memo, useRef, useState, useCallback, useMemo, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { motion, useMotionValue, useTransform, PanInfo, animate, useDragControls } from 'framer-motion';
-import { MapPin, DollarSign, Briefcase, ThumbsUp, ThumbsDown } from 'lucide-react';
+import { MapPin, DollarSign, Briefcase, ThumbsUp, ThumbsDown, Flag, Share2 } from 'lucide-react';
 import { triggerHaptic } from '@/utils/haptics';
 import { cn } from '@/lib/utils';
 import { useMagnifier } from '@/hooks/useMagnifier';
@@ -104,13 +104,23 @@ const CardImage = memo(({
   if (isPlaceholder) return <PlaceholderImage name={name} />;
 
   return (
-    <div className={cn("absolute inset-0 w-full h-full", !fullScreen && "rounded-[2.5rem]")} style={{ zIndex: 1, overflow: 'hidden' }}>
+    <div className="absolute inset-0 w-full h-full" style={{ zIndex: 1, overflow: 'hidden', borderRadius: fullScreen ? 'var(--radius-md)' : undefined }}>
       <div className="absolute inset-0 bg-zinc-800" style={{ opacity: loaded ? 0 : 1, transition: 'opacity 150ms ease-out' }} />
       <img
         src={src}
         alt={alt}
+        draggable={false}
         className={cn("absolute inset-0 w-full h-full object-cover", loaded ? "opacity-100" : "opacity-0")}
-        style={{ transition: 'opacity 150ms ease-out', animation: loaded ? 'photo-swim 12s ease-in-out infinite' : 'none' }}
+        style={{
+          transition: 'opacity 150ms ease-out',
+          animation: loaded ? 'photo-swim 12s ease-in-out infinite' : 'none',
+          borderRadius: fullScreen ? 'var(--radius-md)' : undefined,
+          WebkitTouchCallout: 'none',
+          WebkitUserSelect: 'none',
+          userSelect: 'none',
+        }}
+        onDragStart={(event) => event.preventDefault()}
+        onContextMenu={(event) => event.preventDefault()}
         onLoad={() => { imageCache.set(src, true); setLoaded(true); }}
         onError={() => setError(true)}
       />
@@ -144,6 +154,8 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   isTop = true,
   onDragStart,
   externalX,
+  onReport,
+  onShare,
 }, ref) => {
   const isDragging = useRef(false);
   const hasExited = useRef(false);
@@ -319,7 +331,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
 
   if (!isTop) {
     return (
-      <div className="absolute inset-0 overflow-hidden rounded-[2.5rem]" style={{ pointerEvents: 'none' }}>
+      <div className="absolute inset-0 overflow-hidden" style={{ pointerEvents: 'none', borderRadius: 'var(--radius-md)' }}>
         <div className="absolute inset-0">
           <CardImage src={currentImage} alt={profile.name || 'Client'} name={profile.name} fullScreen={true} />
         </div>
@@ -344,21 +356,29 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
         onPointerCancel={handleUnifiedPointerUp}
         initial={{ scale: 0.97, opacity: 0.85 }}
         animate={{ scale: 1, opacity: 1, transition: { type: 'spring', stiffness: 400, damping: 28, mass: 0.6 } }}
-        className="flex-1 cursor-grab active:cursor-grabbing select-none touch-none relative w-full h-full overflow-hidden rounded-[2.5rem] border-none gpu-ultra"
+        className="flex-1 cursor-grab active:cursor-grabbing select-none touch-none relative w-full h-full overflow-hidden border-none gpu-ultra"
         style={{
           x, y, rotate: cardRotate, opacity: cardOpacity, willChange: 'transform, opacity',
           transform: 'translate3d(0,0,0)', backfaceVisibility: 'hidden',
-          boxShadow: '0 25px 80px -15px rgba(0,0,0,0.7), 0 10px 30px -10px rgba(0,0,0,0.5)',
-          background: '#000',
+          borderRadius: 'var(--radius-md)',
+          boxShadow: 'none',
+          background: 'hsl(var(--background))',
         }}
       >
-        <div ref={containerRef} className="absolute inset-0 overflow-hidden" onClick={handleImageTap}>
+        <div
+          ref={containerRef}
+          className="absolute inset-0 overflow-hidden"
+          style={{ borderRadius: 'inherit', WebkitUserSelect: 'none', userSelect: 'none', touchAction: 'none' }}
+          onClick={handleImageTap}
+          onDragStart={(event) => event.preventDefault()}
+          onContextMenu={(event) => event.preventDefault()}
+        >
           <CardImage src={currentImage} alt={profile.name || 'Client'} name={profile.name} priority={isTop} fullScreen={true} />
 
           <div className="absolute top-0 left-0 right-0 pointer-events-none z-20"
-               style={{ height: '42%', background: 'linear-gradient(to bottom, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.5) 30%, rgba(0,0,0,0.2) 65%, transparent 100%)', opacity: isZoomed ? 0 : 1 }} />
+               style={{ height: '28%', background: 'linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.22) 40%, transparent 100%)', opacity: isZoomed ? 0 : 1 }} />
           <div className="absolute bottom-0 left-0 right-0 pointer-events-none z-20"
-               style={{ height: '65%', background: 'linear-gradient(to top, rgba(0,0,0,0.98) 0%, rgba(0,0,0,0.8) 20%, rgba(0,0,0,0.4) 55%, transparent 100%)', opacity: isZoomed ? 0 : 1 }} />
+               style={{ height: '46%', background: 'linear-gradient(to top, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0.45) 30%, rgba(0,0,0,0.15) 60%, transparent 100%)', opacity: isZoomed ? 0 : 1 }} />
 
           {imageCount > 1 && (
             <div className="absolute top-[calc(var(--safe-top,0px)+16px)] inset-x-0 flex justify-center z-20 pointer-events-none" style={{ opacity: isZoomed ? 0 : 1 }}>
@@ -423,7 +443,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
         </div>
 
         <div className="absolute inset-x-0 bottom-0 pointer-events-none z-10"
-             style={{ height: '65%', background: isLight ? 'linear-gradient(to top, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.6) 30%, transparent 100%)' : 'linear-gradient(to top, rgba(0,0,0,0.98) 0%, rgba(0,0,0,0.6) 30%, transparent 100%)', opacity: isZoomed ? 0 : 1 }} />
+             style={{ height: '42%', background: isLight ? 'linear-gradient(to top, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.3) 35%, transparent 100%)' : 'linear-gradient(to top, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.32) 35%, transparent 100%)', opacity: isZoomed ? 0 : 1 }} />
 
         {profile.verified && (
           <div className="absolute top-16 left-6 z-40" style={{ opacity: isZoomed ? 0 : 1 }}>
@@ -431,6 +451,36 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
                <div className="w-2 h-2 rounded-full bg-violet-500 shadow-[0_0_8px_rgba(139,92,246,1)]" />
                <span className="text-[10px] font-black uppercase tracking-widest text-white">Verified</span>
              </div>
+          </div>
+        )}
+
+        {isTop && (onReport || onShare) && (
+          <div
+            className="absolute right-5 bottom-[calc(var(--bottom-nav-height,72px)+100px)] z-40 flex flex-col items-end gap-2 transition-opacity duration-150"
+            style={{ opacity: isZoomed ? 0 : 1 }}
+          >
+            {onShare && (
+              <button
+                type="button"
+                onPointerDown={(e) => e.stopPropagation()}
+                onClick={(e) => { e.stopPropagation(); onShare(profile); }}
+                aria-label="Share profile"
+                className="w-10 h-10 rounded-full flex items-center justify-center bg-black/55 backdrop-blur-md border border-white/15 active:scale-95 transition-all duration-150 hover:bg-black/70 shadow-lg"
+              >
+                <Share2 className="w-4 h-4 text-white" strokeWidth={2.2} />
+              </button>
+            )}
+            {onReport && (
+              <button
+                type="button"
+                onPointerDown={(e) => e.stopPropagation()}
+                onClick={(e) => { e.stopPropagation(); onReport(); }}
+                aria-label="Report profile"
+                className="w-10 h-10 rounded-full flex items-center justify-center bg-black/55 backdrop-blur-md border border-white/15 active:scale-95 transition-all duration-150 hover:bg-black/70 shadow-lg"
+              >
+                <Flag className="w-4 h-4 text-white" strokeWidth={2.2} />
+              </button>
+            )}
           </div>
         )}
       </motion.div>

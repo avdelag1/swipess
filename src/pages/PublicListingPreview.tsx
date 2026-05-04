@@ -103,7 +103,7 @@ export default function PublicListingPreview() {
         <div className="flex flex-col items-center gap-8 relative z-10">
           <div className="w-20 h-20 rounded-[40px] border-4 border-[#EB4898]/10 border-t-[#EB4898] animate-spin shadow-[0_0_40px_rgba(235,72,152,0.2)]" />
           <div className="space-y-2 text-center">
-             <p className="text-[10px] font-black uppercase tracking-[0.6em] text-[#EB4898] animate-pulse ml-2 italic">Synchronizing Asset</p>
+             <p className="text-[10px] font-bold uppercase tracking-[0.4em] text-[#EB4898] animate-pulse ml-2">Loading Listing</p>
              <div className="h-1 w-32 bg-white/5 rounded-full overflow-hidden mx-auto">
                <motion.div 
                  initial={{ x: '-100%' }}
@@ -125,13 +125,13 @@ export default function PublicListingPreview() {
         <div className="w-28 h-28 rounded-[40px] bg-white/5 flex items-center justify-center mb-10 border border-white/10 backdrop-blur-3xl shadow-2xl relative z-10">
           <Home className="w-12 h-12 text-white/10" />
         </div>
-        <h1 className="text-4xl font-black text-white italic tracking-tighter uppercase mb-4 leading-none relative z-10">Asset Null</h1>
-        <p className="text-white/40 text-[11px] font-black max-w-xs mb-12 leading-relaxed uppercase tracking-[0.25em] italic relative z-10">The requested digital twin has been de-listed or moved to another cluster.</p>
+        <h1 className="text-3xl font-bold text-white tracking-tight mb-4 leading-tight relative z-10">Listing Not Found</h1>
+        <p className="text-white/50 text-sm max-w-xs mb-12 leading-relaxed relative z-10">This listing is no longer available. It may have been removed or sold.</p>
         <Button 
           onClick={() => { triggerHaptic('medium'); navigate('/'); }} 
-          className="w-full max-w-[300px] h-18 rounded-[24px] bg-white text-black font-black uppercase italic tracking-widest shadow-2xl relative z-10 hover:bg-white/90 active:scale-95 transition-all"
+          className="w-full max-w-[300px] h-16 rounded-[24px] bg-white text-black font-semibold tracking-wide shadow-2xl relative z-10 hover:bg-white/90 active:scale-95 transition-all"
         >
-          Return to Nexus
+          Go to Homepage
         </Button>
       </div>
     );
@@ -147,8 +147,8 @@ export default function PublicListingPreview() {
       <SEO 
         title={listing.title || 'Swipess Asset'}
         description={`${listing.beds || 0} Beds • ${listing.baths || 0} Baths • ${listing.city || 'Tulum'} — $${listing.price?.toLocaleString()}`}
-        image={images[0] || 'https://swipess.app/og-image-nexus.png'}
-        url={`https://swipess.app/listing/${id}`}
+        image={images[0] || `${typeof window !== 'undefined' ? window.location.origin : 'https://swipess.lovable.app'}/og-image-nexus.png`}
+        url={`${typeof window !== 'undefined' ? window.location.origin : 'https://swipess.lovable.app'}/listing/${id}`}
         type="website"
       />
 
@@ -209,7 +209,7 @@ export default function PublicListingPreview() {
          
          <div className="bg-[#EB4898]/10 backdrop-blur-2xl border border-[#EB4898]/20 px-5 py-2 rounded-2xl h-14 flex items-center gap-3 shadow-[0_0_30px_rgba(235,72,152,0.1)] pointer-events-auto">
             <Zap className="w-5 h-5 text-[#EB4898] fill-current animate-pulse" />
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#EB4898] italic">Nexus Active</span>
+            <span className="text-[10px] font-bold uppercase tracking-widest text-[#EB4898]">Live Listing</span>
          </div>
 
           <div className="flex gap-3 pointer-events-auto">
@@ -247,7 +247,7 @@ export default function PublicListingPreview() {
                <Badge className={cn("text-[10px] font-black uppercase italic tracking-widest px-4 py-2 rounded-2xl border", 
                   mode === 'sale' ? "bg-[#FF4D00]/10 text-[#FF4D00] border-[#FF4D00]/20 shadow-[0_0_15px_rgba(255,77,0,0.1)]" : "bg-indigo-500/10 text-indigo-400 border-indigo-500/20"
                )}>
-                  {mode === 'sale' ? 'Liquidation' : 'Nexus Residency'}
+                  {mode === 'sale' ? 'For Sale' : 'For Rent'}
                </Badge>
                {(listing as any).verified && (
                  <Badge className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-black uppercase italic tracking-widest px-4 py-2 rounded-2xl">
@@ -294,7 +294,7 @@ export default function PublicListingPreview() {
                       className="w-full h-18 sm:h-20 rounded-[28px] bg-gradient-to-r from-[#EB4898] to-[#FF4D00] text-white font-black uppercase italic tracking-[0.25em] shadow-[0_15px_40px_rgba(235,72,152,0.3)] border-none hover:opacity-90 active:scale-95 transition-all text-base sm:text-lg"
                    >
                       <MessageCircle className="w-6 h-6 sm:w-7 sm:h-7 mr-4" />
-                      Manifest Direct Sync
+                      Message Owner
                    </Button>
                 ) : (
                    <div className="flex flex-col sm:flex-row items-center gap-4">
@@ -303,21 +303,21 @@ export default function PublicListingPreview() {
                         className="w-full sm:flex-1 h-16 sm:h-18 rounded-[24px] bg-white text-black font-black uppercase italic tracking-[0.2em] shadow-2xl border-none hover:bg-white/90 transition-all text-sm"
                       >
                          <UserPlus className="w-5 h-5 mr-3" />
-                         Initialize Identity
+                         Create Account
                       </Button>
                       <Button
                         variant="outline"
                         onClick={() => { triggerHaptic('medium'); navigate('/'); }}
-                        className="w-full sm:flex-1 h-16 sm:h-18 rounded-[24px] font-black uppercase tracking-[0.2em] italic text-sm transition-all border-white/10 text-white bg-white/5 hover:bg-white/10 active:scale-95 shadow-xl"
+                        className="w-full sm:flex-1 h-16 sm:h-18 rounded-[24px] font-semibold tracking-wide text-sm transition-all border-white/10 text-white bg-white/5 hover:bg-white/10 active:scale-95 shadow-xl"
                       >
                          <LogIn className="w-5 h-5 mr-3" />
-                         Authorized Login
+                         Sign In
                       </Button>
                    </div>
                 )}
             </div>
 
-            <p className="text-center text-[10px] font-black uppercase tracking-[0.5em] opacity-20 pt-8 pb-4 italic">Nexus Protocol · Asset Class Alpha</p>
+            <p className="text-center text-[10px] font-semibold uppercase tracking-[0.3em] opacity-30 pt-8 pb-4 text-white">Powered by Swipess</p>
          </div>
       </motion.div>
 

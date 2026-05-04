@@ -26,7 +26,7 @@ import CardImage from '@/components/CardImage';
 import { imageCache } from '@/lib/swipe/cardImageCache';
 import useAppTheme from '@/hooks/useAppTheme';
 import { cn } from '@/lib/utils';
-import { ThumbsUp, ThumbsDown, Flame } from 'lucide-react';
+import { ThumbsUp, ThumbsDown, Flame, Flag, Share2 } from 'lucide-react';
 
 export interface SimpleSwipeCardRef {
   triggerSwipe: (direction: 'left' | 'right') => void;
@@ -65,6 +65,8 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   externalX,
   externalY,
   onDragStart,
+  onReport,
+  onShare,
 }, ref) => {
   const { isLight } = useAppTheme();
   const isDragging = useRef(false);
@@ -252,7 +254,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
 
   if (!isTop) {
     return (
-      <div className="absolute inset-0 overflow-hidden rounded-[2.5rem]" style={{ pointerEvents: 'none' }}>
+      <div className="absolute inset-0 overflow-hidden" style={{ pointerEvents: 'none', borderRadius: 'var(--radius-md)' }}>
         <div className="absolute inset-0">
           <CardImage
             src={currentImage}
@@ -288,7 +290,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           opacity: 1,
           transition: { type: 'spring', stiffness: 400, damping: 28, mass: 0.6 }
         }}
-        className="flex-1 cursor-grab active:cursor-grabbing select-none touch-none relative w-full h-full overflow-hidden rounded-[2.5rem] border-none gpu-ultra"
+        className="flex-1 cursor-grab active:cursor-grabbing select-none touch-none relative w-full h-full overflow-hidden border-none gpu-ultra"
         style={{
           x,
           y,
@@ -297,14 +299,18 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           willChange: 'transform, opacity',
           transform: 'translate3d(0,0,0)',
           backfaceVisibility: 'hidden',
-          boxShadow: '0 25px 80px -15px rgba(0,0,0,0.7), 0 10px 30px -10px rgba(0,0,0,0.5)',
-          background: '#000',
+          borderRadius: 'var(--radius-md)',
+          boxShadow: 'none',
+          background: 'hsl(var(--background))',
         }}
       >
         <div 
           ref={containerRef as any}
           className="absolute inset-0 overflow-hidden" 
+          style={{ borderRadius: 'inherit', WebkitUserSelect: 'none', userSelect: 'none', touchAction: 'none' }}
           onClick={handleImageTap}
+          onDragStart={(event) => event.preventDefault()}
+          onContextMenu={(event) => event.preventDefault()}
         >
           {currentImage === 'video_attachment' && (listing as any).video_url ? (
             <video
@@ -328,16 +334,16 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           <div
             className="absolute top-0 left-0 right-0 pointer-events-none z-20 transition-opacity duration-200"
             style={{
-              height: '42%',
-              background: 'linear-gradient(to bottom, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.5) 30%, rgba(0,0,0,0.2) 65%, transparent 100%)',
+              height: '28%',
+              background: 'linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.22) 40%, transparent 100%)',
               opacity: isZoomed ? 0 : 1,
             }}
           />
           <div
             className="absolute bottom-0 left-0 right-0 pointer-events-none z-20 transition-opacity duration-200"
             style={{
-              height: '65%',
-              background: 'linear-gradient(to top, rgba(0,0,0,0.98) 0%, rgba(0,0,0,0.8) 20%, rgba(0,0,0,0.4) 55%, transparent 100%)',
+              height: '46%',
+              background: 'linear-gradient(to top, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0.45) 30%, rgba(0,0,0,0.15) 60%, transparent 100%)',
               opacity: isZoomed ? 0 : 1,
             }}
           />
@@ -421,7 +427,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
                 return (
                   <VehicleCardInfo
                     price={(listing as any).price || 0}
-                    priceType={(listing as any).listing_type === 'sale' ? 'sale' : (listing as any).rental_duration_type === 'monthly' ? 'month' : 'day'}
+                    priceType={(listing as any).listing_type === 'rental' ? ((listing as any).rental_duration_type === 'monthly' ? 'month' : 'day') : 'sale'}
                     make={(listing as any).vehicle_brand}
                     model={(listing as any).vehicle_model}
                     year={(listing as any).year}
@@ -435,7 +441,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
               return (
                 <PropertyCardInfo
                   price={(listing as any).price || 0}
-                  priceType={(listing as any).listing_type === 'sale' ? 'sale' : (listing as any).rental_duration_type === 'monthly' ? 'month' : 'night'}
+                  priceType={(listing as any).listing_type === 'rental' ? ((listing as any).rental_duration_type === 'monthly' ? 'month' : 'night') : 'sale'}
                   propertyType={(listing as any).property_type}
                   beds={(listing as any).beds}
                   baths={(listing as any).baths}
@@ -452,10 +458,10 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
         <div
           className="absolute inset-x-0 bottom-0 pointer-events-none z-10 transition-opacity duration-200"
           style={{
-            height: '65%',
+            height: '42%',
             background: isLight
-              ? 'linear-gradient(to top, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.6) 30%, rgba(255,255,255,0.06) 65%, transparent 100%)'
-              : 'linear-gradient(to top, rgba(0,0,0,0.98) 0%, rgba(0,0,0,0.6) 30%, rgba(0,0,0,0.06) 65%, transparent 100%)',
+              ? 'linear-gradient(to top, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.3) 35%, transparent 100%)'
+              : 'linear-gradient(to top, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.32) 35%, transparent 100%)',
             opacity: isZoomed ? 0 : 1,
           }}
         />
@@ -466,6 +472,36 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
                <div className="w-2 h-2 rounded-full bg-violet-500 shadow-[0_0_8px_rgba(139,92,246,1)]" />
                <span className="text-[10px] font-black uppercase tracking-[0.1em] text-white">Verified</span>
              </div>
+          </div>
+        )}
+
+        {isTop && (onReport || onShare) && (
+          <div
+            className="absolute right-5 bottom-[calc(var(--bottom-nav-height,72px)+100px)] z-40 flex flex-col items-end gap-2 transition-opacity duration-150"
+            style={{ opacity: isZoomed ? 0 : 1 }}
+          >
+            {onShare && (
+              <button
+                type="button"
+                onPointerDown={(e) => e.stopPropagation()}
+                onClick={(e) => { e.stopPropagation(); onShare(); }}
+                aria-label="Share listing"
+                className="w-10 h-10 rounded-full flex items-center justify-center bg-black/55 backdrop-blur-md border border-white/15 active:scale-95 transition-all duration-150 hover:bg-black/70 shadow-lg"
+              >
+                <Share2 className="w-4 h-4 text-white" strokeWidth={2.2} />
+              </button>
+            )}
+            {onReport && (
+              <button
+                type="button"
+                onPointerDown={(e) => e.stopPropagation()}
+                onClick={(e) => { e.stopPropagation(); onReport(); }}
+                aria-label="Report listing"
+                className="w-10 h-10 rounded-full flex items-center justify-center bg-black/55 backdrop-blur-md border border-white/15 active:scale-95 transition-all duration-150 hover:bg-black/70 shadow-lg"
+              >
+                <Flag className="w-4 h-4 text-white" strokeWidth={2.2} />
+              </button>
+            )}
           </div>
         )}
       </motion.div>

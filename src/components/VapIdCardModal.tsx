@@ -95,12 +95,20 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
             className="relative w-[85vw] max-w-[480px] min-h-[85vh] max-h-[85vh] flex flex-col"
           >
             <div className="flex items-center justify-between mb-3 px-1">
-              <button onClick={cycleTheme} className="h-9 w-9 flex items-center justify-center rounded-full bg-white/10 border border-white/15">
-                <Droplets className="h-4 w-4 text-white/80" />
+              <button
+                onClick={cycleTheme}
+                aria-label="Change card color"
+                className="h-10 w-10 flex items-center justify-center rounded-full bg-black/55 border border-white/30 backdrop-blur-md shadow-lg active:scale-95 transition"
+              >
+                <Droplets className="h-5 w-5 text-white" strokeWidth={2.6} />
               </button>
-              <span className="text-[10px] font-medium text-white/70">{theme.name}</span>
-              <button onClick={onClose} className="h-9 w-9 flex items-center justify-center rounded-full bg-white/10 border border-white/15">
-                <X className="h-4 w-4 text-white/80" />
+              <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-white/90">{theme.name}</span>
+              <button
+                onClick={onClose}
+                aria-label="Close card"
+                className="h-10 w-10 flex items-center justify-center rounded-full bg-black/55 border border-white/30 backdrop-blur-md shadow-lg active:scale-95 transition"
+              >
+                <X className="h-5 w-5 text-white" strokeWidth={2.8} />
               </button>
             </div>
 

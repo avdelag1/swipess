@@ -87,8 +87,11 @@ export const PremiumLikedCard = memo(({ type, data, onAction, isLight }: Premium
                     {type === 'listing' && (
                         <>
                             {data.beds && (
-                                <div className={cn("flex items-center gap-1.5 px-3 py-1.5 rounded-xl border", isLight ? "bg-black/[0.03] border-black/[0.05]" : "bg-white/[0.05] border-white/[0.08]")}>
-                                    <Bed className="w-3.5 h-3.5 text-muted-foreground" />
+                                <div className={cn(
+                                  "flex items-center gap-1.5 px-3 py-1.5 rounded-xl border",
+                                  isLight ? "bg-white border-black/8 shadow-[0_2px_8px_rgba(0,0,0,0.04)]" : "bg-white/[0.04] border-white/[0.08]"
+                                )}>
+                                    <Bed className={cn("w-3.5 h-3.5", isLight ? "text-black/60" : "text-muted-foreground")} />
                                     <span className="text-[10px] font-black text-foreground">{data.beds}</span>
                                 </div>
                             )}
@@ -129,7 +132,7 @@ export const PremiumLikedCard = memo(({ type, data, onAction, isLight }: Premium
                         className={cn(
                           "flex-1 flex items-center justify-center gap-2 h-12 rounded-2xl text-xs font-black transition-all touch-manipulation active:scale-[0.96]",
                           isLight
-                            ? "bg-black/[0.03] hover:bg-black/[0.06] text-black border border-black/[0.05]"
+                            ? "bg-white hover:bg-black/[0.02] text-foreground border border-black/8 shadow-[0_4px_12px_rgba(0,0,0,0.04)]"
                             : "bg-white/[0.06] hover:bg-white/[0.1] text-white border border-white/[0.08]"
                         )}
                     >

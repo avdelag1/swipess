@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useFilterStore } from '@/state/filterStore';
-import { MapPin } from 'lucide-react';
+import { MapPin, Loader2, Crosshair } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, useSpring, useMotionValue, useTransform } from 'framer-motion';
 import useAppTheme from '@/hooks/useAppTheme';
+import { triggerHaptic } from '@/utils/haptics';
 
 export interface DistanceSliderProps {
   radiusKm: number;
@@ -72,9 +73,34 @@ export const DistanceSlider = ({ radiusKm, onRadiusChange, onDetectLocation, det
         transition={{ duration: 0.4, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
       >
         <div className="flex items-center gap-2">
-          <div className="p-1.5 rounded-lg bg-primary/10 border border-primary/20 shadow-sm">
-            <MapPin className="w-4 h-4 text-primary" />
-          </div>
+          <button
+            type="button"
+            onClick={() => {
+              triggerHaptic('medium');
+              onDetectLocation();
+            }}
+            disabled={detecting}
+            aria-label="Detect my location"
+            aria-pressed={detected}
+            className={cn(
+              "relative w-10 h-10 rounded-full flex items-center justify-center transition-all active:scale-90 border",
+              isLight
+                ? "bg-white border-black/8 shadow-[0_4px_12px_rgba(0,0,0,0.06)] hover:shadow-[0_6px_16px_rgba(0,0,0,0.08)]"
+                : "bg-white/[0.04] border-white/10 backdrop-blur-xl hover:bg-white/[0.08]",
+              detected && "ring-2 ring-primary/40"
+            )}
+          >
+            {detecting ? (
+              <Loader2 className="w-4 h-4 text-primary animate-spin" />
+            ) : detected ? (
+              <Crosshair className="w-4 h-4 text-primary" />
+            ) : (
+              <MapPin className={cn("w-4 h-4", isLight ? "text-black/70" : "text-primary")} />
+            )}
+            {detected && (
+              <span className="absolute inset-0 rounded-full animate-ping bg-primary/20 pointer-events-none" />
+            )}
+          </button>
           <div className="flex flex-col">
             <span className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] leading-none mb-1">Scanning</span>
             <span className="text-xs font-black text-primary leading-none uppercase italic tracking-wider">

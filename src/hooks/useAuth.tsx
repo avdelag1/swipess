@@ -21,7 +21,13 @@ interface AuthContextType {
   signOut: () => Promise<void>;
 }
 
-export const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const authGlobal = globalThis as typeof globalThis & {
+  __SWIPESS_AUTH_CONTEXT__?: ReturnType<typeof createContext<AuthContextType | undefined>>;
+};
+
+export const AuthContext = authGlobal.__SWIPESS_AUTH_CONTEXT__ ?? (
+  authGlobal.__SWIPESS_AUTH_CONTEXT__ = createContext<AuthContextType | undefined>(undefined)
+);
 
 export function AuthProvider({ children, authPromise }: { children: ReactNode, authPromise?: Promise<any> }) {
   const [user, setUser] = useState<User | null>(null);
@@ -275,7 +281,9 @@ export function AuthProvider({ children, authPromise }: { children: ReactNode, a
         return { error: new Error('User already registered') };
       }
 
-      const redirectUrl = 'https://swipess.app';
+      const redirectUrl = typeof window !== 'undefined' && window.location?.origin
+        ? window.location.origin
+        : 'https://swipess.lovable.app';
 
       const { data, error } = await supabase.auth.signUp({
         email,
@@ -459,7 +467,7 @@ export function AuthProvider({ children, authPromise }: { children: ReactNode, a
       // Store role before OAuth redirect
       localStorage.setItem('pendingOAuthRole', role);
 
-      const { data, error } = await supabase.auth.signInWithOAuth({
+      const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
           redirectTo: window.location.origin + window.location.pathname,

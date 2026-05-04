@@ -15,8 +15,8 @@ interface SEOProps {
 export function SEO({
   title = 'Swipess — Immersive Discovery',
   description = 'Elite marketplace and discovery engine for properties, vehicles, and services.',
-  image = 'https://swipess.app/og-image-nexus.png',
-  url = 'https://swipess.app',
+  image = 'https://swipess.lovable.app/og-image-nexus.png',
+  url = 'https://swipess.lovable.app',
   type = 'website'
 }: SEOProps) {
   const siteTitle = 'Swipess';

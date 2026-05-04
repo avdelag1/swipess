@@ -194,10 +194,8 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
                 className={cn(
                   "flex items-center gap-2.5 px-6 py-3.5 rounded-3xl text-sm font-black whitespace-nowrap transition-all flex-shrink-0 border",
                   selectedCategory === id
-                    ? (isLight ? "bg-black text-white shadow-xl shadow-black/10 border-black" : "bg-[var(--color-brand-accent-2)] text-white shadow-lg shadow-[var(--color-brand-accent-2)]/20 border-[var(--color-brand-accent-2)]")
-                    : isLight
-                    ? "bg-white border-black/[0.05] text-black/50 font-black hover:text-black hover:bg-black/[0.03] shadow-sm"
-                    : "bg-white/[0.04] border-white/[0.08] text-muted-foreground hover:text-foreground hover:bg-white/[0.08]"
+                    ? (isLight ? "bg-foreground text-background shadow-xl shadow-black/10 border-foreground" : "bg-[var(--color-brand-accent-2)] text-white shadow-lg shadow-[var(--color-brand-accent-2)]/20 border-[var(--color-brand-accent-2)]")
+                    : "bg-card border-border text-foreground/80 font-black hover:text-foreground hover:bg-secondary shadow-sm"
                 )}
               >
                 <Icon className="w-4 h-4" />
@@ -214,7 +212,7 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
             disabled={isLoading || isFetching}
             className={cn(
               "flex items-center justify-center w-12 h-12 rounded-2xl transition-all active:scale-95 disabled:opacity-50 shadow-sm border",
-              isLight ? "bg-white border-black/[0.05] text-black/40 hover:text-black" : "bg-black/[0.2] border-white/[0.08] text-muted-foreground hover:text-foreground"
+              "bg-card border-border text-foreground/70 hover:text-foreground"
             )}          >
             <RefreshCw className={cn("w-4 h-4", (isLoading || isFetching) && "animate-spin")} />
           </button>
@@ -232,9 +230,7 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
             onChange={(e) => setSearchTerm(e.target.value)}
             className={cn(
               "w-full h-14 rounded-2xl pl-14 pr-6 font-bold focus:border-[var(--color-brand-accent-2)] transition-all outline-none text-sm",
-              isLight
-                ? "bg-white border border-black/[0.05] text-foreground placeholder-black/20 shadow-sm"
-                : "bg-white/[0.04] border border-white/[0.08] text-foreground placeholder-muted-foreground"
+              "bg-card border border-border text-foreground placeholder:text-muted-foreground shadow-sm"
             )}
           />
         </div>
@@ -250,10 +246,8 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
                   className={cn(
                     "px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all active:scale-95 whitespace-nowrap",
                     sortBy === opt.value
-                      ? (isLight ? "bg-black text-white shadow-md border-black" : "bg-[var(--color-brand-accent-2)] border-[var(--color-brand-accent-2)] text-white shadow-md")
-                      : isLight
-                      ? "bg-white border-black/[0.05] text-black/40 font-black hover:text-black hover:bg-black/[0.03]"
-                      : "bg-white/[0.04] border-white/[0.08] text-muted-foreground"
+                      ? (isLight ? "bg-foreground text-background shadow-md border-foreground" : "bg-[var(--color-brand-accent-2)] border-[var(--color-brand-accent-2)] text-white shadow-md")
+                      : "bg-card border-border text-foreground/80 font-black hover:text-foreground hover:bg-secondary"
                   )}
                 >
                   {opt.label}

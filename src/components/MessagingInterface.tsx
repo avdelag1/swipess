@@ -318,7 +318,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
                 )}>
                   <Avatar className={cn("w-10 h-10 border-2", isThemeLight ? "border-white" : "border-[#050505]")}>
                     <AvatarImage src={otherUser.avatar_url} />
-                    <AvatarFallback className={cn("text-xs font-black", isThemeLight ? "bg-black/5 text-black" : "bg-zinc-900 text-white")}>
+                    <AvatarFallback className={cn("text-xs font-black", isThemeLight ? "bg-slate-100 text-slate-700" : "bg-[#121212] text-white")}>
                       {otherUser.full_name?.charAt(0) || '?'}
                     </AvatarFallback>
                   </Avatar>
@@ -328,7 +328,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
                   isThemeLight ? "border-white" : "border-[#050505]",
                   isOnline
                     ? "bg-violet-400 shadow-[0_0_10px_rgba(167,139,250,0.8)]"
-                    : (isThemeLight ? "bg-black/10" : "bg-white/10")
+                    : "bg-slate-500"
                 )} />
               </div>
               <div className="flex flex-col min-w-0">
@@ -336,7 +336,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
                   {otherUser.full_name}
                 </h3>
                 <div className="flex items-center gap-1.5 mt-1">
-                  <div className={cn("w-1 h-1 rounded-full", isOnline ? "bg-violet-400 animate-pulse" : (isThemeLight ? "bg-black/10" : "bg-white/10"))} />
+                  <div className={cn("w-1 h-1 rounded-full", isOnline ? "bg-violet-400 animate-pulse" : "bg-slate-500")} />
                   <span className={cn(
                     "text-[9px] font-black uppercase tracking-[0.18em]",
                     isOnline ? "text-violet-400" : (isThemeLight ? "text-black/30" : "text-white/25")
@@ -434,7 +434,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
 
         <div
           id="chat-scroll-container"
-          className={cn("flex-1 relative min-h-0", isThemeLight ? "bg-white" : "bg-[#050505]")}
+          className={cn("flex-1 relative min-h-0", isThemeLight ? "bg-[#f5f5f7]" : "bg-[#050505]")}
           ref={messagesContainerRef}
         >
           {showConnecting && (
@@ -531,7 +531,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
                 placeholder={isAtLimit ? "LIMIT REACHED" : isListening ? "Listening..." : "Message..."}
                 className={cn(
                   "flex-1 h-12 pl-5 pr-12 rounded-2xl text-[14px] font-medium outline-none transition-all border focus:ring-2 focus:ring-[#EB4898]/20",
-                  isThemeLight ? "bg-white border-black/10 text-black placeholder:text-black/30" : "bg-zinc-900 border-white/5 text-white placeholder:text-white/10"
+                  isThemeLight ? "bg-white border-black/10 text-black placeholder:text-black/30" : "bg-[#121212] border-white/5 text-white placeholder:text-white/10"
                 )}
                 disabled={sendMessage.isPending || isAtLimit}
               />

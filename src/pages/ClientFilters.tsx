@@ -68,24 +68,15 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
 
   return (
     <div
-      className={cn(
-        "w-full flex flex-col p-4 pt-[env(safe-area-inset-top)] relative min-h-full",
-        isLight ? "bg-white text-black" : "bg-[#020202] text-white"
-      )}
+      className="w-full flex flex-col p-4 pt-[env(safe-area-inset-top)] relative min-h-full bg-background text-foreground"
       style={{ paddingBottom: 'calc(var(--bottom-nav-height, 72px) + var(--safe-bottom, 0px) + 24px)' }}
     >
       {!isEmbedded && (
         <div className="mb-6 pt-4 px-4">
-          <h1 className={cn(
-            "text-4xl font-black uppercase italic tracking-[-0.05em] leading-none",
-            isLight ? "text-black" : "text-white"
-          )}>
+          <h1 className="text-4xl font-black uppercase italic tracking-[-0.05em] leading-none text-foreground">
             Swipess <span className="text-primary">Filter</span>
           </h1>
-          <p className={cn(
-            "text-[10px] font-black uppercase tracking-[0.4em] opacity-40 mt-1",
-            isLight ? "text-black" : "text-white"
-          )}>Filter Your Best Deal</p>
+          <p className="text-[10px] font-black uppercase tracking-[0.4em] mt-1 text-muted-foreground">Filter Your Best Deal</p>
         </div>
       )}
 
@@ -104,10 +95,7 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
               {/* Back to previous page */}
               <button
                 onClick={() => { haptics.tap(); navigate(-1); }}
-                className={cn(
-                  "flex items-center gap-2 px-3 py-2 text-[11px] font-black uppercase tracking-widest rounded-lg transition-all active:scale-90 w-fit",
-                  isLight ? "text-black hover:bg-black/[0.03]" : "text-white hover:bg-white/10"
-                )}
+                className="flex items-center gap-2 px-3 py-2 text-[11px] font-black uppercase tracking-widest rounded-lg transition-all active:scale-90 w-fit text-foreground hover:bg-secondary"
               >
                 <ChevronLeft className="w-4 h-4" /> Back
               </button>
@@ -116,37 +104,20 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
                 <button
                   key={cat.id}
                   onClick={() => setActiveCategory(cat.id)}
-                  className={cn(
-                    "group relative h-28 w-full rounded-[2.5rem] overflow-hidden border transition-all duration-300 active:scale-[0.97]",
-                    isLight 
-                      ? "bg-white border-black/[0.05] shadow-xl" 
-                      : "bg-white/5 border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.5)]"
-                  )}
+                  className="group relative h-28 w-full rounded-[2.5rem] overflow-hidden border border-border bg-card text-card-foreground shadow-xl transition-all duration-300 active:scale-[0.97]"
                 >
                   <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                   <div className="relative h-full px-8 flex items-center justify-between">
                     <div className="flex items-center gap-6">
-                      <div className={cn(
-                        "w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-300 group-hover:scale-110",
-                        isLight ? "bg-black text-white" : "bg-white text-black shadow-[0_0_20px_rgba(255,255,255,0.3)]"
-                      )}>
+                      <div className="w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-300 group-hover:scale-110 bg-foreground text-background shadow-lg">
                         <cat.icon className="w-7 h-7" />
                       </div>
                       <div className="text-left">
-                        <h3 className={cn(
-                          "text-xl font-black uppercase italic tracking-tight",
-                          isLight ? "text-black" : "text-white"
-                        )}>{cat.label}</h3>
-                        <p className={cn(
-                          "text-[10px] font-bold uppercase tracking-widest opacity-40",
-                          isLight ? "text-black" : "text-white"
-                        )}>{cat.desc}</p>
+                        <h3 className="text-xl font-black uppercase italic tracking-tight text-foreground">{cat.label}</h3>
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">{cat.desc}</p>
                       </div>
                     </div>
-                    <ChevronRight className={cn(
-                      "w-6 h-6 transition-transform group-hover:translate-x-2",
-                      isLight ? "text-black/30" : "text-white/30"
-                    )} />
+                    <ChevronRight className="w-6 h-6 transition-transform group-hover:translate-x-2 text-muted-foreground" />
                   </div>
                 </button>
               ))}
@@ -162,12 +133,7 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
             >
               <button
                 onClick={() => { haptics.tap(); setActiveCategory(null); }}
-                className={cn(
-                  "flex items-center gap-2 px-3 py-2 text-[11px] font-black uppercase tracking-widest rounded-lg transition-all active:scale-90",
-                  isLight
-                    ? "text-black hover:bg-black/[0.03]"
-                    : "text-white hover:bg-white/10"
-                )}
+                className="flex items-center gap-2 px-3 py-2 text-[11px] font-black uppercase tracking-widest rounded-lg transition-all active:scale-90 text-foreground hover:bg-secondary"
               >
                 <ChevronLeft className="w-4 h-4" /> Back
               </button>
@@ -184,9 +150,9 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
                       borderColor: '#FF4D00',
                       color: 'white'
                     } : {
-                      backgroundColor: isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.08)',
-                      borderColor: isLight ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)',
-                      color: isLight ? '#000000' : '#ffffff'
+                      backgroundColor: 'hsl(var(--secondary))',
+                      borderColor: 'hsl(var(--border))',
+                      color: 'hsl(var(--foreground))'
                     }}
                   >
                     {cat.label}
@@ -194,10 +160,7 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
                 ))}
               </div>
 
-              <h2 className={cn(
-                "text-5xl font-black uppercase italic tracking-[-0.05em] mb-2",
-                isLight ? "text-black" : "text-white"
-              )}>
+              <h2 className="text-5xl font-black uppercase italic tracking-[-0.05em] mb-2 text-foreground">
                 {activeCategory === 'property' && 'Property'}
                 {activeCategory === 'motorcycle' && 'Moto'}
                 {activeCategory === 'bicycle' && 'Bicycle'}
@@ -205,10 +168,7 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
                 <span className="text-primary block text-xl tracking-[0.2em] mt-2">Calibration</span>
               </h2>
 
-              <div className={cn(
-                "rounded-[3rem] p-6 shadow-2xl",
-                isLight ? "bg-white border border-black/[0.03]" : "bg-white/5 border border-white/10 backdrop-blur-3xl shadow-[0_20px_50px_rgba(0,0,0,0.5)]"
-              )}>
+              <div className="rounded-[3rem] p-6 shadow-2xl bg-card border border-border backdrop-blur-3xl">
                 {activeCategory === 'property' && <PropertyClientFilters onApply={(f) => setLocalFilters(f)} initialFilters={localFilters} activeCount={0} />}
                 {activeCategory === 'motorcycle' && <MotoClientFilters onApply={(f) => setLocalFilters(f)} initialFilters={localFilters} activeCount={0} />}
                 {activeCategory === 'bicycle' && <BicycleClientFilters onApply={(f) => setLocalFilters(f)} initialFilters={localFilters} activeCount={0} />}
@@ -219,11 +179,7 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
                 <button
                   onClick={handleScan}
                   disabled={isScanning}
-                  className={cn(
-                    "w-full h-20 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.3)] flex items-center justify-center gap-4 group transition-all active:scale-95",
-                    isLight ? "bg-black text-white" : "bg-white text-black",
-                    "hover:bg-primary hover:text-white disabled:opacity-50 overflow-hidden relative"
-                  )}
+                  className="w-full h-20 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.3)] flex items-center justify-center gap-4 group transition-all active:scale-95 bg-foreground text-background hover:bg-primary hover:text-primary-foreground disabled:opacity-50 overflow-hidden relative"
                 >
                   {isScanning && (
                     <motion.div 
@@ -240,10 +196,7 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
 
                 <button
                   onClick={() => { handleReset(); setActiveCategory(null); }}
-                  className={cn(
-                    "w-full h-16 rounded-[2rem] flex items-center justify-center gap-2 transition-all",
-                    isLight ? "bg-black/[0.03] border border-black/[0.05] text-black hover:bg-black/[0.06]" : "bg-white/10 text-white hover:bg-white/20"
-                  )}
+                  className="w-full h-16 rounded-[2rem] flex items-center justify-center gap-2 transition-all bg-secondary border border-border text-foreground hover:bg-secondary/80"
                 >
                   <RotateCcw className="w-4 h-4" />
                   <span className="text-[10px] font-black uppercase tracking-[0.3em] opacity-80">Reset Parameters</span>

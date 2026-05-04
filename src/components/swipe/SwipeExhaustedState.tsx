@@ -79,7 +79,7 @@ export const SwipeExhaustedState = ({
                 }}
                 className={cn(
                   "absolute top-0 right-0 z-10 w-10 h-10 flex items-center justify-center rounded-full transition-all active:scale-90 border",
-                  isLight ? "bg-white border-black/20 shadow-md hover:bg-black/5" : "bg-white/10 border-white/15 hover:bg-white/20"
+                  isLight ? "bg-white border-black/20 shadow-md hover:bg-gray-50" : "bg-white/10 border-white/15 hover:bg-white/20"
                 )}
                 title="Open advanced filters"
                 aria-label="Open advanced filters"
@@ -126,7 +126,7 @@ export const SwipeExhaustedState = ({
                         ? "bg-black text-white border-black"
                         : "bg-white/20 text-white border-white/30"
                       : isLight
-                      ? "bg-white text-black border-black/20 hover:bg-black/5"
+                      ? "bg-white text-black border-black/20 hover:bg-gray-50"
                       : "bg-white/10 text-white border-white/10 hover:bg-white/20"
                   )}
                 >

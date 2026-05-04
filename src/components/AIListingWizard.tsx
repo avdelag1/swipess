@@ -1,8 +1,8 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  X, Sparkles, Plus, Image, ChevronRight, 
+  X, Sparkles, ChevronRight, 
   Check, Loader2, Wand2, ArrowLeft, Camera,
   Building2, Bike, Briefcase, Zap, DollarSign, MapPin, Search, Mic
 } from 'lucide-react';
@@ -16,7 +16,6 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from 'sonner';
 import { uploadPhotoBatch } from '@/utils/photoUpload';
 import { useAuth } from '@/hooks/useAuth';
-import { supabase } from '@/integrations/supabase/client';
 import { useTranslation } from 'react-i18next';
 import { useVoiceTranscribe } from '@/hooks/useVoiceTranscribe';
 import { refineWithKimi } from '@/lib/kimi';
@@ -34,8 +33,7 @@ const CATEGORIES = [
 
 export function AIListingWizard() {
   const { showAIListing, aiListingCategory, aiListingDraft, setModal } = useModalStore();
-  const { theme, isLight } = useAppTheme();
-  const isSwipess = theme === 'Swipess-style';
+  const { isLight } = useAppTheme();
   const { user } = useAuth();
   const { t } = useTranslation();
   const location = useLocation();
@@ -47,14 +45,14 @@ export function AIListingWizard() {
   const textMuted = isLight ? 'text-black/50' : 'text-white/50';
   const textSubtle = isLight ? 'text-black/30' : 'text-white/30';
   const inputCls = isLight
-    ? 'bg-black/5 border border-black/10 focus:border-cyan-500/50 focus:ring-0 text-black placeholder:text-black/20'
+    ? 'bg-white border border-black/10 focus:border-cyan-500/50 focus:ring-0 text-black placeholder:text-black/30 shadow-[0_2px_8px_rgba(0,0,0,0.04)]'
     : 'bg-white/5 border border-white/5 focus:border-cyan-500/50 focus:ring-0 text-white placeholder:text-white/10';
   const cardCls = isLight
-    ? 'bg-black/5 border-black/10 hover:border-cyan-500/30 hover:bg-black/10 shadow-[0_4px_20px_rgba(0,0,0,0.1)]'
+    ? 'bg-white border-black/8 hover:border-cyan-500/40 hover:bg-white shadow-[0_8px_24px_rgba(0,0,0,0.06)]'
     : 'bg-black/40 border-white/10 hover:border-cyan-500/30 hover:bg-white/10 shadow-[0_4px_20px_rgba(0,0,0,0.5)]';
-  const reviewCardCls = isLight ? 'border-black/8 bg-black/5 backdrop-blur-xl' : 'border-white/5 bg-white/5 backdrop-blur-xl';
+  const reviewCardCls = isLight ? 'border-black/8 bg-white shadow-[0_8px_24px_rgba(0,0,0,0.06)]' : 'border-white/5 bg-white/5 backdrop-blur-xl';
   const closeBtnCls = isLight
-    ? 'bg-black/5 hover:bg-black/10 rounded-2xl transition-all border border-black/8'
+    ? 'bg-white hover:bg-black/5 rounded-2xl transition-all border border-black/10 shadow-[0_2px_8px_rgba(0,0,0,0.06)]'
     : 'bg-white/5 hover:bg-white/10 rounded-2xl transition-all border border-white/5';
   const dividerCls = isLight ? 'bg-black/10' : 'bg-white/10';
   
@@ -63,7 +61,6 @@ export function AIListingWizard() {
   const [prompt, setPrompt] = useState('');
   const [price, setPrice] = useState('');
   const [cityLocation, setCityLocation] = useState('');
-  const [images, setImages] = useState<string[]>([]);
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [aiResult, setAiResult] = useState<any>(null);
@@ -101,7 +98,6 @@ export function AIListingWizard() {
       setPrompt('');
       setPrice('');
       setCityLocation('');
-      setImages([]);
       setImageFiles([]);
       setAiResult(null);
     }, 300);
@@ -272,8 +268,8 @@ export function AIListingWizard() {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           className={cn(
-            "fixed inset-0 z-[10000] backdrop-blur-2xl flex items-start sm:items-center justify-center p-0 sm:p-6",
-            isLight ? "bg-black/30" : "bg-black/80",
+            "fixed inset-0 z-[2147483000] backdrop-blur-2xl flex items-start sm:items-center justify-center p-0 sm:p-6",
+            isLight ? "bg-white/40" : "bg-black/80",
             showFinalForm && "pointer-events-none opacity-0"
           )}
           style={{ paddingBottom: 'calc(var(--bottom-nav-height, 80px) + env(safe-area-inset-bottom, 0px))' }}

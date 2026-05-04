@@ -55,14 +55,19 @@ function TopBarComponent({
 
   const onBack = propOnBack || (showBack ? () => window.history.length > 2 ? navigate(-1) : navigate(`/${isOwner ? 'owner' : 'client'}/dashboard`) : (activeCategory ? () => setActiveCategory(null) : undefined));
 
-  // Frameless icon buttons — the page already provides a glass surface,
-  // so each control sits as a clean floating icon without a second pill.
+  // Liquid Glass icon buttons — readable over any swipe-card backdrop.
   const glassPillStyle: React.CSSProperties = {
-    background: 'transparent',
-    border: 'none',
-    boxShadow: 'none',
-    backdropFilter: 'none',
-    WebkitBackdropFilter: 'none',
+    background: isLight
+      ? 'rgba(255,255,255,0.18)'
+      : 'rgba(255,255,255,0.08)',
+    border: isLight
+      ? '1px solid rgba(255,255,255,0.45)'
+      : '1px solid rgba(255,255,255,0.18)',
+    boxShadow: isLight
+      ? '0 4px 14px -6px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.6)'
+      : '0 6px 18px -8px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.12)',
+    backdropFilter: 'blur(28px) saturate(180%)',
+    WebkitBackdropFilter: 'blur(28px) saturate(180%)',
     borderRadius: '9999px',
     pointerEvents: 'auto',
     color: 'hsl(var(--foreground))',
@@ -118,7 +123,7 @@ function TopBarComponent({
               transition={TAP_SPRING}
               whileTap={{ scale: 0.94 }}
               onClick={() => { haptics.tap(); onBack(); }}
-              className="flex shrink-0 items-center justify-center rounded-[1rem]"
+              className="flex shrink-0 items-center justify-center rounded-full"
               style={{ ...glassPillStyle, width: '36px' }}
               aria-label="Back"
             >
@@ -140,12 +145,8 @@ function TopBarComponent({
                 <div
                   className="w-7 h-7 rounded-full overflow-hidden shrink-0 flex items-center justify-center relative"
                   style={{
-                    background: isOwner
-                      ? 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)))'
-                      : 'linear-gradient(135deg, hsl(var(--accent)), hsl(var(--primary)))',
-                    boxShadow: isOwner
-                      ? '0 0 0 1px hsl(var(--foreground) / 0.16) inset, 0 0 18px hsl(var(--primary) / 0.38)'
-                      : '0 0 0 1px hsl(var(--foreground) / 0.16) inset, 0 0 18px hsl(var(--accent) / 0.38)',
+                    background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)))',
+                    boxShadow: '0 0 0 1px rgba(255,255,255,0.2) inset, 0 0 14px hsl(var(--primary) / 0.35)',
                   }}
                 >
                   {profile?.avatar_url || user?.user_metadata?.avatar_url ? (
@@ -209,8 +210,8 @@ function TopBarComponent({
                   <Crown
                     className="w-4 h-4"
                     style={{
-                      color: 'hsl(var(--primary))',
-                      filter: isLight ? 'none' : 'drop-shadow(0 0 8px hsl(var(--primary) / 0.55))',
+                      color: '#8b5cf6',
+                      filter: isLight ? 'none' : 'drop-shadow(0 0 8px rgba(139,92,246,0.6))',
                     }}
                     strokeWidth={2.2}
                   />

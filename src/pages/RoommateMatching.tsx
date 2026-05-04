@@ -2,15 +2,13 @@ import { useState, useMemo, useRef, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Users, MapPin, Briefcase, Clock, Sparkles, X, 
-  ArrowLeft, Settings2, ShieldCheck, Zap,
+  Settings2, ShieldCheck, Zap,
   MessageCircle, Eye, EyeOff
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { triggerHaptic } from '@/utils/haptics';
 import { cn } from '@/lib/utils';
 import useAppTheme from '@/hooks/useAppTheme';
-import { useActiveMode } from '@/hooks/useActiveMode';
 import { SimpleOwnerSwipeCard, SimpleOwnerSwipeCardRef } from '@/components/SimpleOwnerSwipeCard';
 import { SwipeActionButtonBar } from '@/components/SwipeActionButtonBar';
 import { RoommateFiltersSheet } from '@/components/filters/RoommateFiltersSheet';
@@ -26,21 +24,19 @@ const InfoPill = ({ icon: Icon, label, value }: { icon: any, label: string, valu
   return (
     <div className={cn(
       "p-4 rounded-3xl border backdrop-blur-xl space-y-1.5 transition-all",
-      isLight ? "bg-white border-black/5 shadow-md" : "bg-white/5 border-white/10"
+      isLight ? "bg-white border-slate-200 shadow-md" : "bg-white/5 border-white/10"
     )}>
       <div className="flex items-center gap-2 text-primary">
         <Icon size={14} className="opacity-80" />
         <span className="text-[10px] font-black uppercase tracking-widest opacity-40">{label}</span>
       </div>
-      <div className={cn("text-xs font-black uppercase tracking-tight", isLight ? "text-black" : "text-white")}>{value || 'Not set'}</div>
+      <div className={cn("text-xs font-black uppercase tracking-tight", isLight ? "text-slate-900" : "text-white")}>{value || 'Not set'}</div>
     </div>
   );
 };
 
 export default function RoommateMatching() {
-  const navigate = useNavigate();
   const { isLight } = useAppTheme();
-  const { activeMode } = useActiveMode();
   const { t } = useTranslation();
   const { user } = useAuth();
   const { setActiveCategory } = useFilterActions();
@@ -100,30 +96,21 @@ export default function RoommateMatching() {
   return (
     <div className={cn(
       "fixed inset-0 flex flex-col transition-colors duration-500 overflow-hidden",
-      isLight ? "bg-white" : "bg-[#0A0A0B]"
+      isLight ? "bg-[#F8FAFC]" : "bg-[#0A0A0B]"
     )}>
       <AtmosphericLayer variant="nexus" />
 
       {/* ── IMMERSIVE CONTROLS ── */}
-      <div className="fixed top-[calc(var(--top-bar-height,72px)+12px)] inset-x-6 z-[60] flex justify-between items-center pointer-events-none">
-        <motion.button
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          onClick={() => navigate(`/${activeMode}/dashboard`)}
-          className="w-11 h-11 rounded-2xl bg-black/40 backdrop-blur-2xl border border-white/10 flex items-center justify-center text-white pointer-events-auto shadow-xl"
-        >
-          <ArrowLeft className="w-5 h-5" />
-        </motion.button>
-        
-        <div className="flex gap-2 pointer-events-auto">
+      <div className="fixed top-[calc(var(--top-bar-height,72px)+12px)] inset-x-0 z-[60] flex items-center justify-center px-6 pointer-events-none">
+        <div className="flex items-center gap-2 pointer-events-auto">
           <motion.button
             whileTap={{ scale: 0.95 }}
             onClick={() => { triggerHaptic('light'); setRoommateVisible(!roommateVisible); }}
             className={cn(
               "px-4 h-11 rounded-2xl border backdrop-blur-xl flex items-center gap-2 transition-all shadow-xl",
               roommateVisible
-                ? isLight ? "bg-rose-50/90 border-rose-200 text-rose-600" : "bg-rose-500/15 border-rose-500/40 text-rose-400"
-                : isLight ? "bg-white/80 border-black/5 text-black/40" : "bg-white/5 border-white/10 text-white/40"
+                ? isLight ? "bg-rose-500 border-rose-600 text-white" : "bg-rose-500/30 border-rose-400/60 text-rose-100"
+                : isLight ? "bg-white border-slate-300 text-slate-800" : "bg-black/55 border-white/20 text-white/80"
             )}
             style={{ willChange: 'transform, opacity' }}
           >
@@ -139,13 +126,15 @@ export default function RoommateMatching() {
           <motion.button
             whileTap={{ scale: 0.88 }}
             onClick={() => setShowFilters(true)}
+            aria-label="Filters"
             className={cn(
-              "w-11 h-11 rounded-2xl flex items-center justify-center border backdrop-blur-xl shadow-xl transition-all",
-              isLight ? "bg-white/80 border-black/5 text-black/60" : "bg-white/10 border-white/20 text-white"
+              "px-4 h-11 rounded-2xl flex items-center gap-2 border backdrop-blur-xl shadow-xl transition-all",
+              isLight ? "bg-white border-slate-300 text-slate-800" : "bg-black/55 border-white/20 text-white"
             )}
             style={{ willChange: 'transform, opacity' }}
           >
             <Settings2 className="w-4 h-4" />
+            <span className="text-xs font-semibold tracking-wide">Filters</span>
           </motion.button>
         </div>
       </div>
@@ -341,7 +330,7 @@ export default function RoommateMatching() {
                   <motion.button 
                     whileTap={{ scale: 0.95 }}
                     onClick={() => { handleSwipe('left'); setShowDetails(false); }}
-                    className="flex-1 py-4 rounded-2xl bg-zinc-900 border border-white/5 text-white/40 font-black uppercase tracking-widest text-[10px]"
+                    className="flex-1 py-4 rounded-2xl bg-secondary border border-border text-foreground font-black uppercase tracking-widest text-[10px]"
                   >
                     Not my vibe
                   </motion.button>
