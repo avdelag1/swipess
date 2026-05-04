@@ -209,10 +209,7 @@ export function AppLayout({ children }: AppLayoutProps) {
         </div>
       </main>
 
-      <VapIdCardModal
-        isOpen={modalStore.showVapId}
-        onClose={() => modalStore.setModal('showVapId', false)}
-      />
+
 
 
 
@@ -248,5 +245,8 @@ export function AppLayout({ children }: AppLayoutProps) {
           onClose={() => modalStore.setModal('showVapId', false)}
         />
       </Suspense>
+    </div>
+  );
+}
 
 
