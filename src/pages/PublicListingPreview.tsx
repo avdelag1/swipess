@@ -354,39 +354,6 @@ function ShareDialogWrapper({ open, onOpenChange, listing, id }: any) {
   );
 }
 
-      {listing && user && (
-        <DirectMessageDialog
-          open={showDirectMessageDialog}
-          onOpenChange={setShowDirectMessageDialog}
-          onConfirm={() => setShowDirectMessageDialog(false)}
-          recipientName="Asset Authority"
-          category={category}
-        />
-      )}
-      
-      <ShareDialogWrapper 
-        open={showShareDialog} 
-        onOpenChange={setShowShareDialog} 
-        listing={listing} 
-        id={id} 
-      />
-    </div>
-  );
-}
-
-function ShareDialogWrapper({ open, onOpenChange, listing, id }: any) {
-  if (!listing) return null;
-  return (
-    <ShareDialog
-      open={open}
-      onOpenChange={onOpenChange}
-      listingId={id}
-      title={listing.title || 'Elite Swipess Asset'}
-      description={`💎 ${listing.title || 'Asset'} — ${listing.beds || 0}B/${listing.baths || 0}B in ${listing.city || 'Tulum'} for $${listing.price?.toLocaleString()}. Discover more on Swipess.`}
-    />
-  );
-}
-
 
 
 
