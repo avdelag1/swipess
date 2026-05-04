@@ -146,18 +146,30 @@ export function useMagnifier(config: MagnifierConfig = {}): UseMagnifierReturn {
     };
     const handleWindowUp = (ev: PointerEvent) => {
       if (pointerIdRef.current !== null && ev.pointerId !== pointerIdRef.current) return;
-      deactivateMagnifier();
+      // Only deactivate on real pointer up (finger lift), not on cancel.
+      // iOS fires pointercancel during long-press / callout / scroll attempts —
+      // we want the zoom to persist until the user actually lifts their finger.
+      if (ev.type === 'pointerup') {
+        deactivateMagnifier();
+      }
     };
     const handleContextMenu = (ev: Event) => { ev.preventDefault(); };
     window.addEventListener('pointermove', handleWindowMove, { passive: false });
     window.addEventListener('pointerup', handleWindowUp);
     window.addEventListener('pointercancel', handleWindowUp);
     window.addEventListener('contextmenu', handleContextMenu);
+    // Prevent iOS text selection / callout from hijacking the gesture
+    const handleSelectStart = (ev: Event) => { ev.preventDefault(); };
+    const handleTouchMove = (ev: TouchEvent) => { ev.preventDefault(); };
+    window.addEventListener('selectstart', handleSelectStart);
+    window.addEventListener('touchmove', handleTouchMove, { passive: false });
     windowListenersRef.current = () => {
       window.removeEventListener('pointermove', handleWindowMove as any);
       window.removeEventListener('pointerup', handleWindowUp as any);
       window.removeEventListener('pointercancel', handleWindowUp as any);
       window.removeEventListener('contextmenu', handleContextMenu);
+      window.removeEventListener('selectstart', handleSelectStart);
+      window.removeEventListener('touchmove', handleTouchMove as any);
     };
 
     savedOverflowsRef.current = [];
@@ -297,6 +309,8 @@ export function useMagnifier(config: MagnifierConfig = {}): UseMagnifierReturn {
 
   const onPointerCancel = useCallback((e: React.PointerEvent) => {
     if (!e.isPrimary) return;
+    // If zoom is active, ignore cancel — only finger-lift (pointerup) ends it.
+    if (magnifierState.current.isActive) return;
     deactivateMagnifier();
   }, [deactivateMagnifier]);
 
