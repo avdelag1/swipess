@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Share2, Link2, Mail, MessageCircle, Send, Check, Twitter, Smartphone, X } from 'lucide-react';
+import { Share2, Link2, Mail, MessageCircle, Send, Check, Twitter, Smartphone, X, Instagram, Music2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import {
@@ -71,6 +71,15 @@ export function ShareDialog({
     triggerHaptic('light');
     handler();
     await createShare.mutateAsync({ sharedListingId: listingId, sharedProfileId: profileId, shareMethod: platform as any });
+  };
+
+  // Instagram & TikTok have no public web share intent — copy the link and open the app
+  // so the user can paste it into a Story / bio / post.
+  const shareViaCopyAndOpen = async (openUrl: string, platformLabel: string) => {
+    const ok = await copyToClipboard(`${shareText}\n${shareUrl}`);
+    if (ok) toast.success(`Link copied — paste it in ${platformLabel}`);
+    else toast.error('Could not copy link');
+    window.open(openUrl, '_blank', 'noopener,noreferrer');
   };
 
   const handleEmailShare = async () => {
@@ -185,9 +194,11 @@ export function ShareDialog({
               </button>
             )}
             {[
-              { id: 'whatsapp', icon: MessageCircle, label: 'Chat', handler: () => shareViaWhatsApp(shareUrl, shareText) },
+              { id: 'whatsapp', icon: MessageCircle, label: 'WhatsApp', handler: () => shareViaWhatsApp(shareUrl, shareText) },
               { id: 'twitter', icon: Twitter, label: 'X', handler: () => shareViaTwitter(shareUrl, shareText) },
-              { id: 'sms', icon: Send, label: 'SMS', handler: () => shareViaSMS(shareUrl, shareText) }
+              { id: 'instagram', icon: Instagram, label: 'Instagram', handler: () => shareViaCopyAndOpen('https://www.instagram.com/', 'your Instagram Story') },
+              { id: 'tiktok', icon: Music2, label: 'TikTok', handler: () => shareViaCopyAndOpen('https://www.tiktok.com/upload', 'your TikTok caption') },
+              { id: 'sms', icon: Send, label: 'SMS', handler: () => shareViaSMS(shareUrl, shareText) },
             ].map((p) => (
               <button
                 key={p.id}
