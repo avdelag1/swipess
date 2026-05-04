@@ -517,9 +517,7 @@ const ClientSwipeContainerComponent = ({
     }
   }, [clientProfiles, isLoading, setOwnerDeck, category, isOwnerReady, markOwnerReady, dismissedIds, user?.id]);
 
-  const deckQueue = deckQueueRef.current;
-  const topCard = currentIndex < deckQueue.length ? deckQueue[currentIndex] : null;
-  const topCardIdentity = topCard?.user_id || topCard?.id || '';
+  const topCardIdentity = deckQueueRef.current[currentIndex]?.user_id || deckQueueRef.current[currentIndex]?.id || '';
 
   useEffect(() => {
     topCardX.stop();
