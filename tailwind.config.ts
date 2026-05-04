@@ -84,6 +84,8 @@ export default {
 				input: 'hsl(var(--input))',
 				ring: 'hsl(var(--ring))',
 				background: 'hsl(var(--background))',
+				'swipe-frame': 'hsl(var(--swipe-deck-frame))',
+				'swipe-frame-soft': 'hsl(var(--swipe-deck-frame-soft))',
 				foreground: 'hsl(var(--foreground))',
 				primary: {
 					DEFAULT: 'hsl(var(--primary))',
