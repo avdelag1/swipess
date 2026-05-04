@@ -21,7 +21,13 @@ interface AuthContextType {
   signOut: () => Promise<void>;
 }
 
-export const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const authGlobal = globalThis as typeof globalThis & {
+  __SWIPESS_AUTH_CONTEXT__?: ReturnType<typeof createContext<AuthContextType | undefined>>;
+};
+
+export const AuthContext = authGlobal.__SWIPESS_AUTH_CONTEXT__ ?? (
+  authGlobal.__SWIPESS_AUTH_CONTEXT__ = createContext<AuthContextType | undefined>(undefined)
+);
 
 export function AuthProvider({ children, authPromise }: { children: ReactNode, authPromise?: Promise<any> }) {
   const [user, setUser] = useState<User | null>(null);
