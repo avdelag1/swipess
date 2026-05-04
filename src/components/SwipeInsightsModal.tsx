@@ -60,7 +60,7 @@ export function SwipeInsightsModal({ open, onOpenChange, listing, profile }: Swi
   if (listing) {
     const l: any = listing;
     if (l.price) {
-      const unit = l.listing_type === 'sale' ? '' : (l.rental_duration_type === 'monthly' ? '/mo' : '/day');
+      const unit = l.listing_type === 'rental' ? (l.rental_duration_type === 'monthly' ? '/mo' : '/day') : '';
       specs.push({ icon: <DollarSign className="w-4 h-4" />, label: 'Price', value: `$${Number(l.price).toLocaleString()}${unit}` });
     }
     if (category === 'property') {

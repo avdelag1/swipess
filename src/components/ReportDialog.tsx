@@ -222,7 +222,11 @@ export function ReportDialog({
               </Button>
               <Button
                 type="submit"
-                className="flex-1 h-12 rounded-2xl font-bold text-sm bg-rose-600 hover:bg-rose-500 text-white border-0 transition-all shadow-lg shadow-rose-600/20 active:scale-[0.98]"
+                className={cn(
+                  "flex-1 h-12 rounded-2xl font-bold text-sm border-0 transition-all shadow-lg active:scale-[0.98]",
+                  "bg-rose-600 hover:bg-rose-500 !text-white shadow-rose-600/20",
+                  "disabled:bg-rose-300 disabled:!text-white disabled:opacity-100 disabled:shadow-none"
+                )}
                 disabled={!selectedReportType || !description.trim() || createReport.isPending}
               >
                 {createReport.isPending ? 'Submitting…' : 'Submit Report'}

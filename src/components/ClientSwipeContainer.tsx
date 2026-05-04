@@ -920,7 +920,7 @@ const ClientSwipeContainerComponent = ({
         {/* 📡 Radar HUD removed from here — now managed at the Dashboard level for persistence */}
 
         <div className="flex-1 relative flex w-full h-full items-center justify-center px-0 z-10 pointer-events-auto min-h-0 overflow-hidden">
-        <div className="relative w-full h-full max-w-[440px] mx-auto flex items-center justify-center pointer-events-auto">
+        <div className="relative w-full h-full mx-auto flex items-center justify-center pointer-events-auto">
           <AnimatePresence mode="sync" initial={true}>
             {topCard ? (
               <motion.div 
@@ -929,7 +929,7 @@ const ClientSwipeContainerComponent = ({
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.98 }}
                 transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                className="absolute inset-0 w-full h-full flex flex-col items-center justify-center p-1.5 pt-[calc(var(--safe-top,0px)+72px)] pb-[calc(var(--bottom-nav-height,72px)+16px)] mx-auto transform-gpu"
+                className="absolute inset-0 w-full h-full flex flex-col items-center justify-center p-0 mx-auto transform-gpu"
               >
                 {/* 🚀 STACKED ARCHITECTURE: Next card preview underneath */}
                 {currentIndex + 1 < deckQueue.length && (

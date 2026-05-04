@@ -148,8 +148,8 @@ export function ShareDialog({
             <Button
               onClick={handleCopyLink}
               className={cn(
-                "h-12 px-5 rounded-2xl font-bold uppercase tracking-wider text-[11px] active:scale-95 transition-all border-none",
-                isLight ? "bg-slate-900 text-white hover:bg-slate-800" : "bg-white text-black hover:bg-white/90"
+                "h-12 px-5 rounded-2xl font-bold uppercase tracking-wider text-xs active:scale-95 transition-all border-none shadow-md",
+                isLight ? "bg-slate-900 !text-white hover:bg-slate-800" : "bg-white !text-black hover:bg-white/90"
               )}
             >
               <AnimatePresence mode="wait">
@@ -182,7 +182,7 @@ export function ShareDialog({
                 )}>
                   <Smartphone className="w-4 h-4" />
                 </div>
-                <span className={cn("text-[10px] font-bold uppercase tracking-wider", isLight ? "text-slate-500" : "text-white/50")}>More</span>
+                <span className={cn("text-[10px] font-bold uppercase tracking-wider", isLight ? "text-slate-700" : "text-white/60")}>More</span>
               </button>
             )}
             {[
@@ -200,11 +200,11 @@ export function ShareDialog({
               >
                 <div className={cn(
                   "w-9 h-9 rounded-xl flex items-center justify-center border shadow-sm",
-                  isLight ? "bg-white text-slate-700 border-slate-200" : "bg-[#262626] text-white border-white/[0.06]"
+                  isLight ? "bg-slate-100 text-slate-900 border-slate-300" : "bg-[#262626] text-white border-white/[0.06]"
                 )}>
                   <p.icon className="w-4 h-4" />
                 </div>
-                <span className={cn("text-[10px] font-bold uppercase tracking-wider", isLight ? "text-slate-500" : "text-white/50")}>{p.label}</span>
+                <span className={cn("text-[10px] font-bold uppercase tracking-wider", isLight ? "text-slate-700" : "text-white/60")}>{p.label}</span>
               </button>
             ))}
           </div>
@@ -234,7 +234,7 @@ export function ShareDialog({
               className={cn(
                 "h-12 w-12 rounded-2xl p-0 active:scale-95 transition-all",
                 isLight
-                  ? "bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200"
+                  ? "bg-slate-900 text-white hover:bg-slate-800 border-none shadow-md disabled:bg-slate-200 disabled:text-slate-400"
                   : "bg-[#1A1A1A] text-white hover:bg-[#222] border border-white/[0.06]"
               )}
             >

@@ -104,7 +104,7 @@ const CardImage = memo(({
   if (isPlaceholder) return <PlaceholderImage name={name} />;
 
   return (
-    <div className={cn("absolute inset-0 w-full h-full", !fullScreen && "rounded-[2.5rem]")} style={{ zIndex: 1, overflow: 'hidden' }}>
+    <div className="absolute inset-0 w-full h-full" style={{ zIndex: 1, overflow: 'hidden' }}>
       <div className="absolute inset-0 bg-zinc-800" style={{ opacity: loaded ? 0 : 1, transition: 'opacity 150ms ease-out' }} />
       <img
         src={src}
@@ -321,7 +321,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
 
   if (!isTop) {
     return (
-      <div className="absolute inset-0 overflow-hidden rounded-[2.5rem]" style={{ pointerEvents: 'none' }}>
+      <div className="absolute inset-0 overflow-hidden" style={{ pointerEvents: 'none' }}>
         <div className="absolute inset-0">
           <CardImage src={currentImage} alt={profile.name || 'Client'} name={profile.name} fullScreen={true} />
         </div>
@@ -346,7 +346,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
         onPointerCancel={handleUnifiedPointerUp}
         initial={{ scale: 0.97, opacity: 0.85 }}
         animate={{ scale: 1, opacity: 1, transition: { type: 'spring', stiffness: 400, damping: 28, mass: 0.6 } }}
-        className="flex-1 cursor-grab active:cursor-grabbing select-none touch-none relative w-full h-full overflow-hidden rounded-[2.5rem] border-none gpu-ultra"
+        className="flex-1 cursor-grab active:cursor-grabbing select-none touch-none relative w-full h-full overflow-hidden border-none gpu-ultra"
         style={{
           x, y, rotate: cardRotate, opacity: cardOpacity, willChange: 'transform, opacity',
           transform: 'translate3d(0,0,0)', backfaceVisibility: 'hidden',
