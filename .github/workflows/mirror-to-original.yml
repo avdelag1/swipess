@@ -2,7 +2,7 @@ name: Mirror to original repository
 
 on:
   push:
-    branches: [main]
+    branches: ['**']
   workflow_dispatch:
 
 permissions:
@@ -28,25 +28,27 @@ jobs:
 
       - name: Checkout Lovable-connected repository
         if: steps.guard.outputs.skip != 'true'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
       - name: Validate mirror configuration
         if: steps.guard.outputs.skip != 'true'
         env:
-          MIRROR_TOKEN: ${{ secrets.MIRROR_REPO_TOKEN }}
+          MIRROR_TOKEN: ${{ secrets.MIRROR_REPO_TOKEN1 }}
         run: |
+          set -euo pipefail
           if [ -z "${MIRROR_TOKEN}" ]; then
-            echo "::error::MIRROR_REPO_TOKEN is missing. Add a GitHub fine-grained PAT with Contents read/write access to ${TARGET_REPOSITORY}."
+            echo "::error::MIRROR_REPO_TOKEN1 is missing. Add a GitHub fine-grained PAT named exactly MIRROR_REPO_TOKEN1 with Contents read/write access to ${TARGET_REPOSITORY}."
             exit 1
           fi
 
       - name: Mirror current main to original repository
         if: steps.guard.outputs.skip != 'true'
         env:
-          MIRROR_TOKEN: ${{ secrets.MIRROR_REPO_TOKEN }}
+          MIRROR_TOKEN: ${{ secrets.MIRROR_REPO_TOKEN1 }}
         run: |
+          set -euo pipefail
           git config user.name "swipess-sync-bot"
           git config user.email "actions@github.com"
           git remote add original "https://x-access-token:${MIRROR_TOKEN}@github.com/${TARGET_REPOSITORY}.git"
