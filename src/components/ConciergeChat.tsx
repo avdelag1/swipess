@@ -685,15 +685,23 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
 
                   <div className="flex items-center gap-2">
                     <Popover open={characterPanelOpen} onOpenChange={setCharacterPanelOpen}>
-                      <PopoverTrigger asChild>
-                        <button className={cn("flex items-center gap-2.5 px-3 py-1.5 rounded-2xl border transition-all hover:scale-[1.02] active:scale-95", isLight && !isSwipess ? "bg-slate-50 border-slate-200" : "bg-white/5 border-white/10")}>
-                           <div className="text-right hidden sm:block">
-                              <p className={cn("text-[9px] font-black uppercase tracking-widest", isLight && !isSwipess ? "text-slate-900" : "text-white")}>{CHARACTER_OPTIONS.find(c => c.key === activeCharacter)?.label}</p>
-                              <p className="text-[7px] font-bold opacity-40 uppercase tracking-tighter -mt-0.5">{CHARACTER_OPTIONS.find(c => c.key === activeCharacter)?.subtitle}</p>
-                           </div>
-                           <ArcGauge level={egoLevel} color={arcColor} isLoading={isLoading} icon={CHARACTER_OPTIONS.find(c => c.key === activeCharacter)?.icon || Sparkles} />
-                        </button>
-                      </PopoverTrigger>
+                       <PopoverTrigger asChild>
+                         <button className={cn("flex items-center gap-2.5 px-3 py-1.5 rounded-2xl border transition-all hover:scale-[1.02] active:scale-95", isLight && !isSwipess ? "bg-slate-50 border-slate-200" : "bg-white/5 border-white/10")}>
+                            <div className="text-right hidden sm:block">
+                               <p className={cn("text-[9px] font-black uppercase tracking-widest", isLight && !isSwipess ? "text-slate-900" : "text-white")}>{CHARACTER_OPTIONS.find(c => c.key === activeCharacter)?.label}</p>
+                               <p className="text-[7px] font-bold opacity-40 uppercase tracking-tighter -mt-0.5">{CHARACTER_OPTIONS.find(c => c.key === activeCharacter)?.subtitle}</p>
+                            </div>
+                            {(() => {
+                              const c = CHARACTER_OPTIONS.find(c => c.key === activeCharacter);
+                              const Icon = c?.icon || Sparkles;
+                              return (
+                                <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center", c?.bgColor || "bg-primary/15")}>
+                                  <Icon className={cn("w-5 h-5", c?.color || "text-primary")} />
+                                </div>
+                              );
+                            })()}
+                         </button>
+                       </PopoverTrigger>
                       <PopoverContent side="bottom" align="end" className={cn("w-72 p-2 rounded-3xl border shadow-2xl z-[70]", isLight && !isSwipess ? "bg-white border-slate-200" : "bg-black/95 border-white/10 backdrop-blur-3xl")}>
                         <div className="p-3 mb-2">
                           <h4 className="text-[10px] font-black uppercase tracking-widest text-white/40 italic">Select Logic Profile</h4>
@@ -784,12 +792,12 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                   <div className="max-w-3xl mx-auto flex items-center gap-3">
                     <div className={cn("flex-1 relative flex items-end rounded-3xl transition-all duration-500 border group", isLight && !isSwipess ? "bg-slate-50 border-slate-200 focus-within:border-primary/50" : "bg-white/5 border-white/10 focus-within:border-[#FF3D00]/50")}>
                        <div className="pl-2 pb-2 flex items-center gap-1.5">
-                          <Popover>
-                            <PopoverTrigger asChild>
-                                <button className={cn("p-2.5 rounded-2xl transition-all border", isLight && !isSwipess ? "bg-foreground/15 border-foreground/20 text-foreground hover:bg-foreground/25" : "bg-white/10 border-white/10 text-white hover:bg-white/15")} aria-label="Open chat tools">
-                                   <Plus className="w-4 h-4" strokeWidth={3} />
+                           <Popover>
+                             <PopoverTrigger asChild>
+                                 <button className={cn("p-2.5 rounded-2xl transition-all border", isLight && !isSwipess ? "bg-foreground/15 border-foreground/20 text-foreground hover:bg-foreground/25" : "bg-white/10 border-white/10 text-white hover:bg-white/15")} aria-label="Auto-send timer">
+                                    <Timer className="w-4 h-4" strokeWidth={2.6} />
                                </button>
-                            </PopoverTrigger>
+                             </PopoverTrigger>
                             <PopoverContent side="top" className={cn("w-64 p-2 rounded-3xl border backdrop-blur-xl shadow-2xl", isLight && !isSwipess ? "bg-foreground text-background border-foreground/20" : "bg-background text-foreground border-border")}>
                                <button onClick={() => { setAutoSendEnabled(!autoSendEnabled); triggerHaptic('light'); }} className="w-full flex items-center justify-between gap-4 p-4 rounded-2xl hover:bg-muted/20 transition-all" aria-pressed={autoSendEnabled}>
                                   <span className="flex items-center gap-3 text-[11px] font-black uppercase tracking-widest">
@@ -825,21 +833,20 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                        />
                     </div>
                     
-                    <button
-                      onClick={handleSend}
-                       disabled={!input.trim() || isLoading}
-                        className={cn(
-                          "h-14 min-w-[78px] shrink-0 rounded-3xl flex items-center justify-center gap-2 px-4 transition-all shadow-2xl active:scale-90 ring-1 font-black uppercase tracking-widest text-[10px]",
-                          isSwipess ? "bg-primary text-primary-foreground hover:bg-primary/90 shadow-primary/30 ring-primary/20" : "bg-foreground text-background hover:bg-foreground/90 ring-foreground/25 shadow-foreground/25",
-                          (!input.trim() || isLoading) && "opacity-60"
-                        )}
-                       aria-label="Send message"
-                    >
-                      {isLoading
-                         ? <RefreshCw className="w-5 h-5 animate-spin" />
-                         : <Send className="w-5 h-5" strokeWidth={2.8} />}
-                       <span>Send</span>
-                    </button>
+                     <button
+                       onClick={handleSend}
+                        disabled={!input.trim() || isLoading}
+                         className={cn(
+                           "h-14 w-14 shrink-0 rounded-full flex items-center justify-center transition-all shadow-2xl active:scale-90 ring-2",
+                           "bg-primary text-primary-foreground hover:bg-primary/90 shadow-primary/40 ring-primary/30",
+                           (!input.trim() || isLoading) && "opacity-50"
+                         )}
+                        aria-label="Send message"
+                     >
+                       {isLoading
+                          ? <RefreshCw className="w-6 h-6 animate-spin" />
+                          : <ArrowUp className="w-6 h-6" strokeWidth={3} />}
+                     </button>
                   </div>
                 </footer>
               </div>
