@@ -254,7 +254,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
 
   if (!isTop) {
     return (
-      <div className="absolute inset-0 overflow-hidden" style={{ pointerEvents: 'none' }}>
+      <div className="absolute inset-0 overflow-hidden" style={{ pointerEvents: 'none', borderRadius: 'var(--radius-md)' }}>
         <div className="absolute inset-0">
           <CardImage
             src={currentImage}
@@ -299,14 +299,18 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           willChange: 'transform, opacity',
           transform: 'translate3d(0,0,0)',
           backfaceVisibility: 'hidden',
+          borderRadius: 'var(--radius-md)',
           boxShadow: 'none',
-          background: '#000',
+          background: 'hsl(var(--background))',
         }}
       >
         <div 
           ref={containerRef as any}
           className="absolute inset-0 overflow-hidden" 
+          style={{ borderRadius: 'inherit', WebkitUserSelect: 'none', userSelect: 'none', touchAction: 'none' }}
           onClick={handleImageTap}
+          onDragStart={(event) => event.preventDefault()}
+          onContextMenu={(event) => event.preventDefault()}
         >
           {currentImage === 'video_attachment' && (listing as any).video_url ? (
             <video
