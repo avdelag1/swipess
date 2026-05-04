@@ -103,12 +103,12 @@ function OwnerProfileDialogComponent({ open, onOpenChange }: Props) {
               <div className="space-y-1">
                  <div className="flex items-center gap-2">
                     <Sparkles className="w-4 h-4 text-[#EB4898]" />
-                    <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white/70 italic">Brand Management Center</span>
+                     <span className="text-[10px] font-black uppercase tracking-[0.4em] text-muted-foreground italic">Brand Management Center</span>
                  </div>
-                 <h2 className="text-3xl font-black italic uppercase tracking-tighter text-white">Edit Owner Identity</h2>
+                  <h2 className="text-3xl font-black italic uppercase tracking-tighter text-foreground">Edit Owner Identity</h2>
               </div>
               <div className="flex flex-col items-end gap-2">
-                 <div className="h-2 w-32 bg-white/5 rounded-full overflow-hidden border border-white/10">
+                  <div className="h-2 w-32 bg-foreground/5 rounded-full overflow-hidden border border-border">
                     <motion.div 
                       className="h-full bg-gradient-to-r from-[#EB4898] to-[#ff5bb0]" 
                       initial={{ width: 0 }}
@@ -119,7 +119,7 @@ function OwnerProfileDialogComponent({ open, onOpenChange }: Props) {
               </div>
            </div>
            
-           <button onClick={() => { triggerHaptic('light'); onOpenChange(false); }} className="absolute -top-2 -right-2 sm:top-6 sm:right-6 w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/70 hover:text-white transition-all active:scale-90">
+           <button onClick={() => { triggerHaptic('light'); onOpenChange(false); }} className="absolute -top-2 -right-2 sm:top-6 sm:right-6 w-10 h-10 rounded-full flex items-center justify-center text-foreground/55 hover:text-foreground transition-all active:scale-90 hover:bg-foreground/5">
              <X className="w-5 h-5" />
            </button>
         </div>
@@ -229,11 +229,11 @@ function OwnerProfileDialogComponent({ open, onOpenChange }: Props) {
         </div>
 
         {/* 🛸 BRAND FOOTER ACTIONS */}
-        <div className="px-8 py-6 border-t border-white/5 bg-gradient-to-t from-white/[0.03] to-transparent flex items-center justify-between gap-4">
+        <div className={cn("px-8 py-6 border-t flex items-center justify-between gap-4", isLight ? "border-border bg-gradient-to-t from-muted/50 to-transparent" : "border-border bg-gradient-to-t from-foreground/[0.03] to-transparent")}>
            <Button 
              variant="ghost" 
              onClick={() => onOpenChange(false)}
-             className="h-14 px-8 rounded-2xl font-black italic uppercase tracking-widest text-white/70 hover:text-white hover:bg-white/5"
+              className="h-14 px-8 rounded-2xl font-black italic uppercase tracking-widest text-foreground/55 hover:text-foreground hover:bg-foreground/5"
            >
               Cancel
            </Button>
