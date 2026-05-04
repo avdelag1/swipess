@@ -99,15 +99,8 @@ export function useMagnifier(config: MagnifierConfig = {}): UseMagnifierReturn {
 
     const rect = container.getBoundingClientRect();
 
-    // SMOOTHING: Use lerp to prevent jittery movement
-    if (immediate) {
-      currentPosRef.current = { x: clientX, y: clientY };
-    } else {
-      const lerp = 0.15; // Smooth but responsive
-      currentPosRef.current.x += (clientX - currentPosRef.current.x) * lerp;
-      currentPosRef.current.y += (clientY - currentPosRef.current.y) * lerp;
-    }
-
+    // Track finger 1:1 — zoom view follows the finger immediately as it pans across the card
+    currentPosRef.current = { x: clientX, y: clientY };
     const { x, y } = currentPosRef.current;
 
     // Clamp finger position to container bounds for smooth edge behavior
