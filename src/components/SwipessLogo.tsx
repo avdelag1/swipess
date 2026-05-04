@@ -54,7 +54,7 @@ function SwipessLogoComponent({
                 src={isIcon ? "/icons/Swipess-logo.svg" : "/icons/Swipess-wordmark-white.svg"}
                 alt="Swipess"
                 draggable={false}
-                fetchPriority="high"
+                {...({ fetchpriority: "high" } as any)}
                 decoding={isIcon ? "async" : "sync"}
                 onError={(e) => {
                   const target = e.target as HTMLImageElement;

@@ -25,6 +25,7 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
     queryKey: ['vap-id-profile', user?.id],
     enabled: !!user?.id && isOpen,
     queryFn: async () => {
+      if (!user?.id) return null;
       const { data, error } = await supabase
         .from('profiles')
         .select('full_name, avatar_url, nationality, city, country, languages_spoken, phone')
@@ -39,6 +40,7 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
     queryKey: ['vap-id-client-profile', user?.id],
     enabled: !!user?.id && isOpen,
     queryFn: async () => {
+      if (!user?.id) return null;
       const { data, error } = await supabase
         .from('client_profiles')
         .select('bio, nationality, city, occupation, interests, personality_traits, preferred_activities')
