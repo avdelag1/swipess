@@ -300,7 +300,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
         <ArrowLeft className="w-5 h-5" />
       </button>
 
-      <div className="flex flex-col items-center justify-center min-h-full px-6 py-20 w-full max-w-sm mx-auto">
+      <div className="flex flex-col items-center justify-center min-h-full px-6 pt-20 pb-32 w-full max-w-sm mx-auto">
         {/* Logo */}
         <motion.div
           className="mb-8"
@@ -496,14 +496,14 @@ function LegendaryLandingPage() {
         )}
       </AnimatePresence>
 
-      {/* 🛸 LEGAL FOOTER */}
-      <div className="absolute bottom-8 left-0 right-0 z-20 flex flex-col items-center gap-1.5 opacity-70 hover:opacity-80 transition-opacity">
-        <div className="flex items-center gap-5 text-[9px] font-black uppercase tracking-[0.3em] text-white italic">
-          <button onClick={() => setLegalModal('privacy')} className="hover:text-[#EB4898] transition-colors">Privacy</button>
-          <div className="w-1 h-1 rounded-full bg-white/20" />
-          <button onClick={() => setLegalModal('terms')} className="hover:text-[#EB4898] transition-colors">Terms</button>
+      {/* 🛸 LEGAL FOOTER — fixed so it survives any view + scroll */}
+      <div className="fixed bottom-6 left-0 right-0 z-30 flex flex-col items-center gap-1.5 pointer-events-none">
+        <div className="flex items-center gap-5 text-[9px] font-black uppercase tracking-[0.3em] text-white italic pointer-events-auto">
+          <button onClick={() => setLegalModal('privacy')} className="hover:text-white/70 transition-colors">Privacy</button>
+          <div className="w-1 h-1 rounded-full bg-white/30" />
+          <button onClick={() => setLegalModal('terms')} className="hover:text-white/70 transition-colors">Terms</button>
         </div>
-        <p className="text-[8px] font-black uppercase tracking-[0.4em] text-white/20 italic">© 2026 Swipess</p>
+        <p className="text-[8px] font-black uppercase tracking-[0.4em] text-white/30 italic pointer-events-auto">© 2026 Swipess</p>
       </div>
 
       {/* 🛸 LEGAL POPUP MODAL */}
