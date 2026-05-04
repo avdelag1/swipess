@@ -503,6 +503,15 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
 
   const deckQueue = deckQueueRef.current;
   const topCard = currentIndex < deckQueue.length ? deckQueue[currentIndex] : null;
+  const topCardIdentity = topCard?.id || topCard?.user_id || '';
+
+  useEffect(() => {
+    topCardX.stop();
+    topCardX.set(0);
+    pendingSwipeRef.current = null;
+    isSwipeAnimatingRef.current = false;
+    setSwipeDirection(null);
+  }, [topCardIdentity, filterSignature, activeMode, topCardX]);
 
   const flushPendingSwipe = useCallback(() => {
     const pending = pendingSwipeRef.current;
@@ -512,7 +521,8 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
     pendingSwipeRef.current = null;
     isSwipeAnimatingRef.current = false;
 
-    animate(topCardX, 0, { type: 'spring', stiffness: 500, damping: 35, mass: 0.4 });
+    topCardX.stop();
+    topCardX.set(0);
     hasSwipedRef.current = true;
     setCurrentIndex(newIndex);
     markClientSwiped(listing.id);
