@@ -178,7 +178,7 @@ function CascadeFilterButtonComponent({ filters, onChange, userRole = 'client' }
             className="absolute top-full left-0 mt-2 z-[100] w-80 bg-popover border border-border rounded-2xl shadow-xl overflow-hidden"
           >
             {/* Header */}
-            <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-muted/30">
+            <div className={cn("flex items-center justify-between px-4 py-3 border-b", theme === 'light' ? "bg-black/[0.02] border-black/[0.05]" : "bg-white/[0.02] border-white/[0.08]")}>
               <span className="text-sm font-semibold text-foreground">{t('filters.quickFilter')}</span>
               <div className="flex items-center gap-2">
                 {hasActiveFilters && (
@@ -222,7 +222,7 @@ function CascadeFilterButtonComponent({ filters, onChange, userRole = 'client' }
                           'border',
                           allSelected
                             ? 'bg-primary text-primary-foreground border-primary'
-                            : 'bg-muted/30 text-muted-foreground border-border/50'
+                            : (theme === 'light' ? 'bg-black/[0.03] text-black/70 border-black/[0.05]' : 'bg-white/[0.05] text-white/60 border-white/[0.08]')
                         )}
                       >
                         <Filter className="w-4 h-4" />
@@ -240,9 +240,9 @@ function CascadeFilterButtonComponent({ filters, onChange, userRole = 'client' }
                               buttonClass,
                               'flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium',
                               'border',
-                              isActive
-                                ? cn(colorClass, 'text-white border-current')
-                                : 'bg-muted/30 text-muted-foreground border-border/50'
+                                isActive
+                                  ? cn(colorClass, 'text-white border-current')
+                                  : (theme === 'light' ? 'bg-black/[0.03] text-black/70 border-black/[0.05]' : 'bg-white/[0.05] text-white/60 border-white/[0.08]')
                             )}
                           >
                             {category.icon}
@@ -270,7 +270,7 @@ function CascadeFilterButtonComponent({ filters, onChange, userRole = 'client' }
                               'border',
                               isActive
                                 ? 'bg-primary text-primary-foreground border-primary'
-                                : 'bg-muted/30 text-muted-foreground border-border/50'
+                                : (theme === 'light' ? 'bg-black/[0.03] text-black/70 border-black/[0.05]' : 'bg-white/[0.05] text-white/60 border-white/[0.08]')
                             )}
                           >
                             {t(`filters.${type.label === 'all' ? 'all' : type.label === 'rent' ? 'rent' : 'buy'}`)}
@@ -298,7 +298,7 @@ function CascadeFilterButtonComponent({ filters, onChange, userRole = 'client' }
                               'border',
                               isActive
                                 ? 'bg-primary text-primary-foreground border-primary'
-                                : 'bg-muted/30 text-muted-foreground border-border/50'
+                                : (theme === 'light' ? 'bg-black/[0.03] text-black/70 border-black/[0.05]' : 'bg-white/[0.05] text-white/60 border-white/[0.08]')
                             )}
                           >
                             {option.icon}
@@ -325,7 +325,7 @@ function CascadeFilterButtonComponent({ filters, onChange, userRole = 'client' }
                               'border',
                               isActive
                                 ? 'bg-primary text-primary-foreground border-primary'
-                                : 'bg-muted/30 text-muted-foreground border-border/50'
+                                : (theme === 'light' ? 'bg-black/[0.03] text-black/70 border-black/[0.05]' : 'bg-white/[0.05] text-white/60 border-white/[0.08]')
                             )}
                           >
                             {t(`filters.${option.label === 'all clients' ? 'allClients' : option.label === 'hiring' ? 'hiring' : option.label === 'renting' ? 'renting' : 'buying'}`)}
@@ -339,7 +339,7 @@ function CascadeFilterButtonComponent({ filters, onChange, userRole = 'client' }
             </div>
 
             {/* Footer */}
-            <div className="px-4 py-3 border-t border-border bg-muted/30">
+            <div className={cn("px-4 py-3 border-t", theme === 'light' ? "bg-black/[0.02] border-black/[0.05]" : "bg-white/[0.02] border-white/[0.08]")}>
               <button
                 onClick={() => setIsOpen(false)}
                 className={cn(

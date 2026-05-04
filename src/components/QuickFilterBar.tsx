@@ -134,11 +134,11 @@ function FilterDropdown({
         className={cn(
           smoothButtonClass,
           'flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest italic transition-all',
-          isActive
-            ? cn('bg-primary shadow-lg shadow-primary/20 scale-[1.02]', isLight ? 'text-black' : 'text-white')
-            : isLight 
-              ? 'bg-white/80 border-black/10 text-black shadow-sm backdrop-blur-md hover:bg-black/5' 
-              : 'bg-white/10 border-white/10 text-white hover:bg-white/20'
+            isActive
+              ? cn('bg-primary shadow-lg shadow-primary/20 scale-[1.02]', isLight ? 'text-black' : 'text-white')
+              : isLight 
+                ? 'bg-white border-black/5 text-black shadow-sm backdrop-blur-md hover:bg-black/[0.05]' 
+                : 'bg-white/10 border-white/10 text-white hover:bg-white/20'
         )}
       >
         {icon && <span className="opacity-80">{icon}</span>}
@@ -165,7 +165,7 @@ function FilterDropdown({
                 'w-full flex items-center gap-3 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-left transition-colors',
                 value === option.id
                   ? (isLight ? 'bg-black text-white' : 'bg-white text-black')
-                  : (isLight ? 'text-black hover:bg-black/5' : 'text-white hover:bg-white/5')
+                  : (isLight ? 'text-black hover:bg-black/[0.03]' : 'text-white hover:bg-white/5')
               )}
             >
               {option.icon}

@@ -1,8 +1,7 @@
-import { memo, useCallback } from 'react';
+import { memo } from 'react';
 import { useAppNavigate } from "@/hooks/useAppNavigate";
 import { motion } from 'framer-motion';
-import { ChevronLeft, UserCircle, Ticket } from 'lucide-react';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { ChevronLeft, UserRound, Crown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -53,28 +52,27 @@ function TopBarComponent({
   const { setActiveCategory } = useFilterActions();
 
   const isOwner = userRole === 'owner';
-  
+
   const onBack = propOnBack || (showBack ? () => window.history.length > 2 ? navigate(-1) : navigate(`/${isOwner ? 'owner' : 'client'}/dashboard`) : (activeCategory ? () => setActiveCategory(null) : undefined));
 
+  // Frameless icon buttons — the page already provides a glass surface,
+  // so each control sits as a clean floating icon without a second pill.
   const glassPillStyle: React.CSSProperties = {
-    background: isLight
-      ? 'rgba(255, 255, 255, 0.94)'
-      : 'rgba(255, 255, 255, 0.03)',
-    backdropFilter: 'blur(20px) saturate(160%)',
-    WebkitBackdropFilter: 'blur(20px) saturate(160%)',
-    borderRadius: '1rem',
-    border: isLight ? '1px solid rgba(0,0,0,0.04)' : '1px solid rgba(255,255,255,0.03)',
-    boxShadow: isLight 
-      ? '0 1px 4px rgba(0,0,0,0.02)' 
-      : '0 4px 20px rgba(0,0,0,0.15)',
+    background: 'transparent',
+    border: 'none',
+    boxShadow: 'none',
+    backdropFilter: 'none',
+    WebkitBackdropFilter: 'none',
+    borderRadius: '9999px',
     pointerEvents: 'auto',
-    color: isLight ? '#000000' : 'var(--hud-text)',
-    height: '30px',
+    color: 'hsl(var(--foreground))',
+    height: '36px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     transition: 'all 0.3s cubic-bezier(0.22, 1, 0.36, 1)',
   };
+
 
   const { data: profile } = useQuery({
     queryKey: ['topbar-user-profile', user?.id],
@@ -91,6 +89,14 @@ function TopBarComponent({
     },
   });
 
+  const initials = (profile?.full_name || user?.email || '?')
+    .split(/[\s@.]/)
+    .map((s: string) => s[0])
+    .filter(Boolean)
+    .slice(0, 2)
+    .join('')
+    .toUpperCase();
+
   return (
     <header 
       className={cn(
@@ -106,60 +112,65 @@ function TopBarComponent({
     >
       <div className="h-full w-full px-4 flex items-center justify-between relative">
         
-        <div className="flex items-center gap-2.5 pointer-events-auto">
+        <div className="flex min-w-0 items-center gap-2 pointer-events-auto">
           {onBack ? (
             <motion.button
               transition={TAP_SPRING}
-              whileTap={{ scale: 0.94, y: 1 }}
+              whileTap={{ scale: 0.94 }}
               onClick={() => { haptics.tap(); onBack(); }}
-              className="px-2.5 flex shrink-0 items-center justify-center rounded-[0.85rem]"
-              style={glassPillStyle}
+              className="flex shrink-0 items-center justify-center rounded-[1rem]"
+              style={{ ...glassPillStyle, width: '36px' }}
+              aria-label="Back"
             >
-              <ChevronLeft className="w-3.5 h-3.5" style={{ color: isLight ? '#000000' : 'var(--hud-text)' }} />
+              <ChevronLeft className="w-4 h-4" strokeWidth={2.4} style={{ color: isLight ? '#000000' : 'var(--hud-text)' }} />
             </motion.button>
           ) : (
             user && (
-              <div className="flex items-center gap-2">
-                <motion.button
-                  transition={TAP_SPRING}
-                  whileTap={{ scale: 0.96 }}
-                  onClick={() => {
-                    haptics.tap();
-                    navigate(isOwner ? '/owner/profile' : '/client/profile');
+              <motion.button
+                transition={TAP_SPRING}
+                whileTap={{ scale: 0.96 }}
+                onClick={() => {
+                  haptics.tap();
+                  navigate(isOwner ? '/owner/profile' : '/client/profile');
+                }}
+                className="flex shrink-0 items-center gap-1.5 rounded-full pl-1 pr-2 group"
+                style={glassPillStyle}
+                aria-label="Open profile"
+              >
+                <div
+                  className="w-7 h-7 rounded-full overflow-hidden shrink-0 flex items-center justify-center relative"
+                  style={{
+                    background: isOwner
+                      ? 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)))'
+                      : 'linear-gradient(135deg, hsl(var(--accent)), hsl(var(--primary)))',
+                    boxShadow: isOwner
+                      ? '0 0 0 1px hsl(var(--foreground) / 0.16) inset, 0 0 18px hsl(var(--primary) / 0.38)'
+                      : '0 0 0 1px hsl(var(--foreground) / 0.16) inset, 0 0 18px hsl(var(--accent) / 0.38)',
                   }}
-                  className="flex shrink-0 items-center gap-1.5 px-1.5 rounded-[0.85rem] group"
-                  style={glassPillStyle}
                 >
-                  <div className="w-6 h-6 rounded-full overflow-hidden shrink-0 flex items-center justify-center relative shadow-sm ring-1 ring-white/10"
-                    style={{ background: isLight ? 'rgba(0,0,0,0.03)' : 'rgba(255,255,255,0.08)' }}
-                  >
-                    {user?.user_metadata?.avatar_url ? (
-                      <img
-                        src={user.user_metadata.avatar_url}
-                        alt="Profile"
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div 
-                        className="absolute inset-0 flex items-center justify-center"
-                        style={{ display: profile?.avatar_url ? 'none' : 'flex' }}
-                      >
-                        <UserCircle className="w-3.5 h-3.5 text-white drop-shadow-sm" strokeWidth={2.5} />
-                      </div>
-                    )}
-                  </div>
-                  {profile?.full_name && (
-                    <span 
-                      className="hidden sm:inline-block text-[9px] font-black uppercase tracking-[0.12em] transition-colors pr-1"
-                      style={{ color: isLight ? 'rgba(0,0,0,0.7)' : 'rgba(255,255,255,0.8)' }}
-                    >
-                      {profile.full_name.split(' ')[0]}
-                    </span>
+                  {profile?.avatar_url || user?.user_metadata?.avatar_url ? (
+                    <img
+                      src={profile?.avatar_url || user?.user_metadata?.avatar_url}
+                      alt="Profile"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    initials === '?' ? <UserRound className="h-4 w-4 text-primary-foreground" strokeWidth={2.4} /> : (
+                      <span className="text-[10px] font-black text-primary-foreground drop-shadow-sm">
+                        {initials}
+                      </span>
+                    )
                   )}
-                </motion.button>
-                
-
-              </div>
+                </div>
+                {profile?.full_name && (
+                  <span
+                    className="hidden max-w-[74px] truncate sm:inline-block text-[10px] font-black uppercase tracking-[0.08em] text-foreground/80"
+                    style={{ fontVariantNumeric: 'tabular-nums' }}
+                  >
+                    {profile.full_name.split(' ')[0]}
+                  </span>
+                )}
+              </motion.button>
             )
           )}
 
@@ -181,32 +192,29 @@ function TopBarComponent({
         )}
 
         {/* RIGHT CLUSTER: Individual Action Pills */}
-        <div className="flex shrink-0 items-center gap-1.5 sm:gap-2 pointer-events-auto">
+          <div className="flex shrink-0 items-center gap-2 pointer-events-auto">
           {!minimal && (
             <>
-              <motion.button
-                transition={TAP_SPRING}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => { haptics.tap(); setModal('showTokensModal', true); }}
-                className="w-7.5 flex shrink-0 items-center justify-center rounded-[0.85rem] relative overflow-hidden"
-                style={{
-                  ...glassPillStyle,
-                  background: isLight
-                    ? 'rgba(0, 0, 0, 0.05)'
-                    : 'linear-gradient(135deg, rgba(255, 77, 0, 0.25), rgba(235, 72, 152, 0.15))',
-                  border: isLight ? '1px solid rgba(0,0,0,0.03)' : '1px solid rgba(255,255,255,0.06)',
-                }}
-                aria-label="Tokens"
-              >
-                <Ticket
-                  className="w-3 h-3"
+                <motion.button
+                  transition={TAP_SPRING}
+                  whileTap={{ scale: 0.92 }}
+                  onClick={() => { haptics.tap(); setModal('showTokensModal', true); }}
+                  className="flex shrink-0 items-center justify-center rounded-full relative overflow-hidden"
                   style={{
-                    color: isLight ? '#000000' : '#FF4D00',
-                    filter: isLight ? 'none' : 'drop-shadow(0 0 6px rgba(255, 77, 0, 0.4))',
+                    ...glassPillStyle,
+                    width: '36px',
                   }}
-                  strokeWidth={2.4}
-                />
-              </motion.button>
+                  aria-label="Tokens"
+                >
+                  <Crown
+                    className="w-4 h-4"
+                    style={{
+                      color: 'hsl(var(--primary))',
+                      filter: isLight ? 'none' : 'drop-shadow(0 0 8px hsl(var(--primary) / 0.55))',
+                    }}
+                    strokeWidth={2.2}
+                  />
+                </motion.button>
 
               <ThemeToggle glassPillStyle={glassPillStyle} />
 

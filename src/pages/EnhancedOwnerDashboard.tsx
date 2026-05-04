@@ -19,6 +19,7 @@ import type { ClientFilters } from '@/hooks/smartMatching/types';
 import { AtmosphericLayer } from '@/components/AtmosphericLayer';
 import { useNavigate } from 'react-router-dom';
 import { SwipeInsightsModal } from '@/components/SwipeInsightsModal';
+import { SwipessLogo } from '@/components/SwipessLogo';
 
 interface EnhancedOwnerDashboardProps {
   onClientInsights?: (clientId: string) => void;

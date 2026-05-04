@@ -59,14 +59,14 @@ const MessageBubble = memo(({
             : cn(
                 "border rounded-[1.5rem] rounded-bl-[0.35rem]",
                 isThemeLight
-                  ? "bg-white border-black/[0.07] text-slate-800 shadow-sm"
+                  ? "bg-white border-black/[0.07] text-black shadow-sm"
                   : "bg-white/[0.07] border-white/[0.08] text-white backdrop-blur-xl"
               )
         )}
       >
         <p className={cn(
           "text-[14px] font-medium break-words whitespace-pre-wrap leading-relaxed",
-          isMyMessage ? "text-white" : (isThemeLight ? "text-slate-800" : "text-white/90")
+          isMyMessage ? "text-white" : (isThemeLight ? "text-black" : "text-white/90")
         )}>
           {message.message_text}
         </p>

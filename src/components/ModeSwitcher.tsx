@@ -1,6 +1,6 @@
 import { memo, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { User, UserCheck } from 'lucide-react';
+import { BriefcaseBusiness, UserRound } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useActiveMode, ActiveMode } from '@/hooks/useActiveMode';
 import { triggerHaptic } from '@/utils/haptics';
@@ -34,27 +34,23 @@ function ModeSwitcherComponent({ className }: ModeSwitcherProps) {
 
   const isClient = activeMode === 'client';
 
-  // Single segmented pill containing both halves — eliminates the "two random
-  // glass squares floating" look and visually anchors the mode-switch as one
-  // control. Only the active half shows colored fill.
+  const BUTTON_SIZE = 36;
+
   const containerStyle: React.CSSProperties = {
-    background: isLight
-      ? 'rgba(255, 255, 255, 0.94)'
-      : 'rgba(255, 255, 255, 0.03)',
-    backdropFilter: 'blur(20px) saturate(160%)',
-    WebkitBackdropFilter: 'blur(20px) saturate(160%)',
-    borderRadius: '0.85rem',
-    border: isLight ? '1px solid rgba(0,0,0,0.03)' : '1px solid rgba(255,255,255,0.03)',
-    boxShadow: isLight 
-      ? '0 1px 4px rgba(0,0,0,0.02)' 
-      : '0 4px 16px rgba(0,0,0,0.1)',
-    height: '30px',
+    background: 'transparent',
+    backdropFilter: 'none',
+    WebkitBackdropFilter: 'none',
+    borderRadius: 9999,
+    border: 'none',
+    boxShadow: 'none',
+    height: BUTTON_SIZE,
     position: 'relative',
-    overflow: 'hidden',
-    padding: '3px',
     display: 'flex',
     alignItems: 'center',
-    minWidth: '58px'
+    gap: 2,
+    boxSizing: 'border-box',
+    opacity: !canSwitchMode || isSwitching ? 0.55 : 1,
+    transition: 'opacity 0.2s ease',
   };
 
   return (
@@ -62,54 +58,39 @@ function ModeSwitcherComponent({ className }: ModeSwitcherProps) {
       className={cn('pointer-events-auto', className)}
       style={containerStyle}
     >
-      {/* Sliding indicator */}
-      <motion.div
-        className="absolute z-0"
-        initial={false}
-        animate={{
-          x: isClient ? 0 : 28,
-          width: 24,
-          height: 24,
-          background: isClient 
-            ? 'linear-gradient(135deg, #FF4D00, #FF8C00)' 
-            : 'linear-gradient(135deg, #EB4898, #FF4D00)',
-        }}
-        transition={{
-          type: "spring",
-          stiffness: 500,
-          damping: 35
-        }}
-        style={{
-          borderRadius: '0.75rem',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-        }}
-      />
-
       <motion.button
-        whileTap={{ scale: 0.92 }}
+        whileTap={{ scale: 0.9 }}
         onClick={() => handleModeSwitch('client')}
         disabled={!canSwitchMode || isSwitching}
-        className="w-6.5 h-6.5 flex-1 flex items-center justify-center relative z-10"
+        className="flex items-center justify-center relative z-10 rounded-full"
+        style={{ width: BUTTON_SIZE, height: BUTTON_SIZE, background: 'transparent', border: 'none', boxShadow: 'none' }}
         title="Client Mode"
         aria-pressed={isClient}
       >
-        <User
-          className={cn('h-3.5 w-3.5 transition-colors duration-300', isClient ? 'text-white' : 'text-slate-400')}
-          strokeWidth={isClient ? 2.5 : 2}
+        <UserRound
+          className={cn(
+            'h-[17px] w-[17px] transition-colors duration-300',
+            isClient ? 'text-primary' : 'text-foreground/60',
+          )}
+          strokeWidth={isClient ? 2.4 : 2}
         />
       </motion.button>
 
       <motion.button
-        whileTap={{ scale: 0.92 }}
+        whileTap={{ scale: 0.9 }}
         onClick={() => handleModeSwitch('owner')}
         disabled={!canSwitchMode || isSwitching}
-        className="w-6.5 h-6.5 flex-1 flex items-center justify-center relative z-10"
+        className="flex items-center justify-center relative z-10 rounded-full"
+        style={{ width: BUTTON_SIZE, height: BUTTON_SIZE, background: 'transparent', border: 'none', boxShadow: 'none' }}
         title="Owner Mode"
         aria-pressed={!isClient}
       >
-        <UserCheck
-          className={cn('h-3.5 w-3.5 transition-colors duration-300', !isClient ? 'text-white' : 'text-slate-400')}
-          strokeWidth={!isClient ? 2.5 : 2}
+        <BriefcaseBusiness
+          className={cn(
+            'h-[17px] w-[17px] transition-colors duration-300',
+            !isClient ? 'text-primary' : 'text-foreground/60',
+          )}
+          strokeWidth={!isClient ? 2.4 : 2}
         />
       </motion.button>
     </div>

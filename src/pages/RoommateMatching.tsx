@@ -26,13 +26,13 @@ const InfoPill = ({ icon: Icon, label, value }: { icon: any, label: string, valu
   return (
     <div className={cn(
       "p-4 rounded-3xl border backdrop-blur-xl space-y-1.5 transition-all",
-      isLight ? "bg-white border-slate-200 shadow-md" : "bg-white/5 border-white/10"
+      isLight ? "bg-white border-black/5 shadow-md" : "bg-white/5 border-white/10"
     )}>
       <div className="flex items-center gap-2 text-primary">
         <Icon size={14} className="opacity-80" />
         <span className="text-[10px] font-black uppercase tracking-widest opacity-40">{label}</span>
       </div>
-      <div className={cn("text-xs font-black uppercase tracking-tight", isLight ? "text-slate-900" : "text-white")}>{value || 'Not set'}</div>
+      <div className={cn("text-xs font-black uppercase tracking-tight", isLight ? "text-black" : "text-white")}>{value || 'Not set'}</div>
     </div>
   );
 };
@@ -66,7 +66,7 @@ export default function RoommateMatching() {
   });
 
   const cardRef = useRef<SimpleOwnerSwipeCardRef>(null);
-  const { data: profiles = [], isLoading } = useSmartClientMatching(user?.id, 'roommates', 0, 50, false, currentFilters);
+  const { data: profiles = [], isLoading } = useSmartClientMatching(user?.id, 'all-clients' as any, 0, 50, false, currentFilters, true);
   
   const topCard = profiles[currentIndex];
   const nextCard = profiles[currentIndex + 1];
@@ -100,7 +100,7 @@ export default function RoommateMatching() {
   return (
     <div className={cn(
       "fixed inset-0 flex flex-col transition-colors duration-500 overflow-hidden",
-      isLight ? "bg-[#F8FAFC]" : "bg-[#0A0A0B]"
+      isLight ? "bg-white" : "bg-[#0A0A0B]"
     )}>
       <AtmosphericLayer variant="nexus" />
 
@@ -123,7 +123,7 @@ export default function RoommateMatching() {
               "px-4 h-11 rounded-2xl border backdrop-blur-xl flex items-center gap-2 transition-all shadow-xl",
               roommateVisible
                 ? isLight ? "bg-rose-50/90 border-rose-200 text-rose-600" : "bg-rose-500/15 border-rose-500/40 text-rose-400"
-                : isLight ? "bg-white/80 border-slate-200 text-slate-400" : "bg-white/5 border-white/10 text-white/40"
+                : isLight ? "bg-white/80 border-black/5 text-black/40" : "bg-white/5 border-white/10 text-white/40"
             )}
             style={{ willChange: 'transform, opacity' }}
           >
@@ -141,7 +141,7 @@ export default function RoommateMatching() {
             onClick={() => setShowFilters(true)}
             className={cn(
               "w-11 h-11 rounded-2xl flex items-center justify-center border backdrop-blur-xl shadow-xl transition-all",
-              isLight ? "bg-white/80 border-slate-200 text-slate-600" : "bg-white/10 border-white/20 text-white"
+              isLight ? "bg-white/80 border-black/5 text-black/60" : "bg-white/10 border-white/20 text-white"
             )}
             style={{ willChange: 'transform, opacity' }}
           >
@@ -185,16 +185,16 @@ export default function RoommateMatching() {
                   <div className="absolute inset-0 bg-primary/20 blur-[60px] rounded-full animate-pulse" />
                   <div className={cn(
                     "w-32 h-32 rounded-[3.5rem] flex items-center justify-center border relative z-10",
-                    isLight ? "bg-white border-slate-200 shadow-2xl" : "bg-zinc-900 border-white/5 shadow-2xl"
+                    isLight ? "bg-white border-black/5 shadow-2xl" : "bg-zinc-900 border-white/5 shadow-2xl"
                   )}>
                     <Users className="w-14 h-14 text-primary" strokeWidth={1} />
                   </div>
                 </div>
                 <div className="space-y-3 max-w-lg">
-                  <h2 className={cn("text-xl md:text-2xl font-bold leading-snug", isLight ? "text-slate-900" : "text-white")}>
+                  <h2 className={cn("text-xl md:text-2xl font-bold leading-snug", isLight ? "text-black" : "text-white")}>
                     {t('roommates.noMoreMatches')}
                   </h2>
-                  <p className={cn("text-sm leading-relaxed", isLight ? "text-slate-500" : "text-white/60")}>
+                  <p className={cn("text-sm leading-relaxed", isLight ? "text-black/40" : "text-white/60")}>
                     Everyone has been matched. Check back later for new arrivals.
                   </p>
                 </div>
@@ -318,7 +318,7 @@ export default function RoommateMatching() {
 
                <div className="space-y-3">
                   <h3 className="text-[10px] font-black uppercase tracking-[0.25em] text-primary">About</h3>
-                  <p className={cn("text-base leading-relaxed", isLight ? "text-slate-800" : "text-white/90")}>
+                  <p className={cn("text-base leading-relaxed", isLight ? "text-black/80" : "text-white/90")}>
                     {(topCard as any).bio}
                   </p>
                </div>

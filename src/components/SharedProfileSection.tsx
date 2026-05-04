@@ -213,7 +213,7 @@ export function SharedProfileSection({
               >
                 <div className={cn(
                   "w-14 h-14 rounded-2xl flex items-center justify-center border transition-all shadow-lg",
-                  isDark ? "bg-white/5 border-white/10 group-hover:bg-white/10" : "bg-black/5 border-black/5 group-hover:bg-black/10"
+                  isDark ? "bg-white/10 border-white/15 group-hover:bg-white/20" : "bg-white border-black/10 group-hover:bg-white/90"
                 )}>
                   {btn.icon}
                 </div>

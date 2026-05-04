@@ -14,7 +14,7 @@ export default defineConfig(({ mode }) => ({
       drop: ['console', 'debugger'],
     },
   } : {}),
-  plugins: [
+  plugins: ([
     react(),
     {
       name: 'sw-build-time-plugin',
@@ -29,7 +29,7 @@ export default defineConfig(({ mode }) => ({
     },
     {
       name: 'critical-preload-plugin',
-      transformIndexHtml(html, ctx) {
+      transformIndexHtml(html: string, ctx: any) {
         if (!ctx.bundle) return html;
         const preloads: string[] = [];
         for (const [_key, chunk] of Object.entries(ctx.bundle)) {
@@ -40,7 +40,7 @@ export default defineConfig(({ mode }) => ({
         return html.replace('</head>', `${preloads.slice(0, 1).join('')}</head>`);
       }
     }
-  ],
+  ] as any),
   optimizeDeps: {
     include: [
       'react', 'react-dom', 'react-dom/client', 'react/jsx-runtime', 'react/jsx-dev-runtime',

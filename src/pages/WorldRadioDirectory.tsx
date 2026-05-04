@@ -55,7 +55,7 @@ export default function WorldRadioDirectory() {
   return (
     <div className={cn(
       "h-[100dvh] overflow-y-auto overflow-x-hidden flex flex-col relative",
-      isDark ? "bg-[#050505] text-white" : "bg-white text-slate-900"
+      isDark ? "bg-[#050505] text-white" : "bg-white text-black"
     )}>
       <AtmosphericLayer variant="primary" />
 

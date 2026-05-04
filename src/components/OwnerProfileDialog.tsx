@@ -16,6 +16,7 @@ import { Building2, Bike, Briefcase, Check, Camera, Mail, Sparkles, Target, X, S
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
+import useAppTheme from '@/hooks/useAppTheme';
 
 import { OWNER_SERVICE_OFFERING_OPTIONS as SERVICE_OFFERING_OPTIONS } from '@/constants/profileConstants';
 
@@ -25,6 +26,7 @@ type Props = {
 };
 
 function OwnerProfileDialogComponent({ open, onOpenChange }: Props) {
+  const { isLight } = useAppTheme();
   const { data } = useOwnerProfile();
   const saveMutation = useSaveOwnerProfile();
 
@@ -93,20 +95,20 @@ function OwnerProfileDialogComponent({ open, onOpenChange }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={(v) => { triggerHaptic('light'); onOpenChange(v); }}>
-      <DialogContent hideCloseButton className="sm:max-w-3xl max-h-[92vh] flex flex-col p-0 gap-0 border border-white/5 bg-[#0a0a0c] overflow-hidden rounded-[3rem] shadow-[0_0_80px_rgba(0,0,0,1)]">
+      <DialogContent hideCloseButton className={cn("owner-profile-dialog sm:max-w-3xl max-h-[92vh] flex flex-col p-0 gap-0 overflow-hidden rounded-[3rem]", isLight ? "light-profile-dialog border-border bg-background text-foreground shadow-[0_30px_90px_hsl(var(--foreground)/0.16)]" : "border-border bg-background text-foreground shadow-[0_0_80px_hsl(var(--background)/1)]")}>
         
         {/* 🛸 BRAND TERMINAL HEADER */}
-        <div className="relative px-8 pt-8 pb-6 border-b border-white/5 bg-gradient-to-b from-white/[0.03] to-transparent">
+        <div className={cn("relative px-8 pt-8 pb-6 border-b", isLight ? "border-border bg-gradient-to-b from-muted/50 to-transparent" : "border-border bg-gradient-to-b from-foreground/[0.03] to-transparent")}>
            <div className="flex items-center justify-between">
               <div className="space-y-1">
                  <div className="flex items-center gap-2">
                     <Sparkles className="w-4 h-4 text-[#EB4898]" />
-                    <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white/70 italic">Brand Management Center</span>
+                     <span className="text-[10px] font-black uppercase tracking-[0.4em] text-muted-foreground italic">Brand Management Center</span>
                  </div>
-                 <h2 className="text-3xl font-black italic uppercase tracking-tighter text-white">Edit Owner Identity</h2>
+                  <h2 className="text-3xl font-black italic uppercase tracking-tighter text-foreground">Edit Owner Identity</h2>
               </div>
               <div className="flex flex-col items-end gap-2">
-                 <div className="h-2 w-32 bg-white/5 rounded-full overflow-hidden border border-white/10">
+                  <div className="h-2 w-32 bg-foreground/5 rounded-full overflow-hidden border border-border">
                     <motion.div 
                       className="h-full bg-gradient-to-r from-[#EB4898] to-[#ff5bb0]" 
                       initial={{ width: 0 }}
@@ -117,7 +119,7 @@ function OwnerProfileDialogComponent({ open, onOpenChange }: Props) {
               </div>
            </div>
            
-           <button onClick={() => { triggerHaptic('light'); onOpenChange(false); }} className="absolute -top-2 -right-2 sm:top-6 sm:right-6 w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/70 hover:text-white transition-all active:scale-90">
+           <button onClick={() => { triggerHaptic('light'); onOpenChange(false); }} className="absolute -top-2 -right-2 sm:top-6 sm:right-6 w-10 h-10 rounded-full flex items-center justify-center text-foreground/55 hover:text-foreground transition-all active:scale-90 hover:bg-foreground/5">
              <X className="w-5 h-5" />
            </button>
         </div>
@@ -227,11 +229,11 @@ function OwnerProfileDialogComponent({ open, onOpenChange }: Props) {
         </div>
 
         {/* 🛸 BRAND FOOTER ACTIONS */}
-        <div className="px-8 py-6 border-t border-white/5 bg-gradient-to-t from-white/[0.03] to-transparent flex items-center justify-between gap-4">
+        <div className={cn("px-8 py-6 border-t flex items-center justify-between gap-4", isLight ? "border-border bg-gradient-to-t from-muted/50 to-transparent" : "border-border bg-gradient-to-t from-foreground/[0.03] to-transparent")}>
            <Button 
              variant="ghost" 
              onClick={() => onOpenChange(false)}
-             className="h-14 px-8 rounded-2xl font-black italic uppercase tracking-widest text-white/70 hover:text-white hover:bg-white/5"
+              className="h-14 px-8 rounded-2xl font-black italic uppercase tracking-widest text-foreground/55 hover:text-foreground hover:bg-foreground/5"
            >
               Cancel
            </Button>
@@ -239,10 +241,11 @@ function OwnerProfileDialogComponent({ open, onOpenChange }: Props) {
            <Button 
               onClick={handleSave}
               disabled={saveMutation.isPending}
-              className="h-14 pl-8 pr-10 rounded-2xl bg-white text-black font-black italic uppercase tracking-[0.2em] shadow-[0_20px_40px_rgba(255,255,255,0.1)] active:scale-95 transition-all group border-none"
+              className="keep-white h-14 pl-8 pr-10 rounded-2xl font-black italic uppercase tracking-[0.2em] shadow-2xl active:scale-95 transition-all group border-none text-primary-foreground"
+              style={{ background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)))' }}
            >
-              <Save className="w-4 h-4 mr-2 group-hover:rotate-12 transition-transform !text-black" />
-              <span className="!text-black">{saveMutation.isPending ? 'Syncing...' : 'Save Brand Identity'}</span>
+              <Save className="w-4 h-4 mr-2 group-hover:rotate-12 transition-transform text-primary-foreground" />
+              <span className="text-primary-foreground">{saveMutation.isPending ? 'Syncing...' : 'Save Brand Identity'}</span>
            </Button>
         </div>
       </DialogContent>

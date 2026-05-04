@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Moon, Sun, Sparkles } from 'lucide-react';
+import { Moon, Sun } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ThemeContext } from '@/hooks/useAppTheme';
 import { useContext } from 'react';
@@ -30,9 +30,9 @@ function ThemeToggleComponent({ className, glassPillStyle }: ThemeToggleProps) {
 
     const icon =
         theme === 'light' ? (
-            <Sun strokeWidth={1.8} className="h-4 w-4 text-black" />
+            <Sun strokeWidth={2.1} className="h-4 w-4 text-foreground" />
         ) : (
-            <Moon strokeWidth={1.8} className="h-4 w-4 text-primary" />
+            <Moon strokeWidth={2.1} className="h-4 w-4 text-primary" />
         );
 
 
@@ -42,9 +42,9 @@ function ThemeToggleComponent({ className, glassPillStyle }: ThemeToggleProps) {
                 handleToggle(e as any);
             }}
             className={cn(
-                'relative flex items-center justify-center rounded-[1rem]',
-                'transition-all duration-200 ease-out active:scale-[0.96]',
-                'touch-manipulation h-8 w-8 flex-shrink-0',
+                'relative flex items-center justify-center rounded-full',
+                'transition-all duration-200 ease-out active:scale-[0.92]',
+                'touch-manipulation h-9 w-9 flex-shrink-0',
                 className,
             )}
             style={glassPillStyle}

@@ -73,7 +73,7 @@ export function PerksDashboard() {
   return (
     <div className={cn(
       "flex flex-col min-h-full pt-0 relative transition-colors duration-500",
-      isLight ? "bg-slate-50/80" : "bg-zinc-950/20",
+      isLight ? "bg-white" : "bg-zinc-950/20",
       "backdrop-blur-3xl"
     )}>
       {/* 🛸 NEXUS ATMOSPHERE */}

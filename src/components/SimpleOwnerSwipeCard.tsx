@@ -126,6 +126,14 @@ interface SimpleOwnerSwipeCardProps {
   onMessage?: () => void;
   isTop?: boolean;
   onDragStart?: () => void;
+  onShare?: (profile: ClientProfile) => void;
+  onReport?: () => void;
+  onUndo?: () => void;
+  onLike?: () => void;
+  onDislike?: () => void;
+  canUndo?: boolean;
+  fullScreen?: boolean;
+  externalX?: any;
 }
 
 const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, SimpleOwnerSwipeCardProps>(({
@@ -135,6 +143,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   onInsights,
   isTop = true,
   onDragStart,
+  externalX,
 }, ref) => {
   const isDragging = useRef(false);
   const hasExited = useRef(false);
@@ -145,7 +154,8 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   const storedPointerEventRef = useRef<React.PointerEvent | null>(null);
   const { isLight } = useAppTheme();
 
-  const x = useMotionValue(0);
+  const _internalX = useMotionValue(0);
+  const x = externalX ?? _internalX;
   const y = useMotionValue(0);
 
   const cardRotate = useTransform(x, [-300, 0, 300], [-MAX_ROTATION, 0, MAX_ROTATION]);
@@ -382,7 +392,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
               <div className="inline-flex rounded-full px-3 py-1 bg-black/80 border border-white/10">
                 <CompactRatingDisplay aggregate={ratingAggregate as any} isLoading={isRatingLoading} showReviews={false} className="text-white" />
               </div>
-              <SwipeMatchMeter score={85} size="sm" />
+              <SwipeMatchMeter percentage={85} compact />
             </div>
             
             <h2 className="text-3xl font-black text-white italic tracking-tighter uppercase drop-shadow-lg">

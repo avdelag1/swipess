@@ -1,5 +1,5 @@
-import { useEffect } from 'react';
-import { useAuth } from '@/hooks/useAuth';
+import { useEffect, useContext } from 'react';
+import { AuthContext } from '@/hooks/useAuth';
 import { useQueryClient } from '@tanstack/react-query';
 import { runIdleTask } from '@/lib/utils';
 import { logger } from '@/utils/prodLogger';
@@ -13,7 +13,8 @@ import { warmDiscoveryCache } from '@/utils/performance';
  * - Essential for 'Speed of Light' navigation experience
  */
 export const SwipessPrewarmer = () => {
-  const { user } = useAuth();
+  const ctx = useContext(AuthContext as any) as { user?: any } | undefined;
+  const user = ctx?.user;
   const queryClient = useQueryClient();
 
   useEffect(() => {

@@ -17,6 +17,7 @@ import { AtmosphericLayer } from '@/components/AtmosphericLayer';
 import { triggerHaptic } from '@/utils/haptics';
 import { uiSounds } from '@/utils/uiSounds';
 import { cn } from '@/lib/utils';
+import { useToast } from '@/hooks/use-toast';
 
 const NATIONALITY_OPTIONS = [
   'United States', 'Canada', 'Mexico', 'United Kingdom', 'Germany', 'France', 'Spain', 'Italy',
@@ -42,6 +43,7 @@ interface OnboardingFlowProps {
 
 export function OnboardingFlow({ open, onComplete }: OnboardingFlowProps) {
   const { user } = useAuth();
+  const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
 

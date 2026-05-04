@@ -121,18 +121,18 @@ export const categoryConfig: Record<QuickFilterCategory, CategoryConfig> = {
   motorcycle: {
     label: 'Motorcycle',
     icon: '🏍️',
-    color: 'bg-slate-500', // Legacy fallback
+    color: 'bg-zinc-500', // Legacy fallback
     colorClassName: {
-      dark: 'bg-slate-600',
-      light: 'bg-slate-500'
+      dark: 'bg-zinc-600',
+      light: 'bg-zinc-500'
     },
     gradientClassName: {
-      dark: 'from-slate-600 to-zinc-600',
-      light: 'from-slate-500 to-zinc-500'
+      dark: 'from-zinc-600 to-black',
+      light: 'from-zinc-500 to-zinc-700'
     },
     textColorClassName: {
-      dark: 'text-slate-400',
-      light: 'text-slate-600'
+      dark: 'text-zinc-400',
+      light: 'text-zinc-600'
     },
     description: 'Motorcycles, scooters, bikes'
   },
@@ -221,7 +221,7 @@ export function getCategoryColorClass(
   isDarkTheme: boolean = true
 ): string {
   const config = categoryConfig[category];
-  if (!config) return 'bg-gray-500';
+  if (!config) return 'bg-zinc-500';
   return config.colorClassName[isDarkTheme ? 'dark' : 'light'];
 }
 
@@ -236,7 +236,7 @@ export function getCategoryGradientClass(
   isDarkTheme: boolean = true
 ): string {
   const config = categoryConfig[category];
-  if (!config) return 'from-gray-500 to-slate-500';
+  if (!config) return 'from-zinc-500 to-zinc-600';
   return config.gradientClassName[isDarkTheme ? 'dark' : 'light'];
 }
 
@@ -251,7 +251,7 @@ export function getCategoryTextColorClass(
   isDarkTheme: boolean = true
 ): string {
   const config = categoryConfig[category];
-  if (!config) return 'text-gray-400';
+  if (!config) return 'text-zinc-400';
   return config.textColorClassName[isDarkTheme ? 'dark' : 'light'];
 }
 

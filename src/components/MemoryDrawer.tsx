@@ -60,24 +60,24 @@ export function MemoryDrawer({ open, onOpenChange, isDark }: MemoryDrawerProps) 
           "rounded-t-[2rem] p-0 flex flex-col border-0 focus:outline-none",
           isDark
             ? "bg-gradient-to-b from-zinc-900 to-zinc-950 text-white"
-            : "bg-white text-gray-900"
+            : "bg-white text-black"
         )}
         style={{ height: '72vh', maxHeight: '680px' }}
       >
         {/* Drag handle */}
         <div className="flex justify-center pt-3 shrink-0">
-          <div className={cn("w-10 h-1 rounded-full", isDark ? "bg-zinc-700" : "bg-gray-200")} />
+          <div className={cn("w-10 h-1 rounded-full", isDark ? "bg-zinc-700" : "bg-black/5")} />
         </div>
 
         {/* Header */}
-        <div className={cn("flex items-center justify-between px-5 py-3 border-b shrink-0", isDark ? "border-zinc-800" : "border-gray-100")}>
+        <div className={cn("flex items-center justify-between px-5 py-3 border-b shrink-0", isDark ? "border-zinc-800" : "border-black/5")}>
           <div className="flex items-center gap-2">
             <div className={cn("w-8 h-8 rounded-full flex items-center justify-center", isDark ? "bg-cyan-500/10" : "bg-cyan-50")}>
               <Brain className={cn("w-4 h-4", isDark ? "text-cyan-400" : "text-cyan-600")} />
             </div>
             <div>
-              <h3 className={cn("font-bold text-sm", isDark ? "text-white" : "text-gray-900")}>AI Memory</h3>
-              <p className={cn("text-[10px]", isDark ? "text-zinc-500" : "text-gray-400")}>
+              <h3 className={cn("font-bold text-sm", isDark ? "text-white" : "text-black")}>AI Memory</h3>
+              <p className={cn("text-[10px]", isDark ? "text-zinc-500" : "text-black/30")}>
                 {memories.length === 0 ? 'Nothing stored yet' : `${memories.length} item${memories.length === 1 ? '' : 's'} stored`}
               </p>
             </div>
@@ -92,7 +92,7 @@ export function MemoryDrawer({ open, onOpenChange, isDark }: MemoryDrawerProps) 
             >
               <Plus className="w-4 h-4" />
             </Button>
-            <Button variant="ghost" size="icon" onClick={() => onOpenChange(false)} className={cn("h-8 w-8 rounded-lg", isDark ? "text-zinc-400 hover:text-white hover:bg-zinc-800" : "text-gray-500 hover:bg-gray-100")}>
+            <Button variant="ghost" size="icon" onClick={() => onOpenChange(false)} className={cn("h-8 w-8 rounded-lg", isDark ? "text-zinc-400 hover:text-white hover:bg-zinc-800" : "text-black/40 hover:bg-black/5")}>
               <X className="w-4 h-4" />
             </Button>
           </div>
@@ -105,7 +105,7 @@ export function MemoryDrawer({ open, onOpenChange, isDark }: MemoryDrawerProps) 
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className={cn("px-4 py-3 border-b shrink-0 space-y-2", isDark ? "border-zinc-800 bg-zinc-900/50" : "border-gray-100 bg-gray-50/50")}
+              className={cn("px-4 py-3 border-b shrink-0 space-y-2", isDark ? "border-zinc-800 bg-zinc-900/50" : "border-black/5 bg-black/[0.02]")}
             >
               <div className="flex gap-2">
                 {CATEGORIES.map(cat => (
@@ -116,7 +116,7 @@ export function MemoryDrawer({ open, onOpenChange, isDark }: MemoryDrawerProps) 
                       "flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wide border transition-all",
                       newCategory === cat.value
                         ? cat.color
-                        : isDark ? "text-zinc-500 bg-transparent border-zinc-700 hover:border-zinc-600" : "text-gray-400 bg-transparent border-gray-200"
+                        : isDark ? "text-zinc-500 bg-transparent border-zinc-700 hover:border-zinc-600" : "text-black/30 bg-transparent border-black/10"
                     )}
                   >
                     <cat.icon className="w-3 h-3" />
@@ -128,13 +128,13 @@ export function MemoryDrawer({ open, onOpenChange, isDark }: MemoryDrawerProps) 
                 value={newTitle}
                 onChange={e => setNewTitle(e.target.value)}
                 placeholder="Title (e.g. John - Masculinity Coach)"
-                className={cn("h-9 text-sm rounded-xl", isDark ? "bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500" : "bg-white border-gray-200")}
+                className={cn("h-9 text-sm rounded-xl", isDark ? "bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500" : "bg-white border-black/10")}
               />
               <Textarea
                 value={newContent}
                 onChange={e => setNewContent(e.target.value)}
                 placeholder="Details (phone, website, notes...)"
-                className={cn("min-h-[64px] max-h-24 resize-none text-sm rounded-xl", isDark ? "bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500" : "bg-white border-gray-200")}
+                className={cn("min-h-[64px] max-h-24 resize-none text-sm rounded-xl", isDark ? "bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500" : "bg-white border-black/10")}
               />
               <div className="flex gap-2">
                 <Button
@@ -149,7 +149,7 @@ export function MemoryDrawer({ open, onOpenChange, isDark }: MemoryDrawerProps) 
                   onClick={() => setShowAddForm(false)}
                   variant="ghost"
                   size="sm"
-                  className={cn("h-9 rounded-xl text-xs", isDark ? "text-zinc-400 hover:bg-zinc-800" : "text-gray-500 hover:bg-gray-100")}
+                  className={cn("h-9 rounded-xl text-xs", isDark ? "text-zinc-400 hover:bg-zinc-800" : "text-black/40 hover:bg-black/5")}
                 >
                   Cancel
                 </Button>
@@ -159,14 +159,14 @@ export function MemoryDrawer({ open, onOpenChange, isDark }: MemoryDrawerProps) 
         </AnimatePresence>
 
         {/* Category Tabs */}
-        <div className={cn("flex gap-1 px-4 py-2 border-b shrink-0 overflow-x-auto", isDark ? "border-zinc-800" : "border-gray-100")}>
+        <div className={cn("flex gap-1 px-4 py-2 border-b shrink-0 overflow-x-auto", isDark ? "border-zinc-800" : "border-black/5")}>
           <button
             onClick={() => setActiveCategory('all')}
             className={cn(
               "px-3 py-1 rounded-full text-[11px] font-bold whitespace-nowrap transition-all",
               activeCategory === 'all'
-                ? isDark ? "bg-white/10 text-white" : "bg-gray-900 text-white"
-                : isDark ? "text-zinc-500 hover:text-zinc-300" : "text-gray-400 hover:text-gray-700"
+                ? isDark ? "bg-white/10 text-white" : "bg-black text-white"
+                : isDark ? "text-zinc-500 hover:text-zinc-300" : "text-black/30 hover:text-black"
             )}
           >
             All ({memories.length})
@@ -182,7 +182,7 @@ export function MemoryDrawer({ open, onOpenChange, isDark }: MemoryDrawerProps) 
                   "flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-bold whitespace-nowrap transition-all border",
                   activeCategory === cat.value
                     ? cat.color
-                    : isDark ? "text-zinc-500 border-transparent hover:text-zinc-300" : "text-gray-400 border-transparent hover:text-gray-700"
+                    : isDark ? "text-zinc-500 border-transparent hover:text-zinc-300" : "text-black/30 border-transparent hover:text-black"
                 )}
               >
                 <cat.icon className="w-3 h-3" />
@@ -204,11 +204,11 @@ export function MemoryDrawer({ open, onOpenChange, isDark }: MemoryDrawerProps) 
               animate={{ opacity: 1 }}
               className="flex flex-col items-center justify-center h-32 gap-2"
             >
-              <Brain className={cn("w-8 h-8", isDark ? "text-zinc-700" : "text-gray-300")} />
-              <p className={cn("text-sm font-medium", isDark ? "text-zinc-600" : "text-gray-400")}>
+              <Brain className={cn("w-8 h-8", isDark ? "text-zinc-700" : "text-black/10")} />
+              <p className={cn("text-sm font-medium", isDark ? "text-zinc-600" : "text-black/20")}>
                 {activeCategory === 'all' ? 'No memories yet' : `No ${activeCategory} memories`}
               </p>
-              <p className={cn("text-xs text-center max-w-[200px]", isDark ? "text-zinc-700" : "text-gray-300")}>
+              <p className={cn("text-xs text-center max-w-[200px]", isDark ? "text-zinc-700" : "text-black/10")}>
                 Tap + to add, or just tell Vibe something — it'll remember automatically.
               </p>
             </motion.div>
@@ -228,7 +228,7 @@ export function MemoryDrawer({ open, onOpenChange, isDark }: MemoryDrawerProps) 
                         "group flex gap-3 p-3 rounded-xl border transition-all",
                         isDark
                           ? "bg-zinc-800/50 border-zinc-700/50 hover:border-zinc-600"
-                          : "bg-white border-gray-100 hover:border-gray-200 shadow-sm"
+                          : "bg-white border-black/5 hover:border-black/10 shadow-sm"
                       )}
                     >
                       <div className={cn("w-8 h-8 rounded-full flex items-center justify-center shrink-0 border mt-0.5", cat.color)}>
@@ -236,7 +236,7 @@ export function MemoryDrawer({ open, onOpenChange, isDark }: MemoryDrawerProps) 
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-2">
-                          <p className={cn("text-sm font-semibold leading-tight truncate", isDark ? "text-white" : "text-gray-900")}>
+                          <p className={cn("text-sm font-semibold leading-tight truncate", isDark ? "text-white" : "text-black")}>
                             {memory.title}
                           </p>
                           <div className="flex items-center gap-1 shrink-0">
@@ -247,25 +247,25 @@ export function MemoryDrawer({ open, onOpenChange, isDark }: MemoryDrawerProps) 
                             )}
                             <button
                               onClick={() => { haptics.error(); deleteMemory.mutate(memory.id); }}
-                              className={cn("opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-lg hover:text-rose-500", isDark ? "text-zinc-500 hover:bg-zinc-700" : "text-gray-400 hover:bg-gray-100")}
+                              className={cn("opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-lg hover:text-rose-500", isDark ? "text-zinc-500 hover:bg-zinc-700" : "text-black/30 hover:bg-black/5")}
                             >
                               <Trash2 className="w-3.5 h-3.5" />
                             </button>
                           </div>
                         </div>
-                        <p className={cn("text-xs mt-0.5 line-clamp-2 leading-relaxed", isDark ? "text-zinc-400" : "text-gray-500")}>
+                        <p className={cn("text-xs mt-0.5 line-clamp-2 leading-relaxed", isDark ? "text-zinc-400" : "text-black/50")}>
                           {memory.content}
                         </p>
                         {memory.tags?.length > 0 && (
                           <div className="flex flex-wrap gap-1 mt-1.5">
                             {memory.tags.map(tag => (
-                              <span key={tag} className={cn("text-[9px] px-1.5 py-0.5 rounded-full font-medium", isDark ? "bg-zinc-700 text-zinc-400" : "bg-gray-100 text-gray-500")}>
+                              <span key={tag} className={cn("text-[9px] px-1.5 py-0.5 rounded-full font-medium", isDark ? "bg-zinc-700 text-zinc-400" : "bg-black/5 text-black/40")}>
                                 #{tag}
                               </span>
                             ))}
                           </div>
                         )}
-                        <p className={cn("text-[9px] mt-1.5", isDark ? "text-zinc-600" : "text-gray-300")}>
+                        <p className={cn("text-[9px] mt-1.5", isDark ? "text-zinc-600" : "text-black/20")}>
                           {formatDistanceToNow(memory.created_at)}
                         </p>
                       </div>

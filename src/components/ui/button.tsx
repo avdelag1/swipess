@@ -108,7 +108,7 @@ function getRippleColor(variant: string | null | undefined): string {
   switch (variant) {
     case 'glass':
     case 'glassStrong':
-      return 'rgba(128,128,128,0.20)';
+      return 'rgba(255,255,255,0.25)';
     case 'glassLight':
       return 'rgba(0,0,0,0.08)';
     case 'destructive':

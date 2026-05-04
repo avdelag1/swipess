@@ -211,11 +211,6 @@ function EmptyState({ filter }: { filter: string }) {
         <div className="w-20 h-20 rounded-2xl bg-muted/30 flex items-center justify-center">
           <Bell className="w-9 h-9 text-muted-foreground/30" />
         </div>
-        <motion.div
-          animate={{ scale: [1, 1.1, 1] }}
-          transition={{ duration: 2, repeat: Infinity }}
-          className="absolute inset-0 rounded-2xl border-2 border-primary/20"
-        />
       </div>
       <h3 className="text-base font-semibold mb-2 text-foreground">
         {filter === 'all' ? 'No notifications yet' : 
@@ -308,8 +303,8 @@ export function NotificationPopover({ className, children, glassPillStyle }: Not
       variant="ghost"
       size="icon"
       className={cn(
-        "relative h-8 w-8 shrink-0 transition-all duration-300",
-        "hover:opacity-90 active:scale-[0.96] group !rounded-[1rem]",
+        "relative h-9 w-9 shrink-0 transition-all duration-300",
+        "hover:opacity-90 active:scale-[0.92] group !rounded-full",
         "touch-manipulation overflow-hidden"
       )}
       style={{ ...glassPillStyle }}
@@ -321,10 +316,10 @@ export function NotificationPopover({ className, children, glassPillStyle }: Not
     >
       <div className="relative">
         <Bell
-          strokeWidth={1.8}
+          strokeWidth={2.1}
           className={cn(
             "h-4 w-4 transition-colors duration-150",
-            isLight ? "text-black" : "text-[var(--hud-text)]",
+            "text-foreground",
             "opacity-80 group-hover:opacity-100"
           )}
         />

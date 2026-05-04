@@ -82,13 +82,13 @@
     --icon-inactive: rgba(0, 0, 0, 0.7); /* Darker inactive state for clear vision */
 
     --bg-primary: 0 0% 100%;
-    --bg-secondary: 0 0% 97%;
-    --bg-tertiary: 0 0% 94%;
+    --bg-secondary: 0 0% 98%;
+    --bg-tertiary: 0 0% 96%;
     --text-primary: 0 0% 0%; /* Absolute black */
-    --text-secondary: 0 0% 15%; /* Very deep grey */
-    --text-tertiary: 0 0% 30%;
-    --border-primary: 0 0% 88%;
-    --border-secondary: 0 0% 80%;
+    --text-secondary: 0 0% 10%; /* Very deep black */
+    --text-tertiary: 0 0% 25%;
+    --border-primary: 0 0% 90%;
+    --border-secondary: 0 0% 85%;
     --accent-primary: 221 83% 50%;
     --accent-secondary: 221 83% 60%;
 

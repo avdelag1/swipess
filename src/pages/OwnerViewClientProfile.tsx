@@ -13,8 +13,8 @@ import { toast } from 'sonner';
 import { ClientFilterPreferences } from '@/hooks/useClientFilterPreferences';
 import { useStartConversation } from '@/hooks/useConversations';
 import { useState, useMemo } from 'react';
+import useAppTheme from '@/hooks/useAppTheme';
 import { logger } from '@/utils/prodLogger';
-import { SwipeActionButtonBar } from '@/components/SwipeActionButtonBar';
 import { AtmosphericLayer } from '@/components/AtmosphericLayer';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -28,6 +28,7 @@ export default function OwnerViewClientProfile() {
   const [isCreatingConversation, setIsCreatingConversation] = useState(false);
   const startConversation = useStartConversation();
   const { data: ratingAggregate, isLoading: isRatingLoading } = useUserRatingAggregate(clientId);
+  const { isLight } = useAppTheme();
 
   const { data: client, isLoading, error: _error } = useQuery({
     queryKey: ['client-profile', clientId],
@@ -118,8 +119,8 @@ export default function OwnerViewClientProfile() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="w-12 h-12 rounded-full border-2 border-rose-500/20 border-t-rose-500 animate-spin" />
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="w-12 h-12 rounded-full border-2 border-primary/20 border-t-primary animate-spin" />
       </div>
     );
   }
@@ -139,22 +140,21 @@ export default function OwnerViewClientProfile() {
     );
   }
 
-  const handleLike = () => {
-    triggerHaptic('success');
-    toast.success('Added to Liked Clients');
-  };
-
-  const handleShare = () => {
-    triggerHaptic('light');
-    toast.info('Share options coming soon');
-  };
 
   return (
-    <div className="min-h-screen bg-[#020202] text-white selection:bg-[#EB4898]/30 overflow-x-hidden relative">
-      <AtmosphericLayer variant="nexus" opacity={0.15} />
+    <div
+      className={cn(
+        "min-h-screen overflow-x-hidden relative selection:bg-primary/30",
+        isLight ? "bg-background text-foreground" : "bg-[#020202] text-white",
+      )}
+    >
+      {!isLight && <AtmosphericLayer variant="nexus" opacity={0.15} />}
       
       {/* 🛸 NEXUS HEADER */}
-      <div className="sticky top-0 z-50 bg-black/40 backdrop-blur-3xl border-b border-white/5">
+      <div className={cn(
+        "sticky top-0 z-50 backdrop-blur-3xl border-b",
+        isLight ? "bg-background/70 border-border/60" : "bg-black/40 border-white/5",
+      )}>
         <div className="container max-w-[440px] mx-auto px-6 py-4 flex items-center justify-between">
           <button 
             onClick={() => { triggerHaptic('light'); navigate(-1); }}
@@ -199,8 +199,8 @@ export default function OwnerViewClientProfile() {
               
               <div className="flex flex-col items-end gap-3">
                 <div className="w-20 h-20 rounded-[28px] bg-white/5 border border-white/10 overflow-hidden shadow-2xl transform rotate-3 hover:rotate-0 transition-transform cursor-pointer">
-                  {client.images?.[0] ? (
-                    <img src={client.images[0]} alt="" className="w-full h-full object-cover" />
+                  {Array.isArray((client as any).images) && (client as any).images[0] ? (
+                    <img src={(client as any).images[0]} alt="" className="w-full h-full object-cover" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center bg-white/[0.02]">
                       <User className="w-8 h-8 text-white/10" />
@@ -217,7 +217,7 @@ export default function OwnerViewClientProfile() {
                <div className="px-4 py-2.5 rounded-2xl bg-black/60 border border-white/10 flex items-center gap-2 shadow-lg backdrop-blur-xl">
                   <CompactRatingDisplay aggregate={ratingAggregate || null} isLoading={isRatingLoading} showReviews={false} />
                </div>
-               {client.verified && (
+                {(client as any).verified && (
                  <div className="px-4 py-2.5 rounded-2xl bg-[#EB4898]/10 border border-[#EB4898]/20 flex items-center gap-2 shadow-[0_0_20px_rgba(235,72,152,0.1)]">
                     <ShieldCheck className="w-4 h-4 text-[#EB4898]" />
                     <span className="text-[10px] font-black uppercase tracking-widest text-[#EB4898] italic">Verified</span>
@@ -447,15 +447,25 @@ export default function OwnerViewClientProfile() {
         </div>
       </div>
 
-      {/* 🛸 NEXUS ACTION DOCK */}
-      <div className="fixed bottom-[calc(var(--bottom-nav-height,64px)+16px)] left-0 right-0 z-[100] flex justify-center pointer-events-auto">
-        <SwipeActionButtonBar
-          onLike={handleLike}
-          onDislike={() => { triggerHaptic('medium'); navigate(-1); }}
-          onShare={handleShare}
-          onMessage={handleConnect}
-          canUndo={false}
-        />
+      {/* 🛸 SINGLE MESSAGE FAB — Insights page only allows messaging */}
+      <div className="fixed bottom-[calc(var(--bottom-nav-height,64px)+20px)] left-0 right-0 z-[100] flex justify-center pointer-events-none">
+        <motion.button
+          initial={{ opacity: 0, y: 20, scale: 0.9 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ type: 'spring', stiffness: 380, damping: 26 }}
+          whileTap={{ scale: 0.94 }}
+          onClick={handleConnect}
+          disabled={isCreatingConversation}
+          className="pointer-events-auto h-14 px-7 rounded-full flex items-center gap-3 font-black uppercase italic tracking-[0.2em] text-[12px] disabled:opacity-50"
+          style={{
+            background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)))',
+            color: 'hsl(var(--primary-foreground))',
+            boxShadow: '0 18px 40px hsl(var(--primary) / 0.45), inset 0 1px 0 hsl(var(--primary-foreground) / 0.3)',
+          }}
+        >
+          <MessageCircle className="w-5 h-5" strokeWidth={2.4} />
+          <span>Message</span>
+        </motion.button>
       </div>
     </div>
   );

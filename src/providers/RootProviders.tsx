@@ -5,7 +5,7 @@ import { createIDBPersister } from "@/lib/persister";
 import { BrowserRouter } from "react-router-dom";
 import { LazyMotion, domAnimation } from "framer-motion";
 import { HelmetProvider } from "react-helmet-async";
-import { AuthProvider, useAuth } from "@/hooks/useAuth";
+import { AuthProvider } from "@/hooks/useAuth";
 import { RadioProvider } from "@/contexts/RadioContext";
 import { ThemeSyncManager } from "@/components/ThemeSyncManager";
 import { logger } from '@/utils/prodLogger';
@@ -70,8 +70,6 @@ function LifecycleHooks({ children }: { children: React.ReactNode }) {
 }
 
 function AuthReadySignal() {
-  const { initialized } = useAuth();
-
   useEffect(() => {
     // 🚀 SWIPESS ONE-RUN PROTOCOL:
     // We only remove the splash once:
@@ -96,20 +94,13 @@ function AuthReadySignal() {
 
     window.addEventListener('swipess-ready', handleReady);
 
-    if (initialized) {
-       // If auth initialized but no user, we can release the splash sooner 
-       // as there's no dashboard to wait for.
-       const session = (window as any).supabase?.auth?.getSession();
-       if (!session) {
-         setTimeout(handleReady, 100);
-       }
-    }
+    setTimeout(handleReady, 100);
 
     return () => {
       clearTimeout(safetyTimer);
       window.removeEventListener('swipess-ready', handleReady);
     };
-  }, [initialized]);
+  }, []);
 
   return null;
 }

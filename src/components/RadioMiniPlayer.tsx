@@ -79,7 +79,7 @@ function RadioMiniPlayerInner() {
             onClick={handleTogglePlay}
             className={cn(
               "flex items-center gap-2 h-12 px-4 rounded-full shadow-2xl border backdrop-blur-xl transition-all active:scale-95",
-              isLight ? "bg-white border-slate-200 text-slate-900" : "bg-black/80 border-white/15 text-white"
+              isLight ? "bg-white border-black/[0.05] text-black" : "bg-black/80 border-white/15 text-white"
             )}
           >
             <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
@@ -115,7 +115,7 @@ function RadioMiniPlayerInner() {
             onClick={() => { setExpanded(true); triggerHaptic('light'); }}
             className={cn(
               "w-10 h-10 rounded-full flex items-center justify-center border shadow-xl backdrop-blur-xl active:scale-90 transition-all",
-              isLight ? "bg-white/90 border-slate-200 text-slate-500" : "bg-black/60 border-white/15 text-white/60"
+              isLight ? "bg-white/90 border-black/[0.05] text-black/40" : "bg-black/60 border-white/15 text-white/60"
             )}
           >
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
@@ -136,19 +136,19 @@ function RadioMiniPlayerInner() {
         >
           <div className={cn(
             "rounded-[28px] overflow-hidden shadow-[0_22px_70px_8px_rgba(0,0,0,0.56)] border backdrop-blur-3xl",
-            isLight ? "bg-white/95 border-slate-200" : "bg-black/85 border-white/10"
+            isLight ? "bg-white/95 border-black/[0.05]" : "bg-black/85 border-white/10"
           )}>
             {/* Top bar */}
             <div className="flex items-center justify-between px-4 pt-3.5 pb-2">
               <button
                 onClick={() => { setExpanded(false); triggerHaptic('light'); }}
-                className={cn("text-[10px] font-black uppercase tracking-[0.2em]", isLight ? "text-slate-400" : "text-white/50")}
+                className={cn("text-[10px] font-black uppercase tracking-[0.2em]", isLight ? "text-black/30" : "text-white/50")}
               >
                 Minimize
               </button>
               <button
                 onClick={handleClose}
-                className={cn("w-7 h-7 rounded-full flex items-center justify-center transition-all active:scale-90", isLight ? "bg-slate-100 text-slate-500" : "bg-white/5 text-white/70")}
+                className={cn("w-7 h-7 rounded-full flex items-center justify-center transition-all active:scale-90", isLight ? "bg-black/[0.03] text-black/40" : "bg-white/5 text-white/70")}
               >
                 <X className="w-4 h-4" strokeWidth={2.5} />
               </button>
@@ -160,13 +160,13 @@ function RadioMiniPlayerInner() {
                 {station.albumArt ? (
                   <img src={station.albumArt} alt="" className="w-full h-full object-cover" />
                 ) : (
-                  <div className={cn("w-full h-full flex items-center justify-center", isLight ? "bg-slate-100" : "bg-primary/20")}>
+                  <div className={cn("w-full h-full flex items-center justify-center", isLight ? "bg-black/[0.03]" : "bg-primary/20")}>
                     <Radio className="w-6 h-6 text-primary" />
                   </div>
                 )}
               </div>
               <div className="flex-1 min-w-0">
-                <p className={cn("text-[15px] font-black truncate", isLight ? "text-slate-900" : "text-white")}>{station.name}</p>
+                <p className={cn("text-[15px] font-black truncate", isLight ? "text-black" : "text-white")}>{station.name}</p>
                 <p className={cn("text-[11px] font-bold truncate uppercase tracking-widest mt-0.5", isLight ? "text-primary/60" : "text-blue-400/60")}>
                   {station.frequency} · {station.genre || 'LIVE'}
                 </p>
@@ -181,7 +181,7 @@ function RadioMiniPlayerInner() {
                   onClick={(e) => { e.stopPropagation(); toggleFavorite(station.id); triggerHaptic('light'); }} 
                   className={cn(
                     "w-10 h-10 rounded-full flex items-center justify-center active:scale-90 transition-colors", 
-                    isStationFavorite(station.id) ? "text-rose-500" : (isLight ? "text-slate-400" : "text-white/40")
+                    isStationFavorite(station.id) ? "text-rose-500" : (isLight ? "text-black/30" : "text-white/40")
                   )}
                   title="Like Station"
                 >
@@ -189,7 +189,7 @@ function RadioMiniPlayerInner() {
                 </button>
                 
                 <div className="flex items-center gap-2">
-                  <button onClick={handlePrev} className={cn("w-10 h-10 rounded-full flex items-center justify-center active:scale-90", isLight ? "text-slate-400" : "text-white/70")}>
+                  <button onClick={handlePrev} className={cn("w-10 h-10 rounded-full flex items-center justify-center active:scale-90", isLight ? "text-black/30" : "text-white/70")}>
                     <SkipBack className="w-5 h-5 fill-current" />
                   </button>
                   <button
@@ -198,14 +198,14 @@ function RadioMiniPlayerInner() {
                   >
                     {state.isPlaying ? <Pause className="w-7 h-7 fill-current" /> : <Play className="w-7 h-7 fill-current ml-1" />}
                   </button>
-                  <button onClick={handleNext} className={cn("w-10 h-10 rounded-full flex items-center justify-center active:scale-90", isLight ? "text-slate-400" : "text-white/70")}>
+                  <button onClick={handleNext} className={cn("w-10 h-10 rounded-full flex items-center justify-center active:scale-90", isLight ? "text-black/30" : "text-white/70")}>
                     <SkipForward className="w-5 h-5 fill-current" />
                   </button>
                 </div>
 
                 <button 
                   onClick={(e) => { e.stopPropagation(); navigate('/radio/directory?filter=favorites'); triggerHaptic('medium'); }} 
-                  className={cn("w-10 h-10 rounded-full flex items-center justify-center active:scale-90", isLight ? "text-slate-400" : "text-white/40")}
+                  className={cn("w-10 h-10 rounded-full flex items-center justify-center active:scale-90", isLight ? "text-black/30" : "text-white/40")}
                   title="Liked Stations"
                 >
                   <Star className="w-5 h-5" />
@@ -215,7 +215,7 @@ function RadioMiniPlayerInner() {
               <div className="flex items-center justify-center gap-6 pt-1 border-t border-white/5">
                 <button 
                   onClick={(e) => { e.stopPropagation(); shuffleAndPlay(); triggerHaptic('medium'); }} 
-                  className={cn("flex items-center gap-2 px-3 py-1.5 rounded-full active:scale-90 transition-all", state.isShuffle ? "text-primary bg-primary/10" : (isLight ? "text-slate-400 hover:bg-slate-100" : "text-white/40 hover:bg-white/5"))}
+                  className={cn("flex items-center gap-2 px-3 py-1.5 rounded-full active:scale-90 transition-all", state.isShuffle ? "text-primary bg-primary/10" : (isLight ? "text-black/40 hover:bg-black/[0.03]" : "text-white/40 hover:bg-white/5"))}
                   title="Shuffle All"
                 >
                   <Shuffle className={cn("w-4 h-4", state.isShuffle && "animate-spin-slow")} />
@@ -224,7 +224,7 @@ function RadioMiniPlayerInner() {
 
                 <button 
                   onClick={(e) => { e.stopPropagation(); navigate('/radio/directory'); triggerHaptic('medium'); }} 
-                  className={cn("flex items-center gap-2 px-3 py-1.5 rounded-full active:scale-90 transition-all", isLight ? "text-slate-400 hover:bg-slate-100" : "text-white/40 hover:bg-white/5")}
+                  className={cn("flex items-center gap-2 px-3 py-1.5 rounded-full active:scale-90 transition-all", isLight ? "text-black/40 hover:bg-black/[0.03]" : "text-white/40 hover:bg-white/5")}
                   title="All Stations"
                 >
                   <Radio className="w-4 h-4" />

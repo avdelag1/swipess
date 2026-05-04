@@ -179,9 +179,8 @@ const MessageBubble = memo(({ message, isUser, isSwipess, onCopy, onDelete, onTr
     >
       <div className={cn(
         "p-4 rounded-2xl text-sm leading-relaxed break-words relative overflow-hidden transition-all duration-500",
-        isUser 
           ? (isSwipess ? 'bg-[#FF3D00] text-white rounded-br-md shadow-[0_10px_30px_rgba(255,61,0,0.3)]' : 'bg-primary text-primary-foreground rounded-br-md shadow-md')
-          : (isSwipess ? 'bg-white/[0.04] backdrop-blur-3xl border border-white/10 text-white rounded-bl-md' : 'bg-muted/80 text-foreground border border-border/30 rounded-bl-md shadow-sm')
+          : (isSwipess ? 'bg-white/[0.04] backdrop-blur-3xl border border-white/10 text-white rounded-bl-md' : 'bg-white border-black/[0.05] text-black rounded-bl-md shadow-sm')
       )}>
         {isUser ? (
           <span className="whitespace-pre-wrap">{message.content}</span>
@@ -197,7 +196,7 @@ const MessageBubble = memo(({ message, isUser, isSwipess, onCopy, onDelete, onTr
                "absolute bottom-2 right-2 w-7 h-7 rounded-lg flex items-center justify-center transition-all border",
                speakingMsgId === message.id && isSpeaking 
                  ? "bg-cyan-500 border-cyan-400 text-white shadow-[0_0_10px_rgba(34,211,238,0.4)]" 
-                 : isSwipess ? "bg-white/5 border-white/10 text-white/40 hover:text-white" : "bg-muted border-border text-muted-foreground hover:text-primary"
+                 : isSwipess ? "bg-white/5 border-white/10 text-white/40 hover:text-white" : "bg-black/[0.03] border-black/[0.05] text-black/40 hover:text-primary"
              )}
            >
              {speakingMsgId === message.id && isSpeaking ? <VolumeX className="w-3 h-3" /> : <Volume2 className="w-3 h-3" />}
@@ -249,21 +248,21 @@ const MessageBubble = memo(({ message, isUser, isSwipess, onCopy, onDelete, onTr
             exit={{ opacity: 0, y: -5 }}
             className={cn("flex items-center gap-1.5 mt-1 px-1", isUser ? "flex-row-reverse" : "flex-row")}
           >
-            <button onClick={(e) => { e.stopPropagation(); onCopy(); }} className="p-2 rounded-lg bg-white/5 border border-white/5 hover:bg-white/10 transition-all">
+            <button onClick={(e) => { e.stopPropagation(); onCopy(); }} className="p-2 rounded-lg bg-black/[0.03] border border-black/[0.05] hover:bg-black/[0.06] transition-all">
               <Copy className="w-3.5 h-3.5 opacity-70" />
             </button>
             {!isUser && onTranslate && (
-              <button onClick={(e) => { e.stopPropagation(); onTranslate('Spanish'); }} className="p-2 rounded-lg bg-white/5 border border-white/5 hover:bg-white/10 transition-all">
+              <button onClick={(e) => { e.stopPropagation(); onTranslate('Spanish'); }} className="p-2 rounded-lg bg-black/[0.03] border border-black/[0.05] hover:bg-black/[0.06] transition-all">
                 <Languages className="w-3.5 h-3.5 opacity-70" />
               </button>
             )}
             {isUser && onResend && (
-              <button onClick={(e) => { e.stopPropagation(); onResend(); }} className="p-2 rounded-lg bg-white/5 border border-white/5 hover:bg-white/10 transition-all">
+              <button onClick={(e) => { e.stopPropagation(); onResend(); }} className="p-2 rounded-lg bg-black/[0.03] border border-black/[0.05] hover:bg-black/[0.06] transition-all">
                 <RefreshCw className="w-3.5 h-3.5 opacity-70" />
               </button>
             )}
-            <button onClick={(e) => { e.stopPropagation(); onDelete(); }} className="p-2 rounded-lg bg-white/5 border border-white/5 hover:bg-white/10 transition-all">
-              <Trash2 className="w-3.5 h-3.5 text-red-400/40" />
+            <button onClick={(e) => { e.stopPropagation(); onDelete(); }} className="p-2 rounded-lg bg-black/[0.03] border border-black/[0.05] hover:bg-black/[0.06] transition-all">
+              <Trash2 className="w-3.5 h-3.5 text-red-500/40" />
             </button>
           </motion.div>
         )}
@@ -277,7 +276,7 @@ const TypingIndicator = ({ isSwipess }: { isSwipess: boolean }) => (
   <div className="flex justify-start mb-4">
     <div className={cn(
       "px-5 py-4 rounded-2xl rounded-bl-md flex items-center gap-1 border transition-all",
-      isSwipess ? "bg-white/5 backdrop-blur-3xl border-white/10" : "bg-muted/80 border-border/30"
+      isSwipess ? "bg-white/5 backdrop-blur-3xl border-white/10" : "bg-black/[0.03] border-black/[0.05]"
     )}>
       {[0, 1, 2, 3, 4].map(i => (
         <motion.div
@@ -307,7 +306,7 @@ const ArcGauge = memo(({ level, color, isLoading, icon: Icon }: {
     <div className="relative" style={{ width: size, height: size }}>
       <svg width={size} height={size} className="absolute inset-0 -rotate-90">
         <circle cx={size/2} cy={size/2} r={radius} fill="none"
-          stroke="rgba(255,255,255,0.05)" strokeWidth={stroke} />
+          stroke="rgba(0,0,0,0.05)" strokeWidth={stroke} />
         <motion.circle cx={size/2} cy={size/2} r={radius} fill="none"
           stroke={color} strokeWidth={stroke} strokeLinecap="round"
           strokeDasharray={circumference}
@@ -359,12 +358,12 @@ const ConversationSidebar = memo(({
     transition={{ type: 'spring', damping: 28, stiffness: 350 }}
     className={cn(
       "absolute inset-y-0 left-0 w-72 z-50 flex flex-col shadow-2xl transition-all border-r",
-      isSwipess ? "bg-black border-white/5" : "bg-background border-border"
+      isSwipess ? "bg-black border-white/5" : "bg-white border-zinc-100"
     )}
   >
-    <div className="flex items-center justify-between px-6 py-5 border-b border-white/5">
-      <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-white/70 italic">ARCHIVES</h3>
-      <button onClick={onClose} className="p-2 hover:bg-white/5 rounded-full transition-all">
+    <div className="flex items-center justify-between px-6 py-5 border-b border-black/[0.05]">
+      <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-black/50 italic">ARCHIVES</h3>
+      <button onClick={onClose} className="p-2 hover:bg-black/[0.05] rounded-full transition-all">
         <X className="w-4 h-4 opacity-70" />
       </button>
     </div>
@@ -375,7 +374,7 @@ const ConversationSidebar = memo(({
         className="w-full flex items-center gap-3 px-5 py-4 rounded-2xl border bg-primary/10 border-primary/20 hover:bg-primary/20 transition-all group shadow-lg"
       >
         <Plus className="w-4 h-4 text-primary group-hover:scale-110 transition-transform" />
-        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/90">Initialize Session</span>
+        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Initialize Session</span>
       </button>
     </div>
 
@@ -386,17 +385,17 @@ const ConversationSidebar = memo(({
             onClick={() => { onSelect(c.id); onClose(); }}
             className={cn(
               "w-full flex flex-col items-start px-5 py-4 rounded-xl transition-all duration-300 border",
-              activeId === c.id ? "bg-white/5 border-white/10" : "hover:bg-white/[0.02] border-transparent"
+              activeId === c.id ? "bg-black/[0.05] border-black/[0.08]" : "hover:bg-black/[0.02] border-transparent"
             )}
           >
-            <span className={cn("text-[11px] font-black uppercase tracking-tight truncate w-full text-left", activeId === c.id ? "text-primary" : "text-white/70")}>
+            <span className={cn("text-[11px] font-black uppercase tracking-tight truncate w-full text-left", activeId === c.id ? "text-primary" : "text-black/70")}>
               {c.title || 'Untitled Discovery'}
             </span>
             <span className="text-[9px] font-bold opacity-20 uppercase tracking-tighter mt-1">{formatConvoDate(new Date(c.updatedAt))}</span>
           </button>
           <button 
             onClick={(e) => { e.stopPropagation(); onDelete(c.id); }}
-            className="absolute right-2 top-1/2 -translate-y-1/2 p-2 opacity-0 group-hover:opacity-100 transition-opacity hover:text-red-400"
+            className="absolute right-2 top-1/2 -translate-y-1/2 p-2 opacity-0 group-hover:opacity-100 transition-opacity hover:text-red-500"
           >
             <Trash2 className="w-3.5 h-3.5" />
           </button>
@@ -652,8 +651,6 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
   const handleTranslate = useCallback((text: string) => {
     triggerHaptic('light');
     toast.info('Translation initialization...');
-    // Real implementation would call the AI translate function
-    // For now we just acknowledge the request to stop the ReferenceError
   }, []);
 
   const handleNavigate = (path: string) => {
@@ -669,7 +666,7 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
   return createPortal(
     <AnimatePresence>
       {isOpen && (
-        <div className={cn("fixed inset-0 z-[60] flex items-center justify-center p-0 sm:p-6 transition-all duration-500", isLight && !isSwipess ? "bg-black/10 backdrop-blur-md" : "bg-black/40 backdrop-blur-xl")}>
+        <div className={cn("fixed inset-0 z-[60] flex items-center justify-center p-0 sm:p-6 transition-all duration-500", "bg-black/40 backdrop-blur-xl")}>
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="absolute inset-0" />
           
           <motion.div
@@ -705,17 +702,17 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
               <div className="flex-1 flex flex-col relative z-10 overflow-hidden">
                 <header className={cn(
                   "h-16 shrink-0 flex items-center justify-between px-6 border-b transition-all duration-500 relative z-30", 
-                  isLight && !isSwipess ? "border-slate-200 bg-white/80 backdrop-blur-md" : "border-white/5 bg-black/60 backdrop-blur-3xl"
+                  isLight && !isSwipess ? "border-black/[0.05] bg-white/80 backdrop-blur-md" : "border-white/5 bg-black/60 backdrop-blur-3xl"
                 )}>
                   <div className="flex items-center gap-4">
-                    <button onClick={() => { triggerHaptic('light'); setSidebarOpen(true); }} className={cn("w-10 h-10 flex items-center justify-center rounded-xl transition-all border group", isLight && !isSwipess ? "bg-slate-100 border-slate-200 hover:bg-slate-200" : "bg-white/5 border-white/10 hover:bg-white/20")}>
-                      <Menu className={cn("w-4 h-4 transition-transform group-hover:scale-110", isLight && !isSwipess ? "text-slate-600" : "text-white/60")} />
+                    <button onClick={() => { triggerHaptic('light'); setSidebarOpen(true); }} className={cn("w-10 h-10 flex items-center justify-center rounded-xl transition-all border group", isLight && !isSwipess ? "bg-black/[0.03] border-black/[0.05] hover:bg-black/[0.06]" : "bg-white/5 border-white/10 hover:bg-white/20")}>
+                      <Menu className={cn("w-4 h-4 transition-transform group-hover:scale-110", isLight && !isSwipess ? "text-black/60" : "text-white/60")} />
                     </button>
                     <div className="flex flex-col relative">
                        <span className={cn("text-[11px] font-black uppercase tracking-[0.5em] italic", isSwipess ? "text-[#FF3D00] brand-glow" : isLight ? "text-primary" : "text-[#FF3D00]")}>INTEL CORE</span>
                        <div className="flex items-center gap-1.5">
                           <div className={cn("w-1 h-1 rounded-full animate-pulse", isSwipess ? "bg-[#FF3D00]" : "bg-primary")} />
-                          <span className={cn("text-[8px] font-black tracking-widest uppercase opacity-40", isLight && !isSwipess ? "text-slate-900" : "text-white")}>System: Operational</span>
+                          <span className={cn("text-[8px] font-black tracking-widest uppercase opacity-40", isLight && !isSwipess ? "text-black" : "text-white")}>System: Operational</span>
                        </div>
                     </div>
                   </div>
@@ -723,15 +720,15 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                   <div className="flex items-center gap-2">
                     <Popover open={characterPanelOpen} onOpenChange={setCharacterPanelOpen}>
                       <PopoverTrigger asChild>
-                        <button className={cn("flex items-center gap-2.5 px-3 py-1.5 rounded-2xl border transition-all hover:scale-[1.02] active:scale-95", isLight && !isSwipess ? "bg-slate-50 border-slate-200" : "bg-white/5 border-white/10")}>
+                        <button className={cn("flex items-center gap-2.5 px-3 py-1.5 rounded-2xl border transition-all hover:scale-[1.02] active:scale-95", isLight && !isSwipess ? "bg-white border-black/[0.05]" : "bg-white/5 border-white/10")}>
                            <div className="text-right hidden sm:block">
-                              <p className={cn("text-[9px] font-black uppercase tracking-widest", isLight && !isSwipess ? "text-slate-900" : "text-white")}>{CHARACTER_OPTIONS.find(c => c.key === activeCharacter)?.label}</p>
+                              <p className={cn("text-[9px] font-black uppercase tracking-widest", isLight && !isSwipess ? "text-black" : "text-white")}>{CHARACTER_OPTIONS.find(c => c.key === activeCharacter)?.label}</p>
                               <p className="text-[7px] font-bold opacity-40 uppercase tracking-tighter -mt-0.5">{CHARACTER_OPTIONS.find(c => c.key === activeCharacter)?.subtitle}</p>
                            </div>
                            <ArcGauge level={egoLevel} color={arcColor} isLoading={isLoading} icon={CHARACTER_OPTIONS.find(c => c.key === activeCharacter)?.icon || Sparkles} />
                         </button>
                       </PopoverTrigger>
-                      <PopoverContent side="bottom" align="end" className={cn("w-72 p-2 rounded-3xl border shadow-2xl z-[70]", isLight && !isSwipess ? "bg-white border-slate-200" : "bg-black/95 border-white/10 backdrop-blur-3xl")}>
+                      <PopoverContent side="bottom" align="end" className={cn("w-72 p-2 rounded-3xl border shadow-2xl z-[70]", isLight && !isSwipess ? "bg-white border-black/5" : "bg-black/95 border-white/10 backdrop-blur-3xl")}>
                         <div className="p-3 mb-2">
                           <h4 className="text-[10px] font-black uppercase tracking-widest text-white/40 italic">Select Logic Profile</h4>
                         </div>
@@ -740,13 +737,13 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                             <button
                               key={c.key}
                               onClick={() => { setActiveCharacter(c.key); setCharacterPanelOpen(false); triggerHaptic('light'); }}
-                              className={cn("w-full flex items-center gap-3 p-3 rounded-2xl transition-all group", activeCharacter === c.key ? "bg-primary/10 border border-primary/20" : "hover:bg-white/5 border border-transparent")}
+                              className={cn("w-full flex items-center gap-3 p-3 rounded-2xl transition-all group", activeCharacter === c.key ? "bg-primary/10 border border-primary/20" : "hover:bg-black/[0.03] border border-transparent")}
                             >
                               <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center transition-all", c.bgColor)}>
                                 <c.icon className={cn("w-5 h-5", c.color)} />
                               </div>
                               <div className="text-left">
-                                <p className={cn("text-[11px] font-black uppercase tracking-widest", activeCharacter === c.key ? "text-primary" : "text-white")}>{c.label}</p>
+                                <p className={cn("text-[11px] font-black uppercase tracking-widest", activeCharacter === c.key ? "text-primary" : "text-black")}>{c.label}</p>
                                 <p className="text-[8px] font-bold opacity-40 uppercase tracking-tighter">{c.subtitle}</p>
                               </div>
                               {activeCharacter === c.key && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-primary" />}
@@ -756,8 +753,8 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                       </PopoverContent>
                     </Popover>
 
-                    <button onClick={onClose} className={cn("w-10 h-10 flex items-center justify-center rounded-xl transition-all border group", isLight && !isSwipess ? "bg-slate-100 border-slate-200 hover:bg-red-500 hover:border-red-500" : "bg-white/5 border-white/10 hover:bg-white/20")}>
-                      <X className={cn("w-4 h-4 transition-transform group-hover:scale-110", isLight && !isSwipess ? "text-slate-600 group-hover:text-white" : "text-white/60")} />
+                    <button onClick={onClose} className={cn("w-10 h-10 flex items-center justify-center rounded-xl transition-all border group", isLight && !isSwipess ? "bg-black/[0.03] border-black/[0.05] hover:bg-red-500 hover:border-red-500" : "bg-white/5 border-white/10 hover:bg-white/20")}>
+                      <X className={cn("w-4 h-4 transition-transform group-hover:scale-110", isLight && !isSwipess ? "text-black/60 group-hover:text-white" : "text-white/60")} />
                     </button>
                   </div>
                 </header>
@@ -795,7 +792,7 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
 
                 <footer className={cn(
                   "p-4 sm:p-6 transition-all duration-500 border-t relative z-20",
-                  isLight && !isSwipess ? "bg-white border-slate-100" : "bg-black border-white/5"
+                  isLight && !isSwipess ? "bg-white border-black/5" : "bg-black border-white/5"
                 )}>
                   <AnimatePresence>
                     {countdown !== null && (
@@ -815,17 +812,9 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                     )}
                   </AnimatePresence>
 
-                  <div className="max-w-3xl mx-auto flex items-end gap-3">
+                  <div className="max-w-3xl mx-auto flex items-center gap-3">
                     <div className={cn("flex-1 relative flex items-end rounded-3xl transition-all duration-500 border group", isLight && !isSwipess ? "bg-slate-50 border-slate-200 focus-within:border-primary/50" : "bg-white/5 border-white/10 focus-within:border-[#FF3D00]/50")}>
-                       <textarea
-                         value={input}
-                         onChange={(e) => { setInput(e.target.value); cancelCountdown(); }}
-                         placeholder={isListening ? "Listening... Speak now" : "Inquire for discovery..."}
-                         rows={1}
-                         className={cn("w-full bg-transparent border-none focus:ring-0 py-4 px-5 text-sm resize-none custom-scrollbar min-h-[56px] max-h-32 transition-all", isListening && "text-cyan-400 placeholder:text-cyan-400/40")}
-                         onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
-                       />
-                       <div className="pr-2 pb-2 flex items-center gap-1.5">
+                       <div className="pl-2 pb-2 flex items-center gap-1.5">
                          <Popover>
                            <PopoverTrigger asChild>
                               <button className="p-2.5 rounded-2xl hover:bg-white/5 transition-all opacity-40 hover:opacity-100">
@@ -841,8 +830,8 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                               </button>
                            </PopoverContent>
                          </Popover>
-                         
-                         <button 
+
+                         <button
                            onPointerDown={startListening}
                            onPointerUp={stopListening}
                            onPointerCancel={stopListening}
@@ -854,14 +843,22 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                             )}
                          </button>
                        </div>
+                       <textarea
+                         value={input}
+                         onChange={(e) => { setInput(e.target.value); cancelCountdown(); }}
+                         placeholder={isListening ? "Listening... Speak now" : "Inquire for discovery..."}
+                         rows={1}
+                         className={cn("w-full bg-transparent border-none focus:ring-0 py-4 pl-2 pr-5 text-sm resize-none custom-scrollbar min-h-[56px] max-h-32 transition-all", isListening && "text-cyan-400 placeholder:text-cyan-400/40")}
+                         onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
+                       />
                     </div>
                     
                     <button
                       onClick={handleSend}
                       disabled={!input.trim() || isLoading}
-                      className={cn("h-14 w-14 rounded-3xl flex items-center justify-center transition-all shadow-xl active:scale-90", isSwipess ? "bg-[#FF3D00] hover:bg-[#FF4D00] shadow-[#FF3D00]/20" : "bg-primary hover:bg-primary/90", (!input.trim() || isLoading) && "opacity-20 grayscale pointer-events-none")}
+                      className={cn("h-14 w-14 shrink-0 rounded-3xl flex items-center justify-center transition-all shadow-xl active:scale-90", isSwipess ? "bg-[#FF3D00] hover:bg-[#FF4D00] shadow-[#FF3D00]/20" : "bg-primary hover:bg-primary/90", (!input.trim() || isLoading) && "opacity-60 pointer-events-none")}
                     >
-                      {isLoading ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5 text-white" />}
+                      {isLoading ? <RefreshCw className="w-5 h-5 text-white animate-spin" /> : <Send className="w-5 h-5 text-white" />}
                     </button>
                   </div>
                 </footer>

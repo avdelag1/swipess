@@ -54,13 +54,13 @@ export default function EventosFeed() {
   const pauseTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const hudGlassStyle: React.CSSProperties = {
-    background: isLight ? 'rgba(255,255,255,0.34)' : 'rgba(18,18,22,0.18)',
-    backdropFilter: 'blur(10px) saturate(1.2)',
-    WebkitBackdropFilter: 'blur(10px) saturate(1.2)',
+    background: isLight ? 'rgba(255,255,255,0.95)' : 'rgba(10,10,11,0.72)',
+    backdropFilter: 'blur(20px) saturate(1.8)',
+    WebkitBackdropFilter: 'blur(20px) saturate(1.8)',
     border: isLight ? '1px solid rgba(0,0,0,0.05)' : '1px solid rgba(255,255,255,0.08)',
     boxShadow: isLight
-      ? '0 2px 10px rgba(0,0,0,0.06)'
-      : '0 8px 22px rgba(0,0,0,0.2), inset 0 0.5px 0 rgba(255,255,255,0.06)',
+      ? '0 8px 32px rgba(0,0,0,0.08)'
+      : '0 12px 40px rgba(0,0,0,0.4), inset 0 0.5px 0 rgba(255,255,255,0.06)',
   };
 
   const resetFeedPosition = useCallback((behavior: ScrollBehavior = 'auto') => {

@@ -74,22 +74,22 @@ export default function PriceTracker() {
   const activeZones = selectedZone === 'all' ? neighborhoods : [selectedZone];
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-black p-4 pb-28 max-w-2xl mx-auto selection:bg-primary/30">
+    <div className="min-h-screen bg-white dark:bg-black p-4 pb-28 max-w-2xl mx-auto selection:bg-primary/30">
       {/* ── HEADER ── */}
       <div className="mb-8 pt-[var(--safe-top)]">
         <div className="flex items-center gap-4 mb-6">
           <motion.button
             whileTap={{ scale: 0.9 }}
             onClick={() => navigate(-1)}
-            className="w-10 h-10 rounded-2xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 flex items-center justify-center shadow-sm"
+            className="w-10 h-10 rounded-2xl bg-white dark:bg-white/5 border border-black/5 dark:border-white/10 flex items-center justify-center shadow-sm"
           >
-            <ChevronLeft className="w-5 h-5 text-slate-600 dark:text-white" />
+            <ChevronLeft className="w-5 h-5 text-black/60 dark:text-white" />
           </motion.button>
           <div className="flex flex-col">
-            <h1 className="text-2xl font-black text-slate-900 dark:text-white italic tracking-tight leading-none uppercase">
+            <h1 className="text-2xl font-black text-black dark:text-white italic tracking-tight leading-none uppercase">
               Market Intelligence
             </h1>
-            <p className="text-[10px] font-bold text-slate-500 dark:text-white/40 uppercase tracking-[0.2em] mt-1">
+            <p className="text-[10px] font-bold text-black/40 dark:text-white/40 uppercase tracking-[0.2em] mt-1">
               Real-time pricing trends
             </p>
           </div>
@@ -102,8 +102,8 @@ export default function PriceTracker() {
                 <TrendingUp className="w-5 h-5 text-white" />
               </div>
               <div className="space-y-1">
-                <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight">Market Outlook</h3>
-                <p className="text-xs text-slate-600 dark:text-white/60 font-medium leading-relaxed">
+                 <h3 className="text-sm font-black text-black dark:text-white uppercase tracking-tight">Market Outlook</h3>
+                <p className="text-xs text-black/60 dark:text-white/60 font-medium leading-relaxed">
                   Prices in <span className="text-primary font-bold">La Veleta</span> have increased by 4.2% this month due to peak seasonal demand.
                 </p>
               </div>
@@ -122,7 +122,7 @@ export default function PriceTracker() {
               'px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest shrink-0 transition-all border',
               selectedZone === 'all' 
                 ? 'bg-primary text-white border-primary shadow-[0_8px_20px_rgba(249,115,22,0.3)]' 
-                : 'bg-white dark:bg-zinc-900 border-slate-200 dark:border-white/10 text-slate-500 dark:text-white/40 hover:bg-slate-100 dark:hover:bg-zinc-800'
+                : 'bg-white dark:bg-zinc-900 border-black/5 dark:border-white/10 text-black/40 dark:text-white/40 hover:bg-black/5 dark:hover:bg-zinc-800'
             )}
           >All Zones</motion.button>
           {neighborhoods.map(zone => (
@@ -134,7 +134,7 @@ export default function PriceTracker() {
                 'px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest shrink-0 transition-all border',
                 selectedZone === zone 
                   ? 'bg-primary text-white border-primary shadow-[0_8px_20px_rgba(249,115,22,0.3)]' 
-                  : 'bg-white dark:bg-zinc-900 border-slate-200 dark:border-white/10 text-slate-500 dark:text-white/40 hover:bg-slate-100 dark:hover:bg-zinc-800'
+                  : 'bg-white dark:bg-zinc-900 border-black/5 dark:border-white/10 text-black/40 dark:text-white/40 hover:bg-black/5 dark:hover:bg-zinc-800'
               )}
             >{zone}</motion.button>
           ))}
@@ -148,16 +148,16 @@ export default function PriceTracker() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
-          className="bg-white dark:bg-zinc-900/50 rounded-[2.5rem] border border-slate-200 dark:border-white/10 p-6 shadow-2xl shadow-black/5 dark:shadow-none mb-8 backdrop-blur-xl relative"
+          className="bg-white dark:bg-zinc-900/50 rounded-[2.5rem] border border-black/5 dark:border-white/10 p-6 shadow-2xl shadow-black/5 dark:shadow-none mb-8 backdrop-blur-xl relative"
         >
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-2">
               <Calendar className="w-4 h-4 text-primary" />
-              <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Pricing History (2024)</span>
+              <span className="text-[10px] font-black text-black/30 uppercase tracking-widest">Pricing History (2024)</span>
             </div>
             <div className="flex items-center gap-1">
               <div className="w-2 h-2 rounded-full bg-primary" />
-              <span className="text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-widest">Avg. Price (MXN)</span>
+              <span className="text-[10px] font-black text-black dark:text-white uppercase tracking-widest">Avg. Price (MXN)</span>
             </div>
           </div>
 
@@ -165,7 +165,7 @@ export default function PriceTracker() {
             {isLoading ? (
               <div className="w-full h-full flex flex-col items-center justify-center gap-3">
                 <div className="w-8 h-8 rounded-full border-2 border-primary border-t-transparent animate-spin" />
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Computing Data...</span>
+                <span className="text-[10px] font-black text-black/30 uppercase tracking-widest">Computing Data...</span>
               </div>
             ) : (
               <ResponsiveContainer width="100%" height="100%">
@@ -178,18 +178,18 @@ export default function PriceTracker() {
                       </linearGradient>
                     ))}
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="currentColor" className="text-slate-200 dark:text-white/5" vertical={false} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="currentColor" className="text-black/5 dark:text-white/5" vertical={false} />
                   <XAxis 
                     dataKey="name" 
                     tick={{ fontSize: 9, fontWeight: 900, fill: 'currentColor' }} 
-                    className="text-slate-400 dark:text-white/20"
+                    className="text-black/30 dark:text-white/20"
                     axisLine={false}
                     tickLine={false}
                     dy={10}
                   />
                   <YAxis 
                     tick={{ fontSize: 9, fontWeight: 900, fill: 'currentColor' }} 
-                    className="text-slate-400 dark:text-white/20"
+                    className="text-black/30 dark:text-white/20"
                     tickFormatter={formatPrice}
                     axisLine={false}
                     tickLine={false}
@@ -244,7 +244,7 @@ export default function PriceTracker() {
                 'group relative p-6 rounded-[2rem] border transition-all duration-300 overflow-hidden',
                 selectedZone === zone 
                   ? 'bg-white dark:bg-zinc-900 border-primary shadow-xl shadow-primary/10' 
-                  : 'bg-white dark:bg-white/5 border-slate-200 dark:border-white/10'
+                  : 'bg-white dark:bg-white/5 border-black/5 dark:border-white/10'
               )}
             >
               {/* Background Glow */}
@@ -254,18 +254,18 @@ export default function PriceTracker() {
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2">
                     <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: ZONE_COLORS[zone] || '#ec4899' }} />
-                    <h4 className="text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-[0.15em]">{zone}</h4>
+                    <h4 className="text-[10px] font-black text-black dark:text-white uppercase tracking-[0.15em]">{zone}</h4>
                   </div>
-                  <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-100 dark:bg-white/10">
-                    <MapPin className="w-2.5 h-2.5 text-slate-400" />
-                    <span className="text-[9px] font-black text-slate-500 dark:text-white/40">{count} Active</span>
+                  <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-black/5 dark:bg-white/10">
+                    <MapPin className="w-2.5 h-2.5 text-black/30" />
+                    <span className="text-[9px] font-black text-black/40 dark:text-white/40">{count} Active</span>
                   </div>
                 </div>
 
                 <div className="flex items-end justify-between">
                   <div className="space-y-0.5">
-                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Avg. Monthly</p>
-                    <p className="text-xl font-bold text-slate-900 dark:text-white tracking-tight leading-none">${current.toLocaleString()}</p>
+                    <p className="text-[9px] font-black text-black/30 uppercase tracking-widest">Avg. Monthly</p>
+                    <p className="text-xl font-bold text-black dark:text-white tracking-tight leading-none">${current.toLocaleString()}</p>
                   </div>
                   
                   <div className={cn(
@@ -284,11 +284,11 @@ export default function PriceTracker() {
         })}
       </div>
 
-      <div className="mt-8 p-6 rounded-[2rem] bg-slate-100 dark:bg-white/5 border border-dashed border-slate-200 dark:border-white/10 flex items-start gap-4">
-         <Info className="w-5 h-5 text-slate-400 shrink-0 mt-0.5" />
+      <div className="mt-8 p-6 rounded-[2rem] bg-black/5 dark:bg-white/5 border border-dashed border-black/10 dark:border-white/10 flex items-start gap-4">
+         <Info className="w-5 h-5 text-black/30 shrink-0 mt-0.5" />
          <div className="space-y-1">
-            <h4 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-tight">Data Integrity</h4>
-            <p className="text-[11px] text-slate-500 dark:text-white/40 font-medium leading-relaxed">
+            <h4 className="text-xs font-black text-black dark:text-white uppercase tracking-tight">Data Integrity</h4>
+            <p className="text-[11px] text-black/40 dark:text-white/40 font-medium leading-relaxed">
               These prices represent verified listings across our network. Seasonal factors in Tulum can cause deviations of up to 15%.
             </p>
          </div>

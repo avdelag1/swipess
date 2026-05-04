@@ -26,7 +26,7 @@ export const PremiumLikedCard = memo(({ type, data, onAction, isLight }: Premium
             className={cn(
                 "group relative rounded-[2rem] overflow-hidden transition-shadow duration-300",
                 isLight
-                  ? "bg-white border border-border/50 shadow-xl hover:shadow-2xl"
+                  ? "bg-white border border-black/[0.03] shadow-xl hover:shadow-2xl hover:border-black/[0.08]"
                   : "bg-white/[0.04] backdrop-blur-sm border border-white/[0.06] shadow-2xl hover:border-white/[0.12]"
             )}
             style={{ touchAction: 'pan-y' }}
@@ -44,8 +44,8 @@ export const PremiumLikedCard = memo(({ type, data, onAction, isLight }: Premium
                         className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
                     />
                 ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-muted">
-                        {type === 'listing' ? <Home className="w-12 h-12 text-muted-foreground" /> : <User className="w-12 h-12 text-muted-foreground" />}
+                    <div className={cn("w-full h-full flex items-center justify-center", isLight ? "bg-black/[0.03]" : "bg-white/[0.03]")}>
+                        {type === 'listing' ? <Home className="w-12 h-12 text-muted-foreground/30" /> : <User className="w-12 h-12 text-muted-foreground/30" />}
                     </div>
                 )}
 
@@ -87,7 +87,7 @@ export const PremiumLikedCard = memo(({ type, data, onAction, isLight }: Premium
                     {type === 'listing' && (
                         <>
                             {data.beds && (
-                                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-secondary border border-border">
+                                <div className={cn("flex items-center gap-1.5 px-3 py-1.5 rounded-xl border", isLight ? "bg-black/[0.03] border-black/[0.05]" : "bg-white/[0.05] border-white/[0.08]")}>
                                     <Bed className="w-3.5 h-3.5 text-muted-foreground" />
                                     <span className="text-[10px] font-black text-foreground">{data.beds}</span>
                                 </div>
@@ -129,7 +129,7 @@ export const PremiumLikedCard = memo(({ type, data, onAction, isLight }: Premium
                         className={cn(
                           "flex-1 flex items-center justify-center gap-2 h-12 rounded-2xl text-xs font-black transition-all touch-manipulation active:scale-[0.96]",
                           isLight
-                            ? "bg-secondary hover:bg-muted text-foreground border border-border/40"
+                            ? "bg-black/[0.03] hover:bg-black/[0.06] text-black border border-black/[0.05]"
                             : "bg-white/[0.06] hover:bg-white/[0.1] text-white border border-white/[0.08]"
                         )}
                     >

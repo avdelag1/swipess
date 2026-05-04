@@ -84,9 +84,10 @@ export function AIListingWizard() {
     }
   }, [aiListingCategory, aiListingDraft]);
 
-  // Close modal automatically when user navigates to another page
+  // Close modal automatically when user navigates to another page (skip initial mount)
+  const initialPathRef = useRef(location.pathname);
   useEffect(() => {
-    if (showAIListing) {
+    if (location.pathname !== initialPathRef.current && showAIListing) {
       setModal('showAIListing', false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -271,17 +272,18 @@ export function AIListingWizard() {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           className={cn(
-            "fixed inset-0 z-[10000] backdrop-blur-2xl flex items-center justify-center p-0 sm:p-6",
+            "fixed inset-0 z-[10000] backdrop-blur-2xl flex items-start sm:items-center justify-center p-0 sm:p-6",
             isLight ? "bg-black/30" : "bg-black/80",
             showFinalForm && "pointer-events-none opacity-0"
           )}
+          style={{ paddingBottom: 'calc(var(--bottom-nav-height, 80px) + env(safe-area-inset-bottom, 0px))' }}
         >
           <motion.div
             initial={{ scale: 0.95, opacity: 0, y: 30 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.95, opacity: 0, y: 30 }}
             className={cn(
-              "w-full max-w-2xl h-[100dvh] sm:h-[85vh] overflow-hidden sm:rounded-[3rem] border flex flex-col relative",
+              "w-full max-w-2xl h-full sm:h-[85vh] overflow-hidden sm:rounded-[3rem] border flex flex-col relative",
               isLight ? "shadow-[0_40px_100px_rgba(0,0,0,0.2)]" : "shadow-[0_40px_100px_rgba(0,0,0,1)]",
               modalBg
             )}

@@ -233,7 +233,7 @@ export const DiscoveryFilters = memo(function DiscoveryFilters({ category, onApp
                        isActive
                         ? cn("bg-primary border-primary shadow-[0_10px_30px_rgba(var(--brand-primary-rgb),0.3)] scale-[1.05] z-10 relative", "text-primary-foreground")
                         : (isLight 
-                           ? "bg-black/5 border-black/10 text-black shadow-sm backdrop-blur-md hover:bg-black/10" 
+                           ? "bg-black/[0.03] border-black/[0.05] text-black shadow-sm backdrop-blur-md hover:bg-black/5" 
                            : "bg-white/10 border-white/10 text-white font-black hover:bg-white/20")
                      )}
                 >
@@ -256,10 +256,10 @@ export const DiscoveryFilters = memo(function DiscoveryFilters({ category, onApp
         <Collapsible>
           <CollapsibleTrigger className="w-full p-6 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="w-5 h-5 rounded-full bg-[#3B82F6]/10 flex items-center justify-center">
-                <Sparkles className="w-3 h-3 text-[#3B82F6]" />
+              <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center">
+                <Sparkles className="w-3 h-3 text-primary" />
               </div>
-              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#3B82F6]">Details</span>
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Details</span>
             </div>
             <ChevronDown className="h-4 w-4 text-muted-foreground" />
           </CollapsibleTrigger>
@@ -315,10 +315,10 @@ export const DiscoveryFilters = memo(function DiscoveryFilters({ category, onApp
       <Card className={cn("backdrop-blur-md overflow-hidden rounded-[2rem]", isLight ? "bg-white/50 border-black/5" : "bg-card/30 border-white/5")}>
         <CardHeader className="pb-2">
           <div className="flex items-center gap-2">
-             <div className="w-5 h-5 rounded-full bg-[#3B82F6]/10 flex items-center justify-center">
-               <DollarSign className="w-3 h-3 text-[#3B82F6]" />
+             <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center">
+               <DollarSign className="w-3 h-3 text-primary" />
              </div>
-             <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#3B82F6]">Budget Range</span>
+             <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Budget Range</span>
           </div>
         </CardHeader>
         <CardContent className="flex flex-wrap gap-2">
@@ -331,7 +331,7 @@ export const DiscoveryFilters = memo(function DiscoveryFilters({ category, onApp
                   selectedBudgetRange === range.value
                     ? cn("bg-primary border-primary shadow-xl shadow-primary/30 scale-[1.02]", "text-primary-foreground") 
                     : isLight 
-                      ? "bg-black/5 border-black/10 text-black shadow-sm backdrop-blur-md hover:bg-black/10" 
+                      ? "bg-black/[0.03] border-black/[0.05] text-black shadow-sm backdrop-blur-md hover:bg-black/5" 
                       : "bg-white/5 text-white border-white/10 hover:bg-white/10"
                 )}
             >
@@ -344,13 +344,13 @@ export const DiscoveryFilters = memo(function DiscoveryFilters({ category, onApp
       {/* CATEGORY SPECIFIC FILTERS */}
       {category === 'property' && (
         <>
-          <Card className={cn("backdrop-blur-md overflow-hidden rounded-[2rem]", isLight ? "bg-white/50 border-black/5" : "bg-card/30 border-white/5")}>
+          <Card className={cn("backdrop-blur-md overflow-hidden rounded-[2rem]", isLight ? "bg-white border-black/[0.03]" : "bg-card/30 border-white/5")}>
             <CardHeader className="pb-2">
               <div className="flex items-center gap-2">
-                <div className="w-5 h-5 rounded-full bg-[#3B82F6]/10 flex items-center justify-center">
-                  <Bed className="w-3 h-3 text-[#3B82F6]" />
+                <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Bed className="w-3 h-3 text-primary" />
                 </div>
-                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#3B82F6]">Rooms & Space</span>
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Rooms & Space</span>
               </div>
             </CardHeader>
             <CardContent className="space-y-10 pt-4">
@@ -370,7 +370,7 @@ export const DiscoveryFilters = memo(function DiscoveryFilters({ category, onApp
                             bedrooms === n 
                               ? cn("bg-primary border-primary shadow-xl scale-110", "text-primary-foreground") 
                               : isLight 
-                                ? "bg-black/5 border-black/10 text-black shadow-sm backdrop-blur-md hover:bg-black/10"
+                                ? "bg-black/[0.03] border-black/[0.05] text-black shadow-sm backdrop-blur-md hover:bg-black/5"
                                 : "bg-white/5 border-white/10 text-white/60"
                           )}
                        >
@@ -396,7 +396,7 @@ export const DiscoveryFilters = memo(function DiscoveryFilters({ category, onApp
                             bathrooms === n 
                               ? cn("bg-primary border-primary shadow-xl scale-110", "text-primary-foreground") 
                               : isLight 
-                                ? "bg-black/5 border-black/10 text-black shadow-sm backdrop-blur-md hover:bg-black/10"
+                                ? "bg-black/[0.03] border-black/[0.05] text-black shadow-sm backdrop-blur-md hover:bg-black/5"
                                 : "bg-white/5 border-white/10 text-white/60"
                           )}
                        >
@@ -457,7 +457,7 @@ export const DiscoveryFilters = memo(function DiscoveryFilters({ category, onApp
                       serviceTypes.includes(type.value)
                         ? cn("bg-primary border-primary shadow-lg shadow-primary/20", "text-primary-foreground")
                         : isLight 
-                          ? "bg-black/5 border-black/10 text-black shadow-sm backdrop-blur-md hover:bg-black/10" 
+                          ? "bg-black/[0.03] border-black/[0.05] text-black shadow-sm backdrop-blur-md hover:bg-black/5" 
                           : "bg-white/10 border-white/10 text-white hover:bg-white/20"
                     )}
                 >

@@ -30,12 +30,10 @@ import { useUnreadNotifications } from '@/hooks/useUnreadNotifications';
 import { prefetchRoute } from '@/utils/routePrefetcher';
 import useAppTheme from '@/hooks/useAppTheme';
 import { haptics } from '@/utils/microPolish';
-import { uiSounds } from '@/utils/uiSounds';
 import { useTranslation } from 'react-i18next';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useFilterStore } from '@/state/filterStore';
 import { useModalStore } from '@/state/modalStore';
-import { useActiveMode } from '@/hooks/useActiveMode';
 
 const ICON_SIZE = 18;
 const ICON_SIZE_COMPACT = 16;
@@ -86,8 +84,7 @@ export const BottomNavigation = memo(({
   const showAIChat = useModalStore((s) => s.showAIChat);
   const { unreadCount: _unreadCount } = useUnreadMessageCount();
   const { unreadCount: _unreadNotifCount } = useUnreadNotifications();
-  const { theme, isLight } = useAppTheme();
-  const { activeMode, switchMode, isSwitching } = useActiveMode();
+  const { isLight } = useAppTheme();
 
   const { t } = useTranslation();
 
@@ -245,11 +242,6 @@ export const BottomNavigation = memo(({
   };
 
   const iconColorInactive = 'var(--icon-inactive)';
-  const activeColor = 'var(--icon-active)';
-
-  const barShadow = 'none';
-
-
   return (
     <nav role="navigation" aria-label="Main navigation" className={cn('app-bottom-bar px-3 pb-2 pt-1', className, isTablet ? 'px-4' : '')} style={{ paddingBottom: 'calc(8px + max(0px, env(safe-area-inset-bottom)))' }}>
       {/* ── Liquid Glass bar surface ────────────────────────────────────────
@@ -257,17 +249,17 @@ export const BottomNavigation = memo(({
           through, reinforcing the "floating above" feeling. */}
       <div
         className={cn(
-          "pointer-events-auto glass-pill-nav px-1.5",
+          "pointer-events-auto px-1.5",
           isTablet ? "mx-auto w-fit max-w-full" : "w-full"
         )}
         style={{
-          background: isLight ? 'rgba(255, 255, 255, 0.96)' : 'rgba(10, 15, 30, 0.55)',
-          backdropFilter: 'blur(32px) saturate(220%)',
-          WebkitBackdropFilter: 'blur(32px) saturate(220%)',
+          background: 'transparent',
+          backdropFilter: 'none',
+          WebkitBackdropFilter: 'none',
           borderRadius: '3rem',
           padding: '4px',
-          boxShadow: isLight ? '0 -1px 8px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.06)' : 'none',
-          border: isLight ? '1px solid rgba(0,0,0,0.08)' : 'none',
+          boxShadow: 'none',
+          border: 'none',
         }}
 
       >
@@ -343,26 +335,7 @@ export const BottomNavigation = memo(({
                   transition: 'all 0.3s cubic-bezier(0.22, 1, 0.36, 1)',
                 }}
               >
-                {/* Active Pill Background */}
-                <AnimatePresence>
-                  {active && (
-                    <motion.div
-                      layoutId="bottomNavActivePill"
-                      className="absolute inset-0 rounded-full z-0 pointer-events-none"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-                      style={{
-                        background: `${activeColor}20`,
-                        boxShadow: 'inset 0 2px 4px rgba(255,255,255,0.2)',
-                        border: '1px solid rgba(255, 77, 0, 0.3)',
-                      }}
-                    >
-                      <div className="absolute inset-0 bg-gradient-to-tr from-[#FF4D00]/20 to-[#EB4898]/20 rounded-full blur-[2px]" />
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                {/* Active state is color-only: no nested pill/frame behind icons. */}
 
                 <div
                   className="relative z-10"

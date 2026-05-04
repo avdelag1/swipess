@@ -59,16 +59,16 @@ interface Props {
 
 export function RoommateFiltersSheet({ open, onClose, onApply, currentFilters }: Props) {
   const { user } = useAuth();
-  const [filters, setFilters] = useState<RoommateFilterState>(currentFilters ?? emptyFilters);
+  const [filters, setFilters] = useState<RoommateFilterState>({ ...emptyFilters, ...(currentFilters ?? {}) });
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    if (open && currentFilters) setFilters(currentFilters);
+    if (open && currentFilters) setFilters({ ...emptyFilters, ...currentFilters });
   }, [open, currentFilters]);
 
   const activeCount = useMemo(() => {
     let c = 0;
-    if (filters.preferred_gender.length > 0) c++;
+    if ((filters.preferred_gender ?? []).length > 0) c++;
     if (filters.preferred_budget_min || filters.preferred_budget_max) c++;
     if (filters.preferred_age_min || filters.preferred_age_max) c++;
     if (filters.preferred_cleanliness) c++;
@@ -76,7 +76,7 @@ export function RoommateFiltersSheet({ open, onClose, onApply, currentFilters }:
     if (filters.preferred_smoking) c++;
     if (filters.preferred_drinking) c++;
     if (filters.preferred_work_schedule) c++;
-    if (filters.deal_breakers.length > 0) c++;
+    if ((filters.deal_breakers ?? []).length > 0) c++;
     return c;
   }, [filters]);
 

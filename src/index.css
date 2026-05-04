@@ -309,23 +309,23 @@ button:active, [role="button"]:active {
 
   /* THEME 1: GREY MATTE (Default - like Claude) */
   .grey-matte {
-    /* Background colors - Sophisticated mid-grey palette */
-    --background: 0 0% 18%;
-    --foreground: 0 0% 91%;
-    --card: 0 0% 23%;
-    --card-foreground: 0 0% 91%;
+    /* Background colors - Platinum / High-Fidelity Light Palette */
+    --background: 0 0% 98%;
+    --foreground: 0 0% 10%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 10%;
     --primary: 0 100% 50%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 0 0% 27%;
-    --secondary-foreground: 0 0% 91%;
-    --muted: 0 0% 27%;
-    --muted-foreground: 0 0% 72%;
+    --primary-foreground: 0 0% 0%;
+    --secondary: 0 0% 95%;
+    --secondary-foreground: 0 0% 10%;
+    --muted: 0 0% 95%;
+    --muted-foreground: 0 0% 30%;
     --accent: 0 100% 50%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-    --border: 0 0% 29%;
-    --input: 0 0% 29%;
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
     --ring: 0 100% 50%;
 
     /* Semantic UI Tokens */
@@ -337,14 +337,14 @@ button:active, [role="button"]:active {
     --icon-inactive: rgba(255, 255, 255, 0.6);
 
     /* Modern theme variables */
-    --bg-primary: 0 0% 18%;
-    --bg-secondary: 0 0% 23%;
-    --bg-tertiary: 0 0% 27%;
-    --text-primary: 0 0% 91%;
-    --text-secondary: 0 0% 72%;
-    --text-tertiary: 0 0% 53%;
-    --border-primary: 0 0% 29%;
-    --border-secondary: 0 0% 35%;
+    --bg-primary: 0 0% 98%;
+    --bg-secondary: 0 0% 100%;
+    --bg-tertiary: 0 0% 95%;
+    --text-primary: 0 0% 10%;
+    --text-secondary: 0 0% 30%;
+    --text-tertiary: 0 0% 50%;
+    --border-primary: 0 0% 90%;
+    --border-secondary: 0 0% 85%;
     --accent-primary: 0 100% 50%;
     --accent-secondary: 0 100% 60%;
 
@@ -426,12 +426,12 @@ button:active, [role="button"]:active {
   /* THEME 3: WHITE MATTE (Clean minimalist - like Apple/Linear) */
   .white-matte {
     /* Background colors - Soft white palette */
-    --background: 0 0% 97%;
-    --foreground: 0 0% 10%;
+    --background: 0 0% 100%;
+    --foreground: 0 0% 5%;
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 10%;
+    --card-foreground: 0 0% 5%;
     --primary: 0 100% 50%;
-    --primary-foreground: 0 0% 0%;
+    --primary-foreground: 0 0% 100%;
     --secondary: 0 0% 94%;
     --secondary-foreground: 0 0% 10%;
     --muted: 0 0% 94%;
@@ -2145,6 +2145,29 @@ html[data-navigation-direction="back"] {
   outline: none !important;
   -webkit-tap-highlight-color: transparent !important;
   border: none !important;
+}
+
+.app-bottom-bar [aria-current="page"] {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.light-profile-dialog :where(h3, label, input, button, [role="combobox"], [data-radix-select-trigger]) {
+  color: hsl(var(--foreground)) !important;
+}
+
+.light-profile-dialog :where(p, .text-white\/40, .text-white\/50, .text-white\/60, .text-white\/70) {
+  color: hsl(var(--muted-foreground)) !important;
+}
+
+.light-profile-dialog :where(input, [role="combobox"], [data-radix-select-trigger]) {
+  background: hsl(var(--muted) / 0.35) !important;
+  border-color: hsl(var(--border)) !important;
+}
+
+.light-profile-dialog .keep-white,
+.light-profile-dialog .keep-white * {
+  color: hsl(var(--primary-foreground)) !important;
 }
 
 .dark .glass-pill-nav {

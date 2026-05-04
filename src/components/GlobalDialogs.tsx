@@ -42,7 +42,7 @@ const ConciergeChatFallback = memo(() => {
     <div className="fixed inset-0 z-[10000] bg-black/60 backdrop-blur-xl flex items-end md:items-center justify-center">
       <div className={cn(
         "relative w-full h-full md:max-w-3xl md:h-[90vh] md:rounded-[3rem] border flex flex-col overflow-hidden transition-all duration-700",
-        isSwipess ? "bg-[#050505] border-[#FF3D00]/20 shadow-[0_0_50px_rgba(255,61,0,0.1)]" : "bg-white border-slate-200 shadow-[0_40px_100px_rgba(0,0,0,0.2)]"
+        isSwipess ? "bg-[#050505] border-[#FF3D00]/20 shadow-[0_0_50px_rgba(255,61,0,0.1)]" : "bg-white border-black/[0.05] shadow-[0_40px_100px_rgba(0,0,0,0.2)]"
       )}>
         {/* 🛸 Ambient Background */}
         {isSwipess && (
@@ -55,18 +55,18 @@ const ConciergeChatFallback = memo(() => {
         {/* Header Skeleton */}
         <div className={cn(
           "h-20 flex items-center justify-between px-6 border-b backdrop-blur-3xl relative z-10",
-          isSwipess ? "border-white/5 bg-black/40" : "border-slate-200 bg-white/80"
+          isSwipess ? "border-white/5 bg-black/40" : "border-black/[0.05] bg-white/80"
         )}>
           <div className="flex items-center gap-4">
-            <div className={cn("w-12 h-12 rounded-2xl animate-pulse border", isSwipess ? "bg-white/5 border-white/5" : "bg-slate-100 border-slate-200")} />
+            <div className={cn("w-12 h-12 rounded-2xl animate-pulse border", isSwipess ? "bg-white/5 border-white/5" : "bg-black/[0.03] border-black/[0.05]")} />
             <div className="space-y-2">
-              <div className={cn("h-3 w-32 rounded-full animate-pulse", isSwipess ? "bg-white/10" : "bg-slate-200")} />
-              <div className={cn("h-2 w-20 rounded-full animate-pulse", isSwipess ? "bg-white/5" : "bg-slate-100")} />
+              <div className={cn("h-3 w-32 rounded-full animate-pulse", isSwipess ? "bg-white/10" : "bg-black/[0.05]")} />
+              <div className={cn("h-2 w-20 rounded-full animate-pulse", isSwipess ? "bg-white/5" : "bg-black/[0.03]")} />
             </div>
           </div>
           <div className="flex gap-3">
-            <div className={cn("h-12 w-32 rounded-2xl animate-pulse border", isSwipess ? "bg-white/5 border-white/5" : "bg-slate-100 border-slate-200")} />
-            <div className={cn("h-12 w-12 rounded-2xl animate-pulse border", isSwipess ? "bg-white/5 border-white/5" : "bg-slate-100 border-slate-200")} />
+            <div className={cn("h-12 w-32 rounded-2xl animate-pulse border", isSwipess ? "bg-white/5 border-white/5" : "bg-black/[0.03] border-black/[0.05]")} />
+            <div className={cn("h-12 w-12 rounded-2xl animate-pulse border", isSwipess ? "bg-white/5 border-white/5" : "bg-black/[0.03] border-black/[0.05]")} />
           </div>
         </div>
         
@@ -74,20 +74,20 @@ const ConciergeChatFallback = memo(() => {
         <div className="flex-1 p-8 space-y-10 overflow-hidden relative z-10 flex flex-col items-center justify-center">
           <div className={cn(
             "w-24 h-24 rounded-[3rem] border flex items-center justify-center animate-pulse",
-            isSwipess ? "border-primary/10 bg-primary/5" : "border-slate-200 bg-slate-50"
+            isSwipess ? "border-primary/10 bg-primary/5" : "border-black/[0.05] bg-black/[0.02]"
           )} />
           <div className="space-y-3 text-center">
-             <div className={cn("h-4 w-48 rounded-full animate-pulse", isSwipess ? "bg-white/10" : "bg-slate-200")} />
-             <div className={cn("h-2 w-32 rounded-full animate-pulse", isSwipess ? "bg-white/5" : "bg-slate-100")} />
+             <div className={cn("h-4 w-48 rounded-full animate-pulse", isSwipess ? "bg-white/10" : "bg-black/[0.05]")} />
+             <div className={cn("h-2 w-32 rounded-full animate-pulse", isSwipess ? "bg-white/5" : "bg-black/[0.03]")} />
           </div>
         </div>
         
         {/* Input Skeleton */}
         <div className={cn(
           "p-8 border-t pb-[calc(env(safe-area-inset-bottom,0px)+32px)] backdrop-blur-xl relative z-10",
-          isSwipess ? "border-white/5 bg-black/40" : "border-slate-100 bg-slate-50/50"
+          isSwipess ? "border-white/5 bg-black/40" : "border-black/[0.05] bg-black/[0.02]"
         )}>
-          <div className={cn("h-16 w-full rounded-[2.2rem] animate-pulse border", isSwipess ? "bg-white/5 border-white/5" : "bg-white border-slate-200")} />
+          <div className={cn("h-16 w-full rounded-[2.2rem] animate-pulse border", isSwipess ? "bg-white/5 border-white/5" : "bg-white border-black/[0.05]")} />
         </div>
       </div>
     </div>
