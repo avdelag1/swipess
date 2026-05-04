@@ -353,7 +353,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
               className="absolute top-[calc(var(--safe-top,0px)+16px)] inset-x-0 flex justify-center z-20 pointer-events-none transition-opacity duration-150"
               style={{ opacity: isZoomed ? 0 : 1 }}
             >
-              <div className="flex gap-1.5 w-full max-w-[140px] px-2">
+            <div className="flex gap-1 w-full max-w-[110px] px-2" style={{ marginTop: 'calc(var(--safe-top,0px) + 56px)' }}>
                 {Array.from({ length: imageCount }).map((_, idx) => (
                   <div
                     key={idx}
