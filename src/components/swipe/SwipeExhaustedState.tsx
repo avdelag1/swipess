@@ -2,8 +2,7 @@ import { cn } from '@/lib/utils';
 import useAppTheme from '@/hooks/useAppTheme';
 import { triggerHaptic } from '@/utils/haptics';
 import { DistanceSlider } from './DistanceSlider';
-import { SlidersHorizontal, Search } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { SlidersHorizontal } from 'lucide-react';
 
 interface SwipeExhaustedStateProps {
   radiusKm?: number;
