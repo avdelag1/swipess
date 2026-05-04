@@ -30,12 +30,10 @@ import { useUnreadNotifications } from '@/hooks/useUnreadNotifications';
 import { prefetchRoute } from '@/utils/routePrefetcher';
 import useAppTheme from '@/hooks/useAppTheme';
 import { haptics } from '@/utils/microPolish';
-import { uiSounds } from '@/utils/uiSounds';
 import { useTranslation } from 'react-i18next';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useFilterStore } from '@/state/filterStore';
 import { useModalStore } from '@/state/modalStore';
-import { useActiveMode } from '@/hooks/useActiveMode';
 
 const ICON_SIZE = 18;
 const ICON_SIZE_COMPACT = 16;
@@ -86,8 +84,7 @@ export const BottomNavigation = memo(({
   const showAIChat = useModalStore((s) => s.showAIChat);
   const { unreadCount: _unreadCount } = useUnreadMessageCount();
   const { unreadCount: _unreadNotifCount } = useUnreadNotifications();
-  const { theme, isLight } = useAppTheme();
-  const { activeMode, switchMode, isSwitching } = useActiveMode();
+  const { isLight } = useAppTheme();
 
   const { t } = useTranslation();
 
@@ -245,11 +242,6 @@ export const BottomNavigation = memo(({
   };
 
   const iconColorInactive = 'var(--icon-inactive)';
-  const activeColor = 'var(--icon-active)';
-
-  const barShadow = 'none';
-
-
   return (
     <nav role="navigation" aria-label="Main navigation" className={cn('app-bottom-bar px-3 pb-2 pt-1', className, isTablet ? 'px-4' : '')} style={{ paddingBottom: 'calc(8px + max(0px, env(safe-area-inset-bottom)))' }}>
       {/* ── Liquid Glass bar surface ────────────────────────────────────────
