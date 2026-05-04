@@ -115,7 +115,7 @@ const LandingView = memo(({
       >
         <button
           onClick={() => { triggerHaptic('medium'); onEnterAuth('login'); }}
-          className="w-full h-14 rounded-[2rem] bg-gradient-to-b from-[#FF6A1A] to-[#FF4D00] text-white font-black uppercase tracking-[0.25em] text-[12px] shadow-[0_15px_45px_rgba(255,77,0,0.45)] active:scale-[0.97] transition-all flex items-center justify-center gap-3 border border-white/15"
+          className="w-full h-14 rounded-[2rem] bg-gradient-to-b from-[#FF6FAF] to-[#EB4898] text-white font-black uppercase tracking-[0.25em] text-[12px] shadow-[0_15px_45px_rgba(235,72,152,0.45)] active:scale-[0.97] transition-all flex items-center justify-center gap-3 border border-white/15"
         >
           <LogIn className="w-4 h-4" />
           Sign In
@@ -278,7 +278,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
 
   const inputCls = (hasError?: boolean) => cn(
     "pl-11 h-[54px] bg-white/[0.03] border-white/5 text-white placeholder:text-white/20 rounded-2xl transition-all font-bold text-sm",
-    "focus:ring-1 focus:ring-[#FF4D00]/30 focus:border-[#FF4D00]/40 focus:bg-white/[0.07] backdrop-blur-md",
+    "focus:ring-1 focus:ring-[#EB4898]/30 focus:border-[#EB4898]/40 focus:bg-white/[0.07] backdrop-blur-md",
     hasError && "border-red-500/40 focus:border-red-500/60 focus:ring-red-500/20"
   );
 
@@ -325,7 +325,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
               className={cn(
                 "flex-1 h-12 rounded-[1.8rem] font-black uppercase tracking-[0.2em] text-[10px] transition-all active:scale-[0.97]",
                 isLogin
-                  ? "bg-gradient-to-b from-[#FF6A1A] to-[#FF4D00] text-white shadow-[0_10px_30px_rgba(255,77,0,0.4)]"
+                  ? "bg-gradient-to-b from-[#FF6FAF] to-[#EB4898] text-white shadow-[0_10px_30px_rgba(235,72,152,0.4)]"
                   : "text-white/30 hover:text-white/50"
               )}
             >
@@ -337,7 +337,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
               className={cn(
                 "flex-1 h-12 rounded-[1.8rem] font-black uppercase tracking-[0.2em] text-[10px] transition-all active:scale-[0.97]",
                 !isLogin
-                  ? "bg-gradient-to-b from-[#FF6A1A] to-[#FF4D00] text-white shadow-[0_10px_30px_rgba(255,77,0,0.4)]"
+                  ? "bg-gradient-to-b from-[#FF6FAF] to-[#EB4898] text-white shadow-[0_10px_30px_rgba(235,72,152,0.4)]"
                   : "text-white/30 hover:text-white/50"
               )}
             >
@@ -365,7 +365,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
         >
           {!isLogin && !isForgotPassword && (
             <div className="relative group">
-              <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 group-focus-within:text-[#FF4D00] transition-colors" />
+              <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 group-focus-within:text-[#EB4898] transition-colors" />
               <Input 
                 value={name} 
                 onChange={(e) => { setName(e.target.value); setFieldErrors(p => ({ ...p, name: '' })); }} 
@@ -378,7 +378,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
           )}
 
           <div className="relative group">
-            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 group-focus-within:text-[#FF4D00] transition-colors" />
+            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 group-focus-within:text-[#EB4898] transition-colors" />
             <Input 
               type="email" 
               value={email} 
@@ -392,7 +392,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
 
           {!isForgotPassword && (
             <div className="relative group">
-              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 group-focus-within:text-[#FF4D00] transition-colors" />
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 group-focus-within:text-[#EB4898] transition-colors" />
               <Input 
                 type={showPassword ? "text" : "password"} 
                 value={password} 
@@ -415,7 +415,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
 
           {!isLogin && !isForgotPassword && (
             <div className="relative group">
-              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 group-focus-within:text-[#FF4D00] transition-colors" />
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 group-focus-within:text-[#EB4898] transition-colors" />
               <Input 
                 type={showPassword ? "text" : "password"} 
                 value={confirmPassword} 
@@ -430,7 +430,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
 
           {isLogin && !isForgotPassword && (
             <div className="flex justify-end px-1 pt-0.5">
-              <button type="button" onClick={() => { triggerHaptic('light'); setIsForgotPassword(true); }} className="text-[9px] font-black uppercase tracking-[0.2em] text-white/30 hover:text-[#FF4D00] transition-colors italic">
+              <button type="button" onClick={() => { triggerHaptic('light'); setIsForgotPassword(true); }} className="text-[9px] font-black uppercase tracking-[0.2em] text-white/30 hover:text-[#EB4898] transition-colors italic">
                 Forgot Access Code?
               </button>
             </div>
@@ -438,11 +438,11 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
 
           {/* Primary CTA */}
           <div className="pt-6 relative group">
-            <div className="absolute inset-x-4 -bottom-2 h-10 bg-[#FF4D00]/20 blur-[30px] opacity-0 group-hover:opacity-100 transition-opacity rounded-full pointer-events-none" />
+            <div className="absolute inset-x-4 -bottom-2 h-10 bg-[#EB4898]/20 blur-[30px] opacity-0 group-hover:opacity-100 transition-opacity rounded-full pointer-events-none" />
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full h-15 rounded-[2.5rem] bg-gradient-to-b from-[#FF6A1A] to-[#FF4D00] text-white font-black uppercase tracking-[0.3em] text-[13px] shadow-[0_20px_50px_rgba(255,77,0,0.45)] active:scale-[0.96] transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:pointer-events-none relative overflow-hidden group/btn border border-white/15"
+              className="w-full h-15 rounded-[2.5rem] bg-gradient-to-b from-[#FF6FAF] to-[#EB4898] text-white font-black uppercase tracking-[0.3em] text-[13px] shadow-[0_20px_50px_rgba(235,72,152,0.45)] active:scale-[0.96] transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:pointer-events-none relative overflow-hidden group/btn border border-white/15"
             >
               <div className="absolute inset-0 bg-white/10 opacity-0 group-hover/btn:opacity-100 transition-opacity" />
               <Sparkles className="w-4 h-4 transition-transform group-hover/btn:rotate-12 group-hover/btn:scale-110" />
@@ -569,9 +569,9 @@ function LegendaryLandingPage() {
                    triggerHaptic('medium');
                    setLegalModal(null);
                  }} 
-                 className="w-full h-14 bg-[#EB4898] text-white font-black uppercase italic tracking-widest rounded-2xl shadow-[0_0_30px_rgba(235,72,152,0.3)] hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2"
+                 className="w-full h-14 bg-gradient-to-b from-[#FF6FAF] to-[#EB4898] text-white font-black uppercase tracking-[0.25em] text-[12px] rounded-[2rem] shadow-[0_15px_45px_rgba(235,72,152,0.55)] hover:brightness-110 active:scale-[0.97] transition-all flex items-center justify-center gap-3 border border-white/15"
                >
-                 <Check className="w-5 h-5" /> I Accept & Acknowledge
+                 <Check className="w-4 h-4" strokeWidth={3} /> I Agree & Continue
                </button>
             </div>
           </motion.div>
