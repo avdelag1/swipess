@@ -15,7 +15,6 @@ import { useAuth } from '@/hooks/useAuth';
 import { logger } from '@/utils/prodLogger';
 import { AtmosphericLayer } from '@/components/AtmosphericLayer';
 import { triggerHaptic } from '@/utils/haptics';
-import { uiSounds } from '@/utils/uiSounds';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 
@@ -136,7 +135,6 @@ export function OnboardingFlow({ open, onComplete }: OnboardingFlowProps) {
   const handleNext = () => {
     if (currentStep < steps.length - 1) {
       triggerHaptic('medium');
-      uiSounds.playStarShoot();
       setCurrentStep(currentStep + 1);
     }
   };

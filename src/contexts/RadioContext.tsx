@@ -5,7 +5,6 @@ import { RadioStation, CityLocation, RadioPlayerState } from '@/types/radio';
 import { getStationsByCity, getStationById, radioStations } from '@/data/radioStations';
 import { logger } from '@/utils/prodLogger';
 import { appToast } from '@/utils/appNotification';
-import { uiSounds } from '@/utils/uiSounds';
 
 /** Fisher-Yates shuffle — returns a new shuffled array, never starting with excludeId */
 function shuffleArray<T extends { id: string }>(arr: T[], excludeId?: string): T[] {
@@ -595,7 +594,6 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     if (!first) return;
     pushRecent(first.id);
     play(first);
-    uiSounds.playStarShoot();
 
     // Also enable shuffle mode with the new queue
     shuffleQueueRef.current = queue;

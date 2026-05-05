@@ -3,7 +3,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useEffect, useRef } from 'react';
 import { logger } from '@/utils/prodLogger';
-import { playNotificationSound } from '@/utils/notificationSounds';
 
 export function useUnreadMessageCount() {
   const { user } = useAuth();
@@ -74,9 +73,6 @@ export function useUnreadMessageCount() {
         (payload) => {
           if (payload.new.sender_id !== user.id) {
             debouncedRefetch();
-            playNotificationSound('message').catch((error) => {
-              logger.warn('[UnreadCount] Failed to play notification sound:', error);
-            });
           }
         }
       )

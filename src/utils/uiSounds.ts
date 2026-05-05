@@ -46,6 +46,16 @@ interface ToneOptions {
 }
 
 class SoundEngine {
+  /**
+   * APP-WIDE SOUND POLICY:
+   * The only surface allowed to play UI sounds is the public landing page
+   * background (LandingBackgroundEffects.tsx) — meditation bowls and shooting
+   * star chimes when tapping the cosmos. Every other call site is a no-op.
+   *
+   * Methods that the landing background uses (playStarShoot, playZenBowl) are
+   * kept functional. All other public methods are stubs so existing call sites
+   * compile without making noise.
+   */
   private ctx: AudioContext | null = null;
   private audioCache: Record<string, HTMLAudioElement> = {};
 
@@ -113,39 +123,17 @@ class SoundEngine {
     osc.stop(now + duration);
   }
 
-  // 🚀 NEXUS CORE SOUNDS
-  public playWelcome() {
-    this.loadAndPlay(NEXUS_SOUNDS.WELCOME, 0.6);
-  }
+  // ── DISABLED IN-APP SOUNDS (no-ops) ─────────────────────────────────────
+  public playWelcome() {}
+  public playLike() {}
+  public playDislike() {}
+  public playNotification() {}
+  public playUploadComplete() {}
 
-  public playLike() {
-    this.loadAndPlay(NEXUS_SOUNDS.LIKE, 0.7);
-  }
-
-  public playDislike() {
-    this.loadAndPlay(NEXUS_SOUNDS.DISLIKE, 0.5);
-  }
-
-  public playNotification() {
-    this.loadAndPlay(NEXUS_SOUNDS.NOTIFICATION, 0.4);
-  }
-
-  public playUploadComplete() {
-    this.loadAndPlay(NEXUS_SOUNDS.UPLOAD, 0.5);
-  }
-
+  // ── LANDING-PAGE-ONLY SOUNDS ────────────────────────────────────────────
   public playStarShoot() {
     const randomUrl = STAR_SOUNDS[Math.floor(Math.random() * STAR_SOUNDS.length)];
     this.loadAndPlay(randomUrl, 0.3);
-  }
-
-  // 🧪 TACTILE SYNTHETIC SOUNDS (Refined)
-  public playWaterDrop() {
-    try {
-      this.init();
-      if (!this.ctx) return;
-      this.tone({ type: 'sine', startFreq: 1400, endFreq: 1800, gainAmount: 0.1, duration: 0.08, attack: 0.005 });
-    } catch (_e) {}
   }
 
   public playZenBowl() {
@@ -153,74 +141,17 @@ class SoundEngine {
     this.loadAndPlay(url, 0.45);
   }
 
-  public playTap() {
-    // 🪵 SUBTLE TACTILE POP
-    try {
-      this.init();
-      if (!this.ctx) return;
-      this.tone({ type: 'sine', startFreq: 300, endFreq: 150, gainAmount: 0.05, duration: 0.03 });
-    } catch (_e) {}
-  }
-
-  public playPing() {
-    this.playWaterDrop();
-  }
-
-  public playCategorySelect() {
-    try {
-      this.init();
-      if (!this.ctx) return;
-      this.tone({ type: 'sine', startFreq: 800, endFreq: 1200, gainAmount: 0.04, duration: 0.04, attack: 0.005 });
-    } catch (_e) {}
-  }
-
-  public playCardSwipe(direction: 'left' | 'right' = 'right') {
-    if (direction === 'right') {
-      this.playLike();
-    } else {
-      this.playDislike();
-    }
-  }
-
-  public playSwitch() {
-    try {
-      this.init();
-      if (!this.ctx) return;
-      this.tone({ type: 'sine', startFreq: 660, endFreq: 440, gainAmount: 0.012, duration: 0.06 });
-    } catch (_e) {}
-  }
-
-  public playMicOn() {
-    try {
-      this.init();
-      if (!this.ctx) return;
-      this.tone({ type: 'sine', startFreq: 220, endFreq: 440, gainAmount: 0.02, duration: 0.1 });
-    } catch (_e) {}
-  }
-
-  public playMicOff() {
-    try {
-      this.init();
-      if (!this.ctx) return;
-      this.tone({ type: 'sine', startFreq: 440, endFreq: 220, gainAmount: 0.018, duration: 0.08 });
-    } catch (_e) {}
-  }
-
-  public playPop(_volume: number = 1) {
-    try {
-      this.init();
-      if (!this.ctx) return;
-      this.tone({ type: 'sine', startFreq: 600, endFreq: 200, gainAmount: 0.06, duration: 0.05 });
-    } catch (_e) {}
-  }
-
-  public playMessageSent() {
-    try {
-      this.init();
-      if (!this.ctx) return;
-      this.tone({ type: 'sine', startFreq: 880, endFreq: 1320, gainAmount: 0.04, duration: 0.08 });
-    } catch (_e) {}
-  }
+  // ── DISABLED TACTILE SOUNDS (no-ops) ────────────────────────────────────
+  public playWaterDrop() {}
+  public playTap() {}
+  public playPing() {}
+  public playCategorySelect() {}
+  public playCardSwipe(_direction: 'left' | 'right' = 'right') {}
+  public playSwitch() {}
+  public playMicOn() {}
+  public playMicOff() {}
+  public playPop(_volume: number = 1) {}
+  public playMessageSent() {}
 }
 
 export const uiSounds = new SoundEngine();

@@ -116,7 +116,7 @@ const CardImage = memo(({
         className={cn("absolute inset-0 w-full h-full object-cover", loaded ? "opacity-100" : "opacity-0")}
         style={{
           transition: 'opacity 150ms ease-out',
-          animation: loaded && shouldAnimate ? 'breathing-zoom 14s ease-in-out infinite alternate' : 'none',
+          animation: 'none',
           borderRadius: 28,
           WebkitTouchCallout: 'none',
           WebkitUserSelect: 'none',
@@ -215,7 +215,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   }, [profile?.user_id, x, y]);
 
   const [isZoomed, setIsZoomed] = useState(false);
-  const { containerRef, pointerHandlers: magnifierPointerHandlers, isActive: isMagnifierActive, wasActive: wasMagnifierActive } = useMagnifier({
+  const { containerRef, pointerHandlers: magnifierPointerHandlers, isActive: isMagnifierActive, wasActive: wasMagnifierActive, isHoldPending: isMagnifierHoldPending } = useMagnifier({
     scale: 2.8,
     holdDelay: 380,
     enabled: isTop,
@@ -240,14 +240,15 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
     if (storedPointerEventRef.current && !dragStartedRef.current) {
       const dx = Math.abs(e.clientX - (storedPointerEventRef.current as any).clientX);
       const dy = Math.abs(e.clientY - (storedPointerEventRef.current as any).clientY);
-      if (dx > 18 || dy > 18) {
+      if ((dx > 28 || dy > 28) && !isMagnifierHoldPending()) {
         magnifierPointerHandlers.onPointerUp(e); 
         dragStartedRef.current = true;
         isDragging.current = true;
         dragControls.start((storedPointerEventRef.current as any).nativeEvent);
       }
     }
-  }, [isMagnifierActive, magnifierPointerHandlers, dragControls]);
+    magnifierPointerHandlers.onPointerMove(e);
+  }, [isMagnifierActive, isMagnifierHoldPending, magnifierPointerHandlers, dragControls]);
 
   const handleUnifiedPointerUp = useCallback((e: React.PointerEvent) => {
     storedPointerEventRef.current = null;

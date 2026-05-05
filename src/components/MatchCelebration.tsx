@@ -2,9 +2,7 @@ import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MessageCircle, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { logger } from '@/utils/prodLogger';
 import { triggerHaptic } from '@/utils/haptics';
-import { playNotificationSound } from '@/utils/notificationSounds';
 
 interface MatchCelebrationProps {
   isOpen: boolean;
@@ -26,7 +24,6 @@ export function MatchCelebration({ isOpen, onClose, onMessage, matchedUser }: Ma
       if ('vibrate' in navigator) {
         navigator.vibrate([100, 50, 100, 50, 200]);
       }
-      playNotificationSound('match').catch(err => logger.warn('Match sound failed', err));
       const timer = setTimeout(() => setShowButtons(true), 1200);
       return () => clearTimeout(timer);
     } else {
