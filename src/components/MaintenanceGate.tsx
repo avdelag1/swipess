@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { startTransition, useState, useEffect } from "react";
 import { Lock, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -51,9 +51,11 @@ export function MaintenanceGate({ children }: { children: React.ReactNode }) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (normalizeCode(code) === PROMO_CODE) {
-      setError(false);
       persistUnlock();
-      setUnlocked(true);
+      setError(false);
+      startTransition(() => {
+        setUnlocked(true);
+      });
     } else {
       setError(true);
       setShake(true);
