@@ -20,7 +20,7 @@ const CardImage = memo(({
   name, 
   direction: _direction = 'right',
   fullScreen = false,
-  animate: _animate = true,
+  animate: _animate = false,
   priority = false
 }: { 
   src?: string | null; 
@@ -221,7 +221,7 @@ const CardImage = memo(({
           transformOrigin: 'center',
           filter: loaded ? 'saturate(1.08) contrast(1.03)' : 'none',
           animation: (_animate && loaded) ? 'breathing-zoom 14s ease-in-out infinite alternate' : 'none',
-          willChange: (_animate && loaded) ? 'transform' : 'auto',
+          willChange: 'auto',
           WebkitTouchCallout: 'none',
           WebkitUserSelect: 'none',
           userSelect: 'none',

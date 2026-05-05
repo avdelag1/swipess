@@ -116,7 +116,7 @@ const CardImage = memo(({
         className={cn("absolute inset-0 w-full h-full object-cover", loaded ? "opacity-100" : "opacity-0")}
         style={{
           transition: 'opacity 150ms ease-out',
-          animation: loaded && shouldAnimate ? 'breathing-zoom 14s ease-in-out infinite alternate' : 'none',
+          animation: 'none',
           borderRadius: 28,
           WebkitTouchCallout: 'none',
           WebkitUserSelect: 'none',
