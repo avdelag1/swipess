@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
 import useAppTheme from '@/hooks/useAppTheme';
 import CardImage from '@/components/CardImage';
+import { LoopVideo } from '@/components/video/LoopVideo';
 import { EventItem } from '@/types/events';
 
 const AUTOPLAY_DURATION = 6000;
@@ -113,13 +114,17 @@ export const EventCard = memo(({
           className="w-full h-full transform-gpu"
           style={{ willChange: 'transform', transform: 'translateZ(0)' }}
         >
-          <CardImage
-            src={event.image_url}
-            alt={event.title}
-            fullScreen
-            animate={true}
-            priority={isActive} // 🚀 SPEED BOOST: Only the active card gets high priority loading
-          />
+          {event.video_url ? (
+            <LoopVideo src={event.video_url} poster={event.image_url || undefined} active={isActive && !isPaused} />
+          ) : (
+            <CardImage
+              src={event.image_url}
+              alt={event.title}
+              fullScreen
+              animate={true}
+              priority={isActive}
+            />
+          )}
         </motion.div>
       </div>
 
