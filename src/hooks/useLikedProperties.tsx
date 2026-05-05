@@ -63,8 +63,7 @@ export function useLikedProperties() {
           const { data, error: err } = await supabase
             .from('listings')
             .select('*')
-            .in('id', listingIds)
-            .eq('status', 'active');
+            .in('id', listingIds);
           if (!err) listings = data || [];
         }
 
