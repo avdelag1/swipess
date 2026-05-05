@@ -1,4 +1,5 @@
 import { Suspense, lazy, useMemo, useEffect, useState, useRef, useLayoutEffect } from 'react';
+import { lazyWithRetry } from '@/utils/lazyRetry';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { PullToRefreshIndicator } from '@/components/PullToRefreshIndicator';
 
@@ -15,13 +16,13 @@ import { useModalStore } from '@/state/modalStore';
 import { useInstantReactivity } from '@/hooks/useInstantReactivity';
 import { cn } from '@/lib/utils';
 
-const TopBar = lazy(() => import('./TopBar').then(m => ({ default: m.TopBar })));
-const BottomNavigation = lazy(() => import('./BottomNavigation').then(m => ({ default: m.BottomNavigation })));
-const RadioMiniPlayer = lazy(() => import('./RadioMiniPlayer').then(m => ({ default: m.RadioMiniPlayer })));
-const VoiceConciergeButton = lazy(() => import('./VoiceConciergeButton').then(m => ({ default: m.VoiceConciergeButton })));
-const SwipessHud = lazy(() => import('./SwipessHud').then(m => ({ default: m.SwipessHud })));
-const VapIdCardModal = lazy(() => import('./VapIdCardModal').then(m => ({ default: m.VapIdCardModal })));
-const GlobalDialogs = lazy(() => import('./GlobalDialogs').then(m => ({ default: m.GlobalDialogs })));
+const TopBar = lazyWithRetry(() => import('./TopBar').then(m => ({ default: m.TopBar })));
+const BottomNavigation = lazyWithRetry(() => import('./BottomNavigation').then(m => ({ default: m.BottomNavigation })));
+const RadioMiniPlayer = lazyWithRetry(() => import('./RadioMiniPlayer').then(m => ({ default: m.RadioMiniPlayer })));
+const VoiceConciergeButton = lazyWithRetry(() => import('./VoiceConciergeButton').then(m => ({ default: m.VoiceConciergeButton })));
+const SwipessHud = lazyWithRetry(() => import('./SwipessHud').then(m => ({ default: m.SwipessHud })));
+const VapIdCardModal = lazyWithRetry(() => import('./VapIdCardModal').then(m => ({ default: m.VapIdCardModal })));
+const GlobalDialogs = lazyWithRetry(() => import('./GlobalDialogs').then(m => ({ default: m.GlobalDialogs })));
 import { ChromeSummonZones } from './swipe/ChromeSummonZones';
 import { useChromeReveal } from '@/hooks/useChromeReveal';
 
