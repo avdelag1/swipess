@@ -7,7 +7,6 @@
  */
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { logger } from '@/utils/prodLogger';
 
 export type ConnectionStatus = 'checking' | 'connected' | 'degraded' | 'disconnected';
@@ -21,6 +20,9 @@ interface ConnectionHealth {
 
 const CHECK_TIMEOUT_MS = 5000; // Reduced to 5s for faster 'Speed of Light' detection
 const MAX_RETRIES = 3;
+const PRODUCTION_PROJECT_ID = 'vplgtcguxujxwrgguxqq';
+const SUPABASE_HEALTH_URL = `https://${PRODUCTION_PROJECT_ID}.supabase.co/auth/v1/health`;
+const SUPABASE_PUBLISHABLE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwbGd0Y2d1eHVqeHdyZ2d1eHFxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgwMDI5MDIsImV4cCI6MjA2MzU3ODkwMn0.-TzSQ-nDho4J6TftVF4RNjbhr5cKbknQxxUT-AaSIJU';
 
 function isErrorWithMessage(err: unknown): err is { message: string; name?: string } {
   return typeof err === 'object' && err !== null && 'message' in err && typeof (err as Record<string, unknown>).message === 'string';
@@ -36,9 +38,16 @@ async function pingSupabase(): Promise<boolean> {
   try {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), CHECK_TIMEOUT_MS);
-    const { error } = await supabase.auth.getUser(undefined, { signal: controller.signal });
+    const res = await fetch(SUPABASE_HEALTH_URL, {
+      method: 'GET',
+      cache: 'no-store',
+      headers: {
+        apikey: SUPABASE_PUBLISHABLE_KEY,
+      },
+      signal: controller.signal,
+    });
     clearTimeout(timeoutId);
-    return !error || error.status !== 0;
+    return !!res;
   } catch (err: unknown) {
     if (isErrorWithMessage(err) && (err.name === 'AbortError' || err.message.includes('abort'))) {
       logger.error('[ConnectionHealth] Ping aborted (timeout)');
