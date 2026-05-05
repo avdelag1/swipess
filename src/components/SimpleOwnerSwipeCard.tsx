@@ -384,9 +384,9 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           )}
 
           <div className="absolute top-0 left-0 right-0 pointer-events-none z-20"
-              style={{ height: '28%', background: 'linear-gradient(to bottom, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.28) 30%, rgba(0,0,0,0.12) 65%, transparent 100%)', opacity: isZoomed ? 0 : 1 }} />
+              style={{ height: '28%', background: 'linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.45) 30%, rgba(0,0,0,0.2) 65%, transparent 100%)', opacity: isZoomed ? 0 : 1 }} />
           <div className="absolute bottom-0 left-0 right-0 pointer-events-none z-20"
-              style={{ height: '42%', background: 'linear-gradient(to top, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.4) 25%, rgba(0,0,0,0.18) 55%, rgba(0,0,0,0.05) 80%, transparent 100%)', opacity: isZoomed ? 0 : 1 }} />
+              style={{ height: '42%', background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.6) 25%, rgba(0,0,0,0.3) 55%, rgba(0,0,0,0.1) 80%, transparent 100%)', opacity: isZoomed ? 0 : 1 }} />
 
           <PhotoPositionIndicators count={imageCount} currentIndex={currentImageIndex} hidden={isZoomed} />
         </div>
