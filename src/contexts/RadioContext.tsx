@@ -188,6 +188,14 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       appToast.warning('Station unavailable', 'Tuning to next frequency...');
       setError('Station unavailable - skipping...');
 
+      // Clear any pending load timeout & release the play lock so the next
+      // station attempt isn't blocked by a stuck isPlayingRef.
+      if (loadTimeoutRef.current) {
+        clearTimeout(loadTimeoutRef.current);
+        loadTimeoutRef.current = null;
+      }
+      isPlayingRef.current = false;
+
       if (audio) {
         audio.removeEventListener('error', handleAudioError);
         audio.pause();
@@ -390,6 +398,10 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
         failedStationsRef.current.add(targetStation.id);
         setTimeout(() => failedStationsRef.current.delete(targetStation.id), 20000);
         setError('Station timeout, switching...');
+        // CRITICAL: release the play lock — without this, the radio gets
+        // permanently stuck because every subsequent play() exits early.
+        isPlayingRef.current = false;
+        try { audioRef.current?.pause(); } catch {/* ignore */}
         setTimeout(() => {
           setError(null);
           changeStationRef.current('next');
