@@ -4,6 +4,7 @@ export interface EventItem {
   description: string | null;
   category: string;
   image_url: string | null;
+  video_url?: string | null;
   image_urls?: any[];
   event_date: string | null;
   event_end_date?: string | null;
