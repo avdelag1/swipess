@@ -153,8 +153,8 @@ export default function PublicProfilePreview() {
       <SEO 
         title={`${profile.full_name || 'Anonymous'} — Discover on Swipess`}
         description={`${profile.bio || 'Elite discovery on Swipess.'} ${profile.city ? `Located in ${profile.city}.` : ''}`}
-        image={allImages[0] || `${typeof window !== 'undefined' ? window.location.origin : 'https://swipess.lovable.app'}/og-image-nexus.png`}
-        url={`${typeof window !== 'undefined' ? window.location.origin : 'https://swipess.lovable.app'}/profile/${id}`}
+        image={allImages[0] || `${typeof window !== 'undefined' ? window.location.origin : 'https://swipess.com'}/og-image-nexus.png`}
+        url={`${typeof window !== 'undefined' ? window.location.origin : 'https://swipess.com'}/profile/${id}`}
         type="profile"
       />
 

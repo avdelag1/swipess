@@ -74,7 +74,7 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
     return [...new Set(tags)].slice(0, 8);
   }, [clientProfile]);
 
-  const validationUrl = "https://swipess.app/vap-validate/" + (user?.id || 'unknown');
+  const validationUrl = "https://swipess.com/vap-validate/" + (user?.id || 'unknown');
   const idNumber = "NX-" + (user?.id || 'resident').slice(0, 8).toUpperCase();
   const location = [city, country].filter(Boolean).join(', ');
 

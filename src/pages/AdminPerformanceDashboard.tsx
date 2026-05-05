@@ -315,7 +315,7 @@ export default function AdminPerformanceDashboard() {
       <div className="max-w-4xl mx-auto px-4 pt-6">
         <PageHeader
           title="Performance Dashboard"
-          subtitle="Live web vitals + Lighthouse audit · swipess.app"
+          subtitle="Live web vitals + Lighthouse audit · swipess.com"
           backTo="/admin/eventos"
           actions={
             <div className="flex items-center gap-2 text-xs text-muted-foreground">

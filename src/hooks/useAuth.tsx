@@ -293,7 +293,7 @@ export function AuthProvider({ children, authPromise }: { children: ReactNode, a
 
       const redirectUrl = typeof window !== 'undefined' && window.location?.origin
         ? window.location.origin
-        : 'https://swipess.lovable.app';
+        : 'https://swipess.com';
 
       const { data, error } = await supabase.auth.signUp({
         email,
