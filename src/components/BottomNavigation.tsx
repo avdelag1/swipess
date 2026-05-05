@@ -88,7 +88,7 @@ export const BottomNavigation = memo(({
   const { isLight } = useAppTheme();
   const hasCards = useDeckHasCards();
   // Theme rule:
-  //  - Dark theme (black filter): icons always WHITE.
+  //  - Dark theme (black filter): nav icons always WHITE everywhere.
   //  - Light theme (white filter): WHITE on dashboard (over photos),
   //    BLACK on the rest of the pages.
   const navBase = !isLight || hasCards ? '#FFFFFF' : '#0A0A0A';
