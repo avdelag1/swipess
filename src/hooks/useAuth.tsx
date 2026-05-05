@@ -29,6 +29,36 @@ export const AuthContext = authGlobal.__SWIPESS_AUTH_CONTEXT__ ?? (
   authGlobal.__SWIPESS_AUTH_CONTEXT__ = createContext<AuthContextType | undefined>(undefined)
 );
 
+function readCachedAuthSession(): Session | null {
+  if (typeof window === 'undefined' || !window.localStorage) return null;
+
+  try {
+    const authKeys = Object.keys(window.localStorage).filter(
+      (key) => key.startsWith('sb-') && key.endsWith('-auth-token')
+    );
+
+    for (const key of authKeys) {
+      const raw = window.localStorage.getItem(key);
+      if (!raw) continue;
+
+      const parsed = JSON.parse(raw);
+      const candidate = parsed?.currentSession ?? parsed;
+      const hasUsableShape = candidate?.access_token && candidate?.refresh_token && candidate?.user?.id;
+      if (!hasUsableShape) continue;
+
+      const expiresAt = Number(candidate.expires_at ?? 0);
+      const nowSeconds = Math.floor(Date.now() / 1000);
+      if (expiresAt && expiresAt < nowSeconds - 60 * 60 * 24) continue;
+
+      return candidate as Session;
+    }
+  } catch (error) {
+    logger.warn('[Auth] Cached session read failed:', error);
+  }
+
+  return null;
+}
+
 export function AuthProvider({ children, authPromise }: { children: ReactNode, authPromise?: Promise<any> }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
