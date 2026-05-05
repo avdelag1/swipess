@@ -8,7 +8,8 @@ import {
 } from './SwipeConstants';
 import { PokerCategoryCard } from './PokerCategoryCard';
 import { VapIdCardModal } from '../VapIdCardModal';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { deckFadeVariants } from '@/utils/modernAnimations';
 import type { QuickFilterCategory } from '@/types/filters';
 
 const preloadedImages = new Set<string>();
@@ -65,47 +66,53 @@ export const SwipeAllDashboard = memo(({ setCategories }: SwipeAllDashboardProps
   }, []);
 
   return (
-    <div
-      className="relative flex-1 flex flex-col items-center justify-start bg-transparent"
-      style={{ paddingTop: 'var(--top-bar-height, 72px)', paddingBottom: 'var(--bottom-nav-height, 80px)' }}
-    >
-      {/* 🛸 Swipess CENTERED STACK v14.0 */}
+    <AnimatePresence mode="popLayout">
       <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="relative flex-none flex items-center justify-center transition-all"
-        style={{
-          height: 'calc(100dvh - var(--top-bar-height, 72px) - var(--bottom-nav-height, 80px) - 8px)',
-          width: 'calc((100dvh - var(--top-bar-height, 72px) - var(--bottom-nav-height, 80px) - 8px) * 0.66667)',
-          maxWidth: '100%',
-          aspectRatio: '520 / 780',
-          flex: 'none'
-        }}
+        key="client-cyclic-dashboard"
+        variants={deckFadeVariants}
+        initial="initial"
+        animate="animate"
+        exit="exit"
+        className="relative flex-1 flex flex-col items-center justify-start bg-transparent"
+        style={{ paddingTop: 'var(--top-bar-height, 72px)', paddingBottom: 'var(--bottom-nav-height, 80px)' }}
       >
-      {[...cards].reverse().map((card, reversedIdx) => {
-          const index = cards.length - 1 - reversedIdx;
-          const isTop = index === 0;
-          return (
-            <PokerCategoryCard
-              key={card.id}
-              card={card}
-              index={index}
-              total={cards.length}
-              isTop={isTop}
-              isCollapsed={false}
-              onCycle={handleCycle}
-              onSelect={handleSelect}
-              onBringToFront={handleBringToFront}
-            />
-          );
-        })}
-      </motion.div>
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="relative flex-none flex items-center justify-center transition-all"
+          style={{
+            height: 'calc(100dvh - var(--top-bar-height, 72px) - var(--bottom-nav-height, 80px) - 8px)',
+            width: 'calc((100dvh - var(--top-bar-height, 72px) - var(--bottom-nav-height, 80px) - 8px) * 0.66667)',
+            maxWidth: '100%',
+            aspectRatio: '520 / 780',
+            flex: 'none'
+          }}
+        >
+          {[...cards].reverse().map((card, reversedIdx) => {
+            const index = cards.length - 1 - reversedIdx;
+            const isTop = index === 0;
+            return (
+              <PokerCategoryCard
+                key={card.id}
+                card={card}
+                index={index}
+                total={cards.length}
+                isTop={isTop}
+                isCollapsed={false}
+                onCycle={handleCycle}
+                onSelect={handleSelect}
+                onBringToFront={handleBringToFront}
+              />
+            );
+          })}
+        </motion.div>
 
-      <VapIdCardModal 
-        isOpen={showVapModal}
-        onClose={() => setShowVapModal(false)}
-      />
-    </div>
+        <VapIdCardModal
+          isOpen={showVapModal}
+          onClose={() => setShowVapModal(false)}
+        />
+      </motion.div>
+    </AnimatePresence>
   );
 });
 
