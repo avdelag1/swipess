@@ -86,12 +86,12 @@ export const BottomNavigation = memo(({
   const { unreadCount: _unreadCount } = useUnreadMessageCount();
   const { unreadCount: _unreadNotifCount } = useUnreadNotifications();
   const { isLight } = useAppTheme();
-  const hasCards = useDeckHasCards();
+  const isDashboardRoute = /^\/(client|owner|admin)\/dashboard\/?/.test(location.pathname);
   // Theme rule:
   //  - Dark theme (black filter): nav icons always WHITE everywhere.
   //  - Light theme (white filter): WHITE on dashboard (over photos),
-  //    BLACK on the rest of the pages.
-  const navBase = !isLight || hasCards ? '#FFFFFF' : '#0A0A0A';
+  //    BLACK on every other page.
+  const navBase = !isLight || isDashboardRoute ? '#FFFFFF' : '#0A0A0A';
 
   const { t } = useTranslation();
 
@@ -384,7 +384,7 @@ export const BottomNavigation = memo(({
                     style={{
                       width: isTablet ? ICON_SIZE_TABLET : (isNarrow ? 16 : ICON_SIZE),
                       height: isTablet ? ICON_SIZE_TABLET : (isNarrow ? 16 : ICON_SIZE),
-                      color: active ? '#E4007C' : (!isLight || hasCards ? 'rgba(255,255,255,0.92)' : 'rgba(0,0,0,0.78)'),
+                      color: active ? '#E4007C' : (!isLight || isDashboardRoute ? 'rgba(255,255,255,0.92)' : 'rgba(0,0,0,0.78)'),
                       fill: 'none',
                       strokeWidth: active ? 2 : 1.7,
                       transition: 'color 160ms ease-out, stroke-width 160ms ease-out',
@@ -400,7 +400,7 @@ export const BottomNavigation = memo(({
                         isTablet ? 'text-[11px]' : 'text-[8px]',
                       )}
                       style={{
-                        color: active ? '#E4007C' : (!isLight || hasCards ? 'rgba(255,255,255,0.92)' : 'rgba(0,0,0,0.78)'),
+                        color: active ? '#E4007C' : (!isLight || isDashboardRoute ? 'rgba(255,255,255,0.92)' : 'rgba(0,0,0,0.78)'),
                         transition: 'color 160ms ease-out',
                         zIndex: 1,
                       }}
