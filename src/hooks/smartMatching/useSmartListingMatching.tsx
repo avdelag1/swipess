@@ -422,22 +422,22 @@ export function useSmartListingMatching(
                     };
                 });
 
-                // 🚀 EMERGENCY DEMO FALLBACK: If results are very few, manifest high-fidelity demo cards
-                // This ensures the 'Wow' reaction even on a fresh database or for users far from Tulum.
-                if ((matchedResults.length < 5 || (page === 0 && matchedResults.length === 0)) && page === 0) {
-                    logger.info('[SmartMatching] Appending high-fidelity demo cards for testing');
-                    const existingDemoIds = new Set(matchedResults.map(r => r.id));
-                    
-                    // Filter demos by category if applicable, but ignore distance
+                // Real listings always first — sort by match score
+                const realResults = matchedResults.sort((a, b) => b.matchPercentage - a.matchPercentage);
+
+                // 🚀 DEMO FALLBACK: Append demo cards AFTER all real listings so testing
+                // shared links / real data is never obscured by mock content.
+                let finalResults = realResults;
+                if (page === 0 && realResults.length === 0) {
+                    const existingIds = new Set(realResults.map(r => r.id));
                     const filteredDemos = DEMO_LISTINGS.filter(l => {
-                        if (existingDemoIds.has(l.id)) return false;
+                        if (existingIds.has(l.id)) return false;
                         if (filters?.category && filters.category !== 'all') {
                             const normalized = normalizeCategoryName(filters.category);
                             return l.category === normalized;
                         }
                         return true;
                     });
-
                     const newDemos = filteredDemos.map(l => ({
                         ...l,
                         matchPercentage: 92 + Math.floor(Math.random() * 7),
@@ -445,10 +445,8 @@ export function useSmartListingMatching(
                         incompatibleReasons: [],
                         isDemo: true
                     }));
-                    matchedResults.push(...newDemos);
+                    finalResults = [...realResults, ...newDemos];
                 }
-
-                const finalResults = matchedResults.sort((a, b) => b.matchPercentage - a.matchPercentage);
 
                 // 🔥 SPEED OF LIGHT: PRE-WARM IMAGES IMMEDIATELY (Hardware-Aware)
                 runIdleTask(() => {
