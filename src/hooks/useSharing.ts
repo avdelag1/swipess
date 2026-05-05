@@ -2,7 +2,7 @@
 // never see preview/iframe hosts (e.g. id-preview--*.lovable.app) and links
 // don't carry third-party branding into WhatsApp / Instagram / Facebook.
 // Only swap to a custom domain — never to a preview/sandbox host.
-const PUBLIC_FALLBACK = 'https://swipess.lovable.app';
+const PUBLIC_FALLBACK = 'https://swipess.com';
 function getShareBaseUrl(): string {
   if (typeof window !== 'undefined' && window.location?.origin) {
     const origin = window.location.origin;
@@ -12,6 +12,7 @@ function getShareBaseUrl(): string {
       host.includes('lovableproject.com') ||
       host.includes('sandbox') ||
       host.endsWith('.lovable.dev') ||
+      host.endsWith('.lovable.app') ||
       host === 'localhost' ||
       host.startsWith('127.') ||
       host.startsWith('192.168.');
@@ -111,7 +112,7 @@ export function useIncrementShareClicks() {
 
 // Generate shareable URL - always use production domain with referral tracking
 export function generateShareUrl(params: ShareUrlParams): string {
-  const baseUrl = 'https://swipess.app';
+  const baseUrl = 'https://swipess.com';
   let url = baseUrl;
 
   if (params.listingId) {
