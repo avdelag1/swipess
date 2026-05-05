@@ -1,42 +1,53 @@
-## Backend cleanup plan
 
-You're fully connected to Supabase project `vplgtcguxujxwrgguxqq` — that's locked in correctly. But the backend has real gaps. Here's what I'll fix:
+# Public Share Preview — Full-Page Swipe Card Rebuild
 
-### 1. Create the missing `profile_views` table
-The client dashboard fires `GET /profile_views?...` on every load and gets a 404 (`relation does not exist`). I'll create the table with proper columns (`user_id`, `viewed_profile_id`, `view_type`, `action`, `created_at`), RLS policies (users can only read/insert their own views), and an index on `(user_id, view_type)`.
+When someone opens a shared link (`/listing/:id` or `/profile/:id`), the page currently has awkward floating header buttons, a clipped title, and a barely-visible "Sign In" button (per the screenshot). It needs to feel like the in-app swipe deck so first-time visitors instantly understand what Swipess is.
 
-### 2. Fix the empty `get_smart_listings` RPC
-The function returns `[]` even when real listings exist in the database. Root cause: it filters on profile fields (city/age/budget) that are `null` for new users. I'll rewrite it to:
-- Return all active listings when the client profile has no preferences yet
-- Exclude only listings the user already swiped left on
-- Order by recency + match score
-- Always return real data first (per your "real listings before mock" rule)
+## Goals
+1. Full-bleed cinematic page — no detached top bar with floating buttons, no white gap at top.
+2. Visual matches the in-app swipe card (same hero photo treatment, same gradient overlay, same typography).
+3. Two crystal-clear CTAs for guests: **Create Account** and **Sign In** — both fully visible with strong contrast.
+4. After auth, return user to the exact listing/profile they opened (already partially wired via `?returnTo=`).
+5. Rich link previews (OG image) pulled from the listing's first photo so when shared on WhatsApp / iMessage / social the actual listing photo shows up.
 
-### 3. Attach orphaned triggers
-Three trigger functions exist but are not wired up. I'll attach them:
-- `on_auth_user_created` → calls `handle_new_user()` after `auth.users` insert (auto-creates `profiles` + `user_roles` row)
-- `messages_update_conversation_last_message` → updates conversation timestamp on new message
-- `profiles_set_updated_at` + same on listings/conversations → keeps `updated_at` accurate
+## Changes
 
-### 4. Add missing indexes for hot queries
-From the network logs, these run constantly:
-- `likes` filtered by `user_id + target_type` → add composite index
-- `notifications` filtered by `user_id + is_read` → add composite index
-- `conversations` with `client_id OR owner_id = X` → add indexes on both
+### 1. `src/pages/PublicListingPreview.tsx` — full rewrite of the layout
+- Remove the floating top bar with three separate buttons (Back / Live Listing pill / Share+Save). Replace with one slim minimal top row: just a small back chevron (top-left) and a small share icon (top-right), ghost style, no boxed backgrounds.
+- Drop the standalone "LIVE LISTING" pill (it's noise).
+- Wrap the photo + info in a single swipe-card frame matching `SwipeCardPeek` styling: rounded-[36px], full-bleed image, gradient overlay from bottom, title + price + stats stacked at the bottom of the card itself (not a separate sheet).
+- Title: clamp to 2 lines, never overflow horizontally (`break-words`, `line-clamp-2`).
+- Below the card, two equally-weighted full-width buttons stacked:
+  - Primary: **Create Account** — solid white bg, black text, `h-14`, bold.
+  - Secondary: **Sign In** — solid `bg-white/10` with `border-white/20`, white text (currently it's pale gray on light gray = invisible).
+- If logged-in: single primary "Message Owner" button instead.
+- Keep image carousel tap zones but on the card itself.
 
-### 5. Client-side query dedup
-The `likes` and `notifications` queries fire 2–3× within seconds on dashboard load. I'll wrap them in TanStack Query with proper `staleTime: 30s` so React doesn't refetch on every render.
+### 2. `src/pages/PublicProfilePreview.tsx` — same treatment
+- Same layout: hero swipe-card with name/age/city overlay at bottom of card, two clear CTAs below.
+- Remove the inline "Sign In" pill in the top bar (duplicates the bottom CTA).
+- Lock teaser stays but compacted into the card footer.
 
-### 6. Run the Supabase linter
-After migrations, I'll run `supabase--linter` to catch any RLS gaps, missing policies, or security warnings introduced — and fix them in the same pass.
+### 3. Shared `PreviewSwipeCard` component (new)
+- Path: `src/components/preview/PreviewSwipeCard.tsx`
+- Renders a single read-only swipe-style card given `{ images, title, subtitle, price, stats, badges, footer }`.
+- Used by both pages above to guarantee identical visuals to the in-app deck.
 
-### What I will NOT touch
-- The locked Supabase project ref (`vplgtcguxujxwrgguxqq`) — stays as-is
-- `src/integrations/supabase/client.ts` — auto-generated, never edit
-- Auth flow, role architecture, profile schemas — already solid
-- Visual design / dashboard layout — purely backend work
+### 4. OG / link preview image
+- `SEO` component already accepts an `image` prop and both pages pass `images[0]`. Verify `index.html` doesn't override og:image with a static one (check `<meta property="og:image">` defaults).
+- Ensure `og:image:width` / `og:image:height` and `twitter:card="summary_large_image"` are set in `SEO` so WhatsApp/iMessage render a large preview tile.
+- No backend change needed — Supabase image URLs are public.
 
-### Risk
-Low. All migrations are additive (CREATE TABLE IF NOT EXISTS, CREATE TRIGGER, CREATE INDEX). The only function being modified is `get_smart_listings`, and the new version is strictly more permissive (returns more data, not less), so nothing currently working will break.
+### 5. Welcome / onboarding from a shared link
+- When a guest lands via shared link, `?returnTo=/listing/:id` is captured. Currently the bottom buttons send them to `/` which shows the auth/welcome screen. Verify `Index.tsx` reads `returnTo` and routes back to the listing after sign-in. If it doesn't, add it (one small change in `Index.tsx`).
 
-Approve and I'll execute all of this in one go.
+## Out of scope
+- No changes to the in-app dashboard or swipe deck.
+- No backend/RLS changes (listings table is already publicly readable for `is_active=true`).
+
+## Files touched
+- edit `src/pages/PublicListingPreview.tsx`
+- edit `src/pages/PublicProfilePreview.tsx`
+- create `src/components/preview/PreviewSwipeCard.tsx`
+- edit `src/components/SEO.tsx` (add `og:image:width/height`, twitter large card if missing)
+- edit `src/pages/Index.tsx` only if `returnTo` post-auth redirect isn't already wired
