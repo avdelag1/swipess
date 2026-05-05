@@ -196,23 +196,7 @@ export function useSwipeWithMatch(options?: SwipeWithMatchOptions) {
               (err: any) => logger.error('[useSwipeWithMatch] Failed to fetch owner profile for notification:', err)
             );
         } else {
-          // For left swipes (dislikes), use likes table with direction='dismiss'
-          const { error: dismissError } = await supabase
-            .from('likes')
-            .upsert({
-              user_id: user.id,
-              target_id: targetId,
-              target_type: targetType as 'listing' | 'profile',
-              direction: 'left'
-            }, {
-              onConflict: 'user_id,target_id,target_type',
-              ignoreDuplicates: false
-            });
-
-          if (dismissError) {
-            logger.error('Error saving dislike:', dismissError);
-            throw dismissError;
-          }
+          await applySoftDismiss(user.id, targetId, 'profile');
           like = { id: 'dismissed' };
         }
       } else {
@@ -271,23 +255,7 @@ export function useSwipeWithMatch(options?: SwipeWithMatchOptions) {
             }).catch(err => logger.error('[useSwipeWithMatch] Push to owner failed:', err));
           });
         } else {
-          // Client left swipe on listing - save dismissal using likes table
-          const { error: dismissError } = await supabase
-            .from('likes')
-            .upsert({
-              user_id: user.id,
-              target_id: targetId,
-              target_type: 'listing',
-              direction: 'left'
-            }, {
-              onConflict: 'user_id,target_id,target_type',
-              ignoreDuplicates: false
-            });
-
-          if (dismissError) {
-            logger.error('Error saving listing dislike:', dismissError);
-            throw dismissError;
-          }
+          await applySoftDismiss(user.id, targetId, 'listing');
           like = { id: 'dismissed' };
         }
       }
