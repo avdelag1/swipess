@@ -60,10 +60,11 @@ function readCachedAuthSession(): Session | null {
 }
 
 export function AuthProvider({ children, authPromise }: { children: ReactNode, authPromise?: Promise<any> }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [initialized, setInitialized] = useState(false); // TRUE after first auth check
+  const cachedSession = useMemo(() => readCachedAuthSession(), []);
+  const [user, setUser] = useState<User | null>(cachedSession?.user ?? null);
+  const [session, setSession] = useState<Session | null>(cachedSession);
+  const [loading, setLoading] = useState(!cachedSession);
+  const [initialized, setInitialized] = useState(!!cachedSession); // TRUE after first auth check
   const { navigate } = useAppNavigate();
   const queryClient = useQueryClient();
   const { createProfileIfMissing } = useProfileSetup();
@@ -94,7 +95,7 @@ export function AuthProvider({ children, authPromise }: { children: ReactNode, a
           new Promise((_, reject) => setTimeout(() => reject(new Error('Auth Timeout')), 10000))
         ])) as any;
         
-        const fetchedSession = result?.data?.session ?? null;
+        const fetchedSession = result?.data?.session ?? readCachedAuthSession();
         const error = result?.error;
 
 
@@ -114,6 +115,11 @@ export function AuthProvider({ children, authPromise }: { children: ReactNode, a
       } catch (error) {
         logger.error('[Auth] Failed to initialize auth:', error);
         if (isMounted) {
+          const fallbackSession = readCachedAuthSession();
+          if (fallbackSession) {
+            setSession(fallbackSession);
+            setUser(fallbackSession.user);
+          }
           setLoading(false);
           setInitialized(true); // Still mark as initialized even on error
         }
@@ -136,8 +142,9 @@ export function AuthProvider({ children, authPromise }: { children: ReactNode, a
         // SPEED OF LIGHT: TOKEN_REFRESHED should NEVER trigger loading or redirects
         // Just silently update the session/user
         if (event === 'TOKEN_REFRESHED') {
-          setSession(session);
-          setUser(session?.user ?? null);
+          const stableSession = session ?? readCachedAuthSession();
+          setSession(stableSession);
+          setUser(stableSession?.user ?? null);
           // Do NOT set loading, do NOT navigate, do NOT do anything else
           return;
         }
