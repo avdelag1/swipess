@@ -467,9 +467,9 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
                 onPointerDown={(e) => e.stopPropagation()}
                 onClick={(e) => { e.stopPropagation(); onShare(); }}
                 aria-label="Share listing"
-                className="w-10 h-10 rounded-full flex items-center justify-center bg-black/55 backdrop-blur-md border border-white/15 active:scale-95 transition-all duration-150 hover:bg-black/70 shadow-lg"
+                className="w-10 h-10 rounded-full flex items-center justify-center bg-transparent border-0 active:scale-95 transition-all duration-150"
               >
-                <Share2 className="w-4 h-4 text-white" strokeWidth={2.2} />
+                <Share2 className="w-[18px] h-[18px] text-white" strokeWidth={2.2} style={{ filter: 'drop-shadow(0 1px 3px rgba(0,0,0,0.55))' }} />
               </button>
             )}
             {onReport && (
@@ -478,9 +478,9 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
                 onPointerDown={(e) => e.stopPropagation()}
                 onClick={(e) => { e.stopPropagation(); onReport(); }}
                 aria-label="Report listing"
-                className="w-10 h-10 rounded-full flex items-center justify-center bg-black/55 backdrop-blur-md border border-white/15 active:scale-95 transition-all duration-150 hover:bg-black/70 shadow-lg"
+                className="w-10 h-10 rounded-full flex items-center justify-center bg-transparent border-0 active:scale-95 transition-all duration-150"
               >
-                <Flag className="w-4 h-4 text-white" strokeWidth={2.2} />
+                <Flag className="w-[18px] h-[18px] text-white" strokeWidth={2.2} style={{ filter: 'drop-shadow(0 1px 3px rgba(0,0,0,0.55))' }} />
               </button>
             )}
           </div>
