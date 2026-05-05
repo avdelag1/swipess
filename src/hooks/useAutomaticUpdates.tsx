@@ -207,23 +207,58 @@ export function useAutomaticUpdates() {
     // Run once on mount only — no focus polling
     checkUpdates();
 
-    // Listen for SW update events but only surface the banner, never auto-reload
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.ready.then((registration) => {
-        registration.addEventListener('updatefound', () => {
-          const newWorker = registration.installing;
-          if (newWorker) {
-            newWorker.addEventListener('statechange', () => {
-              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                if (sessionStorage.getItem('Swipess_update_seen') !== 'true') {
-                  _setUpdateInfo({ available: true, needsRefresh: true });
-                }
-              }
-            });
+    // Real-time sync: poll the SW + visibility/online triggers, surface banner
+    // when a new version is installed. Web app and PWA stay in lockstep.
+    if (!('serviceWorker' in navigator)) return;
+
+    let intervalId: ReturnType<typeof setInterval> | null = null;
+    let registration: ServiceWorkerRegistration | null = null;
+
+    const surfaceIfReady = (worker: ServiceWorker | null) => {
+      if (!worker) return;
+      const handle = () => {
+        if (worker.state === 'installed' && navigator.serviceWorker.controller) {
+          if (sessionStorage.getItem('Swipess_update_seen') !== 'true') {
+            _setUpdateInfo({ available: true, needsRefresh: true });
           }
-        });
+        }
+      };
+      worker.addEventListener('statechange', handle);
+      handle();
+    };
+
+    navigator.serviceWorker.ready.then((reg) => {
+      registration = reg;
+
+      // If a worker is already waiting (deploy happened while app was closed)
+      surfaceIfReady(reg.waiting);
+
+      reg.addEventListener('updatefound', () => {
+        surfaceIfReady(reg.installing);
       });
-    }
+
+      // Poll every 30s so PWAs pick up new web deployments quickly
+      const poll = () => reg.update().catch(() => {});
+      poll();
+      intervalId = setInterval(poll, 30_000);
+    });
+
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') {
+        registration?.update().catch(() => {});
+        checkUpdates();
+      }
+    };
+    const onOnline = () => registration?.update().catch(() => {});
+
+    document.addEventListener('visibilitychange', onVisible);
+    window.addEventListener('online', onOnline);
+
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+      document.removeEventListener('visibilitychange', onVisible);
+      window.removeEventListener('online', onOnline);
+    };
   }, [checkUpdates]);
 
   return {
