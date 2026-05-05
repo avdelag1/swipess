@@ -27,46 +27,34 @@ function isErrorWithMessage(err: unknown): err is { message: string; name?: stri
 }
 
 async function pingSupabase(): Promise<boolean> {
+  // First trust the browser: if the OS reports offline, we're offline.
+  if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+    logger.warn('[ConnectionHealth] navigator.onLine === false');
+    return false;
+  }
+
+  // Hit the Supabase auth health endpoint — no DB / RLS dependency.
+  const url = (import.meta as any).env?.VITE_SUPABASE_URL;
+  if (!url) return true; // Don't block if env is unavailable for any reason
+
   try {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), CHECK_TIMEOUT_MS);
-
-    // Use a lightweight query to verify the connection is alive
-    const { error } = await supabase
-      .from('profiles')
-      .select('id')
-      .limit(1)
-      .abortSignal(controller.signal);
-
+    const res = await fetch(`${url}/auth/v1/health`, {
+      method: 'GET',
+      cache: 'no-store',
+      signal: controller.signal,
+    });
     clearTimeout(timeoutId);
-
-    // PGRST116 = "not found" is fine — connection works
-    // 42P01 = table doesn't exist — connection works
-    // Any other error could mean connection issues, but we check the error type
-    if (error && error.message?.includes('abort')) {
-      logger.error('[ConnectionHealth] Request timed out');
-      return false;
-    }
-
-    return true;
+    // Any HTTP response (even 4xx) means the server is reachable
+    return !!res;
   } catch (err: unknown) {
-    if (!isErrorWithMessage(err)) {
-      logger.log('[ConnectionHealth] Supabase reachable (unknown error type)');
-      return true;
-    }
-
-    if (err.name === 'AbortError' || err.message.includes('abort')) {
+    if (isErrorWithMessage(err) && (err.name === 'AbortError' || err.message.includes('abort'))) {
       logger.error('[ConnectionHealth] Ping aborted (timeout)');
       return false;
     }
-    // Network error (fetch failed, CORS, etc.)
-    if (err.message.includes('fetch') || err.message.includes('network') || err.message.includes('Failed')) {
-      logger.error('[ConnectionHealth] Network error:', err.message);
-      return false;
-    }
-    // Any other Supabase error means the server IS reachable (project not paused)
-    logger.log('[ConnectionHealth] Supabase reachable (non-critical error):', err.message);
-    return true;
+    logger.error('[ConnectionHealth] Network unreachable:', err);
+    return false;
   }
 }
 
