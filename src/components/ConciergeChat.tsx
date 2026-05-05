@@ -156,14 +156,26 @@ const MessageBubble = memo(({ message, isUser, isSwipess, onCopy, onDelete, onTr
       onClick={() => { triggerHaptic('light'); setShowActions(!showActions); }}
     >
       <div className={cn(
+        "px-4 py-3 rounded-3xl",
         isUser 
-          ? (isSwipess ? 'bg-[#FF3D00] text-white rounded-br-md shadow-[0_10px_30px_rgba(255,61,0,0.3)]' : 'bg-primary text-primary-foreground rounded-br-md shadow-md')
-          : (isSwipess ? 'bg-white/[0.04] backdrop-blur-3xl border border-white/10 text-white rounded-bl-md' : 'bg-white border-black/[0.05] text-black rounded-bl-md shadow-sm')
+          ? 'bg-primary text-primary-foreground rounded-br-md shadow-[0_8px_24px_hsl(var(--primary)/0.35)]'
+          : (isSwipess
+              ? 'bg-white/[0.05] backdrop-blur-2xl border border-white/10 text-white rounded-bl-md'
+              : 'bg-card border border-border/60 text-foreground rounded-bl-md shadow-sm')
       )}>
         {isUser ? (
-          <span className="whitespace-pre-wrap">{message.content}</span>
+          <span className="whitespace-pre-wrap text-[15px] leading-relaxed">{message.content}</span>
         ) : (
-          <div className="prose prose-sm dark:prose-invert max-w-none prose-p:my-1 prose-ul:my-1 prose-li:my-0.5">
+          <div className={cn(
+            "prose prose-sm max-w-none",
+            "prose-p:my-1.5 prose-p:leading-relaxed prose-ul:my-1.5 prose-li:my-0.5",
+            "prose-headings:text-foreground prose-strong:text-foreground",
+            "prose-a:text-primary prose-a:no-underline hover:prose-a:underline",
+            "prose-code:text-primary prose-code:bg-primary/10 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded-md prose-code:before:content-none prose-code:after:content-none",
+            "prose-blockquote:border-l-primary prose-blockquote:text-muted-foreground",
+            "prose-hr:border-border/60",
+            isSwipess ? "prose-invert" : ""
+          )}>
             <ReactMarkdown>{cleanContent}</ReactMarkdown>
           </div>
         )}
@@ -188,7 +200,7 @@ const MessageBubble = memo(({ message, isUser, isSwipess, onCopy, onDelete, onTr
             <button
               key={path}
               onClick={(e) => { e.stopPropagation(); onNavigate(path); }}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-all"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold tracking-wide bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-all"
             >
               {NAV_LABELS[path] || path}
               <ArrowRight className="w-3 h-3" />
@@ -198,9 +210,9 @@ const MessageBubble = memo(({ message, isUser, isSwipess, onCopy, onDelete, onTr
             <button
               key={idx}
               onClick={(e) => { e.stopPropagation(); onDraft?.(draft.category, draft.data); }}
-              className="flex items-center gap-2 px-4 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 hover:bg-cyan-500/20 shadow-[0_0_20px_rgba(34,211,238,0.1)] transition-all animate-pulse"
+              className="flex items-center gap-2 px-3 py-1.5 rounded-full text-[11px] font-bold tracking-wide bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-all"
             >
-              <Plus className="w-4 h-4" />
+              <Plus className="w-3.5 h-3.5" />
               Review {draft.category} Draft
               <Sparkles className="w-3 h-3" />
             </button>
@@ -208,9 +220,9 @@ const MessageBubble = memo(({ message, isUser, isSwipess, onCopy, onDelete, onTr
           {filterAction && (
             <button
               onClick={(e) => { e.stopPropagation(); onFilter?.(filterAction); }}
-              className="flex items-center gap-2 px-4 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest bg-[#FF3D00]/10 text-[#FF3D00] border border-[#FF3D00]/30 hover:bg-[#FF3D00]/20 shadow-[0_0_20px_rgba(255,61,0,0.1)] transition-all"
+              className="flex items-center gap-2 px-3 py-1.5 rounded-full text-[11px] font-bold tracking-wide bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-all"
             >
-              <Zap className="w-4 h-4" />
+              <Zap className="w-3.5 h-3.5" />
               Applying Search Filters
               <RefreshCw className="w-3 h-3 animate-spin" />
             </button>
