@@ -28,12 +28,12 @@ export function SwipeDeckBackButton() {
         navigate(`/${activeMode}/dashboard`);
       }}
       aria-label="Back to dashboard"
-      className={`absolute left-3 z-[60] flex items-center justify-center w-11 h-11 bg-transparent border-0 shadow-none transition-all active:scale-90 pointer-events-auto ${isLight ? 'text-black' : 'text-white'}`}
+      className="absolute left-3 z-[60] flex items-center justify-center w-11 h-11 bg-transparent border-0 shadow-none text-foreground transition-all active:scale-90 pointer-events-auto"
       style={{
         top: 'calc(var(--safe-top, 0px) + 12px)',
         backgroundColor: 'transparent',
         boxShadow: 'none',
-        filter: isLight ? 'drop-shadow(0 1px 1px rgba(255,255,255,0.95)) drop-shadow(0 2px 6px rgba(0,0,0,0.42))' : 'drop-shadow(0 2px 7px rgba(0,0,0,0.9))',
+        filter: isLight ? 'drop-shadow(0 1px 1px hsl(var(--background) / 0.95)) drop-shadow(0 2px 6px hsl(var(--foreground) / 0.42))' : 'drop-shadow(0 2px 7px hsl(var(--background) / 0.9))',
       }}
     >
       <ChevronLeft className="w-8 h-8" strokeWidth={2.35} />
