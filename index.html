@@ -106,13 +106,12 @@
   <!-- Speculation rules removed — prefetching handled by routePrefetcher.ts -->
   <style>
     .static-splash { position: fixed; inset: 0; background: #000; z-index: 99999; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 28px; }
-    .static-splash.fade-out { opacity: 0; visibility: hidden; transition: opacity 0.5s cubic-bezier(0.22,1,0.36,1), visibility 0.5s; }
+    .static-splash.fade-out { opacity: 0; visibility: hidden; transition: opacity 0.65s cubic-bezier(0.22,1,0.36,1), visibility 0.5s; }
     .splash-content { display: flex; flex-direction: column; align-items: center; animation: splashBreathe 2.6s ease-in-out infinite; will-change: transform; }
     @keyframes splashBreathe { 0%,100% { transform: scale(1); } 50% { transform: scale(1.025); } }
     .splash-logo { height: 52px; width: auto; opacity: 1; filter: drop-shadow(0 0 24px rgba(255,255,255,0.18)); contain: content; }
-    .splash-bar { position: relative; width: 120px; height: 2px; border-radius: 999px; background: rgba(255,255,255,0.08); overflow: hidden; }
-    .splash-bar::after { content: ''; position: absolute; top: 0; left: -40%; width: 40%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.85), transparent); animation: splashSlide 1.4s ease-in-out infinite; }
-    @keyframes splashSlide { 0% { left: -40%; } 100% { left: 100%; } }
+    .splash-dot { width: 6px; height: 6px; border-radius: 999px; background: rgba(255,255,255,0.55); animation: splashDot 1.6s ease-in-out infinite; }
+    @keyframes splashDot { 0%,100% { opacity: 0.25; transform: scale(0.85); } 50% { opacity: 0.85; transform: scale(1); } }
   </style>
 </head>
 
@@ -121,7 +120,7 @@
     <div class="splash-content">
       <img id="splash-logo" class="splash-logo" src="/icons/Swipess-wordmark-white.png" alt="Swipess" />
     </div>
-    <div class="splash-bar" aria-hidden="true"></div>
+    <div class="splash-dot" aria-hidden="true"></div>
   </div>
   <div id="root"></div>
   <script type="module" src="/src/main.tsx" fetchpriority="high"></script>
