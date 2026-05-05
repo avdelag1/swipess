@@ -847,9 +847,9 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                          placeholder={isListening ? "Listening... Speak now" : "Inquire for discovery..."}
                          rows={1}
                           className={cn(
-                            "w-full bg-transparent border-none outline-none focus:ring-0 py-4 pl-2 pr-5 text-sm resize-none custom-scrollbar min-h-[56px] max-h-32 leading-6 transition-all self-center",
+                            "w-full bg-transparent border-none outline-none focus:ring-0 py-4 pl-2 pr-5 text-[15px] resize-none custom-scrollbar min-h-[52px] max-h-32 leading-6 transition-all self-center font-medium",
                             isLight && !isSwipess
-                              ? "text-foreground placeholder:text-foreground/45"
+                              ? "text-foreground placeholder:text-muted-foreground"
                               : "text-white placeholder:text-white/55",
                             isListening && "text-primary placeholder:text-primary/50"
                           )}
