@@ -90,10 +90,9 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [photoDirection, setPhotoDirection] = useState<'left' | 'right'>('right');
-  const floatingIconClass = isLight ? 'text-black' : 'text-white';
   const floatingIconFilter = isLight
-    ? 'drop-shadow(0 1px 1px rgba(255,255,255,0.95)) drop-shadow(0 2px 6px rgba(0,0,0,0.42))'
-    : 'drop-shadow(0 2px 7px rgba(0,0,0,0.9))';
+    ? 'drop-shadow(0 1px 1px hsl(var(--background) / 0.95)) drop-shadow(0 2px 6px hsl(var(--foreground) / 0.42))'
+    : 'drop-shadow(0 2px 7px hsl(var(--background) / 0.9))';
 
   const images = useMemo(() => {
     let result: string[] = [];
@@ -475,7 +474,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
                 className="w-12 h-12 flex items-center justify-center bg-transparent border-0 shadow-none active:scale-90 transition-all duration-150"
                 style={{ backgroundColor: 'transparent', boxShadow: 'none' }}
               >
-                <Share2 className={`w-7 h-7 ${floatingIconClass}`} strokeWidth={2.35} style={{ filter: floatingIconFilter }} />
+                <Share2 className="w-7 h-7 text-foreground" strokeWidth={2.35} style={{ filter: floatingIconFilter }} />
               </button>
             )}
             {onReport && (
@@ -488,7 +487,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
                 className="w-12 h-12 flex items-center justify-center bg-transparent border-0 shadow-none active:scale-90 transition-all duration-150"
                 style={{ backgroundColor: 'transparent', boxShadow: 'none' }}
               >
-                <Flag className={`w-7 h-7 ${floatingIconClass}`} strokeWidth={2.35} style={{ filter: floatingIconFilter }} />
+                <Flag className="w-7 h-7 text-foreground" strokeWidth={2.35} style={{ filter: floatingIconFilter }} />
               </button>
             )}
           </div>
