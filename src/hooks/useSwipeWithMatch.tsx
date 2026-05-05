@@ -4,6 +4,54 @@ import { appToast } from '@/utils/appNotification';
 import { useAuth } from '@/hooks/useAuth';
 import { logger } from '@/utils/prodLogger';
 
+const COOLDOWN_HOURS = 24;
+
+/**
+ * Soft-dismiss with 24h cooldown.
+ * - First left-swipe: cooldown_until = now + 24h, dismiss_count = 1
+ * - Second left-swipe (after the card came back): cooldown_until = NULL (permanent)
+ */
+async function applySoftDismiss(
+  userId: string,
+  targetId: string,
+  targetType: 'listing' | 'profile'
+) {
+  const { data: existing } = await supabase
+    .from('likes')
+    .select('dismiss_count')
+    .eq('user_id', userId)
+    .eq('target_id', targetId)
+    .eq('target_type', targetType)
+    .maybeSingle();
+
+  const prevCount = (existing as any)?.dismiss_count ?? 0;
+  const nextCount = prevCount + 1;
+  const cooldownUntil =
+    nextCount >= 2
+      ? null
+      : new Date(Date.now() + COOLDOWN_HOURS * 60 * 60 * 1000).toISOString();
+
+  const { error } = await supabase
+    .from('likes')
+    .upsert(
+      {
+        user_id: userId,
+        target_id: targetId,
+        target_type: targetType,
+        direction: 'left',
+        dismiss_count: nextCount,
+        dismissed_at: new Date().toISOString(),
+        cooldown_until: cooldownUntil,
+      },
+      { onConflict: 'user_id,target_id,target_type', ignoreDuplicates: false }
+    );
+
+  if (error) {
+    logger.error('[useSwipeWithMatch] Soft-dismiss failed:', error);
+    throw error;
+  }
+}
+
 interface SwipeWithMatchOptions {
   onMatch?: (clientProfile: any, ownerProfile: any) => void;
 }
@@ -196,23 +244,7 @@ export function useSwipeWithMatch(options?: SwipeWithMatchOptions) {
               (err: any) => logger.error('[useSwipeWithMatch] Failed to fetch owner profile for notification:', err)
             );
         } else {
-          // For left swipes (dislikes), use likes table with direction='dismiss'
-          const { error: dismissError } = await supabase
-            .from('likes')
-            .upsert({
-              user_id: user.id,
-              target_id: targetId,
-              target_type: targetType as 'listing' | 'profile',
-              direction: 'left'
-            }, {
-              onConflict: 'user_id,target_id,target_type',
-              ignoreDuplicates: false
-            });
-
-          if (dismissError) {
-            logger.error('Error saving dislike:', dismissError);
-            throw dismissError;
-          }
+          await applySoftDismiss(user.id, targetId, 'profile');
           like = { id: 'dismissed' };
         }
       } else {
@@ -271,23 +303,7 @@ export function useSwipeWithMatch(options?: SwipeWithMatchOptions) {
             }).catch(err => logger.error('[useSwipeWithMatch] Push to owner failed:', err));
           });
         } else {
-          // Client left swipe on listing - save dismissal using likes table
-          const { error: dismissError } = await supabase
-            .from('likes')
-            .upsert({
-              user_id: user.id,
-              target_id: targetId,
-              target_type: 'listing',
-              direction: 'left'
-            }, {
-              onConflict: 'user_id,target_id,target_type',
-              ignoreDuplicates: false
-            });
-
-          if (dismissError) {
-            logger.error('Error saving listing dislike:', dismissError);
-            throw dismissError;
-          }
+          await applySoftDismiss(user.id, targetId, 'listing');
           like = { id: 'dismissed' };
         }
       }

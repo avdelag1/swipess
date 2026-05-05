@@ -14,7 +14,7 @@ interface NotificationBarProps {
   onNotificationClick: (notif: Notification) => void;
 }
 
-export const NotificationBar = memo(function NotificationBar({ notifications, onDismiss, onMarkAllRead: _onMarkAllRead, onNotificationClick }: NotificationBarProps) {
+export const NotificationBar = memo(function NotificationBar({ notifications, onDismiss, onMarkAllRead, onNotificationClick }: NotificationBarProps) {
   const { theme } = useAppTheme();
   const isLight = theme === 'light';
   const [current, setCurrent] = useState<Notification | null>(null);
@@ -196,6 +196,24 @@ export const NotificationBar = memo(function NotificationBar({ notifications, on
                 </p>
               </div>
 
+              {/* Dismiss-all button: only visible when more than one unread queued */}
+              {unreadCount > 1 && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onMarkAllRead();
+                    startDismiss('right');
+                  }}
+                  className="flex-shrink-0 h-9 px-3 rounded-full flex items-center justify-center text-[11px] font-bold transition-all active:scale-90"
+                  style={{
+                    background: isLight ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.12)',
+                    color: isLight ? 'rgba(0,0,0,0.65)' : 'rgba(255,255,255,0.75)',
+                  }}
+                  aria-label="Dismiss all"
+                >
+                  Clear all
+                </button>
+              )}
               {/* Dismiss button — ENLARGED TOUCH TARGET */}
               <button
                 onClick={(e) => { e.stopPropagation(); startDismiss('right'); }}

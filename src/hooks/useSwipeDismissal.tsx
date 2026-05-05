@@ -34,10 +34,10 @@ export function useSwipeDismissal(targetType: DismissalTargetType) {
       try {
         // Query likes table for left swipes (dismissals)
         const dbTargetType = targetType === 'client' ? 'profile' : 'listing';
-        
+
         const { data, error } = await supabase
           .from('likes')
-          .select('target_id')
+          .select('target_id, cooldown_until')
           .eq('user_id', user.id)
           .eq('target_type', dbTargetType)
           .eq('direction', 'left');
@@ -47,8 +47,16 @@ export function useSwipeDismissal(targetType: DismissalTargetType) {
           return [];
         }
 
-        // Extract target_ids from result
-        const ids = (data || []).map((item) => item.target_id);
+        // A row counts as "currently dismissed" if cooldown_until is NULL
+        // (permanent) or still in the future.
+        const now = Date.now();
+        const ids = (data || [])
+          .filter((item: any) => {
+            const cd = item.cooldown_until;
+            if (cd === null || cd === undefined) return true; // permanent
+            return new Date(cd).getTime() > now;
+          })
+          .map((item: any) => item.target_id);
         logger.info(`[useSwipeDismissal] Loaded ${ids.length} active ${targetType} dismissals`);
         return ids;
       } catch (error) {

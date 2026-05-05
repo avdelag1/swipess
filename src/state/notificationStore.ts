@@ -33,9 +33,19 @@ export const useNotificationStore = create<NotificationState>((set) => ({
   
   addNotification: (notification) => set((state) => {
     const id = notification.id || Math.random().toString(36).substring(2, 9);
-    
-    // 🛡️ DEDUPLICATION: Don't add if already exists
+
+    // 🛡️ DEDUPLICATION: Don't add if already exists by id
     if (state.notifications.some(n => n.id === id)) return state;
+
+    // 🛡️ Soft dedup: same (type + relatedUserId + message) within 10s window
+    const now = Date.now();
+    const dupRecent = state.notifications.some(n =>
+      n.type === notification.type &&
+      n.message === (notification.message || '') &&
+      (n.relatedUserId || '') === (notification.relatedUserId || '') &&
+      now - new Date(n.timestamp).getTime() < 10_000
+    );
+    if (dupRecent) return state;
 
     const newNotif: Notification = {
       id,
@@ -46,9 +56,9 @@ export const useNotificationStore = create<NotificationState>((set) => ({
       read: false,
       ...notification
     } as Notification;
-    
+
     return {
-      notifications: [newNotif, ...state.notifications].slice(0, 50)
+      notifications: [newNotif, ...state.notifications].slice(0, 20)
     };
   }),
   
