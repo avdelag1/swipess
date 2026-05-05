@@ -37,10 +37,10 @@ interface SwipeActionButtonBarProps {
 const ENTRY_SPRING = { type: 'spring' as const, stiffness: 340, damping: 26, mass: 0.7 } as const;
 
 // ── DIMENSIONS ────────────────────────────────────────────────────────────────
-const LARGE_CSS = 'clamp(68px, 18vw, 78px)';
-const SMALL_CSS = 'clamp(42px, 11vw, 50px)';
-const LARGE_ICON = 38;
-const SMALL_ICON = 22;
+const LARGE_CSS = 'clamp(52px, 14vw, 60px)';
+const SMALL_CSS = 'clamp(36px, 9.5vw, 42px)';
+const LARGE_ICON = 30;
+const SMALL_ICON = 20;
 const TAP_SCALE = 0.92;
 
 // ── VARIANT CONFIGS ───────────────────────────────────────────────────────────
@@ -147,6 +147,7 @@ const ActionButton = memo(forwardRef<HTMLButtonElement, any>(function ActionButt
       style={{
         width: btnSizeCss,
         height: btnSizeCss,
+        borderRadius: '50%',
         transform: 'translateZ(0)',
         opacity: disabled ? 0.35 : 1,
         cursor: disabled ? 'not-allowed' : 'pointer',
@@ -192,7 +193,7 @@ export const SwipeActionButtonBar = memo(({
   const { isLight } = useAppTheme();
 
   return (
-    <div className={`mx-auto flex w-auto max-w-[96vw] items-center justify-center gap-0.5 sm:gap-1 pointer-events-auto overflow-visible -mt-6 ${className}`}>
+    <div className={`mx-auto flex w-auto max-w-[96vw] items-center justify-center gap-0 pointer-events-auto overflow-visible -mt-6 ${className}`}>
       <AnimatePresence mode="popLayout" initial={false}>
         {onUndo && (
           <ActionButton
