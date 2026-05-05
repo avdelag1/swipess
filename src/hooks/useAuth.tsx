@@ -355,6 +355,13 @@ export function AuthProvider({ children, authPromise }: { children: ReactNode, a
 
         appToast.success("Account Created!", "Loading your dashboard...");
 
+        try {
+          const { useFilterStore } = await import('@/state/filterStore');
+          useFilterStore.getState().setCategories([]);
+          useFilterStore.getState().setActiveCategory(null);
+          useFilterStore.getState().setOwnerPhase('cards');
+        } catch (_e) { /* noop */ }
+
         navigate(targetPath, { replace: true });
       }
 
@@ -402,6 +409,15 @@ export function AuthProvider({ children, authPromise }: { children: ReactNode, a
         queryClient.removeQueries({ queryKey: ['message_activations'] });
         queryClient.removeQueries({ queryKey: ['client-profile'] });
         queryClient.removeQueries({ queryKey: ['owner-profile'] });
+
+        // Land users on the dashboard picking phase (no swipe deck) by
+        // clearing any persisted quick-filter categories from a prior session.
+        try {
+          const { useFilterStore } = await import('@/state/filterStore');
+          useFilterStore.getState().setCategories([]);
+          useFilterStore.getState().setActiveCategory(null);
+          useFilterStore.getState().setOwnerPhase('cards');
+        } catch (_e) { /* noop */ }
 
         // Quick role check to prevent dashboard flash (max 2 seconds)
         let actualRole: 'client' | 'owner' = role;
