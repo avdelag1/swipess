@@ -903,7 +903,10 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
               >
                 <SwipeExhaustedState
                   radiusKm={radiusKm}
-                  onRadiusChange={setRadiusKm as any}
+                  onRadiusChange={((km: number) => {
+                    setRadiusKm(km);
+                    if (!userLatitude || !userLongitude) detectLocation();
+                  }) as any}
                   onDetectLocation={detectLocation}
                   detecting={locationDetecting}
                   detected={locationDetected}
