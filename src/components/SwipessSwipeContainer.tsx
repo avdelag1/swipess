@@ -48,6 +48,7 @@ import { DirectMessageDialog } from './DirectMessageDialog';
 import { isDirectMessagingListing } from '@/utils/directMessaging';
 import { useQueryClient } from '@tanstack/react-query';
 import { SwipeAllDashboard } from './swipe/SwipeAllDashboard';
+import { SwipeDeckBackButton } from './swipe/SwipeDeckBackButton';
 
 import { ReportDialog } from './ReportDialog';
 
