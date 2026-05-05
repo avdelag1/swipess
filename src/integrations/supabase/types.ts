@@ -2704,6 +2704,111 @@ export type Database = {
           user_id: string
         }[]
       }
+      get_smart_listings: {
+        Args: {
+          p_category?: string
+          p_limit?: number
+          p_offset?: number
+          p_user_id: string
+        }
+        Returns: {
+          address: string | null
+          amenities: Json | null
+          available_from: string | null
+          available_to: string | null
+          background_check_verified: boolean | null
+          bathrooms: number | null
+          baths: number | null
+          battery_range: number | null
+          bedrooms: number | null
+          beds: number | null
+          bicycle_type: string | null
+          brake_type: string | null
+          category: string
+          certifications: Json | null
+          city: string | null
+          country: string | null
+          created_at: string
+          currency: string | null
+          custom_service_name: string | null
+          days_available: Json | null
+          description: string | null
+          electric_assist: boolean | null
+          engine_cc: number | null
+          experience_level: string | null
+          experience_years: number | null
+          frame_material: string | null
+          frame_size: string | null
+          fuel_type: string | null
+          furnished: boolean | null
+          has_abs: boolean | null
+          has_esc: boolean | null
+          has_heated_grips: boolean | null
+          has_luggage_rack: boolean | null
+          has_traction_control: boolean | null
+          house_rules: string | null
+          id: string
+          image_url: string | null
+          images: Json | null
+          includes_basket: boolean | null
+          includes_gear: boolean | null
+          includes_helmet: boolean | null
+          includes_lights: boolean | null
+          includes_lock: boolean | null
+          includes_pump: boolean | null
+          insurance_verified: boolean | null
+          is_active: boolean | null
+          latitude: number | null
+          listing_type: string | null
+          location: string
+          location_type: Json | null
+          longitude: number | null
+          mileage: number | null
+          minimum_booking_hours: number | null
+          mode: string | null
+          motorcycle_type: string | null
+          neighborhood: string | null
+          number_of_gears: number | null
+          offers_emergency_service: boolean | null
+          owner_id: string | null
+          pet_friendly: boolean | null
+          price: number
+          pricing_unit: string | null
+          property_type: string | null
+          rental_duration_type: string | null
+          rental_rates: Json | null
+          schedule_type: Json | null
+          service_category: string | null
+          service_radius_km: number | null
+          services_included: Json | null
+          skills: Json | null
+          square_footage: number | null
+          state: string | null
+          status: string | null
+          suspension_type: string | null
+          time_slots_available: Json | null
+          title: string
+          tools_equipment: Json | null
+          transmission: string | null
+          updated_at: string
+          user_id: string
+          vehicle_brand: string | null
+          vehicle_condition: string | null
+          vehicle_model: string | null
+          vehicle_type: string | null
+          video_url: string | null
+          views: number | null
+          wheel_size: string | null
+          work_type: Json | null
+          year: number | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "listings"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
