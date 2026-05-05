@@ -11,6 +11,7 @@ export type OwnerProfile = {
   contact_email?: string | null;
   contact_phone?: string | null;
   profile_images?: string[] | null;
+  video_url?: string | null;
   verified_owner?: boolean;
   service_offerings?: string[] | null;
 };
