@@ -23,7 +23,7 @@ const SwipessHud = lazy(() => import('./SwipessHud').then(m => ({ default: m.Swi
 const VapIdCardModal = lazy(() => import('./VapIdCardModal').then(m => ({ default: m.VapIdCardModal })));
 const GlobalDialogs = lazy(() => import('./GlobalDialogs').then(m => ({ default: m.GlobalDialogs })));
 import { ChromeSummonZones } from './swipe/ChromeSummonZones';
-import { resetChrome } from '@/hooks/useChromeReveal';
+import { resetChrome, useChromeReveal } from '@/hooks/useChromeReveal';
 
 
 const NotificationSystem = lazy(() =>
@@ -49,11 +49,16 @@ export function AppLayout({ children }: AppLayoutProps) {
   const modalStore = useModalStore();
   const { showAIChat, showAIListing } = modalStore;
   const { activeMode } = useActiveMode();
+  const { isChromeVisible } = useChromeReveal();
   
   const isSwipeDashboard = useMemo(() => {
     const path = location.pathname;
     return path.startsWith('/client/dashboard') || path.startsWith('/owner/dashboard');
   }, [location.pathname]);
+
+  // On swipe dashboards, floating buttons (Voice, Radio) follow the chrome
+  // reveal state so left/right edge taps don't accidentally trigger them.
+  const hideFloatingForSwipe = isSwipeDashboard && !isChromeVisible;
 
   // When leaving (or entering) the swipe dashboard, reset chrome state.
   useEffect(() => {
@@ -213,14 +218,14 @@ export function AppLayout({ children }: AppLayoutProps) {
       {showAppChrome && isSwipeDashboard && !showAIChat && <ChromeSummonZones />}
 
       {/* 📻 CONNECTED RADIO: Floating player bubble - Hidden on radio/full-screen routes */}
-      {showAppChrome && !isFullScreen && (
+      {showAppChrome && !isFullScreen && !hideFloatingForSwipe && (
         <Suspense fallback={null}>
           <RadioMiniPlayer />
         </Suspense>
       )}
       
       {/* 🤖 VOICE CONCIERGE: Left-side floating assistant */}
-      {showAppChrome && !isFullScreen && (
+      {showAppChrome && !isFullScreen && !hideFloatingForSwipe && (
         <Suspense fallback={null}>
           <VoiceConciergeButton />
         </Suspense>
