@@ -466,7 +466,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
                 className="w-12 h-12 flex items-center justify-center bg-transparent border-0 shadow-none active:scale-90 transition-all duration-150"
                 style={{ backgroundColor: 'transparent', boxShadow: 'none' }}
               >
-                <Share2 className="w-7 h-7 text-foreground" strokeWidth={2.35} style={{ filter: floatingIconFilter }} />
+                <Share2 className="w-7 h-7" strokeWidth={2.35} style={{ color: '#FFFFFF', filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.55))' }} />
               </button>
             )}
             {onReport && (
@@ -479,7 +479,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
                 className="w-12 h-12 flex items-center justify-center bg-transparent border-0 shadow-none active:scale-90 transition-all duration-150"
                 style={{ backgroundColor: 'transparent', boxShadow: 'none' }}
               >
-                <Flag className="w-7 h-7 text-foreground" strokeWidth={2.35} style={{ filter: floatingIconFilter }} />
+                <Flag className="w-7 h-7" strokeWidth={2.35} style={{ color: '#FFFFFF', filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.55))' }} />
               </button>
             )}
           </div>
