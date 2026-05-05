@@ -185,7 +185,7 @@ const MessageBubble = memo(({ message, isUser, isSwipess, onCopy, onDelete, onTr
              className={cn(
                "absolute bottom-2 right-2 w-7 h-7 rounded-lg flex items-center justify-center transition-all border",
                speakingMsgId === message.id && isSpeaking 
-                 ? "bg-cyan-500 border-cyan-400 text-white shadow-[0_0_10px_rgba(34,211,238,0.4)]" 
+                 ? "bg-primary border-primary text-primary-foreground shadow-[0_0_10px_hsl(var(--primary)/0.4)]" 
                  : isSwipess ? "bg-white/5 border-white/10 text-white/40 hover:text-white" : "bg-muted border-border text-muted-foreground hover:text-primary"
              )}
            >
@@ -833,11 +833,11 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                             onPointerDown={startListening}
                             onPointerUp={stopListening}
                             onPointerCancel={stopListening}
-                            className={cn("p-2.5 rounded-2xl transition-all relative group", isListening ? "bg-cyan-500 text-white shadow-[0_0_20px_rgba(34,211,238,0.5)] scale-110" : isLight && !isSwipess ? "text-foreground/80 hover:bg-foreground/10 hover:text-foreground" : "text-white/80 hover:bg-white/10")}
+                            className={cn("p-2.5 rounded-2xl transition-all relative group", isListening ? "bg-primary text-primary-foreground shadow-[0_0_20px_hsl(var(--primary)/0.4)] scale-110" : isLight && !isSwipess ? "text-foreground/80 hover:bg-foreground/10 hover:text-foreground" : "text-white/80 hover:bg-white/10")}
                           >
                              {isListening ? <Mic className="w-4 h-4 animate-pulse" strokeWidth={2.6} /> : <Mic className="w-4 h-4" strokeWidth={2.6} />}
                             {isListening && (
-                               <motion.div className="absolute -inset-1 rounded-2xl border border-cyan-400" animate={{ opacity: [0.5, 0, 0.5], scale: [1, 1.2, 1] }} transition={{ duration: 1.5, repeat: Infinity }} />
+                               <motion.div className="absolute -inset-1 rounded-2xl border border-primary" animate={{ opacity: [0.5, 0, 0.5], scale: [1, 1.2, 1] }} transition={{ duration: 1.5, repeat: Infinity }} />
                             )}
                          </button>
                        </div>
@@ -851,7 +851,7 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                             isLight && !isSwipess
                               ? "text-foreground placeholder:text-foreground/45"
                               : "text-white placeholder:text-white/55",
-                            isListening && "text-cyan-400 placeholder:text-cyan-400/50"
+                            isListening && "text-primary placeholder:text-primary/50"
                           )}
                          onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
                        />
