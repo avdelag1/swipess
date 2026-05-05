@@ -279,6 +279,7 @@ export type Database = {
           updated_at: string
           user_id: string
           verification_submitted_at: string | null
+          video_url: string | null
           work_schedule: string | null
           years_in_city: number | null
         }
@@ -316,6 +317,7 @@ export type Database = {
           updated_at?: string
           user_id: string
           verification_submitted_at?: string | null
+          video_url?: string | null
           work_schedule?: string | null
           years_in_city?: number | null
         }
@@ -353,6 +355,7 @@ export type Database = {
           updated_at?: string
           user_id?: string
           verification_submitted_at?: string | null
+          video_url?: string | null
           work_schedule?: string | null
           years_in_city?: number | null
         }
@@ -985,6 +988,7 @@ export type Database = {
           promo_text: string | null
           title: string
           updated_at: string | null
+          video_url: string | null
         }
         Insert: {
           category?: string
@@ -1011,6 +1015,7 @@ export type Database = {
           promo_text?: string | null
           title: string
           updated_at?: string | null
+          video_url?: string | null
         }
         Update: {
           category?: string
@@ -1037,6 +1042,7 @@ export type Database = {
           promo_text?: string | null
           title?: string
           updated_at?: string | null
+          video_url?: string | null
         }
         Relationships: []
       }
@@ -1770,6 +1776,7 @@ export type Database = {
           verification_documents: Json | null
           verification_submitted_at: string | null
           verified_owner: boolean | null
+          video_url: string | null
         }
         Insert: {
           business_description?: string | null
@@ -1786,6 +1793,7 @@ export type Database = {
           verification_documents?: Json | null
           verification_submitted_at?: string | null
           verified_owner?: boolean | null
+          video_url?: string | null
         }
         Update: {
           business_description?: string | null
@@ -1802,6 +1810,7 @@ export type Database = {
           verification_documents?: Json | null
           verification_submitted_at?: string | null
           verified_owner?: boolean | null
+          video_url?: string | null
         }
         Relationships: []
       }

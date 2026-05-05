@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { PhotoUploadManager } from '@/components/PhotoUploadManager';
+import { ListingVideoUpload } from '@/components/video/ListingVideoUpload';
 import { useOwnerProfile, useSaveOwnerProfile } from '@/hooks/useOwnerProfile';
 import { toast } from '@/components/ui/sonner';
 import { supabase } from '@/integrations/supabase/client';
@@ -35,6 +36,7 @@ function OwnerProfileDialogComponent({ open, onOpenChange }: Props) {
   const [contactEmail, setContactEmail] = useState<string>('');
   const [profileImages, setProfileImages] = useState<string[]>([]);
   const [serviceOfferings, setServiceOfferings] = useState<string[]>([]);
+  const [videoUrl, setVideoUrl] = useState<string | null>(null);
 
   useEffect(() => {
     if (!data) return;
@@ -43,6 +45,7 @@ function OwnerProfileDialogComponent({ open, onOpenChange }: Props) {
     setContactEmail(data.contact_email ?? '');
     setProfileImages(data.profile_images ?? []);
     setServiceOfferings(data.service_offerings ?? []);
+    setVideoUrl((data as any).video_url ?? null);
   }, [data]);
 
   const handleImageUpload = async (file: File): Promise<string> => {
@@ -74,6 +77,7 @@ function OwnerProfileDialogComponent({ open, onOpenChange }: Props) {
         contact_email: contactEmail || null,
         profile_images: profileImages,
         service_offerings: serviceOfferings,
+        video_url: videoUrl,
       });
       toast.success('Brand Assets Synced');
       onOpenChange(false);
@@ -142,6 +146,17 @@ function OwnerProfileDialogComponent({ open, onOpenChange }: Props) {
                  showCameraButton={true}
                  replaceOnFull={false}
                />
+               {data?.user_id && (
+                 <div className="space-y-2">
+                   <p className="text-[10px] uppercase tracking-widest text-white/60 italic">Optional 6s silent video loop — plays first on your brand card</p>
+                   <ListingVideoUpload
+                     userId={data.user_id}
+                     videoUrl={videoUrl}
+                     onUploadSuccess={setVideoUrl}
+                     onRemove={() => setVideoUrl(null)}
+                   />
+                 </div>
+               )}
             </section>
 
             {/* 🏢 BUSINESS CORE */}
