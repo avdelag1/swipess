@@ -71,17 +71,21 @@ export function SwipessHud({
   return (
     <div
       className={cn(
-        "transition-all duration-500",
-        "pointer-events-none",
+        "pointer-events-none will-change-transform",
         !isVisible && isFade && "opacity-0",
-        !isVisible && isTranslate && side === 'top' && "-translate-y-full",
-        !isVisible && isTranslate && side === 'bottom' && "translate-y-full",
-        isVisible && "opacity-100 translate-y-0",
+        !isVisible && isTranslate && side === 'top' && "-translate-y-[120%]",
+        !isVisible && isTranslate && side === 'bottom' && "translate-y-[120%]",
+        isVisible && "opacity-100 translate-y-0 blur-0 scale-100",
+        !isVisible && "blur-md scale-[0.98]",
         className
       )}
       style={{
-        willChange: 'transform, opacity',
-        transform: 'translateZ(0)',
+        willChange: 'transform, opacity, filter',
+        transitionProperty: 'transform, opacity, filter',
+        transitionDuration: isVisible ? '520ms' : '420ms',
+        transitionTimingFunction: isVisible
+          ? 'cubic-bezier(0.22, 1, 0.36, 1)' // expo-out — silky entrance
+          : 'cubic-bezier(0.7, 0, 0.84, 0)',  // expo-in — quick exit
         visibility: fullyHidden ? 'hidden' : 'visible',
         pointerEvents: fullyHidden ? 'none' : undefined,
       }}
