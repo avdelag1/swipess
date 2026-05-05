@@ -25,9 +25,10 @@ export function MaintenanceGate({ children }: { children: React.ReactNode }) {
 
   if (unlocked) return <>{children}</>;
 
+  const normalize = (s: string) => s.replace(/\s+/g, '').toUpperCase();
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (code.trim().toUpperCase() === PROMO_CODE) {
+    if (normalize(code) === normalize(PROMO_CODE)) {
       setError(false);
       setUnlocked(true);
     } else {
@@ -93,11 +94,7 @@ export function MaintenanceGate({ children }: { children: React.ReactNode }) {
             autoCapitalize="characters"
             autoCorrect="off"
             spellCheck={false}
-            className={`w-full h-14 rounded-2xl bg-card border px-5 text-center text-foreground text-lg font-semibold tracking-[0.3em] uppercase placeholder:text-muted-foreground/40 placeholder:tracking-[0.3em] outline-none transition-all ${
-              error
-                ? "border-destructive shadow-[0_0_0_3px_hsl(var(--destructive)/0.18)]"
-                : "border-border focus:border-primary/60 focus:shadow-[0_0_0_3px_hsl(var(--primary)/0.15)]"
-            }`}
+            className="w-full h-14 rounded-2xl bg-card border border-border focus:border-primary/60 focus:shadow-[0_0_0_3px_hsl(var(--primary)/0.15)] px-5 text-center text-foreground text-lg font-semibold tracking-[0.3em] uppercase placeholder:text-muted-foreground/40 placeholder:tracking-[0.3em] outline-none transition-all"
           />
 
           {error && (
