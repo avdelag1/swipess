@@ -1,5 +1,4 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
-import { AlertTriangle, Home } from 'lucide-react';
 import { logger } from '@/utils/prodLogger';
 
 interface Props {
@@ -10,13 +9,15 @@ interface State {
   hasError: boolean;
   error?: Error;
   errorInfo?: ErrorInfo;
-  copied: boolean;
 }
+
+const RELOAD_KEY = 'swipess_global_reload_count';
+const RELOAD_TS_KEY = 'swipess_global_reload_ts';
+const MAX_RELOADS_PER_MINUTE = 3;
 
 class GlobalErrorBoundary extends Component<Props, State> {
   public state: State = {
     hasError: false,
-    copied: false
   };
 
   public static getDerivedStateFromError(error: Error): Partial<State> {
@@ -24,123 +25,32 @@ class GlobalErrorBoundary extends Component<Props, State> {
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    // ALWAYS log errors (production + dev) for debugging
-    logger.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    logger.error('🚨 Global Error Boundary caught error:');
-    logger.error('Error:', error);
-    logger.error('Message:', error.message);
-    logger.error('Stack:', error.stack);
-    logger.error('Component Stack:', errorInfo?.componentStack);
-    logger.error('URL:', window.location.href);
-    logger.error('User Agent:', navigator.userAgent);
-    logger.error('Timestamp:', new Date().toISOString());
-    logger.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    
-    // AUTO-RELOAD on chunk load errors (standard Vite deployment issue)
-    const errMsg = error.message || '';
-    const isChunkError = 
-      errMsg.includes('dynamically imported module') || 
-      errMsg.includes('Loading chunk') || 
-      errMsg.includes('Failed to fetch');
-    
-    if (isChunkError) {
-      const alreadyReloaded = window.sessionStorage.getItem('global-auto-reload-error');
-      if (!alreadyReloaded) {
-        window.sessionStorage.setItem('global-auto-reload-error', 'true');
-        logger.error('[GlobalErrorBoundary] Detected chunk load failure. Auto-reloading...');
-        window.location.reload();
+    logger.error('[GlobalErrorBoundary] caught', error?.message, errorInfo?.componentStack);
+
+    try {
+      const now = Date.now();
+      const lastTs = parseInt(sessionStorage.getItem(RELOAD_TS_KEY) || '0', 10);
+      let count = parseInt(sessionStorage.getItem(RELOAD_KEY) || '0', 10);
+      if (now - lastTs > 60_000) count = 0;
+      if (count < MAX_RELOADS_PER_MINUTE) {
+        sessionStorage.setItem(RELOAD_KEY, String(count + 1));
+        sessionStorage.setItem(RELOAD_TS_KEY, String(now));
+        setTimeout(() => window.location.reload(), 600);
         return;
       }
-    }
+    } catch { /* ignore */ }
 
     this.setState({ errorInfo });
   }
 
-  private handleReload = () => {
-    window.location.reload();
-  };
-
-  private handleCopyDetails = async () => {
-    const { error, errorInfo } = this.state;
-    const errorDetails = `
-Error: ${error?.message || 'Unknown error'}
-
-Stack Trace:
-${error?.stack || 'No stack trace available'}
-
-Component Stack:
-${errorInfo?.componentStack || 'No component stack available'}
-
-User Agent: ${navigator.userAgent}
-URL: ${window.location.href}
-Timestamp: ${new Date().toISOString()}
-    `.trim();
-
-    try {
-      await navigator.clipboard.writeText(errorDetails);
-      this.setState({ copied: true });
-      setTimeout(() => this.setState({ copied: false }), 2000);
-    } catch (err) {
-      logger.error('Failed to copy error details:', err);
-    }
-  };
-
-  private handleGoHome = () => {
-    window.location.href = '/';
-  };
-
   public render() {
     if (this.state.hasError) {
-      const { error, copied } = this.state;
-      
-      // iOS-style minimal error UI with proper spacing
+      // Silent self-healing splash — never expose error chrome to users.
       return (
-        <div className="min-h-screen min-h-dvh bg-background flex flex-col items-center justify-center p-6 safe-area-inset">
-          {/* Icon */}
-          <div className="w-20 h-20 bg-destructive/10 rounded-full flex items-center justify-center mb-6">
-            <AlertTriangle className="w-10 h-10 text-destructive" />
-          </div>
-          
-          {/* Title */}
-          <h1 className="text-xl font-semibold text-foreground mb-2 text-center">
-            Something went wrong
-          </h1>
-          
-          {/* Subtitle */}
-          <p className="text-muted-foreground text-center mb-8 max-w-xs">
-            We encountered an unexpected error. Please try again.
-          </p>
-          
-          {/* Dev error details */}
-          {import.meta.env.DEV && error && (
-            <div className="w-full max-w-sm bg-muted/50 border border-border p-3 rounded-xl text-xs font-mono text-destructive overflow-auto max-h-24 mb-6">
-              {error.message}
-            </div>
-          )}
-          
-          {/* Action buttons - iOS style */}
-          <div className="w-full max-w-xs space-y-3">
-            <button 
-              onClick={this.handleReload}
-              className="w-full h-12 bg-primary text-primary-foreground rounded-xl font-medium text-base active:scale-[0.98] transition-transform"
-            >
-              Try Again
-            </button>
-            
-            <button 
-              onClick={this.handleGoHome}
-              className="w-full h-12 bg-secondary text-secondary-foreground rounded-xl font-medium text-base active:scale-[0.98] transition-transform flex items-center justify-center gap-2"
-            >
-              <Home className="w-4 h-4" />
-              Go Home
-            </button>
-            
-            <button 
-              onClick={this.handleCopyDetails}
-              className="w-full h-10 text-muted-foreground text-sm active:opacity-70 transition-opacity"
-            >
-              {copied ? 'Copied!' : 'Copy Error Details'}
-            </button>
+        <div className="min-h-screen min-h-dvh bg-background flex flex-col items-center justify-center p-6">
+          <div className="flex flex-col items-center gap-5">
+            <div className="w-12 h-12 rounded-full border-2 border-foreground/15 border-t-foreground animate-spin" />
+            <p className="text-sm text-muted-foreground">Reconnecting…</p>
           </div>
         </div>
       );
