@@ -49,11 +49,12 @@ function TopBarComponent({
   const { isLight } = useAppTheme();
   const setModal = useModalStore(s => s.setModal);
   const hasCards = useDeckHasCards();
-  // Theme rule:
-  //  - Dark theme (black filter): icons always WHITE on every page.
-  //  - Light theme (white filter): WHITE on dashboard (over bright photos),
-  //    BLACK on every other page.
-  const iconColor = !isLight || hasCards ? '#FFFFFF' : '#0A0A0A';
+  // Theme-driven icon color:
+  //  - Dark theme (black filter): always WHITE on every page.
+  //  - Light theme (white filter): always BLACK on every page.
+  // hasCards is intentionally ignored here so the color is purely theme-bound.
+  void hasCards;
+  const iconColor = isLight ? '#0A0A0A' : '#FFFFFF';
 
   const activeCategory = useFilterStore(s => s.activeCategory);
   const { setActiveCategory } = useFilterActions();
