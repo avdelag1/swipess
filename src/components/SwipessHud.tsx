@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useFocusMode } from '@/hooks/useFocusMode';
 import { useScrollDirection } from '@/hooks/useScrollDirection';
 import { useLocation } from 'react-router-dom';
@@ -68,10 +68,21 @@ export function SwipessHud({
   const isFade = mode === 'both' || mode === 'fade';
 
   const fullyHidden = revealMode && !isVisible;
+
+  // Trigger a one-shot shimmer + child stagger every time we transition hidden→visible
+  const [revealKey, setRevealKey] = useState(0);
+  const wasVisibleRef = useRef(isVisible);
+  useEffect(() => {
+    if (isVisible && !wasVisibleRef.current) {
+      setRevealKey(k => k + 1);
+    }
+    wasVisibleRef.current = isVisible;
+  }, [isVisible]);
+
   return (
     <div
       className={cn(
-        "pointer-events-none will-change-transform",
+        "pointer-events-none will-change-transform relative",
         !isVisible && isFade && "opacity-0",
         !isVisible && isTranslate && side === 'top' && "-translate-y-[120%]",
         !isVisible && isTranslate && side === 'bottom' && "translate-y-[120%]",
@@ -84,7 +95,7 @@ export function SwipessHud({
         transitionProperty: 'transform, opacity, filter',
         transitionDuration: isVisible ? '520ms' : '420ms',
         transitionTimingFunction: isVisible
-          ? 'cubic-bezier(0.22, 1, 0.36, 1)' // expo-out — silky entrance
+          ? 'cubic-bezier(0.16, 1.2, 0.3, 1)' // overshoot expo-out — premium snap
           : 'cubic-bezier(0.7, 0, 0.84, 0)',  // expo-in — quick exit
         visibility: fullyHidden ? 'hidden' : 'visible',
         pointerEvents: fullyHidden ? 'none' : undefined,
@@ -93,7 +104,23 @@ export function SwipessHud({
       {...(fullyHidden ? { inert: '' as any } : {})}
       onPointerDownCapture={revealMode && isVisible ? () => revealChrome() : undefined}
     >
-      {children}
+      <div
+        key={revealKey}
+        className={cn(
+          "relative",
+          isVisible && "swipess-hud-stagger"
+        )}
+      >
+        {children}
+        {/* One-shot light sweep on every reveal */}
+        {isVisible && (
+          <span
+            key={`sweep-${revealKey}`}
+            aria-hidden
+            className="swipess-hud-sweep pointer-events-none"
+          />
+        )}
+      </div>
     </div>
   );
 }
