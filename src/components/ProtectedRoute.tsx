@@ -32,10 +32,11 @@ function ProtectedRouteLoadingSkeleton() {
  * - Once content shown, never go back to skeleton
  */
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const { user, loading } = useAuth();
+  const { user, loading, initialized } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const didNavigateRef = useRef(false);
+  const redirectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // SPEED OF LIGHT: Track if we've ever shown valid content
   // Once shown, NEVER go back to skeleton (prevents flicker on refresh)
@@ -53,16 +54,20 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     if (didNavigateRef.current) return;
 
     // Wait for auth to stabilize
-    if (loading) return;
+    if (loading || !initialized) return;
 
     // Not authenticated -> redirect to home (login/landing)
     if (!user) {
-      didNavigateRef.current = true;
-      navigate("/", { replace: true, state: { from: location } });
-      return;
+      redirectTimerRef.current = setTimeout(() => {
+        didNavigateRef.current = true;
+        navigate("/", { replace: true, state: { from: location } });
+      }, 1200);
+      return () => {
+        if (redirectTimerRef.current) clearTimeout(redirectTimerRef.current);
+      };
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, loading, navigate]);
+  }, [user, loading, initialized, navigate]);
 
   // Reset navigation ref only when user comes back (not on every route change)
   // This prevents potential redirect loops during auth state changes
@@ -76,12 +81,12 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   // SPEED OF LIGHT: If we've shown content before, keep showing children
   // This prevents flicker during token refresh or transient auth state changes
   // CRITICAL: Must verify user still exists to avoid logout crashes
-  if (hasShownContent && user) {
+  if (hasShownContent) {
     return <>{children}</>;
   }
 
   // Show skeleton while auth is loading - prevents initial flash
-  if (loading) return <ProtectedRouteLoadingSkeleton />;
+  if (loading || !initialized) return <ProtectedRouteLoadingSkeleton />;
 
   // Not logged in: show skeleton briefly (effect will redirect)
   if (!user) return <ProtectedRouteLoadingSkeleton />;
