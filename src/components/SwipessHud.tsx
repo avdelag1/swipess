@@ -104,15 +104,7 @@ export function SwipessHud({
       {...(fullyHidden ? { inert: '' as any } : {})}
       onPointerDownCapture={revealMode && isVisible ? () => revealChrome() : undefined}
     >
-      <div
-        key={revealKey}
-        className={cn(
-          "relative",
-          isVisible && "swipess-hud-stagger"
-        )}
-      >
-        {children}
-      </div>
+      <div className="relative">{children}</div>
     </div>
   );
 }
