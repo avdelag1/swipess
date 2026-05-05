@@ -1,6 +1,7 @@
 import { memo } from 'react';
 import { useAppNavigate } from "@/hooks/useAppNavigate";
 import { motion } from 'framer-motion';
+import { useLocation } from 'react-router-dom';
 import { ChevronLeft, UserRound, Crown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
@@ -48,13 +49,13 @@ function TopBarComponent({
   const { user } = useAuth();
   const { isLight } = useAppTheme();
   const setModal = useModalStore(s => s.setModal);
-  const hasCards = useDeckHasCards();
-  // Theme-driven icon color:
-  //  - Dark theme (black filter): always WHITE on every page.
-  //  - Light theme (white filter): always BLACK on every page.
-  // hasCards is intentionally ignored here so the color is purely theme-bound.
-  void hasCards;
-  const iconColor = isLight ? '#0A0A0A' : '#FFFFFF';
+  const location = useLocation();
+  const isDashboard = /^\/(client|owner|admin)\/dashboard\/?/.test(location.pathname);
+  // Color rule:
+  //  - Dark theme (black filter): icons always WHITE.
+  //  - Light theme (white filter): WHITE on dashboard (over photos),
+  //    BLACK on every other page.
+  const iconColor = !isLight || isDashboard ? '#FFFFFF' : '#0A0A0A';
 
   const activeCategory = useFilterStore(s => s.activeCategory);
   const { setActiveCategory } = useFilterActions();
