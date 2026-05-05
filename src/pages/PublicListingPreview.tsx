@@ -118,7 +118,7 @@ export default function PublicListingPreview() {
   };
 
   return (
-    <div className="min-h-[100dvh] w-full bg-black text-white relative overflow-x-hidden">
+    <div className="fixed inset-0 w-full bg-black text-white flex flex-col overflow-hidden">
       <SEO
         title={listing.title || 'Swipess Listing'}
         description={`${listing.beds || 0} Beds · ${listing.baths || 0} Baths · ${listing.city || 'Tulum'} — $${listing.price?.toLocaleString() || '—'}`}
@@ -129,10 +129,10 @@ export default function PublicListingPreview() {
 
       <AtmosphericLayer variant="nexus" opacity={0.08} />
 
-      {/* Top minimal nav */}
+      {/* Top minimal nav (in-flow, never overlaps card) */}
       <div
-        className="absolute top-0 inset-x-0 z-50 flex items-center justify-between px-5"
-        style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 14px)' }}
+        className="relative z-50 flex items-center justify-between px-5 pb-3 shrink-0"
+        style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 12px)' }}
       >
         <button
           onClick={() => { triggerHaptic('light'); window.history.length > 1 ? navigate(-1) : navigate('/'); }}
@@ -152,16 +152,18 @@ export default function PublicListingPreview() {
       </div>
 
       <div
-        className="px-4 pb-10 flex flex-col gap-6 max-w-md mx-auto"
-        style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 72px)' }}
+        className="flex-1 min-h-0 px-4 flex flex-col gap-3 max-w-md mx-auto w-full"
+        style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 12px)' }}
       >
         {/* Hero swipe card */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+          className="flex-1 min-h-0"
         >
           <PreviewSwipeCard
+            fill
             images={images}
             fallback={<SwipessLogo size="lg" variant="transparent" className="opacity-30" />}
             badges={
@@ -181,8 +183,8 @@ export default function PublicListingPreview() {
               </>
             }
             overlay={
-              <div className="space-y-4">
-                <h1 className="text-3xl font-black uppercase tracking-tight leading-[1.05] text-white drop-shadow-lg line-clamp-2 break-words">
+              <div className="space-y-3">
+                <h1 className="text-2xl font-black uppercase tracking-tight leading-[1.05] text-white drop-shadow-lg line-clamp-2 break-words">
                   {listing.title || 'Swipess Listing'}
                 </h1>
                 <div className="flex items-center gap-2 text-white/80">
@@ -193,7 +195,7 @@ export default function PublicListingPreview() {
                 </div>
                 <div className="flex items-end justify-between pt-1">
                   <div>
-                    <div className="text-3xl font-black tracking-tight text-white leading-none">
+                    <div className="text-2xl font-black tracking-tight text-white leading-none">
                       ${listing.price?.toLocaleString() || '—'}
                     </div>
                     <div className="text-[9px] font-bold uppercase tracking-[0.25em] text-white/50 mt-1.5">
@@ -206,9 +208,9 @@ export default function PublicListingPreview() {
                       { icon: Bath, value: listing.baths, label: 'Baths' },
                       { icon: Square, value: listing.square_footage, label: 'Sq Ft' },
                     ].map((s, i) => (
-                      <div key={i} className="w-14 h-14 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/15 flex flex-col items-center justify-center">
+                      <div key={i} className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/15 flex flex-col items-center justify-center">
                         <s.icon className="w-3.5 h-3.5 text-white/70 mb-0.5" />
-                        <span className="text-sm font-black tabular-nums leading-none text-white">{s.value || '—'}</span>
+                        <span className="text-xs font-black tabular-nums leading-none text-white">{s.value || '—'}</span>
                       </div>
                     ))}
                   </div>
@@ -223,12 +225,12 @@ export default function PublicListingPreview() {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
-          className="space-y-3"
+          className="space-y-2 shrink-0"
         >
           {user ? (
             <Button
               onClick={() => { triggerHaptic('success'); setShowDirectMessageDialog(true); }}
-              className="w-full h-14 rounded-2xl bg-gradient-to-r from-[#EB4898] to-[#FF4D00] text-white font-bold uppercase tracking-wider shadow-[0_10px_30px_rgba(235,72,152,0.35)] active:scale-[0.98] transition-transform"
+              className="w-full h-12 rounded-2xl bg-gradient-to-r from-[#EB4898] to-[#FF4D00] text-white font-bold uppercase tracking-wider shadow-[0_10px_30px_rgba(235,72,152,0.35)] active:scale-[0.98] transition-transform"
             >
               <MessageCircle className="w-5 h-5 mr-2.5" />
               Message Owner
@@ -237,28 +239,24 @@ export default function PublicListingPreview() {
             <>
               <Button
                 onClick={handleCreateAccount}
-                className="w-full h-14 rounded-2xl bg-white text-black font-bold uppercase tracking-wider hover:bg-white/95 active:scale-[0.98] transition-transform shadow-2xl"
+                className="w-full h-12 rounded-2xl bg-white text-black font-bold uppercase tracking-wider hover:bg-white/95 active:scale-[0.98] transition-transform shadow-2xl"
               >
                 <UserPlus className="w-5 h-5 mr-2.5" />
                 Create Account
               </Button>
               <Button
                 onClick={handleSignIn}
-                className="w-full h-14 rounded-2xl bg-white/10 hover:bg-white/15 text-white font-bold uppercase tracking-wider border border-white/20 active:scale-[0.98] transition-transform backdrop-blur-xl"
+                className="w-full h-12 rounded-2xl bg-white/10 hover:bg-white/15 text-white font-bold uppercase tracking-wider border border-white/20 active:scale-[0.98] transition-transform backdrop-blur-xl"
               >
                 <LogIn className="w-5 h-5 mr-2.5" />
                 Sign In
               </Button>
-              <p className="text-center text-[11px] text-white/40 pt-2">
-                Join Swipess to message the owner and unlock the full deck.
-              </p>
             </>
           )}
+          <p className="text-center text-[9px] font-bold uppercase tracking-[0.3em] text-white/25 pt-1">
+            Powered by Swipess
+          </p>
         </motion.div>
-
-        <p className="text-center text-[10px] font-bold uppercase tracking-[0.3em] text-white/25 pt-4">
-          Powered by Swipess
-        </p>
       </div>
 
       {listing && user && (

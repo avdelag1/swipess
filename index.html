@@ -105,20 +105,23 @@
   <meta name="application-name" content="Swipess">
   <!-- Speculation rules removed — prefetching handled by routePrefetcher.ts -->
   <style>
-    .static-splash { position: fixed; inset: 0; background: #000; z-index: 99999; display: flex; align-items: center; justify-content: center; }
-    .static-splash.fade-out { opacity: 0; visibility: hidden; transition: opacity 0.4s ease-out, visibility 0.4s; }
-    .splash-content { display: flex; flex-direction: column; align-items: center; animation: breathing 2.2s ease-in-out infinite; width: 100%; }
-    @keyframes breathing { 0%, 100% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.03); opacity: 1; } }
-    .splash-logo { height: 48px; width: auto; opacity: 0; transition: opacity 0.3s ease-in; filter: drop-shadow(0 0 20px rgba(255,255,255,0.15)); contain: content; }
-    .splash-logo.loaded { opacity: 1; }
+    .static-splash { position: fixed; inset: 0; background: #000; z-index: 99999; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 28px; }
+    .static-splash.fade-out { opacity: 0; visibility: hidden; transition: opacity 0.5s cubic-bezier(0.22,1,0.36,1), visibility 0.5s; }
+    .splash-content { display: flex; flex-direction: column; align-items: center; animation: splashBreathe 2.6s ease-in-out infinite; will-change: transform; }
+    @keyframes splashBreathe { 0%,100% { transform: scale(1); } 50% { transform: scale(1.025); } }
+    .splash-logo { height: 52px; width: auto; opacity: 1; filter: drop-shadow(0 0 24px rgba(255,255,255,0.18)); contain: content; }
+    .splash-bar { position: relative; width: 120px; height: 2px; border-radius: 999px; background: rgba(255,255,255,0.08); overflow: hidden; }
+    .splash-bar::after { content: ''; position: absolute; top: 0; left: -40%; width: 40%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.85), transparent); animation: splashSlide 1.4s ease-in-out infinite; }
+    @keyframes splashSlide { 0% { left: -40%; } 100% { left: 100%; } }
   </style>
 </head>
 
 <body>
   <div id="static-splash" class="static-splash">
     <div class="splash-content">
-      <img id="splash-logo" class="splash-logo" src="/icons/Swipess-wordmark-white.png" alt="Swipess" onload="this.classList.add('loaded')" />
+      <img id="splash-logo" class="splash-logo" src="/icons/Swipess-wordmark-white.png" alt="Swipess" />
     </div>
+    <div class="splash-bar" aria-hidden="true"></div>
   </div>
   <div id="root"></div>
   <script type="module" src="/src/main.tsx" fetchpriority="high"></script>
@@ -133,10 +136,8 @@
       };
       // Listen for Swipess hydration signal
       window.addEventListener('swipess-ready', fadeOut);
-      // Fallback: window load + small buffer
-      window.addEventListener('load', () => setTimeout(fadeOut, 200));
-      // Ultimate safety fallback
-      setTimeout(fadeOut, 1500);
+      window.addEventListener('load', () => setTimeout(fadeOut, 150));
+      setTimeout(fadeOut, 1200);
     })();
   </script>
 </body>

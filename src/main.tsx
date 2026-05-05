@@ -17,8 +17,10 @@ import "./styles/responsive.css";
 // This prevents the infinite reload loop when chunks are missing after a deployment.
 const handleEmergencyRecovery = async (reason: string) => {
   const reloadCount = parseInt(sessionStorage.getItem('Swipess_emergency_reload_count') || '0', 10);
-  
-  if (reloadCount >= 3) {
+
+  // CRITICAL: cap at 1 to prevent reload loops in dev/preview where the
+  // sandbox re-mints chunk hashes on every save.
+  if (reloadCount >= 1) {
     console.error(`[Emergency] Max recovery attempts reached for: ${reason}. Manual intervention required.`);
     return;
   }
@@ -136,6 +138,10 @@ async function bootstrap() {
   if (rootElement) {
     const root = createRoot(rootElement as HTMLElement);
     root.render(<App authPromise={authPromise} />);
+    // Signal splash to fade as soon as React commits its first frame.
+    requestAnimationFrame(() => {
+      window.dispatchEvent(new Event('swipess-ready'));
+    });
   }
 }
 
