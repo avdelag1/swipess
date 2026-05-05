@@ -901,6 +901,9 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
                 exit={{ opacity: 0 }}
                 className="w-full h-full z-50 overflow-hidden"
               >
+                {(isLoading || isFetching) && deckQueue.length === 0 ? (
+                  <SwipeLoadingSkeleton />
+                ) : (
                 <SwipeExhaustedState
                   radiusKm={radiusKm}
                   onRadiusChange={((km: number) => {
@@ -924,6 +927,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
                   }}
                   role={userRole === 'owner' ? 'owner' : 'client'}
                 />
+                )}
               </motion.div>
             )}
           </AnimatePresence>
