@@ -24,8 +24,6 @@ const VapIdCardModal = lazy(() => import('./VapIdCardModal').then(m => ({ defaul
 const GlobalDialogs = lazy(() => import('./GlobalDialogs').then(m => ({ default: m.GlobalDialogs })));
 import { ChromeSummonZones } from './swipe/ChromeSummonZones';
 import { resetChrome, revealChrome, useChromeReveal } from '@/hooks/useChromeReveal';
-import { useFilterStore } from '@/state/filterStore';
-import { useShallow } from 'zustand/react/shallow';
 
 
 const NotificationSystem = lazy(() =>
