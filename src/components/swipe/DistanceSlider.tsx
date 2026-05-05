@@ -78,6 +78,8 @@ export const DistanceSlider = ({ radiusKm, onRadiusChange, onDetectLocation, det
             onClick={() => {
               triggerHaptic('medium');
               onDetectLocation();
+              handleInputChange(5);
+              onRadiusChange(5);
             }}
             disabled={detecting}
             aria-label="Detect my location"
