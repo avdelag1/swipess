@@ -29,11 +29,42 @@ export const AuthContext = authGlobal.__SWIPESS_AUTH_CONTEXT__ ?? (
   authGlobal.__SWIPESS_AUTH_CONTEXT__ = createContext<AuthContextType | undefined>(undefined)
 );
 
+function readCachedAuthSession(): Session | null {
+  if (typeof window === 'undefined' || !window.localStorage) return null;
+
+  try {
+    const authKeys = Object.keys(window.localStorage).filter(
+      (key) => key.startsWith('sb-') && key.endsWith('-auth-token')
+    );
+
+    for (const key of authKeys) {
+      const raw = window.localStorage.getItem(key);
+      if (!raw) continue;
+
+      const parsed = JSON.parse(raw);
+      const candidate = parsed?.currentSession ?? parsed;
+      const hasUsableShape = candidate?.access_token && candidate?.refresh_token && candidate?.user?.id;
+      if (!hasUsableShape) continue;
+
+      const expiresAt = Number(candidate.expires_at ?? 0);
+      const nowSeconds = Math.floor(Date.now() / 1000);
+      if (expiresAt && expiresAt < nowSeconds - 60 * 60 * 24) continue;
+
+      return candidate as Session;
+    }
+  } catch (error) {
+    logger.warn('[Auth] Cached session read failed:', error);
+  }
+
+  return null;
+}
+
 export function AuthProvider({ children, authPromise }: { children: ReactNode, authPromise?: Promise<any> }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [initialized, setInitialized] = useState(false); // TRUE after first auth check
+  const cachedSession = useMemo(() => readCachedAuthSession(), []);
+  const [user, setUser] = useState<User | null>(cachedSession?.user ?? null);
+  const [session, setSession] = useState<Session | null>(cachedSession);
+  const [loading, setLoading] = useState(!cachedSession);
+  const [initialized, setInitialized] = useState(!!cachedSession); // TRUE after first auth check
   const { navigate } = useAppNavigate();
   const queryClient = useQueryClient();
   const { createProfileIfMissing } = useProfileSetup();
@@ -42,8 +73,13 @@ export function AuthProvider({ children, authPromise }: { children: ReactNode, a
   // Prevent duplicate OAuth setup calls
   const processingOAuthRef = useRef(false);
   const processedUserIdRef = useRef<string | null>(null);
+  const latestSessionRef = useRef<Session | null>(cachedSession);
   // Track OAuth timeout for cleanup on unmount
   const oauthTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    latestSessionRef.current = session;
+  }, [session]);
 
   useEffect(() => {
     let isMounted = true;
@@ -64,7 +100,7 @@ export function AuthProvider({ children, authPromise }: { children: ReactNode, a
           new Promise((_, reject) => setTimeout(() => reject(new Error('Auth Timeout')), 10000))
         ])) as any;
         
-        const fetchedSession = result?.data?.session ?? null;
+        const fetchedSession = result?.data?.session ?? readCachedAuthSession();
         const error = result?.error;
 
 
@@ -84,6 +120,11 @@ export function AuthProvider({ children, authPromise }: { children: ReactNode, a
       } catch (error) {
         logger.error('[Auth] Failed to initialize auth:', error);
         if (isMounted) {
+          const fallbackSession = readCachedAuthSession();
+          if (fallbackSession) {
+            setSession(fallbackSession);
+            setUser(fallbackSession.user);
+          }
           setLoading(false);
           setInitialized(true); // Still mark as initialized even on error
         }
@@ -106,10 +147,23 @@ export function AuthProvider({ children, authPromise }: { children: ReactNode, a
         // SPEED OF LIGHT: TOKEN_REFRESHED should NEVER trigger loading or redirects
         // Just silently update the session/user
         if (event === 'TOKEN_REFRESHED') {
-          setSession(session);
-          setUser(session?.user ?? null);
+          const stableSession = session ?? readCachedAuthSession();
+          setSession(stableSession);
+          setUser(stableSession?.user ?? null);
           // Do NOT set loading, do NOT navigate, do NOT do anything else
           return;
+        }
+
+        if (event === 'SIGNED_OUT' && !(window as any).__swipess_user_signout_requested) {
+          const stableSession = latestSessionRef.current ?? readCachedAuthSession();
+          if (stableSession?.user) {
+            logger.warn('[Auth] Ignoring unexpected SIGNED_OUT while an active session is cached');
+            setSession(stableSession);
+            setUser(stableSession.user);
+            setLoading(false);
+            setInitialized(true);
+            return;
+          }
         }
 
         logger.log('[Auth] State change:', event, session?.user?.email);
@@ -521,6 +575,8 @@ export function AuthProvider({ children, authPromise }: { children: ReactNode, a
 
   const signOut = async () => {
     try {
+      (window as any).__swipess_user_signout_requested = true;
+
       // 1. First navigate to home replacing history so user can't "swipe back" to protected page
       navigate('/', { replace: true });
 
