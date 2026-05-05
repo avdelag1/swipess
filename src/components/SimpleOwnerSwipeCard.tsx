@@ -303,12 +303,6 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
     } else if (imageCount > 1 && clickX > width * 0.67) {
       setCurrentImageIndex(prev => prev === imageCount - 1 ? 0 : prev + 1);
       triggerHaptic('light');
-    } else if (onInsights) {
-      triggerHaptic('light');
-      onInsights();
-    } else if (_onTap) {
-      triggerHaptic('light');
-      _onTap();
     }
   }, [imageCount, onInsights, isMagnifierActive, wasMagnifierActive, _onTap]);
 

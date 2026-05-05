@@ -67,13 +67,11 @@ export function SwipessHud({
   const isTranslate = mode === 'both' || mode === 'translate';
   const isFade = mode === 'both' || mode === 'fade';
 
+  const fullyHidden = revealMode && !isVisible;
   return (
-    <div 
+    <div
       className={cn(
         "transition-all duration-500",
-        // 🚀 SWIPESS: Pointer-events Bypass Pattern
-        // The container is fixed but must NEVER block touches to the content behind it.
-        // We set pointer-events-none on the wrapper and pointer-events-auto on the children.
         "pointer-events-none",
         !isVisible && isFade && "opacity-0",
         !isVisible && isTranslate && side === 'top' && "-translate-y-full",
@@ -84,7 +82,11 @@ export function SwipessHud({
       style={{
         willChange: 'transform, opacity',
         transform: 'translateZ(0)',
+        visibility: fullyHidden ? 'hidden' : 'visible',
+        pointerEvents: fullyHidden ? 'none' : undefined,
       }}
+      aria-hidden={fullyHidden || undefined}
+      {...(fullyHidden ? { inert: '' as any } : {})}
       onPointerDownCapture={revealMode && isVisible ? () => revealChrome() : undefined}
     >
       {children}
