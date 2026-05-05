@@ -218,6 +218,10 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   }, [profile?.user_id, x, y]);
 
   const [isZoomed, setIsZoomed] = useState(false);
+  const floatingIconClass = isLight ? 'text-black' : 'text-white';
+  const floatingIconFilter = isLight
+    ? 'drop-shadow(0 1px 1px rgba(255,255,255,0.95)) drop-shadow(0 2px 6px rgba(0,0,0,0.42))'
+    : 'drop-shadow(0 2px 7px rgba(0,0,0,0.9))';
   const { containerRef, pointerHandlers: magnifierPointerHandlers, isActive: isMagnifierActive, wasActive: wasMagnifierActive, isHoldPending: isMagnifierHoldPending } = useMagnifier({
     scale: 2.8,
     holdDelay: 380,
@@ -450,29 +454,33 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
 
         {isTop && (onReport || onShare) && (
           <div
-            className="absolute right-5 bottom-[calc(var(--bottom-nav-height,72px)+100px)] z-40 flex flex-col items-end gap-2 transition-opacity duration-150"
+            className="absolute right-5 bottom-[calc(var(--bottom-nav-height,72px)+96px)] z-40 flex flex-col items-end gap-3 transition-opacity duration-150"
             style={{ opacity: isZoomed ? 0 : 1 }}
           >
             {onShare && (
               <button
+                data-no-cinematic
                 type="button"
                 onPointerDown={(e) => e.stopPropagation()}
                 onClick={(e) => { e.stopPropagation(); onShare(profile); }}
                 aria-label="Share profile"
-                className="w-10 h-10 rounded-full flex items-center justify-center bg-transparent border-0 active:scale-95 transition-all duration-150"
+                className="w-12 h-12 flex items-center justify-center bg-transparent border-0 shadow-none active:scale-90 transition-all duration-150"
+                style={{ backgroundColor: 'transparent', boxShadow: 'none' }}
               >
-                <Share2 className={`w-[18px] h-[18px] ${isLight ? 'text-black' : 'text-white'}`} strokeWidth={2.2} style={{ filter: isLight ? 'drop-shadow(0 1px 2px rgba(255,255,255,0.6))' : 'drop-shadow(0 1px 3px rgba(0,0,0,0.55))' }} />
+                <Share2 className={`w-7 h-7 ${floatingIconClass}`} strokeWidth={2.35} style={{ filter: floatingIconFilter }} />
               </button>
             )}
             {onReport && (
               <button
+                data-no-cinematic
                 type="button"
                 onPointerDown={(e) => e.stopPropagation()}
                 onClick={(e) => { e.stopPropagation(); onReport(); }}
                 aria-label="Report profile"
-                className="w-10 h-10 rounded-full flex items-center justify-center bg-transparent border-0 active:scale-95 transition-all duration-150"
+                className="w-12 h-12 flex items-center justify-center bg-transparent border-0 shadow-none active:scale-90 transition-all duration-150"
+                style={{ backgroundColor: 'transparent', boxShadow: 'none' }}
               >
-                <Flag className={`w-[18px] h-[18px] ${isLight ? 'text-black' : 'text-white'}`} strokeWidth={2.2} style={{ filter: isLight ? 'drop-shadow(0 1px 2px rgba(255,255,255,0.6))' : 'drop-shadow(0 1px 3px rgba(0,0,0,0.55))' }} />
+                <Flag className={`w-7 h-7 ${floatingIconClass}`} strokeWidth={2.35} style={{ filter: floatingIconFilter }} />
               </button>
             )}
           </div>
