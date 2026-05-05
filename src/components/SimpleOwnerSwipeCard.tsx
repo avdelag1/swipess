@@ -463,10 +463,10 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
                 onPointerDown={(e) => e.stopPropagation()}
                 onClick={(e) => { e.stopPropagation(); onShare(profile); }}
                 aria-label="Share profile"
-                className="w-12 h-12 flex items-center justify-center bg-transparent border-0 shadow-none active:scale-90 transition-all duration-150"
+                className="w-9 h-9 flex items-center justify-center bg-transparent border-0 shadow-none active:scale-90 transition-all duration-150"
                 style={{ backgroundColor: 'transparent', boxShadow: 'none' }}
               >
-                <Share2 className="w-7 h-7" strokeWidth={2.35} style={{ color: '#FFFFFF', filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.55))' }} />
+                <Share2 className="w-[18px] h-[18px]" strokeWidth={2.2} style={{ color: '#FFFFFF', filter: 'drop-shadow(0 2px 5px rgba(0,0,0,0.55))' }} />
               </button>
             )}
             {onReport && (
@@ -476,10 +476,10 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
                 onPointerDown={(e) => e.stopPropagation()}
                 onClick={(e) => { e.stopPropagation(); onReport(); }}
                 aria-label="Report profile"
-                className="w-12 h-12 flex items-center justify-center bg-transparent border-0 shadow-none active:scale-90 transition-all duration-150"
+                className="w-9 h-9 flex items-center justify-center bg-transparent border-0 shadow-none active:scale-90 transition-all duration-150"
                 style={{ backgroundColor: 'transparent', boxShadow: 'none' }}
               >
-                <Flag className="w-7 h-7" strokeWidth={2.35} style={{ color: '#FFFFFF', filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.55))' }} />
+                <Flag className="w-[18px] h-[18px]" strokeWidth={2.2} style={{ color: '#FFFFFF', filter: 'drop-shadow(0 2px 5px rgba(0,0,0,0.55))' }} />
               </button>
             )}
           </div>
