@@ -106,7 +106,7 @@ export function PWAInstallPrompt() {
       role="dialog"
       aria-label="Install Swipess app"
       className="fixed bottom-0 left-0 right-0 z-[10000] px-4 pb-safe-bottom"
-      style={{ paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 16px)' }}
+      style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 96px)' }}
     >
       <div className={cn(
         "relative rounded-[2.5rem] p-6 shadow-[0_20px_50px_rgba(0,0,0,0.3)] max-w-md mx-auto overflow-hidden",
