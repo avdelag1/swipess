@@ -1114,24 +1114,33 @@ export type Database = {
       }
       likes: {
         Row: {
+          cooldown_until: string | null
           created_at: string
           direction: string
+          dismiss_count: number
+          dismissed_at: string | null
           id: string
           target_id: string
           target_type: string
           user_id: string
         }
         Insert: {
+          cooldown_until?: string | null
           created_at?: string
           direction?: string
+          dismiss_count?: number
+          dismissed_at?: string | null
           id?: string
           target_id: string
           target_type?: string
           user_id: string
         }
         Update: {
+          cooldown_until?: string | null
           created_at?: string
           direction?: string
+          dismiss_count?: number
+          dismissed_at?: string | null
           id?: string
           target_id?: string
           target_type?: string
