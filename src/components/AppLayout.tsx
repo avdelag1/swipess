@@ -72,9 +72,11 @@ export function AppLayout({ children }: AppLayoutProps) {
   // Picking phase = on dashboard but no swipe deck yet → chrome always visible
   const inPickingPhase = isSwipeDashboard && !swipeDeckActive;
 
-  // Chrome (TopBar + BottomNav) is ALWAYS visible — never auto-hide.
-  const hideFloatingForSwipe = false;
-  void isChromeVisible;
+  // While inside the swipe deck, chrome auto-hides after 5s and is summoned
+  // by tapping the top edge or bottom-center strip (revealMode).
+  // Everywhere else it's always visible.
+  const useRevealMode = swipeDeckActive && !showAIChat;
+  const hideFloatingForSwipe = useRevealMode && !isChromeVisible;
 
   const { isRefreshing, pullDistance, triggered } = usePullToRefresh({
     disabled: isSwipeDashboard
@@ -175,7 +177,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   
       {showAppChrome && (
         <Suspense fallback={null}>
-          <SwipessHud side="top" className="fixed top-0 left-0 right-0 z-[10005]" scrollTargetSelector="#dashboard-scroll-container" alwaysVisible={true} revealMode={false}>
+          <SwipessHud side="top" className="fixed top-0 left-0 right-0 z-[10005]" scrollTargetSelector="#dashboard-scroll-container" alwaysVisible={!useRevealMode} revealMode={useRevealMode}>
             <TopBar
               userRole={userRole}
               onMessageActivationsClick={handleMessageActivationsClick}
@@ -215,7 +217,7 @@ export function AppLayout({ children }: AppLayoutProps) {
 
       {showAppChrome && (
         <Suspense fallback={null}>
-          <SwipessHud side="bottom" className="fixed bottom-0 left-0 right-0 z-[10005]" scrollTargetSelector="#dashboard-scroll-container" alwaysVisible={true} revealMode={false}>
+          <SwipessHud side="bottom" className="fixed bottom-0 left-0 right-0 z-[10005]" scrollTargetSelector="#dashboard-scroll-container" alwaysVisible={!useRevealMode} revealMode={useRevealMode}>
             <BottomNavigation
               userRole={userRole}
               onFilterClick={handleFilterClick}
@@ -226,7 +228,7 @@ export function AppLayout({ children }: AppLayoutProps) {
       )}
 
       {/* Tap zones to summon chrome on swipe dashboards */}
-      {false && showAppChrome && swipeDeckActive && !showAIChat && <ChromeSummonZones />}
+      {showAppChrome && useRevealMode && <ChromeSummonZones />}
 
       {/* 📻 CONNECTED RADIO: Floating player bubble - Hidden on radio/full-screen routes */}
       {showAppChrome && !isFullScreen && !hideFloatingForSwipe && (
