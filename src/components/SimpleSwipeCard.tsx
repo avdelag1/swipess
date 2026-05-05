@@ -138,7 +138,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   }, [listing.id, (listing as any).user_id, x, y]);
 
   const [isZoomed, setIsZoomed] = useState(false);
-  const { containerRef, pointerHandlers: magnifierPointerHandlers, isActive: isMagnifierActive, wasActive: wasMagnifierActive } = useMagnifier({
+  const { containerRef, pointerHandlers: magnifierPointerHandlers, isActive: isMagnifierActive, wasActive: wasMagnifierActive, isHoldPending: isMagnifierHoldPending } = useMagnifier({
     scale: 2.8,
     holdDelay: 380,
     enabled: isTop,
@@ -163,14 +163,19 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
     if (storedPointerEventRef.current && !dragStartedRef.current) {
       const dx = Math.abs(e.clientX - (storedPointerEventRef.current as any).clientX);
       const dy = Math.abs(e.clientY - (storedPointerEventRef.current as any).clientY);
-      if (dx > 18 || dy > 18) {
+      // While the hold-to-zoom timer is still pending, let the magnifier
+      // hook decide (it cancels itself once movement exceeds its 25px threshold).
+      // Only convert to drag once the magnifier has clearly bailed.
+      if ((dx > 28 || dy > 28) && !isMagnifierHoldPending()) {
         magnifierPointerHandlers.onPointerUp(e); 
         dragStartedRef.current = true;
         isDragging.current = true;
         dragControls.start((storedPointerEventRef.current as any).nativeEvent);
       }
     }
-  }, [isMagnifierActive, magnifierPointerHandlers, dragControls]);
+    // Forward to magnifier so its hold detection sees movement
+    magnifierPointerHandlers.onPointerMove(e);
+  }, [isMagnifierActive, isMagnifierHoldPending, magnifierPointerHandlers, dragControls]);
 
   const handleUnifiedPointerUp = useCallback((e: React.PointerEvent) => {
     storedPointerEventRef.current = null;
