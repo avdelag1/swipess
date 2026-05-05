@@ -14,6 +14,7 @@ export type ClientProfileLite = {
   interests?: string[] | null;
   preferred_activities?: string[] | null;
   profile_images?: string[] | null;
+  video_url?: string | null;
   // Location fields
   country?: string | null;
   city?: string | null;
