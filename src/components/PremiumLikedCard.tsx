@@ -118,10 +118,11 @@ export const PremiumLikedCard = memo(({ type, data, onAction, isLight }: Premium
                 )}
 
                 {/* Standardized Action Buttons */}
-                <div className="flex gap-2 pt-2">
+                <div className="flex gap-3 pt-2">
                     <button
                         onClick={() => onAction('message', data)}
-                        className="flex-1 flex items-center justify-center gap-2 h-12 rounded-2xl bg-[var(--color-brand-accent-2)] hover:bg-[#FF1493] text-white text-xs font-black shadow-[0_4px_16px_rgba(228,0,124,0.3)] transition-all touch-manipulation active:scale-[0.96]"
+                        style={{ backgroundColor: '#E4007C', color: '#fff', boxShadow: '0 6px 18px rgba(228,0,124,0.35)' }}
+                        className="flex-1 flex items-center justify-center gap-2 h-12 rounded-2xl text-xs font-black transition-all touch-manipulation active:scale-[0.96]"
                     >
                         <MessageCircle className="w-4 h-4" />
                         MESSAGE
@@ -130,10 +131,10 @@ export const PremiumLikedCard = memo(({ type, data, onAction, isLight }: Premium
                     <button
                         onClick={() => onAction('view', data)}
                         className={cn(
-                          "flex-1 flex items-center justify-center gap-2 h-12 rounded-2xl text-xs font-black transition-all touch-manipulation active:scale-[0.96]",
+                          "flex-1 flex items-center justify-center gap-2 h-12 rounded-2xl text-xs font-black transition-all touch-manipulation active:scale-[0.96] border",
                           isLight
-                            ? "bg-white hover:bg-black/[0.02] text-foreground border border-black/8 shadow-[0_4px_12px_rgba(0,0,0,0.04)]"
-                            : "bg-white/[0.06] hover:bg-white/[0.1] text-white border border-white/[0.08]"
+                            ? "bg-white hover:bg-black/[0.03] text-foreground border-black/10 shadow-[0_4px_12px_rgba(0,0,0,0.06)]"
+                            : "bg-white/[0.06] hover:bg-white/[0.1] text-white border-white/[0.08]"
                         )}
                     >
                         <Eye className="w-4 h-4" />

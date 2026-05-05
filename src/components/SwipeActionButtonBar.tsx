@@ -37,10 +37,10 @@ interface SwipeActionButtonBarProps {
 const ENTRY_SPRING = { type: 'spring' as const, stiffness: 340, damping: 26, mass: 0.7 } as const;
 
 // ── DIMENSIONS ────────────────────────────────────────────────────────────────
-const LARGE_CSS = 'clamp(44px, 11vw, 54px)';
-const SMALL_CSS = 'clamp(38px, 9vw, 44px)';
-const LARGE_ICON = 26;
-const SMALL_ICON = 18;
+const LARGE_CSS = 'clamp(56px, 14vw, 68px)';
+const SMALL_CSS = 'clamp(46px, 11vw, 54px)';
+const LARGE_ICON = 32;
+const SMALL_ICON = 22;
 const TAP_SCALE = 0.92;
 
 // ── VARIANT CONFIGS ───────────────────────────────────────────────────────────
@@ -192,7 +192,7 @@ export const SwipeActionButtonBar = memo(({
   const { isLight } = useAppTheme();
 
   return (
-    <div className={`flex items-center justify-center gap-6 pointer-events-auto overflow-visible w-full ${className}`}>
+    <div className={`flex items-center justify-center gap-3 sm:gap-4 pointer-events-auto overflow-visible w-full -mt-2 ${className}`}>
       <AnimatePresence mode="popLayout" initial={false}>
         {onUndo && (
           <ActionButton
