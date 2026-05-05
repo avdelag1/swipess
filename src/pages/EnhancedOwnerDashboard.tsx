@@ -173,7 +173,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
   const showSkeletons = activeCategory === null && initialLoading;
 
   return (
-    <div className={cn("flex flex-col flex-1 min-h-0 w-full relative transition-colors duration-500", isLight ? "bg-white" : "bg-black")}>
+    <div className={cn("flex flex-col flex-1 min-h-0 w-full relative transition-colors duration-500 bg-black")}>
       <AtmosphericLayer variant="nexus" />
 
       {/* 🛸 NEXUS DASHBOARD TOGGLE - Restricted to Kilometer Phase per User Request */}
