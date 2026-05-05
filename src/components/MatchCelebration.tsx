@@ -26,7 +26,6 @@ export function MatchCelebration({ isOpen, onClose, onMessage, matchedUser }: Ma
       if ('vibrate' in navigator) {
         navigator.vibrate([100, 50, 100, 50, 200]);
       }
-      playNotificationSound('match').catch(err => logger.warn('Match sound failed', err));
       const timer = setTimeout(() => setShowButtons(true), 1200);
       return () => clearTimeout(timer);
     } else {

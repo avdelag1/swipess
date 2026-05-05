@@ -74,9 +74,6 @@ export function useUnreadMessageCount() {
         (payload) => {
           if (payload.new.sender_id !== user.id) {
             debouncedRefetch();
-            playNotificationSound('message').catch((error) => {
-              logger.warn('[UnreadCount] Failed to play notification sound:', error);
-            });
           }
         }
       )

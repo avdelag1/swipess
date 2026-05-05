@@ -136,7 +136,6 @@ export function OnboardingFlow({ open, onComplete }: OnboardingFlowProps) {
   const handleNext = () => {
     if (currentStep < steps.length - 1) {
       triggerHaptic('medium');
-      uiSounds.playStarShoot();
       setCurrentStep(currentStep + 1);
     }
   };

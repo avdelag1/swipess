@@ -595,7 +595,6 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     if (!first) return;
     pushRecent(first.id);
     play(first);
-    uiSounds.playStarShoot();
 
     // Also enable shuffle mode with the new queue
     shuffleQueueRef.current = queue;

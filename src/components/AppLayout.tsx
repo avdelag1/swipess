@@ -73,14 +73,8 @@ export function AppLayout({ children }: AppLayoutProps) {
 
   const { t } = useTranslation();
 
-  // 🚀 NEXUS AUDIO: Welcome sound on startup or login
-  const hasPlayedWelcome = useRef(false);
-  useEffect(() => {
-    if (user && !hasPlayedWelcome.current) {
-      uiSounds.playWelcome();
-      hasPlayedWelcome.current = true;
-    }
-  }, [user]);
+  // In-app audio fully disabled — sounds are reserved for the public
+  // landing-page cosmos background only (LandingBackgroundEffects.tsx).
 
   // Filters removed from here since they are unused
 
@@ -99,24 +93,8 @@ export function AppLayout({ children }: AppLayoutProps) {
     // Fallback for legacy listeners
     window.dispatchEvent(new CustomEvent('app-rendered'));
 
-    // 🧘 ZEN TAP: Global click listener for meditation bowl sounds
-    const handleGlobalTap = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      const isInteractive = target.closest('button, a, input, select, [role="button"]');
-      
-      // 🚫 EXCLUDE PHOTO TAPS: User specifically requested NO SOUND on photo changes
-      const isCardImage = target.closest('[data-swipe-card-image]');
-      
-      if (isInteractive && !isCardImage) {
-        uiSounds.playTap();
-      }
-    };
-
-    window.addEventListener('mousedown', handleGlobalTap);
-    
     return () => {
       cancelAnimationFrame(frame);
-      window.removeEventListener('mousedown', handleGlobalTap);
     };
   }, [location.pathname]);
 

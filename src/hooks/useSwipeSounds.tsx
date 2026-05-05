@@ -92,37 +92,10 @@ export function useSwipeSounds() {
    * Play sound effect for swipe direction
    * @param direction - Swipe direction ('left' or 'right')
    */
-  const playSwipeSound = (direction: 'left' | 'right') => {
-    try {
-      if (theme === 'none') {
-        return;
-      }
-
-      if (theme === 'randomZen') {
-        playRandomZen(0.45);
-        return;
-      }
-
-      // Funny theme: dislike always plays a random fart, like plays a random funny sound
-      if (theme === 'funny') {
-        if (direction === 'left') {
-          playFunnyDislike(0.6);
-        } else {
-          playFunnyLike(0.6);
-        }
-        return;
-      }
-
-      // All other themes use preloaded audio elements
-      if (direction === 'left') {
-        playSound(leftAudioRef.current);
-      } else {
-        playSound(rightAudioRef.current);
-      }
-    } catch (error) {
-      logger.warn('Error playing swipe sound:', error);
-    }
-  };
+  // In-app sounds globally disabled — swipe gestures are silent regardless
+  // of the user's saved preference. The preference is preserved so the
+  // setting can be re-enabled later without data loss.
+  const playSwipeSound = (_direction: 'left' | 'right') => {};
 
   return {
     playSwipeSound,
