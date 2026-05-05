@@ -791,7 +791,12 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                   </AnimatePresence>
 
                   <div className="max-w-3xl mx-auto flex items-center gap-3">
-                    <div className={cn("flex-1 min-w-0 relative flex items-center rounded-3xl transition-all duration-500 border group", isLight && !isSwipess ? "bg-slate-50 border-slate-200 focus-within:border-primary/50" : "bg-white/5 border-white/10 focus-within:border-primary/50")}>
+                    <div className={cn(
+                      "flex-1 min-w-0 relative flex items-center rounded-3xl transition-all duration-300 border group focus-within:shadow-[0_0_0_3px_hsl(var(--primary)/0.18)]",
+                      isLight && !isSwipess
+                        ? "bg-slate-50 border-foreground/15 focus-within:border-primary/60"
+                        : "bg-white/[0.06] border-white/15 focus-within:border-primary/60"
+                    )}>
                        <div className="pl-2 flex items-center gap-1.5 self-center">
                            <Popover>
                              <PopoverTrigger asChild>
@@ -829,7 +834,13 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                          onChange={(e) => { setInput(e.target.value); cancelCountdown(); }}
                          placeholder={isListening ? "Listening... Speak now" : "Inquire for discovery..."}
                          rows={1}
-                         className={cn("w-full bg-transparent border-none focus:ring-0 py-4 pl-2 pr-5 text-sm resize-none custom-scrollbar min-h-[56px] max-h-32 leading-6 transition-all self-center", isListening && "text-cyan-400 placeholder:text-cyan-400/40")}
+                          className={cn(
+                            "w-full bg-transparent border-none outline-none focus:ring-0 py-4 pl-2 pr-5 text-sm resize-none custom-scrollbar min-h-[56px] max-h-32 leading-6 transition-all self-center",
+                            isLight && !isSwipess
+                              ? "text-foreground placeholder:text-foreground/45"
+                              : "text-white placeholder:text-white/55",
+                            isListening && "text-cyan-400 placeholder:text-cyan-400/50"
+                          )}
                          onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
                        />
                     </div>
@@ -838,14 +849,16 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                          onClick={handleSend}
                          disabled={!input.trim() || isLoading}
                          className={cn(
-                           "h-14 w-14 shrink-0 rounded-full inline-flex items-center justify-center transition-all active:scale-90 border shadow-[0_18px_42px_hsl(var(--primary)/0.42)]",
-                           "bg-primary text-primary-foreground border-primary/30 hover:bg-primary/90 hover:shadow-[0_22px_54px_hsl(var(--primary)/0.5)]",
-                           (!input.trim() || isLoading) && "opacity-60"
+                           "h-14 w-14 shrink-0 rounded-full inline-flex items-center justify-center transition-all active:scale-90 ring-1 ring-primary/50 shadow-[0_18px_42px_hsl(var(--primary)/0.45)]",
+                           "bg-primary text-primary-foreground hover:bg-primary/90 hover:shadow-[0_22px_54px_hsl(var(--primary)/0.55)]",
+                           (!input.trim() || isLoading) && "opacity-40"
                          )}
                          aria-label="Send message"
                        >
                          {isLoading ? (
                            <RefreshCw className="h-6 w-6 animate-spin" strokeWidth={2.4} />
+                         ) : !input.trim() ? (
+                           <CornerDownLeft className="h-5 w-5" strokeWidth={2.6} />
                          ) : (
                            <Send className="h-6 w-6" strokeWidth={2.4} />
                          )}
