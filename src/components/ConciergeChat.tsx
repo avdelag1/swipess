@@ -114,9 +114,10 @@ const ConciergePrivacyPortal = memo(({ onAccept, isSwipess }: { onAccept: () => 
     <div className="w-full space-y-3 mt-6">
       <Button 
         onClick={onAccept}
-        className="w-full h-14 rounded-2xl bg-primary hover:bg-primary/90 active:scale-95 transition-all text-primary-foreground font-semibold tracking-wide text-sm shadow-lg"
+        className="w-full h-14 rounded-2xl bg-primary hover:bg-primary/90 active:scale-[0.97] transition-all text-primary-foreground font-bold tracking-wide text-base shadow-[0_18px_48px_hsl(var(--primary)/0.45)] ring-1 ring-primary/40 flex items-center justify-center gap-2"
       >
         Start Session
+        <CornerDownLeft className="w-4 h-4 opacity-80" />
       </Button>
     </div>
   </div>
