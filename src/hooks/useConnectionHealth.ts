@@ -33,21 +33,12 @@ async function pingSupabase(): Promise<boolean> {
     return false;
   }
 
-  // Hit the Supabase auth health endpoint — no DB / RLS dependency.
-  const url = (import.meta as any).env?.VITE_SUPABASE_URL;
-  if (!url) return true; // Don't block if env is unavailable for any reason
-
   try {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), CHECK_TIMEOUT_MS);
-    const res = await fetch(`${url}/auth/v1/health`, {
-      method: 'GET',
-      cache: 'no-store',
-      signal: controller.signal,
-    });
+    const { error } = await supabase.auth.getUser(undefined, { signal: controller.signal });
     clearTimeout(timeoutId);
-    // Any HTTP response (even 4xx) means the server is reachable
-    return !!res;
+    return !error || error.status !== 0;
   } catch (err: unknown) {
     if (isErrorWithMessage(err) && (err.name === 'AbortError' || err.message.includes('abort'))) {
       logger.error('[ConnectionHealth] Ping aborted (timeout)');
