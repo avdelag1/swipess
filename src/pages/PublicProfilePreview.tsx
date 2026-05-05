@@ -1,39 +1,30 @@
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import useAppTheme from '@/hooks/useAppTheme';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
 import {
-  User, MapPin, Lock, LogIn, UserPlus, ArrowLeft,
-  Sparkles, Globe, Zap, ShieldCheck
+  User, MapPin, ChevronLeft, Share2,
+  ShieldCheck, UserPlus, LogIn, Sparkles, Globe,
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Share2 } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { triggerHaptic } from '@/utils/haptics';
 import { STORAGE } from '@/constants/app';
-import { cn } from '@/lib/utils';
 import { SwipessLogo } from '@/components/SwipessLogo';
 import { SEO } from '@/components/SEO';
 import { ShareDialog } from '@/components/ShareDialog';
 import { AtmosphericLayer } from '@/components/AtmosphericLayer';
+import { PreviewSwipeCard } from '@/components/preview/PreviewSwipeCard';
 
 export default function PublicProfilePreview() {
   const { id } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { theme } = useAppTheme();
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showShareDialog, setShowShareDialog] = useState(false);
-  const [imgLoaded, setImgLoaded] = useState(false);
 
-  const canGoBack = typeof window !== 'undefined' && window.history.length > 1;
-
-  // Capture referral code
   useEffect(() => {
     const refCode = searchParams.get('ref');
     if (refCode && refCode.length > 0) {
@@ -52,7 +43,7 @@ export default function PublicProfilePreview() {
       if (!id) throw new Error('No profile ID');
       const { data, error } = await supabase
         .from('profiles')
-        .select('user_id, full_name, city, avatar_url, bio, images, interests, nationality, languages_spoken, lifestyle_tags, age, gender, neighborhood, country')
+        .select('user_id, full_name, city, avatar_url, bio, images, interests, nationality, languages_spoken, age, gender, neighborhood, country, verified')
         .eq('user_id', id)
         .maybeSingle();
       if (error) throw error;
@@ -61,383 +52,217 @@ export default function PublicProfilePreview() {
     enabled: !!id,
   });
 
-  const handleViewFullProfile = () => {
-    triggerHaptic('medium');
-    if (user) {
-      navigate(`/owner/view-client/${id}`);
-    } else {
-      navigate(`/?returnTo=/profile/${id}`);
-    }
-  };
+  if (isLoading) {
+    return (
+      <div className="fixed inset-0 bg-black flex items-center justify-center">
+        <AtmosphericLayer variant="nexus" opacity={0.12} />
+        <div className="w-16 h-16 rounded-full border-4 border-[#EB4898]/15 border-t-[#EB4898] animate-spin relative z-10" />
+      </div>
+    );
+  }
 
-  const allImages: string[] = (() => {
-    if (!profile) return [];
-    const imgs = (profile as any).images || (profile as any).profile_images || [];
-    const avatar = (profile as any).avatar_url;
-    if (imgs.length > 0) return imgs;
+  if (error || !profile) {
+    return (
+      <div className="fixed inset-0 bg-black flex flex-col items-center justify-center p-8 text-center">
+        <AtmosphericLayer variant="nexus" opacity={0.15} />
+        <div className="w-24 h-24 rounded-3xl bg-white/5 flex items-center justify-center mb-8 border border-white/10 relative z-10">
+          <User className="w-10 h-10 text-white/20" />
+        </div>
+        <h1 className="text-2xl font-bold text-white mb-3 relative z-10">Profile Not Found</h1>
+        <p className="text-white/50 text-sm max-w-xs mb-8 relative z-10">
+          This profile is no longer available.
+        </p>
+        <Button
+          onClick={() => { triggerHaptic('medium'); navigate('/'); }}
+          className="h-14 px-10 rounded-2xl bg-white text-black font-bold relative z-10"
+        >
+          Go to Swipess
+        </Button>
+      </div>
+    );
+  }
+
+  const images: string[] = (() => {
+    const imgs = profile.images || [];
+    const avatar = profile.avatar_url;
+    if (Array.isArray(imgs) && imgs.length > 0) return imgs;
     if (avatar) return [avatar];
     return [];
   })();
 
-  const prevImage = useCallback(() => {
-    triggerHaptic('light');
-    setCurrentImageIndex(i => Math.max(0, i - 1));
-    setImgLoaded(false);
-  }, []);
+  const interests: string[] = profile.interests || [];
+  const heroImage = images[0] || `${typeof window !== 'undefined' ? window.location.origin : 'https://swipess.com'}/og-image-nexus.png`;
 
-  const nextImage = useCallback(() => {
-    triggerHaptic('light');
-    setCurrentImageIndex(i => Math.min(allImages.length - 1, i + 1));
-    setImgLoaded(false);
-  }, [allImages.length]);
+  const handleCreateAccount = () => {
+    triggerHaptic('success');
+    navigate(`/?returnTo=/profile/${id}&intent=signup`);
+  };
+  const handleSignIn = () => {
+    triggerHaptic('medium');
+    navigate(`/?returnTo=/profile/${id}&intent=signin`);
+  };
+  const handleViewFull = () => {
+    triggerHaptic('medium');
+    navigate(`/owner/view-client/${id}`);
+  };
 
-  // ── Loading State ──────────────────────────────────────────────────
-  if (isLoading) {
-    return (
-      <div className="fixed inset-0 bg-[#020202]">
-        <Skeleton className="absolute inset-0 rounded-none bg-white/[0.02]" />
-        <div className="absolute top-0 left-0 right-0 h-16 bg-black/40 backdrop-blur-lg" />
-        <div className="absolute bottom-0 left-0 right-0 bg-[#0A0A0A]/90 backdrop-blur-3xl rounded-t-[40px] border-t border-white/5 p-8 space-y-6">
-          <div className="w-12 h-1.5 bg-white/10 rounded-full mx-auto mb-4" />
-          <div className="flex items-center gap-6">
-            <Skeleton className="w-20 h-20 rounded-[32px] bg-white/[0.05]" />
-            <div className="space-y-3 flex-1">
-              <Skeleton className="h-8 w-3/4 bg-white/[0.05]" />
-              <Skeleton className="h-5 w-1/2 bg-white/[0.05]" />
-            </div>
-          </div>
-          <Skeleton className="h-24 rounded-[32px] bg-white/[0.05]" />
-          <div className="flex flex-wrap gap-2.5">
-            <Skeleton className="h-8 w-24 rounded-full bg-white/[0.05]" />
-            <Skeleton className="h-8 w-28 rounded-full bg-white/[0.05]" />
-            <Skeleton className="h-8 w-20 rounded-full bg-white/[0.05]" />
-          </div>
-          <Skeleton className="h-16 rounded-[24px] bg-white/[0.05]" />
-        </div>
-      </div>
-    );
-  }
-
-  // ── Error / Not Found ──────────────────────────────────────────────
-  if (error || !profile) {
-    return (
-      <div className="fixed inset-0 bg-[#020202] flex flex-col items-center justify-center p-8">
-        <AtmosphericLayer variant="nexus" opacity={0.15} />
-        <div className="text-center max-w-sm relative z-10">
-          <div className="w-24 h-24 rounded-[32px] bg-white/5 flex items-center justify-center mx-auto mb-8 border border-white/10 backdrop-blur-xl">
-            <User className="w-12 h-12 text-white/20" />
-          </div>
-          <h1 className="text-3xl font-bold text-white tracking-tight mb-3">Profile Not Found</h1>
-          <p className="text-white/50 mb-10 text-sm leading-relaxed">
-            This profile is no longer available. It may have been removed or set to private.
-          </p>
-          <Button 
-            onClick={() => { triggerHaptic('medium'); navigate('/'); }} 
-            size="lg" 
-            className="w-full rounded-[24px] bg-white text-black font-black uppercase tracking-widest h-16 hover:bg-white/90 active:scale-95 transition-all"
-          >
-            Go to Homepage
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
-  const currentImage = allImages.length > 0 ? allImages[currentImageIndex] : null;
-  const interests: string[] = (profile as any).interests || [];
-  const languages: string[] = (profile as any).languages_spoken || [];
-
-  // ── Main Render ────────────────────────────────────────────────────
   return (
-    <div className="fixed inset-0 overflow-hidden bg-[#020202] text-white">
-      <SEO 
-        title={`${profile.full_name || 'Anonymous'} — Discover on Swipess`}
-        description={`${profile.bio || 'Elite discovery on Swipess.'} ${profile.city ? `Located in ${profile.city}.` : ''}`}
-        image={allImages[0] || `${typeof window !== 'undefined' ? window.location.origin : 'https://swipess.com'}/og-image-nexus.png`}
+    <div className="min-h-[100dvh] w-full bg-black text-white relative overflow-x-hidden">
+      <SEO
+        title={`${profile.full_name || 'Profile'} on Swipess`}
+        description={`${profile.bio || 'Discover on Swipess.'}${profile.city ? ` — ${profile.city}.` : ''}`}
+        image={heroImage}
         url={`${typeof window !== 'undefined' ? window.location.origin : 'https://swipess.com'}/profile/${id}`}
         type="profile"
       />
 
-      <AtmosphericLayer variant="nexus" opacity={0.12} />
+      <AtmosphericLayer variant="nexus" opacity={0.08} />
 
-      {/* ── BACKGROUND IMAGE ─────────────────────────────────────────── */}
-      <div className="absolute inset-0 z-0">
-        <AnimatePresence mode="wait" initial={false}>
-          <motion.div
-            key={currentImageIndex}
-            initial={{ opacity: 0, scale: 1.04 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.35, ease: 'easeOut' }}
-            className="absolute inset-0"
-          >
-            {currentImage ? (
-              <img
-                src={currentImage}
-                alt={(profile as any).full_name || 'Profile'}
-                className="w-full h-full object-cover object-top"
-                onLoad={() => setImgLoaded(true)}
-                style={{ opacity: imgLoaded ? 1 : 0, transition: 'opacity 0.25s' }}
-              />
-            ) : (
-              /* Nexus Gradient placeholder when no photo */
-              <div className="w-full h-full bg-gradient-to-br from-[#FF4D00]/20 via-black to-[#EB4898]/20 flex items-center justify-center">
-                <div className="w-32 h-32 rounded-[40px] bg-white/5 backdrop-blur-2xl border border-white/10 flex items-center justify-center shadow-2xl">
-                  <User className="w-16 h-16 text-white/10" />
-                </div>
-              </div>
-            )}
-          </motion.div>
-        </AnimatePresence>
-
-        {/* Cinematic Gradient overlays */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-transparent pointer-events-none" />
-        <div className="absolute inset-x-0 bottom-0 h-4/5 bg-gradient-to-t from-[#020202] via-[#020202]/60 to-transparent pointer-events-none" />
-      </div>
-
-      {/* ── IMAGE TAP ZONES ───────────────────────────────────────────── */}
-      {allImages.length > 1 && (
-        <>
-          <div
-            className="absolute left-0 top-[15%] bottom-[40%] w-1/3 z-20 cursor-pointer"
-            onClick={prevImage}
-          />
-          <div
-            className="absolute right-0 top-[15%] bottom-[40%] w-1/3 z-20 cursor-pointer"
-            onClick={nextImage}
-          />
-        </>
-      )}
-
-      {/* ── TOP BAR ──────────────────────────────────────────────────── */}
+      {/* Top minimal nav */}
       <div
-        className="absolute top-0 left-0 right-0 z-[60] flex items-center justify-between px-6 py-4"
-        style={{ paddingTop: 'max(16px, env(safe-area-inset-top, 16px))' }}
+        className="absolute top-0 inset-x-0 z-50 flex items-center justify-between px-5"
+        style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 14px)' }}
       >
-        <div className="flex items-center gap-3">
-          {canGoBack && (
-            <motion.button
-              onClick={() => { triggerHaptic('light'); navigate(-1); }}
-              whileTap={{ scale: 0.88 }}
-              className="w-10 h-10 rounded-2xl bg-black/40 backdrop-blur-2xl border border-white/10 flex items-center justify-center text-white shadow-2xl transition-all hover:bg-black/60"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </motion.button>
-          )}
-          <div className="px-4 py-2 rounded-2xl bg-[#EB4898]/10 border border-[#EB4898]/20 backdrop-blur-2xl flex items-center gap-2">
-            <Zap className="w-4 h-4 text-[#EB4898] fill-current animate-pulse" />
-            <span className="text-[10px] font-bold uppercase tracking-widest text-[#EB4898]">Live Profile</span>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <motion.button
-            onClick={() => { triggerHaptic('light'); setShowShareDialog(true); }}
-            whileTap={{ scale: 0.88 }}
-            className="w-10 h-10 rounded-2xl bg-black/40 backdrop-blur-2xl border border-white/10 flex items-center justify-center text-white shadow-2xl transition-all hover:bg-black/60"
-          >
-            <Share2 className="w-5 h-5" />
-          </motion.button>
-
-          {!user && (
-            <motion.button
-              onClick={() => { triggerHaptic('medium'); navigate('/'); }}
-              whileTap={{ scale: 0.92 }}
-              className="text-[10px] font-black uppercase tracking-widest text-white bg-white/10 backdrop-blur-2xl border border-white/20 px-5 py-2.5 rounded-2xl shadow-2xl hover:bg-white/20 transition-all"
-            >
-              Sign In
-            </motion.button>
-          )}
-        </div>
+        <button
+          onClick={() => { triggerHaptic('light'); window.history.length > 1 ? navigate(-1) : navigate('/'); }}
+          className="w-10 h-10 rounded-full bg-black/40 backdrop-blur-xl border border-white/10 flex items-center justify-center text-white active:scale-90 transition-transform"
+          aria-label="Back"
+        >
+          <ChevronLeft className="w-5 h-5" />
+        </button>
+        <SwipessLogo size="sm" variant="transparent" className="opacity-90" />
+        <button
+          onClick={() => { triggerHaptic('light'); setShowShareDialog(true); }}
+          className="w-10 h-10 rounded-full bg-black/40 backdrop-blur-xl border border-white/10 flex items-center justify-center text-white active:scale-90 transition-transform"
+          aria-label="Share"
+        >
+          <Share2 className="w-4.5 h-4.5" />
+        </button>
       </div>
 
-      {/* ── IMAGE DOTS ───────────────────────────────────────────────── */}
-      {allImages.length > 1 && (
-        <div
-          className="absolute z-[60] left-0 right-0 flex justify-center gap-1.5"
-          style={{ top: 'max(76px, calc(env(safe-area-inset-top, 0px) + 60px))' }}
-        >
-          {allImages.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => { triggerHaptic('light'); setCurrentImageIndex(i); setImgLoaded(false); }}
-              className={cn(
-                'h-1 rounded-full transition-all duration-500',
-                i === currentImageIndex ? 'w-8 bg-[#EB4898]' : 'w-2 bg-white/30'
-              )}
-            />
-          ))}
-        </div>
-      )}
-
-      {/* ── BOTTOM CONTENT SHEET ─────────────────────────────────────── */}
       <div
-        className="absolute bottom-0 left-0 right-0 z-[60]"
-        style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
+        className="px-4 pb-10 flex flex-col gap-6 max-w-md mx-auto"
+        style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 72px)' }}
       >
         <motion.div
-          initial={{ y: 50, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-          className={cn(
-             "rounded-t-[48px] border-t shadow-[0_-30px_80px_rgba(0,0,0,0.8)] transition-all duration-700 relative overflow-hidden",
-             "bg-[#0A0A0A]/95 backdrop-blur-3xl border-white/[0.08]"
-          )}
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
         >
-          <div className="absolute top-0 right-0 w-64 h-64 bg-[#EB4898]/5 rounded-full blur-[100px] -translate-y-32 translate-x-32" />
-          
-          {/* Handle */}
-          <div className="flex justify-center pt-4 pb-2 relative z-10">
-            <div className="w-12 h-1.5 bg-white/10 rounded-full" />
-          </div>
-
-          <div className="px-6 pt-2 pb-8 space-y-6 max-h-[62vh] overflow-y-auto overscroll-contain relative z-10 custom-scrollbar">
-
-            {/* Name, age, location */}
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-3 flex-wrap">
-                  <h1 className="text-3xl font-black text-white uppercase tracking-tighter italic leading-none">
-                    {(profile as any).full_name || 'Anonymous'}
+          <PreviewSwipeCard
+            images={images}
+            fallback={<User className="w-20 h-20 text-white/15" />}
+            badges={
+              profile.verified ? (
+                <Badge className="bg-[#EB4898]/20 backdrop-blur-xl text-[#EB4898] border border-[#EB4898]/30 text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full">
+                  <ShieldCheck className="w-3.5 h-3.5 mr-1" />
+                  Verified
+                </Badge>
+              ) : null
+            }
+            overlay={
+              <div className="space-y-4">
+                <div className="flex items-end gap-3 flex-wrap">
+                  <h1 className="text-3xl font-black uppercase tracking-tight leading-[1.05] text-white drop-shadow-lg line-clamp-2 break-words">
+                    {profile.full_name || 'Anonymous'}
                   </h1>
-                  {(profile as any).age && (
-                    <span className="text-2xl text-white/40 font-black italic tabular-nums leading-none">
-                      {(profile as any).age}
+                  {profile.age && (
+                    <span className="text-2xl font-black text-white/70 tabular-nums leading-none pb-0.5">
+                      {profile.age}
                     </span>
                   )}
-                  {profile.verified && (
-                    <div className="px-2.5 py-1 rounded-lg bg-[#EB4898]/10 border border-[#EB4898]/20 flex items-center gap-1.5 shadow-[0_0_15px_rgba(235,72,152,0.1)]">
-                       <ShieldCheck className="w-3.5 h-3.5 text-[#EB4898]" />
-                       <span className="text-[10px] font-black uppercase tracking-widest text-[#EB4898] italic">Verified</span>
-                    </div>
-                  )}
                 </div>
-                <div className="flex flex-wrap items-center gap-4 mt-3 text-[11px] font-bold text-white/40 uppercase tracking-[0.15em] italic">
-                  {((profile as any).city || (profile as any).neighborhood) && (
+                <div className="flex flex-wrap gap-x-4 gap-y-1.5 text-[11px] font-bold uppercase tracking-wider text-white/70">
+                  {(profile.city || profile.neighborhood) && (
                     <span className="flex items-center gap-1.5">
-                      <MapPin className="w-4 h-4 text-[#FF4D00]" />
-                      {[(profile as any).neighborhood, (profile as any).city].filter(Boolean).join(', ')}
+                      <MapPin className="w-3.5 h-3.5 text-[#FF4D00]" />
+                      {[profile.neighborhood, profile.city].filter(Boolean).join(', ')}
                     </span>
                   )}
-                  {(profile as any).nationality && (
+                  {profile.nationality && (
                     <span className="flex items-center gap-1.5">
-                      <Globe className="w-4 h-4 text-[#EB4898]" />
-                      {(profile as any).nationality}
+                      <Globe className="w-3.5 h-3.5 text-[#EB4898]" />
+                      {profile.nationality}
                     </span>
                   )}
                 </div>
+                {profile.bio && (
+                  <p className="text-xs text-white/80 leading-relaxed line-clamp-2">
+                    {profile.bio}
+                  </p>
+                )}
+                {interests.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 pt-1">
+                    {interests.slice(0, 5).map((it, i) => (
+                      <Badge
+                        key={i}
+                        className="bg-white/10 backdrop-blur-xl text-white/90 border border-white/15 text-[9px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full"
+                      >
+                        {it}
+                      </Badge>
+                    ))}
+                    {interests.length > 5 && (
+                      <Badge className="bg-white/5 text-white/50 border border-white/10 text-[9px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full">
+                        +{interests.length - 5}
+                      </Badge>
+                    )}
+                  </div>
+                )}
               </div>
-            </div>
-
-            {/* Bio */}
-            {(profile as any).bio && (
-              <div className="p-5 rounded-[32px] bg-white/[0.03] border border-white/[0.05] shadow-inner">
-                <p className="text-sm text-white/70 leading-relaxed italic">
-                  {(profile as any).bio}
-                </p>
-              </div>
-            )}
-
-            {/* Interests */}
-            {interests.length > 0 && (
-              <div className="space-y-3">
-                <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] italic ml-1">
-                  Interests
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {interests.slice(0, 8).map((interest, idx) => (
-                    <Badge
-                      key={idx}
-                      className="bg-[#EB4898]/10 text-[#EB4898] border border-[#EB4898]/20 text-[10px] rounded-xl font-black uppercase tracking-widest px-3 py-1.5 italic"
-                    >
-                      {interest}
-                    </Badge>
-                  ))}
-                  {interests.length > 8 && (
-                    <Badge variant="secondary" className="bg-white/5 text-white/40 border-none text-[10px] rounded-xl font-black uppercase tracking-widest px-3 py-1.5 italic">
-                      +{interests.length - 8} More
-                    </Badge>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* Lock teaser for non-users */}
-            {!user && (
-              <motion.div 
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                className="flex items-center gap-4 p-5 bg-gradient-to-r from-[#FF4D00]/10 to-transparent rounded-[32px] border border-[#FF4D00]/20 backdrop-blur-xl shadow-2xl"
-              >
-                <div className="w-12 h-12 rounded-[20px] bg-[#FF4D00] flex items-center justify-center flex-shrink-0 shadow-[0_0_20px_rgba(255,77,0,0.4)]">
-                  <Lock className="w-5 h-5 text-white" />
-                </div>
-                <p className="text-[12px] font-medium text-white/70 leading-relaxed">
-                  Sign in to see the full profile and connect directly.
-                </p>
-              </motion.div>
-            )}
-
-            {/* CTA Buttons */}
-            <div className="flex flex-col gap-3 pt-2">
-              {!user ? (
-                <>
-                  <Button
-                    size="lg"
-                    className="w-full rounded-[24px] bg-gradient-to-r from-[#FF4D00] to-[#EB4898] hover:opacity-90 text-white font-black h-16 text-sm uppercase tracking-widest shadow-[0_10px_30px_rgba(255,77,0,0.3)] active:scale-[0.98] transition-all"
-                    onClick={() => { triggerHaptic('success'); navigate(`/?returnTo=/profile/${id}`); }}
-                  >
-                     <UserPlus className="w-5 h-5 mr-3" />
-                    Create Account
-                  </Button>
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    className="w-full rounded-[24px] h-14 font-semibold tracking-wide text-sm border-white/10 bg-white/5 hover:bg-white/10 active:scale-[0.98] transition-all text-white"
-                    onClick={() => { triggerHaptic('medium'); navigate('/'); }}
-                  >
-                    <LogIn className="w-4 h-4 mr-3" />
-                    Sign In
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <Button
-                    size="lg"
-                    className="w-full rounded-[24px] bg-gradient-to-r from-[#FF4D00] to-[#EB4898] hover:opacity-90 text-white font-black h-16 text-sm uppercase tracking-widest shadow-[0_10px_30px_rgba(255,77,0,0.3)] active:scale-[0.98] transition-all"
-                    onClick={handleViewFullProfile}
-                  >
-                    <Sparkles className="w-5 h-5 mr-3" />
-                    View Full Profile
-                  </Button>
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    className="w-full rounded-[24px] h-14 font-semibold tracking-wide text-sm border-white/10 bg-white/5 hover:bg-white/10 active:scale-[0.98] transition-all text-white"
-                    onClick={() => { triggerHaptic('medium'); navigate('/client/dashboard'); }}
-                  >
-                    Back to Nexus
-                  </Button>
-                </>
-              )}
-            </div>
-
-            <p className="text-center text-[10px] font-semibold uppercase tracking-[0.3em] opacity-30 pb-2 text-white">
-              Powered by Swipess
-            </p>
-          </div>
+            }
+          />
         </motion.div>
+
+        {/* CTAs */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
+          className="space-y-3"
+        >
+          {user ? (
+            <Button
+              onClick={handleViewFull}
+              className="w-full h-14 rounded-2xl bg-gradient-to-r from-[#EB4898] to-[#FF4D00] text-white font-bold uppercase tracking-wider shadow-[0_10px_30px_rgba(235,72,152,0.35)] active:scale-[0.98] transition-transform"
+            >
+              <Sparkles className="w-5 h-5 mr-2.5" />
+              See Full Insights
+            </Button>
+          ) : (
+            <>
+              <Button
+                onClick={handleCreateAccount}
+                className="w-full h-14 rounded-2xl bg-white text-black font-bold uppercase tracking-wider hover:bg-white/95 active:scale-[0.98] transition-transform shadow-2xl"
+              >
+                <UserPlus className="w-5 h-5 mr-2.5" />
+                Create Account
+              </Button>
+              <Button
+                onClick={handleSignIn}
+                className="w-full h-14 rounded-2xl bg-white/10 hover:bg-white/15 text-white font-bold uppercase tracking-wider border border-white/20 active:scale-[0.98] transition-transform backdrop-blur-xl"
+              >
+                <LogIn className="w-5 h-5 mr-2.5" />
+                Sign In
+              </Button>
+              <p className="text-center text-[11px] text-white/40 pt-2">
+                Join Swipess to view the full profile and connect.
+              </p>
+            </>
+          )}
+        </motion.div>
+
+        <p className="text-center text-[10px] font-bold uppercase tracking-[0.3em] text-white/25 pt-4">
+          Powered by Swipess
+        </p>
       </div>
 
       <ShareDialog
         open={showShareDialog}
         onOpenChange={setShowShareDialog}
         profileId={id}
-        title={profile.full_name || 'Anonymous User'}
-        description={`✨ Discover ${profile.full_name || 'this user'} on Swipess. Immersive discovery for properties, vehicles, and connections.`}
+        title={`${profile.full_name || 'Profile'} on Swipess`}
+        description={`Discover ${profile.full_name || 'this profile'} on Swipess.`}
       />
     </div>
   );
 }
-
-
