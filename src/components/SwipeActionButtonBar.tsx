@@ -154,6 +154,13 @@ const ActionButton = memo(forwardRef<HTMLButtonElement, any>(function ActionButt
         padding: 0,
         position: 'relative',
         flexShrink: 0,
+        background: 'transparent',
+        border: 'none',
+        outline: 'none',
+        WebkitTapHighlightColor: 'transparent',
+        appearance: 'none',
+        WebkitAppearance: 'none',
+        boxShadow: 'none',
         color: variant === 'default' ? 'var(--foreground)' : cfg.iconColor
       }}
       className="flex items-center justify-center touch-manipulation select-none"
