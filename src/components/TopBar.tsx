@@ -133,7 +133,16 @@ function TopBarComponent({
               style={{ ...glassPillStyle, width: '36px' }}
               aria-label="Back"
             >
-              <ChevronLeft className="w-[20px] h-[20px]" strokeWidth={2.2} style={{ color: '#FFFFFF', filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.55))' }} />
+              <ChevronLeft
+                className="w-[18px] h-[18px]"
+                strokeWidth={2.2}
+                style={{
+                  color: isLight ? '#0A0A0A' : '#FFFFFF',
+                  filter: isLight
+                    ? 'drop-shadow(0 1px 2px rgba(0,0,0,0.18))'
+                    : 'drop-shadow(0 2px 6px rgba(0,0,0,0.55))',
+                }}
+              />
             </motion.button>
           ) : (
             user && (

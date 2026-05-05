@@ -156,14 +156,26 @@ const MessageBubble = memo(({ message, isUser, isSwipess, onCopy, onDelete, onTr
       onClick={() => { triggerHaptic('light'); setShowActions(!showActions); }}
     >
       <div className={cn(
+        "px-4 py-3 rounded-3xl",
         isUser 
-          ? (isSwipess ? 'bg-[#FF3D00] text-white rounded-br-md shadow-[0_10px_30px_rgba(255,61,0,0.3)]' : 'bg-primary text-primary-foreground rounded-br-md shadow-md')
-          : (isSwipess ? 'bg-white/[0.04] backdrop-blur-3xl border border-white/10 text-white rounded-bl-md' : 'bg-white border-black/[0.05] text-black rounded-bl-md shadow-sm')
+          ? 'bg-primary text-primary-foreground rounded-br-md shadow-[0_8px_24px_hsl(var(--primary)/0.35)]'
+          : (isSwipess
+              ? 'bg-white/[0.05] backdrop-blur-2xl border border-white/10 text-white rounded-bl-md'
+              : 'bg-card border border-border/60 text-foreground rounded-bl-md shadow-sm')
       )}>
         {isUser ? (
-          <span className="whitespace-pre-wrap">{message.content}</span>
+          <span className="whitespace-pre-wrap text-[15px] leading-relaxed">{message.content}</span>
         ) : (
-          <div className="prose prose-sm dark:prose-invert max-w-none prose-p:my-1 prose-ul:my-1 prose-li:my-0.5">
+          <div className={cn(
+            "prose prose-sm max-w-none",
+            "prose-p:my-1.5 prose-p:leading-relaxed prose-ul:my-1.5 prose-li:my-0.5",
+            "prose-headings:text-foreground prose-strong:text-foreground",
+            "prose-a:text-primary prose-a:no-underline hover:prose-a:underline",
+            "prose-code:text-primary prose-code:bg-primary/10 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded-md prose-code:before:content-none prose-code:after:content-none",
+            "prose-blockquote:border-l-primary prose-blockquote:text-muted-foreground",
+            "prose-hr:border-border/60",
+            isSwipess ? "prose-invert" : ""
+          )}>
             <ReactMarkdown>{cleanContent}</ReactMarkdown>
           </div>
         )}
@@ -173,7 +185,7 @@ const MessageBubble = memo(({ message, isUser, isSwipess, onCopy, onDelete, onTr
              className={cn(
                "absolute bottom-2 right-2 w-7 h-7 rounded-lg flex items-center justify-center transition-all border",
                speakingMsgId === message.id && isSpeaking 
-                 ? "bg-cyan-500 border-cyan-400 text-white shadow-[0_0_10px_rgba(34,211,238,0.4)]" 
+                 ? "bg-primary border-primary text-primary-foreground shadow-[0_0_10px_hsl(var(--primary)/0.4)]" 
                  : isSwipess ? "bg-white/5 border-white/10 text-white/40 hover:text-white" : "bg-muted border-border text-muted-foreground hover:text-primary"
              )}
            >
@@ -188,7 +200,7 @@ const MessageBubble = memo(({ message, isUser, isSwipess, onCopy, onDelete, onTr
             <button
               key={path}
               onClick={(e) => { e.stopPropagation(); onNavigate(path); }}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-all"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold tracking-wide bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-all"
             >
               {NAV_LABELS[path] || path}
               <ArrowRight className="w-3 h-3" />
@@ -198,9 +210,9 @@ const MessageBubble = memo(({ message, isUser, isSwipess, onCopy, onDelete, onTr
             <button
               key={idx}
               onClick={(e) => { e.stopPropagation(); onDraft?.(draft.category, draft.data); }}
-              className="flex items-center gap-2 px-4 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 hover:bg-cyan-500/20 shadow-[0_0_20px_rgba(34,211,238,0.1)] transition-all animate-pulse"
+              className="flex items-center gap-2 px-3 py-1.5 rounded-full text-[11px] font-bold tracking-wide bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-all"
             >
-              <Plus className="w-4 h-4" />
+              <Plus className="w-3.5 h-3.5" />
               Review {draft.category} Draft
               <Sparkles className="w-3 h-3" />
             </button>
@@ -208,9 +220,9 @@ const MessageBubble = memo(({ message, isUser, isSwipess, onCopy, onDelete, onTr
           {filterAction && (
             <button
               onClick={(e) => { e.stopPropagation(); onFilter?.(filterAction); }}
-              className="flex items-center gap-2 px-4 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest bg-[#FF3D00]/10 text-[#FF3D00] border border-[#FF3D00]/30 hover:bg-[#FF3D00]/20 shadow-[0_0_20px_rgba(255,61,0,0.1)] transition-all"
+              className="flex items-center gap-2 px-3 py-1.5 rounded-full text-[11px] font-bold tracking-wide bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-all"
             >
-              <Zap className="w-4 h-4" />
+              <Zap className="w-3.5 h-3.5" />
               Applying Search Filters
               <RefreshCw className="w-3 h-3 animate-spin" />
             </button>
@@ -648,8 +660,8 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
           >
             {isSwipess && (
               <div className="absolute inset-0 pointer-events-none z-0">
-                <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-[#FF3D00]/10 blur-[120px] rounded-full animate-pulse" />
-                <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-blue-600/10 blur-[120px] rounded-full" />
+                <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-primary/10 blur-[120px] rounded-full animate-pulse" />
+                <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-primary/5 blur-[120px] rounded-full" />
               </div>
             )}
 
@@ -728,8 +740,8 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                       </PopoverContent>
                     </Popover>
 
-                    <button onClick={onClose} className={cn("w-10 h-10 flex items-center justify-center rounded-xl transition-all border group", isLight && !isSwipess ? "bg-slate-100 border-slate-200 hover:bg-red-500 hover:border-red-500" : "bg-white/5 border-white/10 hover:bg-white/20")}>
-                      <X className={cn("w-4 h-4 transition-transform group-hover:scale-110", isLight && !isSwipess ? "text-slate-600 group-hover:text-white" : "text-white/60")} />
+                    <button onClick={onClose} className={cn("w-9 h-9 flex items-center justify-center rounded-full transition-all border group active:scale-90", isLight && !isSwipess ? "bg-muted border-border hover:bg-muted/80" : "bg-white/5 border-white/10 hover:bg-white/15")} aria-label="Close">
+                      <X className={cn("w-[18px] h-[18px]", isLight && !isSwipess ? "text-foreground" : "text-white/80")} strokeWidth={2.2} />
                     </button>
                   </div>
                 </header>
@@ -821,11 +833,11 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                             onPointerDown={startListening}
                             onPointerUp={stopListening}
                             onPointerCancel={stopListening}
-                            className={cn("p-2.5 rounded-2xl transition-all relative group", isListening ? "bg-cyan-500 text-white shadow-[0_0_20px_rgba(34,211,238,0.5)] scale-110" : isLight && !isSwipess ? "text-foreground/80 hover:bg-foreground/10 hover:text-foreground" : "text-white/80 hover:bg-white/10")}
+                            className={cn("p-2.5 rounded-2xl transition-all relative group", isListening ? "bg-primary text-primary-foreground shadow-[0_0_20px_hsl(var(--primary)/0.4)] scale-110" : isLight && !isSwipess ? "text-foreground/80 hover:bg-foreground/10 hover:text-foreground" : "text-white/80 hover:bg-white/10")}
                           >
                              {isListening ? <Mic className="w-4 h-4 animate-pulse" strokeWidth={2.6} /> : <Mic className="w-4 h-4" strokeWidth={2.6} />}
                             {isListening && (
-                               <motion.div className="absolute -inset-1 rounded-2xl border border-cyan-400" animate={{ opacity: [0.5, 0, 0.5], scale: [1, 1.2, 1] }} transition={{ duration: 1.5, repeat: Infinity }} />
+                               <motion.div className="absolute -inset-1 rounded-2xl border border-primary" animate={{ opacity: [0.5, 0, 0.5], scale: [1, 1.2, 1] }} transition={{ duration: 1.5, repeat: Infinity }} />
                             )}
                          </button>
                        </div>
@@ -835,11 +847,11 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                          placeholder={isListening ? "Listening... Speak now" : "Inquire for discovery..."}
                          rows={1}
                           className={cn(
-                            "w-full bg-transparent border-none outline-none focus:ring-0 py-4 pl-2 pr-5 text-sm resize-none custom-scrollbar min-h-[56px] max-h-32 leading-6 transition-all self-center",
+                            "w-full bg-transparent border-none outline-none focus:ring-0 py-4 pl-2 pr-5 text-[15px] resize-none custom-scrollbar min-h-[52px] max-h-32 leading-6 transition-all self-center font-medium",
                             isLight && !isSwipess
-                              ? "text-foreground placeholder:text-foreground/45"
+                              ? "text-foreground placeholder:text-muted-foreground"
                               : "text-white placeholder:text-white/55",
-                            isListening && "text-cyan-400 placeholder:text-cyan-400/50"
+                            isListening && "text-primary placeholder:text-primary/50"
                           )}
                          onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
                        />
@@ -849,20 +861,16 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                          onClick={handleSend}
                          disabled={!input.trim() || isLoading}
                          className={cn(
-                           "h-14 w-14 shrink-0 rounded-full inline-flex items-center justify-center transition-all active:scale-90 ring-1 ring-primary/50 shadow-[0_18px_42px_hsl(var(--primary)/0.45)]",
-                            isLight && !isSwipess
-                              ? "bg-foreground text-background hover:bg-foreground/90"
-                              : "bg-primary text-primary-foreground hover:bg-primary/90 hover:shadow-[0_22px_54px_hsl(var(--primary)/0.55)]",
-                           (!input.trim() || isLoading) && "opacity-40"
+                           "h-12 w-12 shrink-0 rounded-full inline-flex items-center justify-center transition-all active:scale-90 shadow-[0_10px_28px_hsl(var(--primary)/0.4)]",
+                           "bg-primary text-primary-foreground hover:bg-primary/90",
+                           (!input.trim() || isLoading) && "opacity-40 shadow-none"
                          )}
                          aria-label="Send message"
                        >
                          {isLoading ? (
-                           <RefreshCw className="h-6 w-6 animate-spin" strokeWidth={2.4} />
-                         ) : !input.trim() ? (
-                           <CornerDownLeft className="h-5 w-5" strokeWidth={2.6} />
+                           <RefreshCw className="h-5 w-5 animate-spin" strokeWidth={2.4} />
                          ) : (
-                           <Send className="h-6 w-6" strokeWidth={2.4} />
+                           <ArrowUp className="h-5 w-5" strokeWidth={2.6} />
                          )}
                        </button>
                   </div>
