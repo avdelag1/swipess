@@ -2,7 +2,6 @@ import { useMemo } from 'react';
 import { SwipessSwipeContainer } from '@/components/SwipessSwipeContainer';
 import { useFilterStore } from '@/state/filterStore';
 import { cn } from '@/lib/utils';
-import useAppTheme from '@/hooks/useAppTheme';
 import { useSmartListingMatching } from '@/hooks/smartMatching/useSmartListingMatching';
 import { useAuth } from '@/hooks/useAuth';
 import { AtmosphericLayer } from '@/components/AtmosphericLayer';
@@ -12,7 +11,6 @@ interface ClientDashboardProps {
 }
 
 export default function ClientDashboard({ onMessageClick }: ClientDashboardProps) {
-  const { isLight } = useAppTheme();
   const { user } = useAuth();
 
   const filterVersion = useFilterStore(s => s.filterVersion);
@@ -27,8 +25,7 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
   return (
     <div
       className={cn(
-        "flex-1 flex flex-col relative w-full min-h-0",
-        isLight ? "bg-swipe-frame-soft" : "bg-swipe-frame"
+        "flex-1 flex flex-col relative w-full min-h-0 bg-swipe-frame"
       )}
       style={{
         willChange: 'transform',
