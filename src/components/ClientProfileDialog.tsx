@@ -285,6 +285,17 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
                  showCameraButton={true}
                  replaceOnFull={false}
                />
+               {data?.user_id && (
+                 <div className="space-y-2">
+                   <p className="text-[10px] uppercase tracking-widest text-white/40 italic">Optional 6s silent video loop — plays first on your card</p>
+                   <ListingVideoUpload
+                     userId={data.user_id}
+                     videoUrl={videoUrl}
+                     onUploadSuccess={setVideoUrl}
+                     onRemove={() => setVideoUrl(null)}
+                   />
+                 </div>
+               )}
             </section>
 
             {/* 👤 IDENTITY CORE */}
