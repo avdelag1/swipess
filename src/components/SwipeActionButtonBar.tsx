@@ -254,7 +254,20 @@ export const SwipeActionButtonBar = memo(({
         >
           <Flame className="w-full h-full" fill="currentColor" strokeWidth={0} />
         </ActionButton>
-        {/* Insights button removed — the bottom-center area now summons the chrome */}
+        {onInsights && (
+          <ActionButton
+            key="action-insights"
+            onClick={onInsights}
+            disabled={disabled}
+            size="small"
+            variant="cyan"
+            ariaLabel="Insights"
+            index={4}
+            isLight={isLight}
+          >
+            <Eye className="w-full h-full" strokeWidth={2} />
+          </ActionButton>
+        )}
       </AnimatePresence>
     </div>
   );
