@@ -3,6 +3,7 @@ import { useFocusMode } from '@/hooks/useFocusMode';
 import { useScrollDirection } from '@/hooks/useScrollDirection';
 import { useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
+import { useChromeReveal, revealChrome } from '@/hooks/useChromeReveal';
 
 interface SwipessHudProps {
   children: React.ReactNode;
@@ -27,6 +28,12 @@ interface SwipessHudProps {
   className?: string;
   /** When true, always visible — no auto-hide on scroll */
   alwaysVisible?: boolean;
+  /**
+   * When true, visibility is controlled by the chrome-reveal store
+   * (hidden by default, revealed via summon zones, auto-hides after 5s).
+   * Overrides alwaysVisible.
+   */
+  revealMode?: boolean;
 }
 
 /**
@@ -42,6 +49,7 @@ export function SwipessHud({
   side = 'top',
   className,
   alwaysVisible = false,
+  revealMode = false,
 }: SwipessHudProps) {
   const location = useLocation();
   const { isFocused } = useFocusMode(7000);
@@ -53,7 +61,8 @@ export function SwipessHud({
     resetTrigger: location.pathname
   });
 
-  const isVisible = alwaysVisible || isScrollVisible;
+  const { isChromeVisible } = useChromeReveal();
+  const isVisible = revealMode ? isChromeVisible : (alwaysVisible || isScrollVisible);
 
   const isTranslate = mode === 'both' || mode === 'translate';
   const isFade = mode === 'both' || mode === 'fade';
@@ -76,6 +85,7 @@ export function SwipessHud({
         willChange: 'transform, opacity',
         transform: 'translateZ(0)',
       }}
+      onPointerDownCapture={revealMode && isVisible ? () => revealChrome() : undefined}
     >
       {children}
     </div>
