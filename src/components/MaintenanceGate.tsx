@@ -3,15 +3,38 @@ import { Lock, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 
 const STORAGE_KEY = "swipess_promo_unlocked";
-const PROMO_CODE = "URD BEST";
+const SESSION_KEY = "swipess_promo_session_unlocked";
+const PROMO_CODE = "URDBEST";
+
+const normalizeCode = (value: string) =>
+  value
+    .normalize("NFKC")
+    .replace(/[^a-z0-9]/gi, "")
+    .toUpperCase();
+
+const persistUnlock = () => {
+  try { localStorage.setItem(STORAGE_KEY, "true"); } catch { /* ignore */ }
+  try { sessionStorage.setItem(SESSION_KEY, "true"); } catch { /* ignore */ }
+  try { document.cookie = `${STORAGE_KEY}=true; path=/; max-age=31536000; SameSite=Lax`; } catch { /* ignore */ }
+};
+
+const hasPersistedUnlock = () => {
+  try {
+    if (localStorage.getItem(STORAGE_KEY) === "true") return true;
+  } catch { /* ignore */ }
+  try {
+    if (sessionStorage.getItem(SESSION_KEY) === "true") return true;
+  } catch { /* ignore */ }
+  try {
+    return document.cookie.split(";").some((item) => item.trim() === `${STORAGE_KEY}=true`);
+  } catch {
+    return false;
+  }
+};
 
 export function MaintenanceGate({ children }: { children: React.ReactNode }) {
   const [unlocked, setUnlocked] = useState<boolean>(() => {
-    try {
-      return localStorage.getItem(STORAGE_KEY) === "true";
-    } catch {
-      return false;
-    }
+    return hasPersistedUnlock();
   });
   const [code, setCode] = useState("");
   const [error, setError] = useState(false);
@@ -19,17 +42,17 @@ export function MaintenanceGate({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (unlocked) {
-      try { localStorage.setItem(STORAGE_KEY, "true"); } catch { /* ignore */ }
+      persistUnlock();
     }
   }, [unlocked]);
 
   if (unlocked) return <>{children}</>;
 
-  const normalize = (s: string) => s.replace(/\s+/g, '').toUpperCase();
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (normalize(code) === normalize(PROMO_CODE)) {
+    if (normalizeCode(code) === PROMO_CODE) {
       setError(false);
+      persistUnlock();
       setUnlocked(true);
     } else {
       setError(true);
