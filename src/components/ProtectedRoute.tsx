@@ -66,8 +66,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
         if (redirectTimerRef.current) clearTimeout(redirectTimerRef.current);
       };
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, loading, initialized, navigate]);
+  }, [user, loading, initialized, navigate, location]);
 
   // Reset navigation ref only when user comes back (not on every route change)
   // This prevents potential redirect loops during auth state changes
