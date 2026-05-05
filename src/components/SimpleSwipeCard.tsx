@@ -27,6 +27,7 @@ import { imageCache } from '@/lib/swipe/cardImageCache';
 import useAppTheme from '@/hooks/useAppTheme';
 import { cn } from '@/lib/utils';
 import { ThumbsUp, ThumbsDown, Flame, Flag, Share2 } from 'lucide-react';
+import { PhotoPositionIndicators } from '@/components/swipe/PhotoPositionIndicators';
 
 export interface SimpleSwipeCardRef {
   triggerSwipe: (direction: 'left' | 'right') => void;
@@ -353,26 +354,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
             }}
           />
           
-          {imageCount > 1 && (
-            <div
-            className="absolute top-[calc(var(--safe-top,0px)+56px)] inset-x-0 flex justify-center z-30 pointer-events-none transition-opacity duration-150"
-              style={{ opacity: isZoomed ? 0 : 1 }}
-            >
-            <div className="flex gap-2 items-center justify-center px-3 py-1.5 rounded-full bg-black/30 backdrop-blur-md">
-              {Array.from({ length: imageCount }).map((_, idx) => (
-                <motion.div
-                  key={idx}
-                  animate={{
-                    scale: idx === currentImageIndex ? 1 : 0.7,
-                    opacity: idx === currentImageIndex ? 1 : 0.45,
-                  }}
-                  transition={{ duration: 0.15 }}
-                  className="w-2 h-2 rounded-full bg-white shadow-[0_1px_4px_rgba(0,0,0,0.8)]"
-                />
-              ))}
-            </div>
-            </div>
-          )}
+          <PhotoPositionIndicators count={imageCount} currentIndex={currentImageIndex} hidden={isZoomed} />
         </div>
 
         <motion.div className="absolute top-10 right-6 z-50 pointer-events-none" style={{ opacity: likeOpacity }}>
