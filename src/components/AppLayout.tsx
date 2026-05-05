@@ -23,7 +23,7 @@ const SwipessHud = lazy(() => import('./SwipessHud').then(m => ({ default: m.Swi
 const VapIdCardModal = lazy(() => import('./VapIdCardModal').then(m => ({ default: m.VapIdCardModal })));
 const GlobalDialogs = lazy(() => import('./GlobalDialogs').then(m => ({ default: m.GlobalDialogs })));
 import { ChromeSummonZones } from './swipe/ChromeSummonZones';
-import { resetChrome, revealChrome, useChromeReveal } from '@/hooks/useChromeReveal';
+import { useChromeReveal } from '@/hooks/useChromeReveal';
 
 
 const NotificationSystem = lazy(() =>
