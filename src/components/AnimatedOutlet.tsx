@@ -22,7 +22,7 @@ export function AnimatedOutlet() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ duration: 0.12, ease: [0.22, 1, 0.36, 1] }}
           className="flex-1 w-full flex flex-col bg-background"
           style={{ position: 'absolute', inset: 0 }}
         >
