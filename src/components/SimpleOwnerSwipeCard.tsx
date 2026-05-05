@@ -189,6 +189,8 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
 
   const imageCount = images.length;
   const currentImage = images[currentImageIndex] || FALLBACK_PLACEHOLDER;
+  const videoUrl = (profile as any)?.video_url as string | null | undefined;
+  const showVideoSlide = !!videoUrl && currentImageIndex === 0;
 
   useEffect(() => {
     if (!isTop || !images.length) return;
@@ -377,7 +379,11 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           onDragStart={(event) => event.preventDefault()}
           onContextMenu={(event) => event.preventDefault()}
         >
-          <CardImage src={currentImage} alt={profile.name || 'Client'} name={profile.name} priority={isTop} fullScreen={true} animate={!isZoomed} />
+          {showVideoSlide ? (
+            <video src={videoUrl} autoPlay muted loop playsInline className="absolute inset-0 w-full h-full object-cover" />
+          ) : (
+            <CardImage src={currentImage} alt={profile.name || 'Client'} name={profile.name} priority={isTop} fullScreen={true} animate={!isZoomed} />
+          )}
 
           <div className="absolute top-0 left-0 right-0 pointer-events-none z-20"
                style={{ height: '38%', background: 'linear-gradient(to bottom, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.65) 25%, rgba(0,0,0,0.35) 55%, rgba(0,0,0,0.12) 80%, transparent 100%)', opacity: isZoomed ? 0 : 1 }} />
