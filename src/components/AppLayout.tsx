@@ -23,7 +23,9 @@ const SwipessHud = lazy(() => import('./SwipessHud').then(m => ({ default: m.Swi
 const VapIdCardModal = lazy(() => import('./VapIdCardModal').then(m => ({ default: m.VapIdCardModal })));
 const GlobalDialogs = lazy(() => import('./GlobalDialogs').then(m => ({ default: m.GlobalDialogs })));
 import { ChromeSummonZones } from './swipe/ChromeSummonZones';
-import { resetChrome, useChromeReveal } from '@/hooks/useChromeReveal';
+import { resetChrome, revealChrome, useChromeReveal } from '@/hooks/useChromeReveal';
+import { useFilterStore } from '@/state/filterStore';
+import { useShallow } from 'zustand/react/shallow';
 
 
 const NotificationSystem = lazy(() =>
@@ -56,14 +58,36 @@ export function AppLayout({ children }: AppLayoutProps) {
     return path.startsWith('/client/dashboard') || path.startsWith('/owner/dashboard');
   }, [location.pathname]);
 
-  // On swipe dashboards, floating buttons (Voice, Radio) follow the chrome
-  // reveal state so left/right edge taps don't accidentally trigger them.
-  const hideFloatingForSwipe = isSwipeDashboard && !isChromeVisible;
+  // Determine whether we're in the "swipe deck" phase (cards on screen) vs
+  // the "picking phase" (quick-filter poker cards visible).
+  const { selectedCategoriesCount, ownerPhase } = useFilterStore(
+    useShallow(s => ({
+      selectedCategoriesCount: s.categories.length,
+      ownerPhase: s.ownerPhase,
+    }))
+  );
+  const isClientDash = location.pathname.startsWith('/client/dashboard');
+  const isOwnerDash = location.pathname.startsWith('/owner/dashboard');
+  const swipeDeckActive =
+    (isClientDash && selectedCategoriesCount > 0) ||
+    (isOwnerDash && ownerPhase === 'swipe');
+  // Picking phase = on dashboard but no swipe deck yet → chrome always visible
+  const inPickingPhase = isSwipeDashboard && !swipeDeckActive;
+
+  // Floating buttons (Voice, Radio) follow chrome reveal state only while the
+  // swipe deck is active; in the picking phase they stay visible.
+  const hideFloatingForSwipe = swipeDeckActive && !isChromeVisible;
 
   // When leaving (or entering) the swipe dashboard, reset chrome state.
   useEffect(() => {
     resetChrome();
   }, [isSwipeDashboard]);
+
+  // When the swipe deck appears, show the chrome for 5s then auto-hide.
+  useEffect(() => {
+    if (swipeDeckActive) revealChrome();
+    else resetChrome();
+  }, [swipeDeckActive]);
 
   const { isRefreshing, pullDistance, triggered } = usePullToRefresh({
     disabled: isSwipeDashboard
@@ -164,7 +188,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   
       {showAppChrome && (
         <Suspense fallback={null}>
-          <SwipessHud side="top" className="fixed top-0 left-0 right-0 z-[10005]" scrollTargetSelector="#dashboard-scroll-container" alwaysVisible={false} revealMode={isSwipeDashboard}>
+          <SwipessHud side="top" className="fixed top-0 left-0 right-0 z-[10005]" scrollTargetSelector="#dashboard-scroll-container" alwaysVisible={inPickingPhase} revealMode={swipeDeckActive}>
             <TopBar
               userRole={userRole}
               onMessageActivationsClick={handleMessageActivationsClick}
@@ -204,7 +228,7 @@ export function AppLayout({ children }: AppLayoutProps) {
 
       {showAppChrome && (
         <Suspense fallback={null}>
-          <SwipessHud side="bottom" className="fixed bottom-0 left-0 right-0 z-[10005]" scrollTargetSelector="#dashboard-scroll-container" alwaysVisible={false} revealMode={isSwipeDashboard}>
+          <SwipessHud side="bottom" className="fixed bottom-0 left-0 right-0 z-[10005]" scrollTargetSelector="#dashboard-scroll-container" alwaysVisible={inPickingPhase} revealMode={swipeDeckActive}>
             <BottomNavigation
               userRole={userRole}
               onFilterClick={handleFilterClick}
@@ -215,7 +239,7 @@ export function AppLayout({ children }: AppLayoutProps) {
       )}
 
       {/* Tap zones to summon chrome on swipe dashboards */}
-      {showAppChrome && isSwipeDashboard && !showAIChat && <ChromeSummonZones />}
+      {showAppChrome && swipeDeckActive && !showAIChat && <ChromeSummonZones />}
 
       {/* 📻 CONNECTED RADIO: Floating player bubble - Hidden on radio/full-screen routes */}
       {showAppChrome && !isFullScreen && !hideFloatingForSwipe && (
