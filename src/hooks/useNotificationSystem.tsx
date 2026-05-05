@@ -64,12 +64,17 @@ export function useNotificationSystem() {
     if (!user?.id) return;
 
     const fetchNotifications = async () => {
+      // Only pull recent notifications for the live banner queue.
+      // Anything older than 24h is loaded but immediately marked read so
+      // it stays available in the bell list without flooding the UI.
+      const sinceIso = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
       const { data, error } = await supabase
         .from('notifications')
         .select('*')
         .eq('user_id', user.id)
+        .gte('created_at', sinceIso)
         .order('created_at', { ascending: false })
-        .limit(50);
+        .limit(20);
 
       if (error) {
         logger.error('Error fetching notifications:', error);
@@ -77,15 +82,20 @@ export function useNotificationSystem() {
       }
 
       if (data && data.length > 0) {
+        // Only items from the last 60 seconds get banner exposure (read=false).
+        // Older unread items are loaded as "read" so they appear in the bell
+        // but never flood the screen.
+        const liveCutoff = Date.now() - 60_000;
         (data as unknown as DBNotification[]).forEach((notif) => {
           const type = notificationTypeMap[notif.notification_type] || 'like';
+          const isLive = new Date(notif.created_at).getTime() >= liveCutoff;
           addNotification({
             id: notif.id,
             type,
             title: notif.title || titleMap[notif.notification_type] || 'Notification',
             message: notif.message || '',
             timestamp: new Date(notif.created_at),
-            read: notif.is_read || false,
+            read: isLive ? (notif.is_read || false) : true,
             actionUrl: notif.link_url,
             relatedUserId: notif.related_user_id,
             metadata: notif.metadata || {},
