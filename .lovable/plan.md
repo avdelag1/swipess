@@ -1,62 +1,96 @@
-# Boomerang Video Loops — Plan
+## Goal
 
-One short, silent, auto-looping video per item, used across **listings (client + owner)**, **user profiles (client + owner)**, and **events**. Plays as the first "slide" of the swipe card, like Instagram Reels but always muted, always looping.
+Two changes on the swipe dashboards (client + owner):
 
-## Spec
-- **1 video per item** (no multiples — keeps storage and load fast)
-- **Max 6 seconds** (boomerang-style); enforced client-side before upload
-- **Max 25 MB** file size; accepted formats: mp4, mov, webm
-- **Always muted, autoplay, loop, playsInline** — never plays audio anywhere in the app
-- **Plays as first slide** of the card image carousel, then user can swipe through photos
-- Optional — user can leave it blank, photos remain mandatory (1 photo rule preserved)
+1. **Tighten the action button row** (Return, Dislike, Message, Like, Insights) so the icons sit visually closer together — no oversized invisible tap squares pushing them apart.
+2. **Auto-hide the TopBar + BottomNav while interacting with a swipe card.** Reveal them only on an intentional gesture (tap top edge or tap bottom edge of the screen), then auto-hide again after 5s of no interaction. Apple-style fade.
 
-## Backend (Supabase `qegyisokrxdsszzswsqk`)
+---
 
-Reusing existing infra — no new buckets needed:
+## 1. Tighter action buttons (`src/components/SwipeActionButtonBar.tsx`)
 
-| Surface | Storage bucket (exists) | Column |
-|---|---|---|
-| Listings (property/vehicle/service/etc.) | `listing-videos` (public) | `listings.video_url` ✅ already exists |
-| Events | `listing-videos` (public, reused) | `events.video_url` — **new column** |
-| Client profile | `profile-images` bucket → new `videos/` folder | `client_profiles.video_url` — **new column** |
-| Owner profile | `profile-images` bucket → new `videos/` folder | `owner_profiles.video_url` — **new column** |
+The buttons feel spread out because each one is a wide square. Shrink the hit-box to a tight circle around the icon and remove extra row spacing.
 
-**Migration:** add `video_url text` to `events`, `client_profiles`, `owner_profiles`. Storage RLS for `listing-videos` and `profile-images` already allows owner-only writes; videos folder follows the same pattern.
+- Replace the square dimensions with circular ones:
+  - Large (Like / Dislike): `56px` (was up to 78px)
+  - Small (Return / Message / Insights): `40px` (was up to 50px)
+  - Icons resized proportionally: large `30px`, small `20px`
+- Add `borderRadius: '50%'` so the tap target is a true circle, not a square.
+- Row gap reduced: `gap-0` between buttons (icons themselves already have built-in padding via the drop-shadow). The `-mt-6` lift stays.
+- Keep haptics, glow, lottie animations untouched.
 
-## Frontend changes
+Result: icons sit close together like Tinder/Bumble, no dead space between.
 
-1. **New shared component `LoopVideo.tsx`**
-   - `<video muted autoPlay loop playsInline preload="metadata" poster={firstImage}>`
-   - Boomerang effect: when video reaches end, alternates `playbackRate` between `1` and `-1` for true ping-pong feel (with mp4 fallback to plain loop on browsers that don't support reverse).
-   - Lazy-mounts via IntersectionObserver — pauses off-screen to save battery.
+---
 
-2. **New shared upload component `VideoUploader.tsx`**
-   - File input → reads metadata → rejects if `duration > 6s` or `size > 25MB` with a NotificationBar message.
-   - Uploads to the right bucket/path, writes URL back to the form.
-   - Shows tiny inline preview + "Replace" / "Remove" controls.
+## 2. Auto-hide chrome on swipe dashboards
 
-3. **Forms — wire `VideoUploader` into:**
-   - `src/components/UnifiedListingForm.tsx` (already references `video_url`, just needs the uploader UI)
-   - `src/components/EventForm.tsx` (or wherever events are created)
-   - Client profile editor (`ClientProfileForm` / equivalent)
-   - Owner profile editor (`OwnerProfileForm` / equivalent)
+Today `SwipessHud` has `alwaysVisible={isSwipeDashboard}` for both top and bottom — meaning chrome is permanently shown on `/client/dashboard` and `/owner/dashboard`. We'll flip that behavior to **hidden by default** on those routes and add a "summon" mechanism.
 
-4. **Cards — render `LoopVideo` as first slide when `video_url` present:**
-   - `src/components/SimpleSwipeCard.tsx` (client deck)
-   - `src/components/SimpleOwnerSwipeCard.tsx` (owner deck)
-   - `src/components/swipe/SwipeCardPeek.tsx`
-   - `src/components/PremiumLikedCard.tsx`
-   - `src/components/EventCard.tsx`
-   - Profile detail / preview surfaces
+### New hook: `src/hooks/useChromeReveal.ts`
 
-5. **No audio anywhere** — `muted` is hard-coded, no controls UI exposed. Respects existing global "no in-app sounds" rule.
+A lightweight Zustand-free module (just a tiny event bus + hook) that exposes:
 
-## What stays untouched
-- Swipe physics, magnifier, action buttons cluster, soft-dismiss, notifications — all preserved
-- The mandatory 1-photo rule still applies; video is purely additive
-- Existing `listings.video_url` data continues to work
+```text
+isChromeVisible: boolean      // false by default on swipe dashboards
+revealChrome():  void         // shows chrome, starts 5s auto-hide timer
+hideChrome():    void
+```
 
-## Out of scope
-- Trimming/editing videos in-app (user uploads pre-trimmed)
-- Sound on videos (permanently disabled per project rule)
-- Multiple videos per item (locked to 1 by design)
+Behavior:
+- Calling `revealChrome()` shows chrome, resets a 5000ms timer, then auto-hides.
+- Re-tapping during the 5s window resets the timer (doesn't toggle off).
+- Default state on mount = hidden (only on swipe dashboards).
+
+### Wire `SwipessHud` to it
+
+Add a new prop `revealMode?: boolean`. When true, `SwipessHud` ignores `alwaysVisible`/`isScrollVisible` and instead uses `useChromeReveal().isChromeVisible`. Existing transition classes (opacity + translate-y) already give the smooth Apple-style slide.
+
+In `AppLayout.tsx`:
+- Replace `alwaysVisible={isSwipeDashboard}` with `revealMode={isSwipeDashboard}` for both top and bottom `SwipessHud` instances.
+
+### Summon zones (new component): `src/components/swipe/ChromeSummonZones.tsx`
+
+Two thin invisible strips rendered only on swipe dashboards:
+
+```text
+┌──────────────────────────────┐
+│  TOP STRIP  (24px tall)      │  ← tap reveals TopBar+BottomNav
+├──────────────────────────────┤
+│                              │
+│       SWIPE CARD AREA        │
+│                              │
+├──────────────────────────────┤
+│ BOTTOM CENTER STRIP (24×40%) │  ← tap reveals chrome
+└──────────────────────────────┘
+```
+
+- `position: fixed`, `z-index: 10004` (just under chrome's 10005).
+- `pointer-events: auto` only on the strips themselves.
+- `onClick={revealChrome}` + light haptic.
+- The strips are **completely transparent** — no visual.
+- They sit **outside** the card drag area so they never interfere with swipe / zoom / photo-tap.
+
+Mounted from `AppLayout.tsx` only when `isSwipeDashboard && !showAIChat`.
+
+### Why this is safe with existing gestures
+
+The card itself owns the entire middle of the screen for swipe / zoom / left-right photo tap. The summon strips are 24px slivers at the very top and bottom-center, **above** the chrome z-index but below the chrome itself. They never overlap the card body, so swiping, holding-to-zoom, and tapping the photo for insights all continue to work without revealing chrome accidentally.
+
+When chrome IS revealed, the chrome (`z-10005`) sits above the strips and receives the taps normally.
+
+### 5-second auto-hide
+
+The `useChromeReveal` hook's internal `setTimeout(5000)` handles this. Any interaction inside the chrome itself (tapping a header button, etc.) calls `revealChrome()` again to reset the timer so the user isn't cut off mid-action.
+
+---
+
+## Files touched
+
+- `src/components/SwipeActionButtonBar.tsx` — circular, tighter buttons
+- `src/components/SwipessHud.tsx` — add `revealMode` prop
+- `src/components/AppLayout.tsx` — switch swipe dashboards to `revealMode`, mount summon zones
+- `src/hooks/useChromeReveal.ts` — new (event-bus + hook + 5s timer)
+- `src/components/swipe/ChromeSummonZones.tsx` — new (top + bottom-center invisible tap strips)
+
+No backend changes. No DB changes. No changes to swipe physics, photo tap, zoom, or like/dismiss logic.
