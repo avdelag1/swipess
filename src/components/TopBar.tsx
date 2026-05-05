@@ -49,8 +49,11 @@ function TopBarComponent({
   const { isLight } = useAppTheme();
   const setModal = useModalStore(s => s.setModal);
   const hasCards = useDeckHasCards();
-  // Over swipe cards (bright photos) -> dark icons. Otherwise -> light icons.
-  const iconColor = hasCards ? '#0A0A0A' : '#FFFFFF';
+  // Theme rule:
+  //  - Dark theme (black filter): icons always WHITE on every page.
+  //  - Light theme (white filter): WHITE on dashboard (over bright photos),
+  //    BLACK on every other page.
+  const iconColor = !isLight || hasCards ? '#FFFFFF' : '#0A0A0A';
 
   const activeCategory = useFilterStore(s => s.activeCategory);
   const { setActiveCategory } = useFilterActions();
