@@ -65,6 +65,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
       navigator.geolocation.getCurrentPosition(
         (pos) => {
           setUserLocation(pos.coords.latitude, pos.coords.longitude);
+          setRadiusKm(5);
           setLocationDetected(true);
           setLocationDetecting(false);
           triggerHaptic('medium');
@@ -75,7 +76,19 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
     } catch {
       setLocationDetecting(false);
     }
-  }, [setUserLocation]);
+  }, [setUserLocation, setRadiusKm]);
+
+  // 🛰️ AUTO-DETECT: Run geolocation once on mount so the 5km automatic
+  // radius scan kicks in without forcing the owner to tap the GPS button.
+  const userLatitude = useFilterStore((s) => s.userLatitude);
+  const userLongitude = useFilterStore((s) => s.userLongitude);
+  const autoDetectedRef = useRef(false);
+  useEffect(() => {
+    if (autoDetectedRef.current) return;
+    if (userLatitude && userLongitude) return;
+    autoDetectedRef.current = true;
+    detectLocation();
+  }, [userLatitude, userLongitude, detectLocation]);
 
   const { user, loading: isAuthLoading } = useAuth();
 
