@@ -9,7 +9,7 @@ interface PhotoPositionIndicatorsProps {
 }
 
 export function PhotoPositionIndicators({ count, currentIndex, hidden = false, className }: PhotoPositionIndicatorsProps) {
-  if (count <= 1) return null;
+  if (count <= 0) return null;
 
   return (
     <div
