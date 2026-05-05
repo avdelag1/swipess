@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { PhotoUploadManager } from '@/components/PhotoUploadManager';
+import { ListingVideoUpload } from '@/components/video/ListingVideoUpload';
 import { useClientProfile, useSaveClientProfile } from '@/hooks/useClientProfile';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
@@ -52,6 +53,7 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
   const [interests, setInterests] = useState<string[]>([]);
   const [activities, setActivities] = useState<string[]>([]);
   const [profileImages, setProfileImages] = useState<string[]>([]);
+  const [videoUrl, setVideoUrl] = useState<string | null>(null);
 
   // New demographic fields
   const [nationality, setNationality] = useState<string>('');
@@ -152,6 +154,7 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
     setInterests(data.interests ?? []);
     setActivities(data.preferred_activities ?? []);
     setProfileImages(data.profile_images ?? []);
+    setVideoUrl((data as any).video_url ?? null);
     setNationality((data as any).nationality ?? '');
     setLanguages((data as any).languages ?? []);
     setRelationshipStatus((data as any).relationship_status ?? '');
@@ -194,6 +197,7 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
       await saveMutation.mutateAsync({
         name, age: age === '' ? null : Number(age), gender,
         interests, preferred_activities: activities, profile_images: profileImages,
+        video_url: videoUrl,
         nationality, languages, relationship_status: relationshipStatus, has_children: hasChildren,
         smoking_habit: smokingHabit, drinking_habit: drinkingHabit, cleanliness_level: cleanlinessLevel,
         noise_tolerance: noiseTolerance, work_schedule: workSchedule,
