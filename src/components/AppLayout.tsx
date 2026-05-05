@@ -22,6 +22,8 @@ const VoiceConciergeButton = lazy(() => import('./VoiceConciergeButton').then(m 
 const SwipessHud = lazy(() => import('./SwipessHud').then(m => ({ default: m.SwipessHud })));
 const VapIdCardModal = lazy(() => import('./VapIdCardModal').then(m => ({ default: m.VapIdCardModal })));
 const GlobalDialogs = lazy(() => import('./GlobalDialogs').then(m => ({ default: m.GlobalDialogs })));
+import { ChromeSummonZones } from './swipe/ChromeSummonZones';
+import { resetChrome } from '@/hooks/useChromeReveal';
 
 
 const NotificationSystem = lazy(() =>
@@ -52,6 +54,11 @@ export function AppLayout({ children }: AppLayoutProps) {
     const path = location.pathname;
     return path.startsWith('/client/dashboard') || path.startsWith('/owner/dashboard');
   }, [location.pathname]);
+
+  // When leaving (or entering) the swipe dashboard, reset chrome state.
+  useEffect(() => {
+    resetChrome();
+  }, [isSwipeDashboard]);
 
   const { isRefreshing, pullDistance, triggered } = usePullToRefresh({
     disabled: isSwipeDashboard
@@ -152,7 +159,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   
       {showAppChrome && (
         <Suspense fallback={null}>
-          <SwipessHud side="top" className="fixed top-0 left-0 right-0 z-[10005]" scrollTargetSelector="#dashboard-scroll-container" alwaysVisible={isSwipeDashboard}>
+          <SwipessHud side="top" className="fixed top-0 left-0 right-0 z-[10005]" scrollTargetSelector="#dashboard-scroll-container" alwaysVisible={false} revealMode={isSwipeDashboard}>
             <TopBar
               userRole={userRole}
               onMessageActivationsClick={handleMessageActivationsClick}
@@ -192,7 +199,7 @@ export function AppLayout({ children }: AppLayoutProps) {
 
       {showAppChrome && (
         <Suspense fallback={null}>
-          <SwipessHud side="bottom" className="fixed bottom-0 left-0 right-0 z-[10005]" scrollTargetSelector="#dashboard-scroll-container" alwaysVisible={isSwipeDashboard}>
+          <SwipessHud side="bottom" className="fixed bottom-0 left-0 right-0 z-[10005]" scrollTargetSelector="#dashboard-scroll-container" alwaysVisible={false} revealMode={isSwipeDashboard}>
             <BottomNavigation
               userRole={userRole}
               onFilterClick={handleFilterClick}
@@ -201,6 +208,9 @@ export function AppLayout({ children }: AppLayoutProps) {
           </SwipessHud>
         </Suspense>
       )}
+
+      {/* Tap zones to summon chrome on swipe dashboards */}
+      {showAppChrome && isSwipeDashboard && !showAIChat && <ChromeSummonZones />}
 
       {/* 📻 CONNECTED RADIO: Floating player bubble - Hidden on radio/full-screen routes */}
       {showAppChrome && !isFullScreen && (
