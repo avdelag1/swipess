@@ -124,6 +124,7 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
 
           <Routes>
             <Route path="/" element={<SignupErrorBoundary><Index /></SignupErrorBoundary>} />
+            <Route path="/index" element={<Navigate to="/" replace />} />
             <Route path="/reset-password" element={<Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><ResetPassword /></AnimatedPage></Suspense>} />
 
             <Route element={<ProtectedRoute><PersistentDashboardLayout /></ProtectedRoute>}>
