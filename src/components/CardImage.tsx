@@ -219,7 +219,7 @@ const CardImage = memo(({
           zIndex: 3,
           transformOrigin: 'center',
           filter: loaded ? 'saturate(1.08) contrast(1.03)' : 'none',
-          animation: (_animate && loaded) ? 'photo-swim 12s ease-in-out infinite' : 'none',
+          animation: (_animate && loaded) ? 'breathing-zoom 14s ease-in-out infinite alternate' : 'none',
           willChange: (_animate && loaded) ? 'transform' : 'auto',
           WebkitTouchCallout: 'none',
           WebkitUserSelect: 'none',
