@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MessageCircle, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { logger } from '@/utils/prodLogger';
 import { triggerHaptic } from '@/utils/haptics';
 
 interface MatchCelebrationProps {
