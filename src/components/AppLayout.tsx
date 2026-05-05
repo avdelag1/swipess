@@ -23,7 +23,7 @@ const SwipessHud = lazy(() => import('./SwipessHud').then(m => ({ default: m.Swi
 const VapIdCardModal = lazy(() => import('./VapIdCardModal').then(m => ({ default: m.VapIdCardModal })));
 const GlobalDialogs = lazy(() => import('./GlobalDialogs').then(m => ({ default: m.GlobalDialogs })));
 import { ChromeSummonZones } from './swipe/ChromeSummonZones';
-import { resetChrome, revealChrome, useChromeReveal } from '@/hooks/useChromeReveal';
+import { useChromeReveal } from '@/hooks/useChromeReveal';
 
 
 const NotificationSystem = lazy(() =>
@@ -72,20 +72,9 @@ export function AppLayout({ children }: AppLayoutProps) {
   // Picking phase = on dashboard but no swipe deck yet → chrome always visible
   const inPickingPhase = isSwipeDashboard && !swipeDeckActive;
 
-  // Floating buttons (Voice, Radio) follow chrome reveal state only while the
-  // swipe deck is active; in the picking phase they stay visible.
-  const hideFloatingForSwipe = swipeDeckActive && !isChromeVisible;
-
-  // When leaving (or entering) the swipe dashboard, reset chrome state.
-  useEffect(() => {
-    resetChrome();
-  }, [isSwipeDashboard]);
-
-  // When the swipe deck appears, show the chrome for 5s then auto-hide.
-  useEffect(() => {
-    if (swipeDeckActive) revealChrome();
-    else resetChrome();
-  }, [swipeDeckActive]);
+  // Chrome (TopBar + BottomNav) is ALWAYS visible — never auto-hide.
+  const hideFloatingForSwipe = false;
+  void isChromeVisible;
 
   const { isRefreshing, pullDistance, triggered } = usePullToRefresh({
     disabled: isSwipeDashboard
@@ -186,7 +175,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   
       {showAppChrome && (
         <Suspense fallback={null}>
-          <SwipessHud side="top" className="fixed top-0 left-0 right-0 z-[10005]" scrollTargetSelector="#dashboard-scroll-container" alwaysVisible={inPickingPhase} revealMode={swipeDeckActive}>
+          <SwipessHud side="top" className="fixed top-0 left-0 right-0 z-[10005]" scrollTargetSelector="#dashboard-scroll-container" alwaysVisible={true} revealMode={false}>
             <TopBar
               userRole={userRole}
               onMessageActivationsClick={handleMessageActivationsClick}
@@ -226,7 +215,7 @@ export function AppLayout({ children }: AppLayoutProps) {
 
       {showAppChrome && (
         <Suspense fallback={null}>
-          <SwipessHud side="bottom" className="fixed bottom-0 left-0 right-0 z-[10005]" scrollTargetSelector="#dashboard-scroll-container" alwaysVisible={inPickingPhase} revealMode={swipeDeckActive}>
+          <SwipessHud side="bottom" className="fixed bottom-0 left-0 right-0 z-[10005]" scrollTargetSelector="#dashboard-scroll-container" alwaysVisible={true} revealMode={false}>
             <BottomNavigation
               userRole={userRole}
               onFilterClick={handleFilterClick}
@@ -237,7 +226,7 @@ export function AppLayout({ children }: AppLayoutProps) {
       )}
 
       {/* Tap zones to summon chrome on swipe dashboards */}
-      {showAppChrome && swipeDeckActive && !showAIChat && <ChromeSummonZones />}
+      {false && showAppChrome && swipeDeckActive && !showAIChat && <ChromeSummonZones />}
 
       {/* 📻 CONNECTED RADIO: Floating player bubble - Hidden on radio/full-screen routes */}
       {showAppChrome && !isFullScreen && !hideFloatingForSwipe && (
