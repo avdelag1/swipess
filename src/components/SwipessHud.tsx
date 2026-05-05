@@ -112,14 +112,6 @@ export function SwipessHud({
         )}
       >
         {children}
-        {/* One-shot light sweep on every reveal */}
-        {isVisible && (
-          <span
-            key={`sweep-${revealKey}`}
-            aria-hidden
-            className="swipess-hud-sweep pointer-events-none"
-          />
-        )}
       </div>
     </div>
   );
