@@ -51,15 +51,15 @@ function SwipessLogoComponent({
           ) : (
             <div className="relative">
               <img
-                src={isIcon ? "/icons/Swipess-logo.svg" : "/icons/Swipess-wordmark-white.svg"}
+                src={isIcon ? "/icons/Swipess-logo.png" : "/icons/Swipess-wordmark-white.png"}
                 alt="Swipess"
                 draggable={false}
                 {...({ fetchpriority: "high" } as any)}
                 decoding={isIcon ? "async" : "sync"}
                 onError={(e) => {
                   const target = e.target as HTMLImageElement;
-                  if (target.src.endsWith('.svg')) {
-                    target.src = isIcon ? "/icons/Swipess-logo.png" : "/icons/Swipess-wordmark-white.png";
+                  if (target.src.endsWith('.png')) {
+                    target.src = isIcon ? "/icons/Swipess-logo.svg" : "/icons/Swipess-wordmark-white.svg";
                     return;
                   }
                   target.style.display = 'none';
