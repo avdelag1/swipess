@@ -355,6 +355,13 @@ export function AuthProvider({ children, authPromise }: { children: ReactNode, a
 
         appToast.success("Account Created!", "Loading your dashboard...");
 
+        try {
+          const { useFilterStore } = await import('@/state/filterStore');
+          useFilterStore.getState().setCategories([]);
+          useFilterStore.getState().setActiveCategory(null);
+          useFilterStore.getState().setOwnerPhase('cards');
+        } catch (_e) { /* noop */ }
+
         navigate(targetPath, { replace: true });
       }
 
