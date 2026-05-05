@@ -4,8 +4,8 @@ import { Moon, Sun } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ThemeContext } from '@/hooks/useAppTheme';
 import { useContext } from 'react';
+import { useLocation } from 'react-router-dom';
 import { triggerHaptic } from '@/utils/haptics';
-import { useDeckHasCards } from '@/hooks/useDeckHasCards';
 
 type Theme = 'light' | 'dark';
 
@@ -20,8 +20,11 @@ function ThemeToggleComponent({ className, glassPillStyle }: ThemeToggleProps) {
     const themeContext = useContext(ThemeContext);
     const theme = themeContext?.theme ?? 'dark';
     const setTheme = themeContext?.setTheme ?? (() => {});
-    const hasCards = useDeckHasCards();
-    const iconColor = hasCards ? '#0A0A0A' : '#FFFFFF';
+    const { pathname } = useLocation();
+    const isDashboard = /^\/(client|owner|admin)\/dashboard\/?/.test(pathname);
+    const isLight = theme === 'light';
+    // Dark theme → always white. Light theme → white on dashboard, black elsewhere.
+    const iconColor = !isLight || isDashboard ? '#FFFFFF' : '#0A0A0A';
 
     const handleToggle = (e: React.MouseEvent) => {
         e.preventDefault();

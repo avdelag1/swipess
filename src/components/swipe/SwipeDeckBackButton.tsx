@@ -25,13 +25,13 @@ export function SwipeDeckBackButton() {
         navigate(`/${activeMode}/dashboard`);
       }}
       aria-label="Back to dashboard"
-      className="absolute left-3 z-[60] flex items-center justify-center w-9 h-9 rounded-full border border-white/20 bg-black/35 text-white backdrop-blur-md transition-all active:scale-90 pointer-events-auto"
+      className="absolute left-3 z-[60] flex items-center justify-center w-9 h-9 rounded-full bg-transparent border-0 text-white transition-all active:scale-90 pointer-events-auto"
       style={{
         top: 'calc(var(--safe-top, 0px) + 12px)',
-        boxShadow: '0 6px 18px rgba(0,0,0,0.35)',
+        filter: 'drop-shadow(0 1px 3px rgba(0,0,0,0.55))',
       }}
     >
-      <ChevronLeft className="w-5 h-5" strokeWidth={2.4} />
+      <ChevronLeft className="w-6 h-6" strokeWidth={2.2} />
     </button>
   );
 }

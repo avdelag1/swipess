@@ -23,7 +23,7 @@ import { useNotificationSystem } from '@/hooks/useNotificationSystem';
 import { useUnreadNotifications } from '@/hooks/useUnreadNotifications';
 import { formatDistanceToNow } from '@/utils/timeFormatter';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { notificationTypeConfigs as typeConfigs } from '@/utils/notificationConfigs';
 import { ThemeContext } from '@/hooks/useAppTheme';
 import { useContext } from 'react';
@@ -238,6 +238,7 @@ export function NotificationPopover({ className, children, glassPillStyle }: Not
   const [isOpen, setIsOpen] = useState(false);
   const [activeFilter, setActiveFilter] = useState('all');
   const navigate = useNavigate();
+  const _location = useLocation();
   const themeContext = useContext(ThemeContext);
   const theme = themeContext?.theme ?? 'dark';
   const isLight = theme === 'light';
@@ -299,8 +300,9 @@ export function NotificationPopover({ className, children, glassPillStyle }: Not
     navigate('/notifications');
   }, [navigate]);
 
-  const _hasCards = useDeckHasCards();
-  const _bellColor = _hasCards ? '#0A0A0A' : '#FFFFFF';
+  // Dark theme → always white. Light theme → white on dashboard, black elsewhere.
+  const _isDashboard = /^\/(client|owner|admin)\/dashboard\/?/.test(_location.pathname);
+  const _bellColor = !isLight || _isDashboard ? '#FFFFFF' : '#0A0A0A';
   const triggerButton = children || (
     <Button
       variant="ghost"

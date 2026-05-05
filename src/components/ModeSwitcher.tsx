@@ -7,7 +7,7 @@ import { triggerHaptic } from '@/utils/haptics';
 import { uiSounds } from '@/utils/uiSounds';
 import { useFilterStore } from '@/state/filterStore';
 import useAppTheme from '@/hooks/useAppTheme';
-import { useDeckHasCards } from '@/hooks/useDeckHasCards';
+import { useLocation } from 'react-router-dom';
 
 interface ModeSwitcherProps {
   className?: string;
@@ -18,8 +18,10 @@ interface ModeSwitcherProps {
 function ModeSwitcherComponent({ className }: ModeSwitcherProps) {
   const { activeMode, isSwitching, switchMode, canSwitchMode } = useActiveMode();
   const { isLight } = useAppTheme();
-  const hasCards = useDeckHasCards();
-  const baseColor = hasCards ? '#0A0A0A' : '#FFFFFF';
+  const { pathname } = useLocation();
+  const isDashboard = /^\/(client|owner|admin)\/dashboard\/?/.test(pathname);
+  // Dark theme → always white. Light theme → white on dashboard, black elsewhere.
+  const baseColor = !isLight || isDashboard ? '#FFFFFF' : '#0A0A0A';
   const resetClientFilters = useFilterStore((state) => state.resetClientFilters);
   const resetOwnerFilters = useFilterStore((state) => state.resetOwnerFilters);
 
