@@ -73,8 +73,13 @@ export function AuthProvider({ children, authPromise }: { children: ReactNode, a
   // Prevent duplicate OAuth setup calls
   const processingOAuthRef = useRef(false);
   const processedUserIdRef = useRef<string | null>(null);
+  const latestSessionRef = useRef<Session | null>(cachedSession);
   // Track OAuth timeout for cleanup on unmount
   const oauthTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    latestSessionRef.current = session;
+  }, [session]);
 
   useEffect(() => {
     let isMounted = true;
@@ -147,6 +152,18 @@ export function AuthProvider({ children, authPromise }: { children: ReactNode, a
           setUser(stableSession?.user ?? null);
           // Do NOT set loading, do NOT navigate, do NOT do anything else
           return;
+        }
+
+        if (event === 'SIGNED_OUT' && !(window as any).__swipess_user_signout_requested) {
+          const stableSession = latestSessionRef.current ?? readCachedAuthSession();
+          if (stableSession?.user) {
+            logger.warn('[Auth] Ignoring unexpected SIGNED_OUT while an active session is cached');
+            setSession(stableSession);
+            setUser(stableSession.user);
+            setLoading(false);
+            setInitialized(true);
+            return;
+          }
         }
 
         logger.log('[Auth] State change:', event, session?.user?.email);
