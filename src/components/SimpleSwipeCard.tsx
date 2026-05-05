@@ -355,19 +355,19 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           
           {imageCount > 1 && (
             <div
-            className="absolute top-[calc(var(--safe-top,0px)+72px)] inset-x-0 flex justify-center z-20 pointer-events-none transition-opacity duration-150"
+            className="absolute top-[calc(var(--safe-top,0px)+56px)] inset-x-0 flex justify-center z-30 pointer-events-none transition-opacity duration-150"
               style={{ opacity: isZoomed ? 0 : 1 }}
             >
-            <div className="flex gap-1.5 items-center justify-center">
+            <div className="flex gap-2 items-center justify-center px-3 py-1.5 rounded-full bg-black/30 backdrop-blur-md">
               {Array.from({ length: imageCount }).map((_, idx) => (
                 <motion.div
                   key={idx}
                   animate={{
-                    scale: idx === currentImageIndex ? 1 : 0.75,
-                    opacity: idx === currentImageIndex ? 1 : 0.55,
+                    scale: idx === currentImageIndex ? 1 : 0.7,
+                    opacity: idx === currentImageIndex ? 1 : 0.45,
                   }}
                   transition={{ duration: 0.15 }}
-                  className="w-1.5 h-1.5 rounded-full bg-white shadow-[0_1px_3px_rgba(0,0,0,0.7)] ring-1 ring-black/20"
+                  className="w-2 h-2 rounded-full bg-white shadow-[0_1px_4px_rgba(0,0,0,0.8)]"
                 />
               ))}
             </div>
