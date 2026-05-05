@@ -87,9 +87,11 @@ export const BottomNavigation = memo(({
   const { unreadCount: _unreadNotifCount } = useUnreadNotifications();
   const { isLight } = useAppTheme();
   const hasCards = useDeckHasCards();
-  // Bottom nav: keep original behavior — over swipe cards use dark icons,
-  // otherwise use light icons (do NOT force pure white in dark theme).
-  const navBase = hasCards ? '#0A0A0A' : '#FFFFFF';
+  // Theme rule:
+  //  - Dark theme (black filter): nav icons always WHITE everywhere.
+  //  - Light theme (white filter): WHITE on dashboard (over photos),
+  //    BLACK on the rest of the pages.
+  const navBase = !isLight || hasCards ? '#FFFFFF' : '#0A0A0A';
 
   const { t } = useTranslation();
 
@@ -382,7 +384,7 @@ export const BottomNavigation = memo(({
                     style={{
                       width: isTablet ? ICON_SIZE_TABLET : (isNarrow ? 16 : ICON_SIZE),
                       height: isTablet ? ICON_SIZE_TABLET : (isNarrow ? 16 : ICON_SIZE),
-                      color: active ? '#E4007C' : (hasCards ? 'rgba(0,0,0,0.78)' : 'rgba(255,255,255,0.92)'),
+                      color: active ? '#E4007C' : (!isLight || hasCards ? 'rgba(255,255,255,0.92)' : 'rgba(0,0,0,0.78)'),
                       fill: 'none',
                       strokeWidth: active ? 2 : 1.7,
                       transition: 'color 160ms ease-out, stroke-width 160ms ease-out',
@@ -398,7 +400,7 @@ export const BottomNavigation = memo(({
                         isTablet ? 'text-[11px]' : 'text-[8px]',
                       )}
                       style={{
-                        color: active ? '#E4007C' : (hasCards ? 'rgba(0,0,0,0.78)' : 'rgba(255,255,255,0.92)'),
+                        color: active ? '#E4007C' : (!isLight || hasCards ? 'rgba(255,255,255,0.92)' : 'rgba(0,0,0,0.78)'),
                         transition: 'color 160ms ease-out',
                         zIndex: 1,
                       }}
