@@ -660,8 +660,8 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
           >
             {isSwipess && (
               <div className="absolute inset-0 pointer-events-none z-0">
-                <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-[#FF3D00]/10 blur-[120px] rounded-full animate-pulse" />
-                <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-blue-600/10 blur-[120px] rounded-full" />
+                <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-primary/10 blur-[120px] rounded-full animate-pulse" />
+                <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-primary/5 blur-[120px] rounded-full" />
               </div>
             )}
 
@@ -740,8 +740,8 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                       </PopoverContent>
                     </Popover>
 
-                    <button onClick={onClose} className={cn("w-10 h-10 flex items-center justify-center rounded-xl transition-all border group", isLight && !isSwipess ? "bg-slate-100 border-slate-200 hover:bg-red-500 hover:border-red-500" : "bg-white/5 border-white/10 hover:bg-white/20")}>
-                      <X className={cn("w-4 h-4 transition-transform group-hover:scale-110", isLight && !isSwipess ? "text-slate-600 group-hover:text-white" : "text-white/60")} />
+                    <button onClick={onClose} className={cn("w-9 h-9 flex items-center justify-center rounded-full transition-all border group active:scale-90", isLight && !isSwipess ? "bg-muted border-border hover:bg-muted/80" : "bg-white/5 border-white/10 hover:bg-white/15")} aria-label="Close">
+                      <X className={cn("w-[18px] h-[18px]", isLight && !isSwipess ? "text-foreground" : "text-white/80")} strokeWidth={2.2} />
                     </button>
                   </div>
                 </header>
@@ -861,20 +861,16 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                          onClick={handleSend}
                          disabled={!input.trim() || isLoading}
                          className={cn(
-                           "h-14 w-14 shrink-0 rounded-full inline-flex items-center justify-center transition-all active:scale-90 ring-1 ring-primary/50 shadow-[0_18px_42px_hsl(var(--primary)/0.45)]",
-                            isLight && !isSwipess
-                              ? "bg-foreground text-background hover:bg-foreground/90"
-                              : "bg-primary text-primary-foreground hover:bg-primary/90 hover:shadow-[0_22px_54px_hsl(var(--primary)/0.55)]",
-                           (!input.trim() || isLoading) && "opacity-40"
+                           "h-12 w-12 shrink-0 rounded-full inline-flex items-center justify-center transition-all active:scale-90 shadow-[0_10px_28px_hsl(var(--primary)/0.4)]",
+                           "bg-primary text-primary-foreground hover:bg-primary/90",
+                           (!input.trim() || isLoading) && "opacity-40 shadow-none"
                          )}
                          aria-label="Send message"
                        >
                          {isLoading ? (
-                           <RefreshCw className="h-6 w-6 animate-spin" strokeWidth={2.4} />
-                         ) : !input.trim() ? (
-                           <CornerDownLeft className="h-5 w-5" strokeWidth={2.6} />
+                           <RefreshCw className="h-5 w-5 animate-spin" strokeWidth={2.4} />
                          ) : (
-                           <Send className="h-6 w-6" strokeWidth={2.4} />
+                           <ArrowUp className="h-5 w-5" strokeWidth={2.6} />
                          )}
                        </button>
                   </div>
