@@ -151,15 +151,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
     );
   }, [setUserLocation, setRadiusKm]);
 
-  // 🛰️ AUTO-DETECT: Trigger geolocation once on mount when no coords yet,
-  // so the 5km automatic scan radius kicks in without user interaction.
-  const autoDetectedRef = useRef(false);
-  useEffect(() => {
-    if (autoDetectedRef.current) return;
-    if (userLatitude && userLongitude) return;
-    autoDetectedRef.current = true;
-    detectLocation();
-  }, [userLatitude, userLongitude, detectLocation]);
+  // 📍 Location requested only on explicit user gesture (filter / slider).
 
   // PERF: Get userId from auth to pass to query (avoids getUser() inside queryFn)
   const { user } = useAuth();

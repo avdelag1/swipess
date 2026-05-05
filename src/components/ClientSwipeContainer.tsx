@@ -186,15 +186,9 @@ const ClientSwipeContainerComponent = ({
     );
   }, [setUserLocation, setRadiusKm]);
 
-  // 🛰️ AUTO-DETECT: Trigger location once on mount if we don't already
-  // have user coordinates. This powers the automatic 5km radius scan.
-  const autoDetectedRef = useRef(false);
-  useEffect(() => {
-    if (autoDetectedRef.current) return;
-    if (userLatitude && userLongitude) return;
-    autoDetectedRef.current = true;
-    detectLocation();
-  }, [userLatitude, userLongitude, detectLocation]);
+  // 📍 Location is requested ONLY on explicit user action (filter button or
+  // kilometer slider interaction). No auto-prompt on mount/sign-in to avoid
+  // an invasive permission dialog.
 
   // CRITICAL: Filter out own profile from cached deck items
   const _filterOwnProfile = useCallback((items: any[], userId: string | undefined) => {
