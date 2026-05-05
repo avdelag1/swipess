@@ -159,7 +159,7 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
                   <div className="flex items-center justify-between pt-6 border-t mt-auto" style={{ borderTopColor: theme.tagBorder }}>
                      <div className="flex flex-col">
                         <span className="text-[9px] font-black uppercase tracking-[0.3em] opacity-70" style={{ color: theme.textTertiary }}>Identity Protocol</span>
-                        <span className="text-[8px] font-bold uppercase tracking-[0.15em] opacity-50" style={{ color: theme.textTertiary }}>swipess.app</span>
+                        <span className="text-[8px] font-bold uppercase tracking-[0.15em] opacity-50" style={{ color: theme.textTertiary }}>swipess.com</span>
                      </div>
                      <div className="rounded-xl p-3 bg-white shadow-2xl">
                         <QRCode value={validationUrl} size={70} level="H" />
