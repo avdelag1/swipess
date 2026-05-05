@@ -371,8 +371,14 @@ const OwnerKilometerView = ({
   const title = activeCard?.label || labels[category] || 'Discovery';
 
   return (
-    <div className="flex-1 flex flex-col items-center justify-center px-8">
-      <div className="w-full max-w-md space-y-8">
+    <div
+      className="flex-1 flex flex-col items-center justify-center px-6 sm:px-8"
+      style={{
+        paddingTop: 'calc(env(safe-area-inset-top, 0px) + 88px)',
+        paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 32px)',
+      }}
+    >
+      <div className="w-full max-w-md mx-auto space-y-8">
         <div className="flex items-center gap-4">
           <button
             onClick={onBack}
