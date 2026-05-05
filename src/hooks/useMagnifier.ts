@@ -83,7 +83,7 @@ export function useMagnifier(config: MagnifierConfig = {}): UseMagnifierReturn {
 
   const findImage = useCallback(() => {
     if (!containerRef.current) return null;
-    const img = containerRef.current.querySelector('img');
+    const img = containerRef.current.querySelector<HTMLImageElement>('img[data-swipe-card-image="true"], img.swipe-card-image, img');
     if (img && img.complete) {
       img.draggable = false;
       img.style.pointerEvents = 'none';
@@ -332,8 +332,6 @@ export function useMagnifier(config: MagnifierConfig = {}): UseMagnifierReturn {
 
   const onPointerCancel = useCallback((e: React.PointerEvent) => {
     if (!e.isPrimary) return;
-    // If zoom is active, ignore cancel — only finger-lift (pointerup) ends it.
-    if (magnifierState.current.isActive) return;
     deactivateMagnifier();
   }, [deactivateMagnifier]);
 
