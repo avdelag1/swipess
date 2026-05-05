@@ -2,6 +2,7 @@ import { ChevronLeft } from 'lucide-react';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useActiveMode } from '@/hooks/useActiveMode';
 import { triggerHaptic } from '@/utils/haptics';
+import { useFilterStore } from '@/state/filterStore';
 
 /**
  * Persistent back arrow shown inside the swipe deck region.
@@ -11,12 +12,16 @@ import { triggerHaptic } from '@/utils/haptics';
 export function SwipeDeckBackButton() {
   const { navigate } = useAppNavigate();
   const { activeMode } = useActiveMode();
+  const setActiveCategory = useFilterStore((s) => s.setActiveCategory);
 
   return (
     <button
       onClick={(e) => {
         e.stopPropagation();
         triggerHaptic('light');
+        // Exiting the deck means clearing the active category so the
+        // dashboard returns to the category-picker / poker-hand state.
+        setActiveCategory(null as any);
         navigate(`/${activeMode}/dashboard`);
       }}
       aria-label="Back to dashboard"
