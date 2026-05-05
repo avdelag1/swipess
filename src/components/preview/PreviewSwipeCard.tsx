@@ -11,6 +11,8 @@ interface PreviewSwipeCardProps {
   badges?: ReactNode;
   overlay?: ReactNode;
   className?: string;
+  /** Fill the parent height instead of using a fixed aspect ratio. */
+  fill?: boolean;
 }
 
 /**
@@ -25,6 +27,7 @@ export function PreviewSwipeCard({
   badges,
   overlay,
   className,
+  fill = false,
 }: PreviewSwipeCardProps) {
   const [idx, setIdx] = useState(0);
   const total = images.length;
@@ -47,9 +50,10 @@ export function PreviewSwipeCard({
     <div
       className={cn(
         'relative w-full overflow-hidden rounded-[36px] bg-[#0A0A0A] shadow-[0_30px_80px_-20px_rgba(0,0,0,0.8)] border border-white/[0.06]',
+        fill && 'h-full',
         className
       )}
-      style={{ aspectRatio: '3 / 4.4' }}
+      style={fill ? undefined : { aspectRatio: '3 / 4.4' }}
     >
       {/* Image */}
       <AnimatePresence mode="wait" initial={false}>
