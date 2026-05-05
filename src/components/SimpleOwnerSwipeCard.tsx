@@ -24,6 +24,7 @@ import { getWorkScheduleLabel } from '@/constants/profileConstants';
 import { SwipeMatchMeter } from '@/components/swipe/SwipeMatchMeter';
 import useAppTheme from '@/hooks/useAppTheme';
 import { imageCache } from '@/lib/swipe/cardImageCache';
+import { PhotoPositionIndicators } from '@/components/swipe/PhotoPositionIndicators';
 
 export interface SimpleOwnerSwipeCardRef {
   triggerSwipe: (direction: 'left' | 'right') => void;
@@ -390,26 +391,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           <div className="absolute bottom-0 left-0 right-0 pointer-events-none z-20"
                style={{ height: '58%', background: 'linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.78) 18%, rgba(0,0,0,0.5) 40%, rgba(0,0,0,0.22) 65%, rgba(0,0,0,0.06) 85%, transparent 100%)', opacity: isZoomed ? 0 : 1 }} />
 
-          {imageCount > 1 && (
-            <div
-              className="absolute top-[calc(var(--safe-top,0px)+56px)] inset-x-0 flex justify-center z-30 pointer-events-none transition-opacity duration-150"
-              style={{ opacity: isZoomed ? 0 : 1 }}
-            >
-              <div className="flex gap-2 items-center justify-center px-3 py-1.5 rounded-full bg-black/30 backdrop-blur-md">
-                {images.map((_, idx) => (
-                  <motion.div
-                    key={idx}
-                    animate={{
-                      scale: idx === currentImageIndex ? 1 : 0.7,
-                      opacity: idx === currentImageIndex ? 1 : 0.45,
-                    }}
-                    transition={{ duration: 0.15 }}
-                    className="w-2 h-2 rounded-full bg-white shadow-[0_1px_4px_rgba(0,0,0,0.8)]"
-                  />
-                ))}
-              </div>
-            </div>
-          )}
+          <PhotoPositionIndicators count={imageCount} currentIndex={currentImageIndex} hidden={isZoomed} />
         </div>
 
         <motion.div className="absolute top-10 right-6 z-50 pointer-events-none" style={{ opacity: likeOpacity }}>
