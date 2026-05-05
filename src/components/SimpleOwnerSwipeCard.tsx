@@ -111,6 +111,7 @@ const CardImage = memo(({
       <img
         src={src}
         alt={alt}
+        data-swipe-card-image="true"
         draggable={false}
         className={cn("absolute inset-0 w-full h-full object-cover", loaded ? "opacity-100" : "opacity-0")}
         style={{

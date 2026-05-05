@@ -202,6 +202,7 @@ const CardImage = memo(({
       <img
         src={optimizedSrc || src}
         alt={alt ?? ''}
+        data-swipe-card-image="true"
         draggable={false}
         loading={priority ? "eager" : "lazy"}
         decoding={priority ? "sync" : "async"}
