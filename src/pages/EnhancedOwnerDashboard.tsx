@@ -78,7 +78,19 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
     }
   }, [setUserLocation, setRadiusKm]);
 
-  // 📍 Location requested only on explicit user gesture (filter / slider).
+  // 📍 Location is requested only when the kilometer page becomes visible
+  // (which itself happens after the user picks a category card). No prompt
+  // on app open / sign-in / sign-up.
+  const userLatitude = useFilterStore((s) => s.userLatitude);
+  const userLongitude = useFilterStore((s) => s.userLongitude);
+  const kmAutoDetectedRef = useRef(false);
+  useEffect(() => {
+    if (ownerPhase !== 'kilometer') return;
+    if (kmAutoDetectedRef.current) return;
+    if (userLatitude && userLongitude) return;
+    kmAutoDetectedRef.current = true;
+    detectLocation();
+  }, [ownerPhase, userLatitude, userLongitude, detectLocation]);
 
   const { user, loading: isAuthLoading } = useAuth();
 
@@ -288,7 +300,10 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
               onNext={() => { triggerHaptic('medium'); setOwnerPhase('swipe'); }}
               onSkip={jumpToSwipeDeck}
               radiusKm={radiusKm}
-              onRadiusChange={setRadiusKm}
+              onRadiusChange={(km: number) => {
+                setRadiusKm(km);
+                if (!userLatitude || !userLongitude) detectLocation();
+              }}
               onDetectLocation={detectLocation}
               detecting={locationDetecting}
               detected={locationDetected}
