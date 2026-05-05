@@ -33,6 +33,7 @@ import { useStartConversation } from '@/hooks/useConversations';
 import { useNavigate } from 'react-router-dom';
 import { logger } from '@/utils/prodLogger';
 import { SwipeExhaustedState } from './swipe/SwipeExhaustedState';
+import { SwipeDeckBackButton } from './swipe/SwipeDeckBackButton';
 import { Home, RefreshCw, ChevronLeft, SlidersHorizontal } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
@@ -920,6 +921,7 @@ const ClientSwipeContainerComponent = ({
         {/* 📡 Radar HUD removed from here — now managed at the Dashboard level for persistence */}
 
         <div className="flex-1 relative flex w-full h-full items-center justify-center px-0 z-10 pointer-events-auto min-h-0 overflow-hidden">
+        {topCard && <SwipeDeckBackButton />}
         <div className="relative w-full h-full mx-auto flex items-center justify-center pointer-events-auto">
           <AnimatePresence mode="sync" initial={true}>
             {topCard ? (

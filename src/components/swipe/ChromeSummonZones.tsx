@@ -26,24 +26,24 @@ export function ChromeSummonZones() {
           top: 0,
           left: 0,
           right: 0,
-          height: 'calc(var(--safe-top, 0px) + 22px)',
-          zIndex: 10004,
+          height: 'calc(var(--safe-top, 0px) + 30px)',
+          zIndex: 10010,
           background: 'transparent',
           pointerEvents: 'auto',
           touchAction: 'manipulation',
         }}
       />
-      {/* Bottom-center strip */}
+      {/* Bottom strip */}
       <div
         onPointerDown={onSummon}
         aria-hidden="true"
         style={{
           position: 'fixed',
           bottom: 0,
-          left: '30%',
-          right: '30%',
-          height: 'calc(var(--safe-bottom, 0px) + 22px)',
-          zIndex: 10004,
+          left: '15%',
+          right: '15%',
+          height: 'calc(var(--safe-bottom, 0px) + 30px)',
+          zIndex: 10010,
           background: 'transparent',
           pointerEvents: 'auto',
           touchAction: 'manipulation',

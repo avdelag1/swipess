@@ -230,9 +230,6 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
       setPhotoDirection('right');
       setCurrentImageIndex(prev => prev === imageCount - 1 ? 0 : prev + 1);
       triggerHaptic('light');
-    } else if (onInsights) {
-      triggerHaptic('light');
-      onInsights();
     }
   }, [imageCount, onInsights, isMagnifierActive, wasMagnifierActive]);
 

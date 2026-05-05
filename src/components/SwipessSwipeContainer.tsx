@@ -48,6 +48,7 @@ import { DirectMessageDialog } from './DirectMessageDialog';
 import { isDirectMessagingListing } from '@/utils/directMessaging';
 import { useQueryClient } from '@tanstack/react-query';
 import { SwipeAllDashboard } from './swipe/SwipeAllDashboard';
+import { SwipeDeckBackButton } from './swipe/SwipeDeckBackButton';
 
 import { ReportDialog } from './ReportDialog';
 
@@ -829,6 +830,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
       <div className={cn(
         "flex-1 relative flex w-full h-full items-center justify-center px-0 z-10 pointer-events-auto min-h-0 overflow-hidden"
       )}>
+        {hasCards && <SwipeDeckBackButton />}
         <div className="relative w-full h-full mx-auto flex items-center justify-center pointer-events-auto md:max-w-[572px]">
           {/* Rounded backdrop matches card corners so deck blends into background */}
           <div
