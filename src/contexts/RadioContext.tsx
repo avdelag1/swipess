@@ -560,8 +560,13 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     const stations = getStationsByCity(city);
     setState(prev => ({ ...prev, currentCity: city }));
     savePreferences({ currentCity: city });
-    if (stations.length > 0) play(stations[0]);
-  }, [state.currentCity, play]);
+    // Only auto-tune to first station of new city if radio is already playing.
+    // Never start audio from a city change alone.
+    if (stations.length > 0 && state.isPlaying) play(stations[0]);
+    else if (stations.length > 0) {
+      setState(prev => ({ ...prev, currentStation: stations[0] }));
+    }
+  }, [state.currentCity, state.isPlaying, play]);
 
   const setVolume = useCallback((volume: number) => {
     const clamped = Math.max(0, Math.min(1, volume));

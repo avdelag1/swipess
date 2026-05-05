@@ -25,8 +25,9 @@ export default function DJTurntableRadio() {
   useEffect(() => {
     if (hasInitRef.current) return;
     hasInitRef.current = true;
-    if (!state.isPoweredOn) { togglePower(); triggerHaptic('medium'); }
-    if (!state.isPlaying) play();
+    // NO AUTO-PLAY: Radio must only start when the user explicitly taps Play.
+    // Power on the unit silently so the UI is ready, but never call play() here.
+    if (!state.isPoweredOn) { togglePower(); }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
