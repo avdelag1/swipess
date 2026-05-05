@@ -575,6 +575,8 @@ export function AuthProvider({ children, authPromise }: { children: ReactNode, a
 
   const signOut = async () => {
     try {
+      (window as any).__swipess_user_signout_requested = true;
+
       // 1. First navigate to home replacing history so user can't "swipe back" to protected page
       navigate('/', { replace: true });
 
