@@ -299,8 +299,9 @@ export function NotificationPopover({ className, children, glassPillStyle }: Not
     navigate('/notifications');
   }, [navigate]);
 
-  const _hasCards = useDeckHasCards();
-  const _bellColor = _hasCards ? '#0A0A0A' : '#FFFFFF';
+  // Dark theme → always white. Light theme → white on dashboard, black elsewhere.
+  const _isDashboard = /^\/(client|owner|admin)\/dashboard\/?/.test(window.location.pathname);
+  const _bellColor = !isLight || _isDashboard ? '#FFFFFF' : '#0A0A0A';
   const triggerButton = children || (
     <Button
       variant="ghost"
