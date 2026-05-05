@@ -4,7 +4,6 @@ import { MessageCircle, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { logger } from '@/utils/prodLogger';
 import { triggerHaptic } from '@/utils/haptics';
-import { playNotificationSound } from '@/utils/notificationSounds';
 
 interface MatchCelebrationProps {
   isOpen: boolean;

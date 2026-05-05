@@ -23,7 +23,6 @@ const SwipessHud = lazy(() => import('./SwipessHud').then(m => ({ default: m.Swi
 const VapIdCardModal = lazy(() => import('./VapIdCardModal').then(m => ({ default: m.VapIdCardModal })));
 const GlobalDialogs = lazy(() => import('./GlobalDialogs').then(m => ({ default: m.GlobalDialogs })));
 
-import { uiSounds } from '@/utils/uiSounds'; // SWIPESS AUDIO ENGINE
 
 const NotificationSystem = lazy(() =>
   import('@/components/NotificationSystem').then(m => ({ default: m.NotificationSystem }))

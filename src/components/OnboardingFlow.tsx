@@ -15,7 +15,6 @@ import { useAuth } from '@/hooks/useAuth';
 import { logger } from '@/utils/prodLogger';
 import { AtmosphericLayer } from '@/components/AtmosphericLayer';
 import { triggerHaptic } from '@/utils/haptics';
-import { uiSounds } from '@/utils/uiSounds';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 

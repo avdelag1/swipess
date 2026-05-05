@@ -4,7 +4,6 @@ import {
   motion, useMotionValue, useTransform, AnimatePresence, PanInfo, animate
 } from 'framer-motion';
 import { triggerHaptic } from '@/utils/haptics';
-import { uiSounds } from '@/utils/uiSounds';
 import {
   Mail, Lock, User, ArrowLeft, Sparkles, Check, LogIn, X, Eye, EyeOff
 } from 'lucide-react';
