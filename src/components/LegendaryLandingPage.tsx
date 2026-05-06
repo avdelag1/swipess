@@ -121,7 +121,7 @@ const LandingView = memo(({
         </button>
         <button
           onClick={() => { triggerHaptic('medium'); onEnterAuth('signup'); }}
-          className="w-full h-14 rounded-[2rem] bg-white text-black font-black uppercase tracking-[0.25em] text-[12px] shadow-[0_12px_36px_rgba(255,255,255,0.18)] active:scale-[0.97] transition-all flex items-center justify-center gap-3 border border-white/30 hover:bg-white/95"
+          className="w-full h-14 rounded-[2rem] bg-black/60 backdrop-blur-xl text-white font-black uppercase tracking-[0.25em] text-[12px] shadow-[0_12px_36px_rgba(0,0,0,0.45)] active:scale-[0.97] transition-all flex items-center justify-center gap-3 border-2 border-white hover:bg-black/75"
         >
           <Sparkles className="w-4 h-4" />
           Create Account
