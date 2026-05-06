@@ -187,23 +187,10 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
         return;
       }
 
-      // Throttle the "tuning to next" toast to at most once every 6s,
-      // and only when the mini-player is visible.
-      const nowToast = Date.now();
-      if (nowToast - lastToastTime > 6000) {
-        lastToastTime = nowToast;
-        // Only surface the toast in expanded mode; otherwise stay silent
-        // (console only) so background failures don't spam the UI.
-        // Note: we read miniPlayerMode via state at error time.
-        // eslint-disable-next-line @typescript-eslint/no-use-before-define
-        // Defer state read to avoid stale closure: use a ref-like lookup.
-        try {
-          const mini = (audioRef.current as any)?.__miniMode ?? null;
-          if (mini === 'expanded') {
-            appToast.warning('Station unavailable', 'Tuning to next frequency...');
-          }
-        } catch {/* ignore */}
-      }
+      // Per-station failure toasts are intentionally silent — the inline
+      // error state already conveys "skipping" without spamming the UI.
+      // We only toast when we truly give up (handled above).
+      void lastToastTime;
       setError('Station unavailable - skipping...');
 
       // Clear any pending load timeout & release the play lock so the next
