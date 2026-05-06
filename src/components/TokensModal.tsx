@@ -119,10 +119,14 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 40 }}
             transition={{ type: 'spring', damping: 28, stiffness: 300 }}
-            className="fixed inset-x-0 bottom-0 top-0 z-[10002] flex items-end sm:items-center justify-center p-0 sm:p-4 pointer-events-none"
+            className="fixed inset-x-0 z-[10002] flex items-end sm:items-center justify-center p-0 sm:p-4 pointer-events-none"
+            style={{
+              top: 'calc(var(--top-bar-height, 56px) + var(--safe-top, 0px) + 8px)',
+              bottom: 'calc(var(--bottom-nav-height, 72px) + var(--safe-bottom, 0px) + 8px)',
+            }}
           >
             <div className={cn(
-              "w-full max-w-md max-h-[92vh] sm:max-h-[85vh] rounded-t-3xl sm:rounded-3xl overflow-hidden flex flex-col pointer-events-auto",
+              "w-full max-w-md h-full sm:max-h-[80vh] rounded-3xl overflow-hidden flex flex-col pointer-events-auto shadow-2xl",
               isLight ? "bg-background border border-border/40" : "bg-zinc-900 border border-white/10"
             )}>
               {/* Header */}
