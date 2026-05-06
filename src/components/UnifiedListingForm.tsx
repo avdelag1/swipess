@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from '@/components/ui/sonner';
+import { appToast } from '@/utils/appNotification';
 import { logger } from '@/utils/prodLogger';
 import { Upload, X, Bike, ChevronRight, Shield } from 'lucide-react';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
@@ -29,6 +30,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { ListingVideoUpload } from './video/ListingVideoUpload';
 import { ListingSuccessCelebration } from './ListingSuccessCelebration';
 import { uiSounds } from '@/utils/uiSounds';
+import { buildDescriptionFromChips } from '@/constants/listingTaxonomies';
 import { Loader2 } from 'lucide-react';
 
 interface EditingListing {
@@ -133,7 +135,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
       const fieldsToCheck = [
         { text: formData.title as string, label: 'Title' },
         { text: formData.description as string, label: 'Description' },
-        { text: formData.house_rules as string, label: 'House Rules' },
+        // house_rules is now a curated chip array — no freeform moderation needed.
       ];
       for (const field of fieldsToCheck) {
         if (field.text) {
@@ -169,6 +171,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
       // Main listing data - ALL fields in listings table (vehicle_listings table was dropped)
       // Main listing data - ALL fields in listings table
       const rawListingData: Record<string, any> = {
+        user_id: user.user.id,
         owner_id: user.user.id,
         category: selectedCategory,
         listing_type: selectedCategory === 'worker' ? 'service' : (formData.listing_type || selectedMode),
@@ -180,7 +183,20 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
         currency: (formData.currency as string) || 'USD',
         rental_rates: formData.rental_rates,
         rental_duration_type: (formData.rental_duration_type as string) || null,
-        description: (formData.description as string) || (formData.about as string) || '',
+        description:
+          (formData.description as string) ||
+          (formData.about as string) ||
+          buildDescriptionFromChips([
+            (formData.property_type as string) || (formData.motorcycle_type as string) || (formData.bicycle_type as string) || (formData.service_category as string),
+            formData.condition as string,
+            formData.vibe as string[],
+            formData.amenities as string[],
+            formData.services_included as string[],
+            formData.house_rules as string[],
+            formData.skills as string[],
+            formData.traits as string[],
+          ]) ||
+          '',
         location: locationStr || 'Tulum',
         country: (formData.country as string) || 'Mexico',
         state: (formData.state as string) || (formData.city as string) || 'Quintana Roo',
@@ -209,7 +225,9 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
         square_footage: formData.square_footage || null,
         furnished: !!formData.furnished,
         pet_friendly: !!formData.pet_friendly,
-        house_rules: (formData.house_rules as string) || null,
+        house_rules: Array.isArray(formData.house_rules)
+          ? (formData.house_rules as string[]).join(' · ')
+          : ((formData.house_rules as string) || null),
         // Worker fields
         service_category: selectedCategory === 'worker' ? formData.service_category : null,
         custom_service_name: selectedCategory === 'worker' ? formData.custom_service_name : null,
@@ -348,23 +366,23 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
       return listingResult;
     },
     onSuccess: () => {
+      uiSounds.playUploadComplete();
       if (editingId) {
-        toast.success(`${selectedCategory} listing updated successfully`);
-        handleClose();
+        appToast.success('Listing updated', 'Your changes are saved.');
       } else {
-        uiSounds.playUploadComplete();
-        setShowCelebration(true);
-        // handleClose() will be called after celebration via onComplete
+        appToast.success('Congrats — your listing is live!', 'Others can now discover it.');
       }
       queryClient.invalidateQueries({ queryKey: ['owner-listings'] });
       queryClient.invalidateQueries({ queryKey: ['listings'] });
+      handleClose();
     },
     onError: (error: Error) => {
       queryClient.invalidateQueries({ queryKey: ['owner-listings'] });
       queryClient.invalidateQueries({ queryKey: ['listings'] });
-      toast.error('Error', {
-        description: error.message || 'Failed to save listing.',
-      });
+      appToast.error(
+        'Could not save listing',
+        error.message || 'Please check your connection and try again.'
+      );
     }
   });
 

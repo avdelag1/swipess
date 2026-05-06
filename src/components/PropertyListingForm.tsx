@@ -3,10 +3,16 @@ import { useEffect } from 'react';
 import { z } from 'zod';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { OwnerLocationSelector } from './location/OwnerLocationSelector';
+import { ChipMultiSelect } from './listing/ChipMultiSelect';
+import {
+  PROPERTY_VIBE,
+  PROPERTY_FEATURES,
+  PROPERTY_INCLUDED,
+  PROPERTY_RULES,
+} from '@/constants/listingTaxonomies';
 import { cn } from '@/lib/utils';
 
 interface PropertyFormData {
@@ -27,7 +33,8 @@ interface PropertyFormData {
   amenities?: string[];
   services_included?: string[];
   rental_duration_type?: string;
-  house_rules?: string;
+  house_rules?: string[];
+  vibe?: string[];
 }
 
 const propertyFormSchema = z.object({
@@ -48,7 +55,8 @@ const propertyFormSchema = z.object({
   amenities: z.array(z.string()).optional(),
   services_included: z.array(z.string()).optional(),
   rental_duration_type: z.string().optional(),
-  house_rules: z.string().optional(),
+  house_rules: z.array(z.string()).optional(),
+  vibe: z.array(z.string()).optional(),
 });
 
 interface PropertyListingFormProps {
@@ -69,8 +77,6 @@ const RENTAL_DURATIONS = [
   { value: 'monthly', label: 'Monthly' },
   { value: 'yearly', label: 'Yearly' },
 ];
-const AMENITIES = ['Pool', 'Gym', 'Parking', 'AC', 'WiFi', 'Security', 'Garden', 'Balcony', 'Elevator', 'Storage'];
-const SERVICES = ['Water', 'Electricity', 'Gas', 'Internet', 'Cleaning', 'Maintenance', 'Trash', 'Cable TV'];
 const STATES = ['Aguascalientes', 'Baja California', 'Baja California Sur', 'Campeche', 'Chiapas', 'Chihuahua', 'Mexico City', 'Coahuila', 'Colima', 'Durango', 'Guanajuato', 'Guerrero', 'Hidalgo', 'Jalisco', 'Mexico State', 'Michoacán', 'Morelos', 'Nayarit', 'Nuevo León', 'Oaxaca', 'Puebla', 'Querétaro', 'Quintana Roo', 'San Luis Potosí', 'Sinaloa', 'Sonora', 'Tabasco', 'Tamaulipas', 'Tlaxcala', 'Veracruz', 'Yucatán', 'Zacatecas'];
 
 // Premium section wrapper
@@ -103,6 +109,8 @@ export function PropertyListingForm({ onDataChange, initialData = {} }: Property
     defaultValues: {
       amenities: [],
       services_included: [],
+      house_rules: [],
+      vibe: [],
       furnished: false,
       pet_friendly: false,
       ...safeInitialData
@@ -115,12 +123,8 @@ export function PropertyListingForm({ onDataChange, initialData = {} }: Property
     onDataChange(formData);
   }, [formData, onDataChange]);
 
-  const toggleArrayItem = (field: 'amenities' | 'services_included', item: string) => {
-    const currentArray = watch(field) || [];
-    const newArray = currentArray.includes(item)
-      ? currentArray.filter(i => i !== item)
-      : [...currentArray, item];
-    setValue(field, newArray);
+  const setArr = (field: 'amenities' | 'services_included' | 'house_rules' | 'vibe', next: string[]) => {
+    setValue(field, next);
   };
 
   return (
@@ -231,40 +235,20 @@ export function PropertyListingForm({ onDataChange, initialData = {} }: Property
         </div>
       </Section>
 
-      <Section title="House Rules" accent="emerald">
-        <Textarea
-          {...register('house_rules')}
-          placeholder="Enter any house rules or restrictions (e.g., No smoking, Quiet hours after 10 PM, etc.)"
-          className="min-h-24"
-        />
+      <Section title="Vibe" accent="emerald">
+        <ChipMultiSelect accent="rose" options={PROPERTY_VIBE} value={watch('vibe') || []} onChange={(v) => setArr('vibe', v)} />
       </Section>
 
       <Section title="Amenities" accent="emerald">
-        <div className="grid grid-cols-2 gap-2">
-          {AMENITIES.map(amenity => (
-            <CheckboxRow
-              key={amenity}
-              id={`amenity-${amenity}`}
-              checked={!!watch('amenities')?.includes(amenity)}
-              onCheckedChange={() => toggleArrayItem('amenities', amenity)}
-              label={amenity}
-            />
-          ))}
-        </div>
+        <ChipMultiSelect accent="rose" options={PROPERTY_FEATURES} value={watch('amenities') || []} onChange={(v) => setArr('amenities', v)} />
       </Section>
 
       <Section title="Services Included" accent="emerald">
-        <div className="grid grid-cols-2 gap-2">
-          {SERVICES.map(service => (
-            <CheckboxRow
-              key={service}
-              id={`service-${service}`}
-              checked={!!watch('services_included')?.includes(service)}
-              onCheckedChange={() => toggleArrayItem('services_included', service)}
-              label={service}
-            />
-          ))}
-        </div>
+        <ChipMultiSelect accent="rose" options={PROPERTY_INCLUDED} value={watch('services_included') || []} onChange={(v) => setArr('services_included', v)} />
+      </Section>
+
+      <Section title="House Rules" accent="emerald">
+        <ChipMultiSelect accent="rose" options={PROPERTY_RULES} value={watch('house_rules') || []} onChange={(v) => setArr('house_rules', v)} />
       </Section>
     </div>
   );

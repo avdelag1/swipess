@@ -9,6 +9,8 @@ import { X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { SERVICE_SUBSPECIALTIES, SERVICE_GROUPS, getGroupedCategories } from '@/data/serviceCategories';
+import { ChipMultiSelect } from './listing/ChipMultiSelect';
+import { WORKER_TRAITS, WORKER_AVAILABILITY, LANGUAGES as LANGUAGE_OPTIONS } from '@/constants/listingTaxonomies';
 
 // Re-export from shared data for backward compat
 export { SERVICE_CATEGORIES } from '@/data/serviceCategories';
@@ -102,6 +104,7 @@ export interface WorkerFormData {
   languages?: string[];
   city?: string;
   country?: string;
+  traits?: string[];
 }
 
 interface WorkerListingFormProps {
@@ -422,23 +425,31 @@ export function WorkerListingForm({ onDataChange, initialData = {} }: WorkerList
         </div>
       </Section>
 
-      <Section title="Skills & Qualifications">
-        <div>
-          <FormLabel>Skills (type + Enter)</FormLabel>
-          <TagInput tags={watchedSkills} onAdd={v => addToArray('skills', v)} onRemove={v => removeFromArray('skills', v)} placeholder="e.g., Deep Tissue Massage" />
-        </div>
-        <div>
-          <FormLabel>Certifications (type + Enter)</FormLabel>
-          <TagInput tags={watchedCertifications} onAdd={v => addToArray('certifications', v)} onRemove={v => removeFromArray('certifications', v)} placeholder="e.g., CPR Certified" />
-        </div>
-        <div>
-          <FormLabel>Tools & Equipment (type + Enter)</FormLabel>
-          <TagInput tags={watchedToolsEquipment} onAdd={v => addToArray('tools_equipment', v)} onRemove={v => removeFromArray('tools_equipment', v)} placeholder="e.g., Massage Table" />
-        </div>
-        <div>
-          <FormLabel>Languages (type + Enter)</FormLabel>
-          <TagInput tags={watchedLanguages} onAdd={v => addToArray('languages', v)} onRemove={v => removeFromArray('languages', v)} placeholder="e.g., English, Spanish" />
-        </div>
+      <Section title="Traits">
+        <ChipMultiSelect
+          accent="amber"
+          options={WORKER_TRAITS}
+          value={watch('traits') || []}
+          onChange={(v) => setValue('traits', v)}
+        />
+      </Section>
+
+      <Section title="When You Work">
+        <ChipMultiSelect
+          accent="amber"
+          options={WORKER_AVAILABILITY}
+          value={(watch('time_slots_available') || []) as string[]}
+          onChange={(v) => setValue('time_slots_available', v)}
+        />
+      </Section>
+
+      <Section title="Languages">
+        <ChipMultiSelect
+          accent="amber"
+          options={LANGUAGE_OPTIONS}
+          value={watchedLanguages}
+          onChange={(v) => setValue('languages', v)}
+        />
       </Section>
 
       <Section title="Verification & Trust">
