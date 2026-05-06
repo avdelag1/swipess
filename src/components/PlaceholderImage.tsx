@@ -69,13 +69,16 @@ const PlaceholderImage: React.FC<PlaceholderImageProps> = ({ name }) => {
         {name && (
           <p
             style={{
-              color: 'rgba(255,255,255,0.5)',
-              fontSize: 15,
-              fontWeight: 700,
+              color: '#FFFFFF',
+              fontSize: 18,
+              fontWeight: 900,
+              fontStyle: 'italic',
               textAlign: 'center',
               padding: '0 32px',
               letterSpacing: '-0.01em',
               marginTop: 8,
+              textTransform: 'uppercase',
+              textShadow: '0 2px 12px rgba(0,0,0,0.9)',
             }}
           >
             {name}
