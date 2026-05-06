@@ -5,7 +5,6 @@ import { MessageCircle, Sparkles, Zap, Clock, Shield, Check, Crown, Star, X, Ref
 import { Capacitor } from "@capacitor/core";
 import { useIAP } from "@/hooks/useIAP";
 import { useToast } from "@/hooks/use-toast";
-import { formatPriceMXN } from "@/utils/subscriptionPricing";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
@@ -14,9 +13,17 @@ import { STORAGE } from "@/constants/app";
 import useAppTheme from "@/hooks/useAppTheme";
 import { cn } from "@/lib/utils";
 import { NativeBridge } from "@/utils/nativeBridge";
+import { APPLE_TOKEN_PACKAGES } from "@/config/iapProducts";
+
+const formatUSD = (price: number) =>
+  new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 2,
+  }).format(price);
 
 type TokenPackage = {
-  id: number;
+  id: string;
   appleProductId?: string;
   name: string;
   tokens: number;
