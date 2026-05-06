@@ -31,6 +31,7 @@ const MessageActivationPackages = lazyWithRetry(() => import('@/components/Messa
 const PushNotificationPrompt = lazyWithRetry(() => import('@/components/PushNotificationPrompt').then(m => ({ default: m.PushNotificationPrompt })));
 const WelcomeNotification = lazyWithRetry(() => import('@/components/WelcomeNotification').then(m => ({ default: m.WelcomeNotification })));
 const AIListingWizard = lazyWithRetry(() => import('@/components/AIListingWizard').then(m => ({ default: m.AIListingWizard })));
+const AIProfileWizard = lazyWithRetry(() => import('@/components/AIProfileWizard').then(m => ({ default: m.AIProfileWizard })));
 const ConciergeChat = lazyWithRetry(() => import('@/components/ConciergeChat').then(m => ({ default: m.ConciergeChat })));
 const ReportDialog = lazyWithRetry(() => import('@/components/ReportDialog').then(m => ({ default: m.ReportDialog })));
 
@@ -307,6 +308,10 @@ export const GlobalDialogs = memo(({ userRole }: GlobalDialogsProps) => {
 
       <DeferredDialog when={store.showAIListing} threshold={0}>
         <AIListingWizard />
+      </DeferredDialog>
+
+      <DeferredDialog when={store.showAIProfile} threshold={0}>
+        <AIProfileWizard />
       </DeferredDialog>
 
       <TokensModal userRole={userRole === 'admin' ? 'client' : userRole} />
