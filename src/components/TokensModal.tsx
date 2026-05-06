@@ -90,10 +90,9 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
       return;
     }
 
-    toast({
-      title: 'Apple checkout ready',
-      description: `${pkg.name}: ${pkg.tokens} tokens for ${formatUSD(pkg.priceUsd)} USD. Complete purchase in the iOS app.`,
-    });
+    toast({ title: 'Redirecting to PayPal', description: `${pkg.name}: ${pkg.tokens} tokens for ${formatUSD(pkg.priceUsd)} USD.` });
+    window.open(pkg.paypalUrl, '_blank', 'noopener,noreferrer');
+    close();
   };
 
   const handleRestore = () => {

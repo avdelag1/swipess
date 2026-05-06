@@ -27,6 +27,7 @@ export const APPLE_TOKEN_PACKAGES = [
     priceUsd: 9.99,
     description: '20 new conversations',
     badge: undefined,
+    paypalUrl: 'https://www.paypal.com/ncp/payment/VNM2QVBFG6TA4',
   },
   {
     id: 'plus',
@@ -36,6 +37,7 @@ export const APPLE_TOKEN_PACKAGES = [
     priceUsd: 19.99,
     description: '50 new conversations',
     badge: 'Popular',
+    paypalUrl: 'https://www.paypal.com/ncp/payment/VG2C7QMAC8N6A',
   },
   {
     id: 'power',
@@ -45,6 +47,7 @@ export const APPLE_TOKEN_PACKAGES = [
     priceUsd: 39.99,
     description: '100 new conversations',
     badge: undefined,
+    paypalUrl: 'https://www.paypal.com/ncp/payment/9NBGA9X3BJ5UA',
   },
   {
     id: 'mega',
@@ -54,6 +57,7 @@ export const APPLE_TOKEN_PACKAGES = [
     priceUsd: 49.99,
     description: '150 new conversations',
     badge: 'Best Value',
+    paypalUrl: 'https://www.paypal.com/ncp/payment/KP9WHGEN23MYA',
   },
 ] as const;
 
