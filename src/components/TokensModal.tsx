@@ -4,9 +4,6 @@ import { X, Zap, MessageCircle, Crown, RefreshCcw, Sparkles } from 'lucide-react
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import useAppTheme from '@/hooks/useAppTheme';
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/hooks/useAuth';
 import { useTokens } from '@/hooks/useTokens';
 import { useToast } from '@/hooks/use-toast';
 import { STORAGE } from '@/constants/app';
@@ -14,6 +11,7 @@ import { useModalStore } from '@/state/modalStore';
 import { haptics } from '@/utils/microPolish';
 import { NativeBridge } from '@/utils/nativeBridge';
 import { useNavigate } from 'react-router-dom';
+import { APPLE_TOKEN_PACKAGES, type AppleTokenPackage } from '@/config/iapProducts';
 
 const formatUSD = (price: number) =>
   new Intl.NumberFormat('en-US', {
@@ -25,29 +23,31 @@ const formatUSD = (price: number) =>
 const tokenTierConfig = {
   starter: {
     icon: MessageCircle,
-    iconBg: 'bg-slate-100 text-slate-700 dark:bg-slate-500/20 dark:text-slate-200',
-    border: 'border-border/40',
-    accent: 'from-slate-500/5 to-transparent',
+    iconBg: 'token-pack-icon token-pack-icon-starter',
+    border: 'border-border/50',
+    accent: 'from-muted/70 to-background',
   },
-  standard: {
+  plus: {
     icon: Zap,
-    iconBg: 'bg-violet-50 text-violet-600 dark:bg-violet-500/20 dark:text-violet-300',
-    border: 'border-violet-500/60 shadow-sm',
-    accent: 'from-violet-500/10 to-transparent',
+    iconBg: 'token-pack-icon token-pack-icon-plus',
+    border: 'border-primary/60 shadow-card',
+    accent: 'from-primary/12 to-background',
   },
-  premium: {
+  power: {
     icon: Crown,
-    iconBg: 'bg-amber-50 text-amber-600 dark:bg-amber-500/20 dark:text-amber-300',
-    border: 'border-amber-500/40',
-    accent: 'from-amber-500/10 to-transparent',
+    iconBg: 'token-pack-icon token-pack-icon-power',
+    border: 'border-accent/50',
+    accent: 'from-accent/12 to-background',
   },
   mega: {
     icon: Sparkles,
-    iconBg: 'bg-orange-50 text-orange-600 dark:bg-orange-500/20 dark:text-orange-300',
-    border: 'border-orange-500/40',
-    accent: 'from-orange-500/10 to-transparent',
+    iconBg: 'token-pack-icon token-pack-icon-mega',
+    border: 'border-primary/50',
+    accent: 'from-primary/10 to-background',
   },
 } as const;
+
+const getPricePerToken = (pack: AppleTokenPackage) => pack.priceUsd / pack.tokens;
 
 interface TokensModalProps {
   userRole?: 'client' | 'owner';
@@ -56,7 +56,6 @@ interface TokensModalProps {
 function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
   const { theme } = useAppTheme();
   const isLight = theme === 'light';
-  const { user } = useAuth();
   const { tokens } = useTokens();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -66,38 +65,22 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
 
   const packageCategory = userRole === 'owner' ? 'owner_pay_per_use' : 'client_pay_per_use';
 
-  const { data: packages } = useQuery({
-    queryKey: ['tokens-modal-packages', packageCategory],
-    staleTime: 1000 * 60 * 60 * 24,
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('subscription_packages')
-        .select('*')
-        .eq('package_category', packageCategory)
-        .eq('is_active', true)
-        .order('message_activations', { ascending: true });
-      if (error) throw error;
-      return data;
-    },
-  });
-
-  const tierNames = ['starter', 'standard', 'premium', 'mega'] as const;
-  const tierLabels = ['Starter', 'Plus', 'Power', 'Mega'];
-
-  const handlePurchase = async (pkg: any, tier: string) => {
+  const handlePurchase = async (pkg: AppleTokenPackage) => {
     localStorage.setItem(STORAGE.PENDING_ACTIVATION_KEY, JSON.stringify({
-      packageId: pkg.id,
-      tokens: pkg.message_activations,
-      price: pkg.price,
-      package_category: pkg.package_category,
+      productId: pkg.productId,
+      packageId: pkg.productId,
+      tokens: pkg.tokens,
+      price: pkg.priceUsd,
+      currency: 'USD',
+      package_category: packageCategory,
     }));
     localStorage.setItem(STORAGE.PAYMENT_RETURN_PATH_KEY, `/${userRole}/dashboard`);
 
     if (NativeBridge.isNative()) {
       toast({ title: 'Connecting to App Store' });
-      const result = await NativeBridge.purchaseProduct(`Swipess.tokens.${pkg.message_activations}`);
+      const result = await NativeBridge.purchaseProduct(pkg.productId);
       if (result.success) {
-        toast({ title: 'Payment Confirmed', description: 'Tokens activated.' });
+        toast({ title: 'Payment Confirmed', description: `${pkg.tokens} tokens activated.` });
         close();
       } else {
         const cancelled = (result as any).error === 'CANCELLED';
@@ -108,13 +91,10 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
       return;
     }
 
-    if (pkg.paypal_link) {
-      window.open(pkg.paypal_link, '_blank');
-      toast({ title: 'Redirecting to Checkout', description: `Processing ${tier} pack — ${formatUSD(pkg.price)}` });
-      close();
-    } else {
-      toast({ title: 'Payment unavailable', description: 'Please contact support.', variant: 'destructive' });
-    }
+    toast({
+      title: 'Apple checkout ready',
+      description: `${pkg.name}: ${pkg.tokens} tokens for ${formatUSD(pkg.priceUsd)} USD. Complete purchase in the iOS app.`,
+    });
   };
 
   const handleRestore = () => {
@@ -169,62 +149,56 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
                     Tokens are used to message owners or unlock chat actions. One token = one new conversation.
                   </p>
                   <div className="space-y-2.5">
-                    {packages && packages.length > 0 ? (
-                      packages.slice(0, 4).map((pkg, index) => {
-                        const tier = tierNames[index] || 'starter';
-                        const config = tokenTierConfig[tier] || tokenTierConfig.starter;
+                    {APPLE_TOKEN_PACKAGES.map((pkg, index) => {
+                        const config = tokenTierConfig[pkg.id] || tokenTierConfig.starter;
                         const Icon = config.icon;
-                        const isPopular = tier === 'standard';
-                        const tierLabel = tierLabels[index] || 'Pack';
-                        const tkns = pkg.message_activations || 0;
-                        const pricePerToken = tkns > 0 ? pkg.price / tkns : 0;
+                        const isPopular = pkg.badge === 'Popular' || pkg.badge === 'Best Value';
+                        const pricePerToken = getPricePerToken(pkg);
 
                         return (
                           <motion.div
-                            key={pkg.id}
+                            key={pkg.productId}
                             initial={{ opacity: 0, y: 8 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: index * 0.05 }}
                             className={cn(
-                              "relative rounded-2xl border p-4 bg-gradient-to-r transition-all",
+                              "relative rounded-2xl border p-4 bg-gradient-to-r transition-all shadow-card",
                               config.accent, config.border,
-                              isPopular && "ring-1 ring-blue-500/30"
+                              isPopular && "ring-1 ring-primary/30"
                             )}
                           >
-                            {isPopular && (
-                              <span className="absolute -top-2 left-1/2 -translate-x-1/2 text-[10px] font-bold bg-blue-600 text-white px-2.5 py-0.5 rounded-full">
-                                Best Value
+                            {pkg.badge && (
+                              <span className="absolute -top-2 left-1/2 -translate-x-1/2 text-[10px] font-bold bg-primary text-primary-foreground px-2.5 py-0.5 rounded-full">
+                                {pkg.badge}
                               </span>
                             )}
                             <div className="flex items-center gap-3">
-                              <div className={cn("flex-shrink-0 p-2.5 rounded-xl", config.iconBg)}>
-                                <Icon className="w-5 h-5" />
+                              <div className={cn("flex-shrink-0", config.iconBg)}>
+                                <Icon className="w-5 h-5" aria-hidden="true" />
                               </div>
                               <div className="flex-1 min-w-0">
-                                <div className="flex items-baseline gap-1.5">
-                                  <span className="font-black text-sm uppercase tracking-tight text-foreground">{tierLabel}</span>
-                                  <span className="text-[10px] font-bold text-muted-foreground uppercase">{tkns} tokens</span>
+                                <div className="flex items-baseline gap-1.5 flex-wrap">
+                                  <span className="font-black text-sm uppercase tracking-tight text-foreground">{pkg.name}</span>
+                                  <span className="text-[10px] font-black text-primary uppercase">{pkg.tokens} tokens</span>
                                 </div>
-                                <div className="flex items-baseline gap-1 mt-0.5">
-                                  <span className="font-black text-base tracking-tighter text-foreground">{formatUSD(pkg.price)}</span>
-                                  <span className="text-[10px] font-bold text-muted-foreground">({formatUSD(pricePerToken)}/token)</span>
+                                <div className="flex items-baseline gap-1 mt-0.5 flex-wrap">
+                                  <span className="font-black text-base tracking-tighter text-foreground">{formatUSD(pkg.priceUsd)}</span>
+                                  <span className="text-[10px] font-black text-muted-foreground">USD</span>
+                                  <span className="text-[10px] font-bold text-muted-foreground">{formatUSD(pricePerToken)} / token</span>
                                 </div>
+                                <p className="text-[11px] font-medium text-muted-foreground mt-1">{pkg.description}</p>
                               </div>
                               <button
-                                onClick={() => { haptics.tap(); handlePurchase(pkg, tier); }}
-                                className="flex-shrink-0 h-10 px-5 rounded-full font-black text-[12px] uppercase tracking-widest text-white bg-gradient-to-r from-amber-500 to-orange-500 shadow-md shadow-orange-500/20 active:scale-95 transition-transform"
+                                onClick={() => { haptics.tap(); handlePurchase(pkg); }}
+                                aria-label={`Buy ${pkg.tokens} tokens for ${formatUSD(pkg.priceUsd)} USD`}
+                                className="apple-pay-button flex-shrink-0 h-11 px-4 rounded-full font-black text-[11px] uppercase tracking-widest active:scale-95 transition-transform"
                               >
-                                Buy
+                                Apple Pay
                               </button>
                             </div>
                           </motion.div>
                         );
-                      })
-                    ) : (
-                      <div className="py-6 text-center">
-                        <p className="text-muted-foreground text-xs">Loading packages...</p>
-                      </div>
-                    )}
+                      })}
                   </div>
                 </div>
 
