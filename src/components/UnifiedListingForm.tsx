@@ -134,7 +134,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
       const fieldsToCheck = [
         { text: formData.title as string, label: 'Title' },
         { text: formData.description as string, label: 'Description' },
-        { text: formData.house_rules as string, label: 'House Rules' },
+        // house_rules is now a curated chip array — no freeform moderation needed.
       ];
       for (const field of fieldsToCheck) {
         if (field.text) {
@@ -211,7 +211,9 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
         square_footage: formData.square_footage || null,
         furnished: !!formData.furnished,
         pet_friendly: !!formData.pet_friendly,
-        house_rules: (formData.house_rules as string) || null,
+        house_rules: Array.isArray(formData.house_rules)
+          ? (formData.house_rules as string[]).join(' · ')
+          : ((formData.house_rules as string) || null),
         // Worker fields
         service_category: selectedCategory === 'worker' ? formData.service_category : null,
         custom_service_name: selectedCategory === 'worker' ? formData.custom_service_name : null,
