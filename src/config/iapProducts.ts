@@ -26,6 +26,7 @@ export const APPLE_TOKEN_PACKAGES = [
     tokens: 20,
     priceUsd: 9.99,
     description: '20 new conversations',
+    badge: undefined,
   },
   {
     id: 'plus',
@@ -43,6 +44,7 @@ export const APPLE_TOKEN_PACKAGES = [
     tokens: 100,
     priceUsd: 39.99,
     description: '100 new conversations',
+    badge: undefined,
   },
   {
     id: 'mega',
