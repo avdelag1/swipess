@@ -280,12 +280,12 @@ export function MessageActivationPackages({
                       </h3>
                       <div className="flex items-baseline justify-center gap-1">
                         <span className={cn("text-4xl font-black italic tracking-tighter", isDark ? "text-white" : "text-gray-900")}>
-                          {formatPriceMXN(pkg.price)}
+                          {formatUSD(pkg.price)}
                         </span>
-                        <span className={cn("text-xs font-bold", isDark ? "text-white/70" : "text-gray-500")}>MXN</span>
+                        <span className={cn("text-xs font-bold", isDark ? "text-white/70" : "text-gray-500")}>USD</span>
                       </div>
                       <p className={cn("text-[10px] font-bold uppercase tracking-widest", isDark ? "text-white/70" : "text-gray-500")}>
-                        {formatPriceMXN(pkg.pricePerToken)} per connection
+                        {formatUSD(pkg.pricePerToken)} per token
                       </p>
                     </div>
                   </CardHeader>
