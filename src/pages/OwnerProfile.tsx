@@ -162,6 +162,20 @@ const OwnerProfile = () => {
         {/* PRIMARY ACTIONS */}
         <div className="space-y-3">
           <Button
+            onClick={() => { triggerHaptic('heavy'); useModalStore.getState().openAIProfile('owner'); }}
+            className="w-full h-20 rounded-3xl relative overflow-hidden transition-all active:scale-95 border-none shadow-2xl"
+            style={{ background: 'linear-gradient(135deg, #06B6D4, #6366F1)' }}
+          >
+            <div className="relative z-10 flex items-center justify-center gap-4">
+              <Sparkles className="w-7 h-7 text-white" />
+              <div className="text-left">
+                <span className="block text-[16px] font-black uppercase italic tracking-[0.2em] leading-none text-white">Magic AI Profile</span>
+                <span className="block text-[9px] font-black uppercase tracking-[0.3em] text-white/60 mt-1">Speak — AI builds your business profile</span>
+              </div>
+            </div>
+          </Button>
+
+          <Button
             onClick={() => { triggerHaptic('heavy'); setModal('showAIListing', true); }}
             className="w-full h-24 rounded-3xl relative overflow-hidden transition-all active:scale-95 border-none shadow-2xl"
             style={{ background: 'linear-gradient(135deg, #FF4D00, #EB4898)' }}
