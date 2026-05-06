@@ -70,8 +70,7 @@ export default function OwnerFilters({ isEmbedded, onClose }: OwnerFiltersProps)
             <div className="flex items-center gap-4">
               <button
                 onClick={() => navigate('/owner/dashboard')}
-                style={{ background: 'var(--hud-bg)', color: 'var(--hud-text)', borderColor: 'var(--hud-border)' }}
-                className="w-12 h-12 rounded-full flex items-center justify-center backdrop-blur-xl border transition-all active:scale-90 shadow-xl"
+                className="w-12 h-12 rounded-full flex items-center justify-center backdrop-blur-xl border border-white/15 bg-black/70 text-white transition-all active:scale-90 shadow-xl"
               >
                 <ChevronLeft className="w-6 h-6" />
               </button>
@@ -79,8 +78,7 @@ export default function OwnerFilters({ isEmbedded, onClose }: OwnerFiltersProps)
             </div>
             <button
               onClick={handleReset}
-              style={{ background: 'var(--hud-bg)', color: 'var(--hud-text)', borderColor: 'var(--hud-border)' }}
-              className="w-12 h-12 rounded-full flex items-center justify-center backdrop-blur-xl border transition-all active:scale-90 shadow-lg"
+              className="w-12 h-12 rounded-full flex items-center justify-center backdrop-blur-xl border border-white/15 bg-black/70 text-white transition-all active:scale-90 shadow-lg"
             >
               <RotateCcw className="w-5 h-5" />
             </button>
