@@ -720,7 +720,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
                 onClick={handleSubmit}
                 disabled={createListingMutation.isPending}
                 className={cn(
-                  "px-10 rounded-2xl h-12 font-black shadow-xl transition-all flex items-center gap-3 !text-white disabled:opacity-50 relative z-10",
+                  "px-10 rounded-2xl h-12 font-black shadow-xl transition-all flex items-center gap-3 !text-white disabled:opacity-50 relative z-10 bg-primary",
                   selectedCategory === 'property' && "bg-rose-600 hover:bg-rose-500 shadow-rose-500/30",
                   selectedCategory === 'motorcycle' && "bg-orange-600 hover:bg-orange-500 shadow-orange-500/30",
                   selectedCategory === 'bicycle' && "bg-purple-600 hover:bg-purple-500 shadow-purple-500/30",
