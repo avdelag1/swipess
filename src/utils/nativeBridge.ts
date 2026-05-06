@@ -1,4 +1,5 @@
 import { Capacitor } from '@capacitor/core';
+import { StoreKitService } from '@/lib/iap/StoreKitService';
 
 /**
  *  StoreKit 2 & Native Platform Bridge
@@ -18,19 +19,7 @@ export const NativeBridge = {
       console.warn('Native IAP called on web. Fallback to web checkout required.');
       return { success: false, error: 'NOT_NATIVE' };
     }
-
-    // This is where we would call @capacitor-community/apple-pay or specialized IAP plugin
-    // For Guideline 3.1.1, we must route through StoreKit on iOS.
-    console.log(`[StoreKit] Initiating purchase for: ${productId}`);
-    
-    try {
-      // Logic for native purchase would go here
-      // return await IAPService.purchase(productId);
-      return { success: true };
-    } catch (error) {
-      console.error('[StoreKit] Purchase error:', error);
-      return { success: false, error };
-    }
+    return StoreKitService.purchase(productId);
   },
 
   /**
@@ -40,14 +29,7 @@ export const NativeBridge = {
     if (!Capacitor.isNativePlatform()) {
       return { success: false, error: 'NOT_NATIVE' };
     }
-    console.log('[StoreKit] Restoring purchases...');
-    try {
-      // return await IAPService.restore();
-      return { success: true };
-    } catch (error) {
-      console.error('[StoreKit] Restore error:', error);
-      return { success: false, error };
-    }
+    return StoreKitService.restore();
   }
 };
 
