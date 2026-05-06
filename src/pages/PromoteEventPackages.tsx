@@ -130,7 +130,7 @@ export default function PromoteEventPackages() {
                   disabled={purchasing === tier.id || approved === false}
                   className="w-full h-12 rounded-2xl font-black uppercase tracking-widest"
                 >
-                  {purchasing === tier.id ? 'Processing…' : `Buy ${tier.price}`}
+                  {purchasing === tier.id ? 'Processing…' : `Get Offer · ${tier.price}`}
                 </Button>
               </div>
             );
