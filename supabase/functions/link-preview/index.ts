@@ -127,11 +127,11 @@ Deno.serve(async (req: Request) => {
       canonical = `${APP_ORIGIN}/listing/${id}`;
       const { data } = await supabase
         .from("listings")
-        .select("title, city, neighborhood, price, beds, baths, images, image_url, category, listing_type")
+        .select("title, city, neighborhood, price, beds, baths, images, category, listing_type")
         .eq("id", id)
         .maybeSingle();
       if (data) {
-        const first = pickFirstImage((data as any).images) || (data as any).image_url;
+        const first = pickFirstImage((data as any).images);
         if (first) image = first;
         title = (data as any).title || fallbackTitle;
         const loc = [(data as any).neighborhood, (data as any).city].filter(Boolean).join(", ");
