@@ -155,6 +155,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     let handlingError = false;
     let errorCount = 0;
     let lastErrorTime = 0;
+    let lastToastTime = 0;
 
     const handleAudioError = (_e: Event) => {
       if (handlingError) return;
@@ -170,9 +171,10 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       }
       lastErrorTime = now;
 
-      // ⚡ TURBO BLACKOUT: Bail after 12 consecutive rapid errors (survive localized glitches)
-      if (errorCount > 12) {
-        setError('Global radio outage — please try again later');
+      // Bail after 5 consecutive rapid errors and STOP (don't auto-skip again)
+      if (errorCount > 5) {
+        setError('No stations reachable right now');
+        appToast.warning('Radio paused', 'No stations reachable right now');
         errorCount = 0;
         if (audio) {
           audio.removeEventListener('error', handleAudioError);
@@ -185,7 +187,23 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
         return;
       }
 
-      appToast.warning('Station unavailable', 'Tuning to next frequency...');
+      // Throttle the "tuning to next" toast to at most once every 6s,
+      // and only when the mini-player is visible.
+      const nowToast = Date.now();
+      if (nowToast - lastToastTime > 6000) {
+        lastToastTime = nowToast;
+        // Only surface the toast in expanded mode; otherwise stay silent
+        // (console only) so background failures don't spam the UI.
+        // Note: we read miniPlayerMode via state at error time.
+        // eslint-disable-next-line @typescript-eslint/no-use-before-define
+        // Defer state read to avoid stale closure: use a ref-like lookup.
+        try {
+          const mini = (audioRef.current as any)?.__miniMode ?? null;
+          if (mini === 'expanded') {
+            appToast.warning('Station unavailable', 'Tuning to next frequency...');
+          }
+        } catch {/* ignore */}
+      }
       setError('Station unavailable - skipping...');
 
       // Clear any pending load timeout & release the play lock so the next
