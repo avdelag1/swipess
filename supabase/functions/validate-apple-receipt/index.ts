@@ -16,10 +16,10 @@ const SUBSCRIPTION_PRODUCTS = new Set([
 ]);
 
 const TOKEN_PRODUCTS: Record<string, number> = {
+  'Swipess.tokens.20': 20,
   'Swipess.tokens.50': 50,
+  'Swipess.tokens.100': 100,
   'Swipess.tokens.150': 150,
-  'Swipess.tokens.500': 500,
-  'Swipess.tokens.1500': 1500,
 };
 
 async function verify(receipt: string, sharedSecret: string) {
