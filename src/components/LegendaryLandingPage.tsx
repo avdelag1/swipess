@@ -114,14 +114,14 @@ const LandingView = memo(({
       >
         <button
           onClick={() => { triggerHaptic('medium'); onEnterAuth('login'); }}
-          className="w-full h-14 rounded-[2rem] bg-foreground text-background font-black uppercase tracking-[0.25em] text-[12px] shadow-[0_18px_50px_hsl(var(--foreground)/0.22)] active:scale-[0.97] transition-all flex items-center justify-center gap-3 border border-border"
+          className="w-full h-14 rounded-[2rem] bg-gradient-to-b from-[#FF4D4D] to-[#E01E2A] text-white font-black uppercase tracking-[0.25em] text-[12px] shadow-[0_15px_45px_rgba(224,30,42,0.55)] hover:brightness-110 active:scale-[0.97] transition-all flex items-center justify-center gap-3 border border-white/15"
         >
           <LogIn className="w-4 h-4" />
           Sign In
         </button>
         <button
           onClick={() => { triggerHaptic('medium'); onEnterAuth('signup'); }}
-          className="w-full h-14 rounded-[2rem] bg-white/[0.06] backdrop-blur-xl text-white font-black uppercase tracking-[0.25em] text-[12px] shadow-[0_12px_36px_rgba(0,0,0,0.45)] active:scale-[0.97] transition-all flex items-center justify-center gap-3 border border-white/20 hover:bg-white/[0.1]"
+          className="w-full h-14 rounded-[2rem] bg-white text-black font-black uppercase tracking-[0.25em] text-[12px] shadow-[0_12px_36px_rgba(255,255,255,0.18)] active:scale-[0.97] transition-all flex items-center justify-center gap-3 border border-white/30 hover:bg-white/95"
         >
           <Sparkles className="w-4 h-4" />
           Create Account
