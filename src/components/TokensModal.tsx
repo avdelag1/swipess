@@ -45,7 +45,7 @@ const premiumPlans = [
     appleProductId: 'Swipess.plus.monthly.v1',
     name: 'Monthly',
     label: 'STARTER',
-    price: '$29',
+    price: '$29.99',
     duration: '/month',
     accent: 'blue' as const,
     benefits: [
@@ -62,7 +62,7 @@ const premiumPlans = [
     appleProductId: 'Swipess.plus.semestral.v1',
     name: 'Semi-Annual',
     label: 'POPULAR',
-    price: '$111',
+    price: '$111.99',
     duration: '/6 months',
     accent: 'pink' as const,
     highlight: true,
@@ -82,7 +82,7 @@ const premiumPlans = [
     appleProductId: 'Swipess.plus.annual.v1',
     name: 'Annual',
     label: 'BEST VALUE',
-    price: '$149',
+    price: '$149.99',
     duration: '/year',
     accent: 'gold' as const,
     benefits: [
