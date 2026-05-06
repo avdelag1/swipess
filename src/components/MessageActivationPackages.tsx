@@ -77,70 +77,30 @@ export function MessageActivationPackages({
   const currentUserRole = userRole || userProfile?.role || 'client';
   const packageCategory = currentUserRole === 'owner' ? 'owner_pay_per_use' : 'client_pay_per_use';
 
-  const { data: packages, isLoading } = useQuery({
-    queryKey: ['activation-packages', packageCategory],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('subscription_packages')
-        .select('*')
-        .eq('package_category', packageCategory)
-        .eq('is_active', true)
-        .order('message_activations', { ascending: true });
-      if (error) throw error;
-      return data;
-    },
+  const isLoading = false;
+
+  const convertPackages = (): TokenPackage[] => APPLE_TOKEN_PACKAGES.map((pkg, index) => {
+    const tier: 'starter' | 'standard' | 'premium' = index === 0 ? 'starter' : index === 1 ? 'standard' : 'premium';
+    const iconMap = { starter: MessageCircle, standard: Zap, premium: Crown };
+    const pricePerToken = pkg.priceUsd / pkg.tokens;
+
+    return {
+      id: pkg.productId,
+      appleProductId: pkg.productId,
+      name: pkg.name,
+      tokens: pkg.tokens,
+      price: pkg.priceUsd,
+      pricePerToken,
+      savings: pkg.badge === 'Best Value' ? 'Best Value' : undefined,
+      tier,
+      icon: iconMap[tier],
+      duration_days: 30,
+      package_category: packageCategory,
+      paypalUrl: '',
+      features: [pkg.description, `${formatUSD(pricePerToken)} USD per token`, 'Instant App Store activation'],
+      legal_documents: 0,
+    };
   });
-
-  const convertPackages = (dbPackages: any[] | undefined): TokenPackage[] => {
-    if (!dbPackages || dbPackages.length === 0) return [];
-
-    return dbPackages.map((pkg, index) => {
-      const tokens = pkg.message_activations || pkg.tokens || 0;
-      const pricePerToken = tokens > 0 ? pkg.price / tokens : 0;
-
-      const _tierMap: ('starter' | 'standard' | 'premium')[] = ['starter', 'standard', 'premium'];
-      let tier: 'starter' | 'standard' | 'premium' = 'starter';
-
-      const dbTier = pkg.tier?.toLowerCase();
-      if (dbTier === 'premium' || tokens >= 15) tier = 'premium';
-      else if (dbTier === 'standard' || tokens >= 10) tier = 'standard';
-      else tier = 'starter';
-
-      let savings: string | undefined;
-      if (index > 0 && dbPackages[0]) {
-        const firstTokens = dbPackages[0].message_activations || dbPackages[0].tokens || 1;
-        const firstPricePerToken = dbPackages[0].price / firstTokens;
-        const savingsPercent = Math.round(((firstPricePerToken - pricePerToken) / firstPricePerToken) * 100);
-        if (savingsPercent > 0) savings = `Save ${savingsPercent}%`;
-      }
-
-      let features: string[] = [];
-      try {
-        features = Array.isArray(pkg.features) ? pkg.features : JSON.parse(pkg.features || '[]');
-      } catch {
-        features = [`${tokens} tokens`, `${pkg.duration_days || 30} days validity`];
-      }
-
-      const iconMap = { starter: MessageCircle, standard: Zap, premium: Crown };
-
-      return {
-        id: pkg.id,
-        appleProductId: `Swipess.tokens.${tokens}`,
-        name: pkg.name || (tier.charAt(0).toUpperCase() + tier.slice(1)),
-        tokens,
-        price: pkg.price,
-        pricePerToken,
-        savings,
-        tier,
-        icon: iconMap[tier],
-        duration_days: pkg.duration_days || 30,
-        package_category: pkg.package_category,
-        paypalUrl: pkg.paypal_link || '',
-        features,
-        legal_documents: pkg.legal_documents_included || 0,
-      };
-    }).sort((a, b) => a.tokens - b.tokens);
-  };
 
   const handlePurchase = async (pkg: TokenPackage) => {
     sessionStorage.setItem(STORAGE.PENDING_ACTIVATION_KEY, JSON.stringify({
@@ -163,29 +123,10 @@ export function MessageActivationPackages({
       return;
     }
 
-    if (pkg.paypalUrl) {
-      window.open(pkg.paypalUrl, '_blank');
-      toast({
-        title: "Redirecting to Payment",
-        description: `Processing ${pkg.name} package (${formatPriceMXN(pkg.price)})`,
-      });
-
-      if (user?.id) {
-        await supabase.from('notifications').insert([{
-          user_id: user.id,
-          notification_type: 'payment',
-          title: 'Tokens Selected!',
-          message: `You selected the ${pkg.name} package with ${pkg.tokens} tokens (${formatPriceMXN(pkg.price)}). Complete payment to activate!`,
-          is_read: false
-        }]).then(() => { }, () => { });
-      }
-    } else {
-      toast({
-        title: "Payment link unavailable",
-        description: "Please contact support to complete this purchase.",
-        variant: "destructive",
-      });
-    }
+    toast({
+      title: "Apple checkout ready",
+      description: `${pkg.name}: ${pkg.tokens} tokens for ${formatUSD(pkg.price)} USD. Complete purchase in the iOS app.`,
+    });
   };
 
   const handleRestore = () => {
@@ -193,7 +134,7 @@ export function MessageActivationPackages({
     setTimeout(() => toast({ title: "Done", description: "All active tokens have been restored." }), 1500);
   };
 
-  const packagesUI = convertPackages(packages);
+  const packagesUI = convertPackages();
 
   const roleLabel = currentUserRole === 'owner' ? 'Provider' : 'Explorer';
   const roleDescription = currentUserRole === 'owner'
