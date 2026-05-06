@@ -1,29 +1,84 @@
-# Fix Landing Page Input Visibility
+## Goal
 
-The Sign In / Sign Up input fields (Email, Password, Your Name, Confirm Password) currently render nearly black on the black background — placeholders and typed text are barely visible in the screenshots. The previous polish pass over-darkened them.
+You already have a working **AI Listing Wizard** with mic → transcribe → AI refines → AI extracts structured fields. Bring that same experience to **profile building** so users (Client and Owner) can just speak about themselves and the AI fills the form.
 
-## What to change
+## What's already working (no changes needed)
 
-**File:** `src/components/LegendaryLandingPage.tsx` (the `inputCls` helper, ~line 278)
+- **AI Concierge chat mic** — silence-based auto-send, Web Speech + `voice-transcribe` edge function fallback for iOS.
+- **AI Listing Wizard mic** — speak → Kimi refines copy → AI extracts category-specific JSON → photos → review → publish.
+- `voice-transcribe` edge function uses Lovable AI Gateway (Gemini multimodal) and is rock solid.
 
-Rebalance the input surface so it reads clearly on pure black while keeping the premium dark feel:
+## What to add — AI Profile Wizard
 
-- Background: `bg-white/[0.08]` → `bg-white/[0.14]` (lifts surface off black)
-- Border: `border-white/15` → `border-white/25` (defines edge)
-- Placeholder: `placeholder:text-white/55` → `placeholder:text-white/75` (legible)
-- Input text color: keep `text-white` but ensure font is readable — drop `font-bold` to `font-semibold` and bump size from `text-sm` to `text-[15px]`
-- Focus state: keep red ring, raise focus bg to `bg-white/[0.18]` and border to `border-[#E01E2A]`
-- Add a subtle inner highlight: `shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]` for depth
+A new modal (`AIProfileWizard.tsx`) modeled on `AIListingWizard.tsx`, but for profiles.
 
-## Eye / password toggle icon
-
-The eye icon on the password fields currently uses faint white. Bump it to `text-white/70 hover:text-white` so it's visible.
-
-## Result
+### Flow
 
 ```text
-Before: ▓ near-black pill, placeholder barely visible
-After:  ░ clearly elevated dark-glass pill, white/75 placeholder, white text
+1. User opens "Magic AI Profile" from their Profile page
+2. Tap mic → speaks freely:
+   - Client: "I'm Maria, 28, looking for a 2-bedroom in Tulum
+     under $1500, pet-friendly, with my partner..."
+   - Owner: "I'm a property manager with 5 years experience,
+     I rent beachfront condos in Playa del Carmen, English/Spanish..."
+3. Transcript appears, user can refine with Kimi (one-tap polish)
+4. Tap "Build my profile" → AI extracts structured fields:
+   - Client: name, age, bio, budget_range, preferred_location,
+     lifestyle_tags, intent (rent/buy/roommate)
+   - Owner: business_name, bio, specialties, languages,
+     years_experience, service_areas, contact_preferences
+5. User reviews + edits draft, uploads 1 mandatory photo
+6. Save → updates client_profiles or owner_profiles
 ```
 
-No layout, spacing, or component changes. No structural edits. Brand red (#E01E2A) primary buttons stay exactly as-is — this only fixes the input legibility problem shown in the screenshots.
+### Files to create
+
+- `src/components/AIProfileWizard.tsx` — the modal (copy structure from `AIListingWizard.tsx`, adapt steps to: intro → photos → speak → review)
+- Add `showAIProfile` + `aiProfileDraft` to `src/state/modalStore.ts`
+- Mount in `src/components/GlobalDialogs.tsx`
+
+### Files to edit
+
+- `src/pages/ClientProfileNew.tsx` — add a "Magic AI Profile" trigger card at the top (matches the existing Owner "Magic AI Listing" button styling at line 165 of `OwnerProfile.tsx`)
+- `src/pages/OwnerProfile.tsx` — add the same trigger for owner profile fields (separate from listing)
+- `supabase/functions/ai-concierge/index.ts` *(or new `ai-profile-extract` function)* — accept a `mode: 'profile-client' | 'profile-owner'` and return structured JSON via tool calling (per the AI Gateway structured-output pattern). Keep system prompt server-side.
+
+### Backend
+
+Use the existing **Lovable AI Gateway** (no new key, already configured). Use **tool-calling structured output** (not "return JSON in text") so extraction is reliable — same pattern documented in `<connecting-to-ai-models>`.
+
+Schema example for client profile extraction:
+
+```text
+extract_client_profile {
+  name, age, bio (cinematic 2-3 sentences),
+  intent: ["rent" | "buy" | "roommate"],
+  budget_min, budget_max, currency,
+  preferred_locations: string[],
+  lifestyle_tags: string[],
+  languages: string[]
+}
+```
+
+### UX details (per Design Evolution Memory)
+
+- 64–72px mic button, breathing pulse while recording
+- Live transcript box with `bg-white/[0.14] border-white/25 text-white` (matches the legibility fix just made to landing page)
+- "Refine with AI" pill button, loading shimmer
+- Review step: each extracted field is an editable chip — tap to edit inline
+- Exactly **1 mandatory photo** (per project memory rule)
+
+### Validation
+
+- Block save if no photo or required fields missing (name, bio for client; business_name, bio for owner)
+- Sanitize bio with DOMPurify (per XSS memory)
+- Save respects existing `profile_images` table for avatar (per Profile Schema memory)
+
+## Out of scope
+
+- No new auth, no schema changes — all fields already exist on `client_profiles` / `owner_profiles`
+- Listing wizard stays as-is
+
+## Approve to implement
+
+Once approved I'll switch to build mode and ship it in one pass.
