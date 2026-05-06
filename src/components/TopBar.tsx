@@ -180,8 +180,11 @@ function TopBarComponent({
                 </div>
                 {profile?.full_name && (
                   <span
-                    className="hidden max-w-[74px] truncate sm:inline-block text-[10px] font-black uppercase tracking-[0.08em] text-foreground/80"
-                    style={{ fontVariantNumeric: 'tabular-nums' }}
+                    className="hidden max-w-[74px] truncate sm:inline-block text-[10px] font-black uppercase tracking-[0.08em]"
+                    style={{
+                      fontVariantNumeric: 'tabular-nums',
+                      color: !isLight || isDashboard ? '#FFFFFF' : '#0A0A0A',
+                    }}
                   >
                     {profile.full_name.split(' ')[0]}
                   </span>
