@@ -112,15 +112,20 @@ export function useIncrementShareClicks() {
 
 // Generate shareable URL - always use production domain with referral tracking
 export function generateShareUrl(params: ShareUrlParams): string {
-  const baseUrl = 'https://swipess.com';
-  let url = baseUrl;
+  // Route shared links through the link-preview edge function so messengers
+  // (WhatsApp, iMessage, Telegram, etc.) see the real listing photo + title
+  // in their unfurled preview. Real users get redirected to the SPA route.
+  const previewBase =
+    'https://vplgtcguxujxwrgguxqq.supabase.co/functions/v1/link-preview';
+  const appBase = 'https://swipess.com';
+  let url = appBase;
 
   if (params.listingId) {
-    url = `${baseUrl}/listing/${params.listingId}`;
+    url = `${previewBase}/listing/${params.listingId}`;
   } else if (params.profileId) {
-    url = `${baseUrl}/profile/${params.profileId}`;
+    url = `${previewBase}/profile/${params.profileId}`;
   } else if (params.eventId) {
-    url = `${baseUrl}/explore/eventos/${params.eventId}`;
+    url = `${previewBase}/event/${params.eventId}`;
   }
 
   // Add a short referral code — strip dashes, take first 8 chars 
