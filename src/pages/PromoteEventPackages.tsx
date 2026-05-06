@@ -12,6 +12,7 @@ const promoTiers = [
   {
     id: 'week',
     appleProductId: 'Swipess.promo.event.week.v1',
+    paypalUrl: 'https://www.paypal.com/ncp/payment/L94P4NFVX7T2E',
     name: 'Spark',
     duration: '1 Week',
     price: '$19.99',
@@ -22,6 +23,7 @@ const promoTiers = [
   {
     id: 'month',
     appleProductId: 'Swipess.promo.event.month.v1',
+    paypalUrl: 'https://www.paypal.com/ncp/payment/XB42DA8JMY5L4',
     name: 'Pulse',
     duration: '1 Month',
     price: '$59.99',
@@ -33,6 +35,7 @@ const promoTiers = [
   {
     id: 'quarter',
     appleProductId: 'Swipess.promo.event.quarter.v1',
+    paypalUrl: 'https://www.paypal.com/ncp/payment/RPCFCMXDL3M2C',
     name: 'Wave',
     duration: '3 Months',
     price: '$149.99',
@@ -82,7 +85,8 @@ export default function PromoteEventPackages() {
       return;
     }
     setPurchasing(null);
-    toast.message('Available in the iOS app', { description: 'Open Swipess on iPhone to purchase this promotion.' });
+    toast.message('Redirecting to PayPal', { description: `${tier.name} (${tier.duration})` });
+    window.open(tier.paypalUrl, '_blank', 'noopener,noreferrer');
   };
 
   return (
