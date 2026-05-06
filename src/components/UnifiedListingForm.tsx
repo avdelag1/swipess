@@ -4,6 +4,7 @@
  */
 import { useState, useEffect, useRef } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
@@ -76,6 +77,8 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
   const queryClient = useQueryClient();
   const { user } = useAuth();
   const { saveListingDraft } = useAnonymousDrafts();
+  const navigate = useNavigate();
+  const routerLocation = useLocation();
 
   const getMaxPhotos = () => {
     return 10;
@@ -376,8 +379,13 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
         appToast.success('Congrats — your listing is live!', 'Others can now discover it.');
       }
       queryClient.invalidateQueries({ queryKey: ['owner-listings'] });
+      queryClient.refetchQueries({ queryKey: ['owner-listings'] });
       queryClient.invalidateQueries({ queryKey: ['listings'] });
       handleClose();
+      // Always return user to the main listings dashboard
+      if (!routerLocation.pathname.startsWith('/owner/properties')) {
+        navigate('/owner/properties', { replace: true });
+      }
     },
     onError: (error: Error) => {
       queryClient.invalidateQueries({ queryKey: ['owner-listings'] });
