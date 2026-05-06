@@ -12,10 +12,10 @@ export const APPLE_SUBSCRIPTION_PRODUCTS = [
 
 /** Token (consumable) packs. The number suffix is the token amount. */
 export const APPLE_TOKEN_PRODUCTS = [
+  'Swipess.tokens.20',
   'Swipess.tokens.50',
+  'Swipess.tokens.100',
   'Swipess.tokens.150',
-  'Swipess.tokens.500',
-  'Swipess.tokens.1500',
 ] as const;
 
 export type AppleProductId =
