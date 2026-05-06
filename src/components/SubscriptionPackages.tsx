@@ -125,7 +125,11 @@ export function SubscriptionPackages({ isOpen = true, onClose, reason, userRole 
     sessionStorage.setItem(STORAGE.SELECTED_PLAN_KEY, JSON.stringify(selection));
     sessionStorage.setItem(STORAGE.PAYMENT_RETURN_PATH_KEY, `/${userRole}/dashboard`);
 
-    if (NativeBridge.isIOS() && plan.appleProductId) {
+    if (NativeBridge.isNative()) {
+       if (!plan.appleProductId) {
+         toast.error('Plan unavailable on this device.');
+         return;
+       }
        toast({ title: 'Connecting to App Store', description: 'Initiating secure In-App Purchase...' });
        const result = await NativeBridge.purchaseProduct(plan.appleProductId);
        if (result.success) {
@@ -133,12 +137,15 @@ export function SubscriptionPackages({ isOpen = true, onClose, reason, userRole 
          onClose?.();
          return;
        } else {
-         toast.error('Purchase Failed', { description: 'The transaction could not be completed.' });
+         const cancelled = (result as any).error === 'CANCELLED';
+         if (!cancelled) {
+           toast.error('Purchase could not be completed', { description: 'Please try again from Settings → Subscriptions.' });
+         }
          return;
        }
     }
 
-    // Web Fallback
+    // Web fallback (browser only — never on native iOS)
     window.open(plan.paypalUrl, '_blank');
 
     toast({

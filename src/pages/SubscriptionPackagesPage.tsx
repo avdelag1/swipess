@@ -129,8 +129,12 @@ export default function SubscriptionPackagesPage() {
   const handlePremiumPurchase = async (plan: typeof clientPremiumPlans[0]) => {
     try {
       haptics.tap();
-      
-      if (NativeBridge.isIOS() && plan.appleProductId) {
+
+      if (NativeBridge.isNative()) {
+        if (!plan.appleProductId) {
+          toast.error('Plan unavailable on this device.');
+          return;
+        }
         toast({ title: 'Connecting to App Store', description: 'Initiating secure In-App Purchase...' });
         const result = await NativeBridge.purchaseProduct(plan.appleProductId);
         if (result.success) {
@@ -138,7 +142,10 @@ export default function SubscriptionPackagesPage() {
           navigate(`/${userRole}/dashboard`);
           return;
         } else {
-          toast.error('Transaction Cancelled', { description: 'Payment could not be completed.' });
+          const cancelled = (result as any).error === 'CANCELLED';
+          if (!cancelled) {
+            toast.error('Purchase could not be completed', { description: 'Please try again in a moment.' });
+          }
           return;
         }
       }
