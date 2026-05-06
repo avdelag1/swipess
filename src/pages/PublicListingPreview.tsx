@@ -239,14 +239,14 @@ export default function PublicListingPreview() {
             <>
               <Button
                 onClick={handleCreateAccount}
-                className="w-full h-12 rounded-2xl bg-gradient-to-r from-[#EB4898] to-[#FF4D00] text-white font-bold uppercase tracking-wider hover:opacity-95 active:scale-[0.98] transition-transform shadow-[0_10px_30px_rgba(235,72,152,0.35)]"
+                className="w-full h-12 rounded-2xl bg-gradient-to-b from-[#FF4D4D] to-[#E01E2A] text-white font-bold uppercase tracking-wider hover:brightness-110 active:scale-[0.98] transition-transform shadow-[0_12px_36px_rgba(224,30,42,0.5)] border border-white/15"
               >
                 <UserPlus className="w-5 h-5 mr-2.5" />
                 Create Account
               </Button>
               <Button
                 onClick={handleSignIn}
-                className="w-full h-12 rounded-2xl bg-foreground hover:bg-foreground/95 text-background font-bold uppercase tracking-wider border border-border active:scale-[0.98] transition-transform shadow-[0_12px_34px_hsl(var(--foreground)/0.18)]"
+                className="w-full h-12 rounded-2xl bg-white hover:bg-white/95 text-black font-bold uppercase tracking-wider border border-white/30 active:scale-[0.98] transition-transform shadow-[0_12px_34px_rgba(255,255,255,0.18)]"
               >
                 <LogIn className="w-5 h-5 mr-2.5" />
                 Sign In
