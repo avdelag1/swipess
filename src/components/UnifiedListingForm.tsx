@@ -4,7 +4,7 @@
  */
 import { useState, useEffect, useRef } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
@@ -56,6 +56,11 @@ const itemFadeScale = {
   visible: { opacity: 1, y: 0, scale: 1, transition: fastSpring }
 };
 
+const toIntOrNull = (value: unknown) => {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? Math.round(parsed) : null;
+};
+
 export function UnifiedListingForm({ isOpen, onClose, editingProperty }: UnifiedListingFormProps) {
   const [selectedCategory, setSelectedCategory] = useState<Category>('property');
   const [selectedMode, setSelectedMode] = useState<Mode>('rent');
@@ -78,7 +83,6 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
   const { user } = useAuth();
   const { saveListingDraft } = useAnonymousDrafts();
   const navigate = useNavigate();
-  const routerLocation = useLocation();
 
   const getMaxPhotos = () => {
     return 10;
@@ -226,9 +230,9 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
         location_type,
         // Property fields
         property_type: formData.property_type ? String(formData.property_type).toLowerCase() : null,
-        beds: formData.beds || null,
-        baths: formData.baths || null,
-        square_footage: formData.square_footage || null,
+        beds: toIntOrNull(formData.beds),
+        baths: toIntOrNull(formData.baths),
+        square_footage: toIntOrNull(formData.square_footage),
         furnished: !!formData.furnished,
         pet_friendly: !!formData.pet_friendly,
         house_rules: Array.isArray(formData.house_rules)
@@ -239,9 +243,9 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
         custom_service_name: selectedCategory === 'worker' ? formData.custom_service_name : null,
         pricing_unit: selectedCategory === 'worker' ? formData.pricing_unit : null,
         experience_level: selectedCategory === 'worker' ? formData.experience_level : null,
-        experience_years: selectedCategory === 'worker' ? formData.experience_years : null,
-        service_radius_km: selectedCategory === 'worker' ? formData.service_radius_km : null,
-        minimum_booking_hours: selectedCategory === 'worker' ? formData.minimum_booking_hours : null,
+        experience_years: selectedCategory === 'worker' ? toIntOrNull(formData.experience_years) : null,
+        service_radius_km: selectedCategory === 'worker' ? toIntOrNull(formData.service_radius_km) : null,
+        minimum_booking_hours: selectedCategory === 'worker' ? toIntOrNull(formData.minimum_booking_hours) : null,
         offers_emergency_service: !!formData.offers_emergency_service,
         background_check_verified: !!formData.background_check_verified,
         insurance_verified: !!formData.insurance_verified,
@@ -250,9 +254,9 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
         vehicle_brand: (selectedCategory === 'motorcycle' || selectedCategory === 'bicycle') ? (formData.brand || formData.vehicle_brand) : null,
         vehicle_model: (selectedCategory === 'motorcycle' || selectedCategory === 'bicycle') ? (formData.model || formData.vehicle_model) : null,
         vehicle_condition: (selectedCategory === 'motorcycle' || selectedCategory === 'bicycle') ? (formData.condition ? String(formData.condition).toLowerCase().replace('needs work', 'poor') : null) : null,
-        year: formData.year ? Number(formData.year) : null,
-        mileage: formData.mileage ? Number(formData.mileage) : null,
-        engine_cc: formData.engine_cc ? Number(formData.engine_cc) : null,
+        year: toIntOrNull(formData.year),
+        mileage: toIntOrNull(formData.mileage),
+        engine_cc: toIntOrNull(formData.engine_cc),
         fuel_type: (selectedCategory === 'motorcycle' || selectedCategory === 'bicycle') ? (formData.fuel_type ? String(formData.fuel_type).toLowerCase() : null) : null,
         transmission: (selectedCategory === 'motorcycle' || selectedCategory === 'bicycle') ? (formData.transmission ? String(formData.transmission).toLowerCase().replace('semi-auto', 'semi-automatic') : null) : null,
         // Motorcycle specific
@@ -268,12 +272,12 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
         bicycle_type: selectedCategory === 'bicycle' ? formData.bicycle_type : null,
         frame_size: selectedCategory === 'bicycle' ? formData.frame_size : null,
         frame_material: selectedCategory === 'bicycle' ? formData.frame_material : null,
-        number_of_gears: selectedCategory === 'bicycle' ? formData.number_of_gears : null,
+        number_of_gears: selectedCategory === 'bicycle' ? toIntOrNull(formData.number_of_gears) : null,
         suspension_type: selectedCategory === 'bicycle' ? formData.suspension_type : null,
         brake_type: selectedCategory === 'bicycle' ? formData.brake_type : null,
         wheel_size: selectedCategory === 'bicycle' ? formData.wheel_size : null,
         electric_assist: selectedCategory === 'bicycle' ? !!formData.electric_assist : null,
-        battery_range: selectedCategory === 'bicycle' ? formData.battery_range : null,
+        battery_range: selectedCategory === 'bicycle' ? toIntOrNull(formData.battery_range) : null,
         includes_lock: selectedCategory === 'bicycle' ? !!formData.includes_lock : null,
         includes_lights: selectedCategory === 'bicycle' ? !!formData.includes_lights : null,
         includes_basket: selectedCategory === 'bicycle' ? !!formData.includes_basket : null,
@@ -371,21 +375,26 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
 
       return listingResult;
     },
-    onSuccess: () => {
+    onSuccess: (listing) => {
       uiSounds.playUploadComplete();
       if (editingId) {
-        appToast.success('Listing updated', 'Your changes are saved.');
+        appToast.success('Listing updated');
       } else {
-        appToast.success('Congrats — your listing is live!', 'Others can now discover it.');
+        appToast.success('Listing published');
+      }
+      if (listing) {
+        queryClient.setQueriesData({ queryKey: ['owner-listings'] }, (oldData: any) => {
+          if (!Array.isArray(oldData)) return oldData;
+          const withoutSavedListing = oldData.filter((item) => item.id !== listing.id);
+          return [listing, ...withoutSavedListing];
+        });
       }
       queryClient.invalidateQueries({ queryKey: ['owner-listings'] });
-      queryClient.refetchQueries({ queryKey: ['owner-listings'] });
+      queryClient.refetchQueries({ queryKey: ['owner-listings'], type: 'active' });
       queryClient.invalidateQueries({ queryKey: ['listings'] });
       handleClose();
       // Always return user to the main listings dashboard
-      if (!routerLocation.pathname.startsWith('/owner/properties')) {
-        navigate('/owner/properties', { replace: true });
-      }
+      navigate('/owner/properties', { replace: true });
     },
     onError: (error: Error) => {
       queryClient.invalidateQueries({ queryKey: ['owner-listings'] });
@@ -721,7 +730,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
                 {createListingMutation.isPending ? (
                   <>
                     <Loader2 className="w-5 h-5 animate-spin" />
-                    <span>Materializing...</span>
+                    <span>Publishing...</span>
                   </>
                 ) : (
                   <>

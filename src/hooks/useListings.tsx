@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { logger } from '@/utils/prodLogger';
 import { SWIPE_CARD_FIELDS } from './smartMatching/useSmartListingMatching';
+import { useAuth } from '@/hooks/useAuth';
 
 export interface Listing {
   id: string;
@@ -221,22 +222,22 @@ export function useListings(excludeSwipedIds: string[] = [], options: { enabled?
 // Hook for owners to view their own listings (no filtering by listing type)
 export function useOwnerListings() {
   const queryClient = useQueryClient();
+  const { user, initialized } = useAuth();
 
   const query = useQuery({
-    queryKey: ['owner-listings'],
+    queryKey: ['owner-listings', user?.id],
     // INSTANT NAVIGATION: Keep previous data during refetch to prevent UI blanking
     placeholderData: (prev) => prev,
     queryFn: async () => {
       try {
-        const { data: user } = await supabase.auth.getUser();
-        if (!user.user) {
+        if (!user?.id) {
           return [];
         }
 
         const { data: listings, error } = await supabase
           .from('listings')
           .select('*')
-          .eq('owner_id', user.user.id)
+          .or(`owner_id.eq.${user.id},user_id.eq.${user.id}`)
           .order('created_at', { ascending: false })
           .limit(100); // Prevent loading too many listings at once
 
@@ -251,6 +252,7 @@ export function useOwnerListings() {
         return [];
       }
     },
+    enabled: initialized && !!user?.id,
     retry: 3,
     retryDelay: 1000,
   });
@@ -262,10 +264,9 @@ export function useOwnerListings() {
 
     const setupSubscription = async () => {
       try {
-        const { data: user } = await supabase.auth.getUser();
-        if (!user.user || !isMounted) return;
+        if (!user?.id || !isMounted) return;
 
-        // Subscribe to changes on the listings table for this user
+        // Subscribe to listing changes and refresh only when this owner's rows change.
         subscription = supabase
           .channel('owner-listings-changes')
           .on(
@@ -274,10 +275,14 @@ export function useOwnerListings() {
               event: '*', // Listen to all events (INSERT, UPDATE, DELETE)
               schema: 'public',
               table: 'listings',
-              filter: `owner_id=eq.${user.user.id}`,
             },
             (payload) => {
               if (import.meta.env.DEV) logger.log('Real-time listing change:', payload);
+
+              const nextRow = payload.new as { owner_id?: string | null; user_id?: string | null } | null;
+              const oldRow = payload.old as { owner_id?: string | null; user_id?: string | null } | null;
+              const belongsToOwner = [nextRow?.owner_id, nextRow?.user_id, oldRow?.owner_id, oldRow?.user_id].includes(user.id);
+              if (!belongsToOwner) return;
 
               // Invalidate and refetch the listings query
               queryClient.invalidateQueries({ queryKey: ['owner-listings'] });
@@ -299,7 +304,7 @@ export function useOwnerListings() {
         supabase.removeChannel(subscription);
       }
     };
-  }, [queryClient]);
+  }, [queryClient, user?.id]);
 
   return query;
 }
