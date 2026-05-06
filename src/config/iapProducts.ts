@@ -18,13 +18,22 @@ export const APPLE_TOKEN_PRODUCTS = [
   'Swipess.tokens.150',
 ] as const;
 
+/** Event promotion (consumable, non-renewing) packs. */
+export const APPLE_EVENT_PROMO_PRODUCTS = [
+  'Swipess.promo.event.week.v1',
+  'Swipess.promo.event.month.v1',
+  'Swipess.promo.event.quarter.v1',
+] as const;
+
 export type AppleProductId =
   | (typeof APPLE_SUBSCRIPTION_PRODUCTS)[number]
-  | (typeof APPLE_TOKEN_PRODUCTS)[number];
+  | (typeof APPLE_TOKEN_PRODUCTS)[number]
+  | (typeof APPLE_EVENT_PROMO_PRODUCTS)[number];
 
 export const ALL_APPLE_PRODUCTS: AppleProductId[] = [
   ...APPLE_SUBSCRIPTION_PRODUCTS,
   ...APPLE_TOKEN_PRODUCTS,
+  ...APPLE_EVENT_PROMO_PRODUCTS,
 ];
 
 export const isSubscriptionProduct = (id: string) =>
@@ -32,3 +41,6 @@ export const isSubscriptionProduct = (id: string) =>
 
 export const isTokenProduct = (id: string) =>
   (APPLE_TOKEN_PRODUCTS as readonly string[]).includes(id);
+
+export const isEventPromoProduct = (id: string) =>
+  (APPLE_EVENT_PROMO_PRODUCTS as readonly string[]).includes(id);

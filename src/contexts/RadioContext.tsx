@@ -155,6 +155,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     let handlingError = false;
     let errorCount = 0;
     let lastErrorTime = 0;
+    let lastToastTime = 0;
 
     const handleAudioError = (_e: Event) => {
       if (handlingError) return;
@@ -170,9 +171,10 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       }
       lastErrorTime = now;
 
-      // ⚡ TURBO BLACKOUT: Bail after 12 consecutive rapid errors (survive localized glitches)
-      if (errorCount > 12) {
-        setError('Global radio outage — please try again later');
+      // Bail after 5 consecutive rapid errors and STOP (don't auto-skip again)
+      if (errorCount > 5) {
+        setError('No stations reachable right now');
+        appToast.warning('Radio paused', 'No stations reachable right now');
         errorCount = 0;
         if (audio) {
           audio.removeEventListener('error', handleAudioError);
@@ -185,7 +187,10 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
         return;
       }
 
-      appToast.warning('Station unavailable', 'Tuning to next frequency...');
+      // Per-station failure toasts are intentionally silent — the inline
+      // error state already conveys "skipping" without spamming the UI.
+      // We only toast when we truly give up (handled above).
+      void lastToastTime;
       setError('Station unavailable - skipping...');
 
       // Clear any pending load timeout & release the play lock so the next

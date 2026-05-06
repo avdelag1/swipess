@@ -22,6 +22,13 @@ const TOKEN_PRODUCTS: Record<string, number> = {
   'Swipess.tokens.150': 150,
 };
 
+/** Event promotion durations in days, keyed by Apple product id. */
+const EVENT_PROMO_PRODUCTS: Record<string, number> = {
+  'Swipess.promo.event.week.v1': 7,
+  'Swipess.promo.event.month.v1': 30,
+  'Swipess.promo.event.quarter.v1': 90,
+};
+
 async function verify(receipt: string, sharedSecret: string) {
   const body = JSON.stringify({
     'receipt-data': receipt,
@@ -151,6 +158,18 @@ Deno.serve(async (req) => {
         activations_remaining: amount,
         package_id: productId,
         source: 'apple_iap',
+      });
+    } else if (EVENT_PROMO_PRODUCTS[productId]) {
+      const days = EVENT_PROMO_PRODUCTS[productId];
+      const startedAt = new Date();
+      const endsAt = new Date(startedAt.getTime() + days * 24 * 60 * 60 * 1000);
+      await supabase.from('event_promotions').insert({
+        user_id: userId,
+        product_id: productId,
+        started_at: startedAt.toISOString(),
+        ends_at: endsAt.toISOString(),
+        active: true,
+        original_transaction_id: originalTxId,
       });
     }
 

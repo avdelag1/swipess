@@ -36,11 +36,11 @@ import { useFilterStore } from '@/state/filterStore';
 import { useModalStore } from '@/state/modalStore';
 import { useDeckHasCards } from '@/hooks/useDeckHasCards';
 
-const ICON_SIZE = 24;
-const ICON_SIZE_COMPACT = 22;
-const ICON_SIZE_TABLET = 28;
-const TOUCH_TARGET = 32;
-const TOUCH_TARGET_TABLET = 46;
+const ICON_SIZE = 20;
+const ICON_SIZE_COMPACT = 18;
+const ICON_SIZE_TABLET = 22;
+const TOUCH_TARGET = 28;
+const TOUCH_TARGET_TABLET = 38;
 
 interface BottomNavigationProps {
   userRole: 'client' | 'owner' | 'admin';

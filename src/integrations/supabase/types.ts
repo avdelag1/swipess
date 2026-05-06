@@ -1004,6 +1004,104 @@ export type Database = {
           },
         ]
       }
+      event_promotion_requests: {
+        Row: {
+          city: string | null
+          created_at: string
+          description: string | null
+          event_date: string | null
+          event_name: string
+          id: string
+          link: string | null
+          photo_url: string | null
+          rejection_reason: string | null
+          requested_tier: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          city?: string | null
+          created_at?: string
+          description?: string | null
+          event_date?: string | null
+          event_name: string
+          id?: string
+          link?: string | null
+          photo_url?: string | null
+          rejection_reason?: string | null
+          requested_tier?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          city?: string | null
+          created_at?: string
+          description?: string | null
+          event_date?: string | null
+          event_name?: string
+          id?: string
+          link?: string | null
+          photo_url?: string | null
+          rejection_reason?: string | null
+          requested_tier?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      event_promotions: {
+        Row: {
+          active: boolean
+          created_at: string
+          ends_at: string
+          id: string
+          original_transaction_id: string | null
+          product_id: string
+          request_id: string | null
+          started_at: string
+          user_id: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          ends_at: string
+          id?: string
+          original_transaction_id?: string | null
+          product_id: string
+          request_id?: string | null
+          started_at?: string
+          user_id: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          ends_at?: string
+          id?: string
+          original_transaction_id?: string | null
+          product_id?: string
+          request_id?: string | null
+          started_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_promotions_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "event_promotion_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       events: {
         Row: {
           category: string
