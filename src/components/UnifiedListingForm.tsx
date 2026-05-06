@@ -730,7 +730,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
                 {createListingMutation.isPending ? (
                   <>
                     <Loader2 className="w-5 h-5 animate-spin" />
-                    <span>Materializing...</span>
+                    <span>Publishing...</span>
                   </>
                 ) : (
                   <>
