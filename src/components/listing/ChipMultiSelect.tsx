@@ -50,8 +50,8 @@ export function ChipMultiSelect({ label, options, value, onChange, single, accen
               className={cn(
                 'px-3.5 py-2 rounded-full text-sm font-semibold transition-all border',
                 active
-                  ? cn(a.bg, a.text, a.border, 'shadow-md', a.shadow)
-                  : 'bg-white/[0.04] text-muted-foreground border-white/[0.08] hover:border-white/20 hover:text-foreground hover:bg-white/[0.07]',
+                  ? 'bg-primary text-primary-foreground border-primary shadow-md shadow-primary/20'
+                  : 'bg-secondary text-foreground border-border hover:bg-secondary/80',
               )}
             >
               {opt}

@@ -116,7 +116,7 @@ const springTap = { type: "spring" as const, stiffness: 500, damping: 30 };
 
 // Premium section wrapper — amber theme
 const Section = ({ title, children, className }: { title: string; children: React.ReactNode; className?: string }) => (
-  <div className={cn("rounded-3xl bg-white/[0.03] backdrop-blur-sm border border-white/[0.06] shadow-xl overflow-hidden", className)}>
+  <div className={cn("rounded-3xl bg-card border border-border shadow-md overflow-hidden", className)}>
     <div className="px-5 pt-5 pb-3 flex items-center gap-2.5">
       <div className="w-2 h-2 rounded-full bg-amber-500" />
       <h3 className="text-sm font-bold text-foreground/90 uppercase tracking-wider">{title}</h3>
@@ -130,8 +130,8 @@ const FormLabel = ({ children }: { children: React.ReactNode }) => (
 );
 
 const CheckboxRow = ({ id, checked, onCheckedChange, label }: { id: string; checked: boolean; onCheckedChange: (v: boolean) => void; label: string }) => (
-  <div className="flex items-center space-x-3 p-3 rounded-xl bg-white/[0.02] hover:bg-white/[0.05] transition-colors cursor-pointer">
-    <Checkbox id={id} checked={checked} onCheckedChange={onCheckedChange} className="h-5 w-5 rounded-lg" />
+  <div className="flex items-center space-x-3 p-3 rounded-xl bg-secondary border border-border hover:bg-secondary/80 transition-colors cursor-pointer">
+    <Checkbox id={id} checked={checked} onCheckedChange={onCheckedChange} className="h-5 w-5 rounded-lg border-2 border-foreground/40" />
     <Label htmlFor={id} className="cursor-pointer text-sm font-medium text-foreground/80">{label}</Label>
   </div>
 );
@@ -182,7 +182,7 @@ function PillToggle({ items, selected, onToggle }: { items: { value: string; lab
               "px-3.5 py-2 rounded-full text-sm font-semibold transition-all border",
               active
                 ? 'bg-amber-500/20 text-amber-300 border-amber-500/30 shadow-md shadow-amber-500/10'
-                : 'bg-white/[0.04] text-muted-foreground border-white/[0.08] hover:border-amber-500/30 hover:text-foreground hover:bg-white/[0.07]'
+                : 'bg-secondary text-foreground border-border hover:bg-secondary/80'
             )}
           >
             {item.label}
@@ -371,7 +371,7 @@ export function WorkerListingForm({ onDataChange, initialData = {} }: WorkerList
                     "w-12 h-12 rounded-xl text-xs font-bold transition-all border",
                     active
                       ? 'bg-amber-500/20 text-amber-300 border-amber-500/30 shadow-md shadow-amber-500/10'
-                      : 'bg-white/[0.04] text-muted-foreground border-white/[0.08] hover:border-amber-500/30 hover:bg-white/[0.07]'
+                      : 'bg-secondary text-foreground border-border hover:bg-secondary/80'
                   )}
                 >
                   {day.short}

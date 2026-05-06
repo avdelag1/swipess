@@ -707,7 +707,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
           <motion.button
             whileTap={{ scale: 0.96 }}
             onClick={handleClose}
-            className="text-muted-foreground hover:text-foreground hover:bg-muted/50 px-6 rounded-2xl h-12 font-semibold transition-all"
+            className="text-foreground bg-secondary border border-border hover:bg-secondary/80 px-6 rounded-2xl h-12 font-semibold transition-all"
           >
             Cancel
           </motion.button>
@@ -720,11 +720,11 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
                 onClick={handleSubmit}
                 disabled={createListingMutation.isPending}
                 className={cn(
-                  "px-10 rounded-2xl h-12 font-black shadow-2xl transition-all flex items-center gap-3 text-white disabled:opacity-50 relative z-10",
-                  selectedCategory === 'property' && "bg-rose-600 shadow-emerald-500/20",
-                  selectedCategory === 'motorcycle' && "bg-orange-600 shadow-orange-500/20",
-                  selectedCategory === 'bicycle' && "bg-purple-600 shadow-purple-500/20",
-                  selectedCategory === 'worker' && "bg-amber-600 shadow-amber-500/20"
+                  "px-10 rounded-2xl h-12 font-black shadow-xl transition-all flex items-center gap-3 !text-white disabled:opacity-50 relative z-10 bg-primary",
+                  selectedCategory === 'property' && "bg-rose-600 hover:bg-rose-500 shadow-rose-500/30",
+                  selectedCategory === 'motorcycle' && "bg-orange-600 hover:bg-orange-500 shadow-orange-500/30",
+                  selectedCategory === 'bicycle' && "bg-purple-600 hover:bg-purple-500 shadow-purple-500/30",
+                  selectedCategory === 'worker' && "bg-amber-600 hover:bg-amber-500 shadow-amber-500/30"
                 )}
               >
                 {createListingMutation.isPending ? (
