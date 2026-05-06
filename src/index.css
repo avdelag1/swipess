@@ -325,19 +325,19 @@ button:active, [role="button"]:active {
     /* Background colors - Platinum / High-Fidelity Light Palette */
     --background: 0 0% 98%;
     --foreground: 0 0% 10%;
-    --card: 0 0% 100%;
+    --card: 40 30% 96%;
     --card-foreground: 0 0% 10%;
     --primary: 0 100% 50%;
     --primary-foreground: 0 0% 0%;
-    --secondary: 0 0% 95%;
+    --secondary: 40 25% 93%;
     --secondary-foreground: 0 0% 10%;
-    --muted: 0 0% 95%;
+    --muted: 40 25% 93%;
     --muted-foreground: 0 0% 30%;
     --accent: 0 100% 50%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-    --border: 0 0% 90%;
+    --border: 40 15% 85%;
     --input: 0 0% 90%;
     --ring: 0 100% 50%;
 
@@ -441,19 +441,19 @@ button:active, [role="button"]:active {
     /* Background colors - Soft white palette */
     --background: 0 0% 100%;
     --foreground: 0 0% 5%;
-    --card: 0 0% 100%;
+    --card: 40 30% 96%;
     --card-foreground: 0 0% 5%;
     --primary: 0 100% 50%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 0 0% 94%;
+    --secondary: 40 25% 93%;
     --secondary-foreground: 0 0% 10%;
-    --muted: 0 0% 94%;
+    --muted: 40 25% 93%;
     --muted-foreground: 0 0% 29%;
     --accent: 0 100% 50%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-    --border: 0 0% 88%;
+    --border: 40 15% 84%;
     --input: 0 0% 88%;
     --ring: 0 100% 50%;
 
