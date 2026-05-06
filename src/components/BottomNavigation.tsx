@@ -250,7 +250,16 @@ export const BottomNavigation = memo(({
 
   const iconColorInactive = 'var(--icon-inactive)';
   return (
-    <nav role="navigation" aria-label="Main navigation" className={cn('app-bottom-bar px-3 pb-2 pt-1', className, isTablet ? 'px-4' : '')} style={{ paddingBottom: 'calc(8px + max(0px, env(safe-area-inset-bottom)))' }}>
+    <nav
+      role="navigation"
+      aria-label="Main navigation"
+      className={cn('app-bottom-bar pb-2 pt-1', className)}
+      style={{
+        paddingLeft: 'max(12px, env(safe-area-inset-left))',
+        paddingRight: 'max(12px, env(safe-area-inset-right))',
+        paddingBottom: 'calc(8px + max(0px, env(safe-area-inset-bottom)))',
+      }}
+    >
       {/* ── Liquid Glass bar surface ────────────────────────────────────────
           The bar itself is a glass layer so the swipe card content shows
           through, reinforcing the "floating above" feeling. */}
