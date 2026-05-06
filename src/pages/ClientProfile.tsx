@@ -275,6 +275,7 @@ const ClientProfile = () => {
 
           <div className="grid grid-cols-1 gap-3">
             {[
+              { label: 'Premium Package', icon: Crown, path: '/subscription/packages', premium: true },
               { label: t('nav.legal'), icon: Scale, path: '/client/legal-services' },
               { label: t('nav.settings'), icon: Settings, path: '/client/settings' },
               { label: t('actions.signOut'), icon: LogOut, path: 'signout', urgent: true },
@@ -289,12 +290,14 @@ const ClientProfile = () => {
                 }}
                 className={cn(
                   "w-full h-14 rounded-2xl flex items-center px-8 gap-5 active:scale-[0.97] transition-all border shadow-sm backdrop-blur-xl",
-                  btn.urgent
+                  (btn as any).urgent
                     ? "bg-red-500/10 border-red-500/20 text-red-400"
-                    : "bg-card border-border text-foreground hover:bg-secondary"
+                    : (btn as any).premium
+                      ? "bg-gradient-to-r from-amber-500/15 to-orange-500/15 border-amber-500/40 text-foreground"
+                      : "bg-card border-border text-foreground hover:bg-secondary"
                 )}
               >
-                <btn.icon className={cn("w-5 h-5", btn.urgent ? "text-red-400" : "text-foreground/80")} />
+                <btn.icon className={cn("w-5 h-5", (btn as any).urgent ? "text-red-400" : (btn as any).premium ? "text-amber-500" : "text-foreground/80")} />
                 <span className="text-[12px] font-black uppercase tracking-[0.2em] italic">{btn.label}</span>
               </motion.button>
             ))}
