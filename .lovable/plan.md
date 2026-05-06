@@ -1,46 +1,51 @@
-# Public Preview + Splash + Refresh Loop Fixes
+# Remove the Radar Effect & Clean Up Legacy Visuals
 
-The screenshot shows the listing card is being clipped by header buttons and the page scrolls into a black void. The splash also pops in awkwardly, and the app keeps refreshing in preview. We will address all three in one pass.
+## What you're seeing in the screenshot
 
-## 1. Single-viewport public preview (no scroll)
+The big oval/circular shape behind the loading skeleton is a **radar sweep animation** baked into `SwipeLoadingSkeleton.tsx`. It draws three concentric rings + a rotating conic-gradient pulse while the deck loads. It's leftover from the old "radar map" paradigm — before we moved to the kilometer slider you approved.
 
-Files: `src/pages/PublicListingPreview.tsx`, `src/pages/PublicProfilePreview.tsx`
+It's the only place in the swipe deck that still renders a radar visual. There is no full radar page anymore — that was already removed. But three radar artifacts remain in the code, and one unused component is still shipped.
 
-- Convert layout from scrollable column to a fixed `h-[100dvh]` flex column with `overflow-hidden`.
-- Remove the absolutely-positioned top nav so it cannot overlap the card. Instead make a slim flex header row at the top of the column (back, wordmark, share) with safe-area top padding.
-- Hero swipe card grows with `flex: 1 1 auto` and `min-h-0` so it fills the available space between header and CTAs without overflow. Replace fixed `aspectRatio: '3 / 4.4'` on `PreviewSwipeCard` with an optional `fill` mode that absorbs parent height.
-- CTA stack pinned at the bottom with safe-area bottom padding. "Create Account" and "Sign In" stay full-width but slightly shorter (h-12) to guarantee fit on small Android screens (392x779 in current viewport).
-- Tighten the bottom gradient + overlay typography (title `text-2xl`, stats chips `w-12 h-12`) so all content sits inside the card on one screen.
-- Same treatment applied to `PublicProfilePreview.tsx`.
+## What to remove
 
-Technical note: `PreviewSwipeCard` gets a `fill?: boolean` prop. When true, drop the `aspectRatio` style and use `absolute inset-0` plus `h-full w-full` so the parent flex item controls size.
+### 1. Radar rings + sweeping pulse in the loading skeleton
+File: `src/components/swipe/SwipeLoadingSkeleton.tsx`
+- Delete the concentric rings (lines 24–28)
+- Delete the rotating conic-gradient sweep (lines 31–38)
+- Keep only the dark surface + shimmer + bottom info skeleton bars (clean Apple-style loading state)
 
-## 2. Splash screen polish
+### 2. Radar overlay in the filter "Initiate Scan" flow
+File: `src/pages/ClientFilters.tsx`
+- Replace the full-screen scanning overlay (lines 209–243) with a simple subtle progress indicator (spinner + "Synchronizing" text), no radar rings, no conic-gradient sweep
+- Replace the `Radar` lucide icon on the Scan button (line 191) with a cleaner `Search` or `Crosshair` icon
+- Remove the `Radar` import
 
-File: `index.html`
+### 3. Delete the unused RadarSearchEffect component
+File: `src/components/ui/RadarSearchEffect.tsx`
+- The big `RadarSearchEffect` export is **never imported anywhere**
+- Only `RadarSearchIcon` (small) is used by `MarketingSlide.tsx`
+- Slim the file down to export only `RadarSearchIcon`, OR move that small icon inline into `MarketingSlide.tsx` and delete the file entirely (preferred — fewer files)
 
-- Remove the abrupt "pop" by starting splash visible (no breathing-from-zero), keeping a single soft scale breathe but with `opacity: 1` baseline.
-- Add a thin progress shimmer line under the wordmark so it never looks frozen.
-- Shorten safety fallback to 1200ms but extend fade-out to 500ms with `cubic-bezier(0.22, 1, 0.36, 1)` for a cinematic exit.
-- Ensure `swipess-ready` event is dispatched from `src/main.tsx` right after first paint (verify; if missing, add a `requestAnimationFrame` dispatch after `createRoot().render`).
+### 4. Quick dead-route audit (housekeeping you asked for)
+Confirm and remove if found:
+- No `/radar` or `/map` route exists in `src/App.tsx` (already verified clean)
+- `LocationRadiusSelector.tsx` keeps copy like "Sector Depth / Scanning radius" — refine to plain language: "Search radius" / "Distance"
+- Verify `radarNodes` memo in `ClientSwipeContainer.tsx` (line 165) is still consumed; if unused after these changes, delete it
 
-## 3. Stop the constant refresh / dynamic-import failures
+## Result
 
-Runtime error logged: `Failed to fetch dynamically imported module: ClientDashboard.tsx`. This is the classic Vite stale-chunk problem after a hot rebuild — the SW serves the old `index.html` whose chunk hashes no longer exist, so the app reloads in a loop.
+- Loading state: clean dark card with shimmer + bottom skeleton bars only — no radar shapes, no sweep
+- Filter scan: simple "Synchronizing…" toast/spinner — no full-screen radar overlay
+- Codebase: one fewer unused component, no leftover radar references in the swipe flow
+- The kilometer selector (`LocationRadiusSelector`) remains the single source of truth for distance, exactly as you specified
 
-Files: `public/sw.js`, `src/utils/lazyRetry.ts` (verify current behavior first)
+## Files touched
 
-- In `public/sw.js`: switch the navigation/HTML strategy to network-first with no-cache for `index.html`, and never cache `/assets/*-[hash].js` responses that return 404. Add a `skipWaiting` + `clients.claim` upgrade path so a new SW takes over without forcing the user into a refresh cycle.
-- In `lazyRetry.ts`: when a chunk import fails twice, do a single `location.reload()` with a `?v=timestamp` query so the next load gets fresh `index.html`. Guard with `sessionStorage` so it can only auto-reload once per session — eliminates the infinite loop.
-- Add `<meta http-equiv="Cache-Control" content="no-cache">` only for the dev/preview HTML via Vite middleware is unnecessary; the SW change is sufficient.
+- `src/components/swipe/SwipeLoadingSkeleton.tsx` — strip radar visuals
+- `src/pages/ClientFilters.tsx` — replace scanning overlay, swap icon
+- `src/components/ui/RadarSearchEffect.tsx` — delete (move small icon inline)
+- `src/components/MarketingSlide.tsx` — update import after move
+- `src/components/ClientSwipeContainer.tsx` — remove `radarNodes` if dead, refine copy
+- `src/components/swipe/LocationRadiusSelector.tsx` — refine "Sector Depth" copy
 
-## 4. QA
-
-- Visually verify on 392x779 (current viewport) that the public listing fits without scroll, header doesn't overlap, CTAs are fully visible.
-- Reload the preview a few times to confirm the dynamic-import error no longer triggers a refresh storm.
-- Confirm splash fades smoothly without a flash of black.
-
-## Out of scope
-
-- No layout, routing, or swipe-physics changes elsewhere.
-- No backend changes.
+No routes, no logic, no swipe physics, no DB changes.

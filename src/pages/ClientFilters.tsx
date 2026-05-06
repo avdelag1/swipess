@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  ChevronLeft, ChevronRight, RotateCcw, Home, Bike, Briefcase, Radar
+  ChevronLeft, ChevronRight, RotateCcw, Home, Bike, Briefcase, Search, Loader2
 } from 'lucide-react';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { PropertyClientFilters } from '@/components/filters/PropertyClientFilters';
@@ -188,7 +188,7 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
                       transition={{ duration: 1.5, repeat: Infinity, ease: 'linear' }}
                     />
                   )}
-                  <Radar className={cn("w-6 h-6", isScanning && "animate-spin")} />
+                  <Search className={cn("w-6 h-6", isScanning && "animate-pulse")} />
                   <span className="text-lg font-black uppercase italic tracking-widest">
                     {isScanning ? 'Synchronizing...' : 'Initiate Scan'}
                   </span>
@@ -214,29 +214,10 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
               exit={{ opacity: 0 }}
               className="fixed inset-0 z-[100] flex flex-col items-center justify-center p-6 backdrop-blur-3xl bg-black/80"
             >
-              <div className="relative w-72 h-72 flex items-center justify-center">
-                {/* Outer Glow */}
-                <motion.div 
-                  className="absolute inset-0 rounded-full border border-primary/30"
-                  animate={{ scale: [1, 1.2], opacity: [0.3, 0] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                />
-                
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
-                  className="absolute inset-0 rounded-full"
-                  style={{
-                    background: 'conic-gradient(from 0deg, #ec4899 0%, transparent 25%, transparent 100%)',
-                    opacity: 0.4
-                  }}
-                />
-
-                <div className="relative z-10 flex flex-col items-center text-center">
-                  <Radar className="w-16 h-16 text-primary animate-pulse mb-4" />
-                  <h2 className="text-2xl font-black uppercase italic tracking-[0.4em] text-white animate-pulse">Scanning</h2>
-                  <p className="text-[10px] font-bold text-white/40 uppercase tracking-[0.5em] mt-2">Proximity Sync</p>
-                </div>
+              <div className="flex flex-col items-center text-center">
+                <Loader2 className="w-10 h-10 text-primary animate-spin mb-4" />
+                <h2 className="text-xl font-black uppercase italic tracking-[0.3em] text-white">Synchronizing</h2>
+                <p className="text-[10px] font-bold text-white/40 uppercase tracking-[0.4em] mt-2">Updating your matches</p>
               </div>
             </motion.div>
           )}
