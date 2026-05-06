@@ -30,6 +30,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { ListingVideoUpload } from './video/ListingVideoUpload';
 import { ListingSuccessCelebration } from './ListingSuccessCelebration';
 import { uiSounds } from '@/utils/uiSounds';
+import { buildDescriptionFromChips } from '@/constants/listingTaxonomies';
 import { Loader2 } from 'lucide-react';
 
 interface EditingListing {
@@ -182,7 +183,20 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
         currency: (formData.currency as string) || 'USD',
         rental_rates: formData.rental_rates,
         rental_duration_type: (formData.rental_duration_type as string) || null,
-        description: (formData.description as string) || (formData.about as string) || '',
+        description:
+          (formData.description as string) ||
+          (formData.about as string) ||
+          buildDescriptionFromChips([
+            (formData.property_type as string) || (formData.motorcycle_type as string) || (formData.bicycle_type as string) || (formData.service_category as string),
+            formData.condition as string,
+            formData.vibe as string[],
+            formData.amenities as string[],
+            formData.services_included as string[],
+            formData.house_rules as string[],
+            formData.skills as string[],
+            formData.traits as string[],
+          ]) ||
+          '',
         location: locationStr || 'Tulum',
         country: (formData.country as string) || 'Mexico',
         state: (formData.state as string) || (formData.city as string) || 'Quintana Roo',
