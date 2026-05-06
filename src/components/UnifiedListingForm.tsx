@@ -28,7 +28,6 @@ import { validateContent } from '@/utils/contactInfoValidation';
 import { useAnonymousDrafts } from '@/hooks/useAnonymousDrafts';
 import { useAuth } from '@/hooks/useAuth';
 import { ListingVideoUpload } from './video/ListingVideoUpload';
-import { ListingSuccessCelebration } from './ListingSuccessCelebration';
 import { uiSounds } from '@/utils/uiSounds';
 import { buildDescriptionFromChips } from '@/constants/listingTaxonomies';
 import { Loader2 } from 'lucide-react';
@@ -65,7 +64,6 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
   const [formData, setFormData] = useState<Record<string, unknown>>({});
   const [editingId, setEditingId] = useState<string | null>(null);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
-  const [showCelebration, setShowCelebration] = useState(false);
 
   // Use refs to track latest values for mutation (avoids closure staleness)
   const imagesRef = useRef(images);
@@ -734,14 +732,6 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
           </div>
         </div>
 
-        <ListingSuccessCelebration 
-          isOpen={showCelebration}
-          category={selectedCategory}
-          onComplete={() => {
-            setShowCelebration(false);
-            handleClose();
-          }}
-        />
       </DialogContent>
     </Dialog>
   );
