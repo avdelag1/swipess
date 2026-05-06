@@ -152,7 +152,15 @@ export const uploadPhotoBatch = async (
     })
   );
 
-  const results = await Promise.all(uploadPromises);
+  // Hard timeout so a stalled upload can never freeze the UI silently.
+  const TIMEOUT_MS = 45000;
+  const timeout = new Promise<never>((_, reject) =>
+    setTimeout(
+      () => reject(new Error('Upload timed out after 45s. Please try again with a stronger connection or smaller photos.')),
+      TIMEOUT_MS
+    )
+  );
+  const results = await Promise.race([Promise.all(uploadPromises), timeout]) as Awaited<ReturnType<typeof uploadPhoto>>[];
 
   if (onProgress) {
     onProgress(100);
