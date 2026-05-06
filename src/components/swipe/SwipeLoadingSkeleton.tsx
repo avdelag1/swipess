@@ -15,27 +15,10 @@ export const SwipeLoadingSkeleton = () => (
     className="relative w-full h-full flex-1 max-w-lg mx-auto flex flex-col px-3"
   >
     <div className="relative flex-1 w-full rounded-[32px] overflow-hidden border border-white/10 bg-[#050505]">
-      {/* 🛸 RADAR ATMOSPHERE */}
+      {/* Clean loading surface */}
       <div className="absolute inset-0 overflow-hidden transform-gpu contain-paint">
         {/* Background Gradient */}
         <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-black to-slate-900 opacity-60" />
-        
-        {/* Radar Circular Grid */}
-        <div className="absolute inset-0 flex items-center justify-center opacity-10">
-          <div className="w-[150%] h-[150%] border border-white/20 rounded-full" />
-          <div className="absolute w-[100%] h-[100%] border border-white/20 rounded-full" />
-          <div className="absolute w-[50%] h-[50%] border border-white/20 rounded-full" />
-        </div>
-
-        {/* 🛰️ RADAR SWEEPING PULSE */}
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-          className="absolute inset-[-50%] origin-center"
-          style={{
-            background: 'conic-gradient(from 0deg, rgba(236, 72, 153, 0.3) 0%, transparent 25%, transparent 100%)',
-          }}
-        />
 
         {/* Shimmer overlay */}
         <div
