@@ -733,14 +733,6 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
           </div>
         </div>
 
-        <ListingSuccessCelebration 
-          isOpen={showCelebration}
-          category={selectedCategory}
-          onComplete={() => {
-            setShowCelebration(false);
-            handleClose();
-          }}
-        />
       </DialogContent>
     </Dialog>
   );
