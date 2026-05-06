@@ -194,10 +194,10 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
                               </div>
                               <button
                                 onClick={() => { haptics.tap(); handlePurchase(pkg); }}
-                                aria-label={`Buy ${pkg.tokens} tokens for ${formatUSD(pkg.priceUsd)} USD`}
+                                aria-label={`Get offer: ${pkg.tokens} tokens for ${formatUSD(pkg.priceUsd)} USD`}
                                 className="apple-pay-button flex-shrink-0 h-11 px-4 rounded-full font-black text-[11px] uppercase tracking-widest active:scale-95 transition-transform"
                               >
-                                Apple Pay
+                                Get Offer
                               </button>
                             </div>
                           </motion.div>
@@ -218,7 +218,7 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
                     className="flex-shrink-0 rounded-full text-xs font-black uppercase tracking-widest"
                     onClick={() => { close(); navigate('/subscription/packages'); }}
                   >
-                    View
+                    Go
                   </Button>
                 </div>
 
