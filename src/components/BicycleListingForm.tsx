@@ -119,10 +119,7 @@ export function BicycleListingForm({ onDataChange, initialData }: BicycleListing
           <FormLabel>Listing Title</FormLabel>
           <Input {...register('title')} placeholder="e.g., 2022 Specialized Turbo Levo" />
         </div>
-        <div>
-          <FormLabel>Description</FormLabel>
-          <Textarea {...register('description')} placeholder="Describe the bicycle, its condition, accessories, and riding experience..." rows={3} />
-        </div>
+        {/* Description is auto-generated from selected attributes — no freeform text. */}
         <div>
           <FormLabel>Bicycle Type</FormLabel>
           <Controller
