@@ -171,10 +171,11 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       }
       lastErrorTime = now;
 
-      // Bail after 5 consecutive rapid errors and STOP (don't auto-skip again)
+      // Bail after 5 consecutive rapid errors and STOP (don't auto-skip again).
+      // Silently set inline error — the mini player already shows the state.
+      // No toast spam.
       if (errorCount > 5) {
         setError('No stations reachable right now');
-        appToast.warning('Radio paused', 'No stations reachable right now');
         errorCount = 0;
         if (audio) {
           audio.removeEventListener('error', handleAudioError);

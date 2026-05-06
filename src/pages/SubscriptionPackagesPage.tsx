@@ -332,7 +332,7 @@ export default function SubscriptionPackagesPage() {
                       isHighlight && "shadow-amber-500/20"
                     )}
                   >
-                    {isHighlight ? 'Upgrade to Swipess Pro' : 'Activate Access'}
+                    {isHighlight ? 'Get Offer · Swipess Pro' : 'Get Offer'}
                   </Button>
                 </div>
               </motion.div>
