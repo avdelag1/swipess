@@ -42,7 +42,7 @@ const tokenTierConfig = {
 const premiumPlans = [
   {
     id: 'monthly',
-    appleProductId: 'Swipess.premium.monthly',
+    appleProductId: 'Swipess.plus.monthly.v1',
     name: 'Monthly',
     label: 'STARTER',
     price: '$39',
@@ -59,7 +59,7 @@ const premiumPlans = [
   },
   {
     id: 'semi-annual',
-    appleProductId: 'Swipess.premium.semi_annual',
+    appleProductId: 'Swipess.plus.semestral.v1',
     name: 'Semi-Annual',
     label: 'POPULAR',
     price: '$119',
@@ -79,7 +79,7 @@ const premiumPlans = [
   },
   {
     id: 'annual',
-    appleProductId: 'Swipess.premium.yearly',
+    appleProductId: 'Swipess.plus.annual.v1',
     name: 'Annual',
     label: 'BEST VALUE',
     price: '$179',
