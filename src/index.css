@@ -2272,3 +2272,26 @@ button:disabled,
   box-shadow: 0 12px 28px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.18);
 }
 
+.swipess-offer-pill {
+  min-width: 5.5rem;
+  height: 3.25rem;
+  padding: 0 1.25rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  border: 1px solid hsl(var(--foreground) / 0.12);
+  background: hsl(var(--foreground)) !important;
+  color: hsl(var(--background)) !important;
+  font-size: 0.75rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  line-height: 1;
+  text-transform: uppercase;
+  box-shadow: 0 14px 32px hsl(var(--foreground) / 0.22), inset 0 1px 0 hsl(var(--background) / 0.2);
+}
+
+.swipess-offer-pill:active {
+  transform: scale(0.96);
+}
+
