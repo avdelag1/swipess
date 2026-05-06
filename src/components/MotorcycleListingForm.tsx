@@ -99,10 +99,7 @@ export function MotorcycleListingForm({ onDataChange, initialData }: MotorcycleL
           <FormLabel>Listing Title</FormLabel>
           <Input id="title" {...register('title')} placeholder="e.g., 2021 Yamaha MT-07" />
         </div>
-        <div>
-          <FormLabel>Description</FormLabel>
-          <Textarea id="description" {...register('description')} placeholder="Describe the motorcycle, its condition, and what's included..." rows={3} />
-        </div>
+        {/* Description is auto-generated from selected attributes — no freeform text. */}
         <div>
           <FormLabel>Motorcycle Type</FormLabel>
           <Controller
