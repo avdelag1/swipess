@@ -45,7 +45,7 @@ const premiumPlans = [
     appleProductId: 'Swipess.plus.monthly.v1',
     name: 'Monthly',
     label: 'STARTER',
-    price: '$39',
+    price: '$29',
     duration: '/month',
     accent: 'blue' as const,
     benefits: [
@@ -62,7 +62,7 @@ const premiumPlans = [
     appleProductId: 'Swipess.plus.semestral.v1',
     name: 'Semi-Annual',
     label: 'POPULAR',
-    price: '$119',
+    price: '$111',
     duration: '/6 months',
     accent: 'pink' as const,
     highlight: true,
@@ -82,7 +82,7 @@ const premiumPlans = [
     appleProductId: 'Swipess.plus.annual.v1',
     name: 'Annual',
     label: 'BEST VALUE',
-    price: '$179',
+    price: '$149',
     duration: '/year',
     accent: 'gold' as const,
     benefits: [
@@ -129,7 +129,7 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
     },
   });
 
-  const tierNames: ('starter' | 'standard' | 'premium')[] = ['starter', 'standard', 'premium'];
+  const tierNames: ('starter' | 'standard' | 'premium' | 'mega')[] = ['starter', 'standard', 'premium', 'mega'];
 
   const handlePurchase = async (pkg: any, tier: string) => {
     localStorage.setItem(STORAGE.PENDING_ACTIVATION_KEY, JSON.stringify({
@@ -238,9 +238,9 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
                   <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3">Message Tokens</h3>
                   <div className="space-y-2.5">
                     {packages && packages.length > 0 ? (
-                      packages.slice(0, 3).map((pkg, index) => {
+                      packages.slice(0, 4).map((pkg, index) => {
                         const tier = tierNames[index] || 'starter';
-                        const config = tokenTierConfig[tier];
+                        const config = tokenTierConfig[tier as 'starter' | 'standard' | 'premium'] || tokenTierConfig.premium;
                         const Icon = config.icon;
                         const isPopular = tier === 'standard';
                         const tkns = pkg.message_activations || 0;

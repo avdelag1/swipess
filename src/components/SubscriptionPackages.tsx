@@ -35,7 +35,7 @@ const clientPlans: Plan[] = [
     appleProductId: 'Swipess.plus.monthly.v1',
     name: 'Monthly',
     label: 'STARTER',
-    price: '$39',
+    price: '$29',
     durationText: '/month',
     benefits: [
       'Communicate with listings and members',
@@ -52,7 +52,7 @@ const clientPlans: Plan[] = [
     appleProductId: 'Swipess.plus.semestral.v1',
     name: 'Semi-Annual',
     label: 'POPULAR',
-    price: '$119',
+    price: '$111',
     durationText: '/6 months',
     benefits: [
       'Communicate with listings and members',
@@ -71,7 +71,7 @@ const clientPlans: Plan[] = [
     appleProductId: 'Swipess.plus.annual.v1',
     name: 'Yearly',
     label: 'BEST VALUE',
-    price: '$299',
+    price: '$149',
     durationText: '/year',
     benefits: [
       'Communicate with listings and members',
