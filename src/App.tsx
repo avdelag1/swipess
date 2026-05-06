@@ -51,6 +51,8 @@ const ClientSelfieCamera = lazyWithRetry(() => import("./pages/ClientSelfieCamer
 const ClientFilters = lazyWithRetry(() => import("./pages/ClientFilters"));
 const MaintenanceRequests = lazyWithRetry(() => import("./pages/MaintenanceRequests"));
 const AdvertisePage = lazyWithRetry(() => import("./pages/AdvertisePage"));
+const PromoteEventRequest = lazyWithRetry(() => import("./pages/PromoteEventRequest"));
+const PromoteEventPackages = lazyWithRetry(() => import("./pages/PromoteEventPackages"));
 
 // OWNER PAGES
 const EnhancedOwnerDashboard = lazyWithRetry(() => import("./pages/EnhancedOwnerDashboard"));
@@ -145,6 +147,8 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
 
               <Route path="/client/maintenance" element={<MaintenanceRequests />} />
               <Route path="/client/advertise" element={<AdvertisePage />} />
+              <Route path="/promote-event/request" element={<PromoteEventRequest />} />
+              <Route path="/promote-event/packages" element={<PromoteEventPackages />} />
 
               {/* Owner routes */}
               <Route path="/owner/dashboard" element={<EnhancedOwnerDashboard />} />
