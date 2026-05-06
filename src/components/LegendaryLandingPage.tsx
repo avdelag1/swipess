@@ -1,5 +1,6 @@
 import { memo, useState, useRef, useMemo, useEffect } from 'react';
 import { useAppNavigate } from "@/hooks/useAppNavigate";
+import { useSearchParams } from 'react-router-dom';
 import {
   motion, useMotionValue, useTransform, AnimatePresence, PanInfo, animate
 } from 'framer-motion';
@@ -113,7 +114,7 @@ const LandingView = memo(({
       >
         <button
           onClick={() => { triggerHaptic('medium'); onEnterAuth('login'); }}
-          className="w-full h-14 rounded-[2rem] bg-gradient-to-b from-[#FF4D4D] to-[#E01E2A] text-white font-black uppercase tracking-[0.25em] text-[12px] shadow-[0_15px_45px_rgba(224,30,42,0.45)] active:scale-[0.97] transition-all flex items-center justify-center gap-3 border border-white/15"
+          className="w-full h-14 rounded-[2rem] bg-foreground text-background font-black uppercase tracking-[0.25em] text-[12px] shadow-[0_18px_50px_hsl(var(--foreground)/0.22)] active:scale-[0.97] transition-all flex items-center justify-center gap-3 border border-border"
         >
           <LogIn className="w-4 h-4" />
           Sign In
@@ -474,9 +475,20 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
 /* ─── Root component ─────────────────────────────────────── */
 function LegendaryLandingPage() {
   const { navigate } = useAppNavigate();
-  const [view, setView] = useState<View>('landing');
-  const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
+  const [searchParams] = useSearchParams();
+  const requestedIntent = searchParams.get('intent');
+  const requestedAuthMode = requestedIntent === 'signup' ? 'signup' : 'login';
+  const shouldOpenAuth = requestedIntent === 'signin' || requestedIntent === 'sign-in' || requestedIntent === 'login' || requestedIntent === 'signup';
+  const [view, setView] = useState<View>(shouldOpenAuth ? 'auth' : 'landing');
+  const [authMode, setAuthMode] = useState<'login' | 'signup'>(requestedAuthMode);
   const [legalModal, setLegalModal] = useState<'privacy' | 'terms' | null>(null);
+
+  useEffect(() => {
+    if (shouldOpenAuth) {
+      setAuthMode(requestedAuthMode);
+      setView('auth');
+    }
+  }, [requestedAuthMode, shouldOpenAuth]);
 
   return (
     <div className="h-screen h-dvh relative overflow-hidden bg-black text-white">
