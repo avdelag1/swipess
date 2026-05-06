@@ -28,7 +28,6 @@ import { validateContent } from '@/utils/contactInfoValidation';
 import { useAnonymousDrafts } from '@/hooks/useAnonymousDrafts';
 import { useAuth } from '@/hooks/useAuth';
 import { ListingVideoUpload } from './video/ListingVideoUpload';
-import { ListingSuccessCelebration } from './ListingSuccessCelebration';
 import { uiSounds } from '@/utils/uiSounds';
 import { buildDescriptionFromChips } from '@/constants/listingTaxonomies';
 import { Loader2 } from 'lucide-react';
