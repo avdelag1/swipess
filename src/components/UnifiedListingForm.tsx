@@ -64,7 +64,6 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
   const [formData, setFormData] = useState<Record<string, unknown>>({});
   const [editingId, setEditingId] = useState<string | null>(null);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
-  const [showCelebration, setShowCelebration] = useState(false);
 
   // Use refs to track latest values for mutation (avoids closure staleness)
   const imagesRef = useRef(images);
