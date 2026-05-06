@@ -384,6 +384,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
     onError: (error: Error) => {
       queryClient.invalidateQueries({ queryKey: ['owner-listings'] });
       queryClient.invalidateQueries({ queryKey: ['listings'] });
+      logger.error('[UnifiedListingForm] Save failed:', error);
       appToast.error(
         'Could not save listing',
         error.message || 'Please check your connection and try again.'
