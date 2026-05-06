@@ -353,21 +353,36 @@ export default function AdvertisePage() {
 
   const handleLaunchPayment = async (pkg: typeof PACKAGES[0]) => {
     haptics.tap();
-    
-    if (NativeBridge.isIOS()) {
-      toast({ title: "In-App Purchase", description: "Connecting to App Store..." });
-      const result = await NativeBridge.purchaseProduct(`Swipess.promo.${pkg.id}`);
-      if (result.success) {
-        toast.success("Payment Received!", { description: "Your promotion will be live shortly." });
-        return;
-      } else {
-        toast.error("Payment Failed", { description: "Transaction could not be completed." });
+
+    // Step 1: Submission must be approved before payment.
+    // Always route to the submission form first; payment unlocks after approval.
+    if (approvedSubmission) {
+      // User already has an approved event → trigger purchase directly
+      if (NativeBridge.isIOS()) {
+        toast({ title: "In-App Purchase", description: "Connecting to App Store..." });
+        const result = await NativeBridge.purchaseProduct(`Swipess.promo.${pkg.id}`);
+        if (result.success) {
+          toast.success("Payment Received!", { description: "Your promotion will be live shortly." });
+        } else if ((result as any).error !== 'CANCELLED') {
+          toast.error("Payment Failed", { description: "Please try again." });
+        }
         return;
       }
+      window.open(pkg.paypalUrl, '_blank');
+      toast.success("Redirecting to Checkout", { description: `Launching ${pkg.name} package.` });
+      return;
     }
 
-    window.open(pkg.paypalUrl, '_blank');
-    toast.success("Redirecting to Checkout", { description: `Launching ${pkg.name} package.` });
+    if (pendingSubmission) {
+      toast.message("Awaiting Review", { description: "Your event is being reviewed. You'll be able to pay once approved." });
+      return;
+    }
+
+    // No submission yet → open the form so user can submit details for review.
+    setForm(f => ({ ...f, packageId: pkg.id }));
+    setView("form");
+    setStep("type");
+    toast.message("Submit your event for review", { description: "Once approved, you can activate this promotion." });
   };
 
   const handleRestore = () => {
