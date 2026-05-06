@@ -698,11 +698,11 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
           </motion.button>
 
           <div className="flex items-center gap-3">
-            <motion.div className="relative group">
+            <motion.div className="relative group isolate overflow-hidden rounded-[18px]">
               {/* The "Energy Slipstream" Ring - Category Colored */}
               {!createListingMutation.isPending && (
                 <motion.div
-                  className="absolute -inset-[2px] rounded-[18px] opacity-0 group-hover:opacity-100 transition-opacity duration-300 overflow-hidden pointer-events-none"
+                  className="absolute inset-0 rounded-[18px] opacity-0 group-hover:opacity-60 transition-opacity duration-300 overflow-hidden pointer-events-none"
                   initial={false}
                 >
                   <motion.div
