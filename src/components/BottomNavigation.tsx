@@ -250,14 +250,24 @@ export const BottomNavigation = memo(({
 
   const iconColorInactive = 'var(--icon-inactive)';
   return (
-    <nav role="navigation" aria-label="Main navigation" className={cn('app-bottom-bar px-3 pb-2 pt-1', className, isTablet ? 'px-4' : '')} style={{ paddingBottom: 'calc(8px + max(0px, env(safe-area-inset-bottom)))' }}>
+    <nav
+      role="navigation"
+      aria-label="Main navigation"
+      className={cn('app-bottom-bar pb-2 pt-1', className)}
+      style={{
+        paddingLeft: 'max(12px, env(safe-area-inset-left))',
+        paddingRight: 'max(12px, env(safe-area-inset-right))',
+        paddingBottom: 'calc(8px + max(0px, env(safe-area-inset-bottom)))',
+      }}
+    >
       {/* ── Liquid Glass bar surface ────────────────────────────────────────
           The bar itself is a glass layer so the swipe card content shows
           through, reinforcing the "floating above" feeling. */}
       <div
         className={cn(
           "pointer-events-auto",
-          isTablet ? "mx-auto w-fit max-w-full" : "w-full"
+          "mx-auto w-full",
+          isTablet ? "max-w-2xl" : "max-w-md"
         )}
         style={{
           background: 'transparent',
@@ -266,7 +276,7 @@ export const BottomNavigation = memo(({
           border: 'none',
           borderRadius: '0',
           boxShadow: 'none',
-          padding: '4px',
+          padding: isTablet ? '6px 16px' : '4px 8px',
           filter: isLight
             ? 'drop-shadow(0 1px 2px rgba(0,0,0,0.18))'
             : 'drop-shadow(0 1px 3px rgba(0,0,0,0.6))',
