@@ -129,7 +129,7 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
     },
   });
 
-  const tierNames: ('starter' | 'standard' | 'premium')[] = ['starter', 'standard', 'premium'];
+  const tierNames: ('starter' | 'standard' | 'premium' | 'mega')[] = ['starter', 'standard', 'premium', 'mega'];
 
   const handlePurchase = async (pkg: any, tier: string) => {
     localStorage.setItem(STORAGE.PENDING_ACTIVATION_KEY, JSON.stringify({
@@ -238,9 +238,9 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
                   <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3">Message Tokens</h3>
                   <div className="space-y-2.5">
                     {packages && packages.length > 0 ? (
-                      packages.slice(0, 3).map((pkg, index) => {
+                      packages.slice(0, 4).map((pkg, index) => {
                         const tier = tierNames[index] || 'starter';
-                        const config = tokenTierConfig[tier];
+                        const config = tokenTierConfig[tier as 'starter' | 'standard' | 'premium'] || tokenTierConfig.premium;
                         const Icon = config.icon;
                         const isPopular = tier === 'standard';
                         const tkns = pkg.message_activations || 0;
