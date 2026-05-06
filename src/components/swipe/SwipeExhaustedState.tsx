@@ -55,16 +55,19 @@ export const SwipeExhaustedState = ({
     <div className="relative z-50 h-full w-full flex flex-col items-center justify-center bg-transparent px-6 overflow-hidden">
       <div className="flex flex-col items-center text-center w-full max-w-md gap-6 relative z-10">
         {/* Message */}
-        <div className="space-y-2">
-          <p className={cn(
-            "text-[10px] font-black uppercase tracking-[0.3em] mb-1 italic",
-            isLoading ? (isLight ? "text-black/60" : "text-white/40") : "text-primary drop-shadow-[0_0_10px_rgba(236,72,153,0.3)]"
+        <div className="space-y-3">
+          <h2 className={cn(
+            "text-2xl sm:text-3xl font-black tracking-tight uppercase",
+            isLight ? "text-black" : "text-white"
           )}>
-            {isLoading ? `Initializing Sector Scan...` : `No ${categoryName} Found Nearby`}
-          </p>
-          <h2 className={cn("text-3xl font-black tracking-tight uppercase italic", isLight ? "text-black" : "text-white")}>
-            {isLoading ? 'Scanning...' : 'Adjust Radius'}
+            {isLoading ? 'Scanning…' : `No ${categoryName} found nearby`}
           </h2>
+          <p className={cn(
+            "text-xs font-bold uppercase tracking-[0.25em]",
+            isLight ? "text-black/60" : "text-white/70"
+          )}>
+            {isLoading ? 'Initializing sector scan' : 'Adjust radius or try another category'}
+          </p>
         </div>
 
         {/* Distance slider — centered, the main control */}
@@ -98,14 +101,17 @@ export const SwipeExhaustedState = ({
           </div>
         )}
 
-        <p className={cn("text-xs font-bold", isLight ? "text-black/60" : "text-white/40")}>
+        <p className={cn("text-xs font-semibold", isLight ? "text-black/60" : "text-white/60")}>
           Move the slider to search further
         </p>
 
         {/* Quick filter switcher — allows changing category without going back */}
         {onCategoryChange && (
-          <div className="w-full space-y-2 mt-2">
-            <p className={cn("text-[10px] font-black uppercase tracking-widest", isLight ? "text-black" : "text-white")}>
+          <div className="w-full space-y-3 mt-2">
+            <p className={cn(
+              "text-[11px] font-black uppercase tracking-[0.25em]",
+              isLight ? "text-black/70" : "text-white/80"
+            )}>
               Or try another
             </p>
             <div className={cn(
