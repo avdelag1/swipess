@@ -1,5 +1,6 @@
 import { memo, useState, useRef, useMemo, useEffect } from 'react';
 import { useAppNavigate } from "@/hooks/useAppNavigate";
+import { useSearchParams } from 'react-router-dom';
 import {
   motion, useMotionValue, useTransform, AnimatePresence, PanInfo, animate
 } from 'framer-motion';
@@ -113,7 +114,7 @@ const LandingView = memo(({
       >
         <button
           onClick={() => { triggerHaptic('medium'); onEnterAuth('login'); }}
-          className="w-full h-14 rounded-[2rem] bg-gradient-to-b from-[#FF4D4D] to-[#E01E2A] text-white font-black uppercase tracking-[0.25em] text-[12px] shadow-[0_15px_45px_rgba(224,30,42,0.45)] active:scale-[0.97] transition-all flex items-center justify-center gap-3 border border-white/15"
+          className="w-full h-14 rounded-[2rem] bg-foreground text-background font-black uppercase tracking-[0.25em] text-[12px] shadow-[0_18px_50px_hsl(var(--foreground)/0.22)] active:scale-[0.97] transition-all flex items-center justify-center gap-3 border border-border"
         >
           <LogIn className="w-4 h-4" />
           Sign In
@@ -141,7 +142,7 @@ const LandingView = memo(({
 const AppleAuthButton = ({ onClick }: { onClick: () => void }) => (
   <button
     onClick={onClick}
-    className="group flex h-[52px] w-full items-center justify-center gap-3 rounded-2xl bg-white text-black active:scale-[0.97] transition-all shadow-lg border-none"
+    className="group flex h-12 w-full items-center justify-center gap-3 rounded-2xl bg-foreground text-background active:scale-[0.97] transition-all shadow-lg border-none"
   >
     <AppleIcon />
     <span className="text-[14px] font-bold tracking-tight !text-black">
@@ -153,7 +154,7 @@ const AppleAuthButton = ({ onClick }: { onClick: () => void }) => (
 const GoogleAuthButton = ({ onClick }: { onClick: () => void }) => (
   <button
     onClick={onClick}
-    className="group flex h-[52px] w-full items-center justify-center gap-3 rounded-2xl bg-[#141415] border border-white/10 hover:border-white/20 active:scale-[0.97] transition-all shadow-lg"
+    className="group flex h-12 w-full items-center justify-center gap-3 rounded-2xl bg-card border border-border hover:border-primary/40 active:scale-[0.97] transition-all shadow-lg"
   >
     <GoogleIcon />
     <span className="text-[14px] font-bold tracking-tight !text-white">
@@ -283,7 +284,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
   return (
     <motion.div
       key="auth"
-      className="absolute inset-0 flex flex-col z-20 overflow-y-auto scrollbar-none"
+      className="absolute inset-0 flex flex-col z-20 overflow-hidden scrollbar-none"
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
@@ -298,10 +299,10 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
         <ArrowLeft className="w-5 h-5" />
       </button>
 
-      <div className="flex flex-col items-center justify-center min-h-full px-6 pt-20 pb-32 w-full max-w-sm mx-auto">
+      <div className="flex h-full min-h-0 flex-col items-center justify-center px-6 w-full max-w-sm mx-auto" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 58px)', paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 72px)' }}>
         {/* Logo */}
         <motion.div
-          className="mb-8"
+          className="mb-5"
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.05 }}
@@ -312,7 +313,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
         {/* Mode switcher */}
         {!isForgotPassword && (
           <motion.div
-            className="flex gap-1.5 w-full mb-8 p-1 rounded-[2rem] bg-white/[0.02] border border-white/5 backdrop-blur-2xl"
+            className="flex gap-1.5 w-full mb-5 p-1 rounded-[2rem] bg-card/40 border border-border backdrop-blur-2xl"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
@@ -353,7 +354,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
         {/* Form with shake animation */}
         <motion.form
           onSubmit={handleSubmit}
-          className="space-y-3.5 w-full"
+          className="space-y-3 w-full"
           noValidate
           animate={shakeTrigger > 0 ? {
             x: [0, -10, 10, -10, 10, 0],
@@ -435,14 +436,14 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
           )}
 
           {/* Primary CTA */}
-          <div className="pt-6 relative group">
-            <div className="absolute inset-x-4 -bottom-2 h-10 bg-[#E01E2A]/20 blur-[30px] opacity-0 group-hover:opacity-100 transition-opacity rounded-full pointer-events-none" />
+          <div className="pt-3 relative group">
+            <div className="absolute inset-x-4 -bottom-2 h-10 bg-primary/20 blur-[30px] opacity-0 group-hover:opacity-100 transition-opacity rounded-full pointer-events-none" />
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full h-15 rounded-[2.5rem] bg-gradient-to-b from-[#FF4D4D] to-[#E01E2A] text-white font-black uppercase tracking-[0.3em] text-[13px] shadow-[0_20px_50px_rgba(224,30,42,0.45)] active:scale-[0.96] transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:pointer-events-none relative overflow-hidden group/btn border border-white/15"
+              className="w-full h-14 rounded-[2.5rem] bg-foreground text-background font-black uppercase tracking-[0.3em] text-[13px] shadow-[0_18px_50px_hsl(var(--foreground)/0.22)] active:scale-[0.96] transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:pointer-events-none relative overflow-hidden group/btn border border-border"
             >
-              <div className="absolute inset-0 bg-white/10 opacity-0 group-hover/btn:opacity-100 transition-opacity" />
+              <div className="absolute inset-0 bg-primary/10 opacity-0 group-hover/btn:opacity-100 transition-opacity" />
               <Sparkles className="w-4 h-4 transition-transform group-hover/btn:rotate-12 group-hover/btn:scale-110" />
               {isLoading ? 'Processing...' : isForgotPassword ? 'Send Reset Link' : isLogin ? 'Authorize Session' : 'Create Identity'}
             </button>
@@ -452,7 +453,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
         {/* Social auth */}
         {!isForgotPassword && (
           <motion.div
-            className="mt-8 space-y-3.5 w-full"
+            className="mt-5 space-y-3 w-full"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2 }}
@@ -474,9 +475,20 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
 /* ─── Root component ─────────────────────────────────────── */
 function LegendaryLandingPage() {
   const { navigate } = useAppNavigate();
-  const [view, setView] = useState<View>('landing');
-  const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
+  const [searchParams] = useSearchParams();
+  const requestedIntent = searchParams.get('intent');
+  const requestedAuthMode = requestedIntent === 'signup' ? 'signup' : 'login';
+  const shouldOpenAuth = requestedIntent === 'signin' || requestedIntent === 'sign-in' || requestedIntent === 'login' || requestedIntent === 'signup';
+  const [view, setView] = useState<View>(shouldOpenAuth ? 'auth' : 'landing');
+  const [authMode, setAuthMode] = useState<'login' | 'signup'>(requestedAuthMode);
   const [legalModal, setLegalModal] = useState<'privacy' | 'terms' | null>(null);
+
+  useEffect(() => {
+    if (shouldOpenAuth) {
+      setAuthMode(requestedAuthMode);
+      setView('auth');
+    }
+  }, [requestedAuthMode, shouldOpenAuth]);
 
   return (
     <div className="h-screen h-dvh relative overflow-hidden bg-black text-white">

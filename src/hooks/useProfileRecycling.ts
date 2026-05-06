@@ -56,6 +56,7 @@ export function useRecordProfileView() {
         .select()
         .single();
 
+      if (error?.code === '42P01') return null;
       if (error) throw error;
       return data;
     },
@@ -86,6 +87,8 @@ export function usePermanentlyExcludedProfiles(viewType: 'profile' | 'listing' =
         .eq('action', 'pass')
         .gte('created_at', oneDayAgo) as { data: { viewed_profile_id: string; created_at: string }[] | null; error: any };
 
+      if (error?.code === '42P01') return [];
+      if (error?.code === '42P01') return { liked: [], disliked: [] };
       if (error) {
         logger.error('Error fetching permanently excluded profiles:', error);
         return [];
@@ -154,6 +157,8 @@ export function useTemporarilyExcludedProfiles(viewType: 'profile' | 'listing' =
         .eq('action', 'like')
         .gte('created_at', oneDayAgo) as { data: { viewed_profile_id: string }[] | null; error: any };
 
+      if (error?.code === '42P01') return [];
+      if (error?.code === '42P01') return [];
       if (error) {
         logger.error('Error fetching temporarily excluded profiles:', error);
         return [];

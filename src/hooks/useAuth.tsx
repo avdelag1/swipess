@@ -405,7 +405,9 @@ export function AuthProvider({ children, authPromise }: { children: ReactNode, a
         await queryClient.invalidateQueries();
 
         // Determine dashboard path from role
-        const targetPath = role === 'client' ? '/client/dashboard' : '/owner/dashboard';
+        const returnTo = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('returnTo') : null;
+        const safeReturnTo = returnTo && returnTo.startsWith('/') && !returnTo.startsWith('//') ? returnTo : null;
+        const targetPath = safeReturnTo || (role === 'client' ? '/client/dashboard' : '/owner/dashboard');
 
         appToast.success("Account Created!", "Loading your dashboard...");
 
@@ -497,7 +499,9 @@ export function AuthProvider({ children, authPromise }: { children: ReactNode, a
           logger.warn('[Auth] Quick role check failed, using expected role:', roleCheckError);
         }
 
-        const targetPath = actualRole === 'client' ? '/client/dashboard' : '/owner/dashboard';
+        const returnTo = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('returnTo') : null;
+        const safeReturnTo = returnTo && returnTo.startsWith('/') && !returnTo.startsWith('//') ? returnTo : null;
+        const targetPath = safeReturnTo || (actualRole === 'client' ? '/client/dashboard' : '/owner/dashboard');
 
         // 🚀 ONE-SHOT HYDRATION: Parallelize profile setup and route pre-fetching
         // This ensures the JS chunks are in cache AND the DB record exists BEFORE we navigate.

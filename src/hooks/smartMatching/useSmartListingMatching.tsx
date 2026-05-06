@@ -207,7 +207,7 @@ export function useSmartListingMatching(
                 .eq('user_id', userId)
                 .eq('view_type', 'listing');
             
-            if (viewsError) throw viewsError;
+            if (viewsError && viewsError.code !== '42P01') throw viewsError;
             
             const liked = new Set<string>();
             const left = new Map<string, string>();

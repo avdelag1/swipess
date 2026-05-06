@@ -32,9 +32,18 @@ const hasPersistedUnlock = () => {
   }
 };
 
+const hasTrustedPublicEntry = () => {
+  if (typeof window === "undefined") return false;
+  const { pathname, search } = window.location;
+  const params = new URLSearchParams(search);
+  const returnTo = params.get("returnTo");
+  const intent = params.get("intent");
+  return pathname.startsWith("/listing/") || pathname.startsWith("/profile/") || (!!returnTo && !!intent);
+};
+
 export function MaintenanceGate({ children }: { children: React.ReactNode }) {
   const [unlocked, setUnlocked] = useState<boolean>(() => {
-    return hasPersistedUnlock();
+    return hasPersistedUnlock() || hasTrustedPublicEntry();
   });
   const [code, setCode] = useState("");
   const [error, setError] = useState(false);
@@ -65,7 +74,7 @@ export function MaintenanceGate({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <div className="min-h-screen min-h-dvh flex items-center justify-center px-6 bg-background relative overflow-hidden">
+    <div className="h-screen h-[100dvh] flex items-center justify-center px-6 bg-background relative overflow-hidden">
       {/* Ambient glow */}
       <div className="absolute inset-0 opacity-40 pointer-events-none">
         <div
