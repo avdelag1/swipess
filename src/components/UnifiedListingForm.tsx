@@ -301,78 +301,47 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
       if (listingData.price === undefined) listingData.price = 0;
       if (listingData.title === undefined) listingData.title = `New ${selectedCategory}`;
 
+      const isSchemaError = (e: any) =>
+        e?.code === 'PGRST204' ||
+        e?.message?.toLowerCase().includes('could not find the') ||
+        e?.message?.toLowerCase().includes('schema cache');
+
+      const extractBadColumn = (msg: string): string | null => {
+        const m = msg?.match(/['"]([^'"]+)['"]\s+column|column\s+['"]([^'"]+)['"]/i);
+        return m ? (m[1] || m[2]) : null;
+      };
+
       let listingResult;
 
       try {
         if (editingId) {
-          // Update existing listing
-          const { data, error } = await supabase
-            .from('listings')
-            .update(listingData as any)
-            .eq('id', editingId)
-            .select()
-            .single();
-
-          if (error) {
-            const errorMsg = error.message?.toLowerCase() || '';
-            const isSchemaError = errorMsg.includes('could not find the') || errorMsg.includes('schema cache') || errorMsg.includes('column');
-            
-            if (isSchemaError) {
-              const columnMatch = error.message?.match(/(?:column\s+['"]?([^'"\s]+)['"]?)|(?:['"]?([^'"\s]+)['"]?\s+column)/i);
-              const missingColumn = columnMatch ? (columnMatch[1] || columnMatch[2]) : null;
-              
-              if (missingColumn && listingData[missingColumn] !== undefined) {
-                logger.warn(`Removing problematic column "${missingColumn}" from update and retrying...`);
-                const { [missingColumn]: _, ...safeData } = listingData;
-                const { data: fallbackData, error: fallbackError } = await supabase
-                  .from('listings').update(safeData as any).eq('id', editingId).select().single();
-                if (fallbackError) throw fallbackError;
-                listingResult = fallbackData;
-              } else {
-                throw error;
-              }
-            } else {
-              throw error;
-            }
-          } else {
-            listingResult = data;
+          // Update — strip PGRST204 columns one at a time until success
+          let updateData: Record<string, any> = { ...listingData };
+          for (let attempt = 0; attempt < 10; attempt++) {
+            const { data, error } = await supabase
+              .from('listings').update(updateData as any).eq('id', editingId).select().single();
+            if (!error) { listingResult = data; break; }
+            if (!isSchemaError(error)) throw error;
+            const badCol = extractBadColumn(error.message);
+            if (!badCol || updateData[badCol] === undefined) throw error;
+            logger.warn(`Schema cache missing "${badCol}" — stripping from update and retrying...`);
+            const { [badCol]: _, ...rest } = updateData;
+            updateData = rest;
           }
         } else {
-          // Insert new listing
-          const { data, error } = await supabase
-            .from('listings')
-            .insert(listingData as any)
-            .select()
-            .single();
-
-          if (error) {
+          // Insert — strip PGRST204 columns one at a time until success
+          let insertData: Record<string, any> = { ...listingData };
+          for (let attempt = 0; attempt < 10; attempt++) {
+            const { data, error } = await supabase
+              .from('listings').insert(insertData as any).select().single();
+            if (!error) { listingResult = data; break; }
             logger.error('Insert error details:', error);
-            const errorMsg = error.message?.toLowerCase() || '';
-            const isSchemaError = errorMsg.includes('could not find the') || errorMsg.includes('schema cache') || errorMsg.includes('column');
-
-            if (isSchemaError) {
-              // Extract the problematic column name from the error message and retry without it
-              const columnMatch = error.message?.match(/['"]([^'"]+)['"]\s+column|column\s+['"]([^'"]+)['"]/i);
-              const missingColumn = columnMatch ? (columnMatch[1] || columnMatch[2]) : null;
-
-              if (missingColumn && listingData[missingColumn] !== undefined) {
-                logger.warn(`Schema cache missing column "${missingColumn}" — retrying without it...`);
-                const { [missingColumn]: _, ...safeData } = listingData;
-                const { data: fallbackData, error: fallbackError } = await supabase
-                  .from('listings')
-                  .insert(safeData as any)
-                  .select()
-                  .single();
-                if (fallbackError) throw fallbackError;
-                listingResult = fallbackData;
-              } else {
-                throw error;
-              }
-            } else {
-              throw error;
-            }
-          } else {
-            listingResult = data;
+            if (!isSchemaError(error)) throw error;
+            const badCol = extractBadColumn(error.message);
+            if (!badCol || insertData[badCol] === undefined) throw error;
+            logger.warn(`Schema cache missing "${badCol}" — stripping from insert and retrying...`);
+            const { [badCol]: _, ...rest } = insertData;
+            insertData = rest;
           }
         }
       } catch (err: unknown) {
