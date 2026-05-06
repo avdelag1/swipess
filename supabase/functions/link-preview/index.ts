@@ -1,12 +1,14 @@
 // Public edge function that serves crawler-friendly HTML for shared links.
-// Real users (browsers) get a fast meta-refresh redirect to the SPA route.
+// Real users (browsers) get a fast redirect to the SPA route.
 // Crawlers (WhatsApp, iMessage, Telegram, FB, Twitter, Slack, Discord) read
 // the OG tags including the listing's real hero photo.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.4";
 
-const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
-const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
+// Hard-pin source-of-truth Supabase project (matches src/integrations/supabase/client.ts)
+const SUPABASE_URL = "https://vplgtcguxujxwrgguxqq.supabase.co";
+const SUPABASE_ANON_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwbGd0Y2d1eHVqeHdyZ2d1eHFxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgwMDI5MDIsImV4cCI6MjA2MzU3ODkwMn0.-TzSQ-nDho4J6TftVF4RNjbhr5cKbknQxxUT-AaSIJU";
 const APP_ORIGIN = "https://swipess.com";
 
 const corsHeaders = {
@@ -23,17 +25,30 @@ function escapeHtml(s: string): string {
     .replace(/'/g, "&#39;");
 }
 
+function isCrawler(ua: string): boolean {
+  if (!ua) return false;
+  const u = ua.toLowerCase();
+  return /whatsapp|telegrambot|facebookexternalhit|facebot|twitterbot|slackbot|discordbot|linkedinbot|skypeuripreview|applebot|googlebot|bingbot|embedly|redditbot|pinterest|vkshare|tumblr|w3c_validator|yahoo|duckduckbot|imessagepreview/i.test(
+    u,
+  );
+}
+
 function renderHtml(opts: {
   title: string;
   description: string;
   image: string;
   url: string;
+  redirect: boolean;
 }): string {
-  const { title, description, image, url } = opts;
+  const { title, description, image, url, redirect } = opts;
   const t = escapeHtml(title);
   const d = escapeHtml(description);
   const i = escapeHtml(image);
   const u = escapeHtml(url);
+  const redirectTags = redirect
+    ? `<meta http-equiv="refresh" content="0; url=${u}" />
+<script>window.location.replace(${JSON.stringify(url)});</script>`
+    : "";
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -48,8 +63,9 @@ function renderHtml(opts: {
 <meta property="og:description" content="${d}" />
 <meta property="og:image" content="${i}" />
 <meta property="og:image:secure_url" content="${i}" />
+<meta property="og:image:alt" content="${t}" />
 <meta property="og:image:width" content="1200" />
-<meta property="og:image:height" content="1200" />
+<meta property="og:image:height" content="630" />
 <meta property="og:url" content="${u}" />
 
 <meta name="twitter:card" content="summary_large_image" />
@@ -58,8 +74,7 @@ function renderHtml(opts: {
 <meta name="twitter:image" content="${i}" />
 
 <link rel="canonical" href="${u}" />
-<meta http-equiv="refresh" content="0; url=${u}" />
-<script>window.location.replace(${JSON.stringify(url)});</script>
+${redirectTags}
 </head>
 <body style="margin:0;background:#000;color:#fff;font-family:-apple-system,system-ui,sans-serif;">
 <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:24px;text-align:center;gap:16px;">
@@ -72,13 +87,23 @@ function renderHtml(opts: {
 </html>`;
 }
 
+function pickFirstImage(images: unknown): string | null {
+  if (!Array.isArray(images)) return null;
+  for (const v of images) {
+    if (typeof v === "string" && v.trim()) return v;
+    if (v && typeof v === "object" && typeof (v as any).url === "string" && (v as any).url.trim()) {
+      return (v as any).url;
+    }
+  }
+  return null;
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   const url = new URL(req.url);
-  // Path: /link-preview/listing/:id  or  /link-preview/profile/:id  or  /link-preview/event/:id
   const parts = url.pathname.split("/").filter(Boolean);
   // ["link-preview", "<kind>", "<id>"]
   const kind = parts[1];
@@ -106,30 +131,32 @@ Deno.serve(async (req: Request) => {
         .eq("id", id)
         .maybeSingle();
       if (data) {
-        const imgs = Array.isArray(data.images) ? (data.images as string[]) : [];
-        if (imgs[0]) image = imgs[0];
-        title = data.title || fallbackTitle;
-        const loc = [data.neighborhood, data.city].filter(Boolean).join(", ");
-        const price = data.price ? `$${Number(data.price).toLocaleString()}` : "";
+        const first = pickFirstImage((data as any).images);
+        if (first) image = first;
+        title = (data as any).title || fallbackTitle;
+        const loc = [(data as any).neighborhood, (data as any).city].filter(Boolean).join(", ");
+        const price = (data as any).price ? `$${Number((data as any).price).toLocaleString()}` : "";
         description = [
-          data.beds ? `${data.beds} Beds` : null,
-          data.baths ? `${data.baths} Baths` : null,
+          (data as any).beds ? `${(data as any).beds} Beds` : null,
+          (data as any).baths ? `${(data as any).baths} Baths` : null,
           loc || null,
           price ? `— ${price}` : null,
         ]
           .filter(Boolean)
-          .join(" · ");
+          .join(" · ") || fallbackDesc;
       }
     } else if (kind === "profile") {
       canonical = `${APP_ORIGIN}/profile/${id}`;
-      const { data } = await supabase
+      const { data: prof } = await supabase
         .from("profiles")
-        .select("name, bio, user_id")
+        .select("full_name, bio, avatar_url, user_id")
         .eq("user_id", id)
         .maybeSingle();
-      if (data) {
-        title = data.name ? `${data.name} on Swipess` : fallbackTitle;
-        description = data.bio || "Discover this profile on Swipess.";
+      if (prof) {
+        const name = (prof as any).full_name;
+        title = name ? `${name} on Swipess` : fallbackTitle;
+        description = (prof as any).bio || "Discover this profile on Swipess.";
+        if ((prof as any).avatar_url) image = (prof as any).avatar_url;
       }
       const { data: pi } = await supabase
         .from("profile_images")
@@ -155,11 +182,13 @@ Deno.serve(async (req: Request) => {
     // fall through with defaults
   }
 
-  // Preserve query params (e.g. ?ref=xxx) on the redirect target
   const qs = url.searchParams.toString();
   if (qs) canonical += (canonical.includes("?") ? "&" : "?") + qs;
 
-  const html = renderHtml({ title, description, image, url: canonical });
+  const ua = req.headers.get("user-agent") || "";
+  const crawler = isCrawler(ua);
+
+  const html = renderHtml({ title, description, image, url: canonical, redirect: !crawler });
   return new Response(html, {
     headers: {
       ...corsHeaders,

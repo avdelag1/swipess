@@ -1,51 +1,39 @@
-# Remove the Radar Effect & Clean Up Legacy Visuals
+## Problem
 
-## What you're seeing in the screenshot
+When you share a listing link, WhatsApp/Telegram/iMessage show the generic Swipess banner instead of the listing's actual photo.
 
-The big oval/circular shape behind the loading skeleton is a **radar sweep animation** baked into `SwipeLoadingSkeleton.tsx`. It draws three concentric rings + a rotating conic-gradient pulse while the deck loads. It's leftover from the old "radar map" paradigm — before we moved to the kilometer slider you approved.
+Root cause: the `link-preview` edge function uses `Deno.env.get("SUPABASE_URL")` / `SUPABASE_ANON_KEY`, which on the deployed runtime point at the wrong backend (the function infra project), not the source-of-truth project `vplgtcguxujxwrgguxqq` where listings/profiles/events actually live. So every lookup returns no rows → fallback OG image is served.
 
-It's the only place in the swipe deck that still renders a radar visual. There is no full radar page anymore — that was already removed. But three radar artifacts remain in the code, and one unused component is still shipped.
+I confirmed this by hitting the function directly: it returns the fallback image and never the listing's photo, even for valid IDs.
 
-## What to remove
+## Fix
 
-### 1. Radar rings + sweeping pulse in the loading skeleton
-File: `src/components/swipe/SwipeLoadingSkeleton.tsx`
-- Delete the concentric rings (lines 24–28)
-- Delete the rotating conic-gradient sweep (lines 31–38)
-- Keep only the dark surface + shimmer + bottom info skeleton bars (clean Apple-style loading state)
+### 1. Pin the data backend in `supabase/functions/link-preview/index.ts`
+Replace the env-driven URL/key with hard-pinned constants for the source-of-truth project (matches `src/integrations/supabase/client.ts`):
 
-### 2. Radar overlay in the filter "Initiate Scan" flow
-File: `src/pages/ClientFilters.tsx`
-- Replace the full-screen scanning overlay (lines 209–243) with a simple subtle progress indicator (spinner + "Synchronizing" text), no radar rings, no conic-gradient sweep
-- Replace the `Radar` lucide icon on the Scan button (line 191) with a cleaner `Search` or `Crosshair` icon
-- Remove the `Radar` import
+```ts
+const SUPABASE_URL = "https://vplgtcguxujxwrgguxqq.supabase.co";
+const SUPABASE_ANON_KEY = "<anon key for vplgtcguxujxwrgguxqq>"; // already public
+```
 
-### 3. Delete the unused RadarSearchEffect component
-File: `src/components/ui/RadarSearchEffect.tsx`
-- The big `RadarSearchEffect` export is **never imported anywhere**
-- Only `RadarSearchIcon` (small) is used by `MarketingSlide.tsx`
-- Slim the file down to export only `RadarSearchIcon`, OR move that small icon inline into `MarketingSlide.tsx` and delete the file entirely (preferred — fewer files)
+This guarantees the function reads listings, profile_images, and events from the correct DB regardless of where it's deployed.
 
-### 4. Quick dead-route audit (housekeeping you asked for)
-Confirm and remove if found:
-- No `/radar` or `/map` route exists in `src/App.tsx` (already verified clean)
-- `LocationRadiusSelector.tsx` keeps copy like "Sector Depth / Scanning radius" — refine to plain language: "Search radius" / "Distance"
-- Verify `radarNodes` memo in `ClientSwipeContainer.tsx` (line 165) is still consumed; if unused after these changes, delete it
+### 2. Improve crawler-vs-browser handling
+- Detect bots (WhatsApp, Telegram, facebookexternalhit, Twitterbot, Slackbot, Discord, LinkedIn, iMessage Preview) via `User-Agent` and serve the OG HTML *without* the JS/meta-refresh redirect (some crawlers follow redirects and lose context).
+- Real browsers continue to get the instant redirect to `swipess.com/listing/:id`.
 
-## Result
+### 3. Strengthen image picking
+- For listings: pick first non-empty entry from `images` array, fall back to `image_url`, then default OG.
+- For profiles: query `profile_images` ordered by `position`, then fall back to `profiles.avatar_url`.
+- Set `og:image:width=1200`, `height=630` (standard landscape preview ratio used by WhatsApp/FB), and add `og:image:alt`.
 
-- Loading state: clean dark card with shimmer + bottom skeleton bars only — no radar shapes, no sweep
-- Filter scan: simple "Synchronizing…" toast/spinner — no full-screen radar overlay
-- Codebase: one fewer unused component, no leftover radar references in the swipe flow
-- The kilometer selector (`LocationRadiusSelector`) remains the single source of truth for distance, exactly as you specified
+### 4. Redeploy and verify
+- Deploy `link-preview`.
+- Curl-test `/listing/<real-id>` and confirm `og:image` points at the listing's hero photo (not `og-image-nexus.png`).
+- Curl-test `/profile/<real-user-id>` and confirm `og:image` points at the user's first photo.
 
-## Files touched
+After this, sharing any link to WhatsApp/Telegram/Facebook/iMessage will show the real photo of the listing or person.
 
-- `src/components/swipe/SwipeLoadingSkeleton.tsx` — strip radar visuals
-- `src/pages/ClientFilters.tsx` — replace scanning overlay, swap icon
-- `src/components/ui/RadarSearchEffect.tsx` — delete (move small icon inline)
-- `src/components/MarketingSlide.tsx` — update import after move
-- `src/components/ClientSwipeContainer.tsx` — remove `radarNodes` if dead, refine copy
-- `src/components/swipe/LocationRadiusSelector.tsx` — refine "Sector Depth" copy
+## Files
 
-No routes, no logic, no swipe physics, no DB changes.
+- `supabase/functions/link-preview/index.ts` — pin SUPABASE_URL/KEY, add UA-based crawler detection, harden image fallbacks.
