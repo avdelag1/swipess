@@ -698,27 +698,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
           </motion.button>
 
           <div className="flex items-center gap-3">
-            <motion.div className="relative group isolate overflow-hidden rounded-[18px]">
-              {/* The "Energy Slipstream" Ring - Category Colored */}
-              {!createListingMutation.isPending && (
-                <motion.div
-                  className="absolute inset-0 rounded-[18px] opacity-0 group-hover:opacity-60 transition-opacity duration-300 overflow-hidden pointer-events-none"
-                  initial={false}
-                >
-                  <motion.div
-                    className={cn(
-                      "absolute inset-[-100%]",
-                      selectedCategory === 'property' && "bg-[conic-gradient(from_0deg,transparent_0%,transparent_30%,#10b981_50%,#059669_70%,transparent_100%)]",
-                      selectedCategory === 'motorcycle' && "bg-[conic-gradient(from_0deg,transparent_0%,transparent_30%,#f97316_50%,#ea580c_70%,transparent_100%)]",
-                      selectedCategory === 'bicycle' && "bg-[conic-gradient(from_0deg,transparent_0%,transparent_30%,#EB4898_50%,#FF4D00_70%,transparent_100%)]",
-                      selectedCategory === 'worker' && "bg-[conic-gradient(from_0deg,transparent_0%,transparent_30%,#f59e0b_50%,#d97706_70%,transparent_100%)]"
-                    )}
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
-                  />
-                </motion.div>
-              )}
-
+            <motion.div className="relative">
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.96 }}
