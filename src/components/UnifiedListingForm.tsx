@@ -56,6 +56,11 @@ const itemFadeScale = {
   visible: { opacity: 1, y: 0, scale: 1, transition: fastSpring }
 };
 
+const toIntOrNull = (value: unknown) => {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? Math.round(parsed) : null;
+};
+
 export function UnifiedListingForm({ isOpen, onClose, editingProperty }: UnifiedListingFormProps) {
   const [selectedCategory, setSelectedCategory] = useState<Category>('property');
   const [selectedMode, setSelectedMode] = useState<Mode>('rent');
@@ -226,9 +231,9 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
         location_type,
         // Property fields
         property_type: formData.property_type ? String(formData.property_type).toLowerCase() : null,
-        beds: formData.beds || null,
-        baths: formData.baths || null,
-        square_footage: formData.square_footage || null,
+        beds: toIntOrNull(formData.beds),
+        baths: toIntOrNull(formData.baths),
+        square_footage: toIntOrNull(formData.square_footage),
         furnished: !!formData.furnished,
         pet_friendly: !!formData.pet_friendly,
         house_rules: Array.isArray(formData.house_rules)
@@ -268,12 +273,12 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
         bicycle_type: selectedCategory === 'bicycle' ? formData.bicycle_type : null,
         frame_size: selectedCategory === 'bicycle' ? formData.frame_size : null,
         frame_material: selectedCategory === 'bicycle' ? formData.frame_material : null,
-        number_of_gears: selectedCategory === 'bicycle' ? formData.number_of_gears : null,
+        number_of_gears: selectedCategory === 'bicycle' ? toIntOrNull(formData.number_of_gears) : null,
         suspension_type: selectedCategory === 'bicycle' ? formData.suspension_type : null,
         brake_type: selectedCategory === 'bicycle' ? formData.brake_type : null,
         wheel_size: selectedCategory === 'bicycle' ? formData.wheel_size : null,
         electric_assist: selectedCategory === 'bicycle' ? !!formData.electric_assist : null,
-        battery_range: selectedCategory === 'bicycle' ? formData.battery_range : null,
+        battery_range: selectedCategory === 'bicycle' ? toIntOrNull(formData.battery_range) : null,
         includes_lock: selectedCategory === 'bicycle' ? !!formData.includes_lock : null,
         includes_lights: selectedCategory === 'bicycle' ? !!formData.includes_lights : null,
         includes_basket: selectedCategory === 'bicycle' ? !!formData.includes_basket : null,
