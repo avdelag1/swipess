@@ -142,7 +142,7 @@ const LandingView = memo(({
 const AppleAuthButton = ({ onClick }: { onClick: () => void }) => (
   <button
     onClick={onClick}
-    className="group flex h-[52px] w-full items-center justify-center gap-3 rounded-2xl bg-white text-black active:scale-[0.97] transition-all shadow-lg border-none"
+    className="group flex h-12 w-full items-center justify-center gap-3 rounded-2xl bg-foreground text-background active:scale-[0.97] transition-all shadow-lg border-none"
   >
     <AppleIcon />
     <span className="text-[14px] font-bold tracking-tight !text-black">
@@ -154,7 +154,7 @@ const AppleAuthButton = ({ onClick }: { onClick: () => void }) => (
 const GoogleAuthButton = ({ onClick }: { onClick: () => void }) => (
   <button
     onClick={onClick}
-    className="group flex h-[52px] w-full items-center justify-center gap-3 rounded-2xl bg-[#141415] border border-white/10 hover:border-white/20 active:scale-[0.97] transition-all shadow-lg"
+    className="group flex h-12 w-full items-center justify-center gap-3 rounded-2xl bg-card border border-border hover:border-primary/40 active:scale-[0.97] transition-all shadow-lg"
   >
     <GoogleIcon />
     <span className="text-[14px] font-bold tracking-tight !text-white">
@@ -284,7 +284,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
   return (
     <motion.div
       key="auth"
-      className="absolute inset-0 flex flex-col z-20 overflow-y-auto scrollbar-none"
+      className="absolute inset-0 flex flex-col z-20 overflow-hidden scrollbar-none"
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
@@ -299,10 +299,10 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
         <ArrowLeft className="w-5 h-5" />
       </button>
 
-      <div className="flex flex-col items-center justify-center min-h-full px-6 pt-20 pb-32 w-full max-w-sm mx-auto">
+      <div className="flex h-full min-h-0 flex-col items-center justify-center px-6 w-full max-w-sm mx-auto" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 58px)', paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 72px)' }}>
         {/* Logo */}
         <motion.div
-          className="mb-8"
+          className="mb-5"
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.05 }}
@@ -313,7 +313,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
         {/* Mode switcher */}
         {!isForgotPassword && (
           <motion.div
-            className="flex gap-1.5 w-full mb-8 p-1 rounded-[2rem] bg-white/[0.02] border border-white/5 backdrop-blur-2xl"
+            className="flex gap-1.5 w-full mb-5 p-1 rounded-[2rem] bg-card/40 border border-border backdrop-blur-2xl"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
@@ -354,7 +354,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
         {/* Form with shake animation */}
         <motion.form
           onSubmit={handleSubmit}
-          className="space-y-3.5 w-full"
+          className="space-y-3 w-full"
           noValidate
           animate={shakeTrigger > 0 ? {
             x: [0, -10, 10, -10, 10, 0],
