@@ -436,14 +436,14 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
           )}
 
           {/* Primary CTA */}
-          <div className="pt-6 relative group">
-            <div className="absolute inset-x-4 -bottom-2 h-10 bg-[#E01E2A]/20 blur-[30px] opacity-0 group-hover:opacity-100 transition-opacity rounded-full pointer-events-none" />
+          <div className="pt-3 relative group">
+            <div className="absolute inset-x-4 -bottom-2 h-10 bg-primary/20 blur-[30px] opacity-0 group-hover:opacity-100 transition-opacity rounded-full pointer-events-none" />
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full h-15 rounded-[2.5rem] bg-gradient-to-b from-[#FF4D4D] to-[#E01E2A] text-white font-black uppercase tracking-[0.3em] text-[13px] shadow-[0_20px_50px_rgba(224,30,42,0.45)] active:scale-[0.96] transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:pointer-events-none relative overflow-hidden group/btn border border-white/15"
+              className="w-full h-14 rounded-[2.5rem] bg-foreground text-background font-black uppercase tracking-[0.3em] text-[13px] shadow-[0_18px_50px_hsl(var(--foreground)/0.22)] active:scale-[0.96] transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:pointer-events-none relative overflow-hidden group/btn border border-border"
             >
-              <div className="absolute inset-0 bg-white/10 opacity-0 group-hover/btn:opacity-100 transition-opacity" />
+              <div className="absolute inset-0 bg-primary/10 opacity-0 group-hover/btn:opacity-100 transition-opacity" />
               <Sparkles className="w-4 h-4 transition-transform group-hover/btn:rotate-12 group-hover/btn:scale-110" />
               {isLoading ? 'Processing...' : isForgotPassword ? 'Send Reset Link' : isLogin ? 'Authorize Session' : 'Create Identity'}
             </button>
@@ -453,7 +453,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
         {/* Social auth */}
         {!isForgotPassword && (
           <motion.div
-            className="mt-8 space-y-3.5 w-full"
+            className="mt-5 space-y-3 w-full"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2 }}
