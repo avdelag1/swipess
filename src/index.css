@@ -2267,8 +2267,8 @@ button:disabled,
 .token-pack-icon-mega { background: hsl(var(--primary) / 0.16); color: hsl(var(--primary)); }
 
 .apple-pay-button {
-  background: hsl(var(--foreground));
-  color: hsl(var(--background));
-  box-shadow: 0 16px 30px hsl(var(--foreground) / 0.16), inset 0 1px 0 hsl(var(--background) / 0.2);
+  background: #000000;
+  color: #FFFFFF;
+  box-shadow: 0 12px 28px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.18);
 }
 

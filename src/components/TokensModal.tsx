@@ -215,10 +215,10 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
                   </div>
                   <Button
                     size="sm"
-                    className="flex-shrink-0 rounded-full text-xs font-black uppercase tracking-widest"
+                    className="flex-shrink-0 rounded-full text-xs font-black uppercase tracking-widest bg-black text-white hover:bg-black/90"
                     onClick={() => { close(); navigate('/subscription/packages'); }}
                   >
-                    Go
+                    Go!
                   </Button>
                 </div>
 
