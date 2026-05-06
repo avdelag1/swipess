@@ -5,6 +5,18 @@
   "installCommand": "npm install",
   "rewrites": [
     {
+      "source": "/s/listing/:id",
+      "destination": "https://vplgtcguxujxwrgguxqq.supabase.co/functions/v1/link-preview/listing/:id"
+    },
+    {
+      "source": "/s/profile/:id",
+      "destination": "https://vplgtcguxujxwrgguxqq.supabase.co/functions/v1/link-preview/profile/:id"
+    },
+    {
+      "source": "/s/event/:id",
+      "destination": "https://vplgtcguxujxwrgguxqq.supabase.co/functions/v1/link-preview/event/:id"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
