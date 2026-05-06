@@ -4,6 +4,8 @@ import { X, MessageCircle, Sparkles } from 'lucide-react';
 import { triggerHaptic } from '@/utils/haptics';
 import { Button } from '@/components/ui/button';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
+import { useAuth } from '@/hooks/useAuth';
+import { useStartConversation } from '@/hooks/useConversations';
 import confetti from 'canvas-confetti';
 
 interface MatchCelebrateModalProps {
@@ -15,6 +17,8 @@ interface MatchCelebrateModalProps {
 
 function MatchCelebrateModalComponent({ isOpen, onClose, clientProfile, ownerProfile }: MatchCelebrateModalProps) {
   const { navigate } = useAppNavigate();
+  const { user } = useAuth();
+  const startConversation = useStartConversation();
   const confettiRunRef = useRef(false);
 
   useEffect(() => {
@@ -53,9 +57,28 @@ function MatchCelebrateModalComponent({ isOpen, onClose, clientProfile, ownerPro
 
   if (!isOpen || !clientProfile || !ownerProfile) return null;
 
-  const handleMessage = () => {
+  const handleMessage = async () => {
+    // Determine who the other user is
+    const otherUserId = clientProfile?.user_id === user?.id
+      ? ownerProfile?.user_id
+      : clientProfile?.user_id;
+
     onClose();
-    navigate('/messages');
+
+    if (!otherUserId) {
+      navigate('/messages');
+      return;
+    }
+
+    try {
+      const result = await startConversation.mutateAsync({
+        otherUserId,
+        canStartNewConversation: true,
+      });
+      navigate(result?.conversationId ? `/messages?conversationId=${result.conversationId}` : '/messages');
+    } catch {
+      navigate('/messages');
+    }
   };
 
   return (

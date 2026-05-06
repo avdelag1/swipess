@@ -192,7 +192,7 @@ export const GlobalDialogs = memo(({ userRole }: GlobalDialogsProps) => {
               onClose={() => {
                 store.setModal('showPropertyDetails', false);
               }}
-              onMessageClick={() => store.openSubscription('Unlock Messaging!')}
+              onMessageClick={() => {}}
             />
           </DeferredDialog>
 

@@ -1,30 +1,33 @@
 
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { MapPin, Bed, Bath, Square, Flame, MessageCircle, X, Camera, Zap } from 'lucide-react';
+import { MapPin, Bed, Bath, Square, Flame, MessageCircle, X, Camera } from 'lucide-react';
 import { useSwipe } from '@/hooks/useSwipe';
-import { useHasPremiumFeature } from '@/hooks/useSubscription';
 import { Listing } from '@/hooks/useListings';
 import { PropertyImageGallery } from './PropertyImageGallery';
-import { isDirectMessagingListing } from '@/utils/directMessaging';
+import { useStartConversation } from '@/hooks/useConversations';
+import { useAuth } from '@/hooks/useAuth';
 import useAppTheme from '@/hooks/useAppTheme';
 
 interface PropertyDetailsProps {
   listingId: string | null;
   isOpen: boolean;
   onClose: () => void;
-  onMessageClick: () => void;
+  onMessageClick?: () => void;
 }
 
-export function PropertyDetails({ listingId, isOpen, onClose, onMessageClick }: PropertyDetailsProps) {
+export function PropertyDetails({ listingId, isOpen, onClose }: PropertyDetailsProps) {
   const swipeMutation = useSwipe();
-  const hasPremiumMessaging = useHasPremiumFeature('messaging');
+  const startConversation = useStartConversation();
+  const navigate = useNavigate();
+  const { user } = useAuth();
   const [galleryState, setGalleryState] = useState<{
     isOpen: boolean;
     images: string[];
@@ -236,23 +239,30 @@ export function PropertyDetails({ listingId, isOpen, onClose, onMessageClick }: 
                   <span className="hidden sm:inline">Pass</span>
                 </Button>
                 
-                {/* Check if direct messaging is available for this listing category */}
-                {(() => {
-                  const isDirectMessaging = isDirectMessagingListing(listing);
-                  const canMessage = hasPremiumMessaging || isDirectMessaging;
-                  return (
-                    <Button
-                      variant="outline"
-                      className="flex-1 gap-2 h-16"
-                      onClick={canMessage ? onMessageClick : () => {}}
-                      disabled={!canMessage}
-                    >
-                      {isDirectMessaging && <Zap className="w-4 h-4 text-amber-400" />}
-                      <MessageCircle className="w-6 h-6" />
-                      <span className="hidden sm:inline">{isDirectMessaging ? 'Free Message' : (hasPremiumMessaging ? 'Message' : 'Locked')}</span>
-                    </Button>
-                  );
-                })()}
+                <Button
+                  variant="outline"
+                  className="flex-1 gap-2 h-16"
+                  onClick={async () => {
+                    if (!listing?.owner_id || !user || listing.owner_id === user.id) return;
+                    try {
+                      const result = await startConversation.mutateAsync({
+                        otherUserId: listing.owner_id,
+                        listingId: listing.id,
+                        canStartNewConversation: true,
+                      });
+                      if (result?.conversationId) {
+                        onClose();
+                        navigate(`/messages?conversationId=${result.conversationId}`);
+                      }
+                    } catch {
+                      // errors handled by hook toast
+                    }
+                  }}
+                  disabled={startConversation.isPending || !listing?.owner_id || listing?.owner_id === user?.id}
+                >
+                  <MessageCircle className="w-6 h-6" />
+                  <span className="hidden sm:inline">Message</span>
+                </Button>
                 
                 <Button
                   className="flex-1 gap-2 h-16 bg-gradient-to-r from-orange-500 to-red-600 hover:scale-[1.02] transition-all shadow-lg shadow-orange-500/20 text-white font-black uppercase italic tracking-widest border-none"
