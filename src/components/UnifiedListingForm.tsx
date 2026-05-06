@@ -2,7 +2,8 @@
  * UnifiedListingForm - Creates listings for all categories
  * Updated to match new normalized schema with JSONB arrays
  */
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -70,11 +71,19 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
   // Use refs to track latest values for mutation (avoids closure staleness)
   const imagesRef = useRef(images);
   const imageFilesRef = useRef(imageFiles);
+  const formDataRef = useRef(formData);
 
   // Keep refs in sync with state
   useEffect(() => { imagesRef.current = images; }, [images]);
   useEffect(() => { imageFilesRef.current = imageFiles; }, [imageFiles]);
+  useEffect(() => { formDataRef.current = formData; }, [formData]);
 
+  // Stable callback — never recreated — breaks the child-form render loop
+  const handleFormDataChange = useCallback((data: Record<string, unknown>) => {
+    setFormData(prev => ({ ...prev, ...data }));
+  }, []);
+
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { user } = useAuth();
   const { saveListingDraft } = useAnonymousDrafts();
@@ -158,20 +167,23 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
 
       const allImages = [...currentImages, ...uploadedImageUrls];
 
+      // Always read the latest form data from the ref — avoids stale closure issues
+      const fd = formDataRef.current;
+
       // Convert arrays to JSONB format
-      const amenities = formData.amenities ? JSON.parse(JSON.stringify(formData.amenities)) : [];
-      const services_included = formData.services_included ? JSON.parse(JSON.stringify(formData.services_included)) : [];
-      const skills = formData.skills ? JSON.parse(JSON.stringify(formData.skills)) : [];
-      const certifications = formData.certifications ? JSON.parse(JSON.stringify(formData.certifications)) : [];
-      const tools_equipment = formData.tools_equipment ? JSON.parse(JSON.stringify(formData.tools_equipment)) : [];
-      const days_available = formData.days_available ? JSON.parse(JSON.stringify(formData.days_available)) : [];
-      const time_slots_available = formData.time_slots_available ? JSON.parse(JSON.stringify(formData.time_slots_available)) : [];
-      const work_type = formData.work_type ? JSON.parse(JSON.stringify(formData.work_type)) : [];
-      const schedule_type = formData.schedule_type ? JSON.parse(JSON.stringify(formData.schedule_type)) : [];
-      const location_type = formData.location_type ? JSON.parse(JSON.stringify(formData.location_type)) : [];
+      const amenities = fd.amenities ? JSON.parse(JSON.stringify(fd.amenities)) : [];
+      const services_included = fd.services_included ? JSON.parse(JSON.stringify(fd.services_included)) : [];
+      const skills = fd.skills ? JSON.parse(JSON.stringify(fd.skills)) : [];
+      const certifications = fd.certifications ? JSON.parse(JSON.stringify(fd.certifications)) : [];
+      const tools_equipment = fd.tools_equipment ? JSON.parse(JSON.stringify(fd.tools_equipment)) : [];
+      const days_available = fd.days_available ? JSON.parse(JSON.stringify(fd.days_available)) : [];
+      const time_slots_available = fd.time_slots_available ? JSON.parse(JSON.stringify(fd.time_slots_available)) : [];
+      const work_type = fd.work_type ? JSON.parse(JSON.stringify(fd.work_type)) : [];
+      const schedule_type = fd.schedule_type ? JSON.parse(JSON.stringify(fd.schedule_type)) : [];
+      const location_type = fd.location_type ? JSON.parse(JSON.stringify(fd.location_type)) : [];
 
       // Build a robust location string based on category
-      const locationStr = formData.city || formData.address || formData.neighborhood || formData.location || 'Not specified';
+      const locationStr = fd.city || fd.address || fd.neighborhood || fd.location || 'Not specified';
 
       // Main listing data - ALL fields in listings table (vehicle_listings table was dropped)
       // Main listing data - ALL fields in listings table
@@ -179,35 +191,35 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
         user_id: user.user.id,
         owner_id: user.user.id,
         category: selectedCategory,
-        listing_type: selectedCategory === 'worker' ? 'service' : (formData.listing_type || selectedMode),
+        listing_type: selectedCategory === 'worker' ? 'service' : (fd.listing_type || selectedMode),
         mode: selectedMode,
         status: 'active',
         is_active: true,
-        title: (formData.title as string) || `New ${selectedCategory}`,
-        price: Number(formData.price) || 0,
-        currency: (formData.currency as string) || 'USD',
-        rental_rates: formData.rental_rates,
-        rental_duration_type: (formData.rental_duration_type as string) || null,
+        title: (fd.title as string) || `New ${selectedCategory}`,
+        price: Number(fd.price) || 0,
+        currency: (fd.currency as string) || 'USD',
+        rental_rates: fd.rental_rates,
+        rental_duration_type: (fd.rental_duration_type as string) || null,
         description:
-          (formData.description as string) ||
-          (formData.about as string) ||
+          (fd.description as string) ||
+          (fd.about as string) ||
           buildDescriptionFromChips([
-            (formData.property_type as string) || (formData.motorcycle_type as string) || (formData.bicycle_type as string) || (formData.service_category as string),
-            formData.condition as string,
-            formData.vibe as string[],
-            formData.amenities as string[],
-            formData.services_included as string[],
-            formData.house_rules as string[],
-            formData.skills as string[],
-            formData.traits as string[],
+            (fd.property_type as string) || (fd.motorcycle_type as string) || (fd.bicycle_type as string) || (fd.service_category as string),
+            fd.condition as string,
+            fd.vibe as string[],
+            fd.amenities as string[],
+            fd.services_included as string[],
+            fd.house_rules as string[],
+            fd.skills as string[],
+            fd.traits as string[],
           ]) ||
           '',
         location: locationStr || 'Tulum',
-        country: (formData.country as string) || 'Mexico',
-        state: (formData.state as string) || (formData.city as string) || 'Quintana Roo',
-        city: (formData.city as string) || 'Unknown',
-        neighborhood: (formData.neighborhood as string) || null,
-        address: (formData.address as string) || null,
+        country: (fd.country as string) || 'Mexico',
+        state: (fd.state as string) || (fd.city as string) || 'Quintana Roo',
+        city: (fd.city as string) || 'Unknown',
+        neighborhood: (fd.neighborhood as string) || null,
+        address: (fd.address as string) || null,
         latitude: location.lat || null,
         longitude: location.lng || null,
         video_url: videoUrl,
@@ -224,59 +236,59 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
         schedule_type,
         location_type,
         // Property fields
-        property_type: formData.property_type ? String(formData.property_type).toLowerCase() : null,
-        beds: formData.beds || null,
-        baths: formData.baths || null,
-        square_footage: formData.square_footage || null,
-        furnished: !!formData.furnished,
-        pet_friendly: !!formData.pet_friendly,
-        house_rules: Array.isArray(formData.house_rules)
-          ? (formData.house_rules as string[]).join(' · ')
-          : ((formData.house_rules as string) || null),
+        property_type: fd.property_type ? String(fd.property_type).toLowerCase() : null,
+        beds: fd.beds || null,
+        baths: fd.baths || null,
+        square_footage: fd.square_footage || null,
+        furnished: !!fd.furnished,
+        pet_friendly: !!fd.pet_friendly,
+        house_rules: Array.isArray(fd.house_rules)
+          ? (fd.house_rules as string[]).join(' · ')
+          : ((fd.house_rules as string) || null),
         // Worker fields
-        service_category: selectedCategory === 'worker' ? formData.service_category : null,
-        custom_service_name: selectedCategory === 'worker' ? formData.custom_service_name : null,
-        pricing_unit: selectedCategory === 'worker' ? formData.pricing_unit : null,
-        experience_level: selectedCategory === 'worker' ? formData.experience_level : null,
-        experience_years: selectedCategory === 'worker' ? formData.experience_years : null,
-        service_radius_km: selectedCategory === 'worker' ? formData.service_radius_km : null,
-        minimum_booking_hours: selectedCategory === 'worker' ? formData.minimum_booking_hours : null,
-        offers_emergency_service: !!formData.offers_emergency_service,
-        background_check_verified: !!formData.background_check_verified,
-        insurance_verified: !!formData.insurance_verified,
-        // Vehicle fields (motorcycle/bicycle) - ALL in listings table now
+        service_category: selectedCategory === 'worker' ? fd.service_category : null,
+        custom_service_name: selectedCategory === 'worker' ? fd.custom_service_name : null,
+        pricing_unit: selectedCategory === 'worker' ? fd.pricing_unit : null,
+        experience_level: selectedCategory === 'worker' ? fd.experience_level : null,
+        experience_years: selectedCategory === 'worker' ? fd.experience_years : null,
+        service_radius_km: selectedCategory === 'worker' ? fd.service_radius_km : null,
+        minimum_booking_hours: selectedCategory === 'worker' ? fd.minimum_booking_hours : null,
+        offers_emergency_service: !!fd.offers_emergency_service,
+        background_check_verified: !!fd.background_check_verified,
+        insurance_verified: !!fd.insurance_verified,
+        // Vehicle fields (motorcycle/bicycle)
         vehicle_type: (selectedCategory === 'motorcycle' || selectedCategory === 'bicycle') ? selectedCategory : null,
-        vehicle_brand: (selectedCategory === 'motorcycle' || selectedCategory === 'bicycle') ? (formData.brand || formData.vehicle_brand) : null,
-        vehicle_model: (selectedCategory === 'motorcycle' || selectedCategory === 'bicycle') ? (formData.model || formData.vehicle_model) : null,
-        vehicle_condition: (selectedCategory === 'motorcycle' || selectedCategory === 'bicycle') ? (formData.condition ? String(formData.condition).toLowerCase().replace('needs work', 'poor') : null) : null,
-        year: formData.year ? Number(formData.year) : null,
-        mileage: formData.mileage ? Number(formData.mileage) : null,
-        engine_cc: formData.engine_cc ? Number(formData.engine_cc) : null,
-        fuel_type: (selectedCategory === 'motorcycle' || selectedCategory === 'bicycle') ? (formData.fuel_type ? String(formData.fuel_type).toLowerCase() : null) : null,
-        transmission: (selectedCategory === 'motorcycle' || selectedCategory === 'bicycle') ? (formData.transmission ? String(formData.transmission).toLowerCase().replace('semi-auto', 'semi-automatic') : null) : null,
+        vehicle_brand: (selectedCategory === 'motorcycle' || selectedCategory === 'bicycle') ? (fd.brand || fd.vehicle_brand) : null,
+        vehicle_model: (selectedCategory === 'motorcycle' || selectedCategory === 'bicycle') ? (fd.model || fd.vehicle_model) : null,
+        vehicle_condition: (selectedCategory === 'motorcycle' || selectedCategory === 'bicycle') ? (fd.condition ? String(fd.condition).toLowerCase().replace('needs work', 'poor') : null) : null,
+        year: fd.year ? Number(fd.year) : null,
+        mileage: fd.mileage ? Number(fd.mileage) : null,
+        engine_cc: fd.engine_cc ? Number(fd.engine_cc) : null,
+        fuel_type: (selectedCategory === 'motorcycle' || selectedCategory === 'bicycle') ? (fd.fuel_type ? String(fd.fuel_type).toLowerCase() : null) : null,
+        transmission: (selectedCategory === 'motorcycle' || selectedCategory === 'bicycle') ? (fd.transmission ? String(fd.transmission).toLowerCase().replace('semi-auto', 'semi-automatic') : null) : null,
         // Motorcycle specific
-        motorcycle_type: selectedCategory === 'motorcycle' ? formData.motorcycle_type : null,
-        has_abs: selectedCategory === 'motorcycle' ? !!formData.has_abs : null,
-        has_esc: selectedCategory === 'motorcycle' ? !!formData.has_esc : null,
-        has_traction_control: selectedCategory === 'motorcycle' ? !!formData.has_traction_control : null,
-        has_heated_grips: selectedCategory === 'motorcycle' ? !!formData.has_heated_grips : null,
-        has_luggage_rack: selectedCategory === 'motorcycle' ? !!formData.has_luggage_rack : null,
-        includes_helmet: selectedCategory === 'motorcycle' ? !!formData.includes_helmet : null,
-        includes_gear: selectedCategory === 'motorcycle' ? !!formData.includes_gear : null,
+        motorcycle_type: selectedCategory === 'motorcycle' ? fd.motorcycle_type : null,
+        has_abs: selectedCategory === 'motorcycle' ? !!fd.has_abs : null,
+        has_esc: selectedCategory === 'motorcycle' ? !!fd.has_esc : null,
+        has_traction_control: selectedCategory === 'motorcycle' ? !!fd.has_traction_control : null,
+        has_heated_grips: selectedCategory === 'motorcycle' ? !!fd.has_heated_grips : null,
+        has_luggage_rack: selectedCategory === 'motorcycle' ? !!fd.has_luggage_rack : null,
+        includes_helmet: selectedCategory === 'motorcycle' ? !!fd.includes_helmet : null,
+        includes_gear: selectedCategory === 'motorcycle' ? !!fd.includes_gear : null,
         // Bicycle specific
-        bicycle_type: selectedCategory === 'bicycle' ? formData.bicycle_type : null,
-        frame_size: selectedCategory === 'bicycle' ? formData.frame_size : null,
-        frame_material: selectedCategory === 'bicycle' ? formData.frame_material : null,
-        number_of_gears: selectedCategory === 'bicycle' ? formData.number_of_gears : null,
-        suspension_type: selectedCategory === 'bicycle' ? formData.suspension_type : null,
-        brake_type: selectedCategory === 'bicycle' ? formData.brake_type : null,
-        wheel_size: selectedCategory === 'bicycle' ? formData.wheel_size : null,
-        electric_assist: selectedCategory === 'bicycle' ? !!formData.electric_assist : null,
-        battery_range: selectedCategory === 'bicycle' ? formData.battery_range : null,
-        includes_lock: selectedCategory === 'bicycle' ? !!formData.includes_lock : null,
-        includes_lights: selectedCategory === 'bicycle' ? !!formData.includes_lights : null,
-        includes_basket: selectedCategory === 'bicycle' ? !!formData.includes_basket : null,
-        includes_pump: selectedCategory === 'bicycle' ? !!formData.includes_pump : null,
+        bicycle_type: selectedCategory === 'bicycle' ? fd.bicycle_type : null,
+        frame_size: selectedCategory === 'bicycle' ? fd.frame_size : null,
+        frame_material: selectedCategory === 'bicycle' ? fd.frame_material : null,
+        number_of_gears: selectedCategory === 'bicycle' ? fd.number_of_gears : null,
+        suspension_type: selectedCategory === 'bicycle' ? fd.suspension_type : null,
+        brake_type: selectedCategory === 'bicycle' ? fd.brake_type : null,
+        wheel_size: selectedCategory === 'bicycle' ? fd.wheel_size : null,
+        electric_assist: selectedCategory === 'bicycle' ? !!fd.electric_assist : null,
+        battery_range: selectedCategory === 'bicycle' ? fd.battery_range : null,
+        includes_lock: selectedCategory === 'bicycle' ? !!fd.includes_lock : null,
+        includes_lights: selectedCategory === 'bicycle' ? !!fd.includes_lights : null,
+        includes_basket: selectedCategory === 'bicycle' ? !!fd.includes_basket : null,
+        includes_pump: selectedCategory === 'bicycle' ? !!fd.includes_pump : null,
       };
 
       // Strip undefined and null values that might cause column mismatch
@@ -372,14 +384,16 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
     },
     onSuccess: () => {
       uiSounds.playUploadComplete();
-      if (editingId) {
-        appToast.success('Listing updated', 'Your changes are saved.');
-      } else {
-        appToast.success('Congrats — your listing is live!', 'Others can now discover it.');
-      }
       queryClient.invalidateQueries({ queryKey: ['owner-listings'] });
       queryClient.invalidateQueries({ queryKey: ['listings'] });
-      handleClose();
+      if (editingId) {
+        appToast.success('Listing updated', 'Your changes are saved.');
+        handleClose();
+        navigate('/owner/properties');
+      } else {
+        appToast.success('Congrats — your listing is live!', 'Others can now discover it.');
+        setShowCelebration(true);
+      }
     },
     onError: (error: Error) => {
       queryClient.invalidateQueries({ queryKey: ['owner-listings'] });
@@ -633,10 +647,10 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
             )}
 
             <motion.div variants={itemFadeScale} className="space-y-8">
-              {selectedCategory === 'property' && <PropertyListingForm onDataChange={(data) => setFormData({ ...formData, ...data })} initialData={formData} />}
-              {selectedCategory === 'motorcycle' && <MotorcycleListingForm onDataChange={(data) => setFormData({ ...formData, ...data })} initialData={formData as unknown as MotorcycleFormData} />}
-              {selectedCategory === 'bicycle' && <BicycleListingForm onDataChange={(data) => setFormData({ ...formData, ...data })} initialData={formData as unknown as BicycleFormData} />}
-              {selectedCategory === 'worker' && <WorkerListingForm onDataChange={(data) => setFormData({ ...formData, ...data })} initialData={formData as unknown as WorkerFormData} />}
+              {selectedCategory === 'property' && <PropertyListingForm onDataChange={handleFormDataChange} initialData={formData} />}
+              {selectedCategory === 'motorcycle' && <MotorcycleListingForm onDataChange={handleFormDataChange} initialData={formData as unknown as MotorcycleFormData} />}
+              {selectedCategory === 'bicycle' && <BicycleListingForm onDataChange={handleFormDataChange} initialData={formData as unknown as BicycleFormData} />}
+              {selectedCategory === 'worker' && <WorkerListingForm onDataChange={handleFormDataChange} initialData={formData as unknown as WorkerFormData} />}
             </motion.div>
 
 
@@ -740,6 +754,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
           onComplete={() => {
             setShowCelebration(false);
             handleClose();
+            navigate('/owner/properties');
           }}
         />
       </DialogContent>
