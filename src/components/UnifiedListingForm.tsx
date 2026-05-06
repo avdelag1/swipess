@@ -120,8 +120,12 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
 
   const createListingMutation = useMutation({
     mutationFn: async () => {
-      const { data: user } = await supabase.auth.getUser();
-      if (!user.user) throw new Error('Not authenticated');
+      // Verify session first — common silent failure mode is a refreshing token
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (!sessionData?.session?.user) {
+        throw new Error('Session expired — please sign in again to publish.');
+      }
+      const user = { user: sessionData.session.user };
 
       // Use refs to get latest values (avoids stale closure)
       const currentImages = imagesRef.current;
@@ -148,6 +152,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
 
       let uploadedImageUrls: string[] = [];
       if (currentImageFiles.length > 0) {
+        appToast.info('Uploading photos…', `Sending ${currentImageFiles.length} photo${currentImageFiles.length > 1 ? 's' : ''}.`);
         uploadedImageUrls = await uploadPhotoBatch(user.user.id, currentImageFiles, 'listing-images');
       }
 
@@ -379,6 +384,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
     onError: (error: Error) => {
       queryClient.invalidateQueries({ queryKey: ['owner-listings'] });
       queryClient.invalidateQueries({ queryKey: ['listings'] });
+      logger.error('[UnifiedListingForm] Save failed:', error);
       appToast.error(
         'Could not save listing',
         error.message || 'Please check your connection and try again.'
@@ -477,6 +483,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
       return;
     }
 
+    appToast.info('Publishing…', 'Saving your listing.');
     createListingMutation.mutate();
   };
 
@@ -691,11 +698,11 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
           </motion.button>
 
           <div className="flex items-center gap-3">
-            <motion.div className="relative group">
+            <motion.div className="relative group isolate overflow-hidden rounded-[18px]">
               {/* The "Energy Slipstream" Ring - Category Colored */}
               {!createListingMutation.isPending && (
                 <motion.div
-                  className="absolute -inset-[2px] rounded-[18px] opacity-0 group-hover:opacity-100 transition-opacity duration-300 overflow-hidden pointer-events-none"
+                  className="absolute inset-0 rounded-[18px] opacity-0 group-hover:opacity-60 transition-opacity duration-300 overflow-hidden pointer-events-none"
                   initial={false}
                 >
                   <motion.div

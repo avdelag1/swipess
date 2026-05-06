@@ -1,4 +1,4 @@
-import { ThumbsUp, Star, MessageCircle, UserPlus, Zap, Crown } from 'lucide-react';
+import { ThumbsUp, Star, MessageCircle, UserPlus, Zap, Crown, CheckCircle2, AlertTriangle, Info, AlertCircle } from 'lucide-react';
 
 export const SparklesIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -49,6 +49,30 @@ export const notificationTypeConfigs: Record<string, { icon: any; bg: string; ac
     bg: 'rgba(249, 115, 22, 0.12)',
     accentColor: '#f97316',
     label: 'Activation'
+  },
+  success: {
+    icon: CheckCircle2,
+    bg: 'rgba(16, 185, 129, 0.12)',
+    accentColor: '#10b981',
+    label: 'Success',
+  },
+  error: {
+    icon: AlertCircle,
+    bg: 'rgba(239, 68, 68, 0.12)',
+    accentColor: '#ef4444',
+    label: 'Error',
+  },
+  warning: {
+    icon: AlertTriangle,
+    bg: 'rgba(245, 158, 11, 0.15)',
+    accentColor: '#f59e0b',
+    label: 'Warning',
+  },
+  info: {
+    icon: Info,
+    bg: 'rgba(59, 130, 246, 0.12)',
+    accentColor: '#3b82f6',
+    label: 'Info',
   },
 };
 

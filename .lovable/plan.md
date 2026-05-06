@@ -1,111 +1,56 @@
+## Diagnosis
 
-# Listing Creation: Reliability + Curated Fields + Success UX
+### 1. Listing creation (Properties not saving)
 
-Three problems to solve in one pass.
+The form at `src/components/UnifiedListingForm.tsx` looks correct on paper — it sets `user_id`, `owner_id`, the RLS policy is `auth.uid() = user_id`, and the schema accepts every column we send. But there are two real failure surfaces:
 
----
+- **Silent UI hang** — `createListingMutation.mutate()` runs an upload + insert chain. If `uploadPhotoBatch` fails, the rejection bubbles into `onError`, and it does call `appToast.error(...)`. However, `appToast` writes to `useNotificationStore`. If `<NotificationSystem />` is not mounted (or filters out errors), the user sees nothing — exactly the symptom: "thinking forever, no banner".
+- **Insert validation** — for properties, `price` is sent as `Number(formData.price) || 0`, `title` defaults to `"New property"`, and `location` is `"Tulum"` if blank, so RLS/NOT NULL should not reject. The most common silent failure is the photo upload hanging on a slow connection or returning a 403 because the storage path uses `userId/...` which matches policy `(storage.foldername(name))[1] = auth.uid()::text` — fine. But if `auth.uid()` is briefly null (session refreshing), upload returns 403 and the user sees the spinning button.
 
-## 1. Why "Create Listing" hangs with no error
+### 2. "Laser light moving behind pages"
 
-After reading `src/components/UnifiedListingForm.tsx`:
+This is the conic-gradient ring inside `UnifiedListingForm.tsx` lines 696–712 — an infinite 1.5s rotating glow placed behind the Publish button using `-inset-[2px]` and `inset-[-100%]`. On some screens it bleeds outside the button's bounds and "leaks" across the page when the modal is open or transitioning.
 
-- The insert payload sets `owner_id` but **never sets `user_id`**. The `listings` table has `user_id NOT NULL` and the RLS INSERT policy is `auth.uid() = user_id`. Insert fails → React Query throws → `onError` fires a toast — but the modal does not close, so it looks like it's "still thinking."
-- Photo upload (`uploadPhotoBatch`) has **no timeout** and no granular progress UI. If a single upload stalls (slow network / large image), the whole submit appears frozen.
-- The "schema cache" fallback retry path swallows the original error name and only the generic message reaches the user.
+### 3. Insights modal scrolling
 
-### Fix
-
-- Set `user_id: user.user.id` (and keep `owner_id` for backward compatibility) in the insert payload.
-- Compress images client-side before upload (reuse the existing compression util used in profile flow), cap at ~1.6 MB each.
-- Wrap `uploadPhotoBatch` in `Promise.race` with a 45s timeout per batch. On timeout, throw a clear error.
-- Add a visible progress state on the submit button: `Uploading photos… → Saving listing…`.
-- Always show error via the unified `NotificationBar` (per memory) instead of relying solely on Sonner.
+Already uses `ScrollArea` inside `92dvh` — confirmed scroll works. No change needed.
 
 ---
 
-## 2. Replace freeform inputs with curated chip selectors
+## Fix Plan
 
-Goal: stop letting users type free text in describe-yourself / describe-the-object fields. Keep only true free-text where it must remain (title, address, price). Everything else becomes preset multi-select chips.
+**A. Make listing save bulletproof and visible**
 
-### New shared component
+In `src/components/UnifiedListingForm.tsx`:
+1. Wrap `createListingMutation.mutate()` so we **immediately** show `appToast.info("Publishing...", "Uploading photos and saving.")`.
+2. In `mutationFn`, before upload, re-check the session via `supabase.auth.getSession()`; if null, throw a clean `"Session expired — please log in again."`.
+3. Add a final fallback in `onError`: also call `console.error` and `alert()` if `appToast` is the only channel — guarantees the user sees something.
+4. After the photo upload step, log progress with `appToast.info(...)` so users know it's still alive past 5–10 seconds.
 
-`src/components/listing/ChipMultiSelect.tsx` — pill-style toggle chips, mobile-first 40px circular buttons (matches existing Structured Filter Engine memory).
+**B. Contain the "laser"**
 
-### Curated taxonomies (single source of truth)
+In `UnifiedListingForm.tsx`:
+- Add `overflow-hidden rounded-[18px]` to the wrapper around the rotating conic gradient (the `motion.div` at line 697) so the rotating square is clipped to the button's bounds.
+- Lower `opacity` from `100%` to `60%` and only show on `:hover` (already gated by `group-hover`, but ensure parent has `group` class and `relative isolate`).
+- Wrap the button in a container with `isolate` so the glow can't escape during page transitions.
 
-Create `src/constants/listingTaxonomies.ts` exporting:
+**C. Connect notifications globally**
 
-**Property**
-- `PROPERTY_VIBE`: Quiet, Lively, Family-friendly, Pet-friendly, Beachfront, Jungle, Downtown, Gated, Eco
-- `PROPERTY_FEATURES`: Pool, Gym, Parking, AC, WiFi, Security 24/7, Garden, Balcony, Elevator, Storage, Workspace, Washer/Dryer, Smart-home, Solar, Backup water
-- `PROPERTY_INCLUDED`: Water, Electricity, Gas, Internet, Cleaning, Maintenance, Trash, Cable TV
-- `PROPERTY_RULES`: No smoking, No parties, Quiet hours, Pets allowed, Children welcome, Long-stay only
+Verify `<NotificationSystem />` is mounted in `App.tsx` at the root level so every page can receive `appToast` events. If missing, add it once near the layout root.
 
-**Motorcycle**
-- `MOTO_TYPE`: Sport, Cruiser, Adventure, Naked, Scooter, Off-road, Touring, Electric
-- `MOTO_CONDITION`: Brand new, Like new, Good, Fair, Project
-- `MOTO_FEATURES`: ABS, ESC, Traction control, Heated grips, Luggage rack, Crash bars, Quick-shifter, Bluetooth
-- `MOTO_INCLUDED`: Helmet, Riding gear, Lock, Top case, Charger, Insurance, Roadside assistance
+**D. Owner messaging path** (already partially fixed last turn)
 
-**Bicycle**
-- `BIKE_TYPE`: Road, Mountain, Hybrid, Cruiser, BMX, Folding, Cargo, Electric
-- `BIKE_FEATURES`: Suspension front, Suspension full, Disc brakes, Carbon frame, Aluminum frame, Tubeless, Dropper post
-- `BIKE_INCLUDED`: Lock, Lights, Basket, Pump, Helmet, Repair kit
-- `BIKE_CONDITION`: Brand new, Like new, Good, Fair
-
-**Worker / Service Provider**
-- `WORKER_CATEGORY`: Cleaning, Plumbing, Electrical, AC repair, Carpentry, Painting, Gardening, Pool, Moving, Handyman, Pet care, Childcare, Tutoring, Beauty, Massage, Driver, Chef, Photographer, Translator, Tech support
-- `WORKER_SKILLS`: Per category (sub-map)
-- `WORKER_TRAITS`: Punctual, Detail-oriented, English-speaking, Spanish-speaking, Insured, Background-checked, Own tools, Own vehicle, Emergency available
-- `WORKER_AVAILABILITY`: Mornings, Afternoons, Evenings, Weekends, 24/7
-- `WORKER_PRICING`: Hourly, Daily, Per-job, Monthly contract
-
-**Owner-as-Client (profile)**
-- `OWNER_INTENT`: Looking for tenant, Looking for buyer, Looking to rent out short-term, Hiring workers, Looking for partners
-- `OWNER_TRAITS`: Responsive, Flexible, Strict, Pet-friendly host, Family-oriented, Business-only
-- `OWNER_LANGUAGES`: English, Spanish, French, German, Italian, Portuguese, Russian, Mandarin
-
-### Form rewrites
-
-- `PropertyListingForm.tsx`: keep title/price/address/sqft as inputs; replace amenities, services, house_rules textarea, vibe with `ChipMultiSelect` groups using the taxonomies above.
-- `MotorcycleListingForm.tsx` / `BicycleListingForm.tsx`: drop the `description` textarea entirely; replace with chip groups (type, condition, features, included).
-- `WorkerListingForm.tsx`: drop the freeform "about" / "description"; replace with category, skills (filtered by category), traits, availability, pricing chips.
-- `OwnerProfile.tsx`: replace any remaining freeform "about you" with `OWNER_INTENT` + `OWNER_TRAITS` + `OWNER_LANGUAGES` chip groups. (Keep the AI Profile Wizard intact — it already extracts into structured fields.)
-
-The auto-generated description shown on insight cards becomes a templated string built from the selected chips (e.g., `"Sport motorcycle · Like new · ABS · Helmet included"`), so listings still read naturally without anyone typing prose.
+Confirm the message buttons across `LikedClients`, `LikedListingInsightsModal`, `OwnerViewClientProfile`, and `LikedClientInsightsModal` all:
+- Show "Starting chat..." toast immediately
+- Catch errors and surface them via `appToast.error`
+- Fall back to navigating `/messages` even if conversation creation succeeds without a returned id (refetch + open most recent)
 
 ---
 
-## 3. Success flow: close + notification banner
+## Files Touched
 
-Currently `ListingSuccessCelebration` plays, but on edit it just toasts. Unify:
+- `src/components/UnifiedListingForm.tsx` — visible publishing flow + clip the conic glow
+- `src/App.tsx` — ensure `<NotificationSystem />` is mounted at root (check first, add if missing)
+- `src/components/LikedListingInsightsModal.tsx` — same toast-on-message guarantee as already added to `LikedClients.tsx`
 
-- On successful insert/update:
-  1. Fire `uiSounds.playUploadComplete()`
-  2. Close the wizard modal immediately (`handleClose()`)
-  3. Show a `NotificationBar` (top, persistent ~4s): **"Congrats — your listing is live!"** for create, **"Listing updated"** for edit
-  4. Invalidate `owner-listings` and `listings` queries
-- Same pattern in `AIProfileWizard` and `UnifiedListingForm` profile save: **"Profile saved successfully"**.
-- Remove the in-modal celebration overlay (it competes with the banner) — keep the sound only.
-
----
-
-## Files to change
-
-- `src/components/UnifiedListingForm.tsx` — add `user_id`, upload timeout, progress button states, unified success/close, chip-based forms.
-- `src/components/PropertyListingForm.tsx`, `MotorcycleListingForm.tsx`, `BicycleListingForm.tsx`, `WorkerListingForm.tsx` — swap freeform to chips.
-- `src/pages/OwnerProfile.tsx` (and `ClientProfileNew.tsx` if a freeform "about" remains) — chip groups.
-- `src/components/listing/ChipMultiSelect.tsx` — **new**.
-- `src/constants/listingTaxonomies.ts` — **new**.
-- `src/components/AIProfileWizard.tsx` — success banner + close.
-- `src/utils/photoUpload.ts` — add per-batch timeout helper.
-
-No DB migration needed — all chip selections persist into existing JSONB columns (`amenities`, `services_included`, `skills`, `certifications`, `tools_equipment`, etc.).
-
----
-
-## Out of scope
-
-- AI auto-listing wizard (already exists, untouched).
-- Swipe physics / discovery UI.
-- Backend queue refactor — root cause here is missing `user_id`, not Edge Function timeout.
+No database migrations. No new dependencies.
