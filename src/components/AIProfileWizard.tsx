@@ -12,6 +12,7 @@ import { useVoiceTranscribe } from '@/hooks/useVoiceTranscribe';
 import { uploadPhotoBatch } from '@/utils/photoUpload';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { appToast } from '@/utils/appNotification';
 
 type Step = 'speak' | 'processing' | 'review';
 type Mode = 'client' | 'owner';
@@ -169,11 +170,11 @@ export function AIProfileWizard() {
         }).eq('user_id', user.id);
       }
       triggerHaptic('success');
-      toast.success('Profile saved');
+      appToast.success('Profile saved successfully', 'Your profile is up to date.');
       handleClose();
     } catch (err: any) {
       console.error('save failed', err);
-      toast.error(err?.message || 'Could not save profile.');
+      appToast.error('Could not save profile', err?.message || 'Please try again.');
     } finally {
       setIsSaving(false);
     }
