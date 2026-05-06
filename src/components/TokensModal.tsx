@@ -195,7 +195,12 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
                               <button
                                 onClick={() => { haptics.tap(); handlePurchase(pkg); }}
                                 aria-label={`Get offer: ${pkg.tokens} tokens for ${formatUSD(pkg.priceUsd)} USD`}
-                                className="apple-pay-button flex-shrink-0 h-11 px-4 rounded-full font-black text-[11px] uppercase tracking-widest active:scale-95 transition-transform"
+                                className="flex-shrink-0 h-11 px-5 rounded-full font-black text-[11px] uppercase tracking-widest active:scale-95 transition-transform whitespace-nowrap"
+                                style={{
+                                  backgroundColor: '#000000',
+                                  color: '#FFFFFF',
+                                  boxShadow: '0 12px 28px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.18)',
+                                }}
                               >
                                 Get Offer
                               </button>

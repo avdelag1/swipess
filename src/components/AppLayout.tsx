@@ -123,6 +123,12 @@ export function AppLayout({ children }: AppLayoutProps) {
     };
   }, [location.pathname]);
 
+  // Auto-close ALL overlay popups when the route changes — clicking any
+  // top-bar / bottom-nav / in-app navigation should dismiss any open modal.
+  useEffect(() => {
+    useModalStore.getState().closeAll();
+  }, [location.pathname]);
+
   const isPublicPreview = location.pathname.startsWith('/listing/') || location.pathname.startsWith('/profile/');
   const isAuthRoute = location.pathname === '/' || location.pathname === '/reset-password';
   const isCameraRoute = location.pathname.includes('/camera');
