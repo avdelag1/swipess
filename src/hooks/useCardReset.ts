@@ -42,7 +42,8 @@ export function useCardReset() {
       }
 
       const { error: viewsError } = await viewsQuery;
-      if (viewsError) throw viewsError;
+      // Silently ignore profile_views errors — table may not be in PostgREST schema cache
+      if (viewsError) logger.warn('[useCardReset] profile_views unavailable:', viewsError.message);
 
       return { success: true };
     },

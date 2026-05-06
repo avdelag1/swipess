@@ -56,8 +56,8 @@ export function useRecordProfileView() {
         .select()
         .single();
 
-      if (error?.code === '42P01') return null;
-      if (error) throw error;
+      // Silently skip if profile_views isn't in schema cache (42P01 = SQL, 404 = PostgREST)
+      if (error) return null;
       return data;
     },
     onSuccess: () => {

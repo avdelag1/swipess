@@ -35,16 +35,40 @@ export function useSwipeDismissal(targetType: DismissalTargetType) {
         // Query likes table for left swipes (dismissals)
         const dbTargetType = targetType === 'client' ? 'profile' : 'listing';
 
-        const { data, error } = await supabase
+        // Try to fetch with cooldown_until; fall back to target_id only if schema cache rejects the column
+        let data: any[] | null = null;
+        let hasCooldown = true;
+
+        const withCooldown = await supabase
           .from('likes')
           .select('target_id, cooldown_until')
           .eq('user_id', user.id)
           .eq('target_type', dbTargetType)
           .eq('direction', 'left');
 
-        if (error) {
-          logger.error('[useSwipeDismissal] Error fetching dismissals:', error);
-          return [];
+        if (withCooldown.error) {
+          const isSchemaMiss = withCooldown.error.code === 'PGRST204' ||
+            withCooldown.error.message?.toLowerCase().includes('schema cache') ||
+            withCooldown.error.message?.toLowerCase().includes('could not find');
+          if (isSchemaMiss) {
+            hasCooldown = false;
+            const fallback = await supabase
+              .from('likes')
+              .select('target_id')
+              .eq('user_id', user.id)
+              .eq('target_type', dbTargetType)
+              .eq('direction', 'left');
+            if (fallback.error) {
+              logger.error('[useSwipeDismissal] Error fetching dismissals:', fallback.error);
+              return [];
+            }
+            data = fallback.data;
+          } else {
+            logger.error('[useSwipeDismissal] Error fetching dismissals:', withCooldown.error);
+            return [];
+          }
+        } else {
+          data = withCooldown.data;
         }
 
         // A row counts as "currently dismissed" if cooldown_until is NULL
@@ -52,6 +76,7 @@ export function useSwipeDismissal(targetType: DismissalTargetType) {
         const now = Date.now();
         const ids = (data || [])
           .filter((item: any) => {
+            if (!hasCooldown) return true; // treat all as permanent when column unavailable
             const cd = item.cooldown_until;
             if (cd === null || cd === undefined) return true; // permanent
             return new Date(cd).getTime() > now;

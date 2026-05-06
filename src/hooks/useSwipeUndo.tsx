@@ -93,40 +93,42 @@ export function useSwipeUndo() {
         throw likesError;
       }
 
-      // Revert strike in profile_views
-      const { data: view } = await supabase
-        .from('profile_views')
-        .select('action')
-        .match({
-          user_id: user.id,
-          viewed_profile_id: lastSwipe.targetId,
-          view_type: lastSwipe.targetType === 'profile' ? 'profile' : 'listing'
-        })
-        .single();
+      // Revert strike in profile_views (best-effort — table may not be in schema cache)
+      try {
+        const { data: view, error: viewErr } = await supabase
+          .from('profile_views')
+          .select('action')
+          .match({
+            user_id: user.id,
+            viewed_profile_id: lastSwipe.targetId,
+            view_type: lastSwipe.targetType === 'profile' ? 'profile' : 'listing'
+          })
+          .single();
 
-      if (view?.action?.startsWith('pass:')) {
-        const count = parseInt(view.action.split(':')[1]) || 1;
-        if (count > 1) {
-          // Decrement strike
-          await supabase
-            .from('profile_views')
-            .update({ action: `pass:${count - 1}` })
-            .match({
-              user_id: user.id,
-              viewed_profile_id: lastSwipe.targetId,
-              view_type: lastSwipe.targetType === 'profile' ? 'profile' : 'listing'
-            });
-        } else {
-          // Delete strike
-          await supabase
-            .from('profile_views')
-            .delete()
-            .match({
-              user_id: user.id,
-              viewed_profile_id: lastSwipe.targetId,
-              view_type: lastSwipe.targetType === 'profile' ? 'profile' : 'listing'
-            });
+        if (!viewErr && view?.action?.startsWith('pass:')) {
+          const count = parseInt(view.action.split(':')[1]) || 1;
+          if (count > 1) {
+            await supabase
+              .from('profile_views')
+              .update({ action: `pass:${count - 1}` })
+              .match({
+                user_id: user.id,
+                viewed_profile_id: lastSwipe.targetId,
+                view_type: lastSwipe.targetType === 'profile' ? 'profile' : 'listing'
+              });
+          } else {
+            await supabase
+              .from('profile_views')
+              .delete()
+              .match({
+                user_id: user.id,
+                viewed_profile_id: lastSwipe.targetId,
+                view_type: lastSwipe.targetType === 'profile' ? 'profile' : 'listing'
+              });
+          }
         }
+      } catch {
+        // profile_views not available — undo still works, strikes just won't be reverted
       }
 
       return lastSwipe;

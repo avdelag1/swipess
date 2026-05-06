@@ -207,7 +207,8 @@ export function useSmartListingMatching(
                 .eq('user_id', userId)
                 .eq('view_type', 'listing');
             
-            if (viewsError && viewsError.code !== '42P01') throw viewsError;
+            // Silently ignore profile_views errors (table may not be in PostgREST schema cache)
+            if (viewsError) logger.warn('[SmartListingMatching] profile_views unavailable:', viewsError.message);
             
             const liked = new Set<string>();
             const left = new Map<string, string>();
