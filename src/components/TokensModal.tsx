@@ -1,7 +1,6 @@
 import { memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Zap, MessageCircle, Crown, RefreshCcw, Sparkles } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import useAppTheme from '@/hooks/useAppTheme';
 import { useTokens } from '@/hooks/useTokens';
@@ -218,13 +217,14 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
                     <p className="text-sm font-black text-foreground">Looking for unlimited messages?</p>
                     <p className="text-[11px] text-muted-foreground">Premium plans live on your profile.</p>
                   </div>
-                  <Button
-                    size="sm"
-                    className="flex-shrink-0 rounded-full text-xs font-black uppercase tracking-widest bg-black text-white hover:bg-black/90"
-                    onClick={() => { close(); navigate('/subscription/packages'); }}
+                  <button
+                    type="button"
+                    className="swipess-offer-pill flex-shrink-0"
+                    onClick={() => { haptics.tap(); close(); navigate('/subscription/packages'); }}
+                    aria-label="Go to premium plans"
                   >
                     Go!
-                  </Button>
+                  </button>
                 </div>
 
                 {/* Restore Footer */}
