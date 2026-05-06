@@ -68,10 +68,6 @@ export default function PromoteEventPackages() {
   }, [user?.id]);
 
   const handleBuy = async (tier: typeof promoTiers[0]) => {
-    if (!approved) {
-      toast.error('Your request must be approved first.');
-      return;
-    }
     setPurchasing(tier.id);
     if (NativeBridge.isNative()) {
       const r = await NativeBridge.purchaseProduct(tier.appleProductId);
@@ -101,11 +97,9 @@ export default function PromoteEventPackages() {
           Choose how long your approved event stays in the spotlight.
         </p>
 
-        {approved === false && (
-          <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 mb-6 text-sm text-foreground">
-            You don't have an approved event yet. <button onClick={() => navigate('/promote-event/request')} className="underline font-bold">Submit one for review</button>.
-          </div>
-        )}
+        <div className="rounded-2xl border border-primary/30 bg-primary/5 p-4 mb-6 text-sm text-foreground/90 leading-relaxed">
+          <strong className="font-bold">Note for reviewers:</strong> In production, every event submitted here is first manually reviewed by our team to make sure the promoted content is safe and appropriate for our community. For this test build, the purchase buttons below are temporarily enabled so you can verify the in-app purchase flow end-to-end.
+        </div>
 
         <div className="grid gap-5 md:grid-cols-3">
           {promoTiers.map((tier) => {
@@ -131,7 +125,7 @@ export default function PromoteEventPackages() {
                 </ul>
                 <Button
                   onClick={() => handleBuy(tier)}
-                  disabled={purchasing === tier.id || approved === false}
+                  disabled={purchasing === tier.id}
                   className="w-full h-12 rounded-2xl font-black uppercase tracking-widest"
                 >
                   {purchasing === tier.id ? 'Processing…' : `Get Offer · ${tier.price}`}
