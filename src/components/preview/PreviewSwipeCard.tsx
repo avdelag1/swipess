@@ -1,6 +1,5 @@
 import { ReactNode, useCallback, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
 
@@ -85,41 +84,22 @@ export function PreviewSwipeCard({
       <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-black/60 to-transparent pointer-events-none" />
       <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black via-black/70 to-transparent pointer-events-none" />
 
-      {/* Tap zones */}
+      {/* Invisible tap zones — full-height halves, no visible chrome */}
       {total > 1 && (
-        <>
-          <div className="absolute inset-0 flex z-10">
-            <button
-              type="button"
-              aria-label="Previous image"
-              className="flex-1"
-              onClick={prev}
-            />
-            <button
-              type="button"
-              aria-label="Next image"
-              className="flex-1"
-              onClick={next}
-            />
-          </div>
-          {/* Visible chevron controls */}
+        <div className="absolute inset-0 flex z-20">
           <button
             type="button"
             aria-label="Previous image"
+            className="flex-1 bg-transparent focus:outline-none"
             onClick={prev}
-            className="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-black/35 backdrop-blur-xl border border-white/15 flex items-center justify-center text-white shadow-lg active:scale-90 transition-transform"
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </button>
+          />
           <button
             type="button"
             aria-label="Next image"
+            className="flex-1 bg-transparent focus:outline-none"
             onClick={next}
-            className="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-black/35 backdrop-blur-xl border border-white/15 flex items-center justify-center text-white shadow-lg active:scale-90 transition-transform"
-          >
-            <ChevronRight className="w-5 h-5" />
-          </button>
-        </>
+          />
+        </div>
       )}
 
       {/* Pagination */}
