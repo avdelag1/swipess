@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from '@/components/ui/sonner';
+import { appToast } from '@/utils/appNotification';
 import { logger } from '@/utils/prodLogger';
 import { Upload, X, Bike, ChevronRight, Shield } from 'lucide-react';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
@@ -169,6 +170,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
       // Main listing data - ALL fields in listings table (vehicle_listings table was dropped)
       // Main listing data - ALL fields in listings table
       const rawListingData: Record<string, any> = {
+        user_id: user.user.id,
         owner_id: user.user.id,
         category: selectedCategory,
         listing_type: selectedCategory === 'worker' ? 'service' : (formData.listing_type || selectedMode),
@@ -348,23 +350,23 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
       return listingResult;
     },
     onSuccess: () => {
+      uiSounds.playUploadComplete();
       if (editingId) {
-        toast.success(`${selectedCategory} listing updated successfully`);
-        handleClose();
+        appToast.success('Listing updated', 'Your changes are saved.');
       } else {
-        uiSounds.playUploadComplete();
-        setShowCelebration(true);
-        // handleClose() will be called after celebration via onComplete
+        appToast.success('Congrats — your listing is live!', 'Others can now discover it.');
       }
       queryClient.invalidateQueries({ queryKey: ['owner-listings'] });
       queryClient.invalidateQueries({ queryKey: ['listings'] });
+      handleClose();
     },
     onError: (error: Error) => {
       queryClient.invalidateQueries({ queryKey: ['owner-listings'] });
       queryClient.invalidateQueries({ queryKey: ['listings'] });
-      toast.error('Error', {
-        description: error.message || 'Failed to save listing.',
-      });
+      appToast.error(
+        'Could not save listing',
+        error.message || 'Please check your connection and try again.'
+      );
     }
   });
 
