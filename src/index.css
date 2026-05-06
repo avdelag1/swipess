@@ -2249,3 +2249,26 @@ button:disabled,
   opacity: 0.55;
 }
 
+.token-pack-icon {
+  width: 2.75rem;
+  height: 2.75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 1rem;
+  background: hsl(var(--muted));
+  color: hsl(var(--foreground));
+  box-shadow: inset 0 1px 0 hsl(var(--foreground) / 0.08), 0 10px 24px hsl(var(--foreground) / 0.08);
+}
+
+.token-pack-icon-starter { color: hsl(var(--muted-foreground)); }
+.token-pack-icon-plus { background: hsl(var(--primary) / 0.12); color: hsl(var(--primary)); }
+.token-pack-icon-power { background: hsl(var(--accent) / 0.14); color: hsl(var(--accent-foreground)); }
+.token-pack-icon-mega { background: hsl(var(--primary) / 0.16); color: hsl(var(--primary)); }
+
+.apple-pay-button {
+  background: hsl(var(--foreground));
+  color: hsl(var(--background));
+  box-shadow: 0 16px 30px hsl(var(--foreground) / 0.16), inset 0 1px 0 hsl(var(--background) / 0.2);
+}
+
