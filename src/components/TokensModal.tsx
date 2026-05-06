@@ -140,14 +140,17 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
     }));
     localStorage.setItem(STORAGE.PAYMENT_RETURN_PATH_KEY, `/${userRole}/dashboard`);
 
-    if (NativeBridge.isIOS()) {
+    if (NativeBridge.isNative()) {
       toast({ title: 'Connecting to App Store' });
       const result = await NativeBridge.purchaseProduct(`Swipess.tokens.${pkg.message_activations}`);
       if (result.success) {
         toast({ title: 'Payment Confirmed', description: 'Tokens activated.' });
         close();
       } else {
-        toast({ title: 'Transaction Cancelled', variant: 'destructive' });
+        const cancelled = (result as any).error === 'CANCELLED';
+        if (!cancelled) {
+          toast({ title: 'Purchase could not be completed', description: 'Please try again.', variant: 'destructive' });
+        }
       }
       return;
     }
@@ -162,14 +165,17 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
   };
 
   const handlePremiumPurchase = async (plan: typeof premiumPlans[0]) => {
-    if (NativeBridge.isIOS()) {
+    if (NativeBridge.isNative()) {
       toast({ title: 'Connecting to App Store' });
       const result = await NativeBridge.purchaseProduct(plan.appleProductId);
       if (result.success) {
         toast({ title: 'Upgrade Successful', description: 'Premium access granted.' });
         close();
       } else {
-        toast({ title: 'Transaction Cancelled', variant: 'destructive' });
+        const cancelled = (result as any).error === 'CANCELLED';
+        if (!cancelled) {
+          toast({ title: 'Purchase could not be completed', description: 'Please try again.', variant: 'destructive' });
+        }
       }
       return;
     }

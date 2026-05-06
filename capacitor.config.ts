@@ -22,7 +22,7 @@ const config: CapacitorConfig = {
       NSCameraUsageDescription:
         'Swipess needs camera access to take profile photos and listing images.',
       NSMicrophoneUsageDescription:
-        'Swipess needs microphone access for voice-to-text messaging with the AI concierge.',
+        "Swipess uses the microphone so you can dictate messages to the AI concierge and record voice notes on listings. For example, say 'Show me 2-bedroom apartments under $1500' and Swipess will search for you.",
       NSLocationWhenInUseUsageDescription:
         'Swipess uses your location to show nearby listings and match you with local services.',
       NSFaceIDUsageDescription:

@@ -1,56 +1,107 @@
-## Diagnosis
+# Apple Rejection Fix Plan (Submission 5b528dea)
 
-### 1. Listing creation (Properties not saving)
+Three blockers from Apple. We tackle them in order of effort: text fix, bug fix, then real IAP.
 
-The form at `src/components/UnifiedListingForm.tsx` looks correct on paper — it sets `user_id`, `owner_id`, the RLS policy is `auth.uid() = user_id`, and the schema accepts every column we send. But there are two real failure surfaces:
+## 1. Microphone Purpose String (Guideline 5.1.1)
 
-- **Silent UI hang** — `createListingMutation.mutate()` runs an upload + insert chain. If `uploadPhotoBatch` fails, the rejection bubbles into `onError`, and it does call `appToast.error(...)`. However, `appToast` writes to `useNotificationStore`. If `<NotificationSystem />` is not mounted (or filters out errors), the user sees nothing — exactly the symptom: "thinking forever, no banner".
-- **Insert validation** — for properties, `price` is sent as `Number(formData.price) || 0`, `title` defaults to `"New property"`, and `location` is `"Tulum"` if blank, so RLS/NOT NULL should not reject. The most common silent failure is the photo upload hanging on a slow connection or returning a 403 because the storage path uses `userId/...` which matches policy `(storage.foldername(name))[1] = auth.uid()::text` — fine. But if `auth.uid()` is briefly null (session refreshing), upload returns 403 and the user sees the spinning button.
+Current text is generic ("Swipess needs microphone access for voice-to-text messaging with the AI concierge.") — Apple wants benefit + concrete example.
 
-### 2. "Laser light moving behind pages"
+Update both sources of truth so `npx cap sync` and the post-sync patch agree:
 
-This is the conic-gradient ring inside `UnifiedListingForm.tsx` lines 696–712 — an infinite 1.5s rotating glow placed behind the Publish button using `-inset-[2px]` and `inset-[-100%]`. On some screens it bleeds outside the button's bounds and "leaks" across the page when the modal is open or transitioning.
+- `capacitor.config.ts` → `ios.infoPlist.NSMicrophoneUsageDescription`
+- `scripts/patch-ios-plist.cjs` → same key in `REQUIRED`
 
-### 3. Insights modal scrolling
+New text:
+> "Swipess uses the microphone so you can dictate messages to the AI concierge and record voice notes on listings. For example, say 'Show me 2-bedroom apartments under $1500' and Swipess will search for you."
 
-Already uses `ScrollArea` inside `92dvh` — confirmed scroll works. No change needed.
+After approval the user will need to run `npx cap sync ios` locally (or rely on the patch script in `ios:sync`) before archiving.
 
----
+## 2. "Buy" Error on Premium Plans (Guideline 2.1)
 
-## Fix Plan
+Root cause: `src/utils/nativeBridge.ts` `purchaseProduct` is a stub that returns `{ success: true }` without ever invoking StoreKit. On the reviewer's device, the Web fallback path in `TokensModal.tsx` / `SubscriptionPackagesPage.tsx` either:
+- opens an external PayPal URL (rejected by Apple under 3.1.1), or
+- hits the "Payment unavailable" toast when no `paypal_link` exists.
 
-**A. Make listing save bulletproof and visible**
+Either way the reviewer saw an error. Fix is the same as item 3 — implement real IAP — plus removing the external-URL fallback on iOS so no error toast or external browser is shown.
 
-In `src/components/UnifiedListingForm.tsx`:
-1. Wrap `createListingMutation.mutate()` so we **immediately** show `appToast.info("Publishing...", "Uploading photos and saving.")`.
-2. In `mutationFn`, before upload, re-check the session via `supabase.auth.getSession()`; if null, throw a clean `"Session expired — please log in again."`.
-3. Add a final fallback in `onError`: also call `console.error` and `alert()` if `appToast` is the only channel — guarantees the user sees something.
-4. After the photo upload step, log progress with `appToast.info(...)` so users know it's still alive past 5–10 seconds.
+Interim hardening regardless of IAP work:
+- In `TokensModal.handlePurchase`, `TokensModal.handlePremiumPurchase`, and `SubscriptionPackagesPage` purchase handlers, wrap the call in try/catch and surface a friendly NotificationBar instead of a destructive toast.
+- Never call `window.open(paypal_link)` when `Capacitor.isNativePlatform()` — gate the whole web fallback behind `!NativeBridge.isNative()`.
 
-**B. Contain the "laser"**
+## 3. Real Apple In-App Purchase (Guideline 3.1.1)
 
-In `UnifiedListingForm.tsx`:
-- Add `overflow-hidden rounded-[18px]` to the wrapper around the rotating conic gradient (the `motion.div` at line 697) so the rotating square is clipped to the button's bounds.
-- Lower `opacity` from `100%` to `60%` and only show on `:hover` (already gated by `group-hover`, but ensure parent has `group` class and `relative isolate`).
-- Wrap the button in a container with `isolate` so the glow can't escape during page transitions.
+The current flow mocks StoreKit; Apple requires real IAP for digital goods.
 
-**C. Connect notifications globally**
+### Plugin
+Add `cordova-plugin-purchase` (works through Capacitor, maintained, supports StoreKit 2 + Google Play Billing). Install:
+```
+npm i cordova-plugin-purchase
+npx cap sync
+```
 
-Verify `<NotificationSystem />` is mounted in `App.tsx` at the root level so every page can receive `appToast` events. If missing, add it once near the layout root.
+### Product IDs
+We already reference `Swipess.tokens.{n}` and `plan.appleProductId`. Consolidate the canonical list in a new `src/config/iapProducts.ts`:
 
-**D. Owner messaging path** (already partially fixed last turn)
+- Subscriptions: `swipess.premium.monthly`, `swipess.premium.yearly`, `swipess.premium.lifetime`
+- Consumables (tokens): `swipess.tokens.50`, `.250`, `.1000`, etc. (must match `subscription_packages.message_activations` rows)
 
-Confirm the message buttons across `LikedClients`, `LikedListingInsightsModal`, `OwnerViewClientProfile`, and `LikedClientInsightsModal` all:
-- Show "Starting chat..." toast immediately
-- Catch errors and surface them via `appToast.error`
-- Fall back to navigating `/messages` even if conversation creation succeeds without a returned id (refetch + open most recent)
+User must create matching products in App Store Connect → In-App Purchases.
 
----
+### IAP service
+Replace stub `purchaseProduct` / `restorePurchases` in `src/utils/nativeBridge.ts` and `src/hooks/useIAP.ts` with a real implementation in a new `src/lib/iap/StoreKitService.ts`:
 
-## Files Touched
+- `init()` registers all product IDs with `CdvPurchase.store`, sets validator endpoint, calls `store.initialize([Platform.APPLE_APPSTORE])`.
+- `purchase(productId)` → returns a Promise resolving when the `approved → verified → finished` lifecycle completes; rejects on `cancelled` or `error`.
+- `restore()` → calls `store.restorePurchases()` and resolves once all owned products re-emit `verified`.
+- Listens to `productUpdated` to keep a Zustand store of owned entitlements.
 
-- `src/components/UnifiedListingForm.tsx` — visible publishing flow + clip the conic glow
-- `src/App.tsx` — ensure `<NotificationSystem />` is mounted at root (check first, add if missing)
-- `src/components/LikedListingInsightsModal.tsx` — same toast-on-message guarantee as already added to `LikedClients.tsx`
+Initialise once in `RootProviders.tsx` behind `Capacitor.isNativePlatform()`.
 
-No database migrations. No new dependencies.
+### Server-side receipt validation
+Create edge function `supabase/functions/validate-apple-receipt/index.ts`:
+- Accepts `{ receipt, productId, userId }`.
+- Verifies with Apple's `verifyReceipt` (production → fall back to sandbox on 21007).
+- On success, upserts into `subscriptions` (for plans) or increments `message_activations` (for token packs) using a service-role client.
+- Returns `{ ok: true, entitlement }`.
+
+Store secret `APPLE_SHARED_SECRET` (from App Store Connect → App Information → App-Specific Shared Secret).
+
+Wire `StoreKitService` validator to call this function; only mark the transaction `finished` after the function returns ok.
+
+### UI integration
+- `TokensModal.handlePurchase` and `SubscriptionPackagesPage` purchase handler: replace `NativeBridge.purchaseProduct(...)` with `StoreKitService.purchase(productId)`.
+- Remove `window.open(paypal_link)` and Stripe/PayPal buttons entirely on iOS native builds. (Web build can keep PayPal/Stripe.)
+- Add a visible "Restore Purchases" button on the subscription page (Apple requires it) calling `StoreKitService.restore()`.
+
+### Database
+Add migration:
+- `apple_transactions` table: `id (uuid)`, `user_id`, `product_id`, `original_transaction_id (unique)`, `purchase_date`, `expires_date`, `environment`, `raw jsonb`, RLS owner-only select, service-role insert.
+- Index on `original_transaction_id` for idempotency.
+
+## Files to Change
+
+- `capacitor.config.ts` — new mic string
+- `scripts/patch-ios-plist.cjs` — new mic string
+- `src/utils/nativeBridge.ts` — real StoreKit calls
+- `src/hooks/useIAP.ts` — back with real plugin
+- `src/lib/iap/StoreKitService.ts` — new
+- `src/config/iapProducts.ts` — new
+- `src/components/TokensModal.tsx` — gate web fallback, use service, error UX
+- `src/components/SubscriptionPackages.tsx` + `src/pages/SubscriptionPackagesPage.tsx` — same; add Restore button
+- `src/providers/RootProviders.tsx` — init store on native
+- `supabase/functions/validate-apple-receipt/index.ts` — new
+- migration for `apple_transactions`
+- `package.json` — add `cordova-plugin-purchase`
+
+## What the User Must Do After Code Lands
+
+1. Add `APPLE_SHARED_SECRET` secret in Lovable Cloud.
+2. Create the IAP products in App Store Connect with the IDs above.
+3. Locally: `git pull && npm i && npx cap sync ios && open ios/App/App.xcworkspace`.
+4. Test in Sandbox with a sandbox Apple ID, then archive and resubmit.
+5. Reply to App Review noting all 3 items addressed.
+
+## Non-Goals
+
+- Keep web Stripe/PayPal flows for the browser build (Apple rules don't apply there).
+- No changes to swipe physics, listings flow, or branding.

@@ -79,6 +79,48 @@ export type Database = {
           },
         ]
       }
+      apple_transactions: {
+        Row: {
+          created_at: string
+          environment: string
+          expires_date: string | null
+          id: string
+          original_transaction_id: string
+          product_id: string
+          purchase_date: string
+          raw: Json
+          transaction_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          environment?: string
+          expires_date?: string | null
+          id?: string
+          original_transaction_id: string
+          product_id: string
+          purchase_date: string
+          raw?: Json
+          transaction_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          environment?: string
+          expires_date?: string | null
+          id?: string
+          original_transaction_id?: string
+          product_id?: string
+          purchase_date?: string
+          raw?: Json
+          transaction_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       business_partners: {
         Row: {
           category: string
