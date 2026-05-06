@@ -130,8 +130,8 @@ export const LocationRadiusSelector = memo(({
             )}
           >
             <div className="mb-5">
-              <h4 className="text-[10px] font-black uppercase tracking-[0.3em] opacity-40 mb-1">Sector Depth</h4>
-              <p className="text-sm font-black italic opacity-90">{title ? `Scanning for ${title}` : 'Adjust scanning radius'}</p>
+              <h4 className="text-[10px] font-black uppercase tracking-[0.3em] opacity-40 mb-1">Search Radius</h4>
+              <p className="text-sm font-black italic opacity-90">{title ? `Searching ${title}` : 'Adjust search distance'}</p>
             </div>
             <DistanceSlider
               radiusKm={radiusKm}
