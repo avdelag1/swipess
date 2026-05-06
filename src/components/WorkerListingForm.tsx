@@ -182,7 +182,7 @@ function PillToggle({ items, selected, onToggle }: { items: { value: string; lab
               "px-3.5 py-2 rounded-full text-sm font-semibold transition-all border",
               active
                 ? 'bg-amber-500/20 text-amber-300 border-amber-500/30 shadow-md shadow-amber-500/10'
-                : 'bg-white/[0.04] text-muted-foreground border-white/[0.08] hover:border-amber-500/30 hover:text-foreground hover:bg-white/[0.07]'
+                : 'bg-secondary text-foreground border-border hover:bg-secondary/80'
             )}
           >
             {item.label}
@@ -371,7 +371,7 @@ export function WorkerListingForm({ onDataChange, initialData = {} }: WorkerList
                     "w-12 h-12 rounded-xl text-xs font-bold transition-all border",
                     active
                       ? 'bg-amber-500/20 text-amber-300 border-amber-500/30 shadow-md shadow-amber-500/10'
-                      : 'bg-white/[0.04] text-muted-foreground border-white/[0.08] hover:border-amber-500/30 hover:bg-white/[0.07]'
+                      : 'bg-secondary text-foreground border-border hover:bg-secondary/80'
                   )}
                 >
                   {day.short}
