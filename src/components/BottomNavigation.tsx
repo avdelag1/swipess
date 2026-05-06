@@ -257,7 +257,8 @@ export const BottomNavigation = memo(({
       <div
         className={cn(
           "pointer-events-auto",
-          isTablet ? "mx-auto w-fit max-w-full" : "w-full"
+          "mx-auto w-full",
+          isTablet ? "max-w-2xl" : "max-w-md"
         )}
         style={{
           background: 'transparent',
@@ -266,7 +267,7 @@ export const BottomNavigation = memo(({
           border: 'none',
           borderRadius: '0',
           boxShadow: 'none',
-          padding: '4px',
+          padding: isTablet ? '6px 16px' : '4px 8px',
           filter: isLight
             ? 'drop-shadow(0 1px 2px rgba(0,0,0,0.18))'
             : 'drop-shadow(0 1px 3px rgba(0,0,0,0.6))',
