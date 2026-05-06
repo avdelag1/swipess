@@ -5,9 +5,9 @@
  */
 
 export const APPLE_SUBSCRIPTION_PRODUCTS = [
-  'Swipess.premium.monthly',
-  'Swipess.premium.semi_annual',
-  'Swipess.premium.yearly',
+  'Swipess.plus.monthly.v1',
+  'Swipess.plus.semestral.v1',
+  'Swipess.plus.annual.v1',
 ] as const;
 
 /** Token (consumable) packs. The number suffix is the token amount. */

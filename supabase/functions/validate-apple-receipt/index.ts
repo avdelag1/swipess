@@ -10,9 +10,9 @@ const PROD_URL = 'https://buy.itunes.apple.com/verifyReceipt';
 const SANDBOX_URL = 'https://sandbox.itunes.apple.com/verifyReceipt';
 
 const SUBSCRIPTION_PRODUCTS = new Set([
-  'Swipess.premium.monthly',
-  'Swipess.premium.semi_annual',
-  'Swipess.premium.yearly',
+  'Swipess.plus.monthly.v1',
+  'Swipess.plus.semestral.v1',
+  'Swipess.plus.annual.v1',
 ]);
 
 const TOKEN_PRODUCTS: Record<string, number> = {
