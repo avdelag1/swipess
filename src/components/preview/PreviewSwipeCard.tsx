@@ -1,5 +1,6 @@
 import { ReactNode, useCallback, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
 
@@ -59,10 +60,10 @@ export function PreviewSwipeCard({
       <AnimatePresence mode="wait" initial={false}>
         <motion.div
           key={idx}
-          initial={{ opacity: 0, scale: 1.05 }}
-          animate={{ opacity: 1, scale: 1 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
           className="absolute inset-0"
         >
           {current ? (
@@ -86,20 +87,39 @@ export function PreviewSwipeCard({
 
       {/* Tap zones */}
       {total > 1 && (
-        <div className="absolute inset-0 flex z-10">
+        <>
+          <div className="absolute inset-0 flex z-10">
+            <button
+              type="button"
+              aria-label="Previous image"
+              className="flex-1"
+              onClick={prev}
+            />
+            <button
+              type="button"
+              aria-label="Next image"
+              className="flex-1"
+              onClick={next}
+            />
+          </div>
+          {/* Visible chevron controls */}
           <button
             type="button"
             aria-label="Previous image"
-            className="flex-1"
             onClick={prev}
-          />
+            className="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-black/35 backdrop-blur-xl border border-white/15 flex items-center justify-center text-white shadow-lg active:scale-90 transition-transform"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </button>
           <button
             type="button"
             aria-label="Next image"
-            className="flex-1"
             onClick={next}
-          />
-        </div>
+            className="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-black/35 backdrop-blur-xl border border-white/15 flex items-center justify-center text-white shadow-lg active:scale-90 transition-transform"
+          >
+            <ChevronRight className="w-5 h-5" />
+          </button>
+        </>
       )}
 
       {/* Pagination */}
