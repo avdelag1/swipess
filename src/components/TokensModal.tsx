@@ -4,7 +4,6 @@ import { X, Zap, MessageCircle, Crown, RefreshCcw, Sparkles } from 'lucide-react
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import useAppTheme from '@/hooks/useAppTheme';
-import { useAuth } from '@/hooks/useAuth';
 import { useTokens } from '@/hooks/useTokens';
 import { useToast } from '@/hooks/use-toast';
 import { STORAGE } from '@/constants/app';
@@ -57,7 +56,6 @@ interface TokensModalProps {
 function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
   const { theme } = useAppTheme();
   const isLight = theme === 'light';
-  const { user } = useAuth();
   const { tokens } = useTokens();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -67,38 +65,22 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
 
   const packageCategory = userRole === 'owner' ? 'owner_pay_per_use' : 'client_pay_per_use';
 
-  const { data: packages } = useQuery({
-    queryKey: ['tokens-modal-packages', packageCategory],
-    staleTime: 1000 * 60 * 60 * 24,
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('subscription_packages')
-        .select('*')
-        .eq('package_category', packageCategory)
-        .eq('is_active', true)
-        .order('message_activations', { ascending: true });
-      if (error) throw error;
-      return data;
-    },
-  });
-
-  const tierNames = ['starter', 'standard', 'premium', 'mega'] as const;
-  const tierLabels = ['Starter', 'Plus', 'Power', 'Mega'];
-
-  const handlePurchase = async (pkg: any, tier: string) => {
+  const handlePurchase = async (pkg: AppleTokenPackage) => {
     localStorage.setItem(STORAGE.PENDING_ACTIVATION_KEY, JSON.stringify({
-      packageId: pkg.id,
-      tokens: pkg.message_activations,
-      price: pkg.price,
-      package_category: pkg.package_category,
+      productId: pkg.productId,
+      packageId: pkg.productId,
+      tokens: pkg.tokens,
+      price: pkg.priceUsd,
+      currency: 'USD',
+      package_category: packageCategory,
     }));
     localStorage.setItem(STORAGE.PAYMENT_RETURN_PATH_KEY, `/${userRole}/dashboard`);
 
     if (NativeBridge.isNative()) {
       toast({ title: 'Connecting to App Store' });
-      const result = await NativeBridge.purchaseProduct(`Swipess.tokens.${pkg.message_activations}`);
+      const result = await NativeBridge.purchaseProduct(pkg.productId);
       if (result.success) {
-        toast({ title: 'Payment Confirmed', description: 'Tokens activated.' });
+        toast({ title: 'Payment Confirmed', description: `${pkg.tokens} tokens activated.` });
         close();
       } else {
         const cancelled = (result as any).error === 'CANCELLED';
@@ -109,13 +91,10 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
       return;
     }
 
-    if (pkg.paypal_link) {
-      window.open(pkg.paypal_link, '_blank');
-      toast({ title: 'Redirecting to Checkout', description: `Processing ${tier} pack — ${formatUSD(pkg.price)}` });
-      close();
-    } else {
-      toast({ title: 'Payment unavailable', description: 'Please contact support.', variant: 'destructive' });
-    }
+    toast({
+      title: 'Apple checkout ready',
+      description: `${pkg.name}: ${pkg.tokens} tokens for ${formatUSD(pkg.priceUsd)} USD. Complete purchase in the iOS app.`,
+    });
   };
 
   const handleRestore = () => {
