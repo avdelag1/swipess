@@ -86,7 +86,7 @@ export function CategorySelector({
                 "flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-semibold transition-all border",
                 active
                   ? styles.active
-                  : cn('bg-white/[0.04] text-muted-foreground border-white/[0.08]', styles.glow, 'hover:text-foreground hover:bg-white/[0.07]')
+                  : cn('bg-secondary text-foreground border-border', styles.glow, 'hover:bg-secondary/80')
               )}
             >
               <Icon className="w-5 h-5" />
@@ -110,8 +110,8 @@ export function CategorySelector({
               className={cn(
                 "flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-semibold transition-all border cursor-pointer",
                 active
-                  ? 'bg-primary text-primary-foreground border-primary/50'
-                  : 'bg-card text-muted-foreground border-border/60 hover:border-border hover:text-foreground'
+                  ? 'bg-primary text-primary-foreground border-primary shadow-md shadow-primary/20'
+                  : 'bg-secondary text-foreground border-border hover:bg-secondary/80'
               )}
             >
               <ModeIcon className="w-4 h-4" />
