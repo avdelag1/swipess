@@ -21,6 +21,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Progress } from "@/components/ui/progress";
 import useAppTheme from "@/hooks/useAppTheme";
 import { cn } from "@/lib/utils";
+import { useModalStore } from "@/state/modalStore";
 
 const fastSpring = { type: "spring" as const, stiffness: 600, damping: 28, mass: 0.6 };
 const stagger = { staggerChildren: 0.06, delayChildren: 0.02 };
@@ -38,6 +39,7 @@ const ClientProfileNew = () => {
   const { data: profile, isLoading } = useClientProfile();
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const { openAIProfile } = useModalStore();
 
   const handlePhotoClick = useCallback((index: number) => {
     setSelectedPhotoIndex(index);
@@ -145,7 +147,16 @@ const ClientProfileNew = () => {
           {/* Edit Profile Button - Always visible */}
           <motion.div
             variants={childVariant}
+            className="space-y-3"
           >
+            <Button
+              onClick={() => openAIProfile('client')}
+              className="w-full h-14 gap-3 text-white font-black uppercase italic tracking-[0.2em] text-[13px] shadow-2xl border-none"
+              style={{ background: 'linear-gradient(135deg, #06B6D4, #6366F1)' }}
+            >
+              <Sparkles className="w-5 h-5" />
+              Magic AI Profile
+            </Button>
             <Button
               onClick={() => setShowEditDialog(true)}
               className="w-full h-12 gap-2 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground font-semibold text-base shadow-lg"
