@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { SwipessLogo } from './SwipessLogo';
 import { AtmosphericLayer } from './AtmosphericLayer';
+import LandingBackgroundEffects from './LandingBackgroundEffects';
 import { Input } from '@/components/ui/input';
 import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
@@ -497,6 +498,9 @@ function LegendaryLandingPage() {
         <AtmosphericLayer variant="nexus" opacity={0.15} />
         <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,rgba(224,30,42,0.1)_0%,transparent_70%)]" />
       </div>
+
+      {/* 🌌 COSMOS — moving stars + shooting stars + tap meditation bowls */}
+      <LandingBackgroundEffects mode="stars" />
 
       <AnimatePresence mode="wait">
         {view === 'landing' ? (
