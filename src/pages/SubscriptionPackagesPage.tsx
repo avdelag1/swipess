@@ -18,7 +18,7 @@ const clientPremiumPlans = [
     appleProductId: 'Swipess.plus.monthly.v1',
     name: 'Monthly',
     label: 'STARTER',
-    price: 29,
+    price: 29.99,
     durationText: '/month',
     aiTier: 'AI Lite',
     benefits: [
@@ -41,7 +41,7 @@ const clientPremiumPlans = [
     appleProductId: 'Swipess.plus.semestral.v1',
     name: 'Semi-Annual',
     label: 'POPULAR',
-    price: 111,
+    price: 111.99,
     durationText: '/6 months',
     aiTier: 'AI Pro',
     benefits: [
@@ -66,7 +66,7 @@ const clientPremiumPlans = [
     appleProductId: 'Swipess.plus.annual.v1',
     name: 'Yearly Elite',
     label: 'BEST VALUE',
-    price: 149,
+    price: 149.99,
     durationText: '/year',
     aiTier: 'Swipess Unlimited',
     benefits: [
