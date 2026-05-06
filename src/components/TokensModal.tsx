@@ -149,62 +149,56 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
                     Tokens are used to message owners or unlock chat actions. One token = one new conversation.
                   </p>
                   <div className="space-y-2.5">
-                    {packages && packages.length > 0 ? (
-                      packages.slice(0, 4).map((pkg, index) => {
-                        const tier = tierNames[index] || 'starter';
-                        const config = tokenTierConfig[tier] || tokenTierConfig.starter;
+                    {APPLE_TOKEN_PACKAGES.map((pkg, index) => {
+                        const config = tokenTierConfig[pkg.id] || tokenTierConfig.starter;
                         const Icon = config.icon;
-                        const isPopular = tier === 'standard';
-                        const tierLabel = tierLabels[index] || 'Pack';
-                        const tkns = pkg.message_activations || 0;
-                        const pricePerToken = tkns > 0 ? pkg.price / tkns : 0;
+                        const isPopular = pkg.badge === 'Popular' || pkg.badge === 'Best Value';
+                        const pricePerToken = getPricePerToken(pkg);
 
                         return (
                           <motion.div
-                            key={pkg.id}
+                            key={pkg.productId}
                             initial={{ opacity: 0, y: 8 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: index * 0.05 }}
                             className={cn(
-                              "relative rounded-2xl border p-4 bg-gradient-to-r transition-all",
+                              "relative rounded-2xl border p-4 bg-gradient-to-r transition-all shadow-card",
                               config.accent, config.border,
-                              isPopular && "ring-1 ring-blue-500/30"
+                              isPopular && "ring-1 ring-primary/30"
                             )}
                           >
-                            {isPopular && (
-                              <span className="absolute -top-2 left-1/2 -translate-x-1/2 text-[10px] font-bold bg-blue-600 text-white px-2.5 py-0.5 rounded-full">
-                                Best Value
+                            {pkg.badge && (
+                              <span className="absolute -top-2 left-1/2 -translate-x-1/2 text-[10px] font-bold bg-primary text-primary-foreground px-2.5 py-0.5 rounded-full">
+                                {pkg.badge}
                               </span>
                             )}
                             <div className="flex items-center gap-3">
-                              <div className={cn("flex-shrink-0 p-2.5 rounded-xl", config.iconBg)}>
-                                <Icon className="w-5 h-5" />
+                              <div className={cn("flex-shrink-0", config.iconBg)}>
+                                <Icon className="w-5 h-5" aria-hidden="true" />
                               </div>
                               <div className="flex-1 min-w-0">
-                                <div className="flex items-baseline gap-1.5">
-                                  <span className="font-black text-sm uppercase tracking-tight text-foreground">{tierLabel}</span>
-                                  <span className="text-[10px] font-bold text-muted-foreground uppercase">{tkns} tokens</span>
+                                <div className="flex items-baseline gap-1.5 flex-wrap">
+                                  <span className="font-black text-sm uppercase tracking-tight text-foreground">{pkg.name}</span>
+                                  <span className="text-[10px] font-black text-primary uppercase">{pkg.tokens} tokens</span>
                                 </div>
-                                <div className="flex items-baseline gap-1 mt-0.5">
-                                  <span className="font-black text-base tracking-tighter text-foreground">{formatUSD(pkg.price)}</span>
-                                  <span className="text-[10px] font-bold text-muted-foreground">({formatUSD(pricePerToken)}/token)</span>
+                                <div className="flex items-baseline gap-1 mt-0.5 flex-wrap">
+                                  <span className="font-black text-base tracking-tighter text-foreground">{formatUSD(pkg.priceUsd)}</span>
+                                  <span className="text-[10px] font-black text-muted-foreground">USD</span>
+                                  <span className="text-[10px] font-bold text-muted-foreground">{formatUSD(pricePerToken)} / token</span>
                                 </div>
+                                <p className="text-[11px] font-medium text-muted-foreground mt-1">{pkg.description}</p>
                               </div>
                               <button
-                                onClick={() => { haptics.tap(); handlePurchase(pkg, tier); }}
-                                className="flex-shrink-0 h-10 px-5 rounded-full font-black text-[12px] uppercase tracking-widest text-white bg-gradient-to-r from-amber-500 to-orange-500 shadow-md shadow-orange-500/20 active:scale-95 transition-transform"
+                                onClick={() => { haptics.tap(); handlePurchase(pkg); }}
+                                aria-label={`Buy ${pkg.tokens} tokens for ${formatUSD(pkg.priceUsd)} USD`}
+                                className="apple-pay-button flex-shrink-0 h-11 px-4 rounded-full font-black text-[11px] uppercase tracking-widest active:scale-95 transition-transform"
                               >
-                                Buy
+                                Apple Pay
                               </button>
                             </div>
                           </motion.div>
                         );
-                      })
-                    ) : (
-                      <div className="py-6 text-center">
-                        <p className="text-muted-foreground text-xs">Loading packages...</p>
-                      </div>
-                    )}
+                      })}
                   </div>
                 </div>
 
