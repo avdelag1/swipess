@@ -77,7 +77,7 @@ export function ClientDemographicFilters({
           <div className="space-y-2">
             <Label className="text-sm">Gender Preference</Label>
             <Select value={genderPreference} onValueChange={setGenderPreference}>
-              <SelectTrigger className={cn(isLight && "bg-black/5 border-black/10")}>
+              <SelectTrigger className={cn(isLight && "bg-secondary border-border")}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -127,7 +127,7 @@ export function ClientDemographicFilters({
           <div className="space-y-2">
             <Label className="text-sm">Pet Ownership</Label>
             <Select value={hasPetsFilter} onValueChange={setHasPetsFilter}>
-              <SelectTrigger className={cn(isLight && "bg-black/5 border-black/10")}>
+              <SelectTrigger className={cn(isLight && "bg-secondary border-border")}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
