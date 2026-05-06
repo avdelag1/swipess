@@ -1,17 +1,19 @@
 /**
  * Ultra-Fast Service Worker - Optimized for lightning-speed loading
- * UPDATED: 2026-04-23T03:15Z - Force Update v6
- * 
+ * UPDATED: 2026-05-06T00:00Z - Force Update v7
+ *
+ * FIXES: SW_VERSION now correctly uses __BUILD_TIME__ injection.
+ * Supabase storage images pass through to Supabase CDN (no SW caching) so
+ * users always see fresh listing photos after an upload.
  * PWA UPDATE FIX: Aggressive updates to ensure users always get latest version
  * - skipWaiting() called immediately on install for instant activation
  * - Caches are version-stamped and aggressively purged
  * - Build time injected by Vite at build time
  */
 
-// IMPORTANT: __BUILD_TIME__ is replaced with an ISO timestamp by the Vite
-// sw-build-time-plugin at build time. In dev mode the literal string is used
-// as the version (safe — SW is unregistered in dev anyway).
-const SW_VERSION = '__BUILD_TIME__' === '__BUILD_TIME__' ? '2026-05-04T18-offline-shell' : '__BUILD_TIME__';
+// __BUILD_TIME__ is replaced with an ISO timestamp by the Vite sw-build-time-plugin.
+// In dev mode the literal stays as-is — safe because SW is unregistered in dev.
+const SW_VERSION = '__BUILD_TIME__';
 const CACHE_VERSION = `swipess-${SW_VERSION}`;
 const CACHE_NAME = CACHE_VERSION;
 const STATIC_CACHE = `${CACHE_NAME}-static`;
@@ -350,57 +352,23 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // 🚀 SPEED OF LIGHT: Image Recompression / Optimization Interceptor
-  // Automatically rewrite Supabase storage URLs to include optimal format/quality
-  if (request.destination === 'image' && url.hostname.includes('supabase.co/storage')) {
-    // Only optimize if transformation params aren't already present
-    if (!url.searchParams.has('width') && !url.searchParams.has('format') && !url.searchParams.has('token')) {
-      // Append default high-performance transformation parameters
-      // format=avif (Supabase will fallback to webp/jpeg if needed)
-      // width=720 (Optimal for high-density mobile card feeds)
-      url.searchParams.set('format', 'avif');
-      url.searchParams.set('quality', '75');
-      url.searchParams.set('width', '720');
-      
-      const optimizedRequest = new Request(url.toString(), {
-        headers: request.headers,
-        mode: request.mode,
-        credentials: request.credentials,
-        cache: request.cache,
-        redirect: request.redirect,
-        referrer: request.referrer,
-        integrity: request.integrity
-      });
-      
-      event.respondWith(
-        caches.open(IMAGE_CACHE).then(cache => {
-          return cache.match(optimizedRequest).then(cachedResponse => {
-            const bgFetch = fetch(optimizedRequest).then(networkResponse => {
-              if (networkResponse.ok && networkResponse.status === 200) {
-                cache.put(optimizedRequest, networkResponse.clone());
-              }
-              return networkResponse;
-            }).catch(() => {
-              if (cachedResponse) return cachedResponse;
-              return new Response('data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7', { 
-                status: 200, 
-                headers: { 'Content-Type': 'image/gif' } 
-              });
-            });
-
-            if (cachedResponse) {
-              event.waitUntil(bgFetch);
-              return cachedResponse;
-            }
-            return bgFetch;
-          });
+  // User-uploaded images from Supabase storage: NETWORK-FIRST, no SW caching.
+  // Supabase's own CDN handles edge caching — the SW caching on top causes users
+  // to see stale photos after uploading new images to a listing.
+  // URL-optimization params (avif, width, quality) are added in the React layer instead.
+  if (request.destination === 'image' && url.hostname.includes('supabase.co')) {
+    event.respondWith(
+      fetch(request).catch(() =>
+        new Response('data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7', {
+          status: 200,
+          headers: { 'Content-Type': 'image/gif' }
         })
-      );
-      return;
-    }
+      )
+    );
+    return;
   }
 
-  // STALE-WHILE-REVALIDATE for images - instant display, update in background
+  // STALE-WHILE-REVALIDATE for other images (static assets, avatars from Google, etc.)
   if (request.destination === 'image') {
     event.respondWith(
       caches.open(IMAGE_CACHE).then(cache => {
@@ -412,10 +380,9 @@ self.addEventListener('fetch', (event) => {
             return networkResponse;
           }).catch(() => {
             if (cachedResponse) return cachedResponse;
-            // Ultimate fallback for images (transparent pixel)
-            return new Response('data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7', { 
-              status: 200, 
-              headers: { 'Content-Type': 'image/gif' } 
+            return new Response('data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7', {
+              status: 200,
+              headers: { 'Content-Type': 'image/gif' }
             });
           });
 
