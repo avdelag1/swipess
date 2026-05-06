@@ -9,6 +9,7 @@ import {
 import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import { appToast } from "@/utils/appNotification";
 import useAppTheme from "@/hooks/useAppTheme";
 import { useStartConversation } from "@/hooks/useConversations";
 import { PremiumLikedCard } from "@/components/PremiumLikedCard";
@@ -124,15 +125,24 @@ export function LikedClients() {
       setShowDeleteDialog(true);
     }
     if (action === "message") {
+      if (!client?.user_id) {
+        appToast.error("Cannot message", "User information missing.");
+        return;
+      }
+      appToast.info("Starting chat", "Opening conversation...");
       try {
         const result = await startConversation.mutateAsync({
           otherUserId: client.user_id,
           initialMessage: `Hi ${client.full_name || "there"}! I'm interested in working with you.`,
           canStartNewConversation: true,
         });
-        if (result?.conversationId) navigate(`/messages?conversationId=${result.conversationId}`);
-      } catch {
-        toast.error("Unable to start conversation");
+        if (result?.conversationId) {
+          navigate(`/messages?conversationId=${result.conversationId}`);
+        } else {
+          appToast.error("Could not open chat", "Please try again.");
+        }
+      } catch (e: any) {
+        appToast.error("Unable to start conversation", e?.message || "Please try again.");
       }
     }
   };
