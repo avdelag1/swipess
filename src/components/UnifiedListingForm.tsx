@@ -376,21 +376,26 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
 
       return listingResult;
     },
-    onSuccess: () => {
+    onSuccess: (listing) => {
       uiSounds.playUploadComplete();
       if (editingId) {
-        appToast.success('Listing updated', 'Your changes are saved.');
+        appToast.success('Listing updated');
       } else {
-        appToast.success('Congrats — your listing is live!', 'Others can now discover it.');
+        appToast.success('Listing published');
+      }
+      if (listing) {
+        queryClient.setQueriesData({ queryKey: ['owner-listings'] }, (oldData: any) => {
+          if (!Array.isArray(oldData)) return oldData;
+          const withoutSavedListing = oldData.filter((item) => item.id !== listing.id);
+          return [listing, ...withoutSavedListing];
+        });
       }
       queryClient.invalidateQueries({ queryKey: ['owner-listings'] });
-      queryClient.refetchQueries({ queryKey: ['owner-listings'] });
+      queryClient.refetchQueries({ queryKey: ['owner-listings'], type: 'active' });
       queryClient.invalidateQueries({ queryKey: ['listings'] });
       handleClose();
       // Always return user to the main listings dashboard
-      if (!routerLocation.pathname.startsWith('/owner/properties')) {
-        navigate('/owner/properties', { replace: true });
-      }
+      navigate('/owner/properties', { replace: true });
     },
     onError: (error: Error) => {
       queryClient.invalidateQueries({ queryKey: ['owner-listings'] });
