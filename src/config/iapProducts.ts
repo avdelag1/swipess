@@ -18,6 +18,45 @@ export const APPLE_TOKEN_PRODUCTS = [
   'Swipess.tokens.150',
 ] as const;
 
+export const APPLE_TOKEN_PACKAGES = [
+  {
+    id: 'starter',
+    name: 'Starter',
+    productId: 'Swipess.tokens.20',
+    tokens: 20,
+    priceUsd: 9.99,
+    description: '20 new conversations',
+  },
+  {
+    id: 'plus',
+    name: 'Plus',
+    productId: 'Swipess.tokens.50',
+    tokens: 50,
+    priceUsd: 19.99,
+    description: '50 new conversations',
+    badge: 'Popular',
+  },
+  {
+    id: 'power',
+    name: 'Power',
+    productId: 'Swipess.tokens.100',
+    tokens: 100,
+    priceUsd: 39.99,
+    description: '100 new conversations',
+  },
+  {
+    id: 'mega',
+    name: 'Mega',
+    productId: 'Swipess.tokens.150',
+    tokens: 150,
+    priceUsd: 49.99,
+    description: '150 new conversations',
+    badge: 'Best Value',
+  },
+] as const;
+
+export type AppleTokenPackage = (typeof APPLE_TOKEN_PACKAGES)[number];
+
 /** Event promotion (consumable, non-renewing) packs. */
 export const APPLE_EVENT_PROMO_PRODUCTS = [
   'Swipess.promo.event.week.v1',
