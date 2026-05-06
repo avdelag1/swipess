@@ -4,8 +4,6 @@ import { X, Zap, MessageCircle, Crown, RefreshCcw, Sparkles } from 'lucide-react
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import useAppTheme from '@/hooks/useAppTheme';
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useTokens } from '@/hooks/useTokens';
 import { useToast } from '@/hooks/use-toast';
@@ -14,6 +12,7 @@ import { useModalStore } from '@/state/modalStore';
 import { haptics } from '@/utils/microPolish';
 import { NativeBridge } from '@/utils/nativeBridge';
 import { useNavigate } from 'react-router-dom';
+import { APPLE_TOKEN_PACKAGES, type AppleTokenPackage } from '@/config/iapProducts';
 
 const formatUSD = (price: number) =>
   new Intl.NumberFormat('en-US', {
@@ -25,29 +24,31 @@ const formatUSD = (price: number) =>
 const tokenTierConfig = {
   starter: {
     icon: MessageCircle,
-    iconBg: 'bg-slate-100 text-slate-700 dark:bg-slate-500/20 dark:text-slate-200',
-    border: 'border-border/40',
-    accent: 'from-slate-500/5 to-transparent',
+    iconBg: 'token-pack-icon token-pack-icon-starter',
+    border: 'border-border/50',
+    accent: 'from-muted/70 to-background',
   },
-  standard: {
+  plus: {
     icon: Zap,
-    iconBg: 'bg-violet-50 text-violet-600 dark:bg-violet-500/20 dark:text-violet-300',
-    border: 'border-violet-500/60 shadow-sm',
-    accent: 'from-violet-500/10 to-transparent',
+    iconBg: 'token-pack-icon token-pack-icon-plus',
+    border: 'border-primary/60 shadow-card',
+    accent: 'from-primary/12 to-background',
   },
-  premium: {
+  power: {
     icon: Crown,
-    iconBg: 'bg-amber-50 text-amber-600 dark:bg-amber-500/20 dark:text-amber-300',
-    border: 'border-amber-500/40',
-    accent: 'from-amber-500/10 to-transparent',
+    iconBg: 'token-pack-icon token-pack-icon-power',
+    border: 'border-accent/50',
+    accent: 'from-accent/12 to-background',
   },
   mega: {
     icon: Sparkles,
-    iconBg: 'bg-orange-50 text-orange-600 dark:bg-orange-500/20 dark:text-orange-300',
-    border: 'border-orange-500/40',
-    accent: 'from-orange-500/10 to-transparent',
+    iconBg: 'token-pack-icon token-pack-icon-mega',
+    border: 'border-primary/50',
+    accent: 'from-primary/10 to-background',
   },
 } as const;
+
+const getPricePerToken = (pack: AppleTokenPackage) => pack.priceUsd / pack.tokens;
 
 interface TokensModalProps {
   userRole?: 'client' | 'owner';
