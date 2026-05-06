@@ -276,9 +276,9 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
   };
 
   const inputCls = (hasError?: boolean) => cn(
-    "pl-11 h-[54px] bg-white/[0.03] border-white/5 text-white placeholder:text-white/20 rounded-2xl transition-all font-bold text-sm",
-    "focus:ring-1 focus:ring-[#E01E2A]/30 focus:border-[#E01E2A]/40 focus:bg-white/[0.07] backdrop-blur-md",
-    hasError && "border-red-500/40 focus:border-red-500/60 focus:ring-red-500/20"
+    "pl-11 h-[54px] bg-white/[0.08] border border-white/15 text-white placeholder:text-white/55 rounded-2xl transition-all font-bold text-sm",
+    "focus:ring-2 focus:ring-[#E01E2A]/50 focus:border-[#E01E2A]/70 focus:bg-white/[0.12] backdrop-blur-md",
+    hasError && "border-red-500/60 focus:border-red-500/80 focus:ring-red-500/30"
   );
 
   return (
@@ -364,7 +364,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
         >
           {!isLogin && !isForgotPassword && (
             <div className="relative group">
-              <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 group-focus-within:text-[#E01E2A] transition-colors" />
+              <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/60 group-focus-within:text-[#FF4D4D] transition-colors" />
               <Input 
                 value={name} 
                 onChange={(e) => { setName(e.target.value); setFieldErrors(p => ({ ...p, name: '' })); }} 
@@ -377,7 +377,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
           )}
 
           <div className="relative group">
-            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 group-focus-within:text-[#E01E2A] transition-colors" />
+            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/60 group-focus-within:text-[#FF4D4D] transition-colors" />
             <Input 
               type="email" 
               value={email} 
@@ -391,7 +391,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
 
           {!isForgotPassword && (
             <div className="relative group">
-              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 group-focus-within:text-[#E01E2A] transition-colors" />
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/60 group-focus-within:text-[#FF4D4D] transition-colors" />
               <Input 
                 type={showPassword ? "text" : "password"} 
                 value={password} 
@@ -403,7 +403,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
               <button
                 type="button"
                 onClick={() => { triggerHaptic('light'); setShowPassword(!showPassword); }}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-white/20 hover:text-white/60 transition-colors"
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-white/60 hover:text-white transition-colors"
                 title={showPassword ? "Hide password" : "Show password"}
               >
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -414,7 +414,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
 
           {!isLogin && !isForgotPassword && (
             <div className="relative group">
-              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 group-focus-within:text-[#E01E2A] transition-colors" />
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/60 group-focus-within:text-[#FF4D4D] transition-colors" />
               <Input 
                 type={showPassword ? "text" : "password"} 
                 value={confirmPassword} 
@@ -429,7 +429,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
 
           {isLogin && !isForgotPassword && (
             <div className="flex justify-end px-1 pt-0.5">
-              <button type="button" onClick={() => { triggerHaptic('light'); setIsForgotPassword(true); }} className="text-[9px] font-black uppercase tracking-[0.2em] text-white/30 hover:text-[#E01E2A] transition-colors italic">
+              <button type="button" onClick={() => { triggerHaptic('light'); setIsForgotPassword(true); }} className="text-[10px] font-black uppercase tracking-[0.2em] text-white/70 hover:text-[#FF4D4D] transition-colors italic">
                 Forgot Access Code?
               </button>
             </div>
@@ -441,9 +441,9 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full h-14 rounded-[2.5rem] bg-foreground text-background font-black uppercase tracking-[0.3em] text-[13px] shadow-[0_18px_50px_hsl(var(--foreground)/0.22)] active:scale-[0.96] transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:pointer-events-none relative overflow-hidden group/btn border border-border"
+              className="w-full h-14 rounded-[2.5rem] bg-gradient-to-b from-[#FF4D4D] to-[#E01E2A] text-white font-black uppercase tracking-[0.3em] text-[13px] shadow-[0_18px_50px_rgba(224,30,42,0.45)] active:scale-[0.96] transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:pointer-events-none relative overflow-hidden group/btn border border-white/15"
             >
-              <div className="absolute inset-0 bg-primary/10 opacity-0 group-hover/btn:opacity-100 transition-opacity" />
+              <div className="absolute inset-0 bg-white/10 opacity-0 group-hover/btn:opacity-100 transition-opacity" />
               <Sparkles className="w-4 h-4 transition-transform group-hover/btn:rotate-12 group-hover/btn:scale-110" />
               {isLoading ? 'Processing...' : isForgotPassword ? 'Send Reset Link' : isLogin ? 'Authorize Session' : 'Create Identity'}
             </button>
@@ -459,9 +459,9 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
             transition={{ delay: 0.2 }}
           >
             <div className="flex items-center gap-5">
-              <div className="flex-1 h-px bg-white/5" />
-              <span className="text-[8px] font-black text-white/20 uppercase tracking-[0.4em] italic">Nexus Gateway</span>
-              <div className="flex-1 h-px bg-white/5" />
+              <div className="flex-1 h-px bg-white/15" />
+              <span className="text-[9px] font-black text-white/60 uppercase tracking-[0.4em] italic">Nexus Gateway</span>
+              <div className="flex-1 h-px bg-white/15" />
             </div>
             <AppleAuthButton onClick={() => handleSocialLogin('apple')} />
             <GoogleAuthButton onClick={() => handleSocialLogin('google')} />
