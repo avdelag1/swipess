@@ -276,9 +276,9 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
   };
 
   const inputCls = (hasError?: boolean) => cn(
-    "pl-11 h-[54px] bg-white/[0.03] border-white/5 text-white placeholder:text-white/20 rounded-2xl transition-all font-bold text-sm",
-    "focus:ring-1 focus:ring-[#E01E2A]/30 focus:border-[#E01E2A]/40 focus:bg-white/[0.07] backdrop-blur-md",
-    hasError && "border-red-500/40 focus:border-red-500/60 focus:ring-red-500/20"
+    "pl-11 h-[54px] bg-white/[0.08] border border-white/15 text-white placeholder:text-white/55 rounded-2xl transition-all font-bold text-sm",
+    "focus:ring-2 focus:ring-[#E01E2A]/50 focus:border-[#E01E2A]/70 focus:bg-white/[0.12] backdrop-blur-md",
+    hasError && "border-red-500/60 focus:border-red-500/80 focus:ring-red-500/30"
   );
 
   return (
