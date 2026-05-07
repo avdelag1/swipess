@@ -9,6 +9,7 @@ import { triggerHaptic } from '@/utils/haptics';
 import { cn } from '@/lib/utils';
 import useAppTheme from '@/hooks/useAppTheme';
 import { ArrowLeft, Heart, SkipBack, SkipForward, Play, Pause, Volume2, ListMusic, Star, Shuffle } from 'lucide-react';
+import { CheetahSkinBackground } from '@/components/radio/CheetahSkinBackground';
 
 export default function DJTurntableRadio() {
   const navigate = useNavigate();
@@ -59,27 +60,21 @@ export default function DJTurntableRadio() {
     setShowDrawer(false);
   }, [play]);
 
-  const bg = isDark ? '#080808' : '#f5f5f5';
-  const glowColor = isDark ? 'rgba(255,60,0,0.12)' : 'rgba(255,60,0,0.07)';
-  const textPrimary = isDark ? '#ffffff' : '#000000';
-  const textMuted = isDark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.35)';
-  const btnBg = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
-  const btnBorder = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
+  // Cheetah skin: keep all UI bright white for max legibility against fur + spots.
+  const textPrimary = '#ffffff';
+  const textMuted = 'rgba(255,255,255,0.7)';
+  const btnBg = 'rgba(0,0,0,0.45)';
+  const btnBorder = 'rgba(255,255,255,0.18)';
 
   const isFav = isStationFavorite(state.currentStation?.id || '');
 
   return (
     <div
       className="relative w-full h-full flex flex-col overflow-hidden"
-      style={{ background: bg }}
+      style={{ background: '#0a0705' }}
     >
-      {/* Ambient glow */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background: `radial-gradient(ellipse 70% 50% at 50% 40%, ${glowColor}, transparent 70%)`,
-        }}
-      />
+      {/* Cheetah fur skin */}
+      <CheetahSkinBackground />
 
       {/* Top bar */}
       <div
