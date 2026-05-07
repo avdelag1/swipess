@@ -31,10 +31,6 @@ export const SwipeExhaustedState = ({
   onOpenFilters,
   role = 'client',
 }: SwipeExhaustedStateProps) => {
-  // Dashboard surface is always black (client + owner). Force dark styling
-  // so text/icons stay readable regardless of the global theme filter.
-  const isLight = false;
-
   const clientCategories = [
     { id: 'property', label: 'Properties' },
     { id: 'motorcycle', label: 'Motorcycles' },
@@ -53,19 +49,18 @@ export const SwipeExhaustedState = ({
   const categories = allCategories.filter((c) => c.id !== activeCategory);
 
   return (
-    <div className="relative z-50 h-full w-full flex flex-col items-center justify-center bg-transparent px-6 overflow-hidden">
-      <div className="flex flex-col items-center text-center w-full max-w-md gap-6 relative z-10">
+    <div className="relative z-50 h-full w-full flex flex-col items-center justify-center bg-transparent px-5 py-5 overflow-hidden">
+      <div className="absolute inset-3 rounded-[2rem] border border-foreground/10 bg-background/35 shadow-[0_30px_90px_hsl(var(--foreground)/0.08)] pointer-events-none" />
+      <div className="flex flex-col items-center text-center w-full max-w-md gap-5 relative z-10 px-2">
         {/* Message */}
         <div className="space-y-3">
           <h2 className={cn(
-            "text-2xl sm:text-3xl font-black tracking-tight uppercase",
-            isLight ? "text-black" : "text-white"
+            "text-2xl sm:text-3xl font-black tracking-tight uppercase text-foreground"
           )}>
             {isLoading ? 'Scanning…' : `No ${categoryName} found nearby`}
           </h2>
           <p className={cn(
-            "text-xs font-bold uppercase tracking-[0.25em]",
-            isLight ? "text-black/60" : "text-white/70"
+            "text-xs font-bold uppercase tracking-[0.25em] text-foreground/70"
           )}>
             {isLoading ? 'Initializing sector scan' : 'Adjust radius or try another category'}
           </p>
@@ -82,13 +77,12 @@ export const SwipeExhaustedState = ({
                   onOpenFilters();
                 }}
                 className={cn(
-                  "absolute top-0 right-0 z-10 w-10 h-10 flex items-center justify-center rounded-full transition-all active:scale-90 border",
-                  isLight ? "bg-white border-black/20 shadow-md hover:bg-gray-50" : "bg-white/10 border-white/15 hover:bg-white/20"
+                  "absolute top-0 right-0 z-10 w-12 h-12 flex items-center justify-center rounded-full transition-all active:scale-90 border border-foreground/15 bg-foreground shadow-[0_18px_40px_hsl(var(--foreground)/0.18)] hover:bg-foreground/90"
                 )}
                 title="Open advanced filters"
                 aria-label="Open advanced filters"
               >
-                <SlidersHorizontal className={cn("w-4 h-4", isLight ? "text-black" : "text-primary")} />
+                <SlidersHorizontal className="w-5 h-5 text-background" />
               </button>
             )}
 
@@ -102,7 +96,7 @@ export const SwipeExhaustedState = ({
           </div>
         )}
 
-        <p className={cn("text-xs font-semibold", isLight ? "text-black/60" : "text-white/60")}>
+        <p className="text-xs font-semibold text-foreground/65">
           Move the slider to search further
         </p>
 
@@ -110,8 +104,7 @@ export const SwipeExhaustedState = ({
         {onCategoryChange && (
           <div className="w-full space-y-3 mt-2">
             <p className={cn(
-              "text-[11px] font-black uppercase tracking-[0.25em]",
-              isLight ? "text-black/70" : "text-white/80"
+              "text-[11px] font-black uppercase tracking-[0.25em] text-foreground/85"
             )}>
               Or try another
             </p>
@@ -127,14 +120,10 @@ export const SwipeExhaustedState = ({
                     onCategoryChange(cat.id);
                   }}
                   className={cn(
-                    "py-2 px-3 rounded-full text-xs font-black uppercase tracking-wider transition-all active:scale-95 border shadow-sm",
+                    "min-h-12 py-2 px-3 rounded-full text-xs font-black uppercase tracking-wider transition-all active:scale-95 border shadow-[0_16px_34px_hsl(var(--foreground)/0.12)]",
                     activeCategory === cat.id
-                      ? isLight
-                        ? "bg-black text-white border-black"
-                        : "bg-white/20 text-white border-white/30"
-                      : isLight
-                      ? "bg-white text-black border-black/20 hover:bg-gray-50"
-                      : "bg-white/10 text-white border-white/10 hover:bg-white/20"
+                      ? "bg-foreground text-background border-foreground"
+                      : "bg-foreground text-background border-foreground/20 hover:bg-foreground/90"
                   )}
                 >
                   {cat.label}
