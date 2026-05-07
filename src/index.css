@@ -141,6 +141,43 @@ body::-webkit-scrollbar {
 
 :root {
   --glass-noise: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  --listing-property: 343 99% 62%;
+  --listing-motorcycle: 24 96% 53%;
+  --listing-bicycle: 262 83% 58%;
+  --listing-worker: 42 92% 50%;
+  --listing-action-foreground: 0 0% 100%;
+}
+
+@layer components {
+  .listing-category-control {
+    border: 1px solid hsl(var(--border));
+    background: hsl(var(--secondary));
+    color: hsl(var(--secondary-foreground));
+    box-shadow: 0 12px 28px hsl(var(--foreground) / 0.08), inset 0 1px 0 hsl(var(--background) / 0.35);
+  }
+
+  .listing-category-control[data-active="true"],
+  .listing-submit-button {
+    color: hsl(var(--listing-action-foreground));
+    border-color: hsl(var(--listing-accent) / 0.72);
+    background: linear-gradient(135deg, hsl(var(--listing-accent)), hsl(var(--listing-accent) / 0.82));
+    box-shadow: 0 18px 38px hsl(var(--listing-accent) / 0.28), inset 0 1px 0 hsl(var(--listing-action-foreground) / 0.26);
+  }
+
+  .listing-category-control[data-active="false"]:hover {
+    color: hsl(var(--foreground));
+    border-color: hsl(var(--listing-accent) / 0.46);
+    background: hsl(var(--listing-accent) / 0.12);
+  }
+
+  .listing-category-control[data-category="property"],
+  .listing-submit-button[data-category="property"] { --listing-accent: var(--listing-property); }
+  .listing-category-control[data-category="motorcycle"],
+  .listing-submit-button[data-category="motorcycle"] { --listing-accent: var(--listing-motorcycle); }
+  .listing-category-control[data-category="bicycle"],
+  .listing-submit-button[data-category="bicycle"] { --listing-accent: var(--listing-bicycle); }
+  .listing-category-control[data-category="worker"],
+  .listing-submit-button[data-category="worker"] { --listing-accent: var(--listing-worker); }
 }
 
 .glass-nano-texture {
