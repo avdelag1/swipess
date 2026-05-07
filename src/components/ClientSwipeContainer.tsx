@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef, useEffect, memo, lazy, Suspense, useMemo } from 'react';
+import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
 import { useModalStore } from '@/state/modalStore';
 import { createPortal } from 'react-dom';
@@ -30,7 +31,6 @@ import { Users, MapPin, Bike, Wrench } from 'lucide-react';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { appToast } from '@/utils/appNotification';
 import { useStartConversation } from '@/hooks/useConversations';
-import { useNavigate } from 'react-router-dom';
 import { logger } from '@/utils/prodLogger';
 import { SwipeExhaustedState } from './swipe/SwipeExhaustedState';
 import { SwipeDeckBackButton } from './swipe/SwipeDeckBackButton';
@@ -70,7 +70,7 @@ const ClientSwipeContainerComponent = ({
   category = 'default',
   filters,
 }: ClientSwipeContainerProps) => {
-  const navigate = useNavigate();
+  const { navigate } = useAppNavigate();
   const queryClient = useQueryClient();
   const { isLight } = useAppTheme();
   // PERF: Get userId from auth to pass to query (avoids getUser() inside queryFn)

@@ -23,10 +23,11 @@ import { useNotificationSystem } from '@/hooks/useNotificationSystem';
 import { useUnreadNotifications } from '@/hooks/useUnreadNotifications';
 import { formatDistanceToNow } from '@/utils/timeFormatter';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { notificationTypeConfigs as typeConfigs } from '@/utils/notificationConfigs';
 import { ThemeContext } from '@/hooks/useAppTheme';
 import { useContext } from 'react';
+import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useDeckHasCards } from '@/hooks/useDeckHasCards';
 import { cn } from '@/lib/utils';
 import { haptics } from '@/utils/microPolish';
@@ -237,7 +238,7 @@ interface NotificationPopoverProps {
 export function NotificationPopover({ className, children, glassPillStyle }: NotificationPopoverProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [activeFilter, setActiveFilter] = useState('all');
-  const navigate = useNavigate();
+  const { navigate } = useAppNavigate();
   const _location = useLocation();
   const themeContext = useContext(ThemeContext);
   const theme = themeContext?.theme ?? 'dark';

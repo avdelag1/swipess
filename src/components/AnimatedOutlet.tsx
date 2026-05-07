@@ -1,5 +1,5 @@
 import { useOutlet, useLocation } from 'react-router-dom';
-import { Suspense, useRef } from 'react';
+import { Suspense, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { SuspenseFallback } from './ui/suspense-fallback';
 
@@ -19,6 +19,27 @@ export function AnimatedOutlet() {
   const isBack = currentIdx < prevIdxRef.current;
   prevIdxRef.current = currentIdx;
 
+  // Scroll restoration — persist scrollTop per pathname, restore on back nav
+  const scrollMapRef = useRef<Map<string, number>>(new Map());
+  const activeScrollerRef = useRef<HTMLDivElement | null>(null);
+
+  const handleScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
+    scrollMapRef.current.set(location.pathname, (e.currentTarget as HTMLDivElement).scrollTop);
+  }, [location.pathname]);
+
+  const scrollerRef = useCallback((el: HTMLDivElement | null) => {
+    activeScrollerRef.current = el;
+    if (el && isBack) {
+      const saved = scrollMapRef.current.get(location.pathname);
+      if (saved) {
+        // Restore after enter animation completes
+        setTimeout(() => {
+          if (activeScrollerRef.current) activeScrollerRef.current.scrollTop = saved;
+        }, PAGE_DURATION * 1000 + 60);
+      }
+    }
+  }, [location.pathname, isBack]);
+
   return (
     // overflow-hidden is critical — without it the exiting absolute page
     // bleeds outside the container and causes the "breaking window" effect.
@@ -31,6 +52,7 @@ export function AnimatedOutlet() {
       <AnimatePresence mode="wait" initial={false}>
         <motion.div
           key={location.pathname}
+          ref={scrollerRef}
           custom={isBack}
           variants={{
             enter: (back: boolean) => ({
@@ -50,6 +72,7 @@ export function AnimatedOutlet() {
           transition={{ duration: PAGE_DURATION, ease: PAGE_EASE }}
           className="absolute inset-0 flex flex-col overflow-y-auto overflow-x-hidden"
           style={{ WebkitOverflowScrolling: 'touch' as any }}
+          onScroll={handleScroll}
         >
           <Suspense fallback={<SuspenseFallback minimal />}>
             {outlet}

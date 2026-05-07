@@ -2,7 +2,7 @@ import { useCallback, useRef, useState, useEffect } from 'react';
 import { m, AnimatePresence } from 'framer-motion';
 import { useRadio } from '@/contexts/RadioContext';
 import { Play, Pause, SkipBack, SkipForward, X, Radio, Volume2, VolumeX, Heart, Star, Shuffle } from 'lucide-react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { triggerHaptic } from '@/utils/haptics';
 import { cn } from '@/lib/utils';
 import useAppTheme from '@/hooks/useAppTheme';
@@ -10,7 +10,7 @@ import useAppTheme from '@/hooks/useAppTheme';
 function RadioMiniPlayerInner() {
   const { state, togglePlayPause, changeStation, pause, setMiniPlayerMode, setVolume, toggleFavorite, isStationFavorite, shuffleAndPlay } = useRadio();
   const { isLight } = useAppTheme();
-  const navigate = useNavigate();
+  const { navigate } = useAppNavigate();
   const location = useLocation();
 
   const [expanded, setExpanded] = useState(false);
@@ -240,6 +240,7 @@ function RadioMiniPlayerInner() {
 }
 
 import { Component, type ReactNode } from 'react';
+import { useAppNavigate } from '@/hooks/useAppNavigate';
 
 class RadioErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean }> {
   state = { hasError: false };

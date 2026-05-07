@@ -9,7 +9,7 @@ import { useNotificationSystem } from '@/hooks/useNotificationSystem';
 import { formatDistanceToNow } from '@/utils/timeFormatter';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useAppNavigate } from '@/hooks/useAppNavigate';
 import useAppTheme from '@/hooks/useAppTheme';
 import { cn } from '@/lib/utils';
 
@@ -75,7 +75,7 @@ export function NotificationsDialog({ isOpen, onClose }: NotificationsDialogProp
   const _isDark = theme === 'dark';
   const { notifications, dismissNotification, markAllAsRead, handleNotificationClick } = useNotificationSystem();
   const [activeFilter, setActiveFilter] = useState('all');
-  const navigate = useNavigate();
+  const { navigate } = useAppNavigate();
 
   // Mark all as read the moment the panel opens — no need to tap each one
   useEffect(() => {

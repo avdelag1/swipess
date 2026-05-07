@@ -1,11 +1,11 @@
-import { useNavigate } from 'react-router-dom';
 import { XCircle, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useEffect } from 'react';
+import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { motion } from 'framer-motion';
 
 export default function PaymentCancel() {
-  const navigate = useNavigate();
+  const { navigate } = useAppNavigate();
 
   useEffect(() => {
     sessionStorage.removeItem('pending_purchase');

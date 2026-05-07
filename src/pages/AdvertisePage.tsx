@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence, useMotionValue, useTransform, PanInfo } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+import { useAppNavigate } from '@/hooks/useAppNavigate';
 import {
   ArrowLeft, ArrowRight, ArrowUpRight, Check, CheckCircle2, Megaphone, Star, Zap,
   Music, Utensils, Dumbbell, Palette, ShoppingBag, Globe, Camera,
@@ -306,7 +306,7 @@ const _FEATURES = [
 ];
 
 export default function AdvertisePage() {
-  const navigate = useNavigate();
+  const { navigate } = useAppNavigate();
   const { user } = useAuth();
   const { theme } = useAppTheme();
   const isLight = theme === "light";

@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { SavedSearches } from "@/components/SavedSearches";
 import { Settings, Users, ArrowLeft } from "lucide-react";
 import { OwnerClientFilterDialog } from "@/components/OwnerClientFilterDialog";
-import { useNavigate } from "react-router-dom";
+import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { motion } from "framer-motion";
 import { toast } from '@/components/ui/sonner';
 import useAppTheme from "@/hooks/useAppTheme";
@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
 
 const OwnerSavedSearches = () => {
   const [showFilterDialog, setShowFilterDialog] = useState(false);
-  const navigate = useNavigate();
+  const { navigate } = useAppNavigate();
   const { theme } = useAppTheme();
   const isLight = theme === 'light';
 

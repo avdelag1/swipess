@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
@@ -6,7 +7,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogD
 import { Shield, Lock, Smartphone, Eye, EyeOff, AlertTriangle, ChevronRight } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
-import { useNavigate } from 'react-router-dom';
 import { useSecuritySettings } from '@/hooks/useSecuritySettings';
 import { useAuth } from '@/hooks/useAuth';
 import { logger } from '@/utils/prodLogger';
@@ -19,7 +19,7 @@ interface AccountSecurityProps {
 }
 
 export function AccountSecurity({ userRole }: AccountSecurityProps) {
-  const navigate = useNavigate();
+  const { navigate } = useAppNavigate();
   const { user, session } = useAuth();
   const { isLight } = useAppTheme();
   

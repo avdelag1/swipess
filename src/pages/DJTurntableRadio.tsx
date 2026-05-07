@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
 import { useRadio } from '@/contexts/RadioContext';
 import { getStationById, getStationsByCity } from '@/data/radioStations';
 import { CityLocation } from '@/types/radio';
@@ -11,7 +11,7 @@ import useAppTheme from '@/hooks/useAppTheme';
 import { ArrowLeft, Heart, SkipBack, SkipForward, Play, Pause, Volume2, ListMusic, Star, Shuffle } from 'lucide-react';
 
 export default function DJTurntableRadio() {
-  const navigate = useNavigate();
+  const { navigate } = useAppNavigate();
   const {
     state, play, togglePlayPause, togglePower, changeStation,
     setCity, setVolume, toggleFavorite, isStationFavorite, shuffleAndPlay

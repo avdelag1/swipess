@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -17,7 +17,7 @@ import { logger } from '@/utils/prodLogger';
  * - Returns user to where they were before payment
  */
 export default function PaymentSuccess() {
-  const navigate = useNavigate();
+  const { navigate } = useAppNavigate();
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [_processing, _setProcessing] = useState(true);

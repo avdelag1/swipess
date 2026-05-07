@@ -1,6 +1,6 @@
 // cache-bust: 2026-04-18-v14
 import { useEffect, useState, useCallback, memo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { triggerHaptic } from '@/utils/haptics';
 import { uiSounds } from '@/utils/uiSounds';
 import {
@@ -20,7 +20,7 @@ export interface SwipeAllDashboardProps {
 
 export const SwipeAllDashboard = memo(({ setCategories }: SwipeAllDashboardProps) => {
   const [cards, setCards] = useState([...POKER_CARDS]);
-  const navigate = useNavigate();
+  const { navigate } = useAppNavigate();
   const [showVapModal, setShowVapModal] = useState(false);
 
   useEffect(() => {

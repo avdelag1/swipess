@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { supabase } from '@/integrations/supabase/client';
 import { Volume2, VolumeX, MapPin, DollarSign, Eye, ChevronLeft, Heart, Share2, Info, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
 import { triggerHaptic } from '@/utils/haptics';
 import { logger } from '@/utils/prodLogger';
 
@@ -18,7 +18,7 @@ interface VideoListing {
 }
 
 export default function VideoTours() {
-  const navigate = useNavigate();
+  const { navigate } = useAppNavigate();
   const [listings, setListings] = useState<VideoListing[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isMuted, setIsMuted] = useState(true);

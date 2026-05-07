@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -63,7 +63,7 @@ const NexusParticles = () => (
 );
 
 const ResetPassword = () => {
-  const navigate = useNavigate();
+  const { navigate } = useAppNavigate();
   const { toast } = useToast();
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");

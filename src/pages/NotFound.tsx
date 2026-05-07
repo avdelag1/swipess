@@ -1,4 +1,5 @@
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
+import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Home, RefreshCw } from "lucide-react";
@@ -8,7 +9,7 @@ import { useTranslation } from 'react-i18next';
 
 const NotFound = () => {
   const location = useLocation();
-  const navigate = useNavigate();
+  const { navigate } = useAppNavigate();
   const { t } = useTranslation();
 
   useEffect(() => {

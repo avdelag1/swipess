@@ -6,7 +6,7 @@ import {
   Shield, FileText, HelpCircle, Info, ChevronRight,
   Scale, Volume2, Wrench, ShieldCheck, Globe
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { motion, AnimatePresence } from "framer-motion";
 import { AccountSecurity } from "@/components/AccountSecurity";
 import { DeleteAccountSection } from "@/components/DeleteAccountSection";
@@ -44,7 +44,7 @@ type SettingsGroup = {
 };
 
 const ClientSettings = () => {
-  const navigate = useNavigate();
+  const { navigate } = useAppNavigate();
   const { t } = useTranslation();
   const [activeSection, setActiveSection] = useState<string | null>(null);
   const { theme } = useAppTheme();

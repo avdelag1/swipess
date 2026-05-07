@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, memo, useCallback } from 'react';
+import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Send, AlertCircle, Zap, ChevronLeft, Info, Star, Smile, Sparkles, MoreVertical, ShieldAlert, Ban, Mic, MicOff, Timer, X, CreditCard, Coins } from 'lucide-react';
@@ -72,7 +72,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
   const { theme, isLight } = useAppTheme();
   const isThemeLight = isLight;
   const { user } = useAuth();
-  const navigate = useNavigate();
+  const { navigate } = useAppNavigate();
   const { data: messages = [], isLoading } = useConversationMessages(conversationId);
   const sendMessage = useSendMessage();
   const queryClient = useQueryClient();

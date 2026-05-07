@@ -2,7 +2,8 @@ import { useState, useMemo } from 'react';
 import { QuickFilterImage } from '@/components/ui/QuickFilterImage';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AtmosphericLayer } from '@/components/AtmosphericLayer';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
+import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useRadio } from '@/contexts/RadioContext';
 import { radioStations, cityThemes } from '@/data/radioStations';
 import { CityLocation } from '@/types/radio';
@@ -16,7 +17,7 @@ import {
 } from 'lucide-react';
 
 export default function WorldRadioDirectory() {
-  const navigate = useNavigate();
+  const { navigate } = useAppNavigate();
   const [searchParams] = useSearchParams();
   const { state, play, toggleFavorite, isStationFavorite, shuffleAndPlay } = useRadio();
   const { isDark } = useAppTheme();

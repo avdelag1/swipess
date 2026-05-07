@@ -40,7 +40,8 @@ import { Home, Bike, Briefcase, ChevronLeft } from 'lucide-react';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { useSwipeSounds } from '@/hooks/useSwipeSounds';
 import { appToast } from '@/utils/appNotification';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
+import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
 import { logger } from '@/utils/prodLogger';
 import { MessageConfirmationDialog } from './MessageConfirmationDialog';
@@ -103,7 +104,7 @@ interface SwipessSwipeContainerProps {
 }
 
 const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights, onMessageClick, locationFilter: _locationFilter, filters }: SwipessSwipeContainerProps) => {
-  const navigate = useNavigate();
+  const { navigate } = useAppNavigate();
   const { activeMode } = useActiveMode();
   const { theme, isLight } = useAppTheme();
   const [page, setPage] = useState(0);

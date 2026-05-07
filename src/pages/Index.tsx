@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef, useMemo } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
+import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,7 +12,7 @@ const LegendaryLandingPage = lazy(() => import("@/components/LegendaryLandingPag
 
 const Index = () => {
   const { user, loading, initialized } = useAuth();
-  const navigate = useNavigate();
+  const { navigate } = useAppNavigate();
   const [searchParams] = useSearchParams();
   const hasNavigated = useRef(false);
   const [showEscapeHatch, setShowEscapeHatch] = useState(false);

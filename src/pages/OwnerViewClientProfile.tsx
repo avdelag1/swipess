@@ -1,6 +1,6 @@
 /** SPEED OF LIGHT: DashboardLayout is now rendered at route level */
 import { Button } from '@/components/ui/button';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { 
@@ -13,6 +13,7 @@ import { toast } from 'sonner';
 import { ClientFilterPreferences } from '@/hooks/useClientFilterPreferences';
 import { useStartConversation } from '@/hooks/useConversations';
 import { useState, useMemo } from 'react';
+import { useAppNavigate } from '@/hooks/useAppNavigate';
 import useAppTheme from '@/hooks/useAppTheme';
 import { logger } from '@/utils/prodLogger';
 import { AtmosphericLayer } from '@/components/AtmosphericLayer';
@@ -24,7 +25,7 @@ import { CompactRatingDisplay } from '@/components/RatingDisplay';
 
 export default function OwnerViewClientProfile() {
   const { clientId } = useParams();
-  const navigate = useNavigate();
+  const { navigate } = useAppNavigate();
   const [isCreatingConversation, setIsCreatingConversation] = useState(false);
   const startConversation = useStartConversation();
   const { data: ratingAggregate, isLoading: isRatingLoading } = useUserRatingAggregate(clientId);

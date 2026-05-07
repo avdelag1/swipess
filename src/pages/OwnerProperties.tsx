@@ -1,12 +1,13 @@
 /** SPEED OF LIGHT: DashboardLayout is now rendered at route level */
 import { useState, useEffect } from 'react';
 import { PropertyManagement } from "@/components/PropertyManagement";
-import { useSearchParams, useLocation, useNavigate } from "react-router-dom";
+import { useSearchParams, useLocation } from "react-router-dom";
+import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { motion } from "framer-motion";
 import { AtmosphericLayer } from "@/components/AtmosphericLayer";
 
 const OwnerProperties = () => {
-  const navigate = useNavigate();
+  const { navigate } = useAppNavigate();
   const [searchParams] = useSearchParams();
   const location = useLocation();
   const [initialCategory, setInitialCategory] = useState<string | null>(null);

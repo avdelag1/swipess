@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, memo, useMemo, useCallback, Suspense } from 'react';
+import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ClientSwipeContainer } from '@/components/ClientSwipeContainer';
 import { useSmartClientMatching } from '@/hooks/useSmartMatching';
@@ -17,7 +18,6 @@ import { OWNER_INTENT_CARDS } from '@/components/swipe/CardData';
 import useAppTheme from '@/hooks/useAppTheme';
 import type { ClientFilters } from '@/hooks/smartMatching/types';
 import { AtmosphericLayer } from '@/components/AtmosphericLayer';
-import { useNavigate } from 'react-router-dom';
 import { SwipeInsightsModal } from '@/components/SwipeInsightsModal';
 import { SwipessLogo } from '@/components/SwipessLogo';
 
@@ -34,7 +34,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
   const { theme } = useAppTheme();
   const isLight = theme === 'light';
   const [viewMode, setViewMode] = useState<'discovery' | 'insights'>('discovery');
-  const navigate = useNavigate();
+  const { navigate } = useAppNavigate();
 
   const activeCategory = useFilterStore(s => s.activeCategory);
   const { setCategories, setClientType, setListingType, setActiveCategory } = useFilterActions();

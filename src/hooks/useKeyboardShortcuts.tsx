@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useAuth } from './useAuth';
 
 interface KeyboardShortcut {
@@ -12,7 +12,7 @@ interface KeyboardShortcut {
 }
 
 export function useKeyboardShortcuts() {
-  const navigate = useNavigate();
+  const { navigate } = useAppNavigate();
   const { user } = useAuth();
 
   useEffect(() => {

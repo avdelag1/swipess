@@ -1,4 +1,5 @@
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
+import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { UnifiedListingForm } from "@/components/UnifiedListingForm";
 import { useEffect, useState } from "react";
 import { CategorySelectionDialog } from "@/components/CategorySelectionDialog";
@@ -8,7 +9,7 @@ import { useModalStore } from "@/state/modalStore";
 
 const OwnerNewListing = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const navigate = useNavigate();
+  const { navigate } = useAppNavigate();
   const { user } = useAuth();
   const { data: userRole } = useUserRole(user?.id);
   const [isFormOpen, setIsFormOpen] = useState(false);

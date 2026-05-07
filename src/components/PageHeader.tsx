@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { ReactNode } from "react";
 import { motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
@@ -28,7 +28,7 @@ export function PageHeader({
   actions,
   className = ""
 }: PageHeaderProps) {
-  const navigate = useNavigate();
+  const { navigate } = useAppNavigate();
   const { theme } = useAppTheme();
   const isLight = theme === 'light';
 

@@ -1,10 +1,10 @@
-import { useNavigate } from "react-router-dom";
+import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 import { ContractsVault } from "@/components/legal/LegalHub";
 
 const ClientContracts = () => {
-  const navigate = useNavigate();
+  const { navigate } = useAppNavigate();
 
   return (
     <div className="w-full bg-background p-4 pb-32 min-h-screen">

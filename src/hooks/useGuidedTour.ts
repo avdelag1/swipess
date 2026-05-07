@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
+import { useAppNavigate } from '@/hooks/useAppNavigate';
 
 const TOUR_KEY = 'guidedTourCompleted';
 
@@ -57,7 +58,7 @@ const eliteSteps: TourStep[] = [
 
 export function useGuidedTour(steps: TourStep[] = eliteSteps) {
   const location = useLocation();
-  const navigate = useNavigate();
+  const { navigate } = useAppNavigate();
   const [isActive, setIsActive] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const startedRef = useRef(false);

@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
+import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { CameraCapture } from '@/components/CameraCapture';
 import { CapturedPhoto } from '@/hooks/useCamera';
 import { supabase } from '@/integrations/supabase/client';
@@ -18,7 +19,7 @@ interface LocationState {
 }
 
 export default function OwnerListingCamera() {
-  const navigate = useNavigate();
+  const { navigate } = useAppNavigate();
   const location = useLocation();
   const { user } = useAuth();
   const [isUploading, setIsUploading] = useState(false);

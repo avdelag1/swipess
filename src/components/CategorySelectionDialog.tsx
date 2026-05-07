@@ -4,7 +4,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Building2, Bike, ArrowRight, Sparkles, Briefcase, Key, Tag, Repeat } from "lucide-react";
 import { MotorcycleIcon } from "@/components/icons/MotorcycleIcon";
-import { useNavigate } from "react-router-dom";
+import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
@@ -99,7 +99,7 @@ export function CategorySelectionDialog({
   onAIOpen,
   navigateToNewPage = false
 }: CategorySelectionDialogProps) {
-  const navigate = useNavigate();
+  const { navigate } = useAppNavigate();
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [step, setStep] = useState<'category' | 'mode'>('category');
   const resetTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);

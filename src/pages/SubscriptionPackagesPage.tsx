@@ -2,7 +2,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useActiveMode } from "@/hooks/useActiveMode";
 import { Crown, Check, Shield, Clock, Sparkles, Zap, ChevronLeft, RefreshCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
+import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { motion } from "framer-motion";
 import { toast } from "@/components/ui/sonner";
 import { STORAGE } from "@/constants/app";
@@ -122,7 +122,7 @@ const accentStyles = {
 
 export default function SubscriptionPackagesPage() {
   const { user: _user } = useAuth();
-  const navigate = useNavigate();
+  const { navigate } = useAppNavigate();
   const { activeMode, isLoading: roleLoading } = useActiveMode();
   const userRole = activeMode;
 

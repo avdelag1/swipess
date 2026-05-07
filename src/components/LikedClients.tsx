@@ -1,6 +1,6 @@
 import { useState, useMemo, memo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "react-router-dom";
+import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { supabase } from "@/integrations/supabase/client";
 import {
   Flame, Users, Search, ThumbsUp, ShieldCheck, ShieldAlert,
@@ -46,7 +46,7 @@ export function LikedClients() {
   const { user } = useAuth();
   const { theme } = useAppTheme();
   const isLight = theme === "light";
-  const navigate = useNavigate();
+  const { navigate } = useAppNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [filterSafeOnly, setFilterSafeOnly] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState("all");

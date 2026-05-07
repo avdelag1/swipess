@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
+import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { X, Heart, Play, Music, Globe, Star, LayoutGrid, ChevronRight, Shuffle } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 import { radioStations, cityThemes } from '@/data/radioStations';
 import { RadioStation, CityLocation } from '@/types/radio';
 import { cn } from '@/lib/utils';
@@ -33,7 +33,7 @@ export const StationDrawer = ({
   onToggleFavorite,
   onShuffle
 }: StationDrawerProps) => {
-  const navigate = useNavigate();
+  const { navigate } = useAppNavigate();
   // Use current city's theme or Miami default
   const theme = cityThemes[currentCity] || cityThemes['miami'];
   const accentColor = theme.primaryColor;

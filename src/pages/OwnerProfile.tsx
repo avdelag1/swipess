@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import { ActivityFeed } from "@/components/ActivityFeed";
 import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { triggerHaptic } from "@/utils/haptics";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { cn } from "@/lib/utils";
@@ -27,7 +27,7 @@ const OwnerProfile = () => {
   const { data: ownerProfile, isLoading: profileLoading } = useOwnerProfile();
   const { tokenBalance } = useMessagingQuota();
   const { setModal } = useModalStore();
-  const navigate = useNavigate();
+  const { navigate } = useAppNavigate();
 
   const isLoading = statsLoading || profileLoading;
 

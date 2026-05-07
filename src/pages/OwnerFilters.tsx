@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Target, Sparkles, Home, Briefcase, Zap, RotateCcw, Bike, ChevronLeft
@@ -19,7 +19,7 @@ interface OwnerFiltersProps {
 }
 
 export default function OwnerFilters({ isEmbedded, onClose }: OwnerFiltersProps) {
-  const navigate = useNavigate();
+  const { navigate } = useAppNavigate();
   const { theme, isLight } = useAppTheme();
   const isDark = theme === 'dark';
   

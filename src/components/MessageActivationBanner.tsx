@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { X, MessageCircle, Sparkles, Crown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -17,7 +17,7 @@ export function MessageActivationBanner({
   userRole: _userRole,
   variant = 'activation-required',
 }: MessageActivationBannerProps) {
-  const navigate = useNavigate();
+  const { navigate } = useAppNavigate();
 
   const handleGetActivations = () => {
     navigate('/subscription-packages');

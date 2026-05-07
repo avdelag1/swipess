@@ -1,7 +1,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Shield, ExternalLink, FileText, X, Lock } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { DeleteAccountSection } from "./DeleteAccountSection";
 import { AccountSecurity } from "./AccountSecurity";
 import useAppTheme from "@/hooks/useAppTheme";
@@ -13,7 +13,7 @@ interface OwnerSettingsDialogProps {
 }
 
 export function OwnerSettingsDialog({ open, onOpenChange }: OwnerSettingsDialogProps) {
-  const navigate = useNavigate();
+  const { navigate } = useAppNavigate();
   const { isLight } = useAppTheme();
 
   return (

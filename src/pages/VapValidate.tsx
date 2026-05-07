@@ -1,4 +1,5 @@
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
+import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { ShieldCheck, CheckCircle2, ChevronLeft, MapPin, Loader2 } from 'lucide-react';
 import useAppTheme from '@/hooks/useAppTheme';
 import { cn } from '@/lib/utils';
@@ -8,7 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
 
 export default function VapValidate() {
   const { id } = useParams();
-  const navigate = useNavigate();
+  const { navigate } = useAppNavigate();
   const { theme, isLight } = useAppTheme();
 
   const { data, isLoading } = useQuery({

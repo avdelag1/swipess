@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
+import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useQuery } from '@tanstack/react-query';
-import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -26,7 +26,7 @@ interface PropertyDetailsProps {
 export function PropertyDetails({ listingId, isOpen, onClose }: PropertyDetailsProps) {
   const swipeMutation = useSwipe();
   const startConversation = useStartConversation();
-  const navigate = useNavigate();
+  const { navigate } = useAppNavigate();
   const { user } = useAuth();
   const [galleryState, setGalleryState] = useState<{
     isOpen: boolean;

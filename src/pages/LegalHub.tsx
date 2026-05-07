@@ -13,7 +13,8 @@ import {
   Building2, UserX, Briefcase, Shield, ChevronLeft, BookOpen
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
+import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
 import { PageHeader } from '@/components/PageHeader';
@@ -138,7 +139,7 @@ const ownerLegalCategories: LegalIssueCategory[] = [
 ];
 
 const LegalHub = () => {
-  const navigate = useNavigate();
+  const { navigate } = useAppNavigate();
   const { user } = useAuth();
   const { theme, isLight } = useAppTheme();
   const { activeMode } = useActiveMode();

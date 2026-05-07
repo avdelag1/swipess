@@ -13,7 +13,7 @@ import { useClientStats } from "@/hooks/useClientStats";
 import { ActivityFeed } from "@/components/ActivityFeed";
 import { VapIdEditModal } from "@/components/VapIdEditModal";
 import { motion, AnimatePresence } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { ProfileSkeleton } from "@/components/ui/LayoutSkeletons";
 import { cn } from "@/lib/utils";
 import { triggerHaptic } from "@/utils/haptics";
@@ -30,7 +30,7 @@ const ClientProfile = () => {
   const [isVapModalOpen, setIsVapModalOpen] = useState(false);
   const { data: profile, isLoading } = useClientProfile();
   const { user, signOut } = useAuth();
-  const navigate = useNavigate();
+  const { navigate } = useAppNavigate();
 
   const { data: stats } = useClientStats();
 

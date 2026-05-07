@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { supabase } from '@/integrations/supabase/client';
@@ -14,7 +14,7 @@ export function DeleteAccountSection() {
   const [showConfirm, setShowConfirm] = useState(false);
   const [confirmText, setConfirmText] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
-  const navigate = useNavigate();
+  const { navigate } = useAppNavigate();
   const { signOut } = useAuth();
   const { isLight } = useAppTheme();
 

@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
+import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from '@/components/ui/sonner';
 import PhotoCamera from '@/components/PhotoCamera';
@@ -7,7 +8,7 @@ import UploadProgress from '@/components/UploadProgress';
 import { usePhotoCamera } from '@/hooks/usePhotoCamera';
 
 export default function OwnerProfileCamera() {
-  const navigate = useNavigate();
+  const { navigate } = useAppNavigate();
   const location = useLocation();
   const { user } = useAuth();
 

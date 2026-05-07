@@ -1,5 +1,6 @@
 import { useEffect, useRef, useCallback } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
+import { useAppNavigate } from '@/hooks/useAppNavigate';
 
 interface SwipeNavConfig {
   /** Ordered list of paths the user can swipe between */
@@ -32,7 +33,7 @@ export function useSwipeNavigation({
   onSwipeUp,
   enabled = true,
 }: SwipeNavConfig) {
-  const navigate = useNavigate();
+  const { navigate } = useAppNavigate();
   const location = useLocation();
   const touchRef = useRef<{ x: number; y: number; t: number; scrollTop: number } | null>(null);
   const containerRef = useRef<HTMLElement | null>(null);

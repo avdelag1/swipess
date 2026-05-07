@@ -1,10 +1,10 @@
 import { useState, useEffect, useMemo } from 'react';
+import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { supabase } from '@/integrations/supabase/client';
 import { TrendingUp, TrendingDown, BarChart3, ChevronLeft, Calendar, Info, MapPin } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
 import { triggerHaptic } from '@/utils/haptics';
 import { logger } from '@/utils/prodLogger';
 
@@ -26,7 +26,7 @@ const ZONE_COLORS: Record<string, string> = {
 };
 
 export default function PriceTracker() {
-  const navigate = useNavigate();
+  const { navigate } = useAppNavigate();
   const [data, setData] = useState<PricePoint[]>([]);
   const [selectedZone, setSelectedZone] = useState<string>('all');
   const [isLoading, setIsLoading] = useState(true);

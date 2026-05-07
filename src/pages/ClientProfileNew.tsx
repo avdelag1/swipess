@@ -16,7 +16,7 @@ import {
   Settings as SettingsIcon, Palette, Scale, FileText, Heart
 } from "lucide-react";
 import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { Skeleton } from "@/components/ui/skeleton";
 import { Progress } from "@/components/ui/progress";
 import useAppTheme from "@/hooks/useAppTheme";
@@ -38,7 +38,7 @@ const ClientProfileNew = () => {
   const [showShareDialog, setShowShareDialog] = useState(false);
   const { data: profile, isLoading } = useClientProfile();
   const { user, signOut } = useAuth();
-  const navigate = useNavigate();
+  const { navigate } = useAppNavigate();
   const { openAIProfile } = useModalStore();
 
   const handlePhotoClick = useCallback((index: number) => {

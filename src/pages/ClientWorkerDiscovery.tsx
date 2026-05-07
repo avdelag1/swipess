@@ -1,10 +1,10 @@
 import { useState, useCallback, useRef } from 'react';
+import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { motion } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { supabase } from '@/integrations/supabase/client';
 import { useStartConversation } from '@/hooks/useConversations';
-import { useNavigate } from 'react-router-dom';
 import { 
   ArrowLeft, RefreshCw, Sparkles, Clock, CalendarDays, X, 
   MapPin, MessageCircle 
@@ -61,7 +61,7 @@ const HIRE_DURATION_FILTERS = [
 ] as const;
 
 export default function ClientWorkerDiscovery() {
-  const navigate = useNavigate();
+  const { navigate } = useAppNavigate();
   const [selectedDuration, setSelectedDuration] = useState<string>('all');
   const [contactingId, setContactingId] = useState<string | null>(null);
 

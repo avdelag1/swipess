@@ -1,10 +1,10 @@
 import { useState, useEffect, type ComponentType } from 'react';
+import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { supabase } from '@/integrations/supabase/client';
 import { Newspaper, Zap, Coffee, Shield, Utensils, Building, Calendar, ExternalLink, ChevronLeft, MapPin, Share2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { formatDistanceToNow } from 'date-fns';
-import { useNavigate } from 'react-router-dom';
 import { triggerHaptic } from '@/utils/haptics';
 import { logger } from '@/utils/prodLogger';
 
@@ -30,7 +30,7 @@ const CATEGORY_CONFIG: Record<string, { label: string; icon: ComponentType<{ cla
 };
 
 export default function LocalIntel() {
-  const navigate = useNavigate();
+  const { navigate } = useAppNavigate();
   const [posts, setPosts] = useState<IntelPost[]>([]);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [isLoading, setIsLoading] = useState(true);

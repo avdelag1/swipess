@@ -1,4 +1,5 @@
 import { useEffect, useCallback } from 'react';
+import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { logger } from '@/utils/prodLogger';

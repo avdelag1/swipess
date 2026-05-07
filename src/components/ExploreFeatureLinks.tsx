@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { Megaphone, Building2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { haptics } from '@/utils/microPolish';
@@ -9,7 +9,7 @@ interface ExploreFeatureLinksProps {
 }
 
 export function ExploreFeatureLinks({ isClient: _isClient = true }: ExploreFeatureLinksProps) {
-  const navigate = useNavigate();
+  const { navigate } = useAppNavigate();
 
   return (
     <div className="mb-8 flex flex-col gap-3">

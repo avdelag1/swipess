@@ -1,6 +1,7 @@
-import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
+import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -22,7 +23,7 @@ export default function PublicProfilePreview() {
   const { id } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
   const { user } = useAuth();
-  const navigate = useNavigate();
+  const { navigate } = useAppNavigate();
   const [showShareDialog, setShowShareDialog] = useState(false);
 
   useEffect(() => {

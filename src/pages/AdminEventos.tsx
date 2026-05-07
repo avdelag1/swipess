@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Pencil, Trash2, Eye, EyeOff, X, Upload, Images } from 'lucide-react';
 import { PageHeader } from '@/components/PageHeader';
 import { Link } from 'react-router-dom';
+import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
@@ -69,7 +69,7 @@ const emptyForm = {
 
 export default function AdminEventos() {
   const { user } = useAuth();
-  const navigate = useNavigate();
+  const { navigate } = useAppNavigate();
   const { toast } = useToast();
   const [events, setEvents] = useState<EventRow[]>([]);
   const [isLoading, setIsLoading] = useState(true);

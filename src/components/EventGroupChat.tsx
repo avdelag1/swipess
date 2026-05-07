@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Send, Users } from 'lucide-react';
+import { X, Send, Users, MessageCircle } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ChatMessage {
   id: string;
@@ -18,13 +19,6 @@ interface EventGroupChatProps {
   onClose: () => void;
 }
 
-const MOCK_MESSAGES: ChatMessage[] = [
-  { id: '1', user_id: 'a', display_name: 'Sofia M.', message: '¿Alguien sabe a qué hora empieza exactamente? 🎵', created_at: new Date(Date.now() - 1000 * 60 * 12).toISOString() },
-  { id: '2', user_id: 'b', display_name: 'Carlos R.', message: 'A las 10pm según el flyer, pero siempre empieza tarde 😄', created_at: new Date(Date.now() - 1000 * 60 * 9).toISOString() },
-  { id: '3', user_id: 'c', display_name: 'Valentina L.', message: 'Estaré ahí! 🙌 ¿Van en grupo?', created_at: new Date(Date.now() - 1000 * 60 * 5).toISOString() },
-  { id: '4', user_id: 'b', display_name: 'Carlos R.', message: 'Sí, somos 6. Nos vemos en la entrada 🌴', created_at: new Date(Date.now() - 1000 * 60 * 2).toISOString() },
-];
-
 function timeAgo(iso: string): string {
   const diff = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
   if (diff < 60) return 'ahora';
@@ -33,31 +27,87 @@ function timeAgo(iso: string): string {
   return `${Math.floor(diff / 86400)}d`;
 }
 
-export function EventGroupChat({ eventId: _eventId, eventTitle, onClose }: EventGroupChatProps) {
+export function EventGroupChat({ eventId, eventTitle, onClose }: EventGroupChatProps) {
   const { user } = useAuth();
-  const [messages, setMessages] = useState<ChatMessage[]>(MOCK_MESSAGES);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
+  const [tableExists, setTableExists] = useState(true);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  // Load messages from Supabase
+  useEffect(() => {
+    if (!eventId) return;
+
+    const load = async () => {
+      const { data, error } = await (supabase as any)
+        .from('event_messages')
+        .select('id, user_id, display_name, avatar_url, message, created_at')
+        .eq('event_id', eventId)
+        .order('created_at', { ascending: true })
+        .limit(100);
+
+      if (error) {
+        setTableExists(false);
+        return;
+      }
+      setMessages(data ?? []);
+    };
+
+    load();
+
+    // Real-time subscription
+    const channel = supabase
+      .channel(`event-chat-${eventId}`)
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'event_messages',
+        filter: `event_id=eq.${eventId}`,
+      }, (payload) => {
+        setMessages(prev => [...prev, payload.new as ChatMessage]);
+      })
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, [eventId]);
+
   const handleSend = async () => {
     const text = input.trim();
-    if (!text || sending) return;
+    if (!text || sending || !user) return;
     setSending(true);
     setInput('');
 
-    const newMsg: ChatMessage = {
-      id: `local-${Date.now()}`,
-      user_id: user?.id ?? 'me',
-      display_name: 'Tú',
-      message: text,
-      created_at: new Date().toISOString(),
-    };
-    setMessages(prev => [...prev, newMsg]);
+    const displayName = user.user_metadata?.full_name
+      || user.user_metadata?.name
+      || user.email?.split('@')[0]
+      || 'Usuario';
+
+    const { error } = await (supabase as any)
+      .from('event_messages')
+      .insert({
+        event_id: eventId,
+        user_id: user.id,
+        display_name: displayName,
+        message: text,
+      });
+
+    if (error) {
+      // Optimistic local-only fallback so the UI doesn't freeze
+      const localMsg: ChatMessage = {
+        id: `local-${Date.now()}`,
+        user_id: user.id,
+        display_name: displayName,
+        message: text,
+        created_at: new Date().toISOString(),
+      };
+      setMessages(prev => [...prev, localMsg]);
+    }
+
     setSending(false);
   };
 
@@ -117,8 +167,20 @@ export function EventGroupChat({ eventId: _eventId, eventTitle, onClose }: Event
 
           {/* Messages */}
           <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3 min-h-0">
-            {messages.map(msg => {
-              const isMe = msg.user_id === (user?.id ?? 'me') || msg.display_name === 'Tú';
+            {!tableExists && (
+              <div className="flex flex-col items-center justify-center h-full py-12 text-center gap-2">
+                <MessageCircle className="w-10 h-10 text-muted-foreground/40" />
+                <p className="text-sm text-muted-foreground">El chat grupal llega pronto</p>
+              </div>
+            )}
+            {tableExists && messages.length === 0 && (
+              <div className="flex flex-col items-center justify-center h-full py-12 text-center gap-2">
+                <MessageCircle className="w-10 h-10 text-muted-foreground/40" />
+                <p className="text-sm text-muted-foreground">Sé el primero en escribir</p>
+              </div>
+            )}
+            {tableExists && messages.map(msg => {
+              const isMe = msg.user_id === user?.id;
               return (
                 <div key={msg.id} className={`flex gap-2 ${isMe ? 'flex-row-reverse' : 'flex-row'}`}>
                   {!isMe && (
@@ -146,30 +208,30 @@ export function EventGroupChat({ eventId: _eventId, eventTitle, onClose }: Event
           </div>
 
           {/* Input */}
-          <div className="px-4 py-3 border-t border-border/40 flex items-end gap-2 pb-safe">
-            <textarea
-              value={input}
-              onChange={e => setInput(e.target.value)}
-              onKeyDown={handleKey}
-              placeholder="Escribe un mensaje..."
-              rows={1}
-              data-testid="input-group-chat"
-              className="flex-1 resize-none bg-muted rounded-2xl px-4 py-2.5 text-sm outline-none placeholder:text-muted-foreground max-h-24 leading-5"
-              style={{ overflowY: 'auto' }}
-            />
-            <button
-              onClick={handleSend}
-              disabled={!input.trim() || sending}
-              data-testid="button-send-message"
-              className="w-10 h-10 rounded-full bg-primary flex items-center justify-center flex-shrink-0 disabled:opacity-70 transition-opacity"
-            >
-              <Send className="w-4 h-4 text-primary-foreground" />
-            </button>
-          </div>
+          {tableExists && (
+            <div className="px-4 py-3 border-t border-border/40 flex items-end gap-2 pb-safe">
+              <textarea
+                value={input}
+                onChange={e => setInput(e.target.value)}
+                onKeyDown={handleKey}
+                placeholder="Escribe un mensaje..."
+                rows={1}
+                data-testid="input-group-chat"
+                className="flex-1 resize-none bg-muted rounded-2xl px-4 py-2.5 text-sm outline-none placeholder:text-muted-foreground max-h-24 leading-5"
+                style={{ overflowY: 'auto' }}
+              />
+              <button
+                onClick={handleSend}
+                disabled={!input.trim() || sending}
+                data-testid="button-send-message"
+                className="w-10 h-10 rounded-full bg-primary flex items-center justify-center flex-shrink-0 disabled:opacity-70 transition-opacity"
+              >
+                <Send className="w-4 h-4 text-primary-foreground" />
+              </button>
+            </div>
+          )}
         </motion.div>
       </motion.div>
     </AnimatePresence>
   );
 }
-
-

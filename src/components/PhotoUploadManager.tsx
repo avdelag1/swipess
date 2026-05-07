@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
+import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -34,7 +35,7 @@ export function PhotoUploadManager({
 }: PhotoUploadManagerProps) {
   const [uploading, setUploading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
-  const navigate = useNavigate();
+  const { navigate } = useAppNavigate();
   const location = useLocation();
 
   const handleOpenCamera = () => {

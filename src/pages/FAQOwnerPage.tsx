@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ChevronDown, HelpCircle, Mail, MessageSquare } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { motion, AnimatePresence } from "framer-motion";
 import { PageHeader } from "@/components/PageHeader";
 import { useState } from "react";

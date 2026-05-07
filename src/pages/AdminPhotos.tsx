@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Upload, Trash2, Copy, Check, ImagePlus, Link2,
@@ -32,7 +33,7 @@ interface EventOption {
 
 export default function AdminPhotos() {
   const { user } = useAuth();
-  const navigate = useNavigate();
+  const { navigate } = useAppNavigate();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
 

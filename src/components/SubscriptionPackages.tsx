@@ -125,20 +125,16 @@ export function SubscriptionPackages({ isOpen = true, onClose, reason, userRole 
     sessionStorage.setItem(STORAGE.SELECTED_PLAN_KEY, JSON.stringify(selection));
     sessionStorage.setItem(STORAGE.PAYMENT_RETURN_PATH_KEY, `/${userRole}/dashboard`);
 
-    if (NativeBridge.isIOS() && plan.appleProductId) {
-       toast({ title: 'Connecting to App Store', description: 'Initiating secure In-App Purchase...' });
-       const result = await NativeBridge.purchaseProduct(plan.appleProductId);
-       if (result.success) {
-         toast.success('Subscription Successful!', { description: 'Your premium benefits are now active.' });
-         onClose?.();
-         return;
-       } else {
-         toast.error('Purchase Failed', { description: 'The transaction could not be completed.' });
-         return;
-       }
+    // Native iOS app (Capacitor): Apple requires IAP — redirect to web instead of PayPal
+    if (NativeBridge.isNative() && NativeBridge.isIOS()) {
+      toast({
+        title: 'Subscribe on Web',
+        description: 'Open swipess.com in Safari to complete your purchase.',
+      });
+      return;
     }
 
-    // Web Fallback
+    // Web / Android / iOS PWA — use PayPal
     window.open(plan.paypalUrl, '_blank');
 
     toast({
@@ -158,9 +154,13 @@ export function SubscriptionPackages({ isOpen = true, onClose, reason, userRole 
   };
 
   const handleRestore = () => {
-    toast({ title: 'Restoring Purchases', description: 'Checking App Store for previous subscriptions...' });
+    if (NativeBridge.isNative() && NativeBridge.isIOS()) {
+      toast({ title: 'Restore on Web', description: 'Visit swipess.com in Safari to restore your subscription.' });
+      return;
+    }
+    toast({ title: 'Checking subscription', description: 'Looking up your account status...' });
     setTimeout(() => {
-      toast.success('No previous purchases found.');
+      toast.success('No active subscription found. Subscribe below to get started.');
     }, 1500);
   };
 

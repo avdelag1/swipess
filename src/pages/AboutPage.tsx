@@ -1,6 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Home, Users, Shield, Zap, ThumbsUp, MessageCircle, Sparkles, Target, Rocket } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { motion } from "framer-motion";
 import { PageHeader } from "@/components/PageHeader";
 import { AtmosphericLayer } from "@/components/AtmosphericLayer";

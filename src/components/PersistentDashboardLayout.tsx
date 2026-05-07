@@ -1,10 +1,11 @@
 import { lazyWithRetry } from '@/utils/lazyRetry';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { AnimatedOutlet } from '@/components/AnimatedOutlet';
 import { useActiveMode } from '@/hooks/useActiveMode';
 import { useFilterPersistence } from '@/hooks/useFilterPersistence';
 import { useMemo, useEffect, useState, Suspense } from 'react';
+import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { createPortal } from 'react-dom';
 import { useMatchRealtime } from '@/hooks/useMatchRealtime';
 import { useLikesRealtime } from '@/hooks/useLikesRealtime';
@@ -34,7 +35,7 @@ function getRoleFromPath(pathname: string, activeMode: 'client' | 'owner'): 'cli
 
 export function PersistentDashboardLayout() {
   const location = useLocation();
-  const navigate = useNavigate();
+  const { navigate } = useAppNavigate();
   const { activeMode, syncMode } = useActiveMode();
 
   // 🚀 SPEED OF LIGHT: Defer background systems until after the dashboard is 'Stable'

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { motion } from 'framer-motion';
 import { useNotificationSystem } from '@/hooks/useNotificationSystem';
 import { Card, CardContent } from '@/components/ui/card';
@@ -7,12 +8,11 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { MessageSquare, ThumbsUp, Sparkles, ChevronRight, Clock } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { cn } from '@/lib/utils';
-import { useNavigate } from 'react-router-dom';
 import { haptics } from '@/utils/microPolish';
 
 export function ActivityFeed() {
     const { notifications, handleNotificationClick } = useNotificationSystem();
-    const navigate = useNavigate();
+    const { navigate } = useAppNavigate();
 
     // Only show top 5 relevant activity items
     const relevantNotifs = notifications

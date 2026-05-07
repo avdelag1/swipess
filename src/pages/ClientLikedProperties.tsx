@@ -4,7 +4,8 @@ const LikedListingInsightsModal = lazy(() => import("@/components/LikedListingIn
 import { useState, useMemo } from "react";
 import { useLikedProperties } from "@/hooks/useLikedProperties";
 import { useStartConversation } from "@/hooks/useConversations";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
+import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { Flame, Home, Bike, Briefcase, RefreshCw, Car, Search, ArrowUpDown } from "lucide-react";
 import { toast } from "sonner";
 import useAppTheme from "@/hooks/useAppTheme";
@@ -63,7 +64,7 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
 
   const { data: likedProperties = [], isLoading, refetch: refreshLikedProperties, isFetching } = useLikedProperties();
   const startConversation = useStartConversation();
-  const navigate = useNavigate();
+  const { navigate } = useAppNavigate();
   const { user } = useAuth();
   const queryClient = useQueryClient();
 

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "react-router-dom";
+import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { supabase } from "@/integrations/supabase/client";
 import { ThumbsUp, GripVertical, Flame, Home, Briefcase, DollarSign } from "lucide-react";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -53,7 +53,7 @@ const ClientWhoLikedYou = () => {
   const { user } = useAuth();
   const { theme } = useAppTheme();
   const isLight = theme === "light";
-  const navigate = useNavigate();
+  const { navigate } = useAppNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);

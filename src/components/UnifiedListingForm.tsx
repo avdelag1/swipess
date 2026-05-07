@@ -3,7 +3,7 @@
  * Updated to match new normalized schema with JSONB arrays
  */
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -83,7 +83,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
     setFormData(prev => ({ ...prev, ...data }));
   }, []);
 
-  const navigate = useNavigate();
+  const { navigate } = useAppNavigate();
   const queryClient = useQueryClient();
   const { user } = useAuth();
   const { saveListingDraft } = useAnonymousDrafts();

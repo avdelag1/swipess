@@ -1,5 +1,5 @@
 import { useState, useCallback, memo, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { motion, AnimatePresence } from 'framer-motion';
 import { triggerHaptic } from '@/utils/haptics';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
@@ -22,7 +22,7 @@ export interface OwnerAllDashboardProps {
 
 export const OwnerAllDashboard = memo(({ onCardSelect }: OwnerAllDashboardProps) => {
   const [cards, setCards] = useState([...OWNER_INTENT_CARDS]);
-  const navigate = useNavigate();
+  const { navigate } = useAppNavigate();
   // Stable selector — avoids reading store inside click handler during a Suspense pass
   const openAIListing = useModalStore((s) => s.openAIListing);
 
