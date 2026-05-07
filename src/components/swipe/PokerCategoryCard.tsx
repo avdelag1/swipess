@@ -101,7 +101,7 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
     <motion.div
       drag={isTop ? 'x' : false}
       dragConstraints={{ left: 0, right: 0 }}
-      dragElastic={0.6}
+      dragElastic={0.85}
       dragMomentum={false}
       onDragStart={() => {
         setIsDragging(true);
