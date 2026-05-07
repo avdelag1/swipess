@@ -1,5 +1,4 @@
 import { cn } from '@/lib/utils';
-import useAppTheme from '@/hooks/useAppTheme';
 import { triggerHaptic } from '@/utils/haptics';
 import { DistanceSlider } from './DistanceSlider';
 import { SlidersHorizontal } from 'lucide-react';
@@ -32,7 +31,9 @@ export const SwipeExhaustedState = ({
   onOpenFilters,
   role = 'client',
 }: SwipeExhaustedStateProps) => {
-  const { isLight } = useAppTheme();
+  // Dashboard surface is always black (client + owner). Force dark styling
+  // so text/icons stay readable regardless of the global theme filter.
+  const isLight = false;
 
   const clientCategories = [
     { id: 'property', label: 'Properties' },
