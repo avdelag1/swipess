@@ -215,9 +215,6 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
       const schedule_type = formData.schedule_type ? JSON.parse(JSON.stringify(formData.schedule_type)) : [];
       const location_type = formData.location_type ? JSON.parse(JSON.stringify(formData.location_type)) : [];
 
-      // Build a robust location string based on category
-      const locationStr = formData.city || formData.address || formData.neighborhood || formData.location || 'Not specified';
-
       // Main listing data. Production listings ownership is keyed by owner_id.
       // Do not send legacy user_id/location columns here; older schema retries were
       // still wasting the first save attempt and could block creation on live DBs.
