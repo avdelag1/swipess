@@ -16,25 +16,6 @@ interface CategorySelectorProps {
 
 const springTap = { type: "spring" as const, stiffness: 500, damping: 30 };
 
-const categoryStyles: Record<Category, { active: string; idle: string }> = {
-  property: {
-    active: 'bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/25',
-    idle: 'bg-secondary text-secondary-foreground border-border hover:bg-accent hover:text-accent-foreground hover:border-primary/30',
-  },
-  motorcycle: {
-    active: 'bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/25',
-    idle: 'bg-secondary text-secondary-foreground border-border hover:bg-accent hover:text-accent-foreground hover:border-primary/30',
-  },
-  bicycle: {
-    active: 'bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/25',
-    idle: 'bg-secondary text-secondary-foreground border-border hover:bg-accent hover:text-accent-foreground hover:border-primary/30',
-  },
-  worker: {
-    active: 'bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/25',
-    idle: 'bg-secondary text-secondary-foreground border-border hover:bg-accent hover:text-accent-foreground hover:border-primary/30',
-  },
-};
-
 export function CategorySelector({
   selectedCategory,
   selectedMode,
@@ -73,21 +54,17 @@ export function CategorySelector({
       <div className="flex flex-wrap gap-2">
         {categories.map(({ value, label, icon: Icon }) => {
           const active = selectedCategory === value;
-          const styles = categoryStyles[value];
           return (
             <motion.button
               key={value}
               type="button"
+              data-active={active}
+              data-category={value}
               onClick={() => onCategoryChange(value)}
               whileTap={{ scale: 0.94 }}
               whileHover={{ scale: 1.03 }}
               transition={springTap}
-              className={cn(
-                "flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-semibold transition-all border",
-                active
-                  ? styles.active
-                  : styles.idle
-              )}
+              className="listing-category-control flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-semibold transition-all"
             >
               <Icon className="w-5 h-5" />
               {label}
