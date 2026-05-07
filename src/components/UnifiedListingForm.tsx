@@ -218,10 +218,10 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
       // Build a robust location string based on category
       const locationStr = formData.city || formData.address || formData.neighborhood || formData.location || 'Not specified';
 
-      // Main listing data - ALL fields in listings table (vehicle_listings table was dropped)
-      // Main listing data - ALL fields in listings table
+      // Main listing data. Production listings ownership is keyed by owner_id.
+      // Do not send legacy user_id/location columns here; older schema retries were
+      // still wasting the first save attempt and could block creation on live DBs.
       const rawListingData: Record<string, any> = {
-        user_id: user.user.id,
         owner_id: user.user.id,
         category: selectedCategory,
         listing_type: selectedCategory === 'worker' ? 'service' : (formData.listing_type || selectedMode),
@@ -247,7 +247,6 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
             formData.traits as string[],
           ]) ||
           '',
-        location: locationStr || 'Tulum',
         country: (formData.country as string) || 'Mexico',
         state: (formData.state as string) || (formData.city as string) || 'Quintana Roo',
         city: (formData.city as string) || 'Unknown',
@@ -330,7 +329,6 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
       );
 
       // Re-add required fields if they were stripped
-      if (listingData.location === undefined) listingData.location = 'Tulum';
       if (listingData.price === undefined) listingData.price = 0;
       if (listingData.title === undefined) listingData.title = `New ${selectedCategory}`;
 
