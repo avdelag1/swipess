@@ -266,7 +266,7 @@ async function searchListings(intent: ReturnType<typeof detectListingIntent>): P
     const { data, error } = await query;
     if (error || !data || data.length === 0) return "";
 
-    return data.map(l => {
+    const lines = data.map(l => {
       const currency = l.currency || "$";
       const price = `${currency === "USD" || currency === "$" ? "$" : currency === "MXN" ? "MXN$" : currency}${l.price}`;
       let desc = `• **${l.title}** — ${price}/${l.listing_type || "month"} in ${l.neighborhood || l.location}`;
@@ -274,6 +274,20 @@ async function searchListings(intent: ReturnType<typeof detectListingIntent>): P
       if (l.bathrooms) desc += ` / ${l.bathrooms} bath`;
       return desc;
     }).join("\n");
+    // Structured payload consumed by the chat UI to render preview cards
+    const structured = data.map(l => ({
+      id: l.id,
+      title: l.title,
+      price: l.price,
+      currency: l.currency || "USD",
+      listing_type: l.listing_type || "rent",
+      city: l.neighborhood || l.location || "",
+      category: l.category,
+      bedrooms: l.bedrooms,
+      bathrooms: l.bathrooms,
+      image: l.image_url || "",
+    }));
+    return `${lines}\n[LISTINGS:${JSON.stringify(structured)}]`;
   } catch (e) {
     console.error("[AI] Listing search error:", e);
     return "";
