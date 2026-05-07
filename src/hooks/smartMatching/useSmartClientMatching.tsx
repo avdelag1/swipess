@@ -174,6 +174,40 @@ export function useSmartClientMatching(
                     });
                 }
 
+                // Helper: append demo clients AFTER real ones. Demos bypass swipe exclusion
+                // so the user can keep practicing repeatedly without losing them.
+                const appendDemoClients = (real: MatchedClientProfile[]): MatchedClientProfile[] => {
+                    if (page !== 0) return real;
+                    const existing = new Set(real.map(r => r.user_id));
+                    const filteredDemos = DEMO_CLIENTS.filter(c => {
+                        if (existing.has(c.user_id)) return false;
+                        if (isRoommateSection && !c.roommate_available) return false;
+                        if (_category && ['buyers', 'renters', 'hire'].includes(_category)) {
+                            const map: Record<string, string> = { buyers: 'buyer', renters: 'renter', hire: 'hire' };
+                            return c.client_type === map[_category];
+                        }
+                        return true;
+                    });
+                    const mapped = filteredDemos.map(c => ({
+                        id: c.user_id, user_id: c.user_id, name: c.full_name,
+                        age: c.age, gender: c.gender,
+                        interests: c.interests || [], preferred_activities: [],
+                        location: { city: c.city },
+                        lifestyle_tags: c.lifestyle_tags || [],
+                        profile_images: c.images || ['/placeholder.svg'],
+                        matchPercentage: 92 + Math.floor(Math.random() * 7),
+                        matchReasons: ['Highly Recommended'],
+                        incompatibleReasons: [],
+                        verified: !!c.onboarding_completed,
+                        roommate_available: !!c.roommate_available,
+                        city: c.city, country: c.country,
+                        client_type: c.client_type,
+                        bio: c.bio,
+                        isDemo: true,
+                    } as unknown as MatchedClientProfile));
+                    return [...real, ...mapped];
+                };
+
                 // RPC attempt — only use results if they match the current category filter
                 try {
                     const { data: rpcClients, error: rpcError } = await (supabase as any).rpc('get_smart_clients', {
@@ -200,15 +234,15 @@ export function useSmartClientMatching(
                             finalClients = finalClients.filter(c => (c.client_type || 'unknown') === clientTypeMap[_category]);
                         }
 
-                        // Only return early from RPC if we have results after filtering
-                        if (finalClients.length > 0) {
+                        // Always append demos (real first) so testing data is never lost
+                        const withDemos = appendDemoClients(finalClients as any);
+                        if (withDemos.length > 0) {
                             runIdleTask(() => {
-                                const imagesToPrewarm = finalClients.flatMap(p => p.profile_images || p.images || []).slice(0, 5);
+                                const imagesToPrewarm = withDemos.flatMap((p: any) => p.profile_images || p.images || []).slice(0, 5);
                                 pwaImagePreloader.batchPreload(imagesToPrewarm.map(url => getCardImageUrl(url)));
                             });
-                            return finalClients;
+                            return withDemos;
                         }
-                        // Fall through to demo logic below when RPC has results but none match category
                     }
                 } catch (_e) {}
 
@@ -323,7 +357,8 @@ export function useSmartClientMatching(
                 // 🚀 DEMO FALLBACK REMOVED: Show the "Adjust Radius" page instead of fake demo data
                 // This gives users clear feedback when no real matches exist nearby
 
-                return results.sort((a, b) => b.matchPercentage - a.matchPercentage);
+                const sortedReal = results.sort((a, b) => b.matchPercentage - a.matchPercentage);
+                return appendDemoClients(sortedReal);
             } catch (err) {
                 logger.error('[SmartClientMatching] Error:', err);
                 return [];
