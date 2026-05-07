@@ -242,6 +242,7 @@ export function PhotoUploadManager({
         type="file"
         multiple
         accept="image/*"
+        // hidden file input is rendered elsewhere; keep `accept` permissive for HEIC/etc.
         className="hidden"
         onChange={(e) => handleFileSelect(e.target.files)}
       />

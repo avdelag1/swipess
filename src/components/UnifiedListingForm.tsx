@@ -25,6 +25,7 @@ import { PropertyListingForm } from './PropertyListingForm';
 import { WorkerListingForm, WorkerFormData } from './WorkerListingForm';
 import { validateImageFile } from '@/utils/fileValidation';
 import { uploadPhotoBatch } from '@/utils/photoUpload';
+import { compressImages, LISTING_COMPRESSION } from '@/utils/imageCompression';
 import { validateContent } from '@/utils/contactInfoValidation';
 import { useAnonymousDrafts } from '@/hooks/useAnonymousDrafts';
 import { useAuth } from '@/hooks/useAuth';
@@ -158,7 +159,9 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
       let uploadedImageUrls: string[] = [];
       if (currentImageFiles.length > 0) {
         appToast.info('Uploading photos…', `Sending ${currentImageFiles.length} photo${currentImageFiles.length > 1 ? 's' : ''}.`);
-        uploadedImageUrls = await uploadPhotoBatch(user.user.id, currentImageFiles, 'listing-images');
+        // Normalize HEIC + shrink large photos before upload so storage never rejects them.
+        const prepared = await compressImages(currentImageFiles, LISTING_COMPRESSION);
+        uploadedImageUrls = await uploadPhotoBatch(user.user.id, prepared, 'listing-images');
       }
 
       const allImages = [...currentImages, ...uploadedImageUrls];
