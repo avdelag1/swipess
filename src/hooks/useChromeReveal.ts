@@ -44,6 +44,14 @@ export function hideChrome() {
   }
 }
 
+export function toggleChrome() {
+  if (visible) {
+    hideChrome();
+  } else {
+    revealChrome();
+  }
+}
+
 export function resetChrome() {
   clearTimer();
   visible = false;
