@@ -686,9 +686,8 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
                 whileTap={{ scale: 0.96 }}
                 onClick={handleSubmit}
                 disabled={createListingMutation.isPending}
-                className={cn(
-                  "px-10 rounded-2xl h-12 font-black shadow-xl transition-all flex items-center gap-3 text-primary-foreground disabled:opacity-50 relative z-10 bg-primary hover:bg-primary/90 shadow-primary/30"
-                )}
+                data-category={selectedCategory}
+                className="listing-submit-button px-10 rounded-2xl h-12 font-black transition-all flex items-center gap-3 disabled:opacity-50 relative z-10"
               >
                 {createListingMutation.isPending ? (
                   <>
