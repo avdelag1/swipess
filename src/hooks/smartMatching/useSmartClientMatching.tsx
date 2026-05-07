@@ -13,10 +13,11 @@ const CLIENT_FIELDS = `
     languages_spoken, neighborhood, bio, onboarding_completed
 `;
 
-// 3 per client type: buyers, renters, workers + 2 roommate-available
-// Coords near Tulum so owner-side radius slider reacts during testing
+// Demo data: 2 buyers, 2 renters, 2 hire (workers seeking jobs).
+// Always appended AFTER real users so testing never obscures real profiles.
+// Coords near Tulum so the owner-side radius slider reacts during testing.
 const DEMO_CLIENTS: any[] = [
-  // ── BUYERS (looking to purchase) ──────────────────────────────────────
+  // ── BUYERS (2 — looking to purchase) ──────────────────────────────────
   {
     user_id: 'demo-client-1',
     full_name: 'Sophia Laurent',
@@ -43,21 +44,8 @@ const DEMO_CLIENTS: any[] = [
     latitude: 20.1474, longitude: -87.4654, // ~7km
     roommate_available: false, onboarding_completed: true
   },
-  {
-    user_id: 'demo-client-8',
-    full_name: 'Alexei Volkov',
-    age: 33, gender: 'male',
-    city: 'Tulum', country: 'Mexico',
-    images: ['https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=1200'],
-    interests: ['Classic Cars', 'Desert Safari', 'Fintech'],
-    lifestyle_tags: ['Collector', 'Private Investor'],
-    bio: 'Buying a high-security villa with garage space for vehicle collection.',
-    occupation: 'buyer', client_type: 'buyer',
-    latitude: 20.4914, longitude: -87.4654, // ~31km
-    roommate_available: false, onboarding_completed: true
-  },
 
-  // ── RENTERS (looking to rent) ─────────────────────────────────────────
+  // ── RENTERS (2 — looking to rent) ─────────────────────────────────────
   {
     user_id: 'demo-client-2',
     full_name: 'Marcus Chen',
@@ -84,58 +72,32 @@ const DEMO_CLIENTS: any[] = [
     latitude: 20.2114, longitude: -87.3764, // ~10km
     roommate_available: true, onboarding_completed: true
   },
-  {
-    user_id: 'demo-client-6',
-    full_name: 'Liam Henderson',
-    age: 28, gender: 'male',
-    city: 'Playa del Carmen', country: 'Mexico',
-    images: ['https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=1200'],
-    interests: ['Rugby', 'Craft Beer', 'Kitesurfing'],
-    lifestyle_tags: ['Social', 'Gym Regular'],
-    bio: 'Looking for a furnished apartment near the beach, 6-month minimum lease.',
-    occupation: 'renter', client_type: 'renter',
-    latitude: 20.2114, longitude: -87.6044, // ~15km
-    roommate_available: false, onboarding_completed: true
-  },
 
-  // ── WORKERS / HIRE ────────────────────────────────────────────────────
+  // ── HIRE (2 — clients looking to hire workers / book services) ────────
   {
     user_id: 'demo-client-5',
     full_name: 'Amara Okafor',
     age: 27, gender: 'female',
     city: 'Tulum', country: 'Mexico',
     images: ['https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&q=80&w=1200'],
-    interests: ['Fashion Design', 'Urban Art', 'Photography'],
-    lifestyle_tags: ['Creative Professional', 'Freelancer'],
-    bio: 'Fashion designer & creative director. Available for brand shoots and interior styling.',
-    occupation: 'worker', client_type: 'hire',
+    interests: ['Wellness', 'Home Décor', 'Hosting'],
+    lifestyle_tags: ['Villa Owner', 'Frequent Traveler'],
+    bio: 'Need weekly cleaning and a reliable masseuse for guests at my Tulum villa.',
+    occupation: 'client', client_type: 'hire',
     latitude: 20.2454, longitude: -87.4654, // ~4km
     roommate_available: false, onboarding_completed: true
   },
   {
     user_id: 'demo-client-7',
     full_name: 'Yuki Tanaka',
-    age: 24, gender: 'female',
+    age: 32, gender: 'female',
     city: 'Tulum', country: 'Mexico',
     images: ['https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=1200'],
-    interests: ['Robotics', 'Photography', 'Digital Art'],
-    lifestyle_tags: ['Digital Artist', 'Freelancer'],
-    bio: 'Full-stack dev & photographer. Remote-first. Available for product launches.',
-    occupation: 'worker', client_type: 'hire',
+    interests: ['Boutique Hotels', 'Hospitality', 'Wellness'],
+    lifestyle_tags: ['Property Manager'],
+    bio: 'Looking for a handyman for ongoing maintenance and a chef for private events.',
+    occupation: 'client', client_type: 'hire',
     latitude: 20.2114, longitude: -87.1274, // ~37km
-    roommate_available: false, onboarding_completed: true
-  },
-  {
-    user_id: 'demo-client-9',
-    full_name: 'David Van der Berg',
-    age: 30, gender: 'male',
-    city: 'Playa del Carmen', country: 'Mexico',
-    images: ['https://images.unsplash.com/photo-1504257432389-52343af06ae3?auto=format&fit=crop&q=80&w=1200'],
-    interests: ['Mountain Biking', 'Architecture', 'Woodworking'],
-    lifestyle_tags: ['Craftsman', 'Remote Worker'],
-    bio: 'Construction project manager & interior carpenter. 8 years building premium residences.',
-    occupation: 'worker', client_type: 'hire',
-    latitude: 19.8114, longitude: -87.4654, // ~44km
     roommate_available: false, onboarding_completed: true
   },
 ];
@@ -212,6 +174,40 @@ export function useSmartClientMatching(
                     });
                 }
 
+                // Helper: append demo clients AFTER real ones. Demos bypass swipe exclusion
+                // so the user can keep practicing repeatedly without losing them.
+                const appendDemoClients = (real: MatchedClientProfile[]): MatchedClientProfile[] => {
+                    if (page !== 0) return real;
+                    const existing = new Set(real.map(r => r.user_id));
+                    const filteredDemos = DEMO_CLIENTS.filter(c => {
+                        if (existing.has(c.user_id)) return false;
+                        if (isRoommateSection && !c.roommate_available) return false;
+                        if (_category && ['buyers', 'renters', 'hire'].includes(_category)) {
+                            const map: Record<string, string> = { buyers: 'buyer', renters: 'renter', hire: 'hire' };
+                            return c.client_type === map[_category];
+                        }
+                        return true;
+                    });
+                    const mapped = filteredDemos.map(c => ({
+                        id: c.user_id, user_id: c.user_id, name: c.full_name,
+                        age: c.age, gender: c.gender,
+                        interests: c.interests || [], preferred_activities: [],
+                        location: { city: c.city },
+                        lifestyle_tags: c.lifestyle_tags || [],
+                        profile_images: c.images || ['/placeholder.svg'],
+                        matchPercentage: 92 + Math.floor(Math.random() * 7),
+                        matchReasons: ['Highly Recommended'],
+                        incompatibleReasons: [],
+                        verified: !!c.onboarding_completed,
+                        roommate_available: !!c.roommate_available,
+                        city: c.city, country: c.country,
+                        client_type: c.client_type,
+                        bio: c.bio,
+                        isDemo: true,
+                    } as unknown as MatchedClientProfile));
+                    return [...real, ...mapped];
+                };
+
                 // RPC attempt — only use results if they match the current category filter
                 try {
                     const { data: rpcClients, error: rpcError } = await (supabase as any).rpc('get_smart_clients', {
@@ -238,15 +234,15 @@ export function useSmartClientMatching(
                             finalClients = finalClients.filter(c => (c.client_type || 'unknown') === clientTypeMap[_category]);
                         }
 
-                        // Only return early from RPC if we have results after filtering
-                        if (finalClients.length > 0) {
+                        // Always append demos (real first) so testing data is never lost
+                        const withDemos = appendDemoClients(finalClients as any);
+                        if (withDemos.length > 0) {
                             runIdleTask(() => {
-                                const imagesToPrewarm = finalClients.flatMap(p => p.profile_images || p.images || []).slice(0, 5);
+                                const imagesToPrewarm = withDemos.flatMap((p: any) => p.profile_images || p.images || []).slice(0, 5);
                                 pwaImagePreloader.batchPreload(imagesToPrewarm.map(url => getCardImageUrl(url)));
                             });
-                            return finalClients;
+                            return withDemos;
                         }
-                        // Fall through to demo logic below when RPC has results but none match category
                     }
                 } catch (_e) {}
 
@@ -361,7 +357,8 @@ export function useSmartClientMatching(
                 // 🚀 DEMO FALLBACK REMOVED: Show the "Adjust Radius" page instead of fake demo data
                 // This gives users clear feedback when no real matches exist nearby
 
-                return results.sort((a, b) => b.matchPercentage - a.matchPercentage);
+                const sortedReal = results.sort((a, b) => b.matchPercentage - a.matchPercentage);
+                return appendDemoClients(sortedReal);
             } catch (err) {
                 logger.error('[SmartClientMatching] Error:', err);
                 return [];
