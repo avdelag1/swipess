@@ -253,6 +253,11 @@ const ClientSwipeContainerComponent = ({
   if (filterSignature !== prevFilterSignatureRef.current) {
     filterChangedRef.current = true;
     prevFilterSignatureRef.current = filterSignature;
+    // Clear deck synchronously during render so the previous category's
+    // top card photo doesn't flash before the new query resolves.
+    deckQueueRef.current = [];
+    currentIndexRef.current = 0;
+    swipedIdsRef.current.clear();
   }
 
   // PERF FIX: Reset deck ONLY when filters actually change (not on navigation return)
