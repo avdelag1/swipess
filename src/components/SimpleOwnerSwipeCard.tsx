@@ -30,8 +30,8 @@ export interface SimpleOwnerSwipeCardRef {
   triggerSwipe: (direction: 'left' | 'right') => void;
 }
 
-const SWIPE_THRESHOLD = 65;
-const VELOCITY_THRESHOLD = 280;
+const SWIPE_THRESHOLD = 50;
+const VELOCITY_THRESHOLD = 180;
 const MAX_ROTATION = 14;
 const FALLBACK_PLACEHOLDER = '';
 
@@ -351,7 +351,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
         dragListener={false}
         dragMomentum={false}
         dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
-        dragElastic={0.55}
+        dragElastic={0.85}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
         onPointerDown={handleUnifiedPointerDown}
