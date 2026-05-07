@@ -137,6 +137,17 @@ const DEMO_LISTINGS: any[] = [
     latitude: 20.2454, longitude: -87.4654, // ~4km north
     is_active: true, status: 'active', created_at: new Date().toISOString()
   },
+  {
+    id: 'demo-13',
+    title: 'Mobile Massage Therapist',
+    description: 'Deep tissue, Swedish and sports massage. Travels to your villa or hotel. Towels, oils and music included.',
+    price: 90, pricing_unit: 'hour', currency: 'USD',
+    images: ['https://images.unsplash.com/photo-1544161515-4ab6ce6db874?auto=format&fit=crop&q=80&w=1200'],
+    city: 'Tulum', category: 'worker',
+    service_category: 'Massage Therapy', experience_years: 9, experience_level: 'expert',
+    latitude: 20.2214, longitude: -87.4754, // ~2km
+    is_active: true, status: 'active', created_at: new Date().toISOString()
+  },
 ];
 
 export function useSmartListingMatching(
