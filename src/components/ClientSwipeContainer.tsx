@@ -925,7 +925,7 @@ const ClientSwipeContainerComponent = ({
         {/* 📡 Radar HUD removed from here — now managed at the Dashboard level for persistence */}
 
         <div className="flex-1 relative flex w-full h-full items-center justify-center px-0 z-10 pointer-events-auto min-h-0 overflow-hidden">
-        {topCard && <SwipeDeckBackButton />}
+        {/* Persistent in-deck back button removed — TopBar back arrow is the single source of truth */}
         <div className="relative w-full h-full mx-auto flex items-center justify-center pointer-events-auto">
           <AnimatePresence mode="sync" initial={true}>
             {topCard ? (
