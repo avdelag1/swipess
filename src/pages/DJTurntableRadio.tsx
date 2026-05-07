@@ -17,7 +17,8 @@ export default function DJTurntableRadio() {
     state, play, togglePlayPause, togglePower, changeStation,
     setCity, setVolume, toggleFavorite, isStationFavorite, shuffleAndPlay
   } = useRadio();
-  const { isDark } = useAppTheme();
+  // Cheetah skin always applies dark base — force dark-styled UI
+  const isDark = true;
 
   const [showDrawer, setShowDrawer] = useState(false);
   const [drawerMode, setDrawerMode] = useState<'all' | 'favorites'>('all');
