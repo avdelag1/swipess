@@ -254,6 +254,7 @@ export const StationDrawer = ({
 
             {/* Bottom Safe Area */}
             <div className="h-6" />
+            </div>
           </motion.div>
         </>
       )}
