@@ -20,7 +20,8 @@ export default function WorldRadioDirectory() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { state, play, toggleFavorite, isStationFavorite, shuffleAndPlay } = useRadio();
-  const { isDark } = useAppTheme();
+  // Cheetah skin always applies a dark base — force dark-styled UI regardless of app theme
+  const isDark = true;
   const [searchQuery, setSearchQuery] = useState('');
   
   // Initialize with 'favorites' if param exists
