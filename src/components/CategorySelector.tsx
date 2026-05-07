@@ -16,25 +16,6 @@ interface CategorySelectorProps {
 
 const springTap = { type: "spring" as const, stiffness: 500, damping: 30 };
 
-const categoryStyles: Record<Category, { active: string; glow: string }> = {
-  property: {
-    active: 'bg-gradient-to-r from-rose-600 to-rose-500 text-white border-rose-500/50 shadow-lg shadow-emerald-500/25',
-    glow: 'hover:border-rose-500/40',
-  },
-  motorcycle: {
-    active: 'bg-gradient-to-r from-orange-600 to-orange-500 text-white border-orange-500/50 shadow-lg shadow-orange-500/25',
-    glow: 'hover:border-orange-500/40',
-  },
-  bicycle: {
-    active: 'bg-gradient-to-r from-purple-600 to-purple-500 text-white border-purple-500/50 shadow-lg shadow-purple-500/25',
-    glow: 'hover:border-purple-500/40',
-  },
-  worker: {
-    active: 'bg-gradient-to-r from-amber-600 to-amber-500 text-white border-amber-500/50 shadow-lg shadow-amber-500/25',
-    glow: 'hover:border-amber-500/40',
-  },
-};
-
 export function CategorySelector({
   selectedCategory,
   selectedMode,
@@ -73,21 +54,17 @@ export function CategorySelector({
       <div className="flex flex-wrap gap-2">
         {categories.map(({ value, label, icon: Icon }) => {
           const active = selectedCategory === value;
-          const styles = categoryStyles[value];
           return (
             <motion.button
               key={value}
               type="button"
+              data-active={active}
+              data-category={value}
               onClick={() => onCategoryChange(value)}
               whileTap={{ scale: 0.94 }}
               whileHover={{ scale: 1.03 }}
               transition={springTap}
-              className={cn(
-                "flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-semibold transition-all border",
-                active
-                  ? styles.active
-                  : cn('bg-secondary text-foreground border-border', styles.glow, 'hover:bg-secondary/80')
-              )}
+              className="listing-category-control flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-semibold transition-all"
             >
               <Icon className="w-5 h-5" />
               {label}
