@@ -4,6 +4,7 @@ import { useActiveMode } from '@/hooks/useActiveMode';
 import { triggerHaptic } from '@/utils/haptics';
 import { useFilterStore } from '@/state/filterStore';
 import useAppTheme from '@/hooks/useAppTheme';
+import { useChromeReveal } from '@/hooks/useChromeReveal';
 
 /**
  * Persistent back arrow shown inside the swipe deck region.
@@ -15,6 +16,11 @@ export function SwipeDeckBackButton() {
   const { activeMode } = useActiveMode();
   const setActiveCategory = useFilterStore((s) => s.setActiveCategory);
   const { isLight } = useAppTheme();
+  const { isChromeVisible } = useChromeReveal();
+
+  // Hide this persistent back button while the TopBar chrome is revealed,
+  // so the user only ever sees one back arrow at a time (no overlap).
+  if (isChromeVisible) return null;
 
   return (
     <button
