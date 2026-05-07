@@ -137,6 +137,51 @@ const ConciergePrivacyPortal = memo(({ onAccept, isSwipess }: { onAccept: () => 
 ));
 ConciergePrivacyPortal.displayName = 'ConciergePrivacyPortal';
 
+const POPULAR_TOPICS: { label: string; prompt: string; icon: any; tone: string }[] = [
+  { label: 'Real Estate', prompt: 'Show me modern houses for sale in Tulum', icon: Crown, tone: 'from-orange-400 to-pink-500' },
+  { label: 'Rentals', prompt: 'Find me 2 bedroom apartments for rent under $1500', icon: Sun, tone: 'from-rose-400 to-fuchsia-500' },
+  { label: 'Motorcycles', prompt: 'Find motorcycles under $3,000', icon: Flame, tone: 'from-amber-400 to-orange-500' },
+  { label: 'Bicycles', prompt: 'Show me bicycles available nearby', icon: Zap, tone: 'from-violet-400 to-indigo-500' },
+  { label: 'Find Workers', prompt: 'I need a reliable plumber today', icon: Sparkles, tone: 'from-cyan-400 to-sky-500' },
+  { label: 'Find Clients', prompt: 'Help me reach more clients for my listing', icon: Moon, tone: 'from-emerald-400 to-teal-500' },
+];
+
+const WelcomeState = memo(({ isSwipess, isLight, onPick }: { isSwipess: boolean; isLight: boolean; onPick: (prompt: string) => void }) => (
+  <div className="h-full flex flex-col items-start justify-start gap-7 max-w-2xl mx-auto w-full">
+    <div className="space-y-2 w-full">
+      <h2 className={cn("text-3xl font-black tracking-tight", isLight && !isSwipess ? "text-foreground" : "text-white")}>
+        Hey there! <span className="inline-block">👋</span>
+      </h2>
+      <p className={cn("text-2xl font-bold leading-tight", isLight && !isSwipess ? "text-foreground/80" : "text-white/80")}>
+        What can I help you with today?
+      </p>
+    </div>
+    <div className="w-full">
+      <p className={cn("text-[11px] font-black uppercase tracking-[0.25em] mb-3", isLight && !isSwipess ? "text-muted-foreground" : "text-white/50")}>
+        Popular Topics
+      </p>
+      <div className="grid grid-cols-2 gap-3">
+        {POPULAR_TOPICS.map((t) => (
+          <button
+            key={t.label}
+            onClick={() => onPick(t.prompt)}
+            className={cn(
+              "flex flex-col items-center justify-center gap-2 px-4 py-5 rounded-2xl border transition-all active:scale-[0.96] hover:shadow-[0_18px_40px_rgba(0,0,0,0.12)]",
+              isLight && !isSwipess ? "bg-card border-border/60" : "bg-white/[0.04] border-white/10"
+            )}
+          >
+            <div className={cn("w-10 h-10 rounded-xl bg-gradient-to-br flex items-center justify-center shadow-md", t.tone)}>
+              <t.icon className="w-5 h-5 text-white" strokeWidth={2.4} />
+            </div>
+            <span className={cn("text-[13px] font-bold", isLight && !isSwipess ? "text-foreground" : "text-white")}>{t.label}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  </div>
+));
+WelcomeState.displayName = 'WelcomeState';
+
 const MessageBubble = memo(({ message, isUser, isSwipess, onCopy, onDelete, onTranslate, onResend, onNavigate, onDraft, onFilter, onSpeak, speakingMsgId, isSpeaking }: { 
   message: ChatMessage, isUser: boolean, isSwipess: boolean,
   onCopy: () => void, onDelete: () => void, onTranslate?: (l:string)=>void,
