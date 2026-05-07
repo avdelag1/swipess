@@ -31,13 +31,14 @@ export function ImageUpload({
 
   const uploadImage = useCallback(async (file: File): Promise<string | null> => {
     try {
-      // Validate file using centralized validation
+      // Validate raw file (size + type). HEIC and large files are accepted —
+      // compressImage() will normalize/shrink them.
       const validation = validateImageFile(file);
       if (!validation.isValid) {
         throw new Error(validation.error);
       }
 
-      // Compress image before upload for better performance
+      // Compress (and HEIC-convert) before upload.
       const compressedFile = await compressImage(file, LISTING_COMPRESSION);
 
       // Generate unique filename using crypto for security
