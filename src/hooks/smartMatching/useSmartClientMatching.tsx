@@ -13,10 +13,11 @@ const CLIENT_FIELDS = `
     languages_spoken, neighborhood, bio, onboarding_completed
 `;
 
-// 3 per client type: buyers, renters, workers + 2 roommate-available
-// Coords near Tulum so owner-side radius slider reacts during testing
+// Demo data: 2 buyers, 2 renters, 2 hire (workers seeking jobs).
+// Always appended AFTER real users so testing never obscures real profiles.
+// Coords near Tulum so the owner-side radius slider reacts during testing.
 const DEMO_CLIENTS: any[] = [
-  // ── BUYERS (looking to purchase) ──────────────────────────────────────
+  // ── BUYERS (2 — looking to purchase) ──────────────────────────────────
   {
     user_id: 'demo-client-1',
     full_name: 'Sophia Laurent',
@@ -43,21 +44,8 @@ const DEMO_CLIENTS: any[] = [
     latitude: 20.1474, longitude: -87.4654, // ~7km
     roommate_available: false, onboarding_completed: true
   },
-  {
-    user_id: 'demo-client-8',
-    full_name: 'Alexei Volkov',
-    age: 33, gender: 'male',
-    city: 'Tulum', country: 'Mexico',
-    images: ['https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=1200'],
-    interests: ['Classic Cars', 'Desert Safari', 'Fintech'],
-    lifestyle_tags: ['Collector', 'Private Investor'],
-    bio: 'Buying a high-security villa with garage space for vehicle collection.',
-    occupation: 'buyer', client_type: 'buyer',
-    latitude: 20.4914, longitude: -87.4654, // ~31km
-    roommate_available: false, onboarding_completed: true
-  },
 
-  // ── RENTERS (looking to rent) ─────────────────────────────────────────
+  // ── RENTERS (2 — looking to rent) ─────────────────────────────────────
   {
     user_id: 'demo-client-2',
     full_name: 'Marcus Chen',
@@ -84,58 +72,32 @@ const DEMO_CLIENTS: any[] = [
     latitude: 20.2114, longitude: -87.3764, // ~10km
     roommate_available: true, onboarding_completed: true
   },
-  {
-    user_id: 'demo-client-6',
-    full_name: 'Liam Henderson',
-    age: 28, gender: 'male',
-    city: 'Playa del Carmen', country: 'Mexico',
-    images: ['https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=1200'],
-    interests: ['Rugby', 'Craft Beer', 'Kitesurfing'],
-    lifestyle_tags: ['Social', 'Gym Regular'],
-    bio: 'Looking for a furnished apartment near the beach, 6-month minimum lease.',
-    occupation: 'renter', client_type: 'renter',
-    latitude: 20.2114, longitude: -87.6044, // ~15km
-    roommate_available: false, onboarding_completed: true
-  },
 
-  // ── WORKERS / HIRE ────────────────────────────────────────────────────
+  // ── HIRE (2 — clients looking to hire workers / book services) ────────
   {
     user_id: 'demo-client-5',
     full_name: 'Amara Okafor',
     age: 27, gender: 'female',
     city: 'Tulum', country: 'Mexico',
     images: ['https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&q=80&w=1200'],
-    interests: ['Fashion Design', 'Urban Art', 'Photography'],
-    lifestyle_tags: ['Creative Professional', 'Freelancer'],
-    bio: 'Fashion designer & creative director. Available for brand shoots and interior styling.',
-    occupation: 'worker', client_type: 'hire',
+    interests: ['Wellness', 'Home Décor', 'Hosting'],
+    lifestyle_tags: ['Villa Owner', 'Frequent Traveler'],
+    bio: 'Need weekly cleaning and a reliable masseuse for guests at my Tulum villa.',
+    occupation: 'client', client_type: 'hire',
     latitude: 20.2454, longitude: -87.4654, // ~4km
     roommate_available: false, onboarding_completed: true
   },
   {
     user_id: 'demo-client-7',
     full_name: 'Yuki Tanaka',
-    age: 24, gender: 'female',
+    age: 32, gender: 'female',
     city: 'Tulum', country: 'Mexico',
     images: ['https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=1200'],
-    interests: ['Robotics', 'Photography', 'Digital Art'],
-    lifestyle_tags: ['Digital Artist', 'Freelancer'],
-    bio: 'Full-stack dev & photographer. Remote-first. Available for product launches.',
-    occupation: 'worker', client_type: 'hire',
+    interests: ['Boutique Hotels', 'Hospitality', 'Wellness'],
+    lifestyle_tags: ['Property Manager'],
+    bio: 'Looking for a handyman for ongoing maintenance and a chef for private events.',
+    occupation: 'client', client_type: 'hire',
     latitude: 20.2114, longitude: -87.1274, // ~37km
-    roommate_available: false, onboarding_completed: true
-  },
-  {
-    user_id: 'demo-client-9',
-    full_name: 'David Van der Berg',
-    age: 30, gender: 'male',
-    city: 'Playa del Carmen', country: 'Mexico',
-    images: ['https://images.unsplash.com/photo-1504257432389-52343af06ae3?auto=format&fit=crop&q=80&w=1200'],
-    interests: ['Mountain Biking', 'Architecture', 'Woodworking'],
-    lifestyle_tags: ['Craftsman', 'Remote Worker'],
-    bio: 'Construction project manager & interior carpenter. 8 years building premium residences.',
-    occupation: 'worker', client_type: 'hire',
-    latitude: 19.8114, longitude: -87.4654, // ~44km
     roommate_available: false, onboarding_completed: true
   },
 ];
