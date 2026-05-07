@@ -18,6 +18,7 @@ import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
 import useAppTheme from '@/hooks/useAppTheme';
+import { compressImage, PROFILE_COMPRESSION } from '@/utils/imageCompression';
 
 import { OWNER_SERVICE_OFFERING_OPTIONS as SERVICE_OFFERING_OPTIONS } from '@/constants/profileConstants';
 
@@ -51,9 +52,10 @@ function OwnerProfileDialogComponent({ open, onOpenChange }: Props) {
   const handleImageUpload = async (file: File): Promise<string> => {
     const user = await supabase.auth.getUser();
     if (!user.data.user) throw new Error('Not authenticated');
-    const fileExt = file.name.split('.').pop() || 'jpg';
+    const prepared = await compressImage(file, PROFILE_COMPRESSION);
+    const fileExt = prepared.type === 'image/webp' ? 'webp' : prepared.type === 'image/png' ? 'png' : 'jpg';
     const filePath = `${user.data.user.id}/${crypto.randomUUID()}.${fileExt}`;
-    const { error } = await supabase.storage.from('profile-images').upload(filePath, file);
+    const { error } = await supabase.storage.from('profile-images').upload(filePath, prepared, { contentType: prepared.type || 'image/jpeg' });
     if (error) throw error;
     return supabase.storage.from('profile-images').getPublicUrl(filePath).data.publicUrl;
   };

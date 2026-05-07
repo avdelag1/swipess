@@ -57,6 +57,43 @@ const itemFadeScale = {
   visible: { opacity: 1, y: 0, scale: 1, transition: fastSpring }
 };
 
+const getMissingSchemaColumn = (message?: string | null) => {
+  if (!message) return null;
+  const quoted = message.match(/['"]([^'"]+)['"]\s+column|column\s+['"]([^'"]+)['"]|find the ['"]([^'"]+)['"] column/i);
+  return quoted?.[1] || quoted?.[2] || quoted?.[3] || null;
+};
+
+const saveListingWithSchemaRetry = async (
+  payload: Record<string, any>,
+  editingId: string | null
+) => {
+  let safeData = { ...payload };
+  const removedColumns = new Set<string>();
+
+  for (let attempt = 0; attempt < 25; attempt += 1) {
+    const result = editingId
+      ? await supabase.from('listings').update(safeData as any).eq('id', editingId).select().single()
+      : await supabase.from('listings').insert(safeData as any).select().single();
+
+    if (!result.error) return result.data;
+
+    const errorMsg = result.error.message?.toLowerCase() || '';
+    const isSchemaError = errorMsg.includes('could not find') || errorMsg.includes('schema cache') || errorMsg.includes('column');
+    const missingColumn = getMissingSchemaColumn(result.error.message);
+
+    if (!isSchemaError || !missingColumn || safeData[missingColumn] === undefined || removedColumns.has(missingColumn)) {
+      throw result.error;
+    }
+
+    removedColumns.add(missingColumn);
+    const { [missingColumn]: _removed, ...nextData } = safeData;
+    safeData = nextData;
+    logger.warn(`Live listing schema rejected "${missingColumn}" — retrying without it.`);
+  }
+
+  throw new Error('Listing save failed after adapting to the live schema.');
+};
+
 const toIntOrNull = (value: unknown) => {
   const parsed = Number(value);
   return Number.isFinite(parsed) ? Math.round(parsed) : null;
@@ -297,86 +334,13 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
       if (listingData.price === undefined) listingData.price = 0;
       if (listingData.title === undefined) listingData.title = `New ${selectedCategory}`;
 
-      let listingResult;
-
       try {
-        if (editingId) {
-          // Update existing listing
-          const { data, error } = await supabase
-            .from('listings')
-            .update(listingData as any)
-            .eq('id', editingId)
-            .select()
-            .single();
-
-          if (error) {
-            const errorMsg = error.message?.toLowerCase() || '';
-            const isSchemaError = errorMsg.includes('could not find the') || errorMsg.includes('schema cache') || errorMsg.includes('column');
-            
-            if (isSchemaError) {
-              const columnMatch = error.message?.match(/(?:column\s+['"]?([^'"\s]+)['"]?)|(?:['"]?([^'"\s]+)['"]?\s+column)/i);
-              const missingColumn = columnMatch ? (columnMatch[1] || columnMatch[2]) : null;
-              
-              if (missingColumn && listingData[missingColumn] !== undefined) {
-                logger.warn(`Removing problematic column "${missingColumn}" from update and retrying...`);
-                const { [missingColumn]: _, ...safeData } = listingData;
-                const { data: fallbackData, error: fallbackError } = await supabase
-                  .from('listings').update(safeData as any).eq('id', editingId).select().single();
-                if (fallbackError) throw fallbackError;
-                listingResult = fallbackData;
-              } else {
-                throw error;
-              }
-            } else {
-              throw error;
-            }
-          } else {
-            listingResult = data;
-          }
-        } else {
-          // Insert new listing
-          const { data, error } = await supabase
-            .from('listings')
-            .insert(listingData as any)
-            .select()
-            .single();
-
-          if (error) {
-            logger.error('Insert error details:', error);
-            const errorMsg = error.message?.toLowerCase() || '';
-            const isSchemaError = errorMsg.includes('could not find the') || errorMsg.includes('schema cache') || errorMsg.includes('column');
-
-            if (isSchemaError) {
-              // Extract the problematic column name from the error message and retry without it
-              const columnMatch = error.message?.match(/['"]([^'"]+)['"]\s+column|column\s+['"]([^'"]+)['"]/i);
-              const missingColumn = columnMatch ? (columnMatch[1] || columnMatch[2]) : null;
-
-              if (missingColumn && listingData[missingColumn] !== undefined) {
-                logger.warn(`Schema cache missing column "${missingColumn}" — retrying without it...`);
-                const { [missingColumn]: _, ...safeData } = listingData;
-                const { data: fallbackData, error: fallbackError } = await supabase
-                  .from('listings')
-                  .insert(safeData as any)
-                  .select()
-                  .single();
-                if (fallbackError) throw fallbackError;
-                listingResult = fallbackData;
-              } else {
-                throw error;
-              }
-            } else {
-              throw error;
-            }
-          } else {
-            listingResult = data;
-          }
-        }
+        const listingResult = await saveListingWithSchemaRetry(listingData, editingId);
+        return listingResult;
       } catch (err: unknown) {
         logger.error('Listing mutation failed:', err);
         throw err;
       }
-
-      return listingResult;
     },
     onSuccess: (listing) => {
       uiSounds.playUploadComplete();

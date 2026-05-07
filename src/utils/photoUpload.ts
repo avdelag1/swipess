@@ -1,5 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
 import { logger } from './prodLogger';
+import { compressImage, LISTING_COMPRESSION, PROFILE_COMPRESSION } from './imageCompression';
 
 export interface UploadProgressCallback {
   (progress: number): void;
@@ -25,9 +26,15 @@ export const uploadPhoto = async ({
 }: PhotoUploadOptions): Promise<PhotoUploadResult> => {
   const timestamp = Date.now();
   const unique = Math.random().toString(36).slice(2, 9);
-  const fileName = `${userId}/${timestamp}-${unique}.jpg`;
-
-  const file = new File([blob], fileName, { type: 'image/jpeg' });
+  const rawFile = blob instanceof File
+    ? blob
+    : new File([blob], `${timestamp}-${unique}.jpg`, { type: blob.type || 'image/jpeg' });
+  const shouldNormalizeImage = bucket.includes('images');
+  const file = shouldNormalizeImage
+    ? await compressImage(rawFile, bucket === 'listing-images' ? LISTING_COMPRESSION : PROFILE_COMPRESSION)
+    : rawFile;
+  const ext = file.type === 'image/webp' ? 'webp' : file.type === 'image/png' ? 'png' : 'jpg';
+  const fileName = `${userId}/${timestamp}-${unique}.${ext}`;
 
   if (onProgress) {
     onProgress(10);
