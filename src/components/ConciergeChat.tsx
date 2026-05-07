@@ -207,6 +207,37 @@ const MessageBubble = memo(({ message, isUser, isSwipess, onCopy, onDelete, onTr
         )}
       </div>
 
+      {!isUser && listings.length > 0 && (
+        <div className="w-full mt-2 grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {listings.map((l) => (
+            <button
+              key={l.id}
+              onClick={(e) => { e.stopPropagation(); onNavigate?.(`/listing/${l.id}`); }}
+              className={cn(
+                "group relative overflow-hidden rounded-2xl border text-left transition-all active:scale-[0.98] hover:shadow-[0_18px_40px_rgba(0,0,0,0.18)]",
+                isSwipess ? "bg-white/[0.04] border-white/10" : "bg-card border-border/60"
+              )}
+            >
+              {l.image && (
+                <div className="aspect-[16/10] w-full overflow-hidden bg-muted">
+                  <img src={l.image} alt={l.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500" />
+                </div>
+              )}
+              <div className="p-3 space-y-1">
+                <p className={cn("text-sm font-bold leading-tight line-clamp-1", isSwipess ? "text-white" : "text-foreground")}>{l.title}</p>
+                <p className="text-[13px] font-black bg-gradient-to-r from-primary to-[#A855F7] bg-clip-text text-transparent">
+                  {l.currency === "MXN" ? "MXN$" : "$"}{Number(l.price).toLocaleString()}
+                  <span className="text-[10px] font-bold opacity-60 ml-1">/ {l.listing_type}</span>
+                </p>
+                <p className={cn("text-[11px] font-medium opacity-70 line-clamp-1", isSwipess ? "text-white/70" : "text-muted-foreground")}>
+                  {[l.bedrooms ? `${l.bedrooms} bd` : null, l.bathrooms ? `${l.bathrooms} ba` : null, l.city].filter(Boolean).join(" · ")}
+                </p>
+              </div>
+            </button>
+          ))}
+        </div>
+      )}
+
       {navPaths.length > 0 && onNavigate && (
         <div className="flex flex-wrap gap-1.5 mt-1">
           {navPaths.map(path => (
