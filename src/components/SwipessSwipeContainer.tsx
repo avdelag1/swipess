@@ -808,31 +808,12 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
         "bg-swipe-frame"
       )} />
 
-      {!hasCards && (
-        <div className="absolute top-[calc(var(--safe-top,0px)+64px)] left-4 z-[70] flex items-center gap-3 pointer-events-auto">
-          <button
-            onClick={() => {
-              triggerHaptic('light');
-              setActiveCategory(null as any);
-              setCategories([] as any);
-            }}
-            className={cn(
-              "flex items-center justify-center w-10 h-10 rounded-full border transition-all active:scale-90",
-              isLight ? "bg-white border-black/10 text-black" : "bg-black/80 border-white/20 text-white"
-            )}
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </button>
-          <span className={cn("text-sm font-black uppercase tracking-wider", isLight ? "text-black" : "text-white")}>
-            {currentCategoryName}
-          </span>
-        </div>
-      )}
+      {/* Single back button is owned by SwipeDeckBackButton — no duplicate radar header here */}
 
       <div className={cn(
         "flex-1 relative flex w-full h-full items-center justify-center px-0 z-10 pointer-events-auto min-h-0 overflow-hidden"
       )}>
-        {hasCards && <SwipeDeckBackButton />}
+        <SwipeDeckBackButton />
         <div className="relative w-full h-full mx-auto flex items-center justify-center pointer-events-auto md:max-w-[572px]">
           {/* Rounded backdrop matches card corners so deck blends into background */}
           <div
