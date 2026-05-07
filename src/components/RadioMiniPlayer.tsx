@@ -6,10 +6,12 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { triggerHaptic } from '@/utils/haptics';
 import { cn } from '@/lib/utils';
 import useAppTheme from '@/hooks/useAppTheme';
+import { CheetahSkinBackground } from '@/components/radio/CheetahSkinBackground';
 
 function RadioMiniPlayerInner() {
   const { state, togglePlayPause, changeStation, pause, setMiniPlayerMode, setVolume, toggleFavorite, isStationFavorite, shuffleAndPlay } = useRadio();
-  const { isLight } = useAppTheme();
+  // Cheetah skin always uses dark base — force dark UI tone
+  const isLight = false;
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -134,10 +136,9 @@ function RadioMiniPlayerInner() {
           className="fixed right-4 z-[200] w-[300px]"
           style={bottomStyle}
         >
-          <div className={cn(
-            "rounded-[28px] overflow-hidden shadow-[0_22px_70px_8px_rgba(0,0,0,0.56)] border backdrop-blur-3xl",
-            isLight ? "bg-white/95 border-black/[0.05]" : "bg-black/85 border-white/10"
-          )}>
+          <div className="relative rounded-[28px] overflow-hidden shadow-[0_22px_70px_8px_rgba(0,0,0,0.56)] border border-white/15 text-white">
+            <CheetahSkinBackground />
+            <div className="relative z-10">
             {/* Top bar */}
             <div className="flex items-center justify-between px-4 pt-3.5 pb-2">
               <button
@@ -231,6 +232,7 @@ function RadioMiniPlayerInner() {
                   <span className="text-[9px] font-black uppercase tracking-widest italic">Directory</span>
                 </button>
               </div>
+            </div>
             </div>
           </div>
         </m.div>
