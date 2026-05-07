@@ -118,7 +118,7 @@ export function PhotoUploadManager({
             <div className="flex items-center justify-between px-1">
               <div className="flex items-center gap-2">
                 <Sparkles className="w-4 h-4 text-[#EB4898]" />
-                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/60 italic">
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground italic">
                   Gallery Engine ({currentPhotos.length}/{maxPhotos})
                 </span>
               </div>
@@ -145,7 +145,7 @@ export function PhotoUploadManager({
                   <motion.div
                     className={cn(
                       "w-48 h-64 relative rounded-[2rem] overflow-hidden border-2 cursor-grab active:cursor-grabbing shadow-2xl transition-all",
-                      index === 0 ? "border-[#EB4898]/50 shadow-[#EB4898]/10" : "border-white/10"
+                      index === 0 ? "border-primary/60 shadow-primary/10" : "border-border"
                     )}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
@@ -156,7 +156,7 @@ export function PhotoUploadManager({
                     {/* 🛸 MAIN ASSET INDICATOR */}
                     {index === 0 && (
                       <div className="absolute top-4 left-4">
-                        <Badge className="bg-[#EB4898] text-white text-[9px] font-black uppercase italic tracking-widest px-2 py-1 shadow-[0_0_15px_#EB4898]">
+                        <Badge className="bg-primary text-primary-foreground text-[9px] font-black uppercase italic tracking-widest px-2 py-1 shadow-[0_0_15px_hsl(var(--primary)/0.45)]">
                           Primary
                         </Badge>
                       </div>
@@ -185,12 +185,12 @@ export function PhotoUploadManager({
               {currentPhotos.length < maxPhotos && (
                  <button
                     onClick={() => document.getElementById('photo-upload')?.click()}
-                    className="w-48 h-64 rounded-[2rem] border-2 border-dashed border-white/10 bg-white/5 flex flex-col items-center justify-center gap-3 hover:bg-white/10 transition-all group shrink-0"
+                    className="w-48 h-64 rounded-[2rem] border-2 border-dashed border-primary/35 bg-secondary flex flex-col items-center justify-center gap-3 hover:bg-accent transition-all group shrink-0"
                  >
-                    <div className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center group-hover:scale-110 group-hover:border-[#EB4898]/50 transition-all">
-                       <Plus className="w-6 h-6 text-white/70 group-hover:text-[#EB4898]" />
+                    <div className="w-12 h-12 rounded-full bg-background border border-border flex items-center justify-center group-hover:scale-110 group-hover:border-primary/50 transition-all">
+                       <Plus className="w-6 h-6 text-foreground/70 group-hover:text-primary" />
                     </div>
-                    <span className="text-[9px] font-black uppercase tracking-widest italic text-white/60 group-hover:text-white/60">Upload Asset</span>
+                    <span className="text-[9px] font-black uppercase tracking-widest italic text-secondary-foreground">Upload Asset</span>
                  </button>
               )}
             </Reorder.Group>
@@ -202,8 +202,8 @@ export function PhotoUploadManager({
       {currentPhotos.length === 0 && (
         <div
           className={cn(
-            "w-full h-80 border-2 border-dashed rounded-[3rem] transition-all cursor-pointer flex items-center justify-center bg-[#0d0d0f]/40 backdrop-blur-xl relative overflow-hidden group",
-            dragOver ? "border-[#EB4898] bg-[#EB4898]/10" : "border-white/10 hover:border-white/20"
+            "w-full h-80 border-2 border-dashed rounded-[3rem] transition-all cursor-pointer flex items-center justify-center bg-secondary backdrop-blur-xl relative overflow-hidden group",
+            dragOver ? "border-primary bg-primary/10" : "border-border hover:border-primary/35"
           )}
           onDrop={handleDrop}
           onDragOver={handleDragOver}
@@ -214,19 +214,19 @@ export function PhotoUploadManager({
           <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,rgba(235,72,152,0.05)_0%,transparent_70%)] pointer-events-none" />
           
           <div className="relative z-10 text-center flex flex-col items-center gap-6 p-8">
-            <div className="w-20 h-20 rounded-[2rem] bg-white/5 border border-white/10 flex items-center justify-center group-hover:scale-110 group-hover:border-[#EB4898]/50 transition-all shadow-2xl">
-              <Camera className="w-8 h-8 text-white/70 group-hover:text-[#EB4898]" />
+            <div className="w-20 h-20 rounded-[2rem] bg-background border border-border flex items-center justify-center group-hover:scale-110 group-hover:border-primary/50 transition-all shadow-2xl">
+              <Camera className="w-8 h-8 text-foreground/70 group-hover:text-primary" />
             </div>
             <div className="space-y-2">
-              <h4 className="text-xl font-black uppercase italic tracking-tighter text-white">Initialize Visual Identity</h4>
-              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/60 italic">Drag Assets or Tap to Browse</p>
+              <h4 className="text-xl font-black uppercase italic tracking-tighter text-foreground">Initialize Visual Identity</h4>
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground italic">Drag Assets or Tap to Browse</p>
             </div>
 
             <div className="flex gap-4">
                {showCameraButton && (
                  <Button 
                    onClick={(e) => { e.stopPropagation(); handleOpenCamera(); }}
-                   className="h-14 px-8 rounded-2xl bg-[#EB4898] text-white hover:bg-[#ff5bb0] shadow-[0_15px_30px_rgba(235,72,152,0.3)] group-hover:scale-105 transition-all"
+                    className="h-14 px-8 rounded-2xl bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_15px_30px_hsl(var(--primary)/0.3)] group-hover:scale-105 transition-all"
                  >
                     <Camera className="w-4 h-4 mr-2" />
                     <span className="font-black italic uppercase tracking-widest text-xs">Capture</span>
@@ -248,10 +248,10 @@ export function PhotoUploadManager({
       />
 
       {/* 🛸 PRO TIPS HUD */}
-      <div className="p-6 rounded-[2rem] bg-white/[0.03] border border-white/5 space-y-4">
+      <div className="p-6 rounded-[2rem] bg-secondary border border-border space-y-4">
         <div className="flex items-center gap-3">
            <Sparkles className="w-4 h-4 text-[#EB4898]" />
-           <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/80 italic">Swipess Photo Optimization</span>
+           <span className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground italic">Swipess Photo Optimization</span>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
            {[
@@ -262,7 +262,7 @@ export function PhotoUploadManager({
            ].map((tip) => (
              <div key={tip.label} className="space-y-1">
                 <p className="text-[9px] font-black uppercase text-[#EB4898] italic">{tip.label}</p>
-                <p className="text-[10px] text-white/70 leading-relaxed font-medium uppercase italic">{tip.desc}</p>
+                <p className="text-[10px] text-muted-foreground leading-relaxed font-medium uppercase italic">{tip.desc}</p>
              </div>
            ))}
         </div>
