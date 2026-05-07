@@ -552,11 +552,11 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
                     </AnimatePresence>
 
                     {(images.length + imageFiles.length) < maxPhotos && (
-                      <motion.button
-                        whileHover={{ scale: 1.02, backgroundColor: "rgba(255,255,255,0.05)" }}
+                    <motion.button
+                        whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                         onClick={handleImageAdd}
-                        className="aspect-square rounded-2xl border-2 border-dashed border-border flex flex-col items-center justify-center gap-2 text-muted-foreground hover:text-foreground transition-all group shadow-inner"
+                        className="aspect-square rounded-2xl border-2 border-dashed border-primary/35 bg-secondary text-secondary-foreground hover:bg-accent hover:text-accent-foreground hover:border-primary transition-all group shadow-inner"
                       >
                         <Upload className="w-6 h-6 group-hover:text-primary transition-colors" />
                         <span className="text-xs font-semibold">Add Photo</span>
@@ -670,11 +670,11 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
           </motion.div>
         </ScrollArea>
 
-        <div className="shrink-0 flex items-center justify-between px-6 sm:px-8 py-5 border-t border-border bg-background/80 backdrop-blur-2xl">
+        <div className="shrink-0 flex items-center justify-between px-6 sm:px-8 py-5 border-t border-border bg-background/95 backdrop-blur-2xl shadow-[0_-18px_40px_hsl(var(--foreground)/0.08)]">
           <motion.button
             whileTap={{ scale: 0.96 }}
             onClick={handleClose}
-            className="text-foreground bg-secondary border border-border hover:bg-secondary/80 px-6 rounded-2xl h-12 font-semibold transition-all"
+            className="text-secondary-foreground bg-secondary border border-border hover:bg-accent hover:text-accent-foreground px-6 rounded-2xl h-12 font-semibold transition-all shadow-lg shadow-foreground/5"
           >
             Cancel
           </motion.button>
@@ -687,11 +687,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
                 onClick={handleSubmit}
                 disabled={createListingMutation.isPending}
                 className={cn(
-                  "px-10 rounded-2xl h-12 font-black shadow-xl transition-all flex items-center gap-3 !text-white disabled:opacity-50 relative z-10 bg-primary",
-                  selectedCategory === 'property' && "bg-rose-600 hover:bg-rose-500 shadow-rose-500/30",
-                  selectedCategory === 'motorcycle' && "bg-orange-600 hover:bg-orange-500 shadow-orange-500/30",
-                  selectedCategory === 'bicycle' && "bg-purple-600 hover:bg-purple-500 shadow-purple-500/30",
-                  selectedCategory === 'worker' && "bg-amber-600 hover:bg-amber-500 shadow-amber-500/30"
+                  "px-10 rounded-2xl h-12 font-black shadow-xl transition-all flex items-center gap-3 text-primary-foreground disabled:opacity-50 relative z-10 bg-primary hover:bg-primary/90 shadow-primary/30"
                 )}
               >
                 {createListingMutation.isPending ? (
@@ -702,13 +698,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
                 ) : (
                   <>
                     <span className="tracking-tight">{editingId ? 'Update Listing' : 'Publish Listing'}</span>
-                    <ChevronRight className={cn(
-                      "w-4 h-4 transition-transform group-hover:translate-x-1",
-                      selectedCategory === 'property' && "text-rose-100",
-                      selectedCategory === 'motorcycle' && "text-orange-100",
-                      selectedCategory === 'bicycle' && "text-purple-100",
-                      selectedCategory === 'worker' && "text-amber-100"
-                    )} />
+                    <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                   </>
                 )}
               </motion.button>
