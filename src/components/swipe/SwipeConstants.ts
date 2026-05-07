@@ -87,10 +87,11 @@ export const PK_ASPECT = 0.66667; // 520 / 780
 export const FOLDER_OFFSET_X = 30;
 export const FOLDER_OFFSET_Y = 0;
 export const POKER_FAN_ROTATION = 8;
-export const PK_DIST_THRESHOLD = 80;
-export const PK_VEL_THRESHOLD = 260;
-// Softer spring — smoother quick-filter card cycling, no jitter
-export const PK_SPRING = { type: 'spring' as const, stiffness: 320, damping: 28, mass: 0.6 };
+// 🪶 Lightweight drag — easier commit, native-feeling flick
+export const PK_DIST_THRESHOLD = 55;
+export const PK_VEL_THRESHOLD = 180;
+// Snappier spring — quick-filter cards glide instead of fight
+export const PK_SPRING = { type: 'spring' as const, stiffness: 420, damping: 30, mass: 0.45 };
 
 
 
