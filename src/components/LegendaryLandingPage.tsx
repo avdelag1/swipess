@@ -95,14 +95,6 @@ const LandingView = memo(({
             variant="transparent"
             className="w-[65vw] max-w-[280px] sm:max-w-[340px] md:max-w-[420px] aspect-[4/1] min-h-[70px] sm:min-h-[85px] md:min-h-[105px]" 
           />
-          <motion.div
-            className="absolute inset-0 pointer-events-none"
-            style={{
-              background: 'linear-gradient(105deg, transparent 30%, rgba(255,255,255,0.2) 48%, rgba(255,255,255,0.05) 52%, transparent 70%)',
-            }}
-            animate={{ x: ['-120%', '180%'] }}
-            transition={{ duration: 2, ease: 'easeInOut', repeat: Infinity, repeatDelay: 6 }}
-          />
         </div>
       </motion.div>
 
