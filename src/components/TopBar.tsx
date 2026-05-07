@@ -12,8 +12,6 @@ import { haptics } from '@/utils/microPolish';
 import { ModeSwitcher } from './ModeSwitcher';
 import { NotificationPopover } from './NotificationPopover';
 import { ThemeToggle } from './ThemeToggle';
-import { useFilterStore, useFilterActions } from '@/state/filterStore';
-import { useDeckHasCards } from '@/hooks/useDeckHasCards';
 import { useModalStore } from '@/state/modalStore';
 import { TAP_SPRING } from './BottomNavigation';
 
@@ -57,12 +55,13 @@ function TopBarComponent({
   //    BLACK on every other page.
   const iconColor = !isLight || isDashboard ? '#FFFFFF' : '#0A0A0A';
 
-  const activeCategory = useFilterStore(s => s.activeCategory);
-  const { setActiveCategory } = useFilterActions();
-
   const isOwner = userRole === 'owner';
 
-  const onBack = propOnBack || (showBack ? () => window.history.length > 2 ? navigate(-1) : navigate(`/${isOwner ? 'owner' : 'client'}/dashboard`) : (activeCategory ? () => setActiveCategory(null) : undefined));
+  // Note: when an activeCategory is set on the dashboard, the SwipeDeckBackButton
+  // already provides the persistent back arrow. Don't render a duplicate here.
+  const onBack = propOnBack || (showBack
+    ? () => window.history.length > 2 ? navigate(-1) : navigate(`/${isOwner ? 'owner' : 'client'}/dashboard`)
+    : undefined);
 
   // Frameless Apple-style icon buttons — no pill, no glass. Bold icons only.
   const glassPillStyle: React.CSSProperties = {
