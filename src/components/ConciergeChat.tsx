@@ -146,8 +146,8 @@ const MessageBubble = memo(({ message, isUser, isSwipess, onCopy, onDelete, onTr
   onSpeak?: (id: string, text: string) => void, speakingMsgId: string | null, isSpeaking: boolean
 }) => {
   const [showActions, setShowActions] = useState(false);
-  const { cleanContent, navPaths, draftActions, filterAction } = useMemo(
-    () => isUser ? { cleanContent: message.content, navPaths: [], draftActions: [], filterAction: null } : parseNavActions(message.content),
+  const { cleanContent, navPaths, draftActions, filterAction, listings } = useMemo(
+    () => isUser ? { cleanContent: message.content, navPaths: [], draftActions: [], filterAction: null, listings: [] } : parseNavActions(message.content),
     [message.content, isUser]
   );
 
