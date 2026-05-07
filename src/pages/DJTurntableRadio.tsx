@@ -259,7 +259,7 @@ export default function DJTurntableRadio() {
               style={{ background: btnBg, borderColor: btnBorder, color: textPrimary }}
               title="View Favorites"
             >
-              <Star size={16} fill={isDark ? "white" : "black"} className="opacity-40" />
+              <Star size={16} fill="white" className="opacity-60" />
             </button>
           </div>
         </div>
@@ -270,7 +270,7 @@ export default function DJTurntableRadio() {
           <div className="relative flex-1 h-8 flex items-center">
             <div
               className="absolute w-full h-[3px] rounded-full"
-              style={{ background: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' }}
+              style={{ background: 'rgba(255,255,255,0.25)' }}
             >
               <div
                 className="h-full rounded-full"
