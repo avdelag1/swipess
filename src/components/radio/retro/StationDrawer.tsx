@@ -5,6 +5,7 @@ import { radioStations, cityThemes } from '@/data/radioStations';
 import { RadioStation, CityLocation } from '@/types/radio';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
+import { CheetahSkinBackground } from '@/components/radio/CheetahSkinBackground';
 
 interface StationDrawerProps {
   isOpen: boolean;
@@ -64,13 +65,16 @@ export const StationDrawer = ({
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 28, stiffness: 220 }}
             className={cn(
-               "fixed inset-0 z-[10100] w-screen h-[100dvh] overflow-hidden flex flex-col bg-background p-6 pt-[calc(env(safe-area-inset-top)+1.5rem)]",
+               "fixed inset-0 z-[10100] w-screen h-[100dvh] overflow-hidden flex flex-col p-6 pt-[calc(env(safe-area-inset-top)+1.5rem)] text-white",
             )}
             style={{ 
               '--accent-dynamic': accentColor,
-              '--accent-dynamic-alpha': `${accentColor}20`
+              '--accent-dynamic-alpha': `${accentColor}20`,
+              background: '#0a0705'
             } as React.CSSProperties}
           >
+            <CheetahSkinBackground />
+            <div className="relative z-10 flex flex-col flex-1 min-h-0">
 
 
             {/* Header */}
