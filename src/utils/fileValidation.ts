@@ -7,8 +7,10 @@
 
 // Standard file size limits
 export const FILE_SIZE_LIMITS = {
-  IMAGE_MAX_SIZE: 10 * 1024 * 1024, // 10MB for images
-  DOCUMENT_MAX_SIZE: 20 * 1024 * 1024, // 20MB for documents
+  // Raw cap before client-side compression. We're generous here because we
+  // auto-shrink large phone photos (incl. iPhone HEIC) to ~1MB before upload.
+  IMAGE_MAX_SIZE: 50 * 1024 * 1024, // 50MB raw
+  DOCUMENT_MAX_SIZE: 25 * 1024 * 1024, // 25MB for documents
 } as const;
 
 // Allowed MIME types
@@ -19,6 +21,11 @@ export const ALLOWED_MIME_TYPES = {
     'image/png',
     'image/webp',
     'image/gif',
+    'image/heic',
+    'image/heif',
+    'image/avif',
+    'image/bmp',
+    'image/tiff',
   ],
   DOCUMENTS: [
     'application/pdf',
@@ -33,7 +40,7 @@ export const ALLOWED_MIME_TYPES = {
 
 // Allowed file extensions
 export const ALLOWED_EXTENSIONS = {
-  IMAGES: ['.jpg', '.jpeg', '.png', '.webp', '.gif'],
+  IMAGES: ['.jpg', '.jpeg', '.png', '.webp', '.gif', '.heic', '.heif', '.avif', '.bmp', '.tif', '.tiff'],
   DOCUMENTS: ['.pdf', '.jpg', '.jpeg', '.png', '.webp', '.doc', '.docx'],
 } as const;
 
@@ -59,28 +66,27 @@ export function formatFileSize(bytes: number): string {
  * Validate image file
  */
 export function validateImageFile(file: File): FileValidationResult {
-  // Check MIME type
-  if (!(ALLOWED_MIME_TYPES.IMAGES as readonly string[]).includes(file.type)) {
+  const lowerName = file.name.toLowerCase();
+  const extension = lowerName.includes('.') ? lowerName.substring(lowerName.lastIndexOf('.')) : '';
+  const mime = (file.type || '').toLowerCase();
+
+  const mimeOk = mime.startsWith('image/') || mime === '' || mime === 'application/octet-stream';
+  const extOk = (ALLOWED_EXTENSIONS.IMAGES as readonly string[]).includes(extension);
+
+  // Accept if EITHER the MIME looks like an image OR the extension is a known image type.
+  // Some mobile browsers send blank or octet-stream MIME for HEIC/camera roll picks.
+  if (!mimeOk && !extOk) {
     return {
       isValid: false,
-      error: `Invalid file type. Only JPG, PNG, WebP, and GIF images are allowed.`,
+      error: `Unsupported file. Please use a photo (JPG, PNG, WebP, HEIC, GIF).`,
     };
   }
 
-  // Check file extension
-  const extension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'));
-  if (!(ALLOWED_EXTENSIONS.IMAGES as readonly string[]).includes(extension)) {
-    return {
-      isValid: false,
-      error: `Invalid file extension. Only ${ALLOWED_EXTENSIONS.IMAGES.join(', ')} are allowed.`,
-    };
-  }
-
-  // Check file size
+  // Raw size cap (compression runs after this).
   if (file.size > FILE_SIZE_LIMITS.IMAGE_MAX_SIZE) {
     return {
       isValid: false,
-      error: `Image too large. Maximum size is ${formatFileSize(FILE_SIZE_LIMITS.IMAGE_MAX_SIZE)} (file is ${formatFileSize(file.size)}).`,
+      error: `Photo is too large (${formatFileSize(file.size)}). Maximum is ${formatFileSize(FILE_SIZE_LIMITS.IMAGE_MAX_SIZE)}.`,
     };
   }
 

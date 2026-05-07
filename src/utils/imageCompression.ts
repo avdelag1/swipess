@@ -16,12 +16,36 @@ interface CompressionOptions {
 }
 
 const DEFAULT_OPTIONS: CompressionOptions = {
-  maxSizeMB: 1, // Max 1MB after compression
-  maxWidthOrHeight: 1920, // Max dimension 1920px
+  maxSizeMB: 1.2,
+  maxWidthOrHeight: 1920,
   useWebWorker: true, // Use web worker for non-blocking compression
   fileType: 'image/webp', // WebP for better compression
   quality: 0.85, // 85% quality (good balance)
 };
+
+/**
+ * Convert HEIC/HEIF (iPhone) to JPEG so the browser canvas / compressor can read it.
+ * Lazy-imported so it doesn't bloat the bundle when not needed.
+ */
+async function normalizeHeic(file: File): Promise<File> {
+  const lowerName = file.name.toLowerCase();
+  const isHeic =
+    file.type === 'image/heic' ||
+    file.type === 'image/heif' ||
+    lowerName.endsWith('.heic') ||
+    lowerName.endsWith('.heif');
+  if (!isHeic) return file;
+  try {
+    const mod = await import('heic2any');
+    const heic2any = (mod as unknown as { default: (opts: { blob: Blob; toType?: string; quality?: number }) => Promise<Blob | Blob[]> }).default;
+    const out = await heic2any({ blob: file, toType: 'image/jpeg', quality: 0.9 });
+    const blob = Array.isArray(out) ? out[0] : out;
+    return new File([blob], file.name.replace(/\.(heic|heif)$/i, '.jpg'), { type: 'image/jpeg' });
+  } catch (err) {
+    logger.warn('[ImageCompression] HEIC conversion failed, uploading original:', err);
+    return file;
+  }
+}
 
 /**
  * Compress an image file before upload
@@ -34,19 +58,22 @@ export async function compressImage(
   options: CompressionOptions = {}
 ): Promise<File> {
   const opts = { ...DEFAULT_OPTIONS, ...options };
-  
-  // Skip compression for already small files (< 200KB)
-  if (file.size < 200 * 1024) {
-    return file;
+
+  // First, normalize HEIC/HEIF (iPhone) into JPEG so canvas can read it.
+  const normalized = await normalizeHeic(file);
+
+  // Skip compression for already-small files (unless we just converted).
+  if (normalized === file && file.size < 200 * 1024) {
+    return normalized;
   }
 
   // Skip compression for GIFs (animation would be lost)
-  if (file.type === 'image/gif') {
-    return file;
+  if (normalized.type === 'image/gif') {
+    return normalized;
   }
 
   try {
-    const compressedBlob = await imageCompression(file, {
+    const compressedBlob = await imageCompression(normalized, {
       maxSizeMB: opts.maxSizeMB!,
       maxWidthOrHeight: opts.maxWidthOrHeight!,
       useWebWorker: opts.useWebWorker!,
@@ -57,7 +84,7 @@ export async function compressImage(
     // Create a new File from the compressed Blob
     const compressedFile = new File(
       [compressedBlob],
-      file.name.replace(/\.[^.]+$/, '.webp'),
+      normalized.name.replace(/\.[^.]+$/, '.webp'),
       { type: opts.fileType || 'image/webp' }
     );
 
@@ -71,8 +98,8 @@ export async function compressImage(
 
     return compressedFile;
   } catch (error) {
-    logger.warn('[ImageCompression] Compression failed, using original:', error);
-    return file;
+    logger.warn('[ImageCompression] Compression failed, using normalized original:', error);
+    return normalized;
   }
 }
 
