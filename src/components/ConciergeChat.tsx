@@ -44,10 +44,12 @@ function parseNavActions(content: string): {
   navPaths: string[]; 
   draftActions: { category: string; data: any }[];
   filterAction: any | null;
+  listings: any[];
 } {
   const navPaths: string[] = [];
   const draftActions: { category: string; data: any }[] = [];
   let filterAction = null;
+  let listings: any[] = [];
   
   let cleanContent = content.replace(NAV_PATTERN, (_, path) => {
     navPaths.push(path);
@@ -74,9 +76,20 @@ function parseNavActions(content: string): {
     return '';
   });
 
+  const LISTINGS_PATTERN = /\[LISTINGS:(\[[\s\S]*?\])\]/g;
+  cleanContent = cleanContent.replace(LISTINGS_PATTERN, (_, jsonData) => {
+    try {
+      const parsed = JSON.parse(jsonData);
+      if (Array.isArray(parsed)) listings = parsed;
+    } catch (e) {
+      console.error('Failed to parse listings JSON:', e);
+    }
+    return '';
+  });
+
   cleanContent = cleanContent.replace(/\n{3,}/g, '\n\n').trim();
   
-  return { cleanContent, navPaths, draftActions, filterAction };
+  return { cleanContent, navPaths, draftActions, filterAction, listings };
 }
 
 const ConciergePrivacyPortal = memo(({ onAccept, isSwipess }: { onAccept: () => void, isSwipess: boolean }) => (
