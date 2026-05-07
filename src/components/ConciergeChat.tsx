@@ -792,13 +792,11 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
 
                 <div ref={scrollRef} className="flex-1 overflow-y-auto px-6 py-8 scroll-smooth custom-scrollbar">
                   {messages.length === 0 ? (
-                    <div className="h-full flex flex-col items-center justify-center text-center space-y-6 opacity-30">
-                       <SwipessLogo className="w-16 h-16 animate-pulse" />
-                       <div>
-                          <p className="text-[10px] font-black uppercase tracking-[0.4em]">Ready for discovery</p>
-                          <p className="text-[8px] font-bold uppercase tracking-widest mt-1">Start by typing or speaking your request</p>
-                       </div>
-                    </div>
+                    <WelcomeState
+                      isSwipess={isSwipess}
+                      isLight={isLight}
+                      onPick={(prompt) => { setInput(prompt); triggerHaptic('light'); }}
+                    />
                   ) : (
                     messages.map((m) => (
                       <MessageBubble 
