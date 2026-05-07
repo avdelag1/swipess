@@ -49,18 +49,18 @@ export const SwipeExhaustedState = ({
   const categories = allCategories.filter((c) => c.id !== activeCategory);
 
   return (
-    <div className="relative z-50 h-full w-full flex flex-col items-center justify-center bg-transparent px-5 py-5 overflow-hidden">
-      <div className="absolute inset-3 rounded-[2rem] border border-foreground/10 bg-background/35 shadow-[0_30px_90px_hsl(var(--foreground)/0.08)] pointer-events-none" />
+    <div className="relative z-50 h-full w-full flex flex-col items-center justify-center bg-black px-5 py-5 overflow-hidden">
+      <div className="absolute inset-3 rounded-[2rem] border border-white/25 bg-white/[0.04] shadow-[0_30px_90px_rgba(0,0,0,0.6)] pointer-events-none" />
       <div className="flex flex-col items-center text-center w-full max-w-md gap-5 relative z-10 px-2">
         {/* Message */}
         <div className="space-y-3">
           <h2 className={cn(
-            "text-2xl sm:text-3xl font-black tracking-tight uppercase text-foreground"
+            "text-2xl sm:text-3xl font-black tracking-tight uppercase text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]"
           )}>
             {isLoading ? 'Scanning…' : `No ${categoryName} found nearby`}
           </h2>
           <p className={cn(
-            "text-xs font-bold uppercase tracking-[0.25em] text-foreground/70"
+            "text-xs font-bold uppercase tracking-[0.25em] text-white/75"
           )}>
             {isLoading ? 'Initializing sector scan' : 'Adjust radius or try another category'}
           </p>
@@ -77,12 +77,12 @@ export const SwipeExhaustedState = ({
                   onOpenFilters();
                 }}
                 className={cn(
-                  "absolute top-0 right-0 z-10 w-12 h-12 flex items-center justify-center rounded-full transition-all active:scale-90 border border-foreground/15 bg-foreground shadow-[0_18px_40px_hsl(var(--foreground)/0.18)] hover:bg-foreground/90"
+                  "absolute top-0 right-0 z-10 w-12 h-12 flex items-center justify-center rounded-full transition-all active:scale-90 border border-white/30 bg-white shadow-[0_18px_40px_rgba(255,255,255,0.18)] hover:bg-white/90"
                 )}
                 title="Open advanced filters"
                 aria-label="Open advanced filters"
               >
-                <SlidersHorizontal className="w-5 h-5 text-background" />
+                <SlidersHorizontal className="w-5 h-5 text-black" />
               </button>
             )}
 
@@ -96,7 +96,7 @@ export const SwipeExhaustedState = ({
           </div>
         )}
 
-        <p className="text-xs font-semibold text-foreground/65">
+        <p className="text-xs font-semibold text-white/70">
           Move the slider to search further
         </p>
 
@@ -104,7 +104,7 @@ export const SwipeExhaustedState = ({
         {onCategoryChange && (
           <div className="w-full space-y-3 mt-2">
             <p className={cn(
-              "text-[11px] font-black uppercase tracking-[0.25em] text-foreground/85"
+              "text-[11px] font-black uppercase tracking-[0.25em] text-white/85"
             )}>
               Or try another
             </p>
@@ -120,10 +120,10 @@ export const SwipeExhaustedState = ({
                     onCategoryChange(cat.id);
                   }}
                   className={cn(
-                    "min-h-12 py-2 px-3 rounded-full text-xs font-black uppercase tracking-wider transition-all active:scale-95 border shadow-[0_16px_34px_hsl(var(--foreground)/0.12)]",
+                    "min-h-12 py-2 px-3 rounded-full text-xs font-black uppercase tracking-wider transition-all active:scale-95 border shadow-[0_16px_34px_rgba(0,0,0,0.5)]",
                     activeCategory === cat.id
-                      ? "bg-foreground text-background border-foreground"
-                      : "bg-foreground text-background border-foreground/20 hover:bg-foreground/90"
+                      ? "bg-white text-black border-white"
+                      : "bg-white text-black border-white/40 hover:bg-white/90"
                   )}
                 >
                   {cat.label}
