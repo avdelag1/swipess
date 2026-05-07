@@ -301,6 +301,29 @@ export function useSmartListingMatching(
                   });
                 }
 
+                // Helper: append demo listings AFTER real ones so testing data is never lost.
+                // Demos bypass swipe exclusion — they always reappear so user can practice repeatedly.
+                const appendDemos = (real: any[]): any[] => {
+                    if (page !== 0) return real;
+                    const existingIds = new Set(real.map(r => r.id));
+                    const filteredDemos = DEMO_LISTINGS.filter(l => {
+                        if (existingIds.has(l.id)) return false;
+                        if (filters?.category && filters.category !== 'all') {
+                            const normalized = normalizeCategoryName(filters.category);
+                            return l.category === normalized;
+                        }
+                        return true;
+                    });
+                    const demosWithMeta = filteredDemos.map(l => ({
+                        ...l,
+                        matchPercentage: 92 + Math.floor(Math.random() * 7),
+                        matchReasons: ['Highly Recommended', 'Global Signal Detected'],
+                        incompatibleReasons: [],
+                        isDemo: true
+                    }));
+                    return [...real, ...demosWithMeta];
+                };
+
                 // 🚀 SPEED OF LIGHT: Attempt database-level filtering (RPC)
                 try {
                     const { data: rpcListings, error: rpcError } = await (supabase as any).rpc('get_smart_listings', {
@@ -317,15 +340,16 @@ export function useSmartListingMatching(
                                 ...l,
                                 images: Array.isArray(l.images) ? l.images : (l.images ? [l.images] : [])
                             }));
-                        
+                        const withDemos = appendDemos(results);
+
                         // 🔥 SPEED OF LIGHT: PRE-WARM IMAGES IMMEDIATELY (Hardware-Aware)
                         runIdleTask(() => {
                           const isHighPerformance = (navigator as any).deviceMemory >= 4 || !('deviceMemory' in navigator);
-                          const imagesToPrewarm = results.flatMap(l => l.images || []).slice(0, isHighPerformance ? 25 : 10);
+                          const imagesToPrewarm = withDemos.flatMap(l => l.images || []).slice(0, isHighPerformance ? 25 : 10);
                           pwaImagePreloader.batchPreload(imagesToPrewarm.map(url => getCardImageUrl(url)));
                         });
 
-                        return results;
+                        return withDemos;
                     }
                 } catch (_e) {
                     logger.warn('[SmartMatching] RPC Fallback to PostgREST');
@@ -401,28 +425,8 @@ export function useSmartListingMatching(
                 // Real listings always first — sort by match score
                 const realResults = matchedResults.sort((a, b) => b.matchPercentage - a.matchPercentage);
 
-                // 🚀 DEMO FALLBACK: Append demo cards AFTER all real listings so testing
-                // shared links / real data is never obscured by mock content.
-                let finalResults = realResults;
-                if (page === 0 && realResults.length === 0) {
-                    const existingIds = new Set(realResults.map(r => r.id));
-                    const filteredDemos = DEMO_LISTINGS.filter(l => {
-                        if (existingIds.has(l.id)) return false;
-                        if (filters?.category && filters.category !== 'all') {
-                            const normalized = normalizeCategoryName(filters.category);
-                            return l.category === normalized;
-                        }
-                        return true;
-                    });
-                    const newDemos = filteredDemos.map(l => ({
-                        ...l,
-                        matchPercentage: 92 + Math.floor(Math.random() * 7),
-                        matchReasons: ['Highly Recommended', 'Global Signal Detected'],
-                        incompatibleReasons: [],
-                        isDemo: true
-                    }));
-                    finalResults = [...realResults, ...newDemos];
-                }
+                // Always append demos AFTER real listings (never obscure real data, never disappear after swipe)
+                const finalResults = appendDemos(realResults);
 
                 // 🔥 SPEED OF LIGHT: PRE-WARM IMAGES IMMEDIATELY (Hardware-Aware)
                 runIdleTask(() => {
