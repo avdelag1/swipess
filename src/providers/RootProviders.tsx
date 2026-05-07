@@ -88,13 +88,10 @@ function AuthReadySignal() {
 
     // If we are on the landing page (no user), we fire it after a short delay
     // If we have a user, we wait for the 'swipess-ready' event from the dashboard
-    const safetyTimer = setTimeout(() => {
-       handleReady();
-    }, 2500); // Increased safety buffer to allow for component loading
+    // Safety: fire app-rendered if swipess-ready never comes (e.g. landing page, no AppLayout)
+    const safetyTimer = setTimeout(handleReady, 4500);
 
     window.addEventListener('swipess-ready', handleReady);
-
-    setTimeout(handleReady, 100);
 
     return () => {
       clearTimeout(safetyTimer);

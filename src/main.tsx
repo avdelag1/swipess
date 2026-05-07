@@ -138,10 +138,6 @@ async function bootstrap() {
   if (rootElement) {
     const root = createRoot(rootElement as HTMLElement);
     root.render(<App authPromise={authPromise} />);
-    // Signal splash to fade as soon as React commits its first frame.
-    requestAnimationFrame(() => {
-      window.dispatchEvent(new Event('swipess-ready'));
-    });
   }
 }
 

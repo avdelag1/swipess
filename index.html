@@ -106,12 +106,17 @@
   <!-- Speculation rules removed — prefetching handled by routePrefetcher.ts -->
   <style>
     .static-splash { position: fixed; inset: 0; background: #000; z-index: 99999; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 28px; }
-    .static-splash.fade-out { opacity: 0; visibility: hidden; transition: opacity 0.65s cubic-bezier(0.22,1,0.36,1), visibility 0.5s; }
+    .static-splash.fade-out { opacity: 0; visibility: hidden; transition: opacity 0.55s cubic-bezier(0.22,1,0.36,1), visibility 0.4s; }
     .splash-content { display: flex; flex-direction: column; align-items: center; animation: splashBreathe 2.6s ease-in-out infinite; will-change: transform; }
     @keyframes splashBreathe { 0%,100% { transform: scale(1); } 50% { transform: scale(1.025); } }
     .splash-logo { height: 52px; width: auto; opacity: 1; filter: drop-shadow(0 0 24px rgba(255,255,255,0.18)); contain: content; }
     .splash-dot { width: 6px; height: 6px; border-radius: 999px; background: rgba(255,255,255,0.55); animation: splashDot 1.6s ease-in-out infinite; }
     @keyframes splashDot { 0%,100% { opacity: 0.25; transform: scale(0.85); } 50% { opacity: 0.85; transform: scale(1); } }
+    .splash-progress-track { position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: rgba(255,255,255,0.07); overflow: hidden; }
+    .splash-progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, #FF4D00, #EB4898); border-radius: 0 1px 1px 0; animation: splashFill 2.8s cubic-bezier(0.25,0.46,0.45,0.94) forwards; }
+    @keyframes splashFill { 0% { width: 0%; } 100% { width: 68%; } }
+    .static-splash.done .splash-progress-bar { width: 100%; animation: none; transition: width 0.25s ease-out; }
+    .static-splash.done .splash-dot { animation: none; opacity: 0; transition: opacity 0.2s; }
   </style>
 </head>
 
@@ -121,22 +126,31 @@
       <img id="splash-logo" class="splash-logo" src="/icons/Swipess-wordmark-white.png" alt="Swipess" />
     </div>
     <div class="splash-dot" aria-hidden="true"></div>
+    <div class="splash-progress-track">
+      <div id="splash-progress" class="splash-progress-bar"></div>
+    </div>
   </div>
   <div id="root"></div>
   <script type="module" src="/src/main.tsx" fetchpriority="high"></script>
   <script>
     (function() {
       const splash = document.getElementById('static-splash');
+      let dismissed = false;
       const fadeOut = () => {
-        if (splash && !splash.classList.contains('fade-out')) {
+        if (dismissed || !splash) return;
+        dismissed = true;
+        // 1. Complete the progress bar to 100%
+        splash.classList.add('done');
+        // 2. After the bar finishes, fade the whole splash
+        setTimeout(() => {
           splash.classList.add('fade-out');
-          setTimeout(() => splash.remove(), 400);
-        }
+          setTimeout(() => { try { splash.remove(); } catch(e) {} }, 600);
+        }, 280);
       };
-      // Listen for Swipess hydration signal
+      // Primary signal: layout tells us it's rendered and ready
       window.addEventListener('swipess-ready', fadeOut);
-      window.addEventListener('load', () => setTimeout(fadeOut, 150));
-      setTimeout(fadeOut, 1200);
+      // Safety net: never block the user for more than 5 seconds
+      setTimeout(fadeOut, 5000);
     })();
   </script>
 </body>

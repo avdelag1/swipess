@@ -1,4 +1,4 @@
-import { Suspense, lazy, useMemo, useEffect, useState, useRef, useLayoutEffect } from 'react';
+import { Suspense, lazy, useMemo, useEffect, useRef } from 'react';
 import { lazyWithRetry } from '@/utils/lazyRetry';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { PullToRefreshIndicator } from '@/components/PullToRefreshIndicator';
@@ -105,22 +105,25 @@ export function AppLayout({ children }: AppLayoutProps) {
 
 
 
+  // Fire swipess-ready exactly once after the layout first mounts.
+  // The 700ms delay lets Suspense resolve route chunks and fire the first
+  // render pass before we dismiss the splash — so the user sees a full page.
+  const splashDismissedRef = useRef(false);
+  useEffect(() => {
+    if (splashDismissedRef.current) return;
+    splashDismissedRef.current = true;
+    const id = setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('swipess-ready'));
+      window.dispatchEvent(new CustomEvent('app-rendered'));
+    }, 700);
+    return () => clearTimeout(id);
+  }, []);
+
   useEffect(() => {
     const recover = () => window.dispatchEvent(new CustomEvent('swipess-ui-recovery'));
     recover();
     const frame = requestAnimationFrame(recover);
-    
-    // 🚀 SWIPESS READY SIGNAL:
-    // Notifies RootProviders that the layout shell is mounted.
-    // This allows the splash screen to fade out ONLY when content is ready.
-    window.dispatchEvent(new CustomEvent('swipess-ready'));
-    
-    // Fallback for legacy listeners
-    window.dispatchEvent(new CustomEvent('app-rendered'));
-
-    return () => {
-      cancelAnimationFrame(frame);
-    };
+    return () => cancelAnimationFrame(frame);
   }, [location.pathname]);
 
   const isPublicPreview = location.pathname.startsWith('/listing/') || location.pathname.startsWith('/profile/');
