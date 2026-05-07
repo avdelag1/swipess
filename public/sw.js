@@ -11,7 +11,7 @@
 // IMPORTANT: __BUILD_TIME__ is replaced with an ISO timestamp by the Vite
 // sw-build-time-plugin at build time. In dev mode the literal string is used
 // as the version (safe — SW is unregistered in dev anyway).
-const SW_VERSION = '__BUILD_TIME__' === '__BUILD_TIME__' ? '2026-05-04T18-offline-shell' : '__BUILD_TIME__';
+const SW_VERSION = '__BUILD_TIME__' === '__BUILD_TIME__' ? '2026-05-07T23-img-passthrough' : '__BUILD_TIME__';
 const CACHE_VERSION = `swipess-${SW_VERSION}`;
 const CACHE_NAME = CACHE_VERSION;
 const STATIC_CACHE = `${CACHE_NAME}-static`;
@@ -402,11 +402,33 @@ self.addEventListener('fetch', (event) => {
 
   // STALE-WHILE-REVALIDATE for images - instant display, update in background
   if (request.destination === 'image') {
+    // CRITICAL: For cross-origin third-party CDNs (unsplash, picsum, etc.)
+    // bypass caching entirely. Opaque responses can poison the cache and
+    // leave images permanently broken in the PWA shell.
+    const isSameOrigin = url.origin === self.location.origin;
+    const isSupabaseStorage = url.hostname.includes('supabase.co');
+    if (!isSameOrigin && !isSupabaseStorage) {
+      event.respondWith(
+        fetch(request, { mode: 'cors', credentials: 'omit' }).catch(() =>
+          fetch(request).catch(() =>
+            new Response('', { status: 504 })
+          )
+        )
+      );
+      return;
+    }
     event.respondWith(
       caches.open(IMAGE_CACHE).then(cache => {
         return cache.match(request).then(cachedResponse => {
           const bgFetch = fetch(request).then(networkResponse => {
-            if (networkResponse.ok && networkResponse.status === 200) {
+            // Only cache non-opaque, OK responses. Opaque (type: 'opaque')
+            // responses are cross-origin without CORS — caching them risks
+            // serving broken zero-byte data forever.
+            if (
+              networkResponse.ok &&
+              networkResponse.status === 200 &&
+              networkResponse.type !== 'opaque'
+            ) {
               cache.put(request, networkResponse.clone());
             }
             return networkResponse;
