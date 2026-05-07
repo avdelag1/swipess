@@ -1110,21 +1110,33 @@ button:active, [role="button"]:active {
     -webkit-tap-highlight-color: transparent;
   }
 
-  /* Glassmorphism utilities - OPTIMIZED for Android performance */
+  /* Glassmorphism utilities
+     iOS Safari handles backdrop-filter natively on GPU — looks stunning.
+     We enable it selectively via @supports to skip slow Android WebViews. */
   .glass-effect {
     background: var(--hud-bg);
-    /* backdrop-filter: blur(20px); REMOVED - kills Android performance */
-    /* -webkit-backdrop-filter: blur(20px); REMOVED - kills Android performance */
     border: 1px solid rgba(255, 255, 255, 0.3);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  }
+  @supports (-webkit-backdrop-filter: blur(1px)) {
+    .glass-effect {
+      background: var(--hud-bg, rgba(255,255,255,0.7));
+      -webkit-backdrop-filter: blur(20px) saturate(1.8);
+      backdrop-filter: blur(20px) saturate(1.8);
+    }
   }
 
   .glass-dark {
     background: rgba(0, 0, 0, 0.85);
-    /* backdrop-filter: blur(20px); REMOVED - kills Android performance */
-    /* -webkit-backdrop-filter: blur(20px); REMOVED - kills Android performance */
     border: 1px solid rgba(255, 255, 255, 0.15);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  }
+  @supports (-webkit-backdrop-filter: blur(1px)) {
+    .glass-dark {
+      background: rgba(0, 0, 0, 0.6);
+      -webkit-backdrop-filter: blur(20px) saturate(1.4);
+      backdrop-filter: blur(20px) saturate(1.4);
+    }
   }
 
   /* Performance optimizations */
@@ -1917,82 +1929,55 @@ input:focus, textarea:focus, select:focus {
   navigation: auto;
 }
 
-/* Customize default cross-fade animation - INSTANT */
+/* Default: instant cross-dissolve */
 ::view-transition-old(root),
 ::view-transition-new(root) {
-  animation-duration: 0.1s;
-  animation-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
+  animation-duration: 0.22s;
+  animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
   mix-blend-mode: normal;
 }
 
-/* Forward navigation - use scale instead of x transforms to prevent shifting */
+/* iOS-style: forward navigation — new page slides in from right, old recedes left */
 html[data-navigation-direction="forward"] {
   &::view-transition-old(root) {
-    animation-name: scale-fade-out;
+    animation-name: ios-slide-out-left;
   }
-
   &::view-transition-new(root) {
-    animation-name: scale-fade-in;
+    animation-name: ios-slide-in-right;
   }
 }
 
-/* Backward navigation - use scale instead of x transforms to prevent shifting */
+/* iOS-style: back navigation — current page slides out right, previous slides in from left */
 html[data-navigation-direction="back"] {
   &::view-transition-old(root) {
-    animation-name: scale-fade-out-back;
+    animation-name: ios-slide-out-right;
   }
-
   &::view-transition-new(root) {
-    animation-name: scale-fade-in-back;
+    animation-name: ios-slide-in-left;
   }
 }
 
-/* Scale-based animations to prevent horizontal page shifts */
-@keyframes scale-fade-out {
-  from {
-    transform: scale(1);
-    opacity: 1;
-  }
-  to {
-    transform: scale(0.98);
-    opacity: 0;
-  }
+/* Push forward: new page from right */
+@keyframes ios-slide-in-right {
+  from { transform: translateX(28%); opacity: 0; }
+  to   { transform: translateX(0);   opacity: 1; }
+}
+@keyframes ios-slide-out-left {
+  from { transform: translateX(0);    opacity: 1; }
+  to   { transform: translateX(-12%); opacity: 0; }
 }
 
-@keyframes scale-fade-in {
-  from {
-    transform: scale(1.02);
-    opacity: 0;
-  }
-  to {
-    transform: scale(1);
-    opacity: 1;
-  }
+/* Pop back: previous page from left */
+@keyframes ios-slide-in-left {
+  from { transform: translateX(-12%); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+@keyframes ios-slide-out-right {
+  from { transform: translateX(0);   opacity: 1; }
+  to   { transform: translateX(28%); opacity: 0; }
 }
 
-@keyframes scale-fade-out-back {
-  from {
-    transform: scale(1);
-    opacity: 1;
-  }
-  to {
-    transform: scale(1.02);
-    opacity: 0;
-  }
-}
-
-@keyframes scale-fade-in-back {
-  from {
-    transform: scale(0.98);
-    opacity: 0;
-  }
-  to {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-
-/* Shared element transitions - for images and cards */
+/* Shared element transitions — images and cards morph between pages */
 .property-card-image,
 .listing-card-image {
   view-transition-name: property-image;
@@ -2004,14 +1989,14 @@ html[data-navigation-direction="back"] {
   contain: layout;
 }
 
-/* Scale animation for modals and dialogs */
+/* Modal slide-up */
 ::view-transition-old(modal),
 ::view-transition-new(modal) {
-  animation-duration: 0.25s;
+  animation-duration: 0.28s;
   animation-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
 }
 
-/* Respect reduced motion preferences */
+/* Respect reduced motion */
 @media (prefers-reduced-motion: reduce) {
   ::view-transition-old(root),
   ::view-transition-new(root),
@@ -2026,11 +2011,11 @@ html[data-navigation-direction="back"] {
   }
 }
 
-/* Optimize for mobile performance - INSTANT */
+/* Keep mobile snappy */
 @media (max-width: 768px) {
   ::view-transition-old(root),
   ::view-transition-new(root) {
-    animation-duration: 0.08s;
+    animation-duration: 0.18s;
   }
 }
 

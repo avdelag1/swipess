@@ -15,7 +15,7 @@ export const LoadingBar = () => {
   // Buffer visibility to prevent "flashes" for fast (instant) loads
   useEffect(() => {
     if (isLoading) {
-      const id = setTimeout(() => setVisible(true), 250); // Same threshold as SmartSuspense
+      const id = setTimeout(() => setVisible(true), 100);
       return () => clearTimeout(id);
     } else {
       const id = setTimeout(() => setVisible(false), 800); // Leave it for 800ms at 100% then hide

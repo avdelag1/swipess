@@ -9,6 +9,7 @@ import { createPortal } from 'react-dom';
 import { useMatchRealtime } from '@/hooks/useMatchRealtime';
 import { useLikesRealtime } from '@/hooks/useLikesRealtime';
 import { ChunkErrorBoundary } from '@/components/ChunkErrorBoundary';
+import { LoadingBar } from '@/components/ui/LoadingBar';
 
 // Global match celebration modal
 const MatchCelebration = lazyWithRetry(() => import('./MatchCelebration').then(m => ({ default: m.MatchCelebration })));
@@ -72,6 +73,8 @@ export function PersistentDashboardLayout() {
   return (
     <ChunkErrorBoundary>
     <DashboardLayout userRole={userRole}>
+      {/* Top progress bar — shows during lazy chunk loads */}
+      <LoadingBar />
       <div
         id="swipess-dashboard-root"
         className="flex min-h-full w-full flex-1 flex-col"
