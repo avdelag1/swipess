@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { QuickFilterImage } from '@/components/ui/QuickFilterImage';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AtmosphericLayer } from '@/components/AtmosphericLayer';
+import { CheetahSkinBackground } from '@/components/radio/CheetahSkinBackground';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useRadio } from '@/contexts/RadioContext';
 import { radioStations, cityThemes } from '@/data/radioStations';
@@ -19,7 +20,8 @@ export default function WorldRadioDirectory() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { state, play, toggleFavorite, isStationFavorite, shuffleAndPlay } = useRadio();
-  const { isDark } = useAppTheme();
+  // Cheetah skin always applies a dark base — force dark-styled UI regardless of app theme
+  const isDark = true;
   const [searchQuery, setSearchQuery] = useState('');
   
   // Initialize with 'favorites' if param exists
@@ -53,17 +55,11 @@ export default function WorldRadioDirectory() {
   };
 
   return (
-    <div className={cn(
-      "h-[100dvh] overflow-y-auto overflow-x-hidden flex flex-col relative",
-      isDark ? "bg-[#050505] text-white" : "bg-background text-foreground"
-    )}>
-      <AtmosphericLayer variant="primary" />
+    <div className="h-[100dvh] overflow-y-auto overflow-x-hidden flex flex-col relative text-white" style={{ background: '#0a0705' }}>
+      <CheetahSkinBackground />
 
       {/* 🛸 STICKY HEADER — Stays on top, doesn't overlap cards */}
-      <div className={cn(
-        "sticky top-0 z-50 pt-[calc(env(safe-area-inset-top)+12px)] pb-4 px-6 border-b transition-colors",
-        isDark ? "bg-[#050505] border-white/5" : "bg-background/80 backdrop-blur-xl border-border/40"
-      )}>
+      <div className="sticky top-0 z-50 pt-[calc(env(safe-area-inset-top)+12px)] pb-4 px-6 border-b border-white/10 backdrop-blur-xl bg-black/55">
         <div className="flex items-center mb-4 gap-4">
           <button
             onClick={() => navigate('/radio')}
