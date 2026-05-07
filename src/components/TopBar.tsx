@@ -12,7 +12,6 @@ import { haptics } from '@/utils/microPolish';
 import { ModeSwitcher } from './ModeSwitcher';
 import { NotificationPopover } from './NotificationPopover';
 import { ThemeToggle } from './ThemeToggle';
-import { useFilterStore, useFilterActions } from '@/state/filterStore';
 import { useDeckHasCards } from '@/hooks/useDeckHasCards';
 import { useModalStore } from '@/state/modalStore';
 import { TAP_SPRING } from './BottomNavigation';
@@ -56,9 +55,6 @@ function TopBarComponent({
   //  - Light theme (white filter): WHITE on dashboard (over photos),
   //    BLACK on every other page.
   const iconColor = !isLight || isDashboard ? '#FFFFFF' : '#0A0A0A';
-
-  const activeCategory = useFilterStore(s => s.activeCategory);
-  const { setActiveCategory } = useFilterActions();
 
   const isOwner = userRole === 'owner';
 
