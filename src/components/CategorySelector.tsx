@@ -16,22 +16,22 @@ interface CategorySelectorProps {
 
 const springTap = { type: "spring" as const, stiffness: 500, damping: 30 };
 
-const categoryStyles: Record<Category, { active: string; glow: string }> = {
+const categoryStyles: Record<Category, { active: string; idle: string }> = {
   property: {
-    active: 'bg-gradient-to-r from-rose-600 to-rose-500 text-white border-rose-500/50 shadow-lg shadow-emerald-500/25',
-    glow: 'hover:border-rose-500/40',
+    active: 'bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/25',
+    idle: 'bg-secondary text-secondary-foreground border-border hover:bg-accent hover:text-accent-foreground hover:border-primary/30',
   },
   motorcycle: {
-    active: 'bg-gradient-to-r from-orange-600 to-orange-500 text-white border-orange-500/50 shadow-lg shadow-orange-500/25',
-    glow: 'hover:border-orange-500/40',
+    active: 'bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/25',
+    idle: 'bg-secondary text-secondary-foreground border-border hover:bg-accent hover:text-accent-foreground hover:border-primary/30',
   },
   bicycle: {
-    active: 'bg-gradient-to-r from-purple-600 to-purple-500 text-white border-purple-500/50 shadow-lg shadow-purple-500/25',
-    glow: 'hover:border-purple-500/40',
+    active: 'bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/25',
+    idle: 'bg-secondary text-secondary-foreground border-border hover:bg-accent hover:text-accent-foreground hover:border-primary/30',
   },
   worker: {
-    active: 'bg-gradient-to-r from-amber-600 to-amber-500 text-white border-amber-500/50 shadow-lg shadow-amber-500/25',
-    glow: 'hover:border-amber-500/40',
+    active: 'bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/25',
+    idle: 'bg-secondary text-secondary-foreground border-border hover:bg-accent hover:text-accent-foreground hover:border-primary/30',
   },
 };
 
@@ -86,7 +86,7 @@ export function CategorySelector({
                 "flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-semibold transition-all border",
                 active
                   ? styles.active
-                  : cn('bg-secondary text-foreground border-border', styles.glow, 'hover:bg-secondary/80')
+                  : styles.idle
               )}
             >
               <Icon className="w-5 h-5" />
