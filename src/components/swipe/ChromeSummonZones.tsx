@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { revealChrome } from '@/hooks/useChromeReveal';
+import { toggleChrome } from '@/hooks/useChromeReveal';
 import { triggerHaptic } from '@/utils/haptics';
 
 /**
@@ -12,7 +12,7 @@ export function ChromeSummonZones() {
   const onSummon = useCallback((e: React.PointerEvent) => {
     e.stopPropagation();
     triggerHaptic('light');
-    revealChrome();
+    toggleChrome();
   }, []);
 
   return (
