@@ -1,60 +1,70 @@
-## Problem
+## What you asked for
 
-Uploads currently reject many real-world photos:
+1. Remove the extra floating microphone that opens the AI assistant from /events and other pages.
+2. Make sure the real microphones (AI chat input + AI Listing Wizard "Intel Stream") request OS permission cleanly and actually transcribe.
+3. Fix the AI listing flow so the listing actually gets created.
+4. Redesign the AI chat UI to match your two reference mockups (light + dark variants, gradient send button, "Popular Topics" cards, inline listing preview cards, suggestion chips), keeping the existing Supabase backend (`ai-concierge` edge function).
 
-- **`src/utils/fileValidation.ts`** rejects anything not strictly `image/jpeg | png | webp | gif`. iPhone HEIC/HEIF photos (very common) are rejected outright.
-- Same file rejects raw files > **10 MB** *before* compression even runs. Modern phone photos are routinely 8–25 MB.
-- Validation is called *before* `compressImage()` in `ImageUpload.tsx`, `PhotoUploadManager.tsx`, and `UnifiedListingForm.tsx`, so big photos never get a chance to be shrunk.
-- Supabase storage buckets have `file_size_limit = NULL` (unlimited) which is fine, but we should pin sane caps so future tightening doesn't silently break uploads.
+## What I found
 
-## Fix
+- The "extra mic" is `src/components/VoiceConciergeButton.tsx`, mounted globally in `AppLayout.tsx`. It floats on every dashboard/explore route (including `/explore/eventos`) and just opens the AI chat — this is the one to delete.
+- The two real mics are correct and use `useVoiceTranscribe` (browser `getUserMedia` → `voice-transcribe` edge function): `ConciergeChat.tsx` and `AIListingWizard.tsx`. They already toast on permission denial; what's missing is a clear pre-prompt and a proper "Intel Stream" handoff that builds the listing.
+- The `ai-concierge` edge function already pulls real listings (`searchListings`) and emits `[NAV:/path]`, `[FILTER:{…}]`, `[DRAFT:…]` tags. The chat parses these but renders listings as plain markdown bullets — the redesigned chat will render them as proper preview cards.
+- `ConciergeChat.tsx` (889 lines) is the right component to evolve. We will refine, not replace, to honor the structural-protection rule.
 
-### 1. `src/utils/fileValidation.ts`
-- Add `image/heic`, `image/heif` to `ALLOWED_MIME_TYPES.IMAGES` and `.heic`, `.heif` to `ALLOWED_EXTENSIONS.IMAGES`.
-- Accept files where `file.type` is empty or `application/octet-stream` if the **extension** is valid (older Android/iOS browsers send blank MIME).
-- Raise `IMAGE_MAX_SIZE` from 10 MB → **50 MB** (raw pre-compression cap; client compression brings it under 1.5 MB).
-- Keep document limit at 20 MB.
-- Improve error copy: tell users what's actually wrong and that we'll auto-shrink.
+## Plan
 
-### 2. `src/utils/imageCompression.ts`
-- Detect HEIC/HEIF and lazy-import `heic2any` to convert to JPEG **before** running `browser-image-compression` (canvas can't decode HEIC directly).
-- Wrap in try/catch — if conversion fails on a desktop build, still upload the original blob (storage accepts it; backend serves raw).
-- Add `image/heic`/`heif` to the early-skip allowlist so they always get processed (not bypassed by the <200 KB shortcut).
-- Add `bun add heic2any` (small, ~50 KB gz, dynamic-imported so no bundle hit until needed).
+### 1. Remove the rogue mic
+- Delete `src/components/VoiceConciergeButton.tsx`.
+- Remove its lazy import + render in `src/components/AppLayout.tsx` (lines 22 and 247–252).
 
-### 3. Call sites — validate after compression
-Update the three uploaders so the order is **compress → validate compressed size**, with a soft raw-cap of 50 MB just to reject obvious garbage:
-- `src/components/ImageUpload.tsx`
-- `src/components/PhotoUploadManager.tsx`
-- `src/components/UnifiedListingForm.tsx`
+### 2. Microphone permission + reliability
+- In `useVoiceTranscribe.ts`: before requesting the stream, check `navigator.permissions.query({ name: 'microphone' })` when available; if `denied`, surface a clear toast with instructions instead of silently failing.
+- In `ConciergeChat.tsx` and `AIListingWizard.tsx`: when the user first taps the mic, show a one-line inline hint ("Allow microphone to dictate your listing") and on `getUserMedia` rejection, render a recoverable error state with a retry button.
+- iOS/in-app browser: keep the existing `MediaRecorder` fallback path; ensure it is the only path on iOS Safari (it already is — no change needed beyond the UX above).
 
-This means an iPhone 24 MB HEIC becomes a ~900 KB WebP/JPEG and uploads cleanly.
+### 3. Listing creation actually works
+- In `AIListingWizard.tsx`, after voice transcription + photo upload, the wizard should call the existing `ai-profile-extract` / concierge draft path and then `UnifiedListingForm` save logic. Verify the payload uses `owner_id` only (per recent fix) and that the photos array is populated from compressed uploads before `insert into listings`.
+- Add a clear error toast when the insert fails, surfacing the Supabase error message instead of a generic "failed".
 
-### 4. Storage buckets (migration)
-Set explicit, generous limits on `storage.buckets` so the server matches the client:
+### 4. Redesigned AI chat (matches your mockups)
 
-```sql
-update storage.buckets set file_size_limit = 52428800,  -- 50 MB
-  allowed_mime_types = null
- where id in ('listing-images','profile-images','event-images');
+Refine `ConciergeChat.tsx` only — no new component, no logic rewrite.
 
-update storage.buckets set file_size_limit = 524288000  -- 500 MB
- where id = 'listing-videos';
+Visual changes:
+- Header: rounded white/dark surface, "Swipess AI / Online" with subtle gradient avatar using existing `SwipessLogo`. Slim chevron-back, slim more-menu.
+- Welcome state: "Hey there! 👋 What can I help you with today?" + 6 "Popular Topics" cards in a 2-col grid (Real Estate, Rentals, Motorcycles, Bicycles, Find Workers, Find Clients). Each card: rounded-2xl, soft surface, gradient icon. Tapping a card seeds the input with a starter prompt.
+- Message bubbles:
+  - User: gradient bubble (`from-[hsl(var(--primary))] to-[#A855F7]`), white text, right-aligned, rounded-3xl with single tail corner.
+  - AI: light card on light theme, elevated `bg-card` on dark, with `prose-invert` markdown.
+- Inline listing preview cards: when `searchListings` returns results, the edge function will also emit a structured `[LISTINGS:[{id,title,price,image,beds,baths,m2,city}]]` tag. The chat parses it and renders compact swipe-style cards inline (image, title, price, meta row, "View Details" button → `[NAV:/listing/:id]`). Existing markdown bullet fallback stays for text-only models.
+- Suggestion chips below the latest AI reply ("Show me more options", "What about apartments?") — already partially supported via `[NAV:]`; we'll render them as pill buttons.
+- Composer: rounded-full input, gradient circular send button, mic on the left, `+` attachment on the right, all matching mockup spacing (Power Ratios: 56px input height, 44px buttons, 16px gap).
+- Bottom nav: keep existing `BottomNavigation` — do not duplicate.
 
-update storage.buckets set file_size_limit = 26214400   -- 25 MB
- where id in ('contracts','legal-documents');
-```
+Light/dark:
+- Use existing semantic tokens (`bg-background`, `bg-card`, `text-foreground`, `--primary`). No hardcoded hex except the explicit gradient stops, which we'll add as CSS variables `--ai-grad-from` / `--ai-grad-to` in `index.css` so both themes pick up correctly.
 
-`allowed_mime_types = null` keeps the bucket accepting any image MIME (HEIC included) since the client now normalizes to JPEG/WebP before upload anyway.
+### 5. Backend touch
+- Edit `supabase/functions/ai-concierge/index.ts`: when `searchListings` returns rows, also append a JSON `[LISTINGS:…]` tag (in addition to the markdown summary) so the new chat can render rich cards. No DB changes, no new tables.
 
-### 5. Camera flows (sanity check, no code change expected)
-`OwnerListingCamera.tsx` and `usePhotoCamera.tsx` already capture as JPEG via `<canvas>`, so they bypass HEIC entirely. No change needed.
+### 6. Sync
+- After implementation, the changes flow through the existing Lovable→GitHub pipeline (`mirror-to-original.yml`). I won't run git commands manually per project policy.
 
-## Outcome
+## Files to change
 
-- iPhone HEIC photos: accepted, auto-converted, uploaded.
-- Large 20–50 MB DSLR/phone shots: accepted, auto-compressed to ~1 MB, uploaded.
-- Blank-MIME edge cases: accepted via extension check.
-- Server bucket limits explicitly set so behavior is consistent on every device.
+- delete: `src/components/VoiceConciergeButton.tsx`
+- edit: `src/components/AppLayout.tsx`
+- edit: `src/hooks/useVoiceTranscribe.ts`
+- edit: `src/components/ConciergeChat.tsx` (largest change — visual refinement)
+- edit: `src/components/AIListingWizard.tsx` (mic UX + save error surfacing)
+- edit: `src/index.css` (gradient tokens for AI chat)
+- edit: `supabase/functions/ai-concierge/index.ts` (emit `[LISTINGS:…]` tag)
 
-No layout, theme, or business-logic changes — purely upload pipeline hardening.
+## Out of scope
+
+- No changes to swipe physics, routing, BottomNavigation, or the `listings` schema.
+- No new dependencies.
+- No changes to other mic surfaces (MessagingInterface, RoommateMatching) — those already work and aren't reported as broken.
+
+Approve and I'll implement.

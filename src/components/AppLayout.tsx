@@ -19,7 +19,6 @@ import { cn } from '@/lib/utils';
 const TopBar = lazyWithRetry(() => import('./TopBar').then(m => ({ default: m.TopBar })));
 const BottomNavigation = lazyWithRetry(() => import('./BottomNavigation').then(m => ({ default: m.BottomNavigation })));
 const RadioMiniPlayer = lazyWithRetry(() => import('./RadioMiniPlayer').then(m => ({ default: m.RadioMiniPlayer })));
-const VoiceConciergeButton = lazyWithRetry(() => import('./VoiceConciergeButton').then(m => ({ default: m.VoiceConciergeButton })));
 const SwipessHud = lazyWithRetry(() => import('./SwipessHud').then(m => ({ default: m.SwipessHud })));
 const VapIdCardModal = lazyWithRetry(() => import('./VapIdCardModal').then(m => ({ default: m.VapIdCardModal })));
 const GlobalDialogs = lazyWithRetry(() => import('./GlobalDialogs').then(m => ({ default: m.GlobalDialogs })));
@@ -245,11 +244,6 @@ export function AppLayout({ children }: AppLayoutProps) {
       )}
       
       {/* 🤖 VOICE CONCIERGE: Left-side floating assistant */}
-      {showAppChrome && !isFullScreen && !hideFloatingForSwipe && (
-        <Suspense fallback={null}>
-          <VoiceConciergeButton />
-        </Suspense>
-      )}
 
       <Suspense fallback={null}>
         <VapIdCardModal

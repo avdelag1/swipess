@@ -78,6 +78,17 @@ export function useVoiceTranscribe(): UseVoiceTranscribeResult {
     }
     try {
       cancelledRef.current = false;
+      // Pre-check permission state when supported (Chromium/Safari 16+)
+      try {
+        // @ts-ignore - permissions API typing varies
+        const status = await navigator.permissions?.query?.({ name: 'microphone' as PermissionName });
+        if (status?.state === 'denied') {
+          console.warn('[useVoiceTranscribe] Microphone permission previously denied');
+          return false;
+        }
+      } catch {
+        // permissions API not available — fall through to getUserMedia
+      }
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: {
           echoCancellation: true,

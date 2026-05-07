@@ -44,10 +44,12 @@ function parseNavActions(content: string): {
   navPaths: string[]; 
   draftActions: { category: string; data: any }[];
   filterAction: any | null;
+  listings: any[];
 } {
   const navPaths: string[] = [];
   const draftActions: { category: string; data: any }[] = [];
   let filterAction = null;
+  let listings: any[] = [];
   
   let cleanContent = content.replace(NAV_PATTERN, (_, path) => {
     navPaths.push(path);
@@ -74,9 +76,20 @@ function parseNavActions(content: string): {
     return '';
   });
 
+  const LISTINGS_PATTERN = /\[LISTINGS:(\[[\s\S]*?\])\]/g;
+  cleanContent = cleanContent.replace(LISTINGS_PATTERN, (_, jsonData) => {
+    try {
+      const parsed = JSON.parse(jsonData);
+      if (Array.isArray(parsed)) listings = parsed;
+    } catch (e) {
+      console.error('Failed to parse listings JSON:', e);
+    }
+    return '';
+  });
+
   cleanContent = cleanContent.replace(/\n{3,}/g, '\n\n').trim();
   
-  return { cleanContent, navPaths, draftActions, filterAction };
+  return { cleanContent, navPaths, draftActions, filterAction, listings };
 }
 
 const ConciergePrivacyPortal = memo(({ onAccept, isSwipess }: { onAccept: () => void, isSwipess: boolean }) => (
@@ -124,6 +137,51 @@ const ConciergePrivacyPortal = memo(({ onAccept, isSwipess }: { onAccept: () => 
 ));
 ConciergePrivacyPortal.displayName = 'ConciergePrivacyPortal';
 
+const POPULAR_TOPICS: { label: string; prompt: string; icon: any; tone: string }[] = [
+  { label: 'Real Estate', prompt: 'Show me modern houses for sale in Tulum', icon: Crown, tone: 'from-orange-400 to-pink-500' },
+  { label: 'Rentals', prompt: 'Find me 2 bedroom apartments for rent under $1500', icon: Sun, tone: 'from-rose-400 to-fuchsia-500' },
+  { label: 'Motorcycles', prompt: 'Find motorcycles under $3,000', icon: Flame, tone: 'from-amber-400 to-orange-500' },
+  { label: 'Bicycles', prompt: 'Show me bicycles available nearby', icon: Zap, tone: 'from-violet-400 to-indigo-500' },
+  { label: 'Find Workers', prompt: 'I need a reliable plumber today', icon: Sparkles, tone: 'from-cyan-400 to-sky-500' },
+  { label: 'Find Clients', prompt: 'Help me reach more clients for my listing', icon: Moon, tone: 'from-emerald-400 to-teal-500' },
+];
+
+const WelcomeState = memo(({ isSwipess, isLight, onPick }: { isSwipess: boolean; isLight: boolean; onPick: (prompt: string) => void }) => (
+  <div className="h-full flex flex-col items-start justify-start gap-7 max-w-2xl mx-auto w-full">
+    <div className="space-y-2 w-full">
+      <h2 className={cn("text-3xl font-black tracking-tight", isLight && !isSwipess ? "text-foreground" : "text-white")}>
+        Hey there! <span className="inline-block">👋</span>
+      </h2>
+      <p className={cn("text-2xl font-bold leading-tight", isLight && !isSwipess ? "text-foreground/80" : "text-white/80")}>
+        What can I help you with today?
+      </p>
+    </div>
+    <div className="w-full">
+      <p className={cn("text-[11px] font-black uppercase tracking-[0.25em] mb-3", isLight && !isSwipess ? "text-muted-foreground" : "text-white/50")}>
+        Popular Topics
+      </p>
+      <div className="grid grid-cols-2 gap-3">
+        {POPULAR_TOPICS.map((t) => (
+          <button
+            key={t.label}
+            onClick={() => onPick(t.prompt)}
+            className={cn(
+              "flex flex-col items-center justify-center gap-2 px-4 py-5 rounded-2xl border transition-all active:scale-[0.96] hover:shadow-[0_18px_40px_rgba(0,0,0,0.12)]",
+              isLight && !isSwipess ? "bg-card border-border/60" : "bg-white/[0.04] border-white/10"
+            )}
+          >
+            <div className={cn("w-10 h-10 rounded-xl bg-gradient-to-br flex items-center justify-center shadow-md", t.tone)}>
+              <t.icon className="w-5 h-5 text-white" strokeWidth={2.4} />
+            </div>
+            <span className={cn("text-[13px] font-bold", isLight && !isSwipess ? "text-foreground" : "text-white")}>{t.label}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  </div>
+));
+WelcomeState.displayName = 'WelcomeState';
+
 const MessageBubble = memo(({ message, isUser, isSwipess, onCopy, onDelete, onTranslate, onResend, onNavigate, onDraft, onFilter, onSpeak, speakingMsgId, isSpeaking }: { 
   message: ChatMessage, isUser: boolean, isSwipess: boolean,
   onCopy: () => void, onDelete: () => void, onTranslate?: (l:string)=>void,
@@ -133,8 +191,8 @@ const MessageBubble = memo(({ message, isUser, isSwipess, onCopy, onDelete, onTr
   onSpeak?: (id: string, text: string) => void, speakingMsgId: string | null, isSpeaking: boolean
 }) => {
   const [showActions, setShowActions] = useState(false);
-  const { cleanContent, navPaths, draftActions, filterAction } = useMemo(
-    () => isUser ? { cleanContent: message.content, navPaths: [], draftActions: [], filterAction: null } : parseNavActions(message.content),
+  const { cleanContent, navPaths, draftActions, filterAction, listings } = useMemo(
+    () => isUser ? { cleanContent: message.content, navPaths: [], draftActions: [], filterAction: null, listings: [] } : parseNavActions(message.content),
     [message.content, isUser]
   );
 
@@ -193,6 +251,37 @@ const MessageBubble = memo(({ message, isUser, isSwipess, onCopy, onDelete, onTr
            </button>
         )}
       </div>
+
+      {!isUser && listings.length > 0 && (
+        <div className="w-full mt-2 grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {listings.map((l) => (
+            <button
+              key={l.id}
+              onClick={(e) => { e.stopPropagation(); onNavigate?.(`/listing/${l.id}`); }}
+              className={cn(
+                "group relative overflow-hidden rounded-2xl border text-left transition-all active:scale-[0.98] hover:shadow-[0_18px_40px_rgba(0,0,0,0.18)]",
+                isSwipess ? "bg-white/[0.04] border-white/10" : "bg-card border-border/60"
+              )}
+            >
+              {l.image && (
+                <div className="aspect-[16/10] w-full overflow-hidden bg-muted">
+                  <img src={l.image} alt={l.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500" />
+                </div>
+              )}
+              <div className="p-3 space-y-1">
+                <p className={cn("text-sm font-bold leading-tight line-clamp-1", isSwipess ? "text-white" : "text-foreground")}>{l.title}</p>
+                <p className="text-[13px] font-black bg-gradient-to-r from-primary to-[#A855F7] bg-clip-text text-transparent">
+                  {l.currency === "MXN" ? "MXN$" : "$"}{Number(l.price).toLocaleString()}
+                  <span className="text-[10px] font-bold opacity-60 ml-1">/ {l.listing_type}</span>
+                </p>
+                <p className={cn("text-[11px] font-medium opacity-70 line-clamp-1", isSwipess ? "text-white/70" : "text-muted-foreground")}>
+                  {[l.bedrooms ? `${l.bedrooms} bd` : null, l.bathrooms ? `${l.bathrooms} ba` : null, l.city].filter(Boolean).join(" · ")}
+                </p>
+              </div>
+            </button>
+          ))}
+        </div>
+      )}
 
       {navPaths.length > 0 && onNavigate && (
         <div className="flex flex-wrap gap-1.5 mt-1">
@@ -748,13 +837,11 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
 
                 <div ref={scrollRef} className="flex-1 overflow-y-auto px-6 py-8 scroll-smooth custom-scrollbar">
                   {messages.length === 0 ? (
-                    <div className="h-full flex flex-col items-center justify-center text-center space-y-6 opacity-30">
-                       <SwipessLogo className="w-16 h-16 animate-pulse" />
-                       <div>
-                          <p className="text-[10px] font-black uppercase tracking-[0.4em]">Ready for discovery</p>
-                          <p className="text-[8px] font-bold uppercase tracking-widest mt-1">Start by typing or speaking your request</p>
-                       </div>
-                    </div>
+                    <WelcomeState
+                      isSwipess={isSwipess}
+                      isLight={isLight}
+                      onPick={(prompt) => { setInput(prompt); triggerHaptic('light'); }}
+                    />
                   ) : (
                     messages.map((m) => (
                       <MessageBubble 
