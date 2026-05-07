@@ -25,12 +25,11 @@ export const SWIPE_CARD_FIELDS = `
   latitude, longitude, status, is_active
 `;
 
-// Demo coords are all near Tulum (20.2114°N, -87.4654°W) at increasing distances
-// so the km radius slider visually filters cards during testing:
-//  ≤5km: demo-1, demo-6  |  ≤12km: +demo-2, demo-3, demo-4  |  ≤20km: +demo-5, demo-10
-//  ≤35km: +demo-7, demo-11  |  ≤50km: +demo-8, demo-9, demo-12
+// Demo data: 2 property, 2 motorcycle, 2 bicycle, 4 worker.
+// Always appended AFTER real listings so testing never obscures real data.
+// Coords are around Tulum so the radius slider visually filters during testing.
 const DEMO_LISTINGS: any[] = [
-  // ── PROPERTY (3 cards) ────────────────────────────────────────────────
+  // ── PROPERTY (2 cards) ────────────────────────────────────────────────
   {
     id: 'demo-1',
     title: 'Ultra-Modern Penthouse',
@@ -41,18 +40,6 @@ const DEMO_LISTINGS: any[] = [
     category: 'property', listing_type: 'rent', property_type: 'penthouse',
     beds: 3, baths: 4, square_footage: 2800,
     latitude: 20.2384, longitude: -87.4654, // ~3km north
-    is_active: true, status: 'active', created_at: new Date().toISOString()
-  },
-  {
-    id: 'demo-3',
-    title: 'Creative Studio Loft',
-    description: 'Industrial chic at its finest. High ceilings, exposed brick, and perfect natural light for artists and creators.',
-    price: 3200, currency: 'USD',
-    images: ['https://images.unsplash.com/photo-1536376074432-cd424369ffdd?auto=format&fit=crop&q=80&w=1200'],
-    city: 'Playa del Carmen', neighborhood: 'Centro',
-    category: 'property', listing_type: 'rent', property_type: 'loft',
-    beds: 1, baths: 1, square_footage: 1100,
-    latitude: 20.1474, longitude: -87.4654, // ~7km south
     is_active: true, status: 'active', created_at: new Date().toISOString()
   },
   {
@@ -68,7 +55,7 @@ const DEMO_LISTINGS: any[] = [
     is_active: true, status: 'active', created_at: new Date().toISOString()
   },
 
-  // ── MOTORCYCLE (3 cards) ──────────────────────────────────────────────
+  // ── MOTORCYCLE (2 cards) ──────────────────────────────────────────────
   {
     id: 'demo-2',
     title: 'Ducati Panigale V4',
@@ -91,19 +78,8 @@ const DEMO_LISTINGS: any[] = [
     latitude: 20.4914, longitude: -87.4654, // ~31km north
     is_active: true, status: 'active', created_at: new Date().toISOString()
   },
-  {
-    id: 'demo-11',
-    title: 'Honda CBR600RR',
-    description: 'Supersport performance, everyday reliability. Track-tuned suspension. Immaculate condition with full service history.',
-    price: 8900, currency: 'USD',
-    images: ['https://images.unsplash.com/photo-1449426468159-d96dbf08f19f?auto=format&fit=crop&q=80&w=1200'],
-    city: 'Cancún', category: 'motorcycle', listing_type: 'sell',
-    vehicle_brand: 'Honda', vehicle_model: 'CBR600RR', year: 2021, mileage: 6200,
-    latitude: 20.5074, longitude: -87.0244, // ~48km northeast
-    is_active: true, status: 'active', created_at: new Date().toISOString()
-  },
 
-  // ── BICYCLE (3 cards) ─────────────────────────────────────────────────
+  // ── BICYCLE (2 cards) ─────────────────────────────────────────────────
   {
     id: 'demo-4',
     title: 'VanMoof S5 Electric',
@@ -126,19 +102,8 @@ const DEMO_LISTINGS: any[] = [
     latitude: 19.8114, longitude: -87.4654, // ~44km south
     is_active: true, status: 'active', created_at: new Date().toISOString()
   },
-  {
-    id: 'demo-12',
-    title: 'Trek Marlin 7 Mountain Bike',
-    description: 'Aluminum hardtail, hydraulic disc brakes, 1x drivetrain. Ready to shred jungle trails or cruise the coast.',
-    price: 1200, currency: 'USD',
-    images: ['https://images.unsplash.com/photo-1544191696-102dbdaeeaa0?auto=format&fit=crop&q=80&w=1200'],
-    city: 'Cancún', category: 'bicycle', listing_type: 'sell',
-    bicycle_type: 'mountain',
-    latitude: 21.1743, longitude: -86.8466, // ~116km north (shows only at 50km+)
-    is_active: true, status: 'active', created_at: new Date().toISOString()
-  },
 
-  // ── SERVICES (3 cards) ────────────────────────────────────────────────
+  // ── WORKERS / SERVICES (4 cards) ──────────────────────────────────────
   {
     id: 'demo-5',
     title: 'Senior Interior Architect',
