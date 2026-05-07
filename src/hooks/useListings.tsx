@@ -237,7 +237,7 @@ export function useOwnerListings() {
         const { data: listings, error } = await supabase
           .from('listings')
           .select('*')
-          .or(`owner_id.eq.${user.id},user_id.eq.${user.id}`)
+          .eq('owner_id', user.id)
           .order('created_at', { ascending: false })
           .limit(100); // Prevent loading too many listings at once
 
@@ -279,9 +279,9 @@ export function useOwnerListings() {
             (payload) => {
               if (import.meta.env.DEV) logger.log('Real-time listing change:', payload);
 
-              const nextRow = payload.new as { owner_id?: string | null; user_id?: string | null } | null;
-              const oldRow = payload.old as { owner_id?: string | null; user_id?: string | null } | null;
-              const belongsToOwner = [nextRow?.owner_id, nextRow?.user_id, oldRow?.owner_id, oldRow?.user_id].includes(user.id);
+              const nextRow = payload.new as { owner_id?: string | null } | null;
+              const oldRow = payload.old as { owner_id?: string | null } | null;
+              const belongsToOwner = [nextRow?.owner_id, oldRow?.owner_id].includes(user.id);
               if (!belongsToOwner) return;
 
               // Invalidate and refetch the listings query
