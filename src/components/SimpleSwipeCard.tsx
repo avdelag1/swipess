@@ -33,8 +33,8 @@ export interface SimpleSwipeCardRef {
   triggerSwipe: (direction: 'left' | 'right') => void;
 }
 
-const SWIPE_THRESHOLD = 65;
-const VELOCITY_THRESHOLD = 280;
+const SWIPE_THRESHOLD = 50;
+const VELOCITY_THRESHOLD = 180;
 const FALLBACK_PLACEHOLDER = '';
 const MAX_ROTATION = 14;
 
