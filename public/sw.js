@@ -11,7 +11,7 @@
 // IMPORTANT: __BUILD_TIME__ is replaced with an ISO timestamp by the Vite
 // sw-build-time-plugin at build time. In dev mode the literal string is used
 // as the version (safe — SW is unregistered in dev anyway).
-const SW_VERSION = '__BUILD_TIME__' === '__BUILD_TIME__' ? '2026-05-07T23-img-passthrough' : '__BUILD_TIME__';
+const SW_VERSION = '__BUILD_TIME__' === '__BUILD_TIME__' ? '2026-05-08T02-clear-photos' : '__BUILD_TIME__';
 const CACHE_VERSION = `swipess-${SW_VERSION}`;
 const CACHE_NAME = CACHE_VERSION;
 const STATIC_CACHE = `${CACHE_NAME}-static`;
@@ -348,56 +348,6 @@ self.addEventListener('fetch', (event) => {
       })
     );
     return;
-  }
-
-  // 🚀 SPEED OF LIGHT: Image Recompression / Optimization Interceptor
-  // Automatically rewrite Supabase storage URLs to include optimal format/quality
-  if (request.destination === 'image' && url.hostname.includes('supabase.co/storage')) {
-    // Only optimize if transformation params aren't already present
-    if (!url.searchParams.has('width') && !url.searchParams.has('format') && !url.searchParams.has('token')) {
-      // Append default high-performance transformation parameters
-      // format=avif (Supabase will fallback to webp/jpeg if needed)
-      // width=720 (Optimal for high-density mobile card feeds)
-      url.searchParams.set('format', 'avif');
-      url.searchParams.set('quality', '75');
-      url.searchParams.set('width', '720');
-      
-      const optimizedRequest = new Request(url.toString(), {
-        headers: request.headers,
-        mode: request.mode,
-        credentials: request.credentials,
-        cache: request.cache,
-        redirect: request.redirect,
-        referrer: request.referrer,
-        integrity: request.integrity
-      });
-      
-      event.respondWith(
-        caches.open(IMAGE_CACHE).then(cache => {
-          return cache.match(optimizedRequest).then(cachedResponse => {
-            const bgFetch = fetch(optimizedRequest).then(networkResponse => {
-              if (networkResponse.ok && networkResponse.status === 200) {
-                cache.put(optimizedRequest, networkResponse.clone());
-              }
-              return networkResponse;
-            }).catch(() => {
-              if (cachedResponse) return cachedResponse;
-              return new Response('data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7', { 
-                status: 200, 
-                headers: { 'Content-Type': 'image/gif' } 
-              });
-            });
-
-            if (cachedResponse) {
-              event.waitUntil(bgFetch);
-              return cachedResponse;
-            }
-            return bgFetch;
-          });
-        })
-      );
-      return;
-    }
   }
 
   // STALE-WHILE-REVALIDATE for images - instant display, update in background
