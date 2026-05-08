@@ -141,10 +141,10 @@ export function AIListingWizard() {
         setPrompt(refined);
         toast.success('Intel Refined', { description: 'Description optimized by Kimi Intelligence.' });
       } else {
-        // Fallback to existing AI logic if Kimi failed or no key
-        const AI_URL = 'https://vplgtcguxujxwrgguxqq.supabase.co/functions/v1/ai-concierge';
-        const AUTH_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwbGd0Y2d1eHVqeHdyZ2d1eHFxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgwMDI5MDIsImV4cCI6MjA2MzU3ODkwMn0.-TzSQ-nDho4J6TftVF4RNjbhr5cKbknQxxUT-AaSIJU';
-        
+        // Fallback to ai-concierge if Kimi key not configured
+        const AI_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-concierge`;
+        const AUTH_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+
         const resp = await fetch(AI_URL, {
           method: 'POST',
           headers: {
@@ -192,8 +192,8 @@ export function AIListingWizard() {
         uploadedUrls = await uploadPhotoBatch(user.id, imageFiles, 'listing-images');
       }
 
-      const AI_URL = 'https://vplgtcguxujxwrgguxqq.supabase.co/functions/v1/ai-concierge';
-      const AUTH_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwbGd0Y2d1eHVqeHdyZ2d1eHFxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgwMDI5MDIsImV4cCI6MjA2MzU3ODkwMn0.-TzSQ-nDho4J6TftVF4RNjbhr5cKbknQxxUT-AaSIJU';
+      const AI_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-concierge`;
+      const AUTH_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
       const systemPrompt = `You are an expert real estate and marketplace listing optimizer for Swipess.
       Your goal is to parse user input and create a structured JSON for a listing.
@@ -245,9 +245,16 @@ export function AIListingWizard() {
       } else {
         throw new Error('Could not parse AI response');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('AI Processing Error:', error);
-      toast.error('Something went wrong with the AI processing.');
+      const msg: string = error?.message ?? '';
+      if (msg.includes('429')) {
+        toast.error('Rate limited — please wait a moment and try again.');
+      } else if (msg.includes('402') || msg.includes('credit')) {
+        toast.error('AI credits exhausted. Please contact support.');
+      } else {
+        toast.error('AI processing failed. Please check your connection and retry.');
+      }
       setStep('details');
     } finally {
       setIsProcessing(false);
