@@ -664,6 +664,10 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
     triggerHaptic('light');
     const newIndex = currentIndexRef.current + 1;
     currentIndexRef.current = newIndex;
+    // Reset motion values synchronously so the underlying card doesn't flash
+    // at full scale/opacity before the new top card paints.
+    topCardX.stop(); topCardX.set(0);
+    topCardY.stop(); topCardY.set(0);
     setCurrentIndex(newIndex);
     // Preload upcoming images for smooth browse
     [1, 2, 3].forEach((offset) => {
@@ -673,7 +677,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
         imageCache.set(futureCard.images[0], true);
       }
     });
-  }, []);
+  }, [topCardX, topCardY]);
 
   // Vertical-up swipe = rewind to the previously viewed card without writing.
   const handleSkipBack = useCallback(() => {
@@ -681,8 +685,10 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
     triggerHaptic('light');
     const newIndex = Math.max(0, currentIndexRef.current - 1);
     currentIndexRef.current = newIndex;
+    topCardX.stop(); topCardX.set(0);
+    topCardY.stop(); topCardY.set(0);
     setCurrentIndex(newIndex);
-  }, []);
+  }, [topCardX, topCardY]);
 
   const handleButtonLike = useCallback(() => {
     if (cardRef.current) {
