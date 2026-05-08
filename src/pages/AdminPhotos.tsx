@@ -222,7 +222,7 @@ export default function AdminPhotos() {
     <div className="min-h-screen bg-background p-4 pt-[env(safe-area-inset-top)] pb-24 max-w-5xl mx-auto">
       <PageHeader
         title="Photo Library"
-        subtitle={`admin-uploads bucket · ${photos.length} photos`}
+        subtitle={`Global admin library · ${photos.length} photos in ${FOLDERS.find(f => f.id === folder)?.label}`}
         actions={
           <div className="flex gap-2">
             <Link to="/admin/eventos">
@@ -254,6 +254,24 @@ export default function AdminPhotos() {
           </div>
         }
       />
+
+      {/* Folder tabs — separate AI/mock from real promotional photos */}
+      <div className="flex flex-wrap gap-2 mb-4">
+        {FOLDERS.map(f => (
+          <button
+            key={f.id}
+            onClick={() => setFolder(f.id)}
+            className={cn(
+              'px-3 py-1.5 rounded-full text-sm border transition-colors',
+              folder === f.id
+                ? 'bg-primary text-primary-foreground border-primary'
+                : 'bg-card text-foreground border-border hover:bg-muted'
+            )}
+          >
+            {f.label}
+          </button>
+        ))}
+      </div>
 
       {/* Upload drop zone */}
       <div
