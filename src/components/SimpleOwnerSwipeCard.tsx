@@ -1,8 +1,8 @@
 /**
  * TINDER-STYLE OWNER SWIPE CARD — Nexus Edition
  *
- * Full diagonal movement with physics-based animations.
- * Card follows finger freely in any direction with natural rotation.
+ * Axis-locked owner swipe card with strict story-feed movement.
+ * Card only travels straight up/down for browsing or straight left/right for like/pass.
  * 
  * KEY FEATURES:
  * - Free XY movement (diagonal swipes)
@@ -35,8 +35,8 @@ const SWIPE_THRESHOLD = 80;
 const VELOCITY_THRESHOLD = 280;
 const SKIP_THRESHOLD = 110;
 const SKIP_VELOCITY = 350;
-const MAX_ROTATION = 14;
 const FALLBACK_PLACEHOLDER = '';
+type DragAxis = 'x' | 'y' | null;
 
 const getExitDistance = () => typeof window !== 'undefined' ? window.innerWidth * 1.5 : 800;
 
@@ -175,6 +175,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   const dragControls = useDragControls();
   const dragStartedRef = useRef(false);
   const storedPointerEventRef = useRef<React.PointerEvent | null>(null);
+  const dragAxisRef = useRef<DragAxis>(null);
   const { isLight } = useAppTheme();
 
   const _internalX = useMotionValue(0);
@@ -182,8 +183,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   const x = externalX ?? _internalX;
   const y = externalY ?? _internalY;
 
-  // Tinder-style: horizontal = like/pass, vertical = skip-to-next.
-  const cardRotate = useTransform(x, [-200, 0, 200], [-MAX_ROTATION, 0, MAX_ROTATION]);
+  // Strict story-feed motion: horizontal = like/pass, vertical = browse next card.
   const cardOpacity = useTransform(
     [x, y] as any,
     ([cx, cy]: any) => {
