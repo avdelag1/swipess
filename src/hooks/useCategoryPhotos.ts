@@ -5,9 +5,9 @@ import { POKER_CARD_PHOTOS } from '@/components/swipe/CardData';
 
 const DEFAULT_CATEGORY_CAROUSEL_EXTRAS: Record<string, string[]> = {
   property: [
-    'https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?auto=format&fit=crop&q=80&w=1200',
-    'https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&q=80&w=1200',
-    'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&q=80&w=1200',
+    '/images/filters/property_jungle_villa.jpg',
+    '/images/filters/property_loft_interior.jpg',
+    '/images/filters/property_bamboo_dome.jpg',
   ],
   motorcycle: [
     'https://images.unsplash.com/photo-1449426468159-d96dbf08f19f?auto=format&fit=crop&q=80&w=1200',
