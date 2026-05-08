@@ -14,7 +14,7 @@ import { triggerHaptic } from '@/utils/haptics';
  *   { y, scale, opacity, bind }  — bind is a set of pointer handlers.
  */
 export function usePullDownToDismiss(opts?: { threshold?: number }) {
-  const threshold = opts?.threshold ?? 70;
+  const threshold = opts?.threshold ?? 56;
   const y = useMotionValue(0);
   // Curtain: silky fall — eased scale-down with deep fade for a clean reveal.
   const scale = useTransform(y, [0, 200, 500], [1, 0.92, 0.7], { clamp: true });
@@ -79,7 +79,7 @@ export function usePullDownToDismiss(opts?: { threshold?: number }) {
     if ((e.target as HTMLElement)?.closest('[data-no-pull-dismiss], [data-no-cinematic], button, a')) return;
     // Only the physical top edge can close the deck. Card-body vertical swipes
     // are reserved for strict story-style paging between listings/profiles.
-    if (e.clientY > 42) return;
+    if (e.clientY > 64) return;
     startY.current = e.clientY;
     startX.current = e.clientX;
     startT.current = performance.now();
@@ -95,7 +95,7 @@ export function usePullDownToDismiss(opts?: { threshold?: number }) {
     const dx = Math.abs(e.clientX - startX.current);
     if (!active.current) {
       // Sensitive only from the top edge; no free card-body curtain dragging.
-      if (dy > 4 && dy > dx * 1.35) {
+      if (dy > 2 && dy > dx * 1.2) {
         active.current = true;
         e.currentTarget.setPointerCapture?.(e.pointerId);
       } else if (dx > 10) {
@@ -134,7 +134,7 @@ export function usePullDownToDismiss(opts?: { threshold?: number }) {
     }
     const current = y.get();
     // Flick-to-dismiss: even a soft downward flick commits.
-    const flicked = velocity.current > 0.35 && current > 20;
+    const flicked = velocity.current > 0.25 && current > 16;
     if (current >= threshold || flicked) {
       commitDismiss();
     } else {
@@ -150,7 +150,7 @@ export function usePullDownToDismiss(opts?: { threshold?: number }) {
       const target = event.target as HTMLElement | null;
       if (target?.closest('[data-no-pull-dismiss], [data-no-cinematic], button, a')) return;
       const touch = event.touches[0];
-      if (!touch || touch.clientY > 42) return;
+      if (!touch || touch.clientY > 64) return;
       touchId = touch.identifier;
       startY.current = touch.clientY;
       startX.current = touch.clientX;
@@ -168,7 +168,7 @@ export function usePullDownToDismiss(opts?: { threshold?: number }) {
       const dy = touch.clientY - startY.current;
       const dx = Math.abs(touch.clientX - startX.current);
       if (!active.current) {
-        if (dy > 4 && dy > dx * 1.35) active.current = true;
+        if (dy > 2 && dy > dx * 1.2) active.current = true;
         else if (dx > 10) {
           startY.current = null;
           startX.current = null;
@@ -191,7 +191,7 @@ export function usePullDownToDismiss(opts?: { threshold?: number }) {
       touchId = null;
       if (!active.current) { reset(); return; }
       const cur = y.get();
-      const flicked = velocity.current > 0.35 && cur > 20;
+      const flicked = velocity.current > 0.25 && cur > 16;
       (cur >= threshold || flicked) ? commitDismiss() : reset();
     };
 
