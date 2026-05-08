@@ -88,9 +88,12 @@ function AuthReadySignal() {
 
     // If we are on the landing page (no user), we fire it after a short delay
     // If we have a user, we wait for the 'swipess-ready' event from the dashboard
+    // Aggressive splash removal — the BootSplash already shows a polished
+    // logo. Holding it longer than needed makes every navigation feel
+    // like a fresh app launch. Drop to 600ms and let 'swipess-ready' win.
     const safetyTimer = setTimeout(() => {
        handleReady();
-    }, 2500); // Increased safety buffer to allow for component loading
+    }, 600);
 
     window.addEventListener('swipess-ready', handleReady);
 
