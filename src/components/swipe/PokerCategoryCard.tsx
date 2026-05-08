@@ -135,6 +135,10 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
     reset();
   }, [card.id, onCycle, x, y]);
 
+  const handleDirectionLock = useCallback((axis: 'x' | 'y') => {
+    axisRef.current = axis;
+  }, []);
+
   // Stack styling — 🚀 Swipess v14.0 Reveal Logic
   // Memoized so background-card filter doesn't recompute on every render → no flicker.
     const { stackY, stackScale, stackOpacity, stackedFilter } = useMemo(() => ({
@@ -145,10 +149,6 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
     }), [index, isTop]);
 
   if (index > 7) return null;
-
-  const handleDirectionLock = useCallback((axis: 'x' | 'y') => {
-    axisRef.current = axis;
-  }, []);
 
     return (
     <motion.div
