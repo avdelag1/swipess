@@ -49,6 +49,7 @@ import { isDirectMessagingListing } from '@/utils/directMessaging';
 import { useQueryClient } from '@tanstack/react-query';
 import { SwipeAllDashboard } from './swipe/SwipeAllDashboard';
 import { SwipeDeckBackButton } from './swipe/SwipeDeckBackButton';
+import { usePullDownToDismiss } from './swipe/usePullDownToDismiss';
 
 import { ReportDialog } from './ReportDialog';
 
@@ -803,6 +804,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
   };
   const currentCategoryName = categoryNames[storeActiveCategory] || storeActiveCategory;
   const hasCards = deckQueue.length > 0 && currentIndex < deckQueue.length;
+  const pullDown = usePullDownToDismiss();
 
   return (
     <>
@@ -817,11 +819,17 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
 
       {/* Single back button is owned by SwipeDeckBackButton — no duplicate radar header here */}
 
-      <div className={cn(
-        "flex-1 relative flex w-full h-full items-center justify-center px-0 z-10 pointer-events-auto min-h-0 overflow-hidden"
-      )}>
+      <div
+        className={cn(
+          "flex-1 relative flex w-full h-full items-center justify-center px-0 z-10 pointer-events-auto min-h-0 overflow-hidden"
+        )}
+        {...pullDown.bind}
+      >
         <SwipeDeckBackButton />
-        <div className="relative w-full h-full mx-auto flex items-center justify-center pointer-events-auto md:max-w-[572px]">
+        <motion.div
+          className="relative w-full h-full mx-auto flex items-center justify-center pointer-events-auto md:max-w-[572px]"
+          style={{ y: pullDown.y, scale: pullDown.scale, opacity: pullDown.opacity }}
+        >
           {/* Rounded backdrop matches card corners so deck blends into background */}
           <div
             aria-hidden
@@ -919,7 +927,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
               </motion.div>
             )}
           </AnimatePresence>
-      </div>
+      </motion.div>
     </div>
 
     {hasCards && (

@@ -34,6 +34,7 @@ import { useNavigate } from 'react-router-dom';
 import { logger } from '@/utils/prodLogger';
 import { SwipeExhaustedState } from './swipe/SwipeExhaustedState';
 import { SwipeDeckBackButton } from './swipe/SwipeDeckBackButton';
+import { usePullDownToDismiss } from './swipe/usePullDownToDismiss';
 import { Home, RefreshCw, ChevronLeft, SlidersHorizontal } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
@@ -813,6 +814,7 @@ const ClientSwipeContainerComponent = ({
   // FIX: Don't clamp the index - allow topCard to be null when all cards are swiped
   // This ensures the "All Caught Up" screen shows correctly
   const topCard = currentIndex < deckQueue.length ? deckQueue[currentIndex] : null;
+  const pullDown = usePullDownToDismiss();
   const _nextCard = currentIndex + 1 < deckQueue.length ? deckQueue[currentIndex + 1] : null;
 
   // Check if we have hydrated data (from store/session) - prevents blank deck flash
@@ -906,9 +908,15 @@ const ClientSwipeContainerComponent = ({
 
         {/* 📡 Radar HUD removed from here — now managed at the Dashboard level for persistence */}
 
-        <div className="flex-1 relative flex w-full h-full items-center justify-center px-0 z-10 pointer-events-auto min-h-0 overflow-hidden">
+        <div
+          className="flex-1 relative flex w-full h-full items-center justify-center px-0 z-10 pointer-events-auto min-h-0 overflow-hidden"
+          {...pullDown.bind}
+        >
         <SwipeDeckBackButton />
-        <div className="relative w-full h-full mx-auto flex items-center justify-center pointer-events-auto">
+        <motion.div
+          className="relative w-full h-full mx-auto flex items-center justify-center pointer-events-auto"
+          style={{ y: pullDown.y, scale: pullDown.scale, opacity: pullDown.opacity }}
+        >
           <AnimatePresence mode="sync" initial={true}>
             {topCard ? (
               <motion.div 
@@ -991,7 +999,7 @@ const ClientSwipeContainerComponent = ({
               </motion.div>
             )}
           </AnimatePresence>
-        </div>
+        </motion.div>
         </div>
 
 
