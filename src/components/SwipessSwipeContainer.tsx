@@ -643,6 +643,24 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
     }
   }, [executeSwipe, playSwipeSound]);
 
+  // Vertical swipe = skip to next card without writing to backend.
+  const handleSkip = useCallback(() => {
+    const listing = deckQueueRef.current[currentIndexRef.current];
+    if (!listing) return;
+    triggerHaptic('light');
+    const newIndex = currentIndexRef.current + 1;
+    currentIndexRef.current = newIndex;
+    setCurrentIndex(newIndex);
+    // Preload upcoming images for smooth browse
+    [1, 2, 3].forEach((offset) => {
+      const futureCard = deckQueueRef.current[newIndex + offset];
+      if (futureCard?.images?.[0]) {
+        preloadImageToCache(futureCard.images[0]);
+        imageCache.set(futureCard.images[0], true);
+      }
+    });
+  }, []);
+
   const handleButtonLike = useCallback(() => {
     if (cardRef.current) {
       cardRef.current.triggerSwipe('right');
