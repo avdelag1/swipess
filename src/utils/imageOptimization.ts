@@ -99,10 +99,10 @@ export function getThumbnailUrl(url: string): string {
  */
 export function getCardImageUrl(url: string): string {
   return optimizeImageUrl(url, {
-    width: 800,
-    height: 1200,
-    quality: 80,
-    format: 'avif'
+    width: 1200,
+    height: 1800,
+    quality: 90,
+    format: 'webp'
   });
 }
 
@@ -119,10 +119,10 @@ export function getCardImageUrl(url: string): string {
  */
 export function getPWACardImageUrl(url: string): string {
   return optimizeImageUrl(url, {
-    width: 640,      // Reduced from 800 - less pixels to decode
-    height: 960,     // Reduced from 1200
-    quality: 70,     // Reduced from 85 - smaller file size
-    format: 'avif'
+    width: 1200,
+    height: 1800,
+    quality: 90,
+    format: 'webp'
   });
 }
 
