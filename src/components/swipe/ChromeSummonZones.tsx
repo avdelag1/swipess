@@ -87,7 +87,7 @@ export function ChromeSummonZones() {
         aria-hidden="true"
         style={{
           position: 'fixed',
-          bottom: 'calc(var(--safe-bottom, 0px) + var(--bottom-nav-height, 64px) + 4px)',
+          bottom: 'calc(var(--safe-bottom, 0px) + var(--bottom-nav-height, 64px) - 14px)',
           left: '8%',
           right: '8%',
           height: 28,
