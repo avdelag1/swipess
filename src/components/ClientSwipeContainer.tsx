@@ -1061,7 +1061,10 @@ const ClientSwipeContainerComponent = ({
 
         {/* 🛸 ACTION BAR: Floating over the card near the bottom nav */}
         {topCard && (
-          <div className="absolute bottom-[calc(var(--bottom-nav-height,64px)+8px)] left-0 right-0 z-[60] flex justify-center pointer-events-auto">
+          <motion.div
+            className="absolute bottom-[calc(var(--bottom-nav-height,64px)+8px)] left-0 right-0 z-[60] flex justify-center pointer-events-auto"
+            style={{ opacity: pullDown.opacity, y: pullDown.y }}
+          >
             <SwipeActionButtonBar
               onLike={handleButtonLike}
               onDislike={handleButtonDislike}
@@ -1071,7 +1074,7 @@ const ClientSwipeContainerComponent = ({
               onMessage={() => handleConnect(topCard.user_id)}
               canUndo={canUndo}
             />
-          </div>
+          </motion.div>
         )}
       </div>
 

@@ -983,7 +983,10 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
     </div>
 
     {hasCards && (
-        <div className="absolute bottom-[calc(var(--bottom-nav-height,64px)+8px)] left-0 right-0 z-[100] flex justify-center pointer-events-auto">
+        <motion.div
+          className="absolute bottom-[calc(var(--bottom-nav-height,64px)+8px)] left-0 right-0 z-[100] flex justify-center pointer-events-auto"
+          style={{ opacity: pullDown.opacity, y: pullDown.y }}
+        >
           <SwipeActionButtonBar
             onLike={handleButtonLike}
             onDislike={handleButtonDislike}
@@ -997,7 +1000,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
             onCycleCategory={handleCycleCategory}
             canUndo={canUndo}
           />
-        </div>
+        </motion.div>
       )}
     </div>
 
