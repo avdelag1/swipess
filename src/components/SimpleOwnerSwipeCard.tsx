@@ -174,10 +174,11 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   const x = externalX ?? _internalX;
   const y = useMotionValue(0);
 
-  const cardRotate = useTransform(x, [-300, 0, 300], [-MAX_ROTATION, 0, MAX_ROTATION]);
-  const cardOpacity = useTransform(x, [-300, -150, 0, 150, 300], [0.7, 1, 1, 1, 0.7]);
-  const likeOpacity = useTransform(x, [0, SWIPE_THRESHOLD * 0.5, SWIPE_THRESHOLD], [0, 0.5, 1]);
-  const passOpacity = useTransform(x, [-SWIPE_THRESHOLD, -SWIPE_THRESHOLD * 0.5, 0], [1, 0.5, 0]);
+  // Vertical-swipe model: up = like ('right'), down = pass ('left'). No rotation.
+  const cardRotate = useTransform(y, [-300, 0, 300], [0, 0, 0]);
+  const cardOpacity = useTransform(y, [-400, -200, 0, 200, 400], [0.6, 1, 1, 1, 0.6]);
+  const likeOpacity = useTransform(y, [-SWIPE_THRESHOLD, -SWIPE_THRESHOLD * 0.5, 0], [1, 0.5, 0]);
+  const passOpacity = useTransform(y, [0, SWIPE_THRESHOLD * 0.5, SWIPE_THRESHOLD], [0, 0.5, 1]);
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
@@ -268,24 +269,19 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   }, [onDragStart]);
 
   const handleDragEnd = useCallback((_: any, info: PanInfo) => {
-    const sweepX = info.offset.x;
     const sweepY = info.offset.y;
-    const velocityX = info.velocity.x;
     const velocityY = info.velocity.y;
-
-    const isHorizontalSwipe = Math.abs(sweepX) > SWIPE_THRESHOLD || Math.abs(velocityX) > VELOCITY_THRESHOLD;
-    const isVerticalUpSwipe = sweepY < -SWIPE_THRESHOLD || velocityY < -VELOCITY_THRESHOLD;
-
-    if (isHorizontalSwipe) {
-      const direction = sweepX > 0 ? 'right' : 'left';
+    const isUpSwipe = sweepY < -SWIPE_THRESHOLD || velocityY < -VELOCITY_THRESHOLD;
+    const isDownSwipe = sweepY > SWIPE_THRESHOLD || velocityY > VELOCITY_THRESHOLD;
+    if (isUpSwipe) {
       hasExited.current = true;
       isExitingRef.current = true;
-      triggerHaptic(direction === 'right' ? 'success' : 'warning');
-      onSwipe(direction);
-    } else if (isVerticalUpSwipe) {
+      triggerHaptic('success');
+      onSwipe('right');
+    } else if (isDownSwipe) {
       hasExited.current = true;
       isExitingRef.current = true;
-      triggerHaptic('light');
+      triggerHaptic('warning');
       onSwipe('left');
     } else {
       animate(x, 0, { type: 'spring', ...ACTIVE_SPRING });
@@ -314,7 +310,8 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
     hasExited.current = true;
     isExitingRef.current = true;
     triggerHaptic(direction === 'right' ? 'success' : 'warning');
-    const exitX = direction === 'right' ? getExitDistance() : -getExitDistance();
+    const exitDist = typeof window !== 'undefined' ? window.innerHeight * 1.2 : 900;
+    const exitY = direction === 'right' ? -exitDist : exitDist;
     let swipeFired = false;
     const fireSwipe = () => {
       if (swipeFired) return;
@@ -322,8 +319,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
       isExitingRef.current = false;
       onSwipe(direction);
     };
-    animate(x, exitX, { type: 'tween', duration: 0.26, ease: [0.32, 0, 0.67, 0], onComplete: fireSwipe });
-    animate(y, direction === 'right' ? -60 : 32, { type: 'tween', duration: 0.26, ease: [0.32, 0, 0.67, 0] });
+    animate(y, exitY, { type: 'tween', duration: 0.28, ease: [0.32, 0, 0.67, 0], onComplete: fireSwipe });
     setTimeout(fireSwipe, 350);
   }, [onSwipe, x, y]);
 
@@ -346,7 +342,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   return (
     <div className="absolute inset-0 flex flex-col pointer-events-auto">
       <motion.div
-        drag
+        drag="y"
         dragControls={dragControls}
         dragListener={false}
         dragMomentum={false}
@@ -391,14 +387,14 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           <PhotoPositionIndicators count={imageCount} currentIndex={currentImageIndex} hidden={isZoomed} />
         </div>
 
-        <motion.div className="absolute top-10 right-6 z-50 pointer-events-none" style={{ opacity: likeOpacity }}>
-          <div className="w-[72px] h-[72px] rounded-full flex items-center justify-center bg-orange-500/20 border-2 border-orange-500 shadow-[0_0_20px_rgba(255,87,34,0.5)]" style={{ transform: 'rotate(15deg)' }}>
+        <motion.div className="absolute top-12 left-1/2 -translate-x-1/2 z-50 pointer-events-none" style={{ opacity: likeOpacity }}>
+          <div className="w-[72px] h-[72px] rounded-full flex items-center justify-center bg-orange-500/20 border-2 border-orange-500 shadow-[0_0_20px_rgba(255,87,34,0.5)]">
             <ThumbsUp className="w-9 h-9 text-orange-500" fill="currentColor" strokeWidth={0} />
           </div>
         </motion.div>
 
-        <motion.div className="absolute top-10 left-6 z-50 pointer-events-none" style={{ opacity: passOpacity }}>
-          <div className="px-5 py-2.5 rounded-xl border-3 border-rose-500 bg-rose-500/20 shadow-[0_0_20px_rgba(244,63,94,0.5)]" style={{ transform: 'rotate(-15deg)' }}>
+        <motion.div className="absolute bottom-[calc(var(--bottom-nav-height,72px)+180px)] left-1/2 -translate-x-1/2 z-50 pointer-events-none" style={{ opacity: passOpacity }}>
+          <div className="px-5 py-2.5 rounded-xl border-3 border-rose-500 bg-rose-500/20 shadow-[0_0_20px_rgba(244,63,94,0.5)]">
             <span className="font-black text-4xl text-rose-500">NOPE</span>
           </div>
         </motion.div>
