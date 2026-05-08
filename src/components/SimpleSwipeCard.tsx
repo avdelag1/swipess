@@ -34,8 +34,10 @@ export interface SimpleSwipeCardRef {
   triggerSwipe: (direction: 'left' | 'right') => void;
 }
 
-const SWIPE_THRESHOLD = 50;
-const VELOCITY_THRESHOLD = 180;
+const SWIPE_THRESHOLD = 80;
+const VELOCITY_THRESHOLD = 280;
+const SKIP_THRESHOLD = 110;
+const SKIP_VELOCITY = 350;
 const FALLBACK_PLACEHOLDER = '';
 const MAX_ROTATION = 14;
 
@@ -50,6 +52,7 @@ const ACTIVE_SPRING = SPRING_CONFIGS.SILK;
 interface SimpleSwipeCardProps {
   listing: Listing | MatchedListing | MatchedClientProfile;
   onSwipe: (direction: 'left' | 'right') => void;
+  onSkip?: () => void;
   onInsights?: () => void;
   onShare?: () => void;
   onReport?: () => void;
@@ -62,6 +65,7 @@ interface SimpleSwipeCardProps {
 const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardProps>(({
   listing,
   onSwipe,
+  onSkip,
   onInsights,
   isTop = true,
   externalX,
@@ -84,11 +88,19 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   const x = externalX ?? _internalX;
   const y = externalY ?? _internalY;
 
-  // Vertical-swipe model: up = like ('right'), down = pass ('left'). No rotation (Instagram-style flat slide).
-  const cardRotate = useTransform(y, [-300, 0, 300], [0, 0, 0]);
-  const cardOpacity = useTransform(y, [-400, -200, 0, 200, 400], [0.6, 1, 1, 1, 0.6]);
-  const likeOpacity = useTransform(y, [-SWIPE_THRESHOLD, -SWIPE_THRESHOLD * 0.5, 0], [1, 0.5, 0]);
-  const passOpacity = useTransform(y, [0, SWIPE_THRESHOLD * 0.5, SWIPE_THRESHOLD], [0, 0.5, 1]);
+  // Tinder-style: horizontal = like/pass, vertical = skip-to-next (no DB write).
+  const cardRotate = useTransform(x, [-200, 0, 200], [-MAX_ROTATION, 0, MAX_ROTATION]);
+  const cardOpacity = useTransform(
+    [x, y] as any,
+    ([cx, cy]: any) => {
+      const a = Math.min(1, Math.abs(cx) / 400);
+      const b = Math.min(1, Math.abs(cy) / 400);
+      return 1 - Math.max(a, b) * 0.4;
+    }
+  );
+  const likeOpacity = useTransform(x, [0, SWIPE_THRESHOLD * 0.5, SWIPE_THRESHOLD], [0, 0.5, 1]);
+  const passOpacity = useTransform(x, [-SWIPE_THRESHOLD, -SWIPE_THRESHOLD * 0.5, 0], [1, 0.5, 0]);
+  const skipOpacity = useTransform(y, (v) => Math.min(1, Math.abs(v) / SKIP_THRESHOLD));
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [photoDirection, setPhotoDirection] = useState<'left' | 'right'>('right');
@@ -195,30 +207,41 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   }, [onDragStart]);
 
   const handleDragEnd = useCallback((_: any, info: PanInfo) => {
-    const sweepY = info.offset.y;
-    const velocityY = info.velocity.y;
+    const dx = info.offset.x;
+    const dy = info.offset.y;
+    const vx = info.velocity.x;
+    const vy = info.velocity.y;
 
-    const isUpSwipe = sweepY < -SWIPE_THRESHOLD || velocityY < -VELOCITY_THRESHOLD;
-    const isDownSwipe = sweepY > SWIPE_THRESHOLD || velocityY > VELOCITY_THRESHOLD;
+    const horizCommit = Math.abs(dx) > SWIPE_THRESHOLD || Math.abs(vx) > VELOCITY_THRESHOLD;
+    const vertCommit = Math.abs(dy) > SKIP_THRESHOLD || Math.abs(vy) > SKIP_VELOCITY;
 
-    if (isUpSwipe) {
-      // Up = LIKE (mapped to 'right' for backend/match logic compatibility)
+    // Pick the dominant axis by normalized progress
+    const horizProgress = Math.abs(dx) / SWIPE_THRESHOLD;
+    const vertProgress = Math.abs(dy) / SKIP_THRESHOLD;
+
+    if (horizCommit && (!vertCommit || horizProgress >= vertProgress)) {
+      const direction: 'left' | 'right' = dx > 0 ? 'right' : 'left';
       hasExited.current = true;
       isExitingRef.current = true;
-      triggerHaptic('success');
-      onSwipe('right');
-    } else if (isDownSwipe) {
-      // Down = PASS (mapped to 'left')
+      triggerHaptic(direction === 'right' ? 'success' : 'warning');
+      const exitX = direction === 'right' ? (window.innerWidth || 600) * 1.2 : -(window.innerWidth || 600) * 1.2;
+      animate(x, exitX, { type: 'tween', duration: 0.26, ease: [0.32, 0, 0.67, 0] });
+      animate(y, dy * 0.6, { type: 'tween', duration: 0.26, ease: [0.32, 0, 0.67, 0] });
+      setTimeout(() => onSwipe(direction), 220);
+    } else if (vertCommit && onSkip) {
+      const dir = dy > 0 ? 1 : -1;
       hasExited.current = true;
       isExitingRef.current = true;
-      triggerHaptic('warning');
-      onSwipe('left');
+      triggerHaptic('light');
+      const exitY = dir * (window.innerHeight || 800) * 1.1;
+      animate(y, exitY, { type: 'tween', duration: 0.24, ease: [0.32, 0, 0.67, 0] });
+      setTimeout(() => onSkip(), 200);
     } else {
       animate(x, 0, { type: 'spring', ...ACTIVE_SPRING });
       animate(y, 0, { type: 'spring', ...ACTIVE_SPRING });
     }
     setTimeout(() => { isDragging.current = false; }, 100);
-  }, [onSwipe, x, y]);
+  }, [onSwipe, onSkip, x, y]);
 
   const handleImageTap = useCallback((e: React.MouseEvent) => {
     if (isMagnifierActive() || wasMagnifierActive()) return;
@@ -242,9 +265,9 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
     hasExited.current = true;
     isExitingRef.current = true;
     triggerHaptic(direction === 'right' ? 'success' : 'warning');
-    // 'right' = like → fly UP, 'left' = pass → fly DOWN
-    const exitDist = typeof window !== 'undefined' ? window.innerHeight * 1.2 : 900;
-    const exitY = direction === 'right' ? -exitDist : exitDist;
+    // 'right' = like → fly RIGHT, 'left' = pass → fly LEFT (Tinder-style)
+    const exitDist = typeof window !== 'undefined' ? window.innerWidth * 1.2 : 900;
+    const exitX = direction === 'right' ? exitDist : -exitDist;
     let swipeFired = false;
     const fireSwipe = () => {
       if (swipeFired) return;
@@ -252,7 +275,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
       isExitingRef.current = false;
       onSwipe(direction);
     };
-    animate(y, exitY, { type: 'tween', duration: 0.28, ease: [0.32, 0, 0.67, 0], onComplete: fireSwipe });
+    animate(x, exitX, { type: 'tween', duration: 0.28, ease: [0.32, 0, 0.67, 0], onComplete: fireSwipe });
     setTimeout(fireSwipe, 300);
   }, [onSwipe, x, y]);
 
@@ -280,7 +303,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   return (
     <div className="absolute inset-0 flex flex-col pointer-events-auto">
       <motion.div
-        drag="y"
+        drag
         dragControls={dragControls}
         dragListener={false}
         dragMomentum={false}
@@ -361,7 +384,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
 
         <GestureHints hidden={isZoomed} />
 
-        <motion.div className="absolute top-12 left-1/2 -translate-x-1/2 z-50 pointer-events-none" style={{ opacity: likeOpacity }}>
+        <motion.div className="absolute top-10 right-6 z-50 pointer-events-none rotate-[-12deg]" style={{ opacity: likeOpacity }}>
           <div className="flex flex-col items-center gap-1.5">
              <div className="w-[72px] h-[72px] rounded-full flex items-center justify-center bg-orange-500/20 border-2 border-orange-500 shadow-[0_0_20px_rgba(255,87,34,0.5)]">
                <ThumbsUp className="w-9 h-9 text-orange-500" fill="currentColor" strokeWidth={0} />
@@ -369,11 +392,17 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           </div>
         </motion.div>
 
-        <motion.div className="absolute bottom-[calc(var(--bottom-nav-height,72px)+180px)] left-1/2 -translate-x-1/2 z-50 pointer-events-none" style={{ opacity: passOpacity }}>
+        <motion.div className="absolute top-10 left-6 z-50 pointer-events-none rotate-[12deg]" style={{ opacity: passOpacity }}>
           <div className="flex flex-col items-center gap-1.5">
              <div className="px-5 py-2.5 rounded-xl border-3 border-rose-500 bg-rose-500/20 shadow-[0_0_20px_rgba(244,63,94,0.5)]">
                <span className="font-black text-4xl text-rose-500">NOPE</span>
              </div>
+          </div>
+        </motion.div>
+
+        <motion.div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 pointer-events-none" style={{ opacity: skipOpacity }}>
+          <div className="px-4 py-2 rounded-full bg-black/60 border border-white/20 backdrop-blur-md">
+            <span className="text-white text-sm font-bold tracking-widest uppercase">Next</span>
           </div>
         </motion.div>
 
