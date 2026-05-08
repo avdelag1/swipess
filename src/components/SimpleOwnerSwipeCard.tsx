@@ -323,7 +323,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
       const exitY = dir * (window.innerHeight || 800) * 0.85;
       animate(y, exitY, { duration: 0.32, ease: [0.22, 1, 0.36, 1] });
       animate(x, 0, { duration: 0.18, ease: [0.22, 1, 0.36, 1] });
-      setTimeout(() => onSkip(), 220);
+      setTimeout(() => onSkip(), 300);
     } else {
       animate(x, 0, { type: 'spring', ...ACTIVE_SPRING });
       animate(y, 0, { type: 'spring', ...ACTIVE_SPRING });
