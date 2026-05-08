@@ -498,10 +498,10 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter className="mt-10 gap-4">
-                              <AlertDialogCancel className={cn("h-14 px-8 rounded-2xl font-black uppercase italic tracking-widest border-none text-[10px]", isLight ? 'bg-black/5 text-black' : 'bg-white/5 text-white')}>Abort</AlertDialogCancel>
+                              <AlertDialogCancel className={cn("h-14 px-8 rounded-2xl font-black uppercase italic tracking-widest border-none text-[10px]", isLight ? '!bg-black/10 !text-black' : '!bg-white/10 !text-white')}>Abort</AlertDialogCancel>
                               <AlertDialogAction
                                 onClick={() => handleDeleteProperty(listing)}
-                                className="h-14 px-8 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-black uppercase italic tracking-widest text-[10px] shadow-2xl shadow-rose-600/30"
+                                className="h-14 px-8 rounded-2xl !bg-rose-600 hover:!bg-rose-700 !text-white font-black uppercase italic tracking-widest text-[10px] shadow-2xl shadow-rose-600/30"
                               >
                                 Purge Listing
                               </AlertDialogAction>
