@@ -15,9 +15,8 @@ const DEFAULT_CATEGORY_CAROUSEL_EXTRAS: Record<string, string[]> = {
     'https://images.unsplash.com/photo-1558981806-ec527fa84c39?auto=format&fit=crop&q=80&w=1200',
   ],
   bicycle: [
-    'https://images.unsplash.com/photo-1485965120184-e220f721d03e?auto=format&fit=crop&q=80&w=1200',
-    'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?auto=format&fit=crop&q=80&w=1200',
-    'https://images.unsplash.com/photo-1571068316344-75bc76f77890?auto=format&fit=crop&q=80&w=1200',
+    '/images/filters/bicycle_beach_ride.jpg',
+    '/images/filters/bicycle_coco_sunset.jpg',
   ],
   services: [
     '/images/filters/workers_tulum_directory.jpg',
