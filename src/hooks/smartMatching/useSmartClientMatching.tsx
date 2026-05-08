@@ -397,12 +397,18 @@ export function useSmartClientMatching(
                     .filter(p => (p as any).client_type !== 'business') // business/place exclusion
                     .map(p => {
                     const cp = cpMap.get(p.user_id);
+                    // Merge all available photo sources so real users always show their photo.
+                    const profileImgs = Array.isArray(p.images) ? p.images : [];
+                    const cpImgs = Array.isArray(cp?.profile_images) ? cp!.profile_images as any[] : [];
+                    const merged = [...profileImgs, ...cpImgs].filter(Boolean);
+                    if (merged.length === 0 && (p as any).avatar_url) merged.push((p as any).avatar_url);
+                    const finalImgs = merged.length > 0 ? merged : ['/placeholder.svg'];
                     return {
                         id: p.user_id, user_id: p.user_id, name: p.full_name || cp?.name || 'User',
                         age: p.age || cp?.age || 0, gender: p.gender || cp?.gender || '',
                         interests: p.interests || cp?.interests || [], preferred_activities: cp?.preferred_activities || [],
                         location: { city: p.city || cp?.city }, lifestyle_tags: (p as any).lifestyle_tags || (cp as any)?.lifestyle_tags || [],
-                        profile_images: p.images || cp?.profile_images || ['/placeholder.svg'], matchPercentage: 80,
+                        profile_images: finalImgs, matchPercentage: 80,
                         matchReasons: ['Profile available'], incompatibleReasons: [], verified: !!p.onboarding_completed,
                         roommate_available: !!cp?.roommate_available, city: p.city || cp?.city, country: p.country || cp?.country, work_schedule: p.work_schedule || cp?.work_schedule
                     } as MatchedClientProfile;
