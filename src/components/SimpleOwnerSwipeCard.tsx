@@ -152,6 +152,7 @@ interface SimpleOwnerSwipeCardProps {
   canUndo?: boolean;
   fullScreen?: boolean;
   externalX?: any;
+  externalY?: any;
 }
 
 const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, SimpleOwnerSwipeCardProps>(({
@@ -163,6 +164,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   isTop = true,
   onDragStart,
   externalX,
+  externalY,
   onReport,
   onShare,
 }, ref) => {
@@ -176,8 +178,9 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   const { isLight } = useAppTheme();
 
   const _internalX = useMotionValue(0);
+  const _internalY = useMotionValue(0);
   const x = externalX ?? _internalX;
-  const y = useMotionValue(0);
+  const y = externalY ?? _internalY;
 
   // Tinder-style: horizontal = like/pass, vertical = skip-to-next.
   const cardRotate = useTransform(x, [-200, 0, 200], [-MAX_ROTATION, 0, MAX_ROTATION]);
