@@ -1021,6 +1021,7 @@ const ClientSwipeContainerComponent = ({
                     profile={topCard}
                     onSwipe={handleSwipe}
                     onSkip={handleSkip}
+                    onSkipBack={handleSkipBack}
                     onTap={() => onClientTap(topCard.user_id)}
                     onInsights={() => handleInsights(topCard.user_id)}
                     onMessage={() => handleConnect(topCard.user_id)}
