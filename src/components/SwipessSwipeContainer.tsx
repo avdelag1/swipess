@@ -775,6 +775,8 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
     setActiveCategory(cycle[nextIdx] as any);
   }, [storeActiveCategory, userRole, setActiveCategory]);
 
+  const pullDown = usePullDownToDismiss();
+
   if (!storeActiveCategory) {
     return (
       <>
@@ -804,7 +806,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
   };
   const currentCategoryName = categoryNames[storeActiveCategory] || storeActiveCategory;
   const hasCards = deckQueue.length > 0 && currentIndex < deckQueue.length;
-  const pullDown = usePullDownToDismiss();
 
   return (
     <>
