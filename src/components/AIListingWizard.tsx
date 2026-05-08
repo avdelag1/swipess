@@ -415,24 +415,43 @@ export function AIListingWizard() {
                             ? "bg-red-500/10 border-red-500/40 shadow-[0_0_50px_rgba(239,68,68,0.2)]" 
                             : "bg-cyan-500/5 border-cyan-500/20 hover:bg-cyan-500/10 hover:border-cyan-500/40"
                         )}>
-                          <button
-                            onClick={handleVoiceToggle}
-                            className={cn(
-                              "w-24 h-24 rounded-full flex items-center justify-center transition-all duration-500 shadow-2xl relative overflow-hidden group",
-                              isRecording ? "bg-red-500 scale-110" : "bg-cyan-500 hover:scale-105"
-                            )}
-                          >
-                            {isRecording ? (
-                              <motion.div 
-                                className="absolute inset-0 bg-white/20"
-                                animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0, 0.5] }}
-                                transition={{ duration: 1.5, repeat: Infinity }}
-                              />
-                            ) : (
-                              <div className="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                            )}
-                            <Mic className={cn("w-10 h-10 text-black relative z-10", isRecording && "animate-pulse")} />
-                          </button>
+                          <Popover open={micTipOpen} onOpenChange={setMicTipOpen}>
+                            <PopoverTrigger asChild>
+                              <button
+                                onClick={handleVoiceToggle}
+                                className={cn(
+                                  "w-24 h-24 rounded-full flex items-center justify-center transition-all duration-500 shadow-2xl relative overflow-hidden group",
+                                  isRecording ? "bg-red-500 scale-110" : "bg-cyan-500 hover:scale-105"
+                                )}
+                              >
+                                {isRecording ? (
+                                  <motion.div 
+                                    className="absolute inset-0 bg-white/20"
+                                    animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0, 0.5] }}
+                                    transition={{ duration: 1.5, repeat: Infinity }}
+                                  />
+                                ) : (
+                                  <div className="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                                )}
+                                <Mic className={cn("w-10 h-10 relative z-10", isRecording ? "text-white animate-pulse" : "text-black")} />
+                              </button>
+                            </PopoverTrigger>
+                            <PopoverContent
+                              side="top"
+                              sideOffset={12}
+                              className="w-72 p-4 rounded-2xl border border-cyan-500/30 bg-black/95 text-white shadow-2xl backdrop-blur-xl"
+                            >
+                              <div className="space-y-2">
+                                <div className="flex items-center gap-2">
+                                  <Mic className="w-4 h-4 text-cyan-400" />
+                                  <span className="text-[11px] font-black uppercase tracking-widest text-cyan-400">How to use</span>
+                                </div>
+                                <p className="text-[12px] leading-relaxed text-white/85">
+                                  Tap the mic and describe your listing out loud — bedrooms, location, price, anything that matters. Tap again to stop and we transcribe instantly. Then hit the wand to polish it, or Initialize Optimization to generate.
+                                </p>
+                              </div>
+                            </PopoverContent>
+                          </Popover>
                           
                           <div className="text-center space-y-1">
                             <p className={cn("text-[11px] font-black uppercase tracking-[0.3em]", isRecording ? "text-red-400" : "text-cyan-400")}>
@@ -441,6 +460,14 @@ export function AIListingWizard() {
                             <p className={cn("text-[9px] font-bold uppercase tracking-widest opacity-40", textPrimary)}>
                               {isRecording ? "TALK NATURALLY NOW" : "VOICE-TO-LISTING ACTIVE"}
                             </p>
+                            <button
+                              type="button"
+                              onClick={(e) => { e.stopPropagation(); setMicTipOpen(true); }}
+                              className="mx-auto mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-[9px] font-black uppercase tracking-widest text-cyan-400 hover:bg-cyan-500/20 transition-all"
+                            >
+                              <HelpCircle className="w-3 h-3" />
+                              How it works
+                            </button>
                           </div>
                         </div>
                       </div>
