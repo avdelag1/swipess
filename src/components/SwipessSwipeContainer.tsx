@@ -927,7 +927,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
               </motion.div>
             )}
           </AnimatePresence>
-      </div>
+      </motion.div>
     </div>
 
     {hasCards && (
