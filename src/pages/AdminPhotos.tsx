@@ -14,6 +14,22 @@ import { cn } from '@/lib/utils';
 
 const BUCKET = 'admin-uploads';
 
+/**
+ * Folder tabs inside the global admin-uploads bucket.
+ * Everything stays in the same bucket (public, admin-write) so any admin
+ * screen can pull from it — but uploads are organized by prefix so we can
+ * separate AI-generated mock photos from real promotional photos.
+ */
+const FOLDERS = [
+  { id: 'all',         label: 'All',           prefix: '' },
+  { id: 'ai-mock',     label: 'AI / Mock',     prefix: 'ai-mock/' },
+  { id: 'real',        label: 'Real Photos',   prefix: 'real/' },
+  { id: 'promote',     label: 'Local Business',prefix: 'promote/' },
+  { id: 'category',    label: 'Category Cards',prefix: 'category-' },
+] as const;
+
+type FolderId = typeof FOLDERS[number]['id'];
+
 interface StorageFile {
   name: string;
   id: string;
@@ -46,11 +62,12 @@ export default function AdminPhotos() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [selectedPhoto, setSelectedPhoto] = useState<StorageFile | null>(null);
   const [assignDropdownId, setAssignDropdownId] = useState<string | null>(null);
+  const [folder, setFolder] = useState<FolderId>('all');
 
   useEffect(() => {
     checkAdminAndLoad();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
+  }, [user, folder]);
 
   const checkAdminAndLoad = async () => {
     if (!user) { navigate('/'); return; }
@@ -61,31 +78,49 @@ export default function AdminPhotos() {
 
   const loadPhotos = async () => {
     setLoading(true);
-    const { data: files, error } = await supabase.storage.from(BUCKET).list('', {
-      limit: 200,
-      sortBy: { column: 'created_at', order: 'desc' },
-    });
+    const current = FOLDERS.find(f => f.id === folder)!;
+    const collected: StorageFile[] = [];
 
-    if (error) {
-      toast({ title: 'Failed to load photos', description: error.message, variant: 'destructive' });
-      setLoading(false);
-      return;
+    const listAt = async (prefix: string) => {
+      const { data: files, error } = await supabase.storage.from(BUCKET).list(prefix, {
+        limit: 500,
+        sortBy: { column: 'created_at', order: 'desc' },
+      });
+      if (error) return;
+      for (const f of files || []) {
+        if (!f.name || f.name.startsWith('.')) continue;
+        // Skip nested folders when listing root
+        if (!prefix && f.id === null) continue;
+        const fullPath = prefix ? `${prefix}${f.name}` : f.name;
+        const { data: urlData } = supabase.storage.from(BUCKET).getPublicUrl(fullPath);
+        collected.push({
+          name: fullPath,
+          id: f.id || fullPath,
+          publicUrl: urlData.publicUrl,
+          size: f.metadata?.size || 0,
+          created_at: f.created_at || '',
+        });
+      }
+    };
+
+    if (folder === 'all') {
+      // Flatten root + known subfolders
+      await listAt('');
+      await Promise.all(['ai-mock/', 'real/', 'promote/'].map(listAt));
+    } else if (folder === 'category') {
+      // category-<id>/ folders — list root then walk each
+      const { data: roots } = await supabase.storage.from(BUCKET).list('', { limit: 200 });
+      const catFolders = (roots || []).filter(r => r.id === null && r.name.startsWith('category-'));
+      await Promise.all(catFolders.map(c => listAt(`${c.name}/`)));
+    } else {
+      await listAt(current.prefix);
     }
 
-    const imageFiles = (files || []).filter(f => f.name && !f.name.startsWith('.'));
-
-    const mapped: StorageFile[] = imageFiles.map(f => {
-      const { data: urlData } = supabase.storage.from(BUCKET).getPublicUrl(f.name);
-      return {
-        name: f.name,
-        id: f.id || f.name,
-        publicUrl: urlData.publicUrl,
-        size: f.metadata?.size || 0,
-        created_at: f.created_at || '',
-      };
-    });
-
-    setPhotos(mapped);
+    // De-dupe by name and sort by created_at desc
+    const seen = new Set<string>();
+    const deduped = collected.filter(p => (seen.has(p.name) ? false : (seen.add(p.name), true)));
+    deduped.sort((a, b) => (b.created_at || '').localeCompare(a.created_at || ''));
+    setPhotos(deduped);
     setLoading(false);
   };
 
@@ -106,7 +141,13 @@ export default function AdminPhotos() {
 
     for (const file of files) {
       const ext = file.name.split('.').pop() || 'jpg';
-      const path = `${crypto.randomUUID()}.${ext}`;
+      // Determine upload prefix from active folder; default uploads land in real/
+      const active = FOLDERS.find(f => f.id === folder);
+      const uploadPrefix =
+        folder === 'all' || folder === 'category' || !active
+          ? 'real/'
+          : active.prefix;
+      const path = `${uploadPrefix}${crypto.randomUUID()}.${ext}`;
       const { error } = await supabase.storage.from(BUCKET).upload(path, file, {
         contentType: file.type,
         upsert: false,
@@ -181,7 +222,7 @@ export default function AdminPhotos() {
     <div className="min-h-screen bg-background p-4 pt-[env(safe-area-inset-top)] pb-24 max-w-5xl mx-auto">
       <PageHeader
         title="Photo Library"
-        subtitle={`admin-uploads bucket · ${photos.length} photos`}
+        subtitle={`Global admin library · ${photos.length} photos in ${FOLDERS.find(f => f.id === folder)?.label}`}
         actions={
           <div className="flex gap-2">
             <Link to="/admin/eventos">
@@ -213,6 +254,24 @@ export default function AdminPhotos() {
           </div>
         }
       />
+
+      {/* Folder tabs — separate AI/mock from real promotional photos */}
+      <div className="flex flex-wrap gap-2 mb-4">
+        {FOLDERS.map(f => (
+          <button
+            key={f.id}
+            onClick={() => setFolder(f.id)}
+            className={cn(
+              'px-3 py-1.5 rounded-full text-sm border transition-colors',
+              folder === f.id
+                ? 'bg-primary text-primary-foreground border-primary'
+                : 'bg-card text-foreground border-border hover:bg-muted'
+            )}
+          >
+            {f.label}
+          </button>
+        ))}
+      </div>
 
       {/* Upload drop zone */}
       <div
