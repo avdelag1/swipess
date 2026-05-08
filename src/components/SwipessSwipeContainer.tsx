@@ -820,6 +820,22 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
 
       {/* Single back button is owned by SwipeDeckBackButton — no duplicate radar header here */}
 
+      {/* Pull-down backdrop: dashboard category picker revealed behind the deck */}
+      <motion.div
+        aria-hidden
+        className="absolute inset-0 pointer-events-none z-[1] bg-background"
+        style={{
+          opacity: pullDown.backdropOpacity,
+          scale: pullDown.backdropScale,
+          filter: pullDown.backdropBlur,
+          transformOrigin: 'center center',
+        }}
+      >
+        <div className="w-full h-full">
+          <SwipeAllDashboard setCategories={() => {}} />
+        </div>
+      </motion.div>
+
       <div
         className={cn(
           "flex-1 relative flex w-full h-full items-center justify-center px-0 z-10 pointer-events-auto min-h-0 overflow-hidden"
