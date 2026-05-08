@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef, useEffect, memo, lazy, Suspense, useMemo } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
+import { SwipeAllDashboard } from './swipe/SwipeAllDashboard';
 import { useModalStore } from '@/state/modalStore';
 import { createPortal } from 'react-dom';
 import { useQueryClient } from '@tanstack/react-query';
@@ -903,6 +904,22 @@ const ClientSwipeContainerComponent = ({
 
         {/* Static ambient background */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden -z-10" />
+
+        {/* Pull-down backdrop: dashboard category picker revealed behind the deck */}
+        <motion.div
+          aria-hidden
+          className="absolute inset-0 pointer-events-none z-[1] bg-background"
+          style={{
+            opacity: pullDown.backdropOpacity,
+            scale: pullDown.backdropScale,
+            filter: pullDown.backdropBlur,
+            transformOrigin: 'center center',
+          }}
+        >
+          <div className="w-full h-full">
+            <SwipeAllDashboard setCategories={() => {}} />
+          </div>
+        </motion.div>
 
         {/* Single back button is owned by SwipeDeckBackButton (rendered below) — no duplicate header here */}
 
