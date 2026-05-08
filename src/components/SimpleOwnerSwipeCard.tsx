@@ -140,6 +140,7 @@ interface SimpleOwnerSwipeCardProps {
   profile: ClientProfile;
   onSwipe: (direction: 'left' | 'right') => void;
   onSkip?: () => void;
+  onSkipBack?: () => void;
   onTap?: () => void;
   onInsights?: () => void;
   onMessage?: () => void;
@@ -160,6 +161,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   profile,
   onSwipe,
   onSkip,
+  onSkipBack,
   onTap: _onTap,
   onInsights,
   isTop = true,
@@ -314,7 +316,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
       animate(x, exitX, { type: 'tween', duration: 0.24, ease: [0.32, 0, 0.67, 0] });
       animate(y, 0, { type: 'tween', duration: 0.18, ease: [0.22, 1, 0.36, 1] });
       setTimeout(() => onSwipe(direction), 220);
-    } else if (vertCommit && onSkip) {
+    } else if (vertCommit && (onSkip || onSkipBack)) {
       const dir = dy > 0 ? 1 : -1;
       hasExited.current = true;
       isExitingRef.current = true;
@@ -323,13 +325,16 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
       const exitY = dir * (window.innerHeight || 800) * 0.85;
       animate(y, exitY, { duration: 0.32, ease: [0.22, 1, 0.36, 1] });
       animate(x, 0, { duration: 0.18, ease: [0.22, 1, 0.36, 1] });
-      setTimeout(() => onSkip(), 300);
+      setTimeout(() => {
+        if (dir > 0) onSkip?.();
+        else onSkipBack?.();
+      }, 300);
     } else {
       animate(x, 0, { type: 'spring', ...ACTIVE_SPRING });
       animate(y, 0, { type: 'spring', ...ACTIVE_SPRING });
     }
     setTimeout(() => { isDragging.current = false; dragAxisRef.current = null; }, 100);
-  }, [onSwipe, onSkip, x, y]);
+  }, [onSwipe, onSkip, onSkipBack, x, y]);
 
   const handleImageTap = useCallback((e: React.MouseEvent) => {
     if (isMagnifierActive() || wasMagnifierActive()) return;

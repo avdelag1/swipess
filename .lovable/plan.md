@@ -1,45 +1,61 @@
-Root cause: the quick-filter card component still uses horizontal-only dragging with rotation/scale transforms, while recent deck changes introduced competing gesture behavior and a build error on the owner card motion value typing. The result is that the category cards can feel stuck, partially loaded, or impossible to move naturally.
+# Refine Swipe Affordances & Make Vertical Browse Reversible
 
-Plan:
+Three connected fixes for the swipe deck (client, owner, roommate):
 
-1. Fix the current build error first
-   - Update the owner swipe card motion value typing so `externalX` and `externalY` are typed as `MotionValue<number>` instead of `any`.
-   - This resolves the `useTransform(y, ...)` TypeScript error where the value is inferred as `unknown`.
+## 1. Bottom tap-affordance: pill bar → tiny dot, raised above nav
 
-2. Rebuild quick-filter card gestures as strict axis movement
-   - Update `PokerCategoryCard` so the top quick-filter card supports both vertical and horizontal gestures.
-   - Add axis locking:
-     - Vertical intent: card only moves on the Y axis.
-     - Horizontal intent: card only moves on the X axis.
-     - No diagonal/circular grabbing.
-     - No rotation while dragging.
-   - Lower the gesture threshold slightly so touch feels sensitive and immediate.
+In `src/components/swipe/ChromeSummonZones.tsx`, the bottom strip currently shows a 44×3 white pill that overlaps the bottom navigation icons.
 
-3. Make vertical swipes page through quick-filter cards
-   - Swipe up or down will browse the category card stack only.
-   - The current card will slide straight off-screen vertically and fade.
-   - The next/previous card will rise into place from behind with a clean cinematic transition.
-   - This will apply to both client quick-filter cards and owner quick-filter cards because both use `PokerCategoryCard`.
+- Replace the pill with a single 6px circular dot (`width: 6, height: 6, borderRadius: 999`), same subtle white/glow.
+- Raise its position so it sits *above* the nav bar buttons: change the strip's `bottom` from `0` to `calc(var(--safe-bottom, 0px) + var(--bottom-nav-height, 64px) + 4px)` and reduce strip height to ~28px so the dot doesn't sit on top of nav icons.
+- Keep the same tap-to-toggle-chrome behavior.
 
-4. Keep horizontal swipes as quick category cycling
-   - Swipe left/right will move the top quick-filter card straight left/right and cycle the deck.
-   - The card will disappear immediately in a controlled straight line.
-   - No like/dislike database action will be attached to quick-filter cards.
+## 2. Top tap-affordance: pill → small downward chevron
 
-5. Improve card loading and sizing so they do not appear stuck or cut off
-   - Adjust the quick-filter dashboard card frame sizing so it respects the available viewport height and bottom navigation.
-   - Add safer width/height constraints for smaller preview/mobile heights.
-   - Keep images mounted with a gradient fallback so a card never looks blank while the photo decodes.
+Same file, top strip currently also shows a 44×3 white pill. The user wants something that *signals "pull down to close the deck"*.
 
-6. Add subtle premium existence effects
-   - Add faint breathing edge hints for vertical paging and horizontal cycling.
-   - Add a soft depth shadow/glow to the top card and a cleaner layered stack behind it.
-   - Keep the look minimal: visible enough to teach the gesture, almost invisible enough to stay luxury.
+- Replace that pill with a small downward chevron icon (Lucide `ChevronDown`, ~18px, `rgba(255,255,255,0.6)`, soft drop-shadow), centered, sitting just below the top safe area.
+- Keep the tap-to-toggle-chrome behavior on the strip itself; the chevron is purely visual and `pointer-events: none`.
+- Keep the existing left-side scroll/page indicator unchanged (user mentioned it works well).
 
-7. Verify both sides
-   - Check client quick-filter dashboard card stack.
-   - Check owner quick-filter dashboard card stack.
-   - Confirm vertical movement is straight up/down only.
-   - Confirm horizontal movement is straight left/right only.
-   - Confirm selecting/engaging a category still opens the correct swipe deck.
-   - Confirm the build error is gone.
+## 3. Vertical swipe = reversible browse (no like/dislike), across all decks
+
+Today vertical swipe calls `onSkip` which advances `currentIndex` forward only — once you swipe down past a card, it's gone. The user wants vertical to be a pure pager: down = next card, up = previous card, idempotent.
+
+### `src/components/SimpleSwipeCard.tsx` and `src/components/SimpleOwnerSwipeCard.tsx`
+- Add an optional `onSkipBack?: () => void` prop alongside the existing `onSkip`.
+- In `handleDragEnd` vertical branch, route the gesture by direction:
+  - `dy > 0` (drag down) → `onSkip?.()` (next card)
+  - `dy < 0` (drag up)   → `onSkipBack?.()` (previous card)
+- Keep the cinematic exit animation, but bias the exit-Y direction to match the drag direction so the card always travels off the side it was pulled toward, then the next/previous one rises in.
+- No backend write occurs in either direction (this stays purely a pager).
+
+### `src/components/SwipessSwipeContainer.tsx` and `src/components/ClientSwipeContainer.tsx`
+- Add `handleSkipBack`: decrement `currentIndexRef.current` (clamp at 0), call `setCurrentIndex`, no swipe-engine write, no haptic stronger than `light`.
+- Pass `onSkipBack={handleSkipBack}` to the rendered `SimpleSwipeCard` / `SimpleOwnerSwipeCard`.
+- Keep `handleSkip` unchanged (forward).
+- No change to like/dislike (`onSwipe`) — horizontal commits remain the only path that writes to `likes`/dismisses.
+
+### `src/pages/RoommateMatching.tsx`
+- Maintain a small index/history in the page so swipe-up returns to the previously viewed roommate card without re-fetching.
+- Wire `onSkip` (advance) and `onSkipBack` (rewind) on the `SimpleOwnerSwipeCard` instance. Horizontal swipe still calls `handleSwipe` (the existing like/pass with backend write).
+- The `nextCard` peek behind the top card stays as today.
+
+### Quick filter card stack (`src/components/swipe/PokerCategoryCard.tsx`)
+- Already uses straight-line axis-locked vertical motion. Confirm vertical commit moves to next category card and add a back-rewind handler symmetric to the deck containers, so up/down on quick filters also browses without consuming.
+
+## What does NOT change
+- Pull-down-from-top-edge to dismiss the deck (still active, governed by `usePullDownToDismiss`).
+- Horizontal swipe = like/pass with backend write and exit-X fly-off.
+- Action button bar (Undo / Dislike / Message / Like / Insights).
+- Card photo cycling on tap (left/right thirds).
+- Center tap to toggle chrome.
+
+## Files touched
+- `src/components/swipe/ChromeSummonZones.tsx`
+- `src/components/SimpleSwipeCard.tsx`
+- `src/components/SimpleOwnerSwipeCard.tsx`
+- `src/components/SwipessSwipeContainer.tsx`
+- `src/components/ClientSwipeContainer.tsx`
+- `src/pages/RoommateMatching.tsx`
+- `src/components/swipe/PokerCategoryCard.tsx`
