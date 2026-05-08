@@ -1,9 +1,9 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { MapPin, Bed, Bath, Square, DollarSign, Users, Car, Anchor, Bike, Bike as Motorcycle, Eye, Flame, MessageSquare, Building2, Briefcase } from 'lucide-react';
+import { MapPin, Bed, Bath, Square, DollarSign, Users, Car, Anchor, Bike, Bike as Motorcycle, Eye, Flame, MessageSquare, Building2, Briefcase, X } from 'lucide-react';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { ImageCarousel } from '@/components/ImageCarousel';
 
@@ -50,10 +50,10 @@ export function ListingPreviewDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl h-[95vh] sm:h-[90vh] flex flex-col p-0 gap-0 overflow-hidden">
-        <DialogHeader className="shrink-0 px-4 sm:px-6 pt-4 sm:pt-6 pb-2 sm:pb-3 border-b">
+      <DialogContent hideCloseButton className="max-w-4xl h-[95vh] sm:h-[90vh] flex flex-col p-0 gap-0 overflow-hidden">
+        <DialogHeader className="shrink-0 px-4 sm:px-6 pt-[calc(env(safe-area-inset-top)+1rem)] sm:pt-6 pb-2 sm:pb-3 border-b">
           <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+            <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1 pr-12">
               <DialogTitle className="text-lg sm:text-xl lg:text-2xl font-bold truncate flex items-center gap-2">
                 {getCategoryIcon()} {getCategoryLabel()} Preview
               </DialogTitle>
@@ -63,11 +63,22 @@ export function ListingPreviewDialog({
                  'For Rent'}
               </Badge>
             </div>
-            {showEditButton && onEdit && (
-              <Button onClick={onEdit} variant="outline" size="sm" className="shrink-0 text-xs sm:text-sm h-8 sm:h-9">
-                Edit
-              </Button>
-            )}
+            <div className="flex items-center gap-2 shrink-0">
+              {showEditButton && onEdit && (
+                <Button onClick={onEdit} variant="outline" size="sm" className="shrink-0 text-xs sm:text-sm h-9">
+                  Edit
+                </Button>
+              )}
+              <DialogClose asChild>
+                <button
+                  type="button"
+                  className="h-9 w-9 inline-flex items-center justify-center rounded-full bg-secondary border border-border text-foreground active:scale-90 transition-transform"
+                  aria-label="Close"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </DialogClose>
+            </div>
           </div>
         </DialogHeader>
 
