@@ -60,7 +60,7 @@ export function usePullDownToDismiss(opts?: { threshold?: number }) {
     // Restrict to a thin top zone so the rest of the card is free for vertical
     // like/pass swipes. Anything above ~110px from the top of the viewport
     // (header chrome + a small grab strip) can initiate the deck-exit curtain.
-    if (e.clientY > 110) return;
+    if (e.clientY > 140) return;
     startY.current = e.clientY;
     startX.current = e.clientX;
     startT.current = performance.now();
@@ -131,7 +131,7 @@ export function usePullDownToDismiss(opts?: { threshold?: number }) {
       const target = event.target as HTMLElement | null;
       if (target?.closest('[data-no-pull-dismiss], [data-no-cinematic], button, a')) return;
       const touch = event.touches[0];
-      if (!touch || touch.clientY > 110) return;
+      if (!touch || touch.clientY > 140) return;
       touchId = touch.identifier;
       startY.current = touch.clientY;
       startX.current = touch.clientX;
