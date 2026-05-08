@@ -2,6 +2,7 @@ import { memo, useCallback, useRef, useState, useEffect, useMemo } from 'react';
 import useAppTheme from '@/hooks/useAppTheme';
 import { AnimatePresence, motion, useMotionValue, useTransform, animate, PanInfo } from 'framer-motion';
 import { triggerHaptic } from '@/utils/haptics';
+import { toggleChrome } from '@/hooks/useChromeReveal';
 import {
   POKER_CARD_PHOTOS,
   POKER_CARD_GRADIENTS,
@@ -203,16 +204,31 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
         triggerHaptic('light');
       }}
       onDragEnd={handleDragEnd}
-      onTap={() => {
-        if (!isDragging && Math.abs(x.get()) < 10) {
-          if (isTop) {
-            triggerHaptic('medium');
-            onSelect(card.id);
-          } else {
-            triggerHaptic('light');
-            onBringToFront(index);
-          }
+      onTap={(e: any) => {
+        if (isDragging || Math.abs(x.get()) >= 10) return;
+        if (!isTop) {
+          triggerHaptic('light');
+          onBringToFront(index);
+          return;
         }
+        // On the top card, taps on the left/right edges toggle the
+        // header + bottom-nav chrome instead of opening the category —
+        // so users can summon the menus from the swipe surface itself.
+        try {
+          const rect = (e?.currentTarget as HTMLElement | null)?.getBoundingClientRect();
+          const clientX =
+            (e?.clientX ?? e?.changedTouches?.[0]?.clientX ?? e?.touches?.[0]?.clientX) as number | undefined;
+          if (rect && typeof clientX === 'number') {
+            const ratio = (clientX - rect.left) / rect.width;
+            if (ratio < 0.22 || ratio > 0.78) {
+              triggerHaptic('light');
+              toggleChrome();
+              return;
+            }
+          }
+        } catch { /* fall through to default select */ }
+        triggerHaptic('medium');
+        onSelect(card.id);
       }}
       initial={isTop ? { y: 60, opacity: 0, scale: 0.95 } : false}
       animate={{
