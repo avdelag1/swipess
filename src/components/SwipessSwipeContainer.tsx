@@ -529,10 +529,12 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
   useEffect(() => {
     topCardX.stop();
     topCardX.set(0);
+    topCardY.stop();
+    topCardY.set(0);
     pendingSwipeRef.current = null;
     isSwipeAnimatingRef.current = false;
     setSwipeDirection(null);
-  }, [topCardIdentity, filterSignature, activeMode, topCardX]);
+  }, [topCardIdentity, filterSignature, activeMode, topCardX, topCardY]);
 
   const flushPendingSwipe = useCallback(() => {
     const pending = pendingSwipeRef.current;
@@ -544,6 +546,8 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
 
     topCardX.stop();
     topCardX.set(0);
+    topCardY.stop();
+    topCardY.set(0);
     hasSwipedRef.current = true;
     setCurrentIndex(newIndex);
     markClientSwiped(listing.id);
