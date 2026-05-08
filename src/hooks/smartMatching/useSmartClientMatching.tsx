@@ -13,13 +13,11 @@ const CLIENT_FIELDS = `
     languages_spoken, neighborhood, bio, onboarding_completed
 `;
 
-// Demo data: 2 buyers, 2 renters, 2 hire (workers seeking jobs).
-// Always appended AFTER real users so testing never obscures real profiles.
-// Coords near Tulum so the owner-side radius slider reacts during testing.
-const DEMO_CLIENTS: any[] = [
-  // ── BUYERS (3 — purchase-ready owner-side cards) ──────────────────────
+// Demos disabled — show real users only.
+const DEMO_CLIENTS: any[] = [];
+const _DEPRECATED_DEMO_CLIENTS: any[] = [
   {
-    user_id: 'demo-client-buyer-1',
+    user_id: 'demo-client-buyer-1-disabled',
     full_name: 'Isabela Torres',
     age: 29, gender: 'female',
     city: 'Tulum', country: 'Mexico', nationality: 'Mexican',
