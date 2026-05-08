@@ -28,6 +28,7 @@ import useAppTheme from '@/hooks/useAppTheme';
 import { cn } from '@/lib/utils';
 import { ThumbsUp, ThumbsDown, Flame, Flag, Share2 } from 'lucide-react';
 import { PhotoPositionIndicators } from '@/components/swipe/PhotoPositionIndicators';
+import { GestureHints } from '@/components/swipe/GestureHints';
 
 export interface SimpleSwipeCardRef {
   triggerSwipe: (direction: 'left' | 'right') => void;
@@ -357,6 +358,8 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           
           <PhotoPositionIndicators count={imageCount} currentIndex={currentImageIndex} hidden={isZoomed} />
         </div>
+
+        <GestureHints hidden={isZoomed} />
 
         <motion.div className="absolute top-12 left-1/2 -translate-x-1/2 z-50 pointer-events-none" style={{ opacity: likeOpacity }}>
           <div className="flex flex-col items-center gap-1.5">
