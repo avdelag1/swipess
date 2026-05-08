@@ -12,6 +12,12 @@ import {
   PROPERTY_FEATURES,
   PROPERTY_INCLUDED,
   PROPERTY_RULES,
+  PROPERTY_ADJECTIVES,
+  PROPERTY_SIZE,
+  BEDROOM_COUNTS,
+  BATHROOM_COUNTS,
+  chipsFromString,
+  buildTitleFromChips,
 } from '@/constants/listingTaxonomies';
 import { cn } from '@/lib/utils';
 
@@ -35,6 +41,8 @@ interface PropertyFormData {
   rental_duration_type?: string;
   house_rules?: string[];
   vibe?: string[];
+  adjectives?: string[];
+  size?: string[];
 }
 
 const propertyFormSchema = z.object({
@@ -57,6 +65,8 @@ const propertyFormSchema = z.object({
   rental_duration_type: z.string().optional(),
   house_rules: z.array(z.string()).optional(),
   vibe: z.array(z.string()).optional(),
+  adjectives: z.array(z.string()).optional(),
+  size: z.array(z.string()).optional(),
 });
 
 interface PropertyListingFormProps {
@@ -101,12 +111,51 @@ const CheckboxRow = ({ id, checked, onCheckedChange, label }: { id: string; chec
   </div>
 );
 
+/**
+ * Normalize a raw listing record (as it comes back from the DB on Edit) into
+ * the array-shaped fields this form expects. The DB stores some chip groups
+ * as joined strings (`'No smoking · Quiet hours'`) so a strict zod parse
+ * fails and the form blanks out — we round-trip those back to arrays here.
+ */
+function normalizeInitialData(raw: any): Partial<PropertyFormData> {
+  if (!raw || typeof raw !== 'object') return {};
+  const num = (v: any) => {
+    if (v === null || v === undefined || v === '') return undefined;
+    const n = Number(v);
+    return Number.isFinite(n) ? n : undefined;
+  };
+  return {
+    title: typeof raw.title === 'string' ? raw.title : undefined,
+    description: typeof raw.description === 'string' ? raw.description : undefined,
+    price: num(raw.price),
+    country: raw.country ?? undefined,
+    state: raw.state ?? undefined,
+    city: raw.city ?? undefined,
+    neighborhood: raw.neighborhood ?? undefined,
+    address: raw.address ?? undefined,
+    property_type: raw.property_type ?? undefined,
+    beds: num(raw.beds),
+    baths: num(raw.baths),
+    square_footage: num(raw.square_footage),
+    furnished: !!raw.furnished,
+    pet_friendly: !!raw.pet_friendly,
+    amenities: chipsFromString(raw.amenities),
+    services_included: chipsFromString(raw.services_included),
+    rental_duration_type: raw.rental_duration_type ?? undefined,
+    house_rules: chipsFromString(raw.house_rules),
+    vibe: chipsFromString(raw.vibe),
+    adjectives: chipsFromString(raw.adjectives),
+    size: chipsFromString(raw.size),
+  };
+}
+
 export function PropertyListingForm({ onDataChange, initialData = {} }: PropertyListingFormProps) {
-  const parsedResult = propertyFormSchema.safeParse(initialData);
-  const safeInitialData = parsedResult.success ? parsedResult.data : {};
+  const safeInitialData = normalizeInitialData(initialData);
 
   const { register, control, watch, setValue } = useForm<PropertyFormData>({
     defaultValues: {
+      adjectives: [],
+      size: [],
       amenities: [],
       services_included: [],
       house_rules: [],
@@ -120,20 +169,46 @@ export function PropertyListingForm({ onDataChange, initialData = {} }: Property
   const formData = watch();
 
   useEffect(() => {
-    onDataChange(formData);
+    // Auto-build title from chips if user hasn't typed one
+    const autoTitle = buildTitleFromChips({
+      adjective: formData.adjectives?.[0],
+      size: formData.size?.[0],
+      beds: formData.beds as any,
+      propertyType: formData.property_type,
+      city: formData.city,
+    });
+    onDataChange({ ...formData, title: formData.title || autoTitle });
   }, [formData, onDataChange]);
 
-  const setArr = (field: 'amenities' | 'services_included' | 'house_rules' | 'vibe', next: string[]) => {
+  const setArr = (
+    field: 'amenities' | 'services_included' | 'house_rules' | 'vibe' | 'adjectives' | 'size',
+    next: string[]
+  ) => {
     setValue(field, next);
   };
 
   return (
     <div className="space-y-5">
-      <Section title="Basic Information" accent="emerald">
-        <div>
-          <FormLabel>Title</FormLabel>
-          <Input {...register('title')} placeholder="Beautiful 2BR Apartment" />
-        </div>
+      <Section title="Describe Your Place" accent="emerald">
+        <FormLabel>Pick a vibe word</FormLabel>
+        <ChipMultiSelect
+          accent="rose"
+          single
+          options={PROPERTY_ADJECTIVES}
+          value={watch('adjectives') || []}
+          onChange={(v) => setArr('adjectives', v)}
+        />
+        <FormLabel>Size</FormLabel>
+        <ChipMultiSelect
+          accent="rose"
+          single
+          options={PROPERTY_SIZE}
+          value={watch('size') || []}
+          onChange={(v) => setArr('size', v)}
+        />
+      </Section>
+
+      <Section title="Pricing" accent="emerald">
         <div className="grid grid-cols-2 gap-4">
           <div>
             <FormLabel>Price ($/month)</FormLabel>
@@ -154,10 +229,6 @@ export function PropertyListingForm({ onDataChange, initialData = {} }: Property
               )}
             />
           </div>
-        </div>
-        <div>
-          <FormLabel>Address</FormLabel>
-          <Input {...register('address')} placeholder="123 Main Street" />
         </div>
       </Section>
 
@@ -210,19 +281,48 @@ export function PropertyListingForm({ onDataChange, initialData = {} }: Property
           />
         </div>
 
-        <div className="grid grid-cols-3 gap-4">
-          <div>
-            <FormLabel>Bedrooms</FormLabel>
-            <Input type="number" {...register('beds', { valueAsNumber: true, min: 0 })} placeholder="2" />
-          </div>
-          <div>
-            <FormLabel>Bathrooms</FormLabel>
-            <Input type="number" step="0.5" {...register('baths', { valueAsNumber: true, min: 0 })} placeholder="2" />
-          </div>
-          <div>
-            <FormLabel>Sq. Ft.</FormLabel>
-            <Input type="number" {...register('square_footage', { valueAsNumber: true })} placeholder="1200" />
-          </div>
+        <div>
+          <FormLabel>Bedrooms</FormLabel>
+          <ChipMultiSelect
+            accent="rose"
+            single
+            options={BEDROOM_COUNTS}
+            value={
+              watch('beds') === undefined || watch('beds') === null
+                ? []
+                : [String(watch('beds')) === '0' ? 'Studio' : String(watch('beds'))]
+            }
+            onChange={(v) => {
+              const pick = v[0];
+              if (!pick) return setValue('beds', undefined as any);
+              if (pick === 'Studio') return setValue('beds', 0);
+              if (pick === '6+') return setValue('beds', 6);
+              setValue('beds', Number(pick));
+            }}
+          />
+        </div>
+        <div>
+          <FormLabel>Bathrooms</FormLabel>
+          <ChipMultiSelect
+            accent="rose"
+            single
+            options={BATHROOM_COUNTS}
+            value={
+              watch('baths') === undefined || watch('baths') === null
+                ? []
+                : [String(watch('baths'))]
+            }
+            onChange={(v) => {
+              const pick = v[0];
+              if (!pick) return setValue('baths', undefined as any);
+              if (pick === '4+') return setValue('baths', 4);
+              setValue('baths', Number(pick));
+            }}
+          />
+        </div>
+        <div>
+          <FormLabel>Sq. Ft. (optional)</FormLabel>
+          <Input type="number" {...register('square_footage', { valueAsNumber: true })} placeholder="1200" />
         </div>
 
         <div className="grid grid-cols-2 gap-3">
@@ -250,6 +350,17 @@ export function PropertyListingForm({ onDataChange, initialData = {} }: Property
       <Section title="House Rules" accent="emerald">
         <ChipMultiSelect accent="rose" options={PROPERTY_RULES} value={watch('house_rules') || []} onChange={(v) => setArr('house_rules', v)} />
       </Section>
+
+      {/* Live preview of the auto-built description */}
+      <div className="rounded-2xl bg-secondary/40 border border-border px-4 py-3 text-xs text-muted-foreground italic">
+        {buildTitleFromChips({
+          adjective: watch('adjectives')?.[0],
+          size: watch('size')?.[0],
+          beds: watch('beds') as any,
+          propertyType: watch('property_type'),
+          city: watch('city'),
+        }) || 'Pick chips above to auto-build your listing description.'}
+      </div>
     </div>
   );
 }

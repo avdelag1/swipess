@@ -1,85 +1,85 @@
 ## Goal
 
-Make Swipess feel like a premium native app (Tinder / Airbnb / TikTok class). Stop unmounting the dashboard, stop showing splash flashes between routes, and keep only one focused animation at a time so low-memory Android devices stay at 60 FPS.
+Three connected fixes for owner listings:
 
-## Diagnosis (current pain)
+1. **Edit listing prefills with existing data** (currently fields go blank).
+2. **Replace freeform text inputs with chip-builder selectors** that compose the description automatically — no description textarea anywhere (listings, profiles, roommate).
+3. **Clean up the listing Preview / Insights screen** — remove the giant translucent circles overlaying the photo, fix the cut-off X button, polish the stats.
 
-- Every protected route is a separate `lazyWithRetry` chunk under `PersistentDashboardLayout` → `AnimatedOutlet`. The "persistent" layout only persists header/nav; the dashboard itself unmounts on every navigation, which causes splash flashes, image reloads, and state-restoration lag.
-- `AnimatedOutlet` cross-fades route children with `position: absolute`, but the entering chunk still has to load + Suspense, so users see a blank `SuspenseFallback` between pages.
-- `PokerCategoryCard` runs continuous breathing scale + opacity + cross-fade on every card in the deck (not just the top one). Combined with `AtmosphericLayer`, parallax, and category-photo cross-fades, several layers animate at once.
-- Gesture conflicts: deck has X-swipe, peek has Y-swipe, fullscreen has pull-down dismiss, plus tap-to-toggle-chrome. They all live on overlapping surfaces.
-- Splash/logo screen is gated by `swipess-ready` event with a 2.5s safety timer — it can re-appear when chunks load slowly.
+---
 
-## Plan
+## 1. Edit listing prefill bug
 
-### 1. Persistent Dashboard Scene (architectural)
+**Root cause** — `PropertyListingForm` runs `propertyFormSchema.safeParse(initialData)` on the listing fetched from DB. The schema declares `house_rules: z.array(z.string())`, but the DB stores `house_rules` as a joined string (`'No smoking · Quiet hours'`). `safeParse` fails, so `safeInitialData = {}` → every field renders empty.
 
-- Keep `ClientDashboard` and `EnhancedOwnerDashboard` mounted once, behind every dashboard-adjacent route.
-- Convert these "secondary" routes into **overlay layers** that slide above the dashboard instead of replacing it:
-  - Properties / listings / new listing
-  - Filters (client + owner)
-  - Liked / Who-liked-you / Interested
-  - Notifications, Subscription packages
-  - Profile, Settings, Security
-- Implementation: introduce a single `<DashboardScene>` component rendered once inside `PersistentDashboardLayout`. It holds `<ClientDashboard>` (or owner equivalent) always mounted, plus a `<RouteOverlayHost>` that reads the URL and renders a fullscreen overlay on top using `framer-motion` translateY + opacity. URL stays the source of truth (back button still works), but the dashboard is never unmounted.
-- Routes that genuinely need a different scene (Messaging, Radio, Eventos feed, Camera, Admin) keep using the normal route swap path — they're not "above the dashboard," they're separate scenes.
+**Fix**
+- In `PropertyListingForm`, normalize `initialData` before parsing:
+  - Convert `house_rules` from string → array (split on ` · `).
+  - Coerce numeric fields that may arrive as strings.
+  - On parse failure, fall back to the raw `initialData` (cast) instead of `{}`, so we never blank the form.
+- Apply the same normalization in `MotorcycleListingForm`, `BicycleListingForm`, `WorkerListingForm` (same pattern likely affects them).
+- In `UnifiedListingForm`, when `editingProperty.id` is present, also hydrate `videoUrl`, `images`, `location`, **and** map DB-stored joined strings back to arrays for `house_rules`, `amenities`, `services_included`, `vibe`, `skills`, etc., before passing into the sub-form.
 
-### 2. Kill the splash flash between pages
+---
 
-- Remove `SuspenseFallback` from inside the protected `AnimatedOutlet`. Replace with `null` so the previous frame stays painted while the next chunk loads.
-- Preload all dashboard-adjacent chunks immediately after auth resolves (extend `routePrefetcher` with a "dashboard cluster" group fired from `SwipessPrewarmer`).
-- Drop the 2.5 s `AuthReadySignal` safety timer to ~600 ms so the boot splash never lingers after first paint.
+## 2. Chip-only description builder (no freeform text)
 
-### 3. Animation budget — one focused animation at a time
+**Scope** — listings (property, motorcycle, bicycle, worker), owner profile, client profile, roommate profile. Remove every "Description / About / Bio" textarea. The composed description shown in previews/insights is auto-built from the chips via `buildDescriptionFromChips`.
 
-- `PokerCategoryCard`: only the top card runs the breathing scale/cross-fade. Stacked cards behind get static `transform: translateY` + `scale` and `opacity` only.
-- Move category photo cross-fade from a continuous loop to "advance only when top card is idle and tab visible" (use `IntersectionObserver` + `document.visibilityState`).
-- Gate `AtmosphericLayer` to a single low-cost gradient on Android low-memory devices (detect via `navigator.deviceMemory <= 4` or `prefers-reduced-motion`).
-- Replace combined `scale + blur + shadow + opacity` transitions with `transform + opacity` only. Shadows become static layered tokens, not animated.
+**Expand `src/constants/listingTaxonomies.ts`** with richer chip groups:
 
-### 4. Gesture isolation
+- `PROPERTY_ADJECTIVES` (positive descriptors): Amazing, Beautiful, Gorgeous, Pretty, Nice, Cool, Incredible, Wonderful, Cute, Charming, Cozy, Stylish, Modern, Bright, Sunny, Stunning, Elegant, Luxurious, Exuberant.
+- `PROPERTY_SIZE`: Tiny, Small, Medium, Spacious, Large, Big, Huge, Enormous, Giant.
+- `PROPERTY_FEATURES_EXPANDED` adds: Pool (private/shared), 2-in-1 Washer-Dryer, Separate Washer & Dryer, Laundry Room, Dishwasher, Dryer, Rooftop, Terrace, Garage, Carport, Sea view, Mountain view, Garden view, Outdoor kitchen, BBQ, Hot tub, Sauna, Office nook, Walk-in closet.
+- New step "Counts": Bedrooms (1–6+), Bathrooms (1–5+), Half-baths, Parking spots — rendered as 40px chip pills (not number inputs) so taps feel intentional.
+- Equivalent expansions for moto / bicycle / worker (more positive adjectives + condition + included items).
 
-- Dashboard deck: horizontal pan only (`dragDirectionLock`, `dragElastic` on x, y locked).
-- Fullscreen overlay: vertical dismiss only.
-- Tap-to-reveal-chrome stays on the deck, but the edge-detection logic moves into a single `useDeckGestures` hook so PokerCategoryCard and PeekCard share one source of truth and never both consume the same pointer event.
-- Remove `usePullDownToDismiss` from places where the overlay host already owns Y-axis.
+**Form changes**
+- Delete `Title` text input. Title auto-generates from `[Adjective] [Size] [PropertyType] in [City]` (still editable later via a small "Rename" pencil if needed — but no required textarea up front).
+- Delete `Description` textarea everywhere — `UnifiedListingForm` already falls back to `buildDescriptionFromChips`, so we just stop showing the textarea.
+- Replace `house_rules` joined string write — keep storing as string in DB but always round-trip via array in the form.
+- For each `ChipMultiSelect`, give the active state stronger visual feedback so the user can't miss it: filled `bg-primary text-primary-foreground` + scale 1.04 + subtle inner ring. Already mostly correct — bump tap feedback and add a small checkmark glyph on active chips.
+- Add a live "Preview description" line under the chips (read-only) that shows the sentence being built so the user sees the impact of each tap.
 
-### 5. Image performance
+**Profile / roommate**
+- Same pattern: remove `bio` / `description` textareas; replace with chip groups (vibe, traits, lifestyle, languages, work style). Auto-compose the bio string for storage.
 
-- Add a low-res preview (320 px AVIF/WebP) for every poker card photo. Show preview immediately, swap to full-res once decoded with `img.decode()`.
-- Centralize image preloading in `lib/swipe/ImagePreloadController` (already exists) and call it from the new dashboard cluster preloader. Drop the per-card `new Image()` calls in `PokerCategoryCard`.
-- Add `loading="lazy"` + `decoding="async"` everywhere except the visible top card.
+---
 
-### 6. UI thread hygiene
+## 3. Preview / Insights screen polish
 
-- Audit `useEffect`s that run on every render in `PokerCategoryCard`, `SwipeAllDashboard`, `ClientDashboard` and memoize/condition them.
-- Replace any `setState` inside drag handlers with `useMotionValue` updates so React doesn't re-render on each frame.
-- Mark heavy children with `memo` and stable callback refs.
+Looking at the uploaded screenshot, the Property Preview shows large translucent circles overlaying the hero photo and the close X button is clipped by the rounded card.
 
-### 7. Dashboard return animation
+- **Remove the circular overlay.** Find and delete the circle/avatar row currently rendered above the image inside `LikedListingInsightsModal` / `ListingPreviewDialog` (likely empty photo-slot placeholders rendered into the preview by mistake). Preview should show only the image carousel.
+- **Fix the close button**: move the X out of the rounded card's overflow-hidden region — render it as a fixed top-right floating button with safe-area padding so it isn't clipped.
+- **Clean the stats row**: the Beds / Baths cards currently overflow horizontally. Use a 2-up grid (or 4-up on sm+), drop the second card from clipping.
+- **Insights view**: replace the cramped circular indicators on top of the photo with a dedicated stats strip below the image (Views / Flames / Quality). The hero photo stays untouched.
+- Keep all dark-theme tokens; use `bg-card`, `text-foreground`, `text-muted-foreground` only.
 
-- Overlay closes by animating its own `translateY: 100%` + opacity to 0. Dashboard underneath is untouched — no remount, no scroll reset, no image reload. Feels like "revealing," not "loading."
+---
 
-### 8. Verification
+## Files to touch
 
-- Manual: navigate Dashboard → Properties → back; record with Chrome perf tab. Target: no Suspense fallback frame, no LCP > 16 ms during transition, sustained 60 FPS while swiping.
-- Lighthouse mobile run before/after on `/client/dashboard`.
+```text
+src/constants/listingTaxonomies.ts          (expand chip taxonomies + helpers)
+src/components/PropertyListingForm.tsx      (normalize initialData, drop title/desc, add adjective/size/counts chips)
+src/components/MotorcycleListingForm.tsx    (same normalization + chip expansion)
+src/components/BicycleListingForm.tsx       (same)
+src/components/WorkerListingForm.tsx        (same)
+src/components/UnifiedListingForm.tsx       (hydrate edit data fully, auto-title, drop description requirement)
+src/components/listing/ChipMultiSelect.tsx  (stronger active state + checkmark)
+src/components/ListingPreviewDialog.tsx     (remove circle overlay, fix X button, stats row)
+src/components/LikedListingInsightsModal.tsx (move stats below photo, drop circular overlays)
+src/components/PropertyPreviewDialog.tsx    (same polish)
+src/pages/ClientProfileNew.tsx              (drop bio textarea, chip-build it)
+src/pages/OwnerProfile.tsx                  (drop bio textarea, chip-build it)
+src/pages/RoommateMatching.tsx (profile section) (chip-only)
+```
 
-## Scope of file changes (technical detail)
+---
 
-- New: `src/components/dashboard/DashboardScene.tsx`, `src/components/dashboard/RouteOverlayHost.tsx`, `src/hooks/useDeckGestures.ts`.
-- Edit: `src/App.tsx` (route grouping), `src/components/PersistentDashboardLayout.tsx` (mount DashboardScene), `src/components/AnimatedOutlet.tsx` (overlay-aware), `src/components/swipe/PokerCategoryCard.tsx` (animation gating), `src/components/swipe/SwipeAllDashboard.tsx`, `src/providers/RootProviders.tsx` (boot timer), `src/utils/routePrefetcher.ts` (dashboard cluster), `src/components/AtmosphericLayer.tsx` (low-mem mode).
-- Out of scope: visual redesign, business logic, RLS, auth, copy.
+## Out of scope
 
-## Risk & rollout
-
-- Biggest risk: route → overlay mapping. We start with **Properties + Filters + Liked/Interested** as overlays in phase 1. Profile/Settings stay as normal routes in phase 1 and become overlays in phase 2 if phase 1 is stable.
-- Each overlay is feature-flagged via a small `OVERLAY_ROUTES` set so we can revert per-route without a rebuild.
-
-## Out of this plan
-
-- Listing/data fetching changes — none.
-- Database / edge function changes — none.
-- Visual identity, color tokens, copy — unchanged.
-
-If this looks right I'll implement Phase 1 (persistent scene + overlay host for Properties/Filters/Liked, splash-flash removal, animation gating). Phase 2 (more overlays + low-res image previews) follows after we confirm phase 1 feels right.
+- No DB schema changes — `house_rules`, `description`, `bio` stay as strings; we just stop writing freeform text into them.
+- No swipe / navigation changes.
+- No new routes.

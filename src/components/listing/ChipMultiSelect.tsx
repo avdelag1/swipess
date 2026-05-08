@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { Check } from 'lucide-react';
 
 interface ChipMultiSelectProps {
   label?: string;
@@ -45,15 +46,17 @@ export function ChipMultiSelect({ label, options, value, onChange, single, accen
               key={opt}
               type="button"
               onClick={() => toggle(opt)}
-              whileTap={{ scale: 0.94 }}
+              whileTap={{ scale: 0.92 }}
+              animate={{ scale: active ? 1.04 : 1 }}
               transition={springTap}
               className={cn(
-                'px-3.5 py-2 rounded-full text-sm font-semibold transition-all border',
+                'px-3.5 py-2 rounded-full text-sm font-semibold transition-all border inline-flex items-center gap-1.5',
                 active
-                  ? 'bg-primary text-primary-foreground border-primary shadow-md shadow-primary/20'
+                  ? 'bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/30 ring-1 ring-primary/40'
                   : 'bg-secondary text-foreground border-border hover:bg-secondary/80',
               )}
             >
+              {active && <Check className="w-3.5 h-3.5 -ml-0.5" strokeWidth={3} />}
               {opt}
             </motion.button>
           );
