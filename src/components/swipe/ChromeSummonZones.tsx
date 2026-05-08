@@ -9,40 +9,23 @@ import { triggerHaptic } from '@/utils/haptics';
  * swipe / zoom / photo-tap region, so gestures stay untouched.
  */
 export function ChromeSummonZones() {
-  // Distinguish a quick tap from a long press / drag.
-  // Only a clean tap (<250ms, no movement) toggles the chrome.
-  const downRef = useRef<{ t: number; x: number; y: number } | null>(null);
-
-  const onPointerDown = useCallback((e: React.PointerEvent) => {
+  // Use click for reliable tap detection (browser already filters scrolls/long-press drags).
+  // Debounce so back-to-back fires from bubbling don't cancel the toggle.
+  const lastFireRef = useRef(0);
+  const onTap = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
-    downRef.current = { t: performance.now(), x: e.clientX, y: e.clientY };
-  }, []);
-
-  const onPointerUp = useCallback((e: React.PointerEvent) => {
-    const d = downRef.current;
-    downRef.current = null;
-    if (!d) return;
-    const dt = performance.now() - d.t;
-    const dx = Math.abs(e.clientX - d.x);
-    const dy = Math.abs(e.clientY - d.y);
-    if (dt > 260) return; // long press → ignore
-    if (dx > 8 || dy > 8) return; // drag → ignore
-    e.stopPropagation();
+    const now = performance.now();
+    if (now - lastFireRef.current < 200) return;
+    lastFireRef.current = now;
     triggerHaptic('light');
     toggleChrome();
-  }, []);
-
-  const onPointerCancel = useCallback(() => {
-    downRef.current = null;
   }, []);
 
   return (
     <>
       {/* Top edge strip */}
       <div
-        onPointerDown={onPointerDown}
-        onPointerUp={onPointerUp}
-        onPointerCancel={onPointerCancel}
+        onClick={onTap}
         data-no-pull-dismiss
         aria-hidden="true"
         style={{
@@ -59,9 +42,7 @@ export function ChromeSummonZones() {
       />
       {/* Bottom strip */}
       <div
-        onPointerDown={onPointerDown}
-        onPointerUp={onPointerUp}
-        onPointerCancel={onPointerCancel}
+        onClick={onTap}
         data-no-pull-dismiss
         aria-hidden="true"
         style={{
