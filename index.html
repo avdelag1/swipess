@@ -130,13 +130,24 @@
   <meta name="application-name" content="Swipess">
   <!-- Speculation rules removed — prefetching handled by routePrefetcher.ts -->
   <style>
-    .static-splash { position: fixed; inset: 0; background: #000; z-index: 99999; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 28px; }
+    .static-splash { position: fixed; inset: 0; background: #000; z-index: 99999; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 32px; }
     .static-splash.fade-out { opacity: 0; visibility: hidden; transition: opacity 0.65s cubic-bezier(0.22,1,0.36,1), visibility 0.5s; }
     .splash-content { display: flex; flex-direction: column; align-items: center; animation: splashBreathe 2.6s ease-in-out infinite; will-change: transform; }
-    @keyframes splashBreathe { 0%,100% { transform: scale(1); } 50% { transform: scale(1.025); } }
-    .splash-logo { height: 52px; width: auto; opacity: 1; filter: drop-shadow(0 0 24px rgba(255,255,255,0.18)); contain: content; }
-    .splash-dot { width: 6px; height: 6px; border-radius: 999px; background: rgba(255,255,255,0.55); animation: splashDot 1.6s ease-in-out infinite; }
-    @keyframes splashDot { 0%,100% { opacity: 0.25; transform: scale(0.85); } 50% { opacity: 0.85; transform: scale(1); } }
+    @keyframes splashBreathe { 0%,100% { transform: scale(1); } 50% { transform: scale(1.035); } }
+    .splash-logo { height: 56px; width: auto; opacity: 1; filter: drop-shadow(0 0 24px rgba(255,255,255,0.22)); contain: content; }
+    .splash-loader { display: flex; flex-direction: column; align-items: center; gap: 18px; }
+    .splash-dots { display: flex; gap: 8px; align-items: center; }
+    .splash-dots span { width: 7px; height: 7px; border-radius: 999px; background: #fff; opacity: 0.35; animation: splashDot 1.2s cubic-bezier(0.4,0,0.6,1) infinite; will-change: transform, opacity; }
+    .splash-dots span:nth-child(2) { animation-delay: 0.18s; }
+    .splash-dots span:nth-child(3) { animation-delay: 0.36s; }
+    @keyframes splashDot { 0%,80%,100% { opacity: 0.28; transform: translateY(0) scale(0.85); } 40% { opacity: 1; transform: translateY(-4px) scale(1.05); } }
+    .splash-bar { position: relative; width: 140px; height: 2px; border-radius: 999px; background: rgba(255,255,255,0.08); overflow: hidden; }
+    .splash-bar::before { content: ''; position: absolute; inset: 0; width: 40%; border-radius: inherit; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.85), transparent); animation: splashBar 1.6s cubic-bezier(0.4,0,0.6,1) infinite; will-change: transform; }
+    @keyframes splashBar { 0% { transform: translateX(-100%); } 100% { transform: translateX(350%); } }
+    @media (prefers-reduced-motion: reduce) {
+      .splash-content, .splash-dots span, .splash-bar::before { animation: none !important; }
+      .splash-dots span { opacity: 0.7; }
+    }
   </style>
 </head>
 
@@ -145,7 +156,10 @@
     <div class="splash-content">
       <img id="splash-logo" class="splash-logo" src="/icons/Swipess-wordmark-white.png" alt="Swipess" />
     </div>
-    <div class="splash-dot" aria-hidden="true"></div>
+    <div class="splash-loader" aria-hidden="true">
+      <div class="splash-dots"><span></span><span></span><span></span></div>
+      <div class="splash-bar"></div>
+    </div>
   </div>
   <div id="root"></div>
   <script type="module" src="/src/main.tsx" fetchpriority="high"></script>
@@ -154,6 +168,8 @@
       const splash = document.getElementById('static-splash');
       let appReady = false;
       let windowLoaded = false;
+      let imagesReady = false;
+
       const fadeOut = () => {
         if (splash && !splash.classList.contains('fade-out')) {
           splash.classList.add('fade-out');
@@ -161,19 +177,38 @@
         }
       };
       const tryFade = () => {
-        // Only fade once BOTH the app shell has signaled ready AND
-        // the window 'load' event has fired (meaning preloaded images,
-        // fonts and other static assets are decoded). This keeps the
-        // breathing Swipess wordmark on screen as a true loading page.
-        if (appReady && windowLoaded) fadeOut();
+        // Fade only once the layout shell has mounted AND the window has
+        // finished loading AND the high-priority swipe-card images have
+        // decoded. This guarantees the user never sees a blank deck behind
+        // the splash — by the time the splash fades, the first cards are
+        // already painted.
+        if (appReady && windowLoaded && imagesReady) fadeOut();
       };
+
+      // Explicitly wait for the highest-priority swipe-card images to decode.
+      // <link rel="preload"> kicks off the network request but does NOT block
+      // the 'load' event, so we decode them ourselves and gate the splash on it.
+      const CRITICAL_IMAGES = [
+        '/icons/Swipess-wordmark-white.png',
+        '/images/filters/property.jpg',
+        '/images/filters/scooter.jpg',
+        '/images/filters/bicycle.jpg',
+        '/images/filters/workers.jpg',
+        '/images/filters/all.jpg'
+      ];
+      Promise.allSettled(CRITICAL_IMAGES.map((src) => {
+        const img = new Image();
+        img.src = src;
+        return img.decode ? img.decode().catch(() => {}) : new Promise((r) => { img.onload = img.onerror = r; });
+      })).then(() => { imagesReady = true; tryFade(); });
+
       window.addEventListener('swipess-ready', () => { appReady = true; tryFade(); });
       window.addEventListener('app-rendered', () => { appReady = true; tryFade(); });
       window.addEventListener('load', () => {
-        // Give the browser a beat to paint the first frame of real UI
-        // underneath before we fade the splash.
         windowLoaded = true;
-        setTimeout(tryFade, 250);
+        // Give the browser a beat to paint the first real frame underneath
+        // before we fade the splash — prevents the visible "pop".
+        setTimeout(tryFade, 200);
       });
       // Hard safety cap — never trap the user behind the splash.
       setTimeout(fadeOut, 6000);
