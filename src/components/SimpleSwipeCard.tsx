@@ -330,7 +330,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
         dragDirectionLock
         dragMomentum={false}
         dragConstraints={{ left: -1200, right: 1200, top: -1200, bottom: 1200 }}
-        dragElastic={0.02}
+        dragElastic={1}
         onDragStart={handleDragStart}
         onDrag={handleDrag}
         onDirectionLock={handleDirectionLock}
