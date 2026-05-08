@@ -20,6 +20,12 @@ export function usePullDownToDismiss(opts?: { threshold?: number }) {
   const opacity = useTransform(y, [0, 70, 240], [1, 0.96, 0.12], { clamp: true });
   const blur = useTransform(y, [0, 160, 320], ['blur(0px)', 'blur(7px)', 'blur(18px)'], { clamp: true });
 
+  // Backdrop reveal — dashboard sitting behind the deck.
+  // As the user pulls, the dashboard scales up and unblurs into view.
+  const backdropOpacity = useTransform(y, [0, 30, 200], [0, 0.4, 1], { clamp: true });
+  const backdropScale = useTransform(y, [0, 220], [0.94, 1], { clamp: true });
+  const backdropBlur = useTransform(y, [0, 220], ['blur(14px)', 'blur(0px)'], { clamp: true });
+
   const startY = useRef<number | null>(null);
   const startX = useRef<number | null>(null);
   const active = useRef(false);
@@ -161,6 +167,9 @@ export function usePullDownToDismiss(opts?: { threshold?: number }) {
     scale,
     opacity,
     blur,
+    backdropOpacity,
+    backdropScale,
+    backdropBlur,
     bind: {
       onPointerDown,
       onPointerMove,
