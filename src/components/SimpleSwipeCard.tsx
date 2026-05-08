@@ -214,6 +214,11 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
     if (axis === 'y') x.set(0);
   }, [x, y]);
 
+  const handleDrag = useCallback(() => {
+    if (dragAxisRef.current === 'x') y.set(0);
+    if (dragAxisRef.current === 'y') x.set(0);
+  }, [x, y]);
+
   const handleDragEnd = useCallback((_: any, info: PanInfo) => {
     const dx = info.offset.x;
     const dy = info.offset.y;
@@ -319,9 +324,10 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
         dragListener={false}
         dragDirectionLock
         dragMomentum={false}
-        dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
-        dragElastic={0.18}
+        dragConstraints={{ left: -1200, right: 1200, top: -1200, bottom: 1200 }}
+        dragElastic={0.02}
         onDragStart={handleDragStart}
+        onDrag={handleDrag}
         onDirectionLock={handleDirectionLock}
         onDragEnd={handleDragEnd}
         onPointerDown={handleUnifiedPointerDown}
