@@ -735,16 +735,17 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
   return createPortal(
     <AnimatePresence>
       {isOpen && (
-        <div className={cn("fixed inset-0 z-[60] flex items-center justify-center p-0 sm:p-6 transition-all duration-500", isLight && !isSwipess ? "bg-black/10 backdrop-blur-md" : "bg-black/40 backdrop-blur-xl")}>
+        <div className={cn("fixed inset-0 z-[60] flex items-center justify-center p-0 sm:p-6", isLight && !isSwipess ? "bg-black/10 backdrop-blur-md" : "bg-black/40 backdrop-blur-xl")}>
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="absolute inset-0" />
-          
+
           <motion.div
-            layoutId="concierge-panel"
             initial={{ scale: 0.95, opacity: 0, y: 40 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.95, opacity: 0, y: 40 }}
+            transition={{ type: 'spring', stiffness: 320, damping: 32, mass: 0.6 }}
+            style={{ willChange: 'transform, opacity' }}
             className={cn(
-               "relative w-full max-w-4xl h-[100dvh] sm:h-[88vh] flex flex-col sm:rounded-[3.5rem] overflow-hidden border shadow-[0_40px_150px_rgba(0,0,0,0.9)] transition-colors duration-700",
+               "relative w-full max-w-4xl h-[100dvh] sm:h-[88vh] flex flex-col sm:rounded-[3.5rem] overflow-hidden border shadow-[0_40px_150px_rgba(0,0,0,0.9)]",
                isLight && !isSwipess ? "bg-white border-black/10" : "bg-black border-white/10"
              )}
           >
@@ -949,11 +950,9 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                          onClick={handleSend}
                          disabled={!input.trim() || isLoading}
                          className={cn(
-                           "h-12 w-12 shrink-0 rounded-full inline-flex items-center justify-center transition-all active:scale-90",
-                           isLight && !isSwipess
-                             ? "bg-foreground text-background shadow-[0_10px_28px_rgba(0,0,0,0.28)] hover:bg-foreground/90"
-                             : "bg-white text-black shadow-[0_10px_28px_rgba(0,0,0,0.45)] hover:bg-white/90",
-                           (!input.trim() || isLoading) && "opacity-40 shadow-none"
+                           "h-12 w-12 shrink-0 rounded-full inline-flex items-center justify-center transition-all active:scale-90 ring-2 ring-black/10",
+                           "bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_10px_28px_rgba(0,0,0,0.35)] hover:brightness-110",
+                           (!input.trim() || isLoading) && "opacity-50 shadow-none"
                          )}
                          aria-label="Send message"
                        >
