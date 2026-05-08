@@ -335,17 +335,27 @@ const ClientSwipeContainerComponent = ({
 
   // ─── PREDICTIVE CARD TRANSITIONS ─────────────────────────────────────────
   const topCardX = useMotionValue(0);
+  const topCardY = useMotionValue(0);
 
   // Next card scales up and brightens as the top card is dragged away.
   const nextCardScale = useTransform(
-    topCardX,
-    [-280, -60, 0, 60, 280],
-    [1.0, 1.0, 0.97, 1.0, 1.0]
+    [topCardX, topCardY] as any,
+    ([cx, cy]: any) => {
+      const a = Math.min(1, Math.abs(cx) / 280);
+      const b = Math.min(1, Math.abs(cy) / 240);
+      const t = Math.max(a, b);
+      // resting at 0.97, rising to 1.0 as the top card leaves
+      return 0.97 + 0.03 * t;
+    }
   );
   const nextCardOpacity = useTransform(
-    topCardX,
-    [-280, -60, 0, 60, 280],
-    [0.98, 0.92, 0.72, 0.92, 0.98]
+    [topCardX, topCardY] as any,
+    ([cx, cy]: any) => {
+      const a = Math.min(1, Math.abs(cx) / 280);
+      const b = Math.min(1, Math.abs(cy) / 240);
+      const t = Math.max(a, b);
+      return 0.72 + 0.26 * t;
+    }
   );
   // ─────────────────────────────────────────────────────────────────────────
 
@@ -1004,6 +1014,7 @@ const ClientSwipeContainerComponent = ({
                     isTop={true}
                     fullScreen={true}
                     externalX={topCardX}
+                    externalY={topCardY}
                   />
                 </div>
               </motion.div>
