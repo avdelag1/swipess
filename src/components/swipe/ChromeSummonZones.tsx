@@ -60,7 +60,25 @@ export function ChromeSummonZones() {
           pointerEvents: 'auto',
           touchAction: 'manipulation',
         }}
-      />
+      >
+        {/* Breathing affordance: tap to summon header */}
+        <div
+          aria-hidden="true"
+          className="animate-summon-glow"
+          style={{
+            position: 'absolute',
+            left: '50%',
+            bottom: 6,
+            transform: 'translateX(-50%)',
+            width: 44,
+            height: 3,
+            borderRadius: 999,
+            background: 'rgba(255,255,255,0.55)',
+            boxShadow: '0 0 10px rgba(255,255,255,0.25)',
+            pointerEvents: 'none',
+          }}
+        />
+      </div>
       {/* Bottom strip */}
       <div
         onPointerDown={onPointerDown}
@@ -79,7 +97,25 @@ export function ChromeSummonZones() {
           pointerEvents: 'auto',
           touchAction: 'manipulation',
         }}
-      />
+      >
+        {/* Breathing affordance: tap to summon bottom nav */}
+        <div
+          aria-hidden="true"
+          className="animate-summon-glow"
+          style={{
+            position: 'absolute',
+            left: '50%',
+            top: 6,
+            transform: 'translateX(-50%)',
+            width: 44,
+            height: 3,
+            borderRadius: 999,
+            background: 'rgba(255,255,255,0.55)',
+            boxShadow: '0 0 10px rgba(255,255,255,0.25)',
+            pointerEvents: 'none',
+          }}
+        />
+      </div>
     </>
   );
 }
