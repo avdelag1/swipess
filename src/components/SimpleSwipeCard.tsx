@@ -313,10 +313,12 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
         drag
         dragControls={dragControls}
         dragListener={false}
+        dragDirectionLock
         dragMomentum={false}
         dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
-        dragElastic={0.85}
+        dragElastic={0.18}
         onDragStart={handleDragStart}
+        onDirectionLock={handleDirectionLock}
         onDragEnd={handleDragEnd}
         onPointerDown={handleUnifiedPointerDown}
         onPointerMove={handleUnifiedPointerMove}
@@ -332,7 +334,6 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
         style={{
           x,
           y,
-          rotate: cardRotate,
           opacity: cardOpacity,
           willChange: 'transform, opacity',
           transform: 'translate3d(0,0,0)',
