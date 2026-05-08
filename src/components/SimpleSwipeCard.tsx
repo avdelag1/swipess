@@ -184,14 +184,15 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
     if (storedPointerEventRef.current && !dragStartedRef.current) {
       const dx = Math.abs(e.clientX - (storedPointerEventRef.current as any).clientX);
       const dy = Math.abs(e.clientY - (storedPointerEventRef.current as any).clientY);
-      // While the hold-to-zoom timer is still pending, let the magnifier
-      // hook decide (it cancels itself once movement exceeds its 25px threshold).
-      // Only convert to drag once the magnifier has clearly bailed.
-      if ((dx > 8 || dy > 8) && !isMagnifierHoldPending()) {
+      // Start drag the instant we detect real movement. Cancel the magnifier
+      // hold so vertical/horizontal browse never stalls waiting on the
+      // 380ms hold-to-zoom timer.
+      if (dx > 6 || dy > 6) {
         magnifierPointerHandlers.onPointerUp(e); 
         dragStartedRef.current = true;
         isDragging.current = true;
         dragControls.start((storedPointerEventRef.current as any).nativeEvent);
+        return;
       }
     }
     // Forward to magnifier so its hold detection sees movement
