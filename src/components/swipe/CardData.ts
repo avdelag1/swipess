@@ -136,7 +136,6 @@ export const POKER_CARD_PHOTOS: Record<string, string> = {
   promote: '/images/filters/owner_promote_card.jpg',
 };
 
-export const POKER_CARD_GRADIENTS: Record<string, string> = {
 // Neutral dark fallback only — no colored tint, so images never look
 // "blocked" by a red/blue/green wash while they fade in.
 const NEUTRAL_FALLBACK = 'linear-gradient(135deg, #111111 0%, #050505 100%)';
