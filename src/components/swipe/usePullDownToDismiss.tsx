@@ -56,9 +56,10 @@ export function usePullDownToDismiss(opts?: { threshold?: number }) {
   const onPointerDown = (e: React.PointerEvent) => {
     if (exiting.current) return;
     if ((e.target as HTMLElement)?.closest('[data-no-pull-dismiss], [data-no-cinematic], button, a')) return;
-    // Allow start anywhere on the upper 60% of the deck — gives the user room.
-    const h = window.innerHeight || 800;
-    if (e.clientY > h * 0.6) return;
+    // Restrict to a thin top zone so the rest of the card is free for vertical
+    // like/pass swipes. Anything above ~110px from the top of the viewport
+    // (header chrome + a small grab strip) can initiate the deck-exit curtain.
+    if (e.clientY > 110) return;
     startY.current = e.clientY;
     startX.current = e.clientX;
     startT.current = performance.now();
@@ -129,8 +130,7 @@ export function usePullDownToDismiss(opts?: { threshold?: number }) {
       const target = event.target as HTMLElement | null;
       if (target?.closest('[data-no-pull-dismiss], [data-no-cinematic], button, a')) return;
       const touch = event.touches[0];
-      const h = window.innerHeight || 800;
-      if (!touch || touch.clientY > h * 0.6) return;
+      if (!touch || touch.clientY > 110) return;
       touchId = touch.identifier;
       startY.current = touch.clientY;
       startX.current = touch.clientX;
