@@ -735,6 +735,22 @@ const ClientSwipeContainerComponent = ({
     }, 200);
   }, [executeSwipe, playSwipeSound]);
 
+  // Vertical swipe = skip to next profile without writing to backend.
+  const handleSkip = useCallback(() => {
+    const profile = deckQueueRef.current[currentIndexRef.current];
+    if (!profile?.user_id) return;
+    triggerHaptic('light');
+    const newIndex = currentIndexRef.current + 1;
+    topCardX.stop();
+    topCardX.set(0);
+    currentIndexRef.current = newIndex;
+    setCurrentIndex(newIndex);
+    [1, 2, 3].forEach((offset) => {
+      const future = deckQueueRef.current[newIndex + offset];
+      if (future?.profile_images?.[0]) preloadClientImageToCache(future.profile_images[0]);
+    });
+  }, [topCardX]);
+
   const handleButtonLike = useCallback(() => {
     if (cardRef.current) {
       cardRef.current.triggerSwipe('right');
