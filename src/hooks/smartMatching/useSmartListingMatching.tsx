@@ -29,123 +29,194 @@ export const SWIPE_CARD_FIELDS = `
 // Always appended AFTER real listings so testing never obscures real data.
 // Coords are around Tulum so the radius slider visually filters during testing.
 const DEMO_LISTINGS: any[] = [
-  // ── PROPERTY (2 cards) ────────────────────────────────────────────────
+  // ── PROPERTY (3 cards, 3 photos each) ─────────────────────────────────
   {
-    id: 'demo-1',
-    title: 'Ultra-Modern Penthouse',
-    description: 'Breathtaking 360-degree views of the skyline. Private elevator and infinity pool access. Pure luxury living with state-of-the-art automation.',
+    id: 'demo-property-1',
+    title: 'Ultra-Modern Tulum Penthouse',
+    description: 'Breathtaking jungle-and-sea energy with private rooftop water, soft stone interiors, and a cinematic indoor-outdoor layout.',
     price: 4500, currency: 'USD',
-    images: ['https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&q=80&w=1200'],
+    images: [
+      'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&q=80&w=1200',
+      'https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&q=80&w=1200',
+      'https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?auto=format&fit=crop&q=80&w=1200'
+    ],
     city: 'Tulum', neighborhood: 'Aldea Zamá',
     category: 'property', listing_type: 'rent', property_type: 'penthouse',
     beds: 3, baths: 4, square_footage: 2800,
-    latitude: 20.2384, longitude: -87.4654, // ~3km north
+    latitude: 20.2384, longitude: -87.4654,
     is_active: true, status: 'active', created_at: new Date().toISOString()
   },
   {
-    id: 'demo-6',
-    title: 'Minimalist Jungle Villa',
-    description: 'Solar powered, jungle surrounded. The perfect retreat for digital nomads seeking peace and ultra-fast fiber optic.',
-    price: 3800, currency: 'USD',
-    images: ['https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?auto=format&fit=crop&q=80&w=1200'],
-    city: 'Tulum', neighborhood: 'Tulum Centro',
-    category: 'property', listing_type: 'rent', property_type: 'villa',
-    beds: 2, baths: 2, square_footage: 1500,
-    latitude: 20.2114, longitude: -87.4654, // base ~0km
+    id: 'demo-property-2',
+    title: 'Canggu Surf Loft',
+    description: 'Warm concrete loft minutes from the beach, with quiet work corners, filtered light, and a social rooftop for sunset dinners.',
+    price: 2800, currency: 'USD',
+    images: [
+      'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=1200',
+      'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&q=80&w=1200',
+      'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&q=80&w=1200'
+    ],
+    city: 'Canggu', neighborhood: 'Batu Bolong',
+    category: 'property', listing_type: 'rent', property_type: 'loft',
+    beds: 2, baths: 2, square_footage: 1450,
+    latitude: 20.2114, longitude: -87.4654,
+    is_active: true, status: 'active', created_at: new Date().toISOString()
+  },
+  {
+    id: 'demo-property-3',
+    title: 'Brickell Sky Condo Miami',
+    description: 'Glassline high-rise condo with bay views, concierge service, gym, pool deck, and polished city luxury.',
+    price: 5200, currency: 'USD',
+    images: [
+      'https://images.unsplash.com/photo-1613977257363-707ba9348227?auto=format&fit=crop&q=80&w=1200',
+      'https://images.unsplash.com/photo-1613977257592-4871e5fcd7c4?auto=format&fit=crop&q=80&w=1200',
+      'https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&q=80&w=1200'
+    ],
+    city: 'Miami', neighborhood: 'Brickell',
+    category: 'property', listing_type: 'rent', property_type: 'condo',
+    beds: 2, baths: 2, square_footage: 1700,
+    latitude: 20.2454, longitude: -87.4654,
     is_active: true, status: 'active', created_at: new Date().toISOString()
   },
 
-  // ── MOTORCYCLE (2 cards) ──────────────────────────────────────────────
+  // ── MOTORCYCLE (3 cards, 3 photos each) ────────────────────────────────
   {
-    id: 'demo-2',
+    id: 'demo-motorcycle-1',
     title: 'Ducati Panigale V4',
-    description: 'Pristine condition. Low mileage. The pinnacle of Italian engineering. Ready for the track or the street with carbon fiber upgrades.',
+    description: 'Pristine Italian superbike with carbon details, low mileage, and a clean service history.',
     price: 24000, currency: 'USD',
-    images: ['https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?auto=format&fit=crop&q=80&w=1200'],
-    city: 'Tulum', category: 'motorcycle', listing_type: 'sell',
+    images: [
+      'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?auto=format&fit=crop&q=80&w=1200',
+      'https://images.unsplash.com/photo-1558981806-ec527fa84c39?auto=format&fit=crop&q=80&w=1200',
+      'https://images.unsplash.com/photo-1449426468159-d96dbf08f19f?auto=format&fit=crop&q=80&w=1200'
+    ],
+    city: 'Miami', category: 'motorcycle', listing_type: 'sell',
     vehicle_brand: 'Ducati', vehicle_model: 'Panigale V4', year: 2023, mileage: 1200,
-    latitude: 20.2834, longitude: -87.4654, // ~8km north
+    latitude: 20.2834, longitude: -87.4654,
     is_active: true, status: 'active', created_at: new Date().toISOString()
   },
   {
-    id: 'demo-7',
-    title: 'Royal Enfield Meteor 350',
-    description: 'Classic cruiser style, modern reliability. Touring ready with luggage brackets. The perfect bike for coastal roads.',
-    price: 5800, currency: 'USD',
-    images: ['https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&q=80&w=1200'],
-    city: 'Playa del Carmen', category: 'motorcycle', listing_type: 'sell',
-    vehicle_brand: 'Royal Enfield', vehicle_model: 'Meteor 350', year: 2022, mileage: 4000,
-    latitude: 20.4914, longitude: -87.4654, // ~31km north
+    id: 'demo-motorcycle-2',
+    title: 'Royal Enfield Himalayan',
+    description: 'Adventure-ready, luggage fitted, and built for coastal roads, jungle turns, and long weekend escapes.',
+    price: 6800, currency: 'USD',
+    images: [
+      'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&q=80&w=1200',
+      'https://images.unsplash.com/photo-1517846693594-1567da72af75?auto=format&fit=crop&q=80&w=1200',
+      'https://images.unsplash.com/photo-1524591652733-73fa1ae7b5ee?auto=format&fit=crop&q=80&w=1200'
+    ],
+    city: 'Tulum', category: 'motorcycle', listing_type: 'sell',
+    vehicle_brand: 'Royal Enfield', vehicle_model: 'Himalayan', year: 2022, mileage: 4100,
+    latitude: 20.2114, longitude: -87.3764,
+    is_active: true, status: 'active', created_at: new Date().toISOString()
+  },
+  {
+    id: 'demo-motorcycle-3',
+    title: 'Vespa GTS 300 Roma',
+    description: 'Elegant city scooter with polished chrome, leather seat, and effortless parking for beach-town living.',
+    price: 7900, currency: 'USD',
+    images: [
+      'https://images.unsplash.com/photo-1591637333184-19aa84b3e01f?auto=format&fit=crop&q=80&w=1200',
+      'https://images.unsplash.com/photo-1508357941501-0924cf312bbd?auto=format&fit=crop&q=80&w=1200',
+      'https://images.unsplash.com/photo-1558980664-10e7170b5df9?auto=format&fit=crop&q=80&w=1200'
+    ],
+    city: 'Rome', category: 'motorcycle', listing_type: 'sell',
+    vehicle_brand: 'Vespa', vehicle_model: 'GTS 300', year: 2021, mileage: 2600,
+    latitude: 20.1474, longitude: -87.4654,
     is_active: true, status: 'active', created_at: new Date().toISOString()
   },
 
-  // ── BICYCLE (2 cards) ─────────────────────────────────────────────────
+  // ── BICYCLE (3 cards, 3 photos each) ──────────────────────────────────
   {
-    id: 'demo-4',
+    id: 'demo-bicycle-1',
     title: 'VanMoof S5 Electric',
-    description: 'The future of urban mobility. Integrated lights, anti-theft tech, and incredible power. Perfect for the city commute.',
+    description: 'Integrated lights, anti-theft tech, silent power assist, and a clean city profile.',
     price: 3500, currency: 'USD',
-    images: ['https://images.unsplash.com/photo-1485965120184-e220f721d03e?auto=format&fit=crop&q=80&w=1200'],
-    city: 'Tulum', category: 'bicycle', listing_type: 'sell',
+    images: [
+      'https://images.unsplash.com/photo-1485965120184-e220f721d03e?auto=format&fit=crop&q=80&w=1200',
+      'https://images.unsplash.com/photo-1571068316344-75bc76f77890?auto=format&fit=crop&q=80&w=1200',
+      'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?auto=format&fit=crop&q=80&w=1200'
+    ],
+    city: 'Amsterdam', category: 'bicycle', listing_type: 'sell',
     bicycle_type: 'electric', electric_assist: true, battery_range: 80,
-    latitude: 20.2114, longitude: -87.3764, // ~10km east
+    latitude: 20.2114, longitude: -87.3764,
     is_active: true, status: 'active', created_at: new Date().toISOString()
   },
   {
-    id: 'demo-9',
+    id: 'demo-bicycle-2',
     title: 'Specialized S-Works Tarmac',
-    description: 'Featherlight carbon frame. Dura-Ace Di2 shifting. The ultimate racing machine for serious cyclists.',
+    description: 'Featherlight carbon frame, race geometry, and crisp electronic shifting for fast coastal rides.',
     price: 12000, currency: 'USD',
-    images: ['https://images.unsplash.com/photo-1571068316344-75bc76f77890?auto=format&fit=crop&q=80&w=1200'],
-    city: 'Cancún', category: 'bicycle', listing_type: 'sell',
-    bicycle_type: 'road', frame_material: 'carbon',
-    latitude: 19.8114, longitude: -87.4654, // ~44km south
+    images: [
+      'https://images.unsplash.com/photo-1511994298241-608e28f14fde?auto=format&fit=crop&q=80&w=1200',
+      'https://images.unsplash.com/photo-1502744688674-c619d1586c9e?auto=format&fit=crop&q=80&w=1200',
+      'https://images.unsplash.com/photo-1507035895480-2b3156c31fc8?auto=format&fit=crop&q=80&w=1200'
+    ],
+    city: 'Barcelona', category: 'bicycle', listing_type: 'sell',
+    bicycle_type: 'road', frame_material: 'carbon', number_of_gears: 22,
+    latitude: 19.8114, longitude: -87.4654,
+    is_active: true, status: 'active', created_at: new Date().toISOString()
+  },
+  {
+    id: 'demo-bicycle-3',
+    title: 'Cannondale Topstone Gravel',
+    description: 'Comfortable gravel frame with wide tires, bikepacking mounts, and a smooth all-road feel.',
+    price: 2800, currency: 'USD',
+    images: [
+      'https://images.unsplash.com/photo-1525109620301-7a4c0f6055d2?auto=format&fit=crop&q=80&w=1200',
+      'https://images.unsplash.com/photo-1532298229144-0ec0c57515c7?auto=format&fit=crop&q=80&w=1200',
+      'https://images.unsplash.com/photo-1575585269294-7d28dd912db8?auto=format&fit=crop&q=80&w=1200'
+    ],
+    city: 'Milan', category: 'bicycle', listing_type: 'sell',
+    bicycle_type: 'gravel', frame_material: 'aluminum', number_of_gears: 20,
+    latitude: 20.2454, longitude: -87.4654,
     is_active: true, status: 'active', created_at: new Date().toISOString()
   },
 
-  // ── WORKERS / SERVICES (4 cards) ──────────────────────────────────────
+  // ── WORKERS / SERVICES (3 cards, 3 photos each) ───────────────────────
   {
-    id: 'demo-5',
-    title: 'Senior Interior Architect',
-    description: 'Transforming spaces into experiences. 10+ years of luxury residential design. Expert in sustainable materials and premium finishes.',
+    id: 'demo-worker-1',
+    title: 'Sofia — Spanish Architect',
+    description: 'Luxury residential design, permit-ready plans, sustainable materials, and premium interior direction.',
     price: 150, pricing_unit: 'hour', currency: 'USD',
-    images: ['https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=1200'],
+    images: [
+      'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=1200',
+      'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&q=80&w=1200',
+      'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&q=80&w=1200'
+    ],
     city: 'Tulum', category: 'worker',
-    service_category: 'Interior Design', experience_years: 12, experience_level: 'expert',
-    latitude: 20.2114, longitude: -87.6044, // ~15km west
+    service_category: 'Architecture', experience_years: 12, experience_level: 'expert',
+    latitude: 20.2114, longitude: -87.6044,
     is_active: true, status: 'active', created_at: new Date().toISOString()
   },
   {
-    id: 'demo-8',
-    title: 'Fullstack Developer',
-    description: 'Specializing in React, Node.js and AI integrations. Available for premium software architecture and product launches.',
-    price: 120, pricing_unit: 'hour', currency: 'USD',
-    images: ['https://images.unsplash.com/photo-1573164773711-33023fd666cb?auto=format&fit=crop&q=80&w=1200'],
-    city: 'Playa del Carmen', category: 'worker',
-    service_category: 'Software Development', experience_years: 8, experience_level: 'expert',
-    latitude: 20.2114, longitude: -87.1274, // ~37km east
+    id: 'demo-worker-2',
+    title: 'Matias — Argentine Private Chef',
+    description: 'Villa dinners, fire-grill menus, clean sourcing, and elegant service for private events.',
+    price: 95, pricing_unit: 'hour', currency: 'USD',
+    images: [
+      'https://images.unsplash.com/photo-1577219491135-ce391730fb2c?auto=format&fit=crop&q=80&w=1200',
+      'https://images.unsplash.com/photo-1556910103-1c02745aae4d?auto=format&fit=crop&q=80&w=1200',
+      'https://images.unsplash.com/photo-1551218808-94e220e084d2?auto=format&fit=crop&q=80&w=1200'
+    ],
+    city: 'Miami', category: 'worker',
+    service_category: 'Private Chef', experience_years: 9, experience_level: 'expert',
+    latitude: 20.2454, longitude: -87.4654,
     is_active: true, status: 'active', created_at: new Date().toISOString()
   },
   {
-    id: 'demo-10',
-    title: 'Personal Fitness Trainer',
-    description: 'Certified strength & conditioning coach. Outdoor sessions on the beach or cenotes. Nutrition planning included.',
-    price: 60, pricing_unit: 'hour', currency: 'USD',
-    images: ['https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&q=80&w=1200'],
-    city: 'Tulum', category: 'worker',
+    id: 'demo-worker-3',
+    title: 'Lucia — Brazilian Fitness Coach',
+    description: 'Beach strength sessions, mobility work, nutrition planning, and high-energy wellness coaching.',
+    price: 70, pricing_unit: 'hour', currency: 'USD',
+    images: [
+      'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&q=80&w=1200',
+      'https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&q=80&w=1200',
+      'https://images.unsplash.com/photo-1518310383802-640c2de311b2?auto=format&fit=crop&q=80&w=1200'
+    ],
+    city: 'Canggu', category: 'worker',
     service_category: 'Personal Training', experience_years: 6, experience_level: 'intermediate',
-    latitude: 20.2454, longitude: -87.4654, // ~4km north
-    is_active: true, status: 'active', created_at: new Date().toISOString()
-  },
-  {
-    id: 'demo-13',
-    title: 'Mobile Massage Therapist',
-    description: 'Deep tissue, Swedish and sports massage. Travels to your villa or hotel. Towels, oils and music included.',
-    price: 90, pricing_unit: 'hour', currency: 'USD',
-    images: ['https://images.unsplash.com/photo-1544161515-4ab6ce6db874?auto=format&fit=crop&q=80&w=1200'],
-    city: 'Tulum', category: 'worker',
-    service_category: 'Massage Therapy', experience_years: 9, experience_level: 'expert',
-    latitude: 20.2214, longitude: -87.4754, // ~2km
+    latitude: 20.2214, longitude: -87.4754,
     is_active: true, status: 'active', created_at: new Date().toISOString()
   },
 ];
