@@ -36,9 +36,9 @@ export interface SimpleSwipeCardRef {
 }
 
 const SWIPE_THRESHOLD = 80;
-const VELOCITY_THRESHOLD = 280;
-const SKIP_THRESHOLD = 110;
-const SKIP_VELOCITY = 350;
+const VELOCITY_THRESHOLD = 260;
+const SKIP_THRESHOLD = 70;
+const SKIP_VELOCITY = 240;
 const FALLBACK_PLACEHOLDER = '';
 type DragAxis = 'x' | 'y' | null;
 
@@ -187,7 +187,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
       // While the hold-to-zoom timer is still pending, let the magnifier
       // hook decide (it cancels itself once movement exceeds its 25px threshold).
       // Only convert to drag once the magnifier has clearly bailed.
-      if ((dx > 28 || dy > 28) && !isMagnifierHoldPending()) {
+      if ((dx > 8 || dy > 8) && !isMagnifierHoldPending()) {
         magnifierPointerHandlers.onPointerUp(e); 
         dragStartedRef.current = true;
         isDragging.current = true;
