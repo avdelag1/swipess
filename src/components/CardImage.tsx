@@ -36,6 +36,7 @@ const CardImage = memo(({
   const optimizedSrc = isMarketingSlide ? src : getCardImageUrl(src ?? '');
   const blurSrc = useMemo(() => (!isMarketingSlide && src ? getBlurDataUrl(src) : null), [src, isMarketingSlide]);
   const wasInCache = useMemo(() => (src && !isMarketingSlide ? imageCache.has(src) : false), [src, isMarketingSlide]);
+  const [displaySrc, setDisplaySrc] = useState<string | null>(() => optimizedSrc || src || null);
 
   const [loaded, setLoaded] = useState<boolean>(() => {
     if (!src) return false;
@@ -58,6 +59,7 @@ const CardImage = memo(({
 
   useEffect(() => {
     setError(false);
+    setDisplaySrc(optimizedSrc || src || null);
 
     if (!src) {
       setLoaded(false);
@@ -90,6 +92,11 @@ const CardImage = memo(({
 
     img.onerror = () => {
       if (!mounted) return;
+      if (optimizedSrc && src && optimizedSrc !== src) {
+        setDisplaySrc(src);
+        img.src = src;
+        return;
+      }
       setError(true);
     };
 
@@ -200,7 +207,7 @@ const CardImage = memo(({
       )}
 
       <img
-        src={optimizedSrc || src}
+        src={displaySrc || optimizedSrc || src}
         alt={alt ?? ''}
         data-swipe-card-image="true"
         draggable={false}
@@ -232,7 +239,14 @@ const CardImage = memo(({
           if (src) imageCache.set(src, true);
           setLoaded(true);
         }}
-        onError={() => setError(true)}
+        onError={() => {
+          if (displaySrc && src && displaySrc !== src) {
+            setLoaded(false);
+            setDisplaySrc(src);
+            return;
+          }
+          setError(true);
+        }}
       />
     </div>
   );
