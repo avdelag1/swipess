@@ -93,10 +93,10 @@ export function SwipessHud({
       style={{
         willChange: 'transform, opacity, filter',
         transitionProperty: 'transform, opacity, filter',
-        transitionDuration: isVisible ? '520ms' : '420ms',
+        transitionDuration: isVisible ? '680ms' : '520ms',
         transitionTimingFunction: isVisible
-          ? 'cubic-bezier(0.16, 1.2, 0.3, 1)' // overshoot expo-out — premium snap
-          : 'cubic-bezier(0.7, 0, 0.84, 0)',  // expo-in — quick exit
+          ? 'cubic-bezier(0.22, 1.4, 0.36, 1)' // Apple spring — soft overshoot
+          : 'cubic-bezier(0.32, 0, 0.67, 0)',  // gentle expo-in fade
         visibility: fullyHidden ? 'hidden' : 'visible',
         pointerEvents: fullyHidden ? 'none' : undefined,
       }}
