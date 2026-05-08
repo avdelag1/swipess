@@ -90,9 +90,11 @@ const CardImage = memo(({
       setLoaded(true);
     };
 
+    let triedOriginal = false;
     img.onerror = () => {
       if (!mounted) return;
-      if (optimizedSrc && src && optimizedSrc !== src) {
+      if (!triedOriginal && optimizedSrc && src && optimizedSrc !== src) {
+        triedOriginal = true;
         setDisplaySrc(src);
         img.src = src;
         return;
