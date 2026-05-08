@@ -152,6 +152,7 @@ interface SimpleOwnerSwipeCardProps {
   canUndo?: boolean;
   fullScreen?: boolean;
   externalX?: any;
+  externalY?: any;
 }
 
 const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, SimpleOwnerSwipeCardProps>(({
@@ -163,6 +164,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   isTop = true,
   onDragStart,
   externalX,
+  externalY,
   onReport,
   onShare,
 }, ref) => {
@@ -176,8 +178,9 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   const { isLight } = useAppTheme();
 
   const _internalX = useMotionValue(0);
+  const _internalY = useMotionValue(0);
   const x = externalX ?? _internalX;
-  const y = useMotionValue(0);
+  const y = externalY ?? _internalY;
 
   // Tinder-style: horizontal = like/pass, vertical = skip-to-next.
   const cardRotate = useTransform(x, [-200, 0, 200], [-MAX_ROTATION, 0, MAX_ROTATION]);
@@ -304,9 +307,11 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
       hasExited.current = true;
       isExitingRef.current = true;
       triggerHaptic('light');
-      const exitY = dir * (window.innerHeight || 800) * 1.1;
-      animate(y, exitY, { type: 'tween', duration: 0.24, ease: [0.32, 0, 0.67, 0] });
-      setTimeout(() => onSkip(), 200);
+      // Cinematic vertical exit: card vanishes back into the deck while next card rises up.
+      const exitY = dir * (window.innerHeight || 800) * 0.85;
+      animate(y, exitY, { duration: 0.32, ease: [0.22, 1, 0.36, 1] });
+      animate(x, 0, { duration: 0.32, ease: [0.22, 1, 0.36, 1] });
+      setTimeout(() => onSkip(), 220);
     } else {
       animate(x, 0, { type: 'spring', ...ACTIVE_SPRING });
       animate(y, 0, { type: 'spring', ...ACTIVE_SPRING });
