@@ -276,8 +276,7 @@ export function AIListingWizard() {
           exit={{ opacity: 0 }}
           className={cn(
             "fixed inset-0 z-[2147483000] backdrop-blur-2xl flex items-start sm:items-center justify-center p-0 sm:p-6",
-            isLight ? "bg-white/40" : "bg-black/80",
-            showFinalForm && "pointer-events-none opacity-0"
+            isLight ? "bg-white/40" : "bg-black/80"
           )}
           style={{ paddingBottom: 'calc(var(--bottom-nav-height, 80px) + env(safe-area-inset-bottom, 0px))' }}
         >
@@ -551,7 +550,7 @@ export function AIListingWizard() {
                                     <label className={cn("text-[10px] font-black uppercase tracking-[0.2em] ml-2", textMuted)}>Total Beds</label>
                                     <input
                                        type="number"
-                                       onChange={(e) => setAiResult((prev: any) => ({ ...prev, beds: Number(e.target.value) }))}
+                                       onChange={(e) => setExtras((prev) => ({ ...prev, beds: Number(e.target.value) }))}
                                        placeholder="2"
                                        className={cn("w-full h-12 px-6 rounded-xl text-sm font-bold transition-all uppercase", inputCls)}
                                     />
@@ -560,7 +559,7 @@ export function AIListingWizard() {
                                     <label className={cn("text-[10px] font-black uppercase tracking-[0.2em] ml-2", textMuted)}>Bathrooms</label>
                                     <input
                                        type="number"
-                                       onChange={(e) => setAiResult((prev: any) => ({ ...prev, baths: Number(e.target.value) }))}
+                                       onChange={(e) => setExtras((prev) => ({ ...prev, baths: Number(e.target.value) }))}
                                        placeholder="1"
                                        className={cn("w-full h-12 px-6 rounded-xl text-sm font-bold transition-all uppercase", inputCls)}
                                     />
@@ -573,7 +572,7 @@ export function AIListingWizard() {
                                     <label className={cn("text-[10px] font-black uppercase tracking-[0.2em] ml-2", textMuted)}>Brand / Maker</label>
                                     <input
                                        type="text"
-                                       onChange={(e) => setAiResult((prev: any) => ({ ...prev, brand: e.target.value }))}
+                                       onChange={(e) => setExtras((prev) => ({ ...prev, brand: e.target.value }))}
                                        placeholder="Honda / BMW"
                                        className={cn("w-full h-12 px-6 rounded-xl text-sm font-bold transition-all uppercase", inputCls)}
                                     />
@@ -582,7 +581,7 @@ export function AIListingWizard() {
                                     <label className={cn("text-[10px] font-black uppercase tracking-[0.2em] ml-2", textMuted)}>Model Year</label>
                                     <input
                                        type="text"
-                                       onChange={(e) => setAiResult((prev: any) => ({ ...prev, year: e.target.value }))}
+                                       onChange={(e) => setExtras((prev) => ({ ...prev, year: e.target.value }))}
                                        placeholder="2023"
                                        className={cn("w-full h-12 px-6 rounded-xl text-sm font-bold transition-all uppercase", inputCls)}
                                     />
@@ -594,7 +593,7 @@ export function AIListingWizard() {
                                  <label className={cn("text-[10px] font-black uppercase tracking-[0.2em] ml-2", textMuted)}>Service Field</label>
                                  <input
                                     type="text"
-                                    onChange={(e) => setAiResult((prev: any) => ({ ...prev, service_category: e.target.value }))}
+                                    onChange={(e) => setExtras((prev) => ({ ...prev, service_category: e.target.value }))}
                                     placeholder="Web Dev / Electrician / Designer..."
                                     className={cn("w-full h-12 px-6 rounded-xl text-sm font-bold transition-all uppercase", inputCls)}
                                  />
@@ -603,19 +602,7 @@ export function AIListingWizard() {
                         </div>
 
                           <div className="flex items-center justify-between ml-2">
-                             <label className={cn("text-[10px] font-black uppercase tracking-[0.2em]", textMuted)}>Manual Override / Refinement</label>
-                             <div className="flex gap-2">
-                               {prompt.trim().length > 10 && (
-                                 <button 
-                                   onClick={handleRefinePrompt}
-                                   disabled={isRefining}
-                                   className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-[9px] font-black uppercase tracking-widest text-cyan-400 hover:bg-cyan-500/20 transition-all disabled:opacity-50"
-                                 >
-                                   {isRefining ? <Loader2 className="w-3 h-3 animate-spin" /> : <Wand2 className="w-3 h-3" />}
-                                   Refine Intel
-                                 </button>
-                               )}
-                             </div>
+                             <label className={cn("text-[10px] font-black uppercase tracking-[0.2em]", textMuted)}>Manual Override</label>
                           </div>
                           <div className="relative">
                              <Search className="absolute left-5 top-5 w-4 h-4 text-cyan-400 opacity-60" />
@@ -640,17 +627,17 @@ export function AIListingWizard() {
                         <Button
                           onClick={handleProcess}
                           disabled={!prompt.trim() || isProcessing}
-                          className="w-full h-18 rounded-[2.5rem] bg-cyan-500 hover:bg-cyan-400 text-black font-black uppercase tracking-[0.3em] text-[12px] transition-all shadow-[0_20px_60px_rgba(34,211,238,0.4)] disabled:opacity-20"
+                          className="w-full h-16 rounded-[2.5rem] bg-primary text-primary-foreground hover:brightness-110 font-black uppercase tracking-[0.3em] text-[12px] transition-all shadow-[0_20px_60px_hsl(var(--primary)/0.4)] disabled:opacity-30"
                         >
                           {isProcessing ? (
                             <>
                               <Loader2 className="w-5 h-5 mr-4 animate-spin" />
-                              Synchronizing Array...
+                              Publishing...
                             </>
                           ) : (
                             <>
                               <Zap className="w-5 h-5 mr-4 active:scale-125 transition-transform" />
-                              Initialize Optimization
+                              Create Listing
                             </>
                           )}
                         </Button>
@@ -664,115 +651,49 @@ export function AIListingWizard() {
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
-                      className="h-full flex flex-col items-center justify-center space-y-16 py-20"
+                      className="h-full flex flex-col items-center justify-center space-y-10 py-20"
                     >
-                      <div className="relative scale-125">
-                        <motion.div 
-                           className="absolute inset-[-40px] border border-cyan-500/20 rounded-[4rem]" 
-                           animate={{ rotate: 360 }}
-                           transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-                        />
-                        <motion.div 
-                           className="absolute inset-[-20px] border border-indigo-500/20 rounded-[3rem]" 
-                           animate={{ rotate: -360 }}
-                           transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-                        />
-                        <div className="w-32 h-32 rounded-[3.5rem] border-2 border-cyan-500/40 flex items-center justify-center relative bg-black shadow-[0_0_80px_rgba(34,211,238,0.2)]">
-                          <Wand2 className="w-12 h-12 text-cyan-400" />
-                          <motion.div 
-                             className="absolute inset-0 border-2 border-cyan-400 rounded-[3.5rem]" 
-                             animate={{ scale: [1, 1.15, 1], opacity: [0.5, 0, 0.5] }}
-                             transition={{ duration: 2, repeat: Infinity }}
+                      {/* Circular progress */}
+                      <div className="relative w-40 h-40">
+                        <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
+                          <circle cx="50" cy="50" r="44" stroke="currentColor" strokeWidth="6" fill="none" className={cn(isLight ? "text-black/10" : "text-white/10")} />
+                          <motion.circle
+                            cx="50" cy="50" r="44"
+                            stroke="hsl(var(--primary))" strokeWidth="6" fill="none"
+                            strokeLinecap="round"
+                            strokeDasharray={2 * Math.PI * 44}
+                            initial={{ strokeDashoffset: 2 * Math.PI * 44 }}
+                            animate={{ strokeDashoffset: 2 * Math.PI * 44 * (1 - progressPct / 100) }}
+                            transition={{ duration: 0.6, ease: 'easeOut' }}
                           />
+                        </svg>
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <span className={cn("text-3xl font-black tabular-nums", textPrimary)}>{Math.round(progressPct)}%</span>
                         </div>
                       </div>
 
-                      <div className="text-center space-y-4">
-                         <h3 className={cn("text-2xl font-black uppercase italic tracking-tighter", textPrimary)}>Manifesting Intel</h3>
-                         <div className="flex flex-col gap-2 items-center">
-                            <span className="text-[11px] font-black text-cyan-400 uppercase tracking-[0.3em]">Neural Synthesis Active</span>
-                            <div className="flex items-center gap-4">
-                               <div className="h-0.5 w-12 bg-gradient-to-r from-transparent to-white/10" />
-                               <span className={cn("text-[9px] font-bold uppercase tracking-[0.4em]", textSubtle)}>Flagship Intelligence</span>
-                               <div className="h-0.5 w-12 bg-gradient-to-l from-transparent to-white/10" />
-                            </div>
-                         </div>
-                      </div>
-                    </motion.div>
-                  )}
-
-                  {step === 'review' && (
-                    <motion.div 
-                      key="step-review"
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -20 }}
-                      className="space-y-10"
-                    >
-                      <div className="space-y-3">
-                        <h3 className={cn("text-3xl font-black tracking-tighter uppercase italic leading-none", textPrimary)}>Target Manifested</h3>
-                        <p className={cn("text-[11px] leading-relaxed uppercase tracking-[0.2em]", textMuted)}>Autonomous refinement complete. Validate the synthesized data before final deployment.</p>
-                      </div>
-
-                      <div className={cn(
-                        "p-8 rounded-[3rem] border relative group overflow-hidden shadow-2xl",
-                        reviewCardCls,
-                      )}>
-                        <div className="absolute top-0 right-0 p-4 opacity-20">
-                           <Check className="w-10 h-10 text-cyan-400" />
+                      <div className="text-center space-y-3">
+                        <h3 className={cn("text-2xl font-black uppercase italic tracking-tighter", textPrimary)}>
+                          {progressPhase === 'upload' && 'Uploading photos'}
+                          {progressPhase === 'optimize' && 'Polishing description'}
+                          {progressPhase === 'publish' && 'Publishing listing'}
+                          {progressPhase === 'redirect' && 'Opening your listing'}
+                        </h3>
+                        <div className="flex items-center justify-center gap-2 flex-wrap">
+                          {(['upload','optimize','publish','redirect'] as ProgressPhase[]).map((p) => (
+                            <span
+                              key={p}
+                              className={cn(
+                                'text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full border',
+                                progressPhase === p
+                                  ? 'bg-primary text-primary-foreground border-transparent'
+                                  : isLight ? 'border-black/10 text-black/40' : 'border-white/10 text-white/40'
+                              )}
+                            >
+                              {p}
+                            </span>
+                          ))}
                         </div>
-
-                        <div className="space-y-6 relative z-10">
-                           <div className="space-y-1">
-                             <span className="text-[10px] font-black uppercase tracking-widest text-cyan-400/60">Optimized Title</span>
-                             <p className={cn("text-xl font-black italic leading-tight", textPrimary)}>{aiResult?.title}</p>
-                           </div>
-                           
-                           <div className="grid grid-cols-2 gap-8">
-                               <div className="space-y-1">
-                                 <span className="text-[10px] font-black uppercase tracking-widest text-cyan-400/60">Price Node</span>
-                                 <p className={cn("text-2xl font-black italic", textPrimary)}>${aiResult?.price?.toLocaleString()}</p>
-                               </div>
-                               <div className="space-y-1 text-right">
-                                 <span className="text-[10px] font-black uppercase tracking-widest text-cyan-400/60">Geo Location</span>
-                                 <p className={cn("text-base font-bold uppercase italic", textPrimary)}>{aiResult?.city || 'Tulum'}</p>
-                               </div>
-                           </div>
-
-                           <div className={cn("h-px", dividerCls)} />
-
-                           <div className="space-y-2">
-                             <span className="text-[10px] font-black uppercase tracking-widest text-cyan-400/60">Syndicated Narrative</span>
-                             <div className="max-h-32 overflow-y-auto Swipess-scroll pr-2">
-                                <p className={cn("text-xs leading-relaxed italic", textMuted)}>{aiResult?.description}</p>
-                             </div>
-                           </div>
-                        </div>
-                        
-                        {/* Status Bar */}
-                        <div className={cn("mt-8 pt-6 border-t flex items-center justify-between", headerBorder)}>
-                           <div className="flex items-center gap-2">
-                              <div className="w-2 h-2 bg-cyan-500 rounded-full animate-pulse" />
-                              <span className={cn("text-[9px] font-black uppercase tracking-widest", textMuted)}>Market Ready</span>
-                           </div>
-                           <span className={cn("text-[9px] font-black uppercase tracking-widest", textMuted)}>v4.0.0 Sentinel</span>
-                        </div>
-                      </div>
-
-                      <div className="pt-4 space-y-4">
-                        <Button
-                          onClick={handleLaunchForm}
-                          className="w-full h-20 rounded-[2.5rem] bg-indigo-600 hover:bg-indigo-500 text-white font-black uppercase tracking-[0.3em] text-[13px] transition-all shadow-[0_30px_70px_rgba(79,70,229,0.45)] group"
-                        >
-                          Deploy to Swipess
-                          <ChevronRight className="w-5 h-5 ml-4 group-hover:translate-x-1 transition-transform" />
-                        </Button>
-                        <button 
-                           onClick={() => setStep('details')}
-                           className={cn("w-full py-4 text-[10px] font-black uppercase tracking-widest hover:text-cyan-400 transition-all italic", textSubtle)}
-                        >
-                           Recalibrate Intelligence
-                        </button>
                       </div>
                     </motion.div>
                   )}
@@ -782,20 +703,6 @@ export function AIListingWizard() {
           </motion.div>
         </motion.div>
       </AnimatePresence>
-
-      {showFinalForm && aiResult && (
-        <UnifiedListingForm
-          isOpen={showFinalForm}
-          onClose={() => {
-            setShowFinalForm(false);
-            handleClose();
-          }}
-          editingProperty={{
-            ...aiResult,
-            mode: 'rent'
-          }}
-        />
-      )}
     </>
   );
 }
