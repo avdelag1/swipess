@@ -14,20 +14,24 @@ import { triggerHaptic } from '@/utils/haptics';
  *   { y, scale, opacity, bind }  — bind is a set of pointer handlers.
  */
 export function usePullDownToDismiss(opts?: { threshold?: number }) {
-  const threshold = opts?.threshold ?? 110;
+  const threshold = opts?.threshold ?? 90;
   const y = useMotionValue(0);
   // Curtain: smooth linear fall, light scale-down, fade out as it goes
-  const scale = useTransform(y, [0, 200, 420], [1, 0.92, 0.78], { clamp: true });
-  const opacity = useTransform(y, [0, 120, 300], [1, 0.85, 0], { clamp: true });
-  const blur = useTransform(y, [0, 180, 340], ['blur(0px)', 'blur(4px)', 'blur(14px)'], { clamp: true });
+  const scale = useTransform(y, [0, 180, 420], [1, 0.93, 0.78], { clamp: true });
+  const opacity = useTransform(y, [0, 100, 280], [1, 0.85, 0], { clamp: true });
+  const blur = useTransform(y, [0, 160, 320], ['blur(0px)', 'blur(3px)', 'blur(12px)'], { clamp: true });
 
   // Backdrop reveal — dashboard sitting behind the deck.
-  const backdropOpacity = useTransform(y, [0, 20, 160], [0, 0.5, 1], { clamp: true });
-  const backdropScale = useTransform(y, [0, 200], [0.96, 1], { clamp: true });
-  const backdropBlur = useTransform(y, [0, 200], ['blur(10px)', 'blur(0px)'], { clamp: true });
+  const backdropOpacity = useTransform(y, [0, 12, 120], [0, 0.6, 1], { clamp: true });
+  const backdropScale = useTransform(y, [0, 180], [0.97, 1], { clamp: true });
+  const backdropBlur = useTransform(y, [0, 180], ['blur(8px)', 'blur(0px)'], { clamp: true });
 
   const startY = useRef<number | null>(null);
   const startX = useRef<number | null>(null);
+  const startT = useRef<number>(0);
+  const lastY = useRef<number>(0);
+  const lastT = useRef<number>(0);
+  const velocity = useRef<number>(0);
   const active = useRef(false);
   const exiting = useRef(false);
 
@@ -40,23 +44,27 @@ export function usePullDownToDismiss(opts?: { threshold?: number }) {
     exiting.current = true;
     active.current = false;
     triggerHaptic('medium');
-    animate(y, 520, { duration: 0.34, ease: [0.22, 1, 0.36, 1] });
+    animate(y, 560, { duration: 0.26, ease: [0.32, 0.72, 0, 1] });
     setTimeout(() => {
       setActiveCategory(null as any);
       navigate(`/${activeMode}/dashboard`);
       y.set(0);
       exiting.current = false;
-    }, 240);
+    }, 180);
   }, [activeMode, navigate, setActiveCategory, y]);
 
   const onPointerDown = (e: React.PointerEvent) => {
     if (exiting.current) return;
     if ((e.target as HTMLElement)?.closest('[data-no-pull-dismiss], [data-no-cinematic], button, a')) return;
-    // Only initiate when the touch starts near the top of the viewport,
-    // so the swipe-card horizontal/zoom gestures stay untouched.
-    if (e.clientY > 150) return;
+    // Allow start anywhere on the upper 60% of the deck — gives the user room.
+    const h = window.innerHeight || 800;
+    if (e.clientY > h * 0.6) return;
     startY.current = e.clientY;
     startX.current = e.clientX;
+    startT.current = performance.now();
+    lastY.current = e.clientY;
+    lastT.current = startT.current;
+    velocity.current = 0;
     active.current = false;
   };
 
@@ -65,11 +73,11 @@ export function usePullDownToDismiss(opts?: { threshold?: number }) {
     const dy = e.clientY - startY.current;
     const dx = Math.abs(e.clientX - startX.current);
     if (!active.current) {
-      // Strict vertical lock — engage only on clear downward motion.
-      if (dy > 10 && dy > dx * 2.2) {
+      // Snappy vertical lock — engage on the smallest clear downward intent.
+      if (dy > 6 && dy > dx * 1.6) {
         active.current = true;
         e.currentTarget.setPointerCapture?.(e.pointerId);
-      } else if (dx > 8) {
+      } else if (dx > 6) {
         // Horizontal motion — abandon the pull
         startY.current = null;
         startX.current = null;
@@ -78,6 +86,12 @@ export function usePullDownToDismiss(opts?: { threshold?: number }) {
         return;
       }
     }
+    // Track velocity (px/ms) for flick-to-dismiss
+    const now = performance.now();
+    const dt = Math.max(1, now - lastT.current);
+    velocity.current = (e.clientY - lastY.current) / dt;
+    lastY.current = e.clientY;
+    lastT.current = now;
     e.preventDefault();
     e.stopPropagation();
     // Pure vertical curtain — no horizontal influence at all
@@ -89,7 +103,7 @@ export function usePullDownToDismiss(opts?: { threshold?: number }) {
     startY.current = null;
     startX.current = null;
     active.current = false;
-    animate(y, 0, { type: 'spring', stiffness: 380, damping: 36, mass: 0.6 });
+    animate(y, 0, { type: 'spring', stiffness: 520, damping: 38, mass: 0.55 });
   };
 
   const onPointerUp = () => {
@@ -98,7 +112,9 @@ export function usePullDownToDismiss(opts?: { threshold?: number }) {
       return;
     }
     const current = y.get();
-    if (current >= threshold) {
+    // Flick-to-dismiss: a fast downward flick commits even if distance is short
+    const flicked = velocity.current > 0.55 && current > 30;
+    if (current >= threshold || flicked) {
       commitDismiss();
     } else {
       reset();
@@ -113,10 +129,15 @@ export function usePullDownToDismiss(opts?: { threshold?: number }) {
       const target = event.target as HTMLElement | null;
       if (target?.closest('[data-no-pull-dismiss], [data-no-cinematic], button, a')) return;
       const touch = event.touches[0];
-      if (!touch || touch.clientY > 150) return;
+      const h = window.innerHeight || 800;
+      if (!touch || touch.clientY > h * 0.6) return;
       touchId = touch.identifier;
       startY.current = touch.clientY;
       startX.current = touch.clientX;
+      startT.current = performance.now();
+      lastY.current = touch.clientY;
+      lastT.current = startT.current;
+      velocity.current = 0;
       active.current = false;
     };
 
@@ -127,14 +148,19 @@ export function usePullDownToDismiss(opts?: { threshold?: number }) {
       const dy = touch.clientY - startY.current;
       const dx = Math.abs(touch.clientX - startX.current);
       if (!active.current) {
-        if (dy > 10 && dy > dx * 2.2) active.current = true;
-        else if (dx > 10) {
+        if (dy > 6 && dy > dx * 1.6) active.current = true;
+        else if (dx > 6) {
           startY.current = null;
           startX.current = null;
           touchId = null;
           return;
         } else return;
       }
+      const now = performance.now();
+      const dt = Math.max(1, now - lastT.current);
+      velocity.current = (touch.clientY - lastY.current) / dt;
+      lastY.current = touch.clientY;
+      lastT.current = now;
       event.preventDefault();
       const pull = Math.max(0, dy);
       y.set(pull);
@@ -144,7 +170,9 @@ export function usePullDownToDismiss(opts?: { threshold?: number }) {
       if (touchId == null && !active.current) return;
       touchId = null;
       if (!active.current) { reset(); return; }
-      y.get() >= threshold ? commitDismiss() : reset();
+      const cur = y.get();
+      const flicked = velocity.current > 0.55 && cur > 30;
+      (cur >= threshold || flicked) ? commitDismiss() : reset();
     };
 
     window.addEventListener('touchstart', onTouchStart, { passive: true });
