@@ -192,10 +192,10 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
                 onClick={() => handleCategoryChange(id)}
                 whileTap={{ scale: 0.96 }}
                 className={cn(
-                  "flex items-center gap-2.5 px-6 py-3.5 rounded-3xl text-sm font-black whitespace-nowrap transition-all flex-shrink-0 border",
+                  "flex items-center gap-2.5 px-6 py-3.5 rounded-3xl text-sm font-black whitespace-nowrap transition-all flex-shrink-0 border-2",
                   selectedCategory === id
-                    ? (isLight ? "bg-foreground text-background shadow-xl shadow-black/10 border-foreground" : "bg-[var(--color-brand-accent-2)] text-white shadow-lg shadow-[var(--color-brand-accent-2)]/20 border-[var(--color-brand-accent-2)]")
-                    : "bg-card border-border text-foreground/80 font-black hover:text-foreground hover:bg-secondary shadow-sm"
+                    ? "bg-[var(--color-brand-accent-2)] text-white border-[var(--color-brand-accent-2)] shadow-lg shadow-[var(--color-brand-accent-2)]/30"
+                    : "bg-card border-border text-foreground hover:bg-secondary shadow-sm"
                 )}
               >
                 <Icon className="w-4 h-4" />
@@ -244,10 +244,10 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
                   key={opt.value}
                   onClick={() => setSortBy(opt.value)}
                   className={cn(
-                    "px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all active:scale-95 whitespace-nowrap",
+                    "px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border-2 transition-all active:scale-95 whitespace-nowrap",
                     sortBy === opt.value
-                      ? (isLight ? "bg-foreground text-background shadow-md border-foreground" : "bg-[var(--color-brand-accent-2)] border-[var(--color-brand-accent-2)] text-white shadow-md")
-                      : "bg-card border-border text-foreground/80 font-black hover:text-foreground hover:bg-secondary"
+                      ? "bg-[var(--color-brand-accent-2)] border-[var(--color-brand-accent-2)] text-white shadow-md"
+                      : "bg-card border-border text-foreground hover:bg-secondary"
                   )}
                 >
                   {opt.label}
