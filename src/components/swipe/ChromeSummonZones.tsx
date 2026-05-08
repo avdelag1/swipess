@@ -16,7 +16,6 @@ export function ChromeSummonZones() {
   const lastFireRef = useRef(0);
 
   const onPointerDown = useCallback((e: React.PointerEvent) => {
-    e.stopPropagation();
     downRef.current = { t: performance.now(), x: e.clientX, y: e.clientY };
   }, []);
 
@@ -47,7 +46,6 @@ export function ChromeSummonZones() {
         onPointerDown={onPointerDown}
         onPointerUp={onPointerUp}
         onPointerCancel={onPointerCancel}
-        data-no-pull-dismiss
         aria-hidden="true"
         style={{
           position: 'fixed',
@@ -58,7 +56,7 @@ export function ChromeSummonZones() {
           zIndex: 10010,
           background: 'transparent',
           pointerEvents: 'auto',
-          touchAction: 'manipulation',
+          touchAction: 'pan-y',
         }}
       >
         {/* Breathing affordance: tap to summon header */}
