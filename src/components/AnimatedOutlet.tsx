@@ -6,10 +6,21 @@ export function AnimatedOutlet() {
   const outlet = useOutlet();
   const location = useLocation();
 
+  // On the persistent dashboard routes the outlet is empty by design
+  // (the dashboard is rendered by PersistentDashboardScene below). We
+  // make the outlet wrapper fully transparent so that layer shows
+  // through; on every other route we keep `bg-background` so the page
+  // fully covers the dashboard underneath.
+  const isDashboardRoute =
+    location.pathname === '/client/dashboard' ||
+    location.pathname === '/owner/dashboard' ||
+    location.pathname.startsWith('/client/dashboard/') ||
+    location.pathname.startsWith('/owner/dashboard/');
+
   return (
     <div
-      className="min-h-full w-full flex flex-col flex-1 bg-background"
-      style={{ position: 'relative' }}
+      className={`min-h-full w-full flex flex-col flex-1 ${isDashboardRoute ? 'bg-transparent' : 'bg-background'}`}
+      style={{ position: 'relative', pointerEvents: isDashboardRoute ? 'none' : 'auto' }}
     >
       {/* No mode="wait" — that holds the old screen on-screen for the full exit
           duration before painting the new one, which makes navigation feel
@@ -28,8 +39,8 @@ export function AnimatedOutlet() {
           initial={{ opacity: 0.001 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.16, ease: [0.22, 1, 0.36, 1] }}
-          className="flex-1 w-full flex flex-col bg-transparent"
-          style={{ position: 'absolute', inset: 0 }}
+          className={`flex-1 w-full flex flex-col ${isDashboardRoute ? 'bg-transparent' : 'bg-background'}`}
+          style={{ position: 'absolute', inset: 0, pointerEvents: isDashboardRoute ? 'none' : 'auto' }}
         >
           <Suspense fallback={null}>
             {outlet}

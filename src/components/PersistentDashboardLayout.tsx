@@ -9,6 +9,7 @@ import { createPortal } from 'react-dom';
 import { useMatchRealtime } from '@/hooks/useMatchRealtime';
 import { useLikesRealtime } from '@/hooks/useLikesRealtime';
 import { ChunkErrorBoundary } from '@/components/ChunkErrorBoundary';
+import { PersistentDashboardScene } from '@/components/dashboard/PersistentDashboardScene';
 
 // Global match celebration modal
 const MatchCelebration = lazyWithRetry(() => import('./MatchCelebration').then(m => ({ default: m.MatchCelebration })));
@@ -74,9 +75,17 @@ export function PersistentDashboardLayout() {
     <DashboardLayout userRole={userRole}>
       <div
         id="swipess-dashboard-root"
-        className="flex min-h-full w-full flex-1 flex-col"
+        className="flex min-h-full w-full flex-1 flex-col relative"
       >
-        <AnimatedOutlet />
+        {/* Persistent dashboard layer — mounted once, hidden via CSS on
+            non-dashboard routes. Sits BELOW the outlet (z-0). */}
+        <PersistentDashboardScene />
+        {/* Outlet renders other routes ON TOP of the persistent dashboard
+            (z-10). On /client/dashboard and /owner/dashboard the outlet
+            renders an empty placeholder so the persistent layer shows. */}
+        <div className="relative flex-1 flex flex-col" style={{ zIndex: 10 }}>
+          <AnimatedOutlet />
+        </div>
       </div>
 
       {/* GLOBAL MODALS PORTAL */}
