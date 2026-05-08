@@ -258,7 +258,8 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
       animate(y, exitY, { duration: 0.32, ease: [0.22, 1, 0.36, 1] });
       animate(x, 0, { duration: 0.18, ease: [0.22, 1, 0.36, 1] });
       setTimeout(() => {
-        if (dir > 0) onSkip?.();
+        // Tinder-style: swipe UP (dir < 0) = next listing, swipe DOWN (dir > 0) = previous.
+        if (dir < 0) onSkip?.();
         else onSkipBack?.();
       }, 300);
     } else {
