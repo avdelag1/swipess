@@ -998,7 +998,7 @@ const ClientSwipeContainerComponent = ({
               </motion.div>
             )}
           </AnimatePresence>
-        </div>
+        </motion.div>
         </div>
 
 
