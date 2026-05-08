@@ -3,6 +3,7 @@ import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useActiveMode } from '@/hooks/useActiveMode';
 import { triggerHaptic } from '@/utils/haptics';
 import { useFilterStore } from '@/state/filterStore';
+import { hideChrome } from '@/hooks/useChromeReveal';
 
 /**
  * Persistent back arrow shown inside the swipe deck region.
@@ -17,9 +18,16 @@ export function SwipeDeckBackButton() {
   return (
     <button
       data-no-cinematic
+      data-no-pull-dismiss
+      onPointerDown={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      }}
       onClick={(e) => {
+        e.preventDefault();
         e.stopPropagation();
         triggerHaptic('light');
+        hideChrome();
         // Exiting the deck means clearing the active category so the
         // dashboard returns to the category-picker / poker-hand state.
         setActiveCategory(null as any);
