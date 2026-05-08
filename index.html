@@ -152,16 +152,31 @@
   <script>
     (function() {
       const splash = document.getElementById('static-splash');
+      let appReady = false;
+      let windowLoaded = false;
       const fadeOut = () => {
         if (splash && !splash.classList.contains('fade-out')) {
           splash.classList.add('fade-out');
-          setTimeout(() => splash.remove(), 400);
+          setTimeout(() => splash.remove(), 700);
         }
       };
-      // Listen for Swipess hydration signal
-      window.addEventListener('swipess-ready', fadeOut);
-      window.addEventListener('load', () => setTimeout(fadeOut, 150));
-      setTimeout(fadeOut, 1200);
+      const tryFade = () => {
+        // Only fade once BOTH the app shell has signaled ready AND
+        // the window 'load' event has fired (meaning preloaded images,
+        // fonts and other static assets are decoded). This keeps the
+        // breathing Swipess wordmark on screen as a true loading page.
+        if (appReady && windowLoaded) fadeOut();
+      };
+      window.addEventListener('swipess-ready', () => { appReady = true; tryFade(); });
+      window.addEventListener('app-rendered', () => { appReady = true; tryFade(); });
+      window.addEventListener('load', () => {
+        // Give the browser a beat to paint the first frame of real UI
+        // underneath before we fade the splash.
+        windowLoaded = true;
+        setTimeout(tryFade, 250);
+      });
+      // Hard safety cap — never trap the user behind the splash.
+      setTimeout(fadeOut, 6000);
     })();
   </script>
 </body>
