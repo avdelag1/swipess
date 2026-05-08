@@ -14,17 +14,17 @@ import { triggerHaptic } from '@/utils/haptics';
  *   { y, scale, opacity, bind }  — bind is a set of pointer handlers.
  */
 export function usePullDownToDismiss(opts?: { threshold?: number }) {
-  const threshold = opts?.threshold ?? 90;
+  const threshold = opts?.threshold ?? 70;
   const y = useMotionValue(0);
-  // Curtain: smooth linear fall, light scale-down, fade out as it goes
-  const scale = useTransform(y, [0, 180, 420], [1, 0.93, 0.78], { clamp: true });
-  const opacity = useTransform(y, [0, 100, 280], [1, 0.85, 0], { clamp: true });
-  const blur = useTransform(y, [0, 160, 320], ['blur(0px)', 'blur(3px)', 'blur(12px)'], { clamp: true });
+  // Curtain: silky fall — eased scale-down with deep fade for a clean reveal.
+  const scale = useTransform(y, [0, 200, 500], [1, 0.92, 0.7], { clamp: true });
+  const opacity = useTransform(y, [0, 80, 260], [1, 0.88, 0], { clamp: true });
+  const blur = useTransform(y, [0, 140, 280], ['blur(0px)', 'blur(2px)', 'blur(10px)'], { clamp: true });
 
-  // Backdrop reveal — dashboard sitting behind the deck.
-  const backdropOpacity = useTransform(y, [0, 12, 120], [0, 0.6, 1], { clamp: true });
-  const backdropScale = useTransform(y, [0, 180], [0.97, 1], { clamp: true });
-  const backdropBlur = useTransform(y, [0, 180], ['blur(8px)', 'blur(0px)'], { clamp: true });
+  // Backdrop reveal — dashboard rises up smoothly behind the deck.
+  const backdropOpacity = useTransform(y, [0, 8, 90], [0, 0.55, 1], { clamp: true });
+  const backdropScale = useTransform(y, [0, 140], [0.94, 1], { clamp: true });
+  const backdropBlur = useTransform(y, [0, 140], ['blur(10px)', 'blur(0px)'], { clamp: true });
 
   const startY = useRef<number | null>(null);
   const startX = useRef<number | null>(null);
@@ -44,13 +44,14 @@ export function usePullDownToDismiss(opts?: { threshold?: number }) {
     exiting.current = true;
     active.current = false;
     triggerHaptic('medium');
-    animate(y, 560, { duration: 0.26, ease: [0.32, 0.72, 0, 1] });
+    const vh = typeof window !== 'undefined' ? window.innerHeight : 720;
+    animate(y, vh * 0.95, { duration: 0.34, ease: [0.22, 1, 0.36, 1] });
     setTimeout(() => {
       setActiveCategory(null as any);
       navigate(`/${activeMode}/dashboard`);
       y.set(0);
       exiting.current = false;
-    }, 180);
+    }, 240);
   }, [activeMode, navigate, setActiveCategory, y]);
 
   const onPointerDown = (e: React.PointerEvent) => {
@@ -74,11 +75,11 @@ export function usePullDownToDismiss(opts?: { threshold?: number }) {
     const dy = e.clientY - startY.current;
     const dx = Math.abs(e.clientX - startX.current);
     if (!active.current) {
-      // Snappy vertical lock — engage on the smallest clear downward intent.
-      if (dy > 6 && dy > dx * 1.6) {
+      // Highly sensitive vertical lock — engage on the slightest downward intent.
+      if (dy > 3 && dy > dx * 1.1) {
         active.current = true;
         e.currentTarget.setPointerCapture?.(e.pointerId);
-      } else if (dx > 6) {
+      } else if (dx > 8) {
         // Horizontal motion — abandon the pull
         startY.current = null;
         startX.current = null;
@@ -104,7 +105,7 @@ export function usePullDownToDismiss(opts?: { threshold?: number }) {
     startY.current = null;
     startX.current = null;
     active.current = false;
-    animate(y, 0, { type: 'spring', stiffness: 520, damping: 38, mass: 0.55 });
+    animate(y, 0, { type: 'spring', stiffness: 620, damping: 44, mass: 0.5 });
   };
 
   const onPointerUp = () => {
@@ -113,8 +114,8 @@ export function usePullDownToDismiss(opts?: { threshold?: number }) {
       return;
     }
     const current = y.get();
-    // Flick-to-dismiss: a fast downward flick commits even if distance is short
-    const flicked = velocity.current > 0.55 && current > 30;
+    // Flick-to-dismiss: even a soft downward flick commits.
+    const flicked = velocity.current > 0.35 && current > 20;
     if (current >= threshold || flicked) {
       commitDismiss();
     } else {
@@ -148,8 +149,8 @@ export function usePullDownToDismiss(opts?: { threshold?: number }) {
       const dy = touch.clientY - startY.current;
       const dx = Math.abs(touch.clientX - startX.current);
       if (!active.current) {
-        if (dy > 6 && dy > dx * 1.6) active.current = true;
-        else if (dx > 6) {
+        if (dy > 3 && dy > dx * 1.1) active.current = true;
+        else if (dx > 8) {
           startY.current = null;
           startX.current = null;
           touchId = null;
@@ -171,7 +172,7 @@ export function usePullDownToDismiss(opts?: { threshold?: number }) {
       touchId = null;
       if (!active.current) { reset(); return; }
       const cur = y.get();
-      const flicked = velocity.current > 0.55 && cur > 30;
+      const flicked = velocity.current > 0.35 && cur > 20;
       (cur >= threshold || flicked) ? commitDismiss() : reset();
     };
 
