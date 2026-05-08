@@ -257,23 +257,22 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
   const topCardX = useMotionValue(0);
   const topCardY = useMotionValue(0);
 
+  // Behind-card preview reacts only to HORIZONTAL drag (like/pass).
+  // Vertical browse should feel like a page-turn — the next card stays
+  // hidden underneath until the top card commits and the new top paints.
   const nextCardScale = useTransform(
     [topCardX, topCardY] as any,
-    ([cx, cy]: any) => {
-      const a = Math.min(1, Math.abs(cx) / 280);
-      const b = Math.min(1, Math.abs(cy) / 240);
-      const t = Math.max(a, b);
-      // resting at 0.97, rising to 1.0 as the top card leaves
+    ([cx, _cy]: any) => {
+      const t = Math.min(1, Math.abs(cx) / 280);
       return 0.97 + 0.03 * t;
     }
   );
   const nextCardOpacity = useTransform(
     [topCardX, topCardY] as any,
-    ([cx, cy]: any) => {
-      const a = Math.min(1, Math.abs(cx) / 280);
-      const b = Math.min(1, Math.abs(cy) / 240);
-      const t = Math.max(a, b);
-      return 0.72 + 0.26 * t;
+    ([cx, _cy]: any) => {
+      const t = Math.min(1, Math.abs(cx) / 280);
+      // Hidden at rest; rises only once horizontal intent is clear.
+      return t < 0.15 ? 0 : (t - 0.15) / 0.85;
     }
   );
 
