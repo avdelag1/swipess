@@ -218,7 +218,7 @@ export function LikedClients() {
                 boxShadow: '0 6px 20px rgba(255,77,0,0.35)'
               } : {
                 backgroundColor: isLight ? '#ffffff' : 'rgba(255,255,255,0.04)',
-                borderColor: isLight ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.08)',
+                borderColor: isLight ? 'rgba(0,0,0,0.18)' : 'rgba(255,255,255,0.18)',
                 color: isLight ? '#1a1a1a' : '#ffffff',
                 boxShadow: isLight ? '0 4px 12px rgba(0,0,0,0.04)' : 'none'
               }}
@@ -255,7 +255,7 @@ export function LikedClients() {
                 color: 'white'
               } : {
                 backgroundColor: isLight ? '#ffffff' : 'rgba(255,255,255,0.04)',
-                borderColor: isLight ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.08)',
+                borderColor: isLight ? 'rgba(0,0,0,0.18)' : 'rgba(255,255,255,0.18)',
                 color: isLight ? '#1a1a1a' : '#ffffff',
                 boxShadow: isLight ? '0 2px 8px rgba(0,0,0,0.04)' : 'none'
               }}

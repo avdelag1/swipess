@@ -948,8 +948,10 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                          onClick={handleSend}
                          disabled={!input.trim() || isLoading}
                          className={cn(
-                           "h-12 w-12 shrink-0 rounded-full inline-flex items-center justify-center transition-all active:scale-90 shadow-[0_10px_28px_hsl(var(--primary)/0.4)]",
-                           "bg-primary text-primary-foreground hover:bg-primary/90",
+                           "h-12 w-12 shrink-0 rounded-full inline-flex items-center justify-center transition-all active:scale-90",
+                           isLight && !isSwipess
+                             ? "bg-foreground text-background shadow-[0_10px_28px_rgba(0,0,0,0.28)] hover:bg-foreground/90"
+                             : "bg-white text-black shadow-[0_10px_28px_rgba(0,0,0,0.45)] hover:bg-white/90",
                            (!input.trim() || isLoading) && "opacity-40 shadow-none"
                          )}
                          aria-label="Send message"
