@@ -381,10 +381,12 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
         drag
         dragControls={dragControls}
         dragListener={false}
+        dragDirectionLock
         dragMomentum={false}
         dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
-        dragElastic={0.85}
+        dragElastic={0.18}
         onDragStart={handleDragStart}
+        onDirectionLock={handleDirectionLock}
         onDragEnd={handleDragEnd}
         onPointerDown={handleUnifiedPointerDown}
         onPointerMove={handleUnifiedPointerMove}
@@ -394,7 +396,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
         animate={{ scale: 1, opacity: 1, transition: { type: 'spring', stiffness: 400, damping: 28, mass: 0.6 } }}
         className="flex-1 cursor-grab active:cursor-grabbing select-none touch-none relative w-full h-full overflow-hidden border-none gpu-ultra"
         style={{
-          x, y, rotate: cardRotate, opacity: cardOpacity, willChange: 'transform, opacity',
+          x, y, opacity: cardOpacity, willChange: 'transform, opacity',
           transform: 'translate3d(0,0,0)', backfaceVisibility: 'hidden',
           borderRadius: 28,
           boxShadow: 'none',
