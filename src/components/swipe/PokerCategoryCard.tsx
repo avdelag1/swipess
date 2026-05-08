@@ -29,6 +29,18 @@ interface PokerCardProps {
 // Module-level cache so re-mounts (cycling through deck) don't re-flash imgReady=false
 const _loadedPokerImages = new Set<string>();
 
+// Detect low-end / reduced-motion devices once at module load.
+// Blur + continuous scale across multiple stacked cards is the single
+// biggest GPU cost on Android. Disable both on weak hardware.
+const _isLowEndDevice = (() => {
+  if (typeof window === 'undefined') return false;
+  try {
+    const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    const lowMem = (navigator as any).deviceMemory && (navigator as any).deviceMemory <= 4;
+    return Boolean(reducedMotion || lowMem);
+  } catch { return false; }
+})();
+
 export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false, onCycle, onSelect, onBringToFront }: PokerCardProps) => {
   const { theme } = useAppTheme();
   const isDark = theme !== 'light';
@@ -186,7 +198,14 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
       stackY: 0,
       stackScale: 1 - (index * 0.045),
       stackOpacity: index === 0 ? 1 : Math.max(0, 0.9 - (index * 0.2)),
-      stackedFilter: isTop ? undefined : `brightness(${0.92 - index * 0.08}) blur(${index * 1.2}px)`,
+      // 🚀 Blur is GPU-expensive — drop it on low-end devices and rely on
+      // brightness + scale + opacity for depth. On capable devices we still
+      // apply a smaller blur (was 1.2px per index → now 0.6px capped at 2px).
+      stackedFilter: isTop
+        ? undefined
+        : _isLowEndDevice
+          ? `brightness(${0.92 - index * 0.08})`
+          : `brightness(${0.92 - index * 0.08}) blur(${Math.min(2, index * 0.6)}px)`,
     }), [index, isTop]);
 
   if (index > 7) return null;
@@ -270,12 +289,12 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
             loading="eager"
             decoding="async"
             onLoad={() => { _loadedPokerImages.add(photo); setImgReady(true); }}
-            initial={{ opacity: 0, scale: 1.08 }}
+            initial={{ opacity: 0, scale: _isLowEndDevice ? 1 : 1.04 }}
             animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 1.04 }}
+            exit={{ opacity: 0 }}
             transition={{
-              opacity: { duration: 1.1, ease: [0.22, 1, 0.36, 1] },
-              scale: { duration: 8, ease: 'linear' },
+              opacity: { duration: 0.9, ease: [0.22, 1, 0.36, 1] },
+              scale: { duration: _isLowEndDevice ? 0 : 6, ease: 'linear' },
             }}
             className="absolute inset-0 w-full h-full object-cover"
             style={{ backfaceVisibility: 'hidden' }}
@@ -284,8 +303,10 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
         </AnimatePresence>
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
 
-        {/* Breathing existence hints — present, but almost invisible */}
-        {isTop && (
+        {/* Breathing existence hints — only on the top card AND only on
+            capable devices. On low-end Android the four pulsing dots
+            were stealing frames during swipe. */}
+        {isTop && !_isLowEndDevice && (
           <motion.div
             aria-hidden
             className="pointer-events-none absolute inset-0 z-[5]"
