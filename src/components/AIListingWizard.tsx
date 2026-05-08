@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   X, Sparkles, ChevronRight, 
@@ -20,9 +20,10 @@ import { useTranslation } from 'react-i18next';
 import { useVoiceTranscribe } from '@/hooks/useVoiceTranscribe';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { supabase } from '@/integrations/supabase/client';
-import { UnifiedListingForm } from './UnifiedListingForm';
+import { useQueryClient } from '@tanstack/react-query';
 
-type WizardStep = 'category' | 'photos' | 'details' | 'processing' | 'review';
+type WizardStep = 'category' | 'photos' | 'details' | 'processing';
+type ProgressPhase = 'upload' | 'optimize' | 'publish' | 'redirect';
 
 const CATEGORIES = [
   { id: 'property', label: 'Property', icon: Building2, color: 'text-rose-400', bg: 'bg-rose-400/10' },
@@ -38,6 +39,8 @@ export function AIListingWizard() {
   const { user } = useAuth();
   const { t } = useTranslation();
   const location = useLocation();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   // Theme-aware class helpers
   const modalBg = isLight ? 'bg-white border-black/10' : 'bg-black border-white/10';
@@ -64,10 +67,10 @@ export function AIListingWizard() {
   const [cityLocation, setCityLocation] = useState('');
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [aiResult, setAiResult] = useState<any>(null);
-  const [showFinalForm, setShowFinalForm] = useState(false);
+  const [extras, setExtras] = useState<Record<string, unknown>>({});
+  const [progressPhase, setProgressPhase] = useState<ProgressPhase>('upload');
+  const [progressPct, setProgressPct] = useState(0);
   const { isRecording, isTranscribing, start: startVoice, stop: stopVoice } = useVoiceTranscribe();
-  const [isRefining, setIsRefining] = useState(false);
   const [micTipOpen, setMicTipOpen] = useState(false);
 
   // Auto-open mic instructions the first time a user hits the details step
@@ -86,11 +89,9 @@ export function AIListingWizard() {
 
   useEffect(() => {
     if (aiListingDraft) {
-      setAiResult(aiListingDraft);
+      setExtras(aiListingDraft);
       if (aiListingDraft.category) setCategory(aiListingDraft.category);
-      // If we have a draft, we skip details and go straight to review
-      // but we might need photos first if they aren't provided
-      setStep(imageFiles.length > 0 || aiListingDraft.images?.length > 0 ? 'review' : 'photos');
+      setStep('photos');
     } else if (aiListingCategory) {
       setCategory(aiListingCategory);
       setStep('photos');
@@ -115,7 +116,9 @@ export function AIListingWizard() {
       setPrice('');
       setCityLocation('');
       setImageFiles([]);
-      setAiResult(null);
+      setExtras({});
+      setProgressPct(0);
+      setProgressPhase('upload');
     }, 300);
   };
 
@@ -145,47 +148,33 @@ export function AIListingWizard() {
     }
   };
 
-  const handleRefinePrompt = async () => {
-    if (!prompt.trim()) return;
-    setIsRefining(true);
-    triggerHaptic('medium');
-    try {
-      const { data, error } = await supabase.functions.invoke('ai-listing-extract', {
-        body: { task: 'refine', prompt },
-      });
-      if (error) throw error;
-      if ((data as { error?: string })?.error) throw new Error((data as { error: string }).error);
-      const refined = (data as { text?: string })?.text?.trim();
-      if (refined) {
-        setPrompt(refined);
-        toast.success('Intel Refined', { description: 'Description polished by flagship intelligence.' });
-      }
-      triggerHaptic('success');
-    } catch (error) {
-      console.error('Refinement Error:', error);
-      const msg = error instanceof Error ? error.message : 'Could not refine text at this moment.';
-      toast.error(msg);
-    } finally {
-      setIsRefining(false);
-    }
-  };
-
   const handleProcess = async () => {
     if (!prompt.trim()) {
       toast.error('Please describe what you are listing');
       return;
     }
+    if (!user) {
+      toast.error('Please sign in to publish a listing.');
+      return;
+    }
+    if (imageFiles.length === 0) {
+      toast.error('At least 1 photo is required');
+      return;
+    }
 
     setIsProcessing(true);
     setStep('processing');
+    setProgressPhase('upload');
+    setProgressPct(8);
     triggerHaptic('medium');
 
     try {
-      let uploadedUrls: string[] = [];
-      if (imageFiles.length > 0 && user) {
-        uploadedUrls = await uploadPhotoBatch(user.id, imageFiles, 'listing-images');
-      }
+      // Phase 1 — Upload photos
+      const uploadedUrls = await uploadPhotoBatch(user.id, imageFiles, 'listing-images');
+      setProgressPct(40);
 
+      // Phase 2 — AI extract + polish
+      setProgressPhase('optimize');
       const { data, error } = await supabase.functions.invoke('ai-listing-extract', {
         body: {
           task: 'extract',
@@ -200,28 +189,80 @@ export function AIListingWizard() {
       if (payload?.error) throw new Error(payload.error);
       const parsed = payload?.data;
       if (!parsed) throw new Error('AI returned no data');
+      setProgressPct(72);
 
-      setAiResult({
-        ...parsed,
-        category,
+      // Phase 3 — Publish to DB
+      setProgressPhase('publish');
+      const cat = category || 'property';
+      const numericPrice = (parsed.price as number) || Number(price) || 0;
+      const finalCity = (parsed.city as string) || cityLocation || 'Unknown';
+      const listingPayload: Record<string, unknown> = {
+        owner_id: user.id,
+        category: cat,
+        listing_type: cat === 'worker' ? 'service' : 'rent',
+        mode: cat === 'worker' ? 'service' : 'rent',
+        status: 'active',
+        is_active: true,
+        title: (parsed.title as string) || `New ${cat}`,
+        description: (parsed.description as string) || prompt,
+        price: numericPrice,
+        currency: 'USD',
+        country: 'Mexico',
+        state: finalCity,
+        city: finalCity,
         images: uploadedUrls,
-        price: (parsed.price as number) || Number(price) || 0,
-        city: (parsed.city as string) || cityLocation || 'Tulum',
-      });
-      setStep('review');
+      };
+      if (cat === 'property') {
+        const beds = (extras.beds as number) ?? (parsed.beds as number);
+        const baths = (extras.baths as number) ?? (parsed.baths as number);
+        if (beds) listingPayload.beds = beds;
+        if (baths) listingPayload.baths = baths;
+        if (Array.isArray(parsed.amenities)) listingPayload.amenities = parsed.amenities;
+      }
+      if (cat === 'motorcycle' || cat === 'bicycle') {
+        listingPayload.vehicle_type = cat;
+        const brand = (extras.brand as string) || (parsed.make as string);
+        const model = (extras.model as string) || (parsed.model as string);
+        const year = Number(extras.year) || (parsed.year as number);
+        if (brand) listingPayload.vehicle_brand = brand;
+        if (model) listingPayload.vehicle_model = model;
+        if (year) listingPayload.year = year;
+      }
+      if (cat === 'worker') {
+        const sc = (extras.service_category as string) || '';
+        if (sc) listingPayload.service_category = sc;
+      }
+
+      const { data: inserted, error: insertErr } = await supabase
+        .from('listings')
+        .insert(listingPayload as never)
+        .select()
+        .single();
+      if (insertErr) throw insertErr;
+      setProgressPct(95);
+
+      // Phase 4 — Redirect
+      setProgressPhase('redirect');
+      setProgressPct(100);
+      queryClient.invalidateQueries({ queryKey: ['owner-listings'] });
+      queryClient.invalidateQueries({ queryKey: ['listings'] });
       triggerHaptic('success');
+      toast.success('Listing published');
+      const newId = (inserted as { id?: string } | null)?.id;
+      handleClose();
+      if (newId) {
+        setTimeout(() => navigate(`/listing/${newId}`), 150);
+      } else {
+        setTimeout(() => navigate('/owner/properties'), 150);
+      }
     } catch (error) {
-      console.error('AI Processing Error:', error);
-      const msg = error instanceof Error ? error.message : 'Something went wrong with the AI processing.';
+      console.error('AI Listing Publish Error:', error);
+      const msg = error instanceof Error ? error.message : 'Something went wrong publishing your listing.';
       toast.error(msg);
       setStep('details');
     } finally {
       setIsProcessing(false);
     }
-  };
-
-  const handleLaunchForm = () => {
-    setShowFinalForm(true);
   };
 
   if (!showAIListing) return null;
