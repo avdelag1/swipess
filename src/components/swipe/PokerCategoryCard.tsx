@@ -1,7 +1,6 @@
 import { memo, useCallback, useRef, useState, useEffect, useMemo } from 'react';
-import { ThumbsUp, Sparkles, X } from 'lucide-react';
 import useAppTheme from '@/hooks/useAppTheme';
-import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
+import { motion, useMotionValue, useTransform, animate, PanInfo } from 'framer-motion';
 import { triggerHaptic } from '@/utils/haptics';
 import {
   POKER_CARD_PHOTOS,
@@ -32,14 +31,24 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
   const { theme } = useAppTheme();
   const isDark = theme !== 'light';
   const x = useMotionValue(0);
-  
+  const y = useMotionValue(0);
+  const axisRef = useRef<null | 'x' | 'y'>(null);
+
   const [isDragging, setIsDragging] = useState(false);
-  const dragTilt = useTransform(x, [-200, 0, 200], [-8, 0, 8]);
-  const exitOpacity = useTransform(x, [-200, -100, 0, 100, 200], [0, 1, 1, 1, 0]);
-  const exitScale = useTransform(x, [-200, 0, 200], [0.9, 1, 0.9]);
-  // Compositor-driven photo zoom — driven by drag motion value, not React re-renders.
-  // Tiny zoom (1 → 1.04) tracks the drag distance smoothly without fighting the parent transform.
-  const photoScale = useTransform(x, [-200, 0, 200], [1.04, 1, 1.04]);
+  // Subtle fade as the card moves off in either axis — no rotation, no scale fight.
+  const exitOpacity = useTransform(
+    [x, y] as any,
+    ([cx, cy]: any) => {
+      const a = Math.min(1, Math.abs(cx) / 260);
+      const b = Math.min(1, Math.abs(cy) / 260);
+      return 1 - Math.max(a, b) * 0.35;
+    }
+  );
+  // Faint breathing hints — visible only while idle on the top card.
+  const hintOpacity = useTransform(
+    [x, y] as any,
+    ([cx, cy]: any) => (Math.abs(cx) + Math.abs(cy) > 4 ? 0 : 1)
+  );
 
   const photo = POKER_CARD_PHOTOS[card.id] || POKER_CARD_PHOTOS.property;
   const [imgReady, setImgReady] = useState(() => _loadedPokerImages.has(photo));
@@ -59,32 +68,76 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
   useEffect(() => {
     if (!isTop) return;
     x.stop();
+    y.stop();
     x.set(0);
+    y.set(0);
+    axisRef.current = null;
     setIsDragging(false);
-  }, [card.id, isTop, x]);
+  }, [card.id, isTop, x, y]);
 
-  const handleDragEnd = useCallback((_: any, info: any) => {
-    const dist = info.offset.x;
-    const vel = info.velocity.x;
+  const handleDragEnd = useCallback((_: any, info: PanInfo) => {
+    const axis = axisRef.current;
+    const dx = info.offset.x;
+    const dy = info.offset.y;
+    const vx = info.velocity.x;
+    const vy = info.velocity.y;
 
-    if (Math.abs(dist) > PK_DIST_THRESHOLD || Math.abs(vel) > PK_VEL_THRESHOLD) {
+    const commitX = axis === 'x' && (Math.abs(dx) > PK_DIST_THRESHOLD || Math.abs(vx) > PK_VEL_THRESHOLD);
+    const commitY = axis === 'y' && (Math.abs(dy) > PK_DIST_THRESHOLD * 1.1 || Math.abs(vy) > PK_VEL_THRESHOLD);
+
+    const reset = () => {
+      animate(x, 0, { ...PK_SPRING });
+      animate(y, 0, { ...PK_SPRING });
+      axisRef.current = null;
+      setIsDragging(false);
+    };
+
+    if (commitX) {
       triggerHaptic('light');
-      const direction = dist > 0 ? 'right' : 'left';
-      const exitX = direction === 'right' ? 320 : -320;
-
+      const direction = dx > 0 ? 'right' : 'left';
+      const exitX = direction === 'right' ? 480 : -480;
+      // Straight horizontal exit — no rotation, no curve.
       animate(x, exitX, {
-        ...PK_SPRING,
+        type: 'tween',
+        duration: 0.22,
+        ease: [0.32, 0, 0.67, 0],
         onComplete: () => {
           onCycle(card.id, direction);
           x.set(0);
+          y.set(0);
+          axisRef.current = null;
           setIsDragging(false);
         }
       });
-    } else {
-      animate(x, 0, { ...PK_SPRING });
-      setIsDragging(false);
+      return;
     }
-  }, [card.id, onCycle, x]);
+
+    if (commitY) {
+      triggerHaptic('light');
+      const direction = dy > 0 ? 'right' : 'left'; // map to deck cycle
+      const exitY = dy > 0 ? 700 : -700;
+      // Straight vertical exit — pure translateY.
+      animate(y, exitY, {
+        type: 'tween',
+        duration: 0.24,
+        ease: [0.32, 0, 0.67, 0],
+        onComplete: () => {
+          onCycle(card.id, direction);
+          x.set(0);
+          y.set(0);
+          axisRef.current = null;
+          setIsDragging(false);
+        }
+      });
+      return;
+    }
+
+    reset();
+  }, [card.id, onCycle, x, y]);
+
+  const handleDirectionLock = useCallback((axis: 'x' | 'y') => {
+    axisRef.current = axis;
+  }, []);
 
   // Stack styling — 🚀 Swipess v14.0 Reveal Logic
   // Memoized so background-card filter doesn't recompute on every render → no flicker.
@@ -97,10 +150,12 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
 
   if (index > 7) return null;
 
-  return (
+    return (
     <motion.div
-      drag={isTop ? 'x' : false}
-      dragConstraints={{ left: 0, right: 0 }}
+      drag={isTop ? true : false}
+      dragDirectionLock
+      onDirectionLock={handleDirectionLock}
+      dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
       dragElastic={0.85}
       dragMomentum={false}
       onDragStart={() => {
@@ -133,8 +188,7 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
         width: '100%',
         height: '100%',
         x: isTop ? x : 0,
-        rotateZ: isTop ? dragTilt : 0,
-        scale: isTop ? exitScale : undefined,
+        y: isTop ? y : 0,
         opacity: isTop ? exitOpacity : undefined,
         filter: stackedFilter,
         cursor: isTop ? (isDragging ? 'grabbing' : 'grab') : 'pointer',
@@ -148,10 +202,10 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
       className="select-none touch-none"
     >
       <div
-        className="w-full h-full relative overflow-hidden transition-colors duration-100 bg-black rounded-[2.5rem]"
+        className="w-full h-full relative overflow-hidden transition-colors duration-100 bg-black rounded-[2.5rem] shadow-[0_30px_60px_-20px_rgba(0,0,0,0.55)]"
         style={{ backgroundImage: !imgReady ? fallbackGradient : undefined }}
       >
-        {/* Photo & Gradient Base — compositor-only zoom driven by motion value, no inline transform fight */}
+        {/* Photo & Gradient Base — static (no zoom-fight during axis-locked drag) */}
         <motion.img
           src={photo}
           alt={card.label}
@@ -160,13 +214,27 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
           transition={{ duration: 0.25 }}
           className="absolute inset-0 w-full h-full object-cover"
           style={{
-            scale: isTop ? photoScale : 1,
-            willChange: isTop ? 'transform' : undefined,
             backfaceVisibility: 'hidden',
           }}
           draggable={false}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+
+        {/* Breathing existence hints — present, but almost invisible */}
+        {isTop && (
+          <motion.div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 z-[5]"
+            style={{ opacity: hintOpacity }}
+          >
+            {/* horizontal hint dots */}
+            <div className="absolute top-1/2 left-3 -translate-y-1/2 w-1 h-8 rounded-full bg-white/15 animate-pulse" style={{ animationDuration: '2.4s' }} />
+            <div className="absolute top-1/2 right-3 -translate-y-1/2 w-1 h-8 rounded-full bg-white/15 animate-pulse" style={{ animationDuration: '2.4s' }} />
+            {/* vertical hint dots */}
+            <div className="absolute left-1/2 top-3 -translate-x-1/2 w-8 h-1 rounded-full bg-white/12 animate-pulse" style={{ animationDuration: '2.6s' }} />
+            <div className="absolute left-1/2 bottom-3 -translate-x-1/2 w-8 h-1 rounded-full bg-white/12 animate-pulse" style={{ animationDuration: '2.6s' }} />
+          </motion.div>
+        )}
         
         {/* 🛸 Swipess METADATA CONTENT */}
         <div className="absolute inset-x-0 bottom-0 flex flex-col justify-end p-9 md:p-11 gap-8">

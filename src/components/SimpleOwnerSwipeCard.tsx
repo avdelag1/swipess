@@ -13,7 +13,7 @@
  */
 
 import { memo, useRef, useState, useCallback, useMemo, useEffect, forwardRef, useImperativeHandle } from 'react';
-import { motion, useMotionValue, useTransform, PanInfo, animate, useDragControls } from 'framer-motion';
+import { motion, useMotionValue, useTransform, PanInfo, animate, useDragControls, MotionValue } from 'framer-motion';
 import { MapPin, DollarSign, Briefcase, ThumbsUp, ThumbsDown, Flag, Share2 } from 'lucide-react';
 import { triggerHaptic } from '@/utils/haptics';
 import { cn } from '@/lib/utils';
@@ -151,8 +151,8 @@ interface SimpleOwnerSwipeCardProps {
   onDislike?: () => void;
   canUndo?: boolean;
   fullScreen?: boolean;
-  externalX?: any;
-  externalY?: any;
+  externalX?: MotionValue<number>;
+  externalY?: MotionValue<number>;
 }
 
 const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, SimpleOwnerSwipeCardProps>(({
@@ -194,7 +194,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   );
   const likeOpacity = useTransform(x, [0, SWIPE_THRESHOLD * 0.5, SWIPE_THRESHOLD], [0, 0.5, 1]);
   const passOpacity = useTransform(x, [-SWIPE_THRESHOLD, -SWIPE_THRESHOLD * 0.5, 0], [1, 0.5, 0]);
-  const skipOpacity = useTransform(y, (v) => Math.min(1, Math.abs(v) / SKIP_THRESHOLD));
+  const skipOpacity = useTransform(y as MotionValue<number>, (v: number) => Math.min(1, Math.abs(v) / SKIP_THRESHOLD));
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
