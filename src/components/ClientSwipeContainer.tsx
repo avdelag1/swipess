@@ -767,6 +767,19 @@ const ClientSwipeContainerComponent = ({
     });
   }, [topCardX, topCardY]);
 
+  // Vertical-up swipe = rewind to the previously viewed profile without writing.
+  const handleSkipBack = useCallback(() => {
+    if (currentIndexRef.current <= 0) return;
+    triggerHaptic('light');
+    topCardX.stop();
+    topCardX.set(0);
+    topCardY.stop();
+    topCardY.set(0);
+    const newIndex = Math.max(0, currentIndexRef.current - 1);
+    currentIndexRef.current = newIndex;
+    setCurrentIndex(newIndex);
+  }, [topCardX, topCardY]);
+
   const handleButtonLike = useCallback(() => {
     if (cardRef.current) {
       cardRef.current.triggerSwipe('right');
