@@ -17,87 +17,162 @@ const CLIENT_FIELDS = `
 // Always appended AFTER real users so testing never obscures real profiles.
 // Coords near Tulum so the owner-side radius slider reacts during testing.
 const DEMO_CLIENTS: any[] = [
-  // ── BUYERS (2 — looking to purchase) ──────────────────────────────────
+  // ── BUYERS (3 — purchase-ready owner-side cards) ──────────────────────
   {
-    user_id: 'demo-client-1',
-    full_name: 'Sophia Laurent',
-    age: 26, gender: 'female',
-    city: 'Tulum', country: 'Mexico',
-    images: ['https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=1200'],
-    interests: ['Architecture', 'Piano', 'Gourmet Cooking'],
-    lifestyle_tags: ['Non-smoker', 'Early Riser', 'Fitness Enthusiast'],
-    bio: 'Looking to purchase a villa or penthouse in Tulum. Budget up to $500k.',
-    occupation: 'buyer', client_type: 'buyer',
-    latitude: 20.2384, longitude: -87.4654, // ~3km
-    roommate_available: false, onboarding_completed: true
-  },
-  {
-    user_id: 'demo-client-4',
-    full_name: 'Julian Sterling',
-    age: 34, gender: 'male',
-    city: 'Playa del Carmen', country: 'Mexico',
-    images: ['https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=1200'],
-    interests: ['Venture Capital', 'Sailing', 'Espresso'],
-    lifestyle_tags: ['High Net Worth', 'Urban Professional'],
-    bio: 'Investor buying beachfront property. Need it fast, need it premium.',
-    occupation: 'buyer', client_type: 'buyer',
-    latitude: 20.1474, longitude: -87.4654, // ~7km
-    roommate_available: false, onboarding_completed: true
-  },
-
-  // ── RENTERS (2 — looking to rent) ─────────────────────────────────────
-  {
-    user_id: 'demo-client-2',
-    full_name: 'Marcus Chen',
-    age: 31, gender: 'male',
-    city: 'Tulum', country: 'Mexico',
-    images: ['https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=1200'],
-    interests: ['Web3', 'Motorcycles', 'Mixology'],
-    lifestyle_tags: ['Tech Nomad', 'Night Owl'],
-    bio: 'Remote founder relocating to Tulum. Needs fiber optic and a garage for my bike.',
-    occupation: 'renter', client_type: 'renter',
-    latitude: 20.2834, longitude: -87.4654, // ~8km
-    roommate_available: true, onboarding_completed: true
-  },
-  {
-    user_id: 'demo-client-3',
-    full_name: 'Elena Rodriguez',
+    user_id: 'demo-client-buyer-1',
+    full_name: 'Isabela Torres',
     age: 29, gender: 'female',
-    city: 'Tulum', country: 'Mexico',
-    images: ['https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=1200'],
-    interests: ['Art', 'Surfing', 'Sustainable Design'],
-    lifestyle_tags: ['Pet Friendly', 'Yoga Daily'],
-    bio: 'Art director seeking a sun-drenched studio or shared house near the beach.',
-    occupation: 'renter', client_type: 'renter',
-    latitude: 20.2114, longitude: -87.3764, // ~10km
-    roommate_available: true, onboarding_completed: true
-  },
-
-  // ── HIRE (2 — clients looking to hire workers / book services) ────────
-  {
-    user_id: 'demo-client-5',
-    full_name: 'Amara Okafor',
-    age: 27, gender: 'female',
-    city: 'Tulum', country: 'Mexico',
-    images: ['https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&q=80&w=1200'],
-    interests: ['Wellness', 'Home Décor', 'Hosting'],
-    lifestyle_tags: ['Villa Owner', 'Frequent Traveler'],
-    bio: 'Need weekly cleaning and a reliable masseuse for guests at my Tulum villa.',
-    occupation: 'client', client_type: 'hire',
-    latitude: 20.2454, longitude: -87.4654, // ~4km
+    city: 'Tulum', country: 'Mexico', nationality: 'Mexican',
+    images: [
+      'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=1200',
+      'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&q=80&w=1200',
+      'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=1200'
+    ],
+    interests: ['Architecture', 'Wellness', 'Beachfront Homes'],
+    lifestyle_tags: ['Investor', 'Yoga Daily', 'Pet Friendly'],
+    bio: 'Buying a polished jungle villa or design-forward condo in Tulum. Ready to move fast for the right place.',
+    occupation: 'buyer', client_type: 'buyer', budget_min: 280000, budget_max: 520000,
+    latitude: 20.2384, longitude: -87.4654,
     roommate_available: false, onboarding_completed: true
   },
   {
-    user_id: 'demo-client-7',
-    full_name: 'Yuki Tanaka',
+    user_id: 'demo-client-buyer-2',
+    full_name: 'Mateo Rojas',
+    age: 34, gender: 'male',
+    city: 'Miami', country: 'USA', nationality: 'Colombian',
+    images: [
+      'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=1200',
+      'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=1200',
+      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d8b?auto=format&fit=crop&q=80&w=1200'
+    ],
+    interests: ['Fintech', 'Padel', 'Ocean Views'],
+    lifestyle_tags: ['Founder', 'High Intent', 'Fast Closing'],
+    bio: 'Looking for a premium condo with strong rental upside between Miami and the Riviera Maya.',
+    occupation: 'buyer', client_type: 'buyer', budget_min: 450000, budget_max: 900000,
+    latitude: 20.1474, longitude: -87.4654,
+    roommate_available: false, onboarding_completed: true
+  },
+  {
+    user_id: 'demo-client-buyer-3',
+    full_name: 'Valentina Márquez',
+    age: 31, gender: 'female',
+    city: 'New York', country: 'USA', nationality: 'Venezuelan',
+    images: [
+      'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=1200',
+      'https://images.unsplash.com/photo-1548142813-c348350df52b?auto=format&fit=crop&q=80&w=1200',
+      'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?auto=format&fit=crop&q=80&w=1200'
+    ],
+    interests: ['Art Collecting', 'Boutique Hotels', 'Interior Design'],
+    lifestyle_tags: ['Cash Buyer', 'Design Focused', 'Quiet Luxury'],
+    bio: 'Searching for an elegant second home with natural light, privacy, and a premium neighborhood feel.',
+    occupation: 'buyer', client_type: 'buyer', budget_min: 350000, budget_max: 750000,
+    latitude: 20.2454, longitude: -87.4654,
+    roommate_available: false, onboarding_completed: true
+  },
+
+  // ── RENTERS (3 — move-ready owner-side cards) ─────────────────────────
+  {
+    user_id: 'demo-client-renter-1',
+    full_name: 'Camila Duarte',
+    age: 27, gender: 'female',
+    city: 'Canggu', country: 'Indonesia', nationality: 'Brazilian',
+    images: [
+      'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=1200',
+      'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&q=80&w=1200',
+      'https://images.unsplash.com/photo-1509967419530-da38b4704bc6?auto=format&fit=crop&q=80&w=1200'
+    ],
+    interests: ['Surfing', 'Content Creation', 'Wellness'],
+    lifestyle_tags: ['Digital Nomad', 'Clean', 'Social'],
+    bio: 'Needs a beautiful monthly rental with fiber internet, natural light, and beach access.',
+    occupation: 'renter', client_type: 'renter', budget_min: 1800, budget_max: 3600,
+    latitude: 20.2114, longitude: -87.3764,
+    roommate_available: true, onboarding_completed: true
+  },
+  {
+    user_id: 'demo-client-renter-2',
+    full_name: 'Nicolás Herrera',
+    age: 30, gender: 'male',
+    city: 'Tulum', country: 'Mexico', nationality: 'Colombian',
+    images: [
+      'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=1200',
+      'https://images.unsplash.com/photo-1527980965255-d3b416303d12?auto=format&fit=crop&q=80&w=1200',
+      'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?auto=format&fit=crop&q=80&w=1200'
+    ],
+    interests: ['Motorcycles', 'Restaurants', 'Remote Work'],
+    lifestyle_tags: ['Night Owl', 'Respectful', 'Garage Needed'],
+    bio: 'Relocating for six months and looking for a furnished place with workspace and secure parking.',
+    occupation: 'renter', client_type: 'renter', budget_min: 2200, budget_max: 4200,
+    latitude: 20.2834, longitude: -87.4654,
+    roommate_available: true, onboarding_completed: true
+  },
+  {
+    user_id: 'demo-client-renter-3',
+    full_name: 'Arielle Cohen',
+    age: 28, gender: 'female',
+    city: 'Miami', country: 'USA', nationality: 'American',
+    images: [
+      'https://images.unsplash.com/photo-1520813792240-56fc4a3765a7?auto=format&fit=crop&q=80&w=1200',
+      'https://images.unsplash.com/photo-1526510747491-58f928ec870f?auto=format&fit=crop&q=80&w=1200',
+      'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&q=80&w=1200'
+    ],
+    interests: ['Pilates', 'Design', 'Beach Walks'],
+    lifestyle_tags: ['Quiet', 'Early Riser', 'Minimalist'],
+    bio: 'Looking for a bright, calm rental with premium finishes and a walkable neighborhood.',
+    occupation: 'renter', client_type: 'renter', budget_min: 2600, budget_max: 5000,
+    latitude: 20.2214, longitude: -87.4754,
+    roommate_available: false, onboarding_completed: true
+  },
+
+  // ── HIRE (3 — clients seeking workers/services) ───────────────────────
+  {
+    user_id: 'demo-client-hire-1',
+    full_name: 'Lucía Fernández',
+    age: 33, gender: 'female',
+    city: 'Tulum', country: 'Mexico', nationality: 'Mexican',
+    images: [
+      'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=1200',
+      'https://images.unsplash.com/photo-1544723795-3fb6469f5b39?auto=format&fit=crop&q=80&w=1200',
+      'https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&q=80&w=1200'
+    ],
+    interests: ['Hospitality', 'Villa Management', 'Guest Experience'],
+    lifestyle_tags: ['Property Manager', 'Weekly Bookings', 'Verified'],
+    bio: 'Needs a reliable cleaning crew, private chef, and maintenance workers for rotating villa guests.',
+    occupation: 'client', client_type: 'hire', budget_min: 500, budget_max: 4000,
+    latitude: 20.2454, longitude: -87.4654,
+    roommate_available: false, onboarding_completed: true
+  },
+  {
+    user_id: 'demo-client-hire-2',
+    full_name: 'Andrés Salazar',
+    age: 36, gender: 'male',
+    city: 'New York', country: 'USA', nationality: 'Venezuelan',
+    images: [
+      'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=1200',
+      'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=1200',
+      'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=1200'
+    ],
+    interests: ['Events', 'Brand Activations', 'Luxury Service'],
+    lifestyle_tags: ['Event Host', 'High Standards', 'Fast Booking'],
+    bio: 'Booking photographers, decorators, and service staff for private events in Miami and Tulum.',
+    occupation: 'client', client_type: 'hire', budget_min: 1000, budget_max: 8500,
+    latitude: 20.2114, longitude: -87.1274,
+    roommate_available: false, onboarding_completed: true
+  },
+  {
+    user_id: 'demo-client-hire-3',
+    full_name: 'Maya Thompson',
     age: 32, gender: 'female',
-    city: 'Tulum', country: 'Mexico',
-    images: ['https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=1200'],
-    interests: ['Boutique Hotels', 'Hospitality', 'Wellness'],
-    lifestyle_tags: ['Property Manager'],
-    bio: 'Looking for a handyman for ongoing maintenance and a chef for private events.',
-    occupation: 'client', client_type: 'hire',
-    latitude: 20.2114, longitude: -87.1274, // ~37km
+    city: 'Bali', country: 'Indonesia', nationality: 'American',
+    images: [
+      'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&q=80&w=1200',
+      'https://images.unsplash.com/photo-1558898479-33c0057a5d12?auto=format&fit=crop&q=80&w=1200',
+      'https://images.unsplash.com/photo-1534751516642-a1af1ef26a56?auto=format&fit=crop&q=80&w=1200'
+    ],
+    interests: ['Wellness Retreats', 'Content Shoots', 'Interior Styling'],
+    lifestyle_tags: ['Retreat Owner', 'Creative', 'Recurring Work'],
+    bio: 'Hiring fitness coaches, massage therapists, and villa stylists for premium retreat guests.',
+    occupation: 'client', client_type: 'hire', budget_min: 800, budget_max: 6500,
+    latitude: 20.2214, longitude: -87.4754,
     roommate_available: false, onboarding_completed: true
   },
 ];
