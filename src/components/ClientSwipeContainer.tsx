@@ -814,6 +814,7 @@ const ClientSwipeContainerComponent = ({
   // FIX: Don't clamp the index - allow topCard to be null when all cards are swiped
   // This ensures the "All Caught Up" screen shows correctly
   const topCard = currentIndex < deckQueue.length ? deckQueue[currentIndex] : null;
+  const pullDown = usePullDownToDismiss();
   const _nextCard = currentIndex + 1 < deckQueue.length ? deckQueue[currentIndex + 1] : null;
 
   // Check if we have hydrated data (from store/session) - prevents blank deck flash
