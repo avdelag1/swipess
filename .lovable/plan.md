@@ -1,75 +1,93 @@
+## Goal
 
-# Plan: Switch listing swipe from horizontal to vertical
+Make the swipe deck respond to **both axes** with a clean, premium feel:
 
-## What changes
+- **Swipe right** → LIKE (records to backend, may trigger match)
+- **Swipe left** → PASS (records to backend)
+- **Swipe up or down** → SKIP to next card (no backend write, just advance the deck)
+- **Pull-down from the top ~110px** → still exits the deck back to the dashboard (existing curtain effect, unchanged)
 
-Today: drag the card **right** = like, **left** = pass, pull from top = exit deck.
-After: drag the card **up** = like, **down** = pass, pull-down-from-top remains as the "exit deck" gesture.
+This restores the classic Tinder horizontal mechanic the user is used to, while keeping vertical motion useful as a fast "next, next, next" browse gesture.
 
-The active gesture surface is the card area sitting between the header chrome and the bottom navigation chrome — exactly the region you described.
+## Files to change
 
-## Where the work happens
+1. `src/components/SimpleSwipeCard.tsx`
+2. `src/components/SimpleOwnerSwipeCard.tsx`
+3. `src/components/swipe/GestureHints.tsx`
+4. `src/components/swipe/usePullDownToDismiss.tsx` (no logic change — already restricted to top 110px, just confirm it still cooperates)
 
-1. **`src/components/SimpleSwipeCard.tsx`** and **`src/components/SimpleOwnerSwipeCard.tsx`** — the card itself
-   - Switch `drag` axis from `x` to `y` (`drag="y"`).
-   - Move all motion-derived visuals onto the y axis:
-     - Rotation (currently from x) → small tilt from y, or remove rotation entirely (Instagram-style flat slide).
-     - "LIKE" / "NOPE" overlay opacities now driven by y (negative = LIKE, positive = NOPE).
-     - Exit animation: `animate(y, -windowHeight)` for like, `animate(y, +windowHeight)` for pass.
-   - Update `handleDragEnd` thresholds: read `info.offset.y` and `info.velocity.y` instead of x.
-   - Update `handleButtonSwipe` (used by floating like/pass buttons) to animate y instead of x.
+No backend, hook, or DB change. `useSwipe.tsx`, `useSwipeWithMatch.tsx`, the `likes` table, match logic, undo, sounds, analytics — all stay identical.
 
-2. **Pull-down-to-exit (`usePullDownToDismiss.tsx`)** — keep, but reserve only the **top zone** of the card for it
-   - Currently it activates when the touch starts in the upper 60% of the deck. That will conflict with the new "swipe up = like" gesture.
-   - Restrict it to the top ~80px of the card (or to a dedicated thin grab-handle strip at the very top), so the rest of the card is free for vertical like/pass swipes.
-   - Pull-down still exits to dashboard with the curtain effect.
+## Behavior spec
 
-3. **`useSwipeWithMatch.tsx` / parent containers (`ClientSwipeContainer`, `SwipessSwipeContainer`)** — semantics
-   - Internally we keep the `'left' | 'right'` direction strings (left = pass, right = like) so backend, likes table, match logic, undo, sounds, and analytics keep working untouched.
-   - The card just maps `up → 'right'` and `down → 'left'` when calling `onSwipe`.
-   - This is the safest path; no DB or matching logic changes.
+### Horizontal (like/pass — primary action)
 
-4. **Match overlays / labels**
-   - "LIKE" badge, "NOPE" badge: reposition so LIKE appears at the top of the card and NOPE at the bottom (instead of left/right corners). Drive opacity from y.
+- `drag` axis: free `x` and `y`, but **`x` is the committing axis**.
+- Threshold: `|x| > 80px` OR `|velocityX| > 280 px/s` → commit.
+- Direction: `x > 0` → `'right'` (LIKE), `x < 0` → `'left'` (PASS).
+- Motion during drag: card translates in x, rotates up to ±14° (pivot from bottom), small y follow (×0.3) for natural feel, scale 1 → 0.96 near edges.
+- LIKE label: top-right of card, fades in with rightward x (existing position style).
+- NOPE label: top-left of card, fades in with leftward x.
+- Exit animation: `animate(x, ±(window.innerWidth * 1.2), 0.28s, ease-out)`, then `onSwipe('right' | 'left')`.
 
-5. **Action buttons (floating thumbs up / thumbs down)**
-   - Behaviour stays identical from the user's POV; under the hood `triggerSwipe('right')` now flies the card up instead of right.
+### Vertical (skip — secondary action)
 
-## Things that could break — audit list
+- Threshold: `|y| > 110px` OR `|velocityY| > 350 px/s`, AND `|y| > |x| * 1.4` (vertical lock so it doesn't fight horizontal).
+- Both up and down map to a new `onSkip()` callback the parent already has access to (we'll pass it through). The parent simply advances `currentIndex` without writing to `likes`.
+- Motion: card slides off in y-direction with `animate(y, ±viewportHeight, 0.26s)` and the next card scales up underneath (existing peek already handles this).
+- Hint label: a soft "Next" pill briefly appears centered as the user pulls vertically (replaces the LIKE-up / NOPE-down indicators that were added in the previous iteration).
 
-These are the systems I checked that touch the swipe gesture and must be re-tested:
+### Conflict resolution
 
-| Area | File(s) | Risk |
-|---|---|---|
-| Photo carousel tap zones (left third / right third of card cycles photos) | `SimpleSwipeCard.tsx` `handleImageTap` | Low. Tap is a click, not a drag, so it stays. But we should confirm a vertical drag doesn't accidentally fire a tap. |
-| Long-press zoom magnifier (`useMagnifier`) | `SimpleSwipeCard.tsx` | Medium. The current code waits for movement to decide between "zoom" vs "drag". Threshold logic needs to consider y movement now too. |
-| Pull-to-refresh (Instagram-style downward pull at top) | `mem://features/pull-to-refresh` | High. Downward pull at top of card will now also mean "swipe down = pass". We need a clear separation: pull-to-refresh and pull-to-exit-deck both live at the top edge; "swipe down = pass" must start from the **middle** of the card, not the top. |
-| Pull-down-to-dismiss the deck | `usePullDownToDismiss.tsx` | High — same conflict as above. Solution: top ~80px reserved for pull-to-exit; rest of card = like/pass. |
-| Horizontal scroll containers below card (filter chips, thumbnails) | `OwnerAllDashboard.tsx`, top-bar chips | Low — those are outside the card. |
-| Undo last swipe (`useSwipeUndo`) | `useSwipeUndo.tsx` | Low — direction strings unchanged. |
-| Match celebration modal exit animation | `MatchCelebrateModal.tsx` | Low — independent of card gesture. |
-| Touch action / page scrolling | global `pan-y` policy (memory: Touch Gesture Prioritization) | **Highest risk.** The whole app currently sets `touch-action: pan-y` so the page can scroll vertically. The card must override to `touch-action: none` while dragging, otherwise the browser will steal the vertical gesture for page scroll. |
-| Parallax / breathing effects on the photo | `useDeviceParallax.ts`, photo breathing 14s loop | Low. They read tilt/time, not drag. |
-| Owner discovery screens (no card x-drag in some) | `OwnerSwipeContainer`, `SimpleOwnerSwipeCard` | Mirror the same change. |
-| Chrome reveal taps (top/bottom edge strips) | `ChromeSummonZones.tsx` | Already isolated above the card. Confirm they still receive taps — they sit at higher z-index. |
-| `data-no-swipe-nav` and route-level swipe-back gestures | `useSwipeNavigation.ts` | Low — those are for sideways navigation between pages, unrelated to card. |
-| Card stack peek (next card visible underneath) | `SwipeCardPeek.tsx` | Medium. Currently scales next card based on top card's x distance. Switch to y distance. |
-| Onboarding hint animations | hints showing "swipe right to like" | Copy and animation directions need to flip to "swipe up to like". |
+- Direction is decided in `handleDragEnd`:
+  1. If neither axis crossed threshold → spring back.
+  2. Else, the axis with the **larger normalized progress** (`|offset| / threshold`) wins.
+  3. If horizontal wins → call `onSwipe('right' | 'left')`.
+  4. If vertical wins → call `onSkip()`.
+- Pull-down-to-exit-deck (`usePullDownToDismiss`) keeps its existing 110px top-zone restriction, so it never collides with the card's vertical skip.
 
-## UX details to decide before building
+### Parent wiring (skip handler)
 
-1. **Tilt or no tilt on vertical drag?** Instagram-style is flat (no rotation). Tinder vertical apps usually keep a tiny ±4° tilt around horizontal axis. Recommendation: no rotation, slight scale-down as the card moves away — feels more "story-like".
-2. **LIKE / NOPE labels** — top center for LIKE, bottom center for NOPE.
-3. **Pull-down-to-exit grab area** — proposal: a thin invisible 64px strip at the very top of the card, plus the existing top header tap zone. Below that strip, vertical drag = like/pass.
-4. **Velocity threshold** — keep current values (50px or 180px/s) but on y axis.
-5. **Buttons** — keep visible, behavior identical.
+`SimpleSwipeCard` and `SimpleOwnerSwipeCard` get a new optional prop:
+```ts
+onSkip?: () => void;
+```
+Parent containers (`SwipessSwipeContainer`, owner equivalent) pass a function that:
+- advances `currentIndex` by 1
+- does **not** call `useSwipe()` mutation
+- does **not** affect match/notification/undo state (skipped cards aren't undoable; that's intentional and matches user's "browse" mental model)
+
+If `onSkip` is not provided, vertical gestures fall back to spring-back (no-op).
+
+### Gesture hints (`GestureHints.tsx`)
+
+Update the hint affordances to reflect the new model:
+- **Left/right edge**: soft breathing chevrons (◂ / ▸) hinting horizontal like/pass — replaces the current right-edge vertical chevron.
+- **Top center**: keep the small grab pill for pull-down-to-exit.
+- **Bottom center**: a faint vertical chevron pair (˄ / ˅) breathing slowly to signal "swipe up/down to skip".
+- All `pointer-events: none`, hidden when zoomed, hidden during drag (`opacity 0` while `isDragging`).
+
+## Technical notes
+
+- Restore `drag` to `true` (both axes) in both card components, instead of the current `drag="y"`.
+- Restore `cardRotate = useTransform(x, [-200, 0, 200], [-MAX_ROTATION, 0, MAX_ROTATION])`.
+- `likeOpacity = useTransform(x, [0, SWIPE_THRESHOLD], [0, 1])`, `passOpacity` from negative x (back to original Tinder mapping).
+- New `skipOpacity = useTransform(y, [-110, 0, 110], [1, 0, 1])` for the brief "Next" pill.
+- `handleButtonSwipe(direction)` reverts to flying horizontally: `animate(x, ±exitDistance, 0.28s)`.
+- Exit animation duration kept at 280ms for snap; framer spring for snap-back uses existing `SILK` config (stiffness 500, damping 25, mass 0.4).
+- `touch-action: none` on the card stays; `pan-y` policy remains for the rest of the app's vertical scroll surfaces.
+- No changes to `useSwipeWithMatch`, `useSwipe`, `useSwipeUndo`, `MatchCelebrateModal`, `ChromeSummonZones`, parallax, or sounds.
 
 ## Out of scope
 
-- The poker-hand category-picker dashboard cards keep their horizontal cycle gesture (`PokerCategoryCard.tsx`) because that is a different mental model (rotating through categories, not committing a like/pass).
-- No backend/db changes.
-- No analytics event renames.
+- No new analytics events (skip is not tracked yet — can be added later if desired).
+- No undo for skipped cards.
+- `PokerCategoryCard` (dashboard category fan) is unaffected.
 
 ## Rollout
 
-One PR touching the four files: `SimpleSwipeCard.tsx`, `SimpleOwnerSwipeCard.tsx`, `usePullDownToDismiss.tsx`, `SwipeCardPeek.tsx`. Internal direction strings stay `'left' | 'right'` so nothing downstream changes.
+Single change set across the four files listed above. After implementation I'll verify in preview that:
+1. Horizontal swipe records like/pass and triggers match flow correctly.
+2. Vertical swipe advances the deck without writing to `likes`.
+3. Pull-down from the top still exits to dashboard.
+4. Hints breathe softly and disappear during interaction.
