@@ -775,6 +775,8 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
     setActiveCategory(cycle[nextIdx] as any);
   }, [storeActiveCategory, userRole, setActiveCategory]);
 
+  const pullDown = usePullDownToDismiss();
+
   if (!storeActiveCategory) {
     return (
       <>
@@ -804,7 +806,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
   };
   const currentCategoryName = categoryNames[storeActiveCategory] || storeActiveCategory;
   const hasCards = deckQueue.length > 0 && currentIndex < deckQueue.length;
-  const pullDown = usePullDownToDismiss();
 
   return (
     <>
@@ -828,7 +829,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
         <SwipeDeckBackButton />
         <motion.div
           className="relative w-full h-full mx-auto flex items-center justify-center pointer-events-auto md:max-w-[572px]"
-          style={{ y: pullDown.y, scale: pullDown.scale, opacity: pullDown.opacity }}
+          style={{ y: pullDown.y, scale: pullDown.scale, opacity: pullDown.opacity, filter: pullDown.blur }}
         >
           {/* Rounded backdrop matches card corners so deck blends into background */}
           <div

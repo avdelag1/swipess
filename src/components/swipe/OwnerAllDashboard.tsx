@@ -108,15 +108,15 @@ export const OwnerAllDashboard = memo(({ onCardSelect }: OwnerAllDashboardProps)
         initial="initial"
         animate="animate"
         exit="exit"
-        className="relative flex-1 flex flex-col items-center justify-start bg-transparent"
-        style={{ paddingTop: 'var(--top-bar-height, 72px)', paddingBottom: 'var(--bottom-nav-height, 80px)' }}
+        className="relative h-full min-h-0 overflow-hidden flex flex-col items-center justify-start bg-transparent"
+        style={{ paddingTop: 'var(--top-bar-height, 72px)', paddingBottom: 'var(--bottom-nav-height, 80px)', boxSizing: 'border-box' }}
       >
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           className="relative flex-none flex items-center justify-center transition-all"
           style={{
-            height: 'calc(100dvh - var(--top-bar-height, 72px) - var(--bottom-nav-height, 80px) - 8px)',
+            height: 'calc(100% - 8px)',
             width: 'calc((100dvh - var(--top-bar-height, 72px) - var(--bottom-nav-height, 80px) - 8px) * 0.66667)',
             maxWidth: '100%',
             aspectRatio: '520 / 780',

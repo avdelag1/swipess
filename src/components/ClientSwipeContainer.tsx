@@ -915,8 +915,13 @@ const ClientSwipeContainerComponent = ({
         <SwipeDeckBackButton />
         <motion.div
           className="relative w-full h-full mx-auto flex items-center justify-center pointer-events-auto"
-          style={{ y: pullDown.y, scale: pullDown.scale, opacity: pullDown.opacity }}
+          style={{ y: pullDown.y, scale: pullDown.scale, opacity: pullDown.opacity, filter: pullDown.blur }}
         >
+          <motion.div
+            aria-hidden
+            className="absolute inset-0 z-0 pointer-events-none bg-swipe-frame"
+            style={{ opacity: pullDown.opacity }}
+          />
           <AnimatePresence mode="sync" initial={true}>
             {topCard ? (
               <motion.div 
