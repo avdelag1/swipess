@@ -2,8 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  X, Sparkles, ChevronRight, 
-  Check, Loader2, Wand2, ArrowLeft, Camera,
+  X, Sparkles, ChevronRight, Loader2, ArrowLeft, Camera,
   Building2, Bike, Briefcase, Zap, DollarSign, MapPin, Search, Mic, HelpCircle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -54,11 +53,9 @@ export function AIListingWizard() {
   const cardCls = isLight
     ? 'bg-white border-black/8 hover:border-cyan-500/40 hover:bg-white shadow-[0_8px_24px_rgba(0,0,0,0.06)]'
     : 'bg-black/40 border-white/10 hover:border-cyan-500/30 hover:bg-white/10 shadow-[0_4px_20px_rgba(0,0,0,0.5)]';
-  const reviewCardCls = isLight ? 'border-black/8 bg-white shadow-[0_8px_24px_rgba(0,0,0,0.06)]' : 'border-white/5 bg-white/5 backdrop-blur-xl';
   const closeBtnCls = isLight
     ? 'bg-white hover:bg-black/5 rounded-2xl transition-all border border-black/10 shadow-[0_2px_8px_rgba(0,0,0,0.06)]'
     : 'bg-white/5 hover:bg-white/10 rounded-2xl transition-all border border-white/5';
-  const dividerCls = isLight ? 'bg-black/10' : 'bg-white/10';
   
   const [step, setStep] = useState<WizardStep>('category');
   const [category, setCategory] = useState<typeof CATEGORIES[number]['id'] | null>(null);
@@ -417,7 +414,7 @@ export function AIListingWizard() {
                          <Button
                             onClick={() => { setStep('details'); triggerHaptic('medium'); }}
                             disabled={imageFiles.length === 0}
-                            className="w-full h-16 rounded-[2rem] bg-white text-black hover:bg-white/90 font-black uppercase tracking-[0.2em] text-[11px] transition-all shadow-xl disabled:opacity-20"
+                            className="w-full h-16 rounded-[2rem] bg-primary text-primary-foreground hover:brightness-110 font-black uppercase tracking-[0.2em] text-[11px] transition-all shadow-xl disabled:opacity-30"
                          >
                             Proceed to Intelligence
                             <ChevronRight className="w-4 h-4 ml-3" />
@@ -487,7 +484,7 @@ export function AIListingWizard() {
                                   <span className="text-[11px] font-black uppercase tracking-widest text-cyan-400">How to use</span>
                                 </div>
                                 <p className="text-[12px] leading-relaxed text-white/85">
-                                  Tap the mic and describe your listing out loud — bedrooms, location, price, anything that matters. Tap again to stop and we transcribe instantly. Then hit the wand to polish it, or Initialize Optimization to generate.
+                                  Tap the mic and describe your listing out loud — bedrooms, location, price, anything that matters. Tap again to stop. Swipess will polish your words, generate the listing, and publish it for you in one go.
                                 </p>
                               </div>
                             </PopoverContent>
