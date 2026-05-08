@@ -156,6 +156,7 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
               <Route path="/owner/profile" element={<OwnerProfile />} />
               <Route path="/owner/settings" element={<OwnerSettings />} />
               <Route path="/owner/properties" element={<OwnerProperties />} />
+              <Route path="/owner/listings" element={<OwnerProperties />} />
               <Route path="/owner/listings/new" element={<OwnerNewListing />} />
 
               <Route path="/owner/liked-clients" element={<OwnerLikedClients />} />
