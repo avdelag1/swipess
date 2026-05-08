@@ -262,15 +262,17 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
         ref={scrollContainerRef}
         id="dashboard-scroll-container"
         className={cn(
-          "flex-1 flex flex-col relative w-full",
+          "flex-1 flex flex-col relative w-full min-h-0",
           isSwipeDeck ? "overflow-hidden touch-none bg-swipe-frame" : "overflow-y-auto scroll-area-momentum"
         )}
         style={{
-          WebkitOverflowScrolling: 'touch',
+          WebkitOverflowScrolling: isSwipeDeck ? 'auto' : 'touch',
+          overscrollBehavior: isSwipeDeck ? 'none' : undefined,
+          touchAction: isSwipeDeck ? 'none' : undefined,
         }}
       >
         {/* INNER WRAPPER: Ensures flex-grow works correctly for child pages */}
-        <div className="flex-grow w-full flex flex-col min-h-full">
+        <div className={cn("w-full flex flex-col min-h-0", isSwipeDeck ? "h-full flex-1 overflow-hidden" : "flex-grow min-h-full")}>
           {children}
         </div>
       </main>
