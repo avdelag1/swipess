@@ -823,12 +823,13 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
       {/* Pull-down backdrop: dashboard category picker revealed behind the deck */}
       <motion.div
         aria-hidden
-        className="absolute inset-0 pointer-events-none z-[1] bg-background"
+        className="absolute inset-0 pointer-events-none z-[1]"
         style={{
           opacity: pullDown.backdropOpacity,
           scale: pullDown.backdropScale,
           filter: pullDown.backdropBlur,
           transformOrigin: 'center center',
+          backgroundColor: '#000',
         }}
       >
         <div className="w-full h-full">
