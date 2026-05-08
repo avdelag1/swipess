@@ -221,6 +221,8 @@ export default function RoommateMatching() {
                       ref={cardRef}
                       profile={topCard as any}
                       onSwipe={handleSwipe}
+                      onSkip={handleSkip}
+                      onSkipBack={handleSkipBack}
                       onTap={() => setShowDetails(true)}
                       isTop
                     />
