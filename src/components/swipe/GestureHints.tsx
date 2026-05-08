@@ -1,4 +1,4 @@
-import { ChevronUp, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 /**
  * Ambient gesture affordances for the swipe card.
@@ -53,32 +53,6 @@ export function GestureHints({ hidden = false }: { hidden?: boolean }) {
             width: 16, height: 16,
             color: 'rgba(255,255,255,0.7)',
             filter: 'drop-shadow(0 0 4px rgba(255,255,255,0.35))',
-          }}
-          strokeWidth={2.4}
-        />
-      </div>
-
-      {/* Bottom-center: vertical skip affordance */}
-      <div
-        className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center"
-        style={{ bottom: 'calc(var(--bottom-nav-height,72px) + 28px)', gap: 1 }}
-      >
-        <ChevronUp
-          className="animate-gesture-breathe"
-          style={{
-            width: 12, height: 12,
-            color: 'rgba(255,255,255,0.55)',
-            filter: 'drop-shadow(0 0 4px rgba(255,255,255,0.3))',
-          }}
-          strokeWidth={2.4}
-        />
-        <ChevronDown
-          className="animate-gesture-breathe"
-          style={{
-            width: 12, height: 12,
-            color: 'rgba(255,255,255,0.55)',
-            filter: 'drop-shadow(0 0 4px rgba(255,255,255,0.3))',
-            animationDelay: '0.6s',
           }}
           strokeWidth={2.4}
         />
