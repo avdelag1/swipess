@@ -86,6 +86,16 @@ export default function RoommateMatching() {
 
   const handleLike = () => cardRef.current?.triggerSwipe('right');
   const handleDislike = () => cardRef.current?.triggerSwipe('left');
+
+  // Vertical swipe = pure pager (no like/dislike).
+  const handleSkip = useCallback(() => {
+    setCurrentIndex(prev => Math.min(prev + 1, profiles.length));
+    triggerHaptic('light');
+  }, [profiles.length]);
+  const handleSkipBack = useCallback(() => {
+    setCurrentIndex(prev => Math.max(prev - 1, 0));
+    triggerHaptic('light');
+  }, []);
   
   const handleScroll = (e: any) => {
     const scroll = e.target.scrollTop;
