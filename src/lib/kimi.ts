@@ -1,85 +1,61 @@
 /**
- * Kimi (Moonshot AI) Integration Utility
- * 
- * Used for high-context processing and premium text refinement.
- * Moonshot AI (Kimi) is excellent at instruction following and structured JSON.
+ * Kimi (Moonshot) refinement — server-side only.
+ *
+ * The Moonshot API key is held in Supabase edge function secrets
+ * (MOONSHOT_API_KEY) and is never exposed in the client bundle. We call
+ * the ai-concierge function which routes to Kimi for structured/strict
+ * tasks. If Kimi is unavailable the function falls back to Gemini, then
+ * MiniMax, so the caller always gets a usable response.
  */
+import { supabase } from '@/integrations/supabase/client';
 
-const MOONSHOT_API_URL = 'https://api.moonshot.cn/v1/chat/completions';
-
-export async function refineWithKimi(text: string, apiKey?: string): Promise<string> {
-  const key = apiKey || import.meta.env.VITE_MOONSHOT_API_KEY;
-  if (!key) {
-    console.warn('Kimi API Key missing. Falling back to original text.');
-    return text;
-  }
-
+export async function refineWithKimi(text: string): Promise<string> {
+  if (!text?.trim()) return text;
   try {
-    const response = await fetch(MOONSHOT_API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${key}`
-      },
-      body: JSON.stringify({
-        model: 'moonshot-v1-8k',
+    const { data, error } = await supabase.functions.invoke('ai-concierge', {
+      body: {
         messages: [
           {
             role: 'system',
-            content: 'You are an elite listing architect for Swipess. Your task is to transform raw spoken input into a professional, cinematic, and high-converting listing description. Keep it concise, remove filler words, and focus on selling the asset.'
+            content:
+              'You are an elite listing copywriter for Swipess. Rewrite the user input into a professional, concise, high-converting listing description. Keep all factual claims; do not invent details. Return only the rewritten description, no preamble.',
           },
-          {
-            role: 'user',
-            content: text
-          }
+          { role: 'user', content: text },
         ],
-        temperature: 0.3
-      })
+      },
     });
-
-    if (!response.ok) {
-      throw new Error(`Kimi API error: ${response.status}`);
-    }
-
-    const data = await response.json();
-    return data.choices?.[0]?.message?.content || text;
-  } catch (error) {
-    console.error('Kimi Refinement Failed:', error);
+    if (error) throw error;
+    const content =
+      data?.choices?.[0]?.message?.content ??
+      data?.reply ??
+      (typeof data === 'string' ? data : '');
+    return content?.trim() || text;
+  } catch (err) {
+    console.error('[Kimi] refinement failed:', err);
     return text;
   }
 }
 
-export async function extractListingWithKimi(text: string, category: string, apiKey?: string) {
-  const key = apiKey || import.meta.env.VITE_MOONSHOT_API_KEY;
-  if (!key) return null;
-
+export async function extractListingWithKimi(text: string, category: string) {
+  if (!text?.trim()) return null;
   try {
-    const response = await fetch(MOONSHOT_API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${key}`
-      },
-      body: JSON.stringify({
-        model: 'moonshot-v1-8k',
+    const { data, error } = await supabase.functions.invoke('ai-concierge', {
+      body: {
         messages: [
           {
             role: 'system',
-            content: `Extract listing details from the user input for category: ${category}. Return ONLY valid JSON.`
+            content: `Extract structured listing fields for category "${category}" from the user's text. Return ONLY valid JSON with keys appropriate for the category (title, price, description, city, plus category-specific fields). Do not invent values you can't infer from the text — leave them out.`,
           },
-          {
-            role: 'user',
-            content: text
-          }
+          { role: 'user', content: text },
         ],
-        response_format: { type: 'json_object' }
-      })
+      },
     });
-
-    const data = await response.json();
-    return JSON.parse(data.choices?.[0]?.message?.content);
-  } catch (error) {
-    console.error('Kimi Extraction Failed:', error);
+    if (error) throw error;
+    const content = data?.choices?.[0]?.message?.content ?? data?.reply ?? '';
+    const match = typeof content === 'string' ? content.match(/\{[\s\S]*\}/) : null;
+    return match ? JSON.parse(match[0]) : null;
+  } catch (err) {
+    console.error('[Kimi] extraction failed:', err);
     return null;
   }
 }
