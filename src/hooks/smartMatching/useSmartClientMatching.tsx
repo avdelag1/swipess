@@ -13,13 +13,11 @@ const CLIENT_FIELDS = `
     languages_spoken, neighborhood, bio, onboarding_completed
 `;
 
-// Demo data: 2 buyers, 2 renters, 2 hire (workers seeking jobs).
-// Always appended AFTER real users so testing never obscures real profiles.
-// Coords near Tulum so the owner-side radius slider reacts during testing.
-const DEMO_CLIENTS: any[] = [
-  // ── BUYERS (3 — purchase-ready owner-side cards) ──────────────────────
+// Demos disabled — show real users only.
+const DEMO_CLIENTS: any[] = [];
+const _DEPRECATED_DEMO_CLIENTS: any[] = [
   {
-    user_id: 'demo-client-buyer-1',
+    user_id: 'demo-client-buyer-1-disabled',
     full_name: 'Isabela Torres',
     age: 29, gender: 'female',
     city: 'Tulum', country: 'Mexico', nationality: 'Mexican',
@@ -399,12 +397,18 @@ export function useSmartClientMatching(
                     .filter(p => (p as any).client_type !== 'business') // business/place exclusion
                     .map(p => {
                     const cp = cpMap.get(p.user_id);
+                    // Merge all available photo sources so real users always show their photo.
+                    const profileImgs = Array.isArray(p.images) ? p.images : [];
+                    const cpImgs = Array.isArray(cp?.profile_images) ? cp!.profile_images as any[] : [];
+                    const merged = [...profileImgs, ...cpImgs].filter(Boolean);
+                    if (merged.length === 0 && (p as any).avatar_url) merged.push((p as any).avatar_url);
+                    const finalImgs = merged.length > 0 ? merged : ['/placeholder.svg'];
                     return {
                         id: p.user_id, user_id: p.user_id, name: p.full_name || cp?.name || 'User',
                         age: p.age || cp?.age || 0, gender: p.gender || cp?.gender || '',
                         interests: p.interests || cp?.interests || [], preferred_activities: cp?.preferred_activities || [],
                         location: { city: p.city || cp?.city }, lifestyle_tags: (p as any).lifestyle_tags || (cp as any)?.lifestyle_tags || [],
-                        profile_images: p.images || cp?.profile_images || ['/placeholder.svg'], matchPercentage: 80,
+                        profile_images: finalImgs, matchPercentage: 80,
                         matchReasons: ['Profile available'], incompatibleReasons: [], verified: !!p.onboarding_completed,
                         roommate_available: !!cp?.roommate_available, city: p.city || cp?.city, country: p.country || cp?.country, work_schedule: p.work_schedule || cp?.work_schedule
                     } as MatchedClientProfile;
@@ -413,6 +417,12 @@ export function useSmartClientMatching(
                 if (isRoommateSection) {
                     results = results.filter(r => r.roommate_available);
                 }
+
+                // Hide profiles that have no real photo — avoids empty/placeholder cards in PWA.
+                results = results.filter(r => {
+                    const imgs = (r as any).profile_images as any[] | undefined;
+                    return Array.isArray(imgs) && imgs.some(u => typeof u === 'string' && u && !u.includes('placeholder'));
+                });
 
                 // Filter by client_type if owner selected a category (buyers/renters/hire)
                 if (_category && ['buyers', 'renters', 'hire'].includes(_category)) {
