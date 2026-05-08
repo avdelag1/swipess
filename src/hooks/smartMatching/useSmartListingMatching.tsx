@@ -36,9 +36,9 @@ const DEMO_LISTINGS: any[] = [
     description: 'Breathtaking jungle-and-sea energy with private rooftop water, soft stone interiors, and a cinematic indoor-outdoor layout.',
     price: 4500, currency: 'USD',
     images: [
-      'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&q=80&w=1200',
-      'https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&q=80&w=1200',
-      'https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?auto=format&fit=crop&q=80&w=1200'
+      '/images/filters/property_jungle_villa.jpg',
+      '/images/filters/property_bamboo_dome.jpg',
+      '/images/filters/property_loft_interior.jpg'
     ],
     city: 'Tulum', neighborhood: 'Aldea Zamá',
     category: 'property', listing_type: 'rent', property_type: 'penthouse',
@@ -52,9 +52,9 @@ const DEMO_LISTINGS: any[] = [
     description: 'Warm concrete loft minutes from the beach, with quiet work corners, filtered light, and a social rooftop for sunset dinners.',
     price: 2800, currency: 'USD',
     images: [
-      'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=1200',
-      'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&q=80&w=1200',
-      'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&q=80&w=1200'
+      '/images/filters/property_loft_interior.jpg',
+      '/images/filters/property_jungle_villa.jpg',
+      '/images/filters/property_bamboo_dome.jpg'
     ],
     city: 'Canggu', neighborhood: 'Batu Bolong',
     category: 'property', listing_type: 'rent', property_type: 'loft',
@@ -68,9 +68,9 @@ const DEMO_LISTINGS: any[] = [
     description: 'Glassline high-rise condo with bay views, concierge service, gym, pool deck, and polished city luxury.',
     price: 5200, currency: 'USD',
     images: [
-      'https://images.unsplash.com/photo-1613977257363-707ba9348227?auto=format&fit=crop&q=80&w=1200',
-      'https://images.unsplash.com/photo-1613977257592-4871e5fcd7c4?auto=format&fit=crop&q=80&w=1200',
-      'https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&q=80&w=1200'
+      '/images/filters/property_bamboo_dome.jpg',
+      '/images/filters/property_loft_interior.jpg',
+      '/images/filters/property_jungle_villa.jpg'
     ],
     city: 'Miami', neighborhood: 'Brickell',
     category: 'property', listing_type: 'rent', property_type: 'condo',
