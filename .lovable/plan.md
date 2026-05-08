@@ -1,62 +1,85 @@
 ## Goal
 
-Seed 3 additional realistic listings per quick-filter category (Properties, Motorcycles, Bicycles, Workers) with **3 photos each**, and 3 additional realistic client profiles (the "users" surfaced on the Owner side) with **3 photos each**, covering Bali, Tulum, Miami, NYC, Russia, Spain, Italy, France, Brazil, Argentina, Mexico, Colombia, Venezuela vibes.
+Make Swipess feel like a premium native app (Tinder / Airbnb / TikTok class). Stop unmounting the dashboard, stop showing splash flashes between routes, and keep only one focused animation at a time so low-memory Android devices stay at 60 FPS.
 
-Existing seeded categories already have multiple entries — we are adding 3 more per category, not replacing.
+## Diagnosis (current pain)
 
-## Scope
+- Every protected route is a separate `lazyWithRetry` chunk under `PersistentDashboardLayout` → `AnimatedOutlet`. The "persistent" layout only persists header/nav; the dashboard itself unmounts on every navigation, which causes splash flashes, image reloads, and state-restoration lag.
+- `AnimatedOutlet` cross-fades route children with `position: absolute`, but the entering chunk still has to load + Suspense, so users see a blank `SuspenseFallback` between pages.
+- `PokerCategoryCard` runs continuous breathing scale + opacity + cross-fade on every card in the deck (not just the top one). Combined with `AtmosphericLayer`, parallax, and category-photo cross-fades, several layers animate at once.
+- Gesture conflicts: deck has X-swipe, peek has Y-swipe, fullscreen has pull-down dismiss, plus tap-to-toggle-chrome. They all live on overlapping surfaces.
+- Splash/logo screen is gated by `swipess-ready` event with a 2.5s safety timer — it can re-appear when chunks load slowly.
 
-**Listings table (4 categories × 3 = 12 new listings)**
-- Property: 3 new (e.g. Tulum jungle villa, Bali Canggu loft, Miami Brickell condo)
-- Motorcycle: 3 new (e.g. Vespa GTS 300 Italy, Triumph Bonneville UK, Royal Enfield Himalayan)
-- Bicycle: 3 new (e.g. Cannondale Topstone gravel, Pinarello road, Vanmoof S5 e-bike)
-- Worker: 3 new (e.g. Brazilian fitness coach in Tulum, Argentine chef in Miami, Spanish architect in Bali)
+## Plan
 
-Each listing includes:
-- `images` jsonb array with **exactly 3** Unsplash CDN URLs (`?auto=format&fit=crop&q=80&w=1200`)
-- `is_active=true`, `status='active'`, sensible price/currency, address, neighborhood
-- `owner_id = '00000000-0000-0000-0000-000000000001'` (matches existing seed system owner)
-- Stable hardcoded UUIDs so re-running migration is idempotent (`ON CONFLICT (id) DO NOTHING`)
+### 1. Persistent Dashboard Scene (architectural)
 
-**Client profiles (3 new users surfaced on Owner side)**
-3 new rows in `client_profiles` representing diverse Latin/European/Asian-coastal vibes (e.g. Brazilian creative in Tulum, Italian designer in Bali, Colombian dev in Miami). Each gets:
-- `profile_images` jsonb with **3** realistic portrait Unsplash URLs
-- `name`, `age`, `bio`, `nationality`, `country`, `city`, `neighborhood`, `languages`, `interests`, `roommate_available=true`
-- `user_id` = stable seeded UUID (no auth.users FK conflict — `user_id` column allows arbitrary uuid; existing seeds work the same way)
+- Keep `ClientDashboard` and `EnhancedOwnerDashboard` mounted once, behind every dashboard-adjacent route.
+- Convert these "secondary" routes into **overlay layers** that slide above the dashboard instead of replacing it:
+  - Properties / listings / new listing
+  - Filters (client + owner)
+  - Liked / Who-liked-you / Interested
+  - Notifications, Subscription packages
+  - Profile, Settings, Security
+- Implementation: introduce a single `<DashboardScene>` component rendered once inside `PersistentDashboardLayout`. It holds `<ClientDashboard>` (or owner equivalent) always mounted, plus a `<RouteOverlayHost>` that reads the URL and renders a fullscreen overlay on top using `framer-motion` translateY + opacity. URL stays the source of truth (back button still works), but the dashboard is never unmounted.
+- Routes that genuinely need a different scene (Messaging, Radio, Eventos feed, Camera, Admin) keep using the normal route swap path — they're not "above the dashboard," they're separate scenes.
 
-## Implementation
+### 2. Kill the splash flash between pages
 
-**Single new migration file**: `supabase/migrations/<timestamp>_seed_diverse_listings_and_profiles.sql`
+- Remove `SuspenseFallback` from inside the protected `AnimatedOutlet`. Replace with `null` so the previous frame stays painted while the next chunk loads.
+- Preload all dashboard-adjacent chunks immediately after auth resolves (extend `routePrefetcher` with a "dashboard cluster" group fired from `SwipessPrewarmer`).
+- Drop the 2.5 s `AuthReadySignal` safety timer to ~600 ms so the boot splash never lingers after first paint.
 
-Structure:
-```sql
--- 12 listings (3 per category) with stable UUIDs and 3 images each
-INSERT INTO public.listings (id, owner_id, title, description, price, currency,
-  images, status, is_active, category, listing_type, address, neighborhood,
-  property_type, beds, baths, square_footage, amenities)
-VALUES (...), (...), ... 
-ON CONFLICT (id) DO NOTHING;
+### 3. Animation budget — one focused animation at a time
 
--- 3 client_profiles for owner-side discovery
-INSERT INTO public.client_profiles (user_id, name, age, bio, gender, nationality,
-  country, city, neighborhood, languages, interests, profile_images,
-  roommate_available, occupation)
-VALUES (...), (...), (...)
-ON CONFLICT DO NOTHING;
-```
+- `PokerCategoryCard`: only the top card runs the breathing scale/cross-fade. Stacked cards behind get static `transform: translateY` + `scale` and `opacity` only.
+- Move category photo cross-fade from a continuous loop to "advance only when top card is idle and tab visible" (use `IntersectionObserver` + `document.visibilityState`).
+- Gate `AtmosphericLayer` to a single low-cost gradient on Android low-memory devices (detect via `navigator.deviceMemory <= 4` or `prefers-reduced-motion`).
+- Replace combined `scale + blur + shadow + opacity` transitions with `transform + opacity` only. Shadows become static layered tokens, not animated.
 
-All photos use Unsplash hot-link CDN URLs (already the pattern in the existing seed), so no storage upload step needed and the carousel/tap-to-change-photo behavior gets exercised immediately (3 photos per card).
+### 4. Gesture isolation
 
-## What does NOT change
+- Dashboard deck: horizontal pan only (`dragDirectionLock`, `dragElastic` on x, y locked).
+- Fullscreen overlay: vertical dismiss only.
+- Tap-to-reveal-chrome stays on the deck, but the edge-detection logic moves into a single `useDeckGestures` hook so PokerCategoryCard and PeekCard share one source of truth and never both consume the same pointer event.
+- Remove `usePullDownToDismiss` from places where the overlay host already owns Y-axis.
 
-- No code changes to `useListings`, `SwipessSwipeContainer`, swipe physics, or carousel logic — all data-only.
-- No changes to category routing — `get_smart_listings` already filters by `category` correctly.
-- No new tables, no RLS changes.
+### 5. Image performance
 
-## Acceptance
+- Add a low-res preview (320 px AVIF/WebP) for every poker card photo. Show preview immediately, swap to full-res once decoded with `img.decode()`.
+- Centralize image preloading in `lib/swipe/ImagePreloadController` (already exists) and call it from the new dashboard cluster preloader. Drop the per-card `new Image()` calls in `PokerCategoryCard`.
+- Add `loading="lazy"` + `decoding="async"` everywhere except the visible top card.
 
-- Properties deck shows 3 new realistic global-vibe listings, each with 3 swipeable photos.
-- Motorcycle / Bicycle / Worker decks each have 3 new entries with 3 photos.
-- Owner-side user discovery shows 3 new diverse client profiles, each with 3 portraits.
-- Tapping the card edges cycles through the 3 photos as designed.
-- Re-running the migration is a no-op (idempotent via `ON CONFLICT`).
+### 6. UI thread hygiene
+
+- Audit `useEffect`s that run on every render in `PokerCategoryCard`, `SwipeAllDashboard`, `ClientDashboard` and memoize/condition them.
+- Replace any `setState` inside drag handlers with `useMotionValue` updates so React doesn't re-render on each frame.
+- Mark heavy children with `memo` and stable callback refs.
+
+### 7. Dashboard return animation
+
+- Overlay closes by animating its own `translateY: 100%` + opacity to 0. Dashboard underneath is untouched — no remount, no scroll reset, no image reload. Feels like "revealing," not "loading."
+
+### 8. Verification
+
+- Manual: navigate Dashboard → Properties → back; record with Chrome perf tab. Target: no Suspense fallback frame, no LCP > 16 ms during transition, sustained 60 FPS while swiping.
+- Lighthouse mobile run before/after on `/client/dashboard`.
+
+## Scope of file changes (technical detail)
+
+- New: `src/components/dashboard/DashboardScene.tsx`, `src/components/dashboard/RouteOverlayHost.tsx`, `src/hooks/useDeckGestures.ts`.
+- Edit: `src/App.tsx` (route grouping), `src/components/PersistentDashboardLayout.tsx` (mount DashboardScene), `src/components/AnimatedOutlet.tsx` (overlay-aware), `src/components/swipe/PokerCategoryCard.tsx` (animation gating), `src/components/swipe/SwipeAllDashboard.tsx`, `src/providers/RootProviders.tsx` (boot timer), `src/utils/routePrefetcher.ts` (dashboard cluster), `src/components/AtmosphericLayer.tsx` (low-mem mode).
+- Out of scope: visual redesign, business logic, RLS, auth, copy.
+
+## Risk & rollout
+
+- Biggest risk: route → overlay mapping. We start with **Properties + Filters + Liked/Interested** as overlays in phase 1. Profile/Settings stay as normal routes in phase 1 and become overlays in phase 2 if phase 1 is stable.
+- Each overlay is feature-flagged via a small `OVERLAY_ROUTES` set so we can revert per-route without a rebuild.
+
+## Out of this plan
+
+- Listing/data fetching changes — none.
+- Database / edge function changes — none.
+- Visual identity, color tokens, copy — unchanged.
+
+If this looks right I'll implement Phase 1 (persistent scene + overlay host for Properties/Filters/Liked, splash-flash removal, animation gating). Phase 2 (more overlays + low-res image previews) follows after we confirm phase 1 feels right.
