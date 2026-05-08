@@ -136,21 +136,24 @@ export const POKER_CARD_PHOTOS: Record<string, string> = {
   promote: '/images/filters/owner_promote_card.jpg',
 };
 
+// Neutral dark fallback only — no colored tint, so images never look
+// "blocked" by a red/blue/green wash while they fade in.
+const NEUTRAL_FALLBACK = 'linear-gradient(135deg, #111111 0%, #050505 100%)';
 export const POKER_CARD_GRADIENTS: Record<string, string> = {
-  property: 'linear-gradient(135deg, #3b82f6 0%, #1e40af 100%)',
-  motorcycle: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',
-  moto: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',
-  bicycle: 'linear-gradient(135deg, #f43f5e 0%, #e11d48 100%)',
-  services: 'linear-gradient(135deg, #FF4D00 0%, #EB4898 100%)',
-  worker: 'linear-gradient(135deg, #FF4D00 0%, #EB4898 100%)',
-  radio: 'linear-gradient(135deg, #f43f5e 0%, #e11d48 100%)',
-  all: 'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)',
-  vap: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-  'all-clients': 'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)',
-  buyers: 'linear-gradient(135deg, #3b82f6 0%, #1e40af 100%)',
-  renters: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-  hire: 'linear-gradient(135deg, #FF4D00 0%, #EB4898 100%)',
-  lawyer: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
-  'ai-listing': 'linear-gradient(135deg, #818cf8 0%, #6366f1 100%)',
-  promote: 'linear-gradient(135deg, #ec4899 0%, #db2777 100%)',
+  property: NEUTRAL_FALLBACK,
+  motorcycle: NEUTRAL_FALLBACK,
+  moto: NEUTRAL_FALLBACK,
+  bicycle: NEUTRAL_FALLBACK,
+  services: NEUTRAL_FALLBACK,
+  worker: NEUTRAL_FALLBACK,
+  radio: NEUTRAL_FALLBACK,
+  all: NEUTRAL_FALLBACK,
+  vap: NEUTRAL_FALLBACK,
+  'all-clients': NEUTRAL_FALLBACK,
+  buyers: NEUTRAL_FALLBACK,
+  renters: NEUTRAL_FALLBACK,
+  hire: NEUTRAL_FALLBACK,
+  lawyer: NEUTRAL_FALLBACK,
+  'ai-listing': NEUTRAL_FALLBACK,
+  promote: NEUTRAL_FALLBACK,
 };
