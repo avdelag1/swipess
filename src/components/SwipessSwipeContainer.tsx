@@ -9,6 +9,7 @@ import { SwipeActionButtonBar } from './SwipeActionButtonBar';
 import { SwipeExhaustedState } from './swipe/SwipeExhaustedState';
 import { SwipeLoadingSkeleton } from './swipe/SwipeLoadingSkeleton';
 import type { QuickFilterCategory } from '@/types/filters';
+import { normalizeCategoryName } from '@/types/filters';
 
 const CLIENT_CYCLE: QuickFilterCategory[] = ['property', 'motorcycle', 'bicycle', 'services'];
 const OWNER_CYCLE: QuickFilterCategory[] = ['all-clients', 'buyers', 'renters', 'hire'];
@@ -408,7 +409,24 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
     activeMode !== 'owner'
   );
 
-  const smartData = activeMode === 'owner' ? smartClients : smartListings;
+  const selectedCategoryDb = useMemo(() => (storeActiveCategory ? normalizeCategoryName(storeActiveCategory) : undefined), [storeActiveCategory]);
+
+  const smartData = useMemo(() => {
+    const rawData = activeMode === 'owner' ? smartClients : smartListings;
+
+    // React Query keeps previous data while fetching. Never let that stale
+    // previous category seed the deck after a quick-filter change.
+    if (activeMode === 'client' && selectedCategoryDb && selectedCategoryDb !== 'all') {
+      return rawData.filter((item: any) => normalizeCategoryName(item?.category) === selectedCategoryDb);
+    }
+
+    if (activeMode === 'owner' && storeActiveCategory && ['buyers', 'renters', 'hire'].includes(storeActiveCategory)) {
+      const clientTypeMap: Record<string, string> = { buyers: 'buyer', renters: 'renter', hire: 'hire' };
+      return rawData.filter((item: any) => (item?.client_type || item?.occupation) === clientTypeMap[storeActiveCategory]);
+    }
+
+    return rawData;
+  }, [activeMode, smartClients, smartListings, selectedCategoryDb, storeActiveCategory]);
   const isLoading = activeMode === 'owner' ? smartClientsLoading : smartListingsLoading;
   const isFetching = activeMode === 'owner' ? smartClientsFetching : smartListingsFetching;
   const error = activeMode === 'owner' ? smartClientsError : smartListingsError;
