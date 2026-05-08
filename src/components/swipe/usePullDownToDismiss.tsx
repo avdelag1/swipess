@@ -38,6 +38,23 @@ export function usePullDownToDismiss(opts?: { threshold?: number }) {
   const { navigate } = useAppNavigate();
   const { activeMode } = useActiveMode();
   const setActiveCategory = useFilterStore((s) => s.setActiveCategory);
+  const activeCategory = useFilterStore((s) => s.activeCategory);
+  const animationRef = useRef<ReturnType<typeof animate> | null>(null);
+
+  // Whenever a new deck opens (category changes to a non-null value), make
+  // sure the pull-down motion value is fully reset. This prevents a stuck
+  // off-screen / faded deck after a previous dismissal.
+  useEffect(() => {
+    if (activeCategory) {
+      animationRef.current?.stop();
+      animationRef.current = null;
+      y.set(0);
+      exiting.current = false;
+      active.current = false;
+      startY.current = null;
+      startX.current = null;
+    }
+  }, [activeCategory, y]);
 
   const commitDismiss = useCallback(() => {
     if (exiting.current) return;
@@ -45,8 +62,11 @@ export function usePullDownToDismiss(opts?: { threshold?: number }) {
     active.current = false;
     triggerHaptic('medium');
     const vh = typeof window !== 'undefined' ? window.innerHeight : 720;
-    animate(y, vh * 0.95, { duration: 0.34, ease: [0.22, 1, 0.36, 1] });
+    animationRef.current?.stop();
+    animationRef.current = animate(y, vh * 0.95, { duration: 0.34, ease: [0.22, 1, 0.36, 1] });
     setTimeout(() => {
+      animationRef.current?.stop();
+      animationRef.current = null;
       setActiveCategory(null as any);
       navigate(`/${activeMode}/dashboard`);
       y.set(0);
