@@ -93,12 +93,19 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   const y = externalY ?? _internalY;
 
   // Strict story-feed motion: horizontal = like/pass, vertical = browse next card.
+  // Vertical browse keeps the card fully opaque so up/down feels like a clean
+  // page-turn — the underlying card only pops in once we commit. Horizontal
+  // swipes get a subtle late fade so like/pass still feels weighted.
   const cardOpacity = useTransform(
     [x, y] as any,
     ([cx, cy]: any) => {
-      const a = Math.min(1, Math.abs(cx) / 400);
-      const b = Math.min(1, Math.abs(cy) / 400);
-      return 1 - Math.max(a, b) * 0.4;
+      const ax = Math.abs(cx);
+      // Horizontal: stay solid until ~60% of threshold, then fade lightly.
+      const fadeX = ax <= SWIPE_THRESHOLD * 0.6
+        ? 0
+        : Math.min(1, (ax - SWIPE_THRESHOLD * 0.6) / (SWIPE_THRESHOLD * 1.2)) * 0.25;
+      // Vertical: NO fade during browse — card stays opaque the whole way.
+      return 1 - fadeX;
     }
   );
   const likeOpacity = useTransform(x, [0, SWIPE_THRESHOLD * 0.5, SWIPE_THRESHOLD], [0, 0.5, 1]);
