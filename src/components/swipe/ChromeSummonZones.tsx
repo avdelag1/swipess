@@ -20,13 +20,14 @@ export function ChromeSummonZones() {
       {/* Top edge strip */}
       <div
         onPointerDown={onSummon}
+        data-no-pull-dismiss
         aria-hidden="true"
         style={{
           position: 'fixed',
           top: 0,
           left: 0,
           right: 0,
-          height: 'calc(var(--safe-top, 0px) + 30px)',
+          height: 'calc(var(--safe-top, 0px) + 22px)',
           zIndex: 10010,
           background: 'transparent',
           pointerEvents: 'auto',
@@ -36,6 +37,7 @@ export function ChromeSummonZones() {
       {/* Bottom strip */}
       <div
         onPointerDown={onSummon}
+        data-no-pull-dismiss
         aria-hidden="true"
         style={{
           position: 'fixed',
