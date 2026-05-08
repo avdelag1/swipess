@@ -1,85 +1,58 @@
-## Goal
+# AI Listing Wizard — Fixes & Polish
 
-Three connected fixes for owner listings:
+## Problems
 
-1. **Edit listing prefills with existing data** (currently fields go blank).
-2. **Replace freeform text inputs with chip-builder selectors** that compose the description automatically — no description textarea anywhere (listings, profiles, roommate).
-3. **Clean up the listing Preview / Insights screen** — remove the giant translucent circles overlaying the photo, fix the cut-off X button, polish the stats.
+1. **Listing creation fails.** `AIListingWizard` POSTs to `ai-concierge`, which returns a streamed SSE body (MiniMax/OpenRouter). The wizard does `resp.json()` on it → `Unexpected token ':', ": OPENROUT"...` → "Something went wrong with the AI processing." No listing is ever generated.
+2. **Magic refine button broken.** Same root cause. Kimi path needs `VITE_MOONSHOT_API_KEY` (not configured), so it always falls back to the streaming `ai-concierge` endpoint and crashes with the same SSE parse error.
+3. **Mic has no instructions.** First-time users don't know to tap → speak → tap again to transcribe.
+4. **Send icon hard to see in light theme.** In the AI Concierge chat input, the send button uses `bg-foreground text-background` on light, which on the cream/white surface still reads, but the user reports a contrast issue. We'll firm it up with a stronger primary fill and a visible ring so it pops on both themes.
 
----
+## Changes
 
-## 1. Edit listing prefill bug
+### A. New edge function `ai-listing-extract` (non-streaming, returns JSON)
 
-**Root cause** — `PropertyListingForm` runs `propertyFormSchema.safeParse(initialData)` on the listing fetched from DB. The schema declares `house_rules: z.array(z.string())`, but the DB stores `house_rules` as a joined string (`'No smoking · Quiet hours'`). `safeParse` fails, so `safeInitialData = {}` → every field renders empty.
+`supabase/functions/ai-listing-extract/index.ts`
+- `verify_jwt = false`, CORS enabled.
+- Accepts `{ task: 'extract' | 'refine', category, price, city, prompt }`.
+- Calls Lovable AI Gateway (`google/gemini-3-flash-preview`) **without** `stream: true`.
+- For `extract`: uses tool-calling (`function` with a JSON schema for `title, description, price, city, beds, baths, year, model, etc.`) and returns `{ data: {...} }`.
+- For `refine`: returns `{ text: "..." }` — clean rewrite of the user prompt.
+- Surfaces 429/402 errors clearly.
+- Add to `supabase/config.toml`.
 
-**Fix**
-- In `PropertyListingForm`, normalize `initialData` before parsing:
-  - Convert `house_rules` from string → array (split on ` · `).
-  - Coerce numeric fields that may arrive as strings.
-  - On parse failure, fall back to the raw `initialData` (cast) instead of `{}`, so we never blank the form.
-- Apply the same normalization in `MotorcycleListingForm`, `BicycleListingForm`, `WorkerListingForm` (same pattern likely affects them).
-- In `UnifiedListingForm`, when `editingProperty.id` is present, also hydrate `videoUrl`, `images`, `location`, **and** map DB-stored joined strings back to arrays for `house_rules`, `amenities`, `services_included`, `vibe`, `skills`, etc., before passing into the sub-form.
+### B. Rewire `src/components/AIListingWizard.tsx`
 
----
+- Replace both `fetch(AI_URL...)` blocks with `supabase.functions.invoke('ai-listing-extract', { body: {...} })`.
+- Drop the `refineWithKimi` import and the hardcoded anon-JWT strings.
+- On `handleProcess`: read `data.data`, merge with uploaded image URLs, advance to `review`.
+- On `handleRefinePrompt`: read `data.text`, replace `prompt`.
 
-## 2. Chip-only description builder (no freeform text)
+### C. Mic instruction popover (first-time + on-demand)
 
-**Scope** — listings (property, motorcycle, bicycle, worker), owner profile, client profile, roommate profile. Remove every "Description / About / Bio" textarea. The composed description shown in previews/insights is auto-built from the chips via `buildDescriptionFromChips`.
+- In the details step, wrap the big mic button in a `Popover` that auto-opens the first time the wizard mounts (`localStorage` flag `swipess.miclistingTip.v1`).
+- Also add a small `(?)` info chip next to the mic that re-opens it.
+- Copy: "Tap once and describe your listing out loud. Tap again to stop and transcribe. Then hit the magic wand to polish, or Initialize Optimization to generate."
+- Same one-shot popover for the magic-wand refine button: "Polishes your spoken text into a sharper listing description."
 
-**Expand `src/constants/listingTaxonomies.ts`** with richer chip groups:
+### D. Send-icon contrast in `ConciergeChat.tsx`
 
-- `PROPERTY_ADJECTIVES` (positive descriptors): Amazing, Beautiful, Gorgeous, Pretty, Nice, Cool, Incredible, Wonderful, Cute, Charming, Cozy, Stylish, Modern, Bright, Sunny, Stunning, Elegant, Luxurious, Exuberant.
-- `PROPERTY_SIZE`: Tiny, Small, Medium, Spacious, Large, Big, Huge, Enormous, Giant.
-- `PROPERTY_FEATURES_EXPANDED` adds: Pool (private/shared), 2-in-1 Washer-Dryer, Separate Washer & Dryer, Laundry Room, Dishwasher, Dryer, Rooftop, Terrace, Garage, Carport, Sea view, Mountain view, Garden view, Outdoor kitchen, BBQ, Hot tub, Sauna, Office nook, Walk-in closet.
-- New step "Counts": Bedrooms (1–6+), Bathrooms (1–5+), Half-baths, Parking spots — rendered as 40px chip pills (not number inputs) so taps feel intentional.
-- Equivalent expansions for moto / bicycle / worker (more positive adjectives + condition + included items).
+- Switch the send button to `bg-primary text-primary-foreground` with a subtle `ring-1 ring-primary/30` and stronger shadow on both themes (no more `bg-foreground/bg-white` swap).
+- Bump `strokeWidth` to 3 and size to `h-5 w-5` for legibility.
 
-**Form changes**
-- Delete `Title` text input. Title auto-generates from `[Adjective] [Size] [PropertyType] in [City]` (still editable later via a small "Rename" pencil if needed — but no required textarea up front).
-- Delete `Description` textarea everywhere — `UnifiedListingForm` already falls back to `buildDescriptionFromChips`, so we just stop showing the textarea.
-- Replace `house_rules` joined string write — keep storing as string in DB but always round-trip via array in the form.
-- For each `ChipMultiSelect`, give the active state stronger visual feedback so the user can't miss it: filled `bg-primary text-primary-foreground` + scale 1.04 + subtle inner ring. Already mostly correct — bump tap feedback and add a small checkmark glyph on active chips.
-- Add a live "Preview description" line under the chips (read-only) that shows the sentence being built so the user sees the impact of each tap.
+### E. Cleanup
 
-**Profile / roommate**
-- Same pattern: remove `bio` / `description` textareas; replace with chip groups (vibe, traits, lifestyle, languages, work style). Auto-compose the bio string for storage.
+- Delete dead `src/lib/kimi.ts` import from the wizard (file can stay for future use).
+- Add a small inline error banner inside the wizard so 429/402 from the new function are visible without bouncing the user back to step `details` silently.
 
----
+## Files touched
 
-## 3. Preview / Insights screen polish
+- `supabase/functions/ai-listing-extract/index.ts` *(new)*
+- `supabase/config.toml` *(add function block)*
+- `src/components/AIListingWizard.tsx`
+- `src/components/ConciergeChat.tsx`
 
-Looking at the uploaded screenshot, the Property Preview shows large translucent circles overlaying the hero photo and the close X button is clipped by the rounded card.
+## Verification
 
-- **Remove the circular overlay.** Find and delete the circle/avatar row currently rendered above the image inside `LikedListingInsightsModal` / `ListingPreviewDialog` (likely empty photo-slot placeholders rendered into the preview by mistake). Preview should show only the image carousel.
-- **Fix the close button**: move the X out of the rounded card's overflow-hidden region — render it as a fixed top-right floating button with safe-area padding so it isn't clipped.
-- **Clean the stats row**: the Beds / Baths cards currently overflow horizontally. Use a 2-up grid (or 4-up on sm+), drop the second card from clipping.
-- **Insights view**: replace the cramped circular indicators on top of the photo with a dedicated stats strip below the image (Views / Flames / Quality). The hero photo stays untouched.
-- Keep all dark-theme tokens; use `bg-card`, `text-foreground`, `text-muted-foreground` only.
-
----
-
-## Files to touch
-
-```text
-src/constants/listingTaxonomies.ts          (expand chip taxonomies + helpers)
-src/components/PropertyListingForm.tsx      (normalize initialData, drop title/desc, add adjective/size/counts chips)
-src/components/MotorcycleListingForm.tsx    (same normalization + chip expansion)
-src/components/BicycleListingForm.tsx       (same)
-src/components/WorkerListingForm.tsx        (same)
-src/components/UnifiedListingForm.tsx       (hydrate edit data fully, auto-title, drop description requirement)
-src/components/listing/ChipMultiSelect.tsx  (stronger active state + checkmark)
-src/components/ListingPreviewDialog.tsx     (remove circle overlay, fix X button, stats row)
-src/components/LikedListingInsightsModal.tsx (move stats below photo, drop circular overlays)
-src/components/PropertyPreviewDialog.tsx    (same polish)
-src/pages/ClientProfileNew.tsx              (drop bio textarea, chip-build it)
-src/pages/OwnerProfile.tsx                  (drop bio textarea, chip-build it)
-src/pages/RoommateMatching.tsx (profile section) (chip-only)
-```
-
----
-
-## Out of scope
-
-- No DB schema changes — `house_rules`, `description`, `bio` stay as strings; we just stop writing freeform text into them.
-- No swipe / navigation changes.
-- No new routes.
+- Build passes.
+- Manually: open AI Listing → Property → upload 1 photo → tap mic, say "two bedroom apartment in Tulum 2500 a month, pool and laundry" → tap to stop → magic wand polishes prompt → Initialize → review screen shows title/price/city/description → Continue opens UnifiedListingForm prefilled.
+- Send button visible on both light and dark themes at 392px.

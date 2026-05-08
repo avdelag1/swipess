@@ -26,3 +26,6 @@ verify_jwt = false
 
 [functions.ai-profile-extract]
 verify_jwt = false
+
+[functions.ai-listing-extract]
+verify_jwt = false

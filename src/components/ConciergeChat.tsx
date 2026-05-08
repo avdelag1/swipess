@@ -950,17 +950,15 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                          disabled={!input.trim() || isLoading}
                          className={cn(
                            "h-12 w-12 shrink-0 rounded-full inline-flex items-center justify-center transition-all active:scale-90",
-                           isLight && !isSwipess
-                             ? "bg-foreground text-background shadow-[0_10px_28px_rgba(0,0,0,0.28)] hover:bg-foreground/90"
-                             : "bg-white text-black shadow-[0_10px_28px_rgba(0,0,0,0.45)] hover:bg-white/90",
+                           "bg-primary text-primary-foreground ring-1 ring-primary/40 shadow-[0_10px_28px_hsl(var(--primary)/0.45)] hover:bg-primary/90",
                            (!input.trim() || isLoading) && "opacity-40 shadow-none"
                          )}
                          aria-label="Send message"
                        >
                          {isLoading ? (
-                           <RefreshCw className="h-5 w-5 animate-spin" strokeWidth={2.4} />
+                           <RefreshCw className="h-5 w-5 animate-spin" strokeWidth={3} />
                          ) : (
-                           <ArrowUp className="h-5 w-5" strokeWidth={2.6} />
+                           <ArrowUp className="h-5 w-5" strokeWidth={3} />
                          )}
                        </button>
                   </div>

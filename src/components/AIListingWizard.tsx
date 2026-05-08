@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   X, Sparkles, ChevronRight, 
   Check, Loader2, Wand2, ArrowLeft, Camera,
-  Building2, Bike, Briefcase, Zap, DollarSign, MapPin, Search, Mic
+  Building2, Bike, Briefcase, Zap, DollarSign, MapPin, Search, Mic, HelpCircle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -18,7 +18,8 @@ import { uploadPhotoBatch } from '@/utils/photoUpload';
 import { useAuth } from '@/hooks/useAuth';
 import { useTranslation } from 'react-i18next';
 import { useVoiceTranscribe } from '@/hooks/useVoiceTranscribe';
-import { refineWithKimi } from '@/lib/kimi';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { supabase } from '@/integrations/supabase/client';
 import { UnifiedListingForm } from './UnifiedListingForm';
 
 type WizardStep = 'category' | 'photos' | 'details' | 'processing' | 'review';
@@ -67,6 +68,21 @@ export function AIListingWizard() {
   const [showFinalForm, setShowFinalForm] = useState(false);
   const { isRecording, isTranscribing, start: startVoice, stop: stopVoice } = useVoiceTranscribe();
   const [isRefining, setIsRefining] = useState(false);
+  const [micTipOpen, setMicTipOpen] = useState(false);
+
+  // Auto-open mic instructions the first time a user hits the details step
+  useEffect(() => {
+    if (step !== 'details') return;
+    try {
+      const seen = localStorage.getItem('swipess.aiListing.micTip.v1');
+      if (!seen) {
+        setMicTipOpen(true);
+        localStorage.setItem('swipess.aiListing.micTip.v1', '1');
+      }
+    } catch {
+      // ignore
+    }
+  }, [step]);
 
   useEffect(() => {
     if (aiListingDraft) {
@@ -134,43 +150,21 @@ export function AIListingWizard() {
     setIsRefining(true);
     triggerHaptic('medium');
     try {
-      // Priority: Use Kimi if key is available, otherwise fallback to existing AI URL
-      const refined = await refineWithKimi(prompt);
-      
-      if (refined !== prompt) {
+      const { data, error } = await supabase.functions.invoke('ai-listing-extract', {
+        body: { task: 'refine', prompt },
+      });
+      if (error) throw error;
+      if ((data as { error?: string })?.error) throw new Error((data as { error: string }).error);
+      const refined = (data as { text?: string })?.text?.trim();
+      if (refined) {
         setPrompt(refined);
-        toast.success('Intel Refined', { description: 'Description optimized by Kimi Intelligence.' });
-      } else {
-        // Fallback to existing AI logic if Kimi failed or no key
-        const AI_URL = 'https://vplgtcguxujxwrgguxqq.supabase.co/functions/v1/ai-concierge';
-        const AUTH_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwbGd0Y2d1eHVqeHdyZ2d1eHFxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgwMDI5MDIsImV4cCI6MjA2MzU3ODkwMn0.-TzSQ-nDho4J6TftVF4RNjbhr5cKbknQxxUT-AaSIJU';
-        
-        const resp = await fetch(AI_URL, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${AUTH_KEY}`,
-          },
-          body: JSON.stringify({
-            messages: [
-              { 
-                role: 'system', 
-                content: 'You are a professional listing copywriter. Rewrite the following raw spoken input into a professional, high-converting listing description. Keep it concise but persuasive. Do not add placeholders, keep the facts.' 
-              },
-              { role: 'user', content: prompt }
-            ],
-          }),
-        });
-
-        const data = await resp.json();
-        const fallbackRefined = data.choices?.[0]?.message?.content || data.reply || prompt;
-        setPrompt(fallbackRefined);
-        toast.success('Intel Refined', { description: 'Description optimized by flagship intelligence.' });
+        toast.success('Intel Refined', { description: 'Description polished by flagship intelligence.' });
       }
       triggerHaptic('success');
     } catch (error) {
       console.error('Refinement Error:', error);
-      toast.error('Could not refine text at this moment.');
+      const msg = error instanceof Error ? error.message : 'Could not refine text at this moment.';
+      toast.error(msg);
     } finally {
       setIsRefining(false);
     }
@@ -192,62 +186,34 @@ export function AIListingWizard() {
         uploadedUrls = await uploadPhotoBatch(user.id, imageFiles, 'listing-images');
       }
 
-      const AI_URL = 'https://vplgtcguxujxwrgguxqq.supabase.co/functions/v1/ai-concierge';
-      const AUTH_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwbGd0Y2d1eHVqeHdyZ2d1eHFxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgwMDI5MDIsImV4cCI6MjA2MzU3ODkwMn0.-TzSQ-nDho4J6TftVF4RNjbhr5cKbknQxxUT-AaSIJU';
-
-      const systemPrompt = `You are an expert real estate and marketplace listing optimizer for Swipess.
-      Your goal is to parse user input and create a structured JSON for a listing.
-      Category: ${category}
-      Base Information: 
-      - Price: ${price}
-      - Location: ${cityLocation}
-      - Narrative: ${prompt}
-      
-      Return ONLY a JSON object with the following structure (do not include markdown):
-      {
-        "title": "A catchy title",
-        "price": number,
-        "description": "Full optimized description",
-        "city": "Detected city",
-        "category": "${category}",
-        ...other category specific fields like beds, baths, year, model
-      }`;
-
-      const resp = await fetch(AI_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${AUTH_KEY}`,
-        },
-        body: JSON.stringify({
-          messages: [
-            { role: 'system', content: systemPrompt },
-            { role: 'user', content: prompt }
-          ],
-        }),
-      });
-
-      const data = await resp.json();
-      const content = data.choices?.[0]?.message?.content || data.reply || '';
-      const jsonMatch = content.match(/\{[\s\S]*\}/);
-      
-      if (jsonMatch) {
-        const parsed = JSON.parse(jsonMatch[0]);
-        setAiResult({
-          ...parsed,
+      const { data, error } = await supabase.functions.invoke('ai-listing-extract', {
+        body: {
+          task: 'extract',
           category,
-          images: uploadedUrls,
-          price: parsed.price || Number(price) || 0,
-          city: parsed.city || cityLocation || 'Tulum'
-        });
-        setStep('review');
-        triggerHaptic('success');
-      } else {
-        throw new Error('Could not parse AI response');
-      }
+          price,
+          city: cityLocation,
+          prompt,
+        },
+      });
+      if (error) throw error;
+      const payload = data as { data?: Record<string, unknown>; error?: string };
+      if (payload?.error) throw new Error(payload.error);
+      const parsed = payload?.data;
+      if (!parsed) throw new Error('AI returned no data');
+
+      setAiResult({
+        ...parsed,
+        category,
+        images: uploadedUrls,
+        price: (parsed.price as number) || Number(price) || 0,
+        city: (parsed.city as string) || cityLocation || 'Tulum',
+      });
+      setStep('review');
+      triggerHaptic('success');
     } catch (error) {
       console.error('AI Processing Error:', error);
-      toast.error('Something went wrong with the AI processing.');
+      const msg = error instanceof Error ? error.message : 'Something went wrong with the AI processing.';
+      toast.error(msg);
       setStep('details');
     } finally {
       setIsProcessing(false);
@@ -449,24 +415,43 @@ export function AIListingWizard() {
                             ? "bg-red-500/10 border-red-500/40 shadow-[0_0_50px_rgba(239,68,68,0.2)]" 
                             : "bg-cyan-500/5 border-cyan-500/20 hover:bg-cyan-500/10 hover:border-cyan-500/40"
                         )}>
-                          <button
-                            onClick={handleVoiceToggle}
-                            className={cn(
-                              "w-24 h-24 rounded-full flex items-center justify-center transition-all duration-500 shadow-2xl relative overflow-hidden group",
-                              isRecording ? "bg-red-500 scale-110" : "bg-cyan-500 hover:scale-105"
-                            )}
-                          >
-                            {isRecording ? (
-                              <motion.div 
-                                className="absolute inset-0 bg-white/20"
-                                animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0, 0.5] }}
-                                transition={{ duration: 1.5, repeat: Infinity }}
-                              />
-                            ) : (
-                              <div className="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                            )}
-                            <Mic className={cn("w-10 h-10 text-black relative z-10", isRecording && "animate-pulse")} />
-                          </button>
+                          <Popover open={micTipOpen} onOpenChange={setMicTipOpen}>
+                            <PopoverTrigger asChild>
+                              <button
+                                onClick={handleVoiceToggle}
+                                className={cn(
+                                  "w-24 h-24 rounded-full flex items-center justify-center transition-all duration-500 shadow-2xl relative overflow-hidden group",
+                                  isRecording ? "bg-red-500 scale-110" : "bg-cyan-500 hover:scale-105"
+                                )}
+                              >
+                                {isRecording ? (
+                                  <motion.div 
+                                    className="absolute inset-0 bg-white/20"
+                                    animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0, 0.5] }}
+                                    transition={{ duration: 1.5, repeat: Infinity }}
+                                  />
+                                ) : (
+                                  <div className="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                                )}
+                                <Mic className={cn("w-10 h-10 relative z-10", isRecording ? "text-white animate-pulse" : "text-black")} />
+                              </button>
+                            </PopoverTrigger>
+                            <PopoverContent
+                              side="top"
+                              sideOffset={12}
+                              className="w-72 p-4 rounded-2xl border border-cyan-500/30 bg-black/95 text-white shadow-2xl backdrop-blur-xl"
+                            >
+                              <div className="space-y-2">
+                                <div className="flex items-center gap-2">
+                                  <Mic className="w-4 h-4 text-cyan-400" />
+                                  <span className="text-[11px] font-black uppercase tracking-widest text-cyan-400">How to use</span>
+                                </div>
+                                <p className="text-[12px] leading-relaxed text-white/85">
+                                  Tap the mic and describe your listing out loud — bedrooms, location, price, anything that matters. Tap again to stop and we transcribe instantly. Then hit the wand to polish it, or Initialize Optimization to generate.
+                                </p>
+                              </div>
+                            </PopoverContent>
+                          </Popover>
                           
                           <div className="text-center space-y-1">
                             <p className={cn("text-[11px] font-black uppercase tracking-[0.3em]", isRecording ? "text-red-400" : "text-cyan-400")}>
@@ -475,6 +460,14 @@ export function AIListingWizard() {
                             <p className={cn("text-[9px] font-bold uppercase tracking-widest opacity-40", textPrimary)}>
                               {isRecording ? "TALK NATURALLY NOW" : "VOICE-TO-LISTING ACTIVE"}
                             </p>
+                            <button
+                              type="button"
+                              onClick={(e) => { e.stopPropagation(); setMicTipOpen(true); }}
+                              className="mx-auto mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-[9px] font-black uppercase tracking-widest text-cyan-400 hover:bg-cyan-500/20 transition-all"
+                            >
+                              <HelpCircle className="w-3 h-3" />
+                              How it works
+                            </button>
                           </div>
                         </div>
                       </div>
