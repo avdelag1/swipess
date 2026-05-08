@@ -836,6 +836,26 @@ button:active, [role="button"]:active {
     animation: pulse-subtle 2s ease-in-out infinite;
   }
 
+  /* Gesture-affordance breathing — extremely subtle floating hint */
+  @keyframes gesture-breathe {
+    0%, 100% { opacity: 0.32; transform: translateY(0) translateZ(0); }
+    50%      { opacity: 0.85; transform: translateY(-1.5px) translateZ(0); }
+  }
+  .animate-gesture-breathe {
+    animation: gesture-breathe 2.4s ease-in-out infinite;
+    will-change: opacity, transform;
+  }
+
+  /* Chrome-summon edge dot — even more whisper-quiet, brand-neutral */
+  @keyframes summon-glow {
+    0%, 100% { opacity: 0.22; transform: scaleX(0.85); }
+    50%      { opacity: 0.7;  transform: scaleX(1); }
+  }
+  .animate-summon-glow {
+    animation: summon-glow 2.8s ease-in-out infinite;
+    will-change: opacity, transform;
+  }
+
   @keyframes particle-burst {
     0% {
       transform: scale(0) translateZ(0);
