@@ -84,6 +84,19 @@ html, body, #root {
 body.swipe-deck-active,
 body.swipe-deck-active #root {
   background-color: hsl(var(--swipe-deck-frame)) !important;
+  height: 100dvh;
+  min-height: 100dvh;
+  max-height: 100dvh;
+  overflow: hidden !important;
+  overscroll-behavior: none;
+}
+
+body.swipe-deck-active #dashboard-scroll-container {
+  height: 100%;
+  max-height: 100%;
+  overflow: hidden !important;
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: auto !important;
 }
 
 /* Cheers theme: wrap body in cheetah-warm background */
