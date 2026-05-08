@@ -280,27 +280,33 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
 
   const handleDragStart = useCallback(() => {
     isDragging.current = true;
+    dragAxisRef.current = null;
     triggerHaptic('light');
     onDragStart?.();
   }, [onDragStart]);
+
+  const handleDirectionLock = useCallback((axis: 'x' | 'y') => {
+    dragAxisRef.current = axis;
+    if (axis === 'x') y.set(0);
+    if (axis === 'y') x.set(0);
+  }, [x, y]);
 
   const handleDragEnd = useCallback((_: any, info: PanInfo) => {
     const dx = info.offset.x;
     const dy = info.offset.y;
     const vx = info.velocity.x;
     const vy = info.velocity.y;
-    const horizCommit = Math.abs(dx) > SWIPE_THRESHOLD || Math.abs(vx) > VELOCITY_THRESHOLD;
-    const vertCommit = Math.abs(dy) > SKIP_THRESHOLD || Math.abs(vy) > SKIP_VELOCITY;
-    const horizProgress = Math.abs(dx) / SWIPE_THRESHOLD;
-    const vertProgress = Math.abs(dy) / SKIP_THRESHOLD;
-    if (horizCommit && (!vertCommit || horizProgress >= vertProgress)) {
+    const axis = dragAxisRef.current ?? (Math.abs(dx) >= Math.abs(dy) ? 'x' : 'y');
+    const horizCommit = axis === 'x' && (Math.abs(dx) > SWIPE_THRESHOLD || Math.abs(vx) > VELOCITY_THRESHOLD);
+    const vertCommit = axis === 'y' && (Math.abs(dy) > SKIP_THRESHOLD || Math.abs(vy) > SKIP_VELOCITY);
+    if (horizCommit) {
       const direction: 'left' | 'right' = dx > 0 ? 'right' : 'left';
       hasExited.current = true;
       isExitingRef.current = true;
       triggerHaptic(direction === 'right' ? 'success' : 'warning');
       const exitX = direction === 'right' ? (window.innerWidth || 600) * 1.2 : -(window.innerWidth || 600) * 1.2;
-      animate(x, exitX, { type: 'tween', duration: 0.26, ease: [0.32, 0, 0.67, 0] });
-      animate(y, dy * 0.6, { type: 'tween', duration: 0.26, ease: [0.32, 0, 0.67, 0] });
+      animate(x, exitX, { type: 'tween', duration: 0.24, ease: [0.32, 0, 0.67, 0] });
+      animate(y, 0, { type: 'tween', duration: 0.18, ease: [0.22, 1, 0.36, 1] });
       setTimeout(() => onSwipe(direction), 220);
     } else if (vertCommit && onSkip) {
       const dir = dy > 0 ? 1 : -1;
@@ -310,13 +316,13 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
       // Cinematic vertical exit: card vanishes back into the deck while next card rises up.
       const exitY = dir * (window.innerHeight || 800) * 0.85;
       animate(y, exitY, { duration: 0.32, ease: [0.22, 1, 0.36, 1] });
-      animate(x, 0, { duration: 0.32, ease: [0.22, 1, 0.36, 1] });
+      animate(x, 0, { duration: 0.18, ease: [0.22, 1, 0.36, 1] });
       setTimeout(() => onSkip(), 220);
     } else {
       animate(x, 0, { type: 'spring', ...ACTIVE_SPRING });
       animate(y, 0, { type: 'spring', ...ACTIVE_SPRING });
     }
-    setTimeout(() => { isDragging.current = false; }, 100);
+    setTimeout(() => { isDragging.current = false; dragAxisRef.current = null; }, 100);
   }, [onSwipe, onSkip, x, y]);
 
   const handleImageTap = useCallback((e: React.MouseEvent) => {
@@ -348,7 +354,8 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
       isExitingRef.current = false;
       onSwipe(direction);
     };
-    animate(x, exitX, { type: 'tween', duration: 0.28, ease: [0.32, 0, 0.67, 0], onComplete: fireSwipe });
+    animate(y, 0, { type: 'tween', duration: 0.14, ease: [0.22, 1, 0.36, 1] });
+    animate(x, exitX, { type: 'tween', duration: 0.26, ease: [0.32, 0, 0.67, 0], onComplete: fireSwipe });
     setTimeout(fireSwipe, 350);
   }, [onSwipe, x, y]);
 
