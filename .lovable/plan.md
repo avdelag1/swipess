@@ -1,61 +1,62 @@
-# Refine Swipe Affordances & Make Vertical Browse Reversible
+## Goal
 
-Three connected fixes for the swipe deck (client, owner, roommate):
+Seed 3 additional realistic listings per quick-filter category (Properties, Motorcycles, Bicycles, Workers) with **3 photos each**, and 3 additional realistic client profiles (the "users" surfaced on the Owner side) with **3 photos each**, covering Bali, Tulum, Miami, NYC, Russia, Spain, Italy, France, Brazil, Argentina, Mexico, Colombia, Venezuela vibes.
 
-## 1. Bottom tap-affordance: pill bar → tiny dot, raised above nav
+Existing seeded categories already have multiple entries — we are adding 3 more per category, not replacing.
 
-In `src/components/swipe/ChromeSummonZones.tsx`, the bottom strip currently shows a 44×3 white pill that overlaps the bottom navigation icons.
+## Scope
 
-- Replace the pill with a single 6px circular dot (`width: 6, height: 6, borderRadius: 999`), same subtle white/glow.
-- Raise its position so it sits *above* the nav bar buttons: change the strip's `bottom` from `0` to `calc(var(--safe-bottom, 0px) + var(--bottom-nav-height, 64px) + 4px)` and reduce strip height to ~28px so the dot doesn't sit on top of nav icons.
-- Keep the same tap-to-toggle-chrome behavior.
+**Listings table (4 categories × 3 = 12 new listings)**
+- Property: 3 new (e.g. Tulum jungle villa, Bali Canggu loft, Miami Brickell condo)
+- Motorcycle: 3 new (e.g. Vespa GTS 300 Italy, Triumph Bonneville UK, Royal Enfield Himalayan)
+- Bicycle: 3 new (e.g. Cannondale Topstone gravel, Pinarello road, Vanmoof S5 e-bike)
+- Worker: 3 new (e.g. Brazilian fitness coach in Tulum, Argentine chef in Miami, Spanish architect in Bali)
 
-## 2. Top tap-affordance: pill → small downward chevron
+Each listing includes:
+- `images` jsonb array with **exactly 3** Unsplash CDN URLs (`?auto=format&fit=crop&q=80&w=1200`)
+- `is_active=true`, `status='active'`, sensible price/currency, address, neighborhood
+- `owner_id = '00000000-0000-0000-0000-000000000001'` (matches existing seed system owner)
+- Stable hardcoded UUIDs so re-running migration is idempotent (`ON CONFLICT (id) DO NOTHING`)
 
-Same file, top strip currently also shows a 44×3 white pill. The user wants something that *signals "pull down to close the deck"*.
+**Client profiles (3 new users surfaced on Owner side)**
+3 new rows in `client_profiles` representing diverse Latin/European/Asian-coastal vibes (e.g. Brazilian creative in Tulum, Italian designer in Bali, Colombian dev in Miami). Each gets:
+- `profile_images` jsonb with **3** realistic portrait Unsplash URLs
+- `name`, `age`, `bio`, `nationality`, `country`, `city`, `neighborhood`, `languages`, `interests`, `roommate_available=true`
+- `user_id` = stable seeded UUID (no auth.users FK conflict — `user_id` column allows arbitrary uuid; existing seeds work the same way)
 
-- Replace that pill with a small downward chevron icon (Lucide `ChevronDown`, ~18px, `rgba(255,255,255,0.6)`, soft drop-shadow), centered, sitting just below the top safe area.
-- Keep the tap-to-toggle-chrome behavior on the strip itself; the chevron is purely visual and `pointer-events: none`.
-- Keep the existing left-side scroll/page indicator unchanged (user mentioned it works well).
+## Implementation
 
-## 3. Vertical swipe = reversible browse (no like/dislike), across all decks
+**Single new migration file**: `supabase/migrations/<timestamp>_seed_diverse_listings_and_profiles.sql`
 
-Today vertical swipe calls `onSkip` which advances `currentIndex` forward only — once you swipe down past a card, it's gone. The user wants vertical to be a pure pager: down = next card, up = previous card, idempotent.
+Structure:
+```sql
+-- 12 listings (3 per category) with stable UUIDs and 3 images each
+INSERT INTO public.listings (id, owner_id, title, description, price, currency,
+  images, status, is_active, category, listing_type, address, neighborhood,
+  property_type, beds, baths, square_footage, amenities)
+VALUES (...), (...), ... 
+ON CONFLICT (id) DO NOTHING;
 
-### `src/components/SimpleSwipeCard.tsx` and `src/components/SimpleOwnerSwipeCard.tsx`
-- Add an optional `onSkipBack?: () => void` prop alongside the existing `onSkip`.
-- In `handleDragEnd` vertical branch, route the gesture by direction:
-  - `dy > 0` (drag down) → `onSkip?.()` (next card)
-  - `dy < 0` (drag up)   → `onSkipBack?.()` (previous card)
-- Keep the cinematic exit animation, but bias the exit-Y direction to match the drag direction so the card always travels off the side it was pulled toward, then the next/previous one rises in.
-- No backend write occurs in either direction (this stays purely a pager).
+-- 3 client_profiles for owner-side discovery
+INSERT INTO public.client_profiles (user_id, name, age, bio, gender, nationality,
+  country, city, neighborhood, languages, interests, profile_images,
+  roommate_available, occupation)
+VALUES (...), (...), (...)
+ON CONFLICT DO NOTHING;
+```
 
-### `src/components/SwipessSwipeContainer.tsx` and `src/components/ClientSwipeContainer.tsx`
-- Add `handleSkipBack`: decrement `currentIndexRef.current` (clamp at 0), call `setCurrentIndex`, no swipe-engine write, no haptic stronger than `light`.
-- Pass `onSkipBack={handleSkipBack}` to the rendered `SimpleSwipeCard` / `SimpleOwnerSwipeCard`.
-- Keep `handleSkip` unchanged (forward).
-- No change to like/dislike (`onSwipe`) — horizontal commits remain the only path that writes to `likes`/dismisses.
-
-### `src/pages/RoommateMatching.tsx`
-- Maintain a small index/history in the page so swipe-up returns to the previously viewed roommate card without re-fetching.
-- Wire `onSkip` (advance) and `onSkipBack` (rewind) on the `SimpleOwnerSwipeCard` instance. Horizontal swipe still calls `handleSwipe` (the existing like/pass with backend write).
-- The `nextCard` peek behind the top card stays as today.
-
-### Quick filter card stack (`src/components/swipe/PokerCategoryCard.tsx`)
-- Already uses straight-line axis-locked vertical motion. Confirm vertical commit moves to next category card and add a back-rewind handler symmetric to the deck containers, so up/down on quick filters also browses without consuming.
+All photos use Unsplash hot-link CDN URLs (already the pattern in the existing seed), so no storage upload step needed and the carousel/tap-to-change-photo behavior gets exercised immediately (3 photos per card).
 
 ## What does NOT change
-- Pull-down-from-top-edge to dismiss the deck (still active, governed by `usePullDownToDismiss`).
-- Horizontal swipe = like/pass with backend write and exit-X fly-off.
-- Action button bar (Undo / Dislike / Message / Like / Insights).
-- Card photo cycling on tap (left/right thirds).
-- Center tap to toggle chrome.
 
-## Files touched
-- `src/components/swipe/ChromeSummonZones.tsx`
-- `src/components/SimpleSwipeCard.tsx`
-- `src/components/SimpleOwnerSwipeCard.tsx`
-- `src/components/SwipessSwipeContainer.tsx`
-- `src/components/ClientSwipeContainer.tsx`
-- `src/pages/RoommateMatching.tsx`
-- `src/components/swipe/PokerCategoryCard.tsx`
+- No code changes to `useListings`, `SwipessSwipeContainer`, swipe physics, or carousel logic — all data-only.
+- No changes to category routing — `get_smart_listings` already filters by `category` correctly.
+- No new tables, no RLS changes.
+
+## Acceptance
+
+- Properties deck shows 3 new realistic global-vibe listings, each with 3 swipeable photos.
+- Motorcycle / Bicycle / Worker decks each have 3 new entries with 3 photos.
+- Owner-side user discovery shows 3 new diverse client profiles, each with 3 portraits.
+- Tapping the card edges cycles through the 3 photos as designed.
+- Re-running the migration is a no-op (idempotent via `ON CONFLICT`).
