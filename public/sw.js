@@ -384,11 +384,7 @@ self.addEventListener('fetch', (event) => {
             return networkResponse;
           }).catch(() => {
             if (cachedResponse) return cachedResponse;
-            // Ultimate fallback for images (transparent pixel)
-            return new Response('data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7', { 
-              status: 200, 
-              headers: { 'Content-Type': 'image/gif' } 
-            });
+            return new Response('', { status: 504, statusText: 'Image unavailable' });
           });
 
           if (cachedResponse) {
