@@ -1,4 +1,4 @@
-import { ChevronUp, ChevronDown } from 'lucide-react';
+import { ChevronUp, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
 
 /**
  * Ambient gesture affordances for the swipe card.
@@ -34,43 +34,50 @@ export function GestureHints({ hidden = false }: { hidden?: boolean }) {
         />
       </div>
 
-      {/* Right edge, mid-card: vertical swipe affordance */}
+      {/* Left edge: pass affordance */}
+      <div className="absolute left-2 top-1/2 -translate-y-1/2 animate-gesture-breathe">
+        <ChevronLeft
+          style={{
+            width: 16, height: 16,
+            color: 'rgba(255,255,255,0.7)',
+            filter: 'drop-shadow(0 0 4px rgba(255,255,255,0.35))',
+          }}
+          strokeWidth={2.4}
+        />
+      </div>
+
+      {/* Right edge: like affordance */}
+      <div className="absolute right-2 top-1/2 -translate-y-1/2 animate-gesture-breathe" style={{ animationDelay: '0.6s' }}>
+        <ChevronRight
+          style={{
+            width: 16, height: 16,
+            color: 'rgba(255,255,255,0.7)',
+            filter: 'drop-shadow(0 0 4px rgba(255,255,255,0.35))',
+          }}
+          strokeWidth={2.4}
+        />
+      </div>
+
+      {/* Bottom-center: vertical skip affordance */}
       <div
-        className="absolute right-2.5 top-1/2 -translate-y-1/2 flex flex-col items-center gap-1.5"
-        style={{
-          padding: '8px 4px',
-          borderRadius: 999,
-          background: 'rgba(0,0,0,0.18)',
-          backdropFilter: 'blur(6px)',
-          WebkitBackdropFilter: 'blur(6px)',
-        }}
+        className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center"
+        style={{ bottom: 'calc(var(--bottom-nav-height,72px) + 28px)', gap: 1 }}
       >
         <ChevronUp
           className="animate-gesture-breathe"
           style={{
-            width: 14,
-            height: 14,
-            color: 'rgba(255,255,255,0.85)',
-            filter: 'drop-shadow(0 0 4px rgba(255,255,255,0.35))',
-            animationDelay: '0s',
+            width: 12, height: 12,
+            color: 'rgba(255,255,255,0.55)',
+            filter: 'drop-shadow(0 0 4px rgba(255,255,255,0.3))',
           }}
           strokeWidth={2.4}
-        />
-        <div
-          style={{
-            width: 3,
-            height: 3,
-            borderRadius: 999,
-            background: 'rgba(255,255,255,0.55)',
-          }}
         />
         <ChevronDown
           className="animate-gesture-breathe"
           style={{
-            width: 14,
-            height: 14,
-            color: 'rgba(255,255,255,0.85)',
-            filter: 'drop-shadow(0 0 4px rgba(255,255,255,0.35))',
+            width: 12, height: 12,
+            color: 'rgba(255,255,255,0.55)',
+            filter: 'drop-shadow(0 0 4px rgba(255,255,255,0.3))',
             animationDelay: '0.6s',
           }}
           strokeWidth={2.4}
