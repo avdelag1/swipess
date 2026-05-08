@@ -90,7 +90,7 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
       return;
     }
 
-    toast({ title: 'Redirecting to PayPal', description: `${pkg.name}: ${pkg.tokens} tokens for ${formatUSD(pkg.priceUsd)} USD.` });
+    toast({ title: 'Redirecting to checkout', description: `${pkg.name}: ${pkg.tokens} tokens for ${formatUSD(pkg.priceUsd)} USD.` });
     window.open(pkg.paypalUrl, '_blank', 'noopener,noreferrer');
     close();
   };

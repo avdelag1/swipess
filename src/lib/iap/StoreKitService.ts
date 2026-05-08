@@ -3,7 +3,7 @@
  *
  * Required for App Store Guideline 3.1.1. Replaces the previous mock in
  * NativeBridge.purchaseProduct. On non-iOS (web) it throws so callers can
- * fall back to web checkout (PayPal/Stripe). Server-side receipt validation
+ * fall back to the web checkout flow. Server-side receipt validation
  * is performed by the `validate-apple-receipt` edge function.
  */
 import { Capacitor } from '@capacitor/core';

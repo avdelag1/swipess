@@ -95,7 +95,7 @@ export default function PaymentSuccess() {
 
       } catch (error) {
         logger.error('Payment processing error:', error);
-        toast.error('Failed to process payment. Please contact support with your PayPal receipt.');
+        toast.error('Failed to process payment. Please contact support with your payment receipt.');
         navigate(returnPath || '/client/dashboard', { replace: true });
       }
     };

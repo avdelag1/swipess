@@ -81,7 +81,7 @@ export default function PromoteEventPackages() {
       return;
     }
     setPurchasing(null);
-    toast.message('Redirecting to PayPal', { description: `${tier.name} (${tier.duration})` });
+    toast.message('Redirecting to checkout', { description: `${tier.name} (${tier.duration})` });
     window.open(tier.paypalUrl, '_blank', 'noopener,noreferrer');
   };
 
