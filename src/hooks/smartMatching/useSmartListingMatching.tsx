@@ -219,6 +219,20 @@ const DEMO_LISTINGS: any[] = [
     latitude: 20.2214, longitude: -87.4754,
     is_active: true, status: 'active', created_at: new Date().toISOString()
   },
+  {
+    id: 'demo-worker-4',
+    title: 'Camila — Jungle Massage Therapist',
+    description: 'Deep-tissue and lomi-lomi sessions in the Tulum jungle, oils sourced locally, table set among the palms for full sensory immersion.',
+    price: 120, pricing_unit: 'hour', currency: 'USD',
+    images: [
+      '/images/listings/massage_jungle_wide.jpg',
+      '/images/listings/massage_jungle_close.jpg'
+    ],
+    city: 'Tulum', category: 'worker',
+    service_category: 'Massage Therapy', experience_years: 8, experience_level: 'expert',
+    latitude: 20.2154, longitude: -87.4694,
+    is_active: true, status: 'active', created_at: new Date().toISOString()
+  },
 ];
 
 export function useSmartListingMatching(
