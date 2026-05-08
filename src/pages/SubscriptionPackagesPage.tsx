@@ -15,7 +15,7 @@ import { PaymentErrorBoundary } from "@/components/PaymentErrorBoundary";
 const clientPremiumPlans = [
   {
     id: 'client-unlimited-1-month',
-    appleProductId: 'Swipess.plus.monthly.v1',
+    appleProductId: 'Swipess.plus.monthly.v2',
     name: 'Monthly',
     label: 'STARTER',
     price: 29.99,
@@ -38,7 +38,7 @@ const clientPremiumPlans = [
   },
   {
     id: 'client-unlimited-6-months',
-    appleProductId: 'Swipess.plus.semestral.v1',
+    appleProductId: 'Swipess.plus.semestral.v2',
     name: 'Semi-Annual',
     label: 'POPULAR',
     price: 111.99,
@@ -63,7 +63,7 @@ const clientPremiumPlans = [
   },
   {
     id: 'client-unlimited-1-year',
-    appleProductId: 'Swipess.plus.annual.v1',
+    appleProductId: 'Swipess.plus.annual.v2',
     name: 'Yearly Elite',
     label: 'BEST VALUE',
     price: 149.99,

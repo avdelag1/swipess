@@ -10,23 +10,23 @@ const PROD_URL = 'https://buy.itunes.apple.com/verifyReceipt';
 const SANDBOX_URL = 'https://sandbox.itunes.apple.com/verifyReceipt';
 
 const SUBSCRIPTION_PRODUCTS = new Set([
-  'Swipess.plus.monthly.v1',
-  'Swipess.plus.semestral.v1',
-  'Swipess.plus.annual.v1',
+  'Swipess.plus.monthly.v2',
+  'Swipess.plus.semestral.v2',
+  'Swipess.plus.annual.v2',
 ]);
 
 const TOKEN_PRODUCTS: Record<string, number> = {
-  'Swipess.tokens.20': 20,
-  'Swipess.tokens.50': 50,
-  'Swipess.tokens.100': 100,
-  'Swipess.tokens.150': 150,
+  'Swipess.tokens.20.v1': 20,
+  'Swipess.tokens.50.v1': 50,
+  'Swipess.tokens.100.v1': 100,
+  'Swipess.tokens.150.v1': 150,
 };
 
 /** Event promotion durations in days, keyed by Apple product id. */
 const EVENT_PROMO_PRODUCTS: Record<string, number> = {
-  'Swipess.promo.event.week.v1': 7,
-  'Swipess.promo.event.month.v1': 30,
-  'Swipess.promo.event.quarter.v1': 90,
+  'Swipess.promo.event.week.v2': 7,
+  'Swipess.promo.event.month.v2': 30,
+  'Swipess.promo.event.quarter.v2': 90,
 };
 
 async function verify(receipt: string, sharedSecret: string) {

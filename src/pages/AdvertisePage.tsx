@@ -360,7 +360,17 @@ export default function AdvertisePage() {
       // User already has an approved event → trigger purchase directly
       if (NativeBridge.isIOS()) {
         toast({ title: "In-App Purchase", description: "Connecting to App Store..." });
-        const result = await NativeBridge.purchaseProduct(`Swipess.promo.${pkg.id}`);
+        const promoMap: Record<string, string> = {
+          starter: 'Swipess.promo.event.week.v2',
+          growth:  'Swipess.promo.event.month.v2',
+          premium: 'Swipess.promo.event.quarter.v2',
+        };
+        const productId = promoMap[pkg.id];
+        if (!productId) {
+          toast.error('This package is unavailable on iOS.');
+          return;
+        }
+        const result = await NativeBridge.purchaseProduct(productId);
         if (result.success) {
           toast.success("Payment Received!", { description: "Your promotion will be live shortly." });
         } else if ((result as any).error !== 'CANCELLED') {
