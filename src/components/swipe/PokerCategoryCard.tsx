@@ -254,10 +254,13 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
             loading="eager"
             decoding="async"
             onLoad={() => { _loadedPokerImages.add(photo); setImgReady(true); }}
-            initial={_loadedPokerImages.has(photo) ? false : { opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ opacity: { duration: 0.25, ease: [0.22, 1, 0.36, 1] } }}
+            initial={{ opacity: 0, scale: 1.08 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 1.04 }}
+            transition={{
+              opacity: { duration: 1.1, ease: [0.22, 1, 0.36, 1] },
+              scale: { duration: 8, ease: 'linear' },
+            }}
             className="absolute inset-0 w-full h-full object-cover"
             style={{ backfaceVisibility: 'hidden' }}
             draggable={false}
