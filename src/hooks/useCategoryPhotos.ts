@@ -20,14 +20,12 @@ const DEFAULT_CATEGORY_CAROUSEL_EXTRAS: Record<string, string[]> = {
     'https://images.unsplash.com/photo-1571068316344-75bc76f77890?auto=format&fit=crop&q=80&w=1200',
   ],
   services: [
-    'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=1200',
-    'https://images.unsplash.com/photo-1518310383802-640c2de311b2?auto=format&fit=crop&q=80&w=1200',
-    'https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&q=80&w=1200',
+    '/images/filters/workers_tulum_directory.jpg',
+    '/images/filters/workers_tulum_team.jpg',
   ],
   worker: [
-    'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=1200',
-    'https://images.unsplash.com/photo-1518310383802-640c2de311b2?auto=format&fit=crop&q=80&w=1200',
-    'https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&q=80&w=1200',
+    '/images/filters/workers_tulum_directory.jpg',
+    '/images/filters/workers_tulum_team.jpg',
   ],
   'all-clients': [
     'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&q=80&w=1200',
@@ -35,9 +33,7 @@ const DEFAULT_CATEGORY_CAROUSEL_EXTRAS: Record<string, string[]> = {
     'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=1200',
   ],
   buyers: [
-    'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=1200',
-    'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=1200',
-    'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=1200',
+    '/images/filters/buyers_tulum_sold.jpg',
   ],
   renters: [
     'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d8b?auto=format&fit=crop&q=80&w=1200',
