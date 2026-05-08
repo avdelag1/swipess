@@ -82,8 +82,15 @@ export function PersistentDashboardLayout() {
         <PersistentDashboardScene />
         {/* Outlet renders other routes ON TOP of the persistent dashboard
             (z-10). On /client/dashboard and /owner/dashboard the outlet
-            renders an empty placeholder so the persistent layer shows. */}
-        <div className="relative flex-1 flex flex-col" style={{ zIndex: 10 }}>
+            renders an empty placeholder so the persistent layer shows.
+            pointer-events:none on the wrapper so an empty outlet doesn't
+            steal swipe gestures from the persistent dashboard underneath;
+            AnimatedOutlet re-enables pointer-events on its inner motion
+            container for non-dashboard routes. */}
+        <div
+          className="relative flex-1 flex flex-col"
+          style={{ zIndex: 10, pointerEvents: 'none' }}
+        >
           <AnimatedOutlet />
         </div>
       </div>
