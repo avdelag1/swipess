@@ -38,7 +38,11 @@ const FAQClientPage = lazyWithRetry(() => import("./pages/FAQClientPage"));
 const FAQOwnerPage = lazyWithRetry(() => import("./pages/FAQOwnerPage"));
 
 // CLIENT PAGES
-const ClientDashboard = lazyWithRetry(() => import("./pages/ClientDashboard"));
+// ClientDashboard and EnhancedOwnerDashboard are now mounted persistently
+// inside PersistentDashboardLayout (see PersistentDashboardScene). The
+// route entries render an empty placeholder so the outlet stays clear
+// and the persistent layer is what users see — this means navigating
+// away and back to the dashboard is a CSS toggle, not a remount.
 const ClientProfile = lazyWithRetry(() => import("./pages/ClientProfile"));
 const ClientSettings = lazyWithRetry(() => import("./pages/ClientSettings"));
 const ClientLikedProperties = lazyWithRetry(() => import("./pages/ClientLikedProperties"));
@@ -55,7 +59,6 @@ const PromoteEventRequest = lazyWithRetry(() => import("./pages/PromoteEventRequ
 const PromoteEventPackages = lazyWithRetry(() => import("./pages/PromoteEventPackages"));
 
 // OWNER PAGES
-const EnhancedOwnerDashboard = lazyWithRetry(() => import("./pages/EnhancedOwnerDashboard"));
 const OwnerProfile = lazyWithRetry(() => import("./pages/OwnerProfile"));
 const OwnerSettings = lazyWithRetry(() => import("./pages/OwnerSettings"));
 const OwnerProperties = lazyWithRetry(() => import("./pages/OwnerProperties"));
@@ -105,6 +108,10 @@ const GuidedTourLazy = lazyWithRetry(() => import("./components/GuidedTour").the
 const PWAInstallPrompt = lazyWithRetry(() => import("@/components/PWAInstallPrompt").then(m => ({ default: m.PWAInstallPrompt })));
 const WelcomeBonusModal = lazyWithRetry(() => import("@/components/WelcomeBonusModal").then(m => ({ default: m.WelcomeBonusModal })));
 
+// Empty placeholder for /client/dashboard and /owner/dashboard. The real
+// dashboard renders inside PersistentDashboardScene, persistently.
+const DashboardOutletPlaceholder = () => null;
+
 const DashboardRedirect = () => {
   const { activeMode } = useActiveMode();
   return <Navigate to={activeMode === 'owner' ? "/owner/dashboard" : "/client/dashboard"} replace />;
@@ -132,7 +139,7 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
 
             <Route element={<ProtectedRoute><PersistentDashboardLayout /></ProtectedRoute>}>
               {/* Individual routes are suspended by the Suspense in PersistentDashboardLayout/AnimatedOutlet */}
-              <Route path="/client/dashboard" element={<ClientDashboard />} />
+              <Route path="/client/dashboard" element={<DashboardOutletPlaceholder />} />
               <Route path="/client/profile" element={<ClientProfile />} />
               <Route path="/client/settings" element={<ClientSettings />} />
               <Route path="/client/liked-properties" element={<ClientLikedProperties />} />
@@ -152,7 +159,7 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
               <Route path="/promote-event/packages" element={<PromoteEventPackages />} />
 
               {/* Owner routes */}
-              <Route path="/owner/dashboard" element={<EnhancedOwnerDashboard />} />
+              <Route path="/owner/dashboard" element={<DashboardOutletPlaceholder />} />
               <Route path="/owner/profile" element={<OwnerProfile />} />
               <Route path="/owner/settings" element={<OwnerSettings />} />
               <Route path="/owner/properties" element={<OwnerProperties />} />
