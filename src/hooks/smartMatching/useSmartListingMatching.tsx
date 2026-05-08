@@ -25,13 +25,11 @@ export const SWIPE_CARD_FIELDS = `
   latitude, longitude, status, is_active
 `;
 
-// Demo data: 2 property, 2 motorcycle, 2 bicycle, 4 worker.
-// Always appended AFTER real listings so testing never obscures real data.
-// Coords are around Tulum so the radius slider visually filters during testing.
-const DEMO_LISTINGS: any[] = [
-  // ── PROPERTY (3 cards, 3 photos each) ─────────────────────────────────
+// Demos disabled — show real user listings only.
+const DEMO_LISTINGS: any[] = [];
+const _DEPRECATED_DEMO_LISTINGS: any[] = [
   {
-    id: 'demo-property-1',
+    id: 'demo-property-1-disabled',
     title: 'Ultra-Modern Tulum Penthouse',
     description: 'Breathtaking jungle-and-sea energy with private rooftop water, soft stone interiors, and a cinematic indoor-outdoor layout.',
     price: 4500, currency: 'USD',
