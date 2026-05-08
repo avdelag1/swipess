@@ -11,7 +11,7 @@
 // IMPORTANT: __BUILD_TIME__ is replaced with an ISO timestamp by the Vite
 // sw-build-time-plugin at build time. In dev mode the literal string is used
 // as the version (safe — SW is unregistered in dev anyway).
-const SW_VERSION = '__BUILD_TIME__' === '__BUILD_TIME__' ? '2026-05-08T02-clear-photos' : '__BUILD_TIME__';
+const SW_VERSION = '__BUILD_TIME__' === '__BUILD_TIME__' ? '2026-05-08T03-storage-images' : '__BUILD_TIME__';
 const CACHE_VERSION = `swipess-${SW_VERSION}`;
 const CACHE_NAME = CACHE_VERSION;
 const STATIC_CACHE = `${CACHE_NAME}-static`;
@@ -241,8 +241,11 @@ self.addEventListener('fetch', (event) => {
   // CRITICAL: Never cache OAuth callback routes — must always hit the network
   if (url.pathname.startsWith('/~oauth')) return;
 
-  // Network-first for Supabase API calls (always fetch fresh data)
-  if (url.hostname.includes('supabase')) {
+  // Network-first for Supabase API calls (always fetch fresh data).
+  // EXCEPTION: public Storage objects (/storage/v1/object/public/...) are
+  // static images — let them fall through to the image SWR handler below
+  // so they are cached for offline / flaky-network use in the PWA.
+  if (url.hostname.includes('supabase') && !url.pathname.startsWith('/storage/v1/object/public/')) {
     event.respondWith(
       fetch(request)
         .catch(() => caches.match(request))
