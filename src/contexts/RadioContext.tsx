@@ -155,7 +155,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     let handlingError = false;
     let errorCount = 0;
     let lastErrorTime = 0;
-    let lastToastTime = 0;
+    const lastToastTime = 0;
 
     const handleAudioError = (_e: Event) => {
       if (handlingError) return;

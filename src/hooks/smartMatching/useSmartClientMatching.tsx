@@ -368,7 +368,7 @@ export function useSmartClientMatching(
                     if (idList.length > 0) query = query.not('user_id', 'in', `(${idList.join(',')})`);
                 }
 
-                let { data: profiles, error } = await query.range(page * pageSize, (page + 1) * pageSize - 1);
+                const { data: profiles, error } = await query.range(page * pageSize, (page + 1) * pageSize - 1);
 
                 // 3. DEMO FALLBACK: If first page and category-specific query returns nothing, show demo
                 // Skip aggressive fallback in this case - let it fall through to demo at line 336

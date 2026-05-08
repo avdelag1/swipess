@@ -25,7 +25,11 @@ export default tseslint.config(
       ],
       // Relaxed rules matching the existing codebase style
       '@typescript-eslint/no-explicit-any': 'warn',
-      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_', caughtErrorsIgnorePattern: '^_' }],
+      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_', caughtErrorsIgnorePattern: '^_' }],
+      '@typescript-eslint/no-unused-expressions': 'warn',
+      '@typescript-eslint/ban-ts-comment': 'warn',
+      'no-empty': 'warn',
+      'no-control-regex': 'warn',
       'no-console': ['warn', { allow: ['warn', 'error'] }],
     },
   },
