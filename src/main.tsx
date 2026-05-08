@@ -147,6 +147,47 @@ async function bootstrap() {
 
 void bootstrap();
 
+// 🚀 Warm the in-memory image cache for swipe-card photos so the deck
+// renders instantly. The <link rel="preload"> tags in index.html start
+// the network fetch; this seeds the JS-side cache so the same Image()
+// calls used by PokerCategoryCard hit a warm decode.
+if (typeof window !== 'undefined') {
+  const SWIPE_CARD_PHOTOS = [
+    '/images/filters/property.jpg',
+    '/images/filters/scooter.jpg',
+    '/images/filters/bicycle.jpg',
+    '/images/filters/workers.jpg',
+    '/images/filters/all.jpg',
+    '/images/filters/radio.jpg',
+    '/images/filters/resident_card.jpg',
+    '/images/filters/owner_all_clients_tulum.png',
+    '/images/filters/owner_buyers_card.jpg',
+    '/images/filters/owner_renters_card.jpg',
+    '/images/filters/owner_hire_card.jpg',
+    '/images/filters/owner_lawyer_card.jpg',
+    '/images/filters/owner_promote_card.jpg',
+    '/images/filters/ai_listing_card.jpg',
+    '/images/filters/property_jungle_villa.jpg',
+    '/images/filters/property_loft_interior.jpg',
+    '/images/filters/property_bamboo_dome.jpg',
+    '/images/filters/buyers_tulum_sold.jpg',
+    '/images/filters/workers_tulum_directory.jpg',
+    '/images/filters/workers_tulum_team.jpg',
+    '/images/filters/bicycle_beach_ride.jpg',
+    '/images/filters/bicycle_coco_sunset.jpg',
+  ];
+  const warmImage = (src: string) => {
+    const img = new Image();
+    (img as any).fetchPriority = 'high';
+    img.decoding = 'async';
+    img.src = src;
+  };
+  // Run after first paint so we don't compete with critical render.
+  requestAnimationFrame(() => {
+    SWIPE_CARD_PHOTOS.forEach(warmImage);
+  });
+}
+
 // 3. DEFERRED INITIALIZATION (Quiet Background)
 const deferredInit = (callback: () => void, timeout = 5000) => {
   if ("requestIdleCallback" in window) {
