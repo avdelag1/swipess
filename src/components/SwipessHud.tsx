@@ -87,7 +87,7 @@ export function SwipessHud({
         !isVisible && isTranslate && side === 'top' && "-translate-y-[120%]",
         !isVisible && isTranslate && side === 'bottom' && "translate-y-[120%]",
         isVisible && "opacity-100 translate-y-0 blur-0 scale-100",
-        !isVisible && "blur-md scale-[0.98]",
+        !isVisible && "blur-xl scale-[0.94]",
         className
       )}
       style={{
