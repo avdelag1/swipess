@@ -12,18 +12,30 @@ export function GuidedTour() {
   useEffect(() => {
     if (!isActive || !step) return;
     if (step.welcome) { setTargetRect(null); return; }
-    const findTarget = () => {
+
+    let scrolled = false;
+    const updateRect = () => {
       const el = document.querySelector(step.target);
       if (el) {
         setTargetRect(el.getBoundingClientRect());
-        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        // Only scroll once per step — re-running scrollIntoView every 500ms
+        // was causing the whole page to jitter while the tour was active.
+        if (!scrolled) {
+          scrolled = true;
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
       } else {
         setTargetRect(null);
       }
     };
-    findTarget();
-    const timer = setInterval(findTarget, 500);
-    return () => clearInterval(timer);
+    updateRect();
+    // Just keep the spotlight in sync with resize/scroll — no re-scrolling.
+    window.addEventListener('resize', updateRect);
+    window.addEventListener('scroll', updateRect, { passive: true });
+    return () => {
+      window.removeEventListener('resize', updateRect);
+      window.removeEventListener('scroll', updateRect);
+    };
   }, [isActive, step, currentStep]);
 
   if (!isActive || !step) return null;
@@ -113,22 +125,32 @@ export function GuidedTour() {
             <p className="text-xs mt-1 leading-relaxed" style={{ color: 'rgba(255,255,255,0.85)' }}>{step.description}</p>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 pt-1">
             {currentStep > 0 && (
-              <button onClick={prevStep} className="inline-flex items-center gap-1 rounded-xl text-xs h-8 px-3 transition-opacity hover:opacity-80" style={{ color: 'rgba(255,255,255,0.85)', border: '1px solid rgba(255,255,255,0.2)' }}>
-                <ChevronLeft className="w-3 h-3" />
+              <button
+                onClick={prevStep}
+                className="inline-flex items-center gap-1 rounded-xl text-xs h-9 px-4 font-semibold transition-opacity hover:opacity-90"
+                style={{ backgroundColor: 'rgba(255,255,255,0.08)', color: '#ffffff', border: '1px solid rgba(255,255,255,0.18)' }}
+              >
+                <ChevronLeft className="w-3.5 h-3.5" />
                 Back
               </button>
             )}
             <div className="flex-1" />
-            {/* White button on dark card → 21:1 contrast ratio, passes WCAG AAA */}
+            <button
+              onClick={skipTour}
+              className="inline-flex items-center rounded-xl text-xs h-9 px-3 font-semibold transition-opacity hover:opacity-90"
+              style={{ backgroundColor: 'transparent', color: 'rgba(255,255,255,0.7)' }}
+            >
+              Skip
+            </button>
             <button
               onClick={nextStep}
-              className="inline-flex items-center gap-1 rounded-xl text-xs h-8 px-3 font-semibold transition-opacity hover:opacity-90"
-              style={{ backgroundColor: '#ffffff', color: '#000000' }}
+              className="inline-flex items-center gap-1 rounded-xl text-xs h-9 px-4 font-bold transition-opacity hover:opacity-90"
+              style={{ backgroundColor: '#ffffff', color: '#000000', boxShadow: '0 8px 20px rgba(0,0,0,0.35)' }}
             >
               {currentStep === totalSteps - 1 ? 'Done' : 'Next'}
-              {currentStep < totalSteps - 1 && <ChevronRight className="w-3 h-3" />}
+              {currentStep < totalSteps - 1 && <ChevronRight className="w-3.5 h-3.5" />}
             </button>
           </div>
         </motion.div>

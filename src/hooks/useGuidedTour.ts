@@ -62,19 +62,9 @@ export function useGuidedTour(steps: TourStep[] = eliteSteps) {
   const [currentStep, setCurrentStep] = useState(0);
   const startedRef = useRef(false);
 
-  // Auto-trigger on first visit to a dashboard
-  useEffect(() => {
-    if (startedRef.current) return;
-    const onDashboard =
-      location.pathname === '/client/dashboard' ||
-      location.pathname === '/owner/dashboard';
-    if (!onDashboard) return;
-    const completed = localStorage.getItem(TOUR_KEY);
-    if (completed) return;
-    startedRef.current = true;
-    const timer = setTimeout(() => setIsActive(true), 2000);
-    return () => clearTimeout(timer);
-  }, [location.pathname]);
+  // Tour is opt-in only (triggered via restartTour). The previous auto-trigger
+  // popped the welcome modal on every first dashboard visit and shifted layouts
+  // around — disabled for a calmer experience.
 
   // Navigate when step requests it
   useEffect(() => {
