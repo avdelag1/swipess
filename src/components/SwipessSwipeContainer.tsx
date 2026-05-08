@@ -909,6 +909,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
                     ref={cardRef}
                     listing={topCard}
                     onSwipe={handleSwipe}
+                    onSkip={handleSkip}
                     onInsights={() => {
                       handleInsights();
                       if (onListingTap) onListingTap(topCard.id);
