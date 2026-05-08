@@ -418,6 +418,12 @@ export function useSmartClientMatching(
                     results = results.filter(r => r.roommate_available);
                 }
 
+                // Hide profiles that have no real photo — avoids empty/placeholder cards in PWA.
+                results = results.filter(r => {
+                    const imgs = (r as any).profile_images as any[] | undefined;
+                    return Array.isArray(imgs) && imgs.some(u => typeof u === 'string' && u && !u.includes('placeholder'));
+                });
+
                 // Filter by client_type if owner selected a category (buyers/renters/hire)
                 if (_category && ['buyers', 'renters', 'hire'].includes(_category)) {
                     const clientTypeMap: Record<string, string> = {
