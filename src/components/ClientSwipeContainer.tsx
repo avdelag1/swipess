@@ -544,8 +544,10 @@ const ClientSwipeContainerComponent = ({
   useEffect(() => {
     topCardX.stop();
     topCardX.set(0);
+    topCardY.stop();
+    topCardY.set(0);
     setSwipeDirection(null);
-  }, [topCardIdentity, filterSignature, category, topCardX]);
+  }, [topCardIdentity, filterSignature, category, topCardX, topCardY]);
 
   // INSTANT SWIPE: Update UI immediately, fire DB operations in background
   const executeSwipe = useCallback((direction: 'left' | 'right') => {
@@ -569,6 +571,8 @@ const ClientSwipeContainerComponent = ({
 
     topCardX.stop();
     topCardX.set(0);
+    topCardY.stop();
+    topCardY.set(0);
 
     // 1. UPDATE UI STATE FIRST (INSTANT)
     setSwipeDirection(direction);
@@ -753,13 +757,15 @@ const ClientSwipeContainerComponent = ({
     const newIndex = currentIndexRef.current + 1;
     topCardX.stop();
     topCardX.set(0);
+    topCardY.stop();
+    topCardY.set(0);
     currentIndexRef.current = newIndex;
     setCurrentIndex(newIndex);
     [1, 2, 3].forEach((offset) => {
       const future = deckQueueRef.current[newIndex + offset];
       if (future?.profile_images?.[0]) preloadClientImageToCache(future.profile_images[0]);
     });
-  }, [topCardX]);
+  }, [topCardX, topCardY]);
 
   const handleButtonLike = useCallback(() => {
     if (cardRef.current) {

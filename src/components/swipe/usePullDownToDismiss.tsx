@@ -57,10 +57,9 @@ export function usePullDownToDismiss(opts?: { threshold?: number }) {
   const onPointerDown = (e: React.PointerEvent) => {
     if (exiting.current) return;
     if ((e.target as HTMLElement)?.closest('[data-no-pull-dismiss], [data-no-cinematic], button, a')) return;
-    // Restrict to a thin top zone so the rest of the card is free for vertical
-    // like/pass swipes. Anything above ~110px from the top of the viewport
-    // (header chrome + a small grab strip) can initiate the deck-exit curtain.
-    if (e.clientY > 140) return;
+    // Only the physical top edge can close the deck. Card-body vertical swipes
+    // are reserved for strict story-style paging between listings/profiles.
+    if (e.clientY > 42) return;
     startY.current = e.clientY;
     startX.current = e.clientX;
     startT.current = performance.now();
@@ -75,11 +74,11 @@ export function usePullDownToDismiss(opts?: { threshold?: number }) {
     const dy = e.clientY - startY.current;
     const dx = Math.abs(e.clientX - startX.current);
     if (!active.current) {
-      // Highly sensitive vertical lock — engage on the slightest downward intent.
-      if (dy > 3 && dy > dx * 1.1) {
+      // Sensitive only from the top edge; no free card-body curtain dragging.
+      if (dy > 4 && dy > dx * 1.35) {
         active.current = true;
         e.currentTarget.setPointerCapture?.(e.pointerId);
-      } else if (dx > 8) {
+      } else if (dx > 10) {
         // Horizontal motion — abandon the pull
         startY.current = null;
         startX.current = null;
@@ -131,7 +130,7 @@ export function usePullDownToDismiss(opts?: { threshold?: number }) {
       const target = event.target as HTMLElement | null;
       if (target?.closest('[data-no-pull-dismiss], [data-no-cinematic], button, a')) return;
       const touch = event.touches[0];
-      if (!touch || touch.clientY > 140) return;
+      if (!touch || touch.clientY > 42) return;
       touchId = touch.identifier;
       startY.current = touch.clientY;
       startX.current = touch.clientX;
@@ -149,8 +148,8 @@ export function usePullDownToDismiss(opts?: { threshold?: number }) {
       const dy = touch.clientY - startY.current;
       const dx = Math.abs(touch.clientX - startX.current);
       if (!active.current) {
-        if (dy > 3 && dy > dx * 1.1) active.current = true;
-        else if (dx > 8) {
+        if (dy > 4 && dy > dx * 1.35) active.current = true;
+        else if (dx > 10) {
           startY.current = null;
           startX.current = null;
           touchId = null;

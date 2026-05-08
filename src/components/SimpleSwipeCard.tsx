@@ -1,8 +1,8 @@
 /**
  * TINDER-STYLE SWIPE CARD — Nexus Edition
  *
- * Full diagonal movement with physics-based animations.
- * Card follows finger freely in any direction with natural rotation.
+ * Axis-locked swipe card with strict story-feed movement.
+ * Card only travels straight up/down for browsing or straight left/right for like/pass.
  * 
  * KEY FEATURES:
  * - Free XY movement (diagonal swipes)
@@ -29,6 +29,7 @@ import { cn } from '@/lib/utils';
 import { ThumbsUp, ThumbsDown, Flame, Flag, Share2 } from 'lucide-react';
 import { PhotoPositionIndicators } from '@/components/swipe/PhotoPositionIndicators';
 import { GestureHints } from '@/components/swipe/GestureHints';
+import { toggleChrome } from '@/hooks/useChromeReveal';
 
 export interface SimpleSwipeCardRef {
   triggerSwipe: (direction: 'left' | 'right') => void;
@@ -39,7 +40,7 @@ const VELOCITY_THRESHOLD = 280;
 const SKIP_THRESHOLD = 110;
 const SKIP_VELOCITY = 350;
 const FALLBACK_PLACEHOLDER = '';
-const MAX_ROTATION = 14;
+type DragAxis = 'x' | 'y' | null;
 
 const getExitDistance = () => typeof window !== 'undefined' ? window.innerWidth * 1.5 : 800;
 
@@ -82,14 +83,14 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   const dragControls = useDragControls();
   const dragStartedRef = useRef(false);
   const storedPointerEventRef = useRef<React.PointerEvent | null>(null);
+  const dragAxisRef = useRef<DragAxis>(null);
 
   const _internalX = useMotionValue(0);
   const _internalY = useMotionValue(0);
   const x = externalX ?? _internalX;
   const y = externalY ?? _internalY;
 
-  // Tinder-style: horizontal = like/pass, vertical = skip-to-next (no DB write).
-  const cardRotate = useTransform(x, [-200, 0, 200], [-MAX_ROTATION, 0, MAX_ROTATION]);
+  // Strict story-feed motion: horizontal = like/pass, vertical = browse next card.
   const cardOpacity = useTransform(
     [x, y] as any,
     ([cx, cy]: any) => {
@@ -200,33 +201,42 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
     magnifierPointerHandlers.onPointerUp(e);
   }, [magnifierPointerHandlers]);
 
-  const handleDragStart = useCallback((_: any, info: PanInfo) => {
+  const handleDragStart = useCallback(() => {
     isDragging.current = true;
+    dragAxisRef.current = null;
     triggerHaptic('light');
     onDragStart?.();
   }, [onDragStart]);
+
+  const handleDirectionLock = useCallback((axis: 'x' | 'y') => {
+    dragAxisRef.current = axis;
+    if (axis === 'x') y.set(0);
+    if (axis === 'y') x.set(0);
+  }, [x, y]);
+
+  const handleDrag = useCallback(() => {
+    if (dragAxisRef.current === 'x') y.set(0);
+    if (dragAxisRef.current === 'y') x.set(0);
+  }, [x, y]);
 
   const handleDragEnd = useCallback((_: any, info: PanInfo) => {
     const dx = info.offset.x;
     const dy = info.offset.y;
     const vx = info.velocity.x;
     const vy = info.velocity.y;
+    const axis = dragAxisRef.current ?? (Math.abs(dx) >= Math.abs(dy) ? 'x' : 'y');
 
-    const horizCommit = Math.abs(dx) > SWIPE_THRESHOLD || Math.abs(vx) > VELOCITY_THRESHOLD;
-    const vertCommit = Math.abs(dy) > SKIP_THRESHOLD || Math.abs(vy) > SKIP_VELOCITY;
+    const horizCommit = axis === 'x' && (Math.abs(dx) > SWIPE_THRESHOLD || Math.abs(vx) > VELOCITY_THRESHOLD);
+    const vertCommit = axis === 'y' && (Math.abs(dy) > SKIP_THRESHOLD || Math.abs(vy) > SKIP_VELOCITY);
 
-    // Pick the dominant axis by normalized progress
-    const horizProgress = Math.abs(dx) / SWIPE_THRESHOLD;
-    const vertProgress = Math.abs(dy) / SKIP_THRESHOLD;
-
-    if (horizCommit && (!vertCommit || horizProgress >= vertProgress)) {
+    if (horizCommit) {
       const direction: 'left' | 'right' = dx > 0 ? 'right' : 'left';
       hasExited.current = true;
       isExitingRef.current = true;
       triggerHaptic(direction === 'right' ? 'success' : 'warning');
       const exitX = direction === 'right' ? (window.innerWidth || 600) * 1.2 : -(window.innerWidth || 600) * 1.2;
-      animate(x, exitX, { type: 'tween', duration: 0.26, ease: [0.32, 0, 0.67, 0] });
-      animate(y, dy * 0.6, { type: 'tween', duration: 0.26, ease: [0.32, 0, 0.67, 0] });
+      animate(x, exitX, { type: 'tween', duration: 0.24, ease: [0.32, 0, 0.67, 0] });
+      animate(y, 0, { type: 'tween', duration: 0.18, ease: [0.22, 1, 0.36, 1] });
       setTimeout(() => onSwipe(direction), 220);
     } else if (vertCommit && onSkip) {
       const dir = dy > 0 ? 1 : -1;
@@ -236,13 +246,13 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
       // Cinematic vertical exit: card vanishes back into the deck while next card rises up.
       const exitY = dir * (window.innerHeight || 800) * 0.85;
       animate(y, exitY, { duration: 0.32, ease: [0.22, 1, 0.36, 1] });
-      animate(x, 0, { duration: 0.32, ease: [0.22, 1, 0.36, 1] });
-      setTimeout(() => onSkip(), 220);
+      animate(x, 0, { duration: 0.18, ease: [0.22, 1, 0.36, 1] });
+      setTimeout(() => onSkip(), 300);
     } else {
       animate(x, 0, { type: 'spring', ...ACTIVE_SPRING });
       animate(y, 0, { type: 'spring', ...ACTIVE_SPRING });
     }
-    setTimeout(() => { isDragging.current = false; }, 100);
+    setTimeout(() => { isDragging.current = false; dragAxisRef.current = null; }, 100);
   }, [onSwipe, onSkip, x, y]);
 
   const handleImageTap = useCallback((e: React.MouseEvent) => {
@@ -258,6 +268,9 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
     } else if (imageCount > 1 && clickX > width * 0.67) {
       setPhotoDirection('right');
       setCurrentImageIndex(prev => prev === imageCount - 1 ? 0 : prev + 1);
+      triggerHaptic('light');
+    } else {
+      toggleChrome();
       triggerHaptic('light');
     }
   }, [imageCount, onInsights, isMagnifierActive, wasMagnifierActive]);
@@ -277,7 +290,8 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
       isExitingRef.current = false;
       onSwipe(direction);
     };
-    animate(x, exitX, { type: 'tween', duration: 0.28, ease: [0.32, 0, 0.67, 0], onComplete: fireSwipe });
+    animate(y, 0, { type: 'tween', duration: 0.14, ease: [0.22, 1, 0.36, 1] });
+    animate(x, exitX, { type: 'tween', duration: 0.26, ease: [0.32, 0, 0.67, 0], onComplete: fireSwipe });
     setTimeout(fireSwipe, 300);
   }, [onSwipe, x, y]);
 
@@ -308,10 +322,13 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
         drag
         dragControls={dragControls}
         dragListener={false}
+        dragDirectionLock
         dragMomentum={false}
-        dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
-        dragElastic={0.85}
+        dragConstraints={{ left: -1200, right: 1200, top: -1200, bottom: 1200 }}
+        dragElastic={0.02}
         onDragStart={handleDragStart}
+        onDrag={handleDrag}
+        onDirectionLock={handleDirectionLock}
         onDragEnd={handleDragEnd}
         onPointerDown={handleUnifiedPointerDown}
         onPointerMove={handleUnifiedPointerMove}
@@ -327,7 +344,6 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
         style={{
           x,
           y,
-          rotate: cardRotate,
           opacity: cardOpacity,
           willChange: 'transform, opacity',
           transform: 'translate3d(0,0,0)',
