@@ -1,6 +1,6 @@
 import { memo, useCallback, useRef, useState, useEffect, useMemo } from 'react';
 import useAppTheme from '@/hooks/useAppTheme';
-import { motion, useMotionValue, useTransform, animate, PanInfo } from 'framer-motion';
+import { AnimatePresence, motion, useMotionValue, useTransform, animate, PanInfo } from 'framer-motion';
 import { triggerHaptic } from '@/utils/haptics';
 import {
   POKER_CARD_PHOTOS,
@@ -10,6 +10,7 @@ import {
   PK_VEL_THRESHOLD,
   PK_SPRING,
 } from './SwipeConstants';
+import { useCategoryPhotos, getCategoryPhotoList } from '@/hooks/useCategoryPhotos';
 import { cn } from '@/lib/utils';
 
 interface PokerCardProps {
@@ -50,7 +51,14 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
     ([cx, cy]: any) => (Math.abs(cx) + Math.abs(cy) > 4 ? 0 : 1)
   );
 
-  const photo = POKER_CARD_PHOTOS[card.id] || POKER_CARD_PHOTOS.property;
+  // Build the carousel pool: base poster + admin-managed extras.
+  const { data: extraPhotos } = useCategoryPhotos();
+  const photoList = useMemo(
+    () => getCategoryPhotoList(card.id, extraPhotos),
+    [card.id, extraPhotos],
+  );
+  const [photoIndex, setPhotoIndex] = useState(0);
+  const photo = photoList[photoIndex] || POKER_CARD_PHOTOS[card.id] || POKER_CARD_PHOTOS.property;
   const [imgReady, setImgReady] = useState(() => _loadedPokerImages.has(photo));
   const fallbackGradient = POKER_CARD_GRADIENTS[card.id] || POKER_CARD_GRADIENTS.property;
 
@@ -64,6 +72,38 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
     img.onload = () => { _loadedPokerImages.add(photo); setImgReady(true); };
     img.onerror = () => setImgReady(false);
   }, [photo]);
+
+  // Preload all carousel photos so cross-fades are instant.
+  useEffect(() => {
+    photoList.forEach((src) => {
+      if (_loadedPokerImages.has(src)) return;
+      const im = new Image();
+      im.src = src;
+      im.onload = () => _loadedPokerImages.add(src);
+    });
+  }, [photoList]);
+
+  // Carousel: start ~5s in, then advance every 5–10s at random.
+  // Only the visible top card animates — background cards stay static
+  // to keep the deck quiet.
+  useEffect(() => {
+    if (!isTop || photoList.length < 2) return;
+    let cancelled = false;
+    const tick = () => {
+      if (cancelled) return;
+      setPhotoIndex((i) => (i + 1) % photoList.length);
+      const next = 5000 + Math.random() * 5000; // 5s–10s
+      timerId = window.setTimeout(tick, next);
+    };
+    // Initial delay 5s.
+    let timerId = window.setTimeout(tick, 5000);
+    return () => { cancelled = true; clearTimeout(timerId); };
+  }, [isTop, card.id, photoList.length]);
+
+  // Reset to first photo when this card returns to the top.
+  useEffect(() => {
+    if (isTop) setPhotoIndex(0);
+  }, [isTop, card.id]);
 
   useEffect(() => {
     if (!isTop) return;
@@ -205,19 +245,21 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
         className="w-full h-full relative overflow-hidden transition-colors duration-100 bg-black rounded-[2.5rem] shadow-[0_30px_60px_-20px_rgba(0,0,0,0.55)]"
         style={{ backgroundImage: !imgReady ? fallbackGradient : undefined }}
       >
-        {/* Photo & Gradient Base — static (no zoom-fight during axis-locked drag) */}
-        <motion.img
-          src={photo}
-          alt={card.label}
-          initial={{ opacity: imgReady ? 1 : 0 }}
-          animate={{ opacity: imgReady ? 1 : 0 }}
-          transition={{ duration: 0.25 }}
-          className="absolute inset-0 w-full h-full object-cover"
-          style={{
-            backfaceVisibility: 'hidden',
-          }}
-          draggable={false}
-        />
+        {/* Photo carousel — silky crossfade between admin-managed photos. */}
+        <AnimatePresence initial={false}>
+          <motion.img
+            key={photo}
+            src={photo}
+            alt={card.label}
+            initial={{ opacity: 0, scale: 1.04 }}
+            animate={{ opacity: imgReady ? 1 : 0, scale: 1 }}
+            exit={{ opacity: 0, scale: 1.02 }}
+            transition={{ opacity: { duration: 1.1, ease: [0.22, 1, 0.36, 1] }, scale: { duration: 6, ease: 'linear' } }}
+            className="absolute inset-0 w-full h-full object-cover"
+            style={{ backfaceVisibility: 'hidden' }}
+            draggable={false}
+          />
+        </AnimatePresence>
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
 
         {/* Breathing existence hints — present, but almost invisible */}
