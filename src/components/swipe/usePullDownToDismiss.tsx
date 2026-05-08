@@ -14,17 +14,17 @@ import { triggerHaptic } from '@/utils/haptics';
  *   { y, scale, opacity, bind }  — bind is a set of pointer handlers.
  */
 export function usePullDownToDismiss(opts?: { threshold?: number }) {
-  const threshold = opts?.threshold ?? 118;
+  const threshold = opts?.threshold ?? 110;
   const y = useMotionValue(0);
-  const scale = useTransform(y, [0, 220, 380], [1, 0.88, 0.68], { clamp: true });
-  const opacity = useTransform(y, [0, 70, 240], [1, 0.96, 0.12], { clamp: true });
-  const blur = useTransform(y, [0, 160, 320], ['blur(0px)', 'blur(7px)', 'blur(18px)'], { clamp: true });
+  // Curtain: smooth linear fall, light scale-down, fade out as it goes
+  const scale = useTransform(y, [0, 200, 420], [1, 0.92, 0.78], { clamp: true });
+  const opacity = useTransform(y, [0, 120, 300], [1, 0.85, 0], { clamp: true });
+  const blur = useTransform(y, [0, 180, 340], ['blur(0px)', 'blur(4px)', 'blur(14px)'], { clamp: true });
 
   // Backdrop reveal — dashboard sitting behind the deck.
-  // As the user pulls, the dashboard scales up and unblurs into view.
-  const backdropOpacity = useTransform(y, [0, 30, 200], [0, 0.4, 1], { clamp: true });
-  const backdropScale = useTransform(y, [0, 220], [0.94, 1], { clamp: true });
-  const backdropBlur = useTransform(y, [0, 220], ['blur(14px)', 'blur(0px)'], { clamp: true });
+  const backdropOpacity = useTransform(y, [0, 20, 160], [0, 0.5, 1], { clamp: true });
+  const backdropScale = useTransform(y, [0, 200], [0.96, 1], { clamp: true });
+  const backdropBlur = useTransform(y, [0, 200], ['blur(10px)', 'blur(0px)'], { clamp: true });
 
   const startY = useRef<number | null>(null);
   const startX = useRef<number | null>(null);
@@ -65,11 +65,11 @@ export function usePullDownToDismiss(opts?: { threshold?: number }) {
     const dy = e.clientY - startY.current;
     const dx = Math.abs(e.clientX - startX.current);
     if (!active.current) {
-      // Lock in only on a clear vertical-down intention (avoid hijacking horizontal swipes)
-      if (dy > 14 && dy > dx * 1.4) {
+      // Strict vertical lock — engage only on clear downward motion.
+      if (dy > 10 && dy > dx * 2.2) {
         active.current = true;
         e.currentTarget.setPointerCapture?.(e.pointerId);
-      } else if (dx > 12) {
+      } else if (dx > 8) {
         // Horizontal motion — abandon the pull
         startY.current = null;
         startX.current = null;
@@ -80,16 +80,16 @@ export function usePullDownToDismiss(opts?: { threshold?: number }) {
     }
     e.preventDefault();
     e.stopPropagation();
-    // Elastic (rubber-band) translation
-    const elastic = dy <= 0 ? 0 : dy < 90 ? dy : 90 + (dy - 90) * 0.72;
-    y.set(elastic);
+    // Pure vertical curtain — no horizontal influence at all
+    const pull = Math.max(0, dy);
+    y.set(pull);
   };
 
   const reset = () => {
     startY.current = null;
     startX.current = null;
     active.current = false;
-    animate(y, 0, { type: 'spring', stiffness: 420, damping: 32, mass: 0.7 });
+    animate(y, 0, { type: 'spring', stiffness: 380, damping: 36, mass: 0.6 });
   };
 
   const onPointerUp = () => {
@@ -127,8 +127,8 @@ export function usePullDownToDismiss(opts?: { threshold?: number }) {
       const dy = touch.clientY - startY.current;
       const dx = Math.abs(touch.clientX - startX.current);
       if (!active.current) {
-        if (dy > 12 && dy > dx * 1.25) active.current = true;
-        else if (dx > 14) {
+        if (dy > 10 && dy > dx * 2.2) active.current = true;
+        else if (dx > 10) {
           startY.current = null;
           startX.current = null;
           touchId = null;
@@ -136,8 +136,8 @@ export function usePullDownToDismiss(opts?: { threshold?: number }) {
         } else return;
       }
       event.preventDefault();
-      const elastic = dy <= 0 ? 0 : dy < 90 ? dy : 90 + (dy - 90) * 0.72;
-      y.set(elastic);
+      const pull = Math.max(0, dy);
+      y.set(pull);
     };
 
     const onTouchEnd = () => {
