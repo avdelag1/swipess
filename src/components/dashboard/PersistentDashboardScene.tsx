@@ -60,10 +60,11 @@ export function PersistentDashboardScene() {
       style={{
         // Below the outlet (z-10) so non-dashboard pages render on top.
         zIndex: 0,
-        // Hidden when the URL is not a dashboard URL — but the React
-        // tree stays mounted so swipe state, image cache, and scroll
-        // position all survive.
-        visibility: showClient || showOwner ? 'visible' : 'hidden',
+        // Hidden when the URL is not a dashboard URL — use display:none
+        // (not just visibility:hidden) so nothing inside can ever bleed
+        // through a dialog or modal that opens above. React tree stays
+        // mounted; CSS toggle keeps swipe state and image cache alive.
+        display: showClient || showOwner ? 'flex' : 'none',
         pointerEvents: showClient || showOwner ? 'auto' : 'none',
       }}
     >
