@@ -675,6 +675,15 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
     });
   }, []);
 
+  // Vertical-up swipe = rewind to the previously viewed card without writing.
+  const handleSkipBack = useCallback(() => {
+    if (currentIndexRef.current <= 0) return;
+    triggerHaptic('light');
+    const newIndex = Math.max(0, currentIndexRef.current - 1);
+    currentIndexRef.current = newIndex;
+    setCurrentIndex(newIndex);
+  }, []);
+
   const handleButtonLike = useCallback(() => {
     if (cardRef.current) {
       cardRef.current.triggerSwipe('right');
@@ -924,6 +933,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
                     listing={topCard}
                     onSwipe={handleSwipe}
                     onSkip={handleSkip}
+                    onSkipBack={handleSkipBack}
                     onInsights={() => {
                       handleInsights();
                       if (onListingTap) onListingTap(topCard.id);
