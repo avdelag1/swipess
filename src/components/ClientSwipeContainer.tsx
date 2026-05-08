@@ -34,6 +34,7 @@ import { useNavigate } from 'react-router-dom';
 import { logger } from '@/utils/prodLogger';
 import { SwipeExhaustedState } from './swipe/SwipeExhaustedState';
 import { SwipeDeckBackButton } from './swipe/SwipeDeckBackButton';
+import { usePullDownToDismiss } from './swipe/usePullDownToDismiss';
 import { Home, RefreshCw, ChevronLeft, SlidersHorizontal } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
