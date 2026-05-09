@@ -758,6 +758,23 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
     onClose();
   };
 
+  // AI-drafted listing → stash payload, jump into the new-listing flow with prefill
+  const handleDraft = useCallback((category: string, data: any) => {
+    triggerHaptic('heavy');
+    const validCategories = ['property', 'motorcycle', 'bicycle', 'worker'];
+    const cat = validCategories.includes(category) ? category : 'property';
+    const mode = data?.listing_type === 'sale' || data?.mode === 'sale' ? 'sale' : 'rent';
+    try {
+      sessionStorage.setItem(
+        'swipess_ai_listing_draft',
+        JSON.stringify({ category: cat, mode, data, ts: Date.now() })
+      );
+    } catch { /* ignore */ }
+    appNavigate(`/owner/listings/new?category=${cat}&mode=${mode}&fromAI=1`);
+    onClose();
+    toast.success('Review your AI-drafted listing and add a photo to publish.');
+  }, [appNavigate, onClose]);
+
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, [messages, isLoading]);
@@ -885,6 +902,7 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                         onTranslate={handleTranslate}
                         onResend={() => resendMessage(m.id)}
                         onNavigate={handleNavigate}
+                        onDraft={handleDraft}
                         onFilter={(f) => { useFilterStore.getState().setFilters(f); toast.success('Search Logic Updated'); }}
                         onSpeak={handleSpeak}
                         speakingMsgId={speakingMsgId}
