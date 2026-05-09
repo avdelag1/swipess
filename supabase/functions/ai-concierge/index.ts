@@ -253,7 +253,7 @@ async function searchListings(intent: ReturnType<typeof detectListingIntent>): P
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY || SUPABASE_ANON_KEY);
     let query = supabase
       .from("listings")
-      .select("id, title, price, location, category, bedrooms, bathrooms, image_url, neighborhood, currency, listing_type")
+      .select("id, title, price, location, category, bedrooms, bathrooms, image_url, images, neighborhood, currency, listing_type")
       .eq("is_active", true)
       .limit(5)
       .order("created_at", { ascending: false });
@@ -275,7 +275,13 @@ async function searchListings(intent: ReturnType<typeof detectListingIntent>): P
       return desc;
     }).join("\n");
     // Structured payload consumed by the chat UI to render preview cards
-    const structured = data.map(l => ({
+    const structured = data.map(l => {
+      let img = l.image_url || "";
+      if (!img && Array.isArray(l.images) && l.images.length > 0) {
+        const first = l.images[0];
+        img = typeof first === "string" ? first : (first?.url || first?.src || "");
+      }
+      return {
       id: l.id,
       title: l.title,
       price: l.price,
@@ -285,8 +291,9 @@ async function searchListings(intent: ReturnType<typeof detectListingIntent>): P
       category: l.category,
       bedrooms: l.bedrooms,
       bathrooms: l.bathrooms,
-      image: l.image_url || "",
-    }));
+      image: img,
+    };
+    });
     return `${lines}\n[LISTINGS:${JSON.stringify(structured)}]`;
   } catch (e) {
     console.error("[AI] Listing search error:", e);
