@@ -268,13 +268,12 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
       return 0.97 + 0.03 * t;
     }
   );
+  // Always keep the underneath card visible so it never flashes a black
+  // frame when the top card flies off. Only the scale animates during drag
+  // for the parallax peek effect.
   const nextCardOpacity = useTransform(
     [topCardX, topCardY] as any,
-    ([cx, _cy]: any) => {
-      const t = Math.min(1, Math.abs(cx) / 280);
-      // Hidden at rest; rises only once horizontal intent is clear.
-      return t < 0.15 ? 0 : (t - 0.15) / 0.85;
-    }
+    () => 1
   );
 
   const hasSwipedRef = useRef(false);
