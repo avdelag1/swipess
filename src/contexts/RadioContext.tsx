@@ -535,6 +535,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
         setState(prev => ({ ...prev, isPoweredOn: true }));
         savePreferences({ isPoweredOn: true });
       }
+      userInitiatedRef.current = true;
       play();
     }
   }, [state.isPlaying, state.isPoweredOn, play, pause]);
@@ -646,6 +647,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     const first = queue[0];
     if (!first) return;
     pushRecent(first.id);
+    userInitiatedRef.current = true;
     play(first);
 
     // Also enable shuffle mode with the new queue
@@ -671,7 +673,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
   const playPlaylist = useCallback((stationIds: string[]) => {
     if (stationIds.length === 0) return;
     const firstStation = getStationById(stationIds[0]);
-    if (firstStation) play(firstStation);
+    if (firstStation) { userInitiatedRef.current = true; play(firstStation); }
   }, [play]);
 
   const playFavorites = useCallback(() => playPlaylist(state.favorites), [state.favorites, playPlaylist]);
