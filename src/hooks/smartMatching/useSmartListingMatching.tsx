@@ -171,22 +171,7 @@ const _DEPRECATED_DEMO_LISTINGS: any[] = [
     is_active: true, status: 'active', created_at: new Date().toISOString()
   },
 
-  // ── WORKERS / SERVICES (3 cards, 3 photos each) ───────────────────────
-  {
-    id: 'demo-worker-1',
-    title: 'Sofia — Spanish Architect',
-    description: 'Luxury residential design, permit-ready plans, sustainable materials, and premium interior direction.',
-    price: 150, pricing_unit: 'hour', currency: 'USD',
-    images: [
-      'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=1200',
-      'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&q=80&w=1200',
-      'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&q=80&w=1200'
-    ],
-    city: 'Tulum', category: 'worker',
-    service_category: 'Architecture', experience_years: 12, experience_level: 'expert',
-    latitude: 20.2114, longitude: -87.6044,
-    is_active: true, status: 'active', created_at: new Date().toISOString()
-  },
+  // ── WORKERS / SERVICES ───────────────────────
   {
     id: 'demo-worker-2',
     title: 'Matias — Argentine Private Chef',
