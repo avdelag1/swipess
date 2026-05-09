@@ -16,6 +16,7 @@ const OwnerNewListing = () => {
   const [initialData, setInitialData] = useState<{
     category: 'property' | 'motorcycle' | 'bicycle' | 'worker';
     mode: 'rent' | 'sale';
+    aiDraft?: Record<string, unknown> | null;
   } | null>(null);
   const [_aiGeneratedData, _setAIGeneratedData] = useState<Record<string, unknown> | null>(null);
 
@@ -28,6 +29,7 @@ const OwnerNewListing = () => {
   useEffect(() => {
     const categoryParam = searchParams.get('category');
     const modeParam = searchParams.get('mode');
+    const fromAI = searchParams.get('fromAI');
     
     if (categoryParam) {
       const validCategory = ['property', 'motorcycle', 'bicycle', 'worker'].includes(categoryParam) 
@@ -36,8 +38,23 @@ const OwnerNewListing = () => {
       const validMode = ['rent', 'sale'].includes(modeParam || '') 
         ? modeParam as 'rent' | 'sale'
         : 'rent';
-      
-      setInitialData({ category: validCategory, mode: validMode });
+
+      let aiDraft: Record<string, unknown> | null = null;
+      if (fromAI === '1') {
+        try {
+          const raw = sessionStorage.getItem('swipess_ai_listing_draft');
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            // 10-minute freshness window
+            if (parsed?.data && Date.now() - (parsed.ts || 0) < 10 * 60 * 1000) {
+              aiDraft = parsed.data as Record<string, unknown>;
+            }
+            sessionStorage.removeItem('swipess_ai_listing_draft');
+          }
+        } catch { /* ignore */ }
+      }
+
+      setInitialData({ category: validCategory, mode: validMode, aiDraft });
       setIsFormOpen(true);
       setIsCategorySelectorOpen(false);
     } else {
