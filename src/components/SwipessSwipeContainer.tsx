@@ -353,6 +353,34 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
   const prevListingIdsRef = useRef<string>('');
   const hasNewListingsRef = useRef(false);
 
+  useEffect(() => {
+    if (activeMode !== 'client' || !user?.id) return;
+
+    let previousUserId: string | null = null;
+    try {
+      previousUserId = sessionStorage.getItem('swipe-deck-client-user');
+    } catch (_err) { }
+
+    if (previousUserId && previousUserId !== user.id) {
+      deckQueueRef.current = [];
+      currentIndexRef.current = 0;
+      swipedIdsRef.current.clear();
+      prevListingIdsRef.current = '';
+      hasNewListingsRef.current = false;
+      setPage(0);
+      setCurrentIndex(0);
+      setDeckLength(0);
+      resetClientDeck();
+      queryClient.removeQueries({ queryKey: ['smart-listings'] });
+      try {
+        sessionStorage.removeItem('swipe-deck-items');
+        sessionStorage.removeItem('swipe-deck-client-listings');
+      } catch (_err) { }
+    }
+
+    try { sessionStorage.setItem('swipe-deck-client-user', user.id); } catch (_err) { }
+  }, [activeMode, user?.id, resetClientDeck, queryClient]);
+
   if (filterSignature !== prevFilterSignatureRef.current) {
     filterChangedRef.current = true;
     prevFilterSignatureRef.current = filterSignature;
@@ -444,6 +472,15 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
     if (deckQueueRef.current.length === 0 && smartData.length > 0) {
       deckQueueRef.current = smartData;
       setDeckLength(smartData.length);
+    } else if (activeMode === 'client' && smartData.length > 0) {
+      const firstIncoming = smartData[0]?.id;
+      const firstCurrent = deckQueueRef.current[currentIndexRef.current]?.id;
+      const userHasNotStartedThisDeck = currentIndexRef.current === 0 && swipedIdsRef.current.size === 0;
+      if (userHasNotStartedThisDeck && firstIncoming && firstIncoming !== firstCurrent) {
+        deckQueueRef.current = smartData;
+        setDeckLength(smartData.length);
+        setClientDeck(smartData, false);
+      }
     }
   }
 
@@ -733,7 +770,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
     resetClientDeck();
 
     try {
-      await queryClient.invalidateQueries({ queryKey: ['smart-listing-matches'] });
+      await queryClient.invalidateQueries({ queryKey: ['smart-listings'] });
       await queryClient.invalidateQueries({ queryKey: ['smart-client-matches'] });
       const refreshCategoryInfo = getActiveCategoryInfo(filters, storeActiveCategory);
       const refreshLabel = String(refreshCategoryInfo?.plural || 'Listings').toLowerCase();
