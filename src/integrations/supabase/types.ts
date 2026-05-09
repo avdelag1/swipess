@@ -2056,6 +2056,7 @@ export type Database = {
           city: string | null
           country: string | null
           created_at: string
+          date_of_birth: string | null
           email: string | null
           full_name: string | null
           gender: string | null
@@ -2089,6 +2090,7 @@ export type Database = {
           city?: string | null
           country?: string | null
           created_at?: string
+          date_of_birth?: string | null
           email?: string | null
           full_name?: string | null
           gender?: string | null
@@ -2122,6 +2124,7 @@ export type Database = {
           city?: string | null
           country?: string | null
           created_at?: string
+          date_of_birth?: string | null
           email?: string | null
           full_name?: string | null
           gender?: string | null
