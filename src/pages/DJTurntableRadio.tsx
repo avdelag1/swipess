@@ -8,8 +8,9 @@ import { StationDrawer } from '@/components/radio/retro/StationDrawer';
 import { triggerHaptic } from '@/utils/haptics';
 import { cn } from '@/lib/utils';
 import useAppTheme from '@/hooks/useAppTheme';
-import { ArrowLeft, Heart, SkipBack, SkipForward, Play, Pause, Volume2, ListMusic, Star, Shuffle } from 'lucide-react';
-import { CheetahSkinBackground } from '@/components/radio/CheetahSkinBackground';
+import { ArrowLeft, Heart, SkipBack, SkipForward, Play, Pause, Volume2, ListMusic, Star, Shuffle, Palette } from 'lucide-react';
+import { RadioSkinBackground } from '@/components/radio/RadioSkinBackground';
+import { useRadioSkin } from '@/hooks/useRadioSkin';
 
 export default function DJTurntableRadio() {
   const navigate = useNavigate();
@@ -68,14 +69,15 @@ export default function DJTurntableRadio() {
   const btnBorder = 'rgba(255,255,255,0.18)';
 
   const isFav = isStationFavorite(state.currentStation?.id || '');
+  const { skin, toggle: toggleSkin } = useRadioSkin();
 
   return (
     <div
       className="relative w-full h-full flex flex-col overflow-hidden"
       style={{ background: '#0a0705' }}
     >
-      {/* Cheetah fur skin */}
-      <CheetahSkinBackground />
+      {/* Radio surface skin (cheetah or app theme) */}
+      <RadioSkinBackground />
 
       {/* Top bar */}
       <div
@@ -90,13 +92,23 @@ export default function DJTurntableRadio() {
           <ArrowLeft size={18} />
         </button>
 
-        <button
-          onClick={() => { triggerHaptic('medium'); navigate('/radio/directory'); }}
-          className="w-11 h-11 rounded-full flex items-center justify-center active:scale-90 transition-transform"
-          style={{ background: btnBg, border: `1px solid ${btnBorder}`, color: textPrimary }}
-        >
-          <ListMusic size={18} />
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => { triggerHaptic('light'); toggleSkin(); }}
+            aria-label={skin === 'cheetah' ? 'Switch to theme skin' : 'Switch to cheetah skin'}
+            className="w-11 h-11 rounded-full flex items-center justify-center active:scale-90 transition-transform"
+            style={{ background: btnBg, border: `1px solid ${btnBorder}`, color: textPrimary }}
+          >
+            <Palette size={18} />
+          </button>
+          <button
+            onClick={() => { triggerHaptic('medium'); navigate('/radio/directory'); }}
+            className="w-11 h-11 rounded-full flex items-center justify-center active:scale-90 transition-transform"
+            style={{ background: btnBg, border: `1px solid ${btnBorder}`, color: textPrimary }}
+          >
+            <ListMusic size={18} />
+          </button>
+        </div>
       </div>
 
       {/* Center — station info */}

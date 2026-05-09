@@ -5,7 +5,7 @@ import { radioStations, cityThemes } from '@/data/radioStations';
 import { RadioStation, CityLocation } from '@/types/radio';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
-import { CheetahSkinBackground } from '@/components/radio/CheetahSkinBackground';
+import { RadioSkinBackground } from '@/components/radio/RadioSkinBackground';
 
 interface StationDrawerProps {
   isOpen: boolean;
@@ -73,7 +73,7 @@ export const StationDrawer = ({
               background: '#0a0705'
             } as React.CSSProperties}
           >
-            <CheetahSkinBackground />
+            <RadioSkinBackground />
             <div className="relative z-10 flex flex-col flex-1 min-h-0">
 
 

@@ -6,7 +6,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { triggerHaptic } from '@/utils/haptics';
 import { cn } from '@/lib/utils';
 import useAppTheme from '@/hooks/useAppTheme';
-import { CheetahSkinBackground } from '@/components/radio/CheetahSkinBackground';
+import { RadioSkinBackground } from '@/components/radio/RadioSkinBackground';
 
 function RadioMiniPlayerInner() {
   const { state, togglePlayPause, changeStation, pause, setMiniPlayerMode, setVolume, toggleFavorite, isStationFavorite, shuffleAndPlay } = useRadio();
@@ -137,7 +137,7 @@ function RadioMiniPlayerInner() {
           style={bottomStyle}
         >
           <div className="relative rounded-[28px] overflow-hidden shadow-[0_22px_70px_8px_rgba(0,0,0,0.56)] border border-white/15 text-white">
-            <CheetahSkinBackground />
+            <RadioSkinBackground />
             <div className="relative z-10">
             {/* Top bar */}
             <div className="flex items-center justify-between px-4 pt-3.5 pb-2">
