@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   X, Send, Mic, Sparkles, Plus, CornerDownLeft,
   Trash2, Menu, Zap, Flame, Sun, Crown, Moon, History, ArrowUp,
-  Copy, Languages, Timer, ArrowRight, RefreshCw, Volume2, VolumeX
+  Copy, Languages, Timer, ArrowRight, RefreshCw, Volume2, VolumeX, Share2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
