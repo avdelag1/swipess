@@ -81,6 +81,7 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
   const location = [city, country].filter(Boolean).join(', ');
 
   return createPortal(
+    <>
     <AnimatePresence>
       {isOpen && (
         <motion.div
@@ -198,7 +199,8 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
         </motion.div>
       )}
     </AnimatePresence>
-    ,
+    <VapIdEditModal isOpen={editOpen} onClose={() => setEditOpen(false)} />
+    </>,
     document.body
   );
 }
