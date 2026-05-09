@@ -519,7 +519,8 @@ export function AuthProvider({ children, authPromise }: { children: ReactNode, a
           logger.warn('[Auth] One-shot hydration partial failure:', setupError);
         }
 
-        appToast.success("Welcome back!", "Loading your dashboard...");
+        // No side toast on sign-in: the centered WelcomeNotification handles greeting
+        // for new users; returning users go straight to the dashboard with no toast.
         navigate(targetPath, { replace: true });
         return { error: null };
       }
