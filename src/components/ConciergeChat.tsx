@@ -308,9 +308,9 @@ const MessageBubble = memo(({ message, isUser, isSwipess, onCopy, onDelete, onTr
         </div>
       )}
 
-      {navPaths.length > 0 && onNavigate && (
+      {(navPaths.length > 0 || draftActions.length > 0 || filterAction) && (
         <div className="flex flex-wrap gap-1.5 mt-1">
-          {navPaths.map(path => (
+          {onNavigate && navPaths.map(path => (
             <button
               key={path}
               onClick={(e) => { e.stopPropagation(); onNavigate(path); }}

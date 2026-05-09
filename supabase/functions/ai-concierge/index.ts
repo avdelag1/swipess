@@ -224,15 +224,15 @@ async function searchProfiles(query: string): Promise<string> {
 
 function detectListingIntent(query: string): { isListing: boolean; category?: string; maxPrice?: number; minBedrooms?: number; location?: string } {
   const q = query.toLowerCase();
-  const isListing = /\b(find|search|looking for|show me|any|apartment|house|room|flat|studio|car|vehicle|motorcycle|bike|service|plumber|electrician|rent|buy|listing|property)\b/.test(q);
+  const isListing = /\b(find|search|looking for|show me|show|pull|give me|send|share|preview|open|browse|recommend|available|any|apartment|apartments|house|houses|room|rooms|flat|flats|studio|studios|villa|villas|condo|condos|car|vehicle|motorcycle|moto|bike|bicycle|service|services|worker|workers|plumber|electrician|rent|rental|buy|sale|listing|listings|property|properties)\b/.test(q);
   if (!isListing) return { isListing: false };
 
   let category: string | undefined;
-  if (/\b(apartment|flat|house|room|studio|property|rent|bedroom)\b/.test(q)) category = "property";
+  if (/\b(apartment|apartments|flat|flats|house|houses|room|rooms|studio|studios|villa|villas|condo|condos|property|properties|rent|rental|bedroom|bedrooms)\b/.test(q)) category = "property";
   else if (/\b(car|vehicle|suv|sedan)\b/.test(q)) category = "vehicle";
-  else if (/\b(motorcycle|motorbike|scooter)\b/.test(q)) category = "motorcycle";
-  else if (/\b(bicycle|bike|cycling)\b/.test(q)) category = "bicycle";
-  else if (/\b(service|plumber|electrician|cleaner|handyman)\b/.test(q)) category = "service";
+  else if (/\b(motorcycle|motorbike|moto|scooter)\b/.test(q)) category = "motorcycle";
+  else if (/\b(bicycle|bicycles|bike|bikes|cycling)\b/.test(q)) category = "bicycle";
+  else if (/\b(service|services|worker|workers|plumber|electrician|cleaner|handyman|chef|driver|nanny|contractor)\b/.test(q)) category = "worker";
 
   const priceMatch = q.match(/(?:under|below|max|up to|less than)\s*\$?\s*(\d+)/);
   const maxPrice = priceMatch ? parseInt(priceMatch[1]) : undefined;
@@ -253,9 +253,11 @@ async function searchListings(intent: ReturnType<typeof detectListingIntent>): P
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY || SUPABASE_ANON_KEY);
     let query = supabase
       .from("listings")
-      .select("id, title, price, location, category, bedrooms, bathrooms, image_url, images, neighborhood, currency, listing_type")
+      .select("id, title, price, location, category, bedrooms, bathrooms, image_url, images, neighborhood, currency, listing_type, user_id, owner_id, created_at, updated_at, status")
       .eq("is_active", true)
-      .limit(5)
+      .eq("status", "active")
+      .limit(25)
+      .order("updated_at", { ascending: false })
       .order("created_at", { ascending: false });
 
     if (intent.category) query = query.eq("category", intent.category);
@@ -266,7 +268,18 @@ async function searchListings(intent: ReturnType<typeof detectListingIntent>): P
     const { data, error } = await query;
     if (error || !data || data.length === 0) return "";
 
-    const lines = data.map(l => {
+    const seedIds = new Set([
+      "00000000-0000-0000-0000-000000000000",
+      "00000000-0000-0000-0000-000000000001",
+    ]);
+    const isSeedListing = (l: any) => seedIds.has(l.owner_id || l.user_id) || /^[abc]1111111-|^b2222222-|^c3333333-/.test(l.id || "");
+    const sortedListings = [...data].sort((a: any, b: any) => {
+      const realRank = Number(isSeedListing(a)) - Number(isSeedListing(b));
+      if (realRank !== 0) return realRank;
+      return new Date(b.updated_at || b.created_at || 0).getTime() - new Date(a.updated_at || a.created_at || 0).getTime();
+    }).slice(0, 5);
+
+    const lines = sortedListings.map(l => {
       const currency = l.currency || "$";
       const price = `${currency === "USD" || currency === "$" ? "$" : currency === "MXN" ? "MXN$" : currency}${l.price}`;
       let desc = `• **${l.title}** — ${price}/${l.listing_type || "month"} in ${l.neighborhood || l.location}`;
@@ -275,7 +288,7 @@ async function searchListings(intent: ReturnType<typeof detectListingIntent>): P
       return desc;
     }).join("\n");
     // Structured payload consumed by the chat UI to render preview cards
-    const structured = data.map(l => {
+    const structured = sortedListings.map(l => {
       let img = l.image_url || "";
       if (!img && Array.isArray(l.images) && l.images.length > 0) {
         const first = l.images[0];
@@ -299,6 +312,11 @@ async function searchListings(intent: ReturnType<typeof detectListingIntent>): P
     console.error("[AI] Listing search error:", e);
     return "";
   }
+}
+
+function extractListingsTag(listingsContext: string): string {
+  const match = listingsContext.match(/\[LISTINGS:(\[[\s\S]*?\])\]/);
+  return match ? `[LISTINGS:${match[1]}]` : "";
 }
 
 // ─── User Memory ────────────────────────────────────────────────────────────
@@ -1080,6 +1098,51 @@ async function streamLovableAI(messages: ChatMessage[]): Promise<Response> {
   return new Response(res.body, { headers: { ...corsHeaders, "Content-Type": "text/event-stream" } });
 }
 
+function streamWithForcedSuffix(response: Response, suffix: string): Response {
+  if (!suffix || !response.body) return response;
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  const encoder = new TextEncoder();
+  let captured = "";
+  let injected = false;
+
+  const stream = new ReadableStream({
+    async pull(controller) {
+      const { value, done } = await reader.read();
+      if (done) {
+        if (!injected && !captured.includes(suffix)) {
+          controller.enqueue(encoder.encode(`data: ${JSON.stringify({ choices: [{ delta: { content: `\n${suffix}` } }] })}\n\n`));
+        }
+        controller.close();
+        return;
+      }
+
+      let chunk = decoder.decode(value, { stream: true });
+      for (const line of chunk.split("\n")) {
+        if (!line.startsWith("data: ")) continue;
+        const json = line.slice(6).trim();
+        if (json === "[DONE]") continue;
+        try {
+          const parsed = JSON.parse(json);
+          captured += parsed.choices?.[0]?.delta?.content || "";
+        } catch {}
+      }
+
+      if (!injected && !captured.includes(suffix) && chunk.includes("data: [DONE]")) {
+        const forcedChunk = `data: ${JSON.stringify({ choices: [{ delta: { content: `\n${suffix}` } }] })}\n\n`;
+        chunk = chunk.replace("data: [DONE]", `${forcedChunk}data: [DONE]`);
+        injected = true;
+      }
+
+      controller.enqueue(encoder.encode(chunk));
+    },
+    cancel() { reader.cancel(); },
+  });
+
+  return new Response(stream, { status: response.status, headers: response.headers });
+}
+
 // ─── Collect streaming response for memory extraction ───────────────────────
 
 function wrapStreamForCapture(
@@ -1219,6 +1282,11 @@ Deno.serve(async (req) => {
     newHeaders.set("X-AI-Provider", aiProvider);
     newHeaders.set("Access-Control-Expose-Headers", "X-AI-Provider");
     response = new Response(response.body, { status: response.status, headers: newHeaders });
+
+    const listingsTag = listingIntent.isListing ? extractListingsTag(listings) : "";
+    if (listingsTag && response.headers.get("content-type")?.includes("text/event-stream")) {
+      response = streamWithForcedSuffix(response, listingsTag);
+    }
 
     // If user is authenticated, use tee() for non-blocking capture
     if (userId && response.headers.get("content-type")?.includes("text/event-stream") && response.body) {
