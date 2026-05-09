@@ -19,8 +19,13 @@ PROJECT_REF = os.environ.get("SUPABASE_PROJECT_REF", "vplgtcguxujxwrgguxqq")
 
 # Secrets to set in the Supabase Edge Functions environment.
 # These are SERVER-SIDE env vars — different from the frontend VITE_* vars.
+_gemini_key = os.environ.get("GEMINI_API_KEY")
+if not _gemini_key:
+    print("ERROR: GEMINI_API_KEY env var is not set. Run: export GEMINI_API_KEY=<your-key>")
+    sys.exit(1)
+
 SECRETS = [
-    {"name": "GEMINI_API_KEY", "value": os.environ.get("GEMINI_API_KEY", "AIzaSyDRoWrEpn4IA6LdVRBsaqldE1aAv2E9VPo")},
+    {"name": "GEMINI_API_KEY", "value": _gemini_key},
 ]
 
 

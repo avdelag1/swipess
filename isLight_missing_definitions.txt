@@ -1,2 +1,0 @@
-﻿C:\Users\delag\.gemini\antigravity\scratch\swipess\src\components\OwnerListingsStats.tsx
-C:\Users\delag\.gemini\antigravity\scratch\swipess\src\components\PremiumLikedCard.tsx
