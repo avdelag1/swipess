@@ -1,7 +1,9 @@
+import { Capacitor } from '@capacitor/core';
+
 /**
- * Canonical Apple In-App Purchase product IDs.
- * These MUST match the products created in App Store Connect.
- * Required to comply with Apple Guideline 3.1.1.
+ * Canonical In-App Purchase product IDs.
+ * These MUST match the products created in App Store Connect / Google Play Console.
+ * Required to comply with Apple Guideline 3.1.1 and Google Play Billing Policy.
  */
 
 export const APPLE_SUBSCRIPTION_PRODUCTS = [
@@ -18,6 +20,13 @@ export const APPLE_TOKEN_PRODUCTS = [
   'Swipess.tokens.150.v1',
 ] as const;
 
+/**
+ * PayPal URLs are ONLY available on web and Android.
+ * On iOS, Apple Guideline 3.1.1 prohibits external payment for digital goods.
+ * The paypalUrl field is conditionally set to undefined on iOS at runtime.
+ */
+const isIOS = Capacitor.getPlatform() === 'ios';
+
 export const APPLE_TOKEN_PACKAGES = [
   {
     id: 'starter',
@@ -26,8 +35,8 @@ export const APPLE_TOKEN_PACKAGES = [
     tokens: 20,
     priceUsd: 9.99,
     description: '20 new conversations',
-    badge: undefined,
-    paypalUrl: 'https://www.paypal.com/ncp/payment/VNM2QVBFG6TA4',
+    badge: undefined as string | undefined,
+    paypalUrl: isIOS ? undefined : 'https://www.paypal.com/ncp/payment/VNM2QVBFG6TA4',
   },
   {
     id: 'plus',
@@ -36,8 +45,8 @@ export const APPLE_TOKEN_PACKAGES = [
     tokens: 50,
     priceUsd: 19.99,
     description: '50 new conversations',
-    badge: 'Popular',
-    paypalUrl: 'https://www.paypal.com/ncp/payment/VG2C7QMAC8N6A',
+    badge: 'Popular' as string | undefined,
+    paypalUrl: isIOS ? undefined : 'https://www.paypal.com/ncp/payment/VG2C7QMAC8N6A',
   },
   {
     id: 'power',
@@ -46,8 +55,8 @@ export const APPLE_TOKEN_PACKAGES = [
     tokens: 100,
     priceUsd: 39.99,
     description: '100 new conversations',
-    badge: undefined,
-    paypalUrl: 'https://www.paypal.com/ncp/payment/9NBGA9X3BJ5UA',
+    badge: undefined as string | undefined,
+    paypalUrl: isIOS ? undefined : 'https://www.paypal.com/ncp/payment/9NBGA9X3BJ5UA',
   },
   {
     id: 'mega',
@@ -56,8 +65,8 @@ export const APPLE_TOKEN_PACKAGES = [
     tokens: 150,
     priceUsd: 49.99,
     description: '150 new conversations',
-    badge: 'Best Value',
-    paypalUrl: 'https://www.paypal.com/ncp/payment/KP9WHGEN23MYA',
+    badge: 'Best Value' as string | undefined,
+    paypalUrl: isIOS ? undefined : 'https://www.paypal.com/ncp/payment/KP9WHGEN23MYA',
   },
 ] as const;
 

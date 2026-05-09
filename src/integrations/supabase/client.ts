@@ -3,17 +3,14 @@ import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 import { logger } from '@/utils/prodLogger';
 
-const PRODUCTION_PROJECT_ID = 'vplgtcguxujxwrgguxqq';
-const SUPABASE_URL = `https://${PRODUCTION_PROJECT_ID}.supabase.co`;
-const SUPABASE_PUBLISHABLE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwbGd0Y2d1eHVqeHdyZ2d1eHFxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgwMDI5MDIsImV4cCI6MjA2MzU3ODkwMn0.-TzSQ-nDho4J6TftVF4RNjbhr5cKbknQxxUT-AaSIJU';
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
-// Backend Isolation Lockdown — Absolute Enforcement
-if (!SUPABASE_URL.includes(PRODUCTION_PROJECT_ID)) {
-  const errorMsg = `[CRITICAL] UNAUTHORIZED BACKEND DETECTED! Only project ${PRODUCTION_PROJECT_ID} is allowed.`;
-  logger.error(errorMsg);
-  // Force reset if hijacked
-  window.location.reload();
+if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
+  throw new Error('[CRITICAL] Missing VITE_SUPABASE_URL or VITE_SUPABASE_PUBLISHABLE_KEY environment variables.');
 }
+
+// Backend origin validated via environment variables above
 
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";

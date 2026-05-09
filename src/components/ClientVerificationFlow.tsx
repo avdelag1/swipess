@@ -234,7 +234,7 @@ export function ClientVerificationFlow({ onComplete }: ClientVerificationFlowPro
                       {uploading ? 'Processing Image...' : (selfieUrl ? 'Change Photo' : 'Capture Selfie')}
                     </div>
                   </label>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-white/20">Biometric Check active</p>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-white/20">Identity check active</p>
                 </div>
               </div>
             )}

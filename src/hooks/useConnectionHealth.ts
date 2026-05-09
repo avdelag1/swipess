@@ -20,9 +20,8 @@ interface ConnectionHealth {
 
 const CHECK_TIMEOUT_MS = 5000; // Reduced to 5s for faster 'Speed of Light' detection
 const MAX_RETRIES = 3;
-const PRODUCTION_PROJECT_ID = 'vplgtcguxujxwrgguxqq';
-const SUPABASE_HEALTH_URL = `https://${PRODUCTION_PROJECT_ID}.supabase.co/auth/v1/health`;
-const SUPABASE_PUBLISHABLE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwbGd0Y2d1eHVqeHdyZ2d1eHFxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgwMDI5MDIsImV4cCI6MjA2MzU3ODkwMn0.-TzSQ-nDho4J6TftVF4RNjbhr5cKbknQxxUT-AaSIJU';
+const SUPABASE_HEALTH_URL = `${import.meta.env.VITE_SUPABASE_URL}/auth/v1/health`;
+const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || '';
 
 function isErrorWithMessage(err: unknown): err is { message: string; name?: string } {
   return typeof err === 'object' && err !== null && 'message' in err && typeof (err as Record<string, unknown>).message === 'string';

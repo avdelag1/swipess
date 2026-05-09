@@ -296,8 +296,8 @@ export function ContractsVault() {
                   <div className={cn("p-8 rounded-[2rem] border flex items-start gap-5", isLight ? "bg-primary/5 border-primary/20" : "bg-primary/10 border-primary/20")}>
                     <ShieldCheck className="w-6 h-6 text-primary flex-shrink-0 mt-1" />
                     <p className={cn("text-[12px] leading-relaxed font-black uppercase italic tracking-wider", isLight ? "text-primary/80" : "text-primary/90")}>
-                      Swipess Legal Trust v2.0 ensures this document is non-repudiable once signed. 
-                      Biometric data will be attached to the final cryptographic hash.
+                      Swipess Legal Trust v2.0 ensures this document is securely recorded once signed. 
+                      A digital signature timestamp will be attached to the final record.
                     </p>
                   </div>
                </div>
@@ -332,7 +332,7 @@ export function ContractsVault() {
 
               <div className="text-center space-y-4 px-6">
                  <h3 className={cn("text-3xl font-black tracking-tighter uppercase italic", isLight ? "text-black" : "text-white")}>Signature Protocol</h3>
-                 <p className={cn("text-[10px] font-black uppercase tracking-[0.4em] opacity-70 italic", isLight ? "text-black" : "text-white")}>Digital authenticity via biometric ink</p>
+                 <p className={cn("text-[10px] font-black uppercase tracking-[0.4em] opacity-70 italic", isLight ? "text-black" : "text-white")}>Secure digital signature</p>
               </div>
 
               <DigitalSignaturePad 

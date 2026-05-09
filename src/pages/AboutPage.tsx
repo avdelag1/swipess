@@ -27,8 +27,8 @@ export default function AboutPage() {
     },
     {
       icon: Shield,
-      title: "Biometric Trust",
-      description: "Verified profiles and secure digital contracts for total peace of mind."
+      title: "Verified Profiles",
+      description: "Trusted, verified profiles and secure digital agreements for total peace of mind."
     },
     {
       icon: MessageCircle,
@@ -50,7 +50,7 @@ export default function AboutPage() {
     },
     {
       icon: Shield,
-      title: "Verified Authority",
+      title: "Secure Environment",
       description: "Engage with trusted owners in a secure, audited environment."
     },
     {

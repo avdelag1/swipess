@@ -169,7 +169,7 @@ export function AccountSecurity({ userRole }: AccountSecurityProps) {
         <SettingRow 
           icon={Smartphone} 
           title="2FA Protocol" 
-          description="Biometric & Device Verification" 
+          description="2FA & Device Verification" 
           checked={localSettings.two_factor_enabled}
           onToggle={() => toggleSetting('two_factor_enabled')}
         />

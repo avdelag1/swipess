@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MessageCircle, Sparkles, Zap, Clock, Shield, Check, Crown, Star, X, RefreshCcw } from "lucide-react";
 import { Capacitor } from "@capacitor/core";
-import { useIAP } from "@/hooks/useIAP";
+
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -56,7 +56,7 @@ export function MessageActivationPackages({
   const { user } = useAuth();
   const { theme } = useAppTheme();
   const isDark = theme === 'dark';
-  const { purchaseProduct, restorePurchases } = useIAP();
+
   const isNative = Capacitor.isNativePlatform();
 
   const { data: userProfile } = useQuery({
@@ -362,7 +362,7 @@ export function MessageActivationPackages({
         {/* 🚔 APPLE MANDATORY COMPLIANCE BUTTON */}
         {isNative && (
           <button
-            onClick={() => restorePurchases()}
+            onClick={() => NativeBridge.restorePurchases()}
             className={cn(
               "text-[10px] font-black uppercase tracking-[0.2em] px-6 py-2 rounded-xl border transition-all",
               isDark ? "bg-white/5 border-white/10 text-white/70 hover:text-white" : "bg-gray-50 border-gray-200 text-gray-400 hover:text-gray-900"

@@ -33,7 +33,7 @@ async function ensureDeviceReady(): Promise<void> {
 
 export const StoreKitService = {
   isAvailable(): boolean {
-    return Capacitor.getPlatform() === 'ios';
+    return Capacitor.isNativePlatform();
   },
 
   async init(): Promise<void> {
@@ -55,7 +55,7 @@ export const StoreKitService = {
           type: (APPLE_SUBSCRIPTION_PRODUCTS as readonly string[]).includes(id)
             ? ProductType.PAID_SUBSCRIPTION
             : ProductType.CONSUMABLE,
-          platform: Platform.APPLE_APPSTORE,
+          platform: Capacitor.getPlatform() === 'ios' ? Platform.APPLE_APPSTORE : Platform.GOOGLE_PLAY,
         }))
       );
 
@@ -86,7 +86,11 @@ export const StoreKitService = {
         .approved((tx: any) => tx.verify())
         .verified((tx: any) => tx.finish());
 
-      await store.initialize([(window as any).CdvPurchase.Platform.APPLE_APPSTORE]);
+      const platformConfig = Capacitor.getPlatform() === 'ios'
+        ? (window as any).CdvPurchase.Platform.APPLE_APPSTORE
+        : (window as any).CdvPurchase.Platform.GOOGLE_PLAY;
+
+      await store.initialize([platformConfig]);
       initialized = true;
     } catch (e) {
       console.error('[IAP] init failed', e);
