@@ -1,86 +1,63 @@
-# Store Readiness Plan — Apple App Store + Google Play
 
-Goal: Get Swipess to a state where Apple and Google reviewers are likely to approve it on first or second submission. After that, do a polish/perf pass on the rest of the app.
+# Swipess Polish & Reliability Pass
 
-## Phase 1 — Hard blockers (must fix before submission)
+This is a multi-area pass. To keep risk low and quality high, I'll break it into 4 focused tracks and execute them sequentially in build mode. Each track ends with a verification step before moving on.
 
-These are the items that reliably get apps rejected. We address them first.
+## Track 1 — Fix current errors & app boot
 
-### 1. Sign in with Apple (Apple Guideline 4.8)
-- Currently the app offers Google login. iOS apps that offer any third-party login MUST also offer Sign in with Apple.
-- Add Apple as a provider via Lovable Cloud managed social auth.
-- Add an "Apple" button to the auth screen alongside Google.
+1. **i18next warning** (`useTranslation: You will need to pass in an i18next instance`) — `src/i18n/index.ts` is not being imported on the boot path. Import it once in `src/main.tsx` so `initReactI18next` registers before any component calls `useTranslation`.
+2. **Edge function deploy error** (`validate-google-play-purchase` entrypoint) — config block currently references a function whose `index.ts` is intermittently missing from the deploy bundle. Confirm the file exists and is exported correctly; if not, remove the config block until the function is rebuilt.
+3. **MaintenanceGate gate** — leave logic intact (it's intentional) but verify the unlock persists across reloads on the deployed PWA build.
+4. Run a TypeScript pass and clear any stale references created during the recent listing/AI edits (`useSmartListingMatching.tsx` post-Sophia removal, `ConciergeChat.tsx`, `ai-concierge/index.ts`).
 
-### 2. Account deletion in-app (Apple 5.1.1(v), Google Data safety)
-- Both stores require users to delete their account from inside the app (not just a website).
-- Add a "Delete my account" flow under Settings: confirmation modal, edge function that deletes auth user + cascades profile/listing/likes/messages rows, sign out, redirect.
+## Track 2 — Real listings first in the deck
 
-### 3. Privacy Policy + Terms of Service URLs
-- Required for store listings, auth screens, and Google Data Safety form.
-- Verify `/privacy` and `/terms` routes exist, are reachable on the published domain, and are linked from the auth screen and Settings.
-- Will not rewrite legal copy — just confirm pages exist and are linked.
+1. Audit `get_smart_listings` RPC + `useSmartListingMatching` ordering. Today seeded/demo placeholders can outrank real owner listings.
+2. Update ordering so real user listings (non-seed `owner_id`) are returned **first**, with demo/seed listings only used as fallback when the deck is empty.
+3. Add a `seedExclude` flag the client can pass to hide demos entirely once the database has ≥ N real active listings.
+4. Verify with `read_query` that there are real `listings` rows and that the deck shows them on `/client/dashboard`.
 
-### 4. Permission usage strings (iOS Info.plist / Android manifest)
-- Capacitor app needs human-readable purpose strings for every permission used: camera, photo library, location, microphone (radio/voice), notifications.
-- Audit `capacitor.config.ts`, `ios/App/App/Info.plist`, `android/app/src/main/AndroidManifest.xml`. Add `NSCameraUsageDescription`, `NSPhotoLibraryUsageDescription`, `NSLocationWhenInUseUsageDescription`, `NSMicrophoneUsageDescription` with clear, user-facing reasons. Same on Android side.
+## Track 3 — AI listing creation working end-to-end
 
-### 5. App Tracking Transparency (iOS 14.5+)
-- If we use any analytics/tracking, add ATT prompt + `NSUserTrackingUsageDescription`. If we don't track across apps, declare that in App Privacy. Confirm which case applies.
+1. Verify `GOOGLE_API_KEY` secret is wired into `ai-listing-extract` (Gemini). Confirm via `edge_function_logs` that calls succeed.
+2. In `ai-concierge/index.ts`, ensure the assistant can:
+   - Detect listing-creation intent from chat.
+   - Call `ai-listing-extract` (or the Gemini model directly) to structure the listing payload.
+   - Insert into `listings` with the authenticated user's `user_id`/`owner_id`.
+   - Return a deep link `/listing/<id>` and an inline preview card in the chat (image, title, price, city).
+3. In `ConciergeChat.tsx`, render listing previews when the assistant replies with `[LISTING:<id>]` or a structured listing block — tap opens the listing detail; long-press copies a shareable URL.
+4. Smoke test: ask the AI to "create a listing for a 2BR loft in Tulum, $1800/mo, jungle view" and verify the row appears in `listings` and the preview renders in chat.
 
-### 6. Content moderation + reporting (Apple 1.2 for UGC apps)
-- Swipess has user-generated profiles, photos, listings, messages. Apple requires:
-  - A way to report objectionable content (already partially exists — `Flag` icon on cards). Verify the report flow actually writes to a `reports` table and notifies an admin.
-  - A way to block users.
-  - A method to filter objectionable content.
-  - A published EULA or use Apple's standard EULA.
-  - 24-hour response commitment to reports.
-- Build/verify: report writes to DB, block-user action, admin review queue (can be minimal).
+## Track 4 — Cross-device, PWA, deep-link polish
 
-### 7. Age rating + age gate
-- Set correct age rating in App Store Connect / Play Console questionnaire (likely 17+ given dating-style swipe + UGC).
-- Add a date-of-birth or age confirmation step at signup.
+1. **Universal links**: ensure `/listing/:id` and `/profile/:id` work in:
+   - Web (standalone tab).
+   - PWA (installed home-screen).
+   - Native shell (Capacitor). Open in app when installed; fall back to web otherwise via `intent://` (Android) and Universal Links (iOS) — already partially set up via `MaintenanceGate.hasTrustedPublicEntry`.
+2. **Open Graph / share previews**: confirm `/listing/:id` returns proper OG tags so links shared in chat or social render with image + title.
+3. **Performance**:
+   - Audit `SwipessPrewarmer` preconnect list (currently includes `supabase.co` and unused avatar domains) — keep only domains we hit in the first 3s.
+   - Defer non-critical chunks (`vendor-viz`, `ClientSecurity`, `LegalHub`) behind interaction.
+   - Verify `loading="lazy"` + `decoding="async"` on every card image.
+4. **Visual polish per Design Evolution Memory**:
+   - Bump primary swipe buttons to 64–72px diameter, icon 28–32px.
+   - Layered shadows on the card stack (4 / 12 / 24 / 60 px elevation tiers).
+   - Replace any pure `bg-black` / `text-white` with semantic tokens.
 
-### 8. Crash-free launch + no broken flows
-- Capacitor build must launch on a clean device with no JS errors.
-- Smoke-test: signup → upload photo → swipe → message → settings → delete account.
-- Verify no `localhost`, dev-only URLs, or test keys in the production bundle.
+## Verification checklist (run at end)
 
-## Phase 2 — Likely-to-be-flagged items
+- No console errors on boot.
+- Real user listings appear first on `/client/dashboard`.
+- AI chat creates a listing row + renders an in-chat preview with deep link.
+- Shared `/listing/:id` URL opens correctly in browser, installed PWA, and Capacitor build.
+- Lighthouse mobile performance ≥ 90 on the published build.
 
-### 9. Network/CORS, splash, icons
-- Confirm app icons (all required sizes) and splash screens are present in `ios/` and `android/`.
-- Confirm `capacitor.config.ts` does NOT point `server.url` at the Lovable preview for production builds (that's only for dev hot-reload).
+## Technical details
 
-### 10. Push notifications
-- If we declare push, we must actually request permission with a clear reason and have a working subscribe flow. If not used yet, do not declare it in capabilities.
+- Files touched (expected): `src/main.tsx`, `src/i18n/index.ts`, `src/hooks/smartMatching/useSmartListingMatching.tsx`, `src/components/ConciergeChat.tsx`, `src/components/SwipessPrewarmer.tsx`, `src/components/SwipessSwipeContainer.tsx` (button sizing), `supabase/functions/ai-concierge/index.ts`, `supabase/functions/ai-listing-extract/index.ts`, possibly a new migration to refine `get_smart_listings` ordering.
+- No schema changes expected beyond the RPC ordering tweak.
+- No new secrets required — `GOOGLE_API_KEY`, `LOVABLE_API_KEY`, `MINIMAX_API_KEY` already configured.
 
-### 11. Google Play Data Safety form
-- Document every data type collected (email, name, photos, location, messages), purpose, whether shared, whether encrypted in transit, whether user can request deletion. Prepare a checklist the user can paste into Play Console.
+## Clarifying question before I start
 
-### 12. Subscriptions / IAP
-- If we sell digital tokens or subscriptions inside the iOS app, Apple requires IAP — we cannot use Stripe for in-app digital goods on iOS. Decide: either gate paid features to web only on iOS, or implement StoreKit. Mark as decision needed.
-
-## Phase 3 — Polish after store readiness
-
-Only after Phase 1 + 2 are clean:
-- Performance pass: route-level code splitting audit, image lazy-loading audit, eliminate unused vendor weight, profile swipe deck FPS.
-- Visual polish per the design evolution doctrine: shadow scaling, luminance layering, button sizing on swipe deck.
-- Final QA: every primary flow on iPhone-size + Android-size viewports.
-
-## Technical notes (for engineers)
-
-- Apple sign-in: use `supabase--configure_social_auth` with `["apple"]`; add UI button using existing OAuth helper.
-- Account deletion: edge function with service-role key, cascade deletes via SQL; client calls function then `signOut()`.
-- Permission strings: edit `ios/App/App/Info.plist` and `android/app/src/main/AndroidManifest.xml` directly (not auto-generated).
-- Reporting/blocking: add `reports` and `blocks` tables with RLS if not present; verify `Flag` button writes a row.
-- Age gate: add `date_of_birth` column on profile if missing, validate >=17 (or appropriate) at signup.
-- IAP decision needed before any subscription work on iOS.
-
-## Open questions for you
-
-1. Do you want me to add **Sign in with Apple** now? (Required for iOS approval.)
-2. Do you currently sell **anything inside the app on iOS** (tokens, premium)? This decides whether we need Apple IAP or can keep Stripe (web-only on iOS).
-3. Any **analytics/tracking SDKs** installed (Meta pixel, GA, etc.)? Decides ATT prompt.
-4. Should I treat the app as **17+** (dating-style) or lower?
-
-Once you answer (or say "you decide"), I'll switch to build mode and execute Phase 1 in order.
+The scope is large. Do you want me to do **all four tracks** in one go (longer single run), or stop after each track so you can review the result?
