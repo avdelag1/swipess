@@ -1085,6 +1085,44 @@ async function streamLovableAI(messages: ChatMessage[]): Promise<Response> {
   return new Response(res.body, { headers: { ...corsHeaders, "Content-Type": "text/event-stream" } });
 }
 
+function streamWithForcedSuffix(response: Response, suffix: string): Response {
+  if (!suffix || !response.body) return response;
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  const encoder = new TextEncoder();
+  let captured = "";
+
+  const stream = new ReadableStream({
+    async pull(controller) {
+      const { value, done } = await reader.read();
+      if (done) {
+        if (!captured.includes(suffix)) {
+          controller.enqueue(encoder.encode(`data: ${JSON.stringify({ choices: [{ delta: { content: `\n${suffix}` } }] })}\n\n`));
+        }
+        controller.close();
+        return;
+      }
+
+      const chunk = decoder.decode(value, { stream: true });
+      for (const line of chunk.split("\n")) {
+        if (!line.startsWith("data: ")) continue;
+        const json = line.slice(6).trim();
+        if (json === "[DONE]") continue;
+        try {
+          const parsed = JSON.parse(json);
+          captured += parsed.choices?.[0]?.delta?.content || "";
+        } catch {}
+      }
+
+      controller.enqueue(value);
+    },
+    cancel() { reader.cancel(); },
+  });
+
+  return new Response(stream, { status: response.status, headers: response.headers });
+}
+
 // ─── Collect streaming response for memory extraction ───────────────────────
 
 function wrapStreamForCapture(
