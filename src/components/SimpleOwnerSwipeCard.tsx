@@ -536,6 +536,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
               </button>
             )}
           </div>
+          )}
           </>
         )}
       </motion.div>
