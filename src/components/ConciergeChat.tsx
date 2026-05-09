@@ -902,6 +902,7 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                         onTranslate={handleTranslate}
                         onResend={() => resendMessage(m.id)}
                         onNavigate={handleNavigate}
+                        onDraft={handleDraft}
                         onFilter={(f) => { useFilterStore.getState().setFilters(f); toast.success('Search Logic Updated'); }}
                         onSpeak={handleSpeak}
                         speakingMsgId={speakingMsgId}
