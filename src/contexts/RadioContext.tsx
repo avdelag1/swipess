@@ -360,10 +360,13 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     // already playing) are allowed because they happen while audio is live.
     const userOk = userInitiatedRef.current;
     userInitiatedRef.current = false;
-    if (!userOk && !isPlayingRef.current && !audioRef.current?.played?.length) {
-      // Not a user gesture and we are not already mid-stream — refuse.
-      // (Internal recoveries call play() while isPlayingRef is briefly true
-      //  or while the element has buffered audio, so they pass.)
+    // Allow internal recoveries (error skip, track-ended->next, city change
+    // while already playing) — those happen while the audio element has
+    // already produced output, so audio.played.length > 0.
+    const hasPriorPlayback = !!audioRef.current?.played && audioRef.current.played.length > 0;
+    if (!userOk && !hasPriorPlayback) {
+      logger.info('[RadioPlayer] play() blocked — not user-initiated');
+      return;
     }
     if (isPlayingRef.current) return;
     isPlayingRef.current = true;
