@@ -253,9 +253,11 @@ async function searchListings(intent: ReturnType<typeof detectListingIntent>): P
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY || SUPABASE_ANON_KEY);
     let query = supabase
       .from("listings")
-      .select("id, title, price, location, category, bedrooms, bathrooms, image_url, images, neighborhood, currency, listing_type")
+      .select("id, title, price, location, category, bedrooms, bathrooms, image_url, images, neighborhood, currency, listing_type, user_id, owner_id, created_at, updated_at, status")
       .eq("is_active", true)
-      .limit(5)
+      .eq("status", "active")
+      .limit(25)
+      .order("updated_at", { ascending: false })
       .order("created_at", { ascending: false });
 
     if (intent.category) query = query.eq("category", intent.category);
@@ -266,7 +268,18 @@ async function searchListings(intent: ReturnType<typeof detectListingIntent>): P
     const { data, error } = await query;
     if (error || !data || data.length === 0) return "";
 
-    const lines = data.map(l => {
+    const seedIds = new Set([
+      "00000000-0000-0000-0000-000000000000",
+      "00000000-0000-0000-0000-000000000001",
+    ]);
+    const isSeedListing = (l: any) => seedIds.has(l.owner_id || l.user_id) || /^[abc]1111111-|^b2222222-|^c3333333-/.test(l.id || "");
+    const sortedListings = [...data].sort((a: any, b: any) => {
+      const realRank = Number(isSeedListing(a)) - Number(isSeedListing(b));
+      if (realRank !== 0) return realRank;
+      return new Date(b.updated_at || b.created_at || 0).getTime() - new Date(a.updated_at || a.created_at || 0).getTime();
+    }).slice(0, 5);
+
+    const lines = sortedListings.map(l => {
       const currency = l.currency || "$";
       const price = `${currency === "USD" || currency === "$" ? "$" : currency === "MXN" ? "MXN$" : currency}${l.price}`;
       let desc = `• **${l.title}** — ${price}/${l.listing_type || "month"} in ${l.neighborhood || l.location}`;
@@ -275,7 +288,7 @@ async function searchListings(intent: ReturnType<typeof detectListingIntent>): P
       return desc;
     }).join("\n");
     // Structured payload consumed by the chat UI to render preview cards
-    const structured = data.map(l => {
+    const structured = sortedListings.map(l => {
       let img = l.image_url || "";
       if (!img && Array.isArray(l.images) && l.images.length > 0) {
         const first = l.images[0];
