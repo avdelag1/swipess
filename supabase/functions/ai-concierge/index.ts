@@ -1092,19 +1092,20 @@ function streamWithForcedSuffix(response: Response, suffix: string): Response {
   const decoder = new TextDecoder();
   const encoder = new TextEncoder();
   let captured = "";
+  let injected = false;
 
   const stream = new ReadableStream({
     async pull(controller) {
       const { value, done } = await reader.read();
       if (done) {
-        if (!captured.includes(suffix)) {
+        if (!injected && !captured.includes(suffix)) {
           controller.enqueue(encoder.encode(`data: ${JSON.stringify({ choices: [{ delta: { content: `\n${suffix}` } }] })}\n\n`));
         }
         controller.close();
         return;
       }
 
-      const chunk = decoder.decode(value, { stream: true });
+      let chunk = decoder.decode(value, { stream: true });
       for (const line of chunk.split("\n")) {
         if (!line.startsWith("data: ")) continue;
         const json = line.slice(6).trim();
@@ -1115,7 +1116,13 @@ function streamWithForcedSuffix(response: Response, suffix: string): Response {
         } catch {}
       }
 
-      controller.enqueue(value);
+      if (!injected && !captured.includes(suffix) && chunk.includes("data: [DONE]")) {
+        const forcedChunk = `data: ${JSON.stringify({ choices: [{ delta: { content: `\n${suffix}` } }] })}\n\n`;
+        chunk = chunk.replace("data: [DONE]", `${forcedChunk}data: [DONE]`);
+        injected = true;
+      }
+
+      controller.enqueue(encoder.encode(chunk));
     },
     cancel() { reader.cancel(); },
   });
