@@ -14,7 +14,7 @@ export const SWIPE_CARD_FIELDS = `
   id, title, description, price, images, video_url, city, neighborhood, beds, baths,
   square_footage, category, listing_type, property_type, vehicle_brand,
   vehicle_model, year, mileage, amenities, pet_friendly, furnished,
-  owner_id, created_at, currency,
+  user_id, owner_id, created_at, updated_at, currency,
   service_category, pricing_unit, experience_years, experience_level,
   skills, days_available, time_slots_available, work_type, schedule_type,
   location_type, service_radius_km, minimum_booking_hours,
@@ -244,6 +244,13 @@ export function useSmartListingMatching(
     const queryClient = useQueryClient();
     const { data: adminIds } = useAdminUserIds();
 
+    const isSeedListing = useMemo(() => (listing: any) => {
+        const owner = listing?.owner_id || listing?.user_id;
+        return owner === '00000000-0000-0000-0000-000000000000'
+            || owner === '00000000-0000-0000-0000-000000000001'
+            || listing?.isDemo === true;
+    }, []);
+
     // 🚀 SPEED OF LIGHT: Cache user swipes globally to avoid repeated fetching
     const { data: userSwipes } = useQuery({
         queryKey: ['user-swipes', userId],
@@ -418,11 +425,19 @@ export function useSmartListingMatching(
 
                     if (!rpcError && rpcListings && Array.isArray(rpcListings) && rpcListings.length > 0) {
                         const results = (rpcListings as any[])
-                            .filter(l => !adminIds?.has(l.owner_id) && ['property', 'motorcycle', 'bicycle', 'worker', 'services'].includes(l.category))
+                            .filter(l => !adminIds?.has(l.owner_id || l.user_id) && ['property', 'motorcycle', 'bicycle', 'worker', 'services'].includes(l.category))
                             .map(l => ({
                                 ...l,
+                                owner_id: l.owner_id || l.user_id,
                                 images: Array.isArray(l.images) ? l.images : (l.images ? [l.images] : [])
-                            }));
+                            }))
+                            .sort((a, b) => {
+                                const seedDelta = Number(isSeedListing(a)) - Number(isSeedListing(b));
+                                if (seedDelta !== 0) return seedDelta;
+                                const ta = new Date(a.updated_at || a.created_at || 0).getTime();
+                                const tb = new Date(b.updated_at || b.created_at || 0).getTime();
+                                return tb - ta;
+                            });
                         const withDemos = appendDemos(results);
 
                         // 🔥 SPEED OF LIGHT: PRE-WARM IMAGES IMMEDIATELY (Hardware-Aware)
@@ -441,7 +456,7 @@ export function useSmartListingMatching(
                 // 2. BUILD SECURE POSTGREST QUERY (Fallback)
                 let query = supabase.from('listings').select(SWIPE_CARD_FIELDS)
                     .eq('status', 'active')
-                    .neq('owner_id', userId); // self-exclusion
+                    .neq('user_id', userId); // self-exclusion; owner_id can be null on older real listings
 
                 // 3. Apply excluded IDs (Fallback path)
                 if (swipedListingIds.size > 0) {
@@ -473,7 +488,12 @@ export function useSmartListingMatching(
                 if (error) throw error;
 
                 // 4.5 Filter out Admins (Hardware-Accelerated Client-Side Filter)
-                const adminFiltered = (listings || []).filter(listing => !listing.owner_id || !adminIds?.has(listing.owner_id));
+                const adminFiltered = (listings || [])
+                    .filter(listing => !adminIds?.has((listing as any).owner_id || (listing as any).user_id))
+                    .map(listing => ({
+                        ...listing,
+                        owner_id: (listing as any).owner_id || (listing as any).user_id,
+                    }));
 
                 // 4.6 Distance filter — only applied when user has a GPS fix
                 const userLat = filters?.userLatitude;
@@ -510,6 +530,8 @@ export function useSmartListingMatching(
                 // Real listings first, ordered by recency (most recently created/edited
                 // surfaces first so users see their own latest uploads immediately).
                 const realResults = matchedResults.sort((a, b) => {
+                  const seedDelta = Number(isSeedListing(a)) - Number(isSeedListing(b));
+                  if (seedDelta !== 0) return seedDelta;
                   const ta = new Date((a as any).updated_at || a.created_at || 0).getTime();
                   const tb = new Date((b as any).updated_at || b.created_at || 0).getTime();
                   return tb - ta;
