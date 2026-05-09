@@ -545,7 +545,6 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
               </button>
             )}
           </div>
-          </div>
           </>
         )}
       </motion.div>
