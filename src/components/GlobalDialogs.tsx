@@ -298,12 +298,8 @@ export const GlobalDialogs = memo(({ userRole }: GlobalDialogsProps) => {
         <PushNotificationPrompt />
       </DeferredDialog>
 
-      {/* Top-left WelcomeNotification removed: the centered WelcomeBonusModal is
-          the single source of welcome greeting. dismissWelcome is still called
-          via useWelcomeState's lifecycle so the DB row is still recorded. */}
-      {shouldShowWelcome && (
-        <span className="sr-only" aria-hidden onAnimationEnd={dismissWelcome} />
-      )}
+      {/* Top-left WelcomeNotification removed: the centered WelcomeBonusModal
+          is now the single source of welcome greeting. */}
 
       <DeferredDialog when={store.showAIChat} fallback={<ConciergeChatFallback />} threshold={0}>
         <ConciergeChat
