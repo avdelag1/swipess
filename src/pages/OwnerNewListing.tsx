@@ -101,7 +101,11 @@ const OwnerNewListing = () => {
         <UnifiedListingForm
           isOpen={isFormOpen}
           onClose={handleCloseForm}
-          editingProperty={initialData}
+          editingProperty={{
+            category: initialData.category,
+            mode: initialData.mode,
+            ...(initialData.aiDraft || {}),
+          }}
         />
       )}
     </>
