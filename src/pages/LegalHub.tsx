@@ -287,6 +287,49 @@ const LegalHub = () => {
                     </section>
                   ))}
 
+                  {currentDoc === 'privacy' && (
+                    <div className="lg:col-span-2 mt-8 pt-8 border-t border-current/10 space-y-6">
+                      <h2 className={cn("text-2xl font-black uppercase italic tracking-tighter", isLight ? "text-black" : "text-white")}>
+                        Device Permissions We Request
+                      </h2>
+                      <p className={cn("text-sm leading-relaxed", isLight ? "text-black/70" : "text-white/70")}>
+                        Swipess only requests permissions when you actively use a feature that needs them. You can revoke any permission at any time from your device settings.
+                      </p>
+                      <ul className={cn("space-y-3 text-sm leading-relaxed", isLight ? "text-black/80" : "text-white/80")}>
+                        <li><strong>Camera:</strong> Used only when you choose to take a photo for your profile, a property listing, a vehicle listing, or to scan a QR code. We do not record video or access the camera in the background.</li>
+                        <li><strong>Photos / Media Library:</strong> Used only when you select existing images to upload as profile or listing photos, or when you save a receipt or QR code we generated for you.</li>
+                        <li><strong>Microphone:</strong> Used only when you press the voice-input button to dictate a message to the AI concierge or to record a voice note for a listing. Audio is sent to a speech-to-text provider for transcription and is not stored.</li>
+                        <li><strong>Location (when in use):</strong> Used only when you ask to see nearby listings, parties, or services. We do not track your location in the background.</li>
+                        <li><strong>Push Notifications:</strong> Used to deliver matches, messages, booking updates, and listing approvals. You can disable this in device settings without losing app functionality.</li>
+                        <li><strong>Contacts:</strong> Optional. Only accessed if you explicitly tap "Share with contact" to share a listing with someone in your address book.</li>
+                      </ul>
+                      <h2 className={cn("text-2xl font-black uppercase italic tracking-tighter pt-4", isLight ? "text-black" : "text-white")}>
+                        Third-Party Services
+                      </h2>
+                      <p className={cn("text-sm leading-relaxed", isLight ? "text-black/70" : "text-white/70")}>
+                        We rely on the following providers to operate Swipess: <strong>Supabase</strong> (authentication, database, file storage), <strong>Apple App Store / Google Play Billing</strong> (in-app purchases), <strong>PayPal</strong> (web checkout), and AI providers (<strong>Google Gemini</strong>, <strong>Moonshot Kimi</strong>, <strong>MiniMax</strong>) for the concierge assistant. These services process only the minimum data needed to perform their function.
+                      </p>
+                      <h2 className={cn("text-2xl font-black uppercase italic tracking-tighter pt-4", isLight ? "text-black" : "text-white")}>
+                        Account Deletion & Data Removal
+                      </h2>
+                      <p className={cn("text-sm leading-relaxed", isLight ? "text-black/70" : "text-white/70")}>
+                        You can permanently delete your account and all associated data from <strong>Settings → Account → Delete Account</strong> inside the app, or by emailing <strong>privacy@swipess.app</strong>. We honor deletion requests within 30 days.
+                      </p>
+                      <h2 className={cn("text-2xl font-black uppercase italic tracking-tighter pt-4", isLight ? "text-black" : "text-white")}>
+                        Children
+                      </h2>
+                      <p className={cn("text-sm leading-relaxed", isLight ? "text-black/70" : "text-white/70")}>
+                        Swipess is intended for users 18 years and older. We do not knowingly collect data from children under 13.
+                      </p>
+                      <h2 className={cn("text-2xl font-black uppercase italic tracking-tighter pt-4", isLight ? "text-black" : "text-white")}>
+                        Contact
+                      </h2>
+                      <p className={cn("text-sm leading-relaxed", isLight ? "text-black/70" : "text-white/70")}>
+                        Privacy questions: <strong>privacy@swipess.app</strong>. Last updated: 2026-05-09.
+                      </p>
+                    </div>
+                  )}
+
                   {currentDoc === 'terms' && [
                     { id: '01', icon: Gavel, title: 'Ecosystem Acceptance', content: 'By accessing the Swipess terminal, you agree to be bound by these Operating Terms. Access is strictly restricted to compliant identities.' },
                     { id: '02', icon: UserCheck, title: 'Eligibility Node', content: 'You must be at least 18 years of age and possess full legal capacity to enter into binding digital real estate agreements.' },
