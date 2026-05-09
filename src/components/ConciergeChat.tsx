@@ -723,9 +723,15 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
   }, []);
 
   const handleNavigate = (path: string) => {
+    triggerHaptic('heavy');
+    // External URLs → open in browser
+    if (/^https?:\/\//i.test(path)) {
+      try { window.open(path, '_blank', 'noopener,noreferrer'); } catch { /* ignore */ }
+      return;
+    }
+    // Internal app routes
     appNavigate(path);
     onClose();
-    triggerHaptic('heavy');
   };
 
   useEffect(() => {
