@@ -1,13 +1,14 @@
 import React, { useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ShieldCheck, MapPin, Droplets, ScanLine } from 'lucide-react';
+import { X, ShieldCheck, MapPin, Droplets, ScanLine, Pencil, Phone, Languages } from 'lucide-react';
 import QRCode from 'react-qr-code';
 import { useAuth } from '@/hooks/useAuth';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import useAppTheme from '@/hooks/useAppTheme';
 import { CARD_THEMES } from './vap-id/cardThemes';
+import { VapIdEditModal } from './VapIdEditModal';
 
 export interface VapIdProps {
   isOpen: boolean;
@@ -17,6 +18,7 @@ export interface VapIdProps {
 export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
   const { user } = useAuth();
   const [themeIndex, setThemeIndex] = useState(0);
+  const [editOpen, setEditOpen] = useState(false);
   const theme = CARD_THEMES[themeIndex];
 
   const cycleTheme = () => setThemeIndex((i) => (i + 1) % CARD_THEMES.length);
@@ -79,6 +81,7 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
   const location = [city, country].filter(Boolean).join(', ');
 
   return createPortal(
+    <>
     <AnimatePresence>
       {isOpen && (
         <motion.div
@@ -94,23 +97,30 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
             exit={{ scale: 0.8, opacity: 0, y: 100 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300, mass: 0.8 }}
             onClick={(e) => e.stopPropagation()}
-            className="relative w-[85vw] max-w-[480px] min-h-[85vh] max-h-[85vh] flex flex-col"
+            className="relative w-[94vw] max-w-[560px] h-[92vh] max-h-[92vh] flex flex-col"
           >
-            <div className="flex items-center justify-between mb-3 px-1">
+            <div className="flex items-center justify-between mb-3 px-1 gap-2">
               <button
                 onClick={cycleTheme}
                 aria-label="Change card color"
-                className="h-10 w-10 flex items-center justify-center rounded-full bg-black/55 border border-white/30 backdrop-blur-md shadow-lg active:scale-95 transition"
+                className="h-11 w-11 flex items-center justify-center rounded-full bg-white border border-black/10 shadow-lg active:scale-95 transition"
               >
-                <Droplets className="h-5 w-5 text-white" strokeWidth={2.6} />
+                <Droplets className="h-5 w-5 text-black" strokeWidth={2.6} />
               </button>
-              <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-white/90">{theme.name}</span>
+              <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-white/90 flex-1 text-center truncate">{theme.name}</span>
+              <button
+                onClick={() => setEditOpen(true)}
+                aria-label="Edit identity"
+                className="h-11 w-11 flex items-center justify-center rounded-full bg-white border border-black/10 shadow-lg active:scale-95 transition"
+              >
+                <Pencil className="h-5 w-5 text-black" strokeWidth={2.6} />
+              </button>
               <button
                 onClick={onClose}
                 aria-label="Close card"
-                className="h-10 w-10 flex items-center justify-center rounded-full bg-black/55 border border-white/30 backdrop-blur-md shadow-lg active:scale-95 transition"
+                className="h-11 w-11 flex items-center justify-center rounded-full bg-white border border-black/10 shadow-lg active:scale-95 transition"
               >
-                <X className="h-5 w-5 text-white" strokeWidth={2.8} />
+                <X className="h-5 w-5 text-black" strokeWidth={2.8} />
               </button>
             </div>
 
@@ -150,6 +160,23 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
                 {bio && <div className="rounded-[1.5rem] p-6 mb-8 border" style={{ background: `${theme.tagBg}44`, border: `1px solid ${theme.tagBorder}` }}><p className="text-[14px] leading-relaxed italic font-medium" style={{ color: theme.textSecondary }}>{bio}</p></div>}
 
                 <div className="space-y-6 flex-1 flex flex-col">
+                  {(spokenLanguages.length > 0 || phone) && (
+                    <div className="flex flex-col gap-2">
+                      {spokenLanguages.length > 0 && (
+                        <div className="flex items-center gap-2 text-[13px] font-bold uppercase tracking-widest" style={{ color: theme.textSecondary }}>
+                          <Languages size={16} />
+                          <span className="truncate">{spokenLanguages.join(' · ')}</span>
+                        </div>
+                      )}
+                      {phone && (
+                        <div className="flex items-center gap-2 text-[13px] font-bold uppercase tracking-widest" style={{ color: theme.textSecondary }}>
+                          <Phone size={16} />
+                          <span>{phone}</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
                   {allTags.length > 0 && (
                     <div className="flex flex-wrap gap-2">
                       {allTags.map(tag => <span key={tag} className="rounded-full px-5 py-2 text-[11px] font-black uppercase italic tracking-widest border" style={{ background: theme.tagBg, border: `1px solid ${theme.tagBorder}`, color: theme.tagText }}>{tag}</span>)}
@@ -171,7 +198,9 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
           </motion.div>
         </motion.div>
       )}
-    </AnimatePresence>,
+    </AnimatePresence>
+    <VapIdEditModal isOpen={editOpen} onClose={() => setEditOpen(false)} />
+    </>,
     document.body
   );
 }
