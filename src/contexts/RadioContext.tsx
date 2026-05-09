@@ -697,7 +697,9 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     state,
     loading,
     error,
-    play,
+    // External callers (mini player, radio page, directory) always invoke
+    // play from a user click — wrap to set the user-intent flag.
+    play: (station?: RadioStation) => { userInitiatedRef.current = true; return play(station); },
     pause,
     togglePlayPause,
     togglePower,
