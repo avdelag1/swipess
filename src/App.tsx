@@ -18,15 +18,11 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 // SpeedOfLightPreloader removed — redundant with WarpPrefetcher in RootProviders
 import Index from "./pages/Index";
 
-// PERF: Defer i18n init behind idle callback — loaded after first render to reduce critical JS
-if (typeof window !== 'undefined') {
-  const loadI18n = () => import('@/i18n');
-  if ('requestIdleCallback' in window) {
-    (window as any).requestIdleCallback(loadI18n, { timeout: 3000 });
-  } else {
-    setTimeout(loadI18n, 2000);
-  }
-}
+// i18n must be initialized eagerly so any component calling useTranslation()
+// during first render finds a registered i18next instance. Deferring caused
+// the "You will need to pass in an i18next instance" warning + missing
+// translations on first paint.
+import "@/i18n";
 
 // 🚀 SPEED OF LIGHT: LAZY PAGES — all via lazyWithRetry so stale CDN chunks
 // after a redeploy get one automatic retry before surfacing to ChunkErrorBoundary.
