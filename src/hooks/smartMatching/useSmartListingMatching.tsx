@@ -484,7 +484,7 @@ export function useSmartListingMatching(
 
                 const { data: listings, error } = await query
                     .order('created_at', { ascending: false })
-                    .range(page * pageSize, (page + 1) * pageSize - 1);
+                    .limit(Math.max(pageSize * (page + 1), 120));
                 if (error) throw error;
 
                 // 4.5 Filter out Admins (Hardware-Accelerated Client-Side Filter)
@@ -537,8 +537,10 @@ export function useSmartListingMatching(
                   return tb - ta;
                 });
 
+                const pagedRealResults = realResults.slice(page * pageSize, (page + 1) * pageSize);
+
                 // Always append demos AFTER real listings (never obscure real data, never disappear after swipe)
-                const finalResults = appendDemos(realResults);
+                const finalResults = appendDemos(pagedRealResults);
 
                 // 🔥 SPEED OF LIGHT: PRE-WARM IMAGES IMMEDIATELY (Hardware-Aware)
                 runIdleTask(() => {
