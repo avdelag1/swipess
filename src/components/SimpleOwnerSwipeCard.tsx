@@ -379,23 +379,15 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
 
   if (!profile?.user_id) return null;
 
-  if (!isTop) {
-    return (
-      <div className="absolute inset-0 overflow-hidden" style={{ pointerEvents: 'none', borderRadius: 28 }}>
-        <div className="absolute inset-0">
-          <CardImage src={currentImage} alt={profile.name || 'Client'} name={profile.name} fullScreen={true} />
-        </div>
-      </div>
-    );
-  }
+
 
   return (
-    <div className="absolute inset-0 flex flex-col pointer-events-auto">
+    <div className={cn("absolute inset-0 flex flex-col", isTop ? "pointer-events-auto" : "pointer-events-none")}>
       <motion.div
-        drag
-        dragControls={dragControls}
-        dragListener={false}
-        dragDirectionLock
+        drag={isTop ? true : false}
+        dragControls={isTop ? dragControls : undefined}
+        dragListener={isTop ? false : undefined}
+        dragDirectionLock={isTop ? true : undefined}
         dragMomentum={false}
         dragConstraints={{ left: -1200, right: 1200, top: -1200, bottom: 1200 }}
         dragElastic={0.02}
@@ -409,7 +401,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
         onPointerCancel={handleUnifiedPointerUp}
         initial={{ scale: 0.97, opacity: 0.85 }}
         animate={{ scale: 1, opacity: 1, transition: { type: 'spring', stiffness: 400, damping: 28, mass: 0.6 } }}
-        className="flex-1 cursor-grab active:cursor-grabbing select-none touch-none relative w-full h-full overflow-hidden border-none gpu-ultra"
+        className={cn("flex-1 select-none touch-none relative w-full h-full overflow-hidden border-none gpu-ultra", isTop ? "cursor-grab active:cursor-grabbing" : "")}
         style={{
           x, y, opacity: cardOpacity, willChange: 'transform, opacity',
           transform: 'translate3d(0,0,0)', backfaceVisibility: 'hidden',
@@ -431,16 +423,20 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           ) : (
             <CardImage src={currentImage} alt={profile.name || 'Client'} name={profile.name} priority={isTop} fullScreen={true} animate={!isZoomed} />
           )}
-
-          <div className="absolute top-0 left-0 right-0 pointer-events-none z-20"
-              style={{ height: '28%', background: 'linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.45) 30%, rgba(0,0,0,0.2) 65%, transparent 100%)', opacity: isZoomed ? 0 : 1 }} />
-          <div className="absolute bottom-0 left-0 right-0 pointer-events-none z-20"
-              style={{ height: '42%', background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.6) 25%, rgba(0,0,0,0.3) 55%, rgba(0,0,0,0.1) 80%, transparent 100%)', opacity: isZoomed ? 0 : 1 }} />
-
-          <PhotoPositionIndicators count={imageCount} currentIndex={currentImageIndex} hidden={isZoomed} />
+          {isTop && (
+            <>
+              <div className="absolute top-0 left-0 right-0 pointer-events-none z-20"
+                  style={{ height: '28%', background: 'linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.45) 30%, rgba(0,0,0,0.2) 65%, transparent 100%)', opacity: isZoomed ? 0 : 1 }} />
+              <div className="absolute bottom-0 left-0 right-0 pointer-events-none z-20"
+                  style={{ height: '42%', background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.6) 25%, rgba(0,0,0,0.3) 55%, rgba(0,0,0,0.1) 80%, transparent 100%)', opacity: isZoomed ? 0 : 1 }} />
+              <PhotoPositionIndicators count={imageCount} currentIndex={currentImageIndex} hidden={isZoomed} />
+            </>
+          )}
         </div>
 
-        <GestureHints hidden={isZoomed} />
+        {isTop && (
+          <>
+            <GestureHints hidden={isZoomed} />
 
         <motion.div className="absolute top-10 right-6 z-50 pointer-events-none rotate-[-12deg]" style={{ opacity: likeOpacity }}>
           <div className="w-[72px] h-[72px] rounded-full flex items-center justify-center bg-orange-500/20 border-2 border-orange-500 shadow-[0_0_20px_rgba(255,87,34,0.5)]">
@@ -540,6 +536,8 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
               </button>
             )}
           </div>
+          </div>
+          </>
         )}
       </motion.div>
     </div>

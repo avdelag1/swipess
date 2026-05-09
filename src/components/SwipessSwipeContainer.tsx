@@ -931,48 +931,42 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
                 transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
                 className="absolute inset-0 w-full h-full flex flex-col items-center justify-center p-0 mx-auto transform-gpu"
               >
-                {currentIndex + 1 < deckQueue.length && (
-                  <motion.div
-                    className="absolute inset-0 w-full h-full z-10"
-                    style={{
-                      scale: nextCardScale,
-                      opacity: nextCardOpacity,
-                      willChange: 'transform, opacity',
-                    }}
-                  >
-                    <SimpleSwipeCard
-                      key={deckQueue[currentIndex + 1].id}
-                      listing={deckQueue[currentIndex + 1]}
-                      onSwipe={() => { }}
-                      isTop={false}
-                    />
-                  </motion.div>
-                )}
-
-                <div className="absolute inset-0 w-full h-full z-20">
-                  <SimpleSwipeCard
-                    key={topCard?.id}
-                    ref={cardRef}
-                    listing={topCard}
-                    onSwipe={handleSwipe}
-                    onSkip={handleSkip}
-                    onSkipBack={handleSkipBack}
-                    onInsights={() => {
-                      handleInsights();
-                      if (onListingTap) onListingTap(topCard.id);
-                    }}
-                    onShare={handleShare}
-                    onReport={() => {
-                      setSelectedListing(topCard);
-                      setReportDialogOpen(true);
-                      triggerHaptic('medium');
-                    }}
-                    onDragStart={handleDragStart}
-                    isTop={true}
-                    externalX={topCardX}
-                    externalY={topCardY}
-                  />
-                </div>
+                {deckQueue.slice(currentIndex, currentIndex + 2).reverse().map((listing) => {
+                  const isTopCard = listing.id === topCard?.id;
+                  return (
+                    <motion.div
+                      key={listing.id}
+                      className={cn("absolute inset-0 w-full h-full", isTopCard ? "z-20" : "z-10")}
+                      style={!isTopCard ? {
+                        scale: nextCardScale,
+                        opacity: nextCardOpacity,
+                        willChange: 'transform, opacity',
+                      } : undefined}
+                    >
+                      <SimpleSwipeCard
+                        ref={isTopCard ? cardRef : undefined}
+                        listing={listing}
+                        onSwipe={isTopCard ? handleSwipe : () => {}}
+                        onSkip={isTopCard ? handleSkip : undefined}
+                        onSkipBack={isTopCard ? handleSkipBack : undefined}
+                        onInsights={isTopCard ? () => {
+                          handleInsights();
+                          if (onListingTap) onListingTap(listing.id);
+                        } : undefined}
+                        onShare={isTopCard ? handleShare : undefined}
+                        onReport={isTopCard ? () => {
+                          setSelectedListing(listing);
+                          setReportDialogOpen(true);
+                          triggerHaptic('medium');
+                        } : undefined}
+                        onDragStart={isTopCard ? handleDragStart : undefined}
+                        isTop={isTopCard}
+                        externalX={isTopCard ? topCardX : undefined}
+                        externalY={isTopCard ? topCardY : undefined}
+                      />
+                    </motion.div>
+                  );
+                })}
               </motion.div>
             ) : (
               <motion.div

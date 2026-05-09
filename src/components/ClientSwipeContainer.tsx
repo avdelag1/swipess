@@ -994,49 +994,43 @@ const ClientSwipeContainerComponent = ({
                 transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
                 className="absolute inset-0 w-full h-full flex flex-col items-center justify-center p-0 mx-auto transform-gpu"
               >
-                {/* 🚀 STACKED ARCHITECTURE: Next card preview underneath */}
-                {currentIndex + 1 < deckQueue.length && (
-                  <motion.div
-                    className="absolute inset-0 w-full h-full z-10"
-                    style={{
-                      scale: nextCardScale,
-                      opacity: nextCardOpacity,
-                      willChange: 'transform, opacity',
-                    }}
-                  >
-                    <SimpleOwnerSwipeCard
-                      key={deckQueue[currentIndex + 1].user_id}
-                      profile={deckQueue[currentIndex + 1]}
-                      onSwipe={() => { }}
-                      isTop={false}
-                    />
-                  </motion.div>
-                )}
-
-                {/* Front card */}
-                <div className="absolute inset-0 w-full h-full z-20">
-                  <SimpleOwnerSwipeCard
-                    key={topCard.user_id}
-                    ref={cardRef}
-                    profile={topCard}
-                    onSwipe={handleSwipe}
-                    onSkip={handleSkip}
-                    onSkipBack={handleSkipBack}
-                    onTap={() => onClientTap(topCard.user_id)}
-                    onInsights={() => handleInsights(topCard.user_id)}
-                    onMessage={() => handleConnect(topCard.user_id)}
-                    onShare={handleShare}
-                    onReport={() => { triggerHaptic('medium'); setReportDialogOpen(true); }}
-                    onUndo={undoLastSwipe}
-                    onLike={handleButtonLike}
-                    onDislike={handleButtonDislike}
-                    canUndo={canUndo}
-                    isTop={true}
-                    fullScreen={true}
-                    externalX={topCardX}
-                    externalY={topCardY}
-                  />
-                </div>
+                {/* 🚀 STACKED ARCHITECTURE: Flat map allows React to preserve component mounts */}
+                {deckQueue.slice(currentIndex, currentIndex + 2).reverse().map((profile) => {
+                  const isTopCard = profile.user_id === topCard.user_id;
+                  
+                  return (
+                    <motion.div
+                      key={profile.user_id}
+                      className={cn("absolute inset-0 w-full h-full", isTopCard ? "z-20" : "z-10")}
+                      style={!isTopCard ? {
+                        scale: nextCardScale,
+                        opacity: nextCardOpacity,
+                        willChange: 'transform, opacity',
+                      } : undefined}
+                    >
+                      <SimpleOwnerSwipeCard
+                        ref={isTopCard ? cardRef : undefined}
+                        profile={profile}
+                        onSwipe={isTopCard ? handleSwipe : () => {}}
+                        onSkip={isTopCard ? handleSkip : undefined}
+                        onSkipBack={isTopCard ? handleSkipBack : undefined}
+                        onTap={isTopCard ? () => onClientTap(profile.user_id) : undefined}
+                        onInsights={isTopCard ? () => handleInsights(profile.user_id) : undefined}
+                        onMessage={isTopCard ? () => handleConnect(profile.user_id) : undefined}
+                        onShare={isTopCard ? handleShare : undefined}
+                        onReport={isTopCard ? () => { triggerHaptic('medium'); setReportDialogOpen(true); } : undefined}
+                        onUndo={isTopCard ? undoLastSwipe : undefined}
+                        onLike={isTopCard ? handleButtonLike : undefined}
+                        onDislike={isTopCard ? handleButtonDislike : undefined}
+                        canUndo={canUndo}
+                        isTop={isTopCard}
+                        fullScreen={true}
+                        externalX={isTopCard ? topCardX : undefined}
+                        externalY={isTopCard ? topCardY : undefined}
+                      />
+                    </motion.div>
+                  );
+                })}
               </motion.div>
             ) : (
               <motion.div
