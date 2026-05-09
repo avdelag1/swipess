@@ -224,15 +224,15 @@ async function searchProfiles(query: string): Promise<string> {
 
 function detectListingIntent(query: string): { isListing: boolean; category?: string; maxPrice?: number; minBedrooms?: number; location?: string } {
   const q = query.toLowerCase();
-  const isListing = /\b(find|search|looking for|show me|any|apartment|house|room|flat|studio|car|vehicle|motorcycle|bike|service|plumber|electrician|rent|buy|listing|property)\b/.test(q);
+  const isListing = /\b(find|search|looking for|show me|show|pull|give me|send|share|preview|open|browse|recommend|available|any|apartment|apartments|house|houses|room|rooms|flat|flats|studio|studios|villa|villas|condo|condos|car|vehicle|motorcycle|moto|bike|bicycle|service|services|worker|workers|plumber|electrician|rent|rental|buy|sale|listing|listings|property|properties)\b/.test(q);
   if (!isListing) return { isListing: false };
 
   let category: string | undefined;
-  if (/\b(apartment|flat|house|room|studio|property|rent|bedroom)\b/.test(q)) category = "property";
+  if (/\b(apartment|apartments|flat|flats|house|houses|room|rooms|studio|studios|villa|villas|condo|condos|property|properties|rent|rental|bedroom|bedrooms)\b/.test(q)) category = "property";
   else if (/\b(car|vehicle|suv|sedan)\b/.test(q)) category = "vehicle";
-  else if (/\b(motorcycle|motorbike|scooter)\b/.test(q)) category = "motorcycle";
-  else if (/\b(bicycle|bike|cycling)\b/.test(q)) category = "bicycle";
-  else if (/\b(service|plumber|electrician|cleaner|handyman)\b/.test(q)) category = "service";
+  else if (/\b(motorcycle|motorbike|moto|scooter)\b/.test(q)) category = "motorcycle";
+  else if (/\b(bicycle|bicycles|bike|bikes|cycling)\b/.test(q)) category = "bicycle";
+  else if (/\b(service|services|worker|workers|plumber|electrician|cleaner|handyman|chef|driver|nanny|contractor)\b/.test(q)) category = "worker";
 
   const priceMatch = q.match(/(?:under|below|max|up to|less than)\s*\$?\s*(\d+)/);
   const maxPrice = priceMatch ? parseInt(priceMatch[1]) : undefined;
@@ -299,6 +299,11 @@ async function searchListings(intent: ReturnType<typeof detectListingIntent>): P
     console.error("[AI] Listing search error:", e);
     return "";
   }
+}
+
+function extractListingsTag(listingsContext: string): string {
+  const match = listingsContext.match(/\[LISTINGS:(\[[\s\S]*?\])\]/);
+  return match ? `[LISTINGS:${match[1]}]` : "";
 }
 
 // ─── User Memory ────────────────────────────────────────────────────────────
