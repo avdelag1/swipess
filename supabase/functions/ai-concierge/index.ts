@@ -1270,6 +1270,11 @@ Deno.serve(async (req) => {
     newHeaders.set("Access-Control-Expose-Headers", "X-AI-Provider");
     response = new Response(response.body, { status: response.status, headers: newHeaders });
 
+    const listingsTag = listingIntent.isListing ? extractListingsTag(listings) : "";
+    if (listingsTag && response.headers.get("content-type")?.includes("text/event-stream")) {
+      response = streamWithForcedSuffix(response, listingsTag);
+    }
+
     // If user is authenticated, use tee() for non-blocking capture
     if (userId && response.headers.get("content-type")?.includes("text/event-stream") && response.body) {
       const [userStream, captureStream] = response.body.tee();
