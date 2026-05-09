@@ -106,6 +106,12 @@ export const GlobalDialogs = memo(({ userRole }: GlobalDialogsProps) => {
   const { navigate } = useAppNavigate();
   const store = useModalStore();
   const { shouldShowWelcome, dismissWelcome } = useWelcomeState(user?.id);
+  // The top-left WelcomeNotification is retired in favor of the centered
+  // WelcomeBonusModal. Auto-dismiss the welcome flag the moment it surfaces so
+  // useWelcomeState's localStorage cache stays in sync with the DB row.
+  useEffect(() => {
+    if (shouldShowWelcome) dismissWelcome();
+  }, [shouldShowWelcome, dismissWelcome]);
   const [isWarmedUp, setIsWarmedUp] = useState(false);
   const [reportState, setReportState] = useState<{
     open: boolean;
@@ -292,12 +298,8 @@ export const GlobalDialogs = memo(({ userRole }: GlobalDialogsProps) => {
         <PushNotificationPrompt />
       </DeferredDialog>
 
-      <DeferredDialog when={shouldShowWelcome}>
-        <WelcomeNotification
-          isOpen={shouldShowWelcome}
-          onClose={dismissWelcome}
-        />
-      </DeferredDialog>
+      {/* Top-left WelcomeNotification removed: the centered WelcomeBonusModal
+          is now the single source of welcome greeting. */}
 
       <DeferredDialog when={store.showAIChat} fallback={<ConciergeChatFallback />} threshold={0}>
         <ConciergeChat
