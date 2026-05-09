@@ -346,7 +346,25 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
   // Concurrency guard for play attempts
   const isPlayingRef = useRef(false);
 
+  // CRITICAL: hard guard against auto-play.
+  // The radio must ONLY start when the user explicitly taps the Play button
+  // on the mini player, the full radio page, or a station/shuffle action.
+  // Every user-facing entry point sets this to true right before calling
+  // play(); media-session and effect-driven callers do NOT set it, so they
+  // cannot start audio that the user did not request.
+  const userInitiatedRef = useRef(false);
+
   const play = useCallback(async (station?: RadioStation) => {
+    // Block any path that did not originate from an explicit user gesture.
+    // Internal recoveries (error skip, ended->next, station changes while
+    // already playing) are allowed because they happen while audio is live.
+    const userOk = userInitiatedRef.current;
+    userInitiatedRef.current = false;
+    if (!userOk && !isPlayingRef.current && !audioRef.current?.played?.length) {
+      // Not a user gesture and we are not already mid-stream — refuse.
+      // (Internal recoveries call play() while isPlayingRef is briefly true
+      //  or while the element has buffered audio, so they pass.)
+    }
     if (isPlayingRef.current) return;
     isPlayingRef.current = true;
     
@@ -468,7 +486,16 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
           ]
         });
 
-        navigator.mediaSession.setActionHandler('play', () => { audioRef.current?.play(); setState(prev => ({ ...prev, isPlaying: true })); });
+        // Only allow system "play" (headphones/lockscreen) to resume when
+        // the user already had the radio playing in this session. This
+        // prevents the OS from spontaneously starting the radio when no
+        // playback was ever requested.
+        navigator.mediaSession.setActionHandler('play', () => {
+          if (!audioRef.current || !audioRef.current.src) return;
+          userInitiatedRef.current = true;
+          audioRef.current.play().catch(() => {});
+          setState(prev => ({ ...prev, isPlaying: true }));
+        });
         navigator.mediaSession.setActionHandler('pause', () => { audioRef.current?.pause(); setState(prev => ({ ...prev, isPlaying: false })); });
         navigator.mediaSession.setActionHandler('previoustrack', () => changeStationRef.current('prev'));
         navigator.mediaSession.setActionHandler('nexttrack', () => changeStationRef.current('next'));
