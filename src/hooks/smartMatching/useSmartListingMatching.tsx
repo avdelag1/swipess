@@ -467,7 +467,9 @@ export function useSmartListingMatching(
                     query = query.in('service_category', filters.serviceCategory);
                 }
 
-                const { data: listings, error } = await query.range(page * pageSize, (page + 1) * pageSize - 1);
+                const { data: listings, error } = await query
+                    .order('created_at', { ascending: false })
+                    .range(page * pageSize, (page + 1) * pageSize - 1);
                 if (error) throw error;
 
                 // 4.5 Filter out Admins (Hardware-Accelerated Client-Side Filter)
@@ -505,8 +507,13 @@ export function useSmartListingMatching(
                     };
                 });
 
-                // Real listings always first — sort by match score
-                const realResults = matchedResults.sort((a, b) => b.matchPercentage - a.matchPercentage);
+                // Real listings first, ordered by recency (most recently created/edited
+                // surfaces first so users see their own latest uploads immediately).
+                const realResults = matchedResults.sort((a, b) => {
+                  const ta = new Date((a as any).updated_at || a.created_at || 0).getTime();
+                  const tb = new Date((b as any).updated_at || b.created_at || 0).getTime();
+                  return tb - ta;
+                });
 
                 // Always append demos AFTER real listings (never obscure real data, never disappear after swipe)
                 const finalResults = appendDemos(realResults);
