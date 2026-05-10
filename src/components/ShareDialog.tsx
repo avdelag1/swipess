@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Share2, Link2, Mail, Send, Check, X } from 'lucide-react';
@@ -24,6 +24,7 @@ interface ShareDialogProps {
   profileId?: string;
   title: string;
   description?: string;
+  previewImage?: string | null;
 }
 
 export function ShareDialog({
@@ -33,6 +34,7 @@ export function ShareDialog({
   profileId,
   title,
   description,
+  previewImage,
 }: ShareDialogProps) {
   const [copied, setCopied] = useState(false);
   const [recipientEmail, setRecipientEmail] = useState('');
@@ -93,6 +95,8 @@ export function ShareDialog({
           isLight ? "bg-white border-slate-200" : "bg-[#0A0A0A] border-white/10"
         )}
       >
+          <DialogTitle className="sr-only">Share {title}</DialogTitle>
+          <DialogDescription className="sr-only">Copy or send this Swipess share link.</DialogDescription>
         {/* Header */}
         <div className={cn(
           "shrink-0 relative px-6 pt-7 pb-5 flex flex-col items-center text-center border-b",
@@ -128,6 +132,24 @@ export function ShareDialog({
 
         {/* Scrollable body */}
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
+          {previewImage && (
+            <div className={cn(
+              "relative aspect-[16/10] w-full overflow-hidden rounded-3xl border shadow-xl",
+              isLight ? "bg-muted border-border" : "bg-card border-border"
+            )}>
+              <img
+                src={previewImage}
+                alt={title}
+                className="h-full w-full object-cover"
+                loading="eager"
+                decoding="async"
+              />
+              <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-background/90 to-transparent">
+                <p className="line-clamp-2 text-left text-sm font-black leading-tight text-foreground">{title}</p>
+              </div>
+            </div>
+          )}
+
           {/* Direct link */}
           <div className="flex gap-2">
             <div className="relative flex-1">
