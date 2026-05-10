@@ -436,12 +436,8 @@ export function useSmartClientMatching(
                     .filter(p => (p as any).client_type !== 'business') // business/place exclusion
                     .map(p => {
                     const cp = cpMap.get(p.user_id);
-                    // Merge all available photo sources so real users always show their photo.
-                    const profileImgs = Array.isArray(p.images) ? p.images : [];
-                    const cpImgs = Array.isArray(cp?.profile_images) ? cp!.profile_images as any[] : [];
-                    const merged = [...profileImgs, ...cpImgs].filter(Boolean);
-                    if (merged.length === 0 && (p as any).avatar_url) merged.push((p as any).avatar_url);
-                    const finalImgs = merged.length > 0 ? merged : ['/placeholder.svg'];
+                    // Merge all available photo sources so real roommate cards always show their photo.
+                    const finalImgs = normalizeImageList((p as any).images, (cp as any)?.profile_images, (p as any).avatar_url);
                     return {
                         id: p.user_id, user_id: p.user_id, name: p.full_name || cp?.name || 'User',
                         age: p.age || cp?.age || 0, gender: p.gender || cp?.gender || '',
