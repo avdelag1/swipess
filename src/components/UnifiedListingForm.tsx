@@ -69,11 +69,11 @@ const saveListingWithSchemaRetry = async (
 ) => {
   let safeData = { ...payload };
   const removedColumns = new Set<string>();
-  const withTimeout = async <T,>(promise: Promise<T>, label: string): Promise<T> => {
+  const withTimeout = async <T,>(promise: PromiseLike<T>, label: string): Promise<T> => {
     const timeout = new Promise<never>((_, reject) =>
       setTimeout(() => reject(new Error(`${label} timed out after 20s. Please try again.`)), 20000)
     );
-    return Promise.race([promise, timeout]);
+    return Promise.race([Promise.resolve(promise), timeout]);
   };
 
   for (let attempt = 0; attempt < 25; attempt += 1) {
