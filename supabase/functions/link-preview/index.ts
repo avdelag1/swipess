@@ -5,11 +5,13 @@
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.4";
 
-// Hard-pin source-of-truth Supabase project (matches src/integrations/supabase/client.ts)
-const SUPABASE_URL = "https://vplgtcguxujxwrgguxqq.supabase.co";
-const SUPABASE_ANON_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwbGd0Y2d1eHVqeHdyZ2d1eHFxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgwMDI5MDIsImV4cCI6MjA2MzU3ODkwMn0.-TzSQ-nDho4J6TftVF4RNjbhr5cKbknQxxUT-AaSIJU";
-const APP_ORIGIN = "https://swipess.com";
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "https://qegyisokrxdsszzswsqk.supabase.co";
+const SUPABASE_KEY =
+  Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ??
+  Deno.env.get("SUPABASE_ANON_KEY") ??
+  Deno.env.get("SUPABASE_PUBLISHABLE_KEY") ??
+  "";
+const APP_ORIGIN = "https://www.swipess.com";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -28,7 +30,7 @@ function escapeHtml(s: string): string {
 function isCrawler(ua: string): boolean {
   if (!ua) return false;
   const u = ua.toLowerCase();
-  return /whatsapp|telegrambot|facebookexternalhit|facebot|twitterbot|slackbot|discordbot|linkedinbot|skypeuripreview|applebot|googlebot|bingbot|embedly|redditbot|pinterest|vkshare|tumblr|w3c_validator|yahoo|duckduckbot|imessagepreview/i.test(
+  return /whatsapp|instagram|tiktok|bytedance|telegrambot|facebookexternalhit|facebot|twitterbot|slackbot|discordbot|linkedinbot|skypeuripreview|applebot|googlebot|bingbot|embedly|redditbot|pinterest|vkshare|tumblr|w3c_validator|yahoo|duckduckbot|imessagepreview/i.test(
     u,
   );
 }
