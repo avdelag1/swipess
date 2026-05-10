@@ -509,6 +509,16 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
             {editingId ? 'Edit Listing' : 'Create New Listing'}
           </DialogTitle>
         </DialogHeader>
+        {(createListingMutation.isPending || uploadProgress !== null) && (
+          <div className="shrink-0 h-[3px] w-full bg-primary/10 overflow-hidden">
+            <motion.div
+              className="h-full bg-primary"
+              initial={{ width: '4%' }}
+              animate={{ width: `${uploadProgress ?? 8}%` }}
+              transition={{ type: 'spring', stiffness: 90, damping: 20 }}
+            />
+          </div>
+        )}
 
         <ScrollArea className="flex-1 h-0">
           <motion.div
