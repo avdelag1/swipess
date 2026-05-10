@@ -133,7 +133,8 @@ Deno.serve(async (req: Request) => {
 
   try {
     if (!id) throw new Error("missing id");
-    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    if (!SUPABASE_KEY) throw new Error("missing Supabase key");
+    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
     if (kind === "listing") {
       canonical = `${APP_ORIGIN}/listing/${id}`;
