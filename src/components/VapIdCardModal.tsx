@@ -199,7 +199,12 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
         </motion.div>
       )}
     </AnimatePresence>
-    <VapIdEditModal isOpen={editOpen} onClose={() => setEditOpen(false)} />
+    <VapIdEditModal isOpen={editOpen} onClose={() => setEditOpen(false)} onSaved={() => {
+      // The edit modal saved and closed. The card view stays open —
+      // query cache was already invalidated, so the card will re-render
+      // with fresh data automatically. Nothing extra needed here.
+      setEditOpen(false);
+    }} />
     </>,
     document.body
   );

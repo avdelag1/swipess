@@ -16,6 +16,7 @@ import useAppTheme from '@/hooks/useAppTheme';
 interface Props {
   isOpen: boolean;
   onClose: () => void;
+  onSaved?: () => void;
 }
 
 const DOC_TYPES = [
@@ -32,7 +33,7 @@ const arrayToCsv = (arr: unknown): string => {
   return arr.filter((v): v is string => typeof v === 'string' && v.trim().length > 0).join(', ');
 };
 
-export function VapIdEditModal({ isOpen, onClose }: Props) {
+export function VapIdEditModal({ isOpen, onClose, onSaved }: Props) {
   const { user } = useAuth();
   const { isLight } = useAppTheme();
   const queryClient = useQueryClient();
@@ -127,15 +128,18 @@ export function VapIdEditModal({ isOpen, onClose }: Props) {
     setSaving(true);
     try {
       const yearsNum = yearsInCity.trim() === '' ? null : Number(yearsInCity);
-      const payload: any = {
-        user_id: user.id,
+      const langArray = csvToArray(languages);
+      const interestArray = csvToArray(interests);
+
+      // Separate insert payload (needs user_id) from update payload (must NOT include user_id)
+      const updateFields: Record<string, any> = {
         bio: bio.trim() || null,
         occupation: occupation.trim() || null,
         city: city.trim() || null,
         nationality: nationality.trim() || null,
         years_in_city: Number.isFinite(yearsNum as number) ? yearsNum : null,
-        languages: csvToArray(languages),
-        interests: csvToArray(interests),
+        languages: langArray,
+        interests: interestArray,
       };
 
       const { data: existing, error: selectErr } = await supabase
@@ -146,29 +150,53 @@ export function VapIdEditModal({ isOpen, onClose }: Props) {
       if (selectErr) throw selectErr;
 
       if (existing?.id) {
+        // UPDATE — do NOT include user_id in the payload (it's the filter key, not data)
         const { error: updateErr } = await supabase
           .from('client_profiles')
-          .update(payload)
+          .update(updateFields)
           .eq('user_id', user.id);
         if (updateErr) throw updateErr;
       } else {
+        // INSERT — needs user_id
         const { error: insertErr } = await supabase
           .from('client_profiles')
-          .insert(payload as any);
+          .insert({ ...updateFields, user_id: user.id } as any);
         if (insertErr) throw insertErr;
       }
 
-      await queryClient.invalidateQueries({ queryKey: ['vap-id-client-profile', user.id] });
-      await queryClient.invalidateQueries({ queryKey: ['vap-id-profile', user.id] });
+      // Also sync languages + city + nationality to the profiles table
+      // so the VapIdCardModal (which reads from profiles) shows updated data
+      const profileSync: Record<string, any> = {};
+      if (langArray.length > 0) profileSync.languages_spoken = langArray;
+      if (city.trim()) profileSync.city = city.trim();
+      if (nationality.trim()) profileSync.nationality = nationality.trim();
+      if (Object.keys(profileSync).length > 0) {
+        await supabase.from('profiles').update(profileSync).eq('user_id', user.id);
+      }
+
+      // Invalidate all related caches so the card modal shows fresh data
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['vap-id-client-profile', user.id] }),
+        queryClient.invalidateQueries({ queryKey: ['vap-id-profile', user.id] }),
+        queryClient.invalidateQueries({ queryKey: ['client-profile'] }),
+      ]);
       await refetch();
-      toast.success('Card saved');
+
+      toast.success('Card updated ✓');
+
+      // Close the edit modal and open the card view
+      onClose();
+      if (onSaved) {
+        // Small delay so the edit modal exit animation completes
+        setTimeout(() => onSaved(), 350);
+      }
     } catch (err: any) {
       console.error('[VapIdEdit] save failed', err);
       toast.error(err?.message || 'Failed to save');
     } finally {
       setSaving(false);
     }
-  }, [user?.id, bio, occupation, city, nationality, yearsInCity, languages, interests, queryClient, refetch]);
+  }, [user?.id, bio, occupation, city, nationality, yearsInCity, languages, interests, queryClient, refetch, onClose, onSaved]);
 
   const getDocStatus = (docType: string) => documents?.find(d => d.document_type === docType)?.status || 'none';
   const getDocMeta = (docType: string) => documents?.find(d => d.document_type === docType);
