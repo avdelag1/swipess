@@ -11,7 +11,7 @@ const SUPABASE_KEY =
   Deno.env.get("SUPABASE_ANON_KEY") ??
   Deno.env.get("SUPABASE_PUBLISHABLE_KEY") ??
   "";
-const APP_ORIGIN = (Deno.env.get("APP_ORIGIN") ?? "https://swipess.lovable.app").replace(/\/$/, "");
+const DEFAULT_APP_ORIGIN = (Deno.env.get("APP_ORIGIN") ?? "https://swipess.lovable.app").replace(/\/$/, "");
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -121,12 +121,17 @@ Deno.serve(async (req: Request) => {
   }
 
   const url = new URL(req.url);
+  const forwardedHost = req.headers.get("x-forwarded-host") || req.headers.get("x-original-host") || "";
+  const forwardedProto = req.headers.get("x-forwarded-proto") || "https";
+  const appOrigin = forwardedHost && !forwardedHost.includes("supabase.co")
+    ? `${forwardedProto}://${forwardedHost}`.replace(/\/$/, "")
+    : DEFAULT_APP_ORIGIN;
   const parts = url.pathname.split("/").filter(Boolean);
   // ["link-preview", "<kind>", "<id>"]
   const kind = parts[1];
   const id = parts[2];
 
-  const fallbackImage = `${APP_ORIGIN}/og-image-nexus.png`;
+  const fallbackImage = `${appOrigin}/og-image-nexus.png`;
   const fallbackTitle = "Swipess | Find Your Best Deal";
   const fallbackDesc =
     "Swipe through luxury villas, vehicles, and premium services. The future of discovery.";
@@ -134,7 +139,7 @@ Deno.serve(async (req: Request) => {
   let title = fallbackTitle;
   let description = fallbackDesc;
   let image = fallbackImage;
-  let canonical = APP_ORIGIN;
+  let canonical = appOrigin;
 
   try {
     if (!id) throw new Error("missing id");
@@ -142,7 +147,7 @@ Deno.serve(async (req: Request) => {
     const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
     if (kind === "listing") {
-      canonical = `${APP_ORIGIN}/listing/${id}`;
+      canonical = `${appOrigin}/listing/${id}`;
       const { data } = await supabase
         .from("listings")
         .select("title, city, neighborhood, price, beds, baths, images, image_url, category, listing_type")
@@ -164,7 +169,7 @@ Deno.serve(async (req: Request) => {
           .join(" · ") || fallbackDesc;
       }
     } else if (kind === "profile") {
-      canonical = `${APP_ORIGIN}/profile/${id}`;
+      canonical = `${appOrigin}/profile/${id}`;
       const { data: prof } = await supabase
         .from("profiles")
         .select("full_name, bio, avatar_url, user_id")
@@ -184,7 +189,7 @@ Deno.serve(async (req: Request) => {
         .limit(1);
       if (pi && pi[0]?.image_url) image = pi[0].image_url;
     } else if (kind === "event") {
-      canonical = `${APP_ORIGIN}/explore/eventos/${id}`;
+      canonical = `${appOrigin}/explore/eventos/${id}`;
       const { data } = await supabase
         .from("events")
         .select("title, description, image_url, image_urls, video_url")
@@ -210,7 +215,7 @@ Deno.serve(async (req: Request) => {
   return new Response(html, {
     headers: {
       ...corsHeaders,
-      "content-type": "text/html; charset=utf-8",
+      "Content-Type": "text/html; charset=utf-8",
       "cache-control": "public, max-age=300",
     },
   });
