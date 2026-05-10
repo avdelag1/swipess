@@ -69,11 +69,20 @@ const saveListingWithSchemaRetry = async (
 ) => {
   let safeData = { ...payload };
   const removedColumns = new Set<string>();
+  const withTimeout = async <T,>(promise: PromiseLike<T>, label: string): Promise<T> => {
+    const timeout = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error(`${label} timed out after 20s. Please try again.`)), 20000)
+    );
+    return Promise.race([Promise.resolve(promise), timeout]);
+  };
 
   for (let attempt = 0; attempt < 25; attempt += 1) {
-    const result = editingId
-      ? await supabase.from('listings').update(safeData as any).eq('id', editingId).select().single()
-      : await supabase.from('listings').insert(safeData as any).select().single();
+    const result = await withTimeout(
+      editingId
+        ? supabase.from('listings').update(safeData as any).eq('id', editingId).select().single()
+        : supabase.from('listings').insert(safeData as any).select().single(),
+      editingId ? 'Listing update' : 'Listing publish'
+    );
 
     if (!result.error) return result.data;
 
@@ -215,10 +224,17 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
       const schedule_type = formData.schedule_type ? JSON.parse(JSON.stringify(formData.schedule_type)) : [];
       const location_type = formData.location_type ? JSON.parse(JSON.stringify(formData.location_type)) : [];
 
-      // Main listing data. Production listings ownership is keyed by owner_id.
-      // Do not send legacy user_id/location columns here; older schema retries were
-      // still wasting the first save attempt and could block creation on live DBs.
+      const listingLocation =
+        (formData.location as string) ||
+        (formData.address as string) ||
+        (formData.neighborhood as string) ||
+        (formData.city as string) ||
+        'Unknown';
+
+      // Main listing data. RLS and required columns are keyed by user_id, while
+      // owner_id powers owner-side queries, so both must be saved together.
       const rawListingData: Record<string, any> = {
+        user_id: user.user.id,
         owner_id: user.user.id,
         category: selectedCategory,
         listing_type: selectedCategory === 'worker' ? 'service' : (formData.listing_type || selectedMode),
@@ -247,6 +263,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
         country: (formData.country as string) || 'Mexico',
         state: (formData.state as string) || (formData.city as string) || 'Quintana Roo',
         city: (formData.city as string) || 'Unknown',
+        location: listingLocation,
         neighborhood: (formData.neighborhood as string) || null,
         address: (formData.address as string) || null,
         latitude: location.lat || null,
@@ -254,6 +271,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
         video_url: videoUrl,
         // JSONB arrays
         images: allImages,
+        image_url: allImages[0] || null,
         amenities,
         services_included,
         skills,

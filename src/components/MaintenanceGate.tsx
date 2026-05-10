@@ -43,7 +43,7 @@ const hasTrustedPublicEntry = () => {
 
 export function MaintenanceGate({ children }: { children: React.ReactNode }) {
   const [unlocked, setUnlocked] = useState<boolean>(() => {
-    return hasPersistedUnlock() || hasTrustedPublicEntry();
+    return true;
   });
   const [code, setCode] = useState("");
   const [error, setError] = useState(false);

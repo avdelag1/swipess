@@ -31,6 +31,42 @@ const CATEGORIES = [
   { id: 'worker', label: 'Job / Service', icon: Briefcase, color: 'text-amber-400', bg: 'bg-amber-400/10' },
 ] as const;
 
+const getMissingSchemaColumn = (message?: string | null) => {
+  if (!message) return null;
+  const quoted = message.match(/['"]([^'"]+)['"]\s+column|column\s+['"]([^'"]+)['"]|find the ['"]([^'"]+)['"] column/i);
+  return quoted?.[1] || quoted?.[2] || quoted?.[3] || null;
+};
+
+const saveAIListingWithSchemaRetry = async (payload: Record<string, unknown>) => {
+  let safeData = { ...payload };
+  const removedColumns = new Set<string>();
+
+  for (let attempt = 0; attempt < 25; attempt += 1) {
+    const result = await supabase
+      .from('listings')
+      .insert(safeData as never)
+      .select()
+      .single();
+
+    if (!result.error) return result.data;
+
+    const errorMsg = result.error.message?.toLowerCase() || '';
+    const isSchemaError = errorMsg.includes('could not find') || errorMsg.includes('schema cache') || errorMsg.includes('column');
+    const missingColumn = getMissingSchemaColumn(result.error.message);
+
+    if (!isSchemaError || !missingColumn || safeData[missingColumn] === undefined || removedColumns.has(missingColumn)) {
+      throw result.error;
+    }
+
+    removedColumns.add(missingColumn);
+    const { [missingColumn]: _removed, ...nextData } = safeData;
+    safeData = nextData;
+    console.warn(`[AIListing] Live schema rejected "${missingColumn}" — retrying without it.`);
+  }
+
+  throw new Error('Listing publish failed after adapting to the live schema.');
+};
+
 
 export function AIListingWizard() {
   const { showAIListing, aiListingCategory, aiListingDraft, setModal } = useModalStore();
@@ -220,6 +256,7 @@ export function AIListingWizard() {
         city: finalCity,
         location: finalCity,
         images: uploadedUrls,
+        image_url: uploadedUrls[0] || null,
       };
       if (cat === 'property') {
         const beds = (extras.beds as number) ?? (parsed.beds as number);
@@ -243,22 +280,15 @@ export function AIListingWizard() {
       }
 
       console.log('[AIListing] Publishing payload:', listingPayload);
-      const insertPromise = supabase
-        .from('listings')
-        .insert(listingPayload as never)
-        .select()
-        .single();
+      const insertPromise = saveAIListingWithSchemaRetry(listingPayload);
       const insertTimeout = new Promise<never>((_, reject) =>
         setTimeout(() => reject(new Error('Publish timed out after 20s. Please try again.')), 20000)
       );
-      const { data: inserted, error: insertErr } = (await Promise.race([
+      const inserted = await Promise.race([
         insertPromise,
         insertTimeout,
-      ])) as { data: unknown; error: { message?: string } | null };
-      if (insertErr) {
-        console.error('[AIListing] Insert error:', insertErr);
-        throw new Error(insertErr.message || 'Failed to publish listing');
-      }
+      ]);
+      if (!inserted) throw new Error('Failed to publish listing');
       setProgressPct(95);
 
       // Phase 4 — Redirect
