@@ -11,7 +11,6 @@ export interface Listing {
   title: string;
   price: number;
   images: string[];
-  user_id?: string;
   owner_id: string;
   description: string;
   status: string;
@@ -102,7 +101,7 @@ export interface Listing {
 }
 
 const isSeedListing = (listing: Partial<Listing>) => {
-  const owner = listing.owner_id || listing.user_id;
+  const owner = listing.owner_id;
   return owner === '00000000-0000-0000-0000-000000000000'
     || owner === '00000000-0000-0000-0000-000000000001';
 };
@@ -156,7 +155,7 @@ export function useListings(excludeSwipedIds: string[] = [], options: { enabled?
           if (!rpcError && rpcListings && Array.isArray(rpcListings) && rpcListings.length > 0) {
             const normalized = (rpcListings as any[]).map(l => ({
                 ...l,
-                owner_id: l.owner_id || l.user_id,
+                owner_id: l.owner_id,
                 images: (Array.isArray(l.images) ? l.images : (l.images ? [l.images] : []))
                         .map((img: string) => (typeof img === 'string' && img.includes('supabase.co/storage') && !img.includes('?width=')) 
                                     ? `${img}?width=720&quality=75&format=avif` : img)
@@ -177,7 +176,7 @@ export function useListings(excludeSwipedIds: string[] = [], options: { enabled?
 
         // CRITICAL: Exclude own listings
         if (user.user) {
-          query = query.neq('user_id', user.user.id);
+          query = query.neq('owner_id', user.user.id);
         }
 
         // URL SAFETY: Apply excluded IDs (Fallback only)
@@ -199,7 +198,7 @@ export function useListings(excludeSwipedIds: string[] = [], options: { enabled?
 
         const normalized = ((listings as Listing[]) || []).map((listing: any) => ({
           ...listing,
-          owner_id: listing.owner_id || listing.user_id,
+          owner_id: listing.owner_id,
         }));
 
         return sortRealListingsFirst(normalized);

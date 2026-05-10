@@ -192,8 +192,8 @@ export function AIListingWizard() {
       const numericPrice = (parsed.price as number) || Number(price) || 0;
       const finalCity = (parsed.city as string) || cityLocation || 'Unknown';
       const listingPayload: Record<string, unknown> = {
-        user_id: user.id,
         owner_id: user.id,
+        user_id: user.id, // RESTORED: Mandatory schema dependency
         category: cat,
         listing_type: cat === 'worker' ? 'service' : 'rent',
         mode: cat === 'worker' ? 'service' : 'rent',

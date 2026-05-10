@@ -60,7 +60,7 @@ export function useUnreadNotifications() {
 
     // Subscribe to real-time changes
     const channel = supabase
-      .channel('unread-notifications-count')
+      .channel(`unread-count-${user.id}-${Math.random().toString(36).slice(2, 9)}`)
       .on(
         'postgres_changes',
         {

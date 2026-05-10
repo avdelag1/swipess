@@ -112,7 +112,7 @@ export function useNotificationSystem() {
     if (!user?.id) return;
 
     const notificationsChannel = supabase
-      .channel('user-notifications-realtime')
+      .channel(`user-notifications-${user.id}-${Math.random().toString(36).slice(2, 9)}`)
       .on(
         'postgres_changes',
         {

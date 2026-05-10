@@ -131,14 +131,14 @@ const LandingView = memo(({
   );
 });
 
-/* ─── Fix #2 & #3: Apple-HIG-compliant social auth buttons ── */
+/* ─── Official Apple HIG + Google Brand–compliant auth buttons ── */
 const AppleAuthButton = ({ onClick }: { onClick: () => void }) => (
   <button
     onClick={onClick}
-    className="group flex h-12 w-full items-center justify-center gap-3 rounded-2xl bg-foreground text-background active:scale-[0.97] transition-all shadow-lg border-none"
+    className="group flex h-[50px] w-full items-center justify-center gap-2.5 rounded-xl bg-black active:scale-[0.97] active:brightness-[1.15] transition-all shadow-[0_4px_14px_rgba(0,0,0,0.4)] border border-white/[0.08]"
   >
     <AppleIcon />
-    <span className="text-[14px] font-bold tracking-tight !text-black">
+    <span className="text-[16px] font-semibold tracking-[-0.01em] text-white">
       Sign in with Apple
     </span>
   </button>
@@ -147,10 +147,10 @@ const AppleAuthButton = ({ onClick }: { onClick: () => void }) => (
 const GoogleAuthButton = ({ onClick }: { onClick: () => void }) => (
   <button
     onClick={onClick}
-    className="group flex h-12 w-full items-center justify-center gap-3 rounded-2xl bg-card border border-border hover:border-primary/40 active:scale-[0.97] transition-all shadow-lg"
+    className="group flex h-[50px] w-full items-center justify-center gap-2.5 rounded-xl bg-white hover:bg-[#f8f8f8] active:scale-[0.97] active:bg-[#eee] transition-all shadow-[0_4px_14px_rgba(0,0,0,0.12)] border border-[#dadce0]"
   >
     <GoogleIcon />
-    <span className="text-[14px] font-bold tracking-tight !text-white">
+    <span className="text-[16px] font-semibold tracking-[-0.01em] text-[#1f1f1f]">
       Continue with Google
     </span>
   </button>

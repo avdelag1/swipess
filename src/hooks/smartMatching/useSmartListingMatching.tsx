@@ -14,7 +14,7 @@ export const SWIPE_CARD_FIELDS = `
   id, title, description, price, images, video_url, city, neighborhood, beds, baths,
   square_footage, category, listing_type, property_type, vehicle_brand,
   vehicle_model, year, mileage, amenities, pet_friendly, furnished,
-  user_id, owner_id, created_at, updated_at, currency,
+  owner_id, created_at, updated_at, currency,
   service_category, pricing_unit, experience_years, experience_level,
   skills, days_available, time_slots_available, work_type, schedule_type,
   location_type, service_radius_km, minimum_booking_hours,
@@ -230,7 +230,7 @@ export function useSmartListingMatching(
     const { data: adminIds } = useAdminUserIds();
 
     const isSeedListing = useMemo(() => (listing: any) => {
-        const owner = listing?.owner_id || listing?.user_id;
+        const owner = listing?.owner_id;
         return owner === '00000000-0000-0000-0000-000000000000'
             || owner === '00000000-0000-0000-0000-000000000001'
             || owner === '7c51f110-6261-44d8-b9d0-d4ccd2d901b6'
@@ -411,10 +411,10 @@ export function useSmartListingMatching(
 
                     if (!rpcError && rpcListings && Array.isArray(rpcListings) && rpcListings.length > 0) {
                         const results = (rpcListings as any[])
-                            .filter(l => !adminIds?.has(l.owner_id || l.user_id) && ['property', 'motorcycle', 'bicycle', 'worker', 'services'].includes(l.category))
+                            .filter(l => !adminIds?.has(l.owner_id) && ['property', 'motorcycle', 'bicycle', 'worker', 'services'].includes(l.category))
                             .map(l => ({
                                 ...l,
-                                owner_id: l.owner_id || l.user_id,
+                                owner_id: l.owner_id,
                                 images: Array.isArray(l.images) ? l.images : (l.images ? [l.images] : [])
                             }))
                             .sort((a, b) => {
@@ -444,7 +444,7 @@ export function useSmartListingMatching(
                 // an explicit status still surface, then we filter active client-side.
                 let query = supabase.from('listings').select(SWIPE_CARD_FIELDS);
                 if (userId) {
-                    query = query.neq('user_id', userId);
+                    query = query.neq('owner_id', userId);
                 }
 
                 // 3. Apply excluded IDs (Fallback path) — only valid uuids
@@ -492,10 +492,10 @@ export function useSmartListingMatching(
 
                 // 4.5 Filter out Admins (Hardware-Accelerated Client-Side Filter)
                 const adminFiltered = liveListings
-                    .filter(listing => !adminIds?.has((listing as any).owner_id || (listing as any).user_id))
+                    .filter(listing => !adminIds?.has((listing as any).owner_id))
                     .map(listing => ({
                         ...listing,
-                        owner_id: (listing as any).owner_id || (listing as any).user_id,
+                        owner_id: (listing as any).owner_id,
                     }));
 
                 // 4.6 Distance filter — only applied when user has a GPS fix

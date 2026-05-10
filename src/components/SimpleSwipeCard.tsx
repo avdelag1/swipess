@@ -347,7 +347,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           willChange: 'transform, opacity',
           transform: 'translate3d(0,0,0)',
           backfaceVisibility: 'hidden',
-          borderRadius: 32,
+          borderRadius: 0,
           boxShadow: 'none',
           background: 'hsl(var(--swipe-deck-frame))',
         }}

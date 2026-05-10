@@ -215,18 +215,11 @@ export function PropertyListingForm({ onDataChange, initialData = {} }: Property
             <Input type="number" {...register('price', { valueAsNumber: true })} placeholder="2500" />
           </div>
           <div>
-            <FormLabel>Minimum Stay</FormLabel>
-            <Controller
-              name="rental_duration_type"
-              control={control}
-              render={({ field }) => (
-                <Select onValueChange={field.onChange} value={field.value || ''}>
-                  <SelectTrigger><SelectValue placeholder="Select duration" /></SelectTrigger>
-                  <SelectContent>
-                    {RENTAL_DURATIONS.map(d => <SelectItem key={d.value} value={d.value}>{d.label}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              )}
+            <FormLabel>Minimum Stay (e.g. 3 months, 6 months, etc)</FormLabel>
+            <Input 
+              {...register('rental_duration_type')} 
+              placeholder="e.g. 6 months, Yearly, etc" 
+              className="bg-background"
             />
           </div>
         </div>

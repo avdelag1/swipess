@@ -220,6 +220,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
       // still wasting the first save attempt and could block creation on live DBs.
       const rawListingData: Record<string, any> = {
         owner_id: user.user.id,
+        user_id: user.user.id, // RESTORED: Mandatory schema dependency
         category: selectedCategory,
         listing_type: selectedCategory === 'worker' ? 'service' : (formData.listing_type || selectedMode),
         mode: selectedMode,
@@ -551,7 +552,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                         onClick={handleImageAdd}
-                        className="aspect-square rounded-2xl border-2 border-dashed border-primary/35 bg-secondary text-secondary-foreground hover:bg-accent hover:text-accent-foreground hover:border-primary transition-all group shadow-inner"
+                        className="aspect-square rounded-2xl border-2 border-dashed border-primary/35 bg-secondary text-secondary-foreground hover:bg-accent hover:text-accent-foreground hover:border-primary transition-all group shadow-inner flex flex-col items-center justify-center gap-2"
                       >
                         <Upload className="w-6 h-6 group-hover:text-primary transition-colors" />
                         <span className="text-xs font-semibold">Add Photo</span>

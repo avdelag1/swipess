@@ -939,13 +939,13 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
 
       <div
         className={cn(
-          "flex-1 relative flex w-full h-full items-stretch justify-center px-1 pt-1 z-10 pointer-events-auto min-h-0 overflow-hidden"
+          "flex-1 relative flex w-full h-full items-stretch justify-center z-10 pointer-events-auto min-h-0 overflow-hidden"
         )}
         {...pullDown.bind}
       >
         <SwipeDeckBackButton />
         <motion.div
-          className="relative w-full h-full mx-auto flex items-stretch justify-stretch pointer-events-auto md:max-w-[640px]"
+          className="relative w-full h-full mx-auto flex items-stretch justify-stretch pointer-events-auto"
           style={{ y: pullDown.y, scale: pullDown.scale, opacity: pullDown.opacity, filter: pullDown.blur }}
         >
           {/* Rounded backdrop matches card corners so deck blends into background */}
@@ -955,7 +955,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
               "absolute inset-0 -z-10 transition-colors duration-500",
               "bg-swipe-frame"
             )}
-            style={{ borderRadius: 32 }}
+            style={{ borderRadius: 0 }}
           />
           <AnimatePresence mode="sync" initial={true}>
             {deckQueue.length > 0 && currentIndex < deckQueue.length ? (
