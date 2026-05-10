@@ -319,21 +319,32 @@ export function useSmartClientMatching(
                     }
                 } catch (_e) {}
 
-                // 1. Determine target role dynamically (Owner sees Client, Client sees Owner)
-                const { data: roleData } = await supabase
+                // 1. Determine target role dynamically using user_roles (source of truth).
+                // profiles.role is unreliable (often empty), so we resolve roles from
+                // user_roles and translate them into a list of allowed user_ids.
+                const { data: myRoleRow } = await supabase
                     .from('user_roles')
                     .select('role')
                     .eq('user_id', userId)
                     .maybeSingle();
-                
-                const myRole = roleData?.role || 'owner';
+                const myRole = (myRoleRow?.role as string) || 'owner';
                 const targetRole = myRole === 'owner' ? 'client' : 'owner';
 
-                // 2. PRIMARY QUERY: Filtered discovery
+                const { data: targetRoleRows } = await supabase
+                    .from('user_roles')
+                    .select('user_id')
+                    .eq('role', targetRole as any);
+                const targetUserIds = (targetRoleRows || [])
+                    .map((r: any) => r.user_id)
+                    .filter((id: string) => id && id !== userId);
+
+                // 2. PRIMARY QUERY: pull profiles for those user_ids.
                 let query = supabase.from('profiles')
                     .select(CLIENT_FIELDS)
-                    .eq('role', targetRole)
-                    .neq('user_id', userId); 
+                    .neq('user_id', userId);
+                if (targetUserIds.length > 0) {
+                    query = query.in('user_id', targetUserIds);
+                }
                 
                 if (isRoommateSection) {
                     query = (query as any).eq('roommate_available', true);
@@ -375,12 +386,15 @@ export function useSmartClientMatching(
                 // 4. EMERGENCY FALLBACK: Fetch ANYONE if deck is empty AND we're not deferring to demo
                 if ((!profiles || profiles.length === 0) && !shouldShowDemoIfEmpty) {
                     logger.warn('[SmartMatching] Deck empty, triggering hyper-aggressive fallback (page=' + page + ', category=' + _category + ')');
-                    const { data: fallbackData } = await supabase.from('profiles')
+                    let fallback = supabase.from('profiles')
                         .select(CLIENT_FIELDS)
-                        .eq('role', targetRole)
                         .neq('user_id', userId)
-                        .order('created_at', { ascending: false }) // Show newest users first
+                        .order('created_at', { ascending: false })
                         .limit(pageSize);
+                    if (targetUserIds.length > 0) {
+                        fallback = fallback.in('user_id', targetUserIds);
+                    }
+                    const { data: fallbackData } = await fallback;
                     profiles = fallbackData || [];
                 }
 
