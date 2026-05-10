@@ -11,7 +11,7 @@ const SUPABASE_KEY =
   Deno.env.get("SUPABASE_ANON_KEY") ??
   Deno.env.get("SUPABASE_PUBLISHABLE_KEY") ??
   "";
-const APP_ORIGIN = "https://www.swipess.com";
+const APP_ORIGIN = (Deno.env.get("APP_ORIGIN") ?? "https://swipess.lovable.app").replace(/\/$/, "");
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -65,15 +65,20 @@ function renderHtml(opts: {
 <meta property="og:description" content="${d}" />
 <meta property="og:image" content="${i}" />
 <meta property="og:image:secure_url" content="${i}" />
+<meta property="og:image:type" content="image/jpeg" />
 <meta property="og:image:alt" content="${t}" />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
 <meta property="og:url" content="${u}" />
+<meta property="og:locale" content="en_US" />
 
 <meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:site" content="@swipess" />
+<meta name="twitter:url" content="${u}" />
 <meta name="twitter:title" content="${t}" />
 <meta name="twitter:description" content="${d}" />
 <meta name="twitter:image" content="${i}" />
+<meta name="theme-color" content="#050505" />
 
 <link rel="canonical" href="${u}" />
 ${redirectTags}
