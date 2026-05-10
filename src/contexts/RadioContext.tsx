@@ -61,6 +61,39 @@ interface RadioContextType {
 
 const RadioContext = createContext<RadioContextType | undefined>(undefined);
 
+const fallbackRadioState: RadioPlayerState = {
+  isPlaying: false,
+  isPoweredOn: false,
+  currentStation: null,
+  currentCity: 'tulum',
+  volume: 0.7,
+  isShuffle: false,
+  favorites: [],
+  deadStationIds: [],
+  miniPlayerMode: 'closed',
+};
+
+const fallbackRadioContext: RadioContextType = {
+  state: fallbackRadioState,
+  loading: false,
+  error: null,
+  play: async () => {},
+  pause: () => {},
+  togglePlayPause: () => {},
+  togglePower: () => {},
+  changeStation: () => {},
+  setCity: () => {},
+  setVolume: () => {},
+  toggleShuffle: () => {},
+  shuffleAndPlay: () => {},
+  toggleFavorite: () => {},
+  isStationFavorite: () => false,
+  playPlaylist: () => {},
+  playFavorites: () => {},
+  setMiniPlayerMode: () => {},
+  getFrequencyData: () => new Uint8Array(0),
+};
+
 export function RadioProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -346,7 +379,28 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
   // Concurrency guard for play attempts
   const isPlayingRef = useRef(false);
 
+  // CRITICAL: hard guard against auto-play.
+  // The radio must ONLY start when the user explicitly taps the Play button
+  // on the mini player, the full radio page, or a station/shuffle action.
+  // Every user-facing entry point sets this to true right before calling
+  // play(); media-session and effect-driven callers do NOT set it, so they
+  // cannot start audio that the user did not request.
+  const userInitiatedRef = useRef(false);
+
   const play = useCallback(async (station?: RadioStation) => {
+    // Block any path that did not originate from an explicit user gesture.
+    // Internal recoveries (error skip, ended->next, station changes while
+    // already playing) are allowed because they happen while audio is live.
+    const userOk = userInitiatedRef.current;
+    userInitiatedRef.current = false;
+    // Allow internal recoveries (error skip, track-ended->next, city change
+    // while already playing) — those happen while the audio element has
+    // already produced output, so audio.played.length > 0.
+    const hasPriorPlayback = !!audioRef.current?.played && audioRef.current.played.length > 0;
+    if (!userOk && !hasPriorPlayback) {
+      logger.info('[RadioPlayer] play() blocked — not user-initiated');
+      return;
+    }
     if (isPlayingRef.current) return;
     isPlayingRef.current = true;
     
@@ -468,7 +522,16 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
           ]
         });
 
-        navigator.mediaSession.setActionHandler('play', () => { audioRef.current?.play(); setState(prev => ({ ...prev, isPlaying: true })); });
+        // Only allow system "play" (headphones/lockscreen) to resume when
+        // the user already had the radio playing in this session. This
+        // prevents the OS from spontaneously starting the radio when no
+        // playback was ever requested.
+        navigator.mediaSession.setActionHandler('play', () => {
+          if (!audioRef.current || !audioRef.current.src) return;
+          userInitiatedRef.current = true;
+          audioRef.current.play().catch(() => {});
+          setState(prev => ({ ...prev, isPlaying: true }));
+        });
         navigator.mediaSession.setActionHandler('pause', () => { audioRef.current?.pause(); setState(prev => ({ ...prev, isPlaying: false })); });
         navigator.mediaSession.setActionHandler('previoustrack', () => changeStationRef.current('prev'));
         navigator.mediaSession.setActionHandler('nexttrack', () => changeStationRef.current('next'));
@@ -505,6 +568,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
         setState(prev => ({ ...prev, isPoweredOn: true }));
         savePreferences({ isPoweredOn: true });
       }
+      userInitiatedRef.current = true;
       play();
     }
   }, [state.isPlaying, state.isPoweredOn, play, pause]);
@@ -616,6 +680,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     const first = queue[0];
     if (!first) return;
     pushRecent(first.id);
+    userInitiatedRef.current = true;
     play(first);
 
     // Also enable shuffle mode with the new queue
@@ -641,7 +706,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
   const playPlaylist = useCallback((stationIds: string[]) => {
     if (stationIds.length === 0) return;
     const firstStation = getStationById(stationIds[0]);
-    if (firstStation) play(firstStation);
+    if (firstStation) { userInitiatedRef.current = true; play(firstStation); }
   }, [play]);
 
   const playFavorites = useCallback(() => playPlaylist(state.favorites), [state.favorites, playPlaylist]);
@@ -665,7 +730,9 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     state,
     loading,
     error,
-    play,
+    // External callers (mini player, radio page, directory) always invoke
+    // play from a user click — wrap to set the user-intent flag.
+    play: (station?: RadioStation) => { userInitiatedRef.current = true; return play(station); },
     pause,
     togglePlayPause,
     togglePower,
@@ -688,7 +755,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
 export function useRadio() {
   const context = useContext(RadioContext);
   if (context === undefined) {
-    throw new Error('useRadio must be used within a RadioProvider');
+    return fallbackRadioContext;
   }
   return context;
 }

@@ -28,6 +28,19 @@ import { EventItem } from '@/types/events';
 
 const AUTOPLAY_DURATION = 6000;
 
+function pickEventImage(ev: Partial<EventItem>): string | null {
+  if (typeof ev.image_url === 'string' && ev.image_url.trim()) return ev.image_url;
+  const gallery = Array.isArray(ev.image_urls) ? ev.image_urls : [];
+  for (const item of gallery) {
+    if (typeof item === 'string' && item.trim()) return item;
+    if (item && typeof item === 'object') {
+      const url = (item as any).url || (item as any).image_url || (item as any).src;
+      if (typeof url === 'string' && url.trim()) return url;
+    }
+  }
+  return null;
+}
+
 export default function EventosFeed() {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -128,7 +141,7 @@ export default function EventosFeed() {
     queryFn: async (): Promise<EventItem[]> => {
       const { data, error } = await supabase
         .from('events')
-        .select('id, title, description, category, image_url, event_date, location, location_detail, organizer_name, organizer_whatsapp, promo_text, discount_tag, is_free, price_text')
+        .select('id, title, description, category, image_url, image_urls, video_url, event_date, location, location_detail, organizer_name, organizer_whatsapp, promo_text, discount_tag, is_free, price_text')
         .order('event_date', { ascending: true });
       
       if (error) throw error;
@@ -138,7 +151,9 @@ export default function EventosFeed() {
         title: ev.title || 'Untitled Event',
         description: ev.description || null,
         category: ev.category || 'all',
-        image_url: ev.image_url || null,
+        image_url: pickEventImage(ev),
+        image_urls: Array.isArray(ev.image_urls) ? ev.image_urls : [],
+        video_url: ev.video_url || null,
         event_date: ev.event_date || null,
         location: ev.location || null,
         location_detail: ev.location_detail || null,
@@ -161,7 +176,7 @@ export default function EventosFeed() {
     
     if (combined.length > 0 && typeof window !== 'undefined') {
       import('@/utils/imageOptimization').then(({ pwaImagePreloader, getCardImageUrl }) => {
-        const first3 = combined.slice(0, 3).map(e => getCardImageUrl(e.image_url || ''));
+        const first3 = combined.slice(0, 3).map(e => getCardImageUrl(pickEventImage(e) || ''));
         pwaImagePreloader.batchPreload(first3);
       });
     }
@@ -239,7 +254,7 @@ export default function EventosFeed() {
     const nextBatch = filteredEvents.slice(activeIdx + 1, activeIdx + 6);
     if (nextBatch.length > 0) {
       import('@/utils/imageOptimization').then(({ pwaImagePreloader, getCardImageUrl }) => {
-        const urls = nextBatch.map(e => getCardImageUrl(e.image_url || ''));
+        const urls = nextBatch.map(e => getCardImageUrl(pickEventImage(e) || ''));
         pwaImagePreloader.batchPreload(urls);
       });
     }

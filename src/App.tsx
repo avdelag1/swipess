@@ -1,7 +1,7 @@
 import { lazy, Suspense } from "react"; // cache-bust-v3
 import { lazyWithRetry } from "@/utils/lazyRetry";
 import { ChunkErrorBoundary } from "@/components/ChunkErrorBoundary";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation, useParams } from "react-router-dom";
 import { RootProviders } from "./providers/RootProviders";
 import { useAuth } from "@/hooks/useAuth";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
@@ -18,15 +18,11 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 // SpeedOfLightPreloader removed — redundant with WarpPrefetcher in RootProviders
 import Index from "./pages/Index";
 
-// PERF: Defer i18n init behind idle callback — loaded after first render to reduce critical JS
-if (typeof window !== 'undefined') {
-  const loadI18n = () => import('@/i18n');
-  if ('requestIdleCallback' in window) {
-    (window as any).requestIdleCallback(loadI18n, { timeout: 3000 });
-  } else {
-    setTimeout(loadI18n, 2000);
-  }
-}
+// i18n must be initialized eagerly so any component calling useTranslation()
+// during first render finds a registered i18next instance. Deferring caused
+// the "You will need to pass in an i18next instance" warning + missing
+// translations on first paint.
+import "@/i18n";
 
 // 🚀 SPEED OF LIGHT: LAZY PAGES — all via lazyWithRetry so stale CDN chunks
 // after a redeploy get one automatic retry before surfacing to ChunkErrorBoundary.
@@ -115,6 +111,13 @@ const DashboardOutletPlaceholder = () => null;
 const DashboardRedirect = () => {
   const { activeMode } = useActiveMode();
   return <Navigate to={activeMode === 'owner' ? "/owner/dashboard" : "/client/dashboard"} replace />;
+};
+
+const ShareRedirect = ({ kind }: { kind: 'listing' | 'profile' | 'event' }) => {
+  const { id } = useParams<{ id: string }>();
+  const { search } = useLocation();
+  const target = kind === 'event' ? `/explore/eventos/${id || ''}` : `/${kind}/${id || ''}`;
+  return <Navigate to={`${target}${search}`} replace />;
 };
 
 const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
@@ -215,6 +218,9 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
             <Route path="/faq/owner" element={<ChunkErrorBoundary><Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><FAQOwnerPage /></AnimatedPage></Suspense></ChunkErrorBoundary>} />
             <Route path="/profile/:id" element={<ChunkErrorBoundary><Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><PublicProfilePreview /></AnimatedPage></Suspense></ChunkErrorBoundary>} />
             <Route path="/listing/:id" element={<ChunkErrorBoundary><Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><PublicListingPreview /></AnimatedPage></Suspense></ChunkErrorBoundary>} />
+            <Route path="/s/listing/:id" element={<ShareRedirect kind="listing" />} />
+            <Route path="/s/profile/:id" element={<ShareRedirect kind="profile" />} />
+            <Route path="/s/event/:id" element={<ShareRedirect kind="event" />} />
             <Route path="/vap-validate/:id" element={<ChunkErrorBoundary><Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><VapValidate /></AnimatedPage></Suspense></ChunkErrorBoundary>} />
             <Route path="/share-target" element={<Navigate to="/dashboard" replace />} />
             <Route path="/promote" element={<Navigate to="/client/advertise" replace />} />

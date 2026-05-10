@@ -14,7 +14,7 @@ export const SWIPE_CARD_FIELDS = `
   id, title, description, price, images, video_url, city, neighborhood, beds, baths,
   square_footage, category, listing_type, property_type, vehicle_brand,
   vehicle_model, year, mileage, amenities, pet_friendly, furnished,
-  owner_id, created_at, currency,
+  user_id, owner_id, created_at, updated_at, currency,
   service_category, pricing_unit, experience_years, experience_level,
   skills, days_available, time_slots_available, work_type, schedule_type,
   location_type, service_radius_km, minimum_booking_hours,
@@ -171,22 +171,7 @@ const _DEPRECATED_DEMO_LISTINGS: any[] = [
     is_active: true, status: 'active', created_at: new Date().toISOString()
   },
 
-  // ── WORKERS / SERVICES (3 cards, 3 photos each) ───────────────────────
-  {
-    id: 'demo-worker-1',
-    title: 'Sofia — Spanish Architect',
-    description: 'Luxury residential design, permit-ready plans, sustainable materials, and premium interior direction.',
-    price: 150, pricing_unit: 'hour', currency: 'USD',
-    images: [
-      'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=1200',
-      'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&q=80&w=1200',
-      'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&q=80&w=1200'
-    ],
-    city: 'Tulum', category: 'worker',
-    service_category: 'Architecture', experience_years: 12, experience_level: 'expert',
-    latitude: 20.2114, longitude: -87.6044,
-    is_active: true, status: 'active', created_at: new Date().toISOString()
-  },
+  // ── WORKERS / SERVICES ───────────────────────
   {
     id: 'demo-worker-2',
     title: 'Matias — Argentine Private Chef',
@@ -243,6 +228,14 @@ export function useSmartListingMatching(
 ) {
     const queryClient = useQueryClient();
     const { data: adminIds } = useAdminUserIds();
+
+    const isSeedListing = useMemo(() => (listing: any) => {
+        const owner = listing?.owner_id || listing?.user_id;
+        return owner === '00000000-0000-0000-0000-000000000000'
+            || owner === '00000000-0000-0000-0000-000000000001'
+            || owner === '7c51f110-6261-44d8-b9d0-d4ccd2d901b6'
+            || listing?.isDemo === true;
+    }, []);
 
     // 🚀 SPEED OF LIGHT: Cache user swipes globally to avoid repeated fetching
     const { data: userSwipes } = useQuery({
@@ -418,11 +411,19 @@ export function useSmartListingMatching(
 
                     if (!rpcError && rpcListings && Array.isArray(rpcListings) && rpcListings.length > 0) {
                         const results = (rpcListings as any[])
-                            .filter(l => !adminIds?.has(l.owner_id) && ['property', 'motorcycle', 'bicycle', 'worker', 'services'].includes(l.category))
+                            .filter(l => !adminIds?.has(l.owner_id || l.user_id) && ['property', 'motorcycle', 'bicycle', 'worker', 'services'].includes(l.category))
                             .map(l => ({
                                 ...l,
+                                owner_id: l.owner_id || l.user_id,
                                 images: Array.isArray(l.images) ? l.images : (l.images ? [l.images] : [])
-                            }));
+                            }))
+                            .sort((a, b) => {
+                                const seedDelta = Number(isSeedListing(a)) - Number(isSeedListing(b));
+                                if (seedDelta !== 0) return seedDelta;
+                                const ta = new Date(a.updated_at || a.created_at || 0).getTime();
+                                const tb = new Date(b.updated_at || b.created_at || 0).getTime();
+                                return tb - ta;
+                            });
                         const withDemos = appendDemos(results);
 
                         // 🔥 SPEED OF LIGHT: PRE-WARM IMAGES IMMEDIATELY (Hardware-Aware)
@@ -439,17 +440,22 @@ export function useSmartListingMatching(
                 }
 
                 // 2. BUILD SECURE POSTGREST QUERY (Fallback)
-                let query = supabase.from('listings').select(SWIPE_CARD_FIELDS)
-                    .eq('status', 'active')
-                    .neq('owner_id', userId); // self-exclusion
+                // We deliberately do NOT add status='active' so older listings without
+                // an explicit status still surface, then we filter active client-side.
+                let query = supabase.from('listings').select(SWIPE_CARD_FIELDS);
+                if (userId) {
+                    query = query.neq('user_id', userId);
+                }
 
-                // 3. Apply excluded IDs (Fallback path)
+                // 3. Apply excluded IDs (Fallback path) — only valid uuids
                 if (swipedListingIds.size > 0) {
                     const idList = Array.from(swipedListingIds)
-                        .filter(id => id && id.length > 30)
+                        .filter(id => typeof id === 'string' && /^[0-9a-fA-F-]{30,}$/.test(id))
                         .slice(0, 150);
                     if (idList.length > 0) {
-                        query = query.filter('id', 'not.in', `(${idList.join(',')})`);
+                        try {
+                            query = query.not('id', 'in', `(${idList.join(',')})`);
+                        } catch { /* ignore */ }
                     }
                 }
 
@@ -467,11 +473,30 @@ export function useSmartListingMatching(
                     query = query.in('service_category', filters.serviceCategory);
                 }
 
-                const { data: listings, error } = await query.range(page * pageSize, (page + 1) * pageSize - 1);
-                if (error) throw error;
+                let { data: listings, error } = await query
+                    .order('created_at', { ascending: false })
+                    .limit(Math.max(pageSize * (page + 1), 120));
+                if (error) {
+                    logger.warn('[SmartMatching] listings query error, retrying without exclusion', error);
+                    const retry = await supabase.from('listings')
+                        .select(SWIPE_CARD_FIELDS)
+                        .order('created_at', { ascending: false })
+                        .limit(pageSize * (page + 1));
+                    if (retry.error) throw retry.error;
+                    listings = retry.data as any;
+                }
+                const liveListings = (listings || []).filter((l: any) =>
+                    (l.is_active === undefined || l.is_active === true) &&
+                    (l.status === undefined || l.status === null || l.status === 'active')
+                );
 
                 // 4.5 Filter out Admins (Hardware-Accelerated Client-Side Filter)
-                const adminFiltered = (listings || []).filter(listing => !listing.owner_id || !adminIds?.has(listing.owner_id));
+                const adminFiltered = liveListings
+                    .filter(listing => !adminIds?.has((listing as any).owner_id || (listing as any).user_id))
+                    .map(listing => ({
+                        ...listing,
+                        owner_id: (listing as any).owner_id || (listing as any).user_id,
+                    }));
 
                 // 4.6 Distance filter — only applied when user has a GPS fix
                 const userLat = filters?.userLatitude;
@@ -505,11 +530,20 @@ export function useSmartListingMatching(
                     };
                 });
 
-                // Real listings always first — sort by match score
-                const realResults = matchedResults.sort((a, b) => b.matchPercentage - a.matchPercentage);
+                // Real listings first, ordered by recency (most recently created/edited
+                // surfaces first so users see their own latest uploads immediately).
+                const realResults = matchedResults.sort((a, b) => {
+                  const seedDelta = Number(isSeedListing(a)) - Number(isSeedListing(b));
+                  if (seedDelta !== 0) return seedDelta;
+                  const ta = new Date((a as any).updated_at || a.created_at || 0).getTime();
+                  const tb = new Date((b as any).updated_at || b.created_at || 0).getTime();
+                  return tb - ta;
+                });
+
+                const pagedRealResults = realResults.slice(page * pageSize, (page + 1) * pageSize);
 
                 // Always append demos AFTER real listings (never obscure real data, never disappear after swipe)
-                const finalResults = appendDemos(realResults);
+                const finalResults = appendDemos(pagedRealResults);
 
                 // 🔥 SPEED OF LIGHT: PRE-WARM IMAGES IMMEDIATELY (Hardware-Aware)
                 runIdleTask(() => {

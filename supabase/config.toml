@@ -29,3 +29,6 @@ verify_jwt = false
 
 [functions.ai-listing-extract]
 verify_jwt = false
+
+[functions.validate-google-play-purchase]
+verify_jwt = true

@@ -69,11 +69,20 @@ const saveListingWithSchemaRetry = async (
 ) => {
   let safeData = { ...payload };
   const removedColumns = new Set<string>();
+  const withTimeout = async <T,>(promise: PromiseLike<T>, label: string): Promise<T> => {
+    const timeout = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error(`${label} timed out after 20s. Please try again.`)), 20000)
+    );
+    return Promise.race([Promise.resolve(promise), timeout]);
+  };
 
   for (let attempt = 0; attempt < 25; attempt += 1) {
-    const result = editingId
-      ? await supabase.from('listings').update(safeData as any).eq('id', editingId).select().single()
-      : await supabase.from('listings').insert(safeData as any).select().single();
+    const result = await withTimeout(
+      editingId
+        ? supabase.from('listings').update(safeData as any).eq('id', editingId).select().single()
+        : supabase.from('listings').insert(safeData as any).select().single(),
+      editingId ? 'Listing update' : 'Listing publish'
+    );
 
     if (!result.error) return result.data;
 
@@ -108,6 +117,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
   const [formData, setFormData] = useState<Record<string, unknown>>({});
   const [editingId, setEditingId] = useState<string | null>(null);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
+  const [uploadProgress, setUploadProgress] = useState<number | null>(null);
 
   // Use refs to track latest values for mutation (avoids closure staleness)
   const imagesRef = useRef(images);
@@ -196,9 +206,17 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
       let uploadedImageUrls: string[] = [];
       if (currentImageFiles.length > 0) {
         appToast.info('Uploading photos…', `Sending ${currentImageFiles.length} photo${currentImageFiles.length > 1 ? 's' : ''}.`);
+        setUploadProgress(2);
         // Normalize HEIC + shrink large photos before upload so storage never rejects them.
         const prepared = await compressImages(currentImageFiles, LISTING_COMPRESSION);
-        uploadedImageUrls = await uploadPhotoBatch(user.user.id, prepared, 'listing-images');
+        setUploadProgress(15);
+        uploadedImageUrls = await uploadPhotoBatch(
+          user.user.id,
+          prepared,
+          'listing-images',
+          (p) => setUploadProgress(15 + Math.floor(p * 0.8)),
+        );
+        setUploadProgress(98);
       }
 
       const allImages = [...currentImages, ...uploadedImageUrls];
@@ -215,10 +233,17 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
       const schedule_type = formData.schedule_type ? JSON.parse(JSON.stringify(formData.schedule_type)) : [];
       const location_type = formData.location_type ? JSON.parse(JSON.stringify(formData.location_type)) : [];
 
-      // Main listing data. Production listings ownership is keyed by owner_id.
-      // Do not send legacy user_id/location columns here; older schema retries were
-      // still wasting the first save attempt and could block creation on live DBs.
+      const listingLocation =
+        (formData.location as string) ||
+        (formData.address as string) ||
+        (formData.neighborhood as string) ||
+        (formData.city as string) ||
+        'Unknown';
+
+      // Main listing data. RLS and required columns are keyed by user_id, while
+      // owner_id powers owner-side queries, so both must be saved together.
       const rawListingData: Record<string, any> = {
+        user_id: user.user.id,
         owner_id: user.user.id,
         category: selectedCategory,
         listing_type: selectedCategory === 'worker' ? 'service' : (formData.listing_type || selectedMode),
@@ -247,6 +272,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
         country: (formData.country as string) || 'Mexico',
         state: (formData.state as string) || (formData.city as string) || 'Quintana Roo',
         city: (formData.city as string) || 'Unknown',
+        location: listingLocation,
         neighborhood: (formData.neighborhood as string) || null,
         address: (formData.address as string) || null,
         latitude: location.lat || null,
@@ -254,6 +280,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
         video_url: videoUrl,
         // JSONB arrays
         images: allImages,
+        image_url: allImages[0] || null,
         amenities,
         services_included,
         skills,
@@ -338,6 +365,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
       }
     },
     onSuccess: (listing) => {
+      setUploadProgress(null);
       uiSounds.playUploadComplete();
       if (editingId) {
         appToast.success('Listing updated');
@@ -359,6 +387,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
       navigate('/owner/properties', { replace: true });
     },
     onError: (error: Error) => {
+      setUploadProgress(null);
       queryClient.invalidateQueries({ queryKey: ['owner-listings'] });
       queryClient.invalidateQueries({ queryKey: ['listings'] });
       logger.error('[UnifiedListingForm] Save failed:', error);
@@ -480,6 +509,16 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
             {editingId ? 'Edit Listing' : 'Create New Listing'}
           </DialogTitle>
         </DialogHeader>
+        {(createListingMutation.isPending || uploadProgress !== null) && (
+          <div className="shrink-0 h-[3px] w-full bg-primary/10 overflow-hidden">
+            <motion.div
+              className="h-full bg-primary"
+              initial={{ width: '4%' }}
+              animate={{ width: `${uploadProgress ?? 8}%` }}
+              transition={{ type: 'spring', stiffness: 90, damping: 20 }}
+            />
+          </div>
+        )}
 
         <ScrollArea className="flex-1 h-0">
           <motion.div

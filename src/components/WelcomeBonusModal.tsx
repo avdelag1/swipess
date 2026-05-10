@@ -4,10 +4,12 @@ import { Sparkles, X, Zap, ShieldCheck, Crown } from 'lucide-react';
 import { triggerHaptic } from '@/utils/haptics';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
+import { useGuidedTourActive } from '@/state/guidedTourStore';
 
 export const WelcomeBonusModal = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { user } = useAuth();
+  const tourActive = useGuidedTourActive((s) => s.isActive);
 
   useEffect(() => {
     if (!user?.id || !user?.created_at) return;
@@ -48,7 +50,7 @@ export const WelcomeBonusModal = () => {
     triggerHaptic('light');
   };
 
-  if (!isOpen) return null;
+  if (!isOpen || tourActive) return null;
 
   return (
     <AnimatePresence>

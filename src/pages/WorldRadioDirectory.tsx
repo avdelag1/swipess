@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { QuickFilterImage } from '@/components/ui/QuickFilterImage';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AtmosphericLayer } from '@/components/AtmosphericLayer';
-import { CheetahSkinBackground } from '@/components/radio/CheetahSkinBackground';
+import { RadioSkinBackground } from '@/components/radio/RadioSkinBackground';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useRadio } from '@/contexts/RadioContext';
 import { radioStations, cityThemes } from '@/data/radioStations';
@@ -56,7 +56,7 @@ export default function WorldRadioDirectory() {
 
   return (
     <div className="h-[100dvh] overflow-y-auto overflow-x-hidden flex flex-col relative text-white" style={{ background: '#0a0705' }}>
-      <CheetahSkinBackground />
+      <RadioSkinBackground />
 
       {/* 🛸 STICKY HEADER — Stays on top, doesn't overlap cards */}
       <div className="sticky top-0 z-50 pt-[calc(env(safe-area-inset-top)+12px)] pb-4 px-6 border-b border-white/10 backdrop-blur-xl bg-black/55">

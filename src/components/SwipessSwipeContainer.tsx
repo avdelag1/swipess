@@ -268,13 +268,12 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
       return 0.97 + 0.03 * t;
     }
   );
+  // Always keep the underneath card visible so it never flashes a black
+  // frame when the top card flies off. Only the scale animates during drag
+  // for the parallax peek effect.
   const nextCardOpacity = useTransform(
     [topCardX, topCardY] as any,
-    ([cx, _cy]: any) => {
-      const t = Math.min(1, Math.abs(cx) / 280);
-      // Hidden at rest; rises only once horizontal intent is clear.
-      return t < 0.15 ? 0 : (t - 0.15) / 0.85;
-    }
+    () => 1
   );
 
   const hasSwipedRef = useRef(false);
@@ -353,6 +352,34 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
 
   const prevListingIdsRef = useRef<string>('');
   const hasNewListingsRef = useRef(false);
+
+  useEffect(() => {
+    if (activeMode !== 'client' || !user?.id) return;
+
+    let previousUserId: string | null = null;
+    try {
+      previousUserId = sessionStorage.getItem('swipe-deck-client-user');
+    } catch (_err) { }
+
+    if (previousUserId && previousUserId !== user.id) {
+      deckQueueRef.current = [];
+      currentIndexRef.current = 0;
+      swipedIdsRef.current.clear();
+      prevListingIdsRef.current = '';
+      hasNewListingsRef.current = false;
+      setPage(0);
+      setCurrentIndex(0);
+      setDeckLength(0);
+      resetClientDeck();
+      queryClient.removeQueries({ queryKey: ['smart-listings'] });
+      try {
+        sessionStorage.removeItem('swipe-deck-items');
+        sessionStorage.removeItem('swipe-deck-client-listings');
+      } catch (_err) { }
+    }
+
+    try { sessionStorage.setItem('swipe-deck-client-user', user.id); } catch (_err) { }
+  }, [activeMode, user?.id, resetClientDeck, queryClient]);
 
   if (filterSignature !== prevFilterSignatureRef.current) {
     filterChangedRef.current = true;
@@ -445,6 +472,15 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
     if (deckQueueRef.current.length === 0 && smartData.length > 0) {
       deckQueueRef.current = smartData;
       setDeckLength(smartData.length);
+    } else if (activeMode === 'client' && smartData.length > 0) {
+      const firstIncoming = smartData[0]?.id;
+      const firstCurrent = deckQueueRef.current[currentIndexRef.current]?.id;
+      const userHasNotStartedThisDeck = currentIndexRef.current === 0 && swipedIdsRef.current.size === 0;
+      if (userHasNotStartedThisDeck && firstIncoming && firstIncoming !== firstCurrent) {
+        deckQueueRef.current = smartData;
+        setDeckLength(smartData.length);
+        setClientDeck(smartData, false);
+      }
     }
   }
 
@@ -734,7 +770,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
     resetClientDeck();
 
     try {
-      await queryClient.invalidateQueries({ queryKey: ['smart-listing-matches'] });
+      await queryClient.invalidateQueries({ queryKey: ['smart-listings'] });
       await queryClient.invalidateQueries({ queryKey: ['smart-client-matches'] });
       const refreshCategoryInfo = getActiveCategoryInfo(filters, storeActiveCategory);
       const refreshLabel = String(refreshCategoryInfo?.plural || 'Listings').toLowerCase();
@@ -903,13 +939,13 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
 
       <div
         className={cn(
-          "flex-1 relative flex w-full h-full items-center justify-center px-0 z-10 pointer-events-auto min-h-0 overflow-hidden"
+          "flex-1 relative flex w-full h-full items-stretch justify-center px-1 pt-1 z-10 pointer-events-auto min-h-0 overflow-hidden"
         )}
         {...pullDown.bind}
       >
         <SwipeDeckBackButton />
         <motion.div
-          className="relative w-full h-full mx-auto flex items-center justify-center pointer-events-auto md:max-w-[572px]"
+          className="relative w-full h-full mx-auto flex items-stretch justify-stretch pointer-events-auto md:max-w-[640px]"
           style={{ y: pullDown.y, scale: pullDown.scale, opacity: pullDown.opacity, filter: pullDown.blur }}
         >
           {/* Rounded backdrop matches card corners so deck blends into background */}
@@ -931,48 +967,42 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
                 transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
                 className="absolute inset-0 w-full h-full flex flex-col items-center justify-center p-0 mx-auto transform-gpu"
               >
-                {currentIndex + 1 < deckQueue.length && (
-                  <motion.div
-                    className="absolute inset-0 w-full h-full z-10"
-                    style={{
-                      scale: nextCardScale,
-                      opacity: nextCardOpacity,
-                      willChange: 'transform, opacity',
-                    }}
-                  >
-                    <SimpleSwipeCard
-                      key={deckQueue[currentIndex + 1].id}
-                      listing={deckQueue[currentIndex + 1]}
-                      onSwipe={() => { }}
-                      isTop={false}
-                    />
-                  </motion.div>
-                )}
-
-                <div className="absolute inset-0 w-full h-full z-20">
-                  <SimpleSwipeCard
-                    key={topCard?.id}
-                    ref={cardRef}
-                    listing={topCard}
-                    onSwipe={handleSwipe}
-                    onSkip={handleSkip}
-                    onSkipBack={handleSkipBack}
-                    onInsights={() => {
-                      handleInsights();
-                      if (onListingTap) onListingTap(topCard.id);
-                    }}
-                    onShare={handleShare}
-                    onReport={() => {
-                      setSelectedListing(topCard);
-                      setReportDialogOpen(true);
-                      triggerHaptic('medium');
-                    }}
-                    onDragStart={handleDragStart}
-                    isTop={true}
-                    externalX={topCardX}
-                    externalY={topCardY}
-                  />
-                </div>
+                {deckQueue.slice(currentIndex, currentIndex + 2).reverse().map((listing) => {
+                  const isTopCard = listing.id === topCard?.id;
+                  return (
+                    <motion.div
+                      key={listing.id}
+                      className={cn("absolute inset-0 w-full h-full", isTopCard ? "z-20" : "z-10")}
+                      style={!isTopCard ? {
+                        scale: nextCardScale,
+                        opacity: nextCardOpacity,
+                        willChange: 'transform, opacity',
+                      } : undefined}
+                    >
+                      <SimpleSwipeCard
+                        ref={isTopCard ? cardRef : undefined}
+                        listing={listing}
+                        onSwipe={isTopCard ? handleSwipe : () => {}}
+                        onSkip={isTopCard ? handleSkip : undefined}
+                        onSkipBack={isTopCard ? handleSkipBack : undefined}
+                        onInsights={isTopCard ? () => {
+                          handleInsights();
+                          if (onListingTap) onListingTap(listing.id);
+                        } : undefined}
+                        onShare={isTopCard ? handleShare : undefined}
+                        onReport={isTopCard ? () => {
+                          setSelectedListing(listing);
+                          setReportDialogOpen(true);
+                          triggerHaptic('medium');
+                        } : undefined}
+                        onDragStart={isTopCard ? handleDragStart : undefined}
+                        isTop={isTopCard}
+                        externalX={isTopCard ? topCardX : undefined}
+                        externalY={isTopCard ? topCardY : undefined}
+                      />
+                    </motion.div>
+                  );
+                })}
               </motion.div>
             ) : (
               <motion.div
@@ -1062,6 +1092,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
               listingId={topCard.id}
               title={topCard.title || 'Check out this listing'}
               description={topCard.description}
+              previewImage={(Array.isArray((topCard as any).images) && (topCard as any).images[0]) || (topCard as any).image_url || null}
             />
           )}
 

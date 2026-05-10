@@ -34,6 +34,7 @@ import { useTranslation } from 'react-i18next';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useFilterStore } from '@/state/filterStore';
 import { useModalStore } from '@/state/modalStore';
+import { useGuidedTourActive } from '@/state/guidedTourStore';
 import { useDeckHasCards } from '@/hooks/useDeckHasCards';
 
 const ICON_SIZE = 20;
@@ -83,6 +84,10 @@ export const BottomNavigation = memo(({
   const setModal = useModalStore((s) => s.setModal);
   const showAIListing = useModalStore((s) => s.showAIListing);
   const showAIChat = useModalStore((s) => s.showAIChat);
+  const showVapId = useModalStore((s) => s.showVapId);
+  const showTokensModal = useModalStore((s) => s.showTokensModal);
+  const showFilters = useModalStore((s) => s.showFilters);
+  const closeAll = useModalStore((s) => s.closeAll);
   const { unreadCount: _unreadCount } = useUnreadMessageCount();
   const { unreadCount: _unreadNotifCount } = useUnreadNotifications();
   const { isLight } = useAppTheme();
@@ -100,6 +105,10 @@ export const BottomNavigation = memo(({
   }, []);
 
   const openAIChat = useCallback(() => {
+    // While the guided tour is running, the Concierge launcher is reserved
+    // as a tour highlight target only — tapping it must NOT open the chat
+    // (that was crashing navigation). The tour itself explains it.
+    if (useGuidedTourActive.getState().isActive) return;
     prewarmAIChat();
     setModal('showAIChat', true);
   }, [prewarmAIChat, setModal]);
@@ -200,6 +209,8 @@ export const BottomNavigation = memo(({
         if (item.id === 'dashboard') {
           setCategories([]);
         }
+        // Pressing the current page's nav item also closes any open overlays
+        closeAll();
         window.scrollTo({ top: 0, behavior: 'smooth' });
         return;
       }
@@ -212,20 +223,19 @@ export const BottomNavigation = memo(({
         setTimeout(() => setRipple(null), 800);
       }
 
-      // Close any open full-screen modals before navigating to a new page
-      if (item.path) {
-        if (showAIListing) setModal('showAIListing', false);
-        if (showAIChat) setModal('showAIChat', false);
-      }
-
-      // Haptics already triggered on PointerDown if applicable
+      // Close other overlays first so the destination is fully visible,
+      // then perform the action. We do NOT toggle-close the same modal —
+      // each tap on a modal nav item just (re)opens it.
+      closeAll();
       if (item.onClick) {
-        item.onClick();
+        // Defer to next microtask so closeAll's state commit lands before
+        // the modal-open setModal — prevents any chance of being overwritten.
+        queueMicrotask(() => item.onClick && item.onClick());
       } else if (item.path) {
         navigate(item.path);
       }
     },
-    [navigate, location.pathname, setCategories, showAIListing, showAIChat, setModal],
+    [navigate, location.pathname, setCategories, closeAll, showAIListing, showAIChat, showVapId, showTokensModal, showFilters],
   );
 
   const handleNavKeyDown = useCallback(
@@ -246,6 +256,20 @@ export const BottomNavigation = memo(({
     if (!item.path) return false;
     // Exact match OR startsWith for sub-routes (e.g. /client/dashboard/*)
     return location.pathname === item.path || location.pathname.startsWith(item.path + '/');
+  };
+
+  // Modal items light up pink when their overlay is currently visible,
+  // so the user always knows which popup is on screen.
+  const isModalActive = (item: NavItem) => {
+    switch (item.id) {
+      case 'vapid': return showVapId;
+      case 'ai': return showAIChat;
+      case 'ai-listing': return showAIListing;
+      case 'tokens': return showTokensModal;
+      case 'search':
+      case 'filters': return showFilters;
+      default: return false;
+    }
   };
 
   const iconColorInactive = 'var(--icon-inactive)';
@@ -313,7 +337,7 @@ export const BottomNavigation = memo(({
         >
           {navItems.map((item) => {
             const Icon = item.icon;
-            const active = isActive(item);
+            const active = isActive(item) || isModalActive(item);
 
             return (
               <button

@@ -276,6 +276,7 @@ export default function PublicListingPreview() {
           listingId={id}
           title={listing.title || 'Swipess Listing'}
           description={`${listing.title || 'Listing'} — ${listing.beds || 0}B/${listing.baths || 0}B in ${listing.city || 'Tulum'} for $${listing.price?.toLocaleString() || '—'}.`}
+          previewImage={heroImage}
         />
       )}
     </div>

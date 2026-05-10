@@ -12,6 +12,9 @@ export function ShareModal({
 }) {
   const { user } = useAuth();
   const url = generateShareUrl({ eventId: event.id, referralId: user?.id });
+  const previewImage = event.image_url || (Array.isArray(event.image_urls)
+    ? event.image_urls.map((item: any) => typeof item === 'string' ? item : item?.url || item?.image_url || item?.src).find(Boolean)
+    : '') || '';
   
   const handleCopy = () => {
     navigator.clipboard.writeText(url);
@@ -61,8 +64,8 @@ export function ShareModal({
             className="fixed inset-x-0 bottom-0 z-[110] bg-zinc-900 border-t border-white/10 rounded-t-[2.5rem] px-6 pt-8 pb-[calc(2rem+env(safe-area-inset-bottom))] text-center"
           >
             <div className="w-12 h-1.5 bg-white/20 rounded-full mx-auto mb-8" />
-            <div className="w-20 h-20 rounded-[2rem] mx-auto mb-4 overflow-hidden shadow-2xl">
-              <img src={event.image_url || ''} className="w-full h-full object-cover" alt="" />
+            <div className="w-full aspect-[16/10] rounded-[2rem] mx-auto mb-5 overflow-hidden shadow-2xl bg-card border border-border">
+              <img src={previewImage} className="w-full h-full object-cover" alt={event.title} />
             </div>
             <h3 className="text-xl font-black text-white mb-2">Share this Event</h3>
             <p className="text-white/50 text-sm mb-8">Invite friends — they'll need to sign up to see the full event.</p>

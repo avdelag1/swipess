@@ -6,12 +6,15 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { triggerHaptic } from '@/utils/haptics';
 import { cn } from '@/lib/utils';
 import useAppTheme from '@/hooks/useAppTheme';
-import { CheetahSkinBackground } from '@/components/radio/CheetahSkinBackground';
+import { RadioSkinBackground } from '@/components/radio/RadioSkinBackground';
+import { useRadioSkin } from '@/hooks/useRadioSkin';
 
 function RadioMiniPlayerInner() {
   const { state, togglePlayPause, changeStation, pause, setMiniPlayerMode, setVolume, toggleFavorite, isStationFavorite, shuffleAndPlay } = useRadio();
-  // Cheetah skin always uses dark base — force dark UI tone
-  const isLight = false;
+  const { skin } = useRadioSkin();
+  const { isLight: appIsLight } = useAppTheme();
+  // Cheetah skin is always dark; theme skin follows the app theme
+  const isLight = skin === 'theme' && appIsLight;
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -137,7 +140,7 @@ function RadioMiniPlayerInner() {
           style={bottomStyle}
         >
           <div className="relative rounded-[28px] overflow-hidden shadow-[0_22px_70px_8px_rgba(0,0,0,0.56)] border border-white/15 text-white">
-            <CheetahSkinBackground />
+            <RadioSkinBackground />
             <div className="relative z-10">
             {/* Top bar */}
             <div className="flex items-center justify-between px-4 pt-3.5 pb-2">
@@ -149,7 +152,7 @@ function RadioMiniPlayerInner() {
               </button>
               <button
                 onClick={handleClose}
-                className={cn("w-7 h-7 rounded-full flex items-center justify-center transition-all active:scale-90", isLight ? "bg-black/[0.03] text-black/40" : "bg-white/5 text-white/70")}
+                className={cn("w-7 h-7 rounded-full flex items-center justify-center transition-all active:scale-90", isLight ? "bg-black/10 text-black/80" : "bg-white/15 text-white")}
               >
                 <X className="w-4 h-4" strokeWidth={2.5} />
               </button>
@@ -182,7 +185,7 @@ function RadioMiniPlayerInner() {
                   onClick={(e) => { e.stopPropagation(); toggleFavorite(station.id); triggerHaptic('light'); }} 
                   className={cn(
                     "w-10 h-10 rounded-full flex items-center justify-center active:scale-90 transition-colors", 
-                    isStationFavorite(station.id) ? "text-rose-500" : (isLight ? "text-slate-400" : "text-white/40")
+                    isStationFavorite(station.id) ? "text-rose-500" : (isLight ? "text-black/75" : "text-white/85")
                   )}
                   title="Like Station"
                 >
@@ -190,7 +193,7 @@ function RadioMiniPlayerInner() {
                 </button>
                 
                 <div className="flex items-center gap-2">
-                  <button onClick={handlePrev} className={cn("w-10 h-10 rounded-full flex items-center justify-center active:scale-90", isLight ? "text-slate-400" : "text-white/70")}>
+                  <button onClick={handlePrev} className={cn("w-10 h-10 rounded-full flex items-center justify-center active:scale-90", isLight ? "text-black/80" : "text-white/90")}>
                     <SkipBack className="w-5 h-5 fill-current" />
                   </button>
                   <button
@@ -199,14 +202,14 @@ function RadioMiniPlayerInner() {
                   >
                     {state.isPlaying ? <Pause className="w-7 h-7 fill-current" /> : <Play className="w-7 h-7 fill-current ml-1" />}
                   </button>
-                  <button onClick={handleNext} className={cn("w-10 h-10 rounded-full flex items-center justify-center active:scale-90", isLight ? "text-slate-400" : "text-white/70")}>
+                  <button onClick={handleNext} className={cn("w-10 h-10 rounded-full flex items-center justify-center active:scale-90", isLight ? "text-black/80" : "text-white/90")}>
                     <SkipForward className="w-5 h-5 fill-current" />
                   </button>
                 </div>
 
                 <button 
                   onClick={(e) => { e.stopPropagation(); navigate('/radio/directory?filter=favorites'); triggerHaptic('medium'); }} 
-                  className={cn("w-10 h-10 rounded-full flex items-center justify-center active:scale-90", isLight ? "text-slate-400" : "text-white/40")}
+                  className={cn("w-10 h-10 rounded-full flex items-center justify-center active:scale-90", isLight ? "text-black/75" : "text-white/85")}
                   title="Liked Stations"
                 >
                   <Star className="w-5 h-5" />
@@ -216,7 +219,7 @@ function RadioMiniPlayerInner() {
               <div className="flex items-center justify-center gap-6 pt-1 border-t border-white/5">
                 <button 
                   onClick={(e) => { e.stopPropagation(); shuffleAndPlay(); triggerHaptic('medium'); }} 
-                  className={cn("flex items-center gap-2 px-3 py-1.5 rounded-full active:scale-90 transition-all", state.isShuffle ? "text-primary bg-primary/10" : (isLight ? "text-slate-400 hover:bg-slate-100" : "text-white/40 hover:bg-white/5"))}
+                  className={cn("flex items-center gap-2 px-3 py-1.5 rounded-full active:scale-90 transition-all", state.isShuffle ? "text-primary bg-primary/10" : (isLight ? "text-black/80 hover:bg-black/10" : "text-white/85 hover:bg-white/10"))}
                   title="Shuffle All"
                 >
                   <Shuffle className={cn("w-4 h-4", state.isShuffle && "animate-spin-slow")} />
@@ -225,7 +228,7 @@ function RadioMiniPlayerInner() {
 
                 <button 
                   onClick={(e) => { e.stopPropagation(); navigate('/radio/directory'); triggerHaptic('medium'); }} 
-                  className={cn("flex items-center gap-2 px-3 py-1.5 rounded-full active:scale-90 transition-all", isLight ? "text-slate-400 hover:bg-slate-100" : "text-white/40 hover:bg-white/5")}
+                  className={cn("flex items-center gap-2 px-3 py-1.5 rounded-full active:scale-90 transition-all", isLight ? "text-black/80 hover:bg-black/10" : "text-white/85 hover:bg-white/10")}
                   title="All Stations"
                 >
                   <Radio className="w-4 h-4" />
