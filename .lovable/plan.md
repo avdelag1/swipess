@@ -1,33 +1,58 @@
-## Plan
+I found the main break: the AI Listing flow publishes directly to `listings` but does not send required backend fields like `user_id` and `location`, so the save can fail even after the AI extracts the text. It also redirects to the public listing page instead of taking the owner back to the main listings page.
 
-Fix the PWA swipe experience so real backend listings show reliably, client/owner decks open correctly, and the phone card nearly fills the screen with rounded corners.
+Plan:
 
-### 1. Fix listing feed connection
-- Update the client listing matching hook so it always queries the real backend listings table first.
-- Keep the existing backend RPC as an optimization, but do not let missing/empty RPC results make the deck look empty.
-- Make the fallback query include all active listings, with proper self-exclusion and category normalization.
-- Remove overly fragile deck filtering that can hide valid cards when categories are restored from PWA storage.
+1. Fix AI Listing creation
 
-### 2. Fix owner-side matching visibility
-- Add a safe fallback for owner discovery because the backend currently has `user_roles` as `client`, while `profiles.role` counts are empty.
-- Stop relying only on `profiles.role` for owner/client discovery.
-- Use `user_roles` as the source of truth, then merge profile/client profile data so owner swipe cards can show real users when available.
+- Make AI Listing require only one photo plus natural text, as requested.
+- Send the correct required listing fields to the backend: `user_id`, `owner_id`, `location`, `title`, `description`, `price`, `category`, `status`, `is_active`, and `images`.
+- Keep the AI extractor call, but strengthen its system instructions so it fills the right fields for property, motorcycle, bicycle, or worker/service listings.
+- If the AI response is incomplete, still publish using the user’s words instead of failing silently.
+- After publishing, invalidate listing queries and navigate to `/owner/properties`, not the public listing preview or edit flow.
 
-### 3. Stabilize PWA deck state
-- When real data arrives, force-seed the empty deck immediately instead of waiting for extra taps or stale session state.
-- Clear stale session deck state when filters/category/mode change.
-- Ensure PWA cache/service-worker behavior keeps backend API requests network-first and does not serve old empty data.
+2. Make the “Create Listing” action feel real and reliable
 
-### 4. Make mobile swipe cards cover the phone screen
-- Adjust the swipe deck frame and `SimpleSwipeCard` radius/size so cards fill almost the entire phone viewport while keeping premium rounded corners.
-- Preserve bottom action buttons and nav safe-area spacing so controls remain tappable.
-- Apply the same near-full-screen card treatment for both client listing cards and owner client cards.
+- Keep the large publish button as the AI action button.
+- Add keyboard submit support from the details step where appropriate, while preserving normal multiline typing on mobile.
+- Show clear progress states: uploading photo, AI polishing, publishing, done.
+- Replace the legacy Sonner calls in this flow with the app’s unified notification system.
 
-### 5. Keep popups/nav behavior clean
-- Keep AI Chat, AI Listing, ID Card, Tokens, and filters as mutually exclusive overlays.
-- Make modal nav icons visibly active when their popup is open.
-- Ensure tapping any normal route icon closes open popup windows so the next page is visible.
+3. Guarantee user listings appear before mock data
 
-### Technical notes
-- Files likely touched: `useSmartListingMatching.tsx`, `useSmartClientMatching.tsx`, `SwipessSwipeContainer.tsx`, `SimpleSwipeCard.tsx`, and possibly `BottomNavigation.tsx`/`AppLayout.tsx` if overlay state needs tightening.
-- No database schema change is expected unless the live RLS checks show frontend users still cannot read listings after the frontend fixes.
+- Update listing fetching so real user-created listings always sort first on both client and owner-side decks.
+- Normalize older rows where `owner_id` is missing by falling back to `user_id`.
+- Keep mock/seed rows after real listings only.
+- Make the ordering consistent across `useListings`, `useSmartListingMatching`, and owner listings.
+
+4. Seed mock data for all quick filters
+
+- Add backend seed data for every client-side quick filter:
+  - Property
+  - Motorcycle
+  - Bicycle
+  - Services/Worker
+- Add owner-side client discovery mock data for:
+  - All clients
+  - Buyers
+  - Renters
+  - Hire/service seekers
+- Make mock data clearly backend-backed, active, and swipe-ready, but always sorted after real users’ posts.
+
+5. Add event photos and backend events
+
+- Create or update events for the event categories used by the app:
+  - Beach
+  - Jungle
+  - Music
+  - Food/Restaurants
+  - Promo/Deals
+- Add two photos per event type.
+- Store the photos in the `event-images` bucket and save their public URLs into the events data (`image_url` plus `image_urls`).
+- Update the events feed query to fetch `image_urls` so event detail and cards can use the full gallery.
+
+6. Validate the backend and app behavior
+
+- Check listing counts by category after seeding.
+- Check event counts and confirm each category has two photos.
+- Test the AI Listing edge function with a realistic prompt.
+- Verify the owner listings page shows the newly created listing first, then seed/mock data after it. And the mini radio make the icons buttons black on white filter color bc I open and it was impossible to know what those empty white circles do 

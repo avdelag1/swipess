@@ -172,20 +172,18 @@ export function AIListingWizard() {
 
       // Phase 2 — AI extract + polish
       setProgressPhase('optimize');
-      const { data, error } = await supabase.functions.invoke('ai-listing-extract', {
-        body: {
-          task: 'extract',
-          category,
-          price,
-          city: cityLocation,
-          prompt,
-        },
-      });
-      if (error) throw error;
-      const payload = data as { data?: Record<string, unknown>; error?: string };
-      if (payload?.error) throw new Error(payload.error);
-      const parsed = payload?.data;
-      if (!parsed) throw new Error('AI returned no data');
+      let parsed: Record<string, unknown> = {};
+      try {
+        const { data, error } = await supabase.functions.invoke('ai-listing-extract', {
+          body: { task: 'extract', category, price, city: cityLocation, prompt },
+        });
+        if (!error) {
+          const payload = data as { data?: Record<string, unknown>; error?: string };
+          if (payload?.data) parsed = payload.data;
+        }
+      } catch (aiErr) {
+        console.warn('[AIListing] AI extract failed, publishing with raw prompt', aiErr);
+      }
       setProgressPct(72);
 
       // Phase 3 — Publish to DB
@@ -194,6 +192,7 @@ export function AIListingWizard() {
       const numericPrice = (parsed.price as number) || Number(price) || 0;
       const finalCity = (parsed.city as string) || cityLocation || 'Unknown';
       const listingPayload: Record<string, unknown> = {
+        user_id: user.id,
         owner_id: user.id,
         category: cat,
         listing_type: cat === 'worker' ? 'service' : 'rent',
@@ -207,6 +206,7 @@ export function AIListingWizard() {
         country: 'Mexico',
         state: finalCity,
         city: finalCity,
+        location: finalCity,
         images: uploadedUrls,
       };
       if (cat === 'property') {
@@ -245,13 +245,8 @@ export function AIListingWizard() {
       queryClient.invalidateQueries({ queryKey: ['listings'] });
       triggerHaptic('success');
       toast.success('Listing published');
-      const newId = (inserted as { id?: string } | null)?.id;
       handleClose();
-      if (newId) {
-        setTimeout(() => navigate(`/listing/${newId}`), 150);
-      } else {
-        setTimeout(() => navigate('/owner/properties'), 150);
-      }
+      setTimeout(() => navigate('/owner/properties', { replace: true }), 150);
     } catch (error) {
       console.error('AI Listing Publish Error:', error);
       const msg = error instanceof Error ? error.message : 'Something went wrong publishing your listing.';
