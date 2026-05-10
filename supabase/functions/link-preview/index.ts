@@ -11,7 +11,8 @@ const SUPABASE_KEY =
   Deno.env.get("SUPABASE_ANON_KEY") ??
   Deno.env.get("SUPABASE_PUBLISHABLE_KEY") ??
   "";
-const DEFAULT_APP_ORIGIN = (Deno.env.get("APP_ORIGIN") ?? "https://swipess.lovable.app").replace(/\/$/, "");
+const DEFAULT_APP_ORIGIN = (Deno.env.get("APP_ORIGIN") ?? "https://www.swipess.com").replace(/\/$/, "");
+const FALLBACK_IMAGE = "https://www.swipess.com/og-image-nexus.png";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -30,9 +31,19 @@ function escapeHtml(s: string): string {
 function isCrawler(ua: string): boolean {
   if (!ua) return false;
   const u = ua.toLowerCase();
-  return /whatsapp|instagram|tiktok|bytedance|telegrambot|facebookexternalhit|facebot|twitterbot|slackbot|discordbot|linkedinbot|skypeuripreview|applebot|googlebot|bingbot|embedly|redditbot|pinterest|vkshare|tumblr|w3c_validator|yahoo|duckduckbot|imessagepreview/i.test(
+  return /whatsapp|instagram|tiktok|bytedance|telegram|telegrambot|facebookexternalhit|facebot|twitterbot|slackbot|slack-imgproxy|discordbot|linkedinbot|skypeuripreview|applebot|googlebot|bingbot|embedly|redditbot|pinterest|vkshare|tumblr|w3c_validator|yahoo|duckduckbot|imessagepreview|messengerbot|snapchat|line\/|kakaotalk|viber|wechat|baiduspider|yandex|qwantify|petalbot|mastodon|fediverse|iframely|opengraph/i.test(
     u,
   );
+}
+
+function absolutize(maybeUrl: string | null | undefined, base: string): string | null {
+  if (!maybeUrl) return null;
+  const s = String(maybeUrl).trim();
+  if (!s) return null;
+  if (/^https?:\/\//i.test(s)) return s;
+  if (s.startsWith("//")) return `https:${s}`;
+  if (s.startsWith("/")) return `${base}${s}`;
+  return `${base}/${s}`;
 }
 
 function renderHtml(opts: {
@@ -138,7 +149,7 @@ Deno.serve(async (req: Request) => {
 
   let title = fallbackTitle;
   let description = fallbackDesc;
-  let image = fallbackImage;
+  let image: string = fallbackImage;
   let canonical = appOrigin;
 
   try {
