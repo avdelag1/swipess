@@ -2,7 +2,7 @@
 // never see preview/iframe hosts (e.g. id-preview--*.lovable.app) and links
 // don't carry third-party branding into WhatsApp / Instagram / Facebook.
 // Only swap to a custom domain — never to a preview/sandbox host.
-const PUBLIC_FALLBACK = 'https://swipess.com';
+const PUBLIC_FALLBACK = 'https://swipess.lovable.app';
 function getShareBaseUrl(): string {
   if (typeof window !== 'undefined' && window.location?.origin) {
     const origin = window.location.origin;
@@ -110,20 +110,20 @@ export function useIncrementShareClicks() {
   });
 }
 
-// Generate shareable URL - always use the public Swipess website with referral tracking.
-// These are the real app page URLs people should see. Production hosting rewrites
-// crawler requests for these paths to the link-preview function so WhatsApp,
-// Instagram, TikTok, iMessage, etc. still get the big photo preview.
+// Generate shareable URL - always use a clean Swipess website URL with referral tracking.
+// The /s/* path is a social-preview gateway: crawlers receive rich OG/Twitter
+// metadata with the real photo, while normal visitors are redirected into the
+// matching in-app page (/listing, /profile, /explore/eventos).
 export function generateShareUrl(params: ShareUrlParams): string {
   const appBase = getShareBaseUrl().replace(/\/$/, '');
   let url = appBase;
 
   if (params.listingId) {
-    url = `${appBase}/listing/${params.listingId}`;
+    url = `${appBase}/s/listing/${params.listingId}`;
   } else if (params.profileId) {
-    url = `${appBase}/profile/${params.profileId}`;
+    url = `${appBase}/s/profile/${params.profileId}`;
   } else if (params.eventId) {
-    url = `${appBase}/explore/eventos/${params.eventId}`;
+    url = `${appBase}/s/event/${params.eventId}`;
   }
 
   // Add a short referral code — strip dashes, take first 8 chars 
