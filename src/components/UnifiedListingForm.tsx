@@ -245,7 +245,6 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
       const rawListingData: Record<string, any> = {
         user_id: user.user.id,
         owner_id: user.user.id,
-        user_id: user.user.id, // RESTORED: Mandatory schema dependency
         category: selectedCategory,
         listing_type: selectedCategory === 'worker' ? 'service' : (formData.listing_type || selectedMode),
         mode: selectedMode,
