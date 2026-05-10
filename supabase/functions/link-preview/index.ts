@@ -179,13 +179,13 @@ Deno.serve(async (req: Request) => {
       canonical = `${APP_ORIGIN}/explore/eventos/${id}`;
       const { data } = await supabase
         .from("events")
-        .select("title, description, image_url, image_urls, cover_url, video_url")
+        .select("title, description, image_url, image_urls, video_url")
         .eq("id", id)
         .maybeSingle();
       if (data) {
         title = (data as any).title || fallbackTitle;
         description = (data as any).description || fallbackDesc;
-        image = pickImageFromRecord(data as any, ["cover_url", "image_url", "image_urls"]) || fallbackImage;
+        image = pickImageFromRecord(data as any, ["image_url", "image_urls"]) || fallbackImage;
       }
     }
   } catch (_e) {
