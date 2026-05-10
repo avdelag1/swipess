@@ -141,6 +141,10 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
         audioRef.current.pause();
         audioRef.current.src = '';
       }
+      if (audioContextRef.current) {
+        try { audioContextRef.current.close(); } catch {}
+        audioContextRef.current = null;
+      }
     };
   }, []);
 
@@ -536,8 +540,16 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
         navigator.mediaSession.setActionHandler('previoustrack', () => changeStationRef.current('prev'));
         navigator.mediaSession.setActionHandler('nexttrack', () => changeStationRef.current('next'));
       }
-    } catch (err) {
+    } catch (err: any) {
       isPlayingRef.current = false;
+      
+      // CRITICAL FIX: Ignore AbortError caused by the user hitting 'Next' rapidly.
+      // Otherwise, rapid skips blacklist all stations and 'crash' the radio.
+      if (err?.name === 'AbortError') {
+        logger.info('[RadioPlayer] Play aborted by rapid skip, ignoring');
+        return;
+      }
+
       logger.error('[RadioPlayer] Playback error:', err);
       failedStationsRef.current.add(targetStation.id);
       setError('Failed to play station, switching...');

@@ -21,7 +21,7 @@ import { EventCard } from '@/components/events/EventCard';
 import { ShareModal } from '@/components/events/ShareModal';
 
 // Static Data
-import { CATEGORIES } from '@/data/eventsData';
+import { CATEGORIES, MOCK_EVENTS } from '@/data/eventsData';
 import { EventItem } from '@/types/events';
 
 
@@ -164,6 +164,11 @@ export default function EventosFeed() {
         is_free: !!ev.is_free,
         price_text: ev.price_text || null,
       }));
+
+      // FALLBACK: Return mock events if database is empty
+      if (formatted.length === 0) {
+        return MOCK_EVENTS;
+      }
 
       return formatted;
     },

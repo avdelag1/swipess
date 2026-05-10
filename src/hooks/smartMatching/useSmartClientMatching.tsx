@@ -13,9 +13,8 @@ const CLIENT_FIELDS = `
     languages_spoken, neighborhood, bio, onboarding_completed
 `;
 
-// Demos disabled — show real users only.
-const DEMO_CLIENTS: any[] = [];
-const _DEPRECATED_DEMO_CLIENTS: any[] = [
+// Re-enabled demo clients as requested for testing
+const DEMO_CLIENTS: any[] = [
   {
     user_id: 'demo-client-buyer-1-disabled',
     full_name: 'Isabela Torres',
