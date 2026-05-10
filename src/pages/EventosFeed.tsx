@@ -5,7 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Heart, ArrowLeft, Megaphone, Pause, Play
+  Heart, ArrowLeft, Megaphone, Pause, Play, Sparkles
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
@@ -170,12 +170,8 @@ export default function EventosFeed() {
         created_by: ev.created_by || null,
       }));
 
-      // FALLBACK: Return mock events if database is empty
-      if (formatted.length === 0) {
-        return MOCK_EVENTS;
-      }
-
-      return formatted;
+      // MERGE: Always include mock events at the end for rich content during testing
+      return [...formatted, ...MOCK_EVENTS];
     },
     staleTime: 5 * 60 * 1000,
     placeholderData: [],
@@ -199,145 +195,112 @@ export default function EventosFeed() {
     return allEvents.filter(e => e.category === activeCategory);
   }, [allEvents, activeCategory, likedIds]);
 
-  useEffect(() => {
-    resetFeedPosition();
-  }, [activeCategory, resetFeedPosition]);
+  const rowVirtualizer = useVirtualizer({
+    count: filteredEvents.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => window.innerHeight,
+    overscan: 1,
+  });
 
   useEffect(() => {
-    if (activeIdx < filteredEvents.length) return;
-    resetFeedPosition();
-  }, [activeIdx, filteredEvents.length, resetFeedPosition]);
-
-  // Scroll & Virtualization
-  useEffect(() => {
-    const el = document.getElementById('dashboard-scroll-container') || parentRef.current;
+    const el = parentRef.current;
     if (!el) return;
 
     const handleScroll = () => {
-      const height = el.clientHeight || window.innerHeight || 1;
-      const newIdx = Math.round(el.scrollTop / height);
-      if (newIdx !== activeIdx && newIdx >= 0 && newIdx < filteredEvents.length) {
-        setActiveIdx(newIdx);
+      const idx = Math.round(el.scrollTop / el.clientHeight);
+      if (idx !== activeIdx) {
+        setActiveIdx(idx);
         setAnimKey(k => k + 1);
+        triggerHaptic('light');
+
+        const nextEv = filteredEvents[idx + 1];
+        if (nextEv) {
+          predictivePrefetchEvent(nextEv);
+        }
       }
     };
 
     el.addEventListener('scroll', handleScroll, { passive: true });
     return () => el.removeEventListener('scroll', handleScroll);
-  }, [activeIdx, filteredEvents.length]);
+  }, [activeIdx, filteredEvents]);
 
-  const rowVirtualizer = useVirtualizer({
-    count: filteredEvents.length,
-    getScrollElement: () => document.getElementById('dashboard-scroll-container') || parentRef.current,
-    estimateSize: () => window.innerHeight || 800,
-    overscan: 2,
-    initialOffset: 0,
-  });
-
-  // Auto-play Logic
-  const _pauseAutoPlay = useCallback(() => {
-    setIsPaused(true);
-    if (pauseTimeoutRef.current) clearTimeout(pauseTimeoutRef.current);
-    pauseTimeoutRef.current = setTimeout(() => {
-      setIsPaused(false);
-      setAnimKey(k => k + 1);
-    }, 3000);
-  }, []);
-
-  useEffect(() => {
-    const el = parentRef.current;
-    if (!el || !autoPlay || isPaused || filteredEvents.length <= 1) return;
-
-    const timeout = setTimeout(() => {
-      const height = el.clientHeight || window.innerHeight || 1;
-      if (activeIdx < filteredEvents.length - 1) {
-        const nextIdx = activeIdx + 1;
-        el.scrollTo({ top: nextIdx * height, behavior: 'smooth' });
-      }
-      setAnimKey(k => k + 1);
-    }, AUTOPLAY_DURATION);
-
-    return () => clearTimeout(timeout);
-  }, [autoPlay, isPaused, activeIdx, filteredEvents.length, animKey]);
-
-  useEffect(() => {
-    const nextBatch = filteredEvents.slice(activeIdx + 1, activeIdx + 6);
-    if (nextBatch.length > 0) {
-      import('@/utils/imageOptimization').then(({ pwaImagePreloader, getCardImageUrl }) => {
-        const urls = nextBatch.map(e => getCardImageUrl(pickEventImage(e) || ''));
-        pwaImagePreloader.batchPreload(urls);
-      });
+  const handleOpenChat = async (event: EventItem) => {
+    if (!user) {
+      toast.error("Please sign in to message the organizer");
+      return;
     }
-
-    for (let i = 1; i <= 3; i++) {
-      const preIdx = (activeIdx + i) % (filteredEvents.length + 1);
-      const preId = filteredEvents[preIdx]?.id;
-      if (preId) predictivePrefetchEvent(queryClient, preId);
+    if (!event.created_by) {
+      toast.error("Organizer contact not available");
+      return;
     }
-  }, [activeIdx, filteredEvents, queryClient]);
-
-  const handleOpenChat = useCallback(async (event: EventItem) => {
-    triggerHaptic('light');
-
-    if (event.created_by) {
-      if (isCreatingConversation) return;
-      setIsCreatingConversation(true);
-      try {
-        toast.info('Creating conversation...', { id: 'chat-create' });
-        const result = await startConversation.mutateAsync({
-          otherUserId: event.created_by,
-          initialMessage: `Hi! I'm interested in "${event.title}"`,
-          canStartNewConversation: true,
-        });
-        if (result?.conversationId) {
-          toast.success('Conversation created!', { id: 'chat-create' });
-          navigate(`/messages?conversationId=${result.conversationId}`);
-        }
-      } catch (err: any) {
-        toast.error(err.message || 'Could not start conversation', { id: 'chat-create' });
-      } finally {
-        setIsCreatingConversation(false);
-      }
-    } else {
-      const clean = (event.organizer_whatsapp || '').replace(/[^+\d]/g, '');
-      const msg = encodeURIComponent(`Hi! I'm interested in "${event.title}" — I found it on Swipess 🎉`);
-      window.open(`https://wa.me/${clean}?text=${msg}`, '_blank');
+    
+    setIsCreatingConversation(true);
+    try {
+      await startConversation(event.created_by, undefined);
+      navigate('/messages');
+    } catch (error) {
+      console.error('Failed to start conversation:', error);
+    } finally {
+      setIsCreatingConversation(false);
     }
-  }, [isCreatingConversation, startConversation, navigate]);
+  };
 
-  const handleShare = useCallback((event: EventItem) => {
-    triggerHaptic('light');
+  const handleShare = (event: EventItem) => {
     setShareEventData(event);
     setShowShareModal(true);
-  }, []);
+  };
 
-  const handleMiddleTap = useCallback((event: EventItem) => {
-    triggerHaptic('light');
-    navigate(`/explore/eventos/${event.id}`, { state: { eventData: event } });
-  }, [navigate]);
+  const handleMiddleTap = (event: EventItem) => {
+    navigate(`/explore/eventos/${event.id}`);
+  };
 
   return (
-    <div
-      className="relative w-full flex flex-col items-center justify-start bg-transparent min-h-screen"
-    >
-      <div className="absolute inset-0 bg-[#0a0a0b] -z-10" />
-      
-      {/* Floating HUD — now handled by global SwipessHud logic, this local wrapper just for custom styling */}
-      <div 
-        className={cn(
-          "fixed left-0 right-0 z-[100] transform-gpu px-4 pt-4 transition-all duration-300 ease-out",
-          "opacity-100 translate-y-0"
-        )}
-        style={{ top: '0px' }}
-      >
-        <div className="flex items-center gap-3 mt-12">
+    <div className={cn("relative h-screen w-full flex flex-col bg-background overflow-hidden", isLight ? "light" : "dark")}>
+      {/* Top Header */}
+      <div className="absolute top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-12 pointer-events-none">
+        <motion.button 
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          onClick={() => navigate(-1)}
+          className="w-10 h-10 rounded-full flex items-center justify-center pointer-events-auto active:scale-90 transition-transform"
+          style={hudGlassStyle}
+        >
+          <ArrowLeft className="w-5 h-5" />
+        </motion.button>
 
-          <div className="flex-1 flex gap-2 overflow-x-auto no-scrollbar scroll-smooth py-2">
+        <div className="flex gap-2 pointer-events-auto">
+          <motion.button 
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            onClick={() => setAutoPlay(!autoPlay)}
+            className={cn("w-10 h-10 rounded-full flex items-center justify-center active:scale-90 transition-transform", autoPlay && "bg-primary text-white border-primary shadow-lg shadow-primary/20")}
+            style={autoPlay ? {} : hudGlassStyle}
+          >
+            {isPaused ? <Play className="w-4 h-4" /> : <Pause className="w-4 h-4" />}
+          </motion.button>
+          
+          <motion.button 
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            onClick={() => navigate('/owner/promote-event')}
+            className="h-10 px-4 rounded-full flex items-center gap-2 active:scale-90 transition-transform font-bold text-xs uppercase tracking-widest"
+            style={hudGlassStyle}
+          >
+            <Megaphone className="w-4 h-4 text-orange-500" />
+            {t('eventos.featured')}
+          </motion.button>
+        </div>
+      </div>
+
+      {/* Category Strip */}
+      <div className="absolute top-28 left-0 right-0 z-40 px-6 overflow-hidden">
+        <div className="relative">
+          <div className="flex gap-2 overflow-x-auto no-scrollbar scroll-smooth py-2">
             {CATEGORIES.map((cat) => {
-              const Icon = cat.icon;
               const active = activeCategory === cat.key;
-              const catColor = cat.color || '#f97316';
-              
+              const Icon = cat.icon;
+              const catColor = cat.color;
+
               return (
                 <button 
                   key={cat.key} 
@@ -414,12 +377,20 @@ export default function EventosFeed() {
       {/* Main Feed */}
       {filteredEvents.length === 0 ? (
         <div className="absolute inset-0 flex items-center justify-center px-6 pt-32">
-          <div className="w-full max-w-sm rounded-[30px] px-6 py-7 text-center" style={hudGlassStyle}>
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="w-full max-w-sm rounded-[30px] px-6 py-7 text-center"
+            style={hudGlassStyle}
+          >
+            <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-6 mx-auto">
+              <Sparkles className="w-8 h-8 text-primary/40" />
+            </div>
             <p className={cn("text-lg font-black tracking-tight", isLight ? "text-foreground" : "text-white")}> 
-              {activeCategory === 'likes' ? t('events.noLikedEvents') : t('events.noEvents')}
+              {activeCategory === 'likes' ? t('eventos.noLikedEvents') : t('eventos.noEvents')}
             </p>
             <p className={cn("mt-2 text-sm", isLight ? "text-foreground/70" : "text-white/70")}>
-              {t('events.noEventsDesc')}
+              {t('eventos.noEventsDesc')}
             </p>
             <button
               onClick={() => setActiveCategory('all')}
@@ -432,14 +403,14 @@ export default function EventosFeed() {
                 background: isLight ? 'rgba(255,255,255,0.56)' : 'rgba(255,255,255,0.12)',
               }}
             >
-              {t('events.allEvents')}
+              {t('eventos.allEvents')}
             </button>
-          </div>
+          </motion.div>
         </div>
       ) : (
         <div 
           ref={parentRef} 
-          className="w-full flex-1"
+          className="w-full flex-1 snap-y snap-mandatory overflow-y-auto no-scrollbar"
         >
           <div style={{ height: `${rowVirtualizer.getTotalSize()}px`, position: 'relative' }}>
             {rowVirtualizer.getVirtualItems().map((virtualRow) => {
@@ -482,5 +453,3 @@ export default function EventosFeed() {
     </div>
   );
 }
-
-

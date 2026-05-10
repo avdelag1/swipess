@@ -1,28 +1,56 @@
-import { memo } from 'react';
-import { motion } from 'framer-motion';
-import { Megaphone } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Megaphone, ArrowRight, Star, Sparkles } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
 import useAppTheme from '@/hooks/useAppTheme';
 
-export const PromoteCTACard = memo(({ onPromote }: { onPromote: () => void }) => {
+const PROMO_IMAGES = [
+  '/images/events/beach_party_user.jpg',
+  '/images/events/jungle_party_user.jpg',
+  '/images/events/cenote_party_user.jpg'
+];
+
+export const PromoteCTACard: React.FC = () => {
+  const navigate = useNavigate();
   const { theme } = useAppTheme();
   const isLight = theme === 'light';
+  const [currentImgIdx, setCurrentImgIdx] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentImgIdx((prev) => (prev + 1) % PROMO_IMAGES.length);
+    }, 4000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const handlePromote = () => {
+    triggerHaptic('medium');
+    navigate('/owner/promote-event');
+  };
 
   return (
-    <div
+    <div 
       className={cn(
-        "relative w-full h-full flex flex-col items-center justify-center px-8 transition-colors duration-500 overflow-hidden",
+        "relative w-full h-full rounded-[3rem] overflow-hidden flex flex-col items-center justify-center p-8 text-center border border-white/10",
         isLight ? "bg-white" : "bg-[#0a0a0b]"
       )}
     >
-      {/* Background Image */}
+      {/* Background Carousel */}
       <div className="absolute inset-0 z-0">
-        <img 
-          src="/images/events/cenote_party_user.jpg" 
-          alt="" 
-          className="w-full h-full object-cover opacity-30 grayscale-[0.5] scale-110" 
-        />
+        <AnimatePresence mode="wait">
+          <motion.img 
+            key={currentImgIdx}
+            src={PROMO_IMAGES[currentImgIdx]} 
+            initial={{ opacity: 0, scale: 1.1 }}
+            animate={{ opacity: 0.4, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 1.5, ease: "easeInOut" }}
+            alt="" 
+            className="w-full h-full object-cover grayscale-[0.3]" 
+          />
+        </AnimatePresence>
         <div 
           className={cn(
             "absolute inset-0 bg-gradient-to-b",
@@ -37,52 +65,57 @@ export const PromoteCTACard = memo(({ onPromote }: { onPromote: () => void }) =>
 
       <motion.div
         initial={{ opacity: 0, y: 40 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        className="text-center space-y-6 relative z-10"
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+        className="relative z-10 flex flex-col items-center"
       >
-        <div className="w-20 h-20 rounded-[2rem] mx-auto flex items-center justify-center bg-gradient-to-br from-orange-500/20 to-purple-600/20 border border-orange-500/40 shadow-[0_0_40px_rgba(249,115,22,0.15)]">
-          <Megaphone className="w-9 h-9 text-orange-400" />
+        <div className="mb-6 relative">
+          <div className="w-20 h-20 rounded-[2rem] bg-orange-500 flex items-center justify-center shadow-2xl shadow-orange-500/40 transform -rotate-6">
+            <Megaphone className="w-10 h-10 text-white" />
+          </div>
+          <motion.div 
+            animate={{ scale: [1, 1.2, 1], opacity: [0.5, 1, 0.5] }}
+            transition={{ duration: 2, repeat: Infinity }}
+            className="absolute -top-2 -right-2 bg-pink-500 rounded-full p-2"
+          >
+            <Sparkles className="w-4 h-4 text-white" />
+          </motion.div>
         </div>
 
-        <div>
-          <div className="text-[11px] font-black uppercase tracking-[0.3em] text-orange-400/80 mb-3">For Businesses</div>
-          <h2 className={cn("text-4xl font-black leading-[1] tracking-tighter mb-3", isLight ? "text-black" : "text-white")}>
-            Want to<br />
-            <span className="bg-gradient-to-br from-[#FF4D00] to-[#EB4898] bg-clip-text text-transparent">
-              Promote here?
-            </span>
+        <div className="space-y-2 mb-8">
+          <span className="text-[10px] font-black uppercase tracking-[0.3em] text-orange-500 bg-orange-500/10 px-3 py-1 rounded-full">
+            Advertise Events
+          </span>
+          <h2 className="text-5xl font-black italic uppercase tracking-tighter leading-none">
+            Promote
           </h2>
-          <p className={cn("text-sm leading-relaxed max-w-[260px] mx-auto font-medium", isLight ? "text-black/50" : "text-white/50")}>
-            Reach 15,000+ Tulum locals, expats & tourists with your event, restaurant, or brand
+          <p className="text-sm font-medium text-muted-foreground max-w-[200px]">
+            Reach thousands of clients instantly.
           </p>
         </div>
 
-        <div className="flex justify-center gap-6">
-          {[['15k+', 'Users'], ['120k+', 'Views/mo'], ['89%', 'Engagement']].map(([val, label]) => (
-            <div key={label} className="text-center">
-              <div className={cn("font-black text-lg", isLight ? "text-black" : "text-white")}>{val}</div>
-              <div className={cn("text-[10px] font-bold uppercase tracking-wider", isLight ? "text-black/70" : "text-white/70")}>{label}</div>
-            </div>
-          ))}
-        </div>
-
-        <motion.button
-          whileTap={{ scale: 0.95 }}
-          onClick={() => { triggerHaptic('medium'); onPromote(); }}
-          className="w-full max-w-[280px] py-5 rounded-[2rem] font-black text-white flex items-center justify-center gap-3 bg-gradient-to-br from-[#FF4D00] to-[#EB4898] shadow-[0_12px_40px_rgba(255,77,0,0.35)] active:scale-95 transition-transform"
-          data-testid="btn-promote-event"
-          title="Promote my event"
+        <button
+          onClick={handlePromote}
+          className="group relative flex items-center gap-3 bg-white text-black px-8 py-5 rounded-full font-black text-xs uppercase tracking-widest overflow-hidden transition-all hover:scale-105 active:scale-95 shadow-xl"
         >
-          <Megaphone className="w-5 h-5" />
-          Promote My Event
-        </motion.button>
+          <div className="absolute inset-0 bg-gradient-to-r from-orange-500/20 to-pink-500/20 opacity-0 group-hover:opacity-100 transition-opacity" />
+          <span className="relative z-10">Engage Discovery</span>
+          <ArrowRight className="w-4 h-4 relative z-10 group-hover:translate-x-1 transition-transform" />
+        </button>
 
-        <p className={cn("text-[11px] font-bold", isLight ? "text-black/25" : "text-white/25")}>Starting from $50 MXN/week</p>
+        <div className="mt-8 flex items-center gap-4">
+          <div className="flex -space-x-3">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="w-8 h-8 rounded-full border-2 border-background bg-muted overflow-hidden">
+                <img src={`https://i.pravatar.cc/100?img=${i + 10}`} alt="" />
+              </div>
+            ))}
+          </div>
+          <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+            Used by 150+ Organizers
+          </span>
+        </div>
       </motion.div>
     </div>
   );
-});
-
-
+};
