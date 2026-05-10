@@ -11,6 +11,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
+import useAppTheme from '@/hooks/useAppTheme';
 
 interface Props {
   isOpen: boolean;
@@ -33,6 +34,7 @@ const arrayToCsv = (arr: unknown): string => {
 
 export function VapIdEditModal({ isOpen, onClose }: Props) {
   const { user } = useAuth();
+  const { isLight } = useAppTheme();
   const queryClient = useQueryClient();
   const [uploading, setUploading] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -52,7 +54,7 @@ export function VapIdEditModal({ isOpen, onClose }: Props) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('client_profiles')
-        .select('bio, city, nationality, years_in_city, languages, interests, personality_traits, preferred_activities')
+        .select('bio, occupation, city, nationality, years_in_city, languages, interests, personality_traits, preferred_activities')
         .eq('user_id', user!.id)
         .maybeSingle();
       if (error) throw error;
@@ -63,7 +65,7 @@ export function VapIdEditModal({ isOpen, onClose }: Props) {
   useEffect(() => {
     if (!clientProfile) return;
     setBio(clientProfile.bio || '');
-    setOccupation((clientProfile as any).occupation || '');
+    setOccupation(clientProfile.occupation || '');
     setCity(clientProfile.city || '');
     setNationality(clientProfile.nationality || '');
     setYearsInCity(clientProfile.years_in_city != null ? String(clientProfile.years_in_city) : '');
@@ -179,25 +181,37 @@ export function VapIdEditModal({ isOpen, onClose }: Props) {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: '100%' }}
           transition={{ type: 'spring', damping: 30, stiffness: 350 }}
-          className="fixed inset-0 z-[10001] flex flex-col bg-background overflow-hidden"
+          className={cn(
+            "fixed inset-0 z-[10001] flex flex-col overflow-hidden",
+            isLight ? "bg-white" : "bg-[#0a0a0b]"
+          )}
         >
-          <div className="flex items-center justify-between border-b border-border px-5 py-3 shrink-0">
+          <div className={cn(
+            "flex items-center justify-between border-b px-5 py-4 shrink-0",
+            isLight ? "border-black/10 bg-white" : "border-white/10 bg-[#0a0a0b]"
+          )}>
             <div>
-              <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary">Edit</p>
-              <h2 className="mt-0.5 text-base font-black tracking-tight text-foreground">Resident Card Settings</h2>
+              <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[#FF4D00]">Edit</p>
+              <h2 className={cn("mt-0.5 text-base font-black tracking-tight", isLight ? "text-black" : "text-white")}>Resident Card Settings</h2>
             </div>
-            <button onClick={onClose} className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card text-muted-foreground hover:text-foreground" aria-label="Close">
+            <button onClick={onClose} className={cn(
+              "flex h-9 w-9 items-center justify-center rounded-full border active:scale-95 transition",
+              isLight ? "border-black/10 bg-gray-100 text-black" : "border-white/10 bg-white/5 text-white"
+            )} aria-label="Close">
               <X className="h-4 w-4" />
             </button>
           </div>
 
-          <div className="flex-1 overflow-y-auto overscroll-contain px-4 pb-32 pt-5 scroll-smooth">
+          <div className="flex-1 overflow-y-auto overscroll-contain px-4 pb-36 pt-5 scroll-smooth">
             {/* About / Bio */}
-            <section className="rounded-[24px] border border-border bg-card p-4 shadow-lg">
+            <section className={cn(
+              "rounded-[24px] border p-4 shadow-lg",
+              isLight ? "border-black/10 bg-white" : "border-white/10 bg-white/[0.03]"
+            )}>
               <div className="mb-3">
-                <p className="text-[11px] font-black uppercase tracking-[0.22em] text-primary">About Me</p>
-                <h3 className="mt-1 text-sm font-black text-foreground">Card description</h3>
-                <p className="mt-1 text-[11px] text-muted-foreground">A short bio shown on the front of your card.</p>
+                <p className="text-[11px] font-black uppercase tracking-[0.22em] text-[#FF4D00]">About Me</p>
+                <h3 className={cn("mt-1 text-sm font-black", isLight ? "text-black" : "text-white")}>Card description</h3>
+                <p className={cn("mt-1 text-[11px]", isLight ? "text-gray-500" : "text-white/50")}>A short bio shown on the front of your card.</p>
               </div>
               <Textarea
                 value={bio}
@@ -207,14 +221,17 @@ export function VapIdEditModal({ isOpen, onClose }: Props) {
                 maxLength={240}
                 className="min-h-[90px] text-sm"
               />
-              <p className="mt-1 text-[10px] text-muted-foreground text-right">{bio.length}/240</p>
+              <p className={cn("mt-1 text-[10px] text-right", isLight ? "text-gray-400" : "text-white/30")}>{bio.length}/240</p>
             </section>
 
             {/* Details */}
-            <section className="mt-5 rounded-[24px] border border-border bg-card p-4 shadow-lg">
+            <section className={cn(
+              "mt-5 rounded-[24px] border p-4 shadow-lg",
+              isLight ? "border-black/10 bg-white" : "border-white/10 bg-white/[0.03]"
+            )}>
               <div className="mb-3">
-                <p className="text-[11px] font-black uppercase tracking-[0.22em] text-primary">Details</p>
-                <h3 className="mt-1 text-sm font-black text-foreground">Personal info</h3>
+                <p className="text-[11px] font-black uppercase tracking-[0.22em] text-[#FF4D00]">Details</p>
+                <h3 className={cn("mt-1 text-sm font-black", isLight ? "text-black" : "text-white")}>Personal info</h3>
               </div>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <LabeledField label="Occupation">
@@ -239,14 +256,20 @@ export function VapIdEditModal({ isOpen, onClose }: Props) {
             </section>
 
             {/* Documents */}
-            <section className="mt-5 rounded-[24px] border border-border bg-card p-4 shadow-lg">
+            <section className={cn(
+              "mt-5 rounded-[24px] border p-4 shadow-lg",
+              isLight ? "border-black/10 bg-white" : "border-white/10 bg-white/[0.03]"
+            )}>
               <div className="mb-4 flex items-start justify-between">
                 <div>
-                  <p className="text-[11px] font-black uppercase tracking-[0.22em] text-primary">Documents</p>
-                  <h3 className="mt-1 text-sm font-black text-foreground">Verification files</h3>
+                  <p className="text-[11px] font-black uppercase tracking-[0.22em] text-[#FF4D00]">Documents</p>
+                  <h3 className={cn("mt-1 text-sm font-black", isLight ? "text-black" : "text-white")}>Verification files</h3>
                 </div>
-                <div className="rounded-xl border border-border bg-muted/40 px-3 py-1.5 text-right">
-                  <p className="text-xs font-black text-foreground">{documentSummary.verified}✓ · {documentSummary.pending} pending</p>
+                <div className={cn(
+                  "rounded-xl border px-3 py-1.5 text-right",
+                  isLight ? "border-black/10 bg-gray-50" : "border-white/10 bg-white/[0.04]"
+                )}>
+                  <p className={cn("text-xs font-black", isLight ? "text-black" : "text-white")}>{documentSummary.verified}✓ · {documentSummary.pending} pending</p>
                 </div>
               </div>
               <div className="space-y-2.5">
@@ -254,12 +277,15 @@ export function VapIdEditModal({ isOpen, onClose }: Props) {
                   const status = getDocStatus(key);
                   const doc = getDocMeta(key);
                   return (
-                    <div key={key} className="flex items-center gap-3 rounded-[18px] border border-border bg-muted/40 p-3">
+                    <div key={key} className={cn(
+                      "flex items-center gap-3 rounded-[18px] border p-3",
+                      isLight ? "border-black/10 bg-gray-50" : "border-white/10 bg-white/[0.04]"
+                    )}>
                       <div className={cn(
                         'flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border',
-                        status === 'verified' ? 'border-primary/20 bg-primary/10 text-primary'
-                          : status === 'pending' ? 'border-border bg-secondary text-foreground'
-                          : 'border-border bg-muted text-muted-foreground'
+                        status === 'verified' ? 'border-[#FF4D00]/20 bg-[#FF4D00]/10 text-[#FF4D00]'
+                          : status === 'pending' ? (isLight ? 'border-black/10 bg-gray-100 text-black' : 'border-white/10 bg-white/10 text-white')
+                          : (isLight ? 'border-black/10 bg-gray-100 text-gray-400' : 'border-white/10 bg-white/5 text-white/40')
                       )}>
                         {uploading === key ? <Loader2 className="h-4 w-4 animate-spin" />
                           : status === 'verified' ? <CheckCircle2 className="h-4 w-4" />
@@ -267,15 +293,17 @@ export function VapIdEditModal({ isOpen, onClose }: Props) {
                           : <Upload className="h-4 w-4" />}
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="text-sm font-black text-foreground">{label}</p>
-                        <p className="mt-0.5 truncate text-xs text-muted-foreground">{doc?.file_name || 'Not uploaded'}</p>
+                        <p className={cn("text-sm font-black", isLight ? "text-black" : "text-white")}>{label}</p>
+                        <p className={cn("mt-0.5 truncate text-xs", isLight ? "text-gray-500" : "text-white/50")}>{doc?.file_name || 'Not uploaded'}</p>
                       </div>
                       <button
                         onClick={() => status !== 'verified' && handleDocUpload(key)}
                         disabled={uploading === key || status === 'verified'}
                         className={cn(
                           'rounded-xl px-3 py-1.5 text-[11px] font-black active:scale-95',
-                          status === 'verified' ? 'bg-secondary text-muted-foreground cursor-default' : 'bg-primary text-primary-foreground'
+                          status === 'verified' 
+                            ? (isLight ? 'bg-gray-100 text-gray-400 cursor-default' : 'bg-white/5 text-white/30 cursor-default')
+                            : 'bg-[#FF4D00] text-white'
                         )}
                       >
                         {status === 'verified' ? 'Done' : status === 'pending' ? 'Replace' : 'Upload'}
@@ -288,11 +316,17 @@ export function VapIdEditModal({ isOpen, onClose }: Props) {
           </div>
 
           {/* Sticky save bar */}
-          <div className="sticky bottom-0 border-t border-border bg-background/95 px-4 pt-3 pb-[max(12px,env(safe-area-inset-bottom))] shadow-[0_-8px_24px_hsl(var(--foreground)/0.08)]">
+          <div className={cn(
+            "sticky bottom-0 border-t px-4 pt-3 pb-[max(16px,env(safe-area-inset-bottom))] shadow-[0_-12px_40px_rgba(0,0,0,0.25)]",
+            isLight ? "border-black/10 bg-white" : "border-white/10 bg-[#0a0a0b]"
+          )}>
             <button
               onClick={handleSave}
               disabled={saving}
-              className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-primary text-primary-foreground text-sm font-black uppercase tracking-[0.2em] shadow-lg active:scale-[0.98] disabled:opacity-60"
+              className="flex h-14 w-full items-center justify-center gap-2 rounded-2xl text-white text-sm font-black uppercase tracking-[0.2em] shadow-xl active:scale-[0.98] disabled:opacity-60"
+              style={{
+                background: 'linear-gradient(135deg, #FF4D00, #EB4898)',
+              }}
             >
               {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
               {saving ? 'Saving…' : 'Save card'}
@@ -319,8 +353,8 @@ function LabeledField({
   return (
     <div className={cn('flex flex-col gap-1.5', className)}>
       <div className="flex items-baseline justify-between gap-2">
-        <label className="text-[10px] font-black uppercase tracking-[0.22em] text-muted-foreground">{label}</label>
-        {hint && <span className="text-[9px] font-medium text-muted-foreground/70">{hint}</span>}
+        <label className="text-[10px] font-black uppercase tracking-[0.22em] text-gray-500">{label}</label>
+        {hint && <span className="text-[9px] font-medium text-gray-400">{hint}</span>}
       </div>
       {children}
     </div>
