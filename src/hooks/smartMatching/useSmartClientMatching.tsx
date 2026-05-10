@@ -190,6 +190,20 @@ export function useSmartClientMatching(
     const filtersKey = useMemo(() => filters ? JSON.stringify(filters) : '', [filters]);
     const { data: adminIds } = useAdminUserIds();
 
+    const normalizeImageList = (...sources: unknown[]): string[] => {
+        const urls: string[] = [];
+        const push = (value: unknown) => {
+            if (typeof value === 'string' && value.trim()) urls.push(value.trim());
+            else if (Array.isArray(value)) value.forEach(push);
+            else if (value && typeof value === 'object') {
+                const record = value as Record<string, unknown>;
+                push(record.url || record.image_url || record.src || record.publicUrl);
+            }
+        };
+        sources.forEach(push);
+        return Array.from(new Set(urls)).filter(url => !url.includes('placeholder'));
+    };
+
     const { data: userSwipes } = useQuery({
         queryKey: ['user-client-swipes', userId],
         queryFn: async () => {
@@ -307,8 +321,19 @@ export function useSmartClientMatching(
                             finalClients = finalClients.filter(c => (c.client_type || 'unknown') === clientTypeMap[_category]);
                         }
 
+                        const normalizedClients = finalClients.map((c: any) => {
+                            const images = normalizeImageList(c.profile_images, c.images, c.avatar_url);
+                            return {
+                                ...c,
+                                id: c.id || c.user_id,
+                                name: c.name || c.full_name || 'User',
+                                profile_images: images,
+                                images,
+                            };
+                        }).filter((c: any) => c.profile_images.length > 0);
+
                         // Always append demos (real first) so testing data is never lost
-                        const withDemos = appendDemoClients(finalClients as any);
+                        const withDemos = appendDemoClients(normalizedClients as any);
                         if (withDemos.length > 0) {
                             runIdleTask(() => {
                                 const imagesToPrewarm = withDemos.flatMap((p: any) => p.profile_images || p.images || []).slice(0, 5);
