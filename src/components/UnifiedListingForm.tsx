@@ -117,6 +117,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
   const [formData, setFormData] = useState<Record<string, unknown>>({});
   const [editingId, setEditingId] = useState<string | null>(null);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
+  const [uploadProgress, setUploadProgress] = useState<number | null>(null);
 
   // Use refs to track latest values for mutation (avoids closure staleness)
   const imagesRef = useRef(images);
@@ -205,9 +206,17 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
       let uploadedImageUrls: string[] = [];
       if (currentImageFiles.length > 0) {
         appToast.info('Uploading photos…', `Sending ${currentImageFiles.length} photo${currentImageFiles.length > 1 ? 's' : ''}.`);
+        setUploadProgress(2);
         // Normalize HEIC + shrink large photos before upload so storage never rejects them.
         const prepared = await compressImages(currentImageFiles, LISTING_COMPRESSION);
-        uploadedImageUrls = await uploadPhotoBatch(user.user.id, prepared, 'listing-images');
+        setUploadProgress(15);
+        uploadedImageUrls = await uploadPhotoBatch(
+          user.user.id,
+          prepared,
+          'listing-images',
+          (p) => setUploadProgress(15 + Math.floor(p * 0.8)),
+        );
+        setUploadProgress(98);
       }
 
       const allImages = [...currentImages, ...uploadedImageUrls];
@@ -356,6 +365,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
       }
     },
     onSuccess: (listing) => {
+      setUploadProgress(null);
       uiSounds.playUploadComplete();
       if (editingId) {
         appToast.success('Listing updated');
@@ -377,6 +387,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
       navigate('/owner/properties', { replace: true });
     },
     onError: (error: Error) => {
+      setUploadProgress(null);
       queryClient.invalidateQueries({ queryKey: ['owner-listings'] });
       queryClient.invalidateQueries({ queryKey: ['listings'] });
       logger.error('[UnifiedListingForm] Save failed:', error);
