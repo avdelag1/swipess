@@ -20,7 +20,7 @@ import { VirtualizedMessageList } from '@/components/VirtualizedMessageList';
 import { useContentModeration } from '@/hooks/useContentModeration';
 import { usePrefetchManager } from '@/hooks/usePrefetchManager';
 import { RatingSubmissionDialog } from '@/components/RatingSubmissionDialog';
-import { TokensModal } from '@/components/TokensModal';
+import { useModalStore } from '@/state/modalStore';
 import useAppTheme from '@/hooks/useAppTheme';
 import { cn } from '@/lib/utils';
 import { usePresence } from '@/hooks/usePresence';
