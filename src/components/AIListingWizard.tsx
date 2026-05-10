@@ -172,20 +172,18 @@ export function AIListingWizard() {
 
       // Phase 2 — AI extract + polish
       setProgressPhase('optimize');
-      const { data, error } = await supabase.functions.invoke('ai-listing-extract', {
-        body: {
-          task: 'extract',
-          category,
-          price,
-          city: cityLocation,
-          prompt,
-        },
-      });
-      if (error) throw error;
-      const payload = data as { data?: Record<string, unknown>; error?: string };
-      if (payload?.error) throw new Error(payload.error);
-      const parsed = payload?.data;
-      if (!parsed) throw new Error('AI returned no data');
+      let parsed: Record<string, unknown> = {};
+      try {
+        const { data, error } = await supabase.functions.invoke('ai-listing-extract', {
+          body: { task: 'extract', category, price, city: cityLocation, prompt },
+        });
+        if (!error) {
+          const payload = data as { data?: Record<string, unknown>; error?: string };
+          if (payload?.data) parsed = payload.data;
+        }
+      } catch (aiErr) {
+        console.warn('[AIListing] AI extract failed, publishing with raw prompt', aiErr);
+      }
       setProgressPct(72);
 
       // Phase 3 — Publish to DB
