@@ -31,6 +31,42 @@ const CATEGORIES = [
   { id: 'worker', label: 'Job / Service', icon: Briefcase, color: 'text-amber-400', bg: 'bg-amber-400/10' },
 ] as const;
 
+const getMissingSchemaColumn = (message?: string | null) => {
+  if (!message) return null;
+  const quoted = message.match(/['"]([^'"]+)['"]\s+column|column\s+['"]([^'"]+)['"]|find the ['"]([^'"]+)['"] column/i);
+  return quoted?.[1] || quoted?.[2] || quoted?.[3] || null;
+};
+
+const saveAIListingWithSchemaRetry = async (payload: Record<string, unknown>) => {
+  let safeData = { ...payload };
+  const removedColumns = new Set<string>();
+
+  for (let attempt = 0; attempt < 25; attempt += 1) {
+    const result = await supabase
+      .from('listings')
+      .insert(safeData as never)
+      .select()
+      .single();
+
+    if (!result.error) return result.data;
+
+    const errorMsg = result.error.message?.toLowerCase() || '';
+    const isSchemaError = errorMsg.includes('could not find') || errorMsg.includes('schema cache') || errorMsg.includes('column');
+    const missingColumn = getMissingSchemaColumn(result.error.message);
+
+    if (!isSchemaError || !missingColumn || safeData[missingColumn] === undefined || removedColumns.has(missingColumn)) {
+      throw result.error;
+    }
+
+    removedColumns.add(missingColumn);
+    const { [missingColumn]: _removed, ...nextData } = safeData;
+    safeData = nextData;
+    console.warn(`[AIListing] Live schema rejected "${missingColumn}" — retrying without it.`);
+  }
+
+  throw new Error('Listing publish failed after adapting to the live schema.');
+};
+
 
 export function AIListingWizard() {
   const { showAIListing, aiListingCategory, aiListingDraft, setModal } = useModalStore();
