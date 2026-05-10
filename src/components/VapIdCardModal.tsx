@@ -97,7 +97,7 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
             exit={{ scale: 0.8, opacity: 0, y: 100 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300, mass: 0.8 }}
             onClick={(e) => e.stopPropagation()}
-            className="relative w-[94vw] max-w-[560px] h-[92vh] max-h-[92vh] flex flex-col"
+            className="relative w-[98vw] max-w-none h-[98dvh] max-h-[98dvh] flex flex-col"
           >
             <div className="flex items-center justify-between mb-3 px-1 gap-2">
               <button
