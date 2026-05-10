@@ -219,7 +219,14 @@ export const BottomNavigation = memo(({
       }
 
       // Map of nav items that open a global modal — used to toggle/close
-      const modalKeyById: Record<string, keyof typeof modalOpenMap> = {
+      const modalOpenMap: Record<string, boolean> = {
+        showVapId,
+        showAIChat,
+        showAIListing,
+        showTokensModal,
+        showFilters,
+      };
+      const modalKeyById: Record<string, string> = {
         vapid: 'showVapId',
         ai: 'showAIChat',
         'ai-listing': 'showAIListing',
@@ -227,14 +234,6 @@ export const BottomNavigation = memo(({
         search: 'showFilters',
         filters: 'showFilters',
       };
-      const modalOpenMap = {
-        showVapId,
-        showAIChat,
-        showAIListing,
-        showTokensModal,
-        showFilters,
-      };
-
       const targetModalKey = modalKeyById[item.id];
 
       // Tapping the SAME modal item while it's open => close it
