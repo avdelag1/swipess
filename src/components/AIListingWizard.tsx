@@ -174,12 +174,24 @@ export function AIListingWizard() {
       setProgressPhase('optimize');
       let parsed: Record<string, unknown> = {};
       try {
-        const { data, error } = await supabase.functions.invoke('ai-listing-extract', {
+        const aiPromise = supabase.functions.invoke('ai-listing-extract', {
           body: { task: 'extract', category, price, city: cityLocation, prompt },
         });
+        const aiTimeout = new Promise<{ data: null; error: Error }>((resolve) =>
+          setTimeout(
+            () => resolve({ data: null, error: new Error('AI extract timed out after 15s') }),
+            15000
+          )
+        );
+        const { data, error } = (await Promise.race([aiPromise, aiTimeout])) as {
+          data: unknown;
+          error: unknown;
+        };
         if (!error) {
           const payload = data as { data?: Record<string, unknown>; error?: string };
           if (payload?.data) parsed = payload.data;
+        } else {
+          console.warn('[AIListing] AI extract skipped:', error);
         }
       } catch (aiErr) {
         console.warn('[AIListing] AI extract failed, publishing with raw prompt', aiErr);
@@ -230,12 +242,23 @@ export function AIListingWizard() {
         if (sc) listingPayload.service_category = sc;
       }
 
-      const { data: inserted, error: insertErr } = await supabase
+      console.log('[AIListing] Publishing payload:', listingPayload);
+      const insertPromise = supabase
         .from('listings')
         .insert(listingPayload as never)
         .select()
         .single();
-      if (insertErr) throw insertErr;
+      const insertTimeout = new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error('Publish timed out after 20s. Please try again.')), 20000)
+      );
+      const { data: inserted, error: insertErr } = (await Promise.race([
+        insertPromise,
+        insertTimeout,
+      ])) as { data: unknown; error: { message?: string } | null };
+      if (insertErr) {
+        console.error('[AIListing] Insert error:', insertErr);
+        throw new Error(insertErr.message || 'Failed to publish listing');
+      }
       setProgressPct(95);
 
       // Phase 4 — Redirect
