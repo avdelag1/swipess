@@ -233,6 +233,7 @@ export function useSmartListingMatching(
         const owner = listing?.owner_id || listing?.user_id;
         return owner === '00000000-0000-0000-0000-000000000000'
             || owner === '00000000-0000-0000-0000-000000000001'
+            || owner === '7c51f110-6261-44d8-b9d0-d4ccd2d901b6'
             || listing?.isDemo === true;
     }, []);
 
