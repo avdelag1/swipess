@@ -66,7 +66,6 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
   const [newMessage, setNewMessage] = useState('');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
-  const [showTokensModal, setShowTokensModal] = useState(false);
   const [showActivationBanner, setShowActivationBanner] = useState(false);
   const [showRatingDialog, setShowRatingDialog] = useState(false);
   const { theme, isLight } = useAppTheme();
