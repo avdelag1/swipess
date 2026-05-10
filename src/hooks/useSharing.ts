@@ -118,7 +118,8 @@ export function generateShareUrl(params: ShareUrlParams): string {
   // which host serves the SPA (Vercel rewrites only fire on Vercel-hosted
   // domains). Real users get auto-redirected to the SPA via meta refresh +
   // location.replace inside the function response.
-  const previewBase = 'https://vplgtcguxujxwrgguxqq.supabase.co/functions/v1/link-preview';
+  const previewBackend = 'https://vplgtcguxujxwrgguxqq.supabase.co';
+  const previewBase = `${previewBackend.replace(/\/$/, '')}/functions/v1/link-preview`;
   const appBase = 'https://swipess.com';
   let url = appBase;
 
