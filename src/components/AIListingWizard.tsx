@@ -194,6 +194,7 @@ export function AIListingWizard() {
       const numericPrice = (parsed.price as number) || Number(price) || 0;
       const finalCity = (parsed.city as string) || cityLocation || 'Unknown';
       const listingPayload: Record<string, unknown> = {
+        user_id: user.id,
         owner_id: user.id,
         category: cat,
         listing_type: cat === 'worker' ? 'service' : 'rent',
@@ -207,6 +208,7 @@ export function AIListingWizard() {
         country: 'Mexico',
         state: finalCity,
         city: finalCity,
+        location: finalCity,
         images: uploadedUrls,
       };
       if (cat === 'property') {
@@ -245,13 +247,8 @@ export function AIListingWizard() {
       queryClient.invalidateQueries({ queryKey: ['listings'] });
       triggerHaptic('success');
       toast.success('Listing published');
-      const newId = (inserted as { id?: string } | null)?.id;
       handleClose();
-      if (newId) {
-        setTimeout(() => navigate(`/listing/${newId}`), 150);
-      } else {
-        setTimeout(() => navigate('/owner/properties'), 150);
-      }
+      setTimeout(() => navigate('/owner/properties', { replace: true }), 150);
     } catch (error) {
       console.error('AI Listing Publish Error:', error);
       const msg = error instanceof Error ? error.message : 'Something went wrong publishing your listing.';
