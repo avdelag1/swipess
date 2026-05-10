@@ -22,7 +22,8 @@ import { toast } from 'sonner';
 import { useFilterStore } from '@/state/filterStore';
 import { generateShareUrl } from '@/hooks/useSharing';
 import { ImagePlus, Loader2 } from 'lucide-react';
-import { uploadPhotoBatch, compressImages, LISTING_COMPRESSION } from '@/utils/photoUpload';
+import { uploadPhotoBatch } from '@/utils/photoUpload';
+import { compressImages, LISTING_COMPRESSION } from '@/utils/imageCompression';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 
