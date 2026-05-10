@@ -1,153 +1,100 @@
-import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useGuidedTour } from '@/hooks/useGuidedTour';
 import { X, ChevronRight, ChevronLeft } from 'lucide-react';
-import { cn } from '@/lib/utils';
 
+/**
+ * Bottom-anchored coachmark sheet.
+ *
+ * Why the redesign: the previous tooltip popped over the page and blocked
+ * interaction; tapping outside fired skipTour, which collided with the
+ * floating Concierge bubble underneath and caused unwanted navigation. The
+ * new layout slides a slim translucent strip up from the bottom safe-area
+ * so the user can keep seeing the page being explained while reading the
+ * guide. The dim layer is fully click-through (`pointer-events-none`); only
+ * the strip itself receives pointer events.
+ */
 export function GuidedTour() {
   const { isActive, currentStep, totalSteps, step, nextStep, prevStep, skipTour } = useGuidedTour();
-  const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
-
-  useEffect(() => {
-    if (!isActive || !step) return;
-    if (step.welcome) { setTargetRect(null); return; }
-
-    let scrolled = false;
-    const updateRect = () => {
-      const el = document.querySelector(step.target);
-      if (el) {
-        setTargetRect(el.getBoundingClientRect());
-        // Only scroll once per step — re-running scrollIntoView every 500ms
-        // was causing the whole page to jitter while the tour was active.
-        if (!scrolled) {
-          scrolled = true;
-          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-      } else {
-        setTargetRect(null);
-      }
-    };
-    updateRect();
-    // Just keep the spotlight in sync with resize/scroll — no re-scrolling.
-    window.addEventListener('resize', updateRect);
-    window.addEventListener('scroll', updateRect, { passive: true });
-    return () => {
-      window.removeEventListener('resize', updateRect);
-      window.removeEventListener('scroll', updateRect);
-    };
-  }, [isActive, step, currentStep]);
 
   if (!isActive || !step) return null;
-
-  const padding = 8;
-  const spotlightStyle = targetRect ? {
-    top: targetRect.top - padding,
-    left: targetRect.left - padding,
-    width: targetRect.width + padding * 2,
-    height: targetRect.height + padding * 2,
-  } : null;
-
-  // Calculate tooltip position
-  const tooltipWidth = 280;
-  const tooltipStyle: React.CSSProperties = {};
-  if (targetRect) {
-    const pos = step.position || 'bottom';
-    // Center tooltip on target, clamped to screen with 16px margin
-    const centeredLeft = targetRect.left + targetRect.width / 2 - tooltipWidth / 2;
-    const clampedLeft = Math.max(16, Math.min(centeredLeft, window.innerWidth - tooltipWidth - 16));
-    if (pos === 'bottom') {
-      tooltipStyle.top = targetRect.bottom + padding + 12;
-      tooltipStyle.left = clampedLeft;
-    } else if (pos === 'top') {
-      tooltipStyle.bottom = window.innerHeight - targetRect.top + padding + 12;
-      tooltipStyle.left = clampedLeft;
-    }
-  } else {
-    // Use pixel values — avoids conflict with Framer Motion's own transform system
-    tooltipStyle.top = Math.max(16, window.innerHeight / 2 - 100);
-    tooltipStyle.left = Math.max(16, (window.innerWidth - tooltipWidth) / 2);
-  }
 
   return createPortal(
     <AnimatePresence>
       <motion.div
+        key="guided-tour-root"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[9999]"
+        className="fixed inset-0 z-[9998] pointer-events-none"
       >
-        {/* Dark overlay */}
-        <div className="absolute inset-0 bg-black/70" onClick={skipTour} />
+        {/* Soft top + bottom vignette so the strip reads cleanly without blocking taps */}
+        <div
+          aria-hidden
+          className="absolute inset-x-0 bottom-0 h-[55%] bg-gradient-to-t from-black/60 via-black/20 to-transparent"
+        />
 
-        {/* Spotlight cutout */}
-        {spotlightStyle && (
-          <motion.div
-            layoutId="spotlight"
-            className="absolute rounded-2xl border-2 border-primary/50 shadow-[0_0_40px_rgba(var(--primary),0.3)]"
-            style={{
-              ...spotlightStyle,
-              boxShadow: `0 0 0 9999px rgba(0,0,0,0.7), 0 0 30px rgba(var(--primary),0.2)`,
-              background: 'transparent',
-              pointerEvents: 'none',
-            }}
-            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-          />
-        )}
-
-        {/* Tooltip — explicit dark card so contrast is predictable across all themes */}
         <motion.div
           key={currentStep}
-          initial={{ opacity: 0, y: 10, scale: 0.95 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: -10 }}
-          className="absolute w-[280px] rounded-2xl shadow-2xl p-4 space-y-3"
-          style={{ ...tooltipStyle, backgroundColor: '#1a1a1a', border: '1px solid rgba(255,255,255,0.12)' }}
+          initial={{ opacity: 0, y: 28 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 16 }}
+          transition={{ type: 'spring', stiffness: 380, damping: 34 }}
+          className="pointer-events-auto absolute left-3 right-3 rounded-[28px] overflow-hidden border border-white/10 backdrop-blur-2xl"
+          style={{
+            bottom: 'calc(env(safe-area-inset-bottom, 0px) + 16px)',
+            background: 'linear-gradient(180deg, rgba(20,20,22,0.92) 0%, rgba(8,8,10,0.96) 100%)',
+            boxShadow: '0 24px 60px rgba(0,0,0,0.55)',
+          }}
         >
-          {/* Progress dots */}
-          <div className="flex items-center justify-between">
+          {/* Progress strip */}
+          <div className="flex items-center justify-between px-4 pt-3">
             <div className="flex gap-1.5">
               {Array.from({ length: totalSteps }).map((_, i) => (
                 <div
                   key={i}
-                  className={cn("h-1.5 rounded-full transition-all", i === currentStep ? "w-4" : "w-1.5")}
-                  style={{ backgroundColor: i <= currentStep ? '#ffffff' : 'rgba(255,255,255,0.3)' }}
+                  className="h-1 rounded-full transition-all"
+                  style={{
+                    width: i === currentStep ? 18 : 6,
+                    backgroundColor: i <= currentStep ? '#ffffff' : 'rgba(255,255,255,0.22)',
+                  }}
                 />
               ))}
             </div>
-            <button onClick={skipTour} aria-label="Close tour" style={{ color: 'rgba(255,255,255,0.7)' }} className="hover:opacity-100 transition-opacity">
-              <X className="w-4 h-4" aria-hidden="true" />
+            <button
+              onClick={skipTour}
+              aria-label="Close tour"
+              className="w-7 h-7 -mr-1 flex items-center justify-center rounded-full text-white/70 hover:text-white hover:bg-white/10 transition-colors"
+            >
+              <X className="w-3.5 h-3.5" />
             </button>
           </div>
 
-          <div>
-            <p className="text-sm font-bold" style={{ color: '#ffffff' }}>{step.title}</p>
-            <p className="text-xs mt-1 leading-relaxed" style={{ color: 'rgba(255,255,255,0.85)' }}>{step.description}</p>
+          <div className="px-4 pt-2 pb-3">
+            <p className="text-[15px] font-bold tracking-tight text-white">{step.title}</p>
+            <p className="text-[13px] mt-1 leading-snug text-white/75">{step.description}</p>
           </div>
 
-          <div className="flex items-center gap-2 pt-1">
+          <div className="flex items-center gap-2 px-3 pb-3">
             {currentStep > 0 && (
               <button
                 onClick={prevStep}
-                className="inline-flex items-center gap-1 rounded-xl text-xs h-9 px-4 font-semibold transition-opacity hover:opacity-90"
-                style={{ backgroundColor: 'rgba(255,255,255,0.08)', color: '#ffffff', border: '1px solid rgba(255,255,255,0.18)' }}
+                className="inline-flex items-center gap-1 rounded-2xl text-[12px] h-10 px-3.5 font-semibold text-white bg-white/8 border border-white/12 active:scale-95 transition-transform"
               >
                 <ChevronLeft className="w-3.5 h-3.5" />
                 Back
               </button>
             )}
-            <div className="flex-1" />
             <button
               onClick={skipTour}
-              className="inline-flex items-center rounded-xl text-xs h-9 px-3 font-semibold transition-opacity hover:opacity-90"
-              style={{ backgroundColor: 'transparent', color: 'rgba(255,255,255,0.7)' }}
+              className="inline-flex items-center rounded-2xl text-[12px] h-10 px-3 font-semibold text-white/65 active:scale-95 transition-transform"
             >
               Skip
             </button>
+            <div className="flex-1" />
             <button
               onClick={nextStep}
-              className="inline-flex items-center gap-1 rounded-xl text-xs h-9 px-4 font-bold transition-opacity hover:opacity-90"
-              style={{ backgroundColor: '#ffffff', color: '#000000', boxShadow: '0 8px 20px rgba(0,0,0,0.35)' }}
+              className="inline-flex items-center gap-1.5 rounded-2xl text-[12px] h-10 px-5 font-bold text-black bg-white shadow-[0_8px_20px_rgba(0,0,0,0.35)] active:scale-95 transition-transform"
             >
               {currentStep === totalSteps - 1 ? 'Done' : 'Next'}
               {currentStep < totalSteps - 1 && <ChevronRight className="w-3.5 h-3.5" />}

@@ -112,20 +112,22 @@ export function useIncrementShareClicks() {
 
 // Generate shareable URL - always use production domain with referral tracking
 export function generateShareUrl(params: ShareUrlParams): string {
-  // Share links stay on the swipess.com domain. The /s/* routes are
-  // rewritten at the edge to the link-preview function so messengers
-  // (WhatsApp, iMessage, Telegram, etc.) still see rich Open Graph
-  // previews with the real listing photo + title, while users see a
-  // clean branded URL.
+  // Share links point DIRECTLY at the link-preview edge function. This
+  // guarantees crawlers (WhatsApp, iMessage, Telegram, FB, Instagram) get
+  // the rendered OG HTML with the real listing photo + title, regardless of
+  // which host serves the SPA (Vercel rewrites only fire on Vercel-hosted
+  // domains). Real users get auto-redirected to the SPA via meta refresh +
+  // location.replace inside the function response.
+  const previewBase = 'https://vplgtcguxujxwrgguxqq.supabase.co/functions/v1/link-preview';
   const appBase = 'https://swipess.com';
   let url = appBase;
 
   if (params.listingId) {
-    url = `${appBase}/s/listing/${params.listingId}`;
+    url = `${previewBase}/listing/${params.listingId}`;
   } else if (params.profileId) {
-    url = `${appBase}/s/profile/${params.profileId}`;
+    url = `${previewBase}/profile/${params.profileId}`;
   } else if (params.eventId) {
-    url = `${appBase}/s/event/${params.eventId}`;
+    url = `${previewBase}/event/${params.eventId}`;
   }
 
   // Add a short referral code — strip dashes, take first 8 chars 
