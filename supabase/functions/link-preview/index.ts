@@ -216,6 +216,10 @@ Deno.serve(async (req: Request) => {
     // fall through with defaults
   }
 
+  // Always provide an absolute https image — many crawlers (WhatsApp, iMessage)
+  // silently drop relative or non-https URLs.
+  image = absolutize(image, appOrigin) || FALLBACK_IMAGE;
+
   const qs = url.searchParams.toString();
   if (qs) canonical += (canonical.includes("?") ? "&" : "?") + qs;
 
