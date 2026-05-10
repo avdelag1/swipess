@@ -360,7 +360,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
               </button>
 
               <button
-                onClick={() => setShowTokensModal(true)}
+                onClick={() => useModalStore.getState().setModal('showTokensModal', true)}
                 className={cn("px-4 h-10 rounded-2xl flex items-center gap-2 transition-all",
                   isThemeLight ? "bg-rose-50 text-rose-500 hover:bg-rose-100" : "bg-rose-500/[0.08] text-rose-400 hover:bg-rose-500/[0.15] border border-rose-500/10"
                 )}
@@ -579,7 +579,6 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
         </div>
 
         <MessageActivationPackages isOpen={showUpgradeDialog} onClose={() => setShowUpgradeDialog(false)} userRole={currentUserRole} />
-        {showTokensModal && <TokensModal />}
         <RatingSubmissionDialog open={showRatingDialog} onOpenChange={setShowRatingDialog} targetId={listing?.id || otherUser.id} targetType={listing?.id ? 'listing' : 'user'} targetName={listing?.title || otherUser.full_name} categoryId={listing?.id ? (listing.category === 'vehicle' ? 'vehicle' : 'property') : 'client'} onSuccess={() => setShowRatingDialog(false)} />
       </div>
     </>
