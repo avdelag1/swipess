@@ -61,6 +61,39 @@ interface RadioContextType {
 
 const RadioContext = createContext<RadioContextType | undefined>(undefined);
 
+const fallbackRadioState: RadioPlayerState = {
+  isPlaying: false,
+  isPoweredOn: false,
+  currentStation: null,
+  currentCity: 'tulum',
+  volume: 0.7,
+  isShuffle: false,
+  favorites: [],
+  deadStationIds: [],
+  miniPlayerMode: 'closed',
+};
+
+const fallbackRadioContext: RadioContextType = {
+  state: fallbackRadioState,
+  loading: false,
+  error: null,
+  play: async () => {},
+  pause: () => {},
+  togglePlayPause: () => {},
+  togglePower: () => {},
+  changeStation: () => {},
+  setCity: () => {},
+  setVolume: () => {},
+  toggleShuffle: () => {},
+  shuffleAndPlay: () => {},
+  toggleFavorite: () => {},
+  isStationFavorite: () => false,
+  playPlaylist: () => {},
+  playFavorites: () => {},
+  setMiniPlayerMode: () => {},
+  getFrequencyData: () => new Uint8Array(0),
+};
+
 export function RadioProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -722,7 +755,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
 export function useRadio() {
   const context = useContext(RadioContext);
   if (context === undefined) {
-    throw new Error('useRadio must be used within a RadioProvider');
+    return fallbackRadioContext;
   }
   return context;
 }

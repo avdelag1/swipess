@@ -249,6 +249,8 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
 
       if (mode === 'stars') {
         spawnShootingStar(e.clientX, e.clientY);
+        // Meditation bowl chime on every background tap (cosmos mode)
+        if (!disableSoundsRef.current) uiSounds.playZenBowl();
       } else if (mode === 'sunset') {
         if (!disableSoundsRef.current) uiSounds.playZenBowl();
         const hh = window.innerHeight;

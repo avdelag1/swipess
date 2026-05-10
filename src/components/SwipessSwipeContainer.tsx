@@ -1092,6 +1092,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
               listingId={topCard.id}
               title={topCard.title || 'Check out this listing'}
               description={topCard.description}
+              previewImage={(Array.isArray((topCard as any).images) && (topCard as any).images[0]) || (topCard as any).image_url || null}
             />
           )}
 

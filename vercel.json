@@ -5,16 +5,49 @@
   "installCommand": "npm install",
   "rewrites": [
     {
+      "source": "/listing/:id",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(WhatsApp|whatsapp|Instagram|instagram|TikTok|ByteDance|facebookexternalhit|Facebot|Twitterbot|Slackbot|Discordbot|LinkedInBot|TelegramBot|Pinterest|SkypeUriPreview|Applebot|iMessagePreview).*"
+        }
+      ],
+      "destination": "https://qegyisokrxdsszzswsqk.supabase.co/functions/v1/link-preview/listing/:id"
+    },
+    {
+      "source": "/profile/:id",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(WhatsApp|whatsapp|Instagram|instagram|TikTok|ByteDance|facebookexternalhit|Facebot|Twitterbot|Slackbot|Discordbot|LinkedInBot|TelegramBot|Pinterest|SkypeUriPreview|Applebot|iMessagePreview).*"
+        }
+      ],
+      "destination": "https://qegyisokrxdsszzswsqk.supabase.co/functions/v1/link-preview/profile/:id"
+    },
+    {
+      "source": "/explore/eventos/:id",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(WhatsApp|whatsapp|Instagram|instagram|TikTok|ByteDance|facebookexternalhit|Facebot|Twitterbot|Slackbot|Discordbot|LinkedInBot|TelegramBot|Pinterest|SkypeUriPreview|Applebot|iMessagePreview).*"
+        }
+      ],
+      "destination": "https://qegyisokrxdsszzswsqk.supabase.co/functions/v1/link-preview/event/:id"
+    },
+    {
       "source": "/s/listing/:id",
-      "destination": "https://vplgtcguxujxwrgguxqq.supabase.co/functions/v1/link-preview/listing/:id"
+      "destination": "https://qegyisokrxdsszzswsqk.supabase.co/functions/v1/link-preview/listing/:id"
     },
     {
       "source": "/s/profile/:id",
-      "destination": "https://vplgtcguxujxwrgguxqq.supabase.co/functions/v1/link-preview/profile/:id"
+      "destination": "https://qegyisokrxdsszzswsqk.supabase.co/functions/v1/link-preview/profile/:id"
     },
     {
       "source": "/s/event/:id",
-      "destination": "https://vplgtcguxujxwrgguxqq.supabase.co/functions/v1/link-preview/event/:id"
+      "destination": "https://qegyisokrxdsszzswsqk.supabase.co/functions/v1/link-preview/event/:id"
     },
     {
       "source": "/(.*)",

@@ -592,6 +592,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
         listingId={sharingListing?.id}
         title={sharingListing?.title || 'Listing'}
         description={`${sharingListing?.title} - $${sharingListing?.price?.toLocaleString() || ''}`}
+        previewImage={(Array.isArray((sharingListing as any)?.images) && (sharingListing as any).images[0]) || (sharingListing as any)?.image_url || null}
       />
 
       <p className="fixed bottom-10 left-10 text-[8px] font-black uppercase tracking-[1em] opacity-10 pointer-events-none z-0">Asset Gallery Terminal v4.0</p>

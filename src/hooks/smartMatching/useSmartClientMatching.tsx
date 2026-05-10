@@ -190,6 +190,20 @@ export function useSmartClientMatching(
     const filtersKey = useMemo(() => filters ? JSON.stringify(filters) : '', [filters]);
     const { data: adminIds } = useAdminUserIds();
 
+    const normalizeImageList = (...sources: unknown[]): string[] => {
+        const urls: string[] = [];
+        const push = (value: unknown) => {
+            if (typeof value === 'string' && value.trim()) urls.push(value.trim());
+            else if (Array.isArray(value)) value.forEach(push);
+            else if (value && typeof value === 'object') {
+                const record = value as Record<string, unknown>;
+                push(record.url || record.image_url || record.src || record.publicUrl);
+            }
+        };
+        sources.forEach(push);
+        return Array.from(new Set(urls)).filter(url => !url.includes('placeholder'));
+    };
+
     const { data: userSwipes } = useQuery({
         queryKey: ['user-client-swipes', userId],
         queryFn: async () => {
@@ -307,8 +321,19 @@ export function useSmartClientMatching(
                             finalClients = finalClients.filter(c => (c.client_type || 'unknown') === clientTypeMap[_category]);
                         }
 
+                        const normalizedClients = finalClients.map((c: any) => {
+                            const images = normalizeImageList(c.profile_images, c.images, c.avatar_url);
+                            return {
+                                ...c,
+                                id: c.id || c.user_id,
+                                name: c.name || c.full_name || 'User',
+                                profile_images: images,
+                                images,
+                            };
+                        }).filter((c: any) => c.profile_images.length > 0);
+
                         // Always append demos (real first) so testing data is never lost
-                        const withDemos = appendDemoClients(finalClients as any);
+                        const withDemos = appendDemoClients(normalizedClients as any);
                         if (withDemos.length > 0) {
                             runIdleTask(() => {
                                 const imagesToPrewarm = withDemos.flatMap((p: any) => p.profile_images || p.images || []).slice(0, 5);
@@ -411,12 +436,8 @@ export function useSmartClientMatching(
                     .filter(p => (p as any).client_type !== 'business') // business/place exclusion
                     .map(p => {
                     const cp = cpMap.get(p.user_id);
-                    // Merge all available photo sources so real users always show their photo.
-                    const profileImgs = Array.isArray(p.images) ? p.images : [];
-                    const cpImgs = Array.isArray(cp?.profile_images) ? cp!.profile_images as any[] : [];
-                    const merged = [...profileImgs, ...cpImgs].filter(Boolean);
-                    if (merged.length === 0 && (p as any).avatar_url) merged.push((p as any).avatar_url);
-                    const finalImgs = merged.length > 0 ? merged : ['/placeholder.svg'];
+                    // Merge all available photo sources so real roommate cards always show their photo.
+                    const finalImgs = normalizeImageList((p as any).images, (cp as any)?.profile_images, (p as any).avatar_url);
                     return {
                         id: p.user_id, user_id: p.user_id, name: p.full_name || cp?.name || 'User',
                         age: p.age || cp?.age || 0, gender: p.gender || cp?.gender || '',

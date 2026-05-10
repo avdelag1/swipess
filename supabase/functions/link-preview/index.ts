@@ -5,11 +5,14 @@
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.4";
 
-// Hard-pin source-of-truth Supabase project (matches src/integrations/supabase/client.ts)
-const SUPABASE_URL = "https://vplgtcguxujxwrgguxqq.supabase.co";
-const SUPABASE_ANON_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwbGd0Y2d1eHVqeHdyZ2d1eHFxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgwMDI5MDIsImV4cCI6MjA2MzU3ODkwMn0.-TzSQ-nDho4J6TftVF4RNjbhr5cKbknQxxUT-AaSIJU";
-const APP_ORIGIN = "https://swipess.com";
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "https://qegyisokrxdsszzswsqk.supabase.co";
+const SUPABASE_KEY =
+  Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ??
+  Deno.env.get("SUPABASE_ANON_KEY") ??
+  Deno.env.get("SUPABASE_PUBLISHABLE_KEY") ??
+  "";
+const DEFAULT_APP_ORIGIN = (Deno.env.get("APP_ORIGIN") ?? "https://www.swipess.com").replace(/\/$/, "");
+const FALLBACK_IMAGE = "https://www.swipess.com/og-image-nexus.png";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -28,9 +31,19 @@ function escapeHtml(s: string): string {
 function isCrawler(ua: string): boolean {
   if (!ua) return false;
   const u = ua.toLowerCase();
-  return /whatsapp|telegrambot|facebookexternalhit|facebot|twitterbot|slackbot|discordbot|linkedinbot|skypeuripreview|applebot|googlebot|bingbot|embedly|redditbot|pinterest|vkshare|tumblr|w3c_validator|yahoo|duckduckbot|imessagepreview/i.test(
+  return /whatsapp|instagram|tiktok|bytedance|telegram|telegrambot|facebookexternalhit|facebot|twitterbot|slackbot|slack-imgproxy|discordbot|linkedinbot|skypeuripreview|applebot|googlebot|bingbot|embedly|redditbot|pinterest|vkshare|tumblr|w3c_validator|yahoo|duckduckbot|imessagepreview|messengerbot|snapchat|line\/|kakaotalk|viber|wechat|baiduspider|yandex|qwantify|petalbot|mastodon|fediverse|iframely|opengraph/i.test(
     u,
   );
+}
+
+function absolutize(maybeUrl: string | null | undefined, base: string): string | null {
+  if (!maybeUrl) return null;
+  const s = String(maybeUrl).trim();
+  if (!s) return null;
+  if (/^https?:\/\//i.test(s)) return s;
+  if (s.startsWith("//")) return `https:${s}`;
+  if (s.startsWith("/")) return `${base}${s}`;
+  return `${base}/${s}`;
 }
 
 function renderHtml(opts: {
@@ -63,15 +76,20 @@ function renderHtml(opts: {
 <meta property="og:description" content="${d}" />
 <meta property="og:image" content="${i}" />
 <meta property="og:image:secure_url" content="${i}" />
+<meta property="og:image:type" content="image/jpeg" />
 <meta property="og:image:alt" content="${t}" />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
 <meta property="og:url" content="${u}" />
+<meta property="og:locale" content="en_US" />
 
 <meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:site" content="@swipess" />
+<meta name="twitter:url" content="${u}" />
 <meta name="twitter:title" content="${t}" />
 <meta name="twitter:description" content="${d}" />
 <meta name="twitter:image" content="${i}" />
+<meta name="theme-color" content="#050505" />
 
 <link rel="canonical" href="${u}" />
 ${redirectTags}
@@ -98,40 +116,56 @@ function pickFirstImage(images: unknown): string | null {
   return null;
 }
 
+function pickImageFromRecord(record: Record<string, unknown>, keys: string[]): string | null {
+  for (const key of keys) {
+    const value = record[key];
+    if (typeof value === "string" && value.trim()) return value;
+    const picked = pickFirstImage(value);
+    if (picked) return picked;
+  }
+  return null;
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   const url = new URL(req.url);
+  const forwardedHost = req.headers.get("x-forwarded-host") || req.headers.get("x-original-host") || "";
+  const forwardedProto = req.headers.get("x-forwarded-proto") || "https";
+  const appOrigin = forwardedHost && !forwardedHost.includes("supabase.co")
+    ? `${forwardedProto}://${forwardedHost}`.replace(/\/$/, "")
+    : DEFAULT_APP_ORIGIN;
   const parts = url.pathname.split("/").filter(Boolean);
   // ["link-preview", "<kind>", "<id>"]
   const kind = parts[1];
   const id = parts[2];
 
-  const fallbackImage = `${APP_ORIGIN}/og-image-nexus.png`;
+  const fallbackImage = `${appOrigin}/og-image-nexus.png`;
   const fallbackTitle = "Swipess | Find Your Best Deal";
   const fallbackDesc =
     "Swipe through luxury villas, vehicles, and premium services. The future of discovery.";
 
   let title = fallbackTitle;
   let description = fallbackDesc;
-  let image = fallbackImage;
-  let canonical = APP_ORIGIN;
+  let image: string = fallbackImage;
+  let canonical = appOrigin;
 
   try {
     if (!id) throw new Error("missing id");
-    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    if (!SUPABASE_KEY) throw new Error("missing Supabase key");
+    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
     if (kind === "listing") {
-      canonical = `${APP_ORIGIN}/listing/${id}`;
+      canonical = `${appOrigin}/listing/${id}`;
       const { data } = await supabase
         .from("listings")
-        .select("title, city, neighborhood, price, beds, baths, images, category, listing_type")
+        .select("title, city, neighborhood, price, beds, baths, images, image_url, category, listing_type")
         .eq("id", id)
         .maybeSingle();
       if (data) {
-        const first = pickFirstImage((data as any).images);
+        const first = pickImageFromRecord(data as any, ["images", "image_url"]);
         if (first) image = first;
         title = (data as any).title || fallbackTitle;
         const loc = [(data as any).neighborhood, (data as any).city].filter(Boolean).join(", ");
@@ -146,7 +180,7 @@ Deno.serve(async (req: Request) => {
           .join(" · ") || fallbackDesc;
       }
     } else if (kind === "profile") {
-      canonical = `${APP_ORIGIN}/profile/${id}`;
+      canonical = `${appOrigin}/profile/${id}`;
       const { data: prof } = await supabase
         .from("profiles")
         .select("full_name, bio, avatar_url, user_id")
@@ -166,21 +200,25 @@ Deno.serve(async (req: Request) => {
         .limit(1);
       if (pi && pi[0]?.image_url) image = pi[0].image_url;
     } else if (kind === "event") {
-      canonical = `${APP_ORIGIN}/explore/eventos/${id}`;
+      canonical = `${appOrigin}/explore/eventos/${id}`;
       const { data } = await supabase
         .from("events")
-        .select("title, description, image_url, cover_url")
+        .select("title, description, image_url, image_urls, video_url")
         .eq("id", id)
         .maybeSingle();
       if (data) {
         title = (data as any).title || fallbackTitle;
         description = (data as any).description || fallbackDesc;
-        image = (data as any).cover_url || (data as any).image_url || fallbackImage;
+        image = pickImageFromRecord(data as any, ["image_url", "image_urls"]) || fallbackImage;
       }
     }
   } catch (_e) {
     // fall through with defaults
   }
+
+  // Always provide an absolute https image — many crawlers (WhatsApp, iMessage)
+  // silently drop relative or non-https URLs.
+  image = absolutize(image, appOrigin) || FALLBACK_IMAGE;
 
   const qs = url.searchParams.toString();
   if (qs) canonical += (canonical.includes("?") ? "&" : "?") + qs;
@@ -192,7 +230,7 @@ Deno.serve(async (req: Request) => {
   return new Response(html, {
     headers: {
       ...corsHeaders,
-      "content-type": "text/html; charset=utf-8",
+      "Content-Type": "text/html; charset=utf-8",
       "cache-control": "public, max-age=300",
     },
   });

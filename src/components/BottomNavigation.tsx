@@ -34,6 +34,7 @@ import { useTranslation } from 'react-i18next';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useFilterStore } from '@/state/filterStore';
 import { useModalStore } from '@/state/modalStore';
+import { useGuidedTourActive } from '@/state/guidedTourStore';
 import { useDeckHasCards } from '@/hooks/useDeckHasCards';
 
 const ICON_SIZE = 20;
@@ -104,6 +105,10 @@ export const BottomNavigation = memo(({
   }, []);
 
   const openAIChat = useCallback(() => {
+    // While the guided tour is running, the Concierge launcher is reserved
+    // as a tour highlight target only — tapping it must NOT open the chat
+    // (that was crashing navigation). The tour itself explains it.
+    if (useGuidedTourActive.getState().isActive) return;
     prewarmAIChat();
     setModal('showAIChat', true);
   }, [prewarmAIChat, setModal]);
