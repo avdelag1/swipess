@@ -15,7 +15,7 @@ import { RoommateFiltersSheet } from '@/components/filters/RoommateFiltersSheet'
 import { MessageConfirmationDialog } from '@/components/MessageConfirmationDialog';
 import { useSmartClientMatching } from '@/hooks/useSmartMatching';
 import { useSharing, useCreateShare, generateShareUrl } from '@/hooks/useSharing';
-import { ShareModal } from '@/components/ShareModal';
+import { ShareDialog } from '@/components/ShareDialog';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { AtmosphericLayer } from '@/components/AtmosphericLayer';
@@ -388,11 +388,13 @@ export default function RoommateMatching() {
         }}
       />
       {shareProfileData && (
-        <ShareModal
-          isOpen={showShareModal}
-          onClose={() => setShowShareModal(false)}
-          shareUrl={generateShareUrl({ profileId: shareProfileData.user_id })}
-          title={`Check out ${shareProfileData.name} on Swipess`}
+        <ShareDialog
+          open={showShareModal}
+          onOpenChange={(open) => setShowShareModal(open)}
+          profileId={shareProfileData.user_id}
+          title={shareProfileData.name}
+          description={`Check out ${shareProfileData.name} on Swipess`}
+          previewImage={shareProfileData.profile_images?.[0]}
         />
       )}
     </div>
