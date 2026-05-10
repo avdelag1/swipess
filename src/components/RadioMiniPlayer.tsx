@@ -7,11 +7,14 @@ import { triggerHaptic } from '@/utils/haptics';
 import { cn } from '@/lib/utils';
 import useAppTheme from '@/hooks/useAppTheme';
 import { RadioSkinBackground } from '@/components/radio/RadioSkinBackground';
+import { useRadioSkin } from '@/hooks/useRadioSkin';
 
 function RadioMiniPlayerInner() {
   const { state, togglePlayPause, changeStation, pause, setMiniPlayerMode, setVolume, toggleFavorite, isStationFavorite, shuffleAndPlay } = useRadio();
-  // Cheetah skin always uses dark base — force dark UI tone
-  const isLight = false;
+  const { skin } = useRadioSkin();
+  const { isLight: appIsLight } = useAppTheme();
+  // Cheetah skin is always dark; theme skin follows the app theme
+  const isLight = skin === 'theme' && appIsLight;
   const navigate = useNavigate();
   const location = useLocation();
 
