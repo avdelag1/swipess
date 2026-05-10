@@ -340,9 +340,12 @@ export function useSwipeWithMatch(options?: SwipeWithMatchOptions) {
         ];
         Promise.all(invalidations).catch(err => logger.error('[useSwipeWithMatch] Invalidation failed:', err));
       } else if (isLike && variables.targetType === 'listing') {
-        // Client liking listing - cache is updated manually in SwipessSwipeContainer after DB save
-        // Only invalidate matches to detect new matches (don't invalidate liked-properties to avoid refetch race)
-        queryClient.invalidateQueries({ queryKey: ['matches'] }).catch(err => logger.error('[useSwipeWithMatch] Matches invalidation failed:', err));
+        // Client liking listing
+        const invalidations = [
+          queryClient.invalidateQueries({ queryKey: ['matches'] }),
+          queryClient.invalidateQueries({ queryKey: ['liked-properties'] })
+        ];
+        Promise.all(invalidations).catch(err => logger.error('[useSwipeWithMatch] Invalidation failed:', err));
       } else if (isDislike) {
         // Invalidate dislikes cache so the disliked profiles are excluded from future fetches
         const invalidations = [

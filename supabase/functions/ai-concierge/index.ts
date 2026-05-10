@@ -16,6 +16,7 @@ const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY") || Deno.env.get("VIT
 interface ChatMessage {
   role: "user" | "assistant" | "system";
   content: string;
+  images?: string[];
 }
 
 // ─── Knowledge Search ───────────────────────────────────────────────────────
@@ -1096,10 +1097,24 @@ async function streamLovableAI(messages: ChatMessage[]): Promise<Response> {
       "Authorization": `Bearer ${LOVABLE_API_KEY}`,
     },
     body: JSON.stringify({
-      model: "google/gemini-3-flash-preview",
-      messages,
-      max_tokens: 280,
-      temperature: 0.6,
+      model: "google/gemini-2.5-flash-lite", 
+      messages: messages.map(m => {
+        if (m.images && m.images.length > 0) {
+          return {
+            role: m.role,
+            content: [
+              { type: "text", text: m.content },
+              ...m.images.map(url => ({
+                type: "image_url",
+                image_url: { url }
+              }))
+            ]
+          };
+        }
+        return m;
+      }),
+      max_tokens: 450,
+      temperature: 0.4,
       stream: true,
     }),
   });
@@ -1240,8 +1255,18 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const body = await req.json() as { messages: ChatMessage[]; character?: string; egoLevel?: number; charmLevel?: number; wisdomLevel?: number; sassLevel?: number; zenLevel?: number; flowLevel?: number };
-    const { messages, character, egoLevel, charmLevel, wisdomLevel, sassLevel, zenLevel, flowLevel } = body;
+    const body = await req.json() as { 
+      messages: ChatMessage[]; 
+      images?: string[]; // Optional images for multimodal chat
+      character?: string; 
+      egoLevel?: number; 
+      charmLevel?: number; 
+      wisdomLevel?: number; 
+      sassLevel?: number; 
+      zenLevel?: number; 
+      flowLevel?: number 
+    };
+    const { messages, images, character, egoLevel, charmLevel, wisdomLevel, sassLevel, zenLevel, flowLevel } = body;
 
     if (!messages || !Array.isArray(messages) || messages.length === 0) {
       return new Response(JSON.stringify({ error: "messages array is required" }), {
@@ -1279,10 +1304,16 @@ Deno.serve(async (req) => {
     // Build enriched system prompt with character support
     const systemPrompt = buildSystemPrompt({ promotedContacts, knowledge, listings, memories, webResults, profileResults, character, egoLevel, charmLevel, wisdomLevel, sassLevel, zenLevel, flowLevel });
 
-    // Prepare messages with enriched system prompt
+    // Prepare messages with enriched system prompt and multimodal content
     const enrichedMessages: ChatMessage[] = [
       { role: "system", content: systemPrompt },
-      ...messages.filter(m => m.role !== "system"),
+      ...messages.filter(m => m.role !== "system").map((m, idx, arr) => {
+        // If images were passed and this is the last user message, attach them
+        if (m.role === "user" && idx === arr.length - 1 && images && images.length > 0) {
+          return { ...m, images };
+        }
+        return m;
+      }),
     ];
 
     // Try MiniMax first (primary), fallback to Gemini via Lovable AI

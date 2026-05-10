@@ -804,8 +804,9 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
   const handleMessage = () => {
     const listing = deckQueueRef.current[currentIndexRef.current];
     if (!canNavigate()) return;
-    if (!listing?.owner_id) {
-      appToast.error('Cannot Start Conversation', 'Owner information not available.');
+    const targetUserId = activeMode === 'owner' ? (listing?.user_id || listing?.id) : listing?.owner_id;
+    if (!targetUserId) {
+      appToast.error('Cannot Start Conversation', 'User information not available.');
       return;
     }
     const isDirectMessaging = isDirectMessagingListing(listing);
@@ -835,7 +836,8 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
   };
 
   const handleSendMessage = async (message: string) => {
-    if (isCreatingConversation || !selectedListing?.owner_id) return;
+    const targetUserId = activeMode === 'owner' ? (selectedListing?.user_id || selectedListing?.id) : selectedListing?.owner_id;
+    if (isCreatingConversation || !targetUserId) return;
     const { validateContent: vc } = await import('@/utils/contactInfoValidation');
     const result = vc(message);
     if (!result.isClean) {
@@ -847,8 +849,8 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
     try {
       appToast.info('Creating conversation...', 'Please wait');
       const result = await startConversation.mutateAsync({
-        otherUserId: selectedListing.owner_id,
-        listingId: selectedListing.id,
+        otherUserId: targetUserId,
+        listingId: activeMode === 'owner' ? undefined : selectedListing.id,
         initialMessage: message,
         canStartNewConversation: true,
       });

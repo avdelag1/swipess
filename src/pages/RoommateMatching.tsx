@@ -14,6 +14,8 @@ import { SwipeActionButtonBar } from '@/components/SwipeActionButtonBar';
 import { RoommateFiltersSheet } from '@/components/filters/RoommateFiltersSheet';
 import { MessageConfirmationDialog } from '@/components/MessageConfirmationDialog';
 import { useSmartClientMatching } from '@/hooks/useSmartMatching';
+import { useSharing, useCreateShare, generateShareUrl } from '@/hooks/useSharing';
+import { ShareModal } from '@/components/ShareModal';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { AtmosphericLayer } from '@/components/AtmosphericLayer';
@@ -88,6 +90,21 @@ export default function RoommateMatching() {
   const handleDislike = () => cardRef.current?.triggerSwipe('left');
 
   // Vertical swipe = pure pager (no like/dislike).
+  const { mutate: trackShare } = useCreateShare();
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [shareProfileData, setShareProfileData] = useState<any>(null);
+
+  const handleShare = useCallback((profile: any) => {
+    triggerHaptic('light');
+    setShareProfileData(profile);
+    setShowShareModal(true);
+    
+    // Optional: track the share start
+    trackShare({
+      sharedProfileId: profile.user_id,
+      shareMethod: 'other'
+    });
+  }, [trackShare]);
   const handleSkip = useCallback(() => {
     setCurrentIndex(prev => Math.min(prev + 1, profiles.length));
     triggerHaptic('light');
@@ -224,6 +241,7 @@ export default function RoommateMatching() {
                       onSkip={handleSkip}
                       onSkipBack={handleSkipBack}
                       onTap={() => setShowDetails(true)}
+                      onShare={handleShare}
                       isTop
                     />
 
@@ -369,6 +387,14 @@ export default function RoommateMatching() {
           triggerHaptic('success');
         }}
       />
+      {shareProfileData && (
+        <ShareModal
+          isOpen={showShareModal}
+          onClose={() => setShowShareModal(false)}
+          shareUrl={generateShareUrl({ profileId: shareProfileData.user_id })}
+          title={`Check out ${shareProfileData.name} on Swipess`}
+        />
+      )}
     </div>
   );
 }

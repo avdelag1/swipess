@@ -9,6 +9,7 @@ export interface ChatMessage {
   id: string;
   role: 'user' | 'assistant';
   content: string;
+  images?: string[];
   timestamp: Date;
   provider?: string;
 }
@@ -140,6 +141,7 @@ async function saveMessageCloud(userId: string, conversationId: string, msg: Cha
       user_id: userId,
       role: msg.role,
       content: msg.content,
+      images: msg.images,
       created_at: msg.timestamp.toISOString(),
     }, { onConflict: 'id' });
   } catch (e) {
@@ -381,8 +383,8 @@ export function useConciergeAI() {
     deleteConversationCloud(id);
   }, [activeConversationId, updateConversations]);
 
-  const sendMessage = useCallback(async (content: string) => {
-    if (!content.trim() || isLoading || isSendingRef.current) return;
+  const sendMessage = useCallback(async (content: string, images?: string[]) => {
+    if ((!content.trim() && (!images || images.length === 0)) || isLoading || isSendingRef.current) return;
     isSendingRef.current = true; // Lock immediately to prevent double calls
     if (!canUseAI) {
       toast.error('Upgrade to Premium to use Swipess AI', { description: 'Subscribe or purchase tokens to unlock the AI concierge.' });
@@ -394,7 +396,7 @@ export function useConciergeAI() {
       convoId = crypto.randomUUID();
       const newConvo: Conversation = {
         id: convoId,
-        title: generateTitle(content.trim()),
+        title: generateTitle(content.trim() || (images && images.length > 0 ? "Analyzed Image" : "New Chat")),
         messages: [],
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -409,6 +411,7 @@ export function useConciergeAI() {
       id: crypto.randomUUID(),
       role: 'user',
       content: content.trim(),
+      images: images,
       timestamp: new Date(),
     };
 
@@ -419,7 +422,7 @@ export function useConciergeAI() {
         const isFirstMsg = c.messages.length === 0;
         return {
           ...c,
-          title: isFirstMsg ? generateTitle(content.trim()) : c.title,
+          title: isFirstMsg ? generateTitle(content.trim() || (images && images.length > 0 ? "Analyzed Image" : "New Chat")) : c.title,
           messages: [...c.messages, userMsg],
           updatedAt: new Date(),
         };
@@ -447,6 +450,7 @@ export function useConciergeAI() {
       const apiMessages = allMsgs.map(m => ({
         role: m.role as 'user' | 'assistant',
         content: m.content,
+        images: m.images,
       }));
 
       // Adjust ego/charm/wisdom/sass/zen based on user message content
@@ -463,6 +467,7 @@ export function useConciergeAI() {
         },
         body: JSON.stringify({
           messages: apiMessages,
+          images: images, // Pass current message images specifically to the multimodal handler
           ...(activeCharacter === 'kyle' ? { character: 'kyle', egoLevel } : {}),
           ...(activeCharacter === 'beaugosse' ? { character: 'beaugosse', charmLevel: egoLevel } : {}),
           ...(activeCharacter === 'donajkiin' ? { character: 'donajkiin', wisdomLevel: egoLevel } : {}),

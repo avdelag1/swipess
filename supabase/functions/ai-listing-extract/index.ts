@@ -19,6 +19,7 @@ interface Body {
   price?: string | number;
   city?: string;
   prompt?: string;
+  images?: string[];
 }
 
 function json(status: number, payload: unknown) {
@@ -115,7 +116,16 @@ Be faithful to the user's words. Do not invent specifics that were not stated.`;
         model: MODEL,
         messages: [
           { role: "system", content: sys },
-          { role: "user", content: prompt },
+          { 
+            role: "user", 
+            content: [
+              { type: "text", text: prompt },
+              ...(body.images || []).map(url => ({
+                type: "image_url",
+                image_url: { url }
+              }))
+            ] 
+          },
         ],
         tools: [tool],
         tool_choice: { type: "function", function: { name: "build_listing" } },

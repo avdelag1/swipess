@@ -20,6 +20,11 @@ import { useSpeechSynthesis, PERSONA_VOICE_PROFILES } from '@/hooks/useSpeechSyn
 import { SwipessLogo } from '@/components/SwipessLogo';
 import { toast } from 'sonner';
 import { useFilterStore } from '@/state/filterStore';
+import { generateShareUrl } from '@/hooks/useSharing';
+import { ImagePlus, Loader2 } from 'lucide-react';
+import { uploadPhotoBatch, compressImages, LISTING_COMPRESSION } from '@/utils/photoUpload';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
 
 function formatConvoDate(date: Date) {
   return date.toLocaleDateString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
@@ -189,9 +194,11 @@ const MessageBubble = memo(({ message, isUser, isSwipess, onCopy, onDelete, onTr
   onResend?: () => void, onNavigate?: (p:string)=>void,
   onDraft?: (cat: any, data: any) => void,
   onFilter?: (filters: any) => void,
+  onFilter?: (filters: any) => void,
   onSpeak?: (id: string, text: string) => void, speakingMsgId: string | null, isSpeaking: boolean
 }) => {
   const [showActions, setShowActions] = useState(false);
+  const images = message.images || [];
   const { cleanContent, navPaths, draftActions, filterAction, listings } = useMemo(
     () => isUser ? { cleanContent: message.content, navPaths: [], draftActions: [], filterAction: null, listings: [] } : parseNavActions(message.content),
     [message.content, isUser]
@@ -222,6 +229,15 @@ const MessageBubble = memo(({ message, isUser, isSwipess, onCopy, onDelete, onTr
               ? 'bg-white/[0.05] backdrop-blur-2xl border border-white/10 text-white rounded-bl-md'
               : 'bg-card border border-border/60 text-foreground rounded-bl-md shadow-sm')
       )}>
+        {images.length > 0 && (
+          <div className="flex flex-wrap gap-2 mb-2">
+            {images.map((url, i) => (
+              <div key={i} className="relative w-20 h-20 rounded-xl overflow-hidden border border-white/10">
+                <img src={url} alt="Uploaded content" className="w-full h-full object-cover" />
+              </div>
+            ))}
+          </div>
+        )}
         {isUser ? (
           <span className="whitespace-pre-wrap text-[15px] leading-relaxed">{message.content}</span>
         ) : (
@@ -289,7 +305,7 @@ const MessageBubble = memo(({ message, isUser, isSwipess, onCopy, onDelete, onTr
                 aria-label="Share listing"
                 onClick={async (e) => {
                   e.stopPropagation();
-                  const url = `${window.location.origin}/listing/${l.id}`;
+                  const url = generateShareUrl({ listingId: l.id });
                   try {
                     if (navigator.share) {
                       await navigator.share({ title: l.title, url });
@@ -515,7 +531,10 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
 
   const { navigate: appNavigate } = useAppNavigate();
   const [input, setInput] = useState('');
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { user } = useAuth();
   const [characterPanelOpen, setCharacterPanelOpen] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   
@@ -725,12 +744,44 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
     uiSounds.playMicOff();
   }, [stopTranscribe, cancelCountdown, sendMessage]);
 
-  const handleSend = () => {
-    if (!input.trim() || isLoading) return;
-    sendMessage(input.trim());
+  const handleSend = async () => {
+    if ((!input.trim() && selectedFiles.length === 0) || isLoading || isUploading) return;
+    
+    let imageUrls: string[] = [];
+    if (selectedFiles.length > 0) {
+      setIsUploading(true);
+      try {
+        const compressed = await compressImages(selectedFiles, LISTING_COMPRESSION);
+        imageUrls = await uploadPhotoBatch(user?.id || 'anon', compressed, 'concierge-images');
+      } catch (err) {
+        console.error('Upload failed:', err);
+        toast.error('Image upload failed');
+        setIsUploading(false);
+        return;
+      }
+    }
+
+    sendMessage(input.trim(), imageUrls);
     setInput('');
+    setSelectedFiles([]);
+    setIsUploading(false);
     triggerHaptic('medium');
     uiSounds.playTap();
+  };
+
+  const handleFileSelect = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.multiple = true;
+    input.onchange = (e) => {
+      const files = Array.from((e.target as HTMLInputElement).files || []);
+      if (files.length > 0) {
+        setSelectedFiles(prev => [...prev, ...files]);
+        triggerHaptic('light');
+      }
+    };
+    input.click();
   };
 
   const handleCopy = (text: string) => {
@@ -917,6 +968,21 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                   "p-4 sm:p-6 transition-all duration-500 border-t relative z-20",
                   isLight && !isSwipess ? "bg-white border-slate-100" : "bg-black border-white/5"
                 )}>
+                  {selectedFiles.length > 0 && (
+                    <div className="max-w-3xl mx-auto flex flex-wrap gap-2 mb-4">
+                      {selectedFiles.map((f, i) => (
+                        <div key={i} className="relative w-16 h-16 rounded-xl overflow-hidden border border-primary/20 group">
+                          <img src={URL.createObjectURL(f)} alt="Preview" className="w-full h-full object-cover" />
+                          <button 
+                            onClick={() => setSelectedFiles(prev => prev.filter((_, idx) => idx !== i))}
+                            className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"
+                          >
+                            <X className="w-4 h-4 text-white" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                   <AnimatePresence>
                     {countdown !== null && (
                       <motion.div

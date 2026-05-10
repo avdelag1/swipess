@@ -12,6 +12,7 @@ import { triggerHaptic } from '@/utils/haptics';
 import { predictivePrefetchEvent } from '@/utils/performance';
 import { toast } from '@/components/ui/sonner';
 import { useAuth } from '@/hooks/useAuth';
+import { useStartConversation } from '@/hooks/useConversations';
 import useAppTheme from '@/hooks/useAppTheme';
 import { useVisualTheme } from '@/contexts/VisualThemeContext';
 import { useTranslation } from 'react-i18next';
@@ -59,6 +60,9 @@ export default function EventosFeed() {
   }, [activeCategory, setAmbientColor]);
   const [showShareModal, setShowShareModal] = useState(false);
   const [shareEventData, setShareEventData] = useState<EventItem | null>(null);
+  
+  const startConversation = useStartConversation();
+  const [isCreatingConversation, setIsCreatingConversation] = useState(false);
 
   // Auto-play state
   const [autoPlay, setAutoPlay] = useState(false);
@@ -141,7 +145,7 @@ export default function EventosFeed() {
     queryFn: async (): Promise<EventItem[]> => {
       const { data, error } = await supabase
         .from('events')
-        .select('id, title, description, category, image_url, image_urls, video_url, event_date, location, location_detail, organizer_name, organizer_whatsapp, promo_text, discount_tag, is_free, price_text')
+        .select('id, title, description, category, image_url, image_urls, video_url, event_date, location, location_detail, organizer_name, organizer_whatsapp, promo_text, discount_tag, is_free, price_text, created_by')
         .order('event_date', { ascending: true });
       
       if (error) throw error;
@@ -163,6 +167,7 @@ export default function EventosFeed() {
         discount_tag: ev.discount_tag || null,
         is_free: !!ev.is_free,
         price_text: ev.price_text || null,
+        created_by: ev.created_by || null,
       }));
 
       // FALLBACK: Return mock events if database is empty
@@ -271,12 +276,34 @@ export default function EventosFeed() {
     }
   }, [activeIdx, filteredEvents, queryClient]);
 
-  const handleOpenChat = useCallback((event: EventItem) => {
+  const handleOpenChat = useCallback(async (event: EventItem) => {
     triggerHaptic('light');
-    const clean = (event.organizer_whatsapp || '').replace(/[^+\d]/g, '');
-    const msg = encodeURIComponent(`Hi! I'm interested in "${event.title}" — I found it on Swipess 🎉`);
-    window.open(`https://wa.me/${clean}?text=${msg}`, '_blank');
-  }, []);
+
+    if (event.created_by) {
+      if (isCreatingConversation) return;
+      setIsCreatingConversation(true);
+      try {
+        toast.info('Creating conversation...', { id: 'chat-create' });
+        const result = await startConversation.mutateAsync({
+          otherUserId: event.created_by,
+          initialMessage: `Hi! I'm interested in "${event.title}"`,
+          canStartNewConversation: true,
+        });
+        if (result?.conversationId) {
+          toast.success('Conversation created!', { id: 'chat-create' });
+          navigate(`/messages?conversationId=${result.conversationId}`);
+        }
+      } catch (err: any) {
+        toast.error(err.message || 'Could not start conversation', { id: 'chat-create' });
+      } finally {
+        setIsCreatingConversation(false);
+      }
+    } else {
+      const clean = (event.organizer_whatsapp || '').replace(/[^+\d]/g, '');
+      const msg = encodeURIComponent(`Hi! I'm interested in "${event.title}" — I found it on Swipess 🎉`);
+      window.open(`https://wa.me/${clean}?text=${msg}`, '_blank');
+    }
+  }, [isCreatingConversation, startConversation, navigate]);
 
   const handleShare = useCallback((event: EventItem) => {
     triggerHaptic('light');

@@ -118,6 +118,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
   const [editingId, setEditingId] = useState<string | null>(null);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
+  const [isExtracting, setIsExtracting] = useState(false);
 
   // Use refs to track latest values for mutation (avoids closure staleness)
   const imagesRef = useRef(images);
@@ -458,6 +459,51 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
     }
   };
 
+  const handleAIExtract = async () => {
+    if (imageFiles.length === 0 && images.length === 0) return;
+    setIsExtracting(true);
+    appToast.info('AI Analysis', 'Extracting details from your photos...');
+    try {
+      let uploadedUrls = [...images];
+      if (imageFiles.length > 0) {
+        const prepared = await compressImages(imageFiles, LISTING_COMPRESSION);
+        const newUrls = await uploadPhotoBatch(user?.id || 'temp', prepared, 'listing-images');
+        uploadedUrls = [...uploadedUrls, ...newUrls];
+        setImages(uploadedUrls);
+        setImageFiles([]);
+      }
+
+      const { data, error } = await supabase.functions.invoke('ai-listing-extract', {
+        body: { task: 'extract', category: selectedCategory, images: uploadedUrls, prompt: 'Extract listing details from the provided images.' }
+      });
+
+      if (error) throw error;
+      if (data?.data) {
+        const parsed = data.data;
+        setFormData(prev => ({
+          ...prev,
+          title: parsed.title || prev.title,
+          description: parsed.description || prev.description,
+          price: parsed.price || prev.price,
+          city: parsed.city || prev.city,
+          beds: parsed.beds || prev.beds,
+          baths: parsed.baths || prev.baths,
+          amenities: parsed.amenities || prev.amenities,
+          brand: parsed.make || prev.brand,
+          model: parsed.model || prev.model,
+          year: parsed.year || prev.year,
+        }));
+        appToast.success('AI Extracted', 'Listing fields populated from photos!');
+        triggerHaptic('success');
+      }
+    } catch (e) {
+      logger.error('AI Extract failed', e);
+      appToast.error('AI Extract Failed', 'Could not analyze photos.');
+    } finally {
+      setIsExtracting(false);
+    }
+  };
+
   const handleSubmit = () => {
     if (images.length + imageFiles.length < 1) {
       toast.error('Photo Required', {
@@ -532,7 +578,21 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
               <Card className="rounded-3xl border-border bg-card overflow-hidden shadow-2xl backdrop-blur-sm">
                 <CardHeader className="pb-4">
                   <CardTitle className="flex items-center justify-between text-base">
-                    <span>Photos <span className="text-xs font-normal text-muted-foreground ml-2">({images.length + imageFiles.length}/{maxPhotos})</span></span>
+                    <div className="flex items-center gap-2">
+                      <span>Photos <span className="text-xs font-normal text-muted-foreground ml-2">({images.length + imageFiles.length}/{maxPhotos})</span></span>
+                      {(images.length + imageFiles.length) > 0 && (
+                        <Button 
+                          variant="secondary" 
+                          size="sm" 
+                          onClick={handleAIExtract}
+                          disabled={isExtracting}
+                          className="ml-4 bg-cyan-500/10 text-cyan-500 hover:bg-cyan-500/20 border border-cyan-500/20"
+                        >
+                          {isExtracting ? <Loader2 className="w-3 h-3 mr-2 animate-spin" /> : <Sparkles className="w-3 h-3 mr-2" />}
+                          Auto-Fill with AI
+                        </Button>
+                      )}
+                    </div>
                     {(images.length + imageFiles.length) < 1 && (
                       <Badge variant="destructive" className="animate-pulse">Required</Badge>
                     )}

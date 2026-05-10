@@ -13,6 +13,7 @@ export interface EventItem {
   organizer_name: string | null;
   organizer_photo_url?: string | null;
   organizer_whatsapp: string | null;
+  created_by?: string | null;
   promo_text: string | null;
   discount_tag: string | null;
   is_free: boolean;

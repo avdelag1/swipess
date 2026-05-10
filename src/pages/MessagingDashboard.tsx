@@ -293,14 +293,17 @@ export function MessagingDashboard() {
                   animate={{ opacity: 1, y: 0 }} 
                   transition={{ delay: index * 0.05 }}
                 >
-                  <button 
+                  <div 
+                    role="button"
+                    tabIndex={0}
                     className={cn(
-                      "w-full flex items-center gap-5 p-6 rounded-[2.2rem] text-left transition-all border group relative overflow-hidden",
+                      "w-full flex items-center gap-5 p-6 rounded-[2.2rem] text-left transition-all border group relative overflow-hidden cursor-pointer",
                       isUnread 
                         ? (isLight ? "bg-white border-black/10 shadow-[0_15px_40px_rgba(0,0,0,0.08)]" : "bg-[#0d0d14] border-white/10 shadow-[0_15px_40px_rgba(0,0,0,0.5)]") 
                         : (isLight ? "bg-white border-black/[0.04] hover:bg-black/[0.01]" : "bg-[#08080c] border-white/[0.04] hover:bg-white/[0.01]")
                     )} 
                     onClick={() => { triggerHaptic('medium'); setSelectedConversationId(conversation.id); }}
+                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); triggerHaptic('medium'); setSelectedConversationId(conversation.id); } }}
                   >
                     {/* Unread Indicator Glow */}
                     {isUnread && <div className="absolute inset-y-0 left-0 w-1 bg-[#EB4898] shadow-[0_0_15px_#EB4898]" />}
@@ -366,7 +369,7 @@ export function MessagingDashboard() {
                           </DropdownMenuContent>
                         </DropdownMenu>
                     </div>
-                  </button>
+                  </div>
                 </motion.div>
               );
             })

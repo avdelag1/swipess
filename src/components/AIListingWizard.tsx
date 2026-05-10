@@ -182,8 +182,8 @@ export function AIListingWizard() {
   };
 
   const handleProcess = async () => {
-    if (!prompt.trim()) {
-      toast.error('Please describe what you are listing');
+    if (!prompt.trim() && imageFiles.length === 0) {
+      toast.error('Please provide a description or photos of what you are listing');
       return;
     }
     if (!user) {
@@ -216,7 +216,7 @@ export function AIListingWizard() {
       let parsed: Record<string, unknown> = {};
       try {
         const aiPromise = supabase.functions.invoke('ai-listing-extract', {
-          body: { task: 'extract', category, price, city: cityLocation, prompt },
+          body: { task: 'extract', category, price, city: cityLocation, prompt: prompt.trim() || 'Extract listing details from the provided images.', images: uploadedUrls },
         });
         const aiTimeout = new Promise<{ data: null; error: Error }>((resolve) =>
           setTimeout(

@@ -181,24 +181,59 @@ Deno.serve(async (req: Request) => {
       }
     } else if (kind === "profile") {
       canonical = `${appOrigin}/profile/${id}`;
+      
+      // 1. Try Main Profiles Table
       const { data: prof } = await supabase
         .from("profiles")
-        .select("full_name, bio, avatar_url, user_id")
-        .eq("user_id", id)
+        .select("full_name, bio, avatar_url, images, id")
+        .eq("id", id)
         .maybeSingle();
+      
       if (prof) {
         const name = (prof as any).full_name;
         title = name ? `${name} on Swipess` : fallbackTitle;
         description = (prof as any).bio || "Discover this profile on Swipess.";
-        if ((prof as any).avatar_url) image = (prof as any).avatar_url;
+        
+        // Pick best available image from profiles
+        const profImg = pickImageFromRecord(prof as any, ["avatar_url", "images"]);
+        if (profImg) image = profImg;
       }
-      const { data: pi } = await supabase
-        .from("profile_images")
-        .select("image_url")
-        .eq("user_id", id)
-        .order("position", { ascending: true })
-        .limit(1);
-      if (pi && pi[0]?.image_url) image = pi[0].image_url;
+
+      // 2. Try Client Profiles Table (Roommates)
+      if (!image || image === fallbackImage) {
+        const { data: cp } = await supabase
+          .from("client_profiles")
+          .select("name, bio, profile_images")
+          .eq("user_id", id)
+          .maybeSingle();
+        
+        if (cp) {
+          if (!prof) {
+            title = (cp as any).name ? `${(cp as any).name} on Swipess` : title;
+            description = (cp as any).bio || description;
+          }
+          const cpImg = pickImageFromRecord(cp as any, ["profile_images"]);
+          if (cpImg) image = cpImg;
+        }
+      }
+
+      // 3. Try Owner Profiles Table (Businesses)
+      if (!image || image === fallbackImage) {
+        const { data: op } = await supabase
+          .from("owner_profiles")
+          .select("business_name, business_description, profile_images")
+          .eq("user_id", id)
+          .maybeSingle();
+        
+        if (op) {
+          if (!prof) {
+            title = (op as any).business_name ? `${(op as any).business_name} on Swipess` : title;
+            description = (op as any).business_description || description;
+          }
+          const opImg = pickImageFromRecord(op as any, ["profile_images"]);
+          if (opImg) image = opImg;
+        }
+      }
     } else if (kind === "event") {
       canonical = `${appOrigin}/explore/eventos/${id}`;
       const { data } = await supabase
