@@ -98,6 +98,16 @@ function pickFirstImage(images: unknown): string | null {
   return null;
 }
 
+function pickImageFromRecord(record: Record<string, unknown>, keys: string[]): string | null {
+  for (const key of keys) {
+    const value = record[key];
+    if (typeof value === "string" && value.trim()) return value;
+    const picked = pickFirstImage(value);
+    if (picked) return picked;
+  }
+  return null;
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -127,11 +137,11 @@ Deno.serve(async (req: Request) => {
       canonical = `${APP_ORIGIN}/listing/${id}`;
       const { data } = await supabase
         .from("listings")
-        .select("title, city, neighborhood, price, beds, baths, images, category, listing_type")
+        .select("title, city, neighborhood, price, beds, baths, images, image_url, category, listing_type")
         .eq("id", id)
         .maybeSingle();
       if (data) {
-        const first = pickFirstImage((data as any).images);
+        const first = pickImageFromRecord(data as any, ["images", "image_url"]);
         if (first) image = first;
         title = (data as any).title || fallbackTitle;
         const loc = [(data as any).neighborhood, (data as any).city].filter(Boolean).join(", ");
@@ -169,13 +179,13 @@ Deno.serve(async (req: Request) => {
       canonical = `${APP_ORIGIN}/explore/eventos/${id}`;
       const { data } = await supabase
         .from("events")
-        .select("title, description, image_url, cover_url")
+        .select("title, description, image_url, image_urls, cover_url, video_url")
         .eq("id", id)
         .maybeSingle();
       if (data) {
         title = (data as any).title || fallbackTitle;
         description = (data as any).description || fallbackDesc;
-        image = (data as any).cover_url || (data as any).image_url || fallbackImage;
+        image = pickImageFromRecord(data as any, ["cover_url", "image_url", "image_urls"]) || fallbackImage;
       }
     }
   } catch (_e) {
