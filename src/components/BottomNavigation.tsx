@@ -83,6 +83,10 @@ export const BottomNavigation = memo(({
   const setModal = useModalStore((s) => s.setModal);
   const showAIListing = useModalStore((s) => s.showAIListing);
   const showAIChat = useModalStore((s) => s.showAIChat);
+  const showVapId = useModalStore((s) => s.showVapId);
+  const showTokensModal = useModalStore((s) => s.showTokensModal);
+  const showFilters = useModalStore((s) => s.showFilters);
+  const closeAll = useModalStore((s) => s.closeAll);
   const { unreadCount: _unreadCount } = useUnreadMessageCount();
   const { unreadCount: _unreadNotifCount } = useUnreadNotifications();
   const { isLight } = useAppTheme();
@@ -200,6 +204,8 @@ export const BottomNavigation = memo(({
         if (item.id === 'dashboard') {
           setCategories([]);
         }
+        // Pressing the current page's nav item also closes any open overlays
+        closeAll();
         window.scrollTo({ top: 0, behavior: 'smooth' });
         return;
       }
@@ -212,20 +218,41 @@ export const BottomNavigation = memo(({
         setTimeout(() => setRipple(null), 800);
       }
 
-      // Close any open full-screen modals before navigating to a new page
-      if (item.path) {
-        if (showAIListing) setModal('showAIListing', false);
-        if (showAIChat) setModal('showAIChat', false);
+      // Map of nav items that open a global modal — used to toggle/close
+      const modalOpenMap: Record<string, boolean> = {
+        showVapId,
+        showAIChat,
+        showAIListing,
+        showTokensModal,
+        showFilters,
+      };
+      const modalKeyById: Record<string, string> = {
+        vapid: 'showVapId',
+        ai: 'showAIChat',
+        'ai-listing': 'showAIListing',
+        tokens: 'showTokensModal',
+        search: 'showFilters',
+        filters: 'showFilters',
+      };
+      const targetModalKey = modalKeyById[item.id];
+
+      // Tapping the SAME modal item while it's open => close it
+      if (targetModalKey && modalOpenMap[targetModalKey]) {
+        closeAll();
+        return;
       }
 
-      // Haptics already triggered on PointerDown if applicable
+      // ANY other nav action: close every open overlay first so the
+      // destination page/modal is fully visible (no stale popups on top).
+      closeAll();
+
       if (item.onClick) {
         item.onClick();
       } else if (item.path) {
         navigate(item.path);
       }
     },
-    [navigate, location.pathname, setCategories, showAIListing, showAIChat, setModal],
+    [navigate, location.pathname, setCategories, closeAll, showAIListing, showAIChat, showVapId, showTokensModal, showFilters],
   );
 
   const handleNavKeyDown = useCallback(
@@ -246,6 +273,20 @@ export const BottomNavigation = memo(({
     if (!item.path) return false;
     // Exact match OR startsWith for sub-routes (e.g. /client/dashboard/*)
     return location.pathname === item.path || location.pathname.startsWith(item.path + '/');
+  };
+
+  // Modal items light up pink when their overlay is currently visible,
+  // so the user always knows which popup is on screen.
+  const isModalActive = (item: NavItem) => {
+    switch (item.id) {
+      case 'vapid': return showVapId;
+      case 'ai': return showAIChat;
+      case 'ai-listing': return showAIListing;
+      case 'tokens': return showTokensModal;
+      case 'search':
+      case 'filters': return showFilters;
+      default: return false;
+    }
   };
 
   const iconColorInactive = 'var(--icon-inactive)';
@@ -313,7 +354,7 @@ export const BottomNavigation = memo(({
         >
           {navItems.map((item) => {
             const Icon = item.icon;
-            const active = isActive(item);
+            const active = isActive(item) || isModalActive(item);
 
             return (
               <button
