@@ -218,36 +218,14 @@ export const BottomNavigation = memo(({
         setTimeout(() => setRipple(null), 800);
       }
 
-      // Map of nav items that open a global modal — used to toggle/close
-      const modalOpenMap: Record<string, boolean> = {
-        showVapId,
-        showAIChat,
-        showAIListing,
-        showTokensModal,
-        showFilters,
-      };
-      const modalKeyById: Record<string, string> = {
-        vapid: 'showVapId',
-        ai: 'showAIChat',
-        'ai-listing': 'showAIListing',
-        tokens: 'showTokensModal',
-        search: 'showFilters',
-        filters: 'showFilters',
-      };
-      const targetModalKey = modalKeyById[item.id];
-
-      // Tapping the SAME modal item while it's open => close it
-      if (targetModalKey && modalOpenMap[targetModalKey]) {
-        closeAll();
-        return;
-      }
-
-      // ANY other nav action: close every open overlay first so the
-      // destination page/modal is fully visible (no stale popups on top).
+      // Close other overlays first so the destination is fully visible,
+      // then perform the action. We do NOT toggle-close the same modal —
+      // each tap on a modal nav item just (re)opens it.
       closeAll();
-
       if (item.onClick) {
-        item.onClick();
+        // Defer to next microtask so closeAll's state commit lands before
+        // the modal-open setModal — prevents any chance of being overwritten.
+        queueMicrotask(() => item.onClick && item.onClick());
       } else if (item.path) {
         navigate(item.path);
       }
