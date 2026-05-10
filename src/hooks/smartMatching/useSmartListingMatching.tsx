@@ -439,17 +439,22 @@ export function useSmartListingMatching(
                 }
 
                 // 2. BUILD SECURE POSTGREST QUERY (Fallback)
-                let query = supabase.from('listings').select(SWIPE_CARD_FIELDS)
-                    .eq('status', 'active')
-                    .neq('user_id', userId); // self-exclusion; owner_id can be null on older real listings
+                // We deliberately do NOT add status='active' so older listings without
+                // an explicit status still surface, then we filter active client-side.
+                let query = supabase.from('listings').select(SWIPE_CARD_FIELDS);
+                if (userId) {
+                    query = query.neq('user_id', userId);
+                }
 
-                // 3. Apply excluded IDs (Fallback path)
+                // 3. Apply excluded IDs (Fallback path) — only valid uuids
                 if (swipedListingIds.size > 0) {
                     const idList = Array.from(swipedListingIds)
-                        .filter(id => id && id.length > 30)
+                        .filter(id => typeof id === 'string' && /^[0-9a-fA-F-]{30,}$/.test(id))
                         .slice(0, 150);
                     if (idList.length > 0) {
-                        query = query.filter('id', 'not.in', `(${idList.join(',')})`);
+                        try {
+                            query = query.not('id', 'in', `(${idList.join(',')})`);
+                        } catch { /* ignore */ }
                     }
                 }
 
@@ -467,13 +472,25 @@ export function useSmartListingMatching(
                     query = query.in('service_category', filters.serviceCategory);
                 }
 
-                const { data: listings, error } = await query
+                let { data: listings, error } = await query
                     .order('created_at', { ascending: false })
                     .limit(Math.max(pageSize * (page + 1), 120));
-                if (error) throw error;
+                if (error) {
+                    logger.warn('[SmartMatching] listings query error, retrying without exclusion', error);
+                    const retry = await supabase.from('listings')
+                        .select(SWIPE_CARD_FIELDS)
+                        .order('created_at', { ascending: false })
+                        .limit(pageSize * (page + 1));
+                    if (retry.error) throw retry.error;
+                    listings = retry.data as any;
+                }
+                const liveListings = (listings || []).filter((l: any) =>
+                    (l.is_active === undefined || l.is_active === true) &&
+                    (l.status === undefined || l.status === null || l.status === 'active')
+                );
 
                 // 4.5 Filter out Admins (Hardware-Accelerated Client-Side Filter)
-                const adminFiltered = (listings || [])
+                const adminFiltered = liveListings
                     .filter(listing => !adminIds?.has((listing as any).owner_id || (listing as any).user_id))
                     .map(listing => ({
                         ...listing,
