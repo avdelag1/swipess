@@ -285,6 +285,7 @@ async function searchListings(intent: ReturnType<typeof detectListingIntent>): P
       let desc = `• **${l.title}** — ${price}/${l.listing_type || "month"} in ${l.neighborhood || l.location}`;
       if (l.bedrooms) desc += ` | ${l.bedrooms} bed`;
       if (l.bathrooms) desc += ` / ${l.bathrooms} bath`;
+      desc += `\n  Link: /listing/${l.id}`;
       return desc;
     }).join("\n");
     // Structured payload consumed by the chat UI to render preview cards
@@ -991,7 +992,7 @@ TONE EXAMPLES:
   }
 
   if (opts.listings) {
-    prompt += `\n\n## LIVE SWIPESS LISTINGS (real, active right now):\n${opts.listings}\n\nPresent these naturally — these are real listings on our platform the user can act on today.`;
+    prompt += `\n\n## LIVE SWIPESS LISTINGS (real, active right now):\n${opts.listings}\n\nYou MUST present these real listings FIRST in your response before any general advice. You MUST include direct markdown links to them using the provided Link (e.g. [View Listing](/listing/ID)). Always prioritize and promote real Swipess listings.`;
   }
 
   if (opts.webResults) {
