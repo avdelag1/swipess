@@ -256,6 +256,7 @@ export function AIListingWizard() {
         city: finalCity,
         location: finalCity,
         images: uploadedUrls,
+        image_url: uploadedUrls[0] || null,
       };
       if (cat === 'property') {
         const beds = (extras.beds as number) ?? (parsed.beds as number);
@@ -279,22 +280,15 @@ export function AIListingWizard() {
       }
 
       console.log('[AIListing] Publishing payload:', listingPayload);
-      const insertPromise = supabase
-        .from('listings')
-        .insert(listingPayload as never)
-        .select()
-        .single();
+      const insertPromise = saveAIListingWithSchemaRetry(listingPayload);
       const insertTimeout = new Promise<never>((_, reject) =>
         setTimeout(() => reject(new Error('Publish timed out after 20s. Please try again.')), 20000)
       );
-      const { data: inserted, error: insertErr } = (await Promise.race([
+      const inserted = await Promise.race([
         insertPromise,
         insertTimeout,
-      ])) as { data: unknown; error: { message?: string } | null };
-      if (insertErr) {
-        console.error('[AIListing] Insert error:', insertErr);
-        throw new Error(insertErr.message || 'Failed to publish listing');
-      }
+      ]);
+      if (!inserted) throw new Error('Failed to publish listing');
       setProgressPct(95);
 
       // Phase 4 — Redirect
