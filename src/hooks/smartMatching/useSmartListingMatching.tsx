@@ -472,7 +472,7 @@ export function useSmartListingMatching(
                     query = query.in('service_category', filters.serviceCategory);
                 }
 
-                const { data: listings, error } = await query
+                let { data: listings, error } = await query
                     .order('created_at', { ascending: false })
                     .limit(Math.max(pageSize * (page + 1), 120));
                 if (error) {
@@ -482,7 +482,7 @@ export function useSmartListingMatching(
                         .order('created_at', { ascending: false })
                         .limit(pageSize * (page + 1));
                     if (retry.error) throw retry.error;
-                    (listings as any) = retry.data;
+                    listings = retry.data as any;
                 }
                 const liveListings = (listings || []).filter((l: any) =>
                     (l.is_active === undefined || l.is_active === true) &&
