@@ -111,19 +111,19 @@ export function useIncrementShareClicks() {
 }
 
 // Generate shareable URL - always use the public Swipess website with referral tracking.
-// The /s/* paths are clean public website links. On production hosting they are
-// rewritten server-side to the link-preview function for WhatsApp/Instagram/etc,
-// while real people are redirected into the matching app page.
+// These are the real app page URLs people should see. Production hosting rewrites
+// crawler requests for these paths to the link-preview function so WhatsApp,
+// Instagram, TikTok, iMessage, etc. still get the big photo preview.
 export function generateShareUrl(params: ShareUrlParams): string {
   const appBase = getShareBaseUrl().replace(/\/$/, '');
   let url = appBase;
 
   if (params.listingId) {
-    url = `${appBase}/s/listing/${params.listingId}`;
+    url = `${appBase}/listing/${params.listingId}`;
   } else if (params.profileId) {
-    url = `${appBase}/s/profile/${params.profileId}`;
+    url = `${appBase}/profile/${params.profileId}`;
   } else if (params.eventId) {
-    url = `${appBase}/s/event/${params.eventId}`;
+    url = `${appBase}/explore/eventos/${params.eventId}`;
   }
 
   // Add a short referral code — strip dashes, take first 8 chars 
