@@ -74,9 +74,9 @@ const DEMO_CLIENTS: any[] = [
     age: 27, gender: 'female',
     city: 'Canggu', country: 'Indonesia', nationality: 'Brazilian',
     images: [
-      'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=1200',
-      'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&q=80&w=1200',
-      'https://images.unsplash.com/photo-1509967419530-da38b4704bc6?auto=format&fit=crop&q=80&w=1200'
+      '/images/roommates/roommate_1.png',
+      'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=1200',
+      'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&q=80&w=1200'
     ],
     interests: ['Surfing', 'Content Creation', 'Wellness'],
     lifestyle_tags: ['Digital Nomad', 'Clean', 'Social'],
@@ -91,9 +91,9 @@ const DEMO_CLIENTS: any[] = [
     age: 30, gender: 'male',
     city: 'Tulum', country: 'Mexico', nationality: 'Colombian',
     images: [
+      '/images/roommates/roommate_2.png',
       'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=1200',
-      'https://images.unsplash.com/photo-1527980965255-d3b416303d12?auto=format&fit=crop&q=80&w=1200',
-      'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?auto=format&fit=crop&q=80&w=1200'
+      'https://images.unsplash.com/photo-1527980965255-d3b416303d12?auto=format&fit=crop&q=80&w=1200'
     ],
     interests: ['Motorcycles', 'Restaurants', 'Remote Work'],
     lifestyle_tags: ['Night Owl', 'Respectful', 'Garage Needed'],
@@ -108,9 +108,9 @@ const DEMO_CLIENTS: any[] = [
     age: 28, gender: 'female',
     city: 'Miami', country: 'USA', nationality: 'American',
     images: [
+      '/images/roommates/roommate_3.png',
       'https://images.unsplash.com/photo-1520813792240-56fc4a3765a7?auto=format&fit=crop&q=80&w=1200',
-      'https://images.unsplash.com/photo-1526510747491-58f928ec870f?auto=format&fit=crop&q=80&w=1200',
-      'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&q=80&w=1200'
+      'https://images.unsplash.com/photo-1526510747491-58f928ec870f?auto=format&fit=crop&q=80&w=1200'
     ],
     interests: ['Pilates', 'Design', 'Beach Walks'],
     lifestyle_tags: ['Quiet', 'Early Riser', 'Minimalist'],

@@ -16,9 +16,24 @@ export const PromoteCTACard = memo(({ onPromote }: { onPromote: () => void }) =>
         isLight ? "bg-white" : "bg-[#0a0a0b]"
       )}
     >
+      {/* Background Image */}
+      <div className="absolute inset-0 z-0">
+        <img 
+          src="/images/events/cenote_party_user.jpg" 
+          alt="" 
+          className="w-full h-full object-cover opacity-30 grayscale-[0.5] scale-110" 
+        />
+        <div 
+          className={cn(
+            "absolute inset-0 bg-gradient-to-b",
+            isLight ? "from-white/60 via-white/80 to-white" : "from-[#0a0a0b]/60 via-[#0a0a0b]/80 to-[#0a0a0b]"
+          )}
+        />
+      </div>
+
       {/* Glow blobs */}
-      <div className="absolute top-1/4 left-0 w-64 h-64 rounded-full opacity-20 blur-[80px] pointer-events-none bg-[radial-gradient(circle,#f97316,transparent)]" />
-      <div className="absolute bottom-1/4 right-0 w-64 h-64 rounded-full opacity-20 blur-[80px] pointer-events-none bg-[radial-gradient(circle,#EB4898,transparent)]" />
+      <div className="absolute top-1/4 left-0 w-64 h-64 rounded-full opacity-30 blur-[100px] pointer-events-none bg-[radial-gradient(circle,#f97316,transparent)]" />
+      <div className="absolute bottom-1/4 right-0 w-64 h-64 rounded-full opacity-30 blur-[100px] pointer-events-none bg-[radial-gradient(circle,#EB4898,transparent)]" />
 
       <motion.div
         initial={{ opacity: 0, y: 40 }}

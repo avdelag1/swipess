@@ -357,19 +357,35 @@ export default function EventosFeed() {
                       : "opacity-80 hover:opacity-100"
                   )}
                   style={{
-                    ...hudGlassStyle,
-                    background: active
-                      ? `linear-gradient(135deg, ${catColor}, ${catColor}cc)`
-                      : hudGlassStyle.background,
-                    borderColor: active ? `${catColor}90` : hudGlassStyle.border?.toString().replace('1px solid ', ''),
+                    borderColor: active ? `${catColor}90` : (isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.08)'),
                   }}
                 >
+                  {/* Category Background Image */}
+                  <div className="absolute inset-0 z-0">
+                    <img 
+                      src={cat.img} 
+                      alt="" 
+                      className={cn(
+                        "w-full h-full object-cover transition-transform duration-500",
+                        active ? "scale-110 blur-[1px]" : "scale-100 grayscale-[0.5] opacity-40"
+                      )}
+                    />
+                    <div 
+                      className="absolute inset-0 z-10"
+                      style={{
+                        background: active 
+                          ? `linear-gradient(135deg, ${catColor}cc, ${catColor}99)`
+                          : (isLight ? 'rgba(255,255,255,0.85)' : 'rgba(10,10,11,0.82)')
+                      }}
+                    />
+                  </div>
+
                   <Icon 
-                    className={cn("w-4 h-4 transition-all duration-300 relative z-10", active ? "scale-110" : (isLight ? "text-black/40" : "text-white/40"))} 
+                    className={cn("w-4 h-4 transition-all duration-300 relative z-20", active ? "scale-110" : (isLight ? "text-black/60" : "text-white/60"))} 
                     style={{ color: active ? '#fff' : undefined }} 
                   />
                   <span 
-                    className={cn("text-[11px] font-black uppercase tracking-[0.12em] transition-all duration-300 relative z-10", active ? "" : (isLight ? "text-black/40" : "text-white/40"))}
+                    className={cn("text-[11px] font-black uppercase tracking-[0.12em] transition-all duration-300 relative z-20", active ? "" : (isLight ? "text-black/60" : "text-white/60"))}
                     style={{ color: active ? '#fff' : undefined }}
                   >
                     {cat.label}
@@ -378,7 +394,7 @@ export default function EventosFeed() {
                   {active && (
                     <motion.div 
                       layoutId="active-pill-shimmer"
-                      className="absolute inset-0 z-0 bg-gradient-to-tr from-white/20 to-transparent pointer-events-none"
+                      className="absolute inset-0 z-30 bg-gradient-to-tr from-white/20 to-transparent pointer-events-none"
                     />
                   )}
                 </button>

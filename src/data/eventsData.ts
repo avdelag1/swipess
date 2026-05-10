@@ -13,6 +13,27 @@ export const CATEGORIES = [
 
 export const MOCK_EVENTS: EventItem[] = [
   {
+    id: 'u1', title: 'Tulum Beach Club Night', category: 'music',
+    image_url: '/images/events/beach_party_user.jpg',
+    description: 'The ultimate beach club experience under the stars. Live DJs, signature cocktails, and the best vibe in Tulum.',
+    event_date: '2026-05-15T21:00:00', location: 'Taboo Beach Club, Tulum', location_detail: 'Main Stage',
+    organizer_name: 'Taboo', organizer_whatsapp: '+529849991111', promo_text: 'Featured Event', discount_tag: 'EXCLUSIVE', is_free: false, price_text: '$1200 MXN',
+  },
+  {
+    id: 'u2', title: 'Jungle Fire Ritual', category: 'jungle',
+    image_url: '/images/events/jungle_party_user.jpg',
+    description: 'A deep jungle gathering with tribal beats and fire performances. Connect with the ancient energy of the Mayan jungle.',
+    event_date: '2026-05-16T22:00:00', location: 'Selva Maya, Tulum', location_detail: 'Jungle Clearing',
+    organizer_name: 'Ancestral Beats', organizer_whatsapp: '+529842223333', promo_text: 'New Arrival', discount_tag: 'HOT', is_free: false, price_text: '$850 MXN',
+  },
+  {
+    id: 'u3', title: 'Cenote Moon Party', category: 'music',
+    image_url: '/images/events/cenote_party_user.jpg',
+    description: 'Swim and dance in a private cenote illuminated by laser lights and the full moon. An unforgettable night of mystery and music.',
+    event_date: '2026-05-17T20:00:00', location: 'Cenote Dos Ojos, Tulum', location_detail: 'Underground Cave',
+    organizer_name: 'Moonlight Events', organizer_whatsapp: '+529844445555', promo_text: 'Top Rated', discount_tag: 'MUST SEE', is_free: false, price_text: '$1500 MXN',
+  },
+  {
     id: 'm1', title: 'Sunset Cacao Ceremony', category: 'beach',
     image_url: '/images/events/cacao_ceremony.png',
     description: 'Sacred cacao ceremony at sunset on the Caribbean shore. Meditation, sound healing, and deep connection with yourself.',
