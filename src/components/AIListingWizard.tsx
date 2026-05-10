@@ -203,7 +203,12 @@ export function AIListingWizard() {
 
     try {
       // Phase 1 — Upload photos
-      const uploadedUrls = await uploadPhotoBatch(user.id, imageFiles, 'listing-images');
+      const uploadedUrls = await uploadPhotoBatch(
+        user.id,
+        imageFiles,
+        'listing-images',
+        (p) => setProgressPct(8 + Math.floor(p * 0.32)),
+      );
       setProgressPct(40);
 
       // Phase 2 — AI extract + polish
