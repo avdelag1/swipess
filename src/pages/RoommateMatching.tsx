@@ -381,7 +381,12 @@ export default function RoommateMatching() {
                   <motion.button 
                     whileTap={{ scale: 0.95 }}
                     onClick={() => { handleSwipe('left'); setShowDetails(false); }}
-                    className="flex-1 py-4 rounded-2xl bg-secondary border border-border text-foreground font-black uppercase tracking-widest text-[10px]"
+                    className={cn(
+                      "flex-1 py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] border shadow-sm transition-all",
+                      isLight 
+                        ? "bg-white border-black/10 text-black/60 hover:bg-zinc-50" 
+                        : "bg-zinc-900 border-white/10 text-white/50 hover:bg-zinc-800"
+                    )}
                   >
                     Not my vibe
                   </motion.button>

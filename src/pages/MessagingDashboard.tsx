@@ -269,19 +269,14 @@ export function MessagingDashboard() {
               <button
                 key={filter.id}
                 onClick={() => { setActiveFilter(filter.id as any); triggerHaptic('light'); }}
-                className="flex items-center gap-2.5 px-6 py-3 rounded-full text-[9px] font-black uppercase tracking-widest transition-all shrink-0 border"
-                style={activeFilter === filter.id ? {
-                  backgroundColor: '#EB4898',
-                  borderColor: '#EB4898',
-                  color: 'white',
-                  boxShadow: '0 8px 24px rgba(235,72,152,0.4)'
-                } : {
-                  backgroundColor: 'transparent',
-                  borderColor: isLight ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.08)',
-                  color: isLight ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.45)'
-                }}
+                className={cn(
+                  "flex items-center gap-2.5 px-6 py-3 rounded-full text-[9px] font-black uppercase tracking-widest transition-all shrink-0 border shadow-sm",
+                  activeFilter === filter.id 
+                    ? "bg-[#EB4898] border-[#EB4898] text-white shadow-lg shadow-[#EB4898]/40" 
+                    : (isLight ? "bg-white border-black/10 text-black/50 hover:bg-zinc-50" : "bg-zinc-900 border-white/10 text-white/40 hover:bg-zinc-800")
+                )}
               >
-                <filter.icon className="w-3.5 h-3.5" />
+                <filter.icon className={cn("w-3.5 h-3.5", activeFilter === filter.id ? "text-white" : "text-[#EB4898]")} />
                 {filter.label}
               </button>
             ))}
