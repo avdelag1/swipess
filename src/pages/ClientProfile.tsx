@@ -20,6 +20,7 @@ import { triggerHaptic } from "@/utils/haptics";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import useAppTheme from "@/hooks/useAppTheme";
 import { useTranslation } from 'react-i18next';
+import { HolographicIDCard } from "@/components/native/HolographicIDCard";
 
 const ClientProfile = () => {
   const { isLight } = useAppTheme();
@@ -184,25 +185,18 @@ const ClientProfile = () => {
           </Button>
         </div>
 
-        {/* VERIFIED RESIDENT CARD */}
-        <motion.div
-          whileHover={{ scale: 1.01 }}
-          whileTap={{ scale: 0.98 }}
-          className="p-[1.5px] rounded-3xl cursor-pointer shadow-xl"
-          style={{ background: 'linear-gradient(135deg, #FF4D00, #EB4898)' }}
-          onClick={() => { triggerHaptic('light'); setIsVapModalOpen(true); }}
-        >
-          <div className={cn("rounded-3xl p-6 flex items-center gap-5 border border-transparent", isLight ? "bg-white" : "bg-[#080C14]")}>
-            <div className="w-14 h-14 rounded-2xl bg-[#FF4D00]/10 flex items-center justify-center border border-[#FF4D00]/20">
-              <ShieldCheck className="w-7 h-7 text-[#FF4D00]" />
+        {/* HOLOGRAPHIC IDENTITY VAULT */}
+        <div className="relative cursor-pointer" onClick={() => { triggerHaptic('light'); setIsVapModalOpen(true); }}>
+          <HolographicIDCard profile={profile} />
+          
+          {/* External hint for edit */}
+          <div className="absolute top-4 right-4 z-20">
+            <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 border border-white/10 backdrop-blur-md">
+              <span className="text-[8px] font-black uppercase tracking-widest text-white/40">Sync Protocol</span>
+              <ChevronRight className="w-3 h-3 text-white/20" />
             </div>
-            <div className="flex-1">
-              <h3 className={cn("text-[13px] font-black uppercase tracking-[0.2em] italic leading-tight", isLight ? "text-slate-900" : "text-white")}>Verified Member</h3>
-              <p className={cn("text-[9px] font-bold uppercase tracking-[0.15em] mt-1", isLight ? "text-slate-500" : "text-white/25")}>Status: Identity Sync Complete</p>
-            </div>
-            <ChevronRight className={cn("w-5 h-5", isLight ? "text-slate-400" : "text-white/15")} />
           </div>
-        </motion.div>
+        </div>
 
         {/* PROFILE COMPLETION */}
         <AnimatePresence>

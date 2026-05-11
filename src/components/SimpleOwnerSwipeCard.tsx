@@ -68,7 +68,6 @@ interface ClientProfile {
   verified?: boolean | null;
   lifestyle_tags?: string[] | null;
   preferred_listing_types?: string[] | null;
-  occupation?: string | null;
 }
 
 const PlaceholderImage = memo(({ name }: { name?: string | null }) => (
@@ -471,12 +470,6 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
             </h2>
             
             <div className="flex flex-wrap gap-x-4 gap-y-1.5 pt-1">
-              {profile.occupation && (
-                <div className="flex items-center gap-1.5 text-white/90">
-                  <Briefcase className="w-3.5 h-3.5 text-orange-400" />
-                  <span className="text-[11px] font-black uppercase tracking-widest">{profile.occupation}</span>
-                </div>
-              )}
               {profile.city && (
                 <div className="flex items-center gap-1.5 text-white/90">
                   <MapPin className="w-3.5 h-3.5 text-blue-400" />
@@ -503,10 +496,15 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
              style={{ height: '42%', background: isLight ? 'linear-gradient(to top, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.3) 35%, transparent 100%)' : 'linear-gradient(to top, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.32) 35%, transparent 100%)', opacity: isZoomed ? 0 : 1 }} />
 
         {profile.verified && (
-          <div className="absolute top-16 left-6 z-40" style={{ opacity: isZoomed ? 0 : 1 }}>
+          <div className="absolute top-16 left-6 z-40 flex gap-2" style={{ opacity: isZoomed ? 0 : 1 }}>
              <div className="px-3 py-1.5 rounded-full flex items-center gap-2 bg-black/40 backdrop-blur-md border border-white/10">
                <div className="w-2 h-2 rounded-full bg-violet-500 shadow-[0_0_8px_rgba(139,92,246,1)]" />
                <span className="text-[10px] font-black uppercase tracking-widest text-white">Verified</span>
+             </div>
+             
+             <div className="px-3 py-1.5 rounded-full flex items-center gap-2 bg-primary/20 backdrop-blur-md border border-primary/20 animate-pulse-slow">
+               <div className="w-2 h-2 rounded-full bg-primary shadow-[0_0_8px_rgba(255,77,0,1)]" />
+               <span className="text-[10px] font-black uppercase tracking-widest text-white">AI Pulse</span>
              </div>
           </div>
         )}
