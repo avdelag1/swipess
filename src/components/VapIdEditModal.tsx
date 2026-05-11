@@ -52,7 +52,7 @@ export function VapIdEditModal({ isOpen, onClose }: Props) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('client_profiles')
-        .select('bio, city, nationality, years_in_city, languages, interests, personality_traits, preferred_activities')
+        .select('bio, occupation, city, nationality, years_in_city, languages, interests, personality_traits, preferred_activities')
         .eq('user_id', user!.id)
         .maybeSingle();
       if (error) throw error;
@@ -144,9 +144,12 @@ export function VapIdEditModal({ isOpen, onClose }: Props) {
       if (selectErr) throw selectErr;
 
       if (existing?.id) {
+        const updatePayload = { ...payload };
+        delete updatePayload.user_id;
+
         const { error: updateErr } = await supabase
           .from('client_profiles')
-          .update(payload)
+          .update(updatePayload)
           .eq('user_id', user.id);
         if (updateErr) throw updateErr;
       } else {
@@ -160,6 +163,7 @@ export function VapIdEditModal({ isOpen, onClose }: Props) {
       await queryClient.invalidateQueries({ queryKey: ['vap-id-profile', user.id] });
       await refetch();
       toast.success('Card saved');
+      onClose();
     } catch (err: any) {
       console.error('[VapIdEdit] save failed', err);
       toast.error(err?.message || 'Failed to save');

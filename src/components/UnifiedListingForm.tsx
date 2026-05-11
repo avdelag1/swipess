@@ -68,6 +68,9 @@ const saveListingWithSchemaRetry = async (
   editingId: string | null
 ) => {
   let safeData = { ...payload };
+  if (editingId) {
+    delete safeData.user_id;
+  }
   const removedColumns = new Set<string>();
   const withTimeout = async <T,>(promise: PromiseLike<T>, label: string): Promise<T> => {
     const timeout = new Promise<never>((_, reject) =>
