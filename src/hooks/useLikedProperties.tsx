@@ -95,11 +95,12 @@ export function useLikedProperties() {
         return [];
       }
     },
-    staleTime: Infinity, // Never mark as stale - rely on optimistic updates
-    gcTime: 30 * 60 * 1000, // Keep in cache for 30 minutes
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
-    refetchOnReconnect: false,
+    // Allow invalidations from swipe / realtime to actually refetch the list.
+    staleTime: 1000 * 30, // 30s — fresh enough to feel instant, cheap enough to not hammer
+    gcTime: 30 * 60 * 1000,
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
+    refetchOnReconnect: true,
     retry: 1
   });
 }
