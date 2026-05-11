@@ -10,12 +10,12 @@ import { useModalStore } from '@/state/modalStore';
 import { haptics } from '@/utils/microPolish';
 import { NativeBridge } from '@/utils/nativeBridge';
 import { useNavigate } from 'react-router-dom';
-import { APPLE_TOKEN_PACKAGES, type AppleTokenPackage } from '@/config/iapProducts';
+import { APPLE_TOKEN_PACKAGES, type AppleTokenPackage, getSafePaymentUrl } from '@/config/iapProducts';
 
-const formatUSD = (price: number) =>
-  new Intl.NumberFormat('en-US', {
+const formatMXN = (price: number) =>
+  new Intl.NumberFormat('es-MX', {
     style: 'currency',
-    currency: 'USD',
+    currency: 'MXN',
     minimumFractionDigits: 2,
   }).format(price);
 
@@ -46,7 +46,7 @@ const tokenTierConfig = {
   },
 } as const;
 
-const getPricePerToken = (pack: AppleTokenPackage) => pack.priceUsd / pack.tokens;
+const getPricePerToken = (pack: AppleTokenPackage) => pack.priceMxn / pack.tokens;
 
 interface TokensModalProps {
   userRole?: 'client' | 'owner';
@@ -69,8 +69,8 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
       productId: pkg.productId,
       packageId: pkg.productId,
       tokens: pkg.tokens,
-      price: pkg.priceUsd,
-      currency: 'USD',
+      price: pkg.priceMxn,
+      currency: 'MXN',
       package_category: packageCategory,
     }));
     localStorage.setItem(STORAGE.PAYMENT_RETURN_PATH_KEY, `/${userRole}/dashboard`);
@@ -90,8 +90,14 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
       return;
     }
 
-    toast({ title: 'Redirecting to PayPal', description: `${pkg.name}: ${pkg.tokens} tokens for ${formatUSD(pkg.priceUsd)} USD.` });
-    window.open(pkg.paypalUrl, '_blank', 'noopener,noreferrer');
+    const safePaypalUrl = getSafePaymentUrl(pkg.paypalUrl);
+    if (!safePaypalUrl) {
+      toast({ title: 'Payment link unavailable', description: 'Please use the App Store to purchase.', variant: 'destructive' });
+      return;
+    }
+
+    toast({ title: 'Redirecting to PayPal', description: `${pkg.name}: ${pkg.tokens} tokens for ${formatMXN(pkg.priceMxn)} MXN.` });
+    window.open(safePaypalUrl, '_blank', 'noopener,noreferrer');
     close();
   };
 
@@ -184,15 +190,15 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
                                   <span className="text-[10px] font-black text-primary uppercase">{pkg.tokens} tokens</span>
                                 </div>
                                 <div className="flex items-baseline gap-1 mt-0.5 flex-wrap">
-                                  <span className="font-black text-base tracking-tighter text-foreground">{formatUSD(pkg.priceUsd)}</span>
-                                  <span className="text-[10px] font-black text-muted-foreground">USD</span>
-                                  <span className="text-[10px] font-bold text-muted-foreground">{formatUSD(pricePerToken)} / token</span>
+                                  <span className="font-black text-base tracking-tighter text-foreground">{formatMXN(pkg.priceMxn)}</span>
+                                  <span className="text-[10px] font-black text-muted-foreground">MXN</span>
+                                  <span className="text-[10px] font-bold text-muted-foreground">{formatMXN(pricePerToken)} / token</span>
                                 </div>
                                 <p className="text-[11px] font-medium text-muted-foreground mt-1">{pkg.description}</p>
                               </div>
                               <button
                                 onClick={() => { haptics.tap(); handlePurchase(pkg); }}
-                                aria-label={`Get offer: ${pkg.tokens} tokens for ${formatUSD(pkg.priceUsd)} USD`}
+                                aria-label={`Get offer: ${pkg.tokens} tokens for ${formatMXN(pkg.priceMxn)} MXN`}
                                 className="flex-shrink-0 h-11 px-5 rounded-full font-black text-[11px] uppercase tracking-widest active:scale-95 transition-transform whitespace-nowrap"
                                 style={{
                                   backgroundColor: '#000000',
@@ -200,7 +206,7 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
                                   boxShadow: '0 12px 28px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.18)',
                                 }}
                               >
-                                Get Offer
+                                {NativeBridge.isIOS() ? 'Buy ·  Pay' : 'Get Offer'}
                               </button>
                             </div>
                           </motion.div>

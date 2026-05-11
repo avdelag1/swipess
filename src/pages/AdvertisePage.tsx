@@ -14,11 +14,14 @@ import { haptics } from "@/utils/microPolish";
 import { toast } from "@/components/ui/sonner";
 import { NativeBridge } from "@/utils/nativeBridge";
 import { RefreshCcw } from "lucide-react";
+import { getSafePaymentUrl } from '@/config/iapProducts';
+import { cn } from '@/lib/utils';
 
 // ── Pricing packages ──────────────────────────────────────────────────────────
 const PACKAGES = [
   {
     id: "starter",
+    appleProductId: "Swipess.promo.event.week.v2",
     name: "Starter",
     icon: <Zap className="w-5 h-5" />,
     color: "#14b8a6",
@@ -34,46 +37,46 @@ const PACKAGES = [
       "Direct WhatsApp connection — leads contact you instantly",
     ],
     tagline: "Try it for a week — no commitment",
-    paypalUrl: "https://www.paypal.com/ncp/payment/ZXQC96VYV7JLL",
+    paypalUrl: getSafePaymentUrl('https://www.paypal.com/ncp/payment/ZXQC96VYV7JLL'),
   },
   {
     id: "growth",
+    appleProductId: "Swipess.promo.event.month.v2",
     name: "Growth",
     icon: <Star className="w-5 h-5" />,
     color: "#6366f1",
     colorRgb: "99,102,241",
-    price: 6.99,
-    duration: "3months",
-    durationLabel: "/ 3 months",
+    price: 79.99,
+    duration: "1 month",
+    durationLabel: "/ 1 month",
     image: "/growth_promo_card_1777061867792.png",
     perks: [
-      "Featured badge — stand out in the feed",
-      "Up to 5 photos to showcase your event",
-      "Priority placement above standard listings",
-      "Real-time performance stats — views, taps & leads",
+      "Top featured placement for 30 days",
+      "3 Broadcast push notifications to matches",
+      "Enhanced business profile with 'Verified' badge",
     ],
     popular: true,
     tagline: "Best value — 3 months of organic reach",
-    paypalUrl: "https://www.paypal.com/ncp/payment/ATKD4TR7KFTJU",
+    paypalUrl: getSafePaymentUrl("https://www.paypal.com/ncp/payment/ATKD4TR7KFTJU"),
   },
   {
     id: "premium",
-    name: "Premium",
+    appleProductId: "Swipess.promo.event.quarter.v2",
+    name: "Wave",
     icon: <Crown className="w-5 h-5" />,
     color: "#a855f7",
     colorRgb: "168,85,247",
-    price: 9.99,
-    duration: "6months",
+    price: 199.99,
+    duration: "6 months",
     durationLabel: "/ 6 months",
     image: "/premium_promo_card_1777061887805.png",
     perks: [
-      "Top of feed — first thing users see",
-      "Unlimited photos & rich media",
-      "Push notification blast to thousands",
+      "Top featured placement for 180 days",
+      "Monthly broadcast push notifications",
       "Dedicated account manager & VIP support",
     ],
     tagline: "6 months of maximum visibility & VIP support",
-    paypalUrl: "https://www.paypal.com/ncp/payment/LK7XWSMDHH8AW",
+    paypalUrl: getSafePaymentUrl('https://www.paypal.com/ncp/payment/LK7XWSMDHH8AW'),
   },
 ];
 
@@ -358,6 +361,7 @@ export default function AdvertisePage() {
     // Always route to the submission form first; payment unlocks after approval.
     if (approvedSubmission) {
       // User already has an approved event → trigger purchase directly
+<<<<<<< HEAD
       //  NATIVE PURCHASE BRIDGE (Guideline 3.1.1 Compliance)
       if (Capacitor.isNativePlatform()) {
         toast.info("Connecting to Store...");
@@ -374,6 +378,11 @@ export default function AdvertisePage() {
         }
 
         const result = await NativeBridge.purchaseProduct(productId);
+=======
+      if (NativeBridge.isIOS()) {
+        toast({ title: "In-App Purchase", description: "Connecting to App Store..." });
+        const result = await NativeBridge.purchaseProduct(pkg.appleProductId as any);
+>>>>>>> 717f66fc (feat: stabilize messaging UX with premium connection animations and holographic identity hardening)
         if (result.success) {
           toast.success("Success!", { description: "Your promotion will be live shortly." });
         } else if ((result as any).error !== 'CANCELLED') {

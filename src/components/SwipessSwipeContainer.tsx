@@ -53,6 +53,7 @@ import { SwipeDeckBackButton } from './swipe/SwipeDeckBackButton';
 import { usePullDownToDismiss } from './swipe/usePullDownToDismiss';
 
 import { ReportDialog } from './ReportDialog';
+import { ConnectingOverlay } from './ConnectingOverlay';
 
 // FIX #3: Lazy-load modals 
 const SwipeInsightsModal = lazy(() => import('./SwipeInsightsModal').then(m => ({ default: m.SwipeInsightsModal })));
@@ -120,6 +121,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
   const [filterDialogOpen, setFilterDialogOpen] = useState(false);
   const [selectedListing, setSelectedListing] = useState<any | null>(null);
   const [reportDialogOpen, setReportDialogOpen] = useState(false);
+  const [isConnecting, setIsConnecting] = useState(false);
 
   // Epic Match State
   const [matchData, setMatchData] = useState<{ client: any, owner: any } | null>(null);
@@ -804,8 +806,9 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
   const handleMessage = () => {
     const listing = deckQueueRef.current[currentIndexRef.current];
     if (!canNavigate()) return;
-    if (!listing?.owner_id) {
-      appToast.error('Cannot Start Conversation', 'Owner information not available.');
+    const targetUserId = activeMode === 'owner' ? (listing?.user_id || listing?.id) : listing?.owner_id;
+    if (!targetUserId) {
+      appToast.error('Cannot Start Conversation', 'User information not available.');
       return;
     }
     const isDirectMessaging = isDirectMessagingListing(listing);
@@ -835,7 +838,8 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
   };
 
   const handleSendMessage = async (message: string) => {
-    if (isCreatingConversation || !selectedListing?.owner_id) return;
+    const targetUserId = activeMode === 'owner' ? (selectedListing?.user_id || selectedListing?.id) : selectedListing?.owner_id;
+    if (isCreatingConversation || !targetUserId) return;
     const { validateContent: vc } = await import('@/utils/contactInfoValidation');
     const result = vc(message);
     if (!result.isClean) {
@@ -847,22 +851,26 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
     try {
       appToast.info('Creating conversation...', 'Please wait');
       const result = await startConversation.mutateAsync({
-        otherUserId: selectedListing.owner_id,
-        listingId: selectedListing.id,
+        otherUserId: targetUserId,
+        listingId: activeMode === 'owner' ? undefined : selectedListing.id,
         initialMessage: message,
         canStartNewConversation: true,
       });
       if (result?.conversationId) {
-        appToast.success('Conversation created!', 'Opening chat...');
         setMessageDialogOpen(false);
         setDirectMessageDialogOpen(false);
-        await new Promise(resolve => setTimeout(resolve, 300));
+        setIsConnecting(true);
+        
+        // Let the animation play for 2 seconds
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
         navigate(`/messages?conversationId=${result.conversationId}`);
       }
     } catch (err) {
       appToast.error('Error', err instanceof Error ? err.message : 'Could not start conversation');
     } finally {
       setIsCreatingConversation(false);
+      setIsConnecting(false);
       endNavigation();
     }
   };
@@ -1133,6 +1141,11 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
         </Suspense>,
         document.body
       )}
+
+      <ConnectingOverlay 
+        isOpen={isConnecting}
+        recipientName={selectedListing?.title || selectedListing?.name || 'Resident'}
+      />
     </>
   );
 };

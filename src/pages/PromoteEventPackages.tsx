@@ -6,27 +6,40 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from '@/components/ui/sonner';
 import { NativeBridge } from '@/utils/nativeBridge';
+import { getSafePaymentUrl } from '@/config/iapProducts';
 import { cn } from '@/lib/utils';
 
 const promoTiers = [
   {
     id: 'week',
+<<<<<<< HEAD
     appleProductId: 'Swipess.promo.event.week.v2',
     paypalUrl: 'https://www.paypal.com/ncp/payment/L94P4NFVX7T2E',
+=======
+    appleProductId: 'swipess_promo_event_week_v2',
+    paypalUrl: getSafePaymentUrl('https://www.paypal.com/ncp/payment/L94P4NFVX7T2E'),
+>>>>>>> 717f66fc (feat: stabilize messaging UX with premium connection animations and holographic identity hardening)
     name: 'Spark',
     duration: '1 Week',
-    price: '$19.99',
+    price: '89.99',
+    currency: 'MXN',
     icon: Zap,
     benefits: ['7 days featured placement', 'Push to nearby users', 'Eventos feed boost'],
     accent: 'from-blue-500 to-cyan-500',
   },
   {
     id: 'month',
+<<<<<<< HEAD
     appleProductId: 'Swipess.promo.event.month.v2',
     paypalUrl: 'https://www.paypal.com/ncp/payment/XB42DA8JMY5L4',
+=======
+    appleProductId: 'swipess_promo_event_month_v2',
+    paypalUrl: getSafePaymentUrl('https://www.paypal.com/ncp/payment/XB42DA8JMY5L4'),
+>>>>>>> 717f66fc (feat: stabilize messaging UX with premium connection animations and holographic identity hardening)
     name: 'Pulse',
     duration: '1 Month',
-    price: '$59.99',
+    price: '149.99',
+    currency: 'MXN',
     icon: Sparkles,
     benefits: ['30 days featured cards', 'Push notifications to matches', 'AI Concierge mentions'],
     accent: 'from-pink-500 to-orange-500',
@@ -34,11 +47,17 @@ const promoTiers = [
   },
   {
     id: 'quarter',
+<<<<<<< HEAD
     appleProductId: 'Swipess.promo.event.quarter.v2',
     paypalUrl: 'https://www.paypal.com/ncp/payment/RPCFCMXDL3M2C',
+=======
+    appleProductId: 'swipess_promo_event_quarter_v2',
+    paypalUrl: getSafePaymentUrl('https://www.paypal.com/ncp/payment/RPCFCMXDL3M2C'),
+>>>>>>> 717f66fc (feat: stabilize messaging UX with premium connection animations and holographic identity hardening)
     name: 'Wave',
     duration: '3 Months',
-    price: '$149.99',
+    price: '399.99',
+    currency: 'MXN',
     icon: Crown,
     benefits: ['90 days top placement', 'Weekly push to matches', 'Performance dashboard'],
     accent: 'from-amber-500 to-orange-500',
@@ -80,9 +99,15 @@ export default function PromoteEventPackages() {
       }
       return;
     }
+    const safePaypalUrl = getSafePaymentUrl(tier.paypalUrl);
+    if (!safePaypalUrl) {
+      toast.error('Direct checkout unavailable', { description: 'Please use the App Store.' });
+      setPurchasing(null);
+      return;
+    }
     setPurchasing(null);
     toast.message('Redirecting to PayPal', { description: `${tier.name} (${tier.duration})` });
-    window.open(tier.paypalUrl, '_blank', 'noopener,noreferrer');
+    window.open(safePaypalUrl, '_blank', 'noopener,noreferrer');
   };
 
   return (
@@ -117,7 +142,9 @@ export default function PromoteEventPackages() {
                 </div>
                 <h3 className="text-lg font-black text-foreground">{tier.name}</h3>
                 <p className="text-xs text-muted-foreground uppercase tracking-widest mb-4">{tier.duration}</p>
-                <div className="text-3xl font-black text-foreground mb-4">{tier.price}</div>
+                <div className="text-3xl font-black text-foreground mb-4">
+                  {tier.price} <span className="text-xs text-muted-foreground uppercase">{tier.currency}</span>
+                </div>
                 <ul className="space-y-2 text-sm text-foreground/80 mb-6 flex-1">
                   {tier.benefits.map((b) => (
                     <li key={b}>• {b}</li>
@@ -128,7 +155,7 @@ export default function PromoteEventPackages() {
                   disabled={purchasing === tier.id}
                   className="w-full h-12 rounded-2xl font-black uppercase tracking-widest"
                 >
-                  {purchasing === tier.id ? 'Processing…' : `Get Offer · ${tier.price}`}
+                  {purchasing === tier.id ? 'Processing…' : (NativeBridge.isIOS() ? `Boost ·  Pay` : `Get Offer · ${tier.price} ${tier.currency}`)}
                 </Button>
               </div>
             );

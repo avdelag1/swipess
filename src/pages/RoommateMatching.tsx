@@ -16,9 +16,12 @@ import { RoommateFiltersSheet } from '@/components/filters/RoommateFiltersSheet'
 import { MessageConfirmationDialog } from '@/components/MessageConfirmationDialog';
 import { useSmartClientMatching } from '@/hooks/useSmartMatching';
 import { useAuth } from '@/hooks/useAuth';
-import { supabase } from '@/integrations/supabase/client';
-import { AtmosphericLayer } from '@/components/AtmosphericLayer';
 import { useFilterStore, useFilterActions } from '@/state/filterStore';
+import { ConnectingOverlay } from '@/components/ConnectingOverlay';
+import { useStartConversation } from '@/hooks/useConversations';
+import { useAppNavigate } from '@/hooks/useAppNavigate';
+import { appToast } from '@/utils/appNotification';
+import { AtmosphericLayer } from '@/components/AtmosphericLayer';
 
 const InfoPill = ({ icon: Icon, label, value }: { icon: any, label: string, value: string }) => {
   const { isLight } = useAppTheme();
@@ -61,6 +64,7 @@ export default function RoommateMatching() {
     cleanliness: 'any',
     noise: 'any'
   });
+  const [isConnecting, setIsConnecting] = useState(false);
 
   const cardRef = useRef<SimpleOwnerSwipeCardRef>(null);
   const { data: profiles = [], isLoading } = useSmartClientMatching(user?.id, 'all-clients' as any, 0, 50, false, currentFilters, true);
@@ -111,6 +115,37 @@ export default function RoommateMatching() {
     const scroll = e.target.scrollTop;
     if (scroll > 50 && uiVisible) setUiVisible(false);
     if (scroll <= 50 && !uiVisible) setUiVisible(true);
+  };
+
+  const { navigate } = useAppNavigate();
+  const startConversation = useStartConversation();
+
+  const handleSendMessage = async (text: string) => {
+    if (!topCard) return;
+    
+    setMessageDialogOpen(false);
+    setIsConnecting(true);
+    triggerHaptic('medium');
+
+    try {
+      const result = await startConversation.mutateAsync({
+        otherUserId: topCard.user_id,
+        initialMessage: text,
+        canStartNewConversation: true
+      });
+
+      // Show connection animation for a bit longer for effect
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      if (result?.conversationId) {
+        navigate(`/chat/${result.conversationId}`);
+      }
+    } catch (error: any) {
+      console.error('[RoommateMatching] Failed to start conversation:', error);
+      appToast.error('Connection failed', 'Please try again in a moment.');
+    } finally {
+      setIsConnecting(false);
+    }
   };
 
   return (
@@ -378,6 +413,19 @@ export default function RoommateMatching() {
           setShowFilters(false);
           triggerHaptic('success');
         }}
+      />
+
+      <MessageConfirmationDialog
+        open={messageDialogOpen}
+        onOpenChange={setMessageDialogOpen}
+        onConfirm={handleSendMessage}
+        recipientName={topCard?.name}
+        isLoading={startConversation.isPending}
+      />
+
+      <ConnectingOverlay 
+        isOpen={isConnecting}
+        recipientName={topCard?.name}
       />
     </div>
   );

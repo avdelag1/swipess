@@ -122,7 +122,7 @@ Deno.serve(async (req) => {
       ? new Date(Number(tx.expires_date_ms)).toISOString()
       : null;
 
-    // Idempotent record
+    // Idempotent record of the transaction
     await supabase.from('apple_transactions').upsert(
       {
         user_id: userId,
@@ -137,27 +137,41 @@ Deno.serve(async (req) => {
       { onConflict: 'original_transaction_id' }
     );
 
+    // Look up package from DB to get the integer ID and attributes
+    const { data: pkg } = await supabase
+      .from('subscription_packages')
+      .select('id, tokens, duration_days')
+      .eq('apple_product_id', productId)
+      .single();
+
     // Grant entitlement
     if (SUBSCRIPTION_PRODUCTS.has(productId)) {
       await supabase
-        .from('subscriptions')
+        .from('user_subscriptions')
         .upsert(
           {
             user_id: userId,
-            plan_id: productId,
-            status: expiresDate && new Date(expiresDate) > new Date() ? 'active' : 'expired',
-            current_period_end: expiresDate,
-            provider: 'apple',
+            package_id: pkg?.id,
+            is_active: expiresDate && new Date(expiresDate) > new Date() ? true : false,
+            payment_status: 'paid',
+            starts_at: purchaseDate,
+            expires_at: expiresDate,
           },
           { onConflict: 'user_id' }
         );
     } else if (TOKEN_PRODUCTS[productId]) {
-      const amount = TOKEN_PRODUCTS[productId];
-      await supabase.from('message_activations').insert({
+      const amount = pkg?.tokens ?? TOKEN_PRODUCTS[productId];
+      const expiryDays = pkg?.duration_days ?? 30;
+      const expiresAt = new Date();
+      expiresAt.setDate(expiresAt.getDate() + expiryDays);
+
+      await supabase.from('tokens').insert({
         user_id: userId,
-        activations_remaining: amount,
-        package_id: productId,
-        source: 'apple_iap',
+        total_activations: amount,
+        remaining_activations: amount,
+        activation_type: 'purchase',
+        expires_at: expiresAt.toISOString(),
+        notes: `Apple IAP: ${productId}`,
       });
     } else if (EVENT_PROMO_PRODUCTS[productId]) {
       const days = EVENT_PROMO_PRODUCTS[productId];

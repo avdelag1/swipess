@@ -7,6 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { NativeBridge } from '@/utils/nativeBridge';
+import { getSafePaymentUrl } from '@/config/iapProducts';
 
 interface SubscriptionPackagesProps {
   isOpen?: boolean;
@@ -35,7 +36,7 @@ const clientPlans: Plan[] = [
     appleProductId: 'Swipess.plus.monthly.v2',
     name: 'Monthly',
     label: 'STARTER',
-    price: '$29',
+    price: '$29.99',
     durationText: '/month',
     benefits: [
       'Communicate with listings and members',
@@ -44,7 +45,7 @@ const clientPlans: Plan[] = [
       '🤖 AI Concierge — 15 messages/day',
       '📝 AI Listing Creator — 3/month',
     ],
-    paypalUrl: 'https://www.paypal.com/ncp/payment/QSRXCJYYQ2UGY',
+    paypalUrl: getSafePaymentUrl('https://www.paypal.com/ncp/payment/QSRXCJYYQ2UGY') ?? '',
     accent: 'blue',
   },
   {
@@ -52,7 +53,7 @@ const clientPlans: Plan[] = [
     appleProductId: 'Swipess.plus.semestral.v2',
     name: 'Semi-Annual',
     label: 'POPULAR',
-    price: '$111',
+    price: '$111.99',
     durationText: '/6 months',
     benefits: [
       'Communicate with listings and members',
@@ -63,7 +64,7 @@ const clientPlans: Plan[] = [
       '🗺️ Local Expert Knowledge',
       '💡 AI Smart Suggestions',
     ],
-    paypalUrl: 'https://www.paypal.com/ncp/payment/HUESWJ68BRUSY',
+    paypalUrl: getSafePaymentUrl('https://www.paypal.com/ncp/payment/HUESWJ68BRUSY') ?? '',
     accent: 'pink',
   },
   {
@@ -71,7 +72,7 @@ const clientPlans: Plan[] = [
     appleProductId: 'Swipess.plus.annual.v2',
     name: 'Yearly',
     label: 'BEST VALUE',
-    price: '$149',
+    price: '$149.99',
     durationText: '/year',
     benefits: [
       'Communicate with listings and members',
@@ -83,7 +84,7 @@ const clientPlans: Plan[] = [
       '💡 AI Personalized Suggestions',
       '⚡ Priority AI Responses',
     ],
-    paypalUrl: 'https://www.paypal.com/ncp/payment/7E6R38L33LYUJ',
+    paypalUrl: getSafePaymentUrl('https://www.paypal.com/ncp/payment/7E6R38L33LYUJ') ?? '',
     highlight: true,
     accent: 'gold',
   },
@@ -146,6 +147,10 @@ export function SubscriptionPackages({ isOpen = true, onClose, reason, userRole 
     }
 
     // Web fallback (browser only — never on native iOS)
+    if (!plan.paypalUrl) {
+      toast.error('Payment link unavailable', { description: 'Please use the App Store to purchase.' });
+      return;
+    }
     window.open(plan.paypalUrl, '_blank');
 
     toast({
@@ -238,7 +243,9 @@ export function SubscriptionPackages({ isOpen = true, onClose, reason, userRole 
                        isHighlight && "shadow-amber-500/20"
                     )}
                   >
-                    {isHighlight ? 'Upgrade to Swipess' : 'Activate Access'}
+                    {NativeBridge.isIOS() 
+                      ? (isHighlight ? 'Upgrade ·  Pay' : 'Subscribe') 
+                      : (isHighlight ? 'Upgrade to Swipess' : 'Activate Access')}
                   </motion.button>
                 </div>
               </motion.div>

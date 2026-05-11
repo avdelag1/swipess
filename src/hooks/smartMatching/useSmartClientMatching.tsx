@@ -10,7 +10,7 @@ import { useAdminUserIds } from '../useAdminUserIds';
 const CLIENT_FIELDS = `
     user_id, full_name, age, gender, city, country, images, avatar_url,
     interests, lifestyle_tags, smoking, work_schedule, nationality,
-    languages_spoken, neighborhood, bio, onboarding_completed
+    languages_spoken, neighborhood, bio, onboarding_completed, occupation
 `;
 
 // Demos disabled — show real users only.
@@ -465,7 +465,7 @@ export function useSmartClientMatching(
                 const finalProfiles = profiles || [];
 
                 const userIds = finalProfiles.map(p => p.user_id);
-                const { data: cpData } = await supabase.from('client_profiles').select('user_id, age, gender, city, country, preferred_activities, profile_images, interests, roommate_available, work_schedule, name').in('user_id', userIds);
+                const { data: cpData } = await supabase.from('client_profiles').select('user_id, age, gender, city, country, preferred_activities, profile_images, interests, roommate_available, work_schedule, name, occupation').in('user_id', userIds);
                 const cpMap = new Map(cpData?.map(cp => [cp.user_id, cp]) || []);
 
                 let results = finalProfiles
@@ -480,9 +480,12 @@ export function useSmartClientMatching(
                         age: p.age || cp?.age || 0, gender: p.gender || cp?.gender || '',
                         interests: p.interests || cp?.interests || [], preferred_activities: cp?.preferred_activities || [],
                         location: { city: p.city || cp?.city }, lifestyle_tags: (p as any).lifestyle_tags || (cp as any)?.lifestyle_tags || [],
-                        profile_images: finalImgs, matchPercentage: 80,
+                        profile_images: finalImgs, 
+                        avatar_url: p.avatar_url,
+                        matchPercentage: 80,
                         matchReasons: ['Profile available'], incompatibleReasons: [], verified: !!p.onboarding_completed,
-                        roommate_available: !!cp?.roommate_available, city: p.city || cp?.city, country: p.country || cp?.country, work_schedule: p.work_schedule || cp?.work_schedule
+                        roommate_available: !!cp?.roommate_available, city: p.city || cp?.city, country: p.country || cp?.country, work_schedule: p.work_schedule || cp?.work_schedule,
+                        occupation: p.occupation || cp?.occupation || ''
                     } as MatchedClientProfile;
                 });
 

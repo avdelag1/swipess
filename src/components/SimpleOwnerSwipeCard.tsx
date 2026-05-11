@@ -68,6 +68,7 @@ interface ClientProfile {
   verified?: boolean | null;
   lifestyle_tags?: string[] | null;
   preferred_listing_types?: string[] | null;
+  occupation?: string | null;
 }
 
 const PlaceholderImage = memo(({ name }: { name?: string | null }) => (
@@ -470,6 +471,12 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
             </h2>
             
             <div className="flex flex-wrap gap-x-4 gap-y-1.5 pt-1">
+              {profile.occupation && (
+                <div className="flex items-center gap-1.5 text-white/90">
+                  <Briefcase className="w-3.5 h-3.5 text-orange-400" />
+                  <span className="text-[11px] font-black uppercase tracking-widest">{profile.occupation}</span>
+                </div>
+              )}
               {profile.city && (
                 <div className="flex items-center gap-1.5 text-white/90">
                   <MapPin className="w-3.5 h-3.5 text-blue-400" />

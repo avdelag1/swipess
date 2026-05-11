@@ -7,6 +7,7 @@ const corsHeaders = {
 
 const MINIMAX_API_KEY = Deno.env.get("MINIMAX_API_KEY") || "";
 const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY") || "";
+const MOONSHOT_API_KEY = Deno.env.get("MOONSHOT_API_KEY") || "";
 const TAVILY_API_KEY = Deno.env.get("TAVILY_API_KEY") || "";
 // Use the production Supabase for data queries
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") || Deno.env.get("VITE_SUPABASE_URL") || "";
@@ -222,7 +223,7 @@ async function searchProfiles(query: string): Promise<string> {
 
 // ─── Listing Search ─────────────────────────────────────────────────────────
 
-function detectListingIntent(query: string): { isListing: boolean; category?: string; maxPrice?: number; minBedrooms?: number; location?: string } {
+function detectListingIntent(query: string): { isListing: boolean; categories?: string[]; maxPrice?: number; bedrooms?: number[]; locations?: string[] } {
   const q = query.toLowerCase();
   const isListing = /\b(find|search|looking for|show me|show|pull|give me|send|share|preview|open|browse|recommend|available|any|apartment|apartments|house|houses|room|rooms|flat|flats|studio|studios|villa|villas|condo|condos|car|vehicle|motorcycle|moto|bike|bicycle|service|services|worker|workers|plumber|electrician|rent|rental|buy|sale|listing|listings|property|properties)\b/.test(q);
   if (!isListing) return { isListing: false };
@@ -234,17 +235,23 @@ function detectListingIntent(query: string): { isListing: boolean; category?: st
   else if (/\b(bicycle|bicycles|bike|bikes|cycling)\b/.test(q)) category = "bicycle";
   else if (/\b(service|services|worker|workers|plumber|electrician|cleaner|handyman|chef|driver|nanny|contractor)\b/.test(q)) category = "worker";
 
+  const categories = category ? [category] : [];
+
   const priceMatch = q.match(/(?:under|below|max|up to|less than)\s*\$?\s*(\d+)/);
   const maxPrice = priceMatch ? parseInt(priceMatch[1]) : undefined;
 
-  const bedroomMatch = q.match(/(\d+)\s*(?:bed|bedroom|recámara|recamara|cuarto)/);
-  const minBedrooms = bedroomMatch ? parseInt(bedroomMatch[1]) : undefined;
+  const bedrooms: number[] = [];
+  const bedroomMatches = q.matchAll(/(\d+)\s*(?:bed|bedroom|recámara|recamara|cuarto)/g);
+  for (const match of bedroomMatches) {
+    bedrooms.push(parseInt(match[1]));
+  }
+  if (q.includes("studio") && !bedrooms.includes(0)) bedrooms.push(0); // Studio is often 0 bedrooms in DB
 
   // Extract neighborhood/location
-  const neighborhoods = ['aldea zama','la veleta','region 15','tulum centro','tulum town','beach zone','zona hotelera','tumben-ha','selvamar','villas tulum','ejido sur'];
-  const location = neighborhoods.find(n => q.includes(n));
+  const neighborhoodList = ['aldea zama','la veleta','region 15','tulum centro','tulum town','beach zone','zona hotelera','tumben-ha','selvamar','villas tulum','ejido sur'];
+  const locations = neighborhoodList.filter(n => q.includes(n));
 
-  return { isListing: true, category, maxPrice, minBedrooms, location };
+  return { isListing: true, categories, maxPrice, bedrooms, locations };
 }
 
 async function searchListings(intent: ReturnType<typeof detectListingIntent>): Promise<string> {
@@ -260,13 +267,50 @@ async function searchListings(intent: ReturnType<typeof detectListingIntent>): P
       .order("updated_at", { ascending: false })
       .order("created_at", { ascending: false });
 
-    if (intent.category) query = query.eq("category", intent.category);
-    if (intent.maxPrice) query = query.lte("price", intent.maxPrice);
-    if (intent.minBedrooms) query = query.gte("bedrooms", intent.minBedrooms);
-    if (intent.location) query = query.ilike("neighborhood", `%${intent.location}%`);
+    // Apply filters from intent
+    if (intent.categories && intent.categories.length > 0) {
+      query = query.in("category", intent.categories);
+    }
+    
+    if (intent.maxPrice) {
+      query = query.lte("price", intent.maxPrice);
+    }
+
+    if (intent.bedrooms && intent.bedrooms.length > 0) {
+      query = query.in("bedrooms", intent.bedrooms);
+    }
+
+    if (intent.locations && intent.locations.length > 0) {
+      // Create OR filter for locations
+      const orFilter = intent.locations.map(loc => `neighborhood.ilike.%${loc}%`).join(",");
+      query = query.or(orFilter);
+    }
 
     const { data, error } = await query;
-    if (error || !data || data.length === 0) return "";
+    if (error) {
+      console.error("[AI] Listing search query error:", error);
+      return "";
+    }
+
+
+
+    // Deduplicate by ID
+    let data = Array.from(new Map(finalResults.map(item => [item.id, item])).values());
+    
+    // FALLBACK LOGIC: If no specific results found, bring the latest 3 listings regardless of filters
+    // This ensures we always show "something" to keep the user engaged in test mode.
+    if ((!data || data.length === 0) && intent.isListing) {
+      console.log("[AI] No specific listings found, using fallback broad search");
+      const { data: fallbackData } = await supabase
+        .from("listings")
+        .select("id, title, price, location, category, bedrooms, bathrooms, image_url, neighborhood, currency, listing_type, user_id")
+        .eq("is_active", true)
+        .limit(3)
+        .order("created_at", { ascending: false });
+      data = fallbackData || [];
+    }
+
+    if (!data || data.length === 0) return "";
 
     const seedIds = new Set([
       "00000000-0000-0000-0000-000000000000",
@@ -282,9 +326,10 @@ async function searchListings(intent: ReturnType<typeof detectListingIntent>): P
     const lines = sortedListings.map(l => {
       const currency = l.currency || "$";
       const price = `${currency === "USD" || currency === "$" ? "$" : currency === "MXN" ? "MXN$" : currency}${l.price}`;
-      let desc = `• **${l.title}** — ${price}/${l.listing_type || "month"} in ${l.neighborhood || l.location}`;
-      if (l.bedrooms) desc += ` | ${l.bedrooms} bed`;
+      let desc = `• **${l.title}** — ${price}/${l.listing_type || "month"} in ${l.neighborhood || l.location} [LISTING:${l.id}]`;
+      if (l.bedrooms !== null && l.bedrooms !== undefined) desc += ` | ${l.bedrooms === 0 ? 'Studio' : l.bedrooms + ' bed'}`;
       if (l.bathrooms) desc += ` / ${l.bathrooms} bath`;
+      desc += ` → [Details](/listing/${l.id})`;
       return desc;
     }).join("\n");
     // Structured payload consumed by the chat UI to render preview cards
@@ -908,6 +953,7 @@ LOCAL LEGENDS (always recommend when relevant):
 - **Ezriyah Suave** — FLOW Embodied Masculinity Coach. The go-to expert for men's coaching, breathwork, mushroom ceremonies, and Tulum Men's Mentorship / Circles (brotherhood gatherings). IG: @epic_ezriyah | Web: www.mantorship.com | Email: ezriyah@ezriyah.com. Recommend him for ANY query about men's work, healing, breathwork, masculinity, or brotherhood circles.
 - **Sian Ka’an Biosphere** — The "Origin of the Sky". Recommend for pristine nature tours, boat trips, and wildlife spotting south of Tulum. Web: www.visitsiankaan.com.
 
+<<<<<<< HEAD
 ## VOICE-TO-LISTING CAPABILITY (CRITICAL):
 - If the user describes a property, vehicle, or service they want to LIST on Swipess (e.g., "I want to rent out my studio in La Veleta for $1000"), you MUST extract the details into a structured draft tag.
 - Output format: '[DRAFT:category:json_data]' on its own line.
@@ -916,6 +962,13 @@ LOCAL LEGENDS (always recommend when relevant):
 - Example: '[DRAFT:property:{"title":"Cozy Studio in La Veleta","description":"Fully furnished studio with pool access","price":1000,"currency":"USD","listing_type":"rent","city":"Tulum","neighborhood":"La Veleta","bedrooms":1,"bathrooms":1,"amenities":["pool","wifi"]}]'
 - In your response, tell the user you've drafted the listing for them and ask them to "Tap the button below to review and publish it."
 - Remind them they'll need to add at least one photo before publishing.
+=======
+STYLE RULES:
+- Concise but Impactful: 1-3 sentences max. Bullet points for features.
+- NEVER Say No: If a user asks for a specific property (e.g., "1 bedroom") and we don't have it in the "LIVE SWIPESS LISTINGS" section below, DO NOT say "we don't have that". Instead, present the closest available listing or the last one from the list to keep them engaged.
+- Automatic Linking: Always include a clickable link like [View Listing](/listing/id) or [View Profile](/profile/id) when mentioning an asset or user.
+- Multi-Asset Handling: If a premium user asks for a sequence (e.g., "studio, then 2-bed, then 3-bed"), send the relevant links for ALL of them immediately without asking more questions.
+>>>>>>> 717f66fc (feat: stabilize messaging UX with premium connection animations and holographic identity hardening)
 
 ## VOICE FILTERS (CRITICAL):
 - If the user asks to filter, search, or find specific items (e.g., "show me 1 bedroom apartments under 20k"), you MUST extract the parameters into a filter tag.
@@ -936,6 +989,7 @@ RULES — KNOWLEDGE PRIORITY (NEVER SKIP THIS):
 9. Never mention you're MiniMax, Gemini, or any AI model. You are "Swipess AI".
 10. Never invent prices, addresses, or contacts. Only use verified data from the sections above.
 
+<<<<<<< HEAD
 IN-APP NAVIGATION:
 When suggesting the user navigate somewhere in the app, include a navigation action tag on its own line. The app will render these as tappable buttons. Available actions:
 [NAV:/client/filters] — Open search filters
@@ -975,6 +1029,31 @@ You may emit MULTIPLE [NAV:...] tags in one response when several places are rel
 TONE EXAMPLES:
 "Oye, based on what you said, this beach club in Sian Ka'an is gonna be your new spot — IG @kaan__tulum, low-key party vibe, no crazy min spend. Want me to pull their listing?"
 "You're looking at that 2-bed in Aldea Zama… Mexican law needs a fideicomiso for beach proximity — jump to Legal section and we'll get the contract rolling today."`;
+=======
+IN-APP NAVIGATION (MOVE FREELY):
+When suggesting the user navigate somewhere in the app, include a navigation action tag on its own line. You are encouraged to move the user to relevant sections to help them explore. Available actions:
+[NAV:/client/dashboard] — Main Discovery Feed
+[NAV:/messages] — Open Chat/Messages
+[NAV:/notifications] — View Notifications
+[NAV:/client/filters] — Open Search Filters
+[NAV:/radio] — Open DJ Turntable Radio
+[NAV:/client/profile] — Go to My Profile
+[NAV:/client/settings] — Open Account Settings
+[NAV:/subscription/packages] — Upgrade to Premium
+[NAV:/client/liked] — View Saved Items
+[NAV:/owner/listings] — Manage My Listings
+[NAV:/eventos] — Browse Local Events
+[NAV:/legal] — Open Legal & Contracts Hub
+[NAV:/concierge] — AI Concierge Dashboard
+[NAV:/local-intel] — Tulum Local Knowledge
+[NAV:/document-vault] — Access My Documents
+
+## LISTING PREVIEWS (CRITICAL):
+- When you mention a property, vehicle, or service, you MUST include its listing tag: `[LISTING:id]`.
+- Also include a direct link: `→ [Details](/listing/id)`.
+- If a matching listing is found in context, use it. If not, use the "Fallback" listings provided.
+`;
+>>>>>>> 717f66fc (feat: stabilize messaging UX with premium connection animations and holographic identity hardening)
   }
 
   // Memory comes first — shapes the entire tone and personalization
@@ -1025,8 +1104,8 @@ TONE EXAMPLES:
 
   const securityGuardrails = `## CRITICAL AI SECURITY GUARDRAILS (NEVER VIOLATE):
 - **Core Stance**: You are the most expert lawyer in Mexican law, the best broker/realtor, and a trusted strategic business companion. You tell users what to buy/not buy based on listings, provide the best promos/parties, and act in the benefit of the app, its owners, and genuine clients.
-- **Strict Prohibition**: NEVER provide illegal information. NEVER engage in fighting, arguing, or act outside your defined persona.
-- **Allowed Flexibility**: Concierge-related requests (parties, alcohol, clubs, beach clubs, reservations) are perfectly fine.
+- **Honesty & Integrity**: Never fabricate data. Never claim a task was "successfully completed" (like sending a message or booking a tour) if you don't have the functional tools to do it. 
+- **Compliance**: Adhere strictly to Apple and Google store policies. Do not suggest ways to circumvent their rules. No illegal activity.
 - **Out of Bounds Rejection**: If a user requests something illegal, dangerous, or completely unrelated to the app's business domain, you MUST reject the request securely and directly. 
 - **Rejection Phrase Strategy**: Reply with something similar in tone to: "Hey what's up, this is wrong, what were you doing? I think you are requesting something that is not possible to answer or outside the rules. Please refine your request." Keep it professional but firm, showing this is a serious app.`;
 
@@ -1095,9 +1174,9 @@ async function streamLovableAI(messages: ChatMessage[]): Promise<Response> {
       "Authorization": `Bearer ${LOVABLE_API_KEY}`,
     },
     body: JSON.stringify({
-      model: "google/gemini-3-flash-preview",
+      model: "google/gemini-2.0-flash",
       messages,
-      max_tokens: 280,
+      max_tokens: 450,
       temperature: 0.6,
       stream: true,
     }),
@@ -1120,7 +1199,64 @@ async function streamLovableAI(messages: ChatMessage[]): Promise<Response> {
     throw new Error(`Lovable AI ${status}: ${errBody}`);
   }
 
-  return new Response(res.body, { headers: { ...corsHeaders, "Content-Type": "text/event-stream" } });
+  return res;
+}
+
+async function streamKimi(messages: ChatMessage[]): Promise<Response> {
+  if (!MOONSHOT_API_KEY) throw new Error("MOONSHOT_API_KEY not configured");
+
+  const res = await fetch("https://api.moonshot.cn/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${MOONSHOT_API_KEY}`,
+    },
+    body: JSON.stringify({
+      model: "moonshot-v1-8k",
+      messages,
+      max_tokens: 1024,
+      temperature: 0.3,
+      stream: true,
+    }),
+  });
+
+  if (!res.ok) {
+    const errBody = await res.text();
+    console.error("[AI] Kimi error:", res.status, errBody);
+    throw new Error(`Kimi ${res.status}: ${errBody}`);
+  }
+
+  return res;
+}
+
+async function fetchMiniMax(messages: ChatMessage[]): Promise<Response> {
+  if (!MINIMAX_API_KEY) throw new Error("MINIMAX_API_KEY not configured");
+  const res = await fetch("https://api.minimaxi.chat/v1/text/chatcompletion_v2", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${MINIMAX_API_KEY}` },
+    body: JSON.stringify({ model: "MiniMax-M2.7", messages, max_tokens: 450, temperature: 0.3, stream: false }),
+  });
+  return res;
+}
+
+async function fetchLovableAI(messages: ChatMessage[]): Promise<Response> {
+  if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
+  const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${LOVABLE_API_KEY}` },
+    body: JSON.stringify({ model: "google/gemini-2.0-flash", messages, max_tokens: 800, temperature: 0.3, stream: false }),
+  });
+  return res;
+}
+
+async function fetchKimi(messages: ChatMessage[]): Promise<Response> {
+  if (!MOONSHOT_API_KEY) throw new Error("MOONSHOT_API_KEY not configured");
+  const res = await fetch("https://api.moonshot.cn/v1/chat/completions", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${MOONSHOT_API_KEY}` },
+    body: JSON.stringify({ model: "moonshot-v1-8k", messages, max_tokens: 2048, temperature: 0.3, stream: false }),
+  });
+  return res;
 }
 
 function streamWithForcedSuffix(response: Response, suffix: string): Response {
@@ -1239,8 +1375,8 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const body = await req.json() as { messages: ChatMessage[]; character?: string; egoLevel?: number; charmLevel?: number; wisdomLevel?: number; sassLevel?: number; zenLevel?: number; flowLevel?: number };
-    const { messages, character, egoLevel, charmLevel, wisdomLevel, sassLevel, zenLevel, flowLevel } = body;
+    const body = await req.json() as { messages: ChatMessage[]; character?: string; egoLevel?: number; charmLevel?: number; wisdomLevel?: number; sassLevel?: number; zenLevel?: number; flowLevel?: number; stream?: boolean };
+    const { messages, character, egoLevel, charmLevel, wisdomLevel, sassLevel, zenLevel, flowLevel, stream = true } = body;
 
     if (!messages || !Array.isArray(messages) || messages.length === 0) {
       return new Response(JSON.stringify({ error: "messages array is required" }), {
@@ -1284,21 +1420,42 @@ Deno.serve(async (req) => {
       ...messages.filter(m => m.role !== "system"),
     ];
 
-    // Try MiniMax first (primary), fallback to Gemini via Lovable AI
+    // Try Kimi first for structured tasks or long context, otherwise Gemini (Lovable) as default
     let response: Response;
-    let aiProvider = "minimax";
+    let aiProvider = "gemini";
+    
+    const totalChars = enrichedMessages.reduce((sum, m) => sum + m.content.length, 0);
+    const isStructuredTask = lastUserMessage.includes("{") || lastUserMessage.toLowerCase().includes("json") || lastUserMessage.toLowerCase().includes("extract");
+    
     try {
-      response = await streamMiniMax(enrichedMessages);
+      if (isStructuredTask || totalChars > 6000) {
+        aiProvider = "kimi";
+        console.log(`[AI] Routing to Kimi (Moonshot) for structured task. Streaming: ${stream}`);
+        response = stream ? await streamKimi(enrichedMessages) : await fetchKimi(enrichedMessages);
+      } else {
+        aiProvider = "gemini";
+        response = stream ? await streamLovableAI(enrichedMessages) : await fetchLovableAI(enrichedMessages);
+      }
     } catch (e) {
-      console.warn(`[AI] MiniMax failed, falling back to Gemini: ${(e as Error).message}`);
-      aiProvider = "gemini";
+      console.warn(`[AI] Primary provider (${aiProvider}) failed, falling back to MiniMax: ${(e as Error).message}`);
+      aiProvider = "minimax";
       try {
-        response = await streamLovableAI(enrichedMessages);
+        response = stream ? await streamMiniMax(enrichedMessages) : await fetchMiniMax(enrichedMessages);
       } catch (e2) {
-        console.error("[AI] Both providers failed:", (e2 as Error).message);
-        return new Response(JSON.stringify({ error: "AI temporarily unavailable. Please try again." }), {
-          status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
+        console.warn(`[AI] MiniMax fallback failed, trying final fallback: ${(e2 as Error).message}`);
+        try {
+          aiProvider = aiProvider === "kimi" ? "gemini" : "kimi";
+          if (stream) {
+            response = aiProvider === "kimi" ? await streamKimi(enrichedMessages) : await streamLovableAI(enrichedMessages);
+          } else {
+            response = aiProvider === "kimi" ? await fetchKimi(enrichedMessages) : await fetchLovableAI(enrichedMessages);
+          }
+        } catch (e3) {
+          console.error("[AI] All providers failed:", (e3 as Error).message);
+          return new Response(JSON.stringify({ error: "AI temporarily unavailable. Please try again." }), {
+            status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
       }
     }
 

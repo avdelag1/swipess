@@ -9,6 +9,7 @@ import { STORAGE } from "@/constants/app";
 import { haptics } from "@/utils/microPolish";
 import { cn } from "@/lib/utils";
 import { NativeBridge } from "@/utils/nativeBridge";
+import { getSafePaymentUrl } from "@/config/iapProducts";
 
 import { PaymentErrorBoundary } from "@/components/PaymentErrorBoundary";
 
@@ -18,7 +19,7 @@ const clientPremiumPlans = [
     appleProductId: 'Swipess.plus.monthly.v2',
     name: 'Monthly',
     label: 'STARTER',
-    price: 29.99,
+    price: 39.99,
     durationText: '/month',
     aiTier: 'AI Lite',
     benefits: [
@@ -33,7 +34,7 @@ const clientPremiumPlans = [
       '🤖 AI Concierge — 15 messages/day',
       '📝 AI Listing Creator — 3 listings/month',
     ],
-    paypalUrl: 'https://www.paypal.com/ncp/payment/QSRXCJYYQ2UGY',
+    paypalUrl: getSafePaymentUrl('https://www.paypal.com/ncp/payment/QSRXCJYYQ2UGY'),
     accent: 'blue' as const,
   },
   {
@@ -41,7 +42,7 @@ const clientPremiumPlans = [
     appleProductId: 'Swipess.plus.semestral.v2',
     name: 'Semi-Annual',
     label: 'POPULAR',
-    price: 111.99,
+    price: 119.99,
     durationText: '/6 months',
     aiTier: 'AI Pro',
     benefits: [
@@ -58,7 +59,7 @@ const clientPremiumPlans = [
       '🗺️ Local Expert Knowledge & Recommendations',
       '💡 AI Smart Suggestions',
     ],
-    paypalUrl: 'https://www.paypal.com/ncp/payment/HUESWJ68BRUSY',
+    paypalUrl: getSafePaymentUrl('https://www.paypal.com/ncp/payment/HUESWJ68BRUSY'),
     accent: 'pink' as const,
   },
   {
@@ -66,7 +67,7 @@ const clientPremiumPlans = [
     appleProductId: 'Swipess.plus.annual.v2',
     name: 'Yearly Elite',
     label: 'BEST VALUE',
-    price: 149.99,
+    price: 299.99,
     durationText: '/year',
     aiTier: 'Swipess Unlimited',
     benefits: [
@@ -84,7 +85,7 @@ const clientPremiumPlans = [
       '🗺️ Local Insider Knowledge (Hidden Spots)',
       '⚡ Direct-to-Source Contact Unlocking',
     ],
-    paypalUrl: 'https://www.paypal.com/ncp/payment/7E6R38L33LYUJ',
+    paypalUrl: getSafePaymentUrl('https://www.paypal.com/ncp/payment/7E6R38L33LYUJ'),
     highlight: true,
     accent: 'gold' as const,
   },
@@ -163,7 +164,7 @@ export default function SubscriptionPackagesPage() {
         at: new Date().toISOString()
       }));
       window.open(plan.paypalUrl, '_blank');
-      toast.success('Redirecting to Checkout', { description: `Selected: ${plan.name} ($${plan.price} USD)` });
+      toast.success('Redirecting to Checkout', { description: `Selected: ${plan.name} (${plan.price} MXN)` });
     } catch (error) {
       console.error('Payment redirect failed:', error);
       toast.error('Could not open payment window', { description: 'Please check your browser popup blocker.' });
@@ -332,7 +333,9 @@ export default function SubscriptionPackagesPage() {
                       isHighlight && "shadow-amber-500/20"
                     )}
                   >
-                    {isHighlight ? 'Get Offer · Swipess Pro' : 'Get Offer'}
+                    {NativeBridge.isIOS() 
+                      ? (isHighlight ? 'Subscribe ·  Pay' : 'Subscribe') 
+                      : (isHighlight ? 'Get Offer · Swipess Pro' : 'Get Offer')}
                   </Button>
                 </div>
               </motion.div>

@@ -1,28 +1,16 @@
+import { supabase } from "@/integrations/supabase/client";
+
 /**
- * Kimi (Moonshot AI) Integration Utility
+ * Kimi (Moonshot AI) Integration Utility - Server-Side Proxy
  * 
- * Used for high-context processing and premium text refinement.
- * Moonshot AI (Kimi) is excellent at instruction following and structured JSON.
+ * Now redirects to the ai-concierge Edge Function to protect the API key.
+ * The Edge Function handles the routing to Moonshot (Kimi) based on task complexity.
  */
 
-const MOONSHOT_API_URL = 'https://api.moonshot.cn/v1/chat/completions';
-
-export async function refineWithKimi(text: string, apiKey?: string): Promise<string> {
-  const key = apiKey || import.meta.env.VITE_MOONSHOT_API_KEY;
-  if (!key) {
-    console.warn('Kimi API Key missing. Falling back to original text.');
-    return text;
-  }
-
+export async function refineWithKimi(text: string): Promise<string> {
   try {
-    const response = await fetch(MOONSHOT_API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${key}`
-      },
-      body: JSON.stringify({
-        model: 'moonshot-v1-8k',
+    const { data, error } = await supabase.functions.invoke('ai-concierge', {
+      body: {
         messages: [
           {
             role: 'system',
@@ -33,35 +21,27 @@ export async function refineWithKimi(text: string, apiKey?: string): Promise<str
             content: text
           }
         ],
-        temperature: 0.3
-      })
+        // Force the smart router to consider this a structured/Kimi task
+        character: 'listing_architect',
+        stream: false
+      }
     });
 
-    if (!response.ok) {
-      throw new Error(`Kimi API error: ${response.status}`);
-    }
+    if (error) throw error;
 
-    const data = await response.json();
-    return data.choices?.[0]?.message?.content || text;
+    // The edge function returns a stream or a full response depending on how it's called
+    // Since we're calling it via invoke (non-streaming by default), we get the full response
+    return data.choices?.[0]?.message?.content || data.reply || text;
   } catch (error) {
-    console.error('Kimi Refinement Failed:', error);
+    console.error('Kimi Refinement Proxy Failed:', error);
     return text;
   }
 }
 
-export async function extractListingWithKimi(text: string, category: string, apiKey?: string) {
-  const key = apiKey || import.meta.env.VITE_MOONSHOT_API_KEY;
-  if (!key) return null;
-
+export async function extractListingWithKimi(text: string, category: string) {
   try {
-    const response = await fetch(MOONSHOT_API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${key}`
-      },
-      body: JSON.stringify({
-        model: 'moonshot-v1-8k',
+    const { data, error } = await supabase.functions.invoke('ai-concierge', {
+      body: {
         messages: [
           {
             role: 'system',
@@ -72,14 +52,19 @@ export async function extractListingWithKimi(text: string, category: string, api
             content: text
           }
         ],
-        response_format: { type: 'json_object' }
-      })
+        // Force structured task routing
+        character: 'listing_extractor',
+        stream: false
+      }
     });
 
-    const data = await response.json();
-    return JSON.parse(data.choices?.[0]?.message?.content);
+    if (error) throw error;
+
+    const content = data.choices?.[0]?.message?.content || data.reply || '';
+    const jsonMatch = content.match(/\{[\s\S]*\}/);
+    return jsonMatch ? JSON.parse(jsonMatch[0]) : null;
   } catch (error) {
-    console.error('Kimi Extraction Failed:', error);
+    console.error('Kimi Extraction Proxy Failed:', error);
     return null;
   }
 }

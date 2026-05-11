@@ -20,6 +20,7 @@ import { useTranslation } from 'react-i18next';
 import { EventCard } from '@/components/events/EventCard';
 import { ShareModal } from '@/components/events/ShareModal';
 
+// Static Data
 import { CATEGORIES, MOCK_EVENTS } from '@/data/eventsData';
 import { EventItem } from '@/types/events';
 
@@ -407,7 +408,7 @@ export default function EventosFeed() {
       ) : (
         <div 
           ref={parentRef} 
-          className="w-full flex-1"
+          className="w-full h-[100dvh] overflow-y-auto snap-y snap-mandatory no-scrollbar"
         >
           <div style={{ height: `${rowVirtualizer.getTotalSize()}px`, position: 'relative' }}>
             {rowVirtualizer.getVirtualItems().map((virtualRow) => {

@@ -15,10 +15,10 @@ import { cn } from "@/lib/utils";
 import { NativeBridge } from "@/utils/nativeBridge";
 import { APPLE_TOKEN_PACKAGES } from "@/config/iapProducts";
 
-const formatUSD = (price: number) =>
-  new Intl.NumberFormat('en-US', {
+const formatMXN = (price: number) =>
+  new Intl.NumberFormat('es-MX', {
     style: 'currency',
-    currency: 'USD',
+    currency: 'MXN',
     minimumFractionDigits: 2,
   }).format(price);
 
@@ -82,14 +82,14 @@ export function MessageActivationPackages({
   const convertPackages = (): TokenPackage[] => APPLE_TOKEN_PACKAGES.map((pkg, index) => {
     const tier: 'starter' | 'standard' | 'premium' = index === 0 ? 'starter' : index === 1 ? 'standard' : 'premium';
     const iconMap = { starter: MessageCircle, standard: Zap, premium: Crown };
-    const pricePerToken = pkg.priceUsd / pkg.tokens;
+    const pricePerToken = pkg.priceMxn / pkg.tokens;
 
     return {
       id: pkg.productId,
       appleProductId: pkg.productId,
       name: pkg.name,
       tokens: pkg.tokens,
-      price: pkg.priceUsd,
+      price: pkg.priceMxn,
       pricePerToken,
       savings: pkg.badge === 'Best Value' ? 'Best Value' : undefined,
       tier,
@@ -97,7 +97,7 @@ export function MessageActivationPackages({
       duration_days: 30,
       package_category: packageCategory,
       paypalUrl: '',
-      features: [pkg.description, `${formatUSD(pricePerToken)} USD per token`, 'Instant App Store activation'],
+      features: [pkg.description, `${formatMXN(pricePerToken)} per token`, 'Instant App Store activation'],
       legal_documents: 0,
     };
   });
@@ -125,7 +125,7 @@ export function MessageActivationPackages({
 
     toast({
       title: "Apple checkout ready",
-      description: `${pkg.name}: ${pkg.tokens} tokens for ${formatUSD(pkg.price)} USD. Complete purchase in the iOS app.`,
+      description: `${pkg.name}: ${pkg.tokens} tokens for ${formatMXN(pkg.price)}. Complete purchase in the iOS app.`,
     });
   };
 
@@ -280,12 +280,12 @@ export function MessageActivationPackages({
                       </h3>
                       <div className="flex items-baseline justify-center gap-1">
                         <span className={cn("text-4xl font-black italic tracking-tighter", isDark ? "text-white" : "text-gray-900")}>
-                          {formatUSD(pkg.price)}
+                          {formatMXN(pkg.price)}
                         </span>
-                        <span className={cn("text-xs font-bold", isDark ? "text-white/70" : "text-gray-500")}>USD</span>
+                        <span className={cn("text-xs font-bold", isDark ? "text-white/70" : "text-gray-500")}>MXN</span>
                       </div>
                       <p className={cn("text-[10px] font-bold uppercase tracking-widest", isDark ? "text-white/70" : "text-gray-500")}>
-                        {formatUSD(pkg.pricePerToken)} per token
+                        {formatMXN(pkg.pricePerToken)} per token
                       </p>
                     </div>
                   </CardHeader>
@@ -310,10 +310,18 @@ export function MessageActivationPackages({
                       onClick={() => handlePurchase(pkg)}
                       className={`w-full h-14 rounded-2xl text-base font-black uppercase tracking-tighter transition-all duration-300 ${styles.button}`}
                     >
-                      <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797H9.603c-.564 0-1.04.408-1.13.964L7.076 21.337z" />
-                      </svg>
-                      Secure Purchase
+                      {NativeBridge.isIOS() ? (
+                        <div className="flex items-center">
+                          Buy ·  Pay
+                        </div>
+                      ) : (
+                        <>
+                          <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797H9.603c-.564 0-1.04.408-1.13.964L7.076 21.337z" />
+                          </svg>
+                          Secure Purchase
+                        </>
+                      )}
                     </Button>
                   </CardFooter>
                 </Card>
