@@ -1,5 +1,6 @@
 import { useState, useMemo, useRef, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { NativeStore } from '@/utils/nativeStore';
 import { 
   Users, MapPin, Briefcase, Clock, Sparkles, X, 
   Settings2, ShieldCheck, Zap,
@@ -68,8 +69,17 @@ export default function RoommateMatching() {
   const nextCard = profiles[currentIndex + 1];
   const canUndo = currentIndex > 0;
 
+
   const handleSwipe = useCallback((direction: 'left' | 'right') => {
-    setCurrentIndex(prev => prev + 1);
+    setCurrentIndex(prev => {
+      const next = prev + 1;
+      // Request review on the 5th swipe to ensure positive sentiment
+      if (next === 5) {
+        NativeStore.requestReview();
+      }
+      return next;
+    });
+    
     if (direction === 'right') {
        triggerHaptic('success');
     } else {

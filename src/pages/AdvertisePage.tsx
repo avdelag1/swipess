@@ -358,26 +358,31 @@ export default function AdvertisePage() {
     // Always route to the submission form first; payment unlocks after approval.
     if (approvedSubmission) {
       // User already has an approved event → trigger purchase directly
-      if (NativeBridge.isIOS()) {
-        toast({ title: "In-App Purchase", description: "Connecting to App Store..." });
+      //  NATIVE PURCHASE BRIDGE (Guideline 3.1.1 Compliance)
+      if (Capacitor.isNativePlatform()) {
+        toast.info("Connecting to Store...");
         const promoMap: Record<string, string> = {
-          starter: 'Swipess.promo.event.week.v2',
-          growth:  'Swipess.promo.event.month.v2',
-          premium: 'Swipess.promo.event.quarter.v2',
+          starter: 'Swipess.promo.event.week',
+          growth:  'Swipess.promo.event.month',
+          premium: 'Swipess.promo.event.quarter',
         };
         const productId = promoMap[pkg.id];
+        
         if (!productId) {
-          toast.error('This package is unavailable on iOS.');
+          toast.error('This package is currently unavailable in the app store.');
           return;
         }
+
         const result = await NativeBridge.purchaseProduct(productId);
         if (result.success) {
-          toast.success("Payment Received!", { description: "Your promotion will be live shortly." });
+          toast.success("Success!", { description: "Your promotion will be live shortly." });
         } else if ((result as any).error !== 'CANCELLED') {
-          toast.error("Payment Failed", { description: "Please try again." });
+          toast.error("Transaction Error", { description: "Please check your App Store account." });
         }
         return;
       }
+
+      // WEB FALLBACK (Stripe/PayPal)
       window.open(pkg.paypalUrl, '_blank');
       toast.success("Redirecting to Checkout", { description: `Launching ${pkg.name} package.` });
       return;

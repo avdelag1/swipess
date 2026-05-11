@@ -120,15 +120,17 @@ const ShareRedirect = ({ kind }: { kind: 'listing' | 'profile' | 'event' }) => {
   return <Navigate to={`${target}${search}`} replace />;
 };
 
+import { NativeProvider } from "./components/native/NativeProvider";
+
 const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
   return (
     <GlobalErrorBoundary>
       <MaintenanceGate>
       <RootProviders authPromise={authPromise}>
-
-        <AppLayout>
-          <TooltipProvider>
-          <WelcomeBonusModal />
+        <NativeProvider>
+          <AppLayout>
+            <TooltipProvider>
+            <WelcomeBonusModal />
 
           <Suspense fallback={null}>
             <GuidedTourLazy />
@@ -228,6 +230,7 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
           </Routes>
           </TooltipProvider>
         </AppLayout>
+        </NativeProvider>
       </RootProviders>
       </MaintenanceGate>
     </GlobalErrorBoundary>
