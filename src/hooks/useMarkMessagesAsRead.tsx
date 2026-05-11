@@ -2,9 +2,11 @@ import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { logger } from '@/utils/prodLogger';
+import { useQueryClient } from '@tanstack/react-query';
 
 export function useMarkMessagesAsRead(conversationId: string, isActive: boolean) {
   const { user } = useAuth();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     if (!conversationId || !user?.id || !isActive) return;
@@ -20,6 +22,12 @@ export function useMarkMessagesAsRead(conversationId: string, isActive: boolean)
 
       if (error && import.meta.env.DEV) {
         logger.error('[MarkAsRead] Error:', error);
+      }
+      // Refresh inbox counters so the unread badge clears immediately
+      if (!error) {
+        queryClient.invalidateQueries({ queryKey: ['conversations', user.id] });
+        queryClient.invalidateQueries({ queryKey: ['unread-message-count'] });
+        queryClient.invalidateQueries({ queryKey: ['unread-notifications'] });
       }
     };
 
@@ -48,6 +56,10 @@ export function useMarkMessagesAsRead(conversationId: string, isActive: boolean)
                 if (error && import.meta.env.DEV) {
                   logger.error('[MarkAsRead] Error marking new message as read:', error);
                 }
+                if (!error) {
+                  queryClient.invalidateQueries({ queryKey: ['conversations', user.id] });
+                  queryClient.invalidateQueries({ queryKey: ['unread-message-count'] });
+                }
               }, () => {
                 // Non-critical error - message may still be marked as read
               });
@@ -62,7 +74,7 @@ export function useMarkMessagesAsRead(conversationId: string, isActive: boolean)
       channel.unsubscribe();
       supabase.removeChannel(channel);
     };
-  }, [conversationId, user?.id, isActive]);
+  }, [conversationId, user?.id, isActive, queryClient]);
 }
 
 

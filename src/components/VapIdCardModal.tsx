@@ -4,11 +4,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, ShieldCheck, MapPin, Droplets, ScanLine, Pencil, Phone, Languages } from 'lucide-react';
 import QRCode from 'react-qr-code';
 import { useAuth } from '@/hooks/useAuth';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import useAppTheme from '@/hooks/useAppTheme';
 import { CARD_THEMES } from './vap-id/cardThemes';
 import { VapIdEditModal } from './VapIdEditModal';
+import { useEffect } from 'react';
 
 export interface VapIdProps {
   isOpen: boolean;
@@ -17,6 +18,7 @@ export interface VapIdProps {
 
 export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
   const { user } = useAuth();
+  const queryClient = useQueryClient();
   const [themeIndex, setThemeIndex] = useState(0);
   const [editOpen, setEditOpen] = useState(false);
   const theme = CARD_THEMES[themeIndex];
@@ -26,6 +28,7 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
   const { data: profile } = useQuery({
     queryKey: ['vap-id-profile', user?.id],
     enabled: !!user?.id && isOpen,
+    staleTime: 0,
     queryFn: async () => {
       if (!user?.id) return null;
       const { data, error } = await supabase
@@ -41,17 +44,36 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
   const { data: clientProfile } = useQuery({
     queryKey: ['vap-id-client-profile', user?.id],
     enabled: !!user?.id && isOpen,
+    staleTime: 0,
     queryFn: async () => {
       if (!user?.id) return null;
       const { data, error } = await supabase
         .from('client_profiles')
-        .select('bio, nationality, city, interests, personality_traits, preferred_activities')
+        .select('bio, occupation, nationality, city, years_in_city, languages, interests, personality_traits, preferred_activities')
         .eq('user_id', user!.id)
         .maybeSingle();
       if (error) throw error;
       return data;
     },
   });
+
+  // REALTIME: live-refresh the card whenever either profile row changes
+  useEffect(() => {
+    if (!user?.id || !isOpen) return;
+    const channel = supabase
+      .channel(`vap-id-card-${user.id}`)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles', filter: `user_id=eq.${user.id}` }, () => {
+        queryClient.invalidateQueries({ queryKey: ['vap-id-profile', user.id] });
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'client_profiles', filter: `user_id=eq.${user.id}` }, () => {
+        queryClient.invalidateQueries({ queryKey: ['vap-id-client-profile', user.id] });
+      })
+      .subscribe();
+    return () => {
+      channel.unsubscribe();
+      supabase.removeChannel(channel);
+    };
+  }, [user?.id, isOpen, queryClient]);
 
   const name = profile?.full_name || user?.email?.split('@')[0] || 'Resident';
   const nationality = clientProfile?.nationality || profile?.nationality || '';
@@ -63,10 +85,14 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
   const phone = profile?.phone || '';
 
   const spokenLanguages = useMemo(() => {
-    const raw = profile?.languages_spoken;
+    // Prefer client_profiles.languages (what the Edit modal writes); fall back to profiles.languages_spoken
+    const clientLangs = (clientProfile as any)?.languages;
+    const raw = Array.isArray(clientLangs) && clientLangs.length > 0
+      ? clientLangs
+      : profile?.languages_spoken;
     if (Array.isArray(raw)) return raw.filter((v): v is string => typeof v === 'string');
     return [];
-  }, [profile?.languages_spoken]);
+  }, [clientProfile, profile?.languages_spoken]);
 
   const allTags = useMemo(() => {
     const tags: string[] = [];
