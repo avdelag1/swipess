@@ -200,18 +200,42 @@ export function MessagingDashboard() {
               isLight ? "bg-white border-black/5" : "bg-[#0A0A0C] border-white/5"
             )}
           >
-            {otherUser ? (
+            {conversation && otherUser ? (
               <MessagingInterface
                 conversationId={selectedConversationId}
                 otherUser={otherUser as any}
                 listing={listing}
-                currentUserRole={userRole}
-                onBack={() => { triggerHaptic('medium'); setSelectedConversationId(null); setDirectlyFetchedConversation(null); setSearchParams({}); }}
+                currentUserRole={userRole || 'client'}
+                onBack={() => { 
+                  triggerHaptic('medium'); 
+                  setSelectedConversationId(null); 
+                  setDirectlyFetchedConversation(null); 
+                  setSearchParams({}); 
+                }}
               />
+            ) : !isLoading && selectedConversationId ? (
+              <div className="flex flex-col items-center justify-center h-full gap-6 p-12 text-center">
+                <div className="w-20 h-20 rounded-[2rem] bg-red-500/10 flex items-center justify-center border border-red-500/20 mb-2">
+                   <ShieldAlert className="w-10 h-10 text-red-500" />
+                </div>
+                <div className="space-y-2">
+                  <h3 className="text-xl font-black uppercase italic tracking-tighter text-white">Interface Unavailable</h3>
+                  <p className="text-sm text-white/40 max-w-xs leading-relaxed font-medium">
+                    This conversation is no longer active or the recipient profile is inaccessible.
+                  </p>
+                </div>
+                <Button 
+                  onClick={() => { setSelectedConversationId(null); setSearchParams({}); }}
+                  variant="outline"
+                  className="rounded-full px-8 py-6 border-white/10 hover:bg-white/5 text-xs font-black uppercase tracking-widest mt-4"
+                >
+                  Back to Inbox
+                </Button>
+              </div>
             ) : (
               <div className="flex flex-col items-center justify-center h-full gap-4 text-[#EB4898]/40 uppercase font-black italic">
                 <div className="w-16 h-16 rounded-full border-4 border-[#EB4898]/10 border-t-[#EB4898] animate-spin" />
-                <span className="animate-pulse tracking-[0.3em] text-[10px]">Loading...</span>
+                <span className="animate-pulse tracking-[0.3em] text-[10px]">Synchronizing...</span>
               </div>
             )}
           </motion.div>
