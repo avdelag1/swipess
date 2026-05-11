@@ -253,6 +253,7 @@ export default function ClientWorkerDiscovery() {
               {hasActiveFilters ? 'Vaporize Filters' : 'Phase Out'}
             </button>
           </motion.div>
+        )}
       </div>
       
       <ConnectingOverlay 
