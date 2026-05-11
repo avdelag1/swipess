@@ -225,6 +225,15 @@ export function useConversations() {
         },
         () => refetch() // Message insert updates the 'last_message' in the list
       )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'conversation_messages',
+        },
+        () => refetch() // Read-receipt / is_read flips also belong in the inbox preview
+      )
       .subscribe();
 
     return () => {
@@ -312,6 +321,7 @@ export function useConversations() {
 }
 
 export function useConversationMessages(conversationId: string) {
+  const queryClient = useQueryClient();
   const query = useQuery({
     queryKey: ['conversation-messages', conversationId],
     queryFn: async () => {
@@ -364,14 +374,46 @@ export function useConversationMessages(conversationId: string) {
           table: 'conversation_messages',
           filter: `conversation_id=eq.${conversationId}`,
         },
-        () => refetch()
+        (payload) => {
+          // Optimistic append: push the new message straight into the cache so it
+          // appears instantly without waiting for a refetch round-trip.
+          const newMsg: any = payload.new;
+          if (newMsg) {
+            queryClient.setQueryData(['conversation-messages', conversationId], (prev: any) => {
+              if (!Array.isArray(prev)) return prev;
+              if (prev.some((m: any) => m.id === newMsg.id)) return prev; // dedupe
+              // Strip any optimistic placeholder that matches by content/sender
+              const cleaned = prev.filter((m: any) => !(m.is_optimistic && m.sender_id === newMsg.sender_id && (m.content === newMsg.content || m.message_text === newMsg.message_text)));
+              return [...cleaned, newMsg];
+            });
+          }
+          // Fallback refetch (in case sender profile metadata is needed)
+          refetch();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'conversation_messages',
+          filter: `conversation_id=eq.${conversationId}`,
+        },
+        (payload) => {
+          const updated: any = payload.new;
+          if (!updated) return;
+          queryClient.setQueryData(['conversation-messages', conversationId], (prev: any) => {
+            if (!Array.isArray(prev)) return prev;
+            return prev.map((m: any) => (m.id === updated.id ? { ...m, ...updated } : m));
+          });
+        }
       )
       .subscribe();
 
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [conversationId, refetch]);
+  }, [conversationId, refetch, queryClient]);
 
   return query;
 }
