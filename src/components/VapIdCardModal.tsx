@@ -45,7 +45,7 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
       if (!user?.id) return null;
       const { data, error } = await supabase
         .from('client_profiles')
-        .select('bio, nationality, city, interests, personality_traits, preferred_activities')
+        .select('bio, occupation, nationality, city, interests, personality_traits, preferred_activities')
         .eq('user_id', user!.id)
         .maybeSingle();
       if (error) throw error;

@@ -47,6 +47,8 @@ export function VapIdEditModal({ isOpen, onClose, onSaved }: Props) {
   const [yearsInCity, setYearsInCity] = useState<string>('');
   const [languages, setLanguages] = useState('');
   const [interests, setInterests] = useState('');
+  const [fullName, setFullName] = useState('');
+  const [phone, setPhone] = useState('');
 
   const { data: clientProfile, refetch } = useQuery({
     queryKey: ['vap-id-client-profile', user?.id],
@@ -62,6 +64,27 @@ export function VapIdEditModal({ isOpen, onClose, onSaved }: Props) {
       return data;
     },
   });
+
+  const { data: profile } = useQuery({
+    queryKey: ['vap-id-profile-minimal', user?.id],
+    enabled: !!user?.id && isOpen,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('full_name, phone')
+        .eq('user_id', user!.id)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  useEffect(() => {
+    if (profile) {
+      setFullName(profile.full_name || '');
+      setPhone(profile.phone || '');
+    }
+  }, [profile]);
 
   useEffect(() => {
     if (!clientProfile) return;
@@ -164,15 +187,17 @@ export function VapIdEditModal({ isOpen, onClose, onSaved }: Props) {
         if (insertErr) throw insertErr;
       }
 
-      // Also sync languages + city + nationality to the profiles table
+      // Also sync languages + city + nationality + name + phone to the profiles table
       // so the VapIdCardModal (which reads from profiles) shows updated data
       const profileSync: Record<string, any> = {};
-      if (langArray.length > 0) profileSync.languages_spoken = langArray;
-      if (city.trim()) profileSync.city = city.trim();
-      if (nationality.trim()) profileSync.nationality = nationality.trim();
-      if (Object.keys(profileSync).length > 0) {
-        await supabase.from('profiles').update(profileSync).eq('user_id', user.id);
-      }
+      profileSync.languages_spoken = langArray;
+      profileSync.city = city.trim() || null;
+      profileSync.nationality = nationality.trim() || null;
+      profileSync.full_name = fullName.trim() || null;
+      profileSync.phone = phone.trim() || null;
+      
+      const { error: profileErr } = await supabase.from('profiles').update(profileSync).eq('user_id', user.id);
+      if (profileErr) throw profileErr;
 
       // Invalidate all related caches so the card modal shows fresh data
       await Promise.all([
@@ -196,7 +221,7 @@ export function VapIdEditModal({ isOpen, onClose, onSaved }: Props) {
     } finally {
       setSaving(false);
     }
-  }, [user?.id, bio, occupation, city, nationality, yearsInCity, languages, interests, queryClient, refetch, onClose, onSaved]);
+  }, [user?.id, bio, occupation, city, nationality, yearsInCity, languages, interests, fullName, phone, queryClient, refetch, onClose, onSaved]);
 
   const getDocStatus = (docType: string) => documents?.find(d => d.document_type === docType)?.status || 'none';
   const getDocMeta = (docType: string) => documents?.find(d => d.document_type === docType);
@@ -262,6 +287,12 @@ export function VapIdEditModal({ isOpen, onClose, onSaved }: Props) {
                 <h3 className={cn("mt-1 text-sm font-black", isLight ? "text-black" : "text-white")}>Personal info</h3>
               </div>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <LabeledField label="Full Name">
+                  <Input value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Your Name" maxLength={60} />
+                </LabeledField>
+                <LabeledField label="Phone">
+                  <Input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+1 234..." maxLength={20} />
+                </LabeledField>
                 <LabeledField label="Occupation">
                   <Input value={occupation} onChange={(e) => setOccupation(e.target.value)} placeholder="Barista, Landlord, Dev…" maxLength={60} />
                 </LabeledField>
