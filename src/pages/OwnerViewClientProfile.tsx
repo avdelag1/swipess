@@ -21,11 +21,13 @@ import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
 import { useUserRatingAggregate } from '@/hooks/useRatingSystem';
 import { CompactRatingDisplay } from '@/components/RatingDisplay';
+import { ConnectingOverlay } from '@/components/ConnectingOverlay';
 
 export default function OwnerViewClientProfile() {
   const { clientId } = useParams();
   const navigate = useNavigate();
   const [isCreatingConversation, setIsCreatingConversation] = useState(false);
+  const [isConnecting, setIsConnecting] = useState(false);
   const startConversation = useStartConversation();
   const { data: ratingAggregate, isLoading: isRatingLoading } = useUserRatingAggregate(clientId);
   const { isLight } = useAppTheme();
@@ -107,13 +109,19 @@ export default function OwnerViewClientProfile() {
       });
 
       if (result?.conversationId) {
-        toast.success('Opening chat...', { id: 'start-conv' });
+        toast.dismiss('start-conv');
+        setIsConnecting(true);
+        
+        // Premium cinematic delay
+        await new Promise(resolve => setTimeout(resolve, 2200));
+        
         navigate(`/messages?conversationId=${result.conversationId}`);
       }
     } catch (error) {
       toast.error('Could not start conversation', { id: 'start-conv' });
     } finally {
       setIsCreatingConversation(false);
+      setIsConnecting(false);
     }
   };
 
@@ -467,6 +475,11 @@ export default function OwnerViewClientProfile() {
           <span>Message</span>
         </motion.button>
       </div>
+      
+      <ConnectingOverlay 
+        isOpen={isConnecting}
+        recipientName={client.full_name || 'Client'}
+      />
     </div>
   );
 }

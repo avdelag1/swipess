@@ -19,6 +19,7 @@ import { useTranslation } from 'react-i18next';
 // Modular Components
 import { EventCard } from '@/components/events/EventCard';
 import { ShareModal } from '@/components/events/ShareModal';
+import { ConnectingOverlay } from '@/components/ConnectingOverlay';
 
 // Static Data
 import { CATEGORIES, MOCK_EVENTS } from '@/data/eventsData';
@@ -65,6 +66,8 @@ export default function EventosFeed() {
   const [isPaused, setIsPaused] = useState(false);
   const [animKey, setAnimKey] = useState(0);
   const pauseTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [isConnecting, setIsConnecting] = useState(false);
+  const [connectingTarget, setConnectingTarget] = useState('');
 
   const hudGlassStyle: React.CSSProperties = {
     background: isLight ? 'rgba(255,255,255,0.95)' : 'rgba(10,10,11,0.72)',
@@ -283,11 +286,19 @@ export default function EventosFeed() {
     }
   }, [activeIdx, filteredEvents, queryClient]);
 
-  const handleOpenChat = useCallback((event: EventItem) => {
-    triggerHaptic('light');
+  const handleOpenChat = useCallback(async (event: EventItem) => {
+    triggerHaptic('heavy');
+    setConnectingTarget(event.organizer_name || 'Event Organizer');
+    setIsConnecting(true);
+
+    // Premium pause for the connection animation to resonate
+    await new Promise(resolve => setTimeout(resolve, 2200));
+
     const clean = (event.organizer_whatsapp || '').replace(/[^+\d]/g, '');
     const msg = encodeURIComponent(`Hi! I'm interested in "${event.title}" — I found it on Swipess 🎉`);
     window.open(`https://wa.me/${clean}?text=${msg}`, '_blank');
+    
+    setIsConnecting(false);
   }, []);
 
   const handleShare = useCallback((event: EventItem) => {
@@ -447,9 +458,17 @@ export default function EventosFeed() {
         </div>
       )}
 
-      {showShareModal && shareEventData && <ShareModal event={shareEventData} open={showShareModal} onClose={() => setShowShareModal(false)} />}
+      <ShareModal
+        isOpen={showShareModal}
+        onClose={() => setShowShareModal(false)}
+        eventData={shareEventData}
+      />
+
+      <ConnectingOverlay 
+        isOpen={isConnecting}
+        recipientName={connectingTarget}
+        statusText="Establishing premium connection..."
+      />
     </div>
   );
 }
-
-

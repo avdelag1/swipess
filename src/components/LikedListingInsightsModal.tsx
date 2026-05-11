@@ -31,6 +31,8 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { ReportDialog } from './ReportDialog';
 import { ShareDialog } from './ShareDialog';
+import { ConnectingOverlay } from './ConnectingOverlay';
+import { triggerHaptic } from '@/utils/haptics';
 
 interface LikedListingInsightsModalProps {
   open: boolean;
@@ -43,6 +45,8 @@ function LikedListingInsightsModalComponent({ open, onOpenChange, listing }: Lik
   const startConversation = useStartConversation();
   const queryClient = useQueryClient();
   const [isCreatingConversation, setIsCreatingConversation] = useState(false);
+  const [isConnecting, setIsConnecting] = useState(false);
+  const [connectingRecipient, setConnectingRecipient] = useState("");
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -279,8 +283,14 @@ function LikedListingInsightsModalComponent({ open, onOpenChange, listing }: Lik
       });
 
       if (result?.conversationId) {
-        navigate(`/messages?conversationId=${result.conversationId}`);
+        setConnectingRecipient(propertyInsights?.ownerLabel || "Owner");
+        setIsConnecting(true);
         onOpenChange(false);
+        
+        // Premium cinematic delay
+        await new Promise(resolve => setTimeout(resolve, 2200));
+        
+        navigate(`/messages?conversationId=${result.conversationId}`);
       }
     } catch (error) {
       if (import.meta.env.DEV) {
@@ -293,8 +303,9 @@ function LikedListingInsightsModalComponent({ open, onOpenChange, listing }: Lik
       });
     } finally {
       setIsCreatingConversation(false);
+      setIsConnecting(false);
     }
-  }, [listing, startConversation, navigate, onOpenChange]);
+  }, [listing, startConversation, navigate, onOpenChange, propertyInsights]);
 
   if (!listing) return null;
 
@@ -744,6 +755,11 @@ function LikedListingInsightsModalComponent({ open, onOpenChange, listing }: Lik
           }}
         />
       )}
+      
+      <ConnectingOverlay 
+        isOpen={isConnecting}
+        recipientName={connectingRecipient}
+      />
     </>
   );
 }

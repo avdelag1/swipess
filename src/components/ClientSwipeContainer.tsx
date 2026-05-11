@@ -39,7 +39,8 @@ import { usePullDownToDismiss } from './swipe/usePullDownToDismiss';
 import { Home, RefreshCw, ChevronLeft, SlidersHorizontal } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
-import useAppTheme from '@/hooks/useAppTheme';
+import useAppTheme from "@/hooks/useAppTheme";
+import { ConnectingOverlay } from '@/components/ConnectingOverlay';
 
 // FIX: Lazy-load modals via portal 
 const ShareDialog = lazy(() => import('./ShareDialog').then(m => ({ default: m.ShareDialog })));
@@ -114,6 +115,8 @@ const ClientSwipeContainerComponent = ({
   const [_swipeDirection, setSwipeDirection] = useState<'left' | 'right' | null>(null);
   const [messageDialogOpen, setMessageDialogOpen] = useState(false);
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
+  const [isConnecting, setIsConnecting] = useState(false);
+  const [connectingRecipient, setConnectingRecipient] = useState("");
   const cardRef = useRef<SimpleOwnerSwipeCardRef>(null);
 
   // Prevent accidental back button clicks within 1.5 seconds of mount
@@ -837,15 +840,21 @@ const ClientSwipeContainerComponent = ({
       });
 
       if (result?.conversationId) {
-        appToast.success('Opening chat...', 'Redirecting to conversation');
+        const recipientName = selectedClientId ? deckQueueRef.current.find(p => p.user_id === selectedClientId)?.name || 'Professional' : 'Professional';
+        setConnectingRecipient(recipientName);
+        setIsConnecting(true);
         setMessageDialogOpen(false);
-        await new Promise(resolve => setTimeout(resolve, 300));
+        
+        // Premium cinematic delay
+        await new Promise(resolve => setTimeout(resolve, 2200));
+        
         navigate(`/messages?conversationId=${result.conversationId}`);
       }
     } catch (error) {
       appToast.error('Could not start conversation', error instanceof Error ? error.message : 'Try again');
     } finally {
       setIsCreatingConversation(false);
+      setIsConnecting(false);
     }
   }, [isCreatingConversation, selectedClientId, startConversation, navigate]);
 
@@ -1119,6 +1128,11 @@ const ClientSwipeContainerComponent = ({
         </Suspense>,
         document.body
       )}
+
+      <ConnectingOverlay 
+        isOpen={isConnecting}
+        recipientName={connectingRecipient}
+      />
     </>
   );
 };

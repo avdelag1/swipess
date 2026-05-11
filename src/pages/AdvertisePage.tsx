@@ -360,29 +360,10 @@ export default function AdvertisePage() {
     // Step 1: Submission must be approved before payment.
     // Always route to the submission form first; payment unlocks after approval.
     if (approvedSubmission) {
-      // User already has an approved event → trigger purchase directly
-<<<<<<< HEAD
-      //  NATIVE PURCHASE BRIDGE (Guideline 3.1.1 Compliance)
-      if (Capacitor.isNativePlatform()) {
-        toast.info("Connecting to Store...");
-        const promoMap: Record<string, string> = {
-          starter: 'Swipess.promo.event.week',
-          growth:  'Swipess.promo.event.month',
-          premium: 'Swipess.promo.event.quarter',
-        };
-        const productId = promoMap[pkg.id];
-        
-        if (!productId) {
-          toast.error('This package is currently unavailable in the app store.');
-          return;
-        }
-
-        const result = await NativeBridge.purchaseProduct(productId);
-=======
       if (NativeBridge.isIOS()) {
-        toast({ title: "In-App Purchase", description: "Connecting to App Store..." });
+        toast.info("Connecting to App Store...");
         const result = await NativeBridge.purchaseProduct(pkg.appleProductId as any);
->>>>>>> 717f66fc (feat: stabilize messaging UX with premium connection animations and holographic identity hardening)
+
         if (result.success) {
           toast.success("Success!", { description: "Your promotion will be live shortly." });
         } else if ((result as any).error !== 'CANCELLED') {

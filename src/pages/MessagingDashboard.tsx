@@ -43,6 +43,7 @@ import useAppTheme from '@/hooks/useAppTheme';
 import { AtmosphericLayer } from '@/components/AtmosphericLayer';
 import { X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { ConnectingOverlay } from '@/components/ConnectingOverlay';
 
 export function MessagingDashboard() {
   const { user } = useAuth();
@@ -53,6 +54,8 @@ export function MessagingDashboard() {
   const [isStartingConversation, setIsStartingConversation] = useState(false);
   const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
   const [showActivationBanner, setShowActivationBanner] = useState(false);
+  const [isConnecting, setIsConnecting] = useState(false);
+  const [connectingRecipient, setConnectingRecipient] = useState("");
 
   const { data: fetchedRole } = useUserRole(user?.id);
   const userRole = fetchedRole || 'client';
@@ -155,6 +158,12 @@ export function MessagingDashboard() {
       });
       if (result.conversationId) {
         await refetch();
+        setConnectingRecipient("New Connection");
+        setIsConnecting(true);
+        
+        // Premium cinematic delay
+        await new Promise(resolve => setTimeout(resolve, 2200));
+        
         setSelectedConversationId(result.conversationId);
         setSearchParams({});
       }
@@ -162,6 +171,7 @@ export function MessagingDashboard() {
       setSearchParams({});
     } finally {
       setIsStartingConversation(false);
+      setIsConnecting(false);
     }
   }, [conversations, canSendMessage, startConversation, refetch, setSearchParams]);
 
@@ -392,6 +402,11 @@ export function MessagingDashboard() {
       </div>
       
       <MessageActivationPackages isOpen={showUpgradeDialog} onClose={() => setShowUpgradeDialog(false)} userRole={userRole} />
+      
+      <ConnectingOverlay 
+        isOpen={isConnecting}
+        recipientName={connectingRecipient}
+      />
     </div>
   );
 }

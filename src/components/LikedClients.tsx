@@ -14,6 +14,8 @@ import useAppTheme from "@/hooks/useAppTheme";
 import { useStartConversation } from "@/hooks/useConversations";
 import { PremiumLikedCard } from "@/components/PremiumLikedCard";
 import { LikedClientInsightsModal } from "@/components/LikedClientInsightsModal";
+import { ConnectingOverlay } from "@/components/ConnectingOverlay";
+import { triggerHaptic } from "@/utils/haptics";
 import { cn } from "@/lib/utils";
 import { EmptyState } from "@/components/ui/EmptyState";
 import {
@@ -55,6 +57,8 @@ export function LikedClients() {
   const [showInsightsModal, setShowInsightsModal] = useState(false);
   const [selectedClientForView, setSelectedClientForView] = useState<any>(null);
   const [sortBy, setSortBy] = useState<SortOption>("newest");
+  const [isConnecting, setIsConnecting] = useState(false);
+  const [connectingRecipient, setConnectingRecipient] = useState("");
 
   const queryClient = useQueryClient();
   const startConversation = useStartConversation();
@@ -137,12 +141,21 @@ export function LikedClients() {
           canStartNewConversation: true,
         });
         if (result?.conversationId) {
+          setConnectingRecipient(client.full_name || "Talent");
+          setIsConnecting(true);
+          triggerHaptic('medium');
+
+          // Premium cinematic delay
+          await new Promise(resolve => setTimeout(resolve, 2200));
+
           navigate(`/messages?conversationId=${result.conversationId}`);
         } else {
           appToast.error("Could not open chat", "Please try again.");
         }
       } catch (e: any) {
         appToast.error("Unable to start conversation", e?.message || "Please try again.");
+      } finally {
+        setIsConnecting(false);
       }
     }
   };
@@ -281,6 +294,11 @@ export function LikedClients() {
       </div>
 
       <LikedClientInsightsModal open={showInsightsModal} onOpenChange={setShowInsightsModal} client={selectedClientForView} />
+      
+      <ConnectingOverlay 
+        isOpen={isConnecting}
+        recipientName={connectingRecipient}
+      />
       
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent className="rounded-[2rem] bg-card border-border">

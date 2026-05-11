@@ -26,6 +26,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { usePersistentReorder } from "@/hooks/usePersistentReorder";
 import useAppTheme from "@/hooks/useAppTheme";
+import { ConnectingOverlay } from "@/components/ConnectingOverlay";
+import { triggerHaptic } from "@/utils/haptics";
 
 const clientCategories = [
   { id: "all", label: "All", icon: Flame },
@@ -43,6 +45,8 @@ const OwnerInterestedClients = () => {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [clientToDelete, setClientToDelete] = useState<{ user_id: string } | null>(null);
+  const [isConnecting, setIsConnecting] = useState(false);
+  const [connectingRecipient, setConnectingRecipient] = useState("");
   const queryClient = useQueryClient();
   const startConversation = useStartConversation();
 
@@ -168,14 +172,26 @@ const OwnerInterestedClients = () => {
     }
     if (action === "message") {
       try {
+        triggerHaptic('medium');
         const result = await startConversation.mutateAsync({
           otherUserId: client.user_id,
           initialMessage: `Hi ${client.full_name}! Thanks for liking my listing. Let's talk!`,
           canStartNewConversation: true,
         });
-        if (result?.conversationId) navigate(`/messages?conversationId=${result.conversationId}`);
+        
+        if (result?.conversationId) {
+          setConnectingRecipient(client.full_name || "Applicant");
+          setIsConnecting(true);
+          
+          // Premium cinematic delay
+          await new Promise(resolve => setTimeout(resolve, 2200));
+          
+          navigate(`/messages?conversationId=${result.conversationId}`);
+        }
       } catch {
         toast.error("Unable to start conversation");
+      } finally {
+        setIsConnecting(false);
       }
     }
   };
@@ -300,6 +316,11 @@ const OwnerInterestedClients = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      
+      <ConnectingOverlay 
+        isOpen={isConnecting}
+        recipientName={connectingRecipient}
+      />
     </div>
   );
 };

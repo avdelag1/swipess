@@ -12,13 +12,9 @@ import { cn } from '@/lib/utils';
 const promoTiers = [
   {
     id: 'week',
-<<<<<<< HEAD
     appleProductId: 'Swipess.promo.event.week.v2',
-    paypalUrl: 'https://www.paypal.com/ncp/payment/L94P4NFVX7T2E',
-=======
-    appleProductId: 'swipess_promo_event_week_v2',
     paypalUrl: getSafePaymentUrl('https://www.paypal.com/ncp/payment/L94P4NFVX7T2E'),
->>>>>>> 717f66fc (feat: stabilize messaging UX with premium connection animations and holographic identity hardening)
+
     name: 'Spark',
     duration: '1 Week',
     price: '89.99',
@@ -29,13 +25,9 @@ const promoTiers = [
   },
   {
     id: 'month',
-<<<<<<< HEAD
     appleProductId: 'Swipess.promo.event.month.v2',
-    paypalUrl: 'https://www.paypal.com/ncp/payment/XB42DA8JMY5L4',
-=======
-    appleProductId: 'swipess_promo_event_month_v2',
     paypalUrl: getSafePaymentUrl('https://www.paypal.com/ncp/payment/XB42DA8JMY5L4'),
->>>>>>> 717f66fc (feat: stabilize messaging UX with premium connection animations and holographic identity hardening)
+
     name: 'Pulse',
     duration: '1 Month',
     price: '149.99',
@@ -47,13 +39,9 @@ const promoTiers = [
   },
   {
     id: 'quarter',
-<<<<<<< HEAD
     appleProductId: 'Swipess.promo.event.quarter.v2',
-    paypalUrl: 'https://www.paypal.com/ncp/payment/RPCFCMXDL3M2C',
-=======
-    appleProductId: 'swipess_promo_event_quarter_v2',
     paypalUrl: getSafePaymentUrl('https://www.paypal.com/ncp/payment/RPCFCMXDL3M2C'),
->>>>>>> 717f66fc (feat: stabilize messaging UX with premium connection animations and holographic identity hardening)
+
     name: 'Wave',
     duration: '3 Months',
     price: '399.99',

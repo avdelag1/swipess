@@ -31,6 +31,8 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { ReportDialog } from './ReportDialog';
 import { ShareDialog } from './ShareDialog';
+import { ConnectingOverlay } from './ConnectingOverlay';
+import { triggerHaptic } from '@/utils/haptics';
 
 interface LikedClient {
   id: string;
@@ -63,6 +65,8 @@ function LikedClientInsightsModalComponent({ open, onOpenChange, client }: Liked
   const startConversation = useStartConversation();
   const queryClient = useQueryClient();
   const [isCreatingConversation, setIsCreatingConversation] = useState(false);
+  const [isConnecting, setIsConnecting] = useState(false);
+  const [connectingRecipient, setConnectingRecipient] = useState("");
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -262,8 +266,14 @@ function LikedClientInsightsModalComponent({ open, onOpenChange, client }: Liked
       });
 
       if (result?.conversationId) {
-        navigate(`/messages?conversationId=${result.conversationId}`);
+        setConnectingRecipient(client.name || "Client");
+        setIsConnecting(true);
         onOpenChange(false);
+        
+        // Premium cinematic delay
+        await new Promise(resolve => setTimeout(resolve, 2200));
+        
+        navigate(`/messages?conversationId=${result.conversationId}`);
       }
     } catch (error) {
       if (import.meta.env.DEV) {
@@ -276,6 +286,7 @@ function LikedClientInsightsModalComponent({ open, onOpenChange, client }: Liked
       });
     } finally {
       setIsCreatingConversation(false);
+      setIsConnecting(false);
     }
   }, [client, startConversation, navigate, onOpenChange]);
 
@@ -685,6 +696,11 @@ function LikedClientInsightsModalComponent({ open, onOpenChange, client }: Liked
           }}
         />
       )}
+      
+      <ConnectingOverlay 
+        isOpen={isConnecting}
+        recipientName={connectingRecipient}
+      />
     </>
   );
 }

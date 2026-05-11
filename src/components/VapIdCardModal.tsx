@@ -49,11 +49,8 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
       if (!user?.id) return null;
       const { data, error } = await supabase
         .from('client_profiles')
-<<<<<<< HEAD
         .select('bio, occupation, nationality, city, years_in_city, languages, interests, personality_traits, preferred_activities')
-=======
-        .select('bio, nationality, city, interests, personality_traits, preferred_activities, occupation')
->>>>>>> 717f66fc (feat: stabilize messaging UX with premium connection animations and holographic identity hardening)
+
         .eq('user_id', user!.id)
         .maybeSingle();
       if (error) throw error;

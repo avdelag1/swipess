@@ -29,6 +29,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { ConnectingOverlay } from "@/components/ConnectingOverlay";
+import { triggerHaptic } from "@/utils/haptics";
 
 type SortOption = "newest" | "oldest" | "price_low" | "price_high" | "az";
 
@@ -60,6 +62,8 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
   const [priceMax, setPriceMax] = useState("");
   const [sortBy, setSortBy] = useState<SortOption>("newest");
   const [showFilters, setShowFilters] = useState(false);
+  const [isConnecting, setIsConnecting] = useState(false);
+  const [connectingRecipient, setConnectingRecipient] = useState("");
 
   const { data: likedProperties = [], isLoading, refetch: refreshLikedProperties, isFetching } = useLikedProperties();
   const startConversation = useStartConversation();
@@ -131,16 +135,29 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
     }
     if (action === "message") {
       try {
+        triggerHaptic('medium');
         const result = await startConversation.mutateAsync({
           otherUserId: property.owner_id,
           listingId: property.id,
           initialMessage: `Hi! I'm interested in: ${property.title}. Could you tell me more?`,
           canStartNewConversation: true,
         });
-        if (result?.conversationId) navigate(`/messages?conversationId=${result.conversationId}`);
-        else navigate("/messages");
+        
+        if (result?.conversationId) {
+          setConnectingRecipient(property.owner?.full_name || "Listing Owner");
+          setIsConnecting(true);
+          
+          // Premium cinematic delay
+          await new Promise(resolve => setTimeout(resolve, 2200));
+          
+          navigate(`/messages?conversationId=${result.conversationId}`);
+        } else {
+          navigate("/messages");
+        }
       } catch {
         toast.error("Unable to start conversation");
+      } finally {
+        setIsConnecting(false);
       }
     }
   };
@@ -333,6 +350,11 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      
+      <ConnectingOverlay 
+        isOpen={isConnecting}
+        recipientName={connectingRecipient}
+      />
     </div>
   );
 };

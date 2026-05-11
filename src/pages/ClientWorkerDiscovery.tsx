@@ -16,6 +16,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
 import { WorkerCard, type WorkerListing } from '@/components/discovery/WorkerCard';
+import { ConnectingOverlay } from '@/components/ConnectingOverlay';
 
 // 🚀 SWIPESS: Explicit field selection to minimize payload
 const WORKER_FIELDS = `
@@ -64,6 +65,8 @@ export default function ClientWorkerDiscovery() {
   const navigate = useNavigate();
   const [selectedDuration, setSelectedDuration] = useState<string>('all');
   const [contactingId, setContactingId] = useState<string | null>(null);
+  const [isConnecting, setIsConnecting] = useState(false);
+  const [connectingRecipient, setConnectingRecipient] = useState("");
 
   const parentRef = useRef<HTMLDivElement>(null);
   const { data: workers, isLoading, refetch, isRefetching } = useWorkerListings(undefined, selectedDuration);
@@ -93,8 +96,16 @@ export default function ClientWorkerDiscovery() {
       });
 
       if (result?.conversationId) {
-        toast.success('Opening chat...', { id: 'contact-worker' });
-        await new Promise(resolve => setTimeout(resolve, 300));
+        toast.dismiss('contact-worker');
+        
+        // Find the worker listing to get the name for the overlay
+        const worker = workers?.find(w => w.owner_id === userId);
+        setConnectingRecipient(worker?.owner?.full_name || "Professional");
+        setIsConnecting(true);
+        
+        // Premium cinematic delay
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
         navigate(`/messages?conversationId=${result.conversationId}`);
       }
     } catch (error) {
@@ -104,8 +115,9 @@ export default function ClientWorkerDiscovery() {
       });
     } finally {
       setContactingId(null);
+      setIsConnecting(false);
     }
-  }, [contactingId, startConversation, navigate]);
+  }, [contactingId, startConversation, navigate, workers]);
 
   const clearFilters = () => setSelectedDuration('all');
   const hasActiveFilters = selectedDuration !== 'all';
@@ -241,8 +253,12 @@ export default function ClientWorkerDiscovery() {
               {hasActiveFilters ? 'Vaporize Filters' : 'Phase Out'}
             </button>
           </motion.div>
-        )}
       </div>
+      
+      <ConnectingOverlay 
+        isOpen={isConnecting}
+        recipientName={connectingRecipient}
+      />
     </div>
   );
 }

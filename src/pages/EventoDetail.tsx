@@ -11,6 +11,7 @@ import { useTranslation } from 'react-i18next';
 import { triggerHaptic } from '@/utils/haptics';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { generateShareUrl } from '@/hooks/useSharing';
+import { ConnectingOverlay } from '@/components/ConnectingOverlay';
 
 interface EventDetail {
   id: string;
@@ -108,6 +109,7 @@ export default function EventoDetail() {
   const queryClient = useQueryClient();
 
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [isConnecting, setIsConnecting] = useState(false);
 
   useEffect(() => {
     // Scroll to top on mount
@@ -236,12 +238,19 @@ export default function EventoDetail() {
     }
   };
 
-  const handleWhatsApp = () => {
-    triggerHaptic('medium');
+  const handleWhatsApp = async () => {
+    triggerHaptic('heavy');
     if (!event?.organizer_whatsapp) return;
+    
+    setIsConnecting(true);
+    // Premium cinematic pause
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
     const phone = event.organizer_whatsapp.replace(/\D/g, '');
     const message = encodeURIComponent(`Hola, vi tu evento "${event.title}" en Swipess 🔥`);
     window.open(`https://wa.me/${phone}?text=${message}`, '_blank');
+    
+    setIsConnecting(false);
   };
 
   const formatDate = (dateStr: string | null) => {
@@ -522,6 +531,11 @@ export default function EventoDetail() {
           </motion.button>
         </div>
       </div>
+      
+      <ConnectingOverlay 
+        isOpen={isConnecting}
+        recipientName={event.organizer_name || 'Event Organizer'}
+      />
     </div>
   );
 }

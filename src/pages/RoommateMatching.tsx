@@ -135,7 +135,7 @@ export default function RoommateMatching() {
       });
 
       // Show connection animation for a bit longer for effect
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise(resolve => setTimeout(resolve, 2200));
       
       if (result?.conversationId) {
         navigate(`/chat/${result.conversationId}`);

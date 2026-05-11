@@ -861,8 +861,8 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
         setDirectMessageDialogOpen(false);
         setIsConnecting(true);
         
-        // Let the animation play for 2 seconds
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        // Let the animation play for 2.2 seconds for premium processing feel
+        await new Promise(resolve => setTimeout(resolve, 2200));
         
         navigate(`/messages?conversationId=${result.conversationId}`);
       }

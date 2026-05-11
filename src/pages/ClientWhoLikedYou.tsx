@@ -25,6 +25,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { usePersistentReorder } from "@/hooks/usePersistentReorder";
 import useAppTheme from "@/hooks/useAppTheme";
+import { ConnectingOverlay } from "@/components/ConnectingOverlay";
+import { triggerHaptic } from "@/utils/haptics";
 
 interface InterestedOwner {
   id: string;
@@ -58,6 +60,8 @@ const ClientWhoLikedYou = () => {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [ownerToDelete, setOwnerToDelete] = useState<InterestedOwner | null>(null);
+  const [isConnecting, setIsConnecting] = useState(false);
+  const [connectingRecipient, setConnectingRecipient] = useState("");
   const queryClient = useQueryClient();
   const startConversation = useStartConversation();
 
@@ -128,14 +132,26 @@ const ClientWhoLikedYou = () => {
     }
     if (action === "message") {
       try {
+        triggerHaptic('medium');
         const result = await startConversation.mutateAsync({
           otherUserId: owner.owner_id,
           initialMessage: `Hi! I saw you were interested in my profile. Let's connect!`,
           canStartNewConversation: true,
         });
-        if (result?.conversationId) navigate(`/messages?conversationId=${result.conversationId}`);
+        
+        if (result?.conversationId) {
+          setConnectingRecipient(owner.owner_name || "Owner");
+          setIsConnecting(true);
+          
+          // Premium cinematic delay
+          await new Promise(resolve => setTimeout(resolve, 2200));
+          
+          navigate(`/messages?conversationId=${result.conversationId}`);
+        }
       } catch {
         toast.error("Unable to start conversation");
+      } finally {
+        setIsConnecting(false);
       }
     }
   };
@@ -261,6 +277,11 @@ const ClientWhoLikedYou = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      
+      <ConnectingOverlay 
+        isOpen={isConnecting}
+        recipientName={connectingRecipient}
+      />
     </div>
   );
 };

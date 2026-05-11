@@ -21,6 +21,8 @@ import { SEO } from '@/components/SEO';
 import { ShareDialog } from '@/components/ShareDialog';
 import { AtmosphericLayer } from '@/components/AtmosphericLayer';
 import { PreviewSwipeCard } from '@/components/preview/PreviewSwipeCard';
+import { ConnectingOverlay } from '@/components/ConnectingOverlay';
+import { useStartConversation } from '@/hooks/useConversations';
 
 export default function PublicListingPreview() {
   const { id } = useParams<{ id: string }>();
@@ -30,6 +32,10 @@ export default function PublicListingPreview() {
 
   const [showDirectMessageDialog, setShowDirectMessageDialog] = useState(false);
   const [showShareDialog, setShowShareDialog] = useState(false);
+  const [isConnecting, setIsConnecting] = useState(false);
+  const [isCreatingConversation, setIsCreatingConversation] = useState(false);
+  
+  const startConversation = useStartConversation();
 
   // Capture referral code
   useEffect(() => {
@@ -115,6 +121,38 @@ export default function PublicListingPreview() {
   const handleSignIn = () => {
     triggerHaptic('medium');
     navigate(`/?returnTo=/listing/${id}&intent=signin`);
+  };
+  
+  const handleSendMessage = async (text: string) => {
+    if (!listing?.owner_id || isCreatingConversation) return;
+    
+    setIsCreatingConversation(true);
+    triggerHaptic('medium');
+    
+    try {
+      const result = await startConversation.mutateAsync({
+        otherUserId: listing.owner_id,
+        listingId: listing.id,
+        initialMessage: text,
+        canStartNewConversation: true,
+      });
+      
+      setShowDirectMessageDialog(false);
+      setIsConnecting(true);
+      
+      // Premium cinematic delay
+      await new Promise(resolve => setTimeout(resolve, 2200));
+      
+      if (result?.conversationId) {
+        navigate(`/messages?conversationId=${result.conversationId}`);
+      }
+    } catch (err) {
+      console.error('[PublicListingPreview] Failed to send message:', err);
+      triggerHaptic('error');
+    } finally {
+      setIsCreatingConversation(false);
+      setIsConnecting(false);
+    }
   };
 
   return (
@@ -263,9 +301,10 @@ export default function PublicListingPreview() {
         <DirectMessageDialog
           open={showDirectMessageDialog}
           onOpenChange={setShowDirectMessageDialog}
-          onConfirm={() => setShowDirectMessageDialog(false)}
+          onConfirm={handleSendMessage}
           recipientName="Asset Authority"
           category={category}
+          isLoading={isCreatingConversation}
         />
       )}
 
@@ -279,6 +318,11 @@ export default function PublicListingPreview() {
           previewImage={heroImage}
         />
       )}
+      
+      <ConnectingOverlay 
+        isOpen={isConnecting}
+        recipientName={listing?.title || 'Asset Owner'}
+      />
     </div>
   );
 }
