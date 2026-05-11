@@ -4,17 +4,21 @@ import { SwipeTheme, themeDisplayNames } from "@/utils/sounds";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
-import { Volume2, VolumeX } from "lucide-react";
+import { Volume2, VolumeX, Vibrate } from "lucide-react";
 import { logger } from '@/utils/prodLogger';
+import { getHapticPreference, setHapticPreference } from "@/utils/haptics";
 
 export function SwipeSoundSettings() {
   const [theme, setTheme] = useState<SwipeTheme>('none');
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
+  const [hapticsEnabled, setHapticsEnabled] = useState(true);
 
   useEffect(() => {
     loadUserTheme();
+    setHapticsEnabled(getHapticPreference());
   }, []);
 
   const loadUserTheme = async () => {
@@ -67,7 +71,6 @@ export function SwipeSoundSettings() {
       if (error) {
         logger.error('Failed to update swipe sound theme:', error);
         toast.error('Failed to save sound preference');
-        // Revert to previous theme on error
         loadUserTheme();
       } else {
         toast.success(`Sound theme changed to ${themeDisplayNames[newTheme]}`);
@@ -81,66 +84,98 @@ export function SwipeSoundSettings() {
     }
   };
 
+  const handleHapticsChange = (enabled: boolean) => {
+    setHapticsEnabled(enabled);
+    setHapticPreference(enabled);
+    if (enabled) {
+      toast.success('Haptic feedback enabled');
+    } else {
+      toast.success('Haptic feedback disabled');
+    }
+  };
+
   const themeDescriptions: Record<SwipeTheme, string> = {
     none: 'Silent mode - no sounds will play',
     book: 'Satisfying page turning sounds',
     water: 'Calming water droplets and splashes',
-    funny: 'Like = random funny sound 🎉 · Dislike = random fart 💨 (notifications go funny too!)',
+    funny: 'Like = random funny sound 🎉 · Dislike = random fart 💨',
     calm: 'Peaceful meditation bells',
     randomZen: 'Random zen sounds - bells, gongs, and chimes'
   };
 
   return (
-    <Card className="bg-card border-border">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          {theme === 'none' ? (
-            <VolumeX className="w-5 h-5 text-muted-foreground" />
-          ) : (
-            <Volume2 className="w-5 h-5 text-primary" />
-          )}
-          Swipe Sound Theme
-        </CardTitle>
-        <CardDescription>
-          Customize the sounds that play when you swipe on properties
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="swipe-theme">Sound Theme</Label>
-          <Select
-            value={theme}
-            onValueChange={(value) => handleThemeChange(value as SwipeTheme)}
-            disabled={loading || initialLoading}
-          >
-            <SelectTrigger id="swipe-theme" className="w-full">
-              <SelectValue placeholder="Select a theme" />
-            </SelectTrigger>
-            <SelectContent>
-              {(Object.keys(themeDisplayNames) as SwipeTheme[]).map((themeKey) => (
-                <SelectItem key={themeKey} value={themeKey}>
-                  {themeDisplayNames[themeKey]}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <p className="text-xs text-muted-foreground">
-            {themeDescriptions[theme]}
-          </p>
-        </div>
+    <div className="space-y-6">
+      <Card className="bg-card border-border">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Vibrate className="w-5 h-5 text-primary" />
+            Haptic Feedback
+          </CardTitle>
+          <CardDescription>
+            Vibrate the device when swiping or interacting with the app.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-between">
+            <Label htmlFor="haptics-toggle" className="cursor-pointer">Enable Haptics</Label>
+            <Switch
+              id="haptics-toggle"
+              checked={hapticsEnabled}
+              onCheckedChange={handleHapticsChange}
+            />
+          </div>
+        </CardContent>
+      </Card>
 
-        {theme !== 'none' && (
-          <div className="rounded-lg bg-muted/50 p-3 space-y-1">
-            <p className="text-xs font-medium text-foreground">Note</p>
+      <Card className="bg-card border-border">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            {theme === 'none' ? (
+              <VolumeX className="w-5 h-5 text-muted-foreground" />
+            ) : (
+              <Volume2 className="w-5 h-5 text-primary" />
+            )}
+            Swipe Sound Theme
+          </CardTitle>
+          <CardDescription>
+            Customize the sounds that play when you swipe on properties
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="swipe-theme">Sound Theme</Label>
+            <Select
+              value={theme}
+              onValueChange={(value) => handleThemeChange(value as SwipeTheme)}
+              disabled={loading || initialLoading}
+            >
+              <SelectTrigger id="swipe-theme" className="w-full">
+                <SelectValue placeholder="Select a theme" />
+              </SelectTrigger>
+              <SelectContent>
+                {(Object.keys(themeDisplayNames) as SwipeTheme[]).map((themeKey) => (
+                  <SelectItem key={themeKey} value={themeKey}>
+                    {themeDisplayNames[themeKey]}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             <p className="text-xs text-muted-foreground">
-              Sounds will play when you swipe left or right on properties.
-              {theme === 'randomZen' && ' Random Zen picks a different sound each time.'}
-              {theme === 'funny' && ' Every dislike is a different fart. Every like is a different funny sound. Notifications get the funny treatment too!'}
+              {themeDescriptions[theme]}
             </p>
           </div>
-        )}
-      </CardContent>
-    </Card>
+
+          {theme !== 'none' && (
+            <div className="rounded-lg bg-muted/50 p-3 space-y-1">
+              <p className="text-xs font-medium text-foreground">Note</p>
+              <p className="text-xs text-muted-foreground">
+                Sounds will play when you swipe left or right on properties.
+              </p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
   );
 }
 

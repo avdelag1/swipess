@@ -442,16 +442,25 @@ const ConversationSidebar = memo(({
   onClose: () => void;
   isSwipess: boolean;
 }) => (
-  <motion.div
-    initial={{ x: -300, opacity: 0 }}
-    animate={{ x: 0, opacity: 1 }}
-    exit={{ x: -300, opacity: 0 }}
-    transition={{ type: 'spring', damping: 28, stiffness: 350 }}
-    className={cn(
-      "absolute inset-y-0 left-0 w-72 z-50 flex flex-col shadow-2xl transition-all border-r",
-      isSwipess ? "bg-black border-white/5" : "bg-white border-zinc-100"
-    )}
-  >
+  <>
+    {/* Backdrop for mobile */}
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      onClick={onClose}
+      className="absolute inset-0 z-40 bg-black/20 backdrop-blur-sm sm:hidden"
+    />
+    <motion.div
+      initial={{ x: -300, opacity: 0 }}
+      animate={{ x: 0, opacity: 1 }}
+      exit={{ x: -300, opacity: 0 }}
+      transition={{ type: 'spring', damping: 28, stiffness: 350 }}
+      className={cn(
+        "absolute inset-y-0 left-0 w-72 z-50 flex flex-col shadow-2xl transition-all border-r",
+        isSwipess ? "bg-black border-white/5" : "bg-white border-zinc-100"
+      )}
+    >
     <div className="flex items-center justify-between px-6 py-5 border-b border-black/[0.05]">
       <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-black/50 italic">ARCHIVES</h3>
       <button onClick={onClose} className="p-2 hover:bg-black/[0.05] rounded-full transition-all">
@@ -494,6 +503,7 @@ const ConversationSidebar = memo(({
       ))}
     </div>
   </motion.div>
+  </>
 ));
 ConversationSidebar.displayName = 'ConversationSidebar';
 

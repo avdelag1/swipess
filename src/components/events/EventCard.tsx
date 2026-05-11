@@ -102,15 +102,9 @@ export const EventCard = memo(({
       {/* Background photo with breathing-zoom */}
       <div className="absolute inset-0 overflow-hidden">
         <motion.div
-          initial={{ scale: 1.05, opacity: 0 }}
-          animate={{
-            scale: [1, 1.06, 1], 
-            opacity: 1,
-          }}
-          transition={{
-            scale: { duration: 12, repeat: Infinity, ease: "easeInOut" },
-            opacity: { duration: 0.6 },
-          }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.6 }}
           className="w-full h-full transform-gpu"
           style={{ willChange: 'transform', transform: 'translateZ(0)' }}
         >

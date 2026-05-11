@@ -159,6 +159,22 @@ export function VapIdEditModal({ isOpen, onClose }: Props) {
         if (insertErr) throw insertErr;
       }
 
+      // 🚀 SWIPESS SYNC: Ensure main profiles table stays in sync for the ID Card rendering
+      const { error: profileSyncErr } = await supabase
+        .from('profiles')
+        .update({
+          full_name: occupation ? `${user.email?.split('@')[0]} (${occupation})` : undefined,
+          city: city.trim() || undefined,
+          nationality: nationality.trim() || undefined,
+          languages_spoken: csvToArray(languages),
+          interests: csvToArray(interests),
+        })
+        .eq('id', user.id);
+      
+      if (profileSyncErr) {
+        console.warn('Profile sync warning:', profileSyncErr);
+      }
+
       await queryClient.invalidateQueries({ queryKey: ['vap-id-client-profile', user.id] });
       await queryClient.invalidateQueries({ queryKey: ['vap-id-profile', user.id] });
       await refetch();

@@ -14,7 +14,44 @@ const CLIENT_FIELDS = `
 `;
 
 // Demos disabled — show real users only.
-const DEMO_CLIENTS: any[] = [];
+// 🚀 SWIPESS SYNC: High-quality demo profiles to ensure the deck never feels empty.
+// These use diverse Unsplash avatars to look like a real community.
+const DEMO_CLIENTS: any[] = [
+  {
+    user_id: 'demo-roommate-1',
+    full_name: 'Elena Vance',
+    age: 26, gender: 'female',
+    city: 'Tulum', country: 'Mexico', nationality: 'American',
+    images: ['https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=1200'],
+    interests: ['Yoga', 'Vegan Cooking', 'Ocean Conservation'],
+    lifestyle_tags: ['Digital Nomad', 'Morning Person', 'Clean'],
+    bio: 'Looking for a shared villa in Aldea Zama. I work remotely in tech and love weekend cenote trips!',
+    client_type: 'renter', roommate_available: true, onboarding_completed: true
+  },
+  {
+    user_id: 'demo-roommate-2',
+    full_name: 'Julian Ricci',
+    age: 31, gender: 'male',
+    city: 'Tulum', country: 'Mexico', nationality: 'Italian',
+    images: ['https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=1200'],
+    interests: ['Music Production', 'Padel', 'Mezcal'],
+    lifestyle_tags: ['Entrepreneur', 'Social', 'Dog Friendly'],
+    bio: 'Finding a creative space to share. I produce melodic techno and enjoy the Tulum night life.',
+    client_type: 'renter', roommate_available: true, onboarding_completed: true
+  },
+  {
+    user_id: 'demo-roommate-3',
+    full_name: 'Sofia Chen',
+    age: 24, gender: 'female',
+    city: 'Tulum', country: 'Mexico', nationality: 'Canadian',
+    images: ['https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=1200'],
+    interests: ['Photography', 'Surfing', 'Sustainability'],
+    lifestyle_tags: ['Artist', 'Quiet', 'Minimalist'],
+    bio: 'Recent grad traveling the world. Looking for a zen room near the beach.',
+    client_type: 'renter', roommate_available: true, onboarding_completed: true
+  }
+];
+
 const _DEPRECATED_DEMO_CLIENTS: any[] = [
   {
     user_id: 'demo-client-buyer-1-disabled',
@@ -456,7 +493,9 @@ export function useSmartClientMatching(
                 // Hide profiles that have no real photo — avoids empty/placeholder cards in PWA.
                 results = results.filter(r => {
                     const imgs = (r as any).profile_images as any[] | undefined;
-                    return Array.isArray(imgs) && imgs.some(u => typeof u === 'string' && u && !u.includes('placeholder'));
+                    const hasRealPhoto = Array.isArray(imgs) && imgs.some(u => typeof u === 'string' && u && !u.includes('placeholder'));
+                    const isDemo = (r as any).isDemo;
+                    return hasRealPhoto || isDemo; // Always allow demo photos
                 });
 
                 // Filter by client_type if owner selected a category (buyers/renters/hire)

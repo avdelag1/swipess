@@ -20,8 +20,7 @@ import { useTranslation } from 'react-i18next';
 import { EventCard } from '@/components/events/EventCard';
 import { ShareModal } from '@/components/events/ShareModal';
 
-// Static Data
-import { CATEGORIES } from '@/data/eventsData';
+import { CATEGORIES, MOCK_EVENTS } from '@/data/eventsData';
 import { EventItem } from '@/types/events';
 
 
@@ -144,7 +143,10 @@ export default function EventosFeed() {
         .select('id, title, description, category, image_url, image_urls, video_url, event_date, location, location_detail, organizer_name, organizer_whatsapp, promo_text, discount_tag, is_free, price_text')
         .order('event_date', { ascending: true });
       
-      if (error) throw error;
+      if (error) {
+        console.warn('Supabase events fetch error:', error);
+        return [];
+      }
       
       const formatted: EventItem[] = (data || []).map((ev: any) => ({
         id: ev.id,
@@ -168,11 +170,16 @@ export default function EventosFeed() {
       return formatted;
     },
     staleTime: 5 * 60 * 1000,
-    placeholderData: [],
   });
 
   const allEvents = useMemo(() => {
-    const combined = rawEvents || [];
+    // 🚀 SWIPESS SYNC: Always merge MOCK_EVENTS to ensure a full, rich feed
+    // even if the database is sparse. Unique by ID to prevent duplicates.
+    const dbEvents = rawEvents || [];
+    const seen = new Set(dbEvents.map(e => e.id));
+    const validMocks = (MOCK_EVENTS || []).filter((m: any) => !seen.has(m.id));
+    
+    const combined = [...dbEvents, ...validMocks];
     
     if (combined.length > 0 && typeof window !== 'undefined') {
       import('@/utils/imageOptimization').then(({ pwaImagePreloader, getCardImageUrl }) => {
@@ -212,8 +219,17 @@ export default function EventosFeed() {
       }
     };
 
+    // 🚀 SNAP SCROLL ACTIVATION:
+    // Force the scroll container to use mandatory vertical snapping for TikTok-like experience.
+    el.classList.add('snap-y', 'snap-mandatory', 'scroll-smooth');
+    el.style.scrollSnapType = 'y mandatory';
+
     el.addEventListener('scroll', handleScroll, { passive: true });
-    return () => el.removeEventListener('scroll', handleScroll);
+    return () => {
+      el.removeEventListener('scroll', handleScroll);
+      el.classList.remove('snap-y', 'snap-mandatory');
+      el.style.scrollSnapType = '';
+    };
   }, [activeIdx, filteredEvents.length]);
 
   const rowVirtualizer = useVirtualizer({

@@ -586,8 +586,9 @@ button:not([data-no-cinematic]):not([role="tab"]):active {
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 
 @keyframes breathing-zoom {
-  0%   { transform: scale(1.03) translateZ(0); }
-  100% { transform: scale(1.18) translateZ(0); }
+  0%   { transform: scale(1.02) translateZ(0); opacity: 0.98; }
+  50%  { transform: scale(1.08) translateZ(0); opacity: 1; }
+  100% { transform: scale(1.14) translateZ(0); opacity: 0.98; }
 }
 
 .breathing-zoom {
