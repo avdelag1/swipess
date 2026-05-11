@@ -13,19 +13,18 @@ export function useMarkMessagesAsRead(conversationId: string, isActive: boolean)
 
     // Mark all unread messages in this conversation as read
     const markAsRead = async () => {
-      const { error, count } = await supabase
+      const { error } = await supabase
         .from('conversation_messages')
         .update({ is_read: true, read_at: new Date().toISOString() })
         .eq('conversation_id', conversationId)
         .neq('sender_id', user.id)
-        .eq('is_read', false)
-        .select('id', { count: 'exact', head: true });
+        .eq('is_read', false);
 
       if (error && import.meta.env.DEV) {
         logger.error('[MarkAsRead] Error:', error);
       }
       // Refresh inbox counters so the unread badge clears immediately
-      if (!error && (count ?? 0) >= 0) {
+      if (!error) {
         queryClient.invalidateQueries({ queryKey: ['conversations', user.id] });
         queryClient.invalidateQueries({ queryKey: ['unread-message-count'] });
         queryClient.invalidateQueries({ queryKey: ['unread-notifications'] });
