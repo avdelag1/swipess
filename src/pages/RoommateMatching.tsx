@@ -22,6 +22,9 @@ import { useFilterStore, useFilterActions } from '@/state/filterStore';
 import { MatchOverlay } from '@/components/native/MatchOverlay';
 import { triggerMatchConfetti } from '@/utils/celebration';
 import { useSwipeWithMatch } from '@/hooks/useSwipeWithMatch';
+import { useStartConversation } from '@/hooks/useConversations';
+import { useNavigate } from 'react-router-dom';
+import { appToast } from '@/utils/appNotification';
 
 const InfoPill = ({ icon: Icon, label, value }: { icon: any, label: string, value: string }) => {
   const { isLight } = useAppTheme();
@@ -57,6 +60,9 @@ export default function RoommateMatching() {
   const [uiVisible, setUiVisible] = useState(true);
   const [messageDialogOpen, setMessageDialogOpen] = useState(false);
   const [roommateVisible, setRoommateVisible] = useState(true);
+  const [isStartingConversation, setIsStartingConversation] = useState(false);
+  const navigate = useNavigate();
+  const startConversation = useStartConversation();
   
   // 🥂 CELEBRATION STATE
   const [showMatch, setShowMatch] = useState(false);
@@ -125,6 +131,37 @@ export default function RoommateMatching() {
 
   const handleLike = () => cardRef.current?.triggerSwipe('right');
   const handleDislike = () => cardRef.current?.triggerSwipe('left');
+
+  const handleSendMessage = async (message: string) => {
+    if (!topCard?.user_id) {
+      appToast.error('No profile selected', 'Try again with a different card');
+      return;
+    }
+    if (topCard.user_id === user?.id) {
+      appToast.error('Cannot message yourself', undefined);
+      return;
+    }
+    if (!user?.id) {
+      navigate('/auth');
+      return;
+    }
+    setIsStartingConversation(true);
+    try {
+      const result = await startConversation.mutateAsync({
+        otherUserId: topCard.user_id,
+        initialMessage: message,
+        canStartNewConversation: true,
+      });
+      if (result?.conversationId) {
+        setMessageDialogOpen(false);
+        navigate(`/messages?conversationId=${result.conversationId}`);
+      }
+    } catch (err) {
+      appToast.error('Error', err instanceof Error ? err.message : 'Could not start conversation');
+    } finally {
+      setIsStartingConversation(false);
+    }
+  };
 
   // Vertical swipe = pure pager (no like/dislike).
   const handleSkip = useCallback(() => {
@@ -412,6 +449,13 @@ export default function RoommateMatching() {
         isOpen={showMatch} 
         profile={matchedProfile} 
         onClose={() => setShowMatch(false)} 
+      />
+      <MessageConfirmationDialog
+        open={messageDialogOpen}
+        onOpenChange={setMessageDialogOpen}
+        onConfirm={handleSendMessage}
+        recipientName={topCard?.name || (topCard as any)?.full_name || 'this roommate'}
+        isLoading={isStartingConversation}
       />
     </div>
   );

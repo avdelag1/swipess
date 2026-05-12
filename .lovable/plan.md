@@ -1,45 +1,54 @@
-## What I'm fixing
+# Make Chat Work Everywhere
 
-Three concrete bugs you keep hitting. The Supabase/GitHub sync part of your message is just context — your env is already pointing at the correct backend, and `client_profiles.occupation` already exists in the schema, so no migration needed.
+## Problem
 
-### 1. Virtual ID Card doesn't update after editing
-**Root cause:** `VapIdCardModal` selects `bio, nationality, city, interests, personality_traits, preferred_activities` from `client_profiles` — but **not `occupation`**, even though the edit modal saves it. It also doesn't read `years_in_city` or `languages` (which the edit modal writes to `client_profiles.languages`, while the card reads `profiles.languages_spoken`). So saves succeed, cache invalidates, but the card never shows the new data because the query never asked for those columns.
+Several places in the app expose a "Message" button, but only a subset actually create a conversation in Supabase and navigate to `/messages?conversationId=…`. Concretely:
 
-**Fix:**
-- Add `occupation, years_in_city, languages` to the `client_profiles` select in `VapIdCardModal`.
-- Prefer `clientProfile.languages` over `profiles.languages_spoken` when present (edit modal only writes the client_profiles version).
-- Make both queries `staleTime: 0` and add a realtime subscription on `client_profiles` + `profiles` filtered by `user_id` so the card live-updates the moment Save is hit (or another device edits).
-- Keep `VapIdEditModal.handleSave` as-is (already hardened with upsert-via-select pattern).
+- **Roommate Matching** (`src/pages/RoommateMatching.tsx`) imports `MessageConfirmationDialog` and tracks `messageDialogOpen`, but **never renders the dialog**. Tapping the message button does nothing visible.
+- A few card surfaces fire `onMessage` callbacks that bubble up but never reach `useStartConversation`.
+- Working flows already exist (`SwipessSwipeContainer`, `ClientWhoLikedYou`, `OwnerInterestedClients`, `ClientLikedProperties`, `ClientWorkerDiscovery`) — they call `useStartConversation` correctly. We use them as the reference pattern.
 
-### 2. Messages — read state + realtime
-**Symptoms:** unread badges stuck, new messages don't pop in without refresh.
+The backend itself (`conversations`, `conversation_messages`, RLS via `is_conversation_participant`, realtime, `useStartConversation`, `useConversations`, `useRealtimeChat`) is in place. The bug is purely in the **frontend wiring** at message entry points.
 
-**Fix:**
-- `useMarkMessagesAsRead`: it's correct logic-wise but the realtime subscription doesn't invalidate the conversations list cache after marking read, so the unread counter on the inbox stays stale. After a successful mark-as-read, invalidate `['conversations', user.id]` and `['unread-message-count']`.
-- `useConversationMessages`: replace the full `refetch()` on every INSERT with an optimistic cache append (push payload.new into the React Query cache) so new messages appear instantly without a network round-trip; keep refetch as fallback.
-- `useConversations`: add a fan-out subscription on `conversation_messages` UPDATE events (currently only INSERT is watched) so when the other side reads our message, the "delivered → read" state updates live.
+## Goal
 
-### 3. Saved Likes don't refresh after swipe-right
-**Root cause:** `useLikedProperties` has `staleTime: Infinity` + `refetchOnMount: false`. `useSwipeWithMatch` intentionally skips invalidating `['liked-properties']` (comment in code says "avoid refetch race"). Net effect: the user right-swipes, navigates to Likes, sees nothing new until manual pull-to-refresh.
+Every button or affordance that means "talk to this person" must:
+1. Resolve the target user id (and optional `listing_id`).
+2. Open a confirmation dialog (or send directly where appropriate).
+3. Call `useStartConversation` which finds-or-creates the row in `conversations` and inserts the first row in `conversation_messages`.
+4. Navigate to `/messages?conversationId=<id>` so `MessagingDashboard` opens that thread.
 
-**Fix:**
-- After a successful right-swipe insert in `useSwipeWithMatch`, do an **optimistic cache update** on `['liked-properties']` / `['liked-clients']` (prepend the swiped item) instead of a full invalidate — preserves the no-race guarantee.
-- Verify `useLikesRealtime` is mounted at the app level (it lives in `src/hooks/useLikesRealtime.tsx`); if it isn't being mounted from `AppLayout`/`RootProviders`, mount it once globally so any like change anywhere refreshes the list.
-- Same treatment for `EventosLikes` (`target_type='event'` is already covered by the same hook).
+## Scope of fixes (frontend only)
 
-### What I'm NOT touching
-- Git/branch sync — that's a deployment concern; your workflows already handle it.
-- `VapIdEditModal.handleSave` logic (you said not to overwrite it).
-- Any schema migration — `occupation` is already in `client_profiles`.
+### 1. Roommate Matching — actually mount the dialog
+File: `src/pages/RoommateMatching.tsx`
+- Render `<MessageConfirmationDialog open={messageDialogOpen} onOpenChange={setMessageDialogOpen} … />` near `MatchOverlay`.
+- Provide `recipientName`, `recipientId = topCard.user_id`, and an `onConfirm(message)` handler that calls `useStartConversation().mutateAsync({ otherUserId: topCard.user_id, initialMessage: message, canStartNewConversation: true })`, then `navigate('/messages?conversationId=' + id)`.
+- Disable the message button while no `topCard` is present.
 
-## Files I'll edit
-- `src/components/VapIdCardModal.tsx` — expand select, add realtime, staleTime 0
-- `src/hooks/useMarkMessagesAsRead.tsx` — invalidate conversations + unread count after mark
-- `src/hooks/useConversations.tsx` — UPDATE subscription + optimistic message append in `useConversationMessages`
-- `src/hooks/useSwipeWithMatch.tsx` — optimistic prepend to liked-properties / liked-clients on right swipe
-- `src/App.tsx` or `src/providers/RootProviders.tsx` — ensure `useLikesRealtime()` is mounted once globally (if not already)
+### 2. Audit all "message" affordances and route them through one helper
+- Add a tiny hook `useOpenChatWith(userId, listingId?)` in `src/hooks/useOpenChatWith.ts` that wraps `useStartConversation` + navigation + error toast. This becomes the single source of truth and prevents future drift.
+- Replace ad-hoc copies in `ClientWhoLikedYou`, `OwnerInterestedClients`, `ClientLikedProperties`, `ClientWorkerDiscovery`, `OwnerLikedClients`, `OwnerViewClientProfile`, `PublicListingPreview`, `LikeNotificationActions`, `LikedClients`, `EventoDetail`, `DiscoverySidebar`, `MatchCelebration`/`MatchCelebrateModal`, `NotificationsDialog`, and the swipe containers to call this hook. Keep their existing dialogs; just centralize the create+navigate step.
 
-## Verification
-- ID card: edit occupation/bio/languages → hit Save → card behind updates without closing.
-- Messages: open a chat in two browsers → send from A → appears in B instantly + B's unread count clears for A after B opens it.
-- Likes: right-swipe a listing → tap Likes tab → item is at the top, no refresh needed.
+### 3. Confirm passive realtime is mounted globally
+- Verify `useLikesRealtime` and unread-count subscription are mounted once at `RootProviders` / `App` so badges update without a manual reload. Add if missing. (No backend change.)
+
+### 4. Quick UX guards
+- If `user` is not authenticated → route to `/auth` instead of silently failing.
+- If `topCard.user_id === user.id` → disable the button (don't allow messaging yourself).
+- Surface the existing `appToast.error` on failure so users see why it didn't open.
+
+## Out of scope
+
+- No schema / RLS changes — backend already supports this flow.
+- No changes to message sending inside an already-open conversation (`useSendMessage` + `useRealtimeChat` already work).
+- No edge function changes.
+
+## Verification checklist after build
+
+1. Swipe deck card → message icon → dialog → send → lands in `/messages` with the new thread, message visible.
+2. Roommate matching message button → dialog renders → send → thread opens.
+3. "Who liked you", "Interested clients", "Liked properties", "Worker discovery" → each "Message" button opens a thread.
+4. Notification "Reply" actions → open the correct thread.
+5. Sending a message in thread A on device 1 appears in real time on device 2 (already works via `useRealtimeChat`; just confirm).
+6. Unread badge in `BottomNavigation` increments and clears (already wired in `useUnreadMessageCount`).

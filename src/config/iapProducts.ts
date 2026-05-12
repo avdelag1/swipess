@@ -1,4 +1,4 @@
-import { NativeBridge } from '@/utils/nativeBridge';
+import { Capacitor } from '@capacitor/core';
 
 /**
  *  StoreKit 2 & Native Platform Bridge
@@ -48,7 +48,7 @@ export const ALL_APPLE_PRODUCTS: AppleProductId[] = [
  * @param url The PayPal/Web checkout URL
  */
 export const getSafePaymentUrl = (url?: string): string | undefined => {
-  if (NativeBridge.isIOS()) return undefined;
+  if (Capacitor.getPlatform() === 'ios') return undefined;
   return url;
 };
 
