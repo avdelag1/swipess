@@ -249,46 +249,11 @@ function LikedClientInsightsModalComponent({ open, onOpenChange, client }: Liked
     }
   };
 
-  const handleMessage = useCallback(async () => {
+  const handleMessage = useCallback(() => {
     if (!client) return;
-
-    setIsCreatingConversation(true);
-    try {
-      toast({
-        title: 'Starting conversation',
-        description: 'Creating a new conversation...',
-      });
-
-      const result = await startConversation.mutateAsync({
-        otherUserId: client.user_id,
-        initialMessage: `Hi ${client.name}! I'd like to connect with you.`,
-        canStartNewConversation: true,
-      });
-
-      if (result?.conversationId) {
-        setConnectingRecipient(client.name || "Client");
-        setIsConnecting(true);
-        onOpenChange(false);
-        
-        // Premium cinematic delay
-        await new Promise(resolve => setTimeout(resolve, 2200));
-        
-        navigate(`/messages?conversationId=${result.conversationId}`);
-      }
-    } catch (error) {
-      if (import.meta.env.DEV) {
-        logger.error('Error starting conversation:', error);
-      }
-      toast({
-        title: 'Could not start conversation',
-        description: error instanceof Error ? error.message : 'Please try again later.',
-        variant: 'destructive',
-      });
-    } finally {
-      setIsCreatingConversation(false);
-      setIsConnecting(false);
-    }
-  }, [client, startConversation, navigate, onOpenChange]);
+    onOpenChange(false);
+    navigate(`/messages?startConversation=${client.user_id}`);
+  }, [client, navigate, onOpenChange]);
 
   if (!client) return null;
 

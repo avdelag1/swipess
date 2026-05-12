@@ -811,11 +811,9 @@ const ClientSwipeContainerComponent = ({
   }, []);
 
   const handleConnect = useCallback((clientId: string) => {
-    logger.info('[ClientSwipeContainer] Message icon clicked, opening confirmation dialog');
-    setSelectedClientId(clientId);
-    setMessageDialogOpen(true);
     triggerHaptic('light');
-  }, []);
+    navigate(`/messages?startConversation=${clientId}`);
+  }, [navigate]);
 
   const handleSendMessage = useCallback(async (message: string) => {
     if (isCreatingConversation || !selectedClientId) return;
