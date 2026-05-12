@@ -7,7 +7,9 @@ const randomChoice = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
 // Utility function to select variation based on hash (deterministic per listing)
 const deterministicChoice = (arr, seed) => {
-  const hash = Math.abs(seed.split('').reduce((a, b) => {
+  if (!arr || arr.length === 0) return null;
+  const safeSeed = String(seed || '');
+  const hash = Math.abs(safeSeed.split('').reduce((a, b) => {
     a = ((a << 5) - a) + b.charCodeAt(0);
     return a & a;
   }, 0));
@@ -203,13 +205,14 @@ function generatePropertyTitle(data) {
   }
 
   const bedroomText = bedrooms ? `${bedrooms}BR ` : '';
-  const propertyTypeTitle = propertyType.charAt(0).toUpperCase() + propertyType.slice(1);
+  const safePropType = String(propertyType || 'Property');
+  const propertyTypeTitle = safePropType.charAt(0).toUpperCase() + safePropType.slice(1);
 
   if (featureText) {
-    return `${bedroomText}${propertyTypeTitle} in ${location} • ${featureText}`;
+    return `${bedroomText}${propertyTypeTitle} in ${location || 'Unknown Location'} • ${featureText}`;
   }
 
-  return `${bedroomText}${propertyTypeTitle} in ${location}`;
+  return `${bedroomText}${propertyTypeTitle} in ${location || 'Unknown Location'}`;
 }
 
 function generateLocationBenefits(location, propertyType) {
@@ -399,8 +402,9 @@ export function generateWorkerListing(data) {
     : 'dedicated professional';
 
   const serviceName = formatServiceName(serviceCategory);
+  const safeExpText = String(experienceText || 'Professional');
 
-  const opening = `${experienceText.charAt(0).toUpperCase() + experienceText.slice(1)} ${serviceName} serving ${serviceArea} with ${yearsExperience} ${yearsExperience === 1 ? 'year' : 'years'} of experience.`;
+  const opening = `${safeExpText.charAt(0).toUpperCase() + safeExpText.slice(1)} ${serviceName} serving ${serviceArea || 'local areas'} with ${yearsExperience || 0} ${yearsExperience === 1 ? 'year' : 'years'} of experience.`;
 
   // Build expertise section
   let expertiseText = '';
@@ -504,7 +508,8 @@ function formatServiceName(category) {
     petcare: 'Pet Care Specialist'
   };
 
-  return serviceNames[category] || category.charAt(0).toUpperCase() + category.slice(1);
+  const safeCat = String(category || 'Service');
+  return serviceNames[category] || safeCat.charAt(0).toUpperCase() + safeCat.slice(1);
 }
 
 // Export utility functions for testing

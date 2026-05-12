@@ -99,12 +99,13 @@ function TopBarComponent({
     },
   });
 
-  const initials = (profile?.full_name || user?.email || '?')
+  const baseString = profile?.full_name || user?.email || '?';
+  const initials = (typeof baseString === 'string' ? baseString : '?')
     .split(/[\s@.]/)
-    .map((s: string) => s[0])
     .filter(Boolean)
-    .slice(0, 2)
+    .map(part => part[0])
     .join('')
+    .slice(0, 2)
     .toUpperCase();
 
   return (
@@ -185,7 +186,7 @@ function TopBarComponent({
                       color: !isLight || isDashboard ? '#FFFFFF' : '#0A0A0A',
                     }}
                   >
-                    {profile.full_name.split(' ')[0]}
+                    {profile.full_name?.split(' ')?.[0] || 'User'}
                   </span>
                 )}
               </motion.button>
