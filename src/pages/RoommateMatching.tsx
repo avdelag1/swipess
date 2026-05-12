@@ -454,7 +454,7 @@ export default function RoommateMatching() {
         open={messageDialogOpen}
         onOpenChange={setMessageDialogOpen}
         onConfirm={handleSendMessage}
-        recipientName={topCard?.name || topCard?.full_name || 'this roommate'}
+        recipientName={topCard?.name || (topCard as any)?.full_name || 'this roommate'}
         isLoading={isStartingConversation}
       />
     </div>
