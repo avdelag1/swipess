@@ -440,7 +440,7 @@ export function useSmartClientMatching(
                 }
 
                 let { data: profiles, error } = await query
-                    .order('created_at', { ascending: false })
+                    .order('updated_at', { ascending: false, nullsFirst: false })
                     .range(page * pageSize, (page + 1) * pageSize - 1);
 
                 // 3. DEMO FALLBACK: If first page and category-specific query returns nothing, show demo
@@ -453,7 +453,7 @@ export function useSmartClientMatching(
                     let fallback = supabase.from('profiles')
                         .select(CLIENT_FIELDS)
                         .neq('user_id', userId)
-                        .order('created_at', { ascending: false })
+                        .order('updated_at', { ascending: false, nullsFirst: false })
                         .limit(pageSize);
                     if (targetUserIds.length > 0) {
                         fallback = fallback.in('user_id', targetUserIds);
@@ -522,9 +522,9 @@ export function useSmartClientMatching(
                 // This gives users clear feedback when no real matches exist nearby
 
                 const sortedReal = results.sort((a, b) => {
-                  // Newest profiles first so users see latest signups immediately
-                  const ta = new Date((a as any).created_at || 0).getTime();
-                  const tb = new Date((b as any).created_at || 0).getTime();
+                  // Most-recently-active profiles first (updated_at > created_at)
+                  const ta = new Date((a as any).updated_at || (a as any).created_at || 0).getTime();
+                  const tb = new Date((b as any).updated_at || (b as any).created_at || 0).getTime();
                   return tb - ta;
                 });
                 return appendDemoClients(sortedReal);
