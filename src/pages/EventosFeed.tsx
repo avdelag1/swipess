@@ -80,7 +80,7 @@ export default function EventosFeed() {
   };
 
   const resetFeedPosition = useCallback((behavior: ScrollBehavior = 'auto') => {
-    const el = parentRef.current;
+    const el = document.getElementById('dashboard-scroll-container') || parentRef.current;
     setActiveIdx(0);
     setAnimKey((key) => key + 1);
 
@@ -255,7 +255,7 @@ export default function EventosFeed() {
   }, []);
 
   useEffect(() => {
-    const el = parentRef.current;
+    const el = document.getElementById('dashboard-scroll-container') || parentRef.current;
     if (!el || !autoPlay || isPaused || filteredEvents.length <= 1) return;
 
     const timeout = setTimeout(() => {
@@ -419,7 +419,7 @@ export default function EventosFeed() {
       ) : (
         <div 
           ref={parentRef} 
-          className="w-full h-[100dvh] overflow-y-auto snap-y snap-mandatory no-scrollbar"
+          className="w-full relative"
         >
           <div style={{ height: `${rowVirtualizer.getTotalSize()}px`, position: 'relative' }}>
             {rowVirtualizer.getVirtualItems().map((virtualRow) => {
@@ -448,8 +448,8 @@ export default function EventosFeed() {
                     onChat={() => handleOpenChat(event)}
                     onShare={() => handleShare(event)}
                     onMiddleTap={() => handleMiddleTap(event)}
-                    onNextEvent={() => parentRef.current?.scrollBy({ top: parentRef.current?.clientHeight || window.innerHeight, behavior: 'smooth' })}
-                    onPrevEvent={() => parentRef.current?.scrollBy({ top: -(parentRef.current?.clientHeight || window.innerHeight), behavior: 'smooth' })}
+                    onNextEvent={() => { const el = document.getElementById('dashboard-scroll-container') || parentRef.current; el?.scrollBy({ top: el.clientHeight || window.innerHeight, behavior: 'smooth' }); }}
+                    onPrevEvent={() => { const el = document.getElementById('dashboard-scroll-container') || parentRef.current; el?.scrollBy({ top: -(el.clientHeight || window.innerHeight), behavior: 'smooth' }); }}
                   />
                 </div>
               );
