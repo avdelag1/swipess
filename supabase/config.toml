@@ -7,7 +7,7 @@ verify_jwt = true
 verify_jwt = true
 
 [functions.ai-orchestrator]
-verify_jwt = false
+verify_jwt = true
 
 [functions.delete-user]
 verify_jwt = true
@@ -19,16 +19,16 @@ verify_jwt = true
 verify_jwt = true
 
 [functions.voice-transcribe]
-verify_jwt = false
+verify_jwt = true
 
 [functions.link-preview]
-verify_jwt = false
+verify_jwt = true
 
 [functions.ai-profile-extract]
-verify_jwt = false
+verify_jwt = true
 
 [functions.ai-listing-extract]
-verify_jwt = false
+verify_jwt = true
 
 [functions.validate-google-play-purchase]
 verify_jwt = true
