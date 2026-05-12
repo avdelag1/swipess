@@ -107,6 +107,8 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
   const idNumber = "NX-" + (user?.id || 'resident').slice(0, 8).toUpperCase();
   const location = [city, country].filter(Boolean).join(', ');
 
+  const [imageError, setImageError] = useState(false);
+
   return createPortal(
     <>
     <AnimatePresence>
@@ -162,7 +164,18 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
                 <div className="flex gap-6 mb-8">
                   <div className="relative shrink-0">
                     <div className="w-[160px] h-[200px] rounded-[2rem] overflow-hidden shadow-2xl border-2 border-white/10">
-                      {avatarUrl ? <img src={avatarUrl} alt={name} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-4xl font-black" style={{ color: theme.accentColor, background: theme.tagBg }}>{name.charAt(0)}</div>}
+                      {avatarUrl && !imageError ? (
+                        <img 
+                          src={avatarUrl} 
+                          alt={name} 
+                          className="w-full h-full object-cover" 
+                          onError={() => setImageError(true)}
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-4xl font-black" style={{ color: theme.accentColor, background: theme.tagBg }}>
+                          {name.charAt(0)}
+                        </div>
+                      )}
                     </div>
                   </div>
 

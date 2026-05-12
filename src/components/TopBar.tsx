@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useState } from 'react';
 import { useAppNavigate } from "@/hooks/useAppNavigate";
 import { motion } from 'framer-motion';
 import { useLocation } from 'react-router-dom';
@@ -108,6 +108,8 @@ function TopBarComponent({
     .slice(0, 2)
     .toUpperCase();
 
+  const [imageError, setImageError] = useState(false);
+
   return (
     <header 
       className={cn(
@@ -164,11 +166,12 @@ function TopBarComponent({
                     boxShadow: '0 0 0 1px rgba(255,255,255,0.2) inset, 0 0 14px hsl(var(--primary) / 0.35)',
                   }}
                 >
-                  {profile?.avatar_url || user?.user_metadata?.avatar_url ? (
+                  {(profile?.avatar_url || user?.user_metadata?.avatar_url) && !imageError ? (
                     <img
                       src={profile?.avatar_url || user?.user_metadata?.avatar_url}
                       alt="Profile"
                       className="w-full h-full object-cover"
+                      onError={() => setImageError(true)}
                     />
                   ) : (
                     initials === '?' ? <UserRound className="h-4 w-4 text-primary-foreground" strokeWidth={2.4} /> : (
