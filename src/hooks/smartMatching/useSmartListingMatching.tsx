@@ -474,13 +474,13 @@ export function useSmartListingMatching(
                 }
 
                 let { data: listings, error } = await query
-                    .order('created_at', { ascending: false })
+                    .order('updated_at', { ascending: false, nullsFirst: false })
                     .limit(Math.max(pageSize * (page + 1), 120));
                 if (error) {
                     logger.warn('[SmartMatching] listings query error, retrying without exclusion', error);
                     const retry = await supabase.from('listings')
                         .select(SWIPE_CARD_FIELDS)
-                        .order('created_at', { ascending: false })
+                        .order('updated_at', { ascending: false, nullsFirst: false })
                         .limit(pageSize * (page + 1));
                     if (retry.error) throw retry.error;
                     listings = retry.data as any;

@@ -172,8 +172,7 @@ export function useListings(excludeSwipedIds: string[] = [], options: { enabled?
           .from('listings')
           .select(SWIPE_CARD_FIELDS)
           .eq('status', 'active')
-          // Show all active listings (seed + real)
-          .order('created_at', { ascending: false });
+          .order('updated_at', { ascending: false, nullsFirst: false });
 
         // CRITICAL: Exclude own listings
         if (user.user) {
@@ -260,7 +259,7 @@ export function useOwnerListings() {
           .from('listings')
           .select('*')
           .eq('owner_id', user.id)
-          .order('created_at', { ascending: false })
+          .order('updated_at', { ascending: false, nullsFirst: false })
           .limit(100); // Prevent loading too many listings at once
 
         if (error) {
