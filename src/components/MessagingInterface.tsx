@@ -348,27 +348,6 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
 
             <div className="flex gap-1.5 shrink-0">
               <button
-                onClick={() => navigate('/subscription/packages')}
-                className={cn("px-3.5 h-10 rounded-2xl flex items-center gap-2 transition-all group overflow-hidden relative shadow-lg shadow-rose-500/10",
-                  isThemeLight ? "bg-black text-white hover:bg-black/90" : "bg-white text-black hover:bg-white/90"
-                )}
-              >
-                <div className="absolute inset-0 bg-gradient-to-r from-rose-500/20 via-violet-500/20 to-rose-500/20 opacity-0 group-hover:opacity-100 transition-opacity" />
-                <Sparkles className="w-3.5 h-3.5 fill-current" />
-                <span className="text-[10px] font-black uppercase tracking-widest hidden xs:block relative z-10">Premium</span>
-              </button>
-
-              <button
-                onClick={() => useModalStore.getState().setModal('showTokensModal', true)}
-                className={cn("px-4 h-10 rounded-2xl flex items-center gap-2 transition-all",
-                  isThemeLight ? "bg-rose-50 text-rose-500 hover:bg-rose-100" : "bg-rose-500/[0.08] text-rose-400 hover:bg-rose-500/[0.15] border border-rose-500/10"
-                )}
-              >
-                <Coins className="w-4 h-4 fill-current" />
-                <span className="text-[10px] font-black uppercase tracking-widest hidden xs:block">Tokens</span>
-              </button>
-
-              <button
                 onClick={() => setShowRatingDialog(true)}
                 className={cn("w-10 h-10 rounded-2xl flex items-center justify-center transition-all",
                   isThemeLight ? "bg-amber-50 text-amber-500 hover:bg-amber-100" : "bg-amber-500/[0.08] text-amber-400 hover:bg-amber-500/[0.15]"
@@ -388,6 +367,19 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
                 <DropdownMenuContent align="end" className="rounded-[1.5rem] bg-[#0e0e18] border-white/[0.08] p-2 shadow-2xl text-white backdrop-blur-xl min-w-[200px]">
                   <DropdownMenuItem className="p-4 rounded-[1rem] focus:bg-white/[0.07] cursor-pointer font-black uppercase tracking-widest text-[9px] gap-3">
                     <Info className="w-4 h-4" /> View Profile
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator className="bg-white/[0.06] my-1.5" />
+                  <DropdownMenuItem
+                    className="p-4 rounded-[1rem] focus:bg-white/[0.07] cursor-pointer font-black uppercase tracking-widest text-[9px] gap-3"
+                    onClick={() => navigate('/subscription/packages')}
+                  >
+                    <Sparkles className="w-4 h-4" /> Premium
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    className="p-4 rounded-[1rem] focus:bg-white/[0.07] cursor-pointer font-black uppercase tracking-widest text-[9px] gap-3"
+                    onClick={() => useModalStore.getState().setModal('showTokensModal', true)}
+                  >
+                    <Coins className="w-4 h-4" /> Tokens
                   </DropdownMenuItem>
                   <DropdownMenuSeparator className="bg-white/[0.06] my-1.5" />
                   <DropdownMenuItem
@@ -475,29 +467,6 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
           "shrink-0 px-4 pb-6 pt-4 backdrop-blur-3xl border-t transition-all",
           isThemeLight ? "bg-white/90 border-black/[0.06]" : "bg-[#050505]/90 border-white/[0.05]"
         )}>
-
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-4">
-            <button
-              onClick={() => setShowUpgradeDialog(true)}
-              className="w-full p-4 rounded-[1.5rem] bg-gradient-to-r from-rose-500 via-violet-600 to-rose-500 border border-white/20 flex items-center justify-between group hover:scale-[1.02] transition-all active:scale-[0.98] shadow-xl shadow-rose-500/20"
-            >
-              <div className="flex items-center gap-4">
-                <div className="w-11 h-11 rounded-xl bg-white/10 backdrop-blur-md flex items-center justify-center shadow-lg group-hover:rotate-12 transition-transform">
-                  <Zap className="w-6 h-6 text-white fill-white" />
-                </div>
-                <div className="text-left">
-                  <div className="flex items-center gap-2">
-                    <motion.p animate={{ opacity: [0.7, 1, 0.7] }} transition={{ duration: 2, repeat: Infinity, ease: "linear" }} className="text-[11px] font-black text-white uppercase tracking-[0.2em] leading-none">Unlimited Messages</motion.p>
-                    <div className="px-1.5 py-0.5 rounded-md bg-white text-rose-500 text-[7px] font-black uppercase tracking-widest shadow-sm">Active</div>
-                  </div>
-                  <p className="text-[9px] font-bold text-white/60 uppercase tracking-widest mt-1.5">Unlock the full Nexus experience</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2 bg-white/10 hover:bg-white/20 px-4 py-2 rounded-xl transition-colors">
-                <span className="text-[10px] font-black uppercase text-white tracking-widest">Upgrade</span>
-              </div>
-            </button>
-          </motion.div>
 
           <AnimatePresence>
             {showEmojiPicker && (
