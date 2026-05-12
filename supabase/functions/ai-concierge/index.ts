@@ -1212,9 +1212,9 @@ async function streamKimi(messages: ChatMessage[]): Promise<Response> {
       "Authorization": `Bearer ${MOONSHOT_API_KEY}`,
     },
     body: JSON.stringify({
-      model: "moonshot-v1-8k",
+      model: "moonshot-v1-32k",
       messages,
-      max_tokens: 1024,
+      max_tokens: 1500,
       temperature: 0.3,
       stream: true,
     }),
@@ -1254,7 +1254,7 @@ async function fetchKimi(messages: ChatMessage[]): Promise<Response> {
   const res = await fetch("https://api.moonshot.cn/v1/chat/completions", {
     method: "POST",
     headers: { "Content-Type": "application/json", "Authorization": `Bearer ${MOONSHOT_API_KEY}` },
-    body: JSON.stringify({ model: "moonshot-v1-8k", messages, max_tokens: 2048, temperature: 0.3, stream: false }),
+    body: JSON.stringify({ model: "moonshot-v1-32k", messages, max_tokens: 2048, temperature: 0.3, stream: false }),
   });
   return res;
 }
@@ -1420,36 +1420,24 @@ Deno.serve(async (req) => {
       ...messages.filter(m => m.role !== "system"),
     ];
 
-    // Try Kimi first for structured tasks or long context, otherwise Gemini (Lovable) as default
+    // Kimi (Moonshot) is the primary provider for ALL requests — best quality, long context.
+    // Fallback chain: Kimi → Gemini (Lovable) → MiniMax
     let response: Response;
-    let aiProvider = "gemini";
-    
-    const totalChars = enrichedMessages.reduce((sum, m) => sum + m.content.length, 0);
-    const isStructuredTask = lastUserMessage.includes("{") || lastUserMessage.toLowerCase().includes("json") || lastUserMessage.toLowerCase().includes("extract");
-    
+    let aiProvider = "kimi";
+
     try {
-      if (isStructuredTask || totalChars > 6000) {
-        aiProvider = "kimi";
-        console.log(`[AI] Routing to Kimi (Moonshot) for structured task. Streaming: ${stream}`);
-        response = stream ? await streamKimi(enrichedMessages) : await fetchKimi(enrichedMessages);
-      } else {
-        aiProvider = "gemini";
-        response = stream ? await streamLovableAI(enrichedMessages) : await fetchLovableAI(enrichedMessages);
-      }
+      console.log(`[AI] Using Kimi (Moonshot) as primary provider. Streaming: ${stream}`);
+      response = stream ? await streamKimi(enrichedMessages) : await fetchKimi(enrichedMessages);
     } catch (e) {
-      console.warn(`[AI] Primary provider (${aiProvider}) failed, falling back to MiniMax: ${(e as Error).message}`);
-      aiProvider = "minimax";
+      console.warn(`[AI] Kimi failed, falling back to Gemini: ${(e as Error).message}`);
+      aiProvider = "gemini";
       try {
-        response = stream ? await streamMiniMax(enrichedMessages) : await fetchMiniMax(enrichedMessages);
+        response = stream ? await streamLovableAI(enrichedMessages) : await fetchLovableAI(enrichedMessages);
       } catch (e2) {
-        console.warn(`[AI] MiniMax fallback failed, trying final fallback: ${(e2 as Error).message}`);
+        console.warn(`[AI] Gemini fallback failed, trying MiniMax: ${(e2 as Error).message}`);
+        aiProvider = "minimax";
         try {
-          aiProvider = aiProvider === "kimi" ? "gemini" : "kimi";
-          if (stream) {
-            response = aiProvider === "kimi" ? await streamKimi(enrichedMessages) : await streamLovableAI(enrichedMessages);
-          } else {
-            response = aiProvider === "kimi" ? await fetchKimi(enrichedMessages) : await fetchLovableAI(enrichedMessages);
-          }
+          response = stream ? await streamMiniMax(enrichedMessages) : await fetchMiniMax(enrichedMessages);
         } catch (e3) {
           console.error("[AI] All providers failed:", (e3 as Error).message);
           return new Response(JSON.stringify({ error: "AI temporarily unavailable. Please try again." }), {
