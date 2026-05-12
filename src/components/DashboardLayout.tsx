@@ -271,8 +271,15 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
           touchAction: isSwipeDeck ? 'none' : undefined,
         }}
       >
-        {/* INNER WRAPPER: Ensures flex-grow works correctly for child pages */}
-        <div className={cn("w-full flex flex-col min-h-0", isSwipeDeck ? "h-full flex-1 overflow-hidden" : "flex-grow min-h-full")}>
+        {/* INNER WRAPPER: Ensures flex-grow works correctly for child pages.
+            Non-swipe routes get top + bottom padding so content is never hidden
+            under the fixed top bar or bottom nav. */}
+        <div className={cn(
+          "w-full flex flex-col min-h-0",
+          isSwipeDeck
+            ? "h-full flex-1 overflow-hidden"
+            : "flex-grow min-h-full pt-[calc(var(--top-bar-height,72px)+var(--safe-top,0px))] pb-[calc(var(--bottom-nav-height,64px)+var(--safe-bottom,0px))]"
+        )}>
           {children}
         </div>
       </main>
