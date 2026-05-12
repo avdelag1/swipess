@@ -33,7 +33,7 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
       if (!user?.id) return null;
       const { data, error } = await supabase
         .from('profiles')
-        .select('full_name, avatar_url, nationality, city, country, languages_spoken, phone, occupation')
+        .select('full_name, avatar_url, nationality, city, country, languages_spoken, phone')
         .eq('user_id', user!.id)
         .maybeSingle();
       if (error) throw error;
