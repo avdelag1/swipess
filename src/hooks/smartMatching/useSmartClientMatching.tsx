@@ -485,7 +485,7 @@ export function useSmartClientMatching(
                         matchPercentage: 80,
                         matchReasons: ['Profile available'], incompatibleReasons: [], verified: !!p.onboarding_completed,
                         roommate_available: !!cp?.roommate_available, city: p.city || cp?.city, country: p.country || cp?.country, work_schedule: p.work_schedule || cp?.work_schedule,
-                        occupation: p.occupation || cp?.occupation || ''
+                        occupation: cp?.occupation || ''
                     } as MatchedClientProfile;
                 });
 
