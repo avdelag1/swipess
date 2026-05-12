@@ -62,6 +62,8 @@ function NotificationItem({ notification, onClick, onDismiss, index }: Notificat
   const [isHovered, setIsHovered] = useState(false);
   const [isSwiping, setIsSwiping] = useState(false);
   
+  const [imageError, setImageError] = useState(false);
+  
   return (
     <motion.div
       initial={{ opacity: 0, y: 10, scale: 0.95 }}
@@ -106,7 +108,7 @@ function NotificationItem({ notification, onClick, onDismiss, index }: Notificat
           <div className="flex items-start gap-3">
             {/* Avatar or Icon */}
             <div className="flex-shrink-0 relative">
-              {notification.avatar ? (
+              {notification.avatar && !imageError ? (
                 <div className="relative">
                   <img
                     src={notification.avatar}
@@ -117,6 +119,7 @@ function NotificationItem({ notification, onClick, onDismiss, index }: Notificat
                         ? 'ring-primary/30' 
                         : 'ring-transparent'
                     )}
+                    onError={() => setImageError(true)}
                   />
                   {/* Type indicator badge */}
                   <div className="absolute -bottom-1.5 -right-1.5 p-1.5 rounded-lg" style={{ backgroundColor: config.bg }}>
