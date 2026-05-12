@@ -459,7 +459,7 @@ export function useConciergeAI() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${AUTH_KEY}`,
+          'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token ?? AUTH_KEY}`,
         },
         body: JSON.stringify({
           messages: apiMessages,
