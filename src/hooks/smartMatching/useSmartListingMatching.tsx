@@ -228,6 +228,7 @@ export function useSmartListingMatching(
 ) {
     const queryClient = useQueryClient();
     const { data: adminIds } = useAdminUserIds();
+    const channelIdRef = useRef(`smart-listings-sync-${Math.random().toString(36).slice(2)}`);
 
     const isSeedListing = useMemo(() => (listing: any) => {
         const owner = listing?.owner_id || listing?.user_id;
@@ -289,21 +290,21 @@ export function useSmartListingMatching(
     useEffect(() => {
         if (!userId) return;
         const channel = supabase
-            .channel(`smart-listings-sync-${userId}`)
-            .on('postgres_changes', { 
-                event: 'INSERT', 
-                schema: 'public', 
-                table: 'listings' 
-            }, (payload) => {
+            .channel(`${channelIdRef.current}-${userId}`)
+            .on('postgres_changes', {
+                event: 'INSERT',
+                schema: 'public',
+                table: 'listings'
+            }, () => {
                 const now = Date.now();
                 if (now - lastInvalidateRef.current < 10000) return; // 10s cooldown
                 lastInvalidateRef.current = now;
-                
+
                 logger.info('[SmartMatching] New listing detected, refreshing cache...');
                 queryClient.invalidateQueries({ queryKey: ['smart-listings'] });
             })
             .subscribe();
-        return () => { channel.unsubscribe(); };
+        return () => { channel.unsubscribe(); supabase.removeChannel(channel); };
     }, [userId, queryClient]);
 
     const filtersKey = useMemo(() => {

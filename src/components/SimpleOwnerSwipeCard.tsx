@@ -14,7 +14,7 @@
 
 import { memo, useRef, useState, useCallback, useMemo, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { motion, useMotionValue, useTransform, PanInfo, animate, useDragControls, MotionValue } from 'framer-motion';
-import { MapPin, DollarSign, Briefcase, ThumbsUp, ThumbsDown, Flag, Share2 } from 'lucide-react';
+import { MapPin, DollarSign, Briefcase, ThumbsUp, ThumbsDown, Flag, Share2, MessageCircle, BarChart2 } from 'lucide-react';
 import { triggerHaptic } from '@/utils/haptics';
 import { cn } from '@/lib/utils';
 import { useMagnifier } from '@/hooks/useMagnifier';
@@ -26,7 +26,7 @@ import useAppTheme from '@/hooks/useAppTheme';
 import { imageCache } from '@/lib/swipe/cardImageCache';
 import { PhotoPositionIndicators } from '@/components/swipe/PhotoPositionIndicators';
 import { GestureHints } from '@/components/swipe/GestureHints';
-import { toggleChrome } from '@/hooks/useChromeReveal';
+import { toggleChrome, useChromeReveal } from '@/hooks/useChromeReveal';
 
 export interface SimpleOwnerSwipeCardRef {
   triggerSwipe: (direction: 'left' | 'right') => void;
@@ -237,6 +237,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
     }
   }, [profile?.user_id, x, y]);
 
+  const { isChromeVisible } = useChromeReveal();
   const [isZoomed, setIsZoomed] = useState(false);
   const floatingIconFilter = isLight
     ? 'drop-shadow(0 1px 1px hsl(var(--background) / 0.95)) drop-shadow(0 2px 6px hsl(var(--foreground) / 0.42))'
@@ -509,11 +510,42 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           </div>
         )}
 
-        {isTop && (onReport || onShare) && (
+        {isTop && (
           <div
-            className="absolute right-5 bottom-[calc(var(--bottom-nav-height,72px)+96px)] z-40 flex flex-col items-end gap-3 transition-opacity duration-150"
-            style={{ opacity: isZoomed ? 0 : 1 }}
+            className="absolute right-5 z-40 flex flex-col items-center gap-4 transition-all duration-300 pointer-events-auto"
+            style={{
+              top: '50%',
+              transform: 'translateY(-50%)',
+              opacity: isZoomed ? 0 : isChromeVisible ? 1 : 0,
+              pointerEvents: isZoomed || !isChromeVisible ? 'none' : 'auto',
+            }}
           >
+            {onInsights && (
+              <button
+                data-no-cinematic
+                type="button"
+                onPointerDown={(e) => e.stopPropagation()}
+                onClick={(e) => { e.stopPropagation(); onInsights(); }}
+                aria-label="Insights"
+                className="w-9 h-9 flex items-center justify-center bg-transparent border-0 shadow-none active:scale-90 transition-all duration-150"
+                style={{ backgroundColor: 'transparent', boxShadow: 'none' }}
+              >
+                <BarChart2 className="w-[20px] h-[20px]" strokeWidth={2.2} style={{ color: '#FFFFFF', filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.7))' }} />
+              </button>
+            )}
+            {onMessage && (
+              <button
+                data-no-cinematic
+                type="button"
+                onPointerDown={(e) => e.stopPropagation()}
+                onClick={(e) => { e.stopPropagation(); onMessage(); }}
+                aria-label="Message client"
+                className="w-9 h-9 flex items-center justify-center bg-transparent border-0 shadow-none active:scale-90 transition-all duration-150"
+                style={{ backgroundColor: 'transparent', boxShadow: 'none' }}
+              >
+                <MessageCircle className="w-[20px] h-[20px]" strokeWidth={2.2} style={{ color: '#FFFFFF', filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.7))' }} />
+              </button>
+            )}
             {onShare && (
               <button
                 data-no-cinematic
@@ -524,7 +556,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
                 className="w-9 h-9 flex items-center justify-center bg-transparent border-0 shadow-none active:scale-90 transition-all duration-150"
                 style={{ backgroundColor: 'transparent', boxShadow: 'none' }}
               >
-                <Share2 className="w-[18px] h-[18px]" strokeWidth={2.2} style={{ color: '#FFFFFF', filter: 'drop-shadow(0 2px 5px rgba(0,0,0,0.55))' }} />
+                <Share2 className="w-[20px] h-[20px]" strokeWidth={2.2} style={{ color: '#FFFFFF', filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.7))' }} />
               </button>
             )}
             {onReport && (
@@ -537,11 +569,11 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
                 className="w-9 h-9 flex items-center justify-center bg-transparent border-0 shadow-none active:scale-90 transition-all duration-150"
                 style={{ backgroundColor: 'transparent', boxShadow: 'none' }}
               >
-                <Flag className="w-[18px] h-[18px]" strokeWidth={2.2} style={{ color: '#FFFFFF', filter: 'drop-shadow(0 2px 5px rgba(0,0,0,0.55))' }} />
+                <Flag className="w-[20px] h-[20px]" strokeWidth={2.2} style={{ color: '#FFFFFF', filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.7))' }} />
               </button>
             )}
           </div>
-          )}
+        )}
           </>
         )}
       </motion.div>
