@@ -40,7 +40,7 @@ export function AnimatedOutlet() {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.16, ease: [0.22, 1, 0.36, 1] }}
           className={`flex-1 w-full flex flex-col ${isDashboardRoute ? 'bg-transparent' : 'bg-background'}`}
-          style={{ position: 'absolute', inset: 0, pointerEvents: isDashboardRoute ? 'none' : 'auto' }}
+          style={{ pointerEvents: isDashboardRoute ? 'none' : 'auto' }}
         >
           <Suspense fallback={null}>
             {outlet}
