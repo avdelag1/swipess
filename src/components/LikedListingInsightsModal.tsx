@@ -257,55 +257,11 @@ function LikedListingInsightsModalComponent({ open, onOpenChange, listing }: Lik
     }
   };
 
-  // Memoized callback to start conversation
-  const handleMessage = useCallback(async () => {
-    if (!listing?.owner_id) {
-      toast({
-        title: 'Error',
-        description: `${propertyInsights?.ownerLabel ?? 'Owner'} information not available`,
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    setIsCreatingConversation(true);
-    try {
-      toast({
-        title: 'Starting conversation',
-        description: 'Creating a new conversation...',
-      });
-
-      const result = await startConversation.mutateAsync({
-        otherUserId: listing.owner_id,
-        listingId: listing.id,
-        initialMessage: `Hi! I'm interested in your ${propertyInsights?.entityLabelLower ?? 'listing'}: ${listing.title}. Could you tell me more about it?`,
-        canStartNewConversation: true,
-      });
-
-      if (result?.conversationId) {
-        setConnectingRecipient(propertyInsights?.ownerLabel || "Owner");
-        setIsConnecting(true);
-        onOpenChange(false);
-        
-        // Premium cinematic delay
-        await new Promise(resolve => setTimeout(resolve, 2200));
-        
-        navigate(`/messages?conversationId=${result.conversationId}`);
-      }
-    } catch (error) {
-      if (import.meta.env.DEV) {
-        logger.error('Error starting conversation:', error);
-      }
-      toast({
-        title: 'Could not start conversation',
-        description: error instanceof Error ? error.message : 'Please try again later.',
-        variant: 'destructive',
-      });
-    } finally {
-      setIsCreatingConversation(false);
-      setIsConnecting(false);
-    }
-  }, [listing, startConversation, navigate, onOpenChange, propertyInsights]);
+  const handleMessage = useCallback(() => {
+    if (!listing?.owner_id) return;
+    onOpenChange(false);
+    navigate(`/messages?startConversation=${listing.owner_id}`);
+  }, [listing, navigate, onOpenChange]);
 
   if (!listing) return null;
 

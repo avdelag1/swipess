@@ -817,9 +817,10 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
     }
     const isDirectMessaging = isDirectMessagingListing(listing);
     if (isDirectMessaging) {
-      setSelectedListing(listing);
-      setDirectMessageDialogOpen(true);
       triggerHaptic('light');
+      startNavigation();
+      navigate(`/messages?startConversation=${targetUserId}`);
+      setTimeout(endNavigation, 500);
       return;
     }
     if (needsUpgrade) {
@@ -835,10 +836,11 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
       setTimeout(endNavigation, 500);
       return;
     }
-    setSelectedListing(listing);
-    setMessageDialogOpen(true);
     triggerHaptic('light');
     if (onMessageClick) onMessageClick();
+    startNavigation();
+    navigate(`/messages?startConversation=${targetUserId}`);
+    setTimeout(endNavigation, 500);
   };
 
   const handleSendMessage = async (message: string) => {
