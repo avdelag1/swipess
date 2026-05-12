@@ -252,7 +252,7 @@ export const DiscoveryFilters = memo(function DiscoveryFilters({ category, onApp
 
 
       {/* Demographic Filters */}
-      <Card className={cn("backdrop-blur-md overflow-hidden rounded-[2rem]", isLight ? "bg-white/50 border-black/5" : "bg-card/30 border-white/5")}>
+      <Card className={cn("backdrop-blur-md overflow-hidden rounded-[2rem]", isLight ? "bg-white/50 border-black/10 shadow-sm" : "bg-card/30 border-white/5")}>
         <Collapsible>
           <CollapsibleTrigger className="w-full p-6 flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -279,7 +279,7 @@ export const DiscoveryFilters = memo(function DiscoveryFilters({ category, onApp
       </Card>
 
       {/* Location Filter & Radius */}
-      <Card className={cn("backdrop-blur-md overflow-hidden rounded-[2rem]", isLight ? "bg-white/50 border-black/5" : "bg-card/30 border-white/5")}>
+      <Card className={cn("backdrop-blur-md overflow-hidden rounded-[2rem]", isLight ? "bg-white/50 border-black/10 shadow-sm" : "bg-card/30 border-white/5")}>
         <CardHeader className="pb-0 pt-6 px-6">
           <div className="flex items-center gap-2">
              <Globe className="w-4 h-4 text-primary" />
@@ -312,7 +312,7 @@ export const DiscoveryFilters = memo(function DiscoveryFilters({ category, onApp
       </Card>
 
       {/* Budget Filter */}
-      <Card className={cn("backdrop-blur-md overflow-hidden rounded-[2rem]", isLight ? "bg-white/50 border-black/5" : "bg-card/30 border-white/5")}>
+      <Card className={cn("backdrop-blur-md overflow-hidden rounded-[2rem]", isLight ? "bg-white/50 border-black/10 shadow-sm" : "bg-card/30 border-white/5")}>
         <CardHeader className="pb-2">
           <div className="flex items-center gap-2">
              <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center">
