@@ -519,7 +519,12 @@ export function useSmartClientMatching(
                 // 🚀 DEMO FALLBACK REMOVED: Show the "Adjust Radius" page instead of fake demo data
                 // This gives users clear feedback when no real matches exist nearby
 
-                const sortedReal = results.sort((a, b) => b.matchPercentage - a.matchPercentage);
+                const sortedReal = results.sort((a, b) => {
+                  // Newest profiles first so users see latest signups immediately
+                  const ta = new Date((a as any).created_at || 0).getTime();
+                  const tb = new Date((b as any).created_at || 0).getTime();
+                  return tb - ta;
+                });
                 return appendDemoClients(sortedReal);
             } catch (err) {
                 logger.error('[SmartClientMatching] Error:', err);

@@ -295,13 +295,13 @@ export function ClientVerificationFlow({ onComplete }: ClientVerificationFlowPro
                   </div>
                 </div>
 
-                <div className={cn("rounded-[2rem] p-8 border flex items-start gap-6 text-left", isLight ? "bg-black/[0.02] border-black/5" : "bg-white/[0.03] border-white/5")}>
-                   <AlertCircle className="w-6 h-6 text-amber-500 shrink-0 mt-1" />
-                   <div className="space-y-2">
-                       <h4 className="text-[12px] font-black uppercase italic tracking-tighter leading-none">Identity Compliance Review</h4>
-                       <p className="text-[10px] font-bold italic opacity-70 leading-relaxed uppercase tracking-widest">Manual review initialized. 24h expected processing time. Data is AES-256 encrypted.</p>
-                   </div>
-                </div>
+                 <div className={cn("rounded-[2rem] p-8 border flex items-start gap-6 text-left", isLight ? "bg-black/[0.04] border-black/10 shadow-sm" : "bg-white/[0.03] border-white/5")}>
+                    <AlertCircle className="w-6 h-6 text-amber-500 shrink-0 mt-1" />
+                    <div className="space-y-2">
+                        <h4 className={cn("text-[12px] font-black uppercase italic tracking-tighter leading-none", isLight ? "text-black" : "text-white")}>Identity Compliance Review</h4>
+                        <p className={cn("text-[10px] font-bold italic leading-relaxed uppercase tracking-widest", isLight ? "text-black/70" : "text-white/70")}>Manual review initialized. 24h expected processing time. Data is AES-256 encrypted.</p>
+                    </div>
+                 </div>
 
                 <Button
                   onClick={handleSubmit}

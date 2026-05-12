@@ -197,7 +197,7 @@ export function MessagingDashboard() {
             exit={{ opacity: 0, scale: 0.98 }}
             className={cn(
               "w-full max-w-4xl mx-auto flex flex-col flex-1 min-h-0 relative shadow-2xl overflow-hidden border-x",
-              isLight ? "bg-white border-black/5" : "bg-[#0A0A0C] border-white/5"
+              isLight ? "bg-white border-black/10" : "bg-[#0A0A0C] border-white/5"
             )}
           >
             {conversation && otherUser ? (
@@ -269,7 +269,7 @@ export function MessagingDashboard() {
               placeholder="SEARCH NAMES..." 
               className={cn(
                 "w-full pl-14 pr-14 h-16 rounded-[2.2rem] text-[14px] outline-none transition-all font-black uppercase tracking-widest border",
-                isLight ? "bg-white border-black/5 text-black placeholder:text-black/30 shadow-sm" : "bg-[#0d0d14] border-white/5 text-white placeholder:text-white/20 focus:border-white/10"
+                isLight ? "bg-[#fcfcfd] border-black/18 text-black placeholder:text-black/50 shadow-inner" : "bg-[#0d0d14] border-white/5 text-white placeholder:text-white/20 focus:border-white/10"
               )}
               value={searchQuery} 
               onChange={(e) => setSearchQuery(e.target.value)} 
@@ -277,7 +277,7 @@ export function MessagingDashboard() {
             {searchQuery && (
               <button 
                 onClick={() => setSearchQuery('')}
-                className="absolute right-6 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-full bg-black/5 hover:bg-black/10 text-[#EB4898] transition-all"
+                className={cn("absolute right-6 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-full transition-all", isLight ? "bg-black/[0.08] hover:bg-black/[0.12] text-[#EB4898]" : "bg-white/5 hover:bg-white/10 text-[#EB4898]")}
               >
                 <X className="w-4 h-4" />
               </button>
@@ -297,7 +297,7 @@ export function MessagingDashboard() {
                   "flex items-center gap-2.5 px-6 py-3 rounded-full text-[9px] font-black uppercase tracking-widest transition-all shrink-0 border shadow-sm",
                   activeFilter === filter.id 
                     ? "bg-[#EB4898] border-[#EB4898] text-white shadow-lg shadow-[#EB4898]/40" 
-                    : (isLight ? "bg-white border-black/10 text-black/50 hover:bg-zinc-50" : "bg-zinc-900 border-white/10 text-white/40 hover:bg-zinc-800")
+                    : (isLight ? "bg-white border-black/15 text-black/85 hover:bg-zinc-50" : "bg-zinc-900 border-white/10 text-white/40 hover:bg-zinc-800")
                 )}
               >
                 <filter.icon className={cn("w-3.5 h-3.5", activeFilter === filter.id ? "text-white" : "text-[#EB4898]")} />
@@ -326,8 +326,8 @@ export function MessagingDashboard() {
                     className={cn(
                       "w-full flex items-center gap-5 p-6 rounded-[2.2rem] text-left transition-all border group relative overflow-hidden",
                       isUnread 
-                        ? (isLight ? "bg-white border-black/10 shadow-[0_15px_40px_rgba(0,0,0,0.08)]" : "bg-[#0d0d14] border-white/10 shadow-[0_15px_40px_rgba(0,0,0,0.5)]") 
-                        : (isLight ? "bg-white border-black/[0.04] hover:bg-black/[0.01]" : "bg-[#08080c] border-white/[0.04] hover:bg-white/[0.01]")
+                        ? (isLight ? "bg-white border-black/15 shadow-[0_15px_40px_rgba(0,0,0,0.08)]" : "bg-[#0d0d14] border-white/10 shadow-[0_15px_40px_rgba(0,0,0,0.5)]") 
+                        : (isLight ? "bg-white border-black/10 hover:bg-black/[0.01]" : "bg-[#08080c] border-white/[0.04] hover:bg-white/[0.01]")
                     )} 
                     onClick={() => { triggerHaptic('medium'); setSelectedConversationId(conversation.id); }}
                   >
@@ -375,14 +375,17 @@ export function MessagingDashboard() {
                               <MoreVertical className="w-5 h-5" />
                             </Button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="rounded-[2rem] bg-[#121214] border-white/10 p-2 shadow-2xl text-white backdrop-blur-xl">
-                            <DropdownMenuItem className="p-4 rounded-[1.2rem] focus:bg-[#EB4898]/20 focus:text-white cursor-pointer font-black uppercase tracking-widest text-[9px]" onClick={e => { e.stopPropagation(); markChatAsRead.mutate(conversation.id); }} disabled={!isUnread}>
+                          <DropdownMenuContent align="end" className={cn(
+                            "rounded-[2rem] p-2 shadow-2xl backdrop-blur-xl border",
+                            isLight ? "bg-white border-black/10 text-black" : "bg-[#121214] border-white/10 text-white"
+                          )}>
+                            <DropdownMenuItem className={cn("p-4 rounded-[1.2rem] focus:bg-[#EB4898]/20 cursor-pointer font-black uppercase tracking-widest text-[9px]", isLight ? "focus:text-black" : "focus:text-white")} onClick={e => { e.stopPropagation(); markChatAsRead.mutate(conversation.id); }} disabled={!isUnread}>
                               <Check className="w-4 h-4 mr-3" /> Mark as Read
                             </DropdownMenuItem>
-                            <DropdownMenuItem className="p-4 rounded-[1.2rem] focus:bg-white/10 cursor-pointer font-black uppercase tracking-widest text-[9px]" onClick={e => { e.stopPropagation(); updateStatus.mutate({ conversationId: conversation.id, status: conversation.status === 'archived' ? 'active' : 'archived' }); }}>
+                            <DropdownMenuItem className={cn("p-4 rounded-[1.2rem] cursor-pointer font-black uppercase tracking-widest text-[9px]", isLight ? "focus:bg-black/5" : "focus:bg-white/10")} onClick={e => { e.stopPropagation(); updateStatus.mutate({ conversationId: conversation.id, status: conversation.status === 'archived' ? 'active' : 'archived' }); }}>
                               <Archive className="w-4 h-4 mr-3" /> {conversation.status === 'archived' ? 'Unarchive' : 'Archive'}
                             </DropdownMenuItem>
-                            <DropdownMenuSeparator className="bg-white/5 my-2" />
+                            <DropdownMenuSeparator className={cn("my-2", isLight ? "bg-black/5" : "bg-white/5")} />
                             <DropdownMenuItem className="p-4 rounded-[1.2rem] focus:bg-amber-500/20 text-amber-500 cursor-pointer font-black uppercase tracking-widest text-[9px]" onClick={e => { e.stopPropagation(); (window as any).dispatchEvent(new CustomEvent('open-report', { detail: { reportedUserId: conversation.other_user?.id, reportedUserAge: conversation.other_user?.age, reportCategory: 'user_profile' } })); }}>
                               <ShieldAlert className="w-4 h-4 mr-3" /> Report Entity
                             </DropdownMenuItem>
