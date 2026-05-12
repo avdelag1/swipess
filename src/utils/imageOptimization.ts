@@ -89,7 +89,7 @@ export function getThumbnailUrl(url: string): string {
     width: 400,
     height: 400,
     quality: 70,
-    format: 'avif'
+    format: 'webp'
   });
 }
 
@@ -134,7 +134,7 @@ export function getFullImageUrl(url: string): string {
   return optimizeImageUrl(url, {
     width: 1920,
     quality: 90,
-    format: 'avif'
+    format: 'webp'
   });
 }
 
@@ -158,8 +158,34 @@ export function getBlurDataUrl(url: string): string {
     width: 10,
     height: 10,
     quality: 30,
-    format: 'avif'
+    format: 'webp'
   });
+}
+
+const SUPABASE_STORAGE_BASE = `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public`;
+
+/**
+ * Resolve any image reference to a full public URL.
+ * Handles:
+ *   - Already-full https:// URLs → returned as-is
+ *   - "bucket/path" short strings → converted to full public URL
+ *   - Relative /public paths → returned as-is (local assets)
+ */
+export function resolveStorageUrl(ref: string | null | undefined, bucket = 'listing-images'): string {
+  if (!ref) return '/placeholder.svg';
+  if (ref.startsWith('http') || ref.startsWith('/')) return ref;
+  // "bucket/path" form
+  if (ref.includes('/') && !ref.startsWith('http')) {
+    const firstSlash = ref.indexOf('/');
+    const maybeBucket = ref.slice(0, firstSlash);
+    const knownBuckets = ['listing-images', 'profile-images', 'event-images'];
+    if (knownBuckets.includes(maybeBucket)) {
+      return `${SUPABASE_STORAGE_BASE}/${ref}`;
+    }
+    // Assume it's a path inside the default bucket
+    return `${SUPABASE_STORAGE_BASE}/${bucket}/${ref}`;
+  }
+  return `${SUPABASE_STORAGE_BASE}/${bucket}/${ref}`;
 }
 
 /**

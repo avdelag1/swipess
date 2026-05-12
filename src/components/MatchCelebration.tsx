@@ -31,6 +31,45 @@ export function MatchCelebration({ isOpen, onClose, onMessage, matchedUser }: Ma
     }
   }, [isOpen]);
 
+  useEffect(() => {
+    if (!isOpen) return;
+    const canvas = document.getElementById('match-celebration-canvas') as HTMLCanvasElement | null;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    canvas.width = w * window.devicePixelRatio;
+    canvas.height = h * window.devicePixelRatio;
+    ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+
+    const particles = Array.from({ length: 60 }, (_, i) => ({
+      x: w / 2, y: h / 2,
+      vx: (Math.random() - 0.5) * 20,
+      vy: (Math.random() - 0.5) * 20,
+      size: Math.random() * 3 + 2,
+      color: (['#fbbf24', '#f472b6', '#3b82f6', '#ffffff'] as const)[i % 4],
+      alpha: 1,
+      decay: 0.015 + Math.random() * 0.02,
+    }));
+
+    let rafId: number;
+    function animate() {
+      ctx!.clearRect(0, 0, w, h);
+      particles.forEach(p => {
+        p.x += p.vx; p.y += p.vy; p.vy += 0.2; p.alpha -= p.decay;
+        if (p.alpha > 0) {
+          ctx!.globalAlpha = p.alpha;
+          ctx!.fillStyle = p.color;
+          ctx!.beginPath(); ctx!.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx!.fill();
+        }
+      });
+      if (particles.some(p => p.alpha > 0)) rafId = requestAnimationFrame(animate);
+    }
+    animate();
+    return () => cancelAnimationFrame(rafId);
+  }, [isOpen]);
+
   const handleStartConversation = () => {
     onMessage();
     onClose();
@@ -62,45 +101,6 @@ export function MatchCelebration({ isOpen, onClose, onMessage, matchedUser }: Ma
             className="absolute inset-0 pointer-events-none z-0"
             style={{ width: '100%', height: '100%' }}
           />
-          <script dangerouslySetInnerHTML={{ __html: `
-            (function() {
-              const canvas = document.getElementById('match-celebration-canvas');
-              if (!canvas) return;
-              const ctx = canvas.getContext('2d');
-              let w = canvas.width = window.innerWidth;
-              let h = canvas.height = window.innerHeight;
-              canvas.width = w * window.devicePixelRatio;
-              canvas.height = h * window.devicePixelRatio;
-              ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
-              
-              const particles = [];
-              for (let i = 0; i < 60; i++) {
-                particles.push({
-                  x: w/2, y: h/2,
-                  vx: (Math.random() - 0.5) * 20,
-                  vy: (Math.random() - 0.5) * 20,
-                  size: Math.random() * 3 + 2,
-                  color: ['#fbbf24', '#f472b6', '#3b82f6', '#ffffff'][i % 4],
-                  alpha: 1,
-                  decay: 0.015 + Math.random() * 0.02
-                });
-              }
-              function animate() {
-                ctx.clearRect(0, 0, w, h);
-                particles.forEach(p => {
-                  p.x += p.vx; p.y += p.vy; p.vy += 0.2; p.alpha -= p.decay;
-                  if (p.alpha > 0) {
-                    ctx.globalAlpha = p.alpha;
-                    ctx.fillStyle = p.color;
-                    ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill();
-                  }
-                });
-                if (particles.some(p => p.alpha > 0)) requestAnimationFrame(animate);
-              }
-              animate();
-            })();
-          `}} />
-
           {/* Cinematic Title */}
           <div className="relative mb-12">
             <motion.h2

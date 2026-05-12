@@ -1344,18 +1344,18 @@ function wrapStreamForCapture(
   });
 }
 
-// ─── Extract user ID from JWT ───────────────────────────────────────────────
+// ─── Extract user ID via Supabase auth verification ─────────────────────────
 
-function extractUserId(authHeader: string | null): string | null {
-  if (!authHeader) return null;
+async function extractUserId(authHeader: string | null): Promise<string | null> {
+  if (!authHeader || !SUPABASE_URL || !SUPABASE_ANON_KEY) return null;
   try {
     const token = authHeader.replace("Bearer ", "");
-    const parts = token.split(".");
-    if (parts.length !== 3) return null;
-    const payload = JSON.parse(atob(parts[1]));
-    // Skip anon key tokens (no real user)
-    if (payload.role === "anon") return null;
-    return payload.sub || null;
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      global: { headers: { Authorization: `Bearer ${token}` } },
+    });
+    const { data: { user }, error } = await supabase.auth.getUser();
+    if (error || !user) return null;
+    return user.id;
   } catch {
     return null;
   }
@@ -1392,7 +1392,7 @@ Deno.serve(async (req) => {
     }
 
     // Extract user ID for personalization
-    const userId = extractUserId(req.headers.get("authorization"));
+    const userId = await extractUserId(req.headers.get("authorization"));
     const lastUserMessage = [...messages].reverse().find(m => m.role === "user")?.content || "";
 
     // Parallel context gathering — ALL at once

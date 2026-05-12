@@ -1076,22 +1076,14 @@ const ClientSwipeContainerComponent = ({
         </div>
 
 
-        {/* 🛸 ACTION BAR: Floating over the card near the bottom nav */}
+        {/* 🛸 ACTION BAR: Vertical floating panel on right side of card */}
         {topCard && (
-          <motion.div
-            className="absolute bottom-[calc(var(--bottom-nav-height,64px)+8px)] left-0 right-0 z-[60] flex justify-center pointer-events-auto"
-            style={{ opacity: pullDown.opacity, y: pullDown.y }}
-          >
-            <SwipeActionButtonBar
-              onLike={handleButtonLike}
-              onDislike={handleButtonDislike}
-              onShare={handleShare}
-              onInsights={() => handleInsights(topCard.user_id)}
-              onUndo={undoLastSwipe}
-              onMessage={() => handleConnect(topCard.user_id)}
-              canUndo={canUndo}
-            />
-          </motion.div>
+          <SwipeActionButtonBar
+            onMessage={() => handleConnect(topCard.user_id)}
+            onInsights={() => handleInsights(topCard.user_id)}
+            onShare={handleShare}
+            onReport={() => { triggerHaptic('medium'); setReportDialogOpen(true); }}
+          />
         )}
       </div>
 
