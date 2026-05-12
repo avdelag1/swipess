@@ -1,5 +1,5 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { logger } from '@/utils/prodLogger';
 import { MatchedClientProfile, ClientFilters } from './types';
@@ -226,6 +226,7 @@ export function useSmartClientMatching(
     const queryClient = useQueryClient();
     const filtersKey = useMemo(() => filters ? JSON.stringify(filters) : '', [filters]);
     const { data: adminIds } = useAdminUserIds();
+    const channelIdRef = useRef(`clients-realtime-${Math.random().toString(36).slice(2)}`);
 
     const normalizeImageList = (...sources: unknown[]): string[] => {
         const urls: string[] = [];
@@ -268,13 +269,13 @@ export function useSmartClientMatching(
     useEffect(() => {
         if (!userId) return;
         const channel = supabase
-            .channel('clients-realtime')
+            .channel(`${channelIdRef.current}-${userId}`)
             .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'profiles' }, () => {
                 logger.info('[SmartMatching] New profile inserted, invalidating queries');
                 queryClient.invalidateQueries({ queryKey: ['smart-clients'] });
             })
             .subscribe();
-        return () => { channel.unsubscribe(); };
+        return () => { channel.unsubscribe(); supabase.removeChannel(channel); };
     }, [userId, queryClient]);
 
     return useQuery<MatchedClientProfile[]>({
