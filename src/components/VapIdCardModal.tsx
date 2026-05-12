@@ -76,7 +76,7 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
     };
   }, [user?.id, isOpen, queryClient]);
 
-  const name = profile?.full_name || user?.email?.split('@')[0] || 'Resident';
+  const name = profile?.full_name || (user?.email ? user.email.split('@')[0] : 'Resident');
   const nationality = clientProfile?.nationality || profile?.nationality || '';
   const city = clientProfile?.city || profile?.city || '';
   const country = profile?.country || '';
