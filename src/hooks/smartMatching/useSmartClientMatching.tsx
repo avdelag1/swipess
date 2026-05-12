@@ -10,7 +10,7 @@ import { useAdminUserIds } from '../useAdminUserIds';
 const CLIENT_FIELDS = `
     user_id, full_name, age, gender, city, country, images, avatar_url,
     interests, lifestyle_tags, smoking, work_schedule, nationality,
-    languages_spoken, neighborhood, bio, onboarding_completed, occupation
+    languages_spoken, neighborhood, bio, onboarding_completed
 `;
 
 // Demos disabled — show real users only.
