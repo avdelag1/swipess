@@ -22,7 +22,7 @@ verify_jwt = true
 verify_jwt = true
 
 [functions.link-preview]
-verify_jwt = true
+verify_jwt = false
 
 [functions.ai-profile-extract]
 verify_jwt = true

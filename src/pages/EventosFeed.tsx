@@ -24,6 +24,7 @@ import { ConnectingOverlay } from '@/components/ConnectingOverlay';
 // Static Data
 import { CATEGORIES, MOCK_EVENTS } from '@/data/eventsData';
 import { EventItem } from '@/types/events';
+import { resolveStorageUrl } from '@/utils/imageOptimization';
 
 
 
@@ -144,8 +145,8 @@ export default function EventosFeed() {
     queryFn: async (): Promise<EventItem[]> => {
       const { data, error } = await supabase
         .from('events')
-        .select('id, title, description, category, image_url, image_urls, video_url, event_date, location, location_detail, organizer_name, organizer_whatsapp, promo_text, discount_tag, is_free, price_text')
-        .order('event_date', { ascending: true });
+        .select('id, title, description, category, image_url, image_urls, video_url, event_date, location, location_detail, organizer_name, organizer_whatsapp, promo_text, discount_tag, is_free, price_text, created_at')
+        .order('created_at', { ascending: false });
       
       if (error) {
         console.warn('Supabase events fetch error:', error);
@@ -157,8 +158,8 @@ export default function EventosFeed() {
         title: ev.title || 'Untitled Event',
         description: ev.description || null,
         category: ev.category || 'all',
-        image_url: pickEventImage(ev),
-        image_urls: Array.isArray(ev.image_urls) ? ev.image_urls : [],
+        image_url: resolveStorageUrl(pickEventImage(ev), 'event-images'),
+        image_urls: Array.isArray(ev.image_urls) ? ev.image_urls.map((u: any) => typeof u === 'string' ? resolveStorageUrl(u, 'event-images') : u) : [],
         video_url: ev.video_url || null,
         event_date: ev.event_date || null,
         location: ev.location || null,
