@@ -1089,6 +1089,7 @@ const ClientSwipeContainerComponent = ({
               onInsights={() => handleInsights(topCard.user_id)}
               onUndo={undoLastSwipe}
               onMessage={() => handleConnect(topCard.user_id)}
+              onReport={() => { triggerHaptic('medium'); setReportDialogOpen(true); }}
               canUndo={canUndo}
             />
           </motion.div>
