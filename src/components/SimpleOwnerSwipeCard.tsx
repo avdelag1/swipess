@@ -14,7 +14,7 @@
 
 import { memo, useRef, useState, useCallback, useMemo, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { motion, useMotionValue, useTransform, PanInfo, animate, useDragControls, MotionValue } from 'framer-motion';
-import { MapPin, DollarSign, Briefcase, ThumbsUp, ThumbsDown, Flag, Share2, MessageCircle, BarChart2 } from 'lucide-react';
+import { MapPin, DollarSign, Briefcase, ThumbsUp, ThumbsDown } from 'lucide-react';
 import { triggerHaptic } from '@/utils/haptics';
 import { cn } from '@/lib/utils';
 import { useMagnifier } from '@/hooks/useMagnifier';
@@ -26,7 +26,7 @@ import useAppTheme from '@/hooks/useAppTheme';
 import { imageCache } from '@/lib/swipe/cardImageCache';
 import { PhotoPositionIndicators } from '@/components/swipe/PhotoPositionIndicators';
 import { GestureHints } from '@/components/swipe/GestureHints';
-import { toggleChrome, useChromeReveal } from '@/hooks/useChromeReveal';
+import { toggleChrome } from '@/hooks/useChromeReveal';
 
 export interface SimpleOwnerSwipeCardRef {
   triggerSwipe: (direction: 'left' | 'right') => void;
@@ -238,7 +238,6 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
     }
   }, [profile?.user_id, x, y]);
 
-  const { isChromeVisible } = useChromeReveal();
   const [isZoomed, setIsZoomed] = useState(false);
   const floatingIconFilter = isLight
     ? 'drop-shadow(0 1px 1px hsl(var(--background) / 0.95)) drop-shadow(0 2px 6px hsl(var(--foreground) / 0.42))'
@@ -511,70 +510,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           </div>
         )}
 
-        {isTop && (
-          <div
-            className="absolute right-5 z-40 flex flex-col items-center gap-4 transition-all duration-300 pointer-events-auto"
-            style={{
-              top: '50%',
-              transform: 'translateY(-50%)',
-              opacity: isZoomed ? 0 : isChromeVisible ? 1 : 0,
-              pointerEvents: isZoomed || !isChromeVisible ? 'none' : 'auto',
-            }}
-          >
-            {onInsights && (
-              <button
-                data-no-cinematic
-                type="button"
-                onPointerDown={(e) => e.stopPropagation()}
-                onClick={(e) => { e.stopPropagation(); onInsights?.(); }}
-                aria-label="Insights"
-                className="w-10 h-10 flex items-center justify-center active:scale-[0.82] transition-transform duration-100"
-                style={{ background: 'none', border: 'none', padding: 0 }}
-              >
-                <BarChart2 className="w-[20px] h-[20px]" strokeWidth={2.2} style={{ color: '#FFFFFF', filter: 'drop-shadow(0 1px 3px rgba(0,0,0,0.7)) drop-shadow(0 3px 10px rgba(0,0,0,0.45)) drop-shadow(0 0 8px rgba(255,255,255,0.12))' }} />
-              </button>
-            )}
-            {onMessage && (
-              <button
-                data-no-cinematic
-                type="button"
-                onPointerDown={(e) => e.stopPropagation()}
-                onClick={(e) => { e.stopPropagation(); onMessage?.(); }}
-                aria-label="Message client"
-                className="w-10 h-10 flex items-center justify-center active:scale-[0.82] transition-transform duration-100"
-                style={{ background: 'none', border: 'none', padding: 0 }}
-              >
-                <MessageCircle className="w-[20px] h-[20px]" strokeWidth={2.2} style={{ color: '#FFFFFF', filter: 'drop-shadow(0 1px 3px rgba(0,0,0,0.7)) drop-shadow(0 3px 10px rgba(0,0,0,0.45)) drop-shadow(0 0 8px rgba(255,255,255,0.12))' }} />
-              </button>
-            )}
-            {onShare && (
-              <button
-                data-no-cinematic
-                type="button"
-                onPointerDown={(e) => e.stopPropagation()}
-                onClick={(e) => { e.stopPropagation(); onShare(profile); }}
-                aria-label="Share profile"
-                className="w-10 h-10 flex items-center justify-center active:scale-[0.82] transition-transform duration-100"
-                style={{ background: 'none', border: 'none', padding: 0 }}
-              >
-                <Share2 className="w-[20px] h-[20px]" strokeWidth={2.2} style={{ color: '#FFFFFF', filter: 'drop-shadow(0 1px 3px rgba(0,0,0,0.7)) drop-shadow(0 3px 10px rgba(0,0,0,0.45)) drop-shadow(0 0 8px rgba(255,255,255,0.12))' }} />
-              </button>
-            )}
-            {onReport && (
-              <button
-                data-no-cinematic
-                type="button"
-                onPointerDown={(e) => e.stopPropagation()}
-                onClick={(e) => { e.stopPropagation(); onReport(); }}
-                aria-label="Report profile"
-                className="w-10 h-10 flex items-center justify-center active:scale-[0.82] transition-transform duration-100"
-                style={{ background: 'none', border: 'none', padding: 0 }}
-              >
-                <Flag className="w-[20px] h-[20px]" strokeWidth={2.2} style={{ color: '#FFFFFF', filter: 'drop-shadow(0 1px 3px rgba(0,0,0,0.7)) drop-shadow(0 3px 10px rgba(0,0,0,0.45)) drop-shadow(0 0 8px rgba(255,255,255,0.12))' }} />
-              </button>
-            )}
-          </div>
-        )}
+        {/* Right-side rail removed — actions now live in the bottom horizontal bar (SwipeActionButtonBar) */}
           </>
         )}
       </motion.div>
