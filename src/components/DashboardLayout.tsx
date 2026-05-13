@@ -273,11 +273,10 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
           isSwipeDeck ? "overflow-hidden touch-none bg-swipe-frame" : "overflow-y-auto"
         )}
         style={{
-          // Explicit display/flex avoided here — block container scrolls more
-          // reliably than flex-col on iOS Safari
           WebkitOverflowScrolling: 'touch',
           overscrollBehavior: isSwipeDeck ? 'none' : 'auto',
           touchAction: isSwipeDeck ? 'none' : 'pan-y pinch-zoom',
+          ...(( isFullScreenFeed || isFullScreenRoute) && { height: '100dvh', overflowY: 'scroll' }),
         }}
       >
         {/* INNER WRAPPER: block so its height is determined purely by content.
