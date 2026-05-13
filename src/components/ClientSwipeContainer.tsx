@@ -622,8 +622,9 @@ const ClientSwipeContainerComponent = ({
 
   const handleConnect = useCallback((clientId: string) => {
     triggerHaptic('light');
-    navigate(`/messages?startConversation=${clientId}`);
-  }, [navigate]);
+    setSelectedClientId(clientId);
+    setMessageDialogOpen(true);
+  }, []);
 
   const handleSendMessage = useCallback(async (message: string) => {
     if (isCreatingConversation || !selectedClientId) return;

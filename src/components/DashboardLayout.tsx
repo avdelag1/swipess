@@ -291,7 +291,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
             position: 'absolute',
             inset: 0,
             overflow: 'hidden',
-          } : isFullScreenFeed ? {
+          } : (isFullScreenFeed || isFullScreenRoute) ? {
             minHeight: '100%',
           } : {
             minHeight: '100%',
