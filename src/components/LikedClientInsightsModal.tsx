@@ -6,7 +6,6 @@ import { MapPin, User, Calendar, MessageCircle, CheckCircle, Trash2, Ban, Flag, 
 import { motion } from 'framer-motion';
 import { PropertyImageGallery } from './PropertyImageGallery';
 import { useNavigate } from 'react-router-dom';
-import { useStartConversation } from '@/hooks/useConversations';
 import { toast } from '@/components/ui/sonner';
 import { useState, useEffect, useCallback, memo, useMemo } from 'react';
 import { logger } from '@/utils/prodLogger';
@@ -62,7 +61,6 @@ interface LikedClientInsightsModalProps {
 
 function LikedClientInsightsModalComponent({ open, onOpenChange, client }: LikedClientInsightsModalProps) {
   const navigate = useNavigate();
-  const startConversation = useStartConversation();
   const queryClient = useQueryClient();
   const [isCreatingConversation, setIsCreatingConversation] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);

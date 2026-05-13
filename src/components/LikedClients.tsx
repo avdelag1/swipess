@@ -11,7 +11,6 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { appToast } from "@/utils/appNotification";
 import useAppTheme from "@/hooks/useAppTheme";
-import { useStartConversation } from "@/hooks/useConversations";
 import { PremiumLikedCard } from "@/components/PremiumLikedCard";
 import { LikedClientInsightsModal } from "@/components/LikedClientInsightsModal";
 import { ConnectingOverlay } from "@/components/ConnectingOverlay";
@@ -61,7 +60,6 @@ export function LikedClients() {
   const [connectingRecipient, setConnectingRecipient] = useState("");
 
   const queryClient = useQueryClient();
-  const startConversation = useStartConversation();
 
   const { data: likedClients = [], isLoading } = useQuery({
     queryKey: ["liked-clients", user?.id],

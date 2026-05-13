@@ -168,6 +168,9 @@ export function MessagingDashboard() {
         await new Promise(resolve => setTimeout(resolve, 2200));
         setSelectedConversationId(result.conversationId);
         setSearchParams({});
+      } else {
+        // Safety: clear param even if no conversationId to prevent infinite retry
+        setSearchParams({});
       }
     } catch (_e) {
       setSearchParams({});

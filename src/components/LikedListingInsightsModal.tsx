@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import { MapPin, Bed, Bath, Square, DollarSign, MessageCircle, Sparkles, Trash2, Ban, Flag, ChevronLeft, ChevronRight, X, Star, ArrowLeft, Share2, TrendingUp, CheckCircle, Home, Clock, Zap, Users, Shield, Award, ThumbsUp, Eye, Ruler, Settings, Bike, Car, Gauge, Fuel, Flame, ShieldCheck } from 'lucide-react';
 import { PropertyImageGallery } from './PropertyImageGallery';
 import { useNavigate } from 'react-router-dom';
-import { useStartConversation } from '@/hooks/useConversations';
 import { toast } from '@/components/ui/sonner';
 import { useState, useEffect, useCallback, memo, useMemo } from 'react';
 import { motion } from 'framer-motion';
@@ -42,7 +41,6 @@ interface LikedListingInsightsModalProps {
 
 function LikedListingInsightsModalComponent({ open, onOpenChange, listing }: LikedListingInsightsModalProps) {
   const navigate = useNavigate();
-  const startConversation = useStartConversation();
   const queryClient = useQueryClient();
   const [isCreatingConversation, setIsCreatingConversation] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);

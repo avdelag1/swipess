@@ -152,7 +152,8 @@ export function AppLayout({ children }: AppLayoutProps) {
     const isRadio = path.startsWith('/radio');
     const isCamera = path.startsWith('/camera');
     const isRoommates = path.startsWith('/explore/roommates');
-    return isCamera || isRadio || showAIChat || isSwipeDashboard || isRoommates;
+    const isEventosFeed = path === '/explore/eventos' || path === '/explore/eventos/';
+    return isCamera || isRadio || showAIChat || isSwipeDashboard || isRoommates || isEventosFeed;
   }, [location.pathname, showAIChat, isSwipeDashboard]);
 
   const showAppChrome = !isAuthRoute && !isRadioRoute && !isCameraRoute && !showAIChat && (!isPublicPreview || !!user);

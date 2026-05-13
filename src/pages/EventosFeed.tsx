@@ -225,22 +225,29 @@ export default function EventosFeed() {
     };
 
     // 🚀 SNAP SCROLL ACTIVATION:
-    // Force the scroll container to use mandatory vertical snapping for TikTok-like experience.
-    el.classList.add('snap-y', 'snap-mandatory', 'scroll-smooth');
+    // Force mandatory vertical snapping. Do NOT add scroll-smooth — it conflicts
+    // with snap-mandatory on iOS Safari and causes missed/stuck snaps.
+    // Explicitly set scroll-behavior: auto to override scroll-area-momentum CSS.
+    el.classList.add('snap-y', 'snap-mandatory');
     el.style.scrollSnapType = 'y mandatory';
+    el.style.scrollBehavior = 'auto';
 
     el.addEventListener('scroll', handleScroll, { passive: true });
     return () => {
       el.removeEventListener('scroll', handleScroll);
       el.classList.remove('snap-y', 'snap-mandatory');
       el.style.scrollSnapType = '';
+      el.style.scrollBehavior = '';
     };
   }, [activeIdx, filteredEvents.length]);
 
   const rowVirtualizer = useVirtualizer({
     count: filteredEvents.length,
     getScrollElement: () => document.getElementById('dashboard-scroll-container') || parentRef.current,
-    estimateSize: () => window.innerHeight || 800,
+    estimateSize: () => {
+      const el = document.getElementById('dashboard-scroll-container');
+      return el?.clientHeight || window.innerHeight || 800;
+    },
     overscan: 2,
     initialOffset: 0,
   });
@@ -315,7 +322,7 @@ export default function EventosFeed() {
 
   return (
     <div
-      className="relative w-full flex flex-col items-center justify-start bg-transparent min-h-screen"
+      className="relative w-full flex flex-col items-center justify-start bg-transparent min-h-[100dvh]"
     >
       <div className="absolute inset-0 bg-[#0a0a0b] -z-10" />
       
@@ -428,11 +435,11 @@ export default function EventosFeed() {
               if (!event) return null;
 
               return (
-                <div 
-                  key={virtualRow.key} 
+                <div
+                  key={virtualRow.key}
                   className="absolute top-0 left-0 w-full snap-start snap-always"
-                  style={{ 
-                    height: '100vh', 
+                  style={{
+                    height: '100dvh',
                     width: '100%',
                     transform: `translateY(${virtualRow.start}px)`
                   }}
