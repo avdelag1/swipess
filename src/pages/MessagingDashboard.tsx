@@ -144,23 +144,35 @@ export function MessagingDashboard() {
   const handleAutoStartConversation = useCallback(async (userId: string) => {
     setIsStartingConversation(true);
     try {
-      const existing = conversations.find(c => c.other_user?.id === userId);
+      // Check local state first (fast path)
+      let existing = conversations.find(c => c.other_user?.id === userId);
+
+      // If not found locally, refetch and check again (conversations may not be loaded yet)
+      if (!existing) {
+        const freshResult = await refetch();
+        const freshConversations = freshResult.data || [];
+        existing = (freshConversations as any[]).find((c: any) => c.other_user?.id === userId);
+      }
+
       if (existing) {
         setSelectedConversationId(existing.id);
         setSearchParams({});
         setIsStartingConversation(false);
         return;
       }
+
       if (!canSendMessage) {
         setSearchParams({});
         setIsStartingConversation(false);
         return;
       }
+
       const result = await startConversation.mutateAsync({
         otherUserId: userId,
         initialMessage: "Hi! I'm interested in connecting.",
         canStartNewConversation: true,
       });
+
       if (result.conversationId) {
         await refetch();
         setConnectingRecipient("New Connection");
@@ -169,7 +181,6 @@ export function MessagingDashboard() {
         setSelectedConversationId(result.conversationId);
         setSearchParams({});
       } else {
-        // Safety: clear param even if no conversationId to prevent infinite retry
         setSearchParams({});
       }
     } catch (_e) {

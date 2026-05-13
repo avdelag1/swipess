@@ -14,7 +14,7 @@ export function PhotoPositionIndicators({ count, currentIndex, hidden = false, c
   return (
     <div
       className={cn(
-        'absolute inset-x-0 top-[calc(var(--safe-top,0px)+20px)] z-[46] flex justify-center pointer-events-none transition-opacity duration-200',
+        'absolute inset-x-0 top-[calc(var(--safe-top,0px)+38px)] z-[46] flex justify-center pointer-events-none transition-opacity duration-200',
         className,
       )}
       style={{ opacity: hidden ? 0 : 1 }}

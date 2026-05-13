@@ -843,7 +843,7 @@ const ClientSwipeContainerComponent = ({
         {/* 🛸 ACTION BAR: Tied to chrome visibility (shows/hides with TopBar+BottomNav) */}
         {topCard && (
           <motion.div
-            className="absolute bottom-[calc(var(--bottom-nav-height,64px)+8px)] left-0 right-0 z-[60] flex justify-center"
+            className="absolute bottom-[calc(var(--bottom-nav-height,64px)+24px)] left-0 right-0 z-[60] flex justify-center"
             animate={{ opacity: isChromeVisible ? 1 : 0 }}
             transition={{ duration: 0.25, ease: 'easeInOut' }}
             style={{ y: pullDown.y, pointerEvents: isChromeVisible ? 'auto' : 'none' }}

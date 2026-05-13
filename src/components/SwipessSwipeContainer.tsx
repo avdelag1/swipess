@@ -1045,7 +1045,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
 
     {hasCards && (
         <motion.div
-          className="absolute bottom-[calc(var(--bottom-nav-height,64px)+8px)] left-0 right-0 z-[100] flex justify-center"
+          className="absolute bottom-[calc(var(--bottom-nav-height,64px)+24px)] left-0 right-0 z-[100] flex justify-center"
           animate={{ opacity: isChromeVisible ? 1 : 0 }}
           transition={{ duration: 0.25, ease: 'easeInOut' }}
           style={{ y: pullDown.y, pointerEvents: isChromeVisible ? 'auto' : 'none' }}
