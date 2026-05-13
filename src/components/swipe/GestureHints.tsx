@@ -1,16 +1,3 @@
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-
-/**
- * Ambient gesture affordances for the swipe card.
- *
- * Tiny, breathing, almost-invisible cues that teach the user the
- * available gestures without cluttering the card:
- *
- *  - Right edge, mid-card: vertical chevrons hinting swipe up = like, down = pass.
- *  - Top edge: a thin grab pill suggesting "pull down to close".
- *
- * All elements are pointer-events:none so they never intercept gestures.
- */
 export function GestureHints({ hidden = false }: { hidden?: boolean }) {
   return (
     <div
@@ -31,30 +18,6 @@ export function GestureHints({ hidden = false }: { hidden?: boolean }) {
             background: 'rgba(255,255,255,0.45)',
             boxShadow: '0 0 8px rgba(255,255,255,0.18)',
           }}
-        />
-      </div>
-
-      {/* Left edge: pass affordance */}
-      <div className="absolute left-2 top-1/2 -translate-y-1/2 animate-gesture-breathe">
-        <ChevronLeft
-          style={{
-            width: 16, height: 16,
-            color: 'rgba(255,255,255,0.7)',
-            filter: 'drop-shadow(0 0 4px rgba(255,255,255,0.35))',
-          }}
-          strokeWidth={2.4}
-        />
-      </div>
-
-      {/* Right edge: like affordance */}
-      <div className="absolute right-2 top-1/2 -translate-y-1/2 animate-gesture-breathe" style={{ animationDelay: '0.6s' }}>
-        <ChevronRight
-          style={{
-            width: 16, height: 16,
-            color: 'rgba(255,255,255,0.7)',
-            filter: 'drop-shadow(0 0 4px rgba(255,255,255,0.35))',
-          }}
-          strokeWidth={2.4}
         />
       </div>
     </div>

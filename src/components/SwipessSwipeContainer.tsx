@@ -54,6 +54,7 @@ import { usePullDownToDismiss } from './swipe/usePullDownToDismiss';
 import { ReportDialog } from './ReportDialog';
 import { ConnectingOverlay } from './ConnectingOverlay';
 import { SwipeActionButtonBar } from '@/components/SwipeActionButtonBar';
+import { useChromeReveal } from '@/hooks/useChromeReveal';
 
 // FIX #3: Lazy-load modals 
 const SwipeInsightsModal = lazy(() => import('./SwipeInsightsModal').then(m => ({ default: m.SwipeInsightsModal })));
@@ -875,6 +876,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
   }, [storeActiveCategory, userRole, setActiveCategory]);
 
   const pullDown = usePullDownToDismiss();
+  const { isChromeVisible } = useChromeReveal();
 
   if (!storeActiveCategory) {
     return (
@@ -1043,22 +1045,19 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
 
     {hasCards && (
         <motion.div
-          className="absolute bottom-[calc(var(--bottom-nav-height,64px)+8px)] left-0 right-0 z-[100] flex justify-center pointer-events-auto"
-          style={{ opacity: pullDown.opacity, y: pullDown.y }}
+          className="absolute bottom-[calc(var(--bottom-nav-height,64px)+8px)] left-0 right-0 z-[100] flex justify-center"
+          animate={{ opacity: isChromeVisible ? 1 : 0 }}
+          transition={{ duration: 0.25, ease: 'easeInOut' }}
+          style={{ y: pullDown.y, pointerEvents: isChromeVisible ? 'auto' : 'none' }}
         >
           <SwipeActionButtonBar
-            onLike={handleButtonLike}
-            onDislike={handleButtonDislike}
             onShare={handleShare}
             onInsights={() => {
               handleInsights();
               if (onListingTap) onListingTap(topCard.id);
             }}
-            onUndo={undoLastSwipe}
             onMessage={handleMessage}
             onReport={handleReport}
-            onCycleCategory={handleCycleCategory}
-            canUndo={canUndo}
           />
         </motion.div>
       )}

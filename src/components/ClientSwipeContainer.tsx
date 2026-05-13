@@ -41,6 +41,7 @@ import { cn } from '@/lib/utils';
 import useAppTheme from "@/hooks/useAppTheme";
 import { ConnectingOverlay } from '@/components/ConnectingOverlay';
 import { SwipeActionButtonBar } from '@/components/SwipeActionButtonBar';
+import { useChromeReveal } from '@/hooks/useChromeReveal';
 
 const ShareDialog = lazy(() => import('./ShareDialog').then(m => ({ default: m.ShareDialog })));
 const MessageConfirmationDialog = lazy(() => import('./MessageConfirmationDialog').then(m => ({ default: m.MessageConfirmationDialog })));
@@ -659,6 +660,7 @@ const ClientSwipeContainerComponent = ({
   const deckQueue = deckQueueRef.current;
   const topCard = currentIndex < deckQueue.length ? deckQueue[currentIndex] : null;
   const pullDown = usePullDownToDismiss();
+  const { isChromeVisible } = useChromeReveal();
   const _nextCard = currentIndex + 1 < deckQueue.length ? deckQueue[currentIndex + 1] : null;
 
   const hasHydratedData = isOwnerHydrated(category) || isOwnerReady(category) || deckQueue.length > 0;
@@ -838,21 +840,19 @@ const ClientSwipeContainerComponent = ({
         </div>
 
 
-        {/* 🛸 ACTION BAR: Floating over the card near the bottom nav */}
+        {/* 🛸 ACTION BAR: Tied to chrome visibility (shows/hides with TopBar+BottomNav) */}
         {topCard && (
           <motion.div
-            className="absolute bottom-[calc(var(--bottom-nav-height,64px)+8px)] left-0 right-0 z-[60] flex justify-center pointer-events-auto"
-            style={{ opacity: pullDown.opacity, y: pullDown.y }}
+            className="absolute bottom-[calc(var(--bottom-nav-height,64px)+8px)] left-0 right-0 z-[60] flex justify-center"
+            animate={{ opacity: isChromeVisible ? 1 : 0 }}
+            transition={{ duration: 0.25, ease: 'easeInOut' }}
+            style={{ y: pullDown.y, pointerEvents: isChromeVisible ? 'auto' : 'none' }}
           >
             <SwipeActionButtonBar
-              onLike={handleButtonLike}
-              onDislike={handleButtonDislike}
               onShare={handleShare}
               onInsights={() => handleInsights(topCard.user_id)}
-              onUndo={undoLastSwipe}
               onMessage={() => handleConnect(topCard.user_id)}
               onReport={() => { triggerHaptic('medium'); setReportDialogOpen(true); }}
-              canUndo={canUndo}
             />
           </motion.div>
         )}
