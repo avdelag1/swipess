@@ -212,6 +212,13 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
            path === '/owner/dashboard'  || path === '/owner/dashboard/';
   }, [location.pathname]);
 
+  // Full-screen feed routes get no chrome padding — cards fill edge-to-edge,
+  // TopBar/BottomNav overlay via fixed position (same as TikTok/Reels).
+  const isFullScreenFeed = useMemo(() => {
+    const path = location.pathname;
+    return path === '/explore/eventos' || path === '/explore/eventos/';
+  }, [location.pathname]);
+
   useEffect(() => {
     document.body.classList.toggle('swipe-deck-active', isSwipeDeck);
     return () => document.body.classList.remove('swipe-deck-active');
@@ -273,11 +280,15 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       >
         {/* INNER WRAPPER: Ensures flex-grow works correctly for child pages.
             Non-swipe routes get top + bottom padding so content is never hidden
-            under the fixed top bar or bottom nav. */}
+            under the fixed top bar or bottom nav.
+            Full-screen feed routes (EventosFeed) get no padding — cards fill
+            edge-to-edge with TopBar/BottomNav overlaying via fixed position. */}
         <div className={cn(
           "w-full flex flex-col min-h-0",
           isSwipeDeck
             ? "h-full flex-1 overflow-hidden"
+            : isFullScreenFeed
+            ? "flex-grow min-h-full"
             : "flex-grow min-h-full pt-[calc(var(--top-bar-height,72px)+var(--safe-top,0px))] pb-[calc(var(--bottom-nav-height,64px)+var(--safe-bottom,0px))]"
         )}>
           {children}

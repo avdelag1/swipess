@@ -319,15 +319,15 @@ export default function EventosFeed() {
     >
       <div className="absolute inset-0 bg-[#0a0a0b] -z-10" />
       
-      {/* Floating HUD — now handled by global SwipessHud logic, this local wrapper just for custom styling */}
-      <div 
+      {/* Floating HUD — category pills positioned just below the TopBar */}
+      <div
         className={cn(
-          "fixed left-0 right-0 z-[100] transform-gpu px-4 pt-4 transition-all duration-300 ease-out",
+          "fixed left-0 right-0 z-[100] transform-gpu px-4 pt-2 transition-all duration-300 ease-out",
           "opacity-100 translate-y-0"
         )}
-        style={{ top: '0px' }}
+        style={{ top: 'calc(var(--top-bar-height, 72px) + var(--safe-top, 0px))' }}
       >
-        <div className="flex items-center gap-3 mt-12">
+        <div className="flex items-center gap-3 mt-1">
 
           <div className="flex-1 flex gap-2 overflow-x-auto no-scrollbar scroll-smooth py-2">
             {CATEGORIES.map((cat) => {
