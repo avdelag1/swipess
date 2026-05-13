@@ -1,6 +1,6 @@
 import { memo, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { MessageCircle, Eye, Share2, Flag, ThumbsUp, ThumbsDown, RotateCcw } from 'lucide-react';
+import { MessageCircle, Eye, Share2, Flag } from 'lucide-react';
 import { triggerHaptic } from '@/utils/haptics';
 
 interface SwipeActionButtonBarProps {
@@ -108,26 +108,17 @@ export const SwipeActionButtonBar = memo(function SwipeActionButtonBar({
       className={`flex items-center justify-center gap-2 pointer-events-auto ${className}`}
       style={{ userSelect: 'none' }}
     >
-      {onUndo && canUndo && (
-        <GhostButton icon={RotateCcw} onClick={onUndo} disabled={disabled} ariaLabel="Undo" index={0} size={20} />
-      )}
-      {onDislike && (
-        <GhostButton icon={ThumbsDown} onClick={onDislike} disabled={disabled} ariaLabel="Pass" index={1} size={22} />
-      )}
       {onMessage && (
-        <GhostButton icon={MessageCircle} onClick={onMessage} disabled={disabled} ariaLabel="Message" index={2} />
+        <GhostButton icon={MessageCircle} onClick={onMessage} disabled={disabled} ariaLabel="Message" index={0} />
       )}
       {onInsights && (
-        <GhostButton icon={Eye} onClick={onInsights} disabled={disabled} ariaLabel="Insights" index={3} />
+        <GhostButton icon={Eye} onClick={onInsights} disabled={disabled} ariaLabel="Insights" index={1} />
       )}
       {onShare && (
-        <GhostButton icon={Share2} onClick={onShare} disabled={disabled} ariaLabel="Share" index={4} />
+        <GhostButton icon={Share2} onClick={onShare} disabled={disabled} ariaLabel="Share" index={2} />
       )}
       {onReport && (
-        <GhostButton icon={Flag} onClick={onReport} disabled={disabled} ariaLabel="Report" index={5} />
-      )}
-      {onLike && (
-        <GhostButton icon={ThumbsUp} onClick={onLike} disabled={disabled} ariaLabel="Like" index={6} size={22} />
+        <GhostButton icon={Flag} onClick={onReport} disabled={disabled} ariaLabel="Report" index={3} />
       )}
     </div>
   );
