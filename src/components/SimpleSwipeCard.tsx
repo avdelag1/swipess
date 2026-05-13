@@ -516,70 +516,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           </div>
         )}
 
-        {isTop && (
-          <div
-            className="absolute right-5 z-40 flex flex-col items-center gap-4 transition-all duration-300 pointer-events-auto"
-            style={{
-              top: '50%',
-              transform: 'translateY(-50%)',
-              opacity: isZoomed ? 0 : isChromeVisible ? 1 : 0,
-              pointerEvents: isZoomed || !isChromeVisible ? 'none' : 'auto',
-            }}
-          >
-            {onInsights && (
-              <button
-                data-no-cinematic
-                type="button"
-                onPointerDown={(e) => e.stopPropagation()}
-                onClick={(e) => { e.stopPropagation(); onInsights(); }}
-                aria-label="Insights"
-                className="w-9 h-9 flex items-center justify-center bg-transparent border-0 shadow-none active:scale-90 transition-all duration-150"
-                style={{ backgroundColor: 'transparent', boxShadow: 'none' }}
-              >
-                <BarChart2 className="w-[20px] h-[20px]" strokeWidth={2.2} style={{ color: '#FFFFFF', filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.7))' }} />
-              </button>
-            )}
-            {onMessage && (
-              <button
-                data-no-cinematic
-                type="button"
-                onPointerDown={(e) => e.stopPropagation()}
-                onClick={(e) => { e.stopPropagation(); onMessage(); }}
-                aria-label="Message owner"
-                className="w-9 h-9 flex items-center justify-center bg-transparent border-0 shadow-none active:scale-90 transition-all duration-150"
-                style={{ backgroundColor: 'transparent', boxShadow: 'none' }}
-              >
-                <MessageCircle className="w-[20px] h-[20px]" strokeWidth={2.2} style={{ color: '#FFFFFF', filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.7))' }} />
-              </button>
-            )}
-            {onShare && (
-              <button
-                data-no-cinematic
-                type="button"
-                onPointerDown={(e) => e.stopPropagation()}
-                onClick={(e) => { e.stopPropagation(); onShare(); }}
-                aria-label="Share listing"
-                className="w-9 h-9 flex items-center justify-center bg-transparent border-0 shadow-none active:scale-90 transition-all duration-150"
-                style={{ backgroundColor: 'transparent', boxShadow: 'none' }}
-              >
-                <Share2 className="w-[20px] h-[20px]" strokeWidth={2.2} style={{ color: '#FFFFFF', filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.7))' }} />
-              </button>
-            )}
-            {onReport && (
-              <button
-                data-no-cinematic
-                type="button"
-                onPointerDown={(e) => e.stopPropagation()}
-                onClick={(e) => { e.stopPropagation(); onReport(); }}
-                aria-label="Report listing"
-                className="w-9 h-9 flex items-center justify-center bg-transparent border-0 shadow-none active:scale-90 transition-all duration-150"
-                style={{ backgroundColor: 'transparent', boxShadow: 'none' }}
-              >
-                <Flag className="w-[20px] h-[20px]" strokeWidth={2.2} style={{ color: '#FFFFFF', filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.7))' }} />
-              </button>
-            )}
-          </div>
-        )}
+        {/* Right-side Share/Report rail removed — actions now live in the bottom horizontal bar (SwipeActionButtonBar) */}
           </>
         )}
       </motion.div>

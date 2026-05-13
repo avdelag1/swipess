@@ -466,11 +466,13 @@ export default function EventosFeed() {
         </div>
       )}
 
-      <ShareModal
-        isOpen={showShareModal}
-        onClose={() => setShowShareModal(false)}
-        eventData={shareEventData}
-      />
+      {shareEventData && (
+        <ShareModal
+          open={showShareModal}
+          onClose={() => setShowShareModal(false)}
+          event={shareEventData as any}
+        />
+      )}
 
       <ConnectingOverlay 
         isOpen={isConnecting}

@@ -1040,6 +1040,27 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
       </motion.div>
     </div>
 
+    {hasCards && (
+        <motion.div
+          className="absolute bottom-[calc(var(--bottom-nav-height,64px)+8px)] left-0 right-0 z-[100] flex justify-center pointer-events-auto"
+          style={{ opacity: pullDown.opacity, y: pullDown.y }}
+        >
+          <SwipeActionButtonBar
+            onLike={handleButtonLike}
+            onDislike={handleButtonDislike}
+            onShare={handleShare}
+            onInsights={() => {
+              handleInsights();
+              if (onListingTap) onListingTap(topCard.id);
+            }}
+            onUndo={undoLastSwipe}
+            onMessage={handleMessage}
+            onReport={handleReport}
+            onCycleCategory={handleCycleCategory}
+            canUndo={canUndo}
+          />
+        </motion.div>
+      )}
     </div>
 
       {matchData && (

@@ -28,6 +28,8 @@ interface SwipeActionButtonBarProps {
   onLike?: () => void;
   onDislike?: () => void;
   onUndo?: () => void;
+  onMessage?: () => void;
+  onReport?: () => void;
   onSpeedMeet?: () => void;
   onCycleCategory?: () => void;
   canUndo?: boolean;
@@ -103,9 +105,9 @@ const FloatingButton = memo(function FloatingButton({
 
 export const SwipeActionButtonBar = memo(function SwipeActionButtonBar({
   onMessage,
-  onInsights,
   onShare,
   onReport,
+  canUndo = false,
   disabled = false,
   className = '',
 }: SwipeActionButtonBarProps) {
@@ -167,24 +169,64 @@ export const SwipeActionButtonBar = memo(function SwipeActionButtonBar({
   ];
 
   return (
-    <div
-      className={cn('absolute right-3 top-1/2 -translate-y-1/2 z-[55] flex flex-col gap-3 pointer-events-auto', className)}
-      onPointerEnter={resetTimer}
-    >
-      <AnimatePresence>
-        {visible && buttons.map((btn, i) => (
-          <FloatingButton
-            key={btn.label}
-            icon={btn.icon}
-            color={btn.color}
-            glow={btn.glow}
-            label={btn.label}
-            onClick={btn.onClick}
+    <div className={`mx-auto flex w-auto max-w-[96vw] items-center justify-center gap-1 pointer-events-auto overflow-visible ${className}`}>
+      <AnimatePresence mode="popLayout" initial={false}>
+        {onMessage && (
+          <ActionButton
+            key="action-message"
+            onClick={onMessage}
             disabled={disabled}
+            size="large"
+            variant="blue"
+            ariaLabel="Message"
+            index={0}
             isLight={isLight}
-            index={i}
-          />
-        ))}
+          >
+            <MessageCircle className="w-full h-full" strokeWidth={2} />
+          </ActionButton>
+        )}
+        {onInsights && (
+          <ActionButton
+            key="action-insights"
+            onClick={onInsights}
+            disabled={disabled}
+            size="large"
+            variant="cyan"
+            ariaLabel="Insights"
+            index={1}
+            isLight={isLight}
+          >
+            <Eye className="w-full h-full" strokeWidth={2} />
+          </ActionButton>
+        )}
+        {onShare && (
+          <ActionButton
+            key="action-share"
+            onClick={onShare}
+            disabled={disabled}
+            size="large"
+            variant="amber"
+            ariaLabel="Share"
+            index={2}
+            isLight={isLight}
+          >
+            <Share2 className="w-full h-full" strokeWidth={2} />
+          </ActionButton>
+        )}
+        {onReport && (
+          <ActionButton
+            key="action-report"
+            onClick={onReport}
+            disabled={disabled}
+            size="large"
+            variant="dislike"
+            ariaLabel="Report"
+            index={3}
+            isLight={isLight}
+          >
+            <Flag className="w-full h-full" strokeWidth={2} />
+          </ActionButton>
+        )}
       </AnimatePresence>
     </div>
   );
