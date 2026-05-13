@@ -1068,6 +1068,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
             }}
             onUndo={undoLastSwipe}
             onMessage={handleMessage}
+            onReport={handleReport}
             onCycleCategory={handleCycleCategory}
             canUndo={canUndo}
           />
