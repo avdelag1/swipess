@@ -151,19 +151,21 @@ export function MessagingDashboard() {
         setIsStartingConversation(false);
         return;
       }
+      if (!canSendMessage) {
+        setSearchParams({});
+        setIsStartingConversation(false);
+        return;
+      }
       const result = await startConversation.mutateAsync({
         otherUserId: userId,
         initialMessage: "Hi! I'm interested in connecting.",
-        canStartNewConversation: canSendMessage,
+        canStartNewConversation: true,
       });
       if (result.conversationId) {
         await refetch();
         setConnectingRecipient("New Connection");
         setIsConnecting(true);
-        
-        // Premium cinematic delay
         await new Promise(resolve => setTimeout(resolve, 2200));
-        
         setSelectedConversationId(result.conversationId);
         setSearchParams({});
       }
@@ -331,7 +333,6 @@ export function MessagingDashboard() {
                     )} 
                     onClick={() => { triggerHaptic('medium'); setSelectedConversationId(conversation.id); }}
                   >
-                    {/* Unread Indicator Glow */}
                     {isUnread && <div className="absolute inset-y-0 left-0 w-1 bg-[#EB4898] shadow-[0_0_15px_#EB4898]" />}
 
                     <div className="relative shrink-0">

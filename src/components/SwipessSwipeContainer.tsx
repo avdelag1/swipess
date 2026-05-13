@@ -5,7 +5,6 @@ import { createPortal } from 'react-dom';
 import { triggerHaptic } from '@/utils/haptics';
 import useAppTheme from '@/hooks/useAppTheme';
 import { SimpleSwipeCard, SimpleSwipeCardRef } from './SimpleSwipeCard';
-import { SwipeActionButtonBar } from './SwipeActionButtonBar';
 import { SwipeExhaustedState } from './swipe/SwipeExhaustedState';
 import { SwipeLoadingSkeleton } from './swipe/SwipeLoadingSkeleton';
 import type { QuickFilterCategory } from '@/types/filters';
@@ -144,7 +143,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         setUserLocation(pos.coords.latitude, pos.coords.longitude);
-        setRadiusKm(5); // Auto-set to 5km when location is detected
+        setRadiusKm(5);
         setLocationDetected(true);
         setLocationDetecting(false);
       },
@@ -155,9 +154,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
     );
   }, [setUserLocation, setRadiusKm]);
 
-  // 📍 Location requested only on explicit user gesture (filter / slider).
-
-  // PERF: Get userId from auth to pass to query (avoids getUser() inside queryFn)
   const { user } = useAuth();
   const { data: userRole } = useUserRole(user?.id);
   const queryClient = useQueryClient();
@@ -260,9 +256,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
   const topCardX = useMotionValue(0);
   const topCardY = useMotionValue(0);
 
-  // Behind-card preview reacts only to HORIZONTAL drag (like/pass).
-  // Vertical browse should feel like a page-turn — the next card stays
-  // hidden underneath until the top card commits and the new top paints.
   const nextCardScale = useTransform(
     [topCardX, topCardY] as any,
     ([cx, _cy]: any) => {
@@ -270,9 +263,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
       return 0.97 + 0.03 * t;
     }
   );
-  // Always keep the underneath card visible so it never flashes a black
-  // frame when the top card flies off. Only the scale animates during drag
-  // for the parallax peek effect.
   const nextCardOpacity = useTransform(
     [topCardX, topCardY] as any,
     () => 1
@@ -386,8 +376,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
   if (filterSignature !== prevFilterSignatureRef.current) {
     filterChangedRef.current = true;
     prevFilterSignatureRef.current = filterSignature;
-    // Clear deck synchronously during render so the previous category's
-    // top card photo doesn't flash before the new query resolves.
     deckQueueRef.current = [];
     currentIndexRef.current = 0;
     swipedIdsRef.current.clear();
@@ -443,8 +431,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
   const smartData = useMemo(() => {
     const rawData = activeMode === 'owner' ? smartClients : smartListings;
 
-    // React Query keeps previous data while fetching. Never let that stale
-    // previous category seed the deck after a quick-filter change.
     if (activeMode === 'client' && selectedCategoryDb && selectedCategoryDb !== 'all') {
       return rawData.filter((item: any) => normalizeCategoryName(item?.category) === selectedCategoryDb);
     }
@@ -712,19 +698,15 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
     }
   }, [executeSwipe, playSwipeSound]);
 
-  // Vertical swipe = skip to next card without writing to backend.
   const handleSkip = useCallback(() => {
     const listing = deckQueueRef.current[currentIndexRef.current];
     if (!listing) return;
     triggerHaptic('light');
     const newIndex = currentIndexRef.current + 1;
-    currentIndexRef.current = newIndex;
-    // Reset motion values synchronously so the underlying card doesn't flash
-    // at full scale/opacity before the new top card paints.
     topCardX.stop(); topCardX.set(0);
     topCardY.stop(); topCardY.set(0);
     setCurrentIndex(newIndex);
-    // Preload upcoming images for smooth browse
+    currentIndexRef.current = newIndex;
     [1, 2, 3].forEach((offset) => {
       const futureCard = deckQueueRef.current[newIndex + offset];
       if (futureCard?.images?.[0]) {
@@ -734,7 +716,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
     });
   }, [topCardX, topCardY]);
 
-  // Vertical-up swipe = rewind to the previously viewed card without writing.
   const handleSkipBack = useCallback(() => {
     if (currentIndexRef.current <= 0) return;
     triggerHaptic('light');
@@ -872,10 +853,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
         setMessageDialogOpen(false);
         setDirectMessageDialogOpen(false);
         setIsConnecting(true);
-        
-        // Let the animation play for 2.2 seconds for premium processing feel
         await new Promise(resolve => setTimeout(resolve, 2200));
-        
         navigate(`/messages?conversationId=${result.conversationId}`);
       }
     } catch (err) {
@@ -938,9 +916,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
         "bg-swipe-frame"
       )} />
 
-      {/* Single back button is owned by SwipeDeckBackButton — no duplicate radar header here */}
-
-      {/* Pull-down backdrop: dashboard category picker revealed behind the deck */}
       <motion.div
         aria-hidden
         className="absolute inset-0 pointer-events-none z-[1]"
@@ -968,7 +943,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
           className="relative w-full h-full mx-auto flex items-stretch justify-stretch pointer-events-auto md:max-w-[640px]"
           style={{ y: pullDown.y, scale: pullDown.scale, opacity: pullDown.opacity, filter: pullDown.blur }}
         >
-          {/* Rounded backdrop matches card corners so deck blends into background */}
           <div
             aria-hidden
             className={cn(
@@ -1066,26 +1040,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
       </motion.div>
     </div>
 
-    {hasCards && (
-        <motion.div
-          className="absolute bottom-[calc(var(--bottom-nav-height,64px)+8px)] left-0 right-0 z-[100] flex justify-center pointer-events-auto"
-          style={{ opacity: pullDown.opacity, y: pullDown.y }}
-        >
-          <SwipeActionButtonBar
-            onLike={handleButtonLike}
-            onDislike={handleButtonDislike}
-            onShare={handleShare}
-            onInsights={() => {
-              handleInsights();
-              if (onListingTap) onListingTap(topCard.id);
-            }}
-            onUndo={undoLastSwipe}
-            onMessage={handleMessage}
-            onCycleCategory={handleCycleCategory}
-            canUndo={canUndo}
-          />
-        </motion.div>
-      )}
     </div>
 
       {matchData && (
