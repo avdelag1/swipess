@@ -1,68 +1,39 @@
-/**
- * SWIPE ACTION BUTTON BAR — Vertical Right-Side Floating Panel
- *
- * 4 icon buttons stacked vertically on the right edge of the card:
- *   1. Message  — Blue
- *   2. Insights — Green
- *   3. Share    — Violet / Purple
- *   4. Report   — Red
- *
- * Auto-hides after 3 s of inactivity; reappears on any touch/move.
- */
-
-import { memo, useCallback, useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { MessageCircle, Eye, Share2, Flag } from 'lucide-react';
+import { memo, useCallback } from 'react';
+import { motion } from 'framer-motion';
+import { MessageCircle, Eye, Share2, Flag, ThumbsUp, ThumbsDown, RotateCcw } from 'lucide-react';
 import { triggerHaptic } from '@/utils/haptics';
-import useAppTheme from '@/hooks/useAppTheme';
-import { cn } from '@/lib/utils';
 
 interface SwipeActionButtonBarProps {
   onMessage?: () => void;
   onInsights?: () => void;
   onShare?: () => void;
   onReport?: () => void;
-  disabled?: boolean;
-  className?: string;
-  // Legacy props kept for backwards compatibility — unused in new design
   onLike?: () => void;
   onDislike?: () => void;
   onUndo?: () => void;
-  onMessage?: () => void;
-  onReport?: () => void;
+  canUndo?: boolean;
+  disabled?: boolean;
+  className?: string;
+  // Legacy / unused — kept for call-site compat
   onSpeedMeet?: () => void;
   onCycleCategory?: () => void;
-  canUndo?: boolean;
 }
 
-interface ButtonCfg {
-  icon: React.ReactNode;
-  color: string;
-  glow: string;
-  label: string;
-  onClick?: () => void;
-}
-
-const AUTO_HIDE_MS = 3000;
-
-const FloatingButton = memo(function FloatingButton({
-  icon,
-  color,
-  glow,
-  label,
+// Apple-style ghost button — white icon, no frame, soft shadow only
+const GhostButton = memo(function GhostButton({
+  icon: Icon,
   onClick,
   disabled,
-  isLight,
+  ariaLabel,
   index,
+  size = 22,
 }: {
-  icon: React.ReactNode;
-  color: string;
-  glow: string;
-  label: string;
+  icon: React.ElementType;
   onClick?: () => void;
-  disabled: boolean;
-  isLight: boolean;
+  disabled?: boolean;
+  ariaLabel: string;
   index: number;
+  size?: number;
 }) {
   const handleClick = useCallback((e: React.MouseEvent) => {
     if (disabled || !onClick) return;
@@ -72,162 +43,92 @@ const FloatingButton = memo(function FloatingButton({
     onClick();
   }, [disabled, onClick]);
 
+  if (!onClick) return null;
+
   return (
     <motion.button
       onClick={handleClick}
-      disabled={disabled || !onClick}
-      aria-label={label}
-      initial={{ opacity: 0, x: 20 }}
-      animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: 20 }}
-      transition={{ type: 'spring', stiffness: 340, damping: 26, delay: index * 0.05 }}
-      whileTap={{ scale: 0.9, transition: { type: 'spring', stiffness: 600, damping: 15 } }}
+      aria-label={ariaLabel}
+      type="button"
+      initial={{ opacity: 0, scale: 0.6 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.6 }}
+      transition={{
+        type: 'spring',
+        stiffness: 380,
+        damping: 24,
+        delay: index * 0.04,
+      }}
+      whileTap={{ scale: 0.82, transition: { type: 'spring', stiffness: 600, damping: 18 } }}
+      disabled={disabled}
       style={{
-        width: 44,
-        height: 44,
-        borderRadius: '50%',
-        background: isLight ? '#FFFFFF' : '#1A1A1A',
-        border: isLight ? '1px solid rgba(0,0,0,0.07)' : '1px solid rgba(255,255,255,0.08)',
-        boxShadow: `0 8px 20px -4px ${color}44, ${glow}`,
-        color,
-        flexShrink: 0,
-        opacity: disabled || !onClick ? 0.35 : 1,
-        cursor: disabled || !onClick ? 'not-allowed' : 'pointer',
+        width: size + 16,
+        height: size + 16,
+        background: 'none',
+        border: 'none',
+        padding: 0,
+        cursor: disabled ? 'not-allowed' : 'pointer',
         outline: 'none',
         WebkitTapHighlightColor: 'transparent',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        opacity: disabled ? 0.35 : 1,
+        flexShrink: 0,
       }}
-      className="flex items-center justify-center touch-manipulation select-none"
     >
-      {icon}
+      <Icon
+        size={size}
+        strokeWidth={2}
+        style={{
+          color: '#FFFFFF',
+          // Layered shadows: depth shadow + subtle white glow
+          filter:
+            'drop-shadow(0 1px 3px rgba(0,0,0,0.7)) drop-shadow(0 3px 10px rgba(0,0,0,0.45)) drop-shadow(0 0 8px rgba(255,255,255,0.12))',
+        }}
+      />
     </motion.button>
   );
 });
 
 export const SwipeActionButtonBar = memo(function SwipeActionButtonBar({
   onMessage,
+  onInsights,
   onShare,
   onReport,
+  onLike,
+  onDislike,
+  onUndo,
   canUndo = false,
   disabled = false,
   className = '',
 }: SwipeActionButtonBarProps) {
-  const { isLight } = useAppTheme();
-  const [visible, setVisible] = useState(true);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const resetTimer = useCallback(() => {
-    setVisible(true);
-    if (timerRef.current) clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(() => setVisible(false), AUTO_HIDE_MS);
-  }, []);
-
-  useEffect(() => {
-    resetTimer();
-    return () => { if (timerRef.current) clearTimeout(timerRef.current); };
-  }, [resetTimer]);
-
-  // Re-show on any pointer move over the parent
-  useEffect(() => {
-    const handler = () => resetTimer();
-    window.addEventListener('pointermove', handler, { passive: true });
-    window.addEventListener('pointerdown', handler, { passive: true });
-    return () => {
-      window.removeEventListener('pointermove', handler);
-      window.removeEventListener('pointerdown', handler);
-    };
-  }, [resetTimer]);
-
-  const buttons: ButtonCfg[] = [
-    {
-      icon: <MessageCircle size={20} strokeWidth={2} />,
-      color: '#3B82F6',
-      glow: '0 0 12px rgba(59,130,246,0.35)',
-      label: 'Message',
-      onClick: onMessage,
-    },
-    {
-      icon: <Eye size={20} strokeWidth={2} />,
-      color: '#22C55E',
-      glow: '0 0 12px rgba(34,197,94,0.35)',
-      label: 'Insights',
-      onClick: onInsights,
-    },
-    {
-      icon: <Share2 size={20} strokeWidth={2} />,
-      color: '#A855F7',
-      glow: '0 0 12px rgba(168,85,247,0.35)',
-      label: 'Share',
-      onClick: onShare,
-    },
-    {
-      icon: <Flag size={20} strokeWidth={2} />,
-      color: '#EF4444',
-      glow: '0 0 12px rgba(239,68,68,0.35)',
-      label: 'Report',
-      onClick: onReport,
-    },
-  ];
-
   return (
-    <div className={`mx-auto flex w-auto max-w-[96vw] items-center justify-center gap-1 pointer-events-auto overflow-visible ${className}`}>
-      <AnimatePresence mode="popLayout" initial={false}>
-        {onMessage && (
-          <ActionButton
-            key="action-message"
-            onClick={onMessage}
-            disabled={disabled}
-            size="large"
-            variant="blue"
-            ariaLabel="Message"
-            index={0}
-            isLight={isLight}
-          >
-            <MessageCircle className="w-full h-full" strokeWidth={2} />
-          </ActionButton>
-        )}
-        {onInsights && (
-          <ActionButton
-            key="action-insights"
-            onClick={onInsights}
-            disabled={disabled}
-            size="large"
-            variant="cyan"
-            ariaLabel="Insights"
-            index={1}
-            isLight={isLight}
-          >
-            <Eye className="w-full h-full" strokeWidth={2} />
-          </ActionButton>
-        )}
-        {onShare && (
-          <ActionButton
-            key="action-share"
-            onClick={onShare}
-            disabled={disabled}
-            size="large"
-            variant="amber"
-            ariaLabel="Share"
-            index={2}
-            isLight={isLight}
-          >
-            <Share2 className="w-full h-full" strokeWidth={2} />
-          </ActionButton>
-        )}
-        {onReport && (
-          <ActionButton
-            key="action-report"
-            onClick={onReport}
-            disabled={disabled}
-            size="large"
-            variant="dislike"
-            ariaLabel="Report"
-            index={3}
-            isLight={isLight}
-          >
-            <Flag className="w-full h-full" strokeWidth={2} />
-          </ActionButton>
-        )}
-      </AnimatePresence>
+    <div
+      className={`flex items-center justify-center gap-2 pointer-events-auto ${className}`}
+      style={{ userSelect: 'none' }}
+    >
+      {onUndo && canUndo && (
+        <GhostButton icon={RotateCcw} onClick={onUndo} disabled={disabled} ariaLabel="Undo" index={0} size={20} />
+      )}
+      {onDislike && (
+        <GhostButton icon={ThumbsDown} onClick={onDislike} disabled={disabled} ariaLabel="Pass" index={1} size={22} />
+      )}
+      {onMessage && (
+        <GhostButton icon={MessageCircle} onClick={onMessage} disabled={disabled} ariaLabel="Message" index={2} />
+      )}
+      {onInsights && (
+        <GhostButton icon={Eye} onClick={onInsights} disabled={disabled} ariaLabel="Insights" index={3} />
+      )}
+      {onShare && (
+        <GhostButton icon={Share2} onClick={onShare} disabled={disabled} ariaLabel="Share" index={4} />
+      )}
+      {onReport && (
+        <GhostButton icon={Flag} onClick={onReport} disabled={disabled} ariaLabel="Report" index={5} />
+      )}
+      {onLike && (
+        <GhostButton icon={ThumbsUp} onClick={onLike} disabled={disabled} ariaLabel="Like" index={6} size={22} />
+      )}
     </div>
   );
 });
