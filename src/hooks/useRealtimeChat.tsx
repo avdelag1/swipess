@@ -122,9 +122,10 @@ export function useRealtimeChat(conversationId: string) {
   useEffect(() => {
     if (!conversationId || !user?.id) return;
 
-    // Messages subscription
+    // Messages subscription — IMPORTANT: channel name must be unique from useConversationMessages
+    // which also subscribes to `messages-${conversationId}`. Duplicate names cause silent subscription failure.
     const messagesChannel = supabase
-      .channel(`messages-${conversationId}`, {
+      .channel(`chat-presence-${conversationId}`, {
         config: {
           presence: {
             key: user.id,
@@ -281,7 +282,7 @@ export function useRealtimeChat(conversationId: string) {
 
       // Properly remove channels — removeChannel internally handles unsubscribing
       // and cleaning up the client's internal references to avoid memory leaks.
-      supabase.removeChannel(messagesChannel);
+      supabase.removeChannel(messagesChannel); // was `chat-presence-${conversationId}`
       supabase.removeChannel(typingChannel);
 
       // Clear state

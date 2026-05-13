@@ -1,52 +1,20 @@
 import React from 'react';
-import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
-import { ShieldCheck, Zap, Globe, Fingerprint } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { ShieldCheck, Globe, Fingerprint } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import useAppTheme from '@/hooks/useAppTheme';
 
 export const HolographicIDCard = ({ profile }: { profile: any }) => {
   const { isLight } = useAppTheme();
-  
-  // Motion values for the tilt effect
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-
-  const rotateX = useSpring(useTransform(y, [-100, 100], [10, -10]), { stiffness: 300, damping: 30 });
-  const rotateY = useSpring(useTransform(x, [-100, 100], [-10, 10]), { stiffness: 300, damping: 30 });
-
-  function handleMouse(event: React.MouseEvent | React.TouchEvent) {
-    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
-    const clientX = 'touches' in event ? event.touches[0].clientX : event.clientX;
-    const clientY = 'touches' in event ? event.touches[0].clientY : event.clientY;
-    
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height / 2;
-    
-    x.set(clientX - centerX);
-    y.set(clientY - centerY);
-  }
-
-  function handleMouseLeave() {
-    x.set(0);
-    y.set(0);
-  }
 
   return (
     <motion.div
-      style={{
-        perspective: 1000,
-      }}
-      onMouseMove={handleMouse}
-      onTouchMove={handleMouse}
-      onMouseLeave={handleMouseLeave}
+      whileHover={{ scale: 1.015 }}
+      whileTap={{ scale: 0.985 }}
+      transition={{ type: 'spring', stiffness: 200, damping: 25 }}
       className="relative w-full group"
     >
       <motion.div
-        style={{
-          rotateX,
-          rotateY,
-          transformStyle: "preserve-3d",
-        }}
         className={cn(
           "relative h-56 w-full rounded-[2.5rem] overflow-hidden border transition-all duration-500",
           isLight ? "bg-white border-slate-200 shadow-xl" : "bg-[#0A0F1A] border-white/10 shadow-2xl shadow-primary/10"

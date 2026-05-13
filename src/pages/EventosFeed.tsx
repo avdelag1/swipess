@@ -1,5 +1,4 @@
 import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
-import { useVirtualizer } from '@tanstack/react-virtual';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
@@ -50,7 +49,7 @@ export default function EventosFeed() {
   const { t } = useTranslation();
   const isLight = theme === 'light';
   const queryClient = useQueryClient();
-  const parentRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
   const [activeIdx, setActiveIdx] = useState(0);
   const [activeCategory, setActiveCategory] = useState('all');
 
@@ -79,19 +78,12 @@ export default function EventosFeed() {
       : '0 12px 40px rgba(0,0,0,0.4), inset 0 0.5px 0 rgba(255,255,255,0.06)',
   };
 
-  const resetFeedPosition = useCallback((behavior: ScrollBehavior = 'auto') => {
-    const el = document.getElementById('dashboard-scroll-container') || parentRef.current;
+  const resetFeedPositionInner = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
     setActiveIdx(0);
     setAnimKey((key) => key + 1);
-
-    if (!el) return;
-
-    if (behavior === 'auto') {
-      el.scrollTop = 0;
-      return;
-    }
-
-    el.scrollTo({ top: 0, behavior });
+    el.scrollTop = 0;
   }, []);
 
   // 1. Fetch Likes
@@ -177,8 +169,6 @@ export default function EventosFeed() {
   });
 
   const allEvents = useMemo(() => {
-    // 🚀 SWIPESS SYNC: Always merge MOCK_EVENTS to ensure a full, rich feed
-    // even if the database is sparse. Unique by ID to prevent duplicates.
     const dbEvents = rawEvents || [];
     const seen = new Set(dbEvents.map(e => e.id));
     const validMocks = (MOCK_EVENTS || []).filter((m: any) => !seen.has(m.id));
@@ -201,17 +191,12 @@ export default function EventosFeed() {
   }, [allEvents, activeCategory, likedIds]);
 
   useEffect(() => {
-    resetFeedPosition();
-  }, [activeCategory, resetFeedPosition]);
+    resetFeedPositionInner();
+  }, [activeCategory, resetFeedPositionInner]);
 
+  // Scroll & Snap logic — uses its OWN scroll container, not the global dashboard one
   useEffect(() => {
-    if (activeIdx < filteredEvents.length) return;
-    resetFeedPosition();
-  }, [activeIdx, filteredEvents.length, resetFeedPosition]);
-
-  // Scroll & Virtualization
-  useEffect(() => {
-    const el = document.getElementById('dashboard-scroll-container') || parentRef.current;
+    const el = scrollRef.current;
     if (!el) return;
 
     const handleScroll = () => {
@@ -223,50 +208,21 @@ export default function EventosFeed() {
       }
     };
 
-    // 🚀 SNAP SCROLL ACTIVATION:
-    // Force the scroll container to use mandatory vertical snapping for TikTok-like experience.
-    el.classList.add('snap-y', 'snap-mandatory', 'scroll-smooth');
-    el.style.scrollSnapType = 'y mandatory';
-
     el.addEventListener('scroll', handleScroll, { passive: true });
-    return () => {
-      el.removeEventListener('scroll', handleScroll);
-      el.classList.remove('snap-y', 'snap-mandatory');
-      el.style.scrollSnapType = '';
-    };
+    return () => el.removeEventListener('scroll', handleScroll);
   }, [activeIdx, filteredEvents.length]);
 
-  const rowVirtualizer = useVirtualizer({
-    count: filteredEvents.length,
-    getScrollElement: () => document.getElementById('dashboard-scroll-container') || parentRef.current,
-    estimateSize: () => window.innerHeight || 800,
-    overscan: 2,
-    initialOffset: 0,
-  });
-
-  // Auto-play Logic
-  const _pauseAutoPlay = useCallback(() => {
-    setIsPaused(true);
-    if (pauseTimeoutRef.current) clearTimeout(pauseTimeoutRef.current);
-    pauseTimeoutRef.current = setTimeout(() => {
-      setIsPaused(false);
-      setAnimKey(k => k + 1);
-    }, 3000);
-  }, []);
-
+  // Auto-play
   useEffect(() => {
-    const el = document.getElementById('dashboard-scroll-container') || parentRef.current;
+    const el = scrollRef.current;
     if (!el || !autoPlay || isPaused || filteredEvents.length <= 1) return;
-
     const timeout = setTimeout(() => {
       const height = el.clientHeight || window.innerHeight || 1;
       if (activeIdx < filteredEvents.length - 1) {
-        const nextIdx = activeIdx + 1;
-        el.scrollTo({ top: nextIdx * height, behavior: 'smooth' });
+        el.scrollTo({ top: (activeIdx + 1) * height, behavior: 'smooth' });
       }
       setAnimKey(k => k + 1);
     }, AUTOPLAY_DURATION);
-
     return () => clearTimeout(timeout);
   }, [autoPlay, isPaused, activeIdx, filteredEvents.length, animKey]);
 
@@ -291,7 +247,6 @@ export default function EventosFeed() {
     setConnectingTarget(event.organizer_name || 'Event Organizer');
     setIsConnecting(true);
 
-    // Premium pause for the connection animation to resonate
     await new Promise(resolve => setTimeout(resolve, 2200));
 
     const clean = (event.organizer_whatsapp || '').replace(/[^+\d]/g, '');
@@ -314,7 +269,8 @@ export default function EventosFeed() {
 
   return (
     <div
-      className="relative w-full flex flex-col items-center justify-start bg-transparent min-h-screen"
+      className="relative w-full flex flex-col items-center justify-start bg-transparent"
+      style={{ height: '100dvh', overflow: 'hidden' }}
     >
       <div className="absolute inset-0 bg-[#0a0a0b] -z-10" />
       
@@ -340,7 +296,7 @@ export default function EventosFeed() {
                   onClick={() => {
                     triggerHaptic('light');
                     if (cat.key === activeCategory) {
-                      resetFeedPosition('smooth');
+                      resetFeedPositionInner();
                       return;
                     }
                     setActiveCategory(cat.key);
@@ -391,7 +347,7 @@ export default function EventosFeed() {
         />
       </div>
 
-      {/* Main Feed */}
+      {/* Main Feed — self-contained snap scroll container */}
       {filteredEvents.length === 0 ? (
         <div className="absolute inset-0 flex items-center justify-center px-6 pt-32">
           <div className="w-full max-w-sm rounded-[30px] px-6 py-7 text-center" style={hudGlassStyle}>
@@ -417,51 +373,41 @@ export default function EventosFeed() {
           </div>
         </div>
       ) : (
-        <div 
-          ref={parentRef} 
-          className="w-full relative"
+        <div
+          ref={scrollRef}
+          className="absolute inset-0 overflow-y-scroll snap-y snap-mandatory"
+          style={{ scrollSnapType: 'y mandatory', WebkitOverflowScrolling: 'touch' }}
         >
-          <div style={{ height: `${rowVirtualizer.getTotalSize()}px`, position: 'relative' }}>
-            {rowVirtualizer.getVirtualItems().map((virtualRow) => {
-              const event = filteredEvents[virtualRow.index];
-              if (!event) return null;
-
-              return (
-                <div 
-                  key={virtualRow.key} 
-                  className="absolute top-0 left-0 w-full snap-start snap-always"
-                  style={{ 
-                    height: '100vh', 
-                    width: '100%',
-                    transform: `translateY(${virtualRow.start}px)`
-                  }}
-                >
-                  <EventCard
-                    event={event}
-                    isActive={virtualRow.index === activeIdx}
-                    isPaused={isPaused}
-                    animKey={animKey}
-                    onTickComplete={() => {}} 
-                    liked={likedIds.has(event.id)}
-                    activeColor={CATEGORIES.find(c => c.key === event.category)?.color || '#f97316'}
-                    onLike={() => likeMutation.mutate({ id: event.id, isLiked: likedIds.has(event.id) })}
-                    onChat={() => handleOpenChat(event)}
-                    onShare={() => handleShare(event)}
-                    onMiddleTap={() => handleMiddleTap(event)}
-                    onNextEvent={() => { const el = document.getElementById('dashboard-scroll-container') || parentRef.current; el?.scrollBy({ top: el.clientHeight || window.innerHeight, behavior: 'smooth' }); }}
-                    onPrevEvent={() => { const el = document.getElementById('dashboard-scroll-container') || parentRef.current; el?.scrollBy({ top: -(el.clientHeight || window.innerHeight), behavior: 'smooth' }); }}
-                  />
-                </div>
-              );
-            })}
-          </div>
+          {filteredEvents.map((event, index) => (
+            <div
+              key={event.id}
+              className="snap-start snap-always w-full shrink-0"
+              style={{ height: '100dvh' }}
+            >
+              <EventCard
+                event={event}
+                isActive={index === activeIdx}
+                isPaused={isPaused}
+                animKey={animKey}
+                onTickComplete={() => {}}
+                liked={likedIds.has(event.id)}
+                activeColor={CATEGORIES.find(c => c.key === event.category)?.color || '#f97316'}
+                onLike={() => likeMutation.mutate({ id: event.id, isLiked: likedIds.has(event.id) })}
+                onChat={() => handleOpenChat(event)}
+                onShare={() => handleShare(event)}
+                onMiddleTap={() => handleMiddleTap(event)}
+                onNextEvent={() => { const el = scrollRef.current; el?.scrollBy({ top: el.clientHeight || window.innerHeight, behavior: 'smooth' }); }}
+                onPrevEvent={() => { const el = scrollRef.current; el?.scrollBy({ top: -(el.clientHeight || window.innerHeight), behavior: 'smooth' }); }}
+              />
+            </div>
+          ))}
         </div>
       )}
 
       <ShareModal
-        isOpen={showShareModal}
+        open={showShareModal}
         onClose={() => setShowShareModal(false)}
-        eventData={shareEventData}
+        event={shareEventData}
       />
 
       <ConnectingOverlay 
