@@ -164,6 +164,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   onSkipBack,
   onTap: _onTap,
   onInsights,
+  onMessage,
   isTop = true,
   onDragStart,
   externalX,
@@ -525,7 +526,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
                 data-no-cinematic
                 type="button"
                 onPointerDown={(e) => e.stopPropagation()}
-                onClick={(e) => { e.stopPropagation(); onInsights(); }}
+                onClick={(e) => { e.stopPropagation(); onInsights?.(); }}
                 aria-label="Insights"
                 className="w-9 h-9 flex items-center justify-center bg-transparent border-0 shadow-none active:scale-90 transition-all duration-150"
                 style={{ backgroundColor: 'transparent', boxShadow: 'none' }}
@@ -538,7 +539,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
                 data-no-cinematic
                 type="button"
                 onPointerDown={(e) => e.stopPropagation()}
-                onClick={(e) => { e.stopPropagation(); onMessage(); }}
+                onClick={(e) => { e.stopPropagation(); onMessage?.(); }}
                 aria-label="Message client"
                 className="w-9 h-9 flex items-center justify-center bg-transparent border-0 shadow-none active:scale-90 transition-all duration-150"
                 style={{ backgroundColor: 'transparent', boxShadow: 'none' }}
