@@ -13,11 +13,13 @@ export function LoopVideo({
   poster,
   className,
   active = true,
+  onError,
 }: {
   src: string;
   poster?: string;
   className?: string;
   active?: boolean;
+  onError?: () => void;
 }) {
   const ref = useRef<HTMLVideoElement | null>(null);
   const inViewRef = useRef(true);
@@ -98,6 +100,7 @@ export function LoopVideo({
       // No `loop` attr — we control looping manually for ping-pong
       preload="metadata"
       disablePictureInPicture
+      onError={onError}
       className={cn('w-full h-full object-cover', className)}
     />
   );

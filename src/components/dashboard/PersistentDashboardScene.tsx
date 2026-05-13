@@ -1,6 +1,69 @@
-import { lazy, Suspense, useEffect, useRef } from 'react';
+import { lazy, Suspense, useEffect, useRef, Component, ReactNode } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useActiveMode } from '@/hooks/useActiveMode';
+import { logger } from '@/utils/prodLogger';
+import { useFilterStore } from '@/state/filterStore';
+import { useSwipeDeckStore } from '@/state/swipeDeckStore';
+
+// ─── Dashboard-level error boundary ─────────────────────────────────────────
+// ChunkErrorBoundary only catches chunk-load failures (returns null for other
+// errors, so non-chunk runtime crashes propagate up to GlobalErrorBoundary and
+// take down the entire app). This boundary catches EVERY error from the owner
+// or client dashboard and shows a local recovery screen instead.
+interface DashErrorState { hasError: boolean; error?: Error }
+class DashboardErrorBoundary extends Component<{ role: string; children: ReactNode }, DashErrorState> {
+  state: DashErrorState = { hasError: false };
+
+  static getDerivedStateFromError(error: Error): DashErrorState {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, info: any) {
+    logger.error(`[DashboardErrorBoundary:${this.props.role}] caught`, error?.message, info?.componentStack?.slice(0, 400));
+  }
+
+  handleReset = () => {
+    // Reset owner phase and clear deck state so the dashboard restarts cleanly
+    try {
+      useFilterStore.getState().setOwnerPhase('cards');
+      useFilterStore.getState().setActiveCategory(null);
+    } catch { /* ignore */ }
+    try {
+      // Clear all owner decks to force a fresh fetch
+      const deckState = useSwipeDeckStore.getState();
+      Object.keys(deckState.ownerDecks || {}).forEach(cat => {
+        deckState.resetOwnerDeck(cat);
+      });
+    } catch { /* ignore */ }
+    this.setState({ hasError: false, error: undefined });
+  };
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="flex flex-col items-center justify-center h-full min-h-[300px] gap-5 p-8 text-center bg-black">
+          <div className="w-14 h-14 rounded-[18px] bg-red-500/10 border border-red-500/20 flex items-center justify-center">
+            <div className="w-7 h-7 rounded-full border-2 border-red-500/40 border-t-red-500 animate-spin" />
+          </div>
+          <div className="space-y-1.5 max-w-xs">
+            <p className="text-white font-black text-base uppercase italic tracking-tight">Dashboard Error</p>
+            <p className="text-white/40 text-xs leading-relaxed">
+              {import.meta.env.DEV ? this.state.error?.message : 'An unexpected error occurred. Tap below to recover.'}
+            </p>
+          </div>
+          <button
+            onClick={this.handleReset}
+            className="px-6 py-2.5 rounded-full bg-white text-black text-xs font-black uppercase tracking-widest hover:bg-white/90 active:scale-95 transition-all"
+          >
+            Reset Dashboard
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+// ─────────────────────────────────────────────────────────────────────────────
 
 /**
  * 🚀 PERSISTENT DASHBOARD SCENE
@@ -73,9 +136,11 @@ export function PersistentDashboardScene() {
           className="absolute inset-0 flex flex-col"
           style={{ display: showClient ? 'flex' : 'none' }}
         >
-          <Suspense fallback={null}>
-            <ClientDashboard />
-          </Suspense>
+          <DashboardErrorBoundary role="client">
+            <Suspense fallback={null}>
+              <ClientDashboard />
+            </Suspense>
+          </DashboardErrorBoundary>
         </div>
       )}
       {ownerMountedRef.current && (
@@ -83,9 +148,11 @@ export function PersistentDashboardScene() {
           className="absolute inset-0 flex flex-col"
           style={{ display: showOwner ? 'flex' : 'none' }}
         >
-          <Suspense fallback={null}>
-            <EnhancedOwnerDashboard />
-          </Suspense>
+          <DashboardErrorBoundary role="owner">
+            <Suspense fallback={null}>
+              <EnhancedOwnerDashboard />
+            </Suspense>
+          </DashboardErrorBoundary>
         </div>
       )}
     </div>

@@ -8,7 +8,6 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
-import { predictivePrefetchEvent } from '@/utils/performance';
 import { toast } from '@/components/ui/sonner';
 import { useAuth } from '@/hooks/useAuth';
 import useAppTheme from '@/hooks/useAppTheme';
@@ -23,6 +22,7 @@ import { ConnectingOverlay } from '@/components/ConnectingOverlay';
 // Static Data
 import { CATEGORIES, MOCK_EVENTS } from '@/data/eventsData';
 import { EventItem } from '@/types/events';
+import { resolveStorageUrl } from '@/utils/imageOptimization';
 
 
 
@@ -136,8 +136,8 @@ export default function EventosFeed() {
     queryFn: async (): Promise<EventItem[]> => {
       const { data, error } = await supabase
         .from('events')
-        .select('id, title, description, category, image_url, image_urls, video_url, event_date, location, location_detail, organizer_name, organizer_whatsapp, promo_text, discount_tag, is_free, price_text')
-        .order('event_date', { ascending: true });
+        .select('id, title, description, category, image_url, image_urls, video_url, event_date, location, location_detail, organizer_name, organizer_whatsapp, promo_text, discount_tag, is_free, price_text, created_at')
+        .order('created_at', { ascending: false });
       
       if (error) {
         console.warn('Supabase events fetch error:', error);
@@ -149,8 +149,8 @@ export default function EventosFeed() {
         title: ev.title || 'Untitled Event',
         description: ev.description || null,
         category: ev.category || 'all',
-        image_url: pickEventImage(ev),
-        image_urls: Array.isArray(ev.image_urls) ? ev.image_urls : [],
+        image_url: resolveStorageUrl(pickEventImage(ev), 'event-images'),
+        image_urls: Array.isArray(ev.image_urls) ? ev.image_urls.map((u: any) => typeof u === 'string' ? resolveStorageUrl(u, 'event-images') : u) : [],
         video_url: ev.video_url || null,
         event_date: ev.event_date || null,
         location: ev.location || null,
@@ -208,11 +208,33 @@ export default function EventosFeed() {
       }
     };
 
+    // 🚀 SNAP SCROLL ACTIVATION:
+    // Force mandatory vertical snapping. Do NOT add scroll-smooth — it conflicts
+    // with snap-mandatory on iOS Safari and causes missed/stuck snaps.
+    // Explicitly set scroll-behavior: auto to override scroll-area-momentum CSS.
+    el.classList.add('snap-y', 'snap-mandatory');
+    el.style.scrollSnapType = 'y mandatory';
+    el.style.scrollBehavior = 'auto';
+
     el.addEventListener('scroll', handleScroll, { passive: true });
-    return () => el.removeEventListener('scroll', handleScroll);
+    return () => {
+      el.removeEventListener('scroll', handleScroll);
+      el.classList.remove('snap-y', 'snap-mandatory');
+      el.style.scrollSnapType = '';
+      el.style.scrollBehavior = '';
+    };
   }, [activeIdx, filteredEvents.length]);
 
-  // Auto-play
+  // Auto-play Logic
+  const _pauseAutoPlay = useCallback(() => {
+    setIsPaused(true);
+    if (pauseTimeoutRef.current) clearTimeout(pauseTimeoutRef.current);
+    pauseTimeoutRef.current = setTimeout(() => {
+      setIsPaused(false);
+      setAnimKey(k => k + 1);
+    }, 3000);
+  }, []);
+
   useEffect(() => {
     const el = scrollRef.current;
     if (!el || !autoPlay || isPaused || filteredEvents.length <= 1) return;
@@ -234,13 +256,7 @@ export default function EventosFeed() {
         pwaImagePreloader.batchPreload(urls);
       });
     }
-
-    for (let i = 1; i <= 3; i++) {
-      const preIdx = (activeIdx + i) % (filteredEvents.length + 1);
-      const preId = filteredEvents[preIdx]?.id;
-      if (preId) predictivePrefetchEvent(queryClient, preId);
-    }
-  }, [activeIdx, filteredEvents, queryClient]);
+  }, [activeIdx, filteredEvents]);
 
   const handleOpenChat = useCallback(async (event: EventItem) => {
     triggerHaptic('heavy');
@@ -269,20 +285,19 @@ export default function EventosFeed() {
 
   return (
     <div
-      className="relative w-full flex flex-col items-center justify-start bg-transparent"
-      style={{ height: '100dvh', overflow: 'hidden' }}
+      className="relative w-full flex flex-col items-center justify-start bg-transparent min-h-[100dvh]"
     >
       <div className="absolute inset-0 bg-[#0a0a0b] -z-10" />
       
-      {/* Floating HUD — now handled by global SwipessHud logic, this local wrapper just for custom styling */}
-      <div 
+      {/* Floating HUD — category pills positioned just below the TopBar */}
+      <div
         className={cn(
-          "fixed left-0 right-0 z-[100] transform-gpu px-4 pt-4 transition-all duration-300 ease-out",
+          "fixed left-0 right-0 z-[100] transform-gpu px-4 pt-2 transition-all duration-300 ease-out",
           "opacity-100 translate-y-0"
         )}
-        style={{ top: '0px' }}
+        style={{ top: 'calc(var(--top-bar-height, 72px) + var(--safe-top, 0px))' }}
       >
-        <div className="flex items-center gap-3 mt-12">
+        <div className="flex items-center gap-3 mt-1">
 
           <div className="flex-1 flex gap-2 overflow-x-auto no-scrollbar scroll-smooth py-2">
             {CATEGORIES.map((cat) => {
@@ -373,15 +388,12 @@ export default function EventosFeed() {
           </div>
         </div>
       ) : (
-        <div
-          ref={scrollRef}
-          className="absolute inset-0 overflow-y-scroll snap-y snap-mandatory"
-          style={{ scrollSnapType: 'y mandatory', WebkitOverflowScrolling: 'touch' }}
-        >
+        <div ref={parentRef} className="w-full">
           {filteredEvents.map((event, index) => (
             <div
               key={event.id}
-              className="snap-start snap-always w-full shrink-0"
+              data-event-index={index}
+              className="w-full snap-start snap-always"
               style={{ height: '100dvh' }}
             >
               <EventCard
@@ -396,19 +408,21 @@ export default function EventosFeed() {
                 onChat={() => handleOpenChat(event)}
                 onShare={() => handleShare(event)}
                 onMiddleTap={() => handleMiddleTap(event)}
-                onNextEvent={() => { const el = scrollRef.current; el?.scrollBy({ top: el.clientHeight || window.innerHeight, behavior: 'smooth' }); }}
-                onPrevEvent={() => { const el = scrollRef.current; el?.scrollBy({ top: -(el.clientHeight || window.innerHeight), behavior: 'smooth' }); }}
+                onNextEvent={() => { const el = document.getElementById('dashboard-scroll-container') || parentRef.current; el?.scrollBy({ top: el.clientHeight || window.innerHeight, behavior: 'smooth' }); }}
+                onPrevEvent={() => { const el = document.getElementById('dashboard-scroll-container') || parentRef.current; el?.scrollBy({ top: -(el.clientHeight || window.innerHeight), behavior: 'smooth' }); }}
               />
             </div>
           ))}
         </div>
       )}
 
-      <ShareModal
-        open={showShareModal}
-        onClose={() => setShowShareModal(false)}
-        event={shareEventData}
-      />
+      {shareEventData && (
+        <ShareModal
+          open={showShareModal}
+          onClose={() => setShowShareModal(false)}
+          event={shareEventData as any}
+        />
+      )}
 
       <ConnectingOverlay 
         isOpen={isConnecting}

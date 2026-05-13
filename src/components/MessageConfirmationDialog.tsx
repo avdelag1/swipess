@@ -171,23 +171,21 @@ export function MessageConfirmationDialog({
               onClick={handleConfirm}
               disabled={isLoading || !message.trim()}
               className={cn(
-                "w-full h-13 rounded-2xl font-bold text-sm active:scale-[0.98] transition-all shadow-lg border-none",
+                "w-full h-12 rounded-2xl font-bold text-sm active:scale-[0.98] transition-all shadow-lg border-none flex items-center justify-center gap-2",
                 isLight ? "bg-slate-900 text-white hover:bg-slate-800" : "bg-white text-black hover:bg-white/90"
               )}
             >
-              <AnimatePresence mode="wait">
-                {isLoading ? (
-                  <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center">
-                    <div className="w-4 h-4 mr-2.5 border-2 border-current/30 border-t-current rounded-full animate-spin" />
-                    Sending...
-                  </motion.div>
-                ) : (
-                  <motion.div key="send" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center">
-                    <Send className="w-4 h-4 mr-2" />
-                    Deliver Message
-                  </motion.div>
-                )}
-              </AnimatePresence>
+              {isLoading ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-current/30 border-t-current rounded-full animate-spin" />
+                  Sending...
+                </>
+              ) : (
+                <>
+                  <Send className="w-4 h-4" />
+                  Deliver Message
+                </>
+              )}
             </Button>
             
             <Button

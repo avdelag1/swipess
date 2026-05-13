@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import DOMPurify from 'dompurify';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   FileText, ShieldCheck, PenTool, CheckCircle2, 
@@ -325,7 +326,7 @@ export function ContractsVault() {
             >
               <div className={cn("relative p-10 rounded-[3rem] border shadow-inner h-[400px] overflow-y-auto no-scrollbar pointer-events-none opacity-80 blur-[0.5px] grayscale", isLight ? "bg-black/5 border-black/5" : "bg-white/5 border-white/10")}>
                 <div className={cn("prose max-w-none font-medium italic text-[13px] leading-relaxed", isLight ? "prose-slate" : "prose-invert")}>
-                   <div dangerouslySetInnerHTML={{ __html: activeContract?.content || (selectedTemplate?.content || '') }} />
+                   <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(activeContract?.content || (selectedTemplate?.content || '')) }} />
                 </div>
                 <div className={cn("absolute inset-0 pointer-events-none bg-gradient-to-t via-transparent to-transparent", isLight ? "from-white" : "from-black")} />
               </div>

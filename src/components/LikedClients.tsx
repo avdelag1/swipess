@@ -11,7 +11,6 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { appToast } from "@/utils/appNotification";
 import useAppTheme from "@/hooks/useAppTheme";
-import { useStartConversation } from "@/hooks/useConversations";
 import { PremiumLikedCard } from "@/components/PremiumLikedCard";
 import { LikedClientInsightsModal } from "@/components/LikedClientInsightsModal";
 import { ConnectingOverlay } from "@/components/ConnectingOverlay";
@@ -61,7 +60,6 @@ export function LikedClients() {
   const [connectingRecipient, setConnectingRecipient] = useState("");
 
   const queryClient = useQueryClient();
-  const startConversation = useStartConversation();
 
   const { data: likedClients = [], isLoading } = useQuery({
     queryKey: ["liked-clients", user?.id],
@@ -133,30 +131,8 @@ export function LikedClients() {
         appToast.error("Cannot message", "User information missing.");
         return;
       }
-      appToast.info("Starting chat", "Opening conversation...");
-      try {
-        const result = await startConversation.mutateAsync({
-          otherUserId: client.user_id,
-          initialMessage: `Hi ${client.full_name || "there"}! I'm interested in working with you.`,
-          canStartNewConversation: true,
-        });
-        if (result?.conversationId) {
-          setConnectingRecipient(client.full_name || "Talent");
-          setIsConnecting(true);
-          triggerHaptic('medium');
-
-          // Premium cinematic delay
-          await new Promise(resolve => setTimeout(resolve, 2200));
-
-          navigate(`/messages?conversationId=${result.conversationId}`);
-        } else {
-          appToast.error("Could not open chat", "Please try again.");
-        }
-      } catch (e: any) {
-        appToast.error("Unable to start conversation", e?.message || "Please try again.");
-      } finally {
-        setIsConnecting(false);
-      }
+      triggerHaptic('medium');
+      navigate(`/messages?startConversation=${client.user_id}`);
     }
   };
 

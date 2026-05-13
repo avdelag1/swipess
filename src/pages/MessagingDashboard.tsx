@@ -44,6 +44,7 @@ import { AtmosphericLayer } from '@/components/AtmosphericLayer';
 import { X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { ConnectingOverlay } from '@/components/ConnectingOverlay';
+import { appToast } from '@/utils/appNotification';
 
 export function MessagingDashboard() {
   const { user } = useAuth();
@@ -144,30 +145,47 @@ export function MessagingDashboard() {
   const handleAutoStartConversation = useCallback(async (userId: string) => {
     setIsStartingConversation(true);
     try {
-      const existing = conversations.find(c => c.other_user?.id === userId);
+      // Check local state first (fast path)
+      let existing = conversations.find(c => c.other_user?.id === userId);
+
+      // If not found locally, refetch and check again (conversations may not be loaded yet)
+      if (!existing) {
+        const freshResult = await refetch();
+        const freshConversations = freshResult.data || [];
+        existing = (freshConversations as any[]).find((c: any) => c.other_user?.id === userId);
+      }
+
       if (existing) {
         setSelectedConversationId(existing.id);
         setSearchParams({});
         setIsStartingConversation(false);
         return;
       }
+
+      if (!canSendMessage) {
+        setSearchParams({});
+        setIsStartingConversation(false);
+        return;
+      }
+
       const result = await startConversation.mutateAsync({
         otherUserId: userId,
         initialMessage: "Hi! I'm interested in connecting.",
-        canStartNewConversation: canSendMessage,
+        canStartNewConversation: true,
       });
+
       if (result.conversationId) {
         await refetch();
         setConnectingRecipient("New Connection");
         setIsConnecting(true);
-        
-        // Premium cinematic delay
         await new Promise(resolve => setTimeout(resolve, 2200));
-        
         setSelectedConversationId(result.conversationId);
         setSearchParams({});
+      } else {
+        setSearchParams({});
       }
-    } catch (_e) {
+    } catch (err) {
+      appToast.error('Could not open conversation', err instanceof Error ? err.message : 'Please try again');
       setSearchParams({});
     } finally {
       setIsStartingConversation(false);
@@ -331,7 +349,6 @@ export function MessagingDashboard() {
                     )} 
                     onClick={() => { triggerHaptic('medium'); setSelectedConversationId(conversation.id); }}
                   >
-                    {/* Unread Indicator Glow */}
                     {isUnread && <div className="absolute inset-y-0 left-0 w-1 bg-[#EB4898] shadow-[0_0_15px_#EB4898]" />}
 
                     <div className="relative shrink-0">

@@ -73,6 +73,7 @@ export const EventCard = memo(({
   const isLight = theme === 'light';
   const [showDetails, setShowDetails] = useState(false);
   const [likeAnim, setLikeAnim] = useState(false);
+  const [videoError, setVideoError] = useState(false);
 
   const handleLike = () => {
     onLike();
@@ -117,8 +118,13 @@ export const EventCard = memo(({
           className="w-full h-full transform-gpu"
           style={{ willChange: 'transform', transform: 'translateZ(0)' }}
         >
-          {event.video_url ? (
-            <LoopVideo src={event.video_url} poster={event.image_url || undefined} active={isActive && !isPaused} />
+          {event.video_url && !videoError ? (
+            <LoopVideo
+              src={event.video_url}
+              poster={event.image_url || undefined}
+              active={isActive && !isPaused}
+              onError={() => setVideoError(true)}
+            />
           ) : (
             <CardImage
               src={event.image_url}

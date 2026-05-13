@@ -212,6 +212,13 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
            path === '/owner/dashboard'  || path === '/owner/dashboard/';
   }, [location.pathname]);
 
+  // Full-screen feed routes get no chrome padding — cards fill edge-to-edge,
+  // TopBar/BottomNav overlay via fixed position (same as TikTok/Reels).
+  const isFullScreenFeed = useMemo(() => {
+    const path = location.pathname;
+    return path === '/explore/eventos' || path === '/explore/eventos/';
+  }, [location.pathname]);
+
   useEffect(() => {
     document.body.classList.toggle('swipe-deck-active', isSwipeDeck);
     return () => document.body.classList.remove('swipe-deck-active');
@@ -262,17 +269,35 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
         ref={scrollContainerRef}
         id="dashboard-scroll-container"
         className={cn(
-          "flex-1 flex flex-col relative w-full min-h-0",
-          isSwipeDeck ? "overflow-hidden touch-none bg-swipe-frame" : "overflow-y-auto scroll-area-momentum"
+          "flex-1 relative w-full",
+          isSwipeDeck ? "overflow-hidden touch-none bg-swipe-frame" : "overflow-y-auto"
         )}
         style={{
-          WebkitOverflowScrolling: isSwipeDeck ? 'auto' : 'touch',
-          overscrollBehavior: isSwipeDeck ? 'none' : undefined,
-          touchAction: isSwipeDeck ? 'none' : undefined,
+          WebkitOverflowScrolling: 'touch',
+          overscrollBehavior: isSwipeDeck ? 'none' : 'auto',
+          touchAction: isSwipeDeck ? 'none' : 'pan-y pinch-zoom',
+          ...(( isFullScreenFeed || isFullScreenRoute) && { height: '100dvh', overflowY: 'scroll' }),
         }}
       >
-        {/* INNER WRAPPER: Ensures flex-grow works correctly for child pages */}
-        <div className={cn("w-full flex flex-col min-h-0", isSwipeDeck ? "h-full flex-1 overflow-hidden" : "flex-grow min-h-full")}>
+        {/* INNER WRAPPER: block so its height is determined purely by content.
+            Non-swipe routes get top + bottom padding so content is never hidden
+            under the fixed TopBar or BottomNav.
+            Full-screen feed routes (EventosFeed) get no padding — cards fill
+            edge-to-edge with TopBar/BottomNav overlaying via fixed position. */}
+        <div
+          className="w-full"
+          style={isSwipeDeck ? {
+            position: 'absolute',
+            inset: 0,
+            overflow: 'hidden',
+          } : (isFullScreenFeed || isFullScreenRoute) ? {
+            minHeight: '100%',
+          } : {
+            minHeight: '100%',
+            paddingTop: 'calc(var(--top-bar-height, 72px) + var(--safe-top, 0px))',
+            paddingBottom: 'calc(var(--bottom-nav-height, 64px) + var(--safe-bottom, 0px))',
+          }}
+        >
           {children}
         </div>
       </main>
