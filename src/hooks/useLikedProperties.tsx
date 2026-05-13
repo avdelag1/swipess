@@ -67,12 +67,14 @@ export function useLikedProperties() {
           if (!err) listings = data || [];
         }
 
-        // Fetch Events
-        if (eventIds.length > 0) {
+        // Fetch Events — filter out non-UUID mock IDs (e.g. 'm1', 'm2') to avoid 400 errors
+        const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+        const realEventIds = eventIds.filter(id => UUID_RE.test(id));
+        if (realEventIds.length > 0) {
           const { data, error: err } = await supabase
             .from('events')
             .select('*')
-            .in('id', eventIds);
+            .in('id', realEventIds);
           if (!err) events = data || [];
         }
 
