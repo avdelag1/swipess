@@ -14,7 +14,7 @@
 
 import { memo, useCallback, useState, forwardRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Undo2, MessageCircle, Flame, ThumbsDown, Eye, RotateCcw } from 'lucide-react';
+import { MessageCircle, Eye, Share2, Flag } from 'lucide-react';
 import { triggerHaptic } from '@/utils/haptics';
 import { AnimatedLottieIcon } from './ui/AnimatedLottieIcon';
 import useAppTheme from '@/hooks/useAppTheme';
@@ -26,6 +26,7 @@ interface SwipeActionButtonBarProps {
   onInsights?: () => void;
   onUndo?: () => void;
   onMessage?: () => void;
+  onReport?: () => void;
   onSpeedMeet?: () => void;
   onCycleCategory?: () => void;
   canUndo?: boolean;
