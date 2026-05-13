@@ -63,20 +63,28 @@ export function useCategoryPhotos() {
   return useQuery({
     queryKey: ['category-photos'],
     queryFn: async (): Promise<Record<string, string[]>> => {
-      const { data, error } = await supabase
-        .from('category_photos' as any)
-        .select('category_id, image_url, sort_order, is_active')
-        .eq('is_active', true)
-        .order('sort_order', { ascending: true });
+      try {
+        const { data, error } = await supabase
+          .from('category_photos' as any)
+          .select('category_id, image_url, sort_order, is_active')
+          .eq('is_active', true)
+          .order('sort_order', { ascending: true });
 
-      const map: Record<string, string[]> = {};
-      if (!error && Array.isArray(data)) {
-        for (const row of data as any[]) {
-          if (!map[row.category_id]) map[row.category_id] = [];
-          map[row.category_id].push(row.image_url);
+        // The category_photos table may not exist yet \u2014 return empty map silently
+        if (error) return {};
+
+        const map: Record<string, string[]> = {};
+        if (Array.isArray(data)) {
+          for (const row of data as any[]) {
+            if (!map[row.category_id]) map[row.category_id] = [];
+            map[row.category_id].push(row.image_url);
+          }
         }
+        return map;
+      } catch {
+        // Table doesn't exist yet \u2014 static defaults will be used
+        return {};
       }
-      return map;
     },
     staleTime: 5 * 60 * 1000,
     gcTime: 30 * 60 * 1000,

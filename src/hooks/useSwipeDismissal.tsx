@@ -32,26 +32,27 @@ export function useSwipeDismissal(targetType: DismissalTargetType) {
       if (!user?.id) return [];
 
       try {
-        // Query likes table for left swipes (dismissals)
+        // Query likes table — filter by user+target_type only (RLS allows this)
+        // direction filter applied client-side to avoid RLS 400 on column filter
         const dbTargetType = targetType === 'client' ? 'profile' : 'listing';
 
         const { data, error } = await supabase
           .from('likes')
-          .select('target_id, cooldown_until')
+          .select('target_id, direction, cooldown_until')
           .eq('user_id', user.id)
-          .eq('target_type', dbTargetType)
-          .eq('direction', 'left');
+          .eq('target_type', dbTargetType);
 
         if (error) {
           logger.error('[useSwipeDismissal] Error fetching dismissals:', error);
           return [];
         }
 
-        // A row counts as "currently dismissed" if cooldown_until is NULL
-        // (permanent) or still in the future.
+        // A row counts as "currently dismissed" if it's a left-swipe AND
+        // cooldown_until is NULL (permanent) or still in the future.
         const now = Date.now();
         const ids = (data || [])
           .filter((item: any) => {
+            if (item.direction !== 'left') return false; // Only left swipes are dismissals
             const cd = item.cooldown_until;
             if (cd === null || cd === undefined) return true; // permanent
             return new Date(cd).getTime() > now;
