@@ -1,7 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { useEffect, useRef } from 'react';
 import { logger } from '@/utils/prodLogger';
 
 export function useUnreadMessageCount() {
@@ -48,58 +47,6 @@ export function useUnreadMessageCount() {
     staleTime: 10000,
     refetchOnWindowFocus: true,
   });
-
-  const debouncedRefetch = () => {
-    if (refetchTimeoutRef.current) {
-      clearTimeout(refetchTimeoutRef.current);
-    }
-    refetchTimeoutRef.current = setTimeout(() => {
-      query.refetch();
-    }, 1000);
-  };
-
-  useEffect(() => {
-    if (!user?.id) return;
-
-    const channel = supabase
-      .channel('unread-messages-count')
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'conversation_messages'
-        },
-        (payload) => {
-          if (payload.new.sender_id !== user.id) {
-            debouncedRefetch();
-          }
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'conversation_messages'
-        },
-        (payload) => {
-          if (payload.old.is_read !== payload.new.is_read) {
-            debouncedRefetch();
-          }
-        }
-      )
-      .subscribe();
-
-    return () => {
-      if (refetchTimeoutRef.current) {
-        clearTimeout(refetchTimeoutRef.current);
-      }
-      channel.unsubscribe();
-      supabase.removeChannel(channel);
-    };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.id]);
 
   return {
     unreadCount: query.data || 0,

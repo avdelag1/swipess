@@ -13,6 +13,20 @@ export const setHapticPreference = (enabled: boolean) => {
   }
 };
 
+// Chrome requires a user gesture before navigator.vibrate() is allowed.
+// Track whether the user has interacted to prevent [Intervention] errors.
+let _userHasInteracted = false;
+if (typeof document !== 'undefined') {
+  document.addEventListener('pointerdown', () => { _userHasInteracted = true; }, { once: true, passive: true, capture: true });
+  document.addEventListener('keydown', () => { _userHasInteracted = true; }, { once: true, passive: true, capture: true });
+}
+
+function safeVibrate(pattern: number | number[]): void {
+  if (_userHasInteracted && 'vibrate' in navigator) {
+    try { navigator.vibrate(pattern); } catch (_) { /* non-critical */ }
+  }
+}
+
 /**
  * Trigger haptic feedback with various patterns
  * - light/medium/heavy: Simple single vibrations
@@ -64,32 +78,16 @@ export const triggerHaptic = async (type: 'light' | 'medium' | 'heavy' | 'succes
     } catch (e) {
       logger.error('Haptics error:', e);
     }
-  } else if ('vibrate' in navigator) {
+  } else {
     switch (type) {
-      case 'light':
-        navigator.vibrate(5);
-        break;
-      case 'medium':
-        navigator.vibrate(10);
-        break;
-      case 'heavy':
-        navigator.vibrate(20);
-        break;
-      case 'success':
-        navigator.vibrate([5, 30, 5]);
-        break;
-      case 'warning':
-        navigator.vibrate([10, 60, 10]);
-        break;
-      case 'error':
-        navigator.vibrate(30);
-        break;
-      case 'match':
-        navigator.vibrate([10, 20, 10, 20, 20, 40, 30]);
-        break;
-      case 'celebration':
-        navigator.vibrate([5, 10, 5, 10, 5, 10, 20, 30, 40, 50, 30]);
-        break;
+      case 'light':     safeVibrate(5); break;
+      case 'medium':    safeVibrate(10); break;
+      case 'heavy':     safeVibrate(20); break;
+      case 'success':   safeVibrate([5, 30, 5]); break;
+      case 'warning':   safeVibrate([10, 60, 10]); break;
+      case 'error':     safeVibrate(30); break;
+      case 'match':     safeVibrate([10, 20, 10, 20, 20, 40, 30]); break;
+      case 'celebration': safeVibrate([5, 10, 5, 10, 5, 10, 20, 30, 40, 50, 30]); break;
     }
   }
 };
