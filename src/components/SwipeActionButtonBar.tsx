@@ -194,6 +194,8 @@ export const SwipeActionButtonBar = memo(({
   onInsights,
   onUndo,
   onMessage,
+  onShare,
+  onReport,
   canUndo = false,
   disabled = false,
   className = '',
@@ -201,72 +203,62 @@ export const SwipeActionButtonBar = memo(({
   const { isLight } = useAppTheme();
 
   return (
-    <div className={`mx-auto flex w-auto max-w-[96vw] items-center justify-center gap-0 pointer-events-auto overflow-visible -mt-6 ${className}`}>
+    <div className={`mx-auto flex w-auto max-w-[96vw] items-center justify-center gap-1 pointer-events-auto overflow-visible ${className}`}>
       <AnimatePresence mode="popLayout" initial={false}>
-        {onUndo && (
-          <ActionButton
-            key="action-undo"
-            onClick={onUndo}
-            disabled={disabled || !canUndo}
-            size="small"
-            variant="green"
-            ariaLabel="Undo"
-            index={0}
-            isLight={isLight}
-          >
-            <RotateCcw className="w-full h-full" strokeWidth={2} />
-          </ActionButton>
-        )}
-        <ActionButton
-          key="action-dislike"
-          onClick={onDislike}
-          disabled={disabled}
-          size="large"
-          variant="dislike"
-          ariaLabel="Dislike"
-          index={1}
-          isLight={isLight}
-        >
-          <ThumbsDown className="w-full h-full" strokeWidth={2} />
-        </ActionButton>
         {onMessage && (
           <ActionButton
             key="action-message"
             onClick={onMessage}
             disabled={disabled}
-            size="small"
+            size="large"
             variant="blue"
             ariaLabel="Message"
-            index={2}
+            index={0}
             isLight={isLight}
           >
             <MessageCircle className="w-full h-full" strokeWidth={2} />
           </ActionButton>
         )}
-        <ActionButton
-          key="action-like"
-          onClick={onLike}
-          disabled={disabled}
-          size="large"
-          variant="like"
-          ariaLabel="Like"
-          index={3}
-          isLight={isLight}
-        >
-          <Flame className="w-full h-full" fill="currentColor" strokeWidth={0} />
-        </ActionButton>
         {onInsights && (
           <ActionButton
             key="action-insights"
             onClick={onInsights}
             disabled={disabled}
-            size="small"
+            size="large"
             variant="cyan"
             ariaLabel="Insights"
-            index={4}
+            index={1}
             isLight={isLight}
           >
             <Eye className="w-full h-full" strokeWidth={2} />
+          </ActionButton>
+        )}
+        {onShare && (
+          <ActionButton
+            key="action-share"
+            onClick={onShare}
+            disabled={disabled}
+            size="large"
+            variant="amber"
+            ariaLabel="Share"
+            index={2}
+            isLight={isLight}
+          >
+            <Share2 className="w-full h-full" strokeWidth={2} />
+          </ActionButton>
+        )}
+        {onReport && (
+          <ActionButton
+            key="action-report"
+            onClick={onReport}
+            disabled={disabled}
+            size="large"
+            variant="dislike"
+            ariaLabel="Report"
+            index={3}
+            isLight={isLight}
+          >
+            <Flag className="w-full h-full" strokeWidth={2} />
           </ActionButton>
         )}
       </AnimatePresence>
