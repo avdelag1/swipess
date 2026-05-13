@@ -821,9 +821,8 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
     }
     triggerHaptic('light');
     if (onMessageClick) onMessageClick();
-    startNavigation();
-    navigate(`/messages?startConversation=${targetUserId}`);
-    setTimeout(endNavigation, 500);
+    setSelectedListing(listing);
+    setMessageDialogOpen(true);
   };
 
   const handleSendMessage = async (message: string) => {

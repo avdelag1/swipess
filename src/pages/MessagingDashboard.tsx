@@ -44,6 +44,7 @@ import { AtmosphericLayer } from '@/components/AtmosphericLayer';
 import { X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { ConnectingOverlay } from '@/components/ConnectingOverlay';
+import { appToast } from '@/utils/appNotification';
 
 export function MessagingDashboard() {
   const { user } = useAuth();
@@ -183,7 +184,8 @@ export function MessagingDashboard() {
       } else {
         setSearchParams({});
       }
-    } catch (_e) {
+    } catch (err) {
+      appToast.error('Could not open conversation', err instanceof Error ? err.message : 'Please try again');
       setSearchParams({});
     } finally {
       setIsStartingConversation(false);

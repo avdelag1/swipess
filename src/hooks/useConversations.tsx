@@ -436,16 +436,12 @@ export function useStartConversation() {
     }) => {
       if (!user?.id) throw new Error('Not authenticated');
 
-      const { data: existingConversations, error: existingError } = await supabase
-        .from('conversations')
-        .select('id')
-        .or(`and(client_id.eq.${user.id},owner_id.eq.${otherUserId}),and(client_id.eq.${otherUserId},owner_id.eq.${user.id})`);
+      const [r1, r2] = await Promise.all([
+        supabase.from('conversations').select('id').eq('client_id', user.id).eq('owner_id', otherUserId).maybeSingle(),
+        supabase.from('conversations').select('id').eq('client_id', otherUserId).eq('owner_id', user.id).maybeSingle(),
+      ]);
 
-      if (existingError) {
-        throw new Error('Failed to check existing conversations');
-      }
-
-      const existingConversation = existingConversations?.[0];
+      const existingConversation = r1.data || r2.data;
       let conversationId = existingConversation?.id;
 
       if (!conversationId && !canStartNewConversation) {
@@ -506,6 +502,11 @@ export function useStartConversation() {
       await queryClient.refetchQueries({ queryKey: ['conversations'] });
       await queryClient.invalidateQueries({ queryKey: ['conversations-started-count'] });
       appToast.success('💬 Conversation Started', 'Redirecting to chat...');
+    },
+    onError: (error: Error) => {
+      if (error.message !== 'QUOTA_EXCEEDED') {
+        appToast.error('Messaging failed', error.message || 'Could not create conversation');
+      }
     }
   });
 }
