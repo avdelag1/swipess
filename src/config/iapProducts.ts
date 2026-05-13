@@ -92,6 +92,7 @@ export const APPLE_TOKEN_PACKAGES = [
     productId: 'Swipess.tokens.150.v1',
     tokens: 150,
     priceUsd: 49.99,
+    priceMxn: 999,
     description: '150 new conversations',
     badge: 'Best Value',
     paypalUrl: getSafePaymentUrl('https://www.paypal.com/ncp/payment/KP9WHGEN23MYA'),
