@@ -269,28 +269,36 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
         ref={scrollContainerRef}
         id="dashboard-scroll-container"
         className={cn(
-          "flex-1 flex flex-col relative w-full min-h-0",
-          isSwipeDeck ? "overflow-hidden touch-none bg-swipe-frame" : "overflow-y-auto scroll-area-momentum"
+          "flex-1 relative w-full",
+          isSwipeDeck ? "overflow-hidden touch-none bg-swipe-frame" : "overflow-y-auto"
         )}
         style={{
-          WebkitOverflowScrolling: isSwipeDeck ? 'auto' : 'touch',
-          overscrollBehavior: isSwipeDeck ? 'none' : undefined,
-          touchAction: isSwipeDeck ? 'none' : undefined,
+          // Explicit display/flex avoided here — block container scrolls more
+          // reliably than flex-col on iOS Safari
+          WebkitOverflowScrolling: 'touch',
+          overscrollBehavior: isSwipeDeck ? 'none' : 'auto',
+          touchAction: isSwipeDeck ? 'none' : 'pan-y pinch-zoom',
         }}
       >
-        {/* INNER WRAPPER: Ensures flex-grow works correctly for child pages.
+        {/* INNER WRAPPER: block so its height is determined purely by content.
             Non-swipe routes get top + bottom padding so content is never hidden
-            under the fixed top bar or bottom nav.
+            under the fixed TopBar or BottomNav.
             Full-screen feed routes (EventosFeed) get no padding — cards fill
             edge-to-edge with TopBar/BottomNav overlaying via fixed position. */}
-        <div className={cn(
-          "w-full flex flex-col min-h-0",
-          isSwipeDeck
-            ? "h-full flex-1 overflow-hidden"
-            : isFullScreenFeed
-            ? "flex-grow min-h-full"
-            : "flex-grow min-h-full pt-[calc(var(--top-bar-height,72px)+var(--safe-top,0px))] pb-[calc(var(--bottom-nav-height,64px)+var(--safe-bottom,0px))]"
-        )}>
+        <div
+          className="w-full"
+          style={isSwipeDeck ? {
+            position: 'absolute',
+            inset: 0,
+            overflow: 'hidden',
+          } : isFullScreenFeed ? {
+            minHeight: '100%',
+          } : {
+            minHeight: '100%',
+            paddingTop: 'calc(var(--top-bar-height, 72px) + var(--safe-top, 0px))',
+            paddingBottom: 'calc(var(--bottom-nav-height, 64px) + var(--safe-bottom, 0px))',
+          }}
+        >
           {children}
         </div>
       </main>

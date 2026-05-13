@@ -40,6 +40,7 @@ import { Home, RefreshCw, ChevronLeft, SlidersHorizontal } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import useAppTheme from "@/hooks/useAppTheme";
 import { ConnectingOverlay } from '@/components/ConnectingOverlay';
+import { SwipeActionButtonBar } from '@/components/SwipeActionButtonBar';
 
 const ShareDialog = lazy(() => import('./ShareDialog').then(m => ({ default: m.ShareDialog })));
 const MessageConfirmationDialog = lazy(() => import('./MessageConfirmationDialog').then(m => ({ default: m.MessageConfirmationDialog })));

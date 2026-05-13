@@ -528,10 +528,10 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
                 onPointerDown={(e) => e.stopPropagation()}
                 onClick={(e) => { e.stopPropagation(); onInsights?.(); }}
                 aria-label="Insights"
-                className="w-9 h-9 flex items-center justify-center bg-transparent border-0 shadow-none active:scale-90 transition-all duration-150"
-                style={{ backgroundColor: 'transparent', boxShadow: 'none' }}
+                className="w-10 h-10 flex items-center justify-center active:scale-[0.82] transition-transform duration-100"
+                style={{ background: 'none', border: 'none', padding: 0 }}
               >
-                <BarChart2 className="w-[20px] h-[20px]" strokeWidth={2.2} style={{ color: '#FFFFFF', filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.7))' }} />
+                <BarChart2 className="w-[20px] h-[20px]" strokeWidth={2.2} style={{ color: '#FFFFFF', filter: 'drop-shadow(0 1px 3px rgba(0,0,0,0.7)) drop-shadow(0 3px 10px rgba(0,0,0,0.45)) drop-shadow(0 0 8px rgba(255,255,255,0.12))' }} />
               </button>
             )}
             {onMessage && (
@@ -541,10 +541,10 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
                 onPointerDown={(e) => e.stopPropagation()}
                 onClick={(e) => { e.stopPropagation(); onMessage?.(); }}
                 aria-label="Message client"
-                className="w-9 h-9 flex items-center justify-center bg-transparent border-0 shadow-none active:scale-90 transition-all duration-150"
-                style={{ backgroundColor: 'transparent', boxShadow: 'none' }}
+                className="w-10 h-10 flex items-center justify-center active:scale-[0.82] transition-transform duration-100"
+                style={{ background: 'none', border: 'none', padding: 0 }}
               >
-                <MessageCircle className="w-[20px] h-[20px]" strokeWidth={2.2} style={{ color: '#FFFFFF', filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.7))' }} />
+                <MessageCircle className="w-[20px] h-[20px]" strokeWidth={2.2} style={{ color: '#FFFFFF', filter: 'drop-shadow(0 1px 3px rgba(0,0,0,0.7)) drop-shadow(0 3px 10px rgba(0,0,0,0.45)) drop-shadow(0 0 8px rgba(255,255,255,0.12))' }} />
               </button>
             )}
             {onShare && (
@@ -554,10 +554,10 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
                 onPointerDown={(e) => e.stopPropagation()}
                 onClick={(e) => { e.stopPropagation(); onShare(profile); }}
                 aria-label="Share profile"
-                className="w-9 h-9 flex items-center justify-center bg-transparent border-0 shadow-none active:scale-90 transition-all duration-150"
-                style={{ backgroundColor: 'transparent', boxShadow: 'none' }}
+                className="w-10 h-10 flex items-center justify-center active:scale-[0.82] transition-transform duration-100"
+                style={{ background: 'none', border: 'none', padding: 0 }}
               >
-                <Share2 className="w-[20px] h-[20px]" strokeWidth={2.2} style={{ color: '#FFFFFF', filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.7))' }} />
+                <Share2 className="w-[20px] h-[20px]" strokeWidth={2.2} style={{ color: '#FFFFFF', filter: 'drop-shadow(0 1px 3px rgba(0,0,0,0.7)) drop-shadow(0 3px 10px rgba(0,0,0,0.45)) drop-shadow(0 0 8px rgba(255,255,255,0.12))' }} />
               </button>
             )}
             {onReport && (
@@ -567,10 +567,10 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
                 onPointerDown={(e) => e.stopPropagation()}
                 onClick={(e) => { e.stopPropagation(); onReport(); }}
                 aria-label="Report profile"
-                className="w-9 h-9 flex items-center justify-center bg-transparent border-0 shadow-none active:scale-90 transition-all duration-150"
-                style={{ backgroundColor: 'transparent', boxShadow: 'none' }}
+                className="w-10 h-10 flex items-center justify-center active:scale-[0.82] transition-transform duration-100"
+                style={{ background: 'none', border: 'none', padding: 0 }}
               >
-                <Flag className="w-[20px] h-[20px]" strokeWidth={2.2} style={{ color: '#FFFFFF', filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.7))' }} />
+                <Flag className="w-[20px] h-[20px]" strokeWidth={2.2} style={{ color: '#FFFFFF', filter: 'drop-shadow(0 1px 3px rgba(0,0,0,0.7)) drop-shadow(0 3px 10px rgba(0,0,0,0.45)) drop-shadow(0 0 8px rgba(255,255,255,0.12))' }} />
               </button>
             )}
           </div>

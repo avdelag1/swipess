@@ -53,6 +53,7 @@ import { usePullDownToDismiss } from './swipe/usePullDownToDismiss';
 
 import { ReportDialog } from './ReportDialog';
 import { ConnectingOverlay } from './ConnectingOverlay';
+import { SwipeActionButtonBar } from '@/components/SwipeActionButtonBar';
 
 // FIX #3: Lazy-load modals 
 const SwipeInsightsModal = lazy(() => import('./SwipeInsightsModal').then(m => ({ default: m.SwipeInsightsModal })));
