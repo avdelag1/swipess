@@ -151,20 +151,25 @@ export function MessagingDashboard() {
         setIsStartingConversation(false);
         return;
       }
+      if (!canSendMessage) {
+        setSearchParams({});
+        setIsStartingConversation(false);
+        return;
+      }
       const result = await startConversation.mutateAsync({
         otherUserId: userId,
         initialMessage: "Hi! I'm interested in connecting.",
-        canStartNewConversation: canSendMessage,
+        canStartNewConversation: true,
       });
       if (result.conversationId) {
         await refetch();
         setConnectingRecipient("New Connection");
         setIsConnecting(true);
-        
-        // Premium cinematic delay
         await new Promise(resolve => setTimeout(resolve, 2200));
-        
         setSelectedConversationId(result.conversationId);
+        setSearchParams({});
+      } else {
+        // Safety: clear param even if no conversationId to prevent infinite retry
         setSearchParams({});
       }
     } catch (_e) {
@@ -197,21 +202,45 @@ export function MessagingDashboard() {
             exit={{ opacity: 0, scale: 0.98 }}
             className={cn(
               "w-full max-w-4xl mx-auto flex flex-col flex-1 min-h-0 relative shadow-2xl overflow-hidden border-x",
-              isLight ? "bg-white border-black/5" : "bg-[#0A0A0C] border-white/5"
+              isLight ? "bg-white border-black/10" : "bg-[#0A0A0C] border-white/5"
             )}
           >
-            {otherUser ? (
+            {conversation && otherUser ? (
               <MessagingInterface
                 conversationId={selectedConversationId}
                 otherUser={otherUser as any}
                 listing={listing}
-                currentUserRole={userRole}
-                onBack={() => { triggerHaptic('medium'); setSelectedConversationId(null); setDirectlyFetchedConversation(null); setSearchParams({}); }}
+                currentUserRole={userRole || 'client'}
+                onBack={() => { 
+                  triggerHaptic('medium'); 
+                  setSelectedConversationId(null); 
+                  setDirectlyFetchedConversation(null); 
+                  setSearchParams({}); 
+                }}
               />
+            ) : !isLoading && selectedConversationId ? (
+              <div className="flex flex-col items-center justify-center h-full gap-6 p-12 text-center">
+                <div className="w-20 h-20 rounded-[2rem] bg-red-500/10 flex items-center justify-center border border-red-500/20 mb-2">
+                   <ShieldAlert className="w-10 h-10 text-red-500" />
+                </div>
+                <div className="space-y-2">
+                  <h3 className="text-xl font-black uppercase italic tracking-tighter text-white">Interface Unavailable</h3>
+                  <p className="text-sm text-white/40 max-w-xs leading-relaxed font-medium">
+                    This conversation is no longer active or the recipient profile is inaccessible.
+                  </p>
+                </div>
+                <Button 
+                  onClick={() => { setSelectedConversationId(null); setSearchParams({}); }}
+                  variant="outline"
+                  className="rounded-full px-8 py-6 border-white/10 hover:bg-white/5 text-xs font-black uppercase tracking-widest mt-4"
+                >
+                  Back to Inbox
+                </Button>
+              </div>
             ) : (
               <div className="flex flex-col items-center justify-center h-full gap-4 text-[#EB4898]/40 uppercase font-black italic">
                 <div className="w-16 h-16 rounded-full border-4 border-[#EB4898]/10 border-t-[#EB4898] animate-spin" />
-                <span className="animate-pulse tracking-[0.3em] text-[10px]">Loading...</span>
+                <span className="animate-pulse tracking-[0.3em] text-[10px]">Synchronizing...</span>
               </div>
             )}
           </motion.div>
@@ -245,7 +274,7 @@ export function MessagingDashboard() {
               placeholder="SEARCH NAMES..." 
               className={cn(
                 "w-full pl-14 pr-14 h-16 rounded-[2.2rem] text-[14px] outline-none transition-all font-black uppercase tracking-widest border",
-                isLight ? "bg-white border-black/5 text-black placeholder:text-black/30 shadow-sm" : "bg-[#0d0d14] border-white/5 text-white placeholder:text-white/20 focus:border-white/10"
+                isLight ? "bg-[#fcfcfd] border-black/18 text-black placeholder:text-black/50 shadow-inner" : "bg-[#0d0d14] border-white/5 text-white placeholder:text-white/20 focus:border-white/10"
               )}
               value={searchQuery} 
               onChange={(e) => setSearchQuery(e.target.value)} 
@@ -253,7 +282,7 @@ export function MessagingDashboard() {
             {searchQuery && (
               <button 
                 onClick={() => setSearchQuery('')}
-                className="absolute right-6 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-full bg-black/5 hover:bg-black/10 text-[#EB4898] transition-all"
+                className={cn("absolute right-6 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-full transition-all", isLight ? "bg-black/[0.08] hover:bg-black/[0.12] text-[#EB4898]" : "bg-white/5 hover:bg-white/10 text-[#EB4898]")}
               >
                 <X className="w-4 h-4" />
               </button>
@@ -269,19 +298,14 @@ export function MessagingDashboard() {
               <button
                 key={filter.id}
                 onClick={() => { setActiveFilter(filter.id as any); triggerHaptic('light'); }}
-                className="flex items-center gap-2.5 px-6 py-3 rounded-full text-[9px] font-black uppercase tracking-widest transition-all shrink-0 border"
-                style={activeFilter === filter.id ? {
-                  backgroundColor: '#EB4898',
-                  borderColor: '#EB4898',
-                  color: 'white',
-                  boxShadow: '0 8px 24px rgba(235,72,152,0.4)'
-                } : {
-                  backgroundColor: 'transparent',
-                  borderColor: isLight ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.08)',
-                  color: isLight ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.45)'
-                }}
+                className={cn(
+                  "flex items-center gap-2.5 px-6 py-3 rounded-full text-[9px] font-black uppercase tracking-widest transition-all shrink-0 border shadow-sm",
+                  activeFilter === filter.id 
+                    ? "bg-[#EB4898] border-[#EB4898] text-white shadow-lg shadow-[#EB4898]/40" 
+                    : (isLight ? "bg-white border-black/15 text-black/85 hover:bg-zinc-50" : "bg-zinc-900 border-white/10 text-white/40 hover:bg-zinc-800")
+                )}
               >
-                <filter.icon className="w-3.5 h-3.5" />
+                <filter.icon className={cn("w-3.5 h-3.5", activeFilter === filter.id ? "text-white" : "text-[#EB4898]")} />
                 {filter.label}
               </button>
             ))}
@@ -307,12 +331,11 @@ export function MessagingDashboard() {
                     className={cn(
                       "w-full flex items-center gap-5 p-6 rounded-[2.2rem] text-left transition-all border group relative overflow-hidden",
                       isUnread 
-                        ? (isLight ? "bg-white border-black/10 shadow-[0_15px_40px_rgba(0,0,0,0.08)]" : "bg-[#0d0d14] border-white/10 shadow-[0_15px_40px_rgba(0,0,0,0.5)]") 
-                        : (isLight ? "bg-white border-black/[0.04] hover:bg-black/[0.01]" : "bg-[#08080c] border-white/[0.04] hover:bg-white/[0.01]")
+                        ? (isLight ? "bg-white border-black/15 shadow-[0_15px_40px_rgba(0,0,0,0.08)]" : "bg-[#0d0d14] border-white/10 shadow-[0_15px_40px_rgba(0,0,0,0.5)]") 
+                        : (isLight ? "bg-white border-black/10 hover:bg-black/[0.01]" : "bg-[#08080c] border-white/[0.04] hover:bg-white/[0.01]")
                     )} 
                     onClick={() => { triggerHaptic('medium'); setSelectedConversationId(conversation.id); }}
                   >
-                    {/* Unread Indicator Glow */}
                     {isUnread && <div className="absolute inset-y-0 left-0 w-1 bg-[#EB4898] shadow-[0_0_15px_#EB4898]" />}
 
                     <div className="relative shrink-0">
@@ -356,14 +379,17 @@ export function MessagingDashboard() {
                               <MoreVertical className="w-5 h-5" />
                             </Button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="rounded-[2rem] bg-[#121214] border-white/10 p-2 shadow-2xl text-white backdrop-blur-xl">
-                            <DropdownMenuItem className="p-4 rounded-[1.2rem] focus:bg-[#EB4898]/20 focus:text-white cursor-pointer font-black uppercase tracking-widest text-[9px]" onClick={e => { e.stopPropagation(); markChatAsRead.mutate(conversation.id); }} disabled={!isUnread}>
+                          <DropdownMenuContent align="end" className={cn(
+                            "rounded-[2rem] p-2 shadow-2xl backdrop-blur-xl border",
+                            isLight ? "bg-white border-black/10 text-black" : "bg-[#121214] border-white/10 text-white"
+                          )}>
+                            <DropdownMenuItem className={cn("p-4 rounded-[1.2rem] focus:bg-[#EB4898]/20 cursor-pointer font-black uppercase tracking-widest text-[9px]", isLight ? "focus:text-black" : "focus:text-white")} onClick={e => { e.stopPropagation(); markChatAsRead.mutate(conversation.id); }} disabled={!isUnread}>
                               <Check className="w-4 h-4 mr-3" /> Mark as Read
                             </DropdownMenuItem>
-                            <DropdownMenuItem className="p-4 rounded-[1.2rem] focus:bg-white/10 cursor-pointer font-black uppercase tracking-widest text-[9px]" onClick={e => { e.stopPropagation(); updateStatus.mutate({ conversationId: conversation.id, status: conversation.status === 'archived' ? 'active' : 'archived' }); }}>
+                            <DropdownMenuItem className={cn("p-4 rounded-[1.2rem] cursor-pointer font-black uppercase tracking-widest text-[9px]", isLight ? "focus:bg-black/5" : "focus:bg-white/10")} onClick={e => { e.stopPropagation(); updateStatus.mutate({ conversationId: conversation.id, status: conversation.status === 'archived' ? 'active' : 'archived' }); }}>
                               <Archive className="w-4 h-4 mr-3" /> {conversation.status === 'archived' ? 'Unarchive' : 'Archive'}
                             </DropdownMenuItem>
-                            <DropdownMenuSeparator className="bg-white/5 my-2" />
+                            <DropdownMenuSeparator className={cn("my-2", isLight ? "bg-black/5" : "bg-white/5")} />
                             <DropdownMenuItem className="p-4 rounded-[1.2rem] focus:bg-amber-500/20 text-amber-500 cursor-pointer font-black uppercase tracking-widest text-[9px]" onClick={e => { e.stopPropagation(); (window as any).dispatchEvent(new CustomEvent('open-report', { detail: { reportedUserId: conversation.other_user?.id, reportedUserAge: conversation.other_user?.age, reportCategory: 'user_profile' } })); }}>
                               <ShieldAlert className="w-4 h-4 mr-3" /> Report Entity
                             </DropdownMenuItem>

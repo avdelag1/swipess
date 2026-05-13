@@ -16,7 +16,6 @@ import { useUserRole } from '@/hooks/useUserRole';
 import { useSwipeWithMatch } from '@/hooks/useSwipeWithMatch';
 import { useCanAccessMessaging } from '@/hooks/useMessaging';
 import { useSwipeUndo } from '@/hooks/useSwipeUndo';
-import { SwipeActionButtonBar } from './SwipeActionButtonBar';
 import { SimpleOwnerSwipeCard, SimpleOwnerSwipeCardRef } from './SimpleOwnerSwipeCard';
 import { useRecordProfileView } from '@/hooks/useProfileRecycling';
 import { usePrefetchImages } from '@/hooks/usePrefetchImages';
@@ -42,7 +41,6 @@ import { cn } from '@/lib/utils';
 import useAppTheme from "@/hooks/useAppTheme";
 import { ConnectingOverlay } from '@/components/ConnectingOverlay';
 
-// FIX: Lazy-load modals via portal 
 const ShareDialog = lazy(() => import('./ShareDialog').then(m => ({ default: m.ShareDialog })));
 const MessageConfirmationDialog = lazy(() => import('./MessageConfirmationDialog').then(m => ({ default: m.MessageConfirmationDialog })));
 const ReportDialog = lazy(() => import('./ReportDialog').then(m => ({ default: m.ReportDialog })));
@@ -54,12 +52,12 @@ interface ClientSwipeContainerProps {
   onClientTap: (clientId: string) => void;
   onInsights?: (clientId: string) => void;
   onMessageClick?: (clientId: string) => void;
-  profiles?: any[]; // Accept profiles from parent
+  profiles?: any[];
   isLoading?: boolean;
   error?: any;
-  insightsOpen?: boolean; // Whether insights modal is open - hides action buttons
-  category?: string; // Category for owner deck persistence (property, moto, etc.)
-  filters?: any; // Filters from parent (quick filters + advanced filters)
+  insightsOpen?: boolean;
+  category?: string;
+  filters?: any;
 }
 
 const ClientSwipeContainerComponent = ({
@@ -76,10 +74,8 @@ const ClientSwipeContainerComponent = ({
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { isLight } = useAppTheme();
-  // PERF: Get userId from auth to pass to query (avoids getUser() inside queryFn)
   const { user } = useAuth();
 
-  // Dynamic labels based on category
   const getCategoryLabel = () => {
     switch (category) {
       case 'property': return { singular: 'Property', plural: 'Properties', searchText: 'Searching for Properties', Icon: MapPin, color: 'text-primary' };
@@ -99,15 +95,11 @@ const ClientSwipeContainerComponent = ({
   const storeActiveCategory = useFilterStore((s) => s.activeCategory);
   const setActiveCategory = useFilterStore((s) => s.setActiveCategory);
 
-
-  // DEBUG: Monitor if activeCategory changes unexpectedly
   useEffect(() => {
     if (storeActiveCategory && storeActiveCategory !== category) {
       console.warn('[ClientSwipeContainer] Store activeCategory differs from component category:', { storeActiveCategory, componentCategory: category });
     }
   }, [storeActiveCategory, category]);
-
-
 
   const [isCreatingConversation, setIsCreatingConversation] = useState(false);
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
@@ -119,16 +111,12 @@ const ClientSwipeContainerComponent = ({
   const [connectingRecipient, setConnectingRecipient] = useState("");
   const cardRef = useRef<SimpleOwnerSwipeCardRef>(null);
 
-  // Prevent accidental back button clicks within 1.5 seconds of mount
   const [canClickBack, setCanClickBack] = useState(false);
   useEffect(() => {
     const timer = setTimeout(() => setCanClickBack(true), 1500);
     return () => clearTimeout(timer);
   }, []);
 
-  // PERF: Use selective subscriptions to prevent re-renders on unrelated store changes
-  // Only subscribe to actions (stable references) - NOT to ownerDecks object
-  // This is the key fix for "double render" feeling when navigating back to dashboard
   const { setOwnerDeck, markOwnerSwiped, resetOwnerDeck, isOwnerHydrated, isOwnerReady, markOwnerReady } = useSwipeDeckStore(
     useShallow((state) => ({
       setOwnerDeck: state.setOwnerDeck,
@@ -140,16 +128,9 @@ const ClientSwipeContainerComponent = ({
     }))
   );
 
-  // Local state for immediate UI updates - drives the swipe animation
   const [currentIndex, setCurrentIndex] = useState(0);
-
-  // FIX: Track deck length in state to force re-render when profiles are appended
-  // Without this, the "No Clients Found" empty state persists because
-  // appending to deckQueueRef alone doesn't trigger a React re-render
   const [_deckLength, setDeckLength] = useState(0);
 
-  // PERF: Get initial state ONCE using getState() - no subscription
-  // This is synchronous and doesn't cause re-renders when store updates
   const radiusKm = useFilterStore(s => s.radiusKm);
   const setRadiusKm = useFilterStore(s => s.setRadiusKm);
   const userLatitude = useFilterStore(s => s.userLatitude);
@@ -180,7 +161,7 @@ const ClientSwipeContainerComponent = ({
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         setUserLocation(pos.coords.latitude, pos.coords.longitude);
-        setRadiusKm(5); // Auto-set to 5km when location is detected
+        setRadiusKm(5);
         setLocationDetected(true);
         setLocationDetecting(false);
       },
@@ -191,11 +172,6 @@ const ClientSwipeContainerComponent = ({
     );
   }, [setUserLocation, setRadiusKm]);
 
-  // 📍 Location is requested ONLY on explicit user action (filter button or
-  // kilometer slider interaction). No auto-prompt on mount/sign-in to avoid
-  // an invasive permission dialog.
-
-  // CRITICAL: Filter out own profile from cached deck items
   const _filterOwnProfile = useCallback((items: any[], userId: string | undefined) => {
     if (!userId) return items;
     return items.filter(p => {
@@ -208,37 +184,24 @@ const ClientSwipeContainerComponent = ({
     });
   }, []);
 
-  // FIX: Don't restore from cache — always start empty and let DB query populate
-  // The DB query (with refetchOnMount:'always') excludes swiped items at SQL level
-  // Restoring from cache caused swiped cards to reappear across sessions/dashboard switches
-  const getInitialDeck = () => {
-    return [];
-  };
+  const getInitialDeck = () => [];
 
-  // CONSTANT-TIME SWIPE DECK: Use refs for queue management (no re-renders on swipe)
-  // Initialize synchronously from persisted state to prevent dark/empty cards
-  // PERF: Use getState() for initial values - no subscription needed
   const deckQueueRef = useRef<any[]>(getInitialDeck());
   const currentDeckState = useSwipeDeckStore.getState().ownerDecks[category];
   const currentIndexRef = useRef(currentDeckState?.currentIndex || 0);
   const swipedIdsRef = useRef<Set<string>>(new Set(currentDeckState?.swipedIds || []));
   const _initializedRef = useRef(deckQueueRef.current.length > 0);
 
-  // Sync state with ref on mount
   useEffect(() => {
     setCurrentIndex(currentIndexRef.current);
   }, []);
 
-  // FLICKER FIX: Track whether we've given the query a chance to start fetching.
   const isMountSettledRef = useRef(false);
   useEffect(() => {
     const t = setTimeout(() => { isMountSettledRef.current = true; }, 400);
     return () => clearTimeout(t);
   }, []);
 
-  // PERF FIX: Create stable filter signature for deck versioning
-  // This detects when filters actually changed vs just navigation return
-  // More precise than array comparison - handles all filter types
   const filterSignature = (() => {
     if (!filters) return 'default';
     return [
@@ -250,61 +213,39 @@ const ClientSwipeContainerComponent = ({
     ].join('|');
   })();
 
-  // Track previous filter signature to detect filter changes
   const prevFilterSignatureRef = useRef<string>(filterSignature);
   const filterChangedRef = useRef(false);
 
-  // Detect filter changes synchronously during render (not in useEffect)
   if (filterSignature !== prevFilterSignatureRef.current) {
     filterChangedRef.current = true;
     prevFilterSignatureRef.current = filterSignature;
-    // Clear deck synchronously during render so the previous category's
-    // top card photo doesn't flash before the new query resolves.
     deckQueueRef.current = [];
     currentIndexRef.current = 0;
     swipedIdsRef.current.clear();
   }
 
-  // PERF FIX: Reset deck ONLY when filters actually change (not on navigation return)
   useEffect(() => {
-    // Skip on initial mount
     if (!filterChangedRef.current) return;
-
-    // Reset the filter changed flag
     filterChangedRef.current = false;
-
     logger.info('[ClientSwipeContainer] Filters changed, resetting deck');
-
-    // Reset local state and refs
     currentIndexRef.current = 0;
     setCurrentIndex(0);
     setDeckLength(0);
     deckQueueRef.current = [];
     swipedIdsRef.current.clear();
     setPage(0);
-
-    // Reset store
     resetOwnerDeck(category);
   }, [filterSignature, category, resetOwnerDeck]);
 
-  // PERF FIX: Track if we're returning to dashboard (has hydrated data AND is ready)
-  // When true, skip initial animations to prevent "double render" feeling
-  // Use isReady flag from store to determine if deck is fully initialized
   const isReturningRef = useRef(
     deckQueueRef.current.length > 0 && useSwipeDeckStore.getState().ownerDecks[category]?.isReady
   );
   const _hasAnimatedOnceRef = useRef(isReturningRef.current);
 
-  // PERF FIX: Eagerly preload top 5 cards' images when we have hydrated deck data
-  // This runs SYNCHRONOUSLY during component initialization (before first paint)
-  // The images will be in cache when OwnerClientCard renders, preventing any flash
-  // ALWAYS keep 2-3 cards preloaded to prevent swipe delays
   const eagerPreloadInitiatedRef = useRef(false);
   if (!eagerPreloadInitiatedRef.current && deckQueueRef.current.length > 0) {
     eagerPreloadInitiatedRef.current = true;
     const currentIdx = currentIndexRef.current;
-
-    // Preload ALL images of current + next 4 profiles for smooth swiping
     const imagesToPreload: string[] = [];
     [0, 1, 2, 3, 4].forEach((offset) => {
       const profile = deckQueueRef.current[currentIdx + offset];
@@ -313,7 +254,6 @@ const ClientSwipeContainerComponent = ({
           if (imgUrl) {
             imagesToPreload.push(imgUrl);
             preloadClientImageToCache(imgUrl);
-            // Mark in simple boolean cache so CardImage.tsx detects cached images instantly
             imageCache.set(imgUrl, true);
           }
         });
@@ -323,31 +263,25 @@ const ClientSwipeContainerComponent = ({
         imageCache.set(profile.avatar_url, true);
       }
     });
-
-    // Also batch preload with ImagePreloadController for GPU-decode support
     if (imagesToPreload.length > 0) {
       imagePreloadController.preloadBatch(imagesToPreload);
     }
   }
 
-  // Use external profiles if provided, otherwise fetch internally (fallback for standalone use)
   const [isRefreshMode, setIsRefreshMode] = useState(false);
   const [page, setPage] = useState(0);
   const isFetchingMore = useRef(false);
   const prefetchSchedulerRef = useRef(new PrefetchScheduler());
 
-  // ─── PREDICTIVE CARD TRANSITIONS ─────────────────────────────────────────
   const topCardX = useMotionValue(0);
   const topCardY = useMotionValue(0);
 
-  // Next card scales up and brightens as the top card is dragged away.
   const nextCardScale = useTransform(
     [topCardX, topCardY] as any,
     ([cx, cy]: any) => {
       const a = Math.min(1, Math.abs(cx) / 280);
       const b = Math.min(1, Math.abs(cy) / 240);
       const t = Math.max(a, b);
-      // resting at 0.97, rising to 1.0 as the top card leaves
       return 0.97 + 0.03 * t;
     }
   );
@@ -360,24 +294,11 @@ const ClientSwipeContainerComponent = ({
       return 0.72 + 0.26 * t;
     }
   );
-  // ─────────────────────────────────────────────────────────────────────────
 
-  // FIX: Hydration sync disabled — DB query is the single source of truth
-  // The query with refetchOnMount:'always' ensures fresh data on every mount
-  // No need to restore stale cached decks that may contain already-swiped items
   useEffect(() => {
-    // Clear any stale session storage on mount
-    try { sessionStorage.removeItem('swipe-deck-items'); } catch (_err) { /* Ignore session storage errors */ }
+    try { sessionStorage.removeItem('swipe-deck-items'); } catch (_err) { }
   }, [category]);
 
-  // ========================================
-  // 🔥 CRITICAL: ALL HOOKS MUST BE AT TOP
-  // ========================================
-  // React requires hooks to be called in the SAME ORDER on EVERY render.
-  // NO early returns before all hooks execute!
-
-  // PERF: pass userId to avoid getUser() inside queryFn
-  // Extract category from filters if available (for filtering client profiles by their interests)
   const filterCategory = filters?.categories?.[0] || filters?.category || undefined;
   const { 
     data: internalProfiles = [], 
@@ -393,7 +314,7 @@ const ClientSwipeContainerComponent = ({
     isRefreshMode, 
     filters,
     false,
-    !!externalProfiles // Pass a flag to disable if external profiles exist
+    !!externalProfiles
   );
 
   const clientProfiles = externalProfiles || internalProfiles;
@@ -417,36 +338,22 @@ const ClientSwipeContainerComponent = ({
   const recordProfileView = useRecordProfileView();
   const { playSwipeSound } = useSwipeSounds();
 
-  // Swipe dismissal tracking for client profiles
   const { dismissedIds, dismissTarget, filterDismissed: _filterDismissed } = useSwipeDismissal('client');
-
-  // Prefetch manager for client profile details
   const { prefetchClientProfileDetails } = usePrefetchManager();
 
-  // FIX: Sync local state when undo completes successfully
   useEffect(() => {
     if (undoSuccess) {
-      // Get the updated state from the store
       const storeState = useSwipeDeckStore.getState();
       const ownerDeck = storeState.ownerDecks[category];
       const newIndex = ownerDeck?.currentIndex ?? 0;
-
-      // Sync local refs and state with store
       currentIndexRef.current = newIndex;
       setCurrentIndex(newIndex);
-
-      // Sync the entire swipedIds set with store (source of truth)
       swipedIdsRef.current = new Set(ownerDeck?.swipedIds || []);
-
-      // Reset undo state so this effect doesn't run again
       resetUndoState();
-
       logger.info('[ClientSwipeContainer] Synced local state after undo, new index:', newIndex);
     }
   }, [undoSuccess, resetUndoState, category]);
 
-  // Prefetch images for next cards
-  // PERF: Use currentIndex state as trigger (re-runs when index changes)
   usePrefetchImages({
     currentIndex: currentIndex,
     profiles: deckQueueRef.current,
@@ -454,8 +361,6 @@ const ClientSwipeContainerComponent = ({
     trigger: currentIndex
   });
 
-  // Prefetch next batch of client profiles when approaching end of current batch
-  // Uses requestIdleCallback internally for non-blocking prefetch
   useSwipePrefetch(
     user?.id,
     currentIndexRef.current,
@@ -463,15 +368,12 @@ const ClientSwipeContainerComponent = ({
     deckQueueRef.current.length
   );
 
-  // PERF: Initialize swipeQueue with user ID for fire-and-forget background writes
-  // This eliminates the async auth call on every swipe
   useEffect(() => {
     if (user?.id) {
       swipeQueue.setUserId(user.id);
     }
   }, [user?.id]);
 
-  // Cleanup prefetch scheduler on unmount
   useEffect(() => {
     const scheduler = prefetchSchedulerRef.current;
     return () => {
@@ -479,9 +381,6 @@ const ClientSwipeContainerComponent = ({
     };
   }, []);
 
-  // Prefetch next client profile details when card becomes "next up"
-  // PERF: Use throttled scheduler - waits 300ms then uses requestIdleCallback
-  // This ensures prefetch doesn't compete with current image decoding
   useEffect(() => {
     const nextProfile = deckQueueRef.current[currentIndex + 1];
     if (nextProfile?.user_id) {
@@ -489,22 +388,17 @@ const ClientSwipeContainerComponent = ({
         prefetchClientProfileDetails(nextProfile.user_id);
       }, 300);
     }
-
     const scheduler = prefetchSchedulerRef.current;
     return () => {
       scheduler.cancel();
     };
   }, [currentIndex, prefetchClientProfileDetails]);
 
-  // CONSTANT-TIME: Append new unique profiles to queue AND persist to store
   useEffect(() => {
     if (clientProfiles.length > 0 && !isLoading) {
       const existingIds = new Set(deckQueueRef.current.map(p => p.user_id));
       const dismissedSet = new Set(dismissedIds);
-
-      // CRITICAL: Filter out current user's own profile AND dismissed/swiped profiles
       const newProfiles = clientProfiles.filter(p => {
-        // NEVER show user their own profile (defense in depth)
         if (user?.id && p.user_id === user.id) {
           logger.warn('[ClientSwipeContainer] Filtering out own profile from deck:', p.user_id);
           return false;
@@ -514,7 +408,6 @@ const ClientSwipeContainerComponent = ({
 
       if (newProfiles.length > 0) {
         deckQueueRef.current = [...deckQueueRef.current, ...newProfiles];
-        // Cap at 50 profiles
         if (deckQueueRef.current.length > 50) {
           const offset = deckQueueRef.current.length - 50;
           deckQueueRef.current = deckQueueRef.current.slice(offset);
@@ -522,18 +415,9 @@ const ClientSwipeContainerComponent = ({
           currentIndexRef.current = newIndex;
           setCurrentIndex(newIndex);
         }
-
-        // FIX: Force re-render when deck goes from empty to populated
-        // Without this, the "No Clients Found" empty state persists because
-        // appending to deckQueueRef alone doesn't trigger a React re-render
         setDeckLength(deckQueueRef.current.length);
-
-        // PERSIST: Save to store and session for navigation survival
         setOwnerDeck(category, deckQueueRef.current, true);
         persistDeckToSession('owner', category, deckQueueRef.current);
-
-        // PERF: Mark deck as ready for instant return on re-navigation
-        // This ensures that when user returns to dashboard, we skip all initialization
         if (!isOwnerReady(category)) {
           markOwnerReady(category);
         }
@@ -552,18 +436,12 @@ const ClientSwipeContainerComponent = ({
     setSwipeDirection(null);
   }, [topCardIdentity, filterSignature, category, topCardX, topCardY]);
 
-  // INSTANT SWIPE: Update UI immediately, fire DB operations in background
   const executeSwipe = useCallback((direction: 'left' | 'right') => {
     const profile = deckQueueRef.current[currentIndexRef.current];
-    // FIX: Add explicit null/undefined check to prevent errors
     if (!profile || !profile.user_id) {
       logger.warn('[ClientSwipeContainer] Cannot swipe - no valid profile at current index');
       return;
     }
-
-    
-
-    // CRITICAL: Prevent swiping on own profile (should never happen, but defense in depth)
     if (user?.id && profile.user_id === user.id) {
       logger.error('[ClientSwipeContainer] BLOCKED: Attempted to swipe on own profile!', { userId: user.id });
       appToast.error('Oops!', 'You cannot swipe on your own profile');
@@ -571,25 +449,15 @@ const ClientSwipeContainerComponent = ({
     }
 
     const newIndex = currentIndexRef.current + 1;
-
-    topCardX.stop();
-    topCardX.set(0);
-    topCardY.stop();
-    topCardY.set(0);
-
-    // 1. UPDATE UI STATE FIRST (INSTANT)
+    topCardX.stop(); topCardX.set(0);
+    topCardY.stop(); topCardY.set(0);
     setSwipeDirection(direction);
     currentIndexRef.current = newIndex;
-    setCurrentIndex(newIndex); // This triggers re-render with new card
+    setCurrentIndex(newIndex);
     swipedIdsRef.current.add(profile.user_id);
 
-    // 2. BACKGROUND TASKS (Fire-and-forget, don't block UI)
-    // These happen AFTER UI has already updated
     Promise.all([
-      // Persist to store
       Promise.resolve(markOwnerSwiped(category, profile.user_id)),
-
-      // Record profile view
       recordProfileView.mutateAsync({
         profileId: profile.user_id,
         viewType: 'profile',
@@ -597,17 +465,11 @@ const ClientSwipeContainerComponent = ({
       }).catch((err) => {
         logger.error('[ClientSwipeContainer] Failed to record profile view:', err);
       }),
-
-      // Save swipe to DB with match detection - CRITICAL: Must succeed for likes to save
       swipeMutation.mutateAsync({
           targetId: profile.user_id,
           direction,
           targetType: 'profile'
         }).then(() => {
-          // SUCCESS: Like saved successfully
-          logger.info('[ClientSwipeContainer] Swipe saved successfully:', { direction, profileId: profile.user_id });
-
-          // OPTIMISTIC: Add liked client to cache AFTER DB write succeeds (same pattern as TinderentSwipeContainer)
           if (direction === 'right' && user?.id) {
             queryClient.setQueryData(['liked-clients', user.id], (oldData: any[] | undefined) => {
               const likedClient = {
@@ -630,73 +492,43 @@ const ClientSwipeContainerComponent = ({
                 moto_types: [],
                 bicycle_types: [],
               };
-              if (!oldData) {
-                return [likedClient];
-              }
-              // Check if already in the list to avoid duplicates
+              if (!oldData) return [likedClient];
               const exists = oldData.some((item: any) => item.id === likedClient.id || item.user_id === likedClient.user_id);
-              if (exists) {
-                return oldData;
-              }
+              if (exists) return oldData;
               return [likedClient, ...oldData];
             });
           }
         }).catch((err: any) => {
-          // ERROR: Save failed - log and handle appropriately
           logger.error('[ClientSwipeContainer] Swipe save error:', err);
-
-          // Check for specific error types
           const errorMessage = err?.message?.toLowerCase() || '';
           const errorCode = err?.code || '';
-
-          // Expected errors that we can safely ignore (already handled by the hook)
           const isExpectedError =
             errorMessage.includes('cannot like your own') ||
             errorMessage.includes('your own profile') ||
             errorMessage.includes('duplicate') ||
             errorMessage.includes('already exists') ||
             errorMessage.includes('violates unique constraint') ||
-            errorMessage.includes('profile not found') || // Stale cache data
-            errorMessage.includes('skipped') || // FK violation from stale data
-            errorCode === '23505' || // Unique constraint violation
-            errorCode === '42501' || // RLS policy violation
-            errorCode === '23503';   // FK violation
-
-          // Show friendly message for self-likes (shouldn't happen but defense in depth)
+            errorMessage.includes('profile not found') ||
+            errorMessage.includes('skipped') ||
+            errorCode === '23505' ||
+            errorCode === '42501' ||
+            errorCode === '23503';
           if (errorMessage.includes('cannot like your own') || errorMessage.includes('your own profile')) {
-            logger.warn('[ClientSwipeContainer] User attempted to like their own profile - this should have been filtered');
             appToast.error('Oops!', 'You cannot swipe on your own profile');
-          }
-          // Show specific error messages for profile issues (not available, inactive, etc.)
-          else if (
-            errorMessage.includes('no longer available') ||
-            errorMessage.includes('no longer active') ||
-            errorMessage.includes('unable to save like')
-          ) {
+          } else if (errorMessage.includes('no longer available') || errorMessage.includes('no longer active') || errorMessage.includes('unable to save like')) {
             appToast.error('Unable to save like', err?.message || 'This profile is no longer available');
-          }
-          // Show error for unexpected failures (network, auth, server errors)
-          // These need user attention as the like was NOT saved
-          else if (!isExpectedError) {
+          } else if (!isExpectedError) {
             appToast.error('Failed to save your like', 'Your swipe was not saved. Please try again or check your connection.');
           }
-          // For expected errors (duplicates, stale data), silently ignore
-          // The user experience is not affected as these are edge cases
         }),
-
-      // Track dismissal on left swipe (dislike)
-      direction === 'left' ? dismissTarget(profile.user_id).catch(() => { /* silently ignore dismissal errors */ }) : Promise.resolve(),
-
-      // Record for undo - pass category so deck can be properly restored
+      direction === 'left' ? dismissTarget(profile.user_id).catch(() => {}) : Promise.resolve(),
       Promise.resolve(recordSwipe(profile.user_id, 'profile', direction, category))
     ]).catch(err => {
       logger.error('[ClientSwipeContainer] Background swipe tasks failed:', err);
     });
 
-    // Clear direction for next swipe
     setTimeout(() => setSwipeDirection(null), 300);
 
-    // FIX: Prevent pagination trigger after final card
     if (
       newIndex < deckQueueRef.current.length &&
       newIndex >= deckQueueRef.current.length - 3 &&
@@ -711,22 +543,13 @@ const ClientSwipeContainerComponent = ({
 
   const handleSwipe = useCallback((direction: 'left' | 'right') => {
     const profile = deckQueueRef.current[currentIndexRef.current];
-    // FIX: Add explicit null/undefined check to prevent errors
     if (!profile || !profile.user_id) {
       logger.warn('[ClientSwipeContainer] Cannot swipe - no valid profile at current index');
       return;
     }
-
-    // Immediate haptic feedback
     triggerHaptic(direction === 'right' ? 'success' : 'light');
-
-    // Play swipe sound effect
     playSwipeSound(direction);
-
-    // INSTANT SWIPE: Always execute immediately - never block on image prefetch
-    // The next card will show with skeleton placeholder until image loads
     executeSwipe(direction);
-
     [1, 2, 3].forEach((offset) => {
       const futureProfile = deckQueueRef.current[currentIndexRef.current + offset];
       if (futureProfile?.profile_images && Array.isArray(futureProfile.profile_images)) {
@@ -737,7 +560,6 @@ const ClientSwipeContainerComponent = ({
         preloadClientImageToCache(futureProfile.avatar_url);
       }
     });
-
     prefetchSchedulerRef.current.schedule(() => {
       [4, 5].forEach((offset) => {
         const futureProfile = deckQueueRef.current[currentIndexRef.current + offset];
@@ -752,16 +574,13 @@ const ClientSwipeContainerComponent = ({
     }, 200);
   }, [executeSwipe, playSwipeSound]);
 
-  // Vertical swipe = skip to next profile without writing to backend.
   const handleSkip = useCallback(() => {
     const profile = deckQueueRef.current[currentIndexRef.current];
     if (!profile?.user_id) return;
     triggerHaptic('light');
     const newIndex = currentIndexRef.current + 1;
-    topCardX.stop();
-    topCardX.set(0);
-    topCardY.stop();
-    topCardY.set(0);
+    topCardX.stop(); topCardX.set(0);
+    topCardY.stop(); topCardY.set(0);
     currentIndexRef.current = newIndex;
     setCurrentIndex(newIndex);
     [1, 2, 3].forEach((offset) => {
@@ -770,36 +589,25 @@ const ClientSwipeContainerComponent = ({
     });
   }, [topCardX, topCardY]);
 
-  // Vertical-up swipe = rewind to the previously viewed profile without writing.
   const handleSkipBack = useCallback(() => {
     if (currentIndexRef.current <= 0) return;
     triggerHaptic('light');
-    topCardX.stop();
-    topCardX.set(0);
-    topCardY.stop();
-    topCardY.set(0);
+    topCardX.stop(); topCardX.set(0);
+    topCardY.stop(); topCardY.set(0);
     const newIndex = Math.max(0, currentIndexRef.current - 1);
     currentIndexRef.current = newIndex;
     setCurrentIndex(newIndex);
   }, [topCardX, topCardY]);
 
   const handleButtonLike = useCallback(() => {
-    if (cardRef.current) {
-      cardRef.current.triggerSwipe('right');
-    } else {
-      handleSwipe('right');
-    }
+    if (cardRef.current) cardRef.current.triggerSwipe('right');
+    else handleSwipe('right');
   }, [handleSwipe]);
 
   const handleButtonDislike = useCallback(() => {
-    if (cardRef.current) {
-      cardRef.current.triggerSwipe('left');
-    } else {
-      handleSwipe('left');
-    }
+    if (cardRef.current) cardRef.current.triggerSwipe('left');
+    else handleSwipe('left');
   }, [handleSwipe]);
-
-
 
   const handleInsights = useCallback((clientId: string) => {
     navigate(`/owner/view-client/${clientId}`);
@@ -811,43 +619,32 @@ const ClientSwipeContainerComponent = ({
   }, []);
 
   const handleConnect = useCallback((clientId: string) => {
-    logger.info('[ClientSwipeContainer] Message icon clicked, opening confirmation dialog');
-    setSelectedClientId(clientId);
-    setMessageDialogOpen(true);
     triggerHaptic('light');
-  }, []);
+    navigate(`/messages?startConversation=${clientId}`);
+  }, [navigate]);
 
   const handleSendMessage = useCallback(async (message: string) => {
     if (isCreatingConversation || !selectedClientId) return;
-
-    // Content moderation check
     const { validateContent: vc } = await import('@/utils/contactInfoValidation');
     const result = vc(message);
     if (!result.isClean) {
       appToast.error('Content blocked', result.message || undefined);
       return;
     }
-
     setIsCreatingConversation(true);
-
     try {
       appToast.info('Creating conversation...', 'Please wait');
-
       const result = await startConversation.mutateAsync({
         otherUserId: selectedClientId,
         initialMessage: message,
         canStartNewConversation: true,
       });
-
       if (result?.conversationId) {
         const recipientName = selectedClientId ? deckQueueRef.current.find(p => p.user_id === selectedClientId)?.name || 'Professional' : 'Professional';
         setConnectingRecipient(recipientName);
         setIsConnecting(true);
         setMessageDialogOpen(false);
-        
-        // Premium cinematic delay
         await new Promise(resolve => setTimeout(resolve, 2200));
-        
         navigate(`/messages?conversationId=${result.conversationId}`);
       }
     } catch (error) {
@@ -858,48 +655,20 @@ const ClientSwipeContainerComponent = ({
     }
   }, [isCreatingConversation, selectedClientId, startConversation, navigate]);
 
-  // ========================================
-  // 🔥 ALL HOOKS ABOVE - DERIVED STATE BELOW
-  // ========================================
-  // Derived UI flags (NO hooks here - just calculations)
-
-  // Get current visible cards for 2-card stack (top + next)
-  // Use currentIndex from state (already synced with currentIndexRef)
   const deckQueue = deckQueueRef.current;
-  // FIX: Don't clamp the index - allow topCard to be null when all cards are swiped
-  // This ensures the "All Caught Up" screen shows correctly
   const topCard = currentIndex < deckQueue.length ? deckQueue[currentIndex] : null;
   const pullDown = usePullDownToDismiss();
   const _nextCard = currentIndex + 1 < deckQueue.length ? deckQueue[currentIndex + 1] : null;
 
-  // Check if we have hydrated data (from store/session) - prevents blank deck flash
-  // isReady means we've fully initialized at least once - skip loading UI on return
   const hasHydratedData = isOwnerHydrated(category) || isOwnerReady(category) || deckQueue.length > 0;
-
-  // Loading skeleton - only show if we have NO data and we are either actually loading OR just mounted
   const showLoadingSkeleton = !hasHydratedData && (isLoading || !isMountSettledRef.current);
-
-  // "All Caught Up" — user has swiped through every card in the current deck
-  // Only true once past initial load and topCard is exhausted
   const _isDeckFinished = !showLoadingSkeleton && topCard === null && (hasHydratedData || !isLoading || isMountSettledRef.current);
-
-  // showInitialError: Only show if we have NO cards and a hard error occurred during initial load
   const _showInitialError = !hasHydratedData && error && deckQueue.length === 0;
-
-  // showEmptyState: Only show if loading is DONE and we still have no cards
   const _showEmptyState = !isLoading && deckQueue.length === 0 && !error && isMountSettledRef.current;
 
-  // ========================================
-  // 🔥 SINGLE RETURN BLOCK - SAFE ORDER
-  // ========================================
-  // All conditions use derived flags - NO hooks called after this point
-
-  // Loading skeleton - initial load only
   if (showLoadingSkeleton) {
     return (
       <div className="relative w-full h-full flex-1 flex flex-col">
-        {/* 📡 Radar HUD removed from skeleton to prevent double-render flash */}
-
         <div className="relative flex-1 w-full">
           <div className="absolute inset-0 rounded-3xl overflow-hidden bg-white/8 animate-pulse">
             <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-white/5 to-white/10">
@@ -956,10 +725,8 @@ const ClientSwipeContainerComponent = ({
           isLight ? "bg-transparent" : "bg-black"
         )} />
 
-        {/* Static ambient background */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden -z-10" />
 
-        {/* Pull-down backdrop: dashboard category picker revealed behind the deck */}
         <motion.div
           aria-hidden
           className="absolute inset-0 pointer-events-none z-[1] bg-background"
@@ -974,10 +741,6 @@ const ClientSwipeContainerComponent = ({
             <SwipeAllDashboard setCategories={() => {}} />
           </div>
         </motion.div>
-
-        {/* Single back button is owned by SwipeDeckBackButton (rendered below) — no duplicate header here */}
-
-        {/* 📡 Radar HUD removed from here — now managed at the Dashboard level for persistence */}
 
         <div
           className="flex-1 relative flex w-full h-full items-center justify-center px-0 z-10 pointer-events-auto min-h-0 overflow-hidden"
@@ -1003,10 +766,8 @@ const ClientSwipeContainerComponent = ({
                 transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
                 className="absolute inset-0 w-full h-full flex flex-col items-center justify-center p-0 mx-auto transform-gpu"
               >
-                {/* 🚀 STACKED ARCHITECTURE: Flat map allows React to preserve component mounts */}
                 {deckQueue.slice(currentIndex, currentIndex + 2).reverse().map((profile) => {
                   const isTopCard = profile.user_id === topCard.user_id;
-                  
                   return (
                     <motion.div
                       key={profile.user_id}
@@ -1096,7 +857,6 @@ const ClientSwipeContainerComponent = ({
         )}
       </div>
 
-
       {typeof document !== 'undefined' && document.body && createPortal(
         <Suspense fallback={null}>
           <MessageConfirmationDialog
@@ -1140,7 +900,6 @@ const ClientSwipeContainerComponent = ({
 
 export const ClientSwipeContainer = memo(ClientSwipeContainerComponent);
 
-// Also export default for backwards compatibility
 export default ClientSwipeContainer;
 
 

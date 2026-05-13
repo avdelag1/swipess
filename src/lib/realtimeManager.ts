@@ -193,7 +193,9 @@ class RealtimeSubscriptionManager {
           filter = `target_id=eq.${this.userId}`;
           break;
         case 'matches':
-          filter = `or(user_id.eq.${this.userId},owner_id.eq.${this.userId})`;
+          // Supabase Realtime postgres_changes doesn't support OR filters.
+          // Subscribe without filter; listeners apply user-side ownership checks.
+          filter = undefined;
           break;
         // conversation_messages and likes don't have direct user filter
         // They filter in the listener based on conversation membership

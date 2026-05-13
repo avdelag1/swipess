@@ -76,32 +76,31 @@ function AuthReadySignal() {
     // 1. Auth is initialized
     // 2. The layout sends the 'swipess-ready' signal (meaning first paint happened)
     
-    let isReady = false;
-    
     const handleReady = () => {
-      if (isReady) return;
-      isReady = true;
+      if ((window as any).__APP_READY_FIRED__) return;
+      (window as any).__APP_READY_FIRED__ = true;
+      
+      logger.log('[BOOT] Received swipess-ready signal from layout shell.');
       (window as any).__APP_INITIALIZED__ = true;
       (window as any).__APP_MOUNTED__ = true;
       window.dispatchEvent(new CustomEvent('app-rendered'));
     };
 
-    // If we are on the landing page (no user), we fire it after a short delay
-    // If we have a user, we wait for the 'swipess-ready' event from the dashboard
-    // Aggressive splash removal — the BootSplash already shows a polished
-    // logo. Holding it longer than needed makes every navigation feel
-    // like a fresh app launch. Drop to 600ms and let 'swipess-ready' win.
-    const safetyTimer = setTimeout(() => {
-       handleReady();
-    }, 600);
+    // Safety net: force signal after 1 second if layout shell fails to mount
+    const safetyTimer = setTimeout(handleReady, 1000);
 
     window.addEventListener('swipess-ready', handleReady);
+    window.addEventListener('app-rendered-signal', handleReady);
 
-    setTimeout(handleReady, 100);
+    // If already initialized by a previous render, fire immediately
+    if ((window as any).__APP_INITIALIZED__) {
+      handleReady();
+    }
 
     return () => {
       clearTimeout(safetyTimer);
       window.removeEventListener('swipess-ready', handleReady);
+      window.removeEventListener('app-rendered-signal', handleReady);
     };
   }, []);
 

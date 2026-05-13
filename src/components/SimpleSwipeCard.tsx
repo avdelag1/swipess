@@ -26,10 +26,10 @@ import CardImage from '@/components/CardImage';
 import { imageCache } from '@/lib/swipe/cardImageCache';
 import useAppTheme from '@/hooks/useAppTheme';
 import { cn } from '@/lib/utils';
-import { ThumbsUp, ThumbsDown, Flame, Flag, Share2 } from 'lucide-react';
+import { ThumbsUp, ThumbsDown, Flame, Flag, Share2, MessageCircle, BarChart2 } from 'lucide-react';
 import { PhotoPositionIndicators } from '@/components/swipe/PhotoPositionIndicators';
 import { GestureHints } from '@/components/swipe/GestureHints';
-import { toggleChrome } from '@/hooks/useChromeReveal';
+import { toggleChrome, useChromeReveal } from '@/hooks/useChromeReveal';
 
 export interface SimpleSwipeCardRef {
   triggerSwipe: (direction: 'left' | 'right') => void;
@@ -56,6 +56,7 @@ interface SimpleSwipeCardProps {
   onSkip?: () => void;
   onSkipBack?: () => void;
   onInsights?: () => void;
+  onMessage?: () => void;
   onShare?: () => void;
   onReport?: () => void;
   isTop?: boolean;
@@ -70,6 +71,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   onSkip,
   onSkipBack,
   onInsights,
+  onMessage,
   isTop = true,
   externalX,
   externalY,
@@ -78,6 +80,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   onShare,
 }, ref) => {
   const { isLight } = useAppTheme();
+  const { isChromeVisible } = useChromeReveal();
   const isDragging = useRef(false);
   const hasExited = useRef(false);
   const isExitingRef = useRef(false);

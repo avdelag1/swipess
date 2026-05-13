@@ -141,6 +141,9 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
         audioRef.current.pause();
         audioRef.current.src = '';
       }
+      if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
+        audioContextRef.current.close().catch(e => logger.error('[RadioTurbo] Context close failed:', e));
+      }
     };
   }, []);
 
@@ -720,6 +723,9 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
 
   const getFrequencyData = useCallback((): Uint8Array => {
     if (analyzerRef.current && dataArrayRef.current) {
+      if (dataArrayRef.current.length === 0) {
+        dataArrayRef.current = new Uint8Array(analyzerRef.current.frequencyBinCount);
+      }
       analyzerRef.current.getByteFrequencyData(dataArrayRef.current as any);
       return dataArrayRef.current;
     }

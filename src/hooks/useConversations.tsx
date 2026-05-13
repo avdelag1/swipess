@@ -151,13 +151,13 @@ export function useConversations() {
             status: conversation.status,
             created_at: conversation.created_at,
             updated_at: conversation.updated_at,
-            other_user: otherUserProfile ? {
-              id: otherUserId,
-              full_name: otherUserProfile.full_name,
-              avatar_url: otherUserProfile.avatar_url,
+            other_user: {
+              id: otherUserId || '',
+              full_name: otherUserProfile?.full_name || 'Anonymous User',
+              avatar_url: otherUserProfile?.avatar_url || undefined,
               role: otherUserRole,
-              age: otherUserProfile.age
-            } : undefined,
+              age: otherUserProfile?.age
+            },
             last_message: lastMessagesMap.get(conversation.id),
             listing: listingData || undefined
           };
@@ -295,13 +295,13 @@ export function useConversations() {
         status: data.status ?? 'active',
         created_at: data.created_at,
         updated_at: data.updated_at,
-        other_user: otherUserProfile ? {
+        other_user: {
           id: otherUserId ?? '',
-          full_name: otherUserProfile.full_name ?? '',
-          avatar_url: otherUserProfile.avatar_url ?? undefined,
+          full_name: otherUserProfile?.full_name ?? 'Anonymous User',
+          avatar_url: otherUserProfile?.avatar_url ?? undefined,
           role: otherUserRole,
-          age: otherUserProfile.age
-        } : undefined,
+          age: otherUserProfile?.age
+        },
         last_message: (messagesResult as any).data?.[0],
         listing: (listingResult as any).data || undefined
       };

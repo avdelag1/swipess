@@ -5,6 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { logger } from '@/utils/prodLogger';
 import { SWIPE_CARD_FIELDS } from './smartMatching/useSmartListingMatching';
 import { useAuth } from '@/hooks/useAuth';
+import { resolveStorageUrl } from '@/utils/imageOptimization';
 
 export interface Listing {
   id: string;
@@ -158,8 +159,7 @@ export function useListings(excludeSwipedIds: string[] = [], options: { enabled?
                 ...l,
                 owner_id: l.owner_id || l.user_id,
                 images: (Array.isArray(l.images) ? l.images : (l.images ? [l.images] : []))
-                        .map((img: string) => (typeof img === 'string' && img.includes('supabase.co/storage') && !img.includes('?width=')) 
-                                    ? `${img}?width=720&quality=75&format=avif` : img)
+                        .map((img: string) => resolveStorageUrl(img, 'listing-images'))
             })) as Listing[];
             return sortRealListingsFirst(normalized);
           }
@@ -172,8 +172,7 @@ export function useListings(excludeSwipedIds: string[] = [], options: { enabled?
           .from('listings')
           .select(SWIPE_CARD_FIELDS)
           .eq('status', 'active')
-          // Show all active listings (seed + real)
-          .order('created_at', { ascending: false });
+          .order('updated_at', { ascending: false, nullsFirst: false });
 
         // CRITICAL: Exclude own listings
         if (user.user) {
@@ -260,7 +259,7 @@ export function useOwnerListings() {
           .from('listings')
           .select('*')
           .eq('owner_id', user.id)
-          .order('created_at', { ascending: false })
+          .order('updated_at', { ascending: false, nullsFirst: false })
           .limit(100); // Prevent loading too many listings at once
 
         if (error) {

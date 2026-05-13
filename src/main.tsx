@@ -129,10 +129,8 @@ async function bootstrap() {
     return;
   }
 
-  // PERF: Yield to browser UI thread to paint the splash screen immediately!
-  // This drastically improves FCP times by letting the initial HTML display first
-  // before the main thread is blocked by React hydration.
-  await new Promise(resolve => setTimeout(resolve, 10));
+  if ((window as any).__ROOT_RENDERED__) return;
+  (window as any).__ROOT_RENDERED__ = true;
 
   const rootElement = document.getElementById("root");
   if (rootElement) {

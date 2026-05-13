@@ -301,7 +301,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
               onClick={onBack}
               className={cn(
                  "shrink-0 flex items-center justify-center w-10 h-10 rounded-2xl active:scale-90 transition-all",
-                 isThemeLight ? "bg-black/[0.06] text-black hover:bg-black/10" : "bg-white/[0.07] text-white hover:bg-white/[0.12]"
+                 isThemeLight ? "bg-black/[0.08] text-black hover:bg-black/12" : "bg-white/[0.07] text-white hover:bg-white/[0.12]"
               )}
             >
               <ChevronLeft className="w-5 h-5" />
@@ -332,7 +332,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
               </div>
               <div className="flex flex-col min-w-0">
                 <h3 className={cn("font-black text-[15px] uppercase tracking-tight truncate leading-none", isThemeLight ? "text-black" : "text-white")}>
-                  {otherUser.full_name}
+                  {otherUser.full_name || 'Anonymous User'}
                 </h3>
                 <div className="flex items-center gap-1.5 mt-1">
                   <div className={cn("w-1 h-1 rounded-full", isOnline ? "bg-violet-400 animate-pulse" : "bg-slate-500")} />
@@ -364,11 +364,14 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
                     <MoreVertical className="w-4.5 h-4.5" />
                   </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="rounded-[1.5rem] bg-[#0e0e18] border-white/[0.08] p-2 shadow-2xl text-white backdrop-blur-xl min-w-[200px]">
-                  <DropdownMenuItem className="p-4 rounded-[1rem] focus:bg-white/[0.07] cursor-pointer font-black uppercase tracking-widest text-[9px] gap-3">
+                <DropdownMenuContent align="end" className={cn(
+                  "rounded-[1.5rem] p-2 shadow-2xl backdrop-blur-xl min-w-[200px] border",
+                  isThemeLight ? "bg-white border-black/10 text-black" : "bg-[#0e0e18] border-white/[0.08] text-white"
+                )}>
+                  <DropdownMenuItem className={cn("p-4 rounded-[1rem] cursor-pointer font-black uppercase tracking-widest text-[9px] gap-3", isThemeLight ? "focus:bg-black/5" : "focus:bg-white/[0.07]")}>
                     <Info className="w-4 h-4" /> View Profile
                   </DropdownMenuItem>
-                  <DropdownMenuSeparator className="bg-white/[0.06] my-1.5" />
+                  <DropdownMenuSeparator className={cn("my-1.5", isThemeLight ? "bg-black/10" : "bg-white/[0.06]")} />
                   <DropdownMenuItem
                     className="p-4 rounded-[1rem] focus:bg-white/[0.07] cursor-pointer font-black uppercase tracking-widest text-[9px] gap-3"
                     onClick={() => navigate('/subscription/packages')}
@@ -388,7 +391,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
                   >
                     <ShieldAlert className="w-4 h-4" /> Report
                   </DropdownMenuItem>
-                  <DropdownMenuSeparator className="bg-white/[0.06] my-1.5" />
+                  <DropdownMenuSeparator className={cn("my-1.5", isThemeLight ? "bg-black/10" : "bg-white/[0.06]")} />
                   <DropdownMenuItem
                     className="p-4 rounded-[1rem] focus:bg-red-500/[0.12] text-red-400 cursor-pointer font-black uppercase tracking-widest text-[9px] gap-3"
                     onClick={() => { if (confirm('Block this entity permanently?')) { blockUser.mutate(otherUser.id); onBack(); } }}
@@ -486,7 +489,12 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
             <button
               type="button"
               onClick={() => setShowEmojiPicker(p => !p)}
-              className={cn("shrink-0 w-12 h-12 rounded-2xl flex items-center justify-center transition-all border", showEmojiPicker ? "bg-rose-500/[0.12] border-rose-500/30 text-rose-500" : (isThemeLight ? "bg-black/[0.05] border-black/[0.06] text-black/50 hover:bg-black/[0.09]" : "bg-white/[0.05] border-white/[0.07] text-white/40 hover:bg-white/[0.09]"))}
+              className={cn(
+                "shrink-0 w-12 h-12 rounded-2xl flex items-center justify-center transition-all border shadow-sm",
+                showEmojiPicker 
+                  ? "bg-rose-500 border-rose-600 text-white shadow-rose-500/20" 
+                  : (isThemeLight ? "bg-white border-black/10 text-black/60 hover:bg-zinc-50" : "bg-zinc-900 border-white/10 text-white/50 hover:bg-zinc-800")
+              )}
             >
               <Smile className="w-6 h-6" />
             </button>
@@ -498,8 +506,8 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
                 onFocus={() => { if (isListening) stopListening(); }}
                 placeholder={isAtLimit ? "LIMIT REACHED" : isListening ? "Listening..." : "Message..."}
                 className={cn(
-                  "flex-1 h-12 pl-5 pr-12 rounded-2xl text-[14px] font-medium outline-none transition-all border focus:ring-2 focus:ring-[#EB4898]/20",
-                  isThemeLight ? "bg-white border-black/10 text-black placeholder:text-black/30" : "bg-[#121212] border-white/5 text-white placeholder:text-white/10"
+                  "flex-1 h-12 pl-5 pr-12 rounded-2xl text-[14px] font-medium outline-none transition-all border focus:ring-2 focus:ring-[#EB4898]/20 shadow-sm",
+                  isThemeLight ? "bg-[#fcfcfd] border-black/30 text-black placeholder:text-black/50" : "bg-black border-white/15 text-white placeholder:text-white/30"
                 )}
                 disabled={sendMessage.isPending || isAtLimit}
               />
@@ -508,7 +516,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
                 <button
                   type="button"
                   onClick={isListening ? stopListening : startListening}
-                  className={cn("absolute right-1 w-10 h-10 rounded-xl flex items-center justify-center transition-all", isListening ? "bg-red-500 text-white shadow-[0_0_15px_rgba(239,68,68,0.4)] animate-pulse" : (isThemeLight ? "text-black/40 hover:text-rose-500" : "text-white/20 hover:text-rose-500"))}
+                  className={cn("absolute right-1 w-10 h-10 rounded-xl flex items-center justify-center transition-all", isListening ? "bg-red-500 text-white shadow-[0_0_15px_rgba(239,68,68,0.4)] animate-pulse" : (isThemeLight ? "text-black/65 hover:text-rose-500" : "text-white/20 hover:text-rose-500"))}
                 >
                   {isListening ? <MicOff className="w-4.5 h-4.5" /> : <Mic className="w-4.5 h-4.5" />}
                 </button>
@@ -539,7 +547,12 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
             <button
               type="submit"
               disabled={!newMessage.trim() || sendMessage.isPending || isAtLimit}
-              className={cn("shrink-0 w-14 h-14 rounded-2xl flex items-center justify-center transition-all", newMessage.trim() && !isAtLimit ? "bg-white text-black shadow-xl hover:scale-105 active:scale-95" : (isThemeLight ? "bg-black/[0.05] text-black/10 border border-black/[0.06]" : "bg-white/[0.05] text-white/10 border border-white/[0.05]"))}
+              className={cn(
+                "shrink-0 w-14 h-14 rounded-2xl flex items-center justify-center transition-all shadow-lg",
+                newMessage.trim() && !isAtLimit 
+                  ? "bg-[#EB4898] text-white hover:scale-105 active:scale-95 shadow-[#EB4898]/20" 
+                  : (isThemeLight ? "bg-black/[0.1] text-black/45 border border-black/[0.18]" : "bg-white/[0.1] text-white/20 border border-white/[0.1]")
+              )}
             >
               <Send className="w-6 h-6" />
             </button>

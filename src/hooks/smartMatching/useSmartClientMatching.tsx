@@ -1,5 +1,5 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { logger } from '@/utils/prodLogger';
 import { MatchedClientProfile, ClientFilters } from './types';
@@ -226,6 +226,7 @@ export function useSmartClientMatching(
     const queryClient = useQueryClient();
     const filtersKey = useMemo(() => filters ? JSON.stringify(filters) : '', [filters]);
     const { data: adminIds } = useAdminUserIds();
+    const channelIdRef = useRef(`clients-realtime-${Math.random().toString(36).slice(2)}`);
 
     const normalizeImageList = (...sources: unknown[]): string[] => {
         const urls: string[] = [];
@@ -268,13 +269,13 @@ export function useSmartClientMatching(
     useEffect(() => {
         if (!userId) return;
         const channel = supabase
-            .channel('clients-realtime')
+            .channel(`${channelIdRef.current}-${userId}`)
             .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'profiles' }, () => {
                 logger.info('[SmartMatching] New profile inserted, invalidating queries');
                 queryClient.invalidateQueries({ queryKey: ['smart-clients'] });
             })
             .subscribe();
-        return () => { channel.unsubscribe(); };
+        return () => { channel.unsubscribe(); supabase.removeChannel(channel); };
     }, [userId, queryClient]);
 
     return useQuery<MatchedClientProfile[]>({
@@ -439,7 +440,9 @@ export function useSmartClientMatching(
                     if (idList.length > 0) query = query.not('user_id', 'in', `(${idList.join(',')})`);
                 }
 
-                let { data: profiles, error } = await query.range(page * pageSize, (page + 1) * pageSize - 1);
+                let { data: profiles, error } = await query
+                    .order('updated_at', { ascending: false, nullsFirst: false })
+                    .range(page * pageSize, (page + 1) * pageSize - 1);
 
                 // 3. DEMO FALLBACK: If first page and category-specific query returns nothing, show demo
                 // Skip aggressive fallback in this case - let it fall through to demo at line 336
@@ -451,7 +454,7 @@ export function useSmartClientMatching(
                     let fallback = supabase.from('profiles')
                         .select(CLIENT_FIELDS)
                         .neq('user_id', userId)
-                        .order('created_at', { ascending: false })
+                        .order('updated_at', { ascending: false, nullsFirst: false })
                         .limit(pageSize);
                     if (targetUserIds.length > 0) {
                         fallback = fallback.in('user_id', targetUserIds);
@@ -519,7 +522,12 @@ export function useSmartClientMatching(
                 // 🚀 DEMO FALLBACK REMOVED: Show the "Adjust Radius" page instead of fake demo data
                 // This gives users clear feedback when no real matches exist nearby
 
-                const sortedReal = results.sort((a, b) => b.matchPercentage - a.matchPercentage);
+                const sortedReal = results.sort((a, b) => {
+                  // Most-recently-active profiles first (updated_at > created_at)
+                  const ta = new Date((a as any).updated_at || (a as any).created_at || 0).getTime();
+                  const tb = new Date((b as any).updated_at || (b as any).created_at || 0).getTime();
+                  return tb - ta;
+                });
                 return appendDemoClients(sortedReal);
             } catch (err) {
                 logger.error('[SmartClientMatching] Error:', err);

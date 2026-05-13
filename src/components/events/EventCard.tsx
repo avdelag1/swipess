@@ -201,10 +201,10 @@ export const EventCard = memo(({
             animate={liked ? { scale: [1, 1.25, 1] } : { scale: 1 }}
             transition={{ duration: 0.35 }}
             className={cn(
-              "w-12 h-12 rounded-full flex items-center justify-center shadow-lg backdrop-blur-md border transition-all",
+              "w-12 h-12 rounded-full flex items-center justify-center shadow-lg border transition-all",
               liked
-                ? "bg-orange-500/25 border-orange-500/60 shadow-orange-500/20"
-                : isLight ? "bg-white/70 border-black/10" : "bg-black/40 border-white/15"
+                ? "bg-orange-500 border-orange-600 text-white shadow-orange-500/30"
+                : isLight ? "bg-white border-black/15 text-black" : "bg-zinc-900 border-white/15 text-white"
             )}
           >
             <Bookmark className={cn('w-6 h-6 transition-all', liked ? 'fill-orange-400 text-orange-400' : (isLight ? 'text-black' : 'text-white'))} />
@@ -223,8 +223,10 @@ export const EventCard = memo(({
           <motion.div
             whileTap={{ scale: 0.85 }}
             className={cn(
-              "w-12 h-12 rounded-full flex items-center justify-center shadow-lg backdrop-blur-md border transition-all",
-              liked ? "bg-red-500/20 border-red-500/40" : (isLight ? "bg-white/70 border-black/10" : "bg-black/40 border-white/15")
+              "w-12 h-12 rounded-full flex items-center justify-center shadow-lg border transition-all",
+              liked 
+                ? "bg-red-500 border-red-600 text-white shadow-red-500/30" 
+                : (isLight ? "bg-white border-black/15 text-black" : "bg-zinc-900 border-white/15 text-white")
             )}
           >
             <Heart className={cn('w-6 h-6 transition-colors', liked ? 'fill-red-500 text-red-500' : (isLight ? 'text-black' : 'text-white'))} />
@@ -240,8 +242,8 @@ export const EventCard = memo(({
           <motion.div
             whileTap={{ scale: 0.85 }}
             className={cn(
-              "w-12 h-12 rounded-full flex items-center justify-center shadow-lg backdrop-blur-md border",
-              isLight ? "bg-white/70 border-black/10" : "bg-black/40 border-white/15"
+              "w-12 h-12 rounded-full flex items-center justify-center shadow-lg border",
+              isLight ? "bg-white border-black/15 text-black" : "bg-zinc-900 border-white/15 text-white"
             )}
             style={{ borderColor: `${activeColor}30` }}
           >
@@ -258,8 +260,8 @@ export const EventCard = memo(({
           <motion.div
             whileTap={{ scale: 0.85 }}
             className={cn(
-              "w-12 h-12 rounded-full flex items-center justify-center shadow-lg backdrop-blur-md border",
-              isLight ? "bg-white/70 border-black/10" : "bg-black/40 border-white/15"
+              "w-12 h-12 rounded-full flex items-center justify-center shadow-lg border",
+              isLight ? "bg-white border-black/15 text-black" : "bg-zinc-900 border-white/15 text-white"
             )}
             style={{ borderColor: `${activeColor}30` }}
           >

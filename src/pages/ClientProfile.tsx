@@ -149,7 +149,7 @@ const ClientProfile = () => {
             <motion.div
               key={i}
               whileTap={{ scale: 0.95 }}
-              className={cn("flex flex-col items-center justify-center p-5 text-center rounded-3xl border shadow-sm backdrop-blur-xl", isLight ? "border-black/10 bg-white" : "border-white/[0.06] bg-white/[0.02]")}
+              className={cn("flex flex-col items-center justify-center p-5 text-center rounded-3xl border shadow-sm backdrop-blur-xl", isLight ? "border-black/15 bg-white" : "border-white/[0.06] bg-white/[0.02]")}
               style={{ boxShadow: `inset 0 0 30px ${stat.glow}` }}
             >
               <stat.icon className={cn("w-5 h-5 mb-3", stat.color)} />
@@ -176,7 +176,7 @@ const ClientProfile = () => {
 
           <Button
             onClick={() => { triggerHaptic('medium'); navigate('/client/advertise'); }}
-            className={cn("w-full h-16 rounded-2xl border transition-all active:scale-95 shadow-sm bg-white/5", isLight ? "border-black/10 bg-white hover:bg-black/[0.02]" : "border-white/10 hover:border-white/20")}
+            className={cn("w-full h-16 rounded-2xl border transition-all active:scale-95 shadow-sm bg-white/5", isLight ? "border-black/15 bg-white hover:bg-black/[0.02]" : "border-white/10 hover:border-white/20")}
           >
             <Megaphone className="w-6 h-6 text-[#FF4D00] mr-3" />
             <span className="bg-gradient-to-r from-[#FF4D00] to-[#EB4898] bg-clip-text text-transparent font-black uppercase italic tracking-[0.2em] text-[14px]">

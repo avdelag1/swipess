@@ -131,28 +131,8 @@ const ClientWhoLikedYou = () => {
       return;
     }
     if (action === "message") {
-      try {
-        triggerHaptic('medium');
-        const result = await startConversation.mutateAsync({
-          otherUserId: owner.owner_id,
-          initialMessage: `Hi! I saw you were interested in my profile. Let's connect!`,
-          canStartNewConversation: true,
-        });
-        
-        if (result?.conversationId) {
-          setConnectingRecipient(owner.owner_name || "Owner");
-          setIsConnecting(true);
-          
-          // Premium cinematic delay
-          await new Promise(resolve => setTimeout(resolve, 2200));
-          
-          navigate(`/messages?conversationId=${result.conversationId}`);
-        }
-      } catch {
-        toast.error("Unable to start conversation");
-      } finally {
-        setIsConnecting(false);
-      }
+      triggerHaptic('medium');
+      navigate(`/messages?startConversation=${owner.owner_id}`);
     }
   };
 

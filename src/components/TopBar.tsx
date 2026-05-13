@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useState } from 'react';
 import { useAppNavigate } from "@/hooks/useAppNavigate";
 import { motion } from 'framer-motion';
 import { useLocation } from 'react-router-dom';
@@ -99,13 +99,16 @@ function TopBarComponent({
     },
   });
 
-  const initials = (profile?.full_name || user?.email || '?')
+  const baseString = profile?.full_name || user?.email || '?';
+  const initials = (typeof baseString === 'string' ? baseString : '?')
     .split(/[\s@.]/)
-    .map((s: string) => s[0])
     .filter(Boolean)
-    .slice(0, 2)
+    .map(part => part[0])
     .join('')
+    .slice(0, 2)
     .toUpperCase();
+
+  const [imageError, setImageError] = useState(false);
 
   return (
     <header 
@@ -163,11 +166,12 @@ function TopBarComponent({
                     boxShadow: '0 0 0 1px rgba(255,255,255,0.2) inset, 0 0 14px hsl(var(--primary) / 0.35)',
                   }}
                 >
-                  {profile?.avatar_url || user?.user_metadata?.avatar_url ? (
+                  {(profile?.avatar_url || user?.user_metadata?.avatar_url) && !imageError ? (
                     <img
                       src={profile?.avatar_url || user?.user_metadata?.avatar_url}
                       alt="Profile"
                       className="w-full h-full object-cover"
+                      onError={() => setImageError(true)}
                     />
                   ) : (
                     initials === '?' ? <UserRound className="h-4 w-4 text-primary-foreground" strokeWidth={2.4} /> : (
@@ -185,7 +189,7 @@ function TopBarComponent({
                       color: !isLight || isDashboard ? '#FFFFFF' : '#0A0A0A',
                     }}
                   >
-                    {profile.full_name.split(' ')[0]}
+                    {profile.full_name?.split(' ')?.[0] || 'User'}
                   </span>
                 )}
               </motion.button>

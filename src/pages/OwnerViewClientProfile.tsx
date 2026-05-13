@@ -95,34 +95,10 @@ export default function OwnerViewClientProfile() {
     };
   }, [client]);
 
-  const handleConnect = async () => {
-    if (!clientId || isCreatingConversation) return;
+  const handleConnect = () => {
+    if (!clientId) return;
     triggerHaptic('medium');
-    setIsCreatingConversation(true);
-    
-    try {
-      toast.loading('Starting conversation...', { id: 'start-conv' });
-      const result = await startConversation.mutateAsync({
-        otherUserId: clientId,
-        initialMessage: "Hi! I saw your profile and would like to connect.",
-        canStartNewConversation: true,
-      });
-
-      if (result?.conversationId) {
-        toast.dismiss('start-conv');
-        setIsConnecting(true);
-        
-        // Premium cinematic delay
-        await new Promise(resolve => setTimeout(resolve, 2200));
-        
-        navigate(`/messages?conversationId=${result.conversationId}`);
-      }
-    } catch (error) {
-      toast.error('Could not start conversation', { id: 'start-conv' });
-    } finally {
-      setIsCreatingConversation(false);
-      setIsConnecting(false);
-    }
+    navigate(`/messages?startConversation=${clientId}`);
   };
 
   if (isLoading) {

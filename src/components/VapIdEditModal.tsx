@@ -44,6 +44,7 @@ export function VapIdEditModal({ isOpen, onClose }: Props) {
   const [yearsInCity, setYearsInCity] = useState<string>('');
   const [languages, setLanguages] = useState('');
   const [interests, setInterests] = useState('');
+  const [phone, setPhone] = useState('');
 
   const { data: clientProfile, refetch } = useQuery({
     queryKey: ['vap-id-client-profile', user?.id],
@@ -52,7 +53,7 @@ export function VapIdEditModal({ isOpen, onClose }: Props) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('client_profiles')
-        .select('bio, occupation, city, nationality, years_in_city, languages, interests, personality_traits, preferred_activities')
+        .select('bio, occupation, city, nationality, years_in_city, languages, interests, personality_traits, preferred_activities, profiles(phone)')
         .eq('user_id', user!.id)
         .maybeSingle();
       if (error) throw error;
@@ -69,6 +70,7 @@ export function VapIdEditModal({ isOpen, onClose }: Props) {
     setYearsInCity(clientProfile.years_in_city != null ? String(clientProfile.years_in_city) : '');
     setLanguages(arrayToCsv(clientProfile.languages));
     setInterests(arrayToCsv(clientProfile.interests));
+    setPhone((clientProfile as any).profiles?.phone || '');
   }, [clientProfile]);
 
   const { data: documents } = useQuery({
@@ -168,6 +170,7 @@ export function VapIdEditModal({ isOpen, onClose }: Props) {
           nationality: nationality.trim() || undefined,
           languages_spoken: csvToArray(languages),
           interests: csvToArray(interests),
+          phone: phone.trim() || null,
         })
         .eq('id', user.id);
       
@@ -217,7 +220,7 @@ export function VapIdEditModal({ isOpen, onClose }: Props) {
               <div className="mb-3">
                 <p className="text-[11px] font-black uppercase tracking-[0.22em] text-primary">About Me</p>
                 <h3 className="mt-1 text-sm font-black text-foreground">Card description</h3>
-                <p className="mt-1 text-[11px] text-muted-foreground">A short bio shown on the front of your card.</p>
+                <p className="mt-1 text-[11px] text-foreground/70 font-medium italic">A short bio shown on the front of your card.</p>
               </div>
               <Textarea
                 value={bio}
@@ -254,6 +257,9 @@ export function VapIdEditModal({ isOpen, onClose }: Props) {
                 </LabeledField>
                 <LabeledField label="Interests" hint="Comma separated" className="sm:col-span-2">
                   <Input value={interests} onChange={(e) => setInterests(e.target.value)} placeholder="Surf, Yoga, Coffee" />
+                </LabeledField>
+                <LabeledField label="Phone Number" className="sm:col-span-2">
+                  <Input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+1 234 567 890" type="tel" />
                 </LabeledField>
               </div>
             </section>
@@ -339,7 +345,7 @@ function LabeledField({
   return (
     <div className={cn('flex flex-col gap-1.5', className)}>
       <div className="flex items-baseline justify-between gap-2">
-        <label className="text-[10px] font-black uppercase tracking-[0.22em] text-muted-foreground">{label}</label>
+        <label className="text-[10px] font-black uppercase tracking-[0.22em] text-foreground/60">{label}</label>
         {hint && <span className="text-[9px] font-medium text-muted-foreground/70">{hint}</span>}
       </div>
       {children}

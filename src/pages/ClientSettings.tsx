@@ -230,7 +230,7 @@ const ClientSettings = () => {
           {settingsGroups.map((group) => (
             <motion.div key={group.label} variants={itemVariant} className="space-y-3">
               <div className="px-1 flex items-center gap-3">
-                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">{group.label}</span>
+                <span className={cn("text-[10px] font-black uppercase tracking-[0.2em]", isLight ? "text-black/70" : "text-white/40")}>{group.label}</span>
                 <div className="h-px flex-1 bg-gradient-to-r from-muted-foreground/20 to-transparent" />
               </div>
 

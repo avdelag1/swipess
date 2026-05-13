@@ -111,17 +111,13 @@ export function useNotificationSystem() {
   useEffect(() => {
     if (!user?.id) return;
 
-    const notificationsChannel = supabase
-      .channel('user-notifications-realtime')
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'notifications',
-          filter: `user_id=eq.${user.id}`,
-        },
-        async (payload) => {
+    // Ensure manager is initialized for this user
+    import('@/lib/realtimeManager').then(({ realtimeManager }) => {
+      realtimeManager.initialize(user.id);
+      
+      const unsubscribe = realtimeManager.subscribe(
+        'notifications:INSERT',
+        (payload) => {
           const dbNotification = payload.new as any;
           if (!dbNotification) return;
 
@@ -146,31 +142,15 @@ export function useNotificationSystem() {
             notification.avatar = dbNotification.metadata.sender_avatar;
           }
 
-          addNotification(notification);
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'notifications',
-          filter: `user_id=eq.${user.id}`,
+          addNotification(notification as Notification);
         },
-        (payload) => {
-          const updated = payload.new as any;
-          if (updated && updated.is_read) {
-            // We don't have a specific markAsRead for one item in store yet, 
-            // but we can just mark all as read if needed or wait for next fetch
-          }
-        }
-      )
-      .subscribe();
+        `user_id=eq.${user.id}`
+      );
 
-    return () => {
-      notificationsChannel.unsubscribe();
-      supabase.removeChannel(notificationsChannel);
-    };
+      return unsubscribe;
+    });
+
+    // Cleanup logic is handled by the returned unsubscribe from realtimeManager
   }, [user?.id, addNotification]);
 
   const handleDismiss = (id: string) => {
