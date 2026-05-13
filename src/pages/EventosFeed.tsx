@@ -1,5 +1,4 @@
 import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
-import { useVirtualizer } from '@tanstack/react-virtual';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
@@ -9,7 +8,6 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
-import { predictivePrefetchEvent } from '@/utils/performance';
 import { toast } from '@/components/ui/sonner';
 import { useAuth } from '@/hooks/useAuth';
 import useAppTheme from '@/hooks/useAppTheme';
@@ -241,17 +239,6 @@ export default function EventosFeed() {
     };
   }, [activeIdx, filteredEvents.length]);
 
-  const rowVirtualizer = useVirtualizer({
-    count: filteredEvents.length,
-    getScrollElement: () => document.getElementById('dashboard-scroll-container') || parentRef.current,
-    estimateSize: () => {
-      const el = document.getElementById('dashboard-scroll-container');
-      return el?.clientHeight || window.innerHeight || 800;
-    },
-    overscan: 2,
-    initialOffset: 0,
-  });
-
   // Auto-play Logic
   const _pauseAutoPlay = useCallback(() => {
     setIsPaused(true);
@@ -286,13 +273,7 @@ export default function EventosFeed() {
         pwaImagePreloader.batchPreload(urls);
       });
     }
-
-    for (let i = 1; i <= 3; i++) {
-      const preIdx = (activeIdx + i) % (filteredEvents.length + 1);
-      const preId = filteredEvents[preIdx]?.id;
-      if (preId) predictivePrefetchEvent(queryClient, preId);
-    }
-  }, [activeIdx, filteredEvents, queryClient]);
+  }, [activeIdx, filteredEvents]);
 
   const handleOpenChat = useCallback(async (event: EventItem) => {
     triggerHaptic('heavy');
@@ -425,44 +406,31 @@ export default function EventosFeed() {
           </div>
         </div>
       ) : (
-        <div 
-          ref={parentRef} 
-          className="w-full relative"
-        >
-          <div style={{ height: `${rowVirtualizer.getTotalSize()}px`, position: 'relative' }}>
-            {rowVirtualizer.getVirtualItems().map((virtualRow) => {
-              const event = filteredEvents[virtualRow.index];
-              if (!event) return null;
-
-              return (
-                <div
-                  key={virtualRow.key}
-                  className="absolute top-0 left-0 w-full snap-start snap-always"
-                  style={{
-                    height: '100dvh',
-                    width: '100%',
-                    transform: `translateY(${virtualRow.start}px)`
-                  }}
-                >
-                  <EventCard
-                    event={event}
-                    isActive={virtualRow.index === activeIdx}
-                    isPaused={isPaused}
-                    animKey={animKey}
-                    onTickComplete={() => {}} 
-                    liked={likedIds.has(event.id)}
-                    activeColor={CATEGORIES.find(c => c.key === event.category)?.color || '#f97316'}
-                    onLike={() => likeMutation.mutate({ id: event.id, isLiked: likedIds.has(event.id) })}
-                    onChat={() => handleOpenChat(event)}
-                    onShare={() => handleShare(event)}
-                    onMiddleTap={() => handleMiddleTap(event)}
-                    onNextEvent={() => { const el = document.getElementById('dashboard-scroll-container') || parentRef.current; el?.scrollBy({ top: el.clientHeight || window.innerHeight, behavior: 'smooth' }); }}
-                    onPrevEvent={() => { const el = document.getElementById('dashboard-scroll-container') || parentRef.current; el?.scrollBy({ top: -(el.clientHeight || window.innerHeight), behavior: 'smooth' }); }}
-                  />
-                </div>
-              );
-            })}
-          </div>
+        <div ref={parentRef} className="w-full">
+          {filteredEvents.map((event, index) => (
+            <div
+              key={event.id}
+              data-event-index={index}
+              className="w-full snap-start snap-always"
+              style={{ height: '100dvh' }}
+            >
+              <EventCard
+                event={event}
+                isActive={index === activeIdx}
+                isPaused={isPaused}
+                animKey={animKey}
+                onTickComplete={() => {}}
+                liked={likedIds.has(event.id)}
+                activeColor={CATEGORIES.find(c => c.key === event.category)?.color || '#f97316'}
+                onLike={() => likeMutation.mutate({ id: event.id, isLiked: likedIds.has(event.id) })}
+                onChat={() => handleOpenChat(event)}
+                onShare={() => handleShare(event)}
+                onMiddleTap={() => handleMiddleTap(event)}
+                onNextEvent={() => { const el = document.getElementById('dashboard-scroll-container') || parentRef.current; el?.scrollBy({ top: el.clientHeight || window.innerHeight, behavior: 'smooth' }); }}
+                onPrevEvent={() => { const el = document.getElementById('dashboard-scroll-container') || parentRef.current; el?.scrollBy({ top: -(el.clientHeight || window.innerHeight), behavior: 'smooth' }); }}
+              />
+            </div>
+          ))}
         </div>
       )}
 
