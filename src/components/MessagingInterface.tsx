@@ -414,7 +414,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
 
         <div
           id="chat-scroll-container"
-          className={cn("flex-1 relative min-h-0", isThemeLight ? "bg-[#f5f5f7]" : "bg-[#050505]")}
+          className={cn("flex-1 flex flex-col relative min-h-0", isThemeLight ? "bg-[#f5f5f7]" : "bg-[#050505]")}
           ref={messagesContainerRef}
         >
           {showConnecting && (
