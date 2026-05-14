@@ -440,6 +440,8 @@ export function useConciergeAI() {
     setIsLoading(true);
     const abortController = new AbortController();
     abortRef.current = abortController;
+    // Safety net: if the request hangs for > 60s, abort and clear loading state
+    const timeoutId = setTimeout(() => abortController.abort(), 60_000);
 
     try {
       const currentConvo = conversations.find(c => c.id === convoId);
@@ -635,14 +637,16 @@ export function useConciergeAI() {
         }
       }
     } catch (err) {
-      if ((err as Error).name === 'AbortError') { isSendingRef.current = false; return; }
-      console.error('[ConciergeAI]', err);
-      toast.error('AI temporarily unavailable. Please try again.');
+      if ((err as Error).name !== 'AbortError') {
+        console.error('[ConciergeAI]', err);
+        toast.error('AI temporarily unavailable. Please try again.');
+      }
     } finally {
+      clearTimeout(timeoutId);
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       streamBufferRef.current = null;
       setIsLoading(false);
-      isSendingRef.current = false; // Unlock
+      isSendingRef.current = false;
       abortRef.current = null;
     }
   }, [activeConversationId, conversations, isLoading, canUseAI, updateConversations, updateConversationsLive, flushStreamBuffer, activeCharacter, egoLevel, setEgoLevel]);

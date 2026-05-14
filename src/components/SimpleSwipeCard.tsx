@@ -29,7 +29,7 @@ import { cn } from '@/lib/utils';
 import { ThumbsUp, ThumbsDown, Flame, Flag, Share2 } from 'lucide-react';
 import { PhotoPositionIndicators } from '@/components/swipe/PhotoPositionIndicators';
 import { GestureHints } from '@/components/swipe/GestureHints';
-import { toggleChrome } from '@/hooks/useChromeReveal';
+import { revealChrome } from '@/hooks/useChromeReveal';
 
 export interface SimpleSwipeCardRef {
   triggerSwipe: (direction: 'left' | 'right') => void;
@@ -284,7 +284,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
       setCurrentImageIndex(prev => prev === imageCount - 1 ? 0 : prev + 1);
       triggerHaptic('light');
     } else {
-      toggleChrome();
+      revealChrome();
       triggerHaptic('light');
     }
   }, [imageCount, onInsights, isMagnifierActive, wasMagnifierActive]);

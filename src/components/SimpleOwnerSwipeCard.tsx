@@ -26,7 +26,7 @@ import useAppTheme from '@/hooks/useAppTheme';
 import { imageCache } from '@/lib/swipe/cardImageCache';
 import { PhotoPositionIndicators } from '@/components/swipe/PhotoPositionIndicators';
 import { GestureHints } from '@/components/swipe/GestureHints';
-import { toggleChrome } from '@/hooks/useChromeReveal';
+import { revealChrome } from '@/hooks/useChromeReveal';
 
 export interface SimpleOwnerSwipeCardRef {
   triggerSwipe: (direction: 'left' | 'right') => void;
@@ -349,7 +349,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
       setCurrentImageIndex(prev => prev === imageCount - 1 ? 0 : prev + 1);
       triggerHaptic('light');
     } else {
-      toggleChrome();
+      revealChrome();
       triggerHaptic('light');
     }
   }, [imageCount, onInsights, isMagnifierActive, wasMagnifierActive, _onTap]);
