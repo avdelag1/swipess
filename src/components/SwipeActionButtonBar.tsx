@@ -45,7 +45,7 @@ const SMALL_ICON = 20;
 const TAP_SCALE = 0.92;
 
 // ── VARIANT CONFIGS ───────────────────────────────────────────────────────────
-type Variant = 'default' | 'like' | 'dislike' | 'amber' | 'blue' | 'cyan' | 'purple' | 'gold' | 'green';
+type Variant = 'default' | 'like' | 'dislike' | 'amber' | 'blue' | 'cyan' | 'purple' | 'gold' | 'green' | 'white';
 
 interface VariantCfg {
   iconColor: string;
@@ -98,6 +98,11 @@ const VARIANTS: Record<Variant, VariantCfg> = {
     iconColor: 'currentColor',
     glow: '0 0 14px rgba(255,255,255,0.1)',
     circleBg: 'var(--secondary)',
+  },
+  white: {
+    iconColor: '#FFFFFF',
+    glow: '0 0 18px rgba(255, 255, 255, 0.22)',
+    circleBg: 'rgba(255, 255, 255, 0.09)',
   },
 };
 
@@ -211,7 +216,7 @@ export const SwipeActionButtonBar = memo(({
             onClick={onMessage}
             disabled={disabled}
             size="large"
-            variant="blue"
+            variant="white"
             ariaLabel="Message"
             index={0}
             isLight={isLight}
@@ -225,7 +230,7 @@ export const SwipeActionButtonBar = memo(({
             onClick={onInsights}
             disabled={disabled}
             size="large"
-            variant="cyan"
+            variant="white"
             ariaLabel="Insights"
             index={1}
             isLight={isLight}
@@ -239,7 +244,7 @@ export const SwipeActionButtonBar = memo(({
             onClick={onShare}
             disabled={disabled}
             size="large"
-            variant="amber"
+            variant="white"
             ariaLabel="Share"
             index={2}
             isLight={isLight}
@@ -253,7 +258,7 @@ export const SwipeActionButtonBar = memo(({
             onClick={onReport}
             disabled={disabled}
             size="large"
-            variant="dislike"
+            variant="white"
             ariaLabel="Report"
             index={3}
             isLight={isLight}

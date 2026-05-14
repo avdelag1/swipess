@@ -24,6 +24,7 @@ import { useSmartListingMatching, useSmartClientMatching, ListingFilters, Matche
 import { useAuth } from '@/hooks/useAuth';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useActiveMode } from '@/hooks/useActiveMode';
+import { useChromeReveal } from '@/hooks/useChromeReveal';
 import { swipeQueue } from '@/lib/swipe/SwipeQueue';
 import { imagePreloadController } from '@/lib/swipe/ImagePreloadController';
 import { useCanAccessMessaging } from '@/hooks/useMessaging';
@@ -109,6 +110,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
   const navigate = useNavigate();
   const { activeMode } = useActiveMode();
   const { theme, isLight } = useAppTheme();
+  const { isChromeVisible } = useChromeReveal();
   const [page, setPage] = useState(0);
   const [_swipeDirection, setSwipeDirection] = useState<'left' | 'right' | null>(null);
   const [isCreatingConversation, setIsCreatingConversation] = useState(false);
@@ -1055,9 +1057,14 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
 
     {hasCards && (
         <motion.div
-          className="absolute bottom-[calc(var(--bottom-nav-height,64px)+8px)] left-0 right-0 z-[100] flex justify-center pointer-events-auto"
+          className="absolute bottom-[calc(var(--bottom-nav-height,64px)+8px)] left-0 right-0 z-[100] flex justify-center"
           style={{ opacity: pullDown.opacity, y: pullDown.y }}
         >
+          <motion.div
+            animate={{ opacity: isChromeVisible ? 1 : 0, y: isChromeVisible ? 0 : 10 }}
+            transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
+            style={{ pointerEvents: isChromeVisible ? 'auto' : 'none' }}
+          >
           <SwipeActionButtonBar
             onLike={handleButtonLike}
             onDislike={handleButtonDislike}
@@ -1072,6 +1079,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
             onCycleCategory={handleCycleCategory}
             canUndo={canUndo}
           />
+          </motion.div>
         </motion.div>
       )}
     </div>
