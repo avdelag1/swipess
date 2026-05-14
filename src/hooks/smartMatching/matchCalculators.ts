@@ -1,4 +1,4 @@
-import { Listing } from '../useListings';
+import type { Listing } from '../useListings';
 import { ClientFilterPreferences } from '../useClientFilterPreferences';
 
 /**
