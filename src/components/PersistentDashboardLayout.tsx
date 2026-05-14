@@ -3,16 +3,12 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { AnimatedOutlet } from '@/components/AnimatedOutlet';
 import { useActiveMode } from '@/hooks/useActiveMode';
-import { useFilterPersistence } from '@/hooks/useFilterPersistence';
-import { useMemo, useEffect, useState, Suspense } from 'react';
-import { createPortal } from 'react-dom';
-import { useMatchRealtime } from '@/hooks/useMatchRealtime';
-import { useLikesRealtime } from '@/hooks/useLikesRealtime';
+import { useMemo, useEffect, Suspense } from 'react';
 import { ChunkErrorBoundary } from '@/components/ChunkErrorBoundary';
 import { PersistentDashboardScene } from '@/components/dashboard/PersistentDashboardScene';
 
-// Global match celebration modal
-const MatchCelebration = lazyWithRetry(() => import('./MatchCelebration').then(m => ({ default: m.MatchCelebration })));
+// Global match celebration and realtime subscriptions
+const PersistentDashboardSubscriptions = lazyWithRetry(() => import('@/components/dashboard/PersistentDashboardSubscriptions').then(m => ({ default: m.PersistentDashboardSubscriptions })));
 
 /**
  * SPEED OF LIGHT: Persistent Dashboard Layout
@@ -37,21 +33,9 @@ export function PersistentDashboardLayout() {
   const navigate = useNavigate();
   const { activeMode, syncMode } = useActiveMode();
 
-  // 🚀 SPEED OF LIGHT: Defer background systems until after the dashboard is 'Stable'
-  const [isWarmedUp, setIsWarmedUp] = useState(false);
-  useEffect(() => {
-    const timer = setTimeout(() => setIsWarmedUp(true), 1500);
-    return () => clearTimeout(timer);
-  }, []);
-
-  // FILTER PERSISTENCE: Auto-restore and auto-save filters from/to database
-  useFilterPersistence();
-
-  // GLOBAL MATCH CELEBRATION: Real-time listener for match events across the entire dashboard
-  const { matchCelebration, closeCelebration } = useMatchRealtime(isWarmedUp);
-
-  // GLOBAL LIKES SYNC: Ensures saves and favorites stay in sync across tabs and devices
-  useLikesRealtime(isWarmedUp);
+  // Realtime subscriptions and filter persistence are handled by
+  // the dynamically loaded PersistentDashboardSubscriptions component
+  // to avoid circular dependencies during initial module resolution.
 
   // SPEED OF LIGHT: Derive role from path INSTANTLY
   const userRole = useMemo(() => {
@@ -95,26 +79,10 @@ export function PersistentDashboardLayout() {
         </div>
       </div>
 
-      {/* GLOBAL MODALS PORTAL */}
-      {createPortal(
-        <Suspense fallback={null}>
-          <MatchCelebration
-            isOpen={matchCelebration.isOpen}
-            onClose={closeCelebration}
-            matchedUser={{
-              name: matchCelebration.matchedUser?.name || 'Someone',
-              avatar: matchCelebration.matchedUser?.avatar,
-              role: matchCelebration.matchedUser?.role || 'client'
-            }}
-            onMessage={() => {
-              // Redirect to messages upon match interaction
-              closeCelebration();
-              navigate('/messages');
-            }}
-          />
-        </Suspense>,
-        document.body
-      )}
+      {/* GLOBAL BACKGROUND SUBSCRIPTIONS & MODALS */}
+      <Suspense fallback={null}>
+        <PersistentDashboardSubscriptions />
+      </Suspense>
     </DashboardLayout>
     </ChunkErrorBoundary>
   );
