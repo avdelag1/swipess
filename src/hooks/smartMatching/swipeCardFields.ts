@@ -1,17 +1,5 @@
-/**
- * SWIPE_CARD_FIELDS — Standalone export.
- * 
- * Extracted from useSmartListingMatching to break a circular runtime
- * dependency chain:
- *   useListings → useSmartListingMatching → (types/matchCalc) → useListings
- * 
- * Vite's chunk-splitting can evaluate the importing module before the
- * exporting module finishes, causing a TDZ crash
- * ("Cannot access 'v' before initialization").
- * 
- * This file has ZERO internal imports, so it is always safe to import.
- */
-
+// Standalone file — zero imports, no circular dep risk.
+// Both useListings and useSmartListingMatching import from here.
 export const SWIPE_CARD_FIELDS = `
   id, title, description, price, images, video_url, city, neighborhood, beds, baths,
   square_footage, category, listing_type, property_type, vehicle_brand,

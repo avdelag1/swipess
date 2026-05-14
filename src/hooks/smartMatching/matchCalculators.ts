@@ -1,5 +1,5 @@
 import type { Listing } from '../useListings';
-import { ClientFilterPreferences } from '../useClientFilterPreferences';
+import type { ClientFilterPreferences } from '../useClientFilterPreferences';
 
 /**
  * Calculate match percentage between client preferences and a listing.

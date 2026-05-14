@@ -4,15 +4,14 @@ import { supabase } from '@/integrations/supabase/client';
 import type { Listing } from '../useListings';
 import { logger } from '@/utils/prodLogger';
 import { normalizeCategoryName } from '@/types/filters';
-import { ListingFilters } from './types';
+import type { ListingFilters } from './types';
 import { calculateListingMatch } from './matchCalculators';
 import { pwaImagePreloader, getCardImageUrl } from '@/utils/imageOptimization';
 import { runIdleTask } from '@/lib/utils';
 import { useAdminUserIds } from '../useAdminUserIds';
 import { SWIPE_CARD_FIELDS } from './swipeCardFields';
 
-// Re-export for backwards compatibility with any other consumers
-export { SWIPE_CARD_FIELDS };
+import { SWIPE_CARD_FIELDS } from './swipeCardFields';
 
 // Demos disabled — show real user listings only.
 const DEMO_LISTINGS: any[] = [];
