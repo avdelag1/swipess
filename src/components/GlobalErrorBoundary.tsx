@@ -47,13 +47,8 @@ class GlobalErrorBoundary extends Component<Props, State> {
   }
 
   private handleManualReload = () => {
-    try {
-      sessionStorage.removeItem(RELOAD_KEY);
-      sessionStorage.removeItem(RELOAD_TS_KEY);
-      localStorage.removeItem('swipe-deck-store');
-      localStorage.removeItem('swipe-deck-version');
-    } catch { /* ignore */ }
-    window.location.reload();
+    // Navigate to ?reset=1 which triggers full state wipe in main.tsx before React mounts
+    window.location.href = window.location.pathname + '?reset=1';
   };
 
   public render() {

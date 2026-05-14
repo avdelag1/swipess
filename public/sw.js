@@ -247,8 +247,11 @@ self.addEventListener('fetch', (event) => {
   // so they are cached for offline / flaky-network use in the PWA.
   if (url.hostname.includes('supabase') && !url.pathname.startsWith('/storage/v1/object/public/')) {
     event.respondWith(
-      fetch(request)
-        .catch(() => caches.match(request))
+      fetch(request).catch(async () => {
+        const cached = await caches.match(request);
+        // caches.match returns undefined on miss — must return a real Response
+        return cached ?? new Response('', { status: 503, statusText: 'Service Unavailable' });
+      })
     );
     return;
   }
