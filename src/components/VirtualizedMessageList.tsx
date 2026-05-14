@@ -142,8 +142,7 @@ export const VirtualizedMessageList = memo(({
   return (
     <div
       ref={parentRef}
-      className="flex-1 overflow-y-auto py-4 bg-transparent"
-      style={{ contain: 'strict' }}
+      className="flex-1 min-h-0 overflow-y-auto py-4 bg-transparent"
     >
       <div
         style={{

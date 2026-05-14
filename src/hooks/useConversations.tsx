@@ -365,7 +365,7 @@ export function useConversationMessages(conversationId: string) {
     if (!conversationId) return;
 
     const channel = supabase
-      .channel(`messages-${conversationId}`)
+      .channel(`conv-data-${conversationId}`)
       .on(
         'postgres_changes',
         {
