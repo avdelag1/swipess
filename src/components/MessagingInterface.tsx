@@ -13,8 +13,6 @@ import { useAuth } from '@/hooks/useAuth';
 import { useMonthlyMessageLimits } from '@/hooks/useMonthlyMessageLimits';
 import { formatDistanceToNow } from '@/utils/timeFormatter';
 import { useQueryClient } from '@tanstack/react-query';
-import { MessageActivationPackages } from '@/components/MessageActivationPackages';
-import { MessageActivationBanner } from '@/components/MessageActivationBanner';
 import { logger } from '@/utils/prodLogger';
 import { VirtualizedMessageList } from '@/components/VirtualizedMessageList';
 import { useContentModeration } from '@/hooks/useContentModeration';
@@ -65,8 +63,6 @@ const QUICK_EMOJIS = [
 export const MessagingInterface = memo(({ conversationId, otherUser, listing, currentUserRole = 'client', onBack }: MessagingInterfaceProps) => {
   const [newMessage, setNewMessage] = useState('');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
-  const [showActivationBanner, setShowActivationBanner] = useState(false);
   const [showRatingDialog, setShowRatingDialog] = useState(false);
   const { theme, isLight } = useAppTheme();
   const isThemeLight = isLight;
@@ -82,7 +78,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
   const [showConnecting, setShowConnecting] = useState(false);
   const connectingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const { isAtLimit, hasMonthlyLimit, messagesRemaining } = useMonthlyMessageLimits();
+  // Messaging is unlimited for authenticated users — no quota gating in the chat UI.
   const { isOnline } = usePresence(otherUser.id);
   const { startTyping, stopTyping, typingUsers, isConnected } = useRealtimeChat(conversationId);
   useMarkMessagesAsRead(conversationId, true);
