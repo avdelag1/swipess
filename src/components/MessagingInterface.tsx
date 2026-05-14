@@ -256,7 +256,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
       )}>
 
         <div className={cn(
-            "shrink-0 px-4 py-2.5 z-20 border-b transition-all",
+            "shrink-0 px-4 h-[50px] flex items-center z-20 border-b transition-all",
             isThemeLight
               ? "bg-white border-black/[0.06] shadow-sm"
               : "bg-[#050505] border-white/[0.06] shadow-[0_1px_0_rgba(255,255,255,0.04)]"
@@ -265,11 +265,11 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
             <button
               onClick={onBack}
               className={cn(
-                 "shrink-0 flex items-center justify-center w-9 h-9 rounded-xl active:scale-90 transition-all",
+                 "shrink-0 flex items-center justify-center w-8 h-8 rounded-lg active:scale-90 transition-all",
                  isThemeLight ? "bg-black/[0.06] text-black hover:bg-black/10" : "bg-white/[0.07] text-white hover:bg-white/[0.12]"
               )}
             >
-              <ChevronLeft className="w-4.5 h-4.5" />
+              <ChevronLeft className="w-4 h-4" />
             </button>
 
             <div className="flex-1 flex items-center gap-3 min-w-0">
@@ -296,16 +296,23 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
                 )} />
               </div>
               <div className="flex flex-col min-w-0">
-                <h3 className={cn("font-black text-[15px] uppercase tracking-tight truncate leading-none", isThemeLight ? "text-black" : "text-white")}>
-                  {otherUser.full_name}
-                </h3>
-                <div className="flex items-center gap-1.5 mt-1">
+                <div className="flex items-center gap-2">
+                  <h3 className={cn("font-black text-[13px] uppercase tracking-tight truncate leading-none", isThemeLight ? "text-black" : "text-white")}>
+                    {otherUser.full_name}
+                  </h3>
+                  {listing && (
+                    <div className="px-1.5 py-0.5 bg-rose-500/10 rounded-md border border-rose-500/20 shrink-0">
+                      <span className="text-[7px] font-black uppercase text-rose-500 tracking-widest">{listing.title}</span>
+                    </div>
+                  )}
+                </div>
+                <div className="flex items-center gap-1.5 mt-0.5">
                   <div className={cn("w-1 h-1 rounded-full", isOnline ? "bg-violet-400 animate-pulse" : "bg-slate-500")} />
                   <span className={cn(
-                    "text-[9px] font-black uppercase tracking-[0.18em]",
+                    "text-[8px] font-black uppercase tracking-[0.18em]",
                     isOnline ? "text-violet-400" : (isThemeLight ? "text-black/30" : "text-white/25")
                   )}>
-                    {isOnline ? 'Active Now' : 'Offline'}
+                    {isOnline ? 'Active' : 'Offline'}
                   </span>
                 </div>
               </div>
@@ -323,10 +330,10 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button className={cn("w-9 h-9 rounded-xl flex items-center justify-center transition-all",
+                  <button className={cn("w-8 h-8 rounded-lg flex items-center justify-center transition-all",
                     isThemeLight ? "bg-black/[0.06] text-black hover:bg-black/10" : "bg-white/[0.07] text-white/60 hover:bg-white/[0.12]"
                   )}>
-                    <MoreVertical className="w-4 h-4" />
+                    <MoreVertical className="w-3.5 h-3.5" />
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="rounded-[1.5rem] bg-[#0e0e18] border-white/[0.08] p-2 shadow-2xl text-white backdrop-blur-xl min-w-[200px]">
@@ -365,44 +372,11 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
             </div>
           </div>
 
-          {listing && (
-            <motion.div
-              initial={{ opacity: 0, y: -8 }}
-              animate={{ opacity: 1, y: 0 }}
-              className={cn(
-                "mt-2 p-2 rounded-xl flex items-center gap-3 border",
-                isThemeLight ? "bg-black/[0.02] border-black/[0.06]" : "bg-white/[0.04] border-white/[0.06]"
-              )}
-            >
-              <div className="w-9 h-9 rounded-lg overflow-hidden shadow-lg shrink-0 bg-white/5 flex items-center justify-center">
-                <img 
-                  src={listing.images?.[0]} 
-                  className="w-full h-full object-cover" 
-                  alt={listing.title}
-                  onError={(e) => {
-                    const target = e.target as HTMLImageElement;
-                    target.onerror = null; // Prevent infinite loops
-                    target.src = 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&q=80&w=1200'; // Default house
-                  }}
-                />
-              </div>
-              <div className="flex-1 min-w-0">
-                <h4 className={cn("text-[10px] font-black uppercase tracking-widest truncate leading-none", isThemeLight ? "text-black" : "text-white")}>{listing.title}</h4>
-                <p className="text-rose-500 text-[11px] font-black mt-1">${listing.price?.toLocaleString()}</p>
-              </div>
-              <div className="px-2.5 py-1 bg-rose-500/10 rounded-full border border-rose-500/20">
-                <span className="text-[8px] font-black uppercase text-rose-500 tracking-widest">{listing.category}</span>
-              </div>
-            </motion.div>
-          )}
-        </div>
-
         <div
           id="chat-scroll-container"
           className={cn("flex-1 flex flex-col relative min-h-0", isThemeLight ? "bg-[#f5f5f7]" : "bg-[#050505]")}
           ref={messagesContainerRef}
         >
-
           {messages.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center text-center p-10">
               <div className={cn(
@@ -427,7 +401,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
         </div>
 
         <div className={cn(
-          "shrink-0 px-3 pb-3 pt-3 backdrop-blur-3xl border-t transition-all",
+          "shrink-0 px-3 h-[54px] flex items-center backdrop-blur-3xl border-t transition-all",
           isThemeLight ? "bg-white/90 border-black/[0.06]" : "bg-[#050505]/90 border-white/[0.05]"
         )}>
 

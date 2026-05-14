@@ -189,7 +189,7 @@ export function MessagingDashboard() {
             exit={{ opacity: 0, y: '40%' }}
             transition={{ type: 'spring', stiffness: 320, damping: 32, mass: 0.85 }}
             className={cn(
-              "w-full max-w-4xl mx-auto flex flex-col flex-1 min-h-0 relative shadow-2xl overflow-hidden border-x",
+              "w-full max-w-full mx-auto flex flex-col flex-1 min-h-0 relative shadow-2xl overflow-hidden border-x",
               isLight ? "bg-white border-black/5" : "bg-[#0A0A0C] border-white/5"
             )}
           >
