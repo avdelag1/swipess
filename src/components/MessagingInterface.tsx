@@ -75,10 +75,6 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const previousMessageCountRef = useRef(0);
-  const [showConnecting, setShowConnecting] = useState(false);
-  const connectingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  // Messaging is unlimited for authenticated users — no quota gating in the chat UI.
   const { isOnline } = usePresence(otherUser.id);
   const { startTyping, stopTyping, typingUsers, isConnected } = useRealtimeChat(conversationId);
   useMarkMessagesAsRead(conversationId, true);
@@ -97,26 +93,6 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
       }
     }
   }, [conversationId, prefetchTopConversationMessages]);
-
-  useEffect(() => {
-    if (!isConnected) {
-      connectingTimeoutRef.current = setTimeout(() => {
-        setShowConnecting(true);
-      }, 500);
-    } else {
-      if (connectingTimeoutRef.current) {
-        clearTimeout(connectingTimeoutRef.current);
-        connectingTimeoutRef.current = null;
-      }
-      setShowConnecting(false);
-    }
-    return () => {
-      if (connectingTimeoutRef.current) {
-        clearTimeout(connectingTimeoutRef.current);
-        connectingTimeoutRef.current = null;
-      }
-    };
-  }, [isConnected]);
 
   const isScrolledToBottom = useCallback(() => {
     if (!messagesContainerRef.current) return true;
@@ -426,17 +402,6 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
           className={cn("flex-1 flex flex-col relative min-h-0", isThemeLight ? "bg-[#f5f5f7]" : "bg-[#050505]")}
           ref={messagesContainerRef}
         >
-          {showConnecting && (
-            <div className="absolute top-3 left-0 right-0 z-50 flex justify-center px-6">
-              <div className={cn(
-                "backdrop-blur-3xl border px-5 py-2 rounded-full flex items-center gap-2.5",
-                isThemeLight ? "bg-amber-50 border-amber-200" : "bg-rose-500/[0.08] border-rose-500/20"
-              )}>
-                <div className="w-1.5 h-1.5 bg-rose-500 rounded-full animate-pulse" />
-                <span className="text-[9px] font-black uppercase tracking-widest text-rose-500">Connecting Nexus...</span>
-              </div>
-            </div>
-          )}
 
           {messages.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center text-center p-10">
