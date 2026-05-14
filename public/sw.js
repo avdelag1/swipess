@@ -320,6 +320,8 @@ self.addEventListener('fetch', (event) => {
               cache.put(request, networkResponse.clone());
             }
             return networkResponse;
+          }).catch(() => {
+            return new Response('', { status: 503, statusText: 'Service Unavailable' });
           });
         });
       })
@@ -417,6 +419,8 @@ self.addEventListener('fetch', (event) => {
             });
           }
           return networkResponse;
+        }).catch(() => {
+          return new Response('', { status: 503, statusText: 'Service Unavailable' });
         });
       })
     );
@@ -433,7 +437,10 @@ self.addEventListener('fetch', (event) => {
         }
         return response;
       })
-      .catch(() => caches.match(request))
+      .catch(async () => {
+        const cached = await caches.match(request);
+        return cached ?? new Response('', { status: 404, statusText: 'Not Found' });
+      })
   );
 });
 

@@ -149,7 +149,13 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
             <Route path="/index" element={<Navigate to="/" replace />} />
             <Route path="/reset-password" element={<Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><ResetPassword /></AnimatedPage></Suspense>} />
 
-            <Route element={<ProtectedRoute><PersistentDashboardLayout /></ProtectedRoute>}>
+            <Route element={
+              <ProtectedRoute>
+                <Suspense fallback={<SuspenseFallback minimal />}>
+                  <PersistentDashboardLayout />
+                </Suspense>
+              </ProtectedRoute>
+            }>
               {/* Individual routes are suspended by the Suspense in PersistentDashboardLayout/AnimatedOutlet */}
               <Route path="/client/dashboard" element={<DashboardOutletPlaceholder />} />
               <Route path="/client/profile" element={<ClientProfile />} />
