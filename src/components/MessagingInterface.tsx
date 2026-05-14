@@ -398,8 +398,17 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
                 isThemeLight ? "bg-black/[0.02] border-black/[0.06]" : "bg-white/[0.04] border-white/[0.06]"
               )}
             >
-              <div className="w-11 h-11 rounded-xl overflow-hidden shadow-lg shrink-0">
-                <img src={listing.images?.[0]} className="w-full h-full object-cover" alt={listing.title} />
+              <div className="w-11 h-11 rounded-xl overflow-hidden shadow-lg shrink-0 bg-white/5 flex items-center justify-center">
+                <img 
+                  src={listing.images?.[0]} 
+                  className="w-full h-full object-cover" 
+                  alt={listing.title}
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.onerror = null; // Prevent infinite loops
+                    target.src = 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&q=80&w=1200'; // Default house
+                  }}
+                />
               </div>
               <div className="flex-1 min-w-0">
                 <h4 className={cn("text-[10px] font-black uppercase tracking-widest truncate leading-none", isThemeLight ? "text-black" : "text-white")}>{listing.title}</h4>
