@@ -190,11 +190,12 @@ export function MessagingDashboard() {
     return (
       <div className={cn("w-full flex flex-col transition-colors duration-500 overflow-hidden flex-1 min-h-0", isLight ? "bg-white" : "bg-black")}>
         <AnimatePresence mode="wait">
-          <motion.div 
-            key="interface" 
-            initial={{ opacity: 0, scale: 0.98 }} 
-            animate={{ opacity: 1, scale: 1 }} 
-            exit={{ opacity: 0, scale: 0.98 }}
+          <motion.div
+            key="interface"
+            initial={{ opacity: 0, y: '100%' }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: '40%' }}
+            transition={{ type: 'spring', stiffness: 320, damping: 32, mass: 0.85 }}
             className={cn(
               "w-full max-w-4xl mx-auto flex flex-col flex-1 min-h-0 relative shadow-2xl overflow-hidden border-x",
               isLight ? "bg-white border-black/5" : "bg-[#0A0A0C] border-white/5"
@@ -209,9 +210,39 @@ export function MessagingDashboard() {
                 onBack={() => { triggerHaptic('medium'); setSelectedConversationId(null); setDirectlyFetchedConversation(null); setSearchParams({}); }}
               />
             ) : (
-              <div className="flex flex-col items-center justify-center h-full gap-4 text-[#EB4898]/40 uppercase font-black italic">
-                <div className="w-16 h-16 rounded-full border-4 border-[#EB4898]/10 border-t-[#EB4898] animate-spin" />
-                <span className="animate-pulse tracking-[0.3em] text-[10px]">Loading...</span>
+              <div className="flex flex-col items-center justify-center h-full gap-5">
+                {/* iMessage-style typing bubble */}
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8, y: 8 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  transition={{ type: 'spring', stiffness: 380, damping: 24 }}
+                  style={{
+                    background: 'linear-gradient(135deg, #1d8cf8 0%, #147efb 60%, #0a63d4 100%)',
+                    borderRadius: '22px 22px 22px 4px',
+                    padding: '14px 20px',
+                    display: 'flex',
+                    gap: '7px',
+                    alignItems: 'center',
+                    boxShadow: '0 8px 32px rgba(20,126,251,0.35), 0 2px 8px rgba(20,126,251,0.2)',
+                  }}
+                >
+                  {[0, 1, 2].map((i) => (
+                    <motion.div
+                      key={i}
+                      animate={{ y: [0, -6, 0], opacity: [0.5, 1, 0.5] }}
+                      transition={{ duration: 1.1, repeat: Infinity, delay: i * 0.18, ease: 'easeInOut' }}
+                      style={{ width: 9, height: 9, borderRadius: '50%', background: 'rgba(255,255,255,0.92)' }}
+                    />
+                  ))}
+                </motion.div>
+                <motion.span
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.3 }}
+                  style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.22em', color: 'rgba(20,126,251,0.7)', textTransform: 'uppercase' }}
+                >
+                  Opening chat
+                </motion.span>
               </div>
             )}
           </motion.div>

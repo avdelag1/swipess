@@ -50,7 +50,15 @@ export function AppLayout({ children }: AppLayoutProps) {
   const { showAIChat, showAIListing } = modalStore;
   const { activeMode } = useActiveMode();
   const { isChromeVisible } = useChromeReveal();
-  
+
+  const [isTablet, setIsTablet] = useState(false);
+  useEffect(() => {
+    const check = () => setIsTablet(window.innerWidth >= 768);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
+
   const isSwipeDashboard = useMemo(() => {
     const path = location.pathname;
     return path.startsWith('/client/dashboard') || path.startsWith('/owner/dashboard');
@@ -75,7 +83,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   // While inside the swipe deck, chrome auto-hides after 5s and is summoned
   // by tapping the top edge or bottom-center strip (revealMode).
   // Everywhere else it's always visible.
-  const useRevealMode = swipeDeckActive && !showAIChat;
+  const useRevealMode = swipeDeckActive && !showAIChat && !isTablet;
   const hideFloatingForSwipe = useRevealMode && !isChromeVisible;
 
   const { isRefreshing, pullDistance, triggered } = usePullToRefresh({
