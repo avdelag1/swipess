@@ -117,11 +117,12 @@ export function MessagingDashboard() {
 
   const handleDirectOpenConversation = useCallback(async (conversationId: string) => {
     setIsStartingConversation(true);
+    const timeout = setTimeout(() => setIsStartingConversation(false), 6000);
     try {
       let conversation = conversations.find(c => c.id === conversationId);
       if (!conversation) {
-          const result = await refetch();
-          conversation = (result.data || []).find((c: any) => c.id === conversationId);
+        const result = await refetch();
+        conversation = (result.data || []).find((c: any) => c.id === conversationId);
       }
       if (conversation) {
         setSelectedConversationId(conversationId);
@@ -137,6 +138,7 @@ export function MessagingDashboard() {
     } catch (_e) {
       setSearchParams({});
     } finally {
+      clearTimeout(timeout);
       setIsStartingConversation(false);
     }
   }, [conversations, refetch, fetchSingleConversation, setSearchParams]);
