@@ -602,7 +602,7 @@ export function useMarkConversationAsRead() {
   return useMutation({
     mutationFn: async (conversationId: string) => {
       if (!user?.id) throw new Error('Not authenticated');
-      const { error } = await supabase.from('conversation_messages').update({ is_read: true, read_at: new Date().toISOString() }).eq('conversation_id', conversationId).neq('sender_id', user.id).eq('is_read', false);
+      const { error } = await supabase.from('conversation_messages').update({ is_read: true }).eq('conversation_id', conversationId).neq('sender_id', user.id).eq('is_read', false);
       if (error) throw error;
       return conversationId;
     },
