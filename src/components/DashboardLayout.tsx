@@ -178,6 +178,12 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
+  const isSwipeDeck = useMemo(() => {
+    const path = location.pathname;
+    return path === '/client/dashboard' || path === '/client/dashboard/' ||
+           path === '/owner/dashboard'  || path === '/owner/dashboard/';
+  }, [location.pathname]);
+
   const { isRefreshing, pullDistance, triggered } = usePullToRefresh({
     containerRef: scrollContainerRef,
     disabled: isSwipeDeck,
@@ -211,14 +217,6 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
 
   const clientSwipePaths = ['/client/dashboard', '/client/profile', '/client/liked-properties', '/messages', '/explore/roommates'];
   const ownerSwipePaths = ['/owner/dashboard', '/owner/profile', '/owner/liked-clients', '/owner/properties', '/messages'];
-
-  // SINGLE SOURCE OF TRUTH: only the two swipe deck routes are locked.
-  // Every other route scrolls inside this container.
-  const isSwipeDeck = useMemo(() => {
-    const path = location.pathname;
-    return path === '/client/dashboard' || path === '/client/dashboard/' ||
-           path === '/owner/dashboard'  || path === '/owner/dashboard/';
-  }, [location.pathname]);
 
   useEffect(() => {
     document.body.classList.toggle('swipe-deck-active', isSwipeDeck);
