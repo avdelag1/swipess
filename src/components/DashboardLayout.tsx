@@ -1,4 +1,4 @@
-import React, { ReactNode, useState, useEffect, useCallback, useMemo, useRef, lazy } from 'react'
+import React, { ReactNode, useState, useEffect, useCallback, useMemo, useRef, lazy, Suspense } from 'react'
 import { useAuth } from "@/hooks/useAuth"
 import { useAnonymousDrafts } from "@/hooks/useAnonymousDrafts"
 import { supabase } from '@/integrations/supabase/client'
@@ -19,7 +19,8 @@ import { PullToRefreshIndicator } from '@/components/PullToRefreshIndicator'
 
 // SPEED OF LIGHT HOOKS
 import { useWelcomeState } from "@/hooks/useWelcomeState"
-import { GlobalDialogs } from './GlobalDialogs'
+import { lazyWithRetry } from '@/utils/lazyRetry';
+const GlobalDialogs = lazyWithRetry(() => import('./GlobalDialogs').then(m => ({ default: m.GlobalDialogs })));
 import { useModalStore } from '@/state/modalStore'
 import { useFocusMode } from '@/hooks/useFocusMode'
 import { useScrollDirection } from '@/hooks/useScrollDirection'
@@ -293,7 +294,9 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       </main>
 
       {/* SWIPESS GLOBAL DIALOGS */}
-      <GlobalDialogs userRole={userRole} />
+      <Suspense fallback={null}>
+        <GlobalDialogs userRole={userRole} />
+      </Suspense>
 
     </div>
   )
