@@ -104,12 +104,21 @@ export async function unregisterServiceWorkers(): Promise<void> {
  */
 export async function forceAppUpdate(): Promise<void> {
   try {
-    // Show updating toast
     toast({
-      title: 'Updating App...',
-      description: 'Clearing cache and getting the latest version.',
+      title: 'Updating…',
+      description: 'Fetching the latest version.',
       duration: 3000,
     });
+
+    // Signal any waiting SW to take control immediately (proper update path)
+    if ('serviceWorker' in navigator) {
+      const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
+      if (reg?.waiting) {
+        reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+        // Give it 400 ms to activate before we unregister
+        await new Promise(r => setTimeout(r, 400));
+      }
+    }
 
     // Unregister service workers
     await unregisterServiceWorkers();

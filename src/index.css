@@ -2365,3 +2365,74 @@ button:disabled,
   transform: scale(0.96);
 }
 
+/* ===================================================================
+ * LIGHT MODE TRANSPARENCY FIXES
+ * Transparent-white patterns are invisible on white backgrounds.
+ * These overrides convert them to transparent-black equivalents.
+ * Applied on both .light and .white-matte (both set by ThemeContext).
+ * =================================================================== */
+
+/* Transparent-white backgrounds → transparent-black */
+.white-matte .bg-white\/5,  .light .bg-white\/5  { background-color: rgba(0,0,0,0.03) !important; }
+.white-matte .bg-white\/10, .light .bg-white\/10 { background-color: rgba(0,0,0,0.05) !important; }
+.white-matte .bg-white\/20, .light .bg-white\/20 { background-color: rgba(0,0,0,0.07) !important; }
+.white-matte .bg-white\/\[0\.02\], .light .bg-white\/\[0\.02\] { background-color: rgba(0,0,0,0.02) !important; }
+.white-matte .bg-white\/\[0\.03\], .light .bg-white\/\[0\.03\] { background-color: rgba(0,0,0,0.03) !important; }
+.white-matte .bg-white\/\[0\.04\], .light .bg-white\/\[0\.04\] { background-color: rgba(0,0,0,0.04) !important; }
+
+/* Transparent-white borders → transparent-black */
+.white-matte .border-white\/10, .light .border-white\/10 { border-color: rgba(0,0,0,0.10) !important; }
+.white-matte .border-white\/20, .light .border-white\/20 { border-color: rgba(0,0,0,0.12) !important; }
+.white-matte .border-white\/\[0\.06\], .light .border-white\/\[0\.06\] { border-color: rgba(0,0,0,0.06) !important; }
+.white-matte .border-white\/\[0\.07\], .light .border-white\/\[0\.07\] { border-color: rgba(0,0,0,0.07) !important; }
+.white-matte .border-white\/\[0\.08\], .light .border-white\/\[0\.08\] { border-color: rgba(0,0,0,0.09) !important; }
+
+/* Transparent-white text → dark text for legibility */
+.white-matte .text-white\/40, .light .text-white\/40 { color: rgba(0,0,0,0.55) !important; }
+.white-matte .text-white\/50, .light .text-white\/50 { color: rgba(0,0,0,0.60) !important; }
+.white-matte .text-white\/60, .light .text-white\/60 { color: rgba(0,0,0,0.65) !important; }
+.white-matte .text-white\/70, .light .text-white\/70 { color: rgba(0,0,0,0.72) !important; }
+.white-matte .text-white\/80, .light .text-white\/80 { color: rgba(0,0,0,0.82) !important; }
+.white-matte .text-white\/90, .light .text-white\/90 { color: rgba(0,0,0,0.90) !important; }
+/* text-white (full) should stay white only on explicitly colored backgrounds.
+   We specifically exclude dialogs / cards that declare their own bg colour. */
+.white-matte .text-white:not([class*="bg-"]):not([style*="background"]),
+.light        .text-white:not([class*="bg-"]):not([style*="background"]) {
+  color: #111111 !important;
+}
+
+/* Transparent-white ring/shadow utilities */
+.white-matte .shadow-white\/\[0\.15\], .light .shadow-white\/\[0\.15\] { box-shadow: none !important; }
+
+/* Ensure muted text never drops below WCAG AA on white */
+.white-matte .text-slate-400, .light .text-slate-400 { color: #4B5563 !important; } /* gray-600, 7.2:1 on white */
+.white-matte .text-slate-500, .light .text-slate-500 { color: #374151 !important; } /* gray-700, 10:1 on white */
+
+/* Dividers that use white-transparent lines */
+.white-matte .divide-white\/10 > * + *, .light .divide-white\/10 > * + * {
+  border-color: rgba(0,0,0,0.08) !important;
+}
+
+/* Backdrop / glass-morphic elements need a light tint, not dark */
+.white-matte .backdrop-blur-xl, .light .backdrop-blur-xl,
+.white-matte .backdrop-blur-2xl, .light .backdrop-blur-2xl {
+  /* Keep backdrop blur but ensure children are legible — override if bg is too light */
+}
+
+/* Input placeholder contrast */
+.white-matte input::placeholder, .light input::placeholder,
+.white-matte textarea::placeholder, .light textarea::placeholder {
+  color: rgba(0,0,0,0.35) !important;
+  opacity: 1;
+}
+
+/* Icon buttons that carry white/transparent backgrounds */
+.white-matte .bg-white\/\[0\.03\], .light .bg-white\/\[0\.03\] { background-color: rgba(0,0,0,0.03) !important; }
+.white-matte .bg-white\/\[0\.05\], .light .bg-white\/\[0\.05\] { background-color: rgba(0,0,0,0.04) !important; }
+
+/* Ensure the main content text is always black */
+.white-matte, .light {
+  color: #111111;
+}
+
+

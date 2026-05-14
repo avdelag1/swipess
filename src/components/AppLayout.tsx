@@ -1,7 +1,5 @@
 import { Suspense, lazy, useMemo, useEffect, useState, useRef, useLayoutEffect } from 'react';
 import { lazyWithRetry } from '@/utils/lazyRetry';
-import { usePullToRefresh } from '@/hooks/usePullToRefresh';
-import { PullToRefreshIndicator } from '@/components/PullToRefreshIndicator';
 
 import { useLocation } from 'react-router-dom';
 import { SkipToMainContent, useFocusManagement } from './AccessibilityHelpers';
@@ -77,10 +75,6 @@ export function AppLayout({ children }: AppLayoutProps) {
   // Everywhere else it's always visible.
   const useRevealMode = swipeDeckActive && !showAIChat;
   const hideFloatingForSwipe = useRevealMode && !isChromeVisible;
-
-  const { isRefreshing, pullDistance, triggered } = usePullToRefresh({
-    disabled: isSwipeDashboard
-  });
 
   const userRole = useMemo<'client' | 'owner' | 'admin'>(() => {
     if (user?.user_metadata?.role === 'admin') return 'admin';

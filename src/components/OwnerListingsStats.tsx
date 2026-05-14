@@ -84,7 +84,7 @@ export function OwnerListingsStats({ listings, isLight = false }: OwnerListingsS
               <div className="relative p-5 sm:p-6">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
-                    <p className={cn("text-[9px] font-black uppercase tracking-[0.25em] italic", isLight ? 'text-slate-500' : 'text-white/60')}>
+                    <p className={cn("text-[9px] font-black uppercase tracking-[0.25em] italic", isLight ? 'text-slate-700' : 'text-white/60')}>
                       {stat.title}
                     </p>
                     <div className="flex items-baseline gap-1.5 mt-2">
@@ -97,7 +97,7 @@ export function OwnerListingsStats({ listings, isLight = false }: OwnerListingsS
                         <TrendingUp className="w-3.5 h-3.5 flex-shrink-0" style={{ color: stat.color }} strokeWidth={3} />
                       )}
                     </div>
-                    <p className={cn("text-[9px] font-black uppercase tracking-[0.25em] mt-1.5 italic", isLight ? 'text-slate-400' : 'text-white/50')}>
+                    <p className={cn("text-[9px] font-black uppercase tracking-[0.25em] mt-1.5 italic", isLight ? 'text-slate-600' : 'text-white/50')}>
                       {stat.description}
                     </p>
                   </div>
