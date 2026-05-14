@@ -48,14 +48,15 @@ export function LoopVideo({
 
     const tick = (now: number) => {
       raf = requestAnimationFrame(tick);
-      if (!inViewRef.current || el.paused || el.readyState < 2) {
+      if (!inViewRef.current || el.readyState < 2) {
         last = now;
         return;
       }
-      const dt = (now - last) / 1000;
+      // In reverse mode we manually step currentTime — video may be paused, that's fine.
+      // In forward mode, only advance if the browser is actually playing.
+      const dt = Math.min((now - last) / 1000, 0.1); // cap to avoid large jumps on tab resume
       last = now;
       if (direction === -1) {
-        // Manually rewind because most browsers ignore negative playbackRate
         const next = el.currentTime - dt;
         if (next <= 0) {
           el.currentTime = 0;
@@ -64,10 +65,13 @@ export function LoopVideo({
         } else {
           el.currentTime = next;
         }
+      } else if (el.paused) {
+        // Forward mode but paused externally — skip tick
       }
     };
 
     const onEnded = () => {
+      // Switch to reverse: pause the browser's forward play, tick handles rewind manually
       direction = -1;
       el.pause();
     };
