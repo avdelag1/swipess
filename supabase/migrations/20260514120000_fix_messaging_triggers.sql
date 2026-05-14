@@ -1,9 +1,5 @@
 -- ============================================================
--- Comprehensive messaging fix: clean up all triggers on
--- conversation_messages, make content nullable, define the
--- missing update_conversation_timestamp() stub so no trigger
--- can fail with "function does not exist", and recreate the
--- start_conversation_with_message RPC.
+-- Comprehensive messaging fix (v2 — live DB has no `content` column)
 -- ============================================================
 
 -- 1. Drop EVERY trigger on conversation_messages (clean slate)
@@ -12,13 +8,12 @@ DROP TRIGGER IF EXISTS update_conversation_on_new_message     ON public.conversa
 DROP TRIGGER IF EXISTS trg_conversation_messages_update_conv  ON public.conversation_messages;
 DROP TRIGGER IF EXISTS trg_conversation_messages_after_insert ON public.conversation_messages;
 
--- 2. Make `content` optional so legacy + new insert paths both work
+-- 2. Add content column if it doesn't exist (live DB never had it)
 ALTER TABLE public.conversation_messages
-  ALTER COLUMN content DROP NOT NULL,
-  ALTER COLUMN content SET DEFAULT '';
+  ADD COLUMN IF NOT EXISTS content text DEFAULT '';
 
--- 3. Define update_conversation_timestamp() (was referenced by a trigger
---    but never created; undefined function = 400 on every message send).
+-- 3. Define update_conversation_timestamp() stub (was called by a trigger
+--    but never created — undefined function caused every INSERT to fail).
 CREATE OR REPLACE FUNCTION public.update_conversation_timestamp()
 RETURNS trigger
 LANGUAGE plpgsql
@@ -34,8 +29,7 @@ BEGIN
 END;
 $$;
 
--- 4. Recreate the canonical after-insert function (single responsibility:
---    update conversation timestamp + create recipient notification).
+-- 4. Single canonical after-insert function
 CREATE OR REPLACE FUNCTION public.handle_new_conversation_message()
 RETURNS trigger
 LANGUAGE plpgsql
@@ -49,7 +43,6 @@ DECLARE
   v_sender_name  text;
   v_preview      text;
 BEGIN
-  -- Update last_message_at on the parent conversation
   UPDATE public.conversations
      SET last_message_at = NEW.created_at,
          updated_at      = now()
@@ -75,8 +68,7 @@ BEGIN
    WHERE user_id = NEW.sender_id
    LIMIT 1;
 
-  -- message_text is the primary field; content is the legacy fallback
-  v_preview := LEFT(COALESCE(NULLIF(NEW.message_text, ''), NULLIF(NEW.content, ''), '…'), 120);
+  v_preview := LEFT(COALESCE(NULLIF(NEW.message_text, ''), '…'), 120);
 
   INSERT INTO public.notifications (
     user_id, notification_type, title, message,
@@ -106,7 +98,7 @@ CREATE TRIGGER trg_conversation_messages_after_insert
   FOR EACH ROW
   EXECUTE FUNCTION public.handle_new_conversation_message();
 
--- 6. Recreate start_conversation_with_message (was 404 in production)
+-- 6. start_conversation_with_message RPC (was 404 in production)
 CREATE OR REPLACE FUNCTION public.start_conversation_with_message(
   p_other_user_id  uuid,
   p_initial_message text,
@@ -148,13 +140,10 @@ BEGIN
     v_owner_id  := p_other_user_id;
     v_client_id := v_user_id;
   ELSE
-    -- Both clients (e.g. roommate match): deterministic ordering
     v_client_id := LEAST(v_user_id, p_other_user_id);
     v_owner_id  := GREATEST(v_user_id, p_other_user_id);
   END IF;
 
-  -- Find existing 1-to-1 conversation (ignore listing so repeated entry
-  -- points reuse the same thread)
   SELECT id INTO v_conversation_id
     FROM public.conversations
    WHERE (client_id = v_user_id AND owner_id = p_other_user_id)
@@ -174,9 +163,9 @@ BEGIN
   END IF;
 
   INSERT INTO public.conversation_messages (
-    conversation_id, sender_id, message_text, content, message_type
+    conversation_id, sender_id, message_text, message_type
   ) VALUES (
-    v_conversation_id, v_user_id, v_msg, v_msg, 'text'
+    v_conversation_id, v_user_id, v_msg, 'text'
   ) RETURNING id INTO v_message_id;
 
   RETURN QUERY SELECT v_conversation_id, v_message_id, v_created;
