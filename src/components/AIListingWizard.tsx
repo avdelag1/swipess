@@ -37,6 +37,60 @@ const getMissingSchemaColumn = (message?: string | null) => {
   return quoted?.[1] || quoted?.[2] || quoted?.[3] || null;
 };
 
+interface FallbackContext {
+  category: typeof CATEGORIES[number]['id'] | null;
+  cityLocation: string;
+  price: string;
+  extras: Record<string, unknown>;
+}
+
+const buildFallbackTitle = ({ category, cityLocation, extras }: Omit<FallbackContext, 'price'>) => {
+  const cat = category || 'listing';
+  const city = cityLocation?.trim();
+  if (cat === 'property') {
+    const beds = Number(extras.beds);
+    const bedPart = Number.isFinite(beds) && beds > 0 ? `${beds}-bedroom ` : '';
+    return `${bedPart}home${city ? ` in ${city}` : ''}`.replace(/^./, (c) => c.toUpperCase());
+  }
+  if (cat === 'motorcycle' || cat === 'bicycle') {
+    const brand = (extras.brand as string) || '';
+    const year = (extras.year as string) || '';
+    const label = cat === 'motorcycle' ? 'Motorcycle' : 'Bicycle';
+    return [year, brand, label].filter(Boolean).join(' ') || `${label}${city ? ` — ${city}` : ''}`;
+  }
+  if (cat === 'worker') {
+    const service = (extras.service_category as string) || 'Professional service';
+    return `${service}${city ? ` — ${city}` : ''}`;
+  }
+  return `New ${cat}`;
+};
+
+const buildFallbackPrompt = ({ category, cityLocation, price, extras }: FallbackContext) => {
+  const cat = category || 'listing';
+  const city = cityLocation?.trim();
+  const priceNum = Number(price);
+  const parts: string[] = [];
+  parts.push(`New ${cat} listing`);
+  if (city) parts.push(`located in ${city}`);
+  if (Number.isFinite(priceNum) && priceNum > 0) {
+    parts.push(`available for ${Math.round(priceNum).toLocaleString('en-US')} USD`);
+  }
+  if (cat === 'property') {
+    const beds = Number(extras.beds);
+    const baths = Number(extras.baths);
+    if (beds > 0) parts.push(`${beds} bedroom${beds === 1 ? '' : 's'}`);
+    if (baths > 0) parts.push(`${baths} bathroom${baths === 1 ? '' : 's'}`);
+  }
+  if (cat === 'motorcycle' || cat === 'bicycle') {
+    if (extras.brand) parts.push(`brand ${extras.brand}`);
+    if (extras.year) parts.push(`year ${extras.year}`);
+  }
+  if (cat === 'worker' && extras.service_category) {
+    parts.push(`service ${extras.service_category}`);
+  }
+  return parts.join(', ') + '.';
+};
+
 const saveAIListingWithSchemaRetry = async (payload: Record<string, unknown>) => {
   let safeData = { ...payload };
   const removedColumns = new Set<string>();
@@ -182,10 +236,6 @@ export function AIListingWizard() {
   };
 
   const handleProcess = async () => {
-    if (!prompt.trim()) {
-      toast.error('Please describe what you are listing');
-      return;
-    }
     if (!user) {
       toast.error('Please sign in to publish a listing.');
       return;
@@ -194,6 +244,16 @@ export function AIListingWizard() {
       toast.error('At least 1 photo is required');
       return;
     }
+    // Prompt is no longer hard-required — the wizard can auto-generate a
+    // baseline description from category, city, price, and extras so users
+    // can publish in one tap. If they did type / dictate something it still
+    // takes priority over the fallback.
+    const effectivePrompt = prompt.trim() || buildFallbackPrompt({
+      category,
+      cityLocation,
+      price,
+      extras,
+    });
 
     setIsProcessing(true);
     setStep('processing');
@@ -216,7 +276,7 @@ export function AIListingWizard() {
       let parsed: Record<string, unknown> = {};
       try {
         const aiPromise = supabase.functions.invoke('ai-listing-extract', {
-          body: { task: 'extract', category, price, city: cityLocation, prompt },
+          body: { task: 'extract', category, price, city: cityLocation, prompt: effectivePrompt },
         });
         const aiTimeout = new Promise<{ data: null; error: Error }>((resolve) =>
           setTimeout(
@@ -252,8 +312,8 @@ export function AIListingWizard() {
         mode: cat === 'worker' ? 'service' : 'rent',
         status: 'active',
         is_active: true,
-        title: (parsed.title as string) || `New ${cat}`,
-        description: (parsed.description as string) || prompt,
+        title: (parsed.title as string) || buildFallbackTitle({ category: cat, cityLocation, extras }),
+        description: (parsed.description as string) || effectivePrompt,
         price: numericPrice,
         currency: 'USD',
         country: 'Mexico',
@@ -659,7 +719,7 @@ export function AIListingWizard() {
                              <textarea
                                value={prompt}
                                onChange={(e) => setPrompt(e.target.value)}
-                               placeholder={isRecording ? "Listening to your intel..." : "Voice your description... E.g. 'Stunning ocean view property with private pool'..."}
+                               placeholder={isRecording ? "Listening to your intel..." : "Optional — describe your listing or just tap publish. E.g. 'Stunning ocean view property with private pool'..."}
                                className={cn("w-full h-40 p-5 pl-14 rounded-[2rem] transition-all text-sm leading-relaxed resize-none italic outline-none focus:ring-1 focus:ring-cyan-500/30", inputCls)}
                              />
                              {isTranscribing && (
@@ -676,7 +736,7 @@ export function AIListingWizard() {
                       <div className="pt-4 px-1 pb-10">
                         <Button
                           onClick={handleProcess}
-                          disabled={!prompt.trim() || isProcessing}
+                          disabled={isProcessing || imageFiles.length === 0}
                           className="w-full h-16 rounded-[2.5rem] bg-primary text-primary-foreground hover:brightness-110 font-black uppercase tracking-[0.3em] text-[12px] transition-all shadow-[0_20px_60px_hsl(var(--primary)/0.4)] disabled:opacity-30"
                         >
                           {isProcessing ? (

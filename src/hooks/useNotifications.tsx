@@ -85,13 +85,18 @@ export function useNotifications() {
                   });
                 }
 
-                // Fire push notification to reach other devices / closed browser tabs
+                // Fire push notification to reach other devices / closed browser tabs.
+                // We hit BOTH endpoints so recipients receive a push regardless of
+                // whether any other client of theirs is currently online:
+                //   - send-push-notification: immediate fan-out to this user's subs
+                //   - process-push-outbox:    flushes the DB queue populated by the
+                //                             conversation_messages trigger
                 supabase.functions.invoke('send-push-notification', {
                   body: {
                     user_id: user.id,
                     title: `Message from ${senderName}`,
                     body: newMessage.message_text?.slice(0, 100) || '',
-                    url: '/messages',
+                    url: `/messages?conversationId=${newMessage.conversation_id}`,
                     data: {
                       type: 'message',
                       conversation_id: newMessage.conversation_id,
@@ -100,6 +105,12 @@ export function useNotifications() {
                   },
                 }).catch((err) => {
                   if (import.meta.env.DEV) logger.error('[useNotifications] Push failed:', err);
+                });
+
+                supabase.functions.invoke('process-push-outbox', {
+                  body: { limit: 25 },
+                }).catch((err) => {
+                  if (import.meta.env.DEV) logger.error('[useNotifications] Outbox flush failed:', err);
                 });
               }
             }
