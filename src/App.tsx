@@ -18,6 +18,13 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 // SpeedOfLightPreloader removed — redundant with WarpPrefetcher in RootProviders
 import Index from "./pages/Index";
 
+// Redirect /messages/:conversationId → /messages?conversationId=:id
+// (Push notifications link to the path form; the dashboard reads query params)
+function MessagesRedirect() {
+  const { conversationId } = useParams<{ conversationId: string }>();
+  return <Navigate to={`/messages?conversationId=${conversationId}`} replace />;
+}
+
 // i18n must be initialized eagerly so any component calling useTranslation()
 // during first render finds a registered i18next instance. Deferring caused
 // the "You will need to pass in an i18next instance" warning + missing
@@ -184,6 +191,7 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
 
               {/* Shared routes */}
               <Route path="/messages" element={<MessagingDashboard />} />
+              <Route path="/messages/:conversationId" element={<MessagesRedirect />} />
               <Route path="/notifications" element={<NotificationsPage />} />
               <Route path="/subscription/packages" element={<SubscriptionPackagesPage />} />
               <Route path="/radio" element={<DJTurntableRadio />} />
