@@ -410,20 +410,15 @@ export function useSmartListingMatching(
                     });
 
                     if (!rpcError && rpcListings && Array.isArray(rpcListings) && rpcListings.length > 0) {
+                        // Keep the deterministic order returned by the backend RPC so
+                        // every account sees the same listings in the same sequence.
                         const results = (rpcListings as any[])
                             .filter(l => !adminIds?.has(l.owner_id || l.user_id) && ['property', 'motorcycle', 'bicycle', 'worker', 'services'].includes(l.category))
                             .map(l => ({
                                 ...l,
                                 owner_id: l.owner_id || l.user_id,
                                 images: Array.isArray(l.images) ? l.images : (l.images ? [l.images] : [])
-                            }))
-                            .sort((a, b) => {
-                                const seedDelta = Number(isSeedListing(a)) - Number(isSeedListing(b));
-                                if (seedDelta !== 0) return seedDelta;
-                                const ta = new Date(a.updated_at || a.created_at || 0).getTime();
-                                const tb = new Date(b.updated_at || b.created_at || 0).getTime();
-                                return tb - ta;
-                            });
+                            }));
                         const withDemos = appendDemos(results);
 
                         // 🔥 SPEED OF LIGHT: PRE-WARM IMAGES IMMEDIATELY (Hardware-Aware)
