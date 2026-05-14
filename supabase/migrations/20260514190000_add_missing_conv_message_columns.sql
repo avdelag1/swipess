@@ -13,11 +13,6 @@ UPDATE public.conversation_messages
    SET message_text = content
  WHERE message_text IS NULL AND content IS NOT NULL;
 
--- Back-fill is_read from read_at for any existing rows
-UPDATE public.conversation_messages
-   SET is_read = (read_at IS NOT NULL)
- WHERE is_read IS NULL OR is_read = false AND read_at IS NOT NULL;
-
 -- Index to speed up the unread-count query
 CREATE INDEX IF NOT EXISTS idx_conv_messages_unread
   ON public.conversation_messages (conversation_id, sender_id, is_read)
