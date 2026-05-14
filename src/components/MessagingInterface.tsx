@@ -256,7 +256,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
       )}>
 
         <div className={cn(
-            "shrink-0 px-5 py-4 z-20 border-b transition-all",
+            "shrink-0 px-4 py-2.5 z-20 border-b transition-all",
             isThemeLight
               ? "bg-white border-black/[0.06] shadow-sm"
               : "bg-[#050505] border-white/[0.06] shadow-[0_1px_0_rgba(255,255,255,0.04)]"
@@ -265,11 +265,11 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
             <button
               onClick={onBack}
               className={cn(
-                 "shrink-0 flex items-center justify-center w-10 h-10 rounded-2xl active:scale-90 transition-all",
+                 "shrink-0 flex items-center justify-center w-9 h-9 rounded-xl active:scale-90 transition-all",
                  isThemeLight ? "bg-black/[0.06] text-black hover:bg-black/10" : "bg-white/[0.07] text-white hover:bg-white/[0.12]"
               )}
             >
-              <ChevronLeft className="w-5 h-5" />
+              <ChevronLeft className="w-4.5 h-4.5" />
             </button>
 
             <div className="flex-1 flex items-center gap-3 min-w-0">
@@ -280,9 +280,9 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
                     ? "bg-gradient-to-br from-rose-500 via-violet-600 to-rose-400"
                     : "bg-gradient-to-br from-blue-400 via-violet-600 to-rose-500"
                 )}>
-                  <Avatar className={cn("w-10 h-10 border-2", isThemeLight ? "border-white" : "border-[#050505]")}>
+                  <Avatar className={cn("w-9 h-9 border-2", isThemeLight ? "border-white" : "border-[#050505]")}>
                     <AvatarImage src={otherUser.avatar_url} />
-                    <AvatarFallback className={cn("text-xs font-black", isThemeLight ? "bg-slate-100 text-slate-700" : "bg-[#121212] text-white")}>
+                    <AvatarFallback className={cn("text-[10px] font-black", isThemeLight ? "bg-slate-100 text-slate-700" : "bg-[#121212] text-white")}>
                       {otherUser.full_name?.charAt(0) || '?'}
                     </AvatarFallback>
                   </Avatar>
@@ -314,19 +314,19 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
             <div className="flex gap-1.5 shrink-0">
               <button
                 onClick={() => setShowRatingDialog(true)}
-                className={cn("w-10 h-10 rounded-2xl flex items-center justify-center transition-all",
+                className={cn("w-9 h-9 rounded-xl flex items-center justify-center transition-all",
                   isThemeLight ? "bg-amber-50 text-amber-500 hover:bg-amber-100" : "bg-amber-500/[0.08] text-amber-400 hover:bg-amber-500/[0.15]"
                 )}
               >
-                <Star className="w-4.5 h-4.5 fill-current" />
+                <Star className="w-4 h-4 fill-current" />
               </button>
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button className={cn("w-10 h-10 rounded-2xl flex items-center justify-center transition-all",
+                  <button className={cn("w-9 h-9 rounded-xl flex items-center justify-center transition-all",
                     isThemeLight ? "bg-black/[0.06] text-black hover:bg-black/10" : "bg-white/[0.07] text-white/60 hover:bg-white/[0.12]"
                   )}>
-                    <MoreVertical className="w-4.5 h-4.5" />
+                    <MoreVertical className="w-4 h-4" />
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="rounded-[1.5rem] bg-[#0e0e18] border-white/[0.08] p-2 shadow-2xl text-white backdrop-blur-xl min-w-[200px]">
@@ -370,11 +370,11 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
               initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
               className={cn(
-                "mt-4 p-3 rounded-2xl flex items-center gap-3 border",
+                "mt-2 p-2 rounded-xl flex items-center gap-3 border",
                 isThemeLight ? "bg-black/[0.02] border-black/[0.06]" : "bg-white/[0.04] border-white/[0.06]"
               )}
             >
-              <div className="w-11 h-11 rounded-xl overflow-hidden shadow-lg shrink-0 bg-white/5 flex items-center justify-center">
+              <div className="w-9 h-9 rounded-lg overflow-hidden shadow-lg shrink-0 bg-white/5 flex items-center justify-center">
                 <img 
                   src={listing.images?.[0]} 
                   className="w-full h-full object-cover" 
@@ -427,7 +427,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
         </div>
 
         <div className={cn(
-          "shrink-0 px-4 pb-6 pt-4 backdrop-blur-3xl border-t transition-all",
+          "shrink-0 px-3 pb-3 pt-3 backdrop-blur-3xl border-t transition-all",
           isThemeLight ? "bg-white/90 border-black/[0.06]" : "bg-[#050505]/90 border-white/[0.05]"
         )}>
 
@@ -449,9 +449,9 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
             <button
               type="button"
               onClick={() => setShowEmojiPicker(p => !p)}
-              className={cn("shrink-0 w-12 h-12 rounded-2xl flex items-center justify-center transition-all border", showEmojiPicker ? "bg-rose-500/[0.12] border-rose-500/30 text-rose-500" : (isThemeLight ? "bg-black/[0.05] border-black/[0.06] text-black/50 hover:bg-black/[0.09]" : "bg-white/[0.05] border-white/[0.07] text-white/40 hover:bg-white/[0.09]"))}
+              className={cn("shrink-0 w-10 h-10 rounded-xl flex items-center justify-center transition-all border", showEmojiPicker ? "bg-rose-500/[0.12] border-rose-500/30 text-rose-500" : (isThemeLight ? "bg-black/[0.05] border-black/[0.06] text-black/50 hover:bg-black/[0.09]" : "bg-white/[0.05] border-white/[0.07] text-white/40 hover:bg-white/[0.09]"))}
             >
-              <Smile className="w-6 h-6" />
+              <Smile className="w-5 h-5" />
             </button>
 
             <div className="flex-1 relative flex items-center group">
@@ -461,7 +461,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
                 onFocus={() => { if (isListening) stopListening(); }}
                 placeholder={isListening ? "Listening..." : "Message..."}
                 className={cn(
-                  "flex-1 h-12 pl-5 pr-12 rounded-2xl text-[14px] font-medium outline-none transition-all border focus:ring-2 focus:ring-[#EB4898]/20",
+                  "flex-1 h-10 pl-4 pr-10 rounded-xl text-[14px] font-medium outline-none transition-all border focus:ring-2 focus:ring-[#EB4898]/20",
                   isThemeLight ? "bg-white border-black/10 text-black placeholder:text-black/30" : "bg-[#121212] border-white/5 text-white placeholder:text-white/10"
                 )}
                 disabled={sendMessage.isPending}
@@ -502,9 +502,9 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
             <button
               type="submit"
               disabled={!newMessage.trim() || sendMessage.isPending}
-              className={cn("shrink-0 w-14 h-14 rounded-2xl flex items-center justify-center transition-all", newMessage.trim() ? "bg-white text-black shadow-xl hover:scale-105 active:scale-95" : (isThemeLight ? "bg-black/[0.05] text-black/10 border border-black/[0.06]" : "bg-white/[0.05] text-white/10 border border-white/[0.05]"))}
+              className={cn("shrink-0 w-11 h-11 rounded-xl flex items-center justify-center transition-all", newMessage.trim() ? "bg-white text-black shadow-xl hover:scale-105 active:scale-95" : (isThemeLight ? "bg-black/[0.05] text-black/10 border border-black/[0.06]" : "bg-white/[0.05] text-white/10 border border-white/[0.05]"))}
             >
-              <Send className="w-6 h-6" />
+              <Send className="w-5 h-5" />
             </button>
           </form>
         </div>
