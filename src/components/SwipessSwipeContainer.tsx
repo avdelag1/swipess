@@ -54,7 +54,6 @@ import { SwipeDeckBackButton } from './swipe/SwipeDeckBackButton';
 import { usePullDownToDismiss } from './swipe/usePullDownToDismiss';
 
 import { ReportDialog } from './ReportDialog';
-import { ConnectingOverlay } from './ConnectingOverlay';
 
 // FIX #3: Lazy-load modals 
 const SwipeInsightsModal = lazy(() => import('./SwipeInsightsModal').then(m => ({ default: m.SwipeInsightsModal })));
@@ -123,7 +122,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
   const [filterDialogOpen, setFilterDialogOpen] = useState(false);
   const [selectedListing, setSelectedListing] = useState<any | null>(null);
   const [reportDialogOpen, setReportDialogOpen] = useState(false);
-  const [isConnecting, setIsConnecting] = useState(false);
 
   // Epic Match State
   const [matchData, setMatchData] = useState<{ client: any, owner: any } | null>(null);
@@ -861,18 +859,12 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
       if (result?.conversationId) {
         setMessageDialogOpen(false);
         setDirectMessageDialogOpen(false);
-        setIsConnecting(true);
-        
-        // Let the animation play for 2.2 seconds for premium processing feel
-        await new Promise(resolve => setTimeout(resolve, 2200));
-        
         navigate(`/messages?conversationId=${result.conversationId}`);
       }
     } catch (err) {
       appToast.error('Error', err instanceof Error ? err.message : 'Could not start conversation');
     } finally {
       setIsCreatingConversation(false);
-      setIsConnecting(false);
       endNavigation();
     }
   };
@@ -1151,10 +1143,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
         document.body
       )}
 
-      <ConnectingOverlay 
-        isOpen={isConnecting}
-        recipientName={selectedListing?.title || selectedListing?.name || 'Resident'}
-      />
     </>
   );
 };
