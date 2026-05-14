@@ -182,53 +182,61 @@ export function MaintenanceGate({ children }: { children: React.ReactNode }) {
         </motion.form>
 
         {/* Request access toggle */}
-        <div className="mt-6 flex flex-col items-center">
-          <button
+        <div className="mt-6 flex flex-col items-center gap-3">
+          <motion.button
             onClick={() => setShowRequest(v => !v)}
-            className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors group"
+            whileTap={{ scale: 0.95 }}
+            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
-            <MessageSquare className="w-3.5 h-3.5" />
-            {showRequest ? "Hide request form" : "Don't have a code? Request access"}
-            <motion.div
+            <MessageSquare className="w-3.5 h-3.5 shrink-0" />
+            <span>{showRequest ? "Hide request form" : "Don't have a code? Request access"}</span>
+            <motion.span
               animate={{ rotate: showRequest ? 180 : 0 }}
               transition={{ type: "spring", stiffness: 300, damping: 22 }}
+              className="shrink-0"
             >
               <ChevronDown className="w-3.5 h-3.5" />
-            </motion.div>
-          </button>
+            </motion.span>
+          </motion.button>
 
-          {/* Animated arrow pointing down to form */}
+          {/* Pulsing dot + bouncing arrow when form is hidden */}
           <AnimatePresence>
             {!showRequest && (
               <motion.div
-                key="arrow"
-                initial={{ opacity: 0, y: -4 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
-                className="mt-2"
+                key="arrow-hint"
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                transition={{ duration: 0.25 }}
+                className="flex flex-col items-center gap-1"
               >
                 <motion.div
-                  animate={{ y: [0, 6, 0] }}
-                  transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }}
-                  className="w-6 h-6 rounded-full border border-border bg-card flex items-center justify-center shadow-sm"
+                  animate={{ y: [0, 7, 0] }}
+                  transition={{ duration: 1.4, repeat: Infinity, ease: [0.45, 0, 0.55, 1] }}
+                  className="w-7 h-7 rounded-full border border-primary/25 bg-primary/8 flex items-center justify-center shadow-[0_0_12px_rgba(var(--primary-rgb,255,77,0)/0.18)]"
                 >
-                  <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />
+                  <ChevronDown className="w-3.5 h-3.5 text-primary/60" />
                 </motion.div>
+                <motion.div
+                  animate={{ opacity: [0.3, 0.7, 0.3] }}
+                  transition={{ duration: 1.4, repeat: Infinity }}
+                  className="w-1 h-1 rounded-full bg-primary/40"
+                />
               </motion.div>
             )}
           </AnimatePresence>
         </div>
 
         {/* Request form */}
-        <AnimatePresence>
+        <AnimatePresence initial={false}>
           {showRequest && (
             <motion.div
               key="request-form"
-              initial={{ opacity: 0, height: 0, y: -10 }}
-              animate={{ opacity: 1, height: "auto", y: 0 }}
-              exit={{ opacity: 0, height: 0, y: -10 }}
-              transition={{ type: "spring", stiffness: 260, damping: 26 }}
-              className="overflow-hidden"
+              initial={{ opacity: 0, y: -12, scale: 0.97 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -8, scale: 0.97 }}
+              transition={{ type: "spring", stiffness: 320, damping: 28 }}
+              style={{ transformOrigin: "top center" }}
             >
               <div className="mt-5 rounded-2xl border border-border bg-card/60 backdrop-blur-sm p-5 space-y-4">
                 <div className="flex items-center gap-2 mb-1">

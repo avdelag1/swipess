@@ -272,7 +272,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
         }}
       >
         {/* INNER WRAPPER: Ensures flex-grow works correctly for child pages */}
-        <div className={cn("w-full flex flex-col min-h-0", isSwipeDeck ? "h-full flex-1 overflow-hidden" : "flex-grow min-h-full")}>
+        <div className={cn("w-full flex flex-col min-h-0", isSwipeDeck ? "h-full flex-1 overflow-hidden" : "flex-grow min-h-full pb-[var(--bottom-nav-height)]")}>
           {children}
         </div>
       </main>

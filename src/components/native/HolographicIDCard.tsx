@@ -35,9 +35,9 @@ export const HolographicIDCard = ({ profile }: { profile: any }) => {
     <motion.div
       style={{
         perspective: 1000,
+        touchAction: 'pan-y',
       }}
       onMouseMove={handleMouse}
-      onTouchMove={handleMouse}
       onMouseLeave={handleMouseLeave}
       className="relative w-full group"
     >
