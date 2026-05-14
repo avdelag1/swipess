@@ -432,75 +432,29 @@ export function useStartConversation() {
       otherUserId: string;
       listingId?: string;
       initialMessage: string;
-      canStartNewConversation: boolean;
+      canStartNewConversation?: boolean;
     }) => {
       if (!user?.id) throw new Error('Not authenticated');
-
-      const { data: existingConversations, error: existingError } = await supabase
-        .from('conversations')
-        .select('id')
-        .or(`and(client_id.eq.${user.id},owner_id.eq.${otherUserId}),and(client_id.eq.${otherUserId},owner_id.eq.${user.id})`);
-
-      if (existingError) {
-        throw new Error('Failed to check existing conversations');
+      // Reject demo / placeholder IDs that cannot exist in the backend.
+      if (!otherUserId || otherUserId.length < 30 || otherUserId.startsWith('demo-')) {
+        throw new Error('This profile is a sample and cannot receive messages yet.');
       }
 
-      const existingConversation = existingConversations?.[0];
-      let conversationId = existingConversation?.id;
+      const { data, error } = await (supabase as any).rpc('start_conversation_with_message', {
+        p_other_user_id: otherUserId,
+        p_initial_message: initialMessage,
+        p_listing_id: listingId ?? null,
+      });
 
-      if (!conversationId && !canStartNewConversation) {
-        throw new Error('QUOTA_EXCEEDED');
+      if (error) {
+        throw new Error(error.message || 'Failed to start conversation');
       }
 
-      if (!conversationId) {
-        let myRole = 'client';
-        let _otherRole = 'client';
+      const row = Array.isArray(data) ? data[0] : data;
+      const conversationId: string | undefined = row?.conversation_id;
+      if (!conversationId) throw new Error('Could not open conversation');
 
-        try {
-          const { data: myRoleData } = await supabase.from('user_roles').select('role').eq('user_id', user.id).maybeSingle();
-          const { data: otherRoleData } = await supabase.from('user_roles').select('role').eq('user_id', otherUserId).maybeSingle();
-          myRole = myRoleData?.role || 'client';
-          _otherRole = otherRoleData?.role || 'client';
-        } catch (_e) {
-          myRole = 'client'; _otherRole = 'owner';
-        }
-
-        const clientId = myRole === 'client' ? user.id : otherUserId;
-        const ownerId = myRole === 'owner' ? user.id : otherUserId;
-
-        const { data: newConversation, error: conversationError } = await supabase
-          .from('conversations')
-          .insert({
-            client_id: clientId,
-            owner_id: ownerId,
-            listing_id: listingId,
-            status: 'active'
-          })
-          .select()
-          .single();
-
-        if (conversationError) throw new Error(`Failed to create conversation: ${conversationError.message}`);
-        conversationId = newConversation.id;
-      }
-
-      const { data: message, error: messageError } = await supabase
-        .from('conversation_messages')
-        .insert({
-          conversation_id: conversationId,
-          sender_id: user.id,
-          content: initialMessage,
-          message_text: initialMessage,
-          message_type: 'text'
-        })
-        .select()
-        .single();
-
-      if (messageError) throw new Error(`Failed to send message: ${messageError.message}`);
-
-      const { error: updateError } = await supabase.from('conversations').update({ last_message_at: new Date().toISOString() }).eq('id', conversationId);
-      logSupabaseError('conversations.update.last_message_at(starter)', updateError);
-
-      return { conversationId, message };
+      return { conversationId, message: { id: row?.message_id }, created: !!row?.created };
     },
     onSuccess: async () => {
       await queryClient.refetchQueries({ queryKey: ['conversations'] });
