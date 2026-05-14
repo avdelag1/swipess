@@ -123,6 +123,26 @@ async function resetPreviewRuntimeState() {
 }
 
 async function bootstrap() {
+  // EMERGENCY RESET: ?reset=1 in URL wipes all state so users can escape crash loops
+  if (window.location.search.includes('reset=1')) {
+    try {
+      sessionStorage.clear();
+      localStorage.removeItem('swipe-deck-store');
+      localStorage.removeItem('swipe-deck-version');
+      localStorage.removeItem('swipess_global_reload_count');
+      if ('serviceWorker' in navigator) {
+        const regs = await navigator.serviceWorker.getRegistrations();
+        await Promise.all(regs.map(r => r.unregister()));
+      }
+      if ('caches' in window) {
+        const keys = await caches.keys();
+        await Promise.all(keys.map(k => caches.delete(k)));
+      }
+    } catch (_) {}
+    window.location.replace(window.location.pathname);
+    return;
+  }
+
   const shouldReload = await resetPreviewRuntimeState();
   if (shouldReload) {
     window.location.reload();
