@@ -23,6 +23,7 @@ import { usePrefetchImages } from '@/hooks/usePrefetchImages';
 import { usePrefetchManager, useSwipePrefetch } from '@/hooks/usePrefetchManager';
 import { useSwipeDeckStore, persistDeckToSession } from '@/state/swipeDeckStore';
 import { useFilterStore } from '@/state/filterStore';
+import { useChromeReveal } from '@/hooks/useChromeReveal';
 import { useShallow } from 'zustand/react/shallow';
 import { useSwipeDismissal } from '@/hooks/useSwipeDismissal';
 import { useSwipeSounds } from '@/hooks/useSwipeSounds';
@@ -76,6 +77,7 @@ const ClientSwipeContainerComponent = ({
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { isLight } = useAppTheme();
+  const { isChromeVisible } = useChromeReveal();
   // PERF: Get userId from auth to pass to query (avoids getUser() inside queryFn)
   const { user } = useAuth();
 
@@ -1079,19 +1081,25 @@ const ClientSwipeContainerComponent = ({
         {/* 🛸 ACTION BAR: Floating over the card near the bottom nav */}
         {topCard && (
           <motion.div
-            className="absolute bottom-[calc(var(--bottom-nav-height,64px)+8px)] left-0 right-0 z-[60] flex justify-center pointer-events-auto"
+            className="absolute bottom-[calc(var(--bottom-nav-height,64px)+8px)] left-0 right-0 z-[60] flex justify-center"
             style={{ opacity: pullDown.opacity, y: pullDown.y }}
           >
-            <SwipeActionButtonBar
-              onLike={handleButtonLike}
-              onDislike={handleButtonDislike}
-              onShare={handleShare}
-              onInsights={() => handleInsights(topCard.user_id)}
-              onUndo={undoLastSwipe}
-              onMessage={() => handleConnect(topCard.user_id)}
-              onReport={() => { triggerHaptic('medium'); setReportDialogOpen(true); }}
-              canUndo={canUndo}
-            />
+            <motion.div
+              animate={{ opacity: isChromeVisible ? 1 : 0, y: isChromeVisible ? 0 : 10 }}
+              transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
+              style={{ pointerEvents: isChromeVisible ? 'auto' : 'none' }}
+            >
+              <SwipeActionButtonBar
+                onLike={handleButtonLike}
+                onDislike={handleButtonDislike}
+                onShare={handleShare}
+                onInsights={() => handleInsights(topCard.user_id)}
+                onUndo={undoLastSwipe}
+                onMessage={() => handleConnect(topCard.user_id)}
+                onReport={() => { triggerHaptic('medium'); setReportDialogOpen(true); }}
+                canUndo={canUndo}
+              />
+            </motion.div>
           </motion.div>
         )}
       </div>
