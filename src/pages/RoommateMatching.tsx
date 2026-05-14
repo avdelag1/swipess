@@ -87,7 +87,7 @@ export default function RoommateMatching() {
       setMatchedProfile(client.user_id === user?.id ? owner : client);
       setShowMatch(true);
       triggerMatchConfetti();
-      triggerHaptic('notificationSuccess');
+      triggerHaptic('success');
     }
   });
 
