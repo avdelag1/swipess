@@ -172,11 +172,50 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
+  // SINGLE SOURCE OF TRUTH: only the two swipe deck routes are locked.
+  // Every other route scrolls inside this container.
+  const isSwipeDeck = useMemo(() => {
+    const path = location.pathname;
+    return path === '/client/dashboard' || path === '/client/dashboard/' ||
+           path === '/owner/dashboard'  || path === '/owner/dashboard/';
+  }, [location.pathname]);
+
+  const isRadioRoute = useMemo(() => location.pathname.includes('/radio'), [location.pathname]);
+  const isCameraRoute = useMemo(() => location.pathname.includes('/camera'), [location.pathname]);
+
+  const isFullScreenRoute = useMemo(() => {
+    const scrollExclusions = ['likes', 'interested', 'liked', 'profile', 'legal', 'settings'];
+    if (scrollExclusions.some(path => location.pathname.includes(path))) return false;
+    
+    const isRoommatesPageLocal = location.pathname.startsWith('/explore/roommates');
+    const isSpecialSubPage = [
+      // Full screen camera/roommate pages stay edge-to-edge
+    ].some(path => location.pathname === path || location.pathname === path + '/');
+    
+    return isCameraRoute || isRadioRoute || isRoommatesPageLocal || isSpecialSubPage;
+  }, [location.pathname, isCameraRoute, isRadioRoute]);
+
+  const isZeroScrollDashboard = useMemo(() => {
+    const path = location.pathname;
+    return path === '/client/dashboard' || path === '/owner/dashboard' || path === '/client/dashboard/' || path === '/owner/dashboard/';
+  }, [location.pathname]);
+
+  // HOOKS THAT DEPEND ON MEMOS
   const { isRefreshing, pullDistance, triggered } = usePullToRefresh({
     containerRef: scrollContainerRef,
     disabled: isSwipeDeck,
   });
 
+  const { resetFocus } = useFocusMode(6000);
+
+  useScrollDirection({
+    threshold: 20,
+    showAtTop: true,
+    targetSelector: '#dashboard-scroll-container',
+    resetTrigger: location.pathname
+  });
+
+  // EFFECTS
   useEffect(() => {
     const observer = createLinkObserver();
     if (!observer || !scrollContainerRef.current) return;
@@ -203,54 +242,14 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     }
   }, [location.pathname]);
 
-  const clientSwipePaths = ['/client/dashboard', '/client/profile', '/client/liked-properties', '/messages', '/explore/roommates'];
-  const ownerSwipePaths = ['/owner/dashboard', '/owner/profile', '/owner/liked-clients', '/owner/properties', '/messages'];
-
-  // SINGLE SOURCE OF TRUTH: only the two swipe deck routes are locked.
-  // Every other route scrolls inside this container.
-  const isSwipeDeck = useMemo(() => {
-    const path = location.pathname;
-    return path === '/client/dashboard' || path === '/client/dashboard/' ||
-           path === '/owner/dashboard'  || path === '/owner/dashboard/';
-  }, [location.pathname]);
-
   useEffect(() => {
     document.body.classList.toggle('swipe-deck-active', isSwipeDeck);
     return () => document.body.classList.remove('swipe-deck-active');
   }, [isSwipeDeck]);
 
-  const { resetFocus } = useFocusMode(6000);
-
-  useScrollDirection({
-    threshold: 20,
-    showAtTop: true,
-    targetSelector: '#dashboard-scroll-container',
-    resetTrigger: location.pathname
-  });
-
   useEffect(() => {
     resetFocus();
   }, [location.pathname, resetFocus]);
-
-  const isRadioRoute = useMemo(() => location.pathname.includes('/radio'), [location.pathname]);
-  const isCameraRoute = useMemo(() => location.pathname.includes('/camera'), [location.pathname]);
-
-  const isFullScreenRoute = useMemo(() => {
-    const scrollExclusions = ['likes', 'interested', 'liked', 'profile', 'legal', 'settings'];
-    if (scrollExclusions.some(path => location.pathname.includes(path))) return false;
-    
-    const isRoommatesPageLocal = location.pathname.startsWith('/explore/roommates');
-    const isSpecialSubPage = [
-      // Full screen camera/roommate pages stay edge-to-edge
-    ].some(path => location.pathname === path || location.pathname === path + '/');
-    
-    return isCameraRoute || isRadioRoute || isRoommatesPageLocal || isSpecialSubPage;
-  }, [location.pathname, isCameraRoute, isRadioRoute]);
-
-  const isZeroScrollDashboard = useMemo(() => {
-    const path = location.pathname;
-    return path === '/client/dashboard' || path === '/owner/dashboard' || path === '/client/dashboard/' || path === '/owner/dashboard/';
-  }, [location.pathname]);
 
   // useSwipeNavigation removed to prevent horizontal scrolling interference with listing details
 
