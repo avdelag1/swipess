@@ -9,6 +9,7 @@ import { calculateListingMatch } from './matchCalculators';
 import { pwaImagePreloader, getCardImageUrl } from '@/utils/imageOptimization';
 import { runIdleTask } from '@/lib/utils';
 import { useAdminUserIds } from '../useAdminUserIds';
+import { SWIPE_CARD_FIELDS } from './swipeCardFields';
 
 import { SWIPE_CARD_FIELDS } from './swipeCardFields';
 

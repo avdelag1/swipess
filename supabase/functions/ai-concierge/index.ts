@@ -173,7 +173,7 @@ async function searchProfiles(query: string): Promise<string> {
     // Build profile query — only public-safe fields
     let profileQuery = supabase
       .from("profiles")
-      .select("user_id, full_name, age, nationality, city, neighborhood, active_mode, avatar_url")
+      .select("user_id, full_name, age, nationality, city, neighborhood, active_mode, avatar_url, updated_at")
       .eq("is_active", true)
       .not("full_name", "is", null)
       .limit(10)
@@ -186,6 +186,13 @@ async function searchProfiles(query: string): Promise<string> {
       profileQuery = profileQuery.ilike("neighborhood", `%${matchedNeighborhood}%`);
     }
 
+    // Keyword search on name/bio
+    const keywords = q.split(/\s+/).filter(w => w.length > 2);
+    if (keywords.length > 0) {
+      const orFilter = keywords.map(kw => `full_name.ilike.%${kw}%`).join(",");
+      profileQuery = profileQuery.or(orFilter);
+    }
+
     const { data: profiles, error } = await profileQuery;
     if (error || !profiles || profiles.length === 0) return "";
 
@@ -193,12 +200,12 @@ async function searchProfiles(query: string): Promise<string> {
     const userIds = profiles.map(p => p.user_id);
     const { data: clientProfiles } = await supabase
       .from("client_profiles")
-      .select("user_id, nationality, languages, interests, intentions")
+      .select("user_id, nationality, languages, interests, intentions, profile_images")
       .in("user_id", userIds);
 
     const clientMap = new Map((clientProfiles ?? []).map(cp => [cp.user_id, cp]));
 
-    return profiles.map(p => {
+    const lines = profiles.map(p => {
       const cp = clientMap.get(p.user_id);
       const name = p.full_name || "Anonymous";
       const firstName = name.split(" ")[0];
@@ -208,13 +215,30 @@ async function searchProfiles(query: string): Promise<string> {
       if (p.nationality || cp?.nationality) desc += ` — ${p.nationality || cp?.nationality}`;
       if (p.neighborhood || p.city) desc += ` in ${p.neighborhood || p.city}`;
       if (p.active_mode) desc += ` (${p.active_mode} mode)`;
-      if (cp?.intentions) {
-        const intentions = Array.isArray(cp.intentions) ? cp.intentions.join(", ") : "";
-        if (intentions) desc += ` | Looking for: ${intentions}`;
-      }
       desc += ` → [View Profile](/profile/${p.user_id})`;
       return desc;
     }).join("\n");
+
+    const structured = profiles.map(p => {
+      const cp = clientMap.get(p.user_id);
+      let img = p.avatar_url || "";
+      if (!img && Array.isArray(cp?.profile_images) && cp.profile_images.length > 0) {
+        const first = cp.profile_images[0];
+        img = typeof first === "string" ? first : (first?.url || first?.src || "");
+      }
+      return {
+        id: p.user_id,
+        name: p.full_name,
+        age: p.age,
+        nationality: p.nationality || cp?.nationality,
+        location: p.neighborhood || p.city,
+        mode: p.active_mode,
+        image: img,
+        intentions: cp?.intentions,
+      };
+    });
+
+    return `${lines}\n[PROFILES:${JSON.stringify(structured)}]`;
   } catch (e) {
     console.error("[AI] Profile search error:", e);
     return "";
@@ -223,7 +247,7 @@ async function searchProfiles(query: string): Promise<string> {
 
 // ─── Listing Search ─────────────────────────────────────────────────────────
 
-function detectListingIntent(query: string): { isListing: boolean; categories?: string[]; maxPrice?: number; bedrooms?: number[]; locations?: string[] } {
+function detectListingIntent(query: string): { isListing: boolean; categories?: string[]; maxPrice?: number; bedrooms?: number[]; locations?: string[]; userId?: string } {
   const q = query.toLowerCase();
   const isListing = /\b(find|search|looking for|show me|show|pull|give me|send|share|preview|open|browse|recommend|available|any|apartment|apartments|house|houses|room|rooms|flat|flats|studio|studios|villa|villas|condo|condos|car|vehicle|motorcycle|moto|bike|bicycle|service|services|worker|workers|plumber|electrician|rent|rental|buy|sale|listing|listings|property|properties)\b/.test(q);
   if (!isListing) return { isListing: false };
@@ -245,7 +269,7 @@ function detectListingIntent(query: string): { isListing: boolean; categories?: 
   for (const match of bedroomMatches) {
     bedrooms.push(parseInt(match[1]));
   }
-  if (q.includes("studio") && !bedrooms.includes(0)) bedrooms.push(0); // Studio is often 0 bedrooms in DB
+  if (q.includes("studio") && !bedrooms.includes(0)) bedrooms.push(0);
 
   // Extract neighborhood/location
   const neighborhoodList = ['aldea zama','la veleta','region 15','tulum centro','tulum town','beach zone','zona hotelera','tumben-ha','selvamar','villas tulum','ejido sur'];
@@ -268,6 +292,10 @@ async function searchListings(intent: ReturnType<typeof detectListingIntent>): P
       .order("created_at", { ascending: false });
 
     // Apply filters from intent
+    if (intent.userId) {
+      query = query.or(`user_id.eq.${intent.userId},owner_id.eq.${intent.userId}`);
+    }
+
     if (intent.categories && intent.categories.length > 0) {
       query = query.in("category", intent.categories);
     }
@@ -281,7 +309,6 @@ async function searchListings(intent: ReturnType<typeof detectListingIntent>): P
     }
 
     if (intent.locations && intent.locations.length > 0) {
-      // Create OR filter for locations
       const orFilter = intent.locations.map(loc => `neighborhood.ilike.%${loc}%`).join(",");
       query = query.or(orFilter);
     }
@@ -1048,10 +1075,13 @@ When suggesting the user navigate somewhere in the app, include a navigation act
 [NAV:/local-intel] — Tulum Local Knowledge
 [NAV:/document-vault] — Access My Documents
 
-## LISTING PREVIEWS (CRITICAL):
 - When you mention a property, vehicle, or service, you MUST include its listing tag: `[LISTING:id]`.
 - Also include a direct link: `→ [Details](/listing/id)`.
 - If a matching listing is found in context, use it. If not, use the "Fallback" listings provided.
+
+## PROFILE PREVIEWS:
+- When you mention a user or professional, link to their profile: `→ [View Profile](/profile/id)`.
+- You can suggest users from the "SWIPESS USERS MATCHING THIS QUERY" section.
 `;
 >>>>>>> 717f66fc (feat: stabilize messaging UX with premium connection animations and holographic identity hardening)
   }
@@ -1398,6 +1428,24 @@ Deno.serve(async (req) => {
     // Parallel context gathering — ALL at once
     const isProfileQuery = detectProfileIntent(lastUserMessage);
     const listingIntent = detectListingIntent(lastUserMessage);
+
+    // If it's a listing query that mentions a specific user, try to find that user first
+    if (listingIntent.isListing) {
+      const nameMatch = lastUserMessage.match(/(?:from|by|of|owner)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)/);
+      if (nameMatch) {
+        const name = nameMatch[1];
+        const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY || SUPABASE_ANON_KEY);
+        const { data: foundUser } = await supabase
+          .from("profiles")
+          .select("user_id")
+          .ilike("full_name", `%${name}%`)
+          .limit(1);
+        if (foundUser && foundUser.length > 0) {
+          listingIntent.userId = foundUser[0].user_id;
+        }
+      }
+    }
+
     const wantsPromotedContacts = detectPromotedContactIntent(lastUserMessage);
     // Phase 1: local data (fast DB queries)
     const [promotedContacts, knowledge, memories, listings, profileResults] = await Promise.all([

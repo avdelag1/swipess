@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Bell, BellRing, MessageSquare, Flame, Crown } from 'lucide-react';
@@ -12,6 +12,25 @@ export function PushNotificationPrompt() {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { subscribe, isSupported, isSubscribed } = usePushNotifications();
+
+  useEffect(() => {
+    // Only auto-open if supported, not subscribed, and not recently dismissed
+    if (isSupported && !isSubscribed) {
+      const dismissedAt = localStorage.getItem(NOTIFICATION_PROMPT_KEY);
+      if (!dismissedAt) {
+        // Add a slight delay to let the app settle
+        const timer = setTimeout(() => setIsOpen(true), 2500);
+        return () => clearTimeout(timer);
+      } else {
+        // Check if it's been more than 7 days since dismissal
+        const daysSinceDismissed = (Date.now() - new Date(dismissedAt).getTime()) / (1000 * 60 * 60 * 24);
+        if (daysSinceDismissed > 7) {
+          const timer = setTimeout(() => setIsOpen(true), 2500);
+          return () => clearTimeout(timer);
+        }
+      }
+    }
+  }, [isSupported, isSubscribed]);
 
   const handleEnableNotifications = async () => {
     setIsLoading(true);
