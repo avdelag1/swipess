@@ -7,7 +7,11 @@
 -- ============================================================
 
 -- 1. Create / replace the participant check function
-CREATE OR REPLACE FUNCTION public.is_conversation_participant(
+-- Must DROP first — live DB has the function with different param names (c_id)
+-- and PostgreSQL won't let CREATE OR REPLACE change param names.
+DROP FUNCTION IF EXISTS public.is_conversation_participant(uuid, uuid);
+
+CREATE FUNCTION public.is_conversation_participant(
   _user_id        uuid,
   _conversation_id uuid
 )
