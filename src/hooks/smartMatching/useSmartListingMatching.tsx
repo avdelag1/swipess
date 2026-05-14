@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import type { Listing } from '../useListings';
 import { logger } from '@/utils/prodLogger';
 import { normalizeCategoryName } from '@/types/filters';
-import { ListingFilters } from './types';
+import type { ListingFilters } from './types';
 import { calculateListingMatch } from './matchCalculators';
 import { pwaImagePreloader, getCardImageUrl } from '@/utils/imageOptimization';
 import { runIdleTask } from '@/lib/utils';

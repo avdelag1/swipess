@@ -3,7 +3,6 @@ import { memo, useState, useEffect } from 'react';
 import { useAppTheme } from '@/hooks/useAppTheme';
 import { TokensModal } from './TokensModal';
 import { useModalStore } from '@/state/modalStore';
-import { SmartSuspense } from './SmartSuspense';
 import { useAuth } from '@/hooks/useAuth';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useListings } from '@/hooks/useListings';

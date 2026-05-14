@@ -7,13 +7,9 @@ import { useLocation } from "react-router-dom";
 import { useResponsiveContext } from '@/contexts/ResponsiveContext'
 import { prefetchRoleRoutes, createLinkObserver } from '@/utils/routePrefetcher'
 import { useLayoutEffect } from 'react'
-import { logger } from '@/utils/prodLogger'
 import useAppTheme from '@/hooks/useAppTheme'
-import { useSwipeNavigation } from '@/hooks/useSwipeNavigation'
 import { cn } from '@/lib/utils'
 import { useQueryClient } from '@tanstack/react-query'
-import { useCategories } from '@/state/filterStore'
-import { QuickFilterCategory } from '@/types/filters'
 import { usePullToRefresh } from '@/hooks/usePullToRefresh'
 import { PullToRefreshIndicator } from '@/components/PullToRefreshIndicator'
 
@@ -23,7 +19,6 @@ import { GlobalDialogs } from './GlobalDialogs'
 import { useModalStore } from '@/state/modalStore'
 import { useFocusMode } from '@/hooks/useFocusMode'
 import { useScrollDirection } from '@/hooks/useScrollDirection'
-import { RadioMiniPlayer } from './RadioMiniPlayer'
 
 // =============================================================================
 // PERFORMANCE FIX: SessionStorage caching for dashboard checks
