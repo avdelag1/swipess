@@ -46,11 +46,13 @@ function parseNavActions(content: string): {
   draftActions: { category: string; data: any }[];
   filterAction: any | null;
   listings: any[];
+  profiles: any[];
 } {
   const navPaths: string[] = [];
   const draftActions: { category: string; data: any }[] = [];
   let filterAction = null;
   let listings: any[] = [];
+  let profiles: any[] = [];
   
   let cleanContent = content.replace(NAV_PATTERN, (_, path) => {
     navPaths.push(path);
@@ -88,9 +90,20 @@ function parseNavActions(content: string): {
     return '';
   });
 
+  const PROFILES_PATTERN = /\[PROFILES:(\[[\s\S]*?\])\]/g;
+  cleanContent = cleanContent.replace(PROFILES_PATTERN, (_, jsonData) => {
+    try {
+      const parsed = JSON.parse(jsonData);
+      if (Array.isArray(parsed)) profiles = parsed;
+    } catch (e) {
+      console.error('Failed to parse profiles JSON:', e);
+    }
+    return '';
+  });
+
   cleanContent = cleanContent.replace(/\n{3,}/g, '\n\n').trim();
   
-  return { cleanContent, navPaths, draftActions, filterAction, listings };
+  return { cleanContent, navPaths, draftActions, filterAction, listings, profiles };
 }
 
 const ConciergePrivacyPortal = memo(({ onAccept, isSwipess }: { onAccept: () => void, isSwipess: boolean }) => (
@@ -192,8 +205,8 @@ const MessageBubble = memo(({ message, isUser, isSwipess, onCopy, onDelete, onTr
   onSpeak?: (id: string, text: string) => void, speakingMsgId: string | null, isSpeaking: boolean
 }) => {
   const [showActions, setShowActions] = useState(false);
-  const { cleanContent, navPaths, draftActions, filterAction, listings } = useMemo(
-    () => isUser ? { cleanContent: message.content, navPaths: [], draftActions: [], filterAction: null, listings: [] } : parseNavActions(message.content),
+  const { cleanContent, navPaths, draftActions, filterAction, listings, profiles } = useMemo(
+    () => isUser ? { cleanContent: message.content, navPaths: [], draftActions: [], filterAction: null, listings: [], profiles: [] } : parseNavActions(message.content),
     [message.content, isUser]
   );
 
@@ -293,6 +306,75 @@ const MessageBubble = memo(({ message, isUser, isSwipess, onCopy, onDelete, onTr
                   try {
                     if (navigator.share) {
                       await navigator.share({ title: l.title, url });
+                    } else {
+                      await navigator.clipboard.writeText(url);
+                      toast.success('Link copied');
+                    }
+                  } catch { /* user cancelled */ }
+                }}
+                className="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/55 backdrop-blur-md text-white flex items-center justify-center border border-white/15 hover:bg-black/75 active:scale-90 transition-all"
+              >
+                <Share2 className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {!isUser && profiles.length > 0 && (
+        <div className="w-full mt-2 grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {profiles.map((p) => (
+            <div
+              key={p.id}
+              className={cn(
+                "group relative overflow-hidden rounded-2xl border text-left transition-all hover:shadow-[0_18px_40px_rgba(0,0,0,0.18)]",
+                isSwipess ? "bg-white/[0.04] border-white/10" : "bg-card border-border/60"
+              )}
+            >
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); onNavigate?.(`/profile/${p.id}`); }}
+                className="w-full text-left active:scale-[0.98] transition-transform"
+              >
+                {p.image && (
+                  <div className="aspect-[16/10] w-full overflow-hidden bg-muted">
+                    <img src={p.image} alt={p.name} loading="lazy" className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500" />
+                  </div>
+                )}
+                <div className="p-3 space-y-1">
+                  <div className="flex items-center justify-between">
+                    <p className={cn("text-sm font-bold leading-tight", isSwipess ? "text-white" : "text-foreground")}>
+                      {p.name?.split(' ')[0] || "User"}{p.age ? `, ${p.age}` : ''}
+                    </p>
+                    {p.nationality && (
+                      <span className="text-[10px] opacity-40 font-bold uppercase">{p.nationality}</span>
+                    )}
+                  </div>
+                  {p.location && (
+                    <p className={cn("text-[11px] font-medium opacity-60 line-clamp-1", isSwipess ? "text-white/70" : "text-muted-foreground")}>
+                      {p.location}
+                    </p>
+                  )}
+                  {p.intentions && Array.isArray(p.intentions) && p.intentions.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {p.intentions.slice(0, 2).map((it: string) => (
+                        <span key={it} className="text-[9px] px-1.5 py-0.5 rounded-md bg-primary/10 text-primary font-black uppercase tracking-tighter">
+                          {it}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </button>
+              <button
+                type="button"
+                aria-label="Share profile"
+                onClick={async (e) => {
+                  e.stopPropagation();
+                  const url = `${window.location.origin}/profile/${p.id}`;
+                  try {
+                    if (navigator.share) {
+                      await navigator.share({ title: p.name, url });
                     } else {
                       await navigator.clipboard.writeText(url);
                       toast.success('Link copied');
