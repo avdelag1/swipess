@@ -36,7 +36,7 @@ const OwnerProfile = () => {
   }
 
   return (
-    <div className={cn("w-full relative overflow-x-hidden min-h-screen", isLight ? "bg-white text-slate-900" : "bg-[#020202] text-white")}>
+    <div className={cn("w-full relative min-h-screen", isLight ? "bg-white text-slate-900" : "bg-[#020202] text-white")}>
 
       {/* 🛸 NEXUS ATMOSPHERIC LAYER */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">

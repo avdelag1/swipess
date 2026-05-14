@@ -14,6 +14,8 @@ import { cn } from '@/lib/utils'
 import { useQueryClient } from '@tanstack/react-query'
 import { useCategories } from '@/state/filterStore'
 import { QuickFilterCategory } from '@/types/filters'
+import { usePullToRefresh } from '@/hooks/usePullToRefresh'
+import { PullToRefreshIndicator } from '@/components/PullToRefreshIndicator'
 
 // SPEED OF LIGHT HOOKS
 import { useWelcomeState } from "@/hooks/useWelcomeState"
@@ -175,6 +177,11 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
+  const { isRefreshing, pullDistance, triggered } = usePullToRefresh({
+    containerRef: scrollContainerRef,
+    disabled: isSwipeDeck,
+  });
+
   useEffect(() => {
     const observer = createLinkObserver();
     if (!observer || !scrollContainerRef.current) return;
@@ -258,6 +265,14 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       isDark ? "dark dark-matte" : "light white-matte",
       isSwipeDeck && "bg-swipe-frame"
     )}>
+      {!isSwipeDeck && (
+        <PullToRefreshIndicator
+          pullDistance={pullDistance}
+          isRefreshing={isRefreshing}
+          triggered={triggered}
+        />
+      )}
+
       <main
         ref={scrollContainerRef}
         id="dashboard-scroll-container"
@@ -272,7 +287,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
         }}
       >
         {/* INNER WRAPPER: Ensures flex-grow works correctly for child pages */}
-        <div className={cn("w-full flex flex-col min-h-0", isSwipeDeck ? "h-full flex-1 overflow-hidden" : "flex-grow min-h-full")}>
+        <div className={cn("w-full flex flex-col min-h-0", isSwipeDeck ? "h-full flex-1 overflow-hidden" : "flex-grow min-h-full pb-[var(--bottom-nav-height)]")}>
           {children}
         </div>
       </main>

@@ -123,8 +123,8 @@ export function SwipeInsightsModal({ open, onOpenChange, listing, profile }: Swi
 
   const surface = isLight ? 'bg-white' : 'bg-[#0a0a0a]';
   const textPri = isLight ? 'text-slate-900' : 'text-white';
-  const textSec = isLight ? 'text-slate-500' : 'text-white/60';
-  const textTer = isLight ? 'text-slate-400' : 'text-white/40';
+  const textSec = isLight ? 'text-slate-700' : 'text-white/60';
+  const textTer = isLight ? 'text-slate-600' : 'text-white/40';
   const card = isLight ? 'bg-slate-100/80 border-slate-200' : 'bg-white/[0.04] border-white/10';
   const chipBg = isLight ? 'bg-slate-100 text-slate-700 border-slate-200' : 'bg-white/[0.06] text-white/80 border-white/10';
 
