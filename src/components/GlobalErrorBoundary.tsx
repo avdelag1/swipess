@@ -38,20 +38,36 @@ class GlobalErrorBoundary extends Component<Props, State> {
         setTimeout(() => window.location.reload(), 600);
         return;
       }
+      // Reload limit hit — clear potentially corrupted stores so next manual reload is clean
+      localStorage.removeItem('swipe-deck-store');
+      localStorage.removeItem('swipe-deck-version');
     } catch { /* ignore */ }
 
     this.setState({ errorInfo });
   }
 
+  private handleManualReload = () => {
+    try {
+      sessionStorage.removeItem(RELOAD_KEY);
+      sessionStorage.removeItem(RELOAD_TS_KEY);
+      localStorage.removeItem('swipe-deck-store');
+      localStorage.removeItem('swipe-deck-version');
+    } catch { /* ignore */ }
+    window.location.reload();
+  };
+
   public render() {
     if (this.state.hasError) {
-      // Silent self-healing splash — never expose error chrome to users.
       return (
-        <div className="min-h-screen min-h-dvh bg-background flex flex-col items-center justify-center p-6">
-          <div className="flex flex-col items-center gap-5">
-            <div className="w-12 h-12 rounded-full border-2 border-foreground/15 border-t-foreground animate-spin" />
-            <p className="text-sm text-muted-foreground">Reconnecting…</p>
-          </div>
+        <div className="min-h-screen min-h-dvh bg-black flex flex-col items-center justify-center p-6 gap-6">
+          <div className="w-12 h-12 rounded-full border-2 border-white/15 border-t-white/70 animate-spin" />
+          <p className="text-sm text-white/50">Something went wrong</p>
+          <button
+            onClick={this.handleManualReload}
+            className="px-6 py-2.5 rounded-full bg-white/10 border border-white/20 text-white text-sm font-medium active:scale-95 transition-transform"
+          >
+            Tap to refresh
+          </button>
         </div>
       );
     }
