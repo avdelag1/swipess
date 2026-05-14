@@ -43,7 +43,6 @@ import useAppTheme from '@/hooks/useAppTheme';
 import { AtmosphericLayer } from '@/components/AtmosphericLayer';
 import { X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { ConnectingOverlay } from '@/components/ConnectingOverlay';
 
 export function MessagingDashboard() {
   const { user } = useAuth();
@@ -54,8 +53,6 @@ export function MessagingDashboard() {
   const [isStartingConversation, setIsStartingConversation] = useState(false);
   const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
   const [showActivationBanner, setShowActivationBanner] = useState(false);
-  const [isConnecting, setIsConnecting] = useState(false);
-  const [connectingRecipient, setConnectingRecipient] = useState("");
 
   const { data: fetchedRole } = useUserRole(user?.id);
   const userRole = fetchedRole || 'client';
@@ -160,12 +157,6 @@ export function MessagingDashboard() {
       });
       if (result.conversationId) {
         await refetch();
-        setConnectingRecipient("New Connection");
-        setIsConnecting(true);
-        
-        // Premium cinematic delay
-        await new Promise(resolve => setTimeout(resolve, 2200));
-        
         setSelectedConversationId(result.conversationId);
         setSearchParams({});
       }
@@ -173,7 +164,6 @@ export function MessagingDashboard() {
       setSearchParams({});
     } finally {
       setIsStartingConversation(false);
-      setIsConnecting(false);
     }
   }, [conversations, canSendMessage, startConversation, refetch, setSearchParams]);
 
@@ -203,102 +193,13 @@ export function MessagingDashboard() {
               isLight ? "bg-white border-black/5" : "bg-[#0A0A0C] border-white/5"
             )}
           >
-            {otherUser ? (
-              <MessagingInterface
-                conversationId={selectedConversationId}
-                otherUser={otherUser as any}
-                listing={listing}
-                currentUserRole={userRole}
-                onBack={() => { triggerHaptic('medium'); setSelectedConversationId(null); setDirectlyFetchedConversation(null); setSearchParams({}); }}
-              />
-            ) : (
-              <div className="flex-1 flex flex-col items-center justify-center relative overflow-hidden">
-                {/* Background Glows */}
-                <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                  <motion.div
-                    animate={{
-                      scale: [1, 1.2, 1],
-                      opacity: [0.15, 0.25, 0.15],
-                      x: [0, 20, 0],
-                      y: [0, -20, 0],
-                    }}
-                    transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-                    className="absolute -top-1/4 -right-1/4 w-[600px] h-[600px] bg-rose-500/20 blur-[120px] rounded-full"
-                  />
-                  <motion.div
-                    animate={{
-                      scale: [1.2, 1, 1.2],
-                      opacity: [0.1, 0.2, 0.1],
-                      x: [0, -30, 0],
-                      y: [0, 30, 0],
-                    }}
-                    transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-                    className="absolute -bottom-1/4 -left-1/4 w-[600px] h-[600px] bg-violet-600/20 blur-[120px] rounded-full"
-                  />
-                </div>
-
-                <div className="relative z-10 flex flex-col items-center gap-8">
-                  {/* Cinematic Nexus Loader */}
-                  <div className="relative">
-                    <motion.div
-                      animate={{ rotate: 360 }}
-                      transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-                      className="w-24 h-24 rounded-[32px] border-2 border-white/5 flex items-center justify-center bg-black/40 backdrop-blur-xl"
-                    >
-                      <Sparkles className="w-10 h-10 text-white/40" />
-                    </motion.div>
-                    
-                    {/* Orbiting particles */}
-                    {[0, 1, 2].map((i) => (
-                      <motion.div
-                        key={i}
-                        animate={{
-                          rotate: 360,
-                        }}
-                        transition={{
-                          duration: 3 + i,
-                          repeat: Infinity,
-                          ease: "linear"
-                        }}
-                        className="absolute inset-0"
-                      >
-                        <motion.div
-                          animate={{ scale: [1, 1.5, 1], opacity: [0.3, 1, 0.3] }}
-                          transition={{ duration: 2, repeat: Infinity, delay: i * 0.5 }}
-                          className="absolute -top-1 left-1/2 w-1.5 h-1.5 rounded-full bg-rose-500 shadow-[0_0_10px_rgba(244,63,94,0.8)]"
-                        />
-                      </motion.div>
-                    ))}
-                  </div>
-
-                  <div className="flex flex-col items-center gap-3">
-                    <motion.h3
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="text-xl font-black uppercase tracking-tighter text-white"
-                    >
-                      Initializing Nexus
-                    </motion.h3>
-                    
-                    <div className="flex items-center gap-3 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-md">
-                      <div className="flex gap-1">
-                        {[0, 1, 2].map((i) => (
-                          <motion.div
-                            key={i}
-                            animate={{ opacity: [0.3, 1, 0.3] }}
-                            transition={{ duration: 1, repeat: Infinity, delay: i * 0.2 }}
-                            className="w-1 h-1 rounded-full bg-rose-500"
-                          />
-                        ))}
-                      </div>
-                      <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">
-                        Synchronizing Encrypted Stream
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
+            <MessagingInterface
+              conversationId={selectedConversationId}
+              otherUser={(otherUser || { id: 'loading', full_name: 'Connecting...', role: 'client' }) as any}
+              listing={listing}
+              currentUserRole={userRole}
+              onBack={() => { triggerHaptic('medium'); setSelectedConversationId(null); setDirectlyFetchedConversation(null); setSearchParams({}); }}
+            />
           </motion.div>
         </AnimatePresence>
       </div>
@@ -308,8 +209,6 @@ export function MessagingDashboard() {
   return (
     <div className={cn("w-full min-h-[100dvh] transition-colors duration-500 relative", isLight ? "bg-[#ffffff]" : "bg-[#000000]")}>
       <AtmosphericLayer variant="rose" />
-
-      <MessageActivationBanner isVisible={showActivationBanner} onClose={() => setShowActivationBanner(false)} userRole={userRole} variant="conversation-limit" />
 
       <div className="w-full max-w-7xl mx-auto px-6 pt-4 pb-48 relative z-10 space-y-12">
         
@@ -487,11 +386,6 @@ export function MessagingDashboard() {
       </div>
       
       <MessageActivationPackages isOpen={showUpgradeDialog} onClose={() => setShowUpgradeDialog(false)} userRole={userRole} />
-      
-      <ConnectingOverlay 
-        isOpen={isConnecting}
-        recipientName={connectingRecipient}
-      />
     </div>
   );
 }
