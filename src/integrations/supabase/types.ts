@@ -3040,6 +3040,18 @@ export type Database = {
         Args: { _conversation_id: string; _user_id: string }
         Returns: boolean
       }
+      start_conversation_with_message: {
+        Args: {
+          p_initial_message: string
+          p_listing_id?: string
+          p_other_user_id: string
+        }
+        Returns: {
+          conversation_id: string
+          created: boolean
+          message_id: string
+        }[]
+      }
       upsert_user_role: {
         Args: {
           p_role: Database["public"]["Enums"]["app_role"]

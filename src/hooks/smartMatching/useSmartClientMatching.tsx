@@ -298,39 +298,9 @@ export function useSmartClientMatching(
                     });
                 }
 
-                // Helper: append demo clients AFTER real ones. Demos bypass swipe exclusion
-                // so the user can keep practicing repeatedly without losing them.
-                const appendDemoClients = (real: MatchedClientProfile[]): MatchedClientProfile[] => {
-                    if (page !== 0) return real;
-                    const existing = new Set(real.map(r => r.user_id));
-                    const filteredDemos = DEMO_CLIENTS.filter(c => {
-                        if (existing.has(c.user_id)) return false;
-                        if (isRoommateSection && !c.roommate_available) return false;
-                        if (_category && ['buyers', 'renters', 'hire'].includes(_category)) {
-                            const map: Record<string, string> = { buyers: 'buyer', renters: 'renter', hire: 'hire' };
-                            return c.client_type === map[_category];
-                        }
-                        return true;
-                    });
-                    const mapped = filteredDemos.map(c => ({
-                        id: c.user_id, user_id: c.user_id, name: c.full_name,
-                        age: c.age, gender: c.gender,
-                        interests: c.interests || [], preferred_activities: [],
-                        location: { city: c.city },
-                        lifestyle_tags: c.lifestyle_tags || [],
-                        profile_images: c.images || ['/placeholder.svg'],
-                        matchPercentage: 92 + Math.floor(Math.random() * 7),
-                        matchReasons: ['Highly Recommended'],
-                        incompatibleReasons: [],
-                        verified: !!c.onboarding_completed,
-                        roommate_available: !!c.roommate_available,
-                        city: c.city, country: c.country,
-                        client_type: c.client_type,
-                        bio: c.bio,
-                        isDemo: true,
-                    } as unknown as MatchedClientProfile));
-                    return [...real, ...mapped];
-                };
+                // Demo clients are not real backend users and cannot receive messages,
+                // so they are intentionally excluded from the deck. Real profiles only.
+                const appendDemoClients = (real: MatchedClientProfile[]): MatchedClientProfile[] => real;
 
                 // RPC attempt — only use results if they match the current category filter
                 try {

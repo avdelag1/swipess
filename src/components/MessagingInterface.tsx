@@ -13,8 +13,6 @@ import { useAuth } from '@/hooks/useAuth';
 import { useMonthlyMessageLimits } from '@/hooks/useMonthlyMessageLimits';
 import { formatDistanceToNow } from '@/utils/timeFormatter';
 import { useQueryClient } from '@tanstack/react-query';
-import { MessageActivationPackages } from '@/components/MessageActivationPackages';
-import { MessageActivationBanner } from '@/components/MessageActivationBanner';
 import { logger } from '@/utils/prodLogger';
 import { VirtualizedMessageList } from '@/components/VirtualizedMessageList';
 import { useContentModeration } from '@/hooks/useContentModeration';
@@ -65,8 +63,6 @@ const QUICK_EMOJIS = [
 export const MessagingInterface = memo(({ conversationId, otherUser, listing, currentUserRole = 'client', onBack }: MessagingInterfaceProps) => {
   const [newMessage, setNewMessage] = useState('');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
-  const [showActivationBanner, setShowActivationBanner] = useState(false);
   const [showRatingDialog, setShowRatingDialog] = useState(false);
   const { theme, isLight } = useAppTheme();
   const isThemeLight = isLight;
@@ -82,7 +78,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
   const [showConnecting, setShowConnecting] = useState(false);
   const connectingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const { isAtLimit, hasMonthlyLimit, messagesRemaining } = useMonthlyMessageLimits();
+  // Messaging is unlimited for authenticated users — no quota gating in the chat UI.
   const { isOnline } = usePresence(otherUser.id);
   const { startTyping, stopTyping, typingUsers, isConnected } = useRealtimeChat(conversationId);
   useMarkMessagesAsRead(conversationId, true);
@@ -278,13 +274,6 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
 
   return (
     <>
-      <MessageActivationBanner
-        isVisible={showActivationBanner}
-        onClose={() => setShowActivationBanner(false)}
-        userRole={currentUserRole}
-        variant="activation-required"
-      />
-
       <div className={cn(
         "flex-1 flex flex-col h-full overflow-hidden transition-colors duration-500",
         isThemeLight ? "bg-[#ffffff]" : "bg-[#000000]"
@@ -496,12 +485,12 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
                 value={newMessage}
                 onChange={(e) => { setNewMessage(e.target.value); if (e.target.value.trim()) startTyping(); else stopTyping(); }}
                 onFocus={() => { if (isListening) stopListening(); }}
-                placeholder={isAtLimit ? "LIMIT REACHED" : isListening ? "Listening..." : "Message..."}
+                placeholder={isListening ? "Listening..." : "Message..."}
                 className={cn(
                   "flex-1 h-12 pl-5 pr-12 rounded-2xl text-[14px] font-medium outline-none transition-all border focus:ring-2 focus:ring-[#EB4898]/20",
                   isThemeLight ? "bg-white border-black/10 text-black placeholder:text-black/30" : "bg-[#121212] border-white/5 text-white placeholder:text-white/10"
                 )}
-                disabled={sendMessage.isPending || isAtLimit}
+                disabled={sendMessage.isPending}
               />
               
               {speechSupported && (
@@ -538,15 +527,14 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
 
             <button
               type="submit"
-              disabled={!newMessage.trim() || sendMessage.isPending || isAtLimit}
-              className={cn("shrink-0 w-14 h-14 rounded-2xl flex items-center justify-center transition-all", newMessage.trim() && !isAtLimit ? "bg-white text-black shadow-xl hover:scale-105 active:scale-95" : (isThemeLight ? "bg-black/[0.05] text-black/10 border border-black/[0.06]" : "bg-white/[0.05] text-white/10 border border-white/[0.05]"))}
+              disabled={!newMessage.trim() || sendMessage.isPending}
+              className={cn("shrink-0 w-14 h-14 rounded-2xl flex items-center justify-center transition-all", newMessage.trim() ? "bg-white text-black shadow-xl hover:scale-105 active:scale-95" : (isThemeLight ? "bg-black/[0.05] text-black/10 border border-black/[0.06]" : "bg-white/[0.05] text-white/10 border border-white/[0.05]"))}
             >
               <Send className="w-6 h-6" />
             </button>
           </form>
         </div>
 
-        <MessageActivationPackages isOpen={showUpgradeDialog} onClose={() => setShowUpgradeDialog(false)} userRole={currentUserRole} />
         <RatingSubmissionDialog open={showRatingDialog} onOpenChange={setShowRatingDialog} targetId={listing?.id || otherUser.id} targetType={listing?.id ? 'listing' : 'user'} targetName={listing?.title || otherUser.full_name} categoryId={listing?.id ? (listing.category === 'vehicle' ? 'vehicle' : 'property') : 'client'} onSuccess={() => setShowRatingDialog(false)} />
       </div>
     </>

@@ -67,6 +67,8 @@ export const haptics = {
   error: () => triggerHaptic('error'),
   match: () => triggerHaptic('match'),
   celebration: () => triggerHaptic('celebration'),
+  impact: (style: 'light' | 'medium' | 'heavy' = 'medium') => triggerHaptic(style),
+  notification: (kind: 'success' | 'warning' | 'error' = 'success') => triggerHaptic(kind),
 } as const;
 
 // ============================================
