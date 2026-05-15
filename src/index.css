@@ -242,6 +242,9 @@ html[data-theme-transition] ::view-transition-new(root) {
 @supports (height: 100svh) {
   :root { --card-height: min(85svh, calc(100svh - 120px)); }
 }
+@supports (height: 100dvh) {
+  :root { --card-height: min(85dvh, calc(100dvh - 120px)); }
+}
 
 /* Full-bleed poker card sizing — fills available vertical space */
 .swipe-card-size {
@@ -256,10 +259,73 @@ html[data-theme-transition] ::view-transition-new(root) {
   @apply backdrop-blur-[64px] transition-all duration-500 overflow-hidden relative;
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid rgba(255, 255, 255, 0.12) !important;
-  box-shadow: 
+  box-shadow:
     var(--shadow-cinematic-md),
     inset 0 1px 1px rgba(255, 255, 255, 0.15);
   contain: layout style paint;
+}
+
+/* ─── Adaptive Glass Surface Utilities ───────────────────────────────
+   .glass-surface  → rounded card / slab over photos or dark backgrounds
+   .glass-pill     → fully-rounded chip / badge / nav pill
+   .glass-dark     → modifier: glossy dark variant for solid surfaces
+   Active pill: add data-active="true" or .is-active for brighter rim. */
+.glass-surface,
+.glass-pill {
+  position: relative;
+  background: rgba(255, 255, 255, 0.10);
+  -webkit-backdrop-filter: blur(28px) saturate(140%);
+  backdrop-filter: blur(28px) saturate(140%);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  isolation: isolate;
+}
+.glass-surface { border-radius: 1.5rem; }
+.glass-pill    { border-radius: 9999px; }
+
+.glass-surface::before,
+.glass-pill::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(180deg,
+    rgba(255, 255, 255, 0.22) 0%,
+    rgba(255, 255, 255, 0.06) 38%,
+    transparent 60%);
+  mix-blend-mode: screen;
+  z-index: 0;
+}
+.glass-surface > *,
+.glass-pill > * { position: relative; z-index: 1; }
+
+.glass-dark {
+  background: rgba(12, 12, 14, 0.55);
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.10);
+}
+
+.glass-pill[data-active="true"],
+.glass-pill.is-active {
+  border-color: rgba(255, 255, 255, 0.45);
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.30),
+    inset 0 1px 0 rgba(255, 255, 255, 0.55),
+    0 0 0 1px rgba(255, 255, 255, 0.12);
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .glass-surface,
+  .glass-pill {
+    background: rgba(20, 20, 22, 0.92);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
 }
 
 /* Hide ALL scrollbars */
@@ -670,6 +736,7 @@ button:active, [role="button"]:active {
   body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
     min-height: 100vh;
+    min-height: 100dvh;
     background: hsl(var(--background));
     color: hsl(var(--foreground));
     transition: all 0.2s ease;

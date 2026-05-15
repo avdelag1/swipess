@@ -360,27 +360,23 @@ export const BottomNavigation = memo(({
 
                 aria-label={item.label}
                 aria-current={isActive(item) ? 'page' : undefined}
+                data-active={active ? 'true' : undefined}
                 className={cn(
-                  'relative flex flex-col items-center justify-center rounded-full gap-1 w-auto flex-shrink-0 h-full',
+                  'relative flex flex-col items-center justify-center gap-1 w-auto flex-shrink-0 h-full',
                   'touch-manipulation focus-visible:outline-none transform-gpu',
+                  active ? 'glass-pill' : 'rounded-full',
                 )}
                 style={{
                   minWidth: 'clamp(42px, 10vw, 54px)',
                   scrollSnapAlign: 'start',
                   minHeight: isTablet ? TOUCH_TARGET_TABLET : TOUCH_TARGET,
                   padding: isTablet ? '8px 12px' : (isNarrow ? '4px' : 'clamp(4px, 1.2vw, 8px)'),
-                  borderRadius: '3rem',
                   cursor: 'pointer',
                   flexShrink: 0,
                   touchAction: 'manipulation',
                   userSelect: 'none',
                   WebkitUserSelect: 'none' as any,
                   transition: 'all 0.3s cubic-bezier(0.22, 1, 0.36, 1)',
-                  background: active
-                    ? (isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.10)')
-                    : 'transparent',
-                  border: 'none',
-                  boxShadow: 'none',
                 }}
               >
                 {/* Active state is color-only: no nested pill/frame behind icons. */}
