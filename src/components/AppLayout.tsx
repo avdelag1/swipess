@@ -156,9 +156,9 @@ export function AppLayout({ children }: AppLayoutProps) {
     const path = location.pathname;
     // These routes go through PersistentDashboardLayout → DashboardLayout
     // They must NOT scroll at AppLayout level — DashboardLayout handles it
-    const publicRoutes = ['/', '/reset-password', '/legal', '/about', '/faq/', '/listing/', '/profile/', '/vap-validate/', '/payment/'];
-    const isPublic = publicRoutes.some(r => path === r || path.startsWith(r));
-    return !isPublic;
+    const scrollableRoutes = ['/', '/reset-password', '/legal', '/about', '/faq/', '/listing', '/profile', '/settings', '/vap-validate', '/payment'];
+    const isScrollable = scrollableRoutes.some(r => path === r || path.startsWith(r) || path.includes('/profile') || path.includes('/settings'));
+    return !isScrollable;
   }, [location.pathname]);
 
 
@@ -222,11 +222,8 @@ export function AppLayout({ children }: AppLayoutProps) {
         id="main-content"
         className={cn(
           "w-full flex-1 relative z-0 flex flex-col",
-          // Push content down below the fixed header
-          !isAuthRoute && !isFullScreen && !isRadioRoute && !isCameraRoute && !isInsideDashboard && "pt-[var(--top-bar-height)]",
-          // Dashboard pages: overflow-hidden, DashboardLayout scrolls internally
-          // Public/standalone pages: overflow-y-auto, scroll at this level
-          (isInsideDashboard || isFullScreen) ? "overflow-hidden" : "overflow-y-auto scroll-area-momentum pb-[var(--bottom-nav-height)]"
+          // Removed pt/pb for edge-to-edge Nexus immersive content
+          (isInsideDashboard || isFullScreen) ? "overflow-hidden" : "overflow-y-auto scroll-area-momentum"
         )}
       >
         <div className="w-full flex-1 flex flex-col">
