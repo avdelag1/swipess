@@ -273,16 +273,24 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
         id="dashboard-scroll-container"
         className={cn(
           "flex-1 flex flex-col relative w-full min-h-0",
-          isSwipeDeck ? "overflow-hidden touch-none bg-swipe-frame" : "overflow-y-auto scroll-area-momentum"
+          (isSwipeDeck || isFullScreenRoute) ? "overflow-hidden touch-none" : "overflow-y-auto scroll-area-momentum",
+          isSwipeDeck && "bg-swipe-frame"
         )}
         style={{
-          WebkitOverflowScrolling: isSwipeDeck ? 'auto' : 'touch',
-          overscrollBehavior: isSwipeDeck ? 'none' : undefined,
-          touchAction: isSwipeDeck ? 'none' : undefined,
+          WebkitOverflowScrolling: (isSwipeDeck || isFullScreenRoute) ? 'auto' : 'touch',
+          overscrollBehavior: (isSwipeDeck || isFullScreenRoute) ? 'none' : undefined,
+          touchAction: (isSwipeDeck || isFullScreenRoute) ? 'none' : undefined,
         }}
       >
-        {/* INNER WRAPPER: Ensures flex-grow works correctly for child pages */}
-        <div className={cn("w-full flex flex-col min-h-0", isSwipeDeck ? "h-full flex-1 overflow-hidden" : "flex-grow min-h-full pb-[var(--bottom-nav-height)]")}>
+        {/* INNER WRAPPER: full-screen routes (radio/camera) get no bottom-nav
+            padding because they hide the chrome — leaving the padding causes
+            a strip of body background to show beneath the page. */}
+        <div className={cn(
+          "w-full flex flex-col min-h-0",
+          (isSwipeDeck || isFullScreenRoute)
+            ? "h-full flex-1 overflow-hidden"
+            : "flex-grow min-h-full pb-[var(--bottom-nav-height)]"
+        )}>
           {children}
         </div>
       </main>

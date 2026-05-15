@@ -1054,7 +1054,10 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
         >
           <motion.div
             animate={{ opacity: isChromeVisible ? 1 : 0, y: isChromeVisible ? 0 : 10 }}
-            transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
+            transition={{
+              duration: isChromeVisible ? 0.68 : 1.4,
+              ease: isChromeVisible ? [0.22, 1.4, 0.36, 1] : [0.32, 0, 0.67, 0],
+            }}
             style={{ pointerEvents: isChromeVisible ? 'auto' : 'none' }}
           >
           <SwipeActionButtonBar
