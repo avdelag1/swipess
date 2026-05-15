@@ -349,7 +349,7 @@ export default function EventosFeed() {
                     if (cat.key === 'likes') navigate('/explore/eventos/likes');
                   }} 
                   className={cn(
-                    "flex items-center gap-2 px-5 py-3 rounded-2xl shrink-0 transition-all duration-300 border relative overflow-hidden group h-12",
+                    "flex items-center gap-2 px-4 py-2 rounded-full shrink-0 transition-all duration-300 border relative overflow-hidden group h-9",
                     active 
                       ? "scale-105 shadow-xl shadow-black/20" 
                       : "opacity-80 hover:opacity-100"

@@ -147,8 +147,8 @@ export const EventCard = memo(({
         <button
           onClick={(e) => { e.stopPropagation(); onPrevEvent(); }}
           className={cn(
-            "pointer-events-auto w-9 h-9 rounded-full flex items-center justify-center transition-opacity shadow-lg backdrop-blur-[10px] border opacity-75 hover:opacity-100 active:scale-95",
-            isLight ? "bg-white/55 border-black/10" : "bg-black/28 border-white/12"
+            "pointer-events-auto w-7 h-7 rounded-full flex items-center justify-center transition-opacity shadow-lg backdrop-blur-[10px] border opacity-75 hover:opacity-100 active:scale-95",
+            isLight ? "bg-white/55 border-black/10" : "bg-black/40 border-white/12"
           )}
           title="Previous event"
         >
@@ -160,8 +160,8 @@ export const EventCard = memo(({
         <button
           onClick={(e) => { e.stopPropagation(); onNextEvent(); }}
           className={cn(
-            "pointer-events-auto w-9 h-9 rounded-full flex items-center justify-center transition-opacity shadow-lg backdrop-blur-[10px] border opacity-75 hover:opacity-100 active:scale-95",
-            isLight ? "bg-white/55 border-black/10" : "bg-black/28 border-white/12"
+            "pointer-events-auto w-7 h-7 rounded-full flex items-center justify-center transition-opacity shadow-lg backdrop-blur-[10px] border opacity-75 hover:opacity-100 active:scale-95",
+            isLight ? "bg-white/55 border-black/10" : "bg-black/40 border-white/12"
           )}
           title="Next event"
         >
@@ -204,7 +204,7 @@ export const EventCard = memo(({
             animate={liked ? { scale: [1, 1.25, 1] } : { scale: 1 }}
             transition={{ duration: 0.35 }}
             className={cn(
-              "w-12 h-12 rounded-full flex items-center justify-center shadow-lg backdrop-blur-md border transition-all",
+              "w-10 h-10 rounded-full flex items-center justify-center shadow-lg backdrop-blur-md border transition-all",
               liked
                 ? "bg-orange-500/25 border-orange-500/60 shadow-orange-500/20"
                 : isLight ? "bg-white/70 border-black/10" : "bg-black/40 border-white/15"
@@ -226,7 +226,7 @@ export const EventCard = memo(({
           <motion.div
             whileTap={{ scale: 0.85 }}
             className={cn(
-              "w-12 h-12 rounded-full flex items-center justify-center shadow-lg backdrop-blur-md border transition-all",
+              "w-10 h-10 rounded-full flex items-center justify-center shadow-lg backdrop-blur-md border transition-all",
               liked ? "bg-red-500/20 border-red-500/40" : (isLight ? "bg-white/70 border-black/10" : "bg-black/40 border-white/15")
             )}
           >
@@ -243,7 +243,7 @@ export const EventCard = memo(({
           <motion.div
             whileTap={{ scale: 0.85 }}
             className={cn(
-              "w-12 h-12 rounded-full flex items-center justify-center shadow-lg backdrop-blur-md border",
+              "w-10 h-10 rounded-full flex items-center justify-center shadow-lg backdrop-blur-md border",
               isLight ? "bg-white/70 border-black/10" : "bg-black/40 border-white/15"
             )}
             style={{ borderColor: `${activeColor}30` }}
@@ -261,7 +261,7 @@ export const EventCard = memo(({
           <motion.div
             whileTap={{ scale: 0.85 }}
             className={cn(
-              "w-12 h-12 rounded-full flex items-center justify-center shadow-lg backdrop-blur-md border",
+              "w-10 h-10 rounded-full flex items-center justify-center shadow-lg backdrop-blur-md border",
               isLight ? "bg-white/70 border-black/10" : "bg-black/40 border-white/15"
             )}
             style={{ borderColor: `${activeColor}30` }}

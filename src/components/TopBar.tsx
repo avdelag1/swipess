@@ -53,7 +53,7 @@ function TopBarComponent({
   //  - Dark theme (black filter): icons always WHITE.
   //  - Light theme (white filter): WHITE on dashboard (over photos),
   //    BLACK on every other page.
-  const iconColor = '#FFFFFF';
+  const iconColor = !isLight || isDashboard ? '#FFFFFF' : '#0A0A0A';
 
   const isOwner = userRole === 'owner';
 
@@ -73,7 +73,7 @@ function TopBarComponent({
     borderRadius: '9999px',
     pointerEvents: 'auto',
     color: 'hsl(var(--foreground))',
-    height: '36px',
+    height: '32px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -129,14 +129,14 @@ function TopBarComponent({
               whileTap={{ scale: 0.94 }}
               onClick={() => { haptics.tap(); onBack(); }}
               className="flex shrink-0 items-center justify-center rounded-full"
-              style={{ ...glassPillStyle, width: '36px' }}
+              style={{ ...glassPillStyle, width: '32px' }}
               aria-label="Back"
             >
               <ChevronLeft
-                className="w-[18px] h-[18px]"
+                className="w-[16px] h-[16px]"
                 strokeWidth={2.2}
                 style={{
-                  color: '#FFFFFF',
+                  color: iconColor,
                   filter: isLight
                     ? 'drop-shadow(0 1px 2px rgba(0,0,0,0.18))'
                     : 'drop-shadow(0 2px 6px rgba(0,0,0,0.55))',
@@ -157,7 +157,7 @@ function TopBarComponent({
                 aria-label="Open profile"
               >
                 <div
-                  className="w-7 h-7 rounded-full overflow-hidden shrink-0 flex items-center justify-center relative"
+                  className="w-6 h-6 rounded-full overflow-hidden shrink-0 flex items-center justify-center relative"
                   style={{
                     background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)))',
                     boxShadow: '0 0 0 1px rgba(255,255,255,0.2) inset, 0 0 14px hsl(var(--primary) / 0.35)',
@@ -182,7 +182,7 @@ function TopBarComponent({
                     className="hidden max-w-[74px] truncate sm:inline-block text-[10px] font-black uppercase tracking-[0.08em]"
                     style={{
                       fontVariantNumeric: 'tabular-nums',
-                      color: '#FFFFFF',
+                      color: iconColor,
                     }}
                   >
                     {profile.full_name.split(' ')[0]}
@@ -220,12 +220,12 @@ function TopBarComponent({
                   className="flex shrink-0 items-center justify-center rounded-full relative overflow-hidden"
                   style={{
                     ...glassPillStyle,
-                    width: '36px',
+                    width: '32px',
                   }}
                   aria-label="Tokens"
                 >
                   <Crown
-                    className="w-[20px] h-[20px]"
+                    className="w-[18px] h-[18px]"
                     style={{
                       color: iconColor,
                       filter: isLight ? 'none' : 'drop-shadow(0 0 8px rgba(228,0,124,0.65))',

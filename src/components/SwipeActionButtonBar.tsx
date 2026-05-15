@@ -100,7 +100,7 @@ const VARIANTS: Record<Variant, VariantCfg> = {
     circleBg: 'var(--secondary)',
   },
   white: {
-    iconColor: '#FFFFFF',
+    iconColor: 'var(--icon-color, #FFFFFF)',
     glow: '0 0 18px rgba(255, 255, 255, 0.22)',
     circleBg: 'rgba(255, 255, 255, 0.09)',
   },
@@ -167,7 +167,9 @@ const ActionButton = memo(forwardRef<HTMLButtonElement, any>(function ActionButt
         appearance: 'none',
         WebkitAppearance: 'none',
         boxShadow: 'none',
-        color: variant === 'default' ? 'var(--foreground)' : cfg.iconColor
+        color: variant === 'default' 
+          ? 'var(--foreground)' 
+          : (variant === 'white' ? (isLight ? '#000000' : '#FFFFFF') : cfg.iconColor)
       }}
       className="flex items-center justify-center touch-manipulation select-none"
     >
