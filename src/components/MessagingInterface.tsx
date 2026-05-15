@@ -371,6 +371,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
               </DropdownMenu>
             </div>
           </div>
+        </div>
 
         <div
           id="chat-scroll-container"
