@@ -467,7 +467,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
                       <span className="text-[12px] font-black text-white leading-none tabular-nums">SENDING IN {countdown}S</span>
                     </div>
                   </div>
-                  <button onClick={cancelCountdown} className="w-12 h-12 rounded-2xl flex items-center justify-center bg-white text-black shadow-xl active:scale-90 transition-all border border-black/10">
+                  <button onClick={cancelCountdown} aria-label="Cancel auto-send" className={cn("w-12 h-12 rounded-2xl flex items-center justify-center shadow-xl active:scale-90 transition-all border", isThemeLight ? "bg-foreground text-background border-foreground/20" : "bg-white text-black border-black/10")}>
                     <X className="w-5 h-5 stroke-[3px]" />
                   </button>
                 </motion.div>
@@ -477,7 +477,15 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
             <button
               type="submit"
               disabled={!newMessage.trim() || sendMessage.isPending}
-              className={cn("shrink-0 w-11 h-11 rounded-xl flex items-center justify-center transition-all", newMessage.trim() ? "bg-white text-black shadow-xl hover:scale-105 active:scale-95" : (isThemeLight ? "bg-black/[0.05] text-black/10 border border-black/[0.06]" : "bg-white/[0.05] text-white/10 border border-white/[0.05]"))}
+              aria-label="Send message"
+              className={cn(
+                "shrink-0 w-11 h-11 rounded-xl flex items-center justify-center transition-all",
+                newMessage.trim()
+                  ? "bg-primary text-primary-foreground shadow-[0_6px_20px_hsl(var(--primary)/0.45)] hover:scale-105 active:scale-95"
+                  : (isThemeLight
+                      ? "bg-black/[0.06] text-black/35 border border-black/[0.08]"
+                      : "bg-white/[0.05] text-white/30 border border-white/[0.05]")
+              )}
             >
               <Send className="w-5 h-5" />
             </button>

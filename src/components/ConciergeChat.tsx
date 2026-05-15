@@ -540,18 +540,18 @@ const ConversationSidebar = memo(({
       transition={{ type: 'spring', damping: 28, stiffness: 350 }}
       className={cn(
         "absolute inset-y-0 left-0 w-72 z-50 flex flex-col shadow-2xl transition-all border-r",
-        isSwipess ? "bg-black border-white/5" : "bg-white border-zinc-100"
+        isSwipess ? "bg-black border-white/5" : "bg-background border-border"
       )}
     >
-    <div className="flex items-center justify-between px-6 py-5 border-b border-black/[0.05]">
-      <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-black/50 italic">ARCHIVES</h3>
-      <button onClick={onClose} className="p-2 hover:bg-black/[0.05] rounded-full transition-all">
-        <X className="w-4 h-4 opacity-70" />
+    <div className={cn("flex items-center justify-between px-6 py-5 border-b", isSwipess ? "border-white/[0.06]" : "border-border")}>
+      <h3 className={cn("text-[10px] font-black uppercase tracking-[0.3em] italic", isSwipess ? "text-white/50" : "text-foreground/50")}>ARCHIVES</h3>
+      <button onClick={onClose} className={cn("p-2 rounded-full transition-all", isSwipess ? "hover:bg-white/[0.08]" : "hover:bg-foreground/[0.08]")}>
+        <X className={cn("w-4 h-4 opacity-70", isSwipess ? "text-white" : "text-foreground")} />
       </button>
     </div>
-    
+
     <div className="p-4">
-      <button 
+      <button
         onClick={onNew}
         className="w-full flex items-center gap-3 px-5 py-4 rounded-2xl border bg-primary/10 border-primary/20 hover:bg-primary/20 transition-all group shadow-lg"
       >
@@ -567,17 +567,19 @@ const ConversationSidebar = memo(({
             onClick={() => { onSelect(c.id); onClose(); }}
             className={cn(
               "w-full flex flex-col items-start px-5 py-4 rounded-xl transition-all duration-300 border",
-              activeId === c.id ? "bg-black/[0.05] border-black/[0.08]" : "hover:bg-black/[0.02] border-transparent"
+              activeId === c.id
+                ? (isSwipess ? "bg-white/[0.08] border-white/[0.12]" : "bg-foreground/[0.06] border-foreground/[0.10]")
+                : (isSwipess ? "hover:bg-white/[0.04] border-transparent" : "hover:bg-foreground/[0.04] border-transparent")
             )}
           >
-            <span className={cn("text-[11px] font-black uppercase tracking-tight truncate w-full text-left", activeId === c.id ? "text-primary" : "text-black/70")}>
+            <span className={cn("text-[11px] font-black uppercase tracking-tight truncate w-full text-left", activeId === c.id ? "text-primary" : (isSwipess ? "text-white/85" : "text-foreground/85"))}>
               {c.title || 'Untitled Discovery'}
             </span>
-            <span className="text-[9px] font-bold opacity-20 uppercase tracking-tighter mt-1">{formatConvoDate(new Date(c.updatedAt))}</span>
+            <span className={cn("text-[9px] font-bold uppercase tracking-tighter mt-1", isSwipess ? "text-white/40" : "text-foreground/40")}>{formatConvoDate(new Date(c.updatedAt))}</span>
           </button>
-          <button 
+          <button
             onClick={(e) => { e.stopPropagation(); onDelete(c.id); }}
-            className="absolute right-2 top-1/2 -translate-y-1/2 p-2 opacity-0 group-hover:opacity-100 transition-opacity hover:text-red-500"
+            className={cn("absolute right-2 top-1/2 -translate-y-1/2 p-2 opacity-0 group-hover:opacity-100 transition-opacity hover:text-red-500", isSwipess ? "text-white/60" : "text-foreground/60")}
           >
             <Trash2 className="w-3.5 h-3.5" />
           </button>
@@ -946,21 +948,21 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                        </PopoverTrigger>
                       <PopoverContent side="bottom" align="end" className={cn("w-72 p-2 rounded-3xl border shadow-2xl z-[70]", isLight && !isSwipess ? "bg-white border-slate-200" : "bg-black/95 border-white/10 backdrop-blur-3xl")}>
                         <div className="p-3 mb-2">
-                          <h4 className="text-[10px] font-black uppercase tracking-widest text-white/40 italic">Select Logic Profile</h4>
+                          <h4 className={cn("text-[10px] font-black uppercase tracking-widest italic", isLight && !isSwipess ? "text-foreground/50" : "text-white/40")}>Select Logic Profile</h4>
                         </div>
                         <div className="space-y-1">
                           {CHARACTER_OPTIONS.map((c) => (
                             <button
                               key={c.key}
                               onClick={() => { setActiveCharacter(c.key); setCharacterPanelOpen(false); triggerHaptic('light'); }}
-                              className={cn("w-full flex items-center gap-3 p-3 rounded-2xl transition-all group", activeCharacter === c.key ? "bg-primary/10 border border-primary/20" : "hover:bg-white/5 border border-transparent")}
+                              className={cn("w-full flex items-center gap-3 p-3 rounded-2xl transition-all group", activeCharacter === c.key ? "bg-primary/10 border border-primary/20" : (isLight && !isSwipess ? "hover:bg-foreground/5 border border-transparent" : "hover:bg-white/5 border border-transparent"))}
                             >
                               <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center transition-all", c.bgColor)}>
                                 <c.icon className={cn("w-5 h-5", c.color)} />
                               </div>
                               <div className="text-left flex-1 min-w-0">
-                                <p className={cn("text-[11px] font-black uppercase tracking-widest", activeCharacter === c.key ? "text-primary" : "text-white")}>{c.label} <span className="opacity-40 font-bold">— {c.tagline}</span></p>
-                                <p className="text-[8px] font-bold opacity-40 uppercase tracking-tighter">{c.subtitle}</p>
+                                <p className={cn("text-[11px] font-black uppercase tracking-widest", activeCharacter === c.key ? "text-primary" : (isLight && !isSwipess ? "text-foreground" : "text-white"))}>{c.label} <span className="opacity-50 font-bold">— {c.tagline}</span></p>
+                                <p className={cn("text-[8px] font-bold opacity-60 uppercase tracking-tighter", isLight && !isSwipess ? "text-foreground/70" : "text-white/70")}>{c.subtitle}</p>
                               </div>
                               {activeCharacter === c.key && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-primary" />}
                             </button>
