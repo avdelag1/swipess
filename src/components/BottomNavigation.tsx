@@ -290,20 +290,14 @@ export const BottomNavigation = memo(({
       <div
         className={cn(
           "pointer-events-auto",
-          "mx-auto w-full",
-          isTablet ? "max-w-2xl" : "max-w-md"
+          "mx-auto w-fit max-w-[95vw]",
+          "glass-surface px-2 py-1.5", // Unified Glassmorphic Pill
+          isTablet ? "rounded-3xl" : "rounded-full"
         )}
         style={{
-          background: 'transparent',
-          backdropFilter: 'none',
-          WebkitBackdropFilter: 'none',
-          border: 'none',
-          borderRadius: '0',
-          boxShadow: 'none',
-          padding: isTablet ? '6px 16px' : '4px 8px',
           filter: isLight
-            ? 'drop-shadow(0 1px 2px rgba(0,0,0,0.18))'
-            : 'drop-shadow(0 1px 3px rgba(0,0,0,0.6))',
+            ? 'drop-shadow(0 4px 12px rgba(0,0,0,0.12))'
+            : 'drop-shadow(0 8px 32px rgba(0,0,0,0.45))',
         }}
       >
         {/* Nav items row — SCROLLABLE SWIPESS ARCHITECTURE */}
@@ -363,8 +357,7 @@ export const BottomNavigation = memo(({
                 data-active={active ? 'true' : undefined}
                 className={cn(
                   'relative flex flex-col items-center justify-center gap-1 w-auto flex-shrink-0 h-full',
-                  'touch-manipulation focus-visible:outline-none transform-gpu',
-                  active ? 'glass-pill' : 'rounded-full',
+                  'touch-manipulation focus-visible:outline-none transform-gpu rounded-full',
                 )}
                 style={{
                   minWidth: 'clamp(42px, 10vw, 54px)',

@@ -2345,9 +2345,7 @@ html[data-navigation-direction="back"] {
 
 .dark .glass-pill-nav,
 .glass-pill-nav,
-.app-bottom-bar,
-header,
-nav {
+header {
   background: transparent !important;
   background-color: transparent !important;
   border-color: transparent !important;
