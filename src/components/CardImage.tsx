@@ -14,18 +14,20 @@ function isBrowser() {
 const CROSSFADE_MS = 100; // Accelerated crossfade for instant reaction
 const _CROSSFADE_EASE = [0.4, 0, 0.2, 1]; // Smooth soft-start cubic bezier (reserved for future animation)
 
-const CardImage = memo(({ 
-  src, 
-  alt, 
-  name, 
+const CardImage = memo(({
+  src,
+  alt,
+  name,
+  fallbackSrc,
   direction: _direction = 'right',
   fullScreen = false,
   animate: _animate = false,
   priority = false
-}: { 
-  src?: string | null; 
-  alt?: string; 
-  name?: string; 
+}: {
+  src?: string | null;
+  alt?: string;
+  name?: string;
+  fallbackSrc?: string | null;
   direction?: 'left' | 'right';
   fullScreen?: boolean;
   animate?: boolean;
@@ -123,6 +125,18 @@ const CardImage = memo(({
   }, [src, wasInCache]);
 
   if (!src || error) {
+    if (fallbackSrc && fallbackSrc !== src) {
+      return (
+        <CardImage
+          src={fallbackSrc}
+          alt={alt}
+          name={name}
+          fullScreen={fullScreen}
+          animate={_animate}
+          priority={priority}
+        />
+      );
+    }
     return <PlaceholderImage name={name} />;
   }
 

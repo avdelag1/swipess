@@ -49,21 +49,21 @@ export const MOCK_EVENTS: EventItem[] = [
   },
   {
     id: 'm6', title: 'Seafood & Bubbles Promo', category: 'promo',
-    image_url: '/images/promo/card_premium.jpg',
+    image_url: '/images/beach-sunset.jpg',
     description: 'Celebrate with fresh calamari, oysters, and champagne by the sea. Special prix-fixe menu every evening until midnight.',
     event_date: '2026-04-10T20:00:00', location: 'Zona Hotelera, Tulum', location_detail: 'El Arco Bar',
     organizer_name: 'El Arco', organizer_whatsapp: '+529845556644', promo_text: 'Prix-fixe menu', discount_tag: '20% OFF', is_free: false, price_text: 'From $350 MXN',
   },
   {
     id: 'm7', title: 'Mexican Cooking Class', category: 'food',
-    image_url: '/images/events/food_market.png',
+    image_url: '/images/events/gallery_night.png',
     description: 'Learn authentic Mexican recipes with a local abuela. Tamales, handmade salsas, and traditional techniques passed down for generations.',
     event_date: '2026-04-11T10:00:00', location: 'Holistika, Tulum', location_detail: 'Open-air kitchen',
     organizer_name: 'Viva Tulum', organizer_whatsapp: '+529849998877', promo_text: 'Hands-on experience', discount_tag: null, is_free: false, price_text: '$500 MXN',
   },
   {
     id: 'm8', title: 'Kids Storytime & Play', category: 'beach',
-    image_url: '/images/filters/workers_tulum_team.jpg',
+    image_url: '/images/listings/massage_jungle_wide.jpg',
     description: 'A fun morning of interactive storytelling and guided play for toddlers and young children. Bilingual, creative, and full of laughter.',
     event_date: '2026-04-12T09:00:00', location: 'La Veleta, Tulum', location_detail: 'Family Space',
     organizer_name: 'Tulum Families', organizer_whatsapp: '+529843334455', promo_text: 'Kids 1–6 years', discount_tag: 'FREE ENTRY', is_free: true, price_text: null,
@@ -77,7 +77,7 @@ export const MOCK_EVENTS: EventItem[] = [
   },
   {
     id: 'm10', title: 'Sunrise Beach Walk', category: 'beach',
-    image_url: '/images/beach-sunset.jpg',
+    image_url: '/images/events/cacao_ceremony.png',
     description: 'Guided sunrise walk along pristine Caribbean shores. Warm sand, gentle breeze, and golden light — the best way to start your day.',
     event_date: '2026-04-14T06:00:00', location: 'Playa Paraíso, Tulum', location_detail: 'South Beach',
     organizer_name: 'Tulum Dive', organizer_whatsapp: '+529843332211', promo_text: 'Small group', discount_tag: 'EXCLUSIVE', is_free: false, price_text: '$200 MXN',
