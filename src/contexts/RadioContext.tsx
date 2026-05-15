@@ -137,6 +137,14 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
         clearTimeout(errorTimeoutRef.current);
         errorTimeoutRef.current = null;
       }
+      if (reconnectTimeoutRef.current) {
+        clearTimeout(reconnectTimeoutRef.current);
+        reconnectTimeoutRef.current = null;
+      }
+      if (watchdogIntervalRef.current) {
+        clearInterval(watchdogIntervalRef.current);
+        watchdogIntervalRef.current = null;
+      }
       if (audioRef.current) {
         audioRef.current.pause();
         audioRef.current.src = '';
@@ -149,6 +157,28 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
   const loadTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const errorTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const currentStationRef = useRef<RadioStation | null>(null);
+
+  // Reconnect supervisor: silently retry the same station on transient drops
+  // before falling through to the existing skip-to-next path.
+  const reconnectAttemptsRef = useRef(0);
+  const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const RECONNECT_BACKOFF_MS = [1000, 2000, 4000];
+  const MAX_RECONNECT_ATTEMPTS = 3;
+
+  // Heartbeat watchdog: detects frozen currentTime / suspended AudioContext
+  const watchdogIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const lastCurrentTimeRef = useRef(0);
+  const lastCurrentTimeSampleRef = useRef(0);
+
+  // Reset the rapid-error counter after sustained healthy playback (60s).
+  const healthyPlaybackTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Setter exposed by the audio listener effect so other refs can clear the count.
+  const resetErrorCountRef = useRef<() => void>(() => {});
+
+  // Stable refs so the once-only audio listener effect always sees the latest
+  // values without re-attaching listeners on every state change.
+  const isPlayingFlagRef = useRef(false);
+  const tryReconnectRef = useRef<() => boolean>(() => false);
 
   // Keep ref in sync with state
   useEffect(() => {
@@ -176,11 +206,49 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
   // Refs to hold latest callbacks
   const changeStationRef = useRef<(direction: 'next' | 'prev') => void>(() => {});
 
+  // Attempt silent reconnect of the SAME station. Returns true if a retry was
+  // scheduled; false if we exhausted the budget and the caller should fall
+  // through to skip-to-next. Uses the audio element directly to bypass the
+  // play() user-intent guard — internal recovery never needs a fresh gesture.
+  const tryReconnectSameStation = useCallback((): boolean => {
+    const station = currentStationRef.current;
+    if (!station) return false;
+    if (reconnectAttemptsRef.current >= MAX_RECONNECT_ATTEMPTS) {
+      reconnectAttemptsRef.current = 0;
+      return false;
+    }
+    const delay = RECONNECT_BACKOFF_MS[reconnectAttemptsRef.current] ?? 4000;
+    reconnectAttemptsRef.current += 1;
+    setError(`Reconnecting (${reconnectAttemptsRef.current}/${MAX_RECONNECT_ATTEMPTS})...`);
+    if (reconnectTimeoutRef.current) clearTimeout(reconnectTimeoutRef.current);
+    reconnectTimeoutRef.current = setTimeout(() => {
+      const audio = audioRef.current;
+      if (!audio) return;
+      try {
+        // Force a fresh src load — same URL, but reset internal buffer state.
+        audio.src = station.streamUrl;
+        audio.load();
+        if (audioContextRef.current?.state === 'suspended') {
+          audioContextRef.current.resume().catch(() => {/* ignore */});
+        }
+        audio.play().then(() => {
+          setError(null);
+          setState(prev => ({ ...prev, isPlaying: true }));
+        }).catch(() => {
+          // Let the error handler escalate (next reconnect attempt or skip).
+        });
+      } catch {/* ignore */}
+    }, delay);
+    return true;
+  }, []);
+
+  // Keep refs in sync so the once-only listener effect can read latest values.
+  useEffect(() => { isPlayingFlagRef.current = state.isPlaying; }, [state.isPlaying]);
+  useEffect(() => { tryReconnectRef.current = tryReconnectSameStation; }, [tryReconnectSameStation]);
+
   // Set up audio event listeners ONCE
   useEffect(() => {
     if (!audioRef.current) return;
-
-    const handleTrackEnded = () => changeStationRef.current('next');
 
     // CRITICAL: Re-entrant guard prevents infinite error loops.
     // Setting audio.src = '' fires another 'error' event synchronously,
@@ -190,11 +258,36 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     let lastErrorTime = 0;
     let lastToastTime = 0;
 
+    resetErrorCountRef.current = () => { errorCount = 0; };
+
+    const handleTrackEnded = () => {
+      // Live streams should never "end" — treat as a network blip and try to
+      // silently reconnect the same station before skipping.
+      if (isPlayingFlagRef.current && tryReconnectRef.current()) return;
+      changeStationRef.current('next');
+    };
+
     const handleAudioError = (_e: Event) => {
       if (handlingError) return;
       handlingError = true;
 
       const audio = audioRef.current;
+
+      // Before counting this as a hard error, give the same station a few
+      // silent reconnect attempts. This handles transient network drops
+      // without the user ever noticing.
+      if (isPlayingFlagRef.current && tryReconnectRef.current()) {
+        if (loadTimeoutRef.current) {
+          clearTimeout(loadTimeoutRef.current);
+          loadTimeoutRef.current = null;
+        }
+        if (audio) {
+          try { audio.pause(); } catch {/* intentional */}
+        }
+        isPlayingRef.current = false;
+        handlingError = false;
+        return;
+      }
 
       const now = Date.now();
       if (now - lastErrorTime < 3000) {
@@ -251,7 +344,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
           ...prev,
           deadStationIds: [...prev.deadStationIds, currentId]
         }));
-        
+
         setTimeout(() => {
           failedStationsRef.current.delete(currentId);
           setState(prev => ({
@@ -280,29 +373,125 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
 
     const handleStalled = () => {
       logger.warn('[RadioPlayer] Stream stalled');
+      // Treat extended stalls the same as transient drops — try silent
+      // reconnect rather than just showing "Buffering..." indefinitely.
+      if (isPlayingFlagRef.current && tryReconnectRef.current()) return;
       setError('Buffering...');
+    };
+
+    const handleWaiting = () => {
+      // 'waiting' fires when playback halts because the next frame isn't
+      // available. On live streams this is the most reliable "connection
+      // dropped" signal — give the supervisor a chance to recover quietly.
+      if (isPlayingFlagRef.current && tryReconnectRef.current()) return;
     };
 
     const handlePlaying = () => {
       setError(null);
       errorCount = 0;
+      reconnectAttemptsRef.current = 0;
+      // After 60s of healthy playback, also reset the rapid-error counter
+      // (it normally only resets on a fresh 'playing' event, which never
+      // fires for an already-playing live stream).
+      if (healthyPlaybackTimeoutRef.current) clearTimeout(healthyPlaybackTimeoutRef.current);
+      healthyPlaybackTimeoutRef.current = setTimeout(() => {
+        errorCount = 0;
+      }, 60000);
     };
 
     audioRef.current.addEventListener('ended', handleTrackEnded);
     audioRef.current.addEventListener('error', handleAudioError);
     audioRef.current.addEventListener('canplay', handleCanPlay);
     audioRef.current.addEventListener('stalled', handleStalled);
+    audioRef.current.addEventListener('waiting', handleWaiting);
     audioRef.current.addEventListener('playing', handlePlaying);
 
     return () => {
       if (errorTimeoutRef.current) clearTimeout(errorTimeoutRef.current);
+      if (healthyPlaybackTimeoutRef.current) clearTimeout(healthyPlaybackTimeoutRef.current);
       audioRef.current?.removeEventListener('ended', handleTrackEnded);
       audioRef.current?.removeEventListener('error', handleAudioError);
       audioRef.current?.removeEventListener('canplay', handleCanPlay);
       audioRef.current?.removeEventListener('stalled', handleStalled);
+      audioRef.current?.removeEventListener('waiting', handleWaiting);
       audioRef.current?.removeEventListener('playing', handlePlaying);
     };
   }, []);
+
+  // Heartbeat watchdog + foreground resume: while isPlaying, ensure currentTime
+  // is still advancing and AudioContext isn't suspended. If either freezes,
+  // kick the reconnect supervisor.
+  useEffect(() => {
+    if (!state.isPlaying) {
+      if (watchdogIntervalRef.current) {
+        clearInterval(watchdogIntervalRef.current);
+        watchdogIntervalRef.current = null;
+      }
+      return;
+    }
+
+    lastCurrentTimeRef.current = audioRef.current?.currentTime ?? 0;
+    lastCurrentTimeSampleRef.current = Date.now();
+
+    watchdogIntervalRef.current = setInterval(() => {
+      const audio = audioRef.current;
+      if (!audio) return;
+
+      if (audioContextRef.current?.state === 'suspended') {
+        audioContextRef.current.resume().catch(() => {/* ignore */});
+      }
+
+      const now = audio.currentTime;
+      const elapsed = Date.now() - lastCurrentTimeSampleRef.current;
+      // If currentTime hasn't advanced in 30s and we believe we're playing,
+      // the stream is frozen — silently reconnect.
+      if (now === lastCurrentTimeRef.current && elapsed > 30000 && !audio.paused) {
+        logger.warn('[RadioPlayer] Watchdog: currentTime frozen, reconnecting');
+        if (!tryReconnectSameStation()) {
+          changeStationRef.current('next');
+        }
+        lastCurrentTimeSampleRef.current = Date.now();
+        return;
+      }
+      if (now !== lastCurrentTimeRef.current) {
+        lastCurrentTimeRef.current = now;
+        lastCurrentTimeSampleRef.current = Date.now();
+      }
+    }, 30000);
+
+    return () => {
+      if (watchdogIntervalRef.current) {
+        clearInterval(watchdogIntervalRef.current);
+        watchdogIntervalRef.current = null;
+      }
+    };
+  }, [state.isPlaying, tryReconnectSameStation]);
+
+  // When the tab returns to foreground, resume audio + AudioContext if we
+  // believe playback is in progress but the element is paused.
+  useEffect(() => {
+    const handleResume = () => {
+      if (!state.isPlaying) return;
+      const audio = audioRef.current;
+      if (audioContextRef.current?.state === 'suspended') {
+        audioContextRef.current.resume().catch(() => {/* ignore */});
+      }
+      if (audio && audio.paused && audio.src) {
+        userInitiatedRef.current = true;
+        audio.play().catch(() => {
+          // If resume fails, hand off to reconnect supervisor.
+          if (!tryReconnectSameStation()) changeStationRef.current('next');
+        });
+      }
+    };
+    const onVis = () => { if (document.visibilityState === 'visible') handleResume(); };
+    window.addEventListener('focus', handleResume);
+    document.addEventListener('visibilitychange', onVis);
+    return () => {
+      window.removeEventListener('focus', handleResume);
+      document.removeEventListener('visibilitychange', onVis);
+    };
+  }, [state.isPlaying, tryReconnectSameStation]);
 
   // Load user preferences
   useEffect(() => {
@@ -451,9 +640,17 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
         savePreferences({ currentStation: targetStation, currentCity: targetStation.city });
       }
 
-      // 📡 TURBO TIMEOUT: 10s for slower connections
+      // 📡 TURBO TIMEOUT: 15s for slower connections. Only mark failed if
+      // the stream really hasn't delivered enough data (readyState < 2 means
+      // we don't even have current data) — protects slow-but-fine streams.
       loadTimeoutRef.current = setTimeout(() => {
-        console.warn(`[RadioPlayer] Station ${targetStation.id} (${targetStation.name}) timeout after 10s, skipping...`);
+        const audio = audioRef.current;
+        if (audio && audio.readyState >= 2) {
+          // Stream is alive, just slow. Clear the deadline silently.
+          loadTimeoutRef.current = null;
+          return;
+        }
+        console.warn(`[RadioPlayer] Station ${targetStation.id} (${targetStation.name}) timeout after 15s, skipping...`);
         logger.warn(`[RadioPlayer] Station ${targetStation.id} timeout, skipping`);
         failedStationsRef.current.add(targetStation.id);
         setTimeout(() => failedStationsRef.current.delete(targetStation.id), 20000);
@@ -461,12 +658,12 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
         // CRITICAL: release the play lock — without this, the radio gets
         // permanently stuck because every subsequent play() exits early.
         isPlayingRef.current = false;
-        try { audioRef.current?.pause(); } catch {/* ignore */}
+        try { audio?.pause(); } catch {/* ignore */}
         setTimeout(() => {
           setError(null);
           changeStationRef.current('next');
         }, 300);
-      }, 10000);
+      }, 15000);
 
       try {
         // ⚡ TURBO ENGINE: Immediate AudioContext creation on first play

@@ -111,26 +111,50 @@ body::-webkit-scrollbar {
 }
 
 /* ─── View Transitions ─── */
+/* Default: 180ms ease-out cross-fade so every navigation feels smooth
+   instead of a hard cut. Theme changes opt into the ripple reveal by
+   setting `data-theme-transition` on <html>. */
 ::view-transition-old(root),
 ::view-transition-new(root) {
-  animation-duration: 0.15s;
-  animation-timing-function: cubic-bezier(0.2, 0, 0, 1);
+  animation-duration: 180ms;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  mix-blend-mode: normal;
 }
 
 ::view-transition-old(root) {
-  animation: none;
+  animation-name: vt-fade-out;
   z-index: 1;
 }
 
 ::view-transition-new(root) {
-  animation: theme-ripple-reveal 0.15s cubic-bezier(0.2, 0, 0, 1) forwards;
+  animation-name: vt-fade-in;
   z-index: 2;
-  mix-blend-mode: normal;
+}
+
+@keyframes vt-fade-out {
+  to { opacity: 0; }
+}
+
+@keyframes vt-fade-in {
+  from { opacity: 0; }
+}
+
+/* Theme-switch override: explicit ripple reveal driven by ThemeContext. */
+html[data-theme-transition] ::view-transition-old(root) {
+  animation: none;
+}
+html[data-theme-transition] ::view-transition-new(root) {
+  animation: theme-ripple-reveal 0.15s cubic-bezier(0.2, 0, 0, 1) forwards;
 }
 
 @keyframes theme-ripple-reveal {
   0% { clip-path: circle(0% at var(--theme-reveal-x, 50%) var(--theme-reveal-y, 50%)); }
   100% { clip-path: circle(150% at var(--theme-reveal-x, 50%) var(--theme-reveal-y, 50%)); }
+}
+
+/* Kill the iOS 300ms double-tap delay on any tappable control. */
+:where(button, [role="button"], a) {
+  touch-action: manipulation;
 }
 
 @keyframes photo-slide-in {
