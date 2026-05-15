@@ -211,7 +211,7 @@ export default function EventosFeed() {
 
   // Scroll & Virtualization
   useEffect(() => {
-    const el = document.getElementById('dashboard-scroll-container') || parentRef.current;
+    const el = parentRef.current || document.getElementById('dashboard-scroll-container');
     if (!el) return;
 
     const handleScroll = () => {
@@ -238,7 +238,7 @@ export default function EventosFeed() {
 
   const rowVirtualizer = useVirtualizer({
     count: filteredEvents.length,
-    getScrollElement: () => document.getElementById('dashboard-scroll-container') || parentRef.current,
+    getScrollElement: () => parentRef.current || document.getElementById('dashboard-scroll-container'),
     estimateSize: () => window.innerHeight || 800,
     overscan: 2,
     initialOffset: 0,

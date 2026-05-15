@@ -300,9 +300,9 @@ export function MessagingDashboard() {
                     {isUnread && <div className="absolute inset-y-0 left-0 w-1 bg-[#EB4898] shadow-[0_0_15px_#EB4898]" />}
 
                     <div className="relative shrink-0">
-                       <Avatar className="w-15 h-15 rounded-2xl border border-white/10 shadow-xl overflow-hidden">
+                       <Avatar className={cn("w-15 h-15 rounded-2xl border shadow-xl overflow-hidden", isLight ? "border-black/10" : "border-white/10")}>
                           <AvatarImage src={conversation.other_user?.avatar_url} className="object-cover" />
-                          <AvatarFallback className="bg-white/5 text-white font-black uppercase italic">{conversation.other_user?.full_name?.charAt(0)}</AvatarFallback>
+                          <AvatarFallback className={cn("font-black uppercase italic", isLight ? "bg-foreground/5 text-foreground" : "bg-white/5 text-white")}>{conversation.other_user?.full_name?.charAt(0)}</AvatarFallback>
                         </Avatar>
                         {isUnread && (
                           <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[#EB4898] border-2 border-background shadow-[0_0_10px_#EB4898] flex items-center justify-center">

@@ -198,7 +198,11 @@ function RadioMiniPlayerInner() {
                   </button>
                   <button
                     onClick={handleTogglePlay}
-                    className="w-14 h-14 rounded-full flex items-center justify-center shadow-2xl active:scale-90 bg-white text-black border border-black/10"
+                    aria-label={state.isPlaying ? 'Pause' : 'Play'}
+                    className={cn(
+                      "w-14 h-14 rounded-full flex items-center justify-center shadow-2xl active:scale-90 border",
+                      isLight ? "bg-foreground text-background border-foreground/15" : "bg-white text-black border-black/10"
+                    )}
                   >
                     {state.isPlaying ? <Pause className="w-7 h-7 fill-current" /> : <Play className="w-7 h-7 fill-current ml-1" />}
                   </button>

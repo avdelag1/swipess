@@ -7,6 +7,7 @@ import useAppTheme from '@/hooks/useAppTheme';
 import CardImage from '@/components/CardImage';
 import { LoopVideo } from '@/components/video/LoopVideo';
 import { EventItem } from '@/types/events';
+import { CATEGORIES } from '@/data/eventsData';
 
 const AUTOPLAY_DURATION = 6000;
 
@@ -73,6 +74,7 @@ export const EventCard = memo(({
   const isLight = theme === 'light';
   const [showDetails, setShowDetails] = useState(false);
   const [likeAnim, setLikeAnim] = useState(false);
+  const categoryFallback = CATEGORIES.find(c => c.key === event.category)?.img || CATEGORIES[0].img;
 
   const handleLike = () => {
     onLike();
@@ -123,6 +125,7 @@ export const EventCard = memo(({
             <CardImage
               src={event.image_url}
               alt={event.title}
+              fallbackSrc={categoryFallback}
               fullScreen
               animate={true}
               priority={isActive}
