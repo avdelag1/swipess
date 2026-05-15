@@ -21,10 +21,11 @@ const SEED_USER_IDS = new Set([
 ]);
 const isSeedUserId = (id?: string | null) => !!id && SEED_USER_IDS.has(id);
 
-// Demos disabled — show real users only.
-// 🚀 SWIPESS SYNC: High-quality demo profiles to ensure the deck never feels empty.
-// These use diverse Unsplash avatars to look like a real community.
-const DEMO_CLIENTS: any[] = [
+// Demo client profiles — appended AFTER real users so the deck never feels
+// empty while the marketplace is small. Each entry tags client_type
+// (buyer / renter / hire) and roommate_available so the owner-side filters
+// (buyers / renters / hire / roommates) all show relevant human photos.
+const DEMO_ROOMMATE_CLIENTS: any[] = [
   {
     user_id: 'demo-roommate-1',
     full_name: 'Elena Vance',
@@ -60,7 +61,7 @@ const DEMO_CLIENTS: any[] = [
   }
 ];
 
-const _DEPRECATED_DEMO_CLIENTS: any[] = [
+const DEMO_OWNER_FACING_CLIENTS: any[] = [
   {
     user_id: 'demo-client-buyer-1-disabled',
     full_name: 'Isabela Torres',
@@ -220,6 +221,38 @@ const _DEPRECATED_DEMO_CLIENTS: any[] = [
   },
 ];
 
+const ALL_DEMO_CLIENTS: any[] = [...DEMO_ROOMMATE_CLIENTS, ...DEMO_OWNER_FACING_CLIENTS];
+
+const filterDemoClientsForCategory = (
+  category?: string,
+  isRoommateSection?: boolean
+): any[] => {
+  if (isRoommateSection) {
+    return ALL_DEMO_CLIENTS.filter(c => c.roommate_available === true);
+  }
+  if (!category || category === 'all' || category === 'all-clients') {
+    return ALL_DEMO_CLIENTS;
+  }
+  const targetType: Record<string, string> = {
+    buyers: 'buyer',
+    renters: 'renter',
+    hire: 'hire',
+  };
+  const want = targetType[category];
+  if (!want) return ALL_DEMO_CLIENTS;
+  return ALL_DEMO_CLIENTS.filter(c => c.client_type === want);
+};
+
+const normalizeDemoClient = (c: any): any => ({
+  ...c,
+  id: c.user_id,
+  name: c.full_name || c.name || 'User',
+  profile_images: c.images || [],
+  matchPercentage: 90 + Math.floor(Math.random() * 8),
+  matchReasons: ['Featured', 'Highly Recommended'],
+  incompatibleReasons: [],
+  isDemo: true,
+});
 
 export function useSmartClientMatching(
     userId?: string,
@@ -306,9 +339,18 @@ export function useSmartClientMatching(
                     });
                 }
 
-                // Demo clients are not real backend users and cannot receive messages,
-                // so they are intentionally excluded from the deck. Real profiles only.
-                const appendDemoClients = (real: MatchedClientProfile[]): MatchedClientProfile[] => real;
+                // Append demo clients AFTER real profiles so the deck is never
+                // empty during testing. Demos are filtered by the active
+                // category (buyers / renters / hire / roommates) so each
+                // owner-side filter shows the right human photos.
+                const appendDemoClients = (real: MatchedClientProfile[]): MatchedClientProfile[] => {
+                    if (page !== 0) return real;
+                    const realIds = new Set(real.map(r => r.user_id));
+                    const demos = filterDemoClientsForCategory(_category, isRoommateSection)
+                        .filter(d => !realIds.has(d.user_id))
+                        .map(normalizeDemoClient);
+                    return [...real, ...demos] as MatchedClientProfile[];
+                };
 
                 // RPC attempt — only use results if they match the current category filter
                 try {
