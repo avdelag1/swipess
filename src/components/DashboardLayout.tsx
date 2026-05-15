@@ -239,11 +239,11 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   useLayoutEffect(() => {
     const el = scrollContainerRef.current;
     if (el) {
-      el.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
+      el.scrollTo({ top: 0, behavior: 'auto' });
     }
   }, [location.pathname]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     document.body.classList.toggle('swipe-deck-active', isSwipeDeck);
     return () => document.body.classList.remove('swipe-deck-active');
   }, [isSwipeDeck]);

@@ -105,7 +105,7 @@ export function HolographicIDCard({
           {/* Header with Photo and Name */}
           <div className="flex gap-6 mb-6">
             <div className="relative shrink-0" style={{ transform: "translateZ(40px)" }}>
-              <div className="w-[120px] h-[150px] sm:w-[140px] sm:h-[180px] rounded-[2rem] overflow-hidden shadow-2xl border-2 border-white/20 bg-zinc-800/50 backdrop-blur-md">
+              <div className="glass-surface w-[120px] h-[150px] sm:w-[140px] sm:h-[180px] rounded-[2rem] overflow-hidden shadow-2xl border-2 border-white/20">
                 {avatarUrl ? (
                   <img src={avatarUrl} alt={name} className="w-full h-full object-cover" />
                 ) : (
@@ -159,16 +159,16 @@ export function HolographicIDCard({
             {tags.length > 0 && (
               <div className="flex flex-wrap gap-2 mb-6">
                 {tags.map((tag, i) => (
-                  <motion.span 
-                    key={tag} 
+                  <motion.span
+                    key={tag}
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: i * 0.05 }}
-                    className="rounded-xl px-4 py-1.5 text-[10px] font-black uppercase italic tracking-widest border bg-white/5 border-white/10 backdrop-blur-sm"
-                    style={{ 
-                      backgroundColor: theme.tagBg, 
-                      borderColor: theme.tagBorder, 
-                      color: theme.tagText 
+                    className="glass-pill px-4 py-1.5 text-[10px] font-black uppercase italic tracking-widest"
+                    style={{
+                      backgroundColor: theme.tagBg,
+                      borderColor: theme.tagBorder,
+                      color: theme.tagText
                     }}
                   >
                     {tag}
