@@ -10,8 +10,16 @@ import { useAdminUserIds } from '../useAdminUserIds';
 const CLIENT_FIELDS = `
     user_id, full_name, age, gender, city, country, images, avatar_url,
     interests, lifestyle_tags, smoking, work_schedule, nationality,
-    languages_spoken, neighborhood, bio, onboarding_completed
+    languages_spoken, neighborhood, bio, onboarding_completed, created_at
 `;
+
+// Seed/demo user IDs that should always appear AFTER real users.
+const SEED_USER_IDS = new Set([
+    '00000000-0000-0000-0000-000000000000',
+    '00000000-0000-0000-0000-000000000001',
+    '7c51f110-6261-44d8-b9d0-d4ccd2d901b6',
+]);
+const isSeedUserId = (id?: string | null) => !!id && SEED_USER_IDS.has(id);
 
 // Demos disabled — show real users only.
 // 🚀 SWIPESS SYNC: High-quality demo profiles to ensure the deck never feels empty.
@@ -489,7 +497,16 @@ export function useSmartClientMatching(
                 // 🚀 DEMO FALLBACK REMOVED: Show the "Adjust Radius" page instead of fake demo data
                 // This gives users clear feedback when no real matches exist nearby
 
-                const sortedReal = results.sort((a, b) => b.matchPercentage - a.matchPercentage);
+                // Real users first (seed/mock UUIDs sink to the bottom), then by
+                // signup recency. Deterministic so every viewer sees the same
+                // queue order — no per-viewer matchPercentage shuffling.
+                const sortedReal = [...results].sort((a, b) => {
+                    const seedDelta = Number(isSeedUserId(a.user_id)) - Number(isSeedUserId(b.user_id));
+                    if (seedDelta !== 0) return seedDelta;
+                    const ta = new Date((a as any).created_at || 0).getTime();
+                    const tb = new Date((b as any).created_at || 0).getTime();
+                    return tb - ta;
+                });
                 return appendDemoClients(sortedReal);
             } catch (err) {
                 logger.error('[SmartClientMatching] Error:', err);

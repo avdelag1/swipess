@@ -421,7 +421,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           {showVideoSlide ? (
             <video src={videoUrl} autoPlay muted loop playsInline className="absolute inset-0 w-full h-full object-cover" />
           ) : (
-            <CardImage src={currentImage} alt={profile.name || 'Client'} name={profile.name} priority={isTop} fullScreen={true} animate={!isZoomed} />
+            <CardImage src={currentImage} alt={profile.name || 'Client'} name={profile.name} priority fullScreen={true} animate={!isZoomed} />
           )}
           {isTop && (
             <>

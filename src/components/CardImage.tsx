@@ -1,6 +1,5 @@
-import { memo, useEffect, useMemo, useState, useRef } from 'react';
+import { memo, useEffect, useMemo, useState } from 'react';
 import { getCardImageUrl, getBlurDataUrl } from '@/utils/imageOptimization';
-import { cn } from '@/lib/utils';
 import PlaceholderImage from './PlaceholderImage';
 import { imageCache } from '@/lib/swipe/cardImageCache';
 import { MarketingSlide } from './MarketingSlide';
@@ -52,10 +51,6 @@ const CardImage = memo(({
     return false;
   });
   const [error, setError] = useState<boolean>(false);
-
-  const prevSrcRef = useRef<string | null | undefined>(null);
-  const prevOptimizedRef = useRef<string | null>(null);
-  const [showPrev, setShowPrev] = useState(false);
 
   useEffect(() => {
     setError(false);
@@ -110,17 +105,6 @@ const CardImage = memo(({
       img.onerror = null;
     };
   }, [src, optimizedSrc, isMarketingSlide]);
-
-  useEffect(() => {
-    if (prevSrcRef.current && prevSrcRef.current !== src && wasInCache) {
-      prevOptimizedRef.current = getCardImageUrl(prevSrcRef.current ?? '');
-      setShowPrev(true);
-      const timer = setTimeout(() => setShowPrev(false), CROSSFADE_MS + 50);
-      prevSrcRef.current = src;
-      return () => clearTimeout(timer);
-    }
-    prevSrcRef.current = src;
-  }, [src, wasInCache]);
 
   if (!src || error) {
     return <PlaceholderImage name={name} />;
@@ -187,25 +171,6 @@ const CardImage = memo(({
             />
           )}
         </div>
-      )}
-
-      {showPrev && prevOptimizedRef.current && (
-        <img
-          src={prevOptimizedRef.current}
-          alt=""
-          aria-hidden="true"
-          style={{
-            position: 'absolute',
-            inset: 0,
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            borderRadius: br,
-            opacity: 0,
-            animation: `photo-crossfade-out ${CROSSFADE_MS}ms cubic-bezier(0.4, 0, 0.2, 1) forwards`,
-            zIndex: 2,
-          }}
-        />
       )}
 
       <img
