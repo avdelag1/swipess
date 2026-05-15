@@ -119,23 +119,62 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
     : 'drop-shadow(0 2px 7px hsl(var(--background) / 0.9))';
 
   const images = useMemo(() => {
+    // Pulls a usable URL out of whatever the DB / mock data hands us:
+    // a plain string, or an object like { url } / { image_url } / { src }.
+    const extract = (raw: unknown): string | null => {
+      if (typeof raw === 'string') {
+        const trimmed = raw.trim();
+        return trimmed && trimmed.toLowerCase() !== 'null' ? trimmed : null;
+      }
+      if (raw && typeof raw === 'object') {
+        const obj = raw as Record<string, unknown>;
+        return extract(obj.url) || extract(obj.image_url) || extract(obj.src) || extract(obj.publicUrl) || null;
+      }
+      return null;
+    };
+
+    const collect = (input: unknown): string[] => {
+      if (!Array.isArray(input)) return [];
+      const out: string[] = [];
+      for (const item of input) {
+        const url = extract(item);
+        if (url) out.push(url);
+      }
+      return out;
+    };
+
     let result: string[] = [];
     const isProfile = (listing as any).profile_images || (listing as any).name;
     if (isProfile) {
-      if (Array.isArray((listing as any).profile_images) && (listing as any).profile_images.length > 0) {
-        result = (listing as any).profile_images;
-      } else if ((listing as any).avatar_url) {
-        result = [(listing as any).avatar_url];
+      result = collect((listing as any).profile_images);
+      if (result.length === 0) {
+        const avatar = extract((listing as any).avatar_url);
+        if (avatar) result.push(avatar);
       }
     } else {
-      if ((listing as any).video_url) result.push((listing as any).video_url);
-      if (Array.isArray((listing as any).images) && (listing as any).images.length > 0) {
-        result = [...result, ...(listing as any).images];
-      } else if ((listing as any).image_url) {
-        result.push((listing as any).image_url);
+      const video = extract((listing as any).video_url);
+      if (video) result.push(video);
+      const listingImages = collect((listing as any).images);
+      if (listingImages.length > 0) {
+        result = [...result, ...listingImages];
+      } else {
+        const single = extract((listing as any).image_url);
+        if (single) result.push(single);
       }
     }
-    return result.length === 0 ? [FALLBACK_PLACEHOLDER] : result;
+
+    // Dedupe while preserving order so the carousel never loops back to an
+    // identical-looking slide that the user thinks is "broken".
+    const deduped: string[] = [];
+    const seen = new Set<string>();
+    for (const url of result) {
+      if (!seen.has(url)) {
+        seen.add(url);
+        deduped.push(url);
+      }
+    }
+
+    return deduped.length === 0 ? [FALLBACK_PLACEHOLDER] : deduped;
   }, [listing]);
 
   const imageCount = images.length;

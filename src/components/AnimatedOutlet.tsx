@@ -40,7 +40,16 @@ export function AnimatedOutlet() {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.16, ease: [0.22, 1, 0.36, 1] }}
           className={`flex-1 w-full flex flex-col ${isDashboardRoute ? 'bg-transparent' : 'bg-background'}`}
-          style={{ position: 'absolute', inset: 0, pointerEvents: isDashboardRoute ? 'none' : 'auto' }}
+          // Dashboard routes: absolutely positioned so the persistent dashboard
+          //   scene (rendered underneath) shows through and intercepts swipes.
+          // Other routes: relative positioning, so page content contributes to
+          //   the dashboard scroll container's height and pages with tall
+          //   content (e.g. ClientProfile) scroll naturally.
+          style={
+            isDashboardRoute
+              ? { position: 'absolute', inset: 0, pointerEvents: 'none' }
+              : { position: 'relative', minHeight: '100%', pointerEvents: 'auto' }
+          }
         >
           <Suspense fallback={null}>
             {outlet}
