@@ -1,6 +1,6 @@
 /**
  * Ultra-Fast Service Worker - Optimized for lightning-speed loading
- * UPDATED: 2026-04-23T03:15Z - Force Update v6
+ * UPDATED: 2026-05-15T19:20Z - Force Update v7
  * 
  * PWA UPDATE FIX: Aggressive updates to ensure users always get latest version
  * - skipWaiting() called immediately on install for instant activation
@@ -11,7 +11,7 @@
 // IMPORTANT: __BUILD_TIME__ is replaced with an ISO timestamp by the Vite
 // sw-build-time-plugin at build time. In dev mode the literal string is used
 // as the version (safe — SW is unregistered in dev anyway).
-const SW_VERSION = '__BUILD_TIME__' === '__BUILD_TIME__' ? '2026-05-08T03-storage-images' : '__BUILD_TIME__';
+const SW_VERSION = '__BUILD_TIME__' === '__BUILD_TIME__' ? '2026-05-15T19-nexus-ui' : '__BUILD_TIME__';
 const CACHE_VERSION = `swipess-${SW_VERSION}`;
 const CACHE_NAME = CACHE_VERSION;
 const STATIC_CACHE = `${CACHE_NAME}-static`;

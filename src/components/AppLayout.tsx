@@ -154,11 +154,8 @@ export function AppLayout({ children }: AppLayoutProps) {
   // Public standalone pages (outside DashboardLayout) scroll via the main container below.
   const isInsideDashboard = useMemo(() => {
     const path = location.pathname;
-    // These routes go through PersistentDashboardLayout → DashboardLayout
-    // They must NOT scroll at AppLayout level — DashboardLayout handles it
-    const scrollableRoutes = ['/', '/reset-password', '/legal', '/about', '/faq/', '/listing', '/profile', '/settings', '/vap-validate', '/payment'];
-    const isScrollable = scrollableRoutes.some(r => path === r || path.startsWith(r) || path.includes('/profile') || path.includes('/settings'));
-    return !isScrollable;
+    const authRoutes = ['/client', '/owner', '/admin'];
+    return authRoutes.some(r => path.startsWith(r));
   }, [location.pathname]);
 
 
@@ -169,10 +166,11 @@ export function AppLayout({ children }: AppLayoutProps) {
     const isCamera = path.startsWith('/camera');
     const isRoommates = path.startsWith('/explore/roommates');
     const isMessages = path.startsWith('/messages');
-    return isCamera || isRadio || showAIChat || isSwipeDashboard || isRoommates || isMessages;
+    const isEvents = path.startsWith('/explore/eventos');
+    return isCamera || isRadio || showAIChat || isSwipeDashboard || isRoommates || isMessages || isEvents;
   }, [location.pathname, showAIChat, isSwipeDashboard]);
-
-  const showAppChrome = !isAuthRoute && !isRadioRoute && !isCameraRoute && !showAIChat && (!isPublicPreview || !!user);
+  
+  const showAppChrome = !isAuthRoute && !isRadioRoute && !isCameraRoute && !showAIChat && (!isPublicPreview || !!user) && location.pathname !== '/explore/eventos';
 
   const handleFilterClick = () => {
     const role = userRole === 'admin' ? 'admin' : activeMode;
