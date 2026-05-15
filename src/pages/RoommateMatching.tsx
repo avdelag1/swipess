@@ -331,7 +331,7 @@ export default function RoommateMatching() {
         animate={{ y: uiVisible ? 0 : 150 }}
         transition={{ type: 'spring', stiffness: 260, damping: 30 }}
         className="absolute bottom-0 left-0 right-0 z-[100]"
-        style={{ paddingBottom: 'calc(7rem + var(--safe-bottom, 0px))' }}
+        style={{ paddingBottom: 'calc(8.5rem + var(--safe-bottom, 0px))' }}
       >
         <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-black/75 via-black/35 to-transparent pointer-events-none" />
         <SwipeActionButtonBar
