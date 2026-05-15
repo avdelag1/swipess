@@ -11,7 +11,7 @@
 // IMPORTANT: __BUILD_TIME__ is replaced with an ISO timestamp by the Vite
 // sw-build-time-plugin at build time. In dev mode the literal string is used
 // as the version (safe — SW is unregistered in dev anyway).
-const SW_VERSION = '__BUILD_TIME__' === '__BUILD_TIME__' ? '2026-05-15T19-nexus-ui' : '__BUILD_TIME__';
+const SW_VERSION = '__BUILD_TIME__' === '__BUILD_TIME__' ? '2026-05-15T19-nexus-ui-v1.1' : '__BUILD_TIME__';
 const CACHE_VERSION = `swipess-${SW_VERSION}`;
 const CACHE_NAME = CACHE_VERSION;
 const STATIC_CACHE = `${CACHE_NAME}-static`;

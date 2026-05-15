@@ -40,8 +40,8 @@ const ENTRY_SPRING = { type: 'spring' as const, stiffness: 340, damping: 26, mas
 // ── DIMENSIONS ────────────────────────────────────────────────────────────────
 const LARGE_CSS = 'clamp(52px, 14vw, 60px)';
 const SMALL_CSS = 'clamp(36px, 9.5vw, 42px)';
-const LARGE_ICON = 30;
-const SMALL_ICON = 20;
+const LARGE_ICON = 24;
+const SMALL_ICON = 18;
 const TAP_SCALE = 0.92;
 
 // ── VARIANT CONFIGS ───────────────────────────────────────────────────────────
@@ -210,7 +210,7 @@ export const SwipeActionButtonBar = memo(({
   const { isLight } = useAppTheme();
 
   return (
-    <div className={`mx-auto flex w-auto max-w-[96vw] items-center justify-center gap-1 pointer-events-auto overflow-visible ${className}`}>
+    <div className={`mx-auto flex w-auto max-w-[96vw] items-center justify-center gap-1.5 pointer-events-auto overflow-visible glass-surface px-3 py-1.5 rounded-full ${className}`}>
       <AnimatePresence mode="popLayout" initial={false}>
         {onShare && (
           <ActionButton

@@ -120,7 +120,7 @@ function TopBarComponent({
         border: 'none'
       }}
     >
-      <div className="h-full w-full px-4 flex items-center justify-between relative">
+      <div className="h-full w-fit max-w-[95vw] mx-auto px-1.5 flex items-center justify-between relative glass-surface rounded-full">
         
         <div className="flex min-w-0 items-center gap-2 pointer-events-auto">
           {onBack ? (
@@ -198,16 +198,7 @@ function TopBarComponent({
           )}
         </div>
 
-        {onCenterTap ? (
-          <motion.button
-            className="flex-1 h-full pointer-events-auto"
-            whileTap={{ opacity: 0.7 }}
-            onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); haptics.tap(); onCenterTap(); }}
-            aria-label="Go to dashboard"
-          />
-        ) : (
-          <div className="flex-1" />
-        )}
+        <div className="w-4" />
 
         {/* RIGHT CLUSTER: Individual Action Pills */}
           <div className="flex shrink-0 items-center gap-2 pointer-events-auto">

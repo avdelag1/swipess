@@ -291,8 +291,8 @@ export const BottomNavigation = memo(({
         className={cn(
           "pointer-events-auto",
           "mx-auto w-fit max-w-[95vw]",
-          "glass-surface px-2 py-1.5", // Unified Glassmorphic Pill
-          isTablet ? "rounded-3xl" : "rounded-full"
+          "glass-surface px-1.5 py-1", // Unified Glassmorphic Pill — More Compact
+          "rounded-full"
         )}
         style={{
           filter: isLight
@@ -307,7 +307,7 @@ export const BottomNavigation = memo(({
           data-scroll-axis="x"
           onPointerMove={handlePointerMove}
           className={cn(
-            'relative flex items-center w-full gap-1 px-3 py-0.5 nav-scroll-hide transform-gpu select-none',
+            'relative flex items-center w-full gap-0.5 px-2 py-0.5 nav-scroll-hide transform-gpu select-none',
           )}
           style={{
             zIndex: 2,
@@ -360,7 +360,7 @@ export const BottomNavigation = memo(({
                   'touch-manipulation focus-visible:outline-none transform-gpu rounded-full',
                 )}
                 style={{
-                  minWidth: 'clamp(42px, 10vw, 54px)',
+                  minWidth: 'clamp(38px, 9vw, 48px)',
                   scrollSnapAlign: 'start',
                   minHeight: isTablet ? TOUCH_TARGET_TABLET : TOUCH_TARGET,
                   padding: isTablet ? '8px 12px' : (isNarrow ? '4px' : 'clamp(4px, 1.2vw, 8px)'),
