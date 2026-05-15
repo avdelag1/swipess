@@ -21,7 +21,7 @@ const SwipessHud = lazyWithRetry(() => import('./SwipessHud').then(m => ({ defau
 const VapIdCardModal = lazyWithRetry(() => import('./VapIdCardModal').then(m => ({ default: m.VapIdCardModal })));
 const GlobalDialogs = lazyWithRetry(() => import('./GlobalDialogs').then(m => ({ default: m.GlobalDialogs })));
 import { ChromeSummonZones } from './swipe/ChromeSummonZones';
-import { useChromeReveal } from '@/hooks/useChromeReveal';
+import { useChromeReveal, revealChrome } from '@/hooks/useChromeReveal';
 
 
 const NotificationSystem = lazy(() =>
@@ -121,6 +121,28 @@ export function AppLayout({ children }: AppLayoutProps) {
   useEffect(() => {
     useModalStore.getState().closeAll();
   }, [location.pathname]);
+
+  // Defensive: the swipe-deck-active body class locks page overflow. If a
+  // navigation race ever leaves it stuck, force-clear it whenever we land on
+  // a route that isn't the swipe deck. Runs pre-paint to avoid a frame of
+  // un-scrollable content on profile / settings / etc.
+  useLayoutEffect(() => {
+    if (!isSwipeDashboard) {
+      document.body.classList.remove('swipe-deck-active');
+    }
+  }, [location.pathname, isSwipeDashboard]);
+
+  // Discoverability: when entering swipe-deck reveal mode (chrome auto-hides),
+  // briefly show the header + bottom nav so users see the controls exist
+  // before they fade out. Auto-hide timer (5s) is set by revealChrome().
+  // useLayoutEffect so the store flips before paint — no hide/re-show flicker.
+  const wasRevealRef = useRef(false);
+  useLayoutEffect(() => {
+    if (useRevealMode && !wasRevealRef.current) {
+      revealChrome();
+    }
+    wasRevealRef.current = useRevealMode;
+  }, [useRevealMode]);
 
   const isPublicPreview = location.pathname.startsWith('/listing/') || location.pathname.startsWith('/profile/');
   const isAuthRoute = location.pathname === '/' || location.pathname === '/reset-password';
