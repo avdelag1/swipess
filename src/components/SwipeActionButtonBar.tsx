@@ -142,9 +142,9 @@ const ActionButton = memo(forwardRef<HTMLButtonElement, any>(function ActionButt
       onPointerUp={() => setIsPressed(false)}
       onPointerLeave={() => setIsPressed(false)}
       onPointerCancel={() => setIsPressed(false)}
-      initial={{ opacity: 0, y: 12, scale: 0.88 }}
+      initial={{ opacity: 0, y: 8, scale: 0.92 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={{ ...ENTRY_SPRING, delay: index * 0.05 }}
+      transition={ENTRY_SPRING}
       whileTap={{ 
         scale: TAP_SCALE,
         y: 3,

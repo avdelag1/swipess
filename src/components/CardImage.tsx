@@ -4,7 +4,6 @@ import { cn } from '@/lib/utils';
 import PlaceholderImage from './PlaceholderImage';
 import { imageCache } from '@/lib/swipe/cardImageCache';
 import { MarketingSlide } from './MarketingSlide';
-import { SwipessLogo } from './SwipessLogo';
 import { motion } from 'framer-motion';
 
 function isBrowser() {
@@ -175,19 +174,16 @@ const CardImage = memo(({
             transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
           />
 
-          {/* Branded Pulse */}
-          <div className="relative z-10 flex flex-col items-center gap-4 opacity-20 scale-75 lg:scale-100">
-            <SwipessLogo variant="white" size="sm" className="opacity-60" />
-            <div className="flex gap-1">
-              {[0, 1, 2].map(i => (
-                <motion.div 
-                  key={i}
-                  className="w-1.5 h-1.5 rounded-full bg-white/40"
-                  animate={{ opacity: [0.3, 1, 0.3], scale: [0.8, 1.2, 0.8] }}
-                  transition={{ duration: 1, repeat: Infinity, delay: i * 0.2 }}
-                />
-              ))}
-            </div>
+          {/* Subtle dot pulse — no logo to keep transitions clean */}
+          <div className="relative z-10 flex gap-1.5 opacity-40">
+            {[0, 1, 2].map(i => (
+              <motion.div
+                key={i}
+                className="w-1.5 h-1.5 rounded-full bg-white/50"
+                animate={{ opacity: [0.3, 1, 0.3], scale: [0.8, 1.2, 0.8] }}
+                transition={{ duration: 1, repeat: Infinity, delay: i * 0.2 }}
+              />
+            ))}
           </div>
 
           {blurSrc && (

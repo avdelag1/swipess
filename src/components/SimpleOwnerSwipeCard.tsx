@@ -26,7 +26,7 @@ import useAppTheme from '@/hooks/useAppTheme';
 import { imageCache } from '@/lib/swipe/cardImageCache';
 import { PhotoPositionIndicators } from '@/components/swipe/PhotoPositionIndicators';
 import { GestureHints } from '@/components/swipe/GestureHints';
-import { revealChrome } from '@/hooks/useChromeReveal';
+import { revealChrome, useChromeReveal } from '@/hooks/useChromeReveal';
 
 export interface SimpleOwnerSwipeCardRef {
   triggerSwipe: (direction: 'left' | 'right') => void;
@@ -180,6 +180,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   const storedPointerEventRef = useRef<React.PointerEvent | null>(null);
   const dragAxisRef = useRef<DragAxis>(null);
   const { isLight } = useAppTheme();
+  const { isChromeVisible } = useChromeReveal();
 
   const _internalX = useMotionValue(0);
   const _internalY = useMotionValue(0);
@@ -511,8 +512,11 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
 
         {isTop && (onReport || onShare) && (
           <div
-            className="absolute right-5 bottom-[calc(var(--bottom-nav-height,72px)+96px)] z-40 flex flex-col items-end gap-3 transition-opacity duration-150"
-            style={{ opacity: isZoomed ? 0 : 1 }}
+            className="absolute right-5 bottom-[calc(var(--bottom-nav-height,72px)+96px)] z-40 flex flex-col items-end gap-3 transition-opacity duration-200 ease-out"
+            style={{
+              opacity: (isZoomed || !isChromeVisible) ? 0 : 1,
+              pointerEvents: (isZoomed || !isChromeVisible) ? 'none' : 'auto',
+            }}
           >
             {onShare && (
               <button
