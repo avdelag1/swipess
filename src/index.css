@@ -421,11 +421,11 @@ button:active, [role="button"]:active {
     --ring: 343 99% 62%;
     --radius: 1.25rem;
 
-    --nav-bg: rgba(255, 255, 255, 0.95);
+    --nav-bg: transparent;
     --nav-border: rgba(0, 0, 0, 0.05);
 
     /* 🧘 HUD TOKEN SYSTEM */
-    --hud-bg: rgba(255, 255, 255, 0.95);
+    --hud-bg: transparent;
     --hud-text: #000000;
     --hud-border: rgba(0, 0, 0, 0.05);
     --hud-active-bg: rgba(0, 0, 0, 0.05);
@@ -445,11 +445,11 @@ button:active, [role="button"]:active {
     --input: 212 14% 18%;
     --ring: 352 83% 58%;
 
-    --nav-bg: rgba(10, 10, 12, 0.85);
+    --nav-bg: transparent;
     --nav-border: rgba(255, 255, 255, 0.08);
 
     /* 🧘 HUD TOKEN SYSTEM (DARK) */
-    --hud-bg: rgba(15, 15, 20, 0.95);
+    --hud-bg: transparent;
     --hud-text: #ffffff;
     --hud-border: rgba(255, 255, 255, 0.25);
     --hud-active-bg: rgba(255, 255, 255, 0.12);
@@ -508,11 +508,11 @@ button:active, [role="button"]:active {
     --shadow-card: 0 20px 40px rgba(0, 0, 0, 0.3);
     --shadow-glow: 0 0 30px rgba(211, 47, 47, 0.3);
     --overlay: rgba(0, 0, 0, 0.6);
-    --nav-bg: rgba(35, 35, 40, 0.75);
+    --nav-bg: transparent;
     --nav-border: rgba(255, 255, 255, 0.08);
 
     /* 🧘 HUD TOKEN SYSTEM (GREY) */
-    --hud-bg: rgba(35, 35, 40, 0.85);
+    --hud-bg: transparent;
     --hud-text: #ffffff;
     --hud-border: rgba(255, 255, 255, 0.25);
     --hud-active-bg: rgba(255, 255, 255, 0.15);
@@ -566,11 +566,11 @@ button:active, [role="button"]:active {
     --shadow-card: 0 20px 40px rgba(0, 0, 0, 0.6);
     --shadow-glow: 0 0 30px rgba(229, 57, 53, 0.4);
     --overlay: rgba(0, 0, 0, 0.8);
-    --nav-bg: rgba(5, 5, 5, 0.95);
+    --nav-bg: transparent;
     --nav-border: rgba(255, 255, 255, 0.1);
 
     /* 🧘 HUD TOKEN SYSTEM (BLACK) */
-    --hud-bg: rgba(5, 5, 5, 0.96);
+    --hud-bg: transparent;
     --hud-text: #ffffff;
     --hud-border: rgba(255, 255, 255, 0.3);
     --hud-active-bg: rgba(255, 255, 255, 0.15);
@@ -624,11 +624,11 @@ button:active, [role="button"]:active {
     --shadow-card: 0 20px 40px rgba(0, 0, 0, 0.15);
     --shadow-glow: 0 0 30px rgba(198, 40, 40, 0.2);
     --overlay: rgba(0, 0, 0, 0.4);
-    --nav-bg: rgba(255, 255, 255, 0.96);
+    --nav-bg: transparent;
     --nav-border: rgba(0, 0, 0, 0.10);
 
     /* 🧘 HUD TOKEN SYSTEM (WHITE) */
-    --hud-bg: rgba(255, 255, 255, 0.96);
+    --hud-bg: transparent;
     --hud-text: #000000;
     --hud-border: rgba(0, 0, 0, 0.10);
     --hud-active-bg: rgba(0, 0, 0, 0.06);
@@ -639,7 +639,7 @@ button:active, [role="button"]:active {
     --background: 0 0% 0%;
     --foreground: 0 0% 100%;
     --card: 0 0% 5%;
-    --nav-bg: rgba(255, 255, 255, 0.95);
+    --nav-bg: transparent;
     --nav-border: rgba(0, 0, 0, 0.05);
     --text-primary: 0 0% 100%;
     --btn-primary-bg: #FF4D00;
@@ -1271,13 +1271,11 @@ button:active, [role="button"]:active {
     -webkit-tap-highlight-color: transparent;
   }
 
-  /* Glassmorphism utilities - OPTIMIZED for Android performance */
+  /* Glassmorphism utilities - FLOATING TRANSPARENT (no background slabs) */
   .glass-effect {
-    background: var(--hud-bg);
-    /* backdrop-filter: blur(20px); REMOVED - kills Android performance */
-    /* -webkit-backdrop-filter: blur(20px); REMOVED - kills Android performance */
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    background: transparent;
+    border: none;
+    box-shadow: none;
   }
 
   .glass-dark {
@@ -1336,16 +1334,14 @@ button:active, [role="button"]:active {
   }
 
   .blur-on-scroll.scrolled {
-    /* backdrop-filter: blur(20px); REMOVED - kills Android performance */
-    /* -webkit-backdrop-filter: blur(20px); REMOVED - kills Android performance */
-    background-color: var(--hud-bg);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    background-color: transparent;
+    border-bottom: none;
+    box-shadow: none;
   }
 
   .dark .blur-on-scroll.scrolled {
-    background-color: rgba(0, 0, 0, 0.8);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    background-color: transparent;
+    border-bottom: none;
   }
 
   /* Progressive image loading */
@@ -2307,11 +2303,14 @@ html[data-navigation-direction="back"] {
   }
 }
 
-/* Static pill shape applied as CSS so it renders before React hydrates —
-   prevents the FOUC square-frame flash on app load/reload */
+/* FLOATING NAV — no pill shape, no container frame */
 .glass-pill-nav {
-  border-radius: 2.5rem !important;
-  overflow: hidden;
+  border-radius: 0 !important;
+  overflow: visible;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
 }
 
 /* Nav buttons: never show default browser outline or rectangular focus ring */
@@ -2345,8 +2344,9 @@ html[data-navigation-direction="back"] {
 }
 
 .dark .glass-pill-nav {
-  background: rgba(10, 15, 30, 0.2);
-  border-color: rgba(255, 255, 255, 0.05);
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
 }
 
 .leaflet-container { width: 100%; height: 100%; background: #f1f5f9; outline: none; }
