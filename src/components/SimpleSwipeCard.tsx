@@ -481,7 +481,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
               </div>
             </div>
 
-            <div className="glass-surface px-4 py-3">
+            <div className="glass-surface inline-flex flex-col w-fit max-w-full px-4 py-3">
               {(() => {
                 const isProfile = (listing as any).profile_images || (listing as any).name;
                 if (isProfile) {
