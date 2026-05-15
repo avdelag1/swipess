@@ -14,7 +14,7 @@
 
 import { memo, useCallback, useState, forwardRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageCircle, Eye, Share2, Flag } from 'lucide-react';
+import { Share2, MessageCircle, BarChart2, Flag } from 'lucide-react';
 import { triggerHaptic } from '@/utils/haptics';
 import { AnimatedLottieIcon } from './ui/AnimatedLottieIcon';
 import useAppTheme from '@/hooks/useAppTheme';
@@ -40,8 +40,8 @@ const ENTRY_SPRING = { type: 'spring' as const, stiffness: 340, damping: 26, mas
 // ── DIMENSIONS ────────────────────────────────────────────────────────────────
 const LARGE_CSS = 'clamp(52px, 14vw, 60px)';
 const SMALL_CSS = 'clamp(36px, 9.5vw, 42px)';
-const LARGE_ICON = 30;
-const SMALL_ICON = 20;
+const LARGE_ICON = 24;
+const SMALL_ICON = 18;
 const TAP_SCALE = 0.92;
 
 // ── VARIANT CONFIGS ───────────────────────────────────────────────────────────
@@ -100,7 +100,7 @@ const VARIANTS: Record<Variant, VariantCfg> = {
     circleBg: 'var(--secondary)',
   },
   white: {
-    iconColor: '#FFFFFF',
+    iconColor: 'var(--icon-color, #FFFFFF)',
     glow: '0 0 18px rgba(255, 255, 255, 0.22)',
     circleBg: 'rgba(255, 255, 255, 0.09)',
   },
@@ -142,9 +142,9 @@ const ActionButton = memo(forwardRef<HTMLButtonElement, any>(function ActionButt
       onPointerUp={() => setIsPressed(false)}
       onPointerLeave={() => setIsPressed(false)}
       onPointerCancel={() => setIsPressed(false)}
-      initial={{ opacity: 0, y: 12, scale: 0.88 }}
+      initial={{ opacity: 0, y: 8, scale: 0.92 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={{ ...ENTRY_SPRING, delay: index * 0.05 }}
+      transition={ENTRY_SPRING}
       whileTap={{ 
         scale: TAP_SCALE,
         y: 3,
@@ -167,7 +167,9 @@ const ActionButton = memo(forwardRef<HTMLButtonElement, any>(function ActionButt
         appearance: 'none',
         WebkitAppearance: 'none',
         boxShadow: 'none',
-        color: variant === 'default' ? 'var(--foreground)' : cfg.iconColor
+        color: variant === 'default' 
+          ? 'var(--foreground)' 
+          : (variant === 'white' ? (isLight ? '#000000' : '#FFFFFF') : cfg.iconColor)
       }}
       className="flex items-center justify-center touch-manipulation select-none"
     >
@@ -208,20 +210,34 @@ export const SwipeActionButtonBar = memo(({
   const { isLight } = useAppTheme();
 
   return (
-    <div className={`mx-auto flex w-auto max-w-[96vw] items-center justify-center gap-1 pointer-events-auto overflow-visible ${className}`}>
+    <div className={`mx-auto flex w-auto max-w-[96vw] items-center justify-center gap-1.5 pointer-events-auto overflow-visible glass-surface px-3 py-1.5 rounded-full ${className}`}>
       <AnimatePresence mode="popLayout" initial={false}>
+        {onShare && (
+          <ActionButton
+            key="action-share"
+            onClick={onShare}
+            disabled={disabled}
+            size="small"
+            variant="white"
+            ariaLabel="Share"
+            index={0}
+            isLight={isLight}
+          >
+            <Share2 className="w-full h-full" strokeWidth={2.4} />
+          </ActionButton>
+        )}
         {onMessage && (
           <ActionButton
             key="action-message"
             onClick={onMessage}
             disabled={disabled}
-            size="large"
+            size="small"
             variant="white"
             ariaLabel="Message"
-            index={0}
+            index={1}
             isLight={isLight}
           >
-            <MessageCircle className="w-full h-full" strokeWidth={2} />
+            <MessageCircle className="w-full h-full" strokeWidth={2.4} />
           </ActionButton>
         )}
         {onInsights && (
@@ -229,27 +245,13 @@ export const SwipeActionButtonBar = memo(({
             key="action-insights"
             onClick={onInsights}
             disabled={disabled}
-            size="large"
+            size="small"
             variant="white"
             ariaLabel="Insights"
-            index={1}
-            isLight={isLight}
-          >
-            <Eye className="w-full h-full" strokeWidth={2} />
-          </ActionButton>
-        )}
-        {onShare && (
-          <ActionButton
-            key="action-share"
-            onClick={onShare}
-            disabled={disabled}
-            size="large"
-            variant="white"
-            ariaLabel="Share"
             index={2}
             isLight={isLight}
           >
-            <Share2 className="w-full h-full" strokeWidth={2} />
+            <BarChart2 className="w-full h-full" strokeWidth={2.4} />
           </ActionButton>
         )}
         {onReport && (
@@ -257,13 +259,13 @@ export const SwipeActionButtonBar = memo(({
             key="action-report"
             onClick={onReport}
             disabled={disabled}
-            size="large"
+            size="small"
             variant="white"
             ariaLabel="Report"
             index={3}
             isLight={isLight}
           >
-            <Flag className="w-full h-full" strokeWidth={2} />
+            <Flag className="w-full h-full" strokeWidth={2.4} />
           </ActionButton>
         )}
       </AnimatePresence>

@@ -154,11 +154,8 @@ export function AppLayout({ children }: AppLayoutProps) {
   // Public standalone pages (outside DashboardLayout) scroll via the main container below.
   const isInsideDashboard = useMemo(() => {
     const path = location.pathname;
-    // These routes go through PersistentDashboardLayout → DashboardLayout
-    // They must NOT scroll at AppLayout level — DashboardLayout handles it
-    const publicRoutes = ['/', '/reset-password', '/legal', '/about', '/faq/', '/listing/', '/profile/', '/vap-validate/', '/payment/'];
-    const isPublic = publicRoutes.some(r => path === r || path.startsWith(r));
-    return !isPublic;
+    const authRoutes = ['/client', '/owner', '/admin'];
+    return authRoutes.some(r => path.startsWith(r));
   }, [location.pathname]);
 
 
@@ -169,9 +166,10 @@ export function AppLayout({ children }: AppLayoutProps) {
     const isCamera = path.startsWith('/camera');
     const isRoommates = path.startsWith('/explore/roommates');
     const isMessages = path.startsWith('/messages');
-    return isCamera || isRadio || showAIChat || isSwipeDashboard || isRoommates || isMessages;
+    const isEvents = path.startsWith('/explore/eventos');
+    return isCamera || isRadio || showAIChat || isSwipeDashboard || isRoommates || isMessages || isEvents;
   }, [location.pathname, showAIChat, isSwipeDashboard]);
-
+  
   const showAppChrome = !isAuthRoute && !isRadioRoute && !isCameraRoute && !showAIChat && (!isPublicPreview || !!user);
 
   const handleFilterClick = () => {
@@ -222,11 +220,9 @@ export function AppLayout({ children }: AppLayoutProps) {
         id="main-content"
         className={cn(
           "w-full flex-1 relative z-0 flex flex-col",
-          // Push content down below the fixed header
-          !isAuthRoute && !isFullScreen && !isRadioRoute && !isCameraRoute && !isInsideDashboard && "pt-[var(--top-bar-height)]",
-          // Dashboard pages: overflow-hidden, DashboardLayout scrolls internally
-          // Public/standalone pages: overflow-y-auto, scroll at this level
-          (isInsideDashboard || isFullScreen) ? "overflow-hidden" : "overflow-y-auto scroll-area-momentum pb-[var(--bottom-nav-height)]"
+          // Restore pt/pb for non-dashboard pages to prevent content overlap with floating header
+          !isInsideDashboard && !isFullScreen && "pt-[var(--top-bar-height)] pb-[var(--bottom-nav-height)]",
+          (isInsideDashboard || isFullScreen) ? "overflow-hidden" : "overflow-y-auto scroll-area-momentum"
         )}
       >
         <div className="w-full flex-1 flex flex-col">

@@ -96,7 +96,7 @@ export const BottomNavigation = memo(({
   //  - Dark theme (black filter): nav icons always WHITE everywhere.
   //  - Light theme (white filter): WHITE on dashboard (over photos),
   //    BLACK on every other page.
-  const navBase = !isLight || isDashboardRoute ? '#FFFFFF' : '#0A0A0A';
+  const navBase = '#FFFFFF';
 
   const { t } = useTranslation();
 
@@ -290,20 +290,14 @@ export const BottomNavigation = memo(({
       <div
         className={cn(
           "pointer-events-auto",
-          "mx-auto w-full",
-          isTablet ? "max-w-2xl" : "max-w-md"
+          "mx-auto w-fit max-w-[95vw]",
+          "glass-surface px-1.5 py-1", // Unified Glassmorphic Pill — More Compact
+          "rounded-full"
         )}
         style={{
-          background: 'transparent',
-          backdropFilter: 'none',
-          WebkitBackdropFilter: 'none',
-          border: 'none',
-          borderRadius: '0',
-          boxShadow: 'none',
-          padding: isTablet ? '6px 16px' : '4px 8px',
           filter: isLight
-            ? 'drop-shadow(0 1px 2px rgba(0,0,0,0.18))'
-            : 'drop-shadow(0 1px 3px rgba(0,0,0,0.6))',
+            ? 'drop-shadow(0 4px 12px rgba(0,0,0,0.12))'
+            : 'drop-shadow(0 8px 32px rgba(0,0,0,0.45))',
         }}
       >
         {/* Nav items row — SCROLLABLE SWIPESS ARCHITECTURE */}
@@ -313,7 +307,7 @@ export const BottomNavigation = memo(({
           data-scroll-axis="x"
           onPointerMove={handlePointerMove}
           className={cn(
-            'relative flex items-center w-full gap-1 px-3 py-0.5 nav-scroll-hide transform-gpu select-none',
+            'relative flex items-center w-full gap-0.5 px-2 py-0.5 nav-scroll-hide transform-gpu select-none',
           )}
           style={{
             zIndex: 2,
@@ -363,11 +357,10 @@ export const BottomNavigation = memo(({
                 data-active={active ? 'true' : undefined}
                 className={cn(
                   'relative flex flex-col items-center justify-center gap-1 w-auto flex-shrink-0 h-full',
-                  'touch-manipulation focus-visible:outline-none transform-gpu',
-                  active ? 'glass-pill' : 'rounded-full',
+                  'touch-manipulation focus-visible:outline-none transform-gpu rounded-full',
                 )}
                 style={{
-                  minWidth: 'clamp(42px, 10vw, 54px)',
+                  minWidth: 'clamp(38px, 9vw, 48px)',
                   scrollSnapAlign: 'start',
                   minHeight: isTablet ? TOUCH_TARGET_TABLET : TOUCH_TARGET,
                   padding: isTablet ? '8px 12px' : (isNarrow ? '4px' : 'clamp(4px, 1.2vw, 8px)'),
@@ -414,7 +407,7 @@ export const BottomNavigation = memo(({
                     style={{
                       width: isTablet ? ICON_SIZE_TABLET : (isNarrow ? 16 : ICON_SIZE),
                       height: isTablet ? ICON_SIZE_TABLET : (isNarrow ? 16 : ICON_SIZE),
-                      color: active ? '#E4007C' : (!isLight || isDashboardRoute ? 'rgba(255,255,255,0.92)' : 'rgba(0,0,0,0.78)'),
+                      color: active ? '#FFFFFF' : (isLight && !isDashboardRoute ? 'rgba(0,0,0,0.78)' : 'rgba(255,255,255,0.92)'),
                       fill: 'none',
                       strokeWidth: active ? 2 : 1.7,
                       transition: 'color 160ms ease-out, stroke-width 160ms ease-out',
@@ -430,7 +423,7 @@ export const BottomNavigation = memo(({
                         isTablet ? 'text-[11px]' : 'text-[8px]',
                       )}
                       style={{
-                        color: active ? '#E4007C' : (!isLight || isDashboardRoute ? 'rgba(255,255,255,0.92)' : 'rgba(0,0,0,0.78)'),
+                        color: active ? '#FFFFFF' : (isLight && !isDashboardRoute ? 'rgba(0,0,0,0.78)' : 'rgba(255,255,255,0.92)'),
                         transition: 'color 160ms ease-out',
                         zIndex: 1,
                       }}

@@ -23,15 +23,16 @@ const OwnerProfile = () => {
   const { isLight } = useAppTheme();
   const [showEditDialog, setShowEditDialog] = useState(false);
   const { user, signOut } = useAuth();
-  const { data: stats, isLoading: statsLoading } = useOwnerStats();
+  const { data: stats } = useOwnerStats();
   const { data: ownerProfile, isLoading: profileLoading } = useOwnerProfile();
   const { tokenBalance } = useMessagingQuota();
   const { setModal } = useModalStore();
   const navigate = useNavigate();
 
-  const isLoading = statsLoading || profileLoading;
-
-  if (isLoading && !ownerProfile) {
+  // Only block render on the profile query itself. Stats can stream in
+  // background — gating on stats too means the page hangs in the skeleton
+  // forever whenever the stats query is slow or recovering from an error.
+  if (profileLoading && !ownerProfile) {
     return <ProfileSkeleton />;
   }
 
@@ -54,7 +55,7 @@ const OwnerProfile = () => {
         <div className={cn("absolute bottom-[10%] right-[-10%] w-[50%] h-[50%] rounded-full blur-[120px]", isLight ? "bg-[#EB4898]/[0.03]" : "bg-[#EB4898]/8")} />
       </div>
 
-      <div className="w-full px-6 pt-10 pb-32 space-y-10 relative z-10">
+      <div className="w-full px-6 layout-padding-top pb-32 space-y-10 relative z-10">
 
         {/* SWIPESS OPERATOR BADGE */}
         <div className="flex items-center justify-center">

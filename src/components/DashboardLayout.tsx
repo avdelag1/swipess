@@ -257,7 +257,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   return (
     <div className={cn(
       "dashboard-root w-full h-full flex flex-col relative overflow-hidden",
-      isDark ? "dark dark-matte" : "light white-matte",
+      isDark ? "dark" : "light",
       isSwipeDeck && "bg-swipe-frame"
     )}>
       {!isSwipeDeck && (
@@ -289,7 +289,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
           "w-full flex flex-col min-h-0",
           (isSwipeDeck || isFullScreenRoute)
             ? "h-full flex-1 overflow-hidden"
-            : "flex-grow min-h-full pb-[var(--bottom-nav-height)]"
+            : "flex-grow min-h-full pt-[var(--top-bar-height)] pb-[var(--bottom-nav-height)]"
         )}>
           {children}
         </div>

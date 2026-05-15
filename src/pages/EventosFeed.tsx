@@ -314,9 +314,11 @@ export default function EventosFeed() {
 
   return (
     <div
-      className="relative w-full flex flex-col items-center justify-start bg-transparent min-h-screen"
+      className="relative w-full flex flex-col items-center justify-start bg-[#0a0a0b] min-h-screen"
     >
-      <div className="absolute inset-0 bg-[#0a0a0b] -z-10" />
+      {/* Atmospheric layer extends behind the fixed chrome so the photo
+          content shows through transparent TopBar / BottomNavigation. */}
+      <div className="fixed inset-0 bg-[#0a0a0b] -z-10 pointer-events-none" />
       
       {/* Floating HUD — now handled by global SwipessHud logic, this local wrapper just for custom styling */}
       <div 
@@ -347,7 +349,7 @@ export default function EventosFeed() {
                     if (cat.key === 'likes') navigate('/explore/eventos/likes');
                   }} 
                   className={cn(
-                    "flex items-center gap-2 px-5 py-3 rounded-2xl shrink-0 transition-all duration-300 border relative overflow-hidden group h-12",
+                    "flex items-center gap-2 px-4 py-2 rounded-full shrink-0 transition-all duration-300 border relative overflow-hidden group h-9",
                     active 
                       ? "scale-105 shadow-xl shadow-black/20" 
                       : "opacity-80 hover:opacity-100"

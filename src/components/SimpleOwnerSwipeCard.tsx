@@ -26,7 +26,7 @@ import useAppTheme from '@/hooks/useAppTheme';
 import { imageCache } from '@/lib/swipe/cardImageCache';
 import { PhotoPositionIndicators } from '@/components/swipe/PhotoPositionIndicators';
 import { GestureHints } from '@/components/swipe/GestureHints';
-import { revealChrome } from '@/hooks/useChromeReveal';
+import { revealChrome, useChromeReveal } from '@/hooks/useChromeReveal';
 
 export interface SimpleOwnerSwipeCardRef {
   triggerSwipe: (direction: 'left' | 'right') => void;
@@ -180,6 +180,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   const storedPointerEventRef = useRef<React.PointerEvent | null>(null);
   const dragAxisRef = useRef<DragAxis>(null);
   const { isLight } = useAppTheme();
+  const { isChromeVisible } = useChromeReveal();
 
   const _internalX = useMotionValue(0);
   const _internalY = useMotionValue(0);
@@ -509,39 +510,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           </div>
         )}
 
-        {isTop && (onReport || onShare) && (
-          <div
-            className="absolute right-5 bottom-[calc(var(--bottom-nav-height,72px)+96px)] z-40 flex flex-col items-end gap-3 transition-opacity duration-150"
-            style={{ opacity: isZoomed ? 0 : 1 }}
-          >
-            {onShare && (
-              <button
-                data-no-cinematic
-                type="button"
-                onPointerDown={(e) => e.stopPropagation()}
-                onClick={(e) => { e.stopPropagation(); onShare(profile); }}
-                aria-label="Share profile"
-                className="w-9 h-9 flex items-center justify-center bg-transparent border-0 shadow-none active:scale-90 transition-all duration-150"
-                style={{ backgroundColor: 'transparent', boxShadow: 'none' }}
-              >
-                <Share2 className="w-[18px] h-[18px]" strokeWidth={2.2} style={{ color: '#FFFFFF', filter: 'drop-shadow(0 2px 5px rgba(0,0,0,0.55))' }} />
-              </button>
-            )}
-            {onReport && (
-              <button
-                data-no-cinematic
-                type="button"
-                onPointerDown={(e) => e.stopPropagation()}
-                onClick={(e) => { e.stopPropagation(); onReport(); }}
-                aria-label="Report profile"
-                className="w-9 h-9 flex items-center justify-center bg-transparent border-0 shadow-none active:scale-90 transition-all duration-150"
-                style={{ backgroundColor: 'transparent', boxShadow: 'none' }}
-              >
-                <Flag className="w-[18px] h-[18px]" strokeWidth={2.2} style={{ color: '#FFFFFF', filter: 'drop-shadow(0 2px 5px rgba(0,0,0,0.55))' }} />
-              </button>
-            )}
-          </div>
-          )}
+        {/* Residual side actions removed for Nexus UI consistency */}
           </>
         )}
       </motion.div>
