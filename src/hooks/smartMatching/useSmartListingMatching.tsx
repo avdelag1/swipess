@@ -13,9 +13,11 @@ import { SWIPE_CARD_FIELDS } from './swipeCardFields';
 
 import { SWIPE_CARD_FIELDS } from './swipeCardFields';
 
-// Demos disabled — show real user listings only.
-const DEMO_LISTINGS: any[] = [];
-const _DEPRECATED_DEMO_LISTINGS: any[] = [
+// Demo listings — appended AFTER real listings so the deck is never empty
+// during testing. Each category (property / motorcycle / bicycle / worker)
+// uses photos that match the category, so users see relevant content per
+// filter even before real owners populate the marketplace.
+const DEMO_LISTINGS: any[] = [
   {
     id: 'demo-property-1-disabled',
     title: 'Ultra-Modern Tulum Penthouse',
