@@ -3,6 +3,15 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { logger } from '@/utils/prodLogger';
 
+// Seed/demo user IDs that should always appear AFTER real users so every
+// viewer sees the same queue order: real signups first by recency, mocks last.
+const SEED_USER_IDS = new Set([
+  '00000000-0000-0000-0000-000000000000',
+  '00000000-0000-0000-0000-000000000001',
+  '7c51f110-6261-44d8-b9d0-d4ccd2d901b6',
+]);
+const isSeedUserId = (id?: string | null) => !!id && SEED_USER_IDS.has(id);
+
 export interface ClientProfile {
   id: number;
   user_id: string;
@@ -112,8 +121,12 @@ export function useClientProfiles(excludeSwipedIds: string[] = [], options: { en
           };
         });
 
-        // Filter out swiped profiles
-        return transformed.filter(p => !excludeSwipedIds.includes(p.user_id));
+        // Filter out swiped profiles, then sink seed/mock UUIDs to the end
+        // so real users are always seen first in the same order by everyone.
+        const filtered = transformed.filter(p => !excludeSwipedIds.includes(p.user_id));
+        return filtered.sort((a, b) =>
+          Number(isSeedUserId(a.user_id)) - Number(isSeedUserId(b.user_id))
+        );
 
       } catch (error) {
         logger.error('Error fetching client profiles:', error);

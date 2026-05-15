@@ -412,7 +412,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
               alt={(listing as any).title || 'Listing'}
               name={(listing as any).title}
               direction={photoDirection}
-              priority={isTop}
+              priority
               fullScreen={true}
               animate={!isZoomed}
             />
