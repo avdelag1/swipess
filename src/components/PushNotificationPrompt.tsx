@@ -13,24 +13,9 @@ export function PushNotificationPrompt() {
   const [isLoading, setIsLoading] = useState(false);
   const { subscribe, isSupported, isSubscribed } = usePushNotifications();
 
-  useEffect(() => {
-    // Only auto-open if supported, not subscribed, and not recently dismissed
-    if (isSupported && !isSubscribed) {
-      const dismissedAt = localStorage.getItem(NOTIFICATION_PROMPT_KEY);
-      if (!dismissedAt) {
-        // Add a slight delay to let the app settle
-        const timer = setTimeout(() => setIsOpen(true), 2500);
-        return () => clearTimeout(timer);
-      } else {
-        // Check if it's been more than 7 days since dismissal
-        const daysSinceDismissed = (Date.now() - new Date(dismissedAt).getTime()) / (1000 * 60 * 60 * 24);
-        if (daysSinceDismissed > 7) {
-          const timer = setTimeout(() => setIsOpen(true), 2500);
-          return () => clearTimeout(timer);
-        }
-      }
-    }
-  }, [isSupported, isSubscribed]);
+  // Auto-popup disabled: the prompt was surfacing on every dashboard load,
+  // confusing users who couldn't tell what it was asking. Notifications can
+  // still be enabled from settings; surface the prompt there instead.
 
   const handleEnableNotifications = async () => {
     setIsLoading(true);

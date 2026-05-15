@@ -94,13 +94,16 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     root.style.setProperty('--theme-reveal-y', coords ? `${coords.y}px` : '50%');
     const doc = document as any;
     if (doc.startViewTransition) {
-      doc.startViewTransition(() => {
+      const html = document.documentElement;
+      html.setAttribute('data-theme-transition', '');
+      const transition = doc.startViewTransition(() => {
         flushSync(() => {
           applyThemeToDOM(newTheme);
           setThemeState(newTheme);
           localStorage.setItem(STORAGE_KEY, newTheme);
         });
       });
+      transition.finished.finally(() => html.removeAttribute('data-theme-transition'));
     } else {
       flushSync(() => {
         applyThemeToDOM(newTheme);

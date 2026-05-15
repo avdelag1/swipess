@@ -412,7 +412,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
               alt={(listing as any).title || 'Listing'}
               name={(listing as any).title}
               direction={photoDirection}
-              priority={isTop}
+              priority
               fullScreen={true}
               animate={!isZoomed}
             />
@@ -461,7 +461,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
         </motion.div>
 
         <motion.div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 pointer-events-none" style={{ opacity: skipOpacity }}>
-          <div className="px-4 py-2 rounded-full bg-black/60 border border-white/20 backdrop-blur-md">
+          <div className="glass-pill px-4 py-2">
             <span className="text-white text-sm font-bold tracking-widest uppercase">Next</span>
           </div>
         </motion.div>
@@ -476,59 +476,61 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
             className="space-y-1.5"
           >
             <div className="flex items-center gap-2 mb-2">
-              <div className="inline-flex rounded-full px-3 py-1 bg-black/80 border border-white/10 shadow-lg">
+              <div className="glass-pill inline-flex px-3 py-1">
                 <CompactRatingDisplay aggregate={ratingAggregate as any} isLoading={isRatingLoading} showReviews={false} className="text-white" />
               </div>
             </div>
 
-            {(() => {
-              const isProfile = (listing as any).profile_images || (listing as any).name;
-              if (isProfile) {
-                const profile = listing as MatchedClientProfile;
+            <div className="glass-surface inline-flex flex-col w-fit max-w-full px-4 py-3">
+              {(() => {
+                const isProfile = (listing as any).profile_images || (listing as any).name;
+                if (isProfile) {
+                  const profile = listing as MatchedClientProfile;
+                  return (
+                    <ClientCardInfo
+                      name={profile.name}
+                      age={profile.age}
+                      budgetMin={profile.budget_min}
+                      budgetMax={profile.budget_max}
+                      location={profile.city}
+                      occupation={(profile as any).occupation || (profile as any).client_type}
+                      isVerified={profile.verified}
+                      photoIndex={currentImageIndex}
+                      workSchedule={profile.work_schedule}
+                      className="!text-white !space-y-0"
+                    />
+                  );
+                }
+                if ((listing as any).category === 'vehicle') {
+                  return (
+                    <VehicleCardInfo
+                      price={(listing as any).price || 0}
+                      priceType={(listing as any).listing_type === 'rental' ? ((listing as any).rental_duration_type === 'monthly' ? 'month' : 'day') : 'sale'}
+                      make={(listing as any).vehicle_brand}
+                      model={(listing as any).vehicle_model}
+                      year={(listing as any).year}
+                      location={(listing as any).city}
+                      isVerified={(listing as any).has_verified_documents}
+                      photoIndex={currentImageIndex}
+                      className="!text-white !space-y-0"
+                    />
+                  );
+                }
                 return (
-                  <ClientCardInfo
-                    name={profile.name}
-                    age={profile.age}
-                    budgetMin={profile.budget_min}
-                    budgetMax={profile.budget_max}
-                    location={profile.city}
-                    occupation={(profile as any).occupation || (profile as any).client_type}
-                    isVerified={profile.verified}
-                    photoIndex={currentImageIndex}
-                    workSchedule={profile.work_schedule}
-                    className="!text-white !space-y-0"
-                  />
-                );
-              }
-              if ((listing as any).category === 'vehicle') {
-                return (
-                  <VehicleCardInfo
+                  <PropertyCardInfo
                     price={(listing as any).price || 0}
-                    priceType={(listing as any).listing_type === 'rental' ? ((listing as any).rental_duration_type === 'monthly' ? 'month' : 'day') : 'sale'}
-                    make={(listing as any).vehicle_brand}
-                    model={(listing as any).vehicle_model}
-                    year={(listing as any).year}
+                    priceType={(listing as any).listing_type === 'rental' ? ((listing as any).rental_duration_type === 'monthly' ? 'month' : 'night') : 'sale'}
+                    propertyType={(listing as any).property_type}
+                    beds={(listing as any).beds}
+                    baths={(listing as any).baths}
                     location={(listing as any).city}
                     isVerified={(listing as any).has_verified_documents}
                     photoIndex={currentImageIndex}
                     className="!text-white !space-y-0"
                   />
                 );
-              }
-              return (
-                <PropertyCardInfo
-                  price={(listing as any).price || 0}
-                  priceType={(listing as any).listing_type === 'rental' ? ((listing as any).rental_duration_type === 'monthly' ? 'month' : 'night') : 'sale'}
-                  propertyType={(listing as any).property_type}
-                  beds={(listing as any).beds}
-                  baths={(listing as any).baths}
-                  location={(listing as any).city}
-                  isVerified={(listing as any).has_verified_documents}
-                  photoIndex={currentImageIndex}
-                  className="!text-white !space-y-0"
-                />
-              );
-            })()}
+              })()}
+            </div>
           </motion.div>
         </div>
 
@@ -545,7 +547,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
 
         {(listing as any).has_verified_documents && (
           <div className="absolute top-16 left-6 z-40 transition-opacity duration-150" style={{ opacity: isZoomed ? 0 : 1 }}>
-             <div className="relative px-3 py-1.5 rounded-full flex items-center gap-2 bg-black/40 backdrop-blur-md border border-white/10">
+             <div className="glass-pill px-3 py-1.5 flex items-center gap-2">
                <div className="w-2 h-2 rounded-full bg-violet-500 shadow-[0_0_8px_rgba(139,92,246,1)]" />
                <span className="text-[10px] font-black uppercase tracking-[0.1em] text-white">Verified</span>
              </div>
