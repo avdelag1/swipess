@@ -23,15 +23,16 @@ const OwnerProfile = () => {
   const { isLight } = useAppTheme();
   const [showEditDialog, setShowEditDialog] = useState(false);
   const { user, signOut } = useAuth();
-  const { data: stats, isLoading: statsLoading } = useOwnerStats();
+  const { data: stats } = useOwnerStats();
   const { data: ownerProfile, isLoading: profileLoading } = useOwnerProfile();
   const { tokenBalance } = useMessagingQuota();
   const { setModal } = useModalStore();
   const navigate = useNavigate();
 
-  const isLoading = statsLoading || profileLoading;
-
-  if (isLoading && !ownerProfile) {
+  // Only block render on the profile query itself. Stats can stream in
+  // background — gating on stats too means the page hangs in the skeleton
+  // forever whenever the stats query is slow or recovering from an error.
+  if (profileLoading && !ownerProfile) {
     return <ProfileSkeleton />;
   }
 
