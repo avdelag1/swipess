@@ -53,7 +53,7 @@ function TopBarComponent({
   //  - Dark theme (black filter): icons always WHITE.
   //  - Light theme (white filter): WHITE on dashboard (over photos),
   //    BLACK on every other page.
-  const iconColor = !isLight || isDashboard ? '#FFFFFF' : '#0A0A0A';
+  const iconColor = '#FFFFFF';
 
   const isOwner = userRole === 'owner';
 
@@ -136,7 +136,7 @@ function TopBarComponent({
                 className="w-[18px] h-[18px]"
                 strokeWidth={2.2}
                 style={{
-                  color: isLight ? '#0A0A0A' : '#FFFFFF',
+                  color: '#FFFFFF',
                   filter: isLight
                     ? 'drop-shadow(0 1px 2px rgba(0,0,0,0.18))'
                     : 'drop-shadow(0 2px 6px rgba(0,0,0,0.55))',
@@ -182,7 +182,7 @@ function TopBarComponent({
                     className="hidden max-w-[74px] truncate sm:inline-block text-[10px] font-black uppercase tracking-[0.08em]"
                     style={{
                       fontVariantNumeric: 'tabular-nums',
-                      color: !isLight || isDashboard ? '#FFFFFF' : '#0A0A0A',
+                      color: '#FFFFFF',
                     }}
                   >
                     {profile.full_name.split(' ')[0]}
