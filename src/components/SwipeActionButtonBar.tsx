@@ -14,7 +14,7 @@
 
 import { memo, useCallback, useState, forwardRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { RotateCcw, X, Heart } from 'lucide-react';
+import { Share2, MessageCircle, BarChart2, Flag } from 'lucide-react';
 import { triggerHaptic } from '@/utils/haptics';
 import { AnimatedLottieIcon } from './ui/AnimatedLottieIcon';
 import useAppTheme from '@/hooks/useAppTheme';
@@ -210,44 +210,62 @@ export const SwipeActionButtonBar = memo(({
   return (
     <div className={`mx-auto flex w-auto max-w-[96vw] items-center justify-center gap-1 pointer-events-auto overflow-visible ${className}`}>
       <AnimatePresence mode="popLayout" initial={false}>
-        {onUndo && (
+        {onShare && (
           <ActionButton
-            key="action-undo"
-            onClick={onUndo}
-            disabled={disabled || !canUndo}
+            key="action-share"
+            onClick={onShare}
+            disabled={disabled}
             size="small"
-            variant="amber"
-            ariaLabel="Undo last swipe"
+            variant="white"
+            ariaLabel="Share"
             index={0}
             isLight={isLight}
           >
-            <RotateCcw className="w-full h-full" strokeWidth={2.5} />
+            <Share2 className="w-full h-full" strokeWidth={2.4} />
           </ActionButton>
         )}
-        <ActionButton
-          key="action-dislike"
-          onClick={onDislike}
-          disabled={disabled}
-          size="large"
-          variant="dislike"
-          ariaLabel="Pass"
-          index={1}
-          isLight={isLight}
-        >
-          <X className="w-full h-full" strokeWidth={3} />
-        </ActionButton>
-        <ActionButton
-          key="action-like"
-          onClick={onLike}
-          disabled={disabled}
-          size="large"
-          variant="like"
-          ariaLabel="Like"
-          index={2}
-          isLight={isLight}
-        >
-          <Heart className="w-full h-full" strokeWidth={2.5} />
-        </ActionButton>
+        {onMessage && (
+          <ActionButton
+            key="action-message"
+            onClick={onMessage}
+            disabled={disabled}
+            size="small"
+            variant="white"
+            ariaLabel="Message"
+            index={1}
+            isLight={isLight}
+          >
+            <MessageCircle className="w-full h-full" strokeWidth={2.4} />
+          </ActionButton>
+        )}
+        {onInsights && (
+          <ActionButton
+            key="action-insights"
+            onClick={onInsights}
+            disabled={disabled}
+            size="small"
+            variant="white"
+            ariaLabel="Insights"
+            index={2}
+            isLight={isLight}
+          >
+            <BarChart2 className="w-full h-full" strokeWidth={2.4} />
+          </ActionButton>
+        )}
+        {onReport && (
+          <ActionButton
+            key="action-report"
+            onClick={onReport}
+            disabled={disabled}
+            size="small"
+            variant="white"
+            ariaLabel="Report"
+            index={3}
+            isLight={isLight}
+          >
+            <Flag className="w-full h-full" strokeWidth={2.4} />
+          </ActionButton>
+        )}
       </AnimatePresence>
     </div>
   );
