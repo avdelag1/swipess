@@ -93,7 +93,11 @@ export function SwipessHud({
       style={{
         willChange: 'transform, opacity, filter',
         transitionProperty: 'transform, opacity, filter',
-        transitionDuration: isVisible ? '680ms' : '520ms',
+        // Slow, telegraphed fade-out in reveal mode so users entering the
+        // swipe deck have time to see the chrome before it disappears.
+        transitionDuration: isVisible
+          ? '680ms'
+          : (revealMode ? '1400ms' : '520ms'),
         transitionTimingFunction: isVisible
           ? 'cubic-bezier(0.22, 1.4, 0.36, 1)' // Apple spring — soft overshoot
           : 'cubic-bezier(0.32, 0, 0.67, 0)',  // gentle expo-in fade
