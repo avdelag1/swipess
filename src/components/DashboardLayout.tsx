@@ -257,7 +257,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   return (
     <div className={cn(
       "dashboard-root w-full h-full flex flex-col relative overflow-hidden",
-      isDark ? "dark dark-matte" : "light white-matte",
+      isDark ? "dark" : "light",
       isSwipeDeck && "bg-swipe-frame"
     )}>
       {!isSwipeDeck && (

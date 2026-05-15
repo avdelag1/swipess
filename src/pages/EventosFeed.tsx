@@ -314,9 +314,11 @@ export default function EventosFeed() {
 
   return (
     <div
-      className="relative w-full flex flex-col items-center justify-start bg-transparent min-h-screen"
+      className="relative w-full flex flex-col items-center justify-start bg-[#0a0a0b] min-h-screen"
     >
-      <div className="absolute inset-0 bg-[#0a0a0b] -z-10" />
+      {/* Atmospheric layer extends behind the fixed chrome so the photo
+          content shows through transparent TopBar / BottomNavigation. */}
+      <div className="fixed inset-0 bg-[#0a0a0b] -z-10 pointer-events-none" />
       
       {/* Floating HUD — now handled by global SwipessHud logic, this local wrapper just for custom styling */}
       <div 

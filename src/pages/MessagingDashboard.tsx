@@ -210,7 +210,7 @@ export function MessagingDashboard() {
     <div className={cn("w-full min-h-[100dvh] transition-colors duration-500 relative", isLight ? "bg-[#ffffff]" : "bg-[#000000]")}>
       <AtmosphericLayer variant="rose" />
 
-      <div className="w-full max-w-7xl mx-auto px-6 pt-4 pb-48 relative z-10 space-y-12">
+      <div className="w-full max-w-7xl mx-auto px-6 pt-[calc(var(--top-bar-height)+var(--safe-top,0px)+0.5rem)] pb-48 relative z-10 space-y-12">
         
         <div className="flex items-center gap-6">
            <div className="w-18 h-18 rounded-[1.8rem] bg-[#EB4898] text-white shadow-[#EB4898]/20 flex items-center justify-center shadow-2xl">
