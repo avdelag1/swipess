@@ -73,7 +73,7 @@ function TopBarComponent({
     borderRadius: '9999px',
     pointerEvents: 'auto',
     color: 'hsl(var(--foreground))',
-    height: '32px',
+    height: '28px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -122,14 +122,14 @@ function TopBarComponent({
     >
       <div className="h-full w-full px-4 flex items-center justify-between relative">
         
-        <div className="flex min-w-0 items-center gap-2 pointer-events-auto glass-surface px-1.5 py-1 rounded-full">
+        <div className="flex min-w-0 items-center gap-2 pointer-events-auto glass-surface px-1 py-0.5 rounded-full">
           {onBack ? (
             <motion.button
               transition={TAP_SPRING}
               whileTap={{ scale: 0.94 }}
               onClick={() => { haptics.tap(); onBack(); }}
               className="flex shrink-0 items-center justify-center rounded-full"
-              style={{ ...glassPillStyle, width: '32px' }}
+              style={{ ...glassPillStyle, width: '28px' }}
               aria-label="Back"
             >
               <ChevronLeft
@@ -201,7 +201,7 @@ function TopBarComponent({
         <div className="flex-1" />
 
         {/* RIGHT CLUSTER: Individual Action Pills */}
-          <div className="flex shrink-0 items-center gap-1.5 pointer-events-auto glass-surface px-1.5 py-1 rounded-full">
+          <div className="flex shrink-0 items-center gap-1.5 pointer-events-auto glass-surface px-1 py-0.5 rounded-full">
           {!minimal && (
             <>
                 <motion.button
@@ -211,7 +211,7 @@ function TopBarComponent({
                   className="flex shrink-0 items-center justify-center rounded-full relative overflow-hidden"
                   style={{
                     ...glassPillStyle,
-                    width: '32px',
+                    width: '28px',
                   }}
                   aria-label="Tokens"
                 >
