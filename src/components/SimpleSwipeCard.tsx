@@ -593,9 +593,11 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           </div>
         )}
 
-        {/* Floating Action Rail — always rendered on the top card. */}
+        {/* Floating Action Rail — hides with the rest of the swipe-deck
+            chrome so the photo can breathe. Re-appears when chrome is
+            summoned via the top/bottom tap zones. */}
         <AnimatePresence>
-          {isTop && !isZoomed && (
+          {isTop && isChromeVisible && !isZoomed && (
             <motion.div
               initial={{ opacity: 0, x: 20, scale: 0.9, filter: 'blur(10px)' }}
               animate={{

@@ -72,7 +72,9 @@ function TopBarComponent({
     ? () => window.history.length > 2 ? navigate(-1) : navigate(`/${isOwner ? 'owner' : 'client'}/dashboard`)
     : undefined);
 
-  // Frameless Apple-style icon buttons — no pill, no glass. Bold icons only.
+  // Frameless inner buttons — the outer cluster's .glass-surface pill
+  // provides the visible glassmorph frame, so each icon button itself
+  // is transparent (no double frame).
   const glassPillStyle: React.CSSProperties = {
     background: 'transparent',
     border: 'none',
@@ -82,14 +84,10 @@ function TopBarComponent({
     borderRadius: '9999px',
     pointerEvents: 'auto',
     color: 'hsl(var(--foreground))',
-    height: '20px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     transition: 'all 0.3s cubic-bezier(0.22, 1, 0.36, 1)',
-    filter: isLight
-      ? 'drop-shadow(0 1px 2px rgba(0,0,0,0.22))'
-      : 'drop-shadow(0 1px 3px rgba(0,0,0,0.55))',
   };
 
 
@@ -130,20 +128,20 @@ function TopBarComponent({
         border: 'none'
       }}
     >
-      <div className="h-full w-full px-4 flex items-center justify-between relative">
-        
-        <div className="flex min-w-0 items-center gap-2 pointer-events-auto">
+      <div className="h-full w-full px-3 flex items-center justify-between relative">
+
+        <div className="flex min-w-0 items-center gap-1 pointer-events-auto glass-surface rounded-full px-2 py-1.5">
           {onBack ? (
             <motion.button
               transition={TAP_SPRING}
               whileTap={{ scale: 0.94 }}
               onClick={() => { haptics.tap(); onBack(); }}
-              className="flex shrink-0 items-center justify-center rounded-full"
-              style={{ ...glassPillStyle, width: '20px' }}
+              className="flex shrink-0 items-center justify-center rounded-full h-9 w-9"
+              style={glassPillStyle}
               aria-label="Back"
             >
               <ChevronLeft
-                className="w-[16px] h-[16px]"
+                className="w-[18px] h-[18px]"
                 strokeWidth={2.2}
                 style={{
                   color: iconColor,
@@ -162,12 +160,12 @@ function TopBarComponent({
                   haptics.tap();
                   navigate(isOwner ? '/owner/profile' : '/client/profile');
                 }}
-                className="flex shrink-0 items-center gap-1.5 rounded-full pl-1 pr-2 group"
+                className="flex shrink-0 items-center gap-2 rounded-full pl-1 pr-2.5 h-9 group"
                 style={glassPillStyle}
                 aria-label="Open profile"
               >
                 <div
-                  className="w-4 h-4 rounded-full overflow-hidden shrink-0 flex items-center justify-center relative"
+                  className="w-7 h-7 rounded-full overflow-hidden shrink-0 flex items-center justify-center relative"
                   style={{
                     background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)))',
                     boxShadow: '0 0 0 1px rgba(255,255,255,0.2) inset, 0 0 14px hsl(var(--primary) / 0.35)',
@@ -181,7 +179,7 @@ function TopBarComponent({
                     />
                   ) : (
                     initials === '?' ? <UserRound className="h-4 w-4 text-primary-foreground" strokeWidth={2.4} /> : (
-                      <span className="text-[10px] font-black text-primary-foreground drop-shadow-sm">
+                      <span className="text-[11px] font-black text-primary-foreground drop-shadow-sm">
                         {initials}
                       </span>
                     )
@@ -210,23 +208,20 @@ function TopBarComponent({
 
         <div className="flex-1" />
 
-        {/* RIGHT CLUSTER: Individual Action Pills */}
-          <div className="flex shrink-0 items-center gap-1.5 pointer-events-auto">
+        {/* RIGHT CLUSTER: single glass pill wrapping all action buttons */}
+          <div className="flex shrink-0 items-center gap-2 pointer-events-auto glass-surface rounded-full px-3 py-1.5">
           {!minimal && (
             <>
                 <motion.button
                   transition={TAP_SPRING}
                   whileTap={{ scale: 0.92 }}
                   onClick={() => { haptics.tap(); setModal('showTokensModal', true); }}
-                  className="flex shrink-0 items-center justify-center rounded-full relative overflow-hidden"
-                  style={{
-                    ...glassPillStyle,
-                    width: '20px',
-                  }}
+                  className="flex shrink-0 items-center justify-center rounded-full relative h-9 w-9"
+                  style={glassPillStyle}
                   aria-label="Tokens"
                 >
                   <Crown
-                    className="w-[14px] h-[14px]"
+                    className="w-[18px] h-[18px]"
                     style={{
                       color: iconColor,
                       filter: isLight ? 'none' : 'drop-shadow(0 0 8px rgba(228,0,124,0.65))',

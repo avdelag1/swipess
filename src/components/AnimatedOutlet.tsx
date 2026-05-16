@@ -44,17 +44,27 @@ export function AnimatedOutlet() {
     );
   }
 
-  // Non-dashboard routes: render the outlet inline as a normal block so
-  // its content participates in the outer scroll container's layout.
-  // CRITICAL: no `flex-1` here — that would lock this wrapper to the
-  // parent's allocated height and clip tall pages, breaking scroll on
-  // the outer #dashboard-scroll-container. Plain `w-full` lets the
-  // wrapper grow with its content.
+  // Non-dashboard routes: AnimatedOutlet itself becomes the page's
+  // scroll container. The outer `#dashboard-scroll-container` chain
+  // has too many intermediate flex/min-height wrappers that quietly
+  // collapse height in some browsers — making pages feel "stuck". By
+  // pinning this wrapper to its parent (position: absolute; inset: 0)
+  // and putting `overflow-y: auto` on it, the page always has a real
+  // scrollbar, regardless of the chain above.
   return (
     <div
       key={location.pathname}
-      className="w-full bg-background"
-      style={{ position: 'relative', pointerEvents: 'auto' }}
+      id="page-scroll-container"
+      className="bg-background"
+      style={{
+        position: 'absolute',
+        inset: 0,
+        overflowY: 'auto',
+        overflowX: 'hidden',
+        WebkitOverflowScrolling: 'touch',
+        overscrollBehaviorY: 'contain',
+        pointerEvents: 'auto',
+      }}
     >
       <Suspense fallback={null}>
         {outlet}

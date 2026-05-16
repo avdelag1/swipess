@@ -68,15 +68,21 @@ export function useScrollDirection({
   // Find the active scroll container
   const findScrollContainer = useCallback((): Element | null => {
     const selector = targetSelectorRef.current;
-    
-    // Try the specified selector first
+
+    // Try the specified selector first, but only if it actually has
+    // overflow to scroll. A specified target that is currently not the
+    // active scroll container should yield to the fallback chain so
+    // the hide/show animation tracks whatever the user is scrolling.
     if (selector) {
       const target = document.querySelector(selector);
-      if (target) return target;
+      if (target && target.scrollHeight > target.clientHeight + 1) {
+        return target;
+      }
     }
-    
+
     // Fallback chain for common scroll containers
     const fallbacks = [
+      '#page-scroll-container',
       '#dashboard-scroll-container',
       '#chat-scroll-container',
       '#messages-scroll-container',
@@ -84,14 +90,14 @@ export function useScrollDirection({
       '[id*="scroll-container"]',
       'main',
     ];
-    
+
     for (const fallback of fallbacks) {
       const target = document.querySelector(fallback);
-      if (target && target.scrollHeight > target.clientHeight) {
+      if (target && target.scrollHeight > target.clientHeight + 1) {
         return target;
       }
     }
-    
+
     return null;
   }, []);
 
