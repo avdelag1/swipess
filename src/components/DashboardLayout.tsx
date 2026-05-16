@@ -279,7 +279,8 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
         style={{
           WebkitOverflowScrolling: (isSwipeDeck || isFullScreenRoute) ? 'auto' : 'touch',
           overscrollBehavior: (isSwipeDeck || isFullScreenRoute) ? 'none' : undefined,
-          touchAction: (isSwipeDeck || isFullScreenRoute) ? 'none' : undefined,
+          overscrollBehaviorY: (!isSwipeDeck && !isFullScreenRoute) ? 'contain' : undefined,
+          touchAction: (isSwipeDeck || isFullScreenRoute) ? 'none' : 'pan-y',
         }}
       >
         {/* INNER WRAPPER: full-screen routes (radio/camera) get no bottom-nav

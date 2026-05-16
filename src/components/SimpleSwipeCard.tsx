@@ -504,6 +504,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
                 if ((listing as any).category === 'vehicle') {
                   return (
                     <VehicleCardInfo
+                      title={(listing as any).title}
                       price={(listing as any).price || 0}
                       priceType={(listing as any).listing_type === 'rental' ? ((listing as any).rental_duration_type === 'monthly' ? 'month' : 'day') : 'sale'}
                       make={(listing as any).vehicle_brand}
@@ -516,8 +517,24 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
                     />
                   );
                 }
+                if ((listing as any).category === 'services' || (listing as any).category === 'worker') {
+                  return (
+                    <ServiceCardInfo
+                      title={(listing as any).title}
+                      hourlyRate={(listing as any).price || undefined}
+                      pricingUnit={(listing as any).pricing_unit || 'hr'}
+                      serviceName={(listing as any).service_type || (listing as any).property_type || (listing as any).title || 'Service'}
+                      name={(listing as any).name}
+                      location={(listing as any).city}
+                      isVerified={(listing as any).has_verified_documents}
+                      photoIndex={currentImageIndex}
+                      className="!text-white !space-y-0"
+                    />
+                  );
+                }
                 return (
                   <PropertyCardInfo
+                    title={(listing as any).title}
                     price={(listing as any).price || 0}
                     priceType={(listing as any).listing_type === 'rental' ? ((listing as any).rental_duration_type === 'monthly' ? 'month' : 'night') : 'sale'}
                     propertyType={(listing as any).property_type}
