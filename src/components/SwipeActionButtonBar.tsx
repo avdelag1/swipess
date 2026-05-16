@@ -209,10 +209,8 @@ export const SwipeActionButtonBar = memo(({
 }: SwipeActionButtonBarProps) => {
   const { isLight } = useAppTheme();
 
-  if (!onShare && !onMessage && !onInsights && !onReport) return null;
-
   return (
-    <div className={`mx-auto flex w-auto max-w-[96vw] items-center justify-center gap-1.5 pointer-events-auto overflow-visible glass-surface px-3 py-1.5 rounded-full ${className}`}>
+    <div className={`mx-auto flex w-auto max-w-[96vw] items-center justify-center gap-1.5 pointer-events-auto overflow-visible glass-surface px-2 py-0.5 rounded-full ${className}`}>
       <AnimatePresence mode="popLayout" initial={false}>
         {onShare && (
           <ActionButton

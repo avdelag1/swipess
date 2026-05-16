@@ -166,11 +166,12 @@ export function AppLayout({ children }: AppLayoutProps) {
     const isCamera = path.startsWith('/camera');
     const isRoommates = path.startsWith('/explore/roommates');
     const isMessages = path.startsWith('/messages');
-    const isEvents = path.startsWith('/explore/eventos');
+    const isEvents = path.startsWith('/explore/events');
     return isCamera || isRadio || showAIChat || isSwipeDashboard || isRoommates || isMessages || isEvents;
   }, [location.pathname, showAIChat, isSwipeDashboard]);
-  
-  const showAppChrome = !isAuthRoute && !isRadioRoute && !isCameraRoute && !showAIChat && (!isPublicPreview || !!user);
+
+  const isEventsRoute = location.pathname.startsWith('/explore/events');
+  const showAppChrome = !isAuthRoute && !isRadioRoute && !isCameraRoute && !showAIChat && !isEventsRoute && (!isPublicPreview || !!user);
 
   const handleFilterClick = () => {
     const role = userRole === 'admin' ? 'admin' : activeMode;

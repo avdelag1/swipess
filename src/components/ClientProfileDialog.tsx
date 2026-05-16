@@ -242,7 +242,7 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent hideCloseButton className={cn("client-profile-dialog sm:max-w-3xl max-h-[92vh] flex flex-col p-0 gap-0 overflow-hidden rounded-[2.5rem]", isLight ? "light-profile-dialog border-border bg-background text-foreground shadow-[0_30px_90px_hsl(var(--foreground)/0.16)]" : "border-border bg-background text-foreground shadow-[0_0_80px_hsl(var(--background)/0.95)]")}>
+      <DialogContent hideCloseButton className={cn("client-profile-dialog sm:max-w-3xl h-[92dvh] max-h-[92dvh] flex flex-col p-0 gap-0 overflow-hidden rounded-[2.5rem]", isLight ? "light-profile-dialog border-border bg-background text-foreground shadow-[0_30px_90px_hsl(var(--foreground)/0.16)]" : "border-border bg-background text-foreground shadow-[0_0_80px_hsl(var(--background)/0.95)]")}>
         
         {/* 🛸 NEXUS ATMOSPHERIC LAYER */}
         <div className={cn("absolute inset-0 pointer-events-none overflow-hidden", isLight ? "opacity-[0.04]" : "opacity-20")}>
@@ -288,7 +288,7 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
 
         <div
           ref={scrollContainerRef}
-          className="flex-1 overflow-y-auto overflow-x-hidden px-8 py-6 touch-pan-y overscroll-contain relative z-10"
+          className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden px-8 py-6 touch-pan-y overscroll-contain relative z-10"
           style={{ WebkitOverflowScrolling: 'touch' as any }}
         >
           <div className="space-y-12 pb-24">

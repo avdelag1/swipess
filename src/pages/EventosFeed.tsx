@@ -309,36 +309,42 @@ export default function EventosFeed() {
 
   const handleMiddleTap = useCallback((event: EventItem) => {
     triggerHaptic('light');
-    navigate(`/explore/eventos/${event.id}`, { state: { eventData: event } });
+    navigate(`/explore/events/${event.id}`, { state: { eventData: event } });
   }, [navigate]);
 
   return (
     <div
-      className="relative w-full flex flex-col items-center justify-start bg-[#0a0a0b] min-h-screen"
+      className="relative w-full h-full flex-1 flex flex-col items-center justify-start bg-[#0a0a0b]"
     >
       {/* Atmospheric layer extends behind the fixed chrome so the photo
           content shows through transparent TopBar / BottomNavigation. */}
       <div className="fixed inset-0 bg-[#0a0a0b] -z-10 pointer-events-none" />
       
-      {/* Floating HUD — now handled by global SwipessHud logic, this local wrapper just for custom styling */}
-      <div 
-        className={cn(
-          "fixed left-0 right-0 z-[100] transform-gpu px-4 pt-4 transition-all duration-300 ease-out",
-          "opacity-100 translate-y-0"
-        )}
-        style={{ top: '0px' }}
+      {/* Full-screen overlay HUD: back button + category pills, no global header/nav */}
+      <div
+        className="fixed left-0 right-0 z-[100] transform-gpu px-4"
+        style={{ top: 0, paddingTop: 'calc(env(safe-area-inset-top, 0px) + 12px)' }}
       >
-        <div className="flex items-center gap-3 mt-12">
+        <div className="flex items-center gap-3">
+          {/* Back button */}
+          <button
+            onClick={() => { triggerHaptic('light'); navigate(-1); }}
+            className="shrink-0 w-9 h-9 rounded-full flex items-center justify-center shadow-lg"
+            style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.12)' }}
+            aria-label="Back"
+          >
+            <ArrowLeft className="w-5 h-5 text-white" />
+          </button>
 
-          <div className="flex-1 flex gap-2 overflow-x-auto no-scrollbar scroll-smooth py-2">
+          <div className="flex-1 flex gap-2 overflow-x-auto no-scrollbar scroll-smooth py-1">
             {CATEGORIES.map((cat) => {
               const Icon = cat.icon;
               const active = activeCategory === cat.key;
               const catColor = cat.color || '#f97316';
-              
+
               return (
-                <button 
-                  key={cat.key} 
+                <button
+                  key={cat.key}
                   onClick={() => {
                     triggerHaptic('light');
                     if (cat.key === activeCategory) {
@@ -346,10 +352,10 @@ export default function EventosFeed() {
                       return;
                     }
                     setActiveCategory(cat.key);
-                    if (cat.key === 'likes') navigate('/explore/eventos/likes');
-                  }} 
+                    if (cat.key === 'likes') navigate('/explore/events/likes');
+                  }}
                   className={cn(
-                    "flex items-center gap-2 px-4 py-2 rounded-full shrink-0 transition-all duration-300 border relative overflow-hidden group h-9",
+                    "flex items-center gap-2 px-3 py-1.5 rounded-full shrink-0 transition-all duration-300 border relative overflow-hidden group h-8",
                     active 
                       ? "scale-105 shadow-xl shadow-black/20" 
                       : "opacity-80 hover:opacity-100"
@@ -383,9 +389,10 @@ export default function EventosFeed() {
               );
             })}
           </div>
+          </div>
         </div>
-        
-        <div 
+
+        <div
           className="absolute -top-32 left-1/2 -translate-x-1/2 w-[140%] h-[160px] blur-[100px] opacity-20 pointer-events-none transition-colors duration-1000 z-[-1]"
           style={{ 
             background: `radial-gradient(circle, ${CATEGORIES.find(c => c.key === activeCategory)?.color || '#f97316'} 0%, transparent 70%)` 
@@ -421,7 +428,8 @@ export default function EventosFeed() {
       ) : (
         <div 
           ref={parentRef} 
-          className="w-full h-[100dvh] overflow-y-auto snap-y snap-mandatory no-scrollbar"
+          className="w-full h-[100dvh] overflow-y-auto snap-y snap-mandatory no-scrollbar overscroll-y-auto"
+          style={{ WebkitOverflowScrolling: 'touch', overscrollBehaviorY: 'auto' } as React.CSSProperties}
         >
           <div style={{ height: `${rowVirtualizer.getTotalSize()}px`, position: 'relative' }}>
             {rowVirtualizer.getVirtualItems().map((virtualRow) => {
@@ -433,7 +441,7 @@ export default function EventosFeed() {
                   key={virtualRow.key} 
                   className="absolute top-0 left-0 w-full snap-start snap-always"
                   style={{ 
-                    height: '100vh', 
+                    height: '100dvh',
                     width: '100%',
                     transform: `translateY(${virtualRow.start}px)`
                   }}
