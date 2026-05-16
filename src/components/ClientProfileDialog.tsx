@@ -1,5 +1,5 @@
 
-import { useEffect, useState, useMemo, memo } from 'react';
+import { useEffect, useRef, useState, useMemo, memo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -47,6 +47,8 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
   const { isLight } = useAppTheme();
   const { data } = useClientProfile();
   const saveMutation = useSaveClientProfile();
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const savedScrollRef = useRef(0);
 
   const [name, setName] = useState<string>('');
   const [age, setAge] = useState<number | ''>('');
@@ -223,8 +225,23 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
     ((name ? 20 : 0) + (age ? 10 : 0) + (profileImages.length > 0 ? 30 : 0) + (intentions.length > 0 ? 20 : 0) + (city ? 20 : 0))
   );
 
+  const handleOpenChange = useCallback((v: boolean) => {
+    if (!v && scrollContainerRef.current) {
+      savedScrollRef.current = scrollContainerRef.current.scrollTop;
+    }
+    triggerHaptic('light');
+    onOpenChange(v);
+  }, [onOpenChange]);
+
+  useEffect(() => {
+    if (open && scrollContainerRef.current) {
+      const el = scrollContainerRef.current;
+      requestAnimationFrame(() => { el.scrollTop = savedScrollRef.current; });
+    }
+  }, [open]);
+
   return (
-    <Dialog open={open} onOpenChange={(v) => { triggerHaptic('light'); onOpenChange(v); }}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent hideCloseButton className={cn("client-profile-dialog sm:max-w-3xl max-h-[92vh] flex flex-col p-0 gap-0 overflow-hidden rounded-[2.5rem]", isLight ? "light-profile-dialog border-border bg-background text-foreground shadow-[0_30px_90px_hsl(var(--foreground)/0.16)]" : "border-border bg-background text-foreground shadow-[0_0_80px_hsl(var(--background)/0.95)]")}>
         
         {/* 🛸 NEXUS ATMOSPHERIC LAYER */}
@@ -269,8 +286,12 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
            </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto overflow-x-hidden px-8 py-6 touch-pan-y overscroll-contain relative z-10">
-          <div className="space-y-12 pb-12">
+        <div
+          ref={scrollContainerRef}
+          className="flex-1 overflow-y-auto overflow-x-hidden px-8 py-6 touch-pan-y overscroll-contain relative z-10"
+          style={{ WebkitOverflowScrolling: 'touch' as any }}
+        >
+          <div className="space-y-12 pb-24">
             
             {/* 📸 ASSET REPOSITORY */}
             <section className="space-y-6">

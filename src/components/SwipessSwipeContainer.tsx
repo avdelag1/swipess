@@ -1067,15 +1067,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
           <SwipeActionButtonBar
             onLike={handleButtonLike}
             onDislike={handleButtonDislike}
-            onShare={handleShare}
-            onInsights={() => {
-              handleInsights();
-              if (onListingTap) onListingTap(topCard.id);
-            }}
             onUndo={undoLastSwipe}
-            onMessage={handleMessage}
-            onReport={handleReport}
-            onCycleCategory={handleCycleCategory}
             canUndo={canUndo}
           />
           </motion.div>

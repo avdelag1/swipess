@@ -1100,11 +1100,7 @@ const ClientSwipeContainerComponent = ({
               <SwipeActionButtonBar
                 onLike={handleButtonLike}
                 onDislike={handleButtonDislike}
-                onShare={handleShare}
-                onInsights={() => handleInsights(topCard.user_id)}
                 onUndo={undoLastSwipe}
-                onMessage={() => handleConnect(topCard.user_id)}
-                onReport={() => { triggerHaptic('medium'); setReportDialogOpen(true); }}
                 canUndo={canUndo}
               />
             </motion.div>
