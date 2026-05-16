@@ -389,8 +389,8 @@ export default function EventosFeed() {
               );
             })}
           </div>
-          </div>
         </div>
+
 
         <div
           className="absolute -top-32 left-1/2 -translate-x-1/2 w-[140%] h-[160px] blur-[100px] opacity-20 pointer-events-none transition-colors duration-1000 z-[-1]"
