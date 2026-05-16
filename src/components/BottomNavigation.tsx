@@ -95,10 +95,9 @@ export const BottomNavigation = memo(({
   const { isChromeVisible } = useChromeReveal();
   const isDashboardRoute = /^\/(client|owner|admin)\/dashboard\/?/.test(location.pathname);
 
-  // BottomNav stays visible on every page, including dashboards. Previous
-  // behaviour auto-hid it during the swipe deck which broke navigation.
-  void isChromeVisible;
-  const isActuallyVisible = true;
+  // Immersive logic: BottomNav auto-hides on the swipe deck (re-summoned
+  // by tapping the bottom edge). Always visible on every other page.
+  const isActuallyVisible = !isDashboardRoute || isChromeVisible;
   // Theme rule:
   //  - Dark theme (black filter): nav icons always WHITE everywhere.
   //  - Light theme (white filter): WHITE on dashboard (over photos),

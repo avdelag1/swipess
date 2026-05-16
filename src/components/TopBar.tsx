@@ -52,11 +52,9 @@ function TopBarComponent({
   const location = useLocation();
   const isDashboard = /^\/(client|owner|admin)\/dashboard\/?/.test(location.pathname);
   
-  // TopBar stays visible on every page, including dashboards. Previous
-  // behaviour auto-hid it during the swipe deck, which made the header
-  // buttons disappear and confused users.
-  void isChromeVisible; void isDashboard;
-  const isActuallyVisible = true;
+  // Immersive logic: TopBar auto-hides on the swipe deck (re-summoned by
+  // tapping the top edge). On every other page it stays visible.
+  const isActuallyVisible = !isDashboard || isChromeVisible;
   // Color rule:
   //  - Dark theme (black filter): icons always WHITE.
   //  - Light theme (white filter): WHITE on dashboard (over photos),
