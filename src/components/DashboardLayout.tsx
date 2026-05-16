@@ -278,8 +278,8 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
         )}
         style={{
           WebkitOverflowScrolling: (isSwipeDeck || isFullScreenRoute) ? 'auto' : 'touch',
-          overscrollBehavior: (isSwipeDeck || isFullScreenRoute) ? 'none' : undefined,
-          overscrollBehaviorY: (!isSwipeDeck && !isFullScreenRoute) ? 'contain' : undefined,
+          overscrollBehavior: (isSwipeDeck || isFullScreenRoute) ? 'none' : 'auto',
+          overscrollBehaviorY: (!isSwipeDeck && !isFullScreenRoute) ? 'contain' : 'none',
           touchAction: (isSwipeDeck || isFullScreenRoute) ? 'none' : 'pan-y',
         }}
       >
