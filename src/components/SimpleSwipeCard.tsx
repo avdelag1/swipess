@@ -493,7 +493,17 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
               </div>
             </div>
 
-            <div className="glass-surface inline-flex flex-col w-fit max-w-full px-4 py-3">
+            <div
+              className="inline-flex flex-col w-fit max-w-full px-4 py-3 rounded-3xl"
+              style={{
+                background: 'rgba(8, 10, 14, 0.55)',
+                backdropFilter: 'blur(24px) saturate(1.6)',
+                WebkitBackdropFilter: 'blur(24px) saturate(1.6)',
+                border: '1px solid rgba(255, 255, 255, 0.14)',
+                boxShadow: '0 12px 32px -12px rgba(0, 0, 0, 0.65)',
+                color: '#FFFFFF',
+              }}
+            >
               {(() => {
                 const isProfile = (listing as any).profile_images || (listing as any).name;
                 if (isProfile) {
@@ -583,10 +593,9 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           </div>
         )}
 
-        {/* Floating Action Rail — hides together with the rest of the
-            swipe-deck chrome so the card stays immersive. */}
+        {/* Floating Action Rail — always rendered on the top card. */}
         <AnimatePresence>
-          {isTop && isChromeVisible && !isZoomed && (
+          {isTop && !isZoomed && (
             <motion.div
               initial={{ opacity: 0, x: 20, scale: 0.9, filter: 'blur(10px)' }}
               animate={{
