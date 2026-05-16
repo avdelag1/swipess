@@ -122,7 +122,7 @@ function TopBarComponent({
     >
       <div className="h-full w-full px-4 flex items-center justify-between relative">
         
-        <div className="flex min-w-0 items-center gap-2 pointer-events-auto glass-surface px-1.5 py-1 rounded-full">
+        <div className="flex min-w-0 items-center gap-2 pointer-events-auto">
           {onBack ? (
             <motion.button
               transition={TAP_SPRING}
@@ -201,7 +201,7 @@ function TopBarComponent({
         <div className="flex-1" />
 
         {/* RIGHT CLUSTER: Individual Action Pills */}
-          <div className="flex shrink-0 items-center gap-1.5 pointer-events-auto glass-surface px-1.5 py-1 rounded-full">
+          <div className="flex shrink-0 items-center gap-1.5 pointer-events-auto">
           {!minimal && (
             <>
                 <motion.button
