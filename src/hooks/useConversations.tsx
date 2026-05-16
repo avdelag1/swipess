@@ -456,10 +456,9 @@ export function useStartConversation() {
 
       return { conversationId, message: { id: row?.message_id }, created: !!row?.created };
     },
-    onSuccess: async () => {
-      await queryClient.refetchQueries({ queryKey: ['conversations'] });
-      await queryClient.invalidateQueries({ queryKey: ['conversations-started-count'] });
-      appToast.success('💬 Conversation Started', 'Redirecting to chat...');
+    onSuccess: () => {
+      queryClient.refetchQueries({ queryKey: ['conversations'] });
+      queryClient.invalidateQueries({ queryKey: ['conversations-started-count'] });
     }
   });
 }
