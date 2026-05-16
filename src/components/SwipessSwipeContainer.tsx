@@ -849,7 +849,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
     setIsCreatingConversation(true);
     startNavigation();
     try {
-      appToast.info('Creating conversation...', 'Please wait');
       const result = await startConversation.mutateAsync({
         otherUserId: targetUserId,
         listingId: activeMode === 'owner' ? undefined : selectedListing.id,
@@ -1053,7 +1052,12 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
           style={{ opacity: pullDown.opacity, y: pullDown.y }}
         >
           <motion.div
-            animate={{ opacity: isChromeVisible ? 1 : 0, y: isChromeVisible ? 0 : 10 }}
+            animate={{
+              opacity: isChromeVisible ? 1 : 0,
+              y: isChromeVisible ? 0 : 80,
+              filter: isChromeVisible ? 'blur(0px)' : 'blur(12px)',
+              scale: isChromeVisible ? 1 : 0.94,
+            }}
             transition={{
               duration: isChromeVisible ? 0.68 : 1.4,
               ease: isChromeVisible ? [0.22, 1.4, 0.36, 1] : [0.32, 0, 0.67, 0],
@@ -1063,15 +1067,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
           <SwipeActionButtonBar
             onLike={handleButtonLike}
             onDislike={handleButtonDislike}
-            onShare={handleShare}
-            onInsights={() => {
-              handleInsights();
-              if (onListingTap) onListingTap(topCard.id);
-            }}
             onUndo={undoLastSwipe}
-            onMessage={handleMessage}
-            onReport={handleReport}
-            onCycleCategory={handleCycleCategory}
             canUndo={canUndo}
           />
           </motion.div>

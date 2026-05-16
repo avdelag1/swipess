@@ -38,6 +38,7 @@ interface CardInfoProps {
 // ============================================
 
 interface PropertyCardInfoProps extends CardInfoProps {
+  title?: string;
   price: number;
   priceType?: 'month' | 'night' | 'year' | 'sale';
   propertyType?: string;
@@ -50,6 +51,7 @@ interface PropertyCardInfoProps extends CardInfoProps {
 }
 
 export const PropertyCardInfo = memo(({
+  title,
   price,
   priceType = 'month',
   propertyType,
@@ -75,6 +77,11 @@ export const PropertyCardInfo = memo(({
             <span className="text-white/80" style={{ fontSize: FONT.meta }}>{priceLabel}</span>
             {isVerified && <VerifiedBadge size="sm" className="ml-2" />}
           </div>
+          {title && (
+            <div className="font-semibold text-white/95 truncate drop-shadow" style={{ fontSize: FONT.body }}>
+              {title}
+            </div>
+          )}
           {propertyType && (
             <div className="flex items-center gap-3 text-white/90">
               <span className="font-semibold" style={{ fontSize: FONT.body }}>{propertyType}</span>
@@ -178,6 +185,7 @@ PropertyCardInfo.displayName = 'PropertyCardInfo';
 // ============================================
 
 interface VehicleCardInfoProps extends CardInfoProps {
+  title?: string;
   price: number;
   priceType?: 'day' | 'week' | 'month' | 'sale';
   make?: string;
@@ -190,6 +198,7 @@ interface VehicleCardInfoProps extends CardInfoProps {
 }
 
 export const VehicleCardInfo = memo(({
+  title,
   price,
   priceType = 'day',
   make,
@@ -216,6 +225,11 @@ export const VehicleCardInfo = memo(({
             <span className="text-white/80" style={{ fontSize: FONT.meta }}>{priceLabel}</span>
             {isVerified && <VerifiedBadge size="sm" className="ml-2" />}
           </div>
+          {title && (
+            <div className="font-semibold text-white/95 truncate drop-shadow" style={{ fontSize: FONT.body }}>
+              {title}
+            </div>
+          )}
           <div className="flex items-center gap-2 text-white/90">
             <Car className="w-5 h-5" />
             <span className="font-bold truncate" style={{ fontSize: FONT.secondary }}>{vehicleName || 'Vehicle'}</span>
@@ -301,6 +315,7 @@ VehicleCardInfo.displayName = 'VehicleCardInfo';
 // ============================================
 
 interface ServiceCardInfoProps extends CardInfoProps {
+  title?: string;
   hourlyRate?: number;
   pricingUnit?: string;
   serviceName: string;
@@ -313,6 +328,7 @@ interface ServiceCardInfoProps extends CardInfoProps {
 }
 
 export const ServiceCardInfo = memo(({
+  title,
   hourlyRate,
   pricingUnit = 'hr',
   serviceName,
@@ -338,6 +354,11 @@ export const ServiceCardInfo = memo(({
               </span>
               <span className="text-white/80" style={{ fontSize: FONT.meta }}>{unitLabel}</span>
               {isVerified && <VerifiedBadge size="sm" className="ml-2" />}
+            </div>
+          )}
+          {title && (
+            <div className="font-semibold text-white/95 truncate drop-shadow" style={{ fontSize: FONT.body }}>
+              {title}
             </div>
           )}
           <div className="flex items-center gap-2 text-white/90">

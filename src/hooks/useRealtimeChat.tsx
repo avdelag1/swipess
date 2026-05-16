@@ -169,10 +169,11 @@ export function useRealtimeChat(conversationId: string) {
             );
 
             if (exists) {
-              // Replace optimistic message with real message if it exists
+              // Replace optimistic message with real message if it exists, preserving
+              // the client_id so the React key remains stable across the temp->real swap.
               return oldData.map((msg: any) =>
                 msg.id.toString().startsWith('temp-') && msg.message_text === newMessage.message_text && msg.sender_id === newMessage.sender_id
-                  ? completeMessage
+                  ? { ...completeMessage, client_id: msg.client_id }
                   : msg
               );
             }

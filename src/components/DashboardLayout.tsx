@@ -279,17 +279,18 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
         style={{
           WebkitOverflowScrolling: (isSwipeDeck || isFullScreenRoute) ? 'auto' : 'touch',
           overscrollBehavior: (isSwipeDeck || isFullScreenRoute) ? 'none' : undefined,
-          touchAction: (isSwipeDeck || isFullScreenRoute) ? 'none' : undefined,
+          overscrollBehaviorY: (!isSwipeDeck && !isFullScreenRoute) ? 'contain' : undefined,
+          touchAction: (isSwipeDeck || isFullScreenRoute) ? 'none' : 'pan-y',
         }}
       >
         {/* INNER WRAPPER: full-screen routes (radio/camera) get no bottom-nav
             padding because they hide the chrome — leaving the padding causes
             a strip of body background to show beneath the page. */}
         <div className={cn(
-          "w-full flex flex-col min-h-0",
+          "w-full",
           (isSwipeDeck || isFullScreenRoute)
-            ? "h-full flex-1 overflow-hidden"
-            : "flex-grow min-h-full pt-[var(--top-bar-height)] pb-[var(--bottom-nav-height)]"
+            ? "flex flex-col min-h-0 h-full flex-1 overflow-hidden"
+            : "block min-h-full pt-[var(--top-bar-height)] pb-[var(--bottom-nav-height)]"
         )}>
           {children}
         </div>
