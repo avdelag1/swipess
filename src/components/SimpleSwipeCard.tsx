@@ -605,10 +605,10 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
               className="absolute right-4 bottom-[calc(var(--bottom-nav-height,72px)+160px)] z-50 flex flex-col gap-5"
             >
               {[
-                { icon: Share2, onClick: onShare, label: 'Share', color: 'white' },
-                { icon: MessageCircle, onClick: () => revealChrome(), label: 'Message', color: 'white' }, // Logic handled by dashboard parent
-                { icon: BarChart3, onClick: onInsights, label: 'Insights', color: 'white' },
-                { icon: Flag, onClick: onReport, label: 'Report', color: 'rose-400' },
+                { icon: Share2, onClick: onShare, label: 'Share' },
+                { icon: MessageCircle, onClick: () => revealChrome(), label: 'Message' }, 
+                { icon: BarChart3, onClick: onInsights, label: 'Insights' },
+                { icon: Flag, onClick: onReport, label: 'Report' },
               ].map((btn, idx) => (
                 <motion.button
                   key={idx}
@@ -620,12 +620,12 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
                   }}
                   className="w-12 h-12 rounded-full flex items-center justify-center relative overflow-hidden group"
                 >
-                  {/* Liquid Glass Background */}
-                  <div className="absolute inset-0 bg-white/10 backdrop-blur-md border border-white/20 rounded-full" />
+                  {/* Frozen Glassmorphic Frame */}
+                  <div className="absolute inset-0 bg-white/15 backdrop-blur-[16px] border border-white/30 rounded-full shadow-[0_4px_12px_rgba(0,0,0,0.1)]" />
                   
                   <btn.icon 
-                    className={cn("w-5 h-5 relative z-10 transition-colors duration-200", `text-${btn.color}`)} 
-                    strokeWidth={2}
+                    className="w-5 h-5 text-white relative z-10 drop-shadow-md" 
+                    strokeWidth={2.5}
                   />
                   
                   {/* Subtle Hover Glow */}
