@@ -849,7 +849,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
     setIsCreatingConversation(true);
     startNavigation();
     try {
-      appToast.info('Creating conversation...', 'Please wait');
       const result = await startConversation.mutateAsync({
         otherUserId: targetUserId,
         listingId: activeMode === 'owner' ? undefined : selectedListing.id,

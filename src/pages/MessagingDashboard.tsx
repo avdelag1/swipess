@@ -276,16 +276,19 @@ export function MessagingDashboard() {
           {isLoading ? (
             <MessageSkeleton />
           ) : filteredConversations.length > 0 ? (
-            filteredConversations.map((conversation, index) => {
+            <AnimatePresence initial={false}>
+            {filteredConversations.map((conversation) => {
               const isUnread = conversation.last_message?.sender_id !== user?.id && conversation.last_message?.is_read === false;
               const lastAt = conversation.last_message_at ? new Date(conversation.last_message_at) : null;
 
               return (
-                <motion.div 
-                  key={conversation.id} 
-                  initial={{ opacity: 0, y: 15 }} 
-                  animate={{ opacity: 1, y: 0 }} 
-                  transition={{ delay: index * 0.05 }}
+                <motion.div
+                  key={conversation.id}
+                  layout
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.2 }}
                 >
                   <button 
                     className={cn(
@@ -363,7 +366,8 @@ export function MessagingDashboard() {
                   </button>
                 </motion.div>
               );
-            })
+            })}
+            </AnimatePresence>
           ) : (
             <motion.div 
                initial={{ opacity: 0 }} 
