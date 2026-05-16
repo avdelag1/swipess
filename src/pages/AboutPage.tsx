@@ -218,7 +218,7 @@ export default function AboutPage() {
         <div className="text-center mt-16 pb-12">
           <div className={cn("inline-flex items-center gap-2 px-4 py-1.5 rounded-full border", isLight ? "bg-black/5 border-black/5" : "bg-white/5 border-white/5")}>
              <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
-             <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40 italic">System Protocol v4.0.0 — Nexus</span>
+             <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40 italic">System Protocol v4.0.0 â€” Swipes</span>
           </div>
         </div>
       </div>

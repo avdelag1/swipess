@@ -14,6 +14,7 @@ import { NotificationPopover } from './NotificationPopover';
 import { ThemeToggle } from './ThemeToggle';
 import { useModalStore } from '@/state/modalStore';
 import { TAP_SPRING } from './BottomNavigation';
+import { useChromeReveal } from '@/hooks/useChromeReveal';
 
 interface TopBarProps {
   onNotificationsClick?: () => void;
@@ -46,9 +47,13 @@ function TopBarComponent({
   const { navigate } = useAppNavigate();
   const { user } = useAuth();
   const { isLight } = useAppTheme();
+  const { isChromeVisible } = useChromeReveal();
   const setModal = useModalStore(s => s.setModal);
   const location = useLocation();
   const isDashboard = /^\/(client|owner|admin)\/dashboard\/?/.test(location.pathname);
+  
+  // Immersive Logic: Hide TopBar on dashboards unless explicitly revealed
+  const isActuallyVisible = !isDashboard || isChromeVisible;
   // Color rule:
   //  - Dark theme (black filter): icons always WHITE.
   //  - Light theme (white filter): WHITE on dashboard (over photos),
@@ -110,7 +115,8 @@ function TopBarComponent({
   return (
     <header 
       className={cn(
-        "relative w-full transition-all duration-500 pointer-events-none",
+        "fixed top-0 left-0 right-0 z-[100] transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] pointer-events-none",
+        !isActuallyVisible && "opacity-0 -translate-y-full",
         className
       )}
       style={{

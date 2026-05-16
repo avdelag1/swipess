@@ -36,6 +36,7 @@ import { useFilterStore } from '@/state/filterStore';
 import { useModalStore } from '@/state/modalStore';
 import { useGuidedTourActive } from '@/state/guidedTourStore';
 import { useDeckHasCards } from '@/hooks/useDeckHasCards';
+import { useChromeReveal } from '@/hooks/useChromeReveal';
 
 const ICON_SIZE = 20;
 const ICON_SIZE_COMPACT = 18;
@@ -91,7 +92,11 @@ export const BottomNavigation = memo(({
   const { unreadCount: _unreadCount } = useUnreadMessageCount();
   const { unreadCount: _unreadNotifCount } = useUnreadNotifications();
   const { isLight } = useAppTheme();
+  const { isChromeVisible } = useChromeReveal();
   const isDashboardRoute = /^\/(client|owner|admin)\/dashboard\/?/.test(location.pathname);
+  
+  // Immersive Logic: Hide BottomNav on dashboards unless explicitly revealed
+  const isActuallyVisible = !isDashboardRoute || isChromeVisible;
   // Theme rule:
   //  - Dark theme (black filter): nav icons always WHITE everywhere.
   //  - Light theme (white filter): WHITE on dashboard (over photos),
@@ -277,7 +282,11 @@ export const BottomNavigation = memo(({
     <nav
       role="navigation"
       aria-label="Main navigation"
-      className={cn('app-bottom-bar pb-2 pt-1', className)}
+      className={cn(
+        'app-bottom-bar pb-2 pt-1 transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)]',
+        !isActuallyVisible && "opacity-0 translate-y-full",
+        className
+      )}
       style={{
         paddingLeft: 'max(12px, env(safe-area-inset-left))',
         paddingRight: 'max(12px, env(safe-area-inset-right))',

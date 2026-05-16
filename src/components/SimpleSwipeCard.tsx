@@ -1,5 +1,5 @@
 /**
- * TINDER-STYLE SWIPE CARD — Nexus Edition
+ * TINDER-STYLE SWIPE CARD â€” Swipes Edition
  *
  * Axis-locked swipe card with strict story-feed movement.
  * Card only travels straight up/down for browsing or straight left/right for like/pass.
@@ -9,7 +9,7 @@
  * - Rotation based on drag position (pivot from bottom)
  * - Spring physics for snap-back and exit
  * - Next card visible underneath with scale/opacity anticipation
- * - Advanced "Nexus" Zoom (Hold to Magnify)
+ * - Advanced "Swipes" Zoom (Hold to Magnify)
  */
 
 import { memo, useRef, useState, useCallback, useMemo, useEffect, forwardRef, useImperativeHandle } from 'react';
@@ -26,10 +26,10 @@ import CardImage from '@/components/CardImage';
 import { imageCache } from '@/lib/swipe/cardImageCache';
 import useAppTheme from '@/hooks/useAppTheme';
 import { cn } from '@/lib/utils';
-import { ThumbsUp, ThumbsDown, Flame, Flag, Share2 } from 'lucide-react';
+import { ThumbsUp, ThumbsDown, Flame, Flag, Share2, MessageCircle, BarChart3 } from 'lucide-react';
 import { PhotoPositionIndicators } from '@/components/swipe/PhotoPositionIndicators';
 import { GestureHints } from '@/components/swipe/GestureHints';
-import { revealChrome } from '@/hooks/useChromeReveal';
+import { useChromeReveal, revealChrome } from '@/hooks/useChromeReveal';
 
 export interface SimpleSwipeCardRef {
   triggerSwipe: (direction: 'left' | 'right') => void;
@@ -78,6 +78,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   onShare,
 }, ref) => {
   const { isLight } = useAppTheme();
+  const { isChromeVisible } = useChromeReveal();
   const isDragging = useRef(false);
   const hasExited = useRef(false);
   const isExitingRef = useRef(false);
@@ -94,7 +95,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
 
   // Strict story-feed motion: horizontal = like/pass, vertical = browse next card.
   // Vertical browse keeps the card fully opaque so up/down feels like a clean
-  // page-turn — the underlying card only pops in once we commit. Horizontal
+  // page-turn â€” the underlying card only pops in once we commit. Horizontal
   // swipes get a subtle late fade so like/pass still feels weighted.
   const cardOpacity = useTransform(
     [x, y] as any,
@@ -104,7 +105,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
       const fadeX = ax <= SWIPE_THRESHOLD * 0.6
         ? 0
         : Math.min(1, (ax - SWIPE_THRESHOLD * 0.6) / (SWIPE_THRESHOLD * 1.2)) * 0.25;
-      // Vertical: NO fade during browse — card stays opaque the whole way.
+      // Vertical: NO fade during browse â€” card stays opaque the whole way.
       return 1 - fadeX;
     }
   );
@@ -333,7 +334,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
     hasExited.current = true;
     isExitingRef.current = true;
     triggerHaptic(direction === 'right' ? 'success' : 'warning');
-    // 'right' = like → fly RIGHT, 'left' = pass → fly LEFT (Tinder-style)
+    // 'right' = like â†’ fly RIGHT, 'left' = pass â†’ fly LEFT (Tinder-style)
     const exitDist = typeof window !== 'undefined' ? window.innerWidth * 1.2 : 900;
     const exitX = direction === 'right' ? exitDist : -exitDist;
     let swipeFired = false;
@@ -571,7 +572,47 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           </div>
         )}
 
-        {/* Right-side Share/Report rail removed — actions now live in the bottom horizontal bar (SwipeActionButtonBar) */}
+        {/* Floating Action Rail â€” Premium Immersive Experience */}
+        <AnimatePresence>
+          {isTop && isChromeVisible && !isZoomed && (
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+              className="absolute right-4 bottom-[calc(var(--bottom-nav-height,72px)+160px)] z-50 flex flex-col gap-4"
+            >
+              {[
+                { icon: Share2, onClick: onShare, label: 'Share', color: 'white' },
+                { icon: MessageCircle, onClick: () => revealChrome(), label: 'Message', color: 'white' }, // Logic handled by dashboard parent
+                { icon: BarChart3, onClick: onInsights, label: 'Insights', color: 'white' },
+                { icon: Flag, onClick: onReport, label: 'Report', color: 'rose-400' },
+              ].map((btn, idx) => (
+                <motion.button
+                  key={idx}
+                  whileTap={{ scale: 0.9 }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    triggerHaptic('light');
+                    btn.onClick?.();
+                  }}
+                  className="w-12 h-12 rounded-full flex items-center justify-center relative overflow-hidden group"
+                >
+                  {/* Liquid Glass Background */}
+                  <div className="absolute inset-0 bg-white/10 backdrop-blur-md border border-white/20 rounded-full" />
+                  
+                  <btn.icon 
+                    className={cn("w-5 h-5 relative z-10 transition-colors duration-200", `text-${btn.color}`)} 
+                    strokeWidth={2}
+                  />
+                  
+                  {/* Subtle Hover Glow */}
+                  <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+                </motion.button>
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
           </>
         )}
       </motion.div>

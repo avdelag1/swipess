@@ -1,15 +1,15 @@
 /**
- * SWIPE ACTION BUTTON BAR — Nexus Phantom Design
+ * SWIPE ACTION BUTTON BAR â€” Swipes Phantom Design
  *
  * Frameless, backgroundless floating icons with expressive shadows and glow.
  * Optimized for performance with high-fidelity visual feedback.
  *
- * BUTTON ORDER (LEFT → RIGHT):
- *   1. Return/Undo  (small) — green
- *   2. Dislike      (large) — red
- *   3. Message      (small) — blue
- *   4. Like         (large) — fire/orange
- *   5. Insights     (small) — cyan/eye
+ * BUTTON ORDER (LEFT â†’ RIGHT):
+ *   1. Return/Undo  (small) â€” green
+ *   2. Dislike      (large) â€” red
+ *   3. Message      (small) â€” blue
+ *   4. Like         (large) â€” fire/orange
+ *   5. Insights     (small) â€” cyan/eye
  */
 
 import { memo, useCallback, useState, forwardRef } from 'react';
@@ -34,17 +34,17 @@ interface SwipeActionButtonBarProps {
   className?: string;
 }
 
-// ── SPRING CONFIGS ────────────────────────────────────────────────────────────
+// â”€â”€ SPRING CONFIGS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const ENTRY_SPRING = { type: 'spring' as const, stiffness: 340, damping: 26, mass: 0.7 } as const;
 
-// ── DIMENSIONS ────────────────────────────────────────────────────────────────
+// â”€â”€ DIMENSIONS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const LARGE_CSS = 'clamp(52px, 14vw, 60px)';
 const SMALL_CSS = 'clamp(36px, 9.5vw, 42px)';
 const LARGE_ICON = 24;
 const SMALL_ICON = 18;
 const TAP_SCALE = 0.92;
 
-// ── VARIANT CONFIGS ───────────────────────────────────────────────────────────
+// â”€â”€ VARIANT CONFIGS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 type Variant = 'default' | 'like' | 'dislike' | 'amber' | 'blue' | 'cyan' | 'purple' | 'gold' | 'green' | 'white';
 
 interface VariantCfg {
@@ -106,7 +106,7 @@ const VARIANTS: Record<Variant, VariantCfg> = {
   },
 };
 
-// ── ACTION BUTTON ─────────────────────────────────────────────────────────────
+// â”€â”€ ACTION BUTTON â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const ActionButton = memo(forwardRef<HTMLButtonElement, any>(function ActionButton({
   onClick,
   disabled = false,

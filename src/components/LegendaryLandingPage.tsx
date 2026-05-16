@@ -18,10 +18,10 @@ import { supabase } from '@/integrations/supabase/client';
 import { loginSchema, signupSchema, forgotPasswordSchema } from '@/schemas/auth';
 import { cn } from '@/lib/utils';
 
-/* ─── Types ─────────────────────────────────────────────── */
+/* â”€â”€â”€ Types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 type View = 'landing' | 'auth';
 
-/* ─── Brand SVG Icons (Apple HIG–compliant) ──────────────── */
+/* â”€â”€â”€ Brand SVG Icons (Apple HIGâ€“compliant) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 const AppleIcon = () => (
   <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor">
     <path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
@@ -37,7 +37,7 @@ const GoogleIcon = () => (
   </svg>
 );
 
-/* ─── Landing view ───────────────────────────────────────── */
+/* â”€â”€â”€ Landing view â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 const LandingView = memo(({
   onEnterAuth,
 }: {
@@ -98,7 +98,7 @@ const LandingView = memo(({
         </div>
       </motion.div>
 
-      {/* ─── Fix #4: Clear CTA buttons ─── */}
+      {/* â”€â”€â”€ Fix #4: Clear CTA buttons â”€â”€â”€ */}
       <motion.div
         className="mt-12 flex flex-col items-center gap-3 w-full max-w-[280px]"
         initial={{ opacity: 0, y: 20 }}
@@ -131,7 +131,7 @@ const LandingView = memo(({
   );
 });
 
-/* ─── Fix #2 & #3: Apple-HIG-compliant social auth buttons ── */
+/* â”€â”€â”€ Fix #2 & #3: Apple-HIG-compliant social auth buttons â”€â”€ */
 const AppleAuthButton = ({ onClick }: { onClick: () => void }) => (
   <button
     onClick={onClick}
@@ -156,7 +156,7 @@ const GoogleAuthButton = ({ onClick }: { onClick: () => void }) => (
   </button>
 );
 
-/* ─── Auth view ──────────────────────────────────────────── */
+/* â”€â”€â”€ Auth view â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, initialMode?: 'login' | 'signup' }) => {
   const [isLogin, setIsLogin] = useState(initialMode === 'login');
   const [isForgotPassword, setIsForgotPassword] = useState(false);
@@ -340,7 +340,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
 
         {isForgotPassword && (
           <motion.div className="w-full mb-6 text-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-            <p className="text-[10px] font-black tracking-[0.3em] text-white/50 uppercase italic">Security Protocol — Reset</p>
+            <p className="text-[10px] font-black tracking-[0.3em] text-white/50 uppercase italic">Security Protocol â€” Reset</p>
           </motion.div>
         )}
 
@@ -453,7 +453,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
           >
             <div className="flex items-center gap-5">
               <div className="flex-1 h-px bg-white/15" />
-              <span className="text-[9px] font-black text-white/60 uppercase tracking-[0.4em] italic">Nexus Gateway</span>
+              <span className="text-[9px] font-black text-white/60 uppercase tracking-[0.4em] italic">Swipes Gateway</span>
               <div className="flex-1 h-px bg-white/15" />
             </div>
             <AppleAuthButton onClick={() => handleSocialLogin('apple')} />
@@ -465,7 +465,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
   );
 });
 
-/* ─── Root component ─────────────────────────────────────── */
+/* â”€â”€â”€ Root component â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function LegendaryLandingPage() {
   const { navigate } = useAppNavigate();
   const [searchParams] = useSearchParams();
@@ -485,13 +485,13 @@ function LegendaryLandingPage() {
 
   return (
     <div className="h-screen h-dvh relative overflow-hidden bg-black text-white">
-      {/* 🛸 ATMOSPHERIC BACKGROUND */}
+      {/* ðŸ›¸ ATMOSPHERIC BACKGROUND */}
       <div className="fixed inset-0 pointer-events-none bg-black">
-        <AtmosphericLayer variant="nexus" opacity={0.15} />
+        <AtmosphericLayer variant="Swipes" opacity={0.15} />
         <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,rgba(224,30,42,0.1)_0%,transparent_70%)]" />
       </div>
 
-      {/* 🌌 COSMOS — moving stars + shooting stars + tap meditation bowls */}
+      {/* ðŸŒŒ COSMOS â€” moving stars + shooting stars + tap meditation bowls */}
       <LandingBackgroundEffects mode="stars" />
 
       <AnimatePresence mode="wait">
@@ -502,17 +502,17 @@ function LegendaryLandingPage() {
         )}
       </AnimatePresence>
 
-      {/* 🛸 LEGAL FOOTER — fixed so it survives any view + scroll */}
+      {/* ðŸ›¸ LEGAL FOOTER â€” fixed so it survives any view + scroll */}
       <div className="fixed bottom-6 left-0 right-0 z-30 flex flex-col items-center gap-1.5 pointer-events-none">
         <div className="flex items-center gap-5 text-[9px] font-black uppercase tracking-[0.3em] text-white italic pointer-events-auto">
           <button onClick={() => setLegalModal('privacy')} className="hover:text-white/70 transition-colors">Privacy</button>
           <div className="w-1 h-1 rounded-full bg-white/30" />
           <button onClick={() => setLegalModal('terms')} className="hover:text-white/70 transition-colors">Terms</button>
         </div>
-        <p className="text-[8px] font-black uppercase tracking-[0.4em] text-white/30 italic pointer-events-auto">© 2026 Swipess</p>
+        <p className="text-[8px] font-black uppercase tracking-[0.4em] text-white/30 italic pointer-events-auto">Â© 2026 Swipess</p>
       </div>
 
-      {/* 🛸 LEGAL POPUP MODAL */}
+      {/* ðŸ›¸ LEGAL POPUP MODAL */}
       <AnimatePresence>
         {legalModal && (
           <motion.div
@@ -543,13 +543,13 @@ function LegendaryLandingPage() {
                     <p className="text-sm font-bold leading-relaxed text-white">By initializing the Swipess experience, you agree to be bound by these Legal Protocols. Access is denied to non-compliant entities.</p>
                     <div className="h-px bg-white/10 my-6" />
                     
-                    <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-[#E01E2A] mb-2">01 — Entity Eligibility</h3>
+                    <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-[#E01E2A] mb-2">01 â€” Entity Eligibility</h3>
                     <p className="text-sm opacity-80 leading-relaxed">Minimum age of 18 required. You must possess the legal authority to enter binding digital agreements.</p>
                     
-                    <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-[#E01E2A] mt-6 mb-2">02 — Identity Security</h3>
+                    <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-[#E01E2A] mt-6 mb-2">02 â€” Identity Security</h3>
                     <p className="text-sm opacity-80 leading-relaxed">You are solely responsible for the encryption integrity of your access credentials. Notify the Registry immediately upon unauthorized sync.</p>
                     
-                    <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-[#E01E2A] mt-6 mb-2">03 — Prohibited Acts</h3>
+                    <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-[#E01E2A] mt-6 mb-2">03 â€” Prohibited Acts</h3>
                     <p className="text-sm opacity-80 leading-relaxed">Entities shall not transmit fraudulent logs, harass other users, or bypass platform security. Violations result in immediate ban.</p>
                  </div>
                ) : (
@@ -557,13 +557,13 @@ function LegendaryLandingPage() {
                     <p className="text-sm font-bold leading-relaxed text-white">We value your privacy and security. Swipess uses advanced end-to-end encryption for sensitive data.</p>
                     <div className="h-px bg-white/10 my-6" />
                     
-                    <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-[#E01E2A] mb-2">01 — Data Collection</h3>
+                    <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-[#E01E2A] mb-2">01 â€” Data Collection</h3>
                     <p className="text-sm opacity-80 leading-relaxed">We collect email, authentication tokens, and basic interaction data necessary to operate the matching engine.</p>
                     
-                    <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-[#E01E2A] mt-6 mb-2">02 — Data Sharing</h3>
+                    <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-[#E01E2A] mt-6 mb-2">02 â€” Data Sharing</h3>
                     <p className="text-sm opacity-80 leading-relaxed">Your personal identity is strictly shielded. We do not sell your data to external data brokers.</p>
                     
-                    <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-[#E01E2A] mt-6 mb-2">03 — Asset Privacy</h3>
+                    <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-[#E01E2A] mt-6 mb-2">03 â€” Asset Privacy</h3>
                     <p className="text-sm opacity-80 leading-relaxed">Location and discovery history is kept private and only utilized for matchmaking algorithms.</p>
                  </div>
                )}

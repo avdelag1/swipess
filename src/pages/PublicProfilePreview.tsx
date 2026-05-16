@@ -55,7 +55,7 @@ export default function PublicProfilePreview() {
   if (isLoading) {
     return (
       <div className="fixed inset-0 bg-black flex items-center justify-center">
-        <AtmosphericLayer variant="nexus" opacity={0.12} />
+        <AtmosphericLayer variant="Swipes" opacity={0.12} />
         <div className="w-16 h-16 rounded-full border-4 border-[#EB4898]/15 border-t-[#EB4898] animate-spin relative z-10" />
       </div>
     );
@@ -64,7 +64,7 @@ export default function PublicProfilePreview() {
   if (error || !profile) {
     return (
       <div className="fixed inset-0 bg-black flex flex-col items-center justify-center p-8 text-center">
-        <AtmosphericLayer variant="nexus" opacity={0.15} />
+        <AtmosphericLayer variant="Swipes" opacity={0.15} />
         <div className="w-24 h-24 rounded-3xl bg-white/5 flex items-center justify-center mb-8 border border-white/10 relative z-10">
           <User className="w-10 h-10 text-white/20" />
         </div>
@@ -91,7 +91,7 @@ export default function PublicProfilePreview() {
   })();
 
   const interests: string[] = profile.interests || [];
-  const heroImage = images[0] || `${typeof window !== 'undefined' ? window.location.origin : 'https://swipess.com'}/og-image-nexus.png`;
+  const heroImage = images[0] || `${typeof window !== 'undefined' ? window.location.origin : 'https://swipess.com'}/og-image-Swipes.png`;
 
   const handleCreateAccount = () => {
     triggerHaptic('success');
@@ -110,13 +110,13 @@ export default function PublicProfilePreview() {
     <div className="fixed inset-0 w-full bg-black text-white flex flex-col overflow-hidden">
       <SEO
         title={`${profile.full_name || 'Profile'} on Swipess`}
-        description={`${profile.bio || 'Discover on Swipess.'}${profile.city ? ` — ${profile.city}.` : ''}`}
+        description={`${profile.bio || 'Discover on Swipess.'}${profile.city ? ` â€” ${profile.city}.` : ''}`}
         image={heroImage}
         url={`${typeof window !== 'undefined' ? window.location.origin : 'https://swipess.com'}/profile/${id}`}
         type="profile"
       />
 
-      <AtmosphericLayer variant="nexus" opacity={0.08} />
+      <AtmosphericLayer variant="Swipes" opacity={0.08} />
 
       <div
         className="relative z-50 flex items-center justify-between px-5 pb-3 shrink-0"

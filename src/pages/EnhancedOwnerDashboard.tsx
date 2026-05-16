@@ -20,6 +20,7 @@ import { AtmosphericLayer } from '@/components/AtmosphericLayer';
 import { useNavigate } from 'react-router-dom';
 import { SwipeInsightsModal } from '@/components/SwipeInsightsModal';
 import { SwipessLogo } from '@/components/SwipessLogo';
+import { revealChrome } from '@/hooks/useChromeReveal';
 
 interface EnhancedOwnerDashboardProps {
   onClientInsights?: (clientId: string) => void;
@@ -27,7 +28,7 @@ interface EnhancedOwnerDashboardProps {
   filters?: any;
 }
 
-// 🛡️ Safety fallback to prevent crashes if imports fail
+// ðŸ›¡ï¸ Safety fallback to prevent crashes if imports fail
 const SAFE_INTENT_CARDS = OWNER_INTENT_CARDS || [];
 
 const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: EnhancedOwnerDashboardProps) => {
@@ -39,9 +40,13 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
   const activeCategory = useFilterStore(s => s.activeCategory);
   const { setCategories, setClientType, setListingType, setActiveCategory } = useFilterActions();
 
-  // 🛰️ DISCOVERY FLOW STATE
+  // ðŸ›°ï¸ DISCOVERY FLOW STATE
   const ownerPhase = useFilterStore(s => s.ownerPhase);
   const setOwnerPhase = useFilterStore(s => s.setOwnerPhase);
+
+  useEffect(() => {
+    revealChrome();
+  }, []);
 
   // Sync phase with category clearing (e.g. from back buttons)
   useEffect(() => {
@@ -50,7 +55,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
     }
   }, [activeCategory, ownerPhase, setOwnerPhase]);
 
-  // 🛰️ LOCATION & RADIUS HUD STATE
+  // ðŸ›°ï¸ LOCATION & RADIUS HUD STATE
   const radiusKm = useFilterStore((s) => s.radiusKm);
   const setRadiusKm = useFilterStore((s) => s.setRadiusKm);
   const setUserLocation = useFilterStore((s) => s.setUserLocation);
@@ -78,7 +83,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
     }
   }, [setUserLocation, setRadiusKm]);
 
-  // 📍 Location is requested only when the kilometer page becomes visible
+  // ðŸ“ Location is requested only when the kilometer page becomes visible
   // (which itself happens after the user picks a category card). No prompt
   // on app open / sign-in / sign-up.
   const userLatitude = useFilterStore((s) => s.userLatitude);
@@ -159,13 +164,13 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
     const cat = (card.id || card.category || 'buyers') as QuickFilterCategory;
     setCategories([cat]);
     setActiveCategory(cat);
-    // 🚀 Bypass kilometer screen and jump straight to swipe cards!
+    // ðŸš€ Bypass kilometer screen and jump straight to swipe cards!
     setOwnerPhase('swipe');
     if (card.clientType) setClientType(card.clientType as any);
     if (card.listingType) setListingType(card.listingType as any);
   }, [setClientType, setListingType, setActiveCategory, setCategories, setOwnerPhase]);
 
-  // Skip radius → jump straight to swipe deck
+  // Skip radius â†’ jump straight to swipe deck
   const jumpToSwipeDeck = useCallback(() => {
     triggerHaptic('medium');
     setOwnerPhase('swipe');
@@ -176,9 +181,9 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
 
   return (
     <div className={cn("flex flex-col flex-1 min-h-0 w-full relative transition-colors duration-500 bg-black")}>
-      <AtmosphericLayer variant="nexus" />
+      <AtmosphericLayer variant="Swipes" />
 
-      {/* 🛸 NEXUS DASHBOARD TOGGLE - Restricted to Kilometer Phase per User Request */}
+      {/* ðŸ›¸ Swipes DASHBOARD TOGGLE - Restricted to Kilometer Phase per User Request */}
       {(ownerPhase === 'kilometer') && (
         <div className="absolute top-[calc(var(--top-bar-height,60px)+12px)] left-1/2 -translate-x-1/2 z-[40] flex p-1 rounded-2xl bg-black/40 backdrop-blur-3xl border border-white/10 shadow-2xl min-w-[200px]">
           {/* Sliding Indicator */}
@@ -311,7 +316,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
             />
           </motion.div>
         ) : (
-          /* SWIPE PHASE — always shows ClientSwipeContainer (client profiles only) */
+          /* SWIPE PHASE â€” always shows ClientSwipeContainer (client profiles only) */
           <motion.div
             key="owner-dash-swipe"
             initial={{ opacity: 0, y: 60, scale: 0.94 }}
@@ -443,7 +448,7 @@ const OwnerKilometerView = ({
                 : "bg-white/5 border-white/10 text-white/70 hover:bg-white/10"
             )}
           >
-            Skip → Show Clients
+            Skip â†’ Show Clients
           </button>
         )}
 

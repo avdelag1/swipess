@@ -29,8 +29,8 @@ const checkPasswordStrength = (password: string) => {
   };
 };
 
-// Nexus particles component
-const NexusParticles = () => (
+// Swipes particles component
+const SwipesParticles = () => (
   <div className="absolute inset-0 overflow-hidden pointer-events-none">
     {Array.from({ length: 12 }).map((_, i) => (
       <motion.div
@@ -89,7 +89,7 @@ const ResetPassword = () => {
     if (passwordStrength.score < 4) {
       toast({
         title: "Insecure Protocol",
-        description: "Password complexity must meet Nexus standards (8+ chars, Case, Numbers).",
+        description: "Password complexity must meet Swipes standards (8+ chars, Case, Numbers).",
         variant: "destructive",
       });
       return;
@@ -125,7 +125,7 @@ const ResetPassword = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-black p-4 relative overflow-hidden">
-      <NexusParticles />
+      <SwipesParticles />
 
       {/* Ambient glow effects */}
       <div className="absolute inset-0 pointer-events-none">
@@ -324,7 +324,7 @@ const ResetPassword = () => {
           transition={{ delay: 0.5 }}
         >
           <div className="w-1 h-1 rounded-full bg-white/20" />
-          <span className="text-[8px] font-black uppercase tracking-[0.4em] italic">Nexus Security Standard E2E</span>
+          <span className="text-[8px] font-black uppercase tracking-[0.4em] italic">Swipes Security Standard E2E</span>
           <div className="w-1 h-1 rounded-full bg-white/20" />
         </motion.div>
       </motion.div>

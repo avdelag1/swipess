@@ -211,7 +211,7 @@ export default function EventosFeed() {
 
   // Scroll & Virtualization
   useEffect(() => {
-    const el = parentRef.current || document.getElementById('dashboard-scroll-container');
+    const el = parentRef.current;
     if (!el) return;
 
     const handleScroll = () => {
@@ -223,22 +223,15 @@ export default function EventosFeed() {
       }
     };
 
-    // 🚀 SNAP SCROLL ACTIVATION:
-    // Force the scroll container to use mandatory vertical snapping for TikTok-like experience.
-    el.classList.add('snap-y', 'snap-mandatory', 'scroll-smooth');
-    el.style.scrollSnapType = 'y mandatory';
-
     el.addEventListener('scroll', handleScroll, { passive: true });
     return () => {
       el.removeEventListener('scroll', handleScroll);
-      el.classList.remove('snap-y', 'snap-mandatory');
-      el.style.scrollSnapType = '';
     };
   }, [activeIdx, filteredEvents.length]);
 
   const rowVirtualizer = useVirtualizer({
     count: filteredEvents.length,
-    getScrollElement: () => parentRef.current || document.getElementById('dashboard-scroll-container'),
+    getScrollElement: () => parentRef.current,
     estimateSize: () => window.innerHeight || 800,
     overscan: 2,
     initialOffset: 0,

@@ -10,7 +10,7 @@ interface Props {
 }
 
 /**
- * 🚀 NEXUS PULL INDICATOR
+ * ðŸš€ Swipes PULL INDICATOR
  * A premium, glassmorphic pull-to-refresh indicator that replaces the generic spinner.
  * Features:
  * - Liquid-glass background
@@ -46,7 +46,7 @@ export const PullToRefreshIndicator = memo(({ pullDistance, isRefreshing, trigge
           className="fixed top-0 left-0 right-0 z-[10010] flex justify-center pointer-events-none"
         >
           <div className="relative group">
-            {/* 🌌 OUTER GLOW: Pulses when triggered or refreshing */}
+            {/* ðŸŒŒ OUTER GLOW: Pulses when triggered or refreshing */}
             {(triggered || isRefreshing) && (
               <motion.div
                 layoutId="pull-glow"
@@ -59,7 +59,7 @@ export const PullToRefreshIndicator = memo(({ pullDistance, isRefreshing, trigge
               />
             )}
 
-            {/* 💎 GLASS CONTAINER */}
+            {/* ðŸ’Ž GLASS CONTAINER */}
             <div
               className={cn(
                 "w-16 h-16 rounded-full flex items-center justify-center relative overflow-hidden transition-all duration-300",
@@ -68,7 +68,7 @@ export const PullToRefreshIndicator = memo(({ pullDistance, isRefreshing, trigge
                 isRefreshing && "animate-pulse"
               )}
             >
-              {/* 💧 LIQUID FILL: Premium wave animation */}
+              {/* ðŸ’§ LIQUID FILL: Premium wave animation */}
               <motion.div 
                 className="absolute bottom-0 left-0 right-0 bg-brand-primary/30"
                 style={{ height: `${progress * 100}%` }}
@@ -79,7 +79,7 @@ export const PullToRefreshIndicator = memo(({ pullDistance, isRefreshing, trigge
                 transition={isRefreshing ? { duration: 2, repeat: Infinity } : {}}
               />
 
-              {/* 🔄 ROTATING RING (Only visible while refreshing) */}
+              {/* ðŸ”„ ROTATING RING (Only visible while refreshing) */}
               {isRefreshing && (
                 <motion.div
                   className="absolute inset-1.5 rounded-full border-[3px] border-t-brand-primary border-r-transparent border-b-transparent border-l-transparent"
@@ -88,7 +88,7 @@ export const PullToRefreshIndicator = memo(({ pullDistance, isRefreshing, trigge
                 />
               )}
 
-              {/* 🏷️ LOGO: Larger and more vibrant */}
+              {/* ðŸ·ï¸ LOGO: Larger and more vibrant */}
               <div 
                 className="relative z-10 transition-transform duration-200"
                 style={{ 
@@ -107,7 +107,7 @@ export const PullToRefreshIndicator = memo(({ pullDistance, isRefreshing, trigge
               </div>
             </div>
 
-            {/* 🚀 TRIGGER LABEL: Premium typography */}
+            {/* ðŸš€ TRIGGER LABEL: Premium typography */}
             {triggered && !isRefreshing && (
               <motion.div
                 initial={{ opacity: 0, y: 10 }}

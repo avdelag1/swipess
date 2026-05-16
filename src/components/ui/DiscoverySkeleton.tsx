@@ -4,7 +4,7 @@ import { cn, runIdleTask } from '@/lib/utils';
 import useAppTheme from '@/hooks/useAppTheme';
 
 /**
- * 🚀 DiscoverySkeleton: Premium, Swipess-level skeleton loader
+ * ðŸš€ DiscoverySkeleton: Premium, Swipess-level skeleton loader
  * - Mimics the 'ClientCard' and 'EventCard' hierarchy
  * - Staggered implementation for 'Speed of Light' experience
  * - Predictive orientation: Prefetches critical route assets while visible
@@ -14,7 +14,7 @@ export const DiscoverySkeleton = memo(({ count = 3 }: { count?: number }) => {
   const isLight = theme === 'light';
 
   useEffect(() => {
-    // 🚀 SPEED OF LIGHT: Predictive pre-warming
+    // ðŸš€ SPEED OF LIGHT: Predictive pre-warming
     // While the user is focused on the skeleton, we silently prefetch high-traffic assets
     runIdleTask(() => {
       const brandLogo = new Image();
@@ -37,7 +37,7 @@ export const DiscoverySkeleton = memo(({ count = 3 }: { count?: number }) => {
             i >= 3 && "opacity-70"
           )}
         >
-          {/* Nexus Atmospheric Glow */}
+          {/* Swipes Atmospheric Glow */}
           {!isLight && (
             <div className="absolute -top-20 -right-20 w-40 h-40 bg-primary/10 blur-[80px] pointer-events-none" />
           )}

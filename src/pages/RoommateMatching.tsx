@@ -64,7 +64,7 @@ export default function RoommateMatching() {
   const navigate = useNavigate();
   const startConversation = useStartConversation();
   
-  // 🥂 CELEBRATION STATE
+  // ðŸ¥‚ CELEBRATION STATE
   const [showMatch, setShowMatch] = useState(false);
   const [matchedProfile, setMatchedProfile] = useState<any>(null);
 
@@ -184,9 +184,9 @@ export default function RoommateMatching() {
       "fixed inset-0 flex flex-col transition-colors duration-500 overflow-hidden",
       isLight ? "bg-[#F8FAFC]" : "bg-[#0A0A0B]"
     )}>
-      <AtmosphericLayer variant="nexus" />
+      <AtmosphericLayer variant="Swipes" />
 
-      {/* ── IMMERSIVE CONTROLS ── */}
+      {/* â”€â”€ IMMERSIVE CONTROLS â”€â”€ */}
       <div className="fixed top-[calc(var(--top-bar-height,72px)+12px)] inset-x-0 z-[60] flex items-center justify-center px-6 pointer-events-none">
         <div className="flex items-center gap-2 pointer-events-auto">
           <motion.button
@@ -225,7 +225,7 @@ export default function RoommateMatching() {
         </div>
       </div>
 
-      {/* ── CARD STACK AREA ── */}
+      {/* â”€â”€ CARD STACK AREA â”€â”€ */}
       <div
         className="absolute left-0 right-0 bottom-0 w-full z-[1]"
         style={{ top: 'calc(var(--top-bar-height,72px) + var(--safe-top,12px))' }}
@@ -326,7 +326,7 @@ export default function RoommateMatching() {
         </div>
       </div>
 
-      {/* ── ACTION OVERLAY ── */}
+      {/* â”€â”€ ACTION OVERLAY â”€â”€ */}
       <motion.div 
         animate={{ y: uiVisible ? 0 : 150 }}
         transition={{ type: 'spring', stiffness: 260, damping: 30 }}
@@ -344,7 +344,7 @@ export default function RoommateMatching() {
         />
       </motion.div>
 
-      {/* ── PROFILE DETAILS OVERLAY ── */}
+      {/* â”€â”€ PROFILE DETAILS OVERLAY â”€â”€ */}
       <AnimatePresence>
         {showDetails && topCard && (
           <motion.div

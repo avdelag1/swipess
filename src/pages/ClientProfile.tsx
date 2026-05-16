@@ -59,9 +59,9 @@ const ClientProfile = () => {
   }
 
   return (
-    <div className={cn("w-full relative min-h-screen", isLight ? "bg-white text-slate-900" : "bg-[#020202] text-white")}>
+    <div className={cn("w-full relative min-h-full", isLight ? "bg-white text-slate-900" : "bg-[#020202] text-white")}>
 
-      {/* 🛸 NEXUS ATMOSPHERIC LAYER */}
+      {/* 🛸 SWIPES ATMOSPHERIC LAYER */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div
           className={cn("absolute inset-0", isLight ? "opacity-[0.02]" : "opacity-[0.04]")}
@@ -83,7 +83,7 @@ const ClientProfile = () => {
         <div className="flex items-center justify-center">
           <div className="flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#EB4898]/20 bg-[#EB4898]/5">
             <div className="w-1.5 h-1.5 rounded-full bg-[#EB4898] animate-pulse" />
-            <span className="text-[9px] font-black uppercase tracking-[0.4em] text-[#EB4898]">Nexus Protocol</span>
+            <span className="text-[9px] font-black uppercase tracking-[0.4em] text-[#EB4898]">Swipes Member</span>
           </div>
         </div>
 

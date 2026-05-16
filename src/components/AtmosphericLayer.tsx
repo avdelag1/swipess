@@ -3,13 +3,13 @@ import { cn } from '@/lib/utils';
 import useAppTheme from '@/hooks/useAppTheme';
 
 interface AtmosphericLayerProps {
-  variant?: 'default' | 'primary' | 'indigo' | 'rose' | 'nexus';
+  variant?: 'default' | 'primary' | 'indigo' | 'rose' | 'Swipes';
   opacity?: number;
   speed?: number;
 }
 
 /**
- * 🛸 ATMOSPHERIC LAYER
+ * ðŸ›¸ ATMOSPHERIC LAYER
  * Provides consistent visual depth, gradients, and soft glow effects.
  */
 export const AtmosphericLayer = memo(({ variant = 'default', opacity = 0.08, speed = 1 }: AtmosphericLayerProps) => {
@@ -42,7 +42,7 @@ export const AtmosphericLayer = memo(({ variant = 'default', opacity = 0.08, spe
 
   const getGradients = () => {
     switch (variant) {
-      case 'nexus':
+      case 'Swipes':
         return {
           top: "bg-[#FF4D00]/15",
           bottom: "bg-[#EB4898]/15",
@@ -94,7 +94,7 @@ export const AtmosphericLayer = memo(({ variant = 'default', opacity = 0.08, spe
       className="absolute inset-0 pointer-events-none overflow-hidden z-0"
       style={{ opacity, transform: 'translateZ(0)' }}
     >
-      {/* 🔮 LIQUID DEPTH: Local hardware-accelerated tracking */}
+      {/* ðŸ”® LIQUID DEPTH: Local hardware-accelerated tracking */}
       <div 
         ref={liquidRef}
         className="absolute inset-[-10%] transition-transform duration-1000 ease-out will-change-transform"
@@ -112,7 +112,7 @@ export const AtmosphericLayer = memo(({ variant = 'default', opacity = 0.08, spe
         )} />
       </div>
 
-      {/* 🧘 NEXUS NODES: Slow drifting particles for liveness */}
+      {/* ðŸ§˜ Swipes NODES: Slow drifting particles for liveness */}
       <div className="absolute inset-0 opacity-40">
         <div className={cn(
           "absolute top-[20%] left-[30%] w-64 h-64 blur-[100px] rounded-full animate-float-slow",
