@@ -73,7 +73,7 @@ function TopBarComponent({
     borderRadius: '9999px',
     pointerEvents: 'auto',
     color: 'hsl(var(--foreground))',
-    height: '28px',
+    height: '24px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -122,14 +122,14 @@ function TopBarComponent({
     >
       <div className="h-full w-full px-4 flex items-center justify-between relative">
         
-        <div className="flex min-w-0 items-center gap-2 pointer-events-auto glass-surface px-1 py-0.5 rounded-full">
+        <div className="flex min-w-0 items-center gap-2 pointer-events-auto glass-surface px-0.5 py-[3px] rounded-full">
           {onBack ? (
             <motion.button
               transition={TAP_SPRING}
               whileTap={{ scale: 0.94 }}
               onClick={() => { haptics.tap(); onBack(); }}
               className="flex shrink-0 items-center justify-center rounded-full"
-              style={{ ...glassPillStyle, width: '28px' }}
+              style={{ ...glassPillStyle, width: '24px' }}
               aria-label="Back"
             >
               <ChevronLeft
@@ -157,7 +157,7 @@ function TopBarComponent({
                 aria-label="Open profile"
               >
                 <div
-                  className="w-6 h-6 rounded-full overflow-hidden shrink-0 flex items-center justify-center relative"
+                  className="w-5 h-5 rounded-full overflow-hidden shrink-0 flex items-center justify-center relative"
                   style={{
                     background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)))',
                     boxShadow: '0 0 0 1px rgba(255,255,255,0.2) inset, 0 0 14px hsl(var(--primary) / 0.35)',
@@ -201,7 +201,7 @@ function TopBarComponent({
         <div className="flex-1" />
 
         {/* RIGHT CLUSTER: Individual Action Pills */}
-          <div className="flex shrink-0 items-center gap-1.5 pointer-events-auto glass-surface px-1 py-0.5 rounded-full">
+          <div className="flex shrink-0 items-center gap-1.5 pointer-events-auto glass-surface px-0.5 py-[3px] rounded-full">
           {!minimal && (
             <>
                 <motion.button
@@ -211,12 +211,12 @@ function TopBarComponent({
                   className="flex shrink-0 items-center justify-center rounded-full relative overflow-hidden"
                   style={{
                     ...glassPillStyle,
-                    width: '28px',
+                    width: '24px',
                   }}
                   aria-label="Tokens"
                 >
                   <Crown
-                    className="w-[18px] h-[18px]"
+                    className="w-[14px] h-[14px]"
                     style={{
                       color: iconColor,
                       filter: isLight ? 'none' : 'drop-shadow(0 0 8px rgba(228,0,124,0.65))',
