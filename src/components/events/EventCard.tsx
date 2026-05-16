@@ -217,8 +217,8 @@ export const EventCard = memo(({
           <motion.div
             whileTap={{ scale: 0.85 }}
             className={cn(
-              "w-10 h-10 rounded-full flex items-center justify-center shadow-lg backdrop-blur-md border",
-              isLight ? "bg-white/70 border-black/10" : "bg-black/40 border-white/15"
+              "w-10 h-10 rounded-full flex items-center justify-center shadow-lg backdrop-blur-2xl border",
+              isLight ? "bg-white/70 border-black/10" : "bg-white/[0.08] border-white/20 shadow-[inset_0_1px_0_rgba(255,255,255,0.10),0_8px_24px_-10px_rgba(0,0,0,0.6)]"
             )}
             style={{ borderColor: `${activeColor}30` }}
           >
@@ -235,8 +235,8 @@ export const EventCard = memo(({
           <motion.div
             whileTap={{ scale: 0.85 }}
             className={cn(
-              "w-10 h-10 rounded-full flex items-center justify-center shadow-lg backdrop-blur-md border",
-              isLight ? "bg-white/70 border-black/10" : "bg-black/40 border-white/15"
+              "w-10 h-10 rounded-full flex items-center justify-center shadow-lg backdrop-blur-2xl border",
+              isLight ? "bg-white/70 border-black/10" : "bg-white/[0.08] border-white/20 shadow-[inset_0_1px_0_rgba(255,255,255,0.10),0_8px_24px_-10px_rgba(0,0,0,0.6)]"
             )}
             style={{ borderColor: `${activeColor}30` }}
           >

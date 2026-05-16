@@ -63,9 +63,10 @@ export const DiscoverySidebar = memo(({
       disabled={disabled}
       style={{ touchAction: 'manipulation' }}
       className={cn(
-        "group relative rounded-2xl flex flex-col items-center justify-center transition-all pointer-events-auto",
-        "bg-black/65 backdrop-blur-xl border border-white/10",
-        disabled ? "opacity-70 grayscale cursor-not-allowed" : "hover:bg-black/80 active:scale-90",
+        "group relative rounded-2xl flex flex-col items-center justify-center transition-all pointer-events-auto overflow-hidden",
+        "bg-white/[0.06] backdrop-blur-2xl border border-white/15 shadow-[0_8px_32px_-12px_rgba(0,0,0,0.55),inset_0_1px_0_rgba(255,255,255,0.08)]",
+        "before:absolute before:inset-0 before:rounded-2xl before:bg-gradient-to-b before:from-white/[0.10] before:to-transparent before:pointer-events-none",
+        disabled ? "opacity-70 grayscale cursor-not-allowed" : "hover:bg-white/[0.10] hover:border-white/25 active:scale-90",
         size === 'large' ? "w-12 h-12" : "w-11 h-11"
       )}
     >
