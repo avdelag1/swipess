@@ -37,7 +37,7 @@ export function usePullToRefresh({
     setIsRefreshing(true);
     if ('vibrate' in navigator) navigator.vibrate(15);
 
-    // 🚀 MINIMUM DURATION: Ensure the user sees the 'Nexus' loader doing its work.
+    // 🚀 MINIMUM DURATION: Ensure the user sees the 'Swipes' loader doing its work.
     // If the API call is instant, it feels like it didn't work.
     const minWait = new Promise(resolve => setTimeout(resolve, 800));
 

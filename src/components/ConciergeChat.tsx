@@ -181,7 +181,7 @@ const WelcomeState = memo(({ isSwipess, isLight, onPick }: { isSwipess: boolean;
             onClick={() => onPick(t.prompt)}
             className={cn(
               "flex flex-col items-center justify-center gap-2 px-4 py-5 rounded-2xl border transition-all active:scale-[0.96] hover:shadow-[0_18px_40px_rgba(0,0,0,0.12)]",
-              isLight && !isSwipess ? "bg-card border-border/60" : "bg-white/[0.04] border-white/10"
+              isLight && !isSwipess ? "bg-white border-slate-200 shadow-sm" : "bg-white/10 border-white/20"
             )}
           >
             <div className={cn("w-10 h-10 rounded-xl bg-gradient-to-br flex items-center justify-center shadow-md", t.tone)}>
@@ -434,21 +434,21 @@ const MessageBubble = memo(({ message, isUser, isSwipess, onCopy, onDelete, onTr
             exit={{ opacity: 0, y: -5 }}
             className={cn("flex items-center gap-1.5 mt-1 px-1", isUser ? "flex-row-reverse" : "flex-row")}
           >
-            <button onClick={(e) => { e.stopPropagation(); onCopy(); }} className="p-2 rounded-lg bg-black/[0.03] border border-black/[0.05] hover:bg-black/[0.06] transition-all">
-              <Copy className="w-3.5 h-3.5 opacity-70" />
+            <button onClick={(e) => { e.stopPropagation(); onCopy(); }} className={cn("p-2 rounded-xl transition-all border", isLight && !isSwipess ? "bg-slate-100 border-slate-200 text-slate-900" : "bg-white/15 border-white/20 text-white")}>
+              <Copy className="w-3.5 h-3.5" />
             </button>
             {!isUser && onTranslate && (
-              <button onClick={(e) => { e.stopPropagation(); onTranslate('Spanish'); }} className="p-2 rounded-lg bg-black/[0.03] border border-black/[0.05] hover:bg-black/[0.06] transition-all">
-                <Languages className="w-3.5 h-3.5 opacity-70" />
+              <button onClick={(e) => { e.stopPropagation(); onTranslate('Spanish'); }} className={cn("p-2 rounded-xl transition-all border", isLight && !isSwipess ? "bg-slate-100 border-slate-200 text-slate-900" : "bg-white/15 border-white/20 text-white")}>
+                <Languages className="w-3.5 h-3.5" />
               </button>
             )}
             {isUser && onResend && (
-              <button onClick={(e) => { e.stopPropagation(); onResend(); }} className="p-2 rounded-lg bg-black/[0.03] border border-black/[0.05] hover:bg-black/[0.06] transition-all">
-                <RefreshCw className="w-3.5 h-3.5 opacity-70" />
+              <button onClick={(e) => { e.stopPropagation(); onResend(); }} className={cn("p-2 rounded-xl transition-all border", isLight && !isSwipess ? "bg-slate-100 border-slate-200 text-slate-900" : "bg-white/15 border-white/20 text-white")}>
+                <RefreshCw className="w-3.5 h-3.5" />
               </button>
             )}
-            <button onClick={(e) => { e.stopPropagation(); onDelete(); }} className="p-2 rounded-lg bg-black/[0.03] border border-black/[0.05] hover:bg-black/[0.06] transition-all">
-              <Trash2 className="w-3.5 h-3.5 text-red-500/40" />
+            <button onClick={(e) => { e.stopPropagation(); onDelete(); }} className={cn("p-2 rounded-xl transition-all border", isLight && !isSwipess ? "bg-red-50 border-red-100 text-red-600" : "bg-red-500/20 border-red-500/30 text-red-400")}>
+              <Trash2 className="w-3.5 h-3.5" />
             </button>
           </motion.div>
         )}
@@ -1092,7 +1092,7 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                          disabled={!input.trim() || isLoading}
                          className={cn(
                            "h-12 w-12 shrink-0 rounded-full inline-flex items-center justify-center transition-all active:scale-90",
-                           "bg-primary text-primary-foreground ring-1 ring-primary/40 shadow-[0_10px_28px_hsl(var(--primary)/0.45)] hover:bg-primary/90",
+                           "bg-foreground text-background shadow-[0_10px_28px_rgba(0,0,0,0.15)] hover:opacity-90",
                            (!input.trim() || isLoading) && "opacity-40 shadow-none"
                          )}
                          aria-label="Send message"

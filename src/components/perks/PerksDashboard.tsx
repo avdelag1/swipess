@@ -74,7 +74,7 @@ export function PerksDashboard() {
     <div className={cn(
       "flex flex-col min-h-full pt-0 relative transition-colors duration-500 bg-background/60 backdrop-blur-3xl"
     )}>
-      {/* 🛸 NEXUS ATMOSPHERE */}
+      {/* 🛸 SWIPES ATMOSPHERE */}
       <div className="fixed top-[-10%] left-[-10%] w-[120%] h-[120%] pointer-events-none z-0">
         <div className="absolute top-0 left-1/4 w-[50%] h-[50%] bg-rose-500/10 rounded-full blur-[120px] animate-pulse" />
         <div className="absolute bottom-0 right-1/4 w-[50%] h-[50%] bg-violet-600/10 rounded-full blur-[120px] animate-pulse" style={{ animationDelay: '1s' }} />

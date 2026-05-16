@@ -82,7 +82,7 @@ export default function PublicListingPreview() {
   if (isLoading) {
     return (
       <div className="fixed inset-0 bg-black flex items-center justify-center">
-        <AtmosphericLayer variant="nexus" opacity={0.12} />
+        <AtmosphericLayer variant="swipes" opacity={0.12} />
         <div className="w-16 h-16 rounded-full border-4 border-[#EB4898]/15 border-t-[#EB4898] animate-spin relative z-10" />
       </div>
     );
@@ -91,7 +91,7 @@ export default function PublicListingPreview() {
   if (error || !listing) {
     return (
       <div className="fixed inset-0 bg-black flex flex-col items-center justify-center p-8 text-center">
-        <AtmosphericLayer variant="nexus" opacity={0.15} />
+        <AtmosphericLayer variant="swipes" opacity={0.15} />
         <div className="w-24 h-24 rounded-3xl bg-white/5 flex items-center justify-center mb-8 border border-white/10 relative z-10">
           <Home className="w-10 h-10 text-white/20" />
         </div>
@@ -112,7 +112,7 @@ export default function PublicListingPreview() {
   const category = listing.category || 'property';
   const mode = (listing as any).listing_type || 'rent';
   const images = (Array.isArray(listing.images) ? listing.images : []) as string[];
-  const heroImage = images[0] || `${typeof window !== 'undefined' ? window.location.origin : 'https://swipess.com'}/og-image-nexus.png`;
+  const heroImage = images[0] || `${typeof window !== 'undefined' ? window.location.origin : 'https://swipess.com'}/og-image-swipes.png`;
 
   const handleCreateAccount = () => {
     triggerHaptic('success');
@@ -165,7 +165,7 @@ export default function PublicListingPreview() {
         type="website"
       />
 
-      <AtmosphericLayer variant="nexus" opacity={0.08} />
+      <AtmosphericLayer variant="swipes" opacity={0.08} />
 
       {/* Top minimal nav (in-flow, never overlaps card) */}
       <div

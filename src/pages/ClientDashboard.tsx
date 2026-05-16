@@ -31,7 +31,7 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
         willChange: 'transform',
       }}
     >
-      <AtmosphericLayer variant="nexus" />
+      <AtmosphericLayer variant="swipes" />
 
       <div className="flex-1 flex flex-col min-h-0">
         <SwipessSwipeContainer

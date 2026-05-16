@@ -1,5 +1,5 @@
 /**
- * SWIPE ACTION BUTTON BAR — Nexus Phantom Design
+ * SWIPE ACTION BUTTON BAR — Swipes Phantom Design
  *
  * Frameless, backgroundless floating icons with expressive shadows and glow.
  * Optimized for performance with high-fidelity visual feedback.
@@ -160,8 +160,8 @@ const ActionButton = memo(forwardRef<HTMLButtonElement, any>(function ActionButt
         padding: 0,
         position: 'relative',
         flexShrink: 0,
-        background: 'transparent',
-        border: 'none',
+        background: isLight ? '#FFFFFF' : '#1A1A1A',
+        border: isLight ? '1px solid rgba(0,0,0,0.06)' : '1px solid rgba(255,255,255,0.08)',
         outline: 'none',
         WebkitTapHighlightColor: 'transparent',
         appearance: 'none',

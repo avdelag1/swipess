@@ -806,8 +806,12 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
   const handleMessage = () => {
     const listing = deckQueueRef.current[currentIndexRef.current];
     if (!canNavigate()) return;
-    const targetUserId = activeMode === 'owner' ? (listing?.user_id || listing?.id) : listing?.owner_id;
+    const targetUserId = activeMode === 'owner' 
+      ? (listing?.user_id || listing?.id) 
+      : (listing?.owner_id || listing?.user_id || listing?.id);
+    
     if (!targetUserId) {
+      logger.error('handleMessage: No recipient user ID found', { listingId: listing?.id, activeMode });
       appToast.error('Cannot Start Conversation', 'User information not available.');
       return;
     }
@@ -838,8 +842,14 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
   };
 
   const handleSendMessage = async (message: string) => {
-    const targetUserId = activeMode === 'owner' ? (selectedListing?.user_id || selectedListing?.id) : selectedListing?.owner_id;
-    if (isCreatingConversation || !targetUserId) return;
+    const targetUserId = activeMode === 'owner' 
+      ? (selectedListing?.user_id || selectedListing?.id) 
+      : (selectedListing?.owner_id || selectedListing?.user_id || selectedListing?.id);
+
+    if (isCreatingConversation || !targetUserId) {
+      if (!targetUserId) logger.error('handleSendMessage: No targetUserId found', { listingId: selectedListing?.id });
+      return;
+    }
     const { validateContent: vc } = await import('@/utils/contactInfoValidation');
     const result = vc(message);
     if (!result.isClean) {

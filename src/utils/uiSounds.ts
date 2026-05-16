@@ -1,10 +1,10 @@
 /**
- * UISounds - Nexus Grade High-Fidelity Audio
+ * UISounds - Swipes Grade High-Fidelity Audio
  * Integrates premium external assets with synthetic fallback.
  * Tuned for a cinematic, tactile user experience.
  */
 
-const NEXUS_SOUNDS = {
+const SWIPES_SOUNDS = {
   WELCOME:      "/sounds/singing-bowl-gong-69238.mp3",
   LIKE:         "/sounds/duck-quack-like.mp3",
   DISLIKE:      "/sounds/deep-meditation-bell-hit-heart-dislike.mp3",

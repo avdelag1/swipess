@@ -243,7 +243,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
     return (
       <div className="flex-1 flex flex-col items-center justify-center p-8 bg-black">
          <div className="w-12 h-12 rounded-xl border-4 border-rose-500/10 border-t-rose-500 animate-spin" />
-         <p className="text-[10px] font-black uppercase tracking-widest text-rose-500 mt-6 animate-pulse">Syncing Nexus...</p>
+         <p className="text-[10px] font-black uppercase tracking-widest text-rose-500 mt-6 animate-pulse">Syncing Swipes...</p>
       </div>
     );
   }
@@ -385,7 +385,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
               )}>
                 <Sparkles className="w-10 h-10 text-white" />
               </div>
-              <h3 className={cn("text-2xl font-black uppercase tracking-tight", isThemeLight ? "text-black" : "text-white")}>Nexus Stream</h3>
+              <h3 className={cn("text-2xl font-black uppercase tracking-tight", isThemeLight ? "text-black" : "text-white")}>Swipes Stream</h3>
               <p className={cn("text-[10px] font-bold uppercase tracking-[0.2em] mt-4 max-w-[200px] leading-relaxed text-white/30")}>
                 Initialize the connection stream with a greeting
               </p>

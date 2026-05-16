@@ -37,7 +37,7 @@ export const DiscoverySkeleton = memo(({ count = 3 }: { count?: number }) => {
             i >= 3 && "opacity-70"
           )}
         >
-          {/* Nexus Atmospheric Glow */}
+          {/* Swipes Atmospheric Glow */}
           {!isLight && (
             <div className="absolute -top-20 -right-20 w-40 h-40 bg-primary/10 blur-[80px] pointer-events-none" />
           )}

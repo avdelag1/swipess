@@ -156,9 +156,9 @@ export default function OwnerViewClientProfile() {
         isLight ? "bg-background text-foreground" : "bg-[#020202] text-white",
       )}
     >
-      {!isLight && <AtmosphericLayer variant="nexus" opacity={0.15} />}
+      {!isLight && <AtmosphericLayer variant="swipes" opacity={0.15} />}
       
-      {/* 🛸 NEXUS HEADER */}
+      {/* 🛸 SWIPES HEADER */}
       <div className={cn(
         "sticky top-0 z-50 backdrop-blur-3xl border-b",
         isLight ? "bg-background/70 border-border/60" : "bg-black/40 border-white/5",
@@ -173,7 +173,7 @@ export default function OwnerViewClientProfile() {
           
           <div className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-[#EB4898]/5 border border-[#EB4898]/20 backdrop-blur-xl">
              <Zap className="w-4 h-4 text-[#EB4898] fill-current animate-pulse" />
-             <span className="text-[10px] font-black uppercase tracking-widest text-[#EB4898] italic">Nexus Insights</span>
+             <span className="text-[10px] font-black uppercase tracking-widest text-[#EB4898] italic">Swipes Insights</span>
           </div>
 
           <button 
@@ -200,7 +200,7 @@ export default function OwnerViewClientProfile() {
                 <div className="flex items-center gap-2">
                   <MapPin className="w-3.5 h-3.5 text-[#FF4D00]" />
                   <p className="text-[11px] font-bold text-white/40 uppercase tracking-widest italic">
-                    {client.age ? `${client.age} • ` : ''}{client.city || 'Nexus Sector'}
+                    {client.age ? `${client.age} • ` : ''}{client.city || 'Swipes Sector'}
                   </p>
                 </div>
               </div>
@@ -256,7 +256,7 @@ export default function OwnerViewClientProfile() {
               <div className="w-8 h-8 rounded-xl bg-[#EB4898]/10 flex items-center justify-center border border-[#EB4898]/20">
                 <Zap className="w-4 h-4 text-[#EB4898] fill-current" />
               </div>
-              <span className="text-[10px] font-black uppercase tracking-widest text-white/30 italic">Nexus Parity</span>
+              <span className="text-[10px] font-black uppercase tracking-widest text-white/30 italic">Swipes Parity</span>
             </div>
             <div className="text-3xl font-black text-white tabular-nums tracking-tighter">{insights?.qualityScore}/10</div>
             <div className="flex items-center gap-1 mt-2 text-[#EB4898]">

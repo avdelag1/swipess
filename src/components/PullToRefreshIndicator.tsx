@@ -10,7 +10,7 @@ interface Props {
 }
 
 /**
- * 🚀 NEXUS PULL INDICATOR
+ * 🚀 SWIPES PULL INDICATOR
  * A premium, glassmorphic pull-to-refresh indicator that replaces the generic spinner.
  * Features:
  * - Liquid-glass background

@@ -3,7 +3,7 @@ import { cn } from '@/lib/utils';
 import useAppTheme from '@/hooks/useAppTheme';
 
 interface AtmosphericLayerProps {
-  variant?: 'default' | 'primary' | 'indigo' | 'rose' | 'nexus';
+  variant?: 'default' | 'primary' | 'indigo' | 'rose' | 'swipes';
   opacity?: number;
   speed?: number;
 }
@@ -42,7 +42,7 @@ export const AtmosphericLayer = memo(({ variant = 'default', opacity = 0.08, spe
 
   const getGradients = () => {
     switch (variant) {
-      case 'nexus':
+      case 'swipes':
         return {
           top: "bg-[#FF4D00]/15",
           bottom: "bg-[#EB4898]/15",
@@ -112,7 +112,7 @@ export const AtmosphericLayer = memo(({ variant = 'default', opacity = 0.08, spe
         )} />
       </div>
 
-      {/* 🧘 NEXUS NODES: Slow drifting particles for liveness */}
+      {/* 🧘 SWIPES NODES: Slow drifting particles for liveness */}
       <div className="absolute inset-0 opacity-40">
         <div className={cn(
           "absolute top-[20%] left-[30%] w-64 h-64 blur-[100px] rounded-full animate-float-slow",

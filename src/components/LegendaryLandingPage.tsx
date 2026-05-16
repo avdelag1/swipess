@@ -453,7 +453,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
           >
             <div className="flex items-center gap-5">
               <div className="flex-1 h-px bg-white/15" />
-              <span className="text-[9px] font-black text-white/60 uppercase tracking-[0.4em] italic">Nexus Gateway</span>
+              <span className="text-[9px] font-black text-white/60 uppercase tracking-[0.4em] italic">Swipes Gateway</span>
               <div className="flex-1 h-px bg-white/15" />
             </div>
             <AppleAuthButton onClick={() => handleSocialLogin('apple')} />
@@ -487,7 +487,7 @@ function LegendaryLandingPage() {
     <div className="h-screen h-dvh relative overflow-hidden bg-black text-white">
       {/* 🛸 ATMOSPHERIC BACKGROUND */}
       <div className="fixed inset-0 pointer-events-none bg-black">
-        <AtmosphericLayer variant="nexus" opacity={0.15} />
+        <AtmosphericLayer variant="swipes" opacity={0.15} />
         <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,rgba(224,30,42,0.1)_0%,transparent_70%)]" />
       </div>
 

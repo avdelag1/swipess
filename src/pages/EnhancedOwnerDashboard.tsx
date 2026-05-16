@@ -176,9 +176,9 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
 
   return (
     <div className={cn("flex flex-col flex-1 min-h-0 w-full relative transition-colors duration-500 bg-black")}>
-      <AtmosphericLayer variant="nexus" />
+      <AtmosphericLayer variant="swipes" />
 
-      {/* 🛸 NEXUS DASHBOARD TOGGLE - Restricted to Kilometer Phase per User Request */}
+      {/* 🛸 SWIPES DASHBOARD TOGGLE - Restricted to Kilometer Phase per User Request */}
       {(ownerPhase === 'kilometer') && (
         <div className="absolute top-[calc(var(--top-bar-height,60px)+12px)] left-1/2 -translate-x-1/2 z-[40] flex p-1 rounded-2xl bg-black/40 backdrop-blur-3xl border border-white/10 shadow-2xl min-w-[200px]">
           {/* Sliding Indicator */}
