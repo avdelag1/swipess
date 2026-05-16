@@ -291,7 +291,7 @@ export const BottomNavigation = memo(({
         className={cn(
           "pointer-events-auto",
           "mx-auto w-fit max-w-[95vw]",
-          "px-1.5 py-1",
+          "glass-surface px-1.5 py-1", // Unified Glassmorphic Pill — More Compact
           "rounded-full"
         )}
         style={{

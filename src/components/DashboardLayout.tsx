@@ -286,10 +286,10 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
             padding because they hide the chrome — leaving the padding causes
             a strip of body background to show beneath the page. */}
         <div className={cn(
-          "w-full flex flex-col min-h-0",
+          "w-full",
           (isSwipeDeck || isFullScreenRoute)
-            ? "h-full flex-1 overflow-hidden"
-            : "min-h-full pt-[var(--top-bar-height)] pb-[var(--bottom-nav-height)]"
+            ? "flex flex-col min-h-0 h-full flex-1 overflow-hidden"
+            : "block min-h-full pt-[var(--top-bar-height)] pb-[var(--bottom-nav-height)]"
         )}>
           {children}
         </div>
