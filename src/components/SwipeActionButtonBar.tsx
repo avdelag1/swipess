@@ -210,7 +210,7 @@ export const SwipeActionButtonBar = memo(({
   const { isLight } = useAppTheme();
 
   return (
-    <div className={`mx-auto flex w-auto max-w-[96vw] items-center justify-center gap-1.5 pointer-events-auto overflow-visible glass-surface px-3 py-1.5 rounded-full ${className}`}>
+    <div className={`mx-auto flex w-auto max-w-[96vw] items-center justify-center gap-1.5 pointer-events-auto overflow-visible glass-surface px-2 py-0.5 rounded-full ${className}`}>
       <AnimatePresence mode="popLayout" initial={false}>
         {onShare && (
           <ActionButton
