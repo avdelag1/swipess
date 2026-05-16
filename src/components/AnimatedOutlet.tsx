@@ -17,55 +17,46 @@ export function AnimatedOutlet() {
     location.pathname.startsWith('/client/dashboard/') ||
     location.pathname.startsWith('/owner/dashboard/');
 
+  // Dashboard routes: use the original absolute overlay so the persistent
+  // swipe deck below stays interactive. Use AnimatePresence for the
+  // cross-fade between dashboard and the empty placeholder.
+  if (isDashboardRoute) {
+    return (
+      <div
+        className="min-h-full w-full flex flex-col flex-1 bg-transparent"
+        style={{ position: 'relative', pointerEvents: 'none' }}
+      >
+        <AnimatePresence initial={false} mode="popLayout">
+          <motion.div
+            key={location.pathname}
+            initial={{ opacity: 0.4 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.10, ease: [0.22, 1, 0.36, 1] }}
+            className="flex-1 w-full flex flex-col bg-transparent"
+            style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}
+          >
+            <Suspense fallback={null}>
+              {outlet}
+            </Suspense>
+          </motion.div>
+        </AnimatePresence>
+      </div>
+    );
+  }
+
+  // Non-dashboard routes: render the outlet inline as a normal block so
+  // its content participates in the outer scroll container's layout.
+  // No AnimatePresence + absolute positioning here — that was collapsing
+  // the parent's content height and making pages feel "stuck".
   return (
     <div
-      className={`min-h-full w-full flex flex-col flex-1 ${isDashboardRoute ? 'bg-transparent' : 'bg-background'}`}
-      style={{ position: 'relative', pointerEvents: isDashboardRoute ? 'none' : 'auto' }}
+      key={location.pathname}
+      className="min-h-full w-full flex flex-col flex-1 bg-background"
+      style={{ position: 'relative', pointerEvents: 'auto' }}
     >
-      {/* No mode="wait" — that holds the old screen on-screen for the full exit
-          duration before painting the new one, which makes navigation feel
-          laggy. Default cross-fade lets the new page paint immediately while
-          the old one fades out. Filter/scale removed to keep it cheap. */}
-      {/* No exit animation — exit holds the previous frame on screen and
-          forces the entering route to wait, which is exactly what causes
-          the "splash flash" between pages on slow chunk loads.
-          We render a single keyed motion.div that fades opacity in only
-          (no exit), and use a transparent Suspense fallback so the
-          persistent layout (TopBar/BottomNav/Dashboard scene) stays
-          fully painted while the next chunk arrives. */}
-      <AnimatePresence initial={false} mode="popLayout">
-        <motion.div
-          key={location.pathname}
-          initial={{ opacity: 0.4 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.10, ease: [0.22, 1, 0.36, 1] }}
-          className={`flex-1 w-full flex flex-col ${isDashboardRoute ? 'bg-transparent' : 'bg-background'}`}
-          // Dashboard routes: no scrolling — the persistent swipe deck underneath
-          //   handles all touch events.
-          // Other routes: overflow-y: auto makes this the scroll container so
-          //   every page scrolls within this bounded box regardless of content
-          //   height, without relying on the outer <main> scroll container.
-          style={
-            isDashboardRoute
-              ? { position: 'absolute', inset: 0, pointerEvents: 'none' }
-              : {
-                  // Non-dashboard routes use normal flow + flex-1 to fill the
-                  // outer scroll container (#dashboard-scroll-container). That
-                  // container then provides the actual scrollbar. Absolute
-                  // positioning here would collapse the parent's content
-                  // height and break scrolling — which is exactly the
-                  // "profile page stuck" symptom we previously had.
-                  position: 'relative',
-                  width: '100%',
-                  pointerEvents: 'auto',
-                }
-          }
-        >
-          <Suspense fallback={null}>
-            {outlet}
-          </Suspense>
-        </motion.div>
-      </AnimatePresence>
+      <Suspense fallback={null}>
+        {outlet}
+      </Suspense>
     </div>
   );
 }

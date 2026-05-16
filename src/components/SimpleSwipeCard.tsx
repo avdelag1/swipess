@@ -583,12 +583,13 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           </div>
         )}
 
-        {/* Floating Action Rail â€” Premium Immersive Experience */}
+        {/* Floating Action Rail — always visible on the top card so the
+            Share / Message / Insights / Report buttons don't auto-hide. */}
         <AnimatePresence>
-          {isTop && isChromeVisible && !isZoomed && (
+          {isTop && !isZoomed && (
             <motion.div
               initial={{ opacity: 0, x: 20, scale: 0.9, filter: 'blur(10px)' }}
-              animate={{ 
+              animate={{
                 opacity: 1, 
                 x: 0, 
                 scale: 1, 
@@ -600,10 +601,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
                 scale: 0.94, 
                 filter: 'blur(12px)' 
               }}
-              transition={{ 
-                duration: isChromeVisible ? 0.68 : 1.4,
-                ease: isChromeVisible ? [0.22, 1.4, 0.36, 1] : [0.32, 0, 0.67, 0]
-              }}
+              transition={{ duration: 0.32, ease: [0.22, 1.4, 0.36, 1] }}
               className="absolute right-4 bottom-[calc(var(--bottom-nav-height,72px)+160px)] z-50 flex flex-col gap-5"
             >
               {[
@@ -623,23 +621,30 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
                   aria-label={btn.label}
                   className="w-12 h-12 rounded-full flex items-center justify-center relative overflow-hidden group"
                 >
-                  {/* Frosted glass frame — translucent white with strong blur,
-                      inset highlight, soft drop shadow. Matches the rest of
-                      the glass surfaces in the app. */}
+                  {/* Frozen glass: heavy backdrop blur on a faint tinted
+                      surface so whatever's behind the card visibly
+                      shows through, plus an inset highlight and a soft
+                      drop shadow for depth. */}
                   <div
                     className="absolute inset-0 rounded-full"
                     style={{
-                      background: 'rgba(255,255,255,0.10)',
-                      backdropFilter: 'blur(22px) saturate(1.6)',
-                      WebkitBackdropFilter: 'blur(22px) saturate(1.6)',
-                      border: '1px solid rgba(255,255,255,0.22)',
+                      background:
+                        'linear-gradient(135deg, rgba(255,255,255,0.18), rgba(255,255,255,0.04))',
+                      backdropFilter: 'blur(28px) saturate(1.8)',
+                      WebkitBackdropFilter: 'blur(28px) saturate(1.8)',
+                      border: '1px solid rgba(255,255,255,0.28)',
                       boxShadow:
-                        'inset 0 1px 0 rgba(255,255,255,0.18), 0 8px 24px -10px rgba(0,0,0,0.55)',
+                        'inset 0 1px 0 rgba(255,255,255,0.32), inset 0 -1px 0 rgba(0,0,0,0.10), 0 10px 28px -10px rgba(0,0,0,0.55)',
                     }}
                   />
 
                   <btn.icon
-                    className="w-5 h-5 text-white relative z-10 drop-shadow-[0_2px_6px_rgba(0,0,0,0.55)]"
+                    color="#FFFFFF"
+                    className="w-5 h-5 relative z-10"
+                    style={{
+                      filter:
+                        'drop-shadow(0 2px 6px rgba(0,0,0,0.65)) drop-shadow(0 0 1px rgba(0,0,0,0.45))',
+                    }}
                     strokeWidth={2.4}
                   />
 
