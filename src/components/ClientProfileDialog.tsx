@@ -288,7 +288,7 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
 
         <div
           ref={scrollContainerRef}
-          className="flex-1 overflow-y-auto overflow-x-hidden px-8 py-6 touch-pan-y overscroll-contain relative z-10"
+          className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden px-8 py-6 touch-pan-y overscroll-contain relative z-10"
           style={{ WebkitOverflowScrolling: 'touch' as any }}
         >
           <div className="space-y-12 pb-24">

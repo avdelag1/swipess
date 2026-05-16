@@ -1081,7 +1081,7 @@ const ClientSwipeContainerComponent = ({
         {/* 🛸 ACTION BAR: Floating over the card near the bottom nav */}
         {topCard && (
           <motion.div
-            className="absolute bottom-[calc(var(--bottom-nav-height,64px)+42px)] left-0 right-0 z-[60] flex justify-center"
+            className="absolute bottom-[calc(var(--bottom-nav-height,64px)+16px)] left-0 right-0 z-[60] flex justify-center"
             style={{ opacity: pullDown.opacity, y: pullDown.y }}
           >
             <motion.div

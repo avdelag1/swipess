@@ -132,7 +132,7 @@ export const BottomNavigation = memo(({
     { id: 'dashboard', icon: Zap, label: t('nav.dashboard'), path: '/client/dashboard' },
     { id: 'profile', icon: CircleUser, label: t('nav.profile'), path: '/client/profile' },
     { id: 'likes', icon: Flame, label: t('nav.likes'), path: '/client/liked-properties', onClick: onListingsClick },
-    { id: 'events', icon: PartyPopper, label: t('nav.events'), path: '/explore/eventos' },
+    { id: 'events', icon: PartyPopper, label: t('nav.events'), path: '/explore/events' },
     { id: 'ai', icon: Sparkles, label: t('nav.aiBot'), onClick: openAIChat, isSpecial: true },
     { id: 'messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages' },
     { id: 'vapid', icon: IdCard, label: t('nav.idCard'), onClick: () => setModal('showVapId', true) },

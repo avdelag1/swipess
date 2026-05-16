@@ -1,5 +1,4 @@
 import { useCallback, useRef } from 'react';
-import { ChevronDown } from 'lucide-react';
 import { toggleChrome } from '@/hooks/useChromeReveal';
 import { triggerHaptic } from '@/utils/haptics';
 
@@ -60,23 +59,6 @@ export function ChromeSummonZones() {
           touchAction: 'pan-y',
         }}
       >
-        {/* Pull-down hint: subtle chevron suggesting "drag down to close deck" */}
-        <div
-          aria-hidden="true"
-          className="animate-summon-glow"
-          style={{
-            position: 'absolute',
-            left: '50%',
-            bottom: 4,
-            transform: 'translateX(-50%)',
-            color: 'rgba(255,255,255,0.6)',
-            filter: 'drop-shadow(0 1px 4px rgba(0,0,0,0.45))',
-            pointerEvents: 'none',
-            lineHeight: 0,
-          }}
-        >
-          <ChevronDown size={18} strokeWidth={2.25} />
-        </div>
       </div>
       {/* Bottom strip */}
       <div
@@ -97,23 +79,6 @@ export function ChromeSummonZones() {
           touchAction: 'manipulation',
         }}
       >
-        {/* Tiny circular dot affordance — sits above the nav bar buttons */}
-        <div
-          aria-hidden="true"
-          className="animate-summon-glow"
-          style={{
-            position: 'absolute',
-            left: '50%',
-            top: '50%',
-            transform: 'translate(-50%, -50%)',
-            width: 6,
-            height: 6,
-            borderRadius: 999,
-            background: 'rgba(255,255,255,0.7)',
-            boxShadow: '0 0 8px rgba(255,255,255,0.35)',
-            pointerEvents: 'none',
-          }}
-        />
       </div>
     </>
   );
