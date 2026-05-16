@@ -145,7 +145,7 @@ export function DirectMessageDialog({
               disabled={isLoading || !message.trim()}
               className={cn(
                 "w-full h-13 rounded-2xl font-bold text-sm active:scale-[0.98] transition-all shadow-lg border-none",
-                isLight ? "bg-slate-900 text-white hover:bg-slate-800" : "bg-white text-black hover:bg-white/90"
+                "bg-foreground text-background hover:opacity-90"
               )}
             >
               <AnimatePresence mode="wait">

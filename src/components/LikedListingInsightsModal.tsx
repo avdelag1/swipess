@@ -316,7 +316,7 @@ function LikedListingInsightsModalComponent({ open, onOpenChange, listing }: Lik
           className="w-full max-w-lg h-[92dvh] max-h-[92dvh] p-0 overflow-hidden bg-[#0a0a0f] border-0 rounded-[2.5rem] shadow-[0_32px_80px_rgba(0,0,0,0.8)]"
           hideCloseButton
         >
-          {/* 🛸 NEXUS ATMOSPHERE */}
+          {/* 🛸 SWIPES ATMOSPHERE */}
           <div className="absolute top-[-20%] left-[-20%] w-[100%] h-[100%] bg-[#EB4898]/10 rounded-full blur-[120px] pointer-events-none" />
           <div className="absolute bottom-[-20%] right-[-20%] w-[100%] h-[100%] bg-violet-600/10 rounded-full blur-[120px] pointer-events-none" />
 
@@ -486,11 +486,11 @@ function LikedListingInsightsModalComponent({ open, onOpenChange, listing }: Lik
                   </div>
                 </div>
 
-                {/* Market Insights — 🚀 NEXUS POLISH */}
+                {/* Market Insights — 🚀 SWIPES POLISH */}
                 {propertyInsights && (
                   <div className="space-y-4">
                     <div className="flex items-center justify-between px-1">
-                      <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-white/30">Nexus Market Analytics</h4>
+                      <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-white/30">Swipes Market Analytics</h4>
                       <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-white/5 border border-white/10">
                         <TrendingUp className="w-3 h-3 text-[#EB4898] fill-current" />
                         <span className="text-[9px] font-black text-white uppercase tracking-wider">Market Live</span>

@@ -30,12 +30,12 @@ export function ClientInsightsDashboard() {
     { label: 'Discovery Range', value: data?.profiles_viewed || 0, icon: Eye, color: '#FF4D00', trend: '+24%' },
     { label: 'Signal Output', value: data?.total_likes || 0, icon: Heart, color: '#EB4898', trend: '+12%' },
     { label: 'Active Syncs', value: data?.total_matches || 0, icon: Users, color: '#FF4D00', trend: '+8%' },
-    { label: 'Nexus Credits', value: data?.tokens_earned || 0, icon: Trophy, color: '#EB4898', trend: '+45%' },
+    { label: 'Swipes Credits', value: data?.tokens_earned || 0, icon: Trophy, color: '#EB4898', trend: '+45%' },
   ];
 
   return (
     <div className="p-6 space-y-10 pb-48 relative overflow-hidden">
-      {/* 🛸 NEXUS ATMOSPHERE */}
+      {/* 🛸 SWIPES ATMOSPHERE */}
       <div className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden">
         <div className="absolute top-[-15%] left-[-15%] w-[80%] h-[80%] bg-[#EB4898]/5 rounded-full blur-[140px]" />
         <div className="absolute bottom-[-15%] right-[-15%] w-[80%] h-[80%] bg-[#FF4D00]/5 rounded-full blur-[140px]" />
@@ -52,7 +52,7 @@ export function ClientInsightsDashboard() {
         </div>
       </div>
 
-      {/* Stats Grid — 🚀 NEXUS POLISH */}
+      {/* Stats Grid — 🚀 SWIPES POLISH */}
       <div className="grid grid-cols-2 gap-5 relative z-10">
         {stats.map((stat, i) => (
           <motion.div
@@ -163,7 +163,7 @@ export function ClientInsightsDashboard() {
             </div>
           </div>
           <div className="text-right">
-            <p className="text-[10px] font-black text-[#EB4898] uppercase tracking-[0.4em] italic animate-pulse">Nexus Confirmed</p>
+            <p className="text-[10px] font-black text-[#EB4898] uppercase tracking-[0.4em] italic animate-pulse">Swipes Confirmed</p>
             <div className="flex gap-1 justify-end mt-2">
               {[1, 2, 3, 4].map(i => (
                 <motion.div 
@@ -216,7 +216,7 @@ export function ClientInsightsDashboard() {
         </div>
       </motion.div>
 
-      <p className="text-center text-[10px] font-black uppercase tracking-[0.6em] text-white/10 italic pt-10">Nexus Intelligence Engine v4.0</p>
+      <p className="text-center text-[10px] font-black uppercase tracking-[0.6em] text-white/10 italic pt-10">Swipes Intelligence Engine v4.0</p>
     </div>
   );
 }

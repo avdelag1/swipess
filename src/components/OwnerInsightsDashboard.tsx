@@ -35,14 +35,14 @@ export function OwnerInsightsDashboard() {
 
   return (
     <div className="p-6 space-y-8 pb-40 relative">
-      {/* 🛸 NEXUS ATMOSPHERE */}
+      {/* 🛸 SWIPES ATMOSPHERE */}
       <div className="absolute top-[-10%] left-[-10%] w-[80%] h-[80%] bg-[#EB4898]/5 rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute bottom-[-10%] right-[-10%] w-[80%] h-[80%] bg-violet-600/5 rounded-full blur-[120px] pointer-events-none" />
 
       {/* Header with Title */}
       <div className="flex items-center justify-between px-2 relative z-10">
         <div className="space-y-1">
-          <h2 className={cn("text-3xl font-black tracking-tight italic uppercase", isLight ? "text-slate-900" : "text-white")}>Nexus Market Insights</h2>
+          <h2 className={cn("text-3xl font-black tracking-tight italic uppercase", isLight ? "text-slate-900" : "text-white")}>Swipes Market Insights</h2>
           <p className={cn("text-[10px] font-black uppercase tracking-[0.4em] opacity-40", isLight ? "text-slate-400" : "text-white")}>Real-time Performance Analysis</p>
         </div>
         <div
@@ -56,7 +56,7 @@ export function OwnerInsightsDashboard() {
         </div>
       </div>
 
-      {/* Stats Grid — 🚀 NEXUS POLISH */}
+      {/* Stats Grid — 🚀 SWIPES POLISH */}
       <div className="grid grid-cols-2 gap-4 relative z-10">
         {stats.map((stat, i) => (
           <motion.div
@@ -170,7 +170,7 @@ export function OwnerInsightsDashboard() {
             </div>
             <div className="space-y-0.5">
               <span className={cn("text-[10px] font-black uppercase tracking-widest", isLight ? "text-slate-500" : "text-white/40")}>Interaction Logic</span>
-              <p className="text-sm font-black text-white uppercase italic">Nexus AI Verified</p>
+              <p className="text-sm font-black text-white uppercase italic">Swipes AI Verified</p>
             </div>
           </div>
           <div className="text-right">

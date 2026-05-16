@@ -58,7 +58,7 @@ export function useConversations() {
         // Fetch conversations first, then join profiles manually (no FK constraints on new columns)
         const { data, error } = await supabase
           .from('conversations')
-          .select('*')
+          .select('id, client_id, owner_id, listing_id, last_message_at, status, created_at, updated_at')
           .or(`client_id.eq.${user.id},owner_id.eq.${user.id}`)
           .order('last_message_at', { ascending: false, nullsFirst: false });
 
@@ -88,7 +88,7 @@ export function useConversations() {
         });
 
         const [profilesResult, listingsResult] = await Promise.all([
-          supabase.from('profiles').select('user_id, full_name, avatar_url, age').in('user_id', Array.from(userIds)),
+          supabase.from('profiles').select('id, full_name, avatar_url, age').in('id', Array.from(userIds)),
           data.some((c: any) => c.listing_id)
             ? supabase.from('listings').select('id, title, price, images, category, mode, address, city').in('id', data.filter((c: any) => c.listing_id).map((c: any) => c.listing_id))
             : Promise.resolve({ data: [] as any[], error: null })
@@ -104,7 +104,7 @@ export function useConversations() {
         }
 
         const profilesMap = new Map<string, any>();
-        (profilesResult.data || []).forEach((p: any) => profilesMap.set(p.user_id, p));
+        (profilesResult.data || []).forEach((p: any) => profilesMap.set(p.id, p));
         const listingsMap = new Map<string, any>();
         ((listingsResult as any).data || []).forEach((l: any) => listingsMap.set(l.id, l));
 
@@ -118,7 +118,7 @@ export function useConversations() {
         // OPTIMIZED: Single query for all last messages instead of N queries
         const { data: messagesData, error: messagesError } = await supabase
           .from('conversation_messages')
-          .select('conversation_id, content, message_text, created_at, sender_id, is_read')
+          .select('id, conversation_id, content, message_text, created_at, sender_id, is_read, message_type')
           .in('conversation_id', conversationIds)
           .order('created_at', { ascending: false });
 
@@ -194,8 +194,9 @@ export function useConversations() {
   useEffect(() => {
     if (!user?.id) return;
 
+    // Use specific filters to avoid receiving updates for every conversation in the system
     const channel = supabase
-      .channel(`conversations-${user.id}`)
+      .channel(`conversations-swipes-${user.id}`)
       .on(
         'postgres_changes',
         {
@@ -204,7 +205,10 @@ export function useConversations() {
           table: 'conversations',
           filter: `client_id=eq.${user.id}`,
         },
-        () => refetch()
+        () => {
+          logger.debug('[Realtime] Conversation update (client)');
+          refetch();
+        }
       )
       .on(
         'postgres_changes',
@@ -214,29 +218,25 @@ export function useConversations() {
           table: 'conversations',
           filter: `owner_id=eq.${user.id}`,
         },
-        () => refetch()
+        () => {
+          logger.debug('[Realtime] Conversation update (owner)');
+          refetch();
+        }
       )
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'conversation_messages',
-        },
-        () => refetch() // Message insert updates the 'last_message' in the list
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'conversation_messages',
-        },
-        () => refetch() // Read-receipt / is_read flips also belong in the inbox preview
-      )
-      .subscribe();
+      // Note: We removed the unfiltered 'conversation_messages' listener because 
+      // every message update also triggers a 'last_message_at' update on the 
+      // 'conversations' table, which is already caught by the listeners above.
+      // This significantly reduces network overhead and client-side processing.
+      .subscribe((status) => {
+        if (status === 'SUBSCRIBED') {
+          logger.debug('[Realtime] Swipes subscription active');
+        } else if (status === 'CHANNEL_ERROR') {
+          logger.error('[Realtime] Swipes subscription error');
+        }
+      });
 
     return () => {
+      channel.unsubscribe();
       supabase.removeChannel(channel);
     };
   }, [user?.id, refetch]);
@@ -263,7 +263,7 @@ export function useConversations() {
     try {
       const { data, error } = await supabase
         .from('conversations')
-        .select('*')
+        .select('id, client_id, owner_id, listing_id, last_message_at, status, created_at, updated_at')
         .eq('id', conversationId)
         .single();
 
@@ -278,9 +278,9 @@ export function useConversations() {
       const isClient = data.client_id === user.id;
 
       const [profileResult, listingResult, messagesResult] = await Promise.all([
-        otherUserId ? supabase.from('profiles').select('user_id, full_name, avatar_url, age').eq('user_id', otherUserId).maybeSingle() : Promise.resolve({ data: null }),
+        otherUserId ? supabase.from('profiles').select('id, full_name, avatar_url, age').eq('id', otherUserId).maybeSingle() : Promise.resolve({ data: null }),
         data.listing_id ? supabase.from('listings').select('id, title, price, images, category, mode, address, city').eq('id', data.listing_id).maybeSingle() : Promise.resolve({ data: null }),
-        supabase.from('conversation_messages').select('conversation_id, content, message_text, created_at, sender_id, is_read').eq('conversation_id', conversationId).order('created_at', { ascending: false }).limit(1)
+        supabase.from('conversation_messages').select('id, conversation_id, content, message_text, message_type, created_at, sender_id, is_read').eq('conversation_id', conversationId).order('created_at', { ascending: false }).limit(1)
       ]);
 
       const otherUserProfile = (profileResult as any).data;
@@ -327,7 +327,7 @@ export function useConversationMessages(conversationId: string) {
     queryFn: async () => {
       const { data: messages, error } = await supabase
         .from('conversation_messages')
-        .select('*')
+        .select('id, conversation_id, sender_id, content, message_text, message_type, attachments, is_read, read_at, created_at')
         .eq('conversation_id', conversationId)
         .order('created_at', { ascending: true });
 
@@ -335,13 +335,13 @@ export function useConversationMessages(conversationId: string) {
       if (!messages || messages.length === 0) return [];
 
       const senderIds = [...new Set(messages.map((m: any) => m.sender_id))];
-      const { data: profiles } = await supabase
+      const { data: profilesData } = await supabase
         .from('profiles')
-        .select('user_id, full_name, avatar_url')
-        .in('user_id', senderIds);
+        .select('id, full_name, avatar_url')
+        .in('id', senderIds);
 
       const profileMap = new Map<string, any>();
-      (profiles || []).forEach((p: any) => profileMap.set(p.user_id, p));
+      (profilesData || []).forEach((p: any) => profileMap.set(p.id, p));
 
       return messages.map((msg: any) => {
         const profile = profileMap.get(msg.sender_id);
@@ -411,6 +411,7 @@ export function useConversationMessages(conversationId: string) {
       .subscribe();
 
     return () => {
+      channel.unsubscribe();
       supabase.removeChannel(channel);
     };
   }, [conversationId, refetch, queryClient]);
@@ -570,7 +571,7 @@ export function useSendMessage() {
           message_text: message,
           message_type: 'text'
         })
-        .select('*')
+        .select('id, conversation_id, sender_id, content, message_text, message_type, attachments, is_read, read_at, created_at')
         .single();
 
       if (error) throw error;

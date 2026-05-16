@@ -16,7 +16,7 @@ export interface TourStep {
 const eliteSteps: TourStep[] = [
   {
     target: 'body',
-    title: 'Welcome to the Nexus',
+    title: 'Welcome to the Swipes',
     description: 'I am your AI Concierge. Let me guide you through the elite sections of Swipess.',
     welcome: true,
   },

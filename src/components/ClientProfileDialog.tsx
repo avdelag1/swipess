@@ -227,7 +227,7 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
     <Dialog open={open} onOpenChange={(v) => { triggerHaptic('light'); onOpenChange(v); }}>
       <DialogContent hideCloseButton className={cn("client-profile-dialog sm:max-w-3xl max-h-[92vh] flex flex-col p-0 gap-0 overflow-hidden rounded-[2.5rem]", isLight ? "light-profile-dialog border-border bg-background text-foreground shadow-[0_30px_90px_hsl(var(--foreground)/0.16)]" : "border-border bg-background text-foreground shadow-[0_0_80px_hsl(var(--background)/0.95)]")}>
         
-        {/* 🛸 NEXUS ATMOSPHERIC LAYER */}
+        {/* 🛸 SWIPES ATMOSPHERIC LAYER */}
         <div className={cn("absolute inset-0 pointer-events-none overflow-hidden", isLight ? "opacity-[0.04]" : "opacity-20")}>
           <div
             className="absolute inset-0"
@@ -241,13 +241,13 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
           />
         </div>
 
-        {/* 🛸 NEXUS HEADER */}
+        {/* 🛸 SWIPES HEADER */}
         <div className={cn("relative px-8 pt-8 pb-6 border-b z-10", isLight ? "border-border bg-gradient-to-b from-muted/50 to-transparent" : "border-border bg-gradient-to-b from-foreground/[0.04] to-transparent")}>
            <div className="flex items-center justify-between">
               <div className="space-y-1">
                  <div className="flex items-center gap-2">
                     <Sparkles className="w-4 h-4 text-[#EB4898] animate-pulse" />
-                     <span className="text-[10px] font-black uppercase tracking-[0.4em] text-muted-foreground italic">Nexus Identity Terminal</span>
+                     <span className="text-[10px] font-black uppercase tracking-[0.4em] text-muted-foreground italic">Swipes Identity Terminal</span>
                  </div>
                   <h2 className="text-3xl font-black italic uppercase tracking-tighter text-foreground drop-shadow-sm">Edit Profile</h2>
               </div>
@@ -449,7 +449,7 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
           </div>
         </div>
 
-        {/* 🛸 NEXUS FOOTER ACTIONS */}
+        {/* 🛸 SWIPES FOOTER ACTIONS */}
         <div className={cn("px-8 py-6 border-t flex items-center justify-between gap-4 z-10 relative", isLight ? "border-border bg-gradient-to-t from-muted/50 to-transparent" : "border-border bg-gradient-to-t from-foreground/[0.04] to-transparent")}>
            <Button 
              variant="ghost" 

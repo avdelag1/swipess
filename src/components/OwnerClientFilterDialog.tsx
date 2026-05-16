@@ -603,7 +603,11 @@ export function OwnerClientFilterDialog({ open, onOpenChange }: OwnerClientFilte
                       <Save className="w-4 h-4 mr-2" />
                       Save Filter
                     </Button>
-                    <Button onClick={handleSave} disabled={isUpdating}>
+                    <Button 
+                      onClick={handleSave} 
+                      disabled={isUpdating}
+                      className="rounded-xl font-bold bg-foreground text-background hover:opacity-90"
+                    >
                       {isUpdating ? 'Saving...' : 'Apply Filters'}
                     </Button>
                   </>

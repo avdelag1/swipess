@@ -465,7 +465,7 @@ export function OnboardingFlow({ open, onComplete }: OnboardingFlowProps) {
         className="sm:max-w-2xl bg-black border-white/5 text-white overflow-hidden p-0 rounded-[2.5rem]"
       >
         <div className="absolute inset-0 pointer-events-none">
-          <AtmosphericLayer variant="nexus" opacity={0.1} />
+          <AtmosphericLayer variant="swipes" opacity={0.1} />
         </div>
 
         <div className="relative z-10 p-6 sm:p-10 flex flex-col h-full max-h-[90vh]">

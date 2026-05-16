@@ -60,7 +60,7 @@ export function MessageConfirmationDialog({
           isLight ? "bg-white border-slate-200" : "bg-[#0A0A0A] border-white/10"
         )}
       >
-        {/* 🛸 NEXUS ATMOSPHERE */}
+        {/* 🛸 SWIPES ATMOSPHERE */}
         <div className="absolute top-[-20%] left-[-20%] w-[80%] h-[80%] bg-rose-500/10 rounded-full blur-[100px] pointer-events-none" />
         <div className="absolute bottom-[-20%] right-[-20%] w-[80%] h-[80%] bg-violet-600/10 rounded-full blur-[100px] pointer-events-none" />
 
@@ -147,22 +147,6 @@ export function MessageConfirmationDialog({
             </div>
           </div>
           
-          {/* Quota info - Now Unlimited Style */}
-          <div className="flex items-center justify-between gap-3 p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-rose-500/20 flex items-center justify-center border border-rose-500/20">
-                <Sparkles className="w-5 h-5 text-rose-400" />
-              </div>
-              <div className="flex flex-col">
-                <span className="text-xs font-black text-white uppercase tracking-wider">Unlimited Access</span>
-                <span className="text-[10px] text-white/40 leading-tight font-bold">Premium Messaging Active</span>
-              </div>
-            </div>
-            
-            <button className="px-3 py-1.5 rounded-lg bg-rose-500/10 border border-rose-500/20 text-[10px] font-black text-rose-400 uppercase tracking-widest hover:bg-rose-500/20 transition-colors">
-              Get Tokens
-            </button>
-          </div>
         </div>
 
         {/* Footer */}
@@ -171,8 +155,8 @@ export function MessageConfirmationDialog({
               onClick={handleConfirm}
               disabled={isLoading || !message.trim()}
               className={cn(
-                "w-full h-13 rounded-2xl font-bold text-sm active:scale-[0.98] transition-all shadow-lg border-none",
-                isLight ? "bg-slate-900 text-white hover:bg-slate-800" : "bg-white text-black hover:bg-white/90"
+                "w-full h-13 rounded-2xl font-bold text-sm active:scale-[0.98] transition-all shadow-xl border-none",
+                "bg-foreground text-background hover:opacity-90"
               )}
             >
               <AnimatePresence mode="wait">
@@ -195,8 +179,8 @@ export function MessageConfirmationDialog({
               onClick={handleCancel}
               disabled={isLoading}
               className={cn(
-                "w-full h-11 rounded-2xl font-semibold text-sm transition-all",
-                isLight ? "text-slate-600 hover:bg-slate-100" : "text-white/60 hover:text-white hover:bg-white/5"
+                "w-full h-11 rounded-2xl font-bold text-sm transition-all",
+                isLight ? "text-slate-500 hover:bg-slate-100 hover:text-slate-900" : "text-white/60 hover:text-white hover:bg-white/10"
               )}
             >
               Cancel

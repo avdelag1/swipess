@@ -271,7 +271,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
     return (
       <div className="flex-1 flex flex-col items-center justify-center p-8 bg-black">
          <div className="w-12 h-12 rounded-xl border-4 border-rose-500/10 border-t-rose-500 animate-spin" />
-         <p className="text-[10px] font-black uppercase tracking-widest text-rose-500 mt-6 animate-pulse">Syncing Nexus...</p>
+         <p className="text-[10px] font-black uppercase tracking-widest text-rose-500 mt-6 animate-pulse">Syncing Swipes...</p>
       </div>
     );
   }
@@ -443,7 +443,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
                 isThemeLight ? "bg-amber-50 border-amber-200" : "bg-rose-500/[0.08] border-rose-500/20"
               )}>
                 <div className="w-1.5 h-1.5 bg-rose-500 rounded-full animate-pulse" />
-                <span className="text-[9px] font-black uppercase tracking-widest text-rose-500">Connecting Nexus...</span>
+                <span className="text-[9px] font-black uppercase tracking-widest text-rose-500">Connecting Swipes...</span>
               </div>
             </div>
           )}
@@ -455,7 +455,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
               )}>
                 <Sparkles className="w-10 h-10 text-white" />
               </div>
-              <h3 className={cn("text-2xl font-black uppercase tracking-tight", isThemeLight ? "text-black" : "text-white")}>Nexus Stream</h3>
+              <h3 className={cn("text-2xl font-black uppercase tracking-tight", isThemeLight ? "text-black" : "text-white")}>Swipes Stream</h3>
               <p className={cn("text-[10px] font-bold uppercase tracking-[0.2em] mt-4 max-w-[200px] leading-relaxed text-white/30")}>
                 Initialize the connection stream with a greeting
               </p>
@@ -490,7 +490,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
                     <motion.p animate={{ opacity: [0.7, 1, 0.7] }} transition={{ duration: 2, repeat: Infinity, ease: "linear" }} className="text-[11px] font-black text-white uppercase tracking-[0.2em] leading-none">Unlimited Messages</motion.p>
                     <div className="px-1.5 py-0.5 rounded-md bg-white text-rose-500 text-[7px] font-black uppercase tracking-widest shadow-sm">Active</div>
                   </div>
-                  <p className="text-[9px] font-bold text-white/60 uppercase tracking-widest mt-1.5">Unlock the full Nexus experience</p>
+                  <p className="text-[9px] font-bold text-white/60 uppercase tracking-widest mt-1.5">Unlock the full Swipes experience</p>
                 </div>
               </div>
               <div className="flex items-center gap-2 bg-white/10 hover:bg-white/20 px-4 py-2 rounded-xl transition-colors">
@@ -517,7 +517,12 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
             <button
               type="button"
               onClick={() => setShowEmojiPicker(p => !p)}
-              className={cn("shrink-0 w-12 h-12 rounded-2xl flex items-center justify-center transition-all border", showEmojiPicker ? "bg-rose-500/[0.12] border-rose-500/30 text-rose-500" : (isThemeLight ? "bg-black/[0.05] border-black/[0.06] text-black/50 hover:bg-black/[0.09]" : "bg-white/[0.05] border-white/[0.07] text-white/40 hover:bg-white/[0.09]"))}
+              className={cn(
+                "shrink-0 w-12 h-12 rounded-2xl flex items-center justify-center transition-all border shadow-sm",
+                showEmojiPicker 
+                  ? "bg-rose-500 border-rose-600 text-white shadow-rose-500/20" 
+                  : (isThemeLight ? "bg-white border-black/10 text-black/60 hover:bg-zinc-50" : "bg-zinc-900 border-white/10 text-white/50 hover:bg-zinc-800")
+              )}
             >
               <Smile className="w-6 h-6" />
             </button>
@@ -529,8 +534,8 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
                 onFocus={() => { if (isListening) stopListening(); }}
                 placeholder={isAtLimit ? "LIMIT REACHED" : isListening ? "Listening..." : "Message..."}
                 className={cn(
-                  "flex-1 h-12 pl-5 pr-12 rounded-2xl text-[14px] font-medium outline-none transition-all border focus:ring-2 focus:ring-[#EB4898]/20",
-                  isThemeLight ? "bg-white border-black/10 text-black placeholder:text-black/30" : "bg-[#121212] border-white/5 text-white placeholder:text-white/10"
+                  "flex-1 h-12 pl-5 pr-12 rounded-2xl text-[14px] font-medium outline-none transition-all border focus:ring-2 focus:ring-[#EB4898]/20 shadow-sm",
+                  isThemeLight ? "bg-white border-black/15 text-black placeholder:text-black/40" : "bg-black border-white/15 text-white placeholder:text-white/30"
                 )}
                 disabled={sendMessage.isPending || isAtLimit}
               />
@@ -570,7 +575,12 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
             <button
               type="submit"
               disabled={!newMessage.trim() || sendMessage.isPending || isAtLimit}
-              className={cn("shrink-0 w-14 h-14 rounded-2xl flex items-center justify-center transition-all", newMessage.trim() && !isAtLimit ? "bg-white text-black shadow-xl hover:scale-105 active:scale-95" : (isThemeLight ? "bg-black/[0.05] text-black/10 border border-black/[0.06]" : "bg-white/[0.05] text-white/10 border border-white/[0.05]"))}
+              className={cn(
+                "shrink-0 w-14 h-14 rounded-2xl flex items-center justify-center transition-all shadow-lg",
+                newMessage.trim() && !isAtLimit 
+                  ? "bg-[#EB4898] text-white hover:scale-105 active:scale-95 shadow-[#EB4898]/20" 
+                  : (isThemeLight ? "bg-black/[0.1] text-black/20 border border-black/[0.1]" : "bg-white/[0.1] text-white/20 border border-white/[0.1]")
+              )}
             >
               <Send className="w-6 h-6" />
             </button>
