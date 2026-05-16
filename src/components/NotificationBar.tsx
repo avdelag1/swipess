@@ -5,25 +5,25 @@ import useAppTheme from '@/hooks/useAppTheme';
 import { triggerHaptic } from '@/utils/haptics';
 
 import { notificationTypeConfigs as typeConfigs } from '@/utils/notificationConfigs';
-import type { Notification } from '@/state/notificationStore';
+import type { AppNotification } from '@/state/notificationStore';
 
 interface NotificationBarProps {
-  notifications: Notification[];
+  notifications: AppNotification[];
   onDismiss: (id: string) => void;
   onMarkAllRead: () => void;
-  onNotificationClick: (notif: Notification) => void;
+  onNotificationClick: (notif: AppNotification) => void;
 }
 
 export const NotificationBar = memo(function NotificationBar({ notifications, onDismiss, onMarkAllRead, onNotificationClick }: NotificationBarProps) {
   const { theme } = useAppTheme();
   const isLight = theme === 'light';
-  const [current, setCurrent] = useState<Notification | null>(null);
+  const [current, setCurrent] = useState<AppNotification | null>(null);
   const [visible, setVisible] = useState(false);
   const [exitDir, setExitDir] = useState<'right' | 'left'>('right');
 
   const timerRef   = useRef<ReturnType<typeof setTimeout>>();
   const isExiting  = useRef(false);
-  const pendingRef = useRef<Notification | null>(null);
+  const pendingRef = useRef<AppNotification | null>(null);
 
   // Swipe logic
   const x = useMotionValue(0);
@@ -67,7 +67,7 @@ export const NotificationBar = memo(function NotificationBar({ notifications, on
     }
   }, [unread.length, unread[0]?.id]); // Precision dependency to avoid thrashing
 
-  const showNotification = useCallback((notif: Notification) => {
+  const showNotification = useCallback((notif: AppNotification) => {
     // Clear any existing timer before starting new one
     if (timerRef.current) clearTimeout(timerRef.current);
     

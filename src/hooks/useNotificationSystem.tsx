@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { logger } from '@/utils/prodLogger';
 import { useProfileCache } from '@/hooks/useProfileCache';
-import { useNotificationStore, NotificationType, Notification } from '@/state/notificationStore';
+import { useNotificationStore, NotificationType, AppNotification } from '@/state/notificationStore';
 
 // DBNotification matches actual Supabase schema
 interface DBNotification {
@@ -125,7 +125,7 @@ export function useNotificationSystem() {
           const dbNotification = payload.new as any;
           if (!dbNotification) return;
 
-          const notification: Partial<Notification> = {
+          const notification: Partial<AppNotification> = {
             id: dbNotification.id,
             type: notificationTypeMap[dbNotification.notification_type] || 'like',
             title: dbNotification.title || titleMap[dbNotification.notification_type] || 'Notification',
@@ -230,7 +230,7 @@ export function useNotificationSystem() {
     }
   };
 
-  const handleNotificationClick = useCallback((notification: Notification) => {
+  const handleNotificationClick = useCallback((notification: AppNotification) => {
     // Navigate using window.location for safety (no useNavigate dependency)
     let url: string | null = null;
     if (notification.actionUrl) {
