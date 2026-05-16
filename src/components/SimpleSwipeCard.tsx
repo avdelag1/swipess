@@ -594,8 +594,8 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
               }}
               exit={{ 
                 opacity: 0, 
-                x: 10, 
-                scale: 0.96, 
+                x: 12, 
+                scale: 0.94, 
                 filter: 'blur(12px)' 
               }}
               transition={{ 
