@@ -36,11 +36,20 @@ export function AnimatedOutlet() {
       <AnimatePresence initial={false} mode="popLayout">
         <motion.div
           key={location.pathname}
-          initial={{ opacity: 0.001 }}
+          initial={{ opacity: 0.4 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.16, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ duration: 0.10, ease: [0.22, 1, 0.36, 1] }}
           className={`flex-1 w-full flex flex-col ${isDashboardRoute ? 'bg-transparent' : 'bg-background'}`}
-          style={{ position: 'absolute', inset: 0, pointerEvents: isDashboardRoute ? 'none' : 'auto' }}
+          // Dashboard routes: no scrolling — the persistent swipe deck underneath
+          //   handles all touch events.
+          // Other routes: overflow-y: auto makes this the scroll container so
+          //   every page scrolls within this bounded box regardless of content
+          //   height, without relying on the outer <main> scroll container.
+          style={
+            isDashboardRoute
+              ? { position: 'absolute', inset: 0, pointerEvents: 'none' }
+              : { position: 'absolute', inset: 0, pointerEvents: 'auto', overflowY: 'auto' }
+          }
         >
           <Suspense fallback={null}>
             {outlet}

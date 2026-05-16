@@ -1,10 +1,8 @@
-import { memo, useEffect, useMemo, useState, useRef } from 'react';
+import { memo, useEffect, useMemo, useState } from 'react';
 import { getCardImageUrl, getBlurDataUrl } from '@/utils/imageOptimization';
-import { cn } from '@/lib/utils';
 import PlaceholderImage from './PlaceholderImage';
 import { imageCache } from '@/lib/swipe/cardImageCache';
 import { MarketingSlide } from './MarketingSlide';
-import { SwipessLogo } from './SwipessLogo';
 import { motion } from 'framer-motion';
 
 function isBrowser() {
@@ -14,18 +12,20 @@ function isBrowser() {
 const CROSSFADE_MS = 100; // Accelerated crossfade for instant reaction
 const _CROSSFADE_EASE = [0.4, 0, 0.2, 1]; // Smooth soft-start cubic bezier (reserved for future animation)
 
-const CardImage = memo(({ 
-  src, 
-  alt, 
-  name, 
+const CardImage = memo(({
+  src,
+  alt,
+  name,
+  fallbackSrc,
   direction: _direction = 'right',
   fullScreen = false,
   animate: _animate = false,
   priority = false
-}: { 
-  src?: string | null; 
-  alt?: string; 
-  name?: string; 
+}: {
+  src?: string | null;
+  alt?: string;
+  name?: string;
+  fallbackSrc?: string | null;
   direction?: 'left' | 'right';
   fullScreen?: boolean;
   animate?: boolean;
@@ -52,10 +52,6 @@ const CardImage = memo(({
     return false;
   });
   const [error, setError] = useState<boolean>(false);
-
-  const prevSrcRef = useRef<string | null | undefined>(null);
-  const prevOptimizedRef = useRef<string | null>(null);
-  const [showPrev, setShowPrev] = useState(false);
 
   useEffect(() => {
     setError(false);
@@ -111,18 +107,19 @@ const CardImage = memo(({
     };
   }, [src, optimizedSrc, isMarketingSlide]);
 
-  useEffect(() => {
-    if (prevSrcRef.current && prevSrcRef.current !== src && wasInCache) {
-      prevOptimizedRef.current = getCardImageUrl(prevSrcRef.current ?? '');
-      setShowPrev(true);
-      const timer = setTimeout(() => setShowPrev(false), CROSSFADE_MS + 50);
-      prevSrcRef.current = src;
-      return () => clearTimeout(timer);
-    }
-    prevSrcRef.current = src;
-  }, [src, wasInCache]);
-
   if (!src || error) {
+    if (fallbackSrc && fallbackSrc !== src) {
+      return (
+        <CardImage
+          src={fallbackSrc}
+          alt={alt}
+          name={name}
+          fullScreen={fullScreen}
+          animate={_animate}
+          priority={priority}
+        />
+      );
+    }
     return <PlaceholderImage name={name} />;
   }
 
@@ -161,19 +158,16 @@ const CardImage = memo(({
             transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
           />
 
-          {/* Branded Pulse */}
-          <div className="relative z-10 flex flex-col items-center gap-4 opacity-20 scale-75 lg:scale-100">
-            <SwipessLogo variant="white" size="sm" className="opacity-60" />
-            <div className="flex gap-1">
-              {[0, 1, 2].map(i => (
-                <motion.div 
-                  key={i}
-                  className="w-1.5 h-1.5 rounded-full bg-white/40"
-                  animate={{ opacity: [0.3, 1, 0.3], scale: [0.8, 1.2, 0.8] }}
-                  transition={{ duration: 1, repeat: Infinity, delay: i * 0.2 }}
-                />
-              ))}
-            </div>
+          {/* Subtle dot pulse — no logo to keep transitions clean */}
+          <div className="relative z-10 flex gap-1.5 opacity-40">
+            {[0, 1, 2].map(i => (
+              <motion.div
+                key={i}
+                className="w-1.5 h-1.5 rounded-full bg-white/50"
+                animate={{ opacity: [0.3, 1, 0.3], scale: [0.8, 1.2, 0.8] }}
+                transition={{ duration: 1, repeat: Infinity, delay: i * 0.2 }}
+              />
+            ))}
           </div>
 
           {blurSrc && (
@@ -187,25 +181,6 @@ const CardImage = memo(({
             />
           )}
         </div>
-      )}
-
-      {showPrev && prevOptimizedRef.current && (
-        <img
-          src={prevOptimizedRef.current}
-          alt=""
-          aria-hidden="true"
-          style={{
-            position: 'absolute',
-            inset: 0,
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            borderRadius: br,
-            opacity: 0,
-            animation: `photo-crossfade-out ${CROSSFADE_MS}ms cubic-bezier(0.4, 0, 0.2, 1) forwards`,
-            zIndex: 2,
-          }}
-        />
       )}
 
       <img

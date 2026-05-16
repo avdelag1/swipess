@@ -111,26 +111,50 @@ body::-webkit-scrollbar {
 }
 
 /* ─── View Transitions ─── */
+/* Default: 180ms ease-out cross-fade so every navigation feels smooth
+   instead of a hard cut. Theme changes opt into the ripple reveal by
+   setting `data-theme-transition` on <html>. */
 ::view-transition-old(root),
 ::view-transition-new(root) {
-  animation-duration: 0.15s;
-  animation-timing-function: cubic-bezier(0.2, 0, 0, 1);
+  animation-duration: 180ms;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  mix-blend-mode: normal;
 }
 
 ::view-transition-old(root) {
-  animation: none;
+  animation-name: vt-fade-out;
   z-index: 1;
 }
 
 ::view-transition-new(root) {
-  animation: theme-ripple-reveal 0.15s cubic-bezier(0.2, 0, 0, 1) forwards;
+  animation-name: vt-fade-in;
   z-index: 2;
-  mix-blend-mode: normal;
+}
+
+@keyframes vt-fade-out {
+  to { opacity: 0; }
+}
+
+@keyframes vt-fade-in {
+  from { opacity: 0; }
+}
+
+/* Theme-switch override: explicit ripple reveal driven by ThemeContext. */
+html[data-theme-transition] ::view-transition-old(root) {
+  animation: none;
+}
+html[data-theme-transition] ::view-transition-new(root) {
+  animation: theme-ripple-reveal 0.15s cubic-bezier(0.2, 0, 0, 1) forwards;
 }
 
 @keyframes theme-ripple-reveal {
   0% { clip-path: circle(0% at var(--theme-reveal-x, 50%) var(--theme-reveal-y, 50%)); }
   100% { clip-path: circle(150% at var(--theme-reveal-x, 50%) var(--theme-reveal-y, 50%)); }
+}
+
+/* Kill the iOS 300ms double-tap delay on any tappable control. */
+:where(button, [role="button"], a) {
+  touch-action: manipulation;
 }
 
 @keyframes photo-slide-in {
@@ -218,6 +242,9 @@ body::-webkit-scrollbar {
 @supports (height: 100svh) {
   :root { --card-height: min(85svh, calc(100svh - 120px)); }
 }
+@supports (height: 100dvh) {
+  :root { --card-height: min(85dvh, calc(100dvh - 120px)); }
+}
 
 /* Full-bleed poker card sizing — fills available vertical space */
 .swipe-card-size {
@@ -232,10 +259,73 @@ body::-webkit-scrollbar {
   @apply backdrop-blur-[64px] transition-all duration-500 overflow-hidden relative;
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid rgba(255, 255, 255, 0.12) !important;
-  box-shadow: 
+  box-shadow:
     var(--shadow-cinematic-md),
     inset 0 1px 1px rgba(255, 255, 255, 0.15);
   contain: layout style paint;
+}
+
+/* ─── Adaptive Glass Surface Utilities ───────────────────────────────
+   .glass-surface  → rounded card / slab over photos or dark backgrounds
+   .glass-pill     → fully-rounded chip / badge / nav pill
+   .glass-dark     → modifier: glossy dark variant for solid surfaces
+   Active pill: add data-active="true" or .is-active for brighter rim. */
+.glass-surface,
+.glass-pill {
+  position: relative;
+  background: rgba(235, 248, 255, 0.12); /* Frozen Blue Tint */
+  -webkit-backdrop-filter: blur(32px) saturate(180%);
+  backdrop-filter: blur(32px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.28),
+    inset 0 1px 1px rgba(255, 255, 255, 0.45);
+  isolation: isolate;
+}
+.glass-surface { border-radius: 2rem; }
+.glass-pill    { border-radius: 9999px; }
+
+.glass-surface::before,
+.glass-pill::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(180deg,
+    rgba(255, 255, 255, 0.22) 0%,
+    rgba(255, 255, 255, 0.06) 38%,
+    transparent 60%);
+  mix-blend-mode: screen;
+  z-index: 0;
+}
+.glass-surface > *,
+.glass-pill > * { position: relative; z-index: 1; }
+
+.glass-dark {
+  background: rgba(12, 12, 14, 0.55);
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.10);
+}
+
+.glass-pill[data-active="true"],
+.glass-pill.is-active {
+  border-color: rgba(255, 255, 255, 0.45);
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.30),
+    inset 0 1px 0 rgba(255, 255, 255, 0.55),
+    0 0 0 1px rgba(255, 255, 255, 0.12);
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .glass-surface,
+  .glass-pill {
+    background: rgba(20, 20, 22, 0.92);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
 }
 
 /* Hide ALL scrollbars */
@@ -331,11 +421,11 @@ button:active, [role="button"]:active {
     --ring: 343 99% 62%;
     --radius: 1.25rem;
 
-    --nav-bg: rgba(255, 255, 255, 0.95);
+    --nav-bg: transparent;
     --nav-border: rgba(0, 0, 0, 0.05);
 
     /* 🧘 HUD TOKEN SYSTEM */
-    --hud-bg: rgba(255, 255, 255, 0.95);
+    --hud-bg: transparent;
     --hud-text: #000000;
     --hud-border: rgba(0, 0, 0, 0.05);
     --hud-active-bg: rgba(0, 0, 0, 0.05);
@@ -355,11 +445,11 @@ button:active, [role="button"]:active {
     --input: 212 14% 18%;
     --ring: 352 83% 58%;
 
-    --nav-bg: rgba(10, 10, 12, 0.85);
+    --nav-bg: transparent;
     --nav-border: rgba(255, 255, 255, 0.08);
 
     /* 🧘 HUD TOKEN SYSTEM (DARK) */
-    --hud-bg: rgba(15, 15, 20, 0.95);
+    --hud-bg: transparent;
     --hud-text: #ffffff;
     --hud-border: rgba(255, 255, 255, 0.25);
     --hud-active-bg: rgba(255, 255, 255, 0.12);
@@ -418,11 +508,11 @@ button:active, [role="button"]:active {
     --shadow-card: 0 20px 40px rgba(0, 0, 0, 0.3);
     --shadow-glow: 0 0 30px rgba(211, 47, 47, 0.3);
     --overlay: rgba(0, 0, 0, 0.6);
-    --nav-bg: rgba(35, 35, 40, 0.75);
+    --nav-bg: transparent;
     --nav-border: rgba(255, 255, 255, 0.08);
 
     /* 🧘 HUD TOKEN SYSTEM (GREY) */
-    --hud-bg: rgba(35, 35, 40, 0.85);
+    --hud-bg: transparent;
     --hud-text: #ffffff;
     --hud-border: rgba(255, 255, 255, 0.25);
     --hud-active-bg: rgba(255, 255, 255, 0.15);
@@ -476,11 +566,11 @@ button:active, [role="button"]:active {
     --shadow-card: 0 20px 40px rgba(0, 0, 0, 0.6);
     --shadow-glow: 0 0 30px rgba(229, 57, 53, 0.4);
     --overlay: rgba(0, 0, 0, 0.8);
-    --nav-bg: rgba(5, 5, 5, 0.95);
+    --nav-bg: transparent;
     --nav-border: rgba(255, 255, 255, 0.1);
 
     /* 🧘 HUD TOKEN SYSTEM (BLACK) */
-    --hud-bg: rgba(5, 5, 5, 0.96);
+    --hud-bg: transparent;
     --hud-text: #ffffff;
     --hud-border: rgba(255, 255, 255, 0.3);
     --hud-active-bg: rgba(255, 255, 255, 0.15);
@@ -534,11 +624,11 @@ button:active, [role="button"]:active {
     --shadow-card: 0 20px 40px rgba(0, 0, 0, 0.15);
     --shadow-glow: 0 0 30px rgba(198, 40, 40, 0.2);
     --overlay: rgba(0, 0, 0, 0.4);
-    --nav-bg: rgba(255, 255, 255, 0.96);
+    --nav-bg: transparent;
     --nav-border: rgba(0, 0, 0, 0.10);
 
     /* 🧘 HUD TOKEN SYSTEM (WHITE) */
-    --hud-bg: rgba(255, 255, 255, 0.96);
+    --hud-bg: transparent;
     --hud-text: #000000;
     --hud-border: rgba(0, 0, 0, 0.10);
     --hud-active-bg: rgba(0, 0, 0, 0.06);
@@ -549,7 +639,7 @@ button:active, [role="button"]:active {
     --background: 0 0% 0%;
     --foreground: 0 0% 100%;
     --card: 0 0% 5%;
-    --nav-bg: rgba(255, 255, 255, 0.95);
+    --nav-bg: transparent;
     --nav-border: rgba(0, 0, 0, 0.05);
     --text-primary: 0 0% 100%;
     --btn-primary-bg: #FF4D00;
@@ -646,6 +736,7 @@ button:active, [role="button"]:active {
   body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
     min-height: 100vh;
+    min-height: 100dvh;
     background: hsl(var(--background));
     color: hsl(var(--foreground));
     transition: all 0.2s ease;
@@ -1180,13 +1271,11 @@ button:active, [role="button"]:active {
     -webkit-tap-highlight-color: transparent;
   }
 
-  /* Glassmorphism utilities - OPTIMIZED for Android performance */
+  /* Glassmorphism utilities - FLOATING TRANSPARENT (no background slabs) */
   .glass-effect {
-    background: var(--hud-bg);
-    /* backdrop-filter: blur(20px); REMOVED - kills Android performance */
-    /* -webkit-backdrop-filter: blur(20px); REMOVED - kills Android performance */
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    background: transparent;
+    border: none;
+    box-shadow: none;
   }
 
   .glass-dark {
@@ -1245,16 +1334,14 @@ button:active, [role="button"]:active {
   }
 
   .blur-on-scroll.scrolled {
-    /* backdrop-filter: blur(20px); REMOVED - kills Android performance */
-    /* -webkit-backdrop-filter: blur(20px); REMOVED - kills Android performance */
-    background-color: var(--hud-bg);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    background-color: transparent;
+    border-bottom: none;
+    box-shadow: none;
   }
 
   .dark .blur-on-scroll.scrolled {
-    background-color: rgba(0, 0, 0, 0.8);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    background-color: transparent;
+    border-bottom: none;
   }
 
   /* Progressive image loading */
@@ -2216,11 +2303,14 @@ html[data-navigation-direction="back"] {
   }
 }
 
-/* Static pill shape applied as CSS so it renders before React hydrates —
-   prevents the FOUC square-frame flash on app load/reload */
+/* FLOATING NAV — no pill shape, no container frame */
 .glass-pill-nav {
-  border-radius: 2.5rem !important;
-  overflow: hidden;
+  border-radius: 0 !important;
+  overflow: visible;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
 }
 
 /* Nav buttons: never show default browser outline or rectangular focus ring */
@@ -2253,9 +2343,16 @@ html[data-navigation-direction="back"] {
   color: hsl(var(--primary-foreground)) !important;
 }
 
-.dark .glass-pill-nav {
-  background: rgba(10, 15, 30, 0.2);
-  border-color: rgba(255, 255, 255, 0.05);
+.dark .glass-pill-nav,
+.glass-pill-nav,
+header {
+  background: transparent !important;
+  background-color: transparent !important;
+  border-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 
 .leaflet-container { width: 100%; height: 100%; background: #f1f5f9; outline: none; }
@@ -2364,4 +2461,75 @@ button:disabled,
 .swipess-offer-pill:active {
   transform: scale(0.96);
 }
+
+/* ===================================================================
+ * LIGHT MODE TRANSPARENCY FIXES
+ * Transparent-white patterns are invisible on white backgrounds.
+ * These overrides convert them to transparent-black equivalents.
+ * Applied on both .light and .white-matte (both set by ThemeContext).
+ * =================================================================== */
+
+/* Transparent-white backgrounds → transparent-black */
+.white-matte .bg-white\/5,  .light .bg-white\/5  { background-color: rgba(0,0,0,0.03) !important; }
+.white-matte .bg-white\/10, .light .bg-white\/10 { background-color: rgba(0,0,0,0.05) !important; }
+.white-matte .bg-white\/20, .light .bg-white\/20 { background-color: rgba(0,0,0,0.07) !important; }
+.white-matte .bg-white\/\[0\.02\], .light .bg-white\/\[0\.02\] { background-color: rgba(0,0,0,0.02) !important; }
+.white-matte .bg-white\/\[0\.03\], .light .bg-white\/\[0\.03\] { background-color: rgba(0,0,0,0.03) !important; }
+.white-matte .bg-white\/\[0\.04\], .light .bg-white\/\[0\.04\] { background-color: rgba(0,0,0,0.04) !important; }
+
+/* Transparent-white borders → transparent-black */
+.white-matte .border-white\/10, .light .border-white\/10 { border-color: rgba(0,0,0,0.10) !important; }
+.white-matte .border-white\/20, .light .border-white\/20 { border-color: rgba(0,0,0,0.12) !important; }
+.white-matte .border-white\/\[0\.06\], .light .border-white\/\[0\.06\] { border-color: rgba(0,0,0,0.06) !important; }
+.white-matte .border-white\/\[0\.07\], .light .border-white\/\[0\.07\] { border-color: rgba(0,0,0,0.07) !important; }
+.white-matte .border-white\/\[0\.08\], .light .border-white\/\[0\.08\] { border-color: rgba(0,0,0,0.09) !important; }
+
+/* Transparent-white text → dark text for legibility */
+.white-matte .text-white\/40, .light .text-white\/40 { color: rgba(0,0,0,0.55) !important; }
+.white-matte .text-white\/50, .light .text-white\/50 { color: rgba(0,0,0,0.60) !important; }
+.white-matte .text-white\/60, .light .text-white\/60 { color: rgba(0,0,0,0.65) !important; }
+.white-matte .text-white\/70, .light .text-white\/70 { color: rgba(0,0,0,0.72) !important; }
+.white-matte .text-white\/80, .light .text-white\/80 { color: rgba(0,0,0,0.82) !important; }
+.white-matte .text-white\/90, .light .text-white\/90 { color: rgba(0,0,0,0.90) !important; }
+/* text-white (full) should stay white only on explicitly colored backgrounds.
+   We specifically exclude dialogs / cards that declare their own bg colour. */
+.white-matte .text-white:not([class*="bg-"]):not([style*="background"]),
+.light        .text-white:not([class*="bg-"]):not([style*="background"]) {
+  color: #111111 !important;
+}
+
+/* Transparent-white ring/shadow utilities */
+.white-matte .shadow-white\/\[0\.15\], .light .shadow-white\/\[0\.15\] { box-shadow: none !important; }
+
+/* Ensure muted text never drops below WCAG AA on white */
+.white-matte .text-slate-400, .light .text-slate-400 { color: #4B5563 !important; } /* gray-600, 7.2:1 on white */
+.white-matte .text-slate-500, .light .text-slate-500 { color: #374151 !important; } /* gray-700, 10:1 on white */
+
+/* Dividers that use white-transparent lines */
+.white-matte .divide-white\/10 > * + *, .light .divide-white\/10 > * + * {
+  border-color: rgba(0,0,0,0.08) !important;
+}
+
+/* Backdrop / glass-morphic elements need a light tint, not dark */
+.white-matte .backdrop-blur-xl, .light .backdrop-blur-xl,
+.white-matte .backdrop-blur-2xl, .light .backdrop-blur-2xl {
+  /* Keep backdrop blur but ensure children are legible — override if bg is too light */
+}
+
+/* Input placeholder contrast */
+.white-matte input::placeholder, .light input::placeholder,
+.white-matte textarea::placeholder, .light textarea::placeholder {
+  color: rgba(0,0,0,0.35) !important;
+  opacity: 1;
+}
+
+/* Icon buttons that carry white/transparent backgrounds */
+.white-matte .bg-white\/\[0\.03\], .light .bg-white\/\[0\.03\] { background-color: rgba(0,0,0,0.03) !important; }
+.white-matte .bg-white\/\[0\.05\], .light .bg-white\/\[0\.05\] { background-color: rgba(0,0,0,0.04) !important; }
+
+/* Ensure the main content text is always black */
+.white-matte, .light {
+  color: #111111;
+}
+
 

@@ -1,18 +1,18 @@
-import { lazyWithRetry } from '@/utils/lazyRetry';
+import { useMemo, useEffect, Suspense, lazy } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { DashboardLayout } from '@/components/DashboardLayout';
-import { AnimatedOutlet } from '@/components/AnimatedOutlet';
 import { useActiveMode } from '@/hooks/useActiveMode';
-import { useFilterPersistence } from '@/hooks/useFilterPersistence';
-import { useMemo, useEffect, useState, Suspense } from 'react';
-import { createPortal } from 'react-dom';
-import { useMatchRealtime } from '@/hooks/useMatchRealtime';
-import { useLikesRealtime } from '@/hooks/useLikesRealtime';
 import { ChunkErrorBoundary } from '@/components/ChunkErrorBoundary';
-import { PersistentDashboardScene } from '@/components/dashboard/PersistentDashboardScene';
+import { lazyWithRetry } from '@/utils/lazyRetry';
 
-// Global match celebration modal
-const MatchCelebration = lazyWithRetry(() => import('./MatchCelebration').then(m => ({ default: m.MatchCelebration })));
+// 🚀 SPEED OF LIGHT: CORE COMPONENTS DECOUPLED
+// We lazy-load these to break any potential circular dependency chains
+// between the dashboard shell and the various hooks/contexts it consumes.
+const DashboardLayout = lazyWithRetry(() => import('@/components/DashboardLayout').then(m => ({ default: m.DashboardLayout })));
+const AnimatedOutlet = lazyWithRetry(() => import('@/components/AnimatedOutlet').then(m => ({ default: m.AnimatedOutlet })));
+const PersistentDashboardScene = lazyWithRetry(() => import('@/components/dashboard/PersistentDashboardScene').then(m => ({ default: m.PersistentDashboardScene })));
+
+// Global match celebration and realtime subscriptions
+const PersistentDashboardSubscriptions = lazyWithRetry(() => import('@/components/dashboard/PersistentDashboardSubscriptions').then(m => ({ default: m.PersistentDashboardSubscriptions })));
 
 /**
  * SPEED OF LIGHT: Persistent Dashboard Layout
@@ -37,21 +37,9 @@ export function PersistentDashboardLayout() {
   const navigate = useNavigate();
   const { activeMode, syncMode } = useActiveMode();
 
-  // 🚀 SPEED OF LIGHT: Defer background systems until after the dashboard is 'Stable'
-  const [isWarmedUp, setIsWarmedUp] = useState(false);
-  useEffect(() => {
-    const timer = setTimeout(() => setIsWarmedUp(true), 1500);
-    return () => clearTimeout(timer);
-  }, []);
-
-  // FILTER PERSISTENCE: Auto-restore and auto-save filters from/to database
-  useFilterPersistence();
-
-  // GLOBAL MATCH CELEBRATION: Real-time listener for match events across the entire dashboard
-  const { matchCelebration, closeCelebration } = useMatchRealtime(isWarmedUp);
-
-  // GLOBAL LIKES SYNC: Ensures saves and favorites stay in sync across tabs and devices
-  useLikesRealtime(isWarmedUp);
+  // Realtime subscriptions and filter persistence are handled by
+  // the dynamically loaded PersistentDashboardSubscriptions component
+  // to avoid circular dependencies during initial module resolution.
 
   // SPEED OF LIGHT: Derive role from path INSTANTLY
   const userRole = useMemo(() => {
@@ -72,50 +60,40 @@ export function PersistentDashboardLayout() {
 
   return (
     <ChunkErrorBoundary>
-    <DashboardLayout userRole={userRole}>
-      <div
-        id="swipess-dashboard-root"
-        className="flex min-h-full w-full flex-1 flex-col relative"
-      >
-        {/* Persistent dashboard layer — mounted once, hidden via CSS on
-            non-dashboard routes. Sits BELOW the outlet (z-0). */}
-        <PersistentDashboardScene />
-        {/* Outlet renders other routes ON TOP of the persistent dashboard
-            (z-10). On /client/dashboard and /owner/dashboard the outlet
-            renders an empty placeholder so the persistent layer shows.
-            pointer-events:none on the wrapper so an empty outlet doesn't
-            steal swipe gestures from the persistent dashboard underneath;
-            AnimatedOutlet re-enables pointer-events on its inner motion
-            container for non-dashboard routes. */}
-        <div
-          className="relative flex-1 flex flex-col"
-          style={{ zIndex: 10, pointerEvents: 'none' }}
-        >
-          <AnimatedOutlet />
-        </div>
-      </div>
+      <Suspense fallback={null}>
+        <DashboardLayout userRole={userRole}>
+          <div
+            id="swipess-dashboard-root"
+            className="flex min-h-full w-full flex-1 flex-col relative"
+          >
+            {/* Persistent dashboard layer — mounted once, hidden via CSS on
+                non-dashboard routes. Sits BELOW the outlet (z-0). */}
+            <Suspense fallback={null}>
+              <PersistentDashboardScene />
+            </Suspense>
+            {/* Outlet renders other routes ON TOP of the persistent dashboard
+                (z-10). On /client/dashboard and /owner/dashboard the outlet
+                renders an empty placeholder so the persistent layer shows.
+                pointer-events:none on the wrapper so an empty outlet doesn't
+                steal swipe gestures from the persistent dashboard underneath;
+                AnimatedOutlet re-enables pointer-events on its inner motion
+                container for non-dashboard routes. */}
+            <div
+              className="relative flex-1 flex flex-col"
+              style={{ zIndex: 10, pointerEvents: 'none' }}
+            >
+              <Suspense fallback={null}>
+                <AnimatedOutlet />
+              </Suspense>
+            </div>
+          </div>
 
-      {/* GLOBAL MODALS PORTAL */}
-      {createPortal(
-        <Suspense fallback={null}>
-          <MatchCelebration
-            isOpen={matchCelebration.isOpen}
-            onClose={closeCelebration}
-            matchedUser={{
-              name: matchCelebration.matchedUser?.name || 'Someone',
-              avatar: matchCelebration.matchedUser?.avatar,
-              role: matchCelebration.matchedUser?.role || 'client'
-            }}
-            onMessage={() => {
-              // Redirect to messages upon match interaction
-              closeCelebration();
-              navigate('/messages');
-            }}
-          />
-        </Suspense>,
-        document.body
-      )}
-    </DashboardLayout>
+          {/* GLOBAL BACKGROUND SUBSCRIPTIONS & MODALS */}
+          <Suspense fallback={null}>
+            <PersistentDashboardSubscriptions />
+          </Suspense>
+        </DashboardLayout>
+      </Suspense>
     </ChunkErrorBoundary>
   );
 }

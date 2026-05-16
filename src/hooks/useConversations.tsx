@@ -295,13 +295,13 @@ export function useConversations() {
         status: data.status ?? 'active',
         created_at: data.created_at,
         updated_at: data.updated_at,
-        other_user: otherUserProfile ? {
+        other_user: {
           id: otherUserId ?? '',
-          full_name: otherUserProfile.full_name ?? '',
-          avatar_url: otherUserProfile.avatar_url ?? undefined,
+          full_name: otherUserProfile?.full_name ?? 'User',
+          avatar_url: otherUserProfile?.avatar_url ?? undefined,
           role: otherUserRole,
-          age: otherUserProfile.age
-        } : undefined,
+          age: otherUserProfile?.age
+        },
         last_message: (messagesResult as any).data?.[0],
         listing: (listingResult as any).data || undefined
       };
@@ -365,7 +365,7 @@ export function useConversationMessages(conversationId: string) {
     if (!conversationId) return;
 
     const channel = supabase
-      .channel(`messages-${conversationId}`)
+      .channel(`conv-data-${conversationId}`)
       .on(
         'postgres_changes',
         {
@@ -387,8 +387,6 @@ export function useConversationMessages(conversationId: string) {
               return [...cleaned, newMsg];
             });
           }
-          // Fallback refetch (in case sender profile metadata is needed)
-          refetch();
         }
       )
       .on(
@@ -433,80 +431,33 @@ export function useStartConversation() {
       otherUserId: string;
       listingId?: string;
       initialMessage: string;
-      canStartNewConversation: boolean;
+      canStartNewConversation?: boolean;
     }) => {
       if (!user?.id) throw new Error('Not authenticated');
-
-      const { data: existingConversations, error: existingError } = await supabase
-        .from('conversations')
-        .select('id')
-        .or(`and(client_id.eq.${user.id},owner_id.eq.${otherUserId}),and(client_id.eq.${otherUserId},owner_id.eq.${user.id})`);
-
-      if (existingError) {
-        throw new Error('Failed to check existing conversations');
+      // Reject demo / placeholder IDs that cannot exist in the backend.
+      if (!otherUserId || otherUserId.length < 30 || otherUserId.startsWith('demo-')) {
+        throw new Error('This profile is a sample and cannot receive messages yet.');
       }
 
-      const existingConversation = existingConversations?.[0];
-      let conversationId = existingConversation?.id;
+      const { data, error } = await (supabase as any).rpc('start_conversation_with_message', {
+        p_other_user_id: otherUserId,
+        p_initial_message: initialMessage,
+        p_listing_id: listingId ?? null,
+      });
 
-      if (!conversationId && !canStartNewConversation) {
-        throw new Error('QUOTA_EXCEEDED');
+      if (error) {
+        throw new Error(error.message || 'Failed to start conversation');
       }
 
-      if (!conversationId) {
-        let myRole = 'client';
-        let _otherRole = 'client';
+      const row = Array.isArray(data) ? data[0] : data;
+      const conversationId: string | undefined = row?.conversation_id;
+      if (!conversationId) throw new Error('Could not open conversation');
 
-        try {
-          const { data: myRoleData } = await supabase.from('user_roles').select('role').eq('user_id', user.id).maybeSingle();
-          const { data: otherRoleData } = await supabase.from('user_roles').select('role').eq('user_id', otherUserId).maybeSingle();
-          myRole = myRoleData?.role || 'client';
-          _otherRole = otherRoleData?.role || 'client';
-        } catch (_e) {
-          myRole = 'client'; _otherRole = 'owner';
-        }
-
-        const clientId = myRole === 'client' ? user.id : otherUserId;
-        const ownerId = myRole === 'owner' ? user.id : otherUserId;
-
-        const { data: newConversation, error: conversationError } = await supabase
-          .from('conversations')
-          .insert({
-            client_id: clientId,
-            owner_id: ownerId,
-            listing_id: listingId,
-            status: 'active'
-          })
-          .select()
-          .single();
-
-        if (conversationError) throw new Error(`Failed to create conversation: ${conversationError.message}`);
-        conversationId = newConversation.id;
-      }
-
-      const { data: message, error: messageError } = await supabase
-        .from('conversation_messages')
-        .insert({
-          conversation_id: conversationId,
-          sender_id: user.id,
-          content: initialMessage,
-          message_text: initialMessage,
-          message_type: 'text'
-        })
-        .select()
-        .single();
-
-      if (messageError) throw new Error(`Failed to send message: ${messageError.message}`);
-
-      const { error: updateError } = await supabase.from('conversations').update({ last_message_at: new Date().toISOString() }).eq('id', conversationId);
-      logSupabaseError('conversations.update.last_message_at(starter)', updateError);
-
-      return { conversationId, message };
+      return { conversationId, message: { id: row?.message_id }, created: !!row?.created };
     },
-    onSuccess: async () => {
-      await queryClient.refetchQueries({ queryKey: ['conversations'] });
-      await queryClient.invalidateQueries({ queryKey: ['conversations-started-count'] });
-      appToast.success('💬 Conversation Started', 'Redirecting to chat...');
+    onSuccess: () => {
+      queryClient.refetchQueries({ queryKey: ['conversations'] });
+      queryClient.invalidateQueries({ queryKey: ['conversations-started-count'] });
     }
   });
 }
@@ -525,9 +476,12 @@ export function useSendMessage() {
       const prevMessages = queryClient.getQueryData(['conversation-messages', conversationId]);
       const prevConversations = queryClient.getQueryData(['conversations', user?.id]);
 
+      // Stable client-side id that survives the temp->real swap so React keys don't change
+      const clientId = `cm-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
       // Optimistically add the new message to the message list
       const optimisticMessage = {
         id: `temp-${Date.now()}`,
+        client_id: clientId,
         conversation_id: conversationId,
         sender_id: user?.id,
         content: message,
@@ -591,9 +545,26 @@ export function useSendMessage() {
       }
       appToast.error('Failed to send message. Please try again.');
     },
+    onSuccess: (data, variables) => {
+      // Replace the optimistic temp message with the real one in place, preserving
+      // the stable client_id so the React key doesn't change and the bubble doesn't
+      // remount/replay its entry animation.
+      queryClient.setQueryData(['conversation-messages', variables.conversationId], (old: any[] | undefined) => {
+        if (!Array.isArray(old)) return old;
+        // If the real message is already in the list (real-time beat us), drop the optimistic.
+        if (old.some((m: any) => m.id === data.id)) {
+          return old.filter((m: any) => !(m.is_optimistic && m.sender_id === user?.id && (m.content === variables.message || m.message_text === variables.message)));
+        }
+        const idx = old.findIndex((m: any) => m.is_optimistic && m.sender_id === user?.id && (m.content === variables.message || m.message_text === variables.message));
+        if (idx === -1) return [...old, data];
+        const next = old.slice();
+        next[idx] = { ...data, client_id: old[idx].client_id, sender: old[idx].sender };
+        return next;
+      });
+    },
     onSettled: (data, error, variables) => {
-      // Refetch to ensure everything is in sync after the real update
-      queryClient.invalidateQueries({ queryKey: ['conversation-messages', variables.conversationId] });
+      // Lightweight invalidations only — the message list cache is managed in
+      // onMutate/onSuccess + real-time subscription to avoid re-render storms.
       queryClient.invalidateQueries({ queryKey: ['conversations', user?.id] });
       queryClient.invalidateQueries({ queryKey: ['unread-message-count'] });
     }
@@ -649,7 +620,7 @@ export function useMarkConversationAsRead() {
   return useMutation({
     mutationFn: async (conversationId: string) => {
       if (!user?.id) throw new Error('Not authenticated');
-      const { error } = await supabase.from('conversation_messages').update({ is_read: true, read_at: new Date().toISOString() }).eq('conversation_id', conversationId).neq('sender_id', user.id).eq('is_read', false);
+      const { error } = await supabase.from('conversation_messages').update({ is_read: true }).eq('conversation_id', conversationId).neq('sender_id', user.id).eq('is_read', false);
       if (error) throw error;
       return conversationId;
     },

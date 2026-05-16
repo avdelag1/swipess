@@ -26,25 +26,42 @@ class GlobalErrorBoundary extends Component<Props, State> {
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     logger.error('[GlobalErrorBoundary] caught', error?.message, errorInfo?.componentStack);
+
+    try {
+      const now = Date.now();
+      const lastTs = parseInt(sessionStorage.getItem(RELOAD_TS_KEY) || '0', 10);
+      let count = parseInt(sessionStorage.getItem(RELOAD_KEY) || '0', 10);
+      if (now - lastTs > 60_000) count = 0;
+      if (count < MAX_RELOADS_PER_MINUTE) {
+        sessionStorage.setItem(RELOAD_KEY, String(count + 1));
+        sessionStorage.setItem(RELOAD_TS_KEY, String(now));
+        setTimeout(() => window.location.reload(), 600);
+        return;
+      }
+      // Reload limit hit — clear potentially corrupted stores so next manual reload is clean
+      localStorage.removeItem('swipe-deck-store');
+      localStorage.removeItem('swipe-deck-version');
+    } catch { /* ignore */ }
+
     this.setState({ errorInfo });
   }
+
+  private handleManualReload = () => {
+    // Navigate to ?reset=1 which triggers full state wipe in main.tsx before React mounts
+    window.location.href = window.location.pathname + '?reset=1';
+  };
 
   public render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen min-h-dvh bg-black flex flex-col items-center justify-center p-8 text-center">
-          <div className="w-20 h-20 rounded-[2rem] bg-red-500/10 flex items-center justify-center mb-8 border border-red-500/20">
-            <div className="w-10 h-10 rounded-full border-2 border-red-500/30 border-t-red-500 animate-spin" />
-          </div>
-          <h2 className="text-2xl font-black uppercase italic tracking-tighter text-white mb-4">Something went wrong</h2>
-          <p className="text-sm text-white/50 max-w-xs mb-8 leading-relaxed">
-            The application encountered an unexpected error. We are attempting to recover.
-          </p>
-          <button 
-            onClick={() => window.location.href = '/'}
-            className="px-8 py-3 bg-white text-black text-xs font-black uppercase tracking-widest rounded-full hover:bg-white/90 transition-colors"
+        <div className="min-h-screen min-h-dvh bg-black flex flex-col items-center justify-center p-6 gap-6">
+          <div className="w-12 h-12 rounded-full border-2 border-white/15 border-t-white/70 animate-spin" />
+          <p className="text-sm text-white/50">Something went wrong</p>
+          <button
+            onClick={this.handleManualReload}
+            className="px-6 py-2.5 rounded-full bg-white/10 border border-white/20 text-white text-sm font-medium active:scale-95 transition-transform"
           >
-            Restart Swipess
+            Tap to refresh
           </button>
         </div>
       );

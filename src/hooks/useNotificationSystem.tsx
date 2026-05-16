@@ -237,7 +237,7 @@ export function useNotificationSystem() {
       url = notification.actionUrl;
     } else if (notification.type === 'message' && (notification.conversationId || notification.metadata?.conversationId)) {
       const convId = notification.conversationId || notification.metadata?.conversationId;
-      url = `/messages?id=${convId}`;
+      url = `/messages?conversationId=${convId}`;
     }
     
     if (url) {

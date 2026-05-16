@@ -7,9 +7,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 interface MessageType {
   id: string;
+  client_id?: string;
   conversation_id: string;
   sender_id: string;
-  message_text: string;
+  message_text?: string | null;
+  content?: string | null;
   message_type: string;
   created_at: string;
   is_read?: boolean;
@@ -46,6 +48,7 @@ const MessageBubble = memo(({
 }) => {
   return (
     <motion.div
+      layout="position"
       initial={{ opacity: 0, y: 8, scale: 0.96 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
@@ -68,7 +71,7 @@ const MessageBubble = memo(({
           "text-[14px] font-medium break-words whitespace-pre-wrap leading-relaxed",
           isMyMessage ? "text-white" : (isThemeLight ? "text-black" : "text-white/90")
         )}>
-          {message.message_text}
+          {message.message_text || message.content || ''}
         </p>
         <div className={cn(
           "text-[9px] mt-1.5 font-semibold text-right",
@@ -142,8 +145,7 @@ export const VirtualizedMessageList = memo(({
   return (
     <div
       ref={parentRef}
-      className="flex-1 overflow-y-auto py-4 bg-transparent"
-      style={{ contain: 'strict' }}
+      className="flex-1 min-h-0 overflow-y-auto py-4 bg-transparent"
     >
       <div
         style={{
@@ -167,7 +169,7 @@ export const VirtualizedMessageList = memo(({
 
             return (
               <div
-                key={message.id}
+                key={message.client_id || message.id}
                 data-index={virtualRow.index}
                 ref={virtualizer.measureElement}
               >

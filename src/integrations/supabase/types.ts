@@ -2877,6 +2877,37 @@ export type Database = {
           user_id: string
         }[]
       }
+      get_smart_clients: {
+        Args: { p_limit?: number; p_offset?: number; p_user_id: string }
+        Returns: {
+          age: number
+          avatar_url: string
+          bio: string
+          city: string
+          client_type: string
+          country: string
+          created_at: string
+          full_name: string
+          gender: string
+          id: string
+          images: Json
+          interests: Json
+          languages_spoken: Json
+          lifestyle_tags: Json
+          name: string
+          nationality: string
+          neighborhood: string
+          occupation: string
+          onboarding_completed: boolean
+          preferred_activities: Json
+          profile_images: Json
+          role: string
+          roommate_available: boolean
+          smoking: boolean
+          user_id: string
+          work_schedule: string
+        }[]
+      }
       get_smart_listings: {
         Args: {
           p_category?: string
@@ -3008,6 +3039,18 @@ export type Database = {
       is_conversation_participant: {
         Args: { _conversation_id: string; _user_id: string }
         Returns: boolean
+      }
+      start_conversation_with_message: {
+        Args: {
+          p_initial_message: string
+          p_listing_id?: string
+          p_other_user_id: string
+        }
+        Returns: {
+          conversation_id: string
+          created: boolean
+          message_id: string
+        }[]
       }
       upsert_user_role: {
         Args: {

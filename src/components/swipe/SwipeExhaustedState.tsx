@@ -1,7 +1,8 @@
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
 import { DistanceSlider } from './DistanceSlider';
-import { SlidersHorizontal } from 'lucide-react';
+import { SlidersHorizontal, MapPin } from 'lucide-react';
+import useAppTheme from '@/hooks/useAppTheme';
 
 interface SwipeExhaustedStateProps {
   radiusKm?: number;
@@ -31,6 +32,8 @@ export const SwipeExhaustedState = ({
   onOpenFilters,
   role = 'client',
 }: SwipeExhaustedStateProps) => {
+  const { isLight } = useAppTheme();
+
   const clientCategories = [
     { id: 'property', label: 'Properties' },
     { id: 'motorcycle', label: 'Motorcycles' },
@@ -44,32 +47,48 @@ export const SwipeExhaustedState = ({
     { id: 'hire', label: 'Workers' },
   ];
 
-  // Filter out the active category so the grid doesn't show "switch to current"
   const allCategories = role === 'owner' ? ownerCategories : clientCategories;
   const categories = allCategories.filter((c) => c.id !== activeCategory);
 
+  const headingColor = isLight ? 'text-slate-900' : 'text-white';
+  const subColor = isLight ? 'text-slate-500' : 'text-white/60';
+  const sectionLabelColor = isLight ? 'text-slate-500' : 'text-white/55';
+  const filterBtnClass = isLight
+    ? 'bg-slate-900 text-white border-slate-900 hover:bg-slate-800'
+    : 'bg-white text-slate-900 border-white hover:bg-white/90';
+  const categoryBtnClass = isLight
+    ? 'bg-white text-slate-900 border-slate-200 shadow-[0_8px_22px_-12px_rgba(15,23,42,0.18)] hover:bg-slate-50'
+    : 'bg-white/[0.06] text-white border-white/15 hover:bg-white/[0.10]';
+
   return (
-    <div className="relative z-50 h-full w-full flex flex-col items-center justify-center bg-black px-5 py-5 overflow-hidden">
-      <div className="absolute inset-3 rounded-[2rem] border border-white/25 bg-white/[0.04] shadow-[0_30px_90px_rgba(0,0,0,0.6)] pointer-events-none" />
-      <div className="flex flex-col items-center text-center w-full max-w-md gap-5 relative z-10 px-2">
-        {/* Message */}
-        <div className="space-y-3">
-          <h2 className={cn(
-            "text-2xl sm:text-3xl font-black tracking-tight uppercase text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]"
-          )}>
+    <div
+      className={cn(
+        'relative z-50 h-full w-full flex flex-col items-center justify-center px-6 py-8 overflow-hidden',
+        isLight ? 'bg-white' : 'bg-[#0a0a0c]'
+      )}
+    >
+      <div className="flex flex-col items-center text-center w-full max-w-md gap-7 relative z-10">
+        {/* Headline */}
+        <div className="space-y-2">
+          <h2 className={cn('text-[26px] sm:text-[30px] font-black tracking-tight leading-tight', headingColor)}>
             {isLoading ? 'Scanning…' : `No ${categoryName} found nearby`}
           </h2>
-          <p className={cn(
-            "text-xs font-bold uppercase tracking-[0.25em] text-white/75"
-          )}>
+          <p className={cn('text-[11px] font-bold uppercase tracking-[0.22em]', subColor)}>
             {isLoading ? 'Initializing sector scan' : 'Adjust radius or try another category'}
           </p>
         </div>
 
-        {/* Distance slider — centered, the main control */}
+        {/* Radius card */}
         {onRadiusChange && onDetectLocation && (
-          <div className="w-full relative pt-12">
-            {/* Main filter icon button — top-right of slider, isolated above slider content */}
+          <div
+            className={cn(
+              'w-full rounded-[1.75rem] p-5 pt-6 relative',
+              isLight
+                ? 'bg-slate-50 border border-slate-200'
+                : 'bg-white/[0.04] border border-white/10'
+            )}
+          >
+            {/* Filter pill — top-right, isolated */}
             {onOpenFilters && (
               <button
                 onClick={() => {
@@ -77,14 +96,20 @@ export const SwipeExhaustedState = ({
                   onOpenFilters();
                 }}
                 className={cn(
-                  "absolute top-0 right-0 z-10 w-12 h-12 flex items-center justify-center rounded-full transition-all active:scale-90 border border-white/30 bg-white shadow-[0_18px_40px_rgba(255,255,255,0.18)] hover:bg-white/90"
+                  'absolute top-3 right-3 z-10 w-10 h-10 flex items-center justify-center rounded-full border transition-all active:scale-90',
+                  filterBtnClass
                 )}
                 title="Open advanced filters"
                 aria-label="Open advanced filters"
               >
-                <SlidersHorizontal className="w-5 h-5 text-black" />
+                <SlidersHorizontal className="w-4 h-4" />
               </button>
             )}
+
+            <div className={cn('flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.22em] mb-3', sectionLabelColor)}>
+              <MapPin className="w-3.5 h-3.5" />
+              <span>Search radius</span>
+            </div>
 
             <DistanceSlider
               radiusKm={radiusKm}
@@ -93,25 +118,20 @@ export const SwipeExhaustedState = ({
               detecting={detecting}
               detected={detected}
             />
+
+            <p className={cn('text-[11px] font-semibold mt-4', subColor)}>
+              Move the slider to search further
+            </p>
           </div>
         )}
 
-        <p className="text-xs font-semibold text-white/70">
-          Move the slider to search further
-        </p>
-
-        {/* Quick filter switcher — allows changing category without going back */}
-        {onCategoryChange && (
-          <div className="w-full space-y-3 mt-2">
-            <p className={cn(
-              "text-[11px] font-black uppercase tracking-[0.25em] text-white/85"
-            )}>
+        {/* Category switcher */}
+        {onCategoryChange && categories.length > 0 && (
+          <div className="w-full space-y-3">
+            <p className={cn('text-[10px] font-black uppercase tracking-[0.22em]', sectionLabelColor)}>
               Or try another
             </p>
-            <div className={cn(
-              "grid gap-2",
-              categories.length >= 3 ? 'grid-cols-3' : categories.length === 2 ? 'grid-cols-2' : 'grid-cols-1'
-            )}>
+            <div className={cn('grid gap-2', categories.length >= 3 ? 'grid-cols-3' : categories.length === 2 ? 'grid-cols-2' : 'grid-cols-1')}>
               {categories.map((cat) => (
                 <button
                   key={cat.id}
@@ -120,10 +140,8 @@ export const SwipeExhaustedState = ({
                     onCategoryChange(cat.id);
                   }}
                   className={cn(
-                    "min-h-12 py-2 px-3 rounded-full text-xs font-black uppercase tracking-wider transition-all active:scale-95 border shadow-[0_16px_34px_rgba(0,0,0,0.5)]",
-                    activeCategory === cat.id
-                      ? "bg-white text-black border-white"
-                      : "bg-white text-black border-white/40 hover:bg-white/90"
+                    'min-h-12 py-2.5 px-3 rounded-full text-[11px] font-black uppercase tracking-[0.12em] transition-all active:scale-95 border',
+                    categoryBtnClass
                   )}
                 >
                   {cat.label}

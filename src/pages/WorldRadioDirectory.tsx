@@ -10,18 +10,24 @@ import { CityLocation } from '@/types/radio';
 import { triggerHaptic } from '@/utils/haptics';
 import { cn } from '@/lib/utils';
 import useAppTheme from '@/hooks/useAppTheme';
-import { 
-  ArrowLeft, Globe, Search, Play, Heart, 
+import { useRadioSkin } from '@/hooks/useRadioSkin';
+import {
+  ArrowLeft, Globe, Search, Play, Heart,
   MapPin, Radio, Volume2, Sparkles,
   Maximize2, Shuffle
 } from 'lucide-react';
+
+const CARD_SPRING = { type: 'spring' as const, stiffness: 380, damping: 32, mass: 0.7 };
 
 export default function WorldRadioDirectory() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { state, play, toggleFavorite, isStationFavorite, shuffleAndPlay } = useRadio();
-  // Cheetah skin always applies a dark base — force dark-styled UI regardless of app theme
-  const isDark = true;
+  const { skin } = useRadioSkin();
+  const { isDark: appIsDark } = useAppTheme();
+  // Cheetah skin paints a dark surface regardless of app theme; theme skin
+  // follows the user's theme. Drive every token off this single flag.
+  const isDark = skin === 'cheetah' || (skin === 'theme' && appIsDark);
   const [searchQuery, setSearchQuery] = useState('');
   
   // Initialize with 'favorites' if param exists
@@ -55,11 +61,22 @@ export default function WorldRadioDirectory() {
   };
 
   return (
-    <div className="h-[100dvh] overflow-y-auto overflow-x-hidden flex flex-col relative text-white" style={{ background: '#0a0705' }}>
+    <div
+      className={cn(
+        "h-[100dvh] overflow-y-auto overflow-x-hidden flex flex-col relative",
+        isDark ? "text-white" : "text-foreground"
+      )}
+      style={{ background: isDark ? '#0a0705' : 'hsl(var(--background))' }}
+    >
       <RadioSkinBackground />
 
       {/* 🛸 STICKY HEADER — Stays on top, doesn't overlap cards */}
-      <div className="sticky top-0 z-50 pt-[calc(env(safe-area-inset-top)+12px)] pb-4 px-6 border-b border-white/10 backdrop-blur-xl bg-black/55">
+      <div
+        className={cn(
+          "sticky top-0 z-50 pt-[calc(env(safe-area-inset-top)+12px)] pb-4 px-6 border-b backdrop-blur-xl",
+          isDark ? "bg-black/55 border-white/10" : "bg-background/80 border-border/60"
+        )}
+      >
         <div className="flex items-center mb-4 gap-4">
           <button
             onClick={() => navigate('/radio')}
@@ -102,7 +119,7 @@ export default function WorldRadioDirectory() {
         <div className="relative group mb-4">
           <div className={cn(
             "absolute left-5 top-1/2 -translate-y-1/2 group-focus-within:text-primary transition-colors",
-            isDark ? "text-white/30" : "text-black/30"
+            isDark ? "text-white/30" : "text-muted-foreground"
           )}>
             <Search size={18} />
           </div>
@@ -112,39 +129,40 @@ export default function WorldRadioDirectory() {
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search stations, genres, cities..."
             className={cn(
-              "w-full h-12 border rounded-2xl pl-14 pr-6 text-sm font-bold transition-all focus:outline-none focus:border-primary/50",
+              "w-full h-12 border rounded-2xl pl-14 pr-6 text-sm font-bold transition-all",
+              "focus:outline-none focus:border-primary/60 focus:ring-2 focus:ring-primary/20",
               isDark
                 ? "bg-white/5 border-white/10 placeholder:text-white/20 text-white"
-                : "bg-card border-border placeholder:text-muted-foreground text-foreground"
+                : "bg-muted/40 border-border placeholder:text-muted-foreground text-foreground"
             )}
           />
         </div>
 
-        {/* City Filter scroller */}
+        {/* City Filter scroller — token-driven palette for light/dark parity */}
         <div className="flex gap-2.5 overflow-x-auto no-scrollbar -mx-2 px-2">
           <button
             onClick={() => { setSelectedCity('all'); triggerHaptic('light'); }}
             className={cn(
-              "px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest shrink-0 transition-all border",
+              "px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest shrink-0 transition-all border active:scale-[0.97]",
               selectedCity === 'all'
                 ? "bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/30"
                 : isDark
-                  ? "bg-white/5 border-white/5 text-white/40 hover:border-white/20"
-                  : "bg-card border-border text-foreground/70 hover:border-foreground/20"
+                  ? "bg-white/5 border-white/5 text-white/50 hover:border-white/20"
+                  : "bg-muted/40 border-border text-muted-foreground hover:border-foreground/20"
             )}
           >
             All Signal
           </button>
-          
+
           <button
             onClick={() => { setSelectedCity('favorites'); triggerHaptic('light'); }}
             className={cn(
-              "px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest shrink-0 transition-all border flex items-center gap-2",
+              "px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest shrink-0 transition-all border flex items-center gap-2 active:scale-[0.97]",
               selectedCity === 'favorites'
-                ? "bg-rose-500 text-white border-rose-500 shadow-lg shadow-rose-500/30"
+                ? "bg-[hsl(var(--brand-rose,346_85%_61%))] text-white border-transparent shadow-lg shadow-[hsl(var(--brand-rose,346_85%_61%))]/30"
                 : isDark
-                  ? "bg-white/5 border-white/5 text-white/40 hover:border-white/20"
-                  : "bg-card border-border text-foreground/70 hover:border-foreground/20"
+                  ? "bg-white/5 border-white/5 text-white/50 hover:border-white/20"
+                  : "bg-muted/40 border-border text-muted-foreground hover:border-foreground/20"
             )}
           >
             <Heart size={10} fill={selectedCity === 'favorites' ? "white" : "none"} />
@@ -155,12 +173,12 @@ export default function WorldRadioDirectory() {
               key={city.id}
               onClick={() => setSelectedCity(city.id as CityLocation)}
               className={cn(
-                "px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shrink-0 transition-all border",
+                "px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shrink-0 transition-all border active:scale-[0.97]",
                 selectedCity === city.id
-                  ? (isDark ? "bg-white text-black border-white" : "bg-foreground text-background border-foreground") + " shadow-lg"
+                  ? "bg-foreground text-background border-foreground shadow-lg"
                   : isDark
-                    ? "bg-white/5 border-white/5 text-white/40 hover:border-white/20"
-                    : "bg-card border-border text-foreground/70 hover:border-foreground/20"
+                    ? "bg-white/5 border-white/5 text-white/50 hover:border-white/20"
+                    : "bg-muted/40 border-border text-muted-foreground hover:border-foreground/20"
               )}
             >
               {city.name}
@@ -186,12 +204,12 @@ export default function WorldRadioDirectory() {
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.9 }}
-                  transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                  transition={CARD_SPRING}
                   className={cn(
-                    "group relative overflow-hidden rounded-[2.5rem] p-5 border transition-all duration-500",
+                    "group relative overflow-hidden rounded-[2.5rem] p-5 border transition-colors duration-300",
                     isOffline ? "opacity-40 grayscale-[0.5] scale-[0.98] pointer-events-none" : "opacity-100",
-                    isPlaying 
-                      ? (isDark ? "bg-white/10 border-white/20" : "bg-primary/5 border-primary/30")
+                    isPlaying
+                      ? (isDark ? "bg-white/10 border-white/20" : "bg-primary/10 border-primary/40")
                       : (isDark ? "bg-white/[0.03] border-white/5 hover:bg-white/[0.06]" : "bg-card border-border hover:border-foreground/15 shadow-sm")
                   )}
                 >
@@ -202,8 +220,10 @@ export default function WorldRadioDirectory() {
                       </span>
                     </div>
                   )}
-                  <div 
-                    className="absolute top-0 right-0 w-32 h-32 blur-[60px] opacity-10"
+                  {/* Lighter decorative glow — 40px blur saves a large offscreen
+                      layer per card. will-change is only applied while hovered. */}
+                  <div
+                    className="absolute top-0 right-0 w-32 h-32 blur-[40px] opacity-10 group-hover:[will-change:opacity]"
                     style={{ backgroundColor: theme.primaryColor }}
                   />
 
@@ -274,10 +294,11 @@ export default function WorldRadioDirectory() {
                       </p>
 
                       <div className="flex items-center gap-3">
-                        <button
+                        <motion.button
+                          whileTap={{ scale: 0.98 }}
                           onClick={() => handleStationPlay(station)}
                           className={cn(
-                            "flex-1 h-10 rounded-xl flex items-center justify-center gap-2 text-[11px] font-black uppercase tracking-widest transition-all active:scale-[0.97] shadow-md",
+                            "flex-1 h-10 rounded-xl flex items-center justify-center gap-2 text-[11px] font-black uppercase tracking-widest transition-colors shadow-md",
                             isPlaying
                               ? "bg-primary text-primary-foreground shadow-primary/40"
                               : "bg-primary text-primary-foreground hover:bg-primary/90 shadow-primary/30"
@@ -285,19 +306,20 @@ export default function WorldRadioDirectory() {
                         >
                           {isPlaying ? <Volume2 size={14} /> : <Play size={14} fill="currentColor" />}
                           {isPlaying ? 'Playing' : 'Tune In'}
-                        </button>
-                        <button
+                        </motion.button>
+                        <motion.button
+                          whileTap={{ scale: 0.92 }}
                           onClick={() => toggleFavorite(station.id)}
                           className={cn(
-                            "w-10 h-10 rounded-xl flex items-center justify-center border transition-all active:scale-95",
+                            "w-10 h-10 rounded-xl flex items-center justify-center border transition-colors",
                             isFav
-                              ? "bg-rose-500 border-rose-500 text-white shadow-lg shadow-rose-500/30"
+                              ? "bg-[hsl(var(--brand-rose,346_85%_61%))] border-transparent text-white shadow-lg shadow-[hsl(var(--brand-rose,346_85%_61%))]/30"
                               : (isDark ? "bg-white/10 border-white/15 text-white hover:bg-white/20" : "bg-foreground/10 border-foreground/15 text-foreground hover:bg-foreground/15")
                           )}
                           aria-label={isFav ? "Remove from favorites" : "Add to favorites"}
                         >
                           <Heart size={16} fill={isFav ? "currentColor" : "none"} strokeWidth={2.4} />
-                        </button>
+                        </motion.button>
                       </div>
                     </div>
                   </div>
@@ -335,8 +357,8 @@ export default function WorldRadioDirectory() {
               className={cn(
                 "w-full p-4 rounded-[2rem] backdrop-blur-3xl border shadow-2xl flex items-center justify-between transition-colors",
                 isDark
-                  ? "bg-black/80 border-white/10"
-                  : "bg-foreground text-background border-foreground/20 shadow-foreground/20"
+                  ? "bg-black/80 border-white/10 text-white"
+                  : "bg-background/95 border-border text-foreground shadow-foreground/10"
               )}
             >
               <div className="flex items-center gap-4">
@@ -350,7 +372,7 @@ export default function WorldRadioDirectory() {
                   <p className="text-[8px] font-black text-primary uppercase tracking-widest">Now Playing</p>
                   <h4 className={cn(
                     "text-sm font-black italic uppercase tracking-tight",
-                    isDark ? "text-white" : "text-background"
+                    isDark ? "text-white" : "text-foreground"
                   )}>
                     {state.currentStation.name}
                   </h4>
@@ -364,7 +386,7 @@ export default function WorldRadioDirectory() {
                    }}
                    className={cn(
                      "w-9 h-9 rounded-full flex items-center justify-center transition-colors",
-                     isDark ? "bg-white/10 hover:bg-white/20 text-white" : "bg-background/15 hover:bg-background/25 text-background"
+                     isDark ? "bg-white/10 hover:bg-white/20 text-white" : "bg-muted/60 hover:bg-muted text-foreground"
                    )}
                    title="Open full player"
                  >

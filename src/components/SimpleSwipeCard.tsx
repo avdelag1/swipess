@@ -29,7 +29,7 @@ import { cn } from '@/lib/utils';
 import { ThumbsUp, ThumbsDown, Flame, Flag, Share2 } from 'lucide-react';
 import { PhotoPositionIndicators } from '@/components/swipe/PhotoPositionIndicators';
 import { GestureHints } from '@/components/swipe/GestureHints';
-import { toggleChrome } from '@/hooks/useChromeReveal';
+import { revealChrome } from '@/hooks/useChromeReveal';
 
 export interface SimpleSwipeCardRef {
   triggerSwipe: (direction: 'left' | 'right') => void;
@@ -119,23 +119,62 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
     : 'drop-shadow(0 2px 7px hsl(var(--background) / 0.9))';
 
   const images = useMemo(() => {
+    // Pulls a usable URL out of whatever the DB / mock data hands us:
+    // a plain string, or an object like { url } / { image_url } / { src }.
+    const extract = (raw: unknown): string | null => {
+      if (typeof raw === 'string') {
+        const trimmed = raw.trim();
+        return trimmed && trimmed.toLowerCase() !== 'null' ? trimmed : null;
+      }
+      if (raw && typeof raw === 'object') {
+        const obj = raw as Record<string, unknown>;
+        return extract(obj.url) || extract(obj.image_url) || extract(obj.src) || extract(obj.publicUrl) || null;
+      }
+      return null;
+    };
+
+    const collect = (input: unknown): string[] => {
+      if (!Array.isArray(input)) return [];
+      const out: string[] = [];
+      for (const item of input) {
+        const url = extract(item);
+        if (url) out.push(url);
+      }
+      return out;
+    };
+
     let result: string[] = [];
     const isProfile = (listing as any).profile_images || (listing as any).name;
     if (isProfile) {
-      if (Array.isArray((listing as any).profile_images) && (listing as any).profile_images.length > 0) {
-        result = (listing as any).profile_images;
-      } else if ((listing as any).avatar_url) {
-        result = [(listing as any).avatar_url];
+      result = collect((listing as any).profile_images);
+      if (result.length === 0) {
+        const avatar = extract((listing as any).avatar_url);
+        if (avatar) result.push(avatar);
       }
     } else {
-      if ((listing as any).video_url) result.push((listing as any).video_url);
-      if (Array.isArray((listing as any).images) && (listing as any).images.length > 0) {
-        result = [...result, ...(listing as any).images];
-      } else if ((listing as any).image_url) {
-        result.push((listing as any).image_url);
+      const video = extract((listing as any).video_url);
+      if (video) result.push(video);
+      const listingImages = collect((listing as any).images);
+      if (listingImages.length > 0) {
+        result = [...result, ...listingImages];
+      } else {
+        const single = extract((listing as any).image_url);
+        if (single) result.push(single);
       }
     }
-    return result.length === 0 ? [FALLBACK_PLACEHOLDER] : result;
+
+    // Dedupe while preserving order so the carousel never loops back to an
+    // identical-looking slide that the user thinks is "broken".
+    const deduped: string[] = [];
+    const seen = new Set<string>();
+    for (const url of result) {
+      if (!seen.has(url)) {
+        seen.add(url);
+        deduped.push(url);
+      }
+    }
+
+    return deduped.length === 0 ? [FALLBACK_PLACEHOLDER] : deduped;
   }, [listing]);
 
   const imageCount = images.length;
@@ -284,7 +323,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
       setCurrentImageIndex(prev => prev === imageCount - 1 ? 0 : prev + 1);
       triggerHaptic('light');
     } else {
-      toggleChrome();
+      revealChrome();
       triggerHaptic('light');
     }
   }, [imageCount, onInsights, isMagnifierActive, wasMagnifierActive]);
@@ -373,7 +412,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
               alt={(listing as any).title || 'Listing'}
               name={(listing as any).title}
               direction={photoDirection}
-              priority={isTop}
+              priority
               fullScreen={true}
               animate={!isZoomed}
             />
@@ -422,7 +461,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
         </motion.div>
 
         <motion.div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 pointer-events-none" style={{ opacity: skipOpacity }}>
-          <div className="px-4 py-2 rounded-full bg-black/60 border border-white/20 backdrop-blur-md">
+          <div className="glass-pill px-4 py-2">
             <span className="text-white text-sm font-bold tracking-widest uppercase">Next</span>
           </div>
         </motion.div>
@@ -437,59 +476,78 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
             className="space-y-1.5"
           >
             <div className="flex items-center gap-2 mb-2">
-              <div className="inline-flex rounded-full px-3 py-1 bg-black/80 border border-white/10 shadow-lg">
+              <div className="glass-pill inline-flex px-3 py-1">
                 <CompactRatingDisplay aggregate={ratingAggregate as any} isLoading={isRatingLoading} showReviews={false} className="text-white" />
               </div>
             </div>
 
-            {(() => {
-              const isProfile = (listing as any).profile_images || (listing as any).name;
-              if (isProfile) {
-                const profile = listing as MatchedClientProfile;
+            <div className="glass-surface inline-flex flex-col w-fit max-w-full px-4 py-3">
+              {(() => {
+                const isProfile = (listing as any).profile_images || (listing as any).name;
+                if (isProfile) {
+                  const profile = listing as MatchedClientProfile;
+                  return (
+                    <ClientCardInfo
+                      name={profile.name}
+                      age={profile.age}
+                      budgetMin={profile.budget_min}
+                      budgetMax={profile.budget_max}
+                      location={profile.city}
+                      occupation={(profile as any).occupation || (profile as any).client_type}
+                      isVerified={profile.verified}
+                      photoIndex={currentImageIndex}
+                      workSchedule={profile.work_schedule}
+                      className="!text-white !space-y-0"
+                    />
+                  );
+                }
+                if ((listing as any).category === 'vehicle') {
+                  return (
+                    <VehicleCardInfo
+                      title={(listing as any).title}
+                      price={(listing as any).price || 0}
+                      priceType={(listing as any).listing_type === 'rental' ? ((listing as any).rental_duration_type === 'monthly' ? 'month' : 'day') : 'sale'}
+                      make={(listing as any).vehicle_brand}
+                      model={(listing as any).vehicle_model}
+                      year={(listing as any).year}
+                      location={(listing as any).city}
+                      isVerified={(listing as any).has_verified_documents}
+                      photoIndex={currentImageIndex}
+                      className="!text-white !space-y-0"
+                    />
+                  );
+                }
+                if ((listing as any).category === 'services' || (listing as any).category === 'worker') {
+                  return (
+                    <ServiceCardInfo
+                      title={(listing as any).title}
+                      hourlyRate={(listing as any).price || undefined}
+                      pricingUnit={(listing as any).pricing_unit || 'hr'}
+                      serviceName={(listing as any).service_type || (listing as any).property_type || (listing as any).title || 'Service'}
+                      name={(listing as any).name}
+                      location={(listing as any).city}
+                      isVerified={(listing as any).has_verified_documents}
+                      photoIndex={currentImageIndex}
+                      className="!text-white !space-y-0"
+                    />
+                  );
+                }
                 return (
-                  <ClientCardInfo
-                    name={profile.name}
-                    age={profile.age}
-                    budgetMin={profile.budget_min}
-                    budgetMax={profile.budget_max}
-                    location={profile.city}
-                    occupation={(profile as any).occupation || (profile as any).client_type}
-                    isVerified={profile.verified}
-                    photoIndex={currentImageIndex}
-                    workSchedule={profile.work_schedule}
-                    className="!text-white !space-y-0"
-                  />
-                );
-              }
-              if ((listing as any).category === 'vehicle') {
-                return (
-                  <VehicleCardInfo
+                  <PropertyCardInfo
+                    title={(listing as any).title}
                     price={(listing as any).price || 0}
-                    priceType={(listing as any).listing_type === 'rental' ? ((listing as any).rental_duration_type === 'monthly' ? 'month' : 'day') : 'sale'}
-                    make={(listing as any).vehicle_brand}
-                    model={(listing as any).vehicle_model}
-                    year={(listing as any).year}
+                    priceType={(listing as any).listing_type === 'rental' ? ((listing as any).rental_duration_type === 'monthly' ? 'month' : 'night') : 'sale'}
+                    propertyType={(listing as any).property_type}
+                    beds={(listing as any).beds}
+                    baths={(listing as any).baths}
                     location={(listing as any).city}
                     isVerified={(listing as any).has_verified_documents}
                     photoIndex={currentImageIndex}
                     className="!text-white !space-y-0"
                   />
                 );
-              }
-              return (
-                <PropertyCardInfo
-                  price={(listing as any).price || 0}
-                  priceType={(listing as any).listing_type === 'rental' ? ((listing as any).rental_duration_type === 'monthly' ? 'month' : 'night') : 'sale'}
-                  propertyType={(listing as any).property_type}
-                  beds={(listing as any).beds}
-                  baths={(listing as any).baths}
-                  location={(listing as any).city}
-                  isVerified={(listing as any).has_verified_documents}
-                  photoIndex={currentImageIndex}
-                  className="!text-white !space-y-0"
-                />
-              );
-            })()}
+              })()}
+            </div>
           </motion.div>
         </div>
 
@@ -506,46 +564,14 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
 
         {(listing as any).has_verified_documents && (
           <div className="absolute top-16 left-6 z-40 transition-opacity duration-150" style={{ opacity: isZoomed ? 0 : 1 }}>
-             <div className="relative px-3 py-1.5 rounded-full flex items-center gap-2 bg-black/40 backdrop-blur-md border border-white/10">
+             <div className="glass-pill px-3 py-1.5 flex items-center gap-2">
                <div className="w-2 h-2 rounded-full bg-violet-500 shadow-[0_0_8px_rgba(139,92,246,1)]" />
                <span className="text-[10px] font-black uppercase tracking-[0.1em] text-white">Verified</span>
              </div>
           </div>
         )}
 
-        {isTop && (onReport || onShare) && (
-          <div
-            className="absolute right-5 bottom-[calc(var(--bottom-nav-height,72px)+96px)] z-40 flex flex-col items-end gap-3 transition-opacity duration-150"
-            style={{ opacity: isZoomed ? 0 : 1 }}
-          >
-            {onShare && (
-              <button
-                data-no-cinematic
-                type="button"
-                onPointerDown={(e) => e.stopPropagation()}
-                onClick={(e) => { e.stopPropagation(); onShare(); }}
-                aria-label="Share listing"
-                className="w-9 h-9 flex items-center justify-center bg-transparent border-0 shadow-none active:scale-90 transition-all duration-150"
-                style={{ backgroundColor: 'transparent', boxShadow: 'none' }}
-              >
-                <Share2 className="w-[18px] h-[18px]" strokeWidth={2.2} style={{ color: '#FFFFFF', filter: 'drop-shadow(0 2px 5px rgba(0,0,0,0.55))' }} />
-              </button>
-            )}
-            {onReport && (
-              <button
-                data-no-cinematic
-                type="button"
-                onPointerDown={(e) => e.stopPropagation()}
-                onClick={(e) => { e.stopPropagation(); onReport(); }}
-                aria-label="Report listing"
-                className="w-9 h-9 flex items-center justify-center bg-transparent border-0 shadow-none active:scale-90 transition-all duration-150"
-                style={{ backgroundColor: 'transparent', boxShadow: 'none' }}
-              >
-                <Flag className="w-[18px] h-[18px]" strokeWidth={2.2} style={{ color: '#FFFFFF', filter: 'drop-shadow(0 2px 5px rgba(0,0,0,0.55))' }} />
-              </button>
-            )}
-          </div>
-          )}
+        {/* Right-side Share/Report rail removed — actions now live in the bottom horizontal bar (SwipeActionButtonBar) */}
           </>
         )}
       </motion.div>

@@ -4,9 +4,8 @@ import { Heart, MessageCircle, Share2, ChevronLeft, ChevronRight, ChevronUp, Cal
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
 import useAppTheme from '@/hooks/useAppTheme';
-import CardImage from '@/components/CardImage';
-import { LoopVideo } from '@/components/video/LoopVideo';
 import { EventItem } from '@/types/events';
+import { CATEGORIES } from '@/data/eventsData';
 
 const AUTOPLAY_DURATION = 6000;
 
@@ -99,37 +98,15 @@ export const EventCard = memo(({
         onComplete={onTickComplete}
       />
       
-      {/* Background photo with breathing-zoom */}
-      <div className="absolute inset-0 overflow-hidden">
-        <motion.div
-          initial={{ scale: 1.1, opacity: 0 }}
-          animate={{
-            scale: [1.02, 1.08, 1.02], 
-            opacity: 1,
-            filter: ["brightness(1)", "brightness(1.05)", "brightness(1)"],
-          }}
-          transition={{
-            scale: { duration: 10, repeat: Infinity, ease: "linear" },
-            filter: { duration: 10, repeat: Infinity, ease: "linear" },
-            opacity: { duration: 0.8 },
-          }}
-
-          className="w-full h-full transform-gpu"
-          style={{ willChange: 'transform', transform: 'translateZ(0)' }}
-        >
-          {event.video_url ? (
-            <LoopVideo src={event.video_url} poster={event.image_url || undefined} active={isActive && !isPaused} />
-          ) : (
-            <CardImage
-              src={event.image_url}
-              alt={event.title}
-              fullScreen
-              animate={true}
-              priority={isActive}
-            />
-          )}
-        </motion.div>
-      </div>
+      {/* Background — pure gradient, no external image loading */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background: `radial-gradient(ellipse at 30% 40%, ${activeColor}55 0%, transparent 55%),
+                       radial-gradient(ellipse at 80% 70%, ${activeColor}33 0%, transparent 50%),
+                       linear-gradient(160deg, #0d0d10 0%, #111117 50%, #0a0a0d 100%)`,
+        }}
+      />
 
       {/* Gradient overlays */}
       <div className={cn(
@@ -144,8 +121,8 @@ export const EventCard = memo(({
         <button
           onClick={(e) => { e.stopPropagation(); onPrevEvent(); }}
           className={cn(
-            "pointer-events-auto w-9 h-9 rounded-full flex items-center justify-center transition-opacity shadow-lg backdrop-blur-[10px] border opacity-75 hover:opacity-100 active:scale-95",
-            isLight ? "bg-white/55 border-black/10" : "bg-black/28 border-white/12"
+            "pointer-events-auto w-7 h-7 rounded-full flex items-center justify-center transition-opacity shadow-lg backdrop-blur-[10px] border opacity-75 hover:opacity-100 active:scale-95",
+            isLight ? "bg-white/55 border-black/10" : "bg-black/40 border-white/12"
           )}
           title="Previous event"
         >
@@ -157,8 +134,8 @@ export const EventCard = memo(({
         <button
           onClick={(e) => { e.stopPropagation(); onNextEvent(); }}
           className={cn(
-            "pointer-events-auto w-9 h-9 rounded-full flex items-center justify-center transition-opacity shadow-lg backdrop-blur-[10px] border opacity-75 hover:opacity-100 active:scale-95",
-            isLight ? "bg-white/55 border-black/10" : "bg-black/28 border-white/12"
+            "pointer-events-auto w-7 h-7 rounded-full flex items-center justify-center transition-opacity shadow-lg backdrop-blur-[10px] border opacity-75 hover:opacity-100 active:scale-95",
+            isLight ? "bg-white/55 border-black/10" : "bg-black/40 border-white/12"
           )}
           title="Next event"
         >
@@ -201,7 +178,7 @@ export const EventCard = memo(({
             animate={liked ? { scale: [1, 1.25, 1] } : { scale: 1 }}
             transition={{ duration: 0.35 }}
             className={cn(
-              "w-12 h-12 rounded-full flex items-center justify-center shadow-lg border transition-all",
+              "w-10 h-10 rounded-full flex items-center justify-center shadow-lg backdrop-blur-md border transition-all",
               liked
                 ? "bg-orange-500 border-orange-600 text-white shadow-orange-500/30"
                 : isLight ? "bg-white border-black/15 text-black" : "bg-zinc-900 border-white/15 text-white"
@@ -223,10 +200,8 @@ export const EventCard = memo(({
           <motion.div
             whileTap={{ scale: 0.85 }}
             className={cn(
-              "w-12 h-12 rounded-full flex items-center justify-center shadow-lg border transition-all",
-              liked 
-                ? "bg-red-500 border-red-600 text-white shadow-red-500/30" 
-                : (isLight ? "bg-white border-black/15 text-black" : "bg-zinc-900 border-white/15 text-white")
+              "w-10 h-10 rounded-full flex items-center justify-center shadow-lg backdrop-blur-md border transition-all",
+              liked ? "bg-red-500/20 border-red-500/40" : (isLight ? "bg-white/70 border-black/10" : "bg-black/40 border-white/15")
             )}
           >
             <Heart className={cn('w-6 h-6 transition-colors', liked ? 'fill-red-500 text-red-500' : (isLight ? 'text-black' : 'text-white'))} />
@@ -242,8 +217,8 @@ export const EventCard = memo(({
           <motion.div
             whileTap={{ scale: 0.85 }}
             className={cn(
-              "w-12 h-12 rounded-full flex items-center justify-center shadow-lg border",
-              isLight ? "bg-white border-black/15 text-black" : "bg-zinc-900 border-white/15 text-white"
+              "w-10 h-10 rounded-full flex items-center justify-center shadow-lg backdrop-blur-md border",
+              isLight ? "bg-white/70 border-black/10" : "bg-black/40 border-white/15"
             )}
             style={{ borderColor: `${activeColor}30` }}
           >
@@ -260,8 +235,8 @@ export const EventCard = memo(({
           <motion.div
             whileTap={{ scale: 0.85 }}
             className={cn(
-              "w-12 h-12 rounded-full flex items-center justify-center shadow-lg border",
-              isLight ? "bg-white border-black/15 text-black" : "bg-zinc-900 border-white/15 text-white"
+              "w-10 h-10 rounded-full flex items-center justify-center shadow-lg backdrop-blur-md border",
+              isLight ? "bg-white/70 border-black/10" : "bg-black/40 border-white/15"
             )}
             style={{ borderColor: `${activeColor}30` }}
           >
@@ -283,10 +258,14 @@ export const EventCard = memo(({
             )}
           >
             <div className="relative h-[45dvh]">
-              {event.image_url && (
-                <img src={event.image_url} className={cn("w-full h-full object-cover", isLight ? "opacity-80" : "opacity-90")} alt="" />
-              )}
-              <div className={cn("absolute inset-0", isLight ? "bg-gradient-to-t from-white via-white/40 to-transparent" : "bg-gradient-to-t from-black via-black/40 to-transparent")} />
+              <div
+                className="absolute inset-0"
+                style={{
+                  background: `radial-gradient(ellipse at 30% 50%, ${activeColor}44 0%, transparent 60%),
+                               linear-gradient(160deg, #0d0d10 0%, #111117 100%)`,
+                }}
+              />
+              <div className={cn("absolute inset-0", isLight ? "bg-gradient-to-t from-white via-white/40 to-transparent" : "bg-gradient-to-t from-black/80 via-black/20 to-transparent")} />
               <button 
                 onClick={() => setShowDetails(false)} 
                 className="absolute top-4 left-4 w-10 h-10 rounded-full flex items-center justify-center z-10 bg-black/50 backdrop-blur-md border border-white/20"

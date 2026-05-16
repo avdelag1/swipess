@@ -34,25 +34,49 @@ export const uploadPhoto = async ({
     ? await compressImage(rawFile, bucket === 'listing-images' ? LISTING_COMPRESSION : PROFILE_COMPRESSION)
     : rawFile;
   const ext = file.type === 'image/webp' ? 'webp' : file.type === 'image/png' ? 'png' : 'jpg';
-  const fileName = `${userId}/${timestamp}-${unique}.${ext}`;
 
   if (onProgress) {
     onProgress(10);
   }
 
-  const { data, error } = await supabase.storage
-    .from(bucket)
-    .upload(fileName, file, {
-      cacheControl: '3600',
-      upsert: false,
-    });
+  // Retry transient upload failures (flaky mobile networks, brief 5xx, etc.)
+  const MAX_ATTEMPTS = 3;
+  let lastError: Error | null = null;
+  let data: { path: string } | null = null;
+  for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt += 1) {
+    const attemptSuffix = attempt === 0 ? '' : `-r${attempt}`;
+    const fileName = `${userId}/${timestamp}-${unique}${attemptSuffix}.${ext}`;
+    const result = await supabase.storage
+      .from(bucket)
+      .upload(fileName, file, {
+        cacheControl: '3600',
+        upsert: false,
+      });
+
+    if (!result.error) {
+      data = result.data;
+      break;
+    }
+
+    lastError = new Error(result.error.message);
+    const message = result.error.message?.toLowerCase() || '';
+    const isFatal =
+      message.includes('payload too large') ||
+      message.includes('not allowed') ||
+      message.includes('row-level security') ||
+      message.includes('invalid');
+    if (isFatal || attempt === MAX_ATTEMPTS - 1) {
+      break;
+    }
+    await new Promise((r) => setTimeout(r, 400 * (attempt + 1) ** 2));
+  }
 
   if (onProgress) {
     onProgress(70);
   }
 
-  if (error) {
-    throw new Error(`Upload failed: ${error.message}`);
+  if (!data) {
+    throw new Error(`Upload failed: ${lastError?.message || 'unknown error'}`);
   }
 
   if (onProgress) {
@@ -160,10 +184,11 @@ export const uploadPhotoBatch = async (
   );
 
   // Hard timeout so a stalled upload can never freeze the UI silently.
-  const TIMEOUT_MS = 45000;
+  // Scales with batch size — single photo gets 30s, full 10-photo batch gets ~90s.
+  const TIMEOUT_MS = Math.min(15000 + blobs.length * 9000, 120000);
   const timeout = new Promise<never>((_, reject) =>
     setTimeout(
-      () => reject(new Error('Upload timed out after 45s. Please try again with a stronger connection or smaller photos.')),
+      () => reject(new Error(`Upload timed out after ${Math.round(TIMEOUT_MS / 1000)}s. Please try again with a stronger connection or smaller photos.`)),
       TIMEOUT_MS
     )
   );

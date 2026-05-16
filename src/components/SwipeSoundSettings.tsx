@@ -9,6 +9,14 @@ import { toast } from "sonner";
 import { Volume2, VolumeX, Vibrate } from "lucide-react";
 import { logger } from '@/utils/prodLogger';
 import { getHapticPreference, setHapticPreference } from "@/utils/haptics";
+import { Capacitor } from "@capacitor/core";
+
+// iOS Safari does not support navigator.vibrate; haptics require native Capacitor.
+// On Android web the Web Vibration API works directly.
+const isNative = Capacitor.isNativePlatform();
+const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const isAndroid = /android/i.test(navigator.userAgent);
+const supportsWebVibration = 'vibrate' in navigator;
 
 export function SwipeSoundSettings() {
   const [theme, setTheme] = useState<SwipeTheme>('none');
@@ -109,21 +117,40 @@ export function SwipeSoundSettings() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Vibrate className="w-5 h-5 text-primary" />
-            Haptic Feedback
+            Vibration &amp; Haptics
           </CardTitle>
           <CardDescription>
-            Vibrate the device when swiping or interacting with the app.
+            {isNative
+              ? 'Native haptic feedback on swipes and interactions.'
+              : isIOS
+                ? 'Vibration requires the Swipess native app on iOS — install via Add to Home Screen.'
+                : isAndroid
+                  ? 'Vibration on Android web is supported when enabled below.'
+                  : 'Haptic feedback via device vibration.'}
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-3">
           <div className="flex items-center justify-between">
-            <Label htmlFor="haptics-toggle" className="cursor-pointer">Enable Haptics</Label>
+            <Label htmlFor="haptics-toggle" className="cursor-pointer">
+              {isNative ? 'Enable Haptics' : isIOS ? 'Haptics (iOS Native)' : 'Enable Vibration'}
+            </Label>
             <Switch
               id="haptics-toggle"
               checked={hapticsEnabled}
               onCheckedChange={handleHapticsChange}
+              disabled={isIOS && !isNative}
             />
           </div>
+          {isIOS && !isNative && (
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              iOS Safari blocks the Web Vibration API. Haptics work in the installed PWA via the native Swipess app.
+            </p>
+          )}
+          {!isIOS && !isNative && supportsWebVibration && (
+            <p className="text-xs text-muted-foreground">
+              Android vibration is active. Short pulses fire on each swipe.
+            </p>
+          )}
         </CardContent>
       </Card>
 

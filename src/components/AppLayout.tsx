@@ -1,7 +1,5 @@
 import { Suspense, lazy, useMemo, useEffect, useState, useRef, useLayoutEffect } from 'react';
 import { lazyWithRetry } from '@/utils/lazyRetry';
-import { usePullToRefresh } from '@/hooks/usePullToRefresh';
-import { PullToRefreshIndicator } from '@/components/PullToRefreshIndicator';
 
 import { useLocation } from 'react-router-dom';
 import { SkipToMainContent, useFocusManagement } from './AccessibilityHelpers';
@@ -23,7 +21,7 @@ const SwipessHud = lazyWithRetry(() => import('./SwipessHud').then(m => ({ defau
 const VapIdCardModal = lazyWithRetry(() => import('./VapIdCardModal').then(m => ({ default: m.VapIdCardModal })));
 const GlobalDialogs = lazyWithRetry(() => import('./GlobalDialogs').then(m => ({ default: m.GlobalDialogs })));
 import { ChromeSummonZones } from './swipe/ChromeSummonZones';
-import { useChromeReveal } from '@/hooks/useChromeReveal';
+import { useChromeReveal, revealChrome } from '@/hooks/useChromeReveal';
 
 
 const NotificationSystem = lazy(() =>
@@ -50,7 +48,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   const { showAIChat, showAIListing } = modalStore;
   const { activeMode } = useActiveMode();
   const { isChromeVisible } = useChromeReveal();
-  
+
   const isSwipeDashboard = useMemo(() => {
     const path = location.pathname;
     return path.startsWith('/client/dashboard') || path.startsWith('/owner/dashboard');
@@ -77,10 +75,6 @@ export function AppLayout({ children }: AppLayoutProps) {
   // Everywhere else it's always visible.
   const useRevealMode = swipeDeckActive && !showAIChat;
   const hideFloatingForSwipe = useRevealMode && !isChromeVisible;
-
-  const { isRefreshing, pullDistance, triggered } = usePullToRefresh({
-    disabled: isSwipeDashboard
-  });
 
   const userRole = useMemo<'client' | 'owner' | 'admin'>(() => {
     if (user?.user_metadata?.role === 'admin') return 'admin';
@@ -128,6 +122,28 @@ export function AppLayout({ children }: AppLayoutProps) {
     useModalStore.getState().closeAll();
   }, [location.pathname]);
 
+  // Defensive: the swipe-deck-active body class locks page overflow. If a
+  // navigation race ever leaves it stuck, force-clear it whenever we land on
+  // a route that isn't the swipe deck. Runs pre-paint to avoid a frame of
+  // un-scrollable content on profile / settings / etc.
+  useLayoutEffect(() => {
+    if (!isSwipeDashboard) {
+      document.body.classList.remove('swipe-deck-active');
+    }
+  }, [location.pathname, isSwipeDashboard]);
+
+  // Discoverability: when entering swipe-deck reveal mode (chrome auto-hides),
+  // briefly show the header + bottom nav so users see the controls exist
+  // before they fade out. Auto-hide timer (5s) is set by revealChrome().
+  // useLayoutEffect so the store flips before paint — no hide/re-show flicker.
+  const wasRevealRef = useRef(false);
+  useLayoutEffect(() => {
+    if (useRevealMode && !wasRevealRef.current) {
+      revealChrome();
+    }
+    wasRevealRef.current = useRevealMode;
+  }, [useRevealMode]);
+
   const isPublicPreview = location.pathname.startsWith('/listing/') || location.pathname.startsWith('/profile/');
   const isAuthRoute = location.pathname === '/' || location.pathname === '/reset-password';
   const isCameraRoute = location.pathname.includes('/camera');
@@ -138,11 +154,8 @@ export function AppLayout({ children }: AppLayoutProps) {
   // Public standalone pages (outside DashboardLayout) scroll via the main container below.
   const isInsideDashboard = useMemo(() => {
     const path = location.pathname;
-    // These routes go through PersistentDashboardLayout → DashboardLayout
-    // They must NOT scroll at AppLayout level — DashboardLayout handles it
-    const publicRoutes = ['/', '/reset-password', '/legal', '/about', '/faq/', '/listing/', '/profile/', '/vap-validate/', '/payment/'];
-    const isPublic = publicRoutes.some(r => path === r || path.startsWith(r));
-    return !isPublic;
+    const authRoutes = ['/client', '/owner', '/admin'];
+    return authRoutes.some(r => path.startsWith(r));
   }, [location.pathname]);
 
 
@@ -152,10 +165,13 @@ export function AppLayout({ children }: AppLayoutProps) {
     const isRadio = path.startsWith('/radio');
     const isCamera = path.startsWith('/camera');
     const isRoommates = path.startsWith('/explore/roommates');
-    return isCamera || isRadio || showAIChat || isSwipeDashboard || isRoommates;
+    const isMessages = path.startsWith('/messages');
+    const isEvents = path.startsWith('/explore/events');
+    return isCamera || isRadio || showAIChat || isSwipeDashboard || isRoommates || isMessages || isEvents;
   }, [location.pathname, showAIChat, isSwipeDashboard]);
 
-  const showAppChrome = !isAuthRoute && !isRadioRoute && !isCameraRoute && !showAIChat && (!isPublicPreview || !!user);
+  const isEventsRoute = location.pathname.startsWith('/explore/events');
+  const showAppChrome = !isAuthRoute && !isRadioRoute && !isCameraRoute && !showAIChat && !isEventsRoute && (!isPublicPreview || !!user);
 
   const handleFilterClick = () => {
     const role = userRole === 'admin' ? 'admin' : activeMode;
@@ -205,11 +221,9 @@ export function AppLayout({ children }: AppLayoutProps) {
         id="main-content"
         className={cn(
           "w-full flex-1 relative z-0 flex flex-col",
-          // Push content down below the fixed header
-          !isAuthRoute && !isFullScreen && !isRadioRoute && !isCameraRoute && !isInsideDashboard && "pt-[var(--top-bar-height)]",
-          // Dashboard pages: overflow-hidden, DashboardLayout scrolls internally
-          // Public/standalone pages: overflow-y-auto, scroll at this level
-          (isInsideDashboard || isFullScreen) ? "overflow-hidden" : "overflow-y-auto scroll-area-momentum pb-[var(--bottom-nav-height)]"
+          // Restore pt/pb for non-dashboard pages to prevent content overlap with floating header
+          !isInsideDashboard && !isFullScreen && "pt-[var(--top-bar-height)] pb-[var(--bottom-nav-height)]",
+          (isInsideDashboard || isFullScreen) ? "overflow-hidden" : "overflow-y-auto scroll-area-momentum"
         )}
       >
         <div className="w-full flex-1 flex flex-col">

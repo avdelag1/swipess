@@ -18,6 +18,13 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 // SpeedOfLightPreloader removed — redundant with WarpPrefetcher in RootProviders
 import Index from "./pages/Index";
 
+// Redirect /messages/:conversationId → /messages?conversationId=:id
+// (Push notifications link to the path form; the dashboard reads query params)
+function MessagesRedirect() {
+  const { conversationId } = useParams<{ conversationId: string }>();
+  return <Navigate to={`/messages?conversationId=${conversationId}`} replace />;
+}
+
 // i18n must be initialized eagerly so any component calling useTranslation()
 // during first render finds a registered i18next instance. Deferring caused
 // the "You will need to pass in an i18next instance" warning + missing
@@ -116,7 +123,7 @@ const DashboardRedirect = () => {
 const ShareRedirect = ({ kind }: { kind: 'listing' | 'profile' | 'event' }) => {
   const { id } = useParams<{ id: string }>();
   const { search } = useLocation();
-  const target = kind === 'event' ? `/explore/eventos/${id || ''}` : `/${kind}/${id || ''}`;
+  const target = kind === 'event' ? `/explore/events/${id || ''}` : `/${kind}/${id || ''}`;
   return <Navigate to={`${target}${search}`} replace />;
 };
 
@@ -142,7 +149,13 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
             <Route path="/index" element={<Navigate to="/" replace />} />
             <Route path="/reset-password" element={<Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><ResetPassword /></AnimatedPage></Suspense>} />
 
-            <Route element={<ProtectedRoute><PersistentDashboardLayout /></ProtectedRoute>}>
+            <Route element={
+              <ProtectedRoute>
+                <Suspense fallback={<SuspenseFallback minimal />}>
+                  <PersistentDashboardLayout />
+                </Suspense>
+              </ProtectedRoute>
+            }>
               {/* Individual routes are suspended by the Suspense in PersistentDashboardLayout/AnimatedOutlet */}
               <Route path="/client/dashboard" element={<DashboardOutletPlaceholder />} />
               <Route path="/client/profile" element={<ClientProfile />} />
@@ -184,15 +197,16 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
 
               {/* Shared routes */}
               <Route path="/messages" element={<MessagingDashboard />} />
+              <Route path="/messages/:conversationId" element={<MessagesRedirect />} />
               <Route path="/notifications" element={<NotificationsPage />} />
               <Route path="/subscription/packages" element={<SubscriptionPackagesPage />} />
               <Route path="/radio" element={<DJTurntableRadio />} />
               <Route path="/radio/directory" element={<WorldRadioDirectory />} />
 
               {/* Explore/Events */}
-              <Route path="/explore/eventos" element={<EventosFeed />} />
-              <Route path="/explore/eventos/likes" element={<EventosLikes />} />
-              <Route path="/explore/eventos/:id" element={<EventoDetail />} />
+              <Route path="/explore/events" element={<EventosFeed />} />
+              <Route path="/explore/events/likes" element={<EventosLikes />} />
+              <Route path="/explore/events/:id" element={<EventoDetail />} />
               <Route path="/admin/eventos" element={<AdminProtectedRoute><AdminEventos /></AdminProtectedRoute>} />
               <Route path="/admin/photos" element={<AdminProtectedRoute><AdminPhotos /></AdminProtectedRoute>} />
               <Route path="/admin/category-photos" element={<AdminProtectedRoute><AdminCategoryPhotos /></AdminProtectedRoute>} />

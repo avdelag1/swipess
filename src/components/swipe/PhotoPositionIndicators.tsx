@@ -14,10 +14,13 @@ export function PhotoPositionIndicators({ count, currentIndex, hidden = false, c
   return (
     <div
       className={cn(
-        'absolute inset-x-0 top-[calc(var(--safe-top,0px)+96px)] z-[46] flex justify-center pointer-events-none transition-opacity duration-200',
+        'absolute inset-x-0 z-[46] flex justify-center pointer-events-none transition-opacity duration-200',
         className,
       )}
-      style={{ opacity: hidden ? 0 : 1 }}
+      style={{
+        opacity: hidden ? 0 : 1,
+        top: 'calc(var(--safe-top, 0px) + var(--top-bar-height, 72px) + 36px)',
+      }}
     >
       <div className="flex items-center justify-center gap-1.5">
         {Array.from({ length: count }).map((_, idx) => {

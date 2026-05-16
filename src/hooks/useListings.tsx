@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { logger } from '@/utils/prodLogger';
-import { SWIPE_CARD_FIELDS } from './smartMatching/useSmartListingMatching';
+import { SWIPE_CARD_FIELDS } from './smartMatching/swipeCardFields';
 import { useAuth } from '@/hooks/useAuth';
 
 export interface Listing {

@@ -10,13 +10,22 @@ import { useAdminUserIds } from '../useAdminUserIds';
 const CLIENT_FIELDS = `
     user_id, full_name, age, gender, city, country, images, avatar_url,
     interests, lifestyle_tags, smoking, work_schedule, nationality,
-    languages_spoken, neighborhood, bio, onboarding_completed, occupation
+    languages_spoken, neighborhood, bio, onboarding_completed, created_at
 `;
 
-// Demos disabled — show real users only.
-// 🚀 SWIPESS SYNC: High-quality demo profiles to ensure the deck never feels empty.
-// These use diverse Unsplash avatars to look like a real community.
-const DEMO_CLIENTS: any[] = [
+// Seed/demo user IDs that should always appear AFTER real users.
+const SEED_USER_IDS = new Set([
+    '00000000-0000-0000-0000-000000000000',
+    '00000000-0000-0000-0000-000000000001',
+    '7c51f110-6261-44d8-b9d0-d4ccd2d901b6',
+]);
+const isSeedUserId = (id?: string | null) => !!id && SEED_USER_IDS.has(id);
+
+// Demo client profiles — appended AFTER real users so the deck never feels
+// empty while the marketplace is small. Each entry tags client_type
+// (buyer / renter / hire) and roommate_available so the owner-side filters
+// (buyers / renters / hire / roommates) all show relevant human photos.
+const DEMO_ROOMMATE_CLIENTS: any[] = [
   {
     user_id: 'demo-roommate-1',
     full_name: 'Elena Vance',
@@ -52,7 +61,7 @@ const DEMO_CLIENTS: any[] = [
   }
 ];
 
-const _DEPRECATED_DEMO_CLIENTS: any[] = [
+const DEMO_OWNER_FACING_CLIENTS: any[] = [
   {
     user_id: 'demo-client-buyer-1-disabled',
     full_name: 'Isabela Torres',
@@ -212,6 +221,38 @@ const _DEPRECATED_DEMO_CLIENTS: any[] = [
   },
 ];
 
+const ALL_DEMO_CLIENTS: any[] = [...DEMO_ROOMMATE_CLIENTS, ...DEMO_OWNER_FACING_CLIENTS];
+
+const filterDemoClientsForCategory = (
+  category?: string,
+  isRoommateSection?: boolean
+): any[] => {
+  if (isRoommateSection) {
+    return ALL_DEMO_CLIENTS.filter(c => c.roommate_available === true);
+  }
+  if (!category || category === 'all' || category === 'all-clients') {
+    return ALL_DEMO_CLIENTS;
+  }
+  const targetType: Record<string, string> = {
+    buyers: 'buyer',
+    renters: 'renter',
+    hire: 'hire',
+  };
+  const want = targetType[category];
+  if (!want) return ALL_DEMO_CLIENTS;
+  return ALL_DEMO_CLIENTS.filter(c => c.client_type === want);
+};
+
+const normalizeDemoClient = (c: any): any => ({
+  ...c,
+  id: c.user_id,
+  name: c.full_name || c.name || 'User',
+  profile_images: c.images || [],
+  matchPercentage: 90 + Math.floor(Math.random() * 8),
+  matchReasons: ['Featured', 'Highly Recommended'],
+  incompatibleReasons: [],
+  isDemo: true,
+});
 
 export function useSmartClientMatching(
     userId?: string,
@@ -298,38 +339,17 @@ export function useSmartClientMatching(
                     });
                 }
 
-                // Helper: append demo clients AFTER real ones. Demos bypass swipe exclusion
-                // so the user can keep practicing repeatedly without losing them.
+                // Append demo clients AFTER real profiles so the deck is never
+                // empty during testing. Demos are filtered by the active
+                // category (buyers / renters / hire / roommates) so each
+                // owner-side filter shows the right human photos.
                 const appendDemoClients = (real: MatchedClientProfile[]): MatchedClientProfile[] => {
                     if (page !== 0) return real;
-                    const existing = new Set(real.map(r => r.user_id));
-                    const filteredDemos = DEMO_CLIENTS.filter(c => {
-                        if (existing.has(c.user_id)) return false;
-                        if (isRoommateSection && !c.roommate_available) return false;
-                        if (_category && ['buyers', 'renters', 'hire'].includes(_category)) {
-                            const map: Record<string, string> = { buyers: 'buyer', renters: 'renter', hire: 'hire' };
-                            return c.client_type === map[_category];
-                        }
-                        return true;
-                    });
-                    const mapped = filteredDemos.map(c => ({
-                        id: c.user_id, user_id: c.user_id, name: c.full_name,
-                        age: c.age, gender: c.gender,
-                        interests: c.interests || [], preferred_activities: [],
-                        location: { city: c.city },
-                        lifestyle_tags: c.lifestyle_tags || [],
-                        profile_images: c.images || ['/placeholder.svg'],
-                        matchPercentage: 92 + Math.floor(Math.random() * 7),
-                        matchReasons: ['Highly Recommended'],
-                        incompatibleReasons: [],
-                        verified: !!c.onboarding_completed,
-                        roommate_available: !!c.roommate_available,
-                        city: c.city, country: c.country,
-                        client_type: c.client_type,
-                        bio: c.bio,
-                        isDemo: true,
-                    } as unknown as MatchedClientProfile));
-                    return [...real, ...mapped];
+                    const realIds = new Set(real.map(r => r.user_id));
+                    const demos = filterDemoClientsForCategory(_category, isRoommateSection)
+                        .filter(d => !realIds.has(d.user_id))
+                        .map(normalizeDemoClient);
+                    return [...real, ...demos] as MatchedClientProfile[];
                 };
 
                 // RPC attempt — only use results if they match the current category filter
@@ -485,7 +505,7 @@ export function useSmartClientMatching(
                         matchPercentage: 80,
                         matchReasons: ['Profile available'], incompatibleReasons: [], verified: !!p.onboarding_completed,
                         roommate_available: !!cp?.roommate_available, city: p.city || cp?.city, country: p.country || cp?.country, work_schedule: p.work_schedule || cp?.work_schedule,
-                        occupation: p.occupation || cp?.occupation || ''
+                        occupation: cp?.occupation || ''
                     } as MatchedClientProfile;
                 });
 
@@ -519,7 +539,16 @@ export function useSmartClientMatching(
                 // 🚀 DEMO FALLBACK REMOVED: Show the "Adjust Radius" page instead of fake demo data
                 // This gives users clear feedback when no real matches exist nearby
 
-                const sortedReal = results.sort((a, b) => b.matchPercentage - a.matchPercentage);
+                // Real users first (seed/mock UUIDs sink to the bottom), then by
+                // signup recency. Deterministic so every viewer sees the same
+                // queue order — no per-viewer matchPercentage shuffling.
+                const sortedReal = [...results].sort((a, b) => {
+                    const seedDelta = Number(isSeedUserId(a.user_id)) - Number(isSeedUserId(b.user_id));
+                    if (seedDelta !== 0) return seedDelta;
+                    const ta = new Date((a as any).created_at || 0).getTime();
+                    const tb = new Date((b as any).created_at || 0).getTime();
+                    return tb - ta;
+                });
                 return appendDemoClients(sortedReal);
             } catch (err) {
                 logger.error('[SmartClientMatching] Error:', err);

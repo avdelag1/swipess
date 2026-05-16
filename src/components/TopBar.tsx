@@ -73,7 +73,7 @@ function TopBarComponent({
     borderRadius: '9999px',
     pointerEvents: 'auto',
     color: 'hsl(var(--foreground))',
-    height: '36px',
+    height: '20px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -129,14 +129,14 @@ function TopBarComponent({
               whileTap={{ scale: 0.94 }}
               onClick={() => { haptics.tap(); onBack(); }}
               className="flex shrink-0 items-center justify-center rounded-full"
-              style={{ ...glassPillStyle, width: '36px' }}
+              style={{ ...glassPillStyle, width: '20px' }}
               aria-label="Back"
             >
               <ChevronLeft
-                className="w-[18px] h-[18px]"
+                className="w-[16px] h-[16px]"
                 strokeWidth={2.2}
                 style={{
-                  color: isLight ? '#0A0A0A' : '#FFFFFF',
+                  color: iconColor,
                   filter: isLight
                     ? 'drop-shadow(0 1px 2px rgba(0,0,0,0.18))'
                     : 'drop-shadow(0 2px 6px rgba(0,0,0,0.55))',
@@ -157,7 +157,7 @@ function TopBarComponent({
                 aria-label="Open profile"
               >
                 <div
-                  className="w-7 h-7 rounded-full overflow-hidden shrink-0 flex items-center justify-center relative"
+                  className="w-4 h-4 rounded-full overflow-hidden shrink-0 flex items-center justify-center relative"
                   style={{
                     background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)))',
                     boxShadow: '0 0 0 1px rgba(255,255,255,0.2) inset, 0 0 14px hsl(var(--primary) / 0.35)',
@@ -182,7 +182,7 @@ function TopBarComponent({
                     className="hidden max-w-[74px] truncate sm:inline-block text-[10px] font-black uppercase tracking-[0.08em]"
                     style={{
                       fontVariantNumeric: 'tabular-nums',
-                      color: !isLight || isDashboard ? '#FFFFFF' : '#0A0A0A',
+                      color: iconColor,
                     }}
                   >
                     {profile.full_name.split(' ')[0]}
@@ -198,19 +198,10 @@ function TopBarComponent({
           )}
         </div>
 
-        {onCenterTap ? (
-          <motion.button
-            className="flex-1 h-full pointer-events-auto"
-            whileTap={{ opacity: 0.7 }}
-            onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); haptics.tap(); onCenterTap(); }}
-            aria-label="Go to dashboard"
-          />
-        ) : (
-          <div className="flex-1" />
-        )}
+        <div className="flex-1" />
 
         {/* RIGHT CLUSTER: Individual Action Pills */}
-          <div className="flex shrink-0 items-center gap-2 pointer-events-auto">
+          <div className="flex shrink-0 items-center gap-1.5 pointer-events-auto">
           {!minimal && (
             <>
                 <motion.button
@@ -220,12 +211,12 @@ function TopBarComponent({
                   className="flex shrink-0 items-center justify-center rounded-full relative overflow-hidden"
                   style={{
                     ...glassPillStyle,
-                    width: '36px',
+                    width: '20px',
                   }}
                   aria-label="Tokens"
                 >
                   <Crown
-                    className="w-[20px] h-[20px]"
+                    className="w-[14px] h-[14px]"
                     style={{
                       color: iconColor,
                       filter: isLight ? 'none' : 'drop-shadow(0 0 8px rgba(228,0,124,0.65))',

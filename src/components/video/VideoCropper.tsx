@@ -95,7 +95,15 @@ export function VideoCropper({
                     : null;
 
             if (!rawStream) {
-                throw new Error("Your browser does not support local video cropping. Please try another browser.");
+                // Safari / iOS fallback: captureStream() is unsupported.
+                // Upload the original file directly — LoopVideo handles ping-pong at display time.
+                toast.info('Uploading video...');
+                const url = await uploadListingVideo(userId, videoFile!);
+                toast.success('Video uploaded successfully!');
+                onUploadSuccess(url);
+                setIsProcessing(false);
+                onClose();
+                return;
             }
 
             // ✂️ Strip all audio tracks — reduces file size by ~40-60%

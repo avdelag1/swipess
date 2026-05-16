@@ -43,7 +43,6 @@ import useAppTheme from '@/hooks/useAppTheme';
 import { AtmosphericLayer } from '@/components/AtmosphericLayer';
 import { X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { ConnectingOverlay } from '@/components/ConnectingOverlay';
 
 export function MessagingDashboard() {
   const { user } = useAuth();
@@ -54,8 +53,6 @@ export function MessagingDashboard() {
   const [isStartingConversation, setIsStartingConversation] = useState(false);
   const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
   const [showActivationBanner, setShowActivationBanner] = useState(false);
-  const [isConnecting, setIsConnecting] = useState(false);
-  const [connectingRecipient, setConnectingRecipient] = useState("");
 
   const { data: fetchedRole } = useUserRole(user?.id);
   const userRole = fetchedRole || 'client';
@@ -117,11 +114,12 @@ export function MessagingDashboard() {
 
   const handleDirectOpenConversation = useCallback(async (conversationId: string) => {
     setIsStartingConversation(true);
+    const timeout = setTimeout(() => setIsStartingConversation(false), 6000);
     try {
       let conversation = conversations.find(c => c.id === conversationId);
       if (!conversation) {
-          const result = await refetch();
-          conversation = (result.data || []).find((c: any) => c.id === conversationId);
+        const result = await refetch();
+        conversation = (result.data || []).find((c: any) => c.id === conversationId);
       }
       if (conversation) {
         setSelectedConversationId(conversationId);
@@ -137,6 +135,7 @@ export function MessagingDashboard() {
     } catch (_e) {
       setSearchParams({});
     } finally {
+      clearTimeout(timeout);
       setIsStartingConversation(false);
     }
   }, [conversations, refetch, fetchSingleConversation, setSearchParams]);
@@ -158,12 +157,6 @@ export function MessagingDashboard() {
       });
       if (result.conversationId) {
         await refetch();
-        setConnectingRecipient("New Connection");
-        setIsConnecting(true);
-        
-        // Premium cinematic delay
-        await new Promise(resolve => setTimeout(resolve, 2200));
-        
         setSelectedConversationId(result.conversationId);
         setSearchParams({});
       }
@@ -171,7 +164,6 @@ export function MessagingDashboard() {
       setSearchParams({});
     } finally {
       setIsStartingConversation(false);
-      setIsConnecting(false);
     }
   }, [conversations, canSendMessage, startConversation, refetch, setSearchParams]);
 
@@ -190,54 +182,24 @@ export function MessagingDashboard() {
     return (
       <div className={cn("w-full flex flex-col transition-colors duration-500 overflow-hidden flex-1 min-h-0", isLight ? "bg-white" : "bg-black")}>
         <AnimatePresence mode="wait">
-          <motion.div 
-            key="interface" 
-            initial={{ opacity: 0, scale: 0.98 }} 
-            animate={{ opacity: 1, scale: 1 }} 
-            exit={{ opacity: 0, scale: 0.98 }}
+          <motion.div
+            key="interface"
+            initial={{ opacity: 0, y: '100%' }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: '40%' }}
+            transition={{ type: 'spring', stiffness: 320, damping: 32, mass: 0.85 }}
             className={cn(
-              "w-full max-w-4xl mx-auto flex flex-col flex-1 min-h-0 relative shadow-2xl overflow-hidden border-x",
+              "w-full max-w-full mx-auto flex flex-col flex-1 min-h-0 relative shadow-2xl overflow-hidden border-x",
               isLight ? "bg-white border-black/5" : "bg-[#0A0A0C] border-white/5"
             )}
           >
-            {conversation && otherUser ? (
-              <MessagingInterface
-                conversationId={selectedConversationId}
-                otherUser={otherUser as any}
-                listing={listing}
-                currentUserRole={userRole || 'client'}
-                onBack={() => { 
-                  triggerHaptic('medium'); 
-                  setSelectedConversationId(null); 
-                  setDirectlyFetchedConversation(null); 
-                  setSearchParams({}); 
-                }}
-              />
-            ) : !isLoading && selectedConversationId ? (
-              <div className="flex flex-col items-center justify-center h-full gap-6 p-12 text-center">
-                <div className="w-20 h-20 rounded-[2rem] bg-red-500/10 flex items-center justify-center border border-red-500/20 mb-2">
-                   <ShieldAlert className="w-10 h-10 text-red-500" />
-                </div>
-                <div className="space-y-2">
-                  <h3 className="text-xl font-black uppercase italic tracking-tighter text-white">Interface Unavailable</h3>
-                  <p className="text-sm text-white/40 max-w-xs leading-relaxed font-medium">
-                    This conversation is no longer active or the recipient profile is inaccessible.
-                  </p>
-                </div>
-                <Button 
-                  onClick={() => { setSelectedConversationId(null); setSearchParams({}); }}
-                  variant="outline"
-                  className="rounded-full px-8 py-6 border-white/10 hover:bg-white/5 text-xs font-black uppercase tracking-widest mt-4"
-                >
-                  Back to Inbox
-                </Button>
-              </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center h-full gap-4 text-[#EB4898]/40 uppercase font-black italic">
-                <div className="w-16 h-16 rounded-full border-4 border-[#EB4898]/10 border-t-[#EB4898] animate-spin" />
-                <span className="animate-pulse tracking-[0.3em] text-[10px]">Synchronizing...</span>
-              </div>
-            )}
+            <MessagingInterface
+              conversationId={selectedConversationId}
+              otherUser={(otherUser || { id: 'loading', full_name: 'Connecting...', role: 'client' }) as any}
+              listing={listing}
+              currentUserRole={userRole}
+              onBack={() => { triggerHaptic('medium'); setSelectedConversationId(null); setDirectlyFetchedConversation(null); setSearchParams({}); }}
+            />
           </motion.div>
         </AnimatePresence>
       </div>
@@ -248,9 +210,7 @@ export function MessagingDashboard() {
     <div className={cn("w-full min-h-[100dvh] transition-colors duration-500 relative", isLight ? "bg-[#ffffff]" : "bg-[#000000]")}>
       <AtmosphericLayer variant="rose" />
 
-      <MessageActivationBanner isVisible={showActivationBanner} onClose={() => setShowActivationBanner(false)} userRole={userRole} variant="conversation-limit" />
-
-      <div className="w-full max-w-7xl mx-auto px-6 pt-4 pb-48 relative z-10 space-y-12">
+      <div className="w-full max-w-7xl mx-auto px-6 pt-[calc(var(--top-bar-height)+var(--safe-top,0px)+0.5rem)] pb-48 relative z-10 space-y-12">
         
         <div className="flex items-center gap-6">
            <div className="w-18 h-18 rounded-[1.8rem] bg-[#EB4898] text-white shadow-[#EB4898]/20 flex items-center justify-center shadow-2xl">
@@ -311,16 +271,19 @@ export function MessagingDashboard() {
           {isLoading ? (
             <MessageSkeleton />
           ) : filteredConversations.length > 0 ? (
-            filteredConversations.map((conversation, index) => {
+            <AnimatePresence initial={false}>
+            {filteredConversations.map((conversation) => {
               const isUnread = conversation.last_message?.sender_id !== user?.id && conversation.last_message?.is_read === false;
               const lastAt = conversation.last_message_at ? new Date(conversation.last_message_at) : null;
 
               return (
-                <motion.div 
-                  key={conversation.id} 
-                  initial={{ opacity: 0, y: 15 }} 
-                  animate={{ opacity: 1, y: 0 }} 
-                  transition={{ delay: index * 0.05 }}
+                <motion.div
+                  key={conversation.id}
+                  layout
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.2 }}
                 >
                   <button 
                     className={cn(
@@ -335,9 +298,9 @@ export function MessagingDashboard() {
                     {isUnread && <div className="absolute inset-y-0 left-0 w-1 bg-[#EB4898] shadow-[0_0_15px_#EB4898]" />}
 
                     <div className="relative shrink-0">
-                       <Avatar className="w-15 h-15 rounded-2xl border border-white/10 shadow-xl overflow-hidden">
+                       <Avatar className={cn("w-15 h-15 rounded-2xl border shadow-xl overflow-hidden", isLight ? "border-black/10" : "border-white/10")}>
                           <AvatarImage src={conversation.other_user?.avatar_url} className="object-cover" />
-                          <AvatarFallback className="bg-white/5 text-white font-black uppercase italic">{conversation.other_user?.full_name?.charAt(0)}</AvatarFallback>
+                          <AvatarFallback className={cn("font-black uppercase italic", isLight ? "bg-foreground/5 text-foreground" : "bg-white/5 text-white")}>{conversation.other_user?.full_name?.charAt(0)}</AvatarFallback>
                         </Avatar>
                         {isUnread && (
                           <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[#EB4898] border-2 border-background shadow-[0_0_10px_#EB4898] flex items-center justify-center">
@@ -398,7 +361,8 @@ export function MessagingDashboard() {
                   </button>
                 </motion.div>
               );
-            })
+            })}
+            </AnimatePresence>
           ) : (
             <motion.div 
                initial={{ opacity: 0 }} 
@@ -421,11 +385,6 @@ export function MessagingDashboard() {
       </div>
       
       <MessageActivationPackages isOpen={showUpgradeDialog} onClose={() => setShowUpgradeDialog(false)} userRole={userRole} />
-      
-      <ConnectingOverlay 
-        isOpen={isConnecting}
-        recipientName={connectingRecipient}
-      />
     </div>
   );
 }

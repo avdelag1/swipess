@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Bell, BellRing, MessageSquare, Flame, Crown } from 'lucide-react';
@@ -12,6 +12,10 @@ export function PushNotificationPrompt() {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { subscribe, isSupported, isSubscribed } = usePushNotifications();
+
+  // Auto-popup disabled: the prompt was surfacing on every dashboard load,
+  // confusing users who couldn't tell what it was asking. Notifications can
+  // still be enabled from settings; surface the prompt there instead.
 
   const handleEnableNotifications = async () => {
     setIsLoading(true);

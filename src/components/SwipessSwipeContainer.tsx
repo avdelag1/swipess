@@ -24,6 +24,7 @@ import { useSmartListingMatching, useSmartClientMatching, ListingFilters, Matche
 import { useAuth } from '@/hooks/useAuth';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useActiveMode } from '@/hooks/useActiveMode';
+import { useChromeReveal } from '@/hooks/useChromeReveal';
 import { swipeQueue } from '@/lib/swipe/SwipeQueue';
 import { imagePreloadController } from '@/lib/swipe/ImagePreloadController';
 import { useCanAccessMessaging } from '@/hooks/useMessaging';
@@ -53,7 +54,6 @@ import { SwipeDeckBackButton } from './swipe/SwipeDeckBackButton';
 import { usePullDownToDismiss } from './swipe/usePullDownToDismiss';
 
 import { ReportDialog } from './ReportDialog';
-import { ConnectingOverlay } from './ConnectingOverlay';
 
 // FIX #3: Lazy-load modals 
 const SwipeInsightsModal = lazy(() => import('./SwipeInsightsModal').then(m => ({ default: m.SwipeInsightsModal })));
@@ -109,6 +109,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
   const navigate = useNavigate();
   const { activeMode } = useActiveMode();
   const { theme, isLight } = useAppTheme();
+  const { isChromeVisible } = useChromeReveal();
   const [page, setPage] = useState(0);
   const [_swipeDirection, setSwipeDirection] = useState<'left' | 'right' | null>(null);
   const [isCreatingConversation, setIsCreatingConversation] = useState(false);
@@ -121,7 +122,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
   const [filterDialogOpen, setFilterDialogOpen] = useState(false);
   const [selectedListing, setSelectedListing] = useState<any | null>(null);
   const [reportDialogOpen, setReportDialogOpen] = useState(false);
-  const [isConnecting, setIsConnecting] = useState(false);
 
   // Epic Match State
   const [matchData, setMatchData] = useState<{ client: any, owner: any } | null>(null);
@@ -859,7 +859,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
     setIsCreatingConversation(true);
     startNavigation();
     try {
-      appToast.info('Creating conversation...', 'Please wait');
       const result = await startConversation.mutateAsync({
         otherUserId: targetUserId,
         listingId: activeMode === 'owner' ? undefined : selectedListing.id,
@@ -869,18 +868,12 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
       if (result?.conversationId) {
         setMessageDialogOpen(false);
         setDirectMessageDialogOpen(false);
-        setIsConnecting(true);
-        
-        // Let the animation play for 2.2 seconds for premium processing feel
-        await new Promise(resolve => setTimeout(resolve, 2200));
-        
         navigate(`/messages?conversationId=${result.conversationId}`);
       }
     } catch (err) {
       appToast.error('Error', err instanceof Error ? err.message : 'Could not start conversation');
     } finally {
       setIsCreatingConversation(false);
-      setIsConnecting(false);
       endNavigation();
     }
   };
@@ -1065,9 +1058,22 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
 
     {hasCards && (
         <motion.div
-          className="absolute bottom-[calc(var(--bottom-nav-height,64px)+8px)] left-0 right-0 z-[100] flex justify-center pointer-events-auto"
+          className="absolute bottom-[calc(var(--bottom-nav-height,64px)+16px)] left-0 right-0 z-[100] flex justify-center"
           style={{ opacity: pullDown.opacity, y: pullDown.y }}
         >
+          <motion.div
+            animate={{
+              opacity: isChromeVisible ? 1 : 0,
+              y: isChromeVisible ? 0 : 80,
+              filter: isChromeVisible ? 'blur(0px)' : 'blur(12px)',
+              scale: isChromeVisible ? 1 : 0.94,
+            }}
+            transition={{
+              duration: isChromeVisible ? 0.68 : 1.4,
+              ease: isChromeVisible ? [0.22, 1.4, 0.36, 1] : [0.32, 0, 0.67, 0],
+            }}
+            style={{ pointerEvents: isChromeVisible ? 'auto' : 'none' }}
+          >
           <SwipeActionButtonBar
             onLike={handleButtonLike}
             onDislike={handleButtonDislike}
@@ -1078,9 +1084,11 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
             }}
             onUndo={undoLastSwipe}
             onMessage={handleMessage}
+            onReport={handleReport}
             onCycleCategory={handleCycleCategory}
             canUndo={canUndo}
           />
+          </motion.div>
         </motion.div>
       )}
     </div>
@@ -1152,10 +1160,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
         document.body
       )}
 
-      <ConnectingOverlay 
-        isOpen={isConnecting}
-        recipientName={selectedListing?.title || selectedListing?.name || 'Resident'}
-      />
     </>
   );
 };

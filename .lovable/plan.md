@@ -1,45 +1,76 @@
-## What I'm fixing
+## Plan: Make messaging work from every chat button
 
-Three concrete bugs you keep hitting. The Supabase/GitHub sync part of your message is just context — your env is already pointing at the correct backend, and `client_profiles.occupation` already exists in the schema, so no migration needed.
+### 1. Lock all chat entry points to real backend users
+- Audit and update every `useStartConversation` caller:
+  - swipe card message button
+  - roommate matching
+  - liked clients/properties
+  - client profile views
+  - public listing preview
+  - worker/service discovery
+  - direct `/messages?startConversation=` deep links
+- Ensure every chat button passes a real backend `user_id` UUID, not demo/mock IDs or card/listing IDs.
+- Remove client-side quota gating from conversation starts so messaging is always allowed for authenticated users.
 
-### 1. Virtual ID Card doesn't update after editing
-**Root cause:** `VapIdCardModal` selects `bio, nationality, city, interests, personality_traits, preferred_activities` from `client_profiles` — but **not `occupation`**, even though the edit modal saves it. It also doesn't read `years_in_city` or `languages` (which the edit modal writes to `client_profiles.languages`, while the card reads `profiles.languages_spoken`). So saves succeed, cache invalidates, but the card never shows the new data because the query never asked for those columns.
+### 2. Replace fragile conversation creation with a reliable backend path
+- Add a backend RPC/function for starting or finding a conversation that:
+  - validates the signed-in sender
+  - resolves client/owner roles from `user_roles`
+  - creates exactly one conversation between the two users
+  - attaches `listing_id` when present
+  - inserts the first real message into `conversation_messages`
+  - returns the canonical `conversationId`
+- Add a uniqueness guard so repeated buttons from different app sections open the same conversation instead of creating duplicates.
+- Update `useStartConversation` to call this backend function instead of guessing roles on the frontend.
 
-**Fix:**
-- Add `occupation, years_in_city, languages` to the `client_profiles` select in `VapIdCardModal`.
-- Prefer `clientProfile.languages` over `profiles.languages_spoken` when present (edit modal only writes the client_profiles version).
-- Make both queries `staleTime: 0` and add a realtime subscription on `client_profiles` + `profiles` filtered by `user_id` so the card live-updates the moment Save is hit (or another device edits).
-- Keep `VapIdEditModal.handleSave` as-is (already hardened with upsert-via-select pattern).
+### 3. Guarantee delivery, realtime sync, and notifications
+- Consolidate duplicate conversation-message triggers so one clean trigger updates `last_message_at` and creates the recipient notification.
+- Verify realtime is enabled for:
+  - `conversations`
+  - `conversation_messages`
+  - `notifications`
+- Make inbox subscriptions refresh only conversations involving the current user.
+- Ensure the recipient sees:
+  - the conversation in `/messages`
+  - the real message in the chat thread
+  - unread count updates
+  - an in-app notification record
 
-### 2. Messages — read state + realtime
-**Symptoms:** unread badges stuck, new messages don't pop in without refresh.
+### 4. Remove mock/demo chat conflicts
+- Remove demo client profiles from smart client/roommate decks because those IDs cannot exist in the backend and cannot receive messages.
+- Keep listing/client decks ordered from backend data only.
+- Fix the frontend sorting override that currently reorders backend listing results after the RPC returns them.
 
-**Fix:**
-- `useMarkMessagesAsRead`: it's correct logic-wise but the realtime subscription doesn't invalidate the conversations list cache after marking read, so the unread counter on the inbox stays stale. After a successful mark-as-read, invalidate `['conversations', user.id]` and `['unread-message-count']`.
-- `useConversationMessages`: replace the full `refetch()` on every INSERT with an optimistic cache append (push payload.new into the React Query cache) so new messages appear instantly without a network round-trip; keep refetch as fallback.
-- `useConversations`: add a fan-out subscription on `conversation_messages` UPDATE events (currently only INSERT is watched) so when the other side reads our message, the "delivered → read" state updates live.
+### 5. Clear the chat window UI
+- Remove premium/token/activation overlays from the active chat interface.
+- Remove or disable the auto-opening welcome bonus modal so it cannot block messages.
+- Keep the chat screen focused on:
+  - conversation header
+  - message list
+  - typing area
+  - send button
+- Keep premium/token links only in settings/package pages, not blocking active chats.
 
-### 3. Saved Likes don't refresh after swipe-right
-**Root cause:** `useLikedProperties` has `staleTime: Infinity` + `refetchOnMount: false`. `useSwipeWithMatch` intentionally skips invalidating `['liked-properties']` (comment in code says "avoid refetch race"). Net effect: the user right-swipes, navigates to Likes, sees nothing new until manual pull-to-refresh.
+### 6. Validate with real backend data
+- Check current backend schema, RLS policies, triggers, and recent messaging rows.
+- Verify conversation creation works through the backend function.
+- Verify message insert creates the recipient notification.
+- Verify existing chat routes open a real conversation by ID.
+- Run targeted frontend tests/build verification after code changes.
 
-**Fix:**
-- After a successful right-swipe insert in `useSwipeWithMatch`, do an **optimistic cache update** on `['liked-properties']` / `['liked-clients']` (prepend the swiped item) instead of a full invalidate — preserves the no-race guarantee.
-- Verify `useLikesRealtime` is mounted at the app level (it lives in `src/hooks/useLikesRealtime.tsx`); if it isn't being mounted from `AppLayout`/`RootProviders`, mount it once globally so any like change anywhere refreshes the list.
-- Same treatment for `EventosLikes` (`target_type='event'` is already covered by the same hook).
+### Technical details
+- Main frontend files likely affected:
+  - `src/hooks/useConversations.tsx`
+  - `src/pages/MessagingDashboard.tsx`
+  - `src/components/MessagingInterface.tsx`
+  - `src/components/WelcomeBonusModal.tsx`
+  - `src/hooks/smartMatching/useSmartClientMatching.tsx`
+  - `src/hooks/smartMatching/useSmartListingMatching.tsx`
+  - chat-entry components/pages found in the audit
+- Backend migration likely affected:
+  - create `public.start_conversation_with_message(...)`
+  - add/repair conversation uniqueness and notification trigger behavior
+  - clean duplicate triggers on `conversation_messages`
 
-### What I'm NOT touching
-- Git/branch sync — that's a deployment concern; your workflows already handle it.
-- `VapIdEditModal.handleSave` logic (you said not to overwrite it).
-- Any schema migration — `occupation` is already in `client_profiles`.
-
-## Files I'll edit
-- `src/components/VapIdCardModal.tsx` — expand select, add realtime, staleTime 0
-- `src/hooks/useMarkMessagesAsRead.tsx` — invalidate conversations + unread count after mark
-- `src/hooks/useConversations.tsx` — UPDATE subscription + optimistic message append in `useConversationMessages`
-- `src/hooks/useSwipeWithMatch.tsx` — optimistic prepend to liked-properties / liked-clients on right swipe
-- `src/App.tsx` or `src/providers/RootProviders.tsx` — ensure `useLikesRealtime()` is mounted once globally (if not already)
-
-## Verification
-- ID card: edit occupation/bio/languages → hit Save → card behind updates without closing.
-- Messages: open a chat in two browsers → send from A → appears in B instantly + B's unread count clears for A after B opens it.
-- Likes: right-swipe a listing → tap Likes tab → item is at the top, no refresh needed.
+### Note
+I won’t run manual git push commands from the sandbox; Lovable’s normal sync will carry approved changes to the connected main branch.

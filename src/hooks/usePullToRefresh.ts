@@ -30,6 +30,8 @@ export function usePullToRefresh({
   const startY = useRef(0);
   const startX = useRef(0);
   const pulling = useRef(false);
+  // Tracks pull distance in handlers without re-triggering the effect on every move
+  const pullDistanceRef = useRef(0);
 
   const handleRefresh = useCallback(async () => {
     setIsRefreshing(true);
@@ -50,12 +52,14 @@ export function usePullToRefresh({
       }
     } finally {
       setIsRefreshing(false);
+      pullDistanceRef.current = 0;
       setPullDistance(0);
     }
   }, [queryClient, onRefresh]);
 
   useEffect(() => {
     if (disabled) {
+      pullDistanceRef.current = 0;
       setPullDistance(0);
       pulling.current = false;
       return;
@@ -75,7 +79,7 @@ export function usePullToRefresh({
 
     const onTouchMove = (e: TouchEvent) => {
       if (!pulling.current || disabled) return;
-      
+
       const currentY = e.touches[0].clientY;
       const currentX = e.touches[0].clientX;
       const dy = currentY - startY.current;
@@ -85,6 +89,7 @@ export function usePullToRefresh({
       // or if they are scrolling up, cancel the pull immediately.
       if (dy < 0 || (dx > Math.abs(dy) && dy < 20)) {
         pulling.current = false;
+        pullDistanceRef.current = 0;
         setPullDistance(0);
         return;
       }
@@ -92,6 +97,7 @@ export function usePullToRefresh({
       if (dy > 0) {
         // Rubber-band resistance: feels heavier the further you pull
         const distance = Math.min(dy * 0.45, threshold * 1.8);
+        pullDistanceRef.current = distance;
         setPullDistance(distance);
       }
     };
@@ -99,9 +105,11 @@ export function usePullToRefresh({
     const onTouchEnd = () => {
       if (!pulling.current || disabled) return;
       pulling.current = false;
-      if (pullDistance >= threshold) {
+      // Use ref value so this closure doesn't need pullDistance in the dep array
+      if (pullDistanceRef.current >= threshold) {
         handleRefresh();
       } else {
+        pullDistanceRef.current = 0;
         setPullDistance(0);
       }
     };
@@ -115,9 +123,7 @@ export function usePullToRefresh({
       el.removeEventListener('touchmove', onTouchMove);
       el.removeEventListener('touchend', onTouchEnd);
     };
-  }, [containerRef, threshold, isRefreshing, pullDistance, handleRefresh]);
+  }, [containerRef, threshold, isRefreshing, handleRefresh]);
 
   return { isRefreshing, pullDistance, triggered: pullDistance >= threshold };
 }
-
-

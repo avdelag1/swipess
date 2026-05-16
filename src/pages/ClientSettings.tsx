@@ -238,7 +238,7 @@ const ClientSettings = () => {
                 {group.items.map((item, idx) => (
                   <div key={item.label}>
                     <motion.button
-                      whileHover={{ backgroundColor: "rgba(255,255,255,0.03)" }}
+                      whileHover={{ backgroundColor: isLight ? "rgba(0,0,0,0.04)" : "rgba(255,255,255,0.04)" }}
                       whileTap={{ scale: 0.985 }}
                       onClick={() => {
                         if (item.section) setActiveSection(item.section);

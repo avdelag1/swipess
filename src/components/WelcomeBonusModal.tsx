@@ -7,40 +7,11 @@ import { useAuth } from '@/hooks/useAuth';
 import { useGuidedTourActive } from '@/state/guidedTourStore';
 
 export const WelcomeBonusModal = () => {
+  // Auto-show disabled — the modal was blocking core flows like messaging.
+  // The promotional content is still discoverable from the subscription pages.
   const [isOpen, setIsOpen] = useState(false);
   const { user } = useAuth();
   const tourActive = useGuidedTourActive((s) => s.isActive);
-
-  useEffect(() => {
-    if (!user?.id || !user?.created_at) return;
-
-    // Check if user is "new" (created within last 7 days)
-    let createdAt: Date;
-    try {
-      createdAt = new Date(user.created_at);
-      if (isNaN(createdAt.getTime())) return;
-    } catch { return; }
-    
-    const now = new Date();
-    const ageMs = now.getTime() - createdAt.getTime();
-    const sevenDaysMs = 7 * 24 * 60 * 60 * 1000;
-
-    if (ageMs > sevenDaysMs) {
-      return;
-    }
-
-    // Check if we've already shown this to this user
-    const hasSeen = localStorage.getItem(`Swipess_welcome_bonus_${user.id}`);
-    
-    if (!hasSeen) {
-      // Small delay for better UX
-      const timer = setTimeout(() => {
-        setIsOpen(true);
-        triggerHaptic('celebration');
-      }, 2500);
-      return () => clearTimeout(timer);
-    }
-  }, [user]);
 
   const handleClose = () => {
     setIsOpen(false);

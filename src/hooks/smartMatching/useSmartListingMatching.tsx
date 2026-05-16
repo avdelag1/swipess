@@ -1,33 +1,23 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useMemo, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Listing } from '../useListings';
+import type { Listing } from '../useListings';
 import { logger } from '@/utils/prodLogger';
 import { normalizeCategoryName } from '@/types/filters';
-import { ListingFilters } from './types';
+import type { ListingFilters } from './types';
 import { calculateListingMatch } from './matchCalculators';
 import { pwaImagePreloader, getCardImageUrl } from '@/utils/imageOptimization';
 import { runIdleTask } from '@/lib/utils';
 import { useAdminUserIds } from '../useAdminUserIds';
+import { SWIPE_CARD_FIELDS } from './swipeCardFields';
 
-export const SWIPE_CARD_FIELDS = `
-  id, title, description, price, images, video_url, city, neighborhood, beds, baths,
-  square_footage, category, listing_type, property_type, vehicle_brand,
-  vehicle_model, year, mileage, amenities, pet_friendly, furnished,
-  user_id, owner_id, created_at, updated_at, currency,
-  service_category, pricing_unit, experience_years, experience_level,
-  skills, days_available, time_slots_available, work_type, schedule_type,
-  location_type, service_radius_km, minimum_booking_hours,
-  certifications, tools_equipment,
-  offers_emergency_service, background_check_verified, insurance_verified,
-  motorcycle_type, bicycle_type, engine_cc, fuel_type, transmission,
-  electric_assist, battery_range, frame_size, frame_material,
-  latitude, longitude, status, is_active
-`;
+import { SWIPE_CARD_FIELDS } from './swipeCardFields';
 
-// Demos disabled — show real user listings only.
-const DEMO_LISTINGS: any[] = [];
-const _DEPRECATED_DEMO_LISTINGS: any[] = [
+// Demo listings — appended AFTER real listings so the deck is never empty
+// during testing. Each category (property / motorcycle / bicycle / worker)
+// uses photos that match the category, so users see relevant content per
+// filter even before real owners populate the marketplace.
+const DEMO_LISTINGS: any[] = [
   {
     id: 'demo-property-1-disabled',
     title: 'Ultra-Modern Tulum Penthouse',
@@ -410,20 +400,15 @@ export function useSmartListingMatching(
                     });
 
                     if (!rpcError && rpcListings && Array.isArray(rpcListings) && rpcListings.length > 0) {
+                        // Keep the deterministic order returned by the backend RPC so
+                        // every account sees the same listings in the same sequence.
                         const results = (rpcListings as any[])
                             .filter(l => !adminIds?.has(l.owner_id || l.user_id) && ['property', 'motorcycle', 'bicycle', 'worker', 'services'].includes(l.category))
                             .map(l => ({
                                 ...l,
                                 owner_id: l.owner_id || l.user_id,
                                 images: Array.isArray(l.images) ? l.images : (l.images ? [l.images] : [])
-                            }))
-                            .sort((a, b) => {
-                                const seedDelta = Number(isSeedListing(a)) - Number(isSeedListing(b));
-                                if (seedDelta !== 0) return seedDelta;
-                                const ta = new Date(a.updated_at || a.created_at || 0).getTime();
-                                const tb = new Date(b.updated_at || b.created_at || 0).getTime();
-                                return tb - ta;
-                            });
+                            }));
                         const withDemos = appendDemos(results);
 
                         // 🔥 SPEED OF LIGHT: PRE-WARM IMAGES IMMEDIATELY (Hardware-Aware)

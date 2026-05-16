@@ -209,7 +209,11 @@ export function FrequencyBand({
     const bandTranslate = containerWidth / 2 - renderOffset;
 
   return (
-    <div ref={containerRef} className={`relative overflow-hidden cursor-grab active:cursor-grabbing ${className}`} style={{ height: 80, touchAction: 'none' }}>
+    <div
+      ref={containerRef}
+      className={`relative overflow-hidden cursor-grab active:cursor-grabbing ${className}`}
+      style={{ height: 80, touchAction: 'none', contain: 'layout paint' }}
+    >
       {/* Fixed center indicator — red line */}
       <div className="absolute left-1/2 top-0 bottom-0 w-[2px] -translate-x-1/2 z-10" style={{ background: '#FF3B30' }}>
         <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full" style={{ background: '#FF3B30', boxShadow: '0 0 12px #FF3B30' }} />

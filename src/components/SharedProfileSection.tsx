@@ -157,10 +157,10 @@ export function SharedProfileSection({
       transition={{ type: 'spring', stiffness: 500, damping: 30 }}
     >
       <Card className={cn(
-        "backdrop-blur-3xl rounded-[2.5rem] border overflow-hidden",
+        "rounded-[2.5rem] overflow-hidden",
         isDark
-          ? "bg-[#0E0E10] border-white/[0.06] shadow-[0_24px_60px_-20px_rgba(0,0,0,0.6)]"
-          : "bg-white border-slate-200 shadow-[0_24px_60px_-24px_rgba(15,23,42,0.18)]"
+          ? "glass-surface glass-dark"
+          : "bg-white border border-slate-200 shadow-[0_24px_60px_-24px_rgba(15,23,42,0.18)]"
       )}>
         <CardContent className="p-7">
           <div className="flex items-center gap-5 mb-6">
@@ -178,8 +178,8 @@ export function SharedProfileSection({
           {/* Copy Link */}
           <div className="flex gap-3 mb-6">
             <div className={cn(
-              "flex-1 px-5 py-4 border rounded-[1.5rem] text-[11px] font-bold tracking-tight truncate flex items-center",
-              isDark ? "bg-white/[0.04] border-white/[0.08] text-white/80" : "bg-slate-50 border-slate-200 text-slate-700"
+              "flex-1 px-5 py-4 rounded-[1.5rem] text-[11px] font-bold tracking-tight truncate flex items-center",
+              isDark ? "glass-surface glass-dark text-white/80" : "bg-slate-50 border border-slate-200 text-slate-700"
             )}>
               {shareUrl}
             </div>
@@ -212,10 +212,10 @@ export function SharedProfileSection({
                 className="flex flex-col items-center gap-2 group transition-all active:scale-90"
               >
                 <div className={cn(
-                  "w-14 h-14 rounded-2xl flex items-center justify-center border transition-all",
+                  "w-14 h-14 rounded-2xl flex items-center justify-center transition-all",
                   isDark
-                    ? "bg-white/[0.06] border-white/10 group-hover:bg-white/[0.12]"
-                    : "bg-white border-slate-200 shadow-[0_8px_20px_-10px_rgba(15,23,42,0.18)] group-hover:shadow-[0_12px_28px_-10px_rgba(15,23,42,0.28)]"
+                    ? "glass-surface glass-dark group-hover:bg-white/[0.12]"
+                    : "bg-white border border-slate-200 shadow-[0_8px_20px_-10px_rgba(15,23,42,0.18)] group-hover:shadow-[0_12px_28px_-10px_rgba(15,23,42,0.28)]"
                 )}>
                   {btn.icon}
                 </div>
