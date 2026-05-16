@@ -101,7 +101,7 @@ function OwnerProfileDialogComponent({ open, onOpenChange }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={(v) => { triggerHaptic('light'); onOpenChange(v); }}>
-      <DialogContent hideCloseButton className={cn("owner-profile-dialog sm:max-w-3xl max-h-[92vh] flex flex-col p-0 gap-0 overflow-hidden rounded-[3rem]", isLight ? "light-profile-dialog border-border bg-background text-foreground shadow-[0_30px_90px_hsl(var(--foreground)/0.16)]" : "border-border bg-background text-foreground shadow-[0_0_80px_hsl(var(--background)/1)]")}>
+      <DialogContent hideCloseButton className={cn("owner-profile-dialog sm:max-w-3xl h-[92dvh] max-h-[92dvh] flex flex-col p-0 gap-0 overflow-hidden rounded-[3rem]", isLight ? "light-profile-dialog border-border bg-background text-foreground shadow-[0_30px_90px_hsl(var(--foreground)/0.16)]" : "border-border bg-background text-foreground shadow-[0_0_80px_hsl(var(--background)/1)]")}>
         
         {/* 🛸 BRAND TERMINAL HEADER */}
         <div className={cn("relative px-8 pt-8 pb-6 border-b", isLight ? "border-border bg-gradient-to-b from-muted/50 to-transparent" : "border-border bg-gradient-to-b from-foreground/[0.03] to-transparent")}>
@@ -130,7 +130,7 @@ function OwnerProfileDialogComponent({ open, onOpenChange }: Props) {
            </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto overflow-x-hidden px-8 py-6 touch-pan-y overscroll-contain">
+        <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden px-8 py-6 touch-pan-y overscroll-contain" style={{ WebkitOverflowScrolling: 'touch' as any }}>
           <div className="space-y-12 pb-12">
             
             {/* 📸 BRAND ASSET REPOSITORY */}

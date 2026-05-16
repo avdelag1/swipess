@@ -314,7 +314,7 @@ export default function EventosFeed() {
 
   return (
     <div
-      className="relative w-full flex flex-col items-center justify-start bg-[#0a0a0b] min-h-screen"
+      className="relative w-full h-full flex-1 flex flex-col items-center justify-start bg-[#0a0a0b]"
     >
       {/* Atmospheric layer extends behind the fixed chrome so the photo
           content shows through transparent TopBar / BottomNavigation. */}
@@ -428,7 +428,8 @@ export default function EventosFeed() {
       ) : (
         <div 
           ref={parentRef} 
-          className="w-full h-[100dvh] overflow-y-auto snap-y snap-mandatory no-scrollbar"
+          className="w-full h-[100dvh] overflow-y-auto snap-y snap-mandatory no-scrollbar overscroll-y-auto"
+          style={{ WebkitOverflowScrolling: 'touch', overscrollBehaviorY: 'auto' } as React.CSSProperties}
         >
           <div style={{ height: `${rowVirtualizer.getTotalSize()}px`, position: 'relative' }}>
             {rowVirtualizer.getVirtualItems().map((virtualRow) => {
@@ -440,7 +441,7 @@ export default function EventosFeed() {
                   key={virtualRow.key} 
                   className="absolute top-0 left-0 w-full snap-start snap-always"
                   style={{ 
-                    height: '100vh', 
+                    height: '100dvh',
                     width: '100%',
                     transform: `translateY(${virtualRow.start}px)`
                   }}
