@@ -387,8 +387,6 @@ export function useConversationMessages(conversationId: string) {
               return [...cleaned, newMsg];
             });
           }
-          // Fallback refetch (in case sender profile metadata is needed)
-          refetch();
         }
       )
       .on(
@@ -477,9 +475,12 @@ export function useSendMessage() {
       const prevMessages = queryClient.getQueryData(['conversation-messages', conversationId]);
       const prevConversations = queryClient.getQueryData(['conversations', user?.id]);
 
+      // Stable client-side id that survives the temp->real swap so React keys don't change
+      const clientId = `cm-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
       // Optimistically add the new message to the message list
       const optimisticMessage = {
         id: `temp-${Date.now()}`,
+        client_id: clientId,
         conversation_id: conversationId,
         sender_id: user?.id,
         content: message,
@@ -543,9 +544,26 @@ export function useSendMessage() {
       }
       appToast.error('Failed to send message. Please try again.');
     },
+    onSuccess: (data, variables) => {
+      // Replace the optimistic temp message with the real one in place, preserving
+      // the stable client_id so the React key doesn't change and the bubble doesn't
+      // remount/replay its entry animation.
+      queryClient.setQueryData(['conversation-messages', variables.conversationId], (old: any[] | undefined) => {
+        if (!Array.isArray(old)) return old;
+        // If the real message is already in the list (real-time beat us), drop the optimistic.
+        if (old.some((m: any) => m.id === data.id)) {
+          return old.filter((m: any) => !(m.is_optimistic && m.sender_id === user?.id && (m.content === variables.message || m.message_text === variables.message)));
+        }
+        const idx = old.findIndex((m: any) => m.is_optimistic && m.sender_id === user?.id && (m.content === variables.message || m.message_text === variables.message));
+        if (idx === -1) return [...old, data];
+        const next = old.slice();
+        next[idx] = { ...data, client_id: old[idx].client_id, sender: old[idx].sender };
+        return next;
+      });
+    },
     onSettled: (data, error, variables) => {
-      // Refetch to ensure everything is in sync after the real update
-      queryClient.invalidateQueries({ queryKey: ['conversation-messages', variables.conversationId] });
+      // Lightweight invalidations only — the message list cache is managed in
+      // onMutate/onSuccess + real-time subscription to avoid re-render storms.
       queryClient.invalidateQueries({ queryKey: ['conversations', user?.id] });
       queryClient.invalidateQueries({ queryKey: ['unread-message-count'] });
     }

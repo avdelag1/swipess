@@ -1085,7 +1085,12 @@ const ClientSwipeContainerComponent = ({
             style={{ opacity: pullDown.opacity, y: pullDown.y }}
           >
             <motion.div
-              animate={{ opacity: isChromeVisible ? 1 : 0, y: isChromeVisible ? 0 : 10 }}
+              animate={{
+                opacity: isChromeVisible ? 1 : 0,
+                y: isChromeVisible ? 0 : 80,
+                filter: isChromeVisible ? 'blur(0px)' : 'blur(12px)',
+                scale: isChromeVisible ? 1 : 0.94,
+              }}
               transition={{
                 duration: isChromeVisible ? 0.68 : 1.4,
                 ease: isChromeVisible ? [0.22, 1.4, 0.36, 1] : [0.32, 0, 0.67, 0],
