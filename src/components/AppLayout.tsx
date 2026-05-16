@@ -21,7 +21,9 @@ const SwipessHud = lazyWithRetry(() => import('./SwipessHud').then(m => ({ defau
 const VapIdCardModal = lazyWithRetry(() => import('./VapIdCardModal').then(m => ({ default: m.VapIdCardModal })));
 const GlobalDialogs = lazyWithRetry(() => import('./GlobalDialogs').then(m => ({ default: m.GlobalDialogs })));
 import { ChromeSummonZones } from './swipe/ChromeSummonZones';
-import { revealChrome } from '@/hooks/useChromeReveal';
+import { revealChrome, useChromeReveal } from '@/hooks/useChromeReveal';
+import { useFilterStore } from '@/state/filterStore';
+import { useShallow } from 'zustand/react/shallow';
 
 
 const NotificationSystem = lazy(() =>
@@ -51,14 +53,24 @@ export function AppLayout({ children }: AppLayoutProps) {
     return path.startsWith('/client/dashboard') || path.startsWith('/owner/dashboard');
   }, [location.pathname]);
 
-  // Determine whether we're in the "swipe deck" phase (cards on screen) vs
-  // the "picking phase" (quick-filter poker cards visible).
-  // Chrome (TopBar + BottomNav) stays visible at all times on dashboard
-  // pages — no auto-hide on scroll, no tap-to-reveal. The previous reveal
-  // mode caused the buttons to disappear behind the swipe gesture, which
-  // hid the navigation.
-  const useRevealMode = false;
-  const hideFloatingForSwipe = false;
+  // Determine whether we're in the "swipe deck" phase (cards on screen)
+  // vs the "picking phase" (quick-filter poker cards visible). On the
+  // swipe deck we let the chrome auto-hide for a more immersive feel;
+  // outside the deck the chrome stays visible.
+  const { selectedCategoriesCount, ownerPhase } = useFilterStore(
+    useShallow((s) => ({
+      selectedCategoriesCount: s.categories.length,
+      ownerPhase: s.ownerPhase,
+    }))
+  );
+  const isClientDash = location.pathname.startsWith('/client/dashboard');
+  const isOwnerDash = location.pathname.startsWith('/owner/dashboard');
+  const swipeDeckActive =
+    (isClientDash && selectedCategoriesCount > 0) ||
+    (isOwnerDash && ownerPhase === 'swipe');
+  const { isChromeVisible } = useChromeReveal();
+  const useRevealMode = swipeDeckActive && !showAIChat;
+  const hideFloatingForSwipe = useRevealMode && !isChromeVisible;
 
   const userRole = useMemo<'client' | 'owner' | 'admin'>(() => {
     if (user?.user_metadata?.role === 'admin') return 'admin';
@@ -184,7 +196,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   
       {showAppChrome && (
         <Suspense fallback={null}>
-          <SwipessHud side="top" className="fixed top-0 left-0 right-0 z-[10005]" scrollTargetSelector="#dashboard-scroll-container" alwaysVisible={true} revealMode={useRevealMode}>
+          <SwipessHud side="top" className="fixed top-0 left-0 right-0 z-[10005]" scrollTargetSelector="#dashboard-scroll-container" alwaysVisible={!swipeDeckActive} revealMode={useRevealMode}>
             <TopBar
               userRole={userRole}
               onMessageActivationsClick={handleMessageActivationsClick}
@@ -222,7 +234,7 @@ export function AppLayout({ children }: AppLayoutProps) {
 
       {showAppChrome && (
         <Suspense fallback={null}>
-          <SwipessHud side="bottom" className="fixed bottom-0 left-0 right-0 z-[10005]" scrollTargetSelector="#dashboard-scroll-container" alwaysVisible={true} revealMode={useRevealMode}>
+          <SwipessHud side="bottom" className="fixed bottom-0 left-0 right-0 z-[10005]" scrollTargetSelector="#dashboard-scroll-container" alwaysVisible={!swipeDeckActive} revealMode={useRevealMode}>
             <BottomNavigation
               userRole={userRole}
               onFilterClick={handleFilterClick}

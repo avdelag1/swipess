@@ -583,10 +583,10 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           </div>
         )}
 
-        {/* Floating Action Rail — always visible on the top card so the
-            Share / Message / Insights / Report buttons don't auto-hide. */}
+        {/* Floating Action Rail — hides together with the rest of the
+            swipe-deck chrome so the card stays immersive. */}
         <AnimatePresence>
-          {isTop && !isZoomed && (
+          {isTop && isChromeVisible && !isZoomed && (
             <motion.div
               initial={{ opacity: 0, x: 20, scale: 0.9, filter: 'blur(10px)' }}
               animate={{
@@ -619,37 +619,25 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
                     btn.onClick?.();
                   }}
                   aria-label={btn.label}
-                  className="w-12 h-12 rounded-full flex items-center justify-center relative overflow-hidden group"
+                  className="w-12 h-12 rounded-full flex items-center justify-center relative bg-transparent border-none p-0 outline-none"
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    WebkitTapHighlightColor: 'transparent',
+                  }}
                 >
-                  {/* Frozen glass: heavy backdrop blur on a faint tinted
-                      surface so whatever's behind the card visibly
-                      shows through, plus an inset highlight and a soft
-                      drop shadow for depth. */}
-                  <div
-                    className="absolute inset-0 rounded-full"
-                    style={{
-                      background:
-                        'linear-gradient(135deg, rgba(255,255,255,0.18), rgba(255,255,255,0.04))',
-                      backdropFilter: 'blur(28px) saturate(1.8)',
-                      WebkitBackdropFilter: 'blur(28px) saturate(1.8)',
-                      border: '1px solid rgba(255,255,255,0.28)',
-                      boxShadow:
-                        'inset 0 1px 0 rgba(255,255,255,0.32), inset 0 -1px 0 rgba(0,0,0,0.10), 0 10px 28px -10px rgba(0,0,0,0.55)',
-                    }}
-                  />
-
+                  {/* No frame — frameless icon over the photo, matching
+                      the middle action buttons. Drop-shadow gives it
+                      legibility on bright backgrounds. */}
                   <btn.icon
                     color="#FFFFFF"
-                    className="w-5 h-5 relative z-10"
+                    className="w-7 h-7 relative z-10"
                     style={{
                       filter:
-                        'drop-shadow(0 2px 6px rgba(0,0,0,0.65)) drop-shadow(0 0 1px rgba(0,0,0,0.45))',
+                        'drop-shadow(0 2px 8px rgba(0,0,0,0.75)) drop-shadow(0 0 2px rgba(0,0,0,0.55))',
                     }}
                     strokeWidth={2.4}
                   />
-
-                  {/* Hover glow */}
-                  <div className="absolute inset-0 rounded-full bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
                 </motion.button>
               ))}
             </motion.div>
