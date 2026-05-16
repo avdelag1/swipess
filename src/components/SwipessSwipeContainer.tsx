@@ -1001,6 +1001,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
                           if (onListingTap) onListingTap(listing.id);
                         } : undefined}
                         onShare={isTopCard ? handleShare : undefined}
+                        onMessage={isTopCard ? handleMessage : undefined}
                         onReport={isTopCard ? () => {
                           setSelectedListing(listing);
                           setReportDialogOpen(true);

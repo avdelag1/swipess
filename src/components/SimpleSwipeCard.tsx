@@ -58,6 +58,7 @@ interface SimpleSwipeCardProps {
   onInsights?: () => void;
   onShare?: () => void;
   onReport?: () => void;
+  onMessage?: () => void;
   isTop?: boolean;
   externalX?: MotionValue<number>;
   externalY?: MotionValue<number>;
@@ -76,6 +77,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   onDragStart,
   onReport,
   onShare,
+  onMessage,
 }, ref) => {
   const { isLight } = useAppTheme();
   const { isChromeVisible } = useChromeReveal();
@@ -606,7 +608,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
             >
               {[
                 { icon: Share2, onClick: onShare, label: 'Share' },
-                { icon: MessageCircle, onClick: () => revealChrome(), label: 'Message' }, 
+                { icon: MessageCircle, onClick: onMessage, label: 'Message' },
                 { icon: BarChart3, onClick: onInsights, label: 'Insights' },
                 { icon: Flag, onClick: onReport, label: 'Report' },
               ].map((btn, idx) => (
@@ -618,18 +620,31 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
                     triggerHaptic('light');
                     btn.onClick?.();
                   }}
+                  aria-label={btn.label}
                   className="w-12 h-12 rounded-full flex items-center justify-center relative overflow-hidden group"
                 >
-                  {/* Frozen Glassmorphic Frame */}
-                  <div className="absolute inset-0 bg-white/15 backdrop-blur-[16px] border border-white/30 rounded-full shadow-[0_4px_12px_rgba(0,0,0,0.1)]" />
-                  
-                  <btn.icon 
-                    className="w-5 h-5 text-white relative z-10 drop-shadow-md" 
-                    strokeWidth={2.5}
+                  {/* Frosted glass frame — translucent white with strong blur,
+                      inset highlight, soft drop shadow. Matches the rest of
+                      the glass surfaces in the app. */}
+                  <div
+                    className="absolute inset-0 rounded-full"
+                    style={{
+                      background: 'rgba(255,255,255,0.10)',
+                      backdropFilter: 'blur(22px) saturate(1.6)',
+                      WebkitBackdropFilter: 'blur(22px) saturate(1.6)',
+                      border: '1px solid rgba(255,255,255,0.22)',
+                      boxShadow:
+                        'inset 0 1px 0 rgba(255,255,255,0.18), 0 8px 24px -10px rgba(0,0,0,0.55)',
+                    }}
                   />
-                  
-                  {/* Subtle Hover Glow */}
-                  <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+
+                  <btn.icon
+                    className="w-5 h-5 text-white relative z-10 drop-shadow-[0_2px_6px_rgba(0,0,0,0.55)]"
+                    strokeWidth={2.4}
+                  />
+
+                  {/* Hover glow */}
+                  <div className="absolute inset-0 rounded-full bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
                 </motion.button>
               ))}
             </motion.div>

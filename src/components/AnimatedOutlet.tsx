@@ -49,12 +49,15 @@ export function AnimatedOutlet() {
             isDashboardRoute
               ? { position: 'absolute', inset: 0, pointerEvents: 'none' }
               : {
-                  position: 'absolute',
-                  inset: 0,
+                  // Non-dashboard routes use normal flow + flex-1 to fill the
+                  // outer scroll container (#dashboard-scroll-container). That
+                  // container then provides the actual scrollbar. Absolute
+                  // positioning here would collapse the parent's content
+                  // height and break scrolling — which is exactly the
+                  // "profile page stuck" symptom we previously had.
+                  position: 'relative',
+                  width: '100%',
                   pointerEvents: 'auto',
-                  overflowY: 'auto',
-                  WebkitOverflowScrolling: 'touch',
-                  overscrollBehaviorY: 'contain',
                 }
           }
         >

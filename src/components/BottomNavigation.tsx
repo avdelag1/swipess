@@ -94,9 +94,11 @@ export const BottomNavigation = memo(({
   const { isLight } = useAppTheme();
   const { isChromeVisible } = useChromeReveal();
   const isDashboardRoute = /^\/(client|owner|admin)\/dashboard\/?/.test(location.pathname);
-  
-  // Immersive Logic: Hide BottomNav on dashboards unless explicitly revealed
-  const isActuallyVisible = !isDashboardRoute || isChromeVisible;
+
+  // BottomNav stays visible on every page, including dashboards. Previous
+  // behaviour auto-hid it during the swipe deck which broke navigation.
+  void isChromeVisible;
+  const isActuallyVisible = true;
   // Theme rule:
   //  - Dark theme (black filter): nav icons always WHITE everywhere.
   //  - Light theme (white filter): WHITE on dashboard (over photos),
@@ -278,6 +280,14 @@ export const BottomNavigation = memo(({
   };
 
   const iconColorInactive = 'var(--icon-inactive)';
+
+  // Light theme uses a vibrant violet/indigo for the active item so it's
+  // visible against the near-white glass pill. Dark theme keeps white.
+  // The active item also picks up a neon halo via drop-shadow.
+  const activeColor = isLight && !isDashboardRoute ? '#7C3AED' : '#FFFFFF';
+  const activeGlow = isLight && !isDashboardRoute
+    ? 'drop-shadow(0 0 6px rgba(124,58,237,0.55)) drop-shadow(0 0 14px rgba(99,102,241,0.35))'
+    : 'drop-shadow(0 0 6px rgba(255,255,255,0.45))';
   return (
     <nav
       role="navigation"
@@ -416,10 +426,11 @@ export const BottomNavigation = memo(({
                     style={{
                       width: isTablet ? ICON_SIZE_TABLET : (isNarrow ? 16 : ICON_SIZE),
                       height: isTablet ? ICON_SIZE_TABLET : (isNarrow ? 16 : ICON_SIZE),
-                      color: active ? '#FFFFFF' : (isLight && !isDashboardRoute ? 'rgba(0,0,0,0.78)' : 'rgba(255,255,255,0.92)'),
+                      color: active ? activeColor : (isLight && !isDashboardRoute ? 'rgba(0,0,0,0.78)' : 'rgba(255,255,255,0.92)'),
                       fill: 'none',
-                      strokeWidth: active ? 2 : 1.7,
-                      transition: 'color 160ms ease-out, stroke-width 160ms ease-out',
+                      strokeWidth: active ? 2.4 : 1.7,
+                      filter: active ? activeGlow : undefined,
+                      transition: 'color 160ms ease-out, stroke-width 160ms ease-out, filter 160ms ease-out',
                     }}
                   />
                 </div>
@@ -432,8 +443,9 @@ export const BottomNavigation = memo(({
                         isTablet ? 'text-[11px]' : 'text-[8px]',
                       )}
                       style={{
-                        color: active ? '#FFFFFF' : (isLight && !isDashboardRoute ? 'rgba(0,0,0,0.78)' : 'rgba(255,255,255,0.92)'),
-                        transition: 'color 160ms ease-out',
+                        color: active ? activeColor : (isLight && !isDashboardRoute ? 'rgba(0,0,0,0.78)' : 'rgba(255,255,255,0.92)'),
+                        textShadow: active && isLight && !isDashboardRoute ? '0 0 8px rgba(124,58,237,0.45)' : undefined,
+                        transition: 'color 160ms ease-out, text-shadow 160ms ease-out',
                         zIndex: 1,
                       }}
                     >
