@@ -213,8 +213,8 @@ export function ReportDialog({
                 onClick={() => onOpenChange(false)}
                 className={cn(
                   "flex-1 h-12 rounded-2xl font-semibold text-sm transition-all",
-                  isLight ? "border-slate-300 text-slate-700 hover:bg-slate-100"
-                          : "border-white/15 text-white/80 hover:bg-white/5"
+                  isLight ? "bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200"
+                          : "bg-white/10 border-white/20 text-white hover:bg-white/15"
                 )}
                 disabled={createReport.isPending}
               >

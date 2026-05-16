@@ -941,10 +941,18 @@ export function ClientPreferencesDialog({ open, onOpenChange }: ClientPreference
         </Tabs>
 
         <DialogFooter className="px-6 py-4 border-t">
-          <Button variant="ghost" onClick={() => onOpenChange(false)}>
+          <Button 
+            variant="ghost" 
+            onClick={() => onOpenChange(false)}
+            className="rounded-xl font-bold"
+          >
             Cancel
           </Button>
-          <Button onClick={handleSave} disabled={isLoading}>
+          <Button 
+            onClick={handleSave} 
+            disabled={isLoading}
+            className="rounded-xl font-bold bg-foreground text-background hover:opacity-90"
+          >
             {isLoading ? 'Saving...' : 'Save Preferences'}
           </Button>
         </DialogFooter>
