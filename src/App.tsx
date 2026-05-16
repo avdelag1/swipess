@@ -137,9 +137,8 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
         <NativeProvider>
           <AppLayout>
             <TooltipProvider>
-            <WelcomeBonusModal />
-
           <Suspense fallback={null}>
+            <WelcomeBonusModal />
             <GuidedTourLazy />
             <PWAInstallPrompt />
           </Suspense>

@@ -13,7 +13,7 @@
  */
 
 import { memo, useRef, useState, useCallback, useMemo, useEffect, forwardRef, useImperativeHandle } from 'react';
-import { motion, useMotionValue, useTransform, PanInfo, animate, useDragControls, MotionValue } from 'framer-motion';
+import { motion, useMotionValue, useTransform, PanInfo, animate, useDragControls, MotionValue, AnimatePresence } from 'framer-motion';
 import { triggerHaptic } from '@/utils/haptics';
 import { getCardImageUrl } from '@/utils/imageOptimization';
 import { Listing } from '@/hooks/useListings';
@@ -268,6 +268,15 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
     if (dragAxisRef.current === 'x') y.set(0);
     if (dragAxisRef.current === 'y') x.set(0);
   }, [x, y]);
+
+  // SPEED OF LIGHT: Auto-reveal protocol
+  // When a card becomes the top card, briefly reveal the chrome (header/nav/buttons)
+  // so the user sees the available controls before they smoothly fade away.
+  useEffect(() => {
+    if (isTop && !isZoomed) {
+      revealChrome();
+    }
+  }, [isTop, isZoomed]);
 
   const handleDragEnd = useCallback((_: any, info: PanInfo) => {
     const dx = info.offset.x;
@@ -576,11 +585,24 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
         <AnimatePresence>
           {isTop && isChromeVisible && !isZoomed && (
             <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 20 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-              className="absolute right-4 bottom-[calc(var(--bottom-nav-height,72px)+160px)] z-50 flex flex-col gap-4"
+              initial={{ opacity: 0, x: 20, scale: 0.9, filter: 'blur(10px)' }}
+              animate={{ 
+                opacity: 1, 
+                x: 0, 
+                scale: 1, 
+                filter: 'blur(0px)' 
+              }}
+              exit={{ 
+                opacity: 0, 
+                x: 10, 
+                scale: 0.96, 
+                filter: 'blur(12px)' 
+              }}
+              transition={{ 
+                duration: isChromeVisible ? 0.68 : 1.4,
+                ease: isChromeVisible ? [0.22, 1.4, 0.36, 1] : [0.32, 0, 0.67, 0]
+              }}
+              className="absolute right-4 bottom-[calc(var(--bottom-nav-height,72px)+160px)] z-50 flex flex-col gap-5"
             >
               {[
                 { icon: Share2, onClick: onShare, label: 'Share', color: 'white' },

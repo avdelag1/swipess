@@ -91,7 +91,7 @@ export default defineConfig(({ mode }) => ({
             if (id.includes('react-router')) return 'vendor-router';
 
             // ISOLATED HEAVY LIBRARIES — maximize cache persistence
-            if (id.includes('framer-motion')) return 'vendor-motion';
+            if (id.includes('framer-motion') || id.includes('motion-dom') || id.includes('motion-utils')) return 'vendor-motion';
             if (id.includes('@radix-ui')) return 'vendor-radix';
             if (id.includes('@supabase')) return 'vendor-supabase';
             if (id.includes('lucide-react') || id.includes('react-icons')) return 'vendor-icons';
