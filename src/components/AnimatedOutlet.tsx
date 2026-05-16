@@ -46,12 +46,14 @@ export function AnimatedOutlet() {
 
   // Non-dashboard routes: render the outlet inline as a normal block so
   // its content participates in the outer scroll container's layout.
-  // No AnimatePresence + absolute positioning here — that was collapsing
-  // the parent's content height and making pages feel "stuck".
+  // CRITICAL: no `flex-1` here — that would lock this wrapper to the
+  // parent's allocated height and clip tall pages, breaking scroll on
+  // the outer #dashboard-scroll-container. Plain `w-full` lets the
+  // wrapper grow with its content.
   return (
     <div
       key={location.pathname}
-      className="min-h-full w-full flex flex-col flex-1 bg-background"
+      className="w-full bg-background"
       style={{ position: 'relative', pointerEvents: 'auto' }}
     >
       <Suspense fallback={null}>

@@ -92,12 +92,13 @@ export const BottomNavigation = memo(({
   const { unreadCount: _unreadCount } = useUnreadMessageCount();
   const { unreadCount: _unreadNotifCount } = useUnreadNotifications();
   const { isLight } = useAppTheme();
-  const { isChromeVisible } = useChromeReveal();
+  useChromeReveal();
   const isDashboardRoute = /^\/(client|owner|admin)\/dashboard\/?/.test(location.pathname);
 
-  // Immersive logic: BottomNav auto-hides on the swipe deck (re-summoned
-  // by tapping the bottom edge). Always visible on every other page.
-  const isActuallyVisible = !isDashboardRoute || isChromeVisible;
+  // Visibility policy: BottomNav is always rendered. The SwipessHud
+  // wrapper above this component drives the actual show/hide via its
+  // `alwaysVisible` flag (on dashboards) vs scroll-direction (elsewhere).
+  const isActuallyVisible = true;
   // Theme rule:
   //  - Dark theme (black filter): nav icons always WHITE everywhere.
   //  - Light theme (white filter): WHITE on dashboard (over photos),
