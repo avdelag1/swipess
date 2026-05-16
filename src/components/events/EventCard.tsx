@@ -4,8 +4,6 @@ import { Heart, MessageCircle, Share2, ChevronLeft, ChevronRight, ChevronUp, Cal
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
 import useAppTheme from '@/hooks/useAppTheme';
-import CardImage from '@/components/CardImage';
-import { LoopVideo } from '@/components/video/LoopVideo';
 import { EventItem } from '@/types/events';
 import { CATEGORIES } from '@/data/eventsData';
 
@@ -74,7 +72,6 @@ export const EventCard = memo(({
   const isLight = theme === 'light';
   const [showDetails, setShowDetails] = useState(false);
   const [likeAnim, setLikeAnim] = useState(false);
-  const categoryFallback = CATEGORIES.find(c => c.key === event.category)?.img || CATEGORIES[0].img;
 
   const handleLike = () => {
     onLike();
@@ -101,38 +98,15 @@ export const EventCard = memo(({
         onComplete={onTickComplete}
       />
       
-      {/* Background photo with breathing-zoom */}
-      <div className="absolute inset-0 overflow-hidden">
-        <motion.div
-          initial={{ scale: 1.1, opacity: 0 }}
-          animate={{
-            scale: [1.02, 1.08, 1.02], 
-            opacity: 1,
-            filter: ["brightness(1)", "brightness(1.05)", "brightness(1)"],
-          }}
-          transition={{
-            scale: { duration: 10, repeat: Infinity, ease: "linear" },
-            filter: { duration: 10, repeat: Infinity, ease: "linear" },
-            opacity: { duration: 0.8 },
-          }}
-
-          className="w-full h-full transform-gpu"
-          style={{ willChange: 'transform', transform: 'translateZ(0)' }}
-        >
-          {event.video_url ? (
-            <LoopVideo src={event.video_url} poster={event.image_url || undefined} active={isActive && !isPaused} />
-          ) : (
-            <CardImage
-              src={event.image_url}
-              alt={event.title}
-              fallbackSrc={categoryFallback}
-              fullScreen
-              animate={true}
-              priority={isActive}
-            />
-          )}
-        </motion.div>
-      </div>
+      {/* Background — pure gradient, no external image loading */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background: `radial-gradient(ellipse at 30% 40%, ${activeColor}55 0%, transparent 55%),
+                       radial-gradient(ellipse at 80% 70%, ${activeColor}33 0%, transparent 50%),
+                       linear-gradient(160deg, #0d0d10 0%, #111117 50%, #0a0a0d 100%)`,
+        }}
+      />
 
       {/* Gradient overlays */}
       <div className={cn(
@@ -284,10 +258,14 @@ export const EventCard = memo(({
             )}
           >
             <div className="relative h-[45dvh]">
-              {event.image_url && (
-                <img src={event.image_url} className={cn("w-full h-full object-cover", isLight ? "opacity-80" : "opacity-90")} alt="" />
-              )}
-              <div className={cn("absolute inset-0", isLight ? "bg-gradient-to-t from-white via-white/40 to-transparent" : "bg-gradient-to-t from-black via-black/40 to-transparent")} />
+              <div
+                className="absolute inset-0"
+                style={{
+                  background: `radial-gradient(ellipse at 30% 50%, ${activeColor}44 0%, transparent 60%),
+                               linear-gradient(160deg, #0d0d10 0%, #111117 100%)`,
+                }}
+              />
+              <div className={cn("absolute inset-0", isLight ? "bg-gradient-to-t from-white via-white/40 to-transparent" : "bg-gradient-to-t from-black/80 via-black/20 to-transparent")} />
               <button 
                 onClick={() => setShowDetails(false)} 
                 className="absolute top-4 left-4 w-10 h-10 rounded-full flex items-center justify-center z-10 bg-black/50 backdrop-blur-md border border-white/20"
