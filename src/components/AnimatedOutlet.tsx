@@ -48,7 +48,14 @@ export function AnimatedOutlet() {
           style={
             isDashboardRoute
               ? { position: 'absolute', inset: 0, pointerEvents: 'none' }
-              : { position: 'absolute', inset: 0, pointerEvents: 'auto' }
+              : {
+                  position: 'absolute',
+                  inset: 0,
+                  pointerEvents: 'auto',
+                  overflowY: 'auto',
+                  WebkitOverflowScrolling: 'touch',
+                  overscrollBehaviorY: 'contain',
+                }
           }
         >
           <Suspense fallback={null}>
