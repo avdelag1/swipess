@@ -72,9 +72,22 @@ function TopBarComponent({
     ? () => window.history.length > 2 ? navigate(-1) : navigate(`/${isOwner ? 'owner' : 'client'}/dashboard`)
     : undefined);
 
-  // Frameless inner buttons — the outer cluster's .glass-surface pill
-  // provides the visible glassmorph frame, so each icon button itself
-  // is transparent (no double frame).
+  // Cluster pill: shared glass frame for the left/right icon groups.
+  // Mirrors the BottomNavigation pill so all three bars feel consistent.
+  // Inline style (not .glass-surface) so the ::before overlay can't wash
+  // out the icons inside.
+  const clusterPillStyle: React.CSSProperties = {
+    background: isLight ? 'rgba(255,255,255,0.55)' : 'rgba(20,20,24,0.45)',
+    backdropFilter: 'blur(24px) saturate(1.7)',
+    WebkitBackdropFilter: 'blur(24px) saturate(1.7)',
+    border: isLight ? '1px solid rgba(0,0,0,0.06)' : '1px solid rgba(255,255,255,0.10)',
+    boxShadow: isLight
+      ? '0 8px 24px -8px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.80)'
+      : '0 10px 30px -8px rgba(0,0,0,0.50), inset 0 1px 0 rgba(255,255,255,0.08)',
+  };
+
+  // Frameless inner buttons — the cluster pill provides the visible
+  // frame so each icon button itself is transparent.
   const glassPillStyle: React.CSSProperties = {
     background: 'transparent',
     border: 'none',
@@ -130,7 +143,10 @@ function TopBarComponent({
     >
       <div className="h-full w-full px-3 flex items-center justify-between relative">
 
-        <div className="flex min-w-0 items-center gap-1 pointer-events-auto glass-surface rounded-full px-2 py-1.5">
+        <div
+          className="flex min-w-0 items-center gap-1 pointer-events-auto rounded-full px-2 py-1.5"
+          style={clusterPillStyle}
+        >
           {onBack ? (
             <motion.button
               transition={TAP_SPRING}
@@ -209,7 +225,10 @@ function TopBarComponent({
         <div className="flex-1" />
 
         {/* RIGHT CLUSTER: single glass pill wrapping all action buttons */}
-          <div className="flex shrink-0 items-center gap-2 pointer-events-auto glass-surface rounded-full px-3 py-1.5">
+          <div
+            className="flex shrink-0 items-center gap-1 pointer-events-auto rounded-full px-2 py-1.5"
+            style={clusterPillStyle}
+          >
           {!minimal && (
             <>
                 <motion.button
