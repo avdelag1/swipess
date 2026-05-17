@@ -258,11 +258,6 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       }
       prevPathRef.current = location.pathname;
     }
-    // The non-dashboard pages now scroll inside #page-scroll-container
-    // (AnimatedOutlet). Reset that too on route change so each page
-    // starts at the top, not at the previous page's scroll position.
-    const pageEl = document.getElementById('page-scroll-container');
-    if (pageEl) pageEl.scrollTo({ top: 0, behavior: 'auto' });
   }, [location.pathname]);
 
   useLayoutEffect(() => {
