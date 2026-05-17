@@ -1008,53 +1008,45 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                   {isLoading && <TypingIndicator isSwipess={isSwipess} />}
                 </div>
 
-                <footer className={cn(
-                  "p-4 sm:p-6 transition-all duration-500 border-t relative z-20",
-                  isLight && !isSwipess ? "bg-white border-slate-100" : "bg-black border-white/5"
-                )}>
+                <footer className="p-4 sm:p-6 transition-all duration-500 relative z-20">
+                  {/* Subtle top border gradient line */}
+                  <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-border to-transparent opacity-50" />
+                  
                   <AnimatePresence>
                     {countdown !== null && (
                       <motion.div
                         initial={{ opacity: 0, y: 12, scale: 0.96 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 8, scale: 0.94 }}
-                        className={cn(
-                          "absolute -top-16 left-1/2 -translate-x-1/2 flex items-center gap-3 px-4 py-3 rounded-3xl border backdrop-blur-2xl shadow-2xl",
-                          isLight && !isSwipess ? "bg-foreground text-background border-foreground/20" : "bg-background text-foreground border-border"
-                        )}
+                        className="absolute -top-16 left-1/2 -translate-x-1/2 flex items-center gap-3 px-4 py-3 rounded-3xl border border-border/50 bg-background/95 backdrop-blur-2xl shadow-[0_20px_40px_hsl(var(--foreground)/0.1)]"
                       >
-                         <Timer className="w-4 h-4 text-primary" />
-                         <span className="text-[11px] font-black uppercase tracking-widest whitespace-nowrap">Send in</span>
-                         <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground text-sm font-black shadow-lg">{countdown}</span>
-                         <button onClick={cancelCountdown} className="flex h-8 w-8 items-center justify-center rounded-full bg-muted text-foreground hover:bg-muted/80 transition-all" aria-label="Cancel auto-send">
+                         <Timer className="w-4 h-4 text-[#FF3D00]" />
+                         <span className="text-[11px] font-black uppercase tracking-widest text-foreground whitespace-nowrap">Send in</span>
+                         <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#FF3D00] text-white text-sm font-black shadow-lg shadow-[#FF3D00]/30">{countdown}</span>
+                         <button onClick={cancelCountdown} className="flex h-8 w-8 items-center justify-center rounded-full bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-all shadow-inner" aria-label="Cancel auto-send">
                             <X className="w-4 h-4" />
                          </button>
                       </motion.div>
                     )}
                   </AnimatePresence>
 
-                  <div className="max-w-3xl mx-auto flex items-center gap-3">
-                    <div className={cn(
-                      "flex-1 min-w-0 relative flex items-center rounded-3xl transition-all duration-300 border group focus-within:shadow-[0_0_0_3px_hsl(var(--primary)/0.18)]",
-                      isLight && !isSwipess
-                        ? "bg-slate-50 border-foreground/15 focus-within:border-primary/60"
-                        : "bg-white/[0.06] border-white/15 focus-within:border-primary/60"
-                    )}>
-                       <div className="pl-2 flex items-center gap-1.5 self-center">
+                  <div className="max-w-3xl mx-auto flex items-end gap-3 relative">
+                    <div className="flex-1 min-w-0 relative flex items-center rounded-[2rem] transition-all duration-300 border border-border/50 bg-secondary/30 backdrop-blur-xl shadow-inner focus-within:bg-background focus-within:shadow-[0_0_0_4px_hsl(var(--primary)/0.15)] focus-within:border-primary/40 group overflow-hidden">
+                       <div className="pl-3 flex items-center gap-1.5 self-center">
                            <Popover>
                              <PopoverTrigger asChild>
-                                 <button className={cn("p-2.5 rounded-2xl transition-all border", isLight && !isSwipess ? "bg-foreground/15 border-foreground/20 text-foreground hover:bg-foreground/25" : "bg-white/10 border-white/10 text-white hover:bg-white/15")} aria-label="Auto-send timer">
-                                    <Timer className="w-4 h-4" strokeWidth={2.6} />
+                                 <button className="p-2.5 rounded-2xl transition-all text-muted-foreground hover:text-foreground hover:bg-secondary" aria-label="Auto-send timer">
+                                    <Timer className="w-5 h-5" strokeWidth={2} />
                                </button>
                              </PopoverTrigger>
-                            <PopoverContent side="top" className={cn("w-64 p-2 rounded-3xl border backdrop-blur-xl shadow-2xl", isLight && !isSwipess ? "bg-foreground text-background border-foreground/20" : "bg-background text-foreground border-border")}>
-                               <button onClick={() => { setAutoSendEnabled(!autoSendEnabled); triggerHaptic('light'); }} className="w-full flex items-center justify-between gap-4 p-4 rounded-2xl hover:bg-muted/20 transition-all" aria-pressed={autoSendEnabled}>
-                                  <span className="flex items-center gap-3 text-[11px] font-black uppercase tracking-widest">
-                                    <Timer className="w-4 h-4 text-primary" />
+                            <PopoverContent side="top" className="w-64 p-2 rounded-[2rem] border border-border/50 bg-background/95 backdrop-blur-2xl shadow-[0_20px_40px_hsl(var(--foreground)/0.15)]">
+                               <button onClick={() => { setAutoSendEnabled(!autoSendEnabled); triggerHaptic('light'); }} className="w-full flex items-center justify-between gap-4 p-4 rounded-3xl hover:bg-secondary transition-all" aria-pressed={autoSendEnabled}>
+                                  <span className="flex items-center gap-3 text-[11px] font-black uppercase tracking-widest text-foreground">
+                                    <Timer className="w-4 h-4 text-[#FF3D00]" />
                                     Auto-Send
                                   </span>
-                                  <div className={cn("w-12 h-7 rounded-full relative transition-all ring-1", autoSendEnabled ? "bg-primary ring-primary/30" : "bg-muted ring-border")}>
-                                     <div className={cn("absolute top-1 h-5 w-5 rounded-full shadow-md transition-all", autoSendEnabled ? "right-1 bg-primary-foreground" : isLight && !isSwipess ? "left-1 bg-background" : "left-1 bg-foreground")} />
+                                  <div className={cn("w-12 h-7 rounded-full relative transition-all ring-1 shadow-inner", autoSendEnabled ? "bg-[#FF3D00] ring-[#FF3D00]/30" : "bg-secondary ring-border")}>
+                                     <div className={cn("absolute top-1 h-5 w-5 rounded-full shadow-md transition-all", autoSendEnabled ? "right-1 bg-white" : "left-1 bg-background")} />
                                  </div>
                               </button>
                            </PopoverContent>
@@ -1064,48 +1056,55 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                             onPointerDown={startListening}
                             onPointerUp={stopListening}
                             onPointerCancel={stopListening}
-                            className={cn("p-2.5 rounded-2xl transition-all relative group", isListening ? "bg-primary text-primary-foreground shadow-[0_0_20px_hsl(var(--primary)/0.4)] scale-110" : isLight && !isSwipess ? "text-foreground/80 hover:bg-foreground/10 hover:text-foreground" : "text-white/80 hover:bg-white/10")}
+                            className={cn(
+                              "p-2.5 rounded-2xl transition-all relative group overflow-hidden",
+                              isListening 
+                                ? "bg-[#FF3D00] text-white shadow-[0_0_24px_rgba(255,61,0,0.4)] scale-110" 
+                                : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+                            )}
                           >
-                             {isListening ? <Mic className="w-4 h-4 animate-pulse" strokeWidth={2.6} /> : <Mic className="w-4 h-4" strokeWidth={2.6} />}
+                             {isListening ? <Mic className="w-5 h-5 animate-pulse relative z-10" strokeWidth={2} /> : <Mic className="w-5 h-5 relative z-10" strokeWidth={2} />}
                             {isListening && (
-                               <motion.div className="absolute -inset-1 rounded-2xl border border-primary" animate={{ opacity: [0.5, 0, 0.5], scale: [1, 1.2, 1] }} transition={{ duration: 1.5, repeat: Infinity }} />
+                               <motion.div className="absolute inset-0 bg-white/20 rounded-2xl" animate={{ scale: [1, 1.5, 1], opacity: [0.8, 0, 0.8] }} transition={{ duration: 1.5, repeat: Infinity }} />
                             )}
                          </button>
                        </div>
+                       
                        <textarea
                          value={input}
                          onChange={(e) => { setInput(e.target.value); cancelCountdown(); }}
                          placeholder={isListening ? "Listening... Speak now" : "Inquire for discovery..."}
                          rows={1}
-                          className={cn(
-                            "w-full bg-transparent border-none outline-none focus:ring-0 py-4 pl-2 pr-5 text-[15px] resize-none custom-scrollbar min-h-[52px] max-h-32 leading-6 transition-all self-center font-medium",
-                            isLight && !isSwipess
-                              ? "text-foreground placeholder:text-muted-foreground"
-                              : "text-white placeholder:text-white/55",
-                            isListening && "text-primary placeholder:text-primary/50"
-                          )}
+                         className={cn(
+                           "w-full bg-transparent border-none outline-none focus:ring-0 py-4 pl-3 pr-4 text-[16px] resize-none custom-scrollbar min-h-[56px] max-h-32 leading-relaxed transition-all self-center font-medium",
+                           isListening ? "text-[#FF3D00] placeholder:text-[#FF3D00]/50" : "text-foreground placeholder:text-muted-foreground"
+                         )}
                          onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
                        />
                     </div>
                     
-                       <button
-                         onClick={handleSend}
-                         disabled={!input.trim() || isLoading}
-                         className={cn(
-                           "h-12 w-12 shrink-0 rounded-full inline-flex items-center justify-center transition-all active:scale-90",
-                           isLight && !isSwipess
-                             ? "bg-[#0A0A0A] text-white shadow-[0_4px_16px_rgba(0,0,0,0.25)] border border-black/10 hover:bg-[#222]"
-                             : "bg-white text-black shadow-[0_4px_16px_rgba(255,255,255,0.15)] border border-white/20 hover:bg-white/90",
-                           (!input.trim() || isLoading) && "opacity-50 shadow-none"
-                         )}
-                         aria-label="Send message"
-                       >
-                         {isLoading ? (
-                           <RefreshCw className="h-5 w-5 animate-spin" strokeWidth={3} />
-                         ) : (
-                           <ArrowUp className="h-5 w-5" strokeWidth={3} />
-                         )}
-                       </button>
+                    <button
+                      onClick={handleSend}
+                      disabled={!input.trim() || isLoading}
+                      className={cn(
+                        "h-14 w-14 shrink-0 rounded-full inline-flex items-center justify-center transition-all duration-300 relative group overflow-hidden active:scale-90",
+                        (!input.trim() || isLoading) 
+                          ? "bg-secondary text-muted-foreground cursor-not-allowed border border-border/50" 
+                          : "bg-[#FF3D00] text-white shadow-[0_8px_24px_rgba(255,61,0,0.35)] hover:shadow-[0_12px_32px_rgba(255,61,0,0.5)] hover:bg-[#FF3D00]/90 border border-white/10 hover:scale-105"
+                      )}
+                      aria-label="Send message"
+                    >
+                      {/* Shine effect on active button */}
+                      {input.trim() && !isLoading && (
+                        <div className="absolute inset-0 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite] bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12" />
+                      )}
+                      
+                      {isLoading ? (
+                        <RefreshCw className="h-6 w-6 animate-spin relative z-10" strokeWidth={2.5} />
+                      ) : (
+                        <ArrowUp className="h-6 w-6 relative z-10" strokeWidth={2.5} />
+                      )}
+                    </button>
                   </div>
                 </footer>
               </div>
