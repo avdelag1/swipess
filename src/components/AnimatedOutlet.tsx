@@ -44,15 +44,23 @@ export function AnimatedOutlet() {
     );
   }
 
-  // Non-dashboard routes: render the outlet inline as a normal block so
-  // its content participates in the outer scroll container's layout.
-  // `flex-grow` lets this wrapper stretch beyond the viewport when its
-  // content is tall, pushing #dashboard-scroll-container into scroll.
-  // `min-h-full` guarantees short pages still fill the screen.
-  // NO `flex-1` — that clamps to the parent's allocated height and clips.
+  // Non-dashboard routes: AnimatedOutlet is INTENTIONALLY not a scroll
+  // container — #dashboard-scroll-container (in DashboardLayout) is the
+  // single owner of vertical scroll on these pages. Two stacked
+  // overflow:auto containers caused the chronic "scroll doesn't work"
+  // bug because the browser would commit touch gestures to the inner
+  // one and dead-end when scrollHeight === clientHeight.
+  //
+  // `flex-grow` + `min-h-full` lets the wrapper stretch with its
+  // content (so tall pages push the outer scroll container into
+  // overflow) and still fill the viewport when content is short.
+  // Keep the `page-scroll-container` id for backwards compatibility
+  // with code that querySelector'd it; useScrollDirection's fallback
+  // chain skips it (no overflow) and lands on the outer container.
   return (
     <div
       key={location.pathname}
+      id="page-scroll-container"
       className="w-full flex-grow min-h-full bg-background"
       style={{ position: 'relative', pointerEvents: 'auto' }}
     >
