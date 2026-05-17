@@ -1,4 +1,4 @@
-import React, { ReactNode, useState, useEffect, useCallback, useMemo, useRef, lazy, Suspense } from 'react'
+import React, { ReactNode, useState, useEffect, useCallback, useMemo, useRef, lazy, Suspense, useLayoutEffect } from 'react'
 import { useAuth } from "@/hooks/useAuth"
 import { useAnonymousDrafts } from "@/hooks/useAnonymousDrafts"
 import { supabase } from '@/integrations/supabase/client'
@@ -6,7 +6,7 @@ import { useAppNavigate } from "@/hooks/useAppNavigate";
 import { useLocation } from "react-router-dom";
 import { useResponsiveContext } from '@/contexts/ResponsiveContext'
 import { prefetchRoleRoutes, createLinkObserver } from '@/utils/routePrefetcher'
-import { useLayoutEffect } from 'react'
+// useLayoutEffect imported above with the main React import
 import useAppTheme from '@/hooks/useAppTheme'
 import { cn } from '@/lib/utils'
 import { useQueryClient } from '@tanstack/react-query'
@@ -210,12 +210,11 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
 
   const { resetFocus } = useFocusMode(6000);
 
-  useScrollDirection({
-    threshold: 20,
-    showAtTop: true,
-    targetSelector: '#dashboard-scroll-container',
-    resetTrigger: location.pathname
-  });
+  // 🧘 HUD VISIBILITY LOGIC
+  // We no longer call useScrollDirection here because it triggers full re-renders
+  // of the entire dashboard shell on every scroll frame. Instead, individual
+  // HUD components (TopBar, BottomNavigation) use SwipessHud which handles
+  // its own optimized scroll tracking via its own useScrollDirection instance.
 
   // EFFECTS
   useEffect(() => {
@@ -237,10 +236,17 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     };
   }, [location.pathname]);
 
+  // 🚀 SMART SCROLL RESTORATION
+  // Only scroll to top when navigating to a NEW page, not when staying on the same route.
+  // This prevents the "bounce back" issue on scrollable pages like Profile.
+  const prevPathRef = useRef(location.pathname);
   useLayoutEffect(() => {
-    const el = scrollContainerRef.current;
-    if (el) {
-      el.scrollTo({ top: 0, behavior: 'auto' });
+    if (prevPathRef.current !== location.pathname) {
+      const el = scrollContainerRef.current;
+      if (el) {
+        el.scrollTo({ top: 0, behavior: 'auto' });
+      }
+      prevPathRef.current = location.pathname;
     }
   }, [location.pathname]);
 
@@ -274,24 +280,23 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
         id="dashboard-scroll-container"
         className={cn(
           "flex-1 flex flex-col relative w-full min-h-0",
-          (isSwipeDeck || isFullScreenRoute) ? "overflow-hidden touch-none" : "overflow-y-auto scroll-area-momentum",
+          (isSwipeDeck || isFullScreenRoute) ? "overflow-hidden touch-none" : "overflow-y-auto",
           isSwipeDeck && "bg-swipe-frame"
         )}
         style={{
           WebkitOverflowScrolling: (isSwipeDeck || isFullScreenRoute) ? 'auto' : 'touch',
-          overscrollBehavior: (isSwipeDeck || isFullScreenRoute) ? 'none' : 'auto',
-          overscrollBehaviorY: (!isSwipeDeck && !isFullScreenRoute) ? 'contain' : 'none',
-          touchAction: (isSwipeDeck || isFullScreenRoute) ? 'none' : 'pan-y',
+          overscrollBehavior: (isSwipeDeck || isFullScreenRoute) ? 'none' : undefined,
+          touchAction: (isSwipeDeck || isFullScreenRoute) ? 'none' : undefined,
         }}
       >
         {/* INNER WRAPPER: full-screen routes (radio/camera) get no bottom-nav
             padding because they hide the chrome — leaving the padding causes
             a strip of body background to show beneath the page. */}
         <div className={cn(
-          "w-full",
+          "w-full flex flex-col min-h-0",
           (isSwipeDeck || isFullScreenRoute)
-            ? "flex flex-col min-h-0 h-full flex-1 overflow-hidden"
-            : "flex flex-col min-h-full flex-1 pt-[var(--top-bar-height)] pb-[var(--bottom-nav-height)]"
+            ? "h-full flex-1 overflow-hidden"
+            : "flex-grow min-h-full pt-[var(--top-bar-height)] pb-[var(--bottom-nav-height)]"
         )}>
           {children}
         </div>

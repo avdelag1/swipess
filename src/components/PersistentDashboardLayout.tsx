@@ -90,7 +90,7 @@ export function PersistentDashboardLayout() {
                 AnimatedOutlet re-enables pointer-events on its inner motion
                 container for non-dashboard routes. */}
             <div
-              className="relative flex-1 flex flex-col"
+              className="relative flex-grow flex flex-col"
               style={{ zIndex: 10, pointerEvents: isDashboardRoute ? 'none' : 'auto' }}
             >
               <Suspense fallback={null}>
