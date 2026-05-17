@@ -991,6 +991,7 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                         message={m} 
                         isUser={m.role === 'user'} 
                         isSwipess={isSwipess}
+                        isLight={isLight}
                         onCopy={() => handleCopy(m.content)}
                         onDelete={() => deleteMessage(m.id)}
                         onTranslate={handleTranslate}
