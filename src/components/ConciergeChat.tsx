@@ -1089,7 +1089,7 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                       className={cn(
                         "h-14 w-14 shrink-0 rounded-full inline-flex items-center justify-center transition-all duration-300 relative group overflow-hidden active:scale-90",
                         (!input.trim() || isLoading) 
-                          ? "bg-secondary text-muted-foreground cursor-not-allowed border border-border/50" 
+                          ? "bg-[#FF3D00]/15 text-[#FF3D00]/50 cursor-not-allowed border border-[#FF3D00]/20" 
                           : "bg-[#FF3D00] text-white shadow-[0_8px_24px_rgba(255,61,0,0.35)] hover:shadow-[0_12px_32px_rgba(255,61,0,0.5)] hover:bg-[#FF3D00]/90 border border-white/10 hover:scale-105"
                       )}
                       aria-label="Send message"

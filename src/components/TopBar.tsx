@@ -213,23 +213,21 @@ function TopBarComponent({
 
         <div className="flex-grow flex-1" />
 
-        {/* Center tap zone — a premium invisible tap target to go home */}
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center pointer-events-auto z-50">
-          <motion.button
-            whileTap={{ scale: 0.95 }}
-            onClick={() => {
-              haptics.tap();
-              if (onCenterTap) {
-                onCenterTap();
-              } else {
-                navigate(isOwner ? '/owner/dashboard' : '/client/dashboard');
-              }
-            }}
-            className="w-12 h-12 rounded-full flex items-center justify-center bg-transparent border-0 outline-none cursor-pointer"
-            title="Go to Dashboard"
-            aria-label="Go to Dashboard"
-          />
-        </div>
+        {/* Center tap zone — a premium completely invisible tap target to go home */}
+        <div 
+          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 flex items-center justify-center pointer-events-auto z-50 cursor-pointer"
+          style={{ background: 'transparent', WebkitTapHighlightColor: 'transparent' }}
+          onClick={() => {
+            haptics.tap();
+            if (onCenterTap) {
+              onCenterTap();
+            } else {
+              navigate(isOwner ? '/owner/dashboard' : '/client/dashboard');
+            }
+          }}
+          title="Go to Dashboard"
+          aria-label="Go to Dashboard"
+        />
 
         {/* RIGHT CLUSTER: single glass pill wrapping all action buttons */}
           <div
