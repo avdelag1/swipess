@@ -223,13 +223,13 @@ export function AppLayout({ children }: AppLayoutProps) {
       <main
         id="main-content"
         className={cn(
-          "w-full flex-1 relative z-0 flex flex-col",
+          "w-full flex-1 relative z-0 flex flex-col min-h-0",
           // Restore pt/pb for non-dashboard pages to prevent content overlap with floating header
           !isInsideDashboard && !isFullScreen && "pt-[var(--top-bar-height)] pb-[var(--bottom-nav-height)]",
           (isInsideDashboard || isFullScreen) ? "overflow-hidden" : "overflow-y-auto scroll-area-momentum"
         )}
       >
-        <div className="w-full flex-1 flex flex-col">
+        <div className="w-full flex-1 flex flex-col min-h-0">
           {children}
         </div>
       </main>
