@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { SwipessLogo } from './SwipessLogo';
+import { RefreshCw } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface Props {
@@ -92,16 +92,15 @@ export const PullToRefreshIndicator = memo(({ pullDistance, isRefreshing, trigge
               <div 
                 className="relative z-10 transition-transform duration-200"
                 style={{ 
-                  transform: `rotate(${isRefreshing ? 0 : rotation}deg) scale(${isRefreshing ? 1.1 : 1})`,
+                  transform: `rotate(${isRefreshing ? 0 : rotation}deg) scale(${isRefreshing ? 1.15 : 1})`,
                   filter: (triggered || isRefreshing) ? 'drop-shadow(0 0 12px rgba(255,255,255,0.8))' : 'none'
                 }}
               >
-                <SwipessLogo 
-                  variant="white" 
-                  size="md" 
+                <RefreshCw 
                   className={cn(
-                    "transition-all duration-300",
-                    (triggered || isRefreshing) ? "opacity-100" : "opacity-40"
+                    "w-7 h-7 text-white transition-all duration-300",
+                    (triggered || isRefreshing) ? "opacity-100 scale-110" : "opacity-40",
+                    isRefreshing && "animate-spin"
                   )} 
                 />
               </div>

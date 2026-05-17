@@ -224,20 +224,33 @@ function TopBarComponent({
           )}
         </div>
 
-        {/* Center tap zone — when not on the dashboard itself, tapping
-            between the two cluster pills navigates back to the dashboard
-            so the user has a single, predictable way to get home. */}
-        {onCenterTap ? (
-          <button
-            type="button"
-            onClick={() => { haptics.tap(); onCenterTap(); }}
-            aria-label="Go to dashboard"
-            className="flex-1 self-stretch pointer-events-auto cursor-pointer"
-            style={{ background: 'transparent', border: 'none' }}
-          />
-        ) : (
-          <div className="flex-1" />
-        )}
+        <div className="flex-grow flex-1" />
+
+        {/* Center tap zone — a premium near-invisible glass circle button to go home */}
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center pointer-events-auto z-50">
+          <motion.button
+            whileTap={{ scale: 0.9 }}
+            onClick={() => {
+              haptics.tap();
+              if (onCenterTap) {
+                onCenterTap();
+              } else {
+                navigate(isOwner ? '/owner/dashboard' : '/client/dashboard');
+              }
+            }}
+            className={cn(
+              "w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300",
+              "bg-white/[0.03] dark:bg-white/[0.01] border border-white/[0.06] shadow-sm",
+              "hover:bg-white/[0.08] hover:border-white/[0.12] active:bg-white/[0.15]",
+              "backdrop-blur-md"
+            )}
+            title="Go to Dashboard"
+            aria-label="Go to Dashboard"
+          >
+            {/* Extremely subtle center dot to hint at interaction without looking like a button */}
+            <div className="w-1.5 h-1.5 rounded-full bg-white/25 dark:bg-white/10" />
+          </motion.button>
+        </div>
 
         {/* RIGHT CLUSTER: single glass pill wrapping all action buttons */}
           <div
