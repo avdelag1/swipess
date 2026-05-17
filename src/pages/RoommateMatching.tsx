@@ -260,23 +260,23 @@ export default function RoommateMatching() {
                   <div className="absolute inset-0 bg-primary/20 blur-[60px] rounded-full animate-pulse" />
                   <div className={cn(
                     "w-32 h-32 rounded-[3.5rem] flex items-center justify-center border relative z-10",
-                    isLight ? "bg-white border-black/5 shadow-2xl" : "bg-zinc-900 border-white/5 shadow-2xl"
+                    "bg-card border-border/40 shadow-[0_30px_60px_-30px_rgba(0,0,0,0.45)]"
                   )}>
                     <Users className="w-14 h-14 text-primary" strokeWidth={1} />
                   </div>
                 </div>
                 <div className="space-y-3 max-w-lg">
-                  <h2 className={cn("text-xl md:text-2xl font-bold leading-snug", isLight ? "text-black" : "text-white")}>
+                  <h2 className="text-[22px] md:text-2xl font-semibold leading-snug tracking-tight text-foreground">
                     {t('roommates.noMoreMatches')}
                   </h2>
-                  <p className={cn("text-sm leading-relaxed", isLight ? "text-black/40" : "text-white/60")}>
+                  <p className="text-[13px] leading-relaxed text-muted-foreground">
                     Everyone has been matched. Check back later for new arrivals.
                   </p>
                 </div>
                 <motion.button
                   whileTap={{ scale: 0.95 }}
                   onClick={() => setCurrentIndex(0)}
-                  className="px-10 h-12 rounded-2xl bg-primary text-white font-semibold tracking-wide text-sm shadow-lg transition-colors duration-150"
+                  className="px-10 h-12 rounded-2xl bg-primary text-primary-foreground font-semibold tracking-tight text-sm shadow-[0_20px_40px_-20px_hsl(var(--primary)/0.55)] transition-transform duration-150 active:scale-95"
                 >
                   Find more
                 </motion.button>
