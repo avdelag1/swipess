@@ -35,7 +35,7 @@ class GlobalErrorBoundary extends Component<Props, State> {
       if (count < MAX_RELOADS_PER_MINUTE) {
         sessionStorage.setItem(RELOAD_KEY, String(count + 1));
         sessionStorage.setItem(RELOAD_TS_KEY, String(now));
-        setTimeout(() => window.location.reload(), 600);
+        setTimeout(() => window.location.replace(window.location.pathname + '?v=' + Date.now()), 600);
         return;
       }
       // Reload limit hit — clear potentially corrupted stores so next manual reload is clean
@@ -48,7 +48,7 @@ class GlobalErrorBoundary extends Component<Props, State> {
 
   private handleManualReload = () => {
     // Navigate to ?reset=1 which triggers full state wipe in main.tsx before React mounts
-    window.location.href = window.location.pathname + '?reset=1';
+    window.location.href = window.location.pathname + '?reset=1&t=' + Date.now();
   };
 
   public render() {

@@ -25,7 +25,7 @@ export class ChunkErrorBoundary extends Component<Props, State> {
         const last = Number(sessionStorage.getItem(RELOAD_KEY) || '0');
         if (Date.now() - last > 30000) {
           sessionStorage.setItem(RELOAD_KEY, String(Date.now()));
-          window.location.reload();
+          window.location.replace(window.location.pathname + '?v=' + Date.now());
           return { hasChunkError: true };
         }
       } catch {}
@@ -40,7 +40,7 @@ export class ChunkErrorBoundary extends Component<Props, State> {
         <div className="flex flex-col items-center justify-center min-h-[200px] gap-4 p-6 text-center">
           <p className="text-sm text-muted-foreground">Something went wrong loading this section.</p>
           <button
-            onClick={() => window.location.reload()}
+            onClick={() => window.location.replace(window.location.pathname + '?v=' + Date.now())}
             className="px-4 py-2 text-sm font-medium rounded-lg bg-primary text-primary-foreground"
           >
             Tap to retry

@@ -44,11 +44,11 @@ const handleEmergencyRecovery = async (reason: string) => {
     // 3. Clear version tracking to force fresh check
     localStorage.removeItem('Swipess_app_version');
     
-    // 4. Force hard reload from server
-    window.location.reload();
+    // 4. Force hard reload from server with cache bust
+    window.location.replace(window.location.pathname + '?v=' + Date.now());
   } catch (err) {
     console.error('[Emergency] Recovery failed:', err);
-    window.location.reload();
+    window.location.replace(window.location.pathname + '?v=' + Date.now());
   }
 };
 
@@ -123,6 +123,15 @@ async function resetPreviewRuntimeState() {
 }
 
 async function bootstrap() {
+  // Clean cache-buster from URL if it succeeded
+  if (typeof window !== 'undefined' && window.location.search.includes('v=')) {
+    try {
+      const url = new URL(window.location.href);
+      url.searchParams.delete('v');
+      window.history.replaceState({}, '', url.pathname + url.search);
+    } catch (_) {}
+  }
+
   // EMERGENCY RESET: ?reset=1 in URL wipes all state so users can escape crash loops
   if (window.location.search.includes('reset=1')) {
     try {
@@ -139,13 +148,14 @@ async function bootstrap() {
         await Promise.all(keys.map(k => caches.delete(k)));
       }
     } catch (_) {}
-    window.location.replace(window.location.pathname);
+    // Force cache bust on replace to completely bypass browser HTTP disk cache!
+    window.location.replace(window.location.pathname + '?v=' + Date.now());
     return;
   }
 
   const shouldReload = await resetPreviewRuntimeState();
   if (shouldReload) {
-    window.location.reload();
+    window.location.replace(window.location.pathname + '?v=' + Date.now());
     return;
   }
 

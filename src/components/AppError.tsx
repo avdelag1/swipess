@@ -14,7 +14,7 @@ export function AppError({ error, resetError }: AppErrorProps) {
   };
 
   const handleReload = () => {
-    window.location.reload();
+    window.location.replace(window.location.pathname + '?v=' + Date.now());
   };
 
   return (
