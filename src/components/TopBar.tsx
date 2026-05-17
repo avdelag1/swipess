@@ -77,16 +77,7 @@ function TopBarComponent({
   // reads as a pill against whatever's behind it (dark photo, black
   // theme, or light theme). Visible border so the pill edge is always
   // clear. Mirrors the BottomNavigation pill for visual consistency.
-  const clusterPillStyle: React.CSSProperties = {
-    background: isLight ? 'rgba(255,255,255,0.62)' : 'rgba(255,255,255,0.10)',
-    backdropFilter: 'blur(28px) saturate(1.8)',
-    WebkitBackdropFilter: 'blur(28px) saturate(1.8)',
-    border: isLight ? '1px solid rgba(0,0,0,0.08)' : '1px solid rgba(255,255,255,0.22)',
-    boxShadow: isLight
-      ? '0 10px 30px -8px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.85)'
-      : '0 10px 30px -8px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.18)',
-    overflow: 'visible',
-  };
+
 
   // Frameless inner buttons — the cluster pill provides the visible
   // frame so each icon button itself is transparent.
@@ -147,8 +138,12 @@ function TopBarComponent({
       <div className="h-full w-full px-3 flex items-center justify-between relative">
 
         <div
-          className="flex min-w-0 items-center gap-1 pointer-events-auto rounded-full px-2 py-1.5"
-          style={clusterPillStyle}
+          className="flex min-w-0 items-center gap-1 pointer-events-auto glass-surface rounded-full px-2 py-1.5"
+          style={{
+            filter: isLight
+              ? 'drop-shadow(0 4px 12px rgba(0,0,0,0.12))'
+              : 'drop-shadow(0 8px 32px rgba(0,0,0,0.45))',
+          }}
         >
           {onBack ? (
             <motion.button
@@ -227,10 +222,10 @@ function TopBarComponent({
 
         <div className="flex-grow flex-1" />
 
-        {/* Center tap zone — a premium near-invisible glass circle button to go home */}
+        {/* Center tap zone — a premium invisible tap target to go home */}
         <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center pointer-events-auto z-50">
           <motion.button
-            whileTap={{ scale: 0.9 }}
+            whileTap={{ scale: 0.95 }}
             onClick={() => {
               haptics.tap();
               if (onCenterTap) {
@@ -239,24 +234,20 @@ function TopBarComponent({
                 navigate(isOwner ? '/owner/dashboard' : '/client/dashboard');
               }
             }}
-            className={cn(
-              "w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300",
-              "bg-white/[0.03] dark:bg-white/[0.01] border border-white/[0.06] shadow-sm",
-              "hover:bg-white/[0.08] hover:border-white/[0.12] active:bg-white/[0.15]",
-              "backdrop-blur-md"
-            )}
+            className="w-12 h-12 rounded-full flex items-center justify-center bg-transparent border-0 outline-none cursor-pointer"
             title="Go to Dashboard"
             aria-label="Go to Dashboard"
-          >
-            {/* Extremely subtle center dot to hint at interaction without looking like a button */}
-            <div className="w-1.5 h-1.5 rounded-full bg-white/25 dark:bg-white/10" />
-          </motion.button>
+          />
         </div>
 
         {/* RIGHT CLUSTER: single glass pill wrapping all action buttons */}
           <div
-            className="flex shrink-0 items-center gap-1 pointer-events-auto rounded-full px-2 py-1.5"
-            style={clusterPillStyle}
+            className="flex shrink-0 items-center gap-1 pointer-events-auto glass-surface rounded-full px-2 py-1.5"
+            style={{
+              filter: isLight
+                ? 'drop-shadow(0 4px 12px rgba(0,0,0,0.12))'
+                : 'drop-shadow(0 8px 32px rgba(0,0,0,0.45))',
+            }}
           >
           {!minimal && (
             <>
