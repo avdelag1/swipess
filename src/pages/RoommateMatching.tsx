@@ -1,10 +1,10 @@
 import { useState, useMemo, useRef, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { NativeStore } from '@/utils/nativeStore';
-import { 
-  Users, MapPin, Briefcase, Clock, Sparkles, X, 
+import {
+  Users, MapPin, Briefcase, Clock, Sparkles, X,
   Settings2, ShieldCheck, Zap,
-  MessageCircle, Eye, EyeOff
+  MessageCircle, Eye, EyeOff, ArrowLeft,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { triggerHaptic } from '@/utils/haptics';
@@ -186,9 +186,50 @@ export default function RoommateMatching() {
     )}>
       <AtmosphericLayer variant="Swipes" />
 
-      {/* â”€â”€ IMMERSIVE CONTROLS â”€â”€ */}
-      <div className="fixed top-[calc(var(--top-bar-height,72px)+12px)] inset-x-0 z-[60] flex items-center justify-center px-6 pointer-events-none">
-        <div className="flex items-center gap-2 pointer-events-auto">
+      {/* ── IMMERSIVE CONTROLS ── */}
+      {/* Back button — top left. Matches the events page so users have
+          a consistent way to leave full-immersive screens. */}
+      <div
+        className="fixed left-4 z-[60] pointer-events-none"
+        style={{ top: 'calc(env(safe-area-inset-top, 0px) + 12px)' }}
+      >
+        <motion.button
+          whileTap={{ scale: 0.92 }}
+          onClick={() => { triggerHaptic('light'); navigate(-1); }}
+          aria-label="Back"
+          className={cn(
+            "pointer-events-auto w-10 h-10 rounded-full flex items-center justify-center shadow-lg border",
+            isLight
+              ? "bg-white/85 border-black/10 text-slate-800"
+              : "bg-black/55 border-white/15 text-white"
+          )}
+          style={{
+            backdropFilter: 'blur(20px) saturate(1.6)',
+            WebkitBackdropFilter: 'blur(20px) saturate(1.6)',
+          }}
+        >
+          <ArrowLeft className="w-5 h-5" />
+        </motion.button>
+      </div>
+
+      {/* Centered control cluster — visibility toggle + filters share a
+          single glass pill so the buttons read as one unit. */}
+      <div
+        className="fixed inset-x-0 z-[60] flex items-center justify-center px-6 pointer-events-none"
+        style={{ top: 'calc(env(safe-area-inset-top, 0px) + 12px)' }}
+      >
+        <div
+          className={cn(
+            "flex items-center gap-1 pointer-events-auto rounded-full p-1 border shadow-xl",
+            isLight
+              ? "bg-white/85 border-black/10"
+              : "bg-black/55 border-white/15"
+          )}
+          style={{
+            backdropFilter: 'blur(20px) saturate(1.6)',
+            WebkitBackdropFilter: 'blur(20px) saturate(1.6)',
+          }}
+        >
           <motion.button
             whileTap={{ scale: 0.95 }}
             onClick={() => { triggerHaptic('light'); setRoommateVisible(!roommateVisible); }}
@@ -198,29 +239,27 @@ export default function RoommateMatching() {
                 ? "bg-primary border-primary text-primary-foreground"
                 : isLight ? "bg-card/80 border-border/60 text-foreground" : "bg-card/40 border-border/40 text-foreground/85"
             )}
-            style={{ willChange: 'transform, opacity' }}
           >
             {roommateVisible
               ? <Eye className="w-4 h-4 shrink-0" />
               : <EyeOff className="w-4 h-4 shrink-0" />
             }
-            <span className="text-xs font-semibold tracking-wide">
+            <span className="text-[11px] font-bold tracking-wide">
               {roommateVisible ? 'Visible' : 'Hidden'}
             </span>
           </motion.button>
 
           <motion.button
-            whileTap={{ scale: 0.88 }}
+            whileTap={{ scale: 0.92 }}
             onClick={() => setShowFilters(true)}
             aria-label="Filters"
             className={cn(
               "px-4 h-11 rounded-2xl flex items-center gap-2 border backdrop-blur-xl shadow-lg transition-[transform,background-color] duration-200 ease-out active:scale-95",
               isLight ? "bg-card/80 border-border/60 text-foreground" : "bg-card/40 border-border/40 text-foreground"
             )}
-            style={{ willChange: 'transform, opacity' }}
           >
             <Settings2 className="w-4 h-4" />
-            <span className="text-xs font-semibold tracking-wide">Filters</span>
+            <span className="text-[11px] font-bold tracking-wide">Filters</span>
           </motion.button>
         </div>
       </div>

@@ -301,7 +301,10 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
             draggable={false}
           />
         </AnimatePresence>
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+        {/* Stronger bottom-to-top dark scrim so the title + subtitle
+            always read as white over any photo — bright tan/beach
+            backgrounds were washing the text out before. */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
 
         {/* Breathing existence hints — only on the top card AND only on
             capable devices. On low-end Android the four pulsing dots
@@ -331,13 +334,25 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
                className="flex items-center gap-2"
             >
               <div className="w-4 h-[1px] shadow-[0_0_8px_rgba(255,255,255,0.4)] bg-white/40" />
-              <span className="text-[10px] font-black uppercase tracking-[0.4em] italic text-white/80">{card.description}</span>
+              <span
+                className="text-[10px] font-black uppercase tracking-[0.4em] italic text-white"
+                style={{ textShadow: '0 2px 6px rgba(0,0,0,0.7)' }}
+              >
+                {card.description}
+              </span>
             </motion.div>
             
-            <h3 className={cn(
-              "font-black tracking-[calc(-0.06em)] leading-[0.85] uppercase italic text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]",
-              card.label.length <= 8 ? "text-5xl" : card.label.length <= 10 ? "text-4xl" : "text-3xl"
-            )}>
+            <h3
+              className={cn(
+                "font-black tracking-[calc(-0.06em)] leading-[0.85] uppercase italic text-white",
+                card.label.length <= 8 ? "text-5xl" : card.label.length <= 10 ? "text-4xl" : "text-3xl"
+              )}
+              style={{
+                color: '#FFFFFF',
+                textShadow:
+                  '0 2px 8px rgba(0,0,0,0.85), 0 0 2px rgba(0,0,0,0.7)',
+              }}
+            >
               {card.label}
             </h3>
           </div>

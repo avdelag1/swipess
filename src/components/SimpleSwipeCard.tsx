@@ -496,12 +496,14 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
             <div
               className="inline-flex flex-col w-fit max-w-full px-4 py-3 rounded-3xl"
               style={{
-                background: 'rgba(8, 10, 14, 0.55)',
-                backdropFilter: 'blur(24px) saturate(1.6)',
-                WebkitBackdropFilter: 'blur(24px) saturate(1.6)',
-                border: '1px solid rgba(255, 255, 255, 0.14)',
-                boxShadow: '0 12px 32px -12px rgba(0, 0, 0, 0.65)',
+                background: 'rgba(255, 255, 255, 0.10)',
+                backdropFilter: 'blur(28px) saturate(1.8)',
+                WebkitBackdropFilter: 'blur(28px) saturate(1.8)',
+                border: '1px solid rgba(255, 255, 255, 0.20)',
+                boxShadow:
+                  '0 12px 32px -12px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.18)',
                 color: '#FFFFFF',
+                textShadow: '0 2px 6px rgba(0, 0, 0, 0.55)',
               }}
             >
               {(() => {
@@ -593,62 +595,60 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           </div>
         )}
 
-        {/* Floating Action Rail — always rendered on the top card. */}
+        {/* Floating Action Rail — Apple-style vertical glass pill.
+            Smooth fade + slide hide (no abrupt vanish) tied to the
+            swipe-deck chrome visibility. */}
         <AnimatePresence>
-          {isTop && !isZoomed && (
+          {isTop && isChromeVisible && !isZoomed && (
             <motion.div
-              initial={{ opacity: 0, x: 20, scale: 0.9, filter: 'blur(10px)' }}
-              animate={{
-                opacity: 1, 
-                x: 0, 
-                scale: 1, 
-                filter: 'blur(0px)' 
-              }}
-              exit={{ 
-                opacity: 0, 
-                x: 12, 
-                scale: 0.94, 
-                filter: 'blur(12px)' 
-              }}
-              transition={{ duration: 0.32, ease: [0.22, 1.4, 0.36, 1] }}
-              className="absolute right-4 bottom-[calc(var(--bottom-nav-height,72px)+160px)] z-50 flex flex-col gap-5"
+              initial={{ opacity: 0, x: 18, scale: 0.96, filter: 'blur(8px)' }}
+              animate={{ opacity: 1, x: 0, scale: 1, filter: 'blur(0px)' }}
+              exit={{ opacity: 0, x: 12, scale: 0.94, filter: 'blur(8px)' }}
+              transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+              className="absolute right-3 bottom-[calc(var(--bottom-nav-height,72px)+140px)] z-50"
             >
-              {[
-                { icon: Share2, onClick: onShare, label: 'Share' },
-                { icon: MessageCircle, onClick: onMessage, label: 'Message' },
-                { icon: BarChart3, onClick: onInsights, label: 'Insights' },
-                { icon: Flag, onClick: onReport, label: 'Report' },
-              ].map((btn, idx) => (
-                <motion.button
-                  key={idx}
-                  whileTap={{ scale: 0.9 }}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    triggerHaptic('light');
-                    btn.onClick?.();
-                  }}
-                  aria-label={btn.label}
-                  className="w-12 h-12 rounded-full flex items-center justify-center relative bg-transparent border-none p-0 outline-none"
-                  style={{
-                    background: 'transparent',
-                    border: 'none',
-                    WebkitTapHighlightColor: 'transparent',
-                  }}
-                >
-                  {/* No frame — frameless icon over the photo, matching
-                      the middle action buttons. Drop-shadow gives it
-                      legibility on bright backgrounds. */}
-                  <btn.icon
-                    color="#FFFFFF"
-                    className="w-7 h-7 relative z-10"
-                    style={{
-                      filter:
-                        'drop-shadow(0 2px 8px rgba(0,0,0,0.75)) drop-shadow(0 0 2px rgba(0,0,0,0.55))',
+              <div
+                className="flex flex-col gap-1.5 p-1.5 rounded-full"
+                style={{
+                  background: 'rgba(20, 20, 24, 0.42)',
+                  backdropFilter: 'blur(24px) saturate(1.8)',
+                  WebkitBackdropFilter: 'blur(24px) saturate(1.8)',
+                  border: '1px solid rgba(255, 255, 255, 0.14)',
+                  boxShadow:
+                    '0 10px 30px -8px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.10)',
+                }}
+              >
+                {[
+                  { icon: Share2, onClick: onShare, label: 'Share' },
+                  { icon: MessageCircle, onClick: onMessage, label: 'Message' },
+                  { icon: BarChart3, onClick: onInsights, label: 'Insights' },
+                  { icon: Flag, onClick: onReport, label: 'Report' },
+                ].map((btn, idx) => (
+                  <motion.button
+                    key={idx}
+                    whileTap={{ scale: 0.88 }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      triggerHaptic('light');
+                      btn.onClick?.();
                     }}
-                    strokeWidth={2.4}
-                  />
-                </motion.button>
-              ))}
+                    aria-label={btn.label}
+                    className="w-9 h-9 rounded-full flex items-center justify-center bg-transparent border-none p-0 outline-none"
+                    style={{
+                      background: 'transparent',
+                      border: 'none',
+                      WebkitTapHighlightColor: 'transparent',
+                    }}
+                  >
+                    <btn.icon
+                      color="#FFFFFF"
+                      className="w-[18px] h-[18px]"
+                      style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.45))' }}
+                      strokeWidth={1.8}
+                    />
+                  </motion.button>
+                ))}
+              </div>
             </motion.div>
           )}
         </AnimatePresence>

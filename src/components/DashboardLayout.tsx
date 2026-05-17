@@ -203,9 +203,19 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   }, [location.pathname]);
 
   // HOOKS THAT DEPEND ON MEMOS
+  // Pull-to-refresh listens on `scrollContainerRef` (#dashboard-scroll-
+  // container), but on non-dashboard pages the real scroll happens
+  // inside AnimatedOutlet's `#page-scroll-container`. Leaving PTR on
+  // would mean the outer container's `scrollTop` is always 0 → every
+  // downward touch starts a pull, eventually invalidating queries and
+  // re-rendering the page (which looked like a "snap-back" to the
+  // user). Only enable PTR on the actual dashboard.
+  const isDashboardPage = location.pathname.startsWith('/client/dashboard') ||
+    location.pathname.startsWith('/owner/dashboard');
+  const ptrDisabled = isSwipeDeck || !isDashboardPage;
   const { isRefreshing, pullDistance, triggered } = usePullToRefresh({
     containerRef: scrollContainerRef,
-    disabled: isSwipeDeck,
+    disabled: ptrDisabled,
   });
 
   const { resetFocus } = useFocusMode(6000);
@@ -248,6 +258,11 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       }
       prevPathRef.current = location.pathname;
     }
+    // The non-dashboard pages now scroll inside #page-scroll-container
+    // (AnimatedOutlet). Reset that too on route change so each page
+    // starts at the top, not at the previous page's scroll position.
+    const pageEl = document.getElementById('page-scroll-container');
+    if (pageEl) pageEl.scrollTo({ top: 0, behavior: 'auto' });
   }, [location.pathname]);
 
   useLayoutEffect(() => {

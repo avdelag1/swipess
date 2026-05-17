@@ -64,11 +64,21 @@ export const PropertyCardInfo = memo(({
   photoIndex = 0,
 }: PropertyCardInfoProps) => {
   const priceLabel = priceType === 'month' ? '/mo' : priceType === 'night' ? '/night' : priceType === 'sale' ? '' : '/yr';
-  const normalizedIndex = photoIndex % 4;
+
+  // Photo-paged info — each page shows a distinct slice of metadata.
+  // After the last page the overlay is empty so subsequent photos
+  // remain fully unobstructed (no looping repeats).
+  // 0: price + title + property type
+  // 1: beds / baths + location
+  // 2: rating
+  // 3+: nothing — let the photo speak.
+  if (photoIndex >= 3) {
+    return null;
+  }
 
   return (
     <div className={cn("space-y-1", className)}>
-      {normalizedIndex === 0 && (
+      {photoIndex === 0 && (
         <>
           <div className="flex items-baseline gap-1">
             <span className="font-bold text-white drop-shadow-lg" style={{ fontSize: FONT.headline }}>
@@ -90,7 +100,7 @@ export const PropertyCardInfo = memo(({
         </>
       )}
 
-      {normalizedIndex === 1 && (
+      {photoIndex === 1 && (
         <>
           <div className="flex items-center gap-3 text-white/90">
             {beds !== undefined && (
@@ -115,64 +125,8 @@ export const PropertyCardInfo = memo(({
         </>
       )}
 
-      {normalizedIndex === 2 && (
-        <>
-          {propertyType && (
-            <div className="font-bold text-white drop-shadow-lg" style={{ fontSize: FONT.headline }}>
-              {propertyType}
-            </div>
-          )}
-          {location && (
-            <div className="flex items-center gap-1 text-white/90" style={{ fontSize: FONT.body }}>
-              <MapPin className="w-4 h-4" />
-              <span className="font-medium">{location}</span>
-            </div>
-          )}
-          {rating !== undefined && rating > 0 && (
-            <RatingDisplay rating={rating} size="md" className="text-white" />
-          )}
-        </>
-      )}
-
-      {normalizedIndex === 3 && (
-        <>
-          <div className="flex items-baseline gap-1">
-            <span className="font-bold text-white drop-shadow-lg" style={{ fontSize: FONT.headline }}>
-              ${price.toLocaleString()}
-            </span>
-            <span className="text-white/80" style={{ fontSize: FONT.meta }}>{priceLabel}</span>
-          </div>
-          <div className="flex items-center gap-3 text-white/90">
-            {propertyType && (
-              <span className="font-semibold" style={{ fontSize: FONT.body }}>{propertyType}</span>
-            )}
-            {beds !== undefined && (
-              <span className="flex items-center gap-1" style={{ fontSize: FONT.meta }}>
-                <Bed className="w-4 h-4" />
-                {beds}
-              </span>
-            )}
-            {baths !== undefined && (
-              <span className="flex items-center gap-1" style={{ fontSize: FONT.meta }}>
-                <Bath className="w-4 h-4" />
-                {baths}
-              </span>
-            )}
-          </div>
-          {(location || (rating !== undefined && rating > 0)) && (
-            <div className="flex items-center justify-between">
-              {location && (
-                <span className="flex items-center gap-1 text-white/80" style={{ fontSize: FONT.meta }}>
-                  <MapPin className="w-3.5 h-3.5" />
-                  {location}
-                </span>
-              )}
-              {rating !== undefined && rating > 0 && (
-                <RatingDisplay rating={rating} size="sm" className="text-white" />
-              )}
-            </div>
-          )}
-        </>
+      {photoIndex === 2 && rating !== undefined && rating > 0 && (
+        <RatingDisplay rating={rating} size="md" className="text-white" />
       )}
     </div>
   );
@@ -212,7 +166,12 @@ export const VehicleCardInfo = memo(({
 }: VehicleCardInfoProps) => {
   const priceLabel = priceType === 'sale' ? '' : `/${priceType}`;
   const vehicleName = [year, make, model].filter(Boolean).join(' ');
-  const normalizedIndex = photoIndex % 4;
+
+  // Distinct slice per photo; nothing on photo 4+ so they stay clean.
+  if (photoIndex >= 3) {
+    return null;
+  }
+  const normalizedIndex = photoIndex;
 
   return (
     <div className={cn("space-y-1", className)}>
@@ -341,7 +300,12 @@ export const ServiceCardInfo = memo(({
   photoIndex = 0,
 }: ServiceCardInfoProps) => {
   const unitLabel = pricingUnit === 'session' ? '/session' : pricingUnit === 'day' ? '/day' : pricingUnit === 'project' ? '/project' : pricingUnit === 'month' ? '/mo' : `/${pricingUnit}`;
-  const normalizedIndex = photoIndex % 4;
+
+  // Distinct slice per photo; nothing on photo 4+ so they stay clean.
+  if (photoIndex >= 3) {
+    return null;
+  }
+  const normalizedIndex = photoIndex;
 
   return (
     <div className={cn("space-y-1", className)}>
@@ -482,7 +446,11 @@ export const ClientCardInfo = memo(({
     ? `From $${budgetMin.toLocaleString()}`
     : null;
 
-  const normalizedIndex = photoIndex % 4;
+  // Distinct slice per photo; nothing on photo 4+ so they stay clean.
+  if (photoIndex >= 3) {
+    return null;
+  }
+  const normalizedIndex = photoIndex;
 
   return (
     <div className={cn("space-y-1", className)}>
