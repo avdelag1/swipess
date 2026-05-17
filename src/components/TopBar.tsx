@@ -222,7 +222,20 @@ function TopBarComponent({
           )}
         </div>
 
-        <div className="flex-1" />
+        {/* Center tap zone — when not on the dashboard itself, tapping
+            between the two cluster pills navigates back to the dashboard
+            so the user has a single, predictable way to get home. */}
+        {onCenterTap ? (
+          <button
+            type="button"
+            onClick={() => { haptics.tap(); onCenterTap(); }}
+            aria-label="Go to dashboard"
+            className="flex-1 self-stretch pointer-events-auto cursor-pointer"
+            style={{ background: 'transparent', border: 'none' }}
+          />
+        ) : (
+          <div className="flex-1" />
+        )}
 
         {/* RIGHT CLUSTER: single glass pill wrapping all action buttons */}
           <div

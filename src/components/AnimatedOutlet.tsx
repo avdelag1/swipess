@@ -44,21 +44,17 @@ export function AnimatedOutlet() {
     );
   }
 
-  // Non-dashboard routes: AnimatedOutlet itself becomes the page's
-  // scroll container. The outer `#dashboard-scroll-container` chain
-  // has too many intermediate flex/min-height wrappers that quietly
-  // collapse height in some browsers — making pages feel "stuck". By
-  // pinning this wrapper to its parent (position: absolute; inset: 0)
-  // and putting `overflow-y: auto` on it, the page always has a real
-  // scrollbar, regardless of the chain above.
+  // Non-dashboard routes: AnimatedOutlet itself is the page's scroll
+  // container. Using the canonical flexbox pattern (flex-1 + min-h-0
+  // + overflow-y: auto) so the wrapper grows to fill its flex parent
+  // but can also shrink below content size, which is what allows the
+  // browser to render the scrollbar.
   return (
     <div
       key={location.pathname}
       id="page-scroll-container"
-      className="bg-background"
+      className="flex-1 min-h-0 w-full bg-background"
       style={{
-        position: 'absolute',
-        inset: 0,
         overflowY: 'auto',
         overflowX: 'hidden',
         WebkitOverflowScrolling: 'touch',
