@@ -46,14 +46,14 @@ export function AnimatedOutlet() {
 
   // Non-dashboard routes: render the outlet inline as a normal block so
   // its content participates in the outer scroll container's layout.
-  // CRITICAL: no `flex-1` here — that would lock this wrapper to the
-  // parent's allocated height and clip tall pages, breaking scroll on
-  // the outer #dashboard-scroll-container. Plain `w-full` lets the
-  // wrapper grow with its content.
+  // `flex-grow` lets this wrapper stretch beyond the viewport when its
+  // content is tall, pushing #dashboard-scroll-container into scroll.
+  // `min-h-full` guarantees short pages still fill the screen.
+  // NO `flex-1` — that clamps to the parent's allocated height and clips.
   return (
     <div
       key={location.pathname}
-      className="w-full bg-background"
+      className="w-full flex-grow min-h-full bg-background"
       style={{ position: 'relative', pointerEvents: 'auto' }}
     >
       <Suspense fallback={null}>
