@@ -72,21 +72,7 @@ function TopBarComponent({
     ? () => window.history.length > 2 ? navigate(-1) : navigate(`/${isOwner ? 'owner' : 'client'}/dashboard`)
     : undefined);
 
-  // Cluster pill: shared glass frame for the left/right icon groups.
-  // Transparent frozen-liquid glass — a translucent tint that always
-  // reads as a pill against whatever's behind it (dark photo, black
-  // theme, or light theme). Visible border so the pill edge is always
-  // clear. Mirrors the BottomNavigation pill for visual consistency.
-  const clusterPillStyle: React.CSSProperties = {
-    background: isLight ? 'rgba(255,255,255,0.62)' : 'rgba(255,255,255,0.10)',
-    backdropFilter: 'blur(28px) saturate(1.8)',
-    WebkitBackdropFilter: 'blur(28px) saturate(1.8)',
-    border: isLight ? '1px solid rgba(0,0,0,0.08)' : '1px solid rgba(255,255,255,0.22)',
-    boxShadow: isLight
-      ? '0 10px 30px -8px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.85)'
-      : '0 10px 30px -8px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.18)',
-    overflow: 'visible',
-  };
+  const clusterPillStyle: React.CSSProperties = { overflow: 'visible' };
 
   // Frameless inner buttons — the cluster pill provides the visible
   // frame so each icon button itself is transparent.
@@ -147,7 +133,7 @@ function TopBarComponent({
       <div className="h-full w-full px-3 flex items-center justify-between relative">
 
         <div
-          className="flex min-w-0 items-center gap-1 pointer-events-auto rounded-full px-2 py-1.5"
+          className="flex min-w-0 items-center gap-1 pointer-events-auto glass-pill px-2 py-1.5"
           style={clusterPillStyle}
         >
           {onBack ? (
@@ -255,7 +241,7 @@ function TopBarComponent({
 
         {/* RIGHT CLUSTER: single glass pill wrapping all action buttons */}
           <div
-            className="flex shrink-0 items-center gap-1 pointer-events-auto rounded-full px-2 py-1.5"
+            className="flex shrink-0 items-center gap-1 pointer-events-auto glass-pill px-2 py-1.5"
             style={clusterPillStyle}
           >
           {!minimal && (
