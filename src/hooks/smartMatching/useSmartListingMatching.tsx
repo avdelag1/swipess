@@ -11,8 +11,6 @@ import { runIdleTask } from '@/lib/utils';
 import { useAdminUserIds } from '../useAdminUserIds';
 import { SWIPE_CARD_FIELDS } from './swipeCardFields';
 
-import { SWIPE_CARD_FIELDS } from './swipeCardFields';
-
 // Demo listings — appended AFTER real listings so the deck is never empty
 // during testing. Each category (property / motorcycle / bicycle / worker)
 // uses photos that match the category, so users see relevant content per
