@@ -197,12 +197,7 @@ export default function RoommateMatching() {
           whileTap={{ scale: 0.92 }}
           onClick={() => { triggerHaptic('light'); navigate(-1); }}
           aria-label="Back"
-          className={cn(
-            "pointer-events-auto w-10 h-10 rounded-full flex items-center justify-center shadow-lg border",
-            isLight
-              ? "bg-white/85 border-black/10 text-slate-800"
-              : "bg-black/55 border-white/15 text-white"
-          )}
+          className="pointer-events-auto w-10 h-10 rounded-full flex items-center justify-center shadow-lg border bg-black/60 border-white/10 text-white hover:bg-black/80 transition-colors"
           style={{
             backdropFilter: 'blur(20px) saturate(1.6)',
             WebkitBackdropFilter: 'blur(20px) saturate(1.6)',
@@ -219,12 +214,7 @@ export default function RoommateMatching() {
         style={{ top: 'calc(env(safe-area-inset-top, 0px) + 12px)' }}
       >
         <div
-          className={cn(
-            "flex items-center gap-1 pointer-events-auto rounded-full p-1 border shadow-xl",
-            isLight
-              ? "bg-white/85 border-black/10"
-              : "bg-black/55 border-white/15"
-          )}
+          className="flex items-center gap-1 pointer-events-auto rounded-full p-1 border shadow-xl bg-black/60 border-white/10"
           style={{
             backdropFilter: 'blur(20px) saturate(1.6)',
             WebkitBackdropFilter: 'blur(20px) saturate(1.6)',
@@ -237,7 +227,7 @@ export default function RoommateMatching() {
               "px-4 h-11 rounded-2xl border backdrop-blur-xl flex items-center gap-2 transition-[transform,background-color,border-color] duration-200 ease-out active:scale-95 shadow-lg",
               roommateVisible
                 ? "bg-primary border-primary text-primary-foreground"
-                : isLight ? "bg-card/80 border-border/60 text-foreground" : "bg-card/40 border-border/40 text-foreground/85"
+                : "bg-black/40 border-white/10 text-white/90"
             )}
           >
             {roommateVisible
@@ -253,10 +243,7 @@ export default function RoommateMatching() {
             whileTap={{ scale: 0.92 }}
             onClick={() => setShowFilters(true)}
             aria-label="Filters"
-            className={cn(
-              "px-4 h-11 rounded-2xl flex items-center gap-2 border backdrop-blur-xl shadow-lg transition-[transform,background-color] duration-200 ease-out active:scale-95",
-              isLight ? "bg-card/80 border-border/60 text-foreground" : "bg-card/40 border-border/40 text-foreground"
-            )}
+            className="px-4 h-11 rounded-2xl flex items-center gap-2 border backdrop-blur-xl shadow-lg transition-[transform,background-color] duration-200 ease-out active:scale-95 bg-black/40 border-white/10 text-white/90"
           >
             <Settings2 className="w-4 h-4" />
             <span className="text-[11px] font-bold tracking-wide">Filters</span>
@@ -264,10 +251,9 @@ export default function RoommateMatching() {
         </div>
       </div>
 
-      {/* â”€â”€ CARD STACK AREA â”€â”€ */}
+      {/* ── CARD STACK AREA ── */}
       <div
-        className="absolute left-0 right-0 bottom-0 w-full z-[1]"
-        style={{ top: 'calc(var(--top-bar-height,72px) + var(--safe-top,12px))' }}
+        className="absolute left-0 right-0 bottom-0 top-0 w-full z-[1]"
       >
         <div className="absolute inset-0 z-0">
           <AnimatePresence mode="popLayout" initial={false}>
@@ -324,7 +310,7 @@ export default function RoommateMatching() {
               <div className="absolute inset-0">
                 {nextCard && (
                   <div className="absolute inset-0 z-10 opacity-40 scale-[0.98] translate-y-2 pointer-events-none">
-                     <SimpleOwnerSwipeCard profile={nextCard as any} onSwipe={() => {}} isTop={false} />
+                     <SimpleOwnerSwipeCard profile={nextCard as any} onSwipe={() => {}} isTop={false} fullScreen={true} />
                   </div>
                 )}
                 <div 
@@ -340,12 +326,13 @@ export default function RoommateMatching() {
                       onSkipBack={handleSkipBack}
                       onTap={() => setShowDetails(true)}
                       isTop
+                      fullScreen={true}
                     />
 
                     {/* COMPATIBILITY BADGE */}
                     <div 
                       className="absolute right-4 z-30 pointer-events-none transform-gpu"
-                      style={{ top: 'calc(var(--top-bar-height,72px) + var(--safe-top,12px) + 80px)' }}
+                      style={{ top: 'calc(env(safe-area-inset-top, 0px) + 80px)' }}
                     >
                        <motion.div 
                          initial={{ opacity: 0, x: 20 }}
@@ -365,7 +352,7 @@ export default function RoommateMatching() {
         </div>
       </div>
 
-      {/* â”€â”€ ACTION OVERLAY â”€â”€ */}
+      {/* ── ACTION OVERLAY ── */}
       <motion.div 
         animate={{ y: uiVisible ? 0 : 150 }}
         transition={{ type: 'spring', stiffness: 260, damping: 30 }}
