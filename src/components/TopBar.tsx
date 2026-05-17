@@ -73,17 +73,19 @@ function TopBarComponent({
     : undefined);
 
   // Cluster pill: shared glass frame for the left/right icon groups.
-  // Mirrors the BottomNavigation pill so all three bars feel consistent.
-  // Inline style (not .glass-surface) so the ::before overlay can't wash
-  // out the icons inside.
+  // Transparent frozen-liquid glass — a translucent tint that always
+  // reads as a pill against whatever's behind it (dark photo, black
+  // theme, or light theme). Visible border so the pill edge is always
+  // clear. Mirrors the BottomNavigation pill for visual consistency.
   const clusterPillStyle: React.CSSProperties = {
-    background: isLight ? 'rgba(255,255,255,0.55)' : 'rgba(20,20,24,0.45)',
-    backdropFilter: 'blur(24px) saturate(1.7)',
-    WebkitBackdropFilter: 'blur(24px) saturate(1.7)',
-    border: isLight ? '1px solid rgba(0,0,0,0.06)' : '1px solid rgba(255,255,255,0.10)',
+    background: isLight ? 'rgba(255,255,255,0.62)' : 'rgba(255,255,255,0.10)',
+    backdropFilter: 'blur(28px) saturate(1.8)',
+    WebkitBackdropFilter: 'blur(28px) saturate(1.8)',
+    border: isLight ? '1px solid rgba(0,0,0,0.08)' : '1px solid rgba(255,255,255,0.22)',
     boxShadow: isLight
-      ? '0 8px 24px -8px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.80)'
-      : '0 10px 30px -8px rgba(0,0,0,0.50), inset 0 1px 0 rgba(255,255,255,0.08)',
+      ? '0 10px 30px -8px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.85)'
+      : '0 10px 30px -8px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.18)',
+    overflow: 'visible',
   };
 
   // Frameless inner buttons — the cluster pill provides the visible

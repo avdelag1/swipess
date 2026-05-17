@@ -310,9 +310,9 @@ export function NotificationPopover({ className, children, glassPillStyle }: Not
       className={cn(
         "relative h-9 w-9 shrink-0 transition-all duration-300",
         "hover:opacity-90 active:scale-[0.92] group !rounded-full",
-        "touch-manipulation overflow-hidden"
+        "touch-manipulation"
       )}
-      style={{ ...glassPillStyle }}
+      style={{ ...glassPillStyle, overflow: 'visible' }}
       onClick={(e) => {
         haptics.tap();
         setIsOpen(true);

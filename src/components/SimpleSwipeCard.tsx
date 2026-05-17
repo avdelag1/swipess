@@ -496,12 +496,14 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
             <div
               className="inline-flex flex-col w-fit max-w-full px-4 py-3 rounded-3xl"
               style={{
-                background: 'rgba(8, 10, 14, 0.55)',
-                backdropFilter: 'blur(24px) saturate(1.6)',
-                WebkitBackdropFilter: 'blur(24px) saturate(1.6)',
-                border: '1px solid rgba(255, 255, 255, 0.14)',
-                boxShadow: '0 12px 32px -12px rgba(0, 0, 0, 0.65)',
+                background: 'rgba(255, 255, 255, 0.10)',
+                backdropFilter: 'blur(28px) saturate(1.8)',
+                WebkitBackdropFilter: 'blur(28px) saturate(1.8)',
+                border: '1px solid rgba(255, 255, 255, 0.20)',
+                boxShadow:
+                  '0 12px 32px -12px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.18)',
                 color: '#FFFFFF',
+                textShadow: '0 2px 6px rgba(0, 0, 0, 0.55)',
               }}
             >
               {(() => {
