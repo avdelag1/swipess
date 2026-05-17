@@ -46,23 +46,19 @@ export function AnimatedOutlet() {
 
   // Non-dashboard routes: AnimatedOutlet is INTENTIONALLY not a scroll
   // container — #dashboard-scroll-container (in DashboardLayout) is the
-  // single owner of vertical scroll on these pages. Two stacked
-  // overflow:auto containers caused the chronic "scroll doesn't work"
-  // bug because the browser would commit touch gestures to the inner
-  // one and dead-end when scrollHeight === clientHeight.
+  // single owner of vertical scroll on these pages.
   //
-  // `flex-grow` + `min-h-full` lets the wrapper stretch with its
-  // content (so tall pages push the outer scroll container into
-  // overflow) and still fill the viewport when content is short.
-  // Keep the `page-scroll-container` id for backwards compatibility
-  // with code that querySelector'd it; useScrollDirection's fallback
-  // chain skips it (no overflow) and lands on the outer container.
+  // SCROLL FIX: This wrapper must be a plain block div — NOT flex.
+  // Using flex-grow / flex-1 here clamped the wrapper to its flex
+  // parent's height, so content taller than the viewport was clipped
+  // and the outer scroll container never saw any overflow.
+  // `min-height: 100%` guarantees short pages still fill the screen.
   return (
     <div
       key={location.pathname}
       id="page-scroll-container"
-      className="w-full flex-grow min-h-full bg-background"
-      style={{ position: 'relative', pointerEvents: 'auto' }}
+      className="w-full bg-background"
+      style={{ position: 'relative', pointerEvents: 'auto', minHeight: '100%' }}
     >
       <Suspense fallback={null}>
         {outlet}

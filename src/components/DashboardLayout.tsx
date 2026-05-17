@@ -299,15 +299,14 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
           touchAction: (isSwipeDeck || isFullScreenRoute) ? 'none' : undefined,
         }}
       >
-        {/* INNER WRAPPER: full-screen routes (radio/camera) get no bottom-nav
-            padding because they hide the chrome — leaving the padding causes
-            a strip of body background to show beneath the page. */}
         <div className={cn(
-          "w-full flex flex-col min-h-0",
+          "w-full flex flex-col",
           (isSwipeDeck || isFullScreenRoute)
-            ? "h-full flex-1 overflow-hidden"
-            : "flex-grow min-h-full pt-[var(--top-bar-height)] pb-[var(--bottom-nav-height)]"
-        )}>
+            ? "flex-1 min-h-0 overflow-hidden"
+            : "flex-none pt-[var(--top-bar-height)] pb-[var(--bottom-nav-height)]"
+        )}
+        style={(!isSwipeDeck && !isFullScreenRoute) ? { minHeight: '100%' } : undefined}
+        >
           {children}
         </div>
       </main>

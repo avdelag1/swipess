@@ -75,7 +75,11 @@ export function PersistentDashboardLayout() {
         <DashboardLayout userRole={userRole}>
           <div
             id="swipess-dashboard-root"
-            className="flex min-h-full w-full flex-1 flex-col relative self-stretch"
+            className={isDashboardRoute
+              ? "flex min-h-full w-full flex-1 flex-col relative self-stretch"
+              : "w-full relative"
+            }
+            style={isDashboardRoute ? undefined : { minHeight: '100%' }}
           >
             {/* Persistent dashboard layer — mounted once, hidden via CSS on
                 non-dashboard routes. Sits BELOW the outlet (z-0). */}
@@ -85,13 +89,22 @@ export function PersistentDashboardLayout() {
             {/* Outlet renders other routes ON TOP of the persistent dashboard
                 (z-10). On /client/dashboard and /owner/dashboard the outlet
                 renders an empty placeholder so the persistent layer shows.
-                pointer-events:none on the wrapper so an empty outlet doesn't
-                steal swipe gestures from the persistent dashboard underneath;
-                AnimatedOutlet re-enables pointer-events on its inner motion
-                container for non-dashboard routes. */}
+
+                SCROLL FIX: On non-dashboard routes, the outlet wrapper is a
+                plain block div — NOT flex. This lets page content flow to its
+                natural height and overflow the outer scroll container.
+                The old flex-grow/flex-1 chain was clamping every layer to
+                the viewport height, preventing scroll entirely. */}
             <div
-              className="relative flex-grow flex flex-col"
-              style={{ zIndex: 10, pointerEvents: isDashboardRoute ? 'none' : 'auto' }}
+              className={isDashboardRoute
+                ? "relative flex-1 flex flex-col"
+                : "relative w-full"
+              }
+              style={{
+                zIndex: 10,
+                pointerEvents: isDashboardRoute ? 'none' : 'auto',
+                ...(isDashboardRoute ? {} : { minHeight: '100%' }),
+              }}
             >
               <Suspense fallback={null}>
                 <AnimatedOutlet />
