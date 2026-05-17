@@ -5,7 +5,6 @@ import { createPortal } from 'react-dom';
 import { triggerHaptic } from '@/utils/haptics';
 import useAppTheme from '@/hooks/useAppTheme';
 import { SimpleSwipeCard, SimpleSwipeCardRef } from './SimpleSwipeCard';
-import { SwipeActionButtonBar } from './SwipeActionButtonBar';
 import { SwipeExhaustedState } from './swipe/SwipeExhaustedState';
 import { SwipeLoadingSkeleton } from './swipe/SwipeLoadingSkeleton';
 import type { QuickFilterCategory } from '@/types/filters';
@@ -1057,41 +1056,9 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
       </motion.div>
     </div>
 
-    {hasCards && (
-        <motion.div
-          className="absolute bottom-[calc(var(--bottom-nav-height,64px)+16px)] left-0 right-0 z-[100] flex justify-center"
-          style={{ opacity: pullDown.opacity, y: pullDown.y }}
-        >
-          <motion.div
-            animate={{
-              opacity: isChromeVisible ? 1 : 0,
-              y: isChromeVisible ? 0 : 80,
-              filter: isChromeVisible ? 'blur(0px)' : 'blur(12px)',
-              scale: isChromeVisible ? 1 : 0.94,
-            }}
-            transition={{
-              duration: isChromeVisible ? 0.68 : 1.4,
-              ease: isChromeVisible ? [0.22, 1.4, 0.36, 1] : [0.32, 0, 0.67, 0],
-            }}
-            style={{ pointerEvents: isChromeVisible ? 'auto' : 'none' }}
-          >
-          <SwipeActionButtonBar
-            onLike={handleButtonLike}
-            onDislike={handleButtonDislike}
-            onShare={handleShare}
-            onInsights={() => {
-              handleInsights();
-              if (onListingTap) onListingTap(topCard.id);
-            }}
-            onUndo={undoLastSwipe}
-            onMessage={handleMessage}
-            onReport={handleReport}
-            onCycleCategory={handleCycleCategory}
-            canUndo={canUndo}
-          />
-          </motion.div>
-        </motion.div>
-      )}
+    {/* Bottom action bar removed — the same actions (Share / Message /
+        Insights / Report) live on the right-side rail in SimpleSwipeCard,
+        keeping the card photo unobstructed. */}
     </div>
 
       {matchData && (
