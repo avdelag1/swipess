@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useActiveMode } from '@/hooks/useActiveMode';
 import { ChunkErrorBoundary } from '@/components/ChunkErrorBoundary';
 import { lazyWithRetry } from '@/utils/lazyRetry';
+import { cn } from '@/lib/utils';
 
 // 🚀 SPEED OF LIGHT: CORE COMPONENTS DECOUPLED
 // We lazy-load these to break any potential circular dependency chains
