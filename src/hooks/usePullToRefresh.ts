@@ -37,19 +37,21 @@ export function usePullToRefresh({
     setIsRefreshing(true);
     if ('vibrate' in navigator) navigator.vibrate(15);
 
-    // ðŸš€ MINIMUM DURATION: Ensure the user sees the 'Swipes' loader doing its work.
-    // If the API call is instant, it feels like it didn't work.
-    const minWait = new Promise(resolve => setTimeout(resolve, 800));
+    // 🚀 MINIMUM DURATION: Ensure the user sees the loader doing its work.
+    const minWait = new Promise(resolve => setTimeout(resolve, 900));
 
     try {
       if (onRefresh) {
         await Promise.all([onRefresh(), minWait]);
       } else {
-        await Promise.all([
-          queryClient.invalidateQueries({ refetchType: 'all' }),
-          minWait
-        ]);
+        await minWait;
+        // Clean full page reload with cache buster to ensure PWA asset refresh
+        const url = new URL(window.location.href);
+        url.searchParams.set('reload_v', Date.now().toString());
+        window.location.replace(url.toString());
       }
+    } catch (e) {
+      console.error("Refresh failed", e);
     } finally {
       setIsRefreshing(false);
       pullDistanceRef.current = 0;
@@ -70,8 +72,10 @@ export function usePullToRefresh({
     const onTouchStart = (e: TouchEvent) => {
       if (disabled) return;
       // Only start pull if we're at the very top of the scroll container
-      if (el.scrollTop <= 0 && !isRefreshing) {
-        startY.current = e.touches[0].clientY;
+      // AND the touch starts below the 80px top bar region
+      const touchY = e.touches[0].clientY;
+      if (el.scrollTop <= 0 && !isRefreshing && touchY > 80) {
+        startY.current = touchY;
         startX.current = e.touches[0].clientX;
         pulling.current = true;
       }
