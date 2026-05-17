@@ -72,12 +72,7 @@ function TopBarComponent({
     ? () => window.history.length > 2 ? navigate(-1) : navigate(`/${isOwner ? 'owner' : 'client'}/dashboard`)
     : undefined);
 
-  // Cluster pill: shared glass frame for the left/right icon groups.
-  // Transparent frozen-liquid glass — a translucent tint that always
-  // reads as a pill against whatever's behind it (dark photo, black
-  // theme, or light theme). Visible border so the pill edge is always
-  // clear. Mirrors the BottomNavigation pill for visual consistency.
-
+  const clusterPillStyle: React.CSSProperties = { overflow: 'visible' };
 
   // Frameless inner buttons — the cluster pill provides the visible
   // frame so each icon button itself is transparent.
@@ -138,12 +133,8 @@ function TopBarComponent({
       <div className="h-full w-full px-3 flex items-center justify-between relative">
 
         <div
-          className="flex min-w-0 items-center gap-1 pointer-events-auto glass-surface rounded-full px-2 py-1.5"
-          style={{
-            filter: isLight
-              ? 'drop-shadow(0 4px 12px rgba(0,0,0,0.12))'
-              : 'drop-shadow(0 8px 32px rgba(0,0,0,0.45))',
-          }}
+          className="flex min-w-0 items-center gap-1 pointer-events-auto glass-pill px-2 py-1.5"
+          style={clusterPillStyle}
         >
           {onBack ? (
             <motion.button
@@ -242,12 +233,8 @@ function TopBarComponent({
 
         {/* RIGHT CLUSTER: single glass pill wrapping all action buttons */}
           <div
-            className="flex shrink-0 items-center gap-1 pointer-events-auto glass-surface rounded-full px-2 py-1.5"
-            style={{
-              filter: isLight
-                ? 'drop-shadow(0 4px 12px rgba(0,0,0,0.12))'
-                : 'drop-shadow(0 8px 32px rgba(0,0,0,0.45))',
-            }}
+            className="flex shrink-0 items-center gap-1 pointer-events-auto glass-pill px-2 py-1.5"
+            style={clusterPillStyle}
           >
           {!minimal && (
             <>
