@@ -75,7 +75,7 @@ export function PersistentDashboardLayout() {
         <DashboardLayout userRole={userRole}>
           <div
             id="swipess-dashboard-root"
-            className="flex min-h-full w-full flex-1 flex-col relative"
+            className="flex min-h-full w-full flex-1 flex-col relative self-stretch"
           >
             {/* Persistent dashboard layer — mounted once, hidden via CSS on
                 non-dashboard routes. Sits BELOW the outlet (z-0). */}
