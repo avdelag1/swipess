@@ -322,11 +322,14 @@ export default function EventosFeed() {
           {/* Back button */}
           <button
             onClick={() => { triggerHaptic('light'); navigate(-1); }}
-            className="shrink-0 w-9 h-9 rounded-full flex items-center justify-center shadow-lg"
-            style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.12)' }}
+            className={cn(
+              "shrink-0 w-9 h-9 rounded-full flex items-center justify-center transition-transform active:scale-95",
+              isLight ? "bg-background/80 border border-border/60 text-foreground" : "bg-black/45 border border-white/15 text-white"
+            )}
+            style={{ backdropFilter: 'blur(20px) saturate(1.6)', WebkitBackdropFilter: 'blur(20px) saturate(1.6)' }}
             aria-label="Back"
           >
-            <ArrowLeft className="w-5 h-5 text-white" />
+            <ArrowLeft className="w-5 h-5" />
           </button>
 
           <div className="flex-1 flex gap-2 overflow-x-auto no-scrollbar scroll-smooth py-1">
@@ -348,25 +351,24 @@ export default function EventosFeed() {
                     if (cat.key === 'likes') navigate('/explore/events/likes');
                   }}
                   className={cn(
-                    "flex items-center gap-2 px-3 py-1.5 rounded-full shrink-0 transition-all duration-300 border relative overflow-hidden group h-8",
-                    active 
-                      ? "scale-105 shadow-xl shadow-black/20" 
-                      : "opacity-80 hover:opacity-100"
+                    "flex items-center gap-1.5 px-3 rounded-full shrink-0 border relative overflow-hidden h-8",
+                    "transition-[transform,background-color,border-color] duration-200 ease-out active:scale-95",
+                    active ? "shadow-md shadow-black/15" : "opacity-90"
                   )}
                   style={{
                     ...hudGlassStyle,
                     background: active
-                      ? `linear-gradient(135deg, ${catColor}, ${catColor}cc)`
+                      ? catColor
                       : hudGlassStyle.background,
-                    borderColor: active ? `${catColor}90` : hudGlassStyle.border?.toString().replace('1px solid ', ''),
+                    borderColor: active ? catColor : (hudGlassStyle.border?.toString().replace('1px solid ', '') as string),
                   }}
                 >
                   <Icon 
-                    className={cn("w-4 h-4 transition-all duration-300 relative z-10", active ? "scale-110" : (isLight ? "text-black/40" : "text-white/40"))} 
+                    className={cn("w-3.5 h-3.5 relative z-10", active ? "" : (isLight ? "text-foreground/55" : "text-white/55"))} 
                     style={{ color: active ? '#fff' : undefined }} 
                   />
                   <span 
-                    className={cn("text-[11px] font-black uppercase tracking-[0.12em] transition-all duration-300 relative z-10", active ? "" : (isLight ? "text-black/40" : "text-white/40"))}
+                    className={cn("text-[12px] font-semibold tracking-tight relative z-10", active ? "" : (isLight ? "text-foreground/70" : "text-white/65"))}
                     style={{ color: active ? '#fff' : undefined }}
                   >
                     {cat.label}
