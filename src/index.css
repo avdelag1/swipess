@@ -2533,3 +2533,8 @@ button:disabled,
 }
 
 
+
+/* ===== Tap latency hygiene (kills iOS 300ms double-tap delay) ===== */
+:where(button, [role="button"], a, label, summary) {
+  touch-action: manipulation;
+}
