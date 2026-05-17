@@ -132,11 +132,12 @@ function TopBarComponent({
   return (
     <header 
       className={cn(
-        "fixed top-0 left-0 right-0 z-[100] transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] pointer-events-none",
+        "fixed top-0 left-0 right-0 z-[100] transition-all duration-700 pointer-events-none",
         !isActuallyVisible && "opacity-0 -translate-y-full",
         className
       )}
       style={{
+        transitionTimingFunction: 'cubic-bezier(0.23, 1, 0.32, 1)',
         paddingTop: 'calc(var(--safe-top, 0px) + 6px)',
         height: 'calc(var(--top-bar-height) + var(--safe-top, 0px))',
         background: 'transparent',

@@ -293,11 +293,12 @@ export const BottomNavigation = memo(({
       role="navigation"
       aria-label="Main navigation"
       className={cn(
-        'app-bottom-bar pb-2 pt-1 transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)]',
-        !isActuallyVisible && "opacity-0 translate-y-full",
+        'app-bottom-bar pb-2 pt-1 transition-all duration-700',
+        isActuallyVisible ? 'translate-y-0 opacity-100' : 'opacity-0 translate-y-full',
         className
       )}
       style={{
+        transitionTimingFunction: 'ease-out',
         paddingLeft: 'max(12px, env(safe-area-inset-left))',
         paddingRight: 'max(12px, env(safe-area-inset-right))',
         paddingBottom: 'calc(8px + max(0px, env(safe-area-inset-bottom)))',
