@@ -18,7 +18,12 @@ import {
   ShoppingBag, 
   Key, 
   Scale, 
-  Megaphone 
+  Megaphone,
+  Crown,
+  Sun,
+  Flame,
+  Zap,
+  Moon
 } from 'lucide-react';
 
 export interface PokerCardData {
@@ -37,13 +42,12 @@ export interface OwnerIntentCard extends PokerCardData {
 }
 
 export const POKER_CARDS: PokerCardData[] = [
-  { id: 'property', label: 'Properties',  description: 'Houses & apts',       accent: '#3b82f6', accentRgb: '59,130,246', icon: RealEstateIcon  },
-  { id: 'motorcycle', label: 'Motorcycles', description: 'Bikes & scooters',     accent: '#f97316', accentRgb: '249,115,22', icon: VespaIcon  },
-  { id: 'bicycle',    label: 'Bicycles',    description: 'City & mountain',      accent: '#f43f5e', accentRgb: '244,63,94', icon: BeachBicycleIcon   },
-  { id: 'services',   label: 'Workers',     description: 'Skilled freelancers',  accent: '#EB4898', accentRgb: '235,72,152', icon: WorkersIcon  },
-  { id: 'radio',      label: 'Radio',       description: 'Swipess Beats',       accent: '#f43f5e', accentRgb: '244,63,94',  icon: Radio },
-  { id: 'all',        label: 'All',         description: 'Browse everything',    accent: '#06b6d4', accentRgb: '6,182,212', icon: Sparkles   },
-  { id: 'vap',        label: 'Resident Card', description: 'Local Discounts',    accent: '#10b981', accentRgb: '168,85,247', icon: ShieldCheck },
+  { id: 'property',   label: 'Real Estate',  description: 'Houses for sale in Tulum', accent: '#f97316', accentRgb: '249,115,22', icon: Crown  },
+  { id: 'rentals',    label: 'Rentals',      description: '2BR apts under $1500',      accent: '#f43f5e', accentRgb: '244,63,94', icon: Sun },
+  { id: 'motorcycle', label: 'Motorcycles',  description: 'Bikes under $3,000',       accent: '#f59e0b', accentRgb: '245,158,11', icon: Flame  },
+  { id: 'bicycle',    label: 'Bicycles',     description: 'Available nearby',         accent: '#8b5cf6', accentRgb: '139,92,246', icon: Zap   },
+  { id: 'services',   label: 'Find Workers', description: 'Need a reliable plumber',  accent: '#0ea5e9', accentRgb: '14,165,233', icon: Sparkles  },
+  { id: 'clients',    label: 'Find Clients', description: 'Reach more clients',       accent: '#10b981', accentRgb: '16,185,129', icon: Moon },
 ];
 
 export const OWNER_INTENT_CARDS: OwnerIntentCard[] = [

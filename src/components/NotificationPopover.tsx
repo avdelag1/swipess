@@ -308,7 +308,7 @@ export function NotificationPopover({ className, children, glassPillStyle }: Not
       variant="ghost"
       size="icon"
       className={cn(
-        "relative h-9 w-9 shrink-0 transition-all duration-300",
+        "relative h-8 w-8 shrink-0 transition-all duration-300",
         "hover:opacity-90 active:scale-[0.92] group !rounded-full",
         "touch-manipulation"
       )}
