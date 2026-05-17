@@ -184,16 +184,17 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   const isRadioRoute = useMemo(() => location.pathname.includes('/radio'), [location.pathname]);
   const isCameraRoute = useMemo(() => location.pathname.includes('/camera'), [location.pathname]);
 
+  // Explicit allow-list of routes that own their own scroll surface. Every
+  // other route uses the dashboard <main> as the single scroll container,
+  // which fixes the "page won't scroll" bug caused by nested scrollers.
   const isFullScreenRoute = useMemo(() => {
-    const scrollExclusions = ['likes', 'interested', 'liked', 'profile', 'legal', 'settings'];
-    if (scrollExclusions.some(path => location.pathname.includes(path))) return false;
-    
-    const isRoommatesPageLocal = location.pathname.startsWith('/explore/roommates');
-    const isSpecialSubPage = [
-      // Full screen camera/roommate pages stay edge-to-edge
-    ].some(path => location.pathname === path || location.pathname === path + '/');
-    
-    return isCameraRoute || isRadioRoute || isRoommatesPageLocal || isSpecialSubPage;
+    const path = location.pathname.replace(/\/$/, '');
+    if (isRadioRoute || isCameraRoute) return true;
+    // Snap-feed: events main feed only (not /likes or /:id detail).
+    if (path === '/explore/events') return true;
+    // Roommate swipe deck only (not /likes sub-pages).
+    if (path === '/explore/roommates') return true;
+    return false;
   }, [location.pathname, isCameraRoute, isRadioRoute]);
 
   const isZeroScrollDashboard = useMemo(() => {
