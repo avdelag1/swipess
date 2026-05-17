@@ -141,7 +141,7 @@ export async function forceAppUpdate(): Promise<void> {
     await new Promise(resolve => setTimeout(resolve, 500));
 
     // Reload the page
-    window.location.reload();
+    window.location.replace(window.location.pathname + '?v=' + Date.now());
   } catch (error) {
     logger.error('Failed to update app:', error);
     toast({
@@ -195,12 +195,12 @@ export function useAutomaticUpdates() {
 
       // Reload with delay for visual feedback
       setTimeout(() => {
-        window.location.reload();
+        window.location.replace(window.location.pathname + '?v=' + Date.now());
       }, 500);
     } catch (error) {
       logger.error('Update failed:', error);
       setIsUpdating(false);
-      window.location.reload();
+      window.location.replace(window.location.pathname + '?v=' + Date.now());
     }
   }, [isUpdating, queryClient]);
 

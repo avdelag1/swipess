@@ -118,11 +118,11 @@ export function setupUpdateChecker(intervalMs = 60000): () => void {
       if (event.data?.type === 'SW_UPDATED') {
         logger.info('[CacheManager] New version available:', event.data.version);
         // Auto-reload to get the new version
-        window.location.reload();
+        window.location.replace(window.location.pathname + '?v=' + Date.now());
       }
       if (event.data?.type === 'FORCE_REFRESH') {
         logger.info('[CacheManager] Force refresh requested');
-        window.location.reload();
+        window.location.replace(window.location.pathname + '?v=' + Date.now());
       }
     };
     navigator.serviceWorker.addEventListener('message', handleMessage);
