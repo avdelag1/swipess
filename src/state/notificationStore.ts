@@ -2,7 +2,7 @@ import { create } from 'zustand';
 
 export type NotificationType = 'like' | 'message' | 'super_like' | 'match' | 'new_user' | 'premium_purchase' | 'activation_purchase' | 'info' | 'success' | 'error' | 'warning';
 
-export interface Notification {
+export interface AppNotification {
   id: string;
   type: NotificationType;
   title: string;
@@ -21,8 +21,8 @@ export interface Notification {
 }
 
 interface NotificationState {
-  notifications: Notification[];
-  addNotification: (notification: Partial<Notification>) => void;
+  notifications: AppNotification[];
+  addNotification: (notification: Partial<AppNotification>) => void;
   dismissNotification: (id: string) => void;
   markAllAsRead: () => void;
   clearAll: () => void;
@@ -47,7 +47,7 @@ export const useNotificationStore = create<NotificationState>((set) => ({
     );
     if (dupRecent) return state;
 
-    const newNotif: Notification = {
+    const newNotif: AppNotification = {
       id,
       type: notification.type || 'info',
       title: notification.title || 'Notification',
@@ -55,7 +55,7 @@ export const useNotificationStore = create<NotificationState>((set) => ({
       timestamp: notification.timestamp || new Date(),
       read: false,
       ...notification
-    } as Notification;
+    } as AppNotification;
 
     return {
       notifications: [newNotif, ...state.notifications].slice(0, 20)

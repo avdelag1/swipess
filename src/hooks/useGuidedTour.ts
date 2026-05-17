@@ -5,7 +5,7 @@ import { useGuidedTourActive } from '@/state/guidedTourStore';
 const TOUR_KEY = 'guidedTourCompleted';
 
 export interface TourStep {
-  target: string; // CSS selector — use 'body' for centered welcome
+  target: string; // CSS selector â€” use 'body' for centered welcome
   title: string;
   description: string;
   position?: 'top' | 'bottom' | 'left' | 'right';
@@ -16,7 +16,7 @@ export interface TourStep {
 const eliteSteps: TourStep[] = [
   {
     target: 'body',
-    title: 'Welcome to the Nexus',
+    title: 'Welcome to the Swipes',
     description: 'I am your AI Concierge. Let me guide you through the elite sections of Swipess.',
     welcome: true,
   },
@@ -66,7 +66,7 @@ export function useGuidedTour(steps: TourStep[] = eliteSteps) {
 
   // Tour is opt-in only (triggered via restartTour). The previous auto-trigger
   // popped the welcome modal on every first dashboard visit and shifted layouts
-  // around — disabled for a calmer experience.
+  // around â€” disabled for a calmer experience.
 
   // Navigate when step requests it
   useEffect(() => {

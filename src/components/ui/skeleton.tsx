@@ -2,7 +2,7 @@
 import { cn } from "@/lib/utils"
 
 /**
- * 🛸 Nexus-grade skeleton loading component
+ * ðŸ›¸ Swipes-grade skeleton loading component
  * - Brand-aligned shimmer wave (Orange -> Pink)
  * - GPU-accelerated 60fps motion
  * - Liquid-glass base for premium dashboard feel

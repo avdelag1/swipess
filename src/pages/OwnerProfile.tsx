@@ -30,16 +30,16 @@ const OwnerProfile = () => {
   const navigate = useNavigate();
 
   // Only block render on the profile query itself. Stats can stream in
-  // background — gating on stats too means the page hangs in the skeleton
+  // background â€” gating on stats too means the page hangs in the skeleton
   // forever whenever the stats query is slow or recovering from an error.
   if (profileLoading && !ownerProfile) {
     return <ProfileSkeleton />;
   }
 
   return (
-    <div className={cn("w-full relative min-h-screen", isLight ? "bg-white text-slate-900" : "bg-[#020202] text-white")}>
+    <div className={cn("w-full relative min-h-full", isLight ? "bg-white text-slate-900" : "bg-[#020202] text-white")}>
 
-      {/* 🛸 NEXUS ATMOSPHERIC LAYER */}
+      {/* ðŸ›¸ SWIPES ATMOSPHERIC LAYER */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div
           className={cn("absolute inset-0", isLight ? "opacity-[0.02]" : "opacity-[0.04]")}
@@ -61,7 +61,7 @@ const OwnerProfile = () => {
         <div className="flex items-center justify-center">
           <div className="flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#FF4D00]/20 bg-[#FF4D00]/5">
             <div className="w-1.5 h-1.5 rounded-full bg-[#FF4D00] animate-pulse" />
-            <span className="text-[9px] font-black uppercase tracking-[0.4em] text-[#FF4D00]">Nexus Operator</span>
+            <span className="text-[9px] font-black uppercase tracking-[0.4em] text-[#FF4D00]">Swipes Operator</span>
           </div>
         </div>
 
@@ -152,7 +152,7 @@ const OwnerProfile = () => {
             </div>
             <div>
               <h3 className={cn("text-[13px] font-black uppercase tracking-[0.2em] italic leading-tight", isLight ? "text-slate-900" : "text-white")}>Protocol Credits</h3>
-              <p className={cn("text-[9px] font-bold uppercase tracking-[0.15em] mt-1", isLight ? "text-slate-500" : "text-white/25")}>Nexus Messaging Reserve</p>
+              <p className={cn("text-[9px] font-bold uppercase tracking-[0.15em] mt-1", isLight ? "text-slate-500" : "text-white/25")}>Swipes Messaging Reserve</p>
             </div>
           </div>
           <div className="text-4xl font-black italic tracking-tighter text-[#FF4D00]">
@@ -171,7 +171,7 @@ const OwnerProfile = () => {
               <Sparkles className="w-7 h-7 text-white" />
               <div className="text-left">
                 <span className="block text-[16px] font-black uppercase italic tracking-[0.2em] leading-none text-white">Magic AI Profile</span>
-                <span className="block text-[9px] font-black uppercase tracking-[0.3em] text-white/60 mt-1">Speak — AI builds your business profile</span>
+                <span className="block text-[9px] font-black uppercase tracking-[0.3em] text-white/60 mt-1">Speak â€” AI builds your business profile</span>
               </div>
             </div>
           </Button>
@@ -186,7 +186,7 @@ const OwnerProfile = () => {
               <Sparkles className="w-8 h-8 animate-pulse text-white" />
               <div className="text-left">
                 <span className="block text-[18px] font-black uppercase italic tracking-[0.2em] leading-none text-white">Magic AI Listing</span>
-                <span className="block text-[9px] font-black uppercase tracking-[0.3em] text-white/60 mt-1">Nexus Intelligence v4</span>
+                <span className="block text-[9px] font-black uppercase tracking-[0.3em] text-white/60 mt-1">Swipes Intelligence v4</span>
               </div>
             </div>
           </Button>

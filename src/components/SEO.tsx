@@ -9,13 +9,13 @@ interface SEOProps {
 }
 
 /**
- * 🛸 NEXUS SEO ENGINE
+ * ðŸ›¸ Swipes SEO ENGINE
  * Dynamically updates document metadata for premium social sharing previews.
  */
 export function SEO({
-  title = 'Swipess — Immersive Discovery',
+  title = 'Swipess â€” Immersive Discovery',
   description = 'Elite marketplace and discovery engine for properties, vehicles, and services.',
-  image = 'https://swipess.com/og-image-nexus.png',
+  image = 'https://swipess.com/og-image-Swipes.png',
   url = 'https://swipess.com',
   type = 'website'
 }: SEOProps) {

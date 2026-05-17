@@ -1,10 +1,10 @@
 /**
- * UISounds - Nexus Grade High-Fidelity Audio
+ * UISounds - Swipes Grade High-Fidelity Audio
  * Integrates premium external assets with synthetic fallback.
  * Tuned for a cinematic, tactile user experience.
  */
 
-const NEXUS_SOUNDS = {
+const Swipes_SOUNDS = {
   WELCOME:      "/sounds/singing-bowl-gong-69238.mp3",
   LIKE:         "/sounds/duck-quack-like.mp3",
   DISLIKE:      "/sounds/deep-meditation-bell-hit-heart-dislike.mp3",
@@ -49,7 +49,7 @@ class SoundEngine {
   /**
    * APP-WIDE SOUND POLICY:
    * The only surface allowed to play UI sounds is the public landing page
-   * background (LandingBackgroundEffects.tsx) — meditation bowls and shooting
+   * background (LandingBackgroundEffects.tsx) â€” meditation bowls and shooting
    * star chimes when tapping the cosmos. Every other call site is a no-op.
    *
    * Methods that the landing background uses (playStarShoot, playZenBowl) are
@@ -123,14 +123,14 @@ class SoundEngine {
     osc.stop(now + duration);
   }
 
-  // ── DISABLED IN-APP SOUNDS (no-ops) ─────────────────────────────────────
+  // â”€â”€ DISABLED IN-APP SOUNDS (no-ops) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   public playWelcome() {}
   public playLike() {}
   public playDislike() {}
   public playNotification() {}
   public playUploadComplete() {}
 
-  // ── LANDING-PAGE-ONLY SOUNDS ────────────────────────────────────────────
+  // â”€â”€ LANDING-PAGE-ONLY SOUNDS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   public playStarShoot() {
     const randomUrl = STAR_SOUNDS[Math.floor(Math.random() * STAR_SOUNDS.length)];
     this.loadAndPlay(randomUrl, 0.3);
@@ -141,7 +141,7 @@ class SoundEngine {
     this.loadAndPlay(url, 0.45);
   }
 
-  // ── DISABLED TACTILE SOUNDS (no-ops) ────────────────────────────────────
+  // â”€â”€ DISABLED TACTILE SOUNDS (no-ops) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   public playWaterDrop() {}
   public playTap() {}
   public playPing() {}

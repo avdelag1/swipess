@@ -1,5 +1,5 @@
 /**
- * TINDER-STYLE OWNER SWIPE CARD — Nexus Edition
+ * TINDER-STYLE OWNER SWIPE CARD â€” Swipes Edition
  *
  * Axis-locked owner swipe card with strict story-feed movement.
  * Card only travels straight up/down for browsing or straight left/right for like/pass.
@@ -9,7 +9,7 @@
  * - Rotation based on drag position (pivot from bottom)
  * - Spring physics for snap-back and exit
  * - Next card visible underneath with scale/opacity anticipation
- * - Advanced "Nexus" Zoom (Hold to Magnify)
+ * - Advanced "Swipes" Zoom (Hold to Magnify)
  */
 
 import { memo, useRef, useState, useCallback, useMemo, useEffect, forwardRef, useImperativeHandle } from 'react';
@@ -510,7 +510,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           </div>
         )}
 
-        {/* Residual side actions removed for Nexus UI consistency */}
+        {/* Residual side actions removed for Swipes UI consistency */}
           </>
         )}
       </motion.div>

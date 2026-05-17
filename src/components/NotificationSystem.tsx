@@ -1,7 +1,7 @@
 import { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import { NotificationBar } from './NotificationBar';
 import { useNotificationSystem } from '@/hooks/useNotificationSystem';
-import type { Notification } from '@/state/notificationStore';
+import type { AppNotification } from '@/state/notificationStore';
 
 /**
  * GLOBAL NOTIFICATION SYSTEM
@@ -50,7 +50,7 @@ export function NotificationSystem() {
         });
     }, [notifications]);
 
-    const handleClick = useCallback((notif: Notification) => {
+    const handleClick = useCallback((notif: AppNotification) => {
         handleNotificationClick(notif);
         handleBannerDismiss(notif.id);
     }, [handleNotificationClick, handleBannerDismiss]);

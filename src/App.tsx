@@ -123,7 +123,7 @@ const DashboardRedirect = () => {
 const ShareRedirect = ({ kind }: { kind: 'listing' | 'profile' | 'event' }) => {
   const { id } = useParams<{ id: string }>();
   const { search } = useLocation();
-  const target = kind === 'event' ? `/explore/eventos/${id || ''}` : `/${kind}/${id || ''}`;
+  const target = kind === 'event' ? `/explore/events/${id || ''}` : `/${kind}/${id || ''}`;
   return <Navigate to={`${target}${search}`} replace />;
 };
 
@@ -137,9 +137,8 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
         <NativeProvider>
           <AppLayout>
             <TooltipProvider>
-            <WelcomeBonusModal />
-
           <Suspense fallback={null}>
+            <WelcomeBonusModal />
             <GuidedTourLazy />
             <PWAInstallPrompt />
           </Suspense>
@@ -204,9 +203,9 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
               <Route path="/radio/directory" element={<WorldRadioDirectory />} />
 
               {/* Explore/Events */}
-              <Route path="/explore/eventos" element={<EventosFeed />} />
-              <Route path="/explore/eventos/likes" element={<EventosLikes />} />
-              <Route path="/explore/eventos/:id" element={<EventoDetail />} />
+              <Route path="/explore/events" element={<EventosFeed />} />
+              <Route path="/explore/events/likes" element={<EventosLikes />} />
+              <Route path="/explore/events/:id" element={<EventoDetail />} />
               <Route path="/admin/eventos" element={<AdminProtectedRoute><AdminEventos /></AdminProtectedRoute>} />
               <Route path="/admin/photos" element={<AdminProtectedRoute><AdminPhotos /></AdminProtectedRoute>} />
               <Route path="/admin/category-photos" element={<AdminProtectedRoute><AdminCategoryPhotos /></AdminProtectedRoute>} />

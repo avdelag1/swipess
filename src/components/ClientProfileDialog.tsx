@@ -242,9 +242,9 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent hideCloseButton className={cn("client-profile-dialog sm:max-w-3xl max-h-[92vh] flex flex-col p-0 gap-0 overflow-hidden rounded-[2.5rem]", isLight ? "light-profile-dialog border-border bg-background text-foreground shadow-[0_30px_90px_hsl(var(--foreground)/0.16)]" : "border-border bg-background text-foreground shadow-[0_0_80px_hsl(var(--background)/0.95)]")}>
+      <DialogContent hideCloseButton className={cn("client-profile-dialog sm:max-w-3xl h-[92dvh] max-h-[92dvh] flex flex-col p-0 gap-0 overflow-hidden rounded-[2.5rem]", isLight ? "light-profile-dialog border-border bg-background text-foreground shadow-[0_30px_90px_hsl(var(--foreground)/0.16)]" : "border-border bg-background text-foreground shadow-[0_0_80px_hsl(var(--background)/0.95)]")}>
         
-        {/* 🛸 NEXUS ATMOSPHERIC LAYER */}
+        {/* ðŸ›¸ Swipes ATMOSPHERIC LAYER */}
         <div className={cn("absolute inset-0 pointer-events-none overflow-hidden", isLight ? "opacity-[0.04]" : "opacity-20")}>
           <div
             className="absolute inset-0"
@@ -258,13 +258,13 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
           />
         </div>
 
-        {/* 🛸 NEXUS HEADER */}
+        {/* ðŸ›¸ Swipes HEADER */}
         <div className={cn("relative px-8 pt-8 pb-6 border-b z-10", isLight ? "border-border bg-gradient-to-b from-muted/50 to-transparent" : "border-border bg-gradient-to-b from-foreground/[0.04] to-transparent")}>
            <div className="flex items-center justify-between">
               <div className="space-y-1">
                  <div className="flex items-center gap-2">
                     <Sparkles className="w-4 h-4 text-[#EB4898] animate-pulse" />
-                     <span className="text-[10px] font-black uppercase tracking-[0.4em] text-muted-foreground italic">Nexus Identity Terminal</span>
+                     <span className="text-[10px] font-black uppercase tracking-[0.4em] text-muted-foreground italic">Swipes Identity Terminal</span>
                  </div>
                   <h2 className="text-3xl font-black italic uppercase tracking-tighter text-foreground drop-shadow-sm">Edit Profile</h2>
               </div>
@@ -288,12 +288,12 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
 
         <div
           ref={scrollContainerRef}
-          className="flex-1 overflow-y-auto overflow-x-hidden px-8 py-6 touch-pan-y overscroll-contain relative z-10"
+          className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden px-8 py-6 touch-pan-y overscroll-contain relative z-10"
           style={{ WebkitOverflowScrolling: 'touch' as any }}
         >
           <div className="space-y-12 pb-24">
             
-            {/* 📸 ASSET REPOSITORY */}
+            {/* ðŸ“¸ ASSET REPOSITORY */}
             <section className="space-y-6">
                <div className="flex flex-col gap-1">
                   <h3 className="text-sm font-black uppercase italic tracking-widest text-white/90">Visual Assets</h3>
@@ -310,7 +310,7 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
                />
                {data?.user_id && (
                  <div className="space-y-2">
-                   <p className="text-[10px] uppercase tracking-widest text-white/40 italic">Optional 6s silent video loop — plays first on your card</p>
+                   <p className="text-[10px] uppercase tracking-widest text-white/40 italic">Optional 6s silent video loop â€” plays first on your card</p>
                    <ListingVideoUpload
                      userId={data.user_id}
                      videoUrl={videoUrl}
@@ -321,7 +321,7 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
                )}
             </section>
 
-            {/* 👤 IDENTITY CORE */}
+            {/* ðŸ‘¤ IDENTITY CORE */}
             <section className="space-y-6">
                 <div className="flex items-center gap-3">
                    <div className="w-8 h-8 rounded-xl bg-[#EB4898]/10 border border-[#EB4898]/30 flex items-center justify-center text-[#EB4898]">
@@ -358,7 +358,7 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
                 </div>
             </section>
 
-            {/* 🎯 OBJECTIVE TERMINAL */}
+            {/* ðŸŽ¯ OBJECTIVE TERMINAL */}
             <section className="space-y-6">
                <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-xl bg-[#FF4D00]/10 border border-[#FF4D00]/30 flex items-center justify-center text-[#FF4D00]">
@@ -399,7 +399,7 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
                </div>
             </section>
 
-            {/* 📍 GEOLOCATION SYNC */}
+            {/* ðŸ“ GEOLOCATION SYNC */}
             <section className="space-y-6">
                <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-xl bg-[#EB4898]/10 border border-[#EB4898]/30 flex items-center justify-center text-[#EB4898]">
@@ -437,7 +437,7 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
                </div>
             </section>
 
-            {/* 🏠 HABIT PARITY */}
+            {/* ðŸ  HABIT PARITY */}
             <section className="space-y-6">
                <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-xl bg-[#FF4D00]/10 border border-[#FF4D00]/30 flex items-center justify-center text-[#FF4D00]">
@@ -470,7 +470,7 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
           </div>
         </div>
 
-        {/* 🛸 NEXUS FOOTER ACTIONS */}
+        {/* ðŸ›¸ Swipes FOOTER ACTIONS */}
         <div className={cn("px-8 py-6 border-t flex items-center justify-between gap-4 z-10 relative", isLight ? "border-border bg-gradient-to-t from-muted/50 to-transparent" : "border-border bg-gradient-to-t from-foreground/[0.04] to-transparent")}>
            <Button 
              variant="ghost" 

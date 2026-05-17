@@ -156,9 +156,9 @@ export default function OwnerViewClientProfile() {
         isLight ? "bg-background text-foreground" : "bg-[#020202] text-white",
       )}
     >
-      {!isLight && <AtmosphericLayer variant="nexus" opacity={0.15} />}
+      {!isLight && <AtmosphericLayer variant="Swipes" opacity={0.15} />}
       
-      {/* 🛸 NEXUS HEADER */}
+      {/* ðŸ›¸ Swipes HEADER */}
       <div className={cn(
         "sticky top-0 z-50 backdrop-blur-3xl border-b",
         isLight ? "bg-background/70 border-border/60" : "bg-black/40 border-white/5",
@@ -173,7 +173,7 @@ export default function OwnerViewClientProfile() {
           
           <div className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-[#EB4898]/5 border border-[#EB4898]/20 backdrop-blur-xl">
              <Zap className="w-4 h-4 text-[#EB4898] fill-current animate-pulse" />
-             <span className="text-[10px] font-black uppercase tracking-widest text-[#EB4898] italic">Nexus Insights</span>
+             <span className="text-[10px] font-black uppercase tracking-widest text-[#EB4898] italic">Swipes Insights</span>
           </div>
 
           <button 
@@ -187,7 +187,7 @@ export default function OwnerViewClientProfile() {
 
       <div className="container max-w-[440px] mx-auto px-4 pt-6 pb-40 space-y-6 relative z-10">
         
-        {/* 💎 PROFILE HERO CARD */}
+        {/* ðŸ’Ž PROFILE HERO CARD */}
         <div className="p-6 rounded-[2.5rem] bg-zinc-950/40 backdrop-blur-2xl border border-white/10 shadow-2xl relative overflow-hidden group">
           <div className="absolute top-0 right-0 w-64 h-64 bg-[#FF4D00]/10 rounded-full blur-3xl -translate-y-32 translate-x-32" />
           
@@ -200,7 +200,7 @@ export default function OwnerViewClientProfile() {
                 <div className="flex items-center gap-2">
                   <MapPin className="w-3.5 h-3.5 text-[#FF4D00]" />
                   <p className="text-[11px] font-bold text-white/40 uppercase tracking-widest italic">
-                    {client.age ? `${client.age} • ` : ''}{client.city || 'Nexus Sector'}
+                    {client.age ? `${client.age} â€¢ ` : ''}{client.city || 'Swipes Sector'}
                   </p>
                 </div>
               </div>
@@ -235,7 +235,7 @@ export default function OwnerViewClientProfile() {
           </div>
         </div>
 
-        {/* 📊 HERO STATS GRID */}
+        {/* ðŸ“Š HERO STATS GRID */}
         <div className="grid grid-cols-2 gap-3">
           <div className="p-6 rounded-[32px] bg-zinc-950/40 backdrop-blur-xl border border-white/10 shadow-xl group hover:bg-zinc-900/60 transition-all cursor-default">
             <div className="flex items-center gap-2 mb-3">
@@ -256,7 +256,7 @@ export default function OwnerViewClientProfile() {
               <div className="w-8 h-8 rounded-xl bg-[#EB4898]/10 flex items-center justify-center border border-[#EB4898]/20">
                 <Zap className="w-4 h-4 text-[#EB4898] fill-current" />
               </div>
-              <span className="text-[10px] font-black uppercase tracking-widest text-white/30 italic">Nexus Parity</span>
+              <span className="text-[10px] font-black uppercase tracking-widest text-white/30 italic">Swipes Parity</span>
             </div>
             <div className="text-3xl font-black text-white tabular-nums tracking-tighter">{insights?.qualityScore}/10</div>
             <div className="flex items-center gap-1 mt-2 text-[#EB4898]">
@@ -266,7 +266,7 @@ export default function OwnerViewClientProfile() {
           </div>
         </div>
 
-        {/* 🎯 ANALYTICS SECTION */}
+        {/* ðŸŽ¯ ANALYTICS SECTION */}
         <div className="space-y-4">
           <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-white/30 ml-2 italic">Reliability Profile</h3>
           
@@ -313,7 +313,7 @@ export default function OwnerViewClientProfile() {
           </div>
         </div>
 
-        {/* 📦 PREFERENCES / INTENT */}
+        {/* ðŸ“¦ PREFERENCES / INTENT */}
         {preferences && (
           <div className="space-y-4">
             <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-white/30 ml-2 italic">Market Demand</h3>
@@ -337,13 +337,13 @@ export default function OwnerViewClientProfile() {
                     <div className="space-y-1">
                        <p className="text-[9px] font-black text-white/30 uppercase tracking-widest italic">Target Budget</p>
                        <p className="text-lg font-black text-white tracking-tighter tabular-nums">
-                         ${preferences.min_price?.toLocaleString() || '0'} - ${preferences.max_price?.toLocaleString() || '∞'}
+                         ${preferences.min_price?.toLocaleString() || '0'} - ${preferences.max_price?.toLocaleString() || 'âˆž'}
                        </p>
                     </div>
                     <div className="space-y-1">
                        <p className="text-[9px] font-black text-white/30 uppercase tracking-widest italic">Specifications</p>
                        <p className="text-lg font-black text-white tracking-tighter uppercase italic">
-                         {preferences.min_bedrooms || 0}+ BR • {preferences.min_bathrooms || 0}+ BA
+                         {preferences.min_bedrooms || 0}+ BR â€¢ {preferences.min_bathrooms || 0}+ BA
                        </p>
                     </div>
                   </div>
@@ -399,7 +399,7 @@ export default function OwnerViewClientProfile() {
           </div>
         )}
 
-        {/* 🎯 MARKET SENTIMENT */}
+        {/* ðŸŽ¯ MARKET SENTIMENT */}
         <div className="space-y-4">
            <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-white/30 ml-2 italic">Market Sentiment</h3>
            <div className={cn(
@@ -429,7 +429,7 @@ export default function OwnerViewClientProfile() {
            </div>
         </div>
 
-        {/* 📦 CONFIG DETAILS */}
+        {/* ðŸ“¦ CONFIG DETAILS */}
         <div className="space-y-4 pb-8">
            <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-white/30 ml-2 italic">Profile Analytics</h3>
            <div className="grid grid-cols-2 gap-3">
@@ -455,7 +455,7 @@ export default function OwnerViewClientProfile() {
         </div>
       </div>
 
-      {/* 🛸 SINGLE MESSAGE FAB — Insights page only allows messaging */}
+      {/* ðŸ›¸ SINGLE MESSAGE FAB â€” Insights page only allows messaging */}
       <div className="fixed bottom-[calc(var(--bottom-nav-height,64px)+20px)] left-0 right-0 z-[100] flex justify-center pointer-events-none">
         <motion.button
           initial={{ opacity: 0, y: 20, scale: 0.9 }}

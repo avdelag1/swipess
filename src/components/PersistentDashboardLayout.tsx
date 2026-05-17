@@ -58,6 +58,17 @@ export function PersistentDashboardLayout() {
     }
   }, [location.pathname, activeMode, syncMode]);
 
+  // Pointer-events on the outlet wrapper must be `none` on dashboard routes
+  // (so the empty outlet doesn't steal swipe gestures from the persistent
+  // dashboard underneath) but `auto` on every other route (so scrolling,
+  // taps, and form interaction work normally). Previously this was hard-
+  // coded to `none`, which broke scrolling on profile/settings/etc.
+  const isDashboardRoute =
+    location.pathname === '/client/dashboard' ||
+    location.pathname === '/owner/dashboard' ||
+    location.pathname.startsWith('/client/dashboard/') ||
+    location.pathname.startsWith('/owner/dashboard/');
+
   return (
     <ChunkErrorBoundary>
       <Suspense fallback={null}>
@@ -80,7 +91,7 @@ export function PersistentDashboardLayout() {
                 container for non-dashboard routes. */}
             <div
               className="relative flex-1 flex flex-col"
-              style={{ zIndex: 10, pointerEvents: 'none' }}
+              style={{ zIndex: 10, pointerEvents: isDashboardRoute ? 'none' : 'auto' }}
             >
               <Suspense fallback={null}>
                 <AnimatedOutlet />

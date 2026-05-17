@@ -1,5 +1,5 @@
 /**
- * 🚀 NEXUS SUSPENSE FALLBACK
+ * ðŸš€ Swipes SUSPENSE FALLBACK
  * 
  * NEVER shows the full Swipess logo splash between pages.
  * Instead, renders a minimal, invisible-feeling transition that lets

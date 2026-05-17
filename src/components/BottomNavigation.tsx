@@ -36,6 +36,7 @@ import { useFilterStore } from '@/state/filterStore';
 import { useModalStore } from '@/state/modalStore';
 import { useGuidedTourActive } from '@/state/guidedTourStore';
 import { useDeckHasCards } from '@/hooks/useDeckHasCards';
+import { useChromeReveal } from '@/hooks/useChromeReveal';
 
 const ICON_SIZE = 20;
 const ICON_SIZE_COMPACT = 18;
@@ -91,7 +92,13 @@ export const BottomNavigation = memo(({
   const { unreadCount: _unreadCount } = useUnreadMessageCount();
   const { unreadCount: _unreadNotifCount } = useUnreadNotifications();
   const { isLight } = useAppTheme();
+  useChromeReveal();
   const isDashboardRoute = /^\/(client|owner|admin)\/dashboard\/?/.test(location.pathname);
+
+  // Visibility policy: BottomNav is always rendered. The SwipessHud
+  // wrapper above this component drives the actual show/hide via its
+  // `alwaysVisible` flag (on dashboards) vs scroll-direction (elsewhere).
+  const isActuallyVisible = true;
   // Theme rule:
   //  - Dark theme (black filter): nav icons always WHITE everywhere.
   //  - Light theme (white filter): WHITE on dashboard (over photos),
@@ -132,7 +139,7 @@ export const BottomNavigation = memo(({
     { id: 'dashboard', icon: Zap, label: t('nav.dashboard'), path: '/client/dashboard' },
     { id: 'profile', icon: CircleUser, label: t('nav.profile'), path: '/client/profile' },
     { id: 'likes', icon: Flame, label: t('nav.likes'), path: '/client/liked-properties', onClick: onListingsClick },
-    { id: 'events', icon: PartyPopper, label: t('nav.events'), path: '/explore/eventos' },
+    { id: 'events', icon: PartyPopper, label: t('nav.events'), path: '/explore/events' },
     { id: 'ai', icon: Sparkles, label: t('nav.aiBot'), onClick: openAIChat, isSpecial: true },
     { id: 'messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages' },
     { id: 'vapid', icon: IdCard, label: t('nav.idCard'), onClick: () => setModal('showVapId', true) },
@@ -273,11 +280,23 @@ export const BottomNavigation = memo(({
   };
 
   const iconColorInactive = 'var(--icon-inactive)';
+
+  // Light theme uses a vibrant violet/indigo for the active item so it's
+  // visible against the near-white glass pill. Dark theme keeps white.
+  // The active item also picks up a neon halo via drop-shadow.
+  const activeColor = isLight && !isDashboardRoute ? '#7C3AED' : '#FFFFFF';
+  const activeGlow = isLight && !isDashboardRoute
+    ? 'drop-shadow(0 0 6px rgba(124,58,237,0.55)) drop-shadow(0 0 14px rgba(99,102,241,0.35))'
+    : 'drop-shadow(0 0 6px rgba(255,255,255,0.45))';
   return (
     <nav
       role="navigation"
       aria-label="Main navigation"
-      className={cn('app-bottom-bar pb-2 pt-1', className)}
+      className={cn(
+        'app-bottom-bar pb-2 pt-1 transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)]',
+        !isActuallyVisible && "opacity-0 translate-y-full",
+        className
+      )}
       style={{
         paddingLeft: 'max(12px, env(safe-area-inset-left))',
         paddingRight: 'max(12px, env(safe-area-inset-right))',
@@ -407,10 +426,11 @@ export const BottomNavigation = memo(({
                     style={{
                       width: isTablet ? ICON_SIZE_TABLET : (isNarrow ? 16 : ICON_SIZE),
                       height: isTablet ? ICON_SIZE_TABLET : (isNarrow ? 16 : ICON_SIZE),
-                      color: active ? '#FFFFFF' : (isLight && !isDashboardRoute ? 'rgba(0,0,0,0.78)' : 'rgba(255,255,255,0.92)'),
+                      color: active ? activeColor : (isLight && !isDashboardRoute ? 'rgba(0,0,0,0.78)' : 'rgba(255,255,255,0.92)'),
                       fill: 'none',
-                      strokeWidth: active ? 2 : 1.7,
-                      transition: 'color 160ms ease-out, stroke-width 160ms ease-out',
+                      strokeWidth: active ? 2.4 : 1.7,
+                      filter: active ? activeGlow : undefined,
+                      transition: 'color 160ms ease-out, stroke-width 160ms ease-out, filter 160ms ease-out',
                     }}
                   />
                 </div>
@@ -423,8 +443,9 @@ export const BottomNavigation = memo(({
                         isTablet ? 'text-[11px]' : 'text-[8px]',
                       )}
                       style={{
-                        color: active ? '#FFFFFF' : (isLight && !isDashboardRoute ? 'rgba(0,0,0,0.78)' : 'rgba(255,255,255,0.92)'),
-                        transition: 'color 160ms ease-out',
+                        color: active ? activeColor : (isLight && !isDashboardRoute ? 'rgba(0,0,0,0.78)' : 'rgba(255,255,255,0.92)'),
+                        textShadow: active && isLight && !isDashboardRoute ? '0 0 8px rgba(124,58,237,0.45)' : undefined,
+                        transition: 'color 160ms ease-out, text-shadow 160ms ease-out',
                         zIndex: 1,
                       }}
                     >

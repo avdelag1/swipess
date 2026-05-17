@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { logger } from '@/utils/prodLogger';
 import { useProfileCache } from '@/hooks/useProfileCache';
-import { useNotificationStore, NotificationType, Notification } from '@/state/notificationStore';
+import { useNotificationStore, NotificationType, AppNotification } from '@/state/notificationStore';
 
 // DBNotification matches actual Supabase schema
 interface DBNotification {
@@ -125,7 +125,7 @@ export function useNotificationSystem() {
           const dbNotification = payload.new as any;
           if (!dbNotification) return;
 
-          const notification: Partial<Notification> = {
+          const notification: Partial<AppNotification> = {
             id: dbNotification.id,
             type: notificationTypeMap[dbNotification.notification_type] || 'like',
             title: dbNotification.title || titleMap[dbNotification.notification_type] || 'Notification',
@@ -147,6 +147,44 @@ export function useNotificationSystem() {
           }
 
           addNotification(notification);
+
+          // ─── Browser & Push Logic for New Messages ───
+          // If it's a message and we're not looking at it
+          if (dbNotification.notification_type === 'new_message') {
+            const senderName = dbNotification.metadata?.sender_name || 'Someone';
+            
+            // 1. Browser Notification (if app in background)
+            if (
+              typeof window !== 'undefined' &&
+              'Notification' in window &&
+              Notification.permission === 'granted' &&
+              document.visibilityState !== 'visible'
+            ) {
+              new Notification(`Message from ${senderName}`, {
+                body: dbNotification.message?.slice(0, 100) || '',
+                icon: dbNotification.metadata?.sender_avatar || '/placeholder.svg',
+                tag: `notif-${dbNotification.id}`,
+                requireInteraction: false,
+              });
+            }
+
+            // 2. Edge Function Push (to reach mobile/closed tabs)
+            supabase.functions.invoke('send-push-notification', {
+              body: {
+                user_id: user.id,
+                title: `Message from ${senderName}`,
+                body: dbNotification.message?.slice(0, 100) || '',
+                url: dbNotification.link_url || '/messages',
+                data: {
+                  type: 'message',
+                  conversation_id: dbNotification.metadata?.conversation_id,
+                  sender_id: dbNotification.related_user_id,
+                },
+              },
+            }).catch((err) => {
+              if (import.meta.env.DEV) logger.error('[NotificationSystem] Push failed:', err);
+            });
+          }
         }
       )
       .on(
@@ -192,7 +230,7 @@ export function useNotificationSystem() {
     }
   };
 
-  const handleNotificationClick = useCallback((notification: Notification) => {
+  const handleNotificationClick = useCallback((notification: AppNotification) => {
     // Navigate using window.location for safety (no useNavigate dependency)
     let url: string | null = null;
     if (notification.actionUrl) {

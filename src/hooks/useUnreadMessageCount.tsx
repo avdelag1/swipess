@@ -62,18 +62,18 @@ export function useUnreadMessageCount() {
     if (!user?.id) return;
 
     const channel = supabase
-      .channel('unread-messages-count')
+      .channel('unread-messages-count-filtered')
       .on(
         'postgres_changes',
         {
-          event: 'INSERT',
+          event: 'UPDATE',
           schema: 'public',
-          table: 'conversation_messages'
+          table: 'conversations',
+          filter: `client_id=eq.${user.id}`
         },
-        (payload) => {
-          if (payload.new.sender_id !== user.id) {
-            debouncedRefetch();
-          }
+        () => {
+          logger.debug('[UnreadCount] Conversation update (client)');
+          debouncedRefetch();
         }
       )
       .on(
@@ -81,13 +81,33 @@ export function useUnreadMessageCount() {
         {
           event: 'UPDATE',
           schema: 'public',
-          table: 'conversation_messages'
+          table: 'conversations',
+          filter: `owner_id=eq.${user.id}`
         },
-        (payload) => {
-          if (payload.old.is_read !== payload.new.is_read) {
-            debouncedRefetch();
-          }
+        () => {
+          logger.debug('[UnreadCount] Conversation update (owner)');
+          debouncedRefetch();
         }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'conversations',
+          filter: `client_id=eq.${user.id}`
+        },
+        () => debouncedRefetch()
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'conversations',
+          filter: `owner_id=eq.${user.id}`
+        },
+        () => debouncedRefetch()
       )
       .subscribe();
 

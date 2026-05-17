@@ -14,6 +14,7 @@ import { NotificationPopover } from './NotificationPopover';
 import { ThemeToggle } from './ThemeToggle';
 import { useModalStore } from '@/state/modalStore';
 import { TAP_SPRING } from './BottomNavigation';
+import { useChromeReveal } from '@/hooks/useChromeReveal';
 
 interface TopBarProps {
   onNotificationsClick?: () => void;
@@ -46,9 +47,17 @@ function TopBarComponent({
   const { navigate } = useAppNavigate();
   const { user } = useAuth();
   const { isLight } = useAppTheme();
+  const { isChromeVisible } = useChromeReveal();
   const setModal = useModalStore(s => s.setModal);
   const location = useLocation();
   const isDashboard = /^\/(client|owner|admin)\/dashboard\/?/.test(location.pathname);
+  
+  // Visibility policy: the dashboard is the navigation hub, so the
+  // TopBar must stay pinned there. On every other page, the SwipessHud
+  // wrapper handles scroll-direction based hide/show — this component
+  // itself is always rendered.
+  void isChromeVisible;
+  const isActuallyVisible = true;
   // Color rule:
   //  - Dark theme (black filter): icons always WHITE.
   //  - Light theme (white filter): WHITE on dashboard (over photos),
@@ -73,7 +82,7 @@ function TopBarComponent({
     borderRadius: '9999px',
     pointerEvents: 'auto',
     color: 'hsl(var(--foreground))',
-    height: '28px',
+    height: '20px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -110,7 +119,8 @@ function TopBarComponent({
   return (
     <header 
       className={cn(
-        "relative w-full transition-all duration-500 pointer-events-none",
+        "fixed top-0 left-0 right-0 z-[100] transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] pointer-events-none",
+        !isActuallyVisible && "opacity-0 -translate-y-full",
         className
       )}
       style={{
@@ -122,14 +132,14 @@ function TopBarComponent({
     >
       <div className="h-full w-full px-4 flex items-center justify-between relative">
         
-        <div className="flex min-w-0 items-center gap-2 pointer-events-auto glass-surface px-1 py-0.5 rounded-full">
+        <div className="flex min-w-0 items-center gap-2 pointer-events-auto">
           {onBack ? (
             <motion.button
               transition={TAP_SPRING}
               whileTap={{ scale: 0.94 }}
               onClick={() => { haptics.tap(); onBack(); }}
               className="flex shrink-0 items-center justify-center rounded-full"
-              style={{ ...glassPillStyle, width: '28px' }}
+              style={{ ...glassPillStyle, width: '20px' }}
               aria-label="Back"
             >
               <ChevronLeft
@@ -157,7 +167,7 @@ function TopBarComponent({
                 aria-label="Open profile"
               >
                 <div
-                  className="w-6 h-6 rounded-full overflow-hidden shrink-0 flex items-center justify-center relative"
+                  className="w-4 h-4 rounded-full overflow-hidden shrink-0 flex items-center justify-center relative"
                   style={{
                     background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)))',
                     boxShadow: '0 0 0 1px rgba(255,255,255,0.2) inset, 0 0 14px hsl(var(--primary) / 0.35)',
@@ -201,7 +211,7 @@ function TopBarComponent({
         <div className="flex-1" />
 
         {/* RIGHT CLUSTER: Individual Action Pills */}
-          <div className="flex shrink-0 items-center gap-1.5 pointer-events-auto glass-surface px-1 py-0.5 rounded-full">
+          <div className="flex shrink-0 items-center gap-1.5 pointer-events-auto">
           {!minimal && (
             <>
                 <motion.button
@@ -211,12 +221,12 @@ function TopBarComponent({
                   className="flex shrink-0 items-center justify-center rounded-full relative overflow-hidden"
                   style={{
                     ...glassPillStyle,
-                    width: '28px',
+                    width: '20px',
                   }}
                   aria-label="Tokens"
                 >
                   <Crown
-                    className="w-[18px] h-[18px]"
+                    className="w-[14px] h-[14px]"
                     style={{
                       color: iconColor,
                       filter: isLight ? 'none' : 'drop-shadow(0 0 8px rgba(228,0,124,0.65))',

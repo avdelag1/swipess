@@ -25,7 +25,7 @@ export function ConnectingOverlay({
           exit={{ opacity: 0 }}
           className="fixed inset-0 z-[10002] flex items-center justify-center bg-black/60 backdrop-blur-xl"
         >
-          {/* 🛸 NEXUS ATMOSPHERE */}
+          {/* ðŸ›¸ Swipes ATMOSPHERE */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
             <motion.div 
               animate={{ 

@@ -15,10 +15,10 @@ import { cn } from "@/lib/utils";
 import { NativeBridge } from "@/utils/nativeBridge";
 import { APPLE_TOKEN_PACKAGES } from "@/config/iapProducts";
 
-const formatMXN = (price: number) =>
-  new Intl.NumberFormat('es-MX', {
+const formatUSD = (price: number) =>
+  new Intl.NumberFormat('en-US', {
     style: 'currency',
-    currency: 'MXN',
+    currency: 'USD',
     minimumFractionDigits: 2,
   }).format(price);
 
@@ -82,14 +82,14 @@ export function MessageActivationPackages({
   const convertPackages = (): TokenPackage[] => APPLE_TOKEN_PACKAGES.map((pkg, index) => {
     const tier: 'starter' | 'standard' | 'premium' = index === 0 ? 'starter' : index === 1 ? 'standard' : 'premium';
     const iconMap = { starter: MessageCircle, standard: Zap, premium: Crown };
-    const pricePerToken = pkg.priceMxn / pkg.tokens;
+    const pricePerToken = pkg.priceUsd / pkg.tokens;
 
     return {
       id: pkg.productId,
       appleProductId: pkg.productId,
       name: pkg.name,
       tokens: pkg.tokens,
-      price: pkg.priceMxn,
+      price: pkg.priceUsd,
       pricePerToken,
       savings: pkg.badge === 'Best Value' ? 'Best Value' : undefined,
       tier,
@@ -97,7 +97,7 @@ export function MessageActivationPackages({
       duration_days: 30,
       package_category: packageCategory,
       paypalUrl: '',
-      features: [pkg.description, `${formatMXN(pricePerToken)} per token`, 'Instant App Store activation'],
+      features: [pkg.description, `${formatUSD(pricePerToken)} per token`, 'Instant App Store activation'],
       legal_documents: 0,
     };
   });
@@ -125,7 +125,7 @@ export function MessageActivationPackages({
 
     toast({
       title: "Apple checkout ready",
-      description: `${pkg.name}: ${pkg.tokens} tokens for ${formatMXN(pkg.price)}. Complete purchase in the iOS app.`,
+      description: `${pkg.name}: ${pkg.tokens} tokens for ${formatUSD(pkg.price)}. Complete purchase in the iOS app.`,
     });
   };
 
@@ -280,12 +280,12 @@ export function MessageActivationPackages({
                       </h3>
                       <div className="flex items-baseline justify-center gap-1">
                         <span className={cn("text-4xl font-black italic tracking-tighter", isDark ? "text-white" : "text-gray-900")}>
-                          {formatMXN(pkg.price)}
+                          {formatUSD(pkg.price)}
                         </span>
-                        <span className={cn("text-xs font-bold", isDark ? "text-white/70" : "text-gray-500")}>MXN</span>
+                        <span className={cn("text-xs font-bold", isDark ? "text-white/70" : "text-gray-500")}>USD</span>
                       </div>
                       <p className={cn("text-[10px] font-bold uppercase tracking-widest", isDark ? "text-white/70" : "text-gray-500")}>
-                        {formatMXN(pkg.pricePerToken)} per token
+                        {formatUSD(pkg.pricePerToken)} per token
                       </p>
                     </div>
                   </CardHeader>

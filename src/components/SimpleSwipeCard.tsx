@@ -1,5 +1,5 @@
 /**
- * TINDER-STYLE SWIPE CARD — Nexus Edition
+ * TINDER-STYLE SWIPE CARD â€” Swipes Edition
  *
  * Axis-locked swipe card with strict story-feed movement.
  * Card only travels straight up/down for browsing or straight left/right for like/pass.
@@ -9,11 +9,11 @@
  * - Rotation based on drag position (pivot from bottom)
  * - Spring physics for snap-back and exit
  * - Next card visible underneath with scale/opacity anticipation
- * - Advanced "Nexus" Zoom (Hold to Magnify)
+ * - Advanced "Swipes" Zoom (Hold to Magnify)
  */
 
 import { memo, useRef, useState, useCallback, useMemo, useEffect, forwardRef, useImperativeHandle } from 'react';
-import { motion, useMotionValue, useTransform, PanInfo, animate, useDragControls, MotionValue } from 'framer-motion';
+import { motion, useMotionValue, useTransform, PanInfo, animate, useDragControls, MotionValue, AnimatePresence } from 'framer-motion';
 import { triggerHaptic } from '@/utils/haptics';
 import { getCardImageUrl } from '@/utils/imageOptimization';
 import { Listing } from '@/hooks/useListings';
@@ -26,10 +26,10 @@ import CardImage from '@/components/CardImage';
 import { imageCache } from '@/lib/swipe/cardImageCache';
 import useAppTheme from '@/hooks/useAppTheme';
 import { cn } from '@/lib/utils';
-import { ThumbsUp, ThumbsDown, Flame, Flag, Share2 } from 'lucide-react';
+import { ThumbsUp, ThumbsDown, Flame, Flag, Share2, MessageCircle, BarChart3 } from 'lucide-react';
 import { PhotoPositionIndicators } from '@/components/swipe/PhotoPositionIndicators';
 import { GestureHints } from '@/components/swipe/GestureHints';
-import { revealChrome } from '@/hooks/useChromeReveal';
+import { useChromeReveal, revealChrome } from '@/hooks/useChromeReveal';
 
 export interface SimpleSwipeCardRef {
   triggerSwipe: (direction: 'left' | 'right') => void;
@@ -58,6 +58,7 @@ interface SimpleSwipeCardProps {
   onInsights?: () => void;
   onShare?: () => void;
   onReport?: () => void;
+  onMessage?: () => void;
   isTop?: boolean;
   externalX?: MotionValue<number>;
   externalY?: MotionValue<number>;
@@ -76,8 +77,10 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   onDragStart,
   onReport,
   onShare,
+  onMessage,
 }, ref) => {
   const { isLight } = useAppTheme();
+  const { isChromeVisible } = useChromeReveal();
   const isDragging = useRef(false);
   const hasExited = useRef(false);
   const isExitingRef = useRef(false);
@@ -94,7 +97,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
 
   // Strict story-feed motion: horizontal = like/pass, vertical = browse next card.
   // Vertical browse keeps the card fully opaque so up/down feels like a clean
-  // page-turn — the underlying card only pops in once we commit. Horizontal
+  // page-turn â€” the underlying card only pops in once we commit. Horizontal
   // swipes get a subtle late fade so like/pass still feels weighted.
   const cardOpacity = useTransform(
     [x, y] as any,
@@ -104,7 +107,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
       const fadeX = ax <= SWIPE_THRESHOLD * 0.6
         ? 0
         : Math.min(1, (ax - SWIPE_THRESHOLD * 0.6) / (SWIPE_THRESHOLD * 1.2)) * 0.25;
-      // Vertical: NO fade during browse — card stays opaque the whole way.
+      // Vertical: NO fade during browse â€” card stays opaque the whole way.
       return 1 - fadeX;
     }
   );
@@ -268,6 +271,15 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
     if (dragAxisRef.current === 'y') x.set(0);
   }, [x, y]);
 
+  // SPEED OF LIGHT: Auto-reveal protocol
+  // When a card becomes the top card, briefly reveal the chrome (header/nav/buttons)
+  // so the user sees the available controls before they smoothly fade away.
+  useEffect(() => {
+    if (isTop && !isZoomed) {
+      revealChrome();
+    }
+  }, [isTop, isZoomed]);
+
   const handleDragEnd = useCallback((_: any, info: PanInfo) => {
     const dx = info.offset.x;
     const dy = info.offset.y;
@@ -333,7 +345,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
     hasExited.current = true;
     isExitingRef.current = true;
     triggerHaptic(direction === 'right' ? 'success' : 'warning');
-    // 'right' = like → fly RIGHT, 'left' = pass → fly LEFT (Tinder-style)
+    // 'right' = like â†’ fly RIGHT, 'left' = pass â†’ fly LEFT (Tinder-style)
     const exitDist = typeof window !== 'undefined' ? window.innerWidth * 1.2 : 900;
     const exitX = direction === 'right' ? exitDist : -exitDist;
     let swipeFired = false;
@@ -481,7 +493,17 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
               </div>
             </div>
 
-            <div className="glass-surface inline-flex flex-col w-fit max-w-full px-4 py-3">
+            <div
+              className="inline-flex flex-col w-fit max-w-full px-4 py-3 rounded-3xl"
+              style={{
+                background: 'rgba(8, 10, 14, 0.55)',
+                backdropFilter: 'blur(24px) saturate(1.6)',
+                WebkitBackdropFilter: 'blur(24px) saturate(1.6)',
+                border: '1px solid rgba(255, 255, 255, 0.14)',
+                boxShadow: '0 12px 32px -12px rgba(0, 0, 0, 0.65)',
+                color: '#FFFFFF',
+              }}
+            >
               {(() => {
                 const isProfile = (listing as any).profile_images || (listing as any).name;
                 if (isProfile) {
@@ -571,7 +593,65 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           </div>
         )}
 
-        {/* Right-side Share/Report rail removed — actions now live in the bottom horizontal bar (SwipeActionButtonBar) */}
+        {/* Floating Action Rail — always rendered on the top card. */}
+        <AnimatePresence>
+          {isTop && !isZoomed && (
+            <motion.div
+              initial={{ opacity: 0, x: 20, scale: 0.9, filter: 'blur(10px)' }}
+              animate={{
+                opacity: 1, 
+                x: 0, 
+                scale: 1, 
+                filter: 'blur(0px)' 
+              }}
+              exit={{ 
+                opacity: 0, 
+                x: 12, 
+                scale: 0.94, 
+                filter: 'blur(12px)' 
+              }}
+              transition={{ duration: 0.32, ease: [0.22, 1.4, 0.36, 1] }}
+              className="absolute right-4 bottom-[calc(var(--bottom-nav-height,72px)+160px)] z-50 flex flex-col gap-5"
+            >
+              {[
+                { icon: Share2, onClick: onShare, label: 'Share' },
+                { icon: MessageCircle, onClick: onMessage, label: 'Message' },
+                { icon: BarChart3, onClick: onInsights, label: 'Insights' },
+                { icon: Flag, onClick: onReport, label: 'Report' },
+              ].map((btn, idx) => (
+                <motion.button
+                  key={idx}
+                  whileTap={{ scale: 0.9 }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    triggerHaptic('light');
+                    btn.onClick?.();
+                  }}
+                  aria-label={btn.label}
+                  className="w-12 h-12 rounded-full flex items-center justify-center relative bg-transparent border-none p-0 outline-none"
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    WebkitTapHighlightColor: 'transparent',
+                  }}
+                >
+                  {/* No frame — frameless icon over the photo, matching
+                      the middle action buttons. Drop-shadow gives it
+                      legibility on bright backgrounds. */}
+                  <btn.icon
+                    color="#FFFFFF"
+                    className="w-7 h-7 relative z-10"
+                    style={{
+                      filter:
+                        'drop-shadow(0 2px 8px rgba(0,0,0,0.75)) drop-shadow(0 0 2px rgba(0,0,0,0.55))',
+                    }}
+                    strokeWidth={2.4}
+                  />
+                </motion.button>
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
           </>
         )}
       </motion.div>

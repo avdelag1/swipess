@@ -21,7 +21,7 @@ const SwipessHud = lazyWithRetry(() => import('./SwipessHud').then(m => ({ defau
 const VapIdCardModal = lazyWithRetry(() => import('./VapIdCardModal').then(m => ({ default: m.VapIdCardModal })));
 const GlobalDialogs = lazyWithRetry(() => import('./GlobalDialogs').then(m => ({ default: m.GlobalDialogs })));
 import { ChromeSummonZones } from './swipe/ChromeSummonZones';
-import { useChromeReveal, revealChrome } from '@/hooks/useChromeReveal';
+import { revealChrome } from '@/hooks/useChromeReveal';
 
 
 const NotificationSystem = lazy(() =>
@@ -31,8 +31,6 @@ const DiscoveryFilters = lazy(() =>
   import('@/components/filters/DiscoveryFilters').then(m => ({ default: m.DiscoveryFilters }))
 );
 import { Sheet, SheetContent } from '@/components/ui/sheet';
-import { useFilterStore } from '@/state/filterStore';
-import { useShallow } from 'zustand/react/shallow';
 import { useTranslation } from 'react-i18next';
 
 interface AppLayoutProps {
@@ -47,34 +45,21 @@ export function AppLayout({ children }: AppLayoutProps) {
   const modalStore = useModalStore();
   const { showAIChat, showAIListing } = modalStore;
   const { activeMode } = useActiveMode();
-  const { isChromeVisible } = useChromeReveal();
 
   const isSwipeDashboard = useMemo(() => {
     const path = location.pathname;
     return path.startsWith('/client/dashboard') || path.startsWith('/owner/dashboard');
   }, [location.pathname]);
 
-  // Determine whether we're in the "swipe deck" phase (cards on screen) vs
-  // the "picking phase" (quick-filter poker cards visible).
-  const { selectedCategoriesCount, ownerPhase } = useFilterStore(
-    useShallow(s => ({
-      selectedCategoriesCount: s.categories.length,
-      ownerPhase: s.ownerPhase,
-    }))
-  );
-  const isClientDash = location.pathname.startsWith('/client/dashboard');
-  const isOwnerDash = location.pathname.startsWith('/owner/dashboard');
-  const swipeDeckActive =
-    (isClientDash && selectedCategoriesCount > 0) ||
-    (isOwnerDash && ownerPhase === 'swipe');
-  // Picking phase = on dashboard but no swipe deck yet → chrome always visible
-  const inPickingPhase = isSwipeDashboard && !swipeDeckActive;
-
-  // While inside the swipe deck, chrome auto-hides after 5s and is summoned
-  // by tapping the top edge or bottom-center strip (revealMode).
-  // Everywhere else it's always visible.
-  const useRevealMode = swipeDeckActive && !showAIChat;
-  const hideFloatingForSwipe = useRevealMode && !isChromeVisible;
+  // Chrome visibility policy: on dashboard pages (client + owner) the
+  // TopBar and BottomNavigation stay pinned at all times — these are
+  // the navigation hub and must not disappear. On every other page the
+  // chrome auto-hides as the user scrolls down (the standard scroll-
+  // direction behaviour) and re-appears when scrolling up.
+  const isDashboardPage = location.pathname.startsWith('/client/dashboard') ||
+    location.pathname.startsWith('/owner/dashboard');
+  const useRevealMode = false;
+  const hideFloatingForSwipe = false;
 
   const userRole = useMemo<'client' | 'owner' | 'admin'>(() => {
     if (user?.user_metadata?.role === 'admin') return 'admin';
@@ -166,11 +151,13 @@ export function AppLayout({ children }: AppLayoutProps) {
     const isCamera = path.startsWith('/camera');
     const isRoommates = path.startsWith('/explore/roommates');
     const isMessages = path.startsWith('/messages');
-    const isEvents = path.startsWith('/explore/eventos');
+    const isEvents = path.startsWith('/explore/events');
     return isCamera || isRadio || showAIChat || isSwipeDashboard || isRoommates || isMessages || isEvents;
   }, [location.pathname, showAIChat, isSwipeDashboard]);
-  
-  const showAppChrome = !isAuthRoute && !isRadioRoute && !isCameraRoute && !showAIChat && (!isPublicPreview || !!user);
+
+  const isEventsRoute = location.pathname.startsWith('/explore/events');
+  const isRoommatesRoute = location.pathname.startsWith('/explore/roommates');
+  const showAppChrome = !isAuthRoute && !isRadioRoute && !isCameraRoute && !showAIChat && !isEventsRoute && !isRoommatesRoute && (!isPublicPreview || !!user);
 
   const handleFilterClick = () => {
     const role = userRole === 'admin' ? 'admin' : activeMode;
@@ -198,7 +185,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   
       {showAppChrome && (
         <Suspense fallback={null}>
-          <SwipessHud side="top" className="fixed top-0 left-0 right-0 z-[10005]" scrollTargetSelector="#dashboard-scroll-container" alwaysVisible={false} revealMode={useRevealMode}>
+          <SwipessHud side="top" className="fixed top-0 left-0 right-0 z-[10005]" scrollTargetSelector="#dashboard-scroll-container" alwaysVisible={isDashboardPage} revealMode={useRevealMode}>
             <TopBar
               userRole={userRole}
               onMessageActivationsClick={handleMessageActivationsClick}
@@ -236,7 +223,7 @@ export function AppLayout({ children }: AppLayoutProps) {
 
       {showAppChrome && (
         <Suspense fallback={null}>
-          <SwipessHud side="bottom" className="fixed bottom-0 left-0 right-0 z-[10005]" scrollTargetSelector="#dashboard-scroll-container" alwaysVisible={false} revealMode={useRevealMode}>
+          <SwipessHud side="bottom" className="fixed bottom-0 left-0 right-0 z-[10005]" scrollTargetSelector="#dashboard-scroll-container" alwaysVisible={isDashboardPage} revealMode={useRevealMode}>
             <BottomNavigation
               userRole={userRole}
               onFilterClick={handleFilterClick}

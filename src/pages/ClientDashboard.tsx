@@ -1,10 +1,11 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { SwipessSwipeContainer } from '@/components/SwipessSwipeContainer';
 import { useFilterStore } from '@/state/filterStore';
 import { cn } from '@/lib/utils';
 import { useSmartListingMatching } from '@/hooks/smartMatching/useSmartListingMatching';
 import { useAuth } from '@/hooks/useAuth';
 import { AtmosphericLayer } from '@/components/AtmosphericLayer';
+import { revealChrome } from '@/hooks/useChromeReveal';
 
 interface ClientDashboardProps {
   onMessageClick?: () => void;
@@ -12,6 +13,11 @@ interface ClientDashboardProps {
 
 export default function ClientDashboard({ onMessageClick }: ClientDashboardProps) {
   const { user } = useAuth();
+
+  useEffect(() => {
+    // Show the HUD briefly when entering the dashboard
+    revealChrome();
+  }, []);
 
   const filterVersion = useFilterStore(s => s.filterVersion);
   const filters = useMemo(
@@ -31,7 +37,7 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
         willChange: 'transform',
       }}
     >
-      <AtmosphericLayer variant="nexus" />
+      <AtmosphericLayer variant="Swipes" />
 
       <div className="flex-1 flex flex-col min-h-0">
         <SwipessSwipeContainer

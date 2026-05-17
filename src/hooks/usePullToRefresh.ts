@@ -13,7 +13,7 @@ interface PullToRefreshOptions {
 }
 
 /**
- * 🚀 Native-feeling pull-to-refresh for mobile PWA
+ * ðŸš€ Native-feeling pull-to-refresh for mobile PWA
  * - Invalidates all React Query caches on pull
  * - Haptic feedback on trigger
  * - Smooth rubber-band physics
@@ -37,7 +37,7 @@ export function usePullToRefresh({
     setIsRefreshing(true);
     if ('vibrate' in navigator) navigator.vibrate(15);
 
-    // 🚀 MINIMUM DURATION: Ensure the user sees the 'Nexus' loader doing its work.
+    // ðŸš€ MINIMUM DURATION: Ensure the user sees the 'Swipes' loader doing its work.
     // If the API call is instant, it feels like it didn't work.
     const minWait = new Promise(resolve => setTimeout(resolve, 800));
 
@@ -85,7 +85,7 @@ export function usePullToRefresh({
       const dy = currentY - startY.current;
       const dx = Math.abs(currentX - startX.current);
 
-      // 🛡️ SWIPE PROTECTION: If the user is swiping horizontally (like on a card),
+      // ðŸ›¡ï¸ SWIPE PROTECTION: If the user is swiping horizontally (like on a card),
       // or if they are scrolling up, cancel the pull immediately.
       if (dy < 0 || (dx > Math.abs(dy) && dy < 20)) {
         pulling.current = false;

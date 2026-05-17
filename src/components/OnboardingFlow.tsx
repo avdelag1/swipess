@@ -427,9 +427,9 @@ export function OnboardingFlow({ open, onComplete }: OnboardingFlowProps) {
               <div className="inline-flex items-center gap-2 px-6 py-3 bg-white/10 rounded-full">
                 <CheckCircle2 className="w-5 h-5 text-rose-400" />
                 <span className="text-white font-medium">{profileImages.length} Photos</span>
-                <span className="text-white/50">•</span>
+                <span className="text-white/50">â€¢</span>
                 <span className="text-white font-medium">{languages.length} Languages</span>
-                <span className="text-white/50">•</span>
+                <span className="text-white/50">â€¢</span>
                 <span className="text-white font-medium">{interests.length} Interests</span>
               </div>
             </div>
@@ -465,7 +465,7 @@ export function OnboardingFlow({ open, onComplete }: OnboardingFlowProps) {
         className="sm:max-w-2xl bg-black border-white/5 text-white overflow-hidden p-0 rounded-[2.5rem]"
       >
         <div className="absolute inset-0 pointer-events-none">
-          <AtmosphericLayer variant="nexus" opacity={0.1} />
+          <AtmosphericLayer variant="Swipes" opacity={0.1} />
         </div>
 
         <div className="relative z-10 p-6 sm:p-10 flex flex-col h-full max-h-[90vh]">

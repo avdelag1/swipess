@@ -82,7 +82,7 @@ export default function PublicListingPreview() {
   if (isLoading) {
     return (
       <div className="fixed inset-0 bg-black flex items-center justify-center">
-        <AtmosphericLayer variant="nexus" opacity={0.12} />
+        <AtmosphericLayer variant="Swipes" opacity={0.12} />
         <div className="w-16 h-16 rounded-full border-4 border-[#EB4898]/15 border-t-[#EB4898] animate-spin relative z-10" />
       </div>
     );
@@ -91,7 +91,7 @@ export default function PublicListingPreview() {
   if (error || !listing) {
     return (
       <div className="fixed inset-0 bg-black flex flex-col items-center justify-center p-8 text-center">
-        <AtmosphericLayer variant="nexus" opacity={0.15} />
+        <AtmosphericLayer variant="Swipes" opacity={0.15} />
         <div className="w-24 h-24 rounded-3xl bg-white/5 flex items-center justify-center mb-8 border border-white/10 relative z-10">
           <Home className="w-10 h-10 text-white/20" />
         </div>
@@ -112,7 +112,7 @@ export default function PublicListingPreview() {
   const category = listing.category || 'property';
   const mode = (listing as any).listing_type || 'rent';
   const images = (Array.isArray(listing.images) ? listing.images : []) as string[];
-  const heroImage = images[0] || `${typeof window !== 'undefined' ? window.location.origin : 'https://swipess.com'}/og-image-nexus.png`;
+  const heroImage = images[0] || `${typeof window !== 'undefined' ? window.location.origin : 'https://swipess.com'}/og-image-Swipes.png`;
 
   const handleCreateAccount = () => {
     triggerHaptic('success');
@@ -159,13 +159,13 @@ export default function PublicListingPreview() {
     <div className="fixed inset-0 w-full bg-black text-white flex flex-col overflow-hidden">
       <SEO
         title={listing.title || 'Swipess Listing'}
-        description={`${listing.beds || 0} Beds · ${listing.baths || 0} Baths · ${listing.city || 'Tulum'} — $${listing.price?.toLocaleString() || '—'}`}
+        description={`${listing.beds || 0} Beds Â· ${listing.baths || 0} Baths Â· ${listing.city || 'Tulum'} â€” $${listing.price?.toLocaleString() || 'â€”'}`}
         image={heroImage}
         url={`${typeof window !== 'undefined' ? window.location.origin : 'https://swipess.com'}/listing/${id}`}
         type="website"
       />
 
-      <AtmosphericLayer variant="nexus" opacity={0.08} />
+      <AtmosphericLayer variant="Swipes" opacity={0.08} />
 
       {/* Top minimal nav (in-flow, never overlaps card) */}
       <div
@@ -234,7 +234,7 @@ export default function PublicListingPreview() {
                 <div className="flex items-end justify-between pt-1">
                   <div>
                     <div className="text-2xl font-black tracking-tight text-white leading-none">
-                      ${listing.price?.toLocaleString() || '—'}
+                      ${listing.price?.toLocaleString() || 'â€”'}
                     </div>
                     <div className="text-[9px] font-bold uppercase tracking-[0.25em] text-white/50 mt-1.5">
                       {mode === 'rent' ? 'Per Cycle' : 'Total'}
@@ -248,7 +248,7 @@ export default function PublicListingPreview() {
                     ].map((s, i) => (
                       <div key={i} className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/15 flex flex-col items-center justify-center">
                         <s.icon className="w-3.5 h-3.5 text-white/70 mb-0.5" />
-                        <span className="text-xs font-black tabular-nums leading-none text-white">{s.value || '—'}</span>
+                        <span className="text-xs font-black tabular-nums leading-none text-white">{s.value || 'â€”'}</span>
                       </div>
                     ))}
                   </div>
@@ -314,7 +314,7 @@ export default function PublicListingPreview() {
           onOpenChange={setShowShareDialog}
           listingId={id}
           title={listing.title || 'Swipess Listing'}
-          description={`${listing.title || 'Listing'} — ${listing.beds || 0}B/${listing.baths || 0}B in ${listing.city || 'Tulum'} for $${listing.price?.toLocaleString() || '—'}.`}
+          description={`${listing.title || 'Listing'} â€” ${listing.beds || 0}B/${listing.baths || 0}B in ${listing.city || 'Tulum'} for $${listing.price?.toLocaleString() || 'â€”'}.`}
           previewImage={heroImage}
         />
       )}

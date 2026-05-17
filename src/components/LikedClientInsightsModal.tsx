@@ -132,7 +132,7 @@ function LikedClientInsightsModalComponent({ open, onOpenChange, client }: Liked
       const { data: user } = await supabase.auth.getUser();
       if (!user.user || !client) throw new Error('Not authenticated');
 
-      // Use likes table for owner → client likes (target_type = profile)
+      // Use likes table for owner â†’ client likes (target_type = profile)
       const { error } = await supabase
         .from('likes')
         .delete()
@@ -299,7 +299,7 @@ function LikedClientInsightsModalComponent({ open, onOpenChange, client }: Liked
           className="w-full max-w-lg h-[92dvh] max-h-[92dvh] p-0 overflow-hidden bg-[#0a0a0f] border-0 rounded-[2.5rem] shadow-[0_32px_80px_rgba(0,0,0,0.8)]"
           hideCloseButton
         >
-          {/* 🛸 NEXUS ATMOSPHERE */}
+          {/* ðŸ›¸ Swipes ATMOSPHERE */}
           <div className="absolute top-[-20%] left-[-20%] w-[100%] h-[100%] bg-[#EB4898]/10 rounded-full blur-[120px] pointer-events-none" />
           <div className="absolute bottom-[-20%] right-[-20%] w-[100%] h-[100%] bg-violet-600/10 rounded-full blur-[120px] pointer-events-none" />
 
@@ -480,11 +480,11 @@ function LikedClientInsightsModalComponent({ open, onOpenChange, client }: Liked
                     </div>
                   </div>
 
-                  {/* Behavioral Insights — 🚀 NEXUS POLISH */}
+                  {/* Behavioral Insights â€” ðŸš€ Swipes POLISH */}
                   {renterInsights && (
                     <div className="space-y-4">
                       <div className="flex items-center justify-between px-1">
-                        <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-white/30">Nexus Behavioral Analysis</h4>
+                        <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-white/30">Swipes Behavioral Analysis</h4>
                         <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-white/5 border border-white/10">
                           <Zap className="w-3 h-3 text-[#EB4898] fill-current" />
                           <span className="text-[9px] font-black text-white uppercase tracking-wider">Live Insights</span>
