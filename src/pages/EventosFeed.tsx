@@ -421,8 +421,13 @@ export default function EventosFeed() {
       ) : (
         <div 
           ref={parentRef} 
-          className="w-full h-[100dvh] overflow-y-auto snap-y snap-mandatory no-scrollbar overscroll-y-auto"
-          style={{ WebkitOverflowScrolling: 'touch', overscrollBehaviorY: 'auto' } as React.CSSProperties}
+          className="w-full h-[100dvh] overflow-y-auto snap-y snap-mandatory no-scrollbar"
+          style={{
+            WebkitOverflowScrolling: 'touch',
+            overscrollBehaviorY: 'contain',
+            touchAction: 'pan-y',
+            scrollSnapStop: 'always',
+          } as React.CSSProperties}
         >
           <div style={{ height: `${rowVirtualizer.getTotalSize()}px`, position: 'relative' }}>
             {rowVirtualizer.getVirtualItems().map((virtualRow) => {
