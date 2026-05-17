@@ -1035,8 +1035,8 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                        <div className="pl-3 flex items-center gap-1.5 self-center">
                            <Popover>
                              <PopoverTrigger asChild>
-                                 <button className="p-2.5 rounded-2xl transition-all text-muted-foreground hover:text-foreground hover:bg-secondary" aria-label="Auto-send timer">
-                                    <Timer className="w-5 h-5" strokeWidth={2} />
+                          <button className="p-3 rounded-2xl transition-all text-foreground/60 hover:text-foreground hover:bg-secondary/80 focus:bg-secondary" aria-label="Auto-send timer">
+                                    <Timer className="w-5 h-5" strokeWidth={2.5} />
                                </button>
                              </PopoverTrigger>
                             <PopoverContent side="top" className="w-64 p-2 rounded-[2rem] border border-border/50 bg-background/95 backdrop-blur-2xl shadow-[0_20px_40px_hsl(var(--foreground)/0.15)]">
@@ -1057,13 +1057,13 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                             onPointerUp={stopListening}
                             onPointerCancel={stopListening}
                             className={cn(
-                              "p-2.5 rounded-2xl transition-all relative group overflow-hidden",
+                              "p-3 rounded-2xl transition-all relative group overflow-hidden focus:bg-secondary",
                               isListening 
                                 ? "bg-[#FF3D00] text-white shadow-[0_0_24px_rgba(255,61,0,0.4)] scale-110" 
-                                : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+                                : "text-foreground/60 hover:text-foreground hover:bg-secondary/80"
                             )}
                           >
-                             {isListening ? <Mic className="w-5 h-5 animate-pulse relative z-10" strokeWidth={2} /> : <Mic className="w-5 h-5 relative z-10" strokeWidth={2} />}
+                             {isListening ? <Mic className="w-5 h-5 animate-pulse relative z-10" strokeWidth={2.5} /> : <Mic className="w-5 h-5 relative z-10" strokeWidth={2.5} />}
                             {isListening && (
                                <motion.div className="absolute inset-0 bg-white/20 rounded-2xl" animate={{ scale: [1, 1.5, 1], opacity: [0.8, 0, 0.8] }} transition={{ duration: 1.5, repeat: Infinity }} />
                             )}
@@ -1077,7 +1077,7 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                          rows={1}
                          className={cn(
                            "w-full bg-transparent border-none outline-none focus:ring-0 py-4 pl-3 pr-4 text-[16px] resize-none custom-scrollbar min-h-[56px] max-h-32 leading-relaxed transition-all self-center font-medium",
-                           isListening ? "text-[#FF3D00] placeholder:text-[#FF3D00]/50" : "text-foreground placeholder:text-muted-foreground"
+                           isListening ? "text-[#FF3D00] placeholder:text-[#FF3D00]/50" : "text-foreground placeholder:text-foreground/40"
                          )}
                          onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
                        />
@@ -1089,7 +1089,7 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                       className={cn(
                         "h-14 w-14 shrink-0 rounded-full inline-flex items-center justify-center transition-all duration-300 relative group overflow-hidden active:scale-90",
                         (!input.trim() || isLoading) 
-                          ? "bg-[#FF3D00]/15 text-[#FF3D00]/50 cursor-not-allowed border border-[#FF3D00]/20" 
+                          ? "bg-[#FF3D00] text-white opacity-30 cursor-not-allowed" 
                           : "bg-[#FF3D00] text-white shadow-[0_8px_24px_rgba(255,61,0,0.35)] hover:shadow-[0_12px_32px_rgba(255,61,0,0.5)] hover:bg-[#FF3D00]/90 border border-white/10 hover:scale-105"
                       )}
                       aria-label="Send message"
@@ -1100,9 +1100,9 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                       )}
                       
                       {isLoading ? (
-                        <RefreshCw className="h-6 w-6 animate-spin relative z-10" strokeWidth={2.5} />
+                        <RefreshCw className="h-6 w-6 animate-spin relative z-10" strokeWidth={3} />
                       ) : (
-                        <ArrowUp className="h-6 w-6 relative z-10" strokeWidth={2.5} />
+                        <ArrowUp className="h-6 w-6 relative z-10" strokeWidth={3} />
                       )}
                     </button>
                   </div>
