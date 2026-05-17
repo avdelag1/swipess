@@ -196,8 +196,8 @@ const WelcomeState = memo(({ isSwipess, isLight, onPick }: { isSwipess: boolean;
 ));
 WelcomeState.displayName = 'WelcomeState';
 
-const MessageBubble = memo(({ message, isUser, isSwipess, onCopy, onDelete, onTranslate, onResend, onNavigate, onDraft, onFilter, onSpeak, speakingMsgId, isSpeaking }: { 
-  message: ChatMessage, isUser: boolean, isSwipess: boolean,
+const MessageBubble = memo(({ message, isUser, isSwipess, isLight, onCopy, onDelete, onTranslate, onResend, onNavigate, onDraft, onFilter, onSpeak, speakingMsgId, isSpeaking }: { 
+  message: ChatMessage, isUser: boolean, isSwipess: boolean, isLight?: boolean,
   onCopy: () => void, onDelete: () => void, onTranslate?: (l:string)=>void,
   onResend?: () => void, onNavigate?: (p:string)=>void,
   onDraft?: (cat: any, data: any) => void,
