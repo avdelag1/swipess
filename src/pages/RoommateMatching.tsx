@@ -193,10 +193,10 @@ export default function RoommateMatching() {
             whileTap={{ scale: 0.95 }}
             onClick={() => { triggerHaptic('light'); setRoommateVisible(!roommateVisible); }}
             className={cn(
-              "px-4 h-11 rounded-2xl border backdrop-blur-xl flex items-center gap-2 transition-all shadow-xl",
+              "px-4 h-11 rounded-2xl border backdrop-blur-xl flex items-center gap-2 transition-[transform,background-color,border-color] duration-200 ease-out active:scale-95 shadow-lg",
               roommateVisible
-                ? isLight ? "bg-rose-500 border-rose-600 text-white" : "bg-rose-500/30 border-rose-400/60 text-rose-100"
-                : isLight ? "bg-white border-slate-300 text-slate-800" : "bg-black/55 border-white/20 text-white/80"
+                ? "bg-primary border-primary text-primary-foreground"
+                : isLight ? "bg-card/80 border-border/60 text-foreground" : "bg-card/40 border-border/40 text-foreground/85"
             )}
             style={{ willChange: 'transform, opacity' }}
           >
@@ -214,8 +214,8 @@ export default function RoommateMatching() {
             onClick={() => setShowFilters(true)}
             aria-label="Filters"
             className={cn(
-              "px-4 h-11 rounded-2xl flex items-center gap-2 border backdrop-blur-xl shadow-xl transition-all",
-              isLight ? "bg-white border-slate-300 text-slate-800" : "bg-black/55 border-white/20 text-white"
+              "px-4 h-11 rounded-2xl flex items-center gap-2 border backdrop-blur-xl shadow-lg transition-[transform,background-color] duration-200 ease-out active:scale-95",
+              isLight ? "bg-card/80 border-border/60 text-foreground" : "bg-card/40 border-border/40 text-foreground"
             )}
             style={{ willChange: 'transform, opacity' }}
           >
