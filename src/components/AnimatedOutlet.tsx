@@ -44,23 +44,17 @@ export function AnimatedOutlet() {
     );
   }
 
-  // Non-dashboard routes: AnimatedOutlet itself is the page's scroll
-  // container. Using the canonical flexbox pattern (flex-1 + min-h-0
-  // + overflow-y: auto) so the wrapper grows to fill its flex parent
-  // but can also shrink below content size, which is what allows the
-  // browser to render the scrollbar.
+  // Non-dashboard routes: render the outlet inline as a normal block so
+  // its content participates in the outer scroll container's layout.
+  // `flex-grow` lets this wrapper stretch beyond the viewport when its
+  // content is tall, pushing #dashboard-scroll-container into scroll.
+  // `min-h-full` guarantees short pages still fill the screen.
+  // NO `flex-1` — that clamps to the parent's allocated height and clips.
   return (
     <div
       key={location.pathname}
-      id="page-scroll-container"
-      className="flex-1 min-h-0 w-full bg-background"
-      style={{
-        overflowY: 'auto',
-        overflowX: 'hidden',
-        WebkitOverflowScrolling: 'touch',
-        overscrollBehaviorY: 'contain',
-        pointerEvents: 'auto',
-      }}
+      className="w-full flex-grow min-h-full bg-background"
+      style={{ position: 'relative', pointerEvents: 'auto' }}
     >
       <Suspense fallback={null}>
         {outlet}

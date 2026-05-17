@@ -1,4 +1,4 @@
-import React, { ReactNode, useState, useEffect, useCallback, useMemo, useRef, lazy, Suspense } from 'react'
+import React, { ReactNode, useState, useEffect, useCallback, useMemo, useRef, lazy, Suspense, useLayoutEffect } from 'react'
 import { useAuth } from "@/hooks/useAuth"
 import { useAnonymousDrafts } from "@/hooks/useAnonymousDrafts"
 import { supabase } from '@/integrations/supabase/client'
@@ -6,7 +6,7 @@ import { useAppNavigate } from "@/hooks/useAppNavigate";
 import { useLocation } from "react-router-dom";
 import { useResponsiveContext } from '@/contexts/ResponsiveContext'
 import { prefetchRoleRoutes, createLinkObserver } from '@/utils/routePrefetcher'
-import { useLayoutEffect } from 'react'
+// useLayoutEffect imported above with the main React import
 import useAppTheme from '@/hooks/useAppTheme'
 import { cn } from '@/lib/utils'
 import { useQueryClient } from '@tanstack/react-query'
@@ -184,16 +184,17 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   const isRadioRoute = useMemo(() => location.pathname.includes('/radio'), [location.pathname]);
   const isCameraRoute = useMemo(() => location.pathname.includes('/camera'), [location.pathname]);
 
+  // Explicit allow-list of routes that own their own scroll surface. Every
+  // other route uses the dashboard <main> as the single scroll container,
+  // which fixes the "page won't scroll" bug caused by nested scrollers.
   const isFullScreenRoute = useMemo(() => {
-    const scrollExclusions = ['likes', 'interested', 'liked', 'profile', 'legal', 'settings'];
-    if (scrollExclusions.some(path => location.pathname.includes(path))) return false;
-    
-    const isRoommatesPageLocal = location.pathname.startsWith('/explore/roommates');
-    const isSpecialSubPage = [
-      // Full screen camera/roommate pages stay edge-to-edge
-    ].some(path => location.pathname === path || location.pathname === path + '/');
-    
-    return isCameraRoute || isRadioRoute || isRoommatesPageLocal || isSpecialSubPage;
+    const path = location.pathname.replace(/\/$/, '');
+    if (isRadioRoute || isCameraRoute) return true;
+    // Snap-feed: events main feed only (not /likes or /:id detail).
+    if (path === '/explore/events') return true;
+    // Roommate swipe deck only (not /likes sub-pages).
+    if (path === '/explore/roommates') return true;
+    return false;
   }, [location.pathname, isCameraRoute, isRadioRoute]);
 
   const isZeroScrollDashboard = useMemo(() => {
@@ -219,12 +220,11 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
 
   const { resetFocus } = useFocusMode(6000);
 
-  useScrollDirection({
-    threshold: 20,
-    showAtTop: true,
-    targetSelector: '#dashboard-scroll-container',
-    resetTrigger: location.pathname
-  });
+  // 🧘 HUD VISIBILITY LOGIC
+  // We no longer call useScrollDirection here because it triggers full re-renders
+  // of the entire dashboard shell on every scroll frame. Instead, individual
+  // HUD components (TopBar, BottomNavigation) use SwipessHud which handles
+  // its own optimized scroll tracking via its own useScrollDirection instance.
 
   // EFFECTS
   useEffect(() => {
@@ -246,10 +246,17 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     };
   }, [location.pathname]);
 
+  // 🚀 SMART SCROLL RESTORATION
+  // Only scroll to top when navigating to a NEW page, not when staying on the same route.
+  // This prevents the "bounce back" issue on scrollable pages like Profile.
+  const prevPathRef = useRef(location.pathname);
   useLayoutEffect(() => {
-    const el = scrollContainerRef.current;
-    if (el) {
-      el.scrollTo({ top: 0, behavior: 'auto' });
+    if (prevPathRef.current !== location.pathname) {
+      const el = scrollContainerRef.current;
+      if (el) {
+        el.scrollTo({ top: 0, behavior: 'auto' });
+      }
+      prevPathRef.current = location.pathname;
     }
     // The non-dashboard pages now scroll inside #page-scroll-container
     // (AnimatedOutlet). Reset that too on route change so each page
@@ -288,24 +295,23 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
         id="dashboard-scroll-container"
         className={cn(
           "flex-1 flex flex-col relative w-full min-h-0",
-          (isSwipeDeck || isFullScreenRoute) ? "overflow-hidden touch-none" : "overflow-y-auto scroll-area-momentum",
+          (isSwipeDeck || isFullScreenRoute) ? "overflow-hidden touch-none" : "overflow-y-auto",
           isSwipeDeck && "bg-swipe-frame"
         )}
         style={{
           WebkitOverflowScrolling: (isSwipeDeck || isFullScreenRoute) ? 'auto' : 'touch',
-          overscrollBehavior: (isSwipeDeck || isFullScreenRoute) ? 'none' : 'auto',
-          overscrollBehaviorY: (!isSwipeDeck && !isFullScreenRoute) ? 'contain' : 'none',
-          touchAction: (isSwipeDeck || isFullScreenRoute) ? 'none' : 'pan-y',
+          overscrollBehavior: (isSwipeDeck || isFullScreenRoute) ? 'none' : undefined,
+          touchAction: (isSwipeDeck || isFullScreenRoute) ? 'none' : undefined,
         }}
       >
         {/* INNER WRAPPER: full-screen routes (radio/camera) get no bottom-nav
             padding because they hide the chrome — leaving the padding causes
             a strip of body background to show beneath the page. */}
         <div className={cn(
-          "w-full",
+          "w-full flex flex-col min-h-0",
           (isSwipeDeck || isFullScreenRoute)
-            ? "flex flex-col min-h-0 h-full flex-1 overflow-hidden"
-            : "block min-h-full pt-[var(--top-bar-height)] pb-[var(--bottom-nav-height)]"
+            ? "h-full flex-1 overflow-hidden"
+            : "flex-grow min-h-full pt-[var(--top-bar-height)] pb-[var(--bottom-nav-height)]"
         )}>
           {children}
         </div>
