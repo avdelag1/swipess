@@ -166,7 +166,7 @@ const ClientProfile = () => {
         <div className="space-y-3">
           <Button
             onClick={() => { triggerHaptic('medium'); setShowEditDialog(true); }}
-            className="w-full h-16 rounded-2xl font-black uppercase italic tracking-[0.2em] text-[15px] transition-all border-none text-white shadow-2xl"
+            className="w-full h-12 rounded-2xl font-black uppercase italic tracking-[0.2em] text-[15px] transition-all border-none text-white shadow-2xl"
             style={{
               background: 'linear-gradient(135deg, #FF4D00, #EB4898)',
             }}
@@ -177,7 +177,7 @@ const ClientProfile = () => {
 
           <Button
             onClick={() => { triggerHaptic('medium'); navigate('/client/advertise'); }}
-            className={cn("w-full h-16 rounded-2xl border transition-all active:scale-95 shadow-sm bg-white/5", isLight ? "border-black/10 bg-white hover:bg-black/[0.02]" : "border-white/10 hover:border-white/20")}
+            className={cn("w-full h-12 rounded-2xl border transition-all active:scale-95 shadow-sm bg-white/5", isLight ? "border-black/10 bg-white hover:bg-black/[0.02]" : "border-white/10 hover:border-white/20")}
           >
             <Megaphone className="w-6 h-6 text-[#FF4D00] mr-3" />
             <span className="bg-gradient-to-r from-[#FF4D00] to-[#EB4898] bg-clip-text text-transparent font-black uppercase italic tracking-[0.2em] text-[14px]">
@@ -259,7 +259,7 @@ const ClientProfile = () => {
           <motion.button
             whileTap={{ scale: 0.98 }}
             onClick={() => { triggerHaptic('success'); navigate('/client/dashboard'); }}
-            className="w-full h-16 rounded-2xl flex items-center justify-center gap-4 active:scale-[0.97] transition-all text-white font-black uppercase italic tracking-[0.2em] text-[15px] shadow-2xl"
+            className="w-full h-12 rounded-2xl flex items-center justify-center gap-4 active:scale-[0.97] transition-all text-white font-black uppercase italic tracking-[0.2em] text-[15px] shadow-2xl"
             style={{
               background: 'linear-gradient(135deg, #FF4D00, #EB4898)',
             }}
@@ -284,7 +284,7 @@ const ClientProfile = () => {
                   else navigate(btn.path);
                 }}
                 className={cn(
-                  "w-full h-14 rounded-2xl flex items-center px-8 gap-5 active:scale-[0.97] transition-all border shadow-sm backdrop-blur-xl",
+                  "w-full h-11 rounded-2xl flex items-center px-8 gap-5 active:scale-[0.97] transition-all border shadow-sm backdrop-blur-xl",
                   (btn as any).urgent
                     ? "bg-red-500/10 border-red-500/20 text-red-400"
                     : (btn as any).premium

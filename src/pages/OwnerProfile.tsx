@@ -164,7 +164,7 @@ const OwnerProfile = () => {
         <div className="space-y-3">
           <Button
             onClick={() => { triggerHaptic('heavy'); useModalStore.getState().openAIProfile('owner'); }}
-            className="w-full h-20 rounded-3xl relative overflow-hidden transition-all active:scale-95 border-none shadow-2xl"
+            className="w-full h-14 rounded-3xl relative overflow-hidden transition-all active:scale-95 border-none shadow-2xl"
             style={{ background: 'linear-gradient(135deg, #06B6D4, #6366F1)' }}
           >
             <div className="relative z-10 flex items-center justify-center gap-4">
@@ -178,7 +178,7 @@ const OwnerProfile = () => {
 
           <Button
             onClick={() => { triggerHaptic('heavy'); setModal('showAIListing', true); }}
-            className="w-full h-24 rounded-3xl relative overflow-hidden transition-all active:scale-95 border-none shadow-2xl"
+            className="w-full h-16 rounded-3xl relative overflow-hidden transition-all active:scale-95 border-none shadow-2xl"
             style={{ background: 'linear-gradient(135deg, #FF4D00, #EB4898)' }}
           >
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.35),transparent_70%)] pointer-events-none" />
@@ -193,7 +193,7 @@ const OwnerProfile = () => {
 
           <Button
             onClick={() => { triggerHaptic('medium'); setShowEditDialog(true); }}
-            className="w-full h-16 rounded-2xl font-black uppercase italic tracking-[0.2em] text-[15px] transition-all border-none text-white shadow-xl"
+            className="w-full h-12 rounded-2xl font-black uppercase italic tracking-[0.2em] text-[15px] transition-all border-none text-white shadow-xl"
             style={{
               background: 'linear-gradient(135deg, #FF4D00, #FF6B00)',
             }}
@@ -204,7 +204,7 @@ const OwnerProfile = () => {
 
           <Button
             onClick={() => { triggerHaptic('medium'); navigate('/client/advertise'); }}
-            className={cn("w-full h-16 rounded-2xl transition-all active:scale-95 border shadow-sm bg-white/5", isLight ? "border-black/10 bg-white hover:bg-black/[0.02]" : "border-white/10 hover:border-white/20")}
+            className={cn("w-full h-12 rounded-2xl transition-all active:scale-95 border shadow-sm bg-white/5", isLight ? "border-black/10 bg-white hover:bg-black/[0.02]" : "border-white/10 hover:border-white/20")}
           >
             <Megaphone className="w-6 h-6 text-[#FF4D00] mr-3" />
             <span className="bg-gradient-to-r from-[#FF4D00] to-[#EB4898] bg-clip-text text-transparent font-black uppercase italic tracking-[0.2em] text-[14px]">
@@ -262,7 +262,7 @@ const OwnerProfile = () => {
           <motion.button
             whileTap={{ scale: 0.98 }}
             onClick={() => { triggerHaptic('success'); navigate('/owner/dashboard'); }}
-            className="w-full h-16 rounded-2xl flex items-center justify-center gap-4 active:scale-[0.97] transition-all text-white font-black uppercase italic tracking-[0.2em] text-[15px] shadow-2xl"
+            className="w-full h-12 rounded-2xl flex items-center justify-center gap-4 active:scale-[0.97] transition-all text-white font-black uppercase italic tracking-[0.2em] text-[15px] shadow-2xl"
             style={{
               background: 'linear-gradient(135deg, #FF4D00, #EB4898)',
             }}
@@ -287,7 +287,7 @@ const OwnerProfile = () => {
                   else navigate(btn.path);
                 }}
                 className={cn(
-                  "w-full h-14 rounded-2xl flex items-center px-8 gap-5 active:scale-[0.97] transition-all border shadow-sm backdrop-blur-xl",
+                  "w-full h-11 rounded-2xl flex items-center px-8 gap-5 active:scale-[0.97] transition-all border shadow-sm backdrop-blur-xl",
                   (btn as any).urgent
                     ? "bg-red-500/10 border-red-500/20 text-red-400"
                     : (btn as any).premium

@@ -13,7 +13,9 @@ interface QuickFilterImageProps {
  * then slides in with the breathing animation already running.
  */
 export function QuickFilterImage({ src, alt, className }: QuickFilterImageProps) {
-  const [isReady, setIsReady] = useState(false);
+  const [isReady, setIsReady] = useState(() => {
+    return typeof window !== 'undefined' && (window as any).__Swipess_cache?.[src];
+  });
   const [hasError, setHasError] = useState(false);
   const imgRef = useRef<HTMLImageElement>(null);
 
