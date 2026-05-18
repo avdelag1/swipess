@@ -39,7 +39,7 @@ function ModeSwitcherComponent({ className }: ModeSwitcherProps) {
 
   const isClient = activeMode === 'client';
 
-  const BUTTON_SIZE = 36;
+  const BUTTON_SIZE = 28;
 
   const containerStyle: React.CSSProperties = {
     background: 'transparent',
@@ -49,7 +49,7 @@ function ModeSwitcherComponent({ className }: ModeSwitcherProps) {
     position: 'relative',
     display: 'flex',
     alignItems: 'center',
-    gap: 6,
+    gap: 2,
     boxSizing: 'border-box',
     opacity: !canSwitchMode || isSwitching ? 0.55 : 1,
     transition: 'opacity 0.2s ease',
@@ -83,7 +83,7 @@ function ModeSwitcherComponent({ className }: ModeSwitcherProps) {
         aria-pressed={isClient}
       >
         <UserRound
-          className="h-[20px] w-[20px] transition-colors duration-300"
+          className="h-[16px] w-[16px] transition-colors duration-300"
           style={{ color: isClient ? baseColor : `${baseColor}99` }}
           strokeWidth={isClient ? 2.1 : 1.8}
         />
@@ -99,7 +99,7 @@ function ModeSwitcherComponent({ className }: ModeSwitcherProps) {
         aria-pressed={!isClient}
       >
         <BriefcaseBusiness
-          className="h-[20px] w-[20px] transition-colors duration-300"
+          className="h-[16px] w-[16px] transition-colors duration-300"
           style={{ color: !isClient ? baseColor : `${baseColor}99` }}
           strokeWidth={!isClient ? 2.1 : 1.8}
         />

@@ -163,13 +163,15 @@ export function VapIdEditModal({ isOpen, onClose }: Props) {
       const { error: profileSyncErr } = await supabase
         .from('profiles')
         .update({
-          full_name: occupation ? `${user.email?.split('@')[0]} (${occupation})` : undefined,
+          full_name: occupation
+            ? `${profile?.full_name?.split(' (')[0] || user.user_metadata?.name || user.email?.split('@')[0]} (${occupation})`
+            : (profile?.full_name || undefined),
           city: city.trim() || undefined,
           nationality: nationality.trim() || undefined,
           languages_spoken: csvToArray(languages),
           interests: csvToArray(interests),
         })
-        .eq('id', user.id);
+        .eq('user_id', user.id);
       
       if (profileSyncErr) {
         console.warn('Profile sync warning:', profileSyncErr);
@@ -312,7 +314,7 @@ export function VapIdEditModal({ isOpen, onClose }: Props) {
             <button
               onClick={handleSave}
               disabled={saving}
-              className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-primary text-primary-foreground text-sm font-black uppercase tracking-[0.2em] shadow-lg active:scale-[0.98] disabled:opacity-60"
+              className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-[#FF3D00] text-white hover:bg-[#E03600] active:scale-[0.98] disabled:opacity-60 transition-colors font-black uppercase tracking-[0.2em] shadow-[0_4px_20px_rgba(255,61,0,0.3)]"
             >
               {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
               {saving ? 'Saving…' : 'Save card'}

@@ -21,7 +21,9 @@ const SwipessHud = lazyWithRetry(() => import('./SwipessHud').then(m => ({ defau
 const VapIdCardModal = lazyWithRetry(() => import('./VapIdCardModal').then(m => ({ default: m.VapIdCardModal })));
 const GlobalDialogs = lazyWithRetry(() => import('./GlobalDialogs').then(m => ({ default: m.GlobalDialogs })));
 import { ChromeSummonZones } from './swipe/ChromeSummonZones';
-import { revealChrome } from '@/hooks/useChromeReveal';
+import { revealChrome, useChromeReveal } from '@/hooks/useChromeReveal';
+import { useFilterStore } from '@/state/filterStore';
+import { useShallow } from 'zustand/react/shallow';
 
 
 const NotificationSystem = lazy(() =>
@@ -51,15 +53,30 @@ export function AppLayout({ children }: AppLayoutProps) {
     return path.startsWith('/client/dashboard') || path.startsWith('/owner/dashboard');
   }, [location.pathname]);
 
-  // Chrome visibility policy: on dashboard pages (client + owner) the
-  // TopBar and BottomNavigation stay pinned at all times — these are
-  // the navigation hub and must not disappear. On every other page the
-  // chrome auto-hides as the user scrolls down (the standard scroll-
-  // direction behaviour) and re-appears when scrolling up.
+  // Chrome visibility policy:
+  //   • Dashboard "picking phase" (no quick filter selected yet): chrome
+  //     is pinned — that's the navigation hub.
+  //   • Dashboard "swipe deck" (a quick-filter category is active and
+  //     cards are on screen): chrome auto-hides for an immersive view
+  //     of the photo. Re-summoned by tapping the top edge or the
+  //     bottom-center summon zone.
+  //   • Every other page: chrome hides on scroll-down, shows on scroll-up.
   const isDashboardPage = location.pathname.startsWith('/client/dashboard') ||
     location.pathname.startsWith('/owner/dashboard');
-  const useRevealMode = false;
-  const hideFloatingForSwipe = false;
+  const { selectedCategoriesCount, ownerPhase } = useFilterStore(
+    useShallow((s) => ({
+      selectedCategoriesCount: s.categories.length,
+      ownerPhase: s.ownerPhase,
+    }))
+  );
+  const isClientDash = location.pathname.startsWith('/client/dashboard');
+  const isOwnerDash = location.pathname.startsWith('/owner/dashboard');
+  const swipeDeckActive =
+    (isClientDash && selectedCategoriesCount > 0) ||
+    (isOwnerDash && ownerPhase === 'swipe');
+  const { isChromeVisible } = useChromeReveal();
+  const useRevealMode = swipeDeckActive && !showAIChat;
+  const hideFloatingForSwipe = useRevealMode && !isChromeVisible;
 
   const userRole = useMemo<'client' | 'owner' | 'admin'>(() => {
     if (user?.user_metadata?.role === 'admin') return 'admin';
@@ -185,7 +202,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   
       {showAppChrome && (
         <Suspense fallback={null}>
-          <SwipessHud side="top" className="fixed top-0 left-0 right-0 z-[10005]" scrollTargetSelector="#dashboard-scroll-container" alwaysVisible={isDashboardPage} revealMode={useRevealMode}>
+          <SwipessHud side="top" className="fixed top-0 left-0 right-0 z-[10005]" scrollTargetSelector="#dashboard-scroll-container" alwaysVisible={isDashboardPage && !swipeDeckActive} revealMode={useRevealMode}>
             <TopBar
               userRole={userRole}
               onMessageActivationsClick={handleMessageActivationsClick}
@@ -206,13 +223,13 @@ export function AppLayout({ children }: AppLayoutProps) {
       <main
         id="main-content"
         className={cn(
-          "w-full flex-1 relative z-0 flex flex-col",
+          "w-full flex-1 relative z-0 flex flex-col min-h-0",
           // Restore pt/pb for non-dashboard pages to prevent content overlap with floating header
           !isInsideDashboard && !isFullScreen && "pt-[var(--top-bar-height)] pb-[var(--bottom-nav-height)]",
           (isInsideDashboard || isFullScreen) ? "overflow-hidden" : "overflow-y-auto scroll-area-momentum"
         )}
       >
-        <div className="w-full flex-1 flex flex-col">
+        <div className="w-full flex-1 flex flex-col min-h-0">
           {children}
         </div>
       </main>
@@ -223,7 +240,7 @@ export function AppLayout({ children }: AppLayoutProps) {
 
       {showAppChrome && (
         <Suspense fallback={null}>
-          <SwipessHud side="bottom" className="fixed bottom-0 left-0 right-0 z-[10005]" scrollTargetSelector="#dashboard-scroll-container" alwaysVisible={isDashboardPage} revealMode={useRevealMode}>
+          <SwipessHud side="bottom" className="fixed bottom-0 left-0 right-0 z-[10005]" scrollTargetSelector="#dashboard-scroll-container" alwaysVisible={isDashboardPage && !swipeDeckActive} revealMode={useRevealMode}>
             <BottomNavigation
               userRole={userRole}
               onFilterClick={handleFilterClick}

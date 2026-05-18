@@ -122,6 +122,7 @@ const ClientProfile = () => {
 
             <button
               onClick={() => { triggerHaptic('light'); setShowEditDialog(true); }}
+              aria-label="Edit profile photo"
               className="absolute -bottom-3 -right-3 w-12 h-12 flex items-center justify-center shadow-2xl transition-all active:scale-90 z-20 rounded-[1.5rem] border border-white/10"
               style={{ background: 'linear-gradient(135deg, #FF4D00, #FF6B00)' }}
             >

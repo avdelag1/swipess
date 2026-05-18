@@ -36,9 +36,9 @@ function ThemeToggleComponent({ className, glassPillStyle }: ThemeToggleProps) {
 
     const icon =
         theme === 'light' ? (
-            <Sun strokeWidth={1.9} className="h-[18px] w-[18px]" style={{ color: iconColor }} />
+            <Sun strokeWidth={1.9} className="h-[16px] w-[16px]" style={{ color: iconColor }} />
         ) : (
-            <Moon strokeWidth={1.9} className="h-[18px] w-[18px]" style={{ color: iconColor }} />
+            <Moon strokeWidth={1.9} className="h-[16px] w-[16px]" style={{ color: iconColor }} />
         );
 
 
@@ -50,7 +50,7 @@ function ThemeToggleComponent({ className, glassPillStyle }: ThemeToggleProps) {
             className={cn(
                 'relative flex items-center justify-center rounded-full',
                 'transition-all duration-200 ease-out active:scale-[0.92]',
-                'touch-manipulation h-9 w-9 flex-shrink-0',
+                'touch-manipulation h-[28px] w-[28px] flex-shrink-0',
                 className,
             )}
             style={glassPillStyle}

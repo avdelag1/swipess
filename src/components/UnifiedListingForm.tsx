@@ -532,16 +532,14 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
           >
             {/* Photo Section with premium cards - RELOCATED TO FRONT */}
             <motion.div variants={itemFadeScale}>
-              <Card className="rounded-3xl border-border bg-card overflow-hidden shadow-2xl backdrop-blur-sm">
-                <CardHeader className="pb-4">
-                  <CardTitle className="flex items-center justify-between text-base">
-                    <span>Photos <span className="text-xs font-normal text-muted-foreground ml-2">({images.length + imageFiles.length}/{maxPhotos})</span></span>
-                    {(images.length + imageFiles.length) < 1 && (
-                      <Badge variant="destructive" className="animate-pulse">Required</Badge>
-                    )}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-6">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between px-2">
+                  <h3 className="text-xl font-bold">Photos <span className="text-sm font-medium text-muted-foreground ml-2">({images.length + imageFiles.length}/{maxPhotos})</span></h3>
+                  {(images.length + imageFiles.length) < 1 && (
+                    <Badge variant="destructive" className="animate-pulse bg-[#FF3D00] hover:bg-[#FF3D00]/90 shadow-[0_4px_12px_rgba(255,61,0,0.25)] border-none">Required</Badge>
+                  )}
+                </div>
+                <div className="p-6 rounded-[2rem] bg-white/[0.02] border border-white/5 shadow-inner">
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                     <AnimatePresence>
                       {images.map((img, index) => (
@@ -589,14 +587,14 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
                     </AnimatePresence>
 
                     {(images.length + imageFiles.length) < maxPhotos && (
-                    <motion.button
+                      <motion.button
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                         onClick={handleImageAdd}
-                        className="aspect-square rounded-2xl border-2 border-dashed border-primary/35 bg-secondary text-secondary-foreground hover:bg-accent hover:text-accent-foreground hover:border-primary transition-all group shadow-inner"
+                        className="aspect-square flex flex-col items-center justify-center gap-2 rounded-[2rem] border-2 border-dashed border-primary/20 bg-primary/5 text-primary hover:bg-primary/10 hover:border-primary/30 transition-all group shadow-sm"
                       >
-                        <Upload className="w-6 h-6 group-hover:text-primary transition-colors" />
-                        <span className="text-xs font-semibold">Add Photo</span>
+                        <Upload className="w-8 h-8 group-hover:scale-110 transition-transform" strokeWidth={1.5} />
+                        <span className="text-sm font-semibold">Add Photo</span>
                       </motion.button>
                     )}
                   </div>
@@ -604,8 +602,8 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
                   <p className="text-xs text-center text-muted-foreground opacity-60">
                     High quality JPG or PNG, max 10MB per file
                   </p>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             </motion.div>
 
             {/* Category selection with cascade */}
@@ -707,11 +705,11 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
           </motion.div>
         </ScrollArea>
 
-        <div className="shrink-0 flex items-center justify-between px-6 sm:px-8 py-5 border-t border-border bg-background/95 backdrop-blur-2xl shadow-[0_-18px_40px_hsl(var(--foreground)/0.08)]">
+        <div className="shrink-0 flex items-center justify-between px-6 sm:px-8 py-5 border-t border-white/[0.04] bg-background">
           <motion.button
             whileTap={{ scale: 0.96 }}
             onClick={handleClose}
-            className="text-secondary-foreground bg-secondary border border-border hover:bg-accent hover:text-accent-foreground px-6 rounded-2xl h-12 font-semibold transition-all shadow-lg shadow-foreground/5"
+            className="text-muted-foreground hover:text-foreground hover:bg-secondary px-6 rounded-2xl h-12 font-semibold transition-all"
           >
             Cancel
           </motion.button>
@@ -723,8 +721,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
                 whileTap={{ scale: 0.96 }}
                 onClick={handleSubmit}
                 disabled={createListingMutation.isPending}
-                data-category={selectedCategory}
-                className="listing-submit-button px-10 rounded-2xl h-12 font-black transition-all flex items-center gap-3 disabled:opacity-50 relative z-10"
+                className="bg-[#FF3D00] hover:bg-[#FF3D00]/90 text-white shadow-[0_8px_24px_rgba(255,61,0,0.35)] px-10 rounded-2xl h-12 font-black transition-all flex items-center gap-3 disabled:opacity-50 relative z-10"
               >
                 {createListingMutation.isPending ? (
                   <>

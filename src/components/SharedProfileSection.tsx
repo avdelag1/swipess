@@ -185,6 +185,7 @@ export function SharedProfileSection({
             </div>
             <Button
               onClick={handleCopyLink}
+              aria-label={copied ? 'Link copied' : 'Copy share link'}
               variant="outline"
               size="icon"
               className="shrink-0 h-14 w-14 rounded-[1.5rem] transition-all active:scale-90 border-none bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_14px_30px_-10px_hsl(var(--primary)/0.55)]"

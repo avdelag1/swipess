@@ -29,7 +29,7 @@ export function lazyWithRetry<T extends ComponentType<any>>(
         if (!pageHasAlreadyReloaded) {
           window.sessionStorage.setItem('page-reloaded-on-chunk-fail', 'true');
           console.error('[lazyWithRetry] Critical chunk error. Hard reloading page...', retryError);
-          window.location.reload();
+          window.location.replace(window.location.pathname + '?v=' + Date.now());
           return new Promise(() => {}); // Never resolve to prevent further rendering while reloading
         }
         

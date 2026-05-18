@@ -129,18 +129,13 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
   }, [card.id, isTop, x, y]);
 
   const handleDragEnd = useCallback((_: any, info: PanInfo) => {
-    const axis = axisRef.current;
     const dx = info.offset.x;
-    const dy = info.offset.y;
     const vx = info.velocity.x;
-    const vy = info.velocity.y;
 
-    const commitX = axis === 'x' && (Math.abs(dx) > PK_DIST_THRESHOLD || Math.abs(vx) > PK_VEL_THRESHOLD);
-    const commitY = axis === 'y' && (Math.abs(dy) > PK_DIST_THRESHOLD * 1.1 || Math.abs(vy) > PK_VEL_THRESHOLD);
+    const commitX = Math.abs(dx) > PK_DIST_THRESHOLD || Math.abs(vx) > PK_VEL_THRESHOLD;
 
     const reset = () => {
       animate(x, 0, { ...PK_SPRING });
-      animate(y, 0, { ...PK_SPRING });
       axisRef.current = null;
       setIsDragging(false);
     };
@@ -165,31 +160,11 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
       return;
     }
 
-    if (commitY) {
-      triggerHaptic('light');
-      const direction = dy > 0 ? 'right' : 'left'; // map to deck cycle
-      const exitY = dy > 0 ? 700 : -700;
-      // Straight vertical exit — pure translateY.
-      animate(y, exitY, {
-        type: 'tween',
-        duration: 0.24,
-        ease: [0.32, 0, 0.67, 0],
-        onComplete: () => {
-          onCycle(card.id, direction);
-          x.set(0);
-          y.set(0);
-          axisRef.current = null;
-          setIsDragging(false);
-        }
-      });
-      return;
-    }
-
     reset();
   }, [card.id, onCycle, x, y]);
 
-  const handleDirectionLock = useCallback((axis: 'x' | 'y') => {
-    axisRef.current = axis;
+  const handleDirectionLock = useCallback(() => {
+    axisRef.current = 'x';
   }, []);
 
   // Stack styling — 🚀 Swipess v14.0 Reveal Logic
@@ -212,10 +187,10 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
 
     return (
     <motion.div
-      drag={isTop ? true : false}
+      drag={isTop ? "x" : false}
       dragDirectionLock
       onDirectionLock={handleDirectionLock}
-      dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
+      dragConstraints={{ left: 0, right: 0 }}
       dragElastic={0.85}
       dragMomentum={false}
       onDragStart={() => {
@@ -301,7 +276,10 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
             draggable={false}
           />
         </AnimatePresence>
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+        {/* Stronger bottom-to-top dark scrim so the title + subtitle
+            always read as white over any photo — bright tan/beach
+            backgrounds were washing the text out before. */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
 
         {/* Breathing existence hints — only on the top card AND only on
             capable devices. On low-end Android the four pulsing dots
@@ -331,13 +309,25 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
                className="flex items-center gap-2"
             >
               <div className="w-4 h-[1px] shadow-[0_0_8px_rgba(255,255,255,0.4)] bg-white/40" />
-              <span className="text-[10px] font-black uppercase tracking-[0.4em] italic text-white/80">{card.description}</span>
+              <span
+                className="text-[10px] font-black uppercase tracking-[0.4em] italic text-white"
+                style={{ textShadow: '0 2px 6px rgba(0,0,0,0.7)' }}
+              >
+                {card.description}
+              </span>
             </motion.div>
             
-            <h3 className={cn(
-              "font-black tracking-[calc(-0.06em)] leading-[0.85] uppercase italic text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]",
-              card.label.length <= 8 ? "text-5xl" : card.label.length <= 10 ? "text-4xl" : "text-3xl"
-            )}>
+            <h3
+              className={cn(
+                "font-black tracking-[calc(-0.06em)] leading-[0.85] uppercase italic text-white",
+                card.label.length <= 8 ? "text-5xl" : card.label.length <= 10 ? "text-4xl" : "text-3xl"
+              )}
+              style={{
+                color: '#FFFFFF',
+                textShadow:
+                  '0 2px 8px rgba(0,0,0,0.85), 0 0 2px rgba(0,0,0,0.7)',
+              }}
+            >
               {card.label}
             </h3>
           </div>
@@ -356,10 +346,12 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
                   triggerHaptic('medium');
                   onSelect(card.id);
                 }}
-                className="w-full h-14 rounded-2xl font-black uppercase italic tracking-widest transition-all hover:scale-[1.02] active:scale-95 text-black shadow-[0_18px_40px_rgba(0,0,0,0.35)] ring-1 ring-white/40"
+                className="w-full h-14 rounded-2xl flex items-center justify-center gap-3 font-black uppercase italic tracking-widest transition-all hover:scale-[1.02] active:scale-95 text-black shadow-[0_18px_40px_rgba(0,0,0,0.35)] ring-1 ring-white/40"
                 style={{ background: 'rgba(255,255,255,0.96)', backdropFilter: 'blur(8px)' }}
+                aria-label="Engage Discovery"
               >
-                Engage Discovery
+                {card.icon && <card.icon className="w-5 h-5" />}
+                <span>Engage Discovery</span>
               </button>
             </motion.div>
           )}

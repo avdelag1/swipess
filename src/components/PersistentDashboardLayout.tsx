@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useActiveMode } from '@/hooks/useActiveMode';
 import { ChunkErrorBoundary } from '@/components/ChunkErrorBoundary';
 import { lazyWithRetry } from '@/utils/lazyRetry';
+import { cn } from '@/lib/utils';
 
 // 🚀 SPEED OF LIGHT: CORE COMPONENTS DECOUPLED
 // We lazy-load these to break any potential circular dependency chains
@@ -75,23 +76,26 @@ export function PersistentDashboardLayout() {
         <DashboardLayout userRole={userRole}>
           <div
             id="swipess-dashboard-root"
-            className="flex min-h-full w-full flex-1 flex-col relative self-stretch"
+            className={cn(
+              "w-full flex flex-col flex-grow relative",
+              isDashboardRoute && "min-h-full self-stretch"
+            )}
           >
             {/* Persistent dashboard layer — mounted once, hidden via CSS on
                 non-dashboard routes. Sits BELOW the outlet (z-0). */}
             <Suspense fallback={null}>
               <PersistentDashboardScene />
             </Suspense>
-            {/* Outlet renders other routes ON TOP of the persistent dashboard
-                (z-10). On /client/dashboard and /owner/dashboard the outlet
-                renders an empty placeholder so the persistent layer shows.
-                pointer-events:none on the wrapper so an empty outlet doesn't
-                steal swipe gestures from the persistent dashboard underneath;
-                AnimatedOutlet re-enables pointer-events on its inner motion
-                container for non-dashboard routes. */}
+            {/* Outlet renders other routes ON TOP of the persistent dashboard (z-10). */}
             <div
-              className="relative flex-1 flex flex-col"
-              style={{ zIndex: 10, pointerEvents: isDashboardRoute ? 'none' : 'auto' }}
+              className={cn(
+                "relative w-full flex flex-col flex-grow",
+                isDashboardRoute && "flex-1 min-h-0"
+              )}
+              style={{
+                zIndex: 10,
+                pointerEvents: isDashboardRoute ? 'none' : 'auto',
+              }}
             >
               <Suspense fallback={null}>
                 <AnimatedOutlet />

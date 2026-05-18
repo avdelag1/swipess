@@ -44,16 +44,20 @@ export function AnimatedOutlet() {
     );
   }
 
-  // Non-dashboard routes: render the outlet inline as a normal block so
-  // its content participates in the outer scroll container's layout.
-  // CRITICAL: no `flex-1` here — that would lock this wrapper to the
-  // parent's allocated height and clip tall pages, breaking scroll on
-  // the outer #dashboard-scroll-container. Plain `w-full` lets the
-  // wrapper grow with its content.
+  // Non-dashboard routes: AnimatedOutlet is INTENTIONALLY not a scroll
+  // container — #dashboard-scroll-container (in DashboardLayout) is the
+  // single owner of vertical scroll on these pages.
+  //
+  // SCROLL FIX: This wrapper must be a plain block div — NOT flex.
+  // Using flex-grow / flex-1 here clamped the wrapper to its flex
+  // parent's height, so content taller than the viewport was clipped
+  // and the outer scroll container never saw any overflow.
+  // `min-height: 100%` guarantees short pages still fill the screen.
   return (
     <div
       key={location.pathname}
-      className="w-full bg-background"
+      id="page-scroll-container"
+      className="w-full flex flex-col flex-grow bg-background"
       style={{ position: 'relative', pointerEvents: 'auto' }}
     >
       <Suspense fallback={null}>
