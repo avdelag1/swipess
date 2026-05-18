@@ -133,7 +133,7 @@ function TopBarComponent({
       <div className="h-full w-full px-3 flex items-center justify-between relative">
 
         <div
-          className="flex min-w-0 items-center gap-1 pointer-events-auto glass-pill px-1.5 py-1"
+          className="flex min-w-0 items-center gap-0.5 pointer-events-auto glass-pill px-1 h-[34px]"
           style={clusterPillStyle}
         >
           {onBack ? (
@@ -141,12 +141,12 @@ function TopBarComponent({
               transition={TAP_SPRING}
               whileTap={{ scale: 0.94 }}
               onClick={() => { haptics.tap(); onBack(); }}
-              className="flex shrink-0 items-center justify-center rounded-full h-8 w-8"
+              className="flex shrink-0 items-center justify-center rounded-full h-[28px] w-[28px]"
               style={glassPillStyle}
               aria-label="Back"
             >
               <ChevronLeft
-                className="w-[18px] h-[18px]"
+                className="w-[16px] h-[16px]"
                 strokeWidth={2.2}
                 style={{
                   color: iconColor,
@@ -165,12 +165,12 @@ function TopBarComponent({
                   haptics.tap();
                   navigate(isOwner ? '/owner/profile' : '/client/profile');
                 }}
-                className="flex shrink-0 items-center gap-2 rounded-full pl-1 pr-2 h-8 group"
+                className="flex shrink-0 items-center gap-1.5 rounded-full pl-0.5 pr-1.5 h-[28px] group"
                 style={glassPillStyle}
                 aria-label="Open profile"
               >
                 <div
-                  className="w-6 h-6 rounded-full overflow-hidden shrink-0 flex items-center justify-center relative"
+                  className="w-[22px] h-[22px] rounded-full overflow-hidden shrink-0 flex items-center justify-center relative"
                   style={{
                     background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)))',
                     boxShadow: '0 0 0 1px rgba(255,255,255,0.2) inset, 0 0 14px hsl(var(--primary) / 0.35)',
@@ -183,8 +183,8 @@ function TopBarComponent({
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    initials === '?' ? <UserRound className="h-3.5 w-3.5 text-primary-foreground" strokeWidth={2.4} /> : (
-                      <span className="text-[10px] font-black text-primary-foreground drop-shadow-sm">
+                    initials === '?' ? <UserRound className="h-3 w-3 text-primary-foreground" strokeWidth={2.4} /> : (
+                      <span className="text-[9px] font-black text-primary-foreground drop-shadow-sm">
                         {initials}
                       </span>
                     )
@@ -192,7 +192,7 @@ function TopBarComponent({
                 </div>
                 {profile?.full_name && (
                   <span
-                    className="hidden max-w-[74px] truncate sm:inline-block text-[10px] font-black uppercase tracking-[0.08em]"
+                    className="hidden max-w-[74px] truncate sm:inline-block text-[9px] font-black uppercase tracking-[0.08em]"
                     style={{
                       fontVariantNumeric: 'tabular-nums',
                       color: iconColor,
@@ -231,7 +231,7 @@ function TopBarComponent({
 
         {/* RIGHT CLUSTER: single glass pill wrapping all action buttons */}
           <div
-            className="flex shrink-0 items-center gap-1 pointer-events-auto glass-pill px-1.5 py-1"
+            className="flex shrink-0 items-center gap-0.5 pointer-events-auto glass-pill px-1 h-[34px]"
             style={clusterPillStyle}
           >
           {!minimal && (
@@ -240,12 +240,12 @@ function TopBarComponent({
                   transition={TAP_SPRING}
                   whileTap={{ scale: 0.92 }}
                   onClick={() => { haptics.tap(); setModal('showTokensModal', true); }}
-                  className="flex shrink-0 items-center justify-center rounded-full relative h-8 w-8"
+                  className="flex shrink-0 items-center justify-center rounded-full relative h-[28px] w-[28px]"
                   style={glassPillStyle}
                   aria-label="Tokens"
                 >
                   <Crown
-                    className="w-[18px] h-[18px]"
+                    className="w-[16px] h-[16px]"
                     style={{
                       color: iconColor,
                       filter: isLight ? 'none' : 'drop-shadow(0 0 8px rgba(228,0,124,0.65))',

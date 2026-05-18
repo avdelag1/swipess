@@ -129,18 +129,13 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
   }, [card.id, isTop, x, y]);
 
   const handleDragEnd = useCallback((_: any, info: PanInfo) => {
-    const axis = axisRef.current;
     const dx = info.offset.x;
-    const dy = info.offset.y;
     const vx = info.velocity.x;
-    const vy = info.velocity.y;
 
-    const commitX = axis === 'x' && (Math.abs(dx) > PK_DIST_THRESHOLD || Math.abs(vx) > PK_VEL_THRESHOLD);
-    const commitY = axis === 'y' && (Math.abs(dy) > PK_DIST_THRESHOLD * 1.1 || Math.abs(vy) > PK_VEL_THRESHOLD);
+    const commitX = Math.abs(dx) > PK_DIST_THRESHOLD || Math.abs(vx) > PK_VEL_THRESHOLD;
 
     const reset = () => {
       animate(x, 0, { ...PK_SPRING });
-      animate(y, 0, { ...PK_SPRING });
       axisRef.current = null;
       setIsDragging(false);
     };
@@ -165,31 +160,11 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
       return;
     }
 
-    if (commitY) {
-      triggerHaptic('light');
-      const direction = dy > 0 ? 'right' : 'left'; // map to deck cycle
-      const exitY = dy > 0 ? 700 : -700;
-      // Straight vertical exit — pure translateY.
-      animate(y, exitY, {
-        type: 'tween',
-        duration: 0.24,
-        ease: [0.32, 0, 0.67, 0],
-        onComplete: () => {
-          onCycle(card.id, direction);
-          x.set(0);
-          y.set(0);
-          axisRef.current = null;
-          setIsDragging(false);
-        }
-      });
-      return;
-    }
-
     reset();
   }, [card.id, onCycle, x, y]);
 
-  const handleDirectionLock = useCallback((axis: 'x' | 'y') => {
-    axisRef.current = axis;
+  const handleDirectionLock = useCallback(() => {
+    axisRef.current = 'x';
   }, []);
 
   // Stack styling — 🚀 Swipess v14.0 Reveal Logic
@@ -212,10 +187,10 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
 
     return (
     <motion.div
-      drag={isTop ? true : false}
+      drag={isTop ? "x" : false}
       dragDirectionLock
       onDirectionLock={handleDirectionLock}
-      dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
+      dragConstraints={{ left: 0, right: 0 }}
       dragElastic={0.85}
       dragMomentum={false}
       onDragStart={() => {

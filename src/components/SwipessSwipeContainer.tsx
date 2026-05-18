@@ -10,8 +10,8 @@ import { SwipeLoadingSkeleton } from './swipe/SwipeLoadingSkeleton';
 import type { QuickFilterCategory } from '@/types/filters';
 import { normalizeCategoryName } from '@/types/filters';
 
-const CLIENT_CYCLE: QuickFilterCategory[] = ['property', 'motorcycle', 'bicycle', 'services'];
-const OWNER_CYCLE: QuickFilterCategory[] = ['all-clients', 'buyers', 'renters', 'hire'];
+const CLIENT_CYCLE: QuickFilterCategory[] = ['property', 'services', 'motorcycle', 'bicycle'];
+const OWNER_CYCLE: QuickFilterCategory[] = ['buyers', 'renters', 'hire'];
 import { getActiveCategoryInfo, POKER_CARDS, OWNER_INTENT_CARDS } from './swipe/SwipeConstants';
 import { MatchCelebrateModal } from './swipe/MatchCelebrateModal';
 import { ClientPreferencesDialog } from './ClientPreferencesDialog';
@@ -106,7 +106,7 @@ interface SwipessSwipeContainerProps {
 
 const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights, onMessageClick, locationFilter: _locationFilter, filters }: SwipessSwipeContainerProps) => {
   const navigate = useNavigate();
-  const { activeMode } = useActiveMode();
+  const { activeMode, switchMode } = useActiveMode();
   const { theme, isLight } = useAppTheme();
   const { isChromeVisible } = useChromeReveal();
   const [page, setPage] = useState(0);
@@ -132,7 +132,8 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
   const userLatitude = useFilterStore((s) => s.userLatitude);
   const userLongitude = useFilterStore((s) => s.userLongitude);
   const setActiveCategory = useFilterStore((s) => s.setActiveCategory);
-  const { setCategories } = useFilterActions();
+  const { setCategories, setListingType } = useFilterActions();
+  const listingType = useFilterStore((state) => state.listingType);
   const activeCategory = useFilterStore(s => s.activeCategory);
   const [locationDetecting, setLocationDetecting] = useState(false);
   const [locationDetected, setLocationDetected] = useState(false);
@@ -892,8 +893,25 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
       <>
         <div className="relative w-full h-full flex flex-col">
           <SwipeAllDashboard setCategories={(cat) => {
+            if (cat === 'clients') {
+              switchMode('owner');
+              return;
+            }
+            if (cat === 'rentals') {
+              setActiveCategory('property');
+              setCategories(['property']);
+              setListingType('rent');
+              return;
+            }
+            if (cat === 'property') {
+              setActiveCategory('property');
+              setCategories(['property']);
+              setListingType('sale');
+              return;
+            }
             setActiveCategory(cat as any);
             setCategories([cat] as any);
+            setListingType('both');
           }} />
         </div>
         {typeof document !== 'undefined' && document.body && createPortal(
@@ -911,8 +929,13 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
   }
 
   const categoryNames: Record<string, string> = {
-    property: 'Properties', motorcycle: 'Motorcycles', bicycle: 'Bicycles',
-    services: 'Services', buyers: 'Buyers', renters: 'Renters', hire: 'Workers',
+    property: listingType === 'rent' ? 'Rentals' : 'Properties',
+    motorcycle: 'Motorcycles',
+    bicycle: 'Bicycles',
+    services: 'Services',
+    buyers: 'Buyers',
+    renters: 'Renters',
+    hire: 'Workers',
   };
   const currentCategoryName = categoryNames[storeActiveCategory] || storeActiveCategory;
   const hasCards = deckQueue.length > 0 && currentIndex < deckQueue.length;

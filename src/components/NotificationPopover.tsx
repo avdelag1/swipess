@@ -308,7 +308,7 @@ export function NotificationPopover({ className, children, glassPillStyle }: Not
       variant="ghost"
       size="icon"
       className={cn(
-        "relative h-8 w-8 shrink-0 transition-all duration-300",
+        "relative h-[28px] w-[28px] shrink-0 transition-all duration-300",
         "hover:opacity-90 active:scale-[0.92] group !rounded-full",
         "touch-manipulation"
       )}
@@ -323,7 +323,7 @@ export function NotificationPopover({ className, children, glassPillStyle }: Not
         <Bell
           strokeWidth={1.9}
           className={cn(
-            "h-[18px] w-[18px] transition-colors duration-150",
+            "h-[16px] w-[16px] transition-colors duration-150",
             "opacity-90 group-hover:opacity-100"
           )}
           style={{ color: _bellColor }}

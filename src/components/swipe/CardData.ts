@@ -43,23 +43,14 @@ export interface OwnerIntentCard extends PokerCardData {
 
 export const POKER_CARDS: PokerCardData[] = [
   { id: 'property',   label: 'Real Estate',  description: 'Houses for sale in Tulum', accent: '#f97316', accentRgb: '249,115,22', icon: Crown  },
-  { id: 'rentals',    label: 'Rentals',      description: '2BR apts under $1500',      accent: '#f43f5e', accentRgb: '244,63,94', icon: Sun },
+  { id: 'services',   label: 'Find Workers', description: 'Need a reliable plumber',  accent: '#0ea5e9', accentRgb: '14,165,233', icon: Sparkles  },
   { id: 'motorcycle', label: 'Motorcycles',  description: 'Bikes under $3,000',       accent: '#f59e0b', accentRgb: '245,158,11', icon: Flame  },
   { id: 'bicycle',    label: 'Bicycles',     description: 'Available nearby',         accent: '#8b5cf6', accentRgb: '139,92,246', icon: Zap   },
-  { id: 'services',   label: 'Find Workers', description: 'Need a reliable plumber',  accent: '#0ea5e9', accentRgb: '14,165,233', icon: Sparkles  },
+  { id: 'radio',      label: 'Radio',        description: 'Swipess Beats',            accent: '#f43f5e', accentRgb: '244,63,94',  icon: Radio   },
   { id: 'clients',    label: 'Find Clients', description: 'Reach more clients',       accent: '#10b981', accentRgb: '16,185,129', icon: Moon },
 ];
 
 export const OWNER_INTENT_CARDS: OwnerIntentCard[] = [
-  {
-    id: 'all-clients',
-    label: 'All Clients',
-    description: 'Everyone Seeking',
-    accent: '#06b6d4',
-    accentRgb: '6,182,212',
-    clientType: 'all',
-    icon: Users,
-  },
   {
     id: 'buyers',
     label: 'Buyers',
@@ -132,6 +123,7 @@ export const POKER_CARD_PHOTOS: Record<string, string> = {
   all: '/images/filters/all.jpg',
   vap: '/images/filters/resident_card.jpg',
   'all-clients': '/images/filters/owner_all_clients_tulum.png',
+  clients: '/images/filters/owner_all_clients_tulum.png',
   buyers: '/images/filters/owner_buyers_card.jpg',
   renters: '/images/filters/owner_renters_card.jpg',
   hire: '/images/filters/owner_hire_card.jpg',
@@ -154,6 +146,7 @@ export const POKER_CARD_GRADIENTS: Record<string, string> = {
   all: NEUTRAL_FALLBACK,
   vap: NEUTRAL_FALLBACK,
   'all-clients': NEUTRAL_FALLBACK,
+  clients: NEUTRAL_FALLBACK,
   buyers: NEUTRAL_FALLBACK,
   renters: NEUTRAL_FALLBACK,
   hire: NEUTRAL_FALLBACK,
