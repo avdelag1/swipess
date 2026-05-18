@@ -101,12 +101,15 @@ export function BicycleListingForm({ onDataChange, initialData }: BicycleListing
     defaultValues: initialData || { mode: 'rent', electric_assist: false }
   });
 
-  const formData = watch();
-  const isElectric = watch('electric_assist');
-
+  // Decouple data synchronization from react renders for instant touch / snap performance
   useEffect(() => {
-    onDataChange(formData);
-  }, [formData, onDataChange]);
+    const subscription = watch((value) => {
+      onDataChange(value);
+    });
+    return () => subscription.unsubscribe();
+  }, [watch, onDataChange]);
+
+  const isElectric = watch('electric_assist');
 
   const handleElectricToggle = (v: boolean) => {
     setValue('electric_assist', v);

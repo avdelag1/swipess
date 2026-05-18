@@ -173,7 +173,14 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
         url: img
       }));
       setPhotoList(initialPhotos);
-      setFormData(editingProperty);
+      
+      // Normalize brand and model fields from DB columns
+      const normalizedData = {
+        ...editingProperty,
+        brand: (editingProperty.vehicle_brand as string) || (editingProperty.brand as string) || '',
+        model: (editingProperty.vehicle_model as string) || (editingProperty.model as string) || '',
+      };
+      setFormData(normalizedData);
       setLocation({ lat: editingProperty.latitude, lng: editingProperty.longitude });
       setVideoUrl((editingProperty.video_url as string) || null);
     } else if (editingProperty?.category) {
@@ -187,7 +194,13 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
         url: img
       }));
       setPhotoList(initialPhotos);
-      setFormData(editingProperty.images ? editingProperty : { mode: editingProperty.mode || 'rent' });
+      
+      const normalizedData = {
+        ...editingProperty,
+        brand: (editingProperty.vehicle_brand as string) || (editingProperty.brand as string) || '',
+        model: (editingProperty.vehicle_model as string) || (editingProperty.model as string) || '',
+      };
+      setFormData(editingProperty.images ? normalizedData : { mode: editingProperty.mode || 'rent' });
       setLocation({ lat: editingProperty.latitude, lng: editingProperty.longitude });
       setVideoUrl((editingProperty.video_url as string) || null);
     } else {

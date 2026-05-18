@@ -75,17 +75,25 @@ interface PropertyListingFormProps {
 }
 
 const PROPERTY_TYPES = [
-  { value: 'apartment', label: 'Apartment' },
+  { value: 'penthouse', label: 'Penthouse' },
   { value: 'house', label: 'House' },
-  { value: 'room', label: 'Room' },
+  { value: 'apartment', label: 'Apartment' },
+  { value: 'loft', label: 'Loft' },
   { value: 'studio', label: 'Studio' },
+  { value: '2-bedroom apartment', label: '2-Bedroom Apartment' },
+  { value: '4-bedroom apartment', label: '4-Bedroom Apartment' },
+  { value: 'land', label: 'Land' },
+  { value: 'building', label: 'Building' },
+  { value: 'glamping', label: 'Glamping' },
+  { value: 'bungalow', label: 'Bungalow' },
+  { value: 'mezzanine', label: 'Mezzanine (Mesanini)' },
+  { value: 'room', label: 'Room' },
   { value: 'commercial', label: 'Commercial' },
 ];
 const RENTAL_DURATIONS = [
-  { value: 'daily', label: 'Daily' },
-  { value: 'weekly', label: 'Weekly' },
-  { value: 'monthly', label: 'Monthly' },
-  { value: 'yearly', label: 'Yearly' },
+  { value: '3 months', label: '3 months' },
+  { value: '6 months', label: '6 months' },
+  { value: '1 year', label: '1 year' },
 ];
 const STATES = ['Aguascalientes', 'Baja California', 'Baja California Sur', 'Campeche', 'Chiapas', 'Chihuahua', 'Mexico City', 'Coahuila', 'Colima', 'Durango', 'Guanajuato', 'Guerrero', 'Hidalgo', 'Jalisco', 'Mexico State', 'Michoacán', 'Morelos', 'Nayarit', 'Nuevo León', 'Oaxaca', 'Puebla', 'Querétaro', 'Quintana Roo', 'San Luis Potosí', 'Sinaloa', 'Sonora', 'Tabasco', 'Tamaulipas', 'Tlaxcala', 'Veracruz', 'Yucatán', 'Zacatecas'];
 
@@ -166,19 +174,35 @@ export function PropertyListingForm({ onDataChange, initialData = {} }: Property
     },
   });
 
-  const formData = watch();
-
+  // Decouple data synchronization from react renders for instant touch / snap performance
   useEffect(() => {
-    // Auto-build title from chips if user hasn't typed one
-    const autoTitle = buildTitleFromChips({
-      adjective: formData.adjectives?.[0],
-      size: formData.size?.[0],
-      beds: formData.beds as any,
-      propertyType: formData.property_type,
-      city: formData.city,
+    const subscription = watch((value) => {
+      const autoTitle = buildTitleFromChips({
+        adjective: value.adjectives?.[0],
+        size: value.size?.[0],
+        beds: value.beds as any,
+        propertyType: value.property_type,
+        city: value.city,
+      });
+      onDataChange({ ...value, title: value.title || autoTitle });
     });
-    onDataChange({ ...formData, title: formData.title || autoTitle });
-  }, [formData, onDataChange]);
+    return () => subscription.unsubscribe();
+  }, [watch, onDataChange]);
+
+  // Read only the necessary values to selectively render UI updates
+  const adjectives = watch('adjectives') || [];
+  const size = watch('size') || [];
+  const beds = watch('beds');
+  const baths = watch('baths');
+  const propertyType = watch('property_type');
+  const city = watch('city') || '';
+  const country = watch('country') || '';
+  const state = watch('state') || '';
+  const neighborhood = watch('neighborhood') || '';
+  const vibe = watch('vibe') || [];
+  const amenities = watch('amenities') || [];
+  const servicesIncluded = watch('services_included') || [];
+  const houseRules = watch('house_rules') || [];
 
   const setArr = (
     field: 'amenities' | 'services_included' | 'house_rules' | 'vibe' | 'adjectives' | 'size',
@@ -195,7 +219,7 @@ export function PropertyListingForm({ onDataChange, initialData = {} }: Property
           accent="rose"
           single
           options={PROPERTY_ADJECTIVES}
-          value={watch('adjectives') || []}
+          value={adjectives}
           onChange={(v) => setArr('adjectives', v)}
         />
         <FormLabel>Size</FormLabel>
@@ -203,7 +227,7 @@ export function PropertyListingForm({ onDataChange, initialData = {} }: Property
           accent="rose"
           single
           options={PROPERTY_SIZE}
-          value={watch('size') || []}
+          value={size}
           onChange={(v) => setArr('size', v)}
         />
       </Section>
@@ -240,23 +264,25 @@ export function PropertyListingForm({ onDataChange, initialData = {} }: Property
             <OwnerLocationSelector
               country={field.value}
               onCountryChange={field.onChange}
-              city={watch('city')}
+              city={city}
               onCityChange={(city) => setValue('city', city)}
-              neighborhood={watch('neighborhood')}
+              neighborhood={neighborhood}
               onNeighborhoodChange={(neighborhood) => setValue('neighborhood', neighborhood)}
             />
           )}
         />
-        <div>
+        <div className="mt-3">
           <FormLabel>State</FormLabel>
           <Controller
             name="state"
             control={control}
             render={({ field }) => (
-              <Select onValueChange={field.onChange} value={field.value || ''}>
+              <Select onValueChange={field.onChange} value={state || ''}>
                 <SelectTrigger><SelectValue placeholder="Select state" /></SelectTrigger>
                 <SelectContent>
-                  {STATES.map(state => <SelectItem key={state} value={state}>{state}</SelectItem>)}
+                  <div className="max-h-48 overflow-y-auto">
+                    {STATES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                  </div>
                 </SelectContent>
               </Select>
             )}
@@ -288,9 +314,9 @@ export function PropertyListingForm({ onDataChange, initialData = {} }: Property
             single
             options={BEDROOM_COUNTS}
             value={
-              watch('beds') === undefined || watch('beds') === null
+              beds === undefined || beds === null
                 ? []
-                : [String(watch('beds')) === '0' ? 'Studio' : String(watch('beds'))]
+                : [String(beds) === '0' ? 'Studio' : String(beds)]
             }
             onChange={(v) => {
               const pick = v[0];
@@ -308,9 +334,9 @@ export function PropertyListingForm({ onDataChange, initialData = {} }: Property
             single
             options={BATHROOM_COUNTS}
             value={
-              watch('baths') === undefined || watch('baths') === null
+              baths === undefined || baths === null
                 ? []
-                : [String(watch('baths'))]
+                : [String(baths)]
             }
             onChange={(v) => {
               const pick = v[0];
@@ -336,29 +362,29 @@ export function PropertyListingForm({ onDataChange, initialData = {} }: Property
       </Section>
 
       <Section title="Vibe" accent="emerald">
-        <ChipMultiSelect accent="rose" options={PROPERTY_VIBE} value={watch('vibe') || []} onChange={(v) => setArr('vibe', v)} />
+        <ChipMultiSelect accent="rose" options={PROPERTY_VIBE} value={vibe} onChange={(v) => setArr('vibe', v)} />
       </Section>
 
       <Section title="Amenities" accent="emerald">
-        <ChipMultiSelect accent="rose" options={PROPERTY_FEATURES} value={watch('amenities') || []} onChange={(v) => setArr('amenities', v)} />
+        <ChipMultiSelect accent="rose" options={PROPERTY_FEATURES} value={amenities} onChange={(v) => setArr('amenities', v)} />
       </Section>
 
       <Section title="Services Included" accent="emerald">
-        <ChipMultiSelect accent="rose" options={PROPERTY_INCLUDED} value={watch('services_included') || []} onChange={(v) => setArr('services_included', v)} />
+        <ChipMultiSelect accent="rose" options={PROPERTY_INCLUDED} value={servicesIncluded} onChange={(v) => setArr('services_included', v)} />
       </Section>
 
       <Section title="House Rules" accent="emerald">
-        <ChipMultiSelect accent="rose" options={PROPERTY_RULES} value={watch('house_rules') || []} onChange={(v) => setArr('house_rules', v)} />
+        <ChipMultiSelect accent="rose" options={PROPERTY_RULES} value={houseRules} onChange={(v) => setArr('house_rules', v)} />
       </Section>
 
       {/* Live preview of the auto-built description */}
       <div className="rounded-2xl bg-secondary/40 border border-border px-4 py-3 text-xs text-muted-foreground italic">
         {buildTitleFromChips({
-          adjective: watch('adjectives')?.[0],
-          size: watch('size')?.[0],
-          beds: watch('beds') as any,
-          propertyType: watch('property_type'),
-          city: watch('city'),
+          adjective: adjectives?.[0],
+          size: size?.[0],
+          beds: beds as any,
+          propertyType: propertyType,
+          city: city,
         }) || 'Pick chips above to auto-build your listing description.'}
       </div>
     </div>

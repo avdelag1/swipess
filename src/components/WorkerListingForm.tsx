@@ -194,7 +194,7 @@ function PillToggle({ items, selected, onToggle }: { items: { value: string; lab
 }
 
 export function WorkerListingForm({ onDataChange, initialData = {} }: WorkerListingFormProps) {
-  const { register, control, watch, setValue } = useForm<WorkerFormData>({
+  const { register, control, watch, setValue, getValues } = useForm<WorkerFormData>({
     defaultValues: {
       ...initialData,
       work_type: initialData.work_type || [],
@@ -211,7 +211,14 @@ export function WorkerListingForm({ onDataChange, initialData = {} }: WorkerList
     }
   });
 
-  const formData = watch();
+  // Decouple data synchronization from react renders for instant touch / snap performance
+  useEffect(() => {
+    const subscription = watch((value) => {
+      onDataChange(value);
+    });
+    return () => subscription.unsubscribe();
+  }, [watch, onDataChange]);
+
   const watchedServiceCategory = watch('service_category');
   const watchedSkills = watch('skills') || [];
   const watchedWorkType = watch('work_type') || [];
@@ -223,26 +230,22 @@ export function WorkerListingForm({ onDataChange, initialData = {} }: WorkerList
   const watchedToolsEquipment = watch('tools_equipment') || [];
   const watchedLanguages = watch('languages') || [];
 
-  useEffect(() => {
-    onDataChange(formData);
-  }, [formData, onDataChange]);
-
   const grouped = getGroupedCategories();
   const subspecialties = watchedServiceCategory ? SERVICE_SUBSPECIALTIES[watchedServiceCategory] : undefined;
 
   const toggleArrayField = (field: keyof WorkerFormData, value: string) => {
-    const current = (watch(field) as string[]) || [];
+    const current = (getValues(field) as string[]) || [];
     const updated = current.includes(value) ? current.filter(v => v !== value) : [...current, value];
     setValue(field, updated);
   };
 
   const addToArray = (field: keyof WorkerFormData, value: string) => {
-    const current = (watch(field) as string[]) || [];
+    const current = (getValues(field) as string[]) || [];
     if (!current.includes(value)) setValue(field, [...current, value]);
   };
 
   const removeFromArray = (field: keyof WorkerFormData, value: string) => {
-    const current = (watch(field) as string[]) || [];
+    const current = (getValues(field) as string[]) || [];
     setValue(field, current.filter(v => v !== value));
   };
 
