@@ -273,7 +273,7 @@ html[data-theme-transition] ::view-transition-new(root) {
 .glass-surface,
 .glass-pill {
   position: relative;
-  background: rgba(235, 248, 255, 0.12); /* Frozen Blue Tint */
+  background: rgba(235, 248, 255, 0.45); /* Frozen Blue Tint - Less transparent */
   -webkit-backdrop-filter: blur(32px) saturate(180%);
   backdrop-filter: blur(32px) saturate(180%);
   border: 1px solid rgba(255, 255, 255, 0.22);
@@ -303,7 +303,7 @@ html[data-theme-transition] ::view-transition-new(root) {
 .glass-pill > * { position: relative; z-index: 1; }
 
 .glass-dark {
-  background: rgba(12, 12, 14, 0.55);
+  background: rgba(12, 12, 14, 0.75); /* Less transparent */
   border-color: rgba(255, 255, 255, 0.08);
   box-shadow:
     0 10px 30px rgba(0, 0, 0, 0.45),
@@ -402,6 +402,11 @@ main, .scrollable-content, .overflow-y-auto {
 
 button:active, [role="button"]:active {
   transform: scale(0.96) !important;
+}
+
+/* Remove focus rings on click while preserving for accessibility */
+button:focus:not(:focus-visible), [role="button"]:focus:not(:focus-visible) {
+  outline: none;
 }
 
 @layer base {

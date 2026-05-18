@@ -173,7 +173,14 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
         url: img
       }));
       setPhotoList(initialPhotos);
-      setFormData(editingProperty);
+      
+      // Normalize brand and model fields from DB columns
+      const normalizedData = {
+        ...editingProperty,
+        brand: (editingProperty.vehicle_brand as string) || (editingProperty.brand as string) || '',
+        model: (editingProperty.vehicle_model as string) || (editingProperty.model as string) || '',
+      };
+      setFormData(normalizedData);
       setLocation({ lat: editingProperty.latitude, lng: editingProperty.longitude });
       setVideoUrl((editingProperty.video_url as string) || null);
     } else if (editingProperty?.category) {
@@ -187,7 +194,13 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
         url: img
       }));
       setPhotoList(initialPhotos);
-      setFormData(editingProperty.images ? editingProperty : { mode: editingProperty.mode || 'rent' });
+      
+      const normalizedData = {
+        ...editingProperty,
+        brand: (editingProperty.vehicle_brand as string) || (editingProperty.brand as string) || '',
+        model: (editingProperty.vehicle_model as string) || (editingProperty.model as string) || '',
+      };
+      setFormData(editingProperty.images ? normalizedData : { mode: editingProperty.mode || 'rent' });
       setLocation({ lat: editingProperty.latitude, lng: editingProperty.longitude });
       setVideoUrl((editingProperty.video_url as string) || null);
     } else {
@@ -247,6 +260,31 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
           (p) => setUploadProgress(15 + Math.floor(p * 0.8)),
           true
         );
+        
+        setUploadProgress(95);
+        // Parallel moderation check to keep it fast
+        appToast.info('Verifying photos…', 'Checking for appropriate content.');
+        const modPromises = uploadedImageUrls.map(async (url) => {
+          try {
+            const { data: modData } = await supabase.functions.invoke('moderate-image', {
+              body: { imageUrl: url }
+            });
+            if (modData && !modData.safe) {
+              return { url, safe: false, reasons: modData.reasons };
+            }
+          } catch (e) {
+            logger.error('Moderation check failed for', url, e);
+          }
+          return { url, safe: true };
+        });
+
+        const modResults = await Promise.all(modPromises);
+        const unsafe = modResults.filter(r => !r.safe);
+        if (unsafe.length > 0) {
+          const reasons = unsafe.flatMap(r => r.reasons || []);
+          throw new Error(`Inappropriate content detected in ${unsafe.length} photo(s). ${reasons.length > 0 ? reasons.join(', ') : 'Please ensure photos meet community guidelines.'}`);
+        }
+        
         setUploadProgress(98);
       }
 

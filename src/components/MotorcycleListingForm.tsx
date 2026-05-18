@@ -86,11 +86,13 @@ export function MotorcycleListingForm({ onDataChange, initialData }: MotorcycleL
     defaultValues: initialData || { mode: 'rent' }
   });
 
-  const formData = watch();
-
+  // Decouple data synchronization from react renders for instant touch / snap performance
   useEffect(() => {
-    onDataChange(formData);
-  }, [formData, onDataChange]);
+    const subscription = watch((value) => {
+      onDataChange(value);
+    });
+    return () => subscription.unsubscribe();
+  }, [watch, onDataChange]);
 
   return (
     <div className="space-y-5">
