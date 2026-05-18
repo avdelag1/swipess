@@ -300,10 +300,10 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
         }}
       >
         <div className={cn(
-          "w-full flex flex-col flex-grow flex-1",
+          "w-full",
           (isSwipeDeck || isFullScreenRoute)
-            ? "min-h-0 overflow-hidden"
-            : "pt-[var(--top-bar-height)] pb-[var(--bottom-nav-height)]"
+            ? "flex flex-col flex-1 min-h-0 overflow-hidden"
+            : "block min-h-full pt-[var(--top-bar-height)] pb-[var(--bottom-nav-height)]"
         )}>
           {children}
         </div>

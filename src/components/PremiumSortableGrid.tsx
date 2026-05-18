@@ -193,7 +193,7 @@ function SortableItem({
   const startPosRef = useRef<{ x: number; y: number } | null>(null);
   const lastUpdateRef = useRef<number>(0);
 
-  // PERF: Detect touch device — disable drag entirely on touch to guarantee scroll
+  // PERF: Detect touch device
   const isTouchDevice = typeof window !== 'undefined' && ('ontouchstart' in window || navigator.maxTouchPoints > 0);
 
   const clearLongPress = useCallback(() => {
@@ -203,10 +203,10 @@ function SortableItem({
     }
   }, []);
 
-  // Long-press gesture detection — DISABLED on touch devices to preserve scroll
+  // Long-press gesture detection — fully enabled on touch devices with long-press gating
   const handlePointerDown = useCallback((e: React.PointerEvent) => {
-    if (isTouchDevice) return; // Touch = scroll only, no drag
-    if (e.button !== 0) return;
+    // Only drag with primary pointer (left click or touch)
+    if (e.button !== 0 && e.pointerType !== 'touch') return;
 
     startPosRef.current = { x: e.clientX, y: e.clientY };
 
@@ -216,7 +216,7 @@ function SortableItem({
       onDragStart();
       triggerHaptic('medium');
     }, 400);
-  }, [onDragStart, clearLongPress, isTouchDevice]);
+  }, [onDragStart, clearLongPress]);
 
   const handlePointerMove = useCallback((e: React.PointerEvent) => {
     if (!startPosRef.current) return;
@@ -225,7 +225,9 @@ function SortableItem({
     const dy = Math.abs(e.clientY - startPosRef.current.y);
 
     // If the user moves before the long-press fires, cancel — they want to scroll
-    if (!dragEnabled && (dx > 10 || dy > 10)) {
+    // On touch devices, increase threshold slightly to account for natural finger wobble
+    const threshold = e.pointerType === 'touch' ? 18 : 10;
+    if (!dragEnabled && (dx > threshold || dy > threshold)) {
       clearLongPress();
       startPosRef.current = null;
     }
@@ -296,6 +298,10 @@ function SortableItem({
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
       onPointerCancel={handlePointerCancel}
+      onContextMenu={(e) => {
+        // Prevent browser save-image/context-menu dialog on mobile when dragging
+        e.preventDefault();
+      }}
       className={cn(
         "list-none select-none rounded-[2rem] relative",
         // CRITICAL: Use touch-pan-y so normal page scroll continues to work reliably!

@@ -57,7 +57,7 @@ export function AnimatedOutlet() {
     <div
       key={location.pathname}
       id="page-scroll-container"
-      className="w-full flex flex-col flex-grow bg-background"
+      className="w-full min-h-full block bg-background"
       style={{ position: 'relative', pointerEvents: 'auto' }}
     >
       <Suspense fallback={null}>

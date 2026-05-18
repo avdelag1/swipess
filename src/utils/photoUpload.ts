@@ -11,6 +11,7 @@ export interface PhotoUploadOptions {
   blob: Blob;
   bucket?: string;
   onProgress?: UploadProgressCallback;
+  skipCompression?: boolean;
 }
 
 export interface PhotoUploadResult {
@@ -23,13 +24,14 @@ export const uploadPhoto = async ({
   blob,
   bucket = 'profile-images',
   onProgress,
+  skipCompression,
 }: PhotoUploadOptions): Promise<PhotoUploadResult> => {
   const timestamp = Date.now();
   const unique = Math.random().toString(36).slice(2, 9);
   const rawFile = blob instanceof File
     ? blob
     : new File([blob], `${timestamp}-${unique}.jpg`, { type: blob.type || 'image/jpeg' });
-  const shouldNormalizeImage = bucket.includes('images');
+  const shouldNormalizeImage = bucket.includes('images') && !skipCompression;
   const file = shouldNormalizeImage
     ? await compressImage(rawFile, bucket === 'listing-images' ? LISTING_COMPRESSION : PROFILE_COMPRESSION)
     : rawFile;
@@ -163,7 +165,8 @@ export const uploadPhotoBatch = async (
   userId: string,
   blobs: Blob[],
   bucket = 'profile-images',
-  onProgress?: UploadProgressCallback
+  onProgress?: UploadProgressCallback,
+  skipCompression = false
 ): Promise<string[]> => {
   if (blobs.length === 0) return [];
 
@@ -173,6 +176,7 @@ export const uploadPhotoBatch = async (
       userId,
       blob,
       bucket,
+      skipCompression,
       onProgress: (progress) => {
         if (onProgress) {
           // Calculate overall progress across all uploads

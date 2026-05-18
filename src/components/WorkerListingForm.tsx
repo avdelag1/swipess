@@ -179,7 +179,7 @@ function PillToggle({ items, selected, onToggle }: { items: { value: string; lab
             whileTap={{ scale: 0.94 }}
             transition={springTap}
             className={cn(
-              "px-3.5 py-2 rounded-full text-sm font-semibold transition-all border",
+              "px-3.5 py-2 rounded-full text-sm font-semibold transition-colors duration-150 border",
               active
                 ? 'bg-amber-500/20 text-amber-300 border-amber-500/30 shadow-md shadow-amber-500/10'
                 : 'bg-secondary text-foreground border-border hover:bg-secondary/80'

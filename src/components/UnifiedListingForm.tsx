@@ -2,7 +2,7 @@
  * UnifiedListingForm - Creates listings for all categories
  * Updated to match new normalized schema with JSONB arrays
  */
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -33,6 +33,7 @@ import { ListingVideoUpload } from './video/ListingVideoUpload';
 import { uiSounds } from '@/utils/uiSounds';
 import { buildDescriptionFromChips } from '@/constants/listingTaxonomies';
 import { Loader2 } from 'lucide-react';
+import { PremiumSortableGrid } from './PremiumSortableGrid';
 
 interface EditingListing {
   id?: string;
@@ -111,11 +112,17 @@ const toIntOrNull = (value: unknown) => {
   return Number.isFinite(parsed) ? Math.round(parsed) : null;
 };
 
+interface UnifiedPhoto {
+  id: string;
+  type: 'existing' | 'new';
+  url: string;
+  file?: File;
+}
+
 export function UnifiedListingForm({ isOpen, onClose, editingProperty }: UnifiedListingFormProps) {
   const [selectedCategory, setSelectedCategory] = useState<Category>('property');
   const [selectedMode, setSelectedMode] = useState<Mode>('rent');
-  const [images, setImages] = useState<string[]>([]);
-  const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [photoList, setPhotoList] = useState<UnifiedPhoto[]>([]);
   const [location, setLocation] = useState<{ lat?: number; lng?: number }>({});
   const [formData, setFormData] = useState<Record<string, unknown>>({});
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -123,12 +130,23 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
 
   // Use refs to track latest values for mutation (avoids closure staleness)
-  const imagesRef = useRef(images);
-  const imageFilesRef = useRef(imageFiles);
+  const photoListRef = useRef(photoList);
+  const formDataRef = useRef<Record<string, unknown>>({});
+
+  // Synchronize ref whenever state changes (like on load or reset)
+  useEffect(() => {
+    formDataRef.current = formData;
+  }, [formData]);
 
   // Keep refs in sync with state
-  useEffect(() => { imagesRef.current = images; }, [images]);
-  useEffect(() => { imageFilesRef.current = imageFiles; }, [imageFiles]);
+  useEffect(() => {
+    photoListRef.current = photoList;
+  }, [photoList]);
+
+  // Stable callback for updating data instantly without triggering re-renders
+  const handleDataChange = useCallback((data: Record<string, unknown>) => {
+    formDataRef.current = { ...formDataRef.current, ...data };
+  }, []);
 
   const queryClient = useQueryClient();
   const { user } = useAuth();
@@ -148,8 +166,13 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
       setEditingId(editingProperty.id);
       setSelectedCategory(editingProperty.category || 'property');
       setSelectedMode(editingProperty.mode || 'rent');
-      setImages(editingProperty.images || []);
-      setImageFiles([]);
+      
+      const initialPhotos: UnifiedPhoto[] = (editingProperty.images || []).map((img: string) => ({
+        id: img,
+        type: 'existing',
+        url: img
+      }));
+      setPhotoList(initialPhotos);
       setFormData(editingProperty);
       setLocation({ lat: editingProperty.latitude, lng: editingProperty.longitude });
       setVideoUrl((editingProperty.video_url as string) || null);
@@ -157,8 +180,13 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
       setEditingId(null);
       setSelectedCategory(editingProperty.category);
       setSelectedMode(editingProperty.mode || 'rent');
-      setImages(editingProperty.images || []);
-      setImageFiles([]);
+      
+      const initialPhotos: UnifiedPhoto[] = (editingProperty.images || []).map((img: string) => ({
+        id: img,
+        type: 'existing',
+        url: img
+      }));
+      setPhotoList(initialPhotos);
       setFormData(editingProperty.images ? editingProperty : { mode: editingProperty.mode || 'rent' });
       setLocation({ lat: editingProperty.latitude, lng: editingProperty.longitude });
       setVideoUrl((editingProperty.video_url as string) || null);
@@ -166,8 +194,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
       setEditingId(null);
       setSelectedCategory('property');
       setSelectedMode('rent');
-      setImages([]);
-      setImageFiles([]);
+      setPhotoList([]);
       setFormData({ mode: 'rent' });
       setLocation({});
       setVideoUrl(null);
@@ -184,8 +211,9 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
       const user = { user: sessionData.session.user };
 
       // Use refs to get latest values (avoids stale closure)
-      const currentImages = imagesRef.current;
-      const currentImageFiles = imageFilesRef.current;
+      const currentImages = photoListRef.current.filter(p => p.type === 'existing').map(p => p.url);
+      const currentImageFiles = photoListRef.current.filter(p => p.type === 'new').map(p => p.file!);
+      const formData = formDataRef.current;
 
       if (currentImages.length + currentImageFiles.length < 1) {
         throw new Error('At least 1 photo required');
@@ -195,7 +223,6 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
       const fieldsToCheck = [
         { text: formData.title as string, label: 'Title' },
         { text: formData.description as string, label: 'Description' },
-        // house_rules is now a curated chip array — no freeform moderation needed.
       ];
       for (const field of fieldsToCheck) {
         if (field.text) {
@@ -218,11 +245,22 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
           prepared,
           'listing-images',
           (p) => setUploadProgress(15 + Math.floor(p * 0.8)),
+          true
         );
         setUploadProgress(98);
       }
 
-      const allImages = [...currentImages, ...uploadedImageUrls];
+      // Map back in the exact order the user placed them!
+      let newUploadIndex = 0;
+      const allImages = photoListRef.current.map(photo => {
+        if (photo.type === 'existing') {
+          return photo.url;
+        } else {
+          const url = uploadedImageUrls[newUploadIndex];
+          newUploadIndex++;
+          return url;
+        }
+      }).filter(Boolean) as string[];
 
       // Convert arrays to JSONB format
       const amenities = formData.amenities ? JSON.parse(JSON.stringify(formData.amenities)) : [];
@@ -402,8 +440,17 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
   });
 
   const handleClose = () => {
-    setImages([]);
-    setImageFiles([]);
+    // Revoke any local object URLs we created to prevent memory leaks
+    photoList.forEach(p => {
+      if (p.type === 'new' && p.url.startsWith('blob:')) {
+        try {
+          URL.revokeObjectURL(p.url);
+        } catch (e) {
+          logger.error('Failed to revoke object URL:', e);
+        }
+      }
+    });
+    setPhotoList([]);
     setFormData({});
     setSelectedCategory('property');
     setSelectedMode('rent');
@@ -412,7 +459,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
   };
 
   const handleImageAdd = () => {
-    const totalImages = images.length + imageFiles.length;
+    const totalImages = photoList.length;
     if (totalImages >= maxPhotos) {
       toast.error('Maximum Photos Reached', {
         description: `You can upload up to ${maxPhotos} photos.`,
@@ -447,32 +494,53 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
         return validation.isValid;
       });
 
-      setImageFiles(prev => [...prev, ...validatedFiles]);
+      const newPhotos: UnifiedPhoto[] = validatedFiles.map(file => {
+        const uniqueId = `${file.name}-${file.size}-${file.lastModified}-${Math.random().toString(36).slice(2, 9)}`;
+        return {
+          id: uniqueId,
+          type: 'new',
+          url: URL.createObjectURL(file), // Generate stable object URL once
+          file: file
+        };
+      });
+
+      setPhotoList(prev => [...prev, ...newPhotos]);
     };
 
     input.click();
   };
 
-  const handleImageRemove = (index: number, type: 'existing' | 'new') => {
-    if (type === 'existing') {
-      setImages(prev => prev.filter((_, i) => i !== index));
-    } else {
-      setImageFiles(prev => prev.filter((_, i) => i !== index));
-    }
+  const handleImageRemove = (id: string) => {
+    setPhotoList(prev => {
+      // Find the photo and revoke its object URL if it's local
+      const photo = prev.find(p => p.id === id);
+      if (photo && photo.type === 'new' && photo.url.startsWith('blob:')) {
+        try {
+          URL.revokeObjectURL(photo.url);
+        } catch (e) {
+          logger.error('Failed to revoke object URL on remove:', e);
+        }
+      }
+      return prev.filter(p => p.id !== id);
+    });
   };
 
   const handleSubmit = () => {
-    if (images.length + imageFiles.length < 1) {
+    if (photoList.length < 1) {
       toast.error('Photo Required', {
         description: 'Please upload at least 1 photo.'
       });
       return;
     }
 
+    const currentFormData = formDataRef.current;
+
     if (!user) {
+      // Map all current URLs (remote or local blob) for anonymous drafts
+      const allDraftImages = photoList.map(p => p.url);
       saveListingDraft(selectedCategory, {
-        ...formData,
-        images,
+        ...currentFormData,
+        images: allDraftImages,
         mode: selectedMode,
         latitude: location.lat,
         longitude: location.lng,
@@ -534,73 +602,78 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
             <motion.div variants={itemFadeScale}>
               <div className="space-y-4">
                 <div className="flex items-center justify-between px-2">
-                  <h3 className="text-xl font-bold">Photos <span className="text-sm font-medium text-muted-foreground ml-2">({images.length + imageFiles.length}/{maxPhotos})</span></h3>
-                  {(images.length + imageFiles.length) < 1 && (
+                  <h3 className="text-xl font-bold">Photos <span className="text-sm font-medium text-muted-foreground ml-2">({photoList.length}/{maxPhotos})</span></h3>
+                  {photoList.length < 1 && (
                     <Badge variant="destructive" className="animate-pulse bg-[#FF3D00] hover:bg-[#FF3D00]/90 shadow-[0_4px_12px_rgba(255,61,0,0.25)] border-none">Required</Badge>
                   )}
                 </div>
                 <div className="p-6 rounded-[2rem] bg-white/[0.02] border border-white/5 shadow-inner">
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                    <AnimatePresence>
-                      {images.map((img, index) => (
-                        <motion.div
-                          key={`existing-${index}`}
-                          initial={{ opacity: 0, scale: 0.8 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          exit={{ opacity: 0, scale: 0.8 }}
-                          className="relative aspect-square group overflow-hidden rounded-2xl shadow-lg border border-white/5"
-                        >
-                          <img src={img} alt={`Existing ${index + 1}`} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                            <Button
-                              variant="destructive"
-                              size="icon"
-                              className="h-10 w-10 rounded-full shadow-2xl active:scale-90"
-                              onClick={() => handleImageRemove(index, 'existing')}
+                  {/* Stable Sortable Grid */}
+                  <div className="mb-6">
+                    {photoList.length > 0 ? (
+                      <div className="flex flex-col md:grid md:grid-cols-4 gap-4">
+                        <div className="md:col-span-3">
+                          <PremiumSortableGrid
+                            items={photoList}
+                            onReorder={setPhotoList}
+                            columns={{ initial: 2, md: 3, lg: 3 }}
+                            className="gap-4"
+                            itemClassName="aspect-square relative overflow-hidden rounded-2xl shadow-lg border border-white/5"
+                            renderItem={(photo, index) => (
+                              <div className="w-full h-full relative group select-none">
+                                <img
+                                  src={photo.url}
+                                  alt={`Photo ${index + 1}`}
+                                  className="w-full h-full object-cover pointer-events-none"
+                                />
+                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-auto">
+                                  <Button
+                                    variant="destructive"
+                                    size="icon"
+                                    className="h-10 w-10 rounded-full shadow-2xl active:scale-90"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleImageRemove(photo.id);
+                                    }}
+                                  >
+                                    <X className="h-5 w-5" />
+                                  </Button>
+                                </div>
+                              </div>
+                            )}
+                          />
+                        </div>
+                        {photoList.length < maxPhotos && (
+                          <div className="flex items-center justify-center aspect-square md:aspect-auto">
+                            <motion.button
+                              whileHover={{ scale: 1.02 }}
+                              whileTap={{ scale: 0.98 }}
+                              onClick={handleImageAdd}
+                              className="w-full h-full min-h-[120px] aspect-square flex flex-col items-center justify-center gap-2 rounded-[2.2rem] border-2 border-dashed border-primary/20 bg-primary/5 text-primary hover:bg-primary/10 hover:border-primary/30 transition-all group shadow-sm"
                             >
-                              <X className="h-5 w-5" />
-                            </Button>
+                              <Upload className="w-8 h-8 group-hover:scale-110 transition-transform" strokeWidth={1.5} />
+                              <span className="text-sm font-semibold">Add Photo</span>
+                            </motion.button>
                           </div>
-                        </motion.div>
-                      ))}
-                      {imageFiles.map((file, index) => (
-                        <motion.div
-                          key={`new-${index}`}
-                          initial={{ opacity: 0, scale: 0.8 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          exit={{ opacity: 0, scale: 0.8 }}
-                          className="relative aspect-square group overflow-hidden rounded-2xl shadow-lg border border-white/5"
+                        )}
+                      </div>
+                    ) : (
+                      <div className="flex justify-center items-center">
+                        <motion.button
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          onClick={handleImageAdd}
+                          className="w-full max-w-sm aspect-square flex flex-col items-center justify-center gap-2 rounded-[2.2rem] border-2 border-dashed border-primary/20 bg-primary/5 text-primary hover:bg-primary/10 hover:border-primary/30 transition-all group shadow-sm py-12"
                         >
-                          <img src={URL.createObjectURL(file)} alt={`New ${index + 1}`} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                            <Button
-                              variant="destructive"
-                              size="icon"
-                              className="h-10 w-10 rounded-full shadow-2xl active:scale-90"
-                              onClick={() => handleImageRemove(index, 'new')}
-                            >
-                              <X className="h-5 w-5" />
-                            </Button>
-                          </div>
-                        </motion.div>
-                      ))}
-                    </AnimatePresence>
-
-                    {(images.length + imageFiles.length) < maxPhotos && (
-                      <motion.button
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        onClick={handleImageAdd}
-                        className="aspect-square flex flex-col items-center justify-center gap-2 rounded-[2rem] border-2 border-dashed border-primary/20 bg-primary/5 text-primary hover:bg-primary/10 hover:border-primary/30 transition-all group shadow-sm"
-                      >
-                        <Upload className="w-8 h-8 group-hover:scale-110 transition-transform" strokeWidth={1.5} />
-                        <span className="text-sm font-semibold">Add Photo</span>
-                      </motion.button>
+                          <Upload className="w-8 h-8 group-hover:scale-110 transition-transform" strokeWidth={1.5} />
+                          <span className="text-sm font-semibold">Add Photo</span>
+                        </motion.button>
+                      </div>
                     )}
                   </div>
 
                   <p className="text-xs text-center text-muted-foreground opacity-60">
-                    High quality JPG or PNG, max 10MB per file
+                    Press & hold (400ms) with finger to drag and reorder. Max 10MB per file.
                   </p>
                 </div>
               </div>
@@ -650,10 +723,10 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
             )}
 
             <motion.div variants={itemFadeScale} className="space-y-8">
-              {selectedCategory === 'property' && <PropertyListingForm onDataChange={(data) => setFormData({ ...formData, ...data })} initialData={formData} />}
-              {selectedCategory === 'motorcycle' && <MotorcycleListingForm onDataChange={(data) => setFormData({ ...formData, ...data })} initialData={formData as unknown as MotorcycleFormData} />}
-              {selectedCategory === 'bicycle' && <BicycleListingForm onDataChange={(data) => setFormData({ ...formData, ...data })} initialData={formData as unknown as BicycleFormData} />}
-              {selectedCategory === 'worker' && <WorkerListingForm onDataChange={(data) => setFormData({ ...formData, ...data })} initialData={formData as unknown as WorkerFormData} />}
+              {selectedCategory === 'property' && <PropertyListingForm onDataChange={handleDataChange} initialData={formData} />}
+              {selectedCategory === 'motorcycle' && <MotorcycleListingForm onDataChange={handleDataChange} initialData={formData as unknown as MotorcycleFormData} />}
+              {selectedCategory === 'bicycle' && <BicycleListingForm onDataChange={handleDataChange} initialData={formData as unknown as BicycleFormData} />}
+              {selectedCategory === 'worker' && <WorkerListingForm onDataChange={handleDataChange} initialData={formData as unknown as WorkerFormData} />}
             </motion.div>
 
 
