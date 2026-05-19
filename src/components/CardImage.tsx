@@ -183,6 +183,35 @@ const CardImage = memo(({
         </div>
       )}
 
+      {/* 🚀 CINEMATIC BACKGROUND BLUR LAYER (Fills screen without black bars) */}
+      <img
+        src={displaySrc || optimizedSrc || src}
+        alt=""
+        draggable={false}
+        loading={priority ? "eager" : "lazy"}
+        decoding={priority ? "sync" : "async"}
+        fetchPriority={priority ? "high" : "auto"}
+        style={{
+          position: 'absolute',
+          inset: -20, // Negative inset to prevent blurry edges from bleeding in
+          width: 'calc(100% + 40px)',
+          height: 'calc(100% + 40px)',
+          objectFit: 'cover',
+          opacity: (loaded || wasInCache) ? 0.8 : 0,
+          transition: (loaded && !wasInCache) ? `opacity ${CROSSFADE_MS}ms cubic-bezier(0.4, 0, 0.2, 1)` : 'none',
+          zIndex: 2,
+          filter: loaded ? 'blur(35px) brightness(0.65) saturate(1.2)' : 'none',
+          animation: (_animate && loaded) ? 'breathing-zoom 14s ease-in-out infinite alternate' : 'none',
+          willChange: 'auto',
+          WebkitTouchCallout: 'none',
+          WebkitUserSelect: 'none',
+          userSelect: 'none',
+        }}
+        onDragStart={(event) => event.preventDefault()}
+        onContextMenu={(event) => event.preventDefault()}
+      />
+
+      {/* 🚀 FOREGROUND CRISP LAYER (Contains entire image without cropping) */}
       <img
         src={displaySrc || optimizedSrc || src}
         alt={alt ?? ''}
@@ -191,15 +220,15 @@ const CardImage = memo(({
         loading={priority ? "eager" : "lazy"}
         decoding={priority ? "sync" : "async"}
         fetchPriority={priority ? "high" : "auto"}
-        className="swipe-card-image"
+        className="swipe-card-image drop-shadow-2xl"
         style={{
           position: 'absolute',
           inset: 0,
           width: '100%',
           height: '100%',
-          objectFit: 'cover',
-        opacity: (loaded || wasInCache) ? 1 : 0,
-        transition: (loaded && !wasInCache) ? `opacity ${CROSSFADE_MS}ms cubic-bezier(0.4, 0, 0.2, 1)` : 'none',
+          objectFit: 'contain',
+          opacity: (loaded || wasInCache) ? 1 : 0,
+          transition: (loaded && !wasInCache) ? `opacity ${CROSSFADE_MS}ms cubic-bezier(0.4, 0, 0.2, 1)` : 'none',
           borderRadius: br,
           zIndex: 3,
           transformOrigin: 'center',
