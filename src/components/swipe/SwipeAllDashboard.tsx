@@ -86,8 +86,8 @@ export const SwipeAllDashboard = memo(({ setCategories }: SwipeAllDashboardProps
           animate={{ opacity: 1, scale: 1 }}
           className="relative flex-none flex items-center justify-center transition-all"
           style={{
-            height: 'calc(100% - 8px)',
-            width: 'calc((100dvh - var(--top-bar-height, 72px) - var(--bottom-nav-height, 80px) - 8px) * 0.66667)',
+            height: 'calc(100% - 24px)',
+            width: 'calc((100dvh - var(--top-bar-height, 72px) - var(--bottom-nav-height, 80px) - 24px) * 0.66667)',
             maxWidth: '100%',
             aspectRatio: '520 / 780',
             flex: 'none'

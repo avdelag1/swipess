@@ -109,8 +109,6 @@ export function AppLayout({ children }: AppLayoutProps) {
     // Notifies RootProviders that the layout shell is mounted.
     // This allows the splash screen to fade out ONLY when content is ready.
     window.dispatchEvent(new CustomEvent('swipess-ready'));
-    
-    // Fallback for legacy listeners
     window.dispatchEvent(new CustomEvent('app-rendered'));
 
     return () => {
@@ -118,33 +116,26 @@ export function AppLayout({ children }: AppLayoutProps) {
     };
   }, [location.pathname]);
 
-  // Auto-close ALL overlay popups when the route changes — clicking any
-  // top-bar / bottom-nav / in-app navigation should dismiss any open modal.
+  // Auto-close ALL overlay popups when the route changes
   useEffect(() => {
     useModalStore.getState().closeAll();
   }, [location.pathname]);
 
-  // Defensive: the swipe-deck-active body class locks page overflow. If a
-  // navigation race ever leaves it stuck, force-clear it whenever we land on
-  // a route that isn't the swipe deck. Runs pre-paint to avoid a frame of
-  // un-scrollable content on profile / settings / etc.
+  // Force dark theme on all Dashboard routes for the premium "black filter" experience
   useLayoutEffect(() => {
     document.body.classList.toggle('swipe-deck-active', swipeDeckActive);
     
-    // Force dark theme on Swipe Deck routes to provide the immersive "black filter" experience
-    if (swipeDeckActive) {
+    if (isInsideDashboard) {
       document.documentElement.classList.add('dark', 'black-matte');
       document.documentElement.classList.remove('light', 'white-matte', 'cheers', 'red-matte', 'amber-matte', 'pure-black', 'Swipess-style');
       document.documentElement.style.colorScheme = 'dark';
     } else {
-      // Restore user's actual theme when leaving swipe deck
+      // Restore user's actual theme when leaving dashboard
       if (theme === 'light') {
         document.documentElement.classList.add('light', 'white-matte');
         document.documentElement.classList.remove('dark', 'black-matte');
         document.documentElement.style.colorScheme = 'light';
       } else {
-        // If it's a specific theme, it might be easier to just dispatch an event or rely on ThemeContext
-        // For now, at least restore dark if it was dark
         document.documentElement.classList.add('dark');
         if (theme === 'dark') document.documentElement.classList.add('black-matte');
         document.documentElement.classList.remove('light', 'white-matte');
@@ -153,12 +144,11 @@ export function AppLayout({ children }: AppLayoutProps) {
     }
     
     return () => document.body.classList.remove('swipe-deck-active');
-  }, [swipeDeckActive, theme]);
+  }, [isInsideDashboard, swipeDeckActive, theme]);
 
   // Discoverability: when entering swipe-deck reveal mode (chrome auto-hides),
   // briefly show the header + bottom nav so users see the controls exist
   // before they fade out. Auto-hide timer (5s) is set by revealChrome().
-  // useLayoutEffect so the store flips before paint — no hide/re-show flicker.
   const wasRevealRef = useRef(false);
   useLayoutEffect(() => {
     if (useRevealMode && !wasRevealRef.current) {
@@ -172,17 +162,6 @@ export function AppLayout({ children }: AppLayoutProps) {
   const isCameraRoute = location.pathname.includes('/camera');
   const isRadioRoute = location.pathname.includes('/radio');
 
-  // AppLayout is ALWAYS a fixed shell — it never scrolls itself.
-  // DashboardLayout's #dashboard-scroll-container owns all authenticated-page scrolling.
-  // Public standalone pages (outside DashboardLayout) scroll via the main container below.
-  const isInsideDashboard = useMemo(() => {
-    const path = location.pathname;
-    const authRoutes = ['/client', '/owner', '/admin'];
-    return authRoutes.some(r => path.startsWith(r));
-  }, [location.pathname]);
-
-
-
   const isFullScreen = useMemo(() => {
     const path = location.pathname;
     const isRadio = path.startsWith('/radio');
@@ -190,12 +169,12 @@ export function AppLayout({ children }: AppLayoutProps) {
     const isRoommates = path.startsWith('/explore/roommates');
     const isMessages = path.startsWith('/messages');
     const isEvents = path.startsWith('/explore/events');
-    return isCamera || isRadio || showAIChat || isSwipeDashboard || isRoommates || isMessages || isEvents;
-  }, [location.pathname, showAIChat, isSwipeDashboard]);
+    return isCamera || isRadio || showAIChat || showAIListing || showAIProfile || isSwipeDashboard || isRoommates || isMessages || isEvents;
+  }, [location.pathname, showAIChat, showAIListing, showAIProfile, isSwipeDashboard]);
 
   const isEventsRoute = location.pathname.startsWith('/explore/events');
   const isRoommatesRoute = location.pathname.startsWith('/explore/roommates');
-  const showAppChrome = !isAuthRoute && !isRadioRoute && !isCameraRoute && !showAIChat && !isEventsRoute && !isRoommatesRoute && (!isPublicPreview || !!user);
+  const showAppChrome = !isAuthRoute && !isRadioRoute && !isCameraRoute && !showAIChat && !showAIListing && !showAIProfile && !isEventsRoute && !isRoommatesRoute && (!isPublicPreview || !!user);
 
   const handleFilterClick = () => {
     const role = userRole === 'admin' ? 'admin' : activeMode;

@@ -13,8 +13,8 @@
  */
 
 import { memo, useRef, useState, useCallback, useMemo, useEffect, forwardRef, useImperativeHandle } from 'react';
-import { motion, useMotionValue, useTransform, PanInfo, animate, useDragControls, MotionValue } from 'framer-motion';
-import { MapPin, DollarSign, Briefcase, ThumbsUp, ThumbsDown, Flag, Share2 } from 'lucide-react';
+import { motion, useMotionValue, useTransform, PanInfo, animate, useDragControls, MotionValue, AnimatePresence } from 'framer-motion';
+import { MapPin, DollarSign, Briefcase, ThumbsUp, ThumbsDown, Flag, Share2, MessageCircle, BarChart3 } from 'lucide-react';
 import { triggerHaptic } from '@/utils/haptics';
 import { cn } from '@/lib/utils';
 import { useMagnifier } from '@/hooks/useMagnifier';
@@ -144,6 +144,7 @@ interface SimpleOwnerSwipeCardProps {
   onTap?: () => void;
   onInsights?: () => void;
   onMessage?: () => void;
+  onSearch?: () => void;
   isTop?: boolean;
   onDragStart?: () => void;
   onShare?: (profile: ClientProfile) => void;
@@ -510,7 +511,61 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           </div>
         )}
 
-        {/* Residual side actions removed for Swipes UI consistency */}
+        {/* Floating Action Rail — Apple-style vertical glass pill */}
+        <AnimatePresence>
+          {isTop && isChromeVisible && !isZoomed && (
+            <motion.div
+              initial={{ opacity: 0, x: 18, scale: 0.96 }}
+              animate={{ opacity: 1, x: 0, scale: 1 }}
+              exit={{ opacity: 0, x: 12, scale: 0.94 }}
+              transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+              className="absolute right-3 bottom-[calc(var(--bottom-nav-height,72px)+140px)] z-50"
+            >
+              <div
+                className="flex flex-col gap-1.5 p-1.5 rounded-full"
+                style={{
+                  background: 'rgba(20, 20, 24, 0.42)',
+                  backdropFilter: 'blur(24px) saturate(1.8)',
+                  WebkitBackdropFilter: 'blur(24px) saturate(1.8)',
+                  border: '1px solid rgba(255, 255, 255, 0.14)',
+                  boxShadow: '0 10px 30px -8px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.10)',
+                }}
+              >
+                {[
+                  { icon: Share2, onClick: () => onShare?.(profile), label: 'Share' },
+                  { icon: MessageCircle, onClick: onMessage, label: 'Message' },
+                  { icon: BarChart3, onClick: onInsights, label: 'Insights' },
+                  { icon: Flag, onClick: onReport, label: 'Report' },
+                ].map((btn, idx) => (
+                  <motion.button
+                    key={idx}
+                    whileTap={{ scale: 0.88 }}
+                    transition={{ duration: 0.1 }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      triggerHaptic('light');
+                      btn.onClick?.();
+                    }}
+                    aria-label={btn.label}
+                    className="w-9 h-9 rounded-full flex items-center justify-center bg-transparent border-none p-0 outline-none"
+                    style={{
+                      background: 'transparent',
+                      border: 'none',
+                      WebkitTapHighlightColor: 'transparent',
+                    }}
+                  >
+                    <btn.icon
+                      color="#FFFFFF"
+                      className="w-[18px] h-[18px]"
+                      style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.45))' }}
+                      strokeWidth={1.8}
+                    />
+                  </motion.button>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
           </>
         )}
       </motion.div>
