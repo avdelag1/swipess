@@ -255,10 +255,10 @@ const MessageBubble = memo(({ message, isUser, isSwipess, isLight, onCopy, onDel
            <button 
              onClick={(e) => { e.stopPropagation(); onSpeak(message.id, cleanContent); }}
              className={cn(
-               "absolute bottom-2 right-2 w-7 h-7 rounded-lg flex items-center justify-center transition-all border",
+               "absolute bottom-2 right-2 w-7 h-7 rounded-lg flex items-center justify-center transition-all",
                speakingMsgId === message.id && isSpeaking 
-                 ? "bg-primary border-primary text-primary-foreground shadow-[0_0_10px_hsl(var(--primary)/0.4)]" 
-                 : isSwipess ? "bg-white/5 border-white/10 text-white/40 hover:text-white" : "bg-muted border-border text-muted-foreground hover:text-primary"
+                 ? "bg-primary text-primary-foreground shadow-[0_0_10px_hsl(var(--primary)/0.4)]" 
+                 : isSwipess ? "bg-white/5 text-white/40 hover:text-white" : "bg-muted text-muted-foreground hover:text-primary"
              )}
            >
              {speakingMsgId === message.id && isSpeaking ? <VolumeX className="w-3 h-3" /> : <Volume2 className="w-3 h-3" />}
@@ -312,7 +312,7 @@ const MessageBubble = memo(({ message, isUser, isSwipess, isLight, onCopy, onDel
                     }
                   } catch { /* user cancelled */ }
                 }}
-                className="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/55 backdrop-blur-md text-white flex items-center justify-center border border-white/15 hover:bg-black/75 active:scale-90 transition-all"
+                className="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/55 backdrop-blur-md text-white flex items-center justify-center hover:bg-black/75 active:scale-90 transition-all"
               >
                 <Share2 className="w-3.5 h-3.5" />
               </button>
@@ -381,7 +381,7 @@ const MessageBubble = memo(({ message, isUser, isSwipess, isLight, onCopy, onDel
                     }
                   } catch { /* user cancelled */ }
                 }}
-                className="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/55 backdrop-blur-md text-white flex items-center justify-center border border-white/15 hover:bg-black/75 active:scale-90 transition-all"
+                className="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/55 backdrop-blur-md text-white flex items-center justify-center hover:bg-black/75 active:scale-90 transition-all"
               >
                 <Share2 className="w-3.5 h-3.5" />
               </button>
@@ -396,7 +396,7 @@ const MessageBubble = memo(({ message, isUser, isSwipess, isLight, onCopy, onDel
             <button
               key={path}
               onClick={(e) => { e.stopPropagation(); onNavigate(path); }}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold tracking-wide bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-all"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold tracking-wide bg-primary/10 text-primary hover:bg-primary/20 transition-all"
             >
               {NAV_LABELS[path] || path}
               <ArrowRight className="w-3 h-3" />
@@ -406,7 +406,7 @@ const MessageBubble = memo(({ message, isUser, isSwipess, isLight, onCopy, onDel
             <button
               key={idx}
               onClick={(e) => { e.stopPropagation(); onDraft?.(draft.category, draft.data); }}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-full text-[11px] font-bold tracking-wide bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-all"
+              className="flex items-center gap-2 px-3 py-1.5 rounded-full text-[11px] font-bold tracking-wide bg-primary/10 text-primary hover:bg-primary/20 transition-all"
             >
               <Plus className="w-3.5 h-3.5" />
               Review {draft.category} Draft
@@ -416,7 +416,7 @@ const MessageBubble = memo(({ message, isUser, isSwipess, isLight, onCopy, onDel
           {filterAction && (
             <button
               onClick={(e) => { e.stopPropagation(); onFilter?.(filterAction); }}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-full text-[11px] font-bold tracking-wide bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-all"
+              className="flex items-center gap-2 px-3 py-1.5 rounded-full text-[11px] font-bold tracking-wide bg-primary/10 text-primary hover:bg-primary/20 transition-all"
             >
               <Zap className="w-3.5 h-3.5" />
               Applying Search Filters
@@ -434,20 +434,20 @@ const MessageBubble = memo(({ message, isUser, isSwipess, isLight, onCopy, onDel
             exit={{ opacity: 0, y: -5 }}
             className={cn("flex items-center gap-1.5 mt-1 px-1", isUser ? "flex-row-reverse" : "flex-row")}
           >
-            <button onClick={(e) => { e.stopPropagation(); onCopy(); }} className={cn("p-2 rounded-xl transition-all border", isLight && !isSwipess ? "bg-slate-100 border-slate-200 text-slate-900" : "bg-white/15 border-white/20 text-white")}>
+            <button onClick={(e) => { e.stopPropagation(); onCopy(); }} className={cn("p-2 rounded-xl transition-all", isLight && !isSwipess ? "bg-slate-100 text-slate-900" : "bg-white/15 text-white")}>
               <Copy className="w-3.5 h-3.5" />
             </button>
             {!isUser && onTranslate && (
-              <button onClick={(e) => { e.stopPropagation(); onTranslate('Spanish'); }} className={cn("p-2 rounded-xl transition-all border", isLight && !isSwipess ? "bg-slate-100 border-slate-200 text-slate-900" : "bg-white/15 border-white/20 text-white")}>
+              <button onClick={(e) => { e.stopPropagation(); onTranslate('Spanish'); }} className={cn("p-2 rounded-xl transition-all", isLight && !isSwipess ? "bg-slate-100 text-slate-900" : "bg-white/15 text-white")}>
                 <Languages className="w-3.5 h-3.5" />
               </button>
             )}
             {isUser && onResend && (
-              <button onClick={(e) => { e.stopPropagation(); onResend(); }} className={cn("p-2 rounded-xl transition-all border", isLight && !isSwipess ? "bg-slate-100 border-slate-200 text-slate-900" : "bg-white/15 border-white/20 text-white")}>
+              <button onClick={(e) => { e.stopPropagation(); onResend(); }} className={cn("p-2 rounded-xl transition-all", isLight && !isSwipess ? "bg-slate-100 text-slate-900" : "bg-white/15 text-white")}>
                 <RefreshCw className="w-3.5 h-3.5" />
               </button>
             )}
-            <button onClick={(e) => { e.stopPropagation(); onDelete(); }} className={cn("p-2 rounded-xl transition-all border", isLight && !isSwipess ? "bg-red-50 border-red-100 text-red-600" : "bg-red-500/20 border-red-500/30 text-red-400")}>
+            <button onClick={(e) => { e.stopPropagation(); onDelete(); }} className={cn("p-2 rounded-xl transition-all", isLight && !isSwipess ? "bg-red-50 text-red-600" : "bg-red-500/20 text-red-400")}>
               <Trash2 className="w-3.5 h-3.5" />
             </button>
           </motion.div>
@@ -876,7 +876,7 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
   return createPortal(
     <AnimatePresence>
       {isOpen && (
-        <div className={cn("fixed inset-0 z-[60] flex items-center justify-center p-0 sm:p-6 transition-all duration-500", isLight && !isSwipess ? "bg-black/10 backdrop-blur-md" : "bg-black/40 backdrop-blur-xl")}>
+        <div className={cn("fixed inset-0 z-[10010] flex items-center justify-center p-0 sm:p-6 transition-all duration-500", isLight && !isSwipess ? "bg-black/10 backdrop-blur-md" : "bg-black/40 backdrop-blur-xl")}>
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="absolute inset-0" />
           
           <motion.div
