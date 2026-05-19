@@ -35,7 +35,7 @@ export function useClientInsights() {
       const { count: matchesCount } = await supabase
         .from('matches')
         .select('*', { count: 'exact', head: true })
-        .eq('user_id', user.id);
+        .eq('client_id', user.id);
 
       // 3. Get profile views (simulated or from a dedicated table if available)
       // For now, using likes count as a base
