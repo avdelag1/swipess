@@ -2498,8 +2498,8 @@ button:disabled,
 .white-matte .text-white\/90, .light .text-white\/90 { color: rgba(0,0,0,0.90) !important; }
 /* text-white (full) should stay white only on explicitly colored backgrounds.
    We specifically exclude dialogs / cards that declare their own bg colour. */
-.white-matte .text-white:not([class*="bg-"]):not([style*="background"]),
-.light        .text-white:not([class*="bg-"]):not([style*="background"]) {
+.white-matte :not(.dark) .text-white:not([class*="bg-"]):not([style*="background"]):not(.force-white),
+.light        :not(.dark) .text-white:not([class*="bg-"]):not([style*="background"]):not(.force-white) {
   color: #111111 !important;
 }
 

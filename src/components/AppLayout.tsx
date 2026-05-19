@@ -129,10 +129,31 @@ export function AppLayout({ children }: AppLayoutProps) {
   // a route that isn't the swipe deck. Runs pre-paint to avoid a frame of
   // un-scrollable content on profile / settings / etc.
   useLayoutEffect(() => {
-    if (!isSwipeDashboard) {
-      document.body.classList.remove('swipe-deck-active');
+    document.body.classList.toggle('swipe-deck-active', swipeDeckActive);
+    
+    // Force dark theme on Swipe Deck routes to provide the immersive "black filter" experience
+    if (swipeDeckActive) {
+      document.documentElement.classList.add('dark', 'black-matte');
+      document.documentElement.classList.remove('light', 'white-matte', 'cheers', 'red-matte', 'amber-matte', 'pure-black', 'Swipess-style');
+      document.documentElement.style.colorScheme = 'dark';
+    } else {
+      // Restore user's actual theme when leaving swipe deck
+      if (theme === 'light') {
+        document.documentElement.classList.add('light', 'white-matte');
+        document.documentElement.classList.remove('dark', 'black-matte');
+        document.documentElement.style.colorScheme = 'light';
+      } else {
+        // If it's a specific theme, it might be easier to just dispatch an event or rely on ThemeContext
+        // For now, at least restore dark if it was dark
+        document.documentElement.classList.add('dark');
+        if (theme === 'dark') document.documentElement.classList.add('black-matte');
+        document.documentElement.classList.remove('light', 'white-matte');
+        document.documentElement.style.colorScheme = 'dark';
+      }
     }
-  }, [location.pathname, isSwipeDashboard]);
+    
+    return () => document.body.classList.remove('swipe-deck-active');
+  }, [swipeDeckActive, theme]);
 
   // Discoverability: when entering swipe-deck reveal mode (chrome auto-hides),
   // briefly show the header + bottom nav so users see the controls exist
