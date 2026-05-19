@@ -229,7 +229,7 @@ export function AppLayout({ children }: AppLayoutProps) {
           (isInsideDashboard || isFullScreen) ? "overflow-hidden" : "overflow-y-auto scroll-area-momentum"
         )}
       >
-        <div className="w-full flex-1 flex flex-col min-h-0">
+        <div className="w-full flex-1 flex flex-col min-h-0 h-full relative">
           {children}
         </div>
       </main>
