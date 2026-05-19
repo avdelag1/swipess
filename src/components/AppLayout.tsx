@@ -45,7 +45,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   const { user } = useAuth();
   const { navigate } = useAppNavigate();
   const modalStore = useModalStore();
-  const { showAIChat, showAIListing } = modalStore;
+  const { showAIChat, showAIListing, showAIProfile } = modalStore;
   const { activeMode } = useActiveMode();
 
   const isSwipeDashboard = useMemo(() => {
@@ -84,6 +84,12 @@ export function AppLayout({ children }: AppLayoutProps) {
     if (location.pathname.startsWith('/client/')) return 'client';
     return activeMode;
   }, [activeMode, location.pathname, user?.user_metadata?.role]);
+
+  const isInsideDashboard = useMemo(() => {
+    const path = location.pathname;
+    const authRoutes = ['/client', '/owner', '/admin'];
+    return authRoutes.some(r => path.startsWith(r));
+  }, [location.pathname]);
 
   useKeyboardShortcuts();
   useFocusManagement();
