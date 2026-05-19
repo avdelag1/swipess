@@ -1710,21 +1710,21 @@ export type Database = {
           id: string
           listing_id: string
           owner_id: string
-          user_id: string
+          client_id: string
         }
         Insert: {
           created_at?: string
           id?: string
           listing_id: string
           owner_id: string
-          user_id: string
+          client_id: string
         }
         Update: {
           created_at?: string
           id?: string
           listing_id?: string
           owner_id?: string
-          user_id?: string
+          client_id?: string
         }
         Relationships: [
           {

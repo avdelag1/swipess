@@ -41,7 +41,7 @@ export function useClientStats() {
         const { count } = await supabase
           .from('matches')
           .select('*', { count: 'exact', head: true })
-          .eq('user_id', user.id);
+          .eq('client_id', user.id);
         matchesCount = count || 0;
       } catch {
         // Graceful fallback if matches query fails
