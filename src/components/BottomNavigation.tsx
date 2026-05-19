@@ -91,9 +91,12 @@ export const BottomNavigation = memo(({
   const closeAll = useModalStore((s) => s.closeAll);
   const { unreadCount: _unreadCount } = useUnreadMessageCount();
   const { unreadCount: _unreadNotifCount } = useUnreadNotifications();
-  const { isLight } = useAppTheme();
+  const { isLight: themeIsLight } = useAppTheme();
   useChromeReveal();
   const isDashboardRoute = /^\/(client|owner|admin)\/dashboard\/?/.test(location.pathname);
+  const isInsideDashboard = /^\/(client|owner|admin)\//.test(location.pathname);
+  // On dashboard routes we force dark mode, so treat isLight as false
+  const isLight = isInsideDashboard ? false : themeIsLight;
 
   // Visibility policy: BottomNav is always rendered. The SwipessHud
   // wrapper above this component drives the actual show/hide via its

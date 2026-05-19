@@ -328,6 +328,25 @@ html[data-theme-transition] ::view-transition-new(root) {
   }
 }
 
+/* Dark theme override — ensures glass pills are dark on dashboard routes
+   where .dark is forced on <html> regardless of user's chosen filter. */
+.dark .glass-surface,
+.dark .glass-pill {
+  background: rgba(18, 18, 22, 0.82);
+  border-color: rgba(255, 255, 255, 0.10);
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.50),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.dark .glass-surface::before,
+.dark .glass-pill::before {
+  background: linear-gradient(180deg,
+    rgba(255, 255, 255, 0.08) 0%,
+    rgba(255, 255, 255, 0.02) 38%,
+    transparent 60%);
+}
+
 /* Hide ALL scrollbars */
 * {
   scrollbar-width: none !important;

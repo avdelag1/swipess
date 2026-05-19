@@ -46,22 +46,24 @@ function TopBarComponent({
 }: TopBarProps) {
   const { navigate } = useAppNavigate();
   const { user } = useAuth();
-  const { isLight } = useAppTheme();
+  const { isLight: themeIsLight } = useAppTheme();
   const { isChromeVisible } = useChromeReveal();
   const setModal = useModalStore(s => s.setModal);
   const location = useLocation();
   const isDashboard = /^\/(client|owner|admin)\/dashboard\/?/.test(location.pathname);
+  const isInsideDashboard = /^\/(client|owner|admin)\//.test(location.pathname);
   
+  // On dashboard routes we force dark mode, so treat isLight as false
+  const isLight = isInsideDashboard ? false : themeIsLight;
+
   // Visibility policy: the dashboard is the navigation hub, so the
   // TopBar must stay pinned there. On every other page, the SwipessHud
   // wrapper handles scroll-direction based hide/show — this component
   // itself is always rendered.
   void isChromeVisible;
   const isActuallyVisible = true;
-  // Color rule:
-  //  - Dark theme (black filter): icons always WHITE.
-  //  - Light theme (white filter): WHITE on dashboard (over photos),
-  //    BLACK on every other page.
+  // Color rule: always WHITE on dashboard (forced dark), otherwise
+  // follow theme.
   const iconColor = !isLight || isDashboard ? '#FFFFFF' : '#0A0A0A';
 
   const isOwner = userRole === 'owner';
