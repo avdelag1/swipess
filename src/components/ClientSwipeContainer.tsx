@@ -1060,7 +1060,7 @@ const ClientSwipeContainerComponent = ({
                   detecting={locationDetecting}
                   detected={locationDetected}
                   categoryName={labels.plural}
-                  isLoading={isLoading || !isMountSettledRef.current}
+                  isLoading={isLoading}
                   activeCategory={storeActiveCategory || category}
                   onCategoryChange={(cat) => {
                     setActiveCategory(cat as any);

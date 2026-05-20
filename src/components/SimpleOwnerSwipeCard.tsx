@@ -427,8 +427,6 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           )}
           {isTop && (
             <>
-              <div className="absolute top-0 left-0 right-0 pointer-events-none z-20"
-                  style={{ height: '28%', background: 'linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.45) 30%, rgba(0,0,0,0.2) 65%, transparent 100%)', opacity: isZoomed ? 0 : 1 }} />
               <div className="absolute bottom-0 left-0 right-0 pointer-events-none z-20"
                   style={{ height: '42%', background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.6) 25%, rgba(0,0,0,0.3) 55%, rgba(0,0,0,0.1) 80%, transparent 100%)', opacity: isZoomed ? 0 : 1 }} />
               <PhotoPositionIndicators count={imageCount} currentIndex={currentImageIndex} hidden={isZoomed} />
@@ -458,7 +456,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           </div>
         </motion.div>
 
-        <div className="absolute left-5 right-5 bottom-[calc(var(--bottom-nav-height,72px)+100px)] z-30 pointer-events-none" style={{ opacity: isZoomed ? 0 : 1 }}>
+        <div className="absolute left-5 right-5 bottom-[calc(var(--bottom-nav-height,72px)+16px)] z-30 pointer-events-none" style={{ opacity: isZoomed ? 0 : 1 }}>
           <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} className="space-y-1.5">
             <div className="flex items-center gap-2 mb-2">
               <div className="inline-flex rounded-full px-3 py-1 bg-black/80 border border-white/10">
@@ -519,7 +517,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
               animate={{ opacity: 1, x: 0, scale: 1 }}
               exit={{ opacity: 0, x: 12, scale: 0.94 }}
               transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-              className="absolute right-3 bottom-[calc(var(--bottom-nav-height,72px)+140px)] z-50"
+              className="absolute right-3 bottom-[calc(var(--bottom-nav-height,72px)+56px)] z-50"
             >
               <div
                 className="flex flex-col gap-1.5 p-1.5 rounded-full"
