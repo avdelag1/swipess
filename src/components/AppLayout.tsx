@@ -91,6 +91,10 @@ export function AppLayout({ children }: AppLayoutProps) {
     return authRoutes.some(r => path.startsWith(r));
   }, [location.pathname]);
 
+  // Only the actual dashboard page gets forced dark theme — NOT profile,
+  // settings, AI chat, roommates, etc.
+  const isDashboardOnly = isDashboardPage;
+
   useKeyboardShortcuts();
   useFocusManagement();
   useOfflineDetection();
@@ -127,30 +131,34 @@ export function AppLayout({ children }: AppLayoutProps) {
     useModalStore.getState().closeAll();
   }, [location.pathname]);
 
-  // Force dark theme on all Dashboard routes for the premium "black filter" experience
+  // Force dark theme ONLY on the dashboard page for the premium "black filter" experience
   useLayoutEffect(() => {
     document.body.classList.toggle('swipe-deck-active', swipeDeckActive);
     
-    if (isInsideDashboard) {
+    if (isDashboardOnly) {
       document.documentElement.classList.add('dark', 'black-matte');
       document.documentElement.classList.remove('light', 'white-matte', 'cheers', 'red-matte', 'amber-matte', 'pure-black', 'Swipess-style');
       document.documentElement.style.colorScheme = 'dark';
     } else {
       // Restore user's actual theme when leaving dashboard
-      if (theme === 'light') {
+      if (theme === 'light' || theme === 'white-matte') {
         document.documentElement.classList.add('light', 'white-matte');
-        document.documentElement.classList.remove('dark', 'black-matte');
+        document.documentElement.classList.remove('dark', 'black-matte', 'grey-matte', 'red-matte', 'amber-matte', 'Swipess-style');
         document.documentElement.style.colorScheme = 'light';
       } else {
         document.documentElement.classList.add('dark');
-        if (theme === 'dark') document.documentElement.classList.add('black-matte');
+        if (theme === 'dark' || theme === 'black-matte') {
+          document.documentElement.classList.add('black-matte');
+        } else if (theme) {
+          document.documentElement.classList.add(theme);
+        }
         document.documentElement.classList.remove('light', 'white-matte');
         document.documentElement.style.colorScheme = 'dark';
       }
     }
     
     return () => document.body.classList.remove('swipe-deck-active');
-  }, [isInsideDashboard, swipeDeckActive, theme]);
+  }, [isDashboardOnly, swipeDeckActive, theme]);
 
   // Discoverability: when entering swipe-deck reveal mode (chrome auto-hides),
   // briefly show the header + bottom nav so users see the controls exist

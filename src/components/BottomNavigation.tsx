@@ -94,9 +94,8 @@ export const BottomNavigation = memo(({
   const { isLight: themeIsLight } = useAppTheme();
   useChromeReveal();
   const isDashboardRoute = /^\/(client|owner|admin)\/dashboard\/?/.test(location.pathname);
-  const isInsideDashboard = /^\/(client|owner|admin)\//.test(location.pathname);
-  // On dashboard routes we force dark mode, so treat isLight as false
-  const isLight = isInsideDashboard ? false : themeIsLight;
+  // Only the dashboard page forces dark — other pages respect the user's theme
+  const isLight = isDashboardRoute ? false : themeIsLight;
 
   // Visibility policy: BottomNav is always rendered. The SwipessHud
   // wrapper above this component drives the actual show/hide via its

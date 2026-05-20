@@ -51,10 +51,9 @@ function TopBarComponent({
   const setModal = useModalStore(s => s.setModal);
   const location = useLocation();
   const isDashboard = /^\/(client|owner|admin)\/dashboard\/?/.test(location.pathname);
-  const isInsideDashboard = /^\/(client|owner|admin)\//.test(location.pathname);
   
-  // On dashboard routes we force dark mode, so treat isLight as false
-  const isLight = isInsideDashboard ? false : themeIsLight;
+  // Only the dashboard page forces dark — other pages respect the user's theme
+  const isLight = isDashboard ? false : themeIsLight;
 
   // Visibility policy: the dashboard is the navigation hub, so the
   // TopBar must stay pinned there. On every other page, the SwipessHud
