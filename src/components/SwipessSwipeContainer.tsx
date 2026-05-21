@@ -190,7 +190,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
     const store = useSwipeDeckStore.getState();
     const items = activeMode === 'owner' 
       ? store.getOwnerDeckItems(storeActiveCategory || 'all')
-      : store.getClientDeckItems();
+      : store.getClientDeckItems(storeActiveCategory || 'all');
     return items;
   };
 
@@ -198,9 +198,9 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
   const currentIndexRef = useRef(
     activeMode === 'owner' 
       ? (useSwipeDeckStore.getState().ownerDecks[storeActiveCategory || 'all']?.currentIndex || 0)
-      : useSwipeDeckStore.getState().clientDeck.currentIndex
+      : (useSwipeDeckStore.getState().clientDecks[storeActiveCategory || 'all']?.currentIndex || 0)
   );
-  const swipedIdsRef = useRef<Set<string>>(new Set(useSwipeDeckStore.getState().clientDeck.swipedIds));
+  const swipedIdsRef = useRef<Set<string>>(new Set(useSwipeDeckStore.getState().clientDecks[storeActiveCategory || 'all']?.swipedIds || []));
   const _initializedRef = useRef(deckQueueRef.current.length > 0);
 
   const cardRef = useRef<SimpleSwipeCardRef>(null);
@@ -225,7 +225,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
   }, []);
 
   const isReturningRef = useRef(
-    deckQueueRef.current.length > 0 && useSwipeDeckStore.getState().clientDeck.isReady
+    deckQueueRef.current.length > 0 && useSwipeDeckStore.getState().clientDecks[storeActiveCategory || 'all']?.isReady
   );
   const _hasAnimatedOnceRef = useRef(isReturningRef.current);
 
@@ -303,10 +303,10 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
   useEffect(() => {
     if (undoSuccess) {
       const storeState = useSwipeDeckStore.getState();
-      const newIndex = storeState.clientDeck.currentIndex;
+      const newIndex = storeState.clientDecks[storeActiveCategory || 'all']?.currentIndex || 0;
       currentIndexRef.current = newIndex;
       setCurrentIndex(newIndex);
-      swipedIdsRef.current = new Set(storeState.clientDeck.swipedIds);
+      swipedIdsRef.current = new Set(storeState.clientDecks[storeActiveCategory || 'all']?.swipedIds || []);
       resetUndoState();
       logger.info('[SwipessSwipeContainer] Synced local state after undo, new index:', newIndex);
     }
@@ -372,7 +372,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
       setPage(0);
       setCurrentIndex(0);
       setDeckLength(0);
-      resetClientDeck();
+      resetClientDeck(storeActiveCategory || 'all');
       queryClient.removeQueries({ queryKey: ['smart-listings'] });
       try {
         sessionStorage.removeItem('swipe-deck-items');
@@ -407,7 +407,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
     prevListingIdsRef.current = '';
     hasNewListingsRef.current = false;
     setPage(0);
-    resetClientDeck();
+    resetClientDeck(storeActiveCategory || 'all');
     currentIndexRef.current = 0;
     setCurrentIndex(0);
     setDeckLength(0);
@@ -481,7 +481,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
       if (userHasNotStartedThisDeck && firstIncoming && firstIncoming !== firstCurrent) {
         deckQueueRef.current = smartData;
         setDeckLength(smartData.length);
-        setClientDeck(smartData, false);
+        setClientDeck(storeActiveCategory || 'all', smartData, false);
       }
     }
   }
@@ -566,11 +566,11 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
       }
 
       setDeckLength(deckQueueRef.current.length);
-      setClientDeck(deckQueueRef.current, true);
+      setClientDeck(storeActiveCategory || 'all', deckQueueRef.current, true);
       persistDeckToSession('client', 'listings', deckQueueRef.current);
 
-      if (!isClientReady()) {
-        markClientReady();
+      if (!isClientReady(storeActiveCategory || 'all')) {
+        markClientReady(storeActiveCategory || 'all');
       }
     }
 
@@ -605,7 +605,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
     topCardY.set(0);
     hasSwipedRef.current = true;
     setCurrentIndex(newIndex);
-    markClientSwiped(listing.id);
+    markClientSwiped(storeActiveCategory || 'all', listing.id);
     recordSwipe(listing.id, 'listing', direction);
 
     swipeMutation.mutate({
@@ -769,7 +769,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
     deckQueueRef.current = [];
     swipedIdsRef.current.clear();
     setPage(0);
-    resetClientDeck();
+    resetClientDeck(storeActiveCategory || 'all');
 
     try {
       await queryClient.invalidateQueries({ queryKey: ['smart-listings'] });

@@ -247,17 +247,25 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   }, [location.pathname]);
 
   // 🚀 SMART SCROLL RESTORATION
-  // Only scroll to top when navigating to a NEW page, not when staying on the same route.
-  // This prevents the "bounce back" issue on scrollable pages like Profile.
+  const scrollPositions = useRef<Record<string, number>>({});
   const prevPathRef = useRef(location.pathname);
+
   useLayoutEffect(() => {
-    if (prevPathRef.current !== location.pathname) {
-      const el = scrollContainerRef.current;
-      if (el) {
-        el.scrollTo({ top: 0, behavior: 'auto' });
-      }
-      prevPathRef.current = location.pathname;
+    const el = scrollContainerRef.current;
+    if (!el) return;
+
+    // Save current scroll position before navigating
+    scrollPositions.current[prevPathRef.current] = el.scrollTop;
+
+    // Restore scroll position for new path, unless it's a profile page
+    if (!location.pathname.includes('/profile')) {
+      const savedPos = scrollPositions.current[location.pathname] || 0;
+      el.scrollTo({ top: savedPos, behavior: 'auto' });
+    } else {
+      el.scrollTo({ top: 0, behavior: 'auto' });
     }
+
+    prevPathRef.current = location.pathname;
   }, [location.pathname]);
 
   useLayoutEffect(() => {
@@ -271,12 +279,12 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
 
   // useSwipeNavigation removed to prevent horizontal scrolling interference with listing details
 
-  return (
-    <div className={cn(
-      "dashboard-root w-full flex-1 min-h-0 flex flex-col relative overflow-hidden",
-      isDark ? "dark" : "light",
-      isSwipeDeck && "bg-swipe-frame"
-    )}>
+          <div className={cn(
+            "dashboard-root w-full flex-1 min-h-0 flex flex-col relative",
+            isSwipeDeck ? "overflow-hidden" : "overflow-auto",
+            isDark ? "dark" : "light",
+            isSwipeDeck && "bg-swipe-frame"
+          )}>
       {!isSwipeDeck && (
         <PullToRefreshIndicator
           pullDistance={pullDistance}
@@ -291,6 +299,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
         className={cn(
           "flex-1 flex flex-col relative w-full min-h-0",
           (isSwipeDeck || isFullScreenRoute) ? "overflow-hidden touch-none" : "overflow-y-auto",
+
           isSwipeDeck && "bg-swipe-frame"
         )}
         style={{
