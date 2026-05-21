@@ -127,7 +127,7 @@ export function usePullToRefresh({
       el.removeEventListener('touchmove', onTouchMove);
       el.removeEventListener('touchend', onTouchEnd);
     };
-  }, [containerRef, threshold, isRefreshing, handleRefresh]);
+  }, [containerRef, threshold, isRefreshing, handleRefresh, disabled]);
 
   return { isRefreshing, pullDistance, triggered: pullDistance >= threshold };
 }

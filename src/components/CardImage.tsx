@@ -183,6 +183,7 @@ const CardImage = memo(({
         </div>
       )}
 
+      {/* Clean single image — object-fit:cover fills the card on all devices */}
       <img
         src={displaySrc || optimizedSrc || src}
         alt={alt ?? ''}
@@ -198,13 +199,10 @@ const CardImage = memo(({
           width: '100%',
           height: '100%',
           objectFit: 'cover',
-        opacity: (loaded || wasInCache) ? 1 : 0,
-        transition: (loaded && !wasInCache) ? `opacity ${CROSSFADE_MS}ms cubic-bezier(0.4, 0, 0.2, 1)` : 'none',
+          opacity: (loaded || wasInCache) ? 1 : 0,
+          transition: (loaded && !wasInCache) ? `opacity ${CROSSFADE_MS}ms cubic-bezier(0.4, 0, 0.2, 1)` : 'none',
           borderRadius: br,
           zIndex: 3,
-          transformOrigin: 'center',
-          filter: loaded ? 'saturate(1.08) contrast(1.03)' : 'none',
-          animation: (_animate && loaded) ? 'breathing-zoom 14s ease-in-out infinite alternate' : 'none',
           willChange: 'auto',
           WebkitTouchCallout: 'none',
           WebkitUserSelect: 'none',

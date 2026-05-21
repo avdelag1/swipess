@@ -328,6 +328,25 @@ html[data-theme-transition] ::view-transition-new(root) {
   }
 }
 
+/* Dark theme override — ensures glass pills are dark on dashboard routes
+   where .dark is forced on <html> regardless of user's chosen filter. */
+.dark .glass-surface,
+.dark .glass-pill {
+  background: rgba(18, 18, 22, 0.82);
+  border-color: rgba(255, 255, 255, 0.10);
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.50),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.dark .glass-surface::before,
+.dark .glass-pill::before {
+  background: linear-gradient(180deg,
+    rgba(255, 255, 255, 0.08) 0%,
+    rgba(255, 255, 255, 0.02) 38%,
+    transparent 60%);
+}
+
 /* Hide ALL scrollbars */
 * {
   scrollbar-width: none !important;
@@ -2498,8 +2517,8 @@ button:disabled,
 .white-matte .text-white\/90, .light .text-white\/90 { color: rgba(0,0,0,0.90) !important; }
 /* text-white (full) should stay white only on explicitly colored backgrounds.
    We specifically exclude dialogs / cards that declare their own bg colour. */
-.white-matte .text-white:not([class*="bg-"]):not([style*="background"]),
-.light        .text-white:not([class*="bg-"]):not([style*="background"]) {
+.white-matte :not(.dark) .text-white:not([class*="bg-"]):not([style*="background"]):not(.force-white),
+.light        :not(.dark) .text-white:not([class*="bg-"]):not([style*="background"]):not(.force-white) {
   color: #111111 !important;
 }
 

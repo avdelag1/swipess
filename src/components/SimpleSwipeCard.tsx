@@ -384,12 +384,6 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
         onPointerMove={handleUnifiedPointerMove}
         onPointerUp={handleUnifiedPointerUp}
         onPointerCancel={handleUnifiedPointerUp}
-        initial={{ scale: 0.97, opacity: 0.85 }}
-        animate={{
-          scale: 1,
-          opacity: 1,
-          transition: { type: 'spring', stiffness: 400, damping: 28, mass: 0.6 }
-        }}
         className={cn("flex-1 select-none touch-none relative w-full h-full overflow-hidden border-none gpu-ultra", isTop ? "cursor-grab active:cursor-grabbing" : "")}
         style={{
           x,
@@ -432,14 +426,6 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           {isTop && (
             <>
               <div
-                className="absolute top-0 left-0 right-0 pointer-events-none z-20 transition-opacity duration-200"
-                style={{
-                  height: '28%',
-                  background: 'linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.45) 30%, rgba(0,0,0,0.2) 65%, transparent 100%)',
-                  opacity: isZoomed ? 0 : 1,
-                }}
-              />
-              <div
                 className="absolute bottom-0 left-0 right-0 pointer-events-none z-20 transition-opacity duration-200"
                 style={{
                   height: '42%',
@@ -479,7 +465,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
         </motion.div>
 
         <div
-          className="absolute left-5 right-5 bottom-[calc(var(--bottom-nav-height,72px)+100px)] z-30 pointer-events-none transition-opacity duration-150"
+          className="absolute left-5 right-5 bottom-[calc(var(--bottom-nav-height,72px)+16px)] z-30 pointer-events-none transition-opacity duration-150"
           style={{ opacity: isZoomed ? 0 : 1 }}
         >
           <motion.div
@@ -605,7 +591,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
               animate={{ opacity: 1, x: 0, scale: 1 }}
               exit={{ opacity: 0, x: 12, scale: 0.94 }}
               transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-              className="absolute right-3 bottom-[calc(var(--bottom-nav-height,72px)+140px)] z-50"
+              className="absolute right-3 bottom-[calc(var(--bottom-nav-height,72px)+56px)] z-50"
             >
               <div
                 className="flex flex-col gap-1.5 p-1.5 rounded-full"
@@ -627,6 +613,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
                   <motion.button
                     key={idx}
                     whileTap={{ scale: 0.88 }}
+                    transition={{ duration: 0.1 }}
                     onClick={(e) => {
                       e.stopPropagation();
                       triggerHaptic('light');

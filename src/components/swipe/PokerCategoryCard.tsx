@@ -319,7 +319,7 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
             
             <h3
               className={cn(
-                "font-black tracking-[calc(-0.06em)] leading-[0.85] uppercase italic text-white",
+                "font-black tracking-[calc(-0.06em)] leading-[0.85] uppercase italic text-white force-white",
                 card.label.length <= 8 ? "text-5xl" : card.label.length <= 10 ? "text-4xl" : "text-3xl"
               )}
               style={{

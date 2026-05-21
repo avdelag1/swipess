@@ -45,7 +45,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   const { user } = useAuth();
   const { navigate } = useAppNavigate();
   const modalStore = useModalStore();
-  const { showAIChat, showAIListing } = modalStore;
+  const { showAIChat, showAIListing, showAIProfile } = modalStore;
   const { activeMode } = useActiveMode();
 
   const isSwipeDashboard = useMemo(() => {
@@ -85,6 +85,16 @@ export function AppLayout({ children }: AppLayoutProps) {
     return activeMode;
   }, [activeMode, location.pathname, user?.user_metadata?.role]);
 
+  const isInsideDashboard = useMemo(() => {
+    const path = location.pathname;
+    const authRoutes = ['/client', '/owner', '/admin'];
+    return authRoutes.some(r => path.startsWith(r));
+  }, [location.pathname]);
+
+  // Only the actual dashboard page gets forced dark theme — NOT profile,
+  // settings, AI chat, roommates, etc.
+  const isDashboardOnly = isDashboardPage;
+
   useKeyboardShortcuts();
   useFocusManagement();
   useOfflineDetection();
@@ -109,8 +119,6 @@ export function AppLayout({ children }: AppLayoutProps) {
     // Notifies RootProviders that the layout shell is mounted.
     // This allows the splash screen to fade out ONLY when content is ready.
     window.dispatchEvent(new CustomEvent('swipess-ready'));
-    
-    // Fallback for legacy listeners
     window.dispatchEvent(new CustomEvent('app-rendered'));
 
     return () => {
@@ -118,26 +126,43 @@ export function AppLayout({ children }: AppLayoutProps) {
     };
   }, [location.pathname]);
 
-  // Auto-close ALL overlay popups when the route changes — clicking any
-  // top-bar / bottom-nav / in-app navigation should dismiss any open modal.
+  // Auto-close ALL overlay popups when the route changes
   useEffect(() => {
     useModalStore.getState().closeAll();
   }, [location.pathname]);
 
-  // Defensive: the swipe-deck-active body class locks page overflow. If a
-  // navigation race ever leaves it stuck, force-clear it whenever we land on
-  // a route that isn't the swipe deck. Runs pre-paint to avoid a frame of
-  // un-scrollable content on profile / settings / etc.
+  // Force dark theme ONLY on the dashboard page for the premium "black filter" experience
   useLayoutEffect(() => {
-    if (!isSwipeDashboard) {
-      document.body.classList.remove('swipe-deck-active');
+    document.body.classList.toggle('swipe-deck-active', swipeDeckActive);
+    
+    if (isDashboardOnly) {
+      document.documentElement.classList.add('dark', 'black-matte');
+      document.documentElement.classList.remove('light', 'white-matte', 'cheers', 'red-matte', 'amber-matte', 'pure-black', 'Swipess-style');
+      document.documentElement.style.colorScheme = 'dark';
+    } else {
+      // Restore user's actual theme when leaving dashboard
+      if (theme === 'light' || theme === 'white-matte') {
+        document.documentElement.classList.add('light', 'white-matte');
+        document.documentElement.classList.remove('dark', 'black-matte', 'grey-matte', 'red-matte', 'amber-matte', 'Swipess-style');
+        document.documentElement.style.colorScheme = 'light';
+      } else {
+        document.documentElement.classList.add('dark');
+        if (theme === 'dark' || theme === 'black-matte') {
+          document.documentElement.classList.add('black-matte');
+        } else if (theme) {
+          document.documentElement.classList.add(theme);
+        }
+        document.documentElement.classList.remove('light', 'white-matte');
+        document.documentElement.style.colorScheme = 'dark';
+      }
     }
-  }, [location.pathname, isSwipeDashboard]);
+    
+    return () => document.body.classList.remove('swipe-deck-active');
+  }, [isDashboardOnly, swipeDeckActive, theme]);
 
   // Discoverability: when entering swipe-deck reveal mode (chrome auto-hides),
   // briefly show the header + bottom nav so users see the controls exist
   // before they fade out. Auto-hide timer (5s) is set by revealChrome().
-  // useLayoutEffect so the store flips before paint — no hide/re-show flicker.
   const wasRevealRef = useRef(false);
   useLayoutEffect(() => {
     if (useRevealMode && !wasRevealRef.current) {
@@ -151,17 +176,6 @@ export function AppLayout({ children }: AppLayoutProps) {
   const isCameraRoute = location.pathname.includes('/camera');
   const isRadioRoute = location.pathname.includes('/radio');
 
-  // AppLayout is ALWAYS a fixed shell — it never scrolls itself.
-  // DashboardLayout's #dashboard-scroll-container owns all authenticated-page scrolling.
-  // Public standalone pages (outside DashboardLayout) scroll via the main container below.
-  const isInsideDashboard = useMemo(() => {
-    const path = location.pathname;
-    const authRoutes = ['/client', '/owner', '/admin'];
-    return authRoutes.some(r => path.startsWith(r));
-  }, [location.pathname]);
-
-
-
   const isFullScreen = useMemo(() => {
     const path = location.pathname;
     const isRadio = path.startsWith('/radio');
@@ -169,12 +183,12 @@ export function AppLayout({ children }: AppLayoutProps) {
     const isRoommates = path.startsWith('/explore/roommates');
     const isMessages = path.startsWith('/messages');
     const isEvents = path.startsWith('/explore/events');
-    return isCamera || isRadio || showAIChat || isSwipeDashboard || isRoommates || isMessages || isEvents;
-  }, [location.pathname, showAIChat, isSwipeDashboard]);
+    return isCamera || isRadio || showAIChat || showAIListing || showAIProfile || isSwipeDashboard || isRoommates || isMessages || isEvents;
+  }, [location.pathname, showAIChat, showAIListing, showAIProfile, isSwipeDashboard]);
 
   const isEventsRoute = location.pathname.startsWith('/explore/events');
   const isRoommatesRoute = location.pathname.startsWith('/explore/roommates');
-  const showAppChrome = !isAuthRoute && !isRadioRoute && !isCameraRoute && !showAIChat && !isEventsRoute && !isRoommatesRoute && (!isPublicPreview || !!user);
+  const showAppChrome = !isAuthRoute && !isRadioRoute && !isCameraRoute && !showAIChat && !showAIListing && !showAIProfile && !isEventsRoute && !isRoommatesRoute && (!isPublicPreview || !!user);
 
   const handleFilterClick = () => {
     const role = userRole === 'admin' ? 'admin' : activeMode;
@@ -202,7 +216,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   
       {showAppChrome && (
         <Suspense fallback={null}>
-          <SwipessHud side="top" className="fixed top-0 left-0 right-0 z-[10005]" scrollTargetSelector="#dashboard-scroll-container" alwaysVisible={isDashboardPage && !swipeDeckActive} revealMode={useRevealMode}>
+          <SwipessHud side="top" className="fixed top-0 left-0 right-0 z-[40]" scrollTargetSelector="#dashboard-scroll-container" alwaysVisible={isDashboardPage && !swipeDeckActive} revealMode={useRevealMode}>
             <TopBar
               userRole={userRole}
               onMessageActivationsClick={handleMessageActivationsClick}
@@ -229,7 +243,7 @@ export function AppLayout({ children }: AppLayoutProps) {
           (isInsideDashboard || isFullScreen) ? "overflow-hidden" : "overflow-y-auto scroll-area-momentum"
         )}
       >
-        <div className="w-full flex-1 flex flex-col min-h-0">
+        <div className="w-full flex-1 flex flex-col min-h-0 h-full relative">
           {children}
         </div>
       </main>
@@ -240,7 +254,7 @@ export function AppLayout({ children }: AppLayoutProps) {
 
       {showAppChrome && (
         <Suspense fallback={null}>
-          <SwipessHud side="bottom" className="fixed bottom-0 left-0 right-0 z-[10005]" scrollTargetSelector="#dashboard-scroll-container" alwaysVisible={isDashboardPage && !swipeDeckActive} revealMode={useRevealMode}>
+          <SwipessHud side="bottom" className="fixed bottom-0 left-0 right-0 z-[40]" scrollTargetSelector="#dashboard-scroll-container" alwaysVisible={isDashboardPage && !swipeDeckActive} revealMode={useRevealMode}>
             <BottomNavigation
               userRole={userRole}
               onFilterClick={handleFilterClick}

@@ -639,8 +639,11 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
             {/* Photo Section with premium cards - RELOCATED TO FRONT */}
             <motion.div variants={itemFadeScale}>
               <div className="space-y-4">
-                <div className="flex items-center justify-between px-2">
-                  <h3 className="text-xl font-bold">Photos <span className="text-sm font-medium text-muted-foreground ml-2">({photoList.length}/{maxPhotos})</span></h3>
+                <div className="flex items-start justify-between px-2">
+                  <div className="flex flex-col gap-1.5">
+                    <h3 className="text-xl font-bold">Photos <span className="text-sm font-medium text-muted-foreground ml-2">({photoList.length}/{maxPhotos})</span></h3>
+                    <p className="text-[10px] font-black uppercase tracking-[0.1em] text-indigo-500/80">💡 TIP: Vertical/Portrait photos look best on mobile</p>
+                  </div>
                   {photoList.length < 1 && (
                     <Badge variant="destructive" className="animate-pulse bg-[#FF3D00] hover:bg-[#FF3D00]/90 shadow-[0_4px_12px_rgba(255,61,0,0.25)] border-none">Required</Badge>
                   )}

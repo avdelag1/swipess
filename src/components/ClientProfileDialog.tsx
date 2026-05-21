@@ -295,8 +295,9 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
             
             {/* ðŸ“¸ ASSET REPOSITORY */}
             <section className="space-y-6">
-               <div className="flex flex-col gap-1">
+               <div className="flex flex-col gap-1.5">
                   <h3 className="text-sm font-black uppercase italic tracking-widest text-white/90">Visual Assets</h3>
+                  <p className="text-[10px] font-black uppercase tracking-[0.1em] text-indigo-400/90 italic">💡 TIP: Vertical/Portrait photos look best on mobile</p>
                   <p className="text-[10px] uppercase tracking-widest text-white/40 italic">High-fidelity primary and lifestyle imagery</p>
                </div>
                <PhotoUploadManager
