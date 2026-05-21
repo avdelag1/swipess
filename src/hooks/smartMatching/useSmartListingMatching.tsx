@@ -337,6 +337,15 @@ export function useSmartListingMatching(
             if (!userId) return [];
 
             try {
+                const normalizedCat = filters?.category && filters.category !== 'all' ? normalizeCategoryName(filters.category) : undefined;
+                if (normalizedCat) {
+                    const allowedCategories = ['property', 'motorcycle', 'bicycle', 'worker', 'services'];
+                    if (!allowedCategories.includes(normalizedCat)) {
+                        logger.warn(`[SmartMatching] Skipped listing query for invalid category: ${normalizedCat}`);
+                        return [];
+                    }
+                }
+
                 // 1. Prepare exclusion list from cache (if available)
                 const swipedListingIds = new Set<string>();
                 if (userSwipes) {
@@ -443,9 +452,8 @@ export function useSmartListingMatching(
                 }
 
                 // 4. Apply Filters
-                if (filters?.category && filters.category !== 'all') {
-                    const normalized = normalizeCategoryName(filters.category);
-                    if (normalized) query = query.eq('category', normalized);
+                if (normalizedCat) {
+                    query = query.eq('category', normalizedCat);
                 } else {
                     // CRITICAL: Restrict to only the 4 allowed categories on client side
                     // This prevents "places" or "businesses" from leaking into the feed
