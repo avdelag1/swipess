@@ -19,6 +19,7 @@ import { triggerHaptic } from '@/utils/haptics';
 import { cn } from '@/lib/utils';
 import { useMagnifier } from '@/hooks/useMagnifier';
 import { CompactRatingDisplay } from '@/components/RatingDisplay';
+import { LoopVideo } from '@/components/video/LoopVideo';
 import { useUserRatingAggregateEnhanced } from '@/hooks/useRatingSystem';
 import { getWorkScheduleLabel } from '@/constants/profileConstants';
 import { SwipeMatchMeter } from '@/components/swipe/SwipeMatchMeter';
@@ -193,9 +194,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   const cardOpacity = useTransform(
     [x, y] as any,
     ([cx, cy]: any) => {
-      const a = Math.min(1, Math.abs(cx) / 400);
-      const b = Math.min(1, Math.abs(cy) / 400);
-      return 1 - Math.max(a, b) * 0.4;
+      return 1;
     }
   );
   const likeOpacity = useTransform(x, [0, SWIPE_THRESHOLD * 0.5, SWIPE_THRESHOLD], [0, 0.5, 1]);
@@ -422,7 +421,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           onContextMenu={(event) => event.preventDefault()}
         >
           {showVideoSlide ? (
-            <video src={videoUrl} autoPlay muted loop playsInline className="absolute inset-0 w-full h-full object-cover" />
+            <LoopVideo src={videoUrl!} className="absolute inset-0 w-full h-full object-cover" active={isTop} />
           ) : (
             <CardImage src={currentImage} alt={profile.name || 'Client'} name={profile.name} priority fullScreen={true} animate={!isZoomed} />
           )}

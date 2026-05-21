@@ -23,6 +23,7 @@ import { PropertyCardInfo, VehicleCardInfo, ServiceCardInfo, ClientCardInfo } fr
 import { CompactRatingDisplay } from '@/components/RatingDisplay';
 import { useListingRatingAggregate } from '@/hooks/useRatingSystem';
 import CardImage from '@/components/CardImage';
+import { LoopVideo } from '@/components/video/LoopVideo';
 import { imageCache } from '@/lib/swipe/cardImageCache';
 import useAppTheme from '@/hooks/useAppTheme';
 import { cn } from '@/lib/utils';
@@ -102,13 +103,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   const cardOpacity = useTransform(
     [x, y] as any,
     ([cx, cy]: any) => {
-      const ax = Math.abs(cx);
-      // Horizontal: stay solid until ~60% of threshold, then fade lightly.
-      const fadeX = ax <= SWIPE_THRESHOLD * 0.6
-        ? 0
-        : Math.min(1, (ax - SWIPE_THRESHOLD * 0.6) / (SWIPE_THRESHOLD * 1.2)) * 0.25;
-      // Vertical: NO fade during browse â€” card stays opaque the whole way.
-      return 1 - fadeX;
+      return 1;
     }
   );
   const likeOpacity = useTransform(x, [0, SWIPE_THRESHOLD * 0.5, SWIPE_THRESHOLD], [0, 0.5, 1]);
@@ -406,11 +401,10 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           onContextMenu={(event) => event.preventDefault()}
         >
           {currentImage === 'video_attachment' && (listing as any).video_url ? (
-            <video
+            <LoopVideo
               src={(listing as any).video_url}
-              autoPlay muted loop playsInline
               className="absolute inset-0 w-full h-full object-cover"
-              style={{ zIndex: 1 }}
+              active={isTop}
             />
           ) : (
             <CardImage
