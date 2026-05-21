@@ -171,6 +171,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   externalY,
   onReport,
   onShare,
+  onMessage,
 }, ref) => {
   const isDragging = useRef(false);
   const hasExited = useRef(false);
