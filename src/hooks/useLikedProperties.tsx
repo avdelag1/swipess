@@ -34,7 +34,7 @@ export function useLikedProperties() {
           .select('id, created_at, target_id, target_type')
           .eq('user_id', user.id)
           .eq('direction', 'right')
-          .in('target_type', ['listing', 'event'])
+          .in('target_type', ['listing', 'event', 'profile'])
           .order('created_at', { ascending: false });
 
         if (error) {
@@ -55,8 +55,13 @@ export function useLikedProperties() {
           .filter(l => l.target_type === 'event')
           .map(l => l.target_id);
 
+        const profileIds = likes
+          .filter(l => l.target_type === 'profile')
+          .map(l => l.target_id);
+
         let listings: any[] = [];
         let events: any[] = [];
+        let profiles: any[] = [];
 
         // Fetch Listings
         if (listingIds.length > 0) {
@@ -76,10 +81,31 @@ export function useLikedProperties() {
           if (!err) events = data || [];
         }
 
+        // Fetch Profiles
+        if (profileIds.length > 0) {
+          const { data, error: err } = await supabase
+            .from('client_profiles')
+            .select('*')
+            .in('user_id', profileIds);
+          if (!err) {
+            // Normalize profile to look like a listing so it can be displayed
+            profiles = (data || []).map(p => ({
+              ...p,
+              id: p.user_id, // ensure id exists
+              category: 'roommates',
+              title: p.full_name || p.name || 'Roommate',
+              price: p.budget_max,
+              images: p.profile_images || (p.avatar_url ? [p.avatar_url] : []),
+              owner_id: p.user_id, // they are their own owner
+            }));
+          }
+        }
+
         // Create a unified map [id_type, data]
         const dataMap = new Map();
         listings.forEach(l => dataMap.set(`${l.id}_listing`, { ...l, target_type: 'listing' }));
         events.forEach(e => dataMap.set(`${e.id}_event`, { ...e, target_type: 'event' }));
+        profiles.forEach(p => dataMap.set(`${p.id}_profile`, { ...p, target_type: 'profile' }));
 
         // Map back to the original order of likes
         const orderedListings = likes

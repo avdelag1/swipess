@@ -5,7 +5,7 @@ import { useState, useMemo } from "react";
 import { useLikedProperties } from "@/hooks/useLikedProperties";
 import { useStartConversation } from "@/hooks/useConversations";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Flame, Home, Bike, Briefcase, RefreshCw, Car, Search, ArrowUpDown } from "lucide-react";
+import { Flame, Home, Bike, Briefcase, RefreshCw, Car, Search, ArrowUpDown, Users } from "lucide-react";
 import { toast } from "sonner";
 import useAppTheme from "@/hooks/useAppTheme";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -40,6 +40,7 @@ const categories = [
   { id: "motorcycle", label: "Motorcycles", icon: Car, title: "Power & Speed", subtitle: "Premium machines" },
   { id: "bicycle", label: "Bicycles", icon: Bike, title: "Urban Flow", subtitle: "Sustainable precision" },
   { id: "worker", label: "Workers", icon: Briefcase, title: "Elite Talent", subtitle: "The support you need" },
+  { id: "roommates", label: "Roommates", icon: Users, title: "Perfect Match", subtitle: "Find your ideal roommate" },
 ];
 
 interface ClientLikedPropertiesProps {
@@ -136,10 +137,14 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
     if (action === "message") {
       try {
         triggerHaptic('medium');
+        const initialMessage = property.target_type === 'profile'
+          ? `Hi! I matched with your profile and would love to chat.`
+          : `Hi! I'm interested in: ${property.title}. Could you tell me more?`;
+
         const result = await startConversation.mutateAsync({
           otherUserId: property.owner_id,
           listingId: property.id,
-          initialMessage: `Hi! I'm interested in: ${property.title}. Could you tell me more?`,
+          initialMessage,
           canStartNewConversation: true,
         });
         
@@ -302,7 +307,7 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
                 className="rounded-[2rem]"
               >
                 <PremiumLikedCard
-                  type="listing"
+                  type={property.target_type === 'profile' ? 'profile' : 'listing'}
                   isLight={isLight}
                   data={property}
                   onAction={(action) => handleAction(action, property)}
