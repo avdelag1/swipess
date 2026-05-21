@@ -179,6 +179,7 @@ export function VapIdEditModal({ isOpen, onClose }: Props) {
 
       await queryClient.invalidateQueries({ queryKey: ['vap-id-client-profile', user.id] });
       await queryClient.invalidateQueries({ queryKey: ['vap-id-profile', user.id] });
+      await queryClient.invalidateQueries({ queryKey: ['client-profile-own'] });
       await refetch();
       toast.success('Card saved');
       onClose();
