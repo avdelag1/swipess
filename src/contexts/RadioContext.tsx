@@ -687,7 +687,12 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
           audioContextRef.current.resume();
         }
         await audioRef.current.play();
-      } catch (playErr) {
+      } catch (playErr: any) {
+        if (playErr.name === 'AbortError') {
+          logger.info('[RadioPlayer] Play aborted by new action');
+          isPlayingRef.current = false;
+          return;
+        }
         // CRITICAL FALLBACK: If "anonymous" crossOrigin caused a CORS blockage, 
         // strip it and play normally (visualizer will be flat, but audio works).
         if (audioRef.current && audioRef.current.crossOrigin !== "") {
@@ -733,8 +738,12 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
         navigator.mediaSession.setActionHandler('previoustrack', () => changeStationRef.current('prev'));
         navigator.mediaSession.setActionHandler('nexttrack', () => changeStationRef.current('next'));
       }
-    } catch (err) {
+    } catch (err: any) {
       isPlayingRef.current = false;
+      if (err.name === 'AbortError') {
+         logger.info('[RadioPlayer] Play aborted by new action (outer)');
+         return;
+      }
       logger.error('[RadioPlayer] Playback error:', err);
       failedStationsRef.current.add(targetStation.id);
       setError('Failed to play station, switching...');

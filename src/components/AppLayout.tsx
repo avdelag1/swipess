@@ -61,8 +61,11 @@ export function AppLayout({ children }: AppLayoutProps) {
   //     of the photo. Re-summoned by tapping the top edge or the
   //     bottom-center summon zone.
   //   • Every other page: chrome hides on scroll-down, shows on scroll-up.
+  const isRoommatesRoute = location.pathname.startsWith('/explore/roommates');
+  const isEventsRoute = location.pathname.startsWith('/explore/events');
+
   const isDashboardPage = location.pathname.startsWith('/client/dashboard') ||
-    location.pathname.startsWith('/owner/dashboard');
+    location.pathname.startsWith('/owner/dashboard') || isRoommatesRoute;
   const { selectedCategoriesCount, ownerPhase } = useFilterStore(
     useShallow((s) => ({
       selectedCategoriesCount: s.categories.length,
@@ -73,7 +76,8 @@ export function AppLayout({ children }: AppLayoutProps) {
   const isOwnerDash = location.pathname.startsWith('/owner/dashboard');
   const swipeDeckActive =
     (isClientDash && selectedCategoriesCount > 0) ||
-    (isOwnerDash && ownerPhase === 'swipe');
+    (isOwnerDash && ownerPhase === 'swipe') ||
+    isRoommatesRoute;
   const { isChromeVisible } = useChromeReveal();
   const useRevealMode = swipeDeckActive && !showAIChat;
   const hideFloatingForSwipe = useRevealMode && !isChromeVisible;
@@ -186,13 +190,15 @@ export function AppLayout({ children }: AppLayoutProps) {
     return isCamera || isRadio || showAIChat || showAIListing || showAIProfile || isSwipeDashboard || isRoommates || isMessages || isEvents;
   }, [location.pathname, showAIChat, showAIListing, showAIProfile, isSwipeDashboard]);
 
-  const isEventsRoute = location.pathname.startsWith('/explore/events');
-  const isRoommatesRoute = location.pathname.startsWith('/explore/roommates');
-  const showAppChrome = !isAuthRoute && !isRadioRoute && !isCameraRoute && !showAIChat && !showAIListing && !showAIProfile && !isEventsRoute && !isRoommatesRoute && (!isPublicPreview || !!user);
+  const showAppChrome = !isAuthRoute && !isRadioRoute && !isCameraRoute && !showAIChat && !showAIListing && !showAIProfile && !isEventsRoute && (!isPublicPreview || !!user);
 
   const handleFilterClick = () => {
-    const role = userRole === 'admin' ? 'admin' : activeMode;
-    navigate(`/${role}/filters`);
+    if (isRoommatesRoute) {
+      useModalStore.getState().setModal('showFilters', true);
+    } else {
+      const role = userRole === 'admin' ? 'admin' : activeMode;
+      navigate(`/${role}/filters`);
+    }
   };
 
   const handleListingsClick = () => {
