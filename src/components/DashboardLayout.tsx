@@ -279,6 +279,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
 
   // useSwipeNavigation removed to prevent horizontal scrolling interference with listing details
 
+  return (
           <div className={cn(
             "dashboard-root w-full flex-1 min-h-0 flex flex-col relative",
             isSwipeDeck ? "overflow-hidden" : "overflow-auto",
@@ -324,5 +325,5 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       </Suspense>
 
     </div>
-  )
+  );
 }
