@@ -257,13 +257,9 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     // Save current scroll position before navigating
     scrollPositions.current[prevPathRef.current] = el.scrollTop;
 
-    // Restore scroll position for new path, unless it's a profile page
-    if (!location.pathname.includes('/profile')) {
-      const savedPos = scrollPositions.current[location.pathname] || 0;
-      el.scrollTo({ top: savedPos, behavior: 'auto' });
-    } else {
-      el.scrollTo({ top: 0, behavior: 'auto' });
-    }
+    // Restore scroll position for all paths, including profile pages
+    const savedPos = scrollPositions.current[location.pathname] || 0;
+    el.scrollTo({ top: savedPos, behavior: 'auto' });
 
     prevPathRef.current = location.pathname;
   }, [location.pathname]);
