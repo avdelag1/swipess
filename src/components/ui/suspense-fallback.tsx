@@ -14,7 +14,7 @@ interface SuspenseFallbackProps {
   minimal?: boolean;
 }
 
-export function SuspenseFallback({ className, minimal = false }: SuspenseFallbackProps) {
+export function SuspenseFallback({ className, minimal: _minimal = false }: SuspenseFallbackProps) {
   // ALWAYS return a minimal, transparent placeholder.
   // The persistent layout (TopBar, BottomNav) stays visible at all times,
   // so the user never sees a jarring full-screen loader between pages.

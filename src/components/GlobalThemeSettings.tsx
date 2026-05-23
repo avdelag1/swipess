@@ -1,6 +1,5 @@
-import { useState } from "react";
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
 import { useAppTheme, Theme } from "@/hooks/useAppTheme";
 import { Paintbrush, Check } from "lucide-react";
 import { cn } from "@/lib/utils";

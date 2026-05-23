@@ -1,14 +1,14 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import {
   MessageCircle, Search,
-  MoreVertical, Archive, Trash, Check, Inbox, CircleDot,
-  Layers, Sparkles, Navigation, ChevronLeft, ArrowLeft, ShieldAlert, Ban
+  MoreVertical, Archive, Trash, Check, Inbox, _CircleDot,
+  _Layers, Sparkles, _Navigation, _ChevronLeft, ArrowLeft, ShieldAlert, Ban
 } from 'lucide-react';
-import { EmptyState } from '@/components/ui/EmptyState';
+// import { } from '@/components/ui/EmptyState';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useActiveMode } from '@/hooks/useActiveMode';
@@ -24,9 +24,9 @@ import { useMarkMessagesAsRead } from '@/hooks/useMarkMessagesAsRead';
 import { MessagingInterface } from '@/components/MessagingInterface';
 import { MessageSkeleton } from '@/components/ui/LayoutSkeletons';
 import { formatDistanceToNow } from '@/utils/timeFormatter';
-import { supabase } from '@/integrations/supabase/client';
+// import { } from '@/integrations/supabase/client';
 import { MessageActivationPackages } from '@/components/MessageActivationPackages';
-import { MessageActivationBanner } from '@/components/MessageActivationBanner';
+// import { } from '@/components/MessageActivationBanner';
 import { useMessageActivations } from '@/hooks/useMessageActivations';
 import { usePrefetchManager } from '@/hooks/usePrefetchManager';
 import { useBlockUser } from '@/hooks/useBlocking';
@@ -52,12 +52,12 @@ export function MessagingDashboard() {
   const [activeFilter, setActiveFilter] = useState<'all' | 'unread' | 'archived' | 'listing' | 'client' | 'potential'>('all');
   const [isStartingConversation, setIsStartingConversation] = useState(false);
   const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
-  const [showActivationBanner, setShowActivationBanner] = useState(false);
+  const [_showActivationBanner, _setShowActivationBanner] = useState(false);
 
   const { data: fetchedRole } = useUserRole(user?.id);
   const userRole = fetchedRole || 'client';
   const { activeMode } = useActiveMode();
-  const { theme, isLight } = useAppTheme();
+  const { _theme, isLight } = useAppTheme();
   const { t } = useTranslation();
 
   const { data: conversations = [], isLoading, refetch, fetchSingleConversation } = useConversations();
@@ -68,7 +68,7 @@ export function MessagingDashboard() {
 
   const [directlyFetchedConversation, setDirectlyFetchedConversation] = useState<Conversation | null>(null);
   const startConversation = useStartConversation();
-  const { totalActivations, canSendMessage } = useMessageActivations();
+  const { _totalActivations, canSendMessage } = useMessageActivations();
 
   const { prefetchTopConversations, prefetchTopConversationMessages } = usePrefetchManager();
 

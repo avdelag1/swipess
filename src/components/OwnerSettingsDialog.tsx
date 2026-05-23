@@ -1,6 +1,6 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Shield, ExternalLink, FileText, X, Lock } from "lucide-react";
+import { Shield, ExternalLink, FileText, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { DeleteAccountSection } from "./DeleteAccountSection";
 import { AccountSecurity } from "./AccountSecurity";

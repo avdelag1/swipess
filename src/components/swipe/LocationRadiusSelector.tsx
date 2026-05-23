@@ -36,7 +36,7 @@ export const LocationRadiusSelector = memo(({
   lat: _lat,
   lng: _lng,
   variant: _variant = 'minimal',
-  nodes = [],
+  nodes: _nodes = [],
   title,
   expanded: expandedProp,
   onExpandedChange,

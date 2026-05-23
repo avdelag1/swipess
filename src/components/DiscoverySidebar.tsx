@@ -41,7 +41,7 @@ export const DiscoverySidebar = memo(({
   const ActionIcon = ({ 
     icon: Icon, 
     onClick, 
-    label, 
+    label: _label, 
     colorClass = "text-white", 
     glowColor = "rgba(255,255,255,0.2)",
     disabled = false,

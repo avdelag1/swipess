@@ -1,4 +1,4 @@
-import { Suspense, lazy, useMemo, useEffect, useState, useRef, useLayoutEffect } from 'react';
+import { Suspense, lazy, useMemo, useEffect, useRef, useLayoutEffect } from 'react';
 import { lazyWithRetry } from '@/utils/lazyRetry';
 
 import { useLocation } from 'react-router-dom';
@@ -29,11 +29,7 @@ import { useShallow } from 'zustand/react/shallow';
 const NotificationSystem = lazy(() =>
   import('@/components/NotificationSystem').then(m => ({ default: m.NotificationSystem }))
 );
-const DiscoveryFilters = lazy(() =>
-  import('@/components/filters/DiscoveryFilters').then(m => ({ default: m.DiscoveryFilters }))
-);
-import { Sheet, SheetContent } from '@/components/ui/sheet';
-import { useTranslation } from 'react-i18next';
+
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -105,7 +101,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   useErrorReporting();
   useInstantReactivity(); 
 
-  const { t } = useTranslation();
+
 
   // In-app audio fully disabled — sounds are reserved for the public
   // landing-page cosmos background only (LandingBackgroundEffects.tsx).

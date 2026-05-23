@@ -1,13 +1,13 @@
 /** SPEED OF LIGHT: DashboardLayout is now rendered at route level */
 import { PageHeader } from "@/components/PageHeader";
 import { CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+// import { } from "@/components/ui/badge";
 import {
   Shield, FileText, HelpCircle, Info, ChevronRight,
   Scale, Volume2, Building2, Globe, Users
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { AccountSecurity } from "@/components/AccountSecurity";
 import { DeleteAccountSection } from "@/components/DeleteAccountSection";
 import { SwipeSoundSettings } from "@/components/SwipeSoundSettings";
@@ -45,7 +45,7 @@ type SettingsGroup = {
 const OwnerSettings = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { theme, isLight } = useAppTheme();
+  const { _theme, isLight } = useAppTheme();
   const [activeSection, setActiveSection] = useState<string | null>(null);
 
   const settingsGroups: SettingsGroup[] = [

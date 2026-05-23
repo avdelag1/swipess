@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { } from 'react';
 import { motion } from 'framer-motion';
 import { useFocusMode } from '@/hooks/useFocusMode';
 import { useScrollDirection } from '@/hooks/useScrollDirection';
@@ -28,7 +28,7 @@ export function SwipessHud({
   revealMode = false,
 }: SwipessHudProps) {
   const location = useLocation();
-  const { isFocused } = useFocusMode(7000);
+  const { _isFocused } = useFocusMode(7000);
 
   const { isVisible: isScrollVisible } = useScrollDirection({
     threshold,

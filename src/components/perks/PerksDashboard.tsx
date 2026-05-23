@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { QrCode, TrendingUp, Store, Zap, History, ChevronRight, Sparkles, Award } from 'lucide-react';
+import { QrCode, Store, Zap, History, ChevronRight, Sparkles, Award } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { ResidentQRModal } from './ResidentQRModal';
@@ -9,7 +9,6 @@ import { DiscountHistory } from './DiscountHistory';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
 
-import { useFilterStore, useFilterActions } from '@/state/filterStore';
 import useAppTheme from '@/hooks/useAppTheme';
 
 type Tab = 'home' | 'businesses' | 'history';
@@ -22,7 +21,7 @@ export function PerksDashboard() {
   const [redemptions, setRedemptions] = useState<any[]>([]);
   const [partners, setPartners] = useState<any[]>([]);
   const [offers, setOffers] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [_loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!user?.id) return;

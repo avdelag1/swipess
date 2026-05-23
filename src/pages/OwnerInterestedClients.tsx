@@ -2,12 +2,12 @@ import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { ThumbsUp, Sparkles, Home, Briefcase, DollarSign, Flame, GripVertical } from "lucide-react";
+import { ThumbsUp, Home, Briefcase, DollarSign, Flame, GripVertical } from "lucide-react";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { LikesSkeleton } from "@/components/ui/LikesSkeleton";
 import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
-import { PremiumSortableGrid } from "@/components/PremiumSortableGrid";
+// import { } from "@/components/PremiumSortableGrid";
 import { toast } from "sonner";
 import { useStartConversation } from "@/hooks/useConversations";
 import { PremiumLikedCard } from "@/components/PremiumLikedCard";
@@ -208,7 +208,7 @@ const OwnerInterestedClients = () => {
     return matchesSearch;
   });
 
-  const { orderedItems: filteredClients, handleReorder } = usePersistentReorder(
+  const { orderedItems: filteredClients, _handleReorder } = usePersistentReorder(
     baseFiltered,
     storageKey
   );

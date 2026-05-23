@@ -27,7 +27,7 @@ import { LoopVideo } from '@/components/video/LoopVideo';
 import { imageCache } from '@/lib/swipe/cardImageCache';
 import useAppTheme from '@/hooks/useAppTheme';
 import { cn } from '@/lib/utils';
-import { ThumbsUp, ThumbsDown, Flame, Flag, Share2, MessageCircle, BarChart3 } from 'lucide-react';
+import { ThumbsUp, Flag, Share2, MessageCircle, BarChart3 } from 'lucide-react';
 import { PhotoPositionIndicators } from '@/components/swipe/PhotoPositionIndicators';
 import { GestureHints } from '@/components/swipe/GestureHints';
 import { useChromeReveal, revealChrome } from '@/hooks/useChromeReveal';
@@ -43,7 +43,7 @@ const SKIP_VELOCITY = 240;
 const FALLBACK_PLACEHOLDER = '';
 type DragAxis = 'x' | 'y' | null;
 
-const getExitDistance = () => typeof window !== 'undefined' ? window.innerWidth * 1.5 : 800;
+const _getExitDistance = () => typeof window !== 'undefined' ? window.innerWidth * 1.5 : 800;
 
 const SPRING_CONFIGS = {
   SILK: { stiffness: 500, damping: 25, mass: 0.4 },
@@ -102,7 +102,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   // swipes get a subtle late fade so like/pass still feels weighted.
   const cardOpacity = useTransform(
     [x, y] as any,
-    ([cx, cy]: any) => {
+    ([_cx, _cy]: any) => {
       return 1;
     }
   );
@@ -112,7 +112,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [photoDirection, setPhotoDirection] = useState<'left' | 'right'>('right');
-  const floatingIconFilter = isLight
+  const _floatingIconFilter = isLight
     ? 'drop-shadow(0 1px 1px hsl(var(--background) / 0.95)) drop-shadow(0 2px 6px hsl(var(--foreground) / 0.42))'
     : 'drop-shadow(0 2px 7px hsl(var(--background) / 0.9))';
 

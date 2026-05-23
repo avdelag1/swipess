@@ -11,7 +11,7 @@ import useAppTheme from "@/hooks/useAppTheme";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { PremiumLikedCard } from "@/components/PremiumLikedCard";
 import { LikesSkeleton } from "@/components/ui/LikesSkeleton";
@@ -62,7 +62,7 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
   const [priceMin, setPriceMin] = useState("");
   const [priceMax, setPriceMax] = useState("");
   const [sortBy, setSortBy] = useState<SortOption>("newest");
-  const [showFilters, setShowFilters] = useState(false);
+  const [_showFilters, _setShowFilters] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
   const [connectingRecipient, setConnectingRecipient] = useState("");
 

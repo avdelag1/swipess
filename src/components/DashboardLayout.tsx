@@ -1,15 +1,12 @@
-import React, { ReactNode, useState, useEffect, useCallback, useMemo, useRef, lazy, Suspense, useLayoutEffect } from 'react'
+import React, { ReactNode, useState, useEffect, useMemo, useRef, Suspense, useLayoutEffect } from 'react'
 import { useAuth } from "@/hooks/useAuth"
 import { useAnonymousDrafts } from "@/hooks/useAnonymousDrafts"
 import { supabase } from '@/integrations/supabase/client'
-import { useAppNavigate } from "@/hooks/useAppNavigate";
 import { useLocation } from "react-router-dom";
-import { useResponsiveContext } from '@/contexts/ResponsiveContext'
 import { prefetchRoleRoutes, createLinkObserver } from '@/utils/routePrefetcher'
 // useLayoutEffect imported above with the main React import
 import useAppTheme from '@/hooks/useAppTheme'
 import { cn } from '@/lib/utils'
-import { useQueryClient } from '@tanstack/react-query'
 import { usePullToRefresh } from '@/hooks/usePullToRefresh'
 import { PullToRefreshIndicator } from '@/components/PullToRefreshIndicator'
 
@@ -17,9 +14,7 @@ import { PullToRefreshIndicator } from '@/components/PullToRefreshIndicator'
 import { useWelcomeState } from "@/hooks/useWelcomeState"
 import { lazyWithRetry } from '@/utils/lazyRetry';
 const GlobalDialogs = lazyWithRetry(() => import('./GlobalDialogs').then(m => ({ default: m.GlobalDialogs })));
-import { useModalStore } from '@/state/modalStore'
 import { useFocusMode } from '@/hooks/useFocusMode'
-import { useScrollDirection } from '@/hooks/useScrollDirection'
 
 // =============================================================================
 // PERFORMANCE FIX: SessionStorage caching for dashboard checks
@@ -66,15 +61,15 @@ interface DashboardLayoutProps {
 }
 
 export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
-  const { theme, isDark } = useAppTheme()
+  const { isDark } = useAppTheme()
   const [onboardingChecked, setOnboardingChecked] = useState(false)
-  const [showOnboarding, setShowOnboarding] = useState(false)
-  const modalStore = useModalStore()
-  const { navigate } = useAppNavigate();
+  const [_showOnboarding, setShowOnboarding] = useState(false)
+  
+  
   const location = useLocation()
   const { user } = useAuth()
   const { restoreDrafts } = useAnonymousDrafts()
-  const responsive = useResponsiveContext()
+  
   const userId = user?.id
   const cacheCheckedRef = useRef(false);
 
@@ -94,7 +89,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   // to AtmosphericLayer.tsx natively to prevent global CSS reflows/layout thrashing.
 
   const { shouldShowWelcome: _shouldShowWelcome, dismissWelcome: _dismissWelcome } = useWelcomeState(userId)
-  const queryClient = useQueryClient();
+  
 
   useEffect(() => {
     if (userRole === 'client' || userRole === 'owner') {
@@ -140,7 +135,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
         setOnboardingCache(userId, needsOnboarding);
 
         if (needsOnboarding) setShowOnboarding(true);
-      } catch (error) {
+      } catch (_error) {
         setOnboardingCache(userId, false);
       }
     };
@@ -196,11 +191,6 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     if (path === '/explore/roommates') return true;
     return false;
   }, [location.pathname, isCameraRoute, isRadioRoute]);
-
-  const isZeroScrollDashboard = useMemo(() => {
-    const path = location.pathname;
-    return path === '/client/dashboard' || path === '/owner/dashboard' || path === '/client/dashboard/' || path === '/owner/dashboard/';
-  }, [location.pathname]);
 
   // HOOKS THAT DEPEND ON MEMOS
   // Pull-to-refresh listens on `scrollContainerRef` (#dashboard-scroll-

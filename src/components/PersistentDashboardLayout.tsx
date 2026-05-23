@@ -1,4 +1,4 @@
-import { useMemo, useEffect, Suspense, lazy } from 'react';
+import { useMemo, useEffect, Suspense } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useActiveMode } from '@/hooks/useActiveMode';
 import { ChunkErrorBoundary } from '@/components/ChunkErrorBoundary';
@@ -35,7 +35,7 @@ function getRoleFromPath(pathname: string, activeMode: 'client' | 'owner'): 'cli
 
 export function PersistentDashboardLayout() {
   const location = useLocation();
-  const navigate = useNavigate();
+  const _navigate = useNavigate();
   const { activeMode, syncMode } = useActiveMode();
 
   // Realtime subscriptions and filter persistence are handled by

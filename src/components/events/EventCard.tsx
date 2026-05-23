@@ -1,6 +1,6 @@
 import { memo, useState, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Heart, MessageCircle, Share2, ChevronUp, Calendar, MapPin, Bookmark, Flag, Clock } from 'lucide-react';
+import { Heart, MessageCircle, Share2, ChevronUp, Calendar, MapPin, Bookmark, Flag } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
 import useAppTheme from '@/hooks/useAppTheme';
@@ -66,12 +66,12 @@ const StoryProgressBar = memo(({
 
 // ── SINGLE EVENT CARD ─────────────────────────────────────────────────────────
 export const EventCard = memo(({
-  event, isActive, isPaused, animKey, onTickComplete, onLike, liked, onChat, onShare, onMiddleTap, onNextEvent, onPrevEvent,
+  event, isActive, isPaused, animKey, onTickComplete, onLike, liked, onChat, onShare, onMiddleTap, _onNextEvent, _onPrevEvent,
   activeColor = '#f97316'
 }: {
   event: EventItem; isActive: boolean; isPaused: boolean; animKey: number; onTickComplete: () => void; onLike: () => void; liked: boolean;
   onChat: () => void; onShare: () => void; onMiddleTap: () => void;
-  onNextEvent: () => void; onPrevEvent: () => void;
+  _onNextEvent?: () => void; _onPrevEvent?: () => void;
   activeColor?: string;
 }) => {
   const { theme } = useAppTheme();

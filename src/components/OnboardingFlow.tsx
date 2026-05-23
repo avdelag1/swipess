@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
+// import { } from '@/components/ui/progress';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Camera, User, Globe, Flame, Sparkles, CheckCircle2, ArrowRight, ArrowLeft } from 'lucide-react';
 import { PhotoUploadManager } from '@/components/PhotoUploadManager';
@@ -15,7 +15,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { logger } from '@/utils/prodLogger';
 import { AtmosphericLayer } from '@/components/AtmosphericLayer';
 import { triggerHaptic } from '@/utils/haptics';
-import { cn } from '@/lib/utils';
+// import { } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 
 const NATIONALITY_OPTIONS = [

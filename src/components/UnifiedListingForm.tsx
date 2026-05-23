@@ -17,7 +17,7 @@ import { logger } from '@/utils/prodLogger';
 import { Upload, X, Bike, ChevronRight, Shield } from 'lucide-react';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { Badge } from '@/components/ui/badge';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { CategorySelector, Category, Mode } from './CategorySelector';
 import { MotorcycleListingForm, MotorcycleFormData } from './MotorcycleListingForm';
 import { BicycleListingForm, BicycleFormData } from './BicycleListingForm';

@@ -96,9 +96,9 @@ export function useMagnifier(config: MagnifierConfig = {}): UseMagnifierReturn {
   }, []);
 
   const currentPosRef = useRef({ x: 0, y: 0 });
-  const targetPosRef = useRef({ x: 0, y: 0 });
+  const _targetPosRef = useRef({ x: 0, y: 0 });
 
-  const applyZoomPan = useCallback((clientX: number, clientY: number, immediate = false) => {
+  const applyZoomPan = useCallback((clientX: number, clientY: number, _immediate = false) => {
     const container = containerRef.current;
     const img = imageRef.current || findImage();
     if (!container || !img) return;

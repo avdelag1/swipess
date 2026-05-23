@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ChevronDown, HelpCircle, Mail, MessageSquare } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+// import { } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { PageHeader } from "@/components/PageHeader";
 import { useState } from "react";
@@ -71,7 +71,7 @@ const faqItems: FAQItem[] = [
 
 export default function FAQClientPage() {
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
-  const { theme, isLight } = useAppTheme();
+  const { _theme, isLight } = useAppTheme();
 
   const toggleExpand = (index: number) => {
     haptics.tap();

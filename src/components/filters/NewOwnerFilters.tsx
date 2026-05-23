@@ -307,7 +307,7 @@ function ToggleSwitch({
 }
 
 export function NewOwnerFilters({ open, onClose, onApply, currentFilters = {} }: NewOwnerFiltersProps) {
-  const { isLight } = useAppTheme();
+  const { isLight: _isLight } = useAppTheme();
   const [filters, setFilters] = useState<OwnerFilters>(currentFilters);
   const activeLifestyleTags = new Set(filters.lifestyleTags || []);
   const _activeLanguages = new Set(filters.languages || []);

@@ -114,7 +114,7 @@ const ActionButton = memo(forwardRef<HTMLButtonElement, any>(function ActionButt
   variant = 'default',
   children,
   ariaLabel,
-  index = 0,
+  _index = 0,
   isLight = false,
 }: any, ref) {
   const [isPressed, setIsPressed] = useState(false);
@@ -196,14 +196,14 @@ const ActionButton = memo(forwardRef<HTMLButtonElement, any>(function ActionButt
 (ActionButton as any).displayName = 'ActionButton';
 
 export const SwipeActionButtonBar = memo(({
-  onLike,
-  onDislike,
+  _onLike,
+  _onDislike,
   onInsights,
-  onUndo,
+  _onUndo,
   onMessage,
   onShare,
   onReport,
-  canUndo = false,
+  _canUndo = false,
   disabled = false,
   className = '',
 }: SwipeActionButtonBarProps) => {

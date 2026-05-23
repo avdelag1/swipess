@@ -1,9 +1,9 @@
-import { lazy, Suspense } from "react"; // cache-bust-v3
+import { Suspense } from "react"; // cache-bust-v3
 import { lazyWithRetry } from "@/utils/lazyRetry";
 import { ChunkErrorBoundary } from "@/components/ChunkErrorBoundary";
 import { Routes, Route, Navigate, useLocation, useParams } from "react-router-dom";
 import { RootProviders } from "./providers/RootProviders";
-import { useAuth } from "@/hooks/useAuth";
+
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { useActiveMode } from "@/hooks/useActiveMode";
 import { AdminProtectedRoute } from "@/components/AdminProtectedRoute";

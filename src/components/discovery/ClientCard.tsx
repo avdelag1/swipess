@@ -5,7 +5,7 @@ import { SaveButton } from '@/components/SaveButton';
 import { triggerHaptic } from '@/utils/haptics';
 import { MatchedClientProfile } from '@/hooks/useSmartMatching';
 import { SwipessLogo } from '@/components/SwipessLogo';
-import { cn } from '@/lib/utils';
+
 import { getCardImageUrl } from '@/utils/imageOptimization';
 
 interface ClientCardProps {

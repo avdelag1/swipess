@@ -1,9 +1,9 @@
 import React from 'react';
 import { useNotificationSystem } from '@/hooks/useNotificationSystem';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { 
   Bell, Check, Trash2, Heart, MessageCircle, Info, 
-  MapPin, UserCheck, AlertTriangle, Sparkles, X
+  MapPin, UserCheck, AlertTriangle, Sparkles, _X
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -17,7 +17,7 @@ const NotificationsPage = () => {
   const { notifications, markNotificationAsRead, dismissNotification, markAllAsRead } = useNotificationSystem();
   const isLoading = false; // Mock loading state since useNotificationSystem doesn't provide it
   const { isLight, isDark } = useAppTheme();
-  const { navigate } = useAppNavigate();
+  const { _navigate } = useAppNavigate();
 
   const getIcon = (type: string) => {
     switch (type) {

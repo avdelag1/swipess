@@ -26,7 +26,7 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
   const { navigate } = useAppNavigate();
 
   const queryClient = useQueryClient();
-  const { isLight } = useAppTheme();
+  const { _isLight } = useAppTheme();
   
   const activeCategory = useFilterStore(s => s.activeCategory);
   const setActiveCategory = useFilterStore(s => s.setActiveCategory);

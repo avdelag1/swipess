@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { QuickFilterImage } from '@/components/ui/QuickFilterImage';
 import { motion, AnimatePresence } from 'framer-motion';
-import { AtmosphericLayer } from '@/components/AtmosphericLayer';
+// import { } from '@/components/AtmosphericLayer';
 import { RadioSkinBackground } from '@/components/radio/RadioSkinBackground';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useRadio } from '@/contexts/RadioContext';

@@ -1,24 +1,24 @@
-import { useState, useMemo, useRef, useCallback, useEffect } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { NativeStore } from '@/utils/nativeStore';
 import {
   Users, MapPin, Briefcase, Clock, Sparkles, X,
-  Settings2, ShieldCheck, Zap,
-  MessageCircle, Eye, EyeOff, ArrowLeft,
+  _Settings2, ShieldCheck, Zap,
+  _MessageCircle, Eye, EyeOff, _ArrowLeft,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { triggerHaptic } from '@/utils/haptics';
 import { cn } from '@/lib/utils';
 import useAppTheme from '@/hooks/useAppTheme';
 import { SimpleOwnerSwipeCard, SimpleOwnerSwipeCardRef } from '@/components/SimpleOwnerSwipeCard';
-import { SwipeActionButtonBar } from '@/components/SwipeActionButtonBar';
+// import { } from '@/components/SwipeActionButtonBar';
 import { RoommateFiltersSheet } from '@/components/filters/RoommateFiltersSheet';
 import { MessageConfirmationDialog } from '@/components/MessageConfirmationDialog';
 import { useSmartClientMatching } from '@/hooks/useSmartMatching';
 import { useAuth } from '@/hooks/useAuth';
-import { supabase } from '@/integrations/supabase/client';
+// import { } from '@/integrations/supabase/client';
 import { AtmosphericLayer } from '@/components/AtmosphericLayer';
-import { useFilterStore, useFilterActions } from '@/state/filterStore';
+import { useFilterActions } from '@/state/filterStore';
 import { MatchOverlay } from '@/components/native/MatchOverlay';
 import { triggerMatchConfetti } from '@/utils/celebration';
 import { useSwipeWithMatch } from '@/hooks/useSwipeWithMatch';
@@ -124,15 +124,15 @@ export default function RoommateMatching() {
     }
   }, [profiles, currentIndex, performSwipe]);
 
-  const handleUndo = useCallback(() => {
+  const _handleUndo = useCallback(() => {
     if (canUndo) {
       setCurrentIndex(prev => prev - 1);
       triggerHaptic('light');
     }
   }, [canUndo]);
 
-  const handleLike = () => cardRef.current?.triggerSwipe('right');
-  const handleDislike = () => cardRef.current?.triggerSwipe('left');
+  const _handleLike = () => cardRef.current?.triggerSwipe('right');
+  const _handleDislike = () => cardRef.current?.triggerSwipe('left');
 
   const handleSendMessage = async (message: string) => {
     if (!topCard?.user_id) {

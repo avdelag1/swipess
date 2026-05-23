@@ -1,5 +1,4 @@
-import { memo, useState, useRef, useMemo, useEffect } from 'react';
-import { useAppNavigate } from "@/hooks/useAppNavigate";
+import { memo, useState, useRef, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
   motion, useMotionValue, useTransform, AnimatePresence, PanInfo, animate
@@ -165,6 +164,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [name, setName] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const { signIn, signUp, signInWithOAuth } = useAuth();
@@ -253,28 +253,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
       triggerHaptic('error');
       if (error.errors) {
         const errs: Record<string, string> = {};
-        error.errors.forEach((e: any) => { if (e.path?.[0]) errs[e.path[0]] = e.message; });
-        setFieldErrors(errs);
-      } else {
-        toast({ title: 'Authorization Failed', description: error.message, variant: 'destructive' });
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleSocialLogin = async (provider: 'apple' | 'google') => {
-    triggerHaptic('light');
-    await signInWithOAuth(provider, 'client');
-  };
-
-  const inputCls = (hasError?: boolean) => cn(
-    "pl-11 h-[54px] bg-white/[0.14] border border-white/25 text-white placeholder:text-white/75 rounded-2xl transition-all font-semibold text-[15px] shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]",
-    "focus:ring-2 focus:ring-[#E01E2A]/50 focus:border-[#E01E2A] focus:bg-white/[0.18] backdrop-blur-md",
-    hasError && "border-red-500/60 focus:border-red-500/80 focus:ring-red-500/30"
-  );
-
-  return (
+        error.errors.forEach((e: any) => { if (e.path  return (
     <motion.div
       key="auth"
       className="absolute inset-0 flex flex-col z-20 overflow-hidden scrollbar-none"
@@ -285,17 +264,17 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
     >
       {/* Back button */}
       <button
-        onClick={() => { triggerHaptic('light'); isForgotPassword ? setIsForgotPassword(false) : onBack(); }}
+        onClick={() => { triggerHaptic('light'); if (isForgotPassword) { setIsForgotPassword(false); } else { onBack(); } }}
         className="absolute top-12 left-6 w-11 h-11 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/60 active:scale-90 transition-all z-30 backdrop-blur-xl"
         aria-label="Go back"
       >
         <ArrowLeft className="w-5 h-5" />
       </button>
 
-      <div className="flex h-full min-h-0 flex-col items-center justify-center px-6 w-full max-w-sm mx-auto" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 58px)', paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 72px)' }}>
+      <div className="flex h-full flex-col items-center justify-center px-6 w-full max-w-sm mx-auto py-8">
         {/* Logo */}
         <motion.div
-          className="mb-5"
+          className="mb-4"
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.05 }}
@@ -303,29 +282,11 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
           <SwipessLogo size="md" variant="transparent" />
         </motion.div>
 
-        {/* Mode switcher */}
-        {!isForgotPassword && (
-          <motion.div
-            className="flex gap-1.5 w-full mb-5 p-1 rounded-[2rem] bg-card/40 border border-border backdrop-blur-2xl"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-          >
-            <button
-              type="button"
-              onClick={() => { triggerHaptic('light'); setIsLogin(true); setFieldErrors({}); }}
-              className={cn(
-                "flex-1 h-12 rounded-[1.8rem] font-black uppercase tracking-[0.2em] text-[10px] transition-all active:scale-[0.97]",
-                isLogin
-                  ? "bg-gradient-to-b from-[#FF4D4D] to-[#E01E2A] text-white shadow-[0_10px_30px_rgba(224,30,42,0.4)]"
-                  : "text-white/30 hover:text-white/50"
-              )}
-            >
-              Sign In
-            </button>
-            <button
-              type="button"
-              onClick={() => { triggerHaptic('light'); setIsLogin(false); setFieldErrors({}); }}
+        {isForgotPassword && (
+          <motion.div className="w-full mb-6 text-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+            <p className="text-[10px] font-black tracking-[0.3em] text-white/50 uppercase italic">Security Protocol — Reset</p>
+          </motion.div>
+        )}triggerHaptic('light'); setIsLogin(false); setFieldErrors({}); }}
               className={cn(
                 "flex-1 h-12 rounded-[1.8rem] font-black uppercase tracking-[0.2em] text-[10px] transition-all active:scale-[0.97]",
                 !isLogin
@@ -391,16 +352,18 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
                 onChange={(e) => { setPassword(e.target.value); setFieldErrors(p => ({ ...p, password: '' })); }} 
                 placeholder="Password" 
                 autoComplete={isLogin ? "current-password" : "new-password"} 
-                className={cn(inputCls(!!fieldErrors.password), "pr-12")} 
+                className={cn(inputCls(!!fieldErrors.password), "pr-12 [&::-ms-reveal]:hidden [&::-ms-clear]:hidden")} 
               />
-              <button
-                type="button"
-                onClick={() => { triggerHaptic('light'); setShowPassword(!showPassword); }}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-white/60 hover:text-white transition-colors"
-                title={showPassword ? "Hide password" : "Show password"}
-              >
-                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-              </button>
+              <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center justify-center">
+                <button
+                  type="button"
+                  onClick={(e) => { e.preventDefault(); triggerHaptic('light'); setShowPassword(!showPassword); }}
+                  className="text-white/60 hover:text-white transition-colors"
+                  title={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
               {fieldErrors.password && <p className="text-red-500/90 text-[10px] font-bold mt-1.5 ml-3 uppercase tracking-wider">{fieldErrors.password}</p>}
             </div>
           )}
@@ -414,14 +377,21 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
                 onChange={(e) => { setConfirmPassword(e.target.value); setFieldErrors(p => ({ ...p, confirmPassword: '' })); }} 
                 placeholder="Confirm Password" 
                 autoComplete="new-password" 
-                className={inputCls(!!fieldErrors.confirmPassword)} 
+                className={cn(inputCls(!!fieldErrors.confirmPassword), "[&::-ms-reveal]:hidden [&::-ms-clear]:hidden")} 
               />
               {fieldErrors.confirmPassword && <p className="text-red-500/90 text-[10px] font-bold mt-1.5 ml-3 uppercase tracking-wider">{fieldErrors.confirmPassword}</p>}
             </div>
           )}
 
           {isLogin && !isForgotPassword && (
-            <div className="flex justify-end px-1 pt-0.5">
+            <div className="flex justify-between items-center px-1 pt-0.5">
+              <label className="flex items-center gap-2 cursor-pointer group">
+                <input type="checkbox" className="hidden peer" checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} />
+                <div className="w-4 h-4 rounded border border-white/30 peer-checked:bg-[#FF4D4D] peer-checked:border-[#FF4D4D] flex items-center justify-center transition-colors bg-white/5">
+                  <Check className={cn("w-3 h-3 text-white transition-opacity", rememberMe ? "opacity-100" : "opacity-0")} strokeWidth={3} />
+                </div>
+                <span className="text-[10px] font-black uppercase tracking-[0.1em] text-white/70 group-hover:text-white transition-colors">Remember Me</span>
+              </label>
               <button type="button" onClick={() => { triggerHaptic('light'); setIsForgotPassword(true); }} className="text-[10px] font-black uppercase tracking-[0.2em] text-white/70 hover:text-[#FF4D4D] transition-colors italic">
                 Forgot Access Code?
               </button>
@@ -429,7 +399,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
           )}
 
           {/* Primary CTA */}
-          <div className="pt-3 relative group">
+          <div className="pt-2 relative group">
             <div className="absolute inset-x-4 -bottom-2 h-10 bg-primary/20 blur-[30px] opacity-0 group-hover:opacity-100 transition-opacity rounded-full pointer-events-none" />
             <button
               type="submit"
@@ -443,19 +413,28 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
           </div>
         </motion.form>
 
-        {/* Social auth */}
+        {/* Alternative Auth & Social auth */}
         {!isForgotPassword && (
           <motion.div
-            className="mt-5 space-y-3 w-full"
+            className="mt-3 space-y-3 w-full"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.2 }}
+            transition={{ delay: 0.1 }}
           >
-            <div className="flex items-center gap-5">
+            <button
+              type="button"
+              onClick={() => { triggerHaptic('light'); setIsLogin(!isLogin); setFieldErrors({}); }}
+              className="w-full h-14 rounded-[2.5rem] bg-black/40 backdrop-blur-xl text-white font-black uppercase tracking-[0.25em] text-[12px] shadow-[0_12px_36px_rgba(0,0,0,0.45)] active:scale-[0.97] transition-all flex items-center justify-center gap-3 border border-white/30 hover:bg-black/60"
+            >
+              {isLogin ? 'Create Account' : 'Back to Log In'}
+            </button>
+
+            <div className="flex items-center gap-5 pt-1 pb-1">
               <div className="flex-1 h-px bg-white/15" />
-              <span className="text-[9px] font-black text-white/60 uppercase tracking-[0.4em] italic">Swipes Gateway</span>
+              <span className="text-[9px] font-black text-white/60 uppercase tracking-[0.4em] italic">Or</span>
               <div className="flex-1 h-px bg-white/15" />
             </div>
+            
             <AppleAuthButton onClick={() => handleSocialLogin('apple')} />
             <GoogleAuthButton onClick={() => handleSocialLogin('google')} />
           </motion.div>
@@ -467,7 +446,6 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
 
 /* â”€â”€â”€ Root component â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function LegendaryLandingPage() {
-  const { navigate } = useAppNavigate();
   const [searchParams] = useSearchParams();
   const requestedIntent = searchParams.get('intent');
   const requestedAuthMode = requestedIntent === 'signup' ? 'signup' : 'login';
@@ -484,14 +462,14 @@ function LegendaryLandingPage() {
   }, [requestedAuthMode, shouldOpenAuth]);
 
   return (
-    <div className="h-screen h-dvh relative overflow-hidden bg-black text-white">
-      {/* ðŸ›¸ ATMOSPHERIC BACKGROUND */}
-      <div className="fixed inset-0 pointer-events-none bg-black">
+    <div className="fixed inset-0 overflow-hidden bg-black text-white">
+      {/* 🚀 ATMOSPHERIC BACKGROUND */}
+      <div className="absolute inset-0 pointer-events-none bg-black">
         <AtmosphericLayer variant="Swipes" opacity={0.15} />
         <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,rgba(224,30,42,0.1)_0%,transparent_70%)]" />
       </div>
 
-      {/* ðŸŒŒ COSMOS â€” moving stars + shooting stars + tap meditation bowls */}
+      {/* 🌌 COSMOS — moving stars + shooting stars + tap meditation bowls */}
       <LandingBackgroundEffects mode="stars" />
 
       <AnimatePresence mode="wait">

@@ -11,13 +11,13 @@ import {
   Flame,
   CheckCheck,
   Trash2,
-  Star,
+  _Star,
   Sparkles,
   Eye,
-  Crown,
+  _Crown,
   X,
-  Zap,
-  UserPlus
+  _Zap,
+  _UserPlus
 } from 'lucide-react';
 import { useNotificationSystem } from '@/hooks/useNotificationSystem';
 import { useUnreadNotifications } from '@/hooks/useUnreadNotifications';
@@ -27,7 +27,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { notificationTypeConfigs as typeConfigs } from '@/utils/notificationConfigs';
 import { ThemeContext } from '@/hooks/useAppTheme';
 import { useContext } from 'react';
-import { useDeckHasCards } from '@/hooks/useDeckHasCards';
+// import { } from '@/hooks/useDeckHasCards';
 import { cn } from '@/lib/utils';
 import { haptics } from '@/utils/microPolish';
 
@@ -60,7 +60,7 @@ function NotificationItem({ notification, onClick, onDismiss, index }: Notificat
   const config = typeConfigs[notification.type as keyof typeof typeConfigs] || typeConfigs.like;
   const Icon = config.icon;
   const [isHovered, setIsHovered] = useState(false);
-  const [isSwiping, setIsSwiping] = useState(false);
+  const [_isSwiping, setIsSwiping] = useState(false);
   
   return (
     <motion.div
@@ -242,7 +242,7 @@ export function NotificationPopover({ className, children, glassPillStyle }: Not
   const themeContext = useContext(ThemeContext);
   const theme = themeContext?.theme ?? 'dark';
   const isLight = theme === 'light';
-  const isDark = !isLight;
+  const _isDark = !isLight;
   
   const { 
     notifications, 
@@ -313,7 +313,7 @@ export function NotificationPopover({ className, children, glassPillStyle }: Not
         "touch-manipulation"
       )}
       style={{ ...glassPillStyle, overflow: 'visible' }}
-      onClick={(e) => {
+      onClick={(_e) => {
         haptics.tap();
         setIsOpen(true);
       }}

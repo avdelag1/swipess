@@ -3,9 +3,9 @@ import { useVirtualizer } from '@tanstack/react-virtual';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+// import { } from 'framer-motion';
 import {
-  Heart, ArrowLeft, Megaphone, Pause, Play
+  _Heart, ArrowLeft, _Megaphone, _Pause, _Play
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
@@ -62,7 +62,7 @@ export default function EventosFeed() {
   const [shareEventData, setShareEventData] = useState<EventItem | null>(null);
 
   // Auto-play state
-  const [autoPlay, setAutoPlay] = useState(false);
+  const [autoPlay, _setAutoPlay] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [animKey, setAnimKey] = useState(0);
   const pauseTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);

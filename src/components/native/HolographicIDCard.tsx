@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
-import { ShieldCheck, Zap, Globe, Fingerprint } from 'lucide-react';
+import { ShieldCheck, Globe, Fingerprint } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import useAppTheme from '@/hooks/useAppTheme';
 

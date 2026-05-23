@@ -38,7 +38,7 @@ interface VirtualizedMessageListProps {
 const MessageBubble = memo(({
   message,
   isMyMessage,
-  otherUserRole,
+  _otherUserRole,
   isThemeLight
 }: {
   message: MessageType;
