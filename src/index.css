@@ -2030,8 +2030,6 @@ input:focus, textarea:focus, select:focus {
   will-change: transform, opacity;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
-  /* Remove any transition delays during drag */
-  transition: none !important;
 }
 
 /* Ensure dragging feels instant - no transition interference */
