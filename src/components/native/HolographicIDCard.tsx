@@ -34,11 +34,12 @@ export const HolographicIDCard = ({ profile }: { profile: any }) => {
     y.set(0);
   }
 
-  const name = profile?.name || profile?.full_name || 'Authorized Member';
-  const city = profile?.city || '';
+  const hasOwnerFields = profile?.business_name !== undefined;
+  const name = profile?.business_name || profile?.name || profile?.full_name || 'Authorized Member';
+  const city = profile?.business_location || profile?.city || '';
   const nationality = profile?.nationality || '';
   const occupation = profile?.occupation || '';
-  const bio = profile?.bio || '';
+  const bio = profile?.business_description || profile?.bio || '';
   const years = profile?.years_in_city ? `${profile.years_in_city} yr` : '';
 
   return (
@@ -94,7 +95,7 @@ export const HolographicIDCard = ({ profile }: { profile: any }) => {
                 <span className="text-[8px] font-black uppercase tracking-[0.4em] text-primary/60">Swipess Global Registry</span>
               </div>
               <h2 className={cn("text-2xl font-black uppercase italic tracking-tighter", isLight ? "text-slate-900" : "text-white")}>
-                Resident ID
+                {hasOwnerFields ? 'Asset ID' : 'Resident ID'}
               </h2>
             </div>
             <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20">
@@ -108,7 +109,7 @@ export const HolographicIDCard = ({ profile }: { profile: any }) => {
               <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-primary/30 shadow-[0_0_15px_rgba(255,77,0,0.2)]">
                 <img 
                   src={profile?.profile_images?.[0] || profile?.avatar_url || '/placeholder-avatar.png'} 
-                  alt="Resident"
+                  alt={hasOwnerFields ? 'Asset' : 'Resident'}
                   className="w-full h-full object-cover"
                 />
               </div>
@@ -118,7 +119,7 @@ export const HolographicIDCard = ({ profile }: { profile: any }) => {
             </div>
             <div className="min-w-0">
               <p className={cn("text-sm font-black uppercase", isLight ? "text-slate-900" : "text-white")}>{name}</p>
-              <p className="text-[9px] font-mono tracking-widest text-primary/60">SWS-{profile?.user_id?.slice(0, 4).toUpperCase() || 'TX99'}</p>
+              <p className="text-[9px] font-mono tracking-widest text-primary/60">{hasOwnerFields ? 'AST' : 'SWS'}-{profile?.user_id?.slice(0, 4).toUpperCase() || 'TX99'}</p>
             </div>
             <div className="flex items-center gap-1.5 ml-auto">
               <div className="px-2 py-0.5 rounded-md bg-emerald-500/10 border border-emerald-500/20">
@@ -134,7 +135,7 @@ export const HolographicIDCard = ({ profile }: { profile: any }) => {
           {(occupation || city || nationality || years) && (
             <div className="flex flex-wrap gap-x-4 gap-y-1 text-[10px] font-bold text-muted-foreground">
               {occupation && <span className="flex items-center gap-1"><Briefcase className="w-3 h-3 text-primary/60" />{occupation}</span>}
-              {city && <span className="flex items-center gap-1"><MapPin className="w-3 h-3 text-primary/60" />{city}{nationality ? ` · ${nationality}` : ''}</span>}
+              {city && <span className="flex items-center gap-1"><MapPin className="w-3 h-3 text-primary/60" />{city}{nationality && !hasOwnerFields ? ` · ${nationality}` : ''}</span>}
               {years && <span className="flex items-center gap-1"><Clock className="w-3 h-3 text-primary/60" />{years}</span>}
             </div>
           )}

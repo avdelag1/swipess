@@ -15,6 +15,7 @@ import { Input } from '@/components/ui/input';
 interface Props {
   isOpen: boolean;
   onClose: () => void;
+  role?: 'client' | 'owner';
 }
 
 const DOC_TYPES = [
@@ -31,7 +32,7 @@ const arrayToCsv = (arr: unknown): string => {
   return arr.filter((v): v is string => typeof v === 'string' && v.trim().length > 0).join(', ');
 };
 
-export function VapIdEditModal({ isOpen, onClose }: Props) {
+export function VapIdEditModal({ isOpen, onClose, role = 'client' }: Props) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [uploading, setUploading] = useState<string | null>(null);
@@ -46,14 +47,20 @@ export function VapIdEditModal({ isOpen, onClose }: Props) {
   const [languages, setLanguages] = useState('');
   const [interests, setInterests] = useState('');
 
-  const { data: clientProfile, refetch } = useQuery({
-    queryKey: ['vap-id-client-profile', user?.id],
+  const profileTable = role === 'owner' ? 'owner_profiles' : 'client_profiles';
+  const profileQueryKey = role === 'owner' ? 'vap-id-owner-profile' : 'vap-id-client-profile';
+
+  const { data: profileData, refetch } = useQuery({
+    queryKey: [profileQueryKey, user?.id],
     enabled: !!user?.id && isOpen,
     staleTime: 0,
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('client_profiles')
-        .select('bio, occupation, city, country, nationality, years_in_city, languages, interests, personality_traits, preferred_activities')
+        .from(profileTable)
+        .select(role === 'owner'
+          ? 'business_name, business_description, business_location, contact_email, contact_phone'
+          : 'bio, occupation, city, country, nationality, years_in_city, languages, interests, personality_traits, preferred_activities'
+        )
         .eq('user_id', user!.id)
         .maybeSingle();
       if (error) throw error;
@@ -62,16 +69,29 @@ export function VapIdEditModal({ isOpen, onClose }: Props) {
   });
 
   useEffect(() => {
-    if (!clientProfile) return;
-    setBio(clientProfile.bio || '');
-    setOccupation((clientProfile as any).occupation || '');
-    setCity(clientProfile.city || '');
-    setCountry((clientProfile as any).country || '');
-    setNationality(clientProfile.nationality || '');
-    setYearsInCity(clientProfile.years_in_city != null ? String(clientProfile.years_in_city) : '');
-    setLanguages(arrayToCsv(clientProfile.languages));
-    setInterests(arrayToCsv(clientProfile.interests));
-  }, [clientProfile]);
+    if (!profileData) return;
+    if (role === 'owner') {
+      const d = profileData as any;
+      setBio(d.business_description || '');
+      setOccupation(d.business_name || '');
+      setCity(d.business_location || '');
+      setCountry('');
+      setNationality('');
+      setYearsInCity('');
+      setLanguages('');
+      setInterests('');
+    } else {
+      const d = profileData as any;
+      setBio(d.bio || '');
+      setOccupation(d.occupation || '');
+      setCity(d.city || '');
+      setCountry(d.country || '');
+      setNationality(d.nationality || '');
+      setYearsInCity(d.years_in_city != null ? String(d.years_in_city) : '');
+      setLanguages(arrayToCsv(d.languages));
+      setInterests(arrayToCsv(d.interests));
+    }
+  }, [profileData, role]);
 
   const { data: documents } = useQuery({
     queryKey: ['vap-documents', user?.id],
@@ -126,47 +146,75 @@ export function VapIdEditModal({ isOpen, onClose }: Props) {
     if (!user?.id) { toast.error('Not signed in'); return; }
     setSaving(true);
     try {
-      const yearsNum = yearsInCity.trim() === '' ? null : Number(yearsInCity);
-      const payload: any = {
-        user_id: user.id,
-        bio: bio.trim() || null,
-        occupation: occupation.trim() || null,
-        city: city.trim() || null,
-        country: country.trim() || null,
-        nationality: nationality.trim() || null,
-        years_in_city: Number.isFinite(yearsNum as number) ? yearsNum : null,
-        languages: csvToArray(languages),
-        interests: csvToArray(interests),
-      };
-
-      // Atomic upsert: one call, no race conditions, no RLS edge cases
-      const { error: upsertErr } = await supabase
-        .from('client_profiles')
-        .upsert(payload, { onConflict: 'user_id' });
-      if (upsertErr) throw upsertErr;
-
-      // Sync to profiles table so ID card location display works
       const baseName = user.user_metadata?.name || user.email?.split('@')[0] || 'Resident';
-      const { error: profileSyncErr } = await supabase
-        .from('profiles')
-        .update({
-          full_name: occupation ? `${baseName} (${occupation})` : baseName,
-          city: city.trim() || undefined,
-          country: country.trim() || undefined,
-          nationality: nationality.trim() || undefined,
-          languages_spoken: csvToArray(languages),
-          interests: csvToArray(interests),
-        })
-        .eq('user_id', user.id);
 
-      if (profileSyncErr) {
-        console.warn('[VapIdEdit] Profile sync warning:', profileSyncErr);
+      if (role === 'owner') {
+        const ownerPayload: any = {
+          user_id: user.id,
+          business_name: occupation.trim() || null,
+          business_description: bio.trim() || null,
+          business_location: city.trim() || null,
+        };
+
+        const { error: upsertErr } = await supabase
+          .from('owner_profiles')
+          .upsert(ownerPayload, { onConflict: 'user_id' });
+        if (upsertErr) throw upsertErr;
+
+        const { error: profileSyncErr } = await supabase
+          .from('profiles')
+          .update({
+            full_name: occupation.trim() || baseName,
+            bio: bio.trim() || undefined,
+            city: city.trim() || undefined,
+          })
+          .eq('user_id', user.id);
+
+        if (profileSyncErr) {
+          console.warn('[VapIdEdit] Owner profile sync warning:', profileSyncErr);
+        }
+      } else {
+        const yearsNum = yearsInCity.trim() === '' ? null : Number(yearsInCity);
+        const clientPayload: any = {
+          user_id: user.id,
+          bio: bio.trim() || null,
+          occupation: occupation.trim() || null,
+          city: city.trim() || null,
+          country: country.trim() || null,
+          nationality: nationality.trim() || null,
+          years_in_city: Number.isFinite(yearsNum as number) ? yearsNum : null,
+          languages: csvToArray(languages),
+          interests: csvToArray(interests),
+        };
+
+        const { error: upsertErr } = await supabase
+          .from('client_profiles')
+          .upsert(clientPayload, { onConflict: 'user_id' });
+        if (upsertErr) throw upsertErr;
+
+        const { error: profileSyncErr } = await supabase
+          .from('profiles')
+          .update({
+            full_name: occupation ? `${baseName} (${occupation})` : baseName,
+            city: city.trim() || undefined,
+            country: country.trim() || undefined,
+            nationality: nationality.trim() || undefined,
+            languages_spoken: csvToArray(languages),
+            interests: csvToArray(interests),
+          })
+          .eq('user_id', user.id);
+
+        if (profileSyncErr) {
+          console.warn('[VapIdEdit] Profile sync warning:', profileSyncErr);
+        }
       }
 
       // Invalidate ALL card-display queries so changes reflect immediately
       queryClient.invalidateQueries({ queryKey: ['vap-id-client-profile', user.id] });
+      queryClient.invalidateQueries({ queryKey: ['vap-id-owner-profile', user.id] });
       queryClient.invalidateQueries({ queryKey: ['vap-id-profile', user.id] });
       queryClient.invalidateQueries({ queryKey: ['client-profile-own', user.id] });
+      queryClient.invalidateQueries({ queryKey: ['owner-profile-own'] });
       queryClient.invalidateQueries({ queryKey: ['vap-documents', user.id] });
 
       toast.success('Card saved');
@@ -177,7 +225,7 @@ export function VapIdEditModal({ isOpen, onClose }: Props) {
     } finally {
       setSaving(false);
     }
-  }, [user?.id, bio, occupation, city, country, nationality, yearsInCity, languages, interests, queryClient, refetch]);
+  }, [user?.id, bio, occupation, city, country, nationality, yearsInCity, languages, interests, role, queryClient, refetch]);
 
   const getDocStatus = (docType: string) => documents?.find(d => d.document_type === docType)?.status || 'none';
   const getDocMeta = (docType: string) => documents?.find(d => d.document_type === docType);
@@ -206,14 +254,14 @@ export function VapIdEditModal({ isOpen, onClose }: Props) {
             {/* About / Bio */}
             <section className="rounded-[24px] border border-border bg-card p-4 shadow-lg">
               <div className="mb-3">
-                <p className="text-[11px] font-black uppercase tracking-[0.22em] text-primary">About Me</p>
+                <p className="text-[11px] font-black uppercase tracking-[0.22em] text-primary">{role === 'owner' ? 'About Business' : 'About Me'}</p>
                 <h3 className="mt-1 text-sm font-black text-foreground">Card description</h3>
                 <p className="mt-1 text-[11px] text-muted-foreground">A short bio shown on the front of your card.</p>
               </div>
               <Textarea
                 value={bio}
                 onChange={(e) => setBio(e.target.value)}
-                placeholder="I work as... I own a business called... I love..."
+                placeholder={role === 'owner' ? "Premium serviced apartments in Tulum..." : "I work as... I own a business called... I love..."}
                 rows={3}
                 maxLength={240}
                 className="min-h-[90px] text-sm"
@@ -225,30 +273,34 @@ export function VapIdEditModal({ isOpen, onClose }: Props) {
             <section className="mt-5 rounded-[24px] border border-border bg-card p-4 shadow-lg">
               <div className="mb-3">
                 <p className="text-[11px] font-black uppercase tracking-[0.22em] text-primary">Details</p>
-                <h3 className="mt-1 text-sm font-black text-foreground">Personal info</h3>
+                <h3 className="mt-1 text-sm font-black text-foreground">{role === 'owner' ? 'Business info' : 'Personal info'}</h3>
               </div>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <LabeledField label="Occupation">
-                  <Input value={occupation} onChange={(e) => setOccupation(e.target.value)} placeholder="Barista, Landlord, Dev…" maxLength={60} />
+                <LabeledField label={role === 'owner' ? 'Business Name' : 'Occupation'}>
+                  <Input value={occupation} onChange={(e) => setOccupation(e.target.value)} placeholder={role === 'owner' ? "Swipess Properties Inc." : "Barista, Landlord, Dev…"} maxLength={60} />
                 </LabeledField>
-                <LabeledField label="City">
+                <LabeledField label={role === 'owner' ? 'Location' : 'City'}>
                   <Input value={city} onChange={(e) => setCity(e.target.value)} placeholder="Tulum" maxLength={60} />
                 </LabeledField>
-                <LabeledField label="Nationality">
-                  <Input value={nationality} onChange={(e) => setNationality(e.target.value)} placeholder="Mexican" maxLength={40} />
-                </LabeledField>
-                <LabeledField label="Country">
-                  <Input value={country} onChange={(e) => setCountry(e.target.value)} placeholder="Mexico" maxLength={60} />
-                </LabeledField>
-                <LabeledField label="Years in city">
-                  <Input value={yearsInCity} inputMode="numeric" pattern="[0-9]*" onChange={(e) => setYearsInCity(e.target.value.replace(/[^0-9]/g, ''))} placeholder="3" maxLength={2} />
-                </LabeledField>
-                <LabeledField label="Languages" hint="Comma separated" className="sm:col-span-2">
-                  <Input value={languages} onChange={(e) => setLanguages(e.target.value)} placeholder="English, Spanish, French" />
-                </LabeledField>
-                <LabeledField label="Interests" hint="Comma separated" className="sm:col-span-2">
-                  <Input value={interests} onChange={(e) => setInterests(e.target.value)} placeholder="Surf, Yoga, Coffee" />
-                </LabeledField>
+                {role !== 'owner' && (
+                  <>
+                    <LabeledField label="Nationality">
+                      <Input value={nationality} onChange={(e) => setNationality(e.target.value)} placeholder="Mexican" maxLength={40} />
+                    </LabeledField>
+                    <LabeledField label="Country">
+                      <Input value={country} onChange={(e) => setCountry(e.target.value)} placeholder="Mexico" maxLength={60} />
+                    </LabeledField>
+                    <LabeledField label="Years in city">
+                      <Input value={yearsInCity} inputMode="numeric" pattern="[0-9]*" onChange={(e) => setYearsInCity(e.target.value.replace(/[^0-9]/g, ''))} placeholder="3" maxLength={2} />
+                    </LabeledField>
+                    <LabeledField label="Languages" hint="Comma separated" className="sm:col-span-2">
+                      <Input value={languages} onChange={(e) => setLanguages(e.target.value)} placeholder="English, Spanish, French" />
+                    </LabeledField>
+                    <LabeledField label="Interests" hint="Comma separated" className="sm:col-span-2">
+                      <Input value={interests} onChange={(e) => setInterests(e.target.value)} placeholder="Surf, Yoga, Coffee" />
+                    </LabeledField>
+                  </>
+                )}
               </div>
             </section>
 

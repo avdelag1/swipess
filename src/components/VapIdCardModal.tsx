@@ -14,9 +14,10 @@ import { cn } from '@/lib/utils';
 export interface VapIdProps {
   isOpen: boolean;
   onClose: () => void;
+  role?: 'client' | 'owner';
 }
 
-export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
+export function VapIdCardModal({ isOpen, onClose, role = 'client' }: VapIdProps) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [themeIndex, setThemeIndex] = useState(0);
@@ -33,7 +34,7 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
       if (!user?.id) return null;
       const { data, error } = await supabase
         .from('profiles')
-        .select('full_name, avatar_url, nationality, city, country, languages_spoken, phone')
+        .select('full_name, avatar_url, nationality, city, country, languages_spoken, phone, bio')
         .eq('user_id', user!.id)
         .maybeSingle();
       if (error) throw error;
@@ -41,16 +42,21 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
     },
   });
 
-  const { data: clientProfile, refetch: refetchClientProfile } = useQuery({
-    queryKey: ['vap-id-client-profile', user?.id],
+  const profileTable = role === 'owner' ? 'owner_profiles' : 'client_profiles';
+  const profileQueryKey = role === 'owner' ? 'vap-id-owner-profile' : 'vap-id-client-profile';
+
+  const { data: extendedProfile, refetch: refetchExtendedProfile } = useQuery({
+    queryKey: [profileQueryKey, user?.id],
     enabled: !!user?.id && isOpen,
     staleTime: 0,
     queryFn: async () => {
       if (!user?.id) return null;
+      const selectFields = role === 'owner'
+        ? 'business_name, business_description, business_location, contact_email, contact_phone'
+        : 'bio, occupation, country, nationality, city, years_in_city, languages, interests, personality_traits, preferred_activities';
       const { data, error } = await supabase
-        .from('client_profiles')
-        .select('bio, occupation, country, nationality, city, years_in_city, languages, interests, personality_traits, preferred_activities')
-
+        .from(profileTable)
+        .select(selectFields)
         .eq('user_id', user!.id)
         .maybeSingle();
       if (error) throw error;
@@ -63,12 +69,12 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
   useEffect(() => {
     if (prevEditOpen.current && !editOpen) {
       refetchProfile();
-      refetchClientProfile();
+      refetchExtendedProfile();
     }
     prevEditOpen.current = editOpen;
-  }, [editOpen, refetchProfile, refetchClientProfile]);
+  }, [editOpen, refetchProfile, refetchExtendedProfile]);
 
-  // REALTIME: live-refresh the card whenever either profile row changes
+  // REALTIME: live-refresh the card whenever profile row changes
   useEffect(() => {
     if (!user?.id || !isOpen) return;
     const channel = supabase
@@ -76,42 +82,47 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles', filter: `user_id=eq.${user.id}` }, () => {
         queryClient.invalidateQueries({ queryKey: ['vap-id-profile', user.id] });
       })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'client_profiles', filter: `user_id=eq.${user.id}` }, () => {
-        queryClient.invalidateQueries({ queryKey: ['vap-id-client-profile', user.id] });
+      .on('postgres_changes', { event: '*', schema: 'public', table: profileTable, filter: `user_id=eq.${user.id}` }, () => {
+        queryClient.invalidateQueries({ queryKey: [profileQueryKey, user.id] });
       })
       .subscribe();
     return () => {
       channel.unsubscribe();
       supabase.removeChannel(channel);
     };
-  }, [user?.id, isOpen, queryClient]);
+  }, [user?.id, isOpen, queryClient, profileTable, profileQueryKey]);
 
-  const name = profile?.full_name || user?.email?.split('@')[0] || 'Resident';
-  const _nationality = clientProfile?.nationality || profile?.nationality || '';
-  const city = clientProfile?.city || profile?.city || '';
-  const country = (clientProfile as any)?.country || profile?.country || '';
-  const bio = clientProfile?.bio || '';
-  const occupation = (clientProfile as any)?.occupation || '';
+  const isOwner = role === 'owner';
+  const ext = extendedProfile as any;
+
+  const name = isOwner
+    ? ext?.business_name || profile?.full_name || user?.email?.split('@')[0] || 'Asset'
+    : profile?.full_name || user?.email?.split('@')[0] || 'Resident';
+  const city = isOwner ? ext?.business_location || profile?.city || '' : ext?.city || profile?.city || '';
+  const country = isOwner ? '' : ext?.country || profile?.country || '';
+  const bio = isOwner ? ext?.business_description || profile?.bio || '' : ext?.bio || '';
+  const occupation = isOwner ? ext?.business_name || '' : ext?.occupation || '';
   const avatarUrl = profile?.avatar_url || '';
-  const phone = profile?.phone || '';
+  const phone = isOwner ? ext?.contact_phone || profile?.phone || '' : profile?.phone || '';
 
   const spokenLanguages = useMemo(() => {
-    // Prefer client_profiles.languages (what the Edit modal writes); fall back to profiles.languages_spoken
-    const clientLangs = (clientProfile as any)?.languages;
+    if (isOwner) return [];
+    const clientLangs = ext?.languages;
     const raw = Array.isArray(clientLangs) && clientLangs.length > 0
       ? clientLangs
       : profile?.languages_spoken;
     if (Array.isArray(raw)) return raw.filter((v): v is string => typeof v === 'string');
     return [];
-  }, [clientProfile, profile?.languages_spoken]);
+  }, [isOwner, ext, profile?.languages_spoken]);
 
   const allTags = useMemo(() => {
+    if (isOwner) return [];
     const tags: string[] = [];
     const add = (arr: any) => { if (Array.isArray(arr)) tags.push(...arr.filter(v => typeof v === 'string')); };
-    add(clientProfile?.interests);
-    add(clientProfile?.personality_traits);
+    add(ext?.interests);
+    add(ext?.personality_traits);
     return [...new Set(tags)].slice(0, 8);
-  }, [clientProfile]);
+  }, [isOwner, ext]);
 
   const validationUrl = "https://swipess.com/vap-validate/" + (user?.id || 'unknown');
   const idNumber = "NX-" + (user?.id || 'resident').slice(0, 8).toUpperCase();
@@ -188,8 +199,8 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
                   <div className="flex-1 min-w-0 pt-2 space-y-5">
                     <div className="flex flex-col gap-3">
                        <div className="flex items-center gap-2">
-                          <ShieldCheck size={22} style={{ color: theme.accentColor }} />
-                          <span className="text-[12px] font-black uppercase tracking-[0.4em] italic" style={{ color: theme.accentColor }}>Authorized Resident</span>
+                           <ShieldCheck size={22} style={{ color: theme.accentColor }} />
+                           <span className="text-[12px] font-black uppercase tracking-[0.4em] italic" style={{ color: theme.accentColor }}>{isOwner ? 'Verified Asset' : 'Authorized Resident'}</span>
                        </div>
                        <h3 className="text-4xl font-black leading-none tracking-tighter italic uppercase" style={{ color: theme.textPrimary }}>{name}</h3>
                     </div>
@@ -245,7 +256,7 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
         </motion.div>
       )}
     </AnimatePresence>
-    <VapIdEditModal isOpen={editOpen} onClose={() => setEditOpen(false)} />
+    <VapIdEditModal isOpen={editOpen} onClose={() => setEditOpen(false)} role={role} />
     </>,
     document.body
   );

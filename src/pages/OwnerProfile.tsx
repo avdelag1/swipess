@@ -7,9 +7,11 @@ import { useAuth } from "@/hooks/useAuth";
 import { useOwnerStats } from "@/hooks/useOwnerStats";
 import { useOwnerProfile } from "@/hooks/useOwnerProfile";
 import {
-  LogOut, Building2, Camera, Flame, ThumbsUp, Settings, Megaphone, Scale, Coins, User, UserCircle, Crown, Sparkles, Zap
+  LogOut, Building2, Camera, Flame, ThumbsUp, Settings, Megaphone, Scale, Coins, User, UserCircle, Crown, Sparkles, Zap, ChevronRight
 } from "lucide-react";
 import { ActivityFeed } from "@/components/ActivityFeed";
+import { VapIdCardModal } from "@/components/VapIdCardModal";
+import { HolographicIDCard } from "@/components/native/HolographicIDCard";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { triggerHaptic } from "@/utils/haptics";
@@ -22,6 +24,7 @@ import useAppTheme from "@/hooks/useAppTheme";
 const OwnerProfile = () => {
   const { isLight } = useAppTheme();
   const [showEditDialog, setShowEditDialog] = useState(false);
+  const [isVapModalOpen, setIsVapModalOpen] = useState(false);
   const { user, signOut } = useAuth();
   const { data: stats } = useOwnerStats();
   const { data: ownerProfile, isLoading: profileLoading } = useOwnerProfile();
@@ -213,6 +216,19 @@ const OwnerProfile = () => {
           </Button>
         </div>
 
+        {/* HOLOGRAPHIC IDENTITY VAULT */}
+        <div className="relative cursor-pointer" onClick={() => { triggerHaptic('light'); setIsVapModalOpen(true); }}>
+          <HolographicIDCard profile={ownerProfile} />
+          
+          {/* External hint for edit */}
+          <div className="absolute top-4 right-4 z-20">
+            <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 border border-white/10 backdrop-blur-md">
+              <span className="text-[8px] font-black uppercase tracking-widest text-white/40">Asset Protocol</span>
+              <ChevronRight className="w-3 h-3 text-white/20" />
+            </div>
+          </div>
+        </div>
+
         {/* ACTION NAV GRID */}
         <div className="grid grid-cols-2 gap-4">
           {[
@@ -306,6 +322,7 @@ const OwnerProfile = () => {
       </div>
 
       <OwnerProfileDialog open={showEditDialog} onOpenChange={setShowEditDialog} />
+      <VapIdCardModal isOpen={isVapModalOpen} onClose={() => setIsVapModalOpen(false)} role="owner" />
     </div>
   );
 };
