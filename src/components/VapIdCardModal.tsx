@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ShieldCheck, MapPin, Droplets, Pencil, Phone, Languages } from 'lucide-react';
@@ -25,7 +25,7 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
 
   const cycleTheme = () => setThemeIndex((i) => (i + 1) % CARD_THEMES.length);
 
-  const { data: profile } = useQuery({
+  const { data: profile, refetch: refetchProfile } = useQuery({
     queryKey: ['vap-id-profile', user?.id],
     enabled: !!user?.id && isOpen,
     staleTime: 0,
@@ -41,7 +41,7 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
     },
   });
 
-  const { data: clientProfile } = useQuery({
+  const { data: clientProfile, refetch: refetchClientProfile } = useQuery({
     queryKey: ['vap-id-client-profile', user?.id],
     enabled: !!user?.id && isOpen,
     staleTime: 0,
@@ -57,6 +57,16 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
       return data;
     },
   });
+
+  // Force-refetch both queries when edit modal closes after a save
+  const prevEditOpen = useRef(false);
+  useEffect(() => {
+    if (prevEditOpen.current && !editOpen) {
+      refetchProfile();
+      refetchClientProfile();
+    }
+    prevEditOpen.current = editOpen;
+  }, [editOpen, refetchProfile, refetchClientProfile]);
 
   // REALTIME: live-refresh the card whenever either profile row changes
   useEffect(() => {
