@@ -160,12 +160,11 @@ export function VapIdEditModal({ isOpen, onClose }: Props) {
       }
 
       // 🚀 SWIPESS SYNC: Ensure main profiles table stays in sync for the ID Card rendering
+      const baseName = user.user_metadata?.name || user.email?.split('@')[0] || 'Resident';
       const { error: profileSyncErr } = await supabase
         .from('profiles')
         .update({
-          full_name: occupation
-            ? `${profile?.full_name?.split(' (')[0] || user.user_metadata?.name || user.email?.split('@')[0]} (${occupation})`
-            : (profile?.full_name || undefined),
+          full_name: occupation ? `${baseName} (${occupation})` : baseName,
           city: city.trim() || undefined,
           nationality: nationality.trim() || undefined,
           languages_spoken: csvToArray(languages),
