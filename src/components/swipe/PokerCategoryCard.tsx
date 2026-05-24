@@ -175,8 +175,16 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
   // Memoized so background-card filter doesn't recompute on every render → no flicker.
     const { stackY, stackScale, stackOpacity, stackedFilter } = useMemo(() => ({
       stackY: 0,
-      stackScale: 1 - (index * 0.045),
-      stackOpacity: index === 0 ? 1 : Math.max(0, 0.9 - (index * 0.2)),
+      // All cards are full scale — we removed the `1 - (index * 0.045)` variation
+      // because when a card transitions from non-top to top, the scale animate
+      // from e.g. 0.955 to 1 caused a visible pop flash (same bug pattern as
+      // nextCardOpacity/nextCardScale in the other swipe containers).
+      // Depth is achieved through brightness + blur below.
+      stackScale: 1,
+      // All cards are fully opaque — scale + brightness/blur provide plenty
+      // of visual depth. Animating opacity caused a visible flash when a card
+      // transitioned from underneath to the top position.
+      stackOpacity: 1,
       // 🚀 Blur is GPU-expensive — drop it on low-end devices and rely on
       // brightness + scale + opacity for depth. On capable devices we still
       // apply a smaller blur (was 1.2px per index → now 0.6px capped at 2px).

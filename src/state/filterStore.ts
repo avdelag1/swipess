@@ -73,10 +73,18 @@ interface FilterState {
   kmHudExpanded: boolean;
   ownerPhase: 'cards' | 'kilometer' | 'swipe';
 
+  // ========== QUICK FILTER CARD POSITIONS ==========
+  // Persist the rotation order of poker-style category cards so returning
+  // from a filtered deck lands on the same card the user was viewing.
+  pokerCardOrder: string[] | null;
+  ownerPokerCardOrder: string[] | null;
+
   // ACTIONS
   setActiveCategory: (category: QuickFilterCategory | null) => void;
   setOwnerPhase: (phase: 'cards' | 'kilometer' | 'swipe') => void;
   setKmHudExpanded: (v: boolean) => void;
+  setPokerCardOrder: (order: string[]) => void;
+  setOwnerPokerCardOrder: (order: string[]) => void;
   toggleCategory: (category: QuickFilterCategory) => void;
   setCategories: (categories: QuickFilterCategory[]) => void;
   setListingType: (type: QuickFilterListingType) => void;
@@ -157,6 +165,8 @@ export const useFilterStore = create<FilterState>()(
 
     kmHudExpanded: false,
     ownerPhase: 'cards',
+    pokerCardOrder: null,
+    ownerPokerCardOrder: null,
 
     // ACTIONS
     setKmHudExpanded: (v) => set({ kmHudExpanded: v }),
@@ -164,6 +174,8 @@ export const useFilterStore = create<FilterState>()(
       console.info('[FilterStore] ownerPhase changed to:', phase);
       set({ ownerPhase: phase });
     },
+    setPokerCardOrder: (order) => set({ pokerCardOrder: order }),
+    setOwnerPokerCardOrder: (order) => set({ ownerPokerCardOrder: order }),
 
     setRadiusKm: (radius) => {
       console.info('[FilterStore] radiusKm changed to:', radius);
@@ -490,7 +502,9 @@ export const useFilterStore = create<FilterState>()(
         userLongitude: state.userLongitude,
         radiusKm: state.radiusKm,
         furnished: state.furnished,
-        petFriendly: state.petFriendly
+        petFriendly: state.petFriendly,
+        pokerCardOrder: state.pokerCardOrder,
+        ownerPokerCardOrder: state.ownerPokerCardOrder,
       }), // only persist these fields
     }
   )
