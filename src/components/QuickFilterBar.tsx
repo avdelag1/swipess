@@ -306,9 +306,9 @@ function QuickFilterBarComponent({ filters, onChange, onSelect, className, userR
                     : (isLight ? "bg-white/60" : "bg-black/55")
                 )} />
                 <QuickFilterImage src={option.image} alt={option.label} />
-                <div className="absolute inset-0 flex flex-col items-center justify-center z-20 transition-all duration-300 text-white font-black">
+                <div className={cn("absolute inset-0 flex flex-col items-center justify-center z-20 transition-all duration-300 font-black", isLight ? "text-black" : "text-white")}>
                   <div className={cn("mb-1 transition-all duration-300",
-                    "drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]",
+                    isLight ? "drop-shadow-[0_2px_8px_rgba(255,255,255,0.8)]" : "drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]",
                     isActive && "scale-110 drop-shadow-[0_0_18px_rgba(255,255,255,0.95)]")}>
                     {option.icon}
                   </div>
@@ -388,8 +388,8 @@ function QuickFilterBarComponent({ filters, onChange, onSelect, className, userR
             alt="All"
           />
 
-          <div className="absolute inset-0 flex flex-col items-center justify-center z-20 transition-all duration-300 text-white font-black">
-            <Globe className={cn("w-7 h-7 mb-1 transition-all duration-300 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]",
+          <div className={cn("absolute inset-0 flex flex-col items-center justify-center z-20 transition-all duration-300 font-black", isLight ? "text-black" : "text-white")}>
+            <Globe className={cn("w-7 h-7 mb-1 transition-all duration-300", isLight ? "drop-shadow-[0_2px_8px_rgba(255,255,255,0.8)]" : "drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]",
               clientIsAllSelected && "scale-125 drop-shadow-[0_0_18px_rgba(168,85,247,0.95)]")} />
             <span className="text-[9px] font-black uppercase tracking-[0.2em] mb-0.5 opacity-90 drop-shadow-md">Global</span>
             <span className="text-xl font-black uppercase tracking-tighter drop-shadow-md">ALL</span>
@@ -438,8 +438,8 @@ function QuickFilterBarComponent({ filters, onChange, onSelect, className, userR
 
               <QuickFilterImage src={photo} alt={category.label} />
 
-              <div className="absolute inset-0 flex flex-col items-center justify-center z-20 transition-all duration-300 text-white font-black">
-                <div className={cn("mb-1 transition-all duration-300 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]",
+              <div className={cn("absolute inset-0 flex flex-col items-center justify-center z-20 transition-all duration-300 font-black", isLight ? "text-black" : "text-white")}>
+                <div className={cn("mb-1 transition-all duration-300", isLight ? "drop-shadow-[0_2px_8px_rgba(255,255,255,0.8)]" : "drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]",
                   isActive && "scale-125 drop-shadow-[0_0_18px_rgba(255,165,0,0.95)]")}>
                   {category.icon}
                 </div>

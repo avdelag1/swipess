@@ -875,7 +875,7 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
   return createPortal(
     <AnimatePresence>
       {isOpen && (
-        <div className={cn("fixed inset-0 z-[10010] flex items-center justify-center p-0 sm:p-6 transition-all duration-500", isLight && !isSwipess ? "bg-black/10 backdrop-blur-md" : "bg-black/40 backdrop-blur-xl")}>
+        <div className={cn("fixed inset-0 z-[10010] flex items-center justify-center p-0 sm:p-6 transition-all duration-500", isLight && !isSwipess ? "bg-black/20 backdrop-blur-sm" : "bg-black/60 backdrop-blur-2xl")}>
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="absolute inset-0" />
           
           <motion.div
@@ -1034,7 +1034,7 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                        <div className="pl-3 flex items-center gap-1.5 self-center">
                            <Popover>
                              <PopoverTrigger asChild>
-                          <button className="p-3 rounded-2xl transition-all text-foreground/60 hover:text-foreground hover:bg-secondary/80 focus:bg-secondary" aria-label="Auto-send timer">
+                          <button className="p-3 rounded-2xl transition-all text-foreground/80 hover:text-foreground hover:bg-secondary/80" aria-label="Auto-send timer">
                                     <Timer className="w-5 h-5" strokeWidth={2.5} />
                                </button>
                              </PopoverTrigger>
@@ -1056,10 +1056,10 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                             onPointerUp={stopListening}
                             onPointerCancel={stopListening}
                             className={cn(
-                              "p-3 rounded-2xl transition-all relative group overflow-hidden focus:bg-secondary",
+                              "p-3 rounded-2xl transition-all relative group overflow-hidden",
                               isListening 
                                 ? "bg-[#FF3D00] text-white shadow-[0_0_24px_rgba(255,61,0,0.4)] scale-110" 
-                                : "text-foreground/60 hover:text-foreground hover:bg-secondary/80"
+                                : "text-foreground/80 hover:text-foreground hover:bg-secondary/80"
                             )}
                           >
                              {isListening ? <Mic className="w-5 h-5 animate-pulse relative z-10" strokeWidth={2.5} /> : <Mic className="w-5 h-5 relative z-10" strokeWidth={2.5} />}
