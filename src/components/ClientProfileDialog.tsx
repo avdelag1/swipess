@@ -1,4 +1,5 @@
 
+import { motion } from 'framer-motion';
 import { useEffect, useRef, useState, useMemo, memo, useCallback } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
