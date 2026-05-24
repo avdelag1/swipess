@@ -1,5 +1,4 @@
 import { memo, useCallback, useRef, useState, useEffect, useMemo } from 'react';
-import useAppTheme from '@/hooks/useAppTheme';
 import { AnimatePresence, motion, useMotionValue, useTransform, animate, PanInfo } from 'framer-motion';
 import { triggerHaptic } from '@/utils/haptics';
 import { toggleChrome } from '@/hooks/useChromeReveal';
@@ -42,8 +41,6 @@ const _isLowEndDevice = (() => {
 })();
 
 export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCollapsed = false, onCycle, onSelect, onBringToFront }: PokerCardProps) => {
-  const { theme } = useAppTheme();
-  const isDark = theme !== 'light';
   const x = useMotionValue(0);
   const y = useMotionValue(0);
   const axisRef = useRef<null | 'x' | 'y'>(null);
@@ -74,12 +71,8 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
   const photo = photoList[photoIndex] || POKER_CARD_PHOTOS[card.id] || POKER_CARD_PHOTOS.property;
   const [imgReady, setImgReady] = useState(() => _loadedPokerImages.has(photo));
   const fallbackGradient = useMemo(() => {
-    const baseGradient = POKER_CARD_GRADIENTS[card.id] || POKER_CARD_GRADIENTS.property;
-    if (theme === 'light') {
-      return 'linear-gradient(135deg, #E8F4F8 0%, #F0E6FF 100%)';
-    }
-    return baseGradient;
-  }, [card.id, theme]);
+    return POKER_CARD_GRADIENTS[card.id] || POKER_CARD_GRADIENTS.property;
+  }, [card.id]);
 
   useEffect(() => {
     if (_loadedPokerImages.has(photo)) {
