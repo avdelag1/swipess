@@ -235,7 +235,6 @@ function normalizeAssistantReply(text: string): string {
 // AI concierge runs on production edge functions
 // All user data stays on production Supabase — AI only handles chat, no user data
 const AI_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-concierge`;
-const AUTH_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
 export function useConciergeAI() {
   // Premium access check
@@ -457,11 +456,15 @@ export function useConciergeAI() {
         else if (CHALLENGE_PATTERN.test(content)) setEgoLevel(egoLevel - 1);
       }
 
+      // Use the user's session JWT so the edge function can identify the user
+      const session = await supabase.auth.getSession();
+      const accessToken = session.data.session?.access_token ?? '';
+
       const resp = await fetch(AI_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${AUTH_KEY}`,
+          'Authorization': `Bearer ${accessToken}`,
         },
         body: JSON.stringify({
           messages: apiMessages,
