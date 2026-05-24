@@ -1,19 +1,19 @@
 
 import { useEffect, useState, memo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { motion } from 'framer-motion';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
+// import { } from '@/components/ui/badge';
 import { PhotoUploadManager } from '@/components/PhotoUploadManager';
 import { ListingVideoUpload } from '@/components/video/ListingVideoUpload';
 import { useOwnerProfile, useSaveOwnerProfile } from '@/hooks/useOwnerProfile';
 import { toast } from '@/components/ui/sonner';
 import { supabase } from '@/integrations/supabase/client';
-import { logger } from '@/utils/prodLogger';
+// import { } from '@/utils/prodLogger';
 import { validateContent } from '@/utils/contactInfoValidation';
-import { Building2, Bike, Briefcase, Check, Camera, Mail, Sparkles, Target, X, Save, MapPin } from 'lucide-react';
+import { Building2, Bike, Briefcase, Check, Mail, Sparkles, Target, X, Save, MapPin } from 'lucide-react';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
@@ -83,7 +83,7 @@ function OwnerProfileDialogComponent({ open, onOpenChange }: Props) {
       });
       toast.success('Brand Assets Synced');
       onOpenChange(false);
-    } catch (error) {
+    } catch (_error) {
       toast.error('Sync Error');
     }
   };

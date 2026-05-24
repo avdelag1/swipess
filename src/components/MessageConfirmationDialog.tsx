@@ -19,7 +19,7 @@ export function MessageConfirmationDialog({
   open,
   onOpenChange,
   onConfirm,
-  recipientName = 'this person',
+  _recipientName = 'this person',
   isLoading = false,
 }: MessageConfirmationDialogProps) {
   const [message, setMessage] = useState("Hi! I'd like to connect with you.");

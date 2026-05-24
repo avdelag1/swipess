@@ -41,7 +41,7 @@ const _isLowEndDevice = (() => {
   } catch { return false; }
 })();
 
-export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false, onCycle, onSelect, onBringToFront }: PokerCardProps) => {
+export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCollapsed = false, onCycle, onSelect, onBringToFront }: PokerCardProps) => {
   const { theme } = useAppTheme();
   const isDark = theme !== 'light';
   const x = useMotionValue(0);
@@ -73,7 +73,13 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
   const [photoIndex, setPhotoIndex] = useState(0);
   const photo = photoList[photoIndex] || POKER_CARD_PHOTOS[card.id] || POKER_CARD_PHOTOS.property;
   const [imgReady, setImgReady] = useState(() => _loadedPokerImages.has(photo));
-  const fallbackGradient = POKER_CARD_GRADIENTS[card.id] || POKER_CARD_GRADIENTS.property;
+  const fallbackGradient = useMemo(() => {
+    const baseGradient = POKER_CARD_GRADIENTS[card.id] || POKER_CARD_GRADIENTS.property;
+    if (theme === 'light') {
+      return 'linear-gradient(135deg, #E8F4F8 0%, #F0E6FF 100%)';
+    }
+    return baseGradient;
+  }, [card.id, theme]);
 
   useEffect(() => {
     if (_loadedPokerImages.has(photo)) {
@@ -268,8 +274,8 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0 }}
             transition={{
-              opacity: { duration: 0.9, ease: [0.22, 1, 0.36, 1] },
-              scale: { duration: _isLowEndDevice ? 0 : 6, ease: 'linear' },
+              opacity: { duration: 0.6, ease: [0.22, 1, 0.36, 1] },
+              scale: { duration: 0.8, ease: 'cubic-bezier(0.34, 1.56, 0.64, 1)' },
             }}
             className="absolute inset-0 w-full h-full object-cover"
             style={{ backfaceVisibility: 'hidden' }}

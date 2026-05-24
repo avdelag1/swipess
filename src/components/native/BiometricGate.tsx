@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ShieldCheck, Fingerprint, Lock } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Fingerprint, Lock } from 'lucide-react';
 import { haptics } from '@/utils/microPolish';
 import { Capacitor } from '@capacitor/core';
 

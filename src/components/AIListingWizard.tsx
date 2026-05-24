@@ -136,7 +136,7 @@ export function AIListingWizard() {
   const headerBorder = isLight ? 'border-black/8' : 'border-white/5';
   const textPrimary = isLight ? 'text-black' : 'text-white';
   const textMuted = isLight ? 'text-black/50' : 'text-white/50';
-  const textSubtle = isLight ? 'text-black/30' : 'text-white/30';
+  const _textSubtle = isLight ? 'text-black/30' : 'text-white/30';
   const inputCls = isLight
     ? 'bg-white border border-black/10 focus:border-cyan-500/50 focus:ring-0 text-black placeholder:text-black/30 shadow-[0_2px_8px_rgba(0,0,0,0.04)]'
     : 'bg-white/5 border border-white/5 focus:border-cyan-500/50 focus:ring-0 text-white placeholder:text-white/10';

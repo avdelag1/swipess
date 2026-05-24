@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, X, Zap, ShieldCheck, Crown } from 'lucide-react';
 import { triggerHaptic } from '@/utils/haptics';

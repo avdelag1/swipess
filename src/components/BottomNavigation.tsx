@@ -35,11 +35,11 @@ import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useFilterStore } from '@/state/filterStore';
 import { useModalStore } from '@/state/modalStore';
 import { useGuidedTourActive } from '@/state/guidedTourStore';
-import { useDeckHasCards } from '@/hooks/useDeckHasCards';
+
 import { useChromeReveal } from '@/hooks/useChromeReveal';
 
 const ICON_SIZE = 20;
-const ICON_SIZE_COMPACT = 18;
+
 const ICON_SIZE_TABLET = 22;
 const TOUCH_TARGET = 28;
 const TOUCH_TARGET_TABLET = 38;
@@ -79,7 +79,7 @@ export const BottomNavigation = memo(({
   onListingsClick,
   className,
 }: BottomNavigationProps) => {
-  const { navigate, prefetch } = useAppNavigate();
+  const { navigate } = useAppNavigate();
   const location = useLocation();
   const setCategories = useFilterStore((s) => s.setCategories);
   const setModal = useModalStore((s) => s.setModal);
@@ -105,7 +105,7 @@ export const BottomNavigation = memo(({
   //  - Dark theme (black filter): nav icons always WHITE everywhere.
   //  - Light theme (white filter): WHITE on dashboard (over photos),
   //    BLACK on every other page.
-  const navBase = '#FFFFFF';
+
 
   const { t } = useTranslation();
 
@@ -174,7 +174,7 @@ export const BottomNavigation = memo(({
 
   const navItems = userRole === 'admin' ? adminNavItems : userRole === 'client' ? clientNavItems : ownerNavItems;
   const scrollRef = useRef<HTMLDivElement>(null);
-  const scrollGuardTimeoutRef = useRef<number | null>(null);
+
 
   // Auto-scroll active item into view
   useEffect(() => {
@@ -188,7 +188,7 @@ export const BottomNavigation = memo(({
 
   const isDraggingRef = useRef(false);
   const touchState = useRef<{ x: number; y: number } | null>(null);
-  const [ripple, setRipple] = useState<{ x: number, id: string } | null>(null);
+  const [_ripple, setRipple] = useState<{ x: number, id: string } | null>(null);
 
   const handlePointerMove = useCallback((e: React.PointerEvent) => {
     if (!touchState.current) return;
@@ -281,7 +281,7 @@ export const BottomNavigation = memo(({
     }
   };
 
-  const iconColorInactive = 'var(--icon-inactive)';
+
 
   // Light theme uses a vibrant violet/indigo for the active item so it's
   // visible against the near-white glass pill. Dark theme keeps white.

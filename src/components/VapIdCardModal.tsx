@@ -1,12 +1,11 @@
 import React, { useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ShieldCheck, MapPin, Droplets, ScanLine, Pencil, Phone, Languages } from 'lucide-react';
+import { X, ShieldCheck, MapPin, Droplets, Pencil, Phone, Languages } from 'lucide-react';
 import QRCode from 'react-qr-code';
 import { useAuth } from '@/hooks/useAuth';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import useAppTheme from '@/hooks/useAppTheme';
 import { CARD_THEMES } from './vap-id/cardThemes';
 import { VapIdEditModal } from './VapIdEditModal';
 import { useEffect } from 'react';
@@ -77,7 +76,7 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
   }, [user?.id, isOpen, queryClient]);
 
   const name = profile?.full_name || user?.email?.split('@')[0] || 'Resident';
-  const nationality = clientProfile?.nationality || profile?.nationality || '';
+  const _nationality = clientProfile?.nationality || profile?.nationality || '';
   const city = clientProfile?.city || profile?.city || '';
   const country = profile?.country || '';
   const bio = clientProfile?.bio || '';

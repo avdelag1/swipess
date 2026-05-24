@@ -2,15 +2,15 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
-import { Shield, Lock, Smartphone, Eye, EyeOff, AlertTriangle, ChevronRight } from 'lucide-react';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Shield, Lock, Smartphone, Eye, EyeOff, ChevronRight } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { useSecuritySettings } from '@/hooks/useSecuritySettings';
 import { useAuth } from '@/hooks/useAuth';
 import { logger } from '@/utils/prodLogger';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import useAppTheme from '@/hooks/useAppTheme';
 import { cn } from '@/lib/utils';
 
@@ -18,15 +18,15 @@ interface AccountSecurityProps {
   userRole: 'client' | 'owner';
 }
 
-export function AccountSecurity({ userRole }: AccountSecurityProps) {
-  const navigate = useNavigate();
-  const { user, session } = useAuth();
+export function AccountSecurity({ userRole: _userRole }: AccountSecurityProps) {
+  const _navigate = useNavigate();
+  const { user, session: _session } = useAuth();
   const { isLight } = useAppTheme();
   
   const {
     settings,
     updateSettings,
-    isLoading: settingsLoading
+    isLoading: _settingsLoading
   } = useSecuritySettings();
 
   const [showPasswordDialog, setShowPasswordDialog] = useState(false);

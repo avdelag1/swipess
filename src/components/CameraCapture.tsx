@@ -7,7 +7,6 @@ import { Badge } from '@/components/ui/badge';
 import {
   X,
   RefreshCw,
-  Sparkles,
   Timer,
   SlidersHorizontal,
   ChevronDown,

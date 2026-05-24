@@ -2,7 +2,7 @@ import { useOwnerInsights } from '@/hooks/useOwnerInsights';
 import { motion } from 'framer-motion';
 import { 
   BarChart3, TrendingUp, Users, Heart, 
-  MessageSquare, DollarSign, Activity, Eye, Zap
+  MessageSquare, DollarSign, _Activity, Eye, Zap
 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';

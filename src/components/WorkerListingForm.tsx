@@ -136,34 +136,6 @@ const CheckboxRow = ({ id, checked, onCheckedChange, label }: { id: string; chec
   </div>
 );
 
-// Themed tag input
-function TagInput({ tags, onAdd, onRemove, placeholder }: { tags: string[]; onAdd: (tag: string) => void; onRemove: (tag: string) => void; placeholder: string }) {
-  const [input, setInput] = useState('');
-  const handleKey = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && input.trim()) {
-      e.preventDefault();
-      if (!tags.includes(input.trim())) onAdd(input.trim());
-      setInput('');
-    }
-  };
-  return (
-    <div className="space-y-2">
-      <Input value={input} onChange={e => setInput(e.target.value)} onKeyDown={handleKey} placeholder={placeholder} />
-      {tags.length > 0 && (
-        <div className="flex flex-wrap gap-1.5">
-          {tags.map(tag => (
-            <Badge key={tag} className="gap-1 pr-1 bg-amber-500/15 text-amber-300 border border-amber-500/20 hover:bg-amber-500/25">
-              {tag}
-              <button type="button" onClick={() => onRemove(tag)} className="ml-0.5 rounded-full hover:bg-amber-500/30 p-0.5">
-                <X className="w-3 h-3" />
-              </button>
-            </Badge>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
 
 // Themed pill toggle
 function PillToggle({ items, selected, onToggle }: { items: { value: string; label: string }[]; selected: string[]; onToggle: (v: string) => void }) {
@@ -226,8 +198,8 @@ export function WorkerListingForm({ onDataChange, initialData = {} }: WorkerList
   const watchedDays = watch('days_available') || [];
   const watchedTimeSlots = watch('time_slots_available') || [];
   const watchedLocationType = watch('location_type') || [];
-  const watchedCertifications = watch('certifications') || [];
-  const watchedToolsEquipment = watch('tools_equipment') || [];
+  const _watchedCertifications = watch('certifications') || [];
+  const _watchedToolsEquipment = watch('tools_equipment') || [];
   const watchedLanguages = watch('languages') || [];
 
   const grouped = getGroupedCategories();
@@ -239,12 +211,12 @@ export function WorkerListingForm({ onDataChange, initialData = {} }: WorkerList
     setValue(field, updated);
   };
 
-  const addToArray = (field: keyof WorkerFormData, value: string) => {
+  const _addToArray = (field: keyof WorkerFormData, value: string) => {
     const current = (getValues(field) as string[]) || [];
     if (!current.includes(value)) setValue(field, [...current, value]);
   };
 
-  const removeFromArray = (field: keyof WorkerFormData, value: string) => {
+  const _removeFromArray = (field: keyof WorkerFormData, value: string) => {
     const current = (getValues(field) as string[]) || [];
     setValue(field, current.filter(v => v !== value));
   };

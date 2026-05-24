@@ -1,8 +1,8 @@
 import { useState, useCallback, useRef, useEffect, useMemo, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  X, Send, Mic, Sparkles, Plus, CornerDownLeft,
-  Trash2, Menu, Zap, Flame, Sun, Crown, Moon, History, ArrowUp,
+  X, Mic, Sparkles, Plus, CornerDownLeft,
+  Trash2, Menu, Zap, Flame, Sun, Crown, Moon, ArrowUp,
   Copy, Languages, Timer, ArrowRight, RefreshCw, Volume2, VolumeX, Share2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -17,7 +17,6 @@ import { uiSounds } from '@/utils/uiSounds';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import useAppTheme from '@/hooks/useAppTheme';
 import { useSpeechSynthesis, PERSONA_VOICE_PROFILES } from '@/hooks/useSpeechSynthesis';
-import { SwipessLogo } from '@/components/SwipessLogo';
 import { toast } from 'sonner';
 import { useFilterStore } from '@/state/filterStore';
 
@@ -604,7 +603,7 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
     messages, conversations, activeConversationId, isLoading,
     sendMessage, resendMessage, deleteMessage,
     createConversation, switchConversation, deleteConversation,
-    activeCharacter, setActiveCharacter, egoLevel,
+    activeCharacter, setActiveCharacter, egoLevel: _egoLevel,
   } = useConciergeAI();
 
   const { navigate: appNavigate } = useAppNavigate();
@@ -648,7 +647,7 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
     { key: 'ezriyah', label: 'Ezriyah', subtitle: 'Integration Coach', tagline: 'Local Legend', icon: Sun, color: 'text-teal-400', bgColor: 'bg-teal-500/20' },
   ];
 
-  const arcColor = useMemo(() => {
+  const _arcColor = useMemo(() => {
     const colorMap: Record<string, string> = {
       default: '#FF3D00',
       kyle: '#fb923c',

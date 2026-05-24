@@ -2,7 +2,7 @@ import { VespaIcon } from '@/components/icons/VespaIcon';
 import { BeachBicycleIcon } from '@/components/icons/BeachBicycleIcon';
 import { WorkersIcon } from '@/components/icons/WorkersIcon';
 import { RealEstateIcon } from '@/components/icons/RealEstateIcon';
-import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
+
 import { ListingFilters } from '@/hooks/useSmartMatching';
 import { logger } from '@/utils/prodLogger';
 import {

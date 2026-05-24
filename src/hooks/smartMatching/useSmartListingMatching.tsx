@@ -282,7 +282,7 @@ export function useSmartListingMatching(
                 event: 'INSERT', 
                 schema: 'public', 
                 table: 'listings' 
-            }, (payload) => {
+            }, (_payload) => {
                 const now = Date.now();
                 if (now - lastInvalidateRef.current < 10000) return; // 10s cooldown
                 lastInvalidateRef.current = now;

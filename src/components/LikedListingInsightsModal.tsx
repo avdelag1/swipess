@@ -1,8 +1,8 @@
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Badge } from '@/components/ui/badge';
+
 import { Button } from '@/components/ui/button';
-import { MapPin, Bed, Bath, Square, DollarSign, MessageCircle, Sparkles, Trash2, Ban, Flag, ChevronLeft, ChevronRight, X, Star, ArrowLeft, Share2, TrendingUp, CheckCircle, Home, Clock, Zap, Users, Shield, Award, ThumbsUp, Eye, Ruler, Settings, Bike, Car, Gauge, Fuel, Flame, ShieldCheck } from 'lucide-react';
+import { MapPin, Bed, Bath, Square, DollarSign, MessageCircle, Sparkles, Trash2, Ban, Flag, ChevronLeft, ChevronRight, X, Star, ArrowLeft, Share2, TrendingUp, CheckCircle, Clock, Zap, Award, ThumbsUp, Gauge, Flame, ShieldCheck } from 'lucide-react';
 import { PropertyImageGallery } from './PropertyImageGallery';
 import { useNavigate } from 'react-router-dom';
 import { useStartConversation } from '@/hooks/useConversations';
@@ -26,13 +26,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+
 import { ReportDialog } from './ReportDialog';
 import { ShareDialog } from './ShareDialog';
 import { ConnectingOverlay } from './ConnectingOverlay';
-import { triggerHaptic } from '@/utils/haptics';
+
 
 interface LikedListingInsightsModalProps {
   open: boolean;

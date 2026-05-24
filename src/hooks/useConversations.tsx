@@ -426,7 +426,7 @@ export function useStartConversation() {
       otherUserId,
       listingId,
       initialMessage,
-      canStartNewConversation
+      _canStartNewConversation
     }: {
       otherUserId: string;
       listingId?: string;
@@ -562,7 +562,7 @@ export function useSendMessage() {
         return next;
       });
     },
-    onSettled: (data, error, variables) => {
+    onSettled: (_data, _error, _variables) => {
       // Lightweight invalidations only — the message list cache is managed in
       // onMutate/onSuccess + real-time subscription to avoid re-render storms.
       queryClient.invalidateQueries({ queryKey: ['conversations', user?.id] });

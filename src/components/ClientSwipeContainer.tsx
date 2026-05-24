@@ -1,7 +1,6 @@
-import { useState, useCallback, useRef, useEffect, memo, lazy, Suspense, useMemo } from 'react';
+import { useState, useCallback, useRef, useEffect, memo, lazy, Suspense } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
 import { SwipeAllDashboard } from './swipe/SwipeAllDashboard';
-import { useModalStore } from '@/state/modalStore';
 import { createPortal } from 'react-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { triggerHaptic } from '@/utils/haptics';
@@ -12,7 +11,6 @@ import { swipeQueue } from '@/lib/swipe/SwipeQueue';
 import { PrefetchScheduler } from '@/lib/swipe/PrefetchScheduler';
 import { useSmartClientMatching } from '@/hooks/useSmartMatching';
 import { useAuth } from '@/hooks/useAuth';
-import { useUserRole } from '@/hooks/useUserRole';
 import { useSwipeWithMatch } from '@/hooks/useSwipeWithMatch';
 import { useCanAccessMessaging } from '@/hooks/useMessaging';
 import { useSwipeUndo } from '@/hooks/useSwipeUndo';
@@ -36,7 +34,6 @@ import { logger } from '@/utils/prodLogger';
 import { SwipeExhaustedState } from './swipe/SwipeExhaustedState';
 import { SwipeDeckBackButton } from './swipe/SwipeDeckBackButton';
 import { usePullDownToDismiss } from './swipe/usePullDownToDismiss';
-import { Home, RefreshCw, ChevronLeft, SlidersHorizontal } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 import useAppTheme from "@/hooks/useAppTheme";
@@ -46,7 +43,6 @@ import { ConnectingOverlay } from '@/components/ConnectingOverlay';
 const ShareDialog = lazy(() => import('./ShareDialog').then(m => ({ default: m.ShareDialog })));
 const MessageConfirmationDialog = lazy(() => import('./MessageConfirmationDialog').then(m => ({ default: m.MessageConfirmationDialog })));
 const ReportDialog = lazy(() => import('./ReportDialog').then(m => ({ default: m.ReportDialog })));
-import { OWNER_INTENT_CARDS } from './swipe/CardData';
 
 
 
@@ -76,7 +72,7 @@ const ClientSwipeContainerComponent = ({
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { isLight } = useAppTheme();
-  const { isChromeVisible } = useChromeReveal();
+  const { isChromeVisible: _isChromeVisible } = useChromeReveal();
   // PERF: Get userId from auth to pass to query (avoids getUser() inside queryFn)
   const { user } = useAuth();
 
@@ -121,7 +117,7 @@ const ClientSwipeContainerComponent = ({
   const cardRef = useRef<SimpleOwnerSwipeCardRef>(null);
 
   // Prevent accidental back button clicks within 1.5 seconds of mount
-  const [canClickBack, setCanClickBack] = useState(false);
+  const [_canClickBack, setCanClickBack] = useState(false);
   useEffect(() => {
     const timer = setTimeout(() => setCanClickBack(true), 1500);
     return () => clearTimeout(timer);
@@ -160,20 +156,9 @@ const ClientSwipeContainerComponent = ({
   const [locationDetecting, setLocationDetecting] = useState(false);
   const [locationDetected, setLocationDetected] = useState(false);
 
-  const handleCycleCategory = useCallback(() => {
-    triggerHaptic('heavy');
-    const cycle: string[] = ['buyers', 'renters', 'hire'];
-    const currentIdx = cycle.indexOf(storeActiveCategory as any);
-    const nextIdx = (currentIdx + 1) % cycle.length;
-    setActiveCategory(cycle[nextIdx] as any);
-  }, [storeActiveCategory, setActiveCategory]);
 
-  const radarNodes = useMemo(() => (externalProfiles || []).map(p => ({
-    id: p.user_id || p.id,
-    lat: p.latitude || 0,
-    lng: p.longitude || 0,
-    label: p.name || 'Found'
-  })), [externalProfiles]);
+
+
 
   const detectLocation = useCallback(() => {
     if (!navigator.geolocation) return;
@@ -332,7 +317,7 @@ const ClientSwipeContainerComponent = ({
   }
 
   // Use external profiles if provided, otherwise fetch internally (fallback for standalone use)
-  const [isRefreshMode, setIsRefreshMode] = useState(false);
+  const [isRefreshMode, _setIsRefreshMode] = useState(false);
   const [page, setPage] = useState(0);
   const isFetchingMore = useRef(false);
   const prefetchSchedulerRef = useRef(new PrefetchScheduler());
@@ -383,7 +368,7 @@ const ClientSwipeContainerComponent = ({
   const { 
     data: internalProfiles = [], 
     isLoading: internalIsLoading, 
-    refetch, 
+    refetch: _refetch, 
     isRefetching: _isRefetching, 
     error: internalError 
   } = useSmartClientMatching(

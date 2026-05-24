@@ -2,7 +2,7 @@ import { useState, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Target, Sparkles, Home, Briefcase, Zap, RotateCcw, Bike, ChevronLeft
+  Target, Sparkles, Home, Briefcase, _Zap, RotateCcw, Bike, ChevronLeft
 } from 'lucide-react';
 import { DiscoveryFilters } from '@/components/filters/DiscoveryFilters';
 import useAppTheme from '@/hooks/useAppTheme';
@@ -20,16 +20,16 @@ interface OwnerFiltersProps {
 
 export default function OwnerFilters({ isEmbedded, onClose }: OwnerFiltersProps) {
   const navigate = useNavigate();
-  const { theme, isLight } = useAppTheme();
-  const isDark = theme === 'dark';
+  const { theme, _isLight } = useAppTheme();
+  const _isDark = theme === 'dark';
   
   const storeActiveCategory = useFilterStore(s => s.activeCategory);
   const [activeCategory, setActiveCategory] = useState<CategoryType>((storeActiveCategory as CategoryType) || 'property');
   const [isScanning, setIsScanning] = useState(false);
 
-  const isFirstMount = useRef(true);
+  const _isFirstMount = useRef(true);
 
-  const handleApply = useCallback((filters?: any) => {
+  const handleApply = useCallback((_filters?: any) => {
     // We just want to stay on the page when filters are auto-applied from DiscoveryFilters
     console.info('[OwnerFilters] handleApply called, skipping navigation for auto-sync');
   }, []);

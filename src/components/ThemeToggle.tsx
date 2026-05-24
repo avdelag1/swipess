@@ -9,7 +9,7 @@ import { triggerHaptic } from '@/utils/haptics';
 
 type Theme = 'light' | 'dark';
 
-const CYCLE: Theme[] = ['light', 'dark'];
+const _CYCLE: Theme[] = ['light', 'dark'];
 
 interface ThemeToggleProps {
     className?: string;

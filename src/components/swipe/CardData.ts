@@ -1,6 +1,4 @@
-import { 
-  RealEstateIcon 
-} from '@/components/icons/RealEstateIcon';
+
 import { 
   VespaIcon 
 } from '@/components/icons/VespaIcon';

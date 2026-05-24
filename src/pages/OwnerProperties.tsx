@@ -2,11 +2,11 @@
 import { useState, useEffect } from 'react';
 import { PropertyManagement } from "@/components/PropertyManagement";
 import { useSearchParams, useLocation, useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
+// import { } from "framer-motion";
 import { AtmosphericLayer } from "@/components/AtmosphericLayer";
 
 const OwnerProperties = () => {
-  const navigate = useNavigate();
+  const _navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const location = useLocation();
   const [initialCategory, setInitialCategory] = useState<string | null>(null);

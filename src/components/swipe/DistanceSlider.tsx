@@ -24,7 +24,7 @@ export interface DistanceSliderProps {
 export const DistanceSlider = ({ radiusKm, onRadiusChange, onDetectLocation, detecting, detected }: DistanceSliderProps) => {
   const { isLight } = useAppTheme();
   const maxKm = 100;
-  const clientType = useFilterStore(s => s.clientType);
+  const _clientType = useFilterStore(s => s.clientType);
   const activeCategory = useFilterStore(s => s.activeCategory);
 
   // Local value drives the visual (thumb, fill, label) instantly.

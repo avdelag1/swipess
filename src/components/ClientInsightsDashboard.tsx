@@ -1,15 +1,15 @@
 import { useClientInsights } from '@/hooks/useClientInsights';
 import { motion } from 'framer-motion';
 import { 
-  BarChart3, TrendingUp, Users, Heart, 
-  MessageSquare, Zap, Activity, Eye, Trophy, Star, Sparkles
+  TrendingUp, Users, Heart, 
+  Zap, Activity, Eye, Trophy, Star, Sparkles
 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { cn } from '@/lib/utils';
+
 import useAppTheme from '@/hooks/useAppTheme';
 
 export function ClientInsightsDashboard() {
-  const { isLight } = useAppTheme();
+  const { isLight: _isLight } = useAppTheme();
   const { data, isLoading } = useClientInsights();
 
   if (isLoading) {

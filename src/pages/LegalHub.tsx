@@ -1,29 +1,29 @@
 import { useState, useMemo } from 'react';
-import { QuickFilterImage } from '@/components/ui/QuickFilterImage';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+// import { } from '@/components/ui/QuickFilterImage';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { ScrollArea } from "@/components/ui/scroll-area";
+// import { } from "@/components/ui/label";
+// import { } from "@/components/ui/scroll-area";
 import {
   Scale, MessageSquare, ChevronRight, ChevronDown,
   FileText, Home, DollarSign,
   Users, Gavel, Lock, Send, CheckCircle2,
-  Building2, UserX, Briefcase, Shield, ChevronLeft, BookOpen
+  Building2, UserX, _Briefcase, Shield, _ChevronLeft, BookOpen
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
-import { PageHeader } from '@/components/PageHeader';
+// import { } from '@/components/PageHeader';
 import { haptics } from '@/utils/microPolish';
 import useAppTheme from '@/hooks/useAppTheme';
 import { cn } from '@/lib/utils';
 import { useActiveMode } from '@/hooks/useActiveMode';
 import { AtmosphericLayer } from '@/components/AtmosphericLayer';
 import { Helmet } from 'react-helmet-async';
-import { ArrowLeft, ShieldCheck, Database, Eye, Globe, UserCheck, User } from "lucide-react";
+import { ArrowLeft, ShieldCheck, Database, Eye, Globe, UserCheck } from "lucide-react";
 
 interface LegalIssueCategory {
   id: string;
@@ -139,8 +139,8 @@ const ownerLegalCategories: LegalIssueCategory[] = [
 
 const LegalHub = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
-  const { theme, isLight } = useAppTheme();
+  const { _user } = useAuth();
+  const { _theme, isLight } = useAppTheme();
   const { activeMode } = useActiveMode();
   
   const isOwner = activeMode === 'owner';
@@ -163,7 +163,7 @@ const LegalHub = () => {
   const [description, setDescription] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [lawyerContactRequested, setLawyerContactRequested] = useState(false);
+  const [_lawyerContactRequested, _setLawyerContactRequested] = useState(false);
 
   const handleCategoryClick = (categoryId: string) => {
     setExpandedCategory(expandedCategory === categoryId ? null : categoryId);

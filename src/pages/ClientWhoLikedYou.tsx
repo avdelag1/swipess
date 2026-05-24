@@ -7,7 +7,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { LikesSkeleton } from "@/components/ui/LikesSkeleton";
 import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
-import { PremiumSortableGrid } from "@/components/PremiumSortableGrid";
+// import { } from "@/components/PremiumSortableGrid";
 import { toast } from "sonner";
 import { useStartConversation } from "@/hooks/useConversations";
 import { PremiumLikedCard } from "@/components/PremiumLikedCard";
@@ -170,7 +170,7 @@ const ClientWhoLikedYou = () => {
     return matchesSearch;
   });
 
-  const { orderedItems: filteredOwners, handleReorder } = usePersistentReorder(
+  const { orderedItems: filteredOwners, _handleReorder } = usePersistentReorder(
     baseFiltered,
     storageKey
   );
@@ -233,7 +233,7 @@ const ClientWhoLikedYou = () => {
           <LikesSkeleton />
         ) : filteredOwners.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8" style={{ touchAction: 'pan-y' }}>
-            {filteredOwners.map((owner: any, index: number) => (
+            {filteredOwners.map((owner: any, _index: number) => (
               <div key={owner.id} className="rounded-[2rem]" style={{ touchAction: 'pan-y' }}>
                 <PremiumLikedCard
                   type="profile"

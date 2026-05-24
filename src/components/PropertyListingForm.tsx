@@ -45,7 +45,7 @@ interface PropertyFormData {
   size?: string[];
 }
 
-const propertyFormSchema = z.object({
+const _propertyFormSchema = z.object({
   title: z.string().optional(),
   description: z.string().optional(),
   price: z.number().optional().nullable().transform(v => v ?? undefined),
@@ -196,7 +196,7 @@ export function PropertyListingForm({ onDataChange, initialData = {} }: Property
   const baths = watch('baths');
   const propertyType = watch('property_type');
   const city = watch('city') || '';
-  const country = watch('country') || '';
+  const _country = watch('country') || '';
   const state = watch('state') || '';
   const neighborhood = watch('neighborhood') || '';
   const vibe = watch('vibe') || [];

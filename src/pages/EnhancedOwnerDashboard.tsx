@@ -31,11 +31,11 @@ interface EnhancedOwnerDashboardProps {
 // ðŸ›¡ï¸ Safety fallback to prevent crashes if imports fail
 const SAFE_INTENT_CARDS = OWNER_INTENT_CARDS || [];
 
-const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: EnhancedOwnerDashboardProps) => {
+const EnhancedOwnerDashboard = ({ onClientInsights, _onMessageClick, filters }: EnhancedOwnerDashboardProps) => {
   const { theme } = useAppTheme();
-  const isLight = theme === 'light';
+  const _isLight = theme === 'light';
   const [viewMode, setViewMode] = useState<'discovery' | 'insights'>('discovery');
-  const navigate = useNavigate();
+  const _navigate = useNavigate();
 
   const activeCategory = useFilterStore(s => s.activeCategory);
   const { setCategories, setClientType, setListingType, setActiveCategory } = useFilterActions();
@@ -132,7 +132,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
     return { ...filters, ...clientFilters };
   }, [filters, clientFilters]);
 
-  const { data: clientProfiles = [], isLoading, error } = useSmartClientMatching(
+  const { data: clientProfiles = [], isLoading, _error } = useSmartClientMatching(
     user?.id,
     activeCategory as any,
     0,
@@ -151,7 +151,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
     }
   }, [onClientInsights]);
 
-  const handleInsights = useCallback((clientId: string) => {
+  const _handleInsights = useCallback((clientId: string) => {
     if (onClientInsights) {
       onClientInsights(clientId);
     } else {

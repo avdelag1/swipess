@@ -1,4 +1,4 @@
-import { ContractTemplate } from '@/data/contractTemplates';
+// import { } from '@/data/contractTemplates';
 
 export interface ContractVariable {
   key: string;
@@ -41,7 +41,7 @@ export const applyVariablesToContent = (content: string, values: Record<string, 
   const processed = content;
   // This is a naive replacement for now, real implementation would identify the <u> tags
   // but for the AI demo we'll just inject them into the HTML structure.
-  Object.entries(values).forEach(([key, value]) => {
+  Object.entries(values).forEach(([_key, _value]) => {
     // Replace placeholders like {{key}} if they existed, or just append meta for now
   });
   return processed;

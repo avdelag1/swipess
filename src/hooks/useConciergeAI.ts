@@ -240,7 +240,7 @@ const AUTH_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 export function useConciergeAI() {
   // Premium access check
   const { data: subscription } = useUserSubscription();
-  const { tokens } = useTokens();
+  const { _tokens } = useTokens();
   const isPremium = !!(subscription?.is_active);
   // For now: allow access if premium OR has tokens. Free users blocked.
   // During development/testing, set to true to keep AI open for everyone:
@@ -251,7 +251,7 @@ export function useConciergeAI() {
     () => loadConversationsLocal()[0]?.id ?? null
   );
   const [isLoading, setIsLoading] = useState(false);
-  const [cloudReady, setCloudReady] = useState(false);
+  const [_cloudReady, setCloudReady] = useState(false);
   const userIdRef = useRef<string | null>(null);
   const [activeCharacter, setActiveCharacterState] = useState<AiCharacter>(
     () => (localStorage.getItem(CHARACTER_KEY) as AiCharacter) || 'default'

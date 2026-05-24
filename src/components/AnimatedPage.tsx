@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { motion } from 'framer-motion';
+
 
 /**
  * Page transition wrapper.

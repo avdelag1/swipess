@@ -1,4 +1,4 @@
-import React, { useMemo, useRef } from 'react';
+import React, { useRef } from 'react';
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { ShieldCheck, MapPin, Briefcase, Globe, Sparkles } from 'lucide-react';
 import { CardTheme } from './vap-id/cardThemes';

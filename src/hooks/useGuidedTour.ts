@@ -62,7 +62,7 @@ export function useGuidedTour(steps: TourStep[] = eliteSteps) {
   const isActive = useGuidedTourActive((s) => s.isActive);
   const setActiveGlobal = useGuidedTourActive((s) => s.setActive);
   const [currentStep, setCurrentStep] = useState(0);
-  const startedRef = useRef(false);
+  const _startedRef = useRef(false);
 
   // Tour is opt-in only (triggered via restartTour). The previous auto-trigger
   // popped the welcome modal on every first dashboard visit and shifted layouts

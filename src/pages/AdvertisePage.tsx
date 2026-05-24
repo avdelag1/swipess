@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence, useMotionValue, useTransform, PanInfo } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import {
@@ -15,7 +15,7 @@ import { toast } from "@/components/ui/sonner";
 import { NativeBridge } from "@/utils/nativeBridge";
 import { RefreshCcw } from "lucide-react";
 import { getSafePaymentUrl } from '@/config/iapProducts';
-import { cn } from '@/lib/utils';
+// import { } from '@/lib/utils';
 
 // ── Pricing packages ──────────────────────────────────────────────────────────
 const PACKAGES = [
@@ -133,8 +133,8 @@ function PromoSwipeCard({
   total, 
   onDismiss, 
   onPayment,
-  isLight,
-  th,
+  _isLight,
+  _th,
 }: { 
   pkg: typeof PACKAGES[0]; 
   index: number; 

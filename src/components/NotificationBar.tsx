@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo, useCallback, memo } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
-import { X, MessageCircle, ThumbsUp, Star, UserPlus, Zap, Crown } from 'lucide-react';
+import { X } from 'lucide-react';
 import useAppTheme from '@/hooks/useAppTheme';
 import { triggerHaptic } from '@/utils/haptics';
 
