@@ -7,7 +7,7 @@ import { useClientProfile } from "@/hooks/useClientProfile";
 import { useAuth } from "@/hooks/useAuth";
 import {
   LogOut, User, Camera, Sparkles, Crown,
-  _Flame, ThumbsUp, Settings, MessageSquare, Megaphone, ChevronRight, Scale, _ShieldCheck, Zap
+  ThumbsUp, Settings, MessageSquare, Megaphone, ChevronRight, Scale, Zap
 } from "lucide-react";
 import { useClientStats } from "@/hooks/useClientStats";
 import { ActivityFeed } from "@/components/ActivityFeed";
@@ -274,7 +274,7 @@ const ClientProfile = () => {
               { label: t('nav.legal'), icon: Scale, path: '/client/legal-services' },
               { label: t('nav.settings'), icon: Settings, path: '/client/settings' },
               { label: t('actions.signOut'), icon: LogOut, path: 'signout', urgent: true },
-            ].map(btn => (
+            ].map((btn: { label: string; icon: React.ComponentType<{ className?: string }>; path: string; premium?: boolean; urgent?: boolean }) => (
               <motion.button
                 key={btn.label}
                 whileHover={{ x: 4 }}
@@ -285,15 +285,15 @@ const ClientProfile = () => {
                 }}
                 className={cn(
                   "w-full h-11 rounded-2xl flex items-center px-8 gap-5 active:scale-[0.97] transition-all border shadow-sm backdrop-blur-xl",
-                  (btn as any).urgent
+                  btn.urgent
                     ? "bg-red-500/10 border-red-500/20 text-red-400"
-                    : (btn as any).premium
+                    : btn.premium
                       ? "bg-gradient-to-r from-amber-500/15 to-orange-500/15 border-amber-500/40 text-foreground"
                       : "bg-card border-border text-foreground hover:bg-secondary"
                 )}
               >
-                <btn.icon className={cn("w-5 h-5", (btn as any).urgent ? "text-red-400" : (btn as any).premium ? "text-amber-500" : "text-foreground/80")} />
-                <span className="text-[12px] font-black uppercase tracking-[0.2em] italic">{btn.label}</span>
+                <btn.icon className={cn("w-5 h-5", btn.urgent ? "text-red-400" : btn.premium ? "text-amber-500" : "text-foreground/80")} />
+                <span className="text-xs font-black uppercase tracking-[0.2em] italic">{btn.label}</span>
               </motion.button>
             ))}
           </div>
