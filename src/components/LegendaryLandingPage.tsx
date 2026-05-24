@@ -263,6 +263,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
     }
   };
 
+  return (
     <motion.div
       key="auth"
       className="absolute inset-0 flex flex-col z-20 overflow-hidden scrollbar-none"
