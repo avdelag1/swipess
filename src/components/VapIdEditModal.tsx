@@ -2,7 +2,7 @@ import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  X, Upload, FileText, CheckCircle2, Loader2, Save,
+  X, Upload, FileText, CheckCircle2, Loader2, Save, Camera, User, Plus,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
@@ -11,6 +11,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
+import { compressImage, PROFILE_COMPRESSION } from '@/utils/imageCompression';
 
 interface Props {
   isOpen: boolean;
@@ -46,6 +47,10 @@ export function VapIdEditModal({ isOpen, onClose, role = 'client' }: Props) {
   const [yearsInCity, setYearsInCity] = useState<string>('');
   const [languages, setLanguages] = useState('');
   const [interests, setInterests] = useState('');
+  const [displayName, setDisplayName] = useState('');
+  const [age, setAge] = useState<string>('');
+  const [profileImages, setProfileImages] = useState<string[]>([]);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
 
   const profileTable = role === 'owner' ? 'owner_profiles' : 'client_profiles';
   const profileQueryKey = role === 'owner' ? 'vap-id-owner-profile' : 'vap-id-client-profile';
@@ -58,8 +63,8 @@ export function VapIdEditModal({ isOpen, onClose, role = 'client' }: Props) {
       const { data, error } = await supabase
         .from(profileTable)
         .select(role === 'owner'
-          ? 'business_name, business_description, business_location, contact_email, contact_phone'
-          : 'bio, occupation, city, country, nationality, years_in_city, languages, interests, personality_traits, preferred_activities'
+          ? 'business_name, business_description, business_location, contact_email, contact_phone, profile_images'
+          : 'bio, occupation, city, country, nationality, years_in_city, languages, interests, personality_traits, preferred_activities, name, age, profile_images'
         )
         .eq('user_id', user!.id)
         .maybeSingle();
@@ -70,8 +75,8 @@ export function VapIdEditModal({ isOpen, onClose, role = 'client' }: Props) {
 
   useEffect(() => {
     if (!profileData) return;
+    const d = profileData as any;
     if (role === 'owner') {
-      const d = profileData as any;
       setBio(d.business_description || '');
       setOccupation(d.business_name || '');
       setCity(d.business_location || '');
@@ -80,8 +85,10 @@ export function VapIdEditModal({ isOpen, onClose, role = 'client' }: Props) {
       setYearsInCity('');
       setLanguages('');
       setInterests('');
+      setDisplayName(d.business_name || '');
+      setAge('');
+      setProfileImages(Array.isArray(d.profile_images) ? d.profile_images : []);
     } else {
-      const d = profileData as any;
       setBio(d.bio || '');
       setOccupation(d.occupation || '');
       setCity(d.city || '');
@@ -90,6 +97,9 @@ export function VapIdEditModal({ isOpen, onClose, role = 'client' }: Props) {
       setYearsInCity(d.years_in_city != null ? String(d.years_in_city) : '');
       setLanguages(arrayToCsv(d.languages));
       setInterests(arrayToCsv(d.interests));
+      setDisplayName(d.name || '');
+      setAge(d.age != null ? String(d.age) : '');
+      setProfileImages(Array.isArray(d.profile_images) ? d.profile_images : []);
     }
   }, [profileData, role]);
 
@@ -148,12 +158,15 @@ export function VapIdEditModal({ isOpen, onClose, role = 'client' }: Props) {
     try {
       const baseName = user.user_metadata?.name || user.email?.split('@')[0] || 'Resident';
 
+      const finalProfileImages = profileImages.length > 0 ? profileImages : null;
+
       if (role === 'owner') {
         const ownerPayload: any = {
           user_id: user.id,
-          business_name: occupation.trim() || null,
+          business_name: displayName.trim() || occupation.trim() || null,
           business_description: bio.trim() || null,
           business_location: city.trim() || null,
+          profile_images: finalProfileImages,
         };
 
         const { error: upsertErr } = await supabase
@@ -161,15 +174,19 @@ export function VapIdEditModal({ isOpen, onClose, role = 'client' }: Props) {
           .upsert(ownerPayload, { onConflict: 'user_id' });
         if (upsertErr) throw upsertErr;
 
+        const syncPayload: any = {
+          full_name: displayName.trim() || occupation.trim() || baseName,
+          bio: bio.trim() || undefined,
+          city: city.trim() || undefined,
+        };
+        if (finalProfileImages) {
+          syncPayload.images = finalProfileImages;
+          syncPayload.avatar_url = finalProfileImages[0];
+        }
         const { error: profileSyncErr } = await supabase
           .from('profiles')
-          .update({
-            full_name: occupation.trim() || baseName,
-            bio: bio.trim() || undefined,
-            city: city.trim() || undefined,
-          })
+          .update(syncPayload)
           .eq('user_id', user.id);
-
         if (profileSyncErr) {
           console.warn('[VapIdEdit] Owner profile sync warning:', profileSyncErr);
         }
@@ -177,6 +194,8 @@ export function VapIdEditModal({ isOpen, onClose, role = 'client' }: Props) {
         const yearsNum = yearsInCity.trim() === '' ? null : Number(yearsInCity);
         const clientPayload: any = {
           user_id: user.id,
+          name: displayName.trim() || null,
+          age: age.trim() !== '' ? Number(age) : null,
           bio: bio.trim() || null,
           occupation: occupation.trim() || null,
           city: city.trim() || null,
@@ -185,6 +204,7 @@ export function VapIdEditModal({ isOpen, onClose, role = 'client' }: Props) {
           years_in_city: Number.isFinite(yearsNum as number) ? yearsNum : null,
           languages: csvToArray(languages),
           interests: csvToArray(interests),
+          profile_images: finalProfileImages,
         };
 
         const { error: upsertErr } = await supabase
@@ -192,18 +212,24 @@ export function VapIdEditModal({ isOpen, onClose, role = 'client' }: Props) {
           .upsert(clientPayload, { onConflict: 'user_id' });
         if (upsertErr) throw upsertErr;
 
+        const syncPayload: any = {
+          full_name: displayName.trim() || baseName,
+          city: city.trim() || undefined,
+          country: country.trim() || undefined,
+          nationality: nationality.trim() || undefined,
+          languages_spoken: csvToArray(languages),
+          interests: csvToArray(interests),
+        };
+        if (displayName.trim()) syncPayload.full_name = displayName.trim();
+        if (age.trim() !== '') syncPayload.age = Number(age);
+        if (finalProfileImages) {
+          syncPayload.images = finalProfileImages;
+          syncPayload.avatar_url = finalProfileImages[0];
+        }
         const { error: profileSyncErr } = await supabase
           .from('profiles')
-          .update({
-            full_name: occupation ? `${baseName} (${occupation})` : baseName,
-            city: city.trim() || undefined,
-            country: country.trim() || undefined,
-            nationality: nationality.trim() || undefined,
-            languages_spoken: csvToArray(languages),
-            interests: csvToArray(interests),
-          })
+          .update(syncPayload)
           .eq('user_id', user.id);
-
         if (profileSyncErr) {
           console.warn('[VapIdEdit] Profile sync warning:', profileSyncErr);
         }
@@ -225,7 +251,35 @@ export function VapIdEditModal({ isOpen, onClose, role = 'client' }: Props) {
     } finally {
       setSaving(false);
     }
-  }, [user?.id, bio, occupation, city, country, nationality, yearsInCity, languages, interests, role, queryClient, refetch]);
+  }, [user?.id, bio, occupation, city, country, nationality, yearsInCity, languages, interests, displayName, age, profileImages, role, queryClient, refetch]);
+
+  const handlePhotoUpload = useCallback(async () => {
+    if (!user?.id) return;
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = async (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+      setUploadingPhoto(true);
+      try {
+        const prepared = await compressImage(file, PROFILE_COMPRESSION);
+        const fileExt = prepared.type === 'image/webp' ? 'webp' : prepared.type === 'image/png' ? 'png' : 'jpg';
+        const filePath = `${user.id}/${crypto.randomUUID()}.${fileExt}`;
+        const { error: uploadErr } = await supabase.storage.from('profile-images').upload(filePath, prepared, { contentType: prepared.type || 'image/jpeg' });
+        if (uploadErr) throw uploadErr;
+        const url = supabase.storage.from('profile-images').getPublicUrl(filePath).data.publicUrl;
+        setProfileImages(prev => [...prev, url]);
+        toast.success('Photo added');
+      } catch (err: any) { toast.error(err.message || 'Upload failed'); }
+      finally { setUploadingPhoto(false); }
+    };
+    input.click();
+  }, [user?.id]);
+
+  const removePhoto = useCallback((index: number) => {
+    setProfileImages(prev => prev.filter((_, i) => i !== index));
+  }, []);
 
   const getDocStatus = (docType: string) => documents?.find(d => d.document_type === docType)?.status || 'none';
   const getDocMeta = (docType: string) => documents?.find(d => d.document_type === docType);
@@ -243,7 +297,7 @@ export function VapIdEditModal({ isOpen, onClose, role = 'client' }: Props) {
           <div className="flex items-center justify-between border-b border-border px-5 py-3 shrink-0">
             <div>
               <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary">Edit</p>
-              <h2 className="mt-0.5 text-base font-black tracking-tight text-foreground">Resident Card Settings</h2>
+              <h2 className="mt-0.5 text-base font-black tracking-tight text-foreground">{role === 'owner' ? 'Asset Card Settings' : 'Resident Card Settings'}</h2>
             </div>
             <button onClick={onClose} className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card text-muted-foreground hover:text-foreground" aria-label="Close">
               <X className="h-4 w-4" />
@@ -251,11 +305,40 @@ export function VapIdEditModal({ isOpen, onClose, role = 'client' }: Props) {
           </div>
 
           <div className="flex-1 overflow-y-auto overscroll-contain px-4 pb-32 pt-5 scroll-smooth">
+            {/* Photo */}
+            <section className="rounded-[24px] border border-border bg-card p-4 shadow-lg">
+              <div className="mb-3">
+                <p className="text-[11px] font-black uppercase tracking-[0.22em] text-primary">Photo</p>
+                <h3 className="mt-1 text-sm font-black text-foreground">Card photo</h3>
+                <p className="mt-1 text-[11px] text-muted-foreground">This photo appears on your identity card.</p>
+              </div>
+              <div className="flex gap-3 overflow-x-auto pb-2">
+                {profileImages.map((img, i) => (
+                  <div key={i} className="relative shrink-0">
+                    <div className="w-24 h-28 rounded-2xl overflow-hidden border border-border">
+                      <img src={img} alt="" className="w-full h-full object-cover" />
+                    </div>
+                    <button onClick={() => removePhoto(i)} className="absolute -top-1.5 -right-1.5 w-6 h-6 rounded-full bg-red-500 text-white flex items-center justify-center text-[10px] font-black shadow-lg">
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                ))}
+                <button
+                  onClick={handlePhotoUpload}
+                  disabled={uploadingPhoto}
+                  className="w-24 h-28 rounded-2xl border-2 border-dashed border-border flex flex-col items-center justify-center gap-1.5 hover:border-primary/50 transition-colors shrink-0"
+                >
+                  {uploadingPhoto ? <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" /> : <Camera className="w-5 h-5 text-muted-foreground" />}
+                  <span className="text-[8px] font-black uppercase tracking-widest text-muted-foreground">Add</span>
+                </button>
+              </div>
+            </section>
+
             {/* About / Bio */}
             <section className="rounded-[24px] border border-border bg-card p-4 shadow-lg">
               <div className="mb-3">
-                <p className="text-[11px] font-black uppercase tracking-[0.22em] text-primary">{role === 'owner' ? 'About Business' : 'About Me'}</p>
-                <h3 className="mt-1 text-sm font-black text-foreground">Card description</h3>
+                <p className="text-[11px] font-black uppercase tracking-[0.22em] text-primary">{role === 'owner' ? 'Business' : 'About Me'}</p>
+                <h3 className="mt-1 text-sm font-black text-foreground">Description</h3>
                 <p className="mt-1 text-[11px] text-muted-foreground">A short bio shown on the front of your card.</p>
               </div>
               <Textarea
@@ -276,9 +359,25 @@ export function VapIdEditModal({ isOpen, onClose, role = 'client' }: Props) {
                 <h3 className="mt-1 text-sm font-black text-foreground">{role === 'owner' ? 'Business info' : 'Personal info'}</h3>
               </div>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <LabeledField label={role === 'owner' ? 'Business Name' : 'Occupation'}>
-                  <Input value={occupation} onChange={(e) => setOccupation(e.target.value)} placeholder={role === 'owner' ? "Swipess Properties Inc." : "Barista, Landlord, Dev…"} maxLength={60} />
-                </LabeledField>
+                {role === 'owner' ? (
+                  <LabeledField label="Business Name">
+                    <Input value={displayName} onChange={(e) => setDisplayName(e.target.value)} placeholder="Swipess Properties Inc." maxLength={60} />
+                  </LabeledField>
+                ) : (
+                  <LabeledField label="Full Name">
+                    <Input value={displayName} onChange={(e) => setDisplayName(e.target.value)} placeholder="John Doe" maxLength={60} />
+                  </LabeledField>
+                )}
+                {role !== 'owner' && (
+                  <LabeledField label="Age">
+                    <Input value={age} inputMode="numeric" pattern="[0-9]*" onChange={(e) => setAge(e.target.value.replace(/[^0-9]/g, ''))} placeholder="25" maxLength={3} />
+                  </LabeledField>
+                )}
+                {role !== 'owner' && (
+                  <LabeledField label="Occupation">
+                    <Input value={occupation} onChange={(e) => setOccupation(e.target.value)} placeholder="Barista, Landlord, Dev…" maxLength={60} />
+                  </LabeledField>
+                )}
                 <LabeledField label={role === 'owner' ? 'Location' : 'City'}>
                   <Input value={city} onChange={(e) => setCity(e.target.value)} placeholder="Tulum" maxLength={60} />
                 </LabeledField>

@@ -10,7 +10,7 @@ import {
   LogOut, Building2, Camera, Flame, ThumbsUp, Settings, Megaphone, Scale, Coins, User, UserCircle, Crown, Sparkles, Zap, ChevronRight
 } from "lucide-react";
 import { ActivityFeed } from "@/components/ActivityFeed";
-import { VapIdCardModal } from "@/components/VapIdCardModal";
+import { VapIdEditModal } from "@/components/VapIdEditModal";
 import { HolographicIDCard } from "@/components/native/HolographicIDCard";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -322,7 +322,7 @@ const OwnerProfile = () => {
       </div>
 
       <OwnerProfileDialog open={showEditDialog} onOpenChange={setShowEditDialog} />
-      <VapIdCardModal isOpen={isVapModalOpen} onClose={() => setIsVapModalOpen(false)} role="owner" />
+      <VapIdEditModal isOpen={isVapModalOpen} onClose={() => setIsVapModalOpen(false)} role="owner" />
     </div>
   );
 };
