@@ -26,7 +26,7 @@ import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
 
-// ── CVA VARIANTS ──────────────────────────────────────────────────────────────
+// ── CVA VARIANTS ─────────────────────────────────────────────────────────
 const buttonVariants = cva(
   'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-2xl text-sm font-semibold ' +
   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ' +
@@ -45,11 +45,11 @@ const buttonVariants = cva(
         link: 'text-primary underline-offset-4 hover:underline shadow-none',
         premium: 'bg-primary text-primary-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.2),0_4px_14px_hsl(var(--primary)/0.3)] hover:brightness-110',
         tinder: 'bg-primary text-primary-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.15),0_3px_10px_hsl(var(--primary)/0.25)]',
+        // ✅ FIX: Force text-black in light theme for glassLight variant
         glass: 'text-foreground bg-foreground/5 dark:bg-white/10 backdrop-blur-2xl border border-foreground/5 dark:border-white/5',
         glassStrong: 'text-foreground bg-foreground/10 dark:bg-white/15 backdrop-blur-[32px] border border-foreground/10 dark:border-white/10',
-        glassLight: 'text-black dark:text-black bg-background/80 dark:bg-white/70 backdrop-blur-2xl border border-foreground/10 dark:border-white/20',
+        glassLight: 'text-black dark:text-white bg-white/80 dark:bg-white/70 backdrop-blur-2xl border border-black/10 dark:border-white/20',
         gradient: 'bg-primary text-primary-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.2),0_4px_14px_hsl(var(--primary)/0.3)] hover:brightness-110',
-
       },
       size: {
         default: 'h-12 px-6 py-3',
@@ -85,14 +85,14 @@ const hoverLift = {
   transition: { type: 'spring' as const, stiffness: 400, damping: 18, mass: 0.5 },
 };
 
-// ── RIPPLE TYPES ──────────────────────────────────────────────────────────────
+// ── RIPPLE TYPES ─────────────────────────────────────────────────────────
 interface RippleState {
   id: number;
   x: number;
   y: number;
 }
 
-// ── BUTTON PROPS ──────────────────────────────────────────────────────────────
+// ── BUTTON PROPS ─────────────────────────────────────────────────────────
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
@@ -232,5 +232,3 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 Button.displayName = 'Button';
 
 export { Button, buttonVariants };
-
-
