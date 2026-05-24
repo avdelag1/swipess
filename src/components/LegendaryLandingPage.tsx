@@ -253,7 +253,16 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
       triggerHaptic('error');
       if (error.errors) {
         const errs: Record<string, string> = {};
-        error.errors.forEach((e: any) => { if (e.path  return (
+        error.errors.forEach((e: any) => { if (e.path) errs[e.path[0]] = e.message; });
+        setFieldErrors(errs);
+      } else {
+        toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
     <motion.div
       key="auth"
       className="absolute inset-0 flex flex-col z-20 overflow-hidden scrollbar-none"
@@ -285,23 +294,6 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
         {isForgotPassword && (
           <motion.div className="w-full mb-6 text-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             <p className="text-[10px] font-black tracking-[0.3em] text-white/50 uppercase italic">Security Protocol — Reset</p>
-          </motion.div>
-        )}triggerHaptic('light'); setIsLogin(false); setFieldErrors({}); }}
-              className={cn(
-                "flex-1 h-12 rounded-[1.8rem] font-black uppercase tracking-[0.2em] text-[10px] transition-all active:scale-[0.97]",
-                !isLogin
-                  ? "bg-gradient-to-b from-[#FF4D4D] to-[#E01E2A] text-white shadow-[0_10px_30px_rgba(224,30,42,0.4)]"
-                  : "text-white/30 hover:text-white/50"
-              )}
-            >
-              Sign Up
-            </button>
-          </motion.div>
-        )}
-
-        {isForgotPassword && (
-          <motion.div className="w-full mb-6 text-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-            <p className="text-[10px] font-black tracking-[0.3em] text-white/50 uppercase italic">Security Protocol â€” Reset</p>
           </motion.div>
         )}
 
