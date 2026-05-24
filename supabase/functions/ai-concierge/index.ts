@@ -322,11 +322,11 @@ async function searchListings(intent: ReturnType<typeof detectListingIntent>): P
 
 
     // Deduplicate by ID
-    let data = Array.from(new Map(finalResults.map(item => [item.id, item])).values());
+    let results = Array.from(new Map(data.map(item => [item.id, item])).values());
     
     // FALLBACK LOGIC: If no specific results found, bring the latest 3 listings regardless of filters
     // This ensures we always show "something" to keep the user engaged in test mode.
-    if ((!data || data.length === 0) && intent.isListing) {
+    if ((!results || results.length === 0) && intent.isListing) {
       console.log("[AI] No specific listings found, using fallback broad search");
       const { data: fallbackData } = await supabase
         .from("listings")
@@ -334,17 +334,17 @@ async function searchListings(intent: ReturnType<typeof detectListingIntent>): P
         .eq("is_active", true)
         .limit(3)
         .order("created_at", { ascending: false });
-      data = fallbackData || [];
+      results = fallbackData || [];
     }
 
-    if (!data || data.length === 0) return "";
+    if (!results || results.length === 0) return "";
 
     const seedIds = new Set([
       "00000000-0000-0000-0000-000000000000",
       "00000000-0000-0000-0000-000000000001",
     ]);
     const isSeedListing = (l: any) => seedIds.has(l.owner_id || l.user_id) || /^[abc]1111111-|^b2222222-|^c3333333-/.test(l.id || "");
-    const sortedListings = [...data].sort((a: any, b: any) => {
+    const sortedListings = [...results].sort((a: any, b: any) => {
       const realRank = Number(isSeedListing(a)) - Number(isSeedListing(b));
       if (realRank !== 0) return realRank;
       return new Date(b.updated_at || b.created_at || 0).getTime() - new Date(a.updated_at || a.created_at || 0).getTime();
