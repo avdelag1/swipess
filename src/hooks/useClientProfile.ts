@@ -233,10 +233,6 @@ export function useSaveClientProfile() {
         syncPayload.work_schedule = updates.work_schedule;
       }
 
-      if (updates.occupation !== undefined) {
-        syncPayload.occupation = updates.occupation;
-      }
-
       // Build lifestyle_tags from interests + preferred_activities + personality traits
       const lifestyleTags: string[] = [];
       if (updates.interests) lifestyleTags.push(...updates.interests);
