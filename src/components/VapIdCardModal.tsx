@@ -49,7 +49,7 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
       if (!user?.id) return null;
       const { data, error } = await supabase
         .from('client_profiles')
-        .select('bio, occupation, nationality, city, years_in_city, languages, interests, personality_traits, preferred_activities')
+        .select('bio, occupation, country, nationality, city, years_in_city, languages, interests, personality_traits, preferred_activities')
 
         .eq('user_id', user!.id)
         .maybeSingle();
@@ -79,7 +79,7 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
   const name = profile?.full_name || user?.email?.split('@')[0] || 'Resident';
   const _nationality = clientProfile?.nationality || profile?.nationality || '';
   const city = clientProfile?.city || profile?.city || '';
-  const country = profile?.country || '';
+  const country = (clientProfile as any)?.country || profile?.country || '';
   const bio = clientProfile?.bio || '';
   const occupation = (clientProfile as any)?.occupation || '';
   const avatarUrl = profile?.avatar_url || '';

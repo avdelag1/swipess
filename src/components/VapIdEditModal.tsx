@@ -40,6 +40,7 @@ export function VapIdEditModal({ isOpen, onClose }: Props) {
   const [bio, setBio] = useState('');
   const [occupation, setOccupation] = useState('');
   const [city, setCity] = useState('');
+  const [country, setCountry] = useState('');
   const [nationality, setNationality] = useState('');
   const [yearsInCity, setYearsInCity] = useState<string>('');
   const [languages, setLanguages] = useState('');
@@ -52,7 +53,7 @@ export function VapIdEditModal({ isOpen, onClose }: Props) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('client_profiles')
-        .select('bio, occupation, city, nationality, years_in_city, languages, interests, personality_traits, preferred_activities')
+        .select('bio, occupation, city, country, nationality, years_in_city, languages, interests, personality_traits, preferred_activities')
         .eq('user_id', user!.id)
         .maybeSingle();
       if (error) throw error;
@@ -65,6 +66,7 @@ export function VapIdEditModal({ isOpen, onClose }: Props) {
     setBio(clientProfile.bio || '');
     setOccupation((clientProfile as any).occupation || '');
     setCity(clientProfile.city || '');
+    setCountry((clientProfile as any).country || '');
     setNationality(clientProfile.nationality || '');
     setYearsInCity(clientProfile.years_in_city != null ? String(clientProfile.years_in_city) : '');
     setLanguages(arrayToCsv(clientProfile.languages));
@@ -130,65 +132,52 @@ export function VapIdEditModal({ isOpen, onClose }: Props) {
         bio: bio.trim() || null,
         occupation: occupation.trim() || null,
         city: city.trim() || null,
+        country: country.trim() || null,
         nationality: nationality.trim() || null,
         years_in_city: Number.isFinite(yearsNum as number) ? yearsNum : null,
         languages: csvToArray(languages),
         interests: csvToArray(interests),
       };
 
-      const { data: existing, error: selectErr } = await supabase
+      // Atomic upsert: one call, no race conditions, no RLS edge cases
+      const { error: upsertErr } = await supabase
         .from('client_profiles')
-        .select('id')
-        .eq('user_id', user.id)
-        .maybeSingle();
-      if (selectErr) throw selectErr;
+        .upsert(payload, { onConflict: 'user_id' });
+      if (upsertErr) throw upsertErr;
 
-      if (existing?.id) {
-        const updatePayload = { ...payload };
-        delete updatePayload.user_id;
-
-        const { error: updateErr } = await supabase
-          .from('client_profiles')
-          .update(updatePayload)
-          .eq('user_id', user.id);
-        if (updateErr) throw updateErr;
-      } else {
-        const { error: insertErr } = await supabase
-          .from('client_profiles')
-          .insert(payload as any);
-        if (insertErr) throw insertErr;
-      }
-
-      // 🚀 SWIPESS SYNC: Ensure main profiles table stays in sync for the ID Card rendering
+      // Sync to profiles table so ID card location display works
       const baseName = user.user_metadata?.name || user.email?.split('@')[0] || 'Resident';
       const { error: profileSyncErr } = await supabase
         .from('profiles')
         .update({
           full_name: occupation ? `${baseName} (${occupation})` : baseName,
           city: city.trim() || undefined,
+          country: country.trim() || undefined,
           nationality: nationality.trim() || undefined,
           languages_spoken: csvToArray(languages),
           interests: csvToArray(interests),
         })
         .eq('user_id', user.id);
-      
+
       if (profileSyncErr) {
-        console.warn('Profile sync warning:', profileSyncErr);
+        console.warn('[VapIdEdit] Profile sync warning:', profileSyncErr);
       }
+
+      // Invalidate ALL card-display queries so changes reflect immediately
+      queryClient.invalidateQueries({ queryKey: ['vap-id-client-profile', user.id] });
+      queryClient.invalidateQueries({ queryKey: ['vap-id-profile', user.id] });
+      queryClient.invalidateQueries({ queryKey: ['client-profile-own', user.id] });
+      queryClient.invalidateQueries({ queryKey: ['vap-documents', user.id] });
+
+      toast.success('Card saved');
+      onClose();
     } catch (err: any) {
       console.error('[VapIdEdit] save failed', err);
       toast.error(err?.message || 'Failed to save');
     } finally {
       setSaving(false);
-      // Invalidate ALL card-display queries so the VAP card reflects changes immediately
-      queryClient.invalidateQueries({ queryKey: ['vap-id-client-profile', user.id] });
-      queryClient.invalidateQueries({ queryKey: ['vap-id-profile', user.id] });
-      queryClient.invalidateQueries({ queryKey: ['client-profile-own', user.id] });
-      queryClient.invalidateQueries({ queryKey: ['vap-documents', user.id] });
-      toast.success('Card saved');
-      onClose();
     }
-  }, [user?.id, bio, occupation, city, nationality, yearsInCity, languages, interests, queryClient, refetch]);
+  }, [user?.id, bio, occupation, city, country, nationality, yearsInCity, languages, interests, queryClient, refetch]);
 
   const getDocStatus = (docType: string) => documents?.find(d => d.document_type === docType)?.status || 'none';
   const getDocMeta = (docType: string) => documents?.find(d => d.document_type === docType);
@@ -247,6 +236,9 @@ export function VapIdEditModal({ isOpen, onClose }: Props) {
                 </LabeledField>
                 <LabeledField label="Nationality">
                   <Input value={nationality} onChange={(e) => setNationality(e.target.value)} placeholder="Mexican" maxLength={40} />
+                </LabeledField>
+                <LabeledField label="Country">
+                  <Input value={country} onChange={(e) => setCountry(e.target.value)} placeholder="Mexico" maxLength={60} />
                 </LabeledField>
                 <LabeledField label="Years in city">
                   <Input value={yearsInCity} inputMode="numeric" pattern="[0-9]*" onChange={(e) => setYearsInCity(e.target.value.replace(/[^0-9]/g, ''))} placeholder="3" maxLength={2} />
