@@ -175,21 +175,18 @@ export function VapIdEditModal({ isOpen, onClose }: Props) {
       if (profileSyncErr) {
         console.warn('Profile sync warning:', profileSyncErr);
       }
-
-      await queryClient.invalidateQueries({ queryKey: ['vap-id-client-profile', user.id] });
-      await queryClient.invalidateQueries({ queryKey: ['vap-id-profile', user.id] });
-      await queryClient.invalidateQueries({ queryKey: ['client-profile-own', user.id] });
-      await refetch();
-      // Also make sure the underlying supabase auth user is refetched so
-      // any profile page that reads user metadata sees the latest data.
-      await queryClient.invalidateQueries({ queryKey: ['vap-documents', user.id] });
-      toast.success('Card saved');
-      onClose();
     } catch (err: any) {
       console.error('[VapIdEdit] save failed', err);
       toast.error(err?.message || 'Failed to save');
     } finally {
       setSaving(false);
+      // Invalidate ALL card-display queries so the VAP card reflects changes immediately
+      queryClient.invalidateQueries({ queryKey: ['vap-id-client-profile', user.id] });
+      queryClient.invalidateQueries({ queryKey: ['vap-id-profile', user.id] });
+      queryClient.invalidateQueries({ queryKey: ['client-profile-own', user.id] });
+      queryClient.invalidateQueries({ queryKey: ['vap-documents', user.id] });
+      toast.success('Card saved');
+      onClose();
     }
   }, [user?.id, bio, occupation, city, nationality, yearsInCity, languages, interests, queryClient, refetch]);
 

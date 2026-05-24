@@ -175,24 +175,20 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
   // Memoized so background-card filter doesn't recompute on every render → no flicker.
     const { stackY, stackScale, stackOpacity, stackedFilter } = useMemo(() => ({
       stackY: 0,
-      // All cards are full scale — we removed the `1 - (index * 0.045)` variation
-      // because when a card transitions from non-top to top, the scale animate
-      // from e.g. 0.955 to 1 caused a visible pop flash (same bug pattern as
-      // nextCardOpacity/nextCardScale in the other swipe containers).
-      // Depth is achieved through brightness + blur below.
+      // All cards are full scale — scale variation caused a visible pop when
+      // a card transitioned from non-top (e.g. 0.955) to top (undefined = 1).
       stackScale: 1,
-      // All cards are fully opaque — scale + brightness/blur provide plenty
-      // of visual depth. Animating opacity caused a visible flash when a card
-      // transitioned from underneath to the top position.
+      // All cards fully opaque — depth comes from brightness + blur below.
       stackOpacity: 1,
-      // 🚀 Blur is GPU-expensive — drop it on low-end devices and rely on
-      // brightness + scale + opacity for depth. On capable devices we still
-      // apply a smaller blur (was 1.2px per index → now 0.6px capped at 2px).
+      // EVERY card gets an explicit filter, including the top card, so when
+      // a card transitions from background to top there is NO filter snap.
+      // The gradient is deliberately shallow so the change is imperceptible
+      // at the transition point. Depth: brightness dims + subtle blur.
       stackedFilter: isTop
-        ? undefined
+        ? 'brightness(0.98)'
         : _isLowEndDevice
-          ? `brightness(${0.92 - index * 0.08})`
-          : `brightness(${0.92 - index * 0.08}) blur(${Math.min(2, index * 0.6)}px)`,
+          ? `brightness(${0.96 - index * 0.035})`
+          : `brightness(${0.96 - index * 0.035}) blur(${Math.min(1.0, index * 0.25)}px)`,
     }), [index, isTop]);
 
   if (index > 7) return null;
@@ -236,11 +232,11 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
         triggerHaptic('medium');
         onSelect(card.id);
       }}
-      initial={isTop ? { y: 60, opacity: 0, scale: 0.95 } : false}
+      initial={false}
       animate={{
         y: stackY,
         opacity: stackOpacity,
-        scale: isTop ? undefined : stackScale,
+        scale: stackScale,
         zIndex: 100 - index,
       }}
       style={{
