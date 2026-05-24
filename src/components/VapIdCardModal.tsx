@@ -9,6 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { CARD_THEMES } from './vap-id/cardThemes';
 import { VapIdEditModal } from './VapIdEditModal';
 import { useEffect } from 'react';
+import { cn } from '@/lib/utils';
 
 export interface VapIdProps {
   isOpen: boolean;
@@ -129,24 +130,33 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
               <button
                 onClick={cycleTheme}
                 aria-label="Change card color"
-                className="h-11 w-11 flex items-center justify-center rounded-full bg-white border border-black/10 shadow-lg active:scale-95 transition"
+                className={cn(
+                  "h-11 w-11 flex items-center justify-center rounded-full border shadow-lg active:scale-95 transition",
+                  theme.isDark ? "bg-zinc-800 border-white/10" : "bg-white border-black/10"
+                )}
               >
-                <Droplets className="h-5 w-5 text-black" strokeWidth={2.6} />
+                <Droplets className={cn("h-5 w-5", theme.isDark ? "text-white" : "text-black")} strokeWidth={2.6} />
               </button>
               <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-white/90 flex-1 text-center truncate">{theme.name}</span>
               <button
                 onClick={() => setEditOpen(true)}
                 aria-label="Edit identity"
-                className="h-11 w-11 flex items-center justify-center rounded-full bg-white border border-black/10 shadow-lg active:scale-95 transition"
+                className={cn(
+                  "h-11 w-11 flex items-center justify-center rounded-full border shadow-lg active:scale-95 transition",
+                  theme.isDark ? "bg-zinc-800 border-white/10" : "bg-white border-black/10"
+                )}
               >
-                <Pencil className="h-5 w-5 text-black" strokeWidth={2.6} />
+                <Pencil className={cn("h-5 w-5", theme.isDark ? "text-white" : "text-black")} strokeWidth={2.6} />
               </button>
               <button
                 onClick={onClose}
                 aria-label="Close card"
-                className="h-11 w-11 flex items-center justify-center rounded-full bg-white border border-black/10 shadow-lg active:scale-95 transition"
+                className={cn(
+                  "h-11 w-11 flex items-center justify-center rounded-full border shadow-lg active:scale-95 transition",
+                  theme.isDark ? "bg-zinc-800 border-white/10" : "bg-white border-black/10"
+                )}
               >
-                <X className="h-5 w-5 text-black" strokeWidth={2.8} />
+                <X className={cn("h-5 w-5", theme.isDark ? "text-white" : "text-black")} strokeWidth={2.8} />
               </button>
             </div>
 
