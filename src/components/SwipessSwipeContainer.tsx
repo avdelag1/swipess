@@ -263,16 +263,13 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
   // Behind-card preview reacts only to HORIZONTAL drag (like/pass).
   // Vertical browse should feel like a page-turn — the next card stays
   // hidden underneath until the top card commits and the new top paints.
+  // Always keep the underneath card fully sized and opaque so it never
+  // flashes when flushPendingSwipe resets topCardX→0 synchronously before
+  // the re-render (which would snap the next card's transform back to 0.97).
   const nextCardScale = useTransform(
     [topCardX, topCardY] as any,
-    ([cx, _cy]: any) => {
-      const t = Math.min(1, Math.abs(cx) / 280);
-      return 0.97 + 0.03 * t;
-    }
+    () => 1
   );
-  // Always keep the underneath card visible so it never flashes a black
-  // frame when the top card flies off. Only the scale animates during drag
-  // for the parallax peek effect.
   const nextCardOpacity = useTransform(
     [topCardX, topCardY] as any,
     () => 1

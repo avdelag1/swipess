@@ -178,8 +178,11 @@ export function VapIdEditModal({ isOpen, onClose }: Props) {
 
       await queryClient.invalidateQueries({ queryKey: ['vap-id-client-profile', user.id] });
       await queryClient.invalidateQueries({ queryKey: ['vap-id-profile', user.id] });
-      await queryClient.invalidateQueries({ queryKey: ['client-profile-own'] });
+      await queryClient.invalidateQueries({ queryKey: ['client-profile-own', user.id] });
       await refetch();
+      // Also make sure the underlying supabase auth user is refetched so
+      // any profile page that reads user metadata sees the latest data.
+      await queryClient.invalidateQueries({ queryKey: ['vap-documents', user.id] });
       toast.success('Card saved');
       onClose();
     } catch (err: any) {

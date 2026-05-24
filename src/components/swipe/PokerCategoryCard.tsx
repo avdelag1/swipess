@@ -157,8 +157,6 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
         ease: [0.32, 0, 0.67, 0],
         onComplete: () => {
           onCycle(card.id, direction);
-          x.set(0);
-          y.set(0);
           axisRef.current = null;
           setIsDragging(false);
         }

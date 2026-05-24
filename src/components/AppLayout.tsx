@@ -186,8 +186,7 @@ export function AppLayout({ children }: AppLayoutProps) {
     return isCamera || isRadio || showAIChat || showAIListing || showAIProfile || isSwipeDashboard || isRoommates || isMessages || isEvents;
   }, [location.pathname, showAIChat, showAIListing, showAIProfile, isSwipeDashboard]);
 
-  const isMessages = location.pathname.startsWith('/messages');
-  const showAppChrome = !isAuthRoute && !isRadioRoute && !isCameraRoute && !showAIChat && !showAIListing && !showAIProfile && !isEventsRoute && (!isPublicPreview || !!user) && !isMessages;
+  const showAppChrome = !isAuthRoute && !isRadioRoute && !isCameraRoute && !showAIChat && !showAIListing && !showAIProfile && !isEventsRoute && (!isPublicPreview || !!user);
 
   const handleFilterClick = () => {
     if (isRoommatesRoute) {

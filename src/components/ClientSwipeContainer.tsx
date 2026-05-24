@@ -326,25 +326,18 @@ const ClientSwipeContainerComponent = ({
   const topCardX = useMotionValue(0);
   const topCardY = useMotionValue(0);
 
-  // Next card scales up and brightens as the top card is dragged away.
+  // Always keep the underneath card fully sized and opaque so the card
+  // underneath never flashes when the top card exits and motion values reset.
+  // The slight parallax scale/opacity shift was causing a visible pop because
+  // flushPendingSwipe resets topCardX→0 synchronously before the re-render,
+  // snapping the next card's transform before it becomes the top card.
   const nextCardScale = useTransform(
     [topCardX, topCardY] as any,
-    ([cx, cy]: any) => {
-      const a = Math.min(1, Math.abs(cx) / 280);
-      const b = Math.min(1, Math.abs(cy) / 240);
-      const t = Math.max(a, b);
-      // resting at 0.97, rising to 1.0 as the top card leaves
-      return 0.97 + 0.03 * t;
-    }
+    () => 1
   );
   const nextCardOpacity = useTransform(
     [topCardX, topCardY] as any,
-    ([cx, cy]: any) => {
-      const a = Math.min(1, Math.abs(cx) / 280);
-      const b = Math.min(1, Math.abs(cy) / 240);
-      const t = Math.max(a, b);
-      return 0.72 + 0.26 * t;
-    }
+    () => 1
   );
   // ─────────────────────────────────────────────────────────────────────────
 
