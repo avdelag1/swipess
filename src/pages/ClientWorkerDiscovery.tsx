@@ -21,12 +21,7 @@ import { ConnectingOverlay } from '@/components/ConnectingOverlay';
 // 🚀 SWIPESS: Explicit field selection to minimize payload
 const WORKER_FIELDS = `
   id, title, description, price, images, city, service_category, 
-  pricing_unit, experience_years, availability, owner_id, created_at, status,
-  owner:profiles!listings_owner_id_fkey (
-    user_id,
-    full_name,
-    avatar_url
-  )
+  pricing_unit, experience_years, availability, owner_id, created_at, status
 `;
 
 function useWorkerListings(serviceTypeFilter?: string, pricingFilter?: string) {
@@ -47,7 +42,49 @@ function useWorkerListings(serviceTypeFilter?: string, pricingFilter?: string) {
 
       const { data: listings, error } = await query;
       if (error) throw error;
-      return (listings || []) as unknown as WorkerListing[];
+
+      const workerListings = (listings || []) as unknown as WorkerListing[];
+      const ownerIds = Array.from(new Set(
+        workerListings
+          .map((w) => w.owner_id)
+          .filter((id): id is string => typeof id === 'string' && id.length > 0)
+      ));
+
+      if (ownerIds.length === 0) return workerListings;
+
+      const [{ data: ownerProfiles }, { data: profileRows }] = await Promise.all([
+        supabase
+          .from('owner_profiles')
+          .select('user_id, business_name, profile_images')
+          .in('user_id', ownerIds),
+        supabase
+          .from('profiles')
+          .select('user_id, full_name, avatar_url')
+          .in('user_id', ownerIds),
+      ]);
+
+      const ownerMap = new Map<string, { full_name: string | null; avatar_url: string | null }>();
+      for (const profileRow of profileRows || []) {
+        ownerMap.set((profileRow as any).user_id, {
+          full_name: (profileRow as any).full_name || null,
+          avatar_url: (profileRow as any).avatar_url || null,
+        });
+      }
+
+      for (const ownerProfile of ownerProfiles || []) {
+        const ownerImage = Array.isArray((ownerProfile as any).profile_images)
+          ? (ownerProfile as any).profile_images.find((v: unknown): v is string => typeof v === 'string' && v.length > 0)
+          : null;
+        ownerMap.set((ownerProfile as any).user_id, {
+          full_name: (ownerProfile as any).business_name || ownerMap.get((ownerProfile as any).user_id)?.full_name || null,
+          avatar_url: ownerImage || ownerMap.get((ownerProfile as any).user_id)?.avatar_url || null,
+        });
+      }
+
+      return workerListings.map((worker) => ({
+        ...worker,
+        owner: ownerMap.get(worker.owner_id) || null,
+      }));
     },
   });
 }
@@ -263,5 +300,4 @@ export default function ClientWorkerDiscovery() {
     </div>
   );
 }
-
 

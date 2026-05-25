@@ -55,12 +55,26 @@ export function PropertyDetails({ listingId, isOpen, onClose, onMessageClick }: 
       // Step 2: Fetch the owner profile separately (no FK constraint exists)
       let ownerProfile = null;
       if (data.owner_id) {
-        const { data: profileData } = await supabase
-          .from('profiles')
-          .select('full_name, avatar_url')
-          .eq('user_id', data.owner_id)
-          .maybeSingle();
-        ownerProfile = profileData;
+        const [{ data: ownerData }, { data: profileData }] = await Promise.all([
+          supabase
+            .from('owner_profiles')
+            .select('business_name, profile_images')
+            .eq('user_id', data.owner_id)
+            .maybeSingle(),
+          supabase
+            .from('profiles')
+            .select('full_name, avatar_url')
+            .eq('user_id', data.owner_id)
+            .maybeSingle(),
+        ]);
+
+        const ownerImage = Array.isArray((ownerData as any)?.profile_images)
+          ? (ownerData as any).profile_images.find((v: unknown): v is string => typeof v === 'string' && v.length > 0)
+          : null;
+        ownerProfile = {
+          full_name: (ownerData as any)?.business_name || profileData?.full_name || '',
+          avatar_url: ownerImage || profileData?.avatar_url || '',
+        };
       }
 
       return { ...data, profiles: ownerProfile || { full_name: '', avatar_url: '' } } as Listing & { profiles: { full_name: string; avatar_url: string } };
@@ -278,5 +292,3 @@ export function PropertyDetails({ listingId, isOpen, onClose, onMessageClick }: 
     </Dialog>
   );
 }
-
-

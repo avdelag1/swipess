@@ -1,12 +1,11 @@
-import React, { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ShieldCheck, MapPin, Droplets, ScanLine, Pencil, Phone, Languages } from 'lucide-react';
+import { X, ShieldCheck, MapPin, Droplets, Pencil, Languages } from 'lucide-react';
 import QRCode from 'react-qr-code';
 import { useAuth } from '@/hooks/useAuth';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import useAppTheme from '@/hooks/useAppTheme';
 import { CARD_THEMES } from './vap-id/cardThemes';
 import { VapIdEditModal } from './VapIdEditModal';
 import { useEffect } from 'react';
@@ -25,22 +24,6 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
 
   const cycleTheme = () => setThemeIndex((i) => (i + 1) % CARD_THEMES.length);
 
-  const { data: profile } = useQuery({
-    queryKey: ['vap-id-profile', user?.id],
-    enabled: !!user?.id && isOpen,
-    staleTime: 0,
-    queryFn: async () => {
-      if (!user?.id) return null;
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('full_name, avatar_url, nationality, city, country, languages_spoken, phone')
-        .eq('user_id', user!.id)
-        .maybeSingle();
-      if (error) throw error;
-      return data;
-    },
-  });
-
   const { data: clientProfile } = useQuery({
     queryKey: ['vap-id-client-profile', user?.id],
     enabled: !!user?.id && isOpen,
@@ -49,8 +32,7 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
       if (!user?.id) return null;
       const { data, error } = await supabase
         .from('client_profiles')
-        .select('bio, occupation, nationality, city, years_in_city, languages, interests, personality_traits, preferred_activities')
-
+        .select('name, bio, occupation, nationality, city, country, years_in_city, languages, interests, personality_traits, preferred_activities, profile_images')
         .eq('user_id', user!.id)
         .maybeSingle();
       if (error) throw error;
@@ -58,14 +40,11 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
     },
   });
 
-  // REALTIME: live-refresh the card whenever either profile row changes
+  // REALTIME: live-refresh the card whenever the client profile row changes
   useEffect(() => {
     if (!user?.id || !isOpen) return;
     const channel = supabase
       .channel(`vap-id-card-${user.id}`)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles', filter: `user_id=eq.${user.id}` }, () => {
-        queryClient.invalidateQueries({ queryKey: ['vap-id-profile', user.id] });
-      })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'client_profiles', filter: `user_id=eq.${user.id}` }, () => {
         queryClient.invalidateQueries({ queryKey: ['vap-id-client-profile', user.id] });
       })
@@ -76,30 +55,30 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
     };
   }, [user?.id, isOpen, queryClient]);
 
-  const name = profile?.full_name || user?.email?.split('@')[0] || 'Resident';
-  const nationality = clientProfile?.nationality || profile?.nationality || '';
-  const city = clientProfile?.city || profile?.city || '';
-  const country = profile?.country || '';
+  const name = clientProfile?.name
+    || user?.email?.split('@')[0]
+    || 'Resident';
+  const city = clientProfile?.city || '';
+  const country = (clientProfile as any)?.country || '';
   const bio = clientProfile?.bio || '';
   const occupation = (clientProfile as any)?.occupation || '';
-  const avatarUrl = profile?.avatar_url || '';
-  const phone = profile?.phone || '';
+  const avatarUrl = Array.isArray((clientProfile as any)?.profile_images) && (clientProfile as any).profile_images.length > 0
+    ? (clientProfile as any).profile_images[0]
+    : '';
 
   const spokenLanguages = useMemo(() => {
-    // Prefer client_profiles.languages (what the Edit modal writes); fall back to profiles.languages_spoken
     const clientLangs = (clientProfile as any)?.languages;
-    const raw = Array.isArray(clientLangs) && clientLangs.length > 0
-      ? clientLangs
-      : profile?.languages_spoken;
+    const raw = Array.isArray(clientLangs) ? clientLangs : [];
     if (Array.isArray(raw)) return raw.filter((v): v is string => typeof v === 'string');
     return [];
-  }, [clientProfile, profile?.languages_spoken]);
+  }, [clientProfile]);
 
   const allTags = useMemo(() => {
     const tags: string[] = [];
     const add = (arr: any) => { if (Array.isArray(arr)) tags.push(...arr.filter(v => typeof v === 'string')); };
     add(clientProfile?.interests);
     add(clientProfile?.personality_traits);
+    add(clientProfile?.preferred_activities);
     return [...new Set(tags)].slice(0, 8);
   }, [clientProfile]);
 
@@ -187,20 +166,12 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
                 {bio && <div className="rounded-[1.5rem] p-6 mb-8 border" style={{ background: `${theme.tagBg}44`, border: `1px solid ${theme.tagBorder}` }}><p className="text-[14px] leading-relaxed italic font-medium" style={{ color: theme.textSecondary }}>{bio}</p></div>}
 
                 <div className="space-y-6 flex-1 flex flex-col">
-                  {(spokenLanguages.length > 0 || phone) && (
+                  {spokenLanguages.length > 0 && (
                     <div className="flex flex-col gap-2">
-                      {spokenLanguages.length > 0 && (
-                        <div className="flex items-center gap-2 text-[13px] font-bold uppercase tracking-widest" style={{ color: theme.textSecondary }}>
-                          <Languages size={16} />
-                          <span className="truncate">{spokenLanguages.join(' · ')}</span>
-                        </div>
-                      )}
-                      {phone && (
-                        <div className="flex items-center gap-2 text-[13px] font-bold uppercase tracking-widest" style={{ color: theme.textSecondary }}>
-                          <Phone size={16} />
-                          <span>{phone}</span>
-                        </div>
-                      )}
+                      <div className="flex items-center gap-2 text-[13px] font-bold uppercase tracking-widest" style={{ color: theme.textSecondary }}>
+                        <Languages size={16} />
+                        <span className="truncate">{spokenLanguages.join(' · ')}</span>
+                      </div>
                     </div>
                   )}
 

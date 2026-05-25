@@ -2,7 +2,7 @@ import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  X, Upload, FileText, CheckCircle2, Loader2, Save,
+  X, Upload, FileText, CheckCircle2, Loader2, Save, ImagePlus,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
@@ -11,6 +11,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
+import { compressImage, PROFILE_COMPRESSION } from '@/utils/imageCompression';
 
 interface Props {
   isOpen: boolean;
@@ -36,14 +37,18 @@ export function VapIdEditModal({ isOpen, onClose }: Props) {
   const queryClient = useQueryClient();
   const [uploading, setUploading] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [photoUploading, setPhotoUploading] = useState(false);
 
+  const [name, setName] = useState('');
   const [bio, setBio] = useState('');
   const [occupation, setOccupation] = useState('');
   const [city, setCity] = useState('');
+  const [country, setCountry] = useState('');
   const [nationality, setNationality] = useState('');
   const [yearsInCity, setYearsInCity] = useState<string>('');
   const [languages, setLanguages] = useState('');
   const [interests, setInterests] = useState('');
+  const [profileImages, setProfileImages] = useState<string[]>([]);
 
   const { data: clientProfile, refetch } = useQuery({
     queryKey: ['vap-id-client-profile', user?.id],
@@ -52,7 +57,7 @@ export function VapIdEditModal({ isOpen, onClose }: Props) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('client_profiles')
-        .select('bio, occupation, city, nationality, years_in_city, languages, interests, personality_traits, preferred_activities')
+        .select('name, bio, occupation, city, country, nationality, years_in_city, languages, interests, personality_traits, preferred_activities, profile_images')
         .eq('user_id', user!.id)
         .maybeSingle();
       if (error) throw error;
@@ -62,13 +67,18 @@ export function VapIdEditModal({ isOpen, onClose }: Props) {
 
   useEffect(() => {
     if (!clientProfile) return;
+    setName((clientProfile as any).name || '');
     setBio(clientProfile.bio || '');
     setOccupation((clientProfile as any).occupation || '');
     setCity(clientProfile.city || '');
+    setCountry((clientProfile as any).country || '');
     setNationality(clientProfile.nationality || '');
     setYearsInCity(clientProfile.years_in_city != null ? String(clientProfile.years_in_city) : '');
     setLanguages(arrayToCsv(clientProfile.languages));
     setInterests(arrayToCsv(clientProfile.interests));
+    setProfileImages(Array.isArray((clientProfile as any).profile_images)
+      ? (clientProfile as any).profile_images.filter((v: unknown): v is string => typeof v === 'string' && v.length > 0)
+      : []);
   }, [clientProfile]);
 
   const { data: documents } = useQuery({
@@ -120,6 +130,46 @@ export function VapIdEditModal({ isOpen, onClose }: Props) {
     input.click();
   }, [user?.id, queryClient]);
 
+  const handlePhotoUpload = useCallback(async () => {
+    if (!user?.id) return;
+
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = async (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+      if (file.size > 10 * 1024 * 1024) {
+        toast.error('Photo too large (max 10MB)');
+        return;
+      }
+
+      setPhotoUploading(true);
+      try {
+        const prepared = await compressImage(file, PROFILE_COMPRESSION);
+        const fileExt = prepared.type === 'image/webp' ? 'webp' : prepared.type === 'image/png' ? 'png' : 'jpg';
+        const path = `${user.id}/vap_${crypto.randomUUID()}.${fileExt}`;
+
+        const { error: uploadErr } = await supabase.storage
+          .from('profile-images')
+          .upload(path, prepared, { contentType: prepared.type || 'image/jpeg' });
+        if (uploadErr) throw uploadErr;
+
+        const { data } = supabase.storage.from('profile-images').getPublicUrl(path);
+        if (!data?.publicUrl) throw new Error('Could not get uploaded photo URL');
+
+        setProfileImages((prev) => [data.publicUrl, ...prev].slice(0, 6));
+        toast.success('Photo uploaded');
+      } catch (err: any) {
+        toast.error(err?.message || 'Photo upload failed');
+      } finally {
+        setPhotoUploading(false);
+      }
+    };
+
+    input.click();
+  }, [user?.id]);
+
   const handleSave = useCallback(async () => {
     if (!user?.id) { toast.error('Not signed in'); return; }
     setSaving(true);
@@ -127,13 +177,16 @@ export function VapIdEditModal({ isOpen, onClose }: Props) {
       const yearsNum = yearsInCity.trim() === '' ? null : Number(yearsInCity);
       const payload: any = {
         user_id: user.id,
+        name: name.trim() || null,
         bio: bio.trim() || null,
         occupation: occupation.trim() || null,
         city: city.trim() || null,
+        country: country.trim() || null,
         nationality: nationality.trim() || null,
         years_in_city: Number.isFinite(yearsNum as number) ? yearsNum : null,
         languages: csvToArray(languages),
         interests: csvToArray(interests),
+        profile_images: profileImages,
       };
 
       const { data: existing, error: selectErr } = await supabase
@@ -159,17 +212,19 @@ export function VapIdEditModal({ isOpen, onClose }: Props) {
         if (insertErr) throw insertErr;
       }
 
-      // 🚀 SWIPESS SYNC: Ensure main profiles table stays in sync for the ID Card rendering
+      // Keep universal profile in sync for shared app surfaces.
       const { error: profileSyncErr } = await supabase
         .from('profiles')
         .update({
-          full_name: occupation
-            ? `${profile?.full_name?.split(' (')[0] || user.user_metadata?.name || user.email?.split('@')[0]} (${occupation})`
-            : (profile?.full_name || undefined),
-          city: city.trim() || undefined,
-          nationality: nationality.trim() || undefined,
+          full_name: name.trim() || null,
+          bio: bio.trim() || null,
+          city: city.trim() || null,
+          country: country.trim() || null,
+          nationality: nationality.trim() || null,
           languages_spoken: csvToArray(languages),
           interests: csvToArray(interests),
+          avatar_url: profileImages[0] || null,
+          images: profileImages,
         })
         .eq('user_id', user.id);
       
@@ -178,7 +233,8 @@ export function VapIdEditModal({ isOpen, onClose }: Props) {
       }
 
       await queryClient.invalidateQueries({ queryKey: ['vap-id-client-profile', user.id] });
-      await queryClient.invalidateQueries({ queryKey: ['vap-id-profile', user.id] });
+      await queryClient.invalidateQueries({ queryKey: ['client-profile-own', user.id] });
+      await queryClient.invalidateQueries({ queryKey: ['topbar-user-profile', user.id] });
       await refetch();
       toast.success('Card saved');
       onClose();
@@ -188,7 +244,7 @@ export function VapIdEditModal({ isOpen, onClose }: Props) {
     } finally {
       setSaving(false);
     }
-  }, [user?.id, bio, occupation, city, nationality, yearsInCity, languages, interests, queryClient, refetch]);
+  }, [user?.id, name, bio, occupation, city, country, nationality, yearsInCity, languages, interests, profileImages, queryClient, refetch]);
 
   const getDocStatus = (docType: string) => documents?.find(d => d.document_type === docType)?.status || 'none';
   const getDocMeta = (docType: string) => documents?.find(d => d.document_type === docType);
@@ -214,8 +270,47 @@ export function VapIdEditModal({ isOpen, onClose }: Props) {
           </div>
 
           <div className="flex-1 overflow-y-auto overscroll-contain px-4 pb-32 pt-5 scroll-smooth">
-            {/* About / Bio */}
             <section className="rounded-[24px] border border-border bg-card p-4 shadow-lg">
+              <div className="mb-3">
+                <p className="text-[11px] font-black uppercase tracking-[0.22em] text-primary">Identity</p>
+                <h3 className="mt-1 text-sm font-black text-foreground">Client card details</h3>
+                <p className="mt-1 text-[11px] text-muted-foreground">These fields are shown on your virtual card.</p>
+              </div>
+
+              <LabeledField label="Display name">
+                <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name" maxLength={80} />
+              </LabeledField>
+
+              <div className="mt-4">
+                <button
+                  onClick={handlePhotoUpload}
+                  disabled={photoUploading}
+                  className="inline-flex h-10 items-center gap-2 rounded-xl border border-border bg-secondary px-3 text-[11px] font-black uppercase tracking-widest text-foreground active:scale-95 disabled:opacity-60"
+                >
+                  {photoUploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ImagePlus className="h-4 w-4" />}
+                  {photoUploading ? 'Uploading…' : 'Upload photo'}
+                </button>
+                {profileImages.length > 0 && (
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {profileImages.map((url, idx) => (
+                      <div key={`${url}-${idx}`} className="group relative h-16 w-16 overflow-hidden rounded-lg border border-border">
+                        <img src={url} alt={`Profile ${idx + 1}`} className="h-full w-full object-cover" />
+                        <button
+                          onClick={() => setProfileImages((prev) => prev.filter((_, i) => i !== idx))}
+                          className="absolute right-1 top-1 hidden h-5 w-5 items-center justify-center rounded-full bg-black/70 text-white group-hover:flex"
+                          aria-label="Remove photo"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </section>
+
+            {/* About / Bio */}
+            <section className="mt-5 rounded-[24px] border border-border bg-card p-4 shadow-lg">
               <div className="mb-3">
                 <p className="text-[11px] font-black uppercase tracking-[0.22em] text-primary">About Me</p>
                 <h3 className="mt-1 text-sm font-black text-foreground">Card description</h3>
@@ -224,7 +319,7 @@ export function VapIdEditModal({ isOpen, onClose }: Props) {
               <Textarea
                 value={bio}
                 onChange={(e) => setBio(e.target.value)}
-                placeholder="I work as... I own a business called... I love..."
+                placeholder="I work as... I live in... I love..."
                 rows={3}
                 maxLength={240}
                 className="min-h-[90px] text-sm"
@@ -244,6 +339,9 @@ export function VapIdEditModal({ isOpen, onClose }: Props) {
                 </LabeledField>
                 <LabeledField label="City">
                   <Input value={city} onChange={(e) => setCity(e.target.value)} placeholder="Tulum" maxLength={60} />
+                </LabeledField>
+                <LabeledField label="Country">
+                  <Input value={country} onChange={(e) => setCountry(e.target.value)} placeholder="Mexico" maxLength={60} />
                 </LabeledField>
                 <LabeledField label="Nationality">
                   <Input value={nationality} onChange={(e) => setNationality(e.target.value)} placeholder="Mexican" maxLength={40} />
@@ -348,5 +446,3 @@ function LabeledField({
     </div>
   );
 }
-
-
