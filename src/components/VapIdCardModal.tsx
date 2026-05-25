@@ -26,22 +26,6 @@ export function VapIdCardModal({ isOpen, onClose, role = 'client' }: VapIdProps)
 
   const cycleTheme = () => setThemeIndex((i) => (i + 1) % CARD_THEMES.length);
 
-  const { data: profile, refetch: refetchProfile } = useQuery({
-    queryKey: ['vap-id-profile', user?.id],
-    enabled: !!user?.id && isOpen,
-    staleTime: 0,
-    queryFn: async () => {
-      if (!user?.id) return null;
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('full_name, avatar_url, nationality, city, country, languages_spoken, phone, bio')
-        .eq('user_id', user!.id)
-        .maybeSingle();
-      if (error) throw error;
-      return data;
-    },
-  });
-
   const profileTable = role === 'owner' ? 'owner_profiles' : 'client_profiles';
   const profileQueryKey = role === 'owner' ? 'vap-id-owner-profile' : 'vap-id-client-profile';
 
@@ -53,7 +37,7 @@ export function VapIdCardModal({ isOpen, onClose, role = 'client' }: VapIdProps)
       if (!user?.id) return null;
       const selectFields = role === 'owner'
         ? 'business_name, business_description, business_location, contact_email, contact_phone'
-        : 'bio, occupation, country, nationality, city, years_in_city, languages, interests, personality_traits, preferred_activities';
+        : 'bio, occupation, city, country, nationality, years_in_city, languages, interests, personality_traits, preferred_activities, name, age, profile_images, phone';
       const { data, error } = await supabase
         .from(profileTable)
         .select(selectFields)
@@ -64,24 +48,20 @@ export function VapIdCardModal({ isOpen, onClose, role = 'client' }: VapIdProps)
     },
   });
 
-  // Force-refetch both queries when edit modal closes after a save
+  // Force-refetch when edit modal closes after a save
   const prevEditOpen = useRef(false);
   useEffect(() => {
     if (prevEditOpen.current && !editOpen) {
-      refetchProfile();
       refetchExtendedProfile();
     }
     prevEditOpen.current = editOpen;
-  }, [editOpen, refetchProfile, refetchExtendedProfile]);
+  }, [editOpen, refetchExtendedProfile]);
 
-  // REALTIME: live-refresh the card whenever profile row changes
+  // REALTIME: live-refresh the card whenever profile data changes
   useEffect(() => {
     if (!user?.id || !isOpen) return;
     const channel = supabase
       .channel(`vap-id-card-${user.id}`)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles', filter: `user_id=eq.${user.id}` }, () => {
-        queryClient.invalidateQueries({ queryKey: ['vap-id-profile', user.id] });
-      })
       .on('postgres_changes', { event: '*', schema: 'public', table: profileTable, filter: `user_id=eq.${user.id}` }, () => {
         queryClient.invalidateQueries({ queryKey: [profileQueryKey, user.id] });
       })
@@ -96,24 +76,20 @@ export function VapIdCardModal({ isOpen, onClose, role = 'client' }: VapIdProps)
   const ext = extendedProfile as any;
 
   const name = isOwner
-    ? ext?.business_name || profile?.full_name || user?.email?.split('@')[0] || 'Asset'
-    : profile?.full_name || user?.email?.split('@')[0] || 'Resident';
-  const city = isOwner ? ext?.business_location || profile?.city || '' : ext?.city || profile?.city || '';
-  const country = isOwner ? '' : ext?.country || profile?.country || '';
-  const bio = isOwner ? ext?.business_description || profile?.bio || '' : ext?.bio || '';
+    ? ext?.business_name || user?.email?.split('@')[0] || 'Asset'
+    : ext?.name || user?.email?.split('@')[0] || 'Resident';
+  const city = isOwner ? ext?.business_location || '' : ext?.city || '';
+  const country = isOwner ? '' : ext?.country || '';
+  const bio = isOwner ? ext?.business_description || '' : ext?.bio || '';
   const occupation = isOwner ? ext?.business_name || '' : ext?.occupation || '';
-  const avatarUrl = profile?.avatar_url || '';
-  const phone = isOwner ? ext?.contact_phone || profile?.phone || '' : profile?.phone || '';
+  const avatarUrl = (Array.isArray(ext?.profile_images) && ext.profile_images.length > 0) ? ext.profile_images[0] : '';
+  const phone = isOwner ? ext?.contact_phone || '' : ext?.phone || '';
 
   const spokenLanguages = useMemo(() => {
     if (isOwner) return [];
-    const clientLangs = ext?.languages;
-    const raw = Array.isArray(clientLangs) && clientLangs.length > 0
-      ? clientLangs
-      : profile?.languages_spoken;
-    if (Array.isArray(raw)) return raw.filter((v): v is string => typeof v === 'string');
-    return [];
-  }, [isOwner, ext, profile?.languages_spoken]);
+    const raw = Array.isArray(ext?.languages) && ext.languages.length > 0 ? ext.languages : [];
+    return raw.filter((v): v is string => typeof v === 'string');
+  }, [isOwner, ext]);
 
   const allTags = useMemo(() => {
     if (isOwner) return [];
