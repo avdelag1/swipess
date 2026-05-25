@@ -2,7 +2,7 @@ import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  X, Upload, FileText, CheckCircle2, Loader2, Save, Camera, User, Plus,
+  X, Upload, FileText, CheckCircle2, Loader2, Save, Camera, User, Plus, Bug,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
@@ -33,6 +33,25 @@ const arrayToCsv = (arr: unknown): string => {
   if (!Array.isArray(arr)) return '';
   return arr.filter((v): v is string => typeof v === 'string' && v.trim().length > 0).join(', ');
 };
+
+// Expose DB checker globally so user can run checkDB() in browser console
+if (typeof window !== 'undefined') {
+  (window as any).checkDB = async () => {
+    const { supabase } = await import('@/integrations/supabase/client');
+    const { data: { session } } = await supabase.auth.getSession();
+    const uid = session?.user?.id;
+    console.log('--- DB CHECK ---');
+    console.log('Session user:', uid);
+    console.log('Session valid:', !!session);
+    if (!uid) { console.log('NO SESSION'); return; }
+    const tables = ['client_profiles', 'owner_profiles', 'profiles'];
+    for (const tbl of tables) {
+      const { data, error } = await supabase.from(tbl).select('*').eq('user_id', uid).maybeSingle();
+      console.log(tbl + ':', error ? 'ERROR: ' + error.message : data ? 'FOUND: ' + JSON.stringify(data) : 'NO ROW');
+    }
+    console.log('--- END ---');
+  };
+}
 
 export function VapIdEditModal({ isOpen, onClose, onSaved, role = 'client' }: Props) {
   const { user } = useAuth();
@@ -490,7 +509,7 @@ export function VapIdEditModal({ isOpen, onClose, onSaved, role = 'client' }: Pr
           </div>
 
           {/* Sticky save bar */}
-          <div className="sticky bottom-0 border-t border-border bg-background/95 px-4 pt-3 pb-[max(12px,env(safe-area-inset-bottom))] shadow-[0_-8px_24px_hsl(var(--foreground)/0.08)]">
+          <div className="sticky bottom-0 border-t border-border bg-background/95 px-4 pt-3 pb-[max(12px,env(safe-area-inset-bottom))] shadow-[0_-8px_24px_hsl(var(--foreground)/0.08)] space-y-2">
             <button
               onClick={handleSave}
               disabled={saving}
@@ -498,6 +517,41 @@ export function VapIdEditModal({ isOpen, onClose, onSaved, role = 'client' }: Pr
             >
               {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
               {saving ? 'Saving…' : 'Save card'}
+            </button>
+            <button
+              onClick={async () => {
+                if (!user?.id) return;
+                try {
+                  toast.info('Checking DB...', { duration: 5000 });
+                  const tbl = role === 'owner' ? 'owner_profiles' : 'client_profiles';
+                  const { data: row, error: qErr } = await supabase.from(tbl).select('*').eq('user_id', user.id).maybeSingle();
+                  const { data: session } = await supabase.auth.getSession();
+                  const log = [
+                    '[DB CHECK] table:', tbl,
+                    'user_id:', user.id,
+                    'session user:', session?.user?.id,
+                    'session match:', session?.user?.id === user.id,
+                    'row found:', !!row,
+                    'row:', JSON.stringify(row),
+                    'error:', qErr?.message || 'none',
+                  ];
+                  console.log(...log);
+                  if (qErr) {
+                    toast.error('DB error: ' + qErr.message);
+                  } else if (row) {
+                    toast.success('DB row found! Keys: ' + Object.keys(row).filter(k => row[k] != null).join(', '));
+                  } else {
+                    toast.error('No row in ' + tbl + ' for this user');
+                  }
+                } catch (e: any) {
+                  console.error('[DB CHECK] exception:', e);
+                  toast.error('DB check failed: ' + (e?.message || 'unknown'));
+                }
+              }}
+              className="flex h-8 w-full items-center justify-center gap-1.5 rounded-xl border border-border text-[10px] font-black uppercase tracking-wider text-muted-foreground hover:text-foreground active:scale-[0.98] transition-colors"
+            >
+              <Bug className="h-3 w-3" />
+              DB Check
             </button>
           </div>
         </motion.div>
