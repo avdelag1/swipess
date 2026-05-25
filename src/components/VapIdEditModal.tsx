@@ -60,23 +60,27 @@ export function VapIdEditModal({ isOpen, onClose, onSaved, role = 'client' }: Pr
     queryKey: [profileQueryKey, user?.id],
     enabled: !!user?.id && isOpen,
     staleTime: 0,
+    refetchOnMount: 'always',
     queryFn: async () => {
+      if (!user?.id) return null;
       const { data, error } = await supabase
         .from(profileTable)
         .select(role === 'owner'
           ? 'business_name, business_description, business_location, contact_email, contact_phone, profile_images'
           : 'bio, occupation, city, country, nationality, years_in_city, languages, interests, personality_traits, preferred_activities, name, age, profile_images'
         )
-        .eq('user_id', user!.id)
+        .eq('user_id', user.id)
         .maybeSingle();
-      if (error) throw error;
+      if (error) { console.error('[VapIdEdit] Load error:', error); throw error; }
+      console.log('[VapIdEdit] Loaded raw data:', JSON.stringify(data));
       return data;
     },
   });
 
   useEffect(() => {
-    if (!profileData) return;
     const d = profileData as any;
+    console.log('[VapIdEdit] profileData changed:', JSON.stringify(d));
+    if (!d) return;
     if (role === 'owner') {
       setBio(d.business_description || '');
       setOccupation(d.business_name || '');
@@ -153,30 +157,37 @@ export function VapIdEditModal({ isOpen, onClose, onSaved, role = 'client' }: Pr
     input.click();
   }, [user?.id, queryClient]);
 
-  const handleSave = useCallback(async () => {
-    if (!user?.id) { toast.error('Not signed in'); return; }
+  const doSave = useCallback(async () => {
+    if (!user?.id) { toast.error('Not signed in'); return false; }
+    console.log('[VapIdEdit] Starting save for role:', role, 'user_id:', user.id);
+    console.log('[VapIdEdit] Field values:', { displayName, age, bio, occupation, city, country, nationality, yearsInCity, languages, interests, profileImages });
     setSaving(true);
     try {
-      const baseName = user.user_metadata?.name || user.email?.split('@')[0] || 'Resident';
       const finalProfileImages = profileImages.length > 0 ? profileImages : [];
 
-      if (role === 'owner') {
-        const { data: existing } = await supabase
-          .from('owner_profiles').select('id').eq('user_id', user.id).maybeSingle();
+      // Check if there's an existing row
+      const { data: existing, error: checkErr } = await supabase
+        .from(profileTable).select('id').eq('user_id', user.id).maybeSingle();
+      if (checkErr) console.warn('[VapIdEdit] Check existing error:', checkErr);
+      console.log('[VapIdEdit] Existing row:', existing);
 
+      if (role === 'owner') {
         const ownerPayload: any = {};
         if (displayName.trim()) ownerPayload.business_name = displayName.trim();
         if (bio.trim()) ownerPayload.business_description = bio.trim();
         if (city.trim()) ownerPayload.business_location = city.trim();
         ownerPayload.profile_images = finalProfileImages;
+        console.log('[VapIdEdit] Owner payload:', ownerPayload);
 
         if (existing?.id) {
-          const { error: updateErr } = await supabase
-            .from('owner_profiles').update(ownerPayload).eq('user_id', user.id);
+          const { data: upd, error: updateErr } = await supabase
+            .from('owner_profiles').update(ownerPayload).eq('user_id', user.id).select();
+          console.log('[VapIdEdit] Owner update result:', upd, updateErr);
           if (updateErr) throw new Error(`Owner update: ${updateErr.message}`);
         } else {
-          const { error: insertErr } = await supabase
-            .from('owner_profiles').insert([{ ...ownerPayload, user_id: user.id }]);
+          const { data: ins, error: insertErr } = await supabase
+            .from('owner_profiles').insert([{ ...ownerPayload, user_id: user.id }]).select();
+          console.log('[VapIdEdit] Owner insert result:', ins, insertErr);
           if (insertErr) throw new Error(`Owner insert: ${insertErr.message}`);
         }
 
@@ -189,12 +200,10 @@ export function VapIdEditModal({ isOpen, onClose, onSaved, role = 'client' }: Pr
           syncTo.avatar_url = finalProfileImages[0];
         }
         if (Object.keys(syncTo).length > 0) {
-          await supabase.from('profiles').update(syncTo).eq('user_id', user.id);
+          const { error: syncErr } = await supabase.from('profiles').update(syncTo).eq('user_id', user.id);
+          if (syncErr) console.warn('[VapIdEdit] Owner profiles sync error:', syncErr);
         }
       } else {
-        const { data: existing } = await supabase
-          .from('client_profiles').select('id').eq('user_id', user.id).maybeSingle();
-
         const clientPayload: any = {};
         if (displayName.trim()) clientPayload.name = displayName.trim();
         if (age.trim() !== '') clientPayload.age = Number(age);
@@ -212,14 +221,17 @@ export function VapIdEditModal({ isOpen, onClose, onSaved, role = 'client' }: Pr
         const intArr = csvToArray(interests);
         if (intArr.length > 0) clientPayload.interests = intArr;
         clientPayload.profile_images = finalProfileImages;
+        console.log('[VapIdEdit] Client payload:', clientPayload);
 
         if (existing?.id) {
-          const { error: updateErr } = await supabase
-            .from('client_profiles').update(clientPayload).eq('user_id', user.id);
+          const { data: upd, error: updateErr } = await supabase
+            .from('client_profiles').update(clientPayload).eq('user_id', user.id).select();
+          console.log('[VapIdEdit] Client update result:', upd, updateErr);
           if (updateErr) throw new Error(`Client update: ${updateErr.message}`);
         } else {
-          const { error: insertErr } = await supabase
-            .from('client_profiles').insert([{ ...clientPayload, user_id: user.id }]);
+          const { data: ins, error: insertErr } = await supabase
+            .from('client_profiles').insert([{ ...clientPayload, user_id: user.id }]).select();
+          console.log('[VapIdEdit] Client insert result:', ins, insertErr);
           if (insertErr) throw new Error(`Client insert: ${insertErr.message}`);
         }
 
@@ -236,7 +248,8 @@ export function VapIdEditModal({ isOpen, onClose, onSaved, role = 'client' }: Pr
           syncTo.avatar_url = finalProfileImages[0];
         }
         if (Object.keys(syncTo).length > 0) {
-          await supabase.from('profiles').update(syncTo).eq('user_id', user.id);
+          const { error: syncErr } = await supabase.from('profiles').update(syncTo).eq('user_id', user.id);
+          if (syncErr) console.warn('[VapIdEdit] Client profiles sync error:', syncErr);
         }
       }
 
@@ -247,16 +260,35 @@ export function VapIdEditModal({ isOpen, onClose, onSaved, role = 'client' }: Pr
       queryClient.invalidateQueries({ queryKey: ['vap-id-owner-profile', user.id] });
       queryClient.invalidateQueries({ queryKey: ['vap-documents', user.id] });
 
-      toast.success('Card saved');
-      onSaved?.();
-      onClose();
+      console.log('[VapIdEdit] Save completed successfully');
+      return true;
     } catch (err: any) {
-      console.error('[VapIdEdit] save failed', err);
-      toast.error(err?.message || 'Failed to save');
+      console.error('[VapIdEdit] save failed:', err);
+      toast.error('Save failed: ' + (err?.message || 'unknown error'));
+      return false;
     } finally {
       setSaving(false);
     }
-  }, [user?.id, bio, occupation, city, country, nationality, yearsInCity, languages, interests, displayName, age, profileImages, role, queryClient, onSaved, onClose]);
+  }, [user?.id, bio, occupation, city, country, nationality, yearsInCity, languages, interests, displayName, age, profileImages, role, profileTable, queryClient]);
+
+  const handleClose = useCallback(async () => {
+    console.log('[VapIdEdit] Close requested, auto-saving...');
+    const saved = await doSave();
+    if (saved) {
+      toast.success('Card saved');
+      onSaved?.();
+    }
+    onClose();
+  }, [doSave, onSaved, onClose]);
+
+  const handleSave = useCallback(async () => {
+    const saved = await doSave();
+    if (saved) {
+      toast.success('Card saved');
+      onSaved?.();
+      onClose();
+    }
+  }, [doSave, onSaved, onClose]);
 
   const handlePhotoUpload = useCallback(async () => {
     if (!user?.id) return;
@@ -304,7 +336,7 @@ export function VapIdEditModal({ isOpen, onClose, onSaved, role = 'client' }: Pr
               <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary">Edit</p>
               <h2 className="mt-0.5 text-base font-black tracking-tight text-foreground">{role === 'owner' ? 'Asset Card Settings' : 'Resident Card Settings'}</h2>
             </div>
-            <button onClick={onClose} className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card text-muted-foreground hover:text-foreground" aria-label="Close">
+            <button onClick={handleClose} className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card text-muted-foreground hover:text-foreground" aria-label="Close">
               <X className="h-4 w-4" />
             </button>
           </div>
