@@ -22,6 +22,7 @@ import { LanguageToggle } from "@/components/LanguageToggle";
 import useAppTheme from "@/hooks/useAppTheme";
 import { useTranslation } from 'react-i18next';
 import { HolographicIDCard } from "@/components/native/HolographicIDCard";
+import { useModalStore } from "@/state/modalStore";
 
 const ClientProfile = () => {
   const { isLight } = useAppTheme();
@@ -167,6 +168,14 @@ const ClientProfile = () => {
 
         {/* PRIMARY ACTIONS */}
         <div className="space-y-3">
+          <Button
+            onClick={() => { triggerHaptic('medium'); useModalStore.getState().openAIProfile('client'); }}
+            className="w-full h-12 rounded-2xl gap-3 text-white font-black uppercase italic tracking-[0.2em] text-[15px] shadow-2xl border-none"
+            style={{ background: 'linear-gradient(135deg, #06B6D4, #6366F1)' }}
+          >
+            <Sparkles className="w-5 h-5" />
+            Magic AI Profile
+          </Button>
           <Button
             onClick={() => { triggerHaptic('medium'); setShowEditDialog(true); }}
             className="w-full h-12 rounded-2xl font-black uppercase italic tracking-[0.2em] text-[15px] transition-all border-none text-white shadow-2xl"
