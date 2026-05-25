@@ -29,7 +29,7 @@ const ClientProfile = () => {
   const [showPhotoPreview, setShowPhotoPreview] = useState(false);
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
   const [isVapModalOpen, setIsVapModalOpen] = useState(false);
-  const { data: profile, isLoading } = useClientProfile();
+  const { data: profile, isLoading, refetch: refetchProfile } = useClientProfile();
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
 
@@ -304,7 +304,7 @@ const ClientProfile = () => {
 
       <ClientProfileDialog open={showEditDialog} onOpenChange={setShowEditDialog} />
       <PhotoPreview photos={profile?.profile_images || []} isOpen={showPhotoPreview} onClose={() => setShowPhotoPreview(false)} initialIndex={selectedPhotoIndex} />
-      <VapIdEditModal isOpen={isVapModalOpen} onClose={() => setIsVapModalOpen(false)} role="client" />
+      <VapIdEditModal isOpen={isVapModalOpen} onClose={() => setIsVapModalOpen(false)} onSaved={() => refetchProfile()} role="client" />
     </div>
   );
 };

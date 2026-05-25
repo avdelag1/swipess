@@ -16,6 +16,7 @@ import { compressImage, PROFILE_COMPRESSION } from '@/utils/imageCompression';
 interface Props {
   isOpen: boolean;
   onClose: () => void;
+  onSaved?: () => void;
   role?: 'client' | 'owner';
 }
 
@@ -33,7 +34,7 @@ const arrayToCsv = (arr: unknown): string => {
   return arr.filter((v): v is string => typeof v === 'string' && v.trim().length > 0).join(', ');
 };
 
-export function VapIdEditModal({ isOpen, onClose, role = 'client' }: Props) {
+export function VapIdEditModal({ isOpen, onClose, onSaved, role = 'client' }: Props) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [uploading, setUploading] = useState<string | null>(null);
@@ -244,6 +245,7 @@ export function VapIdEditModal({ isOpen, onClose, role = 'client' }: Props) {
       queryClient.invalidateQueries({ queryKey: ['vap-documents', user.id] });
 
       toast.success('Card saved');
+      onSaved?.();
       onClose();
     } catch (err: any) {
       console.error('[VapIdEdit] save failed', err);

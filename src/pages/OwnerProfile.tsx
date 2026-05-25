@@ -27,7 +27,7 @@ const OwnerProfile = () => {
   const [isVapModalOpen, setIsVapModalOpen] = useState(false);
   const { user, signOut } = useAuth();
   const { data: stats } = useOwnerStats();
-  const { data: ownerProfile, isLoading: profileLoading } = useOwnerProfile();
+  const { data: ownerProfile, isLoading: profileLoading, refetch: refetchOwnerProfile } = useOwnerProfile();
   const { tokenBalance } = useMessagingQuota();
   const { setModal } = useModalStore();
   const navigate = useNavigate();
@@ -322,7 +322,7 @@ const OwnerProfile = () => {
       </div>
 
       <OwnerProfileDialog open={showEditDialog} onOpenChange={setShowEditDialog} />
-      <VapIdEditModal isOpen={isVapModalOpen} onClose={() => setIsVapModalOpen(false)} role="owner" />
+      <VapIdEditModal isOpen={isVapModalOpen} onClose={() => setIsVapModalOpen(false)} onSaved={() => refetchOwnerProfile()} role="owner" />
     </div>
   );
 };
