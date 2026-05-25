@@ -979,7 +979,7 @@ const ClientSwipeContainerComponent = ({
                 initial={{ opacity: 0, scale: 1.02 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.98 }}
-                transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                transition={{ duration: 0.18, ease: [0.25, 0.1, 0.25, 1] }}
                 className="absolute inset-0 w-full h-full flex flex-col items-center justify-center p-0 mx-auto transform-gpu"
               >
                 {/* 🚀 STACKED ARCHITECTURE: Flat map allows React to preserve component mounts */}

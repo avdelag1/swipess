@@ -182,7 +182,7 @@ export const BottomNavigation = memo(({
     const activeBtn = scrollRef.current.querySelector('[aria-current="page"]') as HTMLElement;
     if (activeBtn) {
       // INSTANT VIEW: No smooth scrolling for internal state sync, keep it technical and fast
-      activeBtn.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });
+      activeBtn.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'auto' });
     }
   }, [location.pathname]);
 
@@ -295,7 +295,7 @@ export const BottomNavigation = memo(({
       role="navigation"
       aria-label="Main navigation"
       className={cn(
-        'app-bottom-bar pb-2 pt-1 transition-all duration-700',
+        'app-bottom-bar pb-2 pt-1 transition-all duration-150',
         isActuallyVisible ? 'translate-y-0 opacity-100' : 'opacity-0 translate-y-full',
         className
       )}
