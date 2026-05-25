@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { ActivityFeed } from "@/components/ActivityFeed";
 import { VapIdEditModal } from "@/components/VapIdEditModal";
+import { VapIdCardModal } from "@/components/VapIdCardModal";
 import { HolographicIDCard } from "@/components/native/HolographicIDCard";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -25,6 +26,7 @@ const OwnerProfile = () => {
   const { isLight } = useAppTheme();
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [isVapModalOpen, setIsVapModalOpen] = useState(false);
+  const [showVapCard, setShowVapCard] = useState(false);
   const { user, signOut } = useAuth();
   const { data: stats } = useOwnerStats();
   const { data: ownerProfile, isLoading: profileLoading, refetch: refetchOwnerProfile } = useOwnerProfile();
@@ -322,7 +324,8 @@ const OwnerProfile = () => {
       </div>
 
       <OwnerProfileDialog open={showEditDialog} onOpenChange={setShowEditDialog} />
-      <VapIdEditModal isOpen={isVapModalOpen} onClose={() => setIsVapModalOpen(false)} onSaved={() => refetchOwnerProfile()} role="owner" />
+      <VapIdEditModal isOpen={isVapModalOpen} onClose={() => setIsVapModalOpen(false)} onSaved={() => { refetchOwnerProfile(); setIsVapModalOpen(false); setShowVapCard(true); }} role="owner" />
+      <VapIdCardModal isOpen={showVapCard} onClose={() => setShowVapCard(false)} role="owner" />
     </div>
   );
 };

@@ -12,6 +12,7 @@ import {
 import { useClientStats } from "@/hooks/useClientStats";
 import { ActivityFeed } from "@/components/ActivityFeed";
 import { VapIdEditModal } from "@/components/VapIdEditModal";
+import { VapIdCardModal } from "@/components/VapIdCardModal";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { ProfileSkeleton } from "@/components/ui/LayoutSkeletons";
@@ -29,6 +30,7 @@ const ClientProfile = () => {
   const [showPhotoPreview, setShowPhotoPreview] = useState(false);
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
   const [isVapModalOpen, setIsVapModalOpen] = useState(false);
+  const [showVapCard, setShowVapCard] = useState(false);
   const { data: profile, isLoading, refetch: refetchProfile } = useClientProfile();
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
@@ -304,7 +306,8 @@ const ClientProfile = () => {
 
       <ClientProfileDialog open={showEditDialog} onOpenChange={setShowEditDialog} />
       <PhotoPreview photos={profile?.profile_images || []} isOpen={showPhotoPreview} onClose={() => setShowPhotoPreview(false)} initialIndex={selectedPhotoIndex} />
-      <VapIdEditModal isOpen={isVapModalOpen} onClose={() => setIsVapModalOpen(false)} onSaved={() => refetchProfile()} role="client" />
+      <VapIdEditModal isOpen={isVapModalOpen} onClose={() => setIsVapModalOpen(false)} onSaved={() => { refetchProfile(); setIsVapModalOpen(false); setShowVapCard(true); }} role="client" />
+      <VapIdCardModal isOpen={showVapCard} onClose={() => setShowVapCard(false)} role="client" />
     </div>
   );
 };
