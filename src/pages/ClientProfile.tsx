@@ -145,15 +145,16 @@ const ClientProfile = () => {
         {/* HUD STATS GRID */}
         <div className="grid grid-cols-3 gap-3">
           {[
-            { label: t('nav.likes'), value: stats?.likesReceived ?? 0, icon: ThumbsUp, color: 'text-[#FF4D00]', glow: 'rgba(255,77,0,0.1)' },
-            { label: t('dashboard.totalMatches'), value: stats?.matchesCount ?? 0, icon: Sparkles, color: 'text-[#EB4898]', glow: 'rgba(235,72,152,0.1)' },
-            { label: t('nav.messages'), value: stats?.activeChats ?? 0, icon: MessageSquare, color: 'text-orange-400', glow: 'rgba(251,146,60,0.1)' },
+            { label: t('nav.likes'), value: stats?.likesReceived ?? 0, icon: ThumbsUp, color: 'text-[#FF4D00]', glow: 'rgba(255,77,0,0.1)', path: '/client/who-liked-you' },
+            { label: t('dashboard.totalMatches'), value: stats?.matchesCount ?? 0, icon: Sparkles, color: 'text-[#EB4898]', glow: 'rgba(235,72,152,0.1)', path: '/client/liked-properties' },
+            { label: t('nav.messages'), value: stats?.activeChats ?? 0, icon: MessageSquare, color: 'text-orange-400', glow: 'rgba(251,146,60,0.1)', path: '/messages' },
           ].map((stat, i) => (
             <motion.div
               key={i}
               whileTap={{ scale: 0.95 }}
-              className={cn("flex flex-col items-center justify-center p-5 text-center rounded-3xl border shadow-sm backdrop-blur-xl", isLight ? "border-black/10 bg-white" : "border-white/[0.06] bg-white/[0.02]")}
+              className={cn("flex flex-col items-center justify-center p-5 text-center rounded-3xl border shadow-sm backdrop-blur-xl cursor-pointer", isLight ? "border-black/10 bg-white" : "border-white/[0.06] bg-white/[0.02]")}
               style={{ boxShadow: `inset 0 0 30px ${stat.glow}` }}
+              onClick={() => { triggerHaptic('light'); navigate(stat.path); }}
             >
               <stat.icon className={cn("w-5 h-5 mb-3", stat.color)} />
               <div className={cn("text-3xl font-black tabular-nums tracking-tighter leading-none", isLight ? "text-slate-900" : "text-white")}>
