@@ -307,7 +307,7 @@ const ClientProfile = () => {
 
       <ClientProfileDialog open={showEditDialog} onOpenChange={setShowEditDialog} />
       <PhotoPreview photos={profile?.profile_images || []} isOpen={showPhotoPreview} onClose={() => setShowPhotoPreview(false)} initialIndex={selectedPhotoIndex} />
-      <VapIdEditModal isOpen={isVapModalOpen} onClose={() => setIsVapModalOpen(false)} onSaved={() => { refetchProfile(); setIsVapModalOpen(false); setShowVapCard(true); }} role="client" />
+      <VapIdEditModal isOpen={isVapModalOpen} onClose={() => setIsVapModalOpen(false)} onSaved={() => { refetchProfile(); }} role="client" />
       <VapIdCardModal isOpen={showVapCard} onClose={() => setShowVapCard(false)} role="client" />
     </div>
   );
