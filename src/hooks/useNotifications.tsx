@@ -56,14 +56,20 @@ export function useNotifications() {
               if (conversation.client_id === user.id || conversation.owner_id === user.id) {
 
                 // Get sender info
-                const { data: senderProfile, error: profileError } = await supabase
-                  .from('profiles')
-                  .select('full_name, avatar_url')
-                  .eq('user_id', newMessage.sender_id)
-                  .maybeSingle();
+                const [clientSender, ownerSender] = await Promise.all([
+                  supabase.from('client_profiles').select('name, profile_images').eq('user_id', newMessage.sender_id).maybeSingle(),
+                  supabase.from('owner_profiles').select('business_name, profile_images').eq('user_id', newMessage.sender_id).maybeSingle()
+                ]);
 
-                if (profileError) {
-                  if (import.meta.env.DEV) logger.error('Error fetching sender profile for notification:', profileError);
+                let senderProfile = null;
+                if (clientSender.data) {
+                  senderProfile = { full_name: clientSender.data.name, avatar_url: clientSender.data.profile_images?.[0] };
+                } else if (ownerSender.data) {
+                  senderProfile = { full_name: ownerSender.data.business_name, avatar_url: ownerSender.data.profile_images?.[0] };
+                }
+
+                if (clientSender.error || ownerSender.error) {
+                  if (import.meta.env.DEV) logger.error('Error fetching sender profile for notification:', clientSender.error || ownerSender.error);
                 }
 
                 const senderName = senderProfile?.full_name || 'Someone';

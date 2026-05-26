@@ -87,16 +87,19 @@ export function useConversations() {
           if (c.owner_id) userIds.add(c.owner_id);
         });
 
-        const [profilesResult, listingsResult] = await Promise.all([
-          supabase.from('profiles').select('id, full_name, avatar_url, age').in('id', Array.from(userIds)),
+        const [clientsResult, ownersResult, listingsResult] = await Promise.all([
+          supabase.from('client_profiles').select('user_id, name, age, profile_images').in('user_id', Array.from(userIds)),
+          supabase.from('owner_profiles').select('user_id, business_name, profile_images').in('user_id', Array.from(userIds)),
           data.some((c: any) => c.listing_id)
             ? supabase.from('listings').select('id, title, price, images, category, mode, address, city').in('id', data.filter((c: any) => c.listing_id).map((c: any) => c.listing_id))
             : Promise.resolve({ data: [] as any[], error: null })
         ]);
 
-        if (profilesResult.error) {
-          logger.error('Error fetching profiles in useConversations:', profilesResult.error);
-          throw profilesResult.error;
+        if (clientsResult.error) {
+          logger.error('Error fetching client profiles in useConversations:', clientsResult.error);
+        }
+        if (ownersResult.error) {
+          logger.error('Error fetching owner profiles in useConversations:', ownersResult.error);
         }
         if ((listingsResult as any).error) {
           logger.error('Error fetching listings in useConversations:', (listingsResult as any).error);
@@ -104,7 +107,18 @@ export function useConversations() {
         }
 
         const profilesMap = new Map<string, any>();
-        (profilesResult.data || []).forEach((p: any) => profilesMap.set(p.id, p));
+        (clientsResult.data || []).forEach((p: any) => profilesMap.set(p.user_id, {
+          id: p.user_id,
+          full_name: p.name,
+          avatar_url: p.profile_images?.[0],
+          age: p.age
+        }));
+        (ownersResult.data || []).forEach((p: any) => profilesMap.set(p.user_id, {
+          id: p.user_id,
+          full_name: p.business_name,
+          avatar_url: p.profile_images?.[0],
+          age: undefined // Owners typically don't have age exposed in the same way
+        }));
         const listingsMap = new Map<string, any>();
         ((listingsResult as any).data || []).forEach((l: any) => listingsMap.set(l.id, l));
 
@@ -277,13 +291,19 @@ export function useConversations() {
       const otherUserId = data.client_id === user.id ? data.owner_id : data.client_id;
       const isClient = data.client_id === user.id;
 
-      const [profileResult, listingResult, messagesResult] = await Promise.all([
-        otherUserId ? supabase.from('profiles').select('id, full_name, avatar_url, age').eq('id', otherUserId).maybeSingle() : Promise.resolve({ data: null }),
+      const [clientResult, ownerResult, listingResult, messagesResult] = await Promise.all([
+        otherUserId && !isClient ? supabase.from('client_profiles').select('user_id, name, profile_images, age').eq('user_id', otherUserId).maybeSingle() : Promise.resolve({ data: null }),
+        otherUserId && isClient ? supabase.from('owner_profiles').select('user_id, business_name, profile_images').eq('user_id', otherUserId).maybeSingle() : Promise.resolve({ data: null }),
         data.listing_id ? supabase.from('listings').select('id, title, price, images, category, mode, address, city').eq('id', data.listing_id).maybeSingle() : Promise.resolve({ data: null }),
         supabase.from('conversation_messages').select('id, conversation_id, content, message_text, message_type, created_at, sender_id, is_read').eq('conversation_id', conversationId).order('created_at', { ascending: false }).limit(1)
       ]);
 
-      const otherUserProfile = (profileResult as any).data;
+      let otherUserProfile = null;
+      if (clientResult.data) {
+         otherUserProfile = { full_name: clientResult.data.name, avatar_url: clientResult.data.profile_images?.[0], age: clientResult.data.age };
+      } else if (ownerResult.data) {
+         otherUserProfile = { full_name: ownerResult.data.business_name, avatar_url: ownerResult.data.profile_images?.[0], age: undefined };
+      }
       const otherUserRole = isClient ? 'owner' : 'client';
 
       return {
@@ -335,13 +355,22 @@ export function useConversationMessages(conversationId: string) {
       if (!messages || messages.length === 0) return [];
 
       const senderIds = [...new Set(messages.map((m: any) => m.sender_id))];
-      const { data: profilesData } = await supabase
-        .from('profiles')
-        .select('id, full_name, avatar_url')
-        .in('id', senderIds);
+      const [clientProfilesData, ownerProfilesData] = await Promise.all([
+        supabase.from('client_profiles').select('user_id, name, profile_images').in('user_id', senderIds),
+        supabase.from('owner_profiles').select('user_id, business_name, profile_images').in('user_id', senderIds)
+      ]);
 
       const profileMap = new Map<string, any>();
-      (profilesData || []).forEach((p: any) => profileMap.set(p.id, p));
+      (clientProfilesData.data || []).forEach((p: any) => profileMap.set(p.user_id, {
+         user_id: p.user_id,
+         full_name: p.name,
+         avatar_url: p.profile_images?.[0]
+      }));
+      (ownerProfilesData.data || []).forEach((p: any) => profileMap.set(p.user_id, {
+         user_id: p.user_id,
+         full_name: p.business_name,
+         avatar_url: p.profile_images?.[0]
+      }));
 
       return messages.map((msg: any) => {
         const profile = profileMap.get(msg.sender_id);

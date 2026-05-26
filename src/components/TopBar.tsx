@@ -98,13 +98,18 @@ function TopBarComponent({
     enabled: !!user?.id,
     staleTime: Infinity,
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('avatar_url, full_name')
-        .eq('user_id', user!.id)
-        .maybeSingle();
-      if (error) throw error;
-      return data;
+      const [clientResult, ownerResult] = await Promise.all([
+        supabase.from('client_profiles').select('name, profile_images').eq('user_id', user!.id).maybeSingle(),
+        supabase.from('owner_profiles').select('business_name, profile_images').eq('user_id', user!.id).maybeSingle()
+      ]);
+      
+      const isClient = !!clientResult.data;
+      const data = isClient ? clientResult.data : ownerResult.data;
+      
+      return data ? {
+        full_name: isClient ? (data as any).name : (data as any).business_name,
+        avatar_url: (data as any).profile_images?.[0]
+      } : null;
     },
   });
 
