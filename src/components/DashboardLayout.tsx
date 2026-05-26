@@ -236,10 +236,43 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     };
   }, [location.pathname]);
 
-  // 🚀 SMART SCROLL RESTORATION
+  // 🚀 ENHANCED SCROLL RESTORATION WITH LOCALSTORAGE PERSISTENCE
   const scrollPositions = useRef<Record<string, number>>({});
   const prevPathRef = useRef(location.pathname);
+  const SCROLL_STORAGE_KEY = 'swipess_scroll_positions';
 
+  // Load scroll positions from localStorage on mount
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(SCROLL_STORAGE_KEY);
+      if (stored) {
+        scrollPositions.current = JSON.parse(stored);
+      }
+    } catch (e) {
+      console.warn('Failed to load scroll positions:', e);
+    }
+  }, []);
+
+  // Save scroll position whenever it changes
+  useEffect(() => {
+    const el = scrollContainerRef.current;
+    if (!el) return;
+
+    const handleScroll = () => {
+      scrollPositions.current[location.pathname] = el.scrollTop;
+      // Persist to localStorage for recovery across sessions
+      try {
+        localStorage.setItem(SCROLL_STORAGE_KEY, JSON.stringify(scrollPositions.current));
+      } catch (e) {
+        // Storage quota exceeded, just use memory
+      }
+    };
+
+    el.addEventListener('scroll', handleScroll, { passive: true });
+    return () => el.removeEventListener('scroll', handleScroll);
+  }, [location.pathname]);
+
+  // Restore scroll position when navigating
   useLayoutEffect(() => {
     const el = scrollContainerRef.current;
     if (!el) return;
@@ -247,15 +280,14 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     // Save current scroll position before navigating
     scrollPositions.current[prevPathRef.current] = el.scrollTop;
 
-    // Restore scroll position for new path, unless it's a profile page
-    if (!location.pathname.includes('/profile')) {
-      const savedPos = scrollPositions.current[location.pathname] || 0;
-      el.scrollTo({ top: savedPos, behavior: 'auto' });
-    } else {
-      el.scrollTo({ top: 0, behavior: 'auto' });
-    }
-
-    prevPathRef.current = location.pathname;
+    // Restore scroll position for the new path
+    const savedPos = scrollPositions.current[location.pathname] ?? 0;
+    
+    // Use requestAnimationFrame to ensure DOM is ready
+    requestAnimationFrame(() => {
+      el.scrollTop = savedPos;
+      prevPathRef.current = location.pathname;
+    });
   }, [location.pathname]);
 
   useLayoutEffect(() => {
@@ -271,8 +303,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
 
   return (
           <div className={cn(
-            "dashboard-root w-full flex-1 min-h-0 flex flex-col relative",
-            isSwipeDeck ? "overflow-hidden" : "overflow-auto",
+            "dashboard-root w-full flex-1 min-h-0 flex flex-col relative overflow-hidden",
             isDark ? "dark" : "light",
             isSwipeDeck && "bg-swipe-frame"
           )}>

@@ -120,18 +120,18 @@ export async function compressImages(
  * Profile photo compression preset - smaller size for avatars
  */
 export const PROFILE_COMPRESSION: CompressionOptions = {
-  maxSizeMB: 0.5,
-  maxWidthOrHeight: 800,
-  quality: 0.8,
+  maxSizeMB: 0.3,
+  maxWidthOrHeight: 600,
+  quality: 0.7,
 };
 
 /**
- * Listing photo compression preset - larger size for property images
+ * Listing photo compression preset - balanced size for property images
  */
 export const LISTING_COMPRESSION: CompressionOptions = {
-  maxSizeMB: 1.5,
-  maxWidthOrHeight: 1920,
-  quality: 0.85,
+  maxSizeMB: 1.0,
+  maxWidthOrHeight: 1400,
+  quality: 0.78,
 };
 
 export default {

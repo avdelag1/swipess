@@ -326,25 +326,18 @@ const ClientSwipeContainerComponent = ({
   const topCardX = useMotionValue(0);
   const topCardY = useMotionValue(0);
 
-  // Next card scales up and brightens as the top card is dragged away.
+  // Always keep the underneath card fully sized and opaque so the card
+  // underneath never flashes when the top card exits and motion values reset.
+  // The slight parallax scale/opacity shift was causing a visible pop because
+  // flushPendingSwipe resets topCardX→0 synchronously before the re-render,
+  // snapping the next card's transform before it becomes the top card.
   const nextCardScale = useTransform(
     [topCardX, topCardY] as any,
-    ([cx, cy]: any) => {
-      const a = Math.min(1, Math.abs(cx) / 280);
-      const b = Math.min(1, Math.abs(cy) / 240);
-      const t = Math.max(a, b);
-      // resting at 0.97, rising to 1.0 as the top card leaves
-      return 0.97 + 0.03 * t;
-    }
+    () => 1
   );
   const nextCardOpacity = useTransform(
     [topCardX, topCardY] as any,
-    ([cx, cy]: any) => {
-      const a = Math.min(1, Math.abs(cx) / 280);
-      const b = Math.min(1, Math.abs(cy) / 240);
-      const t = Math.max(a, b);
-      return 0.72 + 0.26 * t;
-    }
+    () => 1
   );
   // ─────────────────────────────────────────────────────────────────────────
 
@@ -986,7 +979,7 @@ const ClientSwipeContainerComponent = ({
                 initial={{ opacity: 0, scale: 1.02 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.98 }}
-                transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                transition={{ duration: 0.18, ease: [0.25, 0.1, 0.25, 1] }}
                 className="absolute inset-0 w-full h-full flex flex-col items-center justify-center p-0 mx-auto transform-gpu"
               >
                 {/* 🚀 STACKED ARCHITECTURE: Flat map allows React to preserve component mounts */}

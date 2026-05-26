@@ -1,7 +1,9 @@
 """
 Deploy a Supabase Edge Function via the Management API.
-Usage: python execution/deploy_edge_function.py <SUPABASE_ACCESS_TOKEN>
-Or:    SUPABASE_ACCESS_TOKEN=xxx python execution/deploy_edge_function.py
+Usage: python execution/deploy_edge_function.py <SUPABASE_ACCESS_TOKEN> [slug]
+Or:    SUPABASE_ACCESS_TOKEN=xxx python execution/deploy_edge_function.py [slug]
+
+Supported slugs: ai-orchestrator, ai-concierge (default: ai-orchestrator)
 """
 
 import sys
@@ -12,9 +14,17 @@ import json
 import urllib.request
 import urllib.error
 
+SLUG_MAP = {
+    "ai-concierge": "supabase/functions/ai-concierge/index.ts",
+    "ai-orchestrator": "supabase/functions/ai-orchestrator/index.ts",
+}
+
 PROJECT_REF = os.environ.get("SUPABASE_PROJECT_REF", "")
-FUNCTION_SLUG = os.environ.get("SUPABASE_FUNCTION_SLUG", "ai-orchestrator")
-FUNCTION_PATH = os.environ.get("SUPABASE_FUNCTION_PATH", "supabase/functions/ai-orchestrator/index.ts")
+# Determine slug: CLI arg > env > default
+raw_slug_input = (sys.argv[2] if len(sys.argv) > 2 else None) or os.environ.get("SUPABASE_FUNCTION_SLUG", "ai-orchestrator")
+clean_slug = raw_slug_input.strip().lower()
+FUNCTION_SLUG = clean_slug if clean_slug in SLUG_MAP else "ai-orchestrator"
+FUNCTION_PATH = SLUG_MAP.get(FUNCTION_SLUG, "supabase/functions/ai-orchestrator/index.ts")
 
 def deploy(token: str):
     # Read the function source
@@ -22,7 +32,7 @@ def deploy(token: str):
     repo_root = os.path.dirname(script_dir)
     func_file = os.path.join(repo_root, FUNCTION_PATH)
 
-    with open(func_file, "r") as f:
+    with open(func_file, "r", encoding="utf-8", errors="replace") as f:
         source = f.read()
 
     print(f"[deploy] Read {len(source)} chars from {FUNCTION_PATH}")

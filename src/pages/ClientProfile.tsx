@@ -7,11 +7,12 @@ import { useClientProfile } from "@/hooks/useClientProfile";
 import { useAuth } from "@/hooks/useAuth";
 import {
   LogOut, User, Camera, Sparkles, Crown,
-  _Flame, ThumbsUp, Settings, MessageSquare, Megaphone, ChevronRight, Scale, _ShieldCheck, Zap
+  ThumbsUp, Settings, MessageSquare, Megaphone, ChevronRight, Scale, Zap
 } from "lucide-react";
 import { useClientStats } from "@/hooks/useClientStats";
 import { ActivityFeed } from "@/components/ActivityFeed";
 import { VapIdEditModal } from "@/components/VapIdEditModal";
+import { VapIdCardModal } from "@/components/VapIdCardModal";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { ProfileSkeleton } from "@/components/ui/LayoutSkeletons";
@@ -21,6 +22,7 @@ import { LanguageToggle } from "@/components/LanguageToggle";
 import useAppTheme from "@/hooks/useAppTheme";
 import { useTranslation } from 'react-i18next';
 import { HolographicIDCard } from "@/components/native/HolographicIDCard";
+import { useModalStore } from "@/state/modalStore";
 
 const ClientProfile = () => {
   const { isLight } = useAppTheme();
@@ -29,7 +31,8 @@ const ClientProfile = () => {
   const [showPhotoPreview, setShowPhotoPreview] = useState(false);
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
   const [isVapModalOpen, setIsVapModalOpen] = useState(false);
-  const { data: profile, isLoading } = useClientProfile();
+  const [showVapCard, setShowVapCard] = useState(false);
+  const { data: profile, isLoading, refetch: refetchProfile } = useClientProfile();
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
 
@@ -143,15 +146,16 @@ const ClientProfile = () => {
         {/* HUD STATS GRID */}
         <div className="grid grid-cols-3 gap-3">
           {[
-            { label: t('nav.likes'), value: stats?.likesReceived ?? 0, icon: ThumbsUp, color: 'text-[#FF4D00]', glow: 'rgba(255,77,0,0.1)' },
-            { label: t('dashboard.totalMatches'), value: stats?.matchesCount ?? 0, icon: Sparkles, color: 'text-[#EB4898]', glow: 'rgba(235,72,152,0.1)' },
-            { label: t('nav.messages'), value: stats?.activeChats ?? 0, icon: MessageSquare, color: 'text-orange-400', glow: 'rgba(251,146,60,0.1)' },
+            { label: t('nav.likes'), value: stats?.likesReceived ?? 0, icon: ThumbsUp, color: 'text-[#FF4D00]', glow: 'rgba(255,77,0,0.1)', path: '/client/who-liked-you' },
+            { label: t('dashboard.totalMatches'), value: stats?.matchesCount ?? 0, icon: Sparkles, color: 'text-[#EB4898]', glow: 'rgba(235,72,152,0.1)', path: '/client/liked-properties' },
+            { label: t('nav.messages'), value: stats?.activeChats ?? 0, icon: MessageSquare, color: 'text-orange-400', glow: 'rgba(251,146,60,0.1)', path: '/messages' },
           ].map((stat, i) => (
             <motion.div
               key={i}
               whileTap={{ scale: 0.95 }}
-              className={cn("flex flex-col items-center justify-center p-5 text-center rounded-3xl border shadow-sm backdrop-blur-xl", isLight ? "border-black/10 bg-white" : "border-white/[0.06] bg-white/[0.02]")}
+              className={cn("flex flex-col items-center justify-center p-5 text-center rounded-3xl border shadow-sm backdrop-blur-xl cursor-pointer", isLight ? "border-black/10 bg-white" : "border-white/[0.06] bg-white/[0.02]")}
               style={{ boxShadow: `inset 0 0 30px ${stat.glow}` }}
+              onClick={() => { triggerHaptic('light'); navigate(stat.path); }}
             >
               <stat.icon className={cn("w-5 h-5 mb-3", stat.color)} />
               <div className={cn("text-3xl font-black tabular-nums tracking-tighter leading-none", isLight ? "text-slate-900" : "text-white")}>
@@ -164,6 +168,14 @@ const ClientProfile = () => {
 
         {/* PRIMARY ACTIONS */}
         <div className="space-y-3">
+          <Button
+            onClick={() => { triggerHaptic('medium'); useModalStore.getState().openAIProfile('client'); }}
+            className="w-full h-12 rounded-2xl gap-3 text-white font-black uppercase italic tracking-[0.2em] text-[15px] shadow-2xl border-none"
+            style={{ background: 'linear-gradient(135deg, #06B6D4, #6366F1)' }}
+          >
+            <Sparkles className="w-5 h-5" />
+            Magic AI Profile
+          </Button>
           <Button
             onClick={() => { triggerHaptic('medium'); setShowEditDialog(true); }}
             className="w-full h-12 rounded-2xl font-black uppercase italic tracking-[0.2em] text-[15px] transition-all border-none text-white shadow-2xl"
@@ -274,7 +286,7 @@ const ClientProfile = () => {
               { label: t('nav.legal'), icon: Scale, path: '/client/legal-services' },
               { label: t('nav.settings'), icon: Settings, path: '/client/settings' },
               { label: t('actions.signOut'), icon: LogOut, path: 'signout', urgent: true },
-            ].map(btn => (
+            ].map((btn: { label: string; icon: React.ComponentType<{ className?: string }>; path: string; premium?: boolean; urgent?: boolean }) => (
               <motion.button
                 key={btn.label}
                 whileHover={{ x: 4 }}
@@ -285,15 +297,15 @@ const ClientProfile = () => {
                 }}
                 className={cn(
                   "w-full h-11 rounded-2xl flex items-center px-8 gap-5 active:scale-[0.97] transition-all border shadow-sm backdrop-blur-xl",
-                  (btn as any).urgent
+                  btn.urgent
                     ? "bg-red-500/10 border-red-500/20 text-red-400"
-                    : (btn as any).premium
+                    : btn.premium
                       ? "bg-gradient-to-r from-amber-500/15 to-orange-500/15 border-amber-500/40 text-foreground"
                       : "bg-card border-border text-foreground hover:bg-secondary"
                 )}
               >
-                <btn.icon className={cn("w-5 h-5", (btn as any).urgent ? "text-red-400" : (btn as any).premium ? "text-amber-500" : "text-foreground/80")} />
-                <span className="text-[12px] font-black uppercase tracking-[0.2em] italic">{btn.label}</span>
+                <btn.icon className={cn("w-5 h-5", btn.urgent ? "text-red-400" : btn.premium ? "text-amber-500" : "text-foreground/80")} />
+                <span className="text-xs font-black uppercase tracking-[0.2em] italic">{btn.label}</span>
               </motion.button>
             ))}
           </div>
@@ -304,7 +316,8 @@ const ClientProfile = () => {
 
       <ClientProfileDialog open={showEditDialog} onOpenChange={setShowEditDialog} />
       <PhotoPreview photos={profile?.profile_images || []} isOpen={showPhotoPreview} onClose={() => setShowPhotoPreview(false)} initialIndex={selectedPhotoIndex} />
-      <VapIdEditModal isOpen={isVapModalOpen} onClose={() => setIsVapModalOpen(false)} />
+      <VapIdEditModal isOpen={isVapModalOpen} onClose={() => setIsVapModalOpen(false)} onSaved={() => { refetchProfile(); }} role="client" />
+      <VapIdCardModal isOpen={showVapCard} onClose={() => setShowVapCard(false)} role="client" />
     </div>
   );
 };

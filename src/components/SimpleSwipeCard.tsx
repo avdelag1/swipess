@@ -291,23 +291,39 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
       isExitingRef.current = true;
       triggerHaptic(direction === 'right' ? 'success' : 'warning');
       const exitX = direction === 'right' ? (window.innerWidth || 600) * 1.2 : -(window.innerWidth || 600) * 1.2;
-      animate(x, exitX, { type: 'tween', duration: 0.24, ease: [0.32, 0, 0.67, 0] });
+      let swipeFired = false;
+      const fireSwipe = () => {
+        if (swipeFired) return;
+        swipeFired = true;
+        isExitingRef.current = false;
+        onSwipe(direction);
+      };
+      animate(x, exitX, {
+        type: 'tween', duration: 0.24, ease: [0.32, 0, 0.67, 0],
+        onComplete: fireSwipe,
+      });
       animate(y, 0, { type: 'tween', duration: 0.18, ease: [0.22, 1, 0.36, 1] });
-      setTimeout(() => onSwipe(direction), 220);
+      setTimeout(fireSwipe, 300);
     } else if (vertCommit && (onSkip || onSkipBack)) {
       const dir = dy > 0 ? 1 : -1;
       hasExited.current = true;
       isExitingRef.current = true;
       triggerHaptic('light');
-      // Cinematic vertical exit: card vanishes back into the deck while next card rises up.
       const exitY = dir * (window.innerHeight || 800) * 0.85;
-      animate(y, exitY, { duration: 0.32, ease: [0.22, 1, 0.36, 1] });
-      animate(x, 0, { duration: 0.18, ease: [0.22, 1, 0.36, 1] });
-      setTimeout(() => {
-        // Tinder-style: swipe UP (dir < 0) = next listing, swipe DOWN (dir > 0) = previous.
+      let skipFired = false;
+      const fireSkip = () => {
+        if (skipFired) return;
+        skipFired = true;
+        isExitingRef.current = false;
         if (dir < 0) onSkip?.();
         else onSkipBack?.();
-      }, 300);
+      };
+      animate(y, exitY, {
+        duration: 0.32, ease: [0.22, 1, 0.36, 1],
+        onComplete: fireSkip,
+      });
+      animate(x, 0, { duration: 0.18, ease: [0.22, 1, 0.36, 1] });
+      setTimeout(fireSkip, 400);
     } else {
       animate(x, 0, { type: 'spring', ...ACTIVE_SPRING });
       animate(y, 0, { type: 'spring', ...ACTIVE_SPRING });

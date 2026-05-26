@@ -40,10 +40,10 @@ export interface OwnerIntentCard extends PokerCardData {
 }
 
 export const POKER_CARDS: PokerCardData[] = [
-  { id: 'property',   label: 'Real Estate',  description: 'Houses for sale in Tulum', accent: '#f97316', accentRgb: '249,115,22', icon: Crown  },
-  { id: 'services',   label: 'Find Workers', description: 'Need a reliable plumber',  accent: '#0ea5e9', accentRgb: '14,165,233', icon: Sparkles  },
-  { id: 'motorcycle', label: 'Motorcycles',  description: 'Bikes under $3,000',       accent: '#f59e0b', accentRgb: '245,158,11', icon: Flame  },
-  { id: 'bicycle',    label: 'Bicycles',     description: 'Available nearby',         accent: '#8b5cf6', accentRgb: '139,92,246', icon: Zap   },
+  { id: 'property',   label: 'Real Estate',  description: 'Properties for rent and sale', accent: '#f97316', accentRgb: '249,115,22', icon: Crown  },
+  { id: 'services',   label: 'Find Workers', description: 'Find your best skillful person',  accent: '#0ea5e9', accentRgb: '14,165,233', icon: Sparkles  },
+  { id: 'motorcycle', label: 'Motorcycles',  description: 'Motorcycles for rent and sale',   accent: '#f59e0b', accentRgb: '245,158,11', icon: Flame  },
+  { id: 'bicycle',    label: 'Bicycles',     description: 'Bicycles for rent and sale',     accent: '#8b5cf6', accentRgb: '139,92,246', icon: Zap   },
   { id: 'radio',      label: 'Radio',        description: 'Swipess Beats',            accent: '#f43f5e', accentRgb: '244,63,94',  icon: Radio   },
   { id: 'clients',    label: 'Find Clients', description: 'Reach more clients',       accent: '#10b981', accentRgb: '16,185,129', icon: Moon },
 ];

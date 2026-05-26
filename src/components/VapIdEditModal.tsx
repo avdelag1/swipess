@@ -2,19 +2,24 @@ import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  X, Upload, FileText, CheckCircle2, Loader2, Save,
+  X, Upload, FileText, CheckCircle2, Loader2, Save, Camera, User, Plus,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { useSaveClientProfile } from '@/hooks/useClientProfile';
+import { useSaveOwnerProfile } from '@/hooks/useOwnerProfile';
 import { toast } from 'sonner';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
+import { compressImage, PROFILE_COMPRESSION } from '@/utils/imageCompression';
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
+  onSaved?: () => void;
+  role?: 'client' | 'owner';
 }
 
 const DOC_TYPES = [
@@ -31,45 +36,81 @@ const arrayToCsv = (arr: unknown): string => {
   return arr.filter((v): v is string => typeof v === 'string' && v.trim().length > 0).join(', ');
 };
 
-export function VapIdEditModal({ isOpen, onClose }: Props) {
+export function VapIdEditModal({ isOpen, onClose, onSaved, role = 'client' }: Props) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [uploading, setUploading] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [photoUploading, setPhotoUploading] = useState(false);
 
+  const [name, setName] = useState('');
   const [bio, setBio] = useState('');
   const [occupation, setOccupation] = useState('');
   const [city, setCity] = useState('');
+  const [country, setCountry] = useState('');
   const [nationality, setNationality] = useState('');
   const [yearsInCity, setYearsInCity] = useState<string>('');
   const [languages, setLanguages] = useState('');
   const [interests, setInterests] = useState('');
+  const [displayName, setDisplayName] = useState('');
+  const [age, setAge] = useState<string>('');
+  const [profileImages, setProfileImages] = useState<string[]>([]);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
 
-  const { data: clientProfile, refetch } = useQuery({
-    queryKey: ['vap-id-client-profile', user?.id],
+  const profileTable = role === 'owner' ? 'owner_profiles' : 'client_profiles';
+  const profileQueryKey = role === 'owner' ? 'vap-id-owner-profile' : 'vap-id-client-profile';
+
+  const { data: profileData, refetch } = useQuery({
+    queryKey: [profileQueryKey, user?.id],
     enabled: !!user?.id && isOpen,
     staleTime: 0,
+    refetchOnMount: 'always',
     queryFn: async () => {
+      if (!user?.id) return null;
       const { data, error } = await supabase
-        .from('client_profiles')
-        .select('bio, occupation, city, nationality, years_in_city, languages, interests, personality_traits, preferred_activities')
-        .eq('user_id', user!.id)
+        .from(profileTable)
+        .select(role === 'owner'
+          ? 'business_name, business_description, business_location, contact_email, contact_phone, profile_images'
+          : 'bio, occupation, city, country, nationality, years_in_city, languages, interests, personality_traits, preferred_activities, name, age, profile_images'
+        )
+        .eq('user_id', user.id)
         .maybeSingle();
-      if (error) throw error;
+      if (error) { console.error('[VapIdEdit] Load error:', error); throw error; }
+      console.log('[VapIdEdit] Loaded raw data:', JSON.stringify(data));
       return data;
     },
   });
 
   useEffect(() => {
-    if (!clientProfile) return;
-    setBio(clientProfile.bio || '');
-    setOccupation((clientProfile as any).occupation || '');
-    setCity(clientProfile.city || '');
-    setNationality(clientProfile.nationality || '');
-    setYearsInCity(clientProfile.years_in_city != null ? String(clientProfile.years_in_city) : '');
-    setLanguages(arrayToCsv(clientProfile.languages));
-    setInterests(arrayToCsv(clientProfile.interests));
-  }, [clientProfile]);
+    const d = profileData as any;
+    console.log('[VapIdEdit] profileData changed:', JSON.stringify(d));
+    if (!d) return;
+    if (role === 'owner') {
+      setBio(d.business_description || '');
+      setOccupation(d.business_name || '');
+      setCity(d.business_location || '');
+      setCountry('');
+      setNationality('');
+      setYearsInCity('');
+      setLanguages('');
+      setInterests('');
+      setDisplayName(d.business_name || '');
+      setAge('');
+      setProfileImages(Array.isArray(d.profile_images) ? d.profile_images : []);
+    } else {
+      setBio(d.bio || '');
+      setOccupation(d.occupation || '');
+      setCity(d.city || '');
+      setCountry(d.country || '');
+      setNationality(d.nationality || '');
+      setYearsInCity(d.years_in_city != null ? String(d.years_in_city) : '');
+      setLanguages(arrayToCsv(d.languages));
+      setInterests(arrayToCsv(d.interests));
+      setDisplayName(d.name || '');
+      setAge(d.age != null ? String(d.age) : '');
+      setProfileImages(Array.isArray(d.profile_images) ? d.profile_images : []);
+    }
+  }, [profileData, role]);
 
   const { data: documents } = useQuery({
     queryKey: ['vap-documents', user?.id],
@@ -120,58 +161,101 @@ export function VapIdEditModal({ isOpen, onClose }: Props) {
     input.click();
   }, [user?.id, queryClient]);
 
-  const handleSave = useCallback(async () => {
-    if (!user?.id) { toast.error('Not signed in'); return; }
+  const saveClient = useSaveClientProfile();
+  const saveOwner = useSaveOwnerProfile();
+
+  const doSave = useCallback(async () => {
+    if (!user?.id) { toast.error('Not signed in'); return false; }
+    console.log('[VapIdEdit] Starting save for role:', role, 'user_id:', user.id);
+    console.log('[VapIdEdit] Field values:', { displayName, age, bio, occupation, city, country, nationality, yearsInCity, languages, interests, profileImages });
     setSaving(true);
     try {
-      const yearsNum = yearsInCity.trim() === '' ? null : Number(yearsInCity);
-      const payload: any = {
-        user_id: user.id,
-        bio: bio.trim() || null,
-        occupation: occupation.trim() || null,
-        city: city.trim() || null,
-        nationality: nationality.trim() || null,
-        years_in_city: Number.isFinite(yearsNum as number) ? yearsNum : null,
-        languages: csvToArray(languages),
-        interests: csvToArray(interests),
-      };
+      const finalProfileImages = profileImages.length > 0 ? profileImages : null;
 
-      const { data: existing, error: selectErr } = await supabase
-        .from('client_profiles')
-        .select('id')
-        .eq('user_id', user.id)
-        .maybeSingle();
-      if (selectErr) throw selectErr;
-
-      if (existing?.id) {
-        const updatePayload = { ...payload };
-        delete updatePayload.user_id;
-
-        const { error: updateErr } = await supabase
-          .from('client_profiles')
-          .update(updatePayload)
-          .eq('user_id', user.id);
-        if (updateErr) throw updateErr;
+      if (role === 'owner') {
+        await saveOwner.mutateAsync({
+          business_name: displayName.trim() || null,
+          business_description: bio.trim() || null,
+          business_location: city.trim() || null,
+          profile_images: finalProfileImages,
+        });
       } else {
-        const { error: insertErr } = await supabase
-          .from('client_profiles')
-          .insert(payload as any);
-        if (insertErr) throw insertErr;
+        const langsArr = csvToArray(languages);
+        const intArr = csvToArray(interests);
+        const yearsNum = yearsInCity.trim() === '' ? null : Number(yearsInCity);
+
+        await saveClient.mutateAsync({
+          name: displayName.trim() || null,
+          age: age.trim() !== '' ? Number(age) : null,
+          bio: bio.trim() || null,
+          occupation: occupation.trim() || null,
+          city: city.trim() || null,
+          country: country.trim() || null,
+          nationality: nationality.trim() || null,
+          years_in_city: Number.isFinite(yearsNum as number) ? yearsNum : null,
+          languages: langsArr.length > 0 ? langsArr : null,
+          interests: intArr.length > 0 ? intArr : null,
+          profile_images: finalProfileImages,
+        });
       }
 
-
-      await queryClient.invalidateQueries({ queryKey: ['vap-id-client-profile', user.id] });
-      await queryClient.invalidateQueries({ queryKey: ['client-profile-own'] });
-      await refetch();
-      toast.success('Card saved');
-      onClose();
+      console.log('[VapIdEdit] Save completed successfully');
+      return true;
     } catch (err: any) {
-      console.error('[VapIdEdit] save failed', err);
-      toast.error(err?.message || 'Failed to save');
+      console.error('[VapIdEdit] save failed:', err);
+      toast.error('Save failed: ' + (err?.message || 'unknown error'));
+      return false;
     } finally {
       setSaving(false);
     }
-  }, [user?.id, bio, occupation, city, nationality, yearsInCity, languages, interests, queryClient, refetch]);
+  }, [user?.id, bio, occupation, city, country, nationality, yearsInCity, languages, interests, displayName, age, profileImages, role, saveClient, saveOwner]);
+
+  const handleClose = useCallback(async () => {
+    console.log('[VapIdEdit] Close requested, auto-saving...');
+    const saved = await doSave();
+    if (saved) {
+      toast.success('Card saved');
+      onSaved?.();
+    }
+    onClose();
+  }, [doSave, onSaved, onClose]);
+
+  const handleSave = useCallback(async () => {
+    const saved = await doSave();
+    if (saved) {
+      toast.success('Card saved');
+      onSaved?.();
+    }
+    onClose();
+  }, [doSave, onSaved, onClose]);
+
+  const handlePhotoUpload = useCallback(async () => {
+    if (!user?.id) return;
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = async (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+      setUploadingPhoto(true);
+      try {
+        const prepared = await compressImage(file, PROFILE_COMPRESSION);
+        const fileExt = prepared.type === 'image/webp' ? 'webp' : prepared.type === 'image/png' ? 'png' : 'jpg';
+        const filePath = `${user.id}/${crypto.randomUUID()}.${fileExt}`;
+        const { error: uploadErr } = await supabase.storage.from('profile-images').upload(filePath, prepared, { contentType: prepared.type || 'image/jpeg' });
+        if (uploadErr) throw uploadErr;
+        const url = supabase.storage.from('profile-images').getPublicUrl(filePath).data.publicUrl;
+        setProfileImages(prev => [...prev, url]);
+        toast.success('Photo added');
+      } catch (err: any) { toast.error(err.message || 'Upload failed'); }
+      finally { setUploadingPhoto(false); }
+    };
+    input.click();
+  }, [user?.id]);
+
+  const removePhoto = useCallback((index: number) => {
+    setProfileImages(prev => prev.filter((_, i) => i !== index));
+  }, []);
 
   const getDocStatus = (docType: string) => documents?.find(d => d.document_type === docType)?.status || 'none';
   const getDocMeta = (docType: string) => documents?.find(d => d.document_type === docType);
@@ -189,25 +273,54 @@ export function VapIdEditModal({ isOpen, onClose }: Props) {
           <div className="flex items-center justify-between border-b border-border px-5 py-3 shrink-0">
             <div>
               <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary">Edit</p>
-              <h2 className="mt-0.5 text-base font-black tracking-tight text-foreground">Resident Card Settings</h2>
+              <h2 className="mt-0.5 text-base font-black tracking-tight text-foreground">{role === 'owner' ? 'Asset Card Settings' : 'Resident Card Settings'}</h2>
             </div>
-            <button onClick={onClose} className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card text-muted-foreground hover:text-foreground" aria-label="Close">
+            <button onClick={handleClose} className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card text-muted-foreground hover:text-foreground" aria-label="Close">
               <X className="h-4 w-4" />
             </button>
           </div>
 
           <div className="flex-1 overflow-y-auto overscroll-contain px-4 pb-32 pt-5 scroll-smooth">
+            {/* Photo */}
+            <section className="rounded-[24px] border border-border bg-card p-4 shadow-lg">
+              <div className="mb-3">
+                <p className="text-[11px] font-black uppercase tracking-[0.22em] text-primary">Photo</p>
+                <h3 className="mt-1 text-sm font-black text-foreground">Card photo</h3>
+                <p className="mt-1 text-[11px] text-muted-foreground">This photo appears on your identity card.</p>
+              </div>
+              <div className="flex gap-3 overflow-x-auto pb-2">
+                {profileImages.map((img, i) => (
+                  <div key={i} className="relative shrink-0">
+                    <div className="w-24 h-28 rounded-2xl overflow-hidden border border-border">
+                      <img src={img} alt="" className="w-full h-full object-cover" />
+                    </div>
+                    <button onClick={() => removePhoto(i)} className="absolute -top-1.5 -right-1.5 w-6 h-6 rounded-full bg-red-500 text-white flex items-center justify-center text-[10px] font-black shadow-lg">
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                ))}
+                <button
+                  onClick={handlePhotoUpload}
+                  disabled={uploadingPhoto}
+                  className="w-24 h-28 rounded-2xl border-2 border-dashed border-border flex flex-col items-center justify-center gap-1.5 hover:border-primary/50 transition-colors shrink-0"
+                >
+                  {uploadingPhoto ? <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" /> : <Camera className="w-5 h-5 text-muted-foreground" />}
+                  <span className="text-[8px] font-black uppercase tracking-widest text-muted-foreground">Add</span>
+                </button>
+              </div>
+            </section>
+
             {/* About / Bio */}
             <section className="rounded-[24px] border border-border bg-card p-4 shadow-lg">
               <div className="mb-3">
-                <p className="text-[11px] font-black uppercase tracking-[0.22em] text-primary">About Me</p>
-                <h3 className="mt-1 text-sm font-black text-foreground">Card description</h3>
+                <p className="text-[11px] font-black uppercase tracking-[0.22em] text-primary">{role === 'owner' ? 'Business' : 'About Me'}</p>
+                <h3 className="mt-1 text-sm font-black text-foreground">Description</h3>
                 <p className="mt-1 text-[11px] text-muted-foreground">A short bio shown on the front of your card.</p>
               </div>
               <Textarea
                 value={bio}
                 onChange={(e) => setBio(e.target.value)}
-                placeholder="I work as... I own a business called... I love..."
+                placeholder={role === 'owner' ? "Premium serviced apartments in Tulum..." : "I work as... I own a business called... I love..."}
                 rows={3}
                 maxLength={240}
                 className="min-h-[90px] text-sm"
@@ -219,27 +332,50 @@ export function VapIdEditModal({ isOpen, onClose }: Props) {
             <section className="mt-5 rounded-[24px] border border-border bg-card p-4 shadow-lg">
               <div className="mb-3">
                 <p className="text-[11px] font-black uppercase tracking-[0.22em] text-primary">Details</p>
-                <h3 className="mt-1 text-sm font-black text-foreground">Personal info</h3>
+                <h3 className="mt-1 text-sm font-black text-foreground">{role === 'owner' ? 'Business info' : 'Personal info'}</h3>
               </div>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <LabeledField label="Occupation">
-                  <Input value={occupation} onChange={(e) => setOccupation(e.target.value)} placeholder="Barista, Landlord, Dev…" maxLength={60} />
-                </LabeledField>
-                <LabeledField label="City">
+                {role === 'owner' ? (
+                  <LabeledField label="Business Name">
+                    <Input value={displayName} onChange={(e) => setDisplayName(e.target.value)} placeholder="Swipess Properties Inc." maxLength={60} />
+                  </LabeledField>
+                ) : (
+                  <LabeledField label="Full Name">
+                    <Input value={displayName} onChange={(e) => setDisplayName(e.target.value)} placeholder="John Doe" maxLength={60} />
+                  </LabeledField>
+                )}
+                {role !== 'owner' && (
+                  <LabeledField label="Age">
+                    <Input value={age} inputMode="numeric" pattern="[0-9]*" onChange={(e) => setAge(e.target.value.replace(/[^0-9]/g, ''))} placeholder="25" maxLength={3} />
+                  </LabeledField>
+                )}
+                {role !== 'owner' && (
+                  <LabeledField label="Occupation">
+                    <Input value={occupation} onChange={(e) => setOccupation(e.target.value)} placeholder="Barista, Landlord, Dev…" maxLength={60} />
+                  </LabeledField>
+                )}
+                <LabeledField label={role === 'owner' ? 'Location' : 'City'}>
                   <Input value={city} onChange={(e) => setCity(e.target.value)} placeholder="Tulum" maxLength={60} />
                 </LabeledField>
-                <LabeledField label="Nationality">
-                  <Input value={nationality} onChange={(e) => setNationality(e.target.value)} placeholder="Mexican" maxLength={40} />
-                </LabeledField>
-                <LabeledField label="Years in city">
-                  <Input value={yearsInCity} inputMode="numeric" pattern="[0-9]*" onChange={(e) => setYearsInCity(e.target.value.replace(/[^0-9]/g, ''))} placeholder="3" maxLength={2} />
-                </LabeledField>
-                <LabeledField label="Languages" hint="Comma separated" className="sm:col-span-2">
-                  <Input value={languages} onChange={(e) => setLanguages(e.target.value)} placeholder="English, Spanish, French" />
-                </LabeledField>
-                <LabeledField label="Interests" hint="Comma separated" className="sm:col-span-2">
-                  <Input value={interests} onChange={(e) => setInterests(e.target.value)} placeholder="Surf, Yoga, Coffee" />
-                </LabeledField>
+                {role !== 'owner' && (
+                  <>
+                    <LabeledField label="Nationality">
+                      <Input value={nationality} onChange={(e) => setNationality(e.target.value)} placeholder="Mexican" maxLength={40} />
+                    </LabeledField>
+                    <LabeledField label="Country">
+                      <Input value={country} onChange={(e) => setCountry(e.target.value)} placeholder="Mexico" maxLength={60} />
+                    </LabeledField>
+                    <LabeledField label="Years in city">
+                      <Input value={yearsInCity} inputMode="numeric" pattern="[0-9]*" onChange={(e) => setYearsInCity(e.target.value.replace(/[^0-9]/g, ''))} placeholder="3" maxLength={2} />
+                    </LabeledField>
+                    <LabeledField label="Languages" hint="Comma separated" className="sm:col-span-2">
+                      <Input value={languages} onChange={(e) => setLanguages(e.target.value)} placeholder="English, Spanish, French" />
+                    </LabeledField>
+                    <LabeledField label="Interests" hint="Comma separated" className="sm:col-span-2">
+                      <Input value={interests} onChange={(e) => setInterests(e.target.value)} placeholder="Surf, Yoga, Coffee" />
+                    </LabeledField>
+                  </>
+                )}
               </div>
             </section>
 
@@ -293,7 +429,7 @@ export function VapIdEditModal({ isOpen, onClose }: Props) {
           </div>
 
           {/* Sticky save bar */}
-          <div className="sticky bottom-0 border-t border-border bg-background/95 px-4 pt-3 pb-[max(12px,env(safe-area-inset-bottom))] shadow-[0_-8px_24px_hsl(var(--foreground)/0.08)]">
+          <div className="sticky bottom-0 border-t border-border bg-background/95 px-4 pt-3 pb-[max(12px,env(safe-area-inset-bottom))] shadow-[0_-8px_24px_hsl(var(--foreground)/0.08)] space-y-2">
             <button
               onClick={handleSave}
               disabled={saving}
@@ -331,5 +467,3 @@ function LabeledField({
     </div>
   );
 }
-
-

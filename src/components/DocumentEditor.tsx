@@ -70,7 +70,7 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
   };
 
   const handleSave = () => {
-    const content = editorRef.current?.innerHTML || '';
+    const content = sanitizeHTML(editorRef.current?.innerHTML || '');
     onSave?.(content, documentTitle);
     toast.success('Document saved!');
   };

@@ -173,6 +173,7 @@ export function SavedSearchesDialog({ open, onOpenChange }: SavedSearchesDialogP
       setCity('');
       setActiveTab('list');
       fetchSavedSearches();
+      onOpenChange(false);
     } catch (error: unknown) {
       toast({
         title: 'Error',

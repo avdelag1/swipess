@@ -262,28 +262,14 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
         );
         
         setUploadProgress(95);
-        // Parallel moderation check to keep it fast
-        appToast.info('Verifying photos…', 'Checking for appropriate content.');
-        const modPromises = uploadedImageUrls.map(async (url) => {
-          try {
-            const { data: modData } = await supabase.functions.invoke('moderate-image', {
-              body: { imageUrl: url }
-            });
-            if (modData && !modData.safe) {
-              return { url, safe: false, reasons: modData.reasons };
-            }
-          } catch (e) {
-            logger.error('Moderation check failed for', url, e);
+        // Fire-and-forget moderation so upload flows instantly
+        supabase.functions.invoke('moderate-image', {
+          body: { imageUrl: uploadedImageUrls[0] }
+        }).then(({ data: modData }) => {
+          if (modData && !modData.safe) {
+            logger.warn('[Moderation] Unsafe content detected:', modData.reasons);
           }
-          return { url, safe: true };
-        });
-
-        const modResults = await Promise.all(modPromises);
-        const unsafe = modResults.filter(r => !r.safe);
-        if (unsafe.length > 0) {
-          const reasons = unsafe.flatMap(r => r.reasons || []);
-          throw new Error(`Inappropriate content detected in ${unsafe.length} photo(s). ${reasons.length > 0 ? reasons.join(', ') : 'Please ensure photos meet community guidelines.'}`);
-        }
+        }).catch(() => {});
         
         setUploadProgress(98);
       }

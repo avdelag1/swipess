@@ -4,6 +4,8 @@ import { Heart, MessageCircle, Share2, ChevronUp, Calendar, MapPin, Bookmark, Fl
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
 import useAppTheme from '@/hooks/useAppTheme';
+import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 import { EventItem } from '@/types/events';
 import { CATEGORIES } from '@/data/eventsData';
 import { toast } from '@/components/ui/sonner';
@@ -76,6 +78,7 @@ export const EventCard = memo(({
 }) => {
   const { theme } = useAppTheme();
   const isLight = theme === 'light';
+  const { user } = useAuth();
   const [showDetails, setShowDetails] = useState(false);
   const [likeAnim, setLikeAnim] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -89,11 +92,24 @@ export const EventCard = memo(({
     }
   }, [onLike, liked]);
 
-  const handleSave = useCallback(() => {
+  const handleSave = useCallback(async () => {
+    if (!user) {
+      toast.error('Sign in to save events');
+      return;
+    }
     triggerHaptic('success');
-    setSaved(prev => !prev);
-    toast.success(saved ? 'Removed from saved' : 'Event saved!', { duration: 1500 });
-  }, [saved]);
+    const newSaved = !saved;
+    setSaved(newSaved);
+    const { error } = newSaved
+      ? await supabase.from('event_favorites').insert({ user_id: user.id, event_id: event.id })
+      : await supabase.from('event_favorites').delete().eq('user_id', user.id).eq('event_id', event.id);
+    if (error) {
+      setSaved(!newSaved);
+      toast.error('Could not save event');
+    } else {
+      toast.success(newSaved ? 'Event saved!' : 'Removed from saved', { duration: 1500 });
+    }
+  }, [saved, user, event.id]);
 
   const handleReport = useCallback(() => {
     triggerHaptic('medium');
@@ -200,7 +216,7 @@ export const EventCard = memo(({
         {/* Save / Bookmark */}
         <button
           onClick={(e) => { e.stopPropagation(); handleSave(); }}
-          className="flex flex-col items-center gap-1"
+          className="flex flex-col items-center gap-1 outline-none focus:outline-none focus-visible:outline-none"
           title={saved ? "Unsave event" : "Save event"}
         >
           <motion.div
@@ -224,7 +240,7 @@ export const EventCard = memo(({
         {/* Like / Heart */}
         <button
           onClick={(e) => { e.stopPropagation(); triggerHaptic('light'); handleLike(); }}
-          className="flex flex-col items-center gap-1"
+          className="flex flex-col items-center gap-1 outline-none focus:outline-none focus-visible:outline-none"
           title={liked ? "Unlike" : "Like"}
         >
           <motion.div
@@ -244,7 +260,7 @@ export const EventCard = memo(({
         {/* Chat / WhatsApp */}
         <button
           onClick={(e) => { e.stopPropagation(); triggerHaptic('light'); onChat(); }}
-          className="flex flex-col items-center gap-1"
+          className="flex flex-col items-center gap-1 outline-none focus:outline-none focus-visible:outline-none"
           title="Chat with host"
         >
           <motion.div
@@ -259,7 +275,7 @@ export const EventCard = memo(({
         {/* Share */}
         <button
           onClick={(e) => { e.stopPropagation(); triggerHaptic('light'); onShare(); }}
-          className="flex flex-col items-center gap-1"
+          className="flex flex-col items-center gap-1 outline-none focus:outline-none focus-visible:outline-none"
           title="Share event"
         >
           <motion.div
@@ -274,7 +290,7 @@ export const EventCard = memo(({
         {/* Report */}
         <button
           onClick={(e) => { e.stopPropagation(); handleReport(); }}
-          className="flex flex-col items-center gap-1"
+          className="flex flex-col items-center gap-1 outline-none focus:outline-none focus-visible:outline-none"
           title="Report event"
         >
           <motion.div
