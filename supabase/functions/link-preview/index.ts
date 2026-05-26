@@ -5,7 +5,7 @@
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.4";
 
-const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "https://qegyisokrxdsszzswsqk.supabase.co";
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
 const SUPABASE_KEY =
   Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ??
   Deno.env.get("SUPABASE_ANON_KEY") ??
@@ -13,6 +13,10 @@ const SUPABASE_KEY =
   "";
 const DEFAULT_APP_ORIGIN = (Deno.env.get("APP_ORIGIN") ?? "https://www.swipess.com").replace(/\/$/, "");
 const FALLBACK_IMAGE = "https://www.swipess.com/og-image-nexus.png";
+
+if (!SUPABASE_URL) {
+  throw new Error("SUPABASE_URL environment variable is required");
+}
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
