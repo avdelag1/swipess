@@ -41,7 +41,9 @@ export function VapIdEditModal({ isOpen, onClose, onSaved, role = 'client' }: Pr
   const queryClient = useQueryClient();
   const [uploading, setUploading] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [photoUploading, setPhotoUploading] = useState(false);
 
+  const [name, setName] = useState('');
   const [bio, setBio] = useState('');
   const [occupation, setOccupation] = useState('');
   const [city, setCity] = useState('');
@@ -465,5 +467,3 @@ function LabeledField({
     </div>
   );
 }
-
-

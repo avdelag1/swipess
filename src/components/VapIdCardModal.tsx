@@ -193,20 +193,12 @@ export function VapIdCardModal({ isOpen, onClose, role = 'client' }: VapIdProps)
                 {bio && <div className="rounded-[1.5rem] p-6 mb-8 border" style={{ background: `${theme.tagBg}44`, border: `1px solid ${theme.tagBorder}` }}><p className="text-[14px] leading-relaxed italic font-medium" style={{ color: theme.textSecondary }}>{bio}</p></div>}
 
                 <div className="space-y-6 flex-1 flex flex-col">
-                  {(spokenLanguages.length > 0 || phone) && (
+                  {spokenLanguages.length > 0 && (
                     <div className="flex flex-col gap-2">
-                      {spokenLanguages.length > 0 && (
-                        <div className="flex items-center gap-2 text-[13px] font-bold uppercase tracking-widest" style={{ color: theme.textSecondary }}>
-                          <Languages size={16} />
-                          <span className="truncate">{spokenLanguages.join(' · ')}</span>
-                        </div>
-                      )}
-                      {phone && (
-                        <div className="flex items-center gap-2 text-[13px] font-bold uppercase tracking-widest" style={{ color: theme.textSecondary }}>
-                          <Phone size={16} />
-                          <span>{phone}</span>
-                        </div>
-                      )}
+                      <div className="flex items-center gap-2 text-[13px] font-bold uppercase tracking-widest" style={{ color: theme.textSecondary }}>
+                        <Languages size={16} />
+                        <span className="truncate">{spokenLanguages.join(' · ')}</span>
+                      </div>
                     </div>
                   )}
 
