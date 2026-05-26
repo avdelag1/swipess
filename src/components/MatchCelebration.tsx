@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MessageCircle, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -17,6 +17,7 @@ interface MatchCelebrationProps {
 
 export function MatchCelebration({ isOpen, onClose, onMessage, matchedUser }: MatchCelebrationProps) {
   const [showButtons, setShowButtons] = useState(false);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -29,6 +30,45 @@ export function MatchCelebration({ isOpen, onClose, onMessage, matchedUser }: Ma
     } else {
       setShowButtons(false);
     }
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen || !canvasRef.current) return;
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    let w = canvas.width = window.innerWidth;
+    let h = canvas.height = window.innerHeight;
+    canvas.width = w * window.devicePixelRatio;
+    canvas.height = h * window.devicePixelRatio;
+    ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+    const particles: { x: number; y: number; vx: number; vy: number; size: number; color: string; alpha: number; decay: number }[] = [];
+    for (let i = 0; i < 60; i++) {
+      particles.push({
+        x: w/2, y: h/2,
+        vx: (Math.random() - 0.5) * 20,
+        vy: (Math.random() - 0.5) * 20,
+        size: Math.random() * 3 + 2,
+        color: ['#fbbf24', '#f472b6', '#3b82f6', '#ffffff'][i % 4],
+        alpha: 1,
+        decay: 0.015 + Math.random() * 0.02
+      });
+    }
+    let animId: number;
+    function animate() {
+      ctx!.clearRect(0, 0, w, h);
+      particles.forEach(p => {
+        p.x += p.vx; p.y += p.vy; p.vy += 0.2; p.alpha -= p.decay;
+        if (p.alpha > 0) {
+          ctx!.globalAlpha = p.alpha;
+          ctx!.fillStyle = p.color;
+          ctx!.beginPath(); ctx!.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx!.fill();
+        }
+      });
+      if (particles.some(p => p.alpha > 0)) animId = requestAnimationFrame(animate);
+    }
+    animate();
+    return () => cancelAnimationFrame(animId);
   }, [isOpen]);
 
   const handleStartConversation = () => {
@@ -58,48 +98,10 @@ export function MatchCelebration({ isOpen, onClose, onMessage, matchedUser }: Ma
 
           {/* High-Performance Canvas Particles */}
           <canvas
-            id="match-celebration-canvas"
+            ref={canvasRef}
             className="absolute inset-0 pointer-events-none z-0"
             style={{ width: '100%', height: '100%' }}
           />
-          <script dangerouslySetInnerHTML={{ __html: `
-            (function() {
-              const canvas = document.getElementById('match-celebration-canvas');
-              if (!canvas) return;
-              const ctx = canvas.getContext('2d');
-              let w = canvas.width = window.innerWidth;
-              let h = canvas.height = window.innerHeight;
-              canvas.width = w * window.devicePixelRatio;
-              canvas.height = h * window.devicePixelRatio;
-              ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
-              
-              const particles = [];
-              for (let i = 0; i < 60; i++) {
-                particles.push({
-                  x: w/2, y: h/2,
-                  vx: (Math.random() - 0.5) * 20,
-                  vy: (Math.random() - 0.5) * 20,
-                  size: Math.random() * 3 + 2,
-                  color: ['#fbbf24', '#f472b6', '#3b82f6', '#ffffff'][i % 4],
-                  alpha: 1,
-                  decay: 0.015 + Math.random() * 0.02
-                });
-              }
-              function animate() {
-                ctx.clearRect(0, 0, w, h);
-                particles.forEach(p => {
-                  p.x += p.vx; p.y += p.vy; p.vy += 0.2; p.alpha -= p.decay;
-                  if (p.alpha > 0) {
-                    ctx.globalAlpha = p.alpha;
-                    ctx.fillStyle = p.color;
-                    ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill();
-                  }
-                });
-                if (particles.some(p => p.alpha > 0)) requestAnimationFrame(animate);
-              }
-              animate();
-            })();
-          `}} />
 
           {/* Cinematic Title */}
           <div className="relative mb-12">

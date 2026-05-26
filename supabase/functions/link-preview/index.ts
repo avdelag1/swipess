@@ -5,14 +5,14 @@
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.4";
 
-const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "https://qegyisokrxdsszzswsqk.supabase.co";
-const SUPABASE_KEY =
-  Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ??
-  Deno.env.get("SUPABASE_ANON_KEY") ??
-  Deno.env.get("SUPABASE_PUBLISHABLE_KEY") ??
-  "";
-const DEFAULT_APP_ORIGIN = (Deno.env.get("APP_ORIGIN") ?? "https://www.swipess.com").replace(/\/$/, "");
-const FALLBACK_IMAGE = "https://www.swipess.com/og-image-nexus.png";
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
+const SUPABASE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+const DEFAULT_APP_ORIGIN = (Deno.env.get("APP_ORIGIN") ?? "").replace(/\/$/, "");
+
+function getFallbackImage(appOrigin: string): string {
+  if (appOrigin) return `${appOrigin}/og-image-nexus.png`;
+  return "/og-image-nexus.png";
+}
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -109,8 +109,9 @@ function pickFirstImage(images: unknown): string | null {
   if (!Array.isArray(images)) return null;
   for (const v of images) {
     if (typeof v === "string" && v.trim()) return v;
-    if (v && typeof v === "object" && typeof (v as any).url === "string" && (v as any).url.trim()) {
-      return (v as any).url;
+    if (v && typeof v === "object") {
+      const url = (v as Record<string, unknown>).url;
+      if (typeof url === "string" && url.trim()) return url;
     }
   }
   return null;
@@ -137,12 +138,14 @@ Deno.serve(async (req: Request) => {
   const appOrigin = forwardedHost && !forwardedHost.includes("supabase.co")
     ? `${forwardedProto}://${forwardedHost}`.replace(/\/$/, "")
     : DEFAULT_APP_ORIGIN;
+  if (!appOrigin) {
+    return new Response("Missing APP_ORIGIN configuration", { status: 500 });
+  }
   const parts = url.pathname.split("/").filter(Boolean);
-  // ["link-preview", "<kind>", "<id>"]
   const kind = parts[1];
   const id = parts[2];
 
-  const fallbackImage = `${appOrigin}/og-image-nexus.png`;
+  const fallbackImage = getFallbackImage(appOrigin);
   const fallbackTitle = "Swipess | Find Your Best Deal";
   const fallbackDesc =
     "Swipe through luxury villas, vehicles, and premium services. The future of discovery.";
@@ -165,14 +168,16 @@ Deno.serve(async (req: Request) => {
         .eq("id", id)
         .maybeSingle();
       if (data) {
-        const first = pickImageFromRecord(data as any, ["images", "image_url"]);
+        const record = data as Record<string, unknown>;
+        const first = pickImageFromRecord(record, ["images", "image_url"]);
         if (first) image = first;
-        title = (data as any).title || fallbackTitle;
-        const loc = [(data as any).neighborhood, (data as any).city].filter(Boolean).join(", ");
-        const price = (data as any).price ? `$${Number((data as any).price).toLocaleString()}` : "";
+        title = String(record.title ?? fallbackTitle);
+        const loc = [record.neighborhood, record.city].filter(Boolean).join(", ");
+        const priceVal = record.price;
+        const price = priceVal ? `$${Number(priceVal).toLocaleString()}` : "";
         description = [
-          (data as any).beds ? `${(data as any).beds} Beds` : null,
-          (data as any).baths ? `${(data as any).baths} Baths` : null,
+          record.beds ? `${record.beds} Beds` : null,
+          record.baths ? `${record.baths} Baths` : null,
           loc || null,
           price ? `— ${price}` : null,
         ]
@@ -187,10 +192,11 @@ Deno.serve(async (req: Request) => {
         .eq("user_id", id)
         .maybeSingle();
       if (prof) {
-        const name = (prof as any).full_name;
+        const record = prof as Record<string, unknown>;
+        const name = record.full_name;
         title = name ? `${name} on Swipess` : fallbackTitle;
-        description = (prof as any).bio || "Discover this profile on Swipess.";
-        if ((prof as any).avatar_url) image = (prof as any).avatar_url;
+        description = String(record.bio ?? "Discover this profile on Swipess.");
+        if (record.avatar_url) image = String(record.avatar_url);
       }
       const { data: pi } = await supabase
         .from("profile_images")
@@ -207,9 +213,10 @@ Deno.serve(async (req: Request) => {
         .eq("id", id)
         .maybeSingle();
       if (data) {
-        title = (data as any).title || fallbackTitle;
-        description = (data as any).description || fallbackDesc;
-        image = pickImageFromRecord(data as any, ["image_url", "image_urls"]) || fallbackImage;
+        const record = data as Record<string, unknown>;
+        title = String(record.title ?? fallbackTitle);
+        description = String(record.description ?? fallbackDesc);
+        image = pickImageFromRecord(record, ["image_url", "image_urls"]) || fallbackImage;
       }
     }
   } catch (_e) {
@@ -218,7 +225,7 @@ Deno.serve(async (req: Request) => {
 
   // Always provide an absolute https image — many crawlers (WhatsApp, iMessage)
   // silently drop relative or non-https URLs.
-  image = absolutize(image, appOrigin) || FALLBACK_IMAGE;
+  image = absolutize(image, appOrigin) || fallbackImage;
 
   const qs = url.searchParams.toString();
   if (qs) canonical += (canonical.includes("?") ? "&" : "?") + qs;
