@@ -1,17 +1,17 @@
 import { useState, useRef, useEffect, memo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
+// import { } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { Send, AlertCircle, Zap, ChevronLeft, Info, Star, Smile, Sparkles, MoreVertical, ShieldAlert, Ban, Mic, MicOff, Timer, X, CreditCard, Coins } from 'lucide-react';
+import { Send, ChevronLeft, Info, Star, Smile, Sparkles, MoreVertical, ShieldAlert, Ban, Mic, MicOff, Timer, X, Coins } from 'lucide-react';
 import { triggerHaptic } from '@/utils/haptics';
 import { uiSounds } from '@/utils/uiSounds';
 import { useConversationMessages, useSendMessage } from '@/hooks/useConversations';
 import { useRealtimeChat } from '@/hooks/useRealtimeChat';
 import { useMarkMessagesAsRead } from '@/hooks/useMarkMessagesAsRead';
 import { useAuth } from '@/hooks/useAuth';
-import { useMonthlyMessageLimits } from '@/hooks/useMonthlyMessageLimits';
-import { formatDistanceToNow } from '@/utils/timeFormatter';
+// import { } from '@/hooks/useMonthlyMessageLimits';
+// import { } from '@/utils/timeFormatter';
 import { useQueryClient } from '@tanstack/react-query';
 import { logger } from '@/utils/prodLogger';
 import { VirtualizedMessageList } from '@/components/VirtualizedMessageList';
@@ -60,23 +60,23 @@ const QUICK_EMOJIS = [
   'ðŸ’ª', 'ðŸ‘', 'ðŸ¥³', 'ðŸ˜‡', 'ðŸ¤—', 'ðŸ˜', 'ðŸŒŸ', 'ðŸ’¬',
 ];
 
-export const MessagingInterface = memo(({ conversationId, otherUser, listing, currentUserRole = 'client', onBack }: MessagingInterfaceProps) => {
+export const MessagingInterface = memo(({ conversationId, otherUser, listing, _currentUserRole = 'client', onBack }: MessagingInterfaceProps) => {
   const [newMessage, setNewMessage] = useState('');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [showRatingDialog, setShowRatingDialog] = useState(false);
-  const { theme, isLight } = useAppTheme();
+  const { _theme, isLight } = useAppTheme();
   const isThemeLight = isLight;
   const { user } = useAuth();
   const navigate = useNavigate();
   const { data: messages = [], isLoading } = useConversationMessages(conversationId);
   const sendMessage = useSendMessage();
-  const queryClient = useQueryClient();
+  const _queryClient = useQueryClient();
   const blockUser = useBlockUser();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const previousMessageCountRef = useRef(0);
   const { isOnline } = usePresence(otherUser.id);
-  const { startTyping, stopTyping, typingUsers, isConnected } = useRealtimeChat(conversationId);
+  const { startTyping, stopTyping, typingUsers, _isConnected } = useRealtimeChat(conversationId);
   useMarkMessagesAsRead(conversationId, true);
   const { prefetchTopConversationMessages } = usePrefetchManager();
 
@@ -177,7 +177,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
     
     recognition.onend = () => {
       if (isListeningRef.current) {
-        try { recognition.start(); } catch (err) { setIsListening(false); isListeningRef.current = false; }
+        try { recognition.start(); } catch (_err) { setIsListening(false); isListeningRef.current = false; }
       }
     };
 

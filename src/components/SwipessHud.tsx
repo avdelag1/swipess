@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { } from 'react';
 import { motion } from 'framer-motion';
 import { useFocusMode } from '@/hooks/useFocusMode';
 import { useScrollDirection } from '@/hooks/useScrollDirection';
@@ -28,7 +28,7 @@ export function SwipessHud({
   revealMode = false,
 }: SwipessHudProps) {
   const location = useLocation();
-  const { isFocused } = useFocusMode(7000);
+  const { _isFocused } = useFocusMode(7000);
 
   const { isVisible: isScrollVisible } = useScrollDirection({
     threshold,
@@ -43,21 +43,17 @@ export function SwipessHud({
   // In revealMode use Framer Motion with the same animation as the action button bar:
   // opacity + blur + scale + subtle y shift — no full off-screen translate.
   if (revealMode) {
-    const yHide = side === 'top' ? -40 : 40;
+    const yHide = side === 'top' ? -20 : 20;
     return (
       <motion.div
         className={cn('pointer-events-none will-change-transform relative', className)}
         animate={{
           opacity: isVisible ? 1 : 0,
           y: isVisible ? 0 : yHide,
-          filter: isVisible ? 'blur(0px)' : 'blur(12px)',
-          scale: isVisible ? 1 : 0.94,
         }}
         transition={{
-          duration: isVisible ? 0.68 : 1.4,
-          ease: isVisible
-            ? [0.22, 1.4, 0.36, 1]
-            : [0.32, 0, 0.67, 0],
+          duration: isVisible ? 0.15 : 0.12,
+          ease: [0.25, 0.1, 0.25, 1],
         }}
         style={{ pointerEvents: isVisible ? undefined : 'none' }}
         aria-hidden={!isVisible || undefined}
@@ -80,17 +76,15 @@ export function SwipessHud({
         !isVisible && isFade && 'opacity-0',
         !isVisible && isTranslate && side === 'top' && '-translate-y-[120%]',
         !isVisible && isTranslate && side === 'bottom' && 'translate-y-[120%]',
-        isVisible && 'opacity-100 translate-y-0 blur-0 scale-100',
-        !isVisible && 'blur-xl scale-[0.94]',
+        isVisible && 'opacity-100 translate-y-0',
+        !isVisible && 'scale-[0.94]',
         className
       )}
       style={{
-        willChange: 'transform, opacity, filter',
-        transitionProperty: 'transform, opacity, filter',
-        transitionDuration: isVisible ? '680ms' : '520ms',
-        transitionTimingFunction: isVisible
-          ? 'cubic-bezier(0.22, 1.4, 0.36, 1)'
-          : 'cubic-bezier(0.32, 0, 0.67, 0)',
+        willChange: 'transform, opacity',
+        transitionProperty: 'transform, opacity',
+        transitionDuration: isVisible ? '180ms' : '150ms',
+        transitionTimingFunction: 'cubic-bezier(0.25, 0.1, 0.25, 1)',
         visibility: !isVisible ? 'hidden' : 'visible',
         pointerEvents: !isVisible ? 'none' : undefined,
       }}

@@ -8,11 +8,9 @@ export function useInstantReactivity() {
     // feedback on any interactive element before the `onClick` event registers.
     
     let activeElement: HTMLElement | null = null;
-    let isTouchScrolling = false;
 
     // Detect if user is just scrolling (we don't want to trap the active state)
     const handleScroll = () => {
-      isTouchScrolling = true;
       if (activeElement) {
         removeActiveState();
       }
@@ -26,8 +24,6 @@ export function useInstantReactivity() {
     };
 
     const handlePointerDown = (e: PointerEvent | TouchEvent) => {
-      isTouchScrolling = false;
-      
       const target = e.target as HTMLElement;
       if (!target) return;
 

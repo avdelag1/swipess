@@ -5,7 +5,7 @@ import useAppTheme from '@/hooks/useAppTheme';
 import type { Theme } from '@/hooks/useAppTheme';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+// import { } from '@/components/ui/button';
 import { toast } from 'sonner';
 
 interface ThemeOption {

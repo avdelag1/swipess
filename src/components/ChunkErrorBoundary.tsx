@@ -28,7 +28,7 @@ export class ChunkErrorBoundary extends Component<Props, State> {
           window.location.replace(window.location.pathname + '?v=' + Date.now());
           return { hasChunkError: true };
         }
-      } catch {}
+      } catch { /* sessionStorage unavailable in private browsing — safe to swallow */ }
       return { hasChunkError: true };
     }
     return null;

@@ -1,13 +1,13 @@
 /** SPEED OF LIGHT: DashboardLayout is now rendered at route level */
 import { PageHeader } from "@/components/PageHeader";
 import { CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+// import { } from "@/components/ui/badge";
 import {
   Shield, FileText, HelpCircle, Info, ChevronRight,
   Scale, Volume2, Wrench, ShieldCheck, Globe
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { AccountSecurity } from "@/components/AccountSecurity";
 import { DeleteAccountSection } from "@/components/DeleteAccountSection";
 import { SwipeSoundSettings } from "@/components/SwipeSoundSettings";

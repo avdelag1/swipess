@@ -111,6 +111,15 @@ export function useScrollDirection({
 
   useEffect(() => {
     let animationFrameId: number | null = null;
+    currentTargetRef.current = null; // Clear cache so container is re-found on resetTrigger change
+
+    // Cache the scroll container — only re-find when resetTrigger changes
+    const findCachedContainer = (): Element | null => {
+      if (!currentTargetRef.current) {
+        currentTargetRef.current = findScrollContainer();
+      }
+      return currentTargetRef.current;
+    };
     
     // Main scroll handler - runs on every scroll event
     const handleScroll = (_event: Event) => {
@@ -121,9 +130,8 @@ export function useScrollDirection({
       
       // Use requestAnimationFrame for performance
       animationFrameId = requestAnimationFrame(() => {
-        // Find the current scroll container (may have changed)
-        const target = findScrollContainer();
-        currentTargetRef.current = target;
+        // Use cached container — no DOM query per frame
+        const target = findCachedContainer();
         
         const currentScrollY = getCurrentScrollY(target);
         const diffFromTrigger = currentScrollY - lastTriggerY.current;
@@ -168,9 +176,6 @@ export function useScrollDirection({
     // DOCUMENT-LEVEL CAPTURE: Catches ALL scroll events in the capture phase
     // This ensures we catch scrolls in any container, not just the target
     document.addEventListener('scroll', handleScroll, { capture: true, passive: true });
-    
-    // Also listen on window for page-level scrolls
-    window.addEventListener('scroll', handleScroll, { passive: true });
 
     // The container is rebound when `resetTrigger` (route pathname) changes
     // because that's when the React tree actually swaps it. The previous
@@ -178,9 +183,8 @@ export function useScrollDirection({
     // every second — pure waste on every device.
 
 
-    // Initialize scroll position
-    const initialTarget = findScrollContainer();
-    currentTargetRef.current = initialTarget;
+    // Initialize scroll position (uses cached container)
+    const initialTarget = findCachedContainer();
     const initialScrollY = getCurrentScrollY(initialTarget);
     lastTriggerY.current = initialScrollY;
     setScrollY(initialScrollY);
@@ -193,7 +197,6 @@ export function useScrollDirection({
     
     return () => {
       document.removeEventListener('scroll', handleScroll, { capture: true });
-      window.removeEventListener('scroll', handleScroll);
 
       if (animationFrameId) {
         cancelAnimationFrame(animationFrameId);

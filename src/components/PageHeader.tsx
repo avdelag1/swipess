@@ -3,7 +3,7 @@ import { ReactNode } from "react";
 import { motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 import useAppTheme from "@/hooks/useAppTheme";
-import { SwipessLogo } from "./SwipessLogo";
+// import { } from "./SwipessLogo";
 
 interface PageHeaderProps {
   title: string;

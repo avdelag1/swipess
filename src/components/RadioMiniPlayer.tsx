@@ -1,7 +1,7 @@
-import { useCallback, useRef, useState, useEffect } from 'react';
+import { useCallback, useState } from 'react';
 import { m, AnimatePresence } from 'framer-motion';
 import { useRadio } from '@/contexts/RadioContext';
-import { Play, Pause, SkipBack, SkipForward, X, Radio, Volume2, VolumeX, Heart, Star, Shuffle } from 'lucide-react';
+import { Play, Pause, SkipBack, SkipForward, X, Radio, Heart, Star, Shuffle } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { triggerHaptic } from '@/utils/haptics';
 import { cn } from '@/lib/utils';
@@ -51,7 +51,7 @@ function RadioMiniPlayerInner() {
     navigate('/radio');
   }, [navigate]);
 
-  const handleMute = useCallback((e: React.MouseEvent) => {
+  const _handleMute = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
     triggerHaptic('light');
     setVolume(state.volume > 0 ? 0 : 0.8);

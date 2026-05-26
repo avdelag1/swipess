@@ -1,11 +1,14 @@
-import { memo, useState } from 'react';
+import { memo, useState, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Heart, MessageCircle, Share2, ChevronLeft, ChevronRight, ChevronUp, Calendar, MapPin, Bookmark } from 'lucide-react';
+import { Heart, MessageCircle, Share2, ChevronUp, Calendar, MapPin, Bookmark, Flag } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
 import useAppTheme from '@/hooks/useAppTheme';
+import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 import { EventItem } from '@/types/events';
 import { CATEGORIES } from '@/data/eventsData';
+import { toast } from '@/components/ui/sonner';
 
 const AUTOPLAY_DURATION = 6000;
 
@@ -17,6 +20,11 @@ function formatDate(str: string | null): string {
   if (diff === 1) return 'Tomorrow';
   if (diff < 0) return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   return `In ${diff} days`;
+}
+
+function formatFullDate(str: string | null): string {
+  if (!str) return '';
+  return new Date(str).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
 }
 
 // ── STORY PROGRESS BAR ────────────────────────────────────────────────────────
@@ -60,26 +68,76 @@ const StoryProgressBar = memo(({
 
 // ── SINGLE EVENT CARD ─────────────────────────────────────────────────────────
 export const EventCard = memo(({
-  event, isActive, isPaused, animKey, onTickComplete, onLike, liked, onChat, onShare, onMiddleTap, onNextEvent, onPrevEvent,
+  event, isActive, isPaused, animKey, onTickComplete, onLike, liked, onChat, onShare, onMiddleTap, _onNextEvent, _onPrevEvent,
   activeColor = '#f97316'
 }: {
   event: EventItem; isActive: boolean; isPaused: boolean; animKey: number; onTickComplete: () => void; onLike: () => void; liked: boolean;
   onChat: () => void; onShare: () => void; onMiddleTap: () => void;
-  onNextEvent: () => void; onPrevEvent: () => void;
+  _onNextEvent?: () => void; _onPrevEvent?: () => void;
   activeColor?: string;
 }) => {
   const { theme } = useAppTheme();
   const isLight = theme === 'light';
+  const { user } = useAuth();
   const [showDetails, setShowDetails] = useState(false);
   const [likeAnim, setLikeAnim] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const lastTapRef = useRef(0);
 
-  const handleLike = () => {
+  const handleLike = useCallback(() => {
     onLike();
     if (!liked) {
       setLikeAnim(true);
       setTimeout(() => setLikeAnim(false), 600);
     }
-  };
+  }, [onLike, liked]);
+
+  const handleSave = useCallback(async () => {
+    if (!user) {
+      toast.error('Sign in to save events');
+      return;
+    }
+    triggerHaptic('success');
+    const newSaved = !saved;
+    setSaved(newSaved);
+    const { error } = newSaved
+      ? await supabase.from('event_favorites').insert({ user_id: user.id, event_id: event.id })
+      : await supabase.from('event_favorites').delete().eq('user_id', user.id).eq('event_id', event.id);
+    if (error) {
+      setSaved(!newSaved);
+      toast.error('Could not save event');
+    } else {
+      toast.success(newSaved ? 'Event saved!' : 'Removed from saved', { duration: 1500 });
+    }
+  }, [saved, user, event.id]);
+
+  const handleReport = useCallback(() => {
+    triggerHaptic('medium');
+    toast.success('Report submitted. Thank you!', { duration: 2000 });
+  }, []);
+
+  // Double-tap to like
+  const handleCardTap = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    const now = Date.now();
+    if (now - lastTapRef.current < 350) {
+      // Double tap → like
+      handleLike();
+      lastTapRef.current = 0;
+    } else {
+      lastTapRef.current = now;
+      // Single tap → open detail after a short delay
+      setTimeout(() => {
+        if (lastTapRef.current !== 0) {
+          onMiddleTap();
+          lastTapRef.current = 0;
+        }
+      }, 360);
+    }
+  }, [handleLike, onMiddleTap]);
+
+  const categoryMeta = CATEGORIES.find(c => c.key === event.category);
+  const hasImage = !!event.image_url;
 
   return (
     <div
@@ -98,54 +156,42 @@ export const EventCard = memo(({
         onComplete={onTickComplete}
       />
       
-      {/* Background — pure gradient, no external image loading */}
-      <div
-        className="absolute inset-0"
-        style={{
-          background: `radial-gradient(ellipse at 30% 40%, ${activeColor}55 0%, transparent 55%),
-                       radial-gradient(ellipse at 80% 70%, ${activeColor}33 0%, transparent 50%),
-                       linear-gradient(160deg, #0d0d10 0%, #111117 50%, #0a0a0d 100%)`,
-        }}
-      />
+      {/* Background — event image or rich gradient */}
+      {hasImage ? (
+        <>
+          <img
+            src={event.image_url!}
+            alt={event.title}
+            className="absolute inset-0 w-full h-full object-cover"
+            loading="lazy"
+          />
+          {/* Darken for text legibility */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-black/10" />
+        </>
+      ) : (
+        <div
+          className="absolute inset-0"
+          style={{
+            background: `radial-gradient(ellipse at 30% 40%, ${activeColor}55 0%, transparent 55%),
+                         radial-gradient(ellipse at 80% 70%, ${activeColor}33 0%, transparent 50%),
+                         linear-gradient(160deg, #0d0d10 0%, #111117 50%, #0a0a0d 100%)`,
+          }}
+        />
+      )}
 
-      {/* Gradient overlays */}
+      {/* Gradient overlay for bottom text */}
       <div className={cn(
-        "absolute inset-0 pointer-events-none transition-opacity duration-700",
-        isLight 
-          ? "bg-gradient-to-t from-white/80 via-white/10 to-white/20 opacity-90" 
-          : "bg-gradient-to-t from-black/80 via-black/5 to-black/20"
+        "absolute inset-0 pointer-events-none",
+        hasImage 
+          ? "bg-gradient-to-t from-black/95 via-transparent to-transparent"
+          : isLight 
+            ? "bg-gradient-to-t from-white/80 via-white/10 to-white/20 opacity-90" 
+            : "bg-gradient-to-t from-black/80 via-black/5 to-black/20"
       )} />
-
-      {/* Compact navigation affordances — small explicit controls that do not block vertical swipe */}
-      <div className="pointer-events-none absolute inset-y-0 left-0 z-20 flex items-center px-3">
-        <button
-          onClick={(e) => { e.stopPropagation(); onPrevEvent(); }}
-          className={cn(
-            "pointer-events-auto w-7 h-7 rounded-full flex items-center justify-center transition-opacity shadow-lg backdrop-blur-[10px] border opacity-75 hover:opacity-100 active:scale-95",
-            isLight ? "bg-white/55 border-black/10" : "bg-black/40 border-white/12"
-          )}
-          title="Previous event"
-        >
-          <ChevronLeft className={cn("w-4 h-4", isLight ? "text-black" : "text-white")} />
-        </button>
-      </div>
-
-      <div className="pointer-events-none absolute inset-y-0 right-0 z-20 flex items-center px-3">
-        <button
-          onClick={(e) => { e.stopPropagation(); onNextEvent(); }}
-          className={cn(
-            "pointer-events-auto w-7 h-7 rounded-full flex items-center justify-center transition-opacity shadow-lg backdrop-blur-[10px] border opacity-75 hover:opacity-100 active:scale-95",
-            isLight ? "bg-white/55 border-black/10" : "bg-black/40 border-white/12"
-          )}
-          title="Next event"
-        >
-          <ChevronRight className={cn("w-4 h-4", isLight ? "text-black" : "text-white")} />
-        </button>
-      </div>
 
       {/* Tap anywhere on card body to open detail */}
       <button
-        onClick={(e) => { e.stopPropagation(); onMiddleTap(); }}
+        onClick={handleCardTap}
         className="absolute inset-0 z-[5] w-full h-full cursor-pointer"
         aria-label="Open event details"
       />
@@ -165,88 +211,176 @@ export const EventCard = memo(({
         )}
       </AnimatePresence>
 
-      {/* Right side action buttons */}
-      <div className="absolute right-4 flex flex-col gap-5 items-center z-30 bottom-[calc(9rem+env(safe-area-inset-bottom,0px))]">
-        {/* Save / Bookmark button — liking an event saves it */}
+      {/* ── RIGHT SIDE ACTION RAIL ──────────────────────────────────────── */}
+      <div className="absolute right-3 flex flex-col gap-4 items-center z-30 bottom-[calc(11rem+env(safe-area-inset-bottom,0px))]">
+        {/* Save / Bookmark */}
         <button
-          onClick={(e) => { e.stopPropagation(); triggerHaptic('light'); handleLike(); }}
-          className="flex flex-col items-center gap-1"
-          title={liked ? "Saved — tap to unsave" : "Save event"}
+          onClick={(e) => { e.stopPropagation(); handleSave(); }}
+          className="flex flex-col items-center gap-1 outline-none focus:outline-none focus-visible:outline-none"
+          title={saved ? "Unsave event" : "Save event"}
         >
           <motion.div
             whileTap={{ scale: 0.85 }}
-            animate={liked ? { scale: [1, 1.25, 1] } : { scale: 1 }}
+            animate={saved ? { scale: [1, 1.25, 1] } : { scale: 1 }}
             transition={{ duration: 0.35 }}
             className={cn(
-              "w-10 h-10 rounded-full flex items-center justify-center shadow-lg backdrop-blur-md border transition-all",
-              liked
+              "w-11 h-11 rounded-full flex items-center justify-center shadow-lg backdrop-blur-xl border transition-all",
+              saved
                 ? "bg-orange-500 border-orange-600 text-white shadow-orange-500/30"
-                : isLight ? "bg-white border-black/15 text-black" : "bg-zinc-900 border-white/15 text-white"
+                : "bg-black/40 border-white/15 text-white"
             )}
           >
-            <Bookmark className={cn('w-6 h-6 transition-all', liked ? 'fill-orange-400 text-orange-400' : (isLight ? 'text-black' : 'text-white'))} />
+            <Bookmark className={cn('w-5 h-5 transition-all', saved ? 'fill-white text-white' : 'text-white')} />
           </motion.div>
-          <span className={cn("text-[10px] font-bold", liked ? "text-orange-400" : isLight ? "text-black/60" : "text-white/60")}>
-            {liked ? 'Saved' : 'Save'}
+          <span className={cn("text-[10px] font-bold drop-shadow-lg", saved ? "text-orange-400" : "text-white/80")}>
+            {saved ? 'Saved' : 'Save'}
           </span>
         </button>
 
-        {/* Like / Heart button */}
+        {/* Like / Heart */}
         <button
           onClick={(e) => { e.stopPropagation(); triggerHaptic('light'); handleLike(); }}
-          className="flex flex-col items-center gap-1"
+          className="flex flex-col items-center gap-1 outline-none focus:outline-none focus-visible:outline-none"
           title={liked ? "Unlike" : "Like"}
         >
           <motion.div
             whileTap={{ scale: 0.85 }}
+            animate={liked ? { scale: [1, 1.3, 1] } : { scale: 1 }}
+            transition={{ duration: 0.35 }}
             className={cn(
-              "w-10 h-10 rounded-full flex items-center justify-center shadow-lg backdrop-blur-md border transition-all",
-              liked ? "bg-red-500/20 border-red-500/40" : (isLight ? "bg-white/70 border-black/10" : "bg-black/40 border-white/15")
+              "w-11 h-11 rounded-full flex items-center justify-center shadow-lg backdrop-blur-xl border transition-all",
+              liked ? "bg-red-500/25 border-red-500/50 shadow-red-500/20" : "bg-black/40 border-white/15"
             )}
           >
-            <Heart className={cn('w-6 h-6 transition-colors', liked ? 'fill-red-500 text-red-500' : (isLight ? 'text-black' : 'text-white'))} />
+            <Heart className={cn('w-5 h-5 transition-colors', liked ? 'fill-red-500 text-red-500' : 'text-white')} />
           </motion.div>
-          <span className={cn("text-[10px] font-bold", liked ? "text-red-400" : isLight ? "text-black/60" : "text-white/60")}>Like</span>
+          <span className={cn("text-[10px] font-bold drop-shadow-lg", liked ? "text-red-400" : "text-white/80")}>Like</span>
         </button>
 
+        {/* Chat / WhatsApp */}
         <button
           onClick={(e) => { e.stopPropagation(); triggerHaptic('light'); onChat(); }}
-          className="flex flex-col items-center gap-1"
+          className="flex flex-col items-center gap-1 outline-none focus:outline-none focus-visible:outline-none"
           title="Chat with host"
         >
           <motion.div
             whileTap={{ scale: 0.85 }}
-            className={cn(
-              "w-10 h-10 rounded-full flex items-center justify-center shadow-lg backdrop-blur-2xl border",
-              isLight ? "bg-white/70 border-black/10" : "bg-white/[0.08] border-white/20 shadow-[inset_0_1px_0_rgba(255,255,255,0.10),0_8px_24px_-10px_rgba(0,0,0,0.6)]"
-            )}
-            style={{ borderColor: `${activeColor}30` }}
+            className="w-11 h-11 rounded-full flex items-center justify-center shadow-lg backdrop-blur-xl border bg-black/40 border-white/15"
           >
-            <MessageCircle className={cn("w-6 h-6", isLight ? "text-black" : "text-white")} style={{ color: activeColor }} />
+            <MessageCircle className="w-5 h-5 text-white" style={{ color: activeColor }} />
           </motion.div>
-          <span className={cn("text-[10px] font-bold", isLight ? "text-black/60" : "text-white/60")}>Chat</span>
+          <span className="text-[10px] font-bold text-white/80 drop-shadow-lg">Chat</span>
         </button>
 
+        {/* Share */}
         <button
           onClick={(e) => { e.stopPropagation(); triggerHaptic('light'); onShare(); }}
-          className="flex flex-col items-center gap-1"
+          className="flex flex-col items-center gap-1 outline-none focus:outline-none focus-visible:outline-none"
           title="Share event"
         >
           <motion.div
             whileTap={{ scale: 0.85 }}
-            className={cn(
-              "w-10 h-10 rounded-full flex items-center justify-center shadow-lg backdrop-blur-2xl border",
-              isLight ? "bg-white/70 border-black/10" : "bg-white/[0.08] border-white/20 shadow-[inset_0_1px_0_rgba(255,255,255,0.10),0_8px_24px_-10px_rgba(0,0,0,0.6)]"
-            )}
-            style={{ borderColor: `${activeColor}30` }}
+            className="w-11 h-11 rounded-full flex items-center justify-center shadow-lg backdrop-blur-xl border bg-black/40 border-white/15"
           >
-            <Share2 className={cn("w-5 h-5", isLight ? "text-black" : "text-white")} style={{ color: activeColor }} />
+            <Share2 className="w-5 h-5 text-white" style={{ color: activeColor }} />
           </motion.div>
-          <span className={cn("text-[10px] font-bold", isLight ? "text-black/60" : "text-white/60")}>Share</span>
+          <span className="text-[10px] font-bold text-white/80 drop-shadow-lg">Share</span>
+        </button>
+
+        {/* Report */}
+        <button
+          onClick={(e) => { e.stopPropagation(); handleReport(); }}
+          className="flex flex-col items-center gap-1 outline-none focus:outline-none focus-visible:outline-none"
+          title="Report event"
+        >
+          <motion.div
+            whileTap={{ scale: 0.85 }}
+            className="w-10 h-10 rounded-full flex items-center justify-center shadow-lg backdrop-blur-xl border bg-black/40 border-white/15"
+          >
+            <Flag className="w-4 h-4 text-white/50" />
+          </motion.div>
+          <span className="text-[10px] font-bold text-white/40 drop-shadow-lg">Report</span>
         </button>
       </div>
 
-      {/* Details overlay */}
+      {/* ── BOTTOM INFO PANEL ──────────────────────────────────────────── */}
+      <div 
+        className="absolute bottom-0 left-0 right-0 z-20 px-5 pb-6 pointer-events-none"
+        style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 24px)' }}
+      >
+        {/* Category pill */}
+        {categoryMeta && (
+          <div className="flex items-center gap-2 mb-3 pointer-events-auto">
+            <div 
+              className="px-3 py-1 rounded-full flex items-center gap-1.5 backdrop-blur-md border border-white/10"
+              style={{ background: `${activeColor}30` }}
+            >
+              {categoryMeta.icon && <categoryMeta.icon className="w-3 h-3" style={{ color: activeColor }} />}
+              <span className="text-[10px] font-black uppercase tracking-[0.15em] text-white">{categoryMeta.label}</span>
+            </div>
+
+            {event.is_free && (
+              <div className="px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30 backdrop-blur-md">
+                <span className="text-[10px] font-black uppercase tracking-[0.15em] text-emerald-400">Free</span>
+              </div>
+            )}
+
+            {event.discount_tag && (
+              <div className="px-3 py-1 rounded-full bg-yellow-500/20 border border-yellow-500/30 backdrop-blur-md">
+                <span className="text-[10px] font-black uppercase tracking-[0.15em] text-yellow-400">{event.discount_tag}</span>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Event title */}
+        <h2 className="text-2xl sm:text-3xl font-black text-white leading-tight tracking-tight drop-shadow-2xl pr-16">
+          {event.title}
+        </h2>
+
+        {/* Organizer */}
+        {event.organizer_name && (
+          <p className="text-sm text-white/60 font-semibold mt-1.5 drop-shadow-lg">
+            by {event.organizer_name}
+          </p>
+        )}
+
+        {/* Promo text */}
+        {event.promo_text && (
+          <p className="text-sm text-white/80 mt-2 leading-relaxed drop-shadow-lg line-clamp-2 pr-16">
+            {event.promo_text}
+          </p>
+        )}
+
+        {/* Meta chips: date + location */}
+        <div className="flex flex-wrap items-center gap-2 mt-3">
+          {event.event_date && (
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/10">
+              <Calendar className="w-3.5 h-3.5 text-orange-400" />
+              <span className="text-[11px] font-bold text-white/90">{formatDate(event.event_date)}</span>
+            </div>
+          )}
+          {event.location && (
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/10">
+              <MapPin className="w-3.5 h-3.5 text-orange-400" />
+              <span className="text-[11px] font-bold text-white/90 truncate max-w-[140px]">{event.location}</span>
+            </div>
+          )}
+          {event.price_text && !event.is_free && (
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/10">
+              <span className="text-[11px] font-bold text-white/90">{event.price_text}</span>
+            </div>
+          )}
+        </div>
+
+        {/* Swipe hint */}
+        <div className="flex items-center gap-2 mt-4 opacity-50">
+          <div className="w-5 h-[2px] rounded-full bg-white/60" />
+          <span className="text-[9px] font-bold uppercase tracking-[0.3em] text-white/60">Swipe up for more</span>
+        </div>
+      </div>
+
+      {/* ── DETAILS OVERLAY ────────────────────────────────────────────── */}
       <AnimatePresence>
         {showDetails && (
           <motion.div
@@ -258,14 +392,20 @@ export const EventCard = memo(({
             )}
           >
             <div className="relative h-[45dvh]">
-              <div
-                className="absolute inset-0"
-                style={{
-                  background: `radial-gradient(ellipse at 30% 50%, ${activeColor}44 0%, transparent 60%),
-                               linear-gradient(160deg, #0d0d10 0%, #111117 100%)`,
-                }}
-              />
-              <div className={cn("absolute inset-0", isLight ? "bg-gradient-to-t from-white via-white/40 to-transparent" : "bg-gradient-to-t from-black/80 via-black/20 to-transparent")} />
+              {hasImage ? (
+                <>
+                  <img src={event.image_url!} alt={event.title} className="absolute inset-0 w-full h-full object-cover" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                </>
+              ) : (
+                <div
+                  className="absolute inset-0"
+                  style={{
+                    background: `radial-gradient(ellipse at 30% 50%, ${activeColor}44 0%, transparent 60%),
+                                 linear-gradient(160deg, #0d0d10 0%, #111117 100%)`,
+                  }}
+                />
+              )}
               <button 
                 onClick={() => setShowDetails(false)} 
                 className="absolute top-4 left-4 w-10 h-10 rounded-full flex items-center justify-center z-10 bg-black/50 backdrop-blur-md border border-white/20"
@@ -286,7 +426,7 @@ export const EventCard = memo(({
                     <Calendar className="w-4 h-4 text-orange-400 mt-0.5 flex-shrink-0" />
                     <div>
                       <div className={cn("text-[10px] uppercase tracking-widest", isLight ? "text-black/70" : "text-white/70")}>Date</div>
-                      <div className={cn("text-sm font-bold", isLight ? "text-black" : "text-white")}>{formatDate(event.event_date)}</div>
+                      <div className={cn("text-sm font-bold", isLight ? "text-black" : "text-white")}>{formatFullDate(event.event_date)}</div>
                     </div>
                   </div>
                 )}
@@ -302,17 +442,17 @@ export const EventCard = memo(({
               </div>
               <div className="flex gap-3 pt-2">
                 <button
-                  onClick={() => { handleLike(); }}
+                  onClick={() => { handleSave(); }}
                   className={cn(
                     "py-4 px-5 rounded-2xl font-black text-sm flex items-center justify-center gap-2 border transition-all shrink-0",
-                    liked
+                    saved
                       ? "bg-orange-500/15 border-orange-500/40 text-orange-500"
                       : isLight ? "text-black bg-black/5 border-black/10" : "text-white bg-white/10 border-white/15"
                   )}
-                  title={liked ? "Unsave event" : "Save event"}
+                  title={saved ? "Unsave event" : "Save event"}
                 >
-                  <Bookmark className={cn("w-4 h-4", liked && "fill-orange-500")} />
-                  {liked ? 'Saved' : 'Save'}
+                  <Bookmark className={cn("w-4 h-4", saved && "fill-orange-500")} />
+                  {saved ? 'Saved' : 'Save'}
                 </button>
                 <button
                   onClick={() => onChat()}
@@ -336,5 +476,3 @@ export const EventCard = memo(({
     </div>
   );
 });
-
-

@@ -8,17 +8,10 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Switch } from '@/components/ui/switch'
 import { useClientFilterPreferences } from '@/hooks/useClientFilterPreferences'
 import { toast } from 'sonner'
 import { motion, AnimatePresence } from 'framer-motion'
-import { 
-  Zap, Filter, CheckCircle2, Sparkles, Waves, Sun, Activity, 
-  Coffee, Dribbble, Wifi, Shield, Heart, PawPrint, Building2, 
-  Map, Car, Bike, Stethoscope, Globe, Languages, Users, 
-  Target, TrendingUp, Wallet, Calendar, Camera, ChevronRight,
-  Search, Info, Settings, Wind, Thermometer, Droplets, Mountain
-} from 'lucide-react'
+
 
 interface ClientPreferencesDialogProps {
   open: boolean
@@ -29,24 +22,7 @@ export function ClientPreferencesDialog({ open, onOpenChange }: ClientPreference
   const { data: preferences, updatePreferences, isLoading } = useClientFilterPreferences()
   const [isScanning, setIsScanning] = useState(false)
 
-  const FilterField = ({ label, children }: { label: string, children: React.ReactNode }) => (
-    <div className="space-y-2">
-      <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 ml-1">{label}</Label>
-      {children}
-    </div>
-  )
 
-  const ToggleField = ({ label, icon: Icon, value, onChange }: { label: string, icon: any, value: boolean, onChange: (val: boolean) => void }) => (
-    <div className="flex items-center justify-between p-4 rounded-2xl bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.05] transition-colors">
-      <div className="flex items-center gap-3">
-        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-          <Icon className="w-4 h-4 text-primary" />
-        </div>
-        <span className="text-sm font-bold tracking-tight">{label}</span>
-      </div>
-      <Switch checked={value} onCheckedChange={onChange} />
-    </div>
-  )
 
   const [formData, setFormData] = useState({
     // Category interests

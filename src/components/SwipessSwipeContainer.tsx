@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, memo, useRef, useMemo, lazy, Suspense } from 'react';
 import { cn } from '@/lib/utils';
-import { useModalStore } from '@/state/modalStore';
+// import { } from '@/state/modalStore';
 import { createPortal } from 'react-dom';
 import { triggerHaptic } from '@/utils/haptics';
 import useAppTheme from '@/hooks/useAppTheme';
@@ -12,14 +12,14 @@ import { normalizeCategoryName } from '@/types/filters';
 
 const CLIENT_CYCLE: QuickFilterCategory[] = ['property', 'services', 'motorcycle', 'bicycle'];
 const OWNER_CYCLE: QuickFilterCategory[] = ['buyers', 'renters', 'hire'];
-import { getActiveCategoryInfo, POKER_CARDS, OWNER_INTENT_CARDS } from './swipe/SwipeConstants';
+import { getActiveCategoryInfo } from './swipe/SwipeConstants';
 import { MatchCelebrateModal } from './swipe/MatchCelebrateModal';
 import { ClientPreferencesDialog } from './ClientPreferencesDialog';
 import { OwnerClientFilterDialog } from './OwnerClientFilterDialog';
 import { preloadImageToCache } from '@/lib/swipe/imageCache';
 import { imageCache } from '@/lib/swipe/cardImageCache';
 import { PrefetchScheduler } from '@/lib/swipe/PrefetchScheduler';
-import { useSmartListingMatching, useSmartClientMatching, ListingFilters, MatchedClientProfile, ClientFilters } from '@/hooks/useSmartMatching';
+import { useSmartListingMatching, useSmartClientMatching, ListingFilters, ClientFilters } from '@/hooks/useSmartMatching';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useActiveMode } from '@/hooks/useActiveMode';
@@ -37,7 +37,7 @@ import { useSwipeDeckStore, persistDeckToSession } from '@/state/swipeDeckStore'
 import { useFilterStore, useFilterActions } from '@/state/filterStore';
 import { useShallow } from 'zustand/react/shallow';
 import { useSwipeDismissal } from '@/hooks/useSwipeDismissal';
-import { Home, Bike, Briefcase, ChevronLeft } from 'lucide-react';
+import { Home, Bike, Briefcase } from 'lucide-react';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { useSwipeSounds } from '@/hooks/useSwipeSounds';
 import { appToast } from '@/utils/appNotification';
@@ -58,7 +58,7 @@ import { ReportDialog } from './ReportDialog';
 const SwipeInsightsModal = lazy(() => import('./SwipeInsightsModal').then(m => ({ default: m.SwipeInsightsModal })));
 const ShareDialog = lazy(() => import('./ShareDialog').then(m => ({ default: m.ShareDialog })));
 
-const CATEGORY_ICON_MAP: Record<string, any> = {
+const _CATEGORY_ICON_MAP: Record<string, any> = {
   property: Home,
   motorcycle: MotorcycleIcon,
   bicycle: Bike,
@@ -107,14 +107,14 @@ interface SwipessSwipeContainerProps {
 const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights, onMessageClick, locationFilter: _locationFilter, filters }: SwipessSwipeContainerProps) => {
   const navigate = useNavigate();
   const { activeMode, switchMode } = useActiveMode();
-  const { theme, isLight } = useAppTheme();
-  const { isChromeVisible } = useChromeReveal();
+  const { _theme, _isLight } = useAppTheme();
+  const { _isChromeVisible } = useChromeReveal();
   const [page, setPage] = useState(0);
   const [_swipeDirection, setSwipeDirection] = useState<'left' | 'right' | null>(null);
   const [isCreatingConversation, setIsCreatingConversation] = useState(false);
   const [insightsModalOpen, setInsightsModalOpen] = useState(false);
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
-  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [_isRefreshing, setIsRefreshing] = useState(false);
   const [isRefreshMode, setIsRefreshMode] = useState(false);
   const [messageDialogOpen, setMessageDialogOpen] = useState(false);
   const [directMessageDialogOpen, setDirectMessageDialogOpen] = useState(false);
@@ -190,7 +190,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
     const store = useSwipeDeckStore.getState();
     const items = activeMode === 'owner' 
       ? store.getOwnerDeckItems(storeActiveCategory || 'all')
-      : store.getClientDeckItems();
+      : store.getClientDeckItems(storeActiveCategory || 'all');
     return items;
   };
 
@@ -198,9 +198,9 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
   const currentIndexRef = useRef(
     activeMode === 'owner' 
       ? (useSwipeDeckStore.getState().ownerDecks[storeActiveCategory || 'all']?.currentIndex || 0)
-      : useSwipeDeckStore.getState().clientDeck.currentIndex
+      : (useSwipeDeckStore.getState().clientDecks[storeActiveCategory || 'all']?.currentIndex || 0)
   );
-  const swipedIdsRef = useRef<Set<string>>(new Set(useSwipeDeckStore.getState().clientDeck.swipedIds));
+  const swipedIdsRef = useRef<Set<string>>(new Set(useSwipeDeckStore.getState().clientDecks[storeActiveCategory || 'all']?.swipedIds || []));
   const _initializedRef = useRef(deckQueueRef.current.length > 0);
 
   const cardRef = useRef<SimpleSwipeCardRef>(null);
@@ -225,7 +225,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
   }, []);
 
   const isReturningRef = useRef(
-    deckQueueRef.current.length > 0 && useSwipeDeckStore.getState().clientDeck.isReady
+    deckQueueRef.current.length > 0 && useSwipeDeckStore.getState().clientDecks[storeActiveCategory || 'all']?.isReady
   );
   const _hasAnimatedOnceRef = useRef(isReturningRef.current);
 
@@ -263,16 +263,13 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
   // Behind-card preview reacts only to HORIZONTAL drag (like/pass).
   // Vertical browse should feel like a page-turn — the next card stays
   // hidden underneath until the top card commits and the new top paints.
+  // Always keep the underneath card fully sized and opaque so it never
+  // flashes when flushPendingSwipe resets topCardX→0 synchronously before
+  // the re-render (which would snap the next card's transform back to 0.97).
   const nextCardScale = useTransform(
     [topCardX, topCardY] as any,
-    ([cx, _cy]: any) => {
-      const t = Math.min(1, Math.abs(cx) / 280);
-      return 0.97 + 0.03 * t;
-    }
+    () => 1
   );
-  // Always keep the underneath card visible so it never flashes a black
-  // frame when the top card flies off. Only the scale animates during drag
-  // for the parallax peek effect.
   const nextCardOpacity = useTransform(
     [topCardX, topCardY] as any,
     () => 1
@@ -281,7 +278,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
   const hasSwipedRef = useRef(false);
 
   useEffect(() => {
-    try { sessionStorage.removeItem('swipe-deck-client-listings'); } catch (_err) { }
+    try { sessionStorage.removeItem('swipe-deck-client-listings'); } catch (_err) { /* ignore */ }
   }, []);
 
   useEffect(() => {
@@ -292,7 +289,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
   }, []);
 
   const { canAccess: hasPremiumMessaging, needsUpgrade } = useCanAccessMessaging();
-  const { recordSwipe, undoLastSwipe, canUndo, isUndoing: _isUndoing, undoSuccess, resetUndoState } = useSwipeUndo();
+  const { recordSwipe, _undoLastSwipe, _canUndo, isUndoing: _isUndoing, undoSuccess, resetUndoState } = useSwipeUndo();
   const swipeMutation = useSwipeWithMatch({
     onMatch: (clientProfile, ownerProfile) => setMatchData({ client: clientProfile, owner: ownerProfile })
   });
@@ -303,10 +300,10 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
   useEffect(() => {
     if (undoSuccess) {
       const storeState = useSwipeDeckStore.getState();
-      const newIndex = storeState.clientDeck.currentIndex;
+      const newIndex = storeState.clientDecks[storeActiveCategory || 'all']?.currentIndex || 0;
       currentIndexRef.current = newIndex;
       setCurrentIndex(newIndex);
-      swipedIdsRef.current = new Set(storeState.clientDeck.swipedIds);
+      swipedIdsRef.current = new Set(storeState.clientDecks[storeActiveCategory || 'all']?.swipedIds || []);
       resetUndoState();
       logger.info('[SwipessSwipeContainer] Synced local state after undo, new index:', newIndex);
     }
@@ -361,7 +358,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
     let previousUserId: string | null = null;
     try {
       previousUserId = sessionStorage.getItem('swipe-deck-client-user');
-    } catch (_err) { }
+    } catch (_err) { /* ignore */ }
 
     if (previousUserId && previousUserId !== user.id) {
       deckQueueRef.current = [];
@@ -372,15 +369,15 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
       setPage(0);
       setCurrentIndex(0);
       setDeckLength(0);
-      resetClientDeck();
+      resetClientDeck(storeActiveCategory || 'all');
       queryClient.removeQueries({ queryKey: ['smart-listings'] });
       try {
         sessionStorage.removeItem('swipe-deck-items');
         sessionStorage.removeItem('swipe-deck-client-listings');
-      } catch (_err) { }
+      } catch (_err) { /* ignore */ }
     }
 
-    try { sessionStorage.setItem('swipe-deck-client-user', user.id); } catch (_err) { }
+    try { sessionStorage.setItem('swipe-deck-client-user', user.id); } catch (_err) { /* ignore */ }
   }, [activeMode, user?.id, resetClientDeck, queryClient]);
 
   if (filterSignature !== prevFilterSignatureRef.current) {
@@ -407,7 +404,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
     prevListingIdsRef.current = '';
     hasNewListingsRef.current = false;
     setPage(0);
-    resetClientDeck();
+    resetClientDeck(storeActiveCategory || 'all');
     currentIndexRef.current = 0;
     setCurrentIndex(0);
     setDeckLength(0);
@@ -481,7 +478,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
       if (userHasNotStartedThisDeck && firstIncoming && firstIncoming !== firstCurrent) {
         deckQueueRef.current = smartData;
         setDeckLength(smartData.length);
-        setClientDeck(smartData, false);
+        setClientDeck(storeActiveCategory || 'all', smartData, false);
       }
     }
   }
@@ -566,11 +563,11 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
       }
 
       setDeckLength(deckQueueRef.current.length);
-      setClientDeck(deckQueueRef.current, true);
+      setClientDeck(storeActiveCategory || 'all', deckQueueRef.current, true);
       persistDeckToSession('client', 'listings', deckQueueRef.current);
 
-      if (!isClientReady()) {
-        markClientReady();
+      if (!isClientReady(storeActiveCategory || 'all')) {
+        markClientReady(storeActiveCategory || 'all');
       }
     }
 
@@ -605,7 +602,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
     topCardY.set(0);
     hasSwipedRef.current = true;
     setCurrentIndex(newIndex);
-    markClientSwiped(listing.id);
+    markClientSwiped(storeActiveCategory || 'all', listing.id);
     recordSwipe(listing.id, 'listing', direction);
 
     swipeMutation.mutate({
@@ -745,19 +742,19 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
     setCurrentIndex(newIndex);
   }, [topCardX, topCardY]);
 
-  const handleButtonLike = useCallback(() => {
+  const _handleButtonLike = useCallback(() => {
     if (cardRef.current) {
       cardRef.current.triggerSwipe('right');
     }
   }, []);
 
-  const handleButtonDislike = useCallback(() => {
+  const _handleButtonDislike = useCallback(() => {
     if (cardRef.current) {
       cardRef.current.triggerSwipe('left');
     }
   }, []);
 
-  const handleRefresh = useCallback(async () => {
+  const _handleRefresh = useCallback(async () => {
     logger.info('[SwipessSwipeContainer] Manual Refresh Triggered');
     setIsRefreshing(true);
     setIsRefreshMode(true);
@@ -769,7 +766,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
     deckQueueRef.current = [];
     swipedIdsRef.current.clear();
     setPage(0);
-    resetClientDeck();
+    resetClientDeck(storeActiveCategory || 'all');
 
     try {
       await queryClient.invalidateQueries({ queryKey: ['smart-listings'] });
@@ -794,7 +791,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
     triggerHaptic('light');
   };
 
-  const handleReport = () => {
+  const _handleReport = () => {
     const listing = deckQueueRef.current[currentIndexRef.current];
     if (listing) {
       setSelectedListing(listing);
@@ -878,7 +875,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
     }
   };
 
-  const handleCycleCategory = useCallback(() => {
+  const _handleCycleCategory = useCallback(() => {
     triggerHaptic('heavy');
     const cycle = userRole === 'owner' ? OWNER_CYCLE : CLIENT_CYCLE;
     const currentIdx = cycle.indexOf(storeActiveCategory as any);
@@ -938,7 +935,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
     hire: 'Workers',
   };
   const currentCategoryName = categoryNames[storeActiveCategory] || storeActiveCategory;
-  const hasCards = deckQueue.length > 0 && currentIndex < deckQueue.length;
+  const _hasCards = deckQueue.length > 0 && currentIndex < deckQueue.length;
 
   return (
     <>
@@ -997,7 +994,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
                 initial={{ opacity: 0, scale: 1.02 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.98 }}
-                transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                transition={{ duration: 0.18, ease: [0.25, 0.1, 0.25, 1] }}
                 className="absolute inset-0 w-full h-full flex flex-col items-center justify-center p-0 mx-auto transform-gpu"
               >
                 {deckQueue.slice(currentIndex, currentIndex + 2).reverse().map((listing) => {

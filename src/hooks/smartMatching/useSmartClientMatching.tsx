@@ -443,7 +443,7 @@ export function useSmartClientMatching(
                             'renters': 'renter',
                             'hire': 'hire'
                         };
-                        const mappedType = clientTypeMap[_category];
+                        const _mappedType = clientTypeMap[_category];
                         // Note: client_type is stored in client_profiles table, not profiles
                         // We'll filter it after the join below
                     } else {

@@ -1,15 +1,12 @@
-import React, { ReactNode, useState, useEffect, useCallback, useMemo, useRef, lazy, Suspense, useLayoutEffect } from 'react'
+import React, { ReactNode, useState, useEffect, useMemo, useRef, Suspense, useLayoutEffect } from 'react'
 import { useAuth } from "@/hooks/useAuth"
 import { useAnonymousDrafts } from "@/hooks/useAnonymousDrafts"
 import { supabase } from '@/integrations/supabase/client'
-import { useAppNavigate } from "@/hooks/useAppNavigate";
 import { useLocation } from "react-router-dom";
-import { useResponsiveContext } from '@/contexts/ResponsiveContext'
 import { prefetchRoleRoutes, createLinkObserver } from '@/utils/routePrefetcher'
 // useLayoutEffect imported above with the main React import
 import useAppTheme from '@/hooks/useAppTheme'
 import { cn } from '@/lib/utils'
-import { useQueryClient } from '@tanstack/react-query'
 import { usePullToRefresh } from '@/hooks/usePullToRefresh'
 import { PullToRefreshIndicator } from '@/components/PullToRefreshIndicator'
 
@@ -17,9 +14,7 @@ import { PullToRefreshIndicator } from '@/components/PullToRefreshIndicator'
 import { useWelcomeState } from "@/hooks/useWelcomeState"
 import { lazyWithRetry } from '@/utils/lazyRetry';
 const GlobalDialogs = lazyWithRetry(() => import('./GlobalDialogs').then(m => ({ default: m.GlobalDialogs })));
-import { useModalStore } from '@/state/modalStore'
 import { useFocusMode } from '@/hooks/useFocusMode'
-import { useScrollDirection } from '@/hooks/useScrollDirection'
 
 // =============================================================================
 // PERFORMANCE FIX: SessionStorage caching for dashboard checks
@@ -66,15 +61,15 @@ interface DashboardLayoutProps {
 }
 
 export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
-  const { theme, isDark } = useAppTheme()
+  const { isDark } = useAppTheme()
   const [onboardingChecked, setOnboardingChecked] = useState(false)
-  const [showOnboarding, setShowOnboarding] = useState(false)
-  const modalStore = useModalStore()
-  const { navigate } = useAppNavigate();
+  const [_showOnboarding, setShowOnboarding] = useState(false)
+  
+  
   const location = useLocation()
   const { user } = useAuth()
   const { restoreDrafts } = useAnonymousDrafts()
-  const responsive = useResponsiveContext()
+  
   const userId = user?.id
   const cacheCheckedRef = useRef(false);
 
@@ -94,7 +89,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   // to AtmosphericLayer.tsx natively to prevent global CSS reflows/layout thrashing.
 
   const { shouldShowWelcome: _shouldShowWelcome, dismissWelcome: _dismissWelcome } = useWelcomeState(userId)
-  const queryClient = useQueryClient();
+  
 
   useEffect(() => {
     if (userRole === 'client' || userRole === 'owner') {
@@ -140,7 +135,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
         setOnboardingCache(userId, needsOnboarding);
 
         if (needsOnboarding) setShowOnboarding(true);
-      } catch (error) {
+      } catch (_error) {
         setOnboardingCache(userId, false);
       }
     };
@@ -197,11 +192,6 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     return false;
   }, [location.pathname, isCameraRoute, isRadioRoute]);
 
-  const isZeroScrollDashboard = useMemo(() => {
-    const path = location.pathname;
-    return path === '/client/dashboard' || path === '/owner/dashboard' || path === '/client/dashboard/' || path === '/owner/dashboard/';
-  }, [location.pathname]);
-
   // HOOKS THAT DEPEND ON MEMOS
   // Pull-to-refresh listens on `scrollContainerRef` (#dashboard-scroll-
   // container), but on non-dashboard pages the real scroll happens
@@ -246,18 +236,58 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     };
   }, [location.pathname]);
 
-  // 🚀 SMART SCROLL RESTORATION
-  // Only scroll to top when navigating to a NEW page, not when staying on the same route.
-  // This prevents the "bounce back" issue on scrollable pages like Profile.
+  // 🚀 ENHANCED SCROLL RESTORATION WITH LOCALSTORAGE PERSISTENCE
+  const scrollPositions = useRef<Record<string, number>>({});
   const prevPathRef = useRef(location.pathname);
-  useLayoutEffect(() => {
-    if (prevPathRef.current !== location.pathname) {
-      const el = scrollContainerRef.current;
-      if (el) {
-        el.scrollTo({ top: 0, behavior: 'auto' });
+  const SCROLL_STORAGE_KEY = 'swipess_scroll_positions';
+
+  // Load scroll positions from localStorage on mount
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(SCROLL_STORAGE_KEY);
+      if (stored) {
+        scrollPositions.current = JSON.parse(stored);
       }
-      prevPathRef.current = location.pathname;
+    } catch (e) {
+      console.warn('Failed to load scroll positions:', e);
     }
+  }, []);
+
+  // Save scroll position whenever it changes
+  useEffect(() => {
+    const el = scrollContainerRef.current;
+    if (!el) return;
+
+    const handleScroll = () => {
+      scrollPositions.current[location.pathname] = el.scrollTop;
+      // Persist to localStorage for recovery across sessions
+      try {
+        localStorage.setItem(SCROLL_STORAGE_KEY, JSON.stringify(scrollPositions.current));
+      } catch (e) {
+        // Storage quota exceeded, just use memory
+      }
+    };
+
+    el.addEventListener('scroll', handleScroll, { passive: true });
+    return () => el.removeEventListener('scroll', handleScroll);
+  }, [location.pathname]);
+
+  // Restore scroll position when navigating
+  useLayoutEffect(() => {
+    const el = scrollContainerRef.current;
+    if (!el) return;
+
+    // Save current scroll position before navigating
+    scrollPositions.current[prevPathRef.current] = el.scrollTop;
+
+    // Restore scroll position for the new path
+    const savedPos = scrollPositions.current[location.pathname] ?? 0;
+    
+    // Use requestAnimationFrame to ensure DOM is ready
+    requestAnimationFrame(() => {
+      el.scrollTop = savedPos;
+      prevPathRef.current = location.pathname;
+    });
   }, [location.pathname]);
 
   useLayoutEffect(() => {
@@ -272,11 +302,11 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   // useSwipeNavigation removed to prevent horizontal scrolling interference with listing details
 
   return (
-    <div className={cn(
-      "dashboard-root w-full flex-1 min-h-0 flex flex-col relative overflow-hidden",
-      isDark ? "dark" : "light",
-      isSwipeDeck && "bg-swipe-frame"
-    )}>
+          <div className={cn(
+            "dashboard-root w-full flex-1 min-h-0 flex flex-col relative overflow-hidden",
+            isDark ? "dark" : "light",
+            isSwipeDeck && "bg-swipe-frame"
+          )}>
       {!isSwipeDeck && (
         <PullToRefreshIndicator
           pullDistance={pullDistance}
@@ -291,6 +321,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
         className={cn(
           "flex-1 flex flex-col relative w-full min-h-0",
           (isSwipeDeck || isFullScreenRoute) ? "overflow-hidden touch-none" : "overflow-y-auto",
+
           isSwipeDeck && "bg-swipe-frame"
         )}
         style={{
@@ -315,5 +346,5 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       </Suspense>
 
     </div>
-  )
+  );
 }

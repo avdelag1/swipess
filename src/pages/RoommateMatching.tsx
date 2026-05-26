@@ -1,30 +1,32 @@
-import { useState, useMemo, useRef, useCallback, useEffect } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { NativeStore } from '@/utils/nativeStore';
 import {
   Users, MapPin, Briefcase, Clock, Sparkles, X,
-  Settings2, ShieldCheck, Zap,
-  MessageCircle, Eye, EyeOff, ArrowLeft,
+  _Settings2, ShieldCheck, Zap,
+  _MessageCircle, Eye, EyeOff, _ArrowLeft,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { triggerHaptic } from '@/utils/haptics';
 import { cn } from '@/lib/utils';
 import useAppTheme from '@/hooks/useAppTheme';
 import { SimpleOwnerSwipeCard, SimpleOwnerSwipeCardRef } from '@/components/SimpleOwnerSwipeCard';
-import { SwipeActionButtonBar } from '@/components/SwipeActionButtonBar';
+// import { } from '@/components/SwipeActionButtonBar';
 import { RoommateFiltersSheet } from '@/components/filters/RoommateFiltersSheet';
 import { MessageConfirmationDialog } from '@/components/MessageConfirmationDialog';
 import { useSmartClientMatching } from '@/hooks/useSmartMatching';
 import { useAuth } from '@/hooks/useAuth';
-import { supabase } from '@/integrations/supabase/client';
+// import { } from '@/integrations/supabase/client';
 import { AtmosphericLayer } from '@/components/AtmosphericLayer';
-import { useFilterStore, useFilterActions } from '@/state/filterStore';
+import { useFilterActions } from '@/state/filterStore';
 import { MatchOverlay } from '@/components/native/MatchOverlay';
 import { triggerMatchConfetti } from '@/utils/celebration';
 import { useSwipeWithMatch } from '@/hooks/useSwipeWithMatch';
 import { useStartConversation } from '@/hooks/useConversations';
 import { useNavigate } from 'react-router-dom';
 import { appToast } from '@/utils/appNotification';
+import { useChromeReveal } from '@/hooks/useChromeReveal';
+import { useModalStore } from '@/state/modalStore';
 
 const InfoPill = ({ icon: Icon, label, value }: { icon: any, label: string, value: string }) => {
   const { isLight } = useAppTheme();
@@ -54,10 +56,10 @@ export default function RoommateMatching() {
     return () => setActiveCategory(null);
   }, [setActiveCategory]);
 
-  const [showFilters, setShowFilters] = useState(false);
+  const { showFilters, setModal } = useModalStore();
+  const { isChromeVisible } = useChromeReveal();
   const [showDetails, setShowDetails] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [uiVisible, setUiVisible] = useState(true);
   const [messageDialogOpen, setMessageDialogOpen] = useState(false);
   const [roommateVisible, setRoommateVisible] = useState(true);
   const [isStartingConversation, setIsStartingConversation] = useState(false);
@@ -122,15 +124,15 @@ export default function RoommateMatching() {
     }
   }, [profiles, currentIndex, performSwipe]);
 
-  const handleUndo = useCallback(() => {
+  const _handleUndo = useCallback(() => {
     if (canUndo) {
       setCurrentIndex(prev => prev - 1);
       triggerHaptic('light');
     }
   }, [canUndo]);
 
-  const handleLike = () => cardRef.current?.triggerSwipe('right');
-  const handleDislike = () => cardRef.current?.triggerSwipe('left');
+  const _handleLike = () => cardRef.current?.triggerSwipe('right');
+  const _handleDislike = () => cardRef.current?.triggerSwipe('left');
 
   const handleSendMessage = async (message: string) => {
     if (!topCard?.user_id) {
@@ -173,11 +175,7 @@ export default function RoommateMatching() {
     triggerHaptic('light');
   }, []);
   
-  const handleScroll = (e: any) => {
-    const scroll = e.target.scrollTop;
-    if (scroll > 50 && uiVisible) setUiVisible(false);
-    if (scroll <= 50 && !uiVisible) setUiVisible(true);
-  };
+  // handleScroll removed as uiVisible was removed
 
   return (
     <div className={cn(
@@ -186,70 +184,7 @@ export default function RoommateMatching() {
     )}>
       <AtmosphericLayer variant="Swipes" />
 
-      {/* ── IMMERSIVE CONTROLS ── */}
-      {/* Back button — top left. Matches the events page so users have
-          a consistent way to leave full-immersive screens. */}
-      <div
-        className="fixed left-4 z-[60] pointer-events-none"
-        style={{ top: 'calc(env(safe-area-inset-top, 0px) + 12px)' }}
-      >
-        <motion.button
-          whileTap={{ scale: 0.92 }}
-          onClick={() => { triggerHaptic('light'); navigate(-1); }}
-          aria-label="Back"
-          className="pointer-events-auto w-10 h-10 rounded-full flex items-center justify-center shadow-lg border bg-black/60 border-white/10 text-white hover:bg-black/80 transition-colors"
-          style={{
-            backdropFilter: 'blur(20px) saturate(1.6)',
-            WebkitBackdropFilter: 'blur(20px) saturate(1.6)',
-          }}
-        >
-          <ArrowLeft className="w-5 h-5" />
-        </motion.button>
-      </div>
-
-      {/* Centered control cluster — visibility toggle + filters share a
-          single glass pill so the buttons read as one unit. */}
-      <div
-        className="fixed inset-x-0 z-[60] flex items-center justify-center px-6 pointer-events-none"
-        style={{ top: 'calc(env(safe-area-inset-top, 0px) + 12px)' }}
-      >
-        <div
-          className="flex items-center gap-1 pointer-events-auto rounded-full p-1 border shadow-xl bg-black/60 border-white/10"
-          style={{
-            backdropFilter: 'blur(20px) saturate(1.6)',
-            WebkitBackdropFilter: 'blur(20px) saturate(1.6)',
-          }}
-        >
-          <motion.button
-            whileTap={{ scale: 0.95 }}
-            onClick={() => { triggerHaptic('light'); setRoommateVisible(!roommateVisible); }}
-            className={cn(
-              "px-4 h-11 rounded-2xl border backdrop-blur-xl flex items-center gap-2 transition-[transform,background-color,border-color] duration-200 ease-out active:scale-95 shadow-lg",
-              roommateVisible
-                ? "bg-primary border-primary text-primary-foreground"
-                : "bg-black/40 border-white/10 text-white/90"
-            )}
-          >
-            {roommateVisible
-              ? <Eye className="w-4 h-4 shrink-0" />
-              : <EyeOff className="w-4 h-4 shrink-0" />
-            }
-            <span className="text-[11px] font-bold tracking-wide">
-              {roommateVisible ? 'Visible' : 'Hidden'}
-            </span>
-          </motion.button>
-
-          <motion.button
-            whileTap={{ scale: 0.92 }}
-            onClick={() => setShowFilters(true)}
-            aria-label="Filters"
-            className="px-4 h-11 rounded-2xl flex items-center gap-2 border backdrop-blur-xl shadow-lg transition-[transform,background-color] duration-200 ease-out active:scale-95 bg-black/40 border-white/10 text-white/90"
-          >
-            <Settings2 className="w-4 h-4" />
-            <span className="text-[11px] font-bold tracking-wide">Filters</span>
-          </motion.button>
-        </div>
-      </div>
+      {/* ── IMMERSIVE CONTROLS (Removed, inherited from AppLayout) ── */}
 
       {/* ── CARD STACK AREA ── */}
       <div
@@ -352,22 +287,41 @@ export default function RoommateMatching() {
         </div>
       </div>
 
-      {/* ── ACTION OVERLAY ── */}
+      {/* ── FLOATING PILL FOR ROOMMATE VISIBILITY & PROMOTE ── */}
       <motion.div 
-        animate={{ y: uiVisible ? 0 : 150 }}
+        animate={{ y: isChromeVisible ? 0 : 150, opacity: isChromeVisible ? 1 : 0 }}
         transition={{ type: 'spring', stiffness: 260, damping: 30 }}
-        className="absolute bottom-0 left-0 right-0 z-[100]"
-        style={{ paddingBottom: 'calc(8.5rem + var(--safe-bottom, 0px))' }}
+        className="fixed bottom-[calc(var(--bottom-nav-height)+24px)] left-0 right-0 z-[45] pointer-events-none flex justify-center"
       >
-        <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-black/75 via-black/35 to-transparent pointer-events-none" />
-        <SwipeActionButtonBar
-          onLike={handleLike}
-          onDislike={handleDislike}
-          onUndo={handleUndo}
-          onMessage={() => { triggerHaptic('light'); setMessageDialogOpen(true); }}
-          canUndo={canUndo}
-          className="relative"
-        />
+        <div className="flex items-center gap-1 pointer-events-auto rounded-full p-1.5 border shadow-2xl bg-background/80 border-border/40" style={{ backdropFilter: 'blur(24px) saturate(1.8)' }}>
+          <motion.button
+            whileTap={{ scale: 0.95 }}
+            onClick={() => { triggerHaptic('light'); setRoommateVisible(!roommateVisible); }}
+            className={cn(
+              "px-5 h-12 rounded-full border flex items-center gap-2.5 transition-all duration-300 ease-out active:scale-95 shadow-lg",
+              roommateVisible
+                ? "bg-primary border-primary text-primary-foreground shadow-[0_8px_20px_hsl(var(--primary)/0.3)]"
+                : "bg-secondary/80 border-border text-muted-foreground hover:bg-secondary"
+            )}
+          >
+            {roommateVisible
+              ? <Eye className="w-4 h-4 shrink-0" />
+              : <EyeOff className="w-4 h-4 shrink-0" />
+            }
+            <span className="text-[12px] font-black uppercase tracking-widest">
+              {roommateVisible ? 'Visible' : 'Hidden'}
+            </span>
+          </motion.button>
+          
+          <motion.button
+            whileTap={{ scale: 0.95 }}
+            onClick={() => { triggerHaptic('medium'); appToast.success('Promote Activated', 'Your profile is now boosted for 30 minutes.'); }}
+            className="px-5 h-12 rounded-full flex items-center gap-2.5 border transition-all duration-300 ease-out active:scale-95 bg-secondary/80 border-border text-foreground/80 hover:bg-secondary hover:text-foreground"
+          >
+            <Zap className="w-4 h-4 text-[#FF3D00]" />
+            <span className="text-[12px] font-black uppercase tracking-widest text-foreground">Promote</span>
+          </motion.button>
+        </div>
       </motion.div>
 
       {/* â”€â”€ PROFILE DETAILS OVERLAY â”€â”€ */}
@@ -378,7 +332,6 @@ export default function RoommateMatching() {
             animate={{ y: 0 }}
             exit={{ y: '100dvh' }}
             transition={{ type: 'spring', damping: 32, stiffness: 280 }}
-            onScroll={handleScroll}
             className={cn(
               "fixed inset-0 z-[200] overflow-y-auto no-scrollbar",
               isLight ? "bg-white" : "bg-[#0A0A0B]"
@@ -463,11 +416,11 @@ export default function RoommateMatching() {
 
       <RoommateFiltersSheet
         open={showFilters}
-        onClose={() => setShowFilters(false)}
+        onClose={() => setModal('showFilters', false)}
         currentFilters={currentFilters}
         onApply={(f) => {
           setCurrentFilters(f);
-          setShowFilters(false);
+          setModal('showFilters', false);
           triggerHaptic('success');
         }}
       />

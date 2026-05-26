@@ -158,6 +158,11 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
   const errorTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const currentStationRef = useRef<RadioStation | null>(null);
 
+  // CRITICAL: Guard against spurious error/stalled/waiting events fired when
+  // we deliberately change audio.src to a new station. Without this, the old
+  // stream's abort triggers reconnect of the OLD station, clobbering the new one.
+  const changingStationRef = useRef(false);
+
   // Reconnect supervisor: silently retry the same station on transient drops
   // before falling through to the existing skip-to-next path.
   const reconnectAttemptsRef = useRef(0);
@@ -256,7 +261,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     let handlingError = false;
     let errorCount = 0;
     let lastErrorTime = 0;
-    let lastToastTime = 0;
+    const lastToastTime = 0;
 
     resetErrorCountRef.current = () => { errorCount = 0; };
 
@@ -269,6 +274,9 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
 
     const handleAudioError = (_e: Event) => {
       if (handlingError) return;
+      // CRITICAL: If we're deliberately changing stations, ignore errors from
+      // the old stream being aborted — they are expected and harmless.
+      if (changingStationRef.current) return;
       handlingError = true;
 
       const audio = audioRef.current;
@@ -372,6 +380,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     };
 
     const handleStalled = () => {
+      if (changingStationRef.current) return;
       logger.warn('[RadioPlayer] Stream stalled');
       // Treat extended stalls the same as transient drops — try silent
       // reconnect rather than just showing "Buffering..." indefinitely.
@@ -380,6 +389,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     };
 
     const handleWaiting = () => {
+      if (changingStationRef.current) return;
       // 'waiting' fires when playback halts because the next frame isn't
       // available. On live streams this is the most reliable "connection
       // dropped" signal — give the supervisor a chance to recover quietly.
@@ -627,8 +637,31 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       if (loadTimeoutRef.current) clearTimeout(loadTimeoutRef.current);
 
       if (audioRef.current.src !== targetStation.streamUrl) {
+        // CRITICAL: Set the station-change guard BEFORE touching audio.src.
+        // This suppresses error/stalled/waiting events from the old stream
+        // being aborted — the root cause of the play/stop/play/stop loop.
+        changingStationRef.current = true;
+
+        // Cancel any pending reconnect attempts for the old station
+        if (reconnectTimeoutRef.current) {
+          clearTimeout(reconnectTimeoutRef.current);
+          reconnectTimeoutRef.current = null;
+        }
+        reconnectAttemptsRef.current = 0;
+
+        // Pause old stream first to minimize spurious events
+        try { audioRef.current.pause(); } catch {/* intentional */}
+
+        // Update ref IMMEDIATELY so any handler that slips through
+        // sees the new station, not the old one.
+        currentStationRef.current = targetStation;
+
         audioRef.current.src = targetStation.streamUrl;
         audioRef.current.load();
+
+        // Allow a microtask for the browser to flush abort events,
+        // then re-enable the error handlers for the new stream.
+        queueMicrotask(() => { changingStationRef.current = false; });
 
         setState(prev => ({
           ...prev,
@@ -687,7 +720,12 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
           audioContextRef.current.resume();
         }
         await audioRef.current.play();
-      } catch (playErr) {
+      } catch (playErr: any) {
+        if (playErr.name === 'AbortError') {
+          logger.info('[RadioPlayer] Play aborted by new action');
+          isPlayingRef.current = false;
+          return;
+        }
         // CRITICAL FALLBACK: If "anonymous" crossOrigin caused a CORS blockage, 
         // strip it and play normally (visualizer will be flat, but audio works).
         if (audioRef.current && audioRef.current.crossOrigin !== "") {
@@ -733,8 +771,12 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
         navigator.mediaSession.setActionHandler('previoustrack', () => changeStationRef.current('prev'));
         navigator.mediaSession.setActionHandler('nexttrack', () => changeStationRef.current('next'));
       }
-    } catch (err) {
+    } catch (err: any) {
       isPlayingRef.current = false;
+      if (err.name === 'AbortError') {
+         logger.info('[RadioPlayer] Play aborted by new action (outer)');
+         return;
+      }
       logger.error('[RadioPlayer] Playback error:', err);
       failedStationsRef.current.add(targetStation.id);
       setError('Failed to play station, switching...');
@@ -801,6 +843,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       const station = shuffleQueueRef.current[nextIndex];
       if (station) {
         pushRecent(station.id);
+        userInitiatedRef.current = true;
         play(station);
       }
       return;
@@ -815,6 +858,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       ? (currentIndex + 1) % stations.length
       : (currentIndex - 1 + stations.length) % stations.length;
 
+    userInitiatedRef.current = true;
     play(stations[nextIndex]);
   }, [state.currentStation, state.currentCity, state.isShuffle, activeStations, play]);
 

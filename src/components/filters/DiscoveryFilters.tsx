@@ -1,12 +1,11 @@
-import { useState, useEffect, useRef, memo, useCallback } from 'react';
+import { useState, useEffect, memo } from 'react';
 import { motion } from 'framer-motion';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { ChevronDown, Home, DollarSign, Bed, Sparkles, PawPrint, Sofa, Building2, Eye, Car, Calendar, Globe, Key, Tag, Repeat, Bike, Briefcase } from 'lucide-react';
+import { ChevronDown, DollarSign, Bed, Sparkles, Globe, Key, Tag, Repeat } from 'lucide-react';
 import { useSaveClientFilterPreferences } from '@/hooks/useClientFilterPreferences';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -15,11 +14,7 @@ import { EmbeddedLocationFilter } from './EmbeddedLocationFilter';
 import { useFilterStore, useFilterActions } from '@/state/filterStore';
 import useAppTheme from '@/hooks/useAppTheme';
 import { cn } from '@/lib/utils';
-import { VespaIcon } from '@/components/icons/VespaIcon';
-import { BeachBicycleIcon } from '@/components/icons/BeachBicycleIcon';
 import { WorkersIcon } from '@/components/icons/WorkersIcon';
-import { RealEstateIcon } from '@/components/icons/RealEstateIcon';
-import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { triggerHaptic } from '@/utils/haptics';
 
 // Predefined budget ranges for motorcycles (rent)
@@ -57,7 +52,7 @@ const BUY_BUDGET_RANGES = [
 ];
 
 // Rental duration options
-const RENTAL_DURATION_OPTIONS = [
+const _RENTAL_DURATION_OPTIONS = [
   { value: '3-6', label: '3 - 6 months', minMonths: 3, maxMonths: 6 },
   { value: '6-12', label: '6 - 12 months', minMonths: 6, maxMonths: 12 },
   { value: '12+', label: '12+ months', minMonths: 12, maxMonths: 24 },
@@ -99,19 +94,19 @@ export const DiscoveryFilters = memo(function DiscoveryFilters({ category, onApp
   const [locationNeighborhoods, setLocationNeighborhoods] = useState<string[]>(initialFilters.location_neighborhoods || []);
 
   // PROPERTY STATE
-  const [propertyTypes, setPropertyTypes] = useState<string[]>(initialFilters.property_types || []);
+  const [propertyTypes, _setPropertyTypes] = useState<string[]>(initialFilters.property_types || []);
   const [bedrooms, setBedrooms] = useState(initialFilters.bedrooms_min || 1);
   const [bathrooms, setBathrooms] = useState(initialFilters.bathrooms_min || 1);
-  const [petFriendly, setPetFriendly] = useState(initialFilters.pet_friendly || false);
-  const [furnished, setFurnished] = useState(initialFilters.furnished || false);
+  const [petFriendly, _setPetFriendly] = useState(initialFilters.pet_friendly || false);
+  const [furnished, _setFurnished] = useState(initialFilters.furnished || false);
 
   // MOTO STATE
-  const [motoTypes, setMotoTypes] = useState<string[]>(initialFilters.moto_types || []);
+  const [motoTypes, _setMotoTypes] = useState<string[]>(initialFilters.moto_types || []);
   const [engineRange, setEngineRange] = useState([initialFilters.engine_cc_min || 50, initialFilters.engine_cc_max || 1000]);
-  const [transmission, setTransmission] = useState(initialFilters.transmission || 'any');
+  const [transmission, _setTransmission] = useState(initialFilters.transmission || 'any');
 
   // BICYCLE STATE
-  const [bicycleTypes, setBicycleTypes] = useState<string[]>(initialFilters.bicycle_types || []);
+  const [bicycleTypes, _setBicycleTypes] = useState<string[]>(initialFilters.bicycle_types || []);
 
   // SERVICE STATE
   const [serviceTypes, setServiceTypes] = useState<string[]>(initialFilters.service_types || []);

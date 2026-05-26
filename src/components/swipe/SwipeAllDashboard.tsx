@@ -4,13 +4,14 @@ import { useNavigate } from 'react-router-dom';
 import { triggerHaptic } from '@/utils/haptics';
 import { uiSounds } from '@/utils/uiSounds';
 import {
-  POKER_CARDS, PK_ASPECT, POKER_CARD_PHOTOS,
+  POKER_CARDS, POKER_CARD_PHOTOS,
 } from './SwipeConstants';
 import { PokerCategoryCard } from './PokerCategoryCard';
 import { VapIdCardModal } from '../VapIdCardModal';
 import { motion, AnimatePresence } from 'framer-motion';
 import { deckFadeVariants } from '@/utils/modernAnimations';
 import type { QuickFilterCategory } from '@/types/filters';
+import { useFilterStore } from '@/state/filterStore';
 
 const preloadedImages = new Set<string>();
 
@@ -19,9 +20,35 @@ export interface SwipeAllDashboardProps {
 }
 
 export const SwipeAllDashboard = memo(({ setCategories }: SwipeAllDashboardProps) => {
-  const [cards, setCards] = useState([...POKER_CARDS]);
+  const setPokerCardOrder = useFilterStore((s) => s.setPokerCardOrder);
+  // Read persisted card order from localStorage directly (more reliable than
+  // depending on zustand persist hydration timing for component re-mount).
+  const [cards, setCards] = useState(() => {
+    try {
+      const raw = localStorage.getItem('Swipess-filter-storage');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        const order: string[] | null = parsed?.state?.pokerCardOrder ?? null;
+        if (order && order.length === POKER_CARDS.length) {
+          const idToCard = new Map(POKER_CARDS.map((c) => [c.id, c]));
+          const reordered = order.map((id) => idToCard.get(id)).filter(Boolean);
+          if (reordered.length === POKER_CARDS.length) return reordered as typeof POKER_CARDS;
+        }
+      }
+    } catch {}
+    return [...POKER_CARDS];
+  });
   const navigate = useNavigate();
   const [showVapModal, setShowVapModal] = useState(false);
+
+  // Persist card order to store (zustand persist writes to localStorage)
+  useEffect(() => {
+    const ids = cards.map((c) => c.id);
+    const stored = useFilterStore.getState().pokerCardOrder;
+    if (JSON.stringify(ids) !== JSON.stringify(stored)) {
+      setPokerCardOrder(ids);
+    }
+  }, [cards, setPokerCardOrder]);
 
   useEffect(() => {
     // Preload images safely on mount to prevent TDZ ReferenceErrors

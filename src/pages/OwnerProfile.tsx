@@ -24,7 +24,7 @@ const OwnerProfile = () => {
   const [showEditDialog, setShowEditDialog] = useState(false);
   const { user, signOut } = useAuth();
   const { data: stats } = useOwnerStats();
-  const { data: ownerProfile, isLoading: profileLoading } = useOwnerProfile();
+  const { data: ownerProfile, isLoading: profileLoading, refetch: refetchOwnerProfile } = useOwnerProfile();
   const { tokenBalance } = useMessagingQuota();
   const { setModal } = useModalStore();
   const navigate = useNavigate();
@@ -119,15 +119,16 @@ const OwnerProfile = () => {
         {/* SWIPESS METRIC GRID */}
         <div className="grid grid-cols-3 gap-3">
           {[
-            { label: 'Network', value: stats?.likedClientsCount ?? 0, icon: Flame, color: 'text-[#FF4D00]', border: 'border-[#FF4D00]/15', glow: 'rgba(255,77,0,0.15)' },
-            { label: 'Followers', value: stats?.interestedClientsCount ?? 0, icon: ThumbsUp, color: 'text-[#EB4898]', border: 'border-[#EB4898]/15', glow: 'rgba(235,72,152,0.15)' },
-            { label: 'Assets', value: stats?.activeProperties ?? 0, icon: Building2, color: 'text-orange-400', border: 'border-orange-500/15', glow: 'rgba(251,146,60,0.15)' },
+            { label: 'Network', value: stats?.likedClientsCount ?? 0, icon: Flame, color: 'text-[#FF4D00]', border: 'border-[#FF4D00]/15', glow: 'rgba(255,77,0,0.15)', path: '/owner/liked-clients' },
+            { label: 'Followers', value: stats?.interestedClientsCount ?? 0, icon: ThumbsUp, color: 'text-[#EB4898]', border: 'border-[#EB4898]/15', glow: 'rgba(235,72,152,0.15)', path: '/owner/interested-clients' },
+            { label: 'Assets', value: stats?.activeProperties ?? 0, icon: Building2, color: 'text-orange-400', border: 'border-orange-500/15', glow: 'rgba(251,146,60,0.15)', path: '/owner/properties' },
           ].map((stat, i) => (
             <motion.div
               key={i}
               whileTap={{ scale: 0.95 }}
-              className={cn("flex flex-col items-center justify-center text-center p-5 rounded-3xl border shadow-sm backdrop-blur-xl", isLight ? "border-black/10 bg-white" : "bg-white/[0.02]")}
+              className={cn("flex flex-col items-center justify-center text-center p-5 rounded-3xl border shadow-sm backdrop-blur-xl cursor-pointer", isLight ? "border-black/10 bg-white" : "bg-white/[0.02]")}
               style={{ borderColor: isLight ? undefined : `rgba(255,255,255,0.06)`, boxShadow: `inset 0 0 30px ${stat.glow}` }}
+              onClick={() => { triggerHaptic('light'); navigate(stat.path); }}
             >
               <stat.icon className={cn("w-5 h-5 mb-3", stat.color)} />
               <div className={cn("text-4xl font-black tabular-nums tracking-tighter leading-none", isLight ? "text-slate-900" : "text-white")}>

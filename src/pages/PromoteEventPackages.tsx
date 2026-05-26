@@ -55,7 +55,7 @@ const promoTiers = [
 export default function PromoteEventPackages() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [approved, setApproved] = useState<boolean | null>(null);
+  const [_approved, setApproved] = useState<boolean | null>(null);
   const [purchasing, setPurchasing] = useState<string | null>(null);
 
   useEffect(() => {

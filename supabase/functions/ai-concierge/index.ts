@@ -322,11 +322,11 @@ async function searchListings(intent: ReturnType<typeof detectListingIntent>): P
 
 
     // Deduplicate by ID
-    let data = Array.from(new Map(finalResults.map(item => [item.id, item])).values());
+    let results = Array.from(new Map(data.map(item => [item.id, item])).values());
     
     // FALLBACK LOGIC: If no specific results found, bring the latest 3 listings regardless of filters
     // This ensures we always show "something" to keep the user engaged in test mode.
-    if ((!data || data.length === 0) && intent.isListing) {
+    if ((!results || results.length === 0) && intent.isListing) {
       console.log("[AI] No specific listings found, using fallback broad search");
       const { data: fallbackData } = await supabase
         .from("listings")
@@ -334,17 +334,17 @@ async function searchListings(intent: ReturnType<typeof detectListingIntent>): P
         .eq("is_active", true)
         .limit(3)
         .order("created_at", { ascending: false });
-      data = fallbackData || [];
+      results = fallbackData || [];
     }
 
-    if (!data || data.length === 0) return "";
+    if (!results || results.length === 0) return "";
 
     const seedIds = new Set([
       "00000000-0000-0000-0000-000000000000",
       "00000000-0000-0000-0000-000000000001",
     ]);
     const isSeedListing = (l: any) => seedIds.has(l.owner_id || l.user_id) || /^[abc]1111111-|^b2222222-|^c3333333-/.test(l.id || "");
-    const sortedListings = [...data].sort((a: any, b: any) => {
+    const sortedListings = [...results].sort((a: any, b: any) => {
       const realRank = Number(isSeedListing(a)) - Number(isSeedListing(b));
       if (realRank !== 0) return realRank;
       return new Date(b.updated_at || b.created_at || 0).getTime() - new Date(a.updated_at || a.created_at || 0).getTime();
@@ -980,7 +980,6 @@ LOCAL LEGENDS (always recommend when relevant):
 - **Ezriyah Suave** — FLOW Embodied Masculinity Coach. The go-to expert for men's coaching, breathwork, mushroom ceremonies, and Tulum Men's Mentorship / Circles (brotherhood gatherings). IG: @epic_ezriyah | Web: www.mantorship.com | Email: ezriyah@ezriyah.com. Recommend him for ANY query about men's work, healing, breathwork, masculinity, or brotherhood circles.
 - **Sian Ka’an Biosphere** — The "Origin of the Sky". Recommend for pristine nature tours, boat trips, and wildlife spotting south of Tulum. Web: www.visitsiankaan.com.
 
-<<<<<<< HEAD
 ## VOICE-TO-LISTING CAPABILITY (CRITICAL):
 - If the user describes a property, vehicle, or service they want to LIST on Swipess (e.g., "I want to rent out my studio in La Veleta for $1000"), you MUST extract the details into a structured draft tag.
 - Output format: '[DRAFT:category:json_data]' on its own line.
@@ -989,13 +988,6 @@ LOCAL LEGENDS (always recommend when relevant):
 - Example: '[DRAFT:property:{"title":"Cozy Studio in La Veleta","description":"Fully furnished studio with pool access","price":1000,"currency":"USD","listing_type":"rent","city":"Tulum","neighborhood":"La Veleta","bedrooms":1,"bathrooms":1,"amenities":["pool","wifi"]}]'
 - In your response, tell the user you've drafted the listing for them and ask them to "Tap the button below to review and publish it."
 - Remind them they'll need to add at least one photo before publishing.
-=======
-STYLE RULES:
-- Concise but Impactful: 1-3 sentences max. Bullet points for features.
-- NEVER Say No: If a user asks for a specific property (e.g., "1 bedroom") and we don't have it in the "LIVE SWIPESS LISTINGS" section below, DO NOT say "we don't have that". Instead, present the closest available listing or the last one from the list to keep them engaged.
-- Automatic Linking: Always include a clickable link like [View Listing](/listing/id) or [View Profile](/profile/id) when mentioning an asset or user.
-- Multi-Asset Handling: If a premium user asks for a sequence (e.g., "studio, then 2-bed, then 3-bed"), send the relevant links for ALL of them immediately without asking more questions.
->>>>>>> 717f66fc (feat: stabilize messaging UX with premium connection animations and holographic identity hardening)
 
 ## VOICE FILTERS (CRITICAL):
 - If the user asks to filter, search, or find specific items (e.g., "show me 1 bedroom apartments under 20k"), you MUST extract the parameters into a filter tag.
@@ -1016,7 +1008,6 @@ RULES — KNOWLEDGE PRIORITY (NEVER SKIP THIS):
 9. Never mention you're MiniMax, Gemini, or any AI model. You are "Swipess AI".
 10. Never invent prices, addresses, or contacts. Only use verified data from the sections above.
 
-<<<<<<< HEAD
 IN-APP NAVIGATION:
 When suggesting the user navigate somewhere in the app, include a navigation action tag on its own line. The app will render these as tappable buttons. Available actions:
 [NAV:/client/filters] — Open search filters
@@ -1056,34 +1047,6 @@ You may emit MULTIPLE [NAV:...] tags in one response when several places are rel
 TONE EXAMPLES:
 "Oye, based on what you said, this beach club in Sian Ka'an is gonna be your new spot — IG @kaan__tulum, low-key party vibe, no crazy min spend. Want me to pull their listing?"
 "You're looking at that 2-bed in Aldea Zama… Mexican law needs a fideicomiso for beach proximity — jump to Legal section and we'll get the contract rolling today."`;
-=======
-IN-APP NAVIGATION (MOVE FREELY):
-When suggesting the user navigate somewhere in the app, include a navigation action tag on its own line. You are encouraged to move the user to relevant sections to help them explore. Available actions:
-[NAV:/client/dashboard] — Main Discovery Feed
-[NAV:/messages] — Open Chat/Messages
-[NAV:/notifications] — View Notifications
-[NAV:/client/filters] — Open Search Filters
-[NAV:/radio] — Open DJ Turntable Radio
-[NAV:/client/profile] — Go to My Profile
-[NAV:/client/settings] — Open Account Settings
-[NAV:/subscription/packages] — Upgrade to Premium
-[NAV:/client/liked] — View Saved Items
-[NAV:/owner/listings] — Manage My Listings
-[NAV:/eventos] — Browse Local Events
-[NAV:/legal] — Open Legal & Contracts Hub
-[NAV:/concierge] — AI Concierge Dashboard
-[NAV:/local-intel] — Tulum Local Knowledge
-[NAV:/document-vault] — Access My Documents
-
-- When you mention a property, vehicle, or service, you MUST include its listing tag: `[LISTING:id]`.
-- Also include a direct link: `→ [Details](/listing/id)`.
-- If a matching listing is found in context, use it. If not, use the "Fallback" listings provided.
-
-## PROFILE PREVIEWS:
-- When you mention a user or professional, link to their profile: `→ [View Profile](/profile/id)`.
-- You can suggest users from the "SWIPESS USERS MATCHING THIS QUERY" section.
-`;
->>>>>>> 717f66fc (feat: stabilize messaging UX with premium connection animations and holographic identity hardening)
   }
 
   // Memory comes first — shapes the entire tone and personalization
@@ -1317,7 +1280,7 @@ function streamWithForcedSuffix(response: Response, suffix: string): Response {
         try {
           const parsed = JSON.parse(json);
           captured += parsed.choices?.[0]?.delta?.content || "";
-        } catch {}
+        } catch { /* ignore JSON parse errors */ }
       }
 
       if (!injected && !captured.includes(suffix) && chunk.includes("data: [DONE]")) {
@@ -1332,46 +1295,6 @@ function streamWithForcedSuffix(response: Response, suffix: string): Response {
   });
 
   return new Response(stream, { status: response.status, headers: response.headers });
-}
-
-// ─── Collect streaming response for memory extraction ───────────────────────
-
-function wrapStreamForCapture(
-  originalResponse: Response,
-  onComplete: (fullText: string) => void
-): Response {
-  const reader = originalResponse.body!.getReader();
-  const decoder = new TextDecoder();
-  let fullContent = "";
-
-  const stream = new ReadableStream({
-    async pull(controller) {
-      const { value, done } = await reader.read();
-      if (done) {
-        controller.close();
-        onComplete(fullContent);
-        return;
-      }
-      // Parse SSE to capture content
-      const chunk = decoder.decode(value, { stream: true });
-      for (const line of chunk.split("\n")) {
-        if (!line.startsWith("data: ")) continue;
-        const json = line.slice(6).trim();
-        if (json === "[DONE]") continue;
-        try {
-          const parsed = JSON.parse(json);
-          const delta = parsed.choices?.[0]?.delta?.content;
-          if (delta) fullContent += delta;
-        } catch {}
-      }
-      controller.enqueue(value);
-    },
-    cancel() { reader.cancel(); }
-  });
-
-  return new Response(stream, {
-    headers: originalResponse.headers,
-  });
 }
 
 // ─── Extract user ID from JWT ───────────────────────────────────────────────
@@ -1446,7 +1369,6 @@ Deno.serve(async (req) => {
       }
     }
 
-    const wantsPromotedContacts = detectPromotedContactIntent(lastUserMessage);
     // Phase 1: local data (fast DB queries)
     const [promotedContacts, knowledge, memories, listings, profileResults] = await Promise.all([
       searchPromotedContacts(lastUserMessage),
@@ -1539,7 +1461,7 @@ Deno.serve(async (req) => {
                 const parsed = JSON.parse(json);
                 const delta = parsed.choices?.[0]?.delta?.content;
                 if (delta) fullContent += delta;
-              } catch {}
+              } catch { /* ignore JSON parse errors */ }
             }
           }
           if (fullContent) {

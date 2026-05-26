@@ -1,4 +1,4 @@
-import { Suspense, lazy, useMemo, useEffect, useState, useRef, useLayoutEffect } from 'react';
+import { Suspense, lazy, useMemo, useEffect, useRef, useLayoutEffect } from 'react';
 import { lazyWithRetry } from '@/utils/lazyRetry';
 
 import { useLocation } from 'react-router-dom';
@@ -29,11 +29,7 @@ import { useShallow } from 'zustand/react/shallow';
 const NotificationSystem = lazy(() =>
   import('@/components/NotificationSystem').then(m => ({ default: m.NotificationSystem }))
 );
-const DiscoveryFilters = lazy(() =>
-  import('@/components/filters/DiscoveryFilters').then(m => ({ default: m.DiscoveryFilters }))
-);
-import { Sheet, SheetContent } from '@/components/ui/sheet';
-import { useTranslation } from 'react-i18next';
+
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -61,8 +57,11 @@ export function AppLayout({ children }: AppLayoutProps) {
   //     of the photo. Re-summoned by tapping the top edge or the
   //     bottom-center summon zone.
   //   • Every other page: chrome hides on scroll-down, shows on scroll-up.
+  const isRoommatesRoute = location.pathname.startsWith('/explore/roommates');
+  const isEventsRoute = location.pathname.startsWith('/explore/events');
+
   const isDashboardPage = location.pathname.startsWith('/client/dashboard') ||
-    location.pathname.startsWith('/owner/dashboard');
+    location.pathname.startsWith('/owner/dashboard') || isRoommatesRoute;
   const { selectedCategoriesCount, ownerPhase } = useFilterStore(
     useShallow((s) => ({
       selectedCategoriesCount: s.categories.length,
@@ -73,7 +72,8 @@ export function AppLayout({ children }: AppLayoutProps) {
   const isOwnerDash = location.pathname.startsWith('/owner/dashboard');
   const swipeDeckActive =
     (isClientDash && selectedCategoriesCount > 0) ||
-    (isOwnerDash && ownerPhase === 'swipe');
+    (isOwnerDash && ownerPhase === 'swipe') ||
+    isRoommatesRoute;
   const { isChromeVisible } = useChromeReveal();
   const useRevealMode = swipeDeckActive && !showAIChat;
   const hideFloatingForSwipe = useRevealMode && !isChromeVisible;
@@ -101,7 +101,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   useErrorReporting();
   useInstantReactivity(); 
 
-  const { t } = useTranslation();
+
 
   // In-app audio fully disabled — sounds are reserved for the public
   // landing-page cosmos background only (LandingBackgroundEffects.tsx).
@@ -186,13 +186,15 @@ export function AppLayout({ children }: AppLayoutProps) {
     return isCamera || isRadio || showAIChat || showAIListing || showAIProfile || isSwipeDashboard || isRoommates || isMessages || isEvents;
   }, [location.pathname, showAIChat, showAIListing, showAIProfile, isSwipeDashboard]);
 
-  const isEventsRoute = location.pathname.startsWith('/explore/events');
-  const isRoommatesRoute = location.pathname.startsWith('/explore/roommates');
-  const showAppChrome = !isAuthRoute && !isRadioRoute && !isCameraRoute && !showAIChat && !showAIListing && !showAIProfile && !isEventsRoute && !isRoommatesRoute && (!isPublicPreview || !!user);
+  const showAppChrome = !isAuthRoute && !isRadioRoute && !isCameraRoute && !showAIChat && !showAIListing && !showAIProfile && !isEventsRoute && (!isPublicPreview || !!user);
 
   const handleFilterClick = () => {
-    const role = userRole === 'admin' ? 'admin' : activeMode;
-    navigate(`/${role}/filters`);
+    if (isRoommatesRoute) {
+      useModalStore.getState().setModal('showFilters', true);
+    } else {
+      const role = userRole === 'admin' ? 'admin' : activeMode;
+      navigate(`/${role}/filters`);
+    }
   };
 
   const handleListingsClick = () => {
@@ -240,10 +242,13 @@ export function AppLayout({ children }: AppLayoutProps) {
           "w-full flex-1 relative z-0 flex flex-col min-h-0",
           // Restore pt/pb for non-dashboard pages to prevent content overlap with floating header
           !isInsideDashboard && !isFullScreen && "pt-[var(--top-bar-height)] pb-[var(--bottom-nav-height)]",
-          (isInsideDashboard || isFullScreen) ? "overflow-hidden" : "overflow-y-auto scroll-area-momentum"
+          (swipeDeckActive || isFullScreen || isInsideDashboard) ? "overflow-hidden" : "overflow-y-auto scroll-area-momentum"
         )}
       >
-        <div className="w-full flex-1 flex flex-col min-h-0 h-full relative">
+        <div className={cn(
+          "w-full flex-1 flex flex-col min-h-0 h-full relative",
+          !swipeDeckActive && "select-text touch-auto"
+        )}>
           {children}
         </div>
       </main>

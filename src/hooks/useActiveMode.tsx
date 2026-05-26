@@ -230,7 +230,10 @@ export function ActiveModeProvider({ children }: { children: ReactNode }) {
         resetOwnerDeck(category);
       });
     } else {
-      resetClientDeck();
+      const clientDecks = useSwipeDeckStore.getState().clientDecks;
+      Object.keys(clientDecks).forEach(category => {
+        resetClientDeck(category);
+      });
     }
 
     // Reset filters so client/owner filter selections don't carry across modes

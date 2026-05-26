@@ -387,7 +387,7 @@ export function UpdateNotification() {
  * stale due to service worker stale-while-revalidate caching.
  * If they differ, the running JS is outdated — force a full cache clear + reload.
  */
-function checkHtmlVersionMismatch(): boolean {
+function _checkHtmlVersionMismatch(): boolean {
   try {
     const metaTag = document.querySelector('meta[name="app-version"]');
     if (!metaTag) return false;

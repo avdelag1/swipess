@@ -7,7 +7,6 @@ import { CityLocation } from '@/types/radio';
 import { StationDrawer } from '@/components/radio/retro/StationDrawer';
 import { triggerHaptic } from '@/utils/haptics';
 import { cn } from '@/lib/utils';
-import useAppTheme from '@/hooks/useAppTheme';
 import { ArrowLeft, Heart, SkipBack, SkipForward, Play, Pause, Volume2, ListMusic, Star, Shuffle, Palette } from 'lucide-react';
 import { RadioSkinBackground } from '@/components/radio/RadioSkinBackground';
 import { useRadioSkin } from '@/hooks/useRadioSkin';

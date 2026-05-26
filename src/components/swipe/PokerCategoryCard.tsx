@@ -1,5 +1,4 @@
-import { memo, useCallback, useRef, useState, useEffect, useMemo } from 'react';
-import useAppTheme from '@/hooks/useAppTheme';
+import { memo, useCallback, useRef, useState, useEffect, useMemo, useLayoutEffect } from 'react';
 import { AnimatePresence, motion, useMotionValue, useTransform, animate, PanInfo } from 'framer-motion';
 import { triggerHaptic } from '@/utils/haptics';
 import { toggleChrome } from '@/hooks/useChromeReveal';
@@ -13,6 +12,7 @@ import {
 } from './SwipeConstants';
 import { useCategoryPhotos, getCategoryPhotoList } from '@/hooks/useCategoryPhotos';
 import { cn } from '@/lib/utils';
+import { imageCache } from '@/lib/swipe/cardImageCache';
 
 interface PokerCardProps {
   card: PokerCardData;
@@ -28,6 +28,8 @@ interface PokerCardProps {
 
 // Module-level cache so re-mounts (cycling through deck) don't re-flash imgReady=false
 const _loadedPokerImages = new Set<string>();
+// Track which photo was last set per-card key to avoid stale useEffect races
+const _lastPhotoKey = new Map<string, string>();
 
 // Detect low-end / reduced-motion devices once at module load.
 // Blur + continuous scale across multiple stacked cards is the single
@@ -41,9 +43,7 @@ const _isLowEndDevice = (() => {
   } catch { return false; }
 })();
 
-export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false, onCycle, onSelect, onBringToFront }: PokerCardProps) => {
-  const { theme } = useAppTheme();
-  const isDark = theme !== 'light';
+export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCollapsed = false, onCycle, onSelect, onBringToFront }: PokerCardProps) => {
   const x = useMotionValue(0);
   const y = useMotionValue(0);
   const axisRef = useRef<null | 'x' | 'y'>(null);
@@ -72,27 +72,58 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
   );
   const [photoIndex, setPhotoIndex] = useState(0);
   const photo = photoList[photoIndex] || POKER_CARD_PHOTOS[card.id] || POKER_CARD_PHOTOS.property;
-  const [imgReady, setImgReady] = useState(() => _loadedPokerImages.has(photo));
-  const fallbackGradient = POKER_CARD_GRADIENTS[card.id] || POKER_CARD_GRADIENTS.property;
+  const fallbackGradient = useMemo(() => {
+    return POKER_CARD_GRADIENTS[card.id] || POKER_CARD_GRADIENTS.property;
+  }, [card.id]);
+  const cardKey = card.id;
 
-  useEffect(() => {
-    if (_loadedPokerImages.has(photo)) {
+  // Sync cache with the imageCache used by CardImage so the normal card
+  // prewarmer also warms poker photos.
+  const [imgReady, setImgReady] = useState(() => {
+    return imageCache.has(photo) || _loadedPokerImages.has(photo);
+  });
+
+  // Use a key that changes when photo changes so <motion.img> always
+  // gets a fresh unmount/mount — eliminates stale exit animations.
+  const photoRenderKey = `${photo}_${imgReady}`;
+
+  // useLayoutEffect fires synchronously after render but before paint,
+  // so we never show a frame with the old imgReady for a new photo.
+  useLayoutEffect(() => {
+    const prev = _lastPhotoKey.get(cardKey);
+    _lastPhotoKey.set(cardKey, photo);
+    // Same photo as last render — nothing to do.
+    if (prev === photo) return;
+
+    if (imageCache.has(photo) || _loadedPokerImages.has(photo)) {
       setImgReady(true);
       return;
     }
-    const img = new Image();
-    img.src = photo;
-    img.onload = () => { _loadedPokerImages.add(photo); setImgReady(true); };
-    img.onerror = () => setImgReady(false);
-  }, [photo]);
 
-  // Preload all carousel photos so cross-fades are instant.
+    // Mark not-ready synchronously so the gradient shows for this frame
+    // (slightly better than the old flash where imgReady stayed true for
+    //  the previous photo's image during the new photo's first frame).
+    setImgReady(false);
+    const img = new Image();
+    img.onload = () => {
+      _loadedPokerImages.add(photo);
+      imageCache.set(photo, true);
+      setImgReady(true);
+    };
+    img.onerror = () => setImgReady(false);
+    img.src = photo;
+  }, [photo, cardKey]);
+
+  // Preload all carousel photos into both caches so cross-fades are instant.
   useEffect(() => {
     photoList.forEach((src) => {
-      if (_loadedPokerImages.has(src)) return;
+      if (imageCache.has(src) || _loadedPokerImages.has(src)) return;
       const im = new Image();
+      im.onload = () => {
+        imageCache.set(src, true);
+        _loadedPokerImages.add(src);
+      };
       im.src = src;
-      im.onload = () => _loadedPokerImages.add(src);
     });
   }, [photoList]);
 
@@ -151,8 +182,6 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
         ease: [0.32, 0, 0.67, 0],
         onComplete: () => {
           onCycle(card.id, direction);
-          x.set(0);
-          y.set(0);
           axisRef.current = null;
           setIsDragging(false);
         }
@@ -171,16 +200,20 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
   // Memoized so background-card filter doesn't recompute on every render → no flicker.
     const { stackY, stackScale, stackOpacity, stackedFilter } = useMemo(() => ({
       stackY: 0,
-      stackScale: 1 - (index * 0.045),
-      stackOpacity: index === 0 ? 1 : Math.max(0, 0.9 - (index * 0.2)),
-      // 🚀 Blur is GPU-expensive — drop it on low-end devices and rely on
-      // brightness + scale + opacity for depth. On capable devices we still
-      // apply a smaller blur (was 1.2px per index → now 0.6px capped at 2px).
+      // All cards are full scale — scale variation caused a visible pop when
+      // a card transitioned from non-top (e.g. 0.955) to top (undefined = 1).
+      stackScale: 1,
+      // All cards fully opaque — depth comes from brightness + blur below.
+      stackOpacity: 1,
+      // EVERY card gets an explicit filter, including the top card, so when
+      // a card transitions from background to top there is NO filter snap.
+      // The gradient is deliberately shallow so the change is imperceptible
+      // at the transition point. Depth: brightness dims + subtle blur.
       stackedFilter: isTop
-        ? undefined
+        ? 'brightness(0.98)'
         : _isLowEndDevice
-          ? `brightness(${0.92 - index * 0.08})`
-          : `brightness(${0.92 - index * 0.08}) blur(${Math.min(2, index * 0.6)}px)`,
+          ? `brightness(${0.96 - index * 0.035})`
+          : `brightness(${0.96 - index * 0.035}) blur(${Math.min(1.0, index * 0.25)}px)`,
     }), [index, isTop]);
 
   if (index > 7) return null;
@@ -224,13 +257,8 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
         triggerHaptic('medium');
         onSelect(card.id);
       }}
-      initial={isTop ? { y: 60, opacity: 0, scale: 0.95 } : false}
-      animate={{
-        y: stackY,
-        opacity: stackOpacity,
-        scale: isTop ? undefined : stackScale,
-        zIndex: 100 - index,
-      }}
+      initial={false}
+      animate={{}}
       style={{
         position: 'absolute',
         top: 0,
@@ -238,8 +266,10 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
         width: '100%',
         height: '100%',
         x: isTop ? x : 0,
-        y: isTop ? y : 0,
-        opacity: isTop ? exitOpacity : undefined,
+        y: 0,
+        zIndex: 100 - index,
+        opacity: isTop ? exitOpacity : stackOpacity,
+        scale: 1,
         filter: stackedFilter,
         cursor: isTop ? (isDragging ? 'grabbing' : 'grab') : 'pointer',
         touchAction: 'none',
@@ -252,25 +282,21 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
       className="select-none touch-none"
     >
       <div
-        className="w-full h-full relative overflow-hidden transition-colors duration-100 bg-black rounded-[2.5rem] shadow-[0_30px_60px_-20px_rgba(0,0,0,0.55)]"
-        style={{ backgroundImage: !imgReady ? fallbackGradient : undefined }}
+        className="w-full h-full relative overflow-hidden bg-black rounded-[2.5rem] shadow-[0_30px_60px_-20px_rgba(0,0,0,0.55)]"
+        style={{ backgroundImage: fallbackGradient }}
       >
         {/* Photo carousel — silky crossfade between admin-managed photos. */}
-        <AnimatePresence initial={false}>
+        <AnimatePresence mode="wait" initial={false}>
           <motion.img
-            key={photo}
+            key={photoRenderKey}
             src={photo}
             alt={card.label}
             loading="eager"
             decoding="async"
-            onLoad={() => { _loadedPokerImages.add(photo); setImgReady(true); }}
-            initial={{ opacity: 0, scale: _isLowEndDevice ? 1 : 1.04 }}
-            animate={{ opacity: 1, scale: 1 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: imgReady ? 1 : 0 }}
             exit={{ opacity: 0 }}
-            transition={{
-              opacity: { duration: 0.9, ease: [0.22, 1, 0.36, 1] },
-              scale: { duration: _isLowEndDevice ? 0 : 6, ease: 'linear' },
-            }}
+            transition={{ opacity: { duration: 0.2, ease: 'easeOut' } }}
             className="absolute inset-0 w-full h-full object-cover"
             style={{ backfaceVisibility: 'hidden' }}
             draggable={false}

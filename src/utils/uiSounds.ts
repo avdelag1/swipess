@@ -4,13 +4,7 @@
  * Tuned for a cinematic, tactile user experience.
  */
 
-const Swipes_SOUNDS = {
-  WELCOME:      "/sounds/singing-bowl-gong-69238.mp3",
-  LIKE:         "/sounds/duck-quack-like.mp3",
-  DISLIKE:      "/sounds/deep-meditation-bell-hit-heart-dislike.mp3",
-  NOTIFICATION: "/sounds/text-notification-96707.mp3",
-  UPLOAD:       "/sounds/achievement-unlocked-463070.mp3",
-};
+// Sound paths used only by landing-page star/bowl effects (see SoundEngine below)
 
 const STAR_SOUNDS = [
   "/sounds/bells-1-72261.mp3",

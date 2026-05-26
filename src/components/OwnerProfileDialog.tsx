@@ -1,19 +1,18 @@
 
 import { useEffect, useState, memo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { motion } from 'framer-motion';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
 import { PhotoUploadManager } from '@/components/PhotoUploadManager';
 import { ListingVideoUpload } from '@/components/video/ListingVideoUpload';
 import { useOwnerProfile, useSaveOwnerProfile } from '@/hooks/useOwnerProfile';
 import { toast } from '@/components/ui/sonner';
 import { supabase } from '@/integrations/supabase/client';
-import { logger } from '@/utils/prodLogger';
 import { validateContent } from '@/utils/contactInfoValidation';
-import { Building2, Bike, Briefcase, Check, Camera, Mail, Sparkles, Target, X, Save, MapPin } from 'lucide-react';
+import { Building2, Bike, Briefcase, Check, Mail, Sparkles, Target, X, Save, MapPin, Phone, FileText } from 'lucide-react';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
@@ -33,8 +32,10 @@ function OwnerProfileDialogComponent({ open, onOpenChange }: Props) {
   const saveMutation = useSaveOwnerProfile();
 
   const [businessName, setBusinessName] = useState<string>('');
+  const [businessDescription, setBusinessDescription] = useState<string>('');
   const [businessLocation, setBusinessLocation] = useState<string>('');
   const [contactEmail, setContactEmail] = useState<string>('');
+  const [contactPhone, setContactPhone] = useState<string>('');
   const [profileImages, setProfileImages] = useState<string[]>([]);
   const [serviceOfferings, setServiceOfferings] = useState<string[]>([]);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
@@ -42,8 +43,10 @@ function OwnerProfileDialogComponent({ open, onOpenChange }: Props) {
   useEffect(() => {
     if (!data) return;
     setBusinessName(data.business_name ?? '');
+    setBusinessDescription((data as any).business_description ?? '');
     setBusinessLocation(data.business_location ?? '');
     setContactEmail(data.contact_email ?? '');
+    setContactPhone((data as any).contact_phone ?? '');
     setProfileImages(data.profile_images ?? []);
     setServiceOfferings(data.service_offerings ?? []);
     setVideoUrl((data as any).video_url ?? null);
@@ -75,15 +78,17 @@ function OwnerProfileDialogComponent({ open, onOpenChange }: Props) {
     try {
       await saveMutation.mutateAsync({
         business_name: businessName || null,
+        business_description: businessDescription || null,
         business_location: businessLocation || null,
         contact_email: contactEmail || null,
+        contact_phone: contactPhone || null,
         profile_images: profileImages,
         service_offerings: serviceOfferings,
         video_url: videoUrl,
       });
       toast.success('Brand Assets Synced');
       onOpenChange(false);
-    } catch (error) {
+    } catch (_error) {
       toast.error('Sync Error');
     }
   };
@@ -185,6 +190,28 @@ function OwnerProfileDialogComponent({ open, onOpenChange }: Props) {
                 </div>
             </section>
 
+            {/* 📝 BUSINESS DESCRIPTION */}
+            <section className="space-y-6">
+                <div className="flex items-center gap-3">
+                   <div className="w-8 h-8 rounded-xl bg-[#EB4898]/10 border border-[#EB4898]/30 flex items-center justify-center text-[#EB4898]">
+                      <FileText className="w-4 h-4" />
+                   </div>
+                   <h3 className="text-sm font-black uppercase italic tracking-widest text-white">Business Description</h3>
+                </div>
+                <div className="space-y-2">
+                   <Label className="text-[10px] font-black uppercase tracking-widest text-white/70 italic ml-1">Brand Bio</Label>
+                   <Textarea
+                     value={businessDescription}
+                     onChange={(e) => setBusinessDescription(e.target.value)}
+                     placeholder="Describe your business, what you offer, your experience..."
+                     rows={4}
+                     maxLength={500}
+                     className="min-h-[120px] rounded-2xl bg-white/5 border-white/10 text-white placeholder:text-white/30 italic focus:border-[#EB4898]/50 transition-all px-6 py-4"
+                   />
+                   <p className="text-[10px] text-white/30 text-right">{businessDescription.length}/500</p>
+                </div>
+            </section>
+
             {/* 💼 SERVICE PROVISIONS */}
             <section className="space-y-6">
                <div className="flex items-center gap-3">
@@ -237,10 +264,17 @@ function OwnerProfileDialogComponent({ open, onOpenChange }: Props) {
                </div>
                
                <div className="space-y-2">
-                  <Label className="text-[10px] font-black uppercase tracking-widest text-white/70 italic ml-1">Official Comm-Link (Email)</Label>
-                  <Input type="email" value={contactEmail} onChange={(e) => setContactEmail(e.target.value)} className="h-14 rounded-2xl bg-white/5 border-white/10 text-white font-bold italic focus:border-[#EB4898]/50 transition-all px-6" />
-               </div>
-            </section>
+                   <Label className="text-[10px] font-black uppercase tracking-widest text-white/70 italic ml-1">Official Comm-Link (Email)</Label>
+                   <Input type="email" value={contactEmail} onChange={(e) => setContactEmail(e.target.value)} className="h-14 rounded-2xl bg-white/5 border-white/10 text-white font-bold italic focus:border-[#EB4898]/50 transition-all px-6" />
+                </div>
+                <div className="space-y-2">
+                   <Label className="text-[10px] font-black uppercase tracking-widest text-white/70 italic ml-1">Direct Line (Phone)</Label>
+                   <div className="relative">
+                     <Phone className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20" />
+                     <Input type="tel" value={contactPhone} onChange={(e) => setContactPhone(e.target.value)} className="h-14 rounded-2xl bg-white/5 border-white/10 text-white font-bold italic focus:border-[#EB4898]/50 transition-all pl-12 pr-6" placeholder="+1 555 000 0000" />
+                   </div>
+                </div>
+             </section>
 
           </div>
         </div>

@@ -1,8 +1,8 @@
 import { memo, useCallback, useState, useRef, useEffect } from 'react';
 
 import { 
-  Home, Bike, RotateCcw, Briefcase, Users, User, 
-  ChevronDown, Wrench, Check, Globe, ShoppingBag, Key 
+  _Home, _Bike, _RotateCcw, _Briefcase, Users, User, 
+  ChevronDown, _Wrench, Check, Globe, _ShoppingBag, _Key 
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import useAppTheme from '@/hooks/useAppTheme';
@@ -11,7 +11,7 @@ import { BeachBicycleIcon } from '@/components/icons/BeachBicycleIcon';
 import { WorkersIcon } from '@/components/icons/WorkersIcon';
 import { RealEstateIcon } from '@/components/icons/RealEstateIcon';
 import type { QuickFilterCategory, QuickFilters, ClientGender, ClientType } from '@/types/filters';
-import { POKER_CARDS, POKER_CARD_PHOTOS, PK_SPRING, PK_W, PK_H } from './swipe/SwipeConstants';
+import { POKER_CARD_PHOTOS } from './swipe/SwipeConstants';
 import { haptics } from '@/utils/microPolish';
 import { QuickFilterImage } from '@/components/ui/QuickFilterImage';
 
@@ -63,13 +63,13 @@ const _listingTypes: { id: QuickFilterListingType; label: string }[] = [
   { id: 'sale', label: 'Buy Only' },
 ];
 
-const genderOptions: { id: OwnerClientGender; label: string; icon: React.ReactNode }[] = [
+const _genderOptions: { id: OwnerClientGender; label: string; icon: React.ReactNode }[] = [
   { id: 'any', label: 'All Genders', icon: <Users className="w-4 h-4" /> },
   { id: 'female', label: 'Women Only', icon: <User className="w-4 h-4" /> },
   { id: 'male', label: 'Men Only', icon: <User className="w-4 h-4" /> },
 ];
 
-const clientTypeOptions: { id: OwnerClientType; label: string }[] = [
+const _clientTypeOptions: { id: OwnerClientType; label: string }[] = [
   { id: 'all', label: 'All Clients' },
   { id: 'hire', label: 'Hiring' },
   { id: 'rent', label: 'Renting' },
@@ -87,7 +87,7 @@ const smoothButtonClass = cn(
 );
 
 // Dropdown component for compact filters - instant response, no delays
-function FilterDropdown({
+export function FilterDropdown({
   label,
   icon,
   options,
@@ -181,9 +181,9 @@ function FilterDropdown({
 
 function QuickFilterBarComponent({ filters, onChange, onSelect, className, userRole = 'client' }: QuickFilterBarProps) {
   const { theme, isLight } = useAppTheme();
-  const isDark = theme === 'dark';
+  const _isDark = theme === 'dark';
 
-  const handleCategoryToggle = useCallback((categoryId: QuickFilterCategory) => {
+  const _handleCategoryToggle = useCallback((categoryId: QuickFilterCategory) => {
     const newCategories = filters.categories.includes(categoryId)
       ? filters.categories.filter(c => c !== categoryId)
       : [...filters.categories, categoryId];
@@ -212,21 +212,21 @@ function QuickFilterBarComponent({ filters, onChange, onSelect, className, userR
     });
   }, [filters, onChange]);
 
-  const handleGenderChange = useCallback((gender: OwnerClientGender) => {
+  const _handleGenderChange = useCallback((gender: OwnerClientGender) => {
     onChange({
       ...filters,
       clientGender: gender,
     });
   }, [filters, onChange]);
 
-  const handleClientTypeChange = useCallback((type: OwnerClientType) => {
+  const _handleClientTypeChange = useCallback((type: OwnerClientType) => {
     onChange({
       ...filters,
       clientType: type,
     });
   }, [filters, onChange]);
 
-  const handleReset = useCallback(() => {
+  const _handleReset = useCallback(() => {
     onChange({
       categories: [],
       listingType: 'both',
@@ -306,9 +306,9 @@ function QuickFilterBarComponent({ filters, onChange, onSelect, className, userR
                     : (isLight ? "bg-white/60" : "bg-black/55")
                 )} />
                 <QuickFilterImage src={option.image} alt={option.label} />
-                <div className="absolute inset-0 flex flex-col items-center justify-center z-20 transition-all duration-300 text-white font-black">
+                <div className={cn("absolute inset-0 flex flex-col items-center justify-center z-20 transition-all duration-300 font-black", isLight ? "text-black" : "text-white")}>
                   <div className={cn("mb-1 transition-all duration-300",
-                    "drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]",
+                    isLight ? "drop-shadow-[0_2px_8px_rgba(255,255,255,0.8)]" : "drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]",
                     isActive && "scale-110 drop-shadow-[0_0_18px_rgba(255,255,255,0.95)]")}>
                     {option.icon}
                   </div>
@@ -331,7 +331,7 @@ function QuickFilterBarComponent({ filters, onChange, onSelect, className, userR
 
   // Client Quick Filters (default)
   const clientIsAllSelected = filters.categories.length === 0;
-  const activeCategoryLabel = categories.find(c => filters.categories[0] === c.id)?.label ?? '';
+  const _activeCategoryLabel = categories.find(c => filters.categories[0] === c.id)?.label ?? '';
 
   // Per-category accent colors (active state) - Ultra Premium Gradients
   const _categoryColors: Record<string, { bg: string; shadow: string; border: string; overlay: string }> = {
@@ -388,8 +388,8 @@ function QuickFilterBarComponent({ filters, onChange, onSelect, className, userR
             alt="All"
           />
 
-          <div className="absolute inset-0 flex flex-col items-center justify-center z-20 transition-all duration-300 text-white font-black">
-            <Globe className={cn("w-7 h-7 mb-1 transition-all duration-300 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]",
+          <div className={cn("absolute inset-0 flex flex-col items-center justify-center z-20 transition-all duration-300 font-black", isLight ? "text-black" : "text-white")}>
+            <Globe className={cn("w-7 h-7 mb-1 transition-all duration-300", isLight ? "drop-shadow-[0_2px_8px_rgba(255,255,255,0.8)]" : "drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]",
               clientIsAllSelected && "scale-125 drop-shadow-[0_0_18px_rgba(168,85,247,0.95)]")} />
             <span className="text-[9px] font-black uppercase tracking-[0.2em] mb-0.5 opacity-90 drop-shadow-md">Global</span>
             <span className="text-xl font-black uppercase tracking-tighter drop-shadow-md">ALL</span>
@@ -438,8 +438,8 @@ function QuickFilterBarComponent({ filters, onChange, onSelect, className, userR
 
               <QuickFilterImage src={photo} alt={category.label} />
 
-              <div className="absolute inset-0 flex flex-col items-center justify-center z-20 transition-all duration-300 text-white font-black">
-                <div className={cn("mb-1 transition-all duration-300 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]",
+              <div className={cn("absolute inset-0 flex flex-col items-center justify-center z-20 transition-all duration-300 font-black", isLight ? "text-black" : "text-white")}>
+                <div className={cn("mb-1 transition-all duration-300", isLight ? "drop-shadow-[0_2px_8px_rgba(255,255,255,0.8)]" : "drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]",
                   isActive && "scale-125 drop-shadow-[0_0_18px_rgba(255,165,0,0.95)]")}>
                   {category.icon}
                 </div>

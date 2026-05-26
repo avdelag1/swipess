@@ -1,14 +1,14 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import {
   MessageCircle, Search,
-  MoreVertical, Archive, Trash, Check, Inbox, CircleDot,
-  Layers, Sparkles, Navigation, ChevronLeft, ArrowLeft, ShieldAlert, Ban
+  MoreVertical, Archive, Trash, Check, Inbox, _CircleDot,
+  _Layers, Sparkles, _Navigation, _ChevronLeft, ArrowLeft, ShieldAlert, Ban
 } from 'lucide-react';
-import { EmptyState } from '@/components/ui/EmptyState';
+// import { } from '@/components/ui/EmptyState';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useActiveMode } from '@/hooks/useActiveMode';
@@ -24,9 +24,9 @@ import { useMarkMessagesAsRead } from '@/hooks/useMarkMessagesAsRead';
 import { MessagingInterface } from '@/components/MessagingInterface';
 import { MessageSkeleton } from '@/components/ui/LayoutSkeletons';
 import { formatDistanceToNow } from '@/utils/timeFormatter';
-import { supabase } from '@/integrations/supabase/client';
+// import { } from '@/integrations/supabase/client';
 import { MessageActivationPackages } from '@/components/MessageActivationPackages';
-import { MessageActivationBanner } from '@/components/MessageActivationBanner';
+// import { } from '@/components/MessageActivationBanner';
 import { useMessageActivations } from '@/hooks/useMessageActivations';
 import { usePrefetchManager } from '@/hooks/usePrefetchManager';
 import { useBlockUser } from '@/hooks/useBlocking';
@@ -43,21 +43,23 @@ import useAppTheme from '@/hooks/useAppTheme';
 import { AtmosphericLayer } from '@/components/AtmosphericLayer';
 import { X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
 
 export function MessagingDashboard() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState<'all' | 'unread' | 'archived' | 'listing' | 'client' | 'potential'>('all');
   const [isStartingConversation, setIsStartingConversation] = useState(false);
   const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
-  const [showActivationBanner, setShowActivationBanner] = useState(false);
+  const [_showActivationBanner, _setShowActivationBanner] = useState(false);
 
   const { data: fetchedRole } = useUserRole(user?.id);
   const userRole = fetchedRole || 'client';
   const { activeMode } = useActiveMode();
-  const { theme, isLight } = useAppTheme();
+  const { _theme, isLight } = useAppTheme();
   const { t } = useTranslation();
 
   const { data: conversations = [], isLoading, refetch, fetchSingleConversation } = useConversations();
@@ -68,7 +70,7 @@ export function MessagingDashboard() {
 
   const [directlyFetchedConversation, setDirectlyFetchedConversation] = useState<Conversation | null>(null);
   const startConversation = useStartConversation();
-  const { totalActivations, canSendMessage } = useMessageActivations();
+  const { _totalActivations, canSendMessage } = useMessageActivations();
 
   const { prefetchTopConversations, prefetchTopConversationMessages } = usePrefetchManager();
 
@@ -130,9 +132,12 @@ export function MessagingDashboard() {
           setDirectlyFetchedConversation(fetched);
           setSelectedConversationId(conversationId);
           setSearchParams({});
+        } else {
+          toast.error('Conversation not found', { description: 'This chat may have been deleted or is no longer available.' });
         }
       }
     } catch (_e) {
+      toast.error('Failed to open conversation', { description: _e instanceof Error ? _e.message : 'Please try again.' });
       setSearchParams({});
     } finally {
       clearTimeout(timeout);
@@ -161,6 +166,7 @@ export function MessagingDashboard() {
         setSearchParams({});
       }
     } catch (_e) {
+      toast.error('Could not start conversation', { description: _e instanceof Error ? _e.message : 'Please try again.' });
       setSearchParams({});
     } finally {
       setIsStartingConversation(false);
@@ -180,7 +186,7 @@ export function MessagingDashboard() {
     const listing = conversation?.listing;
 
     return (
-      <div className={cn("w-full flex flex-col transition-colors duration-500 overflow-hidden flex-1 min-h-0", isLight ? "bg-white" : "bg-black")}>
+      <div className={cn("w-full flex flex-col transition-colors duration-500 overflow-hidden h-dvh pt-[var(--top-bar-height)] pb-[var(--bottom-nav-height)]", isLight ? "bg-white" : "bg-black")}>
         <AnimatePresence mode="wait">
           <motion.div
             key="interface"
@@ -212,13 +218,22 @@ export function MessagingDashboard() {
 
       <div className="w-full max-w-7xl mx-auto px-6 pt-[calc(var(--top-bar-height)+var(--safe-top,0px)+0.5rem)] pb-48 relative z-10 space-y-12">
         
-        <div className="flex items-center gap-6">
-           <div className="w-18 h-18 rounded-[1.8rem] bg-[#EB4898] text-white shadow-[#EB4898]/20 flex items-center justify-center shadow-2xl">
-              <MessageCircle className="w-8 h-8" />
+        <div className="flex items-center gap-4 sm:gap-6">
+           <button
+             onClick={() => navigate(-1)}
+             className={cn(
+               "w-12 h-12 flex items-center justify-center rounded-full transition-all active:scale-95 shrink-0",
+               isLight ? "bg-black/5 hover:bg-black/10 text-black" : "bg-white/10 hover:bg-white/20 text-white"
+             )}
+           >
+             <ArrowLeft className="w-5 h-5" />
+           </button>
+           <div className="w-14 h-14 sm:w-18 sm:h-18 rounded-[1.8rem] bg-[#EB4898] text-white shadow-[#EB4898]/20 flex items-center justify-center shadow-2xl shrink-0">
+              <MessageCircle className="w-7 h-7 sm:w-8 sm:h-8" />
            </div>
            <div className="flex flex-col">
               <span className="text-[10px] font-black uppercase tracking-[0.4em] italic text-[#EB4898]">{t('messages.title')}</span>
-              <h1 className={cn("text-4xl font-black uppercase italic tracking-tighter leading-none mt-1", isLight ? "text-black" : "text-white")}>{t('messages.title')}</h1>
+              <h1 className={cn("text-3xl sm:text-4xl font-black uppercase italic tracking-tighter leading-none mt-1", isLight ? "text-black" : "text-white")}>{t('messages.title')}</h1>
            </div>
         </div>
 

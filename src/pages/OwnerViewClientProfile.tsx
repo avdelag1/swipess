@@ -5,18 +5,18 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { 
   Eye, TrendingUp, Zap, Sparkles, ShieldCheck, Clock, Flame, 
-  MapPin, ArrowLeft, X, Award, Info, Home, Car, Ship, Bike, 
-  Target, Briefcase, User, Calendar, DollarSign, Heart, Share2, 
-  MoreHorizontal, MessageCircle, Star, Shield, Layout, Settings
+  MapPin, ArrowLeft, X, Award, _Info, Home, Car, Ship, _Bike, 
+  _Target, _Briefcase, User, _Calendar, _DollarSign, _Heart, _Share2, 
+  _MoreHorizontal, MessageCircle, _Star, Shield, _Layout, _Settings
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { ClientFilterPreferences } from '@/hooks/useClientFilterPreferences';
 import { useStartConversation } from '@/hooks/useConversations';
 import { useState, useMemo } from 'react';
 import useAppTheme from '@/hooks/useAppTheme';
-import { logger } from '@/utils/prodLogger';
+// import { } from '@/utils/prodLogger';
 import { AtmosphericLayer } from '@/components/AtmosphericLayer';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
 import { useUserRatingAggregate } from '@/hooks/useRatingSystem';
@@ -117,7 +117,7 @@ export default function OwnerViewClientProfile() {
         
         navigate(`/messages?conversationId=${result.conversationId}`);
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error('Could not start conversation', { id: 'start-conv' });
     } finally {
       setIsCreatingConversation(false);

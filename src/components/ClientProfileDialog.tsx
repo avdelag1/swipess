@@ -1,39 +1,36 @@
 
+import { motion } from 'framer-motion';
 import { useEffect, useRef, useState, useMemo, memo, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
+
 import { PhotoUploadManager } from '@/components/PhotoUploadManager';
 import { ListingVideoUpload } from '@/components/video/ListingVideoUpload';
 import { useClientProfile, useSaveClientProfile } from '@/hooks/useClientProfile';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { useModalStore } from '@/state/modalStore';
 import { Badge } from '@/components/ui/badge';
-import { Check, MapPin, Search, User, Compass, Target, LifeBuoy, Sparkles, X, Save } from 'lucide-react';
+import { Check, MapPin, User, Compass, Target, LifeBuoy, Sparkles, X, Save } from 'lucide-react';
 import {
   getRegions,
   getCountriesInRegion,
   getCitiesInCountry,
   getCityByName,
 } from '@/data/worldLocations';
-import { logger } from '@/utils/prodLogger';
+
 import { validateContent } from '@/utils/contactInfoValidation';
 import { triggerHaptic } from '@/utils/haptics';
 import useAppTheme from '@/hooks/useAppTheme';
 import { compressImage, PROFILE_COMPRESSION } from '@/utils/imageCompression';
 
 import {
-  NATIONALITY_OPTIONS,
-  LANGUAGE_OPTIONS,
-  RELATIONSHIP_STATUS_OPTIONS,
   SMOKING_HABIT_OPTIONS,
   DRINKING_HABIT_OPTIONS,
   CLEANLINESS_OPTIONS,
-  NOISE_TOLERANCE_OPTIONS,
   CLIENT_INTENTION_OPTIONS as INTENTION_OPTIONS
 } from '@/constants/profileConstants';
 import { cn } from '@/lib/utils';
@@ -111,11 +108,7 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
     [availableCities, citySearch]
   );
 
-  const availableNeighborhoods = useMemo(() => {
-    if (!city) return [];
-    const cityData = getCityByName(city);
-    return cityData?.city.neighborhoods || [];
-  }, [city]);
+
 
   const findRegionForCountry = (countryName: string): string => {
     const regions = getRegions();
@@ -210,7 +203,9 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
       });
       toast.success('Identity Updated', { description: 'Your profile has been updated.' });
       onOpenChange(false);
-    } catch (error) {
+      // Navigate to virtual VAP ID card to show updated data
+      useModalStore.getState().setModal('showVapId', true);
+    } catch (_error) {
        toast.error('Sync Error');
     }
   };
@@ -438,7 +433,7 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
                </div>
             </section>
 
-            {/* ðŸ  HABIT PARITY */}
+            {/* HABIT PARITY */}
             <section className="space-y-6">
                <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-xl bg-[#FF4D00]/10 border border-[#FF4D00]/30 flex items-center justify-center text-[#FF4D00]">

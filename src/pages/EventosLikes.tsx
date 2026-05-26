@@ -110,6 +110,17 @@ export default function EventosLikes() {
         isLight ? "bg-white/80 border-black/[0.03]" : "bg-black/60 border-white/[0.03]"
       )}>
         <div className="flex items-center gap-4 py-4 px-2">
+          <button
+            onClick={() => { triggerHaptic('light'); navigate(-1); }}
+            className={cn(
+              "shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-transform active:scale-95 shadow-lg border",
+              isLight ? "bg-white/90 border-black/5 text-black" : "bg-black/60 border-white/10 text-white"
+            )}
+            style={{ backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}
+            aria-label="Back"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </button>
           <div className="flex-1">
             <h1 className="text-xl font-black font-brand tracking-tight leading-tight">My Favorites</h1>
             <div className="flex items-center gap-1.5 mt-0.5">

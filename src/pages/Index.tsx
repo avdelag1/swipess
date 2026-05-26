@@ -7,6 +7,7 @@ import { logger } from "@/utils/prodLogger";
 import { STORAGE } from "@/constants/app";
 import { SuspenseFallback } from "@/components/ui/suspense-fallback";
 import { lazy, Suspense } from "react";
+import { AccessCodeGate, isAccessGranted } from "@/components/AccessCodeGate";
 const LegendaryLandingPage = lazy(() => import("@/components/LegendaryLandingPage"));
 
 const Index = () => {
@@ -15,6 +16,7 @@ const Index = () => {
   const [searchParams] = useSearchParams();
   const hasNavigated = useRef(false);
   const [showEscapeHatch, setShowEscapeHatch] = useState(false);
+  const [accessGranted, setAccessGranted] = useState(isAccessGranted);
 
   // Capture referral code from URL if present (works for app-wide referral links)
   useEffect(() => {
@@ -251,8 +253,11 @@ const Index = () => {
   }
 
   if (!user) {
+    if (!accessGranted) {
+      return <AccessCodeGate onGranted={() => setAccessGranted(true)} />;
+    }
     return (
-      <div className="min-h-screen bg-black overflow-hidden">
+      <div className="fixed inset-0 bg-black overflow-hidden">
         <Suspense fallback={<SuspenseFallback />}>
           <LegendaryLandingPage />
         </Suspense>

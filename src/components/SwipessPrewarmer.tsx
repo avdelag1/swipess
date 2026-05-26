@@ -47,7 +47,9 @@ export const SwipessPrewarmer = () => {
           img.src = src as string;
           if ('decode' in img) img.decode().catch(() => {});
         });
-      } catch {}
+      } catch {
+        // ignore pre-decoding errors
+      }
 
       // 1. Pre-warm Discover Data (High Priority)
       // We use the exact key structure from useSmartListingMatching for 'Default' filter state

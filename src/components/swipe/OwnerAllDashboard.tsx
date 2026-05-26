@@ -2,7 +2,7 @@ import { useState, useCallback, memo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { triggerHaptic } from '@/utils/haptics';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 import {
   OWNER_INTENT_CARDS,
   OwnerIntentCard,
@@ -12,6 +12,7 @@ import {
 import { deckFadeVariants } from '@/utils/modernAnimations';
 import { PokerCategoryCard } from './PokerCategoryCard';
 import { useModalStore } from '@/state/modalStore';
+import { useFilterStore } from '@/state/filterStore';
 
 // Preload all owner card images
 const preloadedOwnerImages = new Set<string>();
@@ -21,10 +22,35 @@ export interface OwnerAllDashboardProps {
 }
 
 export const OwnerAllDashboard = memo(({ onCardSelect }: OwnerAllDashboardProps) => {
-  const [cards, setCards] = useState([...OWNER_INTENT_CARDS]);
+  const setOwnerPokerCardOrder = useFilterStore((s) => s.setOwnerPokerCardOrder);
+  // Read persisted card order from localStorage directly
+  const [cards, setCards] = useState(() => {
+    try {
+      const raw = localStorage.getItem('Swipess-filter-storage');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        const order: string[] | null = parsed?.state?.ownerPokerCardOrder ?? null;
+        if (order && order.length === OWNER_INTENT_CARDS.length) {
+          const idToCard = new Map(OWNER_INTENT_CARDS.map((c) => [c.id, c]));
+          const reordered = order.map((id) => idToCard.get(id)).filter(Boolean);
+          if (reordered.length === OWNER_INTENT_CARDS.length) return reordered as typeof OWNER_INTENT_CARDS;
+        }
+      }
+    } catch {}
+    return [...OWNER_INTENT_CARDS];
+  });
   const navigate = useNavigate();
   // Stable selector — avoids reading store inside click handler during a Suspense pass
   const openAIListing = useModalStore((s) => s.openAIListing);
+
+  // Persist card order to store (zustand persist writes to localStorage)
+  useEffect(() => {
+    const ids = cards.map((c) => c.id);
+    const stored = useFilterStore.getState().ownerPokerCardOrder;
+    if (JSON.stringify(ids) !== JSON.stringify(stored)) {
+      setOwnerPokerCardOrder(ids);
+    }
+  }, [cards, setOwnerPokerCardOrder]);
 
   useEffect(() => {
     // Preload all owner card images safely on mount to prevent TDZ ReferenceError

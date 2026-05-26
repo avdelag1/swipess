@@ -3,9 +3,9 @@ import { useVirtualizer } from '@tanstack/react-virtual';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+// import { } from 'framer-motion';
 import {
-  Heart, ArrowLeft, Megaphone, Pause, Play
+  _Heart, ArrowLeft, _Megaphone, _Pause, _Play
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
@@ -62,7 +62,7 @@ export default function EventosFeed() {
   const [shareEventData, setShareEventData] = useState<EventItem | null>(null);
 
   // Auto-play state
-  const [autoPlay, setAutoPlay] = useState(false);
+  const [autoPlay, _setAutoPlay] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [animKey, setAnimKey] = useState(0);
   const pauseTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -318,13 +318,13 @@ export default function EventosFeed() {
         className="fixed left-0 right-0 z-[100] transform-gpu px-4"
         style={{ top: 0, paddingTop: 'calc(env(safe-area-inset-top, 0px) + 12px)' }}
       >
-        <div className="flex items-center gap-3">
+        <div className="flex items-start gap-4">
           {/* Back button */}
           <button
             onClick={() => { triggerHaptic('light'); navigate(-1); }}
             className={cn(
-              "shrink-0 w-9 h-9 rounded-full flex items-center justify-center transition-transform active:scale-95",
-              isLight ? "bg-background/80 border border-border/60 text-foreground" : "bg-black/45 border border-white/15 text-white"
+              "shrink-0 w-10 h-10 mt-1 rounded-full flex items-center justify-center transition-transform active:scale-95 shadow-lg",
+              isLight ? "bg-white/90 border border-black/5 text-black" : "bg-black/60 border border-white/10 text-white"
             )}
             style={{ backdropFilter: 'blur(20px) saturate(1.6)', WebkitBackdropFilter: 'blur(20px) saturate(1.6)' }}
             aria-label="Back"
@@ -332,11 +332,9 @@ export default function EventosFeed() {
             <ArrowLeft className="w-5 h-5" />
           </button>
 
-          <div className="flex-1 flex gap-2 overflow-x-auto no-scrollbar scroll-smooth py-1">
+          <div className="flex-1 flex gap-4 overflow-x-auto no-scrollbar scroll-smooth py-1 pb-2 -ml-2 pl-2">
             {CATEGORIES.map((cat) => {
-              const Icon = cat.icon;
               const active = activeCategory === cat.key;
-              const catColor = cat.color || '#f97316';
 
               return (
                 <button
@@ -350,36 +348,49 @@ export default function EventosFeed() {
                     setActiveCategory(cat.key);
                     if (cat.key === 'likes') navigate('/explore/events/likes');
                   }}
-                  className={cn(
-                    "flex items-center gap-1.5 px-3 rounded-full shrink-0 border relative overflow-hidden h-8",
-                    "transition-[transform,background-color,border-color] duration-200 ease-out active:scale-95",
-                    active ? "shadow-md shadow-black/15" : "opacity-90"
-                  )}
-                  style={{
-                    ...hudGlassStyle,
-                    background: active
-                      ? catColor
-                      : hudGlassStyle.background,
-                    borderColor: active ? catColor : (hudGlassStyle.border?.toString().replace('1px solid ', '') as string),
-                  }}
+                  className="flex flex-col items-center gap-1.5 shrink-0 transition-transform active:scale-95 group"
                 >
-                  <Icon 
-                    className={cn("w-3.5 h-3.5 relative z-10", active ? "" : (isLight ? "text-foreground/55" : "text-white/55"))} 
-                    style={{ color: active ? '#fff' : undefined }} 
-                  />
+                  <div 
+                    className={cn(
+                      "w-[60px] h-[60px] rounded-full p-[2px] transition-all duration-300",
+                      active 
+                        ? "bg-gradient-to-tr from-[#FF4D00] to-[#EB4898] shadow-lg shadow-[#EB4898]/30" 
+                        : (isLight ? "bg-black/10" : "bg-white/20")
+                    )}
+                  >
+                    <div className={cn(
+                      "w-full h-full rounded-full border-[2.5px] overflow-hidden relative shadow-inner",
+                      isLight ? "border-white bg-slate-100" : "border-[#0a0a0b] bg-[#1a1a1b]"
+                    )}>
+                      {cat.img ? (
+                         <img 
+                           src={cat.img} 
+                           alt={cat.label} 
+                           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
+                         />
+                      ) : (
+                         <div className="w-full h-full flex items-center justify-center">
+                            <cat.icon className={cn("w-5 h-5", isLight ? "text-slate-400" : "text-white/40")} />
+                         </div>
+                      )}
+                      {/* Dark overlay for inactive */}
+                      {!active && (
+                        <div className={cn(
+                          "absolute inset-0 transition-colors",
+                          isLight ? "bg-white/40" : "bg-black/50"
+                        )} />
+                      )}
+                    </div>
+                  </div>
                   <span 
-                    className={cn("text-[12px] font-semibold tracking-tight relative z-10", active ? "" : (isLight ? "text-foreground/70" : "text-white/65"))}
-                    style={{ color: active ? '#fff' : undefined }}
+                    className={cn(
+                      "text-[10px] font-bold tracking-wide w-[64px] text-center truncate",
+                      active ? (isLight ? "text-black" : "text-white") : (isLight ? "text-black/60 font-semibold" : "text-white/60 font-semibold")
+                    )}
+                    style={{ textShadow: active && !isLight ? '0 2px 8px rgba(0,0,0,0.8)' : undefined }}
                   >
                     {cat.label}
                   </span>
-                  
-                  {active && (
-                    <motion.div 
-                      layoutId="active-pill-shimmer"
-                      className="absolute inset-0 z-0 bg-gradient-to-tr from-white/20 to-transparent pointer-events-none"
-                    />
-                  )}
                 </button>
               );
             })}

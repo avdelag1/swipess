@@ -12,7 +12,7 @@ interface AtmosphericLayerProps {
  * ðŸ›¸ ATMOSPHERIC LAYER
  * Provides consistent visual depth, gradients, and soft glow effects.
  */
-export const AtmosphericLayer = memo(({ variant = 'default', opacity = 0.08, speed = 1 }: AtmosphericLayerProps) => {
+export const AtmosphericLayer = memo(({ variant = 'default', opacity = 0.08, speed: _speed = 1 }: AtmosphericLayerProps) => {
   const { isLight } = useAppTheme();
   const liquidRef = useRef<HTMLDivElement>(null);
 

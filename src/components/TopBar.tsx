@@ -34,9 +34,9 @@ interface TopBarProps {
 }
 
 function TopBarComponent({
-  onFilterClick,
+  _onFilterClick,
   onBack: propOnBack,
-  onMessageActivationsClick,
+  _onMessageActivationsClick,
   className,
   userRole,
   transparent: _transparent = false,

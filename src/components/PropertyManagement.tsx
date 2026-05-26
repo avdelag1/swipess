@@ -3,7 +3,7 @@ import { CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { Button } from '@/components/ui/button';
+// import { } from '@/components/ui/button';
 import { useOwnerListings, type Listing } from '@/hooks/useListings';
 import { useOwnerListingLikes } from '@/hooks/useOwnerListingLikes';
 import { useAuth } from '@/hooks/useAuth';
@@ -40,8 +40,8 @@ const getCategoryColor = (category: string) => {
 
 export const PropertyManagement = memo(({ initialCategory, initialMode }: PropertyManagementProps) => {
   const { user: _user } = useAuth();
-  const { theme, isLight } = useAppTheme();
-  const { data: listings = [], isLoading, error } = useOwnerListings();
+  const { _theme, isLight } = useAppTheme();
+  const { data: listings = [], isLoading, _error } = useOwnerListings();
   const { data: listingsWithLikes = [] } = useOwnerListingLikes();
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState(initialCategory || 'all');

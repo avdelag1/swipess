@@ -23,10 +23,11 @@ import { PropertyCardInfo, VehicleCardInfo, ServiceCardInfo, ClientCardInfo } fr
 import { CompactRatingDisplay } from '@/components/RatingDisplay';
 import { useListingRatingAggregate } from '@/hooks/useRatingSystem';
 import CardImage from '@/components/CardImage';
+import { LoopVideo } from '@/components/video/LoopVideo';
 import { imageCache } from '@/lib/swipe/cardImageCache';
 import useAppTheme from '@/hooks/useAppTheme';
 import { cn } from '@/lib/utils';
-import { ThumbsUp, ThumbsDown, Flame, Flag, Share2, MessageCircle, BarChart3 } from 'lucide-react';
+import { ThumbsUp, Flag, Share2, MessageCircle, BarChart3 } from 'lucide-react';
 import { PhotoPositionIndicators } from '@/components/swipe/PhotoPositionIndicators';
 import { GestureHints } from '@/components/swipe/GestureHints';
 import { useChromeReveal, revealChrome } from '@/hooks/useChromeReveal';
@@ -42,7 +43,7 @@ const SKIP_VELOCITY = 240;
 const FALLBACK_PLACEHOLDER = '';
 type DragAxis = 'x' | 'y' | null;
 
-const getExitDistance = () => typeof window !== 'undefined' ? window.innerWidth * 1.5 : 800;
+const _getExitDistance = () => typeof window !== 'undefined' ? window.innerWidth * 1.5 : 800;
 
 const SPRING_CONFIGS = {
   SILK: { stiffness: 500, damping: 25, mass: 0.4 },
@@ -101,14 +102,8 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   // swipes get a subtle late fade so like/pass still feels weighted.
   const cardOpacity = useTransform(
     [x, y] as any,
-    ([cx, cy]: any) => {
-      const ax = Math.abs(cx);
-      // Horizontal: stay solid until ~60% of threshold, then fade lightly.
-      const fadeX = ax <= SWIPE_THRESHOLD * 0.6
-        ? 0
-        : Math.min(1, (ax - SWIPE_THRESHOLD * 0.6) / (SWIPE_THRESHOLD * 1.2)) * 0.25;
-      // Vertical: NO fade during browse â€” card stays opaque the whole way.
-      return 1 - fadeX;
+    ([_cx, _cy]: any) => {
+      return 1;
     }
   );
   const likeOpacity = useTransform(x, [0, SWIPE_THRESHOLD * 0.5, SWIPE_THRESHOLD], [0, 0.5, 1]);
@@ -117,7 +112,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [photoDirection, setPhotoDirection] = useState<'left' | 'right'>('right');
-  const floatingIconFilter = isLight
+  const _floatingIconFilter = isLight
     ? 'drop-shadow(0 1px 1px hsl(var(--background) / 0.95)) drop-shadow(0 2px 6px hsl(var(--foreground) / 0.42))'
     : 'drop-shadow(0 2px 7px hsl(var(--background) / 0.9))';
 
@@ -296,23 +291,39 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
       isExitingRef.current = true;
       triggerHaptic(direction === 'right' ? 'success' : 'warning');
       const exitX = direction === 'right' ? (window.innerWidth || 600) * 1.2 : -(window.innerWidth || 600) * 1.2;
-      animate(x, exitX, { type: 'tween', duration: 0.24, ease: [0.32, 0, 0.67, 0] });
+      let swipeFired = false;
+      const fireSwipe = () => {
+        if (swipeFired) return;
+        swipeFired = true;
+        isExitingRef.current = false;
+        onSwipe(direction);
+      };
+      animate(x, exitX, {
+        type: 'tween', duration: 0.24, ease: [0.32, 0, 0.67, 0],
+        onComplete: fireSwipe,
+      });
       animate(y, 0, { type: 'tween', duration: 0.18, ease: [0.22, 1, 0.36, 1] });
-      setTimeout(() => onSwipe(direction), 220);
+      setTimeout(fireSwipe, 300);
     } else if (vertCommit && (onSkip || onSkipBack)) {
       const dir = dy > 0 ? 1 : -1;
       hasExited.current = true;
       isExitingRef.current = true;
       triggerHaptic('light');
-      // Cinematic vertical exit: card vanishes back into the deck while next card rises up.
       const exitY = dir * (window.innerHeight || 800) * 0.85;
-      animate(y, exitY, { duration: 0.32, ease: [0.22, 1, 0.36, 1] });
-      animate(x, 0, { duration: 0.18, ease: [0.22, 1, 0.36, 1] });
-      setTimeout(() => {
-        // Tinder-style: swipe UP (dir < 0) = next listing, swipe DOWN (dir > 0) = previous.
+      let skipFired = false;
+      const fireSkip = () => {
+        if (skipFired) return;
+        skipFired = true;
+        isExitingRef.current = false;
         if (dir < 0) onSkip?.();
         else onSkipBack?.();
-      }, 300);
+      };
+      animate(y, exitY, {
+        duration: 0.32, ease: [0.22, 1, 0.36, 1],
+        onComplete: fireSkip,
+      });
+      animate(x, 0, { duration: 0.18, ease: [0.22, 1, 0.36, 1] });
+      setTimeout(fireSkip, 400);
     } else {
       animate(x, 0, { type: 'spring', ...ACTIVE_SPRING });
       animate(y, 0, { type: 'spring', ...ACTIVE_SPRING });
@@ -406,11 +417,10 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           onContextMenu={(event) => event.preventDefault()}
         >
           {currentImage === 'video_attachment' && (listing as any).video_url ? (
-            <video
+            <LoopVideo
               src={(listing as any).video_url}
-              autoPlay muted loop playsInline
               className="absolute inset-0 w-full h-full object-cover"
-              style={{ zIndex: 1 }}
+              active={isTop}
             />
           ) : (
             <CardImage

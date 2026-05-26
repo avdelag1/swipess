@@ -16,8 +16,13 @@ export type ColorVariant = 'bg' | 'text' | 'border' | 'bgLight';
 export function getSemanticColor(
   type: SemanticColorType,
   variant: ColorVariant = 'bg',
-  isDarkTheme: boolean = true
+  isDarkTheme?: boolean
 ): string {
+  const isDark = isDarkTheme !== undefined
+    ? isDarkTheme
+    : typeof window !== 'undefined'
+      ? !window.document.documentElement.classList.contains('light')
+      : true;
   const colors: Record<SemanticColorType, Record<ColorVariant, Record<'dark' | 'light', string>>> = {
     success: {
       bg: {
@@ -93,7 +98,7 @@ export function getSemanticColor(
     },
   };
 
-  return colors[type]?.[variant]?.[isDarkTheme ? 'dark' : 'light'] || 'bg-gray-500';
+  return colors[type]?.[variant]?.[isDark ? 'dark' : 'light'] || 'bg-gray-500';
 }
 
 /**
@@ -102,7 +107,7 @@ export function getSemanticColor(
  */
 export function getSemanticColors(
   type: SemanticColorType,
-  isDarkTheme: boolean = true
+  isDarkTheme?: boolean
 ): Record<ColorVariant, string> {
   return {
     bg: getSemanticColor(type, 'bg', isDarkTheme),
@@ -153,7 +158,7 @@ export const statusColorMap: Record<string, SemanticColorType> = {
 export function getStatusColor(
   status: string,
   variant: ColorVariant = 'bg',
-  isDarkTheme: boolean = true
+  isDarkTheme?: boolean
 ): string {
   const semanticType = statusColorMap[status.toLowerCase()] || 'info';
   return getSemanticColor(semanticType, variant, isDarkTheme);

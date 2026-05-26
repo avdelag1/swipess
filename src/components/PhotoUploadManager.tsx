@@ -1,11 +1,11 @@
 import { useState, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+// import { } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Upload, X, Image, Star, Camera, MoveVertical, Sparkles, Plus } from 'lucide-react';
+import { X, Camera, Sparkles, Plus } from 'lucide-react';
 import { toast } from 'sonner';
-import { validateImageFile, formatFileSize, FILE_SIZE_LIMITS } from '@/utils/fileValidation';
+import { validateImageFile } from '@/utils/fileValidation';
 import { logger } from '@/utils/prodLogger';
 import { motion, Reorder, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -32,7 +32,7 @@ export function PhotoUploadManager({
   showCameraButton = true,
   replaceOnFull = false,
 }: PhotoUploadManagerProps) {
-  const [uploading, setUploading] = useState(false);
+  const [_uploading, setUploading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();

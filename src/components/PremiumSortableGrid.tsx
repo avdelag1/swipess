@@ -194,7 +194,7 @@ function SortableItem({
   const lastUpdateRef = useRef<number>(0);
 
   // PERF: Detect touch device
-  const isTouchDevice = typeof window !== 'undefined' && ('ontouchstart' in window || navigator.maxTouchPoints > 0);
+  const _isTouchDevice = typeof window !== 'undefined' && ('ontouchstart' in window || navigator.maxTouchPoints > 0);
 
   const clearLongPress = useCallback(() => {
     if (longPressTimerRef.current) {

@@ -1,8 +1,8 @@
 import { useState, useCallback, useRef, useEffect, useMemo, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  X, Send, Mic, Sparkles, Plus, CornerDownLeft,
-  Trash2, Menu, Zap, Flame, Sun, Crown, Moon, History, ArrowUp,
+  X, Mic, Sparkles, Plus, CornerDownLeft,
+  Trash2, Menu, Zap, Flame, Sun, Crown, Moon, ArrowUp,
   Copy, Languages, Timer, ArrowRight, RefreshCw, Volume2, VolumeX, Share2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -17,7 +17,6 @@ import { uiSounds } from '@/utils/uiSounds';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import useAppTheme from '@/hooks/useAppTheme';
 import { useSpeechSynthesis, PERSONA_VOICE_PROFILES } from '@/hooks/useSpeechSynthesis';
-import { SwipessLogo } from '@/components/SwipessLogo';
 import { toast } from 'sonner';
 import { useFilterStore } from '@/state/filterStore';
 
@@ -604,7 +603,7 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
     messages, conversations, activeConversationId, isLoading,
     sendMessage, resendMessage, deleteMessage,
     createConversation, switchConversation, deleteConversation,
-    activeCharacter, setActiveCharacter, egoLevel,
+    activeCharacter, setActiveCharacter, egoLevel: _egoLevel,
   } = useConciergeAI();
 
   const { navigate: appNavigate } = useAppNavigate();
@@ -648,7 +647,7 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
     { key: 'ezriyah', label: 'Ezriyah', subtitle: 'Integration Coach', tagline: 'Local Legend', icon: Sun, color: 'text-teal-400', bgColor: 'bg-teal-500/20' },
   ];
 
-  const arcColor = useMemo(() => {
+  const _arcColor = useMemo(() => {
     const colorMap: Record<string, string> = {
       default: '#FF3D00',
       kyle: '#fb923c',
@@ -876,7 +875,7 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
   return createPortal(
     <AnimatePresence>
       {isOpen && (
-        <div className={cn("fixed inset-0 z-[10010] flex items-center justify-center p-0 sm:p-6 transition-all duration-500", isLight && !isSwipess ? "bg-black/10 backdrop-blur-md" : "bg-black/40 backdrop-blur-xl")}>
+        <div className={cn("fixed inset-0 z-[10010] flex items-center justify-center p-0 sm:p-6 transition-all duration-500", isLight && !isSwipess ? "bg-black/20 backdrop-blur-sm" : "bg-black/60 backdrop-blur-2xl")}>
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="absolute inset-0" />
           
           <motion.div
@@ -1035,7 +1034,7 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                        <div className="pl-3 flex items-center gap-1.5 self-center">
                            <Popover>
                              <PopoverTrigger asChild>
-                          <button className="p-3 rounded-2xl transition-all text-foreground/60 hover:text-foreground hover:bg-secondary/80 focus:bg-secondary" aria-label="Auto-send timer">
+                          <button className="p-3 rounded-2xl transition-all text-foreground/80 hover:text-foreground hover:bg-secondary/80" aria-label="Auto-send timer">
                                     <Timer className="w-5 h-5" strokeWidth={2.5} />
                                </button>
                              </PopoverTrigger>
@@ -1057,10 +1056,10 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                             onPointerUp={stopListening}
                             onPointerCancel={stopListening}
                             className={cn(
-                              "p-3 rounded-2xl transition-all relative group overflow-hidden focus:bg-secondary",
+                              "p-3 rounded-2xl transition-all relative group overflow-hidden",
                               isListening 
                                 ? "bg-[#FF3D00] text-white shadow-[0_0_24px_rgba(255,61,0,0.4)] scale-110" 
-                                : "text-foreground/60 hover:text-foreground hover:bg-secondary/80"
+                                : "text-foreground/80 hover:text-foreground hover:bg-secondary/80"
                             )}
                           >
                              {isListening ? <Mic className="w-5 h-5 animate-pulse relative z-10" strokeWidth={2.5} /> : <Mic className="w-5 h-5 relative z-10" strokeWidth={2.5} />}
@@ -1089,7 +1088,7 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                       className={cn(
                         "h-14 w-14 shrink-0 rounded-full inline-flex items-center justify-center transition-all duration-300 relative group overflow-hidden active:scale-90",
                         (!input.trim() || isLoading) 
-                          ? "bg-[#FF3D00] text-white opacity-30 cursor-not-allowed" 
+                          ? "bg-secondary border border-border/50 text-foreground/40 cursor-not-allowed" 
                           : "bg-[#FF3D00] text-white shadow-[0_8px_24px_rgba(255,61,0,0.35)] hover:shadow-[0_12px_32px_rgba(255,61,0,0.5)] hover:bg-[#FF3D00]/90 border border-white/10 hover:scale-105"
                       )}
                       aria-label="Send message"

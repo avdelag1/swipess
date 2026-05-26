@@ -1,9 +1,9 @@
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from '@/components/ui/sonner';
-import { Camera, FileCheck, ShieldCheck, ChevronRight, Check, Sparkles, AlertCircle, Activity } from 'lucide-react';
+import { Camera, FileCheck, ShieldCheck, ChevronRight, Check, AlertCircle, Activity } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import browserImageCompression from 'browser-image-compression';
@@ -23,7 +23,7 @@ const steps = [
 
 export function ClientVerificationFlow({ onComplete }: ClientVerificationFlowProps) {
   const { user } = useAuth();
-  const { theme, isLight } = useAppTheme();
+  const { isLight } = useAppTheme();
   const [step, setStep] = useState(0);
   const [selfieUrl, setSelfieUrl] = useState<string | null>(null);
   const [documentUrl, setDocumentUrl] = useState<string | null>(null);
@@ -56,7 +56,7 @@ export function ClientVerificationFlow({ onComplete }: ClientVerificationFlowPro
     setUploading(true);
     
     try {
-      const path = await uploadFile(file, type);
+      await uploadFile(file, type);
       
       const reader = new FileReader();
       reader.onloadend = () => {

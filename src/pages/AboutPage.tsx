@@ -1,13 +1,13 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Home, Users, Shield, Zap, ThumbsUp, MessageCircle, Sparkles, Target, Rocket } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+// import { } from "react-router-dom";
 import { motion } from "framer-motion";
 import { PageHeader } from "@/components/PageHeader";
 import { AtmosphericLayer } from "@/components/AtmosphericLayer";
 import useAppTheme from "@/hooks/useAppTheme";
 import { cn } from "@/lib/utils";
 import { Helmet } from "react-helmet-async";
-import { haptics } from "@/utils/microPolish";
+// import { } from "@/utils/microPolish";
 
 const fastSpring = { type: "spring" as const, stiffness: 500, damping: 30, mass: 0.8 };
 

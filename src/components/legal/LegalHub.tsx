@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   FileText, ShieldCheck, PenTool, CheckCircle2, 
   Clock, Plus, ChevronRight, X, Sparkles,
-  ArrowRight, Search, Filter, Download
+  ArrowRight, Download
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ownerTemplates, clientTemplates, ContractTemplate } from '@/data/contractTemplates';
@@ -33,7 +33,7 @@ function Badge({ children, className, variant = "secondary" }: { children: React
 
 export function ContractsVault() {
   const { user } = useAuth();
-  const { theme, isLight } = useAppTheme();
+  const { isLight } = useAppTheme();
   const [view, setView] = useState<HubView>('dashboard');
   const [contracts, setContracts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -336,7 +336,7 @@ export function ContractsVault() {
               </div>
 
               <DigitalSignaturePad 
-                onSignatureCapture={(sig) => {
+                onSignatureCapture={(_sig) => {
                   toast.success('Signature Encrypted Successfully');
                   triggerHaptic('success');
                   setView('dashboard');

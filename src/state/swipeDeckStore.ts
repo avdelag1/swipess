@@ -27,20 +27,20 @@ export interface DeckState {
 }
 
 export interface SwipeDeckSlice {
-  // Client dashboard deck (listings)
-  clientDeck: DeckState;
+  // Client dashboard deck (listings) - keyed by category
+  clientDecks: Record<string, DeckState>;
   // Owner dashboard deck (clients) - keyed by category
   ownerDecks: Record<string, DeckState>;
 
   // Actions for client deck
-  setClientDeck: (items: DeckItem[], append?: boolean) => void;
-  setClientIndex: (index: number) => void;
-  setClientPage: (page: number) => void;
-  markClientSwiped: (id: string) => void;
-  undoClientSwipe: () => boolean; // Returns true if undo was successful
-  resetClientDeck: () => void;
-  hydrateClientDeck: () => void;
-  markClientReady: () => void; // Mark deck as ready for instant return
+  setClientDeck: (category: string, items: DeckItem[], append?: boolean) => void;
+  setClientIndex: (category: string, index: number) => void;
+  setClientPage: (category: string, page: number) => void;
+  markClientSwiped: (category: string, id: string) => void;
+  undoClientSwipe: (category: string) => boolean; // Returns true if undo was successful
+  resetClientDeck: (category: string) => void;
+  hydrateClientDeck: (category: string) => void;
+  markClientReady: (category: string) => void; // Mark deck as ready for instant return
 
   // Actions for owner deck
   setOwnerDeck: (category: string, items: DeckItem[], append?: boolean) => void;
@@ -53,13 +53,13 @@ export interface SwipeDeckSlice {
   markOwnerReady: (category: string) => void; // Mark deck as ready for instant return
 
   // Get hydrated/ready status
-  isClientHydrated: () => boolean;
+  isClientHydrated: (category: string) => boolean;
   isOwnerHydrated: (category: string) => boolean;
-  isClientReady: () => boolean;
+  isClientReady: (category: string) => boolean;
   isOwnerReady: (category: string) => boolean;
 
   // Get current deck items
-  getClientDeckItems: () => DeckItem[];
+  getClientDeckItems: (category: string) => DeckItem[];
   getOwnerDeckItems: (category: string) => DeckItem[];
 }
 
@@ -96,17 +96,18 @@ const customStorage = {
     try {
       const parsed = JSON.parse(str);
       // Convert arrays back to Sets and add default values for missing fields
-      if (parsed.state?.clientDeck) {
-        if (parsed.state.clientDeck.swipedIds) {
-          parsed.state.clientDeck.swipedIds = new Set(parsed.state.clientDeck.swipedIds);
-        }
-        // Ensure isReady has a default value (for old persisted data)
-        if (parsed.state.clientDeck.isReady === undefined) {
-          parsed.state.clientDeck.isReady = false;
-        }
-        if (parsed.state.clientDeck.isHydrated === undefined) {
-          parsed.state.clientDeck.isHydrated = false;
-        }
+      if (parsed.state?.clientDecks) {
+        Object.keys(parsed.state.clientDecks).forEach(key => {
+          if (parsed.state.clientDecks[key]?.swipedIds) {
+            parsed.state.clientDecks[key].swipedIds = new Set(parsed.state.clientDecks[key].swipedIds);
+          }
+          if (parsed.state.clientDecks[key]?.isReady === undefined) {
+            parsed.state.clientDecks[key].isReady = false;
+          }
+          if (parsed.state.clientDecks[key]?.isHydrated === undefined) {
+            parsed.state.clientDecks[key].isHydrated = false;
+          }
+        });
       }
       if (parsed.state?.ownerDecks) {
         Object.keys(parsed.state.ownerDecks).forEach(key => {
@@ -131,10 +132,15 @@ const customStorage = {
     try {
       // Convert Sets to arrays for JSON serialization
       const toSerialize = { ...value };
-      if (toSerialize.state?.clientDeck?.swipedIds instanceof Set) {
+      if (toSerialize.state?.clientDecks) {
         toSerialize.state = { ...toSerialize.state };
-        toSerialize.state.clientDeck = { ...toSerialize.state.clientDeck };
-        toSerialize.state.clientDeck.swipedIds = Array.from(toSerialize.state.clientDeck.swipedIds);
+        toSerialize.state.clientDecks = { ...toSerialize.state.clientDecks };
+        Object.keys(toSerialize.state.clientDecks).forEach(key => {
+          if (toSerialize.state.clientDecks[key]?.swipedIds instanceof Set) {
+            toSerialize.state.clientDecks[key] = { ...toSerialize.state.clientDecks[key] };
+            toSerialize.state.clientDecks[key].swipedIds = Array.from(toSerialize.state.clientDecks[key].swipedIds);
+          }
+        });
       }
       if (toSerialize.state?.ownerDecks) {
         toSerialize.state = { ...toSerialize.state };
@@ -157,14 +163,15 @@ const customStorage = {
 export const useSwipeDeckStore = create<SwipeDeckSlice>()(
   persist(
     (set, get) => ({
-      clientDeck: createEmptyDeckState(),
+      clientDecks: {},
       ownerDecks: {},
 
       // Client deck actions
-      setClientDeck: (items, append = false) => {
+      setClientDeck: (category, items, append = false) => {
         set((state) => {
-          const existingIds = new Set(state.clientDeck.deckItems.map(i => i.id));
-          const swipedIds = state.clientDeck.swipedIds;
+          const existingDeck = state.clientDecks[category] || createEmptyDeckState();
+          const existingIds = new Set(existingDeck.deckItems.map(i => i.id));
+          const swipedIds = existingDeck.swipedIds;
 
           // Filter out duplicates and already-swiped items
           const newItems = items.filter(item =>
@@ -172,112 +179,144 @@ export const useSwipeDeckStore = create<SwipeDeckSlice>()(
           );
 
           let deckItems: DeckItem[];
-          if (append && state.clientDeck.deckItems.length > 0) {
-            deckItems = [...state.clientDeck.deckItems, ...newItems];
-          } else if (state.clientDeck.deckItems.length > 0 && !append) {
+          if (append && existingDeck.deckItems.length > 0) {
+            deckItems = [...existingDeck.deckItems, ...newItems];
+          } else if (existingDeck.deckItems.length > 0 && !append) {
             // If not appending but we have items, just add new ones
-            deckItems = [...state.clientDeck.deckItems, ...newItems];
+            deckItems = [...existingDeck.deckItems, ...newItems];
           } else {
             deckItems = items.filter(item => !swipedIds.has(item.id));
           }
 
           // Cap at 100 items to prevent memory bloat
+          let currentIndex = existingDeck.currentIndex;
           if (deckItems.length > 100) {
             const offset = deckItems.length - 100;
             deckItems = deckItems.slice(offset);
-            return {
-              clientDeck: {
-                ...state.clientDeck,
-                deckItems,
-                currentIndex: Math.max(0, state.clientDeck.currentIndex - offset),
-                lastFetchAt: Date.now(),
-                isHydrated: true,
-              }
-            };
+            currentIndex = Math.max(0, currentIndex - offset);
           }
 
           return {
-            clientDeck: {
-              ...state.clientDeck,
-              deckItems,
-              lastFetchAt: Date.now(),
-              isHydrated: true,
+            clientDecks: {
+              ...state.clientDecks,
+              [category]: {
+                ...existingDeck,
+                deckItems,
+                currentIndex,
+                lastFetchAt: Date.now(),
+                isHydrated: true,
+              }
             }
           };
         });
       },
 
-      setClientIndex: (index) => {
-        set((state) => ({
-          clientDeck: { ...state.clientDeck, currentIndex: index }
-        }));
-      },
-
-      setClientPage: (page) => {
-        set((state) => ({
-          clientDeck: { ...state.clientDeck, currentPage: page }
-        }));
-      },
-
-      markClientSwiped: (id) => {
+      setClientIndex: (category, index) => {
         set((state) => {
-          const newSwipedIds = new Set(state.clientDeck.swipedIds);
+          const existingDeck = state.clientDecks[category] || createEmptyDeckState();
+          return {
+            clientDecks: {
+              ...state.clientDecks,
+              [category]: { ...existingDeck, currentIndex: index }
+            }
+          };
+        });
+      },
+
+      setClientPage: (category, page) => {
+        set((state) => {
+          const existingDeck = state.clientDecks[category] || createEmptyDeckState();
+          return {
+            clientDecks: {
+              ...state.clientDecks,
+              [category]: { ...existingDeck, currentPage: page }
+            }
+          };
+        });
+      },
+
+      markClientSwiped: (category, id) => {
+        set((state) => {
+          const existingDeck = state.clientDecks[category] || createEmptyDeckState();
+          const newSwipedIds = new Set(existingDeck.swipedIds);
           newSwipedIds.add(id);
           return {
-            clientDeck: {
-              ...state.clientDeck,
-              swipedIds: newSwipedIds,
-              currentIndex: state.clientDeck.currentIndex + 1,
-              lastSwipedId: id,
+            clientDecks: {
+              ...state.clientDecks,
+              [category]: {
+                ...existingDeck,
+                swipedIds: newSwipedIds,
+                currentIndex: existingDeck.currentIndex + 1,
+                lastSwipedId: id,
+              }
             }
           };
         });
       },
 
-      undoClientSwipe: () => {
+      undoClientSwipe: (category) => {
         let success = false;
         set((state) => {
-          const lastId = state.clientDeck.lastSwipedId;
+          const existingDeck = state.clientDecks[category] || createEmptyDeckState();
+          const lastId = existingDeck.lastSwipedId;
           // Can only undo if there's a last swiped ID
-          // FIX: Allow undo even if currentIndex is 0 (edge case after refresh)
           if (!lastId) {
             return state; // No changes - nothing to undo
           }
 
           // Remove from swiped set (immutable copy)
-          const newSwipedIds = new Set(state.clientDeck.swipedIds);
+          const newSwipedIds = new Set(existingDeck.swipedIds);
           newSwipedIds.delete(lastId);
           success = true;
 
-          // FIX: Only decrement if > 0 to prevent negative index
-          const newIndex = Math.max(0, state.clientDeck.currentIndex - 1);
+          const newIndex = Math.max(0, existingDeck.currentIndex - 1);
 
           return {
-            clientDeck: {
-              ...state.clientDeck,
-              swipedIds: newSwipedIds,
-              currentIndex: newIndex,
-              lastSwipedId: null, // Clear after undo (can only undo once)
+            clientDecks: {
+              ...state.clientDecks,
+              [category]: {
+                ...existingDeck,
+                swipedIds: newSwipedIds,
+                currentIndex: newIndex,
+                lastSwipedId: null, // Clear after undo
+              }
             }
           };
         });
         return success;
       },
 
-      resetClientDeck: () => {
-        set({ clientDeck: createEmptyDeckState() });
-      },
-
-      hydrateClientDeck: () => {
+      resetClientDeck: (category) => {
         set((state) => ({
-          clientDeck: { ...state.clientDeck, isHydrated: true }
+          clientDecks: {
+            ...state.clientDecks,
+            [category]: createEmptyDeckState()
+          }
         }));
       },
 
-      markClientReady: () => {
-        set((state) => ({
-          clientDeck: { ...state.clientDeck, isReady: true }
-        }));
+      hydrateClientDeck: (category) => {
+        set((state) => {
+          const existingDeck = state.clientDecks[category] || createEmptyDeckState();
+          return {
+            clientDecks: {
+              ...state.clientDecks,
+              [category]: { ...existingDeck, isHydrated: true }
+            }
+          };
+        });
+      },
+
+      markClientReady: (category) => {
+        set((state) => {
+          const existingDeck = state.clientDecks[category] || createEmptyDeckState();
+          return {
+            clientDecks: {
+              ...state.clientDecks,
+              [category]: { ...existingDeck, isReady: true }
+            }
+          };
+        });
       },
 
       // Owner deck actions
@@ -436,11 +475,11 @@ export const useSwipeDeckStore = create<SwipeDeckSlice>()(
       },
 
       // Getters - use ?? false to handle undefined from old persisted data
-      isClientHydrated: () => get().clientDeck.isHydrated ?? false,
+      isClientHydrated: (category) => get().clientDecks[category]?.isHydrated ?? false,
       isOwnerHydrated: (category) => get().ownerDecks[category]?.isHydrated ?? false,
-      isClientReady: () => get().clientDeck.isReady ?? false,
+      isClientReady: (category) => get().clientDecks[category]?.isReady ?? false,
       isOwnerReady: (category) => get().ownerDecks[category]?.isReady ?? false,
-      getClientDeckItems: () => get().clientDeck.deckItems ?? [],
+      getClientDeckItems: (category) => get().clientDecks[category]?.deckItems ?? [],
       getOwnerDeckItems: (category) => get().ownerDecks[category]?.deckItems ?? [],
     }),
     {
@@ -449,35 +488,40 @@ export const useSwipeDeckStore = create<SwipeDeckSlice>()(
       partialize: (state) => ({
         // INSTANT DECK CACHE: Persist minimal deck items for instant render on return
         // Store first 20 items with minimal fields needed for card render
-        clientDeck: {
-          currentIndex: state.clientDeck.currentIndex,
-          currentPage: state.clientDeck.currentPage,
-          isHydrated: state.clientDeck.isHydrated,
-          isReady: state.clientDeck.isReady,
-          swipedIds: state.clientDeck.swipedIds,
-          lastSwipedId: state.clientDeck.lastSwipedId,
-          // CRITICAL: Persist minimal deck items for instant render (no dark cards)
-          deckItems: state.clientDeck.deckItems.slice(0, 20).map(item => ({
-            id: item.id,
-            title: item.title,
-            price: item.price,
-            city: item.city,
-            neighborhood: item.neighborhood,
-            images: item.images, // Keep ALL images for carousel
-            beds: item.beds,
-            baths: item.baths,
-            square_footage: item.square_footage,
-            category: item.category,
-            listing_type: item.listing_type,
-            owner_id: item.owner_id,
-            brand: item.brand,
-            model: item.model,
-            year: item.year,
-            mileage: item.mileage,
-            amenities: item.amenities?.slice(0, 5), // First 5 amenities
-          })),
-          lastFetchAt: state.clientDeck.lastFetchAt,
-        },
+        clientDecks: Object.fromEntries(
+          Object.entries(state.clientDecks).map(([key, deck]) => [
+            key,
+            {
+              currentIndex: deck.currentIndex,
+              currentPage: deck.currentPage,
+              isHydrated: deck.isHydrated,
+              isReady: deck.isReady,
+              swipedIds: deck.swipedIds,
+              lastSwipedId: deck.lastSwipedId,
+              // CRITICAL: Persist minimal deck items for instant render (no dark cards)
+              deckItems: deck.deckItems.slice(0, 20).map(item => ({
+                id: item.id,
+                title: item.title,
+                price: item.price,
+                city: item.city,
+                neighborhood: item.neighborhood,
+                images: item.images, // Keep ALL images for carousel
+                beds: item.beds,
+                baths: item.baths,
+                square_footage: item.square_footage,
+                category: item.category,
+                listing_type: item.listing_type,
+                owner_id: item.owner_id,
+                brand: item.brand,
+                model: item.model,
+                year: item.year,
+                mileage: item.mileage,
+                amenities: item.amenities?.slice(0, 5), // First 5 amenities
+              })),
+              lastFetchAt: deck.lastFetchAt,
+            }
+          ])
+        ),
         ownerDecks: Object.fromEntries(
           Object.entries(state.ownerDecks).map(([key, deck]) => [
             key,

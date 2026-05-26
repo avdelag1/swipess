@@ -100,7 +100,7 @@ export function MaintenanceGate({ children }: { children: React.ReactNode }) {
         });
       if (dbError) throw dbError;
       setSubmitted(true);
-    } catch (err: any) {
+    } catch (_err: any) {
       setSubmitError("Something went wrong. Please try again.");
     } finally {
       setSubmitting(false);
