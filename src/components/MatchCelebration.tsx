@@ -33,8 +33,9 @@ export function MatchCelebration({ isOpen, onClose, onMessage, matchedUser }: Ma
   }, [isOpen]);
 
   useEffect(() => {
-    if (!isOpen || !canvasRef.current) return;
+    if (!isOpen) return;
     const canvas = canvasRef.current;
+    if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
     let w = canvas.width = window.innerWidth;
@@ -42,6 +43,7 @@ export function MatchCelebration({ isOpen, onClose, onMessage, matchedUser }: Ma
     canvas.width = w * window.devicePixelRatio;
     canvas.height = h * window.devicePixelRatio;
     ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+
     const particles: { x: number; y: number; vx: number; vy: number; size: number; color: string; alpha: number; decay: number }[] = [];
     for (let i = 0; i < 60; i++) {
       particles.push({

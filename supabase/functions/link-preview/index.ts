@@ -5,13 +5,17 @@
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.4";
 
-const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
-const SUPABASE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-const DEFAULT_APP_ORIGIN = (Deno.env.get("APP_ORIGIN") ?? "").replace(/\/$/, "");
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
+const SUPABASE_KEY =
+  Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ??
+  Deno.env.get("SUPABASE_ANON_KEY") ??
+  Deno.env.get("SUPABASE_PUBLISHABLE_KEY") ??
+  "";
+const DEFAULT_APP_ORIGIN = (Deno.env.get("APP_ORIGIN") ?? "https://www.swipess.com").replace(/\/$/, "");
+const FALLBACK_IMAGE = "https://www.swipess.com/og-image-nexus.png";
 
-function getFallbackImage(appOrigin: string): string {
-  if (appOrigin) return `${appOrigin}/og-image-nexus.png`;
-  return "/og-image-nexus.png";
+if (!SUPABASE_URL) {
+  throw new Error("SUPABASE_URL environment variable is required");
 }
 
 const corsHeaders = {
