@@ -24,21 +24,7 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
 
   const cycleTheme = () => setThemeIndex((i) => (i + 1) % CARD_THEMES.length);
 
-  const { data: profile } = useQuery({
-    queryKey: ['vap-id-profile', user?.id],
-    enabled: !!user?.id && isOpen,
-    staleTime: 0,
-    queryFn: async () => {
-      if (!user?.id) return null;
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('full_name, avatar_url, nationality, city, country, languages_spoken, phone')
-        .eq('user_id', user!.id)
-        .maybeSingle();
-      if (error) throw error;
-      return data;
-    },
-  });
+
 
   const { data: clientProfile } = useQuery({
     queryKey: ['vap-id-client-profile', user?.id],
@@ -48,7 +34,7 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
       if (!user?.id) return null;
       const { data, error } = await supabase
         .from('client_profiles')
-        .select('bio, occupation, nationality, city, years_in_city, languages, interests, personality_traits, preferred_activities')
+        .select('name, profile_images, bio, occupation, nationality, country, city, years_in_city, languages, interests, personality_traits, preferred_activities')
 
         .eq('user_id', user!.id)
         .maybeSingle();
@@ -62,9 +48,6 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
     if (!user?.id || !isOpen) return;
     const channel = supabase
       .channel(`vap-id-card-${user.id}`)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles', filter: `user_id=eq.${user.id}` }, () => {
-        queryClient.invalidateQueries({ queryKey: ['vap-id-profile', user.id] });
-      })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'client_profiles', filter: `user_id=eq.${user.id}` }, () => {
         queryClient.invalidateQueries({ queryKey: ['vap-id-client-profile', user.id] });
       })
@@ -75,24 +58,21 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
     };
   }, [user?.id, isOpen, queryClient]);
 
-  const name = profile?.full_name || user?.email?.split('@')[0] || 'Resident';
-  const _nationality = clientProfile?.nationality || profile?.nationality || '';
-  const city = clientProfile?.city || profile?.city || '';
-  const country = profile?.country || '';
+  const name = clientProfile?.name || user?.email?.split('@')[0] || 'Resident';
+  const _nationality = clientProfile?.nationality || '';
+  const city = clientProfile?.city || '';
+  const country = clientProfile?.country || '';
   const bio = clientProfile?.bio || '';
   const occupation = (clientProfile as any)?.occupation || '';
-  const avatarUrl = profile?.avatar_url || '';
-  const phone = profile?.phone || '';
+  const avatarUrl = clientProfile?.profile_images?.[0] || '';
+  const phone = ''; // strictly removed cross-role phone fetch
 
   const spokenLanguages = useMemo(() => {
-    // Prefer client_profiles.languages (what the Edit modal writes); fall back to profiles.languages_spoken
     const clientLangs = (clientProfile as any)?.languages;
-    const raw = Array.isArray(clientLangs) && clientLangs.length > 0
-      ? clientLangs
-      : profile?.languages_spoken;
+    const raw = Array.isArray(clientLangs) && clientLangs.length > 0 ? clientLangs : [];
     if (Array.isArray(raw)) return raw.filter((v): v is string => typeof v === 'string');
     return [];
-  }, [clientProfile, profile?.languages_spoken]);
+  }, [clientProfile]);
 
   const allTags = useMemo(() => {
     const tags: string[] = [];

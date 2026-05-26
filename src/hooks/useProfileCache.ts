@@ -31,16 +31,18 @@ export function useProfileCache() {
 
     // Fetch from database with role in a single query
     try {
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('user_id, full_name, avatar_url')
-        .eq('user_id', userId)
-        .maybeSingle();
+      const [clientData, ownerData] = await Promise.all([
+        supabase.from('client_profiles').select('user_id, name, profile_images').eq('user_id', userId).maybeSingle(),
+        supabase.from('owner_profiles').select('user_id, business_name, profile_images').eq('user_id', userId).maybeSingle()
+      ]);
 
-      if (profileError) {
-        logger.error('Error fetching profile:', profileError);
+      if (clientData.error && ownerData.error) {
+        logger.error('Error fetching profile:', clientData.error || ownerData.error);
         return null;
       }
+
+      const isClient = !!clientData.data;
+      const profile = isClient ? clientData.data : ownerData.data;
 
       if (!profile) {
         return null;
@@ -55,8 +57,8 @@ export function useProfileCache() {
 
       const cachedProfile: CachedProfile = {
         id: profile.user_id,
-        full_name: profile.full_name,
-        avatar_url: profile.avatar_url,
+        full_name: isClient ? (profile as any).name : (profile as any).business_name,
+        avatar_url: (profile as any).profile_images?.[0],
         role: roleData?.role as 'client' | 'owner' | undefined,
       };
 
@@ -93,17 +95,22 @@ export function useProfileCache() {
     // Batch fetch uncached profiles
     if (uncachedIds.length > 0) {
       try {
-        const { data: profiles, error } = await supabase
-          .from('profiles')
-          .select('user_id, full_name, avatar_url')
-          .in('user_id', uncachedIds);
+        const [clientData, ownerData] = await Promise.all([
+          supabase.from('client_profiles').select('user_id, name, profile_images').in('user_id', uncachedIds),
+          supabase.from('owner_profiles').select('user_id, business_name, profile_images').in('user_id', uncachedIds)
+        ]);
 
-        if (error) {
-          logger.error('Error batch fetching profiles:', error);
+        if (clientData.error || ownerData.error) {
+          logger.error('Error batch fetching profiles:', clientData.error || ownerData.error);
           return result;
         }
 
-        if (profiles) {
+        const profiles = [
+          ...(clientData.data || []).map(p => ({ ...p, isClient: true })),
+          ...(ownerData.data || []).map(p => ({ ...p, isClient: false }))
+        ];
+
+        if (profiles.length > 0) {
           // Batch fetch roles
           const { data: roles } = await supabase
             .from('user_roles')
@@ -116,8 +123,8 @@ export function useProfileCache() {
           for (const profile of profiles) {
             const cachedProfile: CachedProfile = {
               id: profile.user_id,
-              full_name: profile.full_name,
-              avatar_url: profile.avatar_url,
+              full_name: profile.isClient ? (profile as any).name : (profile as any).business_name,
+              avatar_url: (profile as any).profile_images?.[0],
               role: roleMap.get(profile.user_id) as 'client' | 'owner' | undefined,
             };
 

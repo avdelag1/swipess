@@ -8,9 +8,9 @@ import { runIdleTask } from '@/lib/utils';
 import { useAdminUserIds } from '../useAdminUserIds';
 
 const CLIENT_FIELDS = `
-    user_id, full_name, age, gender, city, country, images, avatar_url,
-    interests, lifestyle_tags, smoking, work_schedule, nationality,
-    languages_spoken, neighborhood, bio, onboarding_completed, created_at
+    user_id, name, age, gender, city, country, profile_images,
+    interests, personality_traits, smoking_habit, work_schedule, nationality,
+    languages, neighborhood, bio, occupation, preferred_activities, roommate_available
 `;
 
 // Seed/demo user IDs that should always appear AFTER real users.
@@ -421,7 +421,7 @@ export function useSmartClientMatching(
                     .filter((id: string) => id && id !== userId);
 
                 // 2. PRIMARY QUERY: pull profiles for those user_ids.
-                let query = supabase.from('profiles')
+                let query = supabase.from('client_profiles')
                     .select(CLIENT_FIELDS)
                     .neq('user_id', userId);
                 if (targetUserIds.length > 0) {
@@ -468,10 +468,9 @@ export function useSmartClientMatching(
                 // 4. EMERGENCY FALLBACK: Fetch ANYONE if deck is empty AND we're not deferring to demo
                 if ((!profiles || profiles.length === 0) && !shouldShowDemoIfEmpty) {
                     logger.warn('[SmartMatching] Deck empty, triggering hyper-aggressive fallback (page=' + page + ', category=' + _category + ')');
-                    let fallback = supabase.from('profiles')
+                    let fallback = supabase.from('client_profiles')
                         .select(CLIENT_FIELDS)
                         .neq('user_id', userId)
-                        .order('created_at', { ascending: false })
                         .limit(pageSize);
                     if (targetUserIds.length > 0) {
                         fallback = fallback.in('user_id', targetUserIds);
@@ -484,28 +483,22 @@ export function useSmartClientMatching(
 
                 const finalProfiles = profiles || [];
 
-                const userIds = finalProfiles.map(p => p.user_id);
-                const { data: cpData } = await supabase.from('client_profiles').select('user_id, age, gender, city, country, preferred_activities, profile_images, interests, roommate_available, work_schedule, name, occupation').in('user_id', userIds);
-                const cpMap = new Map(cpData?.map(cp => [cp.user_id, cp]) || []);
-
                 let results = finalProfiles
                     .filter(p => !adminIds?.has(p.user_id)) // admin exclusion
                     .filter(p => (p as any).client_type !== 'business') // business/place exclusion
                     .map(p => {
-                    const cp = cpMap.get(p.user_id);
-                    // Merge all available photo sources so real roommate cards always show their photo.
-                    const finalImgs = normalizeImageList((p as any).images, (cp as any)?.profile_images, (p as any).avatar_url);
+                    // Profile images are correctly stored in client_profiles
+                    const finalImgs = normalizeImageList((p as any).profile_images);
                     return {
-                        id: p.user_id, user_id: p.user_id, name: p.full_name || cp?.name || 'User',
-                        age: p.age || cp?.age || 0, gender: p.gender || cp?.gender || '',
-                        interests: p.interests || cp?.interests || [], preferred_activities: cp?.preferred_activities || [],
-                        location: { city: p.city || cp?.city }, lifestyle_tags: (p as any).lifestyle_tags || (cp as any)?.lifestyle_tags || [],
+                        id: p.user_id, user_id: p.user_id, name: p.name || 'User',
+                        age: p.age || 0, gender: p.gender || '',
+                        interests: p.interests || [], preferred_activities: p.preferred_activities || [],
+                        location: { city: p.city }, lifestyle_tags: (p as any).personality_traits || [],
                         profile_images: finalImgs, 
-                        avatar_url: p.avatar_url,
                         matchPercentage: 80,
-                        matchReasons: ['Profile available'], incompatibleReasons: [], verified: !!p.onboarding_completed,
-                        roommate_available: !!cp?.roommate_available, city: p.city || cp?.city, country: p.country || cp?.country, work_schedule: p.work_schedule || cp?.work_schedule,
-                        occupation: cp?.occupation || ''
+                        matchReasons: ['Profile available'], incompatibleReasons: [], verified: true,
+                        roommate_available: !!p.roommate_available, city: p.city, country: p.country, work_schedule: p.work_schedule,
+                        occupation: p.occupation || ''
                     } as MatchedClientProfile;
                 });
 

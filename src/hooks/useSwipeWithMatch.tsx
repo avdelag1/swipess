@@ -118,7 +118,7 @@ export function useSwipeWithMatch(options?: SwipeWithMatchOptions) {
           // This prevents FK violations from stale cached profile data
           const { data: clientExists, error: verifyError } = await supabase
             .from('profiles')
-            .select('user_id, full_name, city, is_active')
+            .select('user_id, is_active')
             .eq('user_id', targetId)
             .maybeSingle();
 
@@ -145,8 +145,7 @@ export function useSwipeWithMatch(options?: SwipeWithMatchOptions) {
           // Check if profile is active
           if (clientExists.is_active === false) {
             logger.warn('[useSwipeWithMatch] Attempted to like inactive profile:', {
-              clientId: targetId,
-              fullName: clientExists.full_name
+              clientId: targetId
             });
             throw new Error('This user is no longer active');
           }
@@ -211,12 +210,12 @@ export function useSwipeWithMatch(options?: SwipeWithMatchOptions) {
 
           // Send notifications fire-and-forget — don't block mutation resolution
           supabase
-            .from('profiles')
-            .select('full_name, avatar_url')
+            .from('owner_profiles')
+            .select('business_name, profile_images')
             .eq('user_id', user.id)
             .maybeSingle()
             .then(({ data: ownerProfile }) => {
-              const ownerName = ownerProfile?.full_name || 'Someone';
+              const ownerName = ownerProfile?.business_name || 'Someone';
               supabase.rpc('create_notification_for_user', {
                 p_user_id: targetId,
                 p_notification_type: 'new_like',
@@ -275,12 +274,12 @@ export function useSwipeWithMatch(options?: SwipeWithMatchOptions) {
           // Notify listing owner fire-and-forget — don't block mutation resolution
           Promise.allSettled([
             supabase.from('listings').select('owner_id, title').eq('id', targetId).maybeSingle(),
-            supabase.from('profiles').select('full_name').eq('user_id', user.id).maybeSingle()
+            supabase.from('client_profiles').select('name').eq('user_id', user.id).maybeSingle()
           ]).then(([listingSettled, clientSettled]) => {
             const listingResult = listingSettled.status === 'fulfilled' ? listingSettled.value : { data: null };
             const clientResult = clientSettled.status === 'fulfilled' ? clientSettled.value : { data: null };
             if (!listingResult.data?.owner_id) return;
-            const clientName = clientResult.data?.full_name || 'Someone';
+            const clientName = clientResult.data?.name || 'Someone';
             const listingTitle = listingResult.data.title || 'your listing';
             supabase.rpc('create_notification_for_user', {
               p_user_id: listingResult.data.owner_id,
@@ -531,12 +530,12 @@ async function detectAndCreateMatch({
       try {
         const [clientProfile, ownerProfile] = await Promise.all([
           supabase
-            .from('profiles')
+            .from('client_profiles')
             .select('*')
             .eq('user_id', match.client_id)
             .maybeSingle(),
           supabase
-            .from('profiles')
+            .from('owner_profiles')
             .select('*')
             .eq('user_id', match.owner_id)
             .maybeSingle()

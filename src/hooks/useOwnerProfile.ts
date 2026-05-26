@@ -127,58 +127,6 @@ export function useSaveOwnerProfile() {
         profileData = data as OwnerProfile;
       }
 
-      // SYNC to profiles table - so owner info shows in messages/public profiles
-      const syncPayload: any = {
-        updated_at: new Date().toISOString(), // Always mark as updated for sync tracking
-      };
-
-      if (updates.profile_images !== undefined) {
-        syncPayload.images = updates.profile_images || [];
-        if (updates.profile_images && updates.profile_images.length > 0) {
-          syncPayload.avatar_url = updates.profile_images[0];
-        } else {
-          syncPayload.avatar_url = null;
-        }
-      }
-
-      if (updates.business_name !== undefined) {
-        syncPayload.full_name = updates.business_name;
-      }
-
-      if (updates.business_description !== undefined) {
-        syncPayload.bio = updates.business_description;
-      }
-
-      if (updates.business_location !== undefined) {
-        syncPayload.city = updates.business_location;
-      }
-
-      if (updates.contact_email !== undefined) {
-        syncPayload.email = updates.contact_email;
-      }
-
-      if (updates.contact_phone !== undefined) {
-        syncPayload.phone = updates.contact_phone;
-      }
-
-      // Only update if we have real fields to sync (not just updated_at)
-      const realSyncKeys = Object.keys(syncPayload).filter(k => k !== 'updated_at');
-      if (realSyncKeys.length > 0) {
-        try {
-          const { error: syncError } = await supabase
-            .from('profiles')
-            .update(syncPayload)
-            .eq('user_id', uid);
-
-          if (syncError) {
-            logger.error('[OWNER PROFILE SYNC] Error syncing to profiles:', syncError);
-          }
-        } catch (syncErr) {
-          // Non-blocking: don't let sync failure prevent profile save
-          logger.error('[OWNER PROFILE SYNC] Exception:', syncErr);
-        }
-      }
-
       return profileData;
     },
     onSuccess: () => {
