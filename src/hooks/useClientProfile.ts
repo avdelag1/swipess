@@ -306,6 +306,7 @@ export function useSaveClientProfile() {
       // Also invalidate owner's view of client profiles
       qc.invalidateQueries({ queryKey: ['client-profiles'] });
       qc.invalidateQueries({ queryKey: ['client-profile'] });
+      qc.invalidateQueries({ queryKey: ['owner-profile-own'] });
       qc.invalidateQueries({ queryKey: ['topbar-user-profile'] });
       qc.invalidateQueries({ queryKey: ['vap-id-profile', uid] });
       qc.invalidateQueries({ queryKey: ['vap-id-client-profile', uid] });
