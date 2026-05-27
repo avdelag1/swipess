@@ -21,20 +21,25 @@ export default function VapValidate() {
         .select('full_name, city, country, created_at')
         .eq('user_id', id!)
         .maybeSingle();
-      if (!profile) return null;
 
       const { data: client } = await supabase
         .from('client_profiles')
-        .select('nationality')
+        .select('name, vap_city, country, vap_nationality, vap_occupation, nationality, created_at')
         .eq('user_id', id!)
         .maybeSingle();
 
-      const memberSince = new Date(profile.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+      if (!profile && !client) return null;
+
+      const baseCreatedAt = client?.created_at || profile?.created_at;
+      const memberSince = baseCreatedAt 
+        ? new Date(baseCreatedAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+        : 'Unknown';
+
       return {
-        name: profile.full_name || 'Resident',
-        location: [profile.city, profile.country].filter(Boolean).join(', '),
-        occupation: '',
-        nationality: client?.nationality || '',
+        name: client?.name || profile?.full_name || 'Resident',
+        location: [client?.vap_city || profile?.city, client?.country || profile?.country].filter(Boolean).join(', '),
+        occupation: client?.vap_occupation || '',
+        nationality: client?.vap_nationality || client?.nationality || '',
         memberSince,
       };
     },

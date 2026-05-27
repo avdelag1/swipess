@@ -9,7 +9,6 @@ import { useAuth } from '@/hooks/useAuth';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useSaveClientProfile } from '@/hooks/useClientProfile';
-import { useSaveOwnerProfile } from '@/hooks/useOwnerProfile';
 import { toast } from 'sonner';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
@@ -147,7 +146,6 @@ export function VapIdEditModal({ isOpen, onClose, onSaved, role = 'client' }: Pr
   }, [user?.id, queryClient]);
 
   const saveClient = useSaveClientProfile();
-  const saveOwner = useSaveOwnerProfile();
 
   const doSave = useCallback(async () => {
     if (!user?.id) { toast.error('Not signed in'); return false; }
