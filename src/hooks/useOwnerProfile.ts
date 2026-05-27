@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { logger } from '@/utils/prodLogger';
+import { useAuth } from '@/hooks/useAuth';
 
 export type OwnerProfile = {
   id?: string;
@@ -48,11 +49,7 @@ async function resolveAuthenticatedUserId() {
   throw new Error('Auth session missing. Please sign in again.');
 }
 
-async function fetchOwnProfile() {
-  const { data: { session } } = await supabase.auth.getSession();
-  const uid = session?.user?.id;
-  if (!uid) return null;
-
+async function fetchOwnProfile(uid: string) {
   const { data, error } = await supabase
     .from('owner_profiles')
     .select('*')
@@ -68,9 +65,14 @@ async function fetchOwnProfile() {
 }
 
 export function useOwnerProfile() {
+  // Use the auth context which reads from localStorage synchronously to avoid double-render blinks
+  const { user } = useAuth();
+  const uid = user?.id ?? null;
+
   return useQuery({
-    queryKey: ['owner-profile-own'],
-    queryFn: fetchOwnProfile,
+    queryKey: ['owner-profile-own', uid],
+    queryFn: () => fetchOwnProfile(uid as string),
+    enabled: !!uid,
     // INSTANT NAVIGATION: Keep previous data during refetch to prevent UI blanking
     placeholderData: (prev) => prev,
     staleTime: 2 * 60 * 1000, // 2 minutes - auto-sync keeps data fresh

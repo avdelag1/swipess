@@ -1,8 +1,8 @@
 
-import { useEffect, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { logger } from '@/utils/prodLogger';
+import { useAuth } from '@/hooks/useAuth';
 
 export type ClientProfileLite = {
   id?: number;
@@ -102,19 +102,10 @@ async function fetchOwnProfile(uid: string) {
 }
 
 export function useClientProfile() {
-  // SECURITY: Scope cache by authenticated user id so a previous user's
-  // profile can never appear for a different signed-in user.
-  const [uid, setUid] = useState<string | null>(null);
-  useEffect(() => {
-    let active = true;
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (active) setUid(session?.user?.id ?? null);
-    });
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, s) => {
-      if (active) setUid(s?.user?.id ?? null);
-    });
-    return () => { active = false; subscription.unsubscribe(); };
-  }, []);
+  // Use the auth context which reads from localStorage synchronously —
+  // this avoids the async uid-state effect that was causing a double render / blink.
+  const { user } = useAuth();
+  const uid = user?.id ?? null;
 
   return useQuery({
     queryKey: ['client-profile-own', uid],
