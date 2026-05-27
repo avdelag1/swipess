@@ -13,8 +13,8 @@ import {
 } from "lucide-react";
 import { useClientStats } from "@/hooks/useClientStats";
 import { ActivityFeed } from "@/components/ActivityFeed";
-import { VapIdEditModal } from "@/components/VapIdEditModal";
 import { VapIdCardModal } from "@/components/VapIdCardModal";
+import { VapIdEditModal } from "@/components/VapIdEditModal";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { ProfileSkeleton } from "@/components/ui/LayoutSkeletons";
@@ -32,8 +32,8 @@ const ClientProfile = () => {
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showPhotoPreview, setShowPhotoPreview] = useState(false);
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
-  const [isVapModalOpen, setIsVapModalOpen] = useState(false);
   const [showVapCard, setShowVapCard] = useState(false);
+  const [isVapModalOpen, setIsVapModalOpen] = useState(false);
   const { data: profile, isLoading, refetch: refetchProfile } = useClientProfile();
   const { user, signOut } = useAuth();
   const queryClient = useQueryClient();
@@ -254,7 +254,7 @@ const ClientProfile = () => {
         </div>
 
         {/* HOLOGRAPHIC IDENTITY VAULT */}
-        <div className="relative cursor-pointer" onClick={() => { triggerHaptic('light'); setShowVapCard(true); }}>
+        <div className="relative cursor-pointer" onClick={() => { triggerHaptic('light'); setIsVapModalOpen(true); }}>
           <HolographicIDCard profile={profile} />
           
           {/* External hint for edit */}

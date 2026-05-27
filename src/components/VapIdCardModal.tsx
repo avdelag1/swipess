@@ -31,6 +31,7 @@ export function VapIdCardModal({ isOpen, onClose, role = 'client' }: VapIdProps)
   });
   const [editOpen, setEditOpen] = useState(false);
   const theme = CARD_THEMES[themeIndex];
+  const isOwner = role === 'owner';
 
   const cycleTheme = () => setThemeIndex((i) => {
     const next = (i + 1) % CARD_THEMES.length;
@@ -58,14 +59,17 @@ export function VapIdCardModal({ isOpen, onClose, role = 'client' }: VapIdProps)
     },
   });
 
-  // Force-refetch when edit modal closes after a save
+  // Force-refetch when edit modal closes (after a save)
   const prevEditOpen = useRef(false);
   useEffect(() => {
     if (prevEditOpen.current && !editOpen) {
+      // Immediately refetch and also invalidate so any other consumers update
       refetchExtendedProfile();
+      queryClient.invalidateQueries({ queryKey: [profileQueryKey, user?.id] });
+      queryClient.invalidateQueries({ queryKey: ['client-profile-own'] });
     }
     prevEditOpen.current = editOpen;
-  }, [editOpen, refetchExtendedProfile]);
+  }, [editOpen, refetchExtendedProfile, queryClient, profileQueryKey, user?.id]);
 
   // REALTIME: live-refresh the card whenever profile data changes
   useEffect(() => {
@@ -84,8 +88,6 @@ export function VapIdCardModal({ isOpen, onClose, role = 'client' }: VapIdProps)
 
   const ext = extendedProfile as any;
 
-  const isOwner = role === 'owner';
-
   const name = ext?.name || user?.email?.split('@')[0] || 'Resident';
   const city = ext?.vap_city || ext?.city || '';
   const country = ext?.country || '';
@@ -95,7 +97,12 @@ export function VapIdCardModal({ isOpen, onClose, role = 'client' }: VapIdProps)
   const phone = ext?.phone || '';
 
   const spokenLanguages = useMemo(() => {
-    const raw = Array.isArray(ext?.vap_languages) && ext.vap_languages.length > 0 ? ext.vap_languages : (Array.isArray(ext?.languages) ? ext.languages : []);
+    // vap_languages is the correct column; fall back to the generic languages field
+    const raw = Array.isArray(ext?.vap_languages) && ext.vap_languages.length > 0
+      ? ext.vap_languages
+      : Array.isArray(ext?.languages) && ext.languages.length > 0
+        ? ext.languages
+        : [];
     return raw.filter((v): v is string => typeof v === 'string');
   }, [ext]);
 

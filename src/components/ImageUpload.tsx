@@ -41,9 +41,9 @@ export function ImageUpload({
       // Compress (and HEIC-convert) before upload.
       const compressedFile = await compressImage(file, LISTING_COMPRESSION);
 
-      // Generate unique filename using crypto for security
+      // Generate unique filename using crypto fallback for security
       const fileExt = compressedFile.name.split('.').pop() || 'webp';
-      const uniqueId = crypto.randomUUID();
+      const uniqueId = typeof crypto.randomUUID === 'function' ? crypto.randomUUID() : Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
       const fileName = `${folder}/${uniqueId}.${fileExt}`;
 
       // Upload to Supabase Storage
