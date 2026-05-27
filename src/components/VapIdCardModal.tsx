@@ -17,14 +17,26 @@ export interface VapIdProps {
   role?: 'client' | 'owner';
 }
 
+const THEME_STORAGE_KEY = 'vap-card-theme-index';
+
 export function VapIdCardModal({ isOpen, onClose, role = 'client' }: VapIdProps) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const [themeIndex, setThemeIndex] = useState(0);
+  const [themeIndex, setThemeIndex] = useState(() => {
+    try {
+      const saved = localStorage.getItem(THEME_STORAGE_KEY);
+      const parsed = parseInt(saved || '0', 10);
+      return parsed >= 0 && parsed < CARD_THEMES.length ? parsed : 0;
+    } catch { return 0; }
+  });
   const [editOpen, setEditOpen] = useState(false);
   const theme = CARD_THEMES[themeIndex];
 
-  const cycleTheme = () => setThemeIndex((i) => (i + 1) % CARD_THEMES.length);
+  const cycleTheme = () => setThemeIndex((i) => {
+    const next = (i + 1) % CARD_THEMES.length;
+    try { localStorage.setItem(THEME_STORAGE_KEY, String(next)); } catch {}
+    return next;
+  });
 
   const profileTable = 'client_profiles';
   const profileQueryKey = 'vap-id-client-profile';
@@ -124,31 +136,31 @@ export function VapIdCardModal({ isOpen, onClose, role = 'client' }: VapIdProps)
                 aria-label="Change card color"
                 className={cn(
                   "h-11 w-11 flex items-center justify-center rounded-full border shadow-lg active:scale-95 transition",
-                  theme.isDark ? "bg-zinc-800 border-white/10" : "bg-white border-black/10"
+                  theme.isDark ? "bg-zinc-800 border-white/10 text-white" : "bg-black/10 backdrop-blur-sm border-black/20 text-black"
                 )}
               >
-                <Droplets className={cn("h-5 w-5", theme.isDark ? "text-white" : "text-black")} strokeWidth={2.6} />
+                <Droplets className="h-5 w-5" strokeWidth={2.6} />
               </button>
-              <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-white/90 flex-1 text-center truncate">{theme.name}</span>
+              <span className={cn("text-[11px] font-bold uppercase tracking-[0.2em] flex-1 text-center truncate", theme.isDark ? "text-white/90" : "text-black/70")}>{theme.name}</span>
               <button
                 onClick={() => setEditOpen(true)}
                 aria-label="Edit identity"
                 className={cn(
                   "h-11 w-11 flex items-center justify-center rounded-full border shadow-lg active:scale-95 transition",
-                  theme.isDark ? "bg-zinc-800 border-white/10" : "bg-white border-black/10"
+                  theme.isDark ? "bg-zinc-800 border-white/10 text-white" : "bg-black/10 backdrop-blur-sm border-black/20 text-black"
                 )}
               >
-                <Pencil className={cn("h-5 w-5", theme.isDark ? "text-white" : "text-black")} strokeWidth={2.6} />
+                <Pencil className="h-5 w-5" strokeWidth={2.6} />
               </button>
               <button
                 onClick={onClose}
                 aria-label="Close card"
                 className={cn(
                   "h-11 w-11 flex items-center justify-center rounded-full border shadow-lg active:scale-95 transition",
-                  theme.isDark ? "bg-zinc-800 border-white/10" : "bg-white border-black/10"
+                  theme.isDark ? "bg-zinc-800 border-white/10 text-white" : "bg-black/10 backdrop-blur-sm border-black/20 text-black"
                 )}
               >
-                <X className={cn("h-5 w-5", theme.isDark ? "text-white" : "text-black")} strokeWidth={2.8} />
+                <X className="h-5 w-5" strokeWidth={2.8} />
               </button>
             </div>
 
