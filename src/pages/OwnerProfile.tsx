@@ -63,47 +63,7 @@ const OwnerProfile = () => {
           </div>
         </div>
 
-        {/* IDENTITY CORE */}
-        <div className="flex flex-col items-center text-center gap-6">
-          <div className="relative">
-            <motion.div
-              whileHover={{ scale: 1.04 }}
-              whileTap={{ scale: 0.96 }}
-              className="w-36 h-36 p-[2px] shadow-[0_0_60px_rgba(255,77,0,0.2)]"
-              style={{
-                borderRadius: '1.8rem',
-                background: 'linear-gradient(135deg, #FF4D00, #EB4898)',
-              }}
-            >
-              <div
-                className={cn("w-full h-full overflow-hidden flex items-center justify-center border", isLight ? "bg-white border-black/10" : "bg-[#080C14] border-white/5")}
-                style={{ borderRadius: '1.85rem' }}
-              >
-                {ownerProfile?.profile_images?.[0] ? (
-                  <img src={ownerProfile.profile_images[0]} alt="Brand" className="w-full h-full object-cover" />
-                ) : (
-                  <UserCircle className={cn("w-16 h-16", isLight ? "text-slate-300" : "text-white/10")} />
-                )}
-              </div>
-            </motion.div>
 
-            {/* Scan ring */}
-            <motion.div
-              className="absolute inset-[-6px] rounded-[2.4rem] border border-[#FF4D00]/20 pointer-events-none"
-              animate={{ opacity: [0.4, 0.8, 0.4] }}
-              transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <h1 className={cn("text-5xl font-black uppercase italic tracking-tighter leading-none", isLight ? "text-slate-900" : "text-white")}>
-              {ownerProfile?.business_name || 'Asset ID'}
-            </h1>
-            <div className="flex items-center justify-center gap-3 mt-2">
-              <span className={cn("text-[10px] font-black uppercase tracking-[0.25em]", isLight ? "text-slate-500" : "text-white/25")}>{user?.email}</span>
-            </div>
-          </div>
-        </div>
 
         {/* SWIPESS METRIC GRID */}
         <div className="grid grid-cols-3 gap-3">
@@ -181,16 +141,7 @@ const OwnerProfile = () => {
             </div>
           </Button>
 
-          <Button
-            onClick={() => { triggerHaptic('medium'); navigate('/client/profile'); }}
-            className="w-full h-12 rounded-2xl font-black uppercase italic tracking-[0.2em] text-[15px] transition-all border-none text-white shadow-xl"
-            style={{
-              background: 'linear-gradient(135deg, #FF4D00, #FF6B00)',
-            }}
-          >
-            <User className="w-6 h-6 mr-3" />
-            <span>Manage Unified Identity</span>
-          </Button>
+
 
           <Button
             onClick={() => { triggerHaptic('medium'); navigate('/client/advertise'); }}
