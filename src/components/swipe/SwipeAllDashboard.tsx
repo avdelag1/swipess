@@ -66,6 +66,7 @@ export const SwipeAllDashboard = memo(({ setCategories }: SwipeAllDashboardProps
     triggerHaptic('medium');
     uiSounds.playCategorySelect();
     if (id === 'events') navigate('/explore/events');
+    else if (id === 'vap') setShowVapModal(true);
     else setCategories(id as QuickFilterCategory);
   }, [setCategories, navigate]);
 
