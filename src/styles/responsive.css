@@ -55,9 +55,9 @@
    BASE RESPONSIVE RULES
    ============================================================================= */
 
-/* Prevent horizontal overflow globally */
+/* Prevent horizontal overflow globally — clip avoids creating BFC that blocks scroll */
 html, body {
-  overflow-x: hidden;
+  overflow-x: clip;
   width: 100%;
   max-width: 100vw;
 }
@@ -798,4 +798,28 @@ body.is-desktop .show-desktop-only {
   .page-break {
     page-break-before: always;
   }
+}
+
+/* =============================================================================
+   SCROLL SENSITIVITY & MOMENTUM - Native-app scroll feel
+   ============================================================================= */
+/* Horizontal scroll containers in filter bars — natural momentum */
+.overflow-x-auto,
+.scrollbar-hide,
+[data-no-swipe-nav] {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: auto;
+  overscroll-behavior-x: contain;
+  overscroll-behavior-y: auto;
+}
+
+/* Remove any transform interference on scroll containers */
+.overflow-x-auto > *,
+.scrollbar-hide > * {
+  pointer-events: auto;
+}
+
+/* Prevent accidental horizontal scroll initiation from vertical page drag */
+html, body {
+  overscroll-behavior-x: none;
 }

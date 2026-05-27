@@ -13,7 +13,7 @@
 html, body, #root {
   scrollbar-width: none;
   -ms-overflow-style: none;
-  overflow-x: hidden;
+  overflow-x: clip;
   -webkit-touch-callout: none;
   text-rendering: optimizeSpeed;
   -webkit-font-smoothing: antialiased;
@@ -28,6 +28,8 @@ html, body, #root {
   /* 📱 MOBILE OPTIMIZATION: Prevent text selection and highlight */
   -webkit-user-select: none;
   -webkit-tap-highlight-color: transparent;
+  /* ⚡ RESPONSIVE SCROLL: pass through to nested scroll containers */
+  touch-action: pan-y;
 }
 
 /* 🚀 FLAGSHIP LAYOUT CONTAINMENT */
