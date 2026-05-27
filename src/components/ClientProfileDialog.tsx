@@ -1,4 +1,5 @@
 
+import { motion } from 'framer-motion';
 import { useEffect, useRef, useState, useMemo, memo, useCallback } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -11,6 +12,7 @@ import { ListingVideoUpload } from '@/components/video/ListingVideoUpload';
 import { useClientProfile, useSaveClientProfile } from '@/hooks/useClientProfile';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { useModalStore } from '@/state/modalStore';
 import { Badge } from '@/components/ui/badge';
 import { Check, MapPin, User, Compass, Target, LifeBuoy, Sparkles, X, Save } from 'lucide-react';
 import {
@@ -201,6 +203,8 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
       });
       toast.success('Identity Updated', { description: 'Your profile has been updated.' });
       onOpenChange(false);
+      // Navigate to virtual VAP ID card to show updated data
+      useModalStore.getState().setModal('showVapId', true);
     } catch (_error) {
        toast.error('Sync Error');
     }

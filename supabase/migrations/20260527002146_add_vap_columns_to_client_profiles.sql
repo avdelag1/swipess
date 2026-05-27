@@ -1,10 +1,16 @@
--- Add isolated Virtual Card (VAP) columns to client_profiles
-ALTER TABLE client_profiles
-ADD COLUMN IF NOT EXISTS vap_avatar text,
-ADD COLUMN IF NOT EXISTS vap_bio text,
-ADD COLUMN IF NOT EXISTS vap_occupation text,
-ADD COLUMN IF NOT EXISTS vap_city text,
-ADD COLUMN IF NOT EXISTS vap_nationality text,
-ADD COLUMN IF NOT EXISTS vap_years_in_city integer,
-ADD COLUMN IF NOT EXISTS vap_languages text[] DEFAULT '{}'::text[],
-ADD COLUMN IF NOT EXISTS vap_interests text[] DEFAULT '{}'::text[];
+-- Add specific fields for the Virtual ID Card (VAP) to client_profiles
+-- This ensures VAP data is isolated and persistent even if a user switches roles
+
+ALTER TABLE public.client_profiles 
+  ADD COLUMN IF NOT EXISTS vap_avatar TEXT,
+  ADD COLUMN IF NOT EXISTS vap_bio TEXT,
+  ADD COLUMN IF NOT EXISTS vap_occupation TEXT,
+  ADD COLUMN IF NOT EXISTS vap_city TEXT,
+  ADD COLUMN IF NOT EXISTS vap_nationality TEXT,
+  ADD COLUMN IF NOT EXISTS vap_years_in_city INTEGER,
+  ADD COLUMN IF NOT EXISTS vap_languages TEXT[],
+  ADD COLUMN IF NOT EXISTS vap_interests TEXT[];
+
+-- Update RLS policies to allow users to update their own VAP fields
+-- (Existing policies on client_profiles should already cover this, 
+-- but this is here for documentation)

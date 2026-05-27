@@ -173,7 +173,7 @@ export default function PublicListingPreview() {
         style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 12px)' }}
       >
         <button
-          onClick={() => { triggerHaptic('light'); window.history.length > 1 ? navigate(-1) : navigate('/'); }}
+          onClick={() => { triggerHaptic('light'); if (window.history.length > 1) navigate(-1); else navigate('/'); }}
           className="w-10 h-10 rounded-full bg-black/40 backdrop-blur-xl border border-white/10 flex items-center justify-center text-white active:scale-90 transition-transform"
           aria-label="Back"
         >

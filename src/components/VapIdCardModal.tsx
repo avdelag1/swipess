@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ShieldCheck, MapPin, Droplets, Pencil, Phone, Languages } from 'lucide-react';
@@ -9,13 +9,15 @@ import { supabase } from '@/integrations/supabase/client';
 import { CARD_THEMES } from './vap-id/cardThemes';
 import { VapIdEditModal } from './VapIdEditModal';
 import { useEffect } from 'react';
+import { cn } from '@/lib/utils';
 
 export interface VapIdProps {
   isOpen: boolean;
   onClose: () => void;
+  role?: 'client' | 'owner';
 }
 
-export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
+export function VapIdCardModal({ isOpen, onClose, role = 'client' }: VapIdProps) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [themeIndex, setThemeIndex] = useState(0);
@@ -24,18 +26,18 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
 
   const cycleTheme = () => setThemeIndex((i) => (i + 1) % CARD_THEMES.length);
 
+  const profileTable = 'client_profiles';
+  const profileQueryKey = 'vap-id-client-profile';
 
-
-  const { data: clientProfile } = useQuery({
-    queryKey: ['vap-id-client-profile', user?.id],
+  const { data: extendedProfile, refetch: refetchExtendedProfile } = useQuery({
+    queryKey: [profileQueryKey, user?.id],
     enabled: !!user?.id && isOpen,
     staleTime: 0,
     queryFn: async () => {
       if (!user?.id) return null;
       const { data, error } = await supabase
-        .from('client_profiles')
-        .select('name, profile_images, bio, occupation, nationality, country, city, years_in_city, languages, interests, personality_traits, preferred_activities')
-
+        .from(profileTable)
+        .select('vap_bio, vap_occupation, vap_city, vap_nationality, vap_years_in_city, vap_languages, vap_interests, vap_avatar, name, age, country, profile_images, phone, user_id')
         .eq('user_id', user!.id)
         .maybeSingle();
       if (error) throw error;
@@ -43,44 +45,57 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
     },
   });
 
-  // REALTIME: live-refresh the card whenever either profile row changes
+  // Force-refetch when edit modal closes after a save
+  const prevEditOpen = useRef(false);
+  useEffect(() => {
+    if (prevEditOpen.current && !editOpen) {
+      refetchExtendedProfile();
+    }
+    prevEditOpen.current = editOpen;
+  }, [editOpen, refetchExtendedProfile]);
+
+  // REALTIME: live-refresh the card whenever profile data changes
   useEffect(() => {
     if (!user?.id || !isOpen) return;
     const channel = supabase
       .channel(`vap-id-card-${user.id}`)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'client_profiles', filter: `user_id=eq.${user.id}` }, () => {
-        queryClient.invalidateQueries({ queryKey: ['vap-id-client-profile', user.id] });
+      .on('postgres_changes', { event: '*', schema: 'public', table: profileTable, filter: `user_id=eq.${user.id}` }, () => {
+        queryClient.invalidateQueries({ queryKey: [profileQueryKey, user.id] });
       })
       .subscribe();
     return () => {
       channel.unsubscribe();
       supabase.removeChannel(channel);
     };
-  }, [user?.id, isOpen, queryClient]);
+  }, [user?.id, isOpen, queryClient, profileTable, profileQueryKey]);
 
-  const name = clientProfile?.name || user?.email?.split('@')[0] || 'Resident';
-  const _nationality = clientProfile?.nationality || '';
-  const city = clientProfile?.city || '';
-  const country = clientProfile?.country || '';
-  const bio = clientProfile?.bio || '';
-  const occupation = (clientProfile as any)?.occupation || '';
-  const avatarUrl = clientProfile?.profile_images?.[0] || '';
-  const phone = ''; // strictly removed cross-role phone fetch
+  const isOwner = role === 'owner';
+  const ext = extendedProfile as any;
+
+  const name = isOwner
+    ? ext?.business_name || user?.email?.split('@')[0] || 'Asset'
+    : ext?.name || user?.email?.split('@')[0] || 'Resident';
+  const city = isOwner ? ext?.business_location || '' : ext?.city || '';
+  const country = isOwner ? '' : ext?.country || '';
+  const bio = isOwner ? ext?.business_description || '' : ext?.bio || '';
+  const occupation = isOwner ? ext?.business_name || '' : ext?.occupation || '';
+  const avatarUrl = (Array.isArray(ext?.profile_images) && ext.profile_images.length > 0) ? ext.profile_images[0] : '';
+  const phone = isOwner ? ext?.contact_phone || '' : ext?.phone || '';
 
   const spokenLanguages = useMemo(() => {
-    const clientLangs = (clientProfile as any)?.languages;
-    const raw = Array.isArray(clientLangs) && clientLangs.length > 0 ? clientLangs : [];
-    if (Array.isArray(raw)) return raw.filter((v): v is string => typeof v === 'string');
-    return [];
-  }, [clientProfile]);
+    if (isOwner) return [];
+    const raw = Array.isArray(ext?.languages) && ext.languages.length > 0 ? ext.languages : [];
+    return raw.filter((v): v is string => typeof v === 'string');
+  }, [isOwner, ext]);
 
   const allTags = useMemo(() => {
+    if (isOwner) return [];
     const tags: string[] = [];
     const add = (arr: any) => { if (Array.isArray(arr)) tags.push(...arr.filter(v => typeof v === 'string')); };
-    add(clientProfile?.interests);
-    add(clientProfile?.personality_traits);
+    add(ext?.interests);
+    add(ext?.personality_traits);
     return [...new Set(tags)].slice(0, 8);
-  }, [clientProfile]);
+  }, [isOwner, ext]);
 
   const validationUrl = "https://swipess.com/vap-validate/" + (user?.id || 'unknown');
   const idNumber = "NX-" + (user?.id || 'resident').slice(0, 8).toUpperCase();
@@ -109,24 +124,33 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
               <button
                 onClick={cycleTheme}
                 aria-label="Change card color"
-                className="h-11 w-11 flex items-center justify-center rounded-full bg-white border border-black/10 shadow-lg active:scale-95 transition"
+                className={cn(
+                  "h-11 w-11 flex items-center justify-center rounded-full border shadow-lg active:scale-95 transition",
+                  theme.isDark ? "bg-zinc-800 border-white/10" : "bg-white border-black/10"
+                )}
               >
-                <Droplets className="h-5 w-5 text-black" strokeWidth={2.6} />
+                <Droplets className={cn("h-5 w-5", theme.isDark ? "text-white" : "text-black")} strokeWidth={2.6} />
               </button>
               <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-white/90 flex-1 text-center truncate">{theme.name}</span>
               <button
                 onClick={() => setEditOpen(true)}
                 aria-label="Edit identity"
-                className="h-11 w-11 flex items-center justify-center rounded-full bg-white border border-black/10 shadow-lg active:scale-95 transition"
+                className={cn(
+                  "h-11 w-11 flex items-center justify-center rounded-full border shadow-lg active:scale-95 transition",
+                  theme.isDark ? "bg-zinc-800 border-white/10" : "bg-white border-black/10"
+                )}
               >
-                <Pencil className="h-5 w-5 text-black" strokeWidth={2.6} />
+                <Pencil className={cn("h-5 w-5", theme.isDark ? "text-white" : "text-black")} strokeWidth={2.6} />
               </button>
               <button
                 onClick={onClose}
                 aria-label="Close card"
-                className="h-11 w-11 flex items-center justify-center rounded-full bg-white border border-black/10 shadow-lg active:scale-95 transition"
+                className={cn(
+                  "h-11 w-11 flex items-center justify-center rounded-full border shadow-lg active:scale-95 transition",
+                  theme.isDark ? "bg-zinc-800 border-white/10" : "bg-white border-black/10"
+                )}
               >
-                <X className="h-5 w-5 text-black" strokeWidth={2.8} />
+                <X className={cn("h-5 w-5", theme.isDark ? "text-white" : "text-black")} strokeWidth={2.8} />
               </button>
             </div>
 
@@ -148,8 +172,8 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
                   <div className="flex-1 min-w-0 pt-2 space-y-5">
                     <div className="flex flex-col gap-3">
                        <div className="flex items-center gap-2">
-                          <ShieldCheck size={22} style={{ color: theme.accentColor }} />
-                          <span className="text-[12px] font-black uppercase tracking-[0.4em] italic" style={{ color: theme.accentColor }}>Authorized Resident</span>
+                           <ShieldCheck size={22} style={{ color: theme.accentColor }} />
+                           <span className="text-[12px] font-black uppercase tracking-[0.4em] italic" style={{ color: theme.accentColor }}>{isOwner ? 'Verified Asset' : 'Authorized Resident'}</span>
                        </div>
                        <h3 className="text-4xl font-black leading-none tracking-tighter italic uppercase" style={{ color: theme.textPrimary }}>{name}</h3>
                     </div>
@@ -166,20 +190,12 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
                 {bio && <div className="rounded-[1.5rem] p-6 mb-8 border" style={{ background: `${theme.tagBg}44`, border: `1px solid ${theme.tagBorder}` }}><p className="text-[14px] leading-relaxed italic font-medium" style={{ color: theme.textSecondary }}>{bio}</p></div>}
 
                 <div className="space-y-6 flex-1 flex flex-col">
-                  {(spokenLanguages.length > 0 || phone) && (
+                  {spokenLanguages.length > 0 && (
                     <div className="flex flex-col gap-2">
-                      {spokenLanguages.length > 0 && (
-                        <div className="flex items-center gap-2 text-[13px] font-bold uppercase tracking-widest" style={{ color: theme.textSecondary }}>
-                          <Languages size={16} />
-                          <span className="truncate">{spokenLanguages.join(' · ')}</span>
-                        </div>
-                      )}
-                      {phone && (
-                        <div className="flex items-center gap-2 text-[13px] font-bold uppercase tracking-widest" style={{ color: theme.textSecondary }}>
-                          <Phone size={16} />
-                          <span>{phone}</span>
-                        </div>
-                      )}
+                      <div className="flex items-center gap-2 text-[13px] font-bold uppercase tracking-widest" style={{ color: theme.textSecondary }}>
+                        <Languages size={16} />
+                        <span className="truncate">{spokenLanguages.join(' · ')}</span>
+                      </div>
                     </div>
                   )}
 
@@ -205,7 +221,7 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
         </motion.div>
       )}
     </AnimatePresence>
-    <VapIdEditModal isOpen={editOpen} onClose={() => setEditOpen(false)} />
+    <VapIdEditModal isOpen={editOpen} onClose={() => setEditOpen(false)} role={role} />
     </>,
     document.body
   );

@@ -170,45 +170,146 @@ export function useSaveClientProfile() {
         profileData = data as ClientProfileLite;
       }
 
-      // --- UNIFIED IDENTITY SPREAD ---
-      // Spread the name and profile_images to owner_profiles so that
-      // the identity is consistent across all roles (Seeker, Provider, Roommate)
-      const ownerUpdates: any = {};
-      if (cleanUpdates.name !== undefined) {
-        ownerUpdates.business_name = cleanUpdates.name;
-      }
-      if (cleanUpdates.profile_images !== undefined) {
-        ownerUpdates.profile_images = cleanUpdates.profile_images;
-      }
+      // SYNC to profiles table - so owner sees updated data on swipe cards!
+      const syncPayload: any = {
+        updated_at: new Date().toISOString(), // Always mark as updated for sync tracking
+      };
 
-      if (Object.keys(ownerUpdates).length > 0) {
-        const { data: existingOwner } = await supabase
-          .from('owner_profiles')
-          .select('id')
-          .eq('user_id', uid)
-          .maybeSingle();
-
-        if (existingOwner?.id) {
-          await supabase
-            .from('owner_profiles')
-            .update(ownerUpdates)
-            .eq('user_id', uid);
+      // Sync images
+      if (updates.profile_images !== undefined) {
+        syncPayload.images = updates.profile_images || [];
+        if (updates.profile_images && updates.profile_images.length > 0) {
+          syncPayload.avatar_url = updates.profile_images[0];
         } else {
-          await supabase
-            .from('owner_profiles')
-            .insert([{ ...ownerUpdates, user_id: uid }]);
+          syncPayload.avatar_url = null;
         }
       }
 
-      return profileData;
+      // Sync name → full_name
+      if (updates.name !== undefined) {
+        syncPayload.full_name = updates.name;
+      }
+
+      // Sync age
+      if (updates.age !== undefined) {
+        syncPayload.age = updates.age;
+      }
+
+      // Sync interests
+      if (updates.interests !== undefined) {
+        syncPayload.interests = updates.interests;
+      }
+
+      // Sync gender
+      if (updates.gender !== undefined) {
+        syncPayload.gender = updates.gender;
+      }
+
+      // Sync location fields
+      if (updates.country !== undefined) {
+        syncPayload.country = updates.country;
+      }
+      if (updates.city !== undefined) {
+        syncPayload.city = updates.city;
+      }
+      if (updates.neighborhood !== undefined) {
+        syncPayload.neighborhood = updates.neighborhood;
+      }
+
+      // Sync lifestyle fields so owner swipe cards show full client data
+      if (updates.smoking_habit !== undefined) {
+        syncPayload.smoking = updates.smoking_habit !== 'Non-Smoker';
+      }
+
+      if (updates.nationality !== undefined) {
+        syncPayload.nationality = updates.nationality;
+      }
+
+      if (updates.languages !== undefined) {
+        syncPayload.languages_spoken = updates.languages;
+      }
+
+      if (updates.work_schedule !== undefined) {
+        syncPayload.work_schedule = updates.work_schedule;
+      }
+
+      // Build lifestyle_tags from interests + preferred_activities + personality traits
+      const lifestyleTags: string[] = [];
+      if (updates.interests) lifestyleTags.push(...updates.interests);
+      if (updates.preferred_activities) lifestyleTags.push(...updates.preferred_activities);
+      if (updates.personality_traits) lifestyleTags.push(...updates.personality_traits);
+      if (lifestyleTags.length > 0) {
+        syncPayload.lifestyle_tags = lifestyleTags;
+      }
+
+      // Only update if we have real fields to sync (not just updated_at)
+      const realSyncKeys = Object.keys(syncPayload).filter(k => k !== 'updated_at');
+      if (realSyncKeys.length > 0) {
+        try {
+          const { data: _syncData, error: syncError } = await supabase
+            .from('profiles')
+            .update(syncPayload)
+            .eq('user_id', uid)
+            .select();
+
+          if (syncError) {
+            logger.error('[PROFILE SYNC] Error:', syncError);
+          } else {
+            // Invalidate profiles_public cache immediately after sync
+            qc.invalidateQueries({ queryKey: ['profiles_public'] });
+          }
+        } catch (syncErr) {
+          // Non-blocking: don't let sync failure prevent profile save
+          logger.error('[PROFILE SYNC] Exception:', syncErr);
+        }
+      }
+
+      // SYNC to owner_profiles table - so owner sees updated name and avatar!
+      const ownerSyncPayload: any = {};
+      let hasOwnerSync = false;
+      if (updates.name !== undefined) {
+        ownerSyncPayload.business_name = updates.name;
+        hasOwnerSync = true;
+      }
+      if (updates.profile_images !== undefined) {
+        ownerSyncPayload.profile_images = updates.profile_images || [];
+        hasOwnerSync = true;
+      }
+      
+      if (hasOwnerSync) {
+        try {
+          const { data: _ownerSyncData, error: ownerSyncError } = await supabase
+            .from('owner_profiles')
+            .update(ownerSyncPayload)
+            .eq('user_id', uid)
+            .select();
+
+          if (ownerSyncError) {
+            logger.error('[OWNER SYNC] Error:', ownerSyncError);
+          } else {
+            qc.invalidateQueries({ queryKey: ['owner-profile'] });
+            qc.invalidateQueries({ queryKey: ['owner-profile', uid] });
+            qc.invalidateQueries({ queryKey: ['vap-id-owner-profile', uid] });
+          }
+        } catch (ownerSyncErr) {
+          logger.error('[OWNER SYNC] Exception:', ownerSyncErr);
+        }
+      }
+
+      return { profileData, uid };
     },
-    onSuccess: () => {
+    onSuccess: (_data) => {
+      // _data is { profileData, uid }
+      const uid = _data.uid;
+      qc.invalidateQueries({ queryKey: ['client-profile-own', uid] });
       qc.invalidateQueries({ queryKey: ['client-profile-own'] });
       // Also invalidate owner's view of client profiles
       qc.invalidateQueries({ queryKey: ['client-profiles'] });
       qc.invalidateQueries({ queryKey: ['client-profile'] });
       qc.invalidateQueries({ queryKey: ['owner-profile-own'] });
       qc.invalidateQueries({ queryKey: ['topbar-user-profile'] });
+      qc.invalidateQueries({ queryKey: ['vap-id-profile', uid] });
+      qc.invalidateQueries({ queryKey: ['vap-id-client-profile', uid] });
     },
   });
 }

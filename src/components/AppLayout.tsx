@@ -186,8 +186,7 @@ export function AppLayout({ children }: AppLayoutProps) {
     return isCamera || isRadio || showAIChat || showAIListing || showAIProfile || isSwipeDashboard || isRoommates || isMessages || isEvents;
   }, [location.pathname, showAIChat, showAIListing, showAIProfile, isSwipeDashboard]);
 
-  const isMessages = location.pathname.startsWith('/messages');
-  const showAppChrome = !isAuthRoute && !isRadioRoute && !isCameraRoute && !showAIChat && !showAIListing && !showAIProfile && !isEventsRoute && (!isPublicPreview || !!user) && !isMessages;
+  const showAppChrome = !isAuthRoute && !isRadioRoute && !isCameraRoute && !showAIChat && !showAIListing && !showAIProfile && !isEventsRoute && (!isPublicPreview || !!user);
 
   const handleFilterClick = () => {
     if (isRoommatesRoute) {
@@ -243,7 +242,7 @@ export function AppLayout({ children }: AppLayoutProps) {
           "w-full flex-1 relative z-0 flex flex-col min-h-0",
           // Restore pt/pb for non-dashboard pages to prevent content overlap with floating header
           !isInsideDashboard && !isFullScreen && "pt-[var(--top-bar-height)] pb-[var(--bottom-nav-height)]",
-          (swipeDeckActive || isFullScreen) ? "overflow-hidden" : "overflow-y-auto scroll-area-momentum"
+          (swipeDeckActive || isFullScreen || isInsideDashboard) ? "overflow-hidden" : "overflow-y-auto scroll-area-momentum"
         )}
       >
         <div className={cn(

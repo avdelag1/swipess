@@ -249,7 +249,10 @@ export const GlobalDialogs = memo(({ userRole }: GlobalDialogsProps) => {
             />
           </DeferredDialog>
 
-          <DeferredDialog when={store.showOwnerSwipe}>
+            <SwipeInsightsModal
+              open={modalState.showSwipeInsights}
+              onOpenChange={(v) => setModal('showSwipeInsights', v)}
+            />
             <OwnerClientSwipeDialog
               open={store.showOwnerSwipe}
               onOpenChange={(val: boolean) => store.setModal('showOwnerSwipe', val)}
