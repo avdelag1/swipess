@@ -297,6 +297,8 @@ export const categoryToDatabase: Record<string, string> = {
   'services': 'worker',  // UI shows "Services", DB uses "worker"
   'pros': 'worker',      // Unified name "Pros" maps to "worker"
   'worker': 'worker',
+  'buyers': 'property',  // Buyers browse property listings
+  'renters': 'property', // Renters browse property listings
   'leads': 'hire',       // Unified name "Leads" maps to "hire"
   'events': 'events'
 };

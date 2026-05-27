@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  ChevronLeft, ChevronRight, RotateCcw, Home, Bike, Briefcase, Search, Loader2
+  ChevronLeft, ChevronRight, RotateCcw, Home, Bike, Briefcase, Search, Loader2, Key, Tag, Users
 } from 'lucide-react';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { PropertyClientFilters } from '@/components/filters/PropertyClientFilters';
@@ -75,6 +75,9 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
     { id: 'motorcycle', label: 'Motos', desc: 'High Velocity', icon: MotorcycleIcon },
     { id: 'bicycle', label: 'Bikes', desc: 'Urban Agility', icon: Bike },
     { id: 'services', label: 'Workers', desc: 'Elite Skillset', icon: Briefcase },
+    { id: 'buyers', label: 'Buyers', desc: 'Purchase Ready', icon: Tag },
+    { id: 'renters', label: 'Renters', desc: 'Looking to Move', icon: Key },
+    { id: 'leads', label: 'Leads', desc: 'Seeking Workers', icon: Users },
   ];
 
   return (
@@ -187,7 +190,9 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
                 {activeCategory === 'motorcycle' && <MotoClientFilters onApply={(f) => setLocalFilters(f)} initialFilters={localFilters} activeCount={0} />}
                 {activeCategory === 'bicycle' && <BicycleClientFilters onApply={(f) => setLocalFilters(f)} initialFilters={localFilters} activeCount={0} />}
                 {activeCategory === 'services' && <WorkerClientFilters onApply={(f) => setLocalFilters(f)} initialFilters={localFilters} activeCount={0} />}
-                {['buyers', 'renters', 'leads'].includes(activeCategory || '') && <DiscoveryFilters />}
+                {activeCategory === 'buyers' && <DiscoveryFilters category="property" onApply={(f) => setLocalFilters(f)} initialFilters={{ ...localFilters, interest_type: 'buy' }} activeCount={0} />}
+                {activeCategory === 'renters' && <DiscoveryFilters category="property" onApply={(f) => setLocalFilters(f)} initialFilters={{ ...localFilters, interest_type: 'rent' }} activeCount={0} />}
+                {activeCategory === 'leads' && <DiscoveryFilters category="service" onApply={(f) => setLocalFilters(f)} initialFilters={localFilters} activeCount={0} />}
               </div>
 
               <div className="flex flex-col gap-4 pt-6">
