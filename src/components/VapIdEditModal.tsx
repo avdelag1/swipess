@@ -213,7 +213,8 @@ export function VapIdEditModal({ isOpen, onClose, onSaved, role = 'client' }: Pr
       try {
         const prepared = await compressImage(file, PROFILE_COMPRESSION);
         const fileExt = prepared.type === 'image/webp' ? 'webp' : prepared.type === 'image/png' ? 'png' : 'jpg';
-        const filePath = `${user.id}/${crypto.randomUUID()}.${fileExt}`;
+        const uuid = typeof crypto.randomUUID === 'function' ? crypto.randomUUID() : Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+        const filePath = `${user.id}/${uuid}.${fileExt}`;
         const { error: uploadErr } = await supabase.storage.from('profile-images').upload(filePath, prepared, { contentType: prepared.type || 'image/jpeg' });
         if (uploadErr) throw uploadErr;
         const url = supabase.storage.from('profile-images').getPublicUrl(filePath).data.publicUrl;

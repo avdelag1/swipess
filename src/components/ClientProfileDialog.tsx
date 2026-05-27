@@ -178,7 +178,8 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
     if (!user.data.user) throw new Error('Not authenticated');
     const prepared = await compressImage(file, PROFILE_COMPRESSION);
     const fileExt = prepared.type === 'image/webp' ? 'webp' : prepared.type === 'image/png' ? 'png' : 'jpg';
-    const filePath = `${user.data.user.id}/${crypto.randomUUID()}.${fileExt}`;
+    const uuid = typeof crypto.randomUUID === 'function' ? crypto.randomUUID() : Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    const filePath = `${user.data.user.id}/${uuid}.${fileExt}`;
     const { error } = await supabase.storage.from('profile-images').upload(filePath, prepared, { contentType: prepared.type || 'image/jpeg' });
     if (error) throw error;
     return supabase.storage.from('profile-images').getPublicUrl(filePath).data.publicUrl;
