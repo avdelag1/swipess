@@ -384,16 +384,14 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       logger.warn('[RadioPlayer] Stream stalled');
       // Treat extended stalls the same as transient drops — try silent
       // reconnect rather than just showing "Buffering..." indefinitely.
-      if (isPlayingFlagRef.current && tryReconnectRef.current()) return;
       setError('Buffering...');
     };
 
     const handleWaiting = () => {
       if (changingStationRef.current) return;
-      // 'waiting' fires when playback halts because the next frame isn't
-      // available. On live streams this is the most reliable "connection
-      // dropped" signal — give the supervisor a chance to recover quietly.
-      if (isPlayingFlagRef.current && tryReconnectRef.current()) return;
+      // On live streams 'waiting' fires frequently for buffering.
+      // We DO NOT force a reconnect here, otherwise it skips/stutters.
+      // The browser will automatically resume when it has enough data.
     };
 
     const handlePlaying = () => {
