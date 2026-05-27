@@ -11,7 +11,7 @@ const UnifiedLikes = () => {
   const isLight = theme === "light";
 
   return (
-    <div className="w-full h-full flex flex-col relative bg-background">
+    <div className="w-full min-h-screen flex flex-col relative bg-background pb-24">
       {/* Tab Switcher - Liquid Glass HUD style */}
       <div className="px-4 sm:px-8 max-w-7xl mx-auto w-full mt-4 sm:mt-8 mb-2 z-10 relative">
         <div className={cn("flex p-1.5 rounded-[2rem] border shadow-sm backdrop-blur-xl", isLight ? "bg-white/80 border-black/5" : "bg-black/80 border-white/10")}>
@@ -41,7 +41,7 @@ const UnifiedLikes = () => {
       </div>
 
       {/* Content */}
-      <div className="flex-1 w-full overflow-hidden relative">
+      <div className="w-full relative">
         <AnimatePresence mode="wait">
           {activeTab === "listings" ? (
             <motion.div
@@ -50,7 +50,7 @@ const UnifiedLikes = () => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.2 }}
-              className="absolute inset-0 overflow-y-auto no-scrollbar"
+              className="w-full"
             >
               <ClientLikedProperties />
             </motion.div>
@@ -61,7 +61,7 @@ const UnifiedLikes = () => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.2 }}
-              className="absolute inset-0 overflow-y-auto no-scrollbar"
+              className="w-full"
             >
               <LikedClients />
             </motion.div>

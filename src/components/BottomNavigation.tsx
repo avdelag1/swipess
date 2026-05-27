@@ -136,7 +136,7 @@ export const BottomNavigation = memo(({
   }, []);
 
 
-  // Unified nav items (8 items)
+  // Unified nav items (10 items — enough to enable horizontal scroll discovery)
   const unifiedNavItems: NavItem[] = [
     { id: 'dashboard', icon: Zap, label: t('nav.dashboard'), path: '/client/dashboard' },
     { id: 'ai', icon: Sparkles, label: t('nav.aiBot'), onClick: openAIChat, isSpecial: true },
@@ -146,6 +146,8 @@ export const BottomNavigation = memo(({
     { id: 'search', icon: SlidersHorizontal, label: t('nav.filter'), onClick: onFilterClick },
     { id: 'listings', icon: Building2, label: t('nav.listings'), path: '/owner/properties' },
     { id: 'events', icon: PartyPopper, label: t('nav.events'), path: '/explore/events' },
+    { id: 'radio', icon: Radio, label: t('nav.radio', 'Radio'), path: '/radio' },
+    { id: 'legal', icon: Scale, label: t('nav.legal'), path: '/client/legal-services' },
   ];
 
   const navItems = unifiedNavItems;

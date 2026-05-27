@@ -252,7 +252,7 @@ const ClientProfile = () => {
         </div>
 
         {/* HOLOGRAPHIC IDENTITY VAULT */}
-        <div className="relative cursor-pointer" onClick={() => { triggerHaptic('light'); setIsVapModalOpen(true); }}>
+        <div className="relative cursor-pointer" onClick={() => { triggerHaptic('light'); setShowVapCard(true); }}>
           <HolographicIDCard profile={profile} />
           
           {/* External hint for edit */}
