@@ -75,11 +75,13 @@ export function VapIdCardModal({ isOpen, onClose, role = 'client' }: VapIdProps)
   const name = isOwner
     ? ext?.business_name || user?.email?.split('@')[0] || 'Asset'
     : ext?.name || user?.email?.split('@')[0] || 'Resident';
-  const city = isOwner ? ext?.business_location || '' : ext?.city || '';
+  const city = isOwner ? ext?.business_location || '' : ext?.vap_city || ext?.city || '';
   const country = isOwner ? '' : ext?.country || '';
-  const bio = isOwner ? ext?.business_description || '' : ext?.bio || '';
-  const occupation = isOwner ? ext?.business_name || '' : ext?.occupation || '';
-  const avatarUrl = (Array.isArray(ext?.profile_images) && ext.profile_images.length > 0) ? ext.profile_images[0] : '';
+  const bio = isOwner ? ext?.business_description || '' : ext?.vap_bio || ext?.bio || '';
+  const occupation = isOwner ? ext?.business_name || '' : ext?.vap_occupation || ext?.occupation || '';
+  const avatarUrl = isOwner 
+    ? (Array.isArray(ext?.profile_images) && ext.profile_images.length > 0 ? ext.profile_images[0] : '') 
+    : ext?.vap_avatar || (Array.isArray(ext?.profile_images) && ext.profile_images.length > 0 ? ext.profile_images[0] : '');
   const phone = isOwner ? ext?.contact_phone || '' : ext?.phone || '';
 
   const spokenLanguages = useMemo(() => {
