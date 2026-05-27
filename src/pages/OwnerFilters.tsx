@@ -10,9 +10,9 @@ import { useFilterStore } from '@/state/filterStore';
 import { cn } from '@/lib/utils';
 import { haptics } from '@/utils/microPolish';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
+import type { ClientType } from '@/types/filters';
 
 type CategoryType = 'property' | 'motorcycle' | 'bicycle' | 'services';
-import type { ClientType } from '@/types/filters';
 
 interface OwnerFiltersProps {
   isEmbedded?: boolean;

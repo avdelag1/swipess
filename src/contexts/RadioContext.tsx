@@ -779,14 +779,18 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       }
       logger.error('[RadioPlayer] Playback error:', err);
       failedStationsRef.current.add(targetStation.id);
-      setError('Failed to play station');
+      setError('Failed to play station, switching...');
 
       if (loadTimeoutRef.current) {
         clearTimeout(loadTimeoutRef.current);
         loadTimeoutRef.current = null;
       }
-      // Station change is handled by the audio error handler
-      // (fires at 400ms) — don't double-schedule here
+      // Fallback: if the audio error handler didn't fire (e.g. AbortError from src change),
+      // retry with a longer delay so it doesn't race with the 400ms error handler
+      setTimeout(() => {
+        setError(null);
+        changeStationRef.current('next');
+      }, 2000);
     }
   }, [state.currentStation]);
 
