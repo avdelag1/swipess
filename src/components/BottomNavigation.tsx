@@ -36,8 +36,6 @@ import { useFilterStore } from '@/state/filterStore';
 import { useModalStore } from '@/state/modalStore';
 import { useGuidedTourActive } from '@/state/guidedTourStore';
 
-import { useChromeReveal } from '@/hooks/useChromeReveal';
-
 const ICON_SIZE = 20;
 
 const ICON_SIZE_TABLET = 22;
@@ -97,9 +95,8 @@ export const BottomNavigation = memo(({
   // Only the dashboard page forces dark — other pages respect the user's theme
   const isLight = isDashboardRoute ? false : themeIsLight;
 
-  // Immersive Logic: BottomNav is persistent on the Dashboard, reveals on chrome
-  const { isChromeVisible } = useChromeReveal();
-  const isActuallyVisible = isDashboardRoute ? isChromeVisible : true;
+  // Always visible on every page — no chrome-reveal hiding
+  const isActuallyVisible = true;
   // Theme rule:
   //  - Dark theme (black filter): nav icons always WHITE everywhere.
   //  - Light theme (white filter): WHITE on dashboard (over photos),

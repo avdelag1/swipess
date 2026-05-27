@@ -13,7 +13,6 @@ import { NotificationPopover } from './NotificationPopover';
 import { ThemeToggle } from './ThemeToggle';
 import { useModalStore } from '@/state/modalStore';
 import { TAP_SPRING } from './BottomNavigation';
-import { useChromeReveal } from '@/hooks/useChromeReveal';
 
 interface TopBarProps {
   onNotificationsClick?: () => void;
@@ -46,7 +45,6 @@ function TopBarComponent({
   const { navigate } = useAppNavigate();
   const { user } = useAuth();
   const { isLight: themeIsLight } = useAppTheme();
-  const { isChromeVisible } = useChromeReveal();
   const setModal = useModalStore(s => s.setModal);
   const location = useLocation();
   const isDashboard = /^\/(client|owner|admin)\/dashboard\/?/.test(location.pathname);
@@ -54,8 +52,8 @@ function TopBarComponent({
   // Only the dashboard page forces dark — other pages respect the user's theme
   const isLight = isDashboard ? false : themeIsLight;
 
-  // Immersive Logic: TopBar hides on dashboard chrome, shows everywhere else
-  const isActuallyVisible = isDashboard ? isChromeVisible : true;
+  // Always visible on every page — no chrome-reveal hiding
+  const isActuallyVisible = true;
   // Color rule: always WHITE on dashboard (forced dark), otherwise
   // follow theme.
   const iconColor = !isLight || isDashboard ? '#FFFFFF' : '#0A0A0A';
