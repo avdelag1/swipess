@@ -48,7 +48,7 @@ const FAQOwnerPage = lazyWithRetry(() => import("./pages/FAQOwnerPage"));
 // away and back to the dashboard is a CSS toggle, not a remount.
 const ClientProfile = lazyWithRetry(() => import("./pages/ClientProfile"));
 const ClientSettings = lazyWithRetry(() => import("./pages/ClientSettings"));
-const ClientLikedProperties = lazyWithRetry(() => import("./pages/ClientLikedProperties"));
+const UnifiedLikes = lazyWithRetry(() => import("./pages/UnifiedLikes"));
 const ClientWhoLikedYou = lazyWithRetry(() => import("./pages/ClientWhoLikedYou"));
 const ClientSavedSearches = lazyWithRetry(() => import("./pages/ClientSavedSearches"));
 const ClientSecurity = lazyWithRetry(() => import("./pages/ClientSecurity"));
@@ -158,7 +158,7 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
               <Route path="/client/dashboard" element={<DashboardOutletPlaceholder />} />
               <Route path="/client/profile" element={<ClientProfile />} />
               <Route path="/client/settings" element={<ClientSettings />} />
-              <Route path="/client/liked-properties" element={<ClientLikedProperties />} />
+              <Route path="/client/liked-properties" element={<UnifiedLikes />} />
               <Route path="/client/who-liked-you" element={<ClientWhoLikedYou />} />
               <Route path="/client/saved-searches" element={<ClientSavedSearches />} />
               <Route path="/client/security" element={<ClientSecurity />} />
@@ -176,7 +176,7 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
 
               {/* Owner routes */}
               <Route path="/owner/dashboard" element={<Navigate to="/client/dashboard" replace />} />
-              <Route path="/owner/profile" element={<OwnerProfile />} />
+              <Route path="/owner/profile" element={<Navigate to="/client/profile" replace />} />
               <Route path="/owner/settings" element={<OwnerSettings />} />
               <Route path="/owner/properties" element={<OwnerProperties />} />
               <Route path="/owner/listings" element={<OwnerProperties />} />

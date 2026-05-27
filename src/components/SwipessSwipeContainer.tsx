@@ -920,7 +920,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
         </div>
         {typeof document !== 'undefined' && document.body && createPortal(
           <Suspense fallback={null}>
-            {userRole === 'owner' ? (
+            {dataType === 'people' ? (
               <OwnerClientFilterDialog open={filterDialogOpen} onOpenChange={setFilterDialogOpen} />
             ) : (
               <ClientPreferencesDialog open={filterDialogOpen} onOpenChange={setFilterDialogOpen} />
@@ -1159,7 +1159,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
             category={selectedListing?.category}
           />
 
-          {userRole === 'owner' ? (
+          {dataType === 'people' ? (
             <OwnerClientFilterDialog open={filterDialogOpen} onOpenChange={setFilterDialogOpen} />
           ) : (
             <ClientPreferencesDialog open={filterDialogOpen} onOpenChange={setFilterDialogOpen} />

@@ -50,10 +50,10 @@ export function ChipMultiSelect({ label, options, value, onChange, single, accen
               animate={{ scale: active ? 1.04 : 1 }}
               transition={springTap}
               className={cn(
-                'px-3.5 py-2 rounded-full text-sm font-semibold transition-colors duration-150 border inline-flex items-center gap-1.5',
+                'px-4 py-2 rounded-2xl text-[13px] font-bold tracking-wide transition-all duration-200 border inline-flex items-center gap-1.5 shadow-sm',
                 active
                   ? cn(a.bg, a.text, a.border, a.shadow, 'shadow-lg ring-1', `ring-${accent}-500/40`)
-                  : 'bg-secondary text-foreground border-border hover:bg-secondary/80',
+                  : 'bg-white/60 dark:bg-white/[0.03] text-slate-800 dark:text-white/80 border-slate-200 dark:border-white/10 hover:bg-white dark:hover:bg-white/[0.08] hover:border-slate-300 dark:hover:border-white/20',
               )}
             >
               {active && <Check className="w-3.5 h-3.5 -ml-0.5" strokeWidth={3} />}

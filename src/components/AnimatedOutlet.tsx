@@ -54,15 +54,21 @@ export function AnimatedOutlet() {
   // and the outer scroll container never saw any overflow.
   // `min-height: 100%` guarantees short pages still fill the screen.
   return (
-    <div
-      key={location.pathname}
-      id="page-scroll-container"
-      className="w-full min-h-full block bg-background"
-      style={{ position: 'relative', pointerEvents: 'auto' }}
-    >
-      <Suspense fallback={null}>
-        {outlet}
-      </Suspense>
-    </div>
+    <AnimatePresence mode="wait">
+      <motion.div
+        key={location.pathname}
+        id="page-scroll-container"
+        className="w-full min-h-full block bg-background"
+        style={{ position: 'relative', pointerEvents: 'auto' }}
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -10 }}
+        transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <Suspense fallback={null}>
+          {outlet}
+        </Suspense>
+      </motion.div>
+    </AnimatePresence>
   );
 }

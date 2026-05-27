@@ -113,7 +113,7 @@ export const HolographicIDCard = ({ profile }: { profile: any }) => {
                   className="w-full h-full object-cover"
                 />
               </div>
-              <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-[#0A0F1A] border border-white/10 flex items-center justify-center">
+              <div className={cn("absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full border flex items-center justify-center", isLight ? "bg-white border-black/10" : "bg-[#0A0F1A] border-white/10")}>
                 <Fingerprint className="w-2 h-2 text-primary" />
               </div>
             </div>

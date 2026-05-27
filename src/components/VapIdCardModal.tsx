@@ -69,35 +69,28 @@ export function VapIdCardModal({ isOpen, onClose, role = 'client' }: VapIdProps)
     };
   }, [user?.id, isOpen, queryClient, profileTable, profileQueryKey]);
 
-  const isOwner = role === 'owner';
   const ext = extendedProfile as any;
 
-  const name = isOwner
-    ? ext?.business_name || user?.email?.split('@')[0] || 'Asset'
-    : ext?.name || user?.email?.split('@')[0] || 'Resident';
-  const city = isOwner ? ext?.business_location || '' : ext?.vap_city || ext?.city || '';
-  const country = isOwner ? '' : ext?.country || '';
-  const bio = isOwner ? ext?.business_description || '' : ext?.vap_bio || ext?.bio || '';
-  const occupation = isOwner ? ext?.business_name || '' : ext?.vap_occupation || ext?.occupation || '';
-  const avatarUrl = isOwner 
-    ? (Array.isArray(ext?.profile_images) && ext.profile_images.length > 0 ? ext.profile_images[0] : '') 
-    : ext?.vap_avatar || (Array.isArray(ext?.profile_images) && ext.profile_images.length > 0 ? ext.profile_images[0] : '');
-  const phone = isOwner ? ext?.contact_phone || '' : ext?.phone || '';
+  const name = ext?.name || user?.email?.split('@')[0] || 'Resident';
+  const city = ext?.vap_city || ext?.city || '';
+  const country = ext?.country || '';
+  const bio = ext?.vap_bio || ext?.bio || '';
+  const occupation = ext?.vap_occupation || ext?.occupation || '';
+  const avatarUrl = ext?.vap_avatar || (Array.isArray(ext?.profile_images) && ext.profile_images.length > 0 ? ext.profile_images[0] : '');
+  const phone = ext?.phone || '';
 
   const spokenLanguages = useMemo(() => {
-    if (isOwner) return [];
     const raw = Array.isArray(ext?.languages) && ext.languages.length > 0 ? ext.languages : [];
     return raw.filter((v): v is string => typeof v === 'string');
-  }, [isOwner, ext]);
+  }, [ext]);
 
   const allTags = useMemo(() => {
-    if (isOwner) return [];
     const tags: string[] = [];
     const add = (arr: any) => { if (Array.isArray(arr)) tags.push(...arr.filter(v => typeof v === 'string')); };
     add(ext?.interests);
     add(ext?.personality_traits);
     return [...new Set(tags)].slice(0, 8);
-  }, [isOwner, ext]);
+  }, [ext]);
 
   const validationUrl = "https://swipess.com/vap-validate/" + (user?.id || 'unknown');
   const idNumber = "NX-" + (user?.id || 'resident').slice(0, 8).toUpperCase();

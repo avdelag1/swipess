@@ -22,8 +22,8 @@ export const SwipessPrewarmer = () => {
 
     runIdleTask(async () => {
       const role = user.user_metadata?.role || 'client';
-      const dashboardPath = role === 'owner' ? '/owner/dashboard' : '/client/dashboard';
-      const profilePath = role === 'owner' ? '/owner/profile' : '/client/profile';
+      const dashboardPath = '/client/dashboard';
+      const profilePath = '/client/profile';
       
       logger.info(`[SwipessPrewarmer] Warming cache for ${role} role...`);
 
@@ -33,7 +33,7 @@ export const SwipessPrewarmer = () => {
       prefetchRoute(profilePath);
       prefetchRoute('/messages');
       // Hot follow-up routes users hit right after dashboard
-      prefetchRoute(role === 'owner' ? '/owner/filters' : '/client/filters');
+      prefetchRoute('/client/filters');
       prefetchRoute('/explore');
       prefetchRoute('/notifications');
 

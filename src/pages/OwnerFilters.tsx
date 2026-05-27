@@ -24,7 +24,17 @@ export default function OwnerFilters({ isEmbedded, onClose }: OwnerFiltersProps)
   const _isDark = theme === 'dark';
   
   const storeActiveCategory = useFilterStore(s => s.activeCategory);
-  const [activeCategory, setActiveCategory] = useState<CategoryType>((storeActiveCategory as CategoryType) || 'property');
+  
+  const getInitialCategory = () => {
+    if (storeActiveCategory === 'leads') return 'services';
+    if (storeActiveCategory === 'buyers' || storeActiveCategory === 'renters') return 'property';
+    if (['property', 'motorcycle', 'bicycle', 'services'].includes(storeActiveCategory || '')) {
+      return storeActiveCategory as CategoryType;
+    }
+    return 'property';
+  };
+
+  const [activeCategory, setActiveCategory] = useState<CategoryType>(getInitialCategory());
   const [isScanning, setIsScanning] = useState(false);
 
   const _isFirstMount = useRef(true);

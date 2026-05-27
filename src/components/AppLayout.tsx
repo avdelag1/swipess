@@ -24,6 +24,7 @@ import { ChromeSummonZones } from './swipe/ChromeSummonZones';
 import { revealChrome, useChromeReveal } from '@/hooks/useChromeReveal';
 import { useFilterStore } from '@/state/filterStore';
 import { useShallow } from 'zustand/react/shallow';
+import { UNIFIED_CARDS } from '@/components/swipe/SwipeConstants';
 
 
 const NotificationSystem = lazy(() =>
@@ -192,8 +193,14 @@ export function AppLayout({ children }: AppLayoutProps) {
     if (isRoommatesRoute) {
       useModalStore.getState().setModal('showFilters', true);
     } else {
-      const role = userRole === 'admin' ? 'admin' : activeMode;
-      navigate(`/${role}/filters`);
+      const activeCategory = useFilterStore.getState().activeCategory;
+      const dataType = UNIFIED_CARDS.find(c => c.id === activeCategory)?.dataType;
+      
+      if (dataType === 'people') {
+        navigate('/owner/filters');
+      } else {
+        navigate('/client/filters');
+      }
     }
   };
 

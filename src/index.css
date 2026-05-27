@@ -347,6 +347,28 @@ html[data-theme-transition] ::view-transition-new(root) {
     transparent 60%);
 }
 
+/* Light theme: frosted white glass with subtle borders */
+.light .glass-surface,
+.light .glass-pill,
+.white-matte .glass-surface,
+.white-matte .glass-pill {
+  background: rgba(255, 255, 255, 0.82);
+  border-color: rgba(0, 0, 0, 0.10);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.10),
+    inset 0 1px 0 rgba(255, 255, 255, 0.60);
+}
+
+.light .glass-surface::before,
+.light .glass-pill::before,
+.white-matte .glass-surface::before,
+.white-matte .glass-pill::before {
+  background: linear-gradient(180deg,
+    rgba(255, 255, 255, 0.50) 0%,
+    rgba(255, 255, 255, 0.15) 38%,
+    transparent 60%);
+}
+
 /* Hide ALL scrollbars */
 * {
   scrollbar-width: none !important;

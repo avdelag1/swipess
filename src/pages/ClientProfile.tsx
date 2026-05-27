@@ -7,7 +7,8 @@ import { useClientProfile } from "@/hooks/useClientProfile";
 import { useAuth } from "@/hooks/useAuth";
 import {
   LogOut, User, Camera, Sparkles, Crown,
-  ThumbsUp, Settings, MessageSquare, Megaphone, ChevronRight, Scale, Zap
+  ThumbsUp, Settings, MessageSquare, Megaphone, ChevronRight, Scale, Zap,
+  Radio, IdCard, Coins, Users
 } from "lucide-react";
 import { useClientStats } from "@/hooks/useClientStats";
 import { ActivityFeed } from "@/components/ActivityFeed";
@@ -166,36 +167,88 @@ const ClientProfile = () => {
           ))}
         </div>
 
-        {/* PRIMARY ACTIONS */}
+        {/* FEATURE HUB */}
         <div className="space-y-3">
-          <Button
+          {/* AI Profile — full-width hero button */}
+          <motion.button
+            whileTap={{ scale: 0.97 }}
             onClick={() => { triggerHaptic('medium'); useModalStore.getState().openAIProfile('client'); }}
-            className="w-full h-12 rounded-2xl gap-3 text-white font-black uppercase italic tracking-[0.2em] text-[15px] shadow-2xl border-none"
+            className="w-full h-16 rounded-3xl flex items-center justify-center gap-3 text-white font-black uppercase italic tracking-[0.2em] text-[15px] shadow-2xl border-none relative overflow-hidden"
             style={{ background: 'linear-gradient(135deg, #06B6D4, #6366F1)' }}
           >
-            <Sparkles className="w-5 h-5" />
-            Magic AI Profile
-          </Button>
-          <Button
-            onClick={() => { triggerHaptic('medium'); setShowEditDialog(true); }}
-            className="w-full h-12 rounded-2xl font-black uppercase italic tracking-[0.2em] text-[15px] transition-all border-none text-white shadow-2xl"
-            style={{
-              background: 'linear-gradient(135deg, #FF4D00, #EB4898)',
-            }}
-          >
-            <User className="w-6 h-6 mr-3 text-white" />
-            <span className="text-white">{t('profile.editProfile')}</span>
-          </Button>
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(255,255,255,0.15),transparent_60%)] pointer-events-none" />
+            <Sparkles className="w-5 h-5 relative z-10" />
+            <span className="relative z-10">Magic AI Profile</span>
+          </motion.button>
 
-          <Button
-            onClick={() => { triggerHaptic('medium'); navigate('/client/advertise'); }}
-            className={cn("w-full h-12 rounded-2xl border transition-all active:scale-95 shadow-sm bg-white/5", isLight ? "border-black/10 bg-white hover:bg-black/[0.02]" : "border-white/10 hover:border-white/20")}
-          >
-            <Megaphone className="w-6 h-6 text-[#FF4D00] mr-3" />
-            <span className="bg-gradient-to-r from-[#FF4D00] to-[#EB4898] bg-clip-text text-transparent font-black uppercase italic tracking-[0.2em] text-[14px]">
-              {t('nav.promote')}
-            </span>
-          </Button>
+          {/* Full-width premium button stack */}
+          <div className="flex flex-col gap-3">
+            {/* Edit Profile */}
+            <motion.button
+              whileTap={{ scale: 0.97 }}
+              onClick={() => { triggerHaptic('medium'); setShowEditDialog(true); }}
+              className={cn("w-full h-14 rounded-full flex items-center justify-center gap-3 border shadow-lg transition-all text-white font-black uppercase italic tracking-[0.2em] text-[15px]", isLight ? "bg-slate-900 border-black/10" : "bg-white/[0.08] border-white/10")}
+              style={{ background: 'linear-gradient(135deg, #FF4D00, #EB4898)' }}
+            >
+              <User className="w-5 h-5 text-white" />
+              <span>{t('profile.editProfile')}</span>
+            </motion.button>
+
+            {/* Promote */}
+            <motion.button
+              whileTap={{ scale: 0.97 }}
+              onClick={() => { triggerHaptic('medium'); navigate('/client/advertise'); }}
+              className={cn("w-full h-14 rounded-full flex items-center justify-center gap-3 border shadow-lg transition-all text-white font-black uppercase italic tracking-[0.2em] text-[15px]", isLight ? "bg-slate-900 border-black/10" : "bg-white/[0.08] border-white/10")}
+              style={{ background: 'linear-gradient(135deg, #FF4D00, #FF8C00)' }}
+            >
+              <Megaphone className="w-5 h-5 text-white" />
+              <span>{t('nav.promote')}</span>
+            </motion.button>
+
+            {/* Roommate Matching */}
+            <motion.button
+              whileTap={{ scale: 0.97 }}
+              onClick={() => { triggerHaptic('medium'); navigate('/explore/roommates'); }}
+              className={cn("w-full h-14 rounded-full flex items-center justify-center gap-3 border shadow-lg transition-all text-white font-black uppercase italic tracking-[0.2em] text-[15px]", isLight ? "bg-slate-900 border-black/10" : "bg-white/[0.08] border-white/10")}
+              style={{ background: 'linear-gradient(135deg, #3B82F6, #8B5CF6)' }}
+            >
+              <Users className="w-5 h-5 text-white" />
+              <span>Roommates</span>
+            </motion.button>
+
+            {/* World Radio */}
+            <motion.button
+              whileTap={{ scale: 0.97 }}
+              onClick={() => { triggerHaptic('medium'); navigate('/radio'); }}
+              className={cn("w-full h-14 rounded-full flex items-center justify-center gap-3 border shadow-lg transition-all text-white font-black uppercase italic tracking-[0.2em] text-[15px]", isLight ? "bg-slate-900 border-black/10" : "bg-white/[0.08] border-white/10")}
+              style={{ background: 'linear-gradient(135deg, #F59E0B, #EF4444)' }}
+            >
+              <Radio className="w-5 h-5 text-white" />
+              <span>Radio</span>
+            </motion.button>
+            
+            {/* Tokens */}
+            <motion.button
+              whileTap={{ scale: 0.97 }}
+              onClick={() => { triggerHaptic('medium'); useModalStore.getState().setModal('showTokensModal', true); }}
+              className={cn("w-full h-14 rounded-full flex items-center justify-center gap-3 border shadow-lg transition-all text-white font-black uppercase italic tracking-[0.2em] text-[15px]", isLight ? "bg-slate-900 border-black/10" : "bg-white/[0.08] border-white/10")}
+              style={{ background: 'linear-gradient(135deg, #10B981, #06B6D4)' }}
+            >
+              <Coins className="w-5 h-5 text-white" />
+              <span>Tokens</span>
+            </motion.button>
+
+            {/* Premium */}
+            <motion.button
+              whileTap={{ scale: 0.97 }}
+              onClick={() => { triggerHaptic('medium'); navigate('/subscription/packages'); }}
+              className={cn("w-full h-14 rounded-full flex items-center justify-center gap-3 border shadow-lg transition-all text-white font-black uppercase italic tracking-[0.2em] text-[15px]", isLight ? "bg-slate-900 border-black/10" : "bg-white/[0.08] border-white/10")}
+              style={{ background: 'linear-gradient(135deg, #F59E0B, #D97706)' }}
+            >
+              <Crown className="w-5 h-5 text-white" />
+              <span>Premium</span>
+            </motion.button>
+          </div>
         </div>
 
         {/* HOLOGRAPHIC IDENTITY VAULT */}
@@ -204,9 +257,9 @@ const ClientProfile = () => {
           
           {/* External hint for edit */}
           <div className="absolute top-4 right-4 z-20">
-            <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 border border-white/10 backdrop-blur-md">
-              <span className="text-[8px] font-black uppercase tracking-widest text-white/40">Sync Protocol</span>
-              <ChevronRight className="w-3 h-3 text-white/20" />
+            <div className={cn("flex items-center gap-1.5 px-3 py-1 rounded-full backdrop-blur-md border", isLight ? "bg-black/5 border-black/10" : "bg-white/5 border-white/10")}>
+              <span className={cn("text-[8px] font-black uppercase tracking-widest", isLight ? "text-black/40" : "text-white/40")}>Sync Protocol</span>
+              <ChevronRight className={cn("w-3 h-3", isLight ? "text-black/20" : "text-white/20")} />
             </div>
           </div>
         </div>
@@ -282,7 +335,6 @@ const ClientProfile = () => {
 
           <div className="grid grid-cols-1 gap-3">
             {[
-              { label: 'Premium Package', icon: Crown, path: '/subscription/packages', premium: true },
               { label: t('nav.legal'), icon: Scale, path: '/client/legal-services' },
               { label: t('nav.settings'), icon: Settings, path: '/client/settings' },
               { label: t('actions.signOut'), icon: LogOut, path: 'signout', urgent: true },
@@ -299,12 +351,10 @@ const ClientProfile = () => {
                   "w-full h-11 rounded-2xl flex items-center px-8 gap-5 active:scale-[0.97] transition-all border shadow-sm backdrop-blur-xl",
                   btn.urgent
                     ? "bg-red-500/10 border-red-500/20 text-red-400"
-                    : btn.premium
-                      ? "bg-gradient-to-r from-amber-500/15 to-orange-500/15 border-amber-500/40 text-foreground"
-                      : "bg-card border-border text-foreground hover:bg-secondary"
+                    : "bg-card border-border text-foreground hover:bg-secondary"
                 )}
               >
-                <btn.icon className={cn("w-5 h-5", btn.urgent ? "text-red-400" : btn.premium ? "text-amber-500" : "text-foreground/80")} />
+                <btn.icon className={cn("w-5 h-5", btn.urgent ? "text-red-400" : "text-foreground/80")} />
                 <span className="text-xs font-black uppercase tracking-[0.2em] italic">{btn.label}</span>
               </motion.button>
             ))}

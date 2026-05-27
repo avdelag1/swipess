@@ -52,7 +52,7 @@ const routeImports: Record<string, RouteImport> = {
   '/client/saved-searches': () => import('@/pages/ClientSavedSearches'),
   '/client/security': () => import('@/pages/ClientSecurity'),
   // Owner routes
-  '/owner/dashboard': () => import('@/pages/EnhancedOwnerDashboard'),
+  '/owner/dashboard': () => import('@/pages/ClientDashboard'),
   '/owner/profile': () => import('@/pages/OwnerProfile'),
   '/owner/settings': () => import('@/pages/OwnerSettings'),
   '/owner/properties': () => import('@/pages/OwnerProperties'),

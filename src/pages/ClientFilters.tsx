@@ -9,6 +9,7 @@ import { PropertyClientFilters } from '@/components/filters/PropertyClientFilter
 import { MotoClientFilters } from '@/components/filters/MotoClientFilters';
 import { BicycleClientFilters } from '@/components/filters/BicycleClientFilters';
 import { WorkerClientFilters } from '@/components/filters/WorkerClientFilters';
+import { DiscoveryFilters } from '@/components/filters/DiscoveryFilters';
 import { useFilterStore } from '@/state/filterStore';
 import { useQueryClient } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
@@ -28,7 +29,17 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
   const queryClient = useQueryClient();
   const { _isLight } = useAppTheme();
   
-  const activeCategory = useFilterStore(s => s.activeCategory);
+  const storeActiveCategory = useFilterStore(s => s.activeCategory);
+  
+  const getMappedCategory = () => {
+    if (storeActiveCategory === 'pros') return 'services';
+    if (['property', 'motorcycle', 'bicycle', 'services', 'buyers', 'renters', 'leads'].includes(storeActiveCategory || '')) {
+      return storeActiveCategory as QuickFilterCategory | 'buyers' | 'renters' | 'leads';
+    }
+    return null;
+  };
+
+  const activeCategory = getMappedCategory();
   const setActiveCategory = useFilterStore(s => s.setActiveCategory);
   const getListingFilters = useFilterStore(s => s.getListingFilters);
   const updateFilters = useFilterStore(s => s.updateFilters);
@@ -165,6 +176,9 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
                 {activeCategory === 'motorcycle' && 'Moto'}
                 {activeCategory === 'bicycle' && 'Bicycle'}
                 {activeCategory === 'services' && 'Worker'}
+                {activeCategory === 'buyers' && 'Buyers'}
+                {activeCategory === 'renters' && 'Renters'}
+                {activeCategory === 'leads' && 'Leads'}
                 <span className="text-primary block text-xl tracking-[0.2em] mt-2">Calibration</span>
               </h2>
 
@@ -173,6 +187,7 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
                 {activeCategory === 'motorcycle' && <MotoClientFilters onApply={(f) => setLocalFilters(f)} initialFilters={localFilters} activeCount={0} />}
                 {activeCategory === 'bicycle' && <BicycleClientFilters onApply={(f) => setLocalFilters(f)} initialFilters={localFilters} activeCount={0} />}
                 {activeCategory === 'services' && <WorkerClientFilters onApply={(f) => setLocalFilters(f)} initialFilters={localFilters} activeCount={0} />}
+                {['buyers', 'renters', 'leads'].includes(activeCategory || '') && <DiscoveryFilters />}
               </div>
 
               <div className="flex flex-col gap-4 pt-6">
