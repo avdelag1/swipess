@@ -4,6 +4,7 @@ import { SharedProfileSection } from "@/components/SharedProfileSection";
 import { useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { useClientProfile } from "@/hooks/useClientProfile";
+import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import {
   LogOut, User, Camera, Sparkles, Crown,
@@ -35,6 +36,7 @@ const ClientProfile = () => {
   const [showVapCard, setShowVapCard] = useState(false);
   const { data: profile, isLoading, refetch: refetchProfile } = useClientProfile();
   const { user, signOut } = useAuth();
+  const queryClient = useQueryClient();
   const navigate = useNavigate();
 
   const { data: stats } = useClientStats();
@@ -335,17 +337,19 @@ const ClientProfile = () => {
 
           <div className="grid grid-cols-1 gap-3">
             {[
+              { label: 'Virtual ID Card', icon: IdCard, action: 'vap-edit' as const },
               { label: t('nav.legal'), icon: Scale, path: '/client/legal-services' },
               { label: t('nav.settings'), icon: Settings, path: '/client/settings' },
               { label: t('actions.signOut'), icon: LogOut, path: 'signout', urgent: true },
-            ].map((btn: { label: string; icon: React.ComponentType<{ className?: string }>; path: string; premium?: boolean; urgent?: boolean }) => (
+            ].map((btn: { label: string; icon: React.ComponentType<{ className?: string }>; path?: string; action?: string; urgent?: boolean }) => (
               <motion.button
                 key={btn.label}
                 whileHover={{ x: 4 }}
                 onClick={() => {
                   triggerHaptic('medium');
+                  if (btn.action === 'vap-edit') { setIsVapModalOpen(true); return; }
                   if (btn.path === 'signout') signOut();
-                  else navigate(btn.path);
+                  else if (btn.path) navigate(btn.path);
                 }}
                 className={cn(
                   "w-full h-11 rounded-2xl flex items-center px-8 gap-5 active:scale-[0.97] transition-all border shadow-sm backdrop-blur-xl",
@@ -366,7 +370,7 @@ const ClientProfile = () => {
 
       <ClientProfileDialog open={showEditDialog} onOpenChange={setShowEditDialog} />
       <PhotoPreview photos={profile?.profile_images || []} isOpen={showPhotoPreview} onClose={() => setShowPhotoPreview(false)} initialIndex={selectedPhotoIndex} />
-      <VapIdEditModal isOpen={isVapModalOpen} onClose={() => setIsVapModalOpen(false)} onSaved={() => { refetchProfile(); }} role="client" />
+      <VapIdEditModal isOpen={isVapModalOpen} onClose={() => setIsVapModalOpen(false)} onSaved={() => { refetchProfile(); queryClient.invalidateQueries({ queryKey: ['vap-id-client-profile', user?.id] }); }} role="client" />
       <VapIdCardModal isOpen={showVapCard} onClose={() => setShowVapCard(false)} role="client" />
     </div>
   );

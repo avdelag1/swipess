@@ -232,7 +232,7 @@ export function VapIdCardModal({ isOpen, onClose, role = 'client' }: VapIdProps)
         </motion.div>
       )}
     </AnimatePresence>
-    <VapIdEditModal isOpen={editOpen} onClose={() => setEditOpen(false)} role={role} />
+    <VapIdEditModal isOpen={editOpen} onClose={() => setEditOpen(false)} onSaved={() => { refetchExtendedProfile(); }} role={role} />
     </>,
     document.body
   );
