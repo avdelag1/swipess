@@ -21,7 +21,8 @@ import {
   Sun,
   Flame,
   Zap,
-  Moon
+  Moon,
+  PartyPopper
 } from 'lucide-react';
 
 export interface PokerCardData {
@@ -31,6 +32,7 @@ export interface PokerCardData {
   accent: string;
   accentRgb: string;
   icon: any;
+  dataType?: 'listing' | 'people' | 'events';
 }
 
 export interface OwnerIntentCard extends PokerCardData {
@@ -110,6 +112,25 @@ export const OWNER_INTENT_CARDS: OwnerIntentCard[] = [
   },
 ];
 
+export const UNIFIED_CARDS: PokerCardData[] = [
+  // Properties
+  { id: 'property', label: 'Properties', description: 'Properties for rent and sale', accent: '#f97316', accentRgb: '249,115,22', icon: Crown, dataType: 'listing' },
+  // Pros
+  { id: 'pros', label: 'Pros', description: 'Find professional services', accent: '#0ea5e9', accentRgb: '14,165,233', icon: Sparkles, dataType: 'listing' },
+  // Motorcycles
+  { id: 'motorcycle', label: 'Motorcycles', description: 'Motorcycles for rent and sale', accent: '#f59e0b', accentRgb: '245,158,11', icon: Flame, dataType: 'listing' },
+  // Bicycles
+  { id: 'bicycle', label: 'Bicycles', description: 'Bicycles for rent and sale', accent: '#8b5cf6', accentRgb: '139,92,246', icon: Zap, dataType: 'listing' },
+  // Events
+  { id: 'events', label: 'Events', description: 'Discover local events', accent: '#ec4899', accentRgb: '236,72,153', icon: PartyPopper, dataType: 'events' },
+  // Buyers
+  { id: 'buyers', label: 'Buyers', description: 'Purchase Ready', accent: '#3b82f6', accentRgb: '59,130,246', icon: ShoppingBag, dataType: 'people' },
+  // Renters
+  { id: 'renters', label: 'Renters', description: 'Looking to Move', accent: '#10b981', accentRgb: '16,185,129', icon: Key, dataType: 'people' },
+  // Leads
+  { id: 'leads', label: 'Leads', description: 'People seeking your service', accent: '#EB4898', accentRgb: '168,85,247', icon: Users, dataType: 'people' },
+];
+
 export const POKER_CARD_PHOTOS: Record<string, string> = {
   property: '/images/filters/property.jpg',
   motorcycle: '/images/filters/scooter.jpg',
@@ -128,6 +149,9 @@ export const POKER_CARD_PHOTOS: Record<string, string> = {
   lawyer: '/images/filters/owner_lawyer_card.jpg',
   'ai-listing': '/images/filters/ai_listing_card.jpg',
   promote: '/images/filters/owner_promote_card.jpg',
+  events: '/images/filters/events_card.jpg',
+  leads: '/images/filters/owner_hire_card.jpg',
+  pros: '/images/filters/workers.jpg',
 };
 
 // Neutral dark fallback only — no colored tint, so images never look
@@ -151,4 +175,7 @@ export const POKER_CARD_GRADIENTS: Record<string, string> = {
   lawyer: NEUTRAL_FALLBACK,
   'ai-listing': NEUTRAL_FALLBACK,
   promote: NEUTRAL_FALLBACK,
+  events: NEUTRAL_FALLBACK,
+  leads: NEUTRAL_FALLBACK,
+  pros: NEUTRAL_FALLBACK,
 };

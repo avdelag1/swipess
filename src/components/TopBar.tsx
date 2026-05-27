@@ -9,7 +9,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useAppTheme } from '@/hooks/useAppTheme';
 import { haptics } from '@/utils/microPolish';
-import { ModeSwitcher } from './ModeSwitcher';
 import { NotificationPopover } from './NotificationPopover';
 import { ThemeToggle } from './ThemeToggle';
 import { useModalStore } from '@/state/modalStore';
@@ -70,7 +69,7 @@ function TopBarComponent({
   // Note: when an activeCategory is set on the dashboard, the SwipeDeckBackButton
   // already provides the persistent back arrow. Don't render a duplicate here.
   const onBack = propOnBack || (showBack
-    ? () => window.history.length > 2 ? navigate(-1) : navigate(`/${isOwner ? 'owner' : 'client'}/dashboard`)
+    ? () => window.history.length > 2 ? navigate(-1) : navigate('/client/dashboard')
     : undefined);
 
   const clusterPillStyle: React.CSSProperties = { overflow: 'visible' };
@@ -169,7 +168,7 @@ function TopBarComponent({
                 whileTap={{ scale: 0.96 }}
                 onClick={() => {
                   haptics.tap();
-                  navigate(isOwner ? '/owner/profile' : '/client/profile');
+                  navigate('/client/profile');
                 }}
                 className="flex shrink-0 items-center gap-1.5 rounded-full pl-0.5 pr-1.5 h-[28px] group"
                 style={glassPillStyle}
@@ -211,10 +210,7 @@ function TopBarComponent({
             )
           )}
 
-          {/* Mode Switcher — Standalone buttons next to profile */}
-          {!minimal && (
-            <ModeSwitcher />
-          )}
+
         </div>
 
         <div className="flex-grow flex-1" />
@@ -228,7 +224,7 @@ function TopBarComponent({
             if (onCenterTap) {
               onCenterTap();
             } else {
-              navigate(isOwner ? '/owner/dashboard' : '/client/dashboard');
+              navigate('/client/dashboard');
             }
           }}
           title="Go to Dashboard"

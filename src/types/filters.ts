@@ -17,7 +17,10 @@ export type QuickFilterCategory =
   | 'all-clients'
   | 'buyers'
   | 'renters'
-  | 'hire';
+  | 'hire'
+  | 'events'
+  | 'leads'
+  | 'pros';
 
 /**
  * Listing types for property rentals
@@ -207,6 +210,33 @@ export const categoryConfig: Record<QuickFilterCategory, CategoryConfig> = {
     gradientClassName: { dark: 'from-violet-600 to-fuchsia-600', light: 'from-violet-500 to-fuchsia-500' },
     textColorClassName: { dark: 'text-violet-400', light: 'text-violet-600' },
     description: 'Service-seeking clients'
+  },
+  events: {
+    label: 'Events',
+    icon: 'party-popper',
+    color: 'bg-pink-500',
+    colorClassName: { dark: 'bg-pink-600', light: 'bg-pink-500' },
+    gradientClassName: { dark: 'from-pink-600 to-rose-600', light: 'from-pink-500 to-rose-500' },
+    textColorClassName: { dark: 'text-pink-400', light: 'text-pink-600' },
+    description: 'Discover local events'
+  },
+  leads: {
+    label: 'Leads',
+    icon: 'users',
+    color: 'bg-purple-500',
+    colorClassName: { dark: 'bg-purple-600', light: 'bg-purple-500' },
+    gradientClassName: { dark: 'from-purple-600 to-fuchsia-600', light: 'from-purple-500 to-fuchsia-500' },
+    textColorClassName: { dark: 'text-purple-400', light: 'text-purple-600' },
+    description: 'People seeking your service'
+  },
+  pros: {
+    label: 'Pros',
+    icon: 'sparkles',
+    color: 'bg-sky-500',
+    colorClassName: { dark: 'bg-sky-600', light: 'bg-sky-500' },
+    gradientClassName: { dark: 'from-sky-600 to-blue-600', light: 'from-sky-500 to-blue-500' },
+    textColorClassName: { dark: 'text-sky-400', light: 'text-sky-600' },
+    description: 'Find professional services'
   }
 };
 
@@ -265,7 +295,10 @@ export const categoryToDatabase: Record<string, string> = {
   'moto': 'motorcycle',  // Legacy support
   'bicycle': 'bicycle',
   'services': 'worker',  // UI shows "Services", DB uses "worker"
-  'worker': 'worker'
+  'pros': 'worker',      // Unified name "Pros" maps to "worker"
+  'worker': 'worker',
+  'leads': 'hire',       // Unified name "Leads" maps to "hire"
+  'events': 'events'
 };
 
 /**

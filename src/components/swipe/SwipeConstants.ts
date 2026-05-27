@@ -13,7 +13,8 @@ import {
   ShoppingBag,
   Key,
   Scale,
-  Megaphone
+  Megaphone,
+  PartyPopper
 } from 'lucide-react';
 
 // Category configuration for dynamic empty states
@@ -24,6 +25,11 @@ export const categoryConfig: Record<string, { icon: React.ComponentType<{ classN
   bicycle: { icon: BeachBicycleIcon, label: 'Bicycle', plural: 'Bicycles', color: 'text-rose-500' },
   services: { icon: WorkersIcon, label: 'Service', plural: 'Services', color: 'text-purple-500' },
   worker: { icon: WorkersIcon, label: 'Worker', plural: 'Workers', color: 'text-purple-500' },
+  pros: { icon: Sparkles, label: 'Pro', plural: 'Pros', color: 'text-sky-500' },
+  events: { icon: PartyPopper, label: 'Event', plural: 'Events', color: 'text-pink-500' },
+  buyers: { icon: ShoppingBag, label: 'Buyer', plural: 'Buyers', color: 'text-blue-500' },
+  renters: { icon: Key, label: 'Renter', plural: 'Renters', color: 'text-indigo-500' },
+  leads: { icon: Users, label: 'Lead', plural: 'Leads', color: 'text-purple-500' },
 };
 
 /**
@@ -74,6 +80,7 @@ export const getActiveCategoryInfo = (filters?: ListingFilters, storeCategory?: 
 export {
   type PokerCardData,
   type OwnerIntentCard,
+  UNIFIED_CARDS,
   POKER_CARDS,
   OWNER_INTENT_CARDS,
   POKER_CARD_PHOTOS,

@@ -18,73 +18,41 @@ import { useActiveMode } from '@/hooks/useActiveMode';
  */
 
 const ClientDashboard = lazy(() => import('@/pages/ClientDashboard'));
-const EnhancedOwnerDashboard = lazy(() => import('@/pages/EnhancedOwnerDashboard'));
 
-function isDashboardRoute(pathname: string): 'client' | 'owner' | null {
-  if (pathname === '/client/dashboard' || pathname.startsWith('/client/dashboard/')) return 'client';
-  if (pathname === '/owner/dashboard' || pathname.startsWith('/owner/dashboard/')) return 'owner';
-  return null;
+function isDashboardRoute(pathname: string): boolean {
+  if (pathname === '/client/dashboard' || pathname.startsWith('/client/dashboard/')) return true;
+  if (pathname === '/owner/dashboard' || pathname.startsWith('/owner/dashboard/')) return true;
+  return false;
 }
 
 export function PersistentDashboardScene() {
   const location = useLocation();
-  const { activeMode } = useActiveMode();
 
-  // Track which dashboards have actually been visited so we don't pay
-  // the chunk + render cost up front for both roles.
-  const clientMountedRef = useRef(false);
-  const ownerMountedRef = useRef(false);
+  const isDashboard = isDashboardRoute(location.pathname);
+  const clientMountedRef = useRef(isDashboard);
+  if (isDashboard) clientMountedRef.current = true;
 
-  const dashboardRole = isDashboardRoute(location.pathname);
-  if (dashboardRole === 'client') clientMountedRef.current = true;
-  if (dashboardRole === 'owner') ownerMountedRef.current = true;
-  // Pre-mount the active mode's dashboard the first time the user lands
-  // anywhere in the protected layout, so the first navigation TO the
-  // dashboard is instant.
-  if (activeMode === 'client') clientMountedRef.current = true;
-  if (activeMode === 'owner') ownerMountedRef.current = true;
-
-  const showClient = dashboardRole === 'client';
-  const showOwner = dashboardRole === 'owner';
-
-  // When hidden, also block pointer-events and aria-hide. We keep React
-  // state alive but make it inert.
   useEffect(() => {
     // no-op; presence of this hook keeps location reactivity alive
   }, [location.pathname]);
 
   return (
     <div
-      aria-hidden={!showClient && !showOwner}
+      aria-hidden={!isDashboard}
       className="absolute inset-0 flex flex-col"
       style={{
-        // Below the outlet (z-10) so non-dashboard pages render on top.
         zIndex: 0,
-        // Hidden when the URL is not a dashboard URL — use display:none
-        // (not just visibility:hidden) so nothing inside can ever bleed
-        // through a dialog or modal that opens above. React tree stays
-        // mounted; CSS toggle keeps swipe state and image cache alive.
-        display: showClient || showOwner ? 'flex' : 'none',
-        pointerEvents: showClient || showOwner ? 'auto' : 'none',
+        display: isDashboard ? 'flex' : 'none',
+        pointerEvents: isDashboard ? 'auto' : 'none',
       }}
     >
       {clientMountedRef.current && (
         <div
           className="absolute inset-0 flex flex-col"
-          style={{ display: showClient ? 'flex' : 'none' }}
+          style={{ display: isDashboard ? 'flex' : 'none' }}
         >
           <Suspense fallback={null}>
             <ClientDashboard />
-          </Suspense>
-        </div>
-      )}
-      {ownerMountedRef.current && (
-        <div
-          className="absolute inset-0 flex flex-col"
-          style={{ display: showOwner ? 'flex' : 'none' }}
-        >
-          <Suspense fallback={null}>
-            <EnhancedOwnerDashboard />
           </Suspense>
         </div>
       )}

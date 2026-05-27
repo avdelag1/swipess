@@ -136,43 +136,19 @@ export const BottomNavigation = memo(({
   }, []);
 
 
-  // Client nav items — Legal lives inside Profile, not in the bar
-  const clientNavItems: NavItem[] = [
+  // Unified nav items (8 items)
+  const unifiedNavItems: NavItem[] = [
     { id: 'dashboard', icon: Zap, label: t('nav.dashboard'), path: '/client/dashboard' },
-    { id: 'profile', icon: CircleUser, label: t('nav.profile'), path: '/client/profile' },
+    { id: 'ai', icon: Sparkles, label: t('nav.aiBot'), onClick: openAIChat, isSpecial: true },
+    { id: 'messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages' },
     { id: 'likes', icon: Flame, label: t('nav.likes'), path: '/client/liked-properties', onClick: onListingsClick },
-    { id: 'events', icon: PartyPopper, label: t('nav.events'), path: '/explore/events' },
-    { id: 'ai', icon: Sparkles, label: t('nav.aiBot'), onClick: openAIChat, isSpecial: true },
-    { id: 'messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages' },
     { id: 'vapid', icon: IdCard, label: t('nav.idCard'), onClick: () => setModal('showVapId', true) },
-    { id: 'roommates', icon: Users2, label: t('nav.roommates'), path: '/explore/roommates' },
-    { id: 'tokens', icon: Ticket, label: t('nav.tokens'), onClick: () => setModal('showTokensModal', true) },
     { id: 'search', icon: SlidersHorizontal, label: t('nav.filter'), onClick: onFilterClick },
-    { id: 'perks', icon: BadgePercent, label: t('nav.perks'), path: '/client/perks' },
-    { id: 'radio', icon: Radio, label: t('nav.radio'), path: '/radio' },
-  ];
-
-  // Owner nav items
-  const ownerNavItems: NavItem[] = [
-    { id: 'dashboard', icon: Zap, label: t('nav.dashboard'), path: '/owner/dashboard' },
-    { id: 'profile', icon: CircleUser, label: t('nav.profile'), path: '/owner/profile' },
-    { id: 'likes', icon: Flame, label: t('nav.likes'), path: '/owner/liked-clients' },
-    { id: 'ai', icon: Sparkles, label: t('nav.aiBot'), onClick: openAIChat, isSpecial: true },
     { id: 'listings', icon: Building2, label: t('nav.listings'), path: '/owner/properties', onClick: onListingsClick },
-    { id: 'messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages' },
-    { id: 'ai-listing', icon: Sparkles, label: t('nav.aiListing'), onClick: () => setModal('showAIListing', true), isSpecial: true },
-    { id: 'legal', icon: Scale, label: t('nav.legal'), path: '/owner/legal-services' },
-    { id: 'promote', icon: Megaphone, label: t('nav.promote'), path: '/client/advertise' },
-    { id: 'filters', icon: SlidersHorizontal, label: t('nav.filter'), onClick: onFilterClick },
+    { id: 'events', icon: PartyPopper, label: t('nav.events'), path: '/explore/events' },
   ];
 
-  // Admin nav items — admin panel + messaging
-  const adminNavItems: NavItem[] = [
-    { id: 'admin-panel', icon: ShieldCheck, label: t('nav.admin'), path: '/admin/eventos' },
-    { id: 'admin-messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages' },
-  ];
-
-  const navItems = userRole === 'admin' ? adminNavItems : userRole === 'client' ? clientNavItems : ownerNavItems;
+  const navItems = unifiedNavItems;
   const scrollRef = useRef<HTMLDivElement>(null);
 
 

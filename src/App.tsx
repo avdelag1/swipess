@@ -116,8 +116,7 @@ const WelcomeBonusModal = lazyWithRetry(() => import("@/components/WelcomeBonusM
 const DashboardOutletPlaceholder = () => null;
 
 const DashboardRedirect = () => {
-  const { activeMode } = useActiveMode();
-  return <Navigate to={activeMode === 'owner' ? "/owner/dashboard" : "/client/dashboard"} replace />;
+  return <Navigate to="/client/dashboard" replace />;
 };
 
 const ShareRedirect = ({ kind }: { kind: 'listing' | 'profile' | 'event' }) => {
@@ -176,7 +175,7 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
               <Route path="/promote-event/packages" element={<PromoteEventPackages />} />
 
               {/* Owner routes */}
-              <Route path="/owner/dashboard" element={<DashboardOutletPlaceholder />} />
+              <Route path="/owner/dashboard" element={<Navigate to="/client/dashboard" replace />} />
               <Route path="/owner/profile" element={<OwnerProfile />} />
               <Route path="/owner/settings" element={<OwnerSettings />} />
               <Route path="/owner/properties" element={<OwnerProperties />} />

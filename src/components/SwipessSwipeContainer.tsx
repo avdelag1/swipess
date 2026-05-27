@@ -10,8 +10,9 @@ import { SwipeLoadingSkeleton } from './swipe/SwipeLoadingSkeleton';
 import type { QuickFilterCategory } from '@/types/filters';
 import { normalizeCategoryName } from '@/types/filters';
 
-const CLIENT_CYCLE: QuickFilterCategory[] = ['property', 'services', 'motorcycle', 'bicycle'];
-const OWNER_CYCLE: QuickFilterCategory[] = ['buyers', 'renters', 'hire'];
+import { SimpleOwnerSwipeCard, SimpleOwnerSwipeCardRef } from './SimpleOwnerSwipeCard';
+
+const UNIFIED_CYCLE: QuickFilterCategory[] = ['property', 'pros', 'motorcycle', 'bicycle', 'events', 'buyers', 'renters', 'leads'];
 import { getActiveCategoryInfo } from './swipe/SwipeConstants';
 import { MatchCelebrateModal } from './swipe/MatchCelebrateModal';
 import { ClientPreferencesDialog } from './ClientPreferencesDialog';
@@ -412,12 +413,18 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
     return () => clearTimeout(settledTimer);
   }, [filterSignature, resetClientDeck]);
 
+  const dataType = useMemo(() => {
+    if (['buyers', 'renters', 'leads', 'hire'].includes(storeActiveCategory || '')) return 'people';
+    if (storeActiveCategory === 'events') return 'events';
+    return 'listing';
+  }, [storeActiveCategory]);
+
   const {
     data: smartListings = [],
     isLoading: smartListingsLoading,
     isFetching: smartListingsFetching,
     error: smartListingsError,
-  } = useSmartListingMatching(user?.id, [], stableFilters, page, 20, isRefreshMode && activeMode === 'client');
+  } = useSmartListingMatching(user?.id, [], stableFilters, page, 20, isRefreshMode && dataType === 'listing');
 
   const {
     data: smartClients = [],
@@ -429,33 +436,33 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
     activeCategory as any, 
     page, 
     20, 
-    isRefreshMode && activeMode === 'owner', 
+    isRefreshMode && dataType === 'people', 
     stableFilters as unknown as ClientFilters,
     false,
-    activeMode !== 'owner'
+    dataType !== 'people'
   );
 
   const selectedCategoryDb = useMemo(() => (storeActiveCategory ? normalizeCategoryName(storeActiveCategory) : undefined), [storeActiveCategory]);
 
   const smartData = useMemo(() => {
-    const rawData = activeMode === 'owner' ? smartClients : smartListings;
+    const rawData = dataType === 'people' ? smartClients : smartListings;
 
     // React Query keeps previous data while fetching. Never let that stale
     // previous category seed the deck after a quick-filter change.
-    if (activeMode === 'client' && selectedCategoryDb && selectedCategoryDb !== 'all') {
+    if (dataType === 'listing' && selectedCategoryDb && selectedCategoryDb !== 'all') {
       return rawData.filter((item: any) => normalizeCategoryName(item?.category) === selectedCategoryDb);
     }
 
-    if (activeMode === 'owner' && storeActiveCategory && ['buyers', 'renters', 'hire'].includes(storeActiveCategory)) {
-      const clientTypeMap: Record<string, string> = { buyers: 'buyer', renters: 'renter', hire: 'hire' };
+    if (dataType === 'people' && storeActiveCategory && ['buyers', 'renters', 'hire', 'leads'].includes(storeActiveCategory)) {
+      const clientTypeMap: Record<string, string> = { buyers: 'buyer', renters: 'renter', hire: 'hire', leads: 'hire' };
       return rawData.filter((item: any) => (item?.client_type || item?.occupation) === clientTypeMap[storeActiveCategory]);
     }
 
     return rawData;
-  }, [activeMode, smartClients, smartListings, selectedCategoryDb, storeActiveCategory]);
-  const isLoading = activeMode === 'owner' ? smartClientsLoading : smartListingsLoading;
-  const isFetching = activeMode === 'owner' ? smartClientsFetching : smartListingsFetching;
-  const error = activeMode === 'owner' ? smartClientsError : smartListingsError;
+  }, [dataType, smartClients, smartListings, selectedCategoryDb, storeActiveCategory]);
+  const isLoading = dataType === 'people' ? smartClientsLoading : smartListingsLoading;
+  const isFetching = dataType === 'people' ? smartClientsFetching : smartListingsFetching;
+  const error = dataType === 'people' ? smartClientsError : smartListingsError;
 
   const listingIdsSignature = useMemo(() => {
     if (smartData.length === 0) return '';
@@ -877,7 +884,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
 
   const _handleCycleCategory = useCallback(() => {
     triggerHaptic('heavy');
-    const cycle = userRole === 'owner' ? OWNER_CYCLE : CLIENT_CYCLE;
+    const cycle = UNIFIED_CYCLE;
     const currentIdx = cycle.indexOf(storeActiveCategory as any);
     const nextIdx = (currentIdx + 1) % cycle.length;
     setActiveCategory(cycle[nextIdx] as any);
@@ -1009,28 +1016,53 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
                         willChange: 'transform, opacity',
                       } : undefined}
                     >
-                      <SimpleSwipeCard
-                        ref={isTopCard ? cardRef : undefined}
-                        listing={listing}
-                        onSwipe={isTopCard ? handleSwipe : () => {}}
-                        onSkip={isTopCard ? handleSkip : undefined}
-                        onSkipBack={isTopCard ? handleSkipBack : undefined}
-                        onInsights={isTopCard ? () => {
-                          handleInsights();
-                          if (onListingTap) onListingTap(listing.id);
-                        } : undefined}
-                        onShare={isTopCard ? handleShare : undefined}
-                        onMessage={isTopCard ? handleMessage : undefined}
-                        onReport={isTopCard ? () => {
-                          setSelectedListing(listing);
-                          setReportDialogOpen(true);
-                          triggerHaptic('medium');
-                        } : undefined}
-                        onDragStart={isTopCard ? handleDragStart : undefined}
-                        isTop={isTopCard}
-                        externalX={isTopCard ? topCardX : undefined}
-                        externalY={isTopCard ? topCardY : undefined}
-                      />
+                      {dataType === 'people' ? (
+                        <SimpleOwnerSwipeCard
+                          ref={isTopCard ? cardRef as any : undefined}
+                          profile={listing}
+                          onSwipe={isTopCard ? handleSwipe : () => {}}
+                          onSkip={isTopCard ? handleSkip : undefined}
+                          onSkipBack={isTopCard ? handleSkipBack : undefined}
+                          onInsights={isTopCard ? () => {
+                            handleInsights();
+                            if (onListingTap) onListingTap(listing.user_id || listing.id);
+                          } : undefined}
+                          onShare={isTopCard ? handleShare : undefined}
+                          onMessage={isTopCard ? handleMessage : undefined}
+                          onReport={isTopCard ? () => {
+                            setSelectedListing(listing);
+                            setReportDialogOpen(true);
+                            triggerHaptic('medium');
+                          } : undefined}
+                          onDragStart={isTopCard ? handleDragStart : undefined}
+                          isTop={isTopCard}
+                          externalX={isTopCard ? topCardX : undefined}
+                          externalY={isTopCard ? topCardY : undefined}
+                        />
+                      ) : (
+                        <SimpleSwipeCard
+                          ref={isTopCard ? cardRef : undefined}
+                          listing={listing}
+                          onSwipe={isTopCard ? handleSwipe : () => {}}
+                          onSkip={isTopCard ? handleSkip : undefined}
+                          onSkipBack={isTopCard ? handleSkipBack : undefined}
+                          onInsights={isTopCard ? () => {
+                            handleInsights();
+                            if (onListingTap) onListingTap(listing.id);
+                          } : undefined}
+                          onShare={isTopCard ? handleShare : undefined}
+                          onMessage={isTopCard ? handleMessage : undefined}
+                          onReport={isTopCard ? () => {
+                            setSelectedListing(listing);
+                            setReportDialogOpen(true);
+                            triggerHaptic('medium');
+                          } : undefined}
+                          onDragStart={isTopCard ? handleDragStart : undefined}
+                          isTop={isTopCard}
+                          externalX={isTopCard ? topCardX : undefined}
+                          externalY={isTopCard ? topCardY : undefined}
+                        />
+                      )}
                     </motion.div>
                   );
                 })}

@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { triggerHaptic } from '@/utils/haptics';
 import { uiSounds } from '@/utils/uiSounds';
 import {
-  POKER_CARDS, POKER_CARD_PHOTOS,
+  UNIFIED_CARDS, POKER_CARD_PHOTOS,
 } from './SwipeConstants';
 import { PokerCategoryCard } from './PokerCategoryCard';
 import { VapIdCardModal } from '../VapIdCardModal';
@@ -29,14 +29,14 @@ export const SwipeAllDashboard = memo(({ setCategories }: SwipeAllDashboardProps
       if (raw) {
         const parsed = JSON.parse(raw);
         const order: string[] | null = parsed?.state?.pokerCardOrder ?? null;
-        if (order && order.length === POKER_CARDS.length) {
-          const idToCard = new Map(POKER_CARDS.map((c) => [c.id, c]));
+        if (order && order.length === UNIFIED_CARDS.length) {
+          const idToCard = new Map(UNIFIED_CARDS.map((c) => [c.id, c]));
           const reordered = order.map((id) => idToCard.get(id)).filter(Boolean);
-          if (reordered.length === POKER_CARDS.length) return reordered as typeof POKER_CARDS;
+          if (reordered.length === UNIFIED_CARDS.length) return reordered as typeof UNIFIED_CARDS;
         }
       }
     } catch {}
-    return [...POKER_CARDS];
+    return [...UNIFIED_CARDS];
   });
   const navigate = useNavigate();
   const [showVapModal, setShowVapModal] = useState(false);
@@ -52,7 +52,7 @@ export const SwipeAllDashboard = memo(({ setCategories }: SwipeAllDashboardProps
 
   useEffect(() => {
     // Preload images safely on mount to prevent TDZ ReferenceErrors
-    POKER_CARDS.forEach(card => {
+    UNIFIED_CARDS.forEach(card => {
       const src = POKER_CARD_PHOTOS[card.id];
       if (src && !preloadedImages.has(src)) {
         preloadedImages.add(src);
@@ -65,9 +65,7 @@ export const SwipeAllDashboard = memo(({ setCategories }: SwipeAllDashboardProps
   const handleSelect = useCallback((id: string) => {
     triggerHaptic('medium');
     uiSounds.playCategorySelect();
-    if (id === 'radio') navigate('/radio');
-    else if (id === 'vap') setShowVapModal(true);
-    else if (id === 'all') setCategories('property');
+    if (id === 'events') navigate('/explore/events');
     else setCategories(id as QuickFilterCategory);
   }, [setCategories, navigate]);
 
