@@ -1,4 +1,3 @@
-import { OwnerProfileDialog } from "@/components/OwnerProfileDialog";
 import { SharedProfileSection } from "@/components/SharedProfileSection";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -21,7 +20,6 @@ import useAppTheme from "@/hooks/useAppTheme";
 
 const OwnerProfile = () => {
   const { isLight } = useAppTheme();
-  const [showEditDialog, setShowEditDialog] = useState(false);
   const { user, signOut } = useAuth();
   const { data: stats } = useOwnerStats();
   const { data: ownerProfile, isLoading: profileLoading, refetch: refetchOwnerProfile } = useOwnerProfile();
@@ -78,9 +76,8 @@ const OwnerProfile = () => {
               }}
             >
               <div
-                className={cn("w-full h-full overflow-hidden cursor-pointer flex items-center justify-center border", isLight ? "bg-white border-black/10" : "bg-[#080C14] border-white/5")}
+                className={cn("w-full h-full overflow-hidden flex items-center justify-center border", isLight ? "bg-white border-black/10" : "bg-[#080C14] border-white/5")}
                 style={{ borderRadius: '1.85rem' }}
-                onClick={() => { triggerHaptic('light'); setShowEditDialog(true); }}
               >
                 {ownerProfile?.profile_images?.[0] ? (
                   <img src={ownerProfile.profile_images[0]} alt="Brand" className="w-full h-full object-cover" />
@@ -96,14 +93,6 @@ const OwnerProfile = () => {
               animate={{ opacity: [0.4, 0.8, 0.4] }}
               transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
             />
-
-            <button
-              onClick={() => { triggerHaptic('light'); setShowEditDialog(true); }}
-              className="absolute -bottom-3 -right-3 w-12 h-12 flex items-center justify-center shadow-2xl transition-all active:scale-90 z-20 rounded-2xl border border-white/10"
-              style={{ background: 'linear-gradient(135deg, #FF4D00, #FF6B00)' }}
-            >
-              <Camera className="w-5 h-5 text-white" />
-            </button>
           </div>
 
           <div className="space-y-2">
@@ -193,14 +182,14 @@ const OwnerProfile = () => {
           </Button>
 
           <Button
-            onClick={() => { triggerHaptic('medium'); setShowEditDialog(true); }}
+            onClick={() => { triggerHaptic('medium'); navigate('/client/profile'); }}
             className="w-full h-12 rounded-2xl font-black uppercase italic tracking-[0.2em] text-[15px] transition-all border-none text-white shadow-xl"
             style={{
               background: 'linear-gradient(135deg, #FF4D00, #FF6B00)',
             }}
           >
             <User className="w-6 h-6 mr-3" />
-            <span>Control Asset ID</span>
+            <span>Manage Unified Identity</span>
           </Button>
 
           <Button
@@ -305,8 +294,6 @@ const OwnerProfile = () => {
 
         <div className="h-24" />
       </div>
-
-      <OwnerProfileDialog open={showEditDialog} onOpenChange={setShowEditDialog} />
     </div>
   );
 };

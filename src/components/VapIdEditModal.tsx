@@ -57,8 +57,8 @@ export function VapIdEditModal({ isOpen, onClose, onSaved, role = 'client' }: Pr
   const [profileImages, setProfileImages] = useState<string[]>([]);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
 
-  const profileTable = role === 'owner' ? 'owner_profiles' : 'client_profiles';
-  const profileQueryKey = role === 'owner' ? 'vap-id-owner-profile' : 'vap-id-client-profile';
+  const profileTable = 'client_profiles';
+  const profileQueryKey = 'vap-id-client-profile';
 
   const { data: profileData, refetch } = useQuery({
     queryKey: [profileQueryKey, user?.id],
@@ -69,10 +69,7 @@ export function VapIdEditModal({ isOpen, onClose, onSaved, role = 'client' }: Pr
       if (!user?.id) return null;
       const { data, error } = await supabase
         .from(profileTable)
-        .select(role === 'owner'
-          ? 'business_name, business_description, business_location, contact_email, contact_phone, profile_images'
-          : 'bio, occupation, city, country, nationality, years_in_city, languages, interests, personality_traits, preferred_activities, name, age, profile_images'
-        )
+        .select('vap_bio, vap_occupation, vap_city, vap_nationality, vap_years_in_city, vap_languages, vap_interests, vap_avatar, name, age, country, profile_images')
         .eq('user_id', user.id)
         .maybeSingle();
       if (error) { console.error('[VapIdEdit] Load error:', error); throw error; }
@@ -85,32 +82,22 @@ export function VapIdEditModal({ isOpen, onClose, onSaved, role = 'client' }: Pr
     const d = profileData as any;
     console.log('[VapIdEdit] profileData changed:', JSON.stringify(d));
     if (!d) return;
-    if (role === 'owner') {
-      setBio(d.business_description || '');
-      setOccupation(d.business_name || '');
-      setCity(d.business_location || '');
-      setCountry('');
-      setNationality('');
-      setYearsInCity('');
-      setLanguages('');
-      setInterests('');
-      setDisplayName(d.business_name || '');
-      setAge('');
-      setProfileImages(Array.isArray(d.profile_images) ? d.profile_images : []);
-    } else {
-      setBio(d.bio || '');
-      setOccupation(d.occupation || '');
-      setCity(d.city || '');
-      setCountry(d.country || '');
-      setNationality(d.nationality || '');
-      setYearsInCity(d.years_in_city != null ? String(d.years_in_city) : '');
-      setLanguages(arrayToCsv(d.languages));
-      setInterests(arrayToCsv(d.interests));
-      setDisplayName(d.name || '');
-      setAge(d.age != null ? String(d.age) : '');
-      setProfileImages(Array.isArray(d.profile_images) ? d.profile_images : []);
-    }
-  }, [profileData, role]);
+    
+    setBio(d.vap_bio || '');
+    setOccupation(d.vap_occupation || '');
+    setCity(d.vap_city || '');
+    setCountry(d.country || '');
+    setNationality(d.vap_nationality || '');
+    setYearsInCity(d.vap_years_in_city != null ? String(d.vap_years_in_city) : '');
+    setLanguages(arrayToCsv(d.vap_languages));
+    setInterests(arrayToCsv(d.vap_interests));
+    setDisplayName(d.name || '');
+    setAge(d.age != null ? String(d.age) : '');
+    
+    // Virtual ID card now strictly pulls its avatar from vap_avatar, falling back to profile_images[0]
+    const initialImages = d.vap_avatar ? [d.vap_avatar] : (Array.isArray(d.profile_images) && d.profile_images.length > 0 ? [d.profile_images[0]] : []);
+    setProfileImages(initialImages);
+  }, [profileData]);
 
   const { data: documents } = useQuery({
     queryKey: ['vap-documents', user?.id],
@@ -170,34 +157,24 @@ export function VapIdEditModal({ isOpen, onClose, onSaved, role = 'client' }: Pr
     console.log('[VapIdEdit] Field values:', { displayName, age, bio, occupation, city, country, nationality, yearsInCity, languages, interests, profileImages });
     setSaving(true);
     try {
+      const langsArr = csvToArray(languages);
+      const intArr = csvToArray(interests);
+      const yearsNum = yearsInCity.trim() === '' ? null : Number(yearsInCity);
       const finalProfileImages = profileImages.length > 0 ? profileImages : null;
 
-      if (role === 'owner') {
-        await saveOwner.mutateAsync({
-          business_name: displayName.trim() || null,
-          business_description: bio.trim() || null,
-          business_location: city.trim() || null,
-          profile_images: finalProfileImages,
-        });
-      } else {
-        const langsArr = csvToArray(languages);
-        const intArr = csvToArray(interests);
-        const yearsNum = yearsInCity.trim() === '' ? null : Number(yearsInCity);
-
-        await saveClient.mutateAsync({
-          name: displayName.trim() || null,
-          age: age.trim() !== '' ? Number(age) : null,
-          bio: bio.trim() || null,
-          occupation: occupation.trim() || null,
-          city: city.trim() || null,
-          country: country.trim() || null,
-          nationality: nationality.trim() || null,
-          years_in_city: Number.isFinite(yearsNum as number) ? yearsNum : null,
-          languages: langsArr.length > 0 ? langsArr : null,
-          interests: intArr.length > 0 ? intArr : null,
-          profile_images: finalProfileImages,
-        });
-      }
+      await saveClient.mutateAsync({
+        name: displayName.trim() || null,
+        age: age.trim() !== '' ? Number(age) : null,
+        country: country.trim() || null,
+        vap_bio: bio.trim() || null,
+        vap_occupation: occupation.trim() || null,
+        vap_city: city.trim() || null,
+        vap_nationality: nationality.trim() || null,
+        vap_years_in_city: Number.isFinite(yearsNum as number) ? yearsNum : null,
+        vap_languages: langsArr.length > 0 ? langsArr : null,
+        vap_interests: intArr.length > 0 ? intArr : null,
+        vap_avatar: finalProfileImages?.[0] || null, // VAP avatar is specifically saved
+      });
 
       console.log('[VapIdEdit] Save completed successfully');
       return true;
@@ -208,7 +185,7 @@ export function VapIdEditModal({ isOpen, onClose, onSaved, role = 'client' }: Pr
     } finally {
       setSaving(false);
     }
-  }, [user?.id, bio, occupation, city, country, nationality, yearsInCity, languages, interests, displayName, age, profileImages, role, saveClient, saveOwner]);
+  }, [user?.id, bio, occupation, city, country, nationality, yearsInCity, languages, interests, displayName, age, profileImages, saveClient]);
 
   const handleClose = useCallback(async () => {
     console.log('[VapIdEdit] Close requested, auto-saving...');

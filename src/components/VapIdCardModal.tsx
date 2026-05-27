@@ -26,8 +26,8 @@ export function VapIdCardModal({ isOpen, onClose, role = 'client' }: VapIdProps)
 
   const cycleTheme = () => setThemeIndex((i) => (i + 1) % CARD_THEMES.length);
 
-  const profileTable = role === 'owner' ? 'owner_profiles' : 'client_profiles';
-  const profileQueryKey = role === 'owner' ? 'vap-id-owner-profile' : 'vap-id-client-profile';
+  const profileTable = 'client_profiles';
+  const profileQueryKey = 'vap-id-client-profile';
 
   const { data: extendedProfile, refetch: refetchExtendedProfile } = useQuery({
     queryKey: [profileQueryKey, user?.id],
@@ -35,12 +35,9 @@ export function VapIdCardModal({ isOpen, onClose, role = 'client' }: VapIdProps)
     staleTime: 0,
     queryFn: async () => {
       if (!user?.id) return null;
-      const selectFields = role === 'owner'
-        ? 'business_name, business_description, business_location, contact_email, contact_phone'
-        : 'bio, occupation, city, country, nationality, years_in_city, languages, interests, personality_traits, preferred_activities, name, age, profile_images, phone';
       const { data, error } = await supabase
         .from(profileTable)
-        .select(selectFields)
+        .select('vap_bio, vap_occupation, vap_city, vap_nationality, vap_years_in_city, vap_languages, vap_interests, vap_avatar, name, age, country, profile_images, phone, user_id')
         .eq('user_id', user!.id)
         .maybeSingle();
       if (error) throw error;

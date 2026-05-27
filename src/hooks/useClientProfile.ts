@@ -264,6 +264,38 @@ export function useSaveClientProfile() {
         }
       }
 
+      // SYNC to owner_profiles table - so owner sees updated name and avatar!
+      const ownerSyncPayload: any = {};
+      let hasOwnerSync = false;
+      if (updates.name !== undefined) {
+        ownerSyncPayload.business_name = updates.name;
+        hasOwnerSync = true;
+      }
+      if (updates.profile_images !== undefined) {
+        ownerSyncPayload.profile_images = updates.profile_images || [];
+        hasOwnerSync = true;
+      }
+      
+      if (hasOwnerSync) {
+        try {
+          const { data: _ownerSyncData, error: ownerSyncError } = await supabase
+            .from('owner_profiles')
+            .update(ownerSyncPayload)
+            .eq('user_id', uid)
+            .select();
+
+          if (ownerSyncError) {
+            logger.error('[OWNER SYNC] Error:', ownerSyncError);
+          } else {
+            qc.invalidateQueries({ queryKey: ['owner-profile'] });
+            qc.invalidateQueries({ queryKey: ['owner-profile', uid] });
+            qc.invalidateQueries({ queryKey: ['vap-id-owner-profile', uid] });
+          }
+        } catch (ownerSyncErr) {
+          logger.error('[OWNER SYNC] Exception:', ownerSyncErr);
+        }
+      }
+
       return { profileData, uid };
     },
     onSuccess: (_data) => {

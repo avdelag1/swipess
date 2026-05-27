@@ -261,7 +261,7 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
                     <Sparkles className="w-4 h-4 text-[#EB4898] animate-pulse" />
                      <span className="text-[10px] font-black uppercase tracking-[0.4em] text-muted-foreground italic">Swipes Identity Terminal</span>
                  </div>
-                  <h2 className="text-3xl font-black italic uppercase tracking-tighter text-foreground drop-shadow-sm">Edit Profile</h2>
+                  <h2 className="text-3xl font-black italic uppercase tracking-tighter text-foreground drop-shadow-sm">Identity Profile</h2>
               </div>
               <div className="flex flex-col items-end gap-2">
                   <div className="h-2 w-32 bg-foreground/5 rounded-full overflow-hidden border border-border shadow-inner">
