@@ -52,7 +52,7 @@ export function VapIdEditModal({ isOpen, onClose }: Props) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('client_profiles')
-        .select('bio, occupation, city, nationality, years_in_city, languages, interests, personality_traits, preferred_activities')
+        .select('vap_bio, vap_occupation, vap_city, vap_nationality, vap_years_in_city, vap_languages, vap_interests')
         .eq('user_id', user!.id)
         .maybeSingle();
       if (error) throw error;
@@ -62,13 +62,13 @@ export function VapIdEditModal({ isOpen, onClose }: Props) {
 
   useEffect(() => {
     if (!clientProfile) return;
-    setBio(clientProfile.bio || '');
-    setOccupation((clientProfile as any).occupation || '');
-    setCity(clientProfile.city || '');
-    setNationality(clientProfile.nationality || '');
-    setYearsInCity(clientProfile.years_in_city != null ? String(clientProfile.years_in_city) : '');
-    setLanguages(arrayToCsv(clientProfile.languages));
-    setInterests(arrayToCsv(clientProfile.interests));
+    setBio(clientProfile.vap_bio || '');
+    setOccupation((clientProfile as any).vap_occupation || '');
+    setCity(clientProfile.vap_city || '');
+    setNationality(clientProfile.vap_nationality || '');
+    setYearsInCity(clientProfile.vap_years_in_city != null ? String(clientProfile.vap_years_in_city) : '');
+    setLanguages(arrayToCsv(clientProfile.vap_languages));
+    setInterests(arrayToCsv(clientProfile.vap_interests));
   }, [clientProfile]);
 
   const { data: documents } = useQuery({
@@ -127,13 +127,13 @@ export function VapIdEditModal({ isOpen, onClose }: Props) {
       const yearsNum = yearsInCity.trim() === '' ? null : Number(yearsInCity);
       const payload: any = {
         user_id: user.id,
-        bio: bio.trim() || null,
-        occupation: occupation.trim() || null,
-        city: city.trim() || null,
-        nationality: nationality.trim() || null,
-        years_in_city: Number.isFinite(yearsNum as number) ? yearsNum : null,
-        languages: csvToArray(languages),
-        interests: csvToArray(interests),
+        vap_bio: bio.trim() || null,
+        vap_occupation: occupation.trim() || null,
+        vap_city: city.trim() || null,
+        vap_nationality: nationality.trim() || null,
+        vap_years_in_city: Number.isFinite(yearsNum as number) ? yearsNum : null,
+        vap_languages: csvToArray(languages),
+        vap_interests: csvToArray(interests),
       };
 
       const { data: existing, error: selectErr } = await supabase

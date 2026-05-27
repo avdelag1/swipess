@@ -97,7 +97,7 @@ export const HolographicIDCard = ({ profile }: { profile: any }) => {
               <div className="relative">
                 <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-primary/30 shadow-[0_0_15px_rgba(255,77,0,0.2)]">
                   <img 
-                    src={profile?.profile_images?.[0] || profile?.avatar_url || '/placeholder-avatar.png'} 
+                    src={profile?.vap_avatar || profile?.profile_images?.[0] || profile?.avatar_url || '/placeholder-avatar.png'} 
                     alt="Resident"
                     className="w-full h-full object-cover"
                   />

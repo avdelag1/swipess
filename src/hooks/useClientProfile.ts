@@ -170,6 +170,36 @@ export function useSaveClientProfile() {
         profileData = data as ClientProfileLite;
       }
 
+      // --- UNIFIED IDENTITY SPREAD ---
+      // Spread the name and profile_images to owner_profiles so that
+      // the identity is consistent across all roles (Seeker, Provider, Roommate)
+      const ownerUpdates: any = {};
+      if (cleanUpdates.name !== undefined) {
+        ownerUpdates.business_name = cleanUpdates.name;
+      }
+      if (cleanUpdates.profile_images !== undefined) {
+        ownerUpdates.profile_images = cleanUpdates.profile_images;
+      }
+
+      if (Object.keys(ownerUpdates).length > 0) {
+        const { data: existingOwner } = await supabase
+          .from('owner_profiles')
+          .select('id')
+          .eq('user_id', uid)
+          .maybeSingle();
+
+        if (existingOwner?.id) {
+          await supabase
+            .from('owner_profiles')
+            .update(ownerUpdates)
+            .eq('user_id', uid);
+        } else {
+          await supabase
+            .from('owner_profiles')
+            .insert([{ ...ownerUpdates, user_id: uid }]);
+        }
+      }
+
       return profileData;
     },
     onSuccess: () => {
@@ -177,6 +207,7 @@ export function useSaveClientProfile() {
       // Also invalidate owner's view of client profiles
       qc.invalidateQueries({ queryKey: ['client-profiles'] });
       qc.invalidateQueries({ queryKey: ['client-profile'] });
+      qc.invalidateQueries({ queryKey: ['owner-profile-own'] });
       qc.invalidateQueries({ queryKey: ['topbar-user-profile'] });
     },
   });

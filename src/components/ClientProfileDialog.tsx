@@ -257,7 +257,7 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
                     <Sparkles className="w-4 h-4 text-[#EB4898] animate-pulse" />
                      <span className="text-[10px] font-black uppercase tracking-[0.4em] text-muted-foreground italic">Swipes Identity Terminal</span>
                  </div>
-                  <h2 className="text-3xl font-black italic uppercase tracking-tighter text-foreground drop-shadow-sm">Edit Profile</h2>
+                  <h2 className="text-3xl font-black italic uppercase tracking-tighter text-foreground drop-shadow-sm">Identity Profile</h2>
               </div>
               <div className="flex flex-col items-end gap-2">
                   <div className="h-2 w-32 bg-foreground/5 rounded-full overflow-hidden border border-border shadow-inner">
@@ -324,7 +324,7 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                    <div className="space-y-2">
-                      <Label className="text-[10px] font-black uppercase tracking-widest text-white/40 italic ml-1">Station ID (Name)</Label>
+                      <Label className="text-[10px] font-black uppercase tracking-widest text-white/40 italic ml-1">Identity Display Name</Label>
                       <Input value={name} onChange={(e) => setName(e.target.value)} className="h-14 rounded-2xl bg-white/[0.03] border-white/10 text-white font-bold italic focus:border-[#EB4898]/50 focus:bg-white/[0.05] transition-all px-6 shadow-sm" />
                    </div>
                    <div className="grid grid-cols-2 gap-4">
