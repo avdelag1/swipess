@@ -20,19 +20,7 @@ export function ActivityFeed() {
         .slice(0, 5);
 
     if (relevantNotifs.length === 0) {
-        return (
-            <Card className="border-dashed border-border bg-muted/30 rounded-[2rem] overflow-hidden">
-                <CardContent className="p-12 text-center">
-                    <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4 border border-border shadow-inner">
-                        <Sparkles className="w-8 h-8 text-muted-foreground/30 animate-pulse" />
-                    </div>
-                    <h4 className="text-sm font-black text-muted-foreground uppercase tracking-widest mb-1">Silence is Golden</h4>
-                    <p className="text-xs text-muted-foreground/60 max-w-[200px] mx-auto leading-relaxed font-medium">
-                        Explore, like and connect. New activity will manifest here.
-                    </p>
-                </CardContent>
-            </Card>
-        );
+        return null;
     }
 
     return (
