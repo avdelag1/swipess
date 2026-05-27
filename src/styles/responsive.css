@@ -57,7 +57,7 @@
 
 /* Prevent horizontal overflow globally — clip avoids creating BFC that blocks scroll */
 html, body {
-  overflow-x: clip;
+  overflow-x: hidden;
   width: 100%;
   max-width: 100vw;
 }

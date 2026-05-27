@@ -13,7 +13,7 @@
 html, body, #root {
   scrollbar-width: none;
   -ms-overflow-style: none;
-  overflow-x: clip;
+  overflow-x: hidden;
   -webkit-touch-callout: none;
   text-rendering: optimizeSpeed;
   -webkit-font-smoothing: antialiased;
