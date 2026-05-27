@@ -88,8 +88,6 @@ export function VapIdCardModal({ isOpen, onClose, role = 'client' }: VapIdProps)
 
   const ext = extendedProfile as any;
 
-  const isOwner = role === 'owner';
-
   const name = ext?.name || user?.email?.split('@')[0] || 'Resident';
   const city = ext?.vap_city || ext?.city || '';
   const country = ext?.country || '';
