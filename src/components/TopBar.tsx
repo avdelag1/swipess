@@ -98,8 +98,8 @@ function TopBarComponent({
     staleTime: Infinity,
     queryFn: async () => {
       const [clientResult, ownerResult] = await Promise.all([
-        supabase.from('client_profiles').select('name, profile_images').eq('user_id', user!.id).maybeSingle(),
-        supabase.from('owner_profiles').select('business_name, profile_images').eq('user_id', user!.id).maybeSingle()
+        supabase.from('client_profiles').select('name, profile_images').eq('user_id', user?.id).maybeSingle(),
+        supabase.from('owner_profiles').select('business_name, profile_images').eq('user_id', user?.id).maybeSingle()
       ]);
       
       const isClient = !!clientResult.data;

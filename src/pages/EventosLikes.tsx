@@ -207,7 +207,7 @@ export default function EventosLikes() {
                     "group relative aspect-[3/4] rounded-[2.5rem] overflow-hidden border transition-all duration-500 shadow-sm active:scale-[0.98]",
                     isLight ? "bg-zinc-100 border-black/[0.04]" : "bg-zinc-900 border-white/[0.04]"
                   )}
-                  onClick={() => navigate(`/explore/eventos/${ev.id}`, { state: { eventData: ev } })}
+                  onClick={() => navigate(`/explore/events/${ev.id}`, { state: { eventData: ev } })}
                 >
                   {/* Image */}
                   <CardImage 
@@ -271,7 +271,7 @@ export default function EventosLikes() {
               Your favorite experiences are waiting. Start swiping to curate your ultimate social calendar.
             </p>
             <button 
-              onClick={() => navigate('/explore/eventos')}
+              onClick={() => navigate('/explore/events')}
               className="px-10 py-4 rounded-2xl bg-orange-500 text-white font-black text-[10px] uppercase tracking-[0.2em] shadow-2xl shadow-orange-500/40 active:scale-95 transition-all"
             >
               Explore Events

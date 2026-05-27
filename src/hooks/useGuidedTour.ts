@@ -45,7 +45,7 @@ const eliteSteps: TourStep[] = [
     target: '[data-tour="events-feed"], [data-tour="explore"]',
     title: 'Social & Events',
     description: 'Discover the most exclusive events and promote your own brand to the neighborhood.',
-    navigateTo: '/explore/eventos',
+    navigateTo: '/explore/events',
     position: 'top',
   },
   {

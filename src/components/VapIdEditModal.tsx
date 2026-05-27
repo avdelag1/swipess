@@ -73,14 +73,12 @@ export function VapIdEditModal({ isOpen, onClose, onSaved, role = 'client' }: Pr
         .eq('user_id', user.id)
         .maybeSingle();
       if (error) { console.error('[VapIdEdit] Load error:', error); throw error; }
-      console.log('[VapIdEdit] Loaded raw data:', JSON.stringify(data));
       return data;
     },
   });
 
   useEffect(() => {
     const d = profileData as any;
-    console.log('[VapIdEdit] profileData changed:', JSON.stringify(d));
     if (!d) return;
     
     setBio(d.vap_bio || '');
@@ -107,7 +105,7 @@ export function VapIdEditModal({ isOpen, onClose, onSaved, role = 'client' }: Pr
       const { data, error } = await supabase
         .from('legal_documents')
         .select('id, document_type, file_name, status, created_at')
-        .eq('user_id', user!.id)
+        .eq('user_id', user?.id)
         .order('created_at', { ascending: false });
       if (error) throw error;
       return data || [];
@@ -153,8 +151,6 @@ export function VapIdEditModal({ isOpen, onClose, onSaved, role = 'client' }: Pr
 
   const doSave = useCallback(async () => {
     if (!user?.id) { toast.error('Not signed in'); return false; }
-    console.log('[VapIdEdit] Starting save for role:', role, 'user_id:', user.id);
-    console.log('[VapIdEdit] Field values:', { displayName, age, bio, occupation, city, country, nationality, yearsInCity, languages, interests, profileImages });
     setSaving(true);
     try {
       const langsArr = csvToArray(languages);
@@ -176,7 +172,6 @@ export function VapIdEditModal({ isOpen, onClose, onSaved, role = 'client' }: Pr
         vap_avatar: finalProfileImages?.[0] || null, // VAP avatar is specifically saved
       });
 
-      console.log('[VapIdEdit] Save completed successfully');
       return true;
     } catch (err: any) {
       console.error('[VapIdEdit] save failed:', err);
@@ -188,7 +183,6 @@ export function VapIdEditModal({ isOpen, onClose, onSaved, role = 'client' }: Pr
   }, [user?.id, bio, occupation, city, country, nationality, yearsInCity, languages, interests, displayName, age, profileImages, saveClient]);
 
   const handleClose = useCallback(async () => {
-    console.log('[VapIdEdit] Close requested, auto-saving...');
     const saved = await doSave();
     if (saved) {
       toast.success('Card saved');
@@ -245,7 +239,7 @@ export function VapIdEditModal({ isOpen, onClose, onSaved, role = 'client' }: Pr
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: '100%' }}
           transition={{ type: 'spring', damping: 30, stiffness: 350 }}
-          className="fixed inset-0 z-[10001] flex flex-col bg-background overflow-hidden"
+          className="fixed inset-0 z-[10002] flex flex-col bg-background overflow-hidden"
         >
           <div className="flex items-center justify-between border-b border-border px-5 py-3 shrink-0">
             <div>

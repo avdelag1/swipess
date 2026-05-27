@@ -20,7 +20,7 @@ export function MessageActivationBanner({
   const navigate = useNavigate();
 
   const handleGetActivations = () => {
-    navigate('/subscription-packages');
+    navigate('/subscription/packages');
     onClose();
   };
 

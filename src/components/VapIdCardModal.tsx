@@ -33,12 +33,13 @@ export function VapIdCardModal({ isOpen, onClose, role = 'client' }: VapIdProps)
     queryKey: [profileQueryKey, user?.id],
     enabled: !!user?.id && isOpen,
     staleTime: 0,
+    placeholderData: (prev: any) => prev,
     queryFn: async () => {
       if (!user?.id) return null;
       const { data, error } = await supabase
         .from(profileTable)
         .select('vap_bio, vap_occupation, vap_city, vap_nationality, vap_years_in_city, vap_languages, vap_interests, vap_avatar, name, age, country, profile_images, phone, user_id')
-        .eq('user_id', user!.id)
+        .eq('user_id', user?.id)
         .maybeSingle();
       if (error) throw error;
       return data;

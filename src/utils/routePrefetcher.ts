@@ -64,8 +64,8 @@ const routeImports: Record<string, RouteImport> = {
   // Shared routes
   '/messages': () => import('@/pages/MessagingDashboard').then(m => ({ default: m.MessagingDashboard })),
   '/notifications': () => import('@/pages/NotificationsPage'),
-  '/subscription-packages': () => import('@/pages/SubscriptionPackagesPage'),
-  '/explore/eventos': () => import('@/pages/EventosFeed'),
+  '/subscription/packages': () => import('@/pages/SubscriptionPackagesPage'),
+  '/explore/events': () => import('@/pages/EventosFeed'),
   '/explore/roommates': () => import('@/pages/RoommateMatching'),
   '/client/advertise': () => import('@/pages/AdvertisePage'),
   '/explore/prices': () => import('@/pages/PriceTracker'),
@@ -144,7 +144,7 @@ export function prefetchRoleRoutes(role: 'client' | 'owner'): void {
   if (shouldSkipPrefetch()) return;
 
   // SPEED: Prefetch nav-bar routes immediately — these are the most tapped
-  const sharedRoutes = ['/messages', '/notifications', '/explore/eventos'];
+  const sharedRoutes = ['/messages', '/notifications', '/explore/events'];
   
   if (role === 'client') {
     const critical = ['/client/profile', ...sharedRoutes];
@@ -237,7 +237,7 @@ export function createLinkObserver(): IntersectionObserver | null {
  */
 export function prefetchNextLikelyRoute(currentPath: string): void {
   const nextRouteMap: Record<string, string[]> = {
-    '/client/dashboard': ['/messages', '/explore/eventos'],
+    '/client/dashboard': ['/messages', '/explore/events'],
     '/owner/dashboard': ['/messages', '/owner/properties'],
     '/owner/properties': ['/owner/listings/new'],
   };

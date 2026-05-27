@@ -12,6 +12,7 @@ import { haptics } from '@/utils/microPolish';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 
 type CategoryType = 'property' | 'motorcycle' | 'bicycle' | 'services';
+import type { ClientType } from '@/types/filters';
 
 interface OwnerFiltersProps {
   isEmbedded?: boolean;
@@ -24,17 +25,9 @@ export default function OwnerFilters({ isEmbedded, onClose }: OwnerFiltersProps)
   const _isDark = theme === 'dark';
   
   const storeActiveCategory = useFilterStore(s => s.activeCategory);
-  
-  const getInitialCategory = () => {
-    if (storeActiveCategory === 'leads') return 'services';
-    if (storeActiveCategory === 'buyers' || storeActiveCategory === 'renters') return 'property';
-    if (['property', 'motorcycle', 'bicycle', 'services'].includes(storeActiveCategory || '')) {
-      return storeActiveCategory as CategoryType;
-    }
-    return 'property';
-  };
-
-  const [activeCategory, setActiveCategory] = useState<CategoryType>(getInitialCategory());
+  const clientType = useFilterStore(s => s.clientType);
+  const setClientType = useFilterStore(s => s.setClientType);
+  const [activeCategory, setActiveCategory] = useState<CategoryType>((storeActiveCategory as CategoryType) || 'property');
   const [isScanning, setIsScanning] = useState(false);
 
   const _isFirstMount = useRef(true);
@@ -127,6 +120,38 @@ export default function OwnerFilters({ isEmbedded, onClose }: OwnerFiltersProps)
           })}
         </div>
       </nav>
+
+      {/* 🛸 CLIENT INTENT FILTERS */}
+      <div className="container mx-auto px-6 max-w-4xl mb-6">
+        <div className="px-2 mb-3">
+          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Looking For</span>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {([
+            { id: 'all' as ClientType, label: 'All Types', icon: '⊞' },
+            { id: 'buy' as ClientType, label: 'Buyers', icon: '💰' },
+            { id: 'rent' as ClientType, label: 'Renters', icon: '🔑' },
+            { id: 'hire' as ClientType, label: 'Leads', icon: '👥' },
+            { id: 'individual' as ClientType, label: 'Individuals', icon: '👤' },
+            { id: 'family' as ClientType, label: 'Families', icon: '👨‍👩‍👧‍👦' },
+            { id: 'business' as ClientType, label: 'Business', icon: '🏢' },
+          ]).map(({ id, label, icon }) => (
+            <button
+              key={id}
+              onClick={() => { haptics.tap(); setClientType(id); }}
+              className={cn(
+                "px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-wider transition-all active:scale-95",
+                clientType === id
+                  ? "bg-primary text-primary-foreground shadow-lg shadow-primary/30"
+                  : "bg-card border border-border text-muted-foreground hover:text-foreground"
+              )}
+            >
+              <span className="mr-1.5">{icon}</span>
+              {label}
+            </button>
+          ))}
+        </div>
+      </div>
 
       {/* 🛸 RADAR CALIBRATION GRID */}
       <main className={cn(

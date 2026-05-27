@@ -47,6 +47,7 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
   const x = useMotionValue(0);
   const y = useMotionValue(0);
   const axisRef = useRef<null | 'x' | 'y'>(null);
+  const engageButtonRef = useRef<HTMLButtonElement>(null);
 
   const [isDragging, setIsDragging] = useState(false);
   // Subtle fade as the card moves off in either axis — no rotation, no scale fight.
@@ -238,6 +239,8 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
           onBringToFront(index);
           return;
         }
+        // Skip if tap was on the Engage Discovery button — its own onClick handles navigation
+        if (engageButtonRef.current?.contains(e?.target as Node)) return;
         // On the top card, taps on the left/right edges toggle the
         // header + bottom-nav chrome instead of opening the category —
         // so users can summon the menus from the swipe surface itself.
@@ -372,6 +375,7 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
                   triggerHaptic('medium');
                   onSelect(card.id);
                 }}
+                ref={engageButtonRef}
                 className="w-full h-14 rounded-2xl flex items-center justify-center gap-3 font-black uppercase italic tracking-widest transition-all hover:scale-[1.02] active:scale-95 text-black shadow-[0_18px_40px_rgba(0,0,0,0.35)] ring-1 ring-white/40"
                 style={{ background: 'rgba(255,255,255,0.96)', backdropFilter: 'blur(8px)' }}
                 aria-label="Engage Discovery"

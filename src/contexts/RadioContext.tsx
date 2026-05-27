@@ -363,6 +363,8 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       }
 
       if (errorTimeoutRef.current) clearTimeout(errorTimeoutRef.current);
+      // Release play lock so the station change can proceed
+      isPlayingRef.current = false;
       errorTimeoutRef.current = setTimeout(() => {
         setError(null);
         changeStationRef.current('next');
@@ -777,17 +779,14 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       }
       logger.error('[RadioPlayer] Playback error:', err);
       failedStationsRef.current.add(targetStation.id);
-      setError('Failed to play station, switching...');
+      setError('Failed to play station');
 
       if (loadTimeoutRef.current) {
         clearTimeout(loadTimeoutRef.current);
         loadTimeoutRef.current = null;
       }
-
-      setTimeout(() => {
-        setError(null);
-        changeStationRef.current('next');
-      }, 500);
+      // Station change is handled by the audio error handler
+      // (fires at 400ms) — don't double-schedule here
     }
   }, [state.currentStation]);
 

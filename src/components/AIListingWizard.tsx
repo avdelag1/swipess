@@ -344,7 +344,7 @@ export function AIListingWizard() {
         if (sc) listingPayload.service_category = sc;
       }
 
-      console.log('[AIListing] Publishing payload:', listingPayload);
+
       const insertPromise = saveAIListingWithSchemaRetry(listingPayload);
       const insertTimeout = new Promise<never>((_, reject) =>
         setTimeout(() => reject(new Error('Publish timed out after 20s. Please try again.')), 20000)

@@ -27,7 +27,7 @@ export default function PaymentCancel() {
         <p className="text-muted-foreground mb-6">
           Your payment was cancelled. No charges were made.
         </p>
-        <Button onClick={() => navigate('/subscription-packages')} size="lg">
+        <Button onClick={() => navigate('/subscription/packages')} size="lg">
           Try Again
         </Button>
       </div>

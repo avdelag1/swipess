@@ -18,6 +18,7 @@ import { UnifiedListingForm } from '@/components/UnifiedListingForm';
 import { CategorySelectionDialog } from '@/components/CategorySelectionDialog';
 import { OwnerListingsStats } from '@/components/OwnerListingsStats';
 import { ShareDialog } from '@/components/ShareDialog';
+import { useModalStore } from '@/state/modalStore';
 import { triggerHaptic } from '@/utils/haptics';
 
 import { motion, AnimatePresence } from 'framer-motion';
@@ -572,6 +573,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
         open={showCategoryDialog}
         onOpenChange={setShowCategoryDialog}
         onCategorySelect={handleCategorySelect}
+        onAIOpen={() => useModalStore.getState().openAIListing()}
       />
 
       <UnifiedListingForm
