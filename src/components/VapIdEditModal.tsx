@@ -172,6 +172,7 @@ export function VapIdEditModal({ isOpen, onClose, onSaved, role = 'client' }: Pr
         vap_avatar: finalProfileImages?.[0] || null, // VAP avatar is specifically saved
       });
 
+      queryClient.invalidateQueries({ queryKey: ['vap-id-client-profile', user.id] });
       return true;
     } catch (err: any) {
       console.error('[VapIdEdit] save failed:', err);

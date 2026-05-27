@@ -54,12 +54,8 @@ function TopBarComponent({
   // Only the dashboard page forces dark — other pages respect the user's theme
   const isLight = isDashboard ? false : themeIsLight;
 
-  // Visibility policy: the dashboard is the navigation hub, so the
-  // TopBar must stay pinned there. On every other page, the SwipessHud
-  // wrapper handles scroll-direction based hide/show — this component
-  // itself is always rendered.
-  void isChromeVisible;
-  const isActuallyVisible = true;
+  // Immersive Logic: TopBar hides on dashboard chrome, shows everywhere else
+  const isActuallyVisible = isDashboard ? isChromeVisible : true;
   // Color rule: always WHITE on dashboard (forced dark), otherwise
   // follow theme.
   const iconColor = !isLight || isDashboard ? '#FFFFFF' : '#0A0A0A';

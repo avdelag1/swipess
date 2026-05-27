@@ -97,10 +97,9 @@ export const BottomNavigation = memo(({
   // Only the dashboard page forces dark — other pages respect the user's theme
   const isLight = isDashboardRoute ? false : themeIsLight;
 
-  // Visibility policy: BottomNav is always rendered. The SwipessHud
-  // wrapper above this component drives the actual show/hide via its
-  // `alwaysVisible` flag (on dashboards) vs scroll-direction (elsewhere).
-  const isActuallyVisible = true;
+  // Immersive Logic: BottomNav is persistent on the Dashboard, reveals on chrome
+  const { isChromeVisible } = useChromeReveal();
+  const isActuallyVisible = isDashboardRoute ? isChromeVisible : true;
   // Theme rule:
   //  - Dark theme (black filter): nav icons always WHITE everywhere.
   //  - Light theme (white filter): WHITE on dashboard (over photos),

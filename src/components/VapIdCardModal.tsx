@@ -95,14 +95,14 @@ export function VapIdCardModal({ isOpen, onClose, role = 'client' }: VapIdProps)
   const phone = ext?.phone || '';
 
   const spokenLanguages = useMemo(() => {
-    const raw = Array.isArray(ext?.languages) && ext.languages.length > 0 ? ext.languages : [];
+    const raw = Array.isArray(ext?.vap_languages) && ext.vap_languages.length > 0 ? ext.vap_languages : [];
     return raw.filter((v): v is string => typeof v === 'string');
   }, [ext]);
 
   const allTags = useMemo(() => {
     const tags: string[] = [];
     const add = (arr: any) => { if (Array.isArray(arr)) tags.push(...arr.filter(v => typeof v === 'string')); };
-    add(ext?.interests);
+    add(ext?.vap_interests);
     add(ext?.personality_traits);
     return [...new Set(tags)].slice(0, 8);
   }, [ext]);

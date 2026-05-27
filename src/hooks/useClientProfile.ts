@@ -34,6 +34,15 @@ export type ClientProfileLite = {
   cleanliness_level?: string | null;
   noise_tolerance?: string | null;
   work_schedule?: string | null;
+  // VAP fields
+  vap_bio?: string | null;
+  vap_occupation?: string | null;
+  vap_city?: string | null;
+  vap_nationality?: string | null;
+  vap_years_in_city?: number | null;
+  vap_languages?: string[] | null;
+  vap_interests?: string[] | null;
+  vap_avatar?: string | null;
   // Cultural and personality fields
   dietary_preferences?: string[] | null;
   personality_traits?: string[] | null;

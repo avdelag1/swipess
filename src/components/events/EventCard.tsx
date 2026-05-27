@@ -227,12 +227,11 @@ export const EventCard = memo(({
               "w-11 h-11 rounded-full flex items-center justify-center shadow-lg backdrop-blur-xl border transition-all",
               saved
                 ? "bg-orange-500 border-orange-600 text-white shadow-orange-500/30"
-                : "bg-black/40 border-white/15 text-white"
-            )}
-          >
+                : "bg-white/10 border-white/20 text-white"
+            )}>
             <Bookmark className={cn('w-5 h-5 transition-all', saved ? 'fill-white text-white' : 'text-white')} />
           </motion.div>
-          <span className={cn("text-[10px] font-bold drop-shadow-lg", saved ? "text-orange-400" : "text-white/80")}>
+          <span className={cn("text-[10px] font-bold", saved ? "text-orange-400" : "text-white/60")}>
             {saved ? 'Saved' : 'Save'}
           </span>
         </button>
@@ -249,12 +248,11 @@ export const EventCard = memo(({
             transition={{ duration: 0.35 }}
             className={cn(
               "w-11 h-11 rounded-full flex items-center justify-center shadow-lg backdrop-blur-xl border transition-all",
-              liked ? "bg-red-500/25 border-red-500/50 shadow-red-500/20" : "bg-black/40 border-white/15"
-            )}
-          >
+              liked ? "bg-red-500/25 border-red-500/50 shadow-red-500/20" : "bg-white/10 border-white/20"
+            )}>
             <Heart className={cn('w-5 h-5 transition-colors', liked ? 'fill-red-500 text-red-500' : 'text-white')} />
           </motion.div>
-          <span className={cn("text-[10px] font-bold drop-shadow-lg", liked ? "text-red-400" : "text-white/80")}>Like</span>
+          <span className={cn("text-[10px] font-bold", liked ? "text-red-400" : "text-white/60")}>Like</span>
         </button>
 
         {/* Chat / WhatsApp */}
@@ -265,11 +263,11 @@ export const EventCard = memo(({
         >
           <motion.div
             whileTap={{ scale: 0.85 }}
-            className="w-11 h-11 rounded-full flex items-center justify-center shadow-lg backdrop-blur-xl border bg-black/40 border-white/15"
+            className="w-11 h-11 rounded-full flex items-center justify-center shadow-lg backdrop-blur-xl border bg-white/10 border-white/20"
           >
             <MessageCircle className="w-5 h-5 text-white" style={{ color: activeColor }} />
           </motion.div>
-          <span className="text-[10px] font-bold text-white/80 drop-shadow-lg">Chat</span>
+          <span className={cn("text-[10px] font-bold text-white/60")}>Chat</span>
         </button>
 
         {/* Share */}
@@ -280,11 +278,11 @@ export const EventCard = memo(({
         >
           <motion.div
             whileTap={{ scale: 0.85 }}
-            className="w-11 h-11 rounded-full flex items-center justify-center shadow-lg backdrop-blur-xl border bg-black/40 border-white/15"
+            className="w-11 h-11 rounded-full flex items-center justify-center shadow-lg backdrop-blur-xl border bg-white/10 border-white/20"
           >
             <Share2 className="w-5 h-5 text-white" style={{ color: activeColor }} />
           </motion.div>
-          <span className="text-[10px] font-bold text-white/80 drop-shadow-lg">Share</span>
+          <span className={cn("text-[10px] font-bold text-white/60")}>Share</span>
         </button>
 
         {/* Report */}
@@ -295,11 +293,11 @@ export const EventCard = memo(({
         >
           <motion.div
             whileTap={{ scale: 0.85 }}
-            className="w-10 h-10 rounded-full flex items-center justify-center shadow-lg backdrop-blur-xl border bg-black/40 border-white/15"
+            className="w-10 h-10 rounded-full flex items-center justify-center shadow-lg backdrop-blur-xl border bg-white/10 border-white/20"
           >
             <Flag className="w-4 h-4 text-white/50" />
           </motion.div>
-          <span className="text-[10px] font-bold text-white/40 drop-shadow-lg">Report</span>
+          <span className={cn("text-[10px] font-bold text-white/60")}>Report</span>
         </button>
       </div>
 
