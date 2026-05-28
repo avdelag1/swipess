@@ -7,6 +7,7 @@ const corsHeaders = {
 
 const MINIMAX_API_KEY = Deno.env.get("MINIMAX_API_KEY") || "";
 const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY") || "";
+const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY") || "";
 const MOONSHOT_API_KEY = Deno.env.get("MOONSHOT_API_KEY") || "";
 const TAVILY_API_KEY = Deno.env.get("TAVILY_API_KEY") || "";
 // Use the production Supabase for data queries
@@ -414,7 +415,7 @@ async function loadUserMemories(userId: string): Promise<string> {
 }
 
 async function extractAndSaveMemories(userId: string, userMessage: string, assistantReply: string): Promise<void> {
-  if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY || !LOVABLE_API_KEY) return;
+  if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY || (!LOVABLE_API_KEY && !GEMINI_API_KEY)) return;
   try {
     const extractionPrompt = `Extract factual preferences from this conversation. Return ONLY a JSON array of objects with: category (budget|location|lifestyle|timeline|preference), title (short key), content (the value/fact).
 
@@ -429,11 +430,21 @@ If no new facts, return []. Examples of facts:
 
 Return ONLY the JSON array, no markdown:`;
 
-    const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const url = GEMINI_API_KEY
+      ? "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions"
+      : "https://ai.gateway.lovable.dev/v1/chat/completions";
+    const authHeader = GEMINI_API_KEY
+      ? `Bearer ${GEMINI_API_KEY}`
+      : `Bearer ${LOVABLE_API_KEY}`;
+    const modelName = GEMINI_API_KEY
+      ? "gemini-2.5-flash"
+      : "google/gemini-2.5-flash-lite";
+
+    const res = await fetch(url, {
       method: "POST",
-      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${LOVABLE_API_KEY}` },
+      headers: { "Content-Type": "application/json", "Authorization": authHeader },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash-lite",
+        model: modelName,
         messages: [{ role: "user", content: extractionPrompt }],
         max_tokens: 300,
         temperature: 0.1,
@@ -1159,6 +1170,49 @@ async function streamMiniMax(messages: ChatMessage[]): Promise<Response> {
   return new Response(stream, { headers: { ...corsHeaders, "Content-Type": "text/event-stream" } });
 }
 
+async function streamGeminiDirect(messages: ChatMessage[]): Promise<Response> {
+  if (!GEMINI_API_KEY) throw new Error("GEMINI_API_KEY not configured");
+
+  const res = await fetch("https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${GEMINI_API_KEY}`,
+    },
+    body: JSON.stringify({
+      model: "gemini-2.5-flash",
+      messages,
+      max_tokens: 450,
+      temperature: 0.6,
+      stream: true,
+    }),
+  });
+
+  if (!res.ok) {
+    const status = res.status;
+    const errBody = await res.text();
+    console.error("[AI] Direct Gemini error:", status, errBody);
+    if (status === 429) {
+      return new Response(JSON.stringify({ error: "Rate limit exceeded. Please try again in a moment." }), {
+        status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    throw new Error(`Direct Gemini ${status}: ${errBody}`);
+  }
+
+  return res;
+}
+
+async function fetchGeminiDirect(messages: ChatMessage[]): Promise<Response> {
+  if (!GEMINI_API_KEY) throw new Error("GEMINI_API_KEY not configured");
+  const res = await fetch("https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${GEMINI_API_KEY}` },
+    body: JSON.stringify({ model: "gemini-2.5-flash", messages, max_tokens: 800, temperature: 0.3, stream: false }),
+  });
+  return res;
+}
+
 async function streamLovableAI(messages: ChatMessage[]): Promise<Response> {
   if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
 
@@ -1406,7 +1460,11 @@ Deno.serve(async (req) => {
         response = stream ? await streamKimi(enrichedMessages) : await fetchKimi(enrichedMessages);
       } else {
         aiProvider = "gemini";
-        response = stream ? await streamLovableAI(enrichedMessages) : await fetchLovableAI(enrichedMessages);
+        if (GEMINI_API_KEY) {
+          response = stream ? await streamGeminiDirect(enrichedMessages) : await fetchGeminiDirect(enrichedMessages);
+        } else {
+          response = stream ? await streamLovableAI(enrichedMessages) : await fetchLovableAI(enrichedMessages);
+        }
       }
     } catch (e) {
       console.warn(`[AI] Primary provider (${aiProvider}) failed, falling back to MiniMax: ${(e as Error).message}`);
@@ -1418,9 +1476,13 @@ Deno.serve(async (req) => {
         try {
           aiProvider = aiProvider === "kimi" ? "gemini" : "kimi";
           if (stream) {
-            response = aiProvider === "kimi" ? await streamKimi(enrichedMessages) : await streamLovableAI(enrichedMessages);
+            response = aiProvider === "kimi" 
+              ? await streamKimi(enrichedMessages) 
+              : (GEMINI_API_KEY ? await streamGeminiDirect(enrichedMessages) : await streamLovableAI(enrichedMessages));
           } else {
-            response = aiProvider === "kimi" ? await fetchKimi(enrichedMessages) : await fetchLovableAI(enrichedMessages);
+            response = aiProvider === "kimi" 
+              ? await fetchKimi(enrichedMessages) 
+              : (GEMINI_API_KEY ? await fetchGeminiDirect(enrichedMessages) : await fetchLovableAI(enrichedMessages));
           }
         } catch (e3) {
           console.error("[AI] All providers failed:", (e3 as Error).message);
