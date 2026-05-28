@@ -430,7 +430,7 @@ If no new facts, return []. Examples of facts:
 Return ONLY the JSON array, no markdown:`;
 
     const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${GEMINI_API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -1298,6 +1298,11 @@ async function fetchMiniMax(messages: ChatMessage[]): Promise<Response> {
     headers: { "Content-Type": "application/json", "Authorization": `Bearer ${MINIMAX_API_KEY}` },
     body: JSON.stringify({ model: "MiniMax-M2.7", messages, max_tokens: 450, temperature: 0.3, stream: false }),
   });
+  if (!res.ok) {
+    const errBody = await res.text();
+    console.error("[AI] MiniMax error:", res.status, errBody);
+    throw new Error(`MiniMax ${res.status}: ${errBody}`);
+  }
   return res;
 }
 
@@ -1308,6 +1313,11 @@ async function fetchKimi(messages: ChatMessage[]): Promise<Response> {
     headers: { "Content-Type": "application/json", "Authorization": `Bearer ${MOONSHOT_API_KEY}` },
     body: JSON.stringify({ model: "moonshot-v1-8k", messages, max_tokens: 2048, temperature: 0.3, stream: false }),
   });
+  if (!res.ok) {
+    const errBody = await res.text();
+    console.error("[AI] Kimi error:", res.status, errBody);
+    throw new Error(`Kimi ${res.status}: ${errBody}`);
+  }
   return res;
 }
 
@@ -1468,7 +1478,14 @@ Deno.serve(async (req) => {
           response = stream ? await streamMiniMax(enrichedMessages) : await fetchMiniMax(enrichedMessages);
         } catch (e3) {
           console.error("[AI] All providers failed:", (e3 as Error).message);
-          return new Response(JSON.stringify({ error: "AI temporarily unavailable. Please try again." }), {
+          return new Response(JSON.stringify({
+            error: "AI temporarily unavailable. Please try again.",
+            details: {
+              gemini: (e as Error).message,
+              kimi: (e2 as Error).message,
+              minimax: (e3 as Error).message
+            }
+          }), {
             status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" },
           });
         }
