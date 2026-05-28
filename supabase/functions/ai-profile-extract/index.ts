@@ -117,39 +117,3 @@ serve(async (req) => {
     );
   }
 });
-      }
-      if (resp.status === 402) {
-        return new Response(JSON.stringify({ error: "AI credits exhausted." }), {
-          status: 402,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-      return new Response(JSON.stringify({ error: "Extraction failed" }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    const data = await resp.json();
-    const call = data?.choices?.[0]?.message?.tool_calls?.[0];
-    let parsed: Record<string, unknown> = {};
-    if (call?.function?.arguments) {
-      try {
-        parsed = JSON.parse(call.function.arguments);
-      } catch (e) {
-        console.error("[ai-profile-extract] tool args parse failed", e);
-      }
-    }
-
-    return new Response(JSON.stringify({ profile: parsed }), {
-      status: 200,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
-  } catch (err) {
-    console.error("[ai-profile-extract] error", err);
-    return new Response(
-      JSON.stringify({ error: err instanceof Error ? err.message : "Unknown" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-    );
-  }
-});
