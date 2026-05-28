@@ -6,7 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useOwnerStats } from "@/hooks/useOwnerStats";
 import { useOwnerProfile } from "@/hooks/useOwnerProfile";
 import {
-  LogOut, Building2, Flame, ThumbsUp, Settings, Megaphone, Scale, Coins, Crown, Sparkles, Zap
+  LogOut, Building2, Flame, ThumbsUp, Settings, Megaphone, Scale as ScaleIcon, Coins, Crown, Sparkles, Zap
 } from "lucide-react";
 import { ActivityFeed } from "@/components/ActivityFeed";
 import { motion } from "framer-motion";
@@ -215,7 +215,7 @@ const OwnerProfile = () => {
           <div className="grid grid-cols-1 gap-3">
             {[
               { label: 'Premium Package', icon: Crown, path: '/subscription/packages', premium: true },
-              { label: 'Legal Center', icon: Scale, path: '/owner/legal-services' },
+              { label: 'Legal Center', icon: ScaleIcon, path: '/owner/legal-services' },
               { label: 'Account Settings', icon: Settings, path: '/owner/settings' },
               { label: 'Sign Out', icon: LogOut, path: 'signout', urgent: true },
             ].map(btn => (

@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import { motion } from 'framer-motion';
-import { ShieldCheck, Scale, Bike, Wrench, Star, MessageCircle, AlertTriangle, Zap } from 'lucide-react';
+import { ShieldCheck, Scale as ScaleIcon, Bike, Wrench, Star, MessageCircle, AlertTriangle, Zap } from 'lucide-react';
 import { RadarSearchIcon } from '@/components/ui/RadarSearchEffect';
 
 interface MarketingSlideProps {
@@ -25,7 +25,7 @@ const slideData: Record<string, {
     'marketing:property:slide2': {
         title: 'Legal Protection',
         subtitle: 'Access our verified legal services to ensure your rental agreement is safe and secure.',
-        icon: Scale,
+        icon: ScaleIcon,
         gradient: 'from-rose-600/80 to-teal-900/80',
         badge: 'Secure Renting'
     },

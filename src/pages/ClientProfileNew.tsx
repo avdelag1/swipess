@@ -13,7 +13,7 @@ import { Separator } from "@/components/ui/separator";
 import {
   LogOut, User, Camera, Sparkles, Crown, ArrowLeft,
   Share2, Flame, Radio,
-  Settings as SettingsIcon, Palette, Scale, FileText, Heart
+  Settings as SettingsIcon, Palette, Scale as ScaleIcon, FileText, Heart
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -312,7 +312,7 @@ const ClientProfileNew = () => {
                   onClick={() => navigate('/client/legal-services')}
                   className="w-full flex items-center gap-3 p-4 hover:bg-muted/50 transition-colors border-b border-border"
                 >
-                  <Scale className="w-5 h-5 text-indigo-500" />
+                  <ScaleIcon className="w-5 h-5 text-indigo-500" />
                   <span className="flex-1 text-left text-foreground">Legal Services</span>
                 </button>
                 <button

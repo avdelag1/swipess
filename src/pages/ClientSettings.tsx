@@ -4,7 +4,7 @@ import { CardContent } from "@/components/ui/card";
 // import { } from "@/components/ui/badge";
 import {
   Shield, FileText, HelpCircle, Info, ChevronRight,
-  Scale, Volume2, Wrench, ShieldCheck, Globe
+  Scale as ScaleIcon, Volume2, Wrench, ShieldCheck, Globe
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -102,7 +102,7 @@ const ClientSettings = () => {
           route: '/client/contracts',
         },
         {
-          icon: Scale,
+          icon: ScaleIcon,
           label: t('settings.legal'),
           description: t('settings.legalDesc'),
           bg: 'linear-gradient(135deg, #312e81, #6366f1)',

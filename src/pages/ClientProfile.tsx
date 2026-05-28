@@ -7,7 +7,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import {
   LogOut, User, Camera, Sparkles, Crown,
-  ThumbsUp, Settings, MessageSquare, Megaphone, ChevronRight, Scale, Zap,
+  ThumbsUp, Settings, MessageSquare, Megaphone, ChevronRight, Scale as ScaleIcon, Zap,
   Radio, IdCard, Coins, Users
 } from "lucide-react";
 import { useClientStats } from "@/hooks/useClientStats";
@@ -337,7 +337,7 @@ const ClientProfile = () => {
           <div className="grid grid-cols-1 gap-3">
             {[
               { label: 'Virtual ID Card', icon: IdCard, action: 'vap-edit' as const },
-              { label: t('nav.legal'), icon: Scale, path: '/client/legal-services' },
+              { label: t('nav.legal'), icon: ScaleIcon, path: '/client/legal-services' },
               { label: t('nav.settings'), icon: Settings, path: '/client/settings' },
               { label: t('actions.signOut'), icon: LogOut, path: 'signout', urgent: true },
             ].map((btn: { label: string; icon: React.ComponentType<{ className?: string }>; path?: string; action?: string; urgent?: boolean }) => (

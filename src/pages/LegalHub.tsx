@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 // import { } from "@/components/ui/label";
 // import { } from "@/components/ui/scroll-area";
 import {
-  Scale, MessageSquare, ChevronRight, ChevronDown,
+  Scale as ScaleIcon, MessageSquare, ChevronRight, ChevronDown,
   FileText, Home, DollarSign,
   Users, Gavel, Lock, Send, CheckCircle2,
   Building2, UserX, _Briefcase, Shield, _ChevronLeft, BookOpen
@@ -334,7 +334,7 @@ const LegalHub = () => {
                     { id: '01', icon: Gavel, title: 'Ecosystem Acceptance', content: 'By accessing the Swipess terminal, you agree to be bound by these Operating Terms. Access is strictly restricted to compliant identities.' },
                     { id: '02', icon: UserCheck, title: 'Eligibility Node', content: 'You must be at least 18 years of age and possess full legal capacity to enter into binding digital real estate agreements.' },
                     { id: '03', icon: CheckCircle2, title: 'Cipher Security', content: 'You are exclusively responsible for your account credentials. You must report any unauthorized terminal access immediately.' },
-                    { id: '04', icon: Scale, title: 'Conduct Protocol', content: 'Users shall not transmit fraudulent telemetry, harass peers, or attempt to bypass security layers. Violations result in permanent lockout.' },
+                    { id: '04', icon: ScaleIcon, title: 'Conduct Protocol', content: 'Users shall not transmit fraudulent telemetry, harass peers, or attempt to bypass security layers. Violations result in permanent lockout.' },
                     { id: '05', icon: FileText, title: 'Asset Verification', content: 'Owners must provide certified asset details and comply with all local rental legalities and regional regulations.' },
                   ].map((section) => (
                     <section key={section.id} className="group space-y-6">
@@ -695,7 +695,7 @@ const LegalHub = () => {
                    { icon: FileText, label: 'Terms of Use', doc: 'terms', color: 'bg-blue-600 text-white shadow-blue-500/20' },
                    { icon: Shield, label: 'Privacy Protocol', doc: 'privacy', color: 'bg-rose-600 text-white shadow-rose-500/20' },
                    { icon: BookOpen, label: 'AUP Standards', doc: 'agl', color: 'bg-purple-600 text-white shadow-purple-500/20' },
-                   { icon: Scale, label: 'Smart Contracts', path: isOwner ? '/owner/contracts' : '/client/contracts', color: 'bg-emerald-600 text-white shadow-emerald-500/20' },
+                   { icon: ScaleIcon, label: 'Smart Contracts', path: isOwner ? '/owner/contracts' : '/client/contracts', color: 'bg-emerald-600 text-white shadow-emerald-500/20' },
                  ].map((item) => (
                    <button
                       key={item.label}

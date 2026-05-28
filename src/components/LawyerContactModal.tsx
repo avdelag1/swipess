@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Send, Scale, CheckCircle2 } from 'lucide-react';
+import { X, Send, Scale as ScaleIcon, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -62,7 +62,7 @@ export function LawyerContactModal({ isOpen, onClose }: LawyerContactModalProps)
             <div className="p-8 border-b border-white/5 flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 rounded-2xl bg-amber-500/10 flex items-center justify-center border border-amber-500/20">
-                  <Scale className="w-6 h-6 text-amber-500" />
+                  <ScaleIcon className="w-6 h-6 text-amber-500" />
                 </div>
                 <div>
                   <h3 className="text-xl font-black tracking-tight text-white uppercase italic">Legal Assistance</h3>
