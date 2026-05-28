@@ -62,7 +62,7 @@ serve(async (req) => {
       ? "You are a profile architect for Swipess hosts/owners. Extract structured fields and write a polished business description. Stay faithful to the user's input. Return ONLY valid JSON matching the schema, no markdown."
       : "You are a profile architect for Swipess users. Extract structured fields and write a cinematic first-person bio (2-3 sentences). Stay faithful to the user's input. Leave fields blank if not mentioned. Return ONLY valid JSON matching the schema, no markdown.";
 
-    const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+    const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -113,42 +113,6 @@ serve(async (req) => {
     console.error("[ai-profile-extract]", err);
     return new Response(
       JSON.stringify({ error: err instanceof Error ? err.message : "Unknown error" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-    );
-  }
-});
-      }
-      if (resp.status === 402) {
-        return new Response(JSON.stringify({ error: "AI credits exhausted." }), {
-          status: 402,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-      return new Response(JSON.stringify({ error: "Extraction failed" }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    const data = await resp.json();
-    const call = data?.choices?.[0]?.message?.tool_calls?.[0];
-    let parsed: Record<string, unknown> = {};
-    if (call?.function?.arguments) {
-      try {
-        parsed = JSON.parse(call.function.arguments);
-      } catch (e) {
-        console.error("[ai-profile-extract] tool args parse failed", e);
-      }
-    }
-
-    return new Response(JSON.stringify({ profile: parsed }), {
-      status: 200,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
-  } catch (err) {
-    console.error("[ai-profile-extract] error", err);
-    return new Response(
-      JSON.stringify({ error: err instanceof Error ? err.message : "Unknown" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   }
