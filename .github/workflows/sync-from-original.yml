@@ -1,23 +1,18 @@
 name: Sync from original repository
-
 on:
   schedule:
     - cron: '0 * * * *' # Every hour
   workflow_dispatch:
-
 permissions:
   contents: write
   pull-requests: write
-
 env:
   SOURCE_REPOSITORY: 'avdelag1/swipess'
   SYNC_BRANCH: 'sync-upstream-main'
-
 jobs:
   sync:
     name: Import changes from upstream
     runs-on: ubuntu-latest
-
     steps:
       - name: Skip guard
         id: guard
@@ -27,14 +22,11 @@ jobs:
           else
             echo "skip=false" >> "$GITHUB_OUTPUT"
           fi
-
-      - name: Checkout Lovable-connected repository
         if: steps.guard.outputs.skip != 'true'
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
           token: ${{ secrets.MIRROR_REPO_TOKEN1 || github.token }}
-
       - name: Validate sync configuration
         if: steps.guard.outputs.skip != 'true'
         env:
@@ -44,7 +36,6 @@ jobs:
             echo "::error::MIRROR_REPO_TOKEN1 is missing. Add a GitHub fine-grained PAT named exactly MIRROR_REPO_TOKEN1 with Contents read/write access to both repositories."
             exit 1
           fi
-
       - name: Merge original repo main into sync branch
         if: steps.guard.outputs.skip != 'true'
         env:
@@ -62,7 +53,6 @@ jobs:
             exit 0
           fi
           git push origin "${SYNC_BRANCH}" --force
-
       - name: Create or update sync pull request
         if: steps.guard.outputs.skip != 'true'
         env:
@@ -77,5 +67,4 @@ jobs:
               --base main \
               --head "${SYNC_BRANCH}" \
               --title "Sync updates from ${SOURCE_REPOSITORY}" \
-              --body "Imports the latest main-branch changes from ${SOURCE_REPOSITORY} into the Lovable-connected repository."
           fi

@@ -65,31 +65,35 @@ export const triggerHaptic = async (type: 'light' | 'medium' | 'heavy' | 'succes
       logger.error('Haptics error:', e);
     }
   } else if ('vibrate' in navigator) {
-    switch (type) {
-      case 'light':
-        navigator.vibrate(5);
-        break;
-      case 'medium':
-        navigator.vibrate(10);
-        break;
-      case 'heavy':
-        navigator.vibrate(20);
-        break;
-      case 'success':
-        navigator.vibrate([5, 30, 5]);
-        break;
-      case 'warning':
-        navigator.vibrate([10, 60, 10]);
-        break;
-      case 'error':
-        navigator.vibrate(30);
-        break;
-      case 'match':
-        navigator.vibrate([10, 20, 10, 20, 20, 40, 30]);
-        break;
-      case 'celebration':
-        navigator.vibrate([5, 10, 5, 10, 5, 10, 20, 30, 40, 50, 30]);
-        break;
+    try {
+      switch (type) {
+        case 'light':
+          navigator.vibrate(5);
+          break;
+        case 'medium':
+          navigator.vibrate(10);
+          break;
+        case 'heavy':
+          navigator.vibrate(20);
+          break;
+        case 'success':
+          navigator.vibrate([5, 30, 5]);
+          break;
+        case 'warning':
+          navigator.vibrate([10, 60, 10]);
+          break;
+        case 'error':
+          navigator.vibrate(30);
+          break;
+        case 'match':
+          navigator.vibrate([10, 20, 10, 20, 20, 40, 30]);
+          break;
+        case 'celebration':
+          navigator.vibrate([5, 10, 5, 10, 5, 10, 20, 30, 40, 50, 30]);
+          break;
+      }
+    } catch (e) {
+      logger.error('Web haptics error:', e);
     }
   }
 };

@@ -33,8 +33,7 @@ const DEFAULT_CATEGORY_CAROUSEL_EXTRAS: Record<string, string[]> = {
   ],
   buyers: [
     '/images/filters/buyers_tulum_sold.jpg',
-    'https://images.unsplash.com/photo-1560520031-0e6f1e4c6e2c?auto=format&fit=crop&q=80&w=1200',
-    'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&q=80&w=1200',
+        'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&q=80&w=1200',
   ],
   renters: [
     'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&q=80&w=1200',
