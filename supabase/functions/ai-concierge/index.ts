@@ -6,7 +6,6 @@ const corsHeaders = {
 };
 
 const MINIMAX_API_KEY = Deno.env.get("MINIMAX_API_KEY") || "";
-const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY") || "";
 const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY") || "";
 const MOONSHOT_API_KEY = Deno.env.get("MOONSHOT_API_KEY") || "";
 const TAVILY_API_KEY = Deno.env.get("TAVILY_API_KEY") || "";
@@ -415,7 +414,7 @@ async function loadUserMemories(userId: string): Promise<string> {
 }
 
 async function extractAndSaveMemories(userId: string, userMessage: string, assistantReply: string): Promise<void> {
-  if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY || (!LOVABLE_API_KEY && !GEMINI_API_KEY)) return;
+  if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY || !GEMINI_API_KEY) return;
   try {
     const extractionPrompt = `Extract factual preferences from this conversation. Return ONLY a JSON array of objects with: category (budget|location|lifestyle|timeline|preference), title (short key), content (the value/fact).
 
@@ -430,15 +429,9 @@ If no new facts, return []. Examples of facts:
 
 Return ONLY the JSON array, no markdown:`;
 
-    const url = GEMINI_API_KEY
-      ? "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions"
-      : "https://ai.gateway.lovable.dev/v1/chat/completions";
-    const authHeader = GEMINI_API_KEY
-      ? `Bearer ${GEMINI_API_KEY}`
-      : `Bearer ${LOVABLE_API_KEY}`;
-    const modelName = GEMINI_API_KEY
-      ? "gemini-2.5-flash"
-      : "google/gemini-2.5-flash-lite";
+    const url = "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions";
+    const authHeader = `Bearer ${GEMINI_API_KEY}`;
+    const modelName = "gemini-2.5-flash";
 
     const res = await fetch(url, {
       method: "POST",
@@ -1213,44 +1206,6 @@ async function fetchGeminiDirect(messages: ChatMessage[]): Promise<Response> {
   return res;
 }
 
-async function streamLovableAI(messages: ChatMessage[]): Promise<Response> {
-  if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
-
-  const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${LOVABLE_API_KEY}`,
-    },
-    body: JSON.stringify({
-      model: "google/gemini-2.0-flash",
-      messages,
-      max_tokens: 450,
-      temperature: 0.6,
-      stream: true,
-    }),
-  });
-
-  if (!res.ok) {
-    const status = res.status;
-    const errBody = await res.text();
-    console.error("[AI] Lovable AI error:", status, errBody);
-    if (status === 429) {
-      return new Response(JSON.stringify({ error: "Rate limit exceeded. Please try again in a moment." }), {
-        status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-    if (status === 402) {
-      return new Response(JSON.stringify({ error: "AI credits exhausted." }), {
-        status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-    throw new Error(`Lovable AI ${status}: ${errBody}`);
-  }
-
-  return res;
-}
-
 async function streamKimi(messages: ChatMessage[]): Promise<Response> {
   if (!MOONSHOT_API_KEY) throw new Error("MOONSHOT_API_KEY not configured");
 
@@ -1284,16 +1239,6 @@ async function fetchMiniMax(messages: ChatMessage[]): Promise<Response> {
     method: "POST",
     headers: { "Content-Type": "application/json", "Authorization": `Bearer ${MINIMAX_API_KEY}` },
     body: JSON.stringify({ model: "MiniMax-M2.7", messages, max_tokens: 450, temperature: 0.3, stream: false }),
-  });
-  return res;
-}
-
-async function fetchLovableAI(messages: ChatMessage[]): Promise<Response> {
-  if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
-  const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${LOVABLE_API_KEY}` },
-    body: JSON.stringify({ model: "google/gemini-2.0-flash", messages, max_tokens: 800, temperature: 0.3, stream: false }),
   });
   return res;
 }
@@ -1446,7 +1391,7 @@ Deno.serve(async (req) => {
       ...messages.filter(m => m.role !== "system"),
     ];
 
-    // Try Kimi first for structured tasks or long context, otherwise Gemini (Lovable) as default
+    // Primary: Gemini 2.5 Flash. Structured/long-context tasks → Kimi (Moonshot). Fallback: MiniMax.
     let response: Response;
     let aiProvider = "gemini";
     
@@ -1456,15 +1401,12 @@ Deno.serve(async (req) => {
     try {
       if (isStructuredTask || totalChars > 6000) {
         aiProvider = "kimi";
-        console.log(`[AI] Routing to Kimi (Moonshot) for structured task. Streaming: ${stream}`);
+        console.log(`[AI] Routing to Kimi (Moonshot) for structured/long task. Streaming: ${stream}`);
         response = stream ? await streamKimi(enrichedMessages) : await fetchKimi(enrichedMessages);
       } else {
         aiProvider = "gemini";
-        if (GEMINI_API_KEY) {
-          response = stream ? await streamGeminiDirect(enrichedMessages) : await fetchGeminiDirect(enrichedMessages);
-        } else {
-          response = stream ? await streamLovableAI(enrichedMessages) : await fetchLovableAI(enrichedMessages);
-        }
+        console.log(`[AI] Routing to Gemini 2.5 Flash. Streaming: ${stream}`);
+        response = stream ? await streamGeminiDirect(enrichedMessages) : await fetchGeminiDirect(enrichedMessages);
       }
     } catch (e) {
       console.warn(`[AI] Primary provider (${aiProvider}) failed, falling back to MiniMax: ${(e as Error).message}`);
@@ -1472,18 +1414,10 @@ Deno.serve(async (req) => {
       try {
         response = stream ? await streamMiniMax(enrichedMessages) : await fetchMiniMax(enrichedMessages);
       } catch (e2) {
-        console.warn(`[AI] MiniMax fallback failed, trying final fallback: ${(e2 as Error).message}`);
+        console.warn(`[AI] MiniMax fallback failed, trying Kimi as last resort: ${(e2 as Error).message}`);
         try {
-          aiProvider = aiProvider === "kimi" ? "gemini" : "kimi";
-          if (stream) {
-            response = aiProvider === "kimi" 
-              ? await streamKimi(enrichedMessages) 
-              : (GEMINI_API_KEY ? await streamGeminiDirect(enrichedMessages) : await streamLovableAI(enrichedMessages));
-          } else {
-            response = aiProvider === "kimi" 
-              ? await fetchKimi(enrichedMessages) 
-              : (GEMINI_API_KEY ? await fetchGeminiDirect(enrichedMessages) : await fetchLovableAI(enrichedMessages));
-          }
+          aiProvider = "kimi";
+          response = stream ? await streamKimi(enrichedMessages) : await fetchKimi(enrichedMessages);
         } catch (e3) {
           console.error("[AI] All providers failed:", (e3 as Error).message);
           return new Response(JSON.stringify({ error: "AI temporarily unavailable. Please try again." }), {

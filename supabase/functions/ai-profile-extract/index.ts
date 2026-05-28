@@ -1,5 +1,5 @@
 // AI Profile Extract — turns spoken/written narrative into structured profile fields
-// using Lovable AI Gateway with tool-calling (deterministic JSON output).
+// using Gemini 2.5 Flash with tool-calling (deterministic JSON output).
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const corsHeaders = {
@@ -94,22 +94,16 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
   try {
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY") || "";
-    const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY") || (LOVABLE_API_KEY.startsWith("AIzaSy") ? LOVABLE_API_KEY : "");
-
-    const apiKey = GEMINI_API_KEY || LOVABLE_API_KEY;
-    if (!apiKey) {
+    const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY") || "";
+    if (!GEMINI_API_KEY) {
       return new Response(
-        JSON.stringify({ error: "API Key not configured" }),
+        JSON.stringify({ error: "GEMINI_API_KEY not configured" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
 
-    const isDirectGemini = !!GEMINI_API_KEY;
-    const url = isDirectGemini
-      ? "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions"
-      : "https://ai.gateway.lovable.dev/v1/chat/completions";
-    const modelName = isDirectGemini ? "gemini-2.5-flash" : "google/gemini-2.5-flash";
+    const url = "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions";
+    const modelName = "gemini-2.5-flash";
 
     const { mode, narrative } = await req.json();
     if (!narrative || typeof narrative !== "string" || narrative.trim().length < 5) {
@@ -130,7 +124,7 @@ serve(async (req) => {
       {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${apiKey}`,
+          Authorization: `Bearer ${GEMINI_API_KEY}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({

@@ -10,8 +10,8 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
-const GATEWAY_URL = "https://ai.gateway.lovable.dev/v1/chat/completions";
-const MODEL = "google/gemini-2.5-flash";
+const GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions";
+const MODEL = "gemini-2.5-flash";
 
 interface Body {
   task?: "extract" | "refine";
@@ -32,17 +32,11 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY") || "";
-    const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY") || (LOVABLE_API_KEY.startsWith("AIzaSy") ? LOVABLE_API_KEY : "");
+    const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY") || "";
+    if (!GEMINI_API_KEY) return json(500, { error: "GEMINI_API_KEY not configured" });
 
-    const apiKey = GEMINI_API_KEY || LOVABLE_API_KEY;
-    if (!apiKey) return json(500, { error: "API Key not configured" });
-
-    const isDirectGemini = !!GEMINI_API_KEY;
-    const url = isDirectGemini
-      ? "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions"
-      : GATEWAY_URL;
-    const modelName = isDirectGemini ? "gemini-2.5-flash" : MODEL;
+    const url = GEMINI_URL;
+    const modelName = MODEL;
 
     const body = (await req.json().catch(() => ({}))) as Body;
     const task = body.task ?? "extract";
@@ -53,7 +47,7 @@ serve(async (req) => {
       const resp = await fetch(url, {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${apiKey}`,
+          Authorization: `Bearer ${GEMINI_API_KEY}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
