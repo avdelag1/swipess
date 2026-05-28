@@ -12,7 +12,9 @@ import {
   Flame,
   Zap,
   Moon,
-  PartyPopper
+  PartyPopper,
+  Megaphone,
+  Scale
 } from 'lucide-react';
 
 export interface PokerCardData {
