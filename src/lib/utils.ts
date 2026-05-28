@@ -13,7 +13,7 @@ export function cn(...inputs: ClassValue[]) {
  */
 export function runIdleTask(task: () => void) {
   if ('requestIdleCallback' in window) {
-    (window as any).requestIdleCallback(() => task(), { timeout: 2000 });
+    (window as unknown as { requestIdleCallback: (cb: IdleRequestCallback, opts?: IdleRequestOptions) => void }).requestIdleCallback(() => task(), { timeout: 2000 });
   } else {
     setTimeout(task, 0);
   }

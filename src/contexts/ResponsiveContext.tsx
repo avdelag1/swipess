@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useEffect } from 'react';
 import { useResponsive, ResponsiveState, BreakpointKey, BREAKPOINTS } from '@/hooks/useResponsive';
 

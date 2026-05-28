@@ -165,8 +165,8 @@ export const NotificationBar = memo(function NotificationBar({ notifications, on
               boxShadow: isLight
                 ? `0 12px 40px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.04)`
                 : `0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px ${config.accentColor}15`,
-              backdropFilter: 'blur(30px) saturate(1.6)',
-              WebkitBackdropFilter: 'blur(30px) saturate(1.6)',
+              backdropFilter: 'blur(12px)',
+              WebkitBackdropFilter: 'blur(12px)',
             }}
             onClick={() => {
               triggerHaptic('medium');

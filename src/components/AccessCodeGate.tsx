@@ -1,6 +1,7 @@
+/* eslint-disable react-refresh/only-export-components */
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Lock, Check, X, Sparkles } from 'lucide-react';
+import { Lock, Check, Sparkles } from 'lucide-react';
 import { SwipessLogo } from './SwipessLogo';
 import LandingBackgroundEffects from './LandingBackgroundEffects';
 import { AtmosphericLayer } from './AtmosphericLayer';
@@ -15,7 +16,7 @@ function getAccessCode(): string {
 }
 
 function setAccessCode(code: string) {
-  try { localStorage.setItem(ACCESS_CODE_KEY, code); } catch {}
+  try { localStorage.setItem(ACCESS_CODE_KEY, code); } catch { /* empty */ }
 }
 
 export function isAccessGranted(): boolean {

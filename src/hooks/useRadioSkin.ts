@@ -24,7 +24,7 @@ export function useRadioSkin() {
   }, []);
 
   const setSkin = useCallback((next: RadioSkin) => {
-    try { window.localStorage.setItem(STORAGE_KEY, next); } catch {}
+    try { window.localStorage.setItem(STORAGE_KEY, next); } catch { /* empty */ }
     window.dispatchEvent(new CustomEvent(EVENT, { detail: next }));
     setSkinState(next);
   }, []);

@@ -23,7 +23,7 @@ export function useAppNavigate() {
   };
 
   const appNavigate = (to: string | number, options?: any) => {
-    try { triggerHaptic('light'); } catch {}
+    try { triggerHaptic('light'); } catch { /* empty */ }
 
     const performNavigation = () => {
       _startTransition(() => {

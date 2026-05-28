@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import React from 'react';
 import { Home, Bike, Briefcase } from 'lucide-react';
 import { logger } from '@/utils/prodLogger';

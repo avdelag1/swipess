@@ -187,6 +187,7 @@ function parseLooseJson<T = any>(raw: string): T | null {
     cleaned
       .replace(/,\s*}/g, '}')
       .replace(/,\s*]/g, ']')
+      // eslint-disable-next-line no-control-regex
       .replace(/[\x00-\x1F\x7F]/g, ''),
   ];
 
@@ -483,7 +484,7 @@ export function useConciergeAI() {
         try {
           const errData = await resp.json();
           errorMsg = errData.error || errorMsg;
-        } catch {}
+        } catch { /* empty */ }
         if (resp.status === 429) errorMsg = 'Too many requests. Please wait a moment.';
         if (resp.status === 402) errorMsg = 'AI credits exhausted. Please add funds.';
         toast.error(errorMsg);

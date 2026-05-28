@@ -1,12 +1,12 @@
 import { SharedProfileSection } from "@/components/SharedProfileSection";
-import { useState } from "react";
+
 import { Button } from "@/components/ui/button";
 import { ProfileSkeleton } from "@/components/ui/LayoutSkeletons";
 import { useAuth } from "@/hooks/useAuth";
 import { useOwnerStats } from "@/hooks/useOwnerStats";
 import { useOwnerProfile } from "@/hooks/useOwnerProfile";
 import {
-  LogOut, Building2, Camera, Flame, ThumbsUp, Settings, Megaphone, Scale, Coins, User, UserCircle, Crown, Sparkles, Zap
+  LogOut, Building2, Flame, ThumbsUp, Settings, Megaphone, Scale, Coins, Crown, Sparkles, Zap
 } from "lucide-react";
 import { ActivityFeed } from "@/components/ActivityFeed";
 import { motion } from "framer-motion";
@@ -22,7 +22,7 @@ const OwnerProfile = () => {
   const { isLight } = useAppTheme();
   const { user, signOut } = useAuth();
   const { data: stats } = useOwnerStats();
-  const { data: ownerProfile, isLoading: profileLoading, refetch: refetchOwnerProfile } = useOwnerProfile();
+  const { data: ownerProfile, isLoading: profileLoading } = useOwnerProfile();
   const { tokenBalance } = useMessagingQuota();
   const { setModal } = useModalStore();
   const navigate = useNavigate();

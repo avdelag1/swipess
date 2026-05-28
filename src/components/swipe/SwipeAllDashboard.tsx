@@ -35,7 +35,7 @@ export const SwipeAllDashboard = memo(({ setCategories }: SwipeAllDashboardProps
           if (reordered.length === UNIFIED_CARDS.length) return reordered as typeof UNIFIED_CARDS;
         }
       }
-    } catch {}
+    } catch { /* empty */ }
     return [...UNIFIED_CARDS];
   });
   const navigate = useNavigate();

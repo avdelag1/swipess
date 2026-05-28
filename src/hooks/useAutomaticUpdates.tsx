@@ -12,6 +12,7 @@
  * - React Query cache invalidation
  */
 
+/* eslint-disable react-refresh/only-export-components */
 import { useEffect, useState, useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';

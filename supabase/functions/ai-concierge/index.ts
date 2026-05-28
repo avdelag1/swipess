@@ -5,8 +5,8 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
 
+const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY") || "";
 const MINIMAX_API_KEY = Deno.env.get("MINIMAX_API_KEY") || "";
-const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY") || "";
 const MOONSHOT_API_KEY = Deno.env.get("MOONSHOT_API_KEY") || "";
 const TAVILY_API_KEY = Deno.env.get("TAVILY_API_KEY") || "";
 // Use the production Supabase for data queries
@@ -79,10 +79,10 @@ async function searchKnowledge(query: string): Promise<string> {
   }
 }
 
-function detectPromotedContactIntent(query: string): boolean {
-  const q = query.toLowerCase();
-  return /\b(chef|private chef|cook|bartender|mixologist|dj|photographer|videographer|lawyer|attorney|notary|realtor|broker|agent|coach|trainer|healer|massage|therapist|nanny|babysitter|driver|cleaner|maid|housekeeper|plumber|electrician|handyman|stylist|makeup|hair|designer|architect|contractor|assistant|event planner|recommend someone|looking for a|looking for an|who can help with|who does)\b/.test(q);
-}
+// function detectPromotedContactIntent(query: string): boolean {
+//   const q = query.toLowerCase();
+//   return /\b(chef|private chef|cook|bartender|mixologist|dj|photographer|videographer|lawyer|attorney|notary|realtor|broker|agent|coach|trainer|healer|massage|therapist|nanny|babysitter|driver|cleaner|maid|housekeeper|plumber|electrician|handyman|stylist|makeup|hair|designer|architect|contractor|assistant|event planner|recommend someone|looking for a|looking for an|who can help with|who does)\b/.test(q);
+// }
 
 async function searchPromotedContacts(query: string): Promise<string> {
   if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return "";
@@ -414,7 +414,7 @@ async function loadUserMemories(userId: string): Promise<string> {
 }
 
 async function extractAndSaveMemories(userId: string, userMessage: string, assistantReply: string): Promise<void> {
-  if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY || !LOVABLE_API_KEY) return;
+  if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY || !GEMINI_API_KEY) return;
   try {
     const extractionPrompt = `Extract factual preferences from this conversation. Return ONLY a JSON array of objects with: category (budget|location|lifestyle|timeline|preference), title (short key), content (the value/fact).
 
@@ -429,20 +429,21 @@ If no new facts, return []. Examples of facts:
 
 Return ONLY the JSON array, no markdown:`;
 
-    const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${LOVABLE_API_KEY}` },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-flash-lite",
-        messages: [{ role: "user", content: extractionPrompt }],
-        max_tokens: 300,
-        temperature: 0.1,
-      }),
-    });
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${GEMINI_API_KEY}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ role: "user", parts: [{ text: extractionPrompt }] }],
+          generationConfig: { maxOutputTokens: 300, temperature: 0.1 },
+        }),
+      },
+    );
 
     if (!res.ok) return;
     const data = await res.json();
-    const raw = data.choices?.[0]?.message?.content?.trim();
+    const raw = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
     if (!raw) return;
 
     // Parse JSON array
@@ -1107,6 +1108,112 @@ TONE EXAMPLES:
   return prompt;
 }
 
+// ─── OpenAI ↔ Gemini format converters ───────────────────────────────────────
+
+function toGeminiMessages(messages: ChatMessage[]) {
+  const systemMsgs = messages.filter(m => m.role === "system");
+  const rest = messages.filter(m => m.role !== "system");
+  return {
+    systemInstruction: systemMsgs.length > 0
+      ? { parts: [{ text: systemMsgs.map(s => s.content).join("\n") }] }
+      : undefined,
+    contents: rest.map(m => ({
+      role: m.role === "assistant" ? "model" : ("user" as string),
+      parts: [{ text: m.content }],
+    })),
+  };
+}
+
+function openaiSSE(text: string): string {
+  return `data: ${JSON.stringify({ choices: [{ delta: { content: text } }] })}\n\n`;
+}
+
+// ─── Gemini Provider ─────────────────────────────────────────────────────────
+
+async function streamGemini(messages: ChatMessage[]): Promise<Response> {
+  if (!GEMINI_API_KEY) throw new Error("GEMINI_API_KEY not configured");
+  const { systemInstruction, contents } = toGeminiMessages(messages);
+
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:streamGenerateContent?alt=sse&key=${GEMINI_API_KEY}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        systemInstruction,
+        contents,
+        generationConfig: { maxOutputTokens: 450, temperature: 0.6 },
+      }),
+    },
+  );
+
+  if (!res.ok) {
+    const errBody = await res.text();
+    console.error("[AI] Gemini error:", res.status, errBody);
+    if (res.status === 429) {
+      return new Response(JSON.stringify({ error: "Rate limit exceeded. Please try again in a moment." }), {
+        status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    throw new Error(`Gemini ${res.status}: ${errBody}`);
+  }
+
+  // Convert Gemini SSE to OpenAI-compatible SSE
+  const reader = res.body!.getReader();
+  const decoder = new TextDecoder();
+  const stream = new ReadableStream({
+    async pull(controller) {
+      const { value, done } = await reader.read();
+      if (done) { controller.close(); return; }
+      const chunk = decoder.decode(value, { stream: true });
+      // Gemini SSE format: data: {"candidates":[...],"usageMetadata":{...}}\n\n
+      for (const line of chunk.split("\n")) {
+        if (!line.startsWith("data: ")) continue;
+        const json = line.slice(6).trim();
+        if (!json || json === "[DONE]") continue;
+        try {
+          const parsed = JSON.parse(json);
+          const text = parsed.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (text) controller.enqueue(new TextEncoder().encode(openaiSSE(text)));
+        } catch { /* ignore parse errors */ }
+      }
+    },
+    cancel() { reader.cancel(); },
+  });
+
+  return new Response(stream, { headers: { ...corsHeaders, "Content-Type": "text/event-stream" } });
+}
+
+async function fetchGemini(messages: ChatMessage[]): Promise<Response> {
+  if (!GEMINI_API_KEY) throw new Error("GEMINI_API_KEY not configured");
+  const { systemInstruction, contents } = toGeminiMessages(messages);
+
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        systemInstruction,
+        contents,
+        generationConfig: { maxOutputTokens: 800, temperature: 0.3 },
+      }),
+    },
+  );
+
+  if (!res.ok) {
+    const errBody = await res.text();
+    console.error("[AI] Gemini error:", res.status, errBody);
+    throw new Error(`Gemini ${res.status}: ${errBody}`);
+  }
+
+  const data = await res.json();
+  const text = data?.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
+  // Return as OpenAI-style JSON for compatibility
+  const body = JSON.stringify({ choices: [{ message: { content: text } }] });
+  return new Response(body, { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+}
+
 // ─── Streaming Providers ────────────────────────────────────────────────────
 
 async function streamMiniMax(messages: ChatMessage[]): Promise<Response> {
@@ -1157,44 +1264,6 @@ async function streamMiniMax(messages: ChatMessage[]): Promise<Response> {
   return new Response(stream, { headers: { ...corsHeaders, "Content-Type": "text/event-stream" } });
 }
 
-async function streamLovableAI(messages: ChatMessage[]): Promise<Response> {
-  if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
-
-  const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${LOVABLE_API_KEY}`,
-    },
-    body: JSON.stringify({
-      model: "google/gemini-2.0-flash",
-      messages,
-      max_tokens: 450,
-      temperature: 0.6,
-      stream: true,
-    }),
-  });
-
-  if (!res.ok) {
-    const status = res.status;
-    const errBody = await res.text();
-    console.error("[AI] Lovable AI error:", status, errBody);
-    if (status === 429) {
-      return new Response(JSON.stringify({ error: "Rate limit exceeded. Please try again in a moment." }), {
-        status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-    if (status === 402) {
-      return new Response(JSON.stringify({ error: "AI credits exhausted." }), {
-        status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-    throw new Error(`Lovable AI ${status}: ${errBody}`);
-  }
-
-  return res;
-}
-
 async function streamKimi(messages: ChatMessage[]): Promise<Response> {
   if (!MOONSHOT_API_KEY) throw new Error("MOONSHOT_API_KEY not configured");
 
@@ -1228,16 +1297,6 @@ async function fetchMiniMax(messages: ChatMessage[]): Promise<Response> {
     method: "POST",
     headers: { "Content-Type": "application/json", "Authorization": `Bearer ${MINIMAX_API_KEY}` },
     body: JSON.stringify({ model: "MiniMax-M2.7", messages, max_tokens: 450, temperature: 0.3, stream: false }),
-  });
-  return res;
-}
-
-async function fetchLovableAI(messages: ChatMessage[]): Promise<Response> {
-  if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
-  const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${LOVABLE_API_KEY}` },
-    body: JSON.stringify({ model: "google/gemini-2.0-flash", messages, max_tokens: 800, temperature: 0.3, stream: false }),
   });
   return res;
 }
@@ -1390,36 +1449,23 @@ Deno.serve(async (req) => {
       ...messages.filter(m => m.role !== "system"),
     ];
 
-    // Try Kimi first for structured tasks or long context, otherwise Gemini (Lovable) as default
+    // Use Gemini as primary, Kimi (Moonshot) as first fallback, MiniMax as last resort
     let response: Response;
     let aiProvider = "gemini";
     
-    const totalChars = enrichedMessages.reduce((sum, m) => sum + m.content.length, 0);
-    const isStructuredTask = lastUserMessage.includes("{") || lastUserMessage.toLowerCase().includes("json") || lastUserMessage.toLowerCase().includes("extract");
-    
     try {
-      if (isStructuredTask || totalChars > 6000) {
-        aiProvider = "kimi";
-        console.log(`[AI] Routing to Kimi (Moonshot) for structured task. Streaming: ${stream}`);
-        response = stream ? await streamKimi(enrichedMessages) : await fetchKimi(enrichedMessages);
-      } else {
-        aiProvider = "gemini";
-        response = stream ? await streamLovableAI(enrichedMessages) : await fetchLovableAI(enrichedMessages);
-      }
+      console.log(`[AI] Routing to Gemini. Streaming: ${stream}`);
+      response = stream ? await streamGemini(enrichedMessages) : await fetchGemini(enrichedMessages);
     } catch (e) {
-      console.warn(`[AI] Primary provider (${aiProvider}) failed, falling back to MiniMax: ${(e as Error).message}`);
-      aiProvider = "minimax";
+      console.warn(`[AI] Gemini failed, trying Kimi: ${(e as Error).message}`);
+      aiProvider = "kimi";
       try {
-        response = stream ? await streamMiniMax(enrichedMessages) : await fetchMiniMax(enrichedMessages);
+        response = stream ? await streamKimi(enrichedMessages) : await fetchKimi(enrichedMessages);
       } catch (e2) {
-        console.warn(`[AI] MiniMax fallback failed, trying final fallback: ${(e2 as Error).message}`);
+        console.warn(`[AI] Kimi failed, trying MiniMax: ${(e2 as Error).message}`);
+        aiProvider = "minimax";
         try {
-          aiProvider = aiProvider === "kimi" ? "gemini" : "kimi";
-          if (stream) {
-            response = aiProvider === "kimi" ? await streamKimi(enrichedMessages) : await streamLovableAI(enrichedMessages);
-          } else {
-            response = aiProvider === "kimi" ? await fetchKimi(enrichedMessages) : await fetchLovableAI(enrichedMessages);
-          }
+          response = stream ? await streamMiniMax(enrichedMessages) : await fetchMiniMax(enrichedMessages);
         } catch (e3) {
           console.error("[AI] All providers failed:", (e3 as Error).message);
           return new Response(JSON.stringify({ error: "AI temporarily unavailable. Please try again." }), {

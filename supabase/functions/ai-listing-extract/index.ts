@@ -1,4 +1,4 @@
-// AI Listing Extractor — non-streaming, returns structured JSON via tool calling
+// AI Listing Extractor — non-streaming, returns structured JSON via prompt
 // Used by AIListingWizard for the "extract" and "refine" tasks.
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
@@ -9,9 +9,6 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
-
-const GATEWAY_URL = "https://ai.gateway.lovable.dev/v1/chat/completions";
-const MODEL = "google/gemini-2.5-flash";
 
 interface Body {
   task?: "extract" | "refine";
@@ -32,44 +29,50 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) return json(500, { error: "LOVABLE_API_KEY not configured" });
+    const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
+    if (!GEMINI_API_KEY) return json(500, { error: "GEMINI_API_KEY not configured" });
 
     const body = (await req.json().catch(() => ({}))) as Body;
     const task = body.task ?? "extract";
     const prompt = (body.prompt || "").trim();
     if (!prompt) return json(400, { error: "Missing prompt" });
 
-    if (task === "refine") {
-      const resp = await fetch(GATEWAY_URL, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${LOVABLE_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: MODEL,
-          messages: [
-            {
-              role: "system",
-              content:
-                "You are an elite listing copywriter for Swipess. Rewrite the user's raw spoken input into a sharp, professional, high-converting listing description. Keep it concise (2-4 sentences), confident, and factual. Do not invent details. Do not add placeholders. Return ONLY the rewritten description, no preamble.",
-            },
-            { role: "user", content: prompt },
-          ],
-        }),
-      });
-
-      if (!resp.ok) {
-        if (resp.status === 429) return json(429, { error: "Rate limit. Try again shortly." });
-        if (resp.status === 402) return json(402, { error: "AI credits exhausted." });
-        const t = await resp.text();
-        console.error("[ai-listing-extract] refine gateway error", resp.status, t);
-        return json(500, { error: "Refine failed" });
+    async function callGemini(messages: { role: string; content: string }[]) {
+      const systemMessages = messages.filter(m => m.role === "system");
+      const nonSystemMessages = messages.filter(m => m.role !== "system");
+      const contents = nonSystemMessages.map(m => ({
+        role: m.role === "assistant" ? "model" : "user",
+        parts: [{ text: m.content }],
+      }));
+      const body: Record<string, unknown> = { contents, generationConfig: { temperature: 0.3 } };
+      if (systemMessages.length > 0) {
+        body.systemInstruction = { parts: systemMessages.map(m => ({ text: m.content })) };
       }
-      const data = await resp.json();
-      const text: string = data?.choices?.[0]?.message?.content?.trim?.() ?? prompt;
-      return json(200, { text });
+      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      if (!res.ok) {
+        const t = await res.text();
+        console.error("[ai-listing-extract] gemini error", res.status, t);
+        if (res.status === 429) throw new Error("Rate limit");
+        throw new Error(`Gemini ${res.status}: ${t}`);
+      }
+      const data = await res.json();
+      return data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim?.() ?? "";
+    }
+
+    if (task === "refine") {
+      const text = await callGemini([
+        {
+          role: "system",
+          content:
+            "You are an elite listing copywriter for Swipess. Rewrite the user's raw spoken input into a sharp, professional, high-converting listing description. Keep it concise (2-4 sentences), confident, and factual. Do not invent details. Do not add placeholders. Return ONLY the rewritten description, no preamble.",
+        },
+        { role: "user", content: prompt },
+      ]);
+      return json(200, { text: text || prompt });
     }
 
     // task === "extract"
@@ -78,55 +81,32 @@ serve(async (req) => {
 Category is "${category}". Use the provided base data when present.
 Base price: ${body.price ?? "(unknown)"}
 Base city: ${body.city ?? "(unknown)"}
-Be faithful to the user's words. Do not invent specifics that were not stated.`;
+Be faithful to the user's words. Do not invent specifics that were not stated.
 
-    const tool = {
-      type: "function" as const,
-      function: {
-        name: "build_listing",
-        description: "Return structured listing fields parsed from the user narrative.",
-        parameters: {
-          type: "object",
-          properties: {
-            title: { type: "string", description: "Short catchy title (<= 70 chars)" },
-            description: { type: "string", description: "Polished listing description (2-5 sentences)" },
-            price: { type: "number", description: "Listing price in USD" },
-            city: { type: "string", description: "City detected from input" },
-            beds: { type: "number" },
-            baths: { type: "number" },
-            year: { type: "number" },
-            make: { type: "string" },
-            model: { type: "string" },
-            amenities: { type: "array", items: { type: "string" } },
-          },
-          required: ["title", "description", "price", "city"],
-          additionalProperties: false,
-        },
-      },
-    };
+Return ONLY valid JSON matching this schema, no markdown:
+{
+  "title": "Short catchy title (<= 70 chars)",
+  "description": "Polished listing description (2-5 sentences)",
+  "price": number,
+  "city": "string",
+  "beds": number | null,
+  "baths": number | null,
+  "year": number | null,
+  "make": "string | null",
+  "model": "string | null",
+  "amenities": string[]
+}`;
 
-    const resp = await fetch(GATEWAY_URL, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: MODEL,
-        messages: [
-          { role: "system", content: sys },
-          { role: "user", content: prompt },
-        ],
-        tools: [tool],
-        tool_choice: { type: "function", function: { name: "build_listing" } },
-      }),
-    });
+    const result = await callGemini([
+      { role: "system", content: sys },
+      { role: "user", content: prompt },
+    ]);
 
-    if (!resp.ok) {
-      if (resp.status === 429) return json(429, { error: "Rate limit. Try again shortly." });
-      if (resp.status === 402) return json(402, { error: "AI credits exhausted." });
-      const t = await resp.text();
-      console.error("[ai-listing-extract] extract gateway error", resp.status, t);
+    let parsed: Record<string, unknown>;
+    try {
+      parsed = JSON.parse(result);
+    } catch {
+      console.error("[ai-listing-extract] failed to parse gemini JSON:", result);
       return json(500, { error: "Extract failed" });
     }
 

@@ -130,11 +130,15 @@ export const VirtualizedMessageList = memo(({
   });
 
   useEffect(() => {
-    if (messages.length > 0) {
-      virtualizer.scrollToIndex(messages.length - 1, {
-        align: 'end',
-        behavior: 'auto',
-      });
+    if (messages.length > 0 && parentRef.current) {
+      const { scrollTop, scrollHeight, clientHeight } = parentRef.current;
+      const isNearBottom = scrollHeight - scrollTop - clientHeight < 150;
+      if (isNearBottom || messages.length <= 1) {
+        virtualizer.scrollToIndex(messages.length - 1, {
+          align: 'end',
+          behavior: 'auto',
+        });
+      }
     }
   }, [messages.length, virtualizer]);
 
@@ -146,6 +150,7 @@ export const VirtualizedMessageList = memo(({
     <div
       ref={parentRef}
       className="flex-1 min-h-0 overflow-y-auto py-4 bg-transparent"
+      style={{ position: 'relative' }}
     >
       <div
         style={{
@@ -169,7 +174,7 @@ export const VirtualizedMessageList = memo(({
 
             return (
               <div
-                key={message.client_id || message.id}
+                key={message.id}
                 data-index={virtualRow.index}
                 ref={virtualizer.measureElement}
               >

@@ -25,8 +25,8 @@ const EVENT_PROMO_PRODUCTS: Record<string, number> = {
   'swipess.promo.event.quarter.v2': 90,
 };
 
-async function verifyWithGooglePlay(
-  packageName: string,
+async function _verifyWithGooglePlay(
+  _packageName: string,
   productId: string,
   purchaseToken: string,
 ): Promise<{ verified: boolean; orderId?: string; purchaseState?: number; expiryTimeMillis?: string }> {
@@ -140,7 +140,7 @@ Deno.serve(async (req) => {
     }
     const userId = userData.user.id;
 
-    const { purchaseToken, productId, orderId: clientOrderId, rawData, packageName } = await req.json();
+    const { purchaseToken, productId, orderId: clientOrderId, rawData } = await req.json();
     if (!purchaseToken || !productId) {
       return new Response(JSON.stringify({ ok: false, error: 'Missing purchaseToken or productId' }), {
         status: 400,

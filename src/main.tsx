@@ -52,8 +52,18 @@ const handleEmergencyRecovery = async (reason: string) => {
   }
 };
 
-window.addEventListener('vite:preloadError', (event) => {
+window.addEventListener('vite:preloadError', () => {
   handleEmergencyRecovery('Vite preload error');
+});
+
+// Catch unhandled promise rejections that would otherwise silently disappear
+window.addEventListener('unhandledrejection', (event) => {
+  const msg = event.reason?.message || event.reason || 'Unknown promise rejection';
+  console.error('[Global] Unhandled rejection:', msg);
+  // Avoid logging noisy auth/internal errors
+  if (msg.includes('storage.getItem') || msg.includes('localStorage')) {
+    event.preventDefault();
+  }
 });
 
 if (typeof window !== 'undefined') {
@@ -129,7 +139,7 @@ async function bootstrap() {
       const url = new URL(window.location.href);
       url.searchParams.delete('v');
       window.history.replaceState({}, '', url.pathname + url.search);
-    } catch (_) {}
+    } catch { /* empty */ }
   }
 
   // EMERGENCY RESET: ?reset=1 in URL wipes all state so users can escape crash loops
@@ -147,7 +157,7 @@ async function bootstrap() {
         const keys = await caches.keys();
         await Promise.all(keys.map(k => caches.delete(k)));
       }
-    } catch (_) {}
+    } catch { /* empty */ }
     // Force cache bust on replace to completely bypass browser HTTP disk cache!
     window.location.replace(window.location.pathname + '?v=' + Date.now());
     return;
@@ -250,7 +260,7 @@ deferredInit(async () => {
                  newWorker.onstatechange = () => {
                      if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
                          // Content available - handled by useAutomaticUpdates.tsx
-                         console.log('[SW] New content available');
+                         console.warn('[SW] New content available');
                      }
                  };
              }
@@ -260,7 +270,7 @@ deferredInit(async () => {
 
       // RELOAD CONTROL - when the new SW takes over, let the hook handle it
       navigator.serviceWorker.addEventListener('controllerchange', () => {
-          console.log('[SW] Controller changed');
+          console.warn('[SW] Controller changed');
       });
     }
   } catch { /* intentional */ }

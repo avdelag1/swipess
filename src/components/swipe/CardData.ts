@@ -1,24 +1,14 @@
 
 import { 
-  VespaIcon 
-} from '@/components/icons/VespaIcon';
-import { 
-  BeachBicycleIcon 
-} from '@/components/icons/BeachBicycleIcon';
-import { 
   WorkersIcon 
 } from '@/components/icons/WorkersIcon';
 import { 
   Sparkles, 
   Radio, 
-  ShieldCheck, 
   Users, 
   ShoppingBag, 
   Key, 
-  Scale, 
-  Megaphone,
   Crown,
-  Sun,
   Flame,
   Zap,
   Moon,

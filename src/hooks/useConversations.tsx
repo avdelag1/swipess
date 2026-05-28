@@ -129,22 +129,21 @@ export function useConversations() {
           .eq('blocker_id', user.id);
         const blockedUserIds = new Set((blockedData || []).map((b: any) => b.blocked_id));
 
-        // OPTIMIZED: Single query for all last messages instead of N queries
-        const { data: messagesData, error: messagesError } = await supabase
-          .from('conversation_messages')
-          .select('id, conversation_id, content, message_text, created_at, sender_id, is_read, message_type')
-          .in('conversation_id', conversationIds)
-          .order('created_at', { ascending: false });
-
-        if (messagesError) {
-          logger.error('Error fetching conversation messages:', messagesError);
-        }
-
-        // Create a map of conversation_id to last message
-        const lastMessagesMap = new Map();
-        messagesData?.forEach(msg => {
-          if (!lastMessagesMap.has(msg.conversation_id)) {
-            lastMessagesMap.set(msg.conversation_id, msg);
+        // OPTIMIZED: Batch fetch only the latest message per conversation using Promise.all
+        const lastMessagesMap = new Map<string, unknown>();
+        const messagePromises = conversationIds.map(convId =>
+          supabase
+            .from('conversation_messages')
+            .select('id, conversation_id, content, message_text, created_at, sender_id, is_read, message_type')
+            .eq('conversation_id', convId)
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .maybeSingle()
+        );
+        const messageResults = await Promise.all(messagePromises);
+        messageResults.forEach((result, i) => {
+          if (result.data) {
+            lastMessagesMap.set(conversationIds[i], result.data);
           }
         });
 
@@ -385,6 +384,9 @@ export function useConversationMessages(conversationId: string) {
       });
     },
     enabled: !!conversationId,
+    placeholderData: (prev) => prev,
+    staleTime: 30000,
+    gcTime: 120000,
   });
 
   const { refetch } = query;
@@ -404,18 +406,15 @@ export function useConversationMessages(conversationId: string) {
           filter: `conversation_id=eq.${conversationId}`,
         },
         (payload) => {
-          // Optimistic append: push the new message straight into the cache so it
-          // appears instantly without waiting for a refetch round-trip.
           const newMsg: any = payload.new;
-          if (newMsg) {
-            queryClient.setQueryData(['conversation-messages', conversationId], (prev: any) => {
-              if (!Array.isArray(prev)) return prev;
-              if (prev.some((m: any) => m.id === newMsg.id)) return prev; // dedupe
-              // Strip any optimistic placeholder that matches by content/sender
-              const cleaned = prev.filter((m: any) => !(m.is_optimistic && m.sender_id === newMsg.sender_id && (m.content === newMsg.content || m.message_text === newMsg.message_text)));
-              return [...cleaned, newMsg];
-            });
-          }
+          if (!newMsg) return;
+          // Guard: skip if already handled by useRealtimeChat to avoid double-append
+          queryClient.setQueryData(['conversation-messages', conversationId], (prev: any) => {
+            if (!Array.isArray(prev)) return prev;
+            if (prev.some((m: any) => m.id === newMsg.id)) return prev;
+            const cleaned = prev.filter((m: any) => !(m.is_optimistic && m.sender_id === newMsg.sender_id && (m.content === newMsg.content || m.message_text === newMsg.message_text)));
+            return [...cleaned, newMsg];
+          });
         }
       )
       .on(

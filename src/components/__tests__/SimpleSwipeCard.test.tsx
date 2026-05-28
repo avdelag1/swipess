@@ -53,6 +53,8 @@ describe('SimpleSwipeCard Component', () => {
         baths: 2,
         property_type: 'Villa',
         category: 'property',
+        listing_type: 'rental',
+        rental_duration_type: 'nightly' as const,
         images: ['test-image.jpg'],
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),

@@ -2,12 +2,11 @@ import { useState, useCallback, memo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { triggerHaptic } from '@/utils/haptics';
-import { ChevronRight } from 'lucide-react';
+// import { ChevronRight } from 'lucide-react';
 import {
   OWNER_INTENT_CARDS,
   OwnerIntentCard,
   POKER_CARD_PHOTOS,
-  PK_ASPECT,
 } from './SwipeConstants';
 import { deckFadeVariants } from '@/utils/modernAnimations';
 import { PokerCategoryCard } from './PokerCategoryCard';
@@ -36,7 +35,7 @@ export const OwnerAllDashboard = memo(({ onCardSelect }: OwnerAllDashboardProps)
           if (reordered.length === OWNER_INTENT_CARDS.length) return reordered as typeof OWNER_INTENT_CARDS;
         }
       }
-    } catch {}
+    } catch { /* empty */ }
     return [...OWNER_INTENT_CARDS];
   });
   const navigate = useNavigate();
@@ -110,24 +109,6 @@ export const OwnerAllDashboard = memo(({ onCardSelect }: OwnerAllDashboardProps)
       const next = [...prev];
       const [pulled] = next.splice(index, 1);
       return [pulled, ...next];
-    });
-  }, []);
-
-  const cycleLeft = useCallback(() => {
-    triggerHaptic('light');
-    setCards(prev => {
-      const next = [...prev];
-      const [current] = next.splice(0, 1);
-      return [...next, current];
-    });
-  }, []);
-
-  const cycleRight = useCallback(() => {
-    triggerHaptic('light');
-    setCards(prev => {
-      const next = [...prev];
-      const last = next.pop()!;
-      return [last, ...next];
     });
   }, []);
 

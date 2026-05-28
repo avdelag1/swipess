@@ -199,11 +199,7 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
 
   // Stack styling — 🚀 Swipess v14.0 Reveal Logic
   // Memoized so background-card filter doesn't recompute on every render → no flicker.
-    const { stackY, stackScale, stackOpacity, stackedFilter } = useMemo(() => ({
-      stackY: 0,
-      // All cards are full scale — scale variation caused a visible pop when
-      // a card transitioned from non-top (e.g. 0.955) to top (undefined = 1).
-      stackScale: 1,
+    const { stackOpacity, stackedFilter } = useMemo(() => ({
       // All cards fully opaque — depth comes from brightness + blur below.
       stackOpacity: 1,
       // EVERY card gets an explicit filter, including the top card, so when

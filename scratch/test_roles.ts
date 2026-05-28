@@ -1,7 +1,7 @@
 
 import { supabase } from '../src/integrations/supabase/client';
 
-async function testRoleAccess() {
+async function _testRoleAccess() {
   // This script is for manual verification of what we can see
   const { data, error } = await supabase
     .from('user_roles')

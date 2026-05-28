@@ -2,7 +2,6 @@ import { ClientProfileDialog } from "@/components/ClientProfileDialog";
 import { PhotoPreview } from "@/components/PhotoPreview";
 import { SharedProfileSection } from "@/components/SharedProfileSection";
 import { useState, useCallback } from "react";
-import { Button } from "@/components/ui/button";
 import { useClientProfile } from "@/hooks/useClientProfile";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";

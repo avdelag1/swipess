@@ -13,6 +13,7 @@
  *   logger.info('[Component] Info message');     // Only in development
  */
 
+/* eslint-disable no-console */
 const isDev = import.meta.env.DEV;
 
 /**
@@ -21,59 +22,25 @@ const isDev = import.meta.env.DEV;
  * - In production: Only errors are displayed
  */
 export const logger = {
-  /**
-   * General debug logging (development only)
-   */
-  log: isDev ? console.log : () => {},
-
-  /**
-   * Warning messages (development only)
-   */
+  log: isDev ? console.warn : () => {},
   warn: isDev ? console.warn : () => {},
 
-  /**
-   * Error messages (always logged, even in production)
-   */
   error: console.error,
 
-  /**
-   * Debug messages (development only)
-   */
   debug: isDev ? console.debug : () => {},
 
-  /**
-   * Info messages (development only)
-   */
-  info: isDev ? console.info : () => {},
+  info: isDev ? console.warn : () => {},
 
-  /**
-   * Grouped logs (development only)
-   */
   group: isDev ? console.group : () => {},
 
-  /**
-   * End grouped logs (development only)
-   */
   groupEnd: isDev ? console.groupEnd : () => {},
 
-  /**
-   * Table display (development only)
-   */
   table: isDev ? console.table : () => {},
 
-  /**
-   * Time tracking start (development only)
-   */
   time: isDev ? console.time : () => {},
 
-  /**
-   * Time tracking end (development only)
-   */
   timeEnd: isDev ? console.timeEnd : () => {},
 
-  /**
-   * Trace logs (development only)
-   */
   trace: isDev ? console.trace : () => {},
 };
 
@@ -89,11 +56,11 @@ export const logger = {
  */
 export function createLogger(context: string) {
   return {
-    log: (message: string, ...args: any[]) => logger.log(`[${context}] ${message}`, ...args),
-    warn: (message: string, ...args: any[]) => logger.warn(`[${context}] ${message}`, ...args),
-    error: (message: string, ...args: any[]) => logger.error(`[${context}] ${message}`, ...args),
-    debug: (message: string, ...args: any[]) => logger.debug(`[${context}] ${message}`, ...args),
-    info: (message: string, ...args: any[]) => logger.info(`[${context}] ${message}`, ...args),
+    log: (message: string, ...args: unknown[]) => logger.log(`[${context}] ${message}`, ...args),
+    warn: (message: string, ...args: unknown[]) => logger.warn(`[${context}] ${message}`, ...args),
+    error: (message: string, ...args: unknown[]) => logger.error(`[${context}] ${message}`, ...args),
+    debug: (message: string, ...args: unknown[]) => logger.debug(`[${context}] ${message}`, ...args),
+    info: (message: string, ...args: unknown[]) => logger.info(`[${context}] ${message}`, ...args),
   };
 }
 

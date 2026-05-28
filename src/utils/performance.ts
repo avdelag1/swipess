@@ -9,11 +9,11 @@ import { getNetworkProfile } from "@/utils/networkAware";
 
 export function logBundleSize() {
   if (import.meta.env.DEV) {
-    console.log('[Performance] Bundle loaded');
+    console.warn('[Performance] Bundle loaded');
     if (typeof window !== 'undefined' && window.performance) {
       const timing = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
       if (timing) {
-        console.log('[Performance] DOM Content Loaded:', timing.domContentLoadedEventEnd - timing.startTime, 'ms');
+        console.warn('[Performance] DOM Content Loaded:', timing.domContentLoadedEventEnd - timing.startTime, 'ms');
       }
     }
   }

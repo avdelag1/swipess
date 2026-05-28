@@ -263,7 +263,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       // Persist to localStorage for recovery across sessions
       try {
         localStorage.setItem(SCROLL_STORAGE_KEY, JSON.stringify(scrollPositions.current));
-      } catch (e) {
+      } catch {
         // Storage quota exceeded, just use memory
       }
     };

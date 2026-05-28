@@ -464,9 +464,10 @@ export function useSmartListingMatching(
                     query = query.in('service_category', filters.serviceCategory);
                 }
 
-                let { data: listings, error } = await query
+                const { data: _initialListings, error } = await query
                     .order('created_at', { ascending: false })
                     .limit(Math.max(pageSize * (page + 1), 120));
+                let listings = _initialListings;
                 if (error) {
                     logger.warn('[SmartMatching] listings query error, retrying without exclusion', error);
                     const retry = await supabase.from('listings')

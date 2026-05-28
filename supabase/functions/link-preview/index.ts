@@ -12,8 +12,6 @@ const SUPABASE_KEY =
   Deno.env.get("SUPABASE_PUBLISHABLE_KEY") ??
   "";
 const DEFAULT_APP_ORIGIN = (Deno.env.get("APP_ORIGIN") ?? "https://www.swipess.com").replace(/\/$/, "");
-const FALLBACK_IMAGE = "https://www.swipess.com/og-image-nexus.png";
-
 if (!SUPABASE_URL) {
   throw new Error("SUPABASE_URL environment variable is required");
 }

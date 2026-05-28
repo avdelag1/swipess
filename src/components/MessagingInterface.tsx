@@ -55,9 +55,9 @@ interface MessagingInterfaceProps {
 }
 
 const QUICK_EMOJIS = [
-  'ðŸ‘‹', 'ðŸ˜Š', 'ðŸ˜„', 'ðŸ˜‚', 'ðŸ¥°', 'ðŸ˜', 'ðŸ¤©', 'ðŸ˜Ž',
-  'ðŸ™', 'ðŸ‘', 'ðŸ”¥', 'â¤ï¸', 'ðŸŽ‰', 'âœ¨', 'ðŸ’¯', 'ðŸ¤',
-  'ðŸ’ª', 'ðŸ‘', 'ðŸ¥³', 'ðŸ˜‡', 'ðŸ¤—', 'ðŸ˜', 'ðŸŒŸ', 'ðŸ’¬',
+  '\u{1F44B}', '\u{1F60A}', '\u{1F604}', '\u{1F602}', '\u{1F970}', '\u{1F60D}', '\u{1F929}', '\u{1F60E}',
+  '\u{1F64F}', '\u{1F44D}', '\u{1F525}', '\u{2764}\u{FE0F}', '\u{1F389}', '\u{2728}', '\u{1F4AF}', '\u{1F91D}',
+  '\u{1F4AA}', '\u{1F44F}', '\u{1F973}', '\u{1F607}', '\u{1F917}', '\u{1F601}', '\u{1F31F}', '\u{1F4EC}',
 ];
 
 export const MessagingInterface = memo(({ conversationId, otherUser, listing, _currentUserRole = 'client', onBack }: MessagingInterfaceProps) => {

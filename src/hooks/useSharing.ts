@@ -1,18 +1,14 @@
 // Always share via the canonical Swipess production domain so recipients
-// never see preview/iframe hosts (e.g. id-preview--*.lovable.app) and links
+// never see preview/iframe hosts and links
 // don't carry third-party branding into WhatsApp / Instagram / Facebook.
 // Only swap to a custom domain — never to a preview/sandbox host.
-const PUBLIC_FALLBACK = 'https://swipess.lovable.app';
+const PUBLIC_FALLBACK = 'https://www.swipess.com';
 function getShareBaseUrl(): string {
   if (typeof window !== 'undefined' && window.location?.origin) {
     const origin = window.location.origin;
     const host = window.location.hostname || '';
     const isPreview =
-      host.includes('id-preview--') ||
-      host.includes('lovableproject.com') ||
       host.includes('sandbox') ||
-      host.endsWith('.lovable.dev') ||
-      host.endsWith('.lovable.app') ||
       host === 'localhost' ||
       host.startsWith('127.') ||
       host.startsWith('192.168.');

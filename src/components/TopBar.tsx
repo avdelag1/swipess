@@ -36,7 +36,7 @@ function TopBarComponent({
   onBack: propOnBack,
   _onMessageActivationsClick,
   className,
-  userRole,
+  _userRole,
   transparent: _transparent = false,
   minimal = false,
   showBack,
@@ -57,8 +57,6 @@ function TopBarComponent({
   // Color rule: always WHITE on dashboard (forced dark), otherwise
   // follow theme.
   const iconColor = !isLight || isDashboard ? '#FFFFFF' : '#0A0A0A';
-
-  const isOwner = userRole === 'owner';
 
   // Note: when an activeCategory is set on the dashboard, the SwipeDeckBackButton
   // already provides the persistent back arrow. Don't render a duplicate here.

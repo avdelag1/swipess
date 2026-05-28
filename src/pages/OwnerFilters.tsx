@@ -34,7 +34,7 @@ export default function OwnerFilters({ isEmbedded, onClose }: OwnerFiltersProps)
 
   const handleApply = useCallback((_filters?: any) => {
     // We just want to stay on the page when filters are auto-applied from DiscoveryFilters
-    console.info('[OwnerFilters] handleApply called, skipping navigation for auto-sync');
+    console.warn('[OwnerFilters] handleApply called, skipping navigation for auto-sync');
   }, []);
 
   const handleFinalApply = useCallback(() => {

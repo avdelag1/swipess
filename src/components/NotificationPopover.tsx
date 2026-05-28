@@ -336,7 +336,7 @@ export function NotificationPopover({ className, children, glassPillStyle }: Not
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0, opacity: 0 }}
               transition={{ type: "spring", stiffness: 500, damping: 30 }}
-              className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white px-1.5"
+              className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-brand-primary text-[10px] font-bold text-white px-1 shadow-sm"
             >
               {unreadCount > 99 ? '99+' : unreadCount}
             </motion.span>

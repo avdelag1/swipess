@@ -1,6 +1,7 @@
 import { useOutlet, useLocation } from 'react-router-dom';
 import { Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Loader2 } from 'lucide-react';
 
 export function AnimatedOutlet() {
   const outlet = useOutlet();
@@ -20,6 +21,7 @@ export function AnimatedOutlet() {
   // Dashboard routes: use the original absolute overlay so the persistent
   // swipe deck below stays interactive. Use AnimatePresence for the
   // cross-fade between dashboard and the empty placeholder.
+  // Sub-route content must set pointer-events: auto if it needs interaction.
   if (isDashboardRoute) {
     return (
       <div
@@ -33,9 +35,13 @@ export function AnimatedOutlet() {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.10, ease: [0.22, 1, 0.36, 1] }}
             className="flex-1 w-full flex flex-col bg-transparent"
-            style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}
+            style={{ position: 'absolute', inset: 0, pointerEvents: 'auto' }}
           >
-            <Suspense fallback={null}>
+            <Suspense fallback={
+              <div className="flex items-center justify-center w-full h-full min-h-[200px]">
+                <Loader2 className="w-6 h-6 animate-spin text-muted-foreground/50" />
+              </div>
+            }>
               {outlet}
             </Suspense>
           </motion.div>
@@ -65,7 +71,11 @@ export function AnimatedOutlet() {
         exit={{ opacity: 0, y: -10 }}
         transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
       >
-        <Suspense fallback={null}>
+        <Suspense fallback={
+          <div className="flex items-center justify-center w-full h-[60vh]">
+            <Loader2 className="w-8 h-8 animate-spin text-muted-foreground/50" />
+          </div>
+        }>
           {outlet}
         </Suspense>
       </motion.div>

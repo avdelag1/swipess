@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { ThumbsUp, Star, MessageCircle, UserPlus, Zap, Crown, CheckCircle2, AlertTriangle, Info, AlertCircle } from 'lucide-react';
 
 export const SparklesIcon = () => (

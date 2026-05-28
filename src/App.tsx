@@ -5,7 +5,7 @@ import { Routes, Route, Navigate, useLocation, useParams } from "react-router-do
 import { RootProviders } from "./providers/RootProviders";
 
 import { ProtectedRoute } from "@/components/ProtectedRoute";
-import { useActiveMode } from "@/hooks/useActiveMode";
+// import { useActiveMode } from "@/hooks/useActiveMode";
 import { AdminProtectedRoute } from "@/components/AdminProtectedRoute";
 import { AppLayout } from "@/components/AppLayout";
 import { MaintenanceGate } from "@/components/MaintenanceGate";
@@ -62,7 +62,6 @@ const PromoteEventRequest = lazyWithRetry(() => import("./pages/PromoteEventRequ
 const PromoteEventPackages = lazyWithRetry(() => import("./pages/PromoteEventPackages"));
 
 // OWNER PAGES
-const OwnerProfile = lazyWithRetry(() => import("./pages/OwnerProfile"));
 const OwnerSettings = lazyWithRetry(() => import("./pages/OwnerSettings"));
 const OwnerProperties = lazyWithRetry(() => import("./pages/OwnerProperties"));
 const OwnerNewListing = lazyWithRetry(() => import("./pages/OwnerNewListing"));

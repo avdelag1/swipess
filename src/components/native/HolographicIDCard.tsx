@@ -4,10 +4,6 @@ import { ShieldCheck, Globe, Fingerprint, MapPin, Briefcase, Clock } from 'lucid
 import { cn } from '@/lib/utils';
 import useAppTheme from '@/hooks/useAppTheme';
 
-const SectionLabel = ({ text }: { text: string }) => (
-  <p className="text-[7px] font-black uppercase tracking-widest text-primary opacity-50">{text}</p>
-);
-
 export const HolographicIDCard = ({ profile }: { profile: any }) => {
   const { isLight } = useAppTheme();
   

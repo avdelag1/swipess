@@ -1,4 +1,4 @@
-import { memo, useState, useRef, useEffect, useCallback } from 'react';
+import { memo, useState, useRef, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
   motion, useMotionValue, useTransform, AnimatePresence, PanInfo, animate

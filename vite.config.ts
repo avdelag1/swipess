@@ -64,7 +64,7 @@ export default defineConfig(({ mode }) => ({
     cssCodeSplit: true,
     sourcemap: false,
     reportCompressedSize: false,
-    chunkSizeWarningLimit: 3000,
+    chunkSizeWarningLimit: 2000,
     rollupOptions: {
       onwarn(warning, warn) {
         if (warning.code === 'CIRCULAR_DEPENDENCY') {
@@ -89,6 +89,9 @@ export default defineConfig(({ mode }) => ({
               id.includes('node_modules/scheduler/')
             ) return 'vendor-react';
             if (id.includes('react-router')) return 'vendor-router';
+            // Merge zustand to avoid vendor-react -> vendor-state circular dep
+            // Merge loose-envify (React runtime dep) to avoid vendor-react -> vendor-misc circular dep
+            if (id.includes('zustand') || id.includes('use-sync-external-store') || id.includes('loose-envify') || id.includes('prop-types') || id.includes('object-assign')) return 'vendor-react';
 
             // ISOLATED HEAVY LIBRARIES — maximize cache persistence
             if (id.includes('framer-motion') || id.includes('motion-dom') || id.includes('motion-utils')) return 'vendor-motion';
@@ -103,11 +106,9 @@ export default defineConfig(({ mode }) => ({
             if (id.includes('browser-image-compression')) return 'vendor-img';
             
             if (id.includes('@tanstack')) return 'vendor-query';
-            if (id.includes('zustand')) return 'vendor-state';
             if (id.includes('date-fns')) return 'vendor-dates';
             if (id.includes('clsx') || id.includes('tailwind-merge') || id.includes('class-variance-authority')) return 'vendor-css-utils';
             
-            // Everything else
             return 'vendor-misc';
           }
         }

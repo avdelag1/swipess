@@ -35,9 +35,16 @@ export async function safeApiCall<T>(
  * @param query - Description of the query for logging
  * @param operation - The Supabase operation
  */
+interface DbError {
+  message?: string;
+  code?: string;
+  details?: string;
+  hint?: string;
+}
+
 export async function safeDbQuery<T>(
   query: string,
-  operation: () => Promise<{ data: T | null; error: any }>
+  operation: () => Promise<{ data: T | null; error: DbError | null }>
 ): Promise<T | null> {
   try {
     const { data, error } = await operation();

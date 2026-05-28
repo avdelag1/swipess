@@ -14,15 +14,15 @@
  *   - The glass bar clearly shows blurred content behind it (no opaque bg)
  */
 
+/* eslint-disable react-refresh/only-export-components */
 import React, { useState, useCallback, useEffect, useRef, memo } from 'react';
 import { useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Flame, MessageCircle, CircleUser, Building2,
-  Users2, ShieldCheck,
-  Megaphone, PartyPopper, Scale,
+  PartyPopper, Scale,
   Zap, SlidersHorizontal, Sparkles,
-  IdCard, BadgePercent, Radio, Ticket
+  IdCard, Radio
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUnreadMessageCount } from '@/hooks/useUnreadMessageCount';
@@ -43,10 +43,8 @@ const TOUCH_TARGET = 28;
 const TOUCH_TARGET_TABLET = 38;
 
 interface BottomNavigationProps {
-  userRole: 'client' | 'owner' | 'admin';
   onFilterClick?: () => void;
   onAddListingClick?: () => void;
-  onListingsClick?: () => void;
 
   className?: string; // High-stability HUD support
 }
@@ -72,9 +70,7 @@ export const TAP_SPRING = {
 };
 
 export const BottomNavigation = memo(({
-  userRole,
   onFilterClick,
-  onListingsClick,
   className,
 }: BottomNavigationProps) => {
   const { navigate } = useAppNavigate();
@@ -389,7 +385,7 @@ export const BottomNavigation = memo(({
                         animate={{ scale: 1 }}
                         exit={{ scale: 0 }}
                         transition={{ type: 'spring', stiffness: 500, damping: 20 }}
-                        className="absolute -top-1 -right-1 rounded-full px-1.5 h-[16px] z-20 shadow-[0_2px_8px_rgba(255,77,0,0.4)] border-2 border-[var(--hud-bg)] flex items-center justify-center text-[11px] font-black text-white"
+                        className="absolute -top-1 -right-1 rounded-full min-w-[18px] h-[18px] z-20 flex items-center justify-center text-[11px] font-bold text-white shadow-sm"
                         style={{ background: 'linear-gradient(135deg,#FF4D00,#EB4898)' }}
                       >
                         {item.badge}

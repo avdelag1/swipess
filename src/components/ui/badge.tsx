@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 
@@ -9,7 +10,7 @@ const badgeVariants = cva(
     variants: {
       variant: {
         default:
-          "border-transparent bg-gradient-to-r from-red-600 to-red-500 text-white shadow-lg hover:shadow-xl hover:from-red-700 hover:to-red-600 backdrop-blur-sm",
+          "border-transparent bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow-lg hover:shadow-xl backdrop-blur-sm",
         secondary:
           "border-transparent bg-secondary/80 backdrop-blur-sm text-secondary-foreground hover:bg-secondary/90 shadow-md hover:shadow-lg",
         destructive:

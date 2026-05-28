@@ -2,7 +2,7 @@ import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  X, Upload, FileText, CheckCircle2, Loader2, Save, Camera, User, Plus,
+  X, Upload, FileText, CheckCircle2, Loader2, Save, Camera,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
@@ -40,9 +40,6 @@ export function VapIdEditModal({ isOpen, onClose, onSaved, role = 'client' }: Pr
   const queryClient = useQueryClient();
   const [uploading, setUploading] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
-  const [photoUploading, setPhotoUploading] = useState(false);
-
-  const [name, setName] = useState('');
   const [bio, setBio] = useState('');
   const [occupation, setOccupation] = useState('');
   const [city, setCity] = useState('');
@@ -59,7 +56,7 @@ export function VapIdEditModal({ isOpen, onClose, onSaved, role = 'client' }: Pr
   const profileTable = 'client_profiles';
   const profileQueryKey = 'vap-id-client-profile';
 
-  const { data: profileData, refetch } = useQuery({
+  const { data: profileData } = useQuery({
     queryKey: [profileQueryKey, user?.id],
     enabled: !!user?.id && isOpen,
     staleTime: 0,

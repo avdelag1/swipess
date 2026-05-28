@@ -145,50 +145,22 @@ const Index = () => {
       }
 
       // 4. Sticky Mode Preference: Fastest path (LocalStorage)
-      const cachedMode = localStorage.getItem(`swipess_active_mode_${user.id}`);
-      if (cachedMode === 'client' || cachedMode === 'owner') {
-          hasNavigated.current = true;
-          logger.log("[Index] Warp-Speed: Navigating to sticky mode", cachedMode);
-          navigate(`/${cachedMode}/dashboard`, { replace: true });
-          return;
+      try {
+        const cachedMode = localStorage.getItem(`swipess_active_mode_${user.id}`);
+        if (cachedMode === 'client' || cachedMode === 'owner') {
+            hasNavigated.current = true;
+            logger.log("[Index] Warp-Speed: Navigating to sticky mode", cachedMode);
+            navigate(`/${cachedMode}/dashboard`, { replace: true });
+            return;
+        }
+      } catch {
+        // localStorage unavailable (private browsing, sandboxed iframe) — fall through
       }
 
       // 4.5. APP-WIDE PROTOCOL: Force start on client regardless of metadata/DB role
       // This ensures Owners always see the market discovery first.
       hasNavigated.current = true;
       navigate('/client/dashboard', { replace: true });
-      return;
-
-      // 5. Auth Metadata: Reliable second path (In-memory)
-      const metadataRole = user?.user_metadata?.role as 'client' | 'owner' | undefined;
-      // ALWAYS start on client first if it's a fresh session or no sticky preference
-      if (metadataRole === 'client') {
-          hasNavigated.current = true;
-          logger.log("[Index] Warp-Speed: Navigating to metadata role", metadataRole);
-          navigate(`/client/dashboard`, { replace: true });
-          return;
-      }
-
-      // 6. DB Role Fallback: If we have the role from the query, use it
-      if (userRole === 'client') {
-          hasNavigated.current = true;
-          logger.log("[Index] Warp-Speed: Navigating to DB role", userRole);
-          navigate(`/client/dashboard`, { replace: true });
-          return;
-      }
-      
-      if (userRole === 'admin') {
-          hasNavigated.current = true;
-          navigate('/admin/eventos', { replace: true });
-          return;
-      }
-
-      // 7. Last Resort: Default to client dashboard (Never block the user)
-      if (!isLoadingRole && !isFetching) {
-          hasNavigated.current = true;
-          logger.warn("[Index] Warp-Speed: Last resort navigation to /client");
-          navigate('/client/dashboard', { replace: true });
-      }
     };
 
     // Safety net: Force navigation after max 1.5s (reduced from 3s)

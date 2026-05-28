@@ -28,10 +28,6 @@ SECRETS = [
     {"name": "MOONSHOT_API_KEY", "value": moonshot_key},
 ]
 
-lovable_key = os.environ.get("LOVABLE_API_KEY")
-if lovable_key:
-    SECRETS.append({"name": "LOVABLE_API_KEY", "value": lovable_key})
-
 minimax_key = os.environ.get("MINIMAX_API_KEY")
 if minimax_key:
     SECRETS.append({"name": "MINIMAX_API_KEY", "value": minimax_key})

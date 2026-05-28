@@ -1,7 +1,7 @@
 import React, { useMemo, useState, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ShieldCheck, MapPin, Droplets, Pencil, Phone, Languages } from 'lucide-react';
+import { X, ShieldCheck, MapPin, Droplets, Pencil, Languages } from 'lucide-react';
 import QRCode from 'react-qr-code';
 import { useAuth } from '@/hooks/useAuth';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -35,7 +35,7 @@ export function VapIdCardModal({ isOpen, onClose, role = 'client' }: VapIdProps)
 
   const cycleTheme = () => setThemeIndex((i) => {
     const next = (i + 1) % CARD_THEMES.length;
-    try { localStorage.setItem(THEME_STORAGE_KEY, String(next)); } catch {}
+    try { localStorage.setItem(THEME_STORAGE_KEY, String(next)); } catch { /* empty */ }
     return next;
   });
 
@@ -94,8 +94,6 @@ export function VapIdCardModal({ isOpen, onClose, role = 'client' }: VapIdProps)
   const bio = ext?.vap_bio || ext?.bio || '';
   const occupation = ext?.vap_occupation || ext?.occupation || '';
   const avatarUrl = ext?.vap_avatar || (Array.isArray(ext?.profile_images) && ext.profile_images.length > 0 ? ext.profile_images[0] : '');
-  const phone = ext?.phone || '';
-
   const spokenLanguages = useMemo(() => {
     // vap_languages is the correct column; fall back to the generic languages field
     const raw = Array.isArray(ext?.vap_languages) && ext.vap_languages.length > 0

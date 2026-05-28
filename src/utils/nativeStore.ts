@@ -19,7 +19,7 @@ export const NativeStore = {
       if ((window as any).WebToNative?.requestReview) {
         await (window as any).WebToNative.requestReview();
       } else {
-        console.log('[NativeStore] Review requested (stub)');
+        console.warn('[NativeStore] Review requested (stub)');
       }
     } catch (err) {
       console.error('[NativeStore] Review request failed:', err);

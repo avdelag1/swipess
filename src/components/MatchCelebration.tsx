@@ -38,8 +38,8 @@ export function MatchCelebration({ isOpen, onClose, onMessage, matchedUser }: Ma
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-    let w = canvas.width = window.innerWidth;
-    let h = canvas.height = window.innerHeight;
+    const w = canvas.width = window.innerWidth;
+    const h = canvas.height = window.innerHeight;
     canvas.width = w * window.devicePixelRatio;
     canvas.height = h * window.devicePixelRatio;
     ctx.scale(window.devicePixelRatio, window.devicePixelRatio);

@@ -106,6 +106,7 @@ export function PageTransition({
   const prefersReduced =
     typeof window !== 'undefined' &&
     window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  const [isAnimating, setIsAnimating] = useState(true);
 
   return (
     <motion.div
@@ -115,7 +116,11 @@ export function PageTransition({
       variants={variants}
       transition={prefersReduced ? { duration: 0 } : PAGE_SPRING}
       className={`w-full h-full ${className}`}
-      style={{ willChange: 'transform, opacity', transform: 'translateZ(0)' }}
+      onAnimationComplete={() => setIsAnimating(false)}
+      style={{
+        willChange: isAnimating ? 'transform, opacity' : 'auto',
+        transform: 'translateZ(0)',
+      }}
     >
       {children}
     </motion.div>

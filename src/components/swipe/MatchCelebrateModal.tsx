@@ -1,6 +1,6 @@
 import { memo, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageCircle, Sparkles } from 'lucide-react';
+import { MessageCircle } from 'lucide-react';
 import { triggerHaptic } from '@/utils/haptics';
 import { Button } from '@/components/ui/button';
 import { useAppNavigate } from '@/hooks/useAppNavigate';

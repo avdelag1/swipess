@@ -6,14 +6,10 @@ import { RealEstateIcon } from '@/components/icons/RealEstateIcon';
 import { ListingFilters } from '@/hooks/useSmartMatching';
 import { logger } from '@/utils/prodLogger';
 import {
-  Radio,
   Sparkles,
-  ShieldCheck,
   Users,
   ShoppingBag,
   Key,
-  Scale,
-  Megaphone,
   PartyPopper
 } from 'lucide-react';
 

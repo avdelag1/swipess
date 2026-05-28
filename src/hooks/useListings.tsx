@@ -52,7 +52,7 @@ export interface Listing {
   engines?: string;
   fuel_type?: string;
   equipment?: string[];
-  rental_rates?: any;
+  rental_rates?: Record<string, number>;
 
   // Motorcycle fields
   mileage?: number;
@@ -138,15 +138,16 @@ export function useListings(excludeSwipedIds: string[] = [], options: { enabled?
             if (import.meta.env.DEV) logger.error('Error fetching filter preferences:', prefError);
           }
 
-          if ((preferences?.preferred_listing_types as any)?.length) {
-            _preferredListingTypes = (preferences as any).preferred_listing_types;
+          const prefTypes = (preferences as unknown as { preferred_listing_types?: string[] })?.preferred_listing_types;
+          if (prefTypes?.length) {
+            _preferredListingTypes = prefTypes;
           }
         }
 
         // 🚀 SPEED OF LIGHT: Attempt database-level filtering (RPC)
         // This is the "Materialized View" strategy: DB handles exclusion in one pass.
         try {
-          const { data: rpcListings, error: rpcError } = await (supabase as any).rpc('get_smart_listings', {
+          const { data: rpcListings, error: rpcError } = await supabase.rpc('get_smart_listings', {
             p_user_id: user?.user?.id,
             p_category: category === 'all' ? null : category,
             p_limit: 30, // Increased limit for consistent feed
@@ -154,13 +155,13 @@ export function useListings(excludeSwipedIds: string[] = [], options: { enabled?
           });
 
           if (!rpcError && rpcListings && Array.isArray(rpcListings) && rpcListings.length > 0) {
-            const normalized = (rpcListings as any[]).map(l => ({
+            const normalized = (rpcListings as unknown as Listing[]).map(l => ({
                 ...l,
                 owner_id: l.owner_id || l.user_id,
                 images: (Array.isArray(l.images) ? l.images : (l.images ? [l.images] : []))
                         .map((img: string) => (typeof img === 'string' && img.includes('supabase.co/storage') && !img.includes('?width=')) 
                                     ? `${img}?width=720&quality=75&format=avif` : img)
-            })) as Listing[];
+            }));
             return sortRealListingsFirst(normalized);
           }
         } catch (_e) {
@@ -197,10 +198,10 @@ export function useListings(excludeSwipedIds: string[] = [], options: { enabled?
           return [];
         }
 
-        const normalized = ((listings as Listing[]) || []).map((listing: any) => ({
+        const normalized = ((listings as Listing[]) || []).map((listing: Record<string, unknown>) => ({
           ...listing,
-          owner_id: listing.owner_id || listing.user_id,
-        }));
+          owner_id: (listing.owner_id as string) || (listing.user_id as string),
+        })) as Listing[];
 
         return sortRealListingsFirst(normalized);
       } catch (error) {

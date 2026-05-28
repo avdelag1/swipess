@@ -1,10 +1,10 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { RadioStation, CityLocation, RadioPlayerState } from '@/types/radio';
 import { getStationsByCity, getStationById, radioStations } from '@/data/radioStations';
 import { logger } from '@/utils/prodLogger';
-import { appToast } from '@/utils/appNotification';
 
 /** Fisher-Yates shuffle — returns a new shuffled array, never starting with excludeId */
 function shuffleArray<T extends { id: string }>(arr: T[], excludeId?: string): T[] {

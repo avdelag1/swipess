@@ -16,8 +16,6 @@ import type {
   QuickFilters,
   ListingFilters
 } from '@/types/filters';
-import { logger } from '@/utils/prodLogger';
-
 // Accent color lookup for categories (from SwipeConstants)
 const CATEGORY_ACCENTS: Record<string, string> = {
   property: '#3b82f6',
@@ -171,14 +169,14 @@ export const useFilterStore = create<FilterState>()(
     // ACTIONS
     setKmHudExpanded: (v) => set({ kmHudExpanded: v }),
     setOwnerPhase: (phase) => {
-      console.info('[FilterStore] ownerPhase changed to:', phase);
+      console.warn('[FilterStore] ownerPhase changed to:', phase);
       set({ ownerPhase: phase });
     },
     setPokerCardOrder: (order) => set({ pokerCardOrder: order }),
     setOwnerPokerCardOrder: (order) => set({ ownerPokerCardOrder: order }),
 
     setRadiusKm: (radius) => {
-      console.info('[FilterStore] radiusKm changed to:', radius);
+      console.warn('[FilterStore] radiusKm changed to:', radius);
       set((state) => ({
         radiusKm: radius,
         filterVersion: state.filterVersion + 1,
@@ -186,7 +184,7 @@ export const useFilterStore = create<FilterState>()(
       }));
     },
     setUserLocation: (lat, lon) => {
-      console.info('[FilterStore] userLocation changed:', lat, lon);
+      console.warn('[FilterStore] userLocation changed:', lat, lon);
       set((state) => ({ 
         userLatitude: lat, 
         userLongitude: lon,
@@ -195,7 +193,7 @@ export const useFilterStore = create<FilterState>()(
       }));
     },
     updateFilters: (filters: Record<string, any>) => {
-      console.info('[FilterStore] updateFilters called with:', filters);
+      console.warn('[FilterStore] updateFilters called with:', filters);
       set((state) => {
         const mapped: any = {};
         // Map snake_case from UI components to camelCase store state
@@ -228,7 +226,7 @@ export const useFilterStore = create<FilterState>()(
       });
     },
     clearUserLocation: () => {
-      console.info('[FilterStore] clearUserLocation');
+      console.warn('[FilterStore] clearUserLocation');
       set((state) => ({ 
         userLatitude: null, 
         userLongitude: null,
@@ -238,7 +236,7 @@ export const useFilterStore = create<FilterState>()(
     },
     setActiveCategory: (category) => {
       if (get().activeCategory === category) return;
-      console.info('[FilterStore] activeCategory changed to:', category);
+      console.warn('[FilterStore] activeCategory changed to:', category);
       set((state) => ({
         activeCategory: category,
         categories: category ? [category] : [],

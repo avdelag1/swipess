@@ -80,7 +80,7 @@ export function useVoiceTranscribe(): UseVoiceTranscribeResult {
       cancelledRef.current = false;
       // Pre-check permission state when supported (Chromium/Safari 16+)
       try {
-        // @ts-ignore - permissions API typing varies
+        // @ts-expect-error - permissions API typing varies
         const status = await navigator.permissions?.query?.({ name: 'microphone' as PermissionName });
         if (status?.state === 'denied') {
           console.warn('[useVoiceTranscribe] Microphone permission previously denied');

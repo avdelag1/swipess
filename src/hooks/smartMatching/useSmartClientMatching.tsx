@@ -399,7 +399,7 @@ export function useSmartClientMatching(
                             return withDemos;
                         }
                     }
-                } catch (_e) {}
+                } catch { /* empty */ }
 
                 // 1. Determine target role dynamically using user_roles (source of truth).
                 // profiles.role is unreliable (often empty), so we resolve roles from
@@ -459,7 +459,8 @@ export function useSmartClientMatching(
                     if (idList.length > 0) query = query.not('user_id', 'in', `(${idList.join(',')})`);
                 }
 
-                let { data: profiles, error } = await query.range(page * pageSize, (page + 1) * pageSize - 1);
+                const { data: _initialProfiles, error } = await query.range(page * pageSize, (page + 1) * pageSize - 1);
+                let profiles = _initialProfiles;
 
                 // 3. DEMO FALLBACK: If first page and category-specific query returns nothing, show demo
                 // Skip aggressive fallback in this case - let it fall through to demo at line 336

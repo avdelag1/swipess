@@ -17,6 +17,7 @@
  *   JS animation loop entirely, preserving swipe card performance.
  */
 
+/* eslint-disable react-refresh/only-export-components */
 import * as React from 'react';
 import { useState, useCallback } from 'react';
 import { Slot } from '@radix-ui/react-slot';

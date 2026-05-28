@@ -10,7 +10,7 @@ import { SwipeLoadingSkeleton } from './swipe/SwipeLoadingSkeleton';
 import type { QuickFilterCategory } from '@/types/filters';
 import { normalizeCategoryName } from '@/types/filters';
 
-import { SimpleOwnerSwipeCard, SimpleOwnerSwipeCardRef } from './SimpleOwnerSwipeCard';
+import { SimpleOwnerSwipeCard } from './SimpleOwnerSwipeCard';
 
 const UNIFIED_CYCLE: QuickFilterCategory[] = ['property', 'pros', 'motorcycle', 'bicycle', 'events', 'buyers', 'renters', 'leads'];
 import { getActiveCategoryInfo } from './swipe/SwipeConstants';

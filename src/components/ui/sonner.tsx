@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { Toaster as Sonner, toast as sonnerToast } from "sonner"
 import useAppTheme from "@/hooks/useAppTheme"
 

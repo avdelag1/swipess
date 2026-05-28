@@ -192,7 +192,7 @@ export function usePullDownToDismiss(opts?: { threshold?: number }) {
       if (!active.current) { reset(); return; }
       const cur = y.get();
       const flicked = velocity.current > 0.25 && cur > 16;
-      (cur >= threshold || flicked) ? commitDismiss() : reset();
+      if (cur >= threshold || flicked) { commitDismiss(); } else { reset(); }
     };
 
     window.addEventListener('touchstart', onTouchStart, { passive: true });
