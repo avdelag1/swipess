@@ -90,7 +90,6 @@ export const BottomNavigation = memo(({
   const { unreadCount: _unreadCount } = useUnreadMessageCount();
   const { unreadCount: _unreadNotifCount } = useUnreadNotifications();
   const { isLight: themeIsLight } = useAppTheme();
-  useChromeReveal();
   const isDashboardRoute = /^\/(client|owner|admin)\/dashboard\/?/.test(location.pathname);
   // Only the dashboard page forces dark — other pages respect the user's theme
   const isLight = isDashboardRoute ? false : themeIsLight;
