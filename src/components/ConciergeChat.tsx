@@ -851,9 +851,16 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
     onClose();
   };
 
-  // AI-drafted listing → stash payload, jump into the new-listing flow with prefill
   const handleDraft = useCallback((category: string, data: any) => {
     triggerHaptic('heavy');
+    if (category === 'profile') {
+      const mode = data?.mode === 'owner' ? 'owner' : 'client';
+      useModalStore.getState().openAIProfile(mode, data);
+      onClose();
+      toast.success('Review your AI-drafted profile and add a photo to publish.');
+      return;
+    }
+
     const validCategories = ['property', 'motorcycle', 'bicycle', 'worker'];
     const cat = validCategories.includes(category) ? category : 'property';
     const mode = data?.listing_type === 'sale' || data?.mode === 'sale' ? 'sale' : 'rent';
@@ -970,8 +977,8 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                       </PopoverContent>
                     </Popover>
 
-                    <button onClick={onClose} className={cn("w-9 h-9 flex items-center justify-center rounded-full transition-all border group active:scale-90", isLight && !isSwipess ? "bg-muted border-border hover:bg-muted/80" : "bg-white/5 border-white/10 hover:bg-white/15")} aria-label="Close">
-                      <X className={cn("w-[18px] h-[18px]", isLight && !isSwipess ? "text-foreground" : "text-white/80")} strokeWidth={2.2} />
+                    <button onClick={onClose} className={cn("w-9 h-9 flex items-center justify-center rounded-full transition-all border group active:scale-90", isLight && !isSwipess ? "bg-muted border-border hover:bg-slate-200" : "bg-white/5 border-white/10 hover:bg-white/15")} aria-label="Close">
+                      <X className={cn("w-[18px] h-[18px]", isLight && !isSwipess ? "text-slate-600" : "text-white/80")} strokeWidth={2.2} />
                     </button>
                   </div>
                 </header>
@@ -1020,7 +1027,7 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                         className="absolute -top-16 left-1/2 -translate-x-1/2 flex items-center gap-3 px-4 py-3 rounded-3xl border border-border/50 bg-background/95 backdrop-blur-2xl shadow-[0_20px_40px_hsl(var(--foreground)/0.1)]"
                       >
                          <Timer className="w-4 h-4 text-[#FF3D00]" />
-                         <span className="text-[11px] font-black uppercase tracking-widest text-foreground whitespace-nowrap">Send in</span>
+                         <span className={cn("text-[11px] font-black uppercase tracking-widest whitespace-nowrap", isLight ? "text-slate-900" : "text-white")}>Send in</span>
                          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#FF3D00] text-white text-sm font-black shadow-lg shadow-[#FF3D00]/30">{countdown}</span>
                          <button onClick={cancelCountdown} className="flex h-8 w-8 items-center justify-center rounded-full bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-all shadow-inner" aria-label="Cancel auto-send">
                             <X className="w-4 h-4" />
@@ -1034,13 +1041,13 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                        <div className="pl-3 flex items-center gap-1.5 self-center">
                            <Popover>
                              <PopoverTrigger asChild>
-                          <button className="p-3 rounded-2xl transition-all text-foreground/80 hover:text-foreground hover:bg-secondary/80" aria-label="Auto-send timer">
+                          <button className={cn("p-3 rounded-2xl transition-all hover:bg-secondary/80", isLight ? "text-slate-600 hover:text-slate-900" : "text-white/80 hover:text-white")} aria-label="Auto-send timer">
                                     <Timer className="w-5 h-5" strokeWidth={2.5} />
                                </button>
                              </PopoverTrigger>
                             <PopoverContent side="top" className="w-64 p-2 rounded-[2rem] border border-border/50 bg-background/95 backdrop-blur-2xl shadow-[0_20px_40px_hsl(var(--foreground)/0.15)]">
                                <button onClick={() => { setAutoSendEnabled(!autoSendEnabled); triggerHaptic('light'); }} className="w-full flex items-center justify-between gap-4 p-4 rounded-3xl hover:bg-secondary transition-all" aria-pressed={autoSendEnabled}>
-                                  <span className="flex items-center gap-3 text-[11px] font-black uppercase tracking-widest text-foreground">
+                                  <span className={cn("flex items-center gap-3 text-[11px] font-black uppercase tracking-widest", isLight ? "text-slate-900" : "text-white")}>
                                     <Timer className="w-4 h-4 text-[#FF3D00]" />
                                     Auto-Send
                                   </span>
@@ -1056,10 +1063,10 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                             onPointerUp={stopListening}
                             onPointerCancel={stopListening}
                             className={cn(
-                              "p-3 rounded-2xl transition-all relative group overflow-hidden",
+                              "p-3 rounded-2xl transition-all relative group overflow-hidden hover:bg-secondary/80",
                               isListening 
                                 ? "bg-[#FF3D00] text-white shadow-[0_0_24px_rgba(255,61,0,0.4)] scale-110" 
-                                : "text-foreground/80 hover:text-foreground hover:bg-secondary/80"
+                                : isLight ? "text-slate-600 hover:text-slate-900" : "text-white/80 hover:text-white"
                             )}
                           >
                              {isListening ? <Mic className="w-5 h-5 animate-pulse relative z-10" strokeWidth={2.5} /> : <Mic className="w-5 h-5 relative z-10" strokeWidth={2.5} />}
@@ -1076,7 +1083,7 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                          rows={1}
                          className={cn(
                            "w-full bg-transparent border-none outline-none focus:ring-0 py-4 pl-3 pr-4 text-[16px] resize-none custom-scrollbar min-h-[56px] max-h-32 leading-relaxed transition-all self-center font-medium",
-                           isListening ? "text-[#FF3D00] placeholder:text-[#FF3D00]/50" : "text-foreground placeholder:text-foreground/40"
+                           isListening ? "text-[#FF3D00] placeholder:text-[#FF3D00]/50" : isLight ? "text-slate-900 placeholder:text-slate-400" : "text-white placeholder:text-white/40"
                          )}
                          onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
                        />

@@ -34,7 +34,14 @@ export function AIProfileWizard() {
   const initialOpen = useRef(showAIProfile);
   useEffect(() => {
     if (showAIProfile && !initialOpen.current) {
-      setStep('speak'); setNarrative(''); setImageFiles([]); setDraft(null);
+      const draftData = useModalStore.getState().aiProfileDraft;
+      if (draftData) {
+        setDraft(draftData);
+        setStep('review');
+        setImageFiles([]);
+      } else {
+        setStep('speak'); setNarrative(''); setImageFiles([]); setDraft(null);
+      }
     }
     initialOpen.current = showAIProfile;
   }, [showAIProfile]);

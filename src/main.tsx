@@ -102,7 +102,11 @@ const initHaptics = () => {
     if (target && !target.hasAttribute('data-haptics-fired')) {
       target.setAttribute('data-haptics-fired', 'true');
       setTimeout(() => target.removeAttribute('data-haptics-fired'), 200);
-      if ('vibrate' in navigator) navigator.vibrate(10);
+      if ('vibrate' in navigator) {
+        if (!('userActivation' in navigator) || (navigator as any).userActivation?.hasBeenActive) {
+          try { navigator.vibrate(10); } catch {}
+        }
+      }
     }
   }, { capture: true, passive: true });
 };
