@@ -12,7 +12,8 @@ import {
   Flame,
   Zap,
   Moon,
-  PartyPopper
+  PartyPopper,
+  Scale as ScaleIcon
 } from 'lucide-react';
 
 export interface PokerCardData {
