@@ -74,7 +74,7 @@ export const OWNER_INTENT_CARDS: OwnerIntentCard[] = [
     description: 'Contracts & Docs',
     accent: '#6366f1',
     accentRgb: '99,102,241',
-    icon: Scale,
+    icon: ScaleIcon,
   },
   {
     id: 'ai-listing',

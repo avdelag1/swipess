@@ -20,7 +20,7 @@ import { useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Flame, MessageCircle, CircleUser, Building2,
-  PartyPopper, Scale,
+  PartyPopper, Scale as ScaleIcon,
   Zap, SlidersHorizontal, Sparkles,
   IdCard, Radio
 } from 'lucide-react';
@@ -139,7 +139,7 @@ export const BottomNavigation = memo(({
     { id: 'listings', icon: Building2, label: t('nav.listings'), path: '/owner/properties' },
     { id: 'events', icon: PartyPopper, label: t('nav.events'), path: '/explore/events' },
     { id: 'radio', icon: Radio, label: t('nav.radio', 'Radio'), path: '/radio' },
-    { id: 'legal', icon: Scale, label: t('nav.legal'), path: '/client/legal-services' },
+    { id: 'legal', icon: ScaleIcon, label: t('nav.legal'), path: '/client/legal-services' },
   ];
 
   const navItems = unifiedNavItems;
