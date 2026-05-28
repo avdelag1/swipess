@@ -24,7 +24,6 @@ import { useSmartListingMatching, useSmartClientMatching, ListingFilters, Client
 import { useAuth } from '@/hooks/useAuth';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useActiveMode } from '@/hooks/useActiveMode';
-import { useChromeReveal } from '@/hooks/useChromeReveal';
 import { swipeQueue } from '@/lib/swipe/SwipeQueue';
 import { imagePreloadController } from '@/lib/swipe/ImagePreloadController';
 import { useCanAccessMessaging } from '@/hooks/useMessaging';
@@ -109,7 +108,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
   const navigate = useNavigate();
   const { activeMode, switchMode } = useActiveMode();
   const { _theme, _isLight } = useAppTheme();
-  const { _isChromeVisible } = useChromeReveal();
   const [page, setPage] = useState(0);
   const [_swipeDirection, setSwipeDirection] = useState<'left' | 'right' | null>(null);
   const [isCreatingConversation, setIsCreatingConversation] = useState(false);

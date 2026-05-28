@@ -135,7 +135,6 @@ export function AppLayout({ children }: AppLayoutProps) {
   // Force dark theme ONLY on the dashboard page for the premium "black filter" experience
   useLayoutEffect(() => {
     document.body.classList.toggle('swipe-deck-active', swipeDeckActive);
-    
     if (isDashboardOnly) {
       document.documentElement.classList.add('dark', 'black-matte');
       document.documentElement.classList.remove('light', 'white-matte', 'cheers', 'red-matte', 'amber-matte', 'pure-black', 'Swipess-style');

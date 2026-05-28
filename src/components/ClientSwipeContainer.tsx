@@ -20,7 +20,6 @@ import { usePrefetchImages } from '@/hooks/usePrefetchImages';
 import { usePrefetchManager, useSwipePrefetch } from '@/hooks/usePrefetchManager';
 import { useSwipeDeckStore, persistDeckToSession } from '@/state/swipeDeckStore';
 import { useFilterStore } from '@/state/filterStore';
-import { useChromeReveal } from '@/hooks/useChromeReveal';
 import { useShallow } from 'zustand/react/shallow';
 import { useSwipeDismissal } from '@/hooks/useSwipeDismissal';
 import { useSwipeSounds } from '@/hooks/useSwipeSounds';
@@ -72,7 +71,6 @@ const ClientSwipeContainerComponent = ({
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { isLight } = useAppTheme();
-  const { isChromeVisible: _isChromeVisible } = useChromeReveal();
   // PERF: Get userId from auth to pass to query (avoids getUser() inside queryFn)
   const { user } = useAuth();
 
