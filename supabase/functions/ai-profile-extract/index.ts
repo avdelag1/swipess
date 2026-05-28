@@ -62,7 +62,7 @@ serve(async (req) => {
       ? "You are a profile architect for Swipess hosts/owners. Extract structured fields and write a polished business description. Stay faithful to the user's input. Return ONLY valid JSON matching the schema, no markdown."
       : "You are a profile architect for Swipess users. Extract structured fields and write a cinematic first-person bio (2-3 sentences). Stay faithful to the user's input. Leave fields blank if not mentioned. Return ONLY valid JSON matching the schema, no markdown.";
 
-    const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+    const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
