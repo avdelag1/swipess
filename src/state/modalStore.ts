@@ -39,13 +39,14 @@ interface ModalState {
   aiListingDraft: any | null;
   showAIProfile: boolean;
   aiProfileMode: 'client' | 'owner' | null;
+  aiProfileDraft: any | null;
   showVapId: boolean;
   showTokensModal: boolean;
 
   // Actions
-  setModal: (key: keyof Omit<ModalState, 'setModal' | 'selectedListingId' | 'selectedProfileId' | 'subscriptionReason' | 'aiListingCategory' | 'aiListingDraft' | 'aiProfileMode'>, value: boolean) => void;
+  setModal: (key: keyof Omit<ModalState, 'setModal' | 'selectedListingId' | 'selectedProfileId' | 'subscriptionReason' | 'aiListingCategory' | 'aiListingDraft' | 'aiProfileMode' | 'aiProfileDraft'>, value: boolean) => void;
   openAIListing: (category?: 'property' | 'motorcycle' | 'bicycle' | 'worker', draft?: any) => void;
-  openAIProfile: (mode: 'client' | 'owner') => void;
+  openAIProfile: (mode: 'client' | 'owner', draft?: any) => void;
   openPropertyDetails: (id: string) => void;
   openPropertyInsights: (id: string) => void;
   openClientInsights: (id: string) => void;
@@ -79,6 +80,7 @@ export const useModalStore = create<ModalState>((set) => ({
   aiListingDraft: null,
   showAIProfile: false,
   aiProfileMode: null,
+  aiProfileDraft: null,
   showVapId: false,
   showTokensModal: false,
 
@@ -89,7 +91,7 @@ export const useModalStore = create<ModalState>((set) => ({
     aiListingDraft: draft || null,
     showAIListing: true 
   }),
-  openAIProfile: (mode) => set({ aiProfileMode: mode, showAIProfile: true }),
+  openAIProfile: (mode, draft) => set({ aiProfileMode: mode, aiProfileDraft: draft || null, showAIProfile: true }),
   openPropertyDetails: (id) => set({ selectedListingId: id, showPropertyDetails: true }),
   openPropertyInsights: (id) => set({ selectedListingId: id, showPropertyInsights: true }),
   openClientInsights: (id) => set({ selectedProfileId: id, showClientInsights: true }),
@@ -116,6 +118,7 @@ export const useModalStore = create<ModalState>((set) => ({
     aiListingDraft: null,
     showAIProfile: false,
     aiProfileMode: null,
+    aiProfileDraft: null,
     showVapId: false,
     showTokensModal: false,
   }),

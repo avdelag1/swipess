@@ -851,9 +851,16 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
     onClose();
   };
 
-  // AI-drafted listing → stash payload, jump into the new-listing flow with prefill
   const handleDraft = useCallback((category: string, data: any) => {
     triggerHaptic('heavy');
+    if (category === 'profile') {
+      const mode = data?.mode === 'owner' ? 'owner' : 'client';
+      useModalStore.getState().openAIProfile(mode, data);
+      onClose();
+      toast.success('Review your AI-drafted profile and add a photo to publish.');
+      return;
+    }
+
     const validCategories = ['property', 'motorcycle', 'bicycle', 'worker'];
     const cat = validCategories.includes(category) ? category : 'property';
     const mode = data?.listing_type === 'sale' || data?.mode === 'sale' ? 'sale' : 'rent';

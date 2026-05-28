@@ -181,14 +181,9 @@ export function VapIdEditModal({ isOpen, onClose, onSaved, role = 'client' }: Pr
     }
   }, [user?.id, bio, occupation, city, country, nationality, yearsInCity, languages, interests, displayName, age, profileImages, saveClient]);
 
-  const handleClose = useCallback(async () => {
-    const saved = await doSave();
-    if (saved) {
-      toast.success('Card saved');
-      onSaved?.();
-    }
+  const handleClose = useCallback(() => {
     onClose();
-  }, [doSave, onSaved, onClose]);
+  }, [onClose]);
 
   const handleSave = useCallback(async () => {
     const saved = await doSave();
