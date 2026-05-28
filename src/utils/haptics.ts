@@ -65,6 +65,10 @@ export const triggerHaptic = async (type: 'light' | 'medium' | 'heavy' | 'succes
       logger.error('Haptics error:', e);
     }
   } else if ('vibrate' in navigator) {
+    // Prevent Chrome intervention warnings if user hasn't interacted yet
+    if ('userActivation' in navigator && !(navigator as any).userActivation.hasBeenActive) {
+      return;
+    }
     try {
       switch (type) {
         case 'light':
