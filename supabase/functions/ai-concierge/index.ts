@@ -1408,19 +1408,19 @@ Deno.serve(async (req) => {
         console.log(`[AI] Routing to Gemini 2.5 Flash. Streaming: ${stream}`);
         response = stream ? await streamGeminiDirect(enrichedMessages) : await fetchGeminiDirect(enrichedMessages);
       }
-    } catch (e) {
-      console.warn(`[AI] Primary provider (${aiProvider}) failed, falling back to MiniMax: ${(e as Error).message}`);
+    } catch (primaryError) {
+      console.warn(`[AI] Primary provider (${aiProvider}) failed: ${(primaryError as Error).message}`);
       aiProvider = "minimax";
       try {
         response = stream ? await streamMiniMax(enrichedMessages) : await fetchMiniMax(enrichedMessages);
-      } catch (e2) {
-        console.warn(`[AI] MiniMax fallback failed, trying Kimi as last resort: ${(e2 as Error).message}`);
+      } catch (fallbackError) {
+        console.warn(`[AI] MiniMax fallback failed: ${(fallbackError as Error).message}`);
         try {
           aiProvider = "kimi";
           response = stream ? await streamKimi(enrichedMessages) : await fetchKimi(enrichedMessages);
-        } catch (e3) {
-          console.error("[AI] All providers failed:", (e3 as Error).message);
-          return new Response(JSON.stringify({ error: "AI temporarily unavailable. Please try again." }), {
+        } catch (lastError) {
+          console.error("[AI] All providers failed. Primary error:", (primaryError as Error).message);
+          return new Response(JSON.stringify({ error: `AI Error: ${(primaryError as Error).message}` }), {
             status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" },
           });
         }
