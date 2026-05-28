@@ -18,13 +18,22 @@ serve(async (req) => {
   }
 
   try {
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) {
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY") || "";
+    const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY") || (LOVABLE_API_KEY.startsWith("AIzaSy") ? LOVABLE_API_KEY : "");
+
+    const apiKey = GEMINI_API_KEY || LOVABLE_API_KEY;
+    if (!apiKey) {
       return new Response(
-        JSON.stringify({ error: "LOVABLE_API_KEY not configured" }),
+        JSON.stringify({ error: "API Key not configured" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
+
+    const isDirectGemini = !!GEMINI_API_KEY;
+    const url = isDirectGemini
+      ? "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions"
+      : "https://ai.gateway.lovable.dev/v1/chat/completions";
+    const modelName = isDirectGemini ? "gemini-2.5-flash" : "google/gemini-2.5-flash";
 
     const { audio, mimeType, language } = await req.json();
     if (!audio || typeof audio !== "string") {
@@ -38,15 +47,15 @@ serve(async (req) => {
     const langHint = language ? ` The user is speaking in ${language}.` : "";
 
     const response = await fetch(
-      "https://ai.gateway.lovable.dev/v1/chat/completions",
+      url,
       {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${LOVABLE_API_KEY}`,
+          Authorization: `Bearer ${apiKey}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: "google/gemini-2.5-flash",
+          model: modelName,
           messages: [
             {
               role: "system",

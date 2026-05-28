@@ -32,8 +32,17 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) return json(500, { error: "LOVABLE_API_KEY not configured" });
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY") || "";
+    const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY") || (LOVABLE_API_KEY.startsWith("AIzaSy") ? LOVABLE_API_KEY : "");
+
+    const apiKey = GEMINI_API_KEY || LOVABLE_API_KEY;
+    if (!apiKey) return json(500, { error: "API Key not configured" });
+
+    const isDirectGemini = !!GEMINI_API_KEY;
+    const url = isDirectGemini
+      ? "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions"
+      : GATEWAY_URL;
+    const modelName = isDirectGemini ? "gemini-2.5-flash" : MODEL;
 
     const body = (await req.json().catch(() => ({}))) as Body;
     const task = body.task ?? "extract";
@@ -41,14 +50,14 @@ serve(async (req) => {
     if (!prompt) return json(400, { error: "Missing prompt" });
 
     if (task === "refine") {
-      const resp = await fetch(GATEWAY_URL, {
+      const resp = await fetch(url, {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${LOVABLE_API_KEY}`,
+          Authorization: `Bearer ${apiKey}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: MODEL,
+          model: modelName,
           messages: [
             {
               role: "system",
@@ -105,14 +114,14 @@ Be faithful to the user's words. Do not invent specifics that were not stated.`;
       },
     };
 
-    const resp = await fetch(GATEWAY_URL, {
+    const resp = await fetch(url, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: MODEL,
+        model: modelName,
         messages: [
           { role: "system", content: sys },
           { role: "user", content: prompt },

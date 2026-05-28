@@ -94,13 +94,22 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
   try {
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) {
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY") || "";
+    const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY") || (LOVABLE_API_KEY.startsWith("AIzaSy") ? LOVABLE_API_KEY : "");
+
+    const apiKey = GEMINI_API_KEY || LOVABLE_API_KEY;
+    if (!apiKey) {
       return new Response(
-        JSON.stringify({ error: "LOVABLE_API_KEY not configured" }),
+        JSON.stringify({ error: "API Key not configured" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
+
+    const isDirectGemini = !!GEMINI_API_KEY;
+    const url = isDirectGemini
+      ? "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions"
+      : "https://ai.gateway.lovable.dev/v1/chat/completions";
+    const modelName = isDirectGemini ? "gemini-2.5-flash" : "google/gemini-2.5-flash";
 
     const { mode, narrative } = await req.json();
     if (!narrative || typeof narrative !== "string" || narrative.trim().length < 5) {
@@ -117,15 +126,15 @@ serve(async (req) => {
       : "You are a profile architect for Swipess users. Extract structured fields and write a cinematic first-person bio (2-3 sentences). Stay faithful to the user's input. Leave fields blank if not mentioned.";
 
     const resp = await fetch(
-      "https://ai.gateway.lovable.dev/v1/chat/completions",
+      url,
       {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${LOVABLE_API_KEY}`,
+          Authorization: `Bearer ${apiKey}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: "google/gemini-2.5-flash",
+          model: modelName,
           messages: [
             { role: "system", content: systemPrompt },
             { role: "user", content: narrative },
