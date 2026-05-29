@@ -11,7 +11,7 @@
 // IMPORTANT: __BUILD_TIME__ is replaced with an ISO timestamp by the Vite
 // sw-build-time-plugin at build time. In dev mode the literal string is used
 // as the version (safe — SW is unregistered in dev anyway).
-const SW_VERSION = '__BUILD_TIME__' === '__BUILD_TIME__' ? '2026-05-15T19-nexus-ui-v1.1' : '__BUILD_TIME__';
+const SW_VERSION = '__BUILD_TIME__' === '__BUILD_TIME__' ? '2026-05-28T22-nexus-ui-v1.2' : '__BUILD_TIME__';
 const CACHE_VERSION = `swipess-${SW_VERSION}`;
 const CACHE_NAME = CACHE_VERSION;
 const STATIC_CACHE = `${CACHE_NAME}-static`;
@@ -329,29 +329,19 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // STALE-WHILE-REVALIDATE for JS/CSS - instant from cache, update in background
-  // This is the key to "instant" feel on repeat visits
+  // NETWORK-FIRST for JS/CSS — ensures new deployments always serve fresh code.
+  // Falls back to cache only when offline.
   if (request.destination === 'script' || request.destination === 'style') {
     event.respondWith(
       caches.open(DYNAMIC_CACHE).then(cache => {
-        return cache.match(request).then(cachedResponse => {
-          const bgFetch = fetch(request).then(networkResponse => {
-            if (networkResponse.ok && networkResponse.status === 200) {
-              cache.put(request, networkResponse.clone());
-            }
-            return networkResponse;
-          }).catch(() => {
-            // If network fails, return the cached version if we have it
-            if (cachedResponse) return cachedResponse;
-            // Otherwise return a tiny valid response to avoid crash
-            return new Response('', { status: 404, statusText: 'Not Found' });
-          });
-
-          if (cachedResponse) {
-            event.waitUntil(bgFetch); 
-            return cachedResponse;
+        return fetch(request).then(networkResponse => {
+          if (networkResponse.ok && networkResponse.status === 200) {
+            cache.put(request, networkResponse.clone());
           }
-          return bgFetch;
+          return networkResponse;
+        }).catch(async () => {
+          const cachedResponse = await cache.match(request);
+          return cachedResponse ?? new Response('', { status: 404, statusText: 'Not Found' });
         });
       })
     );
