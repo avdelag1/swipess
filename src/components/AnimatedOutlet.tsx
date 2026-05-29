@@ -25,8 +25,8 @@ export function AnimatedOutlet() {
             initial={{ opacity: 0.4 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.10, ease: [0.22, 1, 0.36, 1] }}
-            className="flex-1 w-full flex flex-col bg-transparent"
-            style={{ position: 'absolute', inset: 0, pointerEvents: outlet ? 'auto' : 'none' }}
+            className="flex-1 w-full flex flex-col bg-transparent pointer-events-none-force"
+            style={{ position: 'absolute', inset: 0 }}
           >
             <Suspense fallback={
               <div className="flex items-center justify-center w-full h-full min-h-[200px]">
