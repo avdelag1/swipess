@@ -151,12 +151,16 @@ const ConciergePrivacyPortal = memo(({ onAccept, isSwipess }: { onAccept: () => 
 ConciergePrivacyPortal.displayName = 'ConciergePrivacyPortal';
 
 const POPULAR_TOPICS: { label: string; prompt: string; icon: any; tone: string }[] = [
-  { label: 'Real Estate', prompt: 'Show me modern houses for sale in Tulum', icon: Crown, tone: 'from-orange-400 to-pink-500' },
-  { label: 'Rentals', prompt: 'Find me 2 bedroom apartments for rent under $1500', icon: Sun, tone: 'from-rose-400 to-fuchsia-500' },
-  { label: 'Motorcycles', prompt: 'Find motorcycles under $3,000', icon: Flame, tone: 'from-amber-400 to-orange-500' },
-  { label: 'Bicycles', prompt: 'Show me bicycles available nearby', icon: Zap, tone: 'from-violet-400 to-indigo-500' },
-  { label: 'Find Workers', prompt: 'I need a reliable plumber today', icon: Sparkles, tone: 'from-cyan-400 to-sky-500' },
-  { label: 'Find Clients', prompt: 'Help me reach more clients for my listing', icon: Moon, tone: 'from-emerald-400 to-teal-500' },
+  { label: 'Best Apartments', prompt: 'Send me your best apartments', icon: Crown, tone: 'from-orange-400 to-pink-500' },
+  { label: 'Houses', prompt: 'Show me available houses', icon: Sun, tone: 'from-rose-400 to-fuchsia-500' },
+  { label: 'Studios', prompt: 'Find studios for rent', icon: Flame, tone: 'from-amber-400 to-orange-500' },
+  { label: 'All Properties', prompt: 'Show me all property listings', icon: Zap, tone: 'from-violet-400 to-indigo-500' },
+  { label: 'Workers & Services', prompt: 'Find me workers for cleaning and maintenance', icon: Sparkles, tone: 'from-cyan-400 to-sky-500' },
+  { label: 'Motorcycles', prompt: 'Find motorcycles for sale', icon: Moon, tone: 'from-emerald-400 to-teal-500' },
+  { label: 'Bicycles', prompt: 'Show me bicycles available', icon: Flame, tone: 'from-amber-400 to-orange-500' },
+  { label: 'Under $500', prompt: 'Send listings under 500', icon: Zap, tone: 'from-purple-400 to-pink-500' },
+  { label: 'Top Listings', prompt: 'What are your best listings right now?', icon: Crown, tone: 'from-pink-400 to-rose-500' },
+  { label: 'Roommates', prompt: 'Find me people looking for roommates', icon: Sun, tone: 'from-teal-400 to-emerald-500' },
 ];
 
 const WelcomeState = memo(({ isSwipess, isLight, onPick }: { isSwipess: boolean; isLight: boolean; onPick: (prompt: string) => void }) => (
@@ -988,7 +992,7 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                     <WelcomeState
                       isSwipess={isSwipess}
                       isLight={isLight}
-                      onPick={(prompt) => { setInput(prompt); triggerHaptic('light'); }}
+                       onPick={(prompt) => { sendMessage(prompt); triggerHaptic('light'); }}
                     />
                   ) : (
                     messages.map((m) => (

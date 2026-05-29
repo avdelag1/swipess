@@ -162,7 +162,15 @@ function getCurrentTimeContext(): string {
 
 function detectProfileIntent(query: string): boolean {
   const q = query.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-  // Broad match: finding people, workers, service providers, roommates, friends, etc.
+  // Only search profiles when the query is about PEOPLE or SERVICES.
+  // Exclude property/item/vehicle queries — those go to listings search only.
+  const isPropertyQuery = /\b(apartment|apartments|house|houses|property|properties|studio|studios|condo|condos|villa|villas|penthouse|duplex|loft|townhouse|bungalow|cabin|listing|listings|bedroom|bedrooms|rent|rental|sale|buy|casa|departamento|cuarto|pisos|chalet)\b/.test(q);
+  if (isPropertyQuery) return false;
+
+  const isVehicleQuery = /\b(motorcycle|motorbike|moto|scooter|bicycle|bike|bici|bicicleta|car|vehicle)\b/.test(q);
+  if (isVehicleQuery) return false;
+
+  // Now match only people/service/social queries
   return /\b(?:find|looking|search|show|need|want|quiero|busco|necesito|dame|hay|mostrar|conocer|conoces|recomienda|rooms?|roommate|roomies?|compa|amigo|amiga|gente|personas|alguien|alquien|gente que|gente para|friend|buddy|partner|housemate|flatmate|people|someone|anyone|who (?:wants|is|needs|can|could|would)|match me|cleaner|clean|cleaning|limpieza|limpiador|limpiadora|maid|housekeeper|domestica|domestico|mantenimiento|maintenance|mantenimient|handyman|reparacion|reparaciones|repair|fix|jardinero|gardener|lawn|garden|cook|cocinero|cocinera|chef|cocina|driver|chofer|conduct|nanny|niñera|babysitter|childcare|baby|care|cuidador|cuidadora|cuidado|tutor|teacher|profesor|profesora|maestro|maestra|trainer|entrenador|personal training|masseuse|masseur|masaje|masajista|spa|mechanic|mecanico|mecanica|mecánico|plumber|plomero|plomer|electrician|electricista|painter|pintor|carpenter|carpintero|welder|soldador|technician|tecnico|técnico|servicio|service|services|worker|trabajador|trabajadora|empleado|empleada|helper|ayuda|ayudante|freelancer|profesional|professional|contractor|contratista)\b/.test(q);
 }
 
@@ -1064,7 +1072,7 @@ TONE EXAMPLES:
   }
 
   if (opts.listings) {
-    prompt += `\n\n## LIVE SWIPESS LISTINGS (real, active right now):\n${opts.listings}\n\nCRITICAL INSTRUCTION: This data was ALREADY searched for you. Below these bullets you will find a hidden tag like [LISTINGS:[...]] that the chat UI needs to render beautiful preview cards with images and share buttons. You MUST include this tag verbatim in your response so cards appear. If the user's request is vague (no price, no bedrooms, no location), DO NOT present listings yet — instead ask 1-2 clarifying questions first (price range, bedrooms, area, type). Only present listings once you have enough detail. Limit: maximum 3 results. If the user asks for more, politely say "I can only share up to 3 results at a time — want me to narrow it down with more specific criteria?" Format: introduce each in text, then include the tag at the end of your response.`;
+    prompt += `\n\n## LIVE SWIPESS LISTINGS (real, active right now):\n${opts.listings}\n\nCRITICAL INSTRUCTION: This data was ALREADY searched for you. Below these bullets you will find a hidden tag like [LISTINGS:[...]] that the chat UI needs to render beautiful preview cards with images and share buttons. You MUST include this tag verbatim in your response so cards appear. When the user asks a general question like "show me apartments" or "send me your best listings", ALWAYS present what's available — do NOT ask for more details first. Only ask clarifying questions if the user's request is something you genuinely can't match from the available results. Limit: maximum 3 results. If the user asks for more, politely say "I can only share up to 3 at a time — want me to narrow it down with more specific criteria?" Format: introduce each in text, then include the tag at the end of your response.`;
   } else {
     // CRITICAL: When no listings found, add EXPLICIT signal so AI doesn't fabricate fake listings
     prompt += `\n\n## LIVE SWIPESS LISTINGS: NO LISTINGS WERE FOUND BY THE DATABASE SEARCH.\n\nCRITICAL INSTRUCTION: The database search returned zero active listings matching this query. You MUST NOT invent or fabricate any listing URLs, prices, neighborhoods, or details. Respond honestly: "I couldn't find any matching listings right now" and offer to help refine the search. DO NOT create links to non-existent listings.`;
@@ -1077,6 +1085,10 @@ TONE EXAMPLES:
   if (opts.profileResults) {
     prompt += `\n\n## SWIPESS USERS MATCHING THIS QUERY:\n${opts.profileResults}\n\nCRITICAL INSTRUCTION: Below these bullets you will find a hidden tag like [PROFILES:[...]] that the chat UI needs to render beautiful preview cards with profile photos and share buttons. You MUST include this tag verbatim in your response so cards appear. If the user's request is vague (no age, no location, no intention), ask 1-2 clarifying questions first. Limit: maximum 3 profiles. Never expose emails or phone numbers.`;
   }
+
+  // PRIORITY: If BOTH listings and profiles are available, SHOW LISTINGS FIRST.
+  // Only show profiles when the user explicitly asks for people, workers, services, roommates, friends, etc.
+  // Never show profiles for property/apartment/house/motorcycle/bicycle queries — those are listings.
 
   // Prepend time context + global brevity rules
   const brevityRules = `## KNOWLEDGE-FIRST RULE (GLOBAL — OVERRIDES ALL PERSONAS):
