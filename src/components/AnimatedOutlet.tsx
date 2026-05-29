@@ -25,8 +25,8 @@ export function AnimatedOutlet() {
   if (isDashboardRoute) {
     return (
       <div
-        className="min-h-full w-full flex flex-col flex-1 bg-transparent"
-        style={{ position: 'relative', pointerEvents: 'none' }}
+        className="min-h-full w-full flex flex-col flex-1 bg-transparent pointer-events-none-force"
+        style={{ position: 'relative' }}
       >
         <AnimatePresence initial={false} mode="popLayout">
           <motion.div
