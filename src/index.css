@@ -1816,6 +1816,10 @@ body {
   pointer-events: none;
 }
 
+.pointer-events-none-force {
+  pointer-events: none !important;
+}
+
 .radar-dot-pulse {
   animation: dot-pulse 2s ease-in-out infinite;
 }
