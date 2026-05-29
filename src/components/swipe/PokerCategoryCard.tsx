@@ -179,7 +179,7 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
       // Straight horizontal exit — no rotation, no curve.
       animate(x, exitX, {
         type: 'tween',
-        duration: 0.22,
+        duration: 0.18,
         ease: [0.32, 0, 0.67, 0],
         onComplete: () => {
           onCycle(card.id, direction);
@@ -221,7 +221,7 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
       dragDirectionLock
       onDirectionLock={handleDirectionLock}
       dragConstraints={{ left: -300, right: 300 }}
-      dragElastic={0.7}
+      dragElastic={1.0}
       dragMomentum={false}
       onDragStart={() => {
         setIsDragging(true);
