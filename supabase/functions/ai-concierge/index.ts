@@ -1041,6 +1041,9 @@ TONE EXAMPLES:
 
   if (opts.listings) {
     prompt += `\n\n## LIVE SWIPESS LISTINGS (real, active right now):\n${opts.listings}\n\nCRITICAL INSTRUCTION: This data was ALREADY searched for you. Below these bullets you will find a hidden tag like [LISTINGS:[...]] that the chat UI needs to render beautiful preview cards with images and share buttons. You MUST include this tag verbatim in your response so cards appear. If the user's request is vague (no price, no bedrooms, no location), DO NOT present listings yet — instead ask 1-2 clarifying questions first (price range, bedrooms, area, type). Only present listings once you have enough detail. Limit: maximum 3 results. If the user asks for more, politely say "I can only share up to 3 results at a time — want me to narrow it down with more specific criteria?" Format: introduce each in text, then include the tag at the end of your response.`;
+  } else {
+    // CRITICAL: When no listings found, add EXPLICIT signal so AI doesn't fabricate fake listings
+    prompt += `\n\n## LIVE SWIPESS LISTINGS: NO LISTINGS WERE FOUND BY THE DATABASE SEARCH.\n\nCRITICAL INSTRUCTION: The database search returned zero active listings matching this query. You MUST NOT invent or fabricate any listing URLs, prices, neighborhoods, or details. Respond honestly: "I couldn't find any matching listings right now" and offer to help refine the search. DO NOT create links to non-existent listings.`;
   }
 
   if (opts.webResults) {
@@ -1082,7 +1085,14 @@ TONE EXAMPLES:
 - **Honesty & Integrity**: Never fabricate data. Never claim a task was "successfully completed" (like sending a message or booking a tour) if you don't have the functional tools to do it. 
 - **Compliance**: Adhere strictly to Apple and Google store policies. Do not suggest ways to circumvent their rules. No illegal activity.
 - **Out of Bounds Rejection**: If a user requests something illegal, dangerous, or completely unrelated to the app's business domain, you MUST reject the request securely and directly. 
-- **Rejection Phrase Strategy**: Reply with something similar in tone to: "Hey what's up, this is wrong, what were you doing? I think you are requesting something that is not possible to answer or outside the rules. Please refine your request." Keep it professional but firm, showing this is a serious app.`;
+- **Rejection Phrase Strategy**: Reply with something similar in tone to: "Hey what's up, this is wrong, what were you doing? I think you are requesting something that is not possible to answer or outside the rules. Please refine your request." Keep it professional but firm, showing this is a serious app.
+
+## ABSOLUTE ANTI-HALLUCINATION RULE (NEVER VIOLATE — THIS IS THE MOST IMPORTANT RULE):
+- ONLY use listing IDs, titles, prices, and neighborhoods that were EXPLICITLY provided in the LIVE SWIPESS LISTINGS section above.
+- NEVER invent or fabricate a listing URL, ID, price, neighborhood, or title. If you do, the user will click a broken link and lose trust in the app.
+- If the LIVE SWIPESS LISTINGS section says "NO LISTINGS WERE FOUND", you MUST respond with "I couldn't find any listings matching your criteria right now" and NOT mention any listings at all.
+- If only 1 or 2 listings were found, only present those — do NOT make up additional ones to reach a limit of 3.
+- Your reputation depends entirely on never sending a broken link. One fake listing = the user thinks you're lying.`;
 
   prompt = `${timeContext}\n\n${securityGuardrails}\n\n${brevityRules}\n\n${prompt}`;
 
