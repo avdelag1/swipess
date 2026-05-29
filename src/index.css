@@ -403,7 +403,7 @@ html {
   -webkit-tap-highlight-color: transparent;
   width: 100%;
   /* CRITICAL: Allow panning for native feel */
-  touch-action: pan-y pinch-zoom; 
+  touch-action: pan-y pinch-zoom; /* html root: vertical scroll + pinch always works */
   -webkit-overflow-scrolling: touch;
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
@@ -2052,7 +2052,7 @@ input:focus, textarea:focus, select:focus {
 .swipe-card-container,
 [class*="TinderSwipeCard"],
 [class*="SwipeCard"] {
-  touch-action: pan-x !important;
+  touch-action: none; /* framer-motion owns all pointer events on swipe cards */
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   user-select: none;
