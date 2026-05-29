@@ -325,29 +325,21 @@ async function searchListings(intent: ReturnType<typeof detectListingIntent>): P
     // Deduplicate by ID
     let results = Array.from(new Map(data.map(item => [item.id, item])).values());
     
-    // FALLBACK LOGIC: If no specific results found, bring the latest 3 listings regardless of filters
-    // This ensures we always show "something" to keep the user engaged in test mode.
-    if ((!results || results.length === 0) && intent.isListing) {
-      console.log("[AI] No specific listings found, using fallback broad search");
-      const { data: fallbackData } = await supabase
-        .from("listings")
-        .select("id, title, price, location, category, bedrooms, bathrooms, image_url, neighborhood, currency, listing_type, user_id")
-        .eq("is_active", true)
-        .limit(3)
-        .order("created_at", { ascending: false });
-      results = fallbackData || [];
-    }
-
     if (!results || results.length === 0) return "";
 
+    // Exclude seed/test listings that have fake UUIDs — these don't exist in the DB
+    // and clicking their links shows "Listing Not Found" / "no longer available"
     const seedIds = new Set([
       "00000000-0000-0000-0000-000000000000",
       "00000000-0000-0000-0000-000000000001",
     ]);
     const isSeedListing = (l: any) => seedIds.has(l.owner_id || l.user_id) || /^[abc]1111111-|^b2222222-|^c3333333-/.test(l.id || "");
-    const sortedListings = [...results].sort((a: any, b: any) => {
-      const realRank = Number(isSeedListing(a)) - Number(isSeedListing(b));
-      if (realRank !== 0) return realRank;
+    const realListings = results.filter(l => !isSeedListing(l));
+    
+    // If all results were seed data, return nothing — better to say "no matches" than show broken links
+    if (realListings.length === 0) return "";
+
+    const sortedListings = [...realListings].sort((a: any, b: any) => {
       return new Date(b.updated_at || b.created_at || 0).getTime() - new Date(a.updated_at || a.created_at || 0).getTime();
     }).slice(0, 3);
 
