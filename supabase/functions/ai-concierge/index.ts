@@ -285,7 +285,7 @@ async function searchListings(intent: ReturnType<typeof detectListingIntent>): P
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY || SUPABASE_ANON_KEY);
     let query = supabase
       .from("listings")
-      .select("id, title, price, location, category, bedrooms, bathrooms, image_url, images, neighborhood, currency, listing_type, user_id, owner_id, created_at, updated_at, status")
+      .select("id, title, price, location, category, bedrooms, bathrooms, images, neighborhood, currency, listing_type, user_id, owner_id, created_at, updated_at, status")
       .eq("is_active", true)
       .eq("status", "active")
       .limit(25)
@@ -332,8 +332,8 @@ async function searchListings(intent: ReturnType<typeof detectListingIntent>): P
     }).join("\n");
     // Structured payload consumed by the chat UI to render preview cards
     const structured = sortedListings.map(l => {
-      let img = l.image_url || "";
-      if (!img && Array.isArray(l.images) && l.images.length > 0) {
+      let img = "";
+      if (Array.isArray(l.images) && l.images.length > 0) {
         const first = l.images[0];
         img = typeof first === "string" ? first : (first?.url || first?.src || "");
       }
