@@ -384,6 +384,11 @@ function extractListingsTag(listingsContext: string): string {
   return match ? `[LISTINGS:${match[1]}]` : "";
 }
 
+function extractProfilesTag(profilesContext: string): string {
+  const match = profilesContext.match(/\[PROFILES:(\[[\s\S]*?\])\]/);
+  return match ? `[PROFILES:${match[1]}]` : "";
+}
+
 // ─── User Memory ────────────────────────────────────────────────────────────
 
 async function loadUserMemories(userId: string): Promise<string> {
@@ -1387,32 +1392,32 @@ function streamWithForcedSuffix(response: Response, suffix: string): Response {
   const reader = response.body.getReader();
   const decoder = new TextDecoder();
   const encoder = new TextEncoder();
-  let captured = "";
   let injected = false;
 
   const stream = new ReadableStream({
     async pull(controller) {
       const { value, done } = await reader.read();
       if (done) {
-        if (!injected && !captured.includes(suffix)) {
-          controller.enqueue(encoder.encode(`data: ${JSON.stringify({ choices: [{ delta: { content: `\n${suffix}` } }] })}\n\n`));
+        // If value is present (rare edge case), process chunk before closing
+        if (value) {
+          let chunk = decoder.decode(value, { stream: true });
+          if (!injected && chunk.includes("data: [DONE]")) {
+            chunk = chunk.replace("data: [DONE]", `data: ${JSON.stringify({ choices: [{ delta: { content: `\n${suffix}` } }] })}\n\ndata: [DONE]`);
+            injected = true;
+          }
+          controller.enqueue(encoder.encode(chunk));
+        }
+        if (!injected) {
+          controller.enqueue(encoder.encode(`data: ${JSON.stringify({ choices: [{ delta: { content: `\n${suffix}` } }] })}\n\ndata: [DONE]\n\n`));
         }
         controller.close();
         return;
       }
 
       let chunk = decoder.decode(value, { stream: true });
-      for (const line of chunk.split("\n")) {
-        if (!line.startsWith("data: ")) continue;
-        const json = line.slice(6).trim();
-        if (json === "[DONE]") continue;
-        try {
-          const parsed = JSON.parse(json);
-          captured += parsed.choices?.[0]?.delta?.content || "";
-        } catch { /* ignore JSON parse errors */ }
-      }
 
-      if (!injected && !captured.includes(suffix) && chunk.includes("data: [DONE]")) {
+      // Inject suffix right before the [DONE] event when we see it
+      if (!injected && chunk.includes("data: [DONE]")) {
         const forcedChunk = `data: ${JSON.stringify({ choices: [{ delta: { content: `\n${suffix}` } }] })}\n\n`;
         chunk = chunk.replace("data: [DONE]", `${forcedChunk}data: [DONE]`);
         injected = true;
@@ -1572,9 +1577,31 @@ Deno.serve(async (req) => {
     newHeaders.set("Access-Control-Expose-Headers", "X-AI-Provider");
     response = new Response(response.body, { status: response.status, headers: newHeaders });
 
+    // Append structured tags (LISTINGS / PROFILES) to the response so preview cards render in chat
     const listingsTag = listingIntent.isListing ? extractListingsTag(listings) : "";
-    if (listingsTag && response.headers.get("content-type")?.includes("text/event-stream")) {
-      response = streamWithForcedSuffix(response, listingsTag);
+    const profileTag = isProfileQuery ? extractProfilesTag(profileResults) : "";
+    const forcedSuffix = [listingsTag, profileTag].filter(Boolean).join("\n");
+
+    if (forcedSuffix) {
+      const isStreaming = response.headers.get("content-type")?.includes("text/event-stream");
+      if (isStreaming) {
+        response = streamWithForcedSuffix(response, forcedSuffix);
+      } else {
+        // Non-streaming: parse JSON, append tag to content, re-serialize
+        try {
+          const json = await response.json();
+          if (json?.choices?.[0]?.message?.content) {
+            json.choices[0].message.content += `\n${forcedSuffix}`;
+          }
+          response = new Response(JSON.stringify(json), {
+            status: response.status,
+            headers: response.headers,
+          });
+        } catch {
+          // If parsing fails, return original response unmodified
+          console.warn("[AI] Could not append tag to non-streaming response");
+        }
+      }
     }
 
     // If user is authenticated, use tee() for non-blocking capture
