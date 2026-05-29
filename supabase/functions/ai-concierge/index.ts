@@ -349,7 +349,7 @@ async function searchListings(intent: ReturnType<typeof detectListingIntent>): P
       const realRank = Number(isSeedListing(a)) - Number(isSeedListing(b));
       if (realRank !== 0) return realRank;
       return new Date(b.updated_at || b.created_at || 0).getTime() - new Date(a.updated_at || a.created_at || 0).getTime();
-    }).slice(0, 5);
+    }).slice(0, 3);
 
     const lines = sortedListings.map(l => {
       const currency = l.currency || "$";
@@ -1065,7 +1065,7 @@ TONE EXAMPLES:
   }
 
   if (opts.listings) {
-    prompt += `\n\n## LIVE SWIPESS LISTINGS (real, active right now):\n${opts.listings}\n\nPresent these naturally — these are real listings on our platform the user can act on today.`;
+    prompt += `\n\n## LIVE SWIPESS LISTINGS (real, active right now):\n${opts.listings}\n\nCRITICAL INSTRUCTION: This data was ALREADY searched for you. Below these bullets you will find a hidden tag like [LISTINGS:[...]] that the chat UI needs to render beautiful preview cards with images and share buttons. You MUST include this tag verbatim in your response so cards appear. If the user's request is vague (no price, no bedrooms, no location), DO NOT present listings yet — instead ask 1-2 clarifying questions first (price range, bedrooms, area, type). Only present listings once you have enough detail. Limit: maximum 3 results. If the user asks for more, politely say "I can only share up to 3 results at a time — want me to narrow it down with more specific criteria?" Format: introduce each in text, then include the tag at the end of your response.`;
   }
 
   if (opts.webResults) {
@@ -1073,7 +1073,7 @@ TONE EXAMPLES:
   }
 
   if (opts.profileResults) {
-    prompt += `\n\n## SWIPESS USERS MATCHING THIS QUERY:\n${opts.profileResults}\n\nPresent naturally. Link to profiles. Never expose emails or phone numbers.`;
+    prompt += `\n\n## SWIPESS USERS MATCHING THIS QUERY:\n${opts.profileResults}\n\nCRITICAL INSTRUCTION: Below these bullets you will find a hidden tag like [PROFILES:[...]] that the chat UI needs to render beautiful preview cards with profile photos and share buttons. You MUST include this tag verbatim in your response so cards appear. If the user's request is vague (no age, no location, no intention), ask 1-2 clarifying questions first. Limit: maximum 3 profiles. Never expose emails or phone numbers.`;
   }
 
   // Prepend time context + global brevity rules
@@ -1090,6 +1090,11 @@ TONE EXAMPLES:
 - One joke/filler per response, not three.
 - Get to the point, then stop. No recap, no summary, no "let me know if you need anything".
 - If the user asks a simple question, give a simple answer.
+
+## LISTING RESULT LIMIT (NEVER VIOLATE):
+- You may only present 1-3 listings or profiles per response. Never more.
+- If the user asks for more than 3 ("send 10", "show all", "give me 5"), politely decline: "I can only share up to 3 at a time — want me to narrow it down with specific criteria?"
+- Always include the [LISTINGS:[...]] or [PROFILES:[...]] tag at the end so preview cards render in the chat.
 
 ## ABSOLUTE NO-EMOJI RULE (NEVER VIOLATE):
 - NEVER use emojis, emoticons, or unicode pictograms in ANY response. Zero exceptions.
