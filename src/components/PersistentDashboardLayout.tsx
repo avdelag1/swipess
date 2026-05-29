@@ -90,11 +90,10 @@ export function PersistentDashboardLayout() {
             <div
               className={cn(
                 "relative w-full flex flex-col flex-grow",
-                isDashboardRoute && "flex-1 min-h-0"
+                isDashboardRoute && "flex-1 min-h-0 pointer-events-none-force"
               )}
               style={{
                 zIndex: 10,
-                pointerEvents: isDashboardRoute ? 'none' : 'auto',
               }}
             >
               <Suspense fallback={null}>
