@@ -1351,7 +1351,11 @@ async function streamGroq(messages: ChatMessage[]): Promise<Response> {
     throw new Error(`Groq ${res.status}: ${errBody.slice(0, 200)}`);
   }
 
-  return res;
+  // Wrap in new Response with CORS headers so the browser can read the stream
+  return new Response(res.body, {
+    status: res.status,
+    headers: { ...corsHeaders, "Content-Type": "text/event-stream" },
+  });
 }
 
 async function fetchGroq(messages: ChatMessage[]): Promise<Response> {
@@ -1374,7 +1378,10 @@ async function fetchGroq(messages: ChatMessage[]): Promise<Response> {
     console.error(`[AI] Groq non-streaming error ${res.status}: ${errBody.slice(0, 300)}`);
     throw new Error(`Groq ${res.status}: ${errBody.slice(0, 200)}`);
   }
-  return res;
+  return new Response(res.body, {
+    status: res.status,
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+  });
 }
 
 function streamWithForcedSuffix(response: Response, suffix: string): Response {
