@@ -298,7 +298,15 @@ async function searchListings(intent: ReturnType<typeof detectListingIntent>): P
     }
 
     if (intent.categories && intent.categories.length > 0) {
-      query = query.in("category", intent.categories);
+      // Expand category to include all related values (old ENUM values still in DB + new text values)
+      const CATEGORY_EXPANSIONS: Record<string, string[]> = {
+        property: ["property", "apartment", "house", "studio", "villa", "condo", "room", "penthouse", "townhouse"],
+        motorcycle: ["motorcycle", "moto", "scooter", "motorbike"],
+        bicycle: ["bicycle", "bike", "cycling", "ebike"],
+        worker: ["worker", "services", "service", "plumber", "electrician", "cleaner", "handyman", "chef", "driver", "nanny", "contractor", "mechanic"],
+      };
+      const expanded = intent.categories.flatMap(c => CATEGORY_EXPANSIONS[c] || [c]);
+      query = query.in("category", [...new Set(expanded)]);
     }
     
     if (intent.maxPrice) {
@@ -329,9 +337,11 @@ async function searchListings(intent: ReturnType<typeof detectListingIntent>): P
 
     // Exclude seed/test listings that have fake UUIDs — these don't exist in the DB
     // and clicking their links shows "Listing Not Found" / "no longer available"
+    // These match the seed IDs used in the database's get_smart_listings() function
     const seedIds = new Set([
       "00000000-0000-0000-0000-000000000000",
       "00000000-0000-0000-0000-000000000001",
+      "7c51f110-6261-44d8-b9d0-dccd2d901b6",
     ]);
     const isSeedListing = (l: any) => seedIds.has(l.owner_id || l.user_id) || /^[abc]1111111-|^b2222222-|^c3333333-/.test(l.id || "");
     const realListings = results.filter(l => !isSeedListing(l));
