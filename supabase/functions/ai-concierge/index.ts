@@ -177,7 +177,7 @@ function detectProfileIntent(query: string): boolean {
 async function searchProfiles(query: string): Promise<string> {
   if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) return "";
   try {
-    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
+    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY || SUPABASE_ANON_KEY);
     const q = query.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
     // Step 1: Find also via client_profiles.intentions (worker/service matching)
@@ -296,51 +296,34 @@ function detectListingIntent(query: string): { isListing: boolean; categories?: 
 }
 
 async function searchListings(intent: ReturnType<typeof detectListingIntent>): Promise<string> {
-  if (!SUPABASE_URL) return "";
+  if (!SUPABASE_URL || (!SUPABASE_SERVICE_KEY && !SUPABASE_ANON_KEY)) return "";
   try {
-    const apiKey = SUPABASE_SERVICE_KEY || SUPABASE_ANON_KEY;
-    if (!apiKey) return "";
-
-    // Use direct REST API fetch instead of supabase-js client for reliability
-    const params = new URLSearchParams();
-    params.set("select", "id,title,price,location,category,bedrooms,bathrooms,images,neighborhood,currency,listing_type,user_id,owner_id,created_at,updated_at,status");
-    params.set("is_active", "eq.true");
-    params.set("status", "eq.active");
-    params.set("order", "updated_at.desc.nullslast,created_at.desc.nullslast");
-    params.set("limit", "25");
+    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY || SUPABASE_ANON_KEY);
+    // TEMP: query ALL listings to debug — no status/is_active filter
+    let query = supabase
+      .from("listings")
+      .select("id, title, price, location, category, bedrooms, bathrooms, images, neighborhood, currency, listing_type, user_id, owner_id, created_at, updated_at, status, is_active")
+      .limit(50)
+      .order("updated_at", { ascending: false });
 
     if (intent.userId) {
-      params.set("or", `(user_id.eq.${intent.userId},owner_id.eq.${intent.userId})`);
+      query = query.or(`user_id.eq.${intent.userId},owner_id.eq.${intent.userId}`);
     }
     if (intent.maxPrice) {
-      params.set("price", `lte.${intent.maxPrice}`);
+      query = query.lte("price", intent.maxPrice);
     }
     if (intent.bedrooms?.length) {
-      params.set("bedrooms", `in.(${intent.bedrooms.join(",")})`);
+      query = query.in("bedrooms", intent.bedrooms);
     }
 
-    const restUrl = `${SUPABASE_URL.replace(/\/$/, "")}/rest/v1/listings?${params.toString()}`;
-    console.log(`[AI] Searching listings: ${restUrl.replace(apiKey, "HIDDEN")}`);
-    const res = await fetch(restUrl, {
-      headers: {
-        "apikey": apiKey,
-        "Authorization": `Bearer ${apiKey}`,
-        "Accept": "application/json",
-      },
-    });
-    if (!res.ok) {
-      const errText = await res.text();
-      console.error(`[AI] REST API ${res.status}: ${errText.slice(0, 500)}`);
+    const { data, error } = await query;
+    if (error) {
+      console.error("[AI] Listing search query error:", JSON.stringify(error));
       return "";
     }
 
-    const data: any[] = await res.json();
-    console.log(`[AI] Found ${data?.length || 0} listings`);
-    if (!data || data.length === 0) return "";
-
-    // Deduplicate by ID
     let results = Array.from(new Map(data.map(item => [item.id, item])).values());
-    if (results.length === 0) return "";
+    if (!results || results.length === 0) return "";
 
     const sortedListings = results
       .sort((a: any, b: any) => new Date(b.updated_at || b.created_at || 0).getTime() - new Date(a.updated_at || a.created_at || 0).getTime())
@@ -397,7 +380,7 @@ function extractProfilesTag(profilesContext: string): string {
 async function loadUserMemories(userId: string): Promise<string> {
   if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) return "";
   try {
-    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
+    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY || SUPABASE_ANON_KEY);
     const { data, error } = await supabase
       .from("user_memories")
       .select("category, title, content")
@@ -452,7 +435,7 @@ Return ONLY the JSON array, no markdown:`;
     const memories = JSON.parse(cleaned);
     if (!Array.isArray(memories) || memories.length === 0) return;
 
-    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
+    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY || SUPABASE_ANON_KEY);
     for (const mem of memories.slice(0, 5)) {
       if (!mem.title || !mem.content) continue;
       await supabase.from("user_memories").upsert(
