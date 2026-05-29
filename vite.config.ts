@@ -100,15 +100,24 @@ export default defineConfig(({ mode }) => ({
             if (id.includes('lucide-react') || id.includes('react-icons')) return 'vendor-icons';
             if (id.includes('react-hook-form') || id.includes('zod') || id.includes('@hookform')) return 'vendor-forms';
             if (id.includes('i18next') || id.includes('react-i18next')) return 'vendor-i18n';
-            if (id.includes('recharts') || id.includes('victory')) return 'vendor-viz';
+            if (id.includes('recharts') || id.includes('d3-') || id.includes('/d3/')) return 'vendor-viz';
             if (id.includes('lottie')) return 'vendor-lottie';
             if (id.includes('embla-carousel')) return 'vendor-carousel';
             if (id.includes('browser-image-compression')) return 'vendor-img';
-            
             if (id.includes('@tanstack')) return 'vendor-query';
             if (id.includes('date-fns')) return 'vendor-dates';
             if (id.includes('clsx') || id.includes('tailwind-merge') || id.includes('class-variance-authority')) return 'vendor-css-utils';
-            
+            // Map / geo
+            if (id.includes('mapbox') || id.includes('maplibre') || id.includes('leaflet')) return 'vendor-maps';
+            // Audio
+            if (id.includes('howler') || id.includes('tone') || id.includes('wavesurfer')) return 'vendor-audio';
+            // Crypto / encoding utils
+            if (id.includes('tweetnacl') || id.includes('base64') || id.includes('js-sha') || id.includes('uuid')) return 'vendor-crypto';
+            // Markdown / rich-text
+            if (id.includes('marked') || id.includes('remark') || id.includes('rehype') || id.includes('micromark') || id.includes('mdast') || id.includes('unified') || id.includes('gray-matter')) return 'vendor-md';
+            // PDF
+            if (id.includes('pdfjs') || id.includes('pdf-lib') || id.includes('jspdf')) return 'vendor-pdf';
+            // Everything else
             return 'vendor-misc';
           }
         }

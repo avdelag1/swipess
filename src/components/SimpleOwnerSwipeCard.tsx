@@ -268,7 +268,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
     if (storedPointerEventRef.current && !dragStartedRef.current) {
       const dx = Math.abs(e.clientX - (storedPointerEventRef.current as any).clientX);
       const dy = Math.abs(e.clientY - (storedPointerEventRef.current as any).clientY);
-      if ((dx > 28 || dy > 28) && !isMagnifierHoldPending()) {
+      if ((dx > 4 || dy > 4) && !isMagnifierHoldPending()) {
         magnifierPointerHandlers.onPointerUp(e); 
         dragStartedRef.current = true;
         isDragging.current = true;
@@ -391,7 +391,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
         dragListener={isTop ? false : undefined}
         dragDirectionLock={isTop ? true : undefined}
         dragMomentum={false}
-        dragConstraints={{ left: -1200, right: 1200, top: -1200, bottom: 1200 }}
+        dragConstraints={{ left: -9999, right: 9999, top: -9999, bottom: 9999 }}
         dragElastic={0.02}
         onDragStart={handleDragStart}
         onDrag={handleDrag}

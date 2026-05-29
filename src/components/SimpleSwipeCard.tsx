@@ -231,7 +231,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
       // Start drag the instant we detect real movement. Cancel the magnifier
       // hold so vertical/horizontal browse never stalls waiting on the
       // 380ms hold-to-zoom timer.
-      if (dx > 6 || dy > 6) {
+      if (dx > 3 || dy > 3) {
         magnifierPointerHandlers.onPointerUp(e); 
         dragStartedRef.current = true;
         isDragging.current = true;
@@ -385,7 +385,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
         dragListener={isTop ? false : undefined}
         dragDirectionLock={isTop ? true : undefined}
         dragMomentum={false}
-        dragConstraints={{ left: -1200, right: 1200, top: -1200, bottom: 1200 }}
+        dragConstraints={{ left: -9999, right: 9999, top: -9999, bottom: 9999 }}
         dragElastic={1}
         onDragStart={handleDragStart}
         onDrag={handleDrag}
