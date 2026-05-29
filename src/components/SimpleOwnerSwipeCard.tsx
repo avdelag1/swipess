@@ -178,6 +178,9 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   const hasExited = useRef(false);
   const isExitingRef = useRef(false);
   const lastProfileIdRef = useRef(profile?.user_id || '');
+  const dragControls = useDragControls();
+  const dragStartedRef = useRef(false);
+  const storedPointerEventRef = useRef<React.PointerEvent | null>(null);
   const dragAxisRef = useRef<DragAxis>(null);
   const { isLight } = useAppTheme();
   const { isChromeVisible } = useChromeReveal();
@@ -251,6 +254,8 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
 
   const handleUnifiedPointerDown = useCallback((e: React.PointerEvent) => {
     if (!isTop) return;
+    dragStartedRef.current = false;
+    storedPointerEventRef.current = e;
     magnifierPointerHandlers.onPointerDown(e);
   }, [isTop, magnifierPointerHandlers]);
 
@@ -260,10 +265,21 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
       magnifierPointerHandlers.onPointerMove(e);
       return;
     }
+    if (storedPointerEventRef.current && !dragStartedRef.current) {
+      const dx = Math.abs(e.clientX - (storedPointerEventRef.current as any).clientX);
+      const dy = Math.abs(e.clientY - (storedPointerEventRef.current as any).clientY);
+      if ((dx > 28 || dy > 28) && !isMagnifierHoldPending()) {
+        magnifierPointerHandlers.onPointerUp(e); 
+        dragStartedRef.current = true;
+        isDragging.current = true;
+        dragControls.start((storedPointerEventRef.current as any).nativeEvent);
+      }
+    }
     magnifierPointerHandlers.onPointerMove(e);
-  }, [isMagnifierActive, magnifierPointerHandlers]);
+  }, [isMagnifierActive, isMagnifierHoldPending, magnifierPointerHandlers, dragControls]);
 
   const handleUnifiedPointerUp = useCallback((e: React.PointerEvent) => {
+    storedPointerEventRef.current = null;
     magnifierPointerHandlers.onPointerUp(e);
   }, [magnifierPointerHandlers]);
 
@@ -370,11 +386,13 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   return (
     <div className={cn("absolute inset-0 flex flex-col", isTop ? "pointer-events-auto" : "pointer-events-none")}>
       <motion.div
-        drag={isTop && !isZoomed ? true : false}
+        drag={isTop ? true : false}
+        dragControls={isTop ? dragControls : undefined}
+        dragListener={isTop ? false : undefined}
         dragDirectionLock={isTop ? true : undefined}
         dragMomentum={false}
         dragConstraints={{ left: -1200, right: 1200, top: -1200, bottom: 1200 }}
-        dragElastic={1}
+        dragElastic={0.02}
         onDragStart={handleDragStart}
         onDrag={handleDrag}
         onDirectionLock={handleDirectionLock}

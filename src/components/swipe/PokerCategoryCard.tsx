@@ -151,11 +151,7 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
   }, [isTop, card.id]);
 
   useEffect(() => {
-    if (!isTop) {
-      x.set(0);
-      y.set(0);
-      return;
-    }
+    if (!isTop) return;
     x.stop();
     y.stop();
     x.set(0);
@@ -222,8 +218,10 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
     return (
     <motion.div
       drag={isTop ? "x" : false}
-      dragConstraints={{ left: -1200, right: 1200 }}
-      dragElastic={1}
+      dragDirectionLock
+      onDirectionLock={handleDirectionLock}
+      dragConstraints={{ left: 0, right: 0 }}
+      dragElastic={0.85}
       dragMomentum={false}
       onDragStart={() => {
         setIsDragging(true);
@@ -237,13 +235,8 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
           onBringToFront(index);
           return;
         }
-        // Handle tap on the Engage Discovery button explicitly through Framer Motion's onTap
-        // since native onClick can be swallowed on mobile during drag detection.
-        if (engageButtonRef.current?.contains(e?.target as Node)) {
-          triggerHaptic('medium');
-          onSelect(card.id);
-          return;
-        }
+        // Skip if tap was on the Engage Discovery button — its own onClick handles navigation
+        if (engageButtonRef.current?.contains(e?.target as Node)) return;
         // On the top card, taps on the left/right edges toggle the
         // header + bottom-nav chrome instead of opening the category —
         // so users can summon the menus from the swipe surface itself.
@@ -271,8 +264,8 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
         left: 0,
         width: '100%',
         height: '100%',
-        x,
-        y,
+        x: isTop ? x : 0,
+        y: 0,
         zIndex: 100 - index,
         opacity: isTop ? exitOpacity : stackOpacity,
         scale: 1,
