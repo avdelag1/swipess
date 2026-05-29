@@ -28,7 +28,6 @@ import { cn } from '@/lib/utils';
 import { useUnreadMessageCount } from '@/hooks/useUnreadMessageCount';
 import { useUnreadNotifications } from '@/hooks/useUnreadNotifications';
 import { prefetchRoute } from '@/utils/routePrefetcher';
-import useAppTheme from '@/hooks/useAppTheme';
 import { haptics } from '@/utils/microPolish';
 import { useTranslation } from 'react-i18next';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
@@ -85,17 +84,10 @@ export const BottomNavigation = memo(({
   const closeAll = useModalStore((s) => s.closeAll);
   const { unreadCount: _unreadCount } = useUnreadMessageCount();
   const { unreadCount: _unreadNotifCount } = useUnreadNotifications();
-  const { isLight: themeIsLight } = useAppTheme();
-  const isDashboardRoute = /^\/(client|owner|admin)\/dashboard\/?/.test(location.pathname);
-  // Only the dashboard page forces dark — other pages respect the user's theme
-  const isLight = isDashboardRoute ? false : themeIsLight;
 
   // Always visible on every page — no chrome-reveal hiding
   const isActuallyVisible = true;
-  // Theme rule:
-  //  - Dark theme (black filter): nav icons always WHITE everywhere.
-  //  - Light theme (white filter): WHITE on dashboard (over photos),
-  //    BLACK on every other page.
+  // Navigation chrome always stays in dark mode — icons always white.
 
 
   const { t } = useTranslation();
@@ -253,13 +245,6 @@ export const BottomNavigation = memo(({
 
 
 
-  // Light theme uses a vibrant violet/indigo for the active item so it's
-  // visible against the near-white glass pill. Dark theme keeps white.
-  // The active item also picks up a neon halo via drop-shadow.
-  const activeColor = isLight && !isDashboardRoute ? '#7C3AED' : '#FFFFFF';
-  const activeGlow = isLight && !isDashboardRoute
-    ? 'drop-shadow(0 0 6px rgba(124,58,237,0.55)) drop-shadow(0 0 14px rgba(99,102,241,0.35))'
-    : 'drop-shadow(0 0 6px rgba(255,255,255,0.45))';
   return (
     <nav
       role="navigation"
@@ -287,9 +272,7 @@ export const BottomNavigation = memo(({
           "rounded-full"
         )}
         style={{
-          filter: isLight
-            ? 'drop-shadow(0 4px 12px rgba(0,0,0,0.12))'
-            : 'drop-shadow(0 8px 32px rgba(0,0,0,0.45))',
+          filter: 'drop-shadow(0 8px 32px rgba(0,0,0,0.45))',
         }}
       >
         {/* Nav items row — SCROLLABLE SWIPESS ARCHITECTURE */}
@@ -399,10 +382,10 @@ export const BottomNavigation = memo(({
                     style={{
                       width: isTablet ? ICON_SIZE_TABLET : (isNarrow ? 16 : ICON_SIZE),
                       height: isTablet ? ICON_SIZE_TABLET : (isNarrow ? 16 : ICON_SIZE),
-                      color: active ? activeColor : (isLight && !isDashboardRoute ? 'rgba(0,0,0,0.78)' : 'rgba(255,255,255,0.92)'),
+                      color: active ? '#FFFFFF' : 'rgba(255,255,255,0.92)',
                       fill: 'none',
                       strokeWidth: active ? 2.4 : 1.7,
-                      filter: active ? activeGlow : undefined,
+                      filter: active ? 'drop-shadow(0 0 6px rgba(255,255,255,0.45))' : undefined,
                       transition: 'color 160ms ease-out, stroke-width 160ms ease-out, filter 160ms ease-out',
                     }}
                   />
@@ -416,9 +399,8 @@ export const BottomNavigation = memo(({
                         isTablet ? 'text-[11px]' : 'text-[8px]',
                       )}
                       style={{
-                        color: active ? activeColor : (isLight && !isDashboardRoute ? 'rgba(0,0,0,0.78)' : 'rgba(255,255,255,0.92)'),
-                        textShadow: active && isLight && !isDashboardRoute ? '0 0 8px rgba(124,58,237,0.45)' : undefined,
-                        transition: 'color 160ms ease-out, text-shadow 160ms ease-out',
+                        color: active ? '#FFFFFF' : 'rgba(255,255,255,0.92)',
+                        transition: 'color 160ms ease-out',
                         zIndex: 1,
                       }}
                     >

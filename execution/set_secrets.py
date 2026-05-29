@@ -32,6 +32,10 @@ minimax_key = os.environ.get("MINIMAX_API_KEY")
 if minimax_key:
     SECRETS.append({"name": "MINIMAX_API_KEY", "value": minimax_key})
 
+groq_key = os.environ.get("GROQ_API_KEY")
+if groq_key:
+    SECRETS.append({"name": "GROQ_API_KEY", "value": groq_key})
+
 
 def set_secrets(token: str):
     url = f"https://api.supabase.com/v1/projects/{PROJECT_REF}/secrets"

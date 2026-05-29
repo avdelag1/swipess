@@ -8,6 +8,7 @@ const corsHeaders = {
 const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY") || "";
 const MINIMAX_API_KEY = Deno.env.get("MINIMAX_API_KEY") || "";
 const MOONSHOT_API_KEY = Deno.env.get("MOONSHOT_API_KEY") || "";
+const GROQ_API_KEY = Deno.env.get("GROQ_API_KEY") || "";
 const TAVILY_API_KEY = Deno.env.get("TAVILY_API_KEY") || "";
 // Use the production Supabase for data queries
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") || Deno.env.get("VITE_SUPABASE_URL") || "";
@@ -1321,6 +1322,56 @@ async function fetchKimi(messages: ChatMessage[]): Promise<Response> {
   return res;
 }
 
+// ─── Groq Provider (primary) ────────────────────────────────────────────
+
+async function streamGroq(messages: ChatMessage[]): Promise<Response> {
+  if (!GROQ_API_KEY) throw new Error("GROQ_API_KEY not configured");
+
+  const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${GROQ_API_KEY}`,
+    },
+    body: JSON.stringify({
+      model: "llama-3.3-70b-versatile",
+      messages,
+      max_tokens: 1024,
+      temperature: 0.6,
+      stream: true,
+    }),
+  });
+
+  if (!res.ok) {
+    const errBody = await res.text();
+    console.error("[AI] Groq error:", res.status, errBody);
+    throw new Error(`Groq ${res.status}: ${errBody}`);
+  }
+
+  return res;
+}
+
+async function fetchGroq(messages: ChatMessage[]): Promise<Response> {
+  if (!GROQ_API_KEY) throw new Error("GROQ_API_KEY not configured");
+  const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${GROQ_API_KEY}` },
+    body: JSON.stringify({
+      model: "llama-3.3-70b-versatile",
+      messages,
+      max_tokens: 1024,
+      temperature: 0.6,
+      stream: false,
+    }),
+  });
+  if (!res.ok) {
+    const errBody = await res.text();
+    console.error("[AI] Groq error:", res.status, errBody);
+    throw new Error(`Groq ${res.status}: ${errBody}`);
+  }
+  return res;
+}
+
 function streamWithForcedSuffix(response: Response, suffix: string): Response {
   if (!suffix || !response.body) return response;
 
@@ -1459,35 +1510,42 @@ Deno.serve(async (req) => {
       ...messages.filter(m => m.role !== "system"),
     ];
 
-    // Use Gemini as primary, Kimi (Moonshot) as first fallback, MiniMax as last resort
+    // Use Groq as primary, Gemini as first fallback, Kimi as second fallback, MiniMax as last resort
     let response: Response;
-    let aiProvider = "gemini";
+    let aiProvider = "groq";
     
     try {
-      console.log(`[AI] Routing to Gemini. Streaming: ${stream}`);
-      response = stream ? await streamGemini(enrichedMessages) : await fetchGemini(enrichedMessages);
+      console.log(`[AI] Routing to Groq. Streaming: ${stream}`);
+      response = stream ? await streamGroq(enrichedMessages) : await fetchGroq(enrichedMessages);
     } catch (e) {
-      console.warn(`[AI] Gemini failed, trying Kimi: ${(e as Error).message}`);
-      aiProvider = "kimi";
+      console.warn(`[AI] Groq failed, trying Gemini: ${(e as Error).message}`);
+      aiProvider = "gemini";
       try {
-        response = stream ? await streamKimi(enrichedMessages) : await fetchKimi(enrichedMessages);
+        response = stream ? await streamGemini(enrichedMessages) : await fetchGemini(enrichedMessages);
       } catch (e2) {
-        console.warn(`[AI] Kimi failed, trying MiniMax: ${(e2 as Error).message}`);
-        aiProvider = "minimax";
+        console.warn(`[AI] Gemini failed, trying Kimi: ${(e2 as Error).message}`);
+        aiProvider = "kimi";
         try {
-          response = stream ? await streamMiniMax(enrichedMessages) : await fetchMiniMax(enrichedMessages);
+          response = stream ? await streamKimi(enrichedMessages) : await fetchKimi(enrichedMessages);
         } catch (e3) {
-          console.error("[AI] All providers failed:", (e3 as Error).message);
-          return new Response(JSON.stringify({
-            error: "AI temporarily unavailable. Please try again.",
-            details: {
-              gemini: (e as Error).message,
-              kimi: (e2 as Error).message,
-              minimax: (e3 as Error).message
-            }
-          }), {
-            status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" },
-          });
+          console.warn(`[AI] Kimi failed, trying MiniMax: ${(e3 as Error).message}`);
+          aiProvider = "minimax";
+          try {
+            response = stream ? await streamMiniMax(enrichedMessages) : await fetchMiniMax(enrichedMessages);
+          } catch (e4) {
+            console.error("[AI] All providers failed:", (e4 as Error).message);
+            return new Response(JSON.stringify({
+              error: "AI temporarily unavailable. Please try again.",
+              details: {
+                groq: (e as Error).message,
+                gemini: (e2 as Error).message,
+                kimi: (e3 as Error).message,
+                minimax: (e4 as Error).message
+              }
+            }), {
+              status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" },
+            });
+          }
         }
       }
     }

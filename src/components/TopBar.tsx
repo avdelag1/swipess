@@ -1,13 +1,11 @@
 import { memo } from 'react';
 import { useAppNavigate } from "@/hooks/useAppNavigate";
 import { motion } from 'framer-motion';
-import { useLocation } from 'react-router-dom';
 import { ChevronLeft, UserRound, Crown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { useAppTheme } from '@/hooks/useAppTheme';
 import { haptics } from '@/utils/microPolish';
 import { NotificationPopover } from './NotificationPopover';
 import { ThemeToggle } from './ThemeToggle';
@@ -44,19 +42,12 @@ function TopBarComponent({
 }: TopBarProps) {
   const { navigate } = useAppNavigate();
   const { user } = useAuth();
-  const { isLight: themeIsLight } = useAppTheme();
   const setModal = useModalStore(s => s.setModal);
-  const location = useLocation();
-  const isDashboard = /^\/(client|owner|admin)\/dashboard\/?/.test(location.pathname);
-  
-  // Only the dashboard page forces dark — other pages respect the user's theme
-  const isLight = isDashboard ? false : themeIsLight;
-
-  // Always visible on every page — no chrome-reveal hiding
+  // Chrome is always dark — navigation bar icons stay white regardless of theme
+  const isLight = false;
   const isActuallyVisible = true;
-  // Color rule: always WHITE on dashboard (forced dark), otherwise
-  // follow theme.
-  const iconColor = !isLight || isDashboard ? '#FFFFFF' : '#0A0A0A';
+  // Always WHITE — navigation chrome never changes color
+  const iconColor = '#FFFFFF';
 
   // Note: when an activeCategory is set on the dashboard, the SwipeDeckBackButton
   // already provides the persistent back arrow. Don't render a duplicate here.
