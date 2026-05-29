@@ -292,31 +292,16 @@ async function searchListings(intent: ReturnType<typeof detectListingIntent>): P
       .order("updated_at", { ascending: false })
       .order("created_at", { ascending: false });
 
-    // Apply filters from intent
+    // Apply optional filters from intent
     if (intent.userId) {
       query = query.or(`user_id.eq.${intent.userId},owner_id.eq.${intent.userId}`);
     }
-
-    if (intent.categories && intent.categories.length > 0) {
-      // Expand category to include all related values (old ENUM values still in DB + new text values)
-      const CATEGORY_EXPANSIONS: Record<string, string[]> = {
-        property: ["property", "apartment", "house", "studio", "villa", "condo", "room", "penthouse", "townhouse"],
-        motorcycle: ["motorcycle", "moto", "scooter", "motorbike"],
-        bicycle: ["bicycle", "bike", "cycling", "ebike"],
-        worker: ["worker", "services", "service", "plumber", "electrician", "cleaner", "handyman", "chef", "driver", "nanny", "contractor", "mechanic"],
-      };
-      const expanded = intent.categories.flatMap(c => CATEGORY_EXPANSIONS[c] || [c]);
-      query = query.in("category", [...new Set(expanded)]);
-    }
-    
     if (intent.maxPrice) {
       query = query.lte("price", intent.maxPrice);
     }
-
     if (intent.bedrooms && intent.bedrooms.length > 0) {
       query = query.in("bedrooms", intent.bedrooms);
     }
-
     if (intent.locations && intent.locations.length > 0) {
       const orFilter = intent.locations.map(loc => `neighborhood.ilike.%${loc}%`).join(",");
       query = query.or(orFilter);
@@ -328,30 +313,13 @@ async function searchListings(intent: ReturnType<typeof detectListingIntent>): P
       return "";
     }
 
-
-
     // Deduplicate by ID
     let results = Array.from(new Map(data.map(item => [item.id, item])).values());
-    
     if (!results || results.length === 0) return "";
 
-    // Exclude seed/test listings that have fake UUIDs — these don't exist in the DB
-    // and clicking their links shows "Listing Not Found" / "no longer available"
-    // These match the seed IDs used in the database's get_smart_listings() function
-    const seedIds = new Set([
-      "00000000-0000-0000-0000-000000000000",
-      "00000000-0000-0000-0000-000000000001",
-      "7c51f110-6261-44d8-b9d0-dccd2d901b6",
-    ]);
-    const isSeedListing = (l: any) => seedIds.has(l.owner_id || l.user_id) || /^[abc]1111111-|^b2222222-|^c3333333-/.test(l.id || "");
-    const realListings = results.filter(l => !isSeedListing(l));
-    
-    // If all results were seed data, return nothing — better to say "no matches" than show broken links
-    if (realListings.length === 0) return "";
-
-    const sortedListings = [...realListings].sort((a: any, b: any) => {
-      return new Date(b.updated_at || b.created_at || 0).getTime() - new Date(a.updated_at || a.created_at || 0).getTime();
-    }).slice(0, 3);
+    const sortedListings = results
+      .sort((a: any, b: any) => new Date(b.updated_at || b.created_at || 0).getTime() - new Date(a.updated_at || a.created_at || 0).getTime())
+      .slice(0, 3);
 
     const lines = sortedListings.map(l => {
       const currency = l.currency || "$";
