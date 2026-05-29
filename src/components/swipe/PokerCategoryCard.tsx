@@ -1,7 +1,6 @@
 import { memo, useCallback, useRef, useState, useEffect, useMemo, useLayoutEffect } from 'react';
 import { AnimatePresence, motion, useMotionValue, useTransform, animate, PanInfo } from 'framer-motion';
 import { triggerHaptic } from '@/utils/haptics';
-import { toggleChrome } from '@/hooks/useChromeReveal';
 import {
   POKER_CARD_PHOTOS,
   POKER_CARD_GRADIENTS,
@@ -32,8 +31,6 @@ const _loadedPokerImages = new Set<string>();
 const _lastPhotoKey = new Map<string, string>();
 
 // Detect low-end / reduced-motion devices once at module load.
-// Blur + continuous scale across multiple stacked cards is the single
-// biggest GPU cost on Android. Disable both on weak hardware.
 const _isLowEndDevice = (() => {
   if (typeof window === 'undefined') return false;
   try {
@@ -46,11 +43,16 @@ const _isLowEndDevice = (() => {
 export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCollapsed = false, onCycle, onSelect, onBringToFront }: PokerCardProps) => {
   const x = useMotionValue(0);
   const y = useMotionValue(0);
-  const axisRef = useRef<null | 'x' | 'y'>(null);
+  // Use a REF for drag state — synchronous, never stale inside onTap.
+  const isDraggingRef = useRef(false);
+  // Ref to track if a commit exit animation is in progress (prevent re-trigger)
+  const isExitingRef = useRef(false);
   const engageButtonRef = useRef<HTMLButtonElement>(null);
 
-  const [isDragging, setIsDragging] = useState(false);
-  // Subtle fade as the card moves off in either axis — no rotation, no scale fight.
+  // Keep a visual "isDragging" state just for cursor styling.
+  const [isDraggingVisual, setIsDraggingVisual] = useState(false);
+
+  // Subtle fade as the card moves off — no rotation.
   const exitOpacity = useTransform(
     [x, y] as any,
     ([cx, cy]: any) => {
@@ -78,22 +80,15 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
   }, [card.id]);
   const cardKey = card.id;
 
-  // Sync cache with the imageCache used by CardImage so the normal card
-  // prewarmer also warms poker photos.
   const [imgReady, setImgReady] = useState(() => {
     return imageCache.has(photo) || _loadedPokerImages.has(photo);
   });
 
-  // Use a key that changes when photo changes so <motion.img> always
-  // gets a fresh unmount/mount — eliminates stale exit animations.
   const photoRenderKey = `${photo}_${imgReady}`;
 
-  // useLayoutEffect fires synchronously after render but before paint,
-  // so we never show a frame with the old imgReady for a new photo.
   useLayoutEffect(() => {
     const prev = _lastPhotoKey.get(cardKey);
     _lastPhotoKey.set(cardKey, photo);
-    // Same photo as last render — nothing to do.
     if (prev === photo) return;
 
     if (imageCache.has(photo) || _loadedPokerImages.has(photo)) {
@@ -101,9 +96,6 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
       return;
     }
 
-    // Mark not-ready synchronously so the gradient shows for this frame
-    // (slightly better than the old flash where imgReady stayed true for
-    //  the previous photo's image during the new photo's first frame).
     setImgReady(false);
     const img = new Image();
     img.onload = () => {
@@ -115,7 +107,7 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
     img.src = photo;
   }, [photo, cardKey]);
 
-  // Preload all carousel photos into both caches so cross-fades are instant.
+  // Preload all carousel photos.
   useEffect(() => {
     photoList.forEach((src) => {
       if (imageCache.has(src) || _loadedPokerImages.has(src)) return;
@@ -128,19 +120,16 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
     });
   }, [photoList]);
 
-  // Carousel: start ~5s in, then advance every 5–10s at random.
-  // Only the visible top card animates — background cards stay static
-  // to keep the deck quiet.
+  // Carousel: start ~5s in, then advance every 5–10s. Only top card animates.
   useEffect(() => {
     if (!isTop || photoList.length < 2) return;
     let cancelled = false;
     const tick = () => {
       if (cancelled) return;
       setPhotoIndex((i) => (i + 1) % photoList.length);
-      const next = 5000 + Math.random() * 5000; // 5s–10s
+      const next = 5000 + Math.random() * 5000;
       timerId = window.setTimeout(tick, next);
     };
-    // Initial delay 5s.
     let timerId = window.setTimeout(tick, 5000);
     return () => { cancelled = true; clearTimeout(timerId); };
   }, [isTop, card.id, photoList.length]);
@@ -150,109 +139,95 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
     if (isTop) setPhotoIndex(0);
   }, [isTop, card.id]);
 
+  // Reset drag state when card becomes top.
   useEffect(() => {
     if (!isTop) return;
     x.stop();
     y.stop();
     x.set(0);
     y.set(0);
-    axisRef.current = null;
-    setIsDragging(false);
+    isDraggingRef.current = false;
+    isExitingRef.current = false;
+    setIsDraggingVisual(false);
   }, [card.id, isTop, x, y]);
 
   const handleDragEnd = useCallback((_: any, info: PanInfo) => {
+    // If already animating exit, ignore.
+    if (isExitingRef.current) return;
+
+    isDraggingRef.current = false;
+    setIsDraggingVisual(false);
+
     const dx = info.offset.x;
     const vx = info.velocity.x;
-
     const commitX = Math.abs(dx) > PK_DIST_THRESHOLD || Math.abs(vx) > PK_VEL_THRESHOLD;
 
-    const reset = () => {
-      animate(x, 0, { ...PK_SPRING });
-      axisRef.current = null;
-      setIsDragging(false);
-    };
-
     if (commitX) {
+      isExitingRef.current = true;
       triggerHaptic('light');
       const direction = dx > 0 ? 'right' : 'left';
-      const exitX = direction === 'right' ? 480 : -480;
-      // Straight horizontal exit — no rotation, no curve.
+      const exitX = direction === 'right' ? 520 : -520;
       animate(x, exitX, {
         type: 'tween',
-        duration: 0.18,
+        duration: 0.22,
         ease: [0.32, 0, 0.67, 0],
         onComplete: () => {
           onCycle(card.id, direction);
-          axisRef.current = null;
-          setIsDragging(false);
+          // Reset after cycle — onCycle re-renders so these run on the
+          // "next" card that becomes index 0, not this one.
+          x.set(0);
+          isExitingRef.current = false;
         }
       });
       return;
     }
 
-    reset();
-  }, [card.id, onCycle, x, y]);
+    // Snap back.
+    animate(x, 0, { ...PK_SPRING });
+  }, [card.id, onCycle, x]);
 
-  const handleDirectionLock = useCallback(() => {
-    axisRef.current = 'x';
-  }, []);
-
-  // Stack styling — 🚀 Swipess v14.0 Reveal Logic
-  // Memoized so background-card filter doesn't recompute on every render → no flicker.
-    const { stackOpacity, stackedFilter } = useMemo(() => ({
-      // All cards fully opaque — depth comes from brightness + blur below.
-      stackOpacity: 1,
-      // EVERY card gets an explicit filter, including the top card, so when
-      // a card transitions from background to top there is NO filter snap.
-      // The gradient is deliberately shallow so the change is imperceptible
-      // at the transition point. Depth: brightness dims + subtle blur.
-      stackedFilter: isTop
-        ? 'brightness(0.98)'
-        : _isLowEndDevice
-          ? `brightness(${0.96 - index * 0.035})`
-          : `brightness(${0.96 - index * 0.035}) blur(${Math.min(1.0, index * 0.25)}px)`,
-    }), [index, isTop]);
+  // Stack styling.
+  const { stackOpacity, stackedFilter } = useMemo(() => ({
+    stackOpacity: 1,
+    stackedFilter: isTop
+      ? 'brightness(0.98)'
+      : _isLowEndDevice
+        ? `brightness(${0.96 - index * 0.035})`
+        : `brightness(${0.96 - index * 0.035}) blur(${Math.min(1.0, index * 0.25)}px)`,
+  }), [index, isTop]);
 
   if (index > 7) return null;
 
-    return (
+  return (
     <motion.div
-      drag={isTop ? "x" : false}
-      dragDirectionLock
-      onDirectionLock={handleDirectionLock}
-      dragConstraints={{ left: -300, right: 300 }}
-      dragElastic={1}
+      // Only the top card is draggable. No constraints — let the card move
+      // freely so the exit animate() to ±520 isn't fought by constraint springs.
+      drag={isTop ? 'x' : false}
       dragMomentum={false}
+      dragElastic={0.6}
       onDragStart={() => {
-        setIsDragging(true);
+        if (isExitingRef.current) return;
+        isDraggingRef.current = true;
+        setIsDraggingVisual(true);
         triggerHaptic('light');
       }}
       onDragEnd={handleDragEnd}
       onTap={(e: any) => {
-        if (isDragging || Math.abs(x.get()) >= 10) return;
+        // Synchronous ref guard — never stale.
+        if (isDraggingRef.current || isExitingRef.current) return;
+        // Ignore micro-drags (finger slid slightly).
+        if (Math.abs(x.get()) >= 8) return;
+
         if (!isTop) {
           triggerHaptic('light');
           onBringToFront(index);
           return;
         }
-        // Skip if tap was on the Engage Discovery button — its own onClick handles navigation
+
+        // If the tap landed inside the Engage button, let the button's
+        // own onClick handle it — don't double-fire.
         if (engageButtonRef.current?.contains(e?.target as Node)) return;
-        // On the top card, taps on the left/right edges toggle the
-        // header + bottom-nav chrome instead of opening the category —
-        // so users can summon the menus from the swipe surface itself.
-        try {
-          const rect = (e?.currentTarget as HTMLElement | null)?.getBoundingClientRect();
-          const clientX =
-            (e?.clientX ?? e?.changedTouches?.[0]?.clientX ?? e?.touches?.[0]?.clientX) as number | undefined;
-          if (rect && typeof clientX === 'number') {
-            const ratio = (clientX - rect.left) / rect.width;
-            if (ratio < 0.22 || ratio > 0.78) {
-              triggerHaptic('light');
-              toggleChrome();
-              return;
-            }
-          }
-        } catch { /* fall through to default select */ }
+
         triggerHaptic('medium');
         onSelect(card.id);
       }}
@@ -270,21 +245,21 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
         opacity: isTop ? exitOpacity : stackOpacity,
         scale: 1,
         filter: stackedFilter,
-        cursor: isTop ? (isDragging ? 'grabbing' : 'grab') : 'pointer',
-        touchAction: 'none',
+        cursor: isTop ? (isDraggingVisual ? 'grabbing' : 'grab') : 'pointer',
+        touchAction: 'pan-y',
         willChange: 'transform, opacity',
         transform: 'translateZ(0)',
         backfaceVisibility: 'hidden',
         WebkitBackfaceVisibility: 'hidden',
       } as any}
       transition={{ ...PK_SPRING }}
-      className="select-none touch-none"
+      className="select-none"
     >
       <div
         className="w-full h-full relative overflow-hidden bg-black rounded-[2.5rem] shadow-[0_30px_60px_-20px_rgba(0,0,0,0.55)]"
         style={{ backgroundImage: fallbackGradient }}
       >
-        {/* Photo carousel — silky crossfade between admin-managed photos. */}
+        {/* Photo carousel */}
         <AnimatePresence mode="wait" initial={false}>
           <motion.img
             key={photoRenderKey}
@@ -301,37 +276,31 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
             draggable={false}
           />
         </AnimatePresence>
-        {/* Stronger bottom-to-top dark scrim so the title + subtitle
-            always read as white over any photo — bright tan/beach
-            backgrounds were washing the text out before. */}
+
+        {/* Scrim */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
 
-        {/* Breathing existence hints — only on the top card AND only on
-            capable devices. On low-end Android the four pulsing dots
-            were stealing frames during swipe. */}
+        {/* Breathing swipe-hint dots — top card only, capable devices only */}
         {isTop && !_isLowEndDevice && (
           <motion.div
             aria-hidden
             className="pointer-events-none absolute inset-0 z-[5]"
             style={{ opacity: hintOpacity }}
           >
-            {/* horizontal hint dots */}
             <div className="absolute top-1/2 left-3 -translate-y-1/2 w-1 h-8 rounded-full bg-white/15 animate-pulse" style={{ animationDuration: '2.4s' }} />
             <div className="absolute top-1/2 right-3 -translate-y-1/2 w-1 h-8 rounded-full bg-white/15 animate-pulse" style={{ animationDuration: '2.4s' }} />
-            {/* vertical hint dots */}
             <div className="absolute left-1/2 top-3 -translate-x-1/2 w-8 h-1 rounded-full bg-white/12 animate-pulse" style={{ animationDuration: '2.6s' }} />
             <div className="absolute left-1/2 bottom-3 -translate-x-1/2 w-8 h-1 rounded-full bg-white/12 animate-pulse" style={{ animationDuration: '2.6s' }} />
           </motion.div>
         )}
-        
-        {/* 🛸 Swipess METADATA CONTENT */}
+
+        {/* Card content */}
         <div className="absolute inset-x-0 bottom-0 flex flex-col justify-end p-9 md:p-11 gap-8">
-          
           <div className="space-y-2">
-            <motion.div 
-               initial={{ opacity: 0, x: -10 }}
-               animate={{ opacity: 1, x: 0 }}
-               className="flex items-center gap-2"
+            <motion.div
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="flex items-center gap-2"
             >
               <div className="w-4 h-[1px] shadow-[0_0_8px_rgba(255,255,255,0.4)] bg-white/40" />
               <span
@@ -341,16 +310,15 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
                 {card.description}
               </span>
             </motion.div>
-            
+
             <h3
               className={cn(
-                "font-black tracking-[calc(-0.06em)] leading-[0.85] uppercase italic text-white force-white",
-                card.label.length <= 8 ? "text-5xl" : card.label.length <= 10 ? "text-4xl" : "text-3xl"
+                'font-black tracking-[calc(-0.06em)] leading-[0.85] uppercase italic text-white force-white',
+                card.label.length <= 8 ? 'text-5xl' : card.label.length <= 10 ? 'text-4xl' : 'text-3xl'
               )}
               style={{
                 color: '#FFFFFF',
-                textShadow:
-                  '0 2px 8px rgba(0,0,0,0.85), 0 0 2px rgba(0,0,0,0.7)',
+                textShadow: '0 2px 8px rgba(0,0,0,0.85), 0 0 2px rgba(0,0,0,0.7)',
               }}
             >
               {card.label}
@@ -365,13 +333,16 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
             >
               <button
                 type="button"
+                ref={engageButtonRef}
+                // Stop pointer capture so the drag gesture on the card body
+                // isn't accidentally stolen when the finger lands on the button.
                 onPointerDown={(e) => e.stopPropagation()}
                 onClick={(e) => {
                   e.stopPropagation();
+                  if (isDraggingRef.current || isExitingRef.current) return;
                   triggerHaptic('medium');
                   onSelect(card.id);
                 }}
-                ref={engageButtonRef}
                 className="w-full h-14 rounded-2xl flex items-center justify-center gap-3 font-black uppercase italic tracking-widest transition-all hover:scale-[1.02] active:scale-95 text-black shadow-[0_18px_40px_rgba(0,0,0,0.35)] ring-1 ring-white/40"
                 style={{ background: 'rgba(255,255,255,0.96)', backdropFilter: 'blur(8px)' }}
                 aria-label="Engage Discovery"
