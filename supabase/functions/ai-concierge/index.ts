@@ -290,48 +290,57 @@ function detectListingIntent(query: string): { isListing: boolean; categories?: 
 
   // Massive catch-all: detect if the user wants to FIND any type of listing, item, service, or person.
   // This covers English, Spanish, French, Portuguese, misspellings, and slang.
-  const isListing = /(?:^|\s)(?:find|search|looking|show|browse|pull|give|send|share|preview|open|recommend|available|need|want|quiero|busco|necesito|hay|tienes|mostrar|ver|dame|enseña|recomienda|encuentr|consigu|consigo|consigue|necesit|quisiera|me gustaria|alguna|algun|tiene|tienen|listin|listings|listado|propiedad|propiedades|renta|rento|alquilo|alquiler|vendo|vende|compro|compra|oferta|servicio|servicios|trabajador|trabajadores|limpieza|limpiador|mantenimiento|jardinero|cocinero|chofer|niñera|cuidado|ayuda|empleada|empleado|house|apartment|room|studio|villa|condo|penthouse|duplex|loft|townhouse|bungalow|cabin|casa|departamento|cuarto|habitacion|piso|chalet|motorcycle|motorbike|moto|scooter|bicycle|bike|ciclista|ciclismo|bici|bicicleta|worker|cleaner|maid|plumber|electrician|handyman|gardener|cook|chef|driver|nanny|babysitter|tutor|masseuse|masseur|trainer|instructor|contractor|mechanic|painter|carpenter|welder|technician|repair|fix|instal|instalador|plomero|electricista|jardinero|cocinero|chofer|niñera|profesor|maestro|entrenador|mecanico|pintor|carpintero|soldador|tecnico)\b/.test(q);
+  const isListing = /(?:^|\s)(?:find|search|looking|show|browse|pull|give|send|share|preview|open|recommend|available|need|want|quiero|busco|necesito|hay|tienes|mostrar|ver|dame|enseña|recomienda|encuentr|consigu|consigo|consigue|necesit|quisiera|me gustaria|alguna|algun|tiene|tienen|listin|listings|listado|property|properties|propiedad|propiedades|renta|rento|alquilo|alquiler|vendo|vende|compro|compra|oferta|servicio|servicios|trabajador|trabajadores|limpieza|limpiador|mantenimiento|jardinero|cocinero|chofer|niñera|cuidado|ayuda|empleada|empleado|house|apartment|room|studio|villa|condo|penthouse|duplex|loft|townhouse|bungalow|cabin|casa|departamento|cuarto|habitacion|piso|chalet|motorcycle|motorbike|moto|scooter|bicycle|bike|ciclista|ciclismo|bici|bicicleta|worker|cleaner|maid|plumber|electrician|handyman|gardener|cook|chef|driver|nanny|babysitter|tutor|masseuse|masseur|trainer|instructor|contractor|mechanic|painter|carpenter|welder|technician|repair|fix|instal|instalador|plomero|electricista|jardinero|cocinero|chofer|niñera|profesor|maestro|entrenador|mecanico|pintor|carpintero|soldador|tecnico)\b/.test(q);
 
   return { isListing };
 }
 
 async function searchListings(intent: ReturnType<typeof detectListingIntent>): Promise<string> {
-  if (!SUPABASE_URL || (!SUPABASE_SERVICE_KEY && !SUPABASE_ANON_KEY)) return "";
+  if (!SUPABASE_URL) return "";
   try {
-    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY || SUPABASE_ANON_KEY);
-    let query = supabase
-      .from("listings")
-      .select("id, title, price, location, category, bedrooms, bathrooms, images, neighborhood, currency, listing_type, user_id, owner_id, created_at, updated_at, status")
-      .eq("is_active", true)
-      .eq("status", "active")
-      .limit(25)
-      .order("updated_at", { ascending: false })
-      .order("created_at", { ascending: false });
+    const apiKey = SUPABASE_SERVICE_KEY || SUPABASE_ANON_KEY;
+    if (!apiKey) return "";
 
-    // Apply optional filters from intent
+    // Use direct REST API fetch instead of supabase-js client for reliability
+    const params = new URLSearchParams();
+    params.set("select", "id,title,price,location,category,bedrooms,bathrooms,images,neighborhood,currency,listing_type,user_id,owner_id,created_at,updated_at,status");
+    params.set("is_active", "eq.true");
+    params.set("status", "eq.active");
+    params.set("order", "updated_at.desc.nullslast,created_at.desc.nullslast");
+    params.set("limit", "25");
+
     if (intent.userId) {
-      query = query.or(`user_id.eq.${intent.userId},owner_id.eq.${intent.userId}`);
+      params.set("or", `(user_id.eq.${intent.userId},owner_id.eq.${intent.userId})`);
     }
     if (intent.maxPrice) {
-      query = query.lte("price", intent.maxPrice);
+      params.set("price", `lte.${intent.maxPrice}`);
     }
-    if (intent.bedrooms && intent.bedrooms.length > 0) {
-      query = query.in("bedrooms", intent.bedrooms);
-    }
-    if (intent.locations && intent.locations.length > 0) {
-      const orFilter = intent.locations.map(loc => `neighborhood.ilike.%${loc}%`).join(",");
-      query = query.or(orFilter);
+    if (intent.bedrooms?.length) {
+      params.set("bedrooms", `in.(${intent.bedrooms.join(",")})`);
     }
 
-    const { data, error } = await query;
-    if (error) {
-      console.error("[AI] Listing search query error:", error);
+    const restUrl = `${SUPABASE_URL.replace(/\/$/, "")}/rest/v1/listings?${params.toString()}`;
+    console.log(`[AI] Searching listings: ${restUrl.replace(apiKey, "HIDDEN")}`);
+    const res = await fetch(restUrl, {
+      headers: {
+        "apikey": apiKey,
+        "Authorization": `Bearer ${apiKey}`,
+        "Accept": "application/json",
+      },
+    });
+    if (!res.ok) {
+      const errText = await res.text();
+      console.error(`[AI] REST API ${res.status}: ${errText.slice(0, 500)}`);
       return "";
     }
 
+    const data: any[] = await res.json();
+    console.log(`[AI] Found ${data?.length || 0} listings`);
+    if (!data || data.length === 0) return "";
+
     // Deduplicate by ID
     let results = Array.from(new Map(data.map(item => [item.id, item])).values());
-    if (!results || results.length === 0) return "";
+    if (results.length === 0) return "";
 
     const sortedListings = results
       .sort((a: any, b: any) => new Date(b.updated_at || b.created_at || 0).getTime() - new Date(a.updated_at || a.created_at || 0).getTime())
