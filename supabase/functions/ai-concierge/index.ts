@@ -161,17 +161,36 @@ function getCurrentTimeContext(): string {
 // ─── Profile Search ─────────────────────────────────────────────────────────
 
 function detectProfileIntent(query: string): boolean {
-  const q = query.toLowerCase();
-  return /\b(find (people|users|someone|roommates?)|show me (people|users|profiles)|who (wants|is looking|needs)|people looking|users looking|anyone (looking|searching)|match me with)\b/.test(q);
+  const q = query.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  // Broad match: finding people, workers, service providers, roommates, friends, etc.
+  return /\b(?:find|looking|search|show|need|want|quiero|busco|necesito|dame|hay|mostrar|conocer|conoces|recomienda|rooms?|roommate|roomies?|compa|amigo|amiga|gente|personas|alguien|alquien|gente que|gente para|friend|buddy|partner|housemate|flatmate|people|someone|anyone|who (?:wants|is|needs|can|could|would)|match me|cleaner|clean|cleaning|limpieza|limpiador|limpiadora|maid|housekeeper|domestica|domestico|mantenimiento|maintenance|mantenimient|handyman|reparacion|reparaciones|repair|fix|jardinero|gardener|lawn|garden|cook|cocinero|cocinera|chef|cocina|driver|chofer|conduct|nanny|niñera|babysitter|childcare|baby|care|cuidador|cuidadora|cuidado|tutor|teacher|profesor|profesora|maestro|maestra|trainer|entrenador|personal training|masseuse|masseur|masaje|masajista|spa|mechanic|mecanico|mecanica|mecánico|plumber|plomero|plomer|electrician|electricista|painter|pintor|carpenter|carpintero|welder|soldador|technician|tecnico|técnico|servicio|service|services|worker|trabajador|trabajadora|empleado|empleada|helper|ayuda|ayudante|freelancer|profesional|professional|contractor|contratista)\b/.test(q);
 }
 
 async function searchProfiles(query: string): Promise<string> {
   if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) return "";
   try {
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
-    const q = query.toLowerCase();
+    const q = query.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
-    // Build profile query — only public-safe fields
+    // Step 1: Find also via client_profiles.intentions (worker/service matching)
+    // This catches service providers who set their intentions (e.g., "cleaner","maid")
+    const serviceKeywords = q.split(/\s+/).filter(w => w.length > 2);
+    let matchedUserIds: string[] = [];
+    if (serviceKeywords.length > 0) {
+      // Search client_profiles for matching bio, intentions, interests
+      for (const kw of serviceKeywords) {
+        const { data: cpMatches } = await supabase
+          .from("client_profiles")
+          .select("user_id")
+          .or(`bio.ilike.%${kw}%,intentions.cs.{${kw}},interests.cs.{${kw}}`)
+          .limit(20);
+        if (cpMatches) {
+          matchedUserIds.push(...cpMatches.map(c => c.user_id));
+        }
+      }
+    }
+
+    // Step 2: Build combined profile query
     let profileQuery = supabase
       .from("profiles")
       .select("user_id, full_name, age, nationality, city, neighborhood, active_mode, avatar_url, updated_at")
@@ -180,28 +199,35 @@ async function searchProfiles(query: string): Promise<string> {
       .limit(10)
       .order("updated_at", { ascending: false });
 
-    // Extract filters from query
-    const neighborhoods = ['aldea zama', 'la veleta', 'region 15', 'tulum centro', 'tulum town', 'beach zone', 'zona hotelera', 'tumben-ha', 'selvamar'];
+    // Filter by matched users from service search if found
+    if (matchedUserIds.length > 0) {
+      profileQuery = profileQuery.in("user_id", matchedUserIds);
+    }
+
+    // Neighborhood filter
+    const neighborhoods = ['aldea zama', 'la veleta', 'region 15', 'tulum centro', 'tulum town', 'beach zone', 'zona hotelera', 'tumben-ha', 'selvamar', 'ejido sur', 'holistika', 'ruinas'];
     const matchedNeighborhood = neighborhoods.find(n => q.includes(n));
     if (matchedNeighborhood) {
       profileQuery = profileQuery.ilike("neighborhood", `%${matchedNeighborhood}%`);
     }
 
-    // Keyword search on name/bio
-    const keywords = q.split(/\s+/).filter(w => w.length > 2);
-    if (keywords.length > 0) {
-      const orFilter = keywords.map(kw => `full_name.ilike.%${kw}%`).join(",");
-      profileQuery = profileQuery.or(orFilter);
+    // Keyword search on full_name (only if no service matches found — avoids over-filtering)
+    if (matchedUserIds.length === 0) {
+      const keywords = q.split(/\s+/).filter(w => w.length > 2);
+      if (keywords.length > 0) {
+        const orFilter = keywords.map(kw => `full_name.ilike.%${kw}%`).join(",");
+        profileQuery = profileQuery.or(orFilter);
+      }
     }
 
     const { data: profiles, error } = await profileQuery;
     if (error || !profiles || profiles.length === 0) return "";
 
-    // Also check client_profiles for more detail
+    // Step 3: Enrich with client_profiles data
     const userIds = profiles.map(p => p.user_id);
     const { data: clientProfiles } = await supabase
       .from("client_profiles")
-      .select("user_id, nationality, languages, interests, intentions, profile_images")
+      .select("user_id, nationality, languages, interests, intentions, profile_images, bio")
       .in("user_id", userIds);
 
     const clientMap = new Map((clientProfiles ?? []).map(cp => [cp.user_id, cp]));
@@ -216,6 +242,9 @@ async function searchProfiles(query: string): Promise<string> {
       if (p.nationality || cp?.nationality) desc += ` — ${p.nationality || cp?.nationality}`;
       if (p.neighborhood || p.city) desc += ` in ${p.neighborhood || p.city}`;
       if (p.active_mode) desc += ` (${p.active_mode} mode)`;
+      if (cp?.intentions && Array.isArray(cp.intentions) && cp.intentions.length > 0) {
+        desc += ` — ${cp.intentions.slice(0, 3).join(", ")}`;
+      }
       desc += ` → [View Profile](/profile/${p.user_id})`;
       return desc;
     }).join("\n");
@@ -249,34 +278,13 @@ async function searchProfiles(query: string): Promise<string> {
 // ─── Listing Search ─────────────────────────────────────────────────────────
 
 function detectListingIntent(query: string): { isListing: boolean; categories?: string[]; maxPrice?: number; bedrooms?: number[]; locations?: string[]; userId?: string } {
-  const q = query.toLowerCase();
-  const isListing = /\b(find|search|looking for|show me|show|pull|give me|send|share|preview|open|browse|recommend|available|any|apartment|apartments|house|houses|room|rooms|flat|flats|studio|studios|villa|villas|condo|condos|car|vehicle|motorcycle|moto|bike|bicycle|service|services|worker|workers|plumber|electrician|rent|rental|buy|sale|listing|listings|property|properties)\b/.test(q);
-  if (!isListing) return { isListing: false };
+  const q = query.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""); // strip accents for fuzzy matching
 
-  let category: string | undefined;
-  if (/\b(apartment|apartments|flat|flats|house|houses|room|rooms|studio|studios|villa|villas|condo|condos|property|properties|rent|rental|bedroom|bedrooms)\b/.test(q)) category = "property";
-  else if (/\b(car|vehicle|suv|sedan)\b/.test(q)) category = "vehicle";
-  else if (/\b(motorcycle|motorbike|moto|scooter)\b/.test(q)) category = "motorcycle";
-  else if (/\b(bicycle|bicycles|bike|bikes|cycling)\b/.test(q)) category = "bicycle";
-  else if (/\b(service|services|worker|workers|plumber|electrician|cleaner|handyman|chef|driver|nanny|contractor)\b/.test(q)) category = "worker";
+  // Massive catch-all: detect if the user wants to FIND any type of listing, item, service, or person.
+  // This covers English, Spanish, French, Portuguese, misspellings, and slang.
+  const isListing = /(?:^|\s)(?:find|search|looking|show|browse|pull|give|send|share|preview|open|recommend|available|need|want|quiero|busco|necesito|hay|tienes|mostrar|ver|dame|enseña|recomienda|encuentr|consigu|consigo|consigue|necesit|quisiera|me gustaria|alguna|algun|tiene|tienen|listin|listings|listado|propiedad|propiedades|renta|rento|alquilo|alquiler|vendo|vende|compro|compra|oferta|servicio|servicios|trabajador|trabajadores|limpieza|limpiador|mantenimiento|jardinero|cocinero|chofer|niñera|cuidado|ayuda|empleada|empleado|house|apartment|room|studio|villa|condo|penthouse|duplex|loft|townhouse|bungalow|cabin|casa|departamento|cuarto|habitacion|piso|chalet|motorcycle|motorbike|moto|scooter|bicycle|bike|ciclista|ciclismo|bici|bicicleta|worker|cleaner|maid|plumber|electrician|handyman|gardener|cook|chef|driver|nanny|babysitter|tutor|masseuse|masseur|trainer|instructor|contractor|mechanic|painter|carpenter|welder|technician|repair|fix|instal|instalador|plomero|electricista|jardinero|cocinero|chofer|niñera|profesor|maestro|entrenador|mecanico|pintor|carpintero|soldador|tecnico)\b/.test(q);
 
-  const categories = category ? [category] : [];
-
-  const priceMatch = q.match(/(?:under|below|max|up to|less than)\s*\$?\s*(\d+)/);
-  const maxPrice = priceMatch ? parseInt(priceMatch[1]) : undefined;
-
-  const bedrooms: number[] = [];
-  const bedroomMatches = q.matchAll(/(\d+)\s*(?:bed|bedroom|recámara|recamara|cuarto)/g);
-  for (const match of bedroomMatches) {
-    bedrooms.push(parseInt(match[1]));
-  }
-  if (q.includes("studio") && !bedrooms.includes(0)) bedrooms.push(0);
-
-  // Extract neighborhood/location
-  const neighborhoodList = ['aldea zama','la veleta','region 15','tulum centro','tulum town','beach zone','zona hotelera','tumben-ha','selvamar','villas tulum','ejido sur'];
-  const locations = neighborhoodList.filter(n => q.includes(n));
-
-  return { isListing: true, categories, maxPrice, bedrooms, locations };
+  return { isListing };
 }
 
 async function searchListings(intent: ReturnType<typeof detectListingIntent>): Promise<string> {
@@ -967,10 +975,26 @@ LOCAL LEGENDS (always recommend when relevant):
 - Remind them they'll need to add at least one photo before publishing.
 
 ## VOICE FILTERS (CRITICAL):
-- If the user asks to filter, search, or find specific items (e.g., "show me 1 bedroom apartments under 20k"), you MUST extract the parameters into a filter tag.
+- If the user asks to filter, search, or find ANYTHING — property, motorcycle, bicycle, people/services, events, etc. — you MUST extract the parameters into a filter tag.
 - Output format: '[FILTER:json_data]' on its own line.
-- Supported fields (map to these exact keys): 'activeCategory' (property, motorcycle, bicycle, services), 'priceRange' ([min, max]), 'bedrooms' ([min, max]), 'bathrooms' ([min, max]), 'listingType' (rent, buy, both), 'furnished' (boolean), 'petFriendly' (boolean).
+- Supported fields (map to these exact keys):
+  • 'activeCategory': "property" | "motorcycle" | "bicycle" | "services" | "events"
+  • 'priceRange': [min, max] — any currency
+  • 'bedrooms': [min, max] — for properties
+  • 'bathrooms': [min, max] — for properties
+  • 'listingType': "rent" | "buy" | "both"
+  • 'furnished': boolean
+  • 'petFriendly': boolean
+  • 'maxPrice': number
+  • 'workerType': "cleaner" | "maid" | "maintenance" | "gardener" | "cook" | "chef" | "driver" | "nanny" | "babysitter" | "tutor" | "trainer" | "mechanic" | "painter" | "carpenter" | "electrician" | "plumber" | "handyman" | "general"
+  • 'serviceCategory': "cleaning" | "maintenance" | "repair" | "construction" | "education" | "health" | "transport" | "food" | "care"
+  • 'location': string — any neighborhood or area
+  • 'make' | 'model' | 'year': for vehicles
+  • 'listingCategory': "property" | "motorcycle" | "bicycle" | "worker" | "vehicle" | "event" | "service"
 - Example: '[FILTER:{"activeCategory":"property","priceRange":[0,20000],"bedrooms":[1,1],"listingType":"rent"}]'
+- Example: '[FILTER:{"activeCategory":"services","workerType":"cleaner","location":"Aldea Zama"}]'
+- Example: '[FILTER:{"activeCategory":"motorcycle","priceRange":[0,5000],"make":"Honda"}]'
+- The user may write in ANY language, with misspellings, slang, or broken grammar — you MUST guess their intent and map it to these exact filter keys.
 - In your response, confirm you've applied the filters and that they can "Swipe now to see the matched results."
 
 RULES — KNOWLEDGE PRIORITY (NEVER SKIP THIS):
