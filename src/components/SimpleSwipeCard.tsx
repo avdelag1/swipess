@@ -299,11 +299,10 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
         onSwipe(direction);
       };
       animate(x, exitX, {
-        type: 'tween', duration: 0.24, ease: [0.32, 0, 0.67, 0],
+        type: 'tween', duration: 0.18, ease: [0.22, 1, 0.36, 1],
         onComplete: fireSwipe,
       });
-      animate(y, 0, { type: 'tween', duration: 0.18, ease: [0.22, 1, 0.36, 1] });
-      setTimeout(fireSwipe, 300);
+      animate(y, 0, { type: 'tween', duration: 0.12, ease: [0.22, 1, 0.36, 1] });
     } else if (vertCommit && (onSkip || onSkipBack)) {
       const dir = dy > 0 ? 1 : -1;
       hasExited.current = true;
@@ -319,11 +318,10 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
         else onSkipBack?.();
       };
       animate(y, exitY, {
-        duration: 0.32, ease: [0.22, 1, 0.36, 1],
+        duration: 0.22, ease: [0.22, 1, 0.36, 1],
         onComplete: fireSkip,
       });
-      animate(x, 0, { duration: 0.18, ease: [0.22, 1, 0.36, 1] });
-      setTimeout(fireSkip, 400);
+      animate(x, 0, { duration: 0.12, ease: [0.22, 1, 0.36, 1] });
     } else {
       animate(x, 0, { type: 'spring', ...ACTIVE_SPRING });
       animate(y, 0, { type: 'spring', ...ACTIVE_SPRING });
@@ -366,9 +364,8 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
       isExitingRef.current = false;
       onSwipe(direction);
     };
-    animate(y, 0, { type: 'tween', duration: 0.14, ease: [0.22, 1, 0.36, 1] });
-    animate(x, exitX, { type: 'tween', duration: 0.26, ease: [0.32, 0, 0.67, 0], onComplete: fireSwipe });
-    setTimeout(fireSwipe, 300);
+    animate(y, 0, { type: 'tween', duration: 0.12, ease: [0.22, 1, 0.36, 1] });
+    animate(x, exitX, { type: 'tween', duration: 0.18, ease: [0.22, 1, 0.36, 1], onComplete: fireSwipe });
   }, [onSwipe, x, y]);
 
   useImperativeHandle(ref, () => ({
