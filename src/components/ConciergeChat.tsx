@@ -150,152 +150,168 @@ const ConciergePrivacyPortal = memo(({ onAccept, isSwipess }: { onAccept: () => 
 ));
 ConciergePrivacyPortal.displayName = 'ConciergePrivacyPortal';
 
-// ─── Cascading Quick Filters ──────────────────────────────────────────────
+// ─── Nexus Quick Filters ─────────────────────────────────────────────────
 
-interface QuickFilterItem {
+interface FilterOption {
   label: string;
   prompt: string;
-  icon: string;
 }
 
-interface QuickFilterGroup {
+interface FilterCategory {
   label: string;
   icon: string;
-  color: string;
-  items: QuickFilterItem[];
+  options: FilterOption[];
 }
 
-const QUICK_FILTERS: QuickFilterGroup[] = [
+const FILTERS: FilterCategory[] = [
   {
     label: 'Properties',
     icon: '🏠',
-    color: 'from-orange-400 to-pink-500',
-    items: [
-      { label: 'All Rentals', prompt: 'Show me all rental properties', icon: '🏠' },
-      { label: 'Houses', prompt: 'Show me available houses', icon: '🏡' },
-      { label: 'Apartments', prompt: 'Find apartments for rent', icon: '🏢' },
-      { label: 'Studios', prompt: 'Show me studios', icon: '🪟' },
-      { label: 'Luxury', prompt: 'Show me luxury properties', icon: '💎' },
-      { label: 'Land', prompt: 'Find land for sale', icon: '🌿' },
-      { label: 'Vacation Rentals', prompt: 'Show me vacation rentals', icon: '🌴' },
-      { label: 'Cheapest', prompt: 'Show me the cheapest properties', icon: '💰' },
+    options: [
+      { label: 'All Rentals', prompt: 'Show me all rental properties' },
+      { label: 'Houses', prompt: 'Show me available houses' },
+      { label: 'Apartments', prompt: 'Find apartments for rent' },
+      { label: 'Studios', prompt: 'Show me studios' },
+      { label: 'Penthouse', prompt: 'Find penthouses' },
+      { label: 'Loft', prompt: 'Show me lofts' },
+      { label: 'Cabin', prompt: 'Find cabins' },
+      { label: 'Land', prompt: 'Find land for sale' },
+      { label: 'Commercial', prompt: 'Show me commercial properties' },
+      { label: 'Vacation', prompt: 'Find vacation rentals' },
+      { label: 'Luxury', prompt: 'Show luxury properties' },
+      { label: 'Cheapest', prompt: 'Show cheapest properties' },
     ],
   },
   {
-    label: 'Vehicles',
-    icon: '🚗',
-    color: 'from-cyan-400 to-sky-500',
-    items: [
-      { label: 'Motorcycles', prompt: 'Find motorcycles for sale', icon: '🏍' },
-      { label: 'Bicycles', prompt: 'Show me bicycles available', icon: '🚲' },
-      { label: 'Scooters', prompt: 'Find scooters', icon: '🛵' },
-      { label: 'Cars', prompt: 'Show me cars for sale', icon: '🚗' },
-    ],
-  },
-  {
-    label: 'Services',
+    label: 'Workers',
     icon: '👷',
-    color: 'from-emerald-400 to-teal-500',
-    items: [
-      { label: 'Cleaning', prompt: 'Find me cleaning services', icon: '🧹' },
-      { label: 'Maintenance', prompt: 'Find maintenance workers', icon: '🔧' },
-      { label: 'Construction', prompt: 'Find construction workers', icon: '🏗' },
-      { label: 'Drivers', prompt: 'Find private drivers', icon: '🚗' },
-      { label: 'Wellness', prompt: 'Find massage and wellness', icon: '💆' },
-      { label: 'Pet Care', prompt: 'Find pet care services', icon: '🐶' },
-      { label: 'Tutoring', prompt: 'Find tutors and teachers', icon: '📚' },
-      { label: 'Emergency', prompt: 'Find emergency services', icon: '⚡' },
+    options: [
+      { label: 'Cleaning', prompt: 'Find me cleaning workers' },
+      { label: 'Maintenance', prompt: 'Find maintenance workers' },
+      { label: 'Construction', prompt: 'Find construction workers' },
+      { label: 'Electrician', prompt: 'Find an electrician' },
+      { label: 'Plumber', prompt: 'Find a plumber' },
+      { label: 'Driver', prompt: 'Find a private driver' },
+      { label: 'Nanny', prompt: 'Find a nanny or babysitter' },
+      { label: 'Gardener', prompt: 'Find a gardener' },
+      { label: 'Cook', prompt: 'Find a cook or chef' },
+      { label: 'Tutor', prompt: 'Find a tutor' },
+      { label: 'Wellness', prompt: 'Find massage and wellness' },
+      { label: 'All Workers', prompt: 'Show me all workers and services' },
     ],
   },
   {
-    label: 'People',
-    icon: '👥',
-    color: 'from-violet-400 to-indigo-500',
-    items: [
-      { label: 'Roommates', prompt: 'Find people looking for roommates', icon: '👥' },
-      { label: 'Workers', prompt: 'Find workers offering services', icon: '👷' },
-      { label: 'Near Me', prompt: 'Show me people near me', icon: '📍' },
-      { label: 'New People', prompt: 'Show me new people in the area', icon: '🆕' },
+    label: 'Motorcycles',
+    icon: '🏍',
+    options: [
+      { label: 'For Sale', prompt: 'Find motorcycles for sale' },
+      { label: 'Cheapest', prompt: 'Show cheapest motorcycles' },
+      { label: 'New Listings', prompt: 'Show newest motorcycle listings' },
+      { label: 'Near Me', prompt: 'Find motorcycles near me' },
     ],
   },
   {
-    label: 'Top Picks',
-    icon: '🔥',
-    color: 'from-rose-400 to-red-500',
-    items: [
-      { label: 'Best Deals', prompt: 'Show me the best deals right now', icon: '💵' },
-      { label: 'New Listings', prompt: 'Show me the newest listings', icon: '🆕' },
-      { label: 'Top Rated', prompt: 'Show me top rated listings', icon: '⭐' },
-      { label: 'Under $500', prompt: 'Find listings under 500', icon: '💰' },
+    label: 'Bicycles',
+    icon: '🚲',
+    options: [
+      { label: 'For Sale', prompt: 'Find bicycles for sale' },
+      { label: 'Cheapest', prompt: 'Show cheapest bicycles' },
+      { label: 'New Listings', prompt: 'Show new bicycle listings' },
+      { label: 'Near Me', prompt: 'Find bicycles near me' },
+    ],
+  },
+  {
+    label: 'Buyers',
+    icon: '💰',
+    options: [
+      { label: 'Looking for Houses', prompt: 'Find people looking to buy houses' },
+      { label: 'Looking for Land', prompt: 'Find people looking to buy land' },
+      { label: 'Looking for Vehicles', prompt: 'Find people looking to buy vehicles' },
+      { label: 'All Buyers', prompt: 'Show me all buyers' },
+    ],
+  },
+  {
+    label: 'Renters',
+    icon: '🔑',
+    options: [
+      { label: 'Looking for Apartments', prompt: 'Find people looking to rent apartments' },
+      { label: 'Looking for Houses', prompt: 'Find people looking to rent houses' },
+      { label: 'Looking for Rooms', prompt: 'Find people looking for rooms' },
+      { label: 'All Renters', prompt: 'Show me all renters' },
+    ],
+  },
+  {
+    label: 'Seekers',
+    icon: '🔍',
+    options: [
+      { label: 'Find Services', prompt: 'Find people looking for services' },
+      { label: 'Find Workers', prompt: 'Find people looking to hire workers' },
+      { label: 'Find Roommates', prompt: 'Find people looking for roommates' },
+      { label: 'Find Friends', prompt: 'Find people looking for friends' },
+      { label: 'All Seekers', prompt: 'Show me everyone looking for something' },
     ],
   },
 ];
 
 const WelcomeState = memo(({ isSwipess, isLight, onPick }: { isSwipess: boolean; isLight: boolean; onPick: (prompt: string) => void }) => {
-  const [activeGroup, setActiveGroup] = useState<QuickFilterGroup | null>(null);
+  const [activeCategory, setActiveCategory] = useState<FilterCategory | null>(null);
 
   return (
     <div className="h-full flex flex-col items-start justify-start gap-6 max-w-2xl mx-auto w-full">
-      <div className="space-y-1.5 w-full">
-        <h2 className={cn("text-3xl font-black tracking-tight", isLight && !isSwipess ? "text-foreground" : "text-white")}>
-          Hey there! <span className="inline-block">👋</span>
+      <div className="space-y-1 w-full">
+        <h2 className={cn("text-2xl font-bold tracking-tight", isLight && !isSwipess ? "text-foreground" : "text-white")}>
+          {activeCategory ? activeCategory.icon : '👋'} {activeCategory ? activeCategory.label : 'Hey there'}
         </h2>
-        <p className={cn("text-lg font-bold leading-tight", isLight && !isSwipess ? "text-foreground/80" : "text-white/80")}>
-          {activeGroup ? `What kind of ${activeGroup.label.toLowerCase()}?` : "What are you looking for?"}
+        <p className={cn("text-sm font-medium opacity-60", isLight && !isSwipess ? "text-foreground" : "text-white")}>
+          {activeCategory ? 'Tap an option to search' : 'What are you looking for?'}
         </p>
       </div>
 
-      {activeGroup ? (
-        <div className="w-full space-y-3">
+      {activeCategory ? (
+        <div className="w-full space-y-2">
           <button
-            onClick={() => setActiveGroup(null)}
+            onClick={() => setActiveCategory(null)}
             className={cn(
-              "flex items-center gap-2 text-[11px] font-black uppercase tracking-widest opacity-60 hover:opacity-100 transition-all",
+              "text-[11px] font-semibold tracking-wider opacity-40 hover:opacity-80 transition-opacity",
               isLight ? "text-slate-900" : "text-white"
             )}
           >
-            ← Back to categories
+            ← All categories
           </button>
-          <div className="grid grid-cols-2 gap-2.5">
-            {activeGroup.items.map((item) => (
+          <div className="grid grid-cols-2 gap-1.5">
+            {activeCategory.options.map((opt) => (
               <button
-                key={item.label}
-                onClick={() => onPick(item.prompt)}
+                key={opt.label}
+                onClick={() => onPick(opt.prompt)}
                 className={cn(
-                  "flex items-center gap-3 px-4 py-3.5 rounded-2xl border transition-all active:scale-[0.96] hover:shadow-[0_12px_30px_rgba(0,0,0,0.1)] text-left",
-                  isLight && !isSwipess ? "bg-white border-slate-200 shadow-sm" : "bg-white/10 border-white/20"
+                  "px-4 py-3 rounded-xl text-left transition-all active:scale-[0.97]",
+                  "border-[0.5px] backdrop-blur-xl",
+                  isLight && !isSwipess
+                    ? "bg-white/80 border-slate-200 text-slate-900 hover:bg-white"
+                    : "bg-white/[0.04] border-white/[0.08] text-white hover:bg-white/[0.08]"
                 )}
               >
-                <span className="text-xl">{item.icon}</span>
-                <span className={cn("text-[13px] font-bold leading-tight", isLight && !isSwipess ? "text-foreground" : "text-white")}>
-                  {item.label}
-                </span>
+                <span className="text-[13px] font-medium leading-snug">{opt.label}</span>
               </button>
             ))}
           </div>
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-2.5 w-full">
-          {QUICK_FILTERS.map((group) => (
+        <div className="flex flex-wrap gap-2 w-full">
+          {FILTERS.map((cat) => (
             <button
-              key={group.label}
-              onClick={() => setActiveGroup(group)}
+              key={cat.label}
+              onClick={() => setActiveCategory(cat)}
               className={cn(
-                "flex items-center gap-3 px-4 py-4 rounded-2xl border transition-all active:scale-[0.96] hover:shadow-[0_12px_30px_rgba(0,0,0,0.1)] text-left",
-                isLight && !isSwipess ? "bg-white border-slate-200 shadow-sm" : "bg-white/10 border-white/20"
+                "flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium transition-all active:scale-[0.97]",
+                "border-[0.5px] backdrop-blur-xl",
+                isLight && !isSwipess
+                  ? "bg-white/80 border-slate-200 text-slate-900 hover:bg-white shadow-sm"
+                  : "bg-white/[0.04] border-white/[0.08] text-white/90 hover:bg-white/[0.08]"
               )}
             >
-              <div className={cn("w-10 h-10 rounded-xl bg-gradient-to-br flex items-center justify-center shadow-md shrink-0", group.color)}>
-                <span className="text-lg">{group.icon}</span>
-              </div>
-              <div className="flex-1 min-w-0">
-                <span className={cn("text-[13px] font-bold block", isLight && !isSwipess ? "text-foreground" : "text-white")}>
-                  {group.label}
-                </span>
-                <span className={cn("text-[10px] font-bold opacity-50 block", isLight && !isSwipess ? "text-foreground" : "text-white")}>
-                  {group.items.length} options
-                </span>
-              </div>
+              <span className="text-base">{cat.icon}</span>
+              <span>{cat.label}</span>
             </button>
           ))}
         </div>
