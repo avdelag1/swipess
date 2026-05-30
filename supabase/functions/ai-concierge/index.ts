@@ -15,6 +15,24 @@ const SUPABASE_URL = Deno.env.get("SUPABASE_URL") || Deno.env.get("VITE_SUPABASE
 const SUPABASE_SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
 const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY") || Deno.env.get("VITE_SUPABASE_ANON_KEY") || Deno.env.get("VITE_SUPABASE_PUBLISHABLE_KEY") || "";
 
+// ─── Auth helpers ───────────────────────────────────────────────────────────
+function extractUserId(authHeader: string | null): string | null {
+  if (!authHeader) return null;
+  try {
+    const token = authHeader.replace("Bearer ", "");
+    const parts = token.split(".");
+    if (parts.length !== 3) return null;
+    const payload = JSON.parse(atob(parts[1]));
+    if (payload.role === "anon") return null;
+    return payload.sub || null;
+  } catch { return null; }
+}
+
+function getUserToken(authHeader: string | null): string {
+  if (!authHeader) return "";
+  return authHeader.replace("Bearer ", "");
+}
+
 interface ChatMessage {
   role: "user" | "assistant" | "system";
   content: string;
@@ -295,14 +313,17 @@ function detectListingIntent(query: string): { isListing: boolean; categories?: 
   return { isListing };
 }
 
-async function searchListings(intent: ReturnType<typeof detectListingIntent>): Promise<string> {
+async function searchListings(intent: ReturnType<typeof detectListingIntent>, authToken?: string): Promise<string> {
   if (!SUPABASE_URL || (!SUPABASE_SERVICE_KEY && !SUPABASE_ANON_KEY)) return "";
   try {
-    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY || SUPABASE_ANON_KEY);
-    // TEMP: query ALL listings to debug — no status/is_active filter
+    // Use user's JWT when available (authenticated user can pass RLS), fall back to service/anon key
+    const clientKey = authToken || SUPABASE_SERVICE_KEY || SUPABASE_ANON_KEY;
+    const supabase = createClient(SUPABASE_URL, clientKey);
     let query = supabase
       .from("listings")
       .select("id, title, price, location, category, bedrooms, bathrooms, images, neighborhood, currency, listing_type, user_id, owner_id, created_at, updated_at, status, is_active")
+      .eq("is_active", true)
+      .eq("status", "active")
       .limit(50)
       .order("updated_at", { ascending: false });
 
@@ -1447,23 +1468,6 @@ function streamWithForcedSuffix(response: Response, suffix: string): Response {
   return new Response(stream, { status: response.status, headers: response.headers });
 }
 
-// ─── Extract user ID from JWT ───────────────────────────────────────────────
-
-function extractUserId(authHeader: string | null): string | null {
-  if (!authHeader) return null;
-  try {
-    const token = authHeader.replace("Bearer ", "");
-    const parts = token.split(".");
-    if (parts.length !== 3) return null;
-    const payload = JSON.parse(atob(parts[1]));
-    // Skip anon key tokens (no real user)
-    if (payload.role === "anon") return null;
-    return payload.sub || null;
-  } catch {
-    return null;
-  }
-}
-
 // ─── Main Handler ───────────────────────────────────────────────────────────
 
 Deno.serve(async (req) => {
@@ -1520,11 +1524,12 @@ Deno.serve(async (req) => {
     }
 
     // Phase 1: local data (fast DB queries)
+    const userAuthToken = getUserToken(req.headers.get("authorization"));
     const [promotedContacts, knowledge, memories, listings, profileResults] = await Promise.all([
       searchPromotedContacts(lastUserMessage),
       searchKnowledge(lastUserMessage),
       userId ? loadUserMemories(userId) : Promise.resolve(""),
-      listingIntent.isListing ? searchListings(listingIntent) : Promise.resolve(""),
+      listingIntent.isListing ? searchListings(listingIntent, userAuthToken) : Promise.resolve(""),
       isProfileQuery ? searchProfiles(lastUserMessage) : Promise.resolve(""),
     ]);
 
