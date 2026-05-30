@@ -1512,8 +1512,7 @@ async function getDebugInfo(req: Request): Promise<string> {
       }
 
       // Test 2: full params (same as searchListings)
-      const cols = "id,title,price,location,category,bedrooms,bathrooms,images,neighborhood,currency,listing_type,user_id,owner_id,created_at,updated_at,status";
-      const url2 = `${supabaseUrl.replace(/\/$/, "")}/rest/v1/listings?select=${encodeURIComponent(cols)}&is_active=eq.true&status=eq.active&order=updated_at.desc.nullslast,created_at.desc.nullslast&limit=5`;
+      const url2 = `${supabaseUrl.replace(/\/$/, "")}/rest/v1/listings?select=${encodeURIComponent(colsForUrl)}&is_active=eq.true&status=eq.active&order=updated_at.desc.nullslast,created_at.desc.nullslast&limit=5`;
       const res2 = await fetch(url2, {
         headers: { "apikey": anonKey, "Authorization": `Bearer ${jwt}`, "Accept": "application/json" },
       });
