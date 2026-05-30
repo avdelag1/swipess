@@ -1470,6 +1470,63 @@ function streamWithForcedSuffix(response: Response, suffix: string): Response {
   return new Response(stream, { status: response.status, headers: response.headers });
 }
 
+// ─── Debug Helper ───────────────────────────────────────────────────────────
+
+async function getDebugInfo(req: Request): Promise<string> {
+  const anonKey = SUPABASE_ANON_KEY;
+  const serviceKey = SUPABASE_SERVICE_KEY;
+  const supabaseUrl = SUPABASE_URL;
+  const hasUrl = !!supabaseUrl;
+  const hasAnon = !!anonKey;
+  const hasService = !!serviceKey;
+  const anonPrefix = anonKey ? anonKey.substring(0, 10) + "..." : "EMPTY";
+  const servicePrefix = serviceKey ? serviceKey.substring(0, 10) + "..." : "EMPTY";
+  const authHeader = req.headers.get("authorization") || "";
+  const hasAuth = !!authHeader;
+  const tokenPrefix = authHeader ? authHeader.substring(0, 25) + "..." : "NONE";
+
+  // Test REST API call to listings
+  let restResult = "not tested";
+  let restStatus = 0;
+  let restCount = 0;
+  if (supabaseUrl && anonKey) {
+    try {
+      const jwt = getUserToken(authHeader) || anonKey;
+      const params = new URLSearchParams();
+      params.set("select", "id,title,price");
+      params.set("is_active", "eq.true");
+      params.set("status", "eq.active");
+      params.set("limit", "5");
+      const url = `${supabaseUrl.replace(/\/$/, "")}/rest/v1/listings?${params.toString()}`;
+      const res = await fetch(url, {
+        headers: { "apikey": anonKey, "Authorization": `Bearer ${jwt}`, "Accept": "application/json" },
+      });
+      restStatus = res.status;
+      if (res.ok) {
+        const data = await res.json();
+        restCount = data?.length || 0;
+        restResult = restCount > 0 ? `OK (${restCount} rows)` : "empty array";
+      } else {
+        restResult = `${res.status}: ${(await res.text()).slice(0, 200)}`;
+      }
+    } catch (e: any) { restResult = `ERROR: ${e.message}`; }
+  }
+
+  return [
+    `🔍 AI CONCIERGE DEBUG`,
+    `SUPABASE_URL: ${hasUrl ? "SET" : "EMPTY"}`,
+    `SUPABASE_ANON_KEY: ${hasAnon ? "SET (" + anonPrefix + ")" : "EMPTY"}`,
+    `SUPABASE_SERVICE_KEY: ${hasService ? "SET (" + servicePrefix + ")" : "EMPTY"}`,
+    `AUTH HEADER: ${hasAuth ? "SET (" + tokenPrefix + ")" : "NOT SET"}`,
+    ``,
+    `📋 REST API TEST (anon key + user JWT)`,
+    `URL: /rest/v1/listings?is_active=eq.true&status=eq.active`,
+    `Status: ${restStatus}`,
+    `Result: ${restResult}`,
+    `Count: ${restCount}`,
+  ].join("\n");
+}
+
 // ─── Main Handler ───────────────────────────────────────────────────────────
 
 Deno.serve(async (req) => {
@@ -1503,6 +1560,15 @@ Deno.serve(async (req) => {
     // Extract user ID for personalization
     const userId = extractUserId(req.headers.get("authorization"));
     const lastUserMessage = [...messages].reverse().find(m => m.role === "user")?.content || "";
+
+    // ─── DEBUG: /debug returns diagnostic info ─────────────────────────────┐
+    if (lastUserMessage.trim().toLowerCase() === "/debug") {                │
+      const debugInfo = await getDebugInfo(req);                             │
+      return new Response(JSON.stringify({ choices: [{ message: { content: debugInfo } }] }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    // ───────────────────────────────────────────────────────────────────────┘
 
     // Parallel context gathering — ALL at once
     const isProfileQuery = detectProfileIntent(lastUserMessage);
