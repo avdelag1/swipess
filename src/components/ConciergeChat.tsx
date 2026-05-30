@@ -1152,13 +1152,9 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                     <WelcomeState
                       isSwipess={isSwipess}
                       isLight={isLight}
-                       onPick={(prompt, category) => { 
+                       onPick={(prompt, _category) => { 
                           sendMessage(prompt); 
                           triggerHaptic('light');
-                          if (category) {
-                            useFilterStore.getState().setActiveCategory(category);
-                          }
-                          onClose();
                         }}
                     />
                   ) : (
