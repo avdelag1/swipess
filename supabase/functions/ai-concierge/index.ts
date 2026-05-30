@@ -314,37 +314,39 @@ function detectListingIntent(query: string): { isListing: boolean; categories?: 
 }
 
 async function searchListings(intent: ReturnType<typeof detectListingIntent>, authToken?: string): Promise<string> {
-  if (!SUPABASE_URL || (!SUPABASE_SERVICE_KEY && !SUPABASE_ANON_KEY)) return "";
+  if (!SUPABASE_URL) return "";
   try {
-    // Use user's JWT when available (authenticated user can pass RLS), fall back to service/anon key
-    const clientKey = authToken || SUPABASE_SERVICE_KEY || SUPABASE_ANON_KEY;
-    const supabase = createClient(SUPABASE_URL, clientKey);
-    let query = supabase
-      .from("listings")
-      .select("id, title, price, location, category, bedrooms, bathrooms, images, neighborhood, currency, listing_type, user_id, owner_id, created_at, updated_at, status, is_active")
-      .eq("is_active", true)
-      .eq("status", "active")
-      .limit(50)
-      .order("updated_at", { ascending: false });
+    // Use the ANON key for project identification + user's JWT for auth (passes RLS as authenticated user)
+    const anonKey = SUPABASE_ANON_KEY;
+    const jwt = authToken || anonKey;
+    if (!anonKey) return "";
 
-    if (intent.userId) {
-      query = query.or(`user_id.eq.${intent.userId},owner_id.eq.${intent.userId}`);
-    }
-    if (intent.maxPrice) {
-      query = query.lte("price", intent.maxPrice);
-    }
-    if (intent.bedrooms?.length) {
-      query = query.in("bedrooms", intent.bedrooms);
-    }
+    const params = new URLSearchParams();
+    params.set("select", "id,title,price,location,category,bedrooms,bathrooms,images,neighborhood,currency,listing_type,user_id,owner_id,created_at,updated_at,status");
+    params.set("is_active", "eq.true");
+    params.set("status", "eq.active");
+    params.set("order", "updated_at.desc.nullslast,created_at.desc.nullslast");
+    params.set("limit", "50");
 
-    const { data, error } = await query;
-    if (error) {
-      console.error("[AI] Listing search query error:", JSON.stringify(error));
+    const restUrl = `${SUPABASE_URL.replace(/\/$/, "")}/rest/v1/listings?${params.toString()}`;
+    const res = await fetch(restUrl, {
+      headers: {
+        "apikey": anonKey,
+        "Authorization": `Bearer ${jwt}`,
+        "Accept": "application/json",
+      },
+    });
+    if (!res.ok) {
+      const errText = await res.text();
+      console.error(`[AI] Listings REST API ${res.status}: ${errText.slice(0, 300)}`);
       return "";
     }
 
+    const data: any[] = await res.json();
+    if (!data || data.length === 0) return "";
+
     let results = Array.from(new Map(data.map(item => [item.id, item])).values());
-    if (!results || results.length === 0) return "";
+    if (results.length === 0) return "";
 
     const sortedListings = results
       .sort((a: any, b: any) => new Date(b.updated_at || b.created_at || 0).getTime() - new Date(a.updated_at || a.created_at || 0).getTime())
