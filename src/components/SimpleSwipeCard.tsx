@@ -45,12 +45,6 @@ type DragAxis = 'x' | 'y' | null;
 
 const _getExitDistance = () => typeof window !== 'undefined' ? window.innerWidth * 1.5 : 800;
 
-const SPRING_CONFIGS = {
-  SILK: { stiffness: 500, damping: 25, mass: 0.4 },
-};
-
-const ACTIVE_SPRING = SPRING_CONFIGS.SILK;
-
 interface SimpleSwipeCardProps {
   listing: Listing | MatchedListing | MatchedClientProfile;
   onSwipe: (direction: 'left' | 'right') => void;
@@ -299,10 +293,11 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
         onSwipe(direction);
       };
       animate(x, exitX, {
-        type: 'tween', duration: 0.1, ease: [0.22, 1, 0.36, 1],
+        type: 'spring', stiffness: 800, damping: 40, mass: 0.3,
+        velocity: info.velocity.x,
         onComplete: fireSwipe,
       });
-      animate(y, 0, { type: 'tween', duration: 0.08, ease: [0.22, 1, 0.36, 1] });
+      animate(y, 0, { type: 'spring', stiffness: 800, damping: 40, mass: 0.3, velocity: info.velocity.y });
     } else if (vertCommit && (onSkip || onSkipBack)) {
       const dir = dy > 0 ? 1 : -1;
       hasExited.current = true;
@@ -318,13 +313,14 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
         else onSkipBack?.();
       };
       animate(y, exitY, {
-        duration: 0.14, ease: [0.22, 1, 0.36, 1],
+        type: 'spring', stiffness: 800, damping: 40, mass: 0.3,
+        velocity: info.velocity.y,
         onComplete: fireSkip,
       });
-      animate(x, 0, { duration: 0.08, ease: [0.22, 1, 0.36, 1] });
+      animate(x, 0, { type: 'spring', stiffness: 800, damping: 40, mass: 0.3, velocity: info.velocity.x });
     } else {
-      animate(x, 0, { type: 'spring', ...ACTIVE_SPRING });
-      animate(y, 0, { type: 'spring', ...ACTIVE_SPRING });
+      animate(x, 0, { type: 'spring', stiffness: 800, damping: 40, mass: 0.3, velocity: info.velocity.x });
+      animate(y, 0, { type: 'spring', stiffness: 800, damping: 40, mass: 0.3, velocity: info.velocity.y });
     }
     isDragging.current = false;
     dragAxisRef.current = null;
