@@ -9,7 +9,7 @@ function isBrowser() {
   return typeof window !== 'undefined' && typeof document !== 'undefined';
 }
 
-const CROSSFADE_MS = 250; // Fade duration in ms for very smooth card/image transitions
+const CROSSFADE_MS = 80;
 const _CROSSFADE_EASE = [0.4, 0, 0.2, 1]; // Reserved for future animation
 
 const CardImage = memo(({
@@ -136,44 +136,45 @@ const CardImage = memo(({
         zIndex: 1,
       }}
     >
-      {/* LQIP Placeholder with blur-up effect, always shown if not loaded */}
-      {!loaded && (
-        <div
-          className="absolute inset-0 flex items-center justify-center overflow-hidden"
-          style={{
-            background: 'linear-gradient(135deg, hsl(var(--muted)) 0%, hsl(var(--muted-foreground) / 0.1) 100%)',
-            zIndex: 1,
-          }}
-        >
-          <motion.div 
-            className="absolute inset-x-[-100%] inset-y-0 bg-gradient-to-r from-transparent via-white/10 to-transparent skew-x-[-20deg]"
-            animate={{ x: ['100%', '-100%'] }}
-            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-          />
-          <div className="relative z-10 flex gap-1.5 opacity-40">
-            {[0, 1, 2].map(i => (
-              <motion.div
-                key={i}
-                className="w-1.5 h-1.5 rounded-full bg-white/50"
-                animate={{ opacity: [0.3, 1, 0.3], scale: [0.8, 1.2, 0.8] }}
-                transition={{ duration: 1, repeat: Infinity, delay: i * 0.2 }}
-              />
-            ))}
-          </div>
-          {blurSrc && (
-            <img
-              src={blurSrc}
-              alt=""
-              aria-hidden="true"
-              loading="eager"
-              decoding="async"
-              className="absolute inset-0 w-full h-full object-cover filter blur-[20px] scale-110 opacity-70 mix-blend-overlay transition-opacity duration-300"
+      {/* LQIP Placeholder — always rendered so no flash when image loads.
+          Fades out with CSS transition while the motion img crossfades in. */}
+      <div
+        className="absolute inset-0 flex items-center justify-center overflow-hidden transition-opacity duration-150"
+        style={{
+          background: 'linear-gradient(135deg, hsl(var(--muted)) 0%, hsl(var(--muted-foreground) / 0.1) 100%)',
+          zIndex: 1,
+          opacity: loaded ? 0 : 1,
+          pointerEvents: loaded ? 'none' : 'auto',
+        }}
+      >
+        <motion.div 
+          className="absolute inset-x-[-100%] inset-y-0 bg-gradient-to-r from-transparent via-white/10 to-transparent skew-x-[-20deg]"
+          animate={{ x: ['100%', '-100%'] }}
+          transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+        />
+        <div className="relative z-10 flex gap-1.5 opacity-40">
+          {[0, 1, 2].map(i => (
+            <motion.div
+              key={i}
+              className="w-1.5 h-1.5 rounded-full bg-white/50"
+              animate={{ opacity: [0.3, 1, 0.3], scale: [0.8, 1.2, 0.8] }}
+              transition={{ duration: 1, repeat: Infinity, delay: i * 0.2 }}
             />
-          )}
+          ))}
         </div>
-      )}
-      {/* Crossfade transition for main image (smoothed always) */}
-      <AnimatePresence mode="wait" initial={false}>
+        {blurSrc && (
+          <img
+            src={blurSrc}
+            alt=""
+            aria-hidden="true"
+            loading="eager"
+            decoding="async"
+            className="absolute inset-0 w-full h-full object-cover filter blur-[20px] scale-110 opacity-70 mix-blend-overlay transition-opacity duration-300"
+          />
+        )}
+      </div>
+      {/* Instant crossfade — no mode="wait" so old and new images overlap */}
+      <AnimatePresence initial={false}>
         {(loaded || wasInCache) && displaySrc && (
           <motion.img
             key={displaySrc}
