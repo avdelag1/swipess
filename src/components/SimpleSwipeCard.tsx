@@ -285,39 +285,19 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
       isExitingRef.current = true;
       triggerHaptic(direction === 'right' ? 'success' : 'warning');
       const exitX = direction === 'right' ? (window.innerWidth || 600) * 1.2 : -(window.innerWidth || 600) * 1.2;
-      let swipeFired = false;
-      const fireSwipe = () => {
-        if (swipeFired) return;
-        swipeFired = true;
-        isExitingRef.current = false;
-        onSwipe(direction);
-      };
-      animate(x, exitX, {
-        type: 'spring', stiffness: 800, damping: 40, mass: 0.3,
-        velocity: info.velocity.x,
-        onComplete: fireSwipe,
-      });
-      animate(y, 0, { type: 'spring', stiffness: 800, damping: 40, mass: 0.3, velocity: info.velocity.y });
+      x.set(exitX);
+      y.set(0);
+      onSwipe(direction);
     } else if (vertCommit && (onSkip || onSkipBack)) {
       const dir = dy > 0 ? 1 : -1;
       hasExited.current = true;
       isExitingRef.current = true;
       triggerHaptic('light');
       const exitY = dir * (window.innerHeight || 800) * 0.85;
-      let skipFired = false;
-      const fireSkip = () => {
-        if (skipFired) return;
-        skipFired = true;
-        isExitingRef.current = false;
-        if (dir < 0) onSkip?.();
-        else onSkipBack?.();
-      };
-      animate(y, exitY, {
-        type: 'spring', stiffness: 800, damping: 40, mass: 0.3,
-        velocity: info.velocity.y,
-        onComplete: fireSkip,
-      });
-      animate(x, 0, { type: 'spring', stiffness: 800, damping: 40, mass: 0.3, velocity: info.velocity.x });
+      y.set(exitY);
+      x.set(0);
+      if (dir < 0) onSkip?.();
+      else onSkipBack?.();
     } else {
       animate(x, 0, { type: 'spring', stiffness: 800, damping: 40, mass: 0.3, velocity: info.velocity.x });
       animate(y, 0, { type: 'spring', stiffness: 800, damping: 40, mass: 0.3, velocity: info.velocity.y });
