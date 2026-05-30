@@ -1485,9 +1485,14 @@ async function getDebugInfo(req: Request): Promise<string> {
   let restResult = "not tested";
   let restStatus = 0;
   let restCount = 0;
+  let restResult2 = "not tested";
+  let restStatus2 = 0;
+  let restCount2 = 0;
+  const colsForUrl = "id,title,price,location,category,bedrooms,bathrooms,images,neighborhood,currency,listing_type,user_id,owner_id,created_at,updated_at,status";
   if (supabaseUrl && anonKey) {
     try {
       const jwt = getUserToken(authHeader) || anonKey;
+      // Test 1: simple params (same as working debug)
       const params = new URLSearchParams();
       params.set("select", "id,title,price");
       params.set("is_active", "eq.true");
@@ -1505,6 +1510,21 @@ async function getDebugInfo(req: Request): Promise<string> {
       } else {
         restResult = `${res.status}: ${(await res.text()).slice(0, 200)}`;
       }
+
+      // Test 2: full params (same as searchListings)
+      const cols = "id,title,price,location,category,bedrooms,bathrooms,images,neighborhood,currency,listing_type,user_id,owner_id,created_at,updated_at,status";
+      const url2 = `${supabaseUrl.replace(/\/$/, "")}/rest/v1/listings?select=${encodeURIComponent(cols)}&is_active=eq.true&status=eq.active&order=updated_at.desc.nullslast,created_at.desc.nullslast&limit=5`;
+      const res2 = await fetch(url2, {
+        headers: { "apikey": anonKey, "Authorization": `Bearer ${jwt}`, "Accept": "application/json" },
+      });
+      restStatus2 = res2.status;
+      if (res2.ok) {
+        const data2 = await res2.json();
+        restCount2 = data2?.length || 0;
+        restResult2 = restCount2 > 0 ? `OK (${restCount2} rows)` : "empty array";
+      } else {
+        restResult2 = `${res2.status}: ${(await res2.text()).slice(0, 200)}`;
+      }
     } catch (e: any) { restResult = `ERROR: ${e.message}`; }
   }
 
@@ -1515,11 +1535,17 @@ async function getDebugInfo(req: Request): Promise<string> {
     `SUPABASE_SERVICE_KEY: ${hasService ? "SET (" + servicePrefix + ")" : "EMPTY"}`,
     `AUTH HEADER: ${hasAuth ? "SET (" + tokenPrefix + ")" : "NOT SET"}`,
     ``,
-    `📋 REST API TEST (anon key + user JWT)`,
-    `URL: /rest/v1/listings?is_active=eq.true&status=eq.active`,
+    `📋 TEST 1 (simple params)`,
+    `URL: ?select=id,title,price&is_active=eq.true&status=eq.active&limit=5`,
     `Status: ${restStatus}`,
     `Result: ${restResult}`,
     `Count: ${restCount}`,
+    ``,
+    `📋 TEST 2 (full params, same as searchListings)`,
+    `URL: ?select=id,title,price,...,images,neighborhood,...,status&is_active=eq.true&status=eq.active&order=updated_at.desc...&limit=5`,
+    `Status: ${restStatus2}`,
+    `Result: ${restResult2}`,
+    `Count: ${restCount2}`,
   ].join("\n");
 }
 
