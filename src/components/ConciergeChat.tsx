@@ -150,20 +150,159 @@ const ConciergePrivacyPortal = memo(({ onAccept, isSwipess }: { onAccept: () => 
 ));
 ConciergePrivacyPortal.displayName = 'ConciergePrivacyPortal';
 
-// Quick questions removed — user will define better ones later
+// ─── Cascading Quick Filters ──────────────────────────────────────────────
 
-const WelcomeState = memo(({ isSwipess, isLight }: { isSwipess: boolean; isLight: boolean; onPick: (prompt: string) => void }) => (
-  <div className="h-full flex flex-col items-start justify-start gap-7 max-w-2xl mx-auto w-full">
-    <div className="space-y-2 w-full">
-      <h2 className={cn("text-3xl font-black tracking-tight", isLight && !isSwipess ? "text-foreground" : "text-white")}>
-        Hey there! <span className="inline-block">👋</span>
-      </h2>
-      <p className={cn("text-2xl font-bold leading-tight", isLight && !isSwipess ? "text-foreground/80" : "text-white/80")}>
-        What can I help you with today?
-      </p>
+interface QuickFilterItem {
+  label: string;
+  prompt: string;
+  icon: string;
+}
+
+interface QuickFilterGroup {
+  label: string;
+  icon: string;
+  color: string;
+  items: QuickFilterItem[];
+}
+
+const QUICK_FILTERS: QuickFilterGroup[] = [
+  {
+    label: 'Properties',
+    icon: '🏠',
+    color: 'from-orange-400 to-pink-500',
+    items: [
+      { label: 'All Rentals', prompt: 'Show me all rental properties', icon: '🏠' },
+      { label: 'Houses', prompt: 'Show me available houses', icon: '🏡' },
+      { label: 'Apartments', prompt: 'Find apartments for rent', icon: '🏢' },
+      { label: 'Studios', prompt: 'Show me studios', icon: '🪟' },
+      { label: 'Luxury', prompt: 'Show me luxury properties', icon: '💎' },
+      { label: 'Land', prompt: 'Find land for sale', icon: '🌿' },
+      { label: 'Vacation Rentals', prompt: 'Show me vacation rentals', icon: '🌴' },
+      { label: 'Cheapest', prompt: 'Show me the cheapest properties', icon: '💰' },
+    ],
+  },
+  {
+    label: 'Vehicles',
+    icon: '🚗',
+    color: 'from-cyan-400 to-sky-500',
+    items: [
+      { label: 'Motorcycles', prompt: 'Find motorcycles for sale', icon: '🏍' },
+      { label: 'Bicycles', prompt: 'Show me bicycles available', icon: '🚲' },
+      { label: 'Scooters', prompt: 'Find scooters', icon: '🛵' },
+      { label: 'Cars', prompt: 'Show me cars for sale', icon: '🚗' },
+    ],
+  },
+  {
+    label: 'Services',
+    icon: '👷',
+    color: 'from-emerald-400 to-teal-500',
+    items: [
+      { label: 'Cleaning', prompt: 'Find me cleaning services', icon: '🧹' },
+      { label: 'Maintenance', prompt: 'Find maintenance workers', icon: '🔧' },
+      { label: 'Construction', prompt: 'Find construction workers', icon: '🏗' },
+      { label: 'Drivers', prompt: 'Find private drivers', icon: '🚗' },
+      { label: 'Wellness', prompt: 'Find massage and wellness', icon: '💆' },
+      { label: 'Pet Care', prompt: 'Find pet care services', icon: '🐶' },
+      { label: 'Tutoring', prompt: 'Find tutors and teachers', icon: '📚' },
+      { label: 'Emergency', prompt: 'Find emergency services', icon: '⚡' },
+    ],
+  },
+  {
+    label: 'People',
+    icon: '👥',
+    color: 'from-violet-400 to-indigo-500',
+    items: [
+      { label: 'Roommates', prompt: 'Find people looking for roommates', icon: '👥' },
+      { label: 'Workers', prompt: 'Find workers offering services', icon: '👷' },
+      { label: 'Near Me', prompt: 'Show me people near me', icon: '📍' },
+      { label: 'New People', prompt: 'Show me new people in the area', icon: '🆕' },
+    ],
+  },
+  {
+    label: 'Top Picks',
+    icon: '🔥',
+    color: 'from-rose-400 to-red-500',
+    items: [
+      { label: 'Best Deals', prompt: 'Show me the best deals right now', icon: '💵' },
+      { label: 'New Listings', prompt: 'Show me the newest listings', icon: '🆕' },
+      { label: 'Top Rated', prompt: 'Show me top rated listings', icon: '⭐' },
+      { label: 'Under $500', prompt: 'Find listings under 500', icon: '💰' },
+    ],
+  },
+];
+
+const WelcomeState = memo(({ isSwipess, isLight, onPick }: { isSwipess: boolean; isLight: boolean; onPick: (prompt: string) => void }) => {
+  const [activeGroup, setActiveGroup] = useState<QuickFilterGroup | null>(null);
+
+  return (
+    <div className="h-full flex flex-col items-start justify-start gap-6 max-w-2xl mx-auto w-full">
+      <div className="space-y-1.5 w-full">
+        <h2 className={cn("text-3xl font-black tracking-tight", isLight && !isSwipess ? "text-foreground" : "text-white")}>
+          Hey there! <span className="inline-block">👋</span>
+        </h2>
+        <p className={cn("text-lg font-bold leading-tight", isLight && !isSwipess ? "text-foreground/80" : "text-white/80")}>
+          {activeGroup ? `What kind of ${activeGroup.label.toLowerCase()}?` : "What are you looking for?"}
+        </p>
+      </div>
+
+      {activeGroup ? (
+        <div className="w-full space-y-3">
+          <button
+            onClick={() => setActiveGroup(null)}
+            className={cn(
+              "flex items-center gap-2 text-[11px] font-black uppercase tracking-widest opacity-60 hover:opacity-100 transition-all",
+              isLight ? "text-slate-900" : "text-white"
+            )}
+          >
+            ← Back to categories
+          </button>
+          <div className="grid grid-cols-2 gap-2.5">
+            {activeGroup.items.map((item) => (
+              <button
+                key={item.label}
+                onClick={() => onPick(item.prompt)}
+                className={cn(
+                  "flex items-center gap-3 px-4 py-3.5 rounded-2xl border transition-all active:scale-[0.96] hover:shadow-[0_12px_30px_rgba(0,0,0,0.1)] text-left",
+                  isLight && !isSwipess ? "bg-white border-slate-200 shadow-sm" : "bg-white/10 border-white/20"
+                )}
+              >
+                <span className="text-xl">{item.icon}</span>
+                <span className={cn("text-[13px] font-bold leading-tight", isLight && !isSwipess ? "text-foreground" : "text-white")}>
+                  {item.label}
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 gap-2.5 w-full">
+          {QUICK_FILTERS.map((group) => (
+            <button
+              key={group.label}
+              onClick={() => setActiveGroup(group)}
+              className={cn(
+                "flex items-center gap-3 px-4 py-4 rounded-2xl border transition-all active:scale-[0.96] hover:shadow-[0_12px_30px_rgba(0,0,0,0.1)] text-left",
+                isLight && !isSwipess ? "bg-white border-slate-200 shadow-sm" : "bg-white/10 border-white/20"
+              )}
+            >
+              <div className={cn("w-10 h-10 rounded-xl bg-gradient-to-br flex items-center justify-center shadow-md shrink-0", group.color)}>
+                <span className="text-lg">{group.icon}</span>
+              </div>
+              <div className="flex-1 min-w-0">
+                <span className={cn("text-[13px] font-bold block", isLight && !isSwipess ? "text-foreground" : "text-white")}>
+                  {group.label}
+                </span>
+                <span className={cn("text-[10px] font-bold opacity-50 block", isLight && !isSwipess ? "text-foreground" : "text-white")}>
+                  {group.items.length} options
+                </span>
+              </div>
+            </button>
+          ))}
+        </div>
+      )}
     </div>
-  </div>
-));
+  );
+});
 WelcomeState.displayName = 'WelcomeState';
 
 const MessageBubble = memo(({ message, isUser, isSwipess, isLight, onCopy, onDelete, onTranslate, onResend, onNavigate, onDraft, onFilter, onSpeak, speakingMsgId, isSpeaking }: { 
