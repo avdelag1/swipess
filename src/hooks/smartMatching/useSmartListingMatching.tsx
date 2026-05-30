@@ -436,7 +436,7 @@ export function useSmartListingMatching(
                 // an explicit status still surface, then we filter active client-side.
                 let query = supabase.from('listings').select(SWIPE_CARD_FIELDS);
                 if (userId) {
-                    query = query.neq('user_id', userId);
+                    query = query.neq('owner_id', userId);
                 }
 
                 // 3. Apply excluded IDs (Fallback path) — only valid uuids

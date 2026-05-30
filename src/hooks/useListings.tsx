@@ -178,7 +178,7 @@ export function useListings(excludeSwipedIds: string[] = [], options: { enabled?
 
         // CRITICAL: Exclude own listings
         if (user.user) {
-          query = query.neq('user_id', user.user.id);
+          query = query.neq('owner_id', user.user.id);
         }
 
         // URL SAFETY: Apply excluded IDs (Fallback only)

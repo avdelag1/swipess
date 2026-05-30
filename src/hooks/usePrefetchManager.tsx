@@ -86,10 +86,7 @@ export function usePrefetchManager() {
             message_text,
             message_type,
             created_at,
-            is_read,
-            sender:profiles!conversation_messages_sender_id_fkey(
-              id, full_name, avatar_url
-            )
+            is_read
           `)
           .eq('conversation_id', conversationId)
           .order('created_at', { ascending: true })
