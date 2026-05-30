@@ -19,6 +19,7 @@ import useAppTheme from '@/hooks/useAppTheme';
 import { useSpeechSynthesis, PERSONA_VOICE_PROFILES } from '@/hooks/useSpeechSynthesis';
 import { toast } from 'sonner';
 import { useFilterStore } from '@/state/filterStore';
+import type { QuickFilterCategory } from '@/types/filters';
 
 function formatConvoDate(date: Date) {
   return date.toLocaleDateString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
@@ -162,6 +163,7 @@ interface FilterCategory {
   icon: string;
   gradient: string;
   shadow: string;
+  category: QuickFilterCategory | null;
   options: FilterOption[];
 }
 
@@ -171,6 +173,7 @@ const FILTERS: FilterCategory[] = [
     icon: '🏠',
     gradient: 'from-amber-400 via-orange-500 to-red-500',
     shadow: 'rgba(249,115,22,0.35)',
+    category: 'property',
     options: [
       { label: 'All Rentals', prompt: 'Show me all rental properties' },
       { label: 'Houses', prompt: 'Show me available houses' },
@@ -191,6 +194,7 @@ const FILTERS: FilterCategory[] = [
     icon: '👷',
     gradient: 'from-sky-400 via-blue-500 to-indigo-600',
     shadow: 'rgba(59,130,246,0.35)',
+    category: 'services',
     options: [
       { label: 'Cleaning', prompt: 'Find me cleaning workers' },
       { label: 'Maintenance', prompt: 'Find maintenance workers' },
@@ -211,6 +215,7 @@ const FILTERS: FilterCategory[] = [
     icon: '🏍',
     gradient: 'from-rose-400 via-red-500 to-pink-600',
     shadow: 'rgba(239,68,68,0.35)',
+    category: 'motorcycle',
     options: [
       { label: 'For Sale', prompt: 'Find motorcycles for sale' },
       { label: 'Cheapest', prompt: 'Show cheapest motorcycles' },
@@ -223,6 +228,7 @@ const FILTERS: FilterCategory[] = [
     icon: '🚲',
     gradient: 'from-emerald-400 via-green-500 to-teal-600',
     shadow: 'rgba(16,185,129,0.35)',
+    category: 'bicycle',
     options: [
       { label: 'For Sale', prompt: 'Find bicycles for sale' },
       { label: 'Cheapest', prompt: 'Show cheapest bicycles' },
@@ -235,6 +241,7 @@ const FILTERS: FilterCategory[] = [
     icon: '💰',
     gradient: 'from-violet-400 via-purple-500 to-fuchsia-600',
     shadow: 'rgba(168,85,247,0.35)',
+    category: 'buyers',
     options: [
       { label: 'Looking for Houses', prompt: 'Find people looking to buy houses' },
       { label: 'Looking for Land', prompt: 'Find people looking to buy land' },
@@ -247,6 +254,7 @@ const FILTERS: FilterCategory[] = [
     icon: '🔑',
     gradient: 'from-pink-400 via-fuchsia-500 to-rose-600',
     shadow: 'rgba(217,70,239,0.3)',
+    category: 'renters',
     options: [
       { label: 'Looking for Apartments', prompt: 'Find people looking to rent apartments' },
       { label: 'Looking for Houses', prompt: 'Find people looking to rent houses' },
@@ -259,6 +267,7 @@ const FILTERS: FilterCategory[] = [
     icon: '🔍',
     gradient: 'from-teal-400 via-cyan-500 to-sky-600',
     shadow: 'rgba(6,182,212,0.35)',
+    category: 'hire',
     options: [
       { label: 'Find Services', prompt: 'Find people looking for services' },
       { label: 'Find Workers', prompt: 'Find people looking to hire workers' },
@@ -269,7 +278,7 @@ const FILTERS: FilterCategory[] = [
   },
 ];
 
-const WelcomeState = memo(({ isSwipess, isLight, onPick }: { isSwipess: boolean; isLight: boolean; onPick: (prompt: string) => void }) => {
+const WelcomeState = memo(({ isSwipess, isLight, onPick }: { isSwipess: boolean; isLight: boolean; onPick: (prompt: string, category?: QuickFilterCategory | null) => void }) => {
   const [activeCategory, setActiveCategory] = useState<FilterCategory | null>(null);
   const txtClr = isLight && !isSwipess ? 'text-foreground' : 'text-white';
 
@@ -296,7 +305,7 @@ const WelcomeState = memo(({ isSwipess, isLight, onPick }: { isSwipess: boolean;
             {activeCategory.options.map((opt) => (
               <button
                 key={opt.label}
-                onClick={() => onPick(opt.prompt)}
+                onClick={() => onPick(opt.prompt, activeCategory.category)}
                 className={cn(
                   "relative overflow-hidden rounded-xl px-4 py-4 text-left transition-all active:scale-[0.96]",
                   "border shadow-md",
@@ -1143,7 +1152,14 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                     <WelcomeState
                       isSwipess={isSwipess}
                       isLight={isLight}
-                       onPick={(prompt) => { sendMessage(prompt); triggerHaptic('light'); }}
+                       onPick={(prompt, category) => { 
+                          sendMessage(prompt); 
+                          triggerHaptic('light');
+                          if (category) {
+                            useFilterStore.getState().setActiveCategory(category);
+                          }
+                          onClose();
+                        }}
                     />
                   ) : (
                     messages.map((m) => (

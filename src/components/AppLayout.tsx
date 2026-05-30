@@ -21,7 +21,7 @@ const SwipessHud = lazyWithRetry(() => import('./SwipessHud').then(m => ({ defau
 const VapIdCardModal = lazyWithRetry(() => import('./VapIdCardModal').then(m => ({ default: m.VapIdCardModal })));
 const GlobalDialogs = lazyWithRetry(() => import('./GlobalDialogs').then(m => ({ default: m.GlobalDialogs })));
 import { ChromeSummonZones } from './swipe/ChromeSummonZones';
-import { revealChrome, useChromeReveal } from '@/hooks/useChromeReveal';
+import { revealChrome, hideChrome, useChromeReveal } from '@/hooks/useChromeReveal';
 import { useFilterStore } from '@/state/filterStore';
 import { useShallow } from 'zustand/react/shallow';
 import { UNIFIED_CARDS } from '@/components/swipe/SwipeConstants';
@@ -164,12 +164,18 @@ export function AppLayout({ children }: AppLayoutProps) {
   // briefly show the header + bottom nav so users see the controls exist
   // before they fade out. Auto-hide timer (5s) is set by revealChrome().
   const wasRevealRef = useRef(false);
+  const wasAIChatRef = useRef(showAIChat);
   useLayoutEffect(() => {
     if (useRevealMode && !wasRevealRef.current) {
-      revealChrome();
+      if (wasAIChatRef.current) {
+        hideChrome();
+      } else {
+        revealChrome();
+      }
     }
     wasRevealRef.current = useRevealMode;
-  }, [useRevealMode]);
+    wasAIChatRef.current = showAIChat;
+  }, [useRevealMode, showAIChat]);
 
   const isPublicPreview = location.pathname.startsWith('/listing/') || location.pathname.startsWith('/profile/');
   const isAuthRoute = location.pathname === '/' || location.pathname === '/reset-password';
