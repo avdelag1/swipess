@@ -72,7 +72,6 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
   const sendMessage = useSendMessage();
   const _queryClient = useQueryClient();
   const blockUser = useBlockUser();
-  const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const previousMessageCountRef = useRef(0);
   const { isOnline } = usePresence(otherUser.id);
@@ -93,12 +92,6 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
       }
     }
   }, [conversationId, prefetchTopConversationMessages]);
-
-  const isScrolledToBottom = useCallback(() => {
-    if (!messagesContainerRef.current) return true;
-    const { scrollTop, scrollHeight, clientHeight } = messagesContainerRef.current;
-    return scrollHeight - scrollTop - clientHeight < 100;
-  }, []);
 
   // â”€â”€ Voice + Auto-Send Logic (Parity with Concierge) â”€â”€
   const [isListening, setIsListening] = useState(false);
@@ -211,10 +204,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
     }
     
     previousMessageCountRef.current = messages.length;
-    if (messageCountIncreased && isScrolledToBottom()) {
-      messagesEndRef.current?.scrollIntoView({ behavior: 'instant' });
-    }
-  }, [messages, isScrolledToBottom, user?.id]);
+  }, [messages, user?.id]);
 
   const { moderate } = useContentModeration();
 
@@ -251,7 +241,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
   return (
     <>
       <div className={cn(
-        "flex-1 flex flex-col h-full overflow-hidden transition-colors duration-500",
+        "flex-1 flex flex-col overflow-hidden transition-colors duration-500",
         isThemeLight ? "bg-[#ffffff]" : "bg-[#000000]"
       )}>
 
@@ -375,7 +365,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
 
         <div
           id="chat-scroll-container"
-          className={cn("flex-1 flex flex-col relative min-h-0", isThemeLight ? "bg-[#f5f5f7]" : "bg-[#050505]")}
+          className={cn("flex-1 flex flex-col relative overflow-hidden", isThemeLight ? "bg-[#f5f5f7]" : "bg-[#050505]")}
           ref={messagesContainerRef}
         >
           {messages.length === 0 ? (
@@ -398,7 +388,6 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
               typingUsers={typingUsers}
             />
           )}
-          <div ref={messagesEndRef} />
         </div>
 
         <div className={cn(

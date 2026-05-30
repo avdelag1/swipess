@@ -126,7 +126,7 @@ export const VirtualizedMessageList = memo(({
     count: messages.length,
     getScrollElement: () => parentRef.current,
     estimateSize: () => 80,
-    overscan: 10,
+    overscan: 5,
   });
 
   useEffect(() => {
@@ -134,9 +134,11 @@ export const VirtualizedMessageList = memo(({
       const { scrollTop, scrollHeight, clientHeight } = parentRef.current;
       const isNearBottom = scrollHeight - scrollTop - clientHeight < 150;
       if (isNearBottom || messages.length <= 1) {
-        virtualizer.scrollToIndex(messages.length - 1, {
-          align: 'end',
-          behavior: 'auto',
+        requestAnimationFrame(() => {
+          virtualizer.scrollToIndex(messages.length - 1, {
+            align: 'end',
+            behavior: 'auto',
+          });
         });
       }
     }
