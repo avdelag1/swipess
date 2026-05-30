@@ -1,6 +1,6 @@
 /**
  * Ultra-Fast Service Worker - Optimized for lightning-speed loading
- * UPDATED: 2026-05-15T19:20Z - Force Update v7
+ * UPDATED: 2026-05-30T12:00Z - Force Update v8 (fallback on 404 chunks)
  * 
  * PWA UPDATE FIX: Aggressive updates to ensure users always get latest version
  * - skipWaiting() called immediately on install for instant activation
@@ -268,7 +268,7 @@ self.addEventListener('fetch', (event) => {
           cache: 'no-store',
           credentials: request.credentials
         }),
-        new Promise((_, reject) => setTimeout(() => reject(new Error('SW Timeout')), 5000))
+        new Promise((_, reject) => setTimeout(() => reject(new Error('SW Timeout')), 1500))
       ])
       .then(networkResponse => {
         // If we got a real response, update the cache and return it
@@ -330,15 +330,27 @@ self.addEventListener('fetch', (event) => {
   }
 
   // NETWORK-FIRST for JS/CSS — ensures new deployments always serve fresh code.
-  // Falls back to cache only when offline.
+  // Falls back to cache when network fails. If network returns a non-2xx
+  // (e.g. 404 from stale deployment), fall back to cache too.
+  // If nothing works, return a minimal empty module to prevent "MIME type text/html" crash.
   if (request.destination === 'script' || request.destination === 'style') {
     event.respondWith(
       caches.open(DYNAMIC_CACHE).then(cache => {
         return fetch(request).then(networkResponse => {
           if (networkResponse.ok && networkResponse.status === 200) {
             cache.put(request, networkResponse.clone());
+            return networkResponse;
           }
-          return networkResponse;
+          // 404 or other non-ok → try cache before giving up
+          return cache.match(request).then(cached => {
+            if (cached) return cached;
+            // Return empty module to prevent MIME type error crash
+            const ext = url.pathname.endsWith('.css') ? 'css' : 'javascript';
+            return new Response('', {
+              status: 200,
+              headers: { 'Content-Type': ext === 'css' ? 'text/css' : 'text/javascript' }
+            });
+          });
         }).catch(async () => {
           const cachedResponse = await cache.match(request);
           return cachedResponse ?? new Response('', { status: 404, statusText: 'Not Found' });

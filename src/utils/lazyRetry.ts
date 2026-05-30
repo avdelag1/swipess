@@ -29,6 +29,10 @@ export function lazyWithRetry<T extends ComponentType<any>>(
         if (!pageHasAlreadyReloaded) {
           window.sessionStorage.setItem('page-reloaded-on-chunk-fail', 'true');
           console.error('[lazyWithRetry] Critical chunk error. Hard reloading page...', retryError);
+          // Clear SW caches so reload gets fresh chunks
+          if ('caches' in window) {
+            caches.keys().then(names => Promise.all(names.map(n => caches.delete(n)))).catch(() => {});
+          }
           window.location.replace(window.location.pathname + '?v=' + Date.now());
           return new Promise(() => {}); // Never resolve to prevent further rendering while reloading
         }
