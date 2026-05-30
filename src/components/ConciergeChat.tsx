@@ -160,6 +160,8 @@ interface FilterOption {
 interface FilterCategory {
   label: string;
   icon: string;
+  gradient: string;
+  shadow: string;
   options: FilterOption[];
 }
 
@@ -167,6 +169,8 @@ const FILTERS: FilterCategory[] = [
   {
     label: 'Properties',
     icon: '🏠',
+    gradient: 'from-amber-400 via-orange-500 to-red-500',
+    shadow: 'rgba(249,115,22,0.35)',
     options: [
       { label: 'All Rentals', prompt: 'Show me all rental properties' },
       { label: 'Houses', prompt: 'Show me available houses' },
@@ -185,6 +189,8 @@ const FILTERS: FilterCategory[] = [
   {
     label: 'Workers',
     icon: '👷',
+    gradient: 'from-sky-400 via-blue-500 to-indigo-600',
+    shadow: 'rgba(59,130,246,0.35)',
     options: [
       { label: 'Cleaning', prompt: 'Find me cleaning workers' },
       { label: 'Maintenance', prompt: 'Find maintenance workers' },
@@ -203,6 +209,8 @@ const FILTERS: FilterCategory[] = [
   {
     label: 'Motorcycles',
     icon: '🏍',
+    gradient: 'from-rose-400 via-red-500 to-pink-600',
+    shadow: 'rgba(239,68,68,0.35)',
     options: [
       { label: 'For Sale', prompt: 'Find motorcycles for sale' },
       { label: 'Cheapest', prompt: 'Show cheapest motorcycles' },
@@ -213,6 +221,8 @@ const FILTERS: FilterCategory[] = [
   {
     label: 'Bicycles',
     icon: '🚲',
+    gradient: 'from-emerald-400 via-green-500 to-teal-600',
+    shadow: 'rgba(16,185,129,0.35)',
     options: [
       { label: 'For Sale', prompt: 'Find bicycles for sale' },
       { label: 'Cheapest', prompt: 'Show cheapest bicycles' },
@@ -223,6 +233,8 @@ const FILTERS: FilterCategory[] = [
   {
     label: 'Buyers',
     icon: '💰',
+    gradient: 'from-violet-400 via-purple-500 to-fuchsia-600',
+    shadow: 'rgba(168,85,247,0.35)',
     options: [
       { label: 'Looking for Houses', prompt: 'Find people looking to buy houses' },
       { label: 'Looking for Land', prompt: 'Find people looking to buy land' },
@@ -233,6 +245,8 @@ const FILTERS: FilterCategory[] = [
   {
     label: 'Renters',
     icon: '🔑',
+    gradient: 'from-pink-400 via-fuchsia-500 to-rose-600',
+    shadow: 'rgba(217,70,239,0.3)',
     options: [
       { label: 'Looking for Apartments', prompt: 'Find people looking to rent apartments' },
       { label: 'Looking for Houses', prompt: 'Find people looking to rent houses' },
@@ -243,6 +257,8 @@ const FILTERS: FilterCategory[] = [
   {
     label: 'Seekers',
     icon: '🔍',
+    gradient: 'from-teal-400 via-cyan-500 to-sky-600',
+    shadow: 'rgba(6,182,212,0.35)',
     options: [
       { label: 'Find Services', prompt: 'Find people looking for services' },
       { label: 'Find Workers', prompt: 'Find people looking to hire workers' },
@@ -255,63 +271,71 @@ const FILTERS: FilterCategory[] = [
 
 const WelcomeState = memo(({ isSwipess, isLight, onPick }: { isSwipess: boolean; isLight: boolean; onPick: (prompt: string) => void }) => {
   const [activeCategory, setActiveCategory] = useState<FilterCategory | null>(null);
+  const txtClr = isLight && !isSwipess ? 'text-foreground' : 'text-white';
 
   return (
-    <div className="h-full flex flex-col items-start justify-start gap-6 max-w-2xl mx-auto w-full">
-      <div className="space-y-1 w-full">
-        <h2 className={cn("text-2xl font-bold tracking-tight", isLight && !isSwipess ? "text-foreground" : "text-white")}>
-          {activeCategory ? activeCategory.icon : '👋'} {activeCategory ? activeCategory.label : 'Hey there'}
+    <div className="h-full flex flex-col max-w-2xl mx-auto w-full">
+      <div className={cn("pb-4", txtClr)}>
+        <h2 className="text-lg font-bold tracking-tight">
+          {activeCategory ? `${activeCategory.icon}  ${activeCategory.label}` : '👋  Hey there'}
         </h2>
-        <p className={cn("text-sm font-medium opacity-60", isLight && !isSwipess ? "text-foreground" : "text-white")}>
+        <p className="text-[11px] font-medium opacity-40 mt-0.5">
           {activeCategory ? 'Tap an option to search' : 'What are you looking for?'}
         </p>
       </div>
 
       {activeCategory ? (
-        <div className="w-full space-y-2">
+        <div className="w-full space-y-2 flex-1">
           <button
             onClick={() => setActiveCategory(null)}
-            className={cn(
-              "text-[11px] font-semibold tracking-wider opacity-40 hover:opacity-80 transition-opacity",
-              isLight ? "text-slate-900" : "text-white"
-            )}
+            className={cn("text-[11px] font-semibold tracking-wide opacity-30 hover:opacity-70 transition-opacity", txtClr)}
           >
             ← All categories
           </button>
-          <div className="grid grid-cols-2 gap-1.5">
+          <div className="grid grid-cols-2 gap-2 content-start">
             {activeCategory.options.map((opt) => (
               <button
                 key={opt.label}
                 onClick={() => onPick(opt.prompt)}
                 className={cn(
-                  "px-4 py-3 rounded-xl text-left transition-all active:scale-[0.97]",
-                  "border-[0.5px] backdrop-blur-xl",
+                  "relative overflow-hidden rounded-xl px-4 py-4 text-left transition-all active:scale-[0.96]",
+                  "border shadow-md",
                   isLight && !isSwipess
-                    ? "bg-white/80 border-slate-200 text-slate-900 hover:bg-white"
-                    : "bg-white/[0.04] border-white/[0.08] text-white hover:bg-white/[0.08]"
+                    ? "bg-white border-slate-200 text-slate-900 shadow-slate-200/50 hover:bg-slate-50"
+                    : "bg-white/[0.06] border-white/[0.1] text-white shadow-black/20 hover:bg-white/[0.1]"
                 )}
               >
-                <span className="text-[13px] font-medium leading-snug">{opt.label}</span>
+                <div className={cn("absolute inset-x-0 top-0 h-[1px]", isLight ? "bg-white" : "bg-white/20")} />
+                <span className="text-[13px] font-semibold leading-snug">{opt.label}</span>
               </button>
             ))}
           </div>
         </div>
       ) : (
-        <div className="flex flex-wrap gap-2 w-full">
-          {FILTERS.map((cat) => (
+        <div className="grid grid-cols-2 gap-3 flex-1 content-start">
+          {FILTERS.map((cat, i) => (
             <button
               key={cat.label}
               onClick={() => setActiveCategory(cat)}
               className={cn(
-                "flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium transition-all active:scale-[0.97]",
-                "border-[0.5px] backdrop-blur-xl",
-                isLight && !isSwipess
-                  ? "bg-white/80 border-slate-200 text-slate-900 hover:bg-white shadow-sm"
-                  : "bg-white/[0.04] border-white/[0.08] text-white/90 hover:bg-white/[0.08]"
+                "relative overflow-hidden rounded-2xl p-5 text-left transition-all duration-200",
+                "active:scale-[0.96] hover:-translate-y-[1px]",
+                "bg-gradient-to-br shadow-xl",
+                cat.gradient,
+                isLight ? "shadow-black/15" : "shadow-black/40",
+                i === FILTERS.length - 1 && "col-span-2"
               )}
+              style={{ boxShadow: `0 12px 40px -8px ${cat.shadow}` }}
             >
-              <span className="text-base">{cat.icon}</span>
-              <span>{cat.label}</span>
+              <div className="absolute inset-x-0 top-0 h-[1px] bg-white/25 rounded-t-2xl" />
+              <div className="flex items-center gap-3 relative z-10">
+                <span className="text-2xl drop-shadow-[0_2px_4px_rgba(0,0,0,0.2)]">{cat.icon}</span>
+                <span className="text-white text-sm font-bold drop-shadow-[0_1px_3px_rgba(0,0,0,0.3)]">
+                  {cat.label}
+                </span>
+              </div>
+              <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/15 to-transparent rounded-b-2xl pointer-events-none" />
+              <div className="absolute -bottom-5 -right-5 w-24 h-24 bg-white/10 rounded-full blur-3xl pointer-events-none" />
             </button>
           ))}
         </div>
