@@ -87,7 +87,7 @@ const NotificationsPage = () => {
                 transition={{ delay: i * 0.05 }}
                 onClick={() => { triggerHaptic('light'); markNotificationAsRead(notif.id); }}
                 className={cn(
-                  "group relative p-5 rounded-[2.5rem] border transition-all cursor-pointer active:scale-[0.98]",
+                  "group relative p-5 rounded-2xl border transition-all cursor-pointer active:scale-[0.98]",
                   notif.read 
                     ? (isDark ? "bg-white/[0.02] border-white/5 opacity-60" : "bg-black/5 border-black/5 opacity-60")
                     : (isDark ? "bg-white/5 border-white/10 shadow-2xl" : "bg-white border-black/10 shadow-xl")

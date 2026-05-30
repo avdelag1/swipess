@@ -156,15 +156,15 @@ export const NotificationBar = memo(function NotificationBar({ notifications, on
               opacity: { type: 'tween', duration: 0.15 },
             }}
             whileTap={{ scale: 0.98 }}
-            className="pointer-events-auto w-full max-w-[calc(100vw-32px)] sm:max-w-[420px] rounded-[28px] overflow-hidden cursor-pointer touch-pan-x"
+            className="pointer-events-auto w-full max-w-[calc(100vw-32px)] sm:max-w-[420px] rounded-2xl overflow-hidden cursor-pointer touch-pan-x"
             style={{ 
               x, 
               opacity,
               background: isLight ? 'rgba(255,255,255,0.85)' : 'rgba(20,20,24,0.92)',
-              border: isLight ? `1px solid rgba(0,0,0,0.08)` : `1px solid ${config.accentColor}33`,
+              border: `1px solid rgba(255,255,255,0.08)`,
               boxShadow: isLight
                 ? `0 12px 40px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.04)`
-                : `0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px ${config.accentColor}15`,
+                : `0 20px 60px rgba(0,0,0,0.5)`,
               backdropFilter: 'blur(12px)',
               WebkitBackdropFilter: 'blur(12px)',
             }}

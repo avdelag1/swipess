@@ -762,6 +762,7 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [characterPanelOpen, setCharacterPanelOpen] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   
   const { speak, stop: stopSpeaking, isSpeaking } = useSpeechSynthesis();
   const [speakingMsgId, setSpeakingMsgId] = useState<string | null>(null);
@@ -973,6 +974,9 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
     if (!input.trim() || isLoading) return;
     sendMessage(input.trim());
     setInput('');
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+    }
     triggerHaptic('medium');
     uiSounds.playTap();
   };
@@ -1175,7 +1179,7 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                         initial={{ opacity: 0, y: 12, scale: 0.96 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 8, scale: 0.94 }}
-                        className="absolute -top-16 left-1/2 -translate-x-1/2 flex items-center gap-3 px-4 py-3 rounded-3xl border border-border/50 bg-background/95 backdrop-blur-2xl shadow-[0_20px_40px_hsl(var(--foreground)/0.1)]"
+                        className="absolute -top-16 left-1/2 -translate-x-1/2 flex items-center gap-3 px-4 py-3 rounded-2xl border border-border/50 bg-background/95 backdrop-blur-2xl shadow-[0_20px_40px_hsl(var(--foreground)/0.1)]"
                       >
                          <Timer className="w-4 h-4 text-[#FF3D00]" />
                          <span className={cn("text-[11px] font-black uppercase tracking-widest whitespace-nowrap", isLight ? "text-slate-900" : "text-white")}>Send in</span>
@@ -1188,7 +1192,7 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                   </AnimatePresence>
 
                   <div className="max-w-3xl mx-auto flex items-end gap-3 relative">
-                    <div className="flex-1 min-w-0 relative flex items-center rounded-[2rem] transition-all duration-300 border border-border/50 bg-secondary/30 backdrop-blur-xl shadow-inner focus-within:bg-background focus-within:shadow-[0_0_0_4px_hsl(var(--primary)/0.15)] focus-within:border-primary/40 group overflow-hidden">
+                    <div className="flex-1 min-w-0 relative flex items-center rounded-2xl transition-all duration-300 border border-border/50 bg-secondary/30 backdrop-blur-xl shadow-inner focus-within:bg-background focus-within:border-foreground/15 group overflow-hidden">
                        <div className="pl-3 flex items-center gap-1.5 self-center">
                            <Popover>
                              <PopoverTrigger asChild>
@@ -1196,7 +1200,7 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                                     <Timer className="w-5 h-5" strokeWidth={2.5} />
                                </button>
                              </PopoverTrigger>
-                            <PopoverContent side="top" className="w-64 p-2 rounded-[2rem] border border-border/50 bg-background/95 backdrop-blur-2xl shadow-[0_20px_40px_hsl(var(--foreground)/0.15)]">
+                             <PopoverContent side="top" className="w-64 p-2 rounded-2xl border border-border/50 bg-background/95 backdrop-blur-2xl shadow-[0_20px_40px_hsl(var(--foreground)/0.15)]">
                                <button onClick={() => { setAutoSendEnabled(!autoSendEnabled); triggerHaptic('light'); }} className="w-full flex items-center justify-between gap-4 p-4 rounded-3xl hover:bg-secondary transition-all" aria-pressed={autoSendEnabled}>
                                   <span className={cn("flex items-center gap-3 text-[11px] font-black uppercase tracking-widest", isLight ? "text-slate-900" : "text-white")}>
                                     <Timer className="w-4 h-4 text-[#FF3D00]" />
@@ -1228,16 +1232,25 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                        </div>
                        
                        <textarea
-                         value={input}
-                         onChange={(e) => { setInput(e.target.value); cancelCountdown(); }}
-                         placeholder={isListening ? "Listening... Speak now" : "Inquire for discovery..."}
-                         rows={1}
-                         className={cn(
-                           "w-full bg-transparent border-none outline-none focus:ring-0 py-4 pl-3 pr-4 text-[16px] resize-none custom-scrollbar min-h-[56px] max-h-32 leading-relaxed transition-all self-center font-medium",
-                           isListening ? "text-[#FF3D00] placeholder:text-[#FF3D00]/50" : isLight ? "text-slate-900 placeholder:text-slate-400" : "text-white placeholder:text-white/40"
-                         )}
-                         onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
-                       />
+                          ref={textareaRef}
+                          value={input}
+                          onChange={(e) => {
+                            setInput(e.target.value);
+                            cancelCountdown();
+                            const el = textareaRef.current;
+                            if (el) {
+                              el.style.height = 'auto';
+                              el.style.height = `${Math.min(el.scrollHeight, 192)}px`;
+                            }
+                          }}
+                          placeholder={isListening ? "Listening... Speak now" : "Inquire for discovery..."}
+                          rows={1}
+                          className={cn(
+                            "w-full bg-transparent border-none outline-none focus:ring-0 py-4 pl-3 pr-4 text-[16px] resize-none custom-scrollbar min-h-[56px] max-h-48 leading-relaxed self-center font-medium",
+                            isListening ? "text-[#FF3D00] placeholder:text-[#FF3D00]/50" : isLight ? "text-slate-900 placeholder:text-slate-400" : "text-white placeholder:text-white/40"
+                          )}
+                          onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
+                        />
                     </div>
                     
                     <button
