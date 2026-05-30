@@ -322,8 +322,8 @@ async function searchListings(intent: ReturnType<typeof detectListingIntent>, au
 
     // Build URL manually to avoid URLSearchParams encoding issues with commas
     const base = `${SUPABASE_URL.replace(/\/$/, "")}/rest/v1/listings`;
-    const cols = "id,title,price,location,category,bedrooms,bathrooms,images,neighborhood,currency,listing_type,user_id,owner_id,created_at,updated_at,status";
-    // Use raw commas — PostgREST requires unencoded commas in select/order
+    // NOTE: listings table has city, neighborhood, address — but NO "location" column
+    const cols = "id,title,price,category,bedrooms,bathrooms,images,neighborhood,currency,listing_type,user_id,owner_id,created_at,updated_at,status";
     const restUrl = `${base}?select=${encodeURIComponent(cols)}&is_active=eq.true&status=eq.active&order=updated_at.desc.nullslast,created_at.desc.nullslast&limit=50`;
     const res = await fetch(restUrl, {
       headers: {
@@ -351,7 +351,7 @@ async function searchListings(intent: ReturnType<typeof detectListingIntent>, au
     const lines = sortedListings.map(l => {
       const currency = l.currency || "$";
       const price = `${currency === "USD" || currency === "$" ? "$" : currency === "MXN" ? "MXN$" : currency}${l.price}`;
-      let desc = `• **${l.title}** — ${price}/${l.listing_type || "month"} in ${l.neighborhood || l.location} [LISTING:${l.id}]`;
+      let desc = `• **${l.title}** — ${price}/${l.listing_type || "month"} in ${l.neighborhood || l.city || ""} [LISTING:${l.id}]`;
       if (l.bedrooms !== null && l.bedrooms !== undefined) desc += ` | ${l.bedrooms === 0 ? 'Studio' : l.bedrooms + ' bed'}`;
       if (l.bathrooms) desc += ` / ${l.bathrooms} bath`;
       desc += ` → [Details](/listing/${l.id})`;
@@ -370,7 +370,7 @@ async function searchListings(intent: ReturnType<typeof detectListingIntent>, au
       price: l.price,
       currency: l.currency || "USD",
       listing_type: l.listing_type || "rent",
-      city: l.neighborhood || l.location || "",
+      city: l.neighborhood || l.city || "",
       category: l.category,
       bedrooms: l.bedrooms,
       bathrooms: l.bathrooms,
@@ -1488,7 +1488,7 @@ async function getDebugInfo(req: Request): Promise<string> {
   let restResult2 = "not tested";
   let restStatus2 = 0;
   let restCount2 = 0;
-  const colsForUrl = "id,title,price,location,category,bedrooms,bathrooms,images,neighborhood,currency,listing_type,user_id,owner_id,created_at,updated_at,status";
+  const colsForUrl = "id,title,price,category,bedrooms,bathrooms,images,neighborhood,currency,listing_type,user_id,owner_id,created_at,updated_at,status";
   if (supabaseUrl && anonKey) {
     try {
       const jwt = getUserToken(authHeader) || anonKey;
