@@ -996,10 +996,9 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
             {deckQueue.length > 0 && currentIndex < deckQueue.length ? (
               <motion.div
                 key={`deck-${storeActiveCategory ?? 'all'}`}
-                initial={{ opacity: 0, scale: 1.02 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.98 }}
-                transition={{ duration: 0.12, ease: [0.22, 1, 0.36, 1] }}
+                transition={{ duration: 0.08, ease: [0.22, 1, 0.36, 1] }}
                 className="absolute inset-0 w-full h-full flex flex-col items-center justify-center p-0 mx-auto transform-gpu"
               >
                 {deckQueue.slice(currentIndex, currentIndex + 2).reverse().map((listing) => {

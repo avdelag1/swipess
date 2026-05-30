@@ -36,10 +36,10 @@ export interface SimpleSwipeCardRef {
   triggerSwipe: (direction: 'left' | 'right') => void;
 }
 
-const SWIPE_THRESHOLD = 80;
-const VELOCITY_THRESHOLD = 260;
-const SKIP_THRESHOLD = 70;
-const SKIP_VELOCITY = 240;
+const SWIPE_THRESHOLD = 55;
+const VELOCITY_THRESHOLD = 180;
+const SKIP_THRESHOLD = 60;
+const SKIP_VELOCITY = 200;
 const FALLBACK_PLACEHOLDER = '';
 type DragAxis = 'x' | 'y' | null;
 
@@ -299,10 +299,10 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
         onSwipe(direction);
       };
       animate(x, exitX, {
-        type: 'tween', duration: 0.18, ease: [0.22, 1, 0.36, 1],
+        type: 'tween', duration: 0.1, ease: [0.22, 1, 0.36, 1],
         onComplete: fireSwipe,
       });
-      animate(y, 0, { type: 'tween', duration: 0.12, ease: [0.22, 1, 0.36, 1] });
+      animate(y, 0, { type: 'tween', duration: 0.08, ease: [0.22, 1, 0.36, 1] });
     } else if (vertCommit && (onSkip || onSkipBack)) {
       const dir = dy > 0 ? 1 : -1;
       hasExited.current = true;
@@ -318,15 +318,16 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
         else onSkipBack?.();
       };
       animate(y, exitY, {
-        duration: 0.22, ease: [0.22, 1, 0.36, 1],
+        duration: 0.14, ease: [0.22, 1, 0.36, 1],
         onComplete: fireSkip,
       });
-      animate(x, 0, { duration: 0.12, ease: [0.22, 1, 0.36, 1] });
+      animate(x, 0, { duration: 0.08, ease: [0.22, 1, 0.36, 1] });
     } else {
       animate(x, 0, { type: 'spring', ...ACTIVE_SPRING });
       animate(y, 0, { type: 'spring', ...ACTIVE_SPRING });
     }
-    setTimeout(() => { isDragging.current = false; dragAxisRef.current = null; }, 100);
+    isDragging.current = false;
+    dragAxisRef.current = null;
   }, [onSwipe, onSkip, onSkipBack, x, y]);
 
   const handleImageTap = useCallback((e: React.MouseEvent) => {
@@ -364,8 +365,8 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
       isExitingRef.current = false;
       onSwipe(direction);
     };
-    animate(y, 0, { type: 'tween', duration: 0.12, ease: [0.22, 1, 0.36, 1] });
-    animate(x, exitX, { type: 'tween', duration: 0.18, ease: [0.22, 1, 0.36, 1], onComplete: fireSwipe });
+    animate(y, 0, { type: 'tween', duration: 0.06, ease: [0.22, 1, 0.36, 1] });
+    animate(x, exitX, { type: 'tween', duration: 0.1, ease: [0.22, 1, 0.36, 1], onComplete: fireSwipe });
   }, [onSwipe, x, y]);
 
   useImperativeHandle(ref, () => ({
