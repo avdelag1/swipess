@@ -316,19 +316,15 @@ function detectListingIntent(query: string): { isListing: boolean; categories?: 
 async function searchListings(intent: ReturnType<typeof detectListingIntent>, authToken?: string): Promise<string> {
   if (!SUPABASE_URL) return "";
   try {
-    // Use the ANON key for project identification + user's JWT for auth (passes RLS as authenticated user)
     const anonKey = SUPABASE_ANON_KEY;
     const jwt = authToken || anonKey;
     if (!anonKey) return "";
 
-    const params = new URLSearchParams();
-    params.set("select", "id,title,price,location,category,bedrooms,bathrooms,images,neighborhood,currency,listing_type,user_id,owner_id,created_at,updated_at,status");
-    params.set("is_active", "eq.true");
-    params.set("status", "eq.active");
-    params.set("order", "updated_at.desc.nullslast,created_at.desc.nullslast");
-    params.set("limit", "50");
-
-    const restUrl = `${SUPABASE_URL.replace(/\/$/, "")}/rest/v1/listings?${params.toString()}`;
+    // Build URL manually to avoid URLSearchParams encoding issues with commas
+    const base = `${SUPABASE_URL.replace(/\/$/, "")}/rest/v1/listings`;
+    const cols = "id,title,price,location,category,bedrooms,bathrooms,images,neighborhood,currency,listing_type,user_id,owner_id,created_at,updated_at,status";
+    // Use raw commas — PostgREST requires unencoded commas in select/order
+    const restUrl = `${base}?select=${encodeURIComponent(cols)}&is_active=eq.true&status=eq.active&order=updated_at.desc.nullslast,created_at.desc.nullslast&limit=50`;
     const res = await fetch(restUrl, {
       headers: {
         "apikey": anonKey,
@@ -1561,14 +1557,13 @@ Deno.serve(async (req) => {
     const userId = extractUserId(req.headers.get("authorization"));
     const lastUserMessage = [...messages].reverse().find(m => m.role === "user")?.content || "";
 
-    // ─── DEBUG: /debug returns diagnostic info ─────────────────────────────┐
-    if (lastUserMessage.trim().toLowerCase() === "/debug") {                │
-      const debugInfo = await getDebugInfo(req);                             │
+    // Debug: "/debug" returns diagnostic info instead of AI response
+    if (lastUserMessage.trim().toLowerCase() === "/debug") {
+      const debugInfo = await getDebugInfo(req);
       return new Response(JSON.stringify({ choices: [{ message: { content: debugInfo } }] }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
-    // ───────────────────────────────────────────────────────────────────────┘
 
     // Parallel context gathering — ALL at once
     const isProfileQuery = detectProfileIntent(lastUserMessage);
