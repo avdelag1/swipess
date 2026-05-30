@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   X, Mic, Sparkles, Plus, CornerDownLeft,
   Trash2, Menu, Zap, Flame, Sun, Crown, Moon, ArrowUp,
-  Copy, Languages, Timer, ArrowRight, RefreshCw, Volume2, VolumeX, Share2
+  Check, Copy, Languages, Timer, ArrowRight, RefreshCw, Volume2, VolumeX, Share2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -150,20 +150,9 @@ const ConciergePrivacyPortal = memo(({ onAccept, isSwipess }: { onAccept: () => 
 ));
 ConciergePrivacyPortal.displayName = 'ConciergePrivacyPortal';
 
-const POPULAR_TOPICS: { label: string; prompt: string; icon: any; tone: string }[] = [
-  { label: 'Best Apartments', prompt: 'Send me your best apartments', icon: Crown, tone: 'from-orange-400 to-pink-500' },
-  { label: 'Houses', prompt: 'Show me available houses', icon: Sun, tone: 'from-rose-400 to-fuchsia-500' },
-  { label: 'Studios', prompt: 'Find studios for rent', icon: Flame, tone: 'from-amber-400 to-orange-500' },
-  { label: 'All Properties', prompt: 'Show me all property listings', icon: Zap, tone: 'from-violet-400 to-indigo-500' },
-  { label: 'Workers & Services', prompt: 'Find me workers for cleaning and maintenance', icon: Sparkles, tone: 'from-cyan-400 to-sky-500' },
-  { label: 'Motorcycles', prompt: 'Find motorcycles for sale', icon: Moon, tone: 'from-emerald-400 to-teal-500' },
-  { label: 'Bicycles', prompt: 'Show me bicycles available', icon: Flame, tone: 'from-amber-400 to-orange-500' },
-  { label: 'Under $500', prompt: 'Send listings under 500', icon: Zap, tone: 'from-purple-400 to-pink-500' },
-  { label: 'Top Listings', prompt: 'What are your best listings right now?', icon: Crown, tone: 'from-pink-400 to-rose-500' },
-  { label: 'Roommates', prompt: 'Find me people looking for roommates', icon: Sun, tone: 'from-teal-400 to-emerald-500' },
-];
+// Quick questions removed — user will define better ones later
 
-const WelcomeState = memo(({ isSwipess, isLight, onPick }: { isSwipess: boolean; isLight: boolean; onPick: (prompt: string) => void }) => (
+const WelcomeState = memo(({ isSwipess, isLight }: { isSwipess: boolean; isLight: boolean; onPick: (prompt: string) => void }) => (
   <div className="h-full flex flex-col items-start justify-start gap-7 max-w-2xl mx-auto w-full">
     <div className="space-y-2 w-full">
       <h2 className={cn("text-3xl font-black tracking-tight", isLight && !isSwipess ? "text-foreground" : "text-white")}>
@@ -172,28 +161,6 @@ const WelcomeState = memo(({ isSwipess, isLight, onPick }: { isSwipess: boolean;
       <p className={cn("text-2xl font-bold leading-tight", isLight && !isSwipess ? "text-foreground/80" : "text-white/80")}>
         What can I help you with today?
       </p>
-    </div>
-    <div className="w-full">
-      <p className={cn("text-[11px] font-black uppercase tracking-[0.25em] mb-3", isLight && !isSwipess ? "text-muted-foreground" : "text-white/50")}>
-        Popular Topics
-      </p>
-      <div className="grid grid-cols-2 gap-3">
-        {POPULAR_TOPICS.map((t) => (
-          <button
-            key={t.label}
-            onClick={() => onPick(t.prompt)}
-            className={cn(
-              "flex flex-col items-center justify-center gap-2 px-4 py-5 rounded-2xl border transition-all active:scale-[0.96] hover:shadow-[0_18px_40px_rgba(0,0,0,0.12)]",
-              isLight && !isSwipess ? "bg-white border-slate-200 shadow-sm" : "bg-white/10 border-white/20"
-            )}
-          >
-            <div className={cn("w-10 h-10 rounded-xl bg-gradient-to-br flex items-center justify-center shadow-md", t.tone)}>
-              <t.icon className="w-5 h-5 text-white" strokeWidth={2.4} />
-            </div>
-            <span className={cn("text-[13px] font-bold", isLight && !isSwipess ? "text-foreground" : "text-white")}>{t.label}</span>
-          </button>
-        ))}
-      </div>
     </div>
   </div>
 ));
@@ -208,6 +175,7 @@ const MessageBubble = memo(({ message, isUser, isSwipess, isLight, onCopy, onDel
   onSpeak?: (id: string, text: string) => void, speakingMsgId: string | null, isSpeaking: boolean
 }) => {
   const [showActions, setShowActions] = useState(false);
+  const [copied, setCopied] = useState(false);
   const { cleanContent, navPaths, draftActions, filterAction, listings, profiles } = useMemo(
     () => isUser ? { cleanContent: message.content, navPaths: [], draftActions: [], filterAction: null, listings: [], profiles: [] } : parseNavActions(message.content),
     [message.content, isUser]
@@ -437,8 +405,8 @@ const MessageBubble = memo(({ message, isUser, isSwipess, isLight, onCopy, onDel
             exit={{ opacity: 0, y: -5 }}
             className={cn("flex items-center gap-1.5 mt-1 px-1", isUser ? "flex-row-reverse" : "flex-row")}
           >
-            <button onClick={(e) => { e.stopPropagation(); onCopy(); }} className={cn("p-2 rounded-xl transition-all", isLight && !isSwipess ? "bg-slate-100 text-slate-900" : "bg-white/15 text-white")}>
-              <Copy className="w-3.5 h-3.5" />
+            <button onClick={(e) => { e.stopPropagation(); onCopy(); setCopied(true); setTimeout(() => setCopied(false), 2000); }} className={cn("p-2 rounded-xl transition-all", isLight && !isSwipess ? "bg-slate-100 text-slate-900" : "bg-white/15 text-white")}>
+              {copied ? <Check className="w-3.5 h-3.5 text-green-400" /> : <Copy className="w-3.5 h-3.5" />}
             </button>
             {!isUser && onTranslate && (
               <button onClick={(e) => { e.stopPropagation(); onTranslate('Spanish'); }} className={cn("p-2 rounded-xl transition-all", isLight && !isSwipess ? "bg-slate-100 text-slate-900" : "bg-white/15 text-white")}>
