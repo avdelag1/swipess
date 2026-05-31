@@ -30,6 +30,7 @@ export function VapIdCardModal({ isOpen, onClose, role = 'client' }: VapIdProps)
     } catch { return 0; }
   });
   const [editOpen, setEditOpen] = useState(false);
+  const [vapRefreshKey, setVapRefreshKey] = useState(0);
   const theme = CARD_THEMES[themeIndex];
   const isOwner = role === 'owner';
 
@@ -42,8 +43,8 @@ export function VapIdCardModal({ isOpen, onClose, role = 'client' }: VapIdProps)
   const profileTable = 'client_profiles';
   const profileQueryKey = 'vap-id-client-profile';
 
-  const { data: extendedProfile, refetch: refetchExtendedProfile } = useQuery({
-    queryKey: [profileQueryKey, user?.id],
+  const { data: extendedProfile } = useQuery({
+    queryKey: [profileQueryKey, user?.id, vapRefreshKey],
     enabled: !!user?.id && isOpen,
     staleTime: 0,
     refetchOnMount: 'always',
@@ -63,13 +64,12 @@ export function VapIdCardModal({ isOpen, onClose, role = 'client' }: VapIdProps)
   const prevEditOpen = useRef(false);
   useEffect(() => {
     if (prevEditOpen.current && !editOpen) {
-      // Immediately refetch and also invalidate so any other consumers update
-      refetchExtendedProfile();
-      queryClient.invalidateQueries({ queryKey: [profileQueryKey, user?.id] });
+      // Bump key to force a fresh network fetch, bypassing any cached/stale data
+      setVapRefreshKey(k => k + 1);
       queryClient.invalidateQueries({ queryKey: ['client-profile-own'] });
     }
     prevEditOpen.current = editOpen;
-  }, [editOpen, refetchExtendedProfile, queryClient, profileQueryKey, user?.id]);
+  }, [editOpen, queryClient]);
 
   // REALTIME: live-refresh the card whenever profile data changes
   useEffect(() => {
@@ -237,7 +237,7 @@ export function VapIdCardModal({ isOpen, onClose, role = 'client' }: VapIdProps)
         </motion.div>
       )}
     </AnimatePresence>
-    <VapIdEditModal isOpen={editOpen} onClose={() => setEditOpen(false)} onSaved={() => { refetchExtendedProfile(); }} role={role} />
+    <VapIdEditModal isOpen={editOpen} onClose={() => setEditOpen(false)} role={role} />
     </>,
     document.body
   );
