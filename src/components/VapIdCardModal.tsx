@@ -10,6 +10,7 @@ import { CARD_THEMES } from './vap-id/cardThemes';
 import { VapIdEditModal } from './VapIdEditModal';
 import { useEffect } from 'react';
 import { cn } from '@/lib/utils';
+import { useVapIdCard } from '@/hooks/useVapIdCard';
 
 export interface VapIdProps {
   isOpen: boolean;
@@ -42,7 +43,11 @@ export function VapIdCardModal({ isOpen, onClose, role = 'client' }: VapIdProps)
   const profileTable = 'client_profiles';
   const profileQueryKey = 'vap-id-client-profile';
 
-  const { data: extendedProfile, refetch: refetchExtendedProfile } = useQuery({
+  // Primary source: dedicated vap_id_cards table (persists reliably)
+  const { card: vapCard, refetch: refetchVapCard } = useVapIdCard();
+
+  // Fallback: legacy client_profiles query (for migration period)
+  const { data: extendedProfile } = useQuery({
     queryKey: [profileQueryKey, user?.id],
     enabled: !!user?.id && isOpen,
     staleTime: 0,
@@ -59,16 +64,25 @@ export function VapIdCardModal({ isOpen, onClose, role = 'client' }: VapIdProps)
     },
   });
 
-  // Force-refetch when edit modal closes (after a save)
-  const prevEditOpen = useRef(false);
-  useEffect(() => {
-    if (prevEditOpen.current && !editOpen) {
-      refetchExtendedProfile();
-      queryClient.invalidateQueries({ queryKey: [profileQueryKey, user?.id] });
-      queryClient.invalidateQueries({ queryKey: ['client-profile-own'] });
-    }
-    prevEditOpen.current = editOpen;
-  }, [editOpen, refetchExtendedProfile, queryClient, profileQueryKey, user?.id]);
+  // Merge: vap_id_cards is primary, fall back to client_profiles
+  const ext = useMemo(() => {
+    if (vapCard) return vapCard;
+    const legacy = extendedProfile as any;
+    if (!legacy) return null;
+    return {
+      name: legacy.name,
+      age: legacy.age,
+      country: legacy.country,
+      bio: legacy.vap_bio || legacy.bio,
+      occupation: legacy.vap_occupation || legacy.occupation,
+      city: legacy.vap_city || legacy.city,
+      nationality: legacy.vap_nationality,
+      years_in_city: legacy.vap_years_in_city,
+      languages: legacy.vap_languages || legacy.languages,
+      interests: legacy.vap_interests || legacy.interests,
+      avatar_url: legacy.vap_avatar || (Array.isArray(legacy.profile_images) ? legacy.profile_images[0] : null),
+    };
+  }, [vapCard, extendedProfile]);
 
   // REALTIME: live-refresh the card whenever profile data changes
   useEffect(() => {
@@ -85,30 +99,23 @@ export function VapIdCardModal({ isOpen, onClose, role = 'client' }: VapIdProps)
     };
   }, [user?.id, isOpen, queryClient, profileTable, profileQueryKey]);
 
-  const ext = extendedProfile as any;
-
   const name = ext?.name || user?.email?.split('@')[0] || 'Resident';
-  const city = ext?.vap_city || ext?.city || '';
+  const city = ext?.city || '';
   const country = ext?.country || '';
-  const bio = ext?.vap_bio || ext?.bio || '';
-  const occupation = ext?.vap_occupation || ext?.occupation || '';
-  const avatarUrl = ext?.vap_avatar || (Array.isArray(ext?.profile_images) && ext.profile_images.length > 0 ? ext.profile_images[0] : '');
+  const bio = ext?.bio || '';
+  const occupation = ext?.occupation || '';
+  const avatarUrl = ext?.avatar_url || '';
   const spokenLanguages = useMemo(() => {
-    // vap_languages is the correct column; fall back to the generic languages field
-    const raw = Array.isArray(ext?.vap_languages) && ext.vap_languages.length > 0
-      ? ext.vap_languages
-      : Array.isArray(ext?.languages) && ext.languages.length > 0
-        ? ext.languages
-        : [];
+    const raw = Array.isArray(ext?.languages) && ext.languages.length > 0
+      ? ext.languages
+      : [];
     return raw.filter((v): v is string => typeof v === 'string');
   }, [ext]);
 
   const allTags = useMemo(() => {
     const tags: string[] = [];
     const add = (arr: any) => { if (Array.isArray(arr)) tags.push(...arr.filter(v => typeof v === 'string')); };
-    add(ext?.vap_interests);
     add(ext?.interests);
-    add(ext?.personality_traits);
     return [...new Set(tags)].slice(0, 8);
   }, [ext]);
 
@@ -236,7 +243,7 @@ export function VapIdCardModal({ isOpen, onClose, role = 'client' }: VapIdProps)
         </motion.div>
       )}
     </AnimatePresence>
-    <VapIdEditModal isOpen={editOpen} onClose={() => setEditOpen(false)} onSaved={() => { refetchExtendedProfile(); }} role={role} />
+    <VapIdEditModal isOpen={editOpen} onClose={() => setEditOpen(false)} onSaved={() => { refetchVapCard(); }} role={role} />
     </>,
     document.body
   );

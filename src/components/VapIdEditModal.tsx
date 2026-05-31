@@ -13,6 +13,7 @@ import { toast } from 'sonner';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { compressImage, PROFILE_COMPRESSION } from '@/utils/imageCompression';
+import { useVapIdCard } from '@/hooks/useVapIdCard';
 
 interface Props {
   isOpen: boolean;
@@ -143,6 +144,7 @@ export function VapIdEditModal({ isOpen, onClose, onSaved, role = 'client' }: Pr
   }, [user?.id, queryClient]);
 
   const saveClient = useSaveClientProfile();
+  const { save: saveVapCard } = useVapIdCard();
 
   const doSave = useCallback(async () => {
     if (!user?.id) { toast.error('Not signed in'); return false; }
@@ -153,19 +155,38 @@ export function VapIdEditModal({ isOpen, onClose, onSaved, role = 'client' }: Pr
       const yearsNum = yearsInCity.trim() === '' ? null : Number(yearsInCity);
       const finalProfileImages = profileImages.length > 0 ? profileImages : null;
 
-      await saveClient.mutateAsync({
-        name: displayName.trim() || null,
-        age: age.trim() !== '' ? Number(age) : null,
-        country: country.trim() || null,
-        vap_bio: bio.trim() || null,
-        vap_occupation: occupation.trim() || null,
-        vap_city: city.trim() || null,
-        vap_nationality: nationality.trim() || null,
-        vap_years_in_city: Number.isFinite(yearsNum as number) ? yearsNum : null,
-        vap_languages: langsArr.length > 0 ? langsArr : null,
-        vap_interests: intArr.length > 0 ? intArr : null,
-        vap_avatar: finalProfileImages?.[0] || null, // VAP avatar is specifically saved
-      });
+      // Save to both tables for a clean migration:
+      await Promise.all([
+        // Legacy client_profiles (vap_* columns)
+        saveClient.mutateAsync({
+          name: displayName.trim() || null,
+          age: age.trim() !== '' ? Number(age) : null,
+          country: country.trim() || null,
+          vap_bio: bio.trim() || null,
+          vap_occupation: occupation.trim() || null,
+          vap_city: city.trim() || null,
+          vap_nationality: nationality.trim() || null,
+          vap_years_in_city: Number.isFinite(yearsNum as number) ? yearsNum : null,
+          vap_languages: langsArr.length > 0 ? langsArr : null,
+          vap_interests: intArr.length > 0 ? intArr : null,
+          vap_avatar: finalProfileImages?.[0] || null,
+        }),
+        // Dedicated vap_id_cards table (clean, independent storage)
+        saveVapCard({
+          user_id: user.id,
+          name: displayName.trim() || null,
+          age: age.trim() !== '' ? Number(age) : null,
+          country: country.trim() || null,
+          bio: bio.trim() || null,
+          occupation: occupation.trim() || null,
+          city: city.trim() || null,
+          nationality: nationality.trim() || null,
+          years_in_city: Number.isFinite(yearsNum as number) ? yearsNum : null,
+          languages: langsArr.length > 0 ? langsArr : null,
+          interests: intArr.length > 0 ? intArr : null,
+          avatar_url: finalProfileImages?.[0] || null,
+        }),
+      ]);
 
       queryClient.invalidateQueries({ queryKey: ['vap-id-client-profile', user.id] });
       return true;
@@ -176,7 +197,7 @@ export function VapIdEditModal({ isOpen, onClose, onSaved, role = 'client' }: Pr
     } finally {
       setSaving(false);
     }
-  }, [user?.id, bio, occupation, city, country, nationality, yearsInCity, languages, interests, displayName, age, profileImages, saveClient]);
+  }, [user?.id, bio, occupation, city, country, nationality, yearsInCity, languages, interests, displayName, age, profileImages, saveClient, saveVapCard]);
 
   const handleClose = useCallback(() => {
     onClose();
