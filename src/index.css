@@ -411,8 +411,8 @@ html {
   -webkit-text-size-adjust: 100%;
   -webkit-tap-highlight-color: transparent;
   width: 100%;
-  /* CRITICAL: Allow panning for native feel */
-  touch-action: pan-y pinch-zoom; /* html root: vertical scroll + pinch always works */
+  /* CRITICAL: Allow panning for native feel — pinch-zoom disabled for swipe card integrity */
+  touch-action: pan-y; /* html root: vertical scroll always works */
   -webkit-overflow-scrolling: touch;
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);

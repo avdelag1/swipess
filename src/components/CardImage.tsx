@@ -166,7 +166,10 @@ const CardImage = memo(({
             aria-hidden="true"
             loading="eager"
             decoding="async"
+            draggable={false}
             className="absolute inset-0 w-full h-full object-cover filter blur-[20px] scale-110 opacity-70 mix-blend-overlay transition-opacity duration-300"
+            style={{ touchAction: 'none', pointerEvents: 'none' }}
+            onContextMenu={e => e.preventDefault()}
           />
         )}
       </div>

@@ -116,6 +116,7 @@ export const BottomNavigation = memo(({
   // Detect narrow screens for icon-only compact mode
   const [isNarrow, setIsNarrow] = useState(false);
   const [isTablet, setIsTablet] = useState(false);
+  const [poppingId, setPoppingId] = useState<string | null>(null);
   useEffect(() => {
     const check = () => {
       setIsNarrow(window.innerWidth < 360);
@@ -333,6 +334,7 @@ export const BottomNavigation = memo(({
                 data-instant-feedback
                 onPointerDown={(e) => {
                   if (item.path) prefetchRoute(item.path);
+                  setPoppingId(item.id);
                   isDraggingRef.current = false;
                   touchState.current = { x: e.clientX, y: e.clientY };
                 }}
@@ -340,8 +342,13 @@ export const BottomNavigation = memo(({
                 onPointerUp={(e) => {
                   handleNavClick(item, e);
                   handlePointerUp();
+                  setPoppingId(null);
                 }}
-                onPointerCancel={handlePointerUp}
+                onPointerCancel={() => {
+                  handlePointerUp();
+                  setPoppingId(null);
+                }}
+                onPointerLeave={() => setPoppingId(null)}
                 onKeyDown={(e) => handleNavKeyDown(e, item)}
 
                 aria-label={item.label}
@@ -372,8 +379,10 @@ export const BottomNavigation = memo(({
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    transform: active ? 'scale(1.06)' : 'scale(1)',
-                    transition: 'transform 180ms cubic-bezier(0.32, 0.72, 0, 1)',
+                    transform: poppingId === item.id ? 'scale(1.4)' : (active ? 'scale(1.06)' : 'scale(1)'),
+                    transition: poppingId === item.id
+                      ? 'transform 80ms cubic-bezier(0.1, 0.7, 0.3, 1)'
+                      : 'transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1)',
                   }}
                 >
 

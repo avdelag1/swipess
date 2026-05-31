@@ -83,7 +83,7 @@ export function useMagnifier(config: MagnifierConfig = {}): UseMagnifierReturn {
 
   const findImage = useCallback(() => {
     if (!containerRef.current) return null;
-    const img = containerRef.current.querySelector<HTMLImageElement>('img[data-swipe-card-image="true"], img.swipe-card-image, img');
+    const img = containerRef.current.querySelector<HTMLImageElement>('img[data-swipe-card-image="true"]');
     if (img && img.complete) {
       img.draggable = false;
       img.style.pointerEvents = 'none';
