@@ -30,7 +30,6 @@ export function VapIdCardModal({ isOpen, onClose, role = 'client' }: VapIdProps)
     } catch { return 0; }
   });
   const [editOpen, setEditOpen] = useState(false);
-  const [vapRefreshKey, setVapRefreshKey] = useState(0);
   const theme = CARD_THEMES[themeIndex];
   const isOwner = role === 'owner';
 
@@ -43,8 +42,8 @@ export function VapIdCardModal({ isOpen, onClose, role = 'client' }: VapIdProps)
   const profileTable = 'client_profiles';
   const profileQueryKey = 'vap-id-client-profile';
 
-  const { data: extendedProfile } = useQuery({
-    queryKey: [profileQueryKey, user?.id, vapRefreshKey],
+  const { data: extendedProfile, refetch: refetchExtendedProfile } = useQuery({
+    queryKey: [profileQueryKey, user?.id],
     enabled: !!user?.id && isOpen,
     staleTime: 0,
     refetchOnMount: 'always',
@@ -64,12 +63,12 @@ export function VapIdCardModal({ isOpen, onClose, role = 'client' }: VapIdProps)
   const prevEditOpen = useRef(false);
   useEffect(() => {
     if (prevEditOpen.current && !editOpen) {
-      // Bump key to force a fresh network fetch, bypassing any cached/stale data
-      setVapRefreshKey(k => k + 1);
+      refetchExtendedProfile();
+      queryClient.invalidateQueries({ queryKey: [profileQueryKey, user?.id] });
       queryClient.invalidateQueries({ queryKey: ['client-profile-own'] });
     }
     prevEditOpen.current = editOpen;
-  }, [editOpen, queryClient]);
+  }, [editOpen, refetchExtendedProfile, queryClient, profileQueryKey, user?.id]);
 
   // REALTIME: live-refresh the card whenever profile data changes
   useEffect(() => {
@@ -237,7 +236,7 @@ export function VapIdCardModal({ isOpen, onClose, role = 'client' }: VapIdProps)
         </motion.div>
       )}
     </AnimatePresence>
-    <VapIdEditModal isOpen={editOpen} onClose={() => setEditOpen(false)} role={role} />
+    <VapIdEditModal isOpen={editOpen} onClose={() => setEditOpen(false)} onSaved={() => { refetchExtendedProfile(); }} role={role} />
     </>,
     document.body
   );
