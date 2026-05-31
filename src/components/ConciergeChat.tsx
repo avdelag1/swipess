@@ -18,6 +18,7 @@ import { useAppNavigate } from '@/hooks/useAppNavigate';
 import useAppTheme from '@/hooks/useAppTheme';
 import { PERSONA_VOICE_PROFILES, useSpeechSynthesis } from '@/hooks/useSpeechSynthesis';
 import { toast } from 'sonner';
+import { ChatListingCard } from '@/components/ChatListingCard';
 import { useFilterStore } from '@/state/filterStore';
 import type { QuickFilterCategory } from '@/types/filters';
 
@@ -439,82 +440,33 @@ const MessageBubble = memo(({ message, isUser, isSwipess, isLight, onCopy, onDel
       {!isUser && listings.length > 0 && (
         <div className="w-full mt-2 grid grid-cols-1 sm:grid-cols-2 gap-3">
           {listings.map((l) => (
-            <div
+            <ChatListingCard
               key={l.id}
-              className={cn(
-                "group relative overflow-hidden rounded-2xl border text-left transition-all hover:shadow-[0_18px_40px_rgba(0,0,0,0.18)]",
-                isSwipess ? "bg-white/[0.04] border-white/10" : "bg-card border-border/60"
-              )}
-            >
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  const link = l.link || l.url || `/listing/${l.id}`;
-                  onNavigate?.(link);
-                }}
-                className="w-full text-left active:scale-[0.98] transition-transform"
-              >
-                {l.image && (
-                  <div className="aspect-[4/3] w-full overflow-hidden bg-muted relative">
-                    <img src={l.image} alt={l.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
-                    <div className="absolute bottom-2 left-3 right-3 flex items-end justify-between">
-                      <p className="text-white font-black text-lg leading-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)] line-clamp-1">{l.title}</p>
-                      <p className="text-white font-black text-base drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)] shrink-0 ml-2">
-                        {l.currency === "MXN" ? "MXN$" : "$"}{Number(l.price).toLocaleString()}
-                      </p>
-                    </div>
-                  </div>
-                )}
-                <div className="p-3 space-y-2">
-                  <div className="flex items-center gap-2 text-[11px] font-medium opacity-70">
-                    {[l.bedrooms ? `${l.bedrooms} bd` : null, l.bathrooms ? `${l.bathrooms} ba` : null, l.city].filter(Boolean).join(" · ")}
-                  </div>
-                  {l.description && (
-                    <p className="text-[12px] leading-relaxed opacity-60 line-clamp-2">{l.description}</p>
-                  )}
-                  <div className="flex gap-2 pt-1">
-                    <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border opacity-60">
-                      {l.listing_type || 'property'}
-                    </span>
-                  </div>
-                </div>
-              </button>
-              <div className="px-3 pb-3">
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    const link = l.link || l.url || `/listing/${l.id}`;
-                    onNavigate?.(link);
-                  }}
-                  className="w-full h-10 rounded-xl font-bold text-xs uppercase tracking-wider transition-all active:scale-95 shadow-lg"
-                  style={{ background: 'linear-gradient(135deg, #EB4898, #FF4D00)', color: '#FFF' }}
-                >
-                  Contact
-                </button>
-              </div>
-              <button
-                type="button"
-                aria-label="Share listing"
-                onClick={async (e) => {
-                  e.stopPropagation();
-                  const url = l.share_url || `${window.location.origin}/listing/${l.id}`;
-                  try {
-                    if (navigator.share) {
-                      await navigator.share({ title: l.title, url });
-                    } else {
-                      await navigator.clipboard.writeText(url);
-                      toast.success('Link copied');
-                    }
-                  } catch { /* user cancelled */ }
-                }}
-                className="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/55 backdrop-blur-md text-white flex items-center justify-center hover:bg-black/75 active:scale-90 transition-all"
-              >
-                <Share2 className="w-3.5 h-3.5" />
-              </button>
-            </div>
+              listing={l}
+              isSwipess={isSwipess}
+              onNavigate={(path) => onNavigate?.(path)}
+              onMessage={() => {
+                const link = l.link || l.url || `/listing/${l.id}`;
+                onNavigate?.(link);
+              }}
+              onInsights={() => {
+                const link = l.link || l.url || `/listing/${l.id}`;
+                onNavigate?.(link);
+              }}
+              onSoon={() => toast.success('Saved for later')}
+              onShare={async () => {
+                const url = l.share_url || `${window.location.origin}/listing/${l.id}`;
+                try {
+                  if (navigator.share) {
+                    await navigator.share({ title: l.title, url });
+                  } else {
+                    await navigator.clipboard.writeText(url);
+                    toast.success('Link copied');
+                  }
+                } catch { /* user cancelled */ }
+              }}
+              onReport={() => toast.success('Reported')}
+            />
           ))}
         </div>
       )}
