@@ -102,6 +102,7 @@ const PaymentCancel = lazyWithRetry(() => import("./pages/PaymentCancel"));
 const PublicProfilePreview = lazyWithRetry(() => import("./pages/PublicProfilePreview"));
 const PublicListingPreview = lazyWithRetry(() => import("./pages/PublicListingPreview"));
 const ListingDetailPage = lazyWithRetry(() => import("./pages/ListingDetailPage"));
+const ProfileDetailPage = lazyWithRetry(() => import("./pages/ProfileDetailPage"));
 const VapValidate = lazyWithRetry(() => import("./pages/VapValidate"));
 
 // UI HELPERS
@@ -122,7 +123,7 @@ const DashboardRedirect = () => {
 const ShareRedirect = ({ kind }: { kind: 'listing' | 'profile' | 'event' }) => {
   const { id } = useParams<{ id: string }>();
   const { search } = useLocation();
-  const target = kind === 'event' ? `/explore/events/${id || ''}` : kind === 'listing' ? `/preview/listing/${id || ''}` : `/${kind}/${id || ''}`;
+  const target = kind === 'event' ? `/explore/events/${id || ''}` : kind === 'listing' ? `/preview/listing/${id || ''}` : `/preview/profile/${id || ''}`;
   return <Navigate to={`${target}${search}`} replace />;
 };
 
@@ -230,7 +231,8 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
             <Route path="/about" element={<ChunkErrorBoundary><Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><AboutPage /></AnimatedPage></Suspense></ChunkErrorBoundary>} />
             <Route path="/faq/client" element={<ChunkErrorBoundary><Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><FAQClientPage /></AnimatedPage></Suspense></ChunkErrorBoundary>} />
             <Route path="/faq/owner" element={<ChunkErrorBoundary><Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><FAQOwnerPage /></AnimatedPage></Suspense></ChunkErrorBoundary>} />
-            <Route path="/profile/:id" element={<ChunkErrorBoundary><Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><PublicProfilePreview /></AnimatedPage></Suspense></ChunkErrorBoundary>} />
+            <Route path="/profile/:id" element={<ChunkErrorBoundary><Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><ProfileDetailPage /></AnimatedPage></Suspense></ChunkErrorBoundary>} />
+            <Route path="/preview/profile/:id" element={<ChunkErrorBoundary><Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><PublicProfilePreview /></AnimatedPage></Suspense></ChunkErrorBoundary>} />
             <Route path="/listing/:id" element={<ChunkErrorBoundary><Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><ListingDetailPage /></AnimatedPage></Suspense></ChunkErrorBoundary>} />
             <Route path="/preview/listing/:id" element={<ChunkErrorBoundary><Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><PublicListingPreview /></AnimatedPage></Suspense></ChunkErrorBoundary>} />
             <Route path="/s/listing/:id" element={<ShareRedirect kind="listing" />} />

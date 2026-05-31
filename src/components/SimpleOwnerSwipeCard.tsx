@@ -158,6 +158,7 @@ interface SimpleOwnerSwipeCardProps {
   fullScreen?: boolean;
   externalX?: MotionValue<number>;
   externalY?: MotionValue<number>;
+  disableDrag?: boolean;
 }
 
 const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, SimpleOwnerSwipeCardProps>(({
@@ -175,6 +176,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   onShare,
   onMessage,
   onSoon,
+  disableDrag,
 }, ref) => {
   const isDragging = useRef(false);
   const hasExited = useRef(false);
@@ -389,10 +391,10 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   return (
     <div className={cn("absolute inset-0 flex flex-col", isTop ? "pointer-events-auto" : "pointer-events-none")}>
       <motion.div
-        drag={isTop ? true : false}
-        dragControls={isTop ? dragControls : undefined}
-        dragListener={isTop ? false : undefined}
-        dragDirectionLock={isTop ? true : undefined}
+        drag={disableDrag ? false : (isTop ? true : false)}
+        dragControls={disableDrag ? undefined : (isTop ? dragControls : undefined)}
+        dragListener={disableDrag ? false : (isTop ? false : undefined)}
+        dragDirectionLock={disableDrag ? false : (isTop ? true : undefined)}
         dragMomentum={false}
         dragConstraints={{ left: -9999, right: 9999, top: -9999, bottom: 9999 }}
         dragElastic={0.02}
@@ -406,7 +408,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
         onPointerCancel={handleUnifiedPointerUp}
         initial={{ scale: 0.97, opacity: 0.85 }}
         animate={{ scale: 1, opacity: 1, transition: { type: 'spring', stiffness: 400, damping: 28, mass: 0.6 } }}
-        className={cn("flex-1 select-none touch-none relative w-full h-full overflow-hidden border-none gpu-ultra", isTop ? "cursor-grab active:cursor-grabbing" : "")}
+        className={cn("flex-1 select-none touch-none relative w-full h-full overflow-hidden border-none gpu-ultra", isTop && !disableDrag ? "cursor-grab active:cursor-grabbing" : "")}
         style={{
           x, y, opacity: cardOpacity, willChange: 'transform, opacity',
           transform: 'translate3d(0,0,0)', backfaceVisibility: 'hidden',

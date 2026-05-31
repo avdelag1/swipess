@@ -19,6 +19,7 @@ import useAppTheme from '@/hooks/useAppTheme';
 import { PERSONA_VOICE_PROFILES, useSpeechSynthesis } from '@/hooks/useSpeechSynthesis';
 import { toast } from 'sonner';
 import { ChatListingCard } from '@/components/ChatListingCard';
+import { ChatProfileCard } from '@/components/ChatProfileCard';
 import { useFilterStore } from '@/state/filterStore';
 import type { QuickFilterCategory } from '@/types/filters';
 
@@ -453,68 +454,12 @@ const MessageBubble = memo(({ message, isUser, isSwipess, isLight, onCopy, onDel
       {!isUser && profiles.length > 0 && (
         <div className="w-full mt-2 grid grid-cols-1 sm:grid-cols-2 gap-3">
           {profiles.map((p) => (
-            <div
+            <ChatProfileCard
               key={p.id}
-              className={cn(
-                "group relative overflow-hidden rounded-2xl border text-left transition-all hover:shadow-[0_18px_40px_rgba(0,0,0,0.18)]",
-                isSwipess ? "bg-white/[0.04] border-white/10" : "bg-card border-border/60"
-              )}
-            >
-              <button
-                type="button"
-                onClick={(e) => { e.stopPropagation(); onNavigate?.(p.link || p.url || `/profile/${p.id}`); }}
-                className="w-full text-left active:scale-[0.98] transition-transform"
-              >
-                {p.image && (
-                  <div className="aspect-[16/10] w-full overflow-hidden bg-muted">
-                    <img src={p.image} alt={p.name} loading="lazy" className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500" />
-                  </div>
-                )}
-                <div className="p-3 space-y-1">
-                  <div className="flex items-center justify-between">
-                    <p className={cn("text-sm font-bold leading-tight", isSwipess ? "text-white" : "text-foreground")}>
-                      {p.name?.split(' ')[0] || "User"}{p.age ? `, ${p.age}` : ''}
-                    </p>
-                    {p.nationality && (
-                      <span className="text-[10px] opacity-40 font-bold uppercase">{p.nationality}</span>
-                    )}
-                  </div>
-                  {p.location && (
-                    <p className={cn("text-[11px] font-medium opacity-60 line-clamp-1", isSwipess ? "text-white/70" : "text-muted-foreground")}>
-                      {p.location}
-                    </p>
-                  )}
-                  {p.intentions && Array.isArray(p.intentions) && p.intentions.length > 0 && (
-                    <div className="flex flex-wrap gap-1 mt-1">
-                      {p.intentions.slice(0, 2).map((it: string) => (
-                        <span key={it} className="text-[9px] px-1.5 py-0.5 rounded-md bg-primary/10 text-primary font-black uppercase tracking-tighter">
-                          {it}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </button>
-              <button
-                type="button"
-                aria-label="Share profile"
-                onClick={async (e) => {
-                  e.stopPropagation();
-                  const url = `${window.location.origin}/profile/${p.id}`;
-                  try {
-                    if (navigator.share) {
-                      await navigator.share({ title: p.name, url });
-                    } else {
-                      await navigator.clipboard.writeText(url);
-                      toast.success('Link copied');
-                    }
-                  } catch { /* user cancelled */ }
-                }}
-                className="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/55 backdrop-blur-md text-white flex items-center justify-center hover:bg-black/75 active:scale-90 transition-all"
-              >
-                <Share2 className="w-3.5 h-3.5" />
-              </button>
-            </div>
+              profile={p}
+              isSwipess={isSwipess}
+              onNavigate={(path) => onNavigate?.(path)}
+            />
           ))}
         </div>
       )}
