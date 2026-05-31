@@ -368,6 +368,17 @@ const MessageBubble = memo(({ message, isUser, isSwipess, isLight, onCopy, onDel
     () => isUser ? { cleanContent: message.content, navPaths: [], draftActions: [], filterAction: null, listings: [], profiles: [] } : parseNavActions(message.content),
     [message.content, isUser]
   );
+  // Strip share URLs and incomplete LISTINGS/PROFILES tokens from cleanContent shown as text
+  const displayContent = useMemo(() => {
+    return cleanContent
+      .replace(/https?:\/\/swipess\.com\/share\/[^\s)]*/g, '')
+      .replace(/\[LISTINGS:[^\]]*\]?/g, '')
+      .replace(/\[PROFILES:[^\]]*\]?/g, '')
+      .replace(/\[DRAFT:[^\]]*\]?/g, '')
+      .replace(/\[FILTER:[^\]]*\]?/g, '')
+      .replace(/\[NAV:[^\]]*\]?/g, '')
+      .trim();
+  }, [cleanContent]);
 
   useEffect(() => {
     if (!isUser && filterAction && onFilter) {
@@ -407,7 +418,7 @@ const MessageBubble = memo(({ message, isUser, isSwipess, isLight, onCopy, onDel
             "prose-hr:border-border/60",
             isSwipess ? "prose-invert" : ""
           )}>
-            <ReactMarkdown>{cleanContent}</ReactMarkdown>
+            <ReactMarkdown>{displayContent}</ReactMarkdown>
           </div>
         )}
         {!isUser && onSpeak && (
@@ -445,21 +456,45 @@ const MessageBubble = memo(({ message, isUser, isSwipess, isLight, onCopy, onDel
                 className="w-full text-left active:scale-[0.98] transition-transform"
               >
                 {l.image && (
-                  <div className="aspect-[16/10] w-full overflow-hidden bg-muted">
+                  <div className="aspect-[4/3] w-full overflow-hidden bg-muted relative">
                     <img src={l.image} alt={l.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+                    <div className="absolute bottom-2 left-3 right-3 flex items-end justify-between">
+                      <p className="text-white font-black text-lg leading-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)] line-clamp-1">{l.title}</p>
+                      <p className="text-white font-black text-base drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)] shrink-0 ml-2">
+                        {l.currency === "MXN" ? "MXN$" : "$"}{Number(l.price).toLocaleString()}
+                      </p>
+                    </div>
                   </div>
                 )}
-                <div className="p-3 space-y-1">
-                  <p className={cn("text-sm font-bold leading-tight line-clamp-1", isSwipess ? "text-white" : "text-foreground")}>{l.title}</p>
-                  <p className="text-[13px] font-black bg-gradient-to-r from-primary to-[#A855F7] bg-clip-text text-transparent">
-                    {l.currency === "MXN" ? "MXN$" : "$"}{Number(l.price).toLocaleString()}
-                    <span className="text-[10px] font-bold opacity-60 ml-1">/ {l.listing_type}</span>
-                  </p>
-                  <p className={cn("text-[11px] font-medium opacity-70 line-clamp-1", isSwipess ? "text-white/70" : "text-muted-foreground")}>
+                <div className="p-3 space-y-2">
+                  <div className="flex items-center gap-2 text-[11px] font-medium opacity-70">
                     {[l.bedrooms ? `${l.bedrooms} bd` : null, l.bathrooms ? `${l.bathrooms} ba` : null, l.city].filter(Boolean).join(" · ")}
-                  </p>
+                  </div>
+                  {l.description && (
+                    <p className="text-[12px] leading-relaxed opacity-60 line-clamp-2">{l.description}</p>
+                  )}
+                  <div className="flex gap-2 pt-1">
+                    <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border opacity-60">
+                      {l.listing_type || 'property'}
+                    </span>
+                  </div>
                 </div>
               </button>
+              <div className="px-3 pb-3">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    const link = l.link || l.url || `/listing/${l.id}`;
+                    onNavigate?.(link);
+                  }}
+                  className="w-full h-10 rounded-xl font-bold text-xs uppercase tracking-wider transition-all active:scale-95 shadow-lg"
+                  style={{ background: 'linear-gradient(135deg, #EB4898, #FF4D00)', color: '#FFF' }}
+                >
+                  Contact
+                </button>
+              </div>
               <button
                 type="button"
                 aria-label="Share listing"
