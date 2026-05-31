@@ -445,27 +445,6 @@ const MessageBubble = memo(({ message, isUser, isSwipess, isLight, onCopy, onDel
               listing={l}
               isSwipess={isSwipess}
               onNavigate={(path) => onNavigate?.(path)}
-              onMessage={() => {
-                const link = l.link || l.url || `/listing/${l.id}`;
-                onNavigate?.(link);
-              }}
-              onInsights={() => {
-                const link = l.link || l.url || `/listing/${l.id}`;
-                onNavigate?.(link);
-              }}
-              onSoon={() => toast.success('Saved for later')}
-              onShare={async () => {
-                const url = l.share_url || `${window.location.origin}/listing/${l.id}`;
-                try {
-                  if (navigator.share) {
-                    await navigator.share({ title: l.title, url });
-                  } else {
-                    await navigator.clipboard.writeText(url);
-                    toast.success('Link copied');
-                  }
-                } catch { /* user cancelled */ }
-              }}
-              onReport={() => toast.success('Reported')}
             />
           ))}
         </div>
