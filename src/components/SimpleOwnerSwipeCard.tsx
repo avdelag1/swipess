@@ -241,12 +241,15 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
     }
   }, [profile?.user_id, x, y]);
 
-  const isZoomed = false;
+  const [isZoomed, setIsZoomed] = useState(false);
   const _floatingIconFilter = isLight
     ? 'drop-shadow(0 1px 1px hsl(var(--background) / 0.95)) drop-shadow(0 2px 6px hsl(var(--foreground) / 0.42))'
     : 'drop-shadow(0 2px 7px hsl(var(--background) / 0.9))';
   const { containerRef, pointerHandlers: magnifierPointerHandlers, isActive: isMagnifierActive, wasActive: wasMagnifierActive, isHoldPending: isMagnifierHoldPending } = useMagnifier({
-    enabled: false,
+    scale: 2.8,
+    holdDelay: 380,
+    enabled: isTop,
+    onActiveChange: setIsZoomed,
   });
 
   const { data: ratingAggregate, isLoading: isRatingLoading } = useUserRatingAggregateEnhanced(profile?.user_id);
