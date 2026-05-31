@@ -55,7 +55,7 @@ export function optimizeImageUrl(
     width,
     height,
     quality = 80,
-    format = 'avif',
+    format = 'webp',
     resize = 'cover'
   } = options;
 
@@ -89,7 +89,7 @@ export function getThumbnailUrl(url: string): string {
     width: 400,
     height: 400,
     quality: 70,
-    format: 'avif'
+    format: 'webp'
   });
 }
 
@@ -134,7 +134,7 @@ export function getFullImageUrl(url: string): string {
   return optimizeImageUrl(url, {
     width: 1920,
     quality: 90,
-    format: 'avif'
+    format: 'webp'
   });
 }
 
@@ -158,7 +158,7 @@ export function getBlurDataUrl(url: string): string {
     width: 10,
     height: 10,
     quality: 30,
-    format: 'avif'
+    format: 'webp'
   });
 }
 

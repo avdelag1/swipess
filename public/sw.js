@@ -360,11 +360,9 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // STALE-WHILE-REVALIDATE for images - instant display, update in background
+  // NETWORK-FIRST for images with shorter cache — always show fresh photos.
+  // Stale-while-revalidate caused broken cached images to persist in PWA.
   if (request.destination === 'image') {
-    // CRITICAL: For cross-origin third-party CDNs (unsplash, picsum, etc.)
-    // bypass caching entirely. Opaque responses can poison the cache and
-    // leave images permanently broken in the PWA shell.
     const isSameOrigin = url.origin === self.location.origin;
     const isSupabaseStorage = url.hostname.includes('supabase.co');
     if (!isSameOrigin && !isSupabaseStorage) {
@@ -379,29 +377,19 @@ self.addEventListener('fetch', (event) => {
     }
     event.respondWith(
       caches.open(IMAGE_CACHE).then(cache => {
-        return cache.match(request).then(cachedResponse => {
-          const bgFetch = fetch(request).then(networkResponse => {
-            // Only cache non-opaque, OK responses. Opaque (type: 'opaque')
-            // responses are cross-origin without CORS — caching them risks
-            // serving broken zero-byte data forever.
-            if (
-              networkResponse.ok &&
-              networkResponse.status === 200 &&
-              networkResponse.type !== 'opaque'
-            ) {
-              cache.put(request, networkResponse.clone());
-            }
-            return networkResponse;
-          }).catch(() => {
-            if (cachedResponse) return cachedResponse;
-            return new Response('', { status: 504, statusText: 'Image unavailable' });
-          });
-
-          if (cachedResponse) {
-            event.waitUntil(bgFetch);
-            return cachedResponse;
+        return fetch(request).then(networkResponse => {
+          if (
+            networkResponse.ok &&
+            networkResponse.status === 200 &&
+            networkResponse.type !== 'opaque'
+          ) {
+            cache.put(request, networkResponse.clone());
           }
-          return bgFetch;
+          return networkResponse;
+        }).catch(async () => {
+          const cached = await cache.match(request);
+          if (cached) return cached;
+          return new Response('', { status: 504, statusText: 'Image unavailable' });
         });
       })
     );
