@@ -31,9 +31,9 @@ export default function ListingDetailPage() {
   return (
     <motion.div
       className="relative w-full h-screen bg-black overflow-hidden"
-      initial={{ opacity: 0, scale: 0.96 }}
+      initial={{ opacity: 0.5, scale: 0.92 }}
       animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.12, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ type: 'spring', stiffness: 200, damping: 16, mass: 0.6 }}
     >
       <div className="absolute inset-0">
         <SimpleSwipeCard
@@ -70,7 +70,7 @@ export default function ListingDetailPage() {
       <motion.button
         initial={{ opacity: 0, x: -12 }}
         animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.15, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
+        transition={{ type: 'spring', stiffness: 220, damping: 18, mass: 0.4 }}
         onClick={() => navigate(-1)}
         className="absolute top-12 left-4 z-[60] w-10 h-10 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center active:scale-90 transition-all"
         aria-label="Back"
