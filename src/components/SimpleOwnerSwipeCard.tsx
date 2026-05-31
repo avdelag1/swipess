@@ -407,7 +407,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
         onPointerUp={handleUnifiedPointerUp}
         onPointerCancel={handleUnifiedPointerUp}
         initial={{ scale: 0.97, opacity: 0.85 }}
-        animate={{ scale: 1, opacity: 1, transition: { type: 'spring', stiffness: 400, damping: 28, mass: 0.6 } }}
+        animate={{ scale: 1, opacity: 1, transition: { type: 'spring', stiffness: 600, damping: 28, mass: 0.3 } }}
         className={cn("flex-1 select-none touch-none relative w-full h-full overflow-hidden border-none gpu-ultra", isTop && !disableDrag ? "cursor-grab active:cursor-grabbing" : "")}
         style={{
           x, y, opacity: cardOpacity, willChange: 'transform, opacity',

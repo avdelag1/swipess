@@ -22,9 +22,9 @@ export function AnimatedOutlet() {
         <AnimatePresence initial={false} mode="popLayout">
           <motion.div
             key={location.pathname}
-            initial={{ opacity: 0.4 }}
+            initial={{ opacity: 0.6 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.10, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 0.08, ease: [0.22, 1, 0.36, 1] }}
             className="flex-1 w-full flex flex-col bg-transparent pointer-events-none-force"
             style={{ position: 'absolute', inset: 0 }}
           >
@@ -48,10 +48,10 @@ export function AnimatedOutlet() {
         id="page-scroll-container"
         className="w-full min-h-full block bg-background"
         style={{ position: 'relative', pointerEvents: 'auto' }}
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -10 }}
-        transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.10, ease: [0.22, 1, 0.36, 1] }}
       >
         <Suspense fallback={
           <div className="flex items-center justify-center w-full h-[60vh]">

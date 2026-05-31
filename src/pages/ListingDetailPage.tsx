@@ -2,9 +2,9 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { ChevronLeft } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { SimpleSwipeCard } from '@/components/SimpleSwipeCard';
 import { triggerHaptic } from '@/utils/haptics';
-import { useAppTheme } from '@/hooks/useAppTheme';
 import { useAuth } from '@/hooks/useAuth';
 
 export default function ListingDetailPage() {
@@ -29,7 +29,12 @@ export default function ListingDetailPage() {
   if (!listing) return <div className="w-full h-screen flex flex-col items-center justify-center bg-background gap-4 p-6"><p className="text-muted-foreground">Listing not found</p><button onClick={() => navigate(-1)} className="text-sm text-primary underline">Go back</button></div>;
 
   return (
-    <div className="relative w-full h-screen bg-black overflow-hidden">
+    <motion.div
+      className="relative w-full h-screen bg-black overflow-hidden"
+      initial={{ opacity: 0, scale: 0.96 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.12, ease: [0.22, 1, 0.36, 1] }}
+    >
       <div className="absolute inset-0">
         <SimpleSwipeCard
           listing={listing as any}
@@ -62,13 +67,16 @@ export default function ListingDetailPage() {
           }}
         />
       </div>
-      <button
+      <motion.button
+        initial={{ opacity: 0, x: -12 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.15, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
         onClick={() => navigate(-1)}
         className="absolute top-12 left-4 z-[60] w-10 h-10 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center active:scale-90 transition-all"
         aria-label="Back"
       >
         <ChevronLeft className="w-5 h-5 text-white" />
-      </button>
-    </div>
+      </motion.button>
+    </motion.div>
   );
 }
