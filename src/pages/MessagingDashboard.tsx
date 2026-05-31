@@ -1,24 +1,24 @@
-import { motion, AnimatePresence } from 'framer-motion';
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { AnimatePresence, motion } from 'framer-motion';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
-  MessageCircle, Search,
-  MoreVertical, Archive, Trash, Check, Inbox, _CircleDot,
-  _Layers, Sparkles, _Navigation, _ChevronLeft, ArrowLeft, ShieldAlert, Ban
+  _ChevronLeft, _CircleDot,
+  _Layers, _Navigation, Archive, ArrowLeft, Ban, Check,
+  Inbox, MessageCircle, MoreVertical, Search, ShieldAlert, Sparkles, Trash
 } from 'lucide-react';
 // import { } from '@/components/ui/EmptyState';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useActiveMode } from '@/hooks/useActiveMode';
 import {
+  type Conversation,
   useConversations,
-  useStartConversation,
   useDeleteConversation,
-  useUpdateConversationStatus,
   useMarkConversationAsRead,
-  type Conversation
+  useStartConversation,
+  useUpdateConversationStatus
 } from '@/hooks/useConversations';
 import { useMarkMessagesAsRead } from '@/hooks/useMarkMessagesAsRead';
 import { MessagingInterface } from '@/components/MessagingInterface';
@@ -34,8 +34,8 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { triggerHaptic } from '@/utils/haptics';
 import { cn } from '@/lib/utils';

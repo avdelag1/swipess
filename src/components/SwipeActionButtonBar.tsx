@@ -12,9 +12,9 @@
  *   5. Insights     (small) â€” cyan/eye
  */
 
-import { memo, useCallback, useState, forwardRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Share2, MessageCircle, BarChart2, Flag } from 'lucide-react';
+import { forwardRef, memo, useCallback, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { BarChart2, Flag, MessageCircle, Share2 } from 'lucide-react';
 import { triggerHaptic } from '@/utils/haptics';
 import { AnimatedLottieIcon } from './ui/AnimatedLottieIcon';
 import useAppTheme from '@/hooks/useAppTheme';

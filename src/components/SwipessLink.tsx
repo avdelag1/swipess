@@ -1,5 +1,5 @@
 import { Link, LinkProps } from 'react-router-dom';
-import { useCallback, memo } from 'react';
+import { memo, useCallback } from 'react';
 import { triggerHaptic } from '@/utils/haptics';
 
 /**

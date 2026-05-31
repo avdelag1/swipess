@@ -1,7 +1,7 @@
-import { useState, useRef, useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { PremiumButton } from '@/visual/PremiumButton';
-import { Scissors, Play, Pause, Loader2 } from 'lucide-react';
+import { Loader2, Pause, Play, Scissors } from 'lucide-react';
 import { toast } from 'sonner';
 import { uploadListingVideo } from '@/utils/videoUpload';
 const MAX_DURATION = 10; // 10 seconds max

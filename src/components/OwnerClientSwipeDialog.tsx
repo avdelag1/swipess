@@ -1,5 +1,5 @@
 
-import { useState, lazy, Suspense } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ClientSwipeContainer } from '@/components/ClientSwipeContainer';
 // Lazy-load the 50kb LikedClientInsightsModal — only needed when insights panel opens

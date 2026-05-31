@@ -9,7 +9,7 @@
  */
 
 import { memo } from 'react';
-import { Star, ShieldCheck, AlertTriangle, Sparkles } from 'lucide-react';
+import { AlertTriangle, ShieldCheck, Sparkles, Star } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import type { RatingAggregate } from '@/hooks/useRatingSystem';

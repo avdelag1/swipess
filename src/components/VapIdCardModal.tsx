@@ -1,7 +1,7 @@
-import React, { useMemo, useState, useRef } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { X, ShieldCheck, MapPin, Droplets, Pencil, Languages } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Droplets, Languages, MapPin, Pencil, ShieldCheck, X } from 'lucide-react';
 import QRCode from 'react-qr-code';
 import { useAuth } from '@/hooks/useAuth';
 import { useQuery, useQueryClient } from '@tanstack/react-query';

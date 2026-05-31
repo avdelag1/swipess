@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { MessageCircle, X, Send, Bug, DollarSign, User, Home, Info } from 'lucide-react';
+import { Bug, DollarSign, Home, Info, MessageCircle, Send, User, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';

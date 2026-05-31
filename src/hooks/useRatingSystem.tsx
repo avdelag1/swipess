@@ -29,8 +29,8 @@ export {
 // TYPES - Aliases for backward compatibility with existing components
 // ============================================================================
 
-import type { Review, ReviewAggregate, CreateReviewInput } from './useReviews';
-import { useListingRatingAggregate, useUserRatingAggregate, useHasReviewedListing, useCanReviewListing, useCreateReview, useMarkReviewHelpful, useListingReviews, useUserReviews } from './useReviews';
+import type { CreateReviewInput, Review, ReviewAggregate } from './useReviews';
+import { useCanReviewListing, useCreateReview, useHasReviewedListing, useListingRatingAggregate, useListingReviews, useMarkReviewHelpful, useUserRatingAggregate, useUserReviews } from './useReviews';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from './useAuth';
 

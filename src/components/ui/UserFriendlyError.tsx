@@ -12,14 +12,14 @@
 /* eslint-disable react-refresh/only-export-components */
 import { memo, ReactNode } from 'react';
 import { 
-  WifiOff,
-  ThumbsUp,
-  CreditCard,
-  ShieldX,
-  Upload,
-  Home,
   AlertTriangle,
-  Clock
+  Clock,
+  CreditCard,
+  Home,
+  ShieldX,
+  ThumbsUp,
+  Upload,
+  WifiOff
 } from 'lucide-react';
 import { Button } from './button';
 import { cn } from '@/lib/utils';

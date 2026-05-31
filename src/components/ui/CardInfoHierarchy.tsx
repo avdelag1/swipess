@@ -17,9 +17,9 @@
  */
 
 import { memo } from 'react';
-import { MapPin, DollarSign, Bed, Bath, Car, Briefcase } from 'lucide-react';
+import { Bath, Bed, Briefcase, Car, DollarSign, MapPin } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { VerifiedBadge, RatingDisplay } from './TrustSignals';
+import { RatingDisplay, VerifiedBadge } from './TrustSignals';
 
 // Fluid font size constants
 const FONT = {

@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { ThumbsUp, GripVertical, Flame, Home, Briefcase, DollarSign } from "lucide-react";
+import { Briefcase, DollarSign, Flame, GripVertical, Home, ThumbsUp } from "lucide-react";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { LikesSkeleton } from "@/components/ui/LikesSkeleton";
 import { motion } from "framer-motion";

@@ -1,4 +1,4 @@
-import { useState, type ComponentType } from 'react';
+import { type ComponentType, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -6,8 +6,8 @@ import { PageHeader } from '@/components/PageHeader';
 import { MaintenanceRequestForm } from '@/components/MaintenanceRequestForm';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Wrench, Zap, Wind, Cpu, Building2, MoreHorizontal, Clock, CheckCircle2 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { Building2, CheckCircle2, Clock, Cpu, MoreHorizontal, Plus, Wind, Wrench, Zap } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 

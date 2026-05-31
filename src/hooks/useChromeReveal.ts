@@ -1,4 +1,4 @@
-import { useSyncExternalStore, useCallback } from 'react';
+import { useCallback, useSyncExternalStore } from 'react';
 
 /**
  * Chrome reveal store — controls visibility of TopBar + BottomNavigation

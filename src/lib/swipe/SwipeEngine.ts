@@ -24,12 +24,12 @@
  */
 
 import {
-  GesturePredictor,
-  InertialAnimator,
+  type AnimationState,
   createExitAnimator,
   createSnapBackAnimator,
+  GesturePredictor,
+  InertialAnimator,
   IOS_PHYSICS,
-  type AnimationState,
 } from '../physics';
 
 export interface SwipeEngineConfig {

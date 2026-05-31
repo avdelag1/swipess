@@ -1,5 +1,5 @@
-import { motion, AnimatePresence } from 'framer-motion';
-import { Check, Sparkles, Home, Bike, User } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Bike, Check, Home, Sparkles, User } from 'lucide-react';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { cn } from '@/lib/utils';
 import { useEffect, useState } from 'react';

@@ -1,10 +1,10 @@
-import { useState, useRef, useCallback, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { NativeStore } from '@/utils/nativeStore';
 import {
-  Users, MapPin, Briefcase, Clock, Sparkles, X,
-  _Settings2, ShieldCheck, Zap,
-  _MessageCircle, Eye, EyeOff, _ArrowLeft,
+  _ArrowLeft, _MessageCircle, _Settings2, Briefcase, Clock, Eye,
+  EyeOff, MapPin, ShieldCheck,
+  Sparkles, Users, X, Zap,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { triggerHaptic } from '@/utils/haptics';

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { getCardImageUrl } from '@/utils/imageOptimization';
 import { imageCache } from '@/lib/swipe/cardImageCache';
 import { getNetworkProfile } from '@/utils/networkAware';

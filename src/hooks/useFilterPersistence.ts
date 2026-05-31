@@ -11,7 +11,7 @@
  * DB columns: id, user_id, filter_data (JSONB), is_active, name, user_role, created_at, updated_at
  */
 
-import { useEffect, useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useFilterStore } from '@/state/filterStore';

@@ -1,7 +1,7 @@
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
 import { DistanceSlider } from './DistanceSlider';
-import { SlidersHorizontal, MapPin } from 'lucide-react';
+import { MapPin, SlidersHorizontal } from 'lucide-react';
 import useAppTheme from '@/hooks/useAppTheme';
 
 interface SwipeExhaustedStateProps {

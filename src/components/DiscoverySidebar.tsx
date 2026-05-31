@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { motion } from 'framer-motion';
-import { RotateCcw, MessageCircle, Share2, Info, Sparkles, Flame, ThumbsDown, Flag } from 'lucide-react';
+import { Flag, Flame, Info, MessageCircle, RotateCcw, Share2, Sparkles, ThumbsDown } from 'lucide-react';
 import { triggerHaptic } from '@/utils/haptics';
 import { cn } from '@/lib/utils';
 

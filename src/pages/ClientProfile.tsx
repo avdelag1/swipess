@@ -1,20 +1,20 @@
 import { ClientProfileDialog } from "@/components/ClientProfileDialog";
 import { PhotoPreview } from "@/components/PhotoPreview";
 import { SharedProfileSection } from "@/components/SharedProfileSection";
-import { useState, useCallback } from "react";
+import { useCallback, useState } from "react";
 import { useClientProfile } from "@/hooks/useClientProfile";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import {
-  LogOut, User, Camera, Sparkles, Crown,
-  ThumbsUp, Settings, MessageSquare, Megaphone, ChevronRight, Scale as ScaleIcon, Zap,
-  Radio, IdCard, Coins, Users
+  Camera, ChevronRight, Coins, Crown, IdCard,
+  LogOut, Megaphone, MessageSquare, Radio, Scale as ScaleIcon, Settings, Sparkles,
+  ThumbsUp, User, Users, Zap
 } from "lucide-react";
 import { useClientStats } from "@/hooks/useClientStats";
 import { ActivityFeed } from "@/components/ActivityFeed";
 import { VapIdCardModal } from "@/components/VapIdCardModal";
 import { VapIdEditModal } from "@/components/VapIdEditModal";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { ProfileSkeleton } from "@/components/ui/LayoutSkeletons";
 import { cn } from "@/lib/utils";

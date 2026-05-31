@@ -1,11 +1,11 @@
-import { memo, useState, useRef, useEffect } from 'react';
+import { memo, useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
-  motion, useMotionValue, useTransform, AnimatePresence, PanInfo, animate
+  animate, AnimatePresence, motion, PanInfo, useMotionValue, useTransform
 } from 'framer-motion';
 import { triggerHaptic } from '@/utils/haptics';
 import {
-  Mail, Lock, User, ArrowLeft, Sparkles, Check, LogIn, X, Eye, EyeOff
+  ArrowLeft, Check, Eye, EyeOff, Lock, LogIn, Mail, Sparkles, User, X
 } from 'lucide-react';
 import { SwipessLogo } from './SwipessLogo';
 import { AtmosphericLayer } from './AtmosphericLayer';
@@ -14,7 +14,7 @@ import { Input } from '@/components/ui/input';
 import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
-import { loginSchema, signupSchema, forgotPasswordSchema } from '@/schemas/auth';
+import { forgotPasswordSchema, loginSchema, signupSchema } from '@/schemas/auth';
 import { cn } from '@/lib/utils';
 
 type View = 'landing' | 'auth';

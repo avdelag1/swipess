@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { ShieldCheck, Clock } from 'lucide-react';
+import { Clock, ShieldCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface VerifiedOwnerBadgeProps {

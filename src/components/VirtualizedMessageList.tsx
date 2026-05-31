@@ -1,16 +1,14 @@
-import { memo, useRef, useEffect } from 'react';
-import { useVirtualizer } from '@tanstack/react-virtual';
+import { memo, useEffect, useRef } from 'react';
 import useAppTheme from '@/hooks/useAppTheme';
 import { formatDistanceToNow } from '@/utils/timeFormatter';
 import { cn } from '@/lib/utils';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 
 interface MessageType {
   id: string;
   client_id?: string;
   conversation_id: string;
   sender_id: string;
-  message_text?: string | null;
   content?: string | null;
   message_type: string;
   created_at: string;
@@ -34,7 +32,6 @@ interface VirtualizedMessageListProps {
   typingUsers: TypingUser[];
 }
 
-// Memoized message bubble
 const MessageBubble = memo(({
   message,
   isMyMessage,
@@ -71,7 +68,7 @@ const MessageBubble = memo(({
           "text-[14px] font-medium break-words whitespace-pre-wrap leading-relaxed",
           isMyMessage ? "text-white" : (isThemeLight ? "text-black" : "text-white/90")
         )}>
-          {message.message_text || message.content || ''}
+          {message.content || ''}
         </p>
         <div className={cn(
           "text-[9px] mt-1.5 font-semibold text-right",
@@ -109,88 +106,45 @@ const TypingIndicator = memo(({ isThemeLight }: { isThemeLight: boolean }) => (
 
 TypingIndicator.displayName = 'TypingIndicator';
 
-/**
- * Virtualized message list - only renders visible messages
- */
 export const VirtualizedMessageList = memo(({
   messages,
   currentUserId,
   otherUserRole,
   typingUsers,
 }: VirtualizedMessageListProps) => {
-  const parentRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const prevLengthRef = useRef(0);
   const { theme } = useAppTheme();
   const isThemeLight = theme === 'light' || theme === 'Swipess-style';
 
-  const virtualizer = useVirtualizer({
-    count: messages.length,
-    getScrollElement: () => parentRef.current,
-    estimateSize: () => 80,
-    overscan: 5,
-  });
-
+  // Scroll to bottom on new messages
   useEffect(() => {
-    if (messages.length > 0 && parentRef.current) {
-      const { scrollTop, scrollHeight, clientHeight } = parentRef.current;
-      const isNearBottom = scrollHeight - scrollTop - clientHeight < 150;
-      if (isNearBottom || messages.length <= 1) {
-        requestAnimationFrame(() => {
-          virtualizer.scrollToIndex(messages.length - 1, {
-            align: 'end',
-            behavior: 'auto',
-          });
-        });
-      }
+    if (messages.length > prevLengthRef.current && scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [messages.length, virtualizer]);
-
-  const items = virtualizer.getVirtualItems();
+    prevLengthRef.current = messages.length;
+  }, [messages.length]);
 
   if (messages.length === 0) return null;
 
   return (
     <div
-      ref={parentRef}
-      className="flex-1 min-h-0 overflow-y-auto py-4 bg-transparent"
-      style={{ position: 'relative' }}
+      ref={scrollRef}
+      className="flex-1 min-h-0 overflow-y-auto py-4 bg-transparent overscroll-contain"
     >
-      <div
-        style={{
-          height: `${virtualizer.getTotalSize()}px`,
-          width: '100%',
-          position: 'relative',
-        }}
-      >
-        <div
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            transform: `translateY(${items[0]?.start ?? 0}px)`,
-          }}
-        >
-          {items.map((virtualRow) => {
-            const message = messages[virtualRow.index];
-            const isMyMessage = message.sender_id === currentUserId;
-
-            return (
-              <div
-                key={message.id}
-                data-index={virtualRow.index}
-                ref={virtualizer.measureElement}
-              >
-                <MessageBubble
-                  message={message}
-                  isMyMessage={isMyMessage}
-                  otherUserRole={otherUserRole}
-                  isThemeLight={isThemeLight}
-                />
-              </div>
-            );
-          })}
-        </div>
-      </div>
+      {messages.map((message) => {
+        const isMyMessage = message.sender_id === currentUserId;
+        return (
+          <div key={message.id || message.client_id}>
+            <MessageBubble
+              message={message}
+              isMyMessage={isMyMessage}
+              otherUserRole={otherUserRole}
+              isThemeLight={isThemeLight}
+            />
+          </div>
+        );
+      })}
       <AnimatePresence>
         {typingUsers.length > 0 && <TypingIndicator isThemeLight={isThemeLight} />}
       </AnimatePresence>

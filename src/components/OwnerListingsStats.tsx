@@ -1,4 +1,4 @@
-import { Home, Eye, DollarSign, Activity, TrendingUp, Bike, Car } from 'lucide-react';
+import { Activity, Bike, Car, DollarSign, Eye, Home, TrendingUp } from 'lucide-react';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';

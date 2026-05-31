@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef } from 'react';
-import { useMotionValue, useTransform, animate } from 'framer-motion';
+import { animate, useMotionValue, useTransform } from 'framer-motion';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useActiveMode } from '@/hooks/useActiveMode';
 import { useFilterStore } from '@/state/filterStore';

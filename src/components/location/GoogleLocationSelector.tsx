@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -7,17 +7,17 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
-import { MapPin, Navigation, Loader2, AlertCircle, Search, Globe, Star, Building } from 'lucide-react';
+import { AlertCircle, Building, Globe, Loader2, MapPin, Navigation, Search, Star } from 'lucide-react';
 import { toast } from 'sonner';
 import { logger } from '@/utils/prodLogger';
 import {
-  getRegions,
-  getCountriesInRegion,
-  getCitiesInCountry,
-  searchCities,
-  getNeighborhoodsForCity,
-  getFeaturedDestinations,
   CityLocation,
+  getCitiesInCountry,
+  getCountriesInRegion,
+  getFeaturedDestinations,
+  getNeighborhoodsForCity,
+  getRegions,
+  searchCities,
 } from '@/data/worldLocations';
 
 interface GoogleLocationSelectorProps {

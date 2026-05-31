@@ -6,7 +6,7 @@
  * so the user sees a clear error instead of a frozen/blank screen.
  */
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { logger } from '@/utils/prodLogger';
 
 export type ConnectionStatus = 'checking' | 'connected' | 'degraded' | 'disconnected';

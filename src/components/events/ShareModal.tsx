@@ -1,5 +1,5 @@
-import { motion, AnimatePresence } from 'framer-motion';
-import { Share2, MessageCircle, ExternalLink } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { ExternalLink, MessageCircle, Share2 } from 'lucide-react';
 import { toast } from '@/components/ui/sonner';
 import { EventItem } from '@/types/events';
 import { generateShareUrl } from '@/hooks/useSharing';

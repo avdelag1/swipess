@@ -1,8 +1,8 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { X, MessageCircle, Sparkles, Crown } from 'lucide-react';
+import { Crown, MessageCircle, Sparkles, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 
 interface MessageActivationBannerProps {
   isVisible: boolean;

@@ -2,12 +2,12 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
 import { Button } from '@/components/ui/button';
-import { MapPin, Bed, Bath, Square, DollarSign, MessageCircle, Sparkles, Trash2, Ban, Flag, ChevronLeft, ChevronRight, X, Star, ArrowLeft, Share2, TrendingUp, CheckCircle, Clock, Zap, Award, ThumbsUp, Gauge, Flame, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, Award, Ban, Bath, Bed, CheckCircle, ChevronLeft, ChevronRight, Clock, DollarSign, Flag, Flame, Gauge, MapPin, MessageCircle, Share2, ShieldCheck, Sparkles, Square, Star, ThumbsUp, Trash2, TrendingUp, X, Zap } from 'lucide-react';
 import { PropertyImageGallery } from './PropertyImageGallery';
 import { useNavigate } from 'react-router-dom';
 import { useStartConversation } from '@/hooks/useConversations';
 import { toast } from '@/components/ui/sonner';
-import { useState, useEffect, useCallback, memo, useMemo } from 'react';
+import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { logger } from '@/utils/prodLogger';

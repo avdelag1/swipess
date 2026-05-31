@@ -1,5 +1,5 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { useCallback, useRef, useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 /**
@@ -83,7 +83,7 @@ export function usePrefetchManager() {
             id,
             conversation_id,
             sender_id,
-            message_text,
+            content,
             message_type,
             created_at,
             is_read

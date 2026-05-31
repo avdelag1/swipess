@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
-import { ShieldCheck, Globe, Fingerprint, MapPin, Briefcase, Clock } from 'lucide-react';
+import { Briefcase, Clock, Fingerprint, Globe, MapPin, ShieldCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import useAppTheme from '@/hooks/useAppTheme';
 

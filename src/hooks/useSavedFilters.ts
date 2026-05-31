@@ -7,7 +7,7 @@
  * All filter parameters are packed into the filter_data JSONB column.
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/useToast';
 import type { Database, Json } from '@/integrations/supabase/types';

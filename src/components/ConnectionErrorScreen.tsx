@@ -9,7 +9,7 @@
  *   - Subtle particle background to maintain visual depth
  */
 
-import { WifiOff, RefreshCw, Loader2, Wifi, Zap } from 'lucide-react';
+import { Loader2, RefreshCw, Wifi, WifiOff, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { ConnectionStatus } from '@/hooks/useConnectionHealth';
 import useAppTheme from '@/hooks/useAppTheme';

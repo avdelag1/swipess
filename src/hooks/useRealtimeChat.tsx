@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useQueryClient } from '@tanstack/react-query';
@@ -165,14 +165,12 @@ export function useRealtimeChat(conversationId: string) {
             // Check for both real IDs and temporary optimistic IDs
             const exists = oldData.some((msg: any) =>
               msg.id === newMessage.id ||
-              (msg.id.toString().startsWith('temp-') && msg.message_text === newMessage.message_text && msg.sender_id === newMessage.sender_id)
+              (msg.id.toString().startsWith('temp-') && (msg.content || msg.message_text) === (newMessage.content || newMessage.message_text) && msg.sender_id === newMessage.sender_id)
             );
 
             if (exists) {
-              // Replace optimistic message with real message if it exists, preserving
-              // the client_id so the React key remains stable across the temp->real swap.
               return oldData.map((msg: any) =>
-                msg.id.toString().startsWith('temp-') && msg.message_text === newMessage.message_text && msg.sender_id === newMessage.sender_id
+                msg.id.toString().startsWith('temp-') && (msg.content || msg.message_text) === (newMessage.content || newMessage.message_text) && msg.sender_id === newMessage.sender_id
                   ? { ...completeMessage, client_id: msg.client_id }
                   : msg
               );

@@ -1,4 +1,4 @@
-import { RadioStation, CityTheme, CityLocation } from '@/types/radio';
+import { CityLocation, CityTheme, RadioStation } from '@/types/radio';
 
 /**
  * City themes with color schemes

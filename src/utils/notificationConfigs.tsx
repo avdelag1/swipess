@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-import { ThumbsUp, Star, MessageCircle, UserPlus, Zap, Crown, CheckCircle2, AlertTriangle, Info, AlertCircle } from 'lucide-react';
+import { AlertCircle, AlertTriangle, CheckCircle2, Crown, Info, MessageCircle, Star, ThumbsUp, UserPlus, Zap } from 'lucide-react';
 
 export const SparklesIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

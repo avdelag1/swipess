@@ -1,5 +1,5 @@
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { Crown, Check, Shield, Clock, Sparkles, RefreshCcw } from 'lucide-react';
+import { Check, Clock, Crown, RefreshCcw, Shield, Sparkles } from 'lucide-react';
 import { toast } from '@/components/ui/sonner';
 import { STORAGE } from '@/constants/app';
 import { supabase } from '@/integrations/supabase/client';

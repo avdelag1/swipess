@@ -77,7 +77,7 @@ export const triggerHaptic = async (type: 'light' | 'medium' | 'heavy' | 'succes
         case 'celebration': return [5, 10, 5, 10, 5, 10, 20, 30, 40, 50, 30];
       }
     })();
-    try { navigator.vibrate(pattern as VibratePattern); } catch { }
+    try { navigator.vibrate(pattern as VibratePattern); } catch { /* vibrate not supported */ }
   }
 };
 

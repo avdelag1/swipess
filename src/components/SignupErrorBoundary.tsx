@@ -1,6 +1,6 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
-import { AlertCircle, RefreshCw, MessageSquare } from 'lucide-react';
+import { AlertCircle, MessageSquare, RefreshCw } from 'lucide-react';
 import { logger } from '@/utils/prodLogger';
 import { motion } from 'framer-motion';
 

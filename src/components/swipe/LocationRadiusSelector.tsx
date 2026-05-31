@@ -1,6 +1,6 @@
-import { memo, useState, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { MapPin, Navigation, ChevronDown } from 'lucide-react';
+import { memo, useCallback, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { ChevronDown, MapPin, Navigation } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import useAppTheme from '@/hooks/useAppTheme';
 import { DistanceSlider } from './DistanceSlider';

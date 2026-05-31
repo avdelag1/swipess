@@ -1,20 +1,20 @@
-import { useState, useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { QuickFilterImage } from '@/components/ui/QuickFilterImage';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 // import { } from '@/components/AtmosphericLayer';
 import { RadioSkinBackground } from '@/components/radio/RadioSkinBackground';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useRadio } from '@/contexts/RadioContext';
-import { radioStations, cityThemes } from '@/data/radioStations';
+import { cityThemes, radioStations } from '@/data/radioStations';
 import { CityLocation } from '@/types/radio';
 import { triggerHaptic } from '@/utils/haptics';
 import { cn } from '@/lib/utils';
 import useAppTheme from '@/hooks/useAppTheme';
 import { useRadioSkin } from '@/hooks/useRadioSkin';
 import {
-  ArrowLeft, Globe, Search, Play, Heart,
-  MapPin, Radio, Volume2, Sparkles,
-  Maximize2, Shuffle
+  ArrowLeft, Globe, Heart, MapPin, Maximize2,
+  Play, Radio, Search, Shuffle,
+  Sparkles, Volume2
 } from 'lucide-react';
 
 const CARD_SPRING = { type: 'spring' as const, stiffness: 380, damping: 32, mass: 0.7 };

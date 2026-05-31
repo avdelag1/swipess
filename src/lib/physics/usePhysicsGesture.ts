@@ -17,13 +17,13 @@
  * return <div {...bind} style={{ transform }} />;
  */
 
-import { useRef, useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { GesturePredictor, GestureState } from './GesturePredictor';
 import {
-  InertialAnimator,
   AnimationState,
   createExitAnimator,
   createSnapBackAnimator,
+  InertialAnimator,
 } from './InertialAnimator';
 
 export interface PhysicsGestureConfig {

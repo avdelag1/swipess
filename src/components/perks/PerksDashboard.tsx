@@ -1,6 +1,6 @@
-import { useState, useEffect, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { QrCode, Store, Zap, History, ChevronRight, Sparkles, Award } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Award, ChevronRight, History, QrCode, Sparkles, Store, Zap } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { ResidentQRModal } from './ResidentQRModal';

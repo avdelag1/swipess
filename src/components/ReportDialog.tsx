@@ -6,13 +6,13 @@ import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Flag, X } from 'lucide-react';
 import {
-  useCreateReport,
-  ReportType,
-  ReportCategory,
-  REPORT_TYPE_LABELS,
   REPORT_TYPE_DESCRIPTIONS,
+  REPORT_TYPE_LABELS,
+  ReportCategory,
+  ReportType,
+  useCreateReport,
 } from '@/hooks/useReporting';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import useAppTheme from '@/hooks/useAppTheme';
 import { cn } from '@/lib/utils';
 

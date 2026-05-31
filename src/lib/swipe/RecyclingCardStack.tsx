@@ -12,7 +12,7 @@
  * - Uses CSS containment for paint isolation
  */
 
-import { useRef, useCallback, useEffect, memo, forwardRef, useImperativeHandle } from 'react';
+import { forwardRef, memo, useCallback, useEffect, useImperativeHandle, useRef } from 'react';
 import { SwipeEngine, SwipeEngineConfig } from './SwipeEngine';
 import { imagePreloadController } from './ImagePreloadController';
 import { swipeQueue } from './SwipeQueue';

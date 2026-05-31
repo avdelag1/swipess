@@ -1,5 +1,5 @@
-import { useState, useCallback, useRef, useEffect, memo, lazy, Suspense } from 'react';
-import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
+import { lazy, memo, Suspense, useCallback, useEffect, useRef, useState } from 'react';
+import { AnimatePresence, motion, useMotionValue, useTransform } from 'framer-motion';
 import { SwipeAllDashboard } from './swipe/SwipeAllDashboard';
 import { createPortal } from 'react-dom';
 import { useQueryClient } from '@tanstack/react-query';
@@ -18,13 +18,13 @@ import { SimpleOwnerSwipeCard, SimpleOwnerSwipeCardRef } from './SimpleOwnerSwip
 import { useRecordProfileView } from '@/hooks/useProfileRecycling';
 import { usePrefetchImages } from '@/hooks/usePrefetchImages';
 import { usePrefetchManager, useSwipePrefetch } from '@/hooks/usePrefetchManager';
-import { useSwipeDeckStore, persistDeckToSession } from '@/state/swipeDeckStore';
+import { persistDeckToSession, useSwipeDeckStore } from '@/state/swipeDeckStore';
 import { useFilterStore } from '@/state/filterStore';
 import { useShallow } from 'zustand/react/shallow';
 import { useSwipeDismissal } from '@/hooks/useSwipeDismissal';
 import { useSwipeSounds } from '@/hooks/useSwipeSounds';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Users, MapPin, Bike, Wrench } from 'lucide-react';
+import { Bike, MapPin, Users, Wrench } from 'lucide-react';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { appToast } from '@/utils/appNotification';
 import { useStartConversation } from '@/hooks/useConversations';
@@ -787,6 +787,11 @@ const ClientSwipeContainerComponent = ({
     triggerHaptic('light');
   }, []);
 
+  const handleSoon = useCallback(() => {
+    appToast.success('Saved for later');
+    triggerHaptic('light');
+  }, []);
+
   const handleConnect = useCallback((clientId: string) => {
     logger.info('[ClientSwipeContainer] Message icon clicked, opening confirmation dialog');
     setSelectedClientId(clientId);
@@ -1004,6 +1009,7 @@ const ClientSwipeContainerComponent = ({
                         onInsights={isTopCard ? () => handleInsights(profile.user_id) : undefined}
                         onMessage={isTopCard ? () => handleConnect(profile.user_id) : undefined}
                         onShare={isTopCard ? handleShare : undefined}
+                        onSoon={isTopCard ? handleSoon : undefined}
                         onReport={isTopCard ? () => { triggerHaptic('medium'); setReportDialogOpen(true); } : undefined}
                         onUndo={isTopCard ? undoLastSwipe : undefined}
                         onLike={isTopCard ? handleButtonLike : undefined}

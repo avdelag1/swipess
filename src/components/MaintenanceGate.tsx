@@ -1,6 +1,6 @@
-import React, { startTransition, useState, useEffect } from "react";
-import { Lock, ArrowRight, ChevronDown, MessageSquare, Send, CheckCircle2 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import React, { startTransition, useEffect, useState } from "react";
+import { ArrowRight, CheckCircle2, ChevronDown, Lock, MessageSquare, Send } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 
 const STORAGE_KEY = "swipess_promo_unlocked";

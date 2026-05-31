@@ -1,8 +1,8 @@
-import { useState, useCallback, useRef } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { 
-  Target, Sparkles, Home, Briefcase, _Zap, RotateCcw, Bike, ChevronLeft
+  _Zap, Bike, Briefcase, ChevronLeft, Home, RotateCcw, Sparkles, Target
 } from 'lucide-react';
 import { DiscoveryFilters } from '@/components/filters/DiscoveryFilters';
 import useAppTheme from '@/hooks/useAppTheme';

@@ -1,7 +1,7 @@
-import { useState, useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import useAppTheme from '@/hooks/useAppTheme';
 import { motion } from 'framer-motion';
-import { Search, QrCode, Store } from 'lucide-react';
+import { QrCode, Search, Store } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const CATEGORIES = ['All', 'Cafe', 'Restaurant', 'Gym', 'Services', 'Retail', 'Other'];

@@ -1,4 +1,4 @@
-import { useForm, Controller } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { useEffect } from 'react';
 import { z } from 'zod';
 import { Label } from '@/components/ui/label';
@@ -8,16 +8,16 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { OwnerLocationSelector } from './location/OwnerLocationSelector';
 import { ChipMultiSelect } from './listing/ChipMultiSelect';
 import {
-  PROPERTY_VIBE,
+  BATHROOM_COUNTS,
+  BEDROOM_COUNTS,
+  buildTitleFromChips,
+  chipsFromString,
+  PROPERTY_ADJECTIVES,
   PROPERTY_FEATURES,
   PROPERTY_INCLUDED,
   PROPERTY_RULES,
-  PROPERTY_ADJECTIVES,
   PROPERTY_SIZE,
-  BEDROOM_COUNTS,
-  BATHROOM_COUNTS,
-  chipsFromString,
-  buildTitleFromChips,
+  PROPERTY_VIBE,
 } from '@/constants/listingTaxonomies';
 import { cn } from '@/lib/utils';
 

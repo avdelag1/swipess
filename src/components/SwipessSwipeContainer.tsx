@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, memo, useRef, useMemo, lazy, Suspense } from 'react';
+import { lazy, memo, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
 // import { } from '@/state/modalStore';
 import { createPortal } from 'react-dom';
@@ -20,7 +20,7 @@ import { OwnerClientFilterDialog } from './OwnerClientFilterDialog';
 import { preloadImageToCache } from '@/lib/swipe/imageCache';
 import { imageCache } from '@/lib/swipe/cardImageCache';
 import { PrefetchScheduler } from '@/lib/swipe/PrefetchScheduler';
-import { useSmartListingMatching, useSmartClientMatching, ListingFilters, ClientFilters } from '@/hooks/useSmartMatching';
+import { ClientFilters, ListingFilters, useSmartClientMatching, useSmartListingMatching } from '@/hooks/useSmartMatching';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useActiveMode } from '@/hooks/useActiveMode';
@@ -32,17 +32,17 @@ import { useSwipeWithMatch } from '@/hooks/useSwipeWithMatch';
 import { useStartConversation } from '@/hooks/useConversations';
 import { useRecordProfileView } from '@/hooks/useProfileRecycling';
 import { usePrefetchImages } from '@/hooks/usePrefetchImages';
-import { useSwipePrefetch, usePrefetchManager } from '@/hooks/usePrefetchManager';
-import { useSwipeDeckStore, persistDeckToSession } from '@/state/swipeDeckStore';
-import { useFilterStore, useFilterActions } from '@/state/filterStore';
+import { usePrefetchManager, useSwipePrefetch } from '@/hooks/usePrefetchManager';
+import { persistDeckToSession, useSwipeDeckStore } from '@/state/swipeDeckStore';
+import { useFilterActions, useFilterStore } from '@/state/filterStore';
 import { useShallow } from 'zustand/react/shallow';
 import { useSwipeDismissal } from '@/hooks/useSwipeDismissal';
-import { Home, Bike, Briefcase } from 'lucide-react';
+import { Bike, Briefcase, Home } from 'lucide-react';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { useSwipeSounds } from '@/hooks/useSwipeSounds';
 import { appToast } from '@/utils/appNotification';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { AnimatePresence, motion, useMotionValue, useTransform } from 'framer-motion';
 import { logger } from '@/utils/prodLogger';
 import { MessageConfirmationDialog } from './MessageConfirmationDialog';
 import { DirectMessageDialog } from './DirectMessageDialog';
@@ -104,7 +104,7 @@ interface SwipessSwipeContainerProps {
   filters?: ListingFilters;
 }
 
-const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights, onMessageClick, locationFilter: _locationFilter, filters }: SwipessSwipeContainerProps) => {
+const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsights: _onInsights, onMessageClick, locationFilter: _locationFilter, filters }: SwipessSwipeContainerProps) => {
   const navigate = useNavigate();
   const { activeMode, switchMode } = useActiveMode();
   const { _theme, _isLight } = useAppTheme();
@@ -210,7 +210,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
 
   const isMountSettledRef = useRef(false);
   useEffect(() => {
-    const t = setTimeout(() => { isMountSettledRef.current = true; }, 400);
+    const t = setTimeout(() => { isMountSettledRef.current = true; }, 100);
     return () => clearTimeout(t);
   }, []);
 
@@ -395,7 +395,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
     if (!filterChangedRef.current) return;
     filterChangedRef.current = false;
     isMountSettledRef.current = false;
-    const settledTimer = setTimeout(() => { isMountSettledRef.current = true; }, 400);
+    const settledTimer = setTimeout(() => { isMountSettledRef.current = true; }, 100);
 
     deckQueueRef.current = [];
     currentIndexRef.current = 0;
@@ -805,6 +805,11 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
     }
   };
 
+  const handleSoon = () => {
+    appToast.success('Saved for later');
+    triggerHaptic('light');
+  };
+
   const handleMessage = () => {
     const listing = deckQueueRef.current[currentIndexRef.current];
     if (!canNavigate()) return;
@@ -1020,11 +1025,10 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
                           onSwipe={isTopCard ? handleSwipe : () => {}}
                           onSkip={isTopCard ? handleSkip : undefined}
                           onSkipBack={isTopCard ? handleSkipBack : undefined}
-                          onInsights={isTopCard ? () => {
-                            handleInsights();
-                            if (onListingTap) onListingTap(listing.user_id || listing.id);
-                          } : undefined}
+                          onTap={isTopCard ? handleInsights : undefined}
+                          onInsights={isTopCard ? handleInsights : undefined}
                           onShare={isTopCard ? handleShare : undefined}
+                          onSoon={isTopCard ? handleSoon : undefined}
                           onMessage={isTopCard ? handleMessage : undefined}
                           onReport={isTopCard ? () => {
                             setSelectedListing(listing);
@@ -1043,11 +1047,10 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
                           onSwipe={isTopCard ? handleSwipe : () => {}}
                           onSkip={isTopCard ? handleSkip : undefined}
                           onSkipBack={isTopCard ? handleSkipBack : undefined}
-                          onInsights={isTopCard ? () => {
-                            handleInsights();
-                            if (onListingTap) onListingTap(listing.id);
-                          } : undefined}
+                          onCardTap={isTopCard ? handleInsights : undefined}
+                          onInsights={isTopCard ? handleInsights : undefined}
                           onShare={isTopCard ? handleShare : undefined}
+                          onSoon={isTopCard ? handleSoon : undefined}
                           onMessage={isTopCard ? handleMessage : undefined}
                           onReport={isTopCard ? () => {
                             setSelectedListing(listing);
@@ -1121,11 +1124,12 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
 
       {typeof document !== 'undefined' && document.body && createPortal(
         <Suspense fallback={null}>
-          {insightsModalOpen && (
+          {insightsModalOpen && topCard && (
             <SwipeInsightsModal
               open={insightsModalOpen}
               onOpenChange={setInsightsModalOpen}
-              listing={topCard}
+              listing={dataType === 'people' ? null : topCard}
+              profile={dataType === 'people' ? topCard : null}
             />
           )}
           {shareDialogOpen && topCard && (

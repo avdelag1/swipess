@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
-import { MapPin, Home, Flame } from 'lucide-react';
+import { Flame, Home, MapPin } from 'lucide-react';
 import { logger } from '@/utils/prodLogger';
 
 interface LikeNotificationPreviewProps {

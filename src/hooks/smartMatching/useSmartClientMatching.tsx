@@ -2,8 +2,8 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { logger } from '@/utils/prodLogger';
-import { MatchedClientProfile, ClientFilters } from './types';
-import { pwaImagePreloader, getCardImageUrl } from '@/utils/imageOptimization';
+import { ClientFilters, MatchedClientProfile } from './types';
+import { getCardImageUrl, pwaImagePreloader } from '@/utils/imageOptimization';
 import { runIdleTask } from '@/lib/utils';
 import { useAdminUserIds } from '../useAdminUserIds';
 

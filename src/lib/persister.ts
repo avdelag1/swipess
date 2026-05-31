@@ -1,5 +1,5 @@
-import { get, set, del } from 'idb-keyval';
-import { Persister, PersistedClient } from '@tanstack/react-query-persist-client';
+import { del, get, set } from 'idb-keyval';
+import { PersistedClient, Persister } from '@tanstack/react-query-persist-client';
 
 /**
  * SPEED OF LIGHT Persister

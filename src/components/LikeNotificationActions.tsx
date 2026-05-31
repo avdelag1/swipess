@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { Flame, MessageCircle, X, Loader2 } from 'lucide-react';
+import { Flame, Loader2, MessageCircle, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import useAppTheme from '@/hooks/useAppTheme';
 

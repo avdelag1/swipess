@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useMemo, useState } from 'react';
 // import { } from '@/components/ui/QuickFilterImage';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,12 +7,12 @@ import { Textarea } from "@/components/ui/textarea";
 // import { } from "@/components/ui/label";
 // import { } from "@/components/ui/scroll-area";
 import {
-  Scale as ScaleIcon, MessageSquare, ChevronRight, ChevronDown,
-  FileText, Home, DollarSign,
-  Users, Gavel, Lock, Send, CheckCircle2,
-  Building2, UserX, _Briefcase, Shield, _ChevronLeft, BookOpen
+  _Briefcase, _ChevronLeft, BookOpen, Building2,
+  CheckCircle2, ChevronDown, ChevronRight,
+  DollarSign, FileText, Gavel, Home, Lock,
+  MessageSquare, Scale as ScaleIcon, Send, Shield, Users, UserX
 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
@@ -23,7 +23,7 @@ import { cn } from '@/lib/utils';
 import { useActiveMode } from '@/hooks/useActiveMode';
 import { AtmosphericLayer } from '@/components/AtmosphericLayer';
 import { Helmet } from 'react-helmet-async';
-import { ArrowLeft, ShieldCheck, Database, Eye, Globe, UserCheck } from "lucide-react";
+import { ArrowLeft, Database, Eye, Globe, ShieldCheck, UserCheck } from "lucide-react";
 
 interface LegalIssueCategory {
   id: string;

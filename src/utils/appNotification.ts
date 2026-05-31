@@ -4,7 +4,7 @@
  * Routes ALL app feedback through the premium NotificationBar (top banner, slide left→right).
  * Replaces sonner toasts entirely.
  */
-import { useNotificationStore, NotificationType } from '@/state/notificationStore';
+import { NotificationType, useNotificationStore } from '@/state/notificationStore';
 
 interface AppNotification {
   type?: NotificationType;

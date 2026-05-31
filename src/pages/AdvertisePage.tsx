@@ -1,11 +1,11 @@
-import { useState, useRef, useEffect } from "react";
-import { motion, AnimatePresence, useMotionValue, useTransform, PanInfo } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion, PanInfo, useMotionValue, useTransform } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import {
-  ArrowLeft, ArrowRight, ArrowUpRight, Check, CheckCircle2, Megaphone, Star, Zap,
-  Music, Utensils, Dumbbell, Palette, ShoppingBag, Globe, Camera,
-  Users, Eye, TrendingUp, Instagram, Phone, Crown,
-  Info, Shield, ClipboardList, MessageCircle, Clock
+  ArrowLeft, ArrowRight, ArrowUpRight, Camera, Check, CheckCircle2, ClipboardList, Clock,
+  Crown, Dumbbell, Eye, Globe, Info, Instagram, Megaphone,
+  MessageCircle, Music, Palette, Phone, Shield, ShoppingBag,
+  Star, TrendingUp, Users, Utensils, Zap
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";

@@ -1,10 +1,10 @@
 /* eslint-disable react-refresh/only-export-components */
-import { useState, useEffect, useContext, ReactNode, useRef, useMemo } from 'react';
-import { User, Session } from '@supabase/supabase-js';
+import { ReactNode, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { appToast } from '@/utils/appNotification';
 import { useAppNavigate } from './useAppNavigate';
-import { useProfileSetup, resetProfileCreationLock } from './useProfileSetup';
+import { resetProfileCreationLock, useProfileSetup } from './useProfileSetup';
 import { useAccountLinking } from './useAccountLinking';
 import { useQueryClient } from '@tanstack/react-query';
 import { logger } from '@/utils/prodLogger';

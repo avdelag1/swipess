@@ -1,6 +1,6 @@
 import { useAuth } from "@/hooks/useAuth";
 import { useActiveMode } from "@/hooks/useActiveMode";
-import { Crown, Check, Shield, Clock, Sparkles, Zap, ChevronLeft, RefreshCcw } from "lucide-react";
+import { Check, ChevronLeft, Clock, Crown, RefreshCcw, Shield, Sparkles, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";

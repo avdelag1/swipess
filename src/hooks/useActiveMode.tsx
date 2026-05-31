@@ -1,7 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
-import { useState, useCallback, useEffect, useRef, useContext, ReactNode, useMemo, useTransition } from 'react';
+import { ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { appToast } from '@/utils/appNotification';
@@ -9,7 +9,7 @@ import { logger } from '@/utils/prodLogger';
 import { triggerHaptic } from '@/utils/haptics';
 import { useSwipeDeckStore } from '@/state/swipeDeckStore';
 import { useFilterStore } from '@/state/filterStore';
-import { ActiveModeContext, type ActiveMode, type ActiveModeContextType } from '@/contexts/ActiveModeContext';
+import { type ActiveMode, ActiveModeContext, type ActiveModeContextType } from '@/contexts/ActiveModeContext';
 
 // Re-export for backwards compatibility with existing imports
 export type { ActiveMode, ActiveModeContextType };

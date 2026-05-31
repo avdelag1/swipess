@@ -1,7 +1,7 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { useAppTheme, Theme } from "@/hooks/useAppTheme";
-import { Paintbrush, Check } from "lucide-react";
+import { Theme, useAppTheme } from "@/hooks/useAppTheme";
+import { Check, Paintbrush } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { triggerHaptic } from "@/utils/haptics";
 

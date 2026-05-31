@@ -12,7 +12,7 @@
  */
 
 import { memo } from 'react';
-import { BadgeCheck, Shield, Star, Clock, Camera, MessageCircle } from 'lucide-react';
+import { BadgeCheck, Camera, Clock, MessageCircle, Shield, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface VerifiedBadgeProps {

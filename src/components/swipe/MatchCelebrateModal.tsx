@@ -1,5 +1,5 @@
 import { memo, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { MessageCircle } from 'lucide-react';
 import { triggerHaptic } from '@/utils/haptics';
 import { Button } from '@/components/ui/button';

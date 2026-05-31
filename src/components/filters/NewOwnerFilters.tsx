@@ -1,9 +1,9 @@
-import { useState, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useMemo, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import {
-  X, DollarSign, Heart, Users, User, Check,
-  ChevronDown, Activity, Briefcase, Sparkles,
-  Target, Clock, Filter
+  Activity, Briefcase, Check, ChevronDown, Clock, DollarSign,
+  Filter, Heart, Sparkles, Target,
+  User, Users, X
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';

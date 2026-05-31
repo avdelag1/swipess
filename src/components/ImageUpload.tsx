@@ -1,11 +1,11 @@
-import { useState, useCallback, useRef } from 'react';
-import { Upload, X, Image as ImageIcon, Loader2, MoveVertical } from 'lucide-react';
+import { useCallback, useRef, useState } from 'react';
+import { Image as ImageIcon, Loader2, MoveVertical, Upload, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/useToast';
 import { motion, Reorder } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { validateImageFile, formatFileSize, FILE_SIZE_LIMITS } from '@/utils/fileValidation';
+import { FILE_SIZE_LIMITS, formatFileSize, validateImageFile } from '@/utils/fileValidation';
 import { compressImage, LISTING_COMPRESSION } from '@/utils/imageCompression';
 import { logger } from '@/utils/prodLogger';
 

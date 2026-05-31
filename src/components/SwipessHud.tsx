@@ -4,7 +4,7 @@ import { useFocusMode } from '@/hooks/useFocusMode';
 import { useScrollDirection } from '@/hooks/useScrollDirection';
 import { useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { useChromeReveal, revealChrome } from '@/hooks/useChromeReveal';
+import { revealChrome, useChromeReveal } from '@/hooks/useChromeReveal';
 
 interface SwipessHudProps {
   children: React.ReactNode;

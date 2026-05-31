@@ -13,10 +13,10 @@
  */
 
 import {
-  IOS_PHYSICS,
   applyFrictionDecay,
   calculateSpringForce,
   FrameTimer,
+  IOS_PHYSICS,
 } from './PhysicsEngine';
 
 export type AnimationMode = 'inertia' | 'spring' | 'snap';

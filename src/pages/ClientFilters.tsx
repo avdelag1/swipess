@@ -1,8 +1,8 @@
-import { useState, useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { 
-  ChevronLeft, ChevronRight, RotateCcw, Home, Bike, Briefcase, Search, Loader2, Key, Tag, Users
+  Bike, Briefcase, ChevronLeft, ChevronRight, Home, Key, Loader2, RotateCcw, Search, Tag, Users
 } from 'lucide-react';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { PropertyClientFilters } from '@/components/filters/PropertyClientFilters';

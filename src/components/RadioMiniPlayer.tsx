@@ -1,8 +1,8 @@
 import { useCallback, useState } from 'react';
-import { m, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, m } from 'framer-motion';
 import { useRadio } from '@/contexts/RadioContext';
-import { Play, Pause, SkipBack, SkipForward, X, Radio, Heart, Star, Shuffle } from 'lucide-react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { Heart, Pause, Play, Radio, Shuffle, SkipBack, SkipForward, Star, X } from 'lucide-react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { triggerHaptic } from '@/utils/haptics';
 import { cn } from '@/lib/utils';
 import useAppTheme from '@/hooks/useAppTheme';

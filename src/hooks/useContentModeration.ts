@@ -3,7 +3,7 @@
  * Validates text for contact info and optionally logs flags to database.
  */
 import { useCallback } from 'react';
-import { validateContent, type FlagReason } from '@/utils/contactInfoValidation';
+import { type FlagReason, validateContent } from '@/utils/contactInfoValidation';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/sonner';
 import { logger } from '@/utils/prodLogger';

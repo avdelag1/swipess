@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Volume2, VolumeX, MapPin, DollarSign, Eye, ChevronLeft, Heart, Share2, Info, Sparkles } from 'lucide-react';
+import { ChevronLeft, DollarSign, Eye, Heart, Info, MapPin, Share2, Sparkles, Volume2, VolumeX } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';

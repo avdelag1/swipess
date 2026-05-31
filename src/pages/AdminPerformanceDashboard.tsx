@@ -1,9 +1,9 @@
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
-  Gauge, Zap, Eye, Move, Clock, AlertTriangle,
-  CheckCircle, XCircle, RefreshCw, Image, FileCode,
-  FileType, Film, TrendingDown, Info,
+  AlertTriangle, CheckCircle, Clock, Eye, FileCode, FileType,
+  Film, Gauge, Image, Info, Move,
+  RefreshCw, TrendingDown, XCircle, Zap,
 } from 'lucide-react';
 import { PageHeader } from '@/components/PageHeader';
 import { initWebVitalsMonitoring } from '@/utils/webVitals';

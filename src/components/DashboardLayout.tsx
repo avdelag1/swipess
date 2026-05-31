@@ -1,9 +1,9 @@
-import React, { ReactNode, useState, useEffect, useMemo, useRef, Suspense, useLayoutEffect } from 'react'
+import React, { ReactNode, Suspense, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useAuth } from "@/hooks/useAuth"
 import { useAnonymousDrafts } from "@/hooks/useAnonymousDrafts"
 import { supabase } from '@/integrations/supabase/client'
 import { useLocation } from "react-router-dom";
-import { prefetchRoleRoutes, createLinkObserver } from '@/utils/routePrefetcher'
+import { createLinkObserver, prefetchRoleRoutes } from '@/utils/routePrefetcher'
 // useLayoutEffect imported above with the main React import
 import useAppTheme from '@/hooks/useAppTheme'
 import { cn } from '@/lib/utils'

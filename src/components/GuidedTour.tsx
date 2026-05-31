@@ -1,7 +1,7 @@
 import { createPortal } from 'react-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { useGuidedTour } from '@/hooks/useGuidedTour';
-import { X, ChevronRight, ChevronLeft } from 'lucide-react';
+import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 
 /**
  * Bottom-anchored coachmark sheet.

@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, memo } from 'react';
+import { memo, useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
 
 interface LazyImageProps {

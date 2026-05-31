@@ -1,7 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Lock, Check, Sparkles } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Check, Lock, Sparkles } from 'lucide-react';
 import { SwipessLogo } from './SwipessLogo';
 import LandingBackgroundEffects from './LandingBackgroundEffects';
 import { AtmosphericLayer } from './AtmosphericLayer';

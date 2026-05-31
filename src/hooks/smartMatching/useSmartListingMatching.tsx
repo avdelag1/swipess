@@ -6,7 +6,7 @@ import { logger } from '@/utils/prodLogger';
 import { normalizeCategoryName } from '@/types/filters';
 import type { ListingFilters } from './types';
 import { calculateListingMatch } from './matchCalculators';
-import { pwaImagePreloader, getCardImageUrl } from '@/utils/imageOptimization';
+import { getCardImageUrl, pwaImagePreloader } from '@/utils/imageOptimization';
 import { runIdleTask } from '@/lib/utils';
 import { useAdminUserIds } from '../useAdminUserIds';
 import { SWIPE_CARD_FIELDS } from './swipeCardFields';

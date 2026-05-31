@@ -1,10 +1,10 @@
-import { useState, useMemo } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMemo, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import {
-  Flame, Users, Search, ThumbsUp, ShieldCheck, ShieldAlert,
-  Home, Briefcase, DollarSign, ArrowUpDown,
+  ArrowUpDown, Briefcase, DollarSign, Flame, Home, Search,
+  ShieldAlert, ShieldCheck, ThumbsUp, Users,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";

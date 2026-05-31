@@ -1,9 +1,9 @@
-import { useState, useRef, useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { 
-  X, Sparkles, ChevronRight, Loader2, ArrowLeft, Camera,
-  Building2, Bike, Briefcase, Zap, DollarSign, MapPin, Search, Mic, HelpCircle
+  ArrowLeft, Bike, Briefcase, Building2, Camera, ChevronRight,
+  DollarSign, HelpCircle, Loader2, MapPin, Mic, Search, Sparkles, X, Zap
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';

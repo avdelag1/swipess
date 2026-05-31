@@ -1,12 +1,12 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import { Building2, Bike, ArrowRight, Sparkles, Briefcase, Key, Tag, Repeat } from "lucide-react";
+import { ArrowRight, Bike, Briefcase, Building2, Key, Repeat, Sparkles, Tag } from "lucide-react";
 import { MotorcycleIcon } from "@/components/icons/MotorcycleIcon";
 import { useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
-import { useState, useEffect, useRef } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 
 interface CategorySelectionDialogProps {

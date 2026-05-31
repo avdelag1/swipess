@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, lazy, Suspense } from 'react';
+import React, { lazy, Suspense, useEffect, useRef, useState } from 'react';
 const Lottie = lazy(() => import('lottie-react'));
 
 // Lazy loaders — each JSON is a separate Vite chunk, loaded only on first press

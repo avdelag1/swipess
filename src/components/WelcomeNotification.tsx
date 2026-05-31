@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { X, Sparkles } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Sparkles, X } from 'lucide-react';
 import useAppTheme from '@/hooks/useAppTheme';
 import { cn } from '@/lib/utils';
 

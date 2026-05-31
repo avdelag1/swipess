@@ -1,6 +1,6 @@
-import { useState, useEffect, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { X, SlidersHorizontal, Check } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Check, SlidersHorizontal, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -9,11 +9,11 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 import {
-  GENDER_OPTIONS,
   CLEANLINESS_OPTIONS,
+  DRINKING_HABIT_OPTIONS,
+  GENDER_OPTIONS,
   NOISE_TOLERANCE_OPTIONS,
   SMOKING_HABIT_OPTIONS,
-  DRINKING_HABIT_OPTIONS,
   WORK_SCHEDULE_OPTIONS,
 } from '@/constants/profileConstants';
 

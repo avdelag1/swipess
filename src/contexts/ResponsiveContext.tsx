@@ -1,6 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useEffect } from 'react';
-import { useResponsive, ResponsiveState, BreakpointKey, BREAKPOINTS } from '@/hooks/useResponsive';
+import { BreakpointKey, BREAKPOINTS, ResponsiveState, useResponsive } from '@/hooks/useResponsive';
 
 // Create context with undefined default (will be provided by ResponsiveProvider)
 const ResponsiveContext = createContext<ResponsiveState | undefined>(undefined);

@@ -1,5 +1,5 @@
 import { lazyWithRetry } from '@/utils/lazyRetry';
-import { memo, useState, useEffect } from 'react';
+import { memo, useEffect, useState } from 'react';
 import { useAppTheme } from '@/hooks/useAppTheme';
 import { TokensModal } from './TokensModal';
 import { useModalStore } from '@/state/modalStore';

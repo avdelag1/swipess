@@ -2,7 +2,7 @@
  * UnifiedListingForm - Creates listings for all categories
  * Updated to match new normalized schema with JSONB arrays
  */
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -14,15 +14,15 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from '@/components/ui/sonner';
 import { appToast } from '@/utils/appNotification';
 import { logger } from '@/utils/prodLogger';
-import { Upload, X, Bike, ChevronRight, Shield } from 'lucide-react';
+import { Bike, ChevronRight, Shield, Upload, X } from 'lucide-react';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { Badge } from '@/components/ui/badge';
 import { motion } from 'framer-motion';
-import { CategorySelector, Category, Mode } from './CategorySelector';
-import { MotorcycleListingForm, MotorcycleFormData } from './MotorcycleListingForm';
-import { BicycleListingForm, BicycleFormData } from './BicycleListingForm';
+import { Category, CategorySelector, Mode } from './CategorySelector';
+import { MotorcycleFormData, MotorcycleListingForm } from './MotorcycleListingForm';
+import { BicycleFormData, BicycleListingForm } from './BicycleListingForm';
 import { PropertyListingForm } from './PropertyListingForm';
-import { WorkerListingForm, WorkerFormData } from './WorkerListingForm';
+import { WorkerFormData, WorkerListingForm } from './WorkerListingForm';
 import { validateImageFile } from '@/utils/fileValidation';
 import { uploadPhotoBatch } from '@/utils/photoUpload';
 import { compressImages, LISTING_COMPRESSION } from '@/utils/imageCompression';

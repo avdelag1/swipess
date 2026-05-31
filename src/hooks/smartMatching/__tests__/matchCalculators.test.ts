@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import { calculateListingMatch, calculateClientMatch } from '../matchCalculators';
+import { describe, expect, it } from 'vitest';
+import { calculateClientMatch, calculateListingMatch } from '../matchCalculators';
 import { ClientFilterPreferences } from '../../useClientFilterPreferences';
 import { Listing } from '../../useListings';
 

@@ -1,10 +1,10 @@
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { MapPin, Navigation, Loader2, AlertCircle } from 'lucide-react';
+import { AlertCircle, Loader2, MapPin, Navigation } from 'lucide-react';
 import { toast } from 'sonner';
 import { logger } from '@/utils/prodLogger';
 

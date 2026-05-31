@@ -8,7 +8,7 @@
  * - Verification check (requires completed conversation)
  */
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,7 +16,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { AlertCircle, Loader2 } from 'lucide-react';
 import { StarRatingInput } from './RatingDisplay';
-import { useRatingCategory, useCreateRating, useCanRate, useHasRated } from '@/hooks/useRatingSystem';
+import { useCanRate, useCreateRating, useHasRated, useRatingCategory } from '@/hooks/useRatingSystem';
 import type { CreateRatingInput } from '@/hooks/useRatingSystem';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { toast } from '@/components/ui/sonner';

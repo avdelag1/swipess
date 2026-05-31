@@ -2,15 +2,15 @@ import { useState } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Share2, Link2, Mail, Send, Check, X } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { Check, Link2, Mail, Send, Share2, X } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { toast } from 'sonner';
 import {
-  useCreateShare,
   copyToClipboard,
-  shareViaNavigator,
-  shareViaEmail,
   generateShareUrl,
+  shareViaEmail,
+  shareViaNavigator,
+  useCreateShare,
 } from '@/hooks/useSharing';
 import { useAuth } from '@/hooks/useAuth';
 import { triggerHaptic } from '@/utils/haptics';

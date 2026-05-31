@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useEffect, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { 
-  FileText, ShieldCheck, PenTool, CheckCircle2, 
-  Clock, Plus, ChevronRight, X, Sparkles,
-  ArrowRight, Download
+  ArrowRight, CheckCircle2, ChevronRight, Clock, 
+  Download, FileText, PenTool, Plus, ShieldCheck,
+  Sparkles, X
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { ownerTemplates, clientTemplates, ContractTemplate } from '@/data/contractTemplates';
+import { clientTemplates, ContractTemplate, ownerTemplates } from '@/data/contractTemplates';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { DigitalSignaturePad } from '@/components/DigitalSignaturePad';

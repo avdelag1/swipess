@@ -2,12 +2,12 @@ import { useState } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { MessageCircle, Zap, Bike, X } from 'lucide-react';
+import { Bike, MessageCircle, X, Zap } from 'lucide-react';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { logger } from '@/utils/prodLogger';
 import { DEFAULT_DIRECT_MESSAGE } from '@/utils/directMessaging';
 import { triggerHaptic } from '@/utils/haptics';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 
 interface DirectMessageDialogProps {
   open: boolean;

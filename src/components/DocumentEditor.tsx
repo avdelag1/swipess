@@ -1,16 +1,16 @@
-import React, { useState, useRef, useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import {
-  Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight,
-  List, ListOrdered, Undo, Redo, Download, Printer, FileText,
-  Minus, Plus
+  AlignCenter, AlignLeft, AlignRight, Bold, Download, FileText,
+  Italic, List, ListOrdered, Minus, Plus, Printer, Redo,
+  Underline, Undo
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { sanitizeHTML, escapeHTML } from '@/utils/sanitizeHTML';
+import { escapeHTML, sanitizeHTML } from '@/utils/sanitizeHTML';
 
 interface DocumentEditorProps {
   initialContent?: string;

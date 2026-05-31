@@ -1,6 +1,6 @@
-import { memo, useState, useRef, useEffect, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { RotateCcw, Users, User, ChevronDown, Filter, X, Check } from 'lucide-react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Check, ChevronDown, Filter, RotateCcw, User, Users, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
 import useAppTheme from '@/hooks/useAppTheme';
@@ -8,7 +8,7 @@ import { VespaIcon } from '@/components/icons/VespaIcon';
 import { BeachBicycleIcon } from '@/components/icons/BeachBicycleIcon';
 import { WorkersIcon } from '@/components/icons/WorkersIcon';
 import { RealEstateIcon } from '@/components/icons/RealEstateIcon';
-import type { QuickFilterCategory, QuickFilters, ClientGender, ClientType } from '@/types/filters';
+import type { ClientGender, ClientType, QuickFilterCategory, QuickFilters } from '@/types/filters';
 import { getCategoryColorClass } from '@/types/filters';
 
 // Re-export unified types

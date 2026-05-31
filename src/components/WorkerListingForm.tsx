@@ -1,4 +1,4 @@
-import { useForm, Controller } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -7,9 +7,9 @@ import { Checkbox } from '@/components/ui/checkbox';
 
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
-import { SERVICE_SUBSPECIALTIES, SERVICE_GROUPS, getGroupedCategories } from '@/data/serviceCategories';
+import { getGroupedCategories, SERVICE_GROUPS, SERVICE_SUBSPECIALTIES } from '@/data/serviceCategories';
 import { ChipMultiSelect } from './listing/ChipMultiSelect';
-import { WORKER_TRAITS, WORKER_AVAILABILITY, LANGUAGES as LANGUAGE_OPTIONS } from '@/constants/listingTaxonomies';
+import { LANGUAGES as LANGUAGE_OPTIONS, WORKER_AVAILABILITY, WORKER_TRAITS } from '@/constants/listingTaxonomies';
 
 // Re-export from shared data for backward compat
 export { SERVICE_CATEGORIES } from '@/data/serviceCategories';

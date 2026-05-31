@@ -7,7 +7,7 @@
  * Uses pointer capture to keep tracking even outside the element.
  */
 
-import { useRef, useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { triggerHaptic } from '@/utils/haptics';
 
 interface MagnifierConfig {

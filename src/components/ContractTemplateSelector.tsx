@@ -6,10 +6,10 @@ import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
-  FileText, Home, Car, Bike, Briefcase, ShoppingCart,
-  FileSignature, ChevronRight
+  Bike, Briefcase, Car, ChevronRight, FileSignature, FileText,
+  Home, ShoppingCart
 } from 'lucide-react';
-import { ContractTemplate, ownerTemplates, clientTemplates } from '@/data/contractTemplates';
+import { clientTemplates, ContractTemplate, ownerTemplates } from '@/data/contractTemplates';
 
 interface ContractTemplateSelectorProps {
   open: boolean;

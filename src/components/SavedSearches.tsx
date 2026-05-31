@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Trash2, Search, Check, Star } from 'lucide-react';
+import { Check, Search, Star, Trash2 } from 'lucide-react';
 import { useSavedFilters } from '@/hooks/useSavedFilters';
 import { Skeleton } from '@/components/ui/skeleton';
 

@@ -1,5 +1,5 @@
-import { useParams, useNavigate } from 'react-router-dom';
-import { ShieldCheck, CheckCircle2, ChevronLeft, Loader2 } from 'lucide-react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { CheckCircle2, ChevronLeft, Loader2, ShieldCheck } from 'lucide-react';
 import useAppTheme from '@/hooks/useAppTheme';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';

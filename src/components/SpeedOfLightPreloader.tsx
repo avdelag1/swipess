@@ -1,4 +1,4 @@
-import { useEffect, memo } from 'react';
+import { memo, useEffect } from 'react';
 import { prefetchRoleRoutes } from '@/utils/routePrefetcher';
 
 /**

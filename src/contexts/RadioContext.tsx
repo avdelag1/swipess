@@ -1,9 +1,9 @@
 /* eslint-disable react-refresh/only-export-components */
-import { createContext, useContext, useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { RadioStation, CityLocation, RadioPlayerState } from '@/types/radio';
-import { getStationsByCity, getStationById, radioStations } from '@/data/radioStations';
+import { CityLocation, RadioPlayerState, RadioStation } from '@/types/radio';
+import { getStationById, getStationsByCity, radioStations } from '@/data/radioStations';
 import { logger } from '@/utils/prodLogger';
 
 /** Fisher-Yates shuffle — returns a new shuffled array, never starting with excludeId */

@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { appToast } from '@/utils/appNotification';
@@ -662,6 +662,13 @@ export function useMarkConversationAsRead() {
         });
       });
       queryClient.invalidateQueries({ queryKey: ['unread-message-count'] });
+      queryClient.invalidateQueries({ queryKey: ['unread-notifications'] });
+    },
+    onError: (err) => {
+      // RLS blocks updating other users' messages — requires DB migration to fix
+      if (import.meta.env.DEV) {
+        logger.error('[MarkConversationAsRead] Error:', err);
+      }
     }
   });
 }

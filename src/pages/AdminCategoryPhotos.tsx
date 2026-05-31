@@ -1,12 +1,12 @@
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { useNavigate, Link } from 'react-router-dom';
-import { Upload, Trash2, Loader2, RefreshCw, ImagePlus } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { ImagePlus, Loader2, RefreshCw, Trash2, Upload } from 'lucide-react';
 import { PageHeader } from '@/components/PageHeader';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { POKER_CARDS, OWNER_INTENT_CARDS, POKER_CARD_PHOTOS } from '@/components/swipe/CardData';
+import { OWNER_INTENT_CARDS, POKER_CARD_PHOTOS, POKER_CARDS } from '@/components/swipe/CardData';
 import { cn } from '@/lib/utils';
 import { useQueryClient } from '@tanstack/react-query';
 

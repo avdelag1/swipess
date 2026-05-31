@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useCreateContract } from '@/hooks/useContracts';
 import { toast } from 'sonner';
-import { Upload, FileText } from 'lucide-react';
+import { FileText, Upload } from 'lucide-react';
 import { logger } from '@/utils/prodLogger';
 
 interface ContractUploadDialogProps {

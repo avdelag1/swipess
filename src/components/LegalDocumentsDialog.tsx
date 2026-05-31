@@ -1,5 +1,5 @@
-import { useState, useRef, useCallback } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { useCallback, useRef, useState } from 'react';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -7,11 +7,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Upload, File, Trash2, CheckCircle, Clock, XCircle, FileText } from "lucide-react";
+import { CheckCircle, Clock, File, FileText, Trash2, Upload, XCircle } from "lucide-react";
 import { toast } from "sonner";
-import { validateDocumentFile, formatFileSize, FILE_SIZE_LIMITS } from '@/utils/fileValidation';
+import { FILE_SIZE_LIMITS, formatFileSize, validateDocumentFile } from '@/utils/fileValidation';
 
 interface LegalDocument {
   id: string;

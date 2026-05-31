@@ -1,16 +1,15 @@
-import { memo, useEffect, useMemo, useState } from 'react';
-import { getCardImageUrl, getBlurDataUrl } from '@/utils/imageOptimization';
+import { memo, useEffect, useMemo, useRef, useState } from 'react';
+import { getBlurDataUrl, getCardImageUrl } from '@/utils/imageOptimization';
 import PlaceholderImage from './PlaceholderImage';
 import { imageCache } from '@/lib/swipe/cardImageCache';
 import { MarketingSlide } from './MarketingSlide';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 function isBrowser() {
   return typeof window !== 'undefined' && typeof document !== 'undefined';
 }
 
 const CROSSFADE_MS = 80;
-const _CROSSFADE_EASE = [0.4, 0, 0.2, 1]; // Reserved for future animation
 
 const CardImage = memo(({
   src,
@@ -34,26 +33,32 @@ const CardImage = memo(({
   const isMarketingSlide = useMemo(() => src?.startsWith('marketing:'), [src]);
 
   const optimizedSrc = isMarketingSlide ? src : getCardImageUrl(src ?? '');
+  const cacheKey = isMarketingSlide ? src : (optimizedSrc || src);
   const blurSrc = useMemo(() => (!isMarketingSlide && src ? getBlurDataUrl(src) : null), [src, isMarketingSlide]);
-  const wasInCache = useMemo(() => (src && !isMarketingSlide ? imageCache.has(src) : false), [src, isMarketingSlide]);
 
   const [displaySrc, setDisplaySrc] = useState<string | null>(() => optimizedSrc || src || null);
   const [loaded, setLoaded] = useState<boolean>(() => {
     if (!src) return false;
     if (isMarketingSlide) return true;
-    if (imageCache.has(src)) return true;
+    if (cacheKey && imageCache.has(cacheKey)) return true;
     if (isBrowser()) {
       const img = new Image();
-      img.src = optimizedSrc || src;
+      img.src = cacheKey || '';
       return img.complete;
     }
     return false;
   });
   const [error, setError] = useState<boolean>(false);
+  const mountedRef = useRef(true);
+
+  useEffect(() => {
+    return () => { mountedRef.current = false; };
+  }, []);
 
   useEffect(() => {
     setError(false);
-    setDisplaySrc(optimizedSrc || src || null);
+    const nextSrc = optimizedSrc || src || null;
+    setDisplaySrc(nextSrc);
 
     if (!src) {
       setLoaded(false);
@@ -67,24 +72,20 @@ const CardImage = memo(({
 
     if (!isBrowser()) return;
 
-    if (imageCache.has(src)) {
+    if (cacheKey && imageCache.has(cacheKey)) {
       setLoaded(true);
       return;
     }
 
-    let mounted = true;
     const img = new Image();
-    img.onload = async () => {
-      if (!mounted) return;
-      try {
-        if ((img as any).decode) await (img as any).decode();
-      } catch (_e) { /* decode not supported, skip */ }
-      imageCache.set(src, true);
+    img.onload = () => {
+      if (!mountedRef.current) return;
+      if (cacheKey) imageCache.set(cacheKey, true);
       setLoaded(true);
     };
     let triedOriginal = false;
     img.onerror = () => {
-      if (!mounted) return;
+      if (!mountedRef.current) return;
       if (!triedOriginal && optimizedSrc && src && optimizedSrc !== src) {
         triedOriginal = true;
         setDisplaySrc(src);
@@ -93,13 +94,12 @@ const CardImage = memo(({
       }
       setError(true);
     };
-    img.src = optimizedSrc || src;
+    img.src = cacheKey || '';
     return () => {
-      mounted = false;
       img.onload = null;
       img.onerror = null;
     };
-  }, [src, optimizedSrc, isMarketingSlide]);
+  }, [src, optimizedSrc, isMarketingSlide, cacheKey]);
 
   if (!src || error) {
     if (fallbackSrc && fallbackSrc !== src) {
@@ -123,7 +123,6 @@ const CardImage = memo(({
 
   const br = fullScreen ? 'inherit' : 'var(--radius-lg)';
 
-  // Main cross-fade: AnimatePresence ensures immediate fade in/out on card swap or photo transition.
   return (
     <div
       style={{
@@ -136,8 +135,6 @@ const CardImage = memo(({
         zIndex: 1,
       }}
     >
-      {/* LQIP Placeholder — always rendered so no flash when image loads.
-          Fades out with CSS transition while the motion img crossfades in. */}
       <div
         className="absolute inset-0 flex items-center justify-center overflow-hidden transition-opacity duration-150"
         style={{
@@ -173,52 +170,48 @@ const CardImage = memo(({
           />
         )}
       </div>
-      {/* Instant crossfade — no mode="wait" so old and new images overlap */}
-      <AnimatePresence initial={false}>
-        {(loaded || wasInCache) && displaySrc && (
-          <motion.img
-            key={displaySrc}
-            src={displaySrc || optimizedSrc || src}
-            alt={alt ?? ''}
-            data-swipe-card-image="true"
-            draggable={false}
-            loading={priority ? "eager" : "lazy"}
-            decoding={priority ? "sync" : "async"}
-            fetchPriority={priority ? "high" : "auto"}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: CROSSFADE_MS / 1000, ease: _CROSSFADE_EASE }}
-            style={{
-              position: 'absolute',
-              inset: 0,
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
-              borderRadius: br,
-              zIndex: 3,
-              willChange: 'opacity',
-              WebkitTouchCallout: 'none',
-              WebkitUserSelect: 'none',
-              userSelect: 'none',
-            }}
-            onDragStart={e => e.preventDefault()}
-            onContextMenu={e => e.preventDefault()}
-            onLoad={() => {
-              if (src) imageCache.set(src, true);
-              setLoaded(true);
-            }}
-            onError={() => {
-              if (displaySrc && src && displaySrc !== src) {
-                setLoaded(false);
-                setDisplaySrc(src);
-                return;
-              }
-              setError(true);
-            }}
-          />
-        )}
-      </AnimatePresence>
+      {displaySrc && (
+        <motion.img
+          key={displaySrc}
+          src={displaySrc}
+          alt={alt ?? ''}
+          data-swipe-card-image="true"
+          draggable={false}
+          loading={priority ? "eager" : "lazy"}
+          decoding={priority ? "sync" : "async"}
+          fetchPriority={priority ? "high" : "auto"}
+          initial={false}
+          animate={{ opacity: 1 }}
+          transition={{ duration: CROSSFADE_MS / 1000 }}
+          style={{
+            position: 'absolute',
+            inset: 0,
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            borderRadius: br,
+            zIndex: 3,
+            willChange: 'opacity',
+            WebkitTouchCallout: 'none',
+            WebkitUserSelect: 'none',
+            userSelect: 'none',
+          }}
+          onDragStart={e => e.preventDefault()}
+          onContextMenu={e => e.preventDefault()}
+          onLoad={() => {
+            if (cacheKey) imageCache.set(cacheKey, true);
+            setLoaded(true);
+          }}
+          onError={() => {
+            if (displaySrc && src && displaySrc !== src) {
+              setLoaded(false);
+              setDisplaySrc(src);
+              return;
+            }
+            setError(true);
+          }}
+        />
+      )}
     </div>
   );
 });

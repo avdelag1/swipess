@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
-import { Shield, Clock, CheckCircle2, AlertTriangle, DollarSign, ArrowRight } from 'lucide-react';
+import { AlertTriangle, ArrowRight, CheckCircle2, Clock, DollarSign, Shield } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';

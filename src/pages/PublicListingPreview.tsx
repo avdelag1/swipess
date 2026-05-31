@@ -1,4 +1,4 @@
-import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
@@ -7,9 +7,9 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { DirectMessageDialog } from '@/components/DirectMessageDialog';
 import {
-  Home, MapPin, Bed, Bath, Square,
-  Anchor, Bike, MessageCircle,
-  ChevronLeft, Share2, UserPlus, LogIn,
+  Anchor, Bath, Bed, Bike, ChevronLeft,
+  Home, LogIn, MapPin,
+  MessageCircle, Share2, Square, UserPlus,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';

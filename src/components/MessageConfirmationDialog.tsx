@@ -2,10 +2,10 @@ import { useState } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { MessageCircle, Sparkles, X, Send } from 'lucide-react';
+import { MessageCircle, Send, Sparkles, X } from 'lucide-react';
 import { logger } from '@/utils/prodLogger';
 import { triggerHaptic } from '@/utils/haptics';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 
 interface MessageConfirmationDialogProps {
   open: boolean;

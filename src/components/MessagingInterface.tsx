@@ -1,9 +1,9 @@
-import { useState, useRef, useEffect, memo, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 // import { } from '@/components/ui/button';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { Send, ChevronLeft, Info, Star, Smile, Sparkles, MoreVertical, ShieldAlert, Ban, Mic, MicOff, Timer, X, Coins } from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Ban, ChevronLeft, Coins, Info, Mic, MicOff, MoreVertical, Send, ShieldAlert, Smile, Sparkles, Star, Timer, X } from 'lucide-react';
 import { triggerHaptic } from '@/utils/haptics';
 import { uiSounds } from '@/utils/uiSounds';
 import { useConversationMessages, useSendMessage } from '@/hooks/useConversations';
@@ -27,8 +27,8 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 
 interface MessagingInterfaceProps {
@@ -241,7 +241,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
   return (
     <>
       <div className={cn(
-        "flex-1 flex flex-col overflow-hidden transition-colors duration-500",
+        "flex-1 flex flex-col h-full overflow-hidden transition-colors duration-500",
         isThemeLight ? "bg-[#ffffff]" : "bg-[#000000]"
       )}>
 
@@ -365,7 +365,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
 
         <div
           id="chat-scroll-container"
-          className={cn("flex-1 flex flex-col relative overflow-hidden", isThemeLight ? "bg-[#f5f5f7]" : "bg-[#050505]")}
+          className={cn("flex-1 flex flex-col relative min-h-0", isThemeLight ? "bg-[#f5f5f7]" : "bg-[#050505]")}
           ref={messagesContainerRef}
         >
           {messages.length === 0 ? (

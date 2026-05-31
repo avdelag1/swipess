@@ -1,14 +1,14 @@
 // cache-bust: 2026-04-18-v14
-import { useEffect, useState, useCallback, memo } from 'react';
+import { memo, useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { triggerHaptic } from '@/utils/haptics';
 import { uiSounds } from '@/utils/uiSounds';
 import {
-  UNIFIED_CARDS, POKER_CARD_PHOTOS,
+  POKER_CARD_PHOTOS, UNIFIED_CARDS,
 } from './SwipeConstants';
 import { PokerCategoryCard } from './PokerCategoryCard';
 import { VapIdCardModal } from '../VapIdCardModal';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { deckFadeVariants } from '@/utils/modernAnimations';
 import type { QuickFilterCategory } from '@/types/filters';
 import { useFilterStore } from '@/state/filterStore';

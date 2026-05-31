@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { Heart, MessageCircle, Share2, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { haptics } from '@/utils/microPolish';

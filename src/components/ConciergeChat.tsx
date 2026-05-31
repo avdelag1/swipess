@@ -1,9 +1,9 @@
-import { useState, useCallback, useRef, useEffect, useMemo, memo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { 
-  X, Mic, Sparkles, Plus, CornerDownLeft,
-  Trash2, Menu, Zap, Flame, Sun, Crown, Moon, ArrowUp,
-  Check, Copy, Languages, Timer, ArrowRight, RefreshCw, Volume2, VolumeX, Share2
+  ArrowRight, ArrowUp, Check, Copy, CornerDownLeft,
+  Crown, Flame, Languages, Menu, Mic, Moon, Plus, RefreshCw,
+  Share2, Sparkles, Sun, Timer, Trash2, Volume2, VolumeX, X, Zap
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -11,12 +11,12 @@ import ReactMarkdown from 'react-markdown';
 import { createPortal } from 'react-dom';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
-import { useConciergeAI, ChatMessage, Conversation, AiCharacter } from '@/hooks/useConciergeAI';
+import { AiCharacter, ChatMessage, Conversation, useConciergeAI } from '@/hooks/useConciergeAI';
 import { useVoiceTranscribe } from '@/hooks/useVoiceTranscribe';
 import { uiSounds } from '@/utils/uiSounds';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import useAppTheme from '@/hooks/useAppTheme';
-import { useSpeechSynthesis, PERSONA_VOICE_PROFILES } from '@/hooks/useSpeechSynthesis';
+import { PERSONA_VOICE_PROFILES, useSpeechSynthesis } from '@/hooks/useSpeechSynthesis';
 import { toast } from 'sonner';
 import { useFilterStore } from '@/state/filterStore';
 import type { QuickFilterCategory } from '@/types/filters';
@@ -437,7 +437,7 @@ const MessageBubble = memo(({ message, isUser, isSwipess, isLight, onCopy, onDel
             >
               <button
                 type="button"
-                onClick={(e) => { e.stopPropagation(); onNavigate?.(`/listing/${l.id}`); }}
+                onClick={(e) => { e.stopPropagation(); setSelectedChatListing(l); setListingPreviewOpen(true); }}
                 className="w-full text-left active:scale-[0.98] transition-transform"
               >
                 {l.image && (
@@ -772,6 +772,9 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
   const [characterPanelOpen, setCharacterPanelOpen] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [selectedChatListing, setSelectedChatListing] = useState<any | null>(null);
+  const [listingPreviewOpen, setListingPreviewOpen] = useState(false);
   
   const { speak, stop: stopSpeaking, isSpeaking } = useSpeechSynthesis();
   const [speakingMsgId, setSpeakingMsgId] = useState<string | null>(null);
@@ -1292,6 +1295,63 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
               </div>
             )}
           </motion.div>
+
+          {/* Listing preview modal */}
+          <AnimatePresence>
+            {listingPreviewOpen && selectedChatListing && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="absolute inset-0 z-[10020] flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl"
+                onClick={() => setListingPreviewOpen(false)}
+              >
+                <motion.div
+                  initial={{ scale: 0.92, opacity: 0, y: 20 }}
+                  animate={{ scale: 1, opacity: 1, y: 0 }}
+                  exit={{ scale: 0.92, opacity: 0, y: 20 }}
+                  transition={{ type: 'spring', stiffness: 300, damping: 28 }}
+                  className="w-full max-w-sm rounded-3xl overflow-hidden bg-black border border-white/10 shadow-2xl"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {selectedChatListing.image && (
+                    <div className="aspect-[4/3] w-full overflow-hidden bg-white/5">
+                      <img src={selectedChatListing.image} alt={selectedChatListing.title} className="w-full h-full object-cover" />
+                    </div>
+                  )}
+                  <div className="p-5 space-y-4">
+                    <div>
+                      <h2 className="text-xl font-black text-white leading-tight">{selectedChatListing.title}</h2>
+                      <p className="text-[13px] font-bold text-white/50 mt-1">
+                        {[selectedChatListing.bedrooms ? `${selectedChatListing.bedrooms} bd` : null, selectedChatListing.bathrooms ? `${selectedChatListing.bathrooms} ba` : null, selectedChatListing.city].filter(Boolean).join(' · ')}
+                      </p>
+                    </div>
+                    <p className="text-2xl font-black bg-gradient-to-r from-[#EB4898] to-[#FF4D00] bg-clip-text text-transparent">
+                      {selectedChatListing.currency === 'MXN' ? 'MXN$' : '$'}{Number(selectedChatListing.price).toLocaleString()}
+                      <span className="text-sm font-bold text-white/40 ml-1">/ {selectedChatListing.listing_type || 'night'}</span>
+                    </p>
+                    {selectedChatListing.description && (
+                      <p className="text-sm text-white/60 leading-relaxed line-clamp-4">{selectedChatListing.description}</p>
+                    )}
+                    <div className="flex gap-2 pt-2">
+                      <button
+                        onClick={() => { setListingPreviewOpen(false); }}
+                        className="flex-1 h-11 rounded-xl bg-white/10 text-white text-xs font-bold uppercase tracking-wider hover:bg-white/20 transition-all"
+                      >
+                        Close
+                      </button>
+                      <button
+                        onClick={() => { setListingPreviewOpen(false); appNavigate(`/listing/${selectedChatListing.id}`); onClose(); }}
+                        className="flex-1 h-11 rounded-xl bg-gradient-to-r from-[#EB4898] to-[#FF4D00] text-white text-xs font-bold uppercase tracking-wider shadow-lg hover:opacity-90 transition-all"
+                      >
+                        View in App
+                      </button>
+                    </div>
+                  </div>
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       )}
     </AnimatePresence>,

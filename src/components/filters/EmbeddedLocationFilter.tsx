@@ -1,15 +1,15 @@
-import { useState, useMemo, useEffect, memo } from 'react';
+import { memo, useEffect, useMemo, useState } from 'react';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { ChevronDown, MapPin, X, Search } from 'lucide-react';
+import { ChevronDown, MapPin, Search, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
-  getRegions,
-  getCountriesInRegion,
   getCitiesInCountry,
+  getCountriesInRegion,
+  getRegions,
 } from '@/data/worldLocations';
 
 export interface LocationFilterValues {

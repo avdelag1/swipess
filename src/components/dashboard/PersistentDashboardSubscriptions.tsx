@@ -1,4 +1,4 @@
-import { useState, useEffect, Suspense } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { useFilterPersistence } from '@/hooks/useFilterPersistence';

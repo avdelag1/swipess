@@ -11,7 +11,7 @@
 
 import { memo, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Flame, Sparkles, Zap, Star } from 'lucide-react';
+import { Flame, Sparkles, Star, Zap } from 'lucide-react';
 
 interface SwipeMatchMeterProps {
   percentage: number;

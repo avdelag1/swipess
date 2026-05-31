@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { Dialog, DialogContent, DialogHeader } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,15 +6,15 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
-  Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight,
-  List, ListOrdered, Undo, Redo, Download, Printer, FileText,
-  Save, Minus, Plus, ArrowLeft
+  AlignCenter, AlignLeft, AlignRight, ArrowLeft, Bold, Download,
+  FileText, Italic, List, ListOrdered, Minus, Plus, Printer,
+  Redo, Save, Underline, Undo
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { ContractTemplate } from '@/data/contractTemplates';
 import { DigitalSignaturePad } from './DigitalSignaturePad';
 import { useCreateContract } from '@/hooks/useContracts';
-import { sanitizeHTML, escapeHTML } from '@/utils/sanitizeHTML';
+import { escapeHTML, sanitizeHTML } from '@/utils/sanitizeHTML';
 
 interface ContractDocumentDialogProps {
   open: boolean;

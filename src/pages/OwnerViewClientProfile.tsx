@@ -1,18 +1,18 @@
 /** SPEED OF LIGHT: DashboardLayout is now rendered at route level */
 import { Button } from '@/components/ui/button';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { 
-  Eye, TrendingUp, Zap, Sparkles, ShieldCheck, Clock, Flame, 
-  MapPin, ArrowLeft, X, Award, _Info, Home, Car, Ship, _Bike, 
-  _Target, _Briefcase, User, _Calendar, _DollarSign, _Heart, _Share2, 
-  _MoreHorizontal, MessageCircle, _Star, Shield, _Layout, _Settings
+  _Bike, _Briefcase, _Calendar, _DollarSign, _Heart, _Info, _Layout, 
+  _MoreHorizontal, _Settings, _Share2, _Star, _Target, ArrowLeft, Award, Car, Clock, 
+  Eye, Flame, Home, MapPin, MessageCircle, Shield, ShieldCheck, 
+  Ship, Sparkles, TrendingUp, User, X, Zap
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { ClientFilterPreferences } from '@/hooks/useClientFilterPreferences';
 import { useStartConversation } from '@/hooks/useConversations';
-import { useState, useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import useAppTheme from '@/hooks/useAppTheme';
 // import { } from '@/utils/prodLogger';
 import { AtmosphericLayer } from '@/components/AtmosphericLayer';

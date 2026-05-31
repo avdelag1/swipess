@@ -6,7 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { DigitalSignaturePad } from '@/components/DigitalSignaturePad';
 import { useSignContract } from '@/hooks/useContracts';
-import { FileText, Download } from 'lucide-react';
+import { Download, FileText } from 'lucide-react';
 import { toast } from 'sonner';
 import { logger } from '@/utils/prodLogger';
 

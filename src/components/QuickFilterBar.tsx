@@ -1,8 +1,8 @@
-import { memo, useCallback, useState, useRef, useEffect } from 'react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 
 import { 
-  _Home, _Bike, _RotateCcw, _Briefcase, Users, User, 
-  ChevronDown, _Wrench, Check, Globe, _ShoppingBag, _Key 
+  _Bike, _Briefcase, _Home, _Key, _RotateCcw, _ShoppingBag, 
+  _Wrench, Check, ChevronDown, Globe, User, Users 
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import useAppTheme from '@/hooks/useAppTheme';
@@ -10,7 +10,7 @@ import { VespaIcon } from '@/components/icons/VespaIcon';
 import { BeachBicycleIcon } from '@/components/icons/BeachBicycleIcon';
 import { WorkersIcon } from '@/components/icons/WorkersIcon';
 import { RealEstateIcon } from '@/components/icons/RealEstateIcon';
-import type { QuickFilterCategory, QuickFilters, ClientGender, ClientType } from '@/types/filters';
+import type { ClientGender, ClientType, QuickFilterCategory, QuickFilters } from '@/types/filters';
 import { POKER_CARD_PHOTOS } from './swipe/SwipeConstants';
 import { haptics } from '@/utils/microPolish';
 import { QuickFilterImage } from '@/components/ui/QuickFilterImage';

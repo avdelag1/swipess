@@ -1,11 +1,11 @@
 import { lazy, Suspense } from "react";
 const LikedListingInsightsModal = lazy(() => import("@/components/LikedListingInsightsModal").then(m => ({ default: m.LikedListingInsightsModal })));
 
-import { useState, useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useLikedProperties } from "@/hooks/useLikedProperties";
 import { useStartConversation } from "@/hooks/useConversations";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Flame, Home, Bike, Briefcase, RefreshCw, Car, Search, ArrowUpDown, Users } from "lucide-react";
+import { ArrowUpDown, Bike, Briefcase, Car, Flame, Home, RefreshCw, Search, Users } from "lucide-react";
 import { toast } from "sonner";
 import useAppTheme from "@/hooks/useAppTheme";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -16,7 +16,7 @@ import { cn } from "@/lib/utils";
 import { PremiumLikedCard } from "@/components/PremiumLikedCard";
 import { LikesSkeleton } from "@/components/ui/LikesSkeleton";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { pwaImagePreloader, getCardImageUrl } from "@/utils/imageOptimization";
+import { getCardImageUrl, pwaImagePreloader } from "@/utils/imageOptimization";
 import type { Listing } from "@/hooks/useListings";
 import { useEffect } from "react";
 import {

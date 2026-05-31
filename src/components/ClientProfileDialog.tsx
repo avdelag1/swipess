@@ -1,6 +1,6 @@
 
 import { motion } from 'framer-motion';
-import { useEffect, useRef, useState, useMemo, memo, useCallback } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,12 +14,12 @@ import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useModalStore } from '@/state/modalStore';
 import { Badge } from '@/components/ui/badge';
-import { Check, MapPin, User, Compass, Target, LifeBuoy, Sparkles, X, Save } from 'lucide-react';
+import { Check, Compass, LifeBuoy, MapPin, Save, Sparkles, Target, User, X } from 'lucide-react';
 import {
-  getRegions,
-  getCountriesInRegion,
   getCitiesInCountry,
   getCityByName,
+  getCountriesInRegion,
+  getRegions,
 } from '@/data/worldLocations';
 
 import { validateContent } from '@/utils/contactInfoValidation';
@@ -28,10 +28,10 @@ import useAppTheme from '@/hooks/useAppTheme';
 import { compressImage, PROFILE_COMPRESSION } from '@/utils/imageCompression';
 
 import {
-  SMOKING_HABIT_OPTIONS,
-  DRINKING_HABIT_OPTIONS,
   CLEANLINESS_OPTIONS,
-  CLIENT_INTENTION_OPTIONS as INTENTION_OPTIONS
+  DRINKING_HABIT_OPTIONS,
+  CLIENT_INTENTION_OPTIONS as INTENTION_OPTIONS,
+  SMOKING_HABIT_OPTIONS
 } from '@/constants/profileConstants';
 import { cn } from '@/lib/utils';
 

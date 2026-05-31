@@ -5,12 +5,12 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-  User, MapPin, Briefcase, Calendar, Languages, Flame,
-  Users, Baby, Cigarette, Wine, Sparkles, Volume2,
-  Clock, Utensils, Smile, Star
+  Baby, Briefcase, Calendar, Cigarette, Clock, Flame,
+  Languages, MapPin, Smile, Sparkles, Star, User,
+  Users, Utensils, Volume2, Wine
 } from 'lucide-react';
 import { ImageCarousel } from '@/components/ImageCarousel';
-import { getSmokingLabel, getDrinkingLabel, getCleanlinessLabel, getNoiseToleranceLabel, getWorkScheduleLabel } from '@/constants/profileConstants';
+import { getCleanlinessLabel, getDrinkingLabel, getNoiseToleranceLabel, getSmokingLabel, getWorkScheduleLabel } from '@/constants/profileConstants';
 
 interface ClientProfilePreviewProps {
   mode: 'self' | 'owner-view';

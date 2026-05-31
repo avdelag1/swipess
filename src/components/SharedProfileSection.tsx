@@ -2,15 +2,15 @@ import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Check, Copy, Gift } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { toast } from 'sonner';
 import {
   copyToClipboard,
-  shareViaNavigator,
   generateShareUrl,
-  shareViaWhatsApp,
   shareViaFacebook,
+  shareViaNavigator,
   shareViaTwitter,
+  shareViaWhatsApp,
 } from '@/hooks/useSharing';
 import { useAuth } from '@/hooks/useAuth';
 import useAppTheme from '@/hooks/useAppTheme';

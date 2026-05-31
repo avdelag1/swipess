@@ -6,15 +6,15 @@
  */
 
 import { create } from 'zustand';
-import { subscribeWithSelector, persist } from 'zustand/middleware';
+import { persist, subscribeWithSelector } from 'zustand/middleware';
 import { useShallow } from 'zustand/react/shallow';
 import type { 
-  QuickFilterCategory, 
-  QuickFilterListingType, 
   ClientGender, 
-  ClientType,
-  QuickFilters,
-  ListingFilters
+  ClientType, 
+  ListingFilters, 
+  QuickFilterCategory,
+  QuickFilterListingType,
+  QuickFilters
 } from '@/types/filters';
 // Accent color lookup for categories (from SwipeConstants)
 const CATEGORY_ACCENTS: Record<string, string> = {

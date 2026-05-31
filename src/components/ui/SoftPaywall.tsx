@@ -11,7 +11,7 @@
  */
 
 import { memo, ReactNode } from 'react';
-import { Lock, Sparkles, Eye, Undo2, CheckCheck, Zap } from 'lucide-react';
+import { CheckCheck, Eye, Lock, Sparkles, Undo2, Zap } from 'lucide-react';
 import { Button } from './button';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';

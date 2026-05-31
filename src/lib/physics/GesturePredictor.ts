@@ -13,13 +13,13 @@
  */
 
 import {
-  TimestampedPoint,
-  Velocity,
   calculateVelocity,
-  predictEndPosition,
   detectIntent,
   GestureIntent,
   IOS_PHYSICS,
+  predictEndPosition,
+  TimestampedPoint,
+  Velocity,
 } from './PhysicsEngine';
 
 export interface GestureState {

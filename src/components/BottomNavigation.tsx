@@ -15,14 +15,14 @@
  */
 
 /* eslint-disable react-refresh/only-export-components */
-import React, { useState, useCallback, useEffect, useRef, memo } from 'react';
+import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import {
-  Flame, MessageCircle, CircleUser, Building2,
-  PartyPopper, Scale as ScaleIcon,
-  Zap, SlidersHorizontal, Sparkles,
-  IdCard, Radio
+  Building2, CircleUser, Flame, IdCard,
+  MessageCircle, PartyPopper,
+  Radio, Scale as ScaleIcon, SlidersHorizontal,
+  Sparkles, Zap
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUnreadMessageCount } from '@/hooks/useUnreadMessageCount';

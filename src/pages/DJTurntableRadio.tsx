@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useRadio } from '@/contexts/RadioContext';
 import { getStationById, getStationsByCity } from '@/data/radioStations';
@@ -7,7 +7,7 @@ import { CityLocation } from '@/types/radio';
 import { StationDrawer } from '@/components/radio/retro/StationDrawer';
 import { triggerHaptic } from '@/utils/haptics';
 import { cn } from '@/lib/utils';
-import { ArrowLeft, Heart, SkipBack, SkipForward, Play, Pause, Volume2, ListMusic, Star, Shuffle, Palette } from 'lucide-react';
+import { ArrowLeft, Heart, ListMusic, Palette, Pause, Play, Shuffle, SkipBack, SkipForward, Star, Volume2 } from 'lucide-react';
 import { RadioSkinBackground } from '@/components/radio/RadioSkinBackground';
 import { useRadioSkin } from '@/hooks/useRadioSkin';
 

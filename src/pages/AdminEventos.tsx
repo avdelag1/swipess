@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Pencil, Trash2, Eye, EyeOff, X, Upload, Images } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Eye, EyeOff, Images, Pencil, Plus, Trash2, Upload, X } from 'lucide-react';
 import { PageHeader } from '@/components/PageHeader';
 import { Link } from 'react-router-dom';
 import { Input } from '@/components/ui/input';
@@ -11,7 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
-import { CheckCircle, XCircle, Search, MessageSquare, ExternalLink } from 'lucide-react';
+import { CheckCircle, ExternalLink, MessageSquare, Search, XCircle } from 'lucide-react';
 
 interface EventRow {
   id: string;

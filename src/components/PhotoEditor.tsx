@@ -1,34 +1,34 @@
-import { useState, useRef, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useCallback, useRef, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import {
-  X,
   Check,
-  RotateCcw,
-  RotateCw,
-  FlipHorizontal,
-  FlipVertical,
-  Sun,
   Contrast,
   Droplets,
-  Thermometer,
-  Sparkles,
-  Undo2,
+  FlipHorizontal,
+  FlipVertical,
   Maximize2,
-  Square,
   RectangleHorizontal,
   RectangleVertical,
+  RotateCcw,
+  RotateCw,
+  Sparkles,
+  Square,
+  Sun,
+  Thermometer,
+  Undo2,
+  X,
 } from 'lucide-react';
 import { logger } from '@/utils/prodLogger';
 import {
-  FilterType,
-  CAMERA_FILTERS,
-  PhotoAdjustments,
-  DEFAULT_ADJUSTMENTS,
   adjustmentsToCssFilter,
+  CAMERA_FILTERS,
   CropArea,
+  DEFAULT_ADJUSTMENTS,
   DEFAULT_CROP_AREA,
+  FilterType,
+  PhotoAdjustments,
 } from '@/utils/cameraFilters';
 
 interface PhotoEditorProps {

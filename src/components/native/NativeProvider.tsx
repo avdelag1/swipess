@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { LegendaryOnboarding } from './LegendaryOnboarding';
 import { BiometricGate } from './BiometricGate';
 import { useNativeBridge } from '@/hooks/useNativeBridge';

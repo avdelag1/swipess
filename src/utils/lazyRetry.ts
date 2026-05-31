@@ -1,4 +1,4 @@
-import { lazy, ComponentType } from 'react';
+import { ComponentType, lazy } from 'react';
 
 /**
  * Lazy load with a single network retry (no page reload).

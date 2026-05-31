@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import { motion } from 'framer-motion';
-import { ShieldCheck, Scale as ScaleIcon, Bike, Wrench, Star, MessageCircle, AlertTriangle, Zap } from 'lucide-react';
+import { AlertTriangle, Bike, MessageCircle, Scale as ScaleIcon, ShieldCheck, Star, Wrench, Zap } from 'lucide-react';
 import { RadarSearchIcon } from '@/components/ui/RadarSearchEffect';
 
 interface MarketingSlideProps {

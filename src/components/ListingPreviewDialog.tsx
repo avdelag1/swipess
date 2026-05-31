@@ -1,9 +1,9 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog';
+import { Dialog, DialogClose, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { MapPin, Bed, Bath, Square, DollarSign, Users, Car, Anchor, Bike, Bike as Motorcycle, Eye, Flame, MessageSquare, Building2, Briefcase, X } from 'lucide-react';
+import { Anchor, Bath, Bed, Bike, Briefcase, Building2, Car, DollarSign, Eye, Flame, MapPin, MessageSquare, Bike as Motorcycle, Square, Users, X } from 'lucide-react';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { ImageCarousel } from '@/components/ImageCarousel';
 

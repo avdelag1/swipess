@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { toast } from '@/components/ui/sonner';
 
 export function useOfflineDetection() {

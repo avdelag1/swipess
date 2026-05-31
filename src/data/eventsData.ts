@@ -1,4 +1,4 @@
-import { Sparkles, Palmtree, Leaf, Music, Utensils, Tag, Heart } from 'lucide-react';
+import { Heart, Leaf, Music, Palmtree, Sparkles, Tag, Utensils } from 'lucide-react';
 import { EventItem } from '@/types/events';
 
 // Portrait-orientation, high-resolution Unsplash photos curated for the

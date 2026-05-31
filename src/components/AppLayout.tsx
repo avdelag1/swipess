@@ -1,4 +1,4 @@
-import { Suspense, lazy, useMemo, useEffect, useRef, useLayoutEffect } from 'react';
+import { lazy, Suspense, useEffect, useLayoutEffect, useMemo, useRef } from 'react';
 import { lazyWithRetry } from '@/utils/lazyRetry';
 
 import { useLocation } from 'react-router-dom';
@@ -21,7 +21,7 @@ const SwipessHud = lazyWithRetry(() => import('./SwipessHud').then(m => ({ defau
 const VapIdCardModal = lazyWithRetry(() => import('./VapIdCardModal').then(m => ({ default: m.VapIdCardModal })));
 const GlobalDialogs = lazyWithRetry(() => import('./GlobalDialogs').then(m => ({ default: m.GlobalDialogs })));
 import { ChromeSummonZones } from './swipe/ChromeSummonZones';
-import { revealChrome, hideChrome, useChromeReveal } from '@/hooks/useChromeReveal';
+import { hideChrome, revealChrome, useChromeReveal } from '@/hooks/useChromeReveal';
 import { useFilterStore } from '@/state/filterStore';
 import { useShallow } from 'zustand/react/shallow';
 import { UNIFIED_CARDS } from '@/components/swipe/SwipeConstants';

@@ -1,7 +1,7 @@
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { MessageCircle, Sparkles, Zap, Clock, Shield, Check, Crown, Star, X, RefreshCcw } from "lucide-react";
+import { Check, Clock, Crown, MessageCircle, RefreshCcw, Shield, Sparkles, Star, X, Zap } from "lucide-react";
 import { Capacitor } from "@capacitor/core";
 
 import { useToast } from "@/hooks/use-toast";

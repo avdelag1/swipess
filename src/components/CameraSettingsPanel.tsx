@@ -1,17 +1,17 @@
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import {
-  X,
-  Settings2,
-  ImagePlus,
-  Ratio,
-  Sparkles,
-  Focus,
-  Smartphone,
-  MapPin,
   FlipHorizontal,
+  Focus,
+  ImagePlus,
+  MapPin,
+  Ratio,
+  Settings2,
+  Smartphone,
+  Sparkles,
+  X,
 } from 'lucide-react';
 import {
   CameraSettings,

@@ -1,11 +1,11 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { triggerHaptic } from '@/utils/haptics';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import {
-  X, SlidersHorizontal, DollarSign, Home, Bike, Wrench, Check,
-  ChevronDown, Zap, Droplets, Fuel, Gauge, Shield, Wifi,
-  ParkingCircle, Waves, Dumbbell, Sofa, PawPrint, Building2, Castle,
-  Hotel, Trees
+  Bike, Building2, Castle, Check, ChevronDown, DollarSign, Droplets,
+  Dumbbell, Fuel, Gauge, Home, Hotel, ParkingCircle, PawPrint,
+  Shield, SlidersHorizontal, Sofa, Trees, Waves, Wifi, Wrench,
+  X, Zap
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';

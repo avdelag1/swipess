@@ -1,5 +1,5 @@
-import { useEffect, useRef, useCallback } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useCallback, useEffect, useRef } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 interface SwipeNavConfig {
   /** Ordered list of paths the user can swipe between */

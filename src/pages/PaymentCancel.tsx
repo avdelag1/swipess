@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { XCircle, ArrowLeft } from 'lucide-react';
+import { ArrowLeft, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useEffect } from 'react';
 import { motion } from 'framer-motion';

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -9,8 +9,8 @@ import { useSaveClientFilterPreferences } from '@/hooks/useClientFilterPreferenc
 import { toast } from '@/components/ui/sonner';
 import { ClientDemographicFilters } from './ClientDemographicFilters';
 import { EmbeddedLocationFilter } from './EmbeddedLocationFilter';
-import { WORK_TYPES, SCHEDULE_TYPES, DAYS_OF_WEEK, TIME_SLOTS, LOCATION_TYPES, EXPERIENCE_LEVELS } from '../WorkerListingForm';
-import { SERVICE_GROUPS, getGroupedCategories } from '@/data/serviceCategories';
+import { DAYS_OF_WEEK, EXPERIENCE_LEVELS, LOCATION_TYPES, SCHEDULE_TYPES, TIME_SLOTS, WORK_TYPES } from '../WorkerListingForm';
+import { getGroupedCategories, SERVICE_GROUPS } from '@/data/serviceCategories';
 import useAppTheme from '@/hooks/useAppTheme';
 import { cn } from '@/lib/utils';
 const _COMMON_SKILLS = ['Communication', 'Time Management', 'Problem Solving', 'Teamwork', 'Adaptability', 'Organization', 'Customer Service', 'Technical Skills'];

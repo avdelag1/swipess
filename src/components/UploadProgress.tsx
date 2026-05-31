@@ -1,5 +1,5 @@
 import React from 'react';
-import { Loader2, CheckCircle2, XCircle } from 'lucide-react';
+import { CheckCircle2, Loader2, XCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface UploadProgressProps {

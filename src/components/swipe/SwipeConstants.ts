@@ -6,11 +6,11 @@ import { RealEstateIcon } from '@/components/icons/RealEstateIcon';
 import { ListingFilters } from '@/hooks/useSmartMatching';
 import { logger } from '@/utils/prodLogger';
 import {
-  Sparkles,
-  Users,
-  ShoppingBag,
   Key,
-  PartyPopper
+  PartyPopper,
+  ShoppingBag,
+  Sparkles,
+  Users
 } from 'lucide-react';
 
 // Category configuration for dynamic empty states

@@ -1,4 +1,4 @@
-import { Bike, Home, Briefcase, Key, Tag } from 'lucide-react';
+import { Bike, Briefcase, Home, Key, Tag } from 'lucide-react';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';

@@ -1,13 +1,13 @@
-import { useState, useCallback } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useCallback, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 // import { } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { X, Camera, Sparkles, Plus } from 'lucide-react';
+import { Camera, Plus, Sparkles, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { validateImageFile } from '@/utils/fileValidation';
 import { logger } from '@/utils/prodLogger';
-import { motion, Reorder, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion, Reorder } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
 

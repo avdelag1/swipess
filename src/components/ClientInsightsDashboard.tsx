@@ -1,8 +1,8 @@
 import { useClientInsights } from '@/hooks/useClientInsights';
 import { motion } from 'framer-motion';
 import { 
-  TrendingUp, Users, Heart, 
-  Zap, Activity, Eye, Trophy, Star, Sparkles
+  Activity, Eye, Heart, 
+  Sparkles, Star, TrendingUp, Trophy, Users, Zap
 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 

@@ -8,7 +8,7 @@
  * - 60fps performance optimizations
  */
 
-import { motion, HTMLMotionProps } from 'framer-motion';
+import { HTMLMotionProps, motion } from 'framer-motion';
 import { buttonTapVariants } from '@/utils/premiumAnimations';
 import { cn } from '@/lib/utils';
 

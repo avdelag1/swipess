@@ -1,8 +1,8 @@
 import { useOwnerInsights } from '@/hooks/useOwnerInsights';
 import { motion } from 'framer-motion';
 import { 
-  BarChart3, TrendingUp, Users, Heart, 
-  MessageSquare, DollarSign, _Activity, Eye, Zap
+  _Activity, BarChart3, DollarSign, Eye, 
+  Heart, MessageSquare, TrendingUp, Users, Zap
 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';

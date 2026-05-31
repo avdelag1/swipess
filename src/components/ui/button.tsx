@@ -19,7 +19,7 @@
 
 /* eslint-disable react-refresh/only-export-components */
 import * as React from 'react';
-import { useState, useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { Slot } from '@radix-ui/react-slot';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { motion } from 'framer-motion';

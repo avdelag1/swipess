@@ -1,4 +1,4 @@
-import { useMemo, useEffect, Suspense } from 'react';
+import { Suspense, useEffect, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useActiveMode } from '@/hooks/useActiveMode';
 import { ChunkErrorBoundary } from '@/components/ChunkErrorBoundary';

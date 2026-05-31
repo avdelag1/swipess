@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/useToast";
-import { Loader2, Lock, Eye, EyeOff, Check, X, ArrowLeft, Sparkles } from "lucide-react";
+import { ArrowLeft, Check, Eye, EyeOff, Loader2, Lock, Sparkles, X } from "lucide-react";
 import { SwipessLogo } from "@/components/SwipessLogo";
 import { cn } from "@/lib/utils";
 

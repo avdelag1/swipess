@@ -1,12 +1,12 @@
 import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Brain, Trash2, Plus, X, User, Heart, StickyNote, Lightbulb } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Brain, Heart, Lightbulb, Plus, StickyNote, Trash2, User, X } from 'lucide-react';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { useUserMemories, type MemoryCategory } from '@/hooks/useUserMemories';
+import { type MemoryCategory, useUserMemories } from '@/hooks/useUserMemories';
 import { cn } from '@/lib/utils';
 import { haptics } from '@/utils/microPolish';
 import { formatDistanceToNow } from '@/utils/timeFormatter';

@@ -1,6 +1,6 @@
-import { memo, useState, useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronRight, Home, Bike, Wrench, X, Users, User, Briefcase, Search, SlidersHorizontal } from 'lucide-react';
+import { memo, useEffect, useRef, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Bike, Briefcase, ChevronRight, Home, Search, SlidersHorizontal, User, Users, Wrench, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useFilterStore } from '@/state/filterStore';
 import { useShallow } from 'zustand/react/shallow';
@@ -8,7 +8,7 @@ import useAppTheme from '@/hooks/useAppTheme';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { haptics } from '@/utils/microPolish';
 import { useTranslation } from 'react-i18next';
-import type { QuickFilterCategory, ClientGender, ClientType } from '@/types/filters';
+import type { ClientGender, ClientType, QuickFilterCategory } from '@/types/filters';
 
 // Re-export unified types
 export type { QuickFilterCategory, QuickFilters } from '@/types/filters';

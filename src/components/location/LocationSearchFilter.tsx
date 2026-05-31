@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-import { useState, useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -8,14 +8,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Slider } from '@/components/ui/slider';
-import { MapPin, Search, Globe, Star, X, Filter, ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronDown, ChevronUp, Filter, Globe, MapPin, Search, Star, X } from 'lucide-react';
 import {
-  getRegions,
-  getCountriesInRegion,
-  getCitiesInCountry,
-  searchCities,
-  getFeaturedDestinations,
   CityLocation,
+  getCitiesInCountry,
+  getCountriesInRegion,
+  getFeaturedDestinations,
+  getRegions,
+  searchCities,
 } from '@/data/worldLocations';
 
 export interface LocationFilter {

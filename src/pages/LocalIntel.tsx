@@ -1,8 +1,8 @@
-import { useState, useEffect, type ComponentType } from 'react';
+import { type ComponentType, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Newspaper, Zap, Coffee, Shield, Utensils, Building, Calendar, ExternalLink, ChevronLeft, MapPin, Share2 } from 'lucide-react';
+import { Building, Calendar, ChevronLeft, Coffee, ExternalLink, MapPin, Newspaper, Share2, Shield, Utensils, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { formatDistanceToNow } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { triggerHaptic } from '@/utils/haptics';

@@ -1,10 +1,10 @@
 /* eslint-disable react-refresh/only-export-components */
-import React, { useState, useEffect, lazy, Suspense } from "react";
-import { QueryClient, QueryCache } from "@tanstack/react-query";
+import React, { lazy, Suspense, useEffect, useState } from "react";
+import { QueryCache, QueryClient } from "@tanstack/react-query";
 import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
 import { createIDBPersister } from "@/lib/persister";
 import { BrowserRouter } from "react-router-dom";
-import { LazyMotion, domAnimation } from "framer-motion";
+import { domAnimation, LazyMotion } from "framer-motion";
 import { HelmetProvider } from "react-helmet-async";
 import { AuthProvider } from "@/hooks/useAuth";
 import { RadioProvider } from "@/contexts/RadioContext";
@@ -17,14 +17,14 @@ import { PWAProvider } from "@/hooks/usePWAMode";
 // ──────────────────────────────────────────────────────────────────────────────
 // Theme System (Imported from separate context to avoid circular dependencies)
 // ──────────────────────────────────────────────────────────────────────────────
-import { ThemeProvider, ThemeContext, useAppTheme, type Theme, type ThemeToggleCoords, type ThemeContextType } from '@/contexts/ThemeContext';
+import { type Theme, ThemeContext, type ThemeContextType, ThemeProvider, type ThemeToggleCoords, useAppTheme } from '@/contexts/ThemeContext';
 
 export type { Theme, ThemeToggleCoords, ThemeContextType };
 export { ThemeContext, ThemeProvider, useAppTheme };
 import { VisualThemeProvider } from "@/contexts/VisualThemeContext";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { useForceUpdateOnVersionChange } from "@/hooks/useAutomaticUpdates";
-import { useProfileAutoSync, useEnsureSpecializedProfile } from "@/hooks/useProfileAutoSync";
+import { useEnsureSpecializedProfile, useProfileAutoSync } from "@/hooks/useProfileAutoSync";
 import { useConnectionHealth } from "@/hooks/useConnectionHealth";
 import { ConnectionErrorScreen } from "@/components/ConnectionErrorScreen";
 // PERF: Lazy-load SwipessPrewarmer — its deps (routePrefetcher, performance) are heavy

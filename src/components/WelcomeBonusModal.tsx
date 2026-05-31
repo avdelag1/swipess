@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, X, Zap, ShieldCheck, Crown } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Crown, ShieldCheck, Sparkles, X, Zap } from 'lucide-react';
 import { triggerHaptic } from '@/utils/haptics';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';

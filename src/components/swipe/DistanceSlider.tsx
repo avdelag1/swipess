@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useFilterStore } from '@/state/filterStore';
-import { MapPin, Loader2, Crosshair } from 'lucide-react';
+import { Crosshair, Loader2, MapPin } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { motion, useSpring, useMotionValue, useTransform } from 'framer-motion';
+import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import useAppTheme from '@/hooks/useAppTheme';
 import { triggerHaptic } from '@/utils/haptics';
 

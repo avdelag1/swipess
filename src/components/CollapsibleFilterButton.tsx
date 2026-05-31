@@ -1,9 +1,9 @@
-import { memo, useState, useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Filter, X, Home, Bike, Wrench, Users, User, Briefcase, RotateCcw } from 'lucide-react';
+import { memo, useEffect, useRef, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Bike, Briefcase, Filter, Home, RotateCcw, User, Users, Wrench, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
-import type { QuickFilterCategory, QuickFilters, ClientGender, ClientType } from '@/types/filters';
+import type { ClientGender, ClientType, QuickFilterCategory, QuickFilters } from '@/types/filters';
 
 // Re-export unified types
 export type { QuickFilterCategory, QuickFilters } from '@/types/filters';

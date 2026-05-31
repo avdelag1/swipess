@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useRef, useEffect } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { NotificationBar } from './NotificationBar';
 import { useNotificationSystem } from '@/hooks/useNotificationSystem';
 import type { AppNotification } from '@/state/notificationStore';

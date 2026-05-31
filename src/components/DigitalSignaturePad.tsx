@@ -1,7 +1,7 @@
-import React, { useRef, useEffect, useState, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Trash2, Sparkles, Fingerprint, MousePointer2 } from 'lucide-react';
+import { Fingerprint, MousePointer2, Sparkles, Trash2 } from 'lucide-react';
 import { triggerHaptic } from '@/utils/haptics';
 import { uiSounds } from '@/utils/uiSounds';
 import useAppTheme from '@/hooks/useAppTheme';

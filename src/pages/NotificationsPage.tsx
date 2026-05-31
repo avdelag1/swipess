@@ -2,8 +2,8 @@ import React from 'react';
 import { useNotificationSystem } from '@/hooks/useNotificationSystem';
 import { motion } from 'framer-motion';
 import { 
-  Bell, Check, Trash2, Heart, MessageCircle, Info, 
-  MapPin, UserCheck, AlertTriangle, Sparkles, _X
+  _X, AlertTriangle, Bell, Check, Heart, Info, 
+  MapPin, MessageCircle, Sparkles, Trash2, UserCheck
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { cn } from '@/lib/utils';

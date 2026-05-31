@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card, CardContent } from '@/components/ui/card';
@@ -6,24 +6,24 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
-  Bell,
-  MessageSquare,
-  Flame,
-  CheckCheck,
-  Trash2,
-  _Star,
-  Sparkles,
-  Eye,
   _Crown,
-  X,
+  _Star,
+  _UserPlus,
   _Zap,
-  _UserPlus
+  Bell,
+  CheckCheck,
+  Eye,
+  Flame,
+  MessageSquare,
+  Sparkles,
+  Trash2,
+  X
 } from 'lucide-react';
 import { useNotificationSystem } from '@/hooks/useNotificationSystem';
 import { useUnreadNotifications } from '@/hooks/useUnreadNotifications';
 import { formatDistanceToNow } from '@/utils/timeFormatter';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { AnimatePresence, motion } from 'framer-motion';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { notificationTypeConfigs as typeConfigs } from '@/utils/notificationConfigs';
 import { ThemeContext } from '@/hooks/useAppTheme';
 import { useContext } from 'react';

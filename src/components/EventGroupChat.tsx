@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { X, Send, Users } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Send, Users, X } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
 interface ChatMessage {

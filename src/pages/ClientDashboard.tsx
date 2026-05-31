@@ -1,4 +1,5 @@
 import { useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { SwipessSwipeContainer } from '@/components/SwipessSwipeContainer';
 import { useFilterStore } from '@/state/filterStore';
 import { cn } from '@/lib/utils';
@@ -13,6 +14,7 @@ interface ClientDashboardProps {
 
 export default function ClientDashboard({ onMessageClick }: ClientDashboardProps) {
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Show the HUD briefly when entering the dashboard
@@ -41,7 +43,7 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
 
       <div className="flex-1 flex flex-col min-h-0">
         <SwipessSwipeContainer
-          onListingTap={() => {}}
+          onListingTap={(listingId) => navigate(`/listing/${listingId}`)}
           onInsights={() => {}}
           onMessageClick={onMessageClick}
         />

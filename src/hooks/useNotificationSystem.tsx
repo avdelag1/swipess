@@ -1,9 +1,9 @@
-import { useEffect, useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { logger } from '@/utils/prodLogger';
 import { useProfileCache } from '@/hooks/useProfileCache';
-import { useNotificationStore, NotificationType, AppNotification } from '@/state/notificationStore';
+import { AppNotification, NotificationType, useNotificationStore } from '@/state/notificationStore';
 
 // DBNotification matches actual Supabase schema
 interface DBNotification {

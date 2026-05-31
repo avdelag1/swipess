@@ -1,6 +1,6 @@
 import { memo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { X, Zap, MessageCircle, Crown, RefreshCcw, Sparkles } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Crown, MessageCircle, RefreshCcw, Sparkles, X, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import useAppTheme from '@/hooks/useAppTheme';
 import { useTokens } from '@/hooks/useTokens';

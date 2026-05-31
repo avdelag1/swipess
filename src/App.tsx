@@ -1,7 +1,7 @@
 import { Suspense } from "react"; // cache-bust-v3
 import { lazyWithRetry } from "@/utils/lazyRetry";
 import { ChunkErrorBoundary } from "@/components/ChunkErrorBoundary";
-import { Routes, Route, Navigate, useLocation, useParams } from "react-router-dom";
+import { Navigate, Route, Routes, useLocation, useParams } from "react-router-dom";
 import { RootProviders } from "./providers/RootProviders";
 
 import { ProtectedRoute } from "@/components/ProtectedRoute";

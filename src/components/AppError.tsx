@@ -1,4 +1,4 @@
-import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
+import { AlertTriangle, Home, RefreshCw } from 'lucide-react';
 import { toast } from '@/components/ui/sonner';
 
 

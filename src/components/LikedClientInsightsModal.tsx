@@ -2,13 +2,13 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
 import { Button } from '@/components/ui/button';
-import { MapPin, User, Calendar, MessageCircle, CheckCircle, Trash2, Ban, Flag, ChevronLeft, ChevronRight, X, Briefcase, Sparkles, Star, Share2, TrendingUp, Zap, Eye, Flame, ShieldCheck } from 'lucide-react';
+import { Ban, Briefcase, Calendar, CheckCircle, ChevronLeft, ChevronRight, Eye, Flag, Flame, MapPin, MessageCircle, Share2, ShieldCheck, Sparkles, Star, Trash2, TrendingUp, User, X, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { PropertyImageGallery } from './PropertyImageGallery';
 import { useNavigate } from 'react-router-dom';
 import { useStartConversation } from '@/hooks/useConversations';
 import { toast } from '@/components/ui/sonner';
-import { useState, useEffect, useCallback, memo, useMemo } from 'react';
+import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { logger } from '@/utils/prodLogger';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';

@@ -1,5 +1,5 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { CameraCapture } from '@/components/CameraCapture';
 import { CapturedPhoto } from '@/hooks/useCamera';
 import { supabase } from '@/integrations/supabase/client';

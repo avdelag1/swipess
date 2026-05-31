@@ -12,7 +12,7 @@
  * - Works on ALL pages for consistent navigation contrast
  */
 
-import { memo, CSSProperties } from 'react';
+import { CSSProperties, memo } from 'react';
 
 interface GradientMaskProps {
   /** Intensity of the gradient (0-1). Default 1 = full opacity */

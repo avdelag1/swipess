@@ -1,16 +1,16 @@
-import { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { useEffect, useState } from 'react';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { X, Save, Filter, Check } from 'lucide-react';
+import { Check, Filter, Save, X } from 'lucide-react';
 import { useOwnerClientPreferences } from '@/hooks/useOwnerClientPreferences';
 import { useSavedFilters } from '@/hooks/useSavedFilters';
 import { useToast } from '@/hooks/useToast';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
 interface OwnerClientFilterDialogProps {
@@ -31,9 +31,9 @@ const CLIENT_TYPE_OPTIONS = [
 ];
 
 import {
+  GENDER_OPTIONS,
   LIFESTYLE_TAGS as LIFESTYLE_OPTIONS,
   WORK_SCHEDULE_OPTIONS as OCCUPATION_OPTIONS,
-  GENDER_OPTIONS,
   BUDGET_RANGES as OWNER_BUDGET_RANGES,
 } from '@/constants/profileConstants';
 

@@ -1,16 +1,16 @@
-import { Sparkles, Building2, Bike, X, Briefcase } from 'lucide-react';
+import { Bike, Briefcase, Building2, Sparkles, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { 
   Dialog, 
-  DialogContent, 
-  DialogTrigger,
-  DialogClose
+  DialogClose, 
+  DialogContent,
+  DialogTrigger
 } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
 import { useModalStore } from '@/state/modalStore';
 import { triggerHaptic } from '@/utils/haptics';
 import { MotorcycleIcon } from './icons/MotorcycleIcon';
-import { useState, memo } from 'react';
+import { memo, useState } from 'react';
 
 interface AIListingTriggerProps {
   glassPillStyle?: React.CSSProperties;

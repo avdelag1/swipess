@@ -1,6 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 import React from 'react';
-import { Home, Bike, Briefcase } from 'lucide-react';
+import { Bike, Briefcase, Home } from 'lucide-react';
 import { logger } from '@/utils/prodLogger';
 
 // Motorcycle wheel + sport helmet icon (replaces classic motorcycle silhouette)

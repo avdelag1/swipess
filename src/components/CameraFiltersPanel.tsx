@@ -1,20 +1,20 @@
 import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import {
-  X,
-  Sparkles,
-  User,
   Moon,
-  Sun,
   Palette,
+  Sparkles,
+  Sun,
+  User,
+  X,
 } from 'lucide-react';
 import {
-  FilterType,
   CAMERA_FILTERS,
-  PortraitModeConfig,
+  FilterType,
   NightModeConfig,
+  PortraitModeConfig,
 } from '@/utils/cameraFilters';
 
 interface CameraFiltersPanelProps {

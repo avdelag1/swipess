@@ -12,9 +12,9 @@
  * - Advanced "Swipes" Zoom (Hold to Magnify)
  */
 
-import { memo, useRef, useState, useCallback, useMemo, useEffect, forwardRef, useImperativeHandle } from 'react';
-import { motion, useMotionValue, useTransform, PanInfo, animate, useDragControls, MotionValue, AnimatePresence } from 'framer-motion';
-import { MapPin, DollarSign, Briefcase, ThumbsUp, Flag, Share2, MessageCircle, BarChart3 } from 'lucide-react';
+import { forwardRef, memo, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
+import { animate, AnimatePresence, motion, MotionValue, PanInfo, useDragControls, useMotionValue, useTransform } from 'framer-motion';
+import { BarChart3, Bookmark, Briefcase, DollarSign, Flag, MapPin, MessageCircle, Share2, ThumbsUp } from 'lucide-react';
 import { triggerHaptic } from '@/utils/haptics';
 import { cn } from '@/lib/utils';
 import { useMagnifier } from '@/hooks/useMagnifier';
@@ -144,6 +144,7 @@ interface SimpleOwnerSwipeCardProps {
   onSkipBack?: () => void;
   onTap?: () => void;
   onInsights?: () => void;
+  onSoon?: () => void;
   onMessage?: () => void;
   onSearch?: () => void;
   isTop?: boolean;
@@ -164,7 +165,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   onSwipe,
   onSkip,
   onSkipBack,
-  onTap: _onTap,
+  onTap: onTap,
   onInsights,
   isTop = true,
   onDragStart,
@@ -173,6 +174,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   onReport,
   onShare,
   onMessage,
+  onSoon,
 }, ref) => {
   const isDragging = useRef(false);
   const hasExited = useRef(false);
@@ -183,7 +185,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   const storedPointerEventRef = useRef<React.PointerEvent | null>(null);
   const dragAxisRef = useRef<DragAxis>(null);
   const { isLight } = useAppTheme();
-  const { isChromeVisible } = useChromeReveal();
+  const { isChromeVisible: _isChromeVisible } = useChromeReveal();
 
   const _internalX = useMotionValue(0);
   const _internalY = useMotionValue(0);
@@ -352,9 +354,10 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
       triggerHaptic('light');
     } else {
       revealChrome();
+      onTap?.();
       triggerHaptic('light');
     }
-  }, [imageCount, onInsights, isMagnifierActive, wasMagnifierActive, _onTap]);
+  }, [imageCount, onTap, isMagnifierActive, wasMagnifierActive]);
 
   const handleButtonSwipe = useCallback((direction: 'left' | 'right') => {
     if (hasExited.current) return;
@@ -511,7 +514,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
 
         {/* Floating Action Rail — Apple-style vertical glass pill */}
         <AnimatePresence>
-          {isTop && isChromeVisible && !isZoomed && (
+          {isTop && !isZoomed && (
             <motion.div
               initial={{ opacity: 0, x: 18, scale: 0.96 }}
               animate={{ opacity: 1, x: 0, scale: 1 }}
@@ -531,6 +534,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
               >
                 {[
                   { icon: Share2, onClick: () => onShare?.(profile), label: 'Share' },
+                  { icon: Bookmark, onClick: onSoon, label: 'Save' },
                   { icon: MessageCircle, onClick: onMessage, label: 'Message' },
                   { icon: BarChart3, onClick: onInsights, label: 'Insights' },
                   { icon: Flag, onClick: onReport, label: 'Report' },

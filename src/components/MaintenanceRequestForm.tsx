@@ -5,8 +5,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from '@/components/ui/sonner';
-import { Camera, X, Wrench, Zap, Wind, Cpu, Building2, MoreHorizontal } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { Building2, Camera, Cpu, MoreHorizontal, Wind, Wrench, X, Zap } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import browserImageCompression from 'browser-image-compression';
 

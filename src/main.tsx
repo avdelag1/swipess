@@ -104,7 +104,7 @@ const initHaptics = () => {
       setTimeout(() => target.removeAttribute('data-haptics-fired'), 200);
       if ('vibrate' in navigator) {
         if (!('userActivation' in navigator) || (navigator as any).userActivation?.hasBeenActive) {
-          try { navigator.vibrate(10); } catch {}
+          try { navigator.vibrate(10); } catch { /* vibrate not supported */ }
         }
       }
     }

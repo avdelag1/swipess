@@ -4,16 +4,16 @@ import { PhotoPreview } from "@/components/PhotoPreview";
 import { ShareDialog } from "@/components/ShareDialog";
 import { SharedProfileSection } from "@/components/SharedProfileSection";
 import { ThemeSelector } from "@/components/ThemeSelector";
-import { useState, useCallback } from "react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { useCallback, useState } from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useClientProfile } from "@/hooks/useClientProfile";
 import { useAuth } from "@/hooks/useAuth";
 import { Separator } from "@/components/ui/separator";
 import {
-  LogOut, User, Camera, Sparkles, Crown, ArrowLeft,
-  Share2, Flame, Radio,
-  Settings as SettingsIcon, Palette, Scale as ScaleIcon, FileText, Heart
+  ArrowLeft, Camera, Crown, FileText, Flame, Heart,
+  LogOut, Palette, Radio,
+  Scale as ScaleIcon, Settings as SettingsIcon, Share2, Sparkles, User
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";

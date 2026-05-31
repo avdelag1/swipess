@@ -1,10 +1,10 @@
-import { useState, useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { appToast } from '@/utils/appNotification';
 import { User } from '@supabase/supabase-js';
 import { useQueryClient } from '@tanstack/react-query';
 import { logger } from '@/utils/prodLogger';
-import { STORAGE, REFERRAL } from '@/constants/app';
+import { REFERRAL, STORAGE } from '@/constants/app';
 
 interface CreateProfileData {
   id: string;

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { SwipeTheme, themeDisplayNames } from "@/utils/sounds";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
-import { Volume2, VolumeX, Vibrate } from "lucide-react";
+import { Vibrate, Volume2, VolumeX } from "lucide-react";
 import { logger } from '@/utils/prodLogger';
 import { getHapticPreference, setHapticPreference } from "@/utils/haptics";
 import { Capacitor } from "@capacitor/core";

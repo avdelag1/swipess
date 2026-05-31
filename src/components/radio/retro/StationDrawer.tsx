@@ -1,8 +1,8 @@
-import { motion, AnimatePresence } from 'framer-motion';
-import { X, Heart, Play, Music, Globe, Star, LayoutGrid, ChevronRight, Shuffle } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { ChevronRight, Globe, Heart, LayoutGrid, Music, Play, Shuffle, Star, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { radioStations, cityThemes } from '@/data/radioStations';
-import { RadioStation, CityLocation } from '@/types/radio';
+import { cityThemes, radioStations } from '@/data/radioStations';
+import { CityLocation, RadioStation } from '@/types/radio';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
 import { RadioSkinBackground } from '@/components/radio/RadioSkinBackground';

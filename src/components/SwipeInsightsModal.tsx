@@ -4,12 +4,12 @@ import { Button } from '@/components/ui/button';
 import { Listing } from '@/hooks/useListings';
 import { MatchedClientProfile } from '@/hooks/useSmartMatching';
 import {
-  MapPin, Calendar, CheckCircle, Bed, Bath, Square, Anchor, Bike, Car, Home,
-  X, ArrowLeft, ChevronLeft, ChevronRight, Fuel, ShieldCheck, Briefcase,
-  Gauge, Ruler, Zap, Wrench, Clock, User, DollarSign,
+  Anchor, ArrowLeft, Bath, Bed, Bike, Briefcase, Calendar, Car, CheckCircle, ChevronLeft,
+  ChevronRight, Clock, DollarSign, Fuel, Gauge, Home, MapPin,
+  Ruler, ShieldCheck, Square, User, Wrench, X, Zap,
 } from 'lucide-react';
 import { PropertyImageGallery } from './PropertyImageGallery';
-import { useState, useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { cn } from '@/lib/utils';
 import useAppTheme from '@/hooks/useAppTheme';
 

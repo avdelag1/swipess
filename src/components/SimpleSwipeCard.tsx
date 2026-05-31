@@ -12,14 +12,14 @@
  * - Advanced "Swipes" Zoom (Hold to Magnify)
  */
 
-import { memo, useRef, useState, useCallback, useMemo, useEffect, forwardRef, useImperativeHandle } from 'react';
-import { motion, useMotionValue, useTransform, PanInfo, animate, useDragControls, MotionValue, AnimatePresence } from 'framer-motion';
+import { forwardRef, memo, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
+import { animate, AnimatePresence, motion, MotionValue, PanInfo, useDragControls, useMotionValue, useTransform } from 'framer-motion';
 import { triggerHaptic } from '@/utils/haptics';
 import { getCardImageUrl } from '@/utils/imageOptimization';
 import { Listing } from '@/hooks/useListings';
-import { MatchedListing, MatchedClientProfile } from '@/hooks/useSmartMatching';
+import { MatchedClientProfile, MatchedListing } from '@/hooks/useSmartMatching';
 import { useMagnifier } from '@/hooks/useMagnifier';
-import { PropertyCardInfo, VehicleCardInfo, ServiceCardInfo, ClientCardInfo } from '@/components/ui/CardInfoHierarchy';
+import { ClientCardInfo, PropertyCardInfo, ServiceCardInfo, VehicleCardInfo } from '@/components/ui/CardInfoHierarchy';
 import { CompactRatingDisplay } from '@/components/RatingDisplay';
 import { useListingRatingAggregate } from '@/hooks/useRatingSystem';
 import CardImage from '@/components/CardImage';
@@ -27,10 +27,10 @@ import { LoopVideo } from '@/components/video/LoopVideo';
 import { imageCache } from '@/lib/swipe/cardImageCache';
 import useAppTheme from '@/hooks/useAppTheme';
 import { cn } from '@/lib/utils';
-import { ThumbsUp, Flag, Share2, MessageCircle, BarChart3 } from 'lucide-react';
+import { BarChart3, Bookmark, Flag, MessageCircle, Share2, ThumbsUp } from 'lucide-react';
 import { PhotoPositionIndicators } from '@/components/swipe/PhotoPositionIndicators';
 import { GestureHints } from '@/components/swipe/GestureHints';
-import { useChromeReveal, revealChrome } from '@/hooks/useChromeReveal';
+import { revealChrome, useChromeReveal } from '@/hooks/useChromeReveal';
 
 export interface SimpleSwipeCardRef {
   triggerSwipe: (direction: 'left' | 'right') => void;
@@ -50,8 +50,10 @@ interface SimpleSwipeCardProps {
   onSwipe: (direction: 'left' | 'right') => void;
   onSkip?: () => void;
   onSkipBack?: () => void;
+  onCardTap?: () => void;
   onInsights?: () => void;
   onShare?: () => void;
+  onSoon?: () => void;
   onReport?: () => void;
   onMessage?: () => void;
   isTop?: boolean;
@@ -65,6 +67,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   onSwipe,
   onSkip,
   onSkipBack,
+  onCardTap,
   onInsights,
   isTop = true,
   externalX,
@@ -73,9 +76,11 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   onReport,
   onShare,
   onMessage,
+  onSoon,
 }, ref) => {
   const { isLight } = useAppTheme();
-  const { isChromeVisible } = useChromeReveal();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { isChromeVisible: _isChromeVisible } = useChromeReveal();
   const isDragging = useRef(false);
   const hasExited = useRef(false);
   const isExitingRef = useRef(false);
@@ -322,9 +327,10 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
       triggerHaptic('light');
     } else {
       revealChrome();
+      onCardTap?.();
       triggerHaptic('light');
     }
-  }, [imageCount, onInsights, isMagnifierActive, wasMagnifierActive]);
+  }, [imageCount, onCardTap, isMagnifierActive, wasMagnifierActive]);
 
   const handleButtonSwipe = useCallback((direction: 'left' | 'right') => {
     if (hasExited.current) return;
@@ -566,10 +572,9 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
         )}
 
         {/* Floating Action Rail — Apple-style vertical glass pill.
-            Smooth fade + slide hide (no abrupt vanish) tied to the
-            swipe-deck chrome visibility. */}
+            Always visible so buttons are always tappable. */}
         <AnimatePresence>
-          {isTop && isChromeVisible && !isZoomed && (
+          {isTop && !isZoomed && (
             <motion.div
               initial={{ opacity: 0, x: 18, scale: 0.96 }}
               animate={{ opacity: 1, x: 0, scale: 1 }}
@@ -590,6 +595,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
               >
                 {[
                   { icon: Share2, onClick: onShare, label: 'Share' },
+                  { icon: Bookmark, onClick: onSoon, label: 'Save' },
                   { icon: MessageCircle, onClick: onMessage, label: 'Message' },
                   { icon: BarChart3, onClick: onInsights, label: 'Insights' },
                   { icon: Flag, onClick: onReport, label: 'Report' },

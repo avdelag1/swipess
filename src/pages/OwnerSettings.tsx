@@ -3,8 +3,8 @@ import { PageHeader } from "@/components/PageHeader";
 import { CardContent } from "@/components/ui/card";
 // import { } from "@/components/ui/badge";
 import {
-  Shield, FileText, HelpCircle, Info, ChevronRight,
-  Scale as ScaleIcon, Volume2, Building2, Globe, Users
+  Building2, ChevronRight, FileText, Globe, HelpCircle,
+  Info, Scale as ScaleIcon, Shield, Users, Volume2
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";

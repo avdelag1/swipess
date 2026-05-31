@@ -9,7 +9,7 @@
  * be loaded since the user explicitly saved this property.
  */
 
-import { getThumbnailUrl, getFullImageUrl, getCardImageUrl } from './imageOptimization';
+import { getCardImageUrl, getFullImageUrl, getThumbnailUrl } from './imageOptimization';
 
 interface CachedImage {
   url: string;

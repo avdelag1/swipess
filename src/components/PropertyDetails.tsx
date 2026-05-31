@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { MapPin, Bed, Bath, Square, Flame, MessageCircle, X, Camera, Zap } from 'lucide-react';
+import { Bath, Bed, Camera, Flame, MapPin, MessageCircle, Square, X, Zap } from 'lucide-react';
 import { useSwipe } from '@/hooks/useSwipe';
 import { useHasPremiumFeature } from '@/hooks/useSubscription';
 import { Listing } from '@/hooks/useListings';

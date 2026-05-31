@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import ClientLikedProperties from "./ClientLikedProperties";
 import { LikedClients } from "@/components/LikedClients";
 import { cn } from "@/lib/utils";

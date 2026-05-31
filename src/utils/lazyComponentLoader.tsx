@@ -4,7 +4,7 @@
  * Reduces initial bundle size by deferring non-critical components
  */
 
-import { lazy, Suspense, ReactNode, ComponentType, LazyExoticComponent } from 'react';
+import { ComponentType, lazy, LazyExoticComponent, ReactNode, Suspense } from 'react';
 import { logger } from '@/utils/prodLogger';
 
 type AnyProps = Record<string, any>;

@@ -1,4 +1,4 @@
-import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
@@ -6,8 +6,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
-  User, MapPin, ChevronLeft, Share2,
-  ShieldCheck, UserPlus, LogIn, Sparkles, Globe,
+  ChevronLeft, Globe, LogIn, MapPin,
+  Share2, ShieldCheck, Sparkles, User, UserPlus,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { triggerHaptic } from '@/utils/haptics';
