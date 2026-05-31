@@ -1,5 +1,5 @@
 import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { animate, AnimatePresence, motion, PanInfo, useMotionValue, useTransform } from 'framer-motion';
+import { animate, motion, PanInfo, useMotionValue, useTransform } from 'framer-motion';
 import { triggerHaptic } from '@/utils/haptics';
 import {
   PK_DIST_THRESHOLD,
@@ -84,7 +84,15 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
     return imageCache.has(photo) || _loadedPokerImages.has(photo);
   });
 
-  const photoRenderKey = `${photo}_${imgReady}`;
+  // Store previous photo for smooth crossfade
+  const [prevPhoto, setPrevPhoto] = useState<string | null>(null);
+  const prevPhotoRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (prevPhotoRef.current && prevPhotoRef.current !== photo) {
+      setPrevPhoto(prevPhotoRef.current);
+    }
+    prevPhotoRef.current = photo;
+  }, [photo]);
 
   useLayoutEffect(() => {
     const prev = _lastPhotoKey.get(cardKey);
@@ -168,9 +176,10 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
       const direction = dx > 0 ? 'right' : 'left';
       const exitX = direction === 'right' ? 520 : -520;
       animate(x, exitX, {
-        type: 'tween',
-        duration: 0.22,
-        ease: [0.32, 0, 0.67, 0],
+        type: 'spring',
+        stiffness: 400,
+        damping: 28,
+        mass: 0.5,
         onComplete: () => {
           onCycle(card.id, direction);
           // Reset after cycle — onCycle re-renders so these run on the
@@ -186,14 +195,12 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
     animate(x, 0, { ...PK_SPRING });
   }, [card.id, onCycle, x]);
 
-  // Stack styling.
+  // Stack styling — no blur (avoids expensive repaints), just brightness falloff
   const { stackOpacity, stackedFilter } = useMemo(() => ({
     stackOpacity: 1,
     stackedFilter: isTop
       ? 'brightness(0.98)'
-      : _isLowEndDevice
-        ? `brightness(${0.96 - index * 0.035})`
-        : `brightness(${0.96 - index * 0.035}) blur(${Math.min(1.0, index * 0.25)}px)`,
+      : `brightness(${0.96 - index * 0.045})`,
   }), [index, isTop]);
 
   if (index > 7) return null;
@@ -259,23 +266,39 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
         className="w-full h-full relative overflow-hidden bg-black rounded-[2.5rem] shadow-[0_30px_60px_-20px_rgba(0,0,0,0.55)]"
         style={{ backgroundImage: fallbackGradient }}
       >
-        {/* Photo carousel */}
-        <AnimatePresence mode="wait" initial={false}>
+        {/* Photo carousel — smooth crossfade: both old and new render simultaneously */}
+        <div className="absolute inset-0">
+          {/* Previous photo fading out */}
+          {prevPhoto && prevPhoto !== photo && (
+            <motion.img
+              key={`old-${prevPhoto}`}
+              src={prevPhoto}
+              alt=""
+              aria-hidden
+              initial={{ opacity: 1 }}
+              animate={{ opacity: 0 }}
+              transition={{ duration: 0.25, ease: 'easeInOut' }}
+              onAnimationComplete={() => setPrevPhoto(null)}
+              className="absolute inset-0 w-full h-full object-cover"
+              style={{ backfaceVisibility: 'hidden' }}
+              draggable={false}
+            />
+          )}
+          {/* Current photo fading in */}
           <motion.img
-            key={photoRenderKey}
+            key={photo}
             src={photo}
             alt={card.label}
             loading="eager"
             decoding="async"
             initial={{ opacity: 0 }}
             animate={{ opacity: imgReady ? 1 : 0 }}
-            exit={{ opacity: 0 }}
-            transition={{ opacity: { duration: 0.2, ease: 'easeOut' } }}
+            transition={{ duration: 0.25, ease: 'easeInOut' }}
             className="absolute inset-0 w-full h-full object-cover"
-            style={{ backfaceVisibility: 'hidden' }}
+            style={{ backfaceVisibility: 'hidden', willChange: 'opacity' }}
             draggable={false}
           />
-        </AnimatePresence>
+        </div>
 
         {/* Scrim */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
