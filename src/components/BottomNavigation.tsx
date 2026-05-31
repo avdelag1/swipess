@@ -116,7 +116,6 @@ export const BottomNavigation = memo(({
   // Detect narrow screens for icon-only compact mode
   const [isNarrow, setIsNarrow] = useState(false);
   const [isTablet, setIsTablet] = useState(false);
-  const [poppingId, setPoppingId] = useState<string | null>(null);
   useEffect(() => {
     const check = () => {
       setIsNarrow(window.innerWidth < 360);
@@ -284,10 +283,11 @@ export const BottomNavigation = memo(({
         className={cn(
           "pointer-events-auto",
           "mx-auto w-fit max-w-[95vw]",
-          "glass-surface px-1.5 py-1", // Unified Glassmorphic Pill — More Compact
+          "glass-surface px-1.5 py-1",
           "rounded-full"
         )}
         style={{
+          background: isDashboardRoute ? '#000000' : undefined,
           filter: isLight
             ? 'drop-shadow(0 4px 12px rgba(0,0,0,0.12))'
             : 'drop-shadow(0 8px 32px rgba(0,0,0,0.45))',
@@ -334,7 +334,6 @@ export const BottomNavigation = memo(({
                 data-instant-feedback
                 onPointerDown={(e) => {
                   if (item.path) prefetchRoute(item.path);
-                  setPoppingId(item.id);
                   isDraggingRef.current = false;
                   touchState.current = { x: e.clientX, y: e.clientY };
                 }}
@@ -342,13 +341,8 @@ export const BottomNavigation = memo(({
                 onPointerUp={(e) => {
                   handleNavClick(item, e);
                   handlePointerUp();
-                  setPoppingId(null);
                 }}
-                onPointerCancel={() => {
-                  handlePointerUp();
-                  setPoppingId(null);
-                }}
-                onPointerLeave={() => setPoppingId(null)}
+                onPointerCancel={handlePointerUp}
                 onKeyDown={(e) => handleNavKeyDown(e, item)}
 
                 aria-label={item.label}
@@ -379,10 +373,8 @@ export const BottomNavigation = memo(({
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    transform: poppingId === item.id ? 'scale(1.4)' : (active ? 'scale(1.06)' : 'scale(1)'),
-                    transition: poppingId === item.id
-                      ? 'transform 80ms cubic-bezier(0.1, 0.7, 0.3, 1)'
-                      : 'transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1)',
+                    transform: active ? 'scale(1.06)' : 'scale(1)',
+                    transition: 'transform 180ms cubic-bezier(0.32, 0.72, 0, 1)',
                   }}
                 >
 

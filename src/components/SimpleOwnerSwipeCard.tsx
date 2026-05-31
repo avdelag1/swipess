@@ -185,7 +185,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   const storedPointerEventRef = useRef<React.PointerEvent | null>(null);
   const dragAxisRef = useRef<DragAxis>(null);
   const { isLight } = useAppTheme();
-  const { isChromeVisible: _isChromeVisible } = useChromeReveal();
+  const { isChromeVisible } = useChromeReveal();
 
   const _internalX = useMotionValue(0);
   const _internalY = useMotionValue(0);
@@ -514,7 +514,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
 
         {/* Floating Action Rail — Apple-style vertical glass pill */}
         <AnimatePresence>
-          {isTop && !isZoomed && (
+          {isTop && !isZoomed && isChromeVisible && (
             <motion.div
               initial={{ opacity: 0, x: 18, scale: 0.96 }}
               animate={{ opacity: 1, x: 0, scale: 1 }}

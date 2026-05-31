@@ -80,7 +80,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
 }, ref) => {
   const { isLight } = useAppTheme();
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { isChromeVisible: _isChromeVisible } = useChromeReveal();
+  const { isChromeVisible } = useChromeReveal();
   const isDragging = useRef(false);
   const hasExited = useRef(false);
   const isExitingRef = useRef(false);
@@ -574,7 +574,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
         {/* Floating Action Rail — Apple-style vertical glass pill.
             Always visible so buttons are always tappable. */}
         <AnimatePresence>
-          {isTop && !isZoomed && (
+          {isTop && !isZoomed && isChromeVisible && (
             <motion.div
               initial={{ opacity: 0, x: 18, scale: 0.96 }}
               animate={{ opacity: 1, x: 0, scale: 1 }}
