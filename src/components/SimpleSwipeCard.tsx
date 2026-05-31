@@ -60,6 +60,7 @@ interface SimpleSwipeCardProps {
   externalX?: MotionValue<number>;
   externalY?: MotionValue<number>;
   onDragStart?: () => void;
+  disableDrag?: boolean;
 }
 
 const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardProps>(({
@@ -77,6 +78,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   onShare,
   onMessage,
   onSoon,
+  disableDrag,
 }, ref) => {
   const { isLight } = useAppTheme();
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -360,10 +362,10 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   return (
     <div className={cn("absolute inset-0 flex flex-col", isTop ? "pointer-events-auto" : "pointer-events-none")}>
       <motion.div
-        drag={isTop ? true : false}
-        dragControls={isTop ? dragControls : undefined}
-        dragListener={isTop ? false : undefined}
-        dragDirectionLock={isTop ? true : undefined}
+        drag={disableDrag ? false : (isTop ? true : false)}
+        dragControls={disableDrag ? undefined : (isTop ? dragControls : undefined)}
+        dragListener={disableDrag ? false : (isTop ? false : undefined)}
+        dragDirectionLock={disableDrag ? false : (isTop ? true : undefined)}
         dragMomentum={false}
         dragConstraints={{ left: -9999, right: 9999, top: -9999, bottom: 9999 }}
         dragElastic={1}
@@ -375,7 +377,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
         onPointerMove={handleUnifiedPointerMove}
         onPointerUp={handleUnifiedPointerUp}
         onPointerCancel={handleUnifiedPointerUp}
-        className={cn("flex-1 select-none touch-none relative w-full h-full overflow-hidden border-none gpu-ultra", isTop ? "cursor-grab active:cursor-grabbing" : "")}
+        className={cn("flex-1 select-none touch-none relative w-full h-full overflow-hidden border-none gpu-ultra", isTop && !disableDrag ? "cursor-grab active:cursor-grabbing" : "")}
         style={{
           x,
           y,

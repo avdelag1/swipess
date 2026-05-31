@@ -36,7 +36,7 @@ export const ChatListingCard = memo(function ChatListingCard({
       type="button"
       onClick={(e) => {
         e.stopPropagation();
-        onNavigate?.('/client/dashboard');
+        onNavigate?.(`/listing/${listing.id}`);
       }}
       className={cn(
         "w-full text-left overflow-hidden rounded-2xl border transition-all active:scale-[0.98] hover:shadow-[0_12px_32px_-12px_rgba(0,0,0,0.4)]",
