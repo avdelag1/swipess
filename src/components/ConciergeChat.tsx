@@ -437,7 +437,11 @@ const MessageBubble = memo(({ message, isUser, isSwipess, isLight, onCopy, onDel
             >
               <button
                 type="button"
-                onClick={(e) => { e.stopPropagation(); onNavigate?.(`/listing/${l.id}`); }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const link = l.link || l.url || `/listing/${l.id}`;
+                  onNavigate?.(link);
+                }}
                 className="w-full text-left active:scale-[0.98] transition-transform"
               >
                 {l.image && (
@@ -461,7 +465,7 @@ const MessageBubble = memo(({ message, isUser, isSwipess, isLight, onCopy, onDel
                 aria-label="Share listing"
                 onClick={async (e) => {
                   e.stopPropagation();
-                  const url = `${window.location.origin}/listing/${l.id}`;
+                  const url = l.share_url || `${window.location.origin}/listing/${l.id}`;
                   try {
                     if (navigator.share) {
                       await navigator.share({ title: l.title, url });
@@ -492,7 +496,7 @@ const MessageBubble = memo(({ message, isUser, isSwipess, isLight, onCopy, onDel
             >
               <button
                 type="button"
-                onClick={(e) => { e.stopPropagation(); onNavigate?.(`/profile/${p.id}`); }}
+                onClick={(e) => { e.stopPropagation(); onNavigate?.(p.link || p.url || `/profile/${p.id}`); }}
                 className="w-full text-left active:scale-[0.98] transition-transform"
               >
                 {p.image && (
