@@ -201,12 +201,9 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
     }
   }, [listing.id, (listing as any).user_id, x, y]);
 
-  const [isZoomed, setIsZoomed] = useState(false);
+  const isZoomed = false;
   const { containerRef, pointerHandlers: magnifierPointerHandlers, isActive: isMagnifierActive, wasActive: wasMagnifierActive, isHoldPending: isMagnifierHoldPending } = useMagnifier({
-    scale: 2.8,
-    holdDelay: 380,
-    enabled: isTop,
-    onActiveChange: setIsZoomed,
+    enabled: false,
   });
 
   const { data: ratingAggregate, isLoading: isRatingLoading } = useListingRatingAggregate(listing.id, (listing as any).category);

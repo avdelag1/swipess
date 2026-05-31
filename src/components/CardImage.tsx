@@ -195,6 +195,7 @@ const CardImage = memo(({
             WebkitTouchCallout: 'none',
             WebkitUserSelect: 'none',
             userSelect: 'none',
+            touchAction: 'none',
           }}
           onDragStart={e => e.preventDefault()}
           onContextMenu={e => e.preventDefault()}
