@@ -334,7 +334,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
           "w-full",
           (isSwipeDeck || isFullScreenRoute)
             ? "flex flex-col flex-1 min-h-0 overflow-hidden"
-            : "block min-h-full pt-[var(--top-bar-height)] pb-[var(--bottom-nav-height)]"
+            : "block min-h-full pb-[var(--bottom-nav-height)]"
         )}>
           {children}
         </div>

@@ -112,9 +112,9 @@ function NotificationItem({ notification, onClick, onDismiss, index }: Notificat
                     src={notification.avatar}
                     alt={notification.title}
                     className={cn(
-                      "w-11 h-11 rounded-xl object-cover ring-2 transition-all",
+                      "w-11 h-11 rounded-[16px] object-cover ring-1 transition-all",
                       !notification.read 
-                        ? 'ring-primary/30' 
+                        ? 'ring-border/50' 
                         : 'ring-transparent'
                     )}
                   />
@@ -356,7 +356,7 @@ export function NotificationPopover({ className, children, glassPillStyle }: Not
         <DialogContent
           hideCloseButton
           className={cn(
-            "w-[min(calc(100vw-1rem),440px)] p-0 !rounded-2xl bg-background shadow-2xl",
+            "w-[min(calc(100vw-1rem),440px)] p-0 !rounded-[12px] border border-white/10 bg-background shadow-2xl",
             "overflow-hidden gap-0",
             className
           )}

@@ -320,76 +320,76 @@ function LikedClientInsightsModalComponent({ open, onOpenChange, client }: Liked
               </button>
             </div>
 
-            {/* Hero Image */}
-            <div className="relative flex-shrink-0">
-              {clientImages.length > 0 ? (
-                <div className="relative h-[50vw] max-h-[320px] min-h-[220px] w-full overflow-hidden rounded-t-[2.5rem]">
-                  <img
-                    src={clientImages[currentImageIndex]}
-                    alt={`${client.name} photo ${currentImageIndex + 1}`}
-                    className="w-full h-full object-cover cursor-pointer"
-                    onClick={handleImageClick}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0f] via-[#0a0a0f]/10 to-transparent pointer-events-none" />
-
-                  {clientImages.length > 1 && (
-                    <>
-                      <button onClick={handlePrevImage} aria-label="Previous image"
-                        className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/50 text-white flex items-center justify-center backdrop-blur-md border border-white/10 active:scale-90 transition-all">
-                        <ChevronLeft className="w-5 h-5" />
-                      </button>
-                      <button onClick={handleNextImage} aria-label="Next image"
-                        className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/50 text-white flex items-center justify-center backdrop-blur-md border border-white/10 active:scale-90 transition-all">
-                        <ChevronRight className="w-5 h-5" />
-                      </button>
-                    </>
-                  )}
-
-                  {clientImages.length > 1 && (
-                    <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-1.5">
-                      {clientImages.slice(0, 8).map((_, idx) => (
-                        <button key={idx} onClick={() => setCurrentImageIndex(idx)} aria-label={`Image ${idx + 1}`}
-                          className={`rounded-full transition-all duration-300 ${idx === currentImageIndex ? 'w-5 h-1.5 bg-white' : 'w-1.5 h-1.5 bg-white/40'}`}
-                        />
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Badges */}
-                  <div className="absolute bottom-8 left-4 flex items-center gap-2 flex-wrap">
-                    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#EB4898]/90 backdrop-blur-md">
-                      <Sparkles className="w-3 h-3 text-white" />
-                      <span className="text-[10px] font-black uppercase tracking-widest text-white">Liked</span>
-                    </div>
-                    {renterInsights?.isHotProspect && (
-                      <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-red-600/90 backdrop-blur-md">
-                        <Zap className="w-3 h-3 text-white" />
-                        <span className="text-[10px] font-black uppercase tracking-widest text-white">Hot Prospect</span>
-                      </div>
-                    )}
-                    {client.verified && (
-                      <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-violet-500/80 backdrop-blur-md border border-white/10">
-                        <CheckCircle className="w-3 h-3 text-white" />
-                        <span className="text-[10px] font-black uppercase tracking-widest text-white">Verified</span>
-                      </div>
-                    )}
-                    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/60 backdrop-blur-md border border-white/10">
-                      <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
-                      <span className="text-[11px] font-black text-white">{ratingAggregate?.displayed_rating?.toFixed(1) || '5.0'}</span>
-                      <span className="text-[10px] text-white/50">({ratingAggregate?.total_ratings || 0})</span>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div className="h-[220px] w-full bg-[#1a1a2e] rounded-t-[2.5rem] flex items-center justify-center">
-                  <User className="w-16 h-16 text-white/10" />
-                </div>
-              )}
-            </div>
-
             {/* Scrollable Content */}
             <div className="flex-1 min-h-0 relative flex flex-col">
               <ScrollArea className="h-full w-full">
+                {/* Hero Image */}
+                <div className="relative flex-shrink-0">
+                  {clientImages.length > 0 ? (
+                    <div className="relative h-[65vh] min-h-[400px] w-full overflow-hidden rounded-t-[2.5rem]">
+                      <img
+                        src={clientImages[currentImageIndex]}
+                        alt={`${client.name} photo ${currentImageIndex + 1}`}
+                        className="w-full h-full object-cover cursor-pointer"
+                        onClick={handleImageClick}
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0f] via-[#0a0a0f]/10 to-transparent pointer-events-none" />
+
+                      {clientImages.length > 1 && (
+                        <>
+                          <button onClick={handlePrevImage} aria-label="Previous image"
+                            className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/50 text-white flex items-center justify-center backdrop-blur-md border border-white/10 active:scale-90 transition-all">
+                            <ChevronLeft className="w-5 h-5" />
+                          </button>
+                          <button onClick={handleNextImage} aria-label="Next image"
+                            className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/50 text-white flex items-center justify-center backdrop-blur-md border border-white/10 active:scale-90 transition-all">
+                            <ChevronRight className="w-5 h-5" />
+                          </button>
+                        </>
+                      )}
+
+                      {clientImages.length > 1 && (
+                        <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-1.5 z-20">
+                          {clientImages.slice(0, 8).map((_, idx) => (
+                            <button key={idx} onClick={() => setCurrentImageIndex(idx)} aria-label={`Image ${idx + 1}`}
+                              className={`rounded-full transition-all duration-300 ${idx === currentImageIndex ? 'w-5 h-1.5 bg-white' : 'w-1.5 h-1.5 bg-white/40'}`}
+                            />
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Badges */}
+                      <div className="absolute bottom-8 left-4 flex items-center gap-2 flex-wrap z-20">
+                        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#EB4898]/90 backdrop-blur-md">
+                          <Sparkles className="w-3 h-3 text-white" />
+                          <span className="text-[10px] font-black uppercase tracking-widest text-white">Liked</span>
+                        </div>
+                        {renterInsights?.isHotProspect && (
+                          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-red-600/90 backdrop-blur-md">
+                            <Zap className="w-3 h-3 text-white" />
+                            <span className="text-[10px] font-black uppercase tracking-widest text-white">Hot Prospect</span>
+                          </div>
+                        )}
+                        {client.verified && (
+                          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-violet-500/80 backdrop-blur-md border border-white/10">
+                            <CheckCircle className="w-3 h-3 text-white" />
+                            <span className="text-[10px] font-black uppercase tracking-widest text-white">Verified</span>
+                          </div>
+                        )}
+                        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/60 backdrop-blur-md border border-white/10">
+                          <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
+                          <span className="text-[11px] font-black text-white">{ratingAggregate?.displayed_rating?.toFixed(1) || '5.0'}</span>
+                          <span className="text-[10px] text-white/50">({ratingAggregate?.total_ratings || 0})</span>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="h-[220px] w-full bg-[#1a1a2e] rounded-t-[2.5rem] flex items-center justify-center">
+                      <User className="w-16 h-16 text-white/10" />
+                    </div>
+                  )}
+                </div>
+
                 <div className="px-5 pt-4 pb-6 space-y-5">
 
                   {/* Name & info */}
