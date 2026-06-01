@@ -182,7 +182,7 @@ export function SwipeInsightsModal({ open, onOpenChange, listing, profile }: Swi
           <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain scrollbar-hide">
             {/* Photo carousel */}
             {images.length > 0 && (
-              <div className="relative w-full h-[280px] bg-black">
+              <div className="relative w-full h-[65vh] min-h-[400px] bg-black">
                 <button
                   type="button"
                   onClick={() => setGalleryOpen(true)}
