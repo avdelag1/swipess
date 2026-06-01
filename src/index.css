@@ -101,6 +101,14 @@ body.swipe-deck-active #root {
   max-height: 100dvh;
   overflow: hidden !important;
   overscroll-behavior: none;
+  position: fixed;
+  inset: 0;
+  width: 100%;
+}
+
+/* Push page content down while letting background bleed to top */
+.swipess-page-wrapper > *:not(.fixed):not(.absolute) {
+  padding-top: var(--top-bar-height) !important;
 }
 
 body.swipe-deck-active #dashboard-scroll-container {

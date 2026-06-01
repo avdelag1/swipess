@@ -119,7 +119,7 @@ function NotificationItem({ notification, onClick, onDismiss, index }: Notificat
                     )}
                   />
                   {/* Type indicator badge */}
-                  <div className="absolute -bottom-1.5 -right-1.5 p-1.5 rounded-lg" style={{ backgroundColor: config.bg }}>
+                  <div className="absolute -bottom-1 -right-1 p-1 rounded-full bg-background border border-border/40 shadow-sm flex items-center justify-center">
                     <Icon className="w-3 h-3" style={{ color: config.accentColor }} />
                   </div>
                 </div>

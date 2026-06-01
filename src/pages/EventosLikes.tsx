@@ -106,8 +106,8 @@ export default function EventosLikes() {
 
       {/* 📱 Flagship Header */}
       <div className={cn(
-        "sticky top-0 z-50 backdrop-blur-2xl pt-[var(--safe-top)] px-4 pb-1 transition-all duration-500 border-b",
-        isLight ? "bg-white/80 border-black/[0.03]" : "bg-black/60 border-white/[0.03]"
+        "sticky top-[var(--top-bar-height)] z-40 backdrop-blur-xl border-b transition-all duration-300",
+        isLight ? "bg-white/80 border-black/5" : "bg-black/60 border-white/5"
       )}>
         <div className="flex items-center gap-4 py-4 px-2">
           <button

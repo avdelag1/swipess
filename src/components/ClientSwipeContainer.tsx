@@ -793,11 +793,11 @@ const ClientSwipeContainerComponent = ({
   }, []);
 
   const handleConnect = useCallback((clientId: string) => {
-    logger.info('[ClientSwipeContainer] Message icon clicked, opening confirmation dialog');
+    logger.info('[ClientSwipeContainer] Message icon clicked, opening chat directly');
     setSelectedClientId(clientId);
-    setMessageDialogOpen(true);
+    navigate(`/messages?startConversation=${clientId}`);
     triggerHaptic('light');
-  }, []);
+  }, [navigate]);
 
   const handleSendMessage = useCallback(async (message: string) => {
     if (isCreatingConversation || !selectedClientId) return;

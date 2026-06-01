@@ -41,7 +41,7 @@ export function PersistentDashboardSubscriptions() {
         onMessage={() => {
           // Redirect to messages upon match interaction
           closeCelebration();
-          navigate('/messages');
+          navigate(`/messages?startConversation=${matchCelebration.matchedUser?.id}`);
         }}
       />
     </Suspense>,

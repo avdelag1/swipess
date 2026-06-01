@@ -205,7 +205,15 @@ export function MessagingDashboard() {
               otherUser={(otherUser || { id: 'loading', full_name: 'Connecting...', role: 'client' }) as any}
               listing={listing}
               currentUserRole={userRole}
-              onBack={() => { triggerHaptic('medium'); setSelectedConversationId(null); setDirectlyFetchedConversation(null); setSearchParams({}); }}
+              onBack={() => {
+                triggerHaptic('medium');
+                if (searchParams.has('conversationId') || searchParams.has('startConversation')) {
+                  navigate(-1);
+                } else {
+                  setSelectedConversationId(null);
+                  setDirectlyFetchedConversation(null);
+                }
+              }}
             />
           </motion.div>
         </AnimatePresence>

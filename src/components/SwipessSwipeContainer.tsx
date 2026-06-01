@@ -822,28 +822,9 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
       appToast.error('Cannot Start Conversation', 'User information not available.');
       return;
     }
-    const isDirectMessaging = isDirectMessagingListing(listing);
-    if (isDirectMessaging) {
-      setSelectedListing(listing);
-      setDirectMessageDialogOpen(true);
-      triggerHaptic('light');
-      return;
-    }
-    if (needsUpgrade) {
-      startNavigation();
-      navigate('/client/settings#subscription');
-      appToast.info('Subscription Required', 'Upgrade to message property owners.');
-      setTimeout(endNavigation, 500);
-      return;
-    }
-    if (!hasPremiumMessaging) {
-      startNavigation();
-      navigate('/client/settings#subscription');
-      setTimeout(endNavigation, 500);
-      return;
-    }
-    setSelectedListing(listing);
-    setMessageDialogOpen(true);
+    
+    // Bypass all direct messaging / premium popups and just open the chat window directly.
+    navigate(`/messages?startConversation=${targetUserId}`);
     triggerHaptic('light');
     if (onMessageClick) onMessageClick();
   };

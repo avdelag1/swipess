@@ -73,7 +73,7 @@ export default function WorldRadioDirectory() {
       {/* 🛸 STICKY HEADER — Stays on top, doesn't overlap cards */}
       <div
         className={cn(
-          "sticky top-0 z-50 pt-[calc(env(safe-area-inset-top)+12px)] pb-4 px-6 border-b backdrop-blur-xl",
+          "sticky top-[var(--top-bar-height)] z-50 pt-[calc(env(safe-area-inset-top)+12px)] pb-4 px-6 border-b backdrop-blur-xl",
           isDark ? "bg-black/55 border-white/10" : "bg-background/80 border-border/60"
         )}
       >

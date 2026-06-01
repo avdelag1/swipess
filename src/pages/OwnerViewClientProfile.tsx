@@ -160,7 +160,7 @@ export default function OwnerViewClientProfile() {
       
       {/* ðŸ›¸ Swipes HEADER */}
       <div className={cn(
-        "sticky top-0 z-50 backdrop-blur-3xl border-b",
+        "sticky top-[var(--top-bar-height)] z-50 backdrop-blur-3xl border-b",
         isLight ? "bg-background/70 border-border/60" : "bg-black/40 border-white/5",
       )}>
         <div className="container max-w-[440px] mx-auto px-6 py-4 flex items-center justify-between">

@@ -55,7 +55,7 @@ function MatchCelebrateModalComponent({ isOpen, onClose, clientProfile, ownerPro
 
   const handleMessage = () => {
     onClose();
-    navigate('/messages');
+    navigate(`/messages?startConversation=${clientProfile.user_id}`);
   };
 
   return (
