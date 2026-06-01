@@ -246,113 +246,120 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
       )}>
 
         <div className={cn(
-            "shrink-0 px-4 h-[50px] flex items-center z-20 border-b transition-all",
+            "shrink-0 px-4 py-3 min-h-[72px] flex items-center z-20 backdrop-blur-3xl border-b transition-all pt-safe",
             isThemeLight
-              ? "bg-white border-black/[0.06] shadow-sm"
-              : "bg-[#050505] border-white/[0.06] shadow-[0_1px_0_rgba(255,255,255,0.04)]"
+              ? "bg-white/80 border-black/[0.06] shadow-sm"
+              : "bg-[#050505]/80 border-white/[0.06] shadow-[0_1px_0_rgba(255,255,255,0.04)]"
         )}>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center w-full gap-4">
             <button
               onClick={onBack}
               className={cn(
-                 "shrink-0 flex items-center justify-center w-8 h-8 rounded-lg active:scale-90 transition-all",
-                 isThemeLight ? "bg-black/[0.06] text-black hover:bg-black/10" : "bg-white/[0.07] text-white hover:bg-white/[0.12]"
+                 "shrink-0 flex items-center justify-center w-12 h-12 rounded-full active:scale-90 transition-all",
+                 isThemeLight ? "bg-black/[0.04] text-black hover:bg-black/10" : "bg-white/[0.05] text-white hover:bg-white/[0.12]"
               )}
             >
-              <ChevronLeft className="w-4 h-4" />
+              <ChevronLeft className="w-6 h-6 stroke-[2.5]" />
             </button>
 
-            <div className="flex-1 flex items-center gap-3 min-w-0">
+            <button 
+              onClick={() => navigate(`/profile/${otherUser.id}`)}
+              className="flex-1 flex items-center gap-3 min-w-0 text-left active:scale-[0.98] transition-transform"
+            >
               <div className="relative shrink-0">
                 <div className={cn(
-                  "p-[2px] rounded-full",
+                  "p-[2px] rounded-full shadow-md",
                   otherUser.role === 'owner'
                     ? "bg-gradient-to-br from-rose-500 via-violet-600 to-rose-400"
                     : "bg-gradient-to-br from-blue-400 via-violet-600 to-rose-500"
                 )}>
-                  <Avatar className={cn("w-9 h-9 border-2", isThemeLight ? "border-white" : "border-[#050505]")}>
-                    <AvatarImage src={otherUser.avatar_url} />
-                    <AvatarFallback className={cn("text-[10px] font-black", isThemeLight ? "bg-slate-100 text-slate-700" : "bg-[#121212] text-white")}>
+                  <Avatar className={cn("w-11 h-11 border-2", isThemeLight ? "border-white" : "border-[#050505]")}>
+                    <AvatarImage src={otherUser.avatar_url} className="object-cover" />
+                    <AvatarFallback className={cn("text-[12px] font-black", isThemeLight ? "bg-slate-100 text-slate-700" : "bg-[#121212] text-white")}>
                       {otherUser.full_name?.charAt(0) || '?'}
                     </AvatarFallback>
                   </Avatar>
                 </div>
                 <div className={cn(
-                  "absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2",
+                  "absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2",
                   isThemeLight ? "border-white" : "border-[#050505]",
                   isOnline
                     ? "bg-violet-400 shadow-[0_0_10px_rgba(167,139,250,0.8)]"
                     : "bg-slate-500"
                 )} />
               </div>
+              
               <div className="flex flex-col min-w-0">
                 <div className="flex items-center gap-2">
-                  <h3 className={cn("font-black text-[13px] uppercase tracking-tight truncate leading-none", isThemeLight ? "text-black" : "text-white")}>
+                  <h3 className={cn("font-black text-[15px] uppercase tracking-tight truncate leading-none", isThemeLight ? "text-black" : "text-white")}>
                     {otherUser.full_name}
                   </h3>
                   {listing && (
                     <div className="px-1.5 py-0.5 bg-rose-500/10 rounded-md border border-rose-500/20 shrink-0">
-                      <span className="text-[7px] font-black uppercase text-rose-500 tracking-widest">{listing.title}</span>
+                      <span className="text-[8px] font-black uppercase text-rose-500 tracking-widest">{listing.title}</span>
                     </div>
                   )}
                 </div>
-                <div className="flex items-center gap-1.5 mt-0.5">
-                  <div className={cn("w-1 h-1 rounded-full", isOnline ? "bg-violet-400 animate-pulse" : "bg-slate-500")} />
+                <div className="flex items-center gap-1.5 mt-1">
+                  <div className={cn("w-1.5 h-1.5 rounded-full", isOnline ? "bg-violet-400 animate-pulse" : "bg-slate-500")} />
                   <span className={cn(
-                    "text-[8px] font-black uppercase tracking-[0.18em]",
-                    isOnline ? "text-violet-400" : (isThemeLight ? "text-black/30" : "text-white/25")
+                    "text-[9px] font-black uppercase tracking-[0.18em]",
+                    isOnline ? "text-violet-400" : (isThemeLight ? "text-black/40" : "text-white/40")
                   )}>
-                    {isOnline ? 'Active' : 'Offline'}
+                    {isOnline ? 'Active Now' : 'Offline'}
                   </span>
                 </div>
               </div>
-            </div>
+            </button>
 
-            <div className="flex gap-1.5 shrink-0">
+            <div className="flex gap-2 shrink-0">
               <button
                 onClick={() => setShowRatingDialog(true)}
-                className={cn("w-9 h-9 rounded-xl flex items-center justify-center transition-all",
+                className={cn("w-11 h-11 rounded-full flex items-center justify-center transition-all",
                   isThemeLight ? "bg-amber-50 text-amber-500 hover:bg-amber-100" : "bg-amber-500/[0.08] text-amber-400 hover:bg-amber-500/[0.15]"
                 )}
               >
-                <Star className="w-4 h-4 fill-current" />
+                <Star className="w-5 h-5 fill-current" />
               </button>
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button className={cn("w-8 h-8 rounded-lg flex items-center justify-center transition-all",
-                    isThemeLight ? "bg-black/[0.06] text-black hover:bg-black/10" : "bg-white/[0.07] text-white/60 hover:bg-white/[0.12]"
+                  <button className={cn("w-11 h-11 rounded-full flex items-center justify-center transition-all",
+                    isThemeLight ? "bg-black/[0.04] text-black hover:bg-black/10" : "bg-white/[0.05] text-white hover:bg-white/[0.12]"
                   )}>
-                    <MoreVertical className="w-3.5 h-3.5" />
+                    <MoreVertical className="w-5 h-5" />
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="rounded-[1.5rem] bg-[#0e0e18] border-white/[0.08] p-2 shadow-2xl text-white backdrop-blur-xl min-w-[200px]">
-                  <DropdownMenuItem className="p-4 rounded-[1rem] focus:bg-white/[0.07] cursor-pointer font-black uppercase tracking-widest text-[9px] gap-3">
+                  <DropdownMenuItem 
+                    className="p-4 rounded-[1rem] focus:bg-white/[0.07] cursor-pointer font-black uppercase tracking-widest text-[10px] gap-3"
+                    onClick={() => navigate(`/profile/${otherUser.id}`)}
+                  >
                     <Info className="w-4 h-4" /> View Profile
                   </DropdownMenuItem>
                   <DropdownMenuSeparator className="bg-white/[0.06] my-1.5" />
                   <DropdownMenuItem
-                    className="p-4 rounded-[1rem] focus:bg-white/[0.07] cursor-pointer font-black uppercase tracking-widest text-[9px] gap-3"
+                    className="p-4 rounded-[1rem] focus:bg-white/[0.07] cursor-pointer font-black uppercase tracking-widest text-[10px] gap-3"
                     onClick={() => navigate('/subscription/packages')}
                   >
                     <Sparkles className="w-4 h-4" /> Premium
                   </DropdownMenuItem>
                   <DropdownMenuItem
-                    className="p-4 rounded-[1rem] focus:bg-white/[0.07] cursor-pointer font-black uppercase tracking-widest text-[9px] gap-3"
+                    className="p-4 rounded-[1rem] focus:bg-white/[0.07] cursor-pointer font-black uppercase tracking-widest text-[10px] gap-3"
                     onClick={() => useModalStore.getState().setModal('showTokensModal', true)}
                   >
                     <Coins className="w-4 h-4" /> Tokens
                   </DropdownMenuItem>
                   <DropdownMenuSeparator className="bg-white/[0.06] my-1.5" />
                   <DropdownMenuItem
-                    className="p-4 rounded-[1rem] focus:bg-amber-500/[0.12] text-amber-400 cursor-pointer font-black uppercase tracking-widest text-[9px] gap-3"
+                    className="p-4 rounded-[1rem] focus:bg-amber-500/[0.12] text-amber-400 cursor-pointer font-black uppercase tracking-widest text-[10px] gap-3"
                     onClick={() => (window as any).dispatchEvent(new CustomEvent('open-report', { detail: { reportedUserId: otherUser.id, reportedUserAge: otherUser.age, reportCategory: 'user_profile' } }))}
                   >
                     <ShieldAlert className="w-4 h-4" /> Report
                   </DropdownMenuItem>
                   <DropdownMenuSeparator className="bg-white/[0.06] my-1.5" />
                   <DropdownMenuItem
-                    className="p-4 rounded-[1rem] focus:bg-red-500/[0.12] text-red-400 cursor-pointer font-black uppercase tracking-widest text-[9px] gap-3"
+                    className="p-4 rounded-[1rem] focus:bg-red-500/[0.12] text-red-400 cursor-pointer font-black uppercase tracking-widest text-[10px] gap-3"
                     onClick={() => { if (confirm('Block this entity permanently?')) { blockUser.mutate(otherUser.id); onBack(); } }}
                   >
                     <Ban className="w-4 h-4" /> Block
@@ -391,14 +398,17 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
         </div>
 
         <div className={cn(
-          "shrink-0 px-3 h-[54px] flex items-center backdrop-blur-3xl border-t transition-all",
-          isThemeLight ? "bg-white/90 border-black/[0.06]" : "bg-[#050505]/90 border-white/[0.05]"
+          "shrink-0 px-4 py-3 flex items-center backdrop-blur-3xl border-t transition-all pb-safe relative z-20",
+          isThemeLight ? "bg-white/90 border-black/[0.06] shadow-[0_-10px_40px_rgba(0,0,0,0.03)]" : "bg-[#050505]/90 border-white/[0.05] shadow-[0_-10px_40px_rgba(0,0,0,0.5)]"
         )}>
 
           <AnimatePresence>
             {showEmojiPicker && (
-              <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="pb-4 overflow-hidden">
-                <div className="flex flex-wrap gap-2 justify-center py-2">
+              <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="absolute bottom-full left-0 right-0 p-4 overflow-hidden">
+                <div className={cn(
+                  "flex flex-wrap gap-2 justify-center p-3 rounded-[2rem] shadow-2xl backdrop-blur-3xl border mx-auto max-w-sm",
+                  isThemeLight ? "bg-white/90 border-black/[0.06]" : "bg-[#121214]/90 border-white/[0.08]"
+                )}>
                   {QUICK_EMOJIS.map(emoji => (
                     <button key={emoji} type="button" onClick={() => { setNewMessage(p => p + emoji); setShowEmojiPicker(false); }} className={cn("w-10 h-10 flex items-center justify-center text-xl rounded-xl transition-all active:scale-90", isThemeLight ? "hover:bg-black/[0.06]" : "hover:bg-white/[0.07]")}>
                       {emoji}
@@ -409,24 +419,26 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
             )}
           </AnimatePresence>
 
-          <form onSubmit={handleSendMessage} className="flex gap-3 items-center relative">
+          <form onSubmit={handleSendMessage} className="flex gap-3 items-end relative w-full">
             <button
               type="button"
               onClick={() => setShowEmojiPicker(p => !p)}
-              className={cn("shrink-0 w-10 h-10 rounded-xl flex items-center justify-center transition-all border", showEmojiPicker ? "bg-rose-500/[0.12] border-rose-500/30 text-rose-500" : (isThemeLight ? "bg-black/[0.05] border-black/[0.06] text-black/50 hover:bg-black/[0.09]" : "bg-white/[0.05] border-white/[0.07] text-white/40 hover:bg-white/[0.09]"))}
+              className={cn("shrink-0 w-12 h-12 rounded-full flex items-center justify-center transition-all border shadow-sm", showEmojiPicker ? "bg-rose-500/[0.12] border-rose-500/30 text-rose-500" : (isThemeLight ? "bg-black/[0.03] border-black/[0.06] text-black/50 hover:bg-black/[0.08]" : "bg-white/[0.03] border-white/[0.07] text-white/40 hover:bg-white/[0.09]"))}
             >
-              <Smile className="w-5 h-5" />
+              <Smile className="w-6 h-6 stroke-[1.5]" />
             </button>
 
             <div className="flex-1 relative flex items-center group">
-              <input
+              <textarea
                 value={newMessage}
                 onChange={(e) => { setNewMessage(e.target.value); if (e.target.value.trim()) startTyping(); else stopTyping(); }}
                 onFocus={() => { if (isListening) stopListening(); }}
-                placeholder={isListening ? "Listening..." : "Message..."}
+                placeholder={isListening ? "Listening..." : "Type a message..."}
+                rows={1}
+                style={{ resize: 'none' }}
                 className={cn(
-                  "flex-1 h-10 pl-4 pr-10 rounded-xl text-[14px] font-medium outline-none transition-all border focus:ring-2 focus:ring-[#EB4898]/20",
-                  isThemeLight ? "bg-white border-black/10 text-black placeholder:text-black/30" : "bg-[#121212] border-white/5 text-white placeholder:text-white/10"
+                  "flex-1 min-h-[48px] max-h-[120px] py-3.5 pl-5 pr-12 rounded-[1.5rem] text-[15px] font-medium outline-none transition-all border shadow-inner focus:ring-4 focus:ring-[#EB4898]/10 no-scrollbar",
+                  isThemeLight ? "bg-black/[0.02] border-black/10 text-black placeholder:text-black/30" : "bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/20 focus:border-white/20 focus:bg-white/[0.05]"
                 )}
                 disabled={sendMessage.isPending}
               />
@@ -435,9 +447,9 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
                 <button
                   type="button"
                   onClick={isListening ? stopListening : startListening}
-                  className={cn("absolute right-1 w-10 h-10 rounded-xl flex items-center justify-center transition-all", isListening ? "bg-red-500 text-white shadow-[0_0_15px_rgba(239,68,68,0.4)] animate-pulse" : (isThemeLight ? "text-black/40 hover:text-rose-500" : "text-white/20 hover:text-rose-500"))}
+                  className={cn("absolute right-2 bottom-1.5 w-9 h-9 rounded-full flex items-center justify-center transition-all", isListening ? "bg-red-500 text-white shadow-[0_0_15px_rgba(239,68,68,0.4)] animate-pulse" : (isThemeLight ? "text-black/30 hover:text-rose-500 hover:bg-rose-50" : "text-white/30 hover:text-rose-400 hover:bg-rose-500/10"))}
                 >
-                  {isListening ? <MicOff className="w-4.5 h-4.5" /> : <Mic className="w-4.5 h-4.5" />}
+                  {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
                 </button>
               )}
             </div>
@@ -468,15 +480,15 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
               disabled={!newMessage.trim() || sendMessage.isPending}
               aria-label="Send message"
               className={cn(
-                "shrink-0 w-11 h-11 rounded-xl flex items-center justify-center transition-all",
+                "shrink-0 w-12 h-12 rounded-full flex items-center justify-center transition-all",
                 newMessage.trim()
-                  ? "bg-primary text-primary-foreground shadow-[0_6px_20px_hsl(var(--primary)/0.45)] hover:scale-105 active:scale-95"
+                  ? "bg-gradient-to-tr from-[#EB4898] to-[#FF4D00] text-white shadow-[0_8px_25px_rgba(235,72,152,0.5)] hover:scale-105 active:scale-95 border-none"
                   : (isThemeLight
-                      ? "bg-black/[0.06] text-black/35 border border-black/[0.08]"
-                      : "bg-white/[0.05] text-white/30 border border-white/[0.05]")
+                      ? "bg-black/[0.04] text-black/30 border border-black/[0.06]"
+                      : "bg-white/[0.05] text-white/20 border border-white/[0.05]")
               )}
             >
-              <Send className="w-5 h-5" />
+              <Send className={cn("w-5 h-5 ml-0.5", newMessage.trim() ? "fill-white/20" : "")} />
             </button>
           </form>
         </div>

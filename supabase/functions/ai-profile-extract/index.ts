@@ -106,7 +106,7 @@ serve(async (req) => {
       }
     }
 
-    return new Response(JSON.stringify(profile), {
+    return new Response(JSON.stringify({ profile }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (err) {

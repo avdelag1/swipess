@@ -186,17 +186,17 @@ export function MessagingDashboard() {
     const listing = conversation?.listing;
 
     return (
-      <div className={cn("w-full flex flex-col transition-colors duration-500 overflow-hidden h-dvh pt-[var(--top-bar-height)] pb-[var(--bottom-nav-height)]", isLight ? "bg-white" : "bg-black")}>
+      <div className={cn("fixed inset-0 z-[100] w-full h-[100dvh] flex flex-col transition-colors duration-500 overflow-hidden", isLight ? "bg-white" : "bg-black")}>
         <AnimatePresence mode="wait">
           <motion.div
             key="interface"
             initial={{ opacity: 0, y: '100%' }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: '40%' }}
-            transition={{ type: 'spring', stiffness: 320, damping: 32, mass: 0.85 }}
+            exit={{ opacity: 0, y: '100%' }}
+            transition={{ type: 'spring', stiffness: 300, damping: 30, mass: 0.8 }}
             className={cn(
-              "w-full max-w-full mx-auto flex flex-col flex-1 min-h-0 relative shadow-2xl overflow-hidden border-x",
-              isLight ? "bg-white border-black/5" : "bg-[#0A0A0C] border-white/5"
+              "w-full max-w-full mx-auto flex flex-col flex-1 min-h-0 relative shadow-2xl overflow-hidden",
+              isLight ? "bg-white" : "bg-[#0A0A0C]"
             )}
           >
             <MessagingInterface

@@ -110,21 +110,6 @@ Return ONLY valid JSON matching this schema, no markdown:
       return json(500, { error: "Extract failed" });
     }
 
-    const data = await resp.json();
-    const call = data?.choices?.[0]?.message?.tool_calls?.[0];
-    const argStr = call?.function?.arguments;
-    if (!argStr) {
-      console.error("[ai-listing-extract] no tool call returned", JSON.stringify(data).slice(0, 500));
-      return json(500, { error: "AI returned no structured data" });
-    }
-    let parsed: Record<string, unknown> = {};
-    try {
-      parsed = JSON.parse(argStr);
-    } catch (e) {
-      console.error("[ai-listing-extract] tool args parse error", e, argStr);
-      return json(500, { error: "AI returned malformed data" });
-    }
-
     // Merge fallbacks
     if (!parsed.price && body.price) parsed.price = Number(body.price) || 0;
     if (!parsed.city && body.city) parsed.city = body.city;

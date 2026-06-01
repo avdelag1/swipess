@@ -110,6 +110,12 @@ body.swipe-deck-active #dashboard-scroll-container {
   -webkit-overflow-scrolling: auto !important;
 }
 
+/* Fix Radix UI Dialog Layout Shift when scrollbars are globally hidden */
+body[data-scroll-locked] {
+  padding-right: 0 !important;
+  margin-right: 0 !important;
+}
+
 /* Cheers theme: wrap body in cheetah-warm background */
 .cheers #root, .cheers body {
   background-color: hsl(22 90% 6%);
