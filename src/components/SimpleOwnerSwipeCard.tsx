@@ -301,6 +301,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   }, [x, y]);
 
   const handleDragEnd = useCallback((_: any, info: PanInfo) => {
+    if (hasExited.current) return;
     const dx = info.offset.x;
     const dy = info.offset.y;
     const vx = info.velocity.x;
