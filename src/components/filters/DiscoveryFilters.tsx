@@ -226,7 +226,7 @@ export const DiscoveryFilters = memo(function DiscoveryFilters({ category, onApp
                     className={cn(
                        "flex-shrink-0 flex flex-col items-center justify-center gap-3 min-w-[100px] py-6 border transition-all duration-300 rounded-[2rem] text-[11px] font-black uppercase tracking-[0.2em]",
                        isActive
-                        ? cn("bg-primary border-primary shadow-[0_10px_30px_rgba(var(--brand-primary-rgb),0.3)] scale-[1.05] z-10 relative", "text-primary-foreground")
+                        ? cn("bg-foreground border-foreground shadow-[0_10px_30px_rgba(0,0,0,0.1)] scale-[1.05] z-10 relative", "text-background")
                         : (isLight 
                            ? "bg-secondary border-border text-foreground shadow-sm hover:bg-secondary/80" 
                            : "bg-white/10 border-white/10 text-white font-black hover:bg-white/20")
@@ -324,7 +324,7 @@ export const DiscoveryFilters = memo(function DiscoveryFilters({ category, onApp
                 className={cn(
                   "py-4 px-6 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] transition-all border",
                   selectedBudgetRange === range.value
-                    ? cn("bg-primary border-primary shadow-xl shadow-primary/30 scale-[1.02]", "text-primary-foreground") 
+                    ? cn("bg-foreground border-foreground shadow-xl shadow-foreground/30 scale-[1.02]", "text-background") 
                     : isLight 
                       ? "bg-secondary border-border text-foreground shadow-sm hover:bg-secondary/80" 
                       : "bg-white/5 text-white border-white/10 hover:bg-white/10"
@@ -363,7 +363,7 @@ export const DiscoveryFilters = memo(function DiscoveryFilters({ category, onApp
                           className={cn(
                             "w-14 h-14 rounded-full text-[11px] font-black transition-all border flex items-center justify-center shadow-sm",
                             bedrooms === n 
-                              ? cn("bg-primary border-primary shadow-xl scale-110", "text-primary-foreground") 
+                              ? cn("bg-foreground border-foreground shadow-xl scale-110", "text-background") 
                               : isLight 
                                 ? "bg-secondary border-border text-foreground shadow-sm hover:bg-secondary/80"
                                 : "bg-white/5 border-white/10 text-white/60"
@@ -389,7 +389,7 @@ export const DiscoveryFilters = memo(function DiscoveryFilters({ category, onApp
                           className={cn(
                             "w-12 h-12 rounded-full text-[11px] font-black transition-all border flex items-center justify-center shadow-sm",
                             bathrooms === n 
-                              ? cn("bg-primary border-primary shadow-xl scale-110", "text-primary-foreground") 
+                              ? cn("bg-foreground border-foreground shadow-xl scale-110", "text-background") 
                               : isLight 
                                 ? "bg-secondary border-border text-foreground shadow-sm hover:bg-secondary/80"
                                 : "bg-white/5 border-white/10 text-white/60"
@@ -450,7 +450,7 @@ export const DiscoveryFilters = memo(function DiscoveryFilters({ category, onApp
                     className={cn(
                       "py-3 px-3 rounded-2xl text-[10px] font-black uppercase tracking-tight text-left transition-all border",
                       serviceTypes.includes(type.value)
-                        ? cn("bg-primary border-primary shadow-lg shadow-primary/20", "text-primary-foreground")
+                        ? cn("bg-foreground border-foreground shadow-lg shadow-foreground/20", "text-background")
                         : isLight 
                           ? "bg-secondary border-border text-foreground shadow-sm hover:bg-secondary/80" 
                           : "bg-white/10 border-white/10 text-white hover:bg-white/20"

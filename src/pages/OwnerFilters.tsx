@@ -106,9 +106,9 @@ export default function OwnerFilters({ isEmbedded, onClose }: OwnerFiltersProps)
                   !active && "text-foreground"
                 )}
                 style={active ? {
-                  backgroundColor: 'hsl(var(--primary))',
-                  color: 'hsl(var(--primary-foreground))',
-                  boxShadow: '0 8px 24px hsl(var(--primary) / 0.35)',
+                  backgroundColor: 'hsl(var(--foreground))',
+                  color: 'hsl(var(--background))',
+                  boxShadow: '0 8px 24px hsl(var(--foreground) / 0.35)',
                   transform: 'scale(1.03)'
                 } : undefined}
                 {...(!active ? { 'data-inactive': true } : {})}
@@ -142,7 +142,7 @@ export default function OwnerFilters({ isEmbedded, onClose }: OwnerFiltersProps)
               className={cn(
                 "px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-wider transition-all active:scale-95",
                 clientType === id
-                  ? "bg-primary text-primary-foreground shadow-lg shadow-primary/30"
+                  ? "bg-foreground text-background shadow-lg shadow-foreground/30"
                   : "bg-card border border-border text-muted-foreground hover:text-foreground"
               )}
             >

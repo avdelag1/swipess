@@ -160,11 +160,11 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
                     onClick={() => setActiveCategory(cat.id)}
                     className="px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest border transition-all active:scale-95 whitespace-nowrap"
                     style={activeCategory === cat.id ? {
-                      backgroundColor: 'hsl(var(--primary))',
-                      borderColor: 'hsl(var(--primary))',
-                      color: 'hsl(var(--primary-foreground))'
+                      backgroundColor: 'hsl(var(--foreground))',
+                      borderColor: 'hsl(var(--foreground))',
+                      color: 'hsl(var(--background))'
                     } : {
-                      backgroundColor: 'hsl(var(--secondary))',
+                      backgroundColor: 'hsl(var(--card))',
                       borderColor: 'hsl(var(--border))',
                       color: 'hsl(var(--foreground))'
                     }}
