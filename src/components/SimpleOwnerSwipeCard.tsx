@@ -507,7 +507,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
 
         {/* Floating Action Rail — Apple-style vertical glass pill */}
         <AnimatePresence>
-          {isTop && !isZoomed && isChromeVisible && (
+          {isTop && !isZoomed && (
             <motion.div
               initial={{ opacity: 0, x: 18, scale: 0.96 }}
               animate={{ opacity: 1, x: 0, scale: 1 }}

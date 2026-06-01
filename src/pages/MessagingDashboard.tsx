@@ -1,5 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -185,8 +186,8 @@ export function MessagingDashboard() {
     const otherUser = conversation?.other_user;
     const listing = conversation?.listing;
 
-    return (
-      <div className={cn("fixed inset-0 z-[100] w-full h-[100dvh] flex flex-col transition-colors duration-500 overflow-hidden", isLight ? "bg-white" : "bg-black")}>
+    return createPortal(
+      <div className={cn("fixed inset-0 z-[9999] w-full h-[100dvh] flex flex-col transition-colors duration-500 overflow-hidden", isLight ? "bg-white" : "bg-black")}>
         <AnimatePresence mode="wait">
           <motion.div
             key="interface"
@@ -208,7 +209,8 @@ export function MessagingDashboard() {
             />
           </motion.div>
         </AnimatePresence>
-      </div>
+      </div>,
+      document.body
     );
   }
 
