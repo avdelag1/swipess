@@ -505,7 +505,8 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
                     />
                   );
                 }
-                if ((listing as any).category === 'vehicle') {
+                const cat = (listing as any).category;
+                if (cat === 'vehicle' || cat === 'motorcycle' || cat === 'bicycle') {
                   return (
                     <VehicleCardInfo
                       title={(listing as any).title}

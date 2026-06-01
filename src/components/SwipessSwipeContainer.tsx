@@ -921,8 +921,11 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     motorcycle: 'Motorcycles',
     bicycle: 'Bicycles',
     services: 'Services',
+    pros: 'Pros',
+    events: 'Events',
     buyers: 'Buyers',
     renters: 'Renters',
+    leads: 'Leads',
     hire: 'Workers',
   };
   const currentCategoryName = categoryNames[storeActiveCategory] || storeActiveCategory;
