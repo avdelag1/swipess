@@ -164,7 +164,7 @@ export default function SubscriptionPackagesPage() {
         at: new Date().toISOString()
       }));
       window.open(plan.paypalUrl, '_blank');
-      toast.success('Redirecting to Checkout', { description: `Selected: ${plan.name} (${plan.price} MXN)` });
+      toast.success('Redirecting to Checkout', { description: `Selected: ${plan.name} ($${plan.price} USD)` });
     } catch (error) {
       console.error('Payment redirect failed:', error);
       toast.error('Could not open payment window', { description: 'Please check your browser popup blocker.' });
@@ -288,7 +288,7 @@ export default function SubscriptionPackagesPage() {
                       ${plan.price}
                     </span>
                     <span className="text-xs font-black text-foreground/40 uppercase tracking-widest leading-loose">
-                      MXN {plan.durationText}
+                      USD {plan.durationText}
                     </span>
                   </div>
 
