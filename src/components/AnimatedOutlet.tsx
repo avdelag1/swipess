@@ -22,9 +22,9 @@ export function AnimatedOutlet() {
         <AnimatePresence initial={false} mode="popLayout">
           <motion.div
             key={location.pathname}
-            initial={{ opacity: 0.7, scale: 0.98 }}
+            initial={{ opacity: 0.9, scale: 0.99 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ type: 'spring', stiffness: 280, damping: 22, mass: 0.4 }}
+            transition={{ type: 'tween', duration: 0.15, ease: 'easeOut' }}
             className="flex-1 w-full flex flex-col bg-transparent pointer-events-none-force"
             style={{ position: 'absolute', inset: 0 }}
           >
@@ -48,10 +48,10 @@ export function AnimatedOutlet() {
         id="page-scroll-container"
         className="swipess-page-wrapper w-full min-h-full block"
         style={{ position: 'relative', pointerEvents: 'auto' }}
-        initial={{ opacity: 0.6, scale: 0.97 }}
+        initial={{ opacity: 0.9, scale: 0.99 }}
         animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 0.97 }}
-        transition={{ type: 'spring', stiffness: 260, damping: 20, mass: 0.5 }}
+        exit={{ opacity: 0, scale: 0.99 }}
+        transition={{ type: 'tween', duration: 0.15, ease: 'easeOut' }}
       >
         <Suspense fallback={
           <div className="flex items-center justify-center w-full h-[60vh]">

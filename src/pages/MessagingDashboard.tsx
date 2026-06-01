@@ -191,10 +191,10 @@ export function MessagingDashboard() {
         <AnimatePresence mode="wait">
           <motion.div
             key="interface"
-            initial={{ opacity: 0, y: '100%' }}
+            initial={{ opacity: 0, y: '10%' }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: '100%' }}
-            transition={{ type: 'spring', stiffness: 300, damping: 30, mass: 0.8 }}
+            exit={{ opacity: 0, y: '10%' }}
+            transition={{ type: 'tween', duration: 0.15, ease: 'easeOut' }}
             className={cn(
               "w-full max-w-full mx-auto flex flex-col flex-1 min-h-0 relative shadow-2xl overflow-hidden",
               isLight ? "bg-white" : "bg-[#0A0A0C]"
@@ -226,7 +226,7 @@ export function MessagingDashboard() {
     <div className={cn("w-full min-h-[100dvh] transition-colors duration-500 relative", isLight ? "bg-[#ffffff]" : "bg-[#000000]")}>
       <AtmosphericLayer variant="rose" />
 
-      <div className="w-full max-w-7xl mx-auto px-6 pt-[calc(var(--top-bar-height)+var(--safe-top,0px)+0.5rem)] pb-48 relative z-10 space-y-12">
+      <div className="w-full max-w-7xl mx-auto px-6 pt-6 pb-48 relative z-10 space-y-12">
         
         <div className="flex items-center gap-4 sm:gap-6">
            <button
