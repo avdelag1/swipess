@@ -123,10 +123,10 @@ export const ContractUploadDialog: React.FC<ContractUploadDialogProps> = ({
               {!file ? (
                 <div className="border-2 border-dashed border-gray-300 rounded-lg p-6">
                   <div className="text-center">
-                    <Upload className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+                    <Upload className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
                     <Label htmlFor="contract-file" className="cursor-pointer">
                       <span className="text-lg font-medium">Upload Contract PDF</span>
-                      <p className="text-sm text-gray-500 mt-1">
+                      <p className="text-sm text-muted-foreground mt-1">
                         PDF files up to 10MB
                       </p>
                     </Label>
@@ -146,7 +146,7 @@ export const ContractUploadDialog: React.FC<ContractUploadDialogProps> = ({
                     <FileText className="w-8 h-8 text-red-600" />
                     <div className="flex-1">
                       <p className="font-medium">{file.name}</p>
-                      <p className="text-sm text-gray-500">
+                      <p className="text-sm text-muted-foreground">
                         {(file.size / 1024 / 1024).toFixed(2)} MB
                       </p>
                     </div>

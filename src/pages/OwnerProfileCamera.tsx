@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, Navigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from '@/components/ui/sonner';
 import PhotoCamera from '@/components/PhotoCamera';
@@ -37,8 +37,7 @@ export default function OwnerProfileCamera() {
   }, [navigate, returnPath]);
 
   if (!user) {
-    navigate('/', { replace: true });
-    return null;
+    return <Navigate to="/" replace />;
   }
 
   return (

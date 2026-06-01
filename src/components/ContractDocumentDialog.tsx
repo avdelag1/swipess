@@ -334,7 +334,7 @@ export const ContractDocumentDialog: React.FC<ContractDocumentDialogProps> = ({
               <div className="space-y-6">
                 <div className="text-center">
                   <h3 className="text-lg font-semibold mb-2">Add Your Signature</h3>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-muted-foreground">
                     Draw, type, or upload your signature below
                   </p>
                 </div>

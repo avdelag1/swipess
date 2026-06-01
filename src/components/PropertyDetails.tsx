@@ -181,7 +181,7 @@ export function PropertyDetails({ listingId, isOpen, onClose, onMessageClick }: 
                   { icon: Bath, value: listing.baths, label: 'Baths' },
                   { icon: Square, value: listing.square_footage, label: 'Sq Ft' }
                 ].map((item, i) => (
-                  <div key={i} className="flex flex-col items-center justify-center p-4 transition-all hover:scale-105 bg-white border border-black/5 shadow-sm rounded-2xl">
+                  <div key={i} className="flex flex-col items-center justify-center p-4 transition-all hover:scale-105 bg-card border border-border shadow-sm rounded-2xl">
                     <item.icon className="w-6 h-6 mb-2 text-primary" />
                     <div className="font-black text-xl leading-none">{item.value}</div>
                     <div className="text-[10px] font-black uppercase tracking-widest opacity-70 mt-1">{item.label}</div>
@@ -218,7 +218,7 @@ export function PropertyDetails({ listingId, isOpen, onClose, onMessageClick }: 
               {listing.profiles && (
                 <div className="pt-10 border-t">
                   <h3 className="mb-4 font-black uppercase tracking-widest text-xl font-semibold">Authority Presence</h3>
-                  <div className="flex items-center gap-6 p-6 transition-all bg-white border border-black/5 shadow-sm rounded-2xl">
+                  <div className="flex items-center gap-6 p-6 transition-all bg-card border border-border shadow-sm rounded-2xl">
                     <img
                       src={listing.profiles.avatar_url || '/placeholder.svg'}
                       alt={listing.profiles.full_name}

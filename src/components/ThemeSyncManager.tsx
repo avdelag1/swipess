@@ -16,7 +16,7 @@ export function ThemeSyncManager() {
   const theme = themeContext?.theme;
   const setTheme = themeContext?.setTheme ?? (() => {});
   const hasLoadedThemeRef = useRef(false);
-  const STORAGE_KEY = 'Swipess_theme_preference';
+  const STORAGE_KEY = 'swipess_theme_preference';
 
   // LOAD from DB
   useEffect(() => {

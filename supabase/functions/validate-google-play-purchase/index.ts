@@ -217,25 +217,43 @@ Deno.serve(async (req) => {
     }
 
     if (SUBSCRIPTION_PRODUCTS.has(productId)) {
-      await supabase
-        .from('subscriptions')
-        .upsert(
-          {
-            user_id: userId,
-            plan_id: productId,
-            status: 'active',
-            current_period_end: expiresDate,
-            provider: 'google_play',
-          },
-          { onConflict: 'user_id' }
-        );
+      const { data: pkg } = await supabase
+        .from('subscription_packages')
+        .select('id')
+        .eq('google_play_product_id', productId)
+        .single();
+
+      await supabase.from('user_subscriptions').upsert(
+        {
+          user_id: userId,
+          package_id: pkg?.id ?? undefined,
+          is_active: true,
+          payment_status: 'paid',
+          starts_at: purchaseDate,
+          expires_at: expiresDate,
+        },
+        { onConflict: 'user_id' }
+      );
     } else if (TOKEN_PRODUCTS[productId]) {
       const amount = TOKEN_PRODUCTS[productId];
-      await supabase.from('message_activations').insert({
+      const { data: pkg } = await supabase
+        .from('subscription_packages')
+        .select('tokens, duration_days')
+        .eq('google_play_product_id', productId)
+        .single();
+
+      const tokenAmount = pkg?.tokens ?? amount;
+      const expiryDays = pkg?.duration_days ?? 30;
+      const expiresAt = new Date();
+      expiresAt.setDate(expiresAt.getDate() + expiryDays);
+
+      await supabase.from('tokens').insert({
         user_id: userId,
-        activations_remaining: amount,
-        package_id: productId,
-        source: 'google_play_iap',
+        total_activations: tokenAmount,
+        remaining_activations: tokenAmount,
+        activation_type: 'purchase',
+        expires_at: expiresAt.toISOString(),
+        notes: `Google Play IAP: ${productId}`,
       });
     } else if (EVENT_PROMO_PRODUCTS[productId]) {
       const days = EVENT_PROMO_PRODUCTS[productId];

@@ -863,19 +863,6 @@ button:focus:not(:focus-visible), [role="button"]:focus:not(:focus-visible) {
     }
   }
 
-  /* CSS Containment for layout stability */
-  .contain-layout {
-    contain: layout;
-  }
-
-  .contain-paint {
-    contain: paint;
-  }
-
-  .contain-strict {
-    contain: strict;
-  }
-
   /* Hardware-accelerated scroll containers */
   .scroll-area-momentum {
     -webkit-overflow-scrolling: touch;

@@ -69,24 +69,35 @@ export function QuickFilterImage({ src, alt, className }: QuickFilterImageProps)
 
       {/* Actual image — slides in after decode, breathing starts immediately */}
       {!hasError && (
-        <img
-          ref={imgRef}
-          src={src}
-          alt={alt}
-          loading="eager"
-          decoding="async"
-          onError={() => setHasError(true)}
+        <div
           className={cn(
-            "absolute inset-0 w-full h-full object-cover",
-            isReady ? "animate-photo-slide-in" : "opacity-0",
-            className
+            "absolute inset-0 w-full h-full overflow-hidden transition-opacity duration-300",
+            isReady ? "opacity-100" : "opacity-0"
           )}
-          style={{ 
+          style={{
             animation: isReady 
-              ? 'photo-slide-in 0.4s cubic-bezier(0.2,0,0,1) forwards, photo-swim 14s ease-in-out 0.4s infinite' 
-              : 'none' 
+              ? 'photo-slide-in 0.4s cubic-bezier(0.2,0,0,1) forwards' 
+              : 'none'
           }}
-        />
+        >
+          <img
+            ref={imgRef}
+            src={src}
+            alt={alt}
+            loading="eager"
+            decoding="async"
+            onError={() => setHasError(true)}
+            className={cn(
+              "w-full h-full object-cover",
+              className
+            )}
+            style={{ 
+              animation: isReady 
+                ? 'photo-swim 14s ease-in-out infinite' 
+                : 'none' 
+            }}
+          />
+        </div>
       )}
     </>
   );
