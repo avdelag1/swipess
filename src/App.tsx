@@ -8,7 +8,6 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 // import { useActiveMode } from "@/hooks/useActiveMode";
 import { AdminProtectedRoute } from "@/components/AdminProtectedRoute";
 import { AppLayout } from "@/components/AppLayout";
-import { MaintenanceGate } from "@/components/MaintenanceGate";
 import GlobalErrorBoundary from "@/components/GlobalErrorBoundary";
 import SignupErrorBoundary from "@/components/SignupErrorBoundary";
 import { AnimatedPage } from "@/components/AnimatedPage";
@@ -132,7 +131,6 @@ import { NativeProvider } from "./components/native/NativeProvider";
 const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
   return (
     <GlobalErrorBoundary>
-      <MaintenanceGate>
       <RootProviders authPromise={authPromise}>
         <NativeProvider>
           <AppLayout>
@@ -247,7 +245,6 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
         </AppLayout>
         </NativeProvider>
       </RootProviders>
-      </MaintenanceGate>
     </GlobalErrorBoundary>
   );
 };
