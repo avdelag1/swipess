@@ -296,7 +296,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
       const exitX = direction === 'right' ? (window.innerWidth || 600) * 1.2 : -(window.innerWidth || 600) * 1.2;
       y.set(0);
       animate(x, exitX, { ...EXIT_SPRING, velocity: info.velocity.x });
-      setTimeout(() => { isExitingRef.current = false; onSwipe(direction); }, 350);
+      onSwipe(direction);
     } else if (vertCommit && (onSkip || onSkipBack)) {
       const dir = dy > 0 ? 1 : -1;
       hasExited.current = true;

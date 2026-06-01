@@ -987,18 +987,24 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                 transition={{ duration: 0.08, ease: [0.22, 1, 0.36, 1] }}
                 className="absolute inset-0 w-full h-full flex flex-col items-center justify-center p-0 mx-auto transform-gpu"
               >
-                {deckQueue.slice(currentIndex, currentIndex + 2).reverse().map((listing) => {
-                  const isTopCard = listing.id === topCard?.id;
-                  return (
-                    <motion.div
-                      key={listing.id}
-                      className={cn("absolute inset-0 w-full h-full", isTopCard ? "z-20" : "z-10")}
-                      style={!isTopCard ? {
-                        scale: nextCardScale,
-                        opacity: nextCardOpacity,
-                        willChange: 'transform, opacity',
-                      } : undefined}
-                    >
+                <AnimatePresence>
+                  {deckQueue.slice(currentIndex, currentIndex + 2).reverse().map((listing) => {
+                    const isTopCard = listing.id === topCard?.id;
+                    return (
+                      <motion.div
+                        key={listing.id}
+                        exit={{ 
+                          x: swipeDirection === 'right' ? (typeof window !== 'undefined' ? window.innerWidth : 600) * 1.2 : (typeof window !== 'undefined' ? -window.innerWidth : -600) * 1.2, 
+                          opacity: 0, 
+                          transition: { duration: 0.25, ease: 'easeOut' } 
+                        }}
+                        className={cn("absolute inset-0 w-full h-full", isTopCard ? "z-20" : "z-10")}
+                        style={!isTopCard ? {
+                          scale: nextCardScale,
+                          opacity: nextCardOpacity,
+                          willChange: 'transform, opacity',
+                        } : undefined}
+                      >
                       {dataType === 'people' ? (
                         <SimpleOwnerSwipeCard
                           ref={isTopCard ? cardRef as any : undefined}
@@ -1047,6 +1053,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                     </motion.div>
                   );
                 })}
+                </AnimatePresence>
               </motion.div>
             ) : (
               <motion.div

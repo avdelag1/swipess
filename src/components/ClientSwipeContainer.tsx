@@ -986,12 +986,18 @@ const ClientSwipeContainerComponent = ({
                 className="absolute inset-0 w-full h-full flex flex-col items-center justify-center p-0 mx-auto transform-gpu"
               >
                 {/* 🚀 STACKED ARCHITECTURE: Flat map allows React to preserve component mounts */}
+                <AnimatePresence>
                 {deckQueue.slice(currentIndex, currentIndex + 2).reverse().map((profile) => {
                   const isTopCard = profile.user_id === topCard.user_id;
                   
                   return (
                     <motion.div
                       key={profile.user_id}
+                      exit={{ 
+                        x: swipeDirection === 'right' ? (typeof window !== 'undefined' ? window.innerWidth : 600) * 1.2 : (typeof window !== 'undefined' ? -window.innerWidth : -600) * 1.2, 
+                        opacity: 0, 
+                        transition: { duration: 0.25, ease: 'easeOut' } 
+                      }}
                       className={cn("absolute inset-0 w-full h-full", isTopCard ? "z-20" : "z-10")}
                       style={!isTopCard ? {
                         scale: nextCardScale,
@@ -1023,6 +1029,7 @@ const ClientSwipeContainerComponent = ({
                     </motion.div>
                   );
                 })}
+                </AnimatePresence>
               </motion.div>
             ) : (
               <motion.div

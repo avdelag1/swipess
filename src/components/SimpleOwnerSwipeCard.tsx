@@ -315,9 +315,9 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
       isExitingRef.current = true;
       triggerHaptic(direction === 'right' ? 'success' : 'warning');
       const exitX = direction === 'right' ? (window.innerWidth || 600) * 1.2 : -(window.innerWidth || 600) * 1.2;
-      animate(y, 0, { ...SNAP_BACK_SPRING });
+      y.set(0);
       animate(x, exitX, { ...EXIT_SPRING, velocity: info.velocity.x });
-      setTimeout(() => { isExitingRef.current = false; onSwipe(direction); }, 350);
+      onSwipe(direction);
     } else if (vertCommit && (onSkip || onSkipBack)) {
       const dir = dy > 0 ? 1 : -1;
       hasExited.current = true;
@@ -360,16 +360,9 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
     triggerHaptic(direction === 'right' ? 'success' : 'warning');
     const exitDist = typeof window !== 'undefined' ? window.innerWidth * 1.2 : 900;
     const exitX = direction === 'right' ? exitDist : -exitDist;
-    let swipeFired = false;
-    const fireSwipe = () => {
-      if (swipeFired) return;
-      swipeFired = true;
-      isExitingRef.current = false;
-      onSwipe(direction);
-    };
     animate(y, 0, { ...SNAP_BACK_SPRING });
-    animate(x, exitX, { ...EXIT_SPRING, onComplete: fireSwipe });
-    setTimeout(fireSwipe, 400);
+    animate(x, exitX, { ...EXIT_SPRING });
+    onSwipe(direction);
   }, [onSwipe, x, y]);
 
   useImperativeHandle(ref, () => ({
