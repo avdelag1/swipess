@@ -2,6 +2,7 @@ import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useStat
 import { animate, motion, PanInfo, useMotionValue, useTransform } from 'framer-motion';
 import { triggerHaptic } from '@/utils/haptics';
 import {
+  EXIT_SPRING,
   PK_DIST_THRESHOLD,
   PK_SPRING,
   PK_VEL_THRESHOLD,
@@ -176,14 +177,9 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
       const direction = dx > 0 ? 'right' : 'left';
       const exitX = direction === 'right' ? 520 : -520;
       animate(x, exitX, {
-        type: 'spring',
-        stiffness: 400,
-        damping: 28,
-        mass: 0.5,
+        ...EXIT_SPRING,
         onComplete: () => {
           onCycle(card.id, direction);
-          // Reset after cycle — onCycle re-renders so these run on the
-          // "next" card that becomes index 0, not this one.
           x.set(0);
           isExitingRef.current = false;
         }
@@ -211,7 +207,7 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
       // freely so the exit animate() to ±520 isn't fought by constraint springs.
       drag={isTop ? 'x' : false}
       dragMomentum={false}
-      dragElastic={0.6}
+      dragElastic={0.8}
       onDragStart={() => {
         if (isExitingRef.current) return;
         isDraggingRef.current = true;

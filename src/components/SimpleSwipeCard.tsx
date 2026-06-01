@@ -31,6 +31,7 @@ import { BarChart3, Bookmark, Flag, MessageCircle, Share2, ThumbsUp } from 'luci
 import { PhotoPositionIndicators } from '@/components/swipe/PhotoPositionIndicators';
 import { GestureHints } from '@/components/swipe/GestureHints';
 import { revealChrome, useChromeReveal } from '@/hooks/useChromeReveal';
+import { SNAP_BACK_SPRING, EXIT_SPRING, VERTICAL_EXIT_SPRING } from '@/components/swipe/SwipeConstants';
 
 export interface SimpleSwipeCardRef {
   triggerSwipe: (direction: 'left' | 'right') => void;
@@ -292,22 +293,21 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
       isExitingRef.current = true;
       triggerHaptic(direction === 'right' ? 'success' : 'warning');
       const exitX = direction === 'right' ? (window.innerWidth || 600) * 1.2 : -(window.innerWidth || 600) * 1.2;
-      x.set(exitX);
       y.set(0);
-      onSwipe(direction);
+      animate(x, exitX, { ...EXIT_SPRING, velocity: info.velocity.x });
+      setTimeout(() => { isExitingRef.current = false; onSwipe(direction); }, 350);
     } else if (vertCommit && (onSkip || onSkipBack)) {
       const dir = dy > 0 ? 1 : -1;
       hasExited.current = true;
       isExitingRef.current = true;
       triggerHaptic('light');
       const exitY = dir * (window.innerHeight || 800) * 0.85;
-      y.set(exitY);
       x.set(0);
-      if (dir < 0) onSkip?.();
-      else onSkipBack?.();
+      animate(y, exitY, { ...VERTICAL_EXIT_SPRING, velocity: info.velocity.y });
+      setTimeout(() => { isExitingRef.current = false; if (dir < 0) onSkip?.(); else onSkipBack?.(); }, 350);
     } else {
-      animate(x, 0, { type: 'spring', stiffness: 800, damping: 40, mass: 0.3, velocity: info.velocity.x });
-      animate(y, 0, { type: 'spring', stiffness: 800, damping: 40, mass: 0.3, velocity: info.velocity.y });
+      animate(x, 0, { ...SNAP_BACK_SPRING, velocity: info.velocity.x });
+      animate(y, 0, { ...SNAP_BACK_SPRING, velocity: info.velocity.y });
     }
     isDragging.current = false;
     dragAxisRef.current = null;
@@ -349,8 +349,9 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
       isExitingRef.current = false;
       onSwipe(direction);
     };
-    animate(y, 0, { type: 'tween', duration: 0.06, ease: [0.22, 1, 0.36, 1] });
-    animate(x, exitX, { type: 'tween', duration: 0.1, ease: [0.22, 1, 0.36, 1], onComplete: fireSwipe });
+    animate(y, 0, { ...SNAP_BACK_SPRING });
+    animate(x, exitX, { ...EXIT_SPRING, onComplete: fireSwipe });
+    setTimeout(fireSwipe, 400);
   }, [onSwipe, x, y]);
 
   useImperativeHandle(ref, () => ({

@@ -28,25 +28,20 @@ import { imageCache } from '@/lib/swipe/cardImageCache';
 import { PhotoPositionIndicators } from '@/components/swipe/PhotoPositionIndicators';
 import { GestureHints } from '@/components/swipe/GestureHints';
 import { revealChrome, useChromeReveal } from '@/hooks/useChromeReveal';
+import { SNAP_BACK_SPRING, EXIT_SPRING, VERTICAL_EXIT_SPRING } from '@/components/swipe/SwipeConstants';
 
 export interface SimpleOwnerSwipeCardRef {
   triggerSwipe: (direction: 'left' | 'right') => void;
 }
 
-const SWIPE_THRESHOLD = 80;
-const VELOCITY_THRESHOLD = 280;
-const SKIP_THRESHOLD = 110;
-const SKIP_VELOCITY = 350;
+const SWIPE_THRESHOLD = 60;
+const VELOCITY_THRESHOLD = 200;
+const SKIP_THRESHOLD = 70;
+const SKIP_VELOCITY = 250;
 const FALLBACK_PLACEHOLDER = '';
 type DragAxis = 'x' | 'y' | null;
 
 const _getExitDistance = () => typeof window !== 'undefined' ? window.innerWidth * 1.5 : 800;
-
-const SPRING_CONFIGS = {
-  SILK: { stiffness: 500, damping: 25, mass: 0.4 },
-};
-
-const ACTIVE_SPRING = SPRING_CONFIGS.SILK;
 
 interface ClientProfile {
   user_id: string;
@@ -319,25 +314,21 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
       isExitingRef.current = true;
       triggerHaptic(direction === 'right' ? 'success' : 'warning');
       const exitX = direction === 'right' ? (window.innerWidth || 600) * 1.2 : -(window.innerWidth || 600) * 1.2;
-      animate(x, exitX, { type: 'tween', duration: 0.24, ease: [0.32, 0, 0.67, 0] });
-      animate(y, 0, { type: 'tween', duration: 0.18, ease: [0.22, 1, 0.36, 1] });
-      setTimeout(() => onSwipe(direction), 220);
+      animate(y, 0, { ...SNAP_BACK_SPRING });
+      animate(x, exitX, { ...EXIT_SPRING, velocity: info.velocity.x });
+      setTimeout(() => { isExitingRef.current = false; onSwipe(direction); }, 350);
     } else if (vertCommit && (onSkip || onSkipBack)) {
       const dir = dy > 0 ? 1 : -1;
       hasExited.current = true;
       isExitingRef.current = true;
       triggerHaptic('light');
-      // Cinematic vertical exit: card vanishes back into the deck while next card rises up.
       const exitY = dir * (window.innerHeight || 800) * 0.85;
-      animate(y, exitY, { duration: 0.32, ease: [0.22, 1, 0.36, 1] });
-      animate(x, 0, { duration: 0.18, ease: [0.22, 1, 0.36, 1] });
-      setTimeout(() => {
-        if (dir > 0) onSkip?.();
-        else onSkipBack?.();
-      }, 300);
+      animate(x, 0, { ...SNAP_BACK_SPRING });
+      animate(y, exitY, { ...VERTICAL_EXIT_SPRING, velocity: info.velocity.y });
+      setTimeout(() => { isExitingRef.current = false; if (dir > 0) onSkip?.(); else onSkipBack?.(); }, 350);
     } else {
-      animate(x, 0, { type: 'spring', ...ACTIVE_SPRING });
-      animate(y, 0, { type: 'spring', ...ACTIVE_SPRING });
+      animate(x, 0, { ...SNAP_BACK_SPRING, velocity: info.velocity.x });
+      animate(y, 0, { ...SNAP_BACK_SPRING, velocity: info.velocity.y });
     }
     setTimeout(() => { isDragging.current = false; dragAxisRef.current = null; }, 100);
   }, [onSwipe, onSkip, onSkipBack, x, y]);
@@ -375,9 +366,9 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
       isExitingRef.current = false;
       onSwipe(direction);
     };
-    animate(y, 0, { type: 'tween', duration: 0.14, ease: [0.22, 1, 0.36, 1] });
-    animate(x, exitX, { type: 'tween', duration: 0.26, ease: [0.32, 0, 0.67, 0], onComplete: fireSwipe });
-    setTimeout(fireSwipe, 350);
+    animate(y, 0, { ...SNAP_BACK_SPRING });
+    animate(x, exitX, { ...EXIT_SPRING, onComplete: fireSwipe });
+    setTimeout(fireSwipe, 400);
   }, [onSwipe, x, y]);
 
   useImperativeHandle(ref, () => ({
@@ -397,7 +388,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
         dragDirectionLock={disableDrag ? false : (isTop ? true : undefined)}
         dragMomentum={false}
         dragConstraints={{ left: -9999, right: 9999, top: -9999, bottom: 9999 }}
-        dragElastic={0.02}
+        dragElastic={0.8}
         onDragStart={handleDragStart}
         onDrag={handleDrag}
         onDirectionLock={handleDirectionLock}
