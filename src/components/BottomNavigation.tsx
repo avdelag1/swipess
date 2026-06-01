@@ -332,6 +332,9 @@ export const BottomNavigation = memo(({
                 id={item.id === 'ai-search' ? 'ai-search-button' : undefined}
                 data-no-cinematic
                 data-instant-feedback
+                onPointerEnter={() => {
+                  if (item.path) prefetchRoute(item.path);
+                }}
                 onPointerDown={(e) => {
                   if (item.path) prefetchRoute(item.path);
                   isDraggingRef.current = false;
