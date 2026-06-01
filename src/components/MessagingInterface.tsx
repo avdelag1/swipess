@@ -249,7 +249,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
             "shrink-0 px-4 py-3 min-h-[72px] flex items-center z-20 backdrop-blur-3xl border-b transition-all pt-safe",
             isThemeLight
               ? "bg-white/80 border-black/[0.06] shadow-sm"
-              : "bg-[#050505]/80 border-white/[0.06] shadow-[0_1px_0_rgba(255,255,255,0.04)]"
+              : "bg-[#18181B]/80 border-white/[0.08] shadow-[0_1px_0_rgba(255,255,255,0.06)]"
         )}>
           <div className="flex items-center w-full gap-4">
             <button
@@ -372,7 +372,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
 
         <div
           id="chat-scroll-container"
-          className={cn("flex-1 flex flex-col relative min-h-0", isThemeLight ? "bg-[#f5f5f7]" : "bg-[#050505]")}
+          className={cn("flex-1 flex flex-col relative min-h-0", isThemeLight ? "bg-[#f5f5f7]" : "bg-black")}
           ref={messagesContainerRef}
         >
           {messages.length === 0 ? (
@@ -399,7 +399,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
 
         <div className={cn(
           "shrink-0 px-4 py-3 flex items-center backdrop-blur-3xl border-t transition-all pb-safe relative z-20",
-          isThemeLight ? "bg-white/90 border-black/[0.06] shadow-[0_-10px_40px_rgba(0,0,0,0.03)]" : "bg-[#050505]/90 border-white/[0.05] shadow-[0_-10px_40px_rgba(0,0,0,0.5)]"
+          isThemeLight ? "bg-white/90 border-black/[0.06] shadow-[0_-10px_40px_rgba(0,0,0,0.03)]" : "bg-[#18181B]/90 border-white/[0.08] shadow-[0_-10px_40px_rgba(0,0,0,0.5)]"
         )}>
 
           <AnimatePresence>
