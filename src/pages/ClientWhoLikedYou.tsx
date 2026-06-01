@@ -190,7 +190,7 @@ const ClientWhoLikedYou = () => {
               className={cn(
                 "flex items-center gap-2.5 px-6 py-3.5 rounded-3xl text-sm font-black whitespace-nowrap transition-all flex-shrink-0 border",
                 selectedCategory === id
-                  ? "bg-[var(--color-brand-accent-2)] border-[var(--color-brand-accent-2)] text-white shadow-[0_8px_24px_rgba(228,0,124,0.4)]"
+                  ? "bg-foreground text-background border-foreground shadow-[0_8px_24px_rgba(228,0,124,0.4)]"
                   : "bg-card border-border text-foreground/80 hover:text-foreground hover:bg-secondary shadow-sm"
               )}
             >

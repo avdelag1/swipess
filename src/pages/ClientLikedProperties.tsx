@@ -216,7 +216,7 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
                 className={cn(
                   "flex items-center gap-2.5 px-6 py-3.5 rounded-3xl text-sm font-black whitespace-nowrap transition-all flex-shrink-0 border-2",
                   selectedCategory === id
-                    ? "bg-[var(--color-brand-accent-2)] text-white border-[var(--color-brand-accent-2)] shadow-lg shadow-[var(--color-brand-accent-2)]/30"
+                    ? "bg-foreground text-background border-foreground shadow-lg"
                     : "bg-card border-border text-foreground hover:bg-secondary shadow-sm"
                 )}
               >
@@ -268,7 +268,7 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
                   className={cn(
                     "px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border-2 transition-all active:scale-95 whitespace-nowrap",
                     sortBy === opt.value
-                      ? "bg-[var(--color-brand-accent-2)] border-[var(--color-brand-accent-2)] text-white shadow-md"
+                      ? "bg-foreground text-background border-foreground shadow-md"
                       : "bg-card border-border text-foreground hover:bg-secondary"
                   )}
                 >

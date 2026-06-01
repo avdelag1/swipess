@@ -146,31 +146,24 @@ export function VapIdCardModal({ isOpen, onClose, role = 'client' }: VapIdProps)
               <button
                 onClick={cycleTheme}
                 aria-label="Change card color"
-                className={cn(
-                  "h-11 w-11 flex items-center justify-center rounded-full border shadow-lg active:scale-95 transition",
-                  theme.isDark ? "bg-zinc-800 border-white/10 text-white" : "bg-black/10 backdrop-blur-sm border-black/20 text-black"
-                )}
+                className="h-11 w-11 flex items-center justify-center rounded-full border shadow-lg active:scale-95 transition bg-white/10 backdrop-blur-md border-white/20 text-white hover:bg-white/20"
               >
                 <Droplets className="h-5 w-5" strokeWidth={2.6} />
               </button>
-              <span className={cn("text-[11px] font-bold uppercase tracking-[0.2em] flex-1 text-center truncate", theme.isDark ? "text-white/90" : "text-black/70")}>{theme.name}</span>
+              <span className="text-[11px] font-bold uppercase tracking-[0.2em] flex-1 text-center truncate text-white/90">
+                {theme.name}
+              </span>
               <button
                 onClick={() => setEditOpen(true)}
                 aria-label="Edit identity"
-                className={cn(
-                  "h-11 w-11 flex items-center justify-center rounded-full border shadow-lg active:scale-95 transition",
-                  theme.isDark ? "bg-zinc-800 border-white/10 text-white" : "bg-black/10 backdrop-blur-sm border-black/20 text-black"
-                )}
+                className="h-11 w-11 flex items-center justify-center rounded-full border shadow-lg active:scale-95 transition bg-white/10 backdrop-blur-md border-white/20 text-white hover:bg-white/20"
               >
                 <Pencil className="h-5 w-5" strokeWidth={2.6} />
               </button>
               <button
                 onClick={onClose}
                 aria-label="Close card"
-                className={cn(
-                  "h-11 w-11 flex items-center justify-center rounded-full border shadow-lg active:scale-95 transition",
-                  theme.isDark ? "bg-zinc-800 border-white/10 text-white" : "bg-black/10 backdrop-blur-sm border-black/20 text-black"
-                )}
+                className="h-11 w-11 flex items-center justify-center rounded-full border shadow-lg active:scale-95 transition bg-white/10 backdrop-blur-md border-white/20 text-white hover:bg-white/20"
               >
                 <X className="h-5 w-5" strokeWidth={2.8} />
               </button>
