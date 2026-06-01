@@ -46,7 +46,7 @@ export function AnimatedOutlet() {
       <motion.div
         key={location.pathname}
         id="page-scroll-container"
-        className="w-full min-h-full block bg-background pt-[var(--top-bar-height)]"
+        className="swipess-page-wrapper w-full min-h-full block"
         style={{ position: 'relative', pointerEvents: 'auto' }}
         initial={{ opacity: 0.6, scale: 0.97 }}
         animate={{ opacity: 1, scale: 1 }}
