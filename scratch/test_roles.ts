@@ -8,7 +8,7 @@ async function _testRoleAccess() {
     .select('*')
     .limit(5);
   
-  console.log('User Roles:', data);
+  console.warn('User Roles:', data);
   if (error) console.error('Error fetching user roles:', error);
 }
 

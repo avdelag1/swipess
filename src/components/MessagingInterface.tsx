@@ -23,6 +23,7 @@ import useAppTheme from '@/hooks/useAppTheme';
 import { cn } from '@/lib/utils';
 import { usePresence } from '@/hooks/usePresence';
 import { useBlockUser } from '@/hooks/useBlocking';
+import { useSiteContent } from '@/hooks/useSiteContent';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -68,6 +69,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
   const isThemeLight = isLight;
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { getText } = useSiteContent('chat');
   const { data: messages = [], isLoading } = useConversationMessages(conversationId);
   const sendMessage = useSendMessage();
   const _queryClient = useQueryClient();
@@ -438,7 +440,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
                 value={newMessage}
                 onChange={(e) => { setNewMessage(e.target.value); if (e.target.value.trim()) startTyping(); else stopTyping(); }}
                 onFocus={() => { if (isListening) stopListening(); }}
-                placeholder={isListening ? "Listening..." : "Type a message..."}
+                placeholder={isListening ? "Listening..." : getText('input_placeholder', 'Type a message...')}
                 rows={1}
                 style={{ resize: 'none' }}
                 className={cn(

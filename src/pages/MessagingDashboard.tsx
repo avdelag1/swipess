@@ -45,6 +45,7 @@ import { AtmosphericLayer } from '@/components/AtmosphericLayer';
 import { X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
+import { useSiteContent } from '@/hooks/useSiteContent';
 
 export function MessagingDashboard() {
   const { user } = useAuth();
@@ -56,6 +57,7 @@ export function MessagingDashboard() {
   const [isStartingConversation, setIsStartingConversation] = useState(false);
   const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
   const [_showActivationBanner, _setShowActivationBanner] = useState(false);
+  const { getText } = useSiteContent('messages');
 
   const { data: fetchedRole } = useUserRole(user?.id);
   const userRole = fetchedRole || 'client';
@@ -251,7 +253,7 @@ export function MessagingDashboard() {
           <div className="relative group">
             <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 opacity-50 z-10 text-[#EB4898]" />
             <input 
-              placeholder="SEARCH NAMES..." 
+              placeholder={getText('search_placeholder', 'SEARCH NAMES...')} 
               className={cn(
                 "w-full pl-14 pr-14 h-16 rounded-[2.2rem] text-[14px] outline-none transition-all font-black uppercase tracking-widest border",
                 isLight ? "bg-white border-black/5 text-black placeholder:text-black/30 shadow-sm" : "bg-[#0d0d14] border-white/5 text-white placeholder:text-white/20 focus:border-white/10"
@@ -271,9 +273,9 @@ export function MessagingDashboard() {
 
           <div className="flex items-center gap-2 overflow-x-auto pb-2 no-scrollbar px-1">
             {[
-              { id: 'all', label: 'Inbox', icon: Inbox },
-              { id: 'unread', label: 'Priority', icon: Sparkles },
-              { id: 'archived', label: 'Archive', icon: Archive }
+              { id: 'all', label: getText('page_title', 'Inbox'), icon: Inbox },
+              { id: 'unread', label: getText('free_messages_remaining', 'Priority'), icon: Sparkles },
+              { id: 'archived', label: getText('empty_state_text', 'Archive'), icon: Archive }
             ].map((filter) => (
               <button
                 key={filter.id}

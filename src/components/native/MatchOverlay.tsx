@@ -3,8 +3,11 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { Heart, MessageCircle, Share2, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { haptics } from '@/utils/microPolish';
+import { useSiteContent } from '@/hooks/useSiteContent';
 
 export const MatchOverlay = ({ isOpen, profile, onClose }: { isOpen: boolean, profile: any, onClose: () => void }) => {
+  const { getText } = useSiteContent('swipe_deck');
+
   if (!isOpen) return null;
 
   return (
@@ -28,9 +31,9 @@ export const MatchOverlay = ({ isOpen, profile, onClose }: { isOpen: boolean, pr
         >
           <div className="space-y-4">
             <h1 className="text-6xl font-black text-white italic tracking-tighter uppercase leading-[0.8]">
-              It's a <span className="text-primary">Match!</span>
+              {getText('match_modal_title', "It's a")} <span className="text-primary">{getText('match_modal_title', "Match!")}</span>
             </h1>
-            <p className="text-white/40 font-bold uppercase tracking-widest text-xs">You and {profile?.name} liked each other.</p>
+            <p className="text-white/40 font-bold uppercase tracking-widest text-xs">{getText('match_modal_subtitle', `You and ${profile?.name} liked each other.`)}</p>
           </div>
 
           <div className="flex items-center justify-center -space-x-8">
@@ -51,7 +54,7 @@ export const MatchOverlay = ({ isOpen, profile, onClose }: { isOpen: boolean, pr
               className="h-16 rounded-2xl bg-primary hover:bg-primary/90 text-white font-black uppercase italic tracking-[0.2em] text-sm shadow-[0_20px_40px_rgba(255,77,0,0.3)]"
             >
               <MessageCircle className="w-5 h-5 mr-3" />
-              Send Message
+              {getText('match_send_message', 'Send Message')}
             </Button>
             
             <div className="flex gap-4">
@@ -60,7 +63,7 @@ export const MatchOverlay = ({ isOpen, profile, onClose }: { isOpen: boolean, pr
                 onClick={onClose}
                 className="flex-1 h-14 rounded-2xl border-white/10 bg-white/5 text-white/60 font-black uppercase tracking-widest text-[10px]"
               >
-                Keep Swiping
+                {getText('match_keep_swiping', 'Keep Swiping')}
               </Button>
               <Button 
                 variant="outline"

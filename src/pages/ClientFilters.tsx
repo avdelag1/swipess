@@ -15,6 +15,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
 import useAppTheme from '@/hooks/useAppTheme';
 import { haptics } from '@/utils/microPolish';
+import { useSiteContent } from '@/hooks/useSiteContent';
 
 import type { QuickFilterCategory } from '@/types/filters';
 
@@ -25,6 +26,7 @@ interface ClientFiltersProps {
 
 export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProps) {
   const { navigate } = useAppNavigate();
+  const { getText } = useSiteContent('filters');
 
   const queryClient = useQueryClient();
   const { _isLight } = useAppTheme();
@@ -88,9 +90,9 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
       {!isEmbedded && (
         <div className="mb-6 pt-4 px-4">
           <h1 className="text-4xl font-black uppercase italic tracking-[-0.05em] leading-none text-foreground">
-            Swipess <span className="text-primary">Filter</span>
+            {getText('sheet_title', 'Swipess')} <span className="text-primary">Filter</span>
           </h1>
-          <p className="text-[10px] font-black uppercase tracking-[0.4em] mt-1 text-muted-foreground">Filter Your Best Deal</p>
+          <p className="text-[10px] font-black uppercase tracking-[0.4em] mt-1 text-muted-foreground">{getText('sheet_title', 'Filter Your Best Deal')}</p>
         </div>
       )}
 
@@ -210,7 +212,7 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
                   )}
                   <Search className={cn("w-6 h-6", isScanning && "animate-pulse")} />
                   <span className="text-lg font-black uppercase italic tracking-widest">
-                    {isScanning ? 'Synchronizing...' : 'Initiate Scan'}
+                    {isScanning ? getText('apply_button', 'Synchronizing...') : getText('apply_button', 'Initiate Scan')}
                   </span>
                 </button>
 
@@ -219,7 +221,7 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
                   className="w-full h-16 rounded-[2rem] flex items-center justify-center gap-2 transition-all bg-secondary border border-border text-foreground hover:bg-secondary/80"
                 >
                   <RotateCcw className="w-4 h-4" />
-                  <span className="text-[10px] font-black uppercase tracking-[0.3em] opacity-80">Reset Parameters</span>
+                  <span className="text-[10px] font-black uppercase tracking-[0.3em] opacity-80">{getText('reset_button', 'Reset Parameters')}</span>
                 </button>
               </div>
             </motion.div>

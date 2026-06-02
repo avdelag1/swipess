@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { MessageCircle, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { triggerHaptic } from '@/utils/haptics';
+import { useSiteContent } from '@/hooks/useSiteContent';
 
 interface MatchCelebrationProps {
   isOpen: boolean;
@@ -18,6 +19,7 @@ interface MatchCelebrationProps {
 export function MatchCelebration({ isOpen, onClose, onMessage, matchedUser }: MatchCelebrationProps) {
   const [showButtons, setShowButtons] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const { getText } = useSiteContent('swipe_deck');
 
   useEffect(() => {
     if (isOpen) {
@@ -119,7 +121,7 @@ export function MatchCelebration({ isOpen, onClose, onMessage, matchedUser }: Ma
               className="text-5xl md:text-7xl font-black text-center italic tracking-tighter"
             >
               <span className="bg-gradient-to-b from-orange-400 via-rose-500 to-pink-600 bg-clip-text text-transparent filter drop-shadow-[0_0_20px_rgba(244,63,94,0.3)]">
-                IT'S A MATCH!
+                {getText('match_modal_title', "IT'S A MATCH!")}
               </span>
             </motion.h2>
             <motion.div
@@ -192,7 +194,7 @@ export function MatchCelebration({ isOpen, onClose, onMessage, matchedUser }: Ma
             transition={{ delay: 1 }}
             className="text-white/70 text-lg font-medium mb-12 text-center px-8"
           >
-            You and <span className="text-white font-bold">{matchedUser.name}</span> have a spark!
+            You and <span className="text-white font-bold">{matchedUser.name}</span> {getText('match_modal_subtitle', 'have a spark!')}
           </motion.p>
 
           {/* Action Buttons */}
@@ -213,7 +215,7 @@ export function MatchCelebration({ isOpen, onClose, onMessage, matchedUser }: Ma
                         className="absolute inset-0 bg-white/20 -translate-x-full group-hover:animate-sweep" 
                       />
                       <MessageCircle className="w-5 h-5 mr-3" />
-                      SEND A MESSAGE
+                      {getText('match_send_message', 'SEND A MESSAGE')}
                     </Button>
                   </motion.div>
 
@@ -227,7 +229,7 @@ export function MatchCelebration({ isOpen, onClose, onMessage, matchedUser }: Ma
                       variant="ghost"
                       className="w-full h-12 text-white/50 hover:text-white hover:bg-white/5 text-sm font-bold uppercase tracking-widest"
                     >
-                      Keep Swiping
+                      {getText('match_keep_swiping', 'Keep Swiping')}
                     </Button>
                   </motion.div>
                 </>

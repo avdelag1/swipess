@@ -12,12 +12,14 @@ import { triggerHaptic } from '@/utils/haptics';
 import { Button } from '@/components/ui/button';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { PageHeader } from '@/components/PageHeader';
+import { useSiteContent } from '@/hooks/useSiteContent';
 
 const NotificationsPage = () => {
   const { notifications, markNotificationAsRead, dismissNotification, markAllAsRead } = useNotificationSystem();
-  const isLoading = false; // Mock loading state since useNotificationSystem doesn't provide it
+  const isLoading = false;
   const { isLight, isDark } = useAppTheme();
   const { _navigate } = useAppNavigate();
+  const { getText } = useSiteContent('notifications');
 
   const getIcon = (type: string) => {
     switch (type) {
@@ -48,8 +50,8 @@ const NotificationsPage = () => {
     )}>
       <div className="max-w-2xl mx-auto px-6 pt-4">
         <PageHeader 
-          title="Pulse Feed" 
-          subtitle="System Intelligence Updates" 
+          title={getText('page_title', 'Pulse Feed')} 
+          subtitle={getText('empty_state', 'System Intelligence Updates')} 
           showBack={true}
           actions={notifications.length > 0 ? (
             <Button 
@@ -58,7 +60,7 @@ const NotificationsPage = () => {
               onClick={() => { triggerHaptic('medium'); markAllAsRead(); }}
               className="font-black uppercase italic text-[10px] tracking-widest hover:bg-white/5"
             >
-              Clear Unread
+              {getText('mark_all_read', 'Clear Unread')}
             </Button>
           ) : undefined}
         />
@@ -75,8 +77,8 @@ const NotificationsPage = () => {
               <div className={cn("w-20 h-20 rounded-full flex items-center justify-center mb-6 border", isDark ? "bg-white/5 border-white/5" : "bg-black/5 border-black/5")}>
                 <Bell className={cn("w-10 h-10", isDark ? "text-slate-600" : "text-slate-400")} />
               </div>
-              <h2 className="text-lg font-black uppercase italic tracking-wider opacity-60">Silence is Golden</h2>
-              <p className="text-xs font-medium opacity-30 mt-2">Check back later for system updates</p>
+              <h2 className="text-lg font-black uppercase italic tracking-wider opacity-60">{getText('empty_state', 'Silence is Golden')}</h2>
+              <p className="text-xs font-medium opacity-30 mt-2">{getText('empty_state', 'Check back later for system updates')}</p>
             </motion.div>
           ) : (
             notifications.map((notif, i) => (

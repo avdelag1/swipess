@@ -1,15 +1,17 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Home, RefreshCw } from "lucide-react";
-import { motion } from "framer-motion";
+import { Home, RefreshCw } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { logger } from "@/utils/prodLogger";
 import { useTranslation } from 'react-i18next';
+import { useSiteContent } from '@/hooks/useSiteContent';
 
 const NotFound = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { getText } = useSiteContent('errors');
 
   useEffect(() => {
     logger.error(
@@ -102,7 +104,7 @@ const NotFound = () => {
           transition={{ delay: 0.2 }}
           className="text-3xl font-bold text-white"
         >
-          Lost in the Swipe?
+          {getText('not_found_title', 'Lost in the Swipe?')}
         </motion.h1>
 
         <motion.p
@@ -144,7 +146,7 @@ const NotFound = () => {
             size="lg"
           >
             <RefreshCw className="mr-2 h-5 w-5" />
-            Clear Cache & Reload
+            {getText('retry_button', 'Clear Cache & Reload')}
           </Button>
         </motion.div>
 
@@ -154,7 +156,7 @@ const NotFound = () => {
           transition={{ delay: 0.6 }}
           className="text-xs text-gray-500 pt-4"
         >
-          If you keep seeing this, try the clear cache button above.
+          {getText('network_error', 'If you keep seeing this, try the clear cache button above.')}
         </motion.p>
       </motion.div>
     </div>

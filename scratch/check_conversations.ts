@@ -16,7 +16,7 @@ async function checkConversations() {
     return;
   }
 
-  console.log('Sample Conversations:', conversations);
+  console.warn('Sample Conversations:', conversations);
 
   for (const conv of conversations || []) {
     const { data: profiles, error: profError } = await supabase
@@ -24,7 +24,7 @@ async function checkConversations() {
       .select('user_id, full_name')
       .in('user_id', [conv.client_id, conv.owner_id]);
     
-    console.log(`Conv ${conv.id} profiles:`, profiles, profError);
+    console.warn(`Conv ${conv.id} profiles:`, profiles, profError);
   }
 }
 
