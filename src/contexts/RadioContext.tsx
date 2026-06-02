@@ -292,7 +292,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
         if (audio) {
           try { audio.pause(); } catch {/* intentional */}
         }
-        isPlayingRef.current = false;
+        if (audio?.src === currentStationRef.current?.streamUrl) isPlayingRef.current = false;
         handlingError = false;
         return;
       }
@@ -334,7 +334,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
         clearTimeout(loadTimeoutRef.current);
         loadTimeoutRef.current = null;
       }
-      isPlayingRef.current = false;
+      if (audio?.src === currentStationRef.current?.streamUrl) isPlayingRef.current = false;
 
       if (audio) {
         audio.removeEventListener('error', handleAudioError);
@@ -363,8 +363,8 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       }
 
       if (errorTimeoutRef.current) clearTimeout(errorTimeoutRef.current);
-      // Release play lock so the station change can proceed
-      isPlayingRef.current = false;
+      // Release play lock so the station change can proceed (only if still current)
+      if (audio?.src === currentStationRef.current?.streamUrl) isPlayingRef.current = false;
       errorTimeoutRef.current = setTimeout(() => {
         setError(null);
         changeStationRef.current('next');
@@ -588,8 +588,8 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
 
   const play = useCallback(async (station?: RadioStation) => {
     // Block any path that did not originate from an explicit user gesture.
-    // Internal recoveries (error skip, ended->next, station changes while
-    // already playing) are allowed because they happen while audio is live.
+    // Internal recoveries (error skip, track-ended->next, city change
+    // while already playing) are allowed because they happen while audio is live.
     const userOk = userInitiatedRef.current;
     userInitiatedRef.current = false;
     // Allow internal recoveries (error skip, track-ended->next, city change
@@ -600,14 +600,24 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       logger.info('[RadioPlayer] play() blocked — not user-initiated');
       return;
     }
-    if (isPlayingRef.current) return;
-    isPlayingRef.current = true;
-    
+
     const targetStation = station || state.currentStation;
     if (!targetStation || !audioRef.current) {
       isPlayingRef.current = false;
       return;
     }
+
+    // CRITICAL: If a play is in progress but we're switching to a DIFFERENT
+    // station, abort the old attempt and proceed. This fixes the bug where
+    // rapid skips (3-5+) get silently blocked by the isPlayingRef guard.
+    const isDifferentStation = audioRef.current.src !== targetStation.streamUrl;
+    if (isPlayingRef.current && !isDifferentStation) return;
+    if (isDifferentStation) {
+      // Abort the in-flight play by clearing src, which triggers AbortError
+      // in the previous play() call's await audio.play()
+      try { audioRef.current.pause(); } catch {/* intentional */}
+    }
+    isPlayingRef.current = true;
 
     // CRITICAL: Prevent infinite recursion when all stations fail
     if (playDepthRef.current >= 10) {
@@ -688,9 +698,8 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
         failedStationsRef.current.add(targetStation.id);
         setTimeout(() => failedStationsRef.current.delete(targetStation.id), 20000);
         setError('Station timeout, switching...');
-        // CRITICAL: release the play lock — without this, the radio gets
-        // permanently stuck because every subsequent play() exits early.
-        isPlayingRef.current = false;
+        // CRITICAL: release the play lock only if this is still the active station
+        if (audio?.src === targetStation.streamUrl) isPlayingRef.current = false;
         try { audio?.pause(); } catch {/* ignore */}
         setTimeout(() => {
           setError(null);
@@ -723,7 +732,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       } catch (playErr: any) {
         if (playErr.name === 'AbortError') {
           logger.info('[RadioPlayer] Play aborted by new action');
-          isPlayingRef.current = false;
+          if (audioRef.current?.src === targetStation.streamUrl) isPlayingRef.current = false;
           return;
         }
         // CRITICAL FALLBACK: If "anonymous" crossOrigin caused a CORS blockage, 
@@ -772,7 +781,11 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
         navigator.mediaSession.setActionHandler('nexttrack', () => changeStationRef.current('next'));
       }
     } catch (err: any) {
-      isPlayingRef.current = false;
+      // CRITICAL: Only release the play lock if this is still the active station.
+      // When a play is aborted by a station change, the new station's play() is
+      // already running — releasing the lock here would break rapid skips.
+      const isStillCurrent = audioRef.current?.src === targetStation.streamUrl;
+      if (isStillCurrent) isPlayingRef.current = false;
       if (err.name === 'AbortError') {
          logger.info('[RadioPlayer] Play aborted by new action (outer)');
          return;
