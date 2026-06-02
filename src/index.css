@@ -999,6 +999,22 @@ button:focus:not(:focus-visible), [role="button"]:focus:not(:focus-visible) {
     will-change: opacity, transform;
   }
 
+  /* Brand logo glow/breathing loading animation */
+  @keyframes glow-breathe {
+    0%, 100% {
+      transform: scale(1) translateZ(0);
+      filter: drop-shadow(0 0 18px rgba(59, 130, 246, 0.3)) drop-shadow(0 0 60px rgba(59, 130, 246, 0.1));
+    }
+    50% {
+      transform: scale(1.04) translateZ(0);
+      filter: drop-shadow(0 0 32px rgba(59, 130, 246, 0.6)) drop-shadow(0 0 80px rgba(59, 130, 246, 0.2));
+    }
+  }
+  .animate-glow-breathe {
+    animation: glow-breathe 2.8s ease-in-out infinite;
+    will-change: transform, filter;
+  }
+
   /* Chrome-summon edge dot — even more whisper-quiet, brand-neutral */
   @keyframes summon-glow {
     0%, 100% { opacity: 0.22; transform: scaleX(0.85); }

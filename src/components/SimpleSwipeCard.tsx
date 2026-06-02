@@ -13,7 +13,7 @@
  */
 
 import { forwardRef, memo, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
-import { animate, AnimatePresence, motion, MotionValue, PanInfo, useDragControls, useMotionValue, useTransform } from 'framer-motion';
+import { animate, AnimatePresence, motion, MotionValue, PanInfo, useMotionValue, useTransform } from 'framer-motion';
 import { triggerHaptic } from '@/utils/haptics';
 import { getCardImageUrl } from '@/utils/imageOptimization';
 import { Listing } from '@/hooks/useListings';
@@ -88,7 +88,6 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   const hasExited = useRef(false);
   const isExitingRef = useRef(false);
   const lastListingIdRef = useRef(listing.id || (listing as any).user_id);
-  const dragControls = useDragControls();
   const dragStartedRef = useRef(false);
   const storedPointerEventRef = useRef<React.PointerEvent | null>(null);
   const dragAxisRef = useRef<DragAxis>(null);
@@ -230,20 +229,15 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
     if (storedPointerEventRef.current && !dragStartedRef.current) {
       const dx = Math.abs(e.clientX - (storedPointerEventRef.current as any).clientX);
       const dy = Math.abs(e.clientY - (storedPointerEventRef.current as any).clientY);
-      // Start drag the instant we detect real movement. Cancel the magnifier
-      // hold so vertical/horizontal browse never stalls waiting on the
-      // 380ms hold-to-zoom timer.
       if (dx > 3 || dy > 3) {
-        magnifierPointerHandlers.onPointerUp(e); 
+        magnifierPointerHandlers.onPointerUp(e);
         dragStartedRef.current = true;
         isDragging.current = true;
-        dragControls.start((storedPointerEventRef.current as any).nativeEvent);
         return;
       }
     }
-    // Forward to magnifier so its hold detection sees movement
     magnifierPointerHandlers.onPointerMove(e);
-  }, [isMagnifierActive, isMagnifierHoldPending, magnifierPointerHandlers, dragControls]);
+  }, [isMagnifierActive, isMagnifierHoldPending, magnifierPointerHandlers]);
 
   const handleUnifiedPointerUp = useCallback((e: React.PointerEvent) => {
     storedPointerEventRef.current = null;
@@ -365,8 +359,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
     <div className={cn("absolute inset-0 flex flex-col", isTop ? "pointer-events-auto" : "pointer-events-none")}>
       <motion.div
         drag={disableDrag ? false : (isTop ? true : false)}
-        dragControls={disableDrag ? undefined : (isTop ? dragControls : undefined)}
-        dragListener={disableDrag ? false : (isTop ? false : undefined)}
+        dragListener={disableDrag ? false : (isTop ? true : undefined)}
         dragDirectionLock={disableDrag ? false : (isTop ? true : undefined)}
         dragMomentum={false}
         dragConstraints={{ left: -9999, right: 9999, top: -9999, bottom: 9999 }}

@@ -220,6 +220,7 @@ export function SubscriptionPackages({ isOpen = true, onClose, reason, userRole 
 
                   <div className="flex items-baseline gap-1 mt-2 mb-4">
                     <span className="text-3xl sm:text-4xl font-black text-foreground tracking-tighter">{pkg.price}</span>
+                    <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground opacity-60">USD</span>
                     <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground opacity-60">{pkg.durationText}</span>
                   </div>
 

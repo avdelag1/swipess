@@ -182,17 +182,18 @@ export function AppLayout({ children }: AppLayoutProps) {
   const isCameraRoute = location.pathname.includes('/camera');
   const isRadioRoute = location.pathname.includes('/radio');
 
+  const isDirectChat = location.pathname.startsWith('/messages') && new URLSearchParams(location.search).has('conversationId');
+
   const isFullScreen = useMemo(() => {
     const path = location.pathname;
     const isRadio = path.startsWith('/radio');
     const isCamera = path.startsWith('/camera');
     const isRoommates = path.startsWith('/explore/roommates');
-    const isMessages = path.startsWith('/messages');
     const isEvents = path.startsWith('/explore/events');
-    return isCamera || isRadio || showAIChat || showAIListing || showAIProfile || isSwipeDashboard || isRoommates || isMessages || isEvents;
-  }, [location.pathname, showAIChat, showAIListing, showAIProfile, isSwipeDashboard]);
+    const isDirectChatInner = path.startsWith('/messages') && new URLSearchParams(location.search).has('conversationId');
+    return isCamera || isRadio || showAIChat || showAIListing || showAIProfile || isSwipeDashboard || isRoommates || isDirectChatInner || isEvents;
+  }, [location.pathname, location.search, showAIChat, showAIListing, showAIProfile, isSwipeDashboard]);
 
-  const isDirectChat = location.pathname.startsWith('/messages') && new URLSearchParams(location.search).has('conversationId');
   const showAppChrome = !isAuthRoute && !isRadioRoute && !isCameraRoute && !showAIChat && !showAIListing && !showAIProfile && !isEventsRoute && !isDirectChat && (!isPublicPreview || !!user);
 
   const handleFilterClick = () => {
