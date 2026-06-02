@@ -1051,8 +1051,8 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                     </motion.div>
                   );
                 })}
-                </AnimatePresence>
               </motion.div>
+            </AnimatePresence>
             ) : (
               <motion.div
                 key="exhausted"
