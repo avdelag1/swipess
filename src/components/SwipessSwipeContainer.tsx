@@ -256,6 +256,8 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   const prefetchSchedulerRef = useRef(new PrefetchScheduler());
   const isFetchingMore = useRef(false);
   const { canNavigate, startNavigation, endNavigation } = useNavigationGuard();
+  const swipeDirectionRef = useRef<'left' | 'right' | null>(null);
+  const skipDirectionRef = useRef<'up' | 'down' | null>(null);
 
   const topCardX = useMotionValue(0);
   const topCardY = useMotionValue(0);
@@ -591,8 +593,17 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     topCardY.set(0);
     pendingSwipeRef.current = null;
     isSwipeAnimatingRef.current = false;
+    swipeDirectionRef.current = null;
+    skipDirectionRef.current = null;
     setSwipeDirection(null);
   }, [topCardIdentity, filterSignature, activeMode, topCardX, topCardY]);
+
+  // Clear skip direction ref after exit animation completes
+  useEffect(() => {
+    if (!skipDirectionRef.current) return;
+    const timer = setTimeout(() => { skipDirectionRef.current = null; }, 400);
+    return () => clearTimeout(timer);
+  }, [currentIndex]);
 
   const flushPendingSwipe = useCallback(() => {
     const pending = pendingSwipeRef.current;
@@ -685,8 +696,8 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     pendingSwipeRef.current = { listing, direction, newIndex };
     currentIndexRef.current = newIndex;
     swipedIdsRef.current.add(listing.id);
-    playSwipeSound(direction);
     setSwipeDirection(direction);
+    swipeDirectionRef.current = direction;
 
     flushPendingSwipe();
   }, [flushPendingSwipe, playSwipeSound]);
@@ -722,8 +733,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     triggerHaptic('light');
     const newIndex = currentIndexRef.current + 1;
     currentIndexRef.current = newIndex;
-    // Reset motion values synchronously so the underlying card doesn't flash
-    // at full scale/opacity before the new top card paints.
+    skipDirectionRef.current = 'up';
     topCardX.stop(); topCardX.set(0);
     topCardY.stop(); topCardY.set(0);
     setCurrentIndex(newIndex);
@@ -743,6 +753,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     triggerHaptic('light');
     const newIndex = Math.max(0, currentIndexRef.current - 1);
     currentIndexRef.current = newIndex;
+    skipDirectionRef.current = 'down';
     topCardX.stop(); topCardX.set(0);
     topCardY.stop(); topCardY.set(0);
     setCurrentIndex(newIndex);
@@ -998,7 +1009,8 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                       <motion.div
                         key={listing.id}
                         exit={{ 
-                          x: swipeDirection === 'right' ? (typeof window !== 'undefined' ? window.innerWidth : 600) * 1.2 : (typeof window !== 'undefined' ? -window.innerWidth : -600) * 1.2, 
+                          x: swipeDirectionRef.current === 'right' ? (typeof window !== 'undefined' ? window.innerWidth : 600) * 1.2 : (typeof window !== 'undefined' ? -window.innerWidth : -600) * 1.2, 
+                          y: skipDirectionRef.current === 'up' ? -(typeof window !== 'undefined' ? window.innerHeight : 800) * 1.2 : skipDirectionRef.current === 'down' ? (typeof window !== 'undefined' ? window.innerHeight : 800) * 1.2 : 0,
                           opacity: 0, 
                           transition: { duration: 0.25, ease: 'easeOut' } 
                         }}

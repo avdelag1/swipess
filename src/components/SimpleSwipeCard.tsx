@@ -301,12 +301,10 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
         animate(y, 100, { ...SNAP_BACK_SPRING, onComplete: () => animate(y, 0, { ...SNAP_BACK_SPRING }) });
       } else {
         hasExited.current = true;
-        isExitingRef.current = true;
         triggerHaptic('light');
-        const exitY = dir * (window.innerHeight || 800) * 0.85;
         x.set(0);
-        animate(y, exitY, { ...VERTICAL_EXIT_SPRING, velocity: info.velocity.y });
-        setTimeout(() => { isExitingRef.current = false; if (dir < 0) onSkip?.(); else onSkipBack?.(); }, 350);
+        if (dir < 0) onSkip?.();
+        else onSkipBack?.();
       }
     } else {
       animate(x, 0, { ...SNAP_BACK_SPRING, velocity: info.velocity.x });
