@@ -42,8 +42,8 @@ export function ResidentQRModal({ isOpen, onClose }: ResidentQRModalProps) {
       .on('postgres_changes', {
         event: 'INSERT',
         schema: 'public',
-        table: 'discount_redemptions',
-        filter: `user_id=eq.${user.id}`,
+        table: 'qr_scans',
+        filter: `scanned_user_id=eq.${user.id}`,
       }, () => {
         setRedeemed(true);
         setTimeout(() => {
@@ -54,7 +54,7 @@ export function ResidentQRModal({ isOpen, onClose }: ResidentQRModalProps) {
     return () => { supabase.removeChannel(channel); };
   }, [isOpen, user?.id]);
 
-  const qrValue = user?.id ? `Swipess-resident:${user.id}:${qrKey}` : '';
+  const qrValue = user?.id || '';
 
   if (!isOpen) return null;
 
