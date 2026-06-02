@@ -207,7 +207,7 @@ export default function SubscriptionPackagesPage() {
       </div>
 
       <div className="relative z-10 shrink-0 pt-[env(safe-area-inset-top)] px-4">
-        <div className="max-w-5xl mx-auto py-6 flex items-center justify-between">
+        <div className="max-w-5xl mx-auto py-3 flex items-center justify-between">
           <motion.button
             whileTap={{ scale: 0.9 }}
             onClick={() => navigate(userRole === 'owner' ? '/owner/dashboard' : '/client/dashboard')}
@@ -222,7 +222,7 @@ export default function SubscriptionPackagesPage() {
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center max-w-2xl mx-auto pb-12 pt-4"
+          className="text-center max-w-2xl mx-auto pb-6 pt-2"
         >
           <div className="inline-flex items-center gap-2 mb-6">
             <Zap className="w-8 h-8 text-brand-accent-2 animate-pulse" />
@@ -249,9 +249,9 @@ export default function SubscriptionPackagesPage() {
             return (
               <motion.div
                 key={plan.id}
-                initial={{ opacity: 0, y: 24 }}
+                initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
+                transition={{ delay: index * 0.05 }}
                 className={cn(
                   "flex-1 flex flex-col liquid-glass-card refraction-edge glass-nano-texture rounded-[3rem] p-1.5 transition-all duration-500",
                   isHighlight && "lg:scale-[1.05] lg:z-10 shadow-[0_40px_80px_rgba(0,0,0,0.5)] border-amber-500/40"
@@ -344,7 +344,7 @@ export default function SubscriptionPackagesPage() {
         </div>
 
         {/* Security / FAQ Footer */}
-        <div className="mt-32 pt-16 max-w-5xl mx-auto w-full border-t border-white/5 flex flex-col items-center gap-12 mb-16">
+        <div className="mt-16 pt-8 max-w-5xl mx-auto w-full border-t border-white/5 flex flex-col items-center gap-8 mb-8">
           <button 
             onClick={handleRestore}
             className="flex items-center gap-2.5 text-xs font-black uppercase tracking-[0.3em] text-muted-foreground/60 hover:text-white transition-colors"

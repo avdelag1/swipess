@@ -226,7 +226,7 @@ export function MessagingDashboard() {
     <div className={cn("w-full min-h-[100dvh] transition-colors duration-500 relative", isLight ? "bg-[#ffffff]" : "bg-[#000000]")}>
       <AtmosphericLayer variant="rose" />
 
-      <div className="w-full max-w-7xl mx-auto px-6 pt-6 pb-48 relative z-10 space-y-12">
+      <div className="w-full max-w-7xl mx-auto px-6 pt-3 pb-24 relative z-10 space-y-6">
         
         <div className="flex items-center gap-4 sm:gap-6">
            <button
@@ -292,7 +292,7 @@ export function MessagingDashboard() {
           </div>
         </div>
 
-        <div className="space-y-4 stagger-enter">
+        <div className="space-y-4">
           {isLoading ? (
             <MessageSkeleton />
           ) : filteredConversations.length > 0 ? (
@@ -305,10 +305,10 @@ export function MessagingDashboard() {
                 <motion.div
                   key={conversation.id}
                   layout
-                  initial={{ opacity: 0, y: 10 }}
+                  initial={{ opacity: 0, y: 5 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0 }}
-                  transition={{ duration: 0.2 }}
+                  transition={{ duration: 0.1 }}
                 >
                   <button 
                     className={cn(
