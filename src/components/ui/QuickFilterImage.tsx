@@ -54,7 +54,7 @@ export function QuickFilterImage({ src, alt, className }: QuickFilterImageProps)
       {/* Gradient placeholder / Fallback */}
       <div 
         className={cn(
-          "absolute inset-0 transition-opacity duration-500",
+          "absolute inset-0 transition-opacity duration-150",
           hasError 
             ? "bg-slate-800 opacity-100" 
             : (isReady ? "opacity-0" : "bg-gradient-to-br from-muted via-muted/80 to-muted/60 opacity-100")
@@ -71,12 +71,12 @@ export function QuickFilterImage({ src, alt, className }: QuickFilterImageProps)
       {!hasError && (
         <div
           className={cn(
-            "absolute inset-0 w-full h-full overflow-hidden transition-opacity duration-300",
+            "absolute inset-0 w-full h-full overflow-hidden transition-opacity duration-150",
             isReady ? "opacity-100" : "opacity-0"
           )}
           style={{
             animation: isReady 
-              ? 'photo-slide-in 0.4s cubic-bezier(0.2,0,0,1) forwards' 
+              ? 'photo-slide-in 0.2s cubic-bezier(0.2,0,0,1) forwards' 
               : 'none'
           }}
         >
@@ -91,11 +91,6 @@ export function QuickFilterImage({ src, alt, className }: QuickFilterImageProps)
               "w-full h-full object-cover",
               className
             )}
-            style={{ 
-              animation: isReady 
-                ? 'photo-swim 14s ease-in-out infinite' 
-                : 'none' 
-            }}
           />
         </div>
       )}

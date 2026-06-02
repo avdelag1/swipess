@@ -124,17 +124,18 @@ const CardImage = memo(({
   const br = fullScreen ? 'inherit' : 'var(--radius-lg)';
 
   return (
-    <div
-      style={{
-        position: 'absolute',
-        inset: 0,
-        width: '100%',
-        height: '100%',
-        overflow: 'hidden',
-        borderRadius: br,
-        zIndex: 1,
-      }}
-    >
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          width: '100%',
+          height: '100%',
+          overflow: 'hidden',
+          borderRadius: br,
+          zIndex: 1,
+          contain: 'layout size style',
+        }}
+      >
       {!loaded && (
         <div
           className="absolute inset-0 flex items-center justify-center overflow-hidden"

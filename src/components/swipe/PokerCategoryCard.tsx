@@ -273,7 +273,7 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
               aria-hidden
               initial={{ opacity: 1 }}
               animate={{ opacity: 0 }}
-              transition={{ duration: 0.25, ease: 'easeInOut' }}
+              transition={{ duration: 0.1, ease: 'easeInOut' }}
               onAnimationComplete={() => setPrevPhoto(null)}
               className="absolute inset-0 w-full h-full object-cover"
               style={{ backfaceVisibility: 'hidden' }}
@@ -289,7 +289,7 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
             decoding="async"
             initial={{ opacity: 0 }}
             animate={{ opacity: imgReady ? 1 : 0 }}
-            transition={{ duration: 0.25, ease: 'easeInOut' }}
+            transition={{ duration: 0.1, ease: 'easeInOut' }}
             className="absolute inset-0 w-full h-full object-cover"
             style={{ backfaceVisibility: 'hidden', willChange: 'opacity' }}
             draggable={false}

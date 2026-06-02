@@ -53,31 +53,7 @@
   }
 }
 
-@keyframes photo-slide-in {
-  from { 
-    opacity: 0;
-    transform: translateY(20px) scale(1.05);
-  }
-  to { 
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
 
-@keyframes photo-swim {
-  0%, 100% {
-    transform: scale(1) translate(0, 0);
-  }
-  25% {
-    transform: scale(1.05) translate(1%, 1%);
-  }
-  50% {
-    transform: scale(1.1) translate(-1%, 2%);
-  }
-  75% {
-    transform: scale(1.05) translate(-2%, -1%);
-  }
-}
 
 @media (prefers-reduced-motion: reduce) {
   @keyframes photo-slide-from-right {
