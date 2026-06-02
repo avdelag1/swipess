@@ -184,6 +184,9 @@ export function AppLayout({ children }: AppLayoutProps) {
 
   const isDirectChat = location.pathname.startsWith('/messages');
 
+  const isProfile = location.pathname.startsWith('/profile') || location.pathname.startsWith('/preview/profile');
+  const isListing = location.pathname.startsWith('/listing') || location.pathname.startsWith('/preview/listing');
+
   const isFullScreen = useMemo(() => {
     const path = location.pathname;
     const isRadio = path.startsWith('/radio');
@@ -191,9 +194,7 @@ export function AppLayout({ children }: AppLayoutProps) {
     const isRoommates = path.startsWith('/explore/roommates');
     const isEvents = path.startsWith('/explore/events');
     const isDirectChatInner = path.startsWith('/messages');
-    const isProfile = path.startsWith('/profile') || path.startsWith('/preview/profile');
-    const isListing = path.startsWith('/listing') || path.startsWith('/preview/listing');
-    return isCamera || isRadio || showAIChat || showAIListing || showAIProfile || isSwipeDashboard || isRoommates || isDirectChatInner || isEvents || isProfile || isListing;
+    return isCamera || isRadio || showAIChat || showAIListing || showAIProfile || isSwipeDashboard || isRoommates || isDirectChatInner || isEvents;
   }, [location.pathname, showAIChat, showAIListing, showAIProfile, isSwipeDashboard]);
 
   const showAppChrome = !isAuthRoute && !isRadioRoute && !isCameraRoute && !showAIChat && !showAIListing && !showAIProfile && !isEventsRoute && !isDirectChat && !isFullScreen && (!isPublicPreview || !!user);
@@ -251,13 +252,12 @@ export function AppLayout({ children }: AppLayoutProps) {
         </Suspense>
       )}
 
-      {/* SHELL CONTAINER: Always fixed-height. DashboardLayout handles scrolling inside. */}
       <main
         id="main-content"
         className={cn(
           "w-full flex-1 relative z-0 flex flex-col min-h-0",
           // Restore pt/pb for non-dashboard pages to prevent content overlap with floating header
-          !isInsideDashboard && !isFullScreen && "pt-[var(--top-bar-height)] pb-[var(--bottom-nav-height)]",
+          !isInsideDashboard && !isFullScreen && !isProfile && !isListing && "pt-[var(--top-bar-height)] pb-[var(--bottom-nav-height)]",
           (swipeDeckActive || isFullScreen || isInsideDashboard) ? "overflow-hidden" : "overflow-y-auto scroll-area-momentum"
         )}
       >

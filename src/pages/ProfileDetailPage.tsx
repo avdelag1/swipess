@@ -91,16 +91,7 @@ export default function ProfileDetailPage() {
           onSearch={() => {}}
         />
       </div>
-      <motion.button
-        initial={{ opacity: 0, x: -12 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ type: 'spring', stiffness: 220, damping: 18, mass: 0.4 }}
-        onClick={() => navigate(-1)}
-        className="absolute top-12 left-4 z-[60] w-10 h-10 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center active:scale-90 transition-all"
-        aria-label="Back"
-      >
-        <ChevronLeft className="w-5 h-5 text-white" />
-      </motion.button>
+      {/* Back button is now handled by TopBar AppChrome */}
       
       {profile && (
         <>
