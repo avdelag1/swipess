@@ -106,15 +106,14 @@ export function VapIdCardModal({ isOpen, onClose, role = 'client' }: VapIdProps)
   const occupation = ext?.occupation || '';
   const avatarUrl = ext?.avatar_url || '';
   const spokenLanguages = useMemo(() => {
-    const raw = Array.isArray(ext?.languages) && ext.languages.length > 0
-      ? ext.languages
-      : [];
+    const raw = Array.isArray(ext?.vap_languages) && ext.vap_languages.length > 0 ? ext.vap_languages : (Array.isArray(ext?.languages) ? ext.languages : []);
     return raw.filter((v): v is string => typeof v === 'string');
   }, [ext]);
 
   const allTags = useMemo(() => {
     const tags: string[] = [];
     const add = (arr: any) => { if (Array.isArray(arr)) tags.push(...arr.filter(v => typeof v === 'string')); };
+    add(ext?.vap_interests);
     add(ext?.interests);
     return [...new Set(tags)].slice(0, 8);
   }, [ext]);
