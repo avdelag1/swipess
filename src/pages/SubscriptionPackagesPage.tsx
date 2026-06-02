@@ -211,7 +211,7 @@ export default function SubscriptionPackagesPage() {
           <motion.button
             whileTap={{ scale: 0.9 }}
             onClick={() => navigate(userRole === 'owner' ? '/owner/dashboard' : '/client/dashboard')}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-foreground/5 border border-foreground/10 text-xs font-black uppercase tracking-widest text-foreground/60 hover:text-foreground transition-colors"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-full glass-pill text-xs font-black uppercase tracking-widest text-foreground/60 hover:text-foreground transition-colors"
           >
             <ChevronLeft className="w-5 h-5" />
             Back

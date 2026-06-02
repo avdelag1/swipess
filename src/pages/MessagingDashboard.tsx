@@ -228,12 +228,12 @@ export function MessagingDashboard() {
 
       <div className="w-full max-w-7xl mx-auto px-6 pt-3 pb-24 relative z-10 space-y-6">
         
-        <div className="flex items-center gap-4 sm:gap-6">
+         <div className="flex items-center gap-4 sm:gap-6">
            <button
              onClick={() => navigate(-1)}
              className={cn(
-               "w-12 h-12 flex items-center justify-center rounded-full transition-all active:scale-95 shrink-0",
-               isLight ? "bg-black/5 hover:bg-black/10 text-black" : "bg-white/10 hover:bg-white/20 text-white"
+               "w-12 h-12 flex items-center justify-center rounded-full transition-all active:scale-95 shrink-0 glass-pill",
+               isLight ? "text-black" : "text-white"
              )}
            >
              <ArrowLeft className="w-5 h-5" />
@@ -245,7 +245,7 @@ export function MessagingDashboard() {
               <span className="text-[10px] font-black uppercase tracking-[0.4em] italic text-[#EB4898]">{t('messages.title')}</span>
               <h1 className={cn("text-3xl sm:text-4xl font-black uppercase italic tracking-tighter leading-none mt-1", isLight ? "text-black" : "text-white")}>{t('messages.title')}</h1>
            </div>
-        </div>
+         </div>
 
         <div className="space-y-6">
           <div className="relative group">
