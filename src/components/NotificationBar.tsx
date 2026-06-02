@@ -34,6 +34,35 @@ export const NotificationBar = memo(function NotificationBar({ notifications, on
     [notifications],
   );
 
+  const startDismiss = useCallback((dir: 'right' | 'left' = 'right') => {
+    // Do not allow re-dismiss if already exiting
+    if (isExiting.current) return;
+    isExiting.current = true;
+    
+    setExitDir(dir);
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = undefined;
+    setVisible(false);
+    triggerHaptic('light');
+  }, []);
+
+  const showNotification = useCallback((notif: AppNotification) => {
+    // Clear any existing timer before starting new one
+    if (timerRef.current) clearTimeout(timerRef.current);
+    
+    // Explicitly reset isExiting flag when showing new one
+    isExiting.current = false;
+    
+    setCurrent(notif);
+    setVisible(true);
+    x.set(0); 
+    
+    // Auto-dismiss after 5s (slightly longer for readability)
+    timerRef.current = setTimeout(() => {
+      startDismiss('right');
+    }, 5000);
+  }, [x, startDismiss]);
+
   useEffect(() => {
     const next = unread[0];
     
@@ -66,35 +95,6 @@ export const NotificationBar = memo(function NotificationBar({ notifications, on
       pendingRef.current = next;
     }
   }, [unread, visible, current?.id, showNotification, startDismiss]);
-
-  const showNotification = useCallback((notif: AppNotification) => {
-    // Clear any existing timer before starting new one
-    if (timerRef.current) clearTimeout(timerRef.current);
-    
-    // Explicitly reset isExiting flag when showing new one
-    isExiting.current = false;
-    
-    setCurrent(notif);
-    setVisible(true);
-    x.set(0); 
-    
-    // Auto-dismiss after 5s (slightly longer for readability)
-    timerRef.current = setTimeout(() => {
-      startDismiss('right');
-    }, 5000);
-  }, [x]);
-
-  const startDismiss = useCallback((dir: 'right' | 'left' = 'right') => {
-    // Do not allow re-dismiss if already exiting
-    if (isExiting.current) return;
-    isExiting.current = true;
-    
-    setExitDir(dir);
-    if (timerRef.current) clearTimeout(timerRef.current);
-    timerRef.current = undefined;
-    setVisible(false);
-    triggerHaptic('light');
-  }, []);
 
   const handleDragEnd = useCallback((_: any, info: any) => {
     const threshold = 100;
