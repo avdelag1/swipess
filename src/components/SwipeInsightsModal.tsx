@@ -5,7 +5,7 @@ import { Listing } from '@/hooks/useListings';
 import { MatchedClientProfile } from '@/hooks/useSmartMatching';
 import {
   Anchor, ArrowLeft, Bath, Bed, Bike, Briefcase, Calendar, Car, CheckCircle, ChevronLeft,
-  ChevronRight, Clock, DollarSign, Fuel, Gauge, Home, MapPin,
+  ChevronRight, Clock, DollarSign, Eye, Fuel, Gauge, Home, MapPin,
   Ruler, ShieldCheck, Square, User, Wrench, X, Zap,
 } from 'lucide-react';
 import { PropertyImageGallery } from './PropertyImageGallery';
@@ -39,7 +39,13 @@ export function SwipeInsightsModal({ open, onOpenChange, listing, profile }: Swi
 
   const images: string[] = useMemo(() => {
     if (isClientProfile) return profile?.profile_images || [];
-    return listing?.images || [];
+    const raw = (listing as any)?.images;
+    if (Array.isArray(raw)) {
+      return raw.map((i: any) => typeof i === 'string' ? i : i?.url || i?.image_url || i?.src || '').filter(Boolean);
+    }
+    const single = (listing as any)?.image_url;
+    if (single) return [single];
+    return [];
   }, [isClientProfile, profile, listing]);
 
   const handleDragEnd = (_e: any, info: PanInfo) => {
@@ -116,10 +122,10 @@ export function SwipeInsightsModal({ open, onOpenChange, listing, profile }: Swi
     if (p.verified) specs.push({ icon: <ShieldCheck className="w-4 h-4" />, label: 'Verified', value: 'Yes' });
   }
 
-  const description = isClientProfile ? (profile as any)?.bio : listing?.description;
+  const description = isClientProfile ? (profile as any)?.bio || (profile as any)?.description || '' : listing?.description || (listing as any)?.bio || (listing as any)?.details || '';
   const tags: string[] = isClientProfile
     ? ((profile as any)?.interests || (profile as any)?.lifestyle_tags || [])
-    : (listing?.amenities || listing?.equipment || listing?.skills || []) as string[];
+    : (listing?.amenities || listing?.equipment || listing?.skills || (listing as any)?.tags || []) as string[];
 
   const surface = isLight ? 'bg-white' : 'bg-[#0a0a0a]';
   const textPri = isLight ? 'text-slate-900' : 'text-white';
@@ -133,7 +139,7 @@ export function SwipeInsightsModal({ open, onOpenChange, listing, profile }: Swi
       <DialogContent
         hideCloseButton
         className={cn(
-          "max-w-[460px] w-[calc(100vw-24px)] p-0 overflow-hidden border-none rounded-[36px] h-[92dvh] max-h-[92dvh] shadow-2xl flex flex-col",
+          "fixed inset-0 w-full h-[100vh] max-h-[100vh] p-0 overflow-hidden border-none rounded-[0] shadow-2xl flex flex-col",
           surface
         )}
       >
@@ -253,6 +259,17 @@ export function SwipeInsightsModal({ open, onOpenChange, listing, profile }: Swi
                       </div>
                     </div>
                   ))}
+                </div>
+              )}
+
+              {/* Empty state */}
+              {specs.length === 0 && !description && tags.length === 0 && (
+                <div className="flex flex-col items-center justify-center py-12 text-center">
+                  <div className={cn("w-14 h-14 rounded-2xl flex items-center justify-center mb-3", isLight ? "bg-slate-100" : "bg-white/5")}>
+                    <Eye className={cn("w-6 h-6", textTer)} />
+                  </div>
+                  <p className={cn("text-sm font-medium", textTer)}>No additional details available</p>
+                  <p className={cn("text-xs mt-1", textTer)}>Tap close to go back</p>
                 </div>
               )}
 

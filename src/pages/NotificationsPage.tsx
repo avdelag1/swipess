@@ -87,56 +87,39 @@ const NotificationsPage = () => {
                 transition={{ delay: i * 0.05 }}
                 onClick={() => { triggerHaptic('light'); markNotificationAsRead(notif.id); }}
                 className={cn(
-                  "group relative p-5 rounded-2xl border transition-all cursor-pointer active:scale-[0.98]",
-                  notif.read 
-                    ? (isDark ? "bg-white/[0.02] border-white/5 opacity-60" : "bg-black/5 border-black/5 opacity-60")
-                    : (isDark ? "bg-white/5 border-white/10 shadow-2xl" : "bg-white border-black/10 shadow-xl")
+                  "group relative py-4 px-1 transition-all cursor-pointer active:scale-[0.98]",
+                  notif.read ? "opacity-50" : ""
                 )}
               >
-                <div className="flex gap-5">
+                <div className="flex gap-4">
                   <div className={cn(
-                    "w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 border",
-                    !notif.read 
-                      ? "bg-brand-primary/10 border-brand-primary/20"
-                      : isDark ? "bg-white/5 border-white/10" : "bg-black/5 border-black/10"
+                    "w-10 h-10 rounded-2xl flex items-center justify-center shrink-0",
+                    isDark ? "bg-white/[0.04]" : "bg-black/[0.04]"
                   )}>
                     {getIcon(notif.type)}
                   </div>
                   
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between gap-2">
-                       <span className={cn(
-                         "text-[10px] font-black uppercase tracking-widest italic opacity-40 mb-1 block",
-                          !notif.read && "text-brand-primary opacity-100"
-                        )}>
-                         {notif.type || 'Alert'} — {formatDistanceToNow(notif.timestamp, { addSuffix: true })}
-                       </span>
-                    </div>
-                    
-                    <h3 className={cn("text-[14px] font-black tracking-tight leading-snug", isLight ? "text-slate-900" : "text-white")}>
+                    <h3 className={cn("text-[14px] font-semibold leading-snug", isLight ? "text-slate-900" : "text-white")}>
                       {notif.title}
                     </h3>
-                    <p className={cn("text-[12px] font-medium opacity-50 mt-1 line-clamp-2", isLight ? "text-slate-600" : "text-slate-400")}>
+                    <p className={cn("text-[12px] mt-0.5 line-clamp-2", isLight ? "text-slate-500" : "text-slate-400")}>
                       {notif.message}
                     </p>
+                    <span className={cn(
+                      "text-[10px] mt-1 block",
+                      isLight ? "text-slate-400" : "text-slate-500"
+                    )}>
+                      {formatDistanceToNow(notif.timestamp, { addSuffix: true })}
+                    </span>
                   </div>
 
-                  <div className="flex flex-col gap-2">
-                    <button
-                      onClick={(e) => { e.stopPropagation(); triggerHaptic('medium'); dismissNotification(notif.id); }}
-                      className="p-2 rounded-xl bg-white/5 hover:bg-rose-500/20 text-slate-500 hover:text-rose-500 transition-colors"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                    {!notif.read && (
-                       <button
-                        onClick={(e) => { e.stopPropagation(); triggerHaptic('success'); markNotificationAsRead(notif.id); }}
-                        className="p-2 rounded-xl bg-brand-primary/10 hover:bg-brand-primary/20 text-brand-primary transition-colors"
-                      >
-                        <Check className="w-4 h-4" />
-                      </button>
-                    )}
-                  </div>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); triggerHaptic('medium'); dismissNotification(notif.id); }}
+                    className="p-2 rounded-xl hover:bg-rose-500/20 text-slate-500 hover:text-rose-500 transition-colors shrink-0 self-start"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
                 </div>
               </motion.div>
             ))
