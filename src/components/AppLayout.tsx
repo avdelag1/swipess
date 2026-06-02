@@ -182,7 +182,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   const isCameraRoute = location.pathname.includes('/camera');
   const isRadioRoute = location.pathname.includes('/radio');
 
-  const isDirectChat = location.pathname.startsWith('/messages') && new URLSearchParams(location.search).has('conversationId');
+  const isDirectChat = location.pathname.startsWith('/messages');
 
   const isFullScreen = useMemo(() => {
     const path = location.pathname;
@@ -190,11 +190,13 @@ export function AppLayout({ children }: AppLayoutProps) {
     const isCamera = path.startsWith('/camera');
     const isRoommates = path.startsWith('/explore/roommates');
     const isEvents = path.startsWith('/explore/events');
-    const isDirectChatInner = path.startsWith('/messages') && new URLSearchParams(location.search).has('conversationId');
-    return isCamera || isRadio || showAIChat || showAIListing || showAIProfile || isSwipeDashboard || isRoommates || isDirectChatInner || isEvents;
-  }, [location.pathname, location.search, showAIChat, showAIListing, showAIProfile, isSwipeDashboard]);
+    const isDirectChatInner = path.startsWith('/messages');
+    const isProfile = path.startsWith('/profile') || path.startsWith('/preview/profile');
+    const isListing = path.startsWith('/listing') || path.startsWith('/preview/listing');
+    return isCamera || isRadio || showAIChat || showAIListing || showAIProfile || isSwipeDashboard || isRoommates || isDirectChatInner || isEvents || isProfile || isListing;
+  }, [location.pathname, showAIChat, showAIListing, showAIProfile, isSwipeDashboard]);
 
-  const showAppChrome = !isAuthRoute && !isRadioRoute && !isCameraRoute && !showAIChat && !showAIListing && !showAIProfile && !isEventsRoute && !isDirectChat && (!isPublicPreview || !!user);
+  const showAppChrome = !isAuthRoute && !isRadioRoute && !isCameraRoute && !showAIChat && !showAIListing && !showAIProfile && !isEventsRoute && !isDirectChat && !isFullScreen && (!isPublicPreview || !!user);
 
   const handleFilterClick = () => {
     if (isRoommatesRoute) {

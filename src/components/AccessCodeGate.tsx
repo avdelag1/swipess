@@ -40,7 +40,12 @@ export function AccessCodeGate({ onGranted }: Props) {
       triggerHaptic('error');
       return;
     }
-    // Accept any non-empty code for now — change this to a specific code if desired
+    const VALID_CODES = ['VIP2026', 'SWIPESS-BETA', 'SWIPESS2026', 'AVDELAG1', 'TESTER123'];
+    if (!VALID_CODES.includes(code.trim().toUpperCase())) {
+      setError('Invalid access code');
+      triggerHaptic('error');
+      return;
+    }
     triggerHaptic('success');
     setSuccess(true);
     setAccessCode(code.trim());
@@ -98,9 +103,17 @@ export function AccessCodeGate({ onGranted }: Props) {
                 </button>
               </form>
 
-              <p className="text-[8px] font-black uppercase tracking-[0.4em] text-white/20 italic text-center">
-                Authorized access only
-              </p>
+              <div className="flex flex-col items-center gap-3 w-full">
+                <p className="text-[8px] font-black uppercase tracking-[0.4em] text-white/20 italic text-center">
+                  Authorized access only
+                </p>
+                <a 
+                  href="mailto:admin@swipess.com?subject=Request Access Code"
+                  className="text-[10px] font-bold uppercase tracking-widest text-white/40 hover:text-white transition-colors underline underline-offset-4"
+                >
+                  Request Access Code
+                </a>
+              </div>
             </motion.div>
           </motion.div>
         ) : (
