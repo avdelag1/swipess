@@ -80,41 +80,41 @@ export default function DJTurntableRadio() {
 
       {/* Top bar */}
       <div
-        className="relative z-10 w-full flex items-center justify-between px-5"
-        style={{ paddingTop: 'calc(env(safe-area-inset-top) + 16px)', paddingBottom: 12 }}
+        className="relative z-10 w-full flex items-center justify-between px-4"
+        style={{ paddingTop: 'calc(env(safe-area-inset-top) + 8px)', paddingBottom: 6 }}
       >
         <button
           onClick={() => navigate('/dashboard')}
-          className="w-11 h-11 rounded-full flex items-center justify-center active:scale-90 transition-transform"
+          className="w-10 h-10 rounded-full flex items-center justify-center active:scale-90 transition-transform"
           style={{ background: btnBg, border: `1px solid ${btnBorder}`, color: textPrimary }}
         >
-          <ArrowLeft size={18} />
+          <ArrowLeft size={16} />
         </button>
 
         <div className="flex items-center gap-2">
           <button
             onClick={() => { triggerHaptic('light'); toggleSkin(); }}
             aria-label={skin === 'cheetah' ? 'Switch to theme skin' : 'Switch to cheetah skin'}
-            className="w-11 h-11 rounded-full flex items-center justify-center active:scale-90 transition-transform"
+            className="w-10 h-10 rounded-full flex items-center justify-center active:scale-90 transition-transform"
             style={{ background: btnBg, border: `1px solid ${btnBorder}`, color: textPrimary }}
           >
-            <Palette size={18} />
+            <Palette size={16} />
           </button>
           <button
             onClick={() => { triggerHaptic('medium'); navigate('/radio/directory'); }}
-            className="w-11 h-11 rounded-full flex items-center justify-center active:scale-90 transition-transform"
+            className="w-10 h-10 rounded-full flex items-center justify-center active:scale-90 transition-transform"
             style={{ background: btnBg, border: `1px solid ${btnBorder}`, color: textPrimary }}
           >
-            <ListMusic size={18} />
+            <ListMusic size={16} />
           </button>
         </div>
       </div>
 
-      {/* Center — station info */}
-      <div className="flex-1 flex flex-col items-center justify-center relative z-10 px-6">
+      {/* Center — station info (positioned toward top, not vertically centered) */}
+      <div className="flex flex-col items-center relative z-10 px-6 pt-6 pb-4">
 
         {/* Live badge */}
-        <div className="flex items-center gap-2 mb-10">
+        <div className="flex items-center gap-2 mb-6">
           <span
             className="w-2 h-2 rounded-full"
             style={{
@@ -144,7 +144,7 @@ export default function DJTurntableRadio() {
             <span
               className="font-black italic leading-none select-none transition-all duration-700"
               style={{
-                fontSize: 'clamp(4rem, 18vw, 7.5rem)',
+                fontSize: 'clamp(3.5rem, 16vw, 6.5rem)',
                 color: textPrimary,
                 letterSpacing: '-0.05em',
                 textShadow: isDark ? '0 10px 80px rgba(255,61,0,0.15)' : 'none',
@@ -154,14 +154,14 @@ export default function DJTurntableRadio() {
             </span>
 
             <span
-              className="text-[10px] font-bold uppercase tracking-[0.5em] mt-2"
+              className="text-[10px] font-bold uppercase tracking-[0.5em] mt-1.5"
               style={{ color: '#FF3B30', opacity: 0.8 }}
             >
               FM Stereo
             </span>
 
             <span
-              className="text-sm font-bold uppercase tracking-[0.18em] mt-5 text-center"
+              className="text-sm font-bold uppercase tracking-[0.18em] mt-3 text-center"
               style={{ color: textPrimary, opacity: 0.75 }}
             >
               {state.currentStation?.name || 'Discovery Radio'}
@@ -170,7 +170,7 @@ export default function DJTurntableRadio() {
         </AnimatePresence>
 
         {/* Waveform bars — only when playing */}
-        <div className="flex items-end gap-[3px] mt-10 h-6">
+        <div className="flex items-end gap-[3px] mt-6 h-5">
           {Array.from({ length: 16 }).map((_, i) => (
             <motion.div
               key={i}
@@ -193,13 +193,13 @@ export default function DJTurntableRadio() {
 
       {/* Bottom — controls + volume */}
       <div
-        className="relative z-10 flex flex-col items-center gap-8 px-8"
-        style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 32px)' }}
+        className="relative z-10 flex flex-col items-center gap-5 px-6"
+        style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 20px)' }}
       >
         {/* Controls row */}
-        <div className="flex flex-col items-center gap-6 sm:gap-8 w-full">
+        <div className="flex flex-col items-center gap-4 sm:gap-6 w-full">
           {/* Primary Controls: Floating Tactical Hub */}
-          <div className="flex items-center justify-center gap-4 sm:gap-8 relative">
+          <div className="flex items-center justify-center gap-3 sm:gap-6 relative">
             {/* Skip back */}
             <button
               onClick={() => { changeStation('prev'); triggerHaptic('medium'); }}
@@ -234,7 +234,7 @@ export default function DJTurntableRadio() {
           </div>
 
           {/* Secondary Actions Row: Glass Micro-Controls */}
-          <div className="flex items-center justify-center gap-8 sm:gap-14">
+          <div className="flex items-center justify-center gap-6 sm:gap-10">
             {/* Heart (Likes) */}
             <button
               onClick={() => { if (state.currentStation) { toggleFavorite(state.currentStation.id); triggerHaptic('success'); } }}

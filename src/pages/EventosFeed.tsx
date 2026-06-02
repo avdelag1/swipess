@@ -398,12 +398,6 @@ export default function EventosFeed() {
         </div>
 
 
-        <div
-          className="absolute -top-32 left-1/2 -translate-x-1/2 w-[140%] h-[160px] blur-[100px] opacity-20 pointer-events-none transition-colors duration-1000 z-[-1]"
-          style={{ 
-            background: `radial-gradient(circle, ${CATEGORIES.find(c => c.key === activeCategory)?.color || '#f97316'} 0%, transparent 70%)` 
-          }}
-        />
       </div>
 
       {/* Main Feed */}
