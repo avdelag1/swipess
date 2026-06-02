@@ -154,6 +154,7 @@ interface SimpleOwnerSwipeCardProps {
   externalX?: MotionValue<number>;
   externalY?: MotionValue<number>;
   disableDrag?: boolean;
+  canGoBack?: boolean;
 }
 
 const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, SimpleOwnerSwipeCardProps>(({
@@ -172,6 +173,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   onMessage,
   onSoon,
   disableDrag,
+  canGoBack = true,
 }, ref) => {
   const isDragging = useRef(false);
   const hasExited = useRef(false);
@@ -318,19 +320,25 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
       onSwipe(direction);
     } else if (vertCommit && (onSkip || onSkipBack)) {
       const dir = dy > 0 ? 1 : -1;
-      hasExited.current = true;
-      isExitingRef.current = true;
-      triggerHaptic('light');
-      const exitY = dir * (window.innerHeight || 800) * 0.85;
-      animate(x, 0, { ...SNAP_BACK_SPRING });
-      animate(y, exitY, { ...VERTICAL_EXIT_SPRING, velocity: info.velocity.y });
-      setTimeout(() => { isExitingRef.current = false; if (dir > 0) onSkip?.(); else onSkipBack?.(); }, 350);
+      if (dir > 0 && !canGoBack) {
+        triggerHaptic('light');
+        animate(x, 0, { ...SNAP_BACK_SPRING });
+        animate(y, 100, { ...SNAP_BACK_SPRING, onComplete: () => animate(y, 0, { ...SNAP_BACK_SPRING }) });
+      } else {
+        hasExited.current = true;
+        isExitingRef.current = true;
+        triggerHaptic('light');
+        const exitY = dir * (window.innerHeight || 800) * 0.85;
+        animate(x, 0, { ...SNAP_BACK_SPRING });
+        animate(y, exitY, { ...VERTICAL_EXIT_SPRING, velocity: info.velocity.y });
+        setTimeout(() => { isExitingRef.current = false; if (dir < 0) onSkip?.(); else onSkipBack?.(); }, 350);
+      }
     } else {
       animate(x, 0, { ...SNAP_BACK_SPRING, velocity: info.velocity.x });
       animate(y, 0, { ...SNAP_BACK_SPRING, velocity: info.velocity.y });
     }
     setTimeout(() => { isDragging.current = false; dragAxisRef.current = null; }, 100);
-  }, [onSwipe, onSkip, onSkipBack, x, y]);
+  }, [onSwipe, onSkip, onSkipBack, canGoBack, x, y]);
 
   const handleImageTap = useCallback((e: React.MouseEvent) => {
     if (isMagnifierActive() || wasMagnifierActive()) return;

@@ -62,6 +62,7 @@ interface SimpleSwipeCardProps {
   externalY?: MotionValue<number>;
   onDragStart?: () => void;
   disableDrag?: boolean;
+  canGoBack?: boolean;
 }
 
 const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardProps>(({
@@ -80,6 +81,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   onMessage,
   onSoon,
   disableDrag,
+  canGoBack = true,
 }, ref) => {
   const { isLight } = useAppTheme();
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -293,20 +295,26 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
       onSwipe(direction);
     } else if (vertCommit && (onSkip || onSkipBack)) {
       const dir = dy > 0 ? 1 : -1;
-      hasExited.current = true;
-      isExitingRef.current = true;
-      triggerHaptic('light');
-      const exitY = dir * (window.innerHeight || 800) * 0.85;
-      x.set(0);
-      animate(y, exitY, { ...VERTICAL_EXIT_SPRING, velocity: info.velocity.y });
-      setTimeout(() => { isExitingRef.current = false; if (dir < 0) onSkip?.(); else onSkipBack?.(); }, 350);
+      if (dir > 0 && !canGoBack) {
+        triggerHaptic('light');
+        x.set(0);
+        animate(y, 100, { ...SNAP_BACK_SPRING, onComplete: () => animate(y, 0, { ...SNAP_BACK_SPRING }) });
+      } else {
+        hasExited.current = true;
+        isExitingRef.current = true;
+        triggerHaptic('light');
+        const exitY = dir * (window.innerHeight || 800) * 0.85;
+        x.set(0);
+        animate(y, exitY, { ...VERTICAL_EXIT_SPRING, velocity: info.velocity.y });
+        setTimeout(() => { isExitingRef.current = false; if (dir < 0) onSkip?.(); else onSkipBack?.(); }, 350);
+      }
     } else {
       animate(x, 0, { ...SNAP_BACK_SPRING, velocity: info.velocity.x });
       animate(y, 0, { ...SNAP_BACK_SPRING, velocity: info.velocity.y });
     }
     isDragging.current = false;
     dragAxisRef.current = null;
-  }, [onSwipe, onSkip, onSkipBack, x, y]);
+  }, [onSwipe, onSkip, onSkipBack, canGoBack, x, y]);
 
   const handleImageTap = useCallback((e: React.MouseEvent) => {
     if (isMagnifierActive() || wasMagnifierActive()) return;

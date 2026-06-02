@@ -1030,6 +1030,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                           isTop={isTopCard}
                           externalX={isTopCard ? topCardX : undefined}
                           externalY={isTopCard ? topCardY : undefined}
+                          canGoBack={currentIndex > 0}
                         />
                       ) : (
                         <SimpleSwipeCard
@@ -1052,6 +1053,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                           isTop={isTopCard}
                           externalX={isTopCard ? topCardX : undefined}
                           externalY={isTopCard ? topCardY : undefined}
+                          canGoBack={currentIndex > 0}
                         />
                       )}
                     </motion.div>
