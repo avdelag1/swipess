@@ -556,7 +556,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const savePreferences = async (updates: Partial<RadioPlayerState>) => {
+  const savePreferences = useCallback(async (updates: Partial<RadioPlayerState>) => {
     if (!user?.id) return;
     try {
       const dbUpdates: any = {};
@@ -570,7 +570,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     } catch (err) {
       logger.info('[RadioPlayer] Error saving preferences:', err);
     }
-  };
+  }, [user?.id]);
 
   // Recursion depth guard to prevent infinite call stack
   const playDepthRef = useRef(0);
@@ -811,7 +811,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       userInitiatedRef.current = true;
       play();
     }
-  }, [state.isPlaying, state.isPoweredOn, play, pause]);
+  }, [state.isPlaying, state.isPoweredOn, play, pause, savePreferences]);
 
   const togglePower = useCallback(() => {
     const newPower = !state.isPoweredOn;
@@ -824,7 +824,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
 
     if (!newPower && audioRef.current) audioRef.current.pause();
     savePreferences({ isPoweredOn: newPower });
-  }, [state.isPoweredOn]);
+  }, [state.isPoweredOn, savePreferences]);
 
   const changeStation = useCallback((direction: 'next' | 'prev') => {
     if (state.isShuffle) {
@@ -878,7 +878,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     else if (stations.length > 0) {
       setState(prev => ({ ...prev, currentStation: stations[0] }));
     }
-  }, [state.currentCity, state.isPlaying, play]);
+  }, [state.currentCity, state.isPlaying, play, savePreferences]);
 
   const setVolume = useCallback((volume: number) => {
     const clamped = Math.max(0, Math.min(1, volume));
@@ -890,7 +890,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     volSyncTimeoutRef.current = setTimeout(() => {
       savePreferences({ volume: clamped });
     }, 1000);
-  }, []);
+  }, [savePreferences]);
 
   const volSyncTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -907,7 +907,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     }
     setState(prev => ({ ...prev, isShuffle: newShuffle }));
     savePreferences({ isShuffle: newShuffle });
-  }, [state.isShuffle, state.currentStation, activeStations]);
+  }, [state.isShuffle, state.currentStation, activeStations, savePreferences]);
 
   const shuffleAndPlay = useCallback((customStations?: RadioStation[]) => {
     const targetStations = customStations || activeStations;
@@ -930,9 +930,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     shuffleIndexRef.current = 0;
     setState(prev => ({ ...prev, isShuffle: true }));
     savePreferences({ isShuffle: true });
-  }, [activeStations, play, state.currentStation]);
-
-  
+  }, [activeStations, play, state.currentStation, savePreferences]);
 
   const toggleFavorite = useCallback((stationId: string) => {
     setState(prev => {
@@ -943,7 +941,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       savePreferences({ favorites: newFavorites });
       return { ...prev, favorites: newFavorites };
     });
-  }, []);
+  }, [savePreferences]);
 
   const playPlaylist = useCallback((stationIds: string[]) => {
     if (stationIds.length === 0) return;

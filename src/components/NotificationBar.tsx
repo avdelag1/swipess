@@ -65,7 +65,7 @@ export const NotificationBar = memo(function NotificationBar({ notifications, on
     } else {
       pendingRef.current = next;
     }
-  }, [unread.length, unread[0]?.id]); // Precision dependency to avoid thrashing
+  }, [unread, visible, current?.id, showNotification, startDismiss]);
 
   const showNotification = useCallback((notif: AppNotification) => {
     // Clear any existing timer before starting new one

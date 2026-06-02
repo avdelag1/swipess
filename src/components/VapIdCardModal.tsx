@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Droplets, Languages, MapPin, Pencil, ShieldCheck, X } from 'lucide-react';
@@ -9,7 +9,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { CARD_THEMES } from './vap-id/cardThemes';
 import { VapIdEditModal } from './VapIdEditModal';
 import { useEffect } from 'react';
-import { cn } from '@/lib/utils';
 import { useVapIdCard } from '@/hooks/useVapIdCard';
 
 export interface VapIdProps {

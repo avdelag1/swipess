@@ -27,8 +27,8 @@ import useAppTheme from '@/hooks/useAppTheme';
 import { imageCache } from '@/lib/swipe/cardImageCache';
 import { PhotoPositionIndicators } from '@/components/swipe/PhotoPositionIndicators';
 import { GestureHints } from '@/components/swipe/GestureHints';
-import { revealChrome, useChromeReveal } from '@/hooks/useChromeReveal';
-import { SNAP_BACK_SPRING, EXIT_SPRING, VERTICAL_EXIT_SPRING } from '@/components/swipe/SwipeConstants';
+import { revealChrome } from '@/hooks/useChromeReveal';
+import { SNAP_BACK_SPRING, EXIT_SPRING } from '@/components/swipe/SwipeConstants';
 
 export interface SimpleOwnerSwipeCardRef {
   triggerSwipe: (direction: 'left' | 'right') => void;
@@ -183,8 +183,6 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   const storedPointerEventRef = useRef<React.PointerEvent | null>(null);
   const dragAxisRef = useRef<DragAxis>(null);
   const { isLight } = useAppTheme();
-  const { isChromeVisible } = useChromeReveal();
-
   const _internalX = useMotionValue(0);
   const _internalY = useMotionValue(0);
   const x = externalX ?? _internalX;

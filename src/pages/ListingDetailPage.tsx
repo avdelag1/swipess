@@ -5,18 +5,16 @@ import { ChevronLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { SimpleSwipeCard } from '@/components/SimpleSwipeCard';
 import { triggerHaptic } from '@/utils/haptics';
-import { useAuth } from '@/hooks/useAuth';
 
 export default function ListingDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { user } = useAuth();
 
   const { data: listing, isLoading } = useQuery({
     queryKey: ['listing-detail', id],
     queryFn: async () => {
       if (!id) return null;
-      let query = supabase.from('listings').select('*').eq('id', id).maybeSingle();
+      const query = supabase.from('listings').select('*').eq('id', id).maybeSingle();
       const { data, error } = await query;
       if (error) throw error;
       return data;

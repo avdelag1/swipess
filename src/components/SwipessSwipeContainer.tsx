@@ -6,7 +6,6 @@ import { triggerHaptic } from '@/utils/haptics';
 import useAppTheme from '@/hooks/useAppTheme';
 import { SimpleSwipeCard, SimpleSwipeCardRef } from './SimpleSwipeCard';
 import { SwipeExhaustedState } from './swipe/SwipeExhaustedState';
-import { SwipeLoadingSkeleton } from './swipe/SwipeLoadingSkeleton';
 import { SwipessLoader } from './swipe/SwipessLoader';
 import type { QuickFilterCategory } from '@/types/filters';
 import { normalizeCategoryName } from '@/types/filters';
@@ -27,7 +26,6 @@ import { useUserRole } from '@/hooks/useUserRole';
 import { useActiveMode } from '@/hooks/useActiveMode';
 import { swipeQueue } from '@/lib/swipe/SwipeQueue';
 import { imagePreloadController } from '@/lib/swipe/ImagePreloadController';
-import { useCanAccessMessaging } from '@/hooks/useMessaging';
 import { useSwipeUndo } from '@/hooks/useSwipeUndo';
 import { useSwipeWithMatch } from '@/hooks/useSwipeWithMatch';
 import { useStartConversation } from '@/hooks/useConversations';
@@ -47,7 +45,6 @@ import { AnimatePresence, motion, useMotionValue, useTransform } from 'framer-mo
 import { logger } from '@/utils/prodLogger';
 import { MessageConfirmationDialog } from './MessageConfirmationDialog';
 import { DirectMessageDialog } from './DirectMessageDialog';
-import { isDirectMessagingListing } from '@/utils/directMessaging';
 import { useQueryClient } from '@tanstack/react-query';
 import { SwipeAllDashboard } from './swipe/SwipeAllDashboard';
 import { SwipeDeckBackButton } from './swipe/SwipeDeckBackButton';
@@ -110,7 +107,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   const { activeMode, switchMode } = useActiveMode();
   const { _theme, _isLight } = useAppTheme();
   const [page, setPage] = useState(0);
-  const [swipeDirection, setSwipeDirection] = useState<'left' | 'right' | null>(null);
+  const [, setSwipeDirection] = useState<'left' | 'right' | null>(null);
   const [isCreatingConversation, setIsCreatingConversation] = useState(false);
   const [insightsModalOpen, setInsightsModalOpen] = useState(false);
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
@@ -290,7 +287,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     };
   }, []);
 
-  const { canAccess: hasPremiumMessaging, needsUpgrade } = useCanAccessMessaging();
   const { recordSwipe, _undoLastSwipe, _canUndo, isUndoing: _isUndoing, undoSuccess, resetUndoState } = useSwipeUndo();
   const swipeMutation = useSwipeWithMatch({
     onMatch: (clientProfile, ownerProfile) => setMatchData({ client: clientProfile, owner: ownerProfile })

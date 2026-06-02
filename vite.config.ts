@@ -108,7 +108,7 @@ export default defineConfig(({ mode }) => ({
             if (id.includes('date-fns')) return 'vendor-dates';
             if (id.includes('clsx') || id.includes('tailwind-merge') || id.includes('class-variance-authority')) return 'vendor-css-utils';
             // Map / geo
-            if (id.includes('mapbox') || id.includes('maplibre') || id.includes('leaflet')) return 'vendor-maps';
+            if (id.includes('mapbox') || id.includes('maplibre')) return 'vendor-maps';
             // Audio
             if (id.includes('howler') || id.includes('tone') || id.includes('wavesurfer')) return 'vendor-audio';
             // Crypto / encoding utils

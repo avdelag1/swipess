@@ -57,7 +57,7 @@ export function useVapIdCard() {
       if (error) throw error;
       return data as VapIdCardData;
     },
-    onSuccess: (_data, variables) => {
+    onSuccess: (_data, _variables) => {
       queryClient.invalidateQueries({ queryKey: [VAP_CARD_QUERY_KEY, user?.id] });
       // Also invalidate the legacy client_profile queries if any consumers use them
       queryClient.invalidateQueries({ queryKey: ['vap-id-client-profile', user?.id] });

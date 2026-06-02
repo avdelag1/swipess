@@ -31,7 +31,7 @@ import { BarChart3, Bookmark, Flag, MessageCircle, Share2, ThumbsUp } from 'luci
 import { PhotoPositionIndicators } from '@/components/swipe/PhotoPositionIndicators';
 import { GestureHints } from '@/components/swipe/GestureHints';
 import { revealChrome, useChromeReveal } from '@/hooks/useChromeReveal';
-import { SNAP_BACK_SPRING, EXIT_SPRING, VERTICAL_EXIT_SPRING } from '@/components/swipe/SwipeConstants';
+import { SNAP_BACK_SPRING, EXIT_SPRING } from '@/components/swipe/SwipeConstants';
 
 export interface SimpleSwipeCardRef {
   triggerSwipe: (direction: 'left' | 'right') => void;
