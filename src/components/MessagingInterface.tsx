@@ -335,7 +335,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
                     <MoreVertical className="w-5 h-5" />
                   </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="rounded-[1.5rem] bg-[#0e0e18] border-white/[0.08] p-2 shadow-2xl text-white backdrop-blur-xl min-w-[200px]">
+                <DropdownMenuContent align="end" className={cn("rounded-[1.5rem] p-2 shadow-2xl backdrop-blur-xl min-w-[200px]", isThemeLight ? "bg-white text-slate-900 border-slate-200" : "bg-[#0e0e18] text-white border-white/[0.08]")}>
                   <DropdownMenuItem 
                     className="p-4 rounded-[1rem] focus:bg-white/[0.07] cursor-pointer font-black uppercase tracking-widest text-[10px] gap-3"
                     onClick={() => navigate(`/profile/${otherUser.id}`)}
@@ -501,7 +501,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
         <RatingSubmissionDialog open={showRatingDialog} onOpenChange={setShowRatingDialog} targetId={listing?.id || otherUser.id} targetType={listing?.id ? 'listing' : 'user'} targetName={listing?.title || otherUser.full_name} categoryId={listing?.id ? (listing.category === 'vehicle' ? 'vehicle' : 'property') : 'client'} onSuccess={() => setShowRatingDialog(false)} />
 
         <AlertDialog open={showBlockConfirm} onOpenChange={setShowBlockConfirm}>
-          <AlertDialogContent className="rounded-[28px] bg-[#0A0A0A] border-white/10 text-white">
+          <AlertDialogContent className={cn("rounded-[28px]", isThemeLight ? "bg-white text-slate-900 border-slate-200" : "bg-[#0A0A0A] text-white border-white/10")}>
             <AlertDialogHeader>
               <AlertDialogTitle className="text-white text-lg font-bold">Block this user?</AlertDialogTitle>
               <AlertDialogDescription className="text-white/50">

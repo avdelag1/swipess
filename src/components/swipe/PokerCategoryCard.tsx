@@ -63,8 +63,7 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
     }
   );
   
-  const windowWidth = typeof window !== 'undefined' ? window.innerWidth : 400;
-  const rotate = useTransform(x, [-windowWidth, windowWidth], [-16, 16]); // Tilted aggressively for physical weight feel
+  const rotate = useTransform(x, [-(typeof window !== 'undefined' ? window.innerWidth : 400), (typeof window !== 'undefined' ? window.innerWidth : 400)], [-16, 16]); // Tilted aggressively for physical weight feel
   // Faint breathing hints — visible only while idle on the top card.
   const hintOpacity = useTransform(
     [x, y] as any,

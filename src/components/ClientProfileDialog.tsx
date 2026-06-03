@@ -294,7 +294,7 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
                <div className="flex flex-col gap-1.5">
                   <h3 className="text-sm font-black uppercase italic tracking-widest text-white/90">Visual Assets</h3>
                   <p className="text-[10px] font-black uppercase tracking-[0.1em] text-indigo-400/90 italic">💡 TIP: Vertical/Portrait photos look best on mobile</p>
-                  <p className="text-[10px] uppercase tracking-widest text-white/40 italic">High-fidelity primary and lifestyle imagery</p>
+                  <p className={cn("text-[10px] uppercase tracking-widest italic", isLight ? "text-slate-400" : "text-white/40")}>High-fidelity primary and lifestyle imagery</p>
                </div>
                <PhotoUploadManager
                  maxPhotos={6}
@@ -307,7 +307,7 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
                />
                {data?.user_id && (
                  <div className="space-y-2">
-                   <p className="text-[10px] uppercase tracking-widest text-white/40 italic">Optional 6s silent video loop â€” plays first on your card</p>
+                   <p className={cn("text-[10px] uppercase tracking-widest italic", isLight ? "text-slate-400" : "text-white/40")}>Optional 6s silent video loop â€” plays first on your card</p>
                    <ListingVideoUpload
                      userId={data.user_id}
                      videoUrl={videoUrl}
@@ -324,26 +324,26 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
                    <div className="w-8 h-8 rounded-xl bg-[#EB4898]/10 border border-[#EB4898]/30 flex items-center justify-center text-[#EB4898]">
                       <User className="w-4 h-4" />
                    </div>
-                   <h3 className="text-sm font-black uppercase italic tracking-widest text-white">Identity Core</h3>
+                   <h3 className={cn("text-sm font-black uppercase italic tracking-widest", isLight ? "text-slate-900" : "text-white")}>Identity Core</h3>
                 </div>
                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                    <div className="space-y-2">
-                      <Label className="text-[10px] font-black uppercase tracking-widest text-white/40 italic ml-1">Identity Display Name</Label>
-                      <Input value={name} onChange={(e) => setName(e.target.value)} className="h-14 rounded-2xl bg-white/[0.03] border-white/10 text-white font-bold italic focus:border-[#EB4898]/50 focus:bg-white/[0.05] transition-all px-6 shadow-sm" />
+                      <Label className={cn("text-[10px] font-black uppercase tracking-widest italic ml-1", isLight ? "text-slate-400" : "text-white/40")}>Identity Display Name</Label>
+                      <Input value={name} onChange={(e) => setName(e.target.value)} className={cn("h-14 rounded-2xl bg-white/[0.03] font-bold italic focus:border-[#EB4898]/50 focus:bg-white/[0.05] transition-all px-6 shadow-sm", isLight ? "text-slate-900 border-slate-200" : "text-white border-white/10")} />
                    </div>
                    <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label className="text-[10px] font-black uppercase tracking-widest text-white/40 italic ml-1">Cycle (Age)</Label>
-                        <Input type="number" value={age} onChange={(e) => setAge(e.target.value ? Number(e.target.value) : '')} className="h-14 rounded-2xl bg-white/[0.03] border-white/10 text-white font-bold italic focus:border-[#EB4898]/50 focus:bg-white/[0.05] transition-all px-6 text-center shadow-sm" />
+                        <Label className={cn("text-[10px] font-black uppercase tracking-widest italic ml-1", isLight ? "text-slate-400" : "text-white/40")}>Cycle (Age)</Label>
+                        <Input type="number" value={age} onChange={(e) => setAge(e.target.value ? Number(e.target.value) : '')} className={cn("h-14 rounded-2xl bg-white/[0.03] font-bold italic focus:border-[#EB4898]/50 focus:bg-white/[0.05] transition-all px-6 text-center shadow-sm", isLight ? "text-slate-900 border-slate-200" : "text-white border-white/10")} />
                       </div>
                       <div className="space-y-2">
-                        <Label className="text-[10px] font-black uppercase tracking-widest text-white/40 italic ml-1">Spectrum</Label>
+                        <Label className={cn("text-[10px] font-black uppercase tracking-widest italic ml-1", isLight ? "text-slate-400" : "text-white/40")}>Spectrum</Label>
                         <Select value={gender} onValueChange={setGender}>
-                          <SelectTrigger className="h-14 rounded-2xl bg-white/[0.03] border-white/10 text-white font-bold italic focus:border-[#EB4898]/50 focus:bg-white/[0.05] transition-all px-6 shadow-sm">
+                          <SelectTrigger className={cn("h-14 rounded-2xl bg-white/[0.03] font-bold italic focus:border-[#EB4898]/50 focus:bg-white/[0.05] transition-all px-6 shadow-sm", isLight ? "text-slate-900 border-slate-200" : "text-white border-white/10")}>
                             <SelectValue placeholder="Gender" />
                           </SelectTrigger>
-                          <SelectContent className="bg-[#0d0d0f] border-white/10 text-white">
+                          <SelectContent className={isLight ? "text-slate-900 border-slate-200 bg-white" : "text-white border-white/10 bg-[#0d0d0f]"}>
                             <SelectItem value="male">Male</SelectItem>
                             <SelectItem value="female">Female</SelectItem>
                             <SelectItem value="non-binary">Spectrum</SelectItem>
@@ -361,7 +361,7 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
                   <div className="w-8 h-8 rounded-xl bg-[#FF4D00]/10 border border-[#FF4D00]/30 flex items-center justify-center text-[#FF4D00]">
                      <Target className="w-4 h-4" />
                   </div>
-                  <h3 className="text-sm font-black uppercase italic tracking-widest text-white">Objective Terminal</h3>
+                  <h3 className={cn("text-sm font-black uppercase italic tracking-widest", isLight ? "text-slate-900" : "text-white")}>Objective Terminal</h3>
                </div>
                
                <div className="grid grid-cols-1 gap-4">
@@ -382,13 +382,13 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
                         </div>
                         <div className="flex-1">
                            <div className="flex items-center gap-2">
-                              <span className="font-black italic uppercase tracking-tighter text-white group-hover:text-[#FF4D00] transition-colors">{opt.label}</span>
-                              {active && <Badge className="bg-[#FF4D00] text-white text-[8px] font-black uppercase italic">Active</Badge>}
+                              <span className={cn("font-black italic uppercase tracking-tighter group-hover:text-[#FF4D00] transition-colors", isLight ? "text-slate-900" : "text-white")}>{opt.label}</span>
+                              {active && <Badge className={cn("bg-[#FF4D00] text-[8px] font-black uppercase italic", isLight ? "text-slate-900" : "text-white")}>Active</Badge>}
                            </div>
-                           <p className="text-[10px] font-medium uppercase tracking-widest text-white/40 italic">{opt.description}</p>
+                           <p className={cn("text-[10px] font-medium uppercase tracking-widest italic", isLight ? "text-slate-400" : "text-white/40")}>{opt.description}</p>
                         </div>
                         <div className={cn("w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all", active ? "border-[#FF4D00] bg-[#FF4D00]" : "border-white/10")}>
-                           {active && <Check className="w-3 h-3 text-white" />}
+                           {active && <Check className={cn("w-3 h-3", isLight ? "text-slate-900" : "text-white")} />}
                         </div>
                      </motion.button>
                    )
@@ -402,31 +402,31 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
                   <div className="w-8 h-8 rounded-xl bg-[#EB4898]/10 border border-[#EB4898]/30 flex items-center justify-center text-[#EB4898]">
                      <MapPin className="w-4 h-4" />
                   </div>
-                  <h3 className="text-sm font-black uppercase italic tracking-widest text-white">Geolocation Sync</h3>
+                  <h3 className={cn("text-sm font-black uppercase italic tracking-widest", isLight ? "text-slate-900" : "text-white")}>Geolocation Sync</h3>
                </div>
 
                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                     <Label className="text-[10px] font-black uppercase tracking-widest text-white/40 italic ml-1">Region Control</Label>
+                     <Label className={cn("text-[10px] font-black uppercase tracking-widest italic ml-1", isLight ? "text-slate-400" : "text-white/40")}>Region Control</Label>
                      <Select value={country} onValueChange={handleCountryChange}>
-                        <SelectTrigger className="h-14 rounded-2xl bg-white/[0.03] border-white/10 text-white font-bold italic px-6 uppercase tracking-widest shadow-sm hover:bg-white/[0.05] transition-all">
+                        <SelectTrigger className={cn("h-14 rounded-2xl bg-white/[0.03] font-bold italic px-6 uppercase tracking-widest shadow-sm hover:bg-white/[0.05] transition-all", isLight ? "text-slate-900 border-slate-200" : "text-white border-white/10")}>
                            <SelectValue placeholder="Station Country" />
                         </SelectTrigger>
-                        <SelectContent className="bg-[#0d0d0f] border-white/10 text-white max-h-72">
+                        <SelectContent className={cn("max-h-72", isLight ? "text-slate-900 border-slate-200 bg-white" : "text-white border-white/10 bg-[#0d0d0f]")}>
                            <div className="p-3 border-b border-white/5">
-                              <Input placeholder="Filter..." value={countrySearch} onChange={(e) => setCountrySearch(e.target.value)} className="bg-white/5 border-white/10 h-10 shadow-inner" />
+                              <Input placeholder="Filter..." value={countrySearch} onChange={(e) => setCountrySearch(e.target.value)} className={cn("h-10 shadow-inner", isLight ? "border-slate-200 bg-slate-100" : "border-white/10 bg-white/5")} />
                            </div>
                            {filteredCountries.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
                         </SelectContent>
                      </Select>
                   </div>
                   <div className="space-y-2">
-                     <Label className="text-[10px] font-black uppercase tracking-widest text-white/40 italic ml-1">Sector (City)</Label>
+                     <Label className={cn("text-[10px] font-black uppercase tracking-widest italic ml-1", isLight ? "text-slate-400" : "text-white/40")}>Sector (City)</Label>
                      <Select value={city} onValueChange={handleCityChange} disabled={!country}>
-                        <SelectTrigger className="h-14 rounded-2xl bg-white/[0.03] border-white/10 text-white font-bold italic px-6 uppercase tracking-widest shadow-sm hover:bg-white/[0.05] transition-all">
+                        <SelectTrigger className={cn("h-14 rounded-2xl bg-white/[0.03] font-bold italic px-6 uppercase tracking-widest shadow-sm hover:bg-white/[0.05] transition-all", isLight ? "text-slate-900 border-slate-200" : "text-white border-white/10")}>
                            <SelectValue placeholder="City ID" />
                         </SelectTrigger>
-                        <SelectContent className="bg-[#0d0d0f] border-white/10 text-white max-h-72">
+                        <SelectContent className={cn("max-h-72", isLight ? "text-slate-900 border-slate-200 bg-white" : "text-white border-white/10 bg-[#0d0d0f]")}>
                            {filteredCities.map(c => <SelectItem key={c.name} value={c.name}>{c.name}</SelectItem>)}
                         </SelectContent>
                      </Select>
@@ -440,7 +440,7 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
                   <div className="w-8 h-8 rounded-xl bg-[#FF4D00]/10 border border-[#FF4D00]/30 flex items-center justify-center text-[#FF4D00]">
                      <LifeBuoy className="w-4 h-4" />
                   </div>
-                  <h3 className="text-sm font-black uppercase italic tracking-widest text-white">Habit Parity</h3>
+                  <h3 className={cn("text-sm font-black uppercase italic tracking-widest", isLight ? "text-slate-900" : "text-white")}>Habit Parity</h3>
                </div>
                
                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
@@ -450,12 +450,12 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
                     { label: 'Clen', val: cleanlinessLevel, set: setCleanlinessLevel, opts: CLEANLINESS_OPTIONS }
                   ].map((group) => (
                     <div key={group.label} className="space-y-2">
-                       <Label className="text-[10px] font-black uppercase tracking-widest text-white/40 italic ml-1">{group.label}</Label>
+                       <Label className={cn("text-[10px] font-black uppercase tracking-widest italic ml-1", isLight ? "text-slate-400" : "text-white/40")}>{group.label}</Label>
                        <Select value={group.val} onValueChange={group.set}>
-                          <SelectTrigger className="h-14 rounded-2xl bg-white/[0.03] border-white/10 text-white font-bold italic px-4 uppercase tracking-tighter shadow-sm hover:bg-white/[0.05] transition-all">
+                          <SelectTrigger className={cn("h-14 rounded-2xl bg-white/[0.03] font-bold italic px-4 uppercase tracking-tighter shadow-sm hover:bg-white/[0.05] transition-all", isLight ? "text-slate-900 border-slate-200" : "text-white border-white/10")}>
                              <SelectValue />
                           </SelectTrigger>
-                          <SelectContent className="bg-[#0d0d0f] border-white/10 text-white">
+                          <SelectContent className={isLight ? "text-slate-900 border-slate-200 bg-white" : "text-white border-white/10 bg-[#0d0d0f]"}>
                              {group.opts.map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
                           </SelectContent>
                        </Select>
@@ -480,13 +480,13 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
             <Button 
               onClick={handleSave}
               disabled={saveMutation.isPending}
-               className="keep-white h-14 pl-8 pr-10 rounded-2xl font-black italic uppercase tracking-[0.2em] shadow-2xl active:scale-95 transition-all group border-none text-white overflow-hidden relative"
+               className={cn("keep-white h-14 pl-8 pr-10 rounded-2xl font-black italic uppercase tracking-[0.2em] shadow-2xl active:scale-95 transition-all group border-none overflow-hidden relative", isLight ? "text-slate-900" : "text-white")}
               style={{ background: 'linear-gradient(135deg, #FF4D00, #EB4898)' }}
            >
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.2),transparent_70%)] pointer-events-none" />
               <div className="relative z-10 flex items-center">
-                <Save className="w-4 h-4 mr-2 group-hover:rotate-12 transition-transform text-white" />
-                <span className="text-white">{saveMutation.isPending ? 'Syncing...' : 'Commit Changes'}</span>
+                <Save className={cn("w-4 h-4 mr-2 group-hover:rotate-12 transition-transform", isLight ? "text-slate-900" : "text-white")} />
+                <span className={isLight ? "text-slate-900" : "text-white"}>{saveMutation.isPending ? 'Syncing...' : 'Commit Changes'}</span>
               </div>
            </Button>
         </div>

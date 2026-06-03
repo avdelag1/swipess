@@ -1,8 +1,10 @@
+import useAppTheme from "@/hooks/useAppTheme";
 import { useState } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Bike, MessageCircle, X, Zap } from 'lucide-react';
+import { cn } from "@/lib/utils";
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { logger } from '@/utils/prodLogger';
 import { DEFAULT_DIRECT_MESSAGE } from '@/utils/directMessaging';
@@ -26,6 +28,7 @@ export function DirectMessageDialog({
   isLoading = false,
   category = 'motorcycle',
 }: DirectMessageDialogProps) {
+  const { isLight } = useAppTheme();
   const [message, setMessage] = useState(DEFAULT_DIRECT_MESSAGE);
 
   const isBicycle = category?.toLowerCase() === 'bicycle';
@@ -52,7 +55,7 @@ export function DirectMessageDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         hideCloseButton
-        className="max-w-[420px] w-[calc(100vw-32px)] p-0 overflow-hidden rounded-[28px] border border-white/[0.08] shadow-2xl max-h-[90dvh] flex flex-col bg-[#080808]/95 backdrop-blur-2xl"
+        className={cn("max-w-[420px] w-[calc(100vw-32px)] p-0 overflow-hidden rounded-[28px] border shadow-2xl max-h-[90dvh] flex flex-col backdrop-blur-2xl", isLight ? "bg-white/95 border-slate-200" : "bg-[#080808]/95 border-white/[0.08]")}
         style={{ background: 'linear-gradient(160deg, rgba(15,15,20,0.97) 0%, rgba(8,8,12,0.97) 100%)' }}
       >
         {/* Atmosphere orbs */}
@@ -63,7 +66,7 @@ export function DirectMessageDialog({
         <div className="shrink-0 relative px-6 pt-7 pb-5 border-b border-white/[0.06]">
           <button
             onClick={handleCancel}
-            className="absolute top-5 right-5 w-8 h-8 rounded-full flex items-center justify-center bg-white/5 hover:bg-white/10 border border-white/10 text-white/50 hover:text-white/80 active:scale-90 transition-all z-10"
+            className={cn("absolute top-5 right-5 w-8 h-8 rounded-full flex items-center justify-center hover:bg-white/10 border text-white/50 hover:text-white/80 active:scale-90 transition-all z-10", isLight ? "border-slate-200 bg-slate-100" : "border-white/10 bg-white/5")}
           >
             <X className="w-3.5 h-3.5" />
           </button>
@@ -78,8 +81,8 @@ export function DirectMessageDialog({
               <MessageCircle className="w-6 h-6 text-white/80" strokeWidth={1.6} />
             </motion.div>
             <div>
-              <h2 className="text-base font-bold text-white tracking-tight leading-none">Direct Message</h2>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.2em] mt-1 text-white/35">{categoryLabel} Channel</p>
+              <h2 className={cn("text-base font-bold tracking-tight leading-none", isLight ? "text-slate-900" : "text-white")}>Direct Message</h2>
+              <p className={cn("text-[10px] font-semibold uppercase tracking-[0.2em] mt-1", isLight ? "text-slate-400" : "text-white/35")}>{categoryLabel} Channel</p>
             </div>
           </div>
 
@@ -92,7 +95,7 @@ export function DirectMessageDialog({
               <span className="text-[10px] font-bold uppercase tracking-wider text-rose-400 flex items-center gap-1">
                 <Zap className="w-3 h-3 fill-current" /> Fast-Track
               </span>
-              <span className="text-[10px] leading-snug text-white/35 mt-0.5 block">
+              <span className={cn("text-[10px] leading-snug mt-0.5 block", isLight ? "text-slate-400" : "text-white/35")}>
                 {categoryLabel} listings support priority direct messaging at no extra cost.
               </span>
             </div>
@@ -102,17 +105,17 @@ export function DirectMessageDialog({
         {/* Message area */}
         <div className="flex-1 overflow-y-auto px-5 py-4">
           <div className="flex justify-between items-center px-0.5 mb-2">
-            <label className="text-[9px] font-bold uppercase tracking-[0.2em] text-white/30">
+            <label className={cn("text-[9px] font-bold uppercase tracking-[0.2em]", isLight ? "text-slate-400" : "text-white/30")}>
               Message to {recipientName}
             </label>
-            <span className="text-[9px] font-medium text-white/20">
+            <span className={cn("text-[9px] font-medium", isLight ? "text-slate-300" : "text-white/20")}>
               {message.length}/500
             </span>
           </div>
           <Textarea
             value={message}
             onChange={(e) => setMessage(e.target.value)}
-            className="min-h-[140px] resize-none rounded-xl text-sm p-4 transition-all border bg-white/[0.04] border-white/[0.08] text-white placeholder:text-white/20 focus-visible:ring-1 focus-visible:ring-rose-500/30 focus-visible:border-rose-500/30"
+            className={cn("min-h-[140px] resize-none rounded-xl text-sm p-4 transition-all border bg-white/[0.04] placeholder:text-white/20 focus-visible:ring-1 focus-visible:ring-rose-500/30 focus-visible:border-rose-500/30", isLight ? "text-slate-900 border-slate-200" : "text-white border-white/[0.08]")}
             disabled={isLoading}
           />
         </div>
@@ -122,7 +125,7 @@ export function DirectMessageDialog({
           <Button
             onClick={handleConfirm}
             disabled={isLoading || !message.trim()}
-            className="w-full h-12 rounded-xl font-bold text-sm active:scale-[0.98] transition-all border-0 text-white shadow-lg"
+            className={cn("w-full h-12 rounded-xl font-bold text-sm active:scale-[0.98] transition-all border-0 shadow-lg", isLight ? "text-slate-900" : "text-white")}
             style={{ background: 'linear-gradient(135deg, #f43f5e 0%, #8b5cf6 100%)' }}
           >
             <AnimatePresence mode="wait">
@@ -144,7 +147,7 @@ export function DirectMessageDialog({
             variant="ghost"
             onClick={handleCancel}
             disabled={isLoading}
-            className="w-full h-10 rounded-xl font-semibold text-sm text-white/40 hover:text-white/70 hover:bg-white/5 transition-all"
+            className={cn("w-full h-10 rounded-xl font-semibold text-sm hover:text-white/70 hover:bg-white/5 transition-all", isLight ? "text-slate-400" : "text-white/40")}
           >
             Cancel
           </Button>

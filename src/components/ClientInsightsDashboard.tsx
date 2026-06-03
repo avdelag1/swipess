@@ -44,7 +44,7 @@ export function ClientInsightsDashboard() {
       {/* Header with Title */}
       <div className="flex items-end justify-between px-3 relative z-10">
         <div className="space-y-2">
-          <h2 className="text-4xl font-black tracking-tighter italic uppercase text-white leading-none">Intelligence</h2>
+          <h2 className={cn("text-4xl font-black tracking-tighter italic uppercase leading-none", isLight ? "text-slate-900" : "text-white")}>Intelligence</h2>
           <p className="text-[10px] font-black uppercase tracking-[0.6em] text-[#EB4898] italic">Discovery Protocol Active</p>
         </div>
         <div className="w-14 h-14 rounded-[24px] flex items-center justify-center bg-[#EB4898]/10 border border-[#EB4898]/20 backdrop-blur-3xl shadow-[0_0_30px_rgba(235,72,152,0.15)]">
@@ -62,7 +62,7 @@ export function ClientInsightsDashboard() {
             transition={{ delay: i * 0.1, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
             className="group relative"
           >
-            <div className="relative p-6 rounded-[32px] border bg-[#0F0F0F]/60 border-white/5 backdrop-blur-3xl space-y-5 overflow-hidden transition-all hover:bg-white/[0.05] hover:border-white/10"
+            <div className={cn("relative p-6 rounded-[32px] border border-white/5 backdrop-blur-3xl space-y-5 overflow-hidden transition-all hover:bg-white/[0.05] hover:border-white/10", isLight ? "bg-slate-100/60" : "bg-[#0F0F0F]/60")}
               style={{ boxShadow: `inset 0 0 32px ${stat.color}08` }}
             >
               <div className="flex items-center justify-between">
@@ -79,12 +79,12 @@ export function ClientInsightsDashboard() {
               </div>
               
               <div className="space-y-1.5">
-                <div className="text-3xl font-black tracking-tighter leading-none text-white italic tabular-nums">{stat.value}</div>
-                <div className="text-[9px] font-black uppercase tracking-[0.25em] text-white/30 italic">{stat.label}</div>
+                <div className={cn("text-3xl font-black tracking-tighter leading-none italic tabular-nums", isLight ? "text-slate-900" : "text-white")}>{stat.value}</div>
+                <div className={cn("text-[9px] font-black uppercase tracking-[0.25em] italic", isLight ? "text-slate-400" : "text-white/30")}>{stat.label}</div>
               </div>
 
               {/* PROGRESS INDICATOR */}
-              <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+              <div className={cn("h-1.5 w-full rounded-full overflow-hidden", isLight ? "bg-slate-100" : "bg-white/5")}>
                 <motion.div 
                   initial={{ width: 0 }}
                   animate={{ width: `${65 + Math.random() * 30}%` }}
@@ -103,15 +103,15 @@ export function ClientInsightsDashboard() {
         initial={{ opacity: 0, scale: 0.98, y: 30 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ delay: 0.5, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-        className="relative group p-8 rounded-[40px] border bg-[#0F0F0F]/60 border-white/5 backdrop-blur-3xl overflow-hidden z-10"
+        className={cn("relative group p-8 rounded-[40px] border border-white/5 backdrop-blur-3xl overflow-hidden z-10", isLight ? "bg-slate-100/60" : "bg-[#0F0F0F]/60")}
         style={{ boxShadow: 'inset 0 0 50px rgba(235,72,152,0.05)' }}
       >
         <div className="flex items-center justify-between mb-10">
           <div className="space-y-2">
-            <h3 className="text-xl font-black tracking-tighter uppercase italic text-white">Market Velocity</h3>
+            <h3 className={cn("text-xl font-black tracking-tighter uppercase italic", isLight ? "text-slate-900" : "text-white")}>Market Velocity</h3>
             <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#FF4D00] italic">Real-time Interaction Flux</p>
           </div>
-          <div className="p-3 rounded-2xl bg-white/5 border border-white/10 shadow-2xl">
+          <div className={cn("p-3 rounded-2xl border shadow-2xl", isLight ? "border-slate-200 bg-slate-100" : "border-white/10 bg-white/5")}>
             <Activity className="w-6 h-6 text-white/60" />
           </div>
         </div>
@@ -128,13 +128,13 @@ export function ClientInsightsDashboard() {
             >
               <div className="absolute -inset-2 bg-[#EB4898]/20 blur-xl opacity-0 group-hover/bar:opacity-100 transition-opacity duration-500" />
               <div className="w-full h-full rounded-2xl bg-gradient-to-t from-[#EB4898]/10 via-[#EB4898]/50 to-[#EB4898] border-t border-white/20 shadow-[0_-5px_15px_rgba(235,72,152,0.3)]" />
-              <div className="absolute -top-10 left-1/2 -translate-x-1/2 opacity-0 group-hover/bar:opacity-100 transition-all duration-300 text-[10px] font-black py-1.5 px-3 rounded-xl bg-black/80 backdrop-blur-xl border border-white/20 text-white shadow-2xl whitespace-nowrap">
+              <div className={cn("absolute -top-10 left-1/2 -translate-x-1/2 opacity-0 group-hover/bar:opacity-100 transition-all duration-300 text-[10px] font-black py-1.5 px-3 rounded-xl bg-black/80 backdrop-blur-xl border border-white/20 shadow-2xl whitespace-nowrap", isLight ? "text-slate-900" : "text-white")}>
                 {day.count} Syncs
               </div>
             </motion.div>
           ))}
         </div>
-        <div className="flex justify-between px-2 text-[9px] font-black uppercase tracking-[0.4em] text-white/20 italic">
+        <div className={cn("flex justify-between px-2 text-[9px] font-black uppercase tracking-[0.4em] italic", isLight ? "text-slate-300" : "text-white/20")}>
           <span>Mon</span>
           <span>Tue</span>
           <span>Wed</span>
@@ -159,7 +159,7 @@ export function ClientInsightsDashboard() {
             </div>
             <div className="space-y-1">
               <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[#FF4D00] italic">Elite Status</span>
-              <p className="text-lg font-black text-white uppercase italic tracking-tighter leading-none">Apex Authority</p>
+              <p className={cn("text-lg font-black uppercase italic tracking-tighter leading-none", isLight ? "text-slate-900" : "text-white")}>Apex Authority</p>
             </div>
           </div>
           <div className="text-right">
@@ -180,13 +180,13 @@ export function ClientInsightsDashboard() {
         <div className="space-y-6">
           <div className="space-y-3">
             <div className="flex items-center justify-between px-1">
-              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40 italic">Sync Frequency</span>
+              <span className={cn("text-[10px] font-black uppercase tracking-[0.3em] italic", isLight ? "text-slate-400" : "text-white/40")}>Sync Frequency</span>
               <div className="flex items-center gap-2">
                  <Sparkles className="w-3 h-3 text-[#FF4D00]" />
-                 <span className="text-xs font-black text-white tabular-nums tracking-widest">84.5%</span>
+                 <span className={cn("text-xs font-black tabular-nums tracking-widest", isLight ? "text-slate-900" : "text-white")}>84.5%</span>
               </div>
             </div>
-            <div className="h-2.5 w-full bg-white/5 rounded-full overflow-hidden border border-white/[0.03] p-[2px]">
+            <div className={cn("h-2.5 w-full rounded-full overflow-hidden border border-white/[0.03] p-[2px]", isLight ? "bg-slate-100" : "bg-white/5")}>
               <motion.div 
                 initial={{ width: 0 }}
                 animate={{ width: '84.5%' }}
@@ -198,13 +198,13 @@ export function ClientInsightsDashboard() {
           
           <div className="space-y-3">
             <div className="flex items-center justify-between px-1">
-              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40 italic">Match Affinity</span>
+              <span className={cn("text-[10px] font-black uppercase tracking-[0.3em] italic", isLight ? "text-slate-400" : "text-white/40")}>Match Affinity</span>
               <div className="flex items-center gap-2">
                  <Heart className="w-3 h-3 text-[#EB4898]" />
-                 <span className="text-xs font-black text-white tabular-nums tracking-widest">{data?.match_rate}%</span>
+                 <span className={cn("text-xs font-black tabular-nums tracking-widest", isLight ? "text-slate-900" : "text-white")}>{data?.match_rate}%</span>
               </div>
             </div>
-            <div className="h-2.5 w-full bg-white/5 rounded-full overflow-hidden border border-white/[0.03] p-[2px]">
+            <div className={cn("h-2.5 w-full rounded-full overflow-hidden border border-white/[0.03] p-[2px]", isLight ? "bg-slate-100" : "bg-white/5")}>
               <motion.div 
                 initial={{ width: 0 }}
                 animate={{ width: `${data?.match_rate}%` }}
@@ -216,7 +216,7 @@ export function ClientInsightsDashboard() {
         </div>
       </motion.div>
 
-      <p className="text-center text-[10px] font-black uppercase tracking-[0.6em] text-white/10 italic pt-10">Swipes Intelligence Engine v4.0</p>
+      <p className={cn("text-center text-[10px] font-black uppercase tracking-[0.6em] italic pt-10", isLight ? "text-slate-200" : "text-white/10")}>Swipes Intelligence Engine v4.0</p>
     </div>
   );
 }

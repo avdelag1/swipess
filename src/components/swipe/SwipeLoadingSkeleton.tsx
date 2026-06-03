@@ -1,4 +1,6 @@
+import useAppTheme from "@/hooks/useAppTheme";
 import { motion } from 'framer-motion';
+import useAppTheme from "@/hooks/useAppTheme";
 import { deckFadeVariants } from '@/utils/modernAnimations';
 
 /**
@@ -14,7 +16,7 @@ export const SwipeLoadingSkeleton = () => (
     exit="exit" 
     className="relative w-full h-full flex-1 max-w-lg mx-auto flex flex-col px-3"
   >
-    <div className="relative flex-1 w-full rounded-[32px] overflow-hidden border border-white/10 bg-[#050505]">
+    <div className={cn("relative flex-1 w-full rounded-[32px] overflow-hidden border", isLight ? "border-slate-200 bg-white" : "border-white/10 bg-[#050505]")}>
       {/* Clean loading surface */}
       <div className="absolute inset-0 overflow-hidden transform-gpu contain-paint">
         {/* Background Gradient */}
@@ -40,17 +42,17 @@ export const SwipeLoadingSkeleton = () => (
           <div className="flex justify-between items-end mb-4">
             <div className="flex-1 space-y-3">
               <div className="h-6 w-3/4 bg-white/10 rounded-lg animate-pulse" />
-              <div className="h-4 w-1/2 bg-white/5 rounded-lg animate-pulse" />
+              <div className={cn("h-4 w-1/2 rounded-lg animate-pulse", isLight ? "bg-slate-100" : "bg-white/5")} />
             </div>
             <div className="text-right space-y-2">
               <div className="h-7 w-24 bg-white/10 rounded-lg animate-pulse" />
-              <div className="h-3 w-16 bg-white/5 rounded-lg ml-auto animate-pulse" />
+              <div className={cn("h-3 w-16 rounded-lg ml-auto animate-pulse", isLight ? "bg-slate-100" : "bg-white/5")} />
             </div>
           </div>
           <div className="flex gap-3">
-            <div className="h-5 w-14 bg-white/5 rounded-full border border-white/10" />
-            <div className="h-5 w-14 bg-white/5 rounded-full border border-white/10" />
-            <div className="h-5 w-18 bg-white/5 rounded-full border border-white/10" />
+            <div className={cn("h-5 w-14 rounded-full border", isLight ? "border-slate-200 bg-slate-100" : "border-white/10 bg-white/5")} />
+            <div className={cn("h-5 w-14 rounded-full border", isLight ? "border-slate-200 bg-slate-100" : "border-white/10 bg-white/5")} />
+            <div className={cn("h-5 w-18 rounded-full border", isLight ? "border-slate-200 bg-slate-100" : "border-white/10 bg-white/5")} />
           </div>
         </div>
 
@@ -69,10 +71,10 @@ export const SwipeLoadingSkeleton = () => (
     {/* Bottom Control Circle Skeletons */}
     <div className="flex-shrink-0 flex justify-center items-center py-5 px-4">
       <div className="flex items-center gap-4">
-        <div className="w-11 h-11 rounded-full bg-white/5 border border-white/10 animate-pulse" />
-        <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 animate-pulse" />
-        <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 animate-pulse" />
-        <div className="w-11 h-11 rounded-full bg-white/5 border border-white/10 animate-pulse" />
+        <div className={cn("w-11 h-11 rounded-full border animate-pulse", isLight ? "border-slate-200 bg-slate-100" : "border-white/10 bg-white/5")} />
+        <div className={cn("w-10 h-10 rounded-full border animate-pulse", isLight ? "border-slate-200 bg-slate-100" : "border-white/10 bg-white/5")} />
+        <div className={cn("w-10 h-10 rounded-full border animate-pulse", isLight ? "border-slate-200 bg-slate-100" : "border-white/10 bg-white/5")} />
+        <div className={cn("w-11 h-11 rounded-full border animate-pulse", isLight ? "border-slate-200 bg-slate-100" : "border-white/10 bg-white/5")} />
       </div>
     </div>
   </motion.div>

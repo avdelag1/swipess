@@ -1068,7 +1068,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                             triggerHaptic('medium');
                           } : undefined}
                           onDragStart={isTopCard ? handleDragStart : undefined}
-                          isTop={isTopCard}
                           externalX={isTopCard ? topCardX : undefined}
                           externalY={isTopCard ? topCardY : undefined}
                           canGoBack={currentIndex > 0}
@@ -1148,10 +1147,13 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
             <ShareDialog
               open={shareDialogOpen}
               onOpenChange={setShareDialogOpen}
-              listingId={topCard.id}
-              title={topCard.title || 'Check out this listing'}
-              description={topCard.description}
-              previewImage={(Array.isArray((topCard as any).images) && (topCard as any).images[0]) || (topCard as any).image_url || null}
+              listingId={dataType === 'people' ? undefined : topCard.id}
+              profileId={dataType === 'people' ? (topCard.user_id || topCard.id) : undefined}
+              title={dataType === 'people' ? (topCard.name || 'Check out this profile') : (topCard.title || 'Check out this listing')}
+              description={dataType === 'people' ? topCard.bio : topCard.description}
+              previewImage={dataType === 'people'
+                ? (Array.isArray((topCard as any).profile_images) && (topCard as any).profile_images[0]) || null
+                : (Array.isArray((topCard as any).images) && (topCard as any).images[0]) || (topCard as any).image_url || null}
             />
           )}
 
