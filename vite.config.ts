@@ -89,10 +89,9 @@ export default defineConfig(({ mode }) => ({
               id.includes('node_modules/scheduler/')
             ) return 'vendor-react';
             if (id.includes('react-router')) return 'vendor-router';
-            // Merge zustand to avoid vendor-react -> vendor-state circular dep
-            // Merge loose-envify (React runtime dep) to avoid vendor-react -> vendor-misc circular dep
-            // Merge js-tokens (loose-envify dep) and react-is (prop-types dep) to prevent cycles
-            if (id.includes('zustand') || id.includes('use-sync-external-store') || id.includes('loose-envify') || id.includes('prop-types') || id.includes('object-assign') || id.includes('js-tokens') || id.includes('react-is')) return 'vendor-react';
+            // Merge ALL React-dependent packages and common utilities into vendor-react to prevent cycles
+            // This includes any package with "react" in the name or path, plus common utilities
+            if (id.includes('zustand') || id.includes('use-sync-external-store') || id.includes('loose-envify') || id.includes('prop-types') || id.includes('object-assign') || id.includes('js-tokens') || id.includes('react-is') || /\/react-/.test(id) || /@[^/]+\/react-/.test(id) || id.includes('@floating-ui') || id.includes('aria-hidden') || id.includes('react-remove-scroll') || id.includes('react-style-singleton') || id.includes('get-nonce') || id.includes('cmdk') || id.includes('lottie-react') || id.includes('qrcode.react') || id.includes('tiny-invariant') || id.includes('tiny-warning') || id.includes('classnames') || id.includes('tslib')) return 'vendor-react';
 
             // ISOLATED HEAVY LIBRARIES — maximize cache persistence
             if (id.includes('framer-motion') || id.includes('motion-dom') || id.includes('motion-utils')) return 'vendor-motion';
@@ -115,7 +114,8 @@ export default defineConfig(({ mode }) => ({
             // Crypto / encoding utils
             if (id.includes('tweetnacl') || id.includes('base64') || id.includes('js-sha') || id.includes('uuid')) return 'vendor-crypto';
             // Markdown / rich-text — include all transitive deps to prevent cycles
-            if (id.includes('marked') || id.includes('remark') || id.includes('rehype') || id.includes('micromark') || id.includes('mdast') || id.includes('unified') || id.includes('gray-matter') || id.includes('bail') || id.includes('trough') || id.includes('vfile') || id.includes('unist') || id.includes('hast') || id.includes('property-information') || id.includes('comma-separated-tokens') || id.includes('space-separated-tokens') || id.includes('zwitch') || id.includes('longest-streak') || id.includes('ccount') || id.includes('character-entities') || id.includes('decode-named-character-reference')) return 'vendor-md';
+            // Note: react-markdown is in vendor-react to prevent vendor-react <-> vendor-md cycles
+            if (id.includes('marked') || id.includes('remark') || id.includes('rehype') || id.includes('micromark') || id.includes('mdast') || id.includes('unified') || id.includes('gray-matter') || id.includes('bail') || id.includes('trough') || id.includes('vfile') || id.includes('unist') || id.includes('hast') || id.includes('property-information') || id.includes('comma-separated-tokens') || id.includes('space-separated-tokens') || id.includes('zwitch') || id.includes('longest-streak') || id.includes('ccount') || id.includes('character-entities') || id.includes('decode-named-character-reference') || id.includes('devlop') || id.includes('is-plain-obj')) return 'vendor-md';
             // PDF
             if (id.includes('pdfjs') || id.includes('pdf-lib') || id.includes('jspdf')) return 'vendor-pdf';
             // Everything else

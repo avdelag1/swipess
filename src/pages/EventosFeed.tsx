@@ -307,7 +307,7 @@ export default function EventosFeed() {
 
   return (
     <div
-      className="relative w-full h-full flex-1 flex flex-col items-center justify-start bg-[#0a0a0b]"
+      className="absolute inset-0 w-full h-full flex flex-col items-center justify-start bg-[#0a0a0b]"
     >
       {/* Atmospheric layer extends behind the fixed chrome so the photo
           content shows through transparent TopBar / BottomNavigation. */}
