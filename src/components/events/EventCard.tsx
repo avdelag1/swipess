@@ -213,31 +213,9 @@ export const EventCard = memo(({
 
       {/* ── RIGHT SIDE ACTION RAIL ──────────────────────────────────────── */}
       <div className="absolute right-3 flex flex-col gap-4 items-center z-30 bottom-[calc(11rem+env(safe-area-inset-bottom,0px))]">
-        {/* Save / Bookmark */}
-        <button
-          onClick={(e) => { e.stopPropagation(); handleSave(); }}
-          className="flex flex-col items-center gap-1 outline-none focus:outline-none focus-visible:outline-none"
-          title={saved ? "Unsave event" : "Save event"}
-        >
-          <motion.div
-            whileTap={{ scale: 0.85 }}
-            animate={saved ? { scale: [1, 1.25, 1] } : { scale: 1 }}
-            transition={{ duration: 0.35 }}
-            className={cn(
-              "w-11 h-11 rounded-full flex items-center justify-center shadow-lg backdrop-blur-xl border transition-all",
-              saved
-                ? "bg-orange-500 border-orange-600 text-white shadow-orange-500/30"
-                : "bg-white/10 border-white/20 text-white"
-            )}>
-            <Bookmark className={cn('w-5 h-5 transition-all', saved ? 'fill-white text-white' : 'text-white')} />
-          </motion.div>
-          <span className={cn("text-[10px] font-bold", saved ? "text-orange-400" : "text-white/60")}>
-            {saved ? 'Saved' : 'Save'}
-          </span>
-        </button>
-
         {/* Like / Heart */}
         <button
+          onPointerDown={(e) => e.stopPropagation()}
           onClick={(e) => { e.stopPropagation(); triggerHaptic('light'); handleLike(); }}
           className="flex flex-col items-center gap-1 outline-none focus:outline-none focus-visible:outline-none"
           title={liked ? "Unlike" : "Like"}
@@ -257,6 +235,7 @@ export const EventCard = memo(({
 
         {/* Chat / WhatsApp */}
         <button
+          onPointerDown={(e) => e.stopPropagation()}
           onClick={(e) => { e.stopPropagation(); triggerHaptic('light'); onChat(); }}
           className="flex flex-col items-center gap-1 outline-none focus:outline-none focus-visible:outline-none"
           title="Chat with host"
@@ -272,6 +251,7 @@ export const EventCard = memo(({
 
         {/* Share */}
         <button
+          onPointerDown={(e) => e.stopPropagation()}
           onClick={(e) => { e.stopPropagation(); triggerHaptic('light'); onShare(); }}
           className="flex flex-col items-center gap-1 outline-none focus:outline-none focus-visible:outline-none"
           title="Share event"
@@ -287,6 +267,7 @@ export const EventCard = memo(({
 
         {/* Report */}
         <button
+          onPointerDown={(e) => e.stopPropagation()}
           onClick={(e) => { e.stopPropagation(); handleReport(); }}
           className="flex flex-col items-center gap-1 outline-none focus:outline-none focus-visible:outline-none"
           title="Report event"

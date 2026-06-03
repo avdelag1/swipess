@@ -209,8 +209,6 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   const likeOpacity = useTransform(x, [0, SWIPE_THRESHOLD * 0.5, SWIPE_THRESHOLD], [0, 0.5, 1]);
   const passOpacity = useTransform(x, [-SWIPE_THRESHOLD, -SWIPE_THRESHOLD * 0.5, 0], [1, 0.5, 0]);
   const skipOpacity = useTransform(y as MotionValue<number>, (v: number) => Math.min(1, Math.abs(v) / SKIP_THRESHOLD));
-  const windowWidth = typeof window !== 'undefined' ? window.innerWidth : 400;
-  const rotate = useTransform(x, [-windowWidth, windowWidth], [-16, 16]); // Tilted aggressively for physical weight feel
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
@@ -408,9 +406,9 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
         animate={{ scale: 1, opacity: 1, transition: { type: 'spring', stiffness: 600, damping: 28, mass: 0.3 } }}
         className={cn("flex-1 select-none touch-none relative w-full h-full overflow-hidden border-none gpu-ultra", isTop && !disableDrag ? "cursor-grab active:cursor-grabbing" : "")}
         style={{
-          x, y, rotate, opacity: cardOpacity, willChange: 'transform, opacity',
+          x, y, opacity: cardOpacity, willChange: 'transform, opacity',
           transform: 'translate3d(0,0,0)', backfaceVisibility: 'hidden',
-          borderRadius: 28,
+          borderRadius: fullScreen ? 0 : 28,
           boxShadow: 'none',
           background: 'hsl(var(--background))',
         }}

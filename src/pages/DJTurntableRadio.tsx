@@ -72,7 +72,7 @@ export default function DJTurntableRadio() {
 
   return (
     <div
-      className="relative w-full h-full flex flex-col overflow-hidden"
+      className="absolute inset-0 w-full h-full flex flex-col overflow-hidden"
       style={{ background: '#0a0705' }}
     >
       {/* Radio surface skin (cheetah or app theme) */}

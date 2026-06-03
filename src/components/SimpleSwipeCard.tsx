@@ -63,6 +63,7 @@ interface SimpleSwipeCardProps {
   onDragStart?: () => void;
   disableDrag?: boolean;
   canGoBack?: boolean;
+  fullScreen?: boolean;
 }
 
 const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardProps>(({
@@ -82,6 +83,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   onSoon,
   disableDrag,
   canGoBack = true,
+  fullScreen = false,
 }, ref) => {
   const { isLight } = useAppTheme();
    
@@ -112,9 +114,6 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   const likeOpacity = useTransform(x, [0, SWIPE_THRESHOLD * 0.5, SWIPE_THRESHOLD], [0, 0.5, 1]);
   const passOpacity = useTransform(x, [-SWIPE_THRESHOLD, -SWIPE_THRESHOLD * 0.5, 0], [1, 0.5, 0]);
   const skipOpacity = useTransform(y as MotionValue<number>, (v: number) => Math.min(1, Math.abs(v) / SKIP_THRESHOLD));
-  const windowWidth = typeof window !== 'undefined' ? window.innerWidth : 400;
-  // Physical feel: tilting based on X position.
-  const rotate = useTransform(x, [-windowWidth, windowWidth], [-16, 16]); // Tilted more aggressively for physical weight feel
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [photoDirection, setPhotoDirection] = useState<'left' | 'right'>('right');
@@ -385,13 +384,12 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
         style={{
           x,
           y,
-          rotate,
           opacity: cardOpacity,
           willChange: 'transform, opacity',
           transform: 'translate3d(0,0,0)',
           transformOrigin: '50% 120%', // Pivot from bottom so it feels like a heavy physical card
           backfaceVisibility: 'hidden',
-          borderRadius: 32,
+          borderRadius: fullScreen ? 0 : 32,
           boxShadow: 'none',
           background: 'hsl(var(--swipe-deck-frame))',
         }}
