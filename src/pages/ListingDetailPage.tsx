@@ -4,10 +4,18 @@ import { supabase } from '@/integrations/supabase/client';
 import { motion } from 'framer-motion';
 import { SimpleSwipeCard } from '@/components/SimpleSwipeCard';
 import { triggerHaptic } from '@/utils/haptics';
+import { useState } from 'react';
+import { ReportDialog } from '@/components/ReportDialog';
+import { ShareDialog } from '@/components/ShareDialog';
+import { SwipeInsightsModal } from '@/components/SwipeInsightsModal';
 
 export default function ListingDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+
+  const [showReport, setShowReport] = useState(false);
+  const [showShare, setShowShare] = useState(false);
+  const [showInsights, setShowInsights] = useState(false);
 
   const { data: listing, isLoading } = useQuery({
     queryKey: ['listing-detail', id],
@@ -25,6 +33,8 @@ export default function ListingDetailPage() {
 
   if (!listing) return <div className="w-full h-screen flex flex-col items-center justify-center bg-background gap-4 p-6"><p className="text-muted-foreground">Listing not found</p><button onClick={() => navigate(-1)} className="text-sm text-primary underline">Go back</button></div>;
 
+  const l = listing as any;
+
   return (
     <motion.div
       className="relative w-full h-screen bg-black overflow-hidden"
@@ -39,32 +49,51 @@ export default function ListingDetailPage() {
           onSkip={() => {}}
           isTop={true}
           disableDrag={true}
-          onCardTap={() => {}}
+          onCardTap={() => setShowInsights(true)}
           onMessage={() => {
             triggerHaptic('light');
             navigate(`/messages/new?listing=${id}`);
           }}
           onShare={() => {
             triggerHaptic('light');
-            const url = `${window.location.origin}/listing/${id}`;
-            if (navigator.share) {
-              navigator.share({ title: (listing as any).title, url }).catch(() => {});
-            } else {
-              navigator.clipboard.writeText(url);
-            }
+            setShowShare(true);
           }}
           onSoon={() => {
             triggerHaptic('light');
           }}
           onInsights={() => {
             triggerHaptic('light');
+            setShowInsights(true);
           }}
           onReport={() => {
             triggerHaptic('light');
+            setShowReport(true);
           }}
         />
       </div>
-      {/* Back button is now handled by TopBar AppChrome */}
+
+      <ReportDialog
+        open={showReport}
+        onOpenChange={setShowReport}
+        reportedListingId={l.id}
+        reportedListingTitle={l.title || 'Listing'}
+        reportedUserId={l.owner_id || l.user_id}
+        reportedUserAge={l.owner_age}
+        category="listing"
+      />
+      <ShareDialog
+        open={showShare}
+        onOpenChange={setShowShare}
+        listingId={l.id}
+        title={l.title || 'Check out this listing'}
+        description={l.description}
+        previewImage={(Array.isArray(l.images) && l.images[0]) || l.image_url || null}
+      />
+      <SwipeInsightsModal
+        open={showInsights}
+        onOpenChange={setShowInsights}
+        listing={listing as any}
+      />
     </motion.div>
   );
 }

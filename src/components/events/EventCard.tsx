@@ -113,8 +113,8 @@ export const EventCard = memo(({
 
   const handleReport = useCallback(() => {
     triggerHaptic('medium');
-    toast.success('Report submitted. Thank you!', { duration: 2000 });
-  }, []);
+    (window as any).dispatchEvent(new CustomEvent('open-report', { detail: { reportedListingId: event.id, reportedListingTitle: event.title, reportCategory: 'listing' } }));
+  }, [event.id, event.title]);
 
   // Double-tap to like
   const handleCardTap = useCallback((e: React.MouseEvent) => {

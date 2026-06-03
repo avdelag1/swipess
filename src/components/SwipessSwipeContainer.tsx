@@ -28,7 +28,7 @@ import { swipeQueue } from '@/lib/swipe/SwipeQueue';
 import { imagePreloadController } from '@/lib/swipe/ImagePreloadController';
 import { useSwipeUndo } from '@/hooks/useSwipeUndo';
 import { useSwipeWithMatch } from '@/hooks/useSwipeWithMatch';
-import { useStartConversation } from '@/hooks/useConversations';
+import { useStartConversation, useConversations } from '@/hooks/useConversations';
 import { useRecordProfileView } from '@/hooks/useProfileRecycling';
 import { usePrefetchImages } from '@/hooks/usePrefetchImages';
 import { usePrefetchManager, useSwipePrefetch } from '@/hooks/usePrefetchManager';
@@ -292,6 +292,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     onMatch: (clientProfile, ownerProfile) => setMatchData({ client: clientProfile, owner: ownerProfile })
   });
   const startConversation = useStartConversation();
+  const { data: conversations = [] } = useConversations();
 
   const { dismissedIds, dismissTarget, filterDismissed: _filterDismissed } = useSwipeDismissal('listing');
 

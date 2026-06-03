@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 // import { } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Ban, ChevronLeft, Coins, Info, Mic, MicOff, MoreVertical, Send, ShieldAlert, Smile, Sparkles, Star, Timer, X } from 'lucide-react';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { triggerHaptic } from '@/utils/haptics';
 import { uiSounds } from '@/utils/uiSounds';
 import { useConversationMessages, useSendMessage } from '@/hooks/useConversations';
@@ -65,6 +66,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
   const [newMessage, setNewMessage] = useState('');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [showRatingDialog, setShowRatingDialog] = useState(false);
+  const [showBlockConfirm, setShowBlockConfirm] = useState(false);
   const { _theme, isLight } = useAppTheme();
   const isThemeLight = isLight;
   const { user } = useAuth();
@@ -363,7 +365,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
                   <DropdownMenuSeparator className="bg-white/[0.06] my-1.5" />
                   <DropdownMenuItem
                     className="p-4 rounded-[1rem] focus:bg-red-500/[0.12] text-red-400 cursor-pointer font-black uppercase tracking-widest text-[10px] gap-3"
-                    onClick={() => { if (confirm('Block this entity permanently?')) { blockUser.mutate(otherUser.id); onBack(); } }}
+                    onClick={() => setShowBlockConfirm(true)}
                   >
                     <Ban className="w-4 h-4" /> Block
                   </DropdownMenuItem>
@@ -497,6 +499,28 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
         </div>
 
         <RatingSubmissionDialog open={showRatingDialog} onOpenChange={setShowRatingDialog} targetId={listing?.id || otherUser.id} targetType={listing?.id ? 'listing' : 'user'} targetName={listing?.title || otherUser.full_name} categoryId={listing?.id ? (listing.category === 'vehicle' ? 'vehicle' : 'property') : 'client'} onSuccess={() => setShowRatingDialog(false)} />
+
+        <AlertDialog open={showBlockConfirm} onOpenChange={setShowBlockConfirm}>
+          <AlertDialogContent className="rounded-[28px] bg-[#0A0A0A] border-white/10 text-white">
+            <AlertDialogHeader>
+              <AlertDialogTitle className="text-white text-lg font-bold">Block this user?</AlertDialogTitle>
+              <AlertDialogDescription className="text-white/50">
+                This will permanently block {otherUser.full_name} from contacting you. You won't see their messages or listings.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter className="gap-2">
+              <AlertDialogCancel className="rounded-2xl bg-white/10 border-white/20 text-white hover:bg-white/15">
+                Cancel
+              </AlertDialogCancel>
+              <AlertDialogAction
+                className="rounded-2xl bg-red-600 hover:bg-red-500 text-white border-0"
+                onClick={() => { blockUser.mutate(otherUser.id); onBack(); }}
+              >
+                Block
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </>
   );

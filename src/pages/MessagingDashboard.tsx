@@ -9,6 +9,7 @@ import {
   _Layers, _Navigation, Archive, ArrowLeft, Ban, Check,
   Inbox, MessageCircle, MoreVertical, Search, ShieldAlert, Sparkles, Trash
 } from 'lucide-react';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 // import { } from '@/components/ui/EmptyState';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserRole } from '@/hooks/useUserRole';
@@ -57,6 +58,7 @@ export function MessagingDashboard() {
   const [isStartingConversation, setIsStartingConversation] = useState(false);
   const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
   const [_showActivationBanner, _setShowActivationBanner] = useState(false);
+  const [blockTarget, setBlockTarget] = useState<{ userId: string; name: string } | null>(null);
   const { getText } = useSiteContent('messages');
 
   const { data: fetchedRole } = useUserRole(user?.id);
@@ -376,7 +378,7 @@ export function MessagingDashboard() {
                             <DropdownMenuItem className="p-4 rounded-[1.2rem] focus:bg-amber-500/20 text-amber-500 cursor-pointer font-black uppercase tracking-widest text-[9px]" onClick={e => { e.stopPropagation(); (window as any).dispatchEvent(new CustomEvent('open-report', { detail: { reportedUserId: conversation.other_user?.id, reportedUserAge: conversation.other_user?.age, reportCategory: 'user_profile' } })); }}>
                               <ShieldAlert className="w-4 h-4 mr-3" /> Report Entity
                             </DropdownMenuItem>
-                            <DropdownMenuItem className="p-4 rounded-[1.2rem] focus:bg-red-500/20 text-red-500 cursor-pointer font-black uppercase tracking-widest text-[9px]" onClick={e => { e.stopPropagation(); if (confirm('Block this entity permanently?')) blockUser.mutate(conversation.other_user!.id); }}>
+                             <DropdownMenuItem className="p-4 rounded-[1.2rem] focus:bg-red-500/20 text-red-500 cursor-pointer font-black uppercase tracking-widest text-[9px]" onClick={e => { e.stopPropagation(); setBlockTarget({ userId: conversation.other_user!.id, name: conversation.other_user?.full_name || 'this user' }); }}>
                               <Ban className="w-4 h-4 mr-3" /> Block Entity
                             </DropdownMenuItem>
                             <DropdownMenuItem className="p-4 rounded-[1.2rem] focus:bg-red-500/20 text-red-500 cursor-pointer font-black uppercase tracking-widest text-[9px]" onClick={e => { e.stopPropagation(); deleteConversation.mutate(conversation.id); }}>
@@ -412,6 +414,28 @@ export function MessagingDashboard() {
       </div>
       
       <MessageActivationPackages isOpen={showUpgradeDialog} onClose={() => setShowUpgradeDialog(false)} userRole={userRole} />
+
+      <AlertDialog open={!!blockTarget} onOpenChange={(open) => { if (!open) setBlockTarget(null); }}>
+        <AlertDialogContent className="rounded-[28px] bg-[#0A0A0A] border-white/10 text-white">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-white text-lg font-bold">Block this user?</AlertDialogTitle>
+            <AlertDialogDescription className="text-white/50">
+              This will permanently block {blockTarget?.name} from contacting you. You won't see their messages or listings.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="gap-2">
+            <AlertDialogCancel className="rounded-2xl bg-white/10 border-white/20 text-white hover:bg-white/15">
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              className="rounded-2xl bg-red-600 hover:bg-red-500 text-white border-0"
+              onClick={() => { if (blockTarget) blockUser.mutate(blockTarget.userId); }}
+            >
+              Block
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
