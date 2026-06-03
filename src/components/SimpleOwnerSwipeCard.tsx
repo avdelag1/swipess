@@ -300,7 +300,16 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
     onDragStart?.();
   }, [onDragStart]);
 
-  // Removed axis lock to allow free form 2D movement
+  const handleDirectionLock = useCallback((axis: 'x' | 'y') => {
+    dragAxisRef.current = axis;
+    if (axis === 'x') y.set(0);
+    if (axis === 'y') x.set(0);
+  }, [x, y]);
+
+  const handleDrag = useCallback(() => {
+    if (dragAxisRef.current === 'x') y.set(0);
+    if (dragAxisRef.current === 'y') x.set(0);
+  }, [x, y]);
 
   const handleDragEnd = useCallback((_: any, info: PanInfo) => {
     if (hasExited.current) return;
@@ -384,9 +393,12 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
       <motion.div
         drag={disableDrag ? false : (isTop ? true : false)}
         dragListener={disableDrag ? false : (isTop ? true : undefined)}
+        dragDirectionLock={disableDrag ? false : (isTop ? true : undefined)}
         dragMomentum={false}
         dragTransition={{ bounceStiffness: 800, bounceDamping: 25 }} // Instantly glues to finger
         onDragStart={handleDragStart}
+        onDrag={handleDrag}
+        onDirectionLock={handleDirectionLock}
         onDragEnd={handleDragEnd}
         onPointerDown={handleUnifiedPointerDown}
         onPointerMove={handleUnifiedPointerMove}

@@ -256,6 +256,17 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
     onDragStart?.();
   }, [onDragStart]);
 
+  const handleDirectionLock = useCallback((axis: 'x' | 'y') => {
+    dragAxisRef.current = axis;
+    if (axis === 'x') y.set(0);
+    if (axis === 'y') x.set(0);
+  }, [x, y]);
+
+  const handleDrag = useCallback(() => {
+    if (dragAxisRef.current === 'x') y.set(0);
+    if (dragAxisRef.current === 'y') x.set(0);
+  }, [x, y]);
+
   // SPEED OF LIGHT: Auto-reveal protocol
   // When a card becomes the top card, briefly reveal the chrome (header/nav/buttons)
   // so the user sees the available controls before they smoothly fade away.
@@ -359,9 +370,12 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
       <motion.div
         drag={disableDrag ? false : (isTop ? true : false)}
         dragListener={disableDrag ? false : (isTop ? true : undefined)}
+        dragDirectionLock={disableDrag ? false : (isTop ? true : undefined)}
         dragMomentum={false}
         dragTransition={{ bounceStiffness: 800, bounceDamping: 25 }} // Instantly glues to finger
         onDragStart={handleDragStart}
+        onDrag={handleDrag}
+        onDirectionLock={handleDirectionLock}
         onDragEnd={handleDragEnd}
         onPointerDown={handleUnifiedPointerDown}
         onPointerMove={handleUnifiedPointerMove}
