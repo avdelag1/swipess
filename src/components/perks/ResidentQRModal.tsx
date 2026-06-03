@@ -13,7 +13,7 @@ interface ResidentQRModalProps {
 export function ResidentQRModal({ isOpen, onClose }: ResidentQRModalProps) {
   const { user } = useAuth();
   const [countdown, setCountdown] = useState(60);
-  const [qrKey, setQrKey] = useState(0);
+  const [_qrKey, setQrKey] = useState(0);
   const [redeemed, setRedeemed] = useState(false);
 
   // Countdown timer

@@ -31,7 +31,7 @@ import { BarChart3, Bookmark, Flag, MessageCircle, Share2, ThumbsUp } from 'luci
 import { PhotoPositionIndicators } from '@/components/swipe/PhotoPositionIndicators';
 import { GestureHints } from '@/components/swipe/GestureHints';
 import { revealChrome, useChromeReveal } from '@/hooks/useChromeReveal';
-import { SNAP_BACK_SPRING, EXIT_SPRING } from '@/components/swipe/SwipeConstants';
+import { EXIT_SPRING, SNAP_BACK_SPRING } from '@/components/swipe/SwipeConstants';
 
 export interface SimpleSwipeCardRef {
   triggerSwipe: (direction: 'left' | 'right') => void;
@@ -84,7 +84,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   canGoBack = true,
 }, ref) => {
   const { isLight } = useAppTheme();
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+   
   const { isChromeVisible } = useChromeReveal();
   const isDragging = useRef(false);
   const hasExited = useRef(false);
@@ -112,6 +112,9 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   const likeOpacity = useTransform(x, [0, SWIPE_THRESHOLD * 0.5, SWIPE_THRESHOLD], [0, 0.5, 1]);
   const passOpacity = useTransform(x, [-SWIPE_THRESHOLD, -SWIPE_THRESHOLD * 0.5, 0], [1, 0.5, 0]);
   const skipOpacity = useTransform(y as MotionValue<number>, (v: number) => Math.min(1, Math.abs(v) / SKIP_THRESHOLD));
+  
+  // Physical feel: tilting based on X position.
+  const rotate = useTransform(x, [-300, 300], [-10, 10]);
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [photoDirection, setPhotoDirection] = useState<'left' | 'right'>('right');
@@ -253,17 +256,6 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
     onDragStart?.();
   }, [onDragStart]);
 
-  const handleDirectionLock = useCallback((axis: 'x' | 'y') => {
-    dragAxisRef.current = axis;
-    if (axis === 'x') y.set(0);
-    if (axis === 'y') x.set(0);
-  }, [x, y]);
-
-  const handleDrag = useCallback(() => {
-    if (dragAxisRef.current === 'x') y.set(0);
-    if (dragAxisRef.current === 'y') x.set(0);
-  }, [x, y]);
-
   // SPEED OF LIGHT: Auto-reveal protocol
   // When a card becomes the top card, briefly reveal the chrome (header/nav/buttons)
   // so the user sees the available controls before they smoothly fade away.
@@ -279,7 +271,8 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
     const dy = info.offset.y;
     const vx = info.velocity.x;
     const vy = info.velocity.y;
-    const axis = dragAxisRef.current ?? (Math.abs(dx) >= Math.abs(dy) ? 'x' : 'y');
+    // Freeform 2D swipe: intent is based on whichever axis had the longest movement
+    const axis = Math.abs(dx) >= Math.abs(dy) ? 'x' : 'y';
 
     const horizCommit = axis === 'x' && (Math.abs(dx) > SWIPE_THRESHOLD || Math.abs(vx) > VELOCITY_THRESHOLD);
     const vertCommit = axis === 'y' && (Math.abs(dy) > SKIP_THRESHOLD || Math.abs(vy) > SKIP_VELOCITY);
@@ -366,13 +359,10 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
       <motion.div
         drag={disableDrag ? false : (isTop ? true : false)}
         dragListener={disableDrag ? false : (isTop ? true : undefined)}
-        dragDirectionLock={disableDrag ? false : (isTop ? true : undefined)}
         dragMomentum={false}
         dragConstraints={{ left: -9999, right: 9999, top: -9999, bottom: 9999 }}
         dragElastic={1}
         onDragStart={handleDragStart}
-        onDrag={handleDrag}
-        onDirectionLock={handleDirectionLock}
         onDragEnd={handleDragEnd}
         onPointerDown={handleUnifiedPointerDown}
         onPointerMove={handleUnifiedPointerMove}
@@ -382,9 +372,11 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
         style={{
           x,
           y,
+          rotate,
           opacity: cardOpacity,
           willChange: 'transform, opacity',
           transform: 'translate3d(0,0,0)',
+          transformOrigin: '50% 120%', // Pivot from bottom so it feels like a heavy physical card
           backfaceVisibility: 'hidden',
           borderRadius: 32,
           boxShadow: 'none',
@@ -437,8 +429,8 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
 
         <motion.div className="absolute top-10 right-6 z-50 pointer-events-none rotate-[-12deg]" style={{ opacity: likeOpacity }}>
           <div className="flex flex-col items-center gap-1.5">
-             <div className="w-[72px] h-[72px] rounded-full flex items-center justify-center bg-orange-500/20 border-2 border-orange-500 shadow-[0_0_20px_rgba(255,87,34,0.5)]">
-               <ThumbsUp className="w-9 h-9 text-orange-500" fill="currentColor" strokeWidth={0} />
+             <div className="px-5 py-2.5 rounded-xl border-3 border-orange-500 bg-orange-500/20 shadow-[0_0_20px_rgba(255,87,34,0.5)]">
+               <span className="font-black text-4xl text-orange-500 tracking-tighter whitespace-nowrap">I LIKE IT</span>
              </div>
           </div>
         </motion.div>
