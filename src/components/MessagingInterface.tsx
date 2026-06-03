@@ -327,10 +327,6 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button 
-                    onClick={(e) => e.stopPropagation()}
-                    onPointerDown={(e) => e.stopPropagation()}
-                    onTouchStart={(e) => e.stopPropagation()}
-                    onTouchEnd={(e) => e.stopPropagation()}
                     className={cn("w-11 h-11 rounded-full flex items-center justify-center transition-all",
                     isThemeLight ? "bg-black/[0.04] text-black hover:bg-black/10" : "bg-white/[0.05] text-white hover:bg-white/[0.12]"
                   )}>

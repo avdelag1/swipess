@@ -610,7 +610,8 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
                     key={idx}
                     whileTap={{ scale: 0.88 }}
                     transition={{ duration: 0.1 }}
-                    onPointerDown={(e) => e.stopPropagation()}
+                    onPointerDownCapture={(e) => e.stopPropagation()}
+                    onTouchStartCapture={(e) => e.stopPropagation()}
                     onClick={(e) => {
                       e.stopPropagation();
                       triggerHaptic('light');

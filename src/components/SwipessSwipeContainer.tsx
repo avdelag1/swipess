@@ -831,8 +831,15 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
       return;
     }
     
-    // Bypass all direct messaging / premium popups and just open the chat window directly.
-    navigate(`/messages?startConversation=${targetUserId}`);
+    // Check if conversation already exists
+    const existingConversation = conversations?.find(c => c.other_user?.id === targetUserId);
+    if (existingConversation) {
+      navigate(`/messages?conversationId=${existingConversation.id}`);
+      return;
+    }
+
+    setSelectedListing(listing);
+    setMessageDialogOpen(true);
     triggerHaptic('light');
     if (onMessageClick) onMessageClick();
   };
