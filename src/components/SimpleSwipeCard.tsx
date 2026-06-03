@@ -112,7 +112,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   const likeOpacity = useTransform(x, [0, SWIPE_THRESHOLD * 0.5, SWIPE_THRESHOLD], [0, 0.5, 1]);
   const passOpacity = useTransform(x, [-SWIPE_THRESHOLD, -SWIPE_THRESHOLD * 0.5, 0], [1, 0.5, 0]);
   const skipOpacity = useTransform(y as MotionValue<number>, (v: number) => Math.min(1, Math.abs(v) / SKIP_THRESHOLD));
-  
+  const windowWidth = typeof window !== 'undefined' ? window.innerWidth : 400;
   // Physical feel: tilting based on X position.
   const rotate = useTransform(x, [-windowWidth, windowWidth], [-16, 16]); // Tilted more aggressively for physical weight feel
 
