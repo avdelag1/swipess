@@ -73,7 +73,7 @@ export default function WorldRadioDirectory() {
       {/* 🛸 STICKY HEADER — Stays on top, doesn't overlap cards */}
       <div
         className={cn(
-          "sticky top-[var(--top-bar-height)] z-50 pt-[calc(env(safe-area-inset-top)+8px)] pb-3 px-4 border-b backdrop-blur-xl",
+          "sticky top-0 z-50 pt-[calc(env(safe-area-inset-top)+8px)] pb-3 px-4 border-b backdrop-blur-xl",
           isDark ? "bg-black/55 border-white/10" : "bg-background/80 border-border/60"
         )}
       >
@@ -190,7 +190,7 @@ export default function WorldRadioDirectory() {
       <main className="flex-1 p-4 pb-8 relative z-10 overflow-y-auto">
         {/* 🛸 STATION GRID — Simplified and always visible */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <AnimatePresence mode="popLayout">
+          <AnimatePresence>
             {filteredStations.map((station) => {
               const isPlaying = state.currentStation?.id === station.id && state.isPlaying;
               const isFav = isStationFavorite(station.id);
@@ -200,7 +200,6 @@ export default function WorldRadioDirectory() {
               return (
                 <motion.div
                   key={station.id}
-                  layout
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.9 }}

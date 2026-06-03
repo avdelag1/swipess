@@ -91,7 +91,8 @@ export default defineConfig(({ mode }) => ({
             if (id.includes('react-router')) return 'vendor-router';
             // Merge zustand to avoid vendor-react -> vendor-state circular dep
             // Merge loose-envify (React runtime dep) to avoid vendor-react -> vendor-misc circular dep
-            if (id.includes('zustand') || id.includes('use-sync-external-store') || id.includes('loose-envify') || id.includes('prop-types') || id.includes('object-assign')) return 'vendor-react';
+            // Merge js-tokens (loose-envify dep) and react-is (prop-types dep) to prevent cycles
+            if (id.includes('zustand') || id.includes('use-sync-external-store') || id.includes('loose-envify') || id.includes('prop-types') || id.includes('object-assign') || id.includes('js-tokens') || id.includes('react-is')) return 'vendor-react';
 
             // ISOLATED HEAVY LIBRARIES — maximize cache persistence
             if (id.includes('framer-motion') || id.includes('motion-dom') || id.includes('motion-utils')) return 'vendor-motion';
@@ -113,8 +114,8 @@ export default defineConfig(({ mode }) => ({
             if (id.includes('howler') || id.includes('tone') || id.includes('wavesurfer')) return 'vendor-audio';
             // Crypto / encoding utils
             if (id.includes('tweetnacl') || id.includes('base64') || id.includes('js-sha') || id.includes('uuid')) return 'vendor-crypto';
-            // Markdown / rich-text
-            if (id.includes('marked') || id.includes('remark') || id.includes('rehype') || id.includes('micromark') || id.includes('mdast') || id.includes('unified') || id.includes('gray-matter')) return 'vendor-md';
+            // Markdown / rich-text — include all transitive deps to prevent cycles
+            if (id.includes('marked') || id.includes('remark') || id.includes('rehype') || id.includes('micromark') || id.includes('mdast') || id.includes('unified') || id.includes('gray-matter') || id.includes('bail') || id.includes('trough') || id.includes('vfile') || id.includes('unist') || id.includes('hast') || id.includes('property-information') || id.includes('comma-separated-tokens') || id.includes('space-separated-tokens') || id.includes('zwitch') || id.includes('longest-streak') || id.includes('ccount') || id.includes('character-entities') || id.includes('decode-named-character-reference')) return 'vendor-md';
             // PDF
             if (id.includes('pdfjs') || id.includes('pdf-lib') || id.includes('jspdf')) return 'vendor-pdf';
             // Everything else

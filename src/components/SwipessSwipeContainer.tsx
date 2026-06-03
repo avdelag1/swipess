@@ -232,7 +232,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     const currentIdx = currentIndexRef.current;
 
     const imagesToPreload: string[] = [];
-    [0, 1, 2, 3, 4].forEach((offset) => {
+    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].forEach((offset) => {
       const card = deckQueueRef.current[currentIdx + offset];
       if (card?.images && Array.isArray(card.images)) {
         card.images.forEach((imgUrl: string) => {
@@ -978,7 +978,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
         <SwipeDeckBackButton />
         <motion.div
           className="relative w-full h-full mx-auto flex items-stretch justify-stretch pointer-events-auto md:max-w-[640px]"
-          style={{ y: pullDown.y, scale: pullDown.scale, opacity: pullDown.opacity, filter: pullDown.blur }}
+          style={{ y: pullDown.y, scale: pullDown.scale, opacity: pullDown.opacity, filter: pullDown.blur, transform: 'translateZ(0)', willChange: 'transform' }}
         >
           {/* Rounded backdrop matches card corners so deck blends into background */}
           <div
