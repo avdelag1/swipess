@@ -113,7 +113,7 @@ export const EventCard = memo(({
 
   const handleReport = useCallback(() => {
     triggerHaptic('medium');
-    (window as any).dispatchEvent(new CustomEvent('open-report', { detail: { reportedListingId: event.id, reportedListingTitle: event.title, reportCategory: 'listing' } }));
+    (window as any).dispatchEvent(new CustomEvent('open-report', { detail: { reportedListingId: event.id, reportedListingTitle: event.title, category: 'listing' } }));
   }, [event.id, event.title]);
 
   // Double-tap to like

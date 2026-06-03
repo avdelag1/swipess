@@ -581,7 +581,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
         {/* Floating Action Rail — Apple-style vertical glass pill.
             Always visible so buttons are always tappable. */}
         <AnimatePresence>
-          {isTop && !isZoomed && isChromeVisible && (
+          {isTop && !isZoomed && (
             <motion.div
               initial={{ opacity: 0, x: 18, scale: 0.96 }}
               animate={{ opacity: 1, x: 0, scale: 1 }}
