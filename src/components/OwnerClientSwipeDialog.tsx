@@ -1,5 +1,6 @@
 
 import { lazy, Suspense, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ClientSwipeContainer } from '@/components/ClientSwipeContainer';
 // Lazy-load the 50kb LikedClientInsightsModal — only needed when insights panel opens
@@ -14,6 +15,7 @@ interface OwnerClientSwipeDialogProps {
 }
 
 export function OwnerClientSwipeDialog({ open, onOpenChange }: OwnerClientSwipeDialogProps) {
+  const navigate = useNavigate();
   const [showInsights, setShowInsights] = useState(false);
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
   const { data: clientProfiles } = useClientProfiles();
@@ -62,7 +64,10 @@ export function OwnerClientSwipeDialog({ open, onOpenChange }: OwnerClientSwipeD
             <ClientSwipeContainer
               onClientTap={handleClientTap}
               onInsights={handleInsights}
-              onMessageClick={() => { }}
+              onMessageClick={(clientId) => {
+                onOpenChange(false);
+                navigate(`/messages/new?profile=${clientId}`);
+              }}
               insightsOpen={showInsights}
             />
           </div>

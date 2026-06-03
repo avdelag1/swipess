@@ -50,9 +50,12 @@ export function formatDistanceToNow(date: Date | string, options?: { addSuffix?:
 
     const formatted = formatter.format(-value, unit);
 
-    if (options?.addSuffix) {
-      // Browser already adds "ago" suffix, but match date-fns output exactly
-      return formatted;
+    if (options?.addSuffix === false) {
+      // Strip "ago" / "in" suffixes to return just the distance (e.g. "5 minutes")
+      return formatted
+        .replace(/\s*ago$/i, '')
+        .replace(/^in\s*/i, '')
+        .trim();
     }
 
     return formatted;

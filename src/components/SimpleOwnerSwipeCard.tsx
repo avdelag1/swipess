@@ -14,7 +14,7 @@
 
 import { forwardRef, memo, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { animate, AnimatePresence, motion, MotionValue, PanInfo, useMotionValue, useTransform } from 'framer-motion';
-import { BarChart3, Bookmark, Briefcase, DollarSign, Flag, MapPin, MessageCircle, Share2, ThumbsUp } from 'lucide-react';
+import { BarChart3, Briefcase, DollarSign, Flag, MapPin, MessageCircle, Share2 } from 'lucide-react';
 import { triggerHaptic } from '@/utils/haptics';
 import { cn } from '@/lib/utils';
 import { useMagnifier } from '@/hooks/useMagnifier';
@@ -158,10 +158,9 @@ interface SimpleOwnerSwipeCardProps {
   onInsights?: () => void;
   onSoon?: () => void;
   onMessage?: () => void;
-  onSearch?: () => void;
   isTop?: boolean;
   onDragStart?: () => void;
-  onShare?: (profile: ClientProfile) => void;
+  onShare?: () => void;
   onReport?: () => void;
   onUndo?: () => void;
   onLike?: () => void;
@@ -534,7 +533,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
                 }}
               >
                 {[
-                  { icon: Share2, onClick: () => onShare?.(profile), label: 'Share' },
+                  { icon: Share2, onClick: onShare, label: 'Share' },
                   { icon: MessageCircle, onClick: onMessage, label: 'Message' },
                   { icon: BarChart3, onClick: onInsights, label: 'Insights' },
                   { icon: Flag, onClick: onReport, label: 'Report' },

@@ -101,9 +101,18 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
     close();
   };
 
-  const handleRestore = () => {
-    toast({ title: 'Restoring Purchases', description: 'Verifying with App Store...' });
-    setTimeout(() => toast({ title: 'Sync Complete', description: 'Your access has been verified.' }), 1500);
+  const handleRestore = async () => {
+    if (NativeBridge.isNative()) {
+      toast({ title: 'Restoring Purchases', description: 'Verifying with App Store...' });
+      const result = await NativeBridge.restorePurchases();
+      if (result.success) {
+        toast({ title: 'Restore Complete', description: 'Your purchases have been restored.' });
+      } else {
+        toast({ title: 'Nothing to Restore', description: 'No previous purchases found.', variant: 'destructive' });
+      }
+    } else {
+      toast({ title: 'Restore Unavailable', description: 'Purchase restoration is only available in the native app.' });
+    }
   };
 
 

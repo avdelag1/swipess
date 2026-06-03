@@ -47,7 +47,7 @@ export function LikeNotificationActions({
           )}
         </Button>
 
-        {showChat && (
+        {showChat && onChat && (
           <Button
             onClick={onChat}
             disabled={isLoading}
@@ -107,7 +107,7 @@ export function LikeNotificationActions({
       </Button>
 
       {/* Chat Button - appears after accept */}
-      {showChat && (
+      {showChat && onChat && (
         <Button
           onClick={onChat}
           disabled={isLoading}

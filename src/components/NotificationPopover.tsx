@@ -6,10 +6,6 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
-  _Crown,
-  _Star,
-  _UserPlus,
-  _Zap,
   Bell,
   CheckCheck,
   Eye,
@@ -25,9 +21,6 @@ import { formatDistanceToNow } from '@/utils/timeFormatter';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { notificationTypeConfigs as typeConfigs } from '@/utils/notificationConfigs';
-import { ThemeContext } from '@/hooks/useAppTheme';
-import { useContext } from 'react';
-// import { } from '@/hooks/useDeckHasCards';
 import { cn } from '@/lib/utils';
 import { haptics } from '@/utils/microPolish';
 

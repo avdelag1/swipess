@@ -1,4 +1,5 @@
 import { useCallback, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { logger } from '@/utils/prodLogger';
@@ -29,6 +30,7 @@ export function useNotificationSystem() {
   } = useNotificationStore();
   
   const { user } = useAuth();
+  const navigate = useNavigate();
   const { getProfile: _getProfile } = useProfileCache();
 
   // Map database notification types to frontend types
@@ -211,7 +213,7 @@ export function useNotificationSystem() {
     };
   }, [user?.id, addNotification]);
 
-  const handleDismiss = (id: string) => {
+  const handleDismiss = useCallback((id: string) => {
     dismissNotification(id);
     const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
     if (user?.id && isUUID) {
@@ -219,7 +221,7 @@ export function useNotificationSystem() {
         if (error) logger.error('[Notifications] Failed to delete:', error);
       });
     }
-  };
+  }, [dismissNotification, user?.id]);
 
   const handleMarkAllAsRead = () => {
     markAllAsRead();
@@ -231,7 +233,6 @@ export function useNotificationSystem() {
   };
 
   const handleNotificationClick = useCallback((notification: AppNotification) => {
-    // Navigate using window.location for safety (no useNavigate dependency)
     let url: string | null = null;
     if (notification.actionUrl) {
       url = notification.actionUrl;
@@ -239,21 +240,25 @@ export function useNotificationSystem() {
       const convId = notification.conversationId || notification.metadata?.conversationId;
       url = `/messages?conversationId=${convId}`;
     }
-    
+
     if (url) {
       try {
-        window.location.href = url;
+        // Use client-side routing to avoid full page reload
+        navigate(url);
       } catch { /* silent */ }
     }
-    
+
     // Auto-dismiss the banner on click
     handleDismiss(notification.id);
-  }, [handleDismiss]);
+  }, [navigate, handleDismiss]);
 
   const markNotificationAsRead = (id: string) => {
     // Mark single notification as read locally + in DB
-    const store = useNotificationStore.getState();
-    store.notifications.forEach(n => { if (n.id === id) n.read = true; });
+    useNotificationStore.setState((state) => ({
+      notifications: state.notifications.map(n =>
+        n.id === id ? { ...n, read: true } : n
+      ),
+    }));
     
     if (user?.id) {
       supabase.from('notifications')

@@ -361,13 +361,13 @@ export function MessagingDashboard() {
                     </div>
 
                       <div className="shrink-0 opacity-60 hover:opacity-100 transition-opacity pr-2" onClick={e => e.stopPropagation()}>
-                        <DropdownMenu side="bottom" sideOffset={8}>
+                        <DropdownMenu>
                            <DropdownMenuTrigger asChild>
                              <Button variant="ghost" size="icon" className={cn("w-10 h-10 rounded-full hover:bg-white/10 pointer-events-auto", isLight ? "text-black/30" : "text-white/30")}>
                                <MoreVertical className="w-5 h-5" />
                              </Button>
                            </DropdownMenuTrigger>
-                           <DropdownMenuContent align="end" className="rounded-[2rem] bg-[#121214] p-2 shadow-2xl text-white backdrop-blur-xl z-[100003]">
+                           <DropdownMenuContent align="end" side="bottom" sideOffset={8} className="rounded-[2rem] bg-[#121214] p-2 shadow-2xl text-white backdrop-blur-xl z-[100003]">
                             <DropdownMenuItem className="p-4 rounded-[1.2rem] focus:bg-[#EB4898]/20 focus:text-white cursor-pointer font-black uppercase tracking-widest text-[9px]" onClick={e => { e.stopPropagation(); markChatAsRead.mutate(conversation.id); }} disabled={!isUnread}>
                               <Check className="w-4 h-4 mr-3" /> Mark as Read
                             </DropdownMenuItem>
@@ -416,15 +416,15 @@ export function MessagingDashboard() {
       <MessageActivationPackages isOpen={showUpgradeDialog} onClose={() => setShowUpgradeDialog(false)} userRole={userRole} />
 
       <AlertDialog open={!!blockTarget} onOpenChange={(open) => { if (!open) setBlockTarget(null); }}>
-        <AlertDialogContent className="rounded-[28px] bg-[#0A0A0A] border-white/10 text-white">
+        <AlertDialogContent className={cn("rounded-[28px]", isLight ? "bg-white text-slate-900 border-slate-200" : "bg-[#0A0A0A] text-white border-white/10")}>
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-white text-lg font-bold">Block this user?</AlertDialogTitle>
-            <AlertDialogDescription className="text-white/50">
+            <AlertDialogTitle className={cn("text-lg font-bold", isLight ? "text-slate-900" : "text-white")}>Block this user?</AlertDialogTitle>
+            <AlertDialogDescription className={cn(isLight ? "text-slate-500" : "text-white/50")}>
               This will permanently block {blockTarget?.name} from contacting you. You won't see their messages or listings.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="gap-2">
-            <AlertDialogCancel className="rounded-2xl bg-white/10 border-white/20 text-white hover:bg-white/15">
+            <AlertDialogCancel className={cn("rounded-2xl", isLight ? "bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200" : "bg-white/10 border-white/20 text-white hover:bg-white/15")}>
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction

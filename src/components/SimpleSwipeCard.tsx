@@ -27,7 +27,7 @@ import { LoopVideo } from '@/components/video/LoopVideo';
 import { imageCache } from '@/lib/swipe/cardImageCache';
 import useAppTheme from '@/hooks/useAppTheme';
 import { cn } from '@/lib/utils';
-import { BarChart3, Bookmark, Flag, MessageCircle, Share2, ThumbsUp } from 'lucide-react';
+import { BarChart3, Flag, MessageCircle, Share2 } from 'lucide-react';
 import { PhotoPositionIndicators } from '@/components/swipe/PhotoPositionIndicators';
 import { GestureHints } from '@/components/swipe/GestureHints';
 import { revealChrome, useChromeReveal } from '@/hooks/useChromeReveal';
@@ -87,7 +87,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
 }, ref) => {
   const { isLight } = useAppTheme();
    
-  const { isChromeVisible } = useChromeReveal();
+  useChromeReveal();
   const isDragging = useRef(false);
   const hasExited = useRef(false);
   const isExitingRef = useRef(false);

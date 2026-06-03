@@ -134,7 +134,7 @@ export function useConversations() {
         const messagePromises = conversationIds.map(convId =>
           supabase
             .from('conversation_messages')
-            .select('id, conversation_id, content, created_at, sender_id, is_read, message_type')
+            .select('id, conversation_id, content, message_text, created_at, sender_id, is_read, message_type')
             .eq('conversation_id', convId)
             .order('created_at', { ascending: false })
             .limit(1)
@@ -294,7 +294,7 @@ export function useConversations() {
         otherUserId && !isClient ? supabase.from('client_profiles').select('user_id, name, profile_images, age').eq('user_id', otherUserId).maybeSingle() : Promise.resolve({ data: null }),
         otherUserId && isClient ? supabase.from('owner_profiles').select('user_id, business_name, profile_images').eq('user_id', otherUserId).maybeSingle() : Promise.resolve({ data: null }),
         data.listing_id ? supabase.from('listings').select('id, title, price, images, category, mode, address, city').eq('id', data.listing_id).maybeSingle() : Promise.resolve({ data: null }),
-        supabase.from('conversation_messages').select('id, conversation_id, content, message_type, created_at, sender_id, is_read').eq('conversation_id', conversationId).order('created_at', { ascending: false }).limit(1)
+        supabase.from('conversation_messages').select('id, conversation_id, content, message_text, message_type, created_at, sender_id, is_read').eq('conversation_id', conversationId).order('created_at', { ascending: false }).limit(1)
       ]);
 
       let otherUserProfile = null;

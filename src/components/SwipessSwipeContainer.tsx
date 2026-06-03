@@ -105,7 +105,6 @@ interface SwipessSwipeContainerProps {
 const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsights: _onInsights, onMessageClick, locationFilter: _locationFilter, filters }: SwipessSwipeContainerProps) => {
   const navigate = useNavigate();
   const { activeMode, switchMode } = useActiveMode();
-  const { _theme, _isLight } = useAppTheme();
   const [page, setPage] = useState(0);
   const [, setSwipeDirection] = useState<'left' | 'right' | null>(null);
   const [isCreatingConversation, setIsCreatingConversation] = useState(false);
@@ -1184,11 +1183,12 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
             <ReportDialog
               open={reportDialogOpen}
               onOpenChange={setReportDialogOpen}
-              reportedListingId={selectedListing.id}
-              reportedListingTitle={selectedListing.title}
-              reportedUserId={selectedListing.owner_id}
+              reportedListingId={dataType === 'people' ? undefined : selectedListing.id}
+              reportedListingTitle={dataType === 'people' ? undefined : selectedListing.title}
+              reportedUserId={dataType === 'people' ? (selectedListing.user_id || selectedListing.id) : selectedListing.owner_id}
+              reportedUserName={dataType === 'people' ? selectedListing.name : undefined}
               reportedUserAge={selectedListing.age || (selectedListing as any).owner_age}
-              category="listing"
+              category={dataType === 'people' ? 'user_profile' : 'listing'}
             />
           )}
         </Suspense>,

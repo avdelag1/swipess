@@ -162,10 +162,9 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
         else interim += e.results[i][0].transcript;
       }
       if (finalText) {
-        setNewMessage(finalText);
+        setNewMessage(prev => (prev + ' ' + finalText).trim());
         armSilenceCountdown();
-      } else {
-        setNewMessage(interim);
+      } else if (interim) {
         cancelCountdown();
       }
     };
@@ -503,13 +502,13 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
         <AlertDialog open={showBlockConfirm} onOpenChange={setShowBlockConfirm}>
           <AlertDialogContent className={cn("rounded-[28px]", isThemeLight ? "bg-white text-slate-900 border-slate-200" : "bg-[#0A0A0A] text-white border-white/10")}>
             <AlertDialogHeader>
-              <AlertDialogTitle className="text-white text-lg font-bold">Block this user?</AlertDialogTitle>
-              <AlertDialogDescription className="text-white/50">
+              <AlertDialogTitle className={cn("text-lg font-bold", isThemeLight ? "text-slate-900" : "text-white")}>Block this user?</AlertDialogTitle>
+              <AlertDialogDescription className={cn(isThemeLight ? "text-slate-500" : "text-white/50")}>
                 This will permanently block {otherUser.full_name} from contacting you. You won't see their messages or listings.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter className="gap-2">
-              <AlertDialogCancel className="rounded-2xl bg-white/10 border-white/20 text-white hover:bg-white/15">
+              <AlertDialogCancel className={cn("rounded-2xl", isThemeLight ? "bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200" : "bg-white/10 border-white/20 text-white hover:bg-white/15")}>
                 Cancel
               </AlertDialogCancel>
               <AlertDialogAction
