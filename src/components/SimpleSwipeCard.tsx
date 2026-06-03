@@ -604,7 +604,6 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
               >
                 {[
                   { icon: Share2, onClick: onShare, label: 'Share' },
-                  { icon: Bookmark, onClick: onSoon, label: 'Save' },
                   { icon: MessageCircle, onClick: onMessage, label: 'Message' },
                   { icon: BarChart3, onClick: onInsights, label: 'Insights' },
                   { icon: Flag, onClick: onReport, label: 'Report' },
@@ -613,6 +612,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
                     key={idx}
                     whileTap={{ scale: 0.88 }}
                     transition={{ duration: 0.1 }}
+                    onPointerDown={(e) => e.stopPropagation()}
                     onClick={(e) => {
                       e.stopPropagation();
                       triggerHaptic('light');

@@ -112,33 +112,25 @@ function NotificationItem({ notification, onClick, onDismiss, index }: Notificat
                     src={notification.avatar}
                     alt={notification.title}
                     className={cn(
-                      "w-11 h-11 rounded-[16px] object-cover ring-1 transition-all",
-                      !notification.read 
-                        ? 'ring-border/50' 
-                        : 'ring-transparent'
+                      "w-11 h-11 rounded-none object-cover transition-all"
                     )}
                   />
                   {/* Type indicator badge */}
-                  <div className="absolute -bottom-1 -right-1 p-1 rounded-full bg-background border border-border/40 shadow-sm flex items-center justify-center">
-                    <Icon className="w-3 h-3" style={{ color: config.accentColor }} />
+                  <div className="absolute -bottom-1 -right-1 p-1 rounded-none bg-background border-none shadow-none flex items-center justify-center">
+                    <Icon className="w-3 h-3 text-foreground" />
                   </div>
                 </div>
               ) : (
                 <div className={cn(
-                  "p-2.5 rounded-xl",
-                  role === 'client' ? 'bg-cyan-500/10' : 
-                  role === 'owner' ? 'bg-amber-500/10' : config.bg
+                  "p-2.5 rounded-none bg-muted"
                 )}>
-                  <Icon className="w-5 h-5" style={{ 
-                    color: role === 'client' ? '#06b6d4' : 
-                          role === 'owner' ? '#f59e0b' : config.accentColor
-                  }} />
+                  <Icon className="w-5 h-5 text-foreground" />
                 </div>
               )}
               
               {/* Unread indicator dot */}
               {!notification.read && (
-                <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-primary border-2 border-background" />
+                <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-none bg-foreground" />
               )}
             </div>
 
@@ -234,15 +226,14 @@ interface NotificationPopoverProps {
   glassPillStyle?: React.CSSProperties;
 }
 
+import { useAppTheme } from '@/hooks/useAppTheme';
+// ...
 export function NotificationPopover({ className, children, glassPillStyle }: NotificationPopoverProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [activeFilter, setActiveFilter] = useState('all');
   const navigate = useNavigate();
   const _location = useLocation();
-  const themeContext = useContext(ThemeContext);
-  const theme = themeContext?.theme ?? 'dark';
-  const isLight = theme === 'light';
-  const _isDark = !isLight;
+  const { isLight, isDark } = useAppTheme();
   
   const { 
     notifications, 
@@ -343,8 +334,6 @@ export function NotificationPopover({ className, children, glassPillStyle }: Not
           )}
         </AnimatePresence>
       </div>
-
-      {/* Subtle indicator shadow removed per user request for simplicity */}
     </Button>
   );
 
@@ -356,7 +345,7 @@ export function NotificationPopover({ className, children, glassPillStyle }: Not
         <DialogContent
           hideCloseButton
           className={cn(
-            "w-[min(calc(100vw-1rem),440px)] p-0 !rounded-[12px] border border-white/10 bg-background shadow-2xl",
+            "w-[min(calc(100vw-1rem),440px)] p-0 rounded-none border-none bg-background shadow-2xl",
             "overflow-hidden gap-0",
             className
           )}

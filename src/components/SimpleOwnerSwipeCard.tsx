@@ -536,7 +536,6 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
               >
                 {[
                   { icon: Share2, onClick: () => onShare?.(profile), label: 'Share' },
-                  { icon: Bookmark, onClick: onSoon, label: 'Save' },
                   { icon: MessageCircle, onClick: onMessage, label: 'Message' },
                   { icon: BarChart3, onClick: onInsights, label: 'Insights' },
                   { icon: Flag, onClick: onReport, label: 'Report' },
@@ -545,6 +544,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
                     key={idx}
                     whileTap={{ scale: 0.88 }}
                     transition={{ duration: 0.1 }}
+                    onPointerDown={(e) => e.stopPropagation()}
                     onClick={(e) => {
                       e.stopPropagation();
                       triggerHaptic('light');
