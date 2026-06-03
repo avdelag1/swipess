@@ -190,6 +190,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   onMessage,
   onSoon,
   disableDrag,
+  fullScreen = false,
   canGoBack = true,
 }, ref) => {
   const isDragging = useRef(false);
