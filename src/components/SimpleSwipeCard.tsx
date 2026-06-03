@@ -37,8 +37,8 @@ export interface SimpleSwipeCardRef {
   triggerSwipe: (direction: 'left' | 'right') => void;
 }
 
-const SWIPE_THRESHOLD = 55;
-const VELOCITY_THRESHOLD = 180;
+const SWIPE_THRESHOLD = 30; // Highly sensitive threshold for faster swipes
+const VELOCITY_THRESHOLD = 120; // Lower velocity threshold to accept quick flicks
 const SKIP_THRESHOLD = 60;
 const SKIP_VELOCITY = 200;
 const FALLBACK_PLACEHOLDER = '';
@@ -114,7 +114,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   const skipOpacity = useTransform(y as MotionValue<number>, (v: number) => Math.min(1, Math.abs(v) / SKIP_THRESHOLD));
   
   // Physical feel: tilting based on X position.
-  const rotate = useTransform(x, [-300, 300], [-10, 10]);
+  const rotate = useTransform(x, [-windowWidth, windowWidth], [-16, 16]); // Tilted more aggressively for physical weight feel
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [photoDirection, setPhotoDirection] = useState<'left' | 'right'>('right');
@@ -360,8 +360,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
         drag={disableDrag ? false : (isTop ? true : false)}
         dragListener={disableDrag ? false : (isTop ? true : undefined)}
         dragMomentum={false}
-        dragConstraints={{ left: -9999, right: 9999, top: -9999, bottom: 9999 }}
-        dragElastic={1}
+        dragTransition={{ bounceStiffness: 800, bounceDamping: 25 }} // Instantly glues to finger
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
         onPointerDown={handleUnifiedPointerDown}

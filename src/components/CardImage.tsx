@@ -176,7 +176,6 @@ const CardImage = memo(({
       )}
       {imgSrc && (
         <motion.img
-          key={imgSrc}
           src={imgSrc}
           alt={alt ?? ''}
           data-swipe-card-image="true"
