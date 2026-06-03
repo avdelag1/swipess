@@ -34,8 +34,8 @@ export interface SimpleOwnerSwipeCardRef {
   triggerSwipe: (direction: 'left' | 'right') => void;
 }
 
-const SWIPE_THRESHOLD = 60;
-const VELOCITY_THRESHOLD = 200;
+const SWIPE_THRESHOLD = 30;
+const VELOCITY_THRESHOLD = 120;
 const SKIP_THRESHOLD = 70;
 const SKIP_VELOCITY = 250;
 const FALLBACK_PLACEHOLDER = '';
@@ -108,16 +108,33 @@ const CardImage = memo(({
 
   return (
     <div className="absolute inset-0 w-full h-full" style={{ zIndex: 1, overflow: 'hidden', borderRadius: 28 }}>
-      <div className="absolute inset-0 bg-zinc-800" style={{ opacity: loaded ? 0 : 1, transition: 'opacity 150ms ease-out' }} />
+      {/* Shimmer loading background always behind the image */}
+      {!loaded && (
+        <div
+          className="absolute inset-0 flex items-center justify-center overflow-hidden"
+          style={{
+            background: 'linear-gradient(135deg, hsl(var(--muted)) 0%, hsl(var(--muted-foreground) / 0.1) 100%)',
+            zIndex: 1,
+          }}
+        >
+          <motion.div 
+            className="absolute inset-x-[-100%] inset-y-0 bg-gradient-to-r from-transparent via-white/10 to-transparent skew-x-[-20deg]"
+            animate={{ x: ['100%', '-100%'] }}
+            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+          />
+        </div>
+      )}
+
+      {/* The actual image renders unconditionally to prevent unmount blinking */}
       <img
         src={src}
         alt={alt}
         data-swipe-card-image="true"
         draggable={false}
-        className={cn("absolute inset-0 w-full h-full object-cover", loaded ? "opacity-100" : "opacity-0")}
+        className="absolute inset-0 w-full h-full object-cover transition-opacity duration-300"
         style={{
-          transition: 'opacity 150ms ease-out',
-          animation: 'none',
+          opacity: loaded ? 1 : 0,
+          zIndex: 2,
           borderRadius: 28,
           WebkitTouchCallout: 'none',
           WebkitUserSelect: 'none',
@@ -188,16 +205,12 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   const x = externalX ?? _internalX;
   const y = externalY ?? _internalY;
 
-  // Strict story-feed motion: horizontal = like/pass, vertical = browse next card.
-  const cardOpacity = useTransform(
-    [x, y] as any,
-    ([_cx, _cy]: any) => {
-      return 1;
-    }
-  );
+  const cardOpacity = useTransform([x, y] as any, () => 1);
   const likeOpacity = useTransform(x, [0, SWIPE_THRESHOLD * 0.5, SWIPE_THRESHOLD], [0, 0.5, 1]);
   const passOpacity = useTransform(x, [-SWIPE_THRESHOLD, -SWIPE_THRESHOLD * 0.5, 0], [1, 0.5, 0]);
   const skipOpacity = useTransform(y as MotionValue<number>, (v: number) => Math.min(1, Math.abs(v) / SKIP_THRESHOLD));
+  const windowWidth = typeof window !== 'undefined' ? window.innerWidth : 400;
+  const rotate = useTransform(x, [-windowWidth, windowWidth], [-16, 16]); // Tilted aggressively for physical weight feel
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
@@ -287,16 +300,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
     onDragStart?.();
   }, [onDragStart]);
 
-  const handleDirectionLock = useCallback((axis: 'x' | 'y') => {
-    dragAxisRef.current = axis;
-    if (axis === 'x') y.set(0);
-    if (axis === 'y') x.set(0);
-  }, [x, y]);
-
-  const handleDrag = useCallback(() => {
-    if (dragAxisRef.current === 'x') y.set(0);
-    if (dragAxisRef.current === 'y') x.set(0);
-  }, [x, y]);
+  // Removed axis lock to allow free form 2D movement
 
   const handleDragEnd = useCallback((_: any, info: PanInfo) => {
     if (hasExited.current) return;
@@ -380,13 +384,9 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
       <motion.div
         drag={disableDrag ? false : (isTop ? true : false)}
         dragListener={disableDrag ? false : (isTop ? true : undefined)}
-        dragDirectionLock={disableDrag ? false : (isTop ? true : undefined)}
         dragMomentum={false}
-        dragConstraints={{ left: -9999, right: 9999, top: -9999, bottom: 9999 }}
-        dragElastic={0.8}
+        dragTransition={{ bounceStiffness: 800, bounceDamping: 25 }} // Instantly glues to finger
         onDragStart={handleDragStart}
-        onDrag={handleDrag}
-        onDirectionLock={handleDirectionLock}
         onDragEnd={handleDragEnd}
         onPointerDown={handleUnifiedPointerDown}
         onPointerMove={handleUnifiedPointerMove}
@@ -396,7 +396,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
         animate={{ scale: 1, opacity: 1, transition: { type: 'spring', stiffness: 600, damping: 28, mass: 0.3 } }}
         className={cn("flex-1 select-none touch-none relative w-full h-full overflow-hidden border-none gpu-ultra", isTop && !disableDrag ? "cursor-grab active:cursor-grabbing" : "")}
         style={{
-          x, y, opacity: cardOpacity, willChange: 'transform, opacity',
+          x, y, rotate, opacity: cardOpacity, willChange: 'transform, opacity',
           transform: 'translate3d(0,0,0)', backfaceVisibility: 'hidden',
           borderRadius: 28,
           boxShadow: 'none',
@@ -430,8 +430,10 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
             <GestureHints hidden={isZoomed} />
 
         <motion.div className="absolute top-10 right-6 z-50 pointer-events-none rotate-[-12deg]" style={{ opacity: likeOpacity }}>
-          <div className="w-[72px] h-[72px] rounded-full flex items-center justify-center bg-orange-500/20 border-2 border-orange-500 shadow-[0_0_20px_rgba(255,87,34,0.5)]">
-            <ThumbsUp className="w-9 h-9 text-orange-500" fill="currentColor" strokeWidth={0} />
+          <div className="flex flex-col items-center gap-1.5">
+             <div className="px-5 py-2.5 rounded-xl border-3 border-orange-500 bg-orange-500/20 shadow-[0_0_20px_rgba(255,87,34,0.5)]">
+               <span className="font-black text-4xl text-orange-500 tracking-tighter whitespace-nowrap">I LIKE IT</span>
+             </div>
           </div>
         </motion.div>
 

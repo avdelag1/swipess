@@ -62,6 +62,9 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
       return 1 - Math.max(a, b) * 0.35;
     }
   );
+  
+  const windowWidth = typeof window !== 'undefined' ? window.innerWidth : 400;
+  const rotate = useTransform(x, [-windowWidth, windowWidth], [-16, 16]); // Tilted aggressively for physical weight feel
   // Faint breathing hints — visible only while idle on the top card.
   const hintOpacity = useTransform(
     [x, y] as any,
@@ -205,9 +208,9 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
     <motion.div
       // Only the top card is draggable. No constraints — let the card move
       // freely so the exit animate() to ±520 isn't fought by constraint springs.
-      drag={isTop ? 'x' : false}
+      drag={isTop ? true : false}
       dragMomentum={false}
-      dragElastic={0.8}
+      dragTransition={{ bounceStiffness: 800, bounceDamping: 25 }} // Instantly glues to finger
       onDragStart={() => {
         if (isExitingRef.current) return;
         isDraggingRef.current = true;
@@ -243,15 +246,17 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
         width: '100%',
         height: '100%',
         x: isTop ? x : 0,
-        y: 0,
+        y: isTop ? y : 0,
         zIndex: 100 - index,
         opacity: isTop ? exitOpacity : stackOpacity,
         scale: 1,
+        rotate,
         filter: stackedFilter,
         cursor: isTop ? (isDraggingVisual ? 'grabbing' : 'grab') : 'pointer',
-        touchAction: 'pan-y',
+        touchAction: 'none',
         willChange: 'transform, opacity',
         transform: 'translateZ(0)',
+        transformOrigin: '50% 120%', // Pivot from bottom so it feels like a heavy physical card
         backfaceVisibility: 'hidden',
         WebkitBackfaceVisibility: 'hidden',
       } as any}
