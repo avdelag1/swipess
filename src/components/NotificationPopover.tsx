@@ -338,7 +338,7 @@ export function NotificationPopover({ className, children, glassPillStyle }: Not
         <DialogContent
           hideCloseButton
           className={cn(
-            "w-[min(calc(100vw-1rem),440px)] p-0 rounded-none border-none bg-background shadow-2xl",
+            "z-[10000] w-[min(calc(100vw-1rem),440px)] p-0 rounded-none border-none bg-background shadow-2xl",
             "overflow-hidden gap-0",
             className
           )}
