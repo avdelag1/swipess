@@ -150,11 +150,19 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   useEffect(() => {
     if (!isTop || !images.length) return;
     images.forEach((imageUrl) => {
-      if (imageUrl && imageUrl !== FALLBACK_PLACEHOLDER && !imageCache.has(imageUrl)) {
-        const img = new Image();
-        img.onload = () => imageCache.set(imageUrl, true);
-        img.src = getCardImageUrl(imageUrl);
-      }
+      if (!imageUrl || imageUrl === FALLBACK_PLACEHOLDER) return;
+      const optimizedUrl = getCardImageUrl(imageUrl);
+      if (imageCache.has(optimizedUrl)) return;
+      const img = new Image();
+      (img as any).fetchPriority = 'high';
+      img.decoding = 'async';
+      img.onload = async () => {
+        try {
+          if ('decode' in img) await img.decode();
+        } catch {}
+        imageCache.set(optimizedUrl, true);
+      };
+      img.src = optimizedUrl;
     });
   }, [isTop, images, profile?.user_id]);
 
