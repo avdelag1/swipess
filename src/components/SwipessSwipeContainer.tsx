@@ -21,6 +21,39 @@ import { imageCache } from '@/lib/swipe/cardImageCache';
 import { PrefetchScheduler } from '@/lib/swipe/PrefetchScheduler';
 import { ClientFilters, ListingFilters, useSmartClientMatching, useSmartListingMatching } from '@/hooks/useSmartMatching';
 import { useAuth } from '@/hooks/useAuth';
+import React, { Component, ErrorInfo, ReactNode } from 'react';
+
+class ModalErrorBoundary extends Component<{children: ReactNode}, {hasError: boolean, error: any}> {
+  constructor(props: any) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+  static getDerivedStateFromError(error: any) {
+    return { hasError: true, error };
+  }
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    console.error("Modal Error Boundary Caught:", error, errorInfo);
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="fixed inset-0 z-[999999] bg-red-900 text-white p-8 flex flex-col items-start justify-center overflow-auto">
+          <h1 className="text-3xl font-black mb-4 text-white">MODAL CRASHED!</h1>
+          <div className="bg-black/50 p-4 rounded text-xs font-mono mb-6 whitespace-pre-wrap">
+            {String(this.state.error?.stack || this.state.error)}
+          </div>
+          <button 
+            onClick={() => this.setState({ hasError: false, error: null })}
+            className="bg-white text-red-900 px-6 py-3 font-bold rounded-xl"
+          >
+            Dismiss Error & Close Modal
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 import { useUserRole } from '@/hooks/useUserRole';
 import { useActiveMode } from '@/hooks/useActiveMode';
 import { swipeQueue } from '@/lib/swipe/SwipeQueue';
@@ -1129,27 +1162,41 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
         />
       )}
 
-      {insightsModalOpen && topCard && (
-        <SwipeInsightsModal
-          open={insightsModalOpen}
-          onOpenChange={setInsightsModalOpen}
-          listing={dataType === 'people' ? null : topCard}
-          profile={dataType === 'people' ? topCard : null}
-        />
-      )}
-      {shareDialogOpen && topCard && (
-        <ShareDialog
-          open={shareDialogOpen}
-          onOpenChange={setShareDialogOpen}
-          listingId={dataType === 'people' ? undefined : topCard.id}
-          profileId={dataType === 'people' ? (topCard.user_id || topCard.id) : undefined}
-          title={dataType === 'people' ? (topCard.name || 'Check out this profile') : (topCard.title || 'Check out this listing')}
-          description={dataType === 'people' ? topCard.bio : topCard.description}
-          previewImage={dataType === 'people'
-            ? (Array.isArray((topCard as any).profile_images) && (topCard as any).profile_images[0]) || null
-            : (Array.isArray((topCard as any).images) && (topCard as any).images[0]) || (topCard as any).image_url || null}
-        />
-      )}
+      <ModalErrorBoundary>
+        {insightsModalOpen && topCard && (
+          <SwipeInsightsModal
+            open={insightsModalOpen}
+            onOpenChange={setInsightsModalOpen}
+            listing={dataType === 'people' ? null : topCard}
+            profile={dataType === 'people' ? topCard : null}
+          />
+        )}
+        {shareDialogOpen && topCard && (
+          <ShareDialog
+            open={shareDialogOpen}
+            onOpenChange={setShareDialogOpen}
+            listingId={dataType === 'people' ? undefined : topCard.id}
+            profileId={dataType === 'people' ? (topCard.user_id || topCard.id) : undefined}
+            title={dataType === 'people' ? (topCard.name || 'Check out this profile') : (topCard.title || 'Check out this listing')}
+            description={dataType === 'people' ? topCard.bio : topCard.description}
+            previewImage={dataType === 'people'
+              ? (Array.isArray((topCard as any).profile_images) && (topCard as any).profile_images[0]) || null
+              : (Array.isArray((topCard as any).images) && (topCard as any).images[0]) || (topCard as any).image_url || null}
+          />
+        )}
+        {reportDialogOpen && selectedListing && (
+          <ReportDialog
+            open={reportDialogOpen}
+            onOpenChange={setReportDialogOpen}
+            reportedListingId={dataType === 'people' ? undefined : selectedListing.id}
+            reportedListingTitle={dataType === 'people' ? undefined : selectedListing.title}
+            reportedUserId={dataType === 'people' ? (selectedListing.user_id || selectedListing.id) : selectedListing.owner_id}
+            reportedUserName={dataType === 'people' ? selectedListing.name : undefined}
+            reportedUserAge={selectedListing.age || (selectedListing as any).owner_age}
+            category={dataType === 'people' ? 'user_profile' : 'listing'}
+          />
+        )}
+      </ModalErrorBoundary>
 
       <MessageConfirmationDialog
         open={messageDialogOpen}
@@ -1172,19 +1219,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
         <OwnerClientFilterDialog open={filterDialogOpen} onOpenChange={setFilterDialogOpen} />
       ) : (
         <ClientPreferencesDialog open={filterDialogOpen} onOpenChange={setFilterDialogOpen} />
-      )}
-
-      {reportDialogOpen && selectedListing && (
-        <ReportDialog
-          open={reportDialogOpen}
-          onOpenChange={setReportDialogOpen}
-          reportedListingId={dataType === 'people' ? undefined : selectedListing.id}
-          reportedListingTitle={dataType === 'people' ? undefined : selectedListing.title}
-          reportedUserId={dataType === 'people' ? (selectedListing.user_id || selectedListing.id) : selectedListing.owner_id}
-          reportedUserName={dataType === 'people' ? selectedListing.name : undefined}
-          reportedUserAge={selectedListing.age || (selectedListing as any).owner_age}
-          category={dataType === 'people' ? 'user_profile' : 'listing'}
-        />
       )}
 
       {/* DEBUG BUTTONS - ADDED OUTSIDE THE SWIPE CARD */}
