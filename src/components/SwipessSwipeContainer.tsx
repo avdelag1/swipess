@@ -1,7 +1,6 @@
-import { memo, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
 // import { } from '@/state/modalStore';
-import { createPortal } from 'react-dom';
 import { triggerHaptic } from '@/utils/haptics';
 import useAppTheme from '@/hooks/useAppTheme';
 import { SimpleSwipeCard, SimpleSwipeCardRef } from './SimpleSwipeCard';
@@ -920,15 +919,10 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
             setListingType('both');
           }} />
         </div>
-        {typeof document !== 'undefined' && document.body && createPortal(
-          <Suspense fallback={null}>
-            {dataType === 'people' ? (
-              <OwnerClientFilterDialog open={filterDialogOpen} onOpenChange={setFilterDialogOpen} />
-            ) : (
-              <ClientPreferencesDialog open={filterDialogOpen} onOpenChange={setFilterDialogOpen} />
-            )}
-          </Suspense>,
-          document.body
+        {dataType === 'people' ? (
+          <OwnerClientFilterDialog open={filterDialogOpen} onOpenChange={setFilterDialogOpen} />
+        ) : (
+          <ClientPreferencesDialog open={filterDialogOpen} onOpenChange={setFilterDialogOpen} />
         )}
       </>
     );
@@ -1135,67 +1129,62 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
         />
       )}
 
-      {typeof document !== 'undefined' && document.body && createPortal(
-        <Suspense fallback={null}>
-          {insightsModalOpen && topCard && (
-            <SwipeInsightsModal
-              open={insightsModalOpen}
-              onOpenChange={setInsightsModalOpen}
-              listing={dataType === 'people' ? null : topCard}
-              profile={dataType === 'people' ? topCard : null}
-            />
-          )}
-          {shareDialogOpen && topCard && (
-            <ShareDialog
-              open={shareDialogOpen}
-              onOpenChange={setShareDialogOpen}
-              listingId={dataType === 'people' ? undefined : topCard.id}
-              profileId={dataType === 'people' ? (topCard.user_id || topCard.id) : undefined}
-              title={dataType === 'people' ? (topCard.name || 'Check out this profile') : (topCard.title || 'Check out this listing')}
-              description={dataType === 'people' ? topCard.bio : topCard.description}
-              previewImage={dataType === 'people'
-                ? (Array.isArray((topCard as any).profile_images) && (topCard as any).profile_images[0]) || null
-                : (Array.isArray((topCard as any).images) && (topCard as any).images[0]) || (topCard as any).image_url || null}
-            />
-          )}
+      {insightsModalOpen && topCard && (
+        <SwipeInsightsModal
+          open={insightsModalOpen}
+          onOpenChange={setInsightsModalOpen}
+          listing={dataType === 'people' ? null : topCard}
+          profile={dataType === 'people' ? topCard : null}
+        />
+      )}
+      {shareDialogOpen && topCard && (
+        <ShareDialog
+          open={shareDialogOpen}
+          onOpenChange={setShareDialogOpen}
+          listingId={dataType === 'people' ? undefined : topCard.id}
+          profileId={dataType === 'people' ? (topCard.user_id || topCard.id) : undefined}
+          title={dataType === 'people' ? (topCard.name || 'Check out this profile') : (topCard.title || 'Check out this listing')}
+          description={dataType === 'people' ? topCard.bio : topCard.description}
+          previewImage={dataType === 'people'
+            ? (Array.isArray((topCard as any).profile_images) && (topCard as any).profile_images[0]) || null
+            : (Array.isArray((topCard as any).images) && (topCard as any).images[0]) || (topCard as any).image_url || null}
+        />
+      )}
 
-          <MessageConfirmationDialog
-            open={messageDialogOpen}
-            onOpenChange={setMessageDialogOpen}
-            onConfirm={handleSendMessage}
-            recipientName={selectedListing ? `the owner of ${selectedListing.title}` : 'the owner'}
-            isLoading={isCreatingConversation}
-          />
+      <MessageConfirmationDialog
+        open={messageDialogOpen}
+        onOpenChange={setMessageDialogOpen}
+        onConfirm={handleSendMessage}
+        recipientName={selectedListing ? `the owner of ${selectedListing.title}` : 'the owner'}
+        isLoading={isCreatingConversation}
+      />
 
-          <DirectMessageDialog
-            open={directMessageDialogOpen}
-            onOpenChange={setDirectMessageDialogOpen}
-            onConfirm={handleSendMessage}
-            recipientName={selectedListing ? `the owner of ${selectedListing.title}` : 'the owner'}
-            isLoading={isCreatingConversation}
-            category={selectedListing?.category}
-          />
+      <DirectMessageDialog
+        open={directMessageDialogOpen}
+        onOpenChange={setDirectMessageDialogOpen}
+        onConfirm={handleSendMessage}
+        recipientName={selectedListing ? `the owner of ${selectedListing.title}` : 'the owner'}
+        isLoading={isCreatingConversation}
+        category={selectedListing?.category}
+      />
 
-          {dataType === 'people' ? (
-            <OwnerClientFilterDialog open={filterDialogOpen} onOpenChange={setFilterDialogOpen} />
-          ) : (
-            <ClientPreferencesDialog open={filterDialogOpen} onOpenChange={setFilterDialogOpen} />
-          )}
+      {dataType === 'people' ? (
+        <OwnerClientFilterDialog open={filterDialogOpen} onOpenChange={setFilterDialogOpen} />
+      ) : (
+        <ClientPreferencesDialog open={filterDialogOpen} onOpenChange={setFilterDialogOpen} />
+      )}
 
-          {selectedListing && (
-            <ReportDialog
-              open={reportDialogOpen}
-              onOpenChange={setReportDialogOpen}
-              reportedListingId={dataType === 'people' ? undefined : selectedListing.id}
-              reportedListingTitle={dataType === 'people' ? undefined : selectedListing.title}
-              reportedUserId={dataType === 'people' ? (selectedListing.user_id || selectedListing.id) : selectedListing.owner_id}
-              reportedUserName={dataType === 'people' ? selectedListing.name : undefined}
-              reportedUserAge={selectedListing.age || (selectedListing as any).owner_age}
-              category={dataType === 'people' ? 'user_profile' : 'listing'}
-            />
-          )}
-        </Suspense>,
-        document.body
+      {selectedListing && (
+        <ReportDialog
+          open={reportDialogOpen}
+          onOpenChange={setReportDialogOpen}
+          reportedListingId={dataType === 'people' ? undefined : selectedListing.id}
+          reportedListingTitle={dataType === 'people' ? undefined : selectedListing.title}
+          reportedUserId={dataType === 'people' ? (selectedListing.user_id || selectedListing.id) : selectedListing.owner_id}
+          reportedUserName={dataType === 'people' ? selectedListing.name : undefined}
+          reportedUserAge={selectedListing.age || (selectedListing as any).owner_age}
+          category={dataType === 'people' ? 'user_profile' : 'listing'}
+        />
       )}
 
     </>

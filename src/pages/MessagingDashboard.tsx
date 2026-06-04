@@ -211,12 +211,9 @@ export function MessagingDashboard() {
               currentUserRole={userRole}
               onBack={() => {
                 triggerHaptic('medium');
-                if (searchParams.has('conversationId') || searchParams.has('startConversation')) {
-                  navigate(-1);
-                } else {
-                  setSelectedConversationId(null);
-                  setDirectlyFetchedConversation(null);
-                }
+                setSelectedConversationId(null);
+                setDirectlyFetchedConversation(null);
+                navigate('/messages', { replace: true });
               }}
             />
           </motion.div>
@@ -234,7 +231,7 @@ export function MessagingDashboard() {
         
          <div className="flex items-center gap-4 sm:gap-6">
            <button
-             onClick={() => navigate(-1)}
+             onClick={() => navigate('/')}
              className={cn(
                "w-12 h-12 flex items-center justify-center rounded-full transition-all active:scale-95 shrink-0 glass-pill",
                isLight ? "text-black" : "text-white"
