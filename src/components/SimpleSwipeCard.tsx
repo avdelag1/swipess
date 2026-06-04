@@ -589,11 +589,11 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           <motion.div
             data-no-cinematic
             data-no-pull-dismiss
-            initial={{ opacity: 0, x: -18, scale: 0.96 }}
+            initial={{ opacity: 0, x: 18, scale: 0.96 }}
             animate={{ opacity: 1, x: 0, scale: 1 }}
-            exit={{ opacity: 0, x: -12, scale: 0.94 }}
+            exit={{ opacity: 0, x: 12, scale: 0.94 }}
             transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-            className="absolute left-3 top-[calc(var(--safe-top,0px)+var(--top-bar-height,56px)+60px)] z-50 pointer-events-auto"
+            className="absolute right-3 top-[calc(var(--safe-top,0px)+var(--top-bar-height,56px)+60px)] z-50 pointer-events-auto"
           >
             <div
               className="flex flex-col gap-2 p-1.5 rounded-full"
