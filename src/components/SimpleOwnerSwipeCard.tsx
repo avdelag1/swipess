@@ -331,7 +331,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
         onPointerMove={handleUnifiedPointerMove}
         onPointerUp={handleUnifiedPointerUp}
         onPointerCancel={handleUnifiedPointerUp}
-        className={cn("flex-1 select-none touch-none relative w-full h-full overflow-hidden border-none gpu-ultra", isTop && !disableDrag ? "cursor-grab active:cursor-grabbing" : "")}
+        className={cn("swipe-live-card flex-1 select-none touch-none relative w-full h-full overflow-hidden border-none gpu-ultra", isTop && !disableDrag ? "cursor-grab active:cursor-grabbing" : "")}
         style={{
           x, y, rotate, scale, opacity: cardOpacity,
           willChange: 'transform, opacity',
@@ -386,7 +386,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
         </motion.div>
 
         <motion.div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 pointer-events-none" style={{ opacity: skipOpacity }}>
-          <div className="px-4 py-2 rounded-full bg-black/60 border border-white/20 backdrop-blur-md">
+          <div className="px-4 py-2 rounded-full bg-black/75 border border-white/20">
             <span className="text-white text-sm font-bold tracking-widest uppercase">Next</span>
           </div>
         </motion.div>
@@ -432,12 +432,12 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
 
         {profile.verified && (
           <div className="absolute top-16 left-6 z-40 flex gap-2" style={{ opacity: isZoomed ? 0 : 1 }}>
-             <div className="px-3 py-1.5 rounded-full flex items-center gap-2 bg-black/40 backdrop-blur-md border border-white/10">
+             <div className="px-3 py-1.5 rounded-full flex items-center gap-2 bg-black/70 border border-white/10">
                <div className="w-2 h-2 rounded-full bg-violet-500 shadow-[0_0_8px_rgba(139,92,246,1)]" />
                <span className="text-[10px] font-black uppercase tracking-widest text-white">Verified</span>
              </div>
-             
-             <div className="px-3 py-1.5 rounded-full flex items-center gap-2 bg-primary/20 backdrop-blur-md border border-primary/20 animate-pulse-slow">
+
+             <div className="px-3 py-1.5 rounded-full flex items-center gap-2 bg-primary/30 border border-primary/20 animate-pulse-slow">
                <div className="w-2 h-2 rounded-full bg-primary shadow-[0_0_8px_rgba(255,77,0,1)]" />
                <span className="text-[10px] font-black uppercase tracking-widest text-white">AI Pulse</span>
              </div>
@@ -464,9 +464,9 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
             <div
               className="flex flex-col gap-1.5 p-1.5 rounded-full"
               style={{
-                background: 'rgba(255, 255, 255, 0.12)',
-                backdropFilter: 'blur(32px) saturate(1.6)',
-                WebkitBackdropFilter: 'blur(32px) saturate(1.6)',
+                // Solid rail — sits over the moving card, so no backdrop-filter
+                // (it would re-blur the card pixels every frame and tile).
+                background: 'rgba(24, 24, 28, 0.72)',
                 border: '1px solid rgba(255, 255, 255, 0.22)',
                 boxShadow:
                   '0 8px 32px -6px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.15)',
