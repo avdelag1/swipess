@@ -38,15 +38,16 @@ export function QuickFilterImage({ src, alt, className }: QuickFilterImageProps)
       {/* Actual image */}
       <div
         className={cn(
-          "absolute inset-0 w-full h-full overflow-hidden transition-opacity duration-500",
-          isLoaded ? "opacity-100" : "opacity-0"
+          "absolute inset-0 w-full h-full overflow-hidden transition-opacity duration-300",
+          !isLoaded && !hasError ? "opacity-0" : "opacity-100"
         )}
       >
         <img
           src={src}
           alt={alt}
-          loading="lazy"
+          loading="eager"
           decoding="async"
+          fetchPriority="high"
           onLoad={() => {
             setIsLoaded(true);
             setHasError(false);
@@ -58,7 +59,7 @@ export function QuickFilterImage({ src, alt, className }: QuickFilterImageProps)
           onError={(e) => {
             if (isLoaded) {
               // If it was already loaded, it might be an iOS Safari memory purge.
-              // Try a soft reload after a tiny delay, or just let it sit. 
+              // Try a soft reload after a tiny delay, or just let it sit.
               // We don't set hasError to true here so it doesn't turn into a gray box.
               const target = e.target as HTMLImageElement;
               setTimeout(() => {
