@@ -250,7 +250,7 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
         cursor: isTop ? (isDraggingVisual ? 'grabbing' : 'grab') : 'pointer',
         touchAction: 'none',
         willChange: 'transform, opacity',
-        transform: 'translateZ(0)',
+        transform: 'translate3d(0,0,0)',
         transformOrigin: '50% 120%', // Pivot from bottom so it feels like a heavy physical card
         backfaceVisibility: 'hidden',
         WebkitBackfaceVisibility: 'hidden',
@@ -260,10 +260,13 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
     >
       <div
         className="w-full h-full relative overflow-hidden bg-black rounded-[2.5rem] shadow-[0_30px_60px_-20px_rgba(0,0,0,0.55)]"
-        style={{ backgroundImage: fallbackGradient }}
+        style={{ 
+          backgroundImage: fallbackGradient,
+          WebkitMaskImage: '-webkit-radial-gradient(white, black)' 
+        }}
       >
         {/* Photo carousel — smooth crossfade: both old and new render simultaneously */}
-        <div className="absolute inset-0">
+        <div className="absolute inset-0" style={{ borderRadius: '2.5rem' }}>
           {/* Previous photo fading out */}
           {prevPhoto && prevPhoto !== photo && (
             <motion.img
@@ -276,7 +279,7 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
               transition={{ duration: 0.1, ease: 'easeInOut' }}
               onAnimationComplete={() => setPrevPhoto(null)}
               className="absolute inset-0 w-full h-full object-cover"
-              style={{ backfaceVisibility: 'hidden' }}
+              style={{ backfaceVisibility: 'hidden', borderRadius: '2.5rem' }}
               draggable={false}
             />
           )}
@@ -291,7 +294,7 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
             animate={{ opacity: imgReady ? 1 : 0 }}
             transition={{ duration: 0.1, ease: 'easeInOut' }}
             className="absolute inset-0 w-full h-full object-cover"
-            style={{ backfaceVisibility: 'hidden', willChange: 'opacity' }}
+            style={{ backfaceVisibility: 'hidden', willChange: 'opacity', borderRadius: '2.5rem' }}
             draggable={false}
           />
         </div>
