@@ -389,7 +389,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
         onPointerMove={handleUnifiedPointerMove}
         onPointerUp={handleUnifiedPointerUp}
         onPointerCancel={handleUnifiedPointerUp}
-        className={cn("flex-1 select-none touch-none relative w-full h-full overflow-hidden border-none gpu-ultra", isTop && !disableDrag ? "cursor-grab active:cursor-grabbing" : "")}
+        className={cn("swipe-live-card flex-1 select-none touch-none relative w-full h-full overflow-hidden border-none gpu-ultra", isTop && !disableDrag ? "cursor-grab active:cursor-grabbing" : "")}
         style={{
           x,
           y,
@@ -491,12 +491,12 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
             <div
               className="inline-flex flex-col w-fit max-w-full px-4 py-3 rounded-3xl"
               style={{
-                background: 'rgba(255, 255, 255, 0.10)',
-                backdropFilter: 'blur(28px) saturate(1.8)',
-                WebkitBackdropFilter: 'blur(28px) saturate(1.8)',
-                border: '1px solid rgba(255, 255, 255, 0.20)',
+                // Solid panel — no backdrop-filter. Over the photo gradient this
+                // reads as glass but never re-rasterizes while the card moves.
+                background: 'rgba(20, 20, 24, 0.55)',
+                border: '1px solid rgba(255, 255, 255, 0.18)',
                 boxShadow:
-                  '0 12px 32px -12px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.18)',
+                  '0 12px 32px -12px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.16)',
                 color: '#FFFFFF',
                 textShadow: '0 2px 6px rgba(0, 0, 0, 0.55)',
               }}
@@ -611,9 +611,9 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
             <div
               className="flex flex-col gap-1.5 p-1.5 rounded-full"
               style={{
-                background: 'rgba(255, 255, 255, 0.12)',
-                backdropFilter: 'blur(32px) saturate(1.6)',
-                WebkitBackdropFilter: 'blur(32px) saturate(1.6)',
+                // Solid rail — sits over the moving card, so no backdrop-filter
+                // (it would re-blur the card pixels every frame and tile).
+                background: 'rgba(24, 24, 28, 0.72)',
                 border: '1px solid rgba(255, 255, 255, 0.22)',
                 boxShadow:
                   '0 8px 32px -6px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.15)',

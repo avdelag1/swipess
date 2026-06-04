@@ -63,11 +63,11 @@ function SwipeMatchMeterComponent({ percentage, reasons, compact = false }: Swip
         transition={{ type: 'spring', stiffness: 400, damping: 20, delay: 0.3 }}
         className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full"
         style={{
-          backgroundColor: 'rgba(0, 0, 0, 0.50)',
+          // Solid — this badge lives on the moving swipe card, so no
+          // backdrop-filter (it would tile while the card animates).
+          backgroundColor: 'rgba(0, 0, 0, 0.68)',
           border: `1px solid ${color}40`,
           boxShadow: `0 0 12px ${bgGlow}`,
-          backdropFilter: 'blur(12px)',
-          WebkitBackdropFilter: 'blur(12px)',
         }}
       >
         <span style={{ color }}>{icon}</span>
@@ -92,9 +92,7 @@ function SwipeMatchMeterComponent({ percentage, reasons, compact = false }: Swip
         <div
           className="absolute inset-[2px] rounded-full flex items-center justify-center"
           style={{
-            backgroundColor: 'rgba(0, 0, 0, 0.70)',
-            backdropFilter: 'blur(8px)',
-            WebkitBackdropFilter: 'blur(8px)',
+            backgroundColor: 'rgba(0, 0, 0, 0.82)',
           }}
         >
           <span className="text-[10px] font-black text-white tabular-nums">{percentage}</span>
@@ -105,11 +103,9 @@ function SwipeMatchMeterComponent({ percentage, reasons, compact = false }: Swip
       <div
         className="flex items-center gap-1 px-2.5 py-1 rounded-full"
         style={{
-          backgroundColor: 'rgba(0, 0, 0, 0.45)',
+          backgroundColor: 'rgba(0, 0, 0, 0.62)',
           border: `1px solid ${color}30`,
           boxShadow: `0 0 16px ${bgGlow}`,
-          backdropFilter: 'blur(12px)',
-          WebkitBackdropFilter: 'blur(12px)',
         }}
       >
         <span style={{ color }}>{icon}</span>

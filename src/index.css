@@ -351,6 +351,29 @@ html[data-theme-transition] ::view-transition-new(root) {
   }
 }
 
+/* ─── Live Swipe Card Chrome ──────────────────────────────────────────
+   Any glass chrome (pills, info panels, badges) that lives INSIDE a
+   draggable swipe card must NOT use backdrop-filter. While the card is
+   translated/rotated/scaled every frame, mobile GPUs re-rasterize the
+   blur in tiles — producing the "photo breaks into rectangles/lines"
+   artifact and weird transparency during the swipe. Solid panels over a
+   photo look near-identical and composite for free, so the card moves as
+   one solid, native-feeling layer (Tinder/Hinge approach). */
+.swipe-live-card .glass-pill,
+.swipe-live-card .glass-surface,
+.swipe-live-card [data-card-glass] {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  background: rgba(18, 18, 22, 0.78) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  isolation: auto !important;
+}
+.swipe-live-card .glass-pill::before,
+.swipe-live-card .glass-surface::before,
+.swipe-live-card [data-card-glass]::before {
+  display: none !important;
+}
+
 /* Dark theme override — ensures glass pills are dark on dashboard routes
    where .dark is forced on <html> regardless of user's chosen filter. */
 .dark .glass-surface,
