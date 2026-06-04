@@ -7,7 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useListings } from '@/hooks/useListings';
 import { useClientProfiles } from '@/hooks/useClientProfiles';
-import { useWelcomeState } from '@/hooks/useWelcomeState';
+
 import { useFilterStore } from '@/state/filterStore';
 import { DeferredDialog } from './DeferredDialog';
 import { cn } from '@/lib/utils';
@@ -102,13 +102,7 @@ export const GlobalDialogs = memo(({ userRole }: GlobalDialogsProps) => {
   const { user } = useAuth();
   const { navigate } = useAppNavigate();
   const store = useModalStore();
-  const { shouldShowWelcome, dismissWelcome } = useWelcomeState(user?.id);
-  // The top-left WelcomeNotification is retired in favor of the centered
-  // WelcomeBonusModal. Auto-dismiss the welcome flag the moment it surfaces so
-  // useWelcomeState's localStorage cache stays in sync with the DB row.
-  useEffect(() => {
-    if (shouldShowWelcome) dismissWelcome();
-  }, [shouldShowWelcome, dismissWelcome]);
+
   const [isWarmedUp, setIsWarmedUp] = useState(false);
   const [reportState, setReportState] = useState<{
     open: boolean;

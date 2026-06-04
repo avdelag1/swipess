@@ -16,43 +16,33 @@ export interface TourStep {
 const eliteSteps: TourStep[] = [
   {
     target: 'body',
-    title: 'Welcome to the Swipes',
-    description: 'I am your AI Concierge. Let me guide you through the elite sections of Swipess.',
+    title: 'Welcome to Swipess',
+    description: 'Right here you will be able to find properties, motorcycles, bicycles, and workers. You can also promote your job or work by posting your own listings.',
     welcome: true,
   },
   {
-    target: '[data-tour="radio-tuner"], [data-tour="radio"], [data-radio-tuner]',
-    title: 'The Vibe',
-    description: 'Atmosphere is everything. Tune into our global radio while you discover elite assets.',
-    navigateTo: '/radio',
-    position: 'bottom',
+    target: 'body',
+    title: 'The Power of AI',
+    description: 'Use the AI to effortlessly create your profile or upload listings. You can also generate legal contracts and talk directly to our AI legal advisors.',
+    welcome: true,
   },
   {
-    target: '[data-tour="profile-photos"], [data-tour="profile"]',
-    title: 'Your Identity',
-    description: 'Your profile is your digital key. Upload your best photos to build trust and connect.',
-    navigateTo: '/client/profile',
-    position: 'bottom',
+    target: 'body',
+    title: 'Trust & Local Identity',
+    description: 'Get the benefit of a Virtual ID Card. This helps identify you as a trusted local person within the community ecosystem.',
+    welcome: true,
   },
   {
-    target: '[data-tour="filters-pill"], [data-tour="filters"]',
-    title: 'The Discovery',
-    description: 'Precision is power. Use these filters to find exactly what you are looking for.',
-    navigateTo: '/client/dashboard',
-    position: 'bottom',
+    target: 'body',
+    title: 'Events & Opportunities',
+    description: 'Promote your local events, and remember—you can also make money by posting jobs and connecting with workers.',
+    welcome: true,
   },
   {
-    target: '[data-tour="events-feed"], [data-tour="explore"]',
-    title: 'Social & Events',
-    description: 'Discover the most exclusive events and promote your own brand to the neighborhood.',
-    navigateTo: '/explore/events',
-    position: 'top',
-  },
-  {
-    target: '[data-tour="ai-chat-bubble"], [data-tour="ai-concierge"]',
-    title: 'The AI Concierge',
-    description: 'Still have questions? Chat with me anytime to search, fix, or find anything.',
-    position: 'top',
+    target: 'body',
+    title: 'A Real Tool for the Community',
+    description: 'This isn\'t something we just want to sell. This is a real tool built to help the community. This is a place where everybody must respect each other, help each other, and connect in the best way possible.',
+    welcome: true,
   },
 ];
 
@@ -64,9 +54,17 @@ export function useGuidedTour(steps: TourStep[] = eliteSteps) {
   const [currentStep, setCurrentStep] = useState(0);
   const _startedRef = useRef(false);
 
-  // Tour is opt-in only (triggered via restartTour). The previous auto-trigger
-  // popped the welcome modal on every first dashboard visit and shifted layouts
-  // around â€” disabled for a calmer experience.
+  // Auto-start tour if never completed
+  useEffect(() => {
+    if (!_startedRef.current) {
+      _startedRef.current = true;
+      const completed = localStorage.getItem(TOUR_KEY) === 'true';
+      if (!completed) {
+        // slight delay to let app breathe before popping tutorial
+        setTimeout(() => setActiveGlobal(true), 1000);
+      }
+    }
+  }, [setActiveGlobal]);
 
   // Navigate when step requests it
   useEffect(() => {
