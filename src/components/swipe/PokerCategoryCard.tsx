@@ -53,14 +53,10 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
   // Keep a visual "isDragging" state just for cursor styling.
   const [isDraggingVisual, setIsDraggingVisual] = useState(false);
 
-  // Subtle fade as the card moves off — no rotation.
+  // Keep the card completely solid while swiping, exactly like the main swipe cards.
   const exitOpacity = useTransform(
     [x, y] as any,
-    ([cx, cy]: any) => {
-      const a = Math.min(1, Math.abs(cx) / 260);
-      const b = Math.min(1, Math.abs(cy) / 260);
-      return 1 - Math.max(a, b) * 0.35;
-    }
+    ([_cx, _cy]: any) => 1
   );
   
   const rotate = useTransform(x, [-(typeof window !== 'undefined' ? window.innerWidth : 400), (typeof window !== 'undefined' ? window.innerWidth : 400)], [-16, 16]); // Tilted aggressively for physical weight feel
