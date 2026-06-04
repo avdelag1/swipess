@@ -109,6 +109,8 @@ const ClientSwipeContainerComponent = ({
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
   const [reportDialogOpen, setReportDialogOpen] = useState(false);
   const [_swipeDirection, setSwipeDirection] = useState<'left' | 'right' | null>(null);
+  const swipeDirectionRef = useRef<'left' | 'right'>('right');
+  const skipDirectionRef = useRef<'up' | 'down' | null>(null);
   const [messageDialogOpen, setMessageDialogOpen] = useState(false);
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
   const [isConnecting, setIsConnecting] = useState(false);
@@ -560,6 +562,8 @@ const ClientSwipeContainerComponent = ({
     topCardY.set(0);
 
     // 1. UPDATE UI STATE FIRST (INSTANT)
+    swipeDirectionRef.current = direction;
+    skipDirectionRef.current = null;
     setSwipeDirection(direction);
     currentIndexRef.current = newIndex;
     setCurrentIndex(newIndex); // This triggers re-render with new card
@@ -739,6 +743,7 @@ const ClientSwipeContainerComponent = ({
     const profile = deckQueueRef.current[currentIndexRef.current];
     if (!profile?.user_id) return;
     triggerHaptic('light');
+    skipDirectionRef.current = 'up';
     const newIndex = currentIndexRef.current + 1;
     topCardX.stop();
     topCardX.set(0);
@@ -756,6 +761,7 @@ const ClientSwipeContainerComponent = ({
   const handleSkipBack = useCallback(() => {
     if (currentIndexRef.current <= 0) return;
     triggerHaptic('light');
+    skipDirectionRef.current = 'down';
     topCardX.stop();
     topCardX.set(0);
     topCardY.stop();
@@ -985,23 +991,28 @@ const ClientSwipeContainerComponent = ({
             className="absolute inset-0 z-0 pointer-events-none bg-swipe-frame"
             style={{ opacity: pullDown.opacity }}
           />
-          <AnimatePresence mode="sync" initial={true}>
+          <AnimatePresence mode="sync" initial={false}>
             {topCard ? (
-              <motion.div 
+              <motion.div
                 key={`deck-${category}`}
-                initial={{ opacity: 0, scale: 1.02 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.98 }}
-                transition={{ duration: 0.18, ease: [0.25, 0.1, 0.25, 1] }}
+                transition={{ duration: 0.08, ease: [0.22, 1, 0.36, 1] }}
                 className="absolute inset-0 w-full h-full flex flex-col items-center justify-center p-0 mx-auto transform-gpu"
               >
-                {/* 🚀 STACKED ARCHITECTURE: Flat map allows React to preserve component mounts */}
+                <AnimatePresence>
                 {deckQueue.slice(currentIndex, currentIndex + 2).reverse().map((profile) => {
                   const isTopCard = profile.user_id === topCard.user_id;
-                  
+
                   return (
                     <motion.div
                       key={profile.user_id}
+                      exit={{
+                        x: swipeDirectionRef.current === 'right' ? (typeof window !== 'undefined' ? window.innerWidth : 600) * 1.2 : (typeof window !== 'undefined' ? -window.innerWidth : -600) * 1.2,
+                        y: skipDirectionRef.current === 'up' ? -(typeof window !== 'undefined' ? window.innerHeight : 800) * 1.2 : skipDirectionRef.current === 'down' ? (typeof window !== 'undefined' ? window.innerHeight : 800) * 1.2 : 0,
+                        opacity: 0,
+                        transition: { duration: 0.25, ease: 'easeOut' }
+                      }}
                       className={cn("absolute inset-0 w-full h-full", isTopCard ? "z-20" : "z-10")}
                     >
                       <SimpleOwnerSwipeCard
@@ -1028,6 +1039,7 @@ const ClientSwipeContainerComponent = ({
                     </motion.div>
                   );
                 })}
+                </AnimatePresence>
               </motion.div>
             ) : (
               <motion.div

@@ -16,6 +16,7 @@ import { forwardRef, memo, useCallback, useEffect, useImperativeHandle, useMemo,
 import { animate, AnimatePresence, motion, MotionValue, PanInfo, useMotionValue, useTransform } from 'framer-motion';
 import { BarChart3, Briefcase, DollarSign, Flag, MapPin, MessageCircle, Share2 } from 'lucide-react';
 import { triggerHaptic } from '@/utils/haptics';
+import { getCardImageUrl } from '@/utils/imageOptimization';
 import { cn } from '@/lib/utils';
 import { useMagnifier } from '@/hooks/useMagnifier';
 import { CompactRatingDisplay } from '@/components/RatingDisplay';
@@ -25,6 +26,7 @@ import { getWorkScheduleLabel } from '@/constants/profileConstants';
 import { SwipeMatchMeter } from '@/components/swipe/SwipeMatchMeter';
 import useAppTheme from '@/hooks/useAppTheme';
 import { imageCache } from '@/lib/swipe/cardImageCache';
+import SharedCardImage from '@/components/CardImage';
 import { PhotoPositionIndicators } from '@/components/swipe/PhotoPositionIndicators';
 import { GestureHints } from '@/components/swipe/GestureHints';
 import { revealChrome } from '@/hooks/useChromeReveal';
@@ -65,89 +67,6 @@ interface ClientProfile {
   lifestyle_tags?: string[] | null;
   preferred_listing_types?: string[] | null;
 }
-
-const PlaceholderImage = memo(({ name }: { name?: string | null }) => (
-  <div className="absolute inset-0 w-full h-full flex flex-col items-center justify-center p-8 text-center bg-zinc-900">
-    <div className="mb-6 flex flex-col items-center">
-      <h1 className="text-4xl font-black italic tracking-tighter text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.8)] uppercase">SWIPESS</h1>
-      <div className="h-1 w-12 bg-white/40 mt-2 rounded-full" />
-    </div>
-    <h3 className="text-white text-2xl font-black tracking-tight mb-2 uppercase">{name || 'Client'}</h3>
-    <p className="text-white/70 text-sm font-bold uppercase tracking-wider leading-relaxed">No photos available</p>
-  </div>
-));
-
-const CardImage = memo(({ 
-  src, 
-  alt, 
-  name, 
-  _priority = false,
-  _fullScreen = false,
-  animate: _shouldAnimate = true
-}: { 
-  src: string; 
-  alt: string; 
-  name?: string | null;
-  priority?: boolean;
-  fullScreen?: boolean;
-  animate?: boolean;
-}) => {
-  const [loaded, setLoaded] = useState(() => imageCache.has(src));
-  const [error, setError] = useState(false);
-  const isPlaceholder = !src || src === FALLBACK_PLACEHOLDER || error;
-
-  useEffect(() => {
-    if (!src || error || isPlaceholder || imageCache.has(src)) return;
-    const img = new Image();
-    img.onload = () => { imageCache.set(src, true); setLoaded(true); };
-    img.onerror = () => setError(true);
-    img.src = src;
-  }, [src, error, isPlaceholder]);
-
-  if (isPlaceholder) return <PlaceholderImage name={name} />;
-
-  return (
-    <div className="absolute inset-0 w-full h-full" style={{ zIndex: 1, overflow: 'hidden', borderRadius: 28 }}>
-      {/* Shimmer loading background always behind the image */}
-      {!loaded && (
-        <div
-          className="absolute inset-0 flex items-center justify-center overflow-hidden"
-          style={{
-            background: 'linear-gradient(135deg, hsl(var(--muted)) 0%, hsl(var(--muted-foreground) / 0.1) 100%)',
-            zIndex: 1,
-          }}
-        >
-          <motion.div 
-            className="absolute inset-x-[-100%] inset-y-0 bg-gradient-to-r from-transparent via-white/10 to-transparent skew-x-[-20deg]"
-            animate={{ x: ['100%', '-100%'] }}
-            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-          />
-        </div>
-      )}
-
-      {/* The actual image renders unconditionally to prevent unmount blinking */}
-      <img
-        src={src}
-        alt={alt}
-        data-swipe-card-image="true"
-        draggable={false}
-        className="absolute inset-0 w-full h-full object-cover transition-opacity duration-300"
-        style={{
-          opacity: loaded ? 1 : 0,
-          zIndex: 2,
-          borderRadius: 28,
-          WebkitTouchCallout: 'none',
-          WebkitUserSelect: 'none',
-          userSelect: 'none',
-        }}
-        onDragStart={(event) => event.preventDefault()}
-        onContextMenu={(event) => event.preventDefault()}
-        onLoad={() => { imageCache.set(src, true); setLoaded(true); }}
-        onError={() => setError(true)}
-      />
-    </div>
-  );
-});
 
 interface SimpleOwnerSwipeCardProps {
   profile: ClientProfile;
@@ -209,6 +128,8 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   const likeOpacity = useTransform(x, [0, SWIPE_THRESHOLD * 0.5, SWIPE_THRESHOLD], [0, 0.5, 1]);
   const passOpacity = useTransform(x, [-SWIPE_THRESHOLD, -SWIPE_THRESHOLD * 0.5, 0], [1, 0.5, 0]);
   const skipOpacity = useTransform(y as MotionValue<number>, (v: number) => Math.min(1, Math.abs(v) / SKIP_THRESHOLD));
+  const rotate = useTransform(x, [-800, 800], [-25, 25]);
+  const scale = useTransform(x, [-800, 0, 800], [0.95, 1, 0.95]);
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
@@ -230,7 +151,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
       if (imageUrl && imageUrl !== FALLBACK_PLACEHOLDER && !imageCache.has(imageUrl)) {
         const img = new Image();
         img.onload = () => imageCache.set(imageUrl, true);
-        img.src = imageUrl;
+        img.src = getCardImageUrl(imageUrl);
       }
     });
   }, [isTop, images, profile?.user_id]);
@@ -410,15 +331,18 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
         onPointerMove={handleUnifiedPointerMove}
         onPointerUp={handleUnifiedPointerUp}
         onPointerCancel={handleUnifiedPointerUp}
-        initial={{ scale: 0.97, opacity: 0.85 }}
-        animate={{ scale: 1, opacity: 1, transition: { type: 'spring', stiffness: 600, damping: 28, mass: 0.3 } }}
         className={cn("flex-1 select-none touch-none relative w-full h-full overflow-hidden border-none gpu-ultra", isTop && !disableDrag ? "cursor-grab active:cursor-grabbing" : "")}
         style={{
-          x, y, opacity: cardOpacity, willChange: 'transform, opacity',
-          transform: 'translate3d(0,0,0)', backfaceVisibility: 'hidden',
-          borderRadius: fullScreen ? 0 : 28,
-          boxShadow: 'none',
-          background: 'hsl(var(--background))',
+          x, y, rotate, scale, opacity: cardOpacity,
+          willChange: 'transform, opacity',
+          transform: 'translate3d(0,0,0)',
+          transformOrigin: '50% 120%',
+          backfaceVisibility: 'hidden',
+          borderRadius: fullScreen ? 0 : 32,
+          boxShadow: isTop
+            ? '0 25px 50px -12px rgba(0,0,0,0.45), 0 10px 30px -5px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.1)'
+            : '0 4px 10px rgba(0,0,0,0.1)',
+          background: 'hsl(var(--swipe-deck-frame))',
         }}
       >
         <div
@@ -432,7 +356,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           {showVideoSlide ? (
             <LoopVideo src={videoUrl!} className="absolute inset-0 w-full h-full object-cover" active={isTop} />
           ) : (
-            <CardImage src={currentImage} alt={profile.name || 'Client'} name={profile.name} priority fullScreen={true} animate={!isZoomed} />
+            <SharedCardImage src={currentImage} alt={profile.name || 'Client'} name={profile.name} priority fullScreen={true} animate={!isZoomed} />
           )}
           {isTop && (
             <>
