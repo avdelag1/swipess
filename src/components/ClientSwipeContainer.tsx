@@ -1,4 +1,4 @@
-import { lazy, memo, Suspense, useCallback, useEffect, useRef, useState } from 'react';
+import { lazy, memo, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion, useMotionValue } from 'framer-motion';
 import { SwipeAllDashboard } from './swipe/SwipeAllDashboard';
 import { createPortal } from 'react-dom';
@@ -213,6 +213,9 @@ const ClientSwipeContainerComponent = ({
   const currentIndexRef = useRef(currentDeckState?.currentIndex || 0);
   const swipedIdsRef = useRef<Set<string>>(new Set(currentDeckState?.swipedIds || []));
   const _initializedRef = useRef(deckQueueRef.current.length > 0);
+  // Tracks the signature of the profile list we last sync-seeded into the
+  // deck so React Query's stale data can't reseed across filter changes.
+  const prevProfileIdsRef = useRef<string>('');
 
   // Sync state with ref on mount
   useEffect(() => {
@@ -222,14 +225,14 @@ const ClientSwipeContainerComponent = ({
   // FLICKER FIX: Track whether we've given the query a chance to start fetching.
   const isMountSettledRef = useRef(false);
   useEffect(() => {
-    const t = setTimeout(() => { isMountSettledRef.current = true; }, 400);
+    const t = setTimeout(() => { isMountSettledRef.current = true; }, 100);
     return () => clearTimeout(t);
   }, []);
 
   // PERF FIX: Create stable filter signature for deck versioning
   // This detects when filters actually changed vs just navigation return
   // More precise than array comparison - handles all filter types
-  const filterSignature = (() => {
+  const filterSignature = useMemo(() => {
     if (!filters) return 'default';
     return [
       filters.category || '',
@@ -238,7 +241,7 @@ const ClientSwipeContainerComponent = ({
       filters.clientGender || '',
       filters.clientType || '',
     ].join('|');
-  })();
+  }, [filters]);
 
   // Track previous filter signature to detect filter changes
   const prevFilterSignatureRef = useRef<string>(filterSignature);
@@ -253,6 +256,7 @@ const ClientSwipeContainerComponent = ({
     deckQueueRef.current = [];
     currentIndexRef.current = 0;
     swipedIdsRef.current.clear();
+    prevProfileIdsRef.current = '';
   }
 
   // PERF FIX: Reset deck ONLY when filters actually change (not on navigation return)
@@ -375,6 +379,32 @@ const ClientSwipeContainerComponent = ({
   const isLoading = externalIsLoading !== undefined ? externalIsLoading : internalIsLoading;
   const isFetching = externalProfiles !== undefined ? false : internalIsFetching;
   const error = externalError !== undefined ? externalError : internalError;
+
+  // SYNC SEED: when the deck is empty and fresh profile data arrives, populate
+  // the deck during render — same pattern as SwipessSwipeContainer (lines
+  // 473-492). Without this, after a quick-filter wipe there's an extra frame
+  // where deckQueueRef is empty but data has already arrived, causing
+  // AnimatePresence to flip exhausted → deck across two frames. That gap is
+  // the flicker: the new card mounts cold instead of appearing in the same
+  // frame as the data.
+  const profileIdsSignature = clientProfiles.length > 0
+    ? `${clientProfiles[0]?.user_id || ''}_${clientProfiles[clientProfiles.length - 1]?.user_id || ''}_${clientProfiles.length}`
+    : '';
+  if (
+    profileIdsSignature !== prevProfileIdsRef.current &&
+    profileIdsSignature.length > 0 &&
+    deckQueueRef.current.length === 0 &&
+    clientProfiles.length > 0
+  ) {
+    prevProfileIdsRef.current = profileIdsSignature;
+    const fresh = clientProfiles.filter(p => {
+      if (user?.id && p.user_id === user.id) return false;
+      return !swipedIdsRef.current.has(p.user_id);
+    });
+    if (fresh.length > 0) {
+      deckQueueRef.current = fresh;
+    }
+  }
 
   // Release the transition guard once the new query has settled (or errored).
   useEffect(() => {
