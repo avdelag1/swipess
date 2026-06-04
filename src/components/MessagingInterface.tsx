@@ -13,7 +13,9 @@ import { useMarkMessagesAsRead } from '@/hooks/useMarkMessagesAsRead';
 import { useAuth } from '@/hooks/useAuth';
 // import { } from '@/hooks/useMonthlyMessageLimits';
 // import { } from '@/utils/timeFormatter';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { SwipeInsightsModal } from '@/components/SwipeInsightsModal';
 import { logger } from '@/utils/prodLogger';
 import { VirtualizedMessageList } from '@/components/VirtualizedMessageList';
 import { useContentModeration } from '@/hooks/useContentModeration';
@@ -69,6 +71,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
   const [showRatingDialog, setShowRatingDialog] = useState(false);
   const [showBlockConfirm, setShowBlockConfirm] = useState(false);
   const [showShareDialog, setShowShareDialog] = useState(false);
+  const [showInsightsModal, setShowInsightsModal] = useState(false);
   // Controlled so the menu can't get stuck by the Radix mobile toggle race.
   const [menuOpen, setMenuOpen] = useState(false);
   const { _theme, isLight } = useAppTheme();
@@ -80,6 +83,20 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
   const sendMessage = useSendMessage();
   const _queryClient = useQueryClient();
   const blockUser = useBlockUser();
+
+  const { data: partnerProfile } = useQuery({
+    queryKey: ['chat-partner-profile', otherUser.id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('client_profiles')
+        .select('name, age, city, gender, bio, occupation, profile_images, interests, lifestyle_tags, work_schedule, verified')
+        .eq('user_id', otherUser.id)
+        .maybeSingle();
+      return data;
+    },
+    enabled: showInsightsModal,
+    staleTime: 5 * 60 * 1000,
+  });
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const previousMessageCountRef = useRef(0);
   const { isOnline } = usePresence(otherUser.id);
@@ -342,7 +359,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
                 <DropdownMenuContent align="end" sideOffset={8} className={cn("z-[10050] rounded-[1.5rem] p-2 shadow-2xl backdrop-blur-xl min-w-[200px]", isThemeLight ? "bg-white text-slate-900 border-slate-200" : "bg-[#0e0e18] text-white border-white/[0.08]")}>
                   <DropdownMenuItem
                     className="p-4 rounded-[1rem] focus:bg-white/[0.07] cursor-pointer font-black uppercase tracking-widest text-[10px] gap-3"
-                    onClick={() => navigate(`/profile/${otherUser.id}`)}
+                    onClick={() => { setMenuOpen(false); setShowInsightsModal(true); }}
                   >
                     <Info className="w-4 h-4" /> Insights
                   </DropdownMenuItem>
@@ -517,6 +534,33 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
           profileId={otherUser.id}
           title={otherUser.full_name || 'Check out this profile'}
           previewImage={otherUser.avatar_url || null}
+        />
+
+        <SwipeInsightsModal
+          open={showInsightsModal}
+          onOpenChange={setShowInsightsModal}
+          profile={{
+            id: otherUser.id,
+            user_id: otherUser.id,
+            name: partnerProfile?.name || otherUser.full_name,
+            age: otherUser.age ?? partnerProfile?.age ?? 0,
+            gender: partnerProfile?.gender ?? '',
+            interests: partnerProfile?.interests ?? [],
+            preferred_activities: [],
+            location: null,
+            lifestyle_tags: partnerProfile?.lifestyle_tags ?? [],
+            profile_images: partnerProfile?.profile_images?.length
+              ? partnerProfile.profile_images
+              : (otherUser.avatar_url ? [otherUser.avatar_url] : []),
+            matchPercentage: 0,
+            matchReasons: [],
+            incompatibleReasons: [],
+            city: partnerProfile?.city ?? '',
+            verified: partnerProfile?.verified ?? false,
+            work_schedule: partnerProfile?.work_schedule ?? undefined,
+            occupation: partnerProfile?.occupation ?? undefined,
+            bio: partnerProfile?.bio ?? undefined,
+          } as any}
         />
 
         <AlertDialog open={showBlockConfirm} onOpenChange={setShowBlockConfirm}>
