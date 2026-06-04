@@ -30,8 +30,8 @@ yarn-debug.log*
 yarn-error.log*
 
 # Capacitor build outputs
-android/
-ios/
+# android/
+# ios/
 supabase/.temp/
 
 # Signing keys & credentials
