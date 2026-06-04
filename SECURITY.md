@@ -5,7 +5,7 @@
 We take the security of SwipesS seriously. If you believe you have found a security vulnerability, please report it to us responsibly. 
 
 **DO NOT open a public GitHub issue.** Instead, please email the details of the vulnerability to:
-`security@swipess.com`
+`admin@swipess.com`
 
 We will attempt to acknowledge receipt of your report within 24 hours and will provide a timeline for resolution if the vulnerability is confirmed.
 
