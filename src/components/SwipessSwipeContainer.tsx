@@ -998,7 +998,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
           <AnimatePresence mode="sync" initial={false}>
             {deckQueue.length > 0 && currentIndex < deckQueue.length ? (
               <motion.div
-                key={`deck-${storeActiveCategory ?? 'all'}`}
+                key="swipe-deck"
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.98 }}
                 transition={{ duration: 0.08, ease: [0.22, 1, 0.36, 1] }}

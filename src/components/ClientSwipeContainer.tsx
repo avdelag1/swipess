@@ -1024,7 +1024,7 @@ const ClientSwipeContainerComponent = ({
           <AnimatePresence mode="sync" initial={false}>
             {topCard ? (
               <motion.div
-                key={`deck-${category}`}
+                key="owner-deck"
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.98 }}
                 transition={{ duration: 0.08, ease: [0.22, 1, 0.36, 1] }}
@@ -1068,6 +1068,7 @@ const ClientSwipeContainerComponent = ({
                         fullScreen={true}
                         externalX={isTopCard ? topCardX : undefined}
                         externalY={isTopCard ? topCardY : undefined}
+                        canGoBack={currentIndex > 0}
                       />
                     </motion.div>
                   );
