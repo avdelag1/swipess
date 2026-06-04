@@ -1,6 +1,6 @@
 /**
  * Ultra-Fast Service Worker - Optimized for lightning-speed loading
- * UPDATED: 2026-05-30T12:00Z - Force Update v8 (fallback on 404 chunks)
+ * UPDATED: 2026-06-04T18:00Z - Force Update v9 (dialogs render directly, no double-portal)
  * 
  * PWA UPDATE FIX: Aggressive updates to ensure users always get latest version
  * - skipWaiting() called immediately on install for instant activation

@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { render } from '@testing-library/react';
+import { fireEvent, render } from '@testing-library/react';
 import { SimpleSwipeCard } from '../SimpleSwipeCard';
 import { Listing } from '@/hooks/useListings';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -90,6 +90,38 @@ describe('SimpleSwipeCard Component', () => {
         expect(getByText('$5,000')).toBeInTheDocument();
         expect(getByText('/night')).toBeInTheDocument();
         expect(getByText('Villa')).toBeInTheDocument();
+    });
+
+    it('fires the action rail handlers when Share/Insights/Report/Message are tapped', () => {
+        const onShare = vi.fn();
+        const onInsights = vi.fn();
+        const onReport = vi.fn();
+        const onMessage = vi.fn();
+
+        const { getByLabelText } = render(
+            <SimpleSwipeCard
+                listing={mockListing}
+                onSwipe={vi.fn()}
+                isTop={true}
+                onShare={onShare}
+                onInsights={onInsights}
+                onReport={onReport}
+                onMessage={onMessage}
+            />,
+            { wrapper }
+        );
+
+        // The rail buttons are labelled via aria-label and must be reachable
+        // (i.e. NOT swallowed by the draggable layer) and wired to the props.
+        fireEvent.click(getByLabelText('Share'));
+        fireEvent.click(getByLabelText('Insights'));
+        fireEvent.click(getByLabelText('Report'));
+        fireEvent.click(getByLabelText('Message'));
+
+        expect(onShare).toHaveBeenCalledTimes(1);
+        expect(onInsights).toHaveBeenCalledTimes(1);
+        expect(onReport).toHaveBeenCalledTimes(1);
+        expect(onMessage).toHaveBeenCalledTimes(1);
     });
 });
 
