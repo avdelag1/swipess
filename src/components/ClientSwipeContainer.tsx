@@ -27,7 +27,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Bike, MapPin, Users, Wrench } from 'lucide-react';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { appToast } from '@/utils/appNotification';
-import { useStartConversation } from '@/hooks/useConversations';
+import { useStartConversation, useConversations } from '@/hooks/useConversations';
 import { useNavigate } from 'react-router-dom';
 import { logger } from '@/utils/prodLogger';
 import { SwipeExhaustedState } from './swipe/SwipeExhaustedState';
@@ -391,6 +391,7 @@ const ClientSwipeContainerComponent = ({
   const { canAccess: _hasPremiumMessaging, needsUpgrade: _needsUpgrade } = useCanAccessMessaging();
   const { recordSwipe, undoLastSwipe, canUndo, isUndoing: _isUndoing, undoSuccess, resetUndoState } = useSwipeUndo();
   const startConversation = useStartConversation();
+  const { data: conversations = [] } = useConversations();
   const recordProfileView = useRecordProfileView();
   const { playSwipeSound } = useSwipeSounds();
 
@@ -793,11 +794,16 @@ const ClientSwipeContainerComponent = ({
   }, []);
 
   const handleConnect = useCallback((clientId: string) => {
-    logger.info('[ClientSwipeContainer] Message icon clicked, opening chat directly');
+    logger.info('[ClientSwipeContainer] Message icon clicked');
     setSelectedClientId(clientId);
-    navigate(`/messages?startConversation=${clientId}`);
+    const existing = conversations?.find(c => c.other_user?.id === clientId);
+    if (existing) {
+      navigate(`/messages?conversationId=${existing.id}`);
+    } else {
+      navigate(`/messages?startConversation=${clientId}`);
+    }
     triggerHaptic('light');
-  }, [navigate]);
+  }, [navigate, conversations]);
 
   const handleSendMessage = useCallback(async (message: string) => {
     if (isCreatingConversation || !selectedClientId) return;

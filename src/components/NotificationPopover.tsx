@@ -105,17 +105,17 @@ function NotificationItem({ notification, onClick, onDismiss, index }: Notificat
                     src={notification.avatar}
                     alt={notification.title}
                     className={cn(
-                      "w-11 h-11 rounded-none object-cover transition-all"
+                      "w-11 h-11 rounded-xl object-cover transition-all"
                     )}
                   />
                   {/* Type indicator badge */}
-                  <div className="absolute -bottom-1 -right-1 p-1 rounded-none bg-background border-none shadow-none flex items-center justify-center">
+                  <div className="absolute -bottom-1 -right-1 p-1 rounded-full bg-background border-none shadow-none flex items-center justify-center">
                     <Icon className="w-3 h-3 text-foreground" />
                   </div>
                 </div>
               ) : (
                 <div className={cn(
-                  "p-2.5 rounded-none bg-muted"
+                  "p-2.5 rounded-xl bg-muted"
                 )}>
                   <Icon className="w-5 h-5 text-foreground" />
                 </div>
@@ -123,7 +123,7 @@ function NotificationItem({ notification, onClick, onDismiss, index }: Notificat
               
               {/* Unread indicator dot */}
               {!notification.read && (
-                <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-none bg-foreground" />
+                <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-foreground" />
               )}
             </div>
 

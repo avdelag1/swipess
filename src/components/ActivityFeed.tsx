@@ -35,7 +35,7 @@ export function ActivityFeed() {
                     <Card
                         className={cn(
                             "group relative overflow-hidden border-border bg-card rounded-[1.5rem] transition-all hover:bg-muted/50 active:scale-[0.98] cursor-pointer shadow-sm hover:shadow-md",
-                            !notif.read && "border-l-4 border-l-brand-accent-2 ring-1 ring-brand-accent-2/10 shadow-brand-accent-2/5"
+                            !notif.read && "bg-brand-accent-2/5"
                         )}
                         onClick={() => {
                             haptics.tap();

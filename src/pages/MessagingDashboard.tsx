@@ -179,11 +179,12 @@ export function MessagingDashboard() {
   }, [conversations, canSendMessage, startConversation, refetch, setSearchParams]);
 
   useEffect(() => {
+    if (isLoading) return;
     const conversationId = searchParams.get('conversationId');
     const startUserId = searchParams.get('startConversation');
     if (conversationId && !isStartingConversation) handleDirectOpenConversation(conversationId);
     else if (startUserId && !isStartingConversation) handleAutoStartConversation(startUserId);
-  }, [searchParams, isStartingConversation, handleDirectOpenConversation, handleAutoStartConversation]);
+  }, [searchParams, isStartingConversation, isLoading, handleDirectOpenConversation, handleAutoStartConversation]);
 
   if (selectedConversationId) {
     const conversation = conversations.find(c => c.id === selectedConversationId) || directlyFetchedConversation;
