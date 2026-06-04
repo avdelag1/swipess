@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 // import { } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Ban, ChevronLeft, Coins, Info, Mic, MicOff, MoreVertical, Send, ShieldAlert, Smile, Sparkles, Star, Timer, X } from 'lucide-react';
+import { Ban, ChevronLeft, Coins, Info, Mic, MicOff, MoreVertical, Send, Share2, ShieldAlert, Smile, Sparkles, Star, Timer, X } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { triggerHaptic } from '@/utils/haptics';
 import { uiSounds } from '@/utils/uiSounds';
@@ -19,6 +19,7 @@ import { VirtualizedMessageList } from '@/components/VirtualizedMessageList';
 import { useContentModeration } from '@/hooks/useContentModeration';
 import { usePrefetchManager } from '@/hooks/usePrefetchManager';
 import { RatingSubmissionDialog } from '@/components/RatingSubmissionDialog';
+import { ShareDialog } from '@/components/ShareDialog';
 import { useModalStore } from '@/state/modalStore';
 import useAppTheme from '@/hooks/useAppTheme';
 import { cn } from '@/lib/utils';
@@ -67,6 +68,9 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [showRatingDialog, setShowRatingDialog] = useState(false);
   const [showBlockConfirm, setShowBlockConfirm] = useState(false);
+  const [showShareDialog, setShowShareDialog] = useState(false);
+  // Controlled so the menu can't get stuck by the Radix mobile toggle race.
+  const [menuOpen, setMenuOpen] = useState(false);
   const { _theme, isLight } = useAppTheme();
   const isThemeLight = isLight;
   const { user } = useAuth();
@@ -325,48 +329,56 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
                 <Star className="z-[10000] w-5 h-5 fill-current" />
               </button>
 
-              <DropdownMenu>
+              <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen} modal={false}>
                 <DropdownMenuTrigger asChild>
-                  <button 
+                  <button
+                    aria-label="More options"
                     className={cn("w-11 h-11 rounded-full flex items-center justify-center transition-all",
                     isThemeLight ? "bg-black/[0.04] text-black hover:bg-black/10" : "bg-white/[0.05] text-white hover:bg-white/[0.12]"
                   )}>
-                    <MoreVertical className="z-[10000] w-5 h-5" />
+                    <MoreVertical className="w-5 h-5" />
                   </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className={cn("z-[10000] rounded-[1.5rem] p-2 shadow-2xl backdrop-blur-xl min-w-[200px]", isThemeLight ? "bg-white text-slate-900 border-slate-200" : "bg-[#0e0e18] text-white border-white/[0.08]")}>
-                  <DropdownMenuItem 
+                <DropdownMenuContent align="end" sideOffset={8} className={cn("z-[10050] rounded-[1.5rem] p-2 shadow-2xl backdrop-blur-xl min-w-[200px]", isThemeLight ? "bg-white text-slate-900 border-slate-200" : "bg-[#0e0e18] text-white border-white/[0.08]")}>
+                  <DropdownMenuItem
                     className="p-4 rounded-[1rem] focus:bg-white/[0.07] cursor-pointer font-black uppercase tracking-widest text-[10px] gap-3"
                     onClick={() => navigate(`/profile/${otherUser.id}`)}
                   >
-                    <Info className="z-[10000] w-4 h-4" /> View Profile
+                    <Info className="w-4 h-4" /> Insights
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator className="bg-white/[0.06] my-1.5" />
+                  <DropdownMenuItem
+                    className="p-4 rounded-[1rem] focus:bg-white/[0.07] cursor-pointer font-black uppercase tracking-widest text-[10px] gap-3"
+                    onClick={() => setShowShareDialog(true)}
+                  >
+                    <Share2 className="w-4 h-4" /> Share
                   </DropdownMenuItem>
                   <DropdownMenuSeparator className="bg-white/[0.06] my-1.5" />
                   <DropdownMenuItem
                     className="p-4 rounded-[1rem] focus:bg-white/[0.07] cursor-pointer font-black uppercase tracking-widest text-[10px] gap-3"
                     onClick={() => navigate('/subscription/packages')}
                   >
-                    <Sparkles className="z-[10000] w-4 h-4" /> Premium
+                    <Sparkles className="w-4 h-4" /> Premium
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     className="p-4 rounded-[1rem] focus:bg-white/[0.07] cursor-pointer font-black uppercase tracking-widest text-[10px] gap-3"
                     onClick={() => useModalStore.getState().setModal('showTokensModal', true)}
                   >
-                    <Coins className="z-[10000] w-4 h-4" /> Tokens
+                    <Coins className="w-4 h-4" /> Tokens
                   </DropdownMenuItem>
                   <DropdownMenuSeparator className="bg-white/[0.06] my-1.5" />
                   <DropdownMenuItem
                     className="p-4 rounded-[1rem] focus:bg-amber-500/[0.12] text-amber-400 cursor-pointer font-black uppercase tracking-widest text-[10px] gap-3"
                     onClick={() => (window as any).dispatchEvent(new CustomEvent('open-report', { detail: { reportedUserId: otherUser.id, reportedUserAge: otherUser.age, category: 'user_profile' } }))}
                   >
-                    <ShieldAlert className="z-[10000] w-4 h-4" /> Report
+                    <ShieldAlert className="w-4 h-4" /> Report
                   </DropdownMenuItem>
                   <DropdownMenuSeparator className="bg-white/[0.06] my-1.5" />
                   <DropdownMenuItem
                     className="p-4 rounded-[1rem] focus:bg-red-500/[0.12] text-red-400 cursor-pointer font-black uppercase tracking-widest text-[10px] gap-3"
                     onClick={() => setShowBlockConfirm(true)}
                   >
-                    <Ban className="z-[10000] w-4 h-4" /> Block
+                    <Ban className="w-4 h-4" /> Block
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -498,6 +510,14 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
         </div>
 
         <RatingSubmissionDialog open={showRatingDialog} onOpenChange={setShowRatingDialog} targetId={listing?.id || otherUser.id} targetType={listing?.id ? 'listing' : 'user'} targetName={listing?.title || otherUser.full_name} categoryId={listing?.id ? (listing.category === 'vehicle' ? 'vehicle' : 'property') : 'client'} onSuccess={() => setShowRatingDialog(false)} />
+
+        <ShareDialog
+          open={showShareDialog}
+          onOpenChange={setShowShareDialog}
+          profileId={otherUser.id}
+          title={otherUser.full_name || 'Check out this profile'}
+          previewImage={otherUser.avatar_url || null}
+        />
 
         <AlertDialog open={showBlockConfirm} onOpenChange={setShowBlockConfirm}>
           <AlertDialogContent className={cn("z-[10000] rounded-[28px]", isThemeLight ? "bg-white text-slate-900 border-slate-200" : "bg-[#0A0A0A] text-white border-white/10")}>
