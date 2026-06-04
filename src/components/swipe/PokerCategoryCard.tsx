@@ -12,6 +12,7 @@ import {
 } from './SwipeConstants';
 import { getCategoryPhotoList, useCategoryPhotos } from '@/hooks/useCategoryPhotos';
 import { cn } from '@/lib/utils';
+import CardImage from '@/components/CardImage';
 import { imageCache } from '@/lib/swipe/cardImageCache';
 
 interface PokerCardProps {
@@ -59,7 +60,7 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
     ([_cx, _cy]: any) => 1
   );
   
-  const rotate = useTransform(x, [-(typeof window !== 'undefined' ? window.innerWidth : 400), (typeof window !== 'undefined' ? window.innerWidth : 400)], [-16, 16]); // Tilted aggressively for physical weight feel
+  const rotate = useTransform(x, [-800, 800], [-25, 25]); // Matched with SimpleSwipeCard curvature
   // Faint breathing hints — visible only while idle on the top card.
   const hintOpacity = useTransform(
     [x, y] as any,
@@ -265,38 +266,9 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
           WebkitMaskImage: '-webkit-radial-gradient(white, black)' 
         }}
       >
-        {/* Photo carousel — smooth crossfade: both old and new render simultaneously */}
-        <div className="absolute inset-0" style={{ borderRadius: '2.5rem' }}>
-          {/* Previous photo fading out */}
-          {prevPhoto && prevPhoto !== photo && (
-            <motion.img
-              key={`old-${prevPhoto}`}
-              src={prevPhoto}
-              alt=""
-              aria-hidden
-              initial={{ opacity: 1 }}
-              animate={{ opacity: 0 }}
-              transition={{ duration: 0.1, ease: 'easeInOut' }}
-              onAnimationComplete={() => setPrevPhoto(null)}
-              className="absolute inset-0 w-full h-full object-cover"
-              style={{ backfaceVisibility: 'hidden', borderRadius: '2.5rem' }}
-              draggable={false}
-            />
-          )}
-          {/* Current photo fading in */}
-          <motion.img
-            key={photo}
-            src={photo}
-            alt={card.label}
-            loading="eager"
-            decoding="async"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: imgReady ? 1 : 0 }}
-            transition={{ duration: 0.1, ease: 'easeInOut' }}
-            className="absolute inset-0 w-full h-full object-cover"
-            style={{ backfaceVisibility: 'hidden', willChange: 'opacity', borderRadius: '2.5rem' }}
-            draggable={false}
-          />
+        {/* Use robust CardImage to avoid Framer Motion re-mounting tear bugs during swipe */}
+        <div className="absolute inset-0" style={{ borderRadius: '2.5rem', overflow: 'hidden' }}>
+          <CardImage src={photo} alt={card.label} priority fullScreen />
         </div>
 
         {/* Scrim */}
