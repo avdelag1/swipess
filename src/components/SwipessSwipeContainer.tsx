@@ -1010,11 +1010,14 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                     return (
                       <motion.div
                         key={listing.id}
-                        exit={{ 
-                          x: swipeDirectionRef.current === 'right' ? (typeof window !== 'undefined' ? window.innerWidth : 600) * 1.2 : (typeof window !== 'undefined' ? -window.innerWidth : -600) * 1.2, 
+                        exit={{
+                          // Card stays fully solid (opacity 1) and slides off the
+                          // edge — no fade. The 1.2x over-travel guarantees it is
+                          // completely off-screen, so it reads as a real card
+                          // leaving, not a ghost dissolving.
+                          x: swipeDirectionRef.current === 'right' ? (typeof window !== 'undefined' ? window.innerWidth : 600) * 1.2 : (typeof window !== 'undefined' ? -window.innerWidth : -600) * 1.2,
                           y: skipDirectionRef.current === 'up' ? -(typeof window !== 'undefined' ? window.innerHeight : 800) * 1.2 : skipDirectionRef.current === 'down' ? (typeof window !== 'undefined' ? window.innerHeight : 800) * 1.2 : 0,
-                          opacity: 0, 
-                          transition: { duration: 0.25, ease: 'easeOut' } 
+                          transition: { duration: 0.28, ease: [0.22, 1, 0.36, 1] }
                         }}
                         className={cn("absolute inset-0 w-full h-full", isTopCard ? "z-20" : "z-10")}
                       >
