@@ -7,7 +7,7 @@ import { triggerHaptic } from '@/utils/haptics';
 import { useMemo, useState } from 'react';
 import { ReportDialog } from '@/components/ReportDialog';
 import { ShareDialog } from '@/components/ShareDialog';
-import { LikedClientInsightsModal } from '@/components/LikedClientInsightsModal';
+import { SwipeInsightsModal } from '@/components/SwipeInsightsModal';
 
 export default function ProfileDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -108,10 +108,10 @@ export default function ProfileDetailPage() {
             title={profile.name || 'Profile'}
             description={profile.bio || 'Check out this profile on Swipess'}
           />
-          <LikedClientInsightsModal
+          <SwipeInsightsModal
             open={showInsights}
             onOpenChange={setShowInsights}
-            client={likedClientMock}
+            profile={likedClientMock}
           />
         </>
       )}

@@ -592,7 +592,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
             className="absolute left-3 top-[calc(var(--safe-top,0px)+var(--top-bar-height,56px)+60px)] z-50 pointer-events-auto"
           >
             <div
-              className="flex flex-col gap-1.5 p-1.5 rounded-full"
+              className="flex flex-row gap-1.5 p-1.5 rounded-full"
               style={{
                 background: 'rgba(20, 20, 24, 0.42)',
                 backdropFilter: 'blur(24px) saturate(1.8)',

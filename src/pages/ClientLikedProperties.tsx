@@ -1,5 +1,5 @@
 import { lazy, Suspense } from "react";
-const LikedListingInsightsModal = lazy(() => import("@/components/LikedListingInsightsModal").then(m => ({ default: m.LikedListingInsightsModal })));
+const SwipeInsightsModal = lazy(() => import("@/components/SwipeInsightsModal").then(m => ({ default: m.SwipeInsightsModal })));
 
 import { useMemo, useState } from "react";
 import { useLikedProperties } from "@/hooks/useLikedProperties";
@@ -328,7 +328,7 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
 
       {showInsightsModal && (
         <Suspense fallback={null}>
-          <LikedListingInsightsModal
+          <SwipeInsightsModal
             open={showInsightsModal}
             onOpenChange={setShowInsightsModal}
             listing={selectedPropertyForModal}

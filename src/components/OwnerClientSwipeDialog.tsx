@@ -3,9 +3,9 @@ import { lazy, Suspense, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ClientSwipeContainer } from '@/components/ClientSwipeContainer';
-// Lazy-load the 50kb LikedClientInsightsModal — only needed when insights panel opens
-const LikedClientInsightsModal = lazy(() =>
-  import('@/components/LikedClientInsightsModal').then(m => ({ default: m.LikedClientInsightsModal }))
+// Lazy-load the 50kb SwipeInsightsModal — only needed when insights panel opens
+const SwipeInsightsModal = lazy(() =>
+  import('@/components/SwipeInsightsModal').then(m => ({ default: m.SwipeInsightsModal }))
 );
 import { useClientProfiles } from '@/hooks/useClientProfiles';
 
@@ -75,13 +75,13 @@ export function OwnerClientSwipeDialog({ open, onOpenChange }: OwnerClientSwipeD
       </Dialog>
 
       <Suspense fallback={null}>
-        <LikedClientInsightsModal
+        <SwipeInsightsModal
           open={showInsights}
           onOpenChange={(open) => {
             setShowInsights(open);
             if (!open) setSelectedClientId(null);
           }}
-          client={selectedProfile || null}
+          profile={selectedProfile || null}
         />
       </Suspense>
     </>

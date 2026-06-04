@@ -13,7 +13,7 @@ import { appToast } from "@/utils/appNotification";
 import useAppTheme from "@/hooks/useAppTheme";
 import { useStartConversation } from "@/hooks/useConversations";
 import { PremiumLikedCard } from "@/components/PremiumLikedCard";
-import { LikedClientInsightsModal } from "@/components/LikedClientInsightsModal";
+import { SwipeInsightsModal } from "@/components/SwipeInsightsModal";
 import { ConnectingOverlay } from "@/components/ConnectingOverlay";
 import { triggerHaptic } from "@/utils/haptics";
 import { cn } from "@/lib/utils";
@@ -293,7 +293,7 @@ export function LikedClients() {
         )}
       </div>
 
-      <LikedClientInsightsModal open={showInsightsModal} onOpenChange={setShowInsightsModal} client={selectedClientForView} />
+      <SwipeInsightsModal open={showInsightsModal} onOpenChange={setShowInsightsModal} profile={selectedClientForView} />
       
       <ConnectingOverlay 
         isOpen={isConnecting}
