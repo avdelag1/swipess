@@ -328,7 +328,7 @@ export function SupportDialog({ isOpen, onClose, userRole }: SupportDialogProps)
                   <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center transition-all", isLight ? "bg-black/5" : "bg-white/5")}>
                      <MessageCircle className="w-3.5 h-3.5 opacity-70" />
                   </div>
-                  <p className={cn("text-[13px] font-black italic tracking-tight", isLight ? "text-black" : "text-white")}>support@swipess.app</p>
+                  <p className={cn("text-[13px] font-black italic tracking-tight", isLight ? "text-black" : "text-white")}>admin@swipess.com</p>
                </div>
                <p className="text-[9px] font-black uppercase tracking-[0.2em] opacity-20 italic pl-11">24h Response Protocol</p>
              </div>

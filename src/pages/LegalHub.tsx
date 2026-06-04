@@ -313,7 +313,7 @@ const LegalHub = () => {
                         Account Deletion & Data Removal
                       </h2>
                       <p className={cn("text-sm leading-relaxed", isLight ? "text-black/70" : "text-white/70")}>
-                        You can permanently delete your account and all associated data from <strong>Settings → Account → Delete Account</strong> inside the app, or by emailing <strong>privacy@swipess.app</strong>. We honor deletion requests within 30 days.
+                        You can permanently delete your account and all associated data from <strong>Settings → Account → Delete Account</strong> inside the app, or by emailing <strong>admin@swipess.com</strong>. We honor deletion requests within 30 days.
                       </p>
                       <h2 className={cn("text-2xl font-black uppercase italic tracking-tighter pt-4", isLight ? "text-black" : "text-white")}>
                         Children
@@ -325,7 +325,7 @@ const LegalHub = () => {
                         Contact
                       </h2>
                       <p className={cn("text-sm leading-relaxed", isLight ? "text-black/70" : "text-white/70")}>
-                        Privacy questions: <strong>privacy@swipess.app</strong>. Last updated: 2026-05-09.
+                        Privacy questions: <strong>admin@swipess.com</strong>. Last updated: 2026-05-09.
                       </p>
                     </div>
                   )}

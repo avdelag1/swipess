@@ -6,7 +6,7 @@
  * Required Supabase Edge Function Secrets:
  *   VAPID_PUBLIC_KEY   – URL-safe base64 EC P-256 public key
  *   VAPID_PRIVATE_KEY  – URL-safe base64 EC P-256 private key
- *   VAPID_SUBJECT      – Contact URI, e.g. "mailto:support@swipess.com"
+ *   VAPID_SUBJECT      – Contact URI, e.g. "mailto:admin@swipess.com"
  *   SUPABASE_SERVICE_ROLE_KEY – Service role key (auto-injected by Supabase)
  *
  * Request body:
@@ -246,7 +246,7 @@ serve(async (req) => {
     // Check VAPID config
     const vapidPublicKey = Deno.env.get("VAPID_PUBLIC_KEY");
     const vapidPrivateKey = Deno.env.get("VAPID_PRIVATE_KEY");
-    const vapidSubject = Deno.env.get("VAPID_SUBJECT") || "mailto:support@swipess.com";
+    const vapidSubject = Deno.env.get("VAPID_SUBJECT") || "mailto:admin@swipess.com";
 
     if (!vapidPublicKey || !vapidPrivateKey) {
       console.warn("VAPID keys not configured – push notifications disabled");

@@ -177,7 +177,7 @@ export default function FAQClientPage() {
               </div>
               <div className="flex justify-center pt-4">
                 <Button
-                  onClick={() => { haptics.success(); window.location.href = 'mailto:support@swipess.app'; }}
+                  onClick={() => { haptics.success(); window.location.href = 'mailto:admin@swipess.com'; }}
                   className="h-16 px-12 rounded-[2rem] bg-rose-600 hover:bg-rose-700 text-white font-black uppercase italic tracking-widest transition-all shadow-2xl shadow-rose-500/20 active:scale-95"
                 >
                   DISPATCH SIGNAL
