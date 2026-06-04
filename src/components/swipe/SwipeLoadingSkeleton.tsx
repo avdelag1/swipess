@@ -1,6 +1,4 @@
-import useAppTheme from "@/hooks/useAppTheme";
 import { motion } from 'framer-motion';
-import useAppTheme from "@/hooks/useAppTheme";
 import { deckFadeVariants } from '@/utils/modernAnimations';
 
 /**

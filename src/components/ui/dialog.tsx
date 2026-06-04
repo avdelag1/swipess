@@ -13,7 +13,7 @@ const Dialog = ({ open, onOpenChange, children }: any) => {
   return <DialogContext.Provider value={{ open, onOpenChange }}>{children}</DialogContext.Provider>
 }
 
-const DialogTrigger = React.forwardRef<HTMLButtonElement, any>(({ children, asChild, ...props }, ref) => {
+const DialogTrigger = React.forwardRef<HTMLButtonElement, any>(({ children, asChild: _asChild, ...props }, _ref) => {
   const { onOpenChange } = React.useContext(DialogContext);
   return React.cloneElement(children, {
     onClick: (e: any) => {
@@ -71,16 +71,16 @@ const DialogContent = React.forwardRef<HTMLDivElement, DialogContentProps>(({ cl
       {open && (
         <motion.div
           key="content"
-          initial={{ opacity: 0, scale: 0.97 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.97 }}
-          transition={{ duration: 0.2, ease: "easeOut" }}
+          initial={{ opacity: 0, scale: 0.95, y: 10 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.95, y: 10 }}
+          transition={{ type: "spring", damping: 25, stiffness: 300 }}
           className="fixed inset-0 z-[10002] flex items-center justify-center pointer-events-none"
         >
           <div
             ref={ref}
             className={cn(
-              "relative w-full max-w-lg max-h-[90vh] border border-white/10 bg-background p-5 sm:p-[28px] shadow-2xl pointer-events-auto rounded-[32px] overflow-hidden",
+              "relative w-full max-w-lg max-h-[90vh] border border-white/20 bg-background/80 backdrop-blur-3xl saturate-150 p-5 sm:p-[28px] shadow-2xl pointer-events-auto rounded-[32px] overflow-hidden",
               className
             )}
             {...props}

@@ -38,22 +38,17 @@ const CardImage = memo(({
     if (cacheKey && imageCache.has(cacheKey)) return true;
     return false;
   });
+  
   const [errored, setErrored] = useState<boolean>(false);
-  const mountedRef = useRef(true);
   const fallbackTriedRef = useRef(false);
-
-  useEffect(() => {
-    return () => { mountedRef.current = false; };
-  }, []);
 
   useEffect(() => {
     fallbackTriedRef.current = false;
     setErrored(false);
-    const nextSrc = optimizedSrc || src || null;
-    setImgSrc(nextSrc);
-
+    
     if (!src) {
       setLoaded(false);
+      setImgSrc(null);
       return;
     }
 
@@ -62,36 +57,35 @@ const CardImage = memo(({
       return;
     }
 
+    const nextSrc = optimizedSrc || src;
+    setImgSrc(nextSrc);
+
     if (cacheKey && imageCache.has(cacheKey)) {
       setLoaded(true);
+    } else {
+      setLoaded(false);
+    }
+  }, [src, optimizedSrc, isMarketingSlide, cacheKey]);
+
+  const handleImgError = useCallback((e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    if (loaded) {
+      // If it was already loaded and errors later, it's likely an iOS memory purge.
+      // Do not set errored=true, preventing the image from unmounting.
+      // We can try to soft-reload it to recover from the purge.
+      const target = e.target as HTMLImageElement;
+      setTimeout(() => {
+        if (target && src) {
+          target.src = optimizedSrc || src;
+        }
+      }, 500);
       return;
     }
 
-    setLoaded(false);
-
-    const img = new Image();
-    img.decoding = 'async';
-    img.fetchPriority = priority ? 'high' : 'auto';
-    img.onload = () => {
-      if (!mountedRef.current) return;
-      if (cacheKey) imageCache.set(cacheKey, true);
-      setLoaded(true);
-    };
-    img.onerror = () => {
-      if (!mountedRef.current) return;
-    };
-    img.src = cacheKey || '';
-    return () => {
-      img.onload = null;
-      img.onerror = null;
-    };
-  }, [src, optimizedSrc, isMarketingSlide, cacheKey, priority]);
-
-  const handleImgError = useCallback(() => {
     if (fallbackTriedRef.current) {
       setErrored(true);
       return;
     }
+    
     fallbackTriedRef.current = true;
     if (imgSrc && src && imgSrc !== src) {
       setLoaded(false);
@@ -99,7 +93,7 @@ const CardImage = memo(({
       return;
     }
     setErrored(true);
-  }, [imgSrc, src]);
+  }, [imgSrc, src, loaded, optimizedSrc]);
 
   if (!src || errored) {
     if (fallbackSrc && fallbackSrc !== src) {
@@ -144,21 +138,14 @@ const CardImage = memo(({
             zIndex: 1,
           }}
         >
-          <motion.div 
-            className="absolute inset-x-[-100%] inset-y-0 bg-gradient-to-r from-transparent via-white/10 to-transparent skew-x-[-20deg]"
-            animate={{ x: ['100%', '-100%'] }}
-            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-          />
-          <div className="relative z-10 flex gap-1.5 opacity-40">
-            {[0, 1, 2].map(i => (
-              <motion.div
-                key={i}
-                className="w-1.5 h-1.5 rounded-full bg-white/50"
-                animate={{ opacity: [0.3, 1, 0.3], scale: [0.8, 1.2, 0.8] }}
-                transition={{ duration: 1, repeat: Infinity, delay: i * 0.2 }}
-              />
-            ))}
+          {/* CSS-only Pulse Skeleton for massive performance gains over Framer Motion */}
+          <div className="absolute inset-0 animate-pulse bg-white/5" />
+          <div className="relative z-10 flex gap-2 opacity-60">
+            <div className="w-2 h-2 rounded-full bg-white/60 animate-bounce" style={{ animationDelay: '0ms' }} />
+            <div className="w-2 h-2 rounded-full bg-white/60 animate-bounce" style={{ animationDelay: '150ms' }} />
+            <div className="w-2 h-2 rounded-full bg-white/60 animate-bounce" style={{ animationDelay: '300ms' }} />
           </div>
+          
           {blurSrc && (
             <img
               src={blurSrc}
@@ -181,7 +168,7 @@ const CardImage = memo(({
           data-swipe-card-image="true"
           draggable={false}
           loading={priority ? "eager" : "lazy"}
-          decoding={priority ? "sync" : "async"}
+          decoding="async"
           fetchPriority={priority ? "high" : "auto"}
           initial={false}
           animate={{ opacity: loaded ? 1 : 0 }}

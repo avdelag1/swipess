@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import { cn } from '@/lib/utils';
 
 interface QuickFilterImageProps {
@@ -8,56 +8,24 @@ interface QuickFilterImageProps {
 }
 
 /**
- * Progressive decode-first image for quick filter cards.
- * Shows a gradient placeholder, decodes the image off-thread,
- * then slides in with the breathing animation already running.
+ * Image for quick filter cards.
+ * Uses native loading mechanisms to prevent memory exhaustion on iOS Safari (PWA).
  */
 export function QuickFilterImage({ src, alt, className }: QuickFilterImageProps) {
-  const [isReady, setIsReady] = useState(() => {
+  const [isLoaded, setIsLoaded] = useState(() => {
     return typeof window !== 'undefined' && (window as any).__Swipess_cache?.[src];
   });
   const [hasError, setHasError] = useState(false);
-  const imgRef = useRef<HTMLImageElement>(null);
-
-  useEffect(() => {
-    if (!src) {
-      setHasError(true);
-      return;
-    }
-    
-    setHasError(false);
-    setIsReady(false);
-
-    // Check if already cached by SpeedOfLightPreloader
-    if ((window as any).__Swipess_cache?.[src]) {
-      setIsReady(true);
-      return;
-    }
-
-    const img = new Image();
-    img.src = src;
-    img.decode()
-      .then(() => {
-        setIsReady(true);
-        (window as any).__Swipess_cache = (window as any).__Swipess_cache || {};
-        (window as any).__Swipess_cache[src] = true;
-      })
-      .catch(() => {
-        // Even if decode fails, we might still be able to show it
-        // but we'll let the img tag's onError handle the actual "broken" state
-        setIsReady(true);
-      });
-  }, [src]);
 
   return (
     <>
       {/* Gradient placeholder / Fallback */}
       <div 
         className={cn(
-          "absolute inset-0 transition-opacity duration-150",
+          "absolute inset-0 transition-opacity duration-300",
           hasError 
             ? "bg-slate-800 opacity-100" 
-            : (isReady ? "opacity-0" : "bg-gradient-to-br from-muted via-muted/80 to-muted/60 opacity-100")
+            : (isLoaded ? "opacity-0" : "bg-gradient-to-br from-muted via-muted/80 to-muted/60 opacity-100")
         )} 
       >
         {hasError && (
@@ -67,33 +35,45 @@ export function QuickFilterImage({ src, alt, className }: QuickFilterImageProps)
         )}
       </div>
 
-      {/* Actual image — slides in after decode, breathing starts immediately */}
-      {!hasError && (
-        <div
-          className={cn(
-            "absolute inset-0 w-full h-full overflow-hidden transition-opacity duration-150",
-            isReady ? "opacity-100" : "opacity-0"
-          )}
-          style={{
-            animation: isReady 
-              ? 'photo-slide-in 0.2s cubic-bezier(0.2,0,0,1) forwards' 
-              : 'none'
+      {/* Actual image */}
+      <div
+        className={cn(
+          "absolute inset-0 w-full h-full overflow-hidden transition-opacity duration-500",
+          isLoaded ? "opacity-100" : "opacity-0"
+        )}
+      >
+        <img
+          src={src}
+          alt={alt}
+          loading="lazy"
+          decoding="async"
+          onLoad={() => {
+            setIsLoaded(true);
+            setHasError(false);
+            if (typeof window !== 'undefined') {
+              (window as any).__Swipess_cache = (window as any).__Swipess_cache || {};
+              (window as any).__Swipess_cache[src] = true;
+            }
           }}
-        >
-          <img
-            ref={imgRef}
-            src={src}
-            alt={alt}
-            loading="eager"
-            decoding="async"
-            onError={() => setHasError(true)}
-            className={cn(
-              "w-full h-full object-cover",
-              className
-            )}
-          />
-        </div>
-      )}
+          onError={(e) => {
+            if (isLoaded) {
+              // If it was already loaded, it might be an iOS Safari memory purge.
+              // Try a soft reload after a tiny delay, or just let it sit. 
+              // We don't set hasError to true here so it doesn't turn into a gray box.
+              const target = e.target as HTMLImageElement;
+              setTimeout(() => {
+                if (target) target.src = src;
+              }, 250);
+            } else {
+              setHasError(true);
+            }
+          }}
+          className={cn(
+            "w-full h-full object-cover",
+            className
+          )}
+        />
+      </div>
     </>
   );
 }

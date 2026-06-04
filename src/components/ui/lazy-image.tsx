@@ -32,11 +32,7 @@ interface LazyImageProps {
  * - Async decoding to keep main thread free
  * - AVIF/WebP support via srcset generation
  * - Proper sizing with width/height to prevent layout shift (CLS)
- * 
- * Core Web Vitals Optimizations:
- * - LCP: Use priority={true} for above-the-fold images
- * - CLS: Always provide width/height, use aspect-ratio CSS
- * - INP: async decoding keeps main thread responsive
+ * - iOS Memory Purge Resilience
  */
 export const LazyImage = memo(function LazyImage({
   src,
@@ -102,7 +98,15 @@ export const LazyImage = memo(function LazyImage({
     setIsLoaded(true);
   };
 
-  const handleError = () => {
+  const handleError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    if (isLoaded) {
+      // Memory purge recovery
+      const target = e.target as HTMLImageElement;
+      setTimeout(() => {
+        if (target) target.src = src;
+      }, 500);
+      return;
+    }
     setHasError(true);
     setIsLoaded(true);
   };
