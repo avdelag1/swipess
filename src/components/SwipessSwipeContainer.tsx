@@ -21,58 +21,7 @@ import { imageCache } from '@/lib/swipe/cardImageCache';
 import { PrefetchScheduler } from '@/lib/swipe/PrefetchScheduler';
 import { ClientFilters, ListingFilters, useSmartClientMatching, useSmartListingMatching } from '@/hooks/useSmartMatching';
 import { useAuth } from '@/hooks/useAuth';
-import React, { Component, ErrorInfo, ReactNode } from 'react';
 
-class ModalErrorBoundary extends Component<{children: ReactNode, onClose?: () => void}, {hasError: boolean, error: any, errorInfo: any}> {
-  constructor(props: {children: ReactNode, onClose?: () => void}) {
-    super(props);
-    this.state = { hasError: false, error: null, errorInfo: null };
-  }
-  static getDerivedStateFromError(error: any) {
-    return { hasError: true, error };
-  }
-  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error("Modal Error Boundary Caught:", error, errorInfo);
-    this.setState({ errorInfo });
-  }
-  render() {
-    if (this.state.hasError) {
-      const errorText = `${this.state.error?.toString()}\n\n${this.state.errorInfo?.componentStack || ''}`;
-      
-      return (
-        <div className="fixed inset-0 z-[1000000] bg-red-900 flex flex-col items-center justify-center p-8 text-white font-mono">
-          <h1 className="text-4xl font-black mb-6">MODAL CRASHED!</h1>
-          
-          <button
-            onClick={() => {
-              navigator.clipboard.writeText(errorText);
-              alert("Error copied to clipboard!");
-            }}
-            className="mb-4 px-6 py-2 bg-black/40 hover:bg-black/60 text-white font-bold rounded-lg border border-white/20 active:scale-95 transition-all"
-          >
-            📋 Copy Error Text
-          </button>
-
-          <div className="bg-black/50 p-6 rounded-xl overflow-auto w-full max-w-4xl max-h-[50vh] border border-red-500/30">
-            <pre className="text-sm whitespace-pre-wrap">{this.state.error?.toString()}</pre>
-            <pre className="text-sm whitespace-pre-wrap mt-4 text-red-300">{this.state.errorInfo?.componentStack}</pre>
-          </div>
-          
-          <button
-            onClick={() => {
-              this.setState({ hasError: false, error: null, errorInfo: null });
-              if (this.props.onClose) this.props.onClose();
-            }}
-            className="mt-8 px-8 py-4 bg-white text-red-900 font-bold rounded-full text-xl active:scale-95 transition-transform"
-          >
-            Dismiss Error & Close Modal
-          </button>
-        </div>
-      );
-    }
-    return this.props.children;
-  }
-}
 import { useUserRole } from '@/hooks/useUserRole';
 import { useActiveMode } from '@/hooks/useActiveMode';
 import { swipeQueue } from '@/lib/swipe/SwipeQueue';
@@ -1181,11 +1130,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
         />
       )}
 
-      <ModalErrorBoundary onClose={() => {
-        setInsightsModalOpen(false);
-        setShareDialogOpen(false);
-        setReportDialogOpen(false);
-      }}>
+      <>
         {insightsModalOpen && topCard && (
           <SwipeInsightsModal
             open={insightsModalOpen}
@@ -1219,7 +1164,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
             category={dataType === 'people' ? 'user_profile' : 'listing'}
           />
         )}
-      </ModalErrorBoundary>
+      </>
 
       <MessageConfirmationDialog
         open={messageDialogOpen}
