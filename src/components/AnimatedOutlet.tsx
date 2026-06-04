@@ -22,24 +22,23 @@ export function AnimatedOutlet() {
         pointerEvents: isDashboardRoute ? 'none' : 'auto',
       }}
     >
-      <AnimatePresence mode="sync" initial={false}>
+      <AnimatePresence mode="wait" initial={false}>
         <motion.div
           key={location.pathname}
           id={isDashboardRoute ? undefined : 'page-scroll-container'}
           className={
             isDashboardRoute
               ? 'flex-1 w-full flex flex-col pointer-events-none-force'
-              : 'swipess-page-wrapper w-full min-h-full block'
+              : 'swipess-page-wrapper w-full min-h-full flex flex-col'
           }
           style={{
-            position: isDashboardRoute ? 'absolute' as const : 'relative' as const,
-            inset: isDashboardRoute ? 0 : undefined,
+            position: 'relative',
             background: isDashboardRoute ? 'transparent' : 'hsl(var(--background))',
           }}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ type: 'tween', duration: 0.12, ease: 'easeOut' }}
+          initial={{ opacity: 0, y: 10, scale: 0.99 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: -10, scale: 0.99 }}
+          transition={{ type: 'spring', stiffness: 350, damping: 30, mass: 0.8 }}
         >
           <Suspense fallback={
             <div className="flex items-center justify-center w-full min-h-[200px]">
