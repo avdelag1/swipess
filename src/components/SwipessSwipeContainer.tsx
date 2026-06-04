@@ -1174,7 +1174,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
         <ClientPreferencesDialog open={filterDialogOpen} onOpenChange={setFilterDialogOpen} />
       )}
 
-      {selectedListing && (
+      {reportDialogOpen && selectedListing && (
         <ReportDialog
           open={reportDialogOpen}
           onOpenChange={setReportDialogOpen}
@@ -1187,6 +1187,60 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
         />
       )}
 
+      {/* DEBUG BUTTONS - ADDED OUTSIDE THE SWIPE CARD */}
+      <div className="fixed top-[40%] left-2 z-[99999] flex flex-col gap-4">
+        <button
+          onClick={() => {
+            try {
+              if (!topCard) {
+                alert('No top card available to show insights for.');
+                return;
+              }
+              setInsightsModalOpen(true);
+            } catch (err: any) {
+              alert('Error opening insights: ' + err.message);
+            }
+          }}
+          className="bg-red-500 text-white p-2 rounded shadow-xl text-xs font-bold"
+        >
+          Test Insights
+        </button>
+        
+        <button
+          onClick={() => {
+            try {
+              if (!topCard) {
+                alert('No top card available to share.');
+                return;
+              }
+              setShareDialogOpen(true);
+            } catch (err: any) {
+              alert('Error opening share: ' + err.message);
+            }
+          }}
+          className="bg-blue-500 text-white p-2 rounded shadow-xl text-xs font-bold"
+        >
+          Test Share
+        </button>
+
+        <button
+          onClick={() => {
+            try {
+              if (!topCard) {
+                alert('No top card available to report.');
+                return;
+              }
+              setSelectedListing(topCard);
+              setReportDialogOpen(true);
+            } catch (err: any) {
+              alert('Error opening report: ' + err.message);
+            }
+          }}
+          className="bg-purple-500 text-white p-2 rounded shadow-xl text-xs font-bold"
+        >
+          Test Report
+        </button>
+      </div>
     </>
   );
 };
