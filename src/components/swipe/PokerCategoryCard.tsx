@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { animate, motion, PanInfo, useMotionValue, useTransform } from 'framer-motion';
 import { triggerHaptic } from '@/utils/haptics';
 import {
@@ -11,8 +11,6 @@ import {
   PokerCardData,
 } from './SwipeConstants';
 import { cn } from '@/lib/utils';
-import { imageCache } from '@/lib/swipe/cardImageCache';
-
 interface PokerCardProps {
   card: PokerCardData;
   index: number;
@@ -24,9 +22,6 @@ interface PokerCardProps {
   onBringToFront: (index: number) => void;
   cardHeight?: number;
 }
-
-// Module-level cache so re-mounts (cycling through deck) don't re-flash imgReady=false
-const _loadedPokerImages = new Set<string>();
 
 // Detect low-end / reduced-motion devices once at module load.
 const _isLowEndDevice = (() => {
@@ -68,26 +63,6 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
   const fallbackGradient = useMemo(() => {
     return POKER_CARD_GRADIENTS[card.id] || POKER_CARD_GRADIENTS.property;
   }, [card.id]);
-
-  const [imgReady, setImgReady] = useState(() => {
-    return imageCache.has(photo) || _loadedPokerImages.has(photo);
-  });
-
-  useLayoutEffect(() => {
-    if (imageCache.has(photo) || _loadedPokerImages.has(photo)) {
-      setImgReady(true);
-      return;
-    }
-    setImgReady(false);
-    const img = new Image();
-    img.onload = () => {
-      _loadedPokerImages.add(photo);
-      imageCache.set(photo, true);
-      setImgReady(true);
-    };
-    img.onerror = () => setImgReady(false);
-    img.src = photo;
-  }, [photo]);
 
   // Reset drag state when card becomes top.
   useEffect(() => {
@@ -222,7 +197,7 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
           loading="eager"
           decoding="async"
           className="absolute inset-0 w-full h-full object-cover"
-          style={{ opacity: imgReady ? 1 : 0, backfaceVisibility: 'hidden' }}
+          style={{ backfaceVisibility: 'hidden' }}
           draggable={false}
         />
 
@@ -270,17 +245,14 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
             </h3>
           </div>
 
-          {isTop && (
-            <div className="pointer-events-auto">
+          <div className={isTop ? 'pointer-events-auto' : 'pointer-events-none'}>
               <button
                 type="button"
                 ref={engageButtonRef}
-                // Stop pointer capture so the drag gesture on the card body
-                // isn't accidentally stolen when the finger lands on the button.
-                onPointerDown={(e) => e.stopPropagation()}
+                onPointerDown={(e) => { if (isTop) e.stopPropagation(); }}
                 onClick={(e) => {
                   e.stopPropagation();
-                  if (isDraggingRef.current || isExitingRef.current) return;
+                  if (!isTop || isDraggingRef.current || isExitingRef.current) return;
                   triggerHaptic('medium');
                   onSelect(card.id);
                 }}
@@ -291,8 +263,7 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
                 {card.icon && <card.icon className="w-5 h-5" />}
                 <span>Engage Discovery</span>
               </button>
-            </div>
-          )}
+          </div>
         </div>
       </div>
     </motion.div>
