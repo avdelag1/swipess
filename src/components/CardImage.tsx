@@ -38,14 +38,15 @@ const CardImage = memo(({
     if (cacheKey && imageCache.has(cacheKey)) return true;
     return false;
   });
-  
+  const [prevLoadedSrc, setPrevLoadedSrc] = useState<string | null>(null);
+
   const [errored, setErrored] = useState<boolean>(false);
   const fallbackTriedRef = useRef(false);
 
   useEffect(() => {
     fallbackTriedRef.current = false;
     setErrored(false);
-    
+
     if (!src) {
       setLoaded(false);
       setImgSrc(null);
@@ -130,7 +131,7 @@ const CardImage = memo(({
           contain: 'layout size style',
         }}
       >
-      {!loaded && (
+      {!loaded && !prevLoadedSrc && (
         <div
           className="absolute inset-0 flex items-center justify-center overflow-hidden"
           style={{
@@ -138,14 +139,13 @@ const CardImage = memo(({
             zIndex: 1,
           }}
         >
-          {/* CSS-only Pulse Skeleton for massive performance gains over Framer Motion */}
           <div className="absolute inset-0 animate-pulse bg-white/5" />
           <div className="relative z-10 flex gap-2 opacity-60">
             <div className="w-2 h-2 rounded-full bg-white/60 animate-bounce" style={{ animationDelay: '0ms' }} />
             <div className="w-2 h-2 rounded-full bg-white/60 animate-bounce" style={{ animationDelay: '150ms' }} />
             <div className="w-2 h-2 rounded-full bg-white/60 animate-bounce" style={{ animationDelay: '300ms' }} />
           </div>
-          
+
           {blurSrc && (
             <img
               src={blurSrc}
@@ -160,6 +160,29 @@ const CardImage = memo(({
             />
           )}
         </div>
+      )}
+      {!loaded && prevLoadedSrc && prevLoadedSrc !== imgSrc && (
+        <img
+          src={prevLoadedSrc}
+          alt=""
+          aria-hidden="true"
+          draggable={false}
+          style={{
+            position: 'absolute',
+            inset: 0,
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            borderRadius: br,
+            zIndex: 2,
+            WebkitTouchCallout: 'none',
+            WebkitUserSelect: 'none',
+            userSelect: 'none',
+            touchAction: 'none',
+            pointerEvents: 'none',
+          }}
+          onContextMenu={e => e.preventDefault()}
+        />
       )}
       {imgSrc && (
         <motion.img
@@ -191,6 +214,7 @@ const CardImage = memo(({
           onContextMenu={e => e.preventDefault()}
           onLoad={() => {
             if (cacheKey) imageCache.set(cacheKey, true);
+            setPrevLoadedSrc(imgSrc);
             setLoaded(true);
           }}
           onError={handleImgError}
