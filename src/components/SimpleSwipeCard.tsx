@@ -578,68 +578,63 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           </div>
         )}
 
-        {/* Floating Action Rail — Apple-style vertical glass pill.
-            Always visible so buttons are always tappable. */}
-        <AnimatePresence>
-          {isTop && !isZoomed && (
-            <motion.div
-              initial={{ opacity: 0, x: 18, scale: 0.96 }}
-              animate={{ opacity: 1, x: 0, scale: 1 }}
-              exit={{ opacity: 0, x: 12, scale: 0.94 }}
-              transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-              className="absolute right-3 bottom-[calc(var(--bottom-nav-height,72px)+56px)] z-50"
-            >
-              <div
-                className="flex flex-col gap-1.5 p-1.5 rounded-full"
-                style={{
-                  background: 'rgba(20, 20, 24, 0.42)',
-                  backdropFilter: 'blur(24px) saturate(1.8)',
-                  WebkitBackdropFilter: 'blur(24px) saturate(1.8)',
-                  border: '1px solid rgba(255, 255, 255, 0.14)',
-                  boxShadow:
-                    '0 10px 30px -8px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.10)',
-                }}
-              >
-                {[
-                  { icon: Share2, onClick: onShare, label: 'Share' },
-                  { icon: MessageCircle, onClick: onMessage, label: 'Message' },
-                  { icon: BarChart3, onClick: onInsights, label: 'Insights' },
-                  { icon: Flag, onClick: onReport, label: 'Report' },
-                ].map((btn, idx) => (
-                  <motion.button
-                    key={idx}
-                    whileTap={{ scale: 0.88 }}
-                    transition={{ duration: 0.1 }}
-                    onPointerDownCapture={(e) => e.stopPropagation()}
-                    onTouchStartCapture={(e) => e.stopPropagation()}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      triggerHaptic('light');
-                      btn.onClick?.();
-                    }}
-                    aria-label={btn.label}
-                    className="w-9 h-9 rounded-full flex items-center justify-center bg-transparent border-none p-0 outline-none"
-                    style={{
-                      background: 'transparent',
-                      border: 'none',
-                      WebkitTapHighlightColor: 'transparent',
-                    }}
-                  >
-                    <btn.icon
-                      color="#FFFFFF"
-                      className="w-[18px] h-[18px]"
-                      style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.45))' }}
-                      strokeWidth={1.8}
-                    />
-                  </motion.button>
-                ))}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
           </>
         )}
       </motion.div>
+
+      <AnimatePresence>
+        {isTop && !isZoomed && (
+          <motion.div
+            initial={{ opacity: 0, x: 18, scale: 0.96 }}
+            animate={{ opacity: 1, x: 0, scale: 1 }}
+            exit={{ opacity: 0, x: 12, scale: 0.94 }}
+            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            className="absolute right-3 bottom-[calc(var(--bottom-nav-height,72px)+56px)] z-50 pointer-events-auto"
+          >
+            <div
+              className="flex flex-col gap-1.5 p-1.5 rounded-full"
+              style={{
+                background: 'rgba(20, 20, 24, 0.42)',
+                backdropFilter: 'blur(24px) saturate(1.8)',
+                WebkitBackdropFilter: 'blur(24px) saturate(1.8)',
+                border: '1px solid rgba(255, 255, 255, 0.14)',
+                boxShadow:
+                  '0 10px 30px -8px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.10)',
+              }}
+            >
+              {[
+                { icon: Share2, onClick: onShare, label: 'Share' },
+                { icon: MessageCircle, onClick: onMessage, label: 'Message' },
+                { icon: BarChart3, onClick: onInsights, label: 'Insights' },
+                { icon: Flag, onClick: onReport, label: 'Report' },
+              ].map((btn, idx) => (
+                <button
+                  key={idx}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    triggerHaptic('light');
+                    btn.onClick?.();
+                  }}
+                  aria-label={btn.label}
+                  className="w-9 h-9 rounded-full flex items-center justify-center border-none p-0 outline-none active:scale-[0.88] transition-transform"
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    WebkitTapHighlightColor: 'transparent',
+                  }}
+                >
+                  <btn.icon
+                    color="#FFFFFF"
+                    className="w-[18px] h-[18px]"
+                    style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.45))' }}
+                    strokeWidth={1.8}
+                  />
+                </button>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 });
