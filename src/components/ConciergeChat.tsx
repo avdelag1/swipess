@@ -435,6 +435,15 @@ const MessageBubble = memo(({ message, isUser, isSwipess, isLight, onCopy, onDel
         )}
       </div>
 
+      {!isUser && (
+        <div className={cn("flex items-center gap-1 mt-0.5 ml-2", isSwipess ? "opacity-40" : "opacity-60")}>
+          <Sparkles className="w-2.5 h-2.5 text-[#f55036]" />
+          <span className={cn("text-[9px] font-black tracking-widest uppercase", isSwipess ? "text-white" : "text-muted-foreground")}>
+            Powered by Groq
+          </span>
+        </div>
+      )}
+
       {!isUser && listings.length > 0 && (
         <div className="w-full mt-2 grid grid-cols-1 sm:grid-cols-2 gap-3">
           {listings.map((l) => (
