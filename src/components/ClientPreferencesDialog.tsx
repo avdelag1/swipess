@@ -981,10 +981,10 @@ export function ClientPreferencesDialog({ open, onOpenChange }: ClientPreference
                 rotate: [0, 90, 180, 270, 360]
               }}
               transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-              className="w-32 h-32 rounded-full border-2 border-dashed border-primary/20 flex items-center justify-center"
+              className="z-[10000] w-32 h-32 rounded-full border-2 border-dashed border-primary/20 flex items-center justify-center"
             >
-               <div className="w-16 h-16 rounded-full border border-primary/40 flex items-center justify-center">
-                  <div className="w-2 h-2 bg-primary rounded-full shadow-[0_0_10px_#fff]" />
+               <div className="z-[10000] w-16 h-16 rounded-full border border-primary/40 flex items-center justify-center">
+                  <div className="z-[10000] w-2 h-2 bg-primary rounded-full shadow-[0_0_10px_#fff]" />
                </div>
             </motion.div>
           </div>
@@ -1026,5 +1026,6 @@ export function ClientPreferencesDialog({ open, onOpenChange }: ClientPreference
   </AnimatePresence>
 )
 }
+
 
 

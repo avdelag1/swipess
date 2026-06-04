@@ -87,7 +87,7 @@ export function ReportDialog({
                     "w-11 h-11 rounded-2xl flex items-center justify-center border",
                     isLight ? "bg-rose-50 border-rose-200" : "bg-rose-950/30 border-rose-800/50"
                   )}>
-                    <Flag className="w-5 h-5 text-rose-500" />
+                    <Flag className="z-[10000] w-5 h-5 text-rose-500" />
                   </div>
                   <div className="flex-1">
                     <DialogTitle className={cn("text-lg font-bold tracking-tight", isLight ? "text-slate-900" : "text-white")}>
@@ -238,3 +238,4 @@ export function ReportDialog({
     </Dialog>
   );
 }
+

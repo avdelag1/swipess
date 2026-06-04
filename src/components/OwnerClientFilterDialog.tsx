@@ -304,7 +304,7 @@ export function OwnerClientFilterDialog({ open, onOpenChange }: OwnerClientFilte
               mass: 0.8,
             }}
           >
-            <DialogContent className="bg-background/95 backdrop-blur-3xl max-w-2xl w-[calc(100vw-1rem)] sm:w-[90vw] h-[80vh] max-h-[85vh] flex flex-col p-0 rounded-t-[2.5rem] sm:rounded-[2.5rem] border border-white/10 shadow-2xl mt-20">
+            <DialogContent className="z-[10000] bg-background/95 backdrop-blur-3xl max-w-2xl w-[calc(100vw-1rem)] sm:w-[90vw] h-[80vh] max-h-[85vh] flex flex-col p-0 rounded-t-[2.5rem] sm:rounded-[2.5rem] border border-white/10 shadow-2xl mt-20">
               <DialogHeader className="shrink-0 px-6 pt-6 pb-3 border-b border-border/5">
                 <div className="flex items-center gap-3">
                   <div className="rounded-2xl bg-primary/10 p-2.5">
@@ -347,7 +347,7 @@ export function OwnerClientFilterDialog({ open, onOpenChange }: OwnerClientFilte
                         >
                           {option.label}
                           {selectedInterestTypes.includes(option.value) && (
-                            <X className="w-3 h-3 ml-1" />
+                            <X className="z-[10000] w-3 h-3 ml-1" />
                           )}
                         </Badge>
                       ))}
@@ -430,7 +430,7 @@ export function OwnerClientFilterDialog({ open, onOpenChange }: OwnerClientFilte
                           >
                             {range.label}
                             {isSelected && (
-                              <X className="w-3 h-3 ml-1.5 opacity-90" />
+                              <X className="z-[10000] w-3 h-3 ml-1.5 opacity-90" />
                             )}
                           </Badge>
                         );
@@ -584,10 +584,10 @@ export function OwnerClientFilterDialog({ open, onOpenChange }: OwnerClientFilte
                       placeholder="Filter name..."
                       value={filterName}
                       onChange={(e) => setFilterName(e.target.value)}
-                      className="max-w-xs"
+                      className="z-[10000] max-w-xs"
                     />
                     <Button onClick={handleSaveAs} disabled={!filterName.trim()}>
-                      <Save className="w-4 h-4 mr-2" />
+                      <Save className="z-[10000] w-4 h-4 mr-2" />
                       Save
                     </Button>
                     <Button variant="ghost" onClick={() => setShowSaveAs(false)}>
@@ -600,7 +600,7 @@ export function OwnerClientFilterDialog({ open, onOpenChange }: OwnerClientFilte
                       Cancel
                     </Button>
                     <Button variant="outline" onClick={() => setShowSaveAs(true)}>
-                      <Save className="w-4 h-4 mr-2" />
+                      <Save className="z-[10000] w-4 h-4 mr-2" />
                       Save Filter
                     </Button>
                     <Button 
@@ -663,10 +663,10 @@ export function OwnerClientFilterDialog({ open, onOpenChange }: OwnerClientFilte
                     rotate: [0, 90, 180, 270, 360]
                   }}
                   transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-                  className="w-32 h-32 rounded-full border-2 border-dashed border-primary/20 flex items-center justify-center"
+                  className="z-[10000] w-32 h-32 rounded-full border-2 border-dashed border-primary/20 flex items-center justify-center"
                 >
-                   <div className="w-16 h-16 rounded-full border border-primary/40 flex items-center justify-center">
-                      <div className="w-2 h-2 bg-primary rounded-full shadow-[0_0_10px_#fff]" />
+                   <div className="z-[10000] w-16 h-16 rounded-full border border-primary/40 flex items-center justify-center">
+                      <div className="z-[10000] w-2 h-2 bg-primary rounded-full shadow-[0_0_10px_#fff]" />
                    </div>
                 </motion.div>
               </div>
@@ -708,5 +708,6 @@ export function OwnerClientFilterDialog({ open, onOpenChange }: OwnerClientFilte
       </AnimatePresence>
   );
 }
+
 
 

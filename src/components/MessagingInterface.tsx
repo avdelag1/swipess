@@ -235,7 +235,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
   if (isLoading) {
     return (
       <div className="flex-1 flex flex-col items-center justify-center p-8 bg-black">
-         <div className="w-12 h-12 rounded-xl border-4 border-rose-500/10 border-t-rose-500 animate-spin" />
+         <div className="z-[10000] w-12 h-12 rounded-xl border-4 border-rose-500/10 border-t-rose-500 animate-spin" />
          <p className="text-[10px] font-black uppercase tracking-widest text-rose-500 mt-6 animate-pulse">Syncing Swipes...</p>
       </div>
     );
@@ -262,7 +262,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
                  isThemeLight ? "bg-black/[0.04] text-black hover:bg-black/10" : "bg-white/[0.05] text-white hover:bg-white/[0.12]"
               )}
             >
-              <ChevronLeft className="w-6 h-6 stroke-[2.5]" />
+              <ChevronLeft className="z-[10000] w-6 h-6 stroke-[2.5]" />
             </button>
 
             <button 
@@ -322,7 +322,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
                   isThemeLight ? "bg-amber-50 text-amber-500 hover:bg-amber-100" : "bg-amber-500/[0.08] text-amber-400 hover:bg-amber-500/[0.15]"
                 )}
               >
-                <Star className="w-5 h-5 fill-current" />
+                <Star className="z-[10000] w-5 h-5 fill-current" />
               </button>
 
               <DropdownMenu>
@@ -331,42 +331,42 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
                     className={cn("w-11 h-11 rounded-full flex items-center justify-center transition-all",
                     isThemeLight ? "bg-black/[0.04] text-black hover:bg-black/10" : "bg-white/[0.05] text-white hover:bg-white/[0.12]"
                   )}>
-                    <MoreVertical className="w-5 h-5" />
+                    <MoreVertical className="z-[10000] w-5 h-5" />
                   </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className={cn("rounded-[1.5rem] p-2 shadow-2xl backdrop-blur-xl min-w-[200px]", isThemeLight ? "bg-white text-slate-900 border-slate-200" : "bg-[#0e0e18] text-white border-white/[0.08]")}>
+                <DropdownMenuContent align="end" className={cn("z-[10000] rounded-[1.5rem] p-2 shadow-2xl backdrop-blur-xl min-w-[200px]", isThemeLight ? "bg-white text-slate-900 border-slate-200" : "bg-[#0e0e18] text-white border-white/[0.08]")}>
                   <DropdownMenuItem 
                     className="p-4 rounded-[1rem] focus:bg-white/[0.07] cursor-pointer font-black uppercase tracking-widest text-[10px] gap-3"
                     onClick={() => navigate(`/profile/${otherUser.id}`)}
                   >
-                    <Info className="w-4 h-4" /> View Profile
+                    <Info className="z-[10000] w-4 h-4" /> View Profile
                   </DropdownMenuItem>
                   <DropdownMenuSeparator className="bg-white/[0.06] my-1.5" />
                   <DropdownMenuItem
                     className="p-4 rounded-[1rem] focus:bg-white/[0.07] cursor-pointer font-black uppercase tracking-widest text-[10px] gap-3"
                     onClick={() => navigate('/subscription/packages')}
                   >
-                    <Sparkles className="w-4 h-4" /> Premium
+                    <Sparkles className="z-[10000] w-4 h-4" /> Premium
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     className="p-4 rounded-[1rem] focus:bg-white/[0.07] cursor-pointer font-black uppercase tracking-widest text-[10px] gap-3"
                     onClick={() => useModalStore.getState().setModal('showTokensModal', true)}
                   >
-                    <Coins className="w-4 h-4" /> Tokens
+                    <Coins className="z-[10000] w-4 h-4" /> Tokens
                   </DropdownMenuItem>
                   <DropdownMenuSeparator className="bg-white/[0.06] my-1.5" />
                   <DropdownMenuItem
                     className="p-4 rounded-[1rem] focus:bg-amber-500/[0.12] text-amber-400 cursor-pointer font-black uppercase tracking-widest text-[10px] gap-3"
                     onClick={() => (window as any).dispatchEvent(new CustomEvent('open-report', { detail: { reportedUserId: otherUser.id, reportedUserAge: otherUser.age, category: 'user_profile' } }))}
                   >
-                    <ShieldAlert className="w-4 h-4" /> Report
+                    <ShieldAlert className="z-[10000] w-4 h-4" /> Report
                   </DropdownMenuItem>
                   <DropdownMenuSeparator className="bg-white/[0.06] my-1.5" />
                   <DropdownMenuItem
                     className="p-4 rounded-[1rem] focus:bg-red-500/[0.12] text-red-400 cursor-pointer font-black uppercase tracking-widest text-[10px] gap-3"
                     onClick={() => setShowBlockConfirm(true)}
                   >
-                    <Ban className="w-4 h-4" /> Block
+                    <Ban className="z-[10000] w-4 h-4" /> Block
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -384,7 +384,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
               <div className={cn(
                 "w-20 h-20 rounded-[32px] flex items-center justify-center mb-8 bg-gradient-to-br from-rose-500/20 to-violet-600/20 border border-white/5 shadow-2xl",
               )}>
-                <Sparkles className="w-10 h-10 text-white" />
+                <Sparkles className="z-[10000] w-10 h-10 text-white" />
               </div>
               <h3 className={cn("text-2xl font-black uppercase tracking-tight", isThemeLight ? "text-black" : "text-white")}>Swipes Stream</h3>
               <p className={cn("text-[10px] font-bold uppercase tracking-[0.2em] mt-4 max-w-[200px] leading-relaxed text-white/30")}>
@@ -429,7 +429,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
               onClick={() => setShowEmojiPicker(p => !p)}
               className={cn("shrink-0 w-12 h-12 rounded-full flex items-center justify-center transition-all border shadow-sm", showEmojiPicker ? "bg-rose-500/[0.12] border-rose-500/30 text-rose-500" : (isThemeLight ? "bg-black/[0.03] border-black/[0.06] text-black/50 hover:bg-black/[0.08]" : "bg-white/[0.03] border-white/[0.07] text-white/40 hover:bg-white/[0.09]"))}
             >
-              <Smile className="w-6 h-6 stroke-[1.5]" />
+              <Smile className="z-[10000] w-6 h-6 stroke-[1.5]" />
             </button>
 
             <div className="flex-1 relative flex items-center group">
@@ -453,7 +453,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
                   onClick={isListening ? stopListening : startListening}
                   className={cn("absolute right-2 bottom-1.5 w-9 h-9 rounded-full flex items-center justify-center transition-all", isListening ? "bg-red-500 text-white shadow-[0_0_15px_rgba(239,68,68,0.4)] animate-pulse" : (isThemeLight ? "text-black/30 hover:text-rose-500 hover:bg-rose-50" : "text-white/30 hover:text-rose-400 hover:bg-rose-500/10"))}
                 >
-                  {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+                  {isListening ? <MicOff className="z-[10000] w-4 h-4" /> : <Mic className="z-[10000] w-4 h-4" />}
                 </button>
               )}
             </div>
@@ -465,7 +465,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
                     <motion.div className="absolute inset-0 bg-white/20" animate={{ opacity: [0, 0.4, 0] }} transition={{ duration: 1.5, repeat: Infinity }} />
                     <motion.div className="absolute bottom-0 left-0 h-1 bg-white/40" initial={{ width: '100%' }} animate={{ width: '0%' }} transition={{ duration: SILENCE_SECONDS, ease: 'linear' }} />
                     <div className="relative z-10 flex items-center justify-center w-6 h-6 rounded-full bg-white/20 backdrop-blur-md">
-                      <Timer className="w-3.5 h-3.5 text-white animate-pulse" />
+                      <Timer className="z-[10000] w-3.5 h-3.5 text-white animate-pulse" />
                     </div>
                     <div className="flex flex-col relative z-10">
                       <span className="text-[8px] font-black uppercase tracking-[0.2em] text-white/70 leading-none mb-0.5">Auto-Transmit</span>
@@ -473,7 +473,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
                     </div>
                   </div>
                   <button onClick={cancelCountdown} aria-label="Cancel auto-send" className={cn("w-12 h-12 rounded-2xl flex items-center justify-center shadow-xl active:scale-90 transition-all border", isThemeLight ? "bg-foreground text-background border-foreground/20" : "bg-white text-black border-black/10")}>
-                    <X className="w-5 h-5 stroke-[3px]" />
+                    <X className="z-[10000] w-5 h-5 stroke-[3px]" />
                   </button>
                 </motion.div>
               )}
@@ -500,7 +500,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
         <RatingSubmissionDialog open={showRatingDialog} onOpenChange={setShowRatingDialog} targetId={listing?.id || otherUser.id} targetType={listing?.id ? 'listing' : 'user'} targetName={listing?.title || otherUser.full_name} categoryId={listing?.id ? (listing.category === 'vehicle' ? 'vehicle' : 'property') : 'client'} onSuccess={() => setShowRatingDialog(false)} />
 
         <AlertDialog open={showBlockConfirm} onOpenChange={setShowBlockConfirm}>
-          <AlertDialogContent className={cn("rounded-[28px]", isThemeLight ? "bg-white text-slate-900 border-slate-200" : "bg-[#0A0A0A] text-white border-white/10")}>
+          <AlertDialogContent className={cn("z-[10000] rounded-[28px]", isThemeLight ? "bg-white text-slate-900 border-slate-200" : "bg-[#0A0A0A] text-white border-white/10")}>
             <AlertDialogHeader>
               <AlertDialogTitle className={cn("text-lg font-bold", isThemeLight ? "text-slate-900" : "text-white")}>Block this user?</AlertDialogTitle>
               <AlertDialogDescription className={cn(isThemeLight ? "text-slate-500" : "text-white/50")}>
@@ -508,7 +508,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter className="gap-2">
-              <AlertDialogCancel className={cn("rounded-2xl", isThemeLight ? "bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200" : "bg-white/10 border-white/20 text-white hover:bg-white/15")}>
+              <AlertDialogCancel className={cn("z-[10000] rounded-2xl", isThemeLight ? "bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200" : "bg-white/10 border-white/20 text-white hover:bg-white/15")}>
                 Cancel
               </AlertDialogCancel>
               <AlertDialogAction
@@ -526,3 +526,4 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
 });
 
 MessagingInterface.displayName = 'MessagingInterface';
+

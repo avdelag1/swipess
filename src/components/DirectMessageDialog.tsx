@@ -55,7 +55,7 @@ export function DirectMessageDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         hideCloseButton
-        className={cn("max-w-[420px] w-[calc(100vw-32px)] p-0 overflow-hidden rounded-[28px] border shadow-2xl max-h-[90dvh] flex flex-col backdrop-blur-2xl", isLight ? "bg-white/95 border-slate-200" : "bg-[#080808]/95 border-white/[0.08]")}
+        className={cn("z-[10000] max-w-[420px] w-[calc(100vw-32px)] p-0 overflow-hidden rounded-[28px] border shadow-2xl max-h-[90dvh] flex flex-col backdrop-blur-2xl", isLight ? "bg-white/95 border-slate-200" : "bg-[#080808]/95 border-white/[0.08]")}
         style={{ background: 'linear-gradient(160deg, rgba(15,15,20,0.97) 0%, rgba(8,8,12,0.97) 100%)' }}
       >
         {/* Atmosphere orbs */}
@@ -68,17 +68,17 @@ export function DirectMessageDialog({
             onClick={handleCancel}
             className={cn("absolute top-5 right-5 w-8 h-8 rounded-full flex items-center justify-center hover:bg-white/10 border text-white/50 hover:text-white/80 active:scale-90 transition-all z-10", isLight ? "border-slate-200 bg-slate-100" : "border-white/10 bg-white/5")}
           >
-            <X className="w-3.5 h-3.5" />
+            <X className="z-[10000] w-3.5 h-3.5" />
           </button>
 
           <div className="flex items-center gap-3.5 mb-4 pr-12">
             <motion.div
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              className="w-12 h-12 rounded-2xl flex items-center justify-center"
+              className="z-[10000] w-12 h-12 rounded-2xl flex items-center justify-center"
               style={{ background: 'linear-gradient(135deg, rgba(244,63,94,0.2) 0%, rgba(139,92,246,0.2) 100%)', border: '1px solid rgba(255,255,255,0.08)' }}
             >
-              <MessageCircle className="w-6 h-6 text-white/80" strokeWidth={1.6} />
+              <MessageCircle className="z-[10000] w-6 h-6 text-white/80" strokeWidth={1.6} />
             </motion.div>
             <div>
               <h2 className={cn("text-base font-bold tracking-tight leading-none", isLight ? "text-slate-900" : "text-white")}>Direct Message</h2>
@@ -88,12 +88,12 @@ export function DirectMessageDialog({
 
           {/* Fast-Track badge */}
           <div className="flex items-start gap-2.5 px-3.5 py-2.5 rounded-xl border border-white/[0.07] bg-white/[0.03]">
-            <div className="w-7 h-7 rounded-full flex items-center justify-center bg-rose-500/15 border border-rose-500/20 shrink-0 mt-0.5">
-              <CategoryIcon className="w-3.5 h-3.5 text-rose-400" />
+            <div className="z-[10000] w-7 h-7 rounded-full flex items-center justify-center bg-rose-500/15 border border-rose-500/20 shrink-0 mt-0.5">
+              <CategoryIcon className="z-[10000] w-3.5 h-3.5 text-rose-400" />
             </div>
             <div>
               <span className="text-[10px] font-bold uppercase tracking-wider text-rose-400 flex items-center gap-1">
-                <Zap className="w-3 h-3 fill-current" /> Fast-Track
+                <Zap className="z-[10000] w-3 h-3 fill-current" /> Fast-Track
               </span>
               <span className={cn("text-[10px] leading-snug mt-0.5 block", isLight ? "text-slate-400" : "text-white/35")}>
                 {categoryLabel} listings support priority direct messaging at no extra cost.
@@ -131,12 +131,12 @@ export function DirectMessageDialog({
             <AnimatePresence mode="wait">
               {isLoading ? (
                 <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center">
-                  <div className="w-4 h-4 mr-2.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <div className="z-[10000] w-4 h-4 mr-2.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                   Sending…
                 </motion.div>
               ) : (
                 <motion.div key="send" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center">
-                  <MessageCircle className="w-4 h-4 mr-2" />
+                  <MessageCircle className="z-[10000] w-4 h-4 mr-2" />
                   Send Message
                 </motion.div>
               )}
@@ -156,3 +156,4 @@ export function DirectMessageDialog({
     </Dialog>
   );
 }
+

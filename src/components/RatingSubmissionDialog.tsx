@@ -136,7 +136,7 @@ export function RatingSubmissionDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="z-[10000] max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Rate {targetName}</DialogTitle>
           <DialogDescription>
@@ -146,7 +146,7 @@ export function RatingSubmissionDialog({
 
         {isLoading ? (
           <div className="flex items-center justify-center py-8">
-            <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+            <Loader2 className="z-[10000] w-8 h-8 animate-spin text-muted-foreground" />
           </div>
         ) : hasRated ? (
           <Alert>
@@ -249,7 +249,7 @@ export function RatingSubmissionDialog({
           >
             {createRating.isPending ? (
               <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                <Loader2 className="z-[10000] w-4 h-4 mr-2 animate-spin" />
                 Submitting...
               </>
             ) : (
@@ -261,5 +261,6 @@ export function RatingSubmissionDialog({
     </Dialog>
   );
 }
+
 
 

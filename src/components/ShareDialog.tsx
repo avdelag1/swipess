@@ -110,7 +110,7 @@ export function ShareDialog({
                       : "bg-white/5 text-white/70 hover:bg-white/10 border border-white/10"
             )}
           >
-            <X className="w-4 h-4" />
+            <X className="z-[10000] w-4 h-4" />
           </button>
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
@@ -177,7 +177,7 @@ export function ShareDialog({
               <AnimatePresence mode="wait">
                 {copied ? (
                   <motion.div key="check" initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.8, opacity: 0 }}>
-                    <Check className="w-4 h-4 stroke-[3px]" />
+                    <Check className="z-[10000] w-4 h-4 stroke-[3px]" />
                   </motion.div>
                 ) : (
                   <motion.span key="copy" initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.8, opacity: 0 }}>
@@ -198,7 +198,7 @@ export function ShareDialog({
               isLight ? "!bg-slate-900 !text-white hover:!bg-slate-800" : "!bg-white !text-black hover:!bg-white/90"
             )}
           >
-            <Share2 className="w-4 h-4" strokeWidth={2.2} />
+            <Share2 className="z-[10000] w-4 h-4" strokeWidth={2.2} />
             Share via…
           </Button>
 
@@ -232,7 +232,7 @@ export function ShareDialog({
                   : "disabled:bg-white/[0.06] disabled:text-white/30 disabled:shadow-none"
               )}
             >
-              <Send className="w-4 h-4" />
+              <Send className="z-[10000] w-4 h-4" />
             </Button>
           </div>
         </div>
@@ -240,3 +240,4 @@ export function ShareDialog({
     </Dialog>
   );
 }
+
