@@ -40,7 +40,7 @@ import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { useSwipeSounds } from '@/hooks/useSwipeSounds';
 import { appToast } from '@/utils/appNotification';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { AnimatePresence, motion, useMotionValue, useTransform } from 'framer-motion';
+import { AnimatePresence, motion, useMotionValue } from 'framer-motion';
 import { logger } from '@/utils/prodLogger';
 import { MessageConfirmationDialog } from './MessageConfirmationDialog';
 import { DirectMessageDialog } from './DirectMessageDialog';
@@ -175,6 +175,10 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [_deckLength, setDeckLength] = useState(0);
+  // True from the moment a quick-filter changes until the new query settles.
+  // Keeps the clean loader on screen so the "No results" exhausted card can
+  // never flash in the gap before react-query flips isFetching.
+  const [isCategoryTransitioning, setIsCategoryTransitioning] = useState(false);
 
   interface PendingSwipe {
     listing: any;
@@ -260,20 +264,9 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   const topCardX = useMotionValue(0);
   const topCardY = useMotionValue(0);
 
-  // Behind-card preview reacts only to HORIZONTAL drag (like/pass).
-  // Vertical browse should feel like a page-turn — the next card stays
-  // hidden underneath until the top card commits and the new top paints.
-  // Always keep the underneath card fully sized and opaque so it never
-  // flashes when flushPendingSwipe resets topCardX→0 synchronously before
-  // the re-render (which would snap the next card's transform back to 0.97).
-  const nextCardScale = useTransform(
-    [topCardX, topCardY] as any,
-    () => 1
-  );
-  const nextCardOpacity = useTransform(
-    [topCardX, topCardY] as any,
-    () => 1
-  );
+  // The under-card stays fully sized and opaque at all times — it acts as a
+  // static backdrop so the top card reveals it cleanly on commit. No reactive
+  // transforms, no willChange churn: the layer is stable across promotions.
 
   const hasSwipedRef = useRef(false);
 
@@ -396,6 +389,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     if (!filterChangedRef.current) return;
     filterChangedRef.current = false;
     isMountSettledRef.current = false;
+    setIsCategoryTransitioning(true);
     const settledTimer = setTimeout(() => { isMountSettledRef.current = true; }, 100);
 
     deckQueueRef.current = [];
@@ -462,6 +456,14 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   const isLoading = dataType === 'people' ? smartClientsLoading : smartListingsLoading;
   const isFetching = dataType === 'people' ? smartClientsFetching : smartListingsFetching;
   const error = dataType === 'people' ? smartClientsError : smartListingsError;
+
+  // Release the transition guard once the new category's query has settled
+  // (or errored). Until then the loader stays up — no exhausted-state flash.
+  useEffect(() => {
+    if (isCategoryTransitioning && !isLoading && !isFetching) {
+      setIsCategoryTransitioning(false);
+    }
+  }, [isCategoryTransitioning, isLoading, isFetching]);
 
   const listingIdsSignature = useMemo(() => {
     if (smartData.length === 0) return '';
@@ -1015,11 +1017,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                           transition: { duration: 0.25, ease: 'easeOut' } 
                         }}
                         className={cn("absolute inset-0 w-full h-full", isTopCard ? "z-20" : "z-10")}
-                        style={!isTopCard ? {
-                          scale: nextCardScale,
-                          opacity: nextCardOpacity,
-                          willChange: 'transform, opacity',
-                        } : undefined}
                       >
                       {dataType === 'people' ? (
                         <SimpleOwnerSwipeCard
@@ -1082,7 +1079,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                 exit={{ opacity: 0 }}
                 className="w-full h-full z-50 overflow-hidden"
               >
-                {(isLoading || isFetching) && deckQueue.length === 0 ? (
+                {(isLoading || isFetching || isCategoryTransitioning || !isMountSettledRef.current) && deckQueue.length === 0 ? (
                   <SwipessLoader />
                 ) : (
                 <SwipeExhaustedState
