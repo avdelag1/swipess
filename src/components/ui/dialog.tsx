@@ -71,17 +71,20 @@ const DialogContent = React.forwardRef<HTMLDivElement, DialogContentProps>(({ cl
       {open && (
         <motion.div
           key="content"
-          ref={ref}
-          initial={{ opacity: 0, scale: 0.95, y: '-48%', x: '-50%' }}
-          animate={{ opacity: 1, scale: 1, y: '-50%', x: '-50%' }}
-          exit={{ opacity: 0, scale: 0.95, y: '-48%', x: '-50%' }}
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.95 }}
           transition={{ duration: 0.2, ease: "easeOut" }}
-          className={cn(
-            "fixed left-[50%] top-[50%] z-[10002] grid w-[calc(100%-24px)] max-w-lg max-h-[90vh] gap-5 border border-white/10 bg-background p-5 sm:p-[28px] shadow-2xl pointer-events-auto rounded-[32px] overflow-hidden",
-            className
-          )}
-          {...props}
+          className="fixed inset-0 z-[10002] flex items-center justify-center p-3 pointer-events-none"
         >
+          <div
+            ref={ref}
+            className={cn(
+              "relative w-full max-w-lg max-h-[90vh] gap-5 border border-white/10 bg-background p-5 sm:p-[28px] shadow-2xl pointer-events-auto rounded-[32px] overflow-hidden grid",
+              className
+            )}
+            {...props}
+          >
           {children}
           {!hideCloseButton && (
             <button onClick={() => onOpenChange(false)} className="absolute right-3 top-3 sm:right-5 sm:top-5 h-10 w-10 flex items-center justify-center rounded-full opacity-100 transition-all focus:outline-none hover:bg-secondary/50 active:scale-90 z-[10010] bg-black/5 text-white/70">
@@ -89,6 +92,7 @@ const DialogContent = React.forwardRef<HTMLDivElement, DialogContentProps>(({ cl
               <span className="sr-only">Close</span>
             </button>
           )}
+          </div>
         </motion.div>
       )}
     </DialogPortal>
