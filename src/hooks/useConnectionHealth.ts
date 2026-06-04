@@ -46,7 +46,7 @@ async function pingSupabase(): Promise<boolean> {
       signal: controller.signal,
     });
     clearTimeout(timeoutId);
-    return !!res;
+    return res.ok;
   } catch (err: unknown) {
     if (isErrorWithMessage(err) && (err.name === 'AbortError' || err.message.includes('abort'))) {
       logger.error('[ConnectionHealth] Ping aborted (timeout)');
@@ -63,6 +63,7 @@ export function useConnectionHealth(): ConnectionHealth {
   const [retryCount, setRetryCount] = useState(0);
   const retryCountRef = useRef(0);
   const isMountedRef = useRef(true);
+  const retryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const checkConnection = useCallback(async () => {
     if (!isMountedRef.current) return;
@@ -89,8 +90,7 @@ export function useConnectionHealth(): ConnectionHealth {
       } else {
         setStatus('degraded');
         logger.warn('[ConnectionHealth] Degraded, retry', retryCountRef.current, 'of', MAX_RETRIES);
-        // Auto-retry with backoff
-        setTimeout(() => {
+        retryTimerRef.current = setTimeout(() => {
           if (isMountedRef.current) checkConnection();
         }, 2000 * retryCountRef.current);
       }
@@ -123,6 +123,7 @@ export function useConnectionHealth(): ConnectionHealth {
 
     return () => {
       isMountedRef.current = false;
+      if (retryTimerRef.current) clearTimeout(retryTimerRef.current);
       window.removeEventListener('online', handleOnline);
     };
   }, [checkConnection]);

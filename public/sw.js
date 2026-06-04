@@ -377,19 +377,31 @@ self.addEventListener('fetch', (event) => {
     }
     event.respondWith(
       caches.open(IMAGE_CACHE).then(cache => {
-        return fetch(request).then(networkResponse => {
-          if (
-            networkResponse.ok &&
-            networkResponse.status === 200 &&
-            networkResponse.type !== 'opaque'
-          ) {
-            cache.put(request, networkResponse.clone());
+        return cache.match(request).then(cached => {
+          if (cached) {
+            fetch(request).then(networkResponse => {
+              if (
+                networkResponse.ok &&
+                networkResponse.status === 200 &&
+                networkResponse.type !== 'opaque'
+              ) {
+                cache.put(request, networkResponse);
+              }
+            }).catch(() => {});
+            return cached;
           }
-          return networkResponse;
-        }).catch(async () => {
-          const cached = await cache.match(request);
-          if (cached) return cached;
-          return new Response('', { status: 504, statusText: 'Image unavailable' });
+          return fetch(request).then(networkResponse => {
+            if (
+              networkResponse.ok &&
+              networkResponse.status === 200 &&
+              networkResponse.type !== 'opaque'
+            ) {
+              cache.put(request, networkResponse.clone());
+            }
+            return networkResponse;
+          }).catch(() => {
+            return new Response('', { status: 504, statusText: 'Image unavailable' });
+          });
         });
       })
     );

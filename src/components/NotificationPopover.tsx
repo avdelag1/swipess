@@ -49,7 +49,7 @@ interface NotificationItemProps {
 }
 
 function NotificationItem({ notification, onClick, onDismiss, index }: NotificationItemProps) {
-  const role = getNotificationRole(notification);
+  const _role = getNotificationRole(notification);
   const config = typeConfigs[notification.type as keyof typeof typeConfigs] || typeConfigs.like;
   const Icon = config.icon;
   const [isHovered, setIsHovered] = useState(false);
@@ -57,13 +57,14 @@ function NotificationItem({ notification, onClick, onDismiss, index }: Notificat
   
   return (
     <motion.div
-      initial={{ opacity: 0, y: 10, scale: 0.95 }}
+      initial={{ opacity: 0, y: 20, scale: 0.95 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, x: -100 }}
+      exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.15 } }}
       transition={{ 
-        duration: 0.2, 
-        delay: index * 0.03,
-        ease: "easeOut"
+        type: "spring",
+        stiffness: 500,
+        damping: 30,
+        delay: index * 0.05
       }}
       drag="x"
       dragConstraints={{ left: -140, right: 0 }}
@@ -79,17 +80,17 @@ function NotificationItem({ notification, onClick, onDismiss, index }: Notificat
       className="relative overflow-hidden rounded-xl"
     >
       {/* Swipe to dismiss indicator — shown behind card */}
-      <div className="absolute inset-0 bg-destructive/10 flex items-center justify-end px-6 pointer-events-none">
-        <Trash2 className="w-5 h-5 text-destructive" />
+      <div className="absolute inset-0 bg-destructive/20 flex items-center justify-end px-6 pointer-events-none rounded-xl">
+        <Trash2 className="w-5 h-5 text-destructive drop-shadow-md" />
       </div>
       
       <Card
         className={cn(
-          "group cursor-pointer transition-all duration-200 border overflow-hidden",
+          "group cursor-pointer transition-all duration-300 border overflow-hidden",
           !notification.read
-            ? 'bg-card border-border/60 shadow-sm'
-            : 'bg-card/90 border-border/20',
-          "relative z-10" // Ensure card is above indicator
+            ? 'bg-background/60 backdrop-blur-xl border-border/60 shadow-[0_8px_30px_rgb(0,0,0,0.12)]'
+            : 'bg-background/40 backdrop-blur-md border-border/20 shadow-none',
+          "relative z-10 hover:bg-background/80" // Ensure card is above indicator
         )}
         onClick={onClick}
         onMouseEnter={() => setIsHovered(true)}
@@ -226,7 +227,7 @@ export function NotificationPopover({ className, children, glassPillStyle }: Not
   const [activeFilter, setActiveFilter] = useState('all');
   const navigate = useNavigate();
   const _location = useLocation();
-  const { isLight, isDark } = useAppTheme();
+  const { isLight, isDark: _isDark } = useAppTheme();
   
   const { 
     notifications, 
@@ -338,8 +339,8 @@ export function NotificationPopover({ className, children, glassPillStyle }: Not
         <DialogContent
           hideCloseButton
           className={cn(
-            "z-[10003] w-[min(calc(100vw-1rem),440px)] p-0 rounded-3xl border border-border/40 bg-background shadow-2xl",
-            "overflow-hidden gap-0",
+            "z-[10003] w-[min(calc(100vw-1rem),440px)] p-0 rounded-3xl border border-white/20 shadow-[0_0_40px_rgba(0,0,0,0.3)]",
+            "backdrop-blur-3xl bg-background/70 saturate-150 overflow-hidden gap-0",
             className
           )}
           onInteractOutside={() => setIsOpen(false)}

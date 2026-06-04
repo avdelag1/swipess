@@ -20,7 +20,6 @@ export class ChunkErrorBoundary extends Component<Props, State> {
       msg.includes('Loading chunk') ||
       msg.includes('Failed to fetch')
     ) {
-      // One-shot auto-reload for stale deploys — prevents permanent white screen
       try {
         const last = Number(sessionStorage.getItem(RELOAD_KEY) || '0');
         if (Date.now() - last > 30000) {
@@ -31,7 +30,7 @@ export class ChunkErrorBoundary extends Component<Props, State> {
       } catch { /* sessionStorage unavailable in private browsing — safe to swallow */ }
       return { hasChunkError: true };
     }
-    return null;
+    throw error;
   }
 
   render() {

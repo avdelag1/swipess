@@ -2,7 +2,6 @@ import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
 // import { } from '@/state/modalStore';
 import { triggerHaptic } from '@/utils/haptics';
-import useAppTheme from '@/hooks/useAppTheme';
 import { SimpleSwipeCard, SimpleSwipeCardRef } from './SimpleSwipeCard';
 import { SwipeExhaustedState } from './swipe/SwipeExhaustedState';
 import { SwipessLoader } from './swipe/SwipessLoader';

@@ -187,7 +187,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   onReport,
   onShare,
   onMessage,
-  onSoon,
+  onSoon: _onSoon,
   disableDrag,
   fullScreen = false,
   canGoBack = true,

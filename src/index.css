@@ -21,10 +21,7 @@ html, body, #root {
   -moz-osx-font-smoothing: grayscale;
   background-color: hsl(var(--background));
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  /* 🏎️ GPU ACCELERATION INJECTION */
-  transform: translateZ(0);
-  backface-visibility: hidden;
-  perspective: 1000;
+  /* 🏎️ GPU ACCELERATION — only on compositing-friendly containers */
   overscroll-behavior-y: none;
   /* 📱 MOBILE OPTIMIZATION: Prevent text selection and highlight */
   -webkit-user-select: none;
@@ -467,11 +464,10 @@ main, .scrollable-content, .overflow-y-auto {
   cursor: pointer;
   touch-action: manipulation;
   transition: transform 0.1s cubic-bezier(0.2, 0, 0, 1);
-  will-change: transform;
 }
 
 button:active, [role="button"]:active {
-  transform: scale(0.96) !important;
+  transform: scale(0.96);
 }
 
 /* Remove focus rings on click while preserving for accessibility */
@@ -814,7 +810,7 @@ button:focus:not(:focus-visible), [role="button"]:focus:not(:focus-visible) {
     min-height: 100dvh;
     background: hsl(var(--background));
     color: hsl(var(--foreground));
-    transition: all 0.2s ease;
+    transition: background-color 0.2s ease, color 0.2s ease;
   }
 
   /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
@@ -1499,9 +1495,7 @@ button:focus:not(:focus-visible), [role="button"]:focus:not(:focus-visible) {
 
   /* Optimize for 60fps scrolling and animations */
   .swipe-card,
-  [class*="card"],
   .motion-element {
-    will-change: transform, opacity;
     transform: translateZ(0);
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;

@@ -1,4 +1,4 @@
-import React, { ReactNode, Suspense, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import React, { ReactNode, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useAuth } from "@/hooks/useAuth"
 import { useAnonymousDrafts } from "@/hooks/useAnonymousDrafts"
 import { supabase } from '@/integrations/supabase/client'
@@ -12,8 +12,6 @@ import { PullToRefreshIndicator } from '@/components/PullToRefreshIndicator'
 
 // SPEED OF LIGHT HOOKS
 import { useWelcomeState } from "@/hooks/useWelcomeState"
-import { lazyWithRetry } from '@/utils/lazyRetry';
-const GlobalDialogs = lazyWithRetry(() => import('./GlobalDialogs').then(m => ({ default: m.GlobalDialogs })));
 import { useFocusMode } from '@/hooks/useFocusMode'
 
 // =============================================================================
@@ -260,16 +258,17 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
 
     const handleScroll = () => {
       scrollPositions.current[location.pathname] = el.scrollTop;
-      // Persist to localStorage for recovery across sessions
+    };
+
+    el.addEventListener('scroll', handleScroll, { passive: true });
+    return () => {
+      el.removeEventListener('scroll', handleScroll);
       try {
         localStorage.setItem(SCROLL_STORAGE_KEY, JSON.stringify(scrollPositions.current));
       } catch {
         // Storage quota exceeded, just use memory
       }
     };
-
-    el.addEventListener('scroll', handleScroll, { passive: true });
-    return () => el.removeEventListener('scroll', handleScroll);
   }, [location.pathname]);
 
   // Restore scroll position when navigating
@@ -339,11 +338,6 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
           {children}
         </div>
       </main>
-
-      {/* SWIPESS GLOBAL DIALOGS */}
-      <Suspense fallback={null}>
-        <GlobalDialogs userRole={userRole} />
-      </Suspense>
 
     </div>
   );

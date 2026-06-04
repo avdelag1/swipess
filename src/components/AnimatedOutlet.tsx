@@ -22,7 +22,7 @@ export function AnimatedOutlet() {
         pointerEvents: isDashboardRoute ? 'none' : 'auto',
       }}
     >
-      <AnimatePresence mode="wait" initial={false}>
+      <AnimatePresence mode="sync" initial={false}>
         <motion.div
           key={location.pathname}
           id={isDashboardRoute ? undefined : 'page-scroll-container'}

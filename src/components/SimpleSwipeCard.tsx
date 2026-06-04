@@ -80,7 +80,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   onReport,
   onShare,
   onMessage,
-  onSoon,
+  onSoon: _onSoon,
   disableDrag,
   canGoBack = true,
   fullScreen = false,
@@ -114,6 +114,8 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   const likeOpacity = useTransform(x, [0, SWIPE_THRESHOLD * 0.5, SWIPE_THRESHOLD], [0, 0.5, 1]);
   const passOpacity = useTransform(x, [-SWIPE_THRESHOLD, -SWIPE_THRESHOLD * 0.5, 0], [1, 0.5, 0]);
   const skipOpacity = useTransform(y as MotionValue<number>, (v: number) => Math.min(1, Math.abs(v) / SKIP_THRESHOLD));
+  const rotate = useTransform(x, [-800, 800], [-25, 25]);
+  const scale = useTransform(x, [-800, 0, 800], [0.95, 1, 0.95]);
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [photoDirection, setPhotoDirection] = useState<'left' | 'right'>('right');
@@ -391,13 +393,17 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
         style={{
           x,
           y,
+          rotate,
+          scale,
           opacity: cardOpacity,
           willChange: 'transform, opacity',
           transform: 'translate3d(0,0,0)',
           transformOrigin: '50% 120%', // Pivot from bottom so it feels like a heavy physical card
           backfaceVisibility: 'hidden',
           borderRadius: fullScreen ? 0 : 32,
-          boxShadow: 'none',
+          boxShadow: isTop 
+            ? '0 25px 50px -12px rgba(0,0,0,0.45), 0 10px 30px -5px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.1)'
+            : '0 4px 10px rgba(0,0,0,0.1)',
           background: 'hsl(var(--swipe-deck-frame))',
         }}
       >
