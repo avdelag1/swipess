@@ -55,6 +55,63 @@ export default function WorldRadioDirectory() {
     });
   }, [searchQuery, selectedCity, isStationFavorite]);
 
+import { useMemo, useState } from 'react';
+import { QuickFilterImage } from '@/components/ui/QuickFilterImage';
+import { AnimatePresence, motion } from 'framer-motion';
+// import { } from '@/components/AtmosphericLayer';
+import { RadioSkinBackground } from '@/components/radio/RadioSkinBackground';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useRadio } from '@/contexts/RadioContext';
+import { cityThemes, radioStations } from '@/data/radioStations';
+import { CityLocation } from '@/types/radio';
+import { triggerHaptic } from '@/utils/haptics';
+import { cn } from '@/lib/utils';
+import useAppTheme from '@/hooks/useAppTheme';
+import { useRadioSkin } from '@/hooks/useRadioSkin';
+import {
+  ArrowLeft, Globe, Heart, MapPin, Maximize2,
+  Play, Radio, Search, Shuffle,
+  Sparkles, Volume2
+} from 'lucide-react';
+
+const CARD_SPRING = { type: 'spring' as const, stiffness: 380, damping: 32, mass: 0.7 };
+
+export default function WorldRadioDirectory() {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const { state, play, toggleFavorite, isStationFavorite, shuffleAndPlay } = useRadio();
+  const { skin } = useRadioSkin();
+  const { isDark: appIsDark } = useAppTheme();
+  // Cheetah skin paints a dark surface regardless of app theme; theme skin
+  // follows the user's theme. Drive every token off this single flag.
+  const isDark = skin === 'cheetah' || (skin === 'theme' && appIsDark);
+  const [searchQuery, setSearchQuery] = useState('');
+  
+  // Initialize with 'favorites' if param exists
+  const initialFilter = searchParams.get('filter') === 'favorites' ? 'favorites' : 'all';
+  const [selectedCity, setSelectedCity] = useState<CityLocation | 'all' | 'favorites'>(initialFilter as any);
+
+  const cities = useMemo(() => Object.values(cityThemes), []);
+
+  const filteredStations = useMemo(() => {
+    return radioStations.filter(s => {
+      const matchesSearch = s.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          (s.genre?.toLowerCase().includes(searchQuery.toLowerCase()) || false) ||
+                          s.city.toLowerCase().includes(searchQuery.toLowerCase());
+      
+      let matchesFilter = true;
+      if (selectedCity === 'all') {
+        matchesFilter = true;
+      } else if (selectedCity === 'favorites') {
+        matchesFilter = isStationFavorite(s.id);
+      } else {
+        matchesFilter = s.city === selectedCity;
+      }
+      
+      return matchesSearch && matchesFilter;
+    });
+  }, [searchQuery, selectedCity, isStationFavorite]);
+
   const handleStationPlay = (station: any) => {
     triggerHaptic('medium');
     play(station);
@@ -63,7 +120,7 @@ export default function WorldRadioDirectory() {
   return (
     <div
       className={cn(
-        "h-[100dvh] overflow-y-auto overflow-x-hidden flex flex-col relative",
+        "fixed inset-0 z-[100] h-[100dvh] overflow-y-auto overflow-x-hidden flex flex-col",
         isDark ? "text-white" : "text-foreground"
       )}
       style={{ background: isDark ? '#0a0705' : 'hsl(var(--background))' }}
@@ -188,6 +245,55 @@ export default function WorldRadioDirectory() {
       </div>
 
       <main className="flex-1 p-4 pb-8 relative z-10 overflow-y-auto">
+        <AnimatePresence>
+          {state.currentStation && (
+            <motion.div
+              initial={{ y: -20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: -20, opacity: 0 }}
+              className="mb-6 w-full"
+            >
+              <button
+                onClick={() => navigate('/radio')}
+                className={cn(
+                  "w-full p-4 rounded-[2rem] backdrop-blur-3xl border shadow-lg flex items-center justify-between transition-colors",
+                  isDark
+                    ? "bg-white/10 border-white/10 text-white hover:bg-white/15"
+                    : "bg-primary/5 border-primary/20 text-foreground hover:bg-primary/10"
+                )}
+              >
+                <div className="flex items-center gap-4">
+                  <div className={cn(
+                    "w-12 h-12 rounded-2xl flex items-center justify-center",
+                    "bg-primary/20"
+                  )}>
+                    <Sparkles size={20} className="text-primary animate-pulse" />
+                  </div>
+                  <div className="text-left">
+                    <p className="text-[8px] font-black text-primary uppercase tracking-widest">Now Playing</p>
+                    <h4 className={cn(
+                      "text-sm font-black italic uppercase tracking-tight truncate max-w-[150px]",
+                      isDark ? "text-white" : "text-foreground"
+                    )}>
+                      {state.currentStation.name}
+                    </h4>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                   <div
+                     className={cn(
+                       "w-9 h-9 rounded-full flex items-center justify-center transition-colors",
+                       isDark ? "bg-white/20 text-white" : "bg-primary/20 text-primary"
+                     )}
+                   >
+                      <Maximize2 size={14} />
+                   </div>
+                </div>
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* 🛸 STATION GRID — Simplified and always visible */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <AnimatePresence>
@@ -343,59 +449,6 @@ export default function WorldRadioDirectory() {
           </motion.div>
         )}
       </main>
-
-      <AnimatePresence>
-        {state.currentStation && (
-          <motion.div
-            initial={{ y: 100, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            className="fixed bottom-[calc(env(safe-area-inset-bottom,20px)+90px)] left-6 right-6 z-40"
-          >
-            <button
-              onClick={() => navigate('/radio')}
-              className={cn(
-                "w-full p-4 rounded-[2rem] backdrop-blur-3xl border shadow-2xl flex items-center justify-between transition-colors",
-                isDark
-                  ? "bg-black/80 border-white/10 text-white"
-                  : "bg-background/95 border-border text-foreground shadow-foreground/10"
-              )}
-            >
-              <div className="flex items-center gap-4">
-                <div className={cn(
-                  "w-12 h-12 rounded-2xl flex items-center justify-center",
-                  "bg-primary/25"
-                )}>
-                  <Sparkles size={20} className="text-primary animate-pulse" />
-                </div>
-                <div className="text-left">
-                  <p className="text-[8px] font-black text-primary uppercase tracking-widest">Now Playing</p>
-                  <h4 className={cn(
-                    "text-sm font-black italic uppercase tracking-tight",
-                    isDark ? "text-white" : "text-foreground"
-                  )}>
-                    {state.currentStation.name}
-                  </h4>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                 <button
-                   onClick={(e) => {
-                     e.stopPropagation();
-                     navigate('/radio');
-                   }}
-                   className={cn(
-                     "w-9 h-9 rounded-full flex items-center justify-center transition-colors",
-                     isDark ? "bg-white/10 hover:bg-white/20 text-white" : "bg-muted/60 hover:bg-muted text-foreground"
-                   )}
-                   title="Open full player"
-                 >
-                    <Maximize2 size={14} />
-                 </button>
-              </div>
-            </button>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 }
