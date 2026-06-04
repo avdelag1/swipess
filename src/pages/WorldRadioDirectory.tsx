@@ -55,62 +55,6 @@ export default function WorldRadioDirectory() {
     });
   }, [searchQuery, selectedCity, isStationFavorite]);
 
-import { useMemo, useState } from 'react';
-import { QuickFilterImage } from '@/components/ui/QuickFilterImage';
-import { AnimatePresence, motion } from 'framer-motion';
-// import { } from '@/components/AtmosphericLayer';
-import { RadioSkinBackground } from '@/components/radio/RadioSkinBackground';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useRadio } from '@/contexts/RadioContext';
-import { cityThemes, radioStations } from '@/data/radioStations';
-import { CityLocation } from '@/types/radio';
-import { triggerHaptic } from '@/utils/haptics';
-import { cn } from '@/lib/utils';
-import useAppTheme from '@/hooks/useAppTheme';
-import { useRadioSkin } from '@/hooks/useRadioSkin';
-import {
-  ArrowLeft, Globe, Heart, MapPin, Maximize2,
-  Play, Radio, Search, Shuffle,
-  Sparkles, Volume2
-} from 'lucide-react';
-
-const CARD_SPRING = { type: 'spring' as const, stiffness: 380, damping: 32, mass: 0.7 };
-
-export default function WorldRadioDirectory() {
-  const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const { state, play, toggleFavorite, isStationFavorite, shuffleAndPlay } = useRadio();
-  const { skin } = useRadioSkin();
-  const { isDark: appIsDark } = useAppTheme();
-  // Cheetah skin paints a dark surface regardless of app theme; theme skin
-  // follows the user's theme. Drive every token off this single flag.
-  const isDark = skin === 'cheetah' || (skin === 'theme' && appIsDark);
-  const [searchQuery, setSearchQuery] = useState('');
-  
-  // Initialize with 'favorites' if param exists
-  const initialFilter = searchParams.get('filter') === 'favorites' ? 'favorites' : 'all';
-  const [selectedCity, setSelectedCity] = useState<CityLocation | 'all' | 'favorites'>(initialFilter as any);
-
-  const cities = useMemo(() => Object.values(cityThemes), []);
-
-  const filteredStations = useMemo(() => {
-    return radioStations.filter(s => {
-      const matchesSearch = s.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          (s.genre?.toLowerCase().includes(searchQuery.toLowerCase()) || false) ||
-                          s.city.toLowerCase().includes(searchQuery.toLowerCase());
-      
-      let matchesFilter = true;
-      if (selectedCity === 'all') {
-        matchesFilter = true;
-      } else if (selectedCity === 'favorites') {
-        matchesFilter = isStationFavorite(s.id);
-      } else {
-        matchesFilter = s.city === selectedCity;
-      }
-      
-      return matchesSearch && matchesFilter;
-    });
-  }, [searchQuery, selectedCity, isStationFavorite]);
 
   const handleStationPlay = (station: any) => {
     triggerHaptic('medium');
