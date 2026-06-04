@@ -4,7 +4,7 @@ import { SwipeAllDashboard } from './swipe/SwipeAllDashboard';
 import { createPortal } from 'react-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { triggerHaptic } from '@/utils/haptics';
-import { preloadClientImageToCache } from '@/lib/swipe/imageCache';
+import { preloadClientImageToCache, isClientImageDecodedInCache } from '@/lib/swipe/imageCache';
 import { imagePreloadController } from '@/lib/swipe/ImagePreloadController';
 import { imageCache } from '@/lib/swipe/cardImageCache';
 import { swipeQueue } from '@/lib/swipe/SwipeQueue';
@@ -23,7 +23,6 @@ import { useFilterStore } from '@/state/filterStore';
 import { useShallow } from 'zustand/react/shallow';
 import { useSwipeDismissal } from '@/hooks/useSwipeDismissal';
 import { useSwipeSounds } from '@/hooks/useSwipeSounds';
-import { Skeleton } from '@/components/ui/skeleton';
 import { Bike, MapPin, Users, Wrench } from 'lucide-react';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { appToast } from '@/utils/appNotification';
@@ -38,6 +37,7 @@ import { usePullDownToDismiss } from './swipe/usePullDownToDismiss';
 import { cn } from '@/lib/utils';
 import useAppTheme from "@/hooks/useAppTheme";
 import { ConnectingOverlay } from '@/components/ConnectingOverlay';
+import { SwipessLogo } from '@/components/SwipessLogo';
 
 // FIX: Lazy-load modals via portal 
 const ShareDialog = lazy(() => import('./ShareDialog').then(m => ({ default: m.ShareDialog })));
@@ -159,6 +159,7 @@ const ClientSwipeContainerComponent = ({
   
   const [locationDetecting, setLocationDetecting] = useState(false);
   const [locationDetected, setLocationDetected] = useState(false);
+  const [deckReady, setDeckReady] = useState(false);
 
 
 
@@ -228,6 +229,35 @@ const ClientSwipeContainerComponent = ({
     const t = setTimeout(() => { isMountSettledRef.current = true; }, 100);
     return () => clearTimeout(t);
   }, []);
+
+  useEffect(() => {
+    if (deckReady) return;
+    if (deckQueueRef.current.length === 0) return;
+
+    const topProfile = deckQueueRef.current[0];
+    const primaryImage = topProfile?.profile_images?.[0] || topProfile?.avatar_url;
+
+    if (!primaryImage) {
+      setDeckReady(true);
+      return;
+    }
+
+    preloadClientImageToCache(primaryImage);
+
+    const check = setInterval(() => {
+      if (isClientImageDecodedInCache(primaryImage)) {
+        setDeckReady(true);
+        clearInterval(check);
+      }
+    }, 50);
+
+    const timeout = setTimeout(() => {
+      setDeckReady(true);
+      clearInterval(check);
+    }, 3000);
+
+    return () => { clearInterval(check); clearTimeout(timeout); };
+  }, [deckReady, currentIndex]);
 
   // PERF FIX: Create stable filter signature for deck versioning
   // This detects when filters actually changed vs just navigation return
@@ -819,6 +849,17 @@ const ClientSwipeContainerComponent = ({
 
 
 
+  const handleDragStart = useCallback(() => {
+    const n2 = deckQueueRef.current[currentIndexRef.current + 2];
+    if (n2?.profile_images && Array.isArray(n2.profile_images)) {
+      n2.profile_images.forEach((imgUrl: string) => {
+        if (imgUrl) imagePreloadController.preload(imgUrl, 'high');
+      });
+    } else if (n2?.avatar_url) {
+      imagePreloadController.preload(n2.avatar_url, 'high');
+    }
+  }, []);
+
   const handleInsights = useCallback((clientId: string) => {
     navigate(`/owner/view-client/${clientId}`);
   }, [navigate]);
@@ -922,52 +963,11 @@ const ClientSwipeContainerComponent = ({
   // ========================================
   // All conditions use derived flags - NO hooks called after this point
 
-  // Loading skeleton - initial load only
-  if (showLoadingSkeleton) {
+  if (showLoadingSkeleton || !deckReady) {
     return (
-      <div className="relative w-full h-full flex-1 flex flex-col">
-        {/* 📡 Radar HUD removed from skeleton to prevent double-render flash */}
-
-        <div className="relative flex-1 w-full">
-          <div className="absolute inset-0 rounded-3xl overflow-hidden bg-white/8 animate-pulse">
-            <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-white/5 to-white/10">
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer"
-                style={{ animationDuration: '1.5s', backgroundSize: '200% 100%' }} />
-            </div>
-            <div className="absolute top-3 left-0 right-0 z-30 flex justify-center gap-1 px-4">
-              {[1, 2, 3, 4].map((num) => (
-                <div key={`skeleton-dot-${num}`} className="flex-1 h-1 rounded-full bg-white/20" />
-              ))}
-            </div>
-            <div className="absolute bottom-0 left-0 right-0 bg-black/60 backdrop-blur-xl rounded-t-[24px] p-4 pt-6">
-              <div className="flex justify-center mb-2">
-                <div className="w-10 h-1.5 bg-white/30 rounded-full" />
-              </div>
-              <div className="flex justify-between items-start mb-3">
-                <div className="flex-1 space-y-2">
-                  <Skeleton className="h-5 w-3/4 bg-white/20" />
-                  <Skeleton className="h-4 w-1/2 bg-white/15" />
-                </div>
-                <div className="text-right space-y-1">
-                  <Skeleton className="h-6 w-20 bg-white/20" />
-                  <Skeleton className="h-3 w-12 bg-white/15 ml-auto" />
-                </div>
-              </div>
-              <div className="flex gap-2">
-                <Skeleton className="h-4 w-12 bg-white/15" />
-                <Skeleton className="h-4 w-12 bg-white/15" />
-                <Skeleton className="h-4 w-16 bg-white/15" />
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="flex-shrink-0 flex justify-center items-center py-3 px-4">
-          <div className="flex items-center gap-3">
-            <Skeleton className="w-14 h-14 rounded-full bg-muted/40" />
-            <Skeleton className="w-11 h-11 rounded-full bg-muted/30" />
-            <Skeleton className="w-11 h-11 rounded-full bg-muted/30" />
-            <Skeleton className="w-14 h-14 rounded-full bg-muted/40" />
-          </div>
+      <div className="relative w-full h-full flex-1 flex items-center justify-center bg-black">
+        <div className="animate-pulse">
+          <SwipessLogo size="lg" variant="transparent" />
         </div>
       </div>
     );
@@ -1063,6 +1063,7 @@ const ClientSwipeContainerComponent = ({
                         onUndo={isTopCard ? undoLastSwipe : undefined}
                         onLike={isTopCard ? handleButtonLike : undefined}
                         onDislike={isTopCard ? handleButtonDislike : undefined}
+                        onDragStart={isTopCard ? handleDragStart : undefined}
                         canUndo={canUndo}
                         isTop={isTopCard}
                         fullScreen={true}
