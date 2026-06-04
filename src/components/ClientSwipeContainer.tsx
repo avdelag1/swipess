@@ -4,6 +4,7 @@ import { SwipeAllDashboard } from './swipe/SwipeAllDashboard';
 import { createPortal } from 'react-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { triggerHaptic } from '@/utils/haptics';
+import { getCardImageUrl } from '@/utils/imageOptimization';
 import { preloadClientImageToCache, isClientImageDecodedInCache } from '@/lib/swipe/imageCache';
 import { imagePreloadController } from '@/lib/swipe/ImagePreloadController';
 import { imageCache } from '@/lib/swipe/cardImageCache';
@@ -339,13 +340,13 @@ const ClientSwipeContainerComponent = ({
             imagesToPreload.push(imgUrl);
             preloadClientImageToCache(imgUrl);
             // Mark in simple boolean cache so CardImage.tsx detects cached images instantly
-            imageCache.set(imgUrl, true);
+            imageCache.set(getCardImageUrl(imgUrl), true);
           }
         });
       } else if (profile?.avatar_url) {
         imagesToPreload.push(profile.avatar_url);
         preloadClientImageToCache(profile.avatar_url);
-        imageCache.set(profile.avatar_url, true);
+        imageCache.set(getCardImageUrl(profile.avatar_url), true);
       }
     });
 
