@@ -289,11 +289,7 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
         {/* Card content */}
         <div className="absolute inset-x-0 bottom-0 flex flex-col justify-end p-9 md:p-11 gap-8 z-20 pointer-events-none">
           <div className="space-y-2">
-            <motion.div
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="flex items-center gap-2"
-            >
+            <div className="flex items-center gap-2">
               <div className="w-4 h-[1px] shadow-[0_0_8px_rgba(255,255,255,0.4)] bg-white/40" />
               <span
                 className="text-[10px] font-black uppercase tracking-[0.4em] italic text-white"
@@ -301,7 +297,7 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
               >
                 {card.description}
               </span>
-            </motion.div>
+            </div>
 
             <h3
               className={cn(
@@ -318,12 +314,7 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
           </div>
 
           {isTop && (
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.15, type: 'spring', damping: 20 }}
-              className="pointer-events-auto"
-            >
+            <div className="pointer-events-auto">
               <button
                 type="button"
                 ref={engageButtonRef}
@@ -343,7 +334,7 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
                 {card.icon && <card.icon className="w-5 h-5" />}
                 <span>Engage Discovery</span>
               </button>
-            </motion.div>
+            </div>
           )}
         </div>
       </div>
