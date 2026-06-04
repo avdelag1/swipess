@@ -236,6 +236,13 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   }, [isTop, images, profile?.user_id]);
 
   useEffect(() => {
+    if (isTop) {
+      hasExited.current = false;
+      isExitingRef.current = false;
+    }
+  }, [isTop]);
+
+  useEffect(() => {
     if (!profile?.user_id) return;
     if (profile.user_id !== lastProfileIdRef.current) {
       lastProfileIdRef.current = profile.user_id;
@@ -344,7 +351,8 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
       animate(x, 0, { ...SNAP_BACK_SPRING, velocity: info.velocity.x });
       animate(y, 0, { ...SNAP_BACK_SPRING, velocity: info.velocity.y });
     }
-    setTimeout(() => { isDragging.current = false; dragAxisRef.current = null; }, 100);
+    isDragging.current = false;
+    dragAxisRef.current = null;
   }, [onSwipe, onSkip, onSkipBack, canGoBack, x, y]);
 
   const handleImageTap = useCallback((e: React.MouseEvent) => {
