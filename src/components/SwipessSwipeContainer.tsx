@@ -1,4 +1,4 @@
-import { lazy, memo, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
 // import { } from '@/state/modalStore';
 import { createPortal } from 'react-dom';
@@ -51,10 +51,13 @@ import { SwipeDeckBackButton } from './swipe/SwipeDeckBackButton';
 import { usePullDownToDismiss } from './swipe/usePullDownToDismiss';
 
 import { ReportDialog } from './ReportDialog';
-
-// FIX #3: Lazy-load modals 
-const SwipeInsightsModal = lazy(() => import('./SwipeInsightsModal').then(m => ({ default: m.SwipeInsightsModal })));
-const ShareDialog = lazy(() => import('./ShareDialog').then(m => ({ default: m.ShareDialog })));
+// Eager-load the card action modals. These were previously lazy-loaded, but a
+// dynamic-import failure (stale service-worker cache / CDN chunk not yet
+// propagated after a deploy) made the Share and Insights buttons silently
+// open nothing — the tap registered but Suspense fell back to null. Bundling
+// them in the main chunk guarantees they always open.
+import { SwipeInsightsModal } from './SwipeInsightsModal';
+import { ShareDialog } from './ShareDialog';
 
 const _CATEGORY_ICON_MAP: Record<string, any> = {
   property: Home,
