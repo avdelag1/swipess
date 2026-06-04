@@ -33,18 +33,22 @@ class ModalErrorBoundary extends Component<{children: ReactNode}, {hasError: boo
   }
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error("Modal Error Boundary Caught:", error, errorInfo);
+    this.setState({ errorInfo });
   }
   render() {
     if (this.state.hasError) {
       return (
-        <div className="fixed inset-0 z-[999999] bg-red-900 text-white p-8 flex flex-col items-start justify-center overflow-auto">
-          <h1 className="text-3xl font-black mb-4 text-white">MODAL CRASHED!</h1>
-          <div className="bg-black/50 p-4 rounded text-xs font-mono mb-6 whitespace-pre-wrap">
-            {String(this.state.error?.stack || this.state.error)}
+        <div className="fixed inset-0 z-[1000000] bg-red-900 flex flex-col items-center justify-center p-8 text-white font-mono">
+          <h1 className="text-4xl font-black mb-6">MODAL CRASHED!</h1>
+          <div className="bg-black/50 p-6 rounded-xl overflow-auto w-full max-w-4xl max-h-[60vh]">
+            <pre className="text-sm whitespace-pre-wrap">{this.state.error?.toString()}</pre>
+            <pre className="text-sm whitespace-pre-wrap mt-4 text-red-300">{this.state.errorInfo?.componentStack}</pre>
           </div>
-          <button 
-            onClick={() => this.setState({ hasError: false, error: null })}
-            className="bg-white text-red-900 px-6 py-3 font-bold rounded-xl"
+          <button
+            onClick={() => {
+              this.setState({ hasError: false, error: null, errorInfo: null });
+            }}
+            className="mt-8 px-8 py-4 bg-white text-red-900 font-bold rounded-full text-xl active:scale-95 transition-transform"
           >
             Dismiss Error & Close Modal
           </button>
