@@ -71,16 +71,16 @@ const DialogContent = React.forwardRef<HTMLDivElement, DialogContentProps>(({ cl
       {open && (
         <motion.div
           key="content"
-          initial={{ opacity: 0, scale: 0.95 }}
+          initial={{ opacity: 0, scale: 0.97 }}
           animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.95 }}
+          exit={{ opacity: 0, scale: 0.97 }}
           transition={{ duration: 0.2, ease: "easeOut" }}
-          className="fixed inset-0 z-[10002] flex items-center justify-center p-3 pointer-events-none"
+          className="fixed inset-0 z-[10002] flex items-center justify-center pointer-events-none"
         >
           <div
             ref={ref}
             className={cn(
-              "relative w-full max-w-lg max-h-[90vh] gap-5 border border-white/10 bg-background p-5 sm:p-[28px] shadow-2xl pointer-events-auto rounded-[32px] overflow-hidden grid",
+              "relative w-full max-w-lg max-h-[90vh] border border-white/10 bg-background p-5 sm:p-[28px] shadow-2xl pointer-events-auto rounded-[32px] overflow-hidden",
               className
             )}
             {...props}

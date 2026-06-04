@@ -527,17 +527,17 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
             animate={{ opacity: 1, x: 0, scale: 1 }}
             exit={{ opacity: 0, x: 12, scale: 0.94 }}
             transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-            className="absolute right-3 top-[calc(var(--safe-top,0px)+var(--top-bar-height,56px)+60px)] z-50 pointer-events-auto"
+            className="absolute right-3 bottom-[calc(var(--bottom-nav-height,72px)+24px)] z-50 pointer-events-auto"
           >
             <div
-              className="flex flex-col gap-2 p-1.5 rounded-full"
+              className="flex flex-col gap-1.5 p-1.5 rounded-full"
               style={{
-                background: 'rgba(20, 20, 24, 0.42)',
-                backdropFilter: 'blur(24px) saturate(1.8)',
-                WebkitBackdropFilter: 'blur(24px) saturate(1.8)',
-                border: '1px solid rgba(255, 255, 255, 0.14)',
+                background: 'rgba(255, 255, 255, 0.12)',
+                backdropFilter: 'blur(32px) saturate(1.6)',
+                WebkitBackdropFilter: 'blur(32px) saturate(1.6)',
+                border: '1px solid rgba(255, 255, 255, 0.22)',
                 boxShadow:
-                  '0 10px 30px -8px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.10)',
+                  '0 8px 32px -6px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.15)',
               }}
             >
               {[
@@ -563,15 +563,15 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
                   aria-label={btn.label}
                   className="w-10 h-10 rounded-full flex items-center justify-center border-none p-0 outline-none active:scale-[0.85] transition-transform"
                   style={{
-                    background: 'rgba(0,0,0,0.2)',
+                    background: 'rgba(255,255,255,0.08)',
                     border: 'none',
                     WebkitTapHighlightColor: 'transparent',
                   }}
                 >
                   <btn.icon
                     color="#FFFFFF"
-                    className="w-[20px] h-[20px]"
-                    style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.45))' }}
+                    className="w-[18px] h-[18px]"
+                    style={{ filter: 'drop-shadow(0 1px 3px rgba(0,0,0,0.5))' }}
                     strokeWidth={1.8}
                   />
                 </button>
