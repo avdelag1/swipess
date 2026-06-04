@@ -130,20 +130,20 @@ export function MessagingDashboard() {
       }
       if (conversation) {
         setSelectedConversationId(conversationId);
-        setSearchParams({});
+        setSearchParams({}, { replace: true });
       } else {
         const fetched = await fetchSingleConversation(conversationId);
         if (fetched) {
           setDirectlyFetchedConversation(fetched);
           setSelectedConversationId(conversationId);
-          setSearchParams({});
+          setSearchParams({}, { replace: true });
         } else {
           toast.error('Conversation not found', { description: 'This chat may have been deleted or is no longer available.' });
         }
       }
     } catch (_e) {
       toast.error('Failed to open conversation', { description: _e instanceof Error ? _e.message : 'Please try again.' });
-      setSearchParams({});
+      setSearchParams({}, { replace: true });
     } finally {
       clearTimeout(timeout);
       setIsStartingConversation(false);
@@ -156,7 +156,7 @@ export function MessagingDashboard() {
       const existing = conversations.find(c => c.other_user?.id === userId);
       if (existing) {
         setSelectedConversationId(existing.id);
-        setSearchParams({});
+        setSearchParams({}, { replace: true });
         setIsStartingConversation(false);
         return;
       }
@@ -168,11 +168,11 @@ export function MessagingDashboard() {
       if (result.conversationId) {
         await refetch();
         setSelectedConversationId(result.conversationId);
-        setSearchParams({});
+        setSearchParams({}, { replace: true });
       }
     } catch (_e) {
       toast.error('Could not start conversation', { description: _e instanceof Error ? _e.message : 'Please try again.' });
-      setSearchParams({});
+      setSearchParams({}, { replace: true });
     } finally {
       setIsStartingConversation(false);
     }
@@ -231,7 +231,7 @@ export function MessagingDashboard() {
         
          <div className="flex items-center gap-4 sm:gap-6">
            <button
-             onClick={() => navigate('/')}
+             onClick={() => navigate(`/${activeMode}/dashboard`)}
              className={cn(
                "w-12 h-12 flex items-center justify-center rounded-full transition-all active:scale-95 shrink-0 glass-pill",
                isLight ? "text-black" : "text-white"
