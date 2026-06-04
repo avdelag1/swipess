@@ -255,30 +255,28 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
         transformOrigin: '50% 120%', // Pivot from bottom so it feels like a heavy physical card
         backfaceVisibility: 'hidden',
         WebkitBackfaceVisibility: 'hidden',
+        borderRadius: 40, // Match the 2.5rem exactly on the GPU layer
+        boxShadow: isTop ? '0 30px 60px -20px rgba(0,0,0,0.55)' : 'none',
+        backgroundColor: '#000',
+        backgroundImage: fallbackGradient,
       } as any}
       transition={{ ...PK_SPRING }}
-      className="select-none"
+      className="select-none gpu-ultra"
     >
-      <div
-        className="w-full h-full relative overflow-hidden bg-black rounded-[2.5rem] shadow-[0_30px_60px_-20px_rgba(0,0,0,0.55)]"
-        style={{ 
-          backgroundImage: fallbackGradient,
-          WebkitMaskImage: '-webkit-radial-gradient(white, black)' 
-        }}
+      <div 
+        className="absolute inset-0 overflow-hidden" 
+        style={{ borderRadius: 'inherit', WebkitUserSelect: 'none', userSelect: 'none', touchAction: 'none' }}
       >
-        {/* Use robust CardImage to avoid Framer Motion re-mounting tear bugs during swipe */}
-        <div className="absolute inset-0" style={{ borderRadius: '2.5rem', overflow: 'hidden' }}>
-          <CardImage src={photo} alt={card.label} priority fullScreen />
-        </div>
+        <CardImage src={photo} alt={card.label} priority fullScreen />
 
         {/* Scrim */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent z-10 pointer-events-none" />
 
         {/* Breathing swipe-hint dots — top card only, capable devices only */}
         {isTop && !_isLowEndDevice && (
           <motion.div
             aria-hidden
-            className="pointer-events-none absolute inset-0 z-[5]"
+            className="pointer-events-none absolute inset-0 z-[15]"
             style={{ opacity: hintOpacity }}
           >
             <div className="absolute top-1/2 left-3 -translate-y-1/2 w-1 h-8 rounded-full bg-white/15 animate-pulse" style={{ animationDuration: '2.4s' }} />
@@ -289,7 +287,7 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
         )}
 
         {/* Card content */}
-        <div className="absolute inset-x-0 bottom-0 flex flex-col justify-end p-9 md:p-11 gap-8">
+        <div className="absolute inset-x-0 bottom-0 flex flex-col justify-end p-9 md:p-11 gap-8 z-20 pointer-events-none">
           <div className="space-y-2">
             <motion.div
               initial={{ opacity: 0, x: -10 }}
@@ -324,6 +322,7 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.15, type: 'spring', damping: 20 }}
+              className="pointer-events-auto"
             >
               <button
                 type="button"
