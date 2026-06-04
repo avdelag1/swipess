@@ -88,6 +88,16 @@ export default defineConfig(({ mode }) => ({
               id.includes('node_modules/react/') ||
               id.includes('node_modules/scheduler/')
             ) return 'vendor-react';
+            // CRITICAL: Keep ALL of @radix-ui together with React in one chunk.
+            // The bare utility packages (@radix-ui/primitive, @radix-ui/number)
+            // have no "react-" in their path, so without this they fell through
+            // to a separate 199-byte "vendor-radix" chunk that vendor-react then
+            // imported from. If that micro-chunk 404s on a stale/mismatched deploy,
+            // vendor-react fails to evaluate and every Radix primitive (Dialog
+            // Portal/Content/Overlay/…) becomes undefined → React error #130 in
+            // every dialog. Folding all of @radix-ui into vendor-react removes the
+            // cross-chunk split entirely.
+            if (id.includes('@radix-ui')) return 'vendor-react';
             if (id.includes('react-router')) return 'vendor-router';
             // Merge ALL React-dependent packages and common utilities into vendor-react to prevent cycles
             // This includes any package with "react" in the name or path, plus common utilities
@@ -95,7 +105,6 @@ export default defineConfig(({ mode }) => ({
 
             // ISOLATED HEAVY LIBRARIES — maximize cache persistence
             if (id.includes('framer-motion') || id.includes('motion-dom') || id.includes('motion-utils')) return 'vendor-motion';
-            if (id.includes('@radix-ui')) return 'vendor-radix';
             if (id.includes('@supabase')) return 'vendor-supabase';
             if (id.includes('lucide-react') || id.includes('react-icons')) return 'vendor-icons';
             if (id.includes('react-hook-form') || id.includes('zod') || id.includes('@hookform')) return 'vendor-forms';

@@ -1,6 +1,6 @@
 /**
  * Ultra-Fast Service Worker - Optimized for lightning-speed loading
- * UPDATED: 2026-06-04T18:00Z - Force Update v9 (dialogs render directly, no double-portal)
+ * UPDATED: 2026-06-04T20:00Z - Force Update v10 (fold @radix-ui into vendor-react; no split radix micro-chunk that can 404 -> fixes dialog React #130)
  * 
  * PWA UPDATE FIX: Aggressive updates to ensure users always get latest version
  * - skipWaiting() called immediately on install for instant activation
