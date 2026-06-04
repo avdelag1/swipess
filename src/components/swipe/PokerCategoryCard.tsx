@@ -142,9 +142,10 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
     return () => { cancelled = true; clearTimeout(timerId); };
   }, [isTop, card.id, photoList.length]);
 
-  // Reset to first photo when this card returns to the top.
+  // Reset to first photo when this card goes to the background stack
+  // so it doesn't blink/crossfade right as it is revealed to the user!
   useEffect(() => {
-    if (isTop) setPhotoIndex(0);
+    if (!isTop) setPhotoIndex(0);
   }, [isTop, card.id]);
 
   // Reset drag state when card becomes top.
@@ -265,7 +266,13 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
     >
       <div 
         className="absolute inset-0 overflow-hidden" 
-        style={{ borderRadius: 'inherit', WebkitUserSelect: 'none', userSelect: 'none', touchAction: 'none' }}
+        style={{ 
+          borderRadius: 'inherit', 
+          WebkitUserSelect: 'none', 
+          userSelect: 'none', 
+          touchAction: 'none',
+          WebkitMaskImage: '-webkit-radial-gradient(white, black)' // Fixes Safari corner tearing!
+        }}
       >
         <CardImage src={photo} alt={card.label} priority fullScreen />
 
