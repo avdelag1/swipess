@@ -10,7 +10,6 @@ import {
   POKER_CARD_PHOTOS,
   PokerCardData,
 } from './SwipeConstants';
-import { getCategoryPhotoList, useCategoryPhotos } from '@/hooks/useCategoryPhotos';
 import { cn } from '@/lib/utils';
 import { imageCache } from '@/lib/swipe/cardImageCache';
 
@@ -28,8 +27,6 @@ interface PokerCardProps {
 
 // Module-level cache so re-mounts (cycling through deck) don't re-flash imgReady=false
 const _loadedPokerImages = new Set<string>();
-// Track which photo was last set per-card key to avoid stale useEffect races
-const _lastPhotoKey = new Map<string, string>();
 
 // Detect low-end / reduced-motion devices once at module load.
 const _isLowEndDevice = (() => {
@@ -70,43 +67,21 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
     ([cx, cy]: any) => (Math.abs(cx) + Math.abs(cy) > 4 ? 0 : 1)
   );
 
-  // Build the carousel pool: base poster + admin-managed extras.
-  const { data: extraPhotos } = useCategoryPhotos();
-  const photoList = useMemo(
-    () => getCategoryPhotoList(card.id, extraPhotos),
-    [card.id, extraPhotos],
-  );
-  const [photoIndex, setPhotoIndex] = useState(0);
-  const photo = photoList[photoIndex] || POKER_CARD_PHOTOS[card.id] || POKER_CARD_PHOTOS.property;
+  // ONE STATIC PHOTO per poker card — no carousel, no auto-cycle, no crossfade.
+  const photo = POKER_CARD_PHOTOS[card.id] || POKER_CARD_PHOTOS.property;
   const fallbackGradient = useMemo(() => {
     return POKER_CARD_GRADIENTS[card.id] || POKER_CARD_GRADIENTS.property;
   }, [card.id]);
-  const cardKey = card.id;
 
   const [imgReady, setImgReady] = useState(() => {
     return imageCache.has(photo) || _loadedPokerImages.has(photo);
   });
 
-  // Store previous photo for smooth crossfade
-  const [prevPhoto, setPrevPhoto] = useState<string | null>(null);
-  const prevPhotoRef = useRef<string | null>(null);
-  useEffect(() => {
-    if (prevPhotoRef.current && prevPhotoRef.current !== photo) {
-      setPrevPhoto(prevPhotoRef.current);
-    }
-    prevPhotoRef.current = photo;
-  }, [photo]);
-
   useLayoutEffect(() => {
-    const prev = _lastPhotoKey.get(cardKey);
-    _lastPhotoKey.set(cardKey, photo);
-    if (prev === photo) return;
-
     if (imageCache.has(photo) || _loadedPokerImages.has(photo)) {
       setImgReady(true);
       return;
     }
-
     setImgReady(false);
     const img = new Image();
     img.onload = () => {
@@ -116,39 +91,7 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
     };
     img.onerror = () => setImgReady(false);
     img.src = photo;
-  }, [photo, cardKey]);
-
-  // Preload all carousel photos.
-  useEffect(() => {
-    photoList.forEach((src) => {
-      if (imageCache.has(src) || _loadedPokerImages.has(src)) return;
-      const im = new Image();
-      im.onload = () => {
-        imageCache.set(src, true);
-        _loadedPokerImages.add(src);
-      };
-      im.src = src;
-    });
-  }, [photoList]);
-
-  // Carousel: start ~5s in, then advance every 5–10s. Only top card animates.
-  useEffect(() => {
-    if (!isTop || photoList.length < 2) return;
-    let cancelled = false;
-    const tick = () => {
-      if (cancelled) return;
-      setPhotoIndex((i) => (i + 1) % photoList.length);
-      const next = 5000 + Math.random() * 5000;
-      timerId = window.setTimeout(tick, next);
-    };
-    let timerId = window.setTimeout(tick, 5000);
-    return () => { cancelled = true; clearTimeout(timerId); };
-  }, [isTop, card.id, photoList.length]);
-
-  // Reset to first photo when this card returns to the top.
-  useEffect(() => {
-    if (isTop) setPhotoIndex(0);
-  }, [isTop, card.id]);
+  }, [photo]);
 
   // Reset drag state when card becomes top.
   useEffect(() => {
@@ -266,39 +209,16 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
         className="w-full h-full relative overflow-hidden bg-black rounded-[2.5rem] shadow-[0_30px_60px_-20px_rgba(0,0,0,0.55)]"
         style={{ backgroundImage: fallbackGradient }}
       >
-        {/* Photo carousel — smooth crossfade: both old and new render simultaneously */}
-        <div className="absolute inset-0">
-          {/* Previous photo fading out */}
-          {prevPhoto && prevPhoto !== photo && (
-            <motion.img
-              key={`old-${prevPhoto}`}
-              src={prevPhoto}
-              alt=""
-              aria-hidden
-              initial={{ opacity: 1 }}
-              animate={{ opacity: 0 }}
-              transition={{ duration: 0.1, ease: 'easeInOut' }}
-              onAnimationComplete={() => setPrevPhoto(null)}
-              className="absolute inset-0 w-full h-full object-cover"
-              style={{ backfaceVisibility: 'hidden' }}
-              draggable={false}
-            />
-          )}
-          {/* Current photo fading in */}
-          <motion.img
-            key={photo}
-            src={photo}
-            alt={card.label}
-            loading="eager"
-            decoding="async"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: imgReady ? 1 : 0 }}
-            transition={{ duration: 0.1, ease: 'easeInOut' }}
-            className="absolute inset-0 w-full h-full object-cover"
-            style={{ backfaceVisibility: 'hidden', willChange: 'opacity' }}
-            draggable={false}
-          />
-        </div>
+        {/* Single static photo — no carousel, no crossfade */}
+        <img
+          src={photo}
+          alt={card.label}
+          loading="eager"
+          decoding="async"
+          className="absolute inset-0 w-full h-full object-cover"
+          style={{ opacity: imgReady ? 1 : 0, backfaceVisibility: 'hidden' }}
+          draggable={false}
+        />
 
         {/* Scrim */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
