@@ -137,9 +137,11 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
 
   const images = useMemo(() => {
     if (!profile) return [FALLBACK_PLACEHOLDER];
-    return Array.isArray(profile.profile_images) && profile.profile_images.length > 0
+    const all = Array.isArray(profile.profile_images) && profile.profile_images.length > 0
       ? profile.profile_images
       : [FALLBACK_PLACEHOLDER];
+    // DIAGNOSTIC: limit to first photo only — carousel disabled to isolate Android flash
+    return all.slice(0, 1);
   }, [profile]);
 
   const imageCount = images.length;
