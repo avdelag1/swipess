@@ -1,5 +1,5 @@
 import { lazy, memo, Suspense, useCallback, useEffect, useRef, useState } from 'react';
-import { AnimatePresence, motion, useMotionValue, useTransform } from 'framer-motion';
+import { AnimatePresence, motion, useMotionValue } from 'framer-motion';
 import { SwipeAllDashboard } from './swipe/SwipeAllDashboard';
 import { createPortal } from 'react-dom';
 import { useQueryClient } from '@tanstack/react-query';
@@ -31,6 +31,7 @@ import { useStartConversation, useConversations } from '@/hooks/useConversations
 import { useNavigate } from 'react-router-dom';
 import { logger } from '@/utils/prodLogger';
 import { SwipeExhaustedState } from './swipe/SwipeExhaustedState';
+import { SwipessLoader } from './swipe/SwipessLoader';
 import { SwipeDeckBackButton } from './swipe/SwipeDeckBackButton';
 import { usePullDownToDismiss } from './swipe/usePullDownToDismiss';
 
@@ -142,6 +143,9 @@ const ClientSwipeContainerComponent = ({
   // Without this, the "No Clients Found" empty state persists because
   // appending to deckQueueRef alone doesn't trigger a React re-render
   const [_deckLength, setDeckLength] = useState(0);
+  // True from the moment the category/filter changes until the new query
+  // settles — keeps the clean loader up so the exhausted card never flashes.
+  const [isCategoryTransitioning, setIsCategoryTransitioning] = useState(false);
 
   // PERF: Get initial state ONCE using getState() - no subscription
   // This is synchronous and doesn't cause re-renders when store updates
@@ -256,6 +260,7 @@ const ClientSwipeContainerComponent = ({
 
     // Reset the filter changed flag
     filterChangedRef.current = false;
+    setIsCategoryTransitioning(true);
 
     logger.info('[ClientSwipeContainer] Filters changed, resetting deck');
 
@@ -324,19 +329,9 @@ const ClientSwipeContainerComponent = ({
   const topCardX = useMotionValue(0);
   const topCardY = useMotionValue(0);
 
-  // Always keep the underneath card fully sized and opaque so the card
-  // underneath never flashes when the top card exits and motion values reset.
-  // The slight parallax scale/opacity shift was causing a visible pop because
-  // flushPendingSwipe resets topCardX→0 synchronously before the re-render,
-  // snapping the next card's transform before it becomes the top card.
-  const nextCardScale = useTransform(
-    [topCardX, topCardY] as any,
-    () => 1
-  );
-  const nextCardOpacity = useTransform(
-    [topCardX, topCardY] as any,
-    () => 1
-  );
+  // The under-card stays fully sized and opaque as a static backdrop — no
+  // reactive transforms or willChange churn, so it never pops or flashes when
+  // the top card exits and becomes the new top.
   // ─────────────────────────────────────────────────────────────────────────
 
   // FIX: Hydration sync disabled — DB query is the single source of truth
@@ -356,12 +351,13 @@ const ClientSwipeContainerComponent = ({
   // PERF: pass userId to avoid getUser() inside queryFn
   // Extract category from filters if available (for filtering client profiles by their interests)
   const filterCategory = filters?.categories?.[0] || filters?.category || undefined;
-  const { 
-    data: internalProfiles = [], 
-    isLoading: internalIsLoading, 
-    refetch: _refetch, 
-    isRefetching: _isRefetching, 
-    error: internalError 
+  const {
+    data: internalProfiles = [],
+    isLoading: internalIsLoading,
+    isFetching: internalIsFetching,
+    refetch: _refetch,
+    isRefetching: _isRefetching,
+    error: internalError
   } = useSmartClientMatching(
     user?.id, 
     filterCategory, 
@@ -375,7 +371,15 @@ const ClientSwipeContainerComponent = ({
 
   const clientProfiles = externalProfiles || internalProfiles;
   const isLoading = externalIsLoading !== undefined ? externalIsLoading : internalIsLoading;
+  const isFetching = externalProfiles !== undefined ? false : internalIsFetching;
   const error = externalError !== undefined ? externalError : internalError;
+
+  // Release the transition guard once the new query has settled (or errored).
+  useEffect(() => {
+    if (isCategoryTransitioning && !isLoading && !isFetching) {
+      setIsCategoryTransitioning(false);
+    }
+  }, [isCategoryTransitioning, isLoading, isFetching]);
 
   useEffect(() => {
     logger.info('[ClientSwipeContainer] State Update:', {
@@ -999,11 +1003,6 @@ const ClientSwipeContainerComponent = ({
                     <motion.div
                       key={profile.user_id}
                       className={cn("absolute inset-0 w-full h-full", isTopCard ? "z-20" : "z-10")}
-                      style={!isTopCard ? {
-                        scale: nextCardScale,
-                        opacity: nextCardOpacity,
-                        willChange: 'transform, opacity',
-                      } : undefined}
                     >
                       <SimpleOwnerSwipeCard
                         ref={isTopCard ? cardRef : undefined}
@@ -1038,6 +1037,9 @@ const ClientSwipeContainerComponent = ({
                 exit={{ opacity: 0 }}
                 className="w-full h-full z-50 overflow-hidden"
               >
+                {(isLoading || isFetching || isCategoryTransitioning || !isMountSettledRef.current) ? (
+                  <SwipessLoader />
+                ) : (
                 <SwipeExhaustedState
                   radiusKm={radiusKm}
                   onRadiusChange={((km: number) => {
@@ -1058,6 +1060,7 @@ const ClientSwipeContainerComponent = ({
                   }}
                   role="owner"
                 />
+                )}
               </motion.div>
             )}
           </AnimatePresence>
