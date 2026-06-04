@@ -138,6 +138,8 @@ export function SwipeInsightsModal({ open, onOpenChange, listing, profile }: Swi
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         hideCloseButton
+        onInteractOutside={(e) => e.preventDefault()}
+        onPointerDownOutside={(e) => e.preventDefault()}
         className={cn(
           "fixed inset-0 w-full h-[100vh] max-h-[100vh] p-0 overflow-hidden border-none rounded-[0] shadow-2xl flex flex-col",
           surface

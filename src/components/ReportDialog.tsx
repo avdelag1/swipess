@@ -72,6 +72,8 @@ export function ReportDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         hideCloseButton
+        onInteractOutside={(e) => e.preventDefault()}
+        onPointerDownOutside={(e) => e.preventDefault()}
         className={cn(
           "max-w-md w-[calc(100vw-32px)] p-0 rounded-[28px] border shadow-2xl overflow-hidden max-h-[90dvh] flex flex-col",
           isLight ? "bg-white border-slate-200" : "bg-[#0A0A0A] border-white/10"
