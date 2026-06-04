@@ -209,6 +209,13 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
     }
   }, [listing.id, (listing as any).user_id, x, y]);
 
+  useEffect(() => {
+    if (isTop) {
+      hasExited.current = false;
+      isExitingRef.current = false;
+    }
+  }, [isTop]);
+
   const [isZoomed, setIsZoomed] = useState(false);
   const { containerRef, pointerHandlers: magnifierPointerHandlers, isActive: isMagnifierActive, wasActive: wasMagnifierActive, isHoldPending: isMagnifierHoldPending } = useMagnifier({
     scale: 2.8,
