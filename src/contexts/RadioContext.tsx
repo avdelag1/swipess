@@ -269,201 +269,6 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       // Live streams should never "end" — treat as a network blip and try to
       // silently reconnect the same station before skipping.
       if (isPlayingFlagRef.current && tryReconnectRef.current()) return;
-state: fallbackRadioState,
-  loading: false,
-  error: null,
-  play: async () => {},
-  pause: () => {},
-  togglePlayPause: () => {},
-  togglePower: () => {},
-  changeStation: () => {},
-  setCity: () => {},
-  setVolume: () => {},
-  toggleShuffle: () => {},
-  shuffleAndPlay: () => {},
-  toggleFavorite: () => {},
-  isStationFavorite: () => false,
-  playPlaylist: () => {},
-  playFavorites: () => {},
-  setMiniPlayerMode: () => {},
-  getFrequencyData: () => new Uint8Array(0),
-};
-
-export function RadioProvider({ children }: { children: React.ReactNode }) {
-  const { user } = useAuth();
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-
-  const [state, setState] = useState<RadioPlayerState>({
-    isPlaying: false,
-    isPoweredOn: false,
-    currentStation: null,
-    currentCity: 'tulum',
-    volume: 0.7,
-    isShuffle: false,
-    favorites: [],
-    deadStationIds: [], // Fresh start each session — no permanent blacklist
-    miniPlayerMode: (localStorage.getItem('Swipess_radio_mini_player_mode') as 'expanded' | 'minimized' | 'closed') || 'closed',
-  });
-
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  // Audio Context for Visualizer
-  const audioContextRef = useRef<AudioContext | null>(null);
-  const analyzerRef = useRef<AnalyserNode | null>(null);
-  const sourceRef = useRef<MediaElementAudioSourceNode | null>(null);
-  const dataArrayRef = useRef<Uint8Array>(new Uint8Array(0));
-
-  // Initialize audio element once
-  useEffect(() => {
-    if (!audioRef.current) {
-      audioRef.current = new Audio();
-      audioRef.current.volume = state.volume;
-      audioRef.current.preload = 'auto';
-      audioRef.current.crossOrigin = "anonymous";
-    }
-
-    return () => {
-      if (loadTimeoutRef.current) {
-        clearTimeout(loadTimeoutRef.current);
-        loadTimeoutRef.current = null;
-      }
-      if (errorTimeoutRef.current) {
-        clearTimeout(errorTimeoutRef.current);
-        errorTimeoutRef.current = null;
-      }
-      if (reconnectTimeoutRef.current) {
-        clearTimeout(reconnectTimeoutRef.current);
-        reconnectTimeoutRef.current = null;
-      }
-      if (watchdogIntervalRef.current) {
-        clearInterval(watchdogIntervalRef.current);
-        watchdogIntervalRef.current = null;
-      }
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current.src = '';
-      }
-    };
-  }, []);
-
-  // Track failed stations to avoid infinite loops and identify dead ones
-  const failedStationsRef = useRef<Set<string>>(new Set());
-  const loadTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const errorTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const currentStationRef = useRef<RadioStation | null>(null);
-
-  // CRITICAL: Guard against spurious error/stalled/waiting events fired when
-  // we deliberately change audio.src to a new station. Without this, the old
-  // stream's abort triggers reconnect of the OLD station, clobbering the new one.
-  const changingStationRef = useRef(false);
-
-  // Reconnect supervisor: silently retry the same station on transient drops
-  // before falling through to the existing skip-to-next path.
-  const reconnectAttemptsRef = useRef(0);
-  const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const RECONNECT_BACKOFF_MS = [1000, 2000, 4000];
-  const MAX_RECONNECT_ATTEMPTS = 3;
-
-  // Heartbeat watchdog: detects frozen currentTime / suspended AudioContext
-  const watchdogIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const lastCurrentTimeRef = useRef(0);
-  const lastCurrentTimeSampleRef = useRef(0);
-
-  // Reset the rapid-error counter after sustained healthy playback (60s).
-  const healthyPlaybackTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  // Setter exposed by the audio listener effect so other refs can clear the count.
-  const resetErrorCountRef = useRef<() => void>(() => {});
-
-  // Stable refs so the once-only audio listener effect always sees the latest
-  // values without re-attaching listeners on every state change.
-  const isPlayingFlagRef = useRef(false);
-  const tryReconnectRef = useRef<() => boolean>(() => false);
-
-  // Keep ref in sync with state
-  useEffect(() => {
-    currentStationRef.current = state.currentStation;
-  }, [state.currentStation]);
-
-  // Shuffle queue: pre-shuffled list of ALL stations
-  const shuffleQueueRef = useRef<RadioStation[]>([]);
-  const shuffleIndexRef = useRef<number>(0);
-  // Track the last N played station ids so shuffle never repeats within window
-  const recentPlayedRef = useRef<string[]>([]);
-  const RECENT_WINDOW = 8;
-  const pushRecent = (id: string) => {
-    const arr = recentPlayedRef.current.filter(x => x !== id);
-    arr.push(id);
-    while (arr.length > RECENT_WINDOW) arr.shift();
-    recentPlayedRef.current = arr;
-  };
-
-  // Filter out dead stations from the master list
-  const activeStations = useMemo(() => {
-    return radioStations.filter(s => !state.deadStationIds.includes(s.id));
-  }, [state.deadStationIds]);
-
-  // Refs to hold latest callbacks
-  const changeStationRef = useRef<(direction: 'next' | 'prev') => void>(() => {});
-
-  // Attempt silent reconnect of the SAME station. Returns true if a retry was
-  // scheduled; false if we exhausted the budget and the caller should fall
-  // through to skip-to-next. Uses the audio element directly to bypass the
-  // play() user-intent guard — internal recovery never needs a fresh gesture.
-  const tryReconnectSameStation = useCallback((): boolean => {
-    const station = currentStationRef.current;
-    if (!station) return false;
-    if (reconnectAttemptsRef.current >= MAX_RECONNECT_ATTEMPTS) {
-      reconnectAttemptsRef.current = 0;
-      return false;
-    }
-    const delay = RECONNECT_BACKOFF_MS[reconnectAttemptsRef.current] ?? 4000;
-    reconnectAttemptsRef.current += 1;
-    setError(`Reconnecting (${reconnectAttemptsRef.current}/${MAX_RECONNECT_ATTEMPTS})...`);
-    if (reconnectTimeoutRef.current) clearTimeout(reconnectTimeoutRef.current);
-    reconnectTimeoutRef.current = setTimeout(() => {
-      const audio = audioRef.current;
-      if (!audio) return;
-      try {
-        // Force a fresh src load — same URL, but reset internal buffer state.
-        audio.src = station.streamUrl;
-        audio.load();
-        if (audioContextRef.current?.state === 'suspended') {
-          audioContextRef.current.resume().catch(() => {/* ignore */});
-        }
-        audio.play().then(() => {
-          setError(null);
-          setState(prev => ({ ...prev, isPlaying: true }));
-        }).catch(() => {
-          // Let the error handler escalate (next reconnect attempt or skip).
-        });
-      } catch {/* ignore */}
-    }, delay);
-    return true;
-  }, []);
-
-  // Keep refs in sync so the once-only listener effect can read latest values.
-  useEffect(() => { isPlayingFlagRef.current = state.isPlaying; }, [state.isPlaying]);
-  useEffect(() => { tryReconnectRef.current = tryReconnectSameStation; }, [tryReconnectSameStation]);
-
-  // Set up audio event listeners ONCE
-  useEffect(() => {
-    if (!audioRef.current) return;
-
-    // CRITICAL: Re-entrant guard prevents infinite error loops.
-    // Setting audio.src = '' fires another 'error' event synchronously,
-    // so without this flag the handler recurses until the stack overflows.
-    let handlingError = false;
-    let errorCount = 0;
-    let lastErrorTime = 0;
-    const lastToastTime = 0;
-
-    resetErrorCountRef.current = () => { errorCount = 0; };
-
-    const handleTrackEnded = () => {
-      // Live streams should never "end" — treat as a network blip and try to
-      // silently reconnect the same station before skipping.
-      if (isPlayingFlagRef.current && tryReconnectRef.current()) return;
       changeStationRef.current('next');
     };
 
@@ -472,9 +277,9 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       // CRITICAL: If we're deliberately changing stations, ignore errors from
       // the old stream being aborted — they are expected and harmless.
       if (changingStationRef.current) return;
-      const audio = audioRef.current;
-      if (audio?.error?.code === 1 /* MEDIA_ERR_ABORTED */) return;
       handlingError = true;
+
+      const audio = audioRef.current;
 
       // Before counting this as a hard error, give the same station a few
       // silent reconnect attempts. This handles transient network drops
@@ -816,6 +621,32 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
 
     // CRITICAL: Prevent infinite recursion when all stations fail
     if (playDepthRef.current >= 10) {
+      playDepthRef.current = 0;
+      // Clear failed stations cache so they can be retried
+      failedStationsRef.current.clear();
+      setError('No stations available right now');
+      setState(prev => ({ ...prev, isPlaying: false }));
+      isPlayingRef.current = false;
+      return;
+    }
+
+    if (failedStationsRef.current.has(targetStation.id)) {
+      logger.info(`[RadioPlayer] Skipping recently failed station: ${targetStation.id}`);
+      // Already in temp blacklist; it auto-clears after 30s
+      if (failedStationsRef.current.size > 20) { const first = failedStationsRef.current.values().next().value; if (first) failedStationsRef.current.delete(first); }
+      playDepthRef.current++;
+      isPlayingRef.current = false;
+      changeStationRef.current('next');
+      return;
+    }
+
+    // Reset depth on successful attempt start
+    playDepthRef.current = 0;
+
+    try {
+      if (loadTimeoutRef.current) clearTimeout(loadTimeoutRef.current);
+
+      if (audioRef.current.src !== targetStation.streamUrl) {
         // CRITICAL: Set the station-change guard BEFORE touching audio.src.
         // This suppresses error/stalled/waiting events from the old stream
         // being aborted — the root cause of the play/stop/play/stop loop.
