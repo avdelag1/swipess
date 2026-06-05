@@ -46,7 +46,7 @@ import { logger } from '@/utils/prodLogger';
 import { MessageConfirmationDialog } from './MessageConfirmationDialog';
 import { DirectMessageDialog } from './DirectMessageDialog';
 import { useQueryClient } from '@tanstack/react-query';
-import { SwipeAllDashboard } from './swipe/SwipeAllDashboard';
+import { BentoCategoryDashboard } from './swipe/BentoCategoryDashboard';
 import { SwipeDeckBackButton } from './swipe/SwipeDeckBackButton';
 import { usePullDownToDismiss } from './swipe/usePullDownToDismiss';
 
@@ -888,7 +888,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     return (
       <>
         <div className="relative w-full h-full flex flex-col">
-          <SwipeAllDashboard setCategories={(cat) => {
+          <BentoCategoryDashboard setCategories={(cat) => {
             if (cat === 'clients') {
               switchMode('owner');
               return;
@@ -960,7 +960,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
         }}
       >
         <div className="w-full h-full">
-          <SwipeAllDashboard setCategories={() => {}} />
+          <BentoCategoryDashboard setCategories={() => {}} />
         </div>
       </motion.div>
 
