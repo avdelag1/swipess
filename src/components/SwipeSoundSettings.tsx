@@ -148,7 +148,7 @@ export function SwipeSoundSettings() {
           )}
           {!isIOS && !isNative && supportsWebVibration && (
             <p className="text-xs text-muted-foreground">
-              Android vibration is active. Short pulses fire on each swipe.
+              Android vibration is available. Enable above to turn it on.
             </p>
           )}
         </CardContent>

@@ -3,8 +3,11 @@ import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { logger } from './prodLogger';
 
 export const getHapticPreference = () => {
-  if (typeof localStorage === 'undefined') return true;
-  return localStorage.getItem('swipess_haptics_enabled') !== 'false';
+  if (typeof localStorage === 'undefined') return Capacitor.isNativePlatform();
+  const stored = localStorage.getItem('swipess_haptics_enabled');
+  if (stored !== null) return stored !== 'false';
+  // Default ON only for native — web vibration API has noticeable delay on Android
+  return Capacitor.isNativePlatform();
 };
 
 export const setHapticPreference = (enabled: boolean) => {

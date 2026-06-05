@@ -414,8 +414,8 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
         </motion.div>
 
         <div
-          className="absolute left-5 right-5 bottom-[calc(var(--bottom-nav-height,72px)+16px)] z-30 pointer-events-none transition-opacity duration-150"
-          style={{ opacity: isZoomed ? 0 : 1 }}
+          className="absolute left-5 right-5 z-30 pointer-events-none transition-opacity duration-150"
+          style={{ bottom: 'calc(var(--bottom-nav-height, 64px) + var(--safe-bottom, 0px) + 16px)', opacity: isZoomed ? 0 : 1 }}
         >
           <motion.div
             initial={{ opacity: 0, x: -10 }}
@@ -466,7 +466,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
         />
 
         {profile.verified && (
-          <div className="absolute top-16 left-6 z-40 transition-opacity duration-150" style={{ opacity: isZoomed ? 0 : 1 }}>
+          <div className="absolute left-6 z-40 transition-opacity duration-150" style={{ top: 'calc(var(--safe-top, 0px) + var(--top-bar-height, 72px) + 12px)', opacity: isZoomed ? 0 : 1 }}>
              <div className="glass-pill px-3 py-1.5 flex items-center gap-2">
                <div className="w-2 h-2 rounded-full bg-violet-500 shadow-[0_0_8px_rgba(139,92,246,1)]" />
                <span className="text-[10px] font-black uppercase tracking-[0.1em] text-white">Verified</span>
@@ -489,7 +489,8 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
             animate={{ opacity: 1, x: 0, scale: 1 }}
             exit={{ opacity: 0, x: 12, scale: 0.94 }}
             transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-            className="absolute right-3 bottom-[calc(var(--bottom-nav-height,72px)+24px)] z-50 pointer-events-auto"
+            className="absolute right-3 z-50 pointer-events-auto"
+            style={{ bottom: 'calc(var(--bottom-nav-height, 64px) + var(--safe-bottom, 0px) + 24px)' }}
           >
             <div
               className="flex flex-col gap-1.5 p-1.5 rounded-full"
