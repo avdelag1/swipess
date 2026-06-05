@@ -160,11 +160,12 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
         willChange: 'transform, opacity',
         transformOrigin: '50% 120%', // Pivot from bottom so it feels like a heavy physical card
         backfaceVisibility: 'hidden',
+        WebkitBackfaceVisibility: 'hidden',
+        z: 0,
         borderRadius: 40, // Match the 2.5rem exactly on the GPU layer
         boxShadow: isTop ? '0 30px 60px -20px rgba(0,0,0,0.55)' : 'none',
         backgroundColor: '#000',
         backgroundImage: fallbackGradient,
-        WebkitMaskImage: '-webkit-linear-gradient(white, white)',
       } as any}
       transition={{ ...PK_SPRING }}
       className={cn("select-none touch-none relative w-full h-full overflow-hidden border-none gpu-ultra", isTop ? "cursor-grab active:cursor-grabbing" : "cursor-pointer")}
@@ -175,7 +176,10 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
           borderRadius: 'inherit', 
           WebkitUserSelect: 'none', 
           userSelect: 'none', 
-          touchAction: 'none'
+          touchAction: 'none',
+          backfaceVisibility: 'hidden',
+          WebkitBackfaceVisibility: 'hidden',
+          WebkitMaskImage: '-webkit-linear-gradient(white, white)'
         }}
       >
         {/* Single static photo — no carousel, no crossfade */}
