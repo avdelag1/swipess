@@ -19,14 +19,14 @@ export const CATEGORIES = [
 export const MOCK_EVENTS: EventItem[] = [
   {
     id: 'm1', title: 'Sunset Cacao Ceremony', category: 'beach',
-    image_url: `https://images.unsplash.com/photo-1519046904884-53103b34b206?${REELS}`,
+    image_url: `/images/filters/event_cacao_ceremony_1780637326772.png`,
     description: 'Sacred cacao ceremony at sunset on the Caribbean shore. Meditation, sound healing, and deep connection with yourself.',
     event_date: '2026-04-05T18:00:00', location: 'Playa Paraíso, Tulum', location_detail: 'Beach Club',
     organizer_name: 'Casa Luna', organizer_whatsapp: '+529841234567', promo_text: 'Limited spots', discount_tag: 'EARLY BIRD', is_free: false, price_text: '$350 MXN',
   },
   {
     id: 'm2', title: 'Full Moon Beach Party', category: 'music',
-    image_url: `https://images.unsplash.com/photo-1571266028243-d220bc1d80fa?${REELS}`,
+    image_url: `/images/filters/event_beach_party_1780637338591.png`,
     description: 'Full moon jungle party on the beach. International DJs, laser lights, fire torches, and dancing under the stars all night long.',
     event_date: '2026-04-06T22:00:00', location: 'Playa Ruinas, Tulum', location_detail: 'Beach Stage',
     organizer_name: 'Zamna Tulum', organizer_whatsapp: '+529847654321', promo_text: 'Full moon night', discount_tag: 'TONIGHT', is_free: false, price_text: '$800 MXN',
