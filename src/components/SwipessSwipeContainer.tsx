@@ -1050,7 +1050,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                           ref={isTopCard ? cardRef : undefined}
                           listing={listing}
                           isTop={isTopCard}
-                          fullScreen={true}
+                          fullScreen={false}
                           onSwipe={isTopCard ? handleSwipe : () => {}}
                           onSkip={isTopCard ? handleSkip : undefined}
                           onSkipBack={isTopCard ? handleSkipBack : undefined}
