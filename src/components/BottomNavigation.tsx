@@ -135,11 +135,10 @@ export const BottomNavigation = memo(({
     { id: 'messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages' },
     { id: 'likes', icon: Flame, label: t('nav.likes'), path: '/client/liked-properties' },
     
-    // MIDDLE ACTION: Add Listing
-    { id: 'add', icon: PlusCircle, label: t('nav.add', 'ADD'), onClick: onAddListingClick, isSpecial: true },
+    // MIDDLE ACTION: Listings (Plus Button)
+    { id: 'add', icon: PlusCircle, label: t('nav.add', 'ADD'), path: '/owner/properties', isSpecial: true },
     
     { id: 'profile', icon: CircleUser, label: t('nav.profile'), path: '/client/profile' },
-    { id: 'listings', icon: Building2, label: t('nav.listings'), path: '/owner/properties' },
     { id: 'events', icon: PartyPopper, label: t('nav.events'), path: '/explore/events' },
     { id: 'vapid', icon: IdCard, label: t('nav.idCard'), onClick: () => setModal('showVapId', true) },
     { id: 'legal', icon: ScaleIcon, label: t('nav.legal'), path: '/client/legal-services' },
