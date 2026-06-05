@@ -1,4 +1,4 @@
-package com.swipess.app;
+package com.swipess.mobile;
 
 import com.getcapacitor.BridgeActivity;
 

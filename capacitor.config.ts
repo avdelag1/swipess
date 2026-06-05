@@ -1,7 +1,7 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.swipess.app',
+  appId: 'com.swipess.mobile',
   appName: 'Swipess',
   webDir: 'dist',
   server: {

@@ -2,6 +2,6 @@
 <resources>
     <string name="app_name">Swipess</string>
     <string name="title_activity_main">Swipess</string>
-    <string name="package_name">com.swipess.app</string>
-    <string name="custom_url_scheme">com.swipess.app</string>
+    <string name="package_name">com.swipess.mobile</string>
+    <string name="custom_url_scheme">com.swipess.mobile</string>
 </resources>
