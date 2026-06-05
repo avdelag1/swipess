@@ -16,6 +16,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { forgotPasswordSchema, loginSchema, signupSchema } from '@/schemas/auth';
 import { cn } from '@/lib/utils';
+import { useSiteContent, getContentValue } from '@/hooks/useSiteContent';
 
 type View = 'landing' | 'auth';
 
@@ -41,9 +42,15 @@ const inputCls = (hasError: boolean) => cn(
 
 const LandingView = memo(({
   onEnterAuth,
+  siteContent
 }: {
   onEnterAuth: (mode: 'login' | 'signup') => void;
+  siteContent?: any;
 }) => {
+  const bgImage = getContentValue(siteContent, 'landing_background');
+  const btnColor = getContentValue(siteContent, 'landing_hero_btn_color');
+  const btnText = getContentValue(siteContent, 'landing_hero_btn_text', 'Create Account');
+  const title = getContentValue(siteContent, 'landing_hero_title');
   const x = useMotionValue(0);
   const logoOpacity = useTransform(x, [0, 100, 220], [1, 0.6, 0]);
   const logoScale = useTransform(x, [0, 120, 220], [1, 0.96, 0.86]);
@@ -95,6 +102,11 @@ const LandingView = memo(({
           variant="transparent"
           className="w-[65vw] max-w-[280px] sm:max-w-[340px] md:max-w-[420px] aspect-[4/1] min-h-[70px] sm:min-h-[85px] md:min-h-[105px]"
         />
+        {title && (
+          <h1 className="mt-6 text-white text-3xl font-black tracking-wide drop-shadow-xl">
+            {title}
+          </h1>
+        )}
       </motion.div>
 
       <motion.div
@@ -112,10 +124,14 @@ const LandingView = memo(({
         </button>
         <button
           onClick={() => { triggerHaptic('medium'); onEnterAuth('signup'); }}
-          className="w-full h-14 rounded-[2rem] bg-black/60 backdrop-blur-xl text-white font-black uppercase tracking-[0.25em] text-[12px] shadow-[0_12px_36px_rgba(0,0,0,0.45)] active:scale-[0.97] transition-all flex items-center justify-center gap-3 border-2 border-white hover:bg-black/75"
+          style={{ 
+            background: btnColor ? btnColor : undefined,
+            borderColor: btnColor ? 'transparent' : 'white'
+          }}
+          className={`w-full h-14 rounded-[2rem] text-white font-black uppercase tracking-[0.25em] text-[12px] shadow-[0_12px_36px_rgba(0,0,0,0.45)] active:scale-[0.97] transition-all flex items-center justify-center gap-3 border-2 hover:brightness-110 ${!btnColor && 'bg-black/60 backdrop-blur-xl hover:bg-black/75'}`}
         >
           <Sparkles className="w-4 h-4" />
-          Create Account
+          {btnText}
         </button>
         <motion.p
           animate={{ opacity: [0.4, 0.85, 0.4] }}
@@ -129,7 +145,7 @@ const LandingView = memo(({
   );
 });
 
-const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, initialMode?: 'login' | 'signup' }) => {
+const AuthView = memo(({ onBack, initialMode = 'login', siteContent }: { onBack: () => void, initialMode?: 'login' | 'signup', siteContent?: any }) => {
   const [isLogin, setIsLogin] = useState(initialMode === 'login');
   const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -254,12 +270,17 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
         </button>
 
         <motion.div
-          className="mb-4 mt-16"
+          className="mb-4 mt-16 flex flex-col items-center"
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.05 }}
         >
           <SwipessLogo size="md" variant="transparent" />
+          {getContentValue(siteContent, 'auth_title') && (
+            <h2 className="mt-4 text-white text-xl font-bold tracking-wide text-center">
+              {getContentValue(siteContent, 'auth_title')}
+            </h2>
+          )}
         </motion.div>
 
         {isForgotPassword && (
@@ -360,18 +381,21 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
             </div>
           )}
 
-          <div className="pt-2 relative group">
-            <div className="absolute inset-x-4 -bottom-2 h-10 bg-primary/20 blur-[30px] opacity-0 group-hover:opacity-100 transition-opacity rounded-full pointer-events-none" />
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full h-14 rounded-[2.5rem] bg-gradient-to-b from-[#FF4D4D] to-[#E01E2A] text-white font-black uppercase tracking-[0.3em] text-[13px] shadow-[0_18px_50px_rgba(224,30,42,0.45)] active:scale-[0.96] transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:pointer-events-none relative overflow-hidden group/btn border border-white/15"
-            >
-              <div className="absolute inset-0 bg-white/10 opacity-0 group-hover/btn:opacity-100 transition-opacity" />
-              <Sparkles className="w-4 h-4 transition-transform group-hover/btn:rotate-12 group-hover/btn:scale-110" />
-              {isLoading ? 'Processing...' : isForgotPassword ? 'Send Reset Link' : isLogin ? 'Authorize Session' : 'Create Identity'}
-            </button>
-          </div>
+            <div className="pt-2 relative group">
+              <div className="absolute inset-x-4 -bottom-2 h-10 bg-primary/20 blur-[30px] opacity-0 group-hover:opacity-100 transition-opacity rounded-full pointer-events-none" />
+              <button
+                type="submit"
+                disabled={isLoading}
+                style={{ 
+                  background: getContentValue(siteContent, 'auth_primary_btn_color') ? getContentValue(siteContent, 'auth_primary_btn_color') : undefined,
+                }}
+                className={`w-full h-14 rounded-[2.5rem] text-white font-black uppercase tracking-[0.3em] text-[13px] shadow-[0_18px_50px_rgba(224,30,42,0.45)] active:scale-[0.96] transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:pointer-events-none relative overflow-hidden group/btn border border-white/15 ${!getContentValue(siteContent, 'auth_primary_btn_color') && 'bg-gradient-to-b from-[#FF4D4D] to-[#E01E2A]'}`}
+              >
+                <div className="absolute inset-0 bg-white/10 opacity-0 group-hover/btn:opacity-100 transition-opacity" />
+                <Sparkles className="w-4 h-4 transition-transform group-hover/btn:rotate-12 group-hover/btn:scale-110" />
+                {isLoading ? 'Processing...' : isForgotPassword ? 'Send Reset Link' : isLogin ? getContentValue(siteContent, 'auth_login_btn_text', 'Authorize Session') : getContentValue(siteContent, 'auth_signup_btn_text', 'Create Identity')}
+              </button>
+            </div>
         </motion.form>
 
         {!isForgotPassword && (
@@ -492,6 +516,11 @@ function LegendaryLandingPage() {
   const shouldOpenAuth = requestedIntent === 'signin' || requestedIntent === 'sign-in' || requestedIntent === 'login' || requestedIntent === 'signup';
   const [view, setView] = useState<View>(shouldOpenAuth ? 'auth' : 'landing');
   const [authMode, setAuthMode] = useState<'login' | 'signup'>(requestedAuthMode);
+  
+  const { data: landingData } = useSiteContent('swipess_landing');
+  const { data: authData } = useSiteContent('swipess_auth');
+  
+  const bgImage = getContentValue(landingData, 'landing_background');
 
   useEffect(() => {
     if (shouldOpenAuth) {
@@ -503,17 +532,26 @@ function LegendaryLandingPage() {
   return (
     <div className="fixed inset-0 overflow-hidden bg-black text-white">
       <div className="absolute inset-0 pointer-events-none bg-black">
-        <AtmosphericLayer variant="Swipes" opacity={0.15} />
-        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,rgba(224,30,42,0.1)_0%,transparent_70%)]" />
+        {bgImage ? (
+          <div 
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-40" 
+            style={{ backgroundImage: `url(${bgImage})` }}
+          />
+        ) : (
+          <>
+            <AtmosphericLayer variant="Swipes" opacity={0.15} />
+            <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,rgba(224,30,42,0.1)_0%,transparent_70%)]" />
+          </>
+        )}
       </div>
 
       <LandingBackgroundEffects mode="stars" />
 
       <AnimatePresence mode="wait">
         {view === 'landing' ? (
-          <LandingView key="landing" onEnterAuth={(mode) => { setAuthMode(mode); setView('auth'); }} />
+          <LandingView key="landing" onEnterAuth={(mode) => { setAuthMode(mode); setView('auth'); }} siteContent={landingData} />
         ) : (
-          <AuthView key="auth" onBack={() => setView('landing')} initialMode={authMode} />
+          <AuthView key="auth" onBack={() => setView('landing')} initialMode={authMode} siteContent={authData} />
         )}
       </AnimatePresence>
     </div>

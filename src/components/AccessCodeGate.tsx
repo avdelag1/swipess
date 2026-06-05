@@ -1,11 +1,12 @@
 /* eslint-disable react-refresh/only-export-components */
 import { useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
-import { Check, Lock, Sparkles } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Lock, Check, Sparkles } from 'lucide-react';
 import { SwipessLogo } from './SwipessLogo';
 import LandingBackgroundEffects from './LandingBackgroundEffects';
 import { AtmosphericLayer } from './AtmosphericLayer';
 import { triggerHaptic } from '@/utils/haptics';
+import { useSiteContent, getContentValue } from '@/hooks/useSiteContent';
 
 const ACCESS_CODE_KEY = 'swipess_access_granted';
 
@@ -31,6 +32,15 @@ export function AccessCodeGate({ onGranted }: Props) {
   const [code, setCode] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  
+  const { data: siteContent } = useSiteContent('swipess_gate');
+  
+  const expectedCode = getContentValue(siteContent, 'secret_code');
+  const gateTitle = getContentValue(siteContent, 'gate_title');
+  const gateSubtitle = getContentValue(siteContent, 'gate_subtitle', 'Authorized access only');
+  const bgImage = getContentValue(siteContent, 'gate_background');
+  const btnColor = getContentValue(siteContent, 'gate_btn_color');
+  const btnText = getContentValue(siteContent, 'gate_btn_text', 'Enter');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,12 +50,14 @@ export function AccessCodeGate({ onGranted }: Props) {
       triggerHaptic('error');
       return;
     }
-    const VALID_CODES = ['VIP2026', 'SWIPESS-BETA', 'SWIPESS2026', 'AVDELAG1', 'TESTER123', 'URDBEST', 'SWIPESS12345.', 'BUSINESS2030', 'LAWYER123456.'];
-    if (!VALID_CODES.includes(code.trim().toUpperCase())) {
+    
+    // Check against CMS code if configured
+    if (expectedCode && code.trim() !== expectedCode) {
       setError('Invalid access code');
       triggerHaptic('error');
       return;
     }
+
     triggerHaptic('success');
     setSuccess(true);
     setAccessCode(code.trim());
@@ -54,9 +66,16 @@ export function AccessCodeGate({ onGranted }: Props) {
 
   return (
     <div className="fixed inset-0 bg-black overflow-hidden">
-      <div className="absolute inset-0 pointer-events-none bg-black">
-        <AtmosphericLayer variant="Swipes" opacity={0.15} />
-      </div>
+      {bgImage ? (
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-40" 
+          style={{ backgroundImage: `url(${bgImage})` }}
+        />
+      ) : (
+        <div className="absolute inset-0 pointer-events-none bg-black">
+          <AtmosphericLayer variant="Swipes" opacity={0.15} />
+        </div>
+      )}
       <LandingBackgroundEffects mode="stars" />
 
       <AnimatePresence mode="wait">
@@ -69,9 +88,13 @@ export function AccessCodeGate({ onGranted }: Props) {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="flex flex-col items-center gap-8 w-full max-w-xs"
+              className="flex flex-col items-center gap-8 w-full max-w-xs relative z-10"
             >
               <SwipessLogo size="lg" variant="transparent" className="w-[60vw] max-w-[240px]" />
+
+              {gateTitle && (
+                <h1 className="text-white text-2xl font-bold text-center tracking-wide">{gateTitle}</h1>
+              )}
 
               <form onSubmit={handleSubmit} className="w-full space-y-4">
                 <div className="relative">
@@ -96,24 +119,20 @@ export function AccessCodeGate({ onGranted }: Props) {
                 )}
                 <button
                   type="submit"
-                  className="w-full h-14 rounded-[2rem] bg-gradient-to-b from-[#FF4D4D] to-[#E01E2A] text-white font-black uppercase tracking-[0.25em] text-[12px] shadow-[0_15px_45px_rgba(224,30,42,0.55)] hover:brightness-110 active:scale-[0.97] transition-all flex items-center justify-center gap-3 border border-white/15"
+                  style={{ 
+                    background: btnColor ? btnColor : undefined,
+                    borderColor: btnColor ? 'transparent' : 'rgba(255,255,255,0.15)'
+                  }}
+                  className={`w-full h-14 rounded-[2rem] text-white font-black uppercase tracking-[0.25em] text-[12px] shadow-[0_15px_45px_rgba(224,30,42,0.55)] hover:brightness-110 active:scale-[0.97] transition-all flex items-center justify-center gap-3 ${!btnColor && 'bg-gradient-to-b from-[#FF4D4D] to-[#E01E2A] border'}`}
                 >
                   <Sparkles className="w-4 h-4" />
-                  Enter
+                  {btnText}
                 </button>
               </form>
 
-              <div className="flex flex-col items-center gap-3 w-full">
-                <p className="text-[8px] font-black uppercase tracking-[0.4em] text-white/20 italic text-center">
-                  Authorized access only
-                </p>
-                <a 
-                  href="mailto:admin@swipess.com?subject=Request Access Code"
-                  className="text-[10px] font-bold uppercase tracking-widest text-white/40 hover:text-white transition-colors underline underline-offset-4"
-                >
-                  Request Access Code
-                </a>
-              </div>
+              <p className="text-[8px] font-black uppercase tracking-[0.4em] text-white/40 italic text-center drop-shadow-md">
+                {gateSubtitle}
+              </p>
             </motion.div>
           </motion.div>
         ) : (
