@@ -151,7 +151,7 @@ export const POKER_CARD_PHOTOS: Record<string, string[]> = {
     '/images/filters/bicycle_coco_sunset.jpg',
     '/images/filters/bicycle_beach_ride.jpg',
     'https://images.unsplash.com/photo-1571068316344-75bc76f77890?auto=format&fit=crop&w=800&q=90',
-    'https://images.unsplash.com/photo-1505705694340-019e0d3cfc16?auto=format&fit=crop&w=800&q=90',
+    'https://images.unsplash.com/photo-1534723452862-4c874018d66d?auto=format&fit=crop&w=800&q=90',
   ],
   services: [
     '/images/filters/workers.jpg',
@@ -180,7 +180,7 @@ export const POKER_CARD_PHOTOS: Record<string, string[]> = {
     '/images/filters/owner_renters_card.jpg',
     '/images/filters/renters_keys_1780637395685.png',
     'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=800&q=90',
-    'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=800&q=90',
+    'https://images.unsplash.com/photo-1502672260266-1c1c2c50dd3f?auto=format&fit=crop&w=800&q=90',
   ],
   leads: [
     '/images/filters/leads_handshake_1780637383311.png',

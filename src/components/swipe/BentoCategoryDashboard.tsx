@@ -42,22 +42,13 @@ const BENTO_ITEMS = [
     delay: '2s'
   },
   {
-    id: 'motorcycle',
-    label: 'MOTORCYCLES',
-    description: 'Find motorcycles for sale or rent',
-    className: 'col-span-1 row-span-1',
-    imageId: 'motorcycle',
-    icon: Bike,
+    id: 'buyers',
+    label: 'BUYERS',
+    description: 'Find people looking to buy',
+    className: 'col-span-2 row-span-1',
+    imageId: 'buyers',
+    icon: ShoppingCart,
     delay: '4s'
-  },
-  {
-    id: 'events',
-    label: 'EVENTS',
-    description: 'Discover local events',
-    className: 'col-span-1 row-span-1',
-    imageId: 'events',
-    icon: Calendar,
-    delay: '6s'
   },
   {
     id: 'services',
@@ -66,15 +57,24 @@ const BENTO_ITEMS = [
     className: 'col-span-2 row-span-1',
     imageId: 'services',
     icon: UserCheck,
+    delay: '6s'
+  },
+  {
+    id: 'motorcycle',
+    label: 'MOTORCYCLES',
+    description: 'Find motorcycles for sale or rent',
+    className: 'col-span-1 row-span-1',
+    imageId: 'motorcycle',
+    icon: Bike,
     delay: '8s'
   },
   {
-    id: 'buyers',
-    label: 'BUYERS',
-    description: 'Find people looking to buy',
-    className: 'col-span-2 row-span-1',
-    imageId: 'buyers',
-    icon: ShoppingCart,
+    id: 'events',
+    label: 'EVENTS',
+    description: 'Discover local events',
+    className: 'col-span-1 row-span-1',
+    imageId: 'events',
+    icon: Calendar,
     delay: '10s'
   },
   {
