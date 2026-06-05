@@ -123,7 +123,7 @@ function TopBarComponent({
         border: 'none'
       }}
     >
-      <div className="h-full w-full px-3 flex items-center justify-between relative">
+      <div className="h-full w-full px-2 flex items-center justify-between relative">
 
         <div
           className="flex min-w-0 items-center gap-0.5 pointer-events-auto glass-pill px-1 h-[34px]"

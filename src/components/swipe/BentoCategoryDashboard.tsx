@@ -16,31 +16,23 @@ const BENTO_ITEMS = [
   {
     id: 'property',
     label: 'PROPERTIES',
-    description: 'Buy, rent or sell properties',
+    description: 'Find properties to buy or rent',
     className: 'col-span-2 md:col-span-3 row-span-2',
     gradient: 'from-[#FF4D00]/90 to-[#FF8C00]/90',
     imageId: 'property',
   },
   {
-    id: 'buyers',
-    label: 'BUYERS',
-    description: 'Find buyers for anything',
-    className: 'col-span-1 md:col-span-3 row-span-1',
-    gradient: 'from-[#10b981]/90 to-[#047857]/90',
-    imageId: 'buyers',
-  },
-  {
-    id: 'rentals',
-    label: 'RENTALS',
-    description: 'Find rental opportunities',
-    className: 'col-span-1 md:col-span-3 row-span-1',
-    gradient: 'from-[#0ea5e9]/90 to-[#0369a1]/90',
-    imageId: 'renters',
+    id: 'services',
+    label: 'WORKERS',
+    description: 'Find people offering services',
+    className: 'col-span-2 md:col-span-2 row-span-2',
+    gradient: 'from-[#7c3aed]/90 to-[#4c1d95]/90',
+    imageId: 'services',
   },
   {
     id: 'motorcycle',
     label: 'MOTORCYCLES',
-    description: 'Buy or sell motorcycles',
+    description: 'Find motorcycles for sale or rent',
     className: 'col-span-1 md:col-span-2 row-span-1',
     gradient: 'from-[#e11d48]/90 to-[#9f1239]/90',
     imageId: 'motorcycle',
@@ -48,58 +40,50 @@ const BENTO_ITEMS = [
   {
     id: 'bicycle',
     label: 'BICYCLES',
-    description: 'Buy or sell bicycles',
+    description: 'Find bicycles for sale or rent',
     className: 'col-span-1 md:col-span-2 row-span-1',
     gradient: 'from-[#0d9488]/90 to-[#0f766e]/90',
     imageId: 'bicycle',
   },
   {
-    id: 'services',
-    label: 'WORKERS',
-    description: 'Find or hire workers',
-    className: 'col-span-2 md:col-span-2 row-span-2',
-    gradient: 'from-[#7c3aed]/90 to-[#4c1d95]/90',
-    imageId: 'services',
-  },
-  {
-    id: 'roommates',
-    label: 'ROOMMATES',
-    description: 'Find a roommate or a room',
-    className: 'col-span-1 md:col-span-2 row-span-1',
-    gradient: 'from-[#6366f1]/90 to-[#4338ca]/90',
-    imageId: 'renters', // Fallback to renters photo if roommates doesn't exist
-  },
-  {
-    id: 'leads',
-    label: 'LOOKING FOR',
-    description: 'Find help or something specific',
-    className: 'col-span-1 md:col-span-2 row-span-1',
-    gradient: 'from-[#f59e0b]/90 to-[#d97706]/90',
-    imageId: 'leads',
-  },
-  {
     id: 'events',
     label: 'EVENTS',
-    description: 'Discover & promote events',
+    description: 'Discover local events',
     className: 'col-span-2 md:col-span-2 row-span-1',
     gradient: 'from-[#ec4899]/90 to-[#be185d]/90',
     imageId: 'events',
   },
   {
-    id: 'promote',
-    label: 'PROMOTE EVENT',
-    description: 'Promote & manage your events',
-    className: 'col-span-1 md:col-span-2 row-span-1',
-    gradient: 'from-[#e11d48]/90 to-[#be123c]/90',
-    imageId: 'promote',
+    id: 'buyers',
+    label: 'BUYERS',
+    description: 'Find people looking to buy',
+    className: 'col-span-1 md:col-span-3 row-span-1',
+    gradient: 'from-[#10b981]/90 to-[#047857]/90',
+    imageId: 'buyers',
   },
   {
-    id: 'lawyer',
-    label: 'LEGAL SERVICES',
-    description: 'Legal services & consultations',
+    id: 'rentals',
+    label: 'RENTERS',
+    description: 'Find people looking to rent',
+    className: 'col-span-1 md:col-span-3 row-span-1',
+    gradient: 'from-[#0ea5e9]/90 to-[#0369a1]/90',
+    imageId: 'renters',
+  },
+  {
+    id: 'roommates',
+    label: 'ROOMMATES',
+    description: 'Find roommates',
     className: 'col-span-1 md:col-span-2 row-span-1',
-    gradient: 'from-[#3b82f6]/90 to-[#1d4ed8]/90',
-    imageId: 'lawyer',
+    gradient: 'from-[#6366f1]/90 to-[#4338ca]/90',
+    imageId: 'renters', 
+  },
+  {
+    id: 'leads',
+    label: 'SEEKERS',
+    description: 'People looking to hire',
+    className: 'col-span-1 md:col-span-2 row-span-1',
+    gradient: 'from-[#f59e0b]/90 to-[#d97706]/90',
+    imageId: 'leads',
   },
 ];
 
@@ -124,22 +108,20 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
     uiSounds.playCategorySelect();
     
     if (id === 'events') navigate('/explore/events');
-    else if (id === 'promote') navigate('/promote-event');
-    else if (id === 'lawyer') navigate('/client/legal-services');
     else if (id === 'roommates') navigate('/roommate-matching');
     else setCategories(id as QuickFilterCategory);
   }, [setCategories, navigate]);
 
   return (
     <div 
-      className="absolute inset-x-4 bottom-[88px] overflow-hidden bg-transparent"
-      style={{ top: 'calc(var(--top-bar-height, 72px) + 16px)' }}
+      className="absolute inset-x-2 bottom-[88px] overflow-hidden bg-transparent"
+      style={{ top: 'calc(var(--top-bar-height, 64px) + 2px)' }}
     >
       <motion.div
         variants={containerVariants}
         initial="hidden"
         animate="show"
-        className="w-full h-full max-w-3xl mx-auto grid grid-cols-2 md:grid-cols-6 gap-3 sm:gap-4 grid-rows-[repeat(9,minmax(0,1fr))] md:grid-rows-[repeat(5,minmax(0,1fr))]"
+        className="w-full h-full max-w-3xl mx-auto grid grid-cols-2 md:grid-cols-6 gap-2 sm:gap-4 grid-rows-[repeat(8,minmax(0,1fr))] md:grid-rows-[repeat(5,minmax(0,1fr))]"
       >
         {BENTO_ITEMS.map((item) => (
           <motion.button
