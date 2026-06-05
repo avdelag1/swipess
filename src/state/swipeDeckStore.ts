@@ -188,6 +188,14 @@ export const useSwipeDeckStore = create<SwipeDeckSlice>()(
             deckItems = items.filter(item => !swipedIds.has(item.id));
           }
 
+          // Final dedup pass to prevent race conditions from concurrent setClientDeck calls
+          const seenIds = new Set<string>();
+          deckItems = deckItems.filter(item => {
+            if (seenIds.has(item.id)) return false;
+            seenIds.add(item.id);
+            return true;
+          });
+
           // Cap at 100 items to prevent memory bloat
           let currentIndex = existingDeck.currentIndex;
           if (deckItems.length > 100) {

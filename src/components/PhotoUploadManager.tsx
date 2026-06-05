@@ -95,11 +95,15 @@ export function PhotoUploadManager({
       const newUrls = results
         .filter((r): r is PromiseFulfilledResult<string> => r.status === 'fulfilled')
         .map(r => r.value);
+      const failedCount = results.filter(r => r.status === 'rejected').length;
 
       if (newUrls.length > 0) {
         onPhotosChange([...effectiveCurrentPhotos, ...newUrls]);
         triggerHaptic('success');
         toast.success("Assets Synced", { description: `${newUrls.length} photos added to your Swipess.` });
+      }
+      if (failedCount > 0) {
+        toast.error("Upload Issue", { description: `${failedCount} photo${failedCount > 1 ? 's' : ''} failed to upload. Try again.` });
       }
     } catch (error) {
       logger.error('Upload Error:', error);
