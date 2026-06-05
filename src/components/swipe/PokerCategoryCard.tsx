@@ -158,14 +158,14 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
         rotate,
         touchAction: 'none',
         willChange: 'transform, opacity',
+        transform: 'translate3d(0,0,0)',
         transformOrigin: '50% 120%', // Pivot from bottom so it feels like a heavy physical card
         backfaceVisibility: 'hidden',
-        WebkitBackfaceVisibility: 'hidden',
-        z: 0,
         borderRadius: 40, // Match the 2.5rem exactly on the GPU layer
         boxShadow: isTop ? '0 30px 60px -20px rgba(0,0,0,0.55)' : 'none',
         backgroundColor: '#000',
         backgroundImage: fallbackGradient,
+        WebkitMaskImage: '-webkit-linear-gradient(white, white)',
       } as any}
       transition={{ ...PK_SPRING }}
       className={cn("select-none touch-none relative w-full h-full overflow-hidden border-none gpu-ultra", isTop ? "cursor-grab active:cursor-grabbing" : "cursor-pointer")}
@@ -176,10 +176,7 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
           borderRadius: 'inherit', 
           WebkitUserSelect: 'none', 
           userSelect: 'none', 
-          touchAction: 'none',
-          backfaceVisibility: 'hidden',
-          WebkitBackfaceVisibility: 'hidden',
-          WebkitMaskImage: '-webkit-linear-gradient(white, white)'
+          touchAction: 'none'
         }}
       >
         {/* Single static photo — no carousel, no crossfade */}
@@ -233,9 +230,6 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
                 style={{ 
                   textShadow: '0 2px 6px rgba(0,0,0,0.7)',
                   WebkitFontSmoothing: 'antialiased',
-                  transform: 'translateZ(0)',
-                  WebkitTransform: 'translateZ(0)',
-                  backfaceVisibility: 'hidden',
                 }}
               >
                 {card.description}
@@ -251,10 +245,6 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
                 color: '#FFFFFF',
                 textShadow: '0 2px 8px rgba(0,0,0,0.85), 0 0 2px rgba(0,0,0,0.7)',
                 WebkitFontSmoothing: 'antialiased',
-                transform: 'translateZ(0)',
-                WebkitTransform: 'translateZ(0)',
-                backfaceVisibility: 'hidden',
-                willChange: 'transform',
               }}
             >
               {card.label}
