@@ -1,11 +1,9 @@
 /**
  * Ultra-Fast Service Worker - Optimized for lightning-speed loading
- * UPDATED: 2026-06-05 - Force Update v12 (SIMPLE & QUIET: removed the aggressive
- *   self-heal reload loop that spammed ?v= cache-busters and could nuke a slow-
- *   but-working app. A missing chunk now just surfaces a normal 404 and lets the
- *   app's existing ONE-TIME recovery handle it — no reload storm. Kept: no empty-
- *   module poison, and an 8s navigation timeout so slow connections still get the
- *   FRESH shell instead of a stale cached one.)
+ * UPDATED: 2026-06-05 - Force Update v13 (Added no-store Cache-Control for SPA
+ *   routes in vercel.json so browsers never HTTP-cache a stale index.html between
+ *   deployments. Bumped version to force SW reinstall and old-cache purge on all
+ *   devices.)
  *
  * PWA UPDATE FIX: Aggressive updates to ensure users always get latest version
  * - skipWaiting() called immediately on install for instant activation
