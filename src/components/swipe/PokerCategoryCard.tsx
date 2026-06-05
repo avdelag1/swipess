@@ -123,6 +123,8 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
     return POKER_CARD_GRADIENTS[card.id] || POKER_CARD_GRADIENTS.property;
   }, [card.id]);
 
+
+  // Reset drag state when card becomes top.
   useEffect(() => {
     if (!isTop) return;
     x.stop();

@@ -42,6 +42,12 @@ export function LoopVideo({
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+
+    // Parse media fragment (e.g. video.mp4#t=5.5,15.5)
+    const tMatch = src.match(/#t=([\d.]+),([\d.]+)/);
+    const loopStart = tMatch ? parseFloat(tMatch[1]) : 0;
+    const loopEnd = tMatch ? parseFloat(tMatch[2]) : Infinity;
+
     let direction: 1 | -1 = 1;
     let raf = 0;
     let last = performance.now();
@@ -52,26 +58,29 @@ export function LoopVideo({
         last = now;
         return;
       }
-      // In reverse mode we manually step currentTime — video may be paused, that's fine.
-      // In forward mode, only advance if the browser is actually playing.
-      const dt = Math.min((now - last) / 1000, 0.1); // cap to avoid large jumps on tab resume
+      
+      const dt = Math.min((now - last) / 1000, 0.1);
       last = now;
+      
       if (direction === -1) {
         const next = el.currentTime - dt;
-        if (next <= 0) {
-          el.currentTime = 0;
+        if (next <= loopStart) {
+          el.currentTime = loopStart;
           direction = 1;
           el.play().catch(() => {});
         } else {
           el.currentTime = next;
         }
-      } else if (el.paused) {
-        // Forward mode but paused externally — skip tick
+      } else {
+        // Forward mode
+        if (el.currentTime >= loopEnd) {
+            direction = -1;
+            el.pause();
+        }
       }
     };
 
     const onEnded = () => {
-      // Switch to reverse: pause the browser's forward play, tick handles rewind manually
       direction = -1;
       el.pause();
     };
