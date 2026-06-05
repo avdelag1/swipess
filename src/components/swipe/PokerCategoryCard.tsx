@@ -42,9 +42,6 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
   const isExitingRef = useRef(false);
   const engageButtonRef = useRef<HTMLButtonElement>(null);
 
-  // Keep a visual "isDragging" state just for cursor styling.
-  const [isDraggingVisual, setIsDraggingVisual] = useState(false);
-
   // Keep the card completely solid while swiping, exactly like the main swipe cards.
   const exitOpacity = useTransform(
     [x, y] as any,
@@ -73,7 +70,6 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
     y.set(0);
     isDraggingRef.current = false;
     isExitingRef.current = false;
-    setIsDraggingVisual(false);
   }, [card.id, isTop, x, y]);
 
   const handleDragEnd = useCallback((_: any, info: PanInfo) => {
@@ -106,7 +102,6 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
     // Delay resetting drag state so onTap doesn't fire immediately
     setTimeout(() => {
       isDraggingRef.current = false;
-      setIsDraggingVisual(false);
     }, 100);
   }, [card.id, onCycle, x]);
 
@@ -130,7 +125,6 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
       onDragStart={() => {
         if (isExitingRef.current) return;
         isDraggingRef.current = true;
-        setIsDraggingVisual(true);
         triggerHaptic('light');
       }}
       onDragEnd={handleDragEnd}
@@ -168,10 +162,8 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
         scale: 1,
         rotate,
         filter: stackedFilter,
-        cursor: isTop ? (isDraggingVisual ? 'grabbing' : 'grab') : 'pointer',
         touchAction: 'none',
         willChange: 'transform, opacity',
-        transform: 'translate3d(0,0,0)',
         transformOrigin: '50% 120%', // Pivot from bottom so it feels like a heavy physical card
         backfaceVisibility: 'hidden',
         WebkitBackfaceVisibility: 'hidden',
@@ -181,7 +173,7 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
         backgroundImage: fallbackGradient,
       } as any}
       transition={{ ...PK_SPRING }}
-      className="select-none gpu-ultra"
+      className={cn("select-none gpu-ultra", isTop ? "cursor-grab active:cursor-grabbing" : "cursor-pointer")}
     >
       <div 
         className="absolute inset-0 overflow-hidden" 
@@ -189,8 +181,7 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
           borderRadius: 'inherit', 
           WebkitUserSelect: 'none', 
           userSelect: 'none', 
-          touchAction: 'none',
-          WebkitMaskImage: '-webkit-radial-gradient(white, black)' // Fixes Safari corner tearing!
+          touchAction: 'none'
         }}
       >
         {/* Single static photo — no carousel, no crossfade */}
