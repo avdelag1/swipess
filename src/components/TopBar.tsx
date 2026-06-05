@@ -199,12 +199,39 @@ function TopBarComponent({
           )}
 
 
+
+          {/* Tokens, ThemeToggle, Notifications — next to profile in left cluster */}
+          {!minimal && (
+            <>
+              <motion.button
+                transition={TAP_SPRING}
+                whileTap={{ scale: 0.92 }}
+                onClick={() => { haptics.tap(); setModal('showTokensModal', true); }}
+                className="flex shrink-0 items-center justify-center rounded-full relative h-[32px] w-[32px]"
+                style={glassPillStyle}
+                aria-label="Tokens"
+              >
+                <Crown
+                  className="w-[18px] h-[18px]"
+                  style={{
+                    color: iconColor,
+                    filter: isLight ? 'none' : 'drop-shadow(0 0 8px rgba(228,0,124,0.65))',
+                  }}
+                  strokeWidth={1.9}
+                />
+              </motion.button>
+
+              <ThemeToggle glassPillStyle={glassPillStyle} />
+
+              <NotificationPopover glassPillStyle={glassPillStyle} />
+            </>
+          )}
         </div>
 
         <div className="flex-grow flex-1" />
 
         {/* Center tap zone — a premium completely invisible tap target to go home */}
-        <div 
+        <div
           className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 flex items-center justify-center pointer-events-auto z-50 cursor-pointer"
           style={{ background: 'transparent', WebkitTapHighlightColor: 'transparent' }}
           onClick={() => {
@@ -218,50 +245,6 @@ function TopBarComponent({
           title="Go to Dashboard"
           aria-label="Go to Dashboard"
         />
-
-        {/* RIGHT CLUSTER: single glass pill wrapping all action buttons */}
-          <div
-            className="flex shrink-0 items-center gap-0.5 pointer-events-auto glass-pill px-1 h-[38px]"
-            style={clusterPillStyle}
-          >
-          {!minimal && (
-            <>
-                <motion.button
-                  transition={TAP_SPRING}
-                  whileTap={{ scale: 0.92 }}
-                  onClick={() => { haptics.tap(); navigate('/radio'); }}
-                  className="flex shrink-0 items-center justify-center rounded-full relative h-[32px] w-[32px]"
-                  style={glassPillStyle}
-                  aria-label="Radio"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: iconColor }}>
-                    <path d="M4.9 19.1C1 15.2 1 8.8 4.9 4.9"/><path d="M7.8 16.2c-2.3-2.3-2.3-6.1 0-8.5"/><circle cx="12" cy="12" r="2"/><path d="M16.2 7.8c2.3 2.3 2.3 6.1 0 8.5"/><path d="M19.1 4.9C23 8.8 23 15.1 19.1 19"/>
-                  </svg>
-                </motion.button>
-                <motion.button
-                  transition={TAP_SPRING}
-                  whileTap={{ scale: 0.92 }}
-                  onClick={() => { haptics.tap(); setModal('showTokensModal', true); }}
-                  className="flex shrink-0 items-center justify-center rounded-full relative h-[32px] w-[32px]"
-                  style={glassPillStyle}
-                  aria-label="Tokens"
-                >
-                  <Crown
-                    className="w-[18px] h-[18px]"
-                    style={{
-                      color: iconColor,
-                      filter: isLight ? 'none' : 'drop-shadow(0 0 8px rgba(228,0,124,0.65))',
-                    }}
-                    strokeWidth={1.9}
-                  />
-                </motion.button>
-
-              <ThemeToggle glassPillStyle={glassPillStyle} />
-
-              <NotificationPopover glassPillStyle={glassPillStyle} />
-            </>
-          )}
-        </div>
       </div>
 
       <svg width="0" height="0" className="absolute" aria-hidden="true">
