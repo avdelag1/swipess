@@ -42,9 +42,6 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
   const isExitingRef = useRef(false);
   const engageButtonRef = useRef<HTMLButtonElement>(null);
 
-  // Keep a visual "isDragging" state just for cursor styling.
-  const [isDraggingVisual, setIsDraggingVisual] = useState(false);
-
   // Keep the card completely solid while swiping, exactly like the main swipe cards.
   const exitOpacity = useTransform(
     [x, y] as any,
@@ -73,15 +70,11 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
     y.set(0);
     isDraggingRef.current = false;
     isExitingRef.current = false;
-    setIsDraggingVisual(false);
   }, [card.id, isTop, x, y]);
 
   const handleDragEnd = useCallback((_: any, info: PanInfo) => {
     // If already animating exit, ignore.
     if (isExitingRef.current) return;
-
-    isDraggingRef.current = false;
-    setIsDraggingVisual(false);
 
     const dx = info.offset.x;
     const vx = info.velocity.x;
@@ -105,27 +98,28 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
 
     // Snap back.
     animate(x, 0, { ...PK_SPRING });
+    
+    // Delay resetting drag state so onTap doesn't fire immediately
+    setTimeout(() => {
+      isDraggingRef.current = false;
+    }, 100);
   }, [card.id, onCycle, x]);
 
-  // Stacked cards sit exactly behind the top card, so they only become visible
-  // as the top card slides away — at which point we want them fully solid (like
-  // the next page of a book). No brightness filter: a CSS filter on a moving
-  // card forces a full per-frame re-raster of the photo and flickers on mobile.
+  // Stack styling — no blur (avoids expensive repaints)
   const stackOpacity = 1;
 
   if (index > 7) return null;
 
   return (
     <motion.div
-      // Only the top card is draggable. No constraints — let the card move
-      // freely so the exit animate() to ±520 isn't fought by constraint springs.
-      drag={isTop ? true : false}
+      // Only the top card is draggable. Lock drag to 'x' axis since we only swipe left/right.
+      drag={isTop ? "x" : false}
+      dragDirectionLock={isTop ? true : undefined}
       dragMomentum={false}
       dragTransition={{ bounceStiffness: 800, bounceDamping: 25 }} // Instantly glues to finger
       onDragStart={() => {
         if (isExitingRef.current) return;
         isDraggingRef.current = true;
-        setIsDraggingVisual(true);
         triggerHaptic('light');
       }}
       onDragEnd={handleDragEnd}
@@ -162,28 +156,30 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
         opacity: isTop ? exitOpacity : stackOpacity,
         scale: 1,
         rotate,
-        cursor: isTop ? (isDraggingVisual ? 'grabbing' : 'grab') : 'pointer',
         touchAction: 'none',
         willChange: 'transform, opacity',
-        transform: 'translate3d(0,0,0)',
         transformOrigin: '50% 120%', // Pivot from bottom so it feels like a heavy physical card
         backfaceVisibility: 'hidden',
-        WebkitBackfaceVisibility: 'hidden',
         borderRadius: 40, // Match the 2.5rem exactly on the GPU layer
         boxShadow: isTop ? '0 30px 60px -20px rgba(0,0,0,0.55)' : 'none',
         backgroundColor: '#000',
         backgroundImage: fallbackGradient,
+        // NOTE: no WebkitMaskImage here. The card is already clipped by
+        // overflow-hidden (outer + inner) and borderRadius. A mask forces an
+        // offscreen GPU pass that re-rasterizes the photo every frame while the
+        // card is dragged → the photo tears/flickers on swipe. The working
+        // SimpleSwipeCard has no mask either.
       } as any}
       transition={{ ...PK_SPRING }}
-      className="select-none gpu-ultra"
+      className={cn("select-none touch-none relative w-full h-full overflow-hidden border-none gpu-ultra", isTop ? "cursor-grab active:cursor-grabbing" : "cursor-pointer")}
     >
-      <div
-        className="absolute inset-0 overflow-hidden"
-        style={{
-          borderRadius: 'inherit',
-          WebkitUserSelect: 'none',
-          userSelect: 'none',
-          touchAction: 'none',
+      <div 
+        className="absolute inset-0 overflow-hidden" 
+        style={{ 
+          borderRadius: 'inherit', 
+          WebkitUserSelect: 'none', 
+          userSelect: 'none', 
+          touchAction: 'none'
         }}
       >
         {/* Single static photo — no carousel, no crossfade */}
@@ -193,12 +189,25 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
           loading="eager"
           decoding="async"
           className="absolute inset-0 w-full h-full object-cover"
-          style={{ backfaceVisibility: 'hidden' }}
+          style={{ 
+            WebkitTouchCallout: 'none',
+            WebkitUserSelect: 'none',
+            userSelect: 'none',
+            touchAction: 'none'
+          }}
           draggable={false}
         />
 
         {/* Scrim */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent z-10 pointer-events-none" />
+
+        {/* Darken background cards safely (GPU friendly) */}
+        {!isTop && (
+          <div 
+            className="absolute inset-0 bg-black pointer-events-none z-[11] transition-opacity duration-300" 
+            style={{ opacity: 0.05 + index * 0.05 }} 
+          />
+        )}
 
         {/* Breathing swipe-hint dots — top card only, capable devices only */}
         {isTop && !_isLowEndDevice && (
@@ -221,7 +230,10 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
               <div className="w-4 h-[1px] shadow-[0_0_8px_rgba(255,255,255,0.4)] bg-white/40" />
               <span
                 className="text-[10px] font-black uppercase tracking-[0.4em] italic text-white"
-                style={{ textShadow: '0 2px 6px rgba(0,0,0,0.7)' }}
+                style={{ 
+                  textShadow: '0 2px 6px rgba(0,0,0,0.7)',
+                  WebkitFontSmoothing: 'antialiased',
+                }}
               >
                 {card.description}
               </span>
@@ -235,6 +247,7 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
               style={{
                 color: '#FFFFFF',
                 textShadow: '0 2px 8px rgba(0,0,0,0.85), 0 0 2px rgba(0,0,0,0.7)',
+                WebkitFontSmoothing: 'antialiased',
               }}
             >
               {card.label}
@@ -253,7 +266,7 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
                   onSelect(card.id);
                 }}
                 className="w-full h-14 rounded-2xl flex items-center justify-center gap-3 font-black uppercase italic tracking-widest transition-all hover:scale-[1.02] active:scale-95 text-black shadow-[0_18px_40px_rgba(0,0,0,0.35)] ring-1 ring-white/40"
-                style={{ background: 'rgba(255,255,255,0.96)', backdropFilter: 'blur(8px)' }}
+                style={{ background: 'rgba(255,255,255,0.98)' }}
                 aria-label="Engage Discovery"
               >
                 {card.icon && <card.icon className="w-5 h-5" />}
