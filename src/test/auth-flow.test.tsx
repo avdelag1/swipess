@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react';
+import { renderHook, act } from '@testing-library/react';
 import { useProfileSetup } from '../hooks/useProfileSetup';
 import { supabase } from '@/integrations/supabase/client';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -95,7 +95,10 @@ describe('useProfileSetup', () => {
 
         const { result } = renderHook(() => useProfileSetup(), { wrapper });
 
-        const profile = await result.current.createProfileIfMissing(mockUser as any, 'client');
+        let profile;
+        await act(async () => {
+            profile = await result.current.createProfileIfMissing(mockUser as any, 'client');
+        });
 
         expect(supabase.from).toHaveBeenCalledWith('profiles');
         expect(profile).toBeDefined();

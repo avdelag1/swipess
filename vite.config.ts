@@ -127,8 +127,7 @@ export default defineConfig(({ mode }) => ({
             if (id.includes('marked') || id.includes('remark') || id.includes('rehype') || id.includes('micromark') || id.includes('mdast') || id.includes('unified') || id.includes('gray-matter') || id.includes('bail') || id.includes('trough') || id.includes('vfile') || id.includes('unist') || id.includes('hast') || id.includes('property-information') || id.includes('comma-separated-tokens') || id.includes('space-separated-tokens') || id.includes('zwitch') || id.includes('longest-streak') || id.includes('ccount') || id.includes('character-entities') || id.includes('decode-named-character-reference') || id.includes('devlop') || id.includes('is-plain-obj')) return 'vendor-md';
             // PDF
             if (id.includes('pdfjs') || id.includes('pdf-lib') || id.includes('jspdf')) return 'vendor-pdf';
-            // Everything else
-            return 'vendor-misc';
+            // Everything else falls through to default Rollup chunking
           }
         }
       }
