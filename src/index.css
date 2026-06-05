@@ -504,11 +504,11 @@ main, .scrollable-content, .overflow-y-auto {
   -webkit-tap-highlight-color: transparent;
   cursor: pointer;
   touch-action: manipulation;
-  transition: transform 0.1s cubic-bezier(0.2, 0, 0, 1);
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease, background 0.2s ease;
 }
 
-button:active, [role="button"]:active {
-  transform: scale(0.96);
+button:active, [role="button"]:active, .interactive:active {
+  transform: scale(0.97);
 }
 
 /* Remove focus rings on click while preserving for accessibility */
@@ -2649,4 +2649,49 @@ button:disabled,
 /* ===== Tap latency hygiene (kills iOS 300ms double-tap delay) ===== */
 :where(button, [role="button"], a, label, summary) {
   touch-action: manipulation;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/*  FINAL UI POLISH & GPU OVERRIDES (Deep Audit)                      */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+/* GPU Acceleration for core views & heavy lists */
+.gpu-accelerate, .swipe-live-card, .dashboard-container {
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Form Softness & Glow */
+input, textarea, select, .glass-input {
+  transition: border-color 0.3s ease, box-shadow 0.3s cubic-bezier(0.2, 0, 0, 1), background-color 0.3s ease !important;
+  border-radius: 1.25rem;
+}
+
+input:focus, textarea:focus, .glass-input:focus-within {
+  box-shadow: 0 0 0 3px hsl(var(--ring) / 0.15), inset 0 1px 1px rgba(255, 255, 255, 0.05) !important;
+  border-color: hsl(var(--ring) / 0.4) !important;
+}
+
+/* Multi-layered Premium Shadows Overrides */
+.black-matte, .grey-matte, .red-matte, .white-matte, .amber-matte {
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.12);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.12);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.15);
+  --shadow-card: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.2), 0 0 1px rgba(255, 255, 255, 0.1) inset;
+}
+
+/* Softer Glass Backdrop */
+.glass-surface, .glass-pill {
+  backdrop-filter: blur(40px) saturate(200%) !important;
+  -webkit-backdrop-filter: blur(40px) saturate(200%) !important;
+}
+
+/* Smooth micro-interaction on all cards */
+.card-hover-effect {
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+}
+.card-hover-effect:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
 }
