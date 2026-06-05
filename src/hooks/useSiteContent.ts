@@ -13,7 +13,7 @@ export interface SiteContent {
 }
 
 export function useSiteContent(pageKey: string) {
-  return useQuery({
+  const query = useQuery({
     queryKey: ['site_content', pageKey],
     queryFn: async () => {
       try {
@@ -43,6 +43,16 @@ export function useSiteContent(pageKey: string) {
     },
     staleTime: 1000 * 60 * 5, // Cache for 5 minutes
   });
+
+  const getText = (sectionKey: string, defaultValue: string = '') => {
+    if (!query.data || !query.data[sectionKey]) return defaultValue;
+    return query.data[sectionKey].text_value || defaultValue;
+  };
+
+  return {
+    ...query,
+    getText,
+  };
 }
 
 // Helper to get a specific value based on its expected type
