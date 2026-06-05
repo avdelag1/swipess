@@ -398,9 +398,9 @@ export const BottomNavigation = memo(({
                     style={{
                       width: isTablet ? ICON_SIZE_TABLET : (isNarrow ? 16 : ICON_SIZE),
                       height: isTablet ? ICON_SIZE_TABLET : (isNarrow ? 16 : ICON_SIZE),
-                      color: item.id === 'add' ? '#FF3366' : (active ? baseColor : (isLight ? 'rgba(0,0,0,0.45)' : 'rgba(255,255,255,0.5)')),
+                      color: item.id === 'add' ? '#FF3366' : (active ? baseColor : (isLight ? 'rgba(0,0,0,0.65)' : 'rgba(255,255,255,0.75)')),
                       fill: 'none',
-                      strokeWidth: active ? 2.8 : 2.1,
+                      strokeWidth: active ? 3.0 : 1.8,
                       filter: item.id === 'add' ? 'drop-shadow(0 0 12px rgba(255,51,102,0.6))' : (active ? activeGlow : undefined),
                       transition: 'color 160ms ease-out, stroke-width 160ms ease-out, filter 160ms ease-out',
                     }}
@@ -415,7 +415,7 @@ export const BottomNavigation = memo(({
                         isTablet ? 'text-[11px]' : 'text-[8px]',
                       )}
                       style={{
-                        color: item.id === 'add' ? '#FF3366' : (active ? baseColor : (isLight ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.5)')),
+                        color: item.id === 'add' ? '#FF3366' : (active ? baseColor : (isLight ? 'rgba(0,0,0,0.65)' : 'rgba(255,255,255,0.75)')),
                         textShadow: item.id === 'add' ? '0 0 8px rgba(255,51,102,0.4)' : (active && isLight ? '0 0 4px rgba(0,0,0,0.1)' : undefined),
                         transition: 'color 160ms ease-out, text-shadow 160ms ease-out',
                         zIndex: 1,

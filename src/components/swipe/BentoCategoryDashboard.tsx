@@ -22,7 +22,6 @@ export interface BentoCategoryDashboardProps {
   setCategories: (category: QuickFilterCategory | string) => void;
 }
 
-const BENTO_ITEMS = [
   {
     id: 'property',
     label: 'PROPERTIES',
@@ -39,7 +38,7 @@ const BENTO_ITEMS = [
     className: 'col-span-2 row-span-1',
     imageId: 'bicycle',
     icon: Bike,
-    delay: '1s'
+    delay: '2s'
   },
   {
     id: 'motorcycle',
@@ -48,7 +47,7 @@ const BENTO_ITEMS = [
     className: 'col-span-1 row-span-1',
     imageId: 'motorcycle',
     icon: Bike,
-    delay: '2s'
+    delay: '4s'
   },
   {
     id: 'events',
@@ -57,7 +56,7 @@ const BENTO_ITEMS = [
     className: 'col-span-1 row-span-1',
     imageId: 'events',
     icon: Calendar,
-    delay: '3s'
+    delay: '6s'
   },
   {
     id: 'services',
@@ -66,7 +65,7 @@ const BENTO_ITEMS = [
     className: 'col-span-2 row-span-1',
     imageId: 'services',
     icon: UserCheck,
-    delay: '4s'
+    delay: '8s'
   },
   {
     id: 'buyers',
@@ -75,7 +74,7 @@ const BENTO_ITEMS = [
     className: 'col-span-2 row-span-1',
     imageId: 'buyers',
     icon: ShoppingCart,
-    delay: '5s'
+    delay: '10s'
   },
   {
     id: 'leads',
@@ -84,7 +83,7 @@ const BENTO_ITEMS = [
     className: 'col-span-2 row-span-1',
     imageId: 'leads',
     icon: Briefcase,
-    delay: '6s'
+    delay: '12s'
   },
   {
     id: 'rentals',
@@ -93,7 +92,7 @@ const BENTO_ITEMS = [
     className: 'col-span-2 row-span-1',
     imageId: 'renters',
     icon: Key,
-    delay: '7s'
+    delay: '14s'
   },
   {
     id: 'roommates',
@@ -102,7 +101,16 @@ const BENTO_ITEMS = [
     className: 'col-span-2 row-span-1',
     imageId: 'renters', 
     icon: Users,
-    delay: '8s'
+    delay: '16s'
+  },
+  {
+    id: 'lawyer',
+    label: 'LEGAL',
+    description: 'Legal Hub & Docs',
+    className: 'col-span-2 row-span-1',
+    imageId: 'lawyer',
+    icon: Users,
+    delay: '18s'
   },
 ];
 
@@ -128,6 +136,7 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
     
     if (id === 'events') navigate('/explore/events');
     else if (id === 'roommates') navigate('/roommate-matching');
+    else if (id === 'lawyer') navigate('/client/legal-services');
     else setCategories(id as QuickFilterCategory);
   }, [setCategories, navigate]);
 
@@ -143,13 +152,13 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
         className="w-full h-full max-w-3xl mx-auto grid grid-cols-4 gap-2 sm:gap-4 grid-rows-[repeat(5,minmax(0,1fr))]"
       >
         {BENTO_ITEMS.map((item) => (
-          <motion.button
+          <motion.div
             key={item.id}
             variants={itemVariants}
             whileTap={{ scale: 0.95 }}
             onClick={() => handleSelect(item.id)}
             className={cn(
-              "relative flex flex-col justify-end text-left overflow-hidden rounded-2xl shadow-lg border border-white/10 group",
+              "relative flex flex-col justify-end text-left overflow-hidden rounded-2xl shadow-lg border border-white/10 group cursor-pointer",
               item.className
             )}
             style={{ contain: 'paint' }}
@@ -185,7 +194,7 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
                 {item.description}
               </p>
             </div>
-          </motion.button>
+          </motion.div>
         ))}
       </motion.div>
     </div>

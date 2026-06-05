@@ -20,17 +20,24 @@ export function QuickFilterImage({ src, alt, className, animationDelay = '0s' }:
   useEffect(() => {
     if (images.length <= 1) return;
 
-    // The user requested EXACT synchronized cascading order: Properties (0s) -> Bicycles (1s) -> Motorcycles (2s)
-    // with each card taking exactly 5 seconds before it moves again.
+    // The user requested EXACT synchronized cascading order: Properties (0s) -> Bicycles (2s) -> Motorcycles (4s)
+    // with each card taking exactly 20 seconds before it moves again.
+    // This perfectly creates a 2-second stagger where only ONE card rotates, then a pause, then another card.
     const delayS = parseFloat(animationDelay.replace('s', '')) || 0;
-    const baseInterval = 5000; // Exact 5 seconds between rotations for a single card
+    const baseInterval = 20000; // Exact 20 seconds between rotations for a single card
     const exactOffset = delayS * 1000;
 
     let timeoutId: ReturnType<typeof setTimeout>;
 
     const rotate = () => {
       if (!scrollRef.current) return;
-      scrollIndex.current = (scrollIndex.current + 1) % images.length;
+      
+      // Calculate current scroll position to avoid jerking if user manually swiped
+      const currentScroll = scrollRef.current.scrollLeft;
+      const width = scrollRef.current.clientWidth;
+      const manualIndex = Math.round(currentScroll / width);
+      
+      scrollIndex.current = (manualIndex + 1) % images.length;
       
       const targetElement = scrollRef.current.children[scrollIndex.current] as HTMLElement;
       if (targetElement) {

@@ -140,9 +140,9 @@ export const POKER_CARD_PHOTOS: Record<string, string[]> = {
     'https://images.unsplash.com/photo-1449426468159-d96dbf08f19f?auto=format&fit=crop&q=80'
   ],
   bicycle: [
-    'https://images.unsplash.com/photo-1485965120184-e220f721d03e?auto=format&fit=crop&q=80',
-    'https://images.unsplash.com/photo-1532298229144-0fc0be282f9d?auto=format&fit=crop&q=80',
-    'https://images.unsplash.com/photo-1528629297340-d1d466945dc5?auto=format&fit=crop&q=80'
+    'https://images.unsplash.com/photo-1484156818044-c040038b0719?auto=format&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1507035895480-2b3156c31fc8?auto=format&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1511994298241-608e28f14fde?auto=format&fit=crop&q=80'
   ],
   services: [
     'https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?auto=format&fit=crop&q=80',
@@ -170,9 +170,9 @@ export const POKER_CARD_PHOTOS: Record<string, string[]> = {
     'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&q=80'
   ],
   leads: [
-    'https://images.unsplash.com/photo-1573164713988-8665fc963095?auto=format&fit=crop&q=80',
-    'https://images.unsplash.com/photo-1556761175-5973dc0f32b7?auto=format&fit=crop&q=80',
-    'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&q=80'
+    'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1515169067868-5387ec356754?auto=format&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1552581234-26160f608093?auto=format&fit=crop&q=80'
   ],
   events: [
     'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&q=80',
