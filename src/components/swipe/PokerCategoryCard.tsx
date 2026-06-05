@@ -166,14 +166,13 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
         willChange: 'transform, opacity',
         transformOrigin: '50% 120%', // Pivot from bottom so it feels like a heavy physical card
         backfaceVisibility: 'hidden',
-        WebkitBackfaceVisibility: 'hidden',
         borderRadius: 40, // Match the 2.5rem exactly on the GPU layer
         boxShadow: isTop ? '0 30px 60px -20px rgba(0,0,0,0.55)' : 'none',
         backgroundColor: '#000',
         backgroundImage: fallbackGradient,
       } as any}
       transition={{ ...PK_SPRING }}
-      className={cn("select-none gpu-ultra", isTop ? "cursor-grab active:cursor-grabbing" : "cursor-pointer")}
+      className={cn("select-none touch-none relative w-full h-full overflow-hidden border-none gpu-ultra", isTop ? "cursor-grab active:cursor-grabbing" : "cursor-pointer")}
     >
       <div 
         className="absolute inset-0 overflow-hidden" 
@@ -191,7 +190,12 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
           loading="eager"
           decoding="async"
           className="absolute inset-0 w-full h-full object-cover"
-          style={{ backfaceVisibility: 'hidden' }}
+          style={{ 
+            WebkitTouchCallout: 'none',
+            WebkitUserSelect: 'none',
+            userSelect: 'none',
+            touchAction: 'none'
+          }}
           draggable={false}
         />
 
