@@ -22,6 +22,7 @@ export interface BentoCategoryDashboardProps {
   setCategories: (category: QuickFilterCategory | string) => void;
 }
 
+const BENTO_ITEMS = [
   {
     id: 'property',
     label: 'PROPERTIES',
