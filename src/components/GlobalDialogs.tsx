@@ -99,7 +99,7 @@ interface GlobalDialogsProps {
 }
 
 export const GlobalDialogs = memo(({ userRole }: GlobalDialogsProps) => {
-  const { user } = useAuth();
+  const { user: _user } = useAuth();
   const { navigate } = useAppNavigate();
   const store = useModalStore();
 

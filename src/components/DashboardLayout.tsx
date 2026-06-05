@@ -1,7 +1,7 @@
-import React, { ReactNode, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import React, { ReactNode, useEffect, useLayoutEffect, useMemo, useRef } from 'react'
 import { useAuth } from "@/hooks/useAuth"
 import { useAnonymousDrafts } from "@/hooks/useAnonymousDrafts"
-import { supabase } from '@/integrations/supabase/client'
+// supabase import removed because it was unused
 import { useLocation } from "react-router-dom";
 import { createLinkObserver, prefetchRoleRoutes } from '@/utils/routePrefetcher'
 // useLayoutEffect imported above with the main React import

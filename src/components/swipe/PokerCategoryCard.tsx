@@ -80,12 +80,12 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
   }, [card.id]);
   const cardKey = card.id;
 
-  const [imgReady, setImgReady] = useState(() => {
+  const [, setImgReady] = useState(() => {
     return imageCache.has(photo) || _loadedPokerImages.has(photo);
   });
 
   // Store previous photo for smooth crossfade
-  const [prevPhoto, setPrevPhoto] = useState<string | null>(null);
+  const [, setPrevPhoto] = useState<string | null>(null);
   const prevPhotoRef = useRef<string | null>(null);
   useEffect(() => {
     if (prevPhotoRef.current && prevPhotoRef.current !== photo) {
