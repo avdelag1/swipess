@@ -17,28 +17,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800;900&family=Caveat:wght@700&display=swap" rel="stylesheet">
 
 
-  <script>
-    // PWA Emergency Recovery: Catches chunk loading errors (404s) from stale Service Worker caches
-    window.addEventListener('error', function(e) {
-      if (e.target && e.target.tagName === 'SCRIPT') {
-        var count = parseInt(sessionStorage.getItem('pwa_recovery') || '0', 10);
-        if (count < 2) {
-          sessionStorage.setItem('pwa_recovery', count + 1);
-          if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.getRegistrations().then(function(regs) {
-              regs.forEach(function(reg) { reg.unregister(); });
-            });
-          }
-          if ('caches' in window) {
-            caches.keys().then(function(keys) {
-              keys.forEach(function(key) { caches.delete(key); });
-            });
-          }
-          setTimeout(function() { window.location.reload(true); }, 500);
-        }
-      }
-    }, true);
-  </script>
+
   <script src="/scripts/boot.js" defer></script>
 
   <!-- Fonts: using system font stack for instant LCP -->

@@ -158,7 +158,6 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
         rotate,
         touchAction: 'none',
         willChange: 'transform, opacity',
-        transform: 'translate3d(0,0,0)',
         transformOrigin: '50% 120%', // Pivot from bottom so it feels like a heavy physical card
         backfaceVisibility: 'hidden',
         borderRadius: 40, // Match the 2.5rem exactly on the GPU layer
