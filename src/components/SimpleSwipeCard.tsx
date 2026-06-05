@@ -407,7 +407,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
             ? '0 25px 50px -12px rgba(0,0,0,0.45), 0 10px 30px -5px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.1)'
             : '0 4px 10px rgba(0,0,0,0.1)',
           background: 'hsl(var(--swipe-deck-frame))',
-          WebkitMaskImage: fullScreen ? 'none' : '-webkit-radial-gradient(white, black)',
+          WebkitMaskImage: fullScreen ? 'none' : '-webkit-linear-gradient(white, white)',
         }}
       >
         <div 
