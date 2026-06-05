@@ -1,10 +1,11 @@
 /**
  * Ultra-Fast Service Worker - Optimized for lightning-speed loading
- * UPDATED: 2026-06-05 - Force Update v11 (STALE-SHELL SELF-HEAL: a 404 on a
- *   hashed chunk no longer serves an empty module that silently blanks the app.
- *   It now purges the stale cached HTML and tells every client to hard-recover
- *   to the fresh build. Navigation network timeout raised 1.5s -> 8s so a merely
- *   slow connection still receives the FRESH shell instead of the stale one.)
+ * UPDATED: 2026-06-05 - Force Update v12 (SIMPLE & QUIET: removed the aggressive
+ *   self-heal reload loop that spammed ?v= cache-busters and could nuke a slow-
+ *   but-working app. A missing chunk now just surfaces a normal 404 and lets the
+ *   app's existing ONE-TIME recovery handle it — no reload storm. Kept: no empty-
+ *   module poison, and an 8s navigation timeout so slow connections still get the
+ *   FRESH shell instead of a stale cached one.)
  *
  * PWA UPDATE FIX: Aggressive updates to ensure users always get latest version
  * - skipWaiting() called immediately on install for instant activation
@@ -79,33 +80,6 @@ async function precacheAppShell() {
   }
 }
 
-// ─── Stale-shell self-heal ───────────────────────────────────────
-// When a hashed chunk (e.g. /assets/vendor-react-OLDHASH.js) 404s, the running
-// page was booted from a STALE index.html that still points at bundles from a
-// previous deploy. Serving an empty module in that situation silently kills the
-// app (an empty vendor-react = no React = blank screen). Instead we purge the
-// cached stale shell so the next load fetches fresh HTML, and signal every open
-// client to run its emergency recovery (unregister SW, clear caches, hard reload
-// to the current build). Debounced to one signal per SW lifetime to avoid a
-// reload storm if several chunks 404 at once.
-let _staleHealSignalled = false;
-async function selfHealStaleShell() {
-  try {
-    const dyn = await caches.open(DYNAMIC_CACHE);
-    const keys = await dyn.keys();
-    await Promise.all(keys.map((k) => dyn.delete(k)));
-  } catch (_e) {
-    // Non-critical — recovery reload below will still fetch fresh HTML.
-  }
-  if (_staleHealSignalled) return;
-  _staleHealSignalled = true;
-  try {
-    const clients = await self.clients.matchAll({ type: 'window' });
-    clients.forEach((c) => c.postMessage({ type: 'STALE_SHELL_RELOAD' }));
-  } catch (_e) {
-    // Non-critical.
-  }
-}
 
 // Cache TTL settings (in seconds)
 const CACHE_TTL = {
@@ -369,13 +343,10 @@ self.addEventListener('fetch', (event) => {
                 cache.put(request, networkResponse.clone());
                 return networkResponse;
               }
-              // Bundle missing → recover to the fresh build instead of leaving a
-              // dead app, and surface a real 404 to the page.
-              selfHealStaleShell();
+              // Vercel returned HTML for a JS/CSS request → the hashed bundle is
+              // gone. Surface a real 404 so the browser's module error triggers
+              // the app's existing one-time recovery (no aggressive reload loop).
               return new Response('', { status: 404, statusText: 'Asset Missing' });
-            } else if (networkResponse.status === 404) {
-              // A hashed bundle is missing → stale shell. Recover.
-              selfHealStaleShell();
             }
             return networkResponse;
           }).catch(() => {
@@ -402,16 +373,13 @@ self.addEventListener('fetch', (event) => {
           // 404 or other non-ok → try cache before giving up
           return cache.match(request).then(cached => {
             if (cached) return cached;
-            // Stale shell — the requested bundle no longer exists on the server.
-            selfHealStaleShell();
             const isCss = url.pathname.endsWith('.css');
             if (isCss) {
-              // Empty stylesheet is harmless; the recovery reload restyles.
+              // Empty stylesheet is harmless.
               return new Response('', { status: 200, headers: { 'Content-Type': 'text/css' } });
             }
             // For JS, DON'T serve an empty module (that silently blanks the app).
-            // Serve a tiny module that fires the app's emergency recovery so it
-            // hard-reloads to the fresh build.
+            // Fire the app's existing one-time recovery (capped — no reload loop).
             return new Response(
               "window.dispatchEvent(new Event('vite:preloadError'));",
               { status: 200, headers: { 'Content-Type': 'text/javascript' } }
