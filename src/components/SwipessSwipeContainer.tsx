@@ -2,6 +2,7 @@ import { memo, useCallback, useEffect, useMemo, useRef, useState, lazy, Suspense
 import { cn } from '@/lib/utils';
 // import { } from '@/state/modalStore';
 import { triggerHaptic } from '@/utils/haptics';
+import { getCardImageUrl } from '@/utils/imageOptimization';
 import { SimpleSwipeCard, SimpleSwipeCardRef } from './SimpleSwipeCard';
 import { SwipeExhaustedState } from './swipe/SwipeExhaustedState';
 import { SwipessLoader } from './swipe/SwipessLoader';
@@ -244,7 +245,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
           if (imgUrl) {
             imagesToPreload.push(imgUrl);
             preloadImageToCache(imgUrl);
-            imageCache.set(imgUrl, true);
+            imageCache.set(getCardImageUrl(imgUrl), true);
           }
         });
       }
@@ -666,7 +667,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     const nextNextCard = deckQueueRef.current[newIndex + 1];
     if (nextNextCard?.images?.[0]) {
       preloadImageToCache(nextNextCard.images[0]);
-      imageCache.set(nextNextCard.images[0], true);
+      imageCache.set(getCardImageUrl(nextNextCard.images[0]), true);
       imagePreloadController.preload(nextNextCard.images[0], 'high');
     }
 
@@ -676,7 +677,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
         const card = deckQueueRef.current[newIndex + offset];
         if (card?.images?.[0]) {
           batch.push(card.images[0]);
-          imageCache.set(card.images[0], true);
+          imageCache.set(getCardImageUrl(card.images[0]), true);
         }
       }
       if (batch.length > 0) {
@@ -715,7 +716,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
           if (imgUrl) {
             imagesToPreload.push(imgUrl);
             preloadImageToCache(imgUrl);
-            imageCache.set(imgUrl, true);
+            imageCache.set(getCardImageUrl(imgUrl), true);
           }
         });
       }
@@ -742,7 +743,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
       const futureCard = deckQueueRef.current[newIndex + offset];
       if (futureCard?.images?.[0]) {
         preloadImageToCache(futureCard.images[0]);
-        imageCache.set(futureCard.images[0], true);
+        imageCache.set(getCardImageUrl(futureCard.images[0]), true);
       }
     });
   }, [topCardX, topCardY]);
@@ -998,7 +999,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
           <AnimatePresence mode="sync" initial={false}>
             {deckQueue.length > 0 && currentIndex < deckQueue.length ? (
               <motion.div
-                key={`deck-${storeActiveCategory ?? 'all'}`}
+                key="swipe-deck"
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.98 }}
                 transition={{ duration: 0.08, ease: [0.22, 1, 0.36, 1] }}
