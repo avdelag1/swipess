@@ -22,7 +22,7 @@ import {
   Building2, CircleUser, Flame, IdCard,
   MessageCircle, PartyPopper,
   Radio, Scale as ScaleIcon, SlidersHorizontal,
-  Sparkles, Zap
+  Sparkles, Zap, Plus
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUnreadMessageCount } from '@/hooks/useUnreadMessageCount';
@@ -127,19 +127,13 @@ export const BottomNavigation = memo(({
   }, []);
 
 
-  // Unified nav items (11 items — enough to enable horizontal scroll discovery)
+  // Unified nav items (5 items to match the mockup perfectly)
   const unifiedNavItems: NavItem[] = [
-    { id: 'dashboard', icon: Zap, label: t('nav.dashboard'), path: '/client/dashboard' },
-    { id: 'profile', icon: CircleUser, label: t('nav.profile'), path: '/client/profile' },
-    { id: 'ai', icon: Sparkles, label: t('nav.aiBot'), onClick: openAIChat, isSpecial: true },
-    { id: 'messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages' },
-    { id: 'likes', icon: Flame, label: t('nav.likes'), path: '/client/liked-properties' },
-    { id: 'vapid', icon: IdCard, label: t('nav.idCard'), onClick: () => setModal('showVapId', true) },
-    { id: 'search', icon: SlidersHorizontal, label: t('nav.filter'), onClick: onFilterClick },
-    { id: 'listings', icon: Building2, label: t('nav.listings'), path: '/owner/properties' },
-    { id: 'events', icon: PartyPopper, label: t('nav.events'), path: '/explore/events' },
-    { id: 'radio', icon: Radio, label: t('nav.radio', 'Radio'), path: '/radio' },
-    { id: 'legal', icon: ScaleIcon, label: t('nav.legal'), path: '/client/legal-services' },
+    { id: 'dashboard', icon: Zap, label: t('nav.dashboard', 'Dashboard'), path: '/client/dashboard' },
+    { id: 'messages', icon: MessageCircle, label: t('nav.messages', 'Messages'), path: '/messages' },
+    { id: 'post', icon: Plus, label: t('nav.post', 'Post Ad'), onClick: () => showAIListing(), isCenter: true },
+    { id: 'likes', icon: Flame, label: t('nav.likes', 'Favorites'), path: '/client/liked-properties' },
+    { id: 'profile', icon: CircleUser, label: t('nav.profile', 'Profile'), path: '/client/profile' },
   ];
 
   const navItems = unifiedNavItems;
@@ -397,19 +391,40 @@ export const BottomNavigation = memo(({
                     )}
                   </AnimatePresence>
 
-                  {/* Icon: brand-colored when active, muted when inactive.
-                      No frame, no glow — just color. */}
-                  <Icon
-                    style={{
-                      width: isTablet ? ICON_SIZE_TABLET : (isNarrow ? 16 : ICON_SIZE),
-                      height: isTablet ? ICON_SIZE_TABLET : (isNarrow ? 16 : ICON_SIZE),
-                      color: active ? activeColor : (isLight && !isDashboardRoute ? 'rgba(0,0,0,0.78)' : 'rgba(255,255,255,0.92)'),
-                      fill: 'none',
-                      strokeWidth: active ? 2.4 : 1.7,
-                      filter: active ? activeGlow : undefined,
-                      transition: 'color 160ms ease-out, stroke-width 160ms ease-out, filter 160ms ease-out',
-                    }}
-                  />
+                  {/* Icon rendering */}
+                  {item.isCenter ? (
+                    <div className="flex items-center justify-center rounded-full shadow-lg"
+                      style={{
+                        width: isTablet ? 56 : 48,
+                        height: isTablet ? 56 : 48,
+                        background: 'linear-gradient(135deg, #FF4D00, #EB4898)',
+                        marginTop: -20,
+                        border: '4px solid ' + (isDashboardRoute ? '#000' : (isLight ? '#fff' : '#111')),
+                        boxShadow: '0 4px 14px rgba(235, 72, 152, 0.4)'
+                      }}
+                    >
+                      <Icon
+                        style={{
+                          width: isTablet ? 28 : 24,
+                          height: isTablet ? 28 : 24,
+                          color: '#FFF',
+                          strokeWidth: 2.5,
+                        }}
+                      />
+                    </div>
+                  ) : (
+                    <Icon
+                      style={{
+                        width: isTablet ? ICON_SIZE_TABLET : (isNarrow ? 16 : ICON_SIZE),
+                        height: isTablet ? ICON_SIZE_TABLET : (isNarrow ? 16 : ICON_SIZE),
+                        color: active ? activeColor : (isLight && !isDashboardRoute ? 'rgba(0,0,0,0.78)' : 'rgba(255,255,255,0.92)'),
+                        fill: 'none',
+                        strokeWidth: active ? 2.4 : 1.7,
+                        filter: active ? activeGlow : undefined,
+                        transition: 'color 160ms ease-out, stroke-width 160ms ease-out, filter 160ms ease-out',
+                      }}
+                    />
+                  )}
                 </div>
                 {/* Label */}
                 {!isNarrow && (
