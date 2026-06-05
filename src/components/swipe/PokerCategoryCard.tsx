@@ -107,13 +107,11 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
     animate(x, 0, { ...PK_SPRING });
   }, [card.id, onCycle, x]);
 
-  // Stack styling — no blur (avoids expensive repaints), just brightness falloff
-  const { stackOpacity, stackedFilter } = useMemo(() => ({
-    stackOpacity: 1,
-    stackedFilter: isTop
-      ? 'brightness(0.98)'
-      : `brightness(${0.96 - index * 0.045})`,
-  }), [index, isTop]);
+  // Stacked cards sit exactly behind the top card, so they only become visible
+  // as the top card slides away — at which point we want them fully solid (like
+  // the next page of a book). No brightness filter: a CSS filter on a moving
+  // card forces a full per-frame re-raster of the photo and flickers on mobile.
+  const stackOpacity = 1;
 
   if (index > 7) return null;
 
@@ -164,7 +162,6 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
         opacity: isTop ? exitOpacity : stackOpacity,
         scale: 1,
         rotate,
-        filter: stackedFilter,
         cursor: isTop ? (isDraggingVisual ? 'grabbing' : 'grab') : 'pointer',
         touchAction: 'none',
         willChange: 'transform, opacity',
@@ -180,14 +177,13 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
       transition={{ ...PK_SPRING }}
       className="select-none gpu-ultra"
     >
-      <div 
-        className="absolute inset-0 overflow-hidden" 
-        style={{ 
-          borderRadius: 'inherit', 
-          WebkitUserSelect: 'none', 
-          userSelect: 'none', 
+      <div
+        className="absolute inset-0 overflow-hidden"
+        style={{
+          borderRadius: 'inherit',
+          WebkitUserSelect: 'none',
+          userSelect: 'none',
           touchAction: 'none',
-          WebkitMaskImage: '-webkit-radial-gradient(white, black)' // Fixes Safari corner tearing!
         }}
       >
         {/* Single static photo — no carousel, no crossfade */}
