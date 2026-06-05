@@ -586,32 +586,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   const deckQueue = deckQueueRef.current;
   const topCard = currentIndex < deckQueue.length ? deckQueue[currentIndex] : null;
   const topCardIdentity = topCard?.id || topCard?.user_id || '';
-  const _initializedRef = useRef(deckQueueRef.current.length > 0);
-  const cardRef = useRef<SimpleSwipeCardRef>(null);
-
-  const swipeDirectionRef = useRef<'left' | 'right' | null>(null);
-  const skipDirectionRef = useRef<'up' | 'down' | null>(null);
-
-  const hasSwipedRef = useRef(false);
-  const isFetchingMore = useRef(false);
-  const prevListingIdsRef = useRef<string>('');
-  const hasNewListingsRef = useRef(false);
-  const prefetchSchedulerRef = useRef(new PrefetchScheduler());
-
-  const { recordSwipe } = useSwipeSounds();
-  const swipeMutation = useSwipeWithMatch(user?.id, activeMode);
-  const dismissTarget = useSwipeDismissal(user?.id);
-  const startConversation = useStartConversation();
-  const recordProfileView = useRecordProfileView();
-  const { data: conversations } = useConversations(user?.id);
-
-  const { dismissedIds } = useSwipeDeckStore(
-    useShallow((state) => ({
-      dismissedIds: activeMode === 'owner'
-        ? state.ownerDecks[storeActiveCategory || 'all']?.dismissedIds || []
-        : state.clientDecks[storeActiveCategory || 'all']?.dismissedIds || []
-    }))
-  );
 
   useEffect(() => {
     pendingSwipeRef.current = null;

@@ -12,6 +12,7 @@ import { useActiveMode } from '@/hooks/useActiveMode';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useModalStore } from '@/state/modalStore';
 import { useInstantReactivity } from '@/hooks/useInstantReactivity';
+import { useGlobalBackButton } from '@/hooks/useGlobalBackButton';
 import { cn } from '@/lib/utils';
 
 const TopBar = lazyWithRetry(() => import('./TopBar').then(m => ({ default: m.TopBar })));
@@ -101,6 +102,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   useOfflineDetection();
   useErrorReporting();
   useInstantReactivity(); 
+  useGlobalBackButton();
 
 
 

@@ -493,12 +493,8 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
             <div
               className="inline-flex flex-col w-fit max-w-full px-4 py-3 rounded-3xl"
               style={{
-                // Solid panel — no backdrop-filter. Over the photo gradient this
-                // reads as glass but never re-rasterizes while the card moves.
                 background: 'rgba(20, 20, 24, 0.55)',
-                border: '1px solid rgba(255, 255, 255, 0.18)',
-                boxShadow:
-                  '0 12px 32px -12px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.16)',
+                boxShadow: '0 12px 32px -12px rgba(0, 0, 0, 0.55)',
                 color: '#FFFFFF',
                 textShadow: '0 2px 6px rgba(0, 0, 0, 0.55)',
               }}
