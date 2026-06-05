@@ -1006,7 +1006,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                           // leaving, not a ghost dissolving.
                           x: swipeDirectionRef.current === 'right' ? (typeof window !== 'undefined' ? window.innerWidth : 600) * 1.2 : (typeof window !== 'undefined' ? -window.innerWidth : -600) * 1.2,
                           y: skipDirectionRef.current === 'up' ? -(typeof window !== 'undefined' ? window.innerHeight : 800) * 1.2 : skipDirectionRef.current === 'down' ? (typeof window !== 'undefined' ? window.innerHeight : 800) * 1.2 : 0,
-                          transition: { duration: 0.28, ease: [0.22, 1, 0.36, 1] }
+                          transition: { duration: 0.2, ease: [0.22, 1, 0.36, 1] }
                         }}
                         className={cn("absolute inset-0 w-full h-full", isTopCard ? "z-20" : "z-10")}
                       >
