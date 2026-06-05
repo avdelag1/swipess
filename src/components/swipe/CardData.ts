@@ -125,59 +125,75 @@ export const UNIFIED_CARDS: PokerCardData[] = [
 
 export const POKER_CARD_PHOTOS: Record<string, string[]> = {
   property: [
-    'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&q=80',
-    'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&q=80',
-    'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&q=80'
+    '/images/filters/property.jpg',
+    '/images/filters/property_jungle_villa.jpg',
+    '/images/filters/property_bamboo_dome.jpg',
+    '/images/filters/property_loft_interior.jpg',
+    'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=90',
+    'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=90',
   ],
   motorcycle: [
-    'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&q=80',
-    'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?auto=format&fit=crop&q=80',
-    'https://images.unsplash.com/photo-1449426468159-d96dbf08f19f?auto=format&fit=crop&q=80'
+    '/images/filters/scooter.jpg',
+    '/images/filters/motorcycle_beach_1780637314808.png',
+    '/images/filters/motorcycle_jungle_1780637303289.png',
+    'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&w=800&q=90',
+    'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?auto=format&fit=crop&w=800&q=90',
   ],
   moto: [
-    'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&q=80',
-    'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?auto=format&fit=crop&q=80',
-    'https://images.unsplash.com/photo-1449426468159-d96dbf08f19f?auto=format&fit=crop&q=80'
+    '/images/filters/scooter.jpg',
+    '/images/filters/motorcycle_beach_1780637314808.png',
+    '/images/filters/motorcycle_jungle_1780637303289.png',
+    'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&w=800&q=90',
+    'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?auto=format&fit=crop&w=800&q=90',
   ],
   bicycle: [
-    'https://images.unsplash.com/photo-1484156818044-c040038b0719?auto=format&fit=crop&q=80',
-    'https://images.unsplash.com/photo-1507035895480-2b3156c31fc8?auto=format&fit=crop&q=80',
-    'https://images.unsplash.com/photo-1511994298241-608e28f14fde?auto=format&fit=crop&q=80'
+    '/images/filters/bicycle.jpg',
+    '/images/filters/bicycle_coco_sunset.jpg',
+    '/images/filters/bicycle_beach_ride.jpg',
+    'https://images.unsplash.com/photo-1571068316344-75bc76f77890?auto=format&fit=crop&w=800&q=90',
+    'https://images.unsplash.com/photo-1505705694340-019e0d3cfc16?auto=format&fit=crop&w=800&q=90',
   ],
   services: [
-    'https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?auto=format&fit=crop&q=80',
-    'https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&q=80',
-    'https://images.unsplash.com/photo-1621905252507-b35492cc74b4?auto=format&fit=crop&q=80'
+    '/images/filters/workers.jpg',
+    '/images/filters/workers_tulum_team.jpg',
+    '/images/filters/workers_tulum_directory.jpg',
+    'https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=800&q=90',
   ],
   worker: [
-    'https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?auto=format&fit=crop&q=80',
-    'https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&q=80',
-    'https://images.unsplash.com/photo-1621905252507-b35492cc74b4?auto=format&fit=crop&q=80'
+    '/images/filters/workers.jpg',
+    '/images/filters/workers_tulum_team.jpg',
+    '/images/filters/workers_tulum_directory.jpg',
+    'https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=800&q=90',
   ],
   radio: [
-    'https://images.unsplash.com/photo-1516280440502-86927a38755b?auto=format&fit=crop&q=80',
-    'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&q=80',
-    'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80'
+    '/images/filters/radio.jpg',
+    'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=800&q=90',
+    'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&w=800&q=90',
   ],
   buyers: [
-    'https://images.unsplash.com/photo-1560520653-9e0e4c89eb11?auto=format&fit=crop&q=80',
-    'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&q=80',
-    'https://images.unsplash.com/photo-1556740758-90de374c12ad?auto=format&fit=crop&q=80'
+    '/images/filters/buyers_tulum_sold.jpg',
+    '/images/filters/owner_buyers_card.jpg',
+    'https://images.unsplash.com/photo-1560520653-9e0e4c89eb11?auto=format&fit=crop&w=800&q=90',
+    'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=800&q=90',
   ],
   renters: [
-    'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&q=80',
-    'https://images.unsplash.com/photo-1502672260266-1c1c2b1aff8d?auto=format&fit=crop&q=80',
-    'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&q=80'
+    '/images/filters/owner_renters_card.jpg',
+    '/images/filters/renters_keys_1780637395685.png',
+    'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=800&q=90',
+    'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=800&q=90',
   ],
   leads: [
-    'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80',
-    'https://images.unsplash.com/photo-1515169067868-5387ec356754?auto=format&fit=crop&q=80',
-    'https://images.unsplash.com/photo-1552581234-26160f608093?auto=format&fit=crop&q=80'
+    '/images/filters/leads_handshake_1780637383311.png',
+    'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=800&q=90',
+    'https://images.unsplash.com/photo-1515169067868-5387ec356754?auto=format&fit=crop&w=800&q=90',
+    'https://images.unsplash.com/photo-1552581234-26160f608093?auto=format&fit=crop&w=800&q=90',
   ],
   events: [
-    'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&q=80',
-    'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&q=80',
-    'https://images.unsplash.com/photo-1531058020387-3be344556be6?auto=format&fit=crop&q=80'
+    '/images/filters/events_card.jpg',
+    '/images/filters/event_beach_party_1780637338591.png',
+    '/images/filters/event_cacao_ceremony_1780637326772.png',
+    'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=800&q=90',
+    'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=800&q=90',
   ],
   all: ['/images/filters/all.jpg', '/images/filters/all.png', '/images/filters/all.jpg'],
   vap: ['/images/filters/resident_card.jpg', '/images/filters/resident_card.png', '/images/filters/resident_card.jpg'],
@@ -188,9 +204,9 @@ export const POKER_CARD_PHOTOS: Record<string, string[]> = {
   'ai-listing': ['/images/filters/ai_listing_card.jpg', '/images/filters/ai_listing_card.png', '/images/filters/ai_listing_card.jpg'],
   promote: ['/images/filters/owner_promote_card.jpg', '/images/filters/promote_dj_set_1780637360943.png', '/images/filters/owner_promote_card.png'],
   pros: [
-    'https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?auto=format&fit=crop&q=80',
-    'https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&q=80',
-    'https://images.unsplash.com/photo-1621905252507-b35492cc74b4?auto=format&fit=crop&q=80'
+    '/images/filters/workers.jpg',
+    '/images/filters/workers_tulum_team.jpg',
+    'https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=800&q=90',
   ],
 };
 

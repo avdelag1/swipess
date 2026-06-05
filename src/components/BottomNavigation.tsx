@@ -36,11 +36,11 @@ import { useFilterStore } from '@/state/filterStore';
 import { useModalStore } from '@/state/modalStore';
 import { useGuidedTourActive } from '@/state/guidedTourStore';
 
-const ICON_SIZE = 22;
+const ICON_SIZE = 26;
 
-const ICON_SIZE_TABLET = 24;
-const TOUCH_TARGET = 28;
-const TOUCH_TARGET_TABLET = 38;
+const ICON_SIZE_TABLET = 28;
+const TOUCH_TARGET = 34;
+const TOUCH_TARGET_TABLET = 42;
 
 interface BottomNavigationProps {
   onFilterClick?: () => void;
@@ -128,13 +128,14 @@ export const BottomNavigation = memo(({
 
 
   // Unified nav items in the exact order requested:
-  // dashboard -> likes -> ai -> add -> messages -> filters -> legal -> events
+  // dashboard -> likes -> ai -> add -> messages -> radio -> filters -> legal -> events
   const unifiedNavItems: NavItem[] = [
     { id: 'dashboard', icon: Zap, label: t('nav.dashboard'), path: '/client/dashboard' },
     { id: 'likes', icon: Flame, label: t('nav.likes'), path: '/client/liked-properties' },
     { id: 'ai', icon: Sparkles, label: t('nav.aiBot'), onClick: openAIChat, isSpecial: true },
     { id: 'add', icon: PlusCircle, label: t('nav.add', 'ADD'), path: '/owner/properties', isSpecial: true },
     { id: 'messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages' },
+    { id: 'radio', icon: Radio, label: t('nav.radio', 'RADIO'), path: '/radio' },
     { id: 'search', icon: SlidersHorizontal, label: t('nav.filter'), onClick: onFilterClick },
     { id: 'legal', icon: ScaleIcon, label: t('nav.legal'), path: '/client/legal-services' },
     { id: 'events', icon: PartyPopper, label: t('nav.events'), path: '/explore/events' },
@@ -301,7 +302,7 @@ export const BottomNavigation = memo(({
             zIndex: 2,
             transform: 'translateZ(0)',
             overflowX: 'auto',
-            scrollSnapType: 'none',
+            scrollSnapType: 'x proximity',
             scrollPaddingLeft: '16px',
             scrollPaddingRight: '16px',
             scrollbarWidth: 'none' as const,
@@ -312,9 +313,8 @@ export const BottomNavigation = memo(({
             touchAction: 'pan-x',
             overscrollBehaviorX: 'contain',
             overscrollBehaviorY: 'none',
-            // 'safe center' centers the items when they fit, but falls back to
-            // start-alignment when they overflow so nothing gets clipped.
             justifyContent: 'safe center',
+            scrollBehavior: 'smooth',
           }}
         >
           {navItems.map((item) => {
@@ -351,16 +351,16 @@ export const BottomNavigation = memo(({
                   'touch-manipulation focus-visible:outline-none transform-gpu rounded-full',
                 )}
                 style={{
-                  minWidth: 'clamp(38px, 9vw, 48px)',
-                  scrollSnapAlign: 'start',
+                  minWidth: 'clamp(42px, 10vw, 54px)',
+                  scrollSnapAlign: 'center',
                   minHeight: isTablet ? TOUCH_TARGET_TABLET : TOUCH_TARGET,
-                  padding: isTablet ? '8px 12px' : (isNarrow ? '4px' : 'clamp(4px, 1.2vw, 8px)'),
+                  padding: isTablet ? '8px 14px' : (isNarrow ? '5px' : 'clamp(5px, 1.4vw, 10px)'),
                   cursor: 'pointer',
                   flexShrink: 0,
                   touchAction: 'manipulation',
                   userSelect: 'none',
                   WebkitUserSelect: 'none' as any,
-                  transition: 'all 0.3s cubic-bezier(0.22, 1, 0.36, 1)',
+                  transition: 'all 0.2s cubic-bezier(0.22, 1, 0.36, 1)',
                 }}
               >
                 {/* Active state is color-only: no nested pill/frame behind icons. */}
@@ -396,8 +396,8 @@ export const BottomNavigation = memo(({
                       No frame, no glow — just color. */}
                   <Icon
                     style={{
-                      width: isTablet ? ICON_SIZE_TABLET : (isNarrow ? 16 : ICON_SIZE),
-                      height: isTablet ? ICON_SIZE_TABLET : (isNarrow ? 16 : ICON_SIZE),
+                      width: isTablet ? ICON_SIZE_TABLET : (isNarrow ? 20 : ICON_SIZE),
+                      height: isTablet ? ICON_SIZE_TABLET : (isNarrow ? 20 : ICON_SIZE),
                       color: item.id === 'add' ? '#FF3366' : (active ? baseColor : (isLight ? 'rgba(0,0,0,0.65)' : 'rgba(255,255,255,0.75)')),
                       fill: 'none',
                       strokeWidth: active ? 3.0 : 1.8,
@@ -408,17 +408,18 @@ export const BottomNavigation = memo(({
                 </div>
                 {/* Label */}
                 {!isNarrow && (
-                  <div className="flex items-center justify-center w-full min-h-[12px] px-0.5">
+                  <div className="flex items-center justify-center w-full min-h-[14px] px-0.5">
                     <span
                       className={cn(
                         'tracking-wide relative font-black uppercase whitespace-nowrap',
-                        isTablet ? 'text-[11px]' : 'text-[8px]',
+                        isTablet ? 'text-[12px]' : 'text-[10px]',
                       )}
                       style={{
                         color: item.id === 'add' ? '#FF3366' : (active ? baseColor : (isLight ? 'rgba(0,0,0,0.65)' : 'rgba(255,255,255,0.75)')),
                         textShadow: item.id === 'add' ? '0 0 8px rgba(255,51,102,0.4)' : (active && isLight ? '0 0 4px rgba(0,0,0,0.1)' : undefined),
                         transition: 'color 160ms ease-out, text-shadow 160ms ease-out',
                         zIndex: 1,
+                        letterSpacing: '0.08em',
                       }}
                     >
                       {item.label}
