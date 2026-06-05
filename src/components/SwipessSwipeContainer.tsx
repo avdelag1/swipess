@@ -586,18 +586,40 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   const deckQueue = deckQueueRef.current;
   const topCard = currentIndex < deckQueue.length ? deckQueue[currentIndex] : null;
   const topCardIdentity = topCard?.id || topCard?.user_id || '';
+  const _initializedRef = useRef(deckQueueRef.current.length > 0);
+  const cardRef = useRef<SimpleSwipeCardRef>(null);
+
+  const swipeDirectionRef = useRef<'left' | 'right' | null>(null);
+  const skipDirectionRef = useRef<'up' | 'down' | null>(null);
+
+  const hasSwipedRef = useRef(false);
+  const isFetchingMore = useRef(false);
+  const prevListingIdsRef = useRef<string>('');
+  const hasNewListingsRef = useRef(false);
+  const prefetchSchedulerRef = useRef(new PrefetchScheduler());
+
+  const { recordSwipe } = useSwipeSounds();
+  const swipeMutation = useSwipeWithMatch(user?.id, activeMode);
+  const dismissTarget = useSwipeDismissal(user?.id);
+  const startConversation = useStartConversation();
+  const recordProfileView = useRecordProfileView();
+  const { data: conversations } = useConversations(user?.id);
+
+  const { dismissedIds } = useSwipeDeckStore(
+    useShallow((state) => ({
+      dismissedIds: activeMode === 'owner'
+        ? state.ownerDecks[storeActiveCategory || 'all']?.dismissedIds || []
+        : state.clientDecks[storeActiveCategory || 'all']?.dismissedIds || []
+    }))
+  );
 
   useEffect(() => {
-    topCardX.stop();
-    topCardX.set(0);
-    topCardY.stop();
-    topCardY.set(0);
     pendingSwipeRef.current = null;
     isSwipeAnimatingRef.current = false;
     swipeDirectionRef.current = null;
     skipDirectionRef.current = null;
     setSwipeDirection(null);
-  }, [topCardIdentity, filterSignature, activeMode, topCardX, topCardY]);
+  }, [topCardIdentity, filterSignature, activeMode]);
 
   // Clear skip direction ref after exit animation completes
   useEffect(() => {
@@ -614,10 +636,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     pendingSwipeRef.current = null;
     isSwipeAnimatingRef.current = false;
 
-    topCardX.stop();
-    topCardX.set(0);
-    topCardY.stop();
-    topCardY.set(0);
     hasSwipedRef.current = true;
     setCurrentIndex(newIndex);
     markClientSwiped(storeActiveCategory || 'all', listing.id);
@@ -735,8 +753,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     const newIndex = currentIndexRef.current + 1;
     currentIndexRef.current = newIndex;
     skipDirectionRef.current = 'up';
-    topCardX.stop(); topCardX.set(0);
-    topCardY.stop(); topCardY.set(0);
     setCurrentIndex(newIndex);
     // Preload upcoming images for smooth browse
     [1, 2, 3].forEach((offset) => {
@@ -755,10 +771,8 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     const newIndex = Math.max(0, currentIndexRef.current - 1);
     currentIndexRef.current = newIndex;
     skipDirectionRef.current = 'down';
-    topCardX.stop(); topCardX.set(0);
-    topCardY.stop(); topCardY.set(0);
     setCurrentIndex(newIndex);
-  }, [topCardX, topCardY]);
+  }, []);
 
   const _handleButtonLike = useCallback(() => {
     if (cardRef.current) {
@@ -1041,8 +1055,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                           } : undefined}
                           onDragStart={isTopCard ? handleDragStart : undefined}
                           isTop={isTopCard}
-                          externalX={isTopCard ? topCardX : undefined}
-                          externalY={isTopCard ? topCardY : undefined}
                           canGoBack={currentIndex > 0}
                         />
                       ) : (
@@ -1065,8 +1077,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                             triggerHaptic('medium');
                           } : undefined}
                           onDragStart={isTopCard ? handleDragStart : undefined}
-                          externalX={isTopCard ? topCardX : undefined}
-                          externalY={isTopCard ? topCardY : undefined}
                           canGoBack={currentIndex > 0}
                         />
                       )}

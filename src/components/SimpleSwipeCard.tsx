@@ -58,8 +58,6 @@ interface SimpleSwipeCardProps {
   onReport?: () => void;
   onMessage?: () => void;
   isTop?: boolean;
-  externalX?: MotionValue<number>;
-  externalY?: MotionValue<number>;
   onDragStart?: () => void;
   disableDrag?: boolean;
   canGoBack?: boolean;
@@ -74,8 +72,6 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   onCardTap,
   onInsights,
   isTop = true,
-  externalX,
-  externalY,
   onDragStart,
   onReport,
   onShare,
@@ -96,10 +92,8 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   const storedPointerEventRef = useRef<React.PointerEvent | null>(null);
   const dragAxisRef = useRef<DragAxis>(null);
 
-  const _internalX = useMotionValue(0);
-  const _internalY = useMotionValue(0);
-  const x = externalX ?? _internalX;
-  const y = externalY ?? _internalY;
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
 
   // Strict story-feed motion: horizontal = like/pass, vertical = browse next card.
   // Vertical browse keeps the card fully opaque so up/down feels like a clean

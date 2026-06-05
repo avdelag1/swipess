@@ -86,8 +86,6 @@ interface SimpleOwnerSwipeCardProps {
   onDislike?: () => void;
   canUndo?: boolean;
   fullScreen?: boolean;
-  externalX?: MotionValue<number>;
-  externalY?: MotionValue<number>;
   disableDrag?: boolean;
   canGoBack?: boolean;
 }
@@ -101,8 +99,6 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   onInsights,
   isTop = true,
   onDragStart,
-  externalX,
-  externalY,
   onReport,
   onShare,
   onMessage,
@@ -120,10 +116,8 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   const storedPointerEventRef = useRef<React.PointerEvent | null>(null);
   const dragAxisRef = useRef<DragAxis>(null);
   const { isLight } = useAppTheme();
-  const _internalX = useMotionValue(0);
-  const _internalY = useMotionValue(0);
-  const x = externalX ?? _internalX;
-  const y = externalY ?? _internalY;
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
 
   const cardOpacity = useTransform([x, y] as any, () => 1);
   const likeOpacity = useTransform(x, [0, SWIPE_THRESHOLD * 0.5, SWIPE_THRESHOLD], [0, 0.5, 1]);
