@@ -40,7 +40,7 @@ export function AccessCodeGate({ onGranted }: Props) {
       triggerHaptic('error');
       return;
     }
-    const VALID_CODES = ['VIP2026', 'SWIPESS-BETA', 'SWIPESS2026', 'AVDELAG1', 'TESTER123', 'URDBEST'];
+    const VALID_CODES = ['VIP2026', 'SWIPESS-BETA', 'SWIPESS2026', 'AVDELAG1', 'TESTER123', 'URDBEST', 'SWIPESS12345.', 'BUSINESS2030', 'LAWYER123456.'];
     if (!VALID_CODES.includes(code.trim().toUpperCase())) {
       setError('Invalid access code');
       triggerHaptic('error');
