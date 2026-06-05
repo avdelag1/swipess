@@ -309,15 +309,31 @@ self.addEventListener('fetch', (event) => {
   // CACHE-FIRST for hashed /assets/* files - immutable, never change
   // Vite outputs all JS/CSS chunks to /assets/ with content hashes in filenames.
   // Once cached, these are served INSTANTLY with zero network requests.
-  // When a new build deploys, the hashes change → cache miss → fresh fetch.
   if (url.pathname.startsWith('/assets/')) {
     event.respondWith(
       caches.open(STATIC_CACHE).then(cache => {
         return cache.match(request).then(cachedResponse => {
-          if (cachedResponse) return cachedResponse; // instant, no network
+          if (cachedResponse) {
+            // Validate cached response MIME type to prevent stale HTML caching
+            const contentType = cachedResponse.headers.get('content-type');
+            if (!contentType || !contentType.includes('text/html')) {
+              return cachedResponse; // instant, no network
+            }
+            // If we accidentally cached HTML as an asset, delete it
+            cache.delete(request);
+          }
+          
           return fetch(request).then(networkResponse => {
             if (networkResponse.ok && networkResponse.status === 200) {
-              cache.put(request, networkResponse.clone());
+              const contentType = networkResponse.headers.get('content-type');
+              // CRITICAL FIX: Vercel SPA routing returns index.html (200 OK, text/html) 
+              // for missing assets. We MUST NOT cache this as a JS/CSS file!
+              if (contentType && !contentType.includes('text/html')) {
+                cache.put(request, networkResponse.clone());
+              } else {
+                // If Vercel returned HTML for a JS file, the file is missing/404ing
+                return new Response('', { status: 404, statusText: 'Asset Missing' });
+              }
             }
             return networkResponse;
           }).catch(() => {
