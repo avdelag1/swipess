@@ -189,8 +189,8 @@ export default function WorldRadioDirectory() {
         </div>
       </div>
 
-      <main className="flex-1 p-4 pb-12 relative z-10 overflow-y-auto">
-        <div className="max-w-3xl mx-auto flex flex-col gap-6">
+      <main className="flex-1 p-2 sm:p-4 pb-12 relative z-10 overflow-y-auto w-full max-w-[100vw] overflow-x-hidden">
+        <div className="w-full flex flex-col gap-4">
           <AnimatePresence>
             {state.currentStation && (
               <motion.div

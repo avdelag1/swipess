@@ -75,10 +75,10 @@ export function QuickFilterImage({ src, alt, className, animationDelay = '0s' }:
           key={activeIndex}
           src={images[activeIndex]}
           alt={`${alt} ${activeIndex + 1}`}
-          initial={{ opacity: 0, filter: 'blur(10px)', scale: 1.05 }}
-          animate={{ opacity: 1, filter: 'blur(0px)', scale: 1 }}
-          exit={{ opacity: 0, filter: 'blur(10px)', scale: 0.95 }}
-          transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+          initial={{ opacity: 0, scale: 1.02 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.98 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
           className={cn("absolute inset-0 w-full h-full object-cover pointer-events-none z-10", className)}
         />
       </AnimatePresence>
