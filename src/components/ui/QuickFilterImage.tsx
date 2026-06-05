@@ -58,19 +58,16 @@ export function QuickFilterImage({ src, alt, className, animationDelay = '0s' }:
     <div className="absolute inset-0 w-full h-full overflow-hidden bg-slate-900/50 pointer-events-auto touch-none">
       {/* Invisible drag surface to capture swipes without blocking taps */}
       <motion.div
-        className="absolute inset-0 w-full h-full z-20"
-        drag="x"
-        dragConstraints={{ left: 0, right: 0 }}
-        dragElastic={0.2}
-        onDragStart={() => {
+        className="absolute inset-0 w-full h-full z-20 cursor-grab active:cursor-grabbing"
+        onPanStart={() => {
           isDragging.current = true;
         }}
-        onDragEnd={(e, { offset }) => {
+        onPanEnd={(e, info) => {
           // Delay resetting drag state so onClickCapture can catch it
           setTimeout(() => { isDragging.current = false; }, 50);
-          if (offset.x < -20) {
+          if (info.offset.x < -20) {
             setActiveIndex(prev => (prev + 1) % images.length);
-          } else if (offset.x > 20) {
+          } else if (info.offset.x > 20) {
             setActiveIndex(prev => (prev - 1 + images.length) % images.length);
           }
         }}

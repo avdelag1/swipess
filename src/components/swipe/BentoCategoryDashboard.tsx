@@ -84,7 +84,7 @@ const BENTO_ITEMS = [
   // --- GROUP 3: Big Left, 2 Small Right ---
   {
     id: 'rentals',
-    label: 'RENTERS',
+    label: 'TENANTS',
     description: 'Find people looking to rent',
     className: 'col-span-2 row-span-2',
     imageId: 'renters',
