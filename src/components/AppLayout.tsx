@@ -13,6 +13,7 @@ import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useModalStore } from '@/state/modalStore';
 import { useInstantReactivity } from '@/hooks/useInstantReactivity';
 import { useGlobalBackButton } from '@/hooks/useGlobalBackButton';
+import { useDeepLinks } from '@/hooks/useDeepLinks';
 import { cn } from '@/lib/utils';
 
 const TopBar = lazyWithRetry(() => import('./TopBar').then(m => ({ default: m.TopBar })));
@@ -45,6 +46,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   const modalStore = useModalStore();
   const { showAIChat, showAIListing, showAIProfile } = modalStore;
   const { activeMode } = useActiveMode();
+  useDeepLinks();
 
   const isSwipeDashboard = useMemo(() => {
     const path = location.pathname;

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { CameraDirection } from '@capacitor/camera';
 import { CapturedPhoto, useCamera } from '@/hooks/useCamera';
@@ -791,6 +791,6 @@ export function CameraCapture({
   );
 }
 
-export default CameraCapture;
+export default memo(CameraCapture);
 
 

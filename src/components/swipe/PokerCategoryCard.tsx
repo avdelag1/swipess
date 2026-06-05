@@ -72,6 +72,8 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
   const [isCrossfading, setIsCrossfading] = useState(false);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   // Auto-rotate photos every 4 seconds when this is the top card
   useEffect(() => {
     if (!isTop || photos.length <= 1 || _isLowEndDevice) return;
@@ -79,7 +81,7 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
     intervalRef.current = setInterval(() => {
       setNextPhotoIndex(prev => (prev + 1) % photos.length);
       setIsCrossfading(true);
-      setTimeout(() => {
+      timeoutRef.current = setTimeout(() => {
         setPhotoIndex(prev => (prev + 1) % photos.length);
         setNextPhotoIndex(prev => (prev + 1) % photos.length);
         setIsCrossfading(false);
@@ -88,6 +90,7 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
 
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
   }, [isTop, photos.length]);
 

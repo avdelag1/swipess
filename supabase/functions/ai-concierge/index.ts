@@ -1,7 +1,8 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
 
+const ALLOWED_ORIGIN = Deno.env.get('ALLOWED_ORIGIN') || 'https://swipess.com';
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Origin': ALLOWED_ORIGIN,
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
 
@@ -16,15 +17,14 @@ const SUPABASE_SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
 const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY") || Deno.env.get("VITE_SUPABASE_ANON_KEY") || Deno.env.get("VITE_SUPABASE_PUBLISHABLE_KEY") || "";
 
 // ─── Auth helpers ───────────────────────────────────────────────────────────
-function extractUserId(authHeader: string | null): string | null {
+async function extractUserId(authHeader: string | null): Promise<string | null> {
   if (!authHeader) return null;
   try {
-    const token = authHeader.replace("Bearer ", "");
-    const parts = token.split(".");
-    if (parts.length !== 3) return null;
-    const payload = JSON.parse(atob(parts[1]));
-    if (payload.role === "anon") return null;
-    return payload.sub || null;
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      global: { headers: { Authorization: authHeader } },
+    });
+    const { data: { user } } = await supabase.auth.getUser();
+    return user?.id || null;
   } catch { return null; }
 }
 
@@ -46,7 +46,7 @@ async function searchKnowledge(query: string): Promise<string> {
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY || SUPABASE_ANON_KEY);
     // Strip common stop words, keep meaningful keywords
     const stopWords = new Set(["the","a","an","is","are","was","were","be","been","have","has","had","do","does","did","will","would","could","should","may","might","can","i","you","we","they","he","she","it","this","that","these","those","and","or","but","in","on","at","to","for","of","with","by","from","about","into","through","how","what","where","when","who","why","want","need","looking"]);
-    const keywords = query.toLowerCase().split(/\s+/).map(w => w.replace(/[^a-z0-9]/g, '')).filter(w => w.length > 2 && !stopWords.has(w));
+    const keywords = query.toLowerCase().split(/\s+/).map(w => w.replace(/[^a-z0-9áéíóúñü]/g, '')).filter(w => w.length > 2 && !stopWords.has(w));
 
     // Always do a broad fallback search on short/empty keyword arrays
     const searchKeywords = keywords.length > 0 ? keywords : query.toLowerCase().split(/\s+/).filter(w => w.length > 2).slice(0, 3);
@@ -1579,7 +1579,7 @@ Deno.serve(async (req) => {
     }
 
     // Extract user ID for personalization
-    const userId = extractUserId(req.headers.get("authorization"));
+    const userId = await extractUserId(req.headers.get("authorization"));
     const lastUserMessage = [...messages].reverse().find(m => m.role === "user")?.content || "";
 
     // Debug: "/debug" returns diagnostic info instead of AI response
