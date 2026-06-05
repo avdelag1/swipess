@@ -256,13 +256,10 @@ export const BottomNavigation = memo(({
 
 
 
-  // Light theme uses a vibrant violet/indigo for the active item so it's
-  // visible against the near-white glass pill. Dark theme keeps white.
-  // The active item also picks up a neon halo via drop-shadow.
-  const activeColor = isLight ? '#7C3AED' : '#FFFFFF';
+  const baseColor = isLight ? '#0A0A0A' : '#FFFFFF';
   const activeGlow = isLight
-    ? 'drop-shadow(0 0 6px rgba(124,58,237,0.55)) drop-shadow(0 0 14px rgba(99,102,241,0.35))'
-    : 'drop-shadow(0 0 6px rgba(255,255,255,0.45))';
+    ? 'drop-shadow(0 2px 4px rgba(0,0,0,0.15))'
+    : 'drop-shadow(0 0 8px rgba(255,255,255,0.45))';
   return (
     <nav
       role="navigation"
@@ -406,10 +403,10 @@ export const BottomNavigation = memo(({
                     style={{
                       width: isTablet ? ICON_SIZE_TABLET : (isNarrow ? 16 : ICON_SIZE),
                       height: isTablet ? ICON_SIZE_TABLET : (isNarrow ? 16 : ICON_SIZE),
-                      color: active ? activeColor : (isLight ? 'rgba(0,0,0,0.78)' : 'rgba(255,255,255,0.92)'),
+                      color: item.id === 'add' ? '#FF3366' : (active ? baseColor : (isLight ? 'rgba(0,0,0,0.45)' : 'rgba(255,255,255,0.5)')),
                       fill: 'none',
                       strokeWidth: active ? 2.4 : 1.7,
-                      filter: active ? activeGlow : undefined,
+                      filter: item.id === 'add' ? 'drop-shadow(0 0 12px rgba(255,51,102,0.6))' : (active ? activeGlow : undefined),
                       transition: 'color 160ms ease-out, stroke-width 160ms ease-out, filter 160ms ease-out',
                     }}
                   />
@@ -423,8 +420,8 @@ export const BottomNavigation = memo(({
                         isTablet ? 'text-[11px]' : 'text-[8px]',
                       )}
                       style={{
-                        color: active ? activeColor : (isLight ? 'rgba(0,0,0,0.78)' : 'rgba(255,255,255,0.92)'),
-                        textShadow: active && isLight ? '0 0 8px rgba(124,58,237,0.45)' : undefined,
+                        color: item.id === 'add' ? '#FF3366' : (active ? baseColor : (isLight ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.5)')),
+                        textShadow: item.id === 'add' ? '0 0 8px rgba(255,51,102,0.4)' : (active && isLight ? '0 0 4px rgba(0,0,0,0.1)' : undefined),
                         transition: 'color 160ms ease-out, text-shadow 160ms ease-out',
                         zIndex: 1,
                       }}

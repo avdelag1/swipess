@@ -285,9 +285,9 @@ export function NotificationPopover({ className, children, glassPillStyle }: Not
     navigate('/notifications');
   }, [navigate]);
 
-  // Dark theme → always white. Light theme → white on dashboard, black elsewhere.
+  // Follow theme globally
   const _isDashboard = /^\/(client|owner|admin)\/dashboard\/?/.test(_location.pathname);
-  const _bellColor = !isLight || _isDashboard ? '#FFFFFF' : '#0A0A0A';
+  const _bellColor = !isLight ? '#FFFFFF' : '#0A0A0A';
   const triggerButton = children || (
     <Button
       variant="ghost"
