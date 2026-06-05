@@ -60,11 +60,14 @@ export function CategorySelector({
               type="button"
               data-active={active}
               data-category={value}
-              onClick={() => onCategoryChange(value)}
+              onPointerDown={(e) => {
+                if (e.pointerType === 'mouse') e.preventDefault();
+                onCategoryChange(value);
+              }}
               whileTap={{ scale: 0.94 }}
               whileHover={{ scale: 1.03 }}
               transition={springTap}
-              className="listing-category-control flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-semibold transition-all"
+              className="listing-category-control flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-semibold touch-manipulation select-none"
             >
               <Icon className="w-5 h-5" />
               {label}
@@ -81,11 +84,14 @@ export function CategorySelector({
             <motion.button
               key={value}
               type="button"
-              onClick={() => handleModeToggle(value as 'rent' | 'sale')}
+              onPointerDown={(e) => {
+                if (e.pointerType === 'mouse') e.preventDefault();
+                handleModeToggle(value as 'rent' | 'sale');
+              }}
               whileTap={{ scale: 0.96 }}
               transition={springTap}
               className={cn(
-                "flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-semibold transition-all border cursor-pointer",
+                "flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-semibold border cursor-pointer touch-manipulation select-none",
                 active
                   ? 'bg-primary text-primary-foreground border-primary shadow-md shadow-primary/20'
                   : 'bg-secondary text-foreground border-border hover:bg-secondary/80'

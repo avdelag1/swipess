@@ -215,11 +215,14 @@ function CascadeFilterButtonComponent({ filters, onChange, userRole = 'client' }
                     <div className="grid grid-cols-2 gap-2">
                       {/* All categories button */}
                       <button
-                        onClick={handleSelectAll}
+                        onPointerDown={(e) => {
+                          if (e.pointerType === 'mouse') e.preventDefault();
+                          handleSelectAll();
+                        }}
                         className={cn(
                           buttonClass,
                           'flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium col-span-2',
-                          'border',
+                          'border select-none touch-manipulation',
                           allSelected
                             ? 'bg-primary text-primary-foreground border-primary'
                             : 'bg-black/[0.03] text-black/70 border-black/[0.05] dark:bg-white/[0.05] dark:text-white/60 dark:border-white/[0.08]'
@@ -235,11 +238,14 @@ function CascadeFilterButtonComponent({ filters, onChange, userRole = 'client' }
                         return (
                           <button
                             key={category.id}
-                            onClick={() => handleCategoryToggle(category.id)}
+                            onPointerDown={(e) => {
+                              if (e.pointerType === 'mouse') e.preventDefault();
+                              handleCategoryToggle(category.id);
+                            }}
                             className={cn(
                               buttonClass,
                               'flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium',
-                              'border',
+                              'border select-none touch-manipulation',
                                 isActive
                                   ? cn(colorClass, 'text-white border-current')
                                   : 'bg-black/[0.03] text-black/70 border-black/[0.05] dark:bg-white/[0.05] dark:text-white/60 dark:border-white/[0.08]'
@@ -263,11 +269,14 @@ function CascadeFilterButtonComponent({ filters, onChange, userRole = 'client' }
                         return (
                           <button
                             key={type.id}
-                            onClick={() => handleListingTypeChange(type.id)}
+                            onPointerDown={(e) => {
+                              if (e.pointerType === 'mouse') e.preventDefault();
+                              handleListingTypeChange(type.id);
+                            }}
                             className={cn(
                               buttonClass,
                               'flex-1 px-3 py-2.5 rounded-xl text-sm font-medium',
-                              'border',
+                              'border select-none touch-manipulation',
                               isActive
                                 ? 'bg-primary text-primary-foreground border-primary'
                                 : 'bg-black/[0.03] text-black/70 border-black/[0.05] dark:bg-white/[0.05] dark:text-white/60 dark:border-white/[0.08]'
@@ -291,11 +300,14 @@ function CascadeFilterButtonComponent({ filters, onChange, userRole = 'client' }
                         return (
                           <button
                             key={option.id}
-                            onClick={() => handleGenderChange(option.id)}
+                            onPointerDown={(e) => {
+                              if (e.pointerType === 'mouse') e.preventDefault();
+                              handleGenderChange(option.id);
+                            }}
                             className={cn(
                               buttonClass,
                               'flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-sm font-medium',
-                              'border',
+                              'border select-none touch-manipulation',
                               isActive
                                 ? 'bg-primary text-primary-foreground border-primary'
                                 : 'bg-black/[0.03] text-black/70 border-black/[0.05] dark:bg-white/[0.05] dark:text-white/60 dark:border-white/[0.08]'
@@ -318,11 +330,14 @@ function CascadeFilterButtonComponent({ filters, onChange, userRole = 'client' }
                         return (
                           <button
                             key={option.id}
-                            onClick={() => handleClientTypeChange(option.id)}
+                            onPointerDown={(e) => {
+                              if (e.pointerType === 'mouse') e.preventDefault();
+                              handleClientTypeChange(option.id);
+                            }}
                             className={cn(
                               buttonClass,
                               'px-3 py-2.5 rounded-xl text-sm font-medium',
-                              'border',
+                              'border select-none touch-manipulation',
                               isActive
                                 ? 'bg-primary text-primary-foreground border-primary'
                                 : 'bg-black/[0.03] text-black/70 border-black/[0.05] dark:bg-white/[0.05] dark:text-white/60 dark:border-white/[0.08]'
