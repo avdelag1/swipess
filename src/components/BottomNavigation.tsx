@@ -22,7 +22,7 @@ import {
   Building2, CircleUser, Flame, IdCard,
   MessageCircle, PartyPopper,
   Radio, Scale as ScaleIcon, SlidersHorizontal,
-  Sparkles, Zap, PlusCircle
+  Sparkles, Zap, PlusCircle, ShieldCheck
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUnreadMessageCount } from '@/hooks/useUnreadMessageCount';
@@ -135,6 +135,7 @@ export const BottomNavigation = memo(({
     { id: 'ai', icon: Sparkles, label: t('nav.aiBot'), onClick: openAIChat, isSpecial: true },
     { id: 'add', icon: PlusCircle, label: t('nav.add', 'ADD'), path: '/owner/properties', isSpecial: true },
     { id: 'messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages' },
+    { id: 'vapid', icon: ShieldCheck, label: t('nav.idCard', 'ID CARD'), onClick: () => setModal('showVapId', true) },
     { id: 'radio', icon: Radio, label: t('nav.radio', 'RADIO'), path: '/radio' },
     { id: 'search', icon: SlidersHorizontal, label: t('nav.filter'), onClick: onFilterClick },
     { id: 'legal', icon: ScaleIcon, label: t('nav.legal'), path: '/client/legal-services' },
