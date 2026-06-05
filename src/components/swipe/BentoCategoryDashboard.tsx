@@ -19,7 +19,7 @@ const BENTO_ITEMS = [
     description: 'Buy, rent or sell properties',
     className: 'col-span-3 row-span-2',
     gradient: 'from-[#FF4D00]/90 to-[#FF8C00]/90',
-    image: POKER_CARD_PHOTOS['property'],
+    imageId: 'property',
   },
   {
     id: 'buyers',
@@ -27,7 +27,7 @@ const BENTO_ITEMS = [
     description: 'Find buyers for anything',
     className: 'col-span-3 row-span-1',
     gradient: 'from-[#10b981]/90 to-[#047857]/90',
-    image: POKER_CARD_PHOTOS['buyers'],
+    imageId: 'buyers',
   },
   {
     id: 'rentals',
@@ -35,7 +35,7 @@ const BENTO_ITEMS = [
     description: 'Find rental opportunities',
     className: 'col-span-3 row-span-1',
     gradient: 'from-[#0ea5e9]/90 to-[#0369a1]/90',
-    image: POKER_CARD_PHOTOS['renters'],
+    imageId: 'renters',
   },
   {
     id: 'motorcycle',
@@ -43,7 +43,7 @@ const BENTO_ITEMS = [
     description: 'Buy or sell motorcycles',
     className: 'col-span-2 row-span-1',
     gradient: 'from-[#e11d48]/90 to-[#9f1239]/90',
-    image: POKER_CARD_PHOTOS['motorcycle'],
+    imageId: 'motorcycle',
   },
   {
     id: 'bicycle',
@@ -51,7 +51,7 @@ const BENTO_ITEMS = [
     description: 'Buy or sell bicycles',
     className: 'col-span-2 row-span-1',
     gradient: 'from-[#0d9488]/90 to-[#0f766e]/90',
-    image: POKER_CARD_PHOTOS['bicycle'],
+    imageId: 'bicycle',
   },
   {
     id: 'services',
@@ -59,7 +59,7 @@ const BENTO_ITEMS = [
     description: 'Find or hire workers',
     className: 'col-span-2 row-span-2',
     gradient: 'from-[#7c3aed]/90 to-[#4c1d95]/90',
-    image: POKER_CARD_PHOTOS['services'],
+    imageId: 'services',
   },
   {
     id: 'roommates',
@@ -67,7 +67,7 @@ const BENTO_ITEMS = [
     description: 'Find a roommate or a room',
     className: 'col-span-2 row-span-1',
     gradient: 'from-[#6366f1]/90 to-[#4338ca]/90',
-    image: POKER_CARD_PHOTOS['renters'], // Fallback to renters photo if roommates doesn't exist
+    imageId: 'renters', // Fallback to renters photo if roommates doesn't exist
   },
   {
     id: 'leads',
@@ -75,7 +75,7 @@ const BENTO_ITEMS = [
     description: 'Find help or something specific',
     className: 'col-span-2 row-span-1',
     gradient: 'from-[#f59e0b]/90 to-[#d97706]/90',
-    image: POKER_CARD_PHOTOS['leads'],
+    imageId: 'leads',
   },
   {
     id: 'events',
@@ -83,7 +83,7 @@ const BENTO_ITEMS = [
     description: 'Discover & promote events',
     className: 'col-span-2 row-span-1',
     gradient: 'from-[#ec4899]/90 to-[#be185d]/90',
-    image: POKER_CARD_PHOTOS['events'],
+    imageId: 'events',
   },
   {
     id: 'promote',
@@ -91,7 +91,7 @@ const BENTO_ITEMS = [
     description: 'Promote & manage your events',
     className: 'col-span-2 row-span-1',
     gradient: 'from-[#e11d48]/90 to-[#be123c]/90',
-    image: POKER_CARD_PHOTOS['promote'],
+    imageId: 'promote',
   },
   {
     id: 'lawyer',
@@ -99,7 +99,7 @@ const BENTO_ITEMS = [
     description: 'Legal services & consultations',
     className: 'col-span-2 row-span-1',
     gradient: 'from-[#3b82f6]/90 to-[#1d4ed8]/90',
-    image: POKER_CARD_PHOTOS['lawyer'],
+    imageId: 'lawyer',
   },
 ];
 
@@ -155,7 +155,7 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
           >
             {/* Background Image */}
             <div className="absolute inset-0 z-0">
-              <QuickFilterImage src={item.image} alt={item.label} className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-700 ease-out" />
+              <QuickFilterImage src={POKER_CARD_PHOTOS[item.imageId] || ''} alt={item.label} className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-700 ease-out" />
             </div>
 
             {/* Gradient Overlay */}
