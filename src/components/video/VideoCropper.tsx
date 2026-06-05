@@ -31,6 +31,51 @@ export function VideoCropper({
     const videoRef = useRef<HTMLVideoElement>(null);
     const mediaRecorderRef = useRef<MediaRecorder | null>(null);
     const recordedChunksRef = useRef<BlobPart[]>([]);
+    
+    // Drag state for panning the 10s window
+    const draggingTrackRef = useRef<{ startX: number; initialStartTime: number; initialEndTime: number } | null>(null);
+
+    const handleTrackPointerDown = (e: React.PointerEvent) => {
+        draggingTrackRef.current = {
+            startX: e.clientX,
+            initialStartTime: startTime,
+            initialEndTime: endTime
+        };
+        e.currentTarget.setPointerCapture(e.pointerId);
+    };
+
+    const handleTrackPointerMove = (e: React.PointerEvent) => {
+        if (!draggingTrackRef.current) return;
+        const dx = e.clientX - draggingTrackRef.current.startX;
+        const trackElement = e.currentTarget.parentElement;
+        if (!trackElement) return;
+        
+        const rect = trackElement.getBoundingClientRect();
+        const timeDelta = (dx / rect.width) * duration;
+        
+        let newStart = draggingTrackRef.current.initialStartTime + timeDelta;
+        let newEnd = draggingTrackRef.current.initialEndTime + timeDelta;
+        
+        const windowSize = newEnd - newStart;
+        
+        if (newStart < 0) {
+            newStart = 0;
+            newEnd = windowSize;
+        }
+        if (newEnd > duration) {
+            newEnd = duration;
+            newStart = duration - windowSize;
+        }
+        
+        setStartTime(newStart);
+        setEndTime(newEnd);
+        if (videoRef.current) videoRef.current.currentTime = newStart;
+    };
+
+    const handleTrackPointerUp = (e: React.PointerEvent) => {
+        draggingTrackRef.current = null;
+        e.currentTarget.releasePointerCapture(e.pointerId);
+    };
 
     useEffect(() => {
         if (videoFile) {
@@ -100,7 +145,7 @@ export function VideoCropper({
                 toast.info('Uploading video...');
                 const url = await uploadListingVideo(userId, videoFile!);
                 toast.success('Video uploaded successfully!');
-                onUploadSuccess(url);
+                onUploadSuccess(`${url}#t=${startTime.toFixed(2)},${endTime.toFixed(2)}`);
                 setIsProcessing(false);
                 onClose();
                 return;
@@ -194,11 +239,15 @@ export function VideoCropper({
                             <div className="relative h-2 bg-white/20 rounded-full w-full">
                                 {/* Active track */}
                                 <div
-                                    className="absolute h-full bg-[var(--color-brand-accent-2)] rounded-full"
+                                    className="absolute h-full bg-[var(--color-brand-accent-2)] rounded-full cursor-grab active:cursor-grabbing pointer-events-auto z-10"
                                     style={{
                                         left: `${(startTime / duration) * 100}%`,
                                         width: `${((endTime - startTime) / duration) * 100}%`
                                     }}
+                                    onPointerDown={handleTrackPointerDown}
+                                    onPointerMove={handleTrackPointerMove}
+                                    onPointerUp={handleTrackPointerUp}
+                                    onPointerCancel={handleTrackPointerUp}
                                 />
 
                                 {/* Start Thumb */}
@@ -216,7 +265,7 @@ export function VideoCropper({
                                             if (videoRef.current) videoRef.current.currentTime = val;
                                         }
                                     }}
-                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer pointer-events-auto z-20"
+                                    className="absolute inset-0 w-full h-full opacity-0 pointer-events-none [&::-webkit-slider-thumb]:pointer-events-auto z-20"
                                 />
                                 <div
                                     className="absolute top-1/2 -mt-2.5 w-5 h-5 bg-white rounded-full shadow-[0_0_10px_rgba(228,0,124,0.5)] border border-white/20 pointer-events-none z-10"
@@ -237,7 +286,7 @@ export function VideoCropper({
                                             if (val - startTime > MAX_DURATION) setStartTime(val - MAX_DURATION);
                                         }
                                     }}
-                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer pointer-events-auto z-30"
+                                    className="absolute inset-0 w-full h-full opacity-0 pointer-events-none [&::-webkit-slider-thumb]:pointer-events-auto z-30"
                                 />
                                 <div
                                     className="absolute top-1/2 -mt-2.5 w-5 h-5 bg-white rounded-full shadow-[0_0_10px_rgba(228,0,124,0.5)] border border-white/20 pointer-events-none z-10"
