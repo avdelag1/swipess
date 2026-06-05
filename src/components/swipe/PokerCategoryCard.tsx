@@ -80,9 +80,6 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
     // If already animating exit, ignore.
     if (isExitingRef.current) return;
 
-    isDraggingRef.current = false;
-    setIsDraggingVisual(false);
-
     const dx = info.offset.x;
     const vx = info.velocity.x;
     const commitX = Math.abs(dx) > PK_DIST_THRESHOLD || Math.abs(vx) > PK_VEL_THRESHOLD;
@@ -105,6 +102,12 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
 
     // Snap back.
     animate(x, 0, { ...PK_SPRING });
+    
+    // Delay resetting drag state so onTap doesn't fire immediately
+    setTimeout(() => {
+      isDraggingRef.current = false;
+      setIsDraggingVisual(false);
+    }, 100);
   }, [card.id, onCycle, x]);
 
   // Stack styling — no blur (avoids expensive repaints), just brightness falloff
@@ -119,9 +122,9 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
 
   return (
     <motion.div
-      // Only the top card is draggable. No constraints — let the card move
-      // freely so the exit animate() to ±520 isn't fought by constraint springs.
-      drag={isTop ? true : false}
+      // Only the top card is draggable. Lock drag to 'x' axis since we only swipe left/right.
+      drag={isTop ? "x" : false}
+      dragDirectionLock={isTop ? true : undefined}
       dragMomentum={false}
       dragTransition={{ bounceStiffness: 800, bounceDamping: 25 }} // Instantly glues to finger
       onDragStart={() => {
