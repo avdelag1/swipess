@@ -244,7 +244,6 @@ export default function EventoDetail() {
     
     setIsConnecting(true);
     // Premium cinematic pause
-    await new Promise(resolve => setTimeout(resolve, 2000));
     
     const phone = event.organizer_whatsapp.replace(/\D/g, '');
     const message = encodeURIComponent(`Hola, vi tu evento "${event.title}" en Swipess 🔥`);

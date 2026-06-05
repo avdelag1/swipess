@@ -189,7 +189,6 @@ const LegalHub = () => {
     }
 
     setIsSubmitting(true);
-    await new Promise(resolve => setTimeout(resolve, 1500));
     setIsSubmitting(false);
     setSubmitted(true);
     toast.success('Legal help request submitted! 🚀');

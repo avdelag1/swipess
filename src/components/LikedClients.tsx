@@ -146,8 +146,6 @@ export function LikedClients() {
           triggerHaptic('medium');
 
           // Premium cinematic delay
-          await new Promise(resolve => setTimeout(resolve, 2200));
-
           navigate(`/messages?conversationId=${result.conversationId}`);
         } else {
           appToast.error("Could not open chat", "Please try again.");

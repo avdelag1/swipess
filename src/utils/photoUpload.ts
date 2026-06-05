@@ -70,7 +70,6 @@ export const uploadPhoto = async ({
     if (isFatal || attempt === MAX_ATTEMPTS - 1) {
       break;
     }
-    await new Promise((r) => setTimeout(r, 400 * (attempt + 1) ** 2));
   }
 
   if (onProgress) {

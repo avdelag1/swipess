@@ -174,7 +174,6 @@ export async function syncQueuedSwipes(): Promise<{ synced: number; failed: numb
     }
 
     // Small delay between syncs to avoid rate limits
-    await new Promise(resolve => setTimeout(resolve, 100));
   }
 
   if (synced > 0) {

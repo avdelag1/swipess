@@ -20,7 +20,6 @@ export function lazyWithRetry<T extends ComponentType<any>>(
       console.warn('[lazyWithRetry] First load failed, retrying…', firstError);
       
       // Delay before first retry
-      await new Promise(r => setTimeout(r, 1000));
       
       try {
         return await componentImport();

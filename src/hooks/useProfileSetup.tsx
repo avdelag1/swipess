@@ -186,7 +186,6 @@ export function useProfileSetup() {
 
           if (attempt < 3) {
             // Exponential backoff: 500ms, 1000ms
-            await new Promise(resolve => setTimeout(resolve, attempt * 500));
           }
         }
 
@@ -262,8 +261,6 @@ export function useProfileSetup() {
 
         // CRITICAL: Invalidate cache for existing profiles too!
         queryClient.invalidateQueries({ queryKey: ['user-role', user.id] });
-        await new Promise(resolve => setTimeout(resolve, 100));
-
         return existingProfile;
       }
 
@@ -312,7 +309,6 @@ export function useProfileSetup() {
 
         if (attempt < 3) {
           // Exponential backoff: 500ms, 1000ms
-          await new Promise(resolve => setTimeout(resolve, attempt * 500));
         }
       }
 
@@ -327,8 +323,6 @@ export function useProfileSetup() {
       }
 
       // Add small delay to ensure profile is fully created
-      await new Promise(resolve => setTimeout(resolve, 150));
-
       // Create specialized profile row (client_profiles or owner_profiles) for new users
       // This ensures the user has a complete profile entry from the start
       try {
@@ -386,7 +380,6 @@ export function useProfileSetup() {
 
         if (attempt < 3) {
           // Exponential backoff: 500ms, 1000ms
-          await new Promise(resolve => setTimeout(resolve, attempt * 500));
         }
       }
 
@@ -400,8 +393,6 @@ export function useProfileSetup() {
       queryClient.invalidateQueries({ queryKey: ['user-role', user.id] });
 
       // Add small delay to ensure cache invalidation propagates
-      await new Promise(resolve => setTimeout(resolve, 150));
-
       // Grant welcome token for the new user
       // This gives them 1 free token to start (or 2 if they signed up via referral)
       const grantWelcomeActivation = async (userId: string) => {

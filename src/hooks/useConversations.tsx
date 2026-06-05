@@ -262,7 +262,6 @@ export function useConversations() {
       if (conv) return conv;
 
       if (i < maxAttempts - 1) {
-        await new Promise(resolve => setTimeout(resolve, 1000));
         await query.refetch();
       }
     }

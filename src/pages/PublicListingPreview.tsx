@@ -141,7 +141,6 @@ export default function PublicListingPreview() {
       setIsConnecting(true);
       
       // Premium cinematic delay
-      await new Promise(resolve => setTimeout(resolve, 2200));
       
       if (result?.conversationId) {
         navigate(`/messages?conversationId=${result.conversationId}`);
