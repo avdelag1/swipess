@@ -7,6 +7,16 @@ import type { QuickFilterCategory } from '@/types/filters';
 import { cn } from '@/lib/utils';
 import { QuickFilterImage } from '@/components/ui/QuickFilterImage';
 import { POKER_CARD_PHOTOS } from './SwipeConstants';
+import { 
+  Home, 
+  UserCheck, 
+  Bike, 
+  Calendar, 
+  ShoppingCart, 
+  Key, 
+  Users, 
+  Briefcase 
+} from 'lucide-react';
 
 export interface BentoCategoryDashboardProps {
   setCategories: (category: QuickFilterCategory | string) => void;
@@ -17,73 +27,82 @@ const BENTO_ITEMS = [
     id: 'property',
     label: 'PROPERTIES',
     description: 'Find properties to buy or rent',
-    className: 'col-span-2 md:col-span-3 row-span-2',
-    gradient: 'from-[#FF4D00]/90 to-[#FF8C00]/90',
+    className: 'col-span-2 row-span-2',
     imageId: 'property',
+    icon: Home,
+    delay: '-2.4s'
   },
   {
     id: 'services',
     label: 'WORKERS',
     description: 'Find people offering services',
-    className: 'col-span-2 md:col-span-2 row-span-2',
-    gradient: 'from-[#7c3aed]/90 to-[#4c1d95]/90',
+    className: 'col-span-1 row-span-1',
     imageId: 'services',
+    icon: UserCheck,
+    delay: '-8.7s'
   },
   {
     id: 'motorcycle',
     label: 'MOTORCYCLES',
     description: 'Find motorcycles for sale or rent',
-    className: 'col-span-1 md:col-span-2 row-span-1',
-    gradient: 'from-[#e11d48]/90 to-[#9f1239]/90',
+    className: 'col-span-1 row-span-1',
     imageId: 'motorcycle',
+    icon: Bike,
+    delay: '-5.1s'
   },
   {
     id: 'bicycle',
     label: 'BICYCLES',
     description: 'Find bicycles for sale or rent',
-    className: 'col-span-1 md:col-span-2 row-span-1',
-    gradient: 'from-[#0d9488]/90 to-[#0f766e]/90',
+    className: 'col-span-2 row-span-1',
     imageId: 'bicycle',
+    icon: Bike,
+    delay: '-10.3s'
   },
   {
     id: 'events',
     label: 'EVENTS',
     description: 'Discover local events',
-    className: 'col-span-2 md:col-span-2 row-span-1',
-    gradient: 'from-[#ec4899]/90 to-[#be185d]/90',
+    className: 'col-span-4 row-span-1',
     imageId: 'events',
+    icon: Calendar,
+    delay: '-1.2s'
   },
   {
     id: 'buyers',
     label: 'BUYERS',
     description: 'Find people looking to buy',
-    className: 'col-span-1 md:col-span-3 row-span-1',
-    gradient: 'from-[#10b981]/90 to-[#047857]/90',
+    className: 'col-span-2 row-span-1',
     imageId: 'buyers',
+    icon: ShoppingCart,
+    delay: '-6.8s'
   },
   {
     id: 'rentals',
     label: 'RENTERS',
     description: 'Find people looking to rent',
-    className: 'col-span-1 md:col-span-3 row-span-1',
-    gradient: 'from-[#0ea5e9]/90 to-[#0369a1]/90',
+    className: 'col-span-2 row-span-1',
     imageId: 'renters',
+    icon: Key,
+    delay: '-3.9s'
   },
   {
     id: 'roommates',
     label: 'ROOMMATES',
     description: 'Find roommates',
-    className: 'col-span-1 md:col-span-2 row-span-1',
-    gradient: 'from-[#6366f1]/90 to-[#4338ca]/90',
+    className: 'col-span-2 row-span-1',
     imageId: 'renters', 
+    icon: Users,
+    delay: '-9.5s'
   },
   {
     id: 'leads',
     label: 'SEEKERS',
     description: 'People looking to hire',
-    className: 'col-span-1 md:col-span-2 row-span-1',
-    gradient: 'from-[#f59e0b]/90 to-[#d97706]/90',
+    className: 'col-span-2 row-span-1',
     imageId: 'leads',
+    icon: Briefcase,
+    delay: '-0.7s'
   },
 ];
 
@@ -121,7 +140,7 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
         variants={containerVariants}
         initial="hidden"
         animate="show"
-        className="w-full h-full max-w-3xl mx-auto grid grid-cols-2 md:grid-cols-6 gap-2 sm:gap-4 grid-rows-[repeat(8,minmax(0,1fr))] md:grid-rows-[repeat(5,minmax(0,1fr))]"
+        className="w-full h-full max-w-3xl mx-auto grid grid-cols-4 gap-2 sm:gap-4 grid-rows-[repeat(5,minmax(0,1fr))]"
       >
         {BENTO_ITEMS.map((item) => (
           <motion.button
@@ -137,7 +156,12 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
           >
             {/* Background Image */}
             <div className="absolute inset-0 z-0">
-              <QuickFilterImage src={POKER_CARD_PHOTOS[item.imageId] || ''} alt={item.label} className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-700 ease-out" />
+              <QuickFilterImage 
+                src={POKER_CARD_PHOTOS[item.imageId] || ''} 
+                alt={item.label} 
+                animationDelay={item.delay}
+                className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-700 ease-out" 
+              />
             </div>
 
             {/* Soft gradient from bottom for text readability without obscuring photo */}
@@ -150,12 +174,19 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
             <div className="absolute -top-12 -right-12 z-0 w-32 h-32 border-[1px] border-white/20 rounded-full opacity-30 pointer-events-none" />
             <div className="absolute -bottom-8 -left-8 z-0 w-24 h-24 border-[1px] border-white/20 rounded-full opacity-20 pointer-events-none" />
 
-            {/* Content */}
-            <div className="relative z-20 p-4 w-full">
-              <h3 className="text-white font-black italic uppercase tracking-wider text-base sm:text-lg mb-0.5 drop-shadow-md leading-tight">
+            {/* Content Icon */}
+            <div className="absolute top-2 left-2 z-20">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-white/20 bg-black/40 backdrop-blur-md flex items-center justify-center">
+                <item.icon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
+              </div>
+            </div>
+
+            {/* Content Text */}
+            <div className="relative z-20 p-2 sm:p-4 w-full">
+              <h3 className="text-white font-black italic uppercase tracking-wider text-sm sm:text-base mb-0.5 drop-shadow-md leading-tight">
                 {item.label}
               </h3>
-              <p className="text-white/80 font-medium text-[10px] sm:text-xs leading-snug tracking-wide drop-shadow">
+              <p className="text-white/80 font-medium text-[9px] sm:text-[10px] leading-snug tracking-wide drop-shadow">
                 {item.description}
               </p>
             </div>
