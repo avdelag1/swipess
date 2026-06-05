@@ -105,13 +105,8 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
     }, 100);
   }, [card.id, onCycle, x]);
 
-  // Stack styling — no blur (avoids expensive repaints), just brightness falloff
-  const { stackOpacity, stackedFilter } = useMemo(() => ({
-    stackOpacity: 1,
-    stackedFilter: isTop
-      ? 'brightness(0.98)'
-      : `brightness(${0.96 - index * 0.045})`,
-  }), [index, isTop]);
+  // Stack styling — no blur (avoids expensive repaints)
+  const stackOpacity = 1;
 
   if (index > 7) return null;
 
@@ -161,7 +156,6 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
         opacity: isTop ? exitOpacity : stackOpacity,
         scale: 1,
         rotate,
-        filter: stackedFilter,
         touchAction: 'none',
         willChange: 'transform, opacity',
         transformOrigin: '50% 120%', // Pivot from bottom so it feels like a heavy physical card
@@ -201,6 +195,14 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
 
         {/* Scrim */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent z-10 pointer-events-none" />
+
+        {/* Darken background cards safely (GPU friendly) */}
+        {!isTop && (
+          <div 
+            className="absolute inset-0 bg-black pointer-events-none z-[11] transition-opacity duration-300" 
+            style={{ opacity: 0.05 + index * 0.05 }} 
+          />
+        )}
 
         {/* Breathing swipe-hint dots — top card only, capable devices only */}
         {isTop && !_isLowEndDevice && (
@@ -255,7 +257,7 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
                   onSelect(card.id);
                 }}
                 className="w-full h-14 rounded-2xl flex items-center justify-center gap-3 font-black uppercase italic tracking-widest transition-all hover:scale-[1.02] active:scale-95 text-black shadow-[0_18px_40px_rgba(0,0,0,0.35)] ring-1 ring-white/40"
-                style={{ background: 'rgba(255,255,255,0.96)', backdropFilter: 'blur(8px)' }}
+                style={{ background: 'rgba(255,255,255,0.98)' }}
                 aria-label="Engage Discovery"
               >
                 {card.icon && <card.icon className="w-5 h-5" />}
