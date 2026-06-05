@@ -23,8 +23,8 @@ function ThemeToggleComponent({ className, glassPillStyle }: ThemeToggleProps) {
     const { pathname } = useLocation();
     const isDashboard = /^\/(client|owner|admin)\/dashboard\/?/.test(pathname);
     const isLight = theme === 'light';
-    // Dark theme → always white. Light theme → white on dashboard, black elsewhere.
-    const iconColor = !isLight || isDashboard ? '#FFFFFF' : '#0A0A0A';
+    // Follow theme globally
+    const iconColor = !isLight ? '#FFFFFF' : '#0A0A0A';
 
     const handleToggle = (e: React.MouseEvent) => {
         e.preventDefault();

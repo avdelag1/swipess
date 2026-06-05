@@ -44,19 +44,15 @@ function TopBarComponent({
 }: TopBarProps) {
   const { navigate } = useAppNavigate();
   const { user } = useAuth();
-  const { isLight: themeIsLight } = useAppTheme();
+  const { isLight } = useAppTheme();
   const setModal = useModalStore(s => s.setModal);
   const location = useLocation();
   const isDashboard = /^\/(client|owner|admin)\/dashboard\/?/.test(location.pathname);
-  
-  // Only the dashboard page forces dark — other pages respect the user's theme
-  const isLight = isDashboard ? false : themeIsLight;
 
   // Always visible on every page — no chrome-reveal hiding
   const isActuallyVisible = true;
-  // Color rule: always WHITE on dashboard (forced dark), otherwise
-  // follow theme.
-  const iconColor = !isLight || isDashboard ? '#FFFFFF' : '#0A0A0A';
+  // Color rule: follow theme regardless of dashboard to fix invisible icons
+  const iconColor = !isLight ? '#FFFFFF' : '#0A0A0A';
 
   // Note: when an activeCategory is set on the dashboard, the SwipeDeckBackButton
   // already provides the persistent back arrow. Don't render a duplicate here.
