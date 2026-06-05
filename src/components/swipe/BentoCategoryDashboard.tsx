@@ -139,7 +139,7 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
         variants={containerVariants}
         initial="hidden"
         animate="show"
-        className="w-full h-full max-w-3xl mx-auto grid grid-cols-2 md:grid-cols-6 gap-2 sm:gap-3 grid-rows-[repeat(9,minmax(0,1fr))]"
+        className="w-full h-full max-w-3xl mx-auto grid grid-cols-2 md:grid-cols-6 gap-3 sm:gap-4 grid-rows-[repeat(9,minmax(0,1fr))] md:grid-rows-[repeat(5,minmax(0,1fr))]"
       >
         {BENTO_ITEMS.map((item) => (
           <motion.button
