@@ -52,6 +52,8 @@ export function QuickFilterImage({ src, alt, className, animationDelay = '0s' }:
     );
   }
 
+  const isDragging = React.useRef(false);
+
   return (
     <div className="absolute inset-0 w-full h-full overflow-hidden bg-slate-900/50 pointer-events-auto touch-none">
       {/* Invisible drag surface to capture swipes without blocking taps */}
@@ -59,12 +61,23 @@ export function QuickFilterImage({ src, alt, className, animationDelay = '0s' }:
         className="absolute inset-0 w-full h-full z-20"
         drag="x"
         dragConstraints={{ left: 0, right: 0 }}
-        dragElastic={0.1}
+        dragElastic={0.2}
+        onDragStart={() => {
+          isDragging.current = true;
+        }}
         onDragEnd={(e, { offset }) => {
-          if (offset.x < -30) {
+          // Delay resetting drag state so onClickCapture can catch it
+          setTimeout(() => { isDragging.current = false; }, 50);
+          if (offset.x < -20) {
             setActiveIndex(prev => (prev + 1) % images.length);
-          } else if (offset.x > 30) {
+          } else if (offset.x > 20) {
             setActiveIndex(prev => (prev - 1 + images.length) % images.length);
+          }
+        }}
+        onClickCapture={(e) => {
+          if (isDragging.current) {
+            e.stopPropagation();
+            e.preventDefault();
           }
         }}
       />
