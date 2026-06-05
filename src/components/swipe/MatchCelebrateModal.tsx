@@ -118,7 +118,7 @@ function MatchCelebrateModalComponent({ isOpen, onClose, clientProfile, ownerPro
             >
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent z-10" />
               <img 
-                src={(clientProfile.profile_images && clientProfile.profile_images[0]) || "/placeholder-avatar.svg"} 
+                src={clientProfile.profile_images?.[0] || "/placeholder-avatar.svg"}
                 alt="Client" 
                 className="w-full h-full object-cover"
               />
@@ -134,7 +134,7 @@ function MatchCelebrateModalComponent({ isOpen, onClose, clientProfile, ownerPro
             >
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent z-10" />
               <img 
-                src={(ownerProfile.profile_images && ownerProfile.profile_images[0]) || "/placeholder-avatar.svg"} 
+                src={ownerProfile.profile_images?.[0] || "/placeholder-avatar.svg"}
                 alt="Owner" 
                 className="w-full h-full object-cover"
               />
@@ -157,7 +157,7 @@ function MatchCelebrateModalComponent({ isOpen, onClose, clientProfile, ownerPro
             transition={{ delay: 0.8 }}
             className="text-white/80 text-center mb-10 font-medium px-4"
           >
-            You and {clientProfile.name?.split(' ')[0] || "this user"} are now connected.
+            You and {clientProfile.name?.trim()?.split(' ')[0] || "this user"} are now connected.
           </motion.p>
 
           {/* Action Buttons */}

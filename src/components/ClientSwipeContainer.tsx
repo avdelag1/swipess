@@ -97,12 +97,6 @@ const ClientSwipeContainerComponent = ({
   const setActiveCategory = useFilterStore((s) => s.setActiveCategory);
 
 
-  // DEBUG: Monitor if activeCategory changes unexpectedly
-  useEffect(() => {
-    if (storeActiveCategory && storeActiveCategory !== category) {
-      console.warn('[ClientSwipeContainer] Store activeCategory differs from component category:', { storeActiveCategory, componentCategory: category });
-    }
-  }, [storeActiveCategory, category]);
 
 
 

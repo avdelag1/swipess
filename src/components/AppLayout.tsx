@@ -264,10 +264,12 @@ export function AppLayout({ children }: AppLayoutProps) {
         id="main-content"
         className={cn(
           "w-full flex-1 relative z-0 flex flex-col min-h-0",
-          // Restore pt/pb for non-dashboard pages to prevent content overlap with floating header
-          !isInsideDashboard && !isFullScreen && !isProfile && !isListing && "pt-[var(--top-bar-height)] pb-[var(--bottom-nav-height)]",
           (swipeDeckActive || isFullScreen || isInsideDashboard) ? "overflow-hidden" : "overflow-y-auto scroll-area-momentum"
         )}
+        style={(!isInsideDashboard && !isFullScreen && !isProfile && !isListing) ? {
+          paddingTop: 'calc(var(--top-bar-height, 72px) + var(--safe-top, 0px))',
+          paddingBottom: 'calc(var(--bottom-nav-height, 64px) + var(--safe-bottom, 0px))',
+        } : undefined}
       >
         <div className={cn(
           "w-full flex-1 flex flex-col min-h-0 h-full relative",

@@ -12,7 +12,7 @@ export function GestureHints({ hidden = false }: { hidden?: boolean }) {
       {/* Top-center grab pill */}
       <div
         className="absolute left-1/2 -translate-x-1/2 animate-gesture-breathe"
-        style={{ top: 10 }}
+        style={{ top: 'calc(var(--safe-top, 0px) + var(--top-bar-height, 72px) + 8px)' }}
       >
         <div
           className="rounded-full"

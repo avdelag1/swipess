@@ -8,6 +8,7 @@ export class PrefetchScheduler {
   private scheduled = false;
   private callback: (() => void) | null = null;
   private idleHandle: number | null = null;
+  private timeoutHandle: ReturnType<typeof setTimeout> | null = null;
 
   schedule(callback: () => void, delayMs = 300): void {
     this.cancel();
@@ -15,7 +16,8 @@ export class PrefetchScheduler {
     this.callback = callback;
     this.scheduled = true;
 
-    setTimeout(() => {
+    this.timeoutHandle = setTimeout(() => {
+      this.timeoutHandle = null;
       if (!this.scheduled || !this.callback) return;
 
       if ('requestIdleCallback' in window) {
@@ -33,6 +35,10 @@ export class PrefetchScheduler {
   cancel(): void {
     this.scheduled = false;
     this.callback = null;
+    if (this.timeoutHandle !== null) {
+      clearTimeout(this.timeoutHandle);
+      this.timeoutHandle = null;
+    }
     if (this.idleHandle !== null && 'cancelIdleCallback' in window) {
       (window as any).cancelIdleCallback(this.idleHandle);
       this.idleHandle = null;

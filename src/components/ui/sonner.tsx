@@ -12,7 +12,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
       theme={theme === 'dark' ? 'dark' : 'light'}
       className="toaster group"
       position="bottom-center"
-      style={{ bottom: 'calc(var(--safe-bottom, 0px) + 84px)', zIndex: 10005 }}
+      style={{ bottom: 'calc(var(--bottom-nav-height, 64px) + var(--safe-bottom, 0px) + 20px)', zIndex: 10005 }}
       // Only show 1 toast at a time — no stack-up
       visibleToasts={1}
       // Default swipe to dismiss

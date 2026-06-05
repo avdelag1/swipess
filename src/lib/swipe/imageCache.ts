@@ -21,11 +21,26 @@ const globalSwipeImageCache = new Map<string, {
 // CLIENT PROFILE IMAGE CACHE
 // Separate cache for client profile images (no URL transformation needed)
 // =============================================================================
+const MAX_CLIENT_CACHE_SIZE = 50;
 const globalClientImageCache = new Map<string, {
   loaded: boolean;
   decoded: boolean;
   failed: boolean;
+  lastAccessed: number;
 }>();
+
+function evictLRUFromClientCache() {
+  if (globalClientImageCache.size <= MAX_CLIENT_CACHE_SIZE) return;
+  let oldestKey: string | null = null;
+  let oldestTime = Infinity;
+  globalClientImageCache.forEach((value, key) => {
+    if (value.lastAccessed < oldestTime) {
+      oldestTime = value.lastAccessed;
+      oldestKey = key;
+    }
+  });
+  if (oldestKey) globalClientImageCache.delete(oldestKey);
+}
 
 /**
  * Evict least recently used image from cache when size exceeds limit
@@ -150,6 +165,7 @@ export function preloadClientImageToCache(url: string): Promise<boolean> {
   const optimizedUrl = getCardImageUrl(url);
   const cached = globalClientImageCache.get(optimizedUrl);
   if (cached?.decoded && !cached?.failed) {
+    cached.lastAccessed = Date.now();
     return Promise.resolve(true);
   }
 
@@ -170,7 +186,8 @@ export function preloadClientImageToCache(url: string): Promise<boolean> {
     });
   }
 
-  globalClientImageCache.set(optimizedUrl, { loaded: true, decoded: false, failed: false });
+  globalClientImageCache.set(optimizedUrl, { loaded: true, decoded: false, failed: false, lastAccessed: Date.now() });
+  evictLRUFromClientCache();
 
   return new Promise((resolve) => {
     const img = new Image();
@@ -187,18 +204,18 @@ export function preloadClientImageToCache(url: string): Promise<boolean> {
         if ('decode' in img) {
           await img.decode();
         }
-        globalClientImageCache.set(optimizedUrl, { loaded: true, decoded: true, failed: false });
+        globalClientImageCache.set(optimizedUrl, { loaded: true, decoded: true, failed: false, lastAccessed: Date.now() });
         cleanup();
         resolve(true);
       } catch {
-        globalClientImageCache.set(optimizedUrl, { loaded: true, decoded: true, failed: false });
+        globalClientImageCache.set(optimizedUrl, { loaded: true, decoded: true, failed: false, lastAccessed: Date.now() });
         cleanup();
         resolve(true);
       }
     };
 
     img.onerror = () => {
-      globalClientImageCache.set(optimizedUrl, { loaded: true, decoded: false, failed: true });
+      globalClientImageCache.set(optimizedUrl, { loaded: true, decoded: false, failed: true, lastAccessed: Date.now() });
       cleanup();
       resolve(false);
     };

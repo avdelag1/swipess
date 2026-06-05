@@ -172,14 +172,12 @@ export const useFilterStore = create<FilterState>()(
     // ACTIONS
     setKmHudExpanded: (v) => set({ kmHudExpanded: v }),
     setOwnerPhase: (phase) => {
-      console.warn('[FilterStore] ownerPhase changed to:', phase);
       set({ ownerPhase: phase });
     },
     setPokerCardOrder: (order) => set({ pokerCardOrder: order }),
     setOwnerPokerCardOrder: (order) => set({ ownerPokerCardOrder: order }),
 
     setRadiusKm: (radius) => {
-      console.warn('[FilterStore] radiusKm changed to:', radius);
       set((state) => ({
         radiusKm: radius,
         filterVersion: state.filterVersion + 1,
@@ -187,8 +185,7 @@ export const useFilterStore = create<FilterState>()(
       }));
     },
     setUserLocation: (lat, lon) => {
-      console.warn('[FilterStore] userLocation changed:', lat, lon);
-      set((state) => ({ 
+      set((state) => ({
         userLatitude: lat, 
         userLongitude: lon,
         filterVersion: state.filterVersion + 1,
@@ -196,7 +193,6 @@ export const useFilterStore = create<FilterState>()(
       }));
     },
     updateFilters: (filters: Record<string, any>) => {
-      console.warn('[FilterStore] updateFilters called with:', filters);
       set((state) => {
         const mapped: any = {};
         // Map snake_case from UI components to camelCase store state
@@ -229,8 +225,7 @@ export const useFilterStore = create<FilterState>()(
       });
     },
     clearUserLocation: () => {
-      console.warn('[FilterStore] clearUserLocation');
-      set((state) => ({ 
+      set((state) => ({
         userLatitude: null, 
         userLongitude: null,
         filterVersion: state.filterVersion + 1,
@@ -239,7 +234,6 @@ export const useFilterStore = create<FilterState>()(
     },
     setActiveCategory: (category) => {
       if (get().activeCategory === category) return;
-      console.warn('[FilterStore] activeCategory changed to:', category);
       set((state) => ({
         activeCategory: category,
         categories: category ? [category] : [],
