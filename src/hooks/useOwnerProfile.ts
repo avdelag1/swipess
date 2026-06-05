@@ -30,8 +30,6 @@ async function resolveAuthenticatedUserId() {
   }
 
   // First retry after short delay (handles race conditions during page transitions)
-  await new Promise(resolve => setTimeout(resolve, 50));
-
   const { data: { session: retrySession } } = await supabase.auth.getSession();
   if (retrySession?.user?.id) {
     return retrySession.user.id;

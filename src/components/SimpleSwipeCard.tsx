@@ -58,8 +58,6 @@ interface SimpleSwipeCardProps {
   onReport?: () => void;
   onMessage?: () => void;
   isTop?: boolean;
-  externalX?: MotionValue<number>;
-  externalY?: MotionValue<number>;
   onDragStart?: () => void;
   disableDrag?: boolean;
   canGoBack?: boolean;
@@ -74,8 +72,6 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   onCardTap,
   onInsights,
   isTop = true,
-  externalX,
-  externalY,
   onDragStart,
   onReport,
   onShare,
@@ -96,10 +92,8 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   const storedPointerEventRef = useRef<React.PointerEvent | null>(null);
   const dragAxisRef = useRef<DragAxis>(null);
 
-  const _internalX = useMotionValue(0);
-  const _internalY = useMotionValue(0);
-  const x = externalX ?? _internalX;
-  const y = externalY ?? _internalY;
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
 
   // Strict story-feed motion: horizontal = like/pass, vertical = browse next card.
   // Vertical browse keeps the card fully opaque so up/down feels like a clean
@@ -188,11 +182,19 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   useEffect(() => {
     if (!isTop || images.length <= 1) return;
     images.forEach((imageUrl) => {
-      if (imageUrl && imageUrl !== FALLBACK_PLACEHOLDER && !imageCache.has(imageUrl)) {
-        const img = new Image();
-        img.onload = () => imageCache.set(imageUrl, true);
-        img.src = getCardImageUrl(imageUrl);
-      }
+      if (!imageUrl || imageUrl === FALLBACK_PLACEHOLDER) return;
+      const optimizedUrl = getCardImageUrl(imageUrl);
+      if (imageCache.has(optimizedUrl)) return;
+      const img = new Image();
+      (img as any).fetchPriority = 'high';
+      img.decoding = 'async';
+      img.onload = async () => {
+        try {
+          if ('decode' in img) await img.decode();
+        } catch {}
+        imageCache.set(optimizedUrl, true);
+      };
+      img.src = optimizedUrl;
     });
   }, [isTop, images, listing.id]);
 
@@ -400,11 +402,12 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           transform: 'translate3d(0,0,0)',
           transformOrigin: '50% 120%', // Pivot from bottom so it feels like a heavy physical card
           backfaceVisibility: 'hidden',
-          borderRadius: fullScreen ? 0 : 32,
+          borderRadius: fullScreen ? 0 : 48,
           boxShadow: isTop 
             ? '0 25px 50px -12px rgba(0,0,0,0.45), 0 10px 30px -5px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.1)'
             : '0 4px 10px rgba(0,0,0,0.1)',
           background: 'hsl(var(--swipe-deck-frame))',
+          WebkitMaskImage: fullScreen ? 'none' : '-webkit-linear-gradient(white, white)',
         }}
       >
         <div 
@@ -491,12 +494,8 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
             <div
               className="inline-flex flex-col w-fit max-w-full px-4 py-3 rounded-3xl"
               style={{
-                // Solid panel — no backdrop-filter. Over the photo gradient this
-                // reads as glass but never re-rasterizes while the card moves.
                 background: 'rgba(20, 20, 24, 0.55)',
-                border: '1px solid rgba(255, 255, 255, 0.18)',
-                boxShadow:
-                  '0 12px 32px -12px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.16)',
+                boxShadow: '0 12px 32px -12px rgba(0, 0, 0, 0.55)',
                 color: '#FFFFFF',
                 textShadow: '0 2px 6px rgba(0, 0, 0, 0.55)',
               }}

@@ -141,7 +141,6 @@ export default function ClientWorkerDiscovery() {
         setIsConnecting(true);
         
         // Premium cinematic delay
-        await new Promise(resolve => setTimeout(resolve, 2000));
         
         navigate(`/messages?conversationId=${result.conversationId}`);
       }

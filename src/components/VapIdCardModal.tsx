@@ -188,13 +188,13 @@ export function VapIdCardModal({ isOpen, onClose, role = 'client' }: VapIdProps)
                            <ShieldCheck size={22} style={{ color: theme.accentColor }} />
                            <span className="text-[12px] font-black uppercase tracking-[0.4em] italic" style={{ color: theme.accentColor }}>{isOwner ? 'Verified Asset' : 'Authorized Resident'}</span>
                        </div>
-                       <h3 className="text-4xl font-black leading-none tracking-tighter italic uppercase" style={{ color: theme.textPrimary }}>{name}</h3>
+                       <h3 className="text-3xl sm:text-4xl font-black leading-none tracking-tighter italic uppercase truncate w-full" style={{ color: theme.textPrimary }} title={name}>{name}</h3>
                     </div>
                     <div className="space-y-4">
-                       {occupation && <span className="text-[14px] font-black uppercase tracking-widest italic" style={{ color: theme.accentColor }}>{occupation}</span>}
-                       <div className="flex flex-col gap-2 opacity-60">
-                          {location && <div className="flex items-center gap-2 text-[13px] font-bold uppercase tracking-widest" style={{ color: theme.textSecondary }}><MapPin size={16} /><span>{location}</span></div>}
-                          <span className="text-[11px] font-mono tracking-widest" style={{ color: theme.textTertiary }}>TXID: {idNumber}</span>
+                       {occupation && <span className="text-[14px] font-black uppercase tracking-widest italic truncate w-full block" style={{ color: theme.accentColor }} title={occupation}>{occupation}</span>}
+                       <div className="flex flex-col gap-2 opacity-60 min-w-0">
+                          {location && <div className="flex items-center gap-2 text-[13px] font-bold uppercase tracking-widest min-w-0" style={{ color: theme.textSecondary }}><MapPin size={16} className="shrink-0" /><span className="truncate" title={location}>{location}</span></div>}
+                          <span className="text-[11px] font-mono tracking-widest truncate" style={{ color: theme.textTertiary }}>TXID: {idNumber}</span>
                        </div>
                     </div>
                   </div>

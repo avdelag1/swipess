@@ -123,27 +123,75 @@ export const UNIFIED_CARDS: PokerCardData[] = [
   { id: 'leads', label: 'Leads', description: 'People seeking your service', accent: '#EB4898', accentRgb: '168,85,247', icon: Users, dataType: 'people' },
 ];
 
-export const POKER_CARD_PHOTOS: Record<string, string> = {
-  property: '/images/filters/property.jpg',
-  motorcycle: '/images/filters/scooter.jpg',
-  moto: '/images/filters/scooter.jpg',
-  bicycle: '/images/filters/bicycle.jpg',
-  services: '/images/filters/workers.jpg',
-  worker: '/images/filters/workers.jpg',
-  radio: '/images/filters/radio.jpg',
-  all: '/images/filters/all.jpg',
-  vap: '/images/filters/resident_card.jpg',
-  'all-clients': '/images/filters/owner_all_clients_tulum.png',
-  clients: '/images/filters/owner_all_clients_tulum.png',
-  buyers: '/images/filters/owner_buyers_card.jpg',
-  renters: '/images/filters/owner_renters_card.jpg',
-  hire: '/images/filters/owner_hire_card.jpg',
-  lawyer: '/images/filters/owner_lawyer_card.jpg',
-  'ai-listing': '/images/filters/ai_listing_card.jpg',
-  promote: '/images/filters/owner_promote_card.jpg',
-  events: '/images/filters/events_card.jpg',
-  leads: '/images/filters/owner_hire_card.jpg',
-  pros: '/images/filters/workers.jpg',
+export const POKER_CARD_PHOTOS: Record<string, string[]> = {
+  property: [
+    'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&q=80'
+  ],
+  motorcycle: [
+    'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?auto=format&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1449426468159-d96dbf08f19f?auto=format&fit=crop&q=80'
+  ],
+  moto: [
+    'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?auto=format&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1449426468159-d96dbf08f19f?auto=format&fit=crop&q=80'
+  ],
+  bicycle: [
+    'https://images.unsplash.com/photo-1485965120184-e220f721d03e?auto=format&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1532298229144-0fc0be282f9d?auto=format&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1528629297340-d1d466945dc5?auto=format&fit=crop&q=80'
+  ],
+  services: [
+    'https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?auto=format&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1621905252507-b35492cc74b4?auto=format&fit=crop&q=80'
+  ],
+  worker: [
+    'https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?auto=format&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1621905252507-b35492cc74b4?auto=format&fit=crop&q=80'
+  ],
+  radio: [
+    'https://images.unsplash.com/photo-1516280440502-86927a38755b?auto=format&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80'
+  ],
+  buyers: [
+    'https://images.unsplash.com/photo-1560520653-9e0e4c89eb11?auto=format&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1556740758-90de374c12ad?auto=format&fit=crop&q=80'
+  ],
+  renters: [
+    'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1502672260266-1c1c2b1aff8d?auto=format&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&q=80'
+  ],
+  leads: [
+    'https://images.unsplash.com/photo-1573164713988-8665fc963095?auto=format&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1556761175-5973dc0f32b7?auto=format&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&q=80'
+  ],
+  events: [
+    'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1531058020387-3be344556be6?auto=format&fit=crop&q=80'
+  ],
+  all: ['/images/filters/all.jpg', '/images/filters/all.png', '/images/filters/all.jpg'],
+  vap: ['/images/filters/resident_card.jpg', '/images/filters/resident_card.png', '/images/filters/resident_card.jpg'],
+  'all-clients': ['/images/filters/owner_all_clients_tulum.png', '/images/filters/owner_all_clients.jpg', '/images/filters/owner_all_clients.png'],
+  clients: ['/images/filters/owner_all_clients_tulum.png', '/images/filters/owner_all_clients.jpg', '/images/filters/owner_all_clients.png'],
+  hire: ['/images/filters/owner_hire_card.jpg', '/images/filters/workers_tulum_team.jpg', '/images/filters/owner_hire_card.png'],
+  lawyer: ['/images/filters/owner_lawyer_card.jpg', '/images/filters/lawyer_meeting_1780637372719.png', '/images/filters/owner_lawyer_card.png'],
+  'ai-listing': ['/images/filters/ai_listing_card.jpg', '/images/filters/ai_listing_card.png', '/images/filters/ai_listing_card.jpg'],
+  promote: ['/images/filters/owner_promote_card.jpg', '/images/filters/promote_dj_set_1780637360943.png', '/images/filters/owner_promote_card.png'],
+  pros: [
+    'https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?auto=format&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1621905252507-b35492cc74b4?auto=format&fit=crop&q=80'
+  ],
 };
 
 // Neutral dark fallback only — no colored tint, so images never look

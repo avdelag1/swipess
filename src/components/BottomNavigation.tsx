@@ -22,7 +22,7 @@ import {
   Building2, CircleUser, Flame, IdCard,
   MessageCircle, PartyPopper,
   Radio, Scale as ScaleIcon, SlidersHorizontal,
-  Sparkles, Zap
+  Sparkles, Zap, PlusCircle
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUnreadMessageCount } from '@/hooks/useUnreadMessageCount';
@@ -36,16 +36,17 @@ import { useFilterStore } from '@/state/filterStore';
 import { useModalStore } from '@/state/modalStore';
 import { useGuidedTourActive } from '@/state/guidedTourStore';
 
-const ICON_SIZE = 20;
+const ICON_SIZE = 22;
 
-const ICON_SIZE_TABLET = 22;
+const ICON_SIZE_TABLET = 24;
 const TOUCH_TARGET = 28;
 const TOUCH_TARGET_TABLET = 38;
 
 interface BottomNavigationProps {
   onFilterClick?: () => void;
   onAddListingClick?: () => void;
-
+  onListingsClick?: () => void;
+  userRole?: 'client' | 'owner' | 'admin';
   className?: string; // High-stability HUD support
 }
 
@@ -71,6 +72,9 @@ export const TAP_SPRING = {
 
 export const BottomNavigation = memo(({
   onFilterClick,
+  onAddListingClick,
+  onListingsClick,
+  userRole,
   className,
 }: BottomNavigationProps) => {
   const { navigate } = useAppNavigate();
@@ -85,17 +89,13 @@ export const BottomNavigation = memo(({
   const closeAll = useModalStore((s) => s.closeAll);
   const { unreadCount: _unreadCount } = useUnreadMessageCount();
   const { unreadCount: _unreadNotifCount } = useUnreadNotifications();
-  const { isLight: themeIsLight } = useAppTheme();
-  const isDashboardRoute = /^\/(client|owner|admin)\/dashboard\/?/.test(location.pathname);
-  // Only the dashboard page forces dark — other pages respect the user's theme
-  const isLight = isDashboardRoute ? false : themeIsLight;
+  const { isLight } = useAppTheme();
 
   // Always visible on every page — no chrome-reveal hiding
   const isActuallyVisible = true;
   // Theme rule:
   //  - Dark theme (black filter): nav icons always WHITE everywhere.
-  //  - Light theme (white filter): WHITE on dashboard (over photos),
-  //    BLACK on every other page.
+  //  - Light theme (white filter): BLACK everywhere, even on dashboard.
 
 
   const { t } = useTranslation();
@@ -127,19 +127,17 @@ export const BottomNavigation = memo(({
   }, []);
 
 
-  // Unified nav items (11 items — enough to enable horizontal scroll discovery)
+  // Unified nav items in the exact order requested:
+  // dashboard -> likes -> ai -> add -> messages -> filters -> legal -> events
   const unifiedNavItems: NavItem[] = [
     { id: 'dashboard', icon: Zap, label: t('nav.dashboard'), path: '/client/dashboard' },
-    { id: 'profile', icon: CircleUser, label: t('nav.profile'), path: '/client/profile' },
-    { id: 'ai', icon: Sparkles, label: t('nav.aiBot'), onClick: openAIChat, isSpecial: true },
-    { id: 'messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages' },
     { id: 'likes', icon: Flame, label: t('nav.likes'), path: '/client/liked-properties' },
-    { id: 'vapid', icon: IdCard, label: t('nav.idCard'), onClick: () => setModal('showVapId', true) },
+    { id: 'ai', icon: Sparkles, label: t('nav.aiBot'), onClick: openAIChat, isSpecial: true },
+    { id: 'add', icon: PlusCircle, label: t('nav.add', 'ADD'), path: '/owner/properties', isSpecial: true },
+    { id: 'messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages' },
     { id: 'search', icon: SlidersHorizontal, label: t('nav.filter'), onClick: onFilterClick },
-    { id: 'listings', icon: Building2, label: t('nav.listings'), path: '/owner/properties' },
-    { id: 'events', icon: PartyPopper, label: t('nav.events'), path: '/explore/events' },
-    { id: 'radio', icon: Radio, label: t('nav.radio', 'Radio'), path: '/radio' },
     { id: 'legal', icon: ScaleIcon, label: t('nav.legal'), path: '/client/legal-services' },
+    { id: 'events', icon: PartyPopper, label: t('nav.events'), path: '/explore/events' },
   ];
 
   const navItems = unifiedNavItems;
@@ -253,13 +251,10 @@ export const BottomNavigation = memo(({
 
 
 
-  // Light theme uses a vibrant violet/indigo for the active item so it's
-  // visible against the near-white glass pill. Dark theme keeps white.
-  // The active item also picks up a neon halo via drop-shadow.
-  const activeColor = isLight && !isDashboardRoute ? '#7C3AED' : '#FFFFFF';
-  const activeGlow = isLight && !isDashboardRoute
-    ? 'drop-shadow(0 0 6px rgba(124,58,237,0.55)) drop-shadow(0 0 14px rgba(99,102,241,0.35))'
-    : 'drop-shadow(0 0 6px rgba(255,255,255,0.45))';
+  const baseColor = isLight ? '#0A0A0A' : '#FFFFFF';
+  const activeGlow = isLight
+    ? 'drop-shadow(0 2px 4px rgba(0,0,0,0.15))'
+    : 'drop-shadow(0 0 8px rgba(255,255,255,0.45))';
   return (
     <nav
       role="navigation"
@@ -287,7 +282,7 @@ export const BottomNavigation = memo(({
           "rounded-full"
         )}
         style={{
-          background: isDashboardRoute ? '#000000' : undefined,
+          background: undefined,
           filter: isLight
             ? 'drop-shadow(0 4px 12px rgba(0,0,0,0.12))'
             : 'drop-shadow(0 8px 32px rgba(0,0,0,0.45))',
@@ -403,10 +398,10 @@ export const BottomNavigation = memo(({
                     style={{
                       width: isTablet ? ICON_SIZE_TABLET : (isNarrow ? 16 : ICON_SIZE),
                       height: isTablet ? ICON_SIZE_TABLET : (isNarrow ? 16 : ICON_SIZE),
-                      color: active ? activeColor : (isLight && !isDashboardRoute ? 'rgba(0,0,0,0.78)' : 'rgba(255,255,255,0.92)'),
+                      color: item.id === 'add' ? '#FF3366' : (active ? baseColor : (isLight ? 'rgba(0,0,0,0.45)' : 'rgba(255,255,255,0.5)')),
                       fill: 'none',
-                      strokeWidth: active ? 2.4 : 1.7,
-                      filter: active ? activeGlow : undefined,
+                      strokeWidth: active ? 2.8 : 2.1,
+                      filter: item.id === 'add' ? 'drop-shadow(0 0 12px rgba(255,51,102,0.6))' : (active ? activeGlow : undefined),
                       transition: 'color 160ms ease-out, stroke-width 160ms ease-out, filter 160ms ease-out',
                     }}
                   />
@@ -420,8 +415,8 @@ export const BottomNavigation = memo(({
                         isTablet ? 'text-[11px]' : 'text-[8px]',
                       )}
                       style={{
-                        color: active ? activeColor : (isLight && !isDashboardRoute ? 'rgba(0,0,0,0.78)' : 'rgba(255,255,255,0.92)'),
-                        textShadow: active && isLight && !isDashboardRoute ? '0 0 8px rgba(124,58,237,0.45)' : undefined,
+                        color: item.id === 'add' ? '#FF3366' : (active ? baseColor : (isLight ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.5)')),
+                        textShadow: item.id === 'add' ? '0 0 8px rgba(255,51,102,0.4)' : (active && isLight ? '0 0 4px rgba(0,0,0,0.1)' : undefined),
                         transition: 'color 160ms ease-out, text-shadow 160ms ease-out',
                         zIndex: 1,
                       }}

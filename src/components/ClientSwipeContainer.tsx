@@ -1,10 +1,11 @@
-import { lazy, memo, Suspense, useCallback, useEffect, useRef, useState } from 'react';
+import { lazy, memo, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion, useMotionValue } from 'framer-motion';
 import { SwipeAllDashboard } from './swipe/SwipeAllDashboard';
 import { createPortal } from 'react-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { triggerHaptic } from '@/utils/haptics';
-import { preloadClientImageToCache } from '@/lib/swipe/imageCache';
+import { getCardImageUrl } from '@/utils/imageOptimization';
+import { preloadClientImageToCache, isClientImageDecodedInCache } from '@/lib/swipe/imageCache';
 import { imagePreloadController } from '@/lib/swipe/ImagePreloadController';
 import { imageCache } from '@/lib/swipe/cardImageCache';
 import { swipeQueue } from '@/lib/swipe/SwipeQueue';
@@ -23,7 +24,6 @@ import { useFilterStore } from '@/state/filterStore';
 import { useShallow } from 'zustand/react/shallow';
 import { useSwipeDismissal } from '@/hooks/useSwipeDismissal';
 import { useSwipeSounds } from '@/hooks/useSwipeSounds';
-import { Skeleton } from '@/components/ui/skeleton';
 import { Bike, MapPin, Users, Wrench } from 'lucide-react';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { appToast } from '@/utils/appNotification';
@@ -38,6 +38,7 @@ import { usePullDownToDismiss } from './swipe/usePullDownToDismiss';
 import { cn } from '@/lib/utils';
 import useAppTheme from "@/hooks/useAppTheme";
 import { ConnectingOverlay } from '@/components/ConnectingOverlay';
+import { SwipessLogo } from '@/components/SwipessLogo';
 
 // FIX: Lazy-load modals via portal 
 const ShareDialog = lazy(() => import('./ShareDialog').then(m => ({ default: m.ShareDialog })));
@@ -159,6 +160,7 @@ const ClientSwipeContainerComponent = ({
   
   const [locationDetecting, setLocationDetecting] = useState(false);
   const [locationDetected, setLocationDetected] = useState(false);
+  const [deckReady, setDeckReady] = useState(false);
 
 
 
@@ -213,6 +215,9 @@ const ClientSwipeContainerComponent = ({
   const currentIndexRef = useRef(currentDeckState?.currentIndex || 0);
   const swipedIdsRef = useRef<Set<string>>(new Set(currentDeckState?.swipedIds || []));
   const _initializedRef = useRef(deckQueueRef.current.length > 0);
+  // Tracks the signature of the profile list we last sync-seeded into the
+  // deck so React Query's stale data can't reseed across filter changes.
+  const prevProfileIdsRef = useRef<string>('');
 
   // Sync state with ref on mount
   useEffect(() => {
@@ -222,14 +227,43 @@ const ClientSwipeContainerComponent = ({
   // FLICKER FIX: Track whether we've given the query a chance to start fetching.
   const isMountSettledRef = useRef(false);
   useEffect(() => {
-    const t = setTimeout(() => { isMountSettledRef.current = true; }, 400);
+    const t = setTimeout(() => { isMountSettledRef.current = true; }, 100);
     return () => clearTimeout(t);
   }, []);
+
+  useEffect(() => {
+    if (deckReady) return;
+    if (deckQueueRef.current.length === 0) return;
+
+    const topProfile = deckQueueRef.current[0];
+    const primaryImage = topProfile?.profile_images?.[0] || topProfile?.avatar_url;
+
+    if (!primaryImage) {
+      setDeckReady(true);
+      return;
+    }
+
+    preloadClientImageToCache(primaryImage);
+
+    const check = setInterval(() => {
+      if (isClientImageDecodedInCache(primaryImage)) {
+        setDeckReady(true);
+        clearInterval(check);
+      }
+    }, 50);
+
+    const timeout = setTimeout(() => {
+      setDeckReady(true);
+      clearInterval(check);
+    }, 3000);
+
+    return () => { clearInterval(check); clearTimeout(timeout); };
+  }, [deckReady, currentIndex]);
 
   // PERF FIX: Create stable filter signature for deck versioning
   // This detects when filters actually changed vs just navigation return
   // More precise than array comparison - handles all filter types
-  const filterSignature = (() => {
+  const filterSignature = useMemo(() => {
     if (!filters) return 'default';
     return [
       filters.category || '',
@@ -238,7 +272,7 @@ const ClientSwipeContainerComponent = ({
       filters.clientGender || '',
       filters.clientType || '',
     ].join('|');
-  })();
+  }, [filters]);
 
   // Track previous filter signature to detect filter changes
   const prevFilterSignatureRef = useRef<string>(filterSignature);
@@ -253,6 +287,7 @@ const ClientSwipeContainerComponent = ({
     deckQueueRef.current = [];
     currentIndexRef.current = 0;
     swipedIdsRef.current.clear();
+    prevProfileIdsRef.current = '';
   }
 
   // PERF FIX: Reset deck ONLY when filters actually change (not on navigation return)
@@ -305,13 +340,13 @@ const ClientSwipeContainerComponent = ({
             imagesToPreload.push(imgUrl);
             preloadClientImageToCache(imgUrl);
             // Mark in simple boolean cache so CardImage.tsx detects cached images instantly
-            imageCache.set(imgUrl, true);
+            imageCache.set(getCardImageUrl(imgUrl), true);
           }
         });
       } else if (profile?.avatar_url) {
         imagesToPreload.push(profile.avatar_url);
         preloadClientImageToCache(profile.avatar_url);
-        imageCache.set(profile.avatar_url, true);
+        imageCache.set(getCardImageUrl(profile.avatar_url), true);
       }
     });
 
@@ -375,6 +410,32 @@ const ClientSwipeContainerComponent = ({
   const isLoading = externalIsLoading !== undefined ? externalIsLoading : internalIsLoading;
   const isFetching = externalProfiles !== undefined ? false : internalIsFetching;
   const error = externalError !== undefined ? externalError : internalError;
+
+  // SYNC SEED: when the deck is empty and fresh profile data arrives, populate
+  // the deck during render — same pattern as SwipessSwipeContainer (lines
+  // 473-492). Without this, after a quick-filter wipe there's an extra frame
+  // where deckQueueRef is empty but data has already arrived, causing
+  // AnimatePresence to flip exhausted → deck across two frames. That gap is
+  // the flicker: the new card mounts cold instead of appearing in the same
+  // frame as the data.
+  const profileIdsSignature = clientProfiles.length > 0
+    ? `${clientProfiles[0]?.user_id || ''}_${clientProfiles[clientProfiles.length - 1]?.user_id || ''}_${clientProfiles.length}`
+    : '';
+  if (
+    profileIdsSignature !== prevProfileIdsRef.current &&
+    profileIdsSignature.length > 0 &&
+    deckQueueRef.current.length === 0 &&
+    clientProfiles.length > 0
+  ) {
+    prevProfileIdsRef.current = profileIdsSignature;
+    const fresh = clientProfiles.filter(p => {
+      if (user?.id && p.user_id === user.id) return false;
+      return !swipedIdsRef.current.has(p.user_id);
+    });
+    if (fresh.length > 0) {
+      deckQueueRef.current = fresh;
+    }
+  }
 
   // Release the transition guard once the new query has settled (or errored).
   useEffect(() => {
@@ -789,6 +850,17 @@ const ClientSwipeContainerComponent = ({
 
 
 
+  const handleDragStart = useCallback(() => {
+    const n2 = deckQueueRef.current[currentIndexRef.current + 2];
+    if (n2?.profile_images && Array.isArray(n2.profile_images)) {
+      n2.profile_images.forEach((imgUrl: string) => {
+        if (imgUrl) imagePreloadController.preload(imgUrl, 'high');
+      });
+    } else if (n2?.avatar_url) {
+      imagePreloadController.preload(n2.avatar_url, 'high');
+    }
+  }, []);
+
   const handleInsights = useCallback((clientId: string) => {
     navigate(`/owner/view-client/${clientId}`);
   }, [navigate]);
@@ -844,7 +916,6 @@ const ClientSwipeContainerComponent = ({
         setMessageDialogOpen(false);
         
         // Premium cinematic delay
-        await new Promise(resolve => setTimeout(resolve, 2200));
         
         navigate(`/messages?conversationId=${result.conversationId}`);
       }
@@ -892,52 +963,11 @@ const ClientSwipeContainerComponent = ({
   // ========================================
   // All conditions use derived flags - NO hooks called after this point
 
-  // Loading skeleton - initial load only
-  if (showLoadingSkeleton) {
+  if (showLoadingSkeleton || !deckReady) {
     return (
-      <div className="relative w-full h-full flex-1 flex flex-col">
-        {/* 📡 Radar HUD removed from skeleton to prevent double-render flash */}
-
-        <div className="relative flex-1 w-full">
-          <div className="absolute inset-0 rounded-3xl overflow-hidden bg-white/8 animate-pulse">
-            <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-white/5 to-white/10">
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer"
-                style={{ animationDuration: '1.5s', backgroundSize: '200% 100%' }} />
-            </div>
-            <div className="absolute top-3 left-0 right-0 z-30 flex justify-center gap-1 px-4">
-              {[1, 2, 3, 4].map((num) => (
-                <div key={`skeleton-dot-${num}`} className="flex-1 h-1 rounded-full bg-white/20" />
-              ))}
-            </div>
-            <div className="absolute bottom-0 left-0 right-0 bg-black/60 backdrop-blur-xl rounded-t-[24px] p-4 pt-6">
-              <div className="flex justify-center mb-2">
-                <div className="w-10 h-1.5 bg-white/30 rounded-full" />
-              </div>
-              <div className="flex justify-between items-start mb-3">
-                <div className="flex-1 space-y-2">
-                  <Skeleton className="h-5 w-3/4 bg-white/20" />
-                  <Skeleton className="h-4 w-1/2 bg-white/15" />
-                </div>
-                <div className="text-right space-y-1">
-                  <Skeleton className="h-6 w-20 bg-white/20" />
-                  <Skeleton className="h-3 w-12 bg-white/15 ml-auto" />
-                </div>
-              </div>
-              <div className="flex gap-2">
-                <Skeleton className="h-4 w-12 bg-white/15" />
-                <Skeleton className="h-4 w-12 bg-white/15" />
-                <Skeleton className="h-4 w-16 bg-white/15" />
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="flex-shrink-0 flex justify-center items-center py-3 px-4">
-          <div className="flex items-center gap-3">
-            <Skeleton className="w-14 h-14 rounded-full bg-muted/40" />
-            <Skeleton className="w-11 h-11 rounded-full bg-muted/30" />
-            <Skeleton className="w-11 h-11 rounded-full bg-muted/30" />
-            <Skeleton className="w-14 h-14 rounded-full bg-muted/40" />
-          </div>
+      <div className="relative w-full h-full flex-1 flex items-center justify-center bg-black">
+        <div className="animate-pulse">
+          <SwipessLogo size="lg" variant="transparent" />
         </div>
       </div>
     );
@@ -994,7 +1024,7 @@ const ClientSwipeContainerComponent = ({
           <AnimatePresence mode="sync" initial={false}>
             {topCard ? (
               <motion.div
-                key={`deck-${category}`}
+                key="owner-deck"
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.98 }}
                 transition={{ duration: 0.08, ease: [0.22, 1, 0.36, 1] }}
@@ -1033,11 +1063,13 @@ const ClientSwipeContainerComponent = ({
                         onUndo={isTopCard ? undoLastSwipe : undefined}
                         onLike={isTopCard ? handleButtonLike : undefined}
                         onDislike={isTopCard ? handleButtonDislike : undefined}
+                        onDragStart={isTopCard ? handleDragStart : undefined}
                         canUndo={canUndo}
                         isTop={isTopCard}
-                        fullScreen={true}
+                        fullScreen={false}
                         externalX={isTopCard ? topCardX : undefined}
                         externalY={isTopCard ? topCardY : undefined}
+                        canGoBack={currentIndex > 0}
                       />
                     </motion.div>
                   );

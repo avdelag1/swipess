@@ -500,7 +500,6 @@ async function detectAndCreateMatch({
 
       if (attempt < 3) {
         // Exponential backoff: 300ms, 600ms
-        await new Promise(resolve => setTimeout(resolve, attempt * 300));
       }
     }
 

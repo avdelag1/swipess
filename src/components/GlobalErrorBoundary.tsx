@@ -27,18 +27,43 @@ class GlobalErrorBoundary extends Component<Props, State> {
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     logger.error('[GlobalErrorBoundary] caught', error?.message, errorInfo?.componentStack);
 
+    // If it's a chunk load error (Vercel deploy happened), we MUST unregister the SW
+    // Otherwise the SW just serves the old index.html again, causing an infinite loop.
+    const isChunkError = error?.message?.includes('dynamically imported module') || error?.message?.includes('Failed to fetch');
+
     try {
+      if (isChunkError && 'serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then((registrations) => {
+          for (let registration of registrations) {
+            registration.unregister();
+          }
+        });
+        // Clear caches
+        if ('caches' in window) {
+          caches.keys().then((names) => {
+            for (let name of names) {
+              caches.delete(name);
+            }
+          });
+        }
+      }
+
       const now = Date.now();
       const lastTs = parseInt(sessionStorage.getItem(RELOAD_TS_KEY) || '0', 10);
       let count = parseInt(sessionStorage.getItem(RELOAD_KEY) || '0', 10);
       if (now - lastTs > 60_000) count = 0;
+      
       if (count < MAX_RELOADS_PER_MINUTE) {
         sessionStorage.setItem(RELOAD_KEY, String(count + 1));
         sessionStorage.setItem(RELOAD_TS_KEY, String(now));
-        setTimeout(() => window.location.replace(window.location.pathname + '?v=' + Date.now()), 600);
+        // Add timestamp to bypass standard browser cache
+        setTimeout(() => {
+          window.location.href = window.location.pathname + '?v=' + Date.now();
+        }, 800);
         return;
       }
-      // Reload limit hit — clear potentially corrupted stores so next manual reload is clean
+      
+      // Reload limit hit — clear potentially corrupted stores
       localStorage.removeItem('swipe-deck-store');
       localStorage.removeItem('swipe-deck-version');
     } catch { /* ignore */ }

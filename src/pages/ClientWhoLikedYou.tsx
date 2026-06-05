@@ -144,7 +144,6 @@ const ClientWhoLikedYou = () => {
           setIsConnecting(true);
           
           // Premium cinematic delay
-          await new Promise(resolve => setTimeout(resolve, 2200));
           
           navigate(`/messages?conversationId=${result.conversationId}`);
         }

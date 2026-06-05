@@ -131,16 +131,24 @@ export function getImageCacheSize(): number {
  * Check if a client profile image is already decoded in cache
  */
 export function isClientImageDecodedInCache(url: string): boolean {
-  const cached = globalClientImageCache.get(url);
+  const optimizedUrl = getCardImageUrl(url);
+  const cached = globalClientImageCache.get(optimizedUrl);
   return cached?.decoded === true && !cached?.failed;
 }
 
 /**
  * Preload a client profile image into the cache
  * Returns a promise that resolves when image is decoded (or fails)
+ *
+ * Uses getCardImageUrl so the browser HTTP cache is warmed with the
+ * SAME optimized URL that CardImage will request. Without this, the
+ * preloader warmed the raw URL while <img> requested the optimized
+ * URL — a cache miss → network round-trip → skeleton flash on every
+ * card mount (the quick-filter flicker bug).
  */
 export function preloadClientImageToCache(url: string): Promise<boolean> {
-  const cached = globalClientImageCache.get(url);
+  const optimizedUrl = getCardImageUrl(url);
+  const cached = globalClientImageCache.get(optimizedUrl);
   if (cached?.decoded && !cached?.failed) {
     return Promise.resolve(true);
   }
@@ -149,7 +157,7 @@ export function preloadClientImageToCache(url: string): Promise<boolean> {
   if (cached?.loaded && !cached?.decoded && !cached?.failed) {
     return new Promise((resolve) => {
       const checkInterval = setInterval(() => {
-        const current = globalClientImageCache.get(url);
+        const current = globalClientImageCache.get(optimizedUrl);
         if (current?.decoded || current?.failed) {
           clearInterval(checkInterval);
           resolve(!current?.failed);
@@ -162,7 +170,7 @@ export function preloadClientImageToCache(url: string): Promise<boolean> {
     });
   }
 
-  globalClientImageCache.set(url, { loaded: true, decoded: false, failed: false });
+  globalClientImageCache.set(optimizedUrl, { loaded: true, decoded: false, failed: false });
 
   return new Promise((resolve) => {
     const img = new Image();
@@ -179,23 +187,23 @@ export function preloadClientImageToCache(url: string): Promise<boolean> {
         if ('decode' in img) {
           await img.decode();
         }
-        globalClientImageCache.set(url, { loaded: true, decoded: true, failed: false });
+        globalClientImageCache.set(optimizedUrl, { loaded: true, decoded: true, failed: false });
         cleanup();
         resolve(true);
       } catch {
-        globalClientImageCache.set(url, { loaded: true, decoded: true, failed: false });
+        globalClientImageCache.set(optimizedUrl, { loaded: true, decoded: true, failed: false });
         cleanup();
         resolve(true);
       }
     };
 
     img.onerror = () => {
-      globalClientImageCache.set(url, { loaded: true, decoded: false, failed: true });
+      globalClientImageCache.set(optimizedUrl, { loaded: true, decoded: false, failed: true });
       cleanup();
       resolve(false);
     };
 
-    img.src = url;
+    img.src = optimizedUrl;
   });
 }
 

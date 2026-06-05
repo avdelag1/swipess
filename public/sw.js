@@ -1,7 +1,10 @@
 /**
  * Ultra-Fast Service Worker - Optimized for lightning-speed loading
- * UPDATED: 2026-06-04T20:00Z - Force Update v10 (fold @radix-ui into vendor-react; no split radix micro-chunk that can 404 -> fixes dialog React #130)
- * 
+ * UPDATED: 2026-06-05 - Force Update v13 (Added no-store Cache-Control for SPA
+ *   routes in vercel.json so browsers never HTTP-cache a stale index.html between
+ *   deployments. Bumped version to force SW reinstall and old-cache purge on all
+ *   devices.)
+ *
  * PWA UPDATE FIX: Aggressive updates to ensure users always get latest version
  * - skipWaiting() called immediately on install for instant activation
  * - Caches are version-stamped and aggressively purged
@@ -74,6 +77,7 @@ async function precacheAppShell() {
     // Non-critical — app works fine without precache
   }
 }
+
 
 // Cache TTL settings (in seconds)
 const CACHE_TTL = {
@@ -261,14 +265,17 @@ self.addEventListener('fetch', (event) => {
   // Stale-while-revalidate is BAD for updates because it serves the old code first.
   if (request.mode === 'navigate' || request.destination === 'document') {
     event.respondWith(
-      // SPEED OF LIGHT: Add a 5s race to the network fetch.
-      // If the network hangs, we drop it and serve from the local cache immediately.
+      // Race the network against a timeout, but keep the timeout GENEROUS.
+      // The old 1.5s race was the main bug: on mobile, time-to-first-byte
+      // routinely exceeds 1.5s, so online users were handed the STALE cached
+      // index.html — which references chunk hashes from a previous deploy that
+      // now 404. Only a genuinely hung connection should fall back to cache.
       Promise.race([
-        fetch(request.url, { 
+        fetch(request.url, {
           cache: 'no-store',
           credentials: request.credentials
         }),
-        new Promise((_, reject) => setTimeout(() => reject(new Error('SW Timeout')), 1500))
+        new Promise((_, reject) => setTimeout(() => reject(new Error('SW Timeout')), 8000))
       ])
       .then(networkResponse => {
         // If we got a real response, update the cache and return it
@@ -309,15 +316,35 @@ self.addEventListener('fetch', (event) => {
   // CACHE-FIRST for hashed /assets/* files - immutable, never change
   // Vite outputs all JS/CSS chunks to /assets/ with content hashes in filenames.
   // Once cached, these are served INSTANTLY with zero network requests.
-  // When a new build deploys, the hashes change → cache miss → fresh fetch.
   if (url.pathname.startsWith('/assets/')) {
     event.respondWith(
       caches.open(STATIC_CACHE).then(cache => {
         return cache.match(request).then(cachedResponse => {
-          if (cachedResponse) return cachedResponse; // instant, no network
+          if (cachedResponse) {
+            // Validate cached response MIME type to prevent stale HTML caching
+            const contentType = cachedResponse.headers.get('content-type');
+            if (!contentType || !contentType.includes('text/html')) {
+              return cachedResponse; // instant, no network
+            }
+            // If we accidentally cached HTML as an asset, delete it
+            cache.delete(request);
+          }
+          
           return fetch(request).then(networkResponse => {
             if (networkResponse.ok && networkResponse.status === 200) {
-              cache.put(request, networkResponse.clone());
+              const contentType = networkResponse.headers.get('content-type');
+              // CRITICAL: Vercel SPA routing returns index.html (200 OK, text/html)
+              // for missing assets. We MUST NOT cache this as a JS/CSS file — and
+              // an HTML body for a hashed bundle means the file is gone, i.e. this
+              // page booted from a STALE shell pointing at a previous deploy.
+              if (contentType && !contentType.includes('text/html')) {
+                cache.put(request, networkResponse.clone());
+                return networkResponse;
+              }
+              // Vercel returned HTML for a JS/CSS request → the hashed bundle is
+              // gone. Surface a real 404 so the browser's module error triggers
+              // the app's existing one-time recovery (no aggressive reload loop).
+              return new Response('', { status: 404, statusText: 'Asset Missing' });
             }
             return networkResponse;
           }).catch(() => {
@@ -344,12 +371,17 @@ self.addEventListener('fetch', (event) => {
           // 404 or other non-ok → try cache before giving up
           return cache.match(request).then(cached => {
             if (cached) return cached;
-            // Return empty module to prevent MIME type error crash
-            const ext = url.pathname.endsWith('.css') ? 'css' : 'javascript';
-            return new Response('', {
-              status: 200,
-              headers: { 'Content-Type': ext === 'css' ? 'text/css' : 'text/javascript' }
-            });
+            const isCss = url.pathname.endsWith('.css');
+            if (isCss) {
+              // Empty stylesheet is harmless.
+              return new Response('', { status: 200, headers: { 'Content-Type': 'text/css' } });
+            }
+            // For JS, DON'T serve an empty module (that silently blanks the app).
+            // Fire the app's existing one-time recovery (capped — no reload loop).
+            return new Response(
+              "window.dispatchEvent(new Event('vite:preloadError'));",
+              { status: 200, headers: { 'Content-Type': 'text/javascript' } }
+            );
           });
         }).catch(async () => {
           const cachedResponse = await cache.match(request);

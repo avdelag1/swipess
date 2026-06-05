@@ -117,7 +117,6 @@ export async function forceAppUpdate(): Promise<void> {
       if (reg?.waiting) {
         reg.waiting.postMessage({ type: 'SKIP_WAITING' });
         // Give it 400 ms to activate before we unregister
-        await new Promise(r => setTimeout(r, 400));
       }
     }
 
@@ -139,8 +138,6 @@ export async function forceAppUpdate(): Promise<void> {
     sessionStorage.setItem(RELOAD_GUARD_KEY, (reloadCount + 1).toString());
 
     // Small delay before reload
-    await new Promise(resolve => setTimeout(resolve, 500));
-
     // Reload the page
     window.location.replace(window.location.pathname + '?v=' + Date.now());
   } catch (error) {

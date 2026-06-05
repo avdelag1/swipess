@@ -185,6 +185,24 @@ html[data-theme-transition] ::view-transition-new(root) {
   100% { opacity: 1; transform: scale(1) translateY(0); }
 }
 
+@keyframes crossfade-1 {
+  0%, 25% { opacity: 1; }
+  33%, 92% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@keyframes crossfade-2 {
+  0%, 25% { opacity: 0; }
+  33%, 58% { opacity: 1; }
+  66%, 100% { opacity: 0; }
+}
+
+@keyframes crossfade-3 {
+  0%, 58% { opacity: 0; }
+  66%, 92% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
 @keyframes spin-slow {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }

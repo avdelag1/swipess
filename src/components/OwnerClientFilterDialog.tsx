@@ -232,8 +232,6 @@ export function OwnerClientFilterDialog({ open, onOpenChange }: OwnerClientFilte
     setIsScanning(true);
     
     // Cinematic calibration delay
-    await new Promise(r => setTimeout(r, 2200));
-
     await updatePreferences({
       selected_genders: selectedGenders,
       min_budget: minBudget ?? null,

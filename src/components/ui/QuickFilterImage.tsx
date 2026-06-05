@@ -1,82 +1,90 @@
-import { useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { cn } from '@/lib/utils';
 
 interface QuickFilterImageProps {
-  src: string;
+  src: string | string[];
   alt: string;
   className?: string;
+  animationDelay?: string;
 }
 
 /**
  * Image for quick filter cards.
- * Uses native loading mechanisms to prevent memory exhaustion on iOS Safari (PWA).
+ * Supports native CSS scroll snapping and auto-rotation.
  */
-export function QuickFilterImage({ src, alt, className }: QuickFilterImageProps) {
-  const [isLoaded, setIsLoaded] = useState(() => {
-    return typeof window !== 'undefined' && (window as any).__Swipess_cache?.[src];
-  });
-  const [hasError, setHasError] = useState(false);
+export function QuickFilterImage({ src, alt, className, animationDelay = '0s' }: QuickFilterImageProps) {
+  const images = Array.isArray(src) ? src : [src];
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const scrollIndex = useRef(0);
 
-  return (
-    <>
-      {/* Gradient placeholder / Fallback */}
-      <div 
-        className={cn(
-          "absolute inset-0 transition-opacity duration-300",
-          hasError 
-            ? "bg-slate-800 opacity-100" 
-            : (isLoaded ? "opacity-0" : "bg-gradient-to-br from-muted via-muted/80 to-muted/60 opacity-100")
-        )} 
-      >
-        {hasError && (
-          <div className="absolute inset-0 flex items-center justify-center opacity-20">
-            <div className="w-12 h-12 rounded-full border-2 border-white/20" />
-          </div>
-        )}
-      </div>
+  useEffect(() => {
+    if (images.length <= 1) return;
 
-      {/* Actual image */}
-      <div
-        className={cn(
-          "absolute inset-0 w-full h-full overflow-hidden transition-opacity duration-300",
-          !isLoaded && !hasError ? "opacity-0" : "opacity-100"
-        )}
-      >
+    // The user requested EXACT synchronized cascading order: Properties (0s) -> Bicycles (1s) -> Motorcycles (2s)
+    // with each card taking exactly 5 seconds before it moves again.
+    const delayS = parseFloat(animationDelay.replace('s', '')) || 0;
+    const baseInterval = 5000; // Exact 5 seconds between rotations for a single card
+    const exactOffset = delayS * 1000;
+
+    let timeoutId: ReturnType<typeof setTimeout>;
+
+    const rotate = () => {
+      if (!scrollRef.current) return;
+      scrollIndex.current = (scrollIndex.current + 1) % images.length;
+      
+      const targetElement = scrollRef.current.children[scrollIndex.current] as HTMLElement;
+      if (targetElement) {
+        scrollRef.current.scrollTo({
+          left: targetElement.offsetLeft,
+          behavior: 'smooth'
+        });
+      }
+      
+      timeoutId = setTimeout(rotate, baseInterval);
+    };
+
+    // Start the first rotation at the exact staggered offset.
+    timeoutId = setTimeout(rotate, baseInterval + exactOffset);
+
+    return () => clearTimeout(timeoutId);
+  }, [images.length, animationDelay]);
+
+  if (images.length === 1) {
+    return (
+      <div className="absolute inset-0 w-full h-full overflow-hidden bg-slate-900/50">
         <img
-          src={src}
+          src={images[0]}
           alt={alt}
           loading="eager"
           decoding="async"
           fetchPriority="high"
-          onLoad={() => {
-            setIsLoaded(true);
-            setHasError(false);
-            if (typeof window !== 'undefined') {
-              (window as any).__Swipess_cache = (window as any).__Swipess_cache || {};
-              (window as any).__Swipess_cache[src] = true;
-            }
-          }}
-          onError={(e) => {
-            if (isLoaded) {
-              // If it was already loaded, it might be an iOS Safari memory purge.
-              // Try a soft reload after a tiny delay, or just let it sit.
-              // We don't set hasError to true here so it doesn't turn into a gray box.
-              const target = e.target as HTMLImageElement;
-              setTimeout(() => {
-                if (target) target.src = src;
-              }, 250);
-            } else {
-              setHasError(true);
-            }
-          }}
-          className={cn(
-            "w-full h-full object-cover",
-            className
-          )}
+          className={cn("absolute inset-0 w-full h-full object-cover", className)}
         />
       </div>
-    </>
+    );
+  }
+
+  return (
+    <div className="absolute inset-0 w-full h-full overflow-hidden bg-slate-900/50 pointer-events-auto">
+      <div 
+        ref={scrollRef}
+        className="flex w-full h-full overflow-x-auto snap-x snap-mandatory hide-scrollbar pointer-events-auto"
+        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+      >
+        {images.map((imgSrc, index) => (
+          <div key={`${imgSrc}-${index}`} className="flex-none w-full h-full snap-center relative">
+            <img
+              src={imgSrc}
+              alt={`${alt} ${index + 1}`}
+              loading="eager"
+              decoding="async"
+              fetchPriority="high"
+              className={cn("absolute inset-0 w-full h-full object-cover pointer-events-none", className)}
+            />
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
-
 

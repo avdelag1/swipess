@@ -45,12 +45,20 @@ export function ChipMultiSelect({ label, options, value, onChange, single, accen
             <motion.button
               key={opt}
               type="button"
-              onClick={() => toggle(opt)}
+              onPointerDown={(e) => {
+                // Prevent default so it doesn't wait for click or fire double events,
+                // but only if it's not a touch event that might be part of a scroll
+                // Actually, in React, onPointerDown happens instantly.
+                // We'll let Framer Motion's whileTap handle the visual scale,
+                // but the state updates instantly.
+                if (e.pointerType === 'mouse') e.preventDefault(); 
+                toggle(opt);
+              }}
               whileTap={{ scale: 0.92 }}
               animate={{ scale: active ? 1.04 : 1 }}
               transition={springTap}
               className={cn(
-                'px-4 py-2 rounded-2xl text-[13px] font-bold tracking-wide transition-all duration-200 border inline-flex items-center gap-1.5 shadow-sm',
+                'px-4 py-2 rounded-2xl text-[13px] font-bold tracking-wide border inline-flex items-center gap-1.5 shadow-sm touch-manipulation select-none',
                 active
                   ? cn(a.bg, a.text, a.border, a.shadow, 'shadow-lg ring-1', `ring-${accent}-500/40`)
                   : 'bg-white/60 dark:bg-white/[0.03] text-slate-800 dark:text-white/80 border-slate-200 dark:border-white/10 hover:bg-white dark:hover:bg-white/[0.08] hover:border-slate-300 dark:hover:border-white/20',
