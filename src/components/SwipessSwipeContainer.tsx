@@ -994,7 +994,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
               "absolute inset-0 -z-10 transition-colors duration-500",
               "bg-swipe-frame"
             )}
-            style={{ borderRadius: 32 }}
+            style={{ borderRadius: 48 }}
           />
           <AnimatePresence mode="sync" initial={false}>
             {deckQueue.length > 0 && currentIndex < deckQueue.length ? (
