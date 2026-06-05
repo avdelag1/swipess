@@ -8,14 +8,14 @@ import { cn } from '@/lib/utils';
 import { QuickFilterImage } from '@/components/ui/QuickFilterImage';
 import { POKER_CARD_PHOTOS } from './SwipeConstants';
 import { 
-  Home, 
-  UserCheck, 
   Bike, 
+  Briefcase, 
   Calendar, 
-  ShoppingCart, 
+  Home, 
   Key, 
-  Users, 
-  Briefcase 
+  ShoppingCart, 
+  UserCheck, 
+  Users 
 } from 'lucide-react';
 
 export interface BentoCategoryDashboardProps {

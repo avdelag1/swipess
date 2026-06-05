@@ -13,7 +13,7 @@ import { useModalStore } from '@/state/modalStore';
  * 3. Navigate back through history natively otherwise.
  */
 export function useGlobalBackButton() {
-  const location = useLocation();
+  const _location = useLocation();
 
   useEffect(() => {
     // We only attach this listener on Native Mobile builds (Android APK).

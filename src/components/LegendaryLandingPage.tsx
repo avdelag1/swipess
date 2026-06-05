@@ -16,7 +16,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { forgotPasswordSchema, loginSchema, signupSchema } from '@/schemas/auth';
 import { cn } from '@/lib/utils';
-import { useSiteContent, getContentValue } from '@/hooks/useSiteContent';
+import { getContentValue, useSiteContent } from '@/hooks/useSiteContent';
 
 type View = 'landing' | 'auth';
 
@@ -50,7 +50,7 @@ const LandingView = memo(({
   onEnterAuth: (mode: 'login' | 'signup') => void;
   siteContent?: any;
 }) => {
-  const bgImage = getContentValue(siteContent, 'landing_background');
+  const _bgImage = getContentValue(siteContent, 'landing_background');
   const btnColor = getContentValue(siteContent, 'landing_hero_btn_color');
   const btnText = getContentValue(siteContent, 'landing_hero_btn_text', 'Create Account');
   const title = getContentValue(siteContent, 'landing_hero_title');

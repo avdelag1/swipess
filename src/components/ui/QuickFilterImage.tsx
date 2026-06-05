@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 
 interface QuickFilterImageProps {
   src: string | string[];
@@ -16,6 +16,7 @@ interface QuickFilterImageProps {
 export function QuickFilterImage({ src, alt, className, animationDelay = '0s' }: QuickFilterImageProps) {
   const images = Array.isArray(src) ? src : [src];
   const [activeIndex, setActiveIndex] = useState(0);
+  const isDragging = React.useRef(false);
 
   useEffect(() => {
     if (images.length <= 1) return;
@@ -51,8 +52,6 @@ export function QuickFilterImage({ src, alt, className, animationDelay = '0s' }:
       </div>
     );
   }
-
-  const isDragging = React.useRef(false);
 
   return (
     <div className="absolute inset-0 w-full h-full overflow-hidden bg-slate-900/50 pointer-events-auto touch-none">

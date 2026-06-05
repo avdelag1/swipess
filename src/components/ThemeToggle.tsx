@@ -21,7 +21,7 @@ function ThemeToggleComponent({ className, glassPillStyle }: ThemeToggleProps) {
     const theme = themeContext?.theme ?? 'dark';
     const setTheme = themeContext?.setTheme ?? (() => {});
     const { pathname } = useLocation();
-    const isDashboard = /^\/(client|owner|admin)\/dashboard\/?/.test(pathname);
+    const _isDashboard = /^\/(client|owner|admin)\/dashboard\/?/.test(pathname);
     const isLight = theme === 'light';
     // Follow theme globally
     const iconColor = !isLight ? '#FFFFFF' : '#0A0A0A';

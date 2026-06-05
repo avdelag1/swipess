@@ -1,4 +1,4 @@
-import { renderHook, act } from '@testing-library/react';
+import { act, renderHook } from '@testing-library/react';
 import { useProfileSetup } from '../hooks/useProfileSetup';
 import { supabase } from '@/integrations/supabase/client';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
