@@ -99,10 +99,10 @@ export function getThumbnailUrl(url: string): string {
  */
 export function getCardImageUrl(url: string): string {
   return optimizeImageUrl(url, {
-    // Lighter card payload — ~3-4x faster decode in PWA without visible loss.
-    width: 900,
-    height: 1350,
-    quality: 72,
+    // Ultra-light payload - eliminates URL mismatch with PWA preloader
+    width: 600,
+    height: 900,
+    quality: 70,
     format: 'webp'
   });
 }
@@ -120,9 +120,9 @@ export function getCardImageUrl(url: string): string {
  */
 export function getPWACardImageUrl(url: string): string {
   return optimizeImageUrl(url, {
-    width: 800,
-    height: 1200,
-    quality: 68,
+    width: 600,
+    height: 900,
+    quality: 70,
     format: 'webp'
   });
 }

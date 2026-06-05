@@ -3,7 +3,8 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { 
   ArrowRight, ArrowUp, Check, Copy, CornerDownLeft,
   Crown, Flame, Languages, Menu, Mic, Moon, Plus, RefreshCw,
-  Sparkles, Sun, Timer, Trash2, Volume2, VolumeX, X, Zap
+  Sparkles, Sun, Timer, Trash2, Volume2, VolumeX, X, Zap,
+  Building2, Wrench, CarFront, Bike, Wallet, Key, Search
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -162,9 +163,8 @@ interface FilterOption {
 
 interface FilterCategory {
   label: string;
-  icon: string;
-  gradient: string;
-  shadow: string;
+  icon: React.ElementType;
+  glowColor: string;
   category: QuickFilterCategory | null;
   options: FilterOption[];
 }
@@ -172,9 +172,8 @@ interface FilterCategory {
 const FILTERS: FilterCategory[] = [
   {
     label: 'Properties',
-    icon: '🏠',
-    gradient: 'from-amber-400 via-orange-500 to-red-500',
-    shadow: 'rgba(249,115,22,0.35)',
+    icon: Building2,
+    glowColor: '#f97316', // Orange
     category: 'property',
     options: [
       { label: 'All Rentals', prompt: 'Show me all rental properties' },
@@ -193,9 +192,8 @@ const FILTERS: FilterCategory[] = [
   },
   {
     label: 'Workers',
-    icon: '👷',
-    gradient: 'from-sky-400 via-blue-500 to-indigo-600',
-    shadow: 'rgba(59,130,246,0.35)',
+    icon: Wrench,
+    glowColor: '#3b82f6', // Blue
     category: 'services',
     options: [
       { label: 'Cleaning', prompt: 'Find me cleaning workers' },
@@ -214,9 +212,8 @@ const FILTERS: FilterCategory[] = [
   },
   {
     label: 'Motorcycles',
-    icon: '🏍',
-    gradient: 'from-rose-400 via-red-500 to-pink-600',
-    shadow: 'rgba(239,68,68,0.35)',
+    icon: CarFront,
+    glowColor: '#ef4444', // Red
     category: 'motorcycle',
     options: [
       { label: 'For Sale', prompt: 'Find motorcycles for sale' },
@@ -227,9 +224,8 @@ const FILTERS: FilterCategory[] = [
   },
   {
     label: 'Bicycles',
-    icon: '🚲',
-    gradient: 'from-emerald-400 via-green-500 to-teal-600',
-    shadow: 'rgba(16,185,129,0.35)',
+    icon: Bike,
+    glowColor: '#10b981', // Emerald
     category: 'bicycle',
     options: [
       { label: 'For Sale', prompt: 'Find bicycles for sale' },
@@ -240,9 +236,8 @@ const FILTERS: FilterCategory[] = [
   },
   {
     label: 'Buyers',
-    icon: '💰',
-    gradient: 'from-violet-400 via-purple-500 to-fuchsia-600',
-    shadow: 'rgba(168,85,247,0.35)',
+    icon: Wallet,
+    glowColor: '#a855f7', // Purple
     category: 'buyers',
     options: [
       { label: 'Looking for Houses', prompt: 'Find people looking to buy houses' },
@@ -253,9 +248,8 @@ const FILTERS: FilterCategory[] = [
   },
   {
     label: 'Renters',
-    icon: '🔑',
-    gradient: 'from-pink-400 via-fuchsia-500 to-rose-600',
-    shadow: 'rgba(217,70,239,0.3)',
+    icon: Key,
+    glowColor: '#d946ef', // Fuchsia
     category: 'renters',
     options: [
       { label: 'Looking for Apartments', prompt: 'Find people looking to rent apartments' },
@@ -266,9 +260,8 @@ const FILTERS: FilterCategory[] = [
   },
   {
     label: 'Seekers',
-    icon: '🔍',
-    gradient: 'from-teal-400 via-cyan-500 to-sky-600',
-    shadow: 'rgba(6,182,212,0.35)',
+    icon: Search,
+    glowColor: '#06b6d4', // Cyan
     category: 'hire',
     options: [
       { label: 'Find Services', prompt: 'Find people looking for services' },
@@ -286,38 +279,43 @@ const WelcomeState = memo(({ isSwipess, isLight, onPick }: { isSwipess: boolean;
 
   return (
     <div className="h-full flex flex-col max-w-2xl mx-auto w-full">
-      <div className={cn("pb-4", txtClr)}>
-        <h2 className="text-lg font-bold tracking-tight">
-          {activeCategory ? `${activeCategory.icon}  ${activeCategory.label}` : '👋  Hey there'}
-        </h2>
-        <p className="text-[11px] font-medium opacity-40 mt-0.5">
-          {activeCategory ? 'Tap an option to search' : 'What are you looking for?'}
-        </p>
+      <div className={cn("pb-4 flex items-center gap-3", txtClr)}>
+        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20">
+           {activeCategory ? <activeCategory.icon className="w-5 h-5 text-primary" /> : <Sparkles className="w-5 h-5 text-primary" />}
+        </div>
+        <div>
+          <h2 className="text-lg font-bold tracking-tight">
+            {activeCategory ? activeCategory.label : 'Hey there'}
+          </h2>
+          <p className="text-[11px] font-medium opacity-50 mt-0.5">
+            {activeCategory ? 'Tap an option to search' : 'What are you looking for?'}
+          </p>
+        </div>
       </div>
 
       {activeCategory ? (
-        <div className="w-full space-y-2 flex-1">
+        <div className="w-full space-y-3 flex-1">
           <button
             onClick={() => setActiveCategory(null)}
-            className={cn("text-[11px] font-semibold tracking-wide opacity-30 hover:opacity-70 transition-opacity", txtClr)}
+            className={cn("text-[11px] font-semibold tracking-wide opacity-50 hover:opacity-100 transition-opacity flex items-center gap-1", txtClr)}
           >
-            ← All categories
+            <ArrowRight className="w-3 h-3 rotate-180" /> Back to categories
           </button>
-          <div className="grid grid-cols-2 gap-2 content-start">
+          <div className="grid grid-cols-2 gap-3 content-start">
             {activeCategory.options.map((opt) => (
               <button
                 key={opt.label}
                 onClick={() => onPick(opt.prompt, activeCategory.category)}
                 className={cn(
-                  "relative overflow-hidden rounded-xl px-4 py-4 text-left transition-all active:scale-[0.96]",
-                  "border shadow-md",
+                  "relative overflow-hidden rounded-2xl px-5 py-4 text-left transition-all duration-300 group active:scale-[0.96]",
+                  "border shadow-sm hover:shadow-lg",
                   isLight && !isSwipess
-                    ? "bg-white border-slate-200 text-slate-900 shadow-slate-200/50 hover:bg-slate-50"
-                    : "bg-white/[0.06] border-white/[0.1] text-white shadow-black/20 hover:bg-white/[0.1]"
+                    ? "bg-white border-slate-200 text-slate-800 hover:border-slate-300"
+                    : "bg-white/[0.03] border-white/10 text-white hover:bg-white/[0.06] hover:border-white/20 backdrop-blur-xl"
                 )}
               >
-                <div className={cn("absolute inset-x-0 top-0 h-[1px]", isLight ? "bg-white" : "bg-white/20")} />
-                <span className="text-[13px] font-semibold leading-snug">{opt.label}</span>
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-500" style={{ background: `linear-gradient(to right, transparent, ${activeCategory.glowColor})` }} />
+                <span className="text-[13px] font-semibold leading-snug relative z-10">{opt.label}</span>
               </button>
             ))}
           </div>
@@ -329,24 +327,23 @@ const WelcomeState = memo(({ isSwipess, isLight, onPick }: { isSwipess: boolean;
               key={cat.label}
               onClick={() => setActiveCategory(cat)}
               className={cn(
-                "relative overflow-hidden rounded-2xl p-5 text-left transition-all duration-200",
-                "active:scale-[0.96] hover:-translate-y-[1px]",
-                "bg-gradient-to-br shadow-xl",
-                cat.gradient,
-                isLight ? "shadow-black/15" : "shadow-black/40",
+                "relative overflow-hidden rounded-2xl p-5 text-left transition-all duration-300 group",
+                "active:scale-[0.96]",
+                isLight && !isSwipess
+                  ? "bg-white border border-slate-200 shadow-sm hover:shadow-md hover:border-slate-300"
+                  : "bg-white/[0.02] border border-white/10 backdrop-blur-xl shadow-2xl hover:bg-white/[0.05] hover:border-white/20",
                 i === FILTERS.length - 1 && "col-span-2"
               )}
-              style={{ boxShadow: `0 12px 40px -8px ${cat.shadow}` }}
             >
-              <div className="absolute inset-x-0 top-0 h-[1px] bg-white/25 rounded-t-2xl" />
-              <div className="flex items-center gap-3 relative z-10">
-                <span className="text-2xl drop-shadow-[0_2px_4px_rgba(0,0,0,0.2)]">{cat.icon}</span>
-                <span className="text-white text-sm font-bold drop-shadow-[0_1px_3px_rgba(0,0,0,0.3)]">
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-500" style={{ background: `radial-gradient(circle at right bottom, ${cat.glowColor}, transparent 70%)` }} />
+              <div className="flex items-center gap-4 relative z-10">
+                <div className="w-10 h-10 rounded-full flex items-center justify-center transition-transform group-hover:scale-110 duration-300" style={{ background: `linear-gradient(135deg, ${cat.glowColor}11, transparent)`, border: `1px solid ${cat.glowColor}33`, color: cat.glowColor }}>
+                  <cat.icon className="w-5 h-5 drop-shadow-[0_0_8px_currentColor]" />
+                </div>
+                <span className={cn("text-sm font-bold tracking-wide", isLight && !isSwipess ? "text-slate-800" : "text-white/90")}>
                   {cat.label}
                 </span>
               </div>
-              <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/15 to-transparent rounded-b-2xl pointer-events-none" />
-              <div className="absolute -bottom-5 -right-5 w-24 h-24 bg-white/10 rounded-full blur-3xl pointer-events-none" />
             </button>
           ))}
         </div>
@@ -437,6 +434,15 @@ const MessageBubble = memo(({ message, isUser, isSwipess, isLight, onCopy, onDel
            </button>
         )}
       </div>
+
+      {!isUser && (
+        <div className={cn("flex items-center gap-1 mt-0.5 ml-2", isSwipess ? "opacity-40" : "opacity-60")}>
+          <Sparkles className="w-2.5 h-2.5 text-[#f55036]" />
+          <span className={cn("text-[9px] font-black tracking-widest uppercase", isSwipess ? "text-white" : "text-muted-foreground")}>
+            Powered by Groq
+          </span>
+        </div>
+      )}
 
       {!isUser && listings.length > 0 && (
         <div className="w-full mt-2 grid grid-cols-1 sm:grid-cols-2 gap-3">

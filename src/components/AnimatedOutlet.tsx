@@ -39,7 +39,7 @@ export function AnimatedOutlet() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ type: 'tween', duration: 0.12, ease: 'easeOut' }}
+          transition={{ type: 'tween', duration: 0.1, ease: 'easeOut' }}
         >
           <Suspense fallback={
             <div className="flex items-center justify-center w-full min-h-[200px]">

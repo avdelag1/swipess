@@ -11,47 +11,9 @@ import { usePullToRefresh } from '@/hooks/usePullToRefresh'
 import { PullToRefreshIndicator } from '@/components/PullToRefreshIndicator'
 
 // SPEED OF LIGHT HOOKS
-import { useWelcomeState } from "@/hooks/useWelcomeState"
 import { useFocusMode } from '@/hooks/useFocusMode'
 
-// =============================================================================
-// PERFORMANCE FIX: SessionStorage caching for dashboard checks
-// =============================================================================
 
-const ONBOARDING_CACHE_KEY = 'dashboard_onboarding_check';
-const CACHE_EXPIRY_MS = 5 * 60 * 1000; // 5 minutes
-
-interface OnboardingCacheEntry {
-  userId: string;
-  needsOnboarding: boolean;
-  checkedAt: number;
-}
-
-function getOnboardingCache(userId: string): OnboardingCacheEntry | null {
-  try {
-    const cached = sessionStorage.getItem(ONBOARDING_CACHE_KEY);
-    if (!cached) return null;
-    const entry: OnboardingCacheEntry = JSON.parse(cached);
-    if (entry.userId !== userId) return null;
-    if (Date.now() - entry.checkedAt > CACHE_EXPIRY_MS) return null;
-    return entry;
-  } catch {
-    return null;
-  }
-}
-
-function setOnboardingCache(userId: string, needsOnboarding: boolean): void {
-  try {
-    const entry: OnboardingCacheEntry = {
-      userId,
-      needsOnboarding,
-      checkedAt: Date.now(),
-    };
-    sessionStorage.setItem(ONBOARDING_CACHE_KEY, JSON.stringify(entry));
-  } catch {
-    // sessionStorage full or unavailable
-  }
-}
 
 interface DashboardLayoutProps {
   children: ReactNode
@@ -60,8 +22,6 @@ interface DashboardLayoutProps {
 
 export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   const { isDark } = useAppTheme()
-  const [onboardingChecked, setOnboardingChecked] = useState(false)
-  const [_showOnboarding, setShowOnboarding] = useState(false)
   
   
   const location = useLocation()
@@ -69,7 +29,6 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   const { restoreDrafts } = useAnonymousDrafts()
   
   const userId = user?.id
-  const cacheCheckedRef = useRef(false);
 
   // 🛡️ HUD MASTER RECOVERY: Ensure UI is visible on mount and every navigation
   useEffect(() => {
@@ -86,8 +45,6 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   // NEXT-GEN DESIGN: Mouse tracking for liquid glass effects has been moved
   // to AtmosphericLayer.tsx natively to prevent global CSS reflows/layout thrashing.
 
-  const { shouldShowWelcome: _shouldShowWelcome, dismissWelcome: _dismissWelcome } = useWelcomeState(userId)
-  
 
   useEffect(() => {
     if (userRole === 'client' || userRole === 'owner') {
@@ -101,51 +58,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     }
   }, [userRole]);
 
-  useEffect(() => {
-    if (!userId || onboardingChecked) return;
 
-    if (!cacheCheckedRef.current) {
-      cacheCheckedRef.current = true;
-      const cached = getOnboardingCache(userId);
-      if (cached) {
-        setOnboardingChecked(true);
-        if (cached.needsOnboarding) setShowOnboarding(true);
-        return;
-      }
-    }
-
-    const checkOnboardingStatus = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('onboarding_completed, full_name, city, age')
-          .eq('user_id', userId)
-          .maybeSingle();
-
-        if (error || !data) {
-          setOnboardingCache(userId, false);
-          return;
-        }
-
-        setOnboardingChecked(true);
-        const hasMinimalData = !data?.full_name && !data?.city && !data?.age;
-        const needsOnboarding = data?.onboarding_completed === false && hasMinimalData;
-        setOnboardingCache(userId, needsOnboarding);
-
-        if (needsOnboarding) setShowOnboarding(true);
-      } catch (_error) {
-        setOnboardingCache(userId, false);
-      }
-    };
-
-    if ('requestIdleCallback' in window) {
-      const idleId = (window as any).requestIdleCallback(checkOnboardingStatus, { timeout: 3000 });
-      return () => (window as any).cancelIdleCallback(idleId);
-    } else {
-      const timeoutId = setTimeout(checkOnboardingStatus, 2000);
-      return () => clearTimeout(timeoutId);
-    }
-  }, [userId, onboardingChecked]);
 
   useEffect(() => {
     if (userId) {

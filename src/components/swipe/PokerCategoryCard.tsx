@@ -11,7 +11,6 @@ import {
   PokerCardData,
 } from './SwipeConstants';
 import { cn } from '@/lib/utils';
-
 interface PokerCardProps {
   card: PokerCardData;
   index: number;
@@ -46,17 +45,13 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
   // Keep a visual "isDragging" state just for cursor styling.
   const [isDraggingVisual, setIsDraggingVisual] = useState(false);
 
-  // Subtle fade as the card moves off — no rotation.
+  // Keep the card completely solid while swiping, exactly like the main swipe cards.
   const exitOpacity = useTransform(
     [x, y] as any,
-    ([cx, cy]: any) => {
-      const a = Math.min(1, Math.abs(cx) / 260);
-      const b = Math.min(1, Math.abs(cy) / 260);
-      return 1 - Math.max(a, b) * 0.35;
-    }
+    ([_cx, _cy]: any) => 1
   );
   
-  const rotate = useTransform(x, [-(typeof window !== 'undefined' ? window.innerWidth : 400), (typeof window !== 'undefined' ? window.innerWidth : 400)], [-16, 16]); // Tilted aggressively for physical weight feel
+  const rotate = useTransform(x, [-800, 800], [-25, 25]); // Matched with SimpleSwipeCard curvature
   // Faint breathing hints — visible only while idle on the top card.
   const hintOpacity = useTransform(
     [x, y] as any,
@@ -173,19 +168,29 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
         cursor: isTop ? (isDraggingVisual ? 'grabbing' : 'grab') : 'pointer',
         touchAction: 'none',
         willChange: 'transform, opacity',
-        transform: 'translateZ(0)',
+        transform: 'translate3d(0,0,0)',
         transformOrigin: '50% 120%', // Pivot from bottom so it feels like a heavy physical card
         backfaceVisibility: 'hidden',
         WebkitBackfaceVisibility: 'hidden',
+        borderRadius: 40, // Match the 2.5rem exactly on the GPU layer
+        boxShadow: isTop ? '0 30px 60px -20px rgba(0,0,0,0.55)' : 'none',
+        backgroundColor: '#000',
+        backgroundImage: fallbackGradient,
       } as any}
       transition={{ ...PK_SPRING }}
-      className="select-none"
+      className="select-none gpu-ultra"
     >
-      <div
-        className="w-full h-full relative overflow-hidden bg-black rounded-[2.5rem] shadow-[0_30px_60px_-20px_rgba(0,0,0,0.55)]"
-        style={{ backgroundImage: fallbackGradient }}
+      <div 
+        className="absolute inset-0 overflow-hidden" 
+        style={{ 
+          borderRadius: 'inherit', 
+          WebkitUserSelect: 'none', 
+          userSelect: 'none', 
+          touchAction: 'none',
+          WebkitMaskImage: '-webkit-radial-gradient(white, black)' // Fixes Safari corner tearing!
+        }}
       >
-        {/* Single static photo — always fully opaque, gradient bg shows while loading */}
+        {/* Single static photo — no carousel, no crossfade */}
         <img
           src={photo}
           alt={card.label}
@@ -197,13 +202,13 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
         />
 
         {/* Scrim */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent z-10 pointer-events-none" />
 
         {/* Breathing swipe-hint dots — top card only, capable devices only */}
         {isTop && !_isLowEndDevice && (
           <motion.div
             aria-hidden
-            className="pointer-events-none absolute inset-0 z-[5]"
+            className="pointer-events-none absolute inset-0 z-[15]"
             style={{ opacity: hintOpacity }}
           >
             <div className="absolute top-1/2 left-3 -translate-y-1/2 w-1 h-8 rounded-full bg-white/15 animate-pulse" style={{ animationDuration: '2.4s' }} />
@@ -214,11 +219,9 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
         )}
 
         {/* Card content */}
-        <div className="absolute inset-x-0 bottom-0 flex flex-col justify-end p-9 md:p-11 gap-8">
+        <div className="absolute inset-x-0 bottom-0 flex flex-col justify-end p-9 md:p-11 gap-8 z-20 pointer-events-none">
           <div className="space-y-2">
-            <div
-              className="flex items-center gap-2"
-            >
+            <div className="flex items-center gap-2">
               <div className="w-4 h-[1px] shadow-[0_0_8px_rgba(255,255,255,0.4)] bg-white/40" />
               <span
                 className="text-[10px] font-black uppercase tracking-[0.4em] italic text-white"
@@ -242,7 +245,7 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
             </h3>
           </div>
 
-          <div style={{ pointerEvents: isTop ? 'auto' : 'none' }}>
+          <div className={isTop ? 'pointer-events-auto' : 'pointer-events-none'}>
               <button
                 type="button"
                 ref={engageButtonRef}

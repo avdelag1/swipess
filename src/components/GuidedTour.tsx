@@ -87,16 +87,16 @@ export function GuidedTour() {
             )}
             <button
               onClick={skipTour}
-              className="inline-flex items-center rounded-2xl text-[12px] h-10 px-3 font-semibold text-white/65 active:scale-95 transition-transform"
+              className="inline-flex items-center rounded-2xl text-[12px] h-10 px-3 font-semibold text-white/65 active:scale-95 transition-transform whitespace-nowrap"
             >
-              Skip
+              Explore on my own
             </button>
             <div className="flex-1" />
             <button
               onClick={nextStep}
-              className="inline-flex items-center gap-1.5 rounded-2xl text-[12px] h-10 px-5 font-bold text-black bg-white shadow-[0_8px_20px_rgba(0,0,0,0.35)] active:scale-95 transition-transform"
+              className="inline-flex items-center gap-1.5 rounded-2xl text-[12px] h-10 px-5 font-bold text-black bg-white shadow-[0_8px_20px_rgba(0,0,0,0.35)] active:scale-95 transition-transform whitespace-nowrap"
             >
-              {currentStep === totalSteps - 1 ? 'Done' : 'Next'}
+              {currentStep === totalSteps - 1 ? 'Done' : 'Keep Guiding Me'}
               {currentStep < totalSteps - 1 && <ChevronRight className="w-3.5 h-3.5" />}
             </button>
           </div>

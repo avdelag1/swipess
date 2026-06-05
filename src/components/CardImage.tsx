@@ -116,7 +116,7 @@ const CardImage = memo(({
     return <MarketingSlide slideId={src} />;
   }
 
-  const br = fullScreen ? 'inherit' : 'var(--radius-lg)';
+  const br = 'inherit';
 
   return (
       <div

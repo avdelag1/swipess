@@ -109,7 +109,7 @@ const PersistentDashboardLayout = lazyWithRetry(() => import("@/components/Persi
 // Sonner toasts removed — all notifications now use premium NotificationBar
 const GuidedTourLazy = lazyWithRetry(() => import("./components/GuidedTour").then(m => ({ default: m.GuidedTour })));
 const PWAInstallPrompt = lazyWithRetry(() => import("@/components/PWAInstallPrompt").then(m => ({ default: m.PWAInstallPrompt })));
-const WelcomeBonusModal = lazyWithRetry(() => import("@/components/WelcomeBonusModal").then(m => ({ default: m.WelcomeBonusModal })));
+
 
 // Empty placeholder for /client/dashboard and /owner/dashboard. The real
 // dashboard renders inside PersistentDashboardScene, persistently.
@@ -136,7 +136,7 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
           <AppLayout>
             <TooltipProvider>
           <Suspense fallback={null}>
-            <WelcomeBonusModal />
+
             <GuidedTourLazy />
             <PWAInstallPrompt />
           </Suspense>

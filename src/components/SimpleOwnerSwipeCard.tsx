@@ -366,7 +366,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           transform: 'translate3d(0,0,0)',
           transformOrigin: '50% 120%',
           backfaceVisibility: 'hidden',
-          borderRadius: fullScreen ? 0 : 32,
+          borderRadius: fullScreen ? 0 : 48,
           boxShadow: isTop
             ? '0 25px 50px -12px rgba(0,0,0,0.45), 0 10px 30px -5px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.1)'
             : '0 4px 10px rgba(0,0,0,0.1)',

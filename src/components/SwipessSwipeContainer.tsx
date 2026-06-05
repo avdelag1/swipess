@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState, lazy, Suspense } from 'react';
 import { cn } from '@/lib/utils';
 // import { } from '@/state/modalStore';
 import { triggerHaptic } from '@/utils/haptics';
@@ -13,7 +13,7 @@ import { SimpleOwnerSwipeCard } from './SimpleOwnerSwipeCard';
 
 const UNIFIED_CYCLE: QuickFilterCategory[] = ['property', 'pros', 'motorcycle', 'bicycle', 'events', 'buyers', 'renters', 'leads'];
 import { getActiveCategoryInfo } from './swipe/SwipeConstants';
-import { MatchCelebrateModal } from './swipe/MatchCelebrateModal';
+const MatchCelebrateModal = lazy(() => import('./swipe/MatchCelebrateModal').then(mod => ({ default: mod.MatchCelebrateModal })));
 import { ClientPreferencesDialog } from './ClientPreferencesDialog';
 import { OwnerClientFilterDialog } from './OwnerClientFilterDialog';
 import { preloadImageToCache } from '@/lib/swipe/imageCache';
@@ -994,7 +994,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
               "absolute inset-0 -z-10 transition-colors duration-500",
               "bg-swipe-frame"
             )}
-            style={{ borderRadius: 32 }}
+            style={{ borderRadius: 48 }}
           />
           <AnimatePresence mode="sync" initial={false}>
             {deckQueue.length > 0 && currentIndex < deckQueue.length ? (
@@ -1121,14 +1121,16 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
         keeping the card photo unobstructed. */}
     </div>
 
-      {matchData && (
-        <MatchCelebrateModal 
-          isOpen={true} 
-          onClose={() => setMatchData(null)}
-          clientProfile={matchData.client} 
-          ownerProfile={matchData.owner} 
-        />
-      )}
+      <Suspense fallback={null}>
+        {matchData && (
+          <MatchCelebrateModal 
+            isOpen={true} 
+            onClose={() => setMatchData(null)}
+            clientProfile={matchData.client} 
+            ownerProfile={matchData.owner} 
+          />
+        )}
+      </Suspense>
 
       <>
         {insightsModalOpen && topCard && (

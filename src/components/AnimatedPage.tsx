@@ -5,9 +5,9 @@ export function AnimatedPage({ children }: { children: ReactNode }) {
   return (
     <motion.div
       className="h-full w-full"
-      initial={{ opacity: 0.8, scale: 0.98 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ type: 'spring', stiffness: 450, damping: 25, mass: 0.3 }}
+      initial={{ opacity: 0.85 }}
+      animate={{ opacity: 1 }}
+      transition={{ type: 'tween', duration: 0.1, ease: 'easeOut' }}
     >
       {children}
     </motion.div>
