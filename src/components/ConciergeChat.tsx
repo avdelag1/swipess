@@ -381,7 +381,7 @@ const MessageBubble = memo(({ message, isUser, isSwipess, isLight, onCopy, onDel
 
   useEffect(() => {
     if (!isUser && filterAction && onFilter) {
-      const timer = setTimeout(() => onFilter(filterAction), 1500);
+      const timer = setTimeout(() => onFilter(filterAction), 50);
       return () => clearTimeout(timer);
     }
   }, [isUser, filterAction, onFilter]);

@@ -30,25 +30,7 @@ const BENTO_ITEMS = [
     className: 'col-span-2 row-span-2',
     imageId: 'property',
     icon: Home,
-    delay: '-2.4s'
-  },
-  {
-    id: 'services',
-    label: 'WORKERS',
-    description: 'Find people offering services',
-    className: 'col-span-1 row-span-1',
-    imageId: 'services',
-    icon: UserCheck,
-    delay: '-8.7s'
-  },
-  {
-    id: 'motorcycle',
-    label: 'MOTORCYCLES',
-    description: 'Find motorcycles for sale or rent',
-    className: 'col-span-1 row-span-1',
-    imageId: 'motorcycle',
-    icon: Bike,
-    delay: '-5.1s'
+    delay: '0s'
   },
   {
     id: 'bicycle',
@@ -57,16 +39,34 @@ const BENTO_ITEMS = [
     className: 'col-span-2 row-span-1',
     imageId: 'bicycle',
     icon: Bike,
-    delay: '-10.3s'
+    delay: '1s'
+  },
+  {
+    id: 'motorcycle',
+    label: 'MOTORCYCLES',
+    description: 'Find motorcycles for sale or rent',
+    className: 'col-span-1 row-span-1',
+    imageId: 'motorcycle',
+    icon: Bike,
+    delay: '2s'
   },
   {
     id: 'events',
     label: 'EVENTS',
     description: 'Discover local events',
-    className: 'col-span-4 row-span-1',
+    className: 'col-span-1 row-span-1',
     imageId: 'events',
     icon: Calendar,
-    delay: '-1.2s'
+    delay: '3s'
+  },
+  {
+    id: 'services',
+    label: 'WORKERS',
+    description: 'Find people offering services',
+    className: 'col-span-2 row-span-1',
+    imageId: 'services',
+    icon: UserCheck,
+    delay: '4s'
   },
   {
     id: 'buyers',
@@ -75,25 +75,7 @@ const BENTO_ITEMS = [
     className: 'col-span-2 row-span-1',
     imageId: 'buyers',
     icon: ShoppingCart,
-    delay: '-6.8s'
-  },
-  {
-    id: 'rentals',
-    label: 'RENTERS',
-    description: 'Find people looking to rent',
-    className: 'col-span-2 row-span-1',
-    imageId: 'renters',
-    icon: Key,
-    delay: '-3.9s'
-  },
-  {
-    id: 'roommates',
-    label: 'ROOMMATES',
-    description: 'Find roommates',
-    className: 'col-span-2 row-span-1',
-    imageId: 'renters', 
-    icon: Users,
-    delay: '-9.5s'
+    delay: '5s'
   },
   {
     id: 'leads',
@@ -102,7 +84,25 @@ const BENTO_ITEMS = [
     className: 'col-span-2 row-span-1',
     imageId: 'leads',
     icon: Briefcase,
-    delay: '-0.7s'
+    delay: '6s'
+  },
+  {
+    id: 'rentals',
+    label: 'RENTERS',
+    description: 'Find people looking to rent',
+    className: 'col-span-2 row-span-1',
+    imageId: 'renters',
+    icon: Key,
+    delay: '7s'
+  },
+  {
+    id: 'roommates',
+    label: 'ROOMMATES',
+    description: 'Find roommates',
+    className: 'col-span-2 row-span-1',
+    imageId: 'renters', 
+    icon: Users,
+    delay: '8s'
   },
 ];
 
@@ -174,12 +174,7 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
             <div className="absolute -top-12 -right-12 z-0 w-32 h-32 border-[1px] border-white/20 rounded-full opacity-30 pointer-events-none" />
             <div className="absolute -bottom-8 -left-8 z-0 w-24 h-24 border-[1px] border-white/20 rounded-full opacity-20 pointer-events-none" />
 
-            {/* Content Icon */}
-            <div className="absolute top-2 left-2 z-20">
-              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-white/20 bg-black/40 backdrop-blur-md flex items-center justify-center">
-                <item.icon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
-              </div>
-            </div>
+            {/* Content Icon Removed */}
 
             {/* Content Text */}
             <div className="relative z-20 p-2 sm:p-4 w-full">

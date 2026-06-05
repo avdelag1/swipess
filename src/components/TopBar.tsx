@@ -126,7 +126,7 @@ function TopBarComponent({
       <div className="h-full w-full px-2 flex items-center justify-between relative">
 
         <div
-          className="flex min-w-0 items-center gap-0.5 pointer-events-auto glass-pill px-1 h-[34px]"
+          className="flex min-w-0 items-center gap-1 pointer-events-auto glass-pill px-1.5 h-[38px]"
           style={clusterPillStyle}
         >
           {onBack ? (
@@ -134,12 +134,12 @@ function TopBarComponent({
               transition={TAP_SPRING}
               whileTap={{ scale: 0.94 }}
               onClick={() => { haptics.tap(); onBack(); }}
-              className="flex shrink-0 items-center justify-center rounded-full h-[28px] w-[28px]"
+              className="flex shrink-0 items-center justify-center rounded-full h-[32px] w-[32px]"
               style={glassPillStyle}
               aria-label="Back"
             >
               <ChevronLeft
-                className="w-[16px] h-[16px]"
+                className="w-[20px] h-[20px]"
                 strokeWidth={2.2}
                 style={{
                   color: iconColor,
@@ -153,17 +153,17 @@ function TopBarComponent({
             user && (
               <motion.button
                 transition={TAP_SPRING}
-                whileTap={{ scale: 0.96 }}
+                whileTap={{ scale: 0.94 }}
                 onClick={() => {
                   haptics.tap();
                   navigate('/client/profile');
                 }}
-                className="flex shrink-0 items-center gap-1.5 rounded-full pl-0.5 pr-1.5 h-[28px] group"
+                className="flex shrink-0 items-center gap-2 rounded-full pl-0.5 pr-2.5 h-[32px] group"
                 style={glassPillStyle}
                 aria-label="Open profile"
               >
                 <div
-                  className="w-[22px] h-[22px] rounded-full overflow-hidden shrink-0 flex items-center justify-center relative"
+                  className="w-[28px] h-[28px] rounded-full overflow-hidden shrink-0 flex items-center justify-center relative"
                   style={{
                     background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)))',
                     boxShadow: '0 0 0 1px rgba(255,255,255,0.2) inset, 0 0 14px hsl(var(--primary) / 0.35)',
@@ -176,8 +176,8 @@ function TopBarComponent({
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    initials === '?' ? <UserRound className="h-3 w-3 text-primary-foreground" strokeWidth={2.4} /> : (
-                      <span className="text-[9px] font-black text-primary-foreground drop-shadow-sm">
+                    initials === '?' ? <UserRound className="h-4 w-4 text-primary-foreground" strokeWidth={2.4} /> : (
+                      <span className="text-[11px] font-black text-primary-foreground drop-shadow-sm">
                         {initials}
                       </span>
                     )
@@ -185,7 +185,7 @@ function TopBarComponent({
                 </div>
                 {profile?.full_name && (
                   <span
-                    className="hidden max-w-[74px] truncate sm:inline-block text-[9px] font-black uppercase tracking-[0.08em]"
+                    className="truncate max-w-[100px] text-[11px] font-black uppercase tracking-wider"
                     style={{
                       fontVariantNumeric: 'tabular-nums',
                       color: iconColor,
@@ -221,7 +221,7 @@ function TopBarComponent({
 
         {/* RIGHT CLUSTER: single glass pill wrapping all action buttons */}
           <div
-            className="flex shrink-0 items-center gap-0.5 pointer-events-auto glass-pill px-1 h-[34px]"
+            className="flex shrink-0 items-center gap-0.5 pointer-events-auto glass-pill px-1 h-[38px]"
             style={clusterPillStyle}
           >
           {!minimal && (
@@ -229,13 +229,25 @@ function TopBarComponent({
                 <motion.button
                   transition={TAP_SPRING}
                   whileTap={{ scale: 0.92 }}
+                  onClick={() => { haptics.tap(); navigate('/radio'); }}
+                  className="flex shrink-0 items-center justify-center rounded-full relative h-[32px] w-[32px]"
+                  style={glassPillStyle}
+                  aria-label="Radio"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: iconColor }}>
+                    <path d="M4.9 19.1C1 15.2 1 8.8 4.9 4.9"/><path d="M7.8 16.2c-2.3-2.3-2.3-6.1 0-8.5"/><circle cx="12" cy="12" r="2"/><path d="M16.2 7.8c2.3 2.3 2.3 6.1 0 8.5"/><path d="M19.1 4.9C23 8.8 23 15.1 19.1 19"/>
+                  </svg>
+                </motion.button>
+                <motion.button
+                  transition={TAP_SPRING}
+                  whileTap={{ scale: 0.92 }}
                   onClick={() => { haptics.tap(); setModal('showTokensModal', true); }}
-                  className="flex shrink-0 items-center justify-center rounded-full relative h-[28px] w-[28px]"
+                  className="flex shrink-0 items-center justify-center rounded-full relative h-[32px] w-[32px]"
                   style={glassPillStyle}
                   aria-label="Tokens"
                 >
                   <Crown
-                    className="w-[16px] h-[16px]"
+                    className="w-[18px] h-[18px]"
                     style={{
                       color: iconColor,
                       filter: isLight ? 'none' : 'drop-shadow(0 0 8px rgba(228,0,124,0.65))',

@@ -36,9 +36,9 @@ import { useFilterStore } from '@/state/filterStore';
 import { useModalStore } from '@/state/modalStore';
 import { useGuidedTourActive } from '@/state/guidedTourStore';
 
-const ICON_SIZE = 20;
+const ICON_SIZE = 22;
 
-const ICON_SIZE_TABLET = 22;
+const ICON_SIZE_TABLET = 24;
 const TOUCH_TARGET = 28;
 const TOUCH_TARGET_TABLET = 38;
 
@@ -127,21 +127,17 @@ export const BottomNavigation = memo(({
   }, []);
 
 
-  // Unified nav items (11 items — enough to enable horizontal scroll discovery)
+  // Unified nav items in the exact order requested:
+  // dashboard -> likes -> ai -> add -> messages -> filters -> legal -> events
   const unifiedNavItems: NavItem[] = [
     { id: 'dashboard', icon: Zap, label: t('nav.dashboard'), path: '/client/dashboard' },
-    { id: 'search', icon: SlidersHorizontal, label: t('nav.filter'), onClick: onFilterClick },
-    { id: 'ai', icon: Sparkles, label: t('nav.aiBot'), onClick: openAIChat, isSpecial: true },
-    { id: 'messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages' },
     { id: 'likes', icon: Flame, label: t('nav.likes'), path: '/client/liked-properties' },
-    
-    // MIDDLE ACTION: Listings (Plus Button)
+    { id: 'ai', icon: Sparkles, label: t('nav.aiBot'), onClick: openAIChat, isSpecial: true },
     { id: 'add', icon: PlusCircle, label: t('nav.add', 'ADD'), path: '/owner/properties', isSpecial: true },
-    
-    { id: 'profile', icon: CircleUser, label: t('nav.profile'), path: '/client/profile' },
-    { id: 'events', icon: PartyPopper, label: t('nav.events'), path: '/explore/events' },
-    { id: 'vapid', icon: IdCard, label: t('nav.idCard'), onClick: () => setModal('showVapId', true) },
+    { id: 'messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages' },
+    { id: 'search', icon: SlidersHorizontal, label: t('nav.filter'), onClick: onFilterClick },
     { id: 'legal', icon: ScaleIcon, label: t('nav.legal'), path: '/client/legal-services' },
+    { id: 'events', icon: PartyPopper, label: t('nav.events'), path: '/explore/events' },
   ];
 
   const navItems = unifiedNavItems;
@@ -404,7 +400,7 @@ export const BottomNavigation = memo(({
                       height: isTablet ? ICON_SIZE_TABLET : (isNarrow ? 16 : ICON_SIZE),
                       color: item.id === 'add' ? '#FF3366' : (active ? baseColor : (isLight ? 'rgba(0,0,0,0.45)' : 'rgba(255,255,255,0.5)')),
                       fill: 'none',
-                      strokeWidth: active ? 2.4 : 1.7,
+                      strokeWidth: active ? 2.8 : 2.1,
                       filter: item.id === 'add' ? 'drop-shadow(0 0 12px rgba(255,51,102,0.6))' : (active ? activeGlow : undefined),
                       transition: 'color 160ms ease-out, stroke-width 160ms ease-out, filter 160ms ease-out',
                     }}

@@ -184,7 +184,11 @@ export function AppLayout({ children }: AppLayoutProps) {
   const isCameraRoute = location.pathname.includes('/camera');
   const isRadioRoute = location.pathname.includes('/radio');
 
-  const isDirectChat = location.pathname.startsWith('/messages');
+  const searchParams = new URLSearchParams(location.search);
+  const hasActiveChat = searchParams.has('conversationId') || searchParams.has('startConversation');
+  
+  // Only hide chrome if they are actually INSIDE a specific chat
+  const isDirectChat = location.pathname.startsWith('/messages') && hasActiveChat;
 
   const isProfile = location.pathname.startsWith('/profile') || location.pathname.startsWith('/preview/profile');
   const isListing = location.pathname.startsWith('/listing') || location.pathname.startsWith('/preview/listing');
@@ -195,9 +199,9 @@ export function AppLayout({ children }: AppLayoutProps) {
     const isCamera = path.startsWith('/camera');
     const isRoommates = path.startsWith('/explore/roommates');
     const isEvents = path.startsWith('/explore/events');
-    const isDirectChatInner = path.startsWith('/messages');
+    const isDirectChatInner = path.startsWith('/messages') && hasActiveChat;
     return isCamera || isRadio || showAIChat || showAIListing || showAIProfile || isSwipeDashboard || isRoommates || isDirectChatInner || isEvents;
-  }, [location.pathname, showAIChat, showAIListing, showAIProfile, isSwipeDashboard]);
+  }, [location.pathname, hasActiveChat, showAIChat, showAIListing, showAIProfile, isSwipeDashboard]);
 
   const showAppChrome = !isAuthRoute && !isRadioRoute && !isCameraRoute && !showAIChat && !showAIListing && !showAIProfile && !isEventsRoute && !isDirectChat && (!isPublicPreview || !!user);
 
