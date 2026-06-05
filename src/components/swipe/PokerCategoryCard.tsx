@@ -164,7 +164,11 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
         boxShadow: isTop ? '0 30px 60px -20px rgba(0,0,0,0.55)' : 'none',
         backgroundColor: '#000',
         backgroundImage: fallbackGradient,
-        WebkitMaskImage: '-webkit-linear-gradient(white, white)',
+        // NOTE: no WebkitMaskImage here. The card is already clipped by
+        // overflow-hidden (outer + inner) and borderRadius. A mask forces an
+        // offscreen GPU pass that re-rasterizes the photo every frame while the
+        // card is dragged → the photo tears/flickers on swipe. The working
+        // SimpleSwipeCard has no mask either.
       } as any}
       transition={{ ...PK_SPRING }}
       className={cn("select-none touch-none relative w-full h-full overflow-hidden border-none gpu-ultra", isTop ? "cursor-grab active:cursor-grabbing" : "cursor-pointer")}
