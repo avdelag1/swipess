@@ -20,9 +20,9 @@ export function QuickFilterImage({ src, alt, className, animationDelay = '0s' }:
   useEffect(() => {
     if (images.length <= 1) return;
 
-    // EXACT staggered interval (1 card every 5s)
+    // EXACT staggered interval (1 card every 4s, 10 cards total = 40s rotation cycle)
     const delayS = parseFloat(animationDelay.replace('s', '')) || 0;
-    const baseInterval = 5000; 
+    const baseInterval = 40000; 
     const exactOffset = delayS * 1000;
 
     let timeoutId: ReturnType<typeof setTimeout>;

@@ -39,7 +39,7 @@ const BENTO_ITEMS = [
     className: 'col-span-2 row-span-1',
     imageId: 'bicycle',
     icon: Bike,
-    delay: '2s'
+    delay: '4s'
   },
   {
     id: 'buyers',
@@ -48,7 +48,7 @@ const BENTO_ITEMS = [
     className: 'col-span-2 row-span-1',
     imageId: 'buyers',
     icon: ShoppingCart,
-    delay: '4s'
+    delay: '8s'
   },
   {
     id: 'services',
@@ -57,7 +57,7 @@ const BENTO_ITEMS = [
     className: 'col-span-2 row-span-1',
     imageId: 'services',
     icon: UserCheck,
-    delay: '6s'
+    delay: '12s'
   },
   {
     id: 'motorcycle',
@@ -66,7 +66,7 @@ const BENTO_ITEMS = [
     className: 'col-span-1 row-span-1',
     imageId: 'motorcycle',
     icon: Bike,
-    delay: '8s'
+    delay: '16s'
   },
   {
     id: 'events',
@@ -75,7 +75,7 @@ const BENTO_ITEMS = [
     className: 'col-span-1 row-span-1',
     imageId: 'events',
     icon: Calendar,
-    delay: '10s'
+    delay: '20s'
   },
   {
     id: 'leads',
@@ -84,7 +84,7 @@ const BENTO_ITEMS = [
     className: 'col-span-2 row-span-1',
     imageId: 'leads',
     icon: Briefcase,
-    delay: '12s'
+    delay: '24s'
   },
   {
     id: 'rentals',
@@ -93,7 +93,7 @@ const BENTO_ITEMS = [
     className: 'col-span-2 row-span-1',
     imageId: 'renters',
     icon: Key,
-    delay: '14s'
+    delay: '28s'
   },
   {
     id: 'roommates',
@@ -102,7 +102,7 @@ const BENTO_ITEMS = [
     className: 'col-span-2 row-span-1',
     imageId: 'renters', 
     icon: Users,
-    delay: '16s'
+    delay: '32s'
   },
   {
     id: 'lawyer',
@@ -111,7 +111,7 @@ const BENTO_ITEMS = [
     className: 'col-span-2 row-span-1',
     imageId: 'lawyer',
     icon: Users,
-    delay: '18s'
+    delay: '36s'
   },
 ];
 
