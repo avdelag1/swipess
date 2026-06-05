@@ -17,6 +17,24 @@
     windowLoaded = true;
     setTimeout(tryFade, 250);
   });
+
+  // When a new SW activates (sends SW_UPDATED), the page is stale.
+  // If React never mounted (appReady===false), auto-reload so the new
+  // SW can serve fresh index.html + matching chunks from Vercel.
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.addEventListener('message', function(event) {
+      if (event.data && event.data.type === 'SW_UPDATED' && !appReady) {
+        setTimeout(function() { window.location.reload(); }, 600);
+      }
+    });
+    // Also reload on controllerchange (covers skipWaiting path)
+    navigator.serviceWorker.addEventListener('controllerchange', function() {
+      if (!appReady) {
+        setTimeout(function() { window.location.reload(); }, 600);
+      }
+    });
+  }
+
   setTimeout(function() {
     if (appReady) { fadeOut(); return; }
     if (splash) {
