@@ -208,9 +208,7 @@ export const BottomNavigation = memo(({
       // each tap on a modal nav item just (re)opens it.
       closeAll();
       if (item.onClick) {
-        // Defer to next microtask so closeAll's state commit lands before
-        // the modal-open setModal — prevents any chance of being overwritten.
-        queueMicrotask(() => item.onClick && item.onClick());
+        item.onClick();
       } else if (item.path) {
         navigate(item.path);
       }
