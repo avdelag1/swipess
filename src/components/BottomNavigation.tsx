@@ -358,7 +358,7 @@ export const BottomNavigation = memo(({
                   touchAction: 'manipulation',
                   userSelect: 'none',
                   WebkitUserSelect: 'none' as any,
-                  transition: 'all 0.2s cubic-bezier(0.22, 1, 0.36, 1)',
+                  transition: 'none',
                 }}
               >
                 {/* Active state is color-only: no nested pill/frame behind icons. */}
@@ -369,8 +369,8 @@ export const BottomNavigation = memo(({
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    transform: active ? 'scale(1.06)' : 'scale(1)',
-                    transition: 'transform 180ms cubic-bezier(0.32, 0.72, 0, 1)',
+                    transform: active ? 'scale(1.1)' : 'scale(1)',
+                    transition: 'transform 140ms cubic-bezier(0.22, 1, 0.36, 1)',
                   }}
                 >
 
@@ -400,7 +400,7 @@ export const BottomNavigation = memo(({
                       fill: 'none',
                       strokeWidth: active ? 2.0 : 1.4,
                       filter: item.id === 'add' ? 'drop-shadow(0 0 12px rgba(255,51,102,0.6))' : (active ? activeGlow : undefined),
-                      transition: 'color 160ms ease-out, stroke-width 160ms ease-out, filter 160ms ease-out',
+                      transition: 'color 120ms ease-out, filter 120ms ease-out',
                     }}
                   />
                 </div>
@@ -415,7 +415,7 @@ export const BottomNavigation = memo(({
                       style={{
                         color: item.id === 'add' ? '#FF3366' : (active ? baseColor : (isLight ? 'rgba(0,0,0,0.65)' : 'rgba(255,255,255,0.95)')),
                         textShadow: item.id === 'add' ? '0 0 8px rgba(255,51,102,0.4)' : (active && isLight ? '0 0 4px rgba(0,0,0,0.1)' : undefined),
-                        transition: 'color 160ms ease-out, text-shadow 160ms ease-out',
+                        transition: 'color 120ms ease-out',
                         zIndex: 1,
                         letterSpacing: '0.08em',
                       }}
