@@ -31,7 +31,6 @@ export function QuickFilterImage({ src, alt, className }: QuickFilterImageProps)
             style={inlineStyle}
             className={cn(
               "absolute inset-0 w-full h-full object-cover",
-              images.length > 1 ? "opacity-0" : "opacity-100", // Start at 0 if animating, keyframes handle it
               className
             )}
           />
