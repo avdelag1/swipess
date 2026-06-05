@@ -1,5 +1,6 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface QuickFilterImageProps {
   src: string | string[];
@@ -10,53 +11,33 @@ interface QuickFilterImageProps {
 
 /**
  * Image for quick filter cards.
- * Supports native CSS scroll snapping and auto-rotation.
+ * Uses Framer Motion for a beautiful crossfade/blur transition, and allows manual swiping.
  */
 export function QuickFilterImage({ src, alt, className, animationDelay = '0s' }: QuickFilterImageProps) {
   const images = Array.isArray(src) ? src : [src];
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const scrollIndex = useRef(0);
+  const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
     if (images.length <= 1) return;
 
-    // The user requested EXACT synchronized cascading order: Properties (0s) -> Bicycles (2s) -> Motorcycles (4s)
-    // with each card taking exactly 20 seconds before it moves again.
-    // This perfectly creates a 2-second stagger where only ONE card rotates, then a pause, then another card.
+    // EXACT staggered interval (1 card every 20s)
     const delayS = parseFloat(animationDelay.replace('s', '')) || 0;
-    const baseInterval = 20000; // Exact 20 seconds between rotations for a single card
+    const baseInterval = 20000; 
     const exactOffset = delayS * 1000;
 
     let timeoutId: ReturnType<typeof setTimeout>;
 
     const rotate = () => {
-      if (!scrollRef.current) return;
-      
-      // Calculate current scroll position to avoid jerking if user manually swiped
-      const currentScroll = scrollRef.current.scrollLeft;
-      const width = scrollRef.current.clientWidth;
-      const manualIndex = Math.round(currentScroll / width);
-      
-      scrollIndex.current = (manualIndex + 1) % images.length;
-      
-      const targetElement = scrollRef.current.children[scrollIndex.current] as HTMLElement;
-      if (targetElement) {
-        scrollRef.current.scrollTo({
-          left: targetElement.offsetLeft,
-          behavior: 'smooth'
-        });
-      }
-      
+      setActiveIndex(prev => (prev + 1) % images.length);
       timeoutId = setTimeout(rotate, baseInterval);
     };
 
-    // Start the first rotation at the exact staggered offset.
     timeoutId = setTimeout(rotate, baseInterval + exactOffset);
 
     return () => clearTimeout(timeoutId);
   }, [images.length, animationDelay]);
 
-  if (images.length === 1) {
+  if (images.length <= 1) {
     return (
       <div className="absolute inset-0 w-full h-full overflow-hidden bg-slate-900/50">
         <img
@@ -72,25 +53,35 @@ export function QuickFilterImage({ src, alt, className, animationDelay = '0s' }:
   }
 
   return (
-    <div className="absolute inset-0 w-full h-full overflow-hidden bg-slate-900/50 pointer-events-auto">
-      <div 
-        ref={scrollRef}
-        className="flex w-full h-full overflow-x-auto snap-x snap-mandatory hide-scrollbar pointer-events-auto"
-        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-      >
-        {images.map((imgSrc, index) => (
-          <div key={`${imgSrc}-${index}`} className="flex-none w-full h-full snap-center relative">
-            <img
-              src={imgSrc}
-              alt={`${alt} ${index + 1}`}
-              loading="eager"
-              decoding="async"
-              fetchPriority="high"
-              className={cn("absolute inset-0 w-full h-full object-cover pointer-events-none", className)}
-            />
-          </div>
-        ))}
-      </div>
+    <div className="absolute inset-0 w-full h-full overflow-hidden bg-slate-900/50 pointer-events-auto touch-none">
+      {/* Invisible drag surface to capture swipes without blocking taps */}
+      <motion.div
+        className="absolute inset-0 w-full h-full z-20"
+        drag="x"
+        dragConstraints={{ left: 0, right: 0 }}
+        dragElastic={0.1}
+        onDragEnd={(e, { offset }) => {
+          if (offset.x < -30) {
+            setActiveIndex(prev => (prev + 1) % images.length);
+          } else if (offset.x > 30) {
+            setActiveIndex(prev => (prev - 1 + images.length) % images.length);
+          }
+        }}
+      />
+      
+      {/* Overlapping images for smooth crossfade */}
+      <AnimatePresence>
+        <motion.img
+          key={activeIndex}
+          src={images[activeIndex]}
+          alt={`${alt} ${activeIndex + 1}`}
+          initial={{ opacity: 0, filter: 'blur(10px)', scale: 1.05 }}
+          animate={{ opacity: 1, filter: 'blur(0px)', scale: 1 }}
+          exit={{ opacity: 0, filter: 'blur(10px)', scale: 0.95 }}
+          transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+          className={cn("absolute inset-0 w-full h-full object-cover pointer-events-none z-10", className)}
+        />
+      </AnimatePresence>
     </div>
   );
 }
