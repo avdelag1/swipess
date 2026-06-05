@@ -164,7 +164,8 @@ export const BottomNavigation = memo(({
     if (!touchState.current) return;
     const dx = Math.abs(e.clientX - touchState.current.x);
     const dy = Math.abs(e.clientY - touchState.current.y);
-    if (dx > 15 || dy > 15) isDraggingRef.current = true;
+    // Only a clear scroll/drag (not minor tap drift) should suppress the tap.
+    if (dx > 24 || dy > 24) isDraggingRef.current = true;
   }, []);
 
   const handlePointerUp = useCallback(() => {
@@ -337,11 +338,9 @@ export const BottomNavigation = memo(({
                   touchState.current = { x: e.clientX, y: e.clientY };
                 }}
                 onPointerMove={handlePointerMove}
-                onPointerUp={(e) => {
-                  handleNavClick(item, e);
-                  handlePointerUp();
-                }}
+                onPointerUp={handlePointerUp}
                 onPointerCancel={handlePointerUp}
+                onClick={(e) => handleNavClick(item, e)}
                 onKeyDown={(e) => handleNavKeyDown(e, item)}
 
                 aria-label={item.label}

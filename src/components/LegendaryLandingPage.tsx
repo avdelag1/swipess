@@ -36,7 +36,10 @@ const GoogleIcon = () => (
 );
 
 const inputCls = (hasError: boolean) => cn(
-  "w-full h-14 pl-12 pr-6 rounded-2xl text-sm font-bold transition-all uppercase bg-white/5 border",
+  // normal-case: never force-display uppercase — the user must see the exact
+  // case they type (critical for passwords). Opaque bg so the starfield behind
+  // doesn't bleed through and make the field hard to read.
+  "w-full h-14 pl-12 pr-6 rounded-2xl text-sm font-bold transition-all normal-case bg-black/60 backdrop-blur-xl text-white placeholder:text-white/40 border",
   hasError ? "border-red-500/50" : "border-white/20"
 );
 
@@ -124,11 +127,11 @@ const LandingView = memo(({
         </button>
         <button
           onClick={() => { triggerHaptic('medium'); onEnterAuth('signup'); }}
-          style={{ 
+          style={{
             background: btnColor ? btnColor : undefined,
             borderColor: btnColor ? 'transparent' : 'white'
           }}
-          className={`w-full h-14 rounded-[2rem] text-white font-black uppercase tracking-[0.25em] text-[12px] shadow-[0_12px_36px_rgba(0,0,0,0.45)] active:scale-[0.97] transition-all flex items-center justify-center gap-3 border-2 hover:brightness-110 ${!btnColor && 'bg-black/60 backdrop-blur-xl hover:bg-black/75'}`}
+          className={`w-full h-14 rounded-[2rem] text-white font-black uppercase tracking-[0.25em] text-[12px] shadow-[0_12px_36px_rgba(0,0,0,0.45)] active:scale-[0.97] transition-all flex items-center justify-center gap-3 border-2 hover:brightness-110 ${!btnColor && 'bg-zinc-900 hover:bg-zinc-800'}`}
         >
           <Sparkles className="w-4 h-4" />
           {btnText}
@@ -317,6 +320,10 @@ const AuthView = memo(({ onBack, initialMode = 'login', siteContent }: { onBack:
             <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/60 group-focus-within:text-[#FF4D4D] transition-colors" />
             <Input
               type="email"
+              inputMode="email"
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck={false}
               value={email}
               onChange={(e) => { setEmail(e.target.value); setFieldErrors(p => ({ ...p, email: '' })); }}
               placeholder="Email"
@@ -331,6 +338,9 @@ const AuthView = memo(({ onBack, initialMode = 'login', siteContent }: { onBack:
               <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/60 group-focus-within:text-[#FF4D4D] transition-colors" />
               <Input
                 type={showPassword ? "text" : "password"}
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck={false}
                 value={password}
                 onChange={(e) => { setPassword(e.target.value); setFieldErrors(p => ({ ...p, password: '' })); }}
                 placeholder="Password"
@@ -356,6 +366,9 @@ const AuthView = memo(({ onBack, initialMode = 'login', siteContent }: { onBack:
               <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/60 group-focus-within:text-[#FF4D4D] transition-colors" />
               <Input
                 type={showPassword ? "text" : "password"}
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck={false}
                 value={confirmPassword}
                 onChange={(e) => { setConfirmPassword(e.target.value); setFieldErrors(p => ({ ...p, confirmPassword: '' })); }}
                 placeholder="Confirm Password"
@@ -408,7 +421,7 @@ const AuthView = memo(({ onBack, initialMode = 'login', siteContent }: { onBack:
             <button
               type="button"
               onClick={() => { triggerHaptic('light'); setIsLogin(!isLogin); setFieldErrors({}); }}
-              className="w-full h-14 rounded-[2.5rem] bg-black/40 backdrop-blur-xl text-white font-black uppercase tracking-[0.25em] text-[12px] shadow-[0_12px_36px_rgba(0,0,0,0.45)] active:scale-[0.97] transition-all flex items-center justify-center gap-3 border border-white/30 hover:bg-black/60"
+              className="w-full h-14 rounded-[2.5rem] bg-zinc-900 text-white font-black uppercase tracking-[0.25em] text-[12px] shadow-[0_12px_36px_rgba(0,0,0,0.45)] active:scale-[0.97] transition-all flex items-center justify-center gap-3 border border-white/30 hover:bg-zinc-800"
             >
               {isLogin ? 'Create Account' : 'Back to Log In'}
             </button>
