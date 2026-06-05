@@ -23,6 +23,7 @@ export interface BentoCategoryDashboardProps {
 }
 
 const BENTO_ITEMS = [
+  // --- GROUP 1: Big Left, 2 Small Right ---
   {
     id: 'property',
     label: 'PROPERTIES',
@@ -33,49 +34,13 @@ const BENTO_ITEMS = [
     delay: '0s'
   },
   {
-    id: 'bicycle',
-    label: 'BICYCLES',
-    description: 'Find bicycles for sale or rent',
-    className: 'col-span-2 row-span-1',
-    imageId: 'bicycle',
-    icon: Bike,
-    delay: '4s'
-  },
-  {
     id: 'buyers',
     label: 'BUYERS',
     description: 'Find people looking to buy',
     className: 'col-span-2 row-span-1',
     imageId: 'buyers',
     icon: ShoppingCart,
-    delay: '8s'
-  },
-  {
-    id: 'services',
-    label: 'WORKERS',
-    description: 'Find people offering services',
-    className: 'col-span-2 row-span-1',
-    imageId: 'services',
-    icon: UserCheck,
-    delay: '12s'
-  },
-  {
-    id: 'motorcycle',
-    label: 'MOTORCYCLES',
-    description: 'Find motorcycles for sale or rent',
-    className: 'col-span-1 row-span-1',
-    imageId: 'motorcycle',
-    icon: Bike,
-    delay: '16s'
-  },
-  {
-    id: 'events',
-    label: 'EVENTS',
-    description: 'Discover local events',
-    className: 'col-span-1 row-span-1',
-    imageId: 'events',
-    icon: Calendar,
-    delay: '20s'
+    delay: '4s'
   },
   {
     id: 'leads',
@@ -84,31 +49,73 @@ const BENTO_ITEMS = [
     className: 'col-span-2 row-span-1',
     imageId: 'leads',
     icon: Briefcase,
-    delay: '24s'
+    delay: '8s'
   },
+
+  // --- GROUP 2: 2 Small Left, Big Right ---
   {
-    id: 'rentals',
-    label: 'RENTERS',
-    description: 'Find people looking to rent',
+    id: 'bicycle',
+    label: 'BICYCLES',
+    description: 'Find bicycles for sale or rent',
     className: 'col-span-2 row-span-1',
-    imageId: 'renters',
-    icon: Key,
-    delay: '28s'
+    imageId: 'bicycle',
+    icon: Bike,
+    delay: '12s'
   },
   {
     id: 'roommates',
     label: 'ROOMMATES',
     description: 'Find roommates',
-    className: 'col-span-2 row-span-1',
-    imageId: 'renters', 
+    className: 'col-span-2 row-span-2',
+    imageId: 'roommates', 
     icon: Users,
+    delay: '16s'
+  },
+  {
+    id: 'events',
+    label: 'EVENTS',
+    description: 'Discover local events',
+    className: 'col-span-2 row-span-1',
+    imageId: 'events',
+    icon: Calendar,
+    delay: '20s'
+  },
+
+  // --- GROUP 3: Big Left, 2 Small Right ---
+  {
+    id: 'rentals',
+    label: 'RENTERS',
+    description: 'Find people looking to rent',
+    className: 'col-span-2 row-span-2',
+    imageId: 'renters',
+    icon: Key,
+    delay: '24s'
+  },
+  {
+    id: 'services',
+    label: 'WORKERS',
+    description: 'Find people offering services',
+    className: 'col-span-2 row-span-1',
+    imageId: 'services',
+    icon: UserCheck,
+    delay: '28s'
+  },
+  {
+    id: 'motorcycle',
+    label: 'MOTORCYCLES',
+    description: 'Find motorcycles for sale or rent',
+    className: 'col-span-2 row-span-1',
+    imageId: 'motorcycle',
+    icon: Bike,
     delay: '32s'
   },
+
+  // --- GROUP 4: Full Width Bottom ---
   {
     id: 'lawyer',
     label: 'LEGAL',
     description: 'Legal Hub & Docs',
-    className: 'col-span-2 row-span-1',
+    className: 'col-span-4 row-span-1',
     imageId: 'lawyer',
     icon: Users,
     delay: '36s'
@@ -150,7 +157,7 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
         variants={containerVariants}
         initial="hidden"
         animate="show"
-        className="w-full h-full max-w-3xl mx-auto grid grid-cols-4 gap-2 sm:gap-4 grid-rows-[repeat(5,minmax(0,1fr))]"
+        className="w-full h-full max-w-3xl mx-auto grid grid-cols-4 gap-2 sm:gap-4 grid-rows-[repeat(7,minmax(0,1fr))]"
       >
         {BENTO_ITEMS.map((item) => (
           <motion.div
