@@ -154,7 +154,13 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
   const navigate = useNavigate();
 
   const getMaxPhotos = () => {
-    return 10;
+    switch (selectedCategory) {
+      case 'property': return 30;
+      case 'motorcycle': return 5;
+      case 'bicycle': return 5;
+      case 'worker': return 3;
+      default: return 10;
+    }
   };
 
   const maxPhotos = getMaxPhotos();
