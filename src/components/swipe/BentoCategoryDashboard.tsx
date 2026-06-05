@@ -17,7 +17,7 @@ const BENTO_ITEMS = [
     id: 'property',
     label: 'PROPERTIES',
     description: 'Buy, rent or sell properties',
-    className: 'col-span-3 row-span-2',
+    className: 'col-span-2 md:col-span-3 row-span-2',
     gradient: 'from-[#FF4D00]/90 to-[#FF8C00]/90',
     imageId: 'property',
   },
@@ -25,7 +25,7 @@ const BENTO_ITEMS = [
     id: 'buyers',
     label: 'BUYERS',
     description: 'Find buyers for anything',
-    className: 'col-span-3 row-span-1',
+    className: 'col-span-1 md:col-span-3 row-span-1',
     gradient: 'from-[#10b981]/90 to-[#047857]/90',
     imageId: 'buyers',
   },
@@ -33,7 +33,7 @@ const BENTO_ITEMS = [
     id: 'rentals',
     label: 'RENTALS',
     description: 'Find rental opportunities',
-    className: 'col-span-3 row-span-1',
+    className: 'col-span-1 md:col-span-3 row-span-1',
     gradient: 'from-[#0ea5e9]/90 to-[#0369a1]/90',
     imageId: 'renters',
   },
@@ -41,7 +41,7 @@ const BENTO_ITEMS = [
     id: 'motorcycle',
     label: 'MOTORCYCLES',
     description: 'Buy or sell motorcycles',
-    className: 'col-span-2 row-span-1',
+    className: 'col-span-1 md:col-span-2 row-span-1',
     gradient: 'from-[#e11d48]/90 to-[#9f1239]/90',
     imageId: 'motorcycle',
   },
@@ -49,7 +49,7 @@ const BENTO_ITEMS = [
     id: 'bicycle',
     label: 'BICYCLES',
     description: 'Buy or sell bicycles',
-    className: 'col-span-2 row-span-1',
+    className: 'col-span-1 md:col-span-2 row-span-1',
     gradient: 'from-[#0d9488]/90 to-[#0f766e]/90',
     imageId: 'bicycle',
   },
@@ -57,7 +57,7 @@ const BENTO_ITEMS = [
     id: 'services',
     label: 'WORKERS',
     description: 'Find or hire workers',
-    className: 'col-span-2 row-span-2',
+    className: 'col-span-2 md:col-span-2 row-span-2',
     gradient: 'from-[#7c3aed]/90 to-[#4c1d95]/90',
     imageId: 'services',
   },
@@ -65,7 +65,7 @@ const BENTO_ITEMS = [
     id: 'roommates',
     label: 'ROOMMATES',
     description: 'Find a roommate or a room',
-    className: 'col-span-2 row-span-1',
+    className: 'col-span-1 md:col-span-2 row-span-1',
     gradient: 'from-[#6366f1]/90 to-[#4338ca]/90',
     imageId: 'renters', // Fallback to renters photo if roommates doesn't exist
   },
@@ -73,7 +73,7 @@ const BENTO_ITEMS = [
     id: 'leads',
     label: 'LOOKING FOR',
     description: 'Find help or something specific',
-    className: 'col-span-2 row-span-1',
+    className: 'col-span-1 md:col-span-2 row-span-1',
     gradient: 'from-[#f59e0b]/90 to-[#d97706]/90',
     imageId: 'leads',
   },
@@ -81,7 +81,7 @@ const BENTO_ITEMS = [
     id: 'events',
     label: 'EVENTS',
     description: 'Discover & promote events',
-    className: 'col-span-2 row-span-1',
+    className: 'col-span-2 md:col-span-2 row-span-1',
     gradient: 'from-[#ec4899]/90 to-[#be185d]/90',
     imageId: 'events',
   },
@@ -89,7 +89,7 @@ const BENTO_ITEMS = [
     id: 'promote',
     label: 'PROMOTE EVENT',
     description: 'Promote & manage your events',
-    className: 'col-span-2 row-span-1',
+    className: 'col-span-1 md:col-span-2 row-span-1',
     gradient: 'from-[#e11d48]/90 to-[#be123c]/90',
     imageId: 'promote',
   },
@@ -97,7 +97,7 @@ const BENTO_ITEMS = [
     id: 'lawyer',
     label: 'LEGAL SERVICES',
     description: 'Legal services & consultations',
-    className: 'col-span-2 row-span-1',
+    className: 'col-span-1 md:col-span-2 row-span-1',
     gradient: 'from-[#3b82f6]/90 to-[#1d4ed8]/90',
     imageId: 'lawyer',
   },
@@ -139,7 +139,7 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
         variants={containerVariants}
         initial="hidden"
         animate="show"
-        className="grid grid-cols-6 gap-3 max-w-3xl mx-auto auto-rows-[110px]"
+        className="grid grid-cols-2 md:grid-cols-6 gap-3 max-w-3xl mx-auto auto-rows-[120px] md:auto-rows-[110px]"
       >
         {BENTO_ITEMS.map((item) => (
           <motion.button
@@ -158,14 +158,8 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
               <QuickFilterImage src={POKER_CARD_PHOTOS[item.imageId] || ''} alt={item.label} className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-700 ease-out" />
             </div>
 
-            {/* Gradient Overlay */}
-            <div className={cn(
-              "absolute inset-0 z-10 bg-gradient-to-br mix-blend-multiply opacity-80 transition-opacity duration-300 group-hover:opacity-90",
-              item.gradient
-            )} />
-            
-            {/* Soft subtle gradient from bottom for text readability */}
-            <div className="absolute inset-0 z-[11] bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+            {/* Soft gradient from bottom for text readability without obscuring photo */}
+            <div className="absolute inset-0 z-[11] bg-gradient-to-t from-black via-black/40 to-transparent" />
 
             {/* Abstract decorative elements (dots & circles like the mockup) */}
             <div className="absolute inset-0 z-0 opacity-20 pointer-events-none" 
