@@ -225,7 +225,13 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
               <div className="w-4 h-[1px] shadow-[0_0_8px_rgba(255,255,255,0.4)] bg-white/40" />
               <span
                 className="text-[10px] font-black uppercase tracking-[0.4em] italic text-white"
-                style={{ textShadow: '0 2px 6px rgba(0,0,0,0.7)' }}
+                style={{ 
+                  textShadow: '0 2px 6px rgba(0,0,0,0.7)',
+                  WebkitFontSmoothing: 'antialiased',
+                  transform: 'translateZ(0)',
+                  WebkitTransform: 'translateZ(0)',
+                  backfaceVisibility: 'hidden',
+                }}
               >
                 {card.description}
               </span>
@@ -239,6 +245,11 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
               style={{
                 color: '#FFFFFF',
                 textShadow: '0 2px 8px rgba(0,0,0,0.85), 0 0 2px rgba(0,0,0,0.7)',
+                WebkitFontSmoothing: 'antialiased',
+                transform: 'translateZ(0)',
+                WebkitTransform: 'translateZ(0)',
+                backfaceVisibility: 'hidden',
+                willChange: 'transform',
               }}
             >
               {card.label}
