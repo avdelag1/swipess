@@ -22,7 +22,7 @@ import {
   Building2, CircleUser, Flame, IdCard,
   MessageCircle, PartyPopper,
   Radio, Scale as ScaleIcon, SlidersHorizontal,
-  Sparkles, Zap
+  Sparkles, Zap, PlusCircle
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUnreadMessageCount } from '@/hooks/useUnreadMessageCount';
@@ -130,15 +130,18 @@ export const BottomNavigation = memo(({
   // Unified nav items (11 items — enough to enable horizontal scroll discovery)
   const unifiedNavItems: NavItem[] = [
     { id: 'dashboard', icon: Zap, label: t('nav.dashboard'), path: '/client/dashboard' },
-    { id: 'profile', icon: CircleUser, label: t('nav.profile'), path: '/client/profile' },
+    { id: 'search', icon: SlidersHorizontal, label: t('nav.filter'), onClick: onFilterClick },
     { id: 'ai', icon: Sparkles, label: t('nav.aiBot'), onClick: openAIChat, isSpecial: true },
     { id: 'messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages' },
     { id: 'likes', icon: Flame, label: t('nav.likes'), path: '/client/liked-properties' },
-    { id: 'vapid', icon: IdCard, label: t('nav.idCard'), onClick: () => setModal('showVapId', true) },
-    { id: 'search', icon: SlidersHorizontal, label: t('nav.filter'), onClick: onFilterClick },
+    
+    // MIDDLE ACTION: Add Listing
+    { id: 'add', icon: PlusCircle, label: t('nav.add', 'ADD'), onClick: onAddListingClick, isSpecial: true },
+    
+    { id: 'profile', icon: CircleUser, label: t('nav.profile'), path: '/client/profile' },
     { id: 'listings', icon: Building2, label: t('nav.listings'), path: '/owner/properties' },
     { id: 'events', icon: PartyPopper, label: t('nav.events'), path: '/explore/events' },
-    { id: 'radio', icon: Radio, label: t('nav.radio', 'Radio'), path: '/radio' },
+    { id: 'vapid', icon: IdCard, label: t('nav.idCard'), onClick: () => setModal('showVapId', true) },
     { id: 'legal', icon: ScaleIcon, label: t('nav.legal'), path: '/client/legal-services' },
   ];
 
