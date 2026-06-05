@@ -1,7 +1,6 @@
 import { useMemo, useState } from 'react';
 import { QuickFilterImage } from '@/components/ui/QuickFilterImage';
 import { AnimatePresence, motion } from 'framer-motion';
-// import { } from '@/components/AtmosphericLayer';
 import { RadioSkinBackground } from '@/components/radio/RadioSkinBackground';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useRadio } from '@/contexts/RadioContext';
@@ -25,12 +24,10 @@ export default function WorldRadioDirectory() {
   const { state, play, toggleFavorite, isStationFavorite, shuffleAndPlay } = useRadio();
   const { skin } = useRadioSkin();
   const { isDark: appIsDark } = useAppTheme();
-  // Cheetah skin paints a dark surface regardless of app theme; theme skin
-  // follows the user's theme. Drive every token off this single flag.
+  
   const isDark = skin === 'cheetah' || (skin === 'theme' && appIsDark);
   const [searchQuery, setSearchQuery] = useState('');
   
-  // Initialize with 'favorites' if param exists
   const initialFilter = searchParams.get('filter') === 'favorites' ? 'favorites' : 'all';
   const [selectedCity, setSelectedCity] = useState<CityLocation | 'all' | 'favorites'>(initialFilter as any);
 
@@ -61,6 +58,15 @@ export default function WorldRadioDirectory() {
     play(station);
   };
 
+  // Glassmorphism classes unified
+  const glassPanelClasses = isDark 
+    ? "bg-black/35 backdrop-blur-[24px] border border-white/15 shadow-2xl" 
+    : "bg-white/35 backdrop-blur-[24px] border border-black/10 shadow-2xl";
+
+  const glassButtonClasses = isDark
+    ? "bg-black/30 backdrop-blur-[24px] border border-white/15 text-white hover:bg-white/20 shadow-xl"
+    : "bg-white/40 backdrop-blur-[24px] border border-black/10 text-foreground hover:bg-black/5 shadow-xl";
+
   return (
     <div
       className={cn(
@@ -71,31 +77,32 @@ export default function WorldRadioDirectory() {
     >
       <RadioSkinBackground />
 
-      {/* 🛸 STICKY HEADER — Stays on top, doesn't overlap cards */}
+      {/* 🛸 STICKY HEADER */}
       <div
         className={cn(
-          "sticky top-0 z-50 pt-[calc(env(safe-area-inset-top)+8px)] pb-3 px-4 border-b backdrop-blur-xl",
-          isDark ? "bg-black/55 border-white/10" : "bg-background/80 border-border/60"
+          "sticky top-0 z-50 pt-[calc(env(safe-area-inset-top)+12px)] pb-4 px-4 border-b",
+          isDark ? "bg-black/40 backdrop-blur-[24px] border-white/15 shadow-xl" : "bg-white/40 backdrop-blur-[24px] border-black/10 shadow-xl"
         )}
       >
-        <div className="flex items-center mb-3 gap-3">
+        <div className="flex items-center mb-4 gap-3">
           <button
             onClick={() => navigate('/radio')}
             className={cn(
-              "w-9 h-9 flex items-center justify-center rounded-full transition-colors hover:scale-105",
-              isDark ? "bg-white/10 hover:bg-white/20" : "bg-foreground/5 hover:bg-foreground/10 border border-border/50"
+              "w-10 h-10 flex items-center justify-center rounded-full transition-colors active:scale-95 shrink-0",
+              glassButtonClasses
             )}
             title="Back to Radio"
           >
-            <ArrowLeft size={16} />
+            <ArrowLeft size={18} />
           </button>
+          
           <div className="flex flex-col flex-1">
-            <h1 className="text-xl font-black tracking-tighter italic uppercase">
+            <h1 className="text-2xl font-black tracking-tighter italic uppercase leading-none mb-1">
               World <span className="text-primary">Radio</span>
             </h1>
-            <div className="flex items-center gap-1.5 opacity-40">
-              <Globe size={10} className="animate-spin-slow" />
-              <span className="text-[9px] font-black tracking-widest uppercase">Global Frequency Network</span>
+            <div className="flex items-center gap-1.5 opacity-60">
+              <Globe size={12} className="animate-spin-slow" />
+              <span className="text-[10px] font-black tracking-widest uppercase">Global Frequency Network</span>
             </div>
           </div>
           
@@ -105,24 +112,24 @@ export default function WorldRadioDirectory() {
               shuffleAndPlay(filteredStations);
             }}
             className={cn(
-              "flex items-center gap-2 px-3 py-2 rounded-full transition-all active:scale-95 border group",
+              "flex items-center gap-2 px-4 py-2.5 rounded-full transition-all active:scale-95 shrink-0",
               isDark 
-                ? "bg-primary/10 border-primary/20 text-primary hover:bg-primary/20" 
-                : "bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/30"
+                ? "bg-primary/20 backdrop-blur-[24px] border border-primary/30 text-primary hover:bg-primary/30 shadow-xl shadow-primary/20" 
+                : "bg-primary backdrop-blur-[24px] border border-primary/20 text-primary-foreground shadow-xl shadow-primary/30"
             )}
           >
-            <Shuffle size={12} className="group-hover:rotate-180 transition-transform duration-500" />
-            <span className="text-[10px] font-black uppercase tracking-widest italic">Shuffle</span>
+            <Shuffle size={14} className="group-hover:rotate-180 transition-transform duration-500" />
+            <span className="text-[11px] font-black uppercase tracking-widest italic">Shuffle</span>
           </button>
         </div>
 
         {/* Search Bar */}
-        <div className="relative group mb-3">
+        <div className="relative group mb-4">
           <div className={cn(
             "absolute left-4 top-1/2 -translate-y-1/2 group-focus-within:text-primary transition-colors",
-            isDark ? "text-white/30" : "text-muted-foreground"
+            isDark ? "text-white/50" : "text-muted-foreground"
           )}>
-            <Search size={16} />
+            <Search size={18} />
           </div>
           <input
             type="text"
@@ -130,26 +137,23 @@ export default function WorldRadioDirectory() {
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search stations, genres, cities..."
             className={cn(
-              "w-full h-11 border rounded-xl pl-12 pr-5 text-sm font-bold transition-all",
-              "focus:outline-none focus:border-primary/60 focus:ring-2 focus:ring-primary/20",
+              "w-full h-12 rounded-xl pl-12 pr-5 text-sm font-bold transition-all shadow-inner focus:outline-none focus:ring-2 focus:ring-primary/40",
               isDark
-                ? "bg-white/5 border-white/10 placeholder:text-white/20 text-white"
-                : "bg-muted/40 border-border placeholder:text-muted-foreground text-foreground"
+                ? "bg-black/30 backdrop-blur-[24px] border border-white/15 placeholder:text-white/40 text-white"
+                : "bg-white/40 backdrop-blur-[24px] border border-black/10 placeholder:text-muted-foreground text-foreground"
             )}
           />
         </div>
 
-        {/* City Filter scroller — token-driven palette for light/dark parity */}
-        <div className="flex gap-2 overflow-x-auto no-scrollbar -mx-1 px-1">
+        {/* City Filter */}
+        <div className="flex gap-2 overflow-x-auto no-scrollbar -mx-1 px-1 pb-1">
           <button
             onClick={() => { setSelectedCity('all'); triggerHaptic('light'); }}
             className={cn(
-              "px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest shrink-0 transition-all border active:scale-[0.97]",
+              "px-5 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-widest shrink-0 transition-all active:scale-[0.97]",
               selectedCity === 'all'
-                ? "bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/30"
-                : isDark
-                  ? "bg-white/5 border-white/5 text-white/50 hover:border-white/20"
-                  : "bg-muted/40 border-border text-muted-foreground hover:border-foreground/20"
+                ? "bg-primary text-primary-foreground shadow-lg shadow-primary/40 border border-primary/20"
+                : glassButtonClasses
             )}
           >
             All Signal
@@ -158,28 +162,25 @@ export default function WorldRadioDirectory() {
           <button
             onClick={() => { setSelectedCity('favorites'); triggerHaptic('light'); }}
             className={cn(
-              "px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest shrink-0 transition-all border flex items-center gap-2 active:scale-[0.97]",
+              "px-5 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-widest shrink-0 transition-all flex items-center gap-2 active:scale-[0.97]",
               selectedCity === 'favorites'
-                ? "bg-[hsl(var(--brand-rose,346_85%_61%))] text-white border-transparent shadow-lg shadow-[hsl(var(--brand-rose,346_85%_61%))]/30"
-                : isDark
-                  ? "bg-white/5 border-white/5 text-white/50 hover:border-white/20"
-                  : "bg-muted/40 border-border text-muted-foreground hover:border-foreground/20"
+                ? "bg-[hsl(var(--brand-rose,346_85%_61%))] text-white border-transparent shadow-lg shadow-[hsl(var(--brand-rose,346_85%_61%))]/40"
+                : glassButtonClasses
             )}
           >
-            <Heart size={10} fill={selectedCity === 'favorites' ? "white" : "none"} />
+            <Heart size={12} fill={selectedCity === 'favorites' ? "white" : "none"} />
             Liked
           </button>
+          
           {cities.map(city => (
             <button
               key={city.id}
               onClick={() => setSelectedCity(city.id as CityLocation)}
               className={cn(
-                "px-3 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest shrink-0 transition-all border active:scale-[0.97]",
+                "px-4 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-widest shrink-0 transition-all active:scale-[0.97]",
                 selectedCity === city.id
-                  ? "bg-foreground text-background border-foreground shadow-lg"
-                  : isDark
-                    ? "bg-white/5 border-white/5 text-white/50 hover:border-white/20"
-                    : "bg-muted/40 border-border text-muted-foreground hover:border-foreground/20"
+                  ? (isDark ? "bg-white text-black shadow-lg" : "bg-black text-white shadow-lg")
+                  : glassButtonClasses
               )}
             >
               {city.name}
@@ -188,98 +189,90 @@ export default function WorldRadioDirectory() {
         </div>
       </div>
 
-      <main className="flex-1 p-4 pb-8 relative z-10 overflow-y-auto">
-        <AnimatePresence>
-          {state.currentStation && (
-            <motion.div
-              initial={{ y: -20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: -20, opacity: 0 }}
-              className="mb-6 w-full"
-            >
-              <button
-                onClick={() => navigate('/radio')}
-                className={cn(
-                  "w-full p-4 rounded-[2rem] backdrop-blur-3xl border shadow-lg flex items-center justify-between transition-colors",
-                  isDark
-                    ? "bg-white/10 border-white/10 text-white hover:bg-white/15"
-                    : "bg-primary/5 border-primary/20 text-foreground hover:bg-primary/10"
-                )}
-              >
-                <div className="flex items-center gap-4">
-                  <div className={cn(
-                    "w-12 h-12 rounded-2xl flex items-center justify-center",
-                    "bg-primary/20"
-                  )}>
-                    <Sparkles size={20} className="text-primary animate-pulse" />
-                  </div>
-                  <div className="text-left">
-                    <p className="text-[8px] font-black text-primary uppercase tracking-widest">Now Playing</p>
-                    <h4 className={cn(
-                      "text-sm font-black italic uppercase tracking-tight truncate max-w-[150px]",
-                      isDark ? "text-white" : "text-foreground"
-                    )}>
-                      {state.currentStation.name}
-                    </h4>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                   <div
-                     className={cn(
-                       "w-9 h-9 rounded-full flex items-center justify-center transition-colors",
-                       isDark ? "bg-white/20 text-white" : "bg-primary/20 text-primary"
-                     )}
-                   >
-                      <Maximize2 size={14} />
-                   </div>
-                </div>
-              </button>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* 🛸 STATION GRID — Simplified and always visible */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <main className="flex-1 p-4 pb-12 relative z-10 overflow-y-auto">
+        <div className="max-w-3xl mx-auto flex flex-col gap-6">
           <AnimatePresence>
-            {filteredStations.map((station) => {
-              const isPlaying = state.currentStation?.id === station.id && state.isPlaying;
-              const isFav = isStationFavorite(station.id);
-              const isOffline = state.deadStationIds?.includes(station.id);
-              const theme = cityThemes[station.city as CityLocation] || cityThemes['miami'];
-
-              return (
-                <motion.div
-                  key={station.id}
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                  transition={CARD_SPRING}
+            {state.currentStation && (
+              <motion.div
+                initial={{ y: -20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: -20, opacity: 0 }}
+                className="w-full"
+              >
+                <button
+                  onClick={() => navigate('/radio')}
                   className={cn(
-                    "group relative overflow-hidden rounded-2xl p-4 border transition-colors duration-300",
-                    isOffline ? "opacity-40 grayscale-[0.5] scale-[0.98] pointer-events-none" : "opacity-100",
-                    isPlaying
-                      ? (isDark ? "bg-white/10 border-white/20" : "bg-primary/10 border-primary/40")
-                      : (isDark ? "bg-white/[0.03] border-white/5 hover:bg-white/[0.06]" : "bg-card border-border hover:border-foreground/15 shadow-sm")
+                    "w-full p-4 rounded-3xl flex items-center justify-between transition-colors active:scale-[0.98]",
+                    glassPanelClasses,
+                    isDark ? "hover:bg-black/50" : "hover:bg-white/60"
                   )}
                 >
-                  {isOffline && (
-                    <div className="absolute top-3 right-4 z-20">
-                      <span className="px-2 py-0.5 rounded-full bg-red-500/20 text-red-500 text-[8px] font-black uppercase tracking-widest border border-red-500/20">
-                        Offline
-                      </span>
+                  <div className="flex items-center gap-4">
+                    <div className="w-14 h-14 rounded-2xl flex items-center justify-center bg-primary/20 shrink-0 shadow-inner border border-primary/20">
+                      <Sparkles size={24} className="text-primary animate-pulse" />
                     </div>
-                  )}
-                  {/* Lighter decorative glow — 40px blur saves a large offscreen
-                       layer per card. will-change is only applied while hovered. */}
-                  <div
-                    className="absolute top-0 right-0 w-24 h-24 blur-[40px] opacity-10 group-hover:[will-change:opacity]"
-                    style={{ backgroundColor: theme.primaryColor }}
-                  />
+                    <div className="text-left flex flex-col justify-center">
+                      <p className="text-[10px] font-black text-primary uppercase tracking-widest mb-0.5">Now Playing</p>
+                      <h4 className={cn(
+                        "text-lg font-black italic uppercase tracking-tight truncate max-w-[200px]",
+                        isDark ? "text-white" : "text-foreground"
+                      )}>
+                        {state.currentStation.name}
+                      </h4>
+                    </div>
+                  </div>
+                  <div className={cn(
+                    "w-10 h-10 rounded-full flex items-center justify-center transition-colors shrink-0",
+                    isDark ? "bg-white/20 text-white border border-white/10" : "bg-primary/20 text-primary border border-primary/10"
+                  )}>
+                    <Maximize2 size={16} />
+                  </div>
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
-                  <div className="relative z-10 flex items-center gap-4">
-                    <div className="relative w-16 h-16 shrink-0">
+          {/* 🛸 STATION LISTING */}
+          <div className="flex flex-col gap-3">
+            <AnimatePresence>
+              {filteredStations.map((station) => {
+                const isPlaying = state.currentStation?.id === station.id && state.isPlaying;
+                const isFav = isStationFavorite(station.id);
+                const isOffline = state.deadStationIds?.includes(station.id);
+                const theme = cityThemes[station.city as CityLocation] || cityThemes['miami'];
+
+                return (
+                  <motion.div
+                    key={station.id}
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    transition={CARD_SPRING}
+                    className={cn(
+                      "group relative overflow-hidden rounded-[1.5rem] p-3 transition-colors duration-300 w-full flex items-center gap-3 md:gap-4",
+                      isOffline ? "opacity-40 grayscale-[0.5] scale-[0.98] pointer-events-none" : "opacity-100",
+                      isPlaying
+                        ? (isDark ? "bg-black/40 border border-white/25 shadow-2xl" : "bg-white/60 border border-primary/30 shadow-2xl")
+                        : glassPanelClasses
+                    )}
+                  >
+                    {isOffline && (
+                      <div className="absolute top-2 right-3 z-20">
+                        <span className="px-2 py-0.5 rounded-full bg-red-500/20 text-red-500 text-[9px] font-black uppercase tracking-widest border border-red-500/20">
+                          Offline
+                        </span>
+                      </div>
+                    )}
+                    
+                    <div
+                      className="absolute top-0 right-0 w-32 h-32 blur-[40px] opacity-15 pointer-events-none"
+                      style={{ backgroundColor: theme.primaryColor }}
+                    />
+
+                    {/* 1. Thumbnail (Left) */}
+                    <div className="relative w-[72px] h-[72px] shrink-0">
                       <div
-                        className="absolute inset-0 rounded-xl overflow-hidden border border-white/10 shadow-lg flex items-center justify-center"
+                        className="absolute inset-0 rounded-[1.25rem] overflow-hidden border border-white/15 shadow-xl flex items-center justify-center"
                         style={{
                           background: station.albumArt
                             ? undefined
@@ -293,105 +286,112 @@ export default function WorldRadioDirectory() {
                             className="opacity-90 group-hover:opacity-100 transition-opacity"
                           />
                         ) : (
-                          <span className="text-white font-black text-xl tracking-tighter italic drop-shadow-lg">
+                          <span className="text-white font-black text-2xl tracking-tighter italic drop-shadow-xl">
                             {station.name.slice(0, 2).toUpperCase()}
                           </span>
                         )}
                       </div>
-                      <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                         {isPlaying && (
-                          <div className="flex items-end gap-1 h-5">
+                          <div className="flex items-end gap-[2px] h-6">
                             {[1, 2, 3, 4].map(i => (
                               <motion.div
                                 key={i}
                                 animate={{ height: ['20%', '100%', '40%', '80%', '20%'] }}
                                 transition={{ repeat: Infinity, duration: 1, delay: i * 0.2 }}
-                                className="w-1 rounded-full bg-white drop-shadow-lg"
+                                className="w-1.5 rounded-full bg-white drop-shadow-lg"
                               />
                             ))}
                           </div>
                         )}
                       </div>
-                      
-                      <button
-                        onClick={() => handleStationPlay(station)}
-                        className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/40 rounded-xl"
-                      >
-                        <Play size={28} fill="white" className="text-white" />
-                      </button>
                     </div>
 
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-0.5">
+                    {/* 2 & 3 & 4. Station Info (Center Left) */}
+                    <div className="flex-1 min-w-0 flex flex-col justify-center py-1">
+                      <h3 className="font-black text-lg sm:text-xl tracking-tighter italic uppercase truncate leading-tight drop-shadow-sm mb-1">
+                        {station.name}
+                      </h3>
+                      <div className="flex items-center gap-2">
                         <span className={cn(
-                          "px-1.5 py-0.5 rounded-md text-[9px] font-black border transition-colors",
-                          isDark ? "bg-white/10 text-white/60 border-white/10" : "bg-foreground/5 text-foreground/70 border-border"
+                          "px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-widest border shadow-sm",
+                          isDark ? "bg-black/30 text-white/80 border-white/15" : "bg-white/50 text-foreground/80 border-black/10"
                         )}>
                           {station.frequency}
                         </span>
-                        <h3 className="font-black text-base tracking-tighter italic uppercase truncate">
-                          {station.name}
-                        </h3>
-                      </div>
-                      
-                      <p className={cn(
-                        "text-[10px] font-bold tracking-widest uppercase mb-2 flex items-center gap-2",
-                        isDark ? "text-white/40" : "text-muted-foreground"
-                      )}>
-                        <MapPin size={10} style={{ color: theme.primaryColor }} />
-                        {station.city} • {station.genre}
-                      </p>
-
-                      <div className="flex items-center gap-2">
-                        <motion.button
-                          whileTap={{ scale: 0.98 }}
-                          onClick={() => handleStationPlay(station)}
-                          className={cn(
-                            "flex-1 h-9 rounded-lg flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest transition-colors shadow-md",
-                            isPlaying
-                              ? "bg-primary text-primary-foreground shadow-primary/40"
-                              : "bg-primary text-primary-foreground hover:bg-primary/90 shadow-primary/30"
-                          )}
-                        >
-                          {isPlaying ? <Volume2 size={12} /> : <Play size={12} fill="currentColor" />}
-                          {isPlaying ? 'Playing' : 'Tune In'}
-                        </motion.button>
-                        <motion.button
-                          whileTap={{ scale: 0.92 }}
-                          onClick={() => toggleFavorite(station.id)}
-                          className={cn(
-                            "w-9 h-9 rounded-lg flex items-center justify-center border transition-colors",
-                            isFav
-                              ? "bg-[hsl(var(--brand-rose,346_85%_61%))] border-transparent text-white shadow-lg shadow-[hsl(var(--brand-rose,346_85%_61%))]/30"
-                              : (isDark ? "bg-white/10 border-white/15 text-white hover:bg-white/20" : "bg-foreground/10 border-foreground/15 text-foreground hover:bg-foreground/15")
-                          )}
-                          aria-label={isFav ? "Remove from favorites" : "Add to favorites"}
-                        >
-                          <Heart size={14} fill={isFav ? "currentColor" : "none"} strokeWidth={2.4} />
-                        </motion.button>
+                        <p className={cn(
+                          "text-[10px] sm:text-[11px] font-bold tracking-widest uppercase flex items-center gap-1.5 truncate drop-shadow-sm",
+                          isDark ? "text-white/60" : "text-muted-foreground"
+                        )}>
+                          <MapPin size={10} style={{ color: theme.primaryColor }} className="shrink-0" />
+                          <span className="truncate">{station.city} • {station.genre}</span>
+                        </p>
                       </div>
                     </div>
-                  </div>
-                </motion.div>
-              );
-            })}
-          </AnimatePresence>
-        </div>
 
-        {/* 🛰️ EMPTY STATE */}
-        {filteredStations.length === 0 && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="flex-1 flex flex-col items-center justify-center py-20 text-center"
-          >
-            <div className="w-24 h-24 rounded-full bg-white/5 flex items-center justify-center mb-6 border border-white/10">
-              <Radio className="w-10 h-10 opacity-20" />
-            </div>
-            <h3 className="text-xl font-black italic uppercase tracking-widest opacity-40">No Signals Found</h3>
-            <p className="text-[10px] font-bold uppercase tracking-[0.2em] opacity-25 mt-2">Adjust your frequency filters</p>
-          </motion.div>
-        )}
+                    {/* Actions (Center Vertical, Far Right) */}
+                    <div className="flex items-center gap-2 shrink-0 pr-1">
+                      {/* Tune In Button */}
+                      <motion.button
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => handleStationPlay(station)}
+                        className={cn(
+                          "h-10 px-4 rounded-xl flex items-center justify-center gap-2 text-[10px] sm:text-[11px] font-black uppercase tracking-widest transition-all shadow-xl",
+                          isPlaying
+                            ? "bg-primary text-primary-foreground shadow-primary/40 border border-primary/20"
+                            : isDark
+                              ? "bg-black/40 backdrop-blur-[24px] border border-white/20 text-white hover:bg-white/10"
+                              : "bg-white/60 backdrop-blur-[24px] border border-black/15 text-foreground hover:bg-black/5"
+                        )}
+                      >
+                        {isPlaying ? <Volume2 size={14} /> : <Play size={14} fill="currentColor" />}
+                        <span className="hidden sm:inline">{isPlaying ? 'Playing' : 'Tune In'}</span>
+                      </motion.button>
+                      
+                      {/* Favorite Button */}
+                      <motion.button
+                        whileTap={{ scale: 0.9 }}
+                        onClick={() => toggleFavorite(station.id)}
+                        className={cn(
+                          "w-10 h-10 rounded-xl flex items-center justify-center transition-all shadow-xl",
+                          isFav
+                            ? "bg-[hsl(var(--brand-rose,346_85%_61%))] border border-white/20 text-white shadow-[hsl(var(--brand-rose,346_85%_61%))]/40"
+                            : isDark 
+                              ? "bg-black/40 backdrop-blur-[24px] border border-white/20 text-white/70 hover:text-white hover:bg-white/10" 
+                              : "bg-white/60 backdrop-blur-[24px] border border-black/15 text-foreground/70 hover:text-foreground hover:bg-black/5"
+                        )}
+                        aria-label={isFav ? "Remove from favorites" : "Add to favorites"}
+                      >
+                        <Heart size={16} fill={isFav ? "currentColor" : "none"} strokeWidth={isFav ? 1 : 2.5} />
+                      </motion.button>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </AnimatePresence>
+          </div>
+
+          {/* 🛰️ EMPTY STATE */}
+          {filteredStations.length === 0 && (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className={cn(
+                "w-full flex flex-col items-center justify-center py-20 text-center rounded-[2rem]",
+                glassPanelClasses
+              )}
+            >
+              <div className={cn(
+                "w-24 h-24 rounded-full flex items-center justify-center mb-6 shadow-inner",
+                glassButtonClasses
+              )}>
+                <Radio className="w-10 h-10 opacity-50" />
+              </div>
+              <h3 className="text-xl font-black italic uppercase tracking-widest opacity-80">No Signals Found</h3>
+              <p className="text-[10px] font-bold uppercase tracking-[0.2em] opacity-50 mt-2">Adjust your frequency filters</p>
+            </motion.div>
+          )}
+        </div>
       </main>
     </div>
   );
