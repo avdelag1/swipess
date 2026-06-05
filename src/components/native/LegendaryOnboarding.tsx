@@ -48,6 +48,8 @@ export const LegendaryOnboarding = ({ onFinish }: { onFinish: () => void }) => {
     }
   };
 
+  const isLast = index === SLIDES.length - 1;
+
   return (
     <div className="fixed inset-0 z-[9999] bg-black overflow-hidden flex flex-col">
       <AnimatePresence mode="wait">
@@ -64,6 +66,16 @@ export const LegendaryOnboarding = ({ onFinish }: { onFinish: () => void }) => {
         </motion.div>
       </AnimatePresence>
 
+      {/* Skip button — top right */}
+      {!isLast && (
+        <button
+          onClick={() => { haptics.tap(); onFinish(); }}
+          className="absolute top-14 right-6 z-10 px-4 py-2 rounded-full bg-white/10 border border-white/20 text-white/70 text-[12px] font-bold uppercase tracking-wider backdrop-blur-sm active:scale-95 transition-all"
+        >
+          Skip
+        </button>
+      )}
+
       <div className="relative flex-1 flex flex-col justify-end p-8 pb-16">
         <AnimatePresence mode="wait">
           <motion.div
@@ -77,7 +89,7 @@ export const LegendaryOnboarding = ({ onFinish }: { onFinish: () => void }) => {
             <div className={cn("w-16 h-16 rounded-[1.5rem] flex items-center justify-center bg-gradient-to-br shadow-2xl", slide.color)}>
               <slide.icon className="w-8 h-8 text-white" />
             </div>
-            
+
             <div className="space-y-2">
               <h1 className="text-5xl font-black text-white tracking-tighter uppercase italic leading-[0.9]">
                 {slide.title}
@@ -92,22 +104,30 @@ export const LegendaryOnboarding = ({ onFinish }: { onFinish: () => void }) => {
         <div className="mt-12 flex items-center justify-between">
           <div className="flex gap-2">
             {SLIDES.map((_, i) => (
-              <div 
-                key={i} 
-                className={cn("h-1.5 rounded-full transition-all duration-500", i === index ? "w-8 bg-white" : "w-2 bg-white/20")} 
+              <div
+                key={i}
+                className={cn("h-1.5 rounded-full transition-all duration-500", i === index ? "w-8 bg-white" : "w-2 bg-white/20")}
               />
             ))}
           </div>
 
           <motion.button
-            whileTap={{ scale: 0.9 }}
+            whileTap={{ scale: 0.95 }}
             onClick={handleNext}
-            className="w-16 h-16 rounded-full bg-white flex items-center justify-center text-black shadow-[0_0_40px_rgba(255,255,255,0.3)]"
+            className={cn(
+              "h-14 rounded-full bg-white flex items-center justify-center text-black font-bold text-[13px] tracking-wide shadow-[0_0_30px_rgba(255,255,255,0.25)] gap-2 px-6",
+            )}
           >
-            {index === SLIDES.length - 1 ? (
-              <Check className="w-6 h-6" strokeWidth={3} />
+            {isLast ? (
+              <>
+                <Check className="w-5 h-5" strokeWidth={3} />
+                Get Started
+              </>
             ) : (
-              <ArrowRight className="w-6 h-6" strokeWidth={3} />
+              <>
+                Next
+                <ArrowRight className="w-4 h-4" strokeWidth={2.5} />
+              </>
             )}
           </motion.button>
         </div>

@@ -39,7 +39,7 @@ const inputCls = (hasError: boolean) => cn(
   // normal-case: never force-display uppercase — the user must see the exact
   // case they type (critical for passwords). Opaque bg so the starfield behind
   // doesn't bleed through and make the field hard to read.
-  "w-full h-14 pl-12 pr-6 rounded-2xl text-sm font-bold transition-all normal-case bg-black/60 backdrop-blur-xl text-white placeholder:text-white/40 border",
+  "w-full h-14 pl-12 pr-6 rounded-2xl text-sm font-bold transition-colors normal-case bg-black/60 backdrop-blur-xl text-white placeholder:text-white/40 border",
   hasError ? "border-red-500/50" : "border-white/20"
 );
 
@@ -120,18 +120,15 @@ const LandingView = memo(({
       >
         <button
           onClick={() => { triggerHaptic('medium'); onEnterAuth('login'); }}
-          className="w-full h-14 rounded-[2rem] bg-gradient-to-b from-[#FF4D4D] to-[#E01E2A] text-white font-black uppercase tracking-[0.25em] text-[12px] shadow-[0_15px_45px_rgba(224,30,42,0.55)] hover:brightness-110 active:scale-[0.97] transition-all flex items-center justify-center gap-3 border border-white/15"
+          className="w-full h-14 rounded-full bg-white text-black font-bold text-[14px] tracking-wide shadow-[0_2px_20px_rgba(255,255,255,0.18)] hover:bg-white/90 active:scale-[0.97] transition-all flex items-center justify-center gap-2.5"
         >
           <LogIn className="w-4 h-4" />
           Sign In
         </button>
         <button
           onClick={() => { triggerHaptic('medium'); onEnterAuth('signup'); }}
-          style={{
-            background: btnColor ? btnColor : undefined,
-            borderColor: btnColor ? 'transparent' : 'white'
-          }}
-          className={`w-full h-14 rounded-[2rem] text-white font-black uppercase tracking-[0.25em] text-[12px] shadow-[0_12px_36px_rgba(0,0,0,0.45)] active:scale-[0.97] transition-all flex items-center justify-center gap-3 border-2 hover:brightness-110 ${!btnColor && 'bg-zinc-900 hover:bg-zinc-800'}`}
+          style={{ background: btnColor ? btnColor : undefined }}
+          className={`w-full h-14 rounded-full text-white font-bold text-[14px] tracking-wide active:scale-[0.97] transition-all flex items-center justify-center gap-2.5 border border-white/25 hover:border-white/40 ${!btnColor && 'bg-white/10 hover:bg-white/15 backdrop-blur-sm'}`}
         >
           <Sparkles className="w-4 h-4" />
           {btnText}
@@ -304,7 +301,7 @@ const AuthView = memo(({ onBack, initialMode = 'login', siteContent }: { onBack:
         >
           {!isLogin && !isForgotPassword && (
             <div className="relative group">
-              <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/60 group-focus-within:text-[#FF4D4D] transition-colors" />
+              <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/60 group-focus-within:text-white/80 transition-colors" />
               <Input
                 value={name}
                 onChange={(e) => { setName(e.target.value); setFieldErrors(p => ({ ...p, name: '' })); }}
@@ -317,7 +314,7 @@ const AuthView = memo(({ onBack, initialMode = 'login', siteContent }: { onBack:
           )}
 
           <div className="relative group">
-            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/60 group-focus-within:text-[#FF4D4D] transition-colors" />
+            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/60 group-focus-within:text-white/80 transition-colors" />
             <Input
               type="email"
               inputMode="email"
@@ -335,7 +332,7 @@ const AuthView = memo(({ onBack, initialMode = 'login', siteContent }: { onBack:
 
           {!isForgotPassword && (
             <div className="relative group">
-              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/60 group-focus-within:text-[#FF4D4D] transition-colors" />
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/60 group-focus-within:text-white/80 transition-colors" />
               <Input
                 type={showPassword ? "text" : "password"}
                 autoCapitalize="none"
@@ -363,7 +360,7 @@ const AuthView = memo(({ onBack, initialMode = 'login', siteContent }: { onBack:
 
           {!isLogin && !isForgotPassword && (
             <div className="relative group">
-              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/60 group-focus-within:text-[#FF4D4D] transition-colors" />
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/60 group-focus-within:text-white/80 transition-colors" />
               <Input
                 type={showPassword ? "text" : "password"}
                 autoCapitalize="none"
@@ -383,12 +380,12 @@ const AuthView = memo(({ onBack, initialMode = 'login', siteContent }: { onBack:
             <div className="flex justify-between items-center px-1 pt-0.5">
               <label className="flex items-center gap-2 cursor-pointer group">
                 <input type="checkbox" className="hidden peer" checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} />
-                <div className="w-4 h-4 rounded border border-white/30 peer-checked:bg-[#FF4D4D] peer-checked:border-[#FF4D4D] flex items-center justify-center transition-colors bg-white/5">
-                  <Check className={cn("w-3 h-3 text-white transition-opacity", rememberMe ? "opacity-100" : "opacity-0")} strokeWidth={3} />
+                <div className="w-4 h-4 rounded border border-white/30 peer-checked:bg-white peer-checked:border-white flex items-center justify-center transition-colors bg-white/5">
+                  <Check className={cn("w-3 h-3 transition-opacity", rememberMe ? "opacity-100 text-black" : "opacity-0 text-white")} strokeWidth={3} />
                 </div>
                 <span className="text-[10px] font-black uppercase tracking-[0.1em] text-white/70 group-hover:text-white transition-colors">Remember Me</span>
               </label>
-              <button type="button" onClick={() => { triggerHaptic('light'); setIsForgotPassword(true); }} className="text-[10px] font-black uppercase tracking-[0.2em] text-white/70 hover:text-[#FF4D4D] transition-colors italic">
+              <button type="button" onClick={() => { triggerHaptic('light'); setIsForgotPassword(true); }} className="text-[10px] font-black uppercase tracking-[0.2em] text-white/70 hover:text-white transition-colors italic">
                 Forgot Access Code?
               </button>
             </div>
@@ -402,11 +399,10 @@ const AuthView = memo(({ onBack, initialMode = 'login', siteContent }: { onBack:
                 style={{ 
                   background: getContentValue(siteContent, 'auth_primary_btn_color') ? getContentValue(siteContent, 'auth_primary_btn_color') : undefined,
                 }}
-                className={`w-full h-14 rounded-[2.5rem] text-white font-black uppercase tracking-[0.3em] text-[13px] shadow-[0_18px_50px_rgba(224,30,42,0.45)] active:scale-[0.96] transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:pointer-events-none relative overflow-hidden group/btn border border-white/15 ${!getContentValue(siteContent, 'auth_primary_btn_color') && 'bg-gradient-to-b from-[#FF4D4D] to-[#E01E2A]'}`}
+                className={`w-full h-14 rounded-full font-bold text-[14px] tracking-wide shadow-[0_2px_20px_rgba(255,255,255,0.12)] active:scale-[0.96] transition-all flex items-center justify-center gap-2.5 disabled:opacity-40 disabled:pointer-events-none relative overflow-hidden ${!getContentValue(siteContent, 'auth_primary_btn_color') ? 'bg-white text-black' : 'text-white'}`}
               >
-                <div className="absolute inset-0 bg-white/10 opacity-0 group-hover/btn:opacity-100 transition-opacity" />
-                <Sparkles className="w-4 h-4 transition-transform group-hover/btn:rotate-12 group-hover/btn:scale-110" />
-                {isLoading ? 'Processing...' : isForgotPassword ? 'Send Reset Link' : isLogin ? getContentValue(siteContent, 'auth_login_btn_text', 'Authorize Session') : getContentValue(siteContent, 'auth_signup_btn_text', 'Create Identity')}
+                <Sparkles className="w-4 h-4" />
+                {isLoading ? 'Processing...' : isForgotPassword ? 'Send Reset Link' : isLogin ? getContentValue(siteContent, 'auth_login_btn_text', 'Sign In') : getContentValue(siteContent, 'auth_signup_btn_text', 'Create Account')}
               </button>
             </div>
         </motion.form>
@@ -421,9 +417,9 @@ const AuthView = memo(({ onBack, initialMode = 'login', siteContent }: { onBack:
             <button
               type="button"
               onClick={() => { triggerHaptic('light'); setIsLogin(!isLogin); setFieldErrors({}); }}
-              className="w-full h-14 rounded-[2.5rem] bg-zinc-900 text-white font-black uppercase tracking-[0.25em] text-[12px] shadow-[0_12px_36px_rgba(0,0,0,0.45)] active:scale-[0.97] transition-all flex items-center justify-center gap-3 border border-white/30 hover:bg-zinc-800"
+              className="w-full h-14 rounded-full bg-white/5 text-white/70 font-bold text-[13px] tracking-wide active:scale-[0.97] transition-all flex items-center justify-center gap-2.5 border border-white/15 hover:bg-white/10 hover:text-white hover:border-white/25"
             >
-              {isLogin ? 'Create Account' : 'Back to Log In'}
+              {isLogin ? 'Create Account' : 'Back to Sign In'}
             </button>
 
             <div className="flex items-center gap-5 pt-1 pb-1">
@@ -510,7 +506,7 @@ const AuthView = memo(({ onBack, initialMode = 'login', siteContent }: { onBack:
             <div className="shrink-0 pt-4 flex flex-col gap-3">
               <button
                 onClick={() => { triggerHaptic('medium'); setLegalModal(null); }}
-                className="w-full h-14 bg-gradient-to-b from-[#FF4D4D] to-[#E01E2A] text-white font-black uppercase tracking-[0.25em] text-[12px] rounded-[2rem] shadow-[0_15px_45px_rgba(224,30,42,0.55)] hover:brightness-110 active:scale-[0.97] transition-all flex items-center justify-center gap-3 border border-white/15"
+                className="w-full h-14 bg-white text-black font-bold text-[14px] tracking-wide rounded-full shadow-[0_2px_20px_rgba(255,255,255,0.15)] hover:bg-white/90 active:scale-[0.97] transition-all flex items-center justify-center gap-3"
               >
                 <Check className="w-4 h-4" strokeWidth={3} /> I Agree & Continue
               </button>
@@ -558,7 +554,7 @@ function LegendaryLandingPage() {
         )}
       </div>
 
-      <LandingBackgroundEffects mode="stars" />
+      <LandingBackgroundEffects mode={view === 'landing' ? "stars" : "off"} />
 
       <AnimatePresence mode="wait">
         {view === 'landing' ? (

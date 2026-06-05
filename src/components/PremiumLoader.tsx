@@ -8,31 +8,28 @@ interface PremiumLoaderProps {
   full?: boolean;
 }
 
-/**
- * Clean loader — just the Swipess wordmark, breathing.
- * Matches the landing page and splash screen feel.
- */
 export function PremiumLoader({ className, size = 'md', full = false }: PremiumLoaderProps) {
   const logoSize = size === 'sm' ? 'md' : size === 'lg' ? '3xl' : 'xl';
+  const spinnerSize = size === 'sm' ? 'w-6 h-6' : size === 'lg' ? 'w-10 h-10' : 'w-8 h-8';
 
   return (
     <div className={cn(
-      "flex flex-col items-center justify-center",
+      "flex flex-col items-center justify-center gap-6",
       full ? "fixed inset-0 z-[99999] bg-black" : "",
       className
     )}>
-      <motion.div
-        animate={{ scale: [1, 1.03, 1] }}
-        transition={{
-          duration: 2.2,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
-      >
-        <SwipessLogo size={logoSize} variant="gradient" />
-      </motion.div>
+      <SwipessLogo size={logoSize} variant="gradient" />
+      <div className={cn("relative", spinnerSize)}>
+        <div className={cn("rounded-full border-2 border-white/10", spinnerSize)} />
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 1.1, repeat: Infinity, ease: "linear" }}
+          className={cn(
+            "absolute inset-0 rounded-full border-2 border-transparent border-t-white/70",
+            spinnerSize
+          )}
+        />
+      </div>
     </div>
   );
 }
-
-

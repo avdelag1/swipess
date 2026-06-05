@@ -80,8 +80,8 @@ function NotificationItem({ notification, onClick, onDismiss, index }: Notificat
       className="relative overflow-hidden rounded-xl"
     >
       {/* Swipe to dismiss indicator — shown behind card */}
-      <div className="absolute inset-0 bg-destructive/20 flex items-center justify-end px-6 pointer-events-none rounded-xl">
-        <Trash2 className="w-5 h-5 text-destructive drop-shadow-md" />
+      <div className="absolute inset-0 bg-foreground/10 flex items-center justify-end px-6 pointer-events-none rounded-xl">
+        <Trash2 className="w-5 h-5 text-foreground/50 drop-shadow-md" />
       </div>
       
       <Card
@@ -146,7 +146,7 @@ function NotificationItem({ notification, onClick, onDismiss, index }: Notificat
                   size="sm"
                   className={cn(
                     "h-9 w-9 p-0 flex-shrink-0 transition-all duration-200 rounded-full",
-                    "hover:bg-destructive/10 hover:text-destructive",
+                    "hover:bg-foreground/10 hover:text-foreground",
                     isHovered ? "opacity-100" : "opacity-0 sm:opacity-0"
                   )}
                   onClick={(e) => {

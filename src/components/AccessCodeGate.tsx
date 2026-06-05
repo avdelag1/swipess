@@ -105,7 +105,7 @@ export function AccessCodeGate({ onGranted }: Props) {
                     onChange={(e) => { setCode(e.target.value); setError(''); }}
                     placeholder="Enter access code"
                     autoFocus
-                    className="w-full h-14 pl-12 pr-4 rounded-2xl bg-white/5 border border-white/20 text-white text-sm font-bold tracking-wider uppercase placeholder:text-white/30 focus:outline-none focus:border-[#FF4D4D] focus:ring-1 focus:ring-[#FF4D4D]/30 transition-all"
+                    className="w-full h-14 pl-12 pr-4 rounded-full bg-white/5 border border-white/20 text-white text-sm font-bold tracking-wider uppercase placeholder:text-white/30 focus:outline-none focus:border-white/50 focus:ring-1 focus:ring-white/10 transition-colors"
                   />
                 </div>
                 {error && (
@@ -145,9 +145,9 @@ export function AccessCodeGate({ onGranted }: Props) {
             <motion.div
               animate={{ scale: [1, 1.1, 1] }}
               transition={{ duration: 0.5 }}
-              className="w-20 h-20 rounded-full bg-[#FF4D4D]/20 border-2 border-[#FF4D4D] flex items-center justify-center"
+              className="w-20 h-20 rounded-full bg-white/10 border-2 border-white/50 flex items-center justify-center"
             >
-              <Check className="w-8 h-8 text-[#FF4D4D]" strokeWidth={3} />
+              <Check className="w-8 h-8 text-white" strokeWidth={3} />
             </motion.div>
           </motion.div>
         )}
