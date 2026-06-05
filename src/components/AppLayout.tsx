@@ -279,9 +279,10 @@ export function AppLayout({ children }: AppLayoutProps) {
         <Suspense fallback={null}>
           <SwipessHud side="bottom" className="fixed bottom-0 left-0 right-0 z-[40]" scrollTargetSelector="#dashboard-scroll-container" alwaysVisible={isDashboardPage} revealMode={useRevealMode}>
             <BottomNavigation
-              userRole={userRole}
+              userRole={userRole as any}
               onFilterClick={handleFilterClick}
               onListingsClick={handleListingsClick}
+              onAddListingClick={() => useModalStore.getState().setModal('showAIListing', true)}
             />
           </SwipessHud>
         </Suspense>
