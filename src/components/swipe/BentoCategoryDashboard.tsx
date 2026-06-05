@@ -132,14 +132,14 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
 
   return (
     <div 
-      className="relative w-full h-full overflow-hidden bg-transparent px-4 pb-24"
-      style={{ paddingTop: 'calc(var(--top-bar-height, 72px) + 16px)' }}
+      className="absolute inset-x-4 bottom-[88px] overflow-hidden bg-transparent"
+      style={{ top: 'calc(var(--top-bar-height, 72px) + 16px)' }}
     >
       <motion.div
         variants={containerVariants}
         initial="hidden"
         animate="show"
-        className="grid grid-cols-2 md:grid-cols-6 gap-2 sm:gap-3 max-w-3xl mx-auto h-full grid-rows-[repeat(9,minmax(0,1fr))]"
+        className="w-full h-full max-w-3xl mx-auto grid grid-cols-2 md:grid-cols-6 gap-2 sm:gap-3 grid-rows-[repeat(9,minmax(0,1fr))]"
       >
         {BENTO_ITEMS.map((item) => (
           <motion.button

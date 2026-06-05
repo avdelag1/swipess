@@ -17,23 +17,23 @@ export function QuickFilterImage({ src, alt, className }: QuickFilterImageProps)
   const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
-    // If the props change, reset loaded states
     setLoadedStates(images.map((s) => {
-      return typeof window !== 'undefined' && (window as any).__Swipess_cache?.[s];
+      return typeof window !== 'undefined' && !!(window as any).__Swipess_cache?.[s];
     }));
   }, [src]);
 
-  const allLoaded = loadedStates.every(Boolean) || images.length === 1 && loadedStates[0];
+  // If any single image is loaded, we consider it "ready" to show something
+  const anyLoaded = loadedStates.some(Boolean);
 
   return (
     <>
       {/* Gradient placeholder / Fallback */}
       <div 
         className={cn(
-          "absolute inset-0 transition-opacity duration-300",
+          "absolute inset-0 transition-opacity duration-500",
           hasError 
             ? "bg-slate-800 opacity-100" 
-            : (allLoaded ? "opacity-0" : "bg-gradient-to-br from-muted via-muted/80 to-muted/60 opacity-100")
+            : (anyLoaded ? "opacity-0" : "bg-gradient-to-br from-muted via-muted/80 to-muted/60 opacity-100")
         )} 
       >
         {hasError && (
@@ -43,17 +43,12 @@ export function QuickFilterImage({ src, alt, className }: QuickFilterImageProps)
         )}
       </div>
 
-      {/* Actual images */}
-      <div
-        className={cn(
-          "absolute inset-0 w-full h-full overflow-hidden transition-opacity duration-300",
-          !allLoaded && !hasError ? "opacity-0" : "opacity-100"
-        )}
-      >
+      {/* Actual images container - NEVER HIDDEN, individual images fade in! */}
+      <div className="absolute inset-0 w-full h-full overflow-hidden">
         {images.map((imgSrc, index) => {
-          // If array > 1, use the CSS animation keyframes
-          const animationClass = images.length > 1 ? `animate-[crossfade-${index + 1}_12s_infinite]` : '';
-          const inlineStyle = images.length > 1 ? { animation: `crossfade-${index + 1} 12s infinite` } : {};
+          const isLoaded = loadedStates[index];
+          // We only apply the crossfade animation if the array has > 1 image AND the image has loaded
+          const inlineStyle = (images.length > 1 && isLoaded) ? { animation: `crossfade-${index + 1} 12s infinite` } : {};
 
           return (
             <img
@@ -87,8 +82,8 @@ export function QuickFilterImage({ src, alt, className }: QuickFilterImageProps)
                 }
               }}
               className={cn(
-                "absolute inset-0 w-full h-full object-cover",
-                images.length > 1 ? "opacity-0" : "opacity-100", // Start at 0 if animating, keyframes handle it
+                "absolute inset-0 w-full h-full object-cover transition-opacity duration-700",
+                !isLoaded ? "opacity-0" : (images.length > 1 ? "opacity-0" : "opacity-100"), // Start at 0 if animating, keyframes handle it once applied via style
                 className
               )}
             />
