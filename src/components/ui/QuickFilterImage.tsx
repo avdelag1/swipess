@@ -82,8 +82,8 @@ export function QuickFilterImage({ src, alt, className, animationDelay = '0s' }:
             e.preventDefault();
           }
         }}
-        // Stop propagation of pointer down so parent Framer Motion doesn't interpret it as its own gesture
-        onPointerDown={(e) => e.stopPropagation()}
+        // Block both React synthetic and Framer Motion's native DOM listeners on the parent card
+        onPointerDown={(e) => { e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); }}
         className="absolute inset-0 w-full h-full z-20 cursor-grab active:cursor-grabbing touch-pan-y"
       />
       

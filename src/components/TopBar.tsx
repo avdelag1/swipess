@@ -125,8 +125,9 @@ function TopBarComponent({
     >
       <div className="h-full w-full px-2 flex items-center justify-between relative">
 
+        {/* LEFT: avatar + name only */}
         <div
-          className="flex min-w-0 items-center gap-1 pointer-events-auto glass-pill px-1.5 h-[38px]"
+          className="flex min-w-0 items-center pointer-events-auto glass-pill px-1.5 h-[38px]"
           style={clusterPillStyle}
         >
           {onBack ? (
@@ -184,7 +185,7 @@ function TopBarComponent({
                   )}
                 </div>
                 <span
-                  className="truncate max-w-[100px] text-[11px] font-black uppercase tracking-wider"
+                  className="truncate max-w-[64px] text-[11px] font-black uppercase tracking-wider"
                   style={{
                     fontVariantNumeric: 'tabular-nums',
                     color: iconColor,
@@ -195,38 +196,39 @@ function TopBarComponent({
               </motion.button>
             )
           )}
-
-
-
-          {/* Tokens, ThemeToggle, Notifications — next to profile in left cluster */}
-          {!minimal && (
-            <>
-              <motion.button
-                transition={TAP_SPRING}
-                whileTap={{ scale: 0.92 }}
-                onClick={() => { haptics.tap(); setModal('showTokensModal', true); }}
-                className="flex shrink-0 items-center justify-center rounded-full relative h-[32px] w-[32px]"
-                style={glassPillStyle}
-                aria-label="Tokens"
-              >
-                <Crown
-                  className="w-[18px] h-[18px]"
-                  style={{
-                    color: iconColor,
-                    filter: isLight ? 'none' : 'drop-shadow(0 0 8px rgba(228,0,124,0.65))',
-                  }}
-                  strokeWidth={1.9}
-                />
-              </motion.button>
-
-              <ThemeToggle glassPillStyle={glassPillStyle} />
-
-              <NotificationPopover glassPillStyle={glassPillStyle} />
-            </>
-          )}
         </div>
 
         <div className="flex-grow flex-1" />
+
+        {/* RIGHT: tokens + theme + notifications — tight cluster */}
+        {!minimal && (
+          <div
+            className="flex items-center pointer-events-auto glass-pill px-1 h-[38px] shrink-0"
+            style={clusterPillStyle}
+          >
+            <motion.button
+              transition={TAP_SPRING}
+              whileTap={{ scale: 0.92 }}
+              onClick={() => { haptics.tap(); setModal('showTokensModal', true); }}
+              className="flex shrink-0 items-center justify-center rounded-full relative h-[32px] w-[32px]"
+              style={glassPillStyle}
+              aria-label="Tokens"
+            >
+              <Crown
+                className="w-[18px] h-[18px]"
+                style={{
+                  color: iconColor,
+                  filter: isLight ? 'none' : 'drop-shadow(0 0 8px rgba(228,0,124,0.65))',
+                }}
+                strokeWidth={1.9}
+              />
+            </motion.button>
+
+            <ThemeToggle glassPillStyle={glassPillStyle} />
+
+            <NotificationPopover glassPillStyle={glassPillStyle} />
+          </div>
+        )}
 
         {/* Center tap zone — a premium completely invisible tap target to go home */}
         <div

@@ -143,9 +143,9 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
             )}
             style={{ contain: 'paint' }}
           >
-            {/* Background Image */}
-            <div className="absolute inset-0 z-0">
-              <QuickFilterImage 
+            {/* Background Image — no z-0 so QuickFilterImage's drag overlay (z-20) participates in the card's stacking context and receives pointer events */}
+            <div className="absolute inset-0">
+              <QuickFilterImage
                 src={POKER_CARD_PHOTOS[item.imageId] || ''} 
                 alt={item.label} 
                 animationDelay={item.delay}
