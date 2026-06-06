@@ -1,5 +1,3 @@
-// import { } from '@/data/contractTemplates';
-
 export interface ContractVariable {
   key: string;
   label: string;
@@ -34,17 +32,33 @@ export const getVariablesForTemplate = (templateId: string): ContractVariable[] 
     ];
   }
 
+  if (templateId.includes('bicycle') || templateId.includes('moto') || templateId.includes('motorcycle')) {
+    return [
+      { key: 'effective_date', label: 'Agreement Date', placeholder: '2026-04-11', type: 'date' },
+      { key: 'landlord_name', label: 'Owner / Company Name', placeholder: 'Enter name', type: 'text' },
+      { key: 'tenant_name', label: 'Renter Full Name', placeholder: 'Enter name', type: 'text' },
+      { key: 'monthly_rent', label: 'Rental Fee', placeholder: 'e.g. 50', type: 'number' },
+      { key: 'security_deposit', label: 'Security Deposit', placeholder: 'e.g. 200', type: 'number' },
+    ];
+  }
+
+  if (templateId.includes('service')) {
+    return [
+      { key: 'effective_date', label: 'Agreement Date', placeholder: '2026-04-11', type: 'date' },
+      { key: 'landlord_name', label: 'Service Provider Name', placeholder: 'Enter name', type: 'text' },
+      { key: 'tenant_name', label: 'Client Full Name', placeholder: 'Enter name', type: 'text' },
+      { key: 'monthly_rent', label: 'Service Fee', placeholder: 'e.g. 500', type: 'number' },
+    ];
+  }
+
   return commonVariables;
 };
 
+// Replaces {{key}} placeholders with provided values.
+// If a value is empty, the placeholder text is kept so the field remains visible.
 export const applyVariablesToContent = (content: string, values: Record<string, string>): string => {
-  const processed = content;
-  // This is a naive replacement for now, real implementation would identify the <u> tags
-  // but for the AI demo we'll just inject them into the HTML structure.
-  Object.entries(values).forEach(([_key, _value]) => {
-    // Replace placeholders like {{key}} if they existed, or just append meta for now
+  return content.replace(/\{\{(\w+)\}\}/g, (match, key: string) => {
+    const value = values[key];
+    return value && value.trim() ? value : match;
   });
-  return processed;
 };
-
-
