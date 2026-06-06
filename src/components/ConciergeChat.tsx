@@ -1000,9 +1000,9 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                 triggerHaptic('success');
               }} isSwipess={isSwipess} />
             ) : (
-              <div className="flex-1 flex flex-col relative z-10 overflow-hidden">
+              <div className="flex-1 flex flex-col relative z-10 overflow-hidden" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
                 <header className={cn(
-                  "h-16 shrink-0 flex items-center justify-between px-6 border-b transition-all duration-500 relative z-30", 
+                  "h-16 shrink-0 flex items-center justify-between px-6 border-b transition-all duration-500 relative z-30",
                   isLight && !isSwipess ? "border-slate-200 bg-white/80 backdrop-blur-md" : "border-white/5 bg-black/60 backdrop-blur-3xl"
                 )}>
                   <div className="flex items-center gap-4">

@@ -2512,15 +2512,6 @@ select:focus-visible {
   border-radius: inherit;
 }
 
-/* 4. Selected / aria-pressed safety: if a toggle is "on" but
-      the author forgot to style it, give it a brand outline so
-      reviewers can see the selection. */
-[aria-pressed="true"]:not([data-styled="true"]),
-[aria-selected="true"]:not([data-styled="true"]),
-[data-state="on"]:not([data-styled="true"]),
-[data-state="active"]:not([data-styled="true"]) {
-  box-shadow: inset 0 0 0 2px hsl(var(--primary));
-}
 
 /* 5. Disabled controls must stay legible — never invisible. */
 button:disabled,

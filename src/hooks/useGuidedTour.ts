@@ -46,7 +46,7 @@ const eliteSteps: TourStep[] = [
   },
 ];
 
-export function useGuidedTour(steps: TourStep[] = eliteSteps) {
+export function useGuidedTour(steps: TourStep[] = eliteSteps, isAuthenticated = false) {
   const location = useLocation();
   const navigate = useNavigate();
   const isActive = useGuidedTourActive((s) => s.isActive);
@@ -54,8 +54,9 @@ export function useGuidedTour(steps: TourStep[] = eliteSteps) {
   const [currentStep, setCurrentStep] = useState(0);
   const _startedRef = useRef(false);
 
-  // Auto-start tour if never completed
+  // Auto-start tour only after the user has authenticated
   useEffect(() => {
+    if (!isAuthenticated) return;
     if (!_startedRef.current) {
       _startedRef.current = true;
       const completed = localStorage.getItem(TOUR_KEY) === 'true';
@@ -64,7 +65,7 @@ export function useGuidedTour(steps: TourStep[] = eliteSteps) {
         setTimeout(() => setActiveGlobal(true), 1000);
       }
     }
-  }, [setActiveGlobal]);
+  }, [setActiveGlobal, isAuthenticated]);
 
   // Navigate when step requests it
   useEffect(() => {

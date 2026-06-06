@@ -1,6 +1,7 @@
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useGuidedTour } from '@/hooks/useGuidedTour';
+import { useAuth } from '@/hooks/useAuth';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 
 /**
@@ -15,7 +16,8 @@ import { ChevronLeft, ChevronRight, X } from 'lucide-react';
  * the strip itself receives pointer events.
  */
 export function GuidedTour() {
-  const { isActive, currentStep, totalSteps, step, nextStep, prevStep, skipTour } = useGuidedTour();
+  const { user } = useAuth();
+  const { isActive, currentStep, totalSteps, step, nextStep, prevStep, skipTour } = useGuidedTour(undefined, !!user);
 
   if (!isActive || !step) return null;
 

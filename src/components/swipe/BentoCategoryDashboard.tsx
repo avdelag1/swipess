@@ -21,7 +21,8 @@ export interface BentoCategoryDashboardProps {
 }
 
 const BENTO_ITEMS = [
-  // --- GROUP 1: Top Half ---
+  // --- GROUP 1: Properties (big left) + Buyers & Tenants (small right) ---
+  // Grid auto-placement: property fills rows 1-2 col 1-2; buyers→row1 col3-4; tenants→row2 col3-4
   {
     id: 'property',
     label: 'PROPERTIES',
@@ -34,7 +35,7 @@ const BENTO_ITEMS = [
   {
     id: 'buyers',
     label: 'BUYERS',
-    description: 'Find people looking to buy',
+    description: 'People looking to buy',
     className: 'col-span-2 row-span-1',
     imageId: 'buyers',
     icon: ShoppingCart,
@@ -43,23 +44,15 @@ const BENTO_ITEMS = [
   {
     id: 'rentals',
     label: 'TENANTS',
-    description: 'Find people looking to rent',
+    description: 'People looking to rent',
     className: 'col-span-2 row-span-1',
     imageId: 'renters',
     icon: Key,
     delay: '8s'
   },
 
-  // --- GROUP 2: Bottom Half ---
-  {
-    id: 'services',
-    label: 'WORKERS',
-    description: 'Find people offering services',
-    className: 'col-span-2 row-span-2',
-    imageId: 'services',
-    icon: UserCheck,
-    delay: '12s'
-  },
+  // --- GROUP 2: Bicycles (small left) + Workers (big right) + Motorcycles (small left) ---
+  // bicycle→row3 col1-2; services(2×2)→rows3-4 col3-4; motorcycle→row4 col1-2
   {
     id: 'bicycle',
     label: 'BICYCLES',
@@ -67,6 +60,15 @@ const BENTO_ITEMS = [
     className: 'col-span-2 row-span-1',
     imageId: 'bicycle',
     icon: Bike,
+    delay: '12s'
+  },
+  {
+    id: 'services',
+    label: 'WORKERS',
+    description: 'Find people offering services',
+    className: 'col-span-2 row-span-2',
+    imageId: 'services',
+    icon: UserCheck,
     delay: '16s'
   },
   {

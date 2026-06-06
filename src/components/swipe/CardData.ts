@@ -171,16 +171,16 @@ export const POKER_CARD_PHOTOS: Record<string, string[]> = {
     'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&w=800&q=90',
   ],
   buyers: [
-    '/images/filters/buyers_tulum_sold.jpg',
-    '/images/filters/owner_buyers_card.jpg',
-    'https://images.unsplash.com/photo-1560520653-9e0e4c89eb11?auto=format&fit=crop&w=800&q=90',
+    'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?auto=format&fit=crop&w=800&q=90',
     'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=800&q=90',
+    'https://images.unsplash.com/photo-1573497019236-17f8177b81e8?auto=format&fit=crop&w=800&q=90',
+    '/images/filters/buyers_tulum_sold.jpg',
   ],
   renters: [
-    'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=800&q=90',
+    'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=800&q=90',
+    'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=800&q=90',
+    'https://images.unsplash.com/photo-1511895426328-dc8714191300?auto=format&fit=crop&w=800&q=90',
     '/images/filters/renters_keys_1780637395685.png',
-    'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=800&q=90',
-    'https://images.unsplash.com/photo-1502672260266-1c1c2c50dd3f?auto=format&fit=crop&w=800&q=90',
   ],
   roommates: [
     'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=800&q=90',
