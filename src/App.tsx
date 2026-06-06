@@ -212,6 +212,7 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
               <Route path="/explore/tours" element={<VideoTours />} />
               <Route path="/explore/intel" element={<LocalIntel />} />
               <Route path="/explore/roommates" element={<RoommateMatching />} />
+              <Route path="/explore/services" element={<Navigate to="/client/services" replace />} />
 
               <Route path="/documents" element={<DocumentVault />} />
               <Route path="/escrow" element={<EscrowDashboard />} />

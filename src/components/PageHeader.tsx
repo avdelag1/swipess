@@ -68,13 +68,23 @@ export function PageHeader({
         )}
         <div className="flex flex-col min-w-0">
           {icon && <div className="mb-2 text-primary">{icon}</div>}
-          <h1 className="text-xl font-black text-foreground tracking-tight leading-none uppercase italic truncate">
-             {title}
-          </h1>
+          <motion.h1
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.38, ease: [0.22, 1, 0.36, 1] }}
+            className="text-xl font-black text-foreground tracking-tight leading-none uppercase italic truncate"
+          >
+            {title}
+          </motion.h1>
           {subtitle && (
-            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-1 opacity-60">
+            <motion.p
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.38, delay: 0.06, ease: [0.22, 1, 0.36, 1] }}
+              className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-1 opacity-60"
+            >
               {subtitle}
-            </p>
+            </motion.p>
           )}
         </div>
       </div>
