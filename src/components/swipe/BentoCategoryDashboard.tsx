@@ -7,13 +7,14 @@ import type { QuickFilterCategory } from '@/types/filters';
 import { cn } from '@/lib/utils';
 import { QuickFilterImage } from '@/components/ui/QuickFilterImage';
 import { POKER_CARD_PHOTOS } from './SwipeConstants';
-import { 
-  Home, 
-  UserCheck, 
-  Bike, 
-  Calendar, 
-  ShoppingCart, 
-  Key
+import {
+  Home,
+  UserCheck,
+  Bike,
+  Calendar,
+  ShoppingCart,
+  Key,
+  Search
 } from 'lucide-react';
 
 export interface BentoCategoryDashboardProps {
@@ -81,15 +82,24 @@ const BENTO_ITEMS = [
     delay: '20s'
   },
 
-  // --- GROUP 3: Full Width Bottom ---
+  // --- GROUP 3: Seekers (left) + Events (right) ---
+  {
+    id: 'seekers',
+    label: 'SEEKERS',
+    description: 'People looking for help',
+    className: 'col-span-2 row-span-1',
+    imageId: 'seekers',
+    icon: Search,
+    delay: '24s'
+  },
   {
     id: 'events',
     label: 'EVENTS',
     description: 'Discover local events',
-    className: 'col-span-4 row-span-1',
+    className: 'col-span-2 row-span-1',
     imageId: 'events',
     icon: Calendar,
-    delay: '24s'
+    delay: '28s'
   },
 ];
 
@@ -114,6 +124,7 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
     uiSounds.playCategorySelect();
     
     if (id === 'events') navigate('/explore/events');
+    else if (id === 'seekers') navigate('/explore/seekers');
     else setCategories(id as QuickFilterCategory);
   }, [setCategories, navigate]);
 

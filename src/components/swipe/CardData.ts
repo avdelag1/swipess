@@ -193,6 +193,12 @@ export const POKER_CARD_PHOTOS: Record<string, string[]> = {
     'https://images.unsplash.com/photo-1515169067868-5387ec356754?auto=format&fit=crop&w=800&q=90',
     'https://images.unsplash.com/photo-1552581234-26160f608093?auto=format&fit=crop&w=800&q=90',
   ],
+  seekers: [
+    'https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&w=800&q=90',
+    'https://images.unsplash.com/photo-1600880292203-757bb62b4baf?auto=format&fit=crop&w=800&q=90',
+    '/images/filters/leads_handshake_1780637383311.png',
+    'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=800&q=90',
+  ],
   events: [
     '/images/filters/events_card.jpg',
     '/images/filters/event_beach_party_1780637338591.png',
@@ -239,4 +245,5 @@ export const POKER_CARD_GRADIENTS: Record<string, string> = {
   events: NEUTRAL_FALLBACK,
   leads: NEUTRAL_FALLBACK,
   pros: NEUTRAL_FALLBACK,
+  seekers: NEUTRAL_FALLBACK,
 };
