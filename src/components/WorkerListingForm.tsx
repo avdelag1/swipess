@@ -282,7 +282,6 @@ export function WorkerListingForm({ onDataChange, initialData = {} }: WorkerList
         </div>
       </Section>
 
-      </Section>
 
       <div className="rounded-3xl shadow-md overflow-hidden bg-card border border-border">
         <OwnerLocationSelector
