@@ -62,7 +62,13 @@ export function QuickFilterImage({ src, alt, className, animationDelay = '0s' }:
         drag="x"
         dragConstraints={{ left: 0, right: 0 }}
         dragElastic={0.2}
+        onDragStart={() => {
+          isDragging.current = true;
+        }}
         onDragEnd={(e, info) => {
+          setTimeout(() => {
+            isDragging.current = false;
+          }, 50);
           const threshold = 20;
           if (info.offset.x < -threshold) {
             setActiveIndex(prev => (prev + 1) % images.length);
@@ -70,7 +76,13 @@ export function QuickFilterImage({ src, alt, className, animationDelay = '0s' }:
             setActiveIndex(prev => (prev - 1 + images.length) % images.length);
           }
         }}
-        // Stop propagation so parent motion components don't misinterpret the drag
+        onClickCapture={(e) => {
+          if (isDragging.current) {
+            e.stopPropagation();
+            e.preventDefault();
+          }
+        }}
+        // Stop propagation of pointer down so parent Framer Motion doesn't interpret it as its own gesture
         onPointerDown={(e) => e.stopPropagation()}
         className="absolute inset-0 w-full h-full z-20 cursor-grab active:cursor-grabbing touch-pan-y"
       />
