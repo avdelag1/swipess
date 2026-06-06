@@ -8,7 +8,7 @@ import { useAuth } from "@/hooks/useAuth";
 import {
   Camera, ChevronRight, Coins, Crown,
   LogOut, Megaphone, MessageSquare, Radio, Scale as ScaleIcon, Settings, Sparkles,
-  ThumbsUp, User, Users, Zap
+  ThumbsUp, User, Users, Zap, Briefcase
 } from "lucide-react";
 import { useClientStats } from "@/hooks/useClientStats";
 import { ActivityFeed } from "@/components/ActivityFeed";
@@ -232,11 +232,22 @@ const ClientProfile = () => {
             <motion.button
               whileTap={{ scale: 0.97 }}
               onClick={() => { triggerHaptic('medium'); navigate('/explore/roommates'); }}
-              className={cn("w-full h-24 rounded-3xl flex flex-col items-center justify-center gap-2 border shadow-lg transition-all text-white font-black uppercase italic tracking-[0.2em] text-[12px] md:text-[14px] col-span-2", isLight ? "bg-slate-900 border-black/10" : "bg-white/[0.08] border-white/10")}
+              className={cn("w-full h-24 rounded-3xl flex flex-col items-center justify-center gap-2 border shadow-lg transition-all text-white font-black uppercase italic tracking-[0.2em] text-[12px] md:text-[14px]", isLight ? "bg-slate-900 border-black/10" : "bg-white/[0.08] border-white/10")}
               style={{ background: 'linear-gradient(135deg, #3B82F6, #8B5CF6)' }}
             >
               <Users className="w-7 h-7 text-white" />
               <span>Roommates</span>
+            </motion.button>
+
+            {/* Seekers / Hire */}
+            <motion.button
+              whileTap={{ scale: 0.97 }}
+              onClick={() => { triggerHaptic('medium'); navigate('/explore/services'); }}
+              className={cn("w-full h-24 rounded-3xl flex flex-col items-center justify-center gap-2 border shadow-lg transition-all text-white font-black uppercase italic tracking-[0.2em] text-[12px] md:text-[14px]", isLight ? "bg-slate-900 border-black/10" : "bg-white/[0.08] border-white/10")}
+              style={{ background: 'linear-gradient(135deg, #8B5CF6, #EC4899)' }}
+            >
+              <Briefcase className="w-7 h-7 text-white" />
+              <span>Seekers</span>
             </motion.button>
 
             {/* Premium */}

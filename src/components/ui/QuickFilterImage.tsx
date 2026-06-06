@@ -92,6 +92,21 @@ export function QuickFilterImage({ src, alt, className, animationDelay = '0s' }:
           className={cn("absolute inset-0 w-full h-full object-cover pointer-events-none z-10", className)}
         />
       </AnimatePresence>
+
+      {/* Visual Pagination Dots to indicate swipeability */}
+      <div className="absolute top-2.5 right-2.5 flex items-center gap-[4px] z-30 pointer-events-none drop-shadow-md">
+        {images.map((_, i) => (
+          <div
+            key={i}
+            className={cn(
+              "h-1 rounded-full transition-all duration-300",
+              i === activeIndex 
+                ? "w-3.5 bg-white shadow-[0_0_8px_rgba(255,255,255,0.8)]" 
+                : "w-1.5 bg-white/40 shadow-[0_0_2px_rgba(0,0,0,0.5)]"
+            )}
+          />
+        ))}
+      </div>
     </div>
   );
 }

@@ -13,9 +13,7 @@ import {
   Bike, 
   Calendar, 
   ShoppingCart, 
-  Key, 
-  Users, 
-  Briefcase 
+  Key
 } from 'lucide-react';
 
 export interface BentoCategoryDashboardProps {
@@ -23,7 +21,7 @@ export interface BentoCategoryDashboardProps {
 }
 
 const BENTO_ITEMS = [
-  // --- GROUP 1: Big Left, 2 Small Right ---
+  // --- GROUP 1: Top Half ---
   {
     id: 'property',
     label: 'PROPERTIES',
@@ -43,82 +41,53 @@ const BENTO_ITEMS = [
     delay: '4s'
   },
   {
-    id: 'leads',
-    label: 'SEEKERS',
-    description: 'People looking to hire',
-    className: 'col-span-2 row-span-1',
-    imageId: 'leads',
-    icon: Briefcase,
-    delay: '8s'
-  },
-
-  // --- GROUP 2: 2 Small Left, Big Right ---
-  {
-    id: 'bicycle',
-    label: 'BICYCLES',
-    description: 'Find bicycles for sale or rent',
-    className: 'col-span-2 row-span-1',
-    imageId: 'bicycle',
-    icon: Bike,
-    delay: '12s'
-  },
-  {
-    id: 'roommates',
-    label: 'ROOMMATES',
-    description: 'Find roommates',
-    className: 'col-span-2 row-span-2',
-    imageId: 'roommates', 
-    icon: Users,
-    delay: '16s'
-  },
-  {
-    id: 'events',
-    label: 'EVENTS',
-    description: 'Discover local events',
-    className: 'col-span-2 row-span-1',
-    imageId: 'events',
-    icon: Calendar,
-    delay: '20s'
-  },
-
-  // --- GROUP 3: Big Left, 2 Small Right ---
-  {
     id: 'rentals',
     label: 'TENANTS',
     description: 'Find people looking to rent',
-    className: 'col-span-2 row-span-2',
+    className: 'col-span-2 row-span-1',
     imageId: 'renters',
     icon: Key,
-    delay: '24s'
+    delay: '8s'
   },
+
+  // --- GROUP 2: Bottom Half ---
   {
     id: 'services',
     label: 'WORKERS',
     description: 'Find people offering services',
-    className: 'col-span-2 row-span-1',
+    className: 'col-span-2 row-span-2',
     imageId: 'services',
     icon: UserCheck,
-    delay: '28s'
+    delay: '12s'
+  },
+  {
+    id: 'bicycle',
+    label: 'BICYCLES',
+    description: 'Bicycles for sale or rent',
+    className: 'col-span-2 row-span-1',
+    imageId: 'bicycle',
+    icon: Bike,
+    delay: '16s'
   },
   {
     id: 'motorcycle',
     label: 'MOTORCYCLES',
-    description: 'Find motorcycles for sale or rent',
+    description: 'Motorcycles for sale or rent',
     className: 'col-span-2 row-span-1',
     imageId: 'motorcycle',
     icon: Bike,
-    delay: '32s'
+    delay: '20s'
   },
 
-  // --- GROUP 4: Full Width Bottom ---
+  // --- GROUP 3: Full Width Bottom ---
   {
-    id: 'lawyer',
-    label: 'LEGAL',
-    description: 'Legal Hub & Docs',
+    id: 'events',
+    label: 'EVENTS',
+    description: 'Discover local events',
     className: 'col-span-4 row-span-1',
-    imageId: 'lawyer',
-    icon: Users,
-    delay: '36s'
+    imageId: 'events',
+    icon: Calendar,
+    delay: '24s'
   },
 ];
 
@@ -143,21 +112,22 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
     uiSounds.playCategorySelect();
     
     if (id === 'events') navigate('/explore/events');
-    else if (id === 'roommates') navigate('/roommate-matching');
-    else if (id === 'lawyer') navigate('/client/legal-services');
     else setCategories(id as QuickFilterCategory);
   }, [setCategories, navigate]);
 
   return (
     <div 
-      className="absolute inset-x-2 bottom-[88px] overflow-hidden bg-transparent"
-      style={{ top: 'calc(var(--top-bar-height, 64px) + 2px)' }}
+      className="absolute inset-0 w-full h-full px-2 bg-transparent overflow-hidden"
+      style={{
+        paddingTop: 'calc(var(--top-bar-height, 64px) + 8px)',
+        paddingBottom: 'calc(env(safe-area-inset-bottom) + 88px)'
+      }}
     >
       <motion.div
         variants={containerVariants}
         initial="hidden"
         animate="show"
-        className="w-full h-full max-w-3xl mx-auto grid grid-cols-4 gap-2 sm:gap-4 grid-rows-[repeat(7,minmax(0,1fr))]"
+        className="w-full h-full max-w-3xl mx-auto grid grid-cols-4 gap-2 sm:gap-4 grid-rows-[repeat(5,minmax(0,1fr))]"
       >
         {BENTO_ITEMS.map((item) => (
           <motion.div

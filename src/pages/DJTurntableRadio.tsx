@@ -110,8 +110,8 @@ export default function DJTurntableRadio() {
         </div>
       </div>
 
-      {/* Center — station info (positioned toward top, not vertically centered) */}
-      <div className="flex flex-col items-center relative z-10 px-6 pt-6 pb-4">
+      {/* Center — station info */}
+      <div className="flex-1 flex flex-col items-center justify-center relative z-10 px-6 pt-6 pb-4">
 
         {/* Live badge */}
         <div className="flex items-center gap-2 mb-6">
