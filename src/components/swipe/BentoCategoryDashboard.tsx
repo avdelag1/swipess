@@ -119,7 +119,7 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
     <div 
       className="absolute inset-0 w-full h-full px-2 bg-transparent overflow-hidden"
       style={{
-        paddingTop: 'calc(var(--top-bar-height, 64px) + 8px)',
+        paddingTop: 'calc(var(--top-bar-height, 64px) + var(--safe-top, 0px) + 8px)',
         paddingBottom: 'calc(env(safe-area-inset-bottom) + 88px)'
       }}
     >
