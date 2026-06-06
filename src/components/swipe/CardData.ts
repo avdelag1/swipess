@@ -177,7 +177,7 @@ export const POKER_CARD_PHOTOS: Record<string, string[]> = {
     'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=800&q=90',
   ],
   renters: [
-    '/images/filters/owner_renters_card.jpg',
+    'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=800&q=90',
     '/images/filters/renters_keys_1780637395685.png',
     'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=800&q=90',
     'https://images.unsplash.com/photo-1502672260266-1c1c2c50dd3f?auto=format&fit=crop&w=800&q=90',

@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { OwnerLocationSelector } from './location/OwnerLocationSelector';
 import { Checkbox } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
 
@@ -30,6 +31,7 @@ export interface BicycleFormData {
   electric_assist?: boolean;
   battery_range?: number;
   condition?: string;
+  country?: string;
   city?: string;
   neighborhood?: string;
   includes_helmet?: boolean;
@@ -138,11 +140,17 @@ export function BicycleListingForm({ onDataChange, initialData }: BicycleListing
             )}
           />
         </div>
-        <div>
-          <FormLabel>Location / City</FormLabel>
-          <Input {...register('city')} placeholder="e.g., Tulum, Playa del Carmen" />
-        </div>
       </Section>
+
+      <div className="rounded-3xl shadow-md overflow-hidden bg-card border border-border">
+        <OwnerLocationSelector
+          country={watch('country')}
+          city={watch('city')}
+          onCountryChange={(c) => onDataChange({ country: c })}
+          onCityChange={(c) => onDataChange({ city: c })}
+          onNeighborhoodChange={(n) => onDataChange({ neighborhood: n })}
+        />
+      </div>
 
       <Section title="Specifications">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

@@ -183,17 +183,15 @@ function TopBarComponent({
                     )
                   )}
                 </div>
-                {profile?.full_name && (
-                  <span
-                    className="truncate max-w-[100px] text-[11px] font-black uppercase tracking-wider"
-                    style={{
-                      fontVariantNumeric: 'tabular-nums',
-                      color: iconColor,
-                    }}
-                  >
-                    {profile.full_name.split(' ')[0]}
-                  </span>
-                )}
+                <span
+                  className="truncate max-w-[100px] text-[11px] font-black uppercase tracking-wider"
+                  style={{
+                    fontVariantNumeric: 'tabular-nums',
+                    color: iconColor,
+                  }}
+                >
+                  {(profile?.full_name?.split(' ')[0]) || (user?.email?.split('@')[0]) || 'USER'}
+                </span>
               </motion.button>
             )
           )}

@@ -58,33 +58,21 @@ export function QuickFilterImage({ src, alt, className, animationDelay = '0s' }:
   return (
     <div className="absolute inset-0 w-full h-full overflow-hidden bg-slate-900/50 pointer-events-auto touch-none">
       {/* Invisible drag surface to capture swipes without blocking taps */}
-      <div
+      <motion.div
+        drag="x"
+        dragConstraints={{ left: 0, right: 0 }}
+        dragElastic={0.2}
+        onDragEnd={(e, info) => {
+          const threshold = 20;
+          if (info.offset.x < -threshold) {
+            setActiveIndex(prev => (prev + 1) % images.length);
+          } else if (info.offset.x > threshold) {
+            setActiveIndex(prev => (prev - 1 + images.length) % images.length);
+          }
+        }}
+        // Stop propagation so parent motion components don't misinterpret the drag
+        onPointerDown={(e) => e.stopPropagation()}
         className="absolute inset-0 w-full h-full z-20 cursor-grab active:cursor-grabbing touch-pan-y"
-        onPointerDown={(e) => {
-          isDragging.current = false;
-          pointerStartX.current = e.clientX;
-        }}
-        onPointerMove={(e) => {
-          if (!isDragging.current && Math.abs(e.clientX - pointerStartX.current) > 15) {
-            isDragging.current = true;
-          }
-        }}
-        onPointerUp={(e) => {
-          if (isDragging.current) {
-            const diff = e.clientX - pointerStartX.current;
-            if (diff < -20) {
-              setActiveIndex(prev => (prev + 1) % images.length);
-            } else if (diff > 20) {
-              setActiveIndex(prev => (prev - 1 + images.length) % images.length);
-            }
-          }
-        }}
-        onClickCapture={(e) => {
-          if (isDragging.current) {
-            e.stopPropagation();
-            e.preventDefault();
-          }
-        }}
       />
       
       {/* Overlapping images for smooth crossfade */}

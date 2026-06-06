@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 // import { } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { OwnerLocationSelector } from './location/OwnerLocationSelector';
 import { Checkbox } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
 
@@ -26,7 +27,9 @@ export interface MotorcycleFormData {
   transmission?: string;
   fuel_type?: string;
   condition?: string;
+  country?: string;
   city?: string;
+  neighborhood?: string;
   has_abs?: boolean;
   has_traction_control?: boolean;
   has_heated_grips?: boolean;
@@ -117,11 +120,17 @@ export function MotorcycleListingForm({ onDataChange, initialData }: MotorcycleL
             )}
           />
         </div>
-        <div>
-          <FormLabel>Location / City</FormLabel>
-          <Input id="city" {...register('city')} placeholder="e.g., Tulum, Playa del Carmen" />
-        </div>
       </Section>
+
+      <div className="rounded-3xl shadow-md overflow-hidden bg-card border border-border">
+        <OwnerLocationSelector
+          country={watch('country')}
+          city={watch('city')}
+          onCountryChange={(c) => onDataChange({ country: c })}
+          onCityChange={(c) => onDataChange({ city: c })}
+          onNeighborhoodChange={(n) => onDataChange({ neighborhood: n })}
+        />
+      </div>
 
       <Section title="Specifications">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

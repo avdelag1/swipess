@@ -10,6 +10,7 @@ import {
   LogOut, Megaphone, MessageSquare, Radio, Scale as ScaleIcon, Settings, Sparkles,
   ThumbsUp, User, Users, Zap, Briefcase
 } from "lucide-react";
+import { SeekerAdSection } from '@/components/SeekerAdSection';
 import { useClientStats } from "@/hooks/useClientStats";
 import { ActivityFeed } from "@/components/ActivityFeed";
 import { VapIdCardModal } from "@/components/VapIdCardModal";
@@ -274,6 +275,11 @@ const ClientProfile = () => {
               <ChevronRight className={cn("w-3 h-3", isLight ? "text-black/20" : "text-white/20")} />
             </div>
           </div>
+        </div>
+
+        {/* SEEKER AD SECTION (Tasker / Requests) */}
+        <div className="mt-6 mb-2">
+          <SeekerAdSection />
         </div>
 
         {/* PROFILE COMPLETION */}

@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { OwnerLocationSelector } from './location/OwnerLocationSelector';
 import { Checkbox } from '@/components/ui/checkbox';
 
 import { cn } from '@/lib/utils';
@@ -101,8 +102,9 @@ export interface WorkerFormData {
   background_check_verified?: boolean;
   insurance_verified?: boolean;
   languages?: string[];
-  city?: string;
   country?: string;
+  city?: string;
+  neighborhood?: string;
   traits?: string[];
 }
 
@@ -280,18 +282,17 @@ export function WorkerListingForm({ onDataChange, initialData = {} }: WorkerList
         </div>
       </Section>
 
-      <Section title="Location">
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <FormLabel>City</FormLabel>
-            <Input {...register('city')} placeholder="e.g., Your City" />
-          </div>
-          <div>
-            <FormLabel>Country</FormLabel>
-            <Input {...register('country')} placeholder="e.g., Mexico" />
-          </div>
-        </div>
       </Section>
+
+      <div className="rounded-3xl shadow-md overflow-hidden bg-card border border-border">
+        <OwnerLocationSelector
+          country={watch('country')}
+          city={watch('city')}
+          onCountryChange={(c) => onDataChange({ country: c })}
+          onCityChange={(c) => onDataChange({ city: c })}
+          onNeighborhoodChange={(n) => onDataChange({ neighborhood: n })}
+        />
+      </div>
 
       <Section title="Pricing">
         <div className="grid grid-cols-2 gap-4">

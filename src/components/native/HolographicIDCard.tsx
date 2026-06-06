@@ -36,7 +36,9 @@ export const HolographicIDCard = ({ profile }: { profile: any }) => {
   const occupation = profile?.vap_occupation || profile?.occupation || '';
   const bio = profile?.vap_bio || profile?.bio || '';
   const years = profile?.vap_years_in_city || profile?.years_in_city ? `${profile.vap_years_in_city || profile.years_in_city} yr` : '';
-  const avatar = profile?.vap_avatar || (profile?.profile_images?.[0]) || '/placeholder-avatar.png';
+  const avatar = profile?.vap_avatar || profile?.profile_images?.[0];
+  
+  const initials = name !== 'Authorized Member' ? name.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase() : 'AM';
 
   return (
     <motion.div
@@ -103,11 +105,17 @@ export const HolographicIDCard = ({ profile }: { profile: any }) => {
           <div className="flex gap-3 items-center">
             <div className="relative shrink-0">
               <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-primary/30 shadow-[0_0_15px_rgba(255,77,0,0.2)]">
-                <img 
-                  src={avatar} 
-                  alt={'Resident'}
-                  className="w-full h-full object-cover"
-                />
+                {avatar ? (
+                  <img 
+                    src={avatar} 
+                    alt={'Resident'}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-primary/20 flex items-center justify-center">
+                    <span className="text-primary font-black text-lg">{initials}</span>
+                  </div>
+                )}
               </div>
               <div className={cn("absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full border flex items-center justify-center", isLight ? "bg-white border-black/10" : "bg-[#0A0F1A] border-white/10")}>
                 <Fingerprint className="w-2 h-2 text-primary" />

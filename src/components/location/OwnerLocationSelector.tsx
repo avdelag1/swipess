@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectGroup, SelectLabel, SelectSeparator } from '@/components/ui/select';
 import { AlertCircle, MapPin, Search } from 'lucide-react';
 import {
   getCitiesInCountry,
@@ -247,11 +247,36 @@ export function OwnerLocationSelector({
                 </div>
                 <div className="max-h-48 overflow-y-auto">
                   {filteredCountries.length > 0 ? (
-                    filteredCountries.map((c) => (
-                      <SelectItem key={c} value={c}>
-                        {c}
-                      </SelectItem>
-                    ))
+                    <>
+                      {(() => {
+                        const popular = ['Mexico', 'United States', 'Canada', 'Argentina', 'Colombia', 'Italy', 'Spain', 'France', 'Russia'];
+                        const matchedPopular = popular.filter(p => p.toLowerCase().includes(countrySearch.toLowerCase()) && allCountries.includes(p));
+                        
+                        if (matchedPopular.length > 0) {
+                          return (
+                            <>
+                              <SelectGroup>
+                                <SelectLabel className="text-xs text-muted-foreground uppercase tracking-wider">Quick Access</SelectLabel>
+                                {matchedPopular.map(c => (
+                                  <SelectItem key={`popular-${c}`} value={c}>{c}</SelectItem>
+                                ))}
+                              </SelectGroup>
+                              <SelectSeparator />
+                            </>
+                          );
+                        }
+                        return null;
+                      })()}
+                      
+                      <SelectGroup>
+                        <SelectLabel className="text-xs text-muted-foreground uppercase tracking-wider">All Countries</SelectLabel>
+                        {filteredCountries.map((c) => (
+                          <SelectItem key={c} value={c}>
+                            {c}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </>
                   ) : (
                     <div className="p-2 text-center text-muted-foreground text-sm">
                       No countries found
@@ -287,11 +312,50 @@ export function OwnerLocationSelector({
                 )}
                 <div className="max-h-48 overflow-y-auto">
                   {filteredCities.length > 0 ? (
-                    filteredCities.map((c) => (
-                      <SelectItem key={c.name} value={c.name}>
-                        {c.name}
-                      </SelectItem>
-                    ))
+                    <>
+                      {(() => {
+                        // Quick list of popular cities generally
+                        const popularCities = [
+                          'Mexico City', 'Guadalajara', 'Monterrey', 'Cancún', 'Tulum', 'Playa del Carmen', 'Mérida', 'Querétaro',
+                          'New York City', 'Los Angeles', 'Chicago', 'Houston', 'Miami', 'San Francisco', 'Las Vegas', 'Austin',
+                          'Toronto', 'Montreal', 'Vancouver', 'Calgary',
+                          'Buenos Aires', 'Córdoba', 'Rosario', 'Mendoza',
+                          'Madrid', 'Barcelona', 'Valencia', 'Seville',
+                          'Rome', 'Milan', 'Naples', 'Florence', 'Venice',
+                          'Paris', 'Marseille', 'Lyon', 'Nice',
+                          'Bogotá', 'Medellín', 'Cali', 'Cartagena',
+                          'Moscow', 'Saint Petersburg',
+                          'London', 'Manchester', 'Birmingham', 'Edinburgh'
+                        ];
+                        
+                        const matchedPopular = filteredCities.filter(c => 
+                          popularCities.some(p => p.toLowerCase() === c.name.toLowerCase() || c.name.toLowerCase().includes(p.toLowerCase()))
+                        ).slice(0, 10);
+                        
+                        if (matchedPopular.length > 0) {
+                          return (
+                            <>
+                              <SelectGroup>
+                                <SelectLabel className="text-xs text-muted-foreground uppercase tracking-wider">Quick Access</SelectLabel>
+                                {matchedPopular.map(c => (
+                                  <SelectItem key={`popular-${c.name}`} value={c.name}>{c.name}</SelectItem>
+                                ))}
+                              </SelectGroup>
+                              <SelectSeparator />
+                            </>
+                          );
+                        }
+                        return null;
+                      })()}
+                      <SelectGroup>
+                        <SelectLabel className="text-xs text-muted-foreground uppercase tracking-wider">All Cities</SelectLabel>
+                        {filteredCities.map((c) => (
+                          <SelectItem key={c.name} value={c.name}>
+                            {c.name}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </>
                   ) : availableCities.length > 0 ? (
                     <div className="p-2 text-center text-muted-foreground text-sm">
                       No cities found
