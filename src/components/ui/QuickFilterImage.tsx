@@ -53,22 +53,30 @@ export function QuickFilterImage({ src, alt, className, animationDelay = '0s' }:
   }
 
   const isDragging = React.useRef(false);
+  const pointerStartX = React.useRef(0);
 
   return (
     <div className="absolute inset-0 w-full h-full overflow-hidden bg-slate-900/50 pointer-events-auto touch-none">
       {/* Invisible drag surface to capture swipes without blocking taps */}
-      <motion.div
-        className="absolute inset-0 w-full h-full z-20 cursor-grab active:cursor-grabbing"
-        onPanStart={() => {
-          isDragging.current = true;
+      <div
+        className="absolute inset-0 w-full h-full z-20 cursor-grab active:cursor-grabbing touch-pan-y"
+        onPointerDown={(e) => {
+          isDragging.current = false;
+          pointerStartX.current = e.clientX;
         }}
-        onPanEnd={(e, info) => {
-          // Delay resetting drag state so onClickCapture can catch it
-          setTimeout(() => { isDragging.current = false; }, 50);
-          if (info.offset.x < -20) {
-            setActiveIndex(prev => (prev + 1) % images.length);
-          } else if (info.offset.x > 20) {
-            setActiveIndex(prev => (prev - 1 + images.length) % images.length);
+        onPointerMove={(e) => {
+          if (!isDragging.current && Math.abs(e.clientX - pointerStartX.current) > 15) {
+            isDragging.current = true;
+          }
+        }}
+        onPointerUp={(e) => {
+          if (isDragging.current) {
+            const diff = e.clientX - pointerStartX.current;
+            if (diff < -20) {
+              setActiveIndex(prev => (prev + 1) % images.length);
+            } else if (diff > 20) {
+              setActiveIndex(prev => (prev - 1 + images.length) % images.length);
+            }
           }
         }}
         onClickCapture={(e) => {
