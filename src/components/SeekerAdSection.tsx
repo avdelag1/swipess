@@ -6,7 +6,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Search, Plus, Edit, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Switch } from '@/components/ui/switch';
-import { useTheme } from '@/hooks/useTheme';
+import useAppTheme from '@/hooks/useAppTheme';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -15,7 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 
 export function SeekerAdSection() {
   const { user } = useAuth();
-  const { theme } = useTheme();
+  const { theme } = useAppTheme();
   const isLight = theme === 'light';
   const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
