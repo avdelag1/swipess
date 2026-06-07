@@ -97,7 +97,6 @@ export function MessagingDashboard() {
   const filteredConversations = useMemo(() => {
     return conversations.filter(conv => {
       const matchesSearch = conv.other_user?.full_name?.toLowerCase()?.includes(searchQuery.toLowerCase());
-      const matchesMode = activeMode === 'client' ? conv.client_id === user?.id : conv.owner_id === user?.id;
       const isUnread = conv.last_message?.sender_id !== user?.id && conv.last_message?.is_read === false;
 
       let matchesFilter = true;
@@ -115,9 +114,9 @@ export function MessagingDashboard() {
         matchesFilter = conv.status !== 'archived';
       }
 
-      return matchesSearch && matchesMode && matchesFilter;
+      return matchesSearch && matchesFilter;
     });
-  }, [conversations, searchQuery, activeMode, activeFilter, user?.id]);
+  }, [conversations, searchQuery, activeFilter, user?.id]);
 
   const handleDirectOpenConversation = useCallback(async (conversationId: string) => {
     setIsStartingConversation(true);

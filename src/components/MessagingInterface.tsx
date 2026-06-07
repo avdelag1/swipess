@@ -290,10 +290,10 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
       )}>
 
         <div className={cn(
-            "shrink-0 px-4 py-3 min-h-[72px] flex items-center z-20 backdrop-blur-3xl border-b transition-all pt-safe",
+            "shrink-0 px-4 py-3 min-h-[72px] flex items-center z-20 backdrop-blur-3xl transition-all pt-safe",
             isThemeLight
-              ? "bg-white/80 border-black/[0.06] shadow-sm"
-              : "bg-card/90 border-white/[0.08] shadow-[0_1px_0_rgba(255,255,255,0.06)]"
+              ? "bg-[#ffffff]/90"
+              : "bg-background/90"
         )}>
           <div className="flex items-center w-full gap-4">
             <button
@@ -451,8 +451,8 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
         </div>
 
         <div className={cn(
-          "shrink-0 px-4 py-3 flex items-center backdrop-blur-3xl border-t transition-all pb-safe relative z-20",
-          isThemeLight ? "bg-white/90 border-black/[0.06] shadow-[0_-10px_40px_rgba(0,0,0,0.03)]" : "bg-card/90 border-white/[0.08] shadow-[0_-10px_40px_rgba(0,0,0,0.5)]"
+          "shrink-0 px-4 py-3 flex items-center backdrop-blur-3xl transition-all pb-safe relative z-20",
+          isThemeLight ? "bg-[#ffffff]/90" : "bg-background/90"
         )}>
 
           <AnimatePresence>
