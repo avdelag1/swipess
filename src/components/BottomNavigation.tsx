@@ -65,9 +65,9 @@ interface NavItem {
 
 export const TAP_SPRING = {
   type: 'spring' as const,
-  stiffness: 1000, // OVERCLOCKED
-  damping: 30,
-  mass: 0.3, // LIGHTER
+  stiffness: 1500, // HYPER-OVERCLOCKED
+  damping: 20,
+  mass: 0.15, // ALMOST WEIGHTLESS
 };
 
 export const BottomNavigation = memo(({

@@ -40,8 +40,8 @@ export function AnimatedOutlet() {
           animate={isDashboardRoute ? { opacity: 1 } : { opacity: 1, y: 0, scale: 1 }}
           exit={isDashboardRoute ? { opacity: 0 } : { opacity: 0, y: -8, scale: 0.98 }}
           transition={isDashboardRoute
-            ? { type: 'tween', duration: 0.1, ease: 'easeOut' }
-            : { type: 'spring', stiffness: 400, damping: 32, mass: 0.7 }
+            ? { type: 'tween', duration: 0.05, ease: 'easeOut' }
+            : { type: 'spring', stiffness: 800, damping: 24, mass: 0.4 }
           }
         >
           <Suspense fallback={

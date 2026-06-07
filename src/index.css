@@ -919,7 +919,7 @@ button:focus:not(:focus-visible), [role="button"]:focus:not(:focus-visible) {
   .scroll-area-momentum {
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
-    scroll-behavior: smooth;
+    scroll-behavior: auto;
   }
 
   @media (max-width: 768px) {
@@ -1378,7 +1378,7 @@ button:focus:not(:focus-visible), [role="button"]:focus:not(:focus-visible) {
   .scroll-area-momentum {
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
-    scroll-behavior: smooth;
+    scroll-behavior: auto;
   }
 
   /* Disable tap highlight universally for clean feel */
@@ -1411,7 +1411,7 @@ button:focus:not(:focus-visible), [role="button"]:focus:not(:focus-visible) {
 
   /* Smooth scroll */
   .smooth-scroll {
-    scroll-behavior: smooth;
+    scroll-behavior: auto;
     -webkit-overflow-scrolling: touch;
   }
 
@@ -1497,7 +1497,7 @@ button:focus:not(:focus-visible), [role="button"]:focus:not(:focus-visible) {
   /* Scroll snap for cards */
   .scroll-snap-x {
     scroll-snap-type: x mandatory;
-    scroll-behavior: smooth;
+    scroll-behavior: auto;
   }
 
   .scroll-snap-item {
@@ -1553,7 +1553,7 @@ button:focus:not(:focus-visible), [role="button"]:focus:not(:focus-visible) {
 
 /* ===== GLOBAL SMOOTH SCROLL & PERFORMANCE ===== */
 html {
-  scroll-behavior: smooth;
+  scroll-behavior: auto;
 }
 
 /* GPU-accelerated elements */
@@ -1586,7 +1586,7 @@ a {
 
 /* Optimized scrolling */
 .smooth-scroll {
-  scroll-behavior: smooth;
+  scroll-behavior: auto;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
 }

@@ -36,10 +36,10 @@ export interface SimpleOwnerSwipeCardRef {
   triggerSwipe: (direction: 'left' | 'right') => void;
 }
 
-const SWIPE_THRESHOLD = 30;
-const VELOCITY_THRESHOLD = 120;
-const SKIP_THRESHOLD = 60;
-const SKIP_VELOCITY = 200;
+const SWIPE_THRESHOLD = 20;
+const VELOCITY_THRESHOLD = 80;
+const SKIP_THRESHOLD = 50;
+const SKIP_VELOCITY = 150;
 const FALLBACK_PLACEHOLDER = '';
 type DragAxis = 'x' | 'y' | null;
 

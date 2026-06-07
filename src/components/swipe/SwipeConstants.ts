@@ -91,18 +91,18 @@ export const FOLDER_OFFSET_X = 30;
 export const FOLDER_OFFSET_Y = 0;
 export const POKER_FAN_ROTATION = 8;
 // 🪶 Lightweight drag — easier commit, native-feeling flick
-export const PK_DIST_THRESHOLD = 40;
-export const PK_VEL_THRESHOLD = 120;
+export const PK_DIST_THRESHOLD = 30;
+export const PK_VEL_THRESHOLD = 80;
 // Snappier spring — quick-filter cards glide instead of fight
-export const PK_SPRING = { type: 'spring' as const, stiffness: 520, damping: 25, mass: 0.35 };
+export const PK_SPRING = { type: 'spring' as const, stiffness: 800, damping: 20, mass: 0.2 };
 
 // 🎯 Unified elastic spring language — consistent feel across all card types.
 // Snap-back: snappy return to center with 1–2 overshoots
-export const SNAP_BACK_SPRING = { type: 'spring' as const, stiffness: 520, damping: 25, mass: 0.35 };
+export const SNAP_BACK_SPRING = { type: 'spring' as const, stiffness: 800, damping: 20, mass: 0.2 };
 // Horizontal exit: elastic fly-off with momentum feel
-export const EXIT_SPRING = { type: 'spring' as const, stiffness: 400, damping: 24, mass: 0.6 };
+export const EXIT_SPRING = { type: 'spring' as const, stiffness: 600, damping: 20, mass: 0.3 };
 // Vertical skip exit: slightly softer for page-turn feel
-export const VERTICAL_EXIT_SPRING = { type: 'spring' as const, stiffness: 380, damping: 22, mass: 0.7 };
+export const VERTICAL_EXIT_SPRING = { type: 'spring' as const, stiffness: 550, damping: 18, mass: 0.35 };
 
 
 
