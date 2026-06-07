@@ -105,7 +105,11 @@ body.swipe-deck-active #root {
 
 /* Push page content down while letting background bleed to top */
 .swipess-page-wrapper > *:not(.fixed):not(.absolute) {
-  padding-top: var(--top-bar-height) !important;
+  padding-top: calc(var(--top-bar-height) + env(safe-area-inset-top, 0px)) !important;
+}
+
+.swipess-page-wrapper {
+  padding-bottom: env(safe-area-inset-bottom, 0px) !important;
 }
 
 body.swipe-deck-active #dashboard-scroll-container {

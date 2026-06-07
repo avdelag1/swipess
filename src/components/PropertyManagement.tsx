@@ -250,7 +250,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-8 px-6 pt-12 pb-8 sticky top-[var(--top-bar-height)] z-50 bg-background/80 backdrop-blur-xl border-b border-white/5"
+          className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-8 px-6 pt-12 pb-8 relative z-50 bg-background/80 backdrop-blur-xl border-b border-white/5"
         >
           <div className="flex items-center gap-6">
             <div className="p-5 rounded-[1.4rem] bg-indigo-500/10 border border-indigo-500/20 shadow-2xl">
