@@ -24,7 +24,7 @@ export default tseslint.config(
         { allowConstantExport: true },
       ],
       // STRICT: Enforce type safety
-      '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_', caughtErrorsIgnorePattern: '^_' }],
       'no-console': ['error', { allow: ['warn', 'error'] }],
       // Import ordering

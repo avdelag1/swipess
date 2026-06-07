@@ -343,7 +343,6 @@ export function NotificationPopover({ className, children, glassPillStyle }: Not
             "backdrop-blur-3xl bg-background/70 saturate-150 overflow-hidden gap-0",
             className
           )}
-          onInteractOutside={() => setIsOpen(false)}
         >
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 10 }}

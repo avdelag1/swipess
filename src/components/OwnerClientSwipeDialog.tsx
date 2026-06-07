@@ -50,7 +50,12 @@ export function OwnerClientSwipeDialog({ open, onOpenChange }: OwnerClientSwipeD
         city: selectedProfileRaw.city,
         interests: selectedProfileRaw.interests,
         verified: selectedProfileRaw.verified,
-      }
+        preferred_activities: [],
+        lifestyle_tags: (selectedProfileRaw as any).lifestyle_tags || [],
+        matchPercentage: 0,
+        matchReasons: [],
+        incompatibleReasons: [],
+      } as any
     : null;
 
   return (

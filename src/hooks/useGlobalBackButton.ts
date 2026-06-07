@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+
 import { App as CapacitorApp } from '@capacitor/app';
 import { Capacitor } from '@capacitor/core';
 import { useModalStore } from '@/state/modalStore';
@@ -13,7 +13,6 @@ import { useModalStore } from '@/state/modalStore';
  * 3. Navigate back through history natively otherwise.
  */
 export function useGlobalBackButton() {
-  const location = useLocation();
 
   useEffect(() => {
     // We only attach this listener on Native Mobile builds (Android APK).

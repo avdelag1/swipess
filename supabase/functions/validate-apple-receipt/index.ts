@@ -192,8 +192,9 @@ Deno.serve(async (req) => {
       JSON.stringify({ ok: true, environment: verified.environment, productId }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
-  } catch (e: any) {
-    return new Response(JSON.stringify({ ok: false, error: e?.message ?? 'Server error' }), {
+  } catch (e: unknown) {
+    const message = e instanceof Error ? e.message : 'Server error';
+    return new Response(JSON.stringify({ ok: false, error: message }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });

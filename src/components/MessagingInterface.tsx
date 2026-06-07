@@ -89,7 +89,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
     queryFn: async () => {
       const { data } = await supabase
         .from('client_profiles')
-        .select('name, age, city, gender, bio, occupation, profile_images, interests, lifestyle_tags, work_schedule, verified')
+        .select('name, age, city, gender, bio, occupation, profile_images, interests, work_schedule, verified')
         .eq('user_id', otherUser.id)
         .maybeSingle();
       return data;
@@ -273,7 +273,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
             "shrink-0 px-4 py-3 min-h-[72px] flex items-center z-20 backdrop-blur-3xl border-b transition-all pt-safe",
             isThemeLight
               ? "bg-white/80 border-black/[0.06] shadow-sm"
-              : "bg-[#18181B]/80 border-white/[0.08] shadow-[0_1px_0_rgba(255,255,255,0.06)]"
+              : "bg-card/90 border-white/[0.08] shadow-[0_1px_0_rgba(255,255,255,0.06)]"
         )}>
           <div className="flex items-center w-full gap-4">
             <button
@@ -356,7 +356,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
                     <MoreVertical className="w-5 h-5" />
                   </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" sideOffset={8} className={cn("z-[10050] rounded-[1.5rem] p-2 shadow-2xl backdrop-blur-xl min-w-[200px]", isThemeLight ? "bg-white text-slate-900 border-slate-200" : "bg-[#0e0e18] text-white border-white/[0.08]")}>
+                <DropdownMenuContent align="end" sideOffset={8} className={cn("z-[10050] rounded-[1.5rem] p-2 shadow-2xl backdrop-blur-xl min-w-[200px]", isThemeLight ? "bg-white text-slate-900 border-slate-200" : "bg-secondary text-white border-white/[0.08]")}>
                   <DropdownMenuItem
                     className="p-4 rounded-[1rem] focus:bg-white/[0.07] cursor-pointer font-black uppercase tracking-widest text-[10px] gap-3"
                     onClick={() => { setMenuOpen(false); setShowInsightsModal(true); }}
@@ -405,7 +405,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
 
         <div
           id="chat-scroll-container"
-          className={cn("flex-1 flex flex-col relative min-h-0", isThemeLight ? "bg-[#f5f5f7]" : "bg-black")}
+          className={cn("flex-1 flex flex-col relative min-h-0", isThemeLight ? "bg-[#f5f5f7]" : "bg-background")}
           ref={messagesContainerRef}
         >
           {messages.length === 0 ? (
@@ -432,7 +432,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
 
         <div className={cn(
           "shrink-0 px-4 py-3 flex items-center backdrop-blur-3xl border-t transition-all pb-safe relative z-20",
-          isThemeLight ? "bg-white/90 border-black/[0.06] shadow-[0_-10px_40px_rgba(0,0,0,0.03)]" : "bg-[#18181B]/90 border-white/[0.08] shadow-[0_-10px_40px_rgba(0,0,0,0.5)]"
+          isThemeLight ? "bg-white/90 border-black/[0.06] shadow-[0_-10px_40px_rgba(0,0,0,0.03)]" : "bg-card/90 border-white/[0.08] shadow-[0_-10px_40px_rgba(0,0,0,0.5)]"
         )}>
 
           <AnimatePresence>
@@ -548,7 +548,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
             interests: partnerProfile?.interests ?? [],
             preferred_activities: [],
             location: null,
-            lifestyle_tags: partnerProfile?.lifestyle_tags ?? [],
+            lifestyle_tags: (partnerProfile as any)?.lifestyle_tags ?? [],
             profile_images: partnerProfile?.profile_images?.length
               ? partnerProfile.profile_images
               : (otherUser.avatar_url ? [otherUser.avatar_url] : []),

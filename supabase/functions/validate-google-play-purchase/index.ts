@@ -90,7 +90,7 @@ async function _verifyWithGooglePlay(
 
     const accessToken = tokenData.access_token;
 
-    const apiUrl = `https://androidpublisher.googleapis.com/androidpublisher/v3/applications/${encodeURIComponent(packageName)}/purchases/products/${encodeURIComponent(productId)}/tokens/${encodeURIComponent(purchaseToken)}`;
+    const apiUrl = `https://androidpublisher.googleapis.com/androidpublisher/v3/applications/${encodeURIComponent(_packageName)}/purchases/products/${encodeURIComponent(productId)}/tokens/${encodeURIComponent(purchaseToken)}`;
 
     const verifyRes = await fetch(apiUrl, {
       headers: { Authorization: `Bearer ${accessToken}` },
@@ -200,7 +200,7 @@ Deno.serve(async (req) => {
         user_id: userId,
         product_id: productId,
         purchase_token: purchaseToken,
-        order_id: verification.orderId || clientOrderId || null,
+        order_id: clientOrderId || null,
         purchase_time: purchaseDate,
         environment: 'Production',
         verified: true,
@@ -274,8 +274,9 @@ Deno.serve(async (req) => {
       JSON.stringify({ ok: true, environment: 'Production', productId, verified: true }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
-  } catch (e) {
-    return new Response(JSON.stringify({ ok: false, error: e?.message ?? 'Server error' }), {
+  } catch (e: unknown) {
+    const message = e instanceof Error ? e.message : 'Server error';
+    return new Response(JSON.stringify({ ok: false, error: message }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });

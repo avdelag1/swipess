@@ -8,20 +8,20 @@
     /* Background colors - Pure AMOLED Black */
     --background: 0 0% 0%;
     --foreground: 0 0% 100%;
-    --card: 0 0% 7%;
+    --card: 0 0% 5%;
     --card-foreground: 0 0% 100%;
     --primary: 343 99% 65%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 212 14% 22%;
+    --secondary: 0 0% 10%;
     --secondary-foreground: 0 0% 100%;
-    --muted: 212 14% 19%;
+    --muted: 0 0% 14%;
     --muted-foreground: 212 10% 82%;
     --accent: 343 99% 65%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-    --border: 216 15% 18%;
-    --input: 0 0% 8%;
+    --border: 0 0% 18%;
+    --input: 0 0% 10%;
     --ring: 352 83% 62%;
 
     /* Semantic UI Tokens */
@@ -34,13 +34,13 @@
 
     /* Modern theme variables */
     --bg-primary: 0 0% 0%;
-    --bg-secondary: 0 0% 4%;
-    --bg-tertiary: 0 0% 8%;
+    --bg-secondary: 0 0% 5%;
+    --bg-tertiary: 0 0% 10%;
     --text-primary: 0 0% 100%;
     --text-secondary: 216 10% 78%;
     --text-tertiary: 216 10% 55%;
-    --border-primary: 216 15% 18%;
-    --border-secondary: 216 15% 23%;
+    --border-primary: 0 0% 18%;
+    --border-secondary: 0 0% 23%;
     --accent-primary: 352 83% 62%;
     --accent-secondary: 352 83% 72%;
 

@@ -41,8 +41,8 @@ const getCategoryColor = (category: string) => {
 
 export const PropertyManagement = memo(({ initialCategory, initialMode }: PropertyManagementProps) => {
   const { user: _user } = useAuth();
-  const { _theme, isLight } = useAppTheme();
-  const { data: listings = [], isLoading, _error } = useOwnerListings();
+  const { isLight } = useAppTheme();
+  const { data: listings = [], isLoading } = useOwnerListings();
   const { data: listingsWithLikes = [] } = useOwnerListingLikes();
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState(initialCategory || 'all');

@@ -4,7 +4,7 @@ import { Moon, Sun } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ThemeContext } from '@/hooks/useAppTheme';
 import { useContext } from 'react';
-import { useLocation } from 'react-router-dom';
+
 import { triggerHaptic } from '@/utils/haptics';
 
 type Theme = 'light' | 'dark';
@@ -20,8 +20,7 @@ function ThemeToggleComponent({ className, glassPillStyle }: ThemeToggleProps) {
     const themeContext = useContext(ThemeContext);
     const theme = themeContext?.theme ?? 'dark';
     const setTheme = themeContext?.setTheme ?? (() => {});
-    const { pathname } = useLocation();
-    const isDashboard = /^\/(client|owner|admin)\/dashboard\/?/.test(pathname);
+
     const isLight = theme === 'light';
     // Follow theme globally
     const iconColor = !isLight ? '#FFFFFF' : '#0A0A0A';

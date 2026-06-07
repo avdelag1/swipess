@@ -259,7 +259,7 @@ async function searchProfiles(query: string): Promise<string> {
     const clientMap = new Map((clientProfiles ?? []).map(cp => [cp.user_id, cp]));
 
     const lines = profiles.map(p => {
-      const cp = clientMap.get(p.user_id);
+      const cp = clientMap.get(p.user_id) as any;
       const name = p.full_name || "Anonymous";
       const firstName = name.split(" ")[0];
       let desc = `👤 **${firstName}`;
@@ -276,7 +276,7 @@ async function searchProfiles(query: string): Promise<string> {
     }).join("\n");
 
     const structured = profiles.map(p => {
-      const cp = clientMap.get(p.user_id);
+      const cp = clientMap.get(p.user_id) as any;
       let img = p.avatar_url || "";
       if (!img && Array.isArray(cp?.profile_images) && cp.profile_images.length > 0) {
         const first = cp.profile_images[0];

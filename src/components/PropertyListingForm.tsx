@@ -147,13 +147,13 @@ function normalizeInitialData(raw: any): Partial<PropertyFormData> {
     square_footage: num(raw.square_footage),
     furnished: !!raw.furnished,
     pet_friendly: !!raw.pet_friendly,
-    amenities: chipsFromString(raw.amenities),
-    services_included: chipsFromString(raw.services_included),
+    amenities: chipsFromString(raw.amenities).filter((v): v is string => !!v),
+    services_included: chipsFromString(raw.services_included).filter((v): v is string => !!v),
     rental_duration_type: raw.rental_duration_type ?? undefined,
-    house_rules: chipsFromString(raw.house_rules),
-    vibe: chipsFromString(raw.vibe),
-    adjectives: chipsFromString(raw.adjectives),
-    size: chipsFromString(raw.size),
+    house_rules: chipsFromString(raw.house_rules).filter((v): v is string => !!v),
+    vibe: chipsFromString(raw.vibe).filter((v): v is string => !!v),
+    adjectives: chipsFromString(raw.adjectives).filter((v): v is string => !!v),
+    size: chipsFromString(raw.size).filter((v): v is string => !!v),
   };
 }
 

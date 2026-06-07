@@ -50,7 +50,6 @@ const LandingView = memo(({
   onEnterAuth: (mode: 'login' | 'signup') => void;
   siteContent?: any;
 }) => {
-  const bgImage = getContentValue(siteContent, 'landing_background');
   const btnColor = getContentValue(siteContent, 'landing_hero_btn_color');
   const btnText = getContentValue(siteContent, 'landing_hero_btn_text', 'Create Account');
   const title = getContentValue(siteContent, 'landing_hero_title');

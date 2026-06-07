@@ -19,7 +19,7 @@ import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
-  Building2, CircleUser, Flame, IdCard,
+  Flame,
   MessageCircle, PartyPopper,
   Radio, Scale as ScaleIcon, SlidersHorizontal,
   Sparkles, Zap, PlusCircle, ShieldCheck
@@ -72,9 +72,6 @@ export const TAP_SPRING = {
 
 export const BottomNavigation = memo(({
   onFilterClick,
-  onAddListingClick,
-  onListingsClick,
-  userRole,
   className,
 }: BottomNavigationProps) => {
   const { navigate } = useAppNavigate();

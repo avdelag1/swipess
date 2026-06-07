@@ -191,7 +191,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
       img.onload = async () => {
         try {
           if ('decode' in img) await img.decode();
-        } catch {}
+        } catch (_e) { /* ignore */ }
         imageCache.set(optimizedUrl, true);
       };
       img.src = optimizedUrl;

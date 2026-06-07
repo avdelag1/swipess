@@ -16,6 +16,7 @@ interface QuickFilterImageProps {
 export function QuickFilterImage({ src, alt, className, animationDelay = '0s' }: QuickFilterImageProps) {
   const images = Array.isArray(src) ? src : [src];
   const [activeIndex, setActiveIndex] = useState(0);
+  const isDragging = React.useRef(false);
 
   useEffect(() => {
     if (images.length <= 1) return;
@@ -52,8 +53,6 @@ export function QuickFilterImage({ src, alt, className, animationDelay = '0s' }:
     );
   }
 
-  const isDragging = React.useRef(false);
-  const pointerStartX = React.useRef(0);
 
   return (
     <div className="absolute inset-0 w-full h-full overflow-hidden bg-slate-900/50 pointer-events-auto touch-none">
