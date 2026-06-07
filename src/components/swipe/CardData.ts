@@ -154,13 +154,13 @@ export const POKER_CARD_PHOTOS: Record<string, string[]> = {
     'https://images.unsplash.com/photo-1534723452862-4c874018d66d?auto=format&fit=crop&w=800&q=90',
   ],
   services: [
-    '/images/filters/workers.jpg',
+    '/images/filters/friendly_babysitter.png',
     '/images/filters/workers_tulum_team.jpg',
     '/images/filters/workers_tulum_directory.jpg',
     'https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=800&q=90',
   ],
   worker: [
-    '/images/filters/workers.jpg',
+    '/images/filters/friendly_babysitter.png',
     '/images/filters/workers_tulum_team.jpg',
     '/images/filters/workers_tulum_directory.jpg',
     'https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=800&q=90',
@@ -215,7 +215,7 @@ export const POKER_CARD_PHOTOS: Record<string, string[]> = {
   'ai-listing': ['/images/filters/ai_listing_card.jpg', '/images/filters/ai_listing_card.png', '/images/filters/ai_listing_card.jpg'],
   promote: ['/images/filters/owner_promote_card.jpg', '/images/filters/promote_dj_set_1780637360943.png', '/images/filters/owner_promote_card.png'],
   pros: [
-    '/images/filters/workers.jpg',
+    '/images/filters/friendly_babysitter.png',
     '/images/filters/workers_tulum_team.jpg',
     'https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=800&q=90',
   ],
