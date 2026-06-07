@@ -28,6 +28,7 @@ import { cn } from '@/lib/utils';
 import { usePresence } from '@/hooks/usePresence';
 import { useBlockUser } from '@/hooks/useBlocking';
 import { useSiteContent } from '@/hooks/useSiteContent';
+import { useVoiceTranscribe } from '@/hooks/useVoiceTranscribe';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -130,8 +131,11 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
   useEffect(() => { inputValueRef.current = newMessage; }, [newMessage]);
   useEffect(() => { isListeningRef.current = isListening; }, [isListening]);
 
+  const { start: startVoiceTranscribe, stop: stopVoiceTranscribe, isRecording: isVoiceRecording } = useVoiceTranscribe();
+
   const speechSupported = typeof window !== 'undefined' &&
     ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window);
+  // On iOS Safari, speechSupported is false — we always show the mic and use Whisper fallback.
 
   const cancelCountdown = useCallback(() => {
     if (countdownRef.current) { clearInterval(countdownRef.current); countdownRef.current = null; }
@@ -161,8 +165,13 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
     }, 1000);
   }, [sendMessage, conversationId]);
 
-  const startListening = useCallback(() => {
-    if (!speechSupported) return;
+  const startListening = useCallback(async () => {
+    // iOS Safari / in-app browsers: use Whisper MediaRecorder fallback
+    if (!speechSupported) {
+      const ok = await startVoiceTranscribe();
+      if (ok) { setIsListening(true); triggerHaptic('medium'); uiSounds.playMicOn(); }
+      return;
+    }
     const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     const recognition = new SR();
     recognition.continuous = true;
@@ -209,13 +218,24 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
     recognition.start();
   }, [speechSupported, armSilenceCountdown, cancelCountdown]);
 
-  const stopListening = useCallback(() => {
+  const stopListening = useCallback(async () => {
+    // iOS Safari / in-app browsers fallback
+    if (!speechSupported) {
+      setIsListening(false);
+      const text = await stopVoiceTranscribe();
+      if (text) {
+        setNewMessage(prev => (prev + ' ' + text).trim());
+        armSilenceCountdown();
+      }
+      uiSounds.playMicOff();
+      return;
+    }
     isListeningRef.current = false;
     setIsListening(false);
     recognitionRef.current?.stop();
     cancelCountdown();
     uiSounds.playMicOff();
-  }, [cancelCountdown]);
+  }, [speechSupported, stopVoiceTranscribe, cancelCountdown, armSilenceCountdown]);
 
   useEffect(() => {
     const messageCountIncreased = messages.length > previousMessageCountRef.current;
@@ -476,15 +496,14 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
                 disabled={sendMessage.isPending}
               />
               
-              {speechSupported && (
+              {/* Mic button — always visible, iOS uses Whisper fallback */}
                 <button
                   type="button"
                   onClick={isListening ? stopListening : startListening}
-                  className={cn("absolute right-2 bottom-1.5 w-9 h-9 rounded-full flex items-center justify-center transition-all", isListening ? "bg-red-500 text-white shadow-[0_0_15px_rgba(239,68,68,0.4)] animate-pulse" : (isThemeLight ? "text-black/30 hover:text-rose-500 hover:bg-rose-50" : "text-white/30 hover:text-rose-400 hover:bg-rose-500/10"))}
+                  className={cn("absolute right-2 bottom-1.5 w-9 h-9 rounded-full flex items-center justify-center transition-all", (isListening || isVoiceRecording) ? "bg-red-500 text-white shadow-[0_0_15px_rgba(239,68,68,0.4)] animate-pulse" : (isThemeLight ? "text-black/30 hover:text-rose-500 hover:bg-rose-50" : "text-white/30 hover:text-rose-400 hover:bg-rose-500/10"))}
                 >
-                  {isListening ? <MicOff className="z-[10000] w-4 h-4" /> : <Mic className="z-[10000] w-4 h-4" />}
+                  {(isListening || isVoiceRecording) ? <MicOff className="z-[10000] w-4 h-4" /> : <Mic className="z-[10000] w-4 h-4" />}
                 </button>
-              )}
             </div>
 
             <AnimatePresence>

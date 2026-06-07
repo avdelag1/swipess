@@ -30,6 +30,32 @@ export function AIProfileWizard() {
   const [isExtracting, setIsExtracting] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const { isRecording, isTranscribing, start: startVoice, stop: stopVoice } = useVoiceTranscribe();
+  const [isEnhancing, setIsEnhancing] = useState(false);
+
+  // ✨ AI Enhance: polishes the raw narrative before building the profile
+  const handleEnhanceNarrative = async () => {
+    const raw = narrative.trim();
+    if (!raw || raw.length < 10) { toast.error('Write a bit more first!'); return; }
+    setIsEnhancing(true);
+    triggerHaptic('medium');
+    try {
+      const { data, error } = await supabase.functions.invoke('ai-profile-extract', {
+        body: { mode, narrative: raw, task: 'enhance' },
+      });
+      if (error) throw error;
+      // If we get back a polished narrative string, use it; otherwise fall back
+      const improved: string = (data as any)?.narrative || (data as any)?.enhanced || raw;
+      setNarrative(improved);
+      toast.success('✨ Narrative improved!');
+      triggerHaptic('success');
+    } catch (err) {
+      console.warn('[AIProfileEnhance] failed', err);
+      // Graceful fallback — don't wipe the user's text
+      toast.error('Could not improve text. Try again.');
+    } finally {
+      setIsEnhancing(false);
+    }
+  };
 
   const initialOpen = useRef(showAIProfile);
   useEffect(() => {
@@ -293,7 +319,25 @@ export function AIProfileWizard() {
                     </div>
 
                     <div className="relative">
-                      <Search className="absolute left-5 top-5 w-4 h-4 text-cyan-400 opacity-60" />
+                      {/* Enhance button above textarea */}
+                      <div className="flex items-center justify-between mb-2">
+                        <span className={cn("text-[10px] font-black uppercase tracking-[0.2em]", textMuted)}>Your description</span>
+                        <button
+                          type="button"
+                          onClick={handleEnhanceNarrative}
+                          disabled={!narrative.trim() || isEnhancing}
+                          className={cn(
+                            "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all border active:scale-95",
+                            narrative.trim() && !isEnhancing
+                              ? "bg-violet-500/10 border-violet-500/30 text-violet-400 hover:bg-violet-500/20"
+                              : "opacity-30 bg-white/5 border-white/10 text-white/40 cursor-not-allowed"
+                          )}
+                        >
+                          {isEnhancing ? <Loader2 className="w-3 h-3 animate-spin" /> : <Wand2 className="w-3 h-3" />}
+                          {isEnhancing ? 'Improving...' : '✨ Make it better'}
+                        </button>
+                      </div>
+                      <Search className="absolute left-5 top-[52px] w-4 h-4 text-cyan-400 opacity-60" />
                       <textarea
                         value={narrative}
                         onChange={(e) => setNarrative(e.target.value)}
@@ -301,7 +345,7 @@ export function AIProfileWizard() {
                         className={cn("w-full h-44 p-5 pl-14 rounded-[2rem] text-sm leading-relaxed resize-none outline-none focus:ring-1 focus:ring-cyan-500/30", inputCls)}
                       />
                       {isTranscribing && (
-                        <div className="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-sm rounded-[2rem]">
+                        <div className="absolute inset-0 mt-[44px] flex items-center justify-center bg-black/20 backdrop-blur-sm rounded-[2rem]">
                           <div className="flex items-center gap-3 px-4 py-2 bg-black rounded-full border border-cyan-500/30">
                             <Loader2 className="w-4 h-4 text-cyan-400 animate-spin" />
                             <span className="text-[10px] font-black uppercase tracking-widest text-cyan-400">Transcribing</span>

@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { 
   ArrowLeft, Bike, Briefcase, Building2, Camera, ChevronRight,
-  DollarSign, HelpCircle, Loader2, MapPin, Mic, Search, Sparkles, X, Zap
+  DollarSign, HelpCircle, Loader2, MapPin, Mic, Search, Sparkles, Wand2, X, Zap
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -159,6 +159,30 @@ export function AIListingWizard() {
   const [progressPct, setProgressPct] = useState(0);
   const { isRecording, isTranscribing, start: startVoice, stop: stopVoice } = useVoiceTranscribe();
   const [micTipOpen, setMicTipOpen] = useState(false);
+  const [isEnhancing, setIsEnhancing] = useState(false);
+
+  // ✨ AI Enhance: improves raw text using the ai-listing-extract edge function
+  const handleEnhance = async () => {
+    const raw = prompt.trim();
+    if (!raw) { toast.error('Type or speak something first!'); return; }
+    setIsEnhancing(true);
+    triggerHaptic('medium');
+    try {
+      const { data, error } = await supabase.functions.invoke('ai-listing-extract', {
+        body: { task: 'enhance', prompt: raw, category, price, city: cityLocation },
+      });
+      if (error) throw error;
+      const improved: string = (data as any)?.description || (data as any)?.data?.description || raw;
+      setPrompt(improved);
+      toast.success('✨ Description enhanced!');
+      triggerHaptic('success');
+    } catch (err) {
+      console.warn('[AIEnhance] failed', err);
+      toast.error('Could not enhance text. Try again.');
+    } finally {
+      setIsEnhancing(false);
+    }
+  };
 
   // Auto-open mic instructions the first time a user hits the details step
   useEffect(() => {
@@ -713,6 +737,25 @@ export function AIListingWizard() {
 
                           <div className="flex items-center justify-between ml-2">
                              <label className={cn("text-[10px] font-black uppercase tracking-[0.2em]", textMuted)}>Manual Override</label>
+                             {/* ✨ AI Enhance Button */}
+                             <button
+                               type="button"
+                               onClick={handleEnhance}
+                               disabled={!prompt.trim() || isEnhancing}
+                               className={cn(
+                                 "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all border active:scale-95",
+                                 prompt.trim() && !isEnhancing
+                                   ? "bg-violet-500/10 border-violet-500/30 text-violet-400 hover:bg-violet-500/20"
+                                   : "opacity-30 bg-white/5 border-white/10 text-white/50 cursor-not-allowed"
+                               )}
+                             >
+                               {isEnhancing ? (
+                                 <Loader2 className="w-3 h-3 animate-spin" />
+                               ) : (
+                                 <Wand2 className="w-3 h-3" />
+                               )}
+                               {isEnhancing ? 'Enhancing...' : '✨ Make it better'}
+                             </button>
                           </div>
                           <div className="relative">
                              <Search className="absolute left-5 top-5 w-4 h-4 text-cyan-400 opacity-60" />
