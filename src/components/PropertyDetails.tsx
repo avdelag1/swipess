@@ -174,33 +174,37 @@ export function PropertyDetails({ listingId, isOpen, onClose, onMessageClick }: 
                 </div>
               </div>
 
-              {/* Property Details Grid */}
-              <div className="grid grid-cols-3 gap-4">
+              {/* Property Details Scroll */}
+              <div className="flex overflow-x-auto pb-2 gap-3 snap-x scrollbar-none mask-fade-edges">
                 {[
                   { icon: Bed, value: listing.beds, label: 'Beds' },
                   { icon: Bath, value: listing.baths, label: 'Baths' },
                   { icon: Square, value: listing.square_footage, label: 'Sq Ft' }
                 ].map((item, i) => (
-                  <div key={i} className="flex flex-col items-center justify-center p-4 transition-all hover:scale-105 bg-card border border-border shadow-sm rounded-2xl">
-                    <item.icon className="w-6 h-6 mb-2 text-primary" />
-                    <div className="font-black text-xl leading-none">{item.value}</div>
-                    <div className="text-[10px] font-black uppercase tracking-widest opacity-70 mt-1">{item.label}</div>
+                  <div key={i} className="flex-shrink-0 flex items-center gap-4 p-4 px-6 transition-all bg-card/40 backdrop-blur-xl border border-white/5 shadow-lg rounded-[2rem] snap-start hover:bg-card/60">
+                    <div className="p-2 bg-primary/20 rounded-full">
+                      <item.icon className="w-5 h-5 text-primary" />
+                    </div>
+                    <div>
+                      <div className="font-black text-xl leading-none">{item.value}</div>
+                      <div className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mt-1">{item.label}</div>
+                    </div>
                   </div>
                 ))}
               </div>
 
               {/* Tags */}
               <div className="flex flex-wrap gap-2">
-                <Badge className="text-[10px] font-black uppercase tracking-widest px-4 py-2 bg-secondary">
+                <Badge variant="secondary" className="px-4 py-2">
                   {listing.property_type}
                 </Badge>
                 {listing.furnished && (
-                  <Badge className="text-[10px] font-black uppercase tracking-widest px-4 py-2 bg-secondary">
+                  <Badge variant="secondary" className="px-4 py-2">
                     Furnished
                   </Badge>
                 )}
                 {listing.amenities?.map((amenity) => (
-                  <Badge key={amenity} className="text-[10px] font-black uppercase tracking-widest px-4 py-2 variant-outline">
+                  <Badge key={amenity} variant="outline" className="px-4 py-2">
                     {amenity}
                   </Badge>
                 ))}
@@ -216,19 +220,19 @@ export function PropertyDetails({ listingId, isOpen, onClose, onMessageClick }: 
 
               {/* Owner Info */}
               {listing.profiles && (
-                <div className="pt-10 border-t">
-                  <h3 className="mb-4 font-black uppercase tracking-widest text-xl font-semibold">Authority Presence</h3>
-                  <div className="flex items-center gap-6 p-6 transition-all bg-card border border-border shadow-sm rounded-2xl">
+                <div className="pt-10 pb-32 border-t border-border/50">
+                  <h3 className="mb-4 font-black uppercase tracking-widest text-xl text-foreground">Authority Presence</h3>
+                  <div className="flex items-center gap-6 p-6 transition-all bg-card/30 backdrop-blur-md border border-white/5 shadow-lg rounded-[2rem] hover:bg-card/50">
                     <img
                       src={listing.profiles.avatar_url || '/placeholder.svg'}
                       alt={listing.profiles.full_name}
-                      className="object-cover w-16 h-16 rounded-full"
+                      className="object-cover w-16 h-16 rounded-full ring-2 ring-primary/20"
                     />
                     <div>
-                      <div className="text-xl font-black uppercase italic leading-none">
+                      <div className="text-xl font-black uppercase italic leading-none text-foreground">
                         {listing.profiles.full_name}
                       </div>
-                      <div className="text-[11px] font-black uppercase tracking-widest opacity-70 mt-1">Certified Listing Authority</div>
+                      <div className="text-[11px] font-black uppercase tracking-widest text-primary mt-2">Certified Listing Authority</div>
                     </div>
                   </div>
                 </div>
@@ -236,17 +240,17 @@ export function PropertyDetails({ listingId, isOpen, onClose, onMessageClick }: 
               </div>
             </ScrollArea>
 
-            {/* Action Buttons - Fixed at bottom */}
-            <div className="shrink-0 p-8 pt-4 pb-[calc(env(safe-area-inset-bottom,0px)+24px)] border-t bg-background/95 backdrop-blur-sm">
-              <div className="flex gap-4 max-w-screen-md mx-auto">
+            {/* Action Buttons - Floating Glass Pill */}
+            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 w-[calc(100%-3rem)] max-w-md z-50 pointer-events-none">
+              <div className="flex gap-3 p-2 bg-background/50 backdrop-blur-3xl border border-white/10 rounded-full shadow-[0_20px_40px_rgba(0,0,0,0.6)] pointer-events-auto">
                 <Button
                   variant="outline"
-                  className="flex-1 gap-2 h-16"
+                  className="flex-1 gap-2 h-14 rounded-full border-white/5 bg-white/5 hover:bg-white/10 hover:border-white/10"
                   onClick={() => handleSwipe('left')}
                   disabled={swipeMutation.isPending}
                 >
-                  <X className="w-6 h-6" />
-                  <span className="hidden sm:inline">Pass</span>
+                  <X className="w-5 h-5" />
+                  <span className="hidden sm:inline font-bold tracking-wide">Pass</span>
                 </Button>
                 
                 {/* Check if direct messaging is available for this listing category */}
@@ -256,23 +260,23 @@ export function PropertyDetails({ listingId, isOpen, onClose, onMessageClick }: 
                   return (
                     <Button
                       variant="outline"
-                      className="flex-1 gap-2 h-16"
+                      className="flex-[1.5] gap-2 h-14 rounded-full border-white/5 bg-white/5 hover:bg-white/10 hover:border-white/10"
                       onClick={canMessage ? onMessageClick : () => {}}
                       disabled={!canMessage}
                     >
                       {isDirectMessaging && <Zap className="w-4 h-4 text-amber-400" />}
-                      <MessageCircle className="w-6 h-6" />
-                      <span className="hidden sm:inline">{isDirectMessaging ? 'Free Message' : (hasPremiumMessaging ? 'Message' : 'Locked')}</span>
+                      <MessageCircle className="w-5 h-5" />
+                      <span className="font-bold tracking-wide">{isDirectMessaging ? 'Free Message' : (hasPremiumMessaging ? 'Message' : 'Locked')}</span>
                     </Button>
                   );
                 })()}
                 
                 <Button
-                  className="flex-1 gap-2 h-16 bg-gradient-to-r from-orange-500 to-red-600 hover:scale-[1.02] transition-all shadow-lg shadow-orange-500/20 text-white font-black uppercase italic tracking-widest border-none"
+                  className="flex-1 gap-2 h-14 rounded-full bg-gradient-to-r from-orange-500 to-red-600 hover:scale-[1.02] transition-all shadow-[0_0_25px_rgba(249,115,22,0.4)] text-white font-black uppercase italic tracking-widest border-none"
                   onClick={() => handleSwipe('right')}
                   disabled={swipeMutation.isPending}
                 >
-                  <Flame className="w-6 h-6" />
+                  <Flame className="w-5 h-5" />
                   <span className="hidden sm:inline">Like</span>
                 </Button>
               </div>
