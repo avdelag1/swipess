@@ -157,13 +157,13 @@ export const POKER_CARD_PHOTOS: Record<string, string[]> = {
     '/images/filters/friendly_babysitter.png',
     '/images/filters/workers_tulum_team.jpg',
     '/images/filters/workers_tulum_directory.jpg',
-    'https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=800&q=90',
+
   ],
   worker: [
     '/images/filters/friendly_babysitter.png',
     '/images/filters/workers_tulum_team.jpg',
     '/images/filters/workers_tulum_directory.jpg',
-    'https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=800&q=90',
+
   ],
   radio: [
     '/images/filters/radio.jpg',
@@ -217,7 +217,7 @@ export const POKER_CARD_PHOTOS: Record<string, string[]> = {
   pros: [
     '/images/filters/friendly_babysitter.png',
     '/images/filters/workers_tulum_team.jpg',
-    'https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=800&q=90',
+
   ],
 };
 
