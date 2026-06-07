@@ -82,6 +82,8 @@ const PROPERTY_TYPES = [
   { value: 'studio', label: 'Studio' },
   { value: '2-bedroom apartment', label: '2-Bedroom Apartment' },
   { value: '4-bedroom apartment', label: '4-Bedroom Apartment' },
+  { value: 'mobile_home', label: 'Mobile Home' },
+  { value: 'camper', label: 'Camper / RV' },
   { value: 'land', label: 'Land' },
   { value: 'building', label: 'Building' },
   { value: 'glamping', label: 'Glamping' },

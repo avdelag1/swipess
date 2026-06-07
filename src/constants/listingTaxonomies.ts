@@ -28,12 +28,12 @@ export const PROPERTY_VIBE = [
 
 export const PROPERTY_FEATURES = [
   'Private Pool', 'Shared Pool', 'Gym', 'Parking', 'Garage', 'Carport',
-  'AC', 'WiFi', 'Security 24/7', 'Garden', 'Balcony', 'Terrace',
-  'Rooftop', 'Elevator', 'Storage', 'Workspace', 'Office Nook',
-  '2-in-1 Washer/Dryer', 'Separate Washer & Dryer', 'Laundry Room',
-  'Dishwasher', 'Smart-home', 'Solar', 'Backup water',
+  'AC', 'WiFi', 'Security 24/7', 'Security Cameras', 'Garden', 'Balcony', 'Terrace',
+  'Rooftop', 'Elevator', 'Storage', 'Workspace', 'Office Space',
+  '2-in-1 Washer/Dryer', 'Separate Washer & Dryer', 'Laundry Room', 'Washer',
+  'Dishwasher', 'Gas Stove', 'Water Filter / Osmosis', 'Smart-home', 'Solar Panels', 'Backup water',
   'Sea View', 'Mountain View', 'Garden View', 'Outdoor Kitchen',
-  'BBQ', 'Hot Tub', 'Sauna', 'Walk-in Closet', 'Fireplace',
+  'BBQ', 'Hot Tub', 'Sauna', 'Walk-in Closet', 'Fireplace', 'Mosquito Net', 'Sublease Option',
 ] as const;
 
 export const PROPERTY_INCLUDED = [

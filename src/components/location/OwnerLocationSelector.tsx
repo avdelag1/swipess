@@ -242,6 +242,7 @@ export function OwnerLocationSelector({
                       className="h-8 pl-8 text-sm"
                       onClick={(e) => e.stopPropagation()}
                       onKeyDown={(e) => e.stopPropagation()}
+                      onKeyUp={(e) => e.stopPropagation()}
                     />
                   </div>
                 </div>
@@ -306,6 +307,7 @@ export function OwnerLocationSelector({
                         className="h-8 pl-8 text-sm"
                         onClick={(e) => e.stopPropagation()}
                         onKeyDown={(e) => e.stopPropagation()}
+                        onKeyUp={(e) => e.stopPropagation()}
                       />
                     </div>
                   </div>
@@ -393,6 +395,7 @@ export function OwnerLocationSelector({
                         className="h-8 pl-8 text-sm"
                         onClick={(e) => e.stopPropagation()}
                         onKeyDown={(e) => e.stopPropagation()}
+                        onKeyUp={(e) => e.stopPropagation()}
                       />
                     </div>
                   </div>
