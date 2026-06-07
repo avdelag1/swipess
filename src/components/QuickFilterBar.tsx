@@ -1,9 +1,6 @@
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
 
-import { 
-  _Bike, _Briefcase, _Home, _Key, _RotateCcw, _ShoppingBag, 
-  _Wrench, Check, ChevronDown, Globe, User, Users 
-} from 'lucide-react';
+import { Check, ChevronDown, Globe, User, Users } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import useAppTheme from '@/hooks/useAppTheme';
 import { VespaIcon } from '@/components/icons/VespaIcon';

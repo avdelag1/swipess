@@ -198,6 +198,12 @@ function CollapsibleFilterButtonComponent({ filters, onChange, userRole, classNa
                       <div className="grid grid-cols-2 gap-2">
                         {categories.map((category) => {
                           const isActive = filters.categories.includes(category.id);
+                          const catColors: Record<string, string> = {
+                            property: 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-md shadow-orange-500/25',
+                            motorcycle: 'bg-gradient-to-r from-amber-500 to-yellow-500 text-white shadow-md shadow-amber-500/25',
+                            bicycle: 'bg-gradient-to-r from-violet-500 to-purple-500 text-white shadow-md shadow-violet-500/25',
+                            services: 'bg-gradient-to-r from-sky-500 to-blue-500 text-white shadow-md shadow-sky-500/25',
+                          };
                           return (
                             <motion.button
                               key={category.id}
@@ -207,7 +213,7 @@ function CollapsibleFilterButtonComponent({ filters, onChange, userRole, classNa
                               className={cn(
                                 'flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200',
                                 isActive
-                                  ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-md shadow-orange-500/25'
+                                  ? (catColors[category.id] || catColors.property)
                                   : 'bg-muted/50 text-muted-foreground hover:bg-muted border border-border'
                               )}
                             >
@@ -262,7 +268,7 @@ function CollapsibleFilterButtonComponent({ filters, onChange, userRole, classNa
                               className={cn(
                                 'flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200',
                                 isActive
-                                  ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-md shadow-orange-500/25'
+                                  ? 'bg-primary text-primary-foreground shadow-md'
                                   : 'bg-muted/50 text-muted-foreground hover:bg-muted border border-border'
                               )}
                             >

@@ -65,7 +65,7 @@ const ClientProfile = () => {
   }
 
   return (
-    <div className={cn("w-full relative min-h-full", isLight ? "bg-white text-slate-900" : "bg-[#020202] text-white")}>
+    <div className={cn("w-full relative min-h-full", "bg-background text-foreground")}>
 
       {/* 🛸 SWIPES ATMOSPHERIC LAYER */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">

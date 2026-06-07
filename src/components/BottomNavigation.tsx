@@ -283,7 +283,6 @@ export const BottomNavigation = memo(({
           "rounded-full"
         )}
         style={{
-          background: undefined,
           filter: isLight
             ? 'drop-shadow(0 4px 12px rgba(0,0,0,0.12))'
             : 'drop-shadow(0 8px 32px rgba(0,0,0,0.45))',
@@ -396,11 +395,11 @@ export const BottomNavigation = memo(({
                     style={{
                       width: isTablet ? ICON_SIZE_TABLET : (isNarrow ? 20 : ICON_SIZE),
                       height: isTablet ? ICON_SIZE_TABLET : (isNarrow ? 20 : ICON_SIZE),
-                      color: item.id === 'add' ? '#FF3366' : (active ? baseColor : (isLight ? 'rgba(0,0,0,0.65)' : 'rgba(255,255,255,0.95)')),
+                      color: item.id === 'add' ? '#FF3366' : (active ? baseColor : (isLight ? 'rgba(0,0,0,0.55)' : 'rgba(255,255,255,0.6)')),
                       fill: 'none',
                       strokeWidth: active ? 2.0 : 1.4,
                       filter: item.id === 'add' ? 'drop-shadow(0 0 12px rgba(255,51,102,0.6))' : (active ? activeGlow : undefined),
-                      transition: 'color 120ms ease-out, filter 120ms ease-out',
+                      transition: 'color 120ms ease-out, filter 120ms ease-out, stroke-width 120ms ease-out',
                     }}
                   />
                 </div>
@@ -413,7 +412,7 @@ export const BottomNavigation = memo(({
                         isTablet ? 'text-[12px]' : 'text-[10px]',
                       )}
                       style={{
-                        color: item.id === 'add' ? '#FF3366' : (active ? baseColor : (isLight ? 'rgba(0,0,0,0.65)' : 'rgba(255,255,255,0.95)')),
+                        color: item.id === 'add' ? '#FF3366' : (active ? baseColor : (isLight ? 'rgba(0,0,0,0.55)' : 'rgba(255,255,255,0.6)')),
                         textShadow: item.id === 'add' ? '0 0 8px rgba(255,51,102,0.4)' : (active && isLight ? '0 0 4px rgba(0,0,0,0.1)' : undefined),
                         transition: 'color 120ms ease-out',
                         zIndex: 1,

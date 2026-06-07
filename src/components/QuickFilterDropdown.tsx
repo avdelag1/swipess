@@ -224,7 +224,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
                 className={cn(
                   'flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs font-semibold transition-all duration-75 touch-manipulation border',
                   categories.length === 0
-                    ? 'bg-gradient-to-br from-rose-500 via-rose-600 to-orange-500 text-black border-transparent shadow-lg shadow-rose-500/20'
+                    ? 'bg-primary text-primary-foreground border-transparent shadow-lg'
                     : isDark ? 'bg-white/5 border-border text-foreground hover:bg-white/10' : 'bg-black/[0.03] border-border text-gray-700 hover:bg-black/[0.05]'
                 )}
               >
@@ -242,7 +242,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
                     className={cn(
                       'flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs font-semibold transition-all duration-75 touch-manipulation border',
                       isActive
-                        ? 'bg-gradient-to-br from-rose-500 via-rose-600 to-orange-500 text-black border-transparent shadow-lg shadow-rose-500/20'
+                        ? cn('bg-gradient-to-br text-white border-transparent shadow-lg', option.color)
                         : cn('transition-all duration-200', option.inactiveColor, option.bgTint, option.border, 'hover:border-border/80')
                     )}
                   >
@@ -268,7 +268,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
                     className={cn(
                       'flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs font-semibold transition-all duration-75 touch-manipulation border',
                       isActive
-                        ? 'bg-gradient-to-br from-rose-500 via-rose-600 to-orange-500 text-black border-transparent shadow-lg shadow-rose-500/20'
+                        ? cn('bg-gradient-to-br text-white border-transparent shadow-lg', option.color)
                         : cn('transition-all duration-200', option.inactiveColor, option.bgTint, option.border, 'hover:border-border/80')
                     )}
                   >
@@ -294,7 +294,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
                     className={cn(
                       'flex items-center justify-center gap-1.5 px-2 py-2.5 rounded-xl text-xs font-semibold transition-all duration-75 touch-manipulation border',
                       isActive
-                        ? 'bg-gradient-to-br from-rose-500 via-rose-600 to-orange-500 text-black border-transparent shadow-lg shadow-rose-500/20'
+                        ? cn('bg-gradient-to-br text-white border-transparent shadow-lg', option.color)
                         : cn('transition-all duration-200', option.inactiveColor, option.bgTint, option.border, 'hover:border-border/80')
                     )}
                   >

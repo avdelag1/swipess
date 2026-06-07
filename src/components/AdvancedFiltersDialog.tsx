@@ -193,7 +193,7 @@ export function AdvancedFilters({ isOpen, onClose, userRole, onApplyFilters, cur
                   >
                     <div className="flex flex-col items-center gap-1">
                       <Icon className={cn(
-                        activeCategory === cat.id ? categoryColor : 'opacity-30',
+                        activeCategory === cat.id ? categoryColor : 'text-muted-foreground/50',
                         "w-5 h-5"
                       )} />
                       <span className="text-[9px] font-black uppercase tracking-widest truncate">{cat.name}</span>

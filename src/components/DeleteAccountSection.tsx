@@ -19,7 +19,10 @@ export function DeleteAccountSection() {
   const { isLight } = useAppTheme();
 
   const handleDelete = async () => {
-    if (confirmText !== 'DELETE') return;
+    if (confirmText !== 'DELETE') {
+      toast.error('Please type DELETE to confirm');
+      return;
+    }
 
     setIsDeleting(true);
     try {
@@ -102,7 +105,7 @@ export function DeleteAccountSection() {
               onClick={() => setShowConfirm(false)}
               className="h-14 rounded-[1.2rem] font-bold uppercase tracking-widest opacity-60"
             >
-              Abord
+              Abort
             </Button>
             <Button
               variant="destructive"
