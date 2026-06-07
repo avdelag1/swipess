@@ -38,19 +38,19 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: 'bg-primary text-primary-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.2),0_4px_14px_hsl(var(--primary)/0.3)] hover:brightness-110',
+        default: 'bg-primary text-primary-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.2),0_4px_20px_rgba(var(--primary),0.6)] hover:brightness-110',
         destructive: 'bg-destructive text-destructive-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.15),0_3px_10px_rgba(220,38,38,0.3)]',
-        outline: 'border border-input bg-background/50 text-foreground opacity-90 hover:opacity-100',
-        secondary: 'bg-secondary text-secondary-foreground opacity-95 hover:opacity-100',
+        outline: 'border border-input bg-background/50 text-foreground opacity-90 hover:opacity-100 backdrop-blur-xl',
+        secondary: 'bg-secondary/80 text-secondary-foreground opacity-95 hover:opacity-100 backdrop-blur-lg shadow-sm',
         ghost: 'hover:bg-accent/50 hover:text-accent-foreground',
         link: 'text-primary underline-offset-4 hover:underline shadow-none',
-        premium: 'bg-primary text-primary-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.2),0_4px_14px_hsl(var(--primary)/0.3)] hover:brightness-110',
+        premium: 'bg-primary text-primary-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.2),0_4px_20px_rgba(var(--primary),0.6)] hover:brightness-110',
         tinder: 'bg-primary text-primary-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.15),0_3px_10px_hsl(var(--primary)/0.25)]',
         // ✅ FIX: Force text-black in light theme for glassLight variant
-        glass: 'text-foreground bg-foreground/5 dark:bg-white/10 backdrop-blur-2xl border border-foreground/5 dark:border-white/5',
-        glassStrong: 'text-foreground bg-foreground/10 dark:bg-white/15 backdrop-blur-[32px] border border-foreground/10 dark:border-white/10',
-        glassLight: 'text-black dark:text-white bg-white/80 dark:bg-white/70 backdrop-blur-2xl border border-black/10 dark:border-white/20',
-        gradient: 'bg-primary text-primary-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.2),0_4px_14px_hsl(var(--primary)/0.3)] hover:brightness-110',
+        glass: 'text-foreground bg-foreground/10 dark:bg-white/10 backdrop-blur-2xl border-t border-white/20 border-b-black/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)]',
+        glassStrong: 'text-foreground bg-foreground/20 dark:bg-white/15 backdrop-blur-[40px] border-t border-white/30 border-b-black/30 shadow-[0_12px_40px_rgb(0,0,0,0.2)]',
+        glassLight: 'text-black dark:text-white bg-white/80 dark:bg-white/70 backdrop-blur-2xl border-t border-white/40 shadow-lg',
+        gradient: 'bg-primary text-primary-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.2),0_4px_20px_rgba(var(--primary),0.6)] hover:brightness-110',
       },
       size: {
         default: 'h-12 px-6 py-3',

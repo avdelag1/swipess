@@ -357,7 +357,18 @@ export const BottomNavigation = memo(({
                   transition: 'none',
                 }}
               >
-                {/* Active state is color-only: no nested pill/frame behind icons. */}
+                {/* Active state gets a liquid pill! */}
+                {active && (
+                  <motion.div
+                    layoutId="nav-active-pill"
+                    className="absolute inset-0 z-0 rounded-full pointer-events-none"
+                    transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                    style={{
+                      background: isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.12)',
+                      boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.2)',
+                    }}
+                  />
+                )}
 
                 <div
                   className="relative z-10"

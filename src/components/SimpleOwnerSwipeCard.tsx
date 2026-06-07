@@ -393,17 +393,17 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           <>
             <GestureHints hidden={isZoomed} />
 
-        <motion.div className="absolute top-10 right-6 z-50 pointer-events-none rotate-[-12deg]" style={{ opacity: likeOpacity }}>
+        <motion.div className="absolute top-10 right-6 z-50 pointer-events-none rotate-[-12deg]" style={{ opacity: likeOpacity, scale: likeOpacity }}>
           <div className="flex flex-col items-center gap-1.5">
-             <div className="px-5 py-2.5 rounded-xl border-3 border-orange-500 bg-orange-500/20 shadow-[0_0_20px_rgba(255,87,34,0.5)]">
-               <span className="font-black text-4xl text-orange-500 tracking-tighter whitespace-nowrap">I LIKE IT</span>
+             <div className="px-5 py-2.5 rounded-2xl border-2 border-orange-500/80 bg-orange-500/20 backdrop-blur-xl shadow-[0_0_30px_rgba(255,87,34,0.6)]">
+               <span className="font-black text-4xl text-white drop-shadow-[0_0_10px_rgba(255,87,34,1)] tracking-tighter whitespace-nowrap">I LIKE IT</span>
              </div>
           </div>
         </motion.div>
 
-        <motion.div className="absolute top-10 left-6 z-50 pointer-events-none rotate-[12deg]" style={{ opacity: passOpacity }}>
-          <div className="px-5 py-2.5 rounded-xl border-3 border-rose-500 bg-rose-500/20 shadow-[0_0_20px_rgba(244,63,94,0.5)]">
-            <span className="font-black text-4xl text-rose-500">NOPE</span>
+        <motion.div className="absolute top-10 left-6 z-50 pointer-events-none rotate-[12deg]" style={{ opacity: passOpacity, scale: passOpacity }}>
+          <div className="px-5 py-2.5 rounded-2xl border-2 border-rose-500/80 bg-rose-500/20 backdrop-blur-xl shadow-[0_0_30px_rgba(244,63,94,0.6)]">
+            <span className="font-black text-4xl text-white drop-shadow-[0_0_10px_rgba(244,63,94,1)] tracking-tighter">NOPE</span>
           </div>
         </motion.div>
 
