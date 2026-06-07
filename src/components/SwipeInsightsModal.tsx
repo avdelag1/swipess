@@ -127,7 +127,7 @@ export function SwipeInsightsModal({ open, onOpenChange, listing, profile }: Swi
     ? ((profile as any)?.interests || (profile as any)?.lifestyle_tags || [])
     : (listing?.amenities || listing?.equipment || listing?.skills || (listing as any)?.tags || []) as string[];
 
-  const surface = isLight ? 'bg-white' : 'bg-[#0a0a0a]';
+  const surface = isLight ? 'bg-white' : 'bg-card';
   const textPri = isLight ? 'text-slate-900' : 'text-white';
   const textSec = isLight ? 'text-slate-700' : 'text-white/60';
   const textTer = isLight ? 'text-slate-600' : 'text-white/40';

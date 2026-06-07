@@ -49,7 +49,7 @@ export function PreviewSwipeCard({
   return (
     <div
       className={cn(
-        'relative w-full overflow-hidden rounded-[36px] bg-[#0A0A0A] shadow-[0_30px_80px_-20px_rgba(0,0,0,0.8)] border border-white/[0.06]',
+        'relative w-full overflow-hidden rounded-[36px] bg-card shadow-[0_30px_80px_-20px_rgba(0,0,0,0.8)] border border-white/[0.06]',
         fill && 'h-full',
         className
       )}

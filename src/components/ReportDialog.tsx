@@ -76,7 +76,7 @@ export function ReportDialog({
         onPointerDownOutside={(e) => e.preventDefault()}
         className={cn(
           "max-w-md w-[calc(100vw-32px)] p-0 rounded-[28px] border shadow-2xl overflow-hidden max-h-[90dvh] flex flex-col",
-          isLight ? "bg-white border-slate-200" : "bg-[#0A0A0A] border-white/10"
+          isLight ? "bg-white border-slate-200" : "bg-card border-white/10"
         )}
       >
         <div className="flex flex-col min-h-0 flex-1">
@@ -207,7 +207,7 @@ export function ReportDialog({
             {/* Footer */}
             <div className={cn(
               "shrink-0 flex gap-2.5 p-5 pt-4 border-t",
-              isLight ? "border-slate-200 bg-white" : "border-white/[0.05] bg-[#0A0A0A]"
+              isLight ? "border-slate-200 bg-white" : "border-white/[0.05] bg-card"
             )}>
               <Button
                 type="button"

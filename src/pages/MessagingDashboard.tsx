@@ -225,7 +225,7 @@ export function MessagingDashboard() {
   }
 
   return (
-    <div className={cn("w-full min-h-[100dvh] transition-colors duration-500 relative", isLight ? "bg-[#ffffff]" : "bg-[#000000]")}>
+    <div className={cn("w-full min-h-[100dvh] transition-colors duration-500 relative", isLight ? "bg-[#ffffff]" : "bg-background")}>
       <AtmosphericLayer variant="rose" />
 
       <div className="w-full max-w-7xl mx-auto px-6 pt-3 pb-24 relative z-10 space-y-6">
@@ -414,7 +414,7 @@ export function MessagingDashboard() {
       <MessageActivationPackages isOpen={showUpgradeDialog} onClose={() => setShowUpgradeDialog(false)} userRole={userRole} />
 
       <AlertDialog open={!!blockTarget} onOpenChange={(open) => { if (!open) setBlockTarget(null); }}>
-        <AlertDialogContent className={cn("rounded-[28px]", isLight ? "bg-white text-slate-900 border-slate-200" : "bg-[#0A0A0A] text-white border-white/10")}>
+        <AlertDialogContent className={cn("rounded-[28px]", isLight ? "bg-white text-slate-900 border-slate-200" : "bg-card text-white border-white/10")}>
           <AlertDialogHeader>
             <AlertDialogTitle className={cn("text-lg font-bold", isLight ? "text-slate-900" : "text-white")}>Block this user?</AlertDialogTitle>
             <AlertDialogDescription className={cn(isLight ? "text-slate-500" : "text-white/50")}>

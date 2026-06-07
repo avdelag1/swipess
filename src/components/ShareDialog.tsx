@@ -94,7 +94,7 @@ export function ShareDialog({
         onPointerDownOutside={(e) => e.preventDefault()}
         className={cn(
           "max-w-sm p-0 overflow-hidden rounded-[32px] border shadow-2xl max-h-[90dvh] flex flex-col",
-          isLight ? "bg-white border-slate-200" : "bg-[#0A0A0A] border-white/10"
+          isLight ? "bg-white border-slate-200" : "bg-card border-white/10"
         )}
       >
           <DialogTitle className="sr-only">Share {title}</DialogTitle>
