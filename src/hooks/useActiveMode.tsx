@@ -252,13 +252,8 @@ export function ActiveModeProvider({ children }: { children: ReactNode }) {
       navigate(newMode === 'client' ? '/client/dashboard' : '/owner/dashboard', { replace: true });
     }
 
-    // 8. Show success toast (non-blocking)
-    appToast.info(
-      newMode === 'client' ? 'Client Dashboard' : 'Owner Dashboard',
-      newMode === 'client'
-        ? 'Browsing deals, services and properties'
-        : 'Managing listings and discovering clients'
-    );
+    // 8. Mode changes are now completely silent to the user to unify the experience
+    // appToast.info was removed.
 
     // 9. Success haptic
     triggerHaptic('success');

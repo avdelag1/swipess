@@ -17,6 +17,7 @@ import { uploadPhotoBatch } from '@/utils/photoUpload';
 import { useAuth } from '@/hooks/useAuth';
 import { useTranslation } from 'react-i18next';
 import { useVoiceTranscribe } from '@/hooks/useVoiceTranscribe';
+import { useAIEnhanceText } from '@/hooks/useAIEnhanceText';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { supabase } from '@/integrations/supabase/client';
 import { useQueryClient } from '@tanstack/react-query';
@@ -159,28 +160,18 @@ export function AIListingWizard() {
   const [progressPct, setProgressPct] = useState(0);
   const { isRecording, isTranscribing, start: startVoice, stop: stopVoice } = useVoiceTranscribe();
   const [micTipOpen, setMicTipOpen] = useState(false);
-  const [isEnhancing, setIsEnhancing] = useState(false);
+  const { enhanceText, isEnhancing } = useAIEnhanceText();
 
-  // ✨ AI Enhance: improves raw text using the ai-listing-extract edge function
+  // ✨ AI Enhance: improves raw text using the ai-enhance-text edge function
   const handleEnhance = async () => {
     const raw = prompt.trim();
     if (!raw) { toast.error('Type or speak something first!'); return; }
-    setIsEnhancing(true);
     triggerHaptic('medium');
-    try {
-      const { data, error } = await supabase.functions.invoke('ai-listing-extract', {
-        body: { task: 'enhance', prompt: raw, category, price, city: cityLocation },
-      });
-      if (error) throw error;
-      const improved: string = (data as any)?.description || (data as any)?.data?.description || raw;
+    const improved = await enhanceText(raw, 'listing');
+    if (improved) {
       setPrompt(improved);
       toast.success('✨ Description enhanced!');
       triggerHaptic('success');
-    } catch (err) {
-      console.warn('[AIEnhance] failed', err);
-      toast.error('Could not enhance text. Try again.');
-    } finally {
-      setIsEnhancing(false);
     }
   };
 

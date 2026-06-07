@@ -47,7 +47,6 @@ function TopBarComponent({
   const { isLight } = useAppTheme();
   const setModal = useModalStore(s => s.setModal);
   const location = useLocation();
-  const isDashboard = /^\/(client|owner|admin)\/dashboard\/?/.test(location.pathname);
 
   // Always visible on every page — no chrome-reveal hiding
   const isActuallyVisible = true;
@@ -119,7 +118,7 @@ function TopBarComponent({
         transitionTimingFunction: 'cubic-bezier(0.23, 1, 0.32, 1)',
         paddingTop: 'calc(var(--safe-top, 0px) + 6px)',
         height: 'calc(var(--top-bar-height) + var(--safe-top, 0px))',
-        background: isDashboard ? '#000000' : 'transparent',
+        background: 'transparent',
         border: 'none'
       }}
     >

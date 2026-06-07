@@ -758,13 +758,12 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
   const [isListening, setIsListening] = useState(false);
   const [countdown, setCountdown] = useState<number | null>(null);
   const [autoSendEnabled, setAutoSendEnabled] = useState(true);
-  const recognitionRef = useRef<any>(null);
   const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const inputValueRef = useRef('');
   const isListeningRef = useRef(false);
   const autoSendEnabledRef = useRef(true);
   
-  const { 
+  const {
     start: startTranscribe, 
     stop: stopTranscribe,
   } = useVoiceTranscribe();
@@ -775,9 +774,6 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
 
   useEffect(() => { inputValueRef.current = input; }, [input]);
   useEffect(() => { isListeningRef.current = isListening; }, [isListening]);
-
-  const speechSupported = typeof window !== 'undefined' &&
-    ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window);
 
   const cancelCountdown = useCallback(() => {
     if (countdownRef.current) { clearInterval(countdownRef.current); countdownRef.current = null; }
@@ -809,90 +805,27 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
   }, [sendMessage]);
 
   const startListening = useCallback(async () => {
-    if (!speechSupported) {
-      const success = await startTranscribe();
-      if (success) {
-        setIsListening(true);
-        triggerHaptic('medium');
-        uiSounds.playMicOn();
-      } else {
-        toast.error('Microphone Access Denied');
-      }
-      return;
-    }
-
-    const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    const recognition = new SR();
-    recognition.continuous = true;
-    recognition.interimResults = true;
-    recognition.lang = 'en-US';
-
-    recognition.onstart = () => {
+    // ALWAYS use the robust Whisper backend. Web Speech API is too flaky across browsers.
+    const success = await startTranscribe();
+    if (success) {
       setIsListening(true);
       triggerHaptic('medium');
       uiSounds.playMicOn();
-    };
-
-    recognition.onresult = (e: any) => {
-      let interim = '';
-      let finalText = '';
-      for (let i = e.resultIndex; i < e.results.length; i++) {
-        if (e.results[i].isFinal) finalText += e.results[i][0].transcript;
-        else interim += e.results[i][0].transcript;
-      }
-      
-      if (finalText) {
-        setInput(prev => (prev.trim() + ' ' + finalText).trim());
-        if (autoSendEnabledRef.current) armSilenceCountdown();
-      } else if (interim) {
-        cancelCountdown();
-      }
-    };
-
-    recognition.onsoundend = () => { 
-      if (isListeningRef.current) armSilenceCountdown(); 
-    };
-
-    recognition.onend = () => {
-      if (isListeningRef.current) {
-        try { 
-          recognition.start(); 
-        } catch (err) {
-          console.warn('[SpeechRecognition] Restart failed:', err);
-          setIsListening(false);
-          isListeningRef.current = false;
-        }
-      }
-    };
-
-    recognition.onerror = (e: any) => {
-      console.error('[SpeechRecognition] Error:', e.error);
-      if (e.error === 'not-allowed') {
-        toast.error('Microphone access denied');
-        setIsListening(false);
-        isListeningRef.current = false;
-      }
-    };
-
-    recognitionRef.current = recognition;
-    recognition.start();
-  }, [speechSupported, startTranscribe, armSilenceCountdown, cancelCountdown]);
+    } else {
+      toast.error('Microphone Access Denied');
+    }
+  }, [startTranscribe]);
 
   const stopListening = useCallback(async () => {
     isListeningRef.current = false;
     setIsListening(false);
     
-    if (recognitionRef.current) {
-      recognitionRef.current.stop();
-      recognitionRef.current = null;
-    } else {
-      const text = await stopTranscribe();
-      if (text) {
-        setInput(prev => (prev.trim() + ' ' + text).trim());
-        if (autoSendEnabledRef.current) {
-          sendMessage(text);
-          setInput('');
-        }
+    const text = await stopTranscribe();
+    if (text) {
+      setInput(prev => (prev.trim() + ' ' + text).trim());
+      if (autoSendEnabledRef.current) {
+        sendMessage(text);
+        setInput('');
       }
     }
     

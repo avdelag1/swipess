@@ -281,18 +281,18 @@ export default function SeekersPage() {
       <div className="flex-1 relative px-4" style={{ paddingBottom: 'calc(var(--safe-bottom, 0px) + 100px)' }}>
         {isLoading ? (
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-10 h-10 rounded-full border-2 border-white/20 border-t-white animate-spin" />
+            <div className={`w-10 h-10 rounded-full border-2 animate-spin ${isLight ? 'border-black/10 border-t-black/80' : 'border-white/20 border-t-white'}`} />
           </div>
         ) : visible.length === 0 ? (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 text-center px-8">
-            <div className="w-16 h-16 rounded-3xl bg-white/5 flex items-center justify-center">
-              <Users className="w-8 h-8 text-white/20" />
+            <div className={`w-16 h-16 rounded-3xl flex items-center justify-center ${isLight ? 'bg-black/5' : 'bg-white/5'}`}>
+              <Users className={`w-8 h-8 ${isLight ? 'text-black/20' : 'text-white/20'}`} />
             </div>
             <div>
-              <p className="text-white font-black text-xl mb-1">No requests right now</p>
-              <p className="text-white/40 text-sm">Check back soon — new requests are posted daily.</p>
+              <p className={`font-black text-xl mb-1 ${isLight ? 'text-black' : 'text-white'}`}>No requests right now</p>
+              <p className={`text-sm ${isLight ? 'text-black/40' : 'text-white/40'}`}>Check back soon — new requests are posted daily.</p>
             </div>
-            <motion.button whileTap={{ scale: 0.95 }} onClick={() => setDismissed(new Set())} className="px-6 py-3 rounded-2xl bg-white/10 text-white font-bold text-sm border border-white/10">
+            <motion.button whileTap={{ scale: 0.95 }} onClick={() => setDismissed(new Set())} className={`px-6 py-3 rounded-2xl font-bold text-sm border ${isLight ? 'bg-black/5 text-black border-black/10' : 'bg-white/10 text-white border-white/10'}`}>
               Refresh deck
             </motion.button>
           </div>

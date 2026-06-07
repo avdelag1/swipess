@@ -8,6 +8,7 @@ import { triggerHaptic } from '@/utils/haptics';
 import { useModalStore } from '@/state/modalStore';
 import useAppTheme from '@/hooks/useAppTheme';
 import { useAuth } from '@/hooks/useAuth';
+import { useAIEnhanceText } from '@/hooks/useAIEnhanceText';
 import { useVoiceTranscribe } from '@/hooks/useVoiceTranscribe';
 import { uploadPhotoBatch } from '@/utils/photoUpload';
 import { supabase } from '@/integrations/supabase/client';
@@ -30,30 +31,23 @@ export function AIProfileWizard() {
   const [isExtracting, setIsExtracting] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const { isRecording, isTranscribing, start: startVoice, stop: stopVoice } = useVoiceTranscribe();
-  const [isEnhancing, setIsEnhancing] = useState(false);
+  const { enhanceText, isEnhancing } = useAIEnhanceText();
 
   // ✨ AI Enhance: polishes the raw narrative before building the profile
   const handleEnhanceNarrative = async () => {
     const raw = narrative.trim();
     if (!raw || raw.length < 10) { toast.error('Write a bit more first!'); return; }
-    setIsEnhancing(true);
     triggerHaptic('medium');
     try {
-      const { data, error } = await supabase.functions.invoke('ai-profile-extract', {
-        body: { mode, narrative: raw, task: 'enhance' },
-      });
-      if (error) throw error;
-      // If we get back a polished narrative string, use it; otherwise fall back
-      const improved: string = (data as any)?.narrative || (data as any)?.enhanced || raw;
-      setNarrative(improved);
-      toast.success('✨ Narrative improved!');
-      triggerHaptic('success');
+      const improved = await enhanceText(raw, 'profile');
+      if (improved) {
+        setNarrative(improved);
+        toast.success('✨ Narrative improved!');
+        triggerHaptic('success');
+      }
     } catch (err) {
       console.warn('[AIProfileEnhance] failed', err);
-      // Graceful fallback — don't wipe the user's text
-      toast.error('Could not improve text. Try again.');
-    } finally {
-      setIsEnhancing(false);
+      // Fallback is handled by the hook
     }
   };
 
@@ -213,9 +207,7 @@ export function AIProfileWizard() {
     }
   };
 
-  const placeholder = mode === 'client'
-    ? "e.g. I'm Maria, 28, designer from Italy. Looking for a 2-bedroom in Tulum under $1500. Pet-friendly, non-smoker, English & Spanish."
-    : "e.g. We're Casa Luna, hosting beachfront condos in Playa del Carmen. 8 years experience, English/Spanish, pet-friendly stays.";
+  const placeholder = "e.g. I'm Maria, 28, designer. Looking for a 2-bedroom in Tulum under $1500. I also have a small beachfront condo I host sometimes. Pet-friendly, English & Spanish.";
 
   return (
     <AnimatePresence>
@@ -250,7 +242,7 @@ export function AIProfileWizard() {
               </div>
               <div>
                 <h2 className={cn("text-base font-black uppercase tracking-[0.1em] italic", textPrimary)}>Magic AI Profile</h2>
-                <span className="text-[10px] opacity-70 font-bold uppercase tracking-widest">{mode === 'owner' ? 'Owner / Host' : 'Client'}</span>
+                <span className="text-[10px] opacity-70 font-bold uppercase tracking-widest">Unified Profile</span>
               </div>
             </div>
             <button onClick={handleClose} className={cn("w-11 h-11 flex items-center justify-center rounded-2xl", closeBtnCls)}>

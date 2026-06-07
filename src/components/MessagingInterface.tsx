@@ -7,6 +7,7 @@ import { Ban, ChevronLeft, Coins, Info, Mic, MicOff, MoreVertical, Send, Share2,
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { triggerHaptic } from '@/utils/haptics';
 import { uiSounds } from '@/utils/uiSounds';
+import { toast } from 'sonner';
 import { useConversationMessages, useSendMessage } from '@/hooks/useConversations';
 import { useRealtimeChat } from '@/hooks/useRealtimeChat';
 import { useMarkMessagesAsRead } from '@/hooks/useMarkMessagesAsRead';
@@ -119,10 +120,9 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
     }
   }, [conversationId, prefetchTopConversationMessages]);
 
-  // â”€â”€ Voice + Auto-Send Logic (Parity with Concierge) â”€â”€
+  // ─── Voice + Auto-Send Logic (Parity with Concierge) ───
   const [isListening, setIsListening] = useState(false);
   const [countdown, setCountdown] = useState<number | null>(null);
-  const recognitionRef = useRef<any>(null);
   const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const inputValueRef = useRef('');
   const isListeningRef = useRef(false);
@@ -132,16 +132,6 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
   useEffect(() => { isListeningRef.current = isListening; }, [isListening]);
 
   const { start: startVoiceTranscribe, stop: stopVoiceTranscribe, isRecording: isVoiceRecording } = useVoiceTranscribe();
-
-  const speechSupported = typeof window !== 'undefined' &&
-    ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window);
-  // On iOS Safari, speechSupported is false — we always show the mic and use Whisper fallback.
-
-  const cancelCountdown = useCallback(() => {
-    if (countdownRef.current) { clearInterval(countdownRef.current); countdownRef.current = null; }
-    setCountdown(null);
-    triggerHaptic('light');
-  }, []);
 
   const armSilenceCountdown = useCallback(() => {
     if (countdownRef.current) { clearInterval(countdownRef.current); countdownRef.current = null; }
@@ -166,76 +156,22 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
   }, [sendMessage, conversationId]);
 
   const startListening = useCallback(async () => {
-    // iOS Safari / in-app browsers: use Whisper MediaRecorder fallback
-    if (!speechSupported) {
-      const ok = await startVoiceTranscribe();
-      if (ok) { setIsListening(true); triggerHaptic('medium'); uiSounds.playMicOn(); }
-      return;
-    }
-    const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    const recognition = new SR();
-    recognition.continuous = true;
-    recognition.interimResults = true;
-    recognition.lang = 'en-US';
-
-    recognition.onstart = () => {
-      setIsListening(true);
-      triggerHaptic('medium');
-      uiSounds.playMicOn();
-    };
-
-    recognition.onresult = (e: any) => {
-      let interim = '';
-      let finalText = '';
-      for (let i = e.resultIndex; i < e.results.length; i++) {
-        if (e.results[i].isFinal) finalText += e.results[i][0].transcript;
-        else interim += e.results[i][0].transcript;
-      }
-      if (finalText) {
-        setNewMessage(prev => (prev + ' ' + finalText).trim());
-        armSilenceCountdown();
-      } else if (interim) {
-        cancelCountdown();
-      }
-    };
-
-    recognition.onsoundend = () => { if (isListeningRef.current) armSilenceCountdown(); };
-    
-    recognition.onend = () => {
-      if (isListeningRef.current) {
-        try { recognition.start(); } catch (_err) { setIsListening(false); isListeningRef.current = false; }
-      }
-    };
-
-    recognition.onerror = (e: any) => {
-      if (e.error === 'not-allowed') {
-        setIsListening(false);
-        isListeningRef.current = false;
-      }
-    };
-
-    recognitionRef.current = recognition;
-    recognition.start();
-  }, [speechSupported, armSilenceCountdown, cancelCountdown]);
+    // ALWAYS use the robust Whisper backend. Web Speech API is too flaky across browsers.
+    const ok = await startVoiceTranscribe();
+    if (ok) { setIsListening(true); triggerHaptic('medium'); uiSounds.playMicOn(); }
+    else { toast.error('Microphone Access Denied'); }
+  }, [startVoiceTranscribe]);
 
   const stopListening = useCallback(async () => {
-    // iOS Safari / in-app browsers fallback
-    if (!speechSupported) {
-      setIsListening(false);
-      const text = await stopVoiceTranscribe();
-      if (text) {
-        setNewMessage(prev => (prev + ' ' + text).trim());
-        armSilenceCountdown();
-      }
-      uiSounds.playMicOff();
-      return;
-    }
-    isListeningRef.current = false;
     setIsListening(false);
-    recognitionRef.current?.stop();
-    cancelCountdown();
+    isListeningRef.current = false;
+    const text = await stopVoiceTranscribe();
+    if (text) {
+      setNewMessage(prev => (prev + ' ' + text).trim());
+      armSilenceCountdown();
+    }
     uiSounds.playMicOff();
-  }, [speechSupported, stopVoiceTranscribe, cancelCountdown, armSilenceCountdown]);
+  }, [stopVoiceTranscribe, armSilenceCountdown]);
 
   useEffect(() => {
     const messageCountIncreased = messages.length > previousMessageCountRef.current;

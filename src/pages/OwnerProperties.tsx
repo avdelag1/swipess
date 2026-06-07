@@ -1,12 +1,11 @@
 /** SPEED OF LIGHT: DashboardLayout is now rendered at route level */
 import { useEffect, useState } from 'react';
 import { PropertyManagement } from "@/components/PropertyManagement";
-import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import { useLocation, useSearchParams } from "react-router-dom";
 // import { } from "framer-motion";
 import { AtmosphericLayer } from "@/components/AtmosphericLayer";
 
 const OwnerProperties = () => {
-  const _navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const location = useLocation();
   const [initialCategory, setInitialCategory] = useState<string | null>(null);
@@ -32,10 +31,7 @@ const OwnerProperties = () => {
   return (
     <div className="w-full bg-background pb-32 min-h-screen">
       <AtmosphericLayer variant="primary" />
-      
-      <div className="w-full relative bg-background min-h-screen">
-        <PropertyManagement initialCategory={initialCategory} initialMode={initialMode} />
-      </div>
+      <PropertyManagement initialCategory={initialCategory} initialMode={initialMode} />
     </div>
   );
 };

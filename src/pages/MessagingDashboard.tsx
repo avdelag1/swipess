@@ -224,10 +224,16 @@ export function MessagingDashboard() {
   }
 
   return (
-    <div className={cn("w-full min-h-[100dvh] transition-colors duration-500 relative", isLight ? "bg-[#ffffff]" : "bg-background")}>
+    <div className="w-full min-h-[100dvh] bg-background transition-colors duration-500 relative">
       <AtmosphericLayer variant="rose" />
 
-      <div className="w-full max-w-7xl mx-auto px-6 pt-3 pb-24 relative z-10 space-y-6">
+      <div 
+        className="w-full max-w-7xl mx-auto px-6 pb-24 relative z-10 space-y-6"
+        style={{
+          paddingTop: 'calc(var(--top-bar-height, 72px) + var(--safe-top, 0px) + 12px)',
+          paddingBottom: 'calc(var(--bottom-nav-height, 64px) + var(--safe-bottom, 0px) + 24px)'
+        }}
+      >
         
          <div className="flex items-center gap-4 sm:gap-6">
            <button

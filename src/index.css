@@ -84,11 +84,11 @@ html, body, #root {
 .dark #root, .dark body, 
 .black-matte #root, .black-matte body,
 .dark-matte #root, .dark-matte body {
-  background-color: #000000;
+  background-color: hsl(var(--background));
 }
 
-.dark-matte { background-color: #000000 !important; color: #FFFFFF !important; }
-.white-matte { background-color: #FFFFFF !important; color: #000000 !important; }
+.dark-matte { background-color: hsl(var(--background)) !important; color: #FFFFFF !important; }
+.white-matte { background-color: hsl(var(--background)) !important; color: #000000 !important; }
 
 body.swipe-deck-active,
 body.swipe-deck-active #root {
