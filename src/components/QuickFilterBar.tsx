@@ -1,8 +1,6 @@
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
 
-import { 
-  Check, ChevronDown, Globe, User, Users 
-} from 'lucide-react';
+import { Check, ChevronDown, Globe, User, Users } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import useAppTheme from '@/hooks/useAppTheme';
 import { VespaIcon } from '@/components/icons/VespaIcon';
@@ -353,8 +351,7 @@ function QuickFilterBarComponent({ filters, onChange, onSelect, className, userR
       <div className="flex items-center justify-center gap-3 overflow-x-auto scrollbar-hide pb-4" style={{ willChange: 'scroll-position' }}>
         {/* ALL card */}
         <button
-          onPointerDown={(e) => {
-            e.preventDefault();
+          onClick={(e) => {
             e.stopPropagation();
             haptics.tap();
             saveQuickFilter([]);
@@ -387,7 +384,7 @@ function QuickFilterBarComponent({ filters, onChange, onSelect, className, userR
             alt="All"
           />
 
-          <div className={cn("absolute inset-0 flex flex-col items-center justify-center z-20 transition-all duration-300 font-black", isLight ? "text-black" : "text-white")}>
+          <div className={cn("absolute inset-0 flex flex-col items-center justify-center z-20 transition-all duration-300 font-black pointer-events-none", isLight ? "text-black" : "text-white")}>
             <Globe className={cn("w-7 h-7 mb-1 transition-all duration-300", isLight ? "drop-shadow-[0_2px_8px_rgba(255,255,255,0.8)]" : "drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]",
               clientIsAllSelected && "scale-125 drop-shadow-[0_0_18px_rgba(168,85,247,0.95)]")} />
             <span className="text-[9px] font-black uppercase tracking-[0.2em] mb-0.5 opacity-90 drop-shadow-md">Global</span>
@@ -407,8 +404,7 @@ function QuickFilterBarComponent({ filters, onChange, onSelect, className, userR
           return (
             <button
               key={category.id}
-              onPointerDown={(e) => {
-                e.preventDefault();
+              onClick={(e) => {
                 e.stopPropagation();
                 haptics.tap();
                 handleCategorySelect(category.id);
@@ -435,9 +431,9 @@ function QuickFilterBarComponent({ filters, onChange, onSelect, className, userR
                   : (isLight ? "bg-white/60" : "bg-black/55")
               )} />
 
-              <QuickFilterImage src={photo} alt={category.label} />
+              <QuickFilterImage src={POKER_CARD_PHOTOS[category.id] || photo} alt={category.label} />
 
-              <div className={cn("absolute inset-0 flex flex-col items-center justify-center z-20 transition-all duration-300 font-black", isLight ? "text-black" : "text-white")}>
+              <div className={cn("absolute inset-0 flex flex-col items-center justify-center z-20 transition-all duration-300 font-black pointer-events-none", isLight ? "text-black" : "text-white")}>
                 <div className={cn("mb-1 transition-all duration-300", isLight ? "drop-shadow-[0_2px_8px_rgba(255,255,255,0.8)]" : "drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]",
                   isActive && "scale-125 drop-shadow-[0_0_18px_rgba(255,165,0,0.95)]")}>
                   {category.icon}

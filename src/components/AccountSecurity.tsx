@@ -6,7 +6,6 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { ChevronRight, Eye, EyeOff, Lock, Shield, Smartphone } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
-import { useNavigate } from 'react-router-dom';
 import { useSecuritySettings } from '@/hooks/useSecuritySettings';
 import { useAuth } from '@/hooks/useAuth';
 import { logger } from '@/utils/prodLogger';
@@ -19,8 +18,7 @@ interface AccountSecurityProps {
 }
 
 export function AccountSecurity({ userRole: _userRole }: AccountSecurityProps) {
-  const _navigate = useNavigate();
-  const { user, session: _session } = useAuth();
+  const { user } = useAuth();
   const { isLight } = useAppTheme();
   
   const {
@@ -270,7 +268,7 @@ export function AccountSecurity({ userRole: _userRole }: AccountSecurityProps) {
                   onClick={() => setShowPasswordDialog(false)}
                   className={cn("h-14 rounded-xl font-bold uppercase tracking-widest opacity-60", isLight ? "border-black/10" : "border-white/10")}
                 >
-                  Abord
+                  Abort
                 </Button>
                 <Button 
                   onClick={handlePasswordChange}

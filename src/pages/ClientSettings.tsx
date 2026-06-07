@@ -1,10 +1,8 @@
-/** SPEED OF LIGHT: DashboardLayout is now rendered at route level */
 import { PageHeader } from "@/components/PageHeader";
 import { CardContent } from "@/components/ui/card";
-// import { } from "@/components/ui/badge";
 import {
   ChevronRight, FileText, Globe, HelpCircle, Info,
-  Scale as ScaleIcon, Shield, ShieldCheck, Volume2, Wrench
+  MessageSquarePlus, Scale as ScaleIcon, Shield, ShieldCheck, Volume2, Wrench
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -14,9 +12,9 @@ import { SwipeSoundSettings } from "@/components/SwipeSoundSettings";
 import { BackgroundThemeSettings } from "@/components/BackgroundThemeSettings";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { ClientVerificationFlow } from "@/components/ClientVerificationFlow";
+import { FeedbackSection } from "@/components/FeedbackSection";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { PWAInstallButton } from "@/components/PWAInstallButton";
 import { SwipessLogo } from "@/components/SwipessLogo";
 import useAppTheme from "@/hooks/useAppTheme";
 import { cn } from "@/lib/utils";
@@ -134,6 +132,13 @@ const ClientSettings = () => {
           bg: 'linear-gradient(135deg, #78350f, #d97706)',
           route: '/legal',
         },
+        {
+          icon: MessageSquarePlus,
+          label: 'Feedback',
+          description: 'Share ideas, bugs, or appreciation',
+          bg: 'linear-gradient(135deg, #4c1d95, #7c3aed)',
+          section: 'feedback',
+        },
       ],
     },
   ];
@@ -191,6 +196,22 @@ const ClientSettings = () => {
     );
   }
 
+  if (activeSection === 'feedback') {
+    return (
+      <div className="w-full relative px-4 pt-4 pb-32 bg-background min-h-screen">
+        <AtmosphericLayer variant="primary" />
+        <div className="max-w-3xl mx-auto relative z-10">
+          <PageHeader title="Feedback" subtitle="Help us improve Swipess" showBack={true} onBack={() => setActiveSection(null)} />
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={fastSpring} className="pt-10">
+            <div className="rounded-[2.5rem] overflow-hidden bg-background border border-border shadow-2xl p-8">
+              <FeedbackSection />
+            </div>
+          </motion.div>
+        </div>
+      </div>
+    );
+  }
+
   if (activeSection === 'preferences') {
     return (
       <div className="w-full relative px-4 pt-4 pb-32 bg-background min-h-screen">
@@ -218,7 +239,6 @@ const ClientSettings = () => {
               <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[#EB4898] italic">{t('settings.identityConfig')}</span>
            </div>
            <h1 className={cn("text-4xl font-black uppercase italic tracking-tighter leading-none", isLight ? "text-black" : "text-white")}>{t('settings.systemSettings')}</h1>
-           <PWAInstallButton className="pt-2" />
         </div>
 
         <motion.div

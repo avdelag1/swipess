@@ -221,9 +221,10 @@ button[role="tab"] {
 .filter-scroll-area,
 .category-content,
 [data-radix-scroll-area-viewport] {
-    /* Enable momentum scrolling */
-    /* Optimize scroll performance */
-    scroll-behavior: smooth;
+    /* Instant scroll response — smooth causes input lag on mobile */
+    scroll-behavior: auto;
+    /* iOS momentum scrolling */
+    -webkit-overflow-scrolling: touch;
     /* Contain scrolling paint */
     contain: paint;
 }

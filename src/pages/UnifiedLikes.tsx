@@ -20,7 +20,9 @@ const UnifiedLikes = () => {
             className={cn(
               "flex-1 py-3.5 text-xs uppercase tracking-widest font-black rounded-full transition-all duration-300",
               activeTab === "listings"
-                ? "bg-foreground text-background shadow-lg"
+                ? isLight
+                  ? "bg-zinc-900 text-white shadow-lg"
+                  : "bg-pink-500 text-white shadow-lg"
                 : "text-foreground/50 hover:text-foreground hover:bg-foreground/5"
             )}
           >
@@ -31,7 +33,9 @@ const UnifiedLikes = () => {
             className={cn(
               "flex-1 py-3.5 text-xs uppercase tracking-widest font-black rounded-full transition-all duration-300",
               activeTab === "people"
-                ? "bg-foreground text-background shadow-lg"
+                ? isLight
+                  ? "bg-zinc-900 text-white shadow-lg"
+                  : "bg-pink-500 text-white shadow-lg"
                 : "text-foreground/50 hover:text-foreground hover:bg-foreground/5"
             )}
           >

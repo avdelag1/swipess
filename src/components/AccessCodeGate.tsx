@@ -76,7 +76,8 @@ export function AccessCodeGate({ onGranted }: Props) {
           <AtmosphericLayer variant="Swipes" opacity={0.15} />
         </div>
       )}
-      <LandingBackgroundEffects mode="stars" />
+      <LandingBackgroundEffects mode="off" />
+      <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse 80% 50% at 50% -10%, rgba(255,255,255,0.09) 0%, transparent 65%)' }} />
 
       <AnimatePresence mode="wait">
         {!success ? (
@@ -88,7 +89,7 @@ export function AccessCodeGate({ onGranted }: Props) {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="flex flex-col items-center gap-8 w-full max-w-xs relative z-10"
+              className="flex flex-col items-center gap-8 w-full max-w-xs relative z-10 rounded-3xl bg-white/5 backdrop-blur-2xl border border-white/10 p-8 shadow-2xl"
             >
               <SwipessLogo size="lg" variant="transparent" className="w-[60vw] max-w-[240px]" />
 

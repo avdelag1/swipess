@@ -152,9 +152,6 @@ export function ClientPreferencesDialog({ open, onOpenChange }: ClientPreference
     try {
       setIsScanning(true)
       
-      // Cinematic calibration delay
-      await new Promise(r => setTimeout(r, 2200))
-
       await updatePreferences(formData)
       setIsScanning(false)
       toast.success('Preferences Updated', { description: 'Your filter preferences have been saved successfully.' })
@@ -213,7 +210,7 @@ export function ClientPreferencesDialog({ open, onOpenChange }: ClientPreference
     <AnimatePresence>
       {open && (
         <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-4xl h-[80vh] max-h-[85vh] w-[calc(100vw-1rem)] flex flex-col p-0 rounded-t-[2.5rem] sm:rounded-[2.5rem] border border-white/10 shadow-2xl mt-20 bg-background/95 backdrop-blur-3xl">
+      <DialogContent className="sm:max-w-4xl h-[80vh] max-h-[85vh] w-[calc(100vw-1rem)] flex flex-col p-0 rounded-t-[2.5rem] sm:rounded-[2.5rem] border border-border shadow-2xl mt-20 bg-background/95 backdrop-blur-3xl">
         <DialogHeader className="px-6 py-4 border-b border-border/5">
           <DialogTitle>My Preferences</DialogTitle>
         </DialogHeader>

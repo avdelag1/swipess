@@ -549,11 +549,12 @@ function LegendaryLandingPage() {
           <>
             <AtmosphericLayer variant="Swipes" opacity={0.15} />
             <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,rgba(224,30,42,0.1)_0%,transparent_70%)]" />
+            <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse 80% 50% at 50% -10%, rgba(255,255,255,0.09) 0%, transparent 65%)' }} />
           </>
         )}
       </div>
 
-      <LandingBackgroundEffects mode={view === 'landing' ? "stars" : "off"} />
+      <LandingBackgroundEffects mode="off" />
 
       <AnimatePresence mode="wait">
         {view === 'landing' ? (

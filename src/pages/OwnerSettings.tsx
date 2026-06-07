@@ -4,7 +4,7 @@ import { CardContent } from "@/components/ui/card";
 // import { } from "@/components/ui/badge";
 import {
   Building2, ChevronRight, FileText, Globe, HelpCircle,
-  Info, Scale as ScaleIcon, Shield, Users, Volume2
+  Info, MessageSquarePlus, Scale as ScaleIcon, Shield, Users, Volume2
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -13,9 +13,9 @@ import { DeleteAccountSection } from "@/components/DeleteAccountSection";
 import { SwipeSoundSettings } from "@/components/SwipeSoundSettings";
 import { BackgroundThemeSettings } from "@/components/BackgroundThemeSettings";
 import { LanguageToggle } from "@/components/LanguageToggle";
+import { FeedbackSection } from "@/components/FeedbackSection";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { PWAInstallButton } from "@/components/PWAInstallButton";
 import { SwipessLogo } from "@/components/SwipessLogo";
 import useAppTheme from "@/hooks/useAppTheme";
 import { cn } from "@/lib/utils";
@@ -132,6 +132,13 @@ const OwnerSettings = () => {
           bg: 'linear-gradient(135deg, #78350f, #d97706)',
           route: '/legal',
         },
+        {
+          icon: MessageSquarePlus,
+          label: 'Feedback',
+          description: 'Share ideas, bugs, or appreciation',
+          bg: 'linear-gradient(135deg, #4c1d95, #7c3aed)',
+          section: 'feedback',
+        },
       ],
     },
   ];
@@ -190,6 +197,22 @@ const OwnerSettings = () => {
     );
   }
 
+  if (activeSection === 'feedback') {
+    return (
+      <div className="w-full relative px-4 pt-4 pb-32 bg-background min-h-screen">
+        <AtmosphericLayer variant="indigo" />
+        <div className="max-w-3xl mx-auto relative z-10">
+          <PageHeader title="Feedback" subtitle="Help us improve Swipess" showBack={true} onBack={() => setActiveSection(null)} />
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={fastSpring} className="pt-10">
+            <div className={cn('rounded-[2.8rem] overflow-hidden border shadow-2xl p-8', isLight ? 'bg-white border-black/5' : 'bg-background border-white/5')}>
+              <FeedbackSection />
+            </div>
+          </motion.div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full relative px-6 pb-40 bg-background min-h-screen">
       <AtmosphericLayer variant="indigo" />
@@ -203,7 +226,6 @@ const OwnerSettings = () => {
               <span className="text-[10px] font-black uppercase tracking-[0.4em] text-purple-500 italic">{t('settings.ownerConfig')}</span>
            </div>
            <h1 className={cn("text-4xl font-black uppercase italic tracking-tighter leading-none", isLight ? "text-black" : "text-white")}>{t('settings.systemSettings')}</h1>
-           <PWAInstallButton className="pt-2" />
         </div>
 
         <motion.div
@@ -223,7 +245,7 @@ const OwnerSettings = () => {
               {/* Group card - Moscow style matte container */}
               <div className={cn(
                 "rounded-[2.8rem] overflow-hidden border shadow-2xl",
-                isLight ? "bg-white border-black/5" : "bg-[#0a0a0c] border-white/5"
+                isLight ? "bg-white border-black/5" : "bg-background border-white/5"
               )}>
                 {group.items.map((item, idx) => (
                   <div key={item.label}>

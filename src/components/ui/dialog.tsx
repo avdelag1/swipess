@@ -87,7 +87,7 @@ const DialogContent = React.forwardRef<HTMLDivElement, DialogContentProps>(({ cl
           >
           {children}
           {!hideCloseButton && (
-            <button onClick={() => onOpenChange(false)} className="absolute right-3 top-3 sm:right-5 sm:top-5 h-10 w-10 flex items-center justify-center rounded-full opacity-100 transition-all focus:outline-none hover:bg-secondary/50 active:scale-90 z-[10010] bg-black/5 text-white/70">
+            <button onClick={() => onOpenChange(false)} className="absolute right-3 top-3 sm:right-5 sm:top-5 h-10 w-10 flex items-center justify-center rounded-full opacity-100 transition-all focus:outline-none hover:bg-secondary/50 active:scale-90 z-[10010] bg-black/10 dark:bg-white/10 text-foreground/70">
               <X className="h-5 w-5" />
               <span className="sr-only">Close</span>
             </button>

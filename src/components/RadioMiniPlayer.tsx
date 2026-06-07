@@ -139,7 +139,7 @@ function RadioMiniPlayerInner() {
           className="fixed right-4 z-[200] w-[300px]"
           style={bottomStyle}
         >
-          <div className="relative rounded-[28px] overflow-hidden shadow-[0_22px_70px_8px_rgba(0,0,0,0.56)] border border-white/15 text-white">
+          <div className="relative rounded-[28px] overflow-hidden shadow-[0_22px_70px_8px_rgba(0,0,0,0.56)] border border-zinc-700 bg-zinc-900 text-white">
             <RadioSkinBackground />
             <div className="relative z-10">
             {/* Top bar */}

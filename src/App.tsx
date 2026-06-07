@@ -91,6 +91,7 @@ const PriceTracker = lazyWithRetry(() => import("./pages/PriceTracker"));
 const VideoTours = lazyWithRetry(() => import("./pages/VideoTours"));
 const LocalIntel = lazyWithRetry(() => import("./pages/LocalIntel"));
 const RoommateMatching = lazyWithRetry(() => import("./pages/RoommateMatching"));
+const SeekersPage = lazyWithRetry(() => import("./pages/SeekersPage"));
 const DocumentVault = lazyWithRetry(() => import("./pages/DocumentVault"));
 const EscrowDashboard = lazyWithRetry(() => import("./pages/EscrowDashboard"));
 const ClientPerks = lazyWithRetry(() => import("./pages/ClientPerks"));
@@ -212,6 +213,8 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
               <Route path="/explore/tours" element={<VideoTours />} />
               <Route path="/explore/intel" element={<LocalIntel />} />
               <Route path="/explore/roommates" element={<RoommateMatching />} />
+              <Route path="/explore/services" element={<Navigate to="/client/services" replace />} />
+              <Route path="/explore/seekers" element={<ChunkErrorBoundary><Suspense fallback={<SuspenseFallback />}><SeekersPage /></Suspense></ChunkErrorBoundary>} />
 
               <Route path="/documents" element={<DocumentVault />} />
               <Route path="/escrow" element={<EscrowDashboard />} />
