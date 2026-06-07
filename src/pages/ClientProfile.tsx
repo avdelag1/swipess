@@ -6,9 +6,9 @@ import { useClientProfile } from "@/hooks/useClientProfile";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import {
-  Camera, ChevronRight, Coins, Crown,
-  LogOut, Megaphone, MessageSquare, Radio, Scale as ScaleIcon, Settings, Sparkles,
-  ThumbsUp, User, Users, Zap, Briefcase
+  Briefcase, Camera, ChevronRight, Coins,
+  Crown, LogOut, Megaphone, MessageSquare, Radio, Scale as ScaleIcon, Settings,
+  Sparkles, ThumbsUp, User, Users, Zap
 } from "lucide-react";
 import { SeekerAdSection } from '@/components/SeekerAdSection';
 import { useClientStats } from "@/hooks/useClientStats";

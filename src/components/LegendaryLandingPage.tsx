@@ -16,7 +16,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { forgotPasswordSchema, loginSchema, signupSchema } from '@/schemas/auth';
 import { cn } from '@/lib/utils';
-import { useSiteContent, getContentValue } from '@/hooks/useSiteContent';
+import { getContentValue, useSiteContent } from '@/hooks/useSiteContent';
 
 type View = 'landing' | 'auth';
 

@@ -1,5 +1,5 @@
-import { useState, useRef } from 'react';
-import { motion, useMotionValue, useTransform, AnimatePresence } from 'framer-motion';
+import { useRef, useState } from 'react';
+import { AnimatePresence, motion, useMotionValue, useTransform } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
@@ -7,10 +7,10 @@ import { useAuth } from '@/hooks/useAuth';
 import useAppTheme from '@/hooks/useAppTheme';
 import { triggerHaptic } from '@/utils/haptics';
 import {
-  ChevronLeft, MessageCircle, X, Users,
-  Calendar, DollarSign, Clock, MapPin,
-  Sparkles, Wrench, Zap, Car, ChefHat, Leaf, Hammer,
-  Baby, Dumbbell, HeartPulse, Package, Laptop, Paintbrush, Shield
+  Baby, Calendar, Car, ChefHat,
+  ChevronLeft, Clock, DollarSign, Dumbbell,
+  Hammer, HeartPulse, Laptop, Leaf, MapPin, MessageCircle, Package,
+  Paintbrush, Shield, Sparkles, Users, Wrench, X, Zap
 } from 'lucide-react';
 
 const CATEGORY_META: Record<string, { label: string; Icon: any; color: string }> = {

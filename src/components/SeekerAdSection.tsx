@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { AnimatePresence, motion } from 'framer-motion';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import {
-  Search, Plus, Edit, Trash2, ChevronRight, ChevronLeft,
-  Sparkles, Wrench, Zap, Car, ChefHat, Leaf, Hammer,
-  Baby, Dumbbell, HeartPulse, Package, Laptop, Paintbrush,
-  Shield, MapPin, DollarSign, Clock, Calendar, X
+  Baby, Calendar, Car, ChefHat, ChevronLeft, ChevronRight,
+  Clock, DollarSign, Dumbbell, Edit, Hammer, HeartPulse, Laptop,
+  Leaf, MapPin, Package, Paintbrush, Plus, Search,
+  Shield, Sparkles, Trash2, Wrench, X, Zap
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Switch } from '@/components/ui/switch';

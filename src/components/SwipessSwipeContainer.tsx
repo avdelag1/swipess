@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect, useMemo, useRef, useState, lazy, Suspense } from 'react';
+import { lazy, memo, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
 // import { } from '@/state/modalStore';
 import { triggerHaptic } from '@/utils/haptics';
@@ -28,7 +28,7 @@ import { swipeQueue } from '@/lib/swipe/SwipeQueue';
 import { imagePreloadController } from '@/lib/swipe/ImagePreloadController';
 import { useSwipeUndo } from '@/hooks/useSwipeUndo';
 import { useSwipeWithMatch } from '@/hooks/useSwipeWithMatch';
-import { useStartConversation, useConversations } from '@/hooks/useConversations';
+import { useConversations, useStartConversation } from '@/hooks/useConversations';
 import { useRecordProfileView } from '@/hooks/useProfileRecycling';
 import { usePrefetchImages } from '@/hooks/usePrefetchImages';
 import { usePrefetchManager, useSwipePrefetch } from '@/hooks/usePrefetchManager';
