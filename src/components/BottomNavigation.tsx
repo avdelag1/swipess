@@ -20,14 +20,20 @@ import { useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   Flame,
-  MessageCircle, PartyPopper,
-  Radio, Scale as ScaleIcon, SlidersHorizontal,
-  Sparkles, Zap, PlusCircle, ShieldCheck
+  MessageCircle,
+  PartyPopper,
+  PlusCircle,
+  Radio,
+  Scale as ScaleIcon,
+  ShieldCheck,
+  SlidersHorizontal,
+  Sparkles,
+  Zap,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUnreadMessageCount } from '@/hooks/useUnreadMessageCount';
 import { useUnreadNotifications } from '@/hooks/useUnreadNotifications';
-import { prefetchRoute } from '@/utils/routePrefetcher';
+import { createHoverPrefetch, prefetchRoute } from '@/utils/routePrefetcher';
 import useAppTheme from '@/hooks/useAppTheme';
 import { haptics } from '@/utils/microPolish';
 import { useTranslation } from 'react-i18next';
@@ -210,7 +216,7 @@ export const BottomNavigation = memo(({
         navigate(item.path);
       }
     },
-    [navigate, location.pathname, setCategories, closeAll, showAIListing, showAIChat, showVapId, showTokensModal, showFilters],
+    [navigate, location.pathname, setCategories, closeAll],
   );
 
   const handleNavKeyDown = useCallback(
@@ -267,6 +273,7 @@ export const BottomNavigation = memo(({
         paddingLeft: 'max(12px, env(safe-area-inset-left))',
         paddingRight: 'max(12px, env(safe-area-inset-right))',
         paddingBottom: 'calc(8px + max(0px, env(safe-area-inset-bottom)))',
+        viewTransitionName: 'swipess-bottom-nav',
       }}
     >
       {/* ── Liquid Glass bar surface ────────────────────────────────────────
@@ -323,9 +330,7 @@ export const BottomNavigation = memo(({
                 id={item.id === 'ai-search' ? 'ai-search-button' : undefined}
                 data-no-cinematic
                 data-instant-feedback
-                onPointerEnter={() => {
-                  if (item.path) prefetchRoute(item.path);
-                }}
+                {...(item.path ? createHoverPrefetch(item.path) : {})}
                 onPointerDown={(e) => {
                   if (item.path) prefetchRoute(item.path);
                   isDraggingRef.current = false;

@@ -76,8 +76,11 @@ function RadioMiniPlayerInner() {
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0, opacity: 0 }}
           transition={{ type: 'spring', stiffness: 500, damping: 28 }}
-          className="fixed right-4 z-[200] flex items-center gap-2"
-          style={bottomStyle}
+          className="fixed right-4 z-[200] flex items-center gap-2 view-transition-floating-player"
+          style={{
+            ...bottomStyle,
+            viewTransitionName: 'swipess-floating-player',
+          }}
         >
           {/* Play/pause pill */}
           <m.button
@@ -136,8 +139,11 @@ function RadioMiniPlayerInner() {
           animate={{ scale: 1, opacity: 1, y: 0 }}
           exit={{ scale: 0.85, opacity: 0, y: 16 }}
           transition={{ type: 'spring', stiffness: 400, damping: 26 }}
-          className="fixed right-4 z-[200] w-[300px]"
-          style={bottomStyle}
+          className="fixed right-4 z-[200] w-[300px] view-transition-floating-player"
+          style={{
+            ...bottomStyle,
+            viewTransitionName: 'swipess-floating-player',
+          }}
         >
           <div className="relative rounded-[28px] overflow-hidden shadow-[0_22px_70px_8px_rgba(0,0,0,0.56)] border border-zinc-700 bg-zinc-900 text-white">
             <RadioSkinBackground />

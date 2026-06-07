@@ -105,7 +105,11 @@ export const SwipeAllDashboard = memo(({ setCategories }: SwipeAllDashboardProps
         animate="animate"
         exit="exit"
         className="relative h-full min-h-0 overflow-visible flex flex-col items-center justify-start bg-transparent"
-        style={{ paddingTop: 'var(--top-bar-height, 72px)', paddingBottom: 'var(--bottom-nav-height, 80px)', boxSizing: 'border-box' }}
+        style={{
+          paddingTop: 'calc(var(--top-bar-height, 72px) + var(--safe-top, 0px))',
+          paddingBottom: 'calc(var(--bottom-nav-height, 80px) + env(safe-area-inset-bottom, 0px))',
+          boxSizing: 'border-box',
+        }}
       >
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}

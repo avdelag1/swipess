@@ -187,15 +187,17 @@ export function prefetchRoleRoutes(role: 'client' | 'owner'): void {
 }
 
 /**
- * Create hover prefetch handler - DESKTOP ONLY
+ * Create intent prefetch handlers for desktop and mobile.
  */
 export function createHoverPrefetch(path: string): {
   onMouseEnter: () => void;
   onFocus: () => void;
+  onTouchStart: () => void;
 } {
   return {
     onMouseEnter: () => prefetchRoute(path),
     onFocus: () => prefetchRoute(path),
+    onTouchStart: () => prefetchRoute(path),
   };
 }
 

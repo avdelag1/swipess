@@ -1,7 +1,6 @@
 import { memo } from 'react';
 import { useAppNavigate } from "@/hooks/useAppNavigate";
 import { motion } from 'framer-motion';
-import { useLocation } from 'react-router-dom';
 import { ChevronLeft, Crown, UserRound } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
@@ -46,7 +45,6 @@ function TopBarComponent({
   const { user } = useAuth();
   const { isLight } = useAppTheme();
   const setModal = useModalStore(s => s.setModal);
-  const location = useLocation();
 
   // Always visible on every page — no chrome-reveal hiding
   const isActuallyVisible = true;
@@ -119,7 +117,8 @@ function TopBarComponent({
         paddingTop: 'calc(var(--safe-top, 0px) + 6px)',
         height: 'calc(var(--top-bar-height) + var(--safe-top, 0px))',
         background: 'transparent',
-        border: 'none'
+        border: 'none',
+        viewTransitionName: 'swipess-header',
       }}
     >
       <div className="h-full w-full px-2 flex items-center justify-between relative">

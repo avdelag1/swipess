@@ -781,29 +781,6 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
     triggerHaptic('light');
   }, []);
 
-  const armSilenceCountdown = useCallback(() => {
-    if (!autoSendEnabledRef.current) return;
-    if (countdownRef.current) { clearInterval(countdownRef.current); countdownRef.current = null; }
-    setCountdown(3);
-    countdownRef.current = setInterval(() => {
-      setCountdown(prev => {
-        if (prev !== null && prev <= 1) {
-          clearInterval(countdownRef.current!);
-          countdownRef.current = null;
-          const text = inputValueRef.current.trim();
-          if (text) {
-            sendMessage(text);
-            setInput('');
-            triggerHaptic('heavy');
-            uiSounds.playTap();
-          }
-          return null;
-        }
-        return prev !== null ? prev - 1 : null;
-      });
-    }, 1000);
-  }, [sendMessage]);
-
   const startListening = useCallback(async () => {
     // ALWAYS use the robust Whisper backend. Web Speech API is too flaky across browsers.
     const success = await startTranscribe();
