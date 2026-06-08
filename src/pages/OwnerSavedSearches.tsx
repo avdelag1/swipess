@@ -1,5 +1,5 @@
 /** SPEED OF LIGHT: DashboardLayout is now rendered at route level */
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import { lazyWithRetry } from '@/utils/lazyRetry';
 import { SavedSearches } from "@/components/SavedSearches";
 import { ArrowLeft, Settings, Users } from "lucide-react";

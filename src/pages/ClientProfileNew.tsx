@@ -4,7 +4,7 @@ import { PhotoPreview } from "@/components/PhotoPreview";
 const ShareDialog = lazyWithRetry(() => import('@/components/ShareDialog').then(m => ({ default: m.ShareDialog })));
 import { SharedProfileSection } from "@/components/SharedProfileSection";
 import { ThemeSelector } from "@/components/ThemeSelector";
-import { useCallback, useState } from "react";
+import { Suspense, useCallback, useState } from "react";
 import { lazyWithRetry } from '@/utils/lazyRetry';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";

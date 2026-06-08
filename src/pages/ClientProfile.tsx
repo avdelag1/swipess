@@ -1,7 +1,7 @@
 const ClientProfileDialog = lazyWithRetry(() => import('@/components/ClientProfileDialog').then(m => ({ default: m.ClientProfileDialog })));
 import { PhotoPreview } from "@/components/PhotoPreview";
 import { SharedProfileSection } from "@/components/SharedProfileSection";
-import { useCallback, useState } from "react";
+import { Suspense, useCallback, useState } from "react";
 import { lazyWithRetry } from '@/utils/lazyRetry';
 import { useClientProfile } from "@/hooks/useClientProfile";
 import { useQueryClient } from "@tanstack/react-query";

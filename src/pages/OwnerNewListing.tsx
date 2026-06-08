@@ -1,6 +1,6 @@
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { UnifiedListingForm } from "@/components/UnifiedListingForm";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { lazyWithRetry } from '@/utils/lazyRetry';
 const CategorySelectionDialog = lazyWithRetry(() => import('@/components/CategorySelectionDialog').then(m => ({ default: m.CategorySelectionDialog })));
 import { useAuth } from "@/hooks/useAuth";
