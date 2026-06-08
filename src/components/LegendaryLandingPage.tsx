@@ -128,7 +128,7 @@ const LandingView = memo(({
         <button
           onClick={() => { triggerHaptic('medium'); onEnterAuth('signup'); }}
           style={{ background: btnColor ? btnColor : undefined }}
-          className={`w-full h-14 rounded-full text-white font-bold text-[14px] tracking-wide active:scale-[0.97] transition-all flex items-center justify-center gap-2.5 border border-white/25 hover:border-white/40 ${!btnColor && 'bg-white/10 hover:bg-white/15 backdrop-blur-sm'}`}
+          className={`w-full h-14 rounded-full text-white font-bold text-[14px] tracking-wide active:scale-[0.97] transition-all flex items-center justify-center gap-2.5 border border-white/25 hover:border-white/40 ${!btnColor && 'bg-white/20 hover:bg-white/30 backdrop-blur-sm'}`}
         >
           <Sparkles className="w-4 h-4" />
           {btnText}
@@ -417,7 +417,7 @@ const AuthView = memo(({ onBack, initialMode = 'login', siteContent }: { onBack:
             <button
               type="button"
               onClick={() => { triggerHaptic('light'); setIsLogin(!isLogin); setFieldErrors({}); }}
-              className="w-full h-14 rounded-full bg-white/5 text-white/70 font-bold text-[13px] tracking-wide active:scale-[0.97] transition-all flex items-center justify-center gap-2.5 border border-white/15 hover:bg-white/10 hover:text-white hover:border-white/25"
+              className="w-full h-14 rounded-full bg-white/10 text-white/70 font-bold text-[13px] tracking-wide active:scale-[0.97] transition-all flex items-center justify-center gap-2.5 border border-white/20 hover:bg-white/15 hover:text-white hover:border-white/30"
             >
               {isLogin ? 'Create Account' : 'Back to Sign In'}
             </button>
