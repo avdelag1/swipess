@@ -1,9 +1,10 @@
-import { useEffect, useMemo, useState } from 'react';
+import { Suspense, useEffect, useMemo, useState } from 'react';
+import { lazyWithRetry } from '@/utils/lazyRetry';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Award, ChevronRight, History, QrCode, Sparkles, Store, Zap } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
-import { ResidentQRModal } from './ResidentQRModal';
+const ResidentQRModal = lazyWithRetry(() => import('@/components/perks/ResidentQRModal').then(m => ({ default: m.ResidentQRModal })));
 import { BusinessList } from './BusinessList';
 import { DiscountHistory } from './DiscountHistory';
 import { cn } from '@/lib/utils';
@@ -216,7 +217,7 @@ export function PerksDashboard() {
         </AnimatePresence>
       </div>
 
-      <ResidentQRModal isOpen={qrOpen} onClose={() => setQrOpen(false)} />
+      <Suspense fallback={null}><ResidentQRModal isOpen={qrOpen} onClose={() => setQrOpen(false)} /></Suspense>
     </div>
   );
 }

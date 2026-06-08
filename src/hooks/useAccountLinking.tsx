@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
+import { appToast } from '@/utils/appNotification';
 import { User } from '@supabase/supabase-js';
 import { logger } from '@/utils/prodLogger';
 import { logSupabaseError } from '@/lib/supabaseError';
@@ -75,9 +75,7 @@ export function useAccountLinking() {
       
       if (roleConflict) {
         // SECURITY: Show user the conflict but NEVER change their existing role
-        toast.info("Account Found", {
-          description: `You already have an account as a ${existingProfile.role}. You'll be signed in with your existing role.`,
-        });
+        appToast.info("Account Found");
         // DO NOT modify role - use existing one
       } else {
         // No conflict - ensure role exists in user_roles (idempotent)
@@ -126,9 +124,7 @@ export function useAccountLinking() {
           .eq('user_id', existingProfile.id);
       }
 
-      toast.success("Account Linked Successfully", {
-        description: `Welcome back! Your ${oauthUser.app_metadata?.provider} account has been linked.`,
-      });
+      appToast.success("Account Linked Successfully");
 
       return {
         success: true,
@@ -142,9 +138,7 @@ export function useAccountLinking() {
       if (import.meta.env.DEV) {
         logger.error('Error linking OAuth to existing account:', error);
       }
-      toast.error("Account Linking Failed", {
-        description: "Failed to link your account. Please try signing in with your original credentials.",
-      });
+      appToast.error("Account Linking Failed");
       
       return {
         success: false,
@@ -216,9 +210,7 @@ export function useAccountLinking() {
       });
       logSupabaseError('auth.updateUser(oauth-signup)', signupUpdateError);
 
-      toast.success("Welcome aboard!", {
-        description: `Your ${oauthUser.app_metadata?.provider} account has been connected successfully.`,
-      });
+      appToast.success("Welcome aboard!");
 
       return {
         success: true,
@@ -231,9 +223,7 @@ export function useAccountLinking() {
       if (import.meta.env.DEV) {
         logger.error('Error creating OAuth profile:', error);
       }
-      toast.error("Account Creation Failed", {
-        description: "Failed to create your profile. Please try again.",
-      });
+      appToast.error("Account Creation Failed");
       
       return {
         success: false,
@@ -250,9 +240,7 @@ export function useAccountLinking() {
     requestedRole: 'client' | 'owner'
   ): Promise<AccountLinkingResult> => {
     if (!oauthUser.email) {
-      toast.error("Email Required", {
-        description: "We need your email address to create your account. Please check your OAuth provider settings.",
-      });
+      appToast.error("Email Required");
       return { success: false, roleConflict: false };
     }
 

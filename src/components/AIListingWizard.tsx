@@ -12,7 +12,7 @@ import { useModalStore } from '@/state/modalStore';
 import useAppTheme from '@/hooks/useAppTheme';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { toast } from 'sonner';
+import { appToast } from '@/utils/appNotification';
 import { uploadPhotoBatch } from '@/utils/photoUpload';
 import { useAuth } from '@/hooks/useAuth';
 import { useTranslation } from 'react-i18next';
@@ -165,12 +165,12 @@ export function AIListingWizard() {
   // ✨ AI Enhance: improves raw text using the ai-enhance-text edge function
   const handleEnhance = async () => {
     const raw = prompt.trim();
-    if (!raw) { toast.error('Type or speak something first!'); return; }
+    if (!raw) { appToast.error('Type or speak something first!'); return; }
     triggerHaptic('medium');
     const improved = await enhanceText(raw, 'listing');
     if (improved) {
       setPrompt(improved);
-      toast.success('✨ Description enhanced!');
+      appToast.success('✨ Description enhanced!');
       triggerHaptic('success');
     }
   };
@@ -242,7 +242,7 @@ export function AIListingWizard() {
       const text = await stopVoice();
       if (text) {
         setPrompt(prev => prev ? `${prev} ${text}` : text);
-        toast.success('Intel Received', { description: 'Speech synthesized to text.' });
+        appToast.success('Intel Received');
       }
     } else {
       const success = await startVoice();
@@ -252,11 +252,11 @@ export function AIListingWizard() {
 
   const handleProcess = async () => {
     if (!user) {
-      toast.error('Please sign in to publish a listing.');
+      appToast.error('Please sign in to publish a listing.');
       return;
     }
     if (imageFiles.length === 0) {
-      toast.error('At least 1 photo is required');
+      appToast.error('At least 1 photo is required');
       return;
     }
     // Prompt is no longer hard-required — the wizard can auto-generate a
@@ -377,13 +377,13 @@ export function AIListingWizard() {
       queryClient.invalidateQueries({ queryKey: ['owner-listings'] });
       queryClient.invalidateQueries({ queryKey: ['listings'] });
       triggerHaptic('success');
-      toast.success('Listing published');
+      appToast.success('Listing published');
       handleClose();
       setTimeout(() => navigate('/owner/properties', { replace: true }), 150);
     } catch (error) {
       console.error('AI Listing Publish Error:', error);
       const msg = error instanceof Error ? error.message : 'Something went wrong publishing your listing.';
-      toast.error(msg);
+      appToast.error(msg);
       setStep('details');
     } finally {
       setIsProcessing(false);

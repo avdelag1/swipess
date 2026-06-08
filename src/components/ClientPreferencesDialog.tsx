@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useClientFilterPreferences } from '@/hooks/useClientFilterPreferences'
-import { toast } from 'sonner'
+import { appToast } from '@/utils/appNotification';
 import { AnimatePresence, motion } from 'framer-motion'
 
 
@@ -154,11 +154,11 @@ export function ClientPreferencesDialog({ open, onOpenChange }: ClientPreference
       
       await updatePreferences(formData)
       setIsScanning(false)
-      toast.success('Preferences Updated', { description: 'Your filter preferences have been saved successfully.' })
+      appToast.success('Preferences Updated')
       onOpenChange(false)
     } catch (_error) {
       setIsScanning(false)
-      toast.error('Error', { description: 'Failed to update preferences. Please try again.' })
+      appToast.error('Error')
     }
   }
 

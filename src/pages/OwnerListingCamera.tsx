@@ -4,7 +4,7 @@ import { CameraCapture } from '@/components/CameraCapture';
 import { CapturedPhoto } from '@/hooks/useCamera';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { toast } from '@/components/ui/sonner';
+import { appToast } from '@/utils/appNotification';
 import { logger } from '@/utils/prodLogger';
 
 // Upload timeout in milliseconds (60 seconds for multiple photos)
@@ -60,11 +60,7 @@ export default function OwnerListingCamera() {
       if (isMountedRef.current) {
         setIsUploading(false);
         setUploadProgress(0);
-        toast({
-          title: 'Upload Timeout',
-          description: 'Upload took too long. Please try again.',
-          variant: 'destructive',
-        });
+        appToast.error('Upload Timeout', 'Upload took too long. Please try again.');
         navigate(returnPath);
       }
     }, UPLOAD_TIMEOUT);
@@ -135,10 +131,7 @@ export default function OwnerListingCamera() {
       }
 
       if (isMountedRef.current) {
-        toast({
-          title: 'Photos Uploaded!',
-          description: `${uploadedUrls.length} photo(s) have been saved successfully.`,
-        });
+        appToast.info('Photos Uploaded!', `${uploadedUrls.length} photo(s) have been saved successfully.`);
 
         // Navigate back with the uploaded URLs in state
         navigate(returnPath, {
@@ -155,11 +148,7 @@ export default function OwnerListingCamera() {
       }
 
       if (isMountedRef.current) {
-        toast({
-          title: 'Upload Failed',
-          description: 'Some photos failed to upload. Please try again.',
-          variant: 'destructive',
-        });
+        appToast.error('Upload Failed', 'Some photos failed to upload. Please try again.');
       }
     } finally {
       if (isMountedRef.current) {

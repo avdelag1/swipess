@@ -5,7 +5,7 @@
 import { useCallback } from 'react';
 import { type FlagReason, validateContent } from '@/utils/contactInfoValidation';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from '@/components/ui/sonner';
+import { appToast } from '@/utils/appNotification';
 import { logger } from '@/utils/prodLogger';
 import { logSupabaseError } from '@/lib/supabaseError';
 
@@ -51,7 +51,7 @@ export function useContentModeration() {
     const result = validateContent(text);
     if (!result.isClean && result.reason) {
       if (showToast && result.message) {
-        toast.error('Content blocked', { description: result.message });
+        appToast.error('Content blocked');
       }
       // Fire-and-forget DB log
       logFlag(contentType, text, result.reason, sourceId);

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
+import { appToast } from '@/utils/appNotification';
 import { AlertTriangle, FileCheck, ShieldCheck, Upload } from 'lucide-react';
 import { logger } from '@/utils/prodLogger';
 import { Button } from '@/components/ui/button';
@@ -31,7 +31,7 @@ export function VerificationRequestFlow({ open, onOpenChange, currentStatus }: V
     if (!file || !user) return;
 
     if (file.size > 10 * 1024 * 1024) {
-      toast.error('File must be under 10MB');
+      appToast.error('File must be under 10MB');
       return;
     }
 
@@ -62,11 +62,11 @@ export function VerificationRequestFlow({ open, onOpenChange, currentStatus }: V
         verification_documents: [{ type: selectedType, file_path: filePath, submitted_at: new Date().toISOString() }],
       } as any).eq('user_id', user.id);
 
-      toast.success('Verification document submitted! Review typically takes 24-48 hours.');
+      appToast.success('Verification document submitted! Review typically takes 24-48 hours.');
       setStep(2);
     } catch (err) {
       logger.error('Upload error:', err);
-      toast.error('Failed to upload document');
+      appToast.error('Failed to upload document');
     } finally {
       setIsUploading(false);
     }

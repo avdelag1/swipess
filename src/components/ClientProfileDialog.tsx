@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { PhotoUploadManager } from '@/components/PhotoUploadManager';
 import { ListingVideoUpload } from '@/components/video/ListingVideoUpload';
 import { useClientProfile, useSaveClientProfile } from '@/hooks/useClientProfile';
-import { toast } from 'sonner';
+import { appToast } from '@/utils/appNotification';
 import { supabase } from '@/integrations/supabase/client';
 import { useModalStore } from '@/state/modalStore';
 import { Badge } from '@/components/ui/badge';
@@ -188,7 +188,7 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
   const handleSave = async () => {
     triggerHaptic('medium');
     if (name && !validateContent(name).isClean) {
-      toast.error('Content Blocked', { description: 'Please check your Station ID.' });
+      appToast.error('Content Blocked');
       return;
     }
     try {
@@ -202,12 +202,12 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
         country, city, neighborhood, latitude, longitude,
         intentions, occupation, years_in_city: yearsInCity === '' ? null : Number(yearsInCity),
       });
-      toast.success('Identity Updated', { description: 'Your profile has been updated.' });
+      appToast.success('Identity Updated');
       onOpenChange(false);
       // Navigate to virtual VAP ID card to show updated data
       useModalStore.getState().setModal('showVapId', true);
     } catch (_error) {
-       toast.error('Sync Error');
+       appToast.error('Sync Error');
     }
   };
 

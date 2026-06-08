@@ -1,7 +1,8 @@
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { UnifiedListingForm } from "@/components/UnifiedListingForm";
 import { useEffect, useState } from "react";
-import { CategorySelectionDialog } from "@/components/CategorySelectionDialog";
+import { lazyWithRetry } from '@/utils/lazyRetry';
+const CategorySelectionDialog = lazyWithRetry(() => import('@/components/CategorySelectionDialog').then(m => ({ default: m.CategorySelectionDialog })));
 import { useAuth } from "@/hooks/useAuth";
 import { useUserRole } from "@/hooks/useUserRole";
 import { useModalStore } from "@/state/modalStore";
@@ -90,12 +91,12 @@ const OwnerNewListing = () => {
   return (
     <>
 
-      <CategorySelectionDialog
+      <Suspense fallback={null}><CategorySelectionDialog
         open={isCategorySelectorOpen}
         onOpenChange={handleCloseCategorySelector}
         onCategorySelect={handleCategorySelect}
         onAIOpen={handleAIOpen}
-      />
+      /></Suspense>
       
       {initialData && (
         <UnifiedListingForm

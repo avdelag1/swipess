@@ -18,7 +18,7 @@ import {
   X,
   Zap,
 } from 'lucide-react';
-import { toast } from 'sonner';
+import { appToast } from '@/utils/appNotification';
 import { CameraSettingsPanel } from '@/components/CameraSettingsPanel';
 import { CameraFiltersPanel } from '@/components/CameraFiltersPanel';
 import { PhotoEditor } from '@/components/PhotoEditor';
@@ -285,7 +285,7 @@ export function CameraCapture({
   // Handle timer countdown and capture
   const handleCapture = useCallback(async () => {
     if (capturedPhotos.length >= maxPhotos) {
-      toast.error('Photo Limit Reached', { description: `Maximum ${maxPhotos} photos allowed.` });
+      appToast.error('Photo Limit Reached');
       return;
     }
 
@@ -309,14 +309,14 @@ export function CameraCapture({
     if (photo) {
       // Add photo to the captured photos array
       addPhoto(photo);
-      toast.success('Photo Captured!', { description: `${capturedPhotos.length + 1}/${maxPhotos} photos taken` });
+      appToast.success('Photo Captured!');
     }
   }, [timerSeconds, capturedPhotos.length, maxPhotos, captureWithEffects, flashMode, nightConfig.enabled, addPhoto]);
 
   // Handle complete
   const handleComplete = () => {
     if (capturedPhotos.length === 0) {
-      toast.error('No Photos', { description: 'Please take at least one photo.' });
+      appToast.error('No Photos');
       return;
     }
     stopStream();
@@ -358,7 +358,7 @@ export function CameraCapture({
         ...capturedPhotos[editingPhotoIndex],
         dataUrl: editedDataUrl,
       });
-      toast.success('Photo Edited!', { description: 'Your changes have been applied.' });
+      appToast.success('Photo Edited!');
     }
     setShowPhotoEditor(false);
     setEditingPhotoIndex(null);

@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
+import { appToast } from '@/utils/appNotification';
 import { logger } from '@/utils/prodLogger';
 
 /**
@@ -63,7 +63,7 @@ export function useSwipe() {
       }
       
       logger.error('[useSwipe] Error after retries:', _err);
-      toast.error('Could not save choice. Please try again.');
+      appToast.error('Could not save choice. Please try again.');
     },
     mutationFn: async ({ targetId, direction, targetType = 'listing' }: {
       targetId: string;

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { toast } from '@/components/ui/sonner';
+import { appToast } from '@/utils/appNotification';
 import { Activity, AlertCircle, Camera, Check, ChevronRight, FileCheck, ShieldCheck } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -72,7 +72,7 @@ export function ClientVerificationFlow({ onComplete }: ClientVerificationFlowPro
       reader.readAsDataURL(file);
     } catch (err) {
       console.error('[Verification] Upload error:', err);
-      toast.error(`Upload failed. Please try again.`);
+      appToast.error(`Upload failed. Please try again.`);
     } finally {
       setUploading(false);
     }
@@ -113,11 +113,11 @@ export function ClientVerificationFlow({ onComplete }: ClientVerificationFlowPro
         })
         .eq('user_id', user.id);
 
-      toast.success('Identity submitted for review! 🚀');
+      appToast.success('Identity submitted for review! 🚀');
       onComplete?.();
     } catch (err) {
       console.error('[Verification] Submission error:', err);
-      toast.error('Submission failed. Please contact support.');
+      appToast.error('Submission failed. Please contact support.');
     } finally {
       setSubmitting(false);
     }

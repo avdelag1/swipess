@@ -1,7 +1,8 @@
-import { ClientProfileDialog } from "@/components/ClientProfileDialog";
+const ClientProfileDialog = lazyWithRetry(() => import('@/components/ClientProfileDialog').then(m => ({ default: m.ClientProfileDialog })));
 import { PhotoPreview } from "@/components/PhotoPreview";
 import { SharedProfileSection } from "@/components/SharedProfileSection";
 import { useCallback, useState } from "react";
+import { lazyWithRetry } from '@/utils/lazyRetry';
 import { useClientProfile } from "@/hooks/useClientProfile";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
@@ -13,8 +14,8 @@ import {
 import { SeekerAdSection } from '@/components/SeekerAdSection';
 import { useClientStats } from "@/hooks/useClientStats";
 import { ActivityFeed } from "@/components/ActivityFeed";
-import { VapIdCardModal } from "@/components/VapIdCardModal";
-import { VapIdEditModal } from "@/components/VapIdEditModal";
+const VapIdCardModal = lazyWithRetry(() => import('@/components/VapIdCardModal').then(m => ({ default: m.VapIdCardModal })));
+const VapIdEditModal = lazyWithRetry(() => import('@/components/VapIdEditModal').then(m => ({ default: m.VapIdEditModal })));
 import { AnimatePresence, motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { ProfileSkeleton } from "@/components/ui/LayoutSkeletons";
@@ -383,7 +384,7 @@ const ClientProfile = () => {
         <div className="h-24" />
       </div>
 
-      <ClientProfileDialog open={showEditDialog} onOpenChange={setShowEditDialog} />
+      <Suspense fallback={null}><ClientProfileDialog open={showEditDialog} onOpenChange={setShowEditDialog} /></Suspense>
       <PhotoPreview photos={profile?.profile_images || []} isOpen={showPhotoPreview} onClose={() => setShowPhotoPreview(false)} initialIndex={selectedPhotoIndex} />
       <VapIdEditModal isOpen={isVapModalOpen} onClose={() => setIsVapModalOpen(false)} onSaved={() => { refetchProfile(); queryClient.invalidateQueries({ queryKey: ['vap-id-client-profile', user?.id] }); }} role="client" />
       <VapIdCardModal isOpen={showVapCard} onClose={() => setShowVapCard(false)} role="client" />

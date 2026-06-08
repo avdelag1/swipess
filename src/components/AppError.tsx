@@ -1,7 +1,5 @@
 import { AlertTriangle, Home, RefreshCw } from 'lucide-react';
-import { toast } from '@/components/ui/sonner';
-
-
+import { appToast } from '@/utils/appNotification';
 interface AppErrorProps {
   error: Error;
   resetError: () => void;
@@ -69,7 +67,7 @@ export function AppError({ error, resetError }: AppErrorProps) {
                onClick={() => {
                  const details = `Error: ${error?.message}\n\nStack: ${error?.stack}\n\nUA: ${navigator.userAgent}\nURL: ${window.location.href}`;
                  navigator.clipboard.writeText(details);
-                 toast.success("Error details copied!", { description: "Please send this to support." });
+                 appToast.success("Error details copied!");
                }}
                className="w-full h-8 text-[10px] text-muted-foreground hover:text-foreground transition-colors uppercase tracking-widest font-bold"
             >

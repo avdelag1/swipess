@@ -9,9 +9,10 @@ import { Link } from 'react-router-dom';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { CheckCircle, ExternalLink, MessageSquare, Search, XCircle } from 'lucide-react';
+import { appToast } from '@/utils/appNotification';
+
 
 interface EventRow {
   id: string;
@@ -70,7 +71,6 @@ const emptyForm = {
 export default function AdminEventos() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { toast } = useToast();
   const [events, setEvents] = useState<EventRow[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -165,12 +165,12 @@ export default function AdminEventos() {
       
       if (error) throw error;
       
-      toast({ title: 'Submission approved & Published 🎉' });
+      appToast.info('Submission approved & Published 🎉');
       fetchSubmissions();
       fetchEvents(); // Refresh events list too
     } catch (err: any) {
       console.error('Approval error:', err);
-      toast({ title: 'Approval failed', description: err.message, variant: 'destructive' });
+      appToast.info('Approval failed');
     }
   };
 
@@ -182,10 +182,10 @@ export default function AdminEventos() {
         .eq('id', id);
       
       if (error) throw error;
-      toast({ title: 'Submission rejected' });
+      appToast.info('Submission rejected');
       fetchSubmissions();
     } catch (_err) {
-      toast({ title: 'Rejection failed', variant: 'destructive' });
+      appToast.info('Rejection failed');
     }
   };
 
@@ -197,7 +197,7 @@ export default function AdminEventos() {
     const path = `${crypto.randomUUID()}.${ext}`;
     const { error } = await supabase.storage.from('event-images').upload(path, file);
     if (error) {
-      toast({ title: 'Upload failed', variant: 'destructive' });
+      appToast.info('Upload failed');
       setUploading(false);
       return;
     }
@@ -208,7 +208,7 @@ export default function AdminEventos() {
 
   const handleSave = async () => {
     if (!form.title.trim()) {
-      toast({ title: 'Title is required', variant: 'destructive' });
+      appToast.info('Title is required');
       return;
     }
 
@@ -233,11 +233,11 @@ export default function AdminEventos() {
 
     if (editingId) {
       await supabase.from('events').update(payload).eq('id', editingId);
-      toast({ title: 'Event updated' });
+      appToast.info('Event updated');
     } else {
       payload.created_by = user!.id;
       await supabase.from('events').insert(payload);
-      toast({ title: 'Event published 🎉' });
+      appToast.info('Event published 🎉');
     }
 
     setShowForm(false);
@@ -274,7 +274,7 @@ export default function AdminEventos() {
 
   const handleDelete = async (eventId: string) => {
     await supabase.from('events').delete().eq('id', eventId);
-    toast({ title: 'Event deleted' });
+    appToast.info('Event deleted');
     fetchEvents();
   };
 

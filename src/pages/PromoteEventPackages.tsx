@@ -4,7 +4,7 @@ import { ChevronLeft, Crown, Sparkles, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { toast } from '@/components/ui/sonner';
+import { appToast } from '@/utils/appNotification';
 import { NativeBridge } from '@/utils/nativeBridge';
 import { getSafePaymentUrl } from '@/config/iapProducts';
 import { cn } from '@/lib/utils';
@@ -80,21 +80,21 @@ export default function PromoteEventPackages() {
       const r = await NativeBridge.purchaseProduct(tier.appleProductId);
       setPurchasing(null);
       if (r.success) {
-        toast.success('Promotion activated', { description: `${tier.name} (${tier.duration})` });
+        appToast.success('Promotion activated', `${tier.name} (${tier.duration})`);
         navigate('/client/dashboard');
       } else if ((r as any).error !== 'CANCELLED') {
-        toast.error('Could not complete purchase');
+        appToast.error('Could not complete purchase');
       }
       return;
     }
     const safePaypalUrl = getSafePaymentUrl(tier.paypalUrl);
     if (!safePaypalUrl) {
-      toast.error('Direct checkout unavailable', { description: 'Please use the App Store.' });
+      appToast.error('Direct checkout unavailable');
       setPurchasing(null);
       return;
     }
     setPurchasing(null);
-    toast.message('Redirecting to PayPal', { description: `${tier.name} (${tier.duration})` });
+    appToast.message('Redirecting to PayPal', `${tier.name} (${tier.duration})`);
     window.open(safePaypalUrl, '_blank', 'noopener,noreferrer');
   };
 

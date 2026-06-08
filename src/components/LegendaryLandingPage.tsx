@@ -11,12 +11,13 @@ import { SwipessLogo } from './SwipessLogo';
 import { AtmosphericLayer } from './AtmosphericLayer';
 import LandingBackgroundEffects from './LandingBackgroundEffects';
 import { Input } from '@/components/ui/input';
-import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { forgotPasswordSchema, loginSchema, signupSchema } from '@/schemas/auth';
 import { cn } from '@/lib/utils';
 import { getContentValue, useSiteContent } from '@/hooks/useSiteContent';
+import { appToast } from '@/utils/appNotification';
+
 
 type View = 'landing' | 'auth';
 
@@ -174,7 +175,7 @@ const AuthView = memo(({ onBack, initialMode = 'login', siteContent }: { onBack:
         redirectTo: `${window.location.origin}/reset-password`,
       });
       if (error) throw error;
-      toast({ title: 'Reset Link Sent', description: "Check your inbox for reset instructions." });
+      appToast.info('Reset Link Sent');
       setIsForgotPassword(false);
     } catch (error: any) {
       setShakeTrigger(prev => prev + 1);
@@ -184,7 +185,7 @@ const AuthView = memo(({ onBack, initialMode = 'login', siteContent }: { onBack:
         error.errors.forEach((e: any) => { if (e.path?.[0]) errs[e.path[0]] = e.message; });
         setFieldErrors(errs);
       } else {
-        toast({ title: 'Error', description: error.message, variant: 'destructive' });
+        appToast.info('Error');
       }
     } finally {
       setIsLoading(false);
@@ -243,7 +244,7 @@ const AuthView = memo(({ onBack, initialMode = 'login', siteContent }: { onBack:
         error.errors.forEach((e: any) => { if (e.path) errs[e.path[0]] = e.message; });
         setFieldErrors(errs);
       } else {
-        toast({ title: 'Error', description: error.message, variant: 'destructive' });
+        appToast.info('Error');
       }
     } finally {
       setIsLoading(false);

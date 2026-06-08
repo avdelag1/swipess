@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { toast } from "sonner";
+import { appToast } from '@/utils/appNotification';
 import { Vibrate, Volume2, VolumeX } from "lucide-react";
 import { logger } from '@/utils/prodLogger';
 import { getHapticPreference, setHapticPreference } from "@/utils/haptics";
@@ -45,7 +45,7 @@ export function SwipeSoundSettings() {
 
       if (error) {
         logger.error('Failed to fetch swipe sound theme:', error);
-        toast.error('Failed to load sound preferences');
+        appToast.error('Failed to load sound preferences');
         setInitialLoading(false);
         return;
       }
@@ -66,7 +66,7 @@ export function SwipeSoundSettings() {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        toast.error('You must be logged in to save preferences');
+        appToast.error('You must be logged in to save preferences');
         setLoading(false);
         return;
       }
@@ -78,14 +78,14 @@ export function SwipeSoundSettings() {
 
       if (error) {
         logger.error('Failed to update swipe sound theme:', error);
-        toast.error('Failed to save sound preference');
+        appToast.error('Failed to save sound preference');
         loadUserTheme();
       } else {
-        toast.success(`Sound theme changed to ${themeDisplayNames[newTheme]}`);
+        appToast.success(`Sound theme changed to ${themeDisplayNames[newTheme]}`);
       }
     } catch (error) {
       logger.error('Error updating swipe sound theme:', error);
-      toast.error('Failed to save sound preference');
+      appToast.error('Failed to save sound preference');
       loadUserTheme();
     } finally {
       setLoading(false);
@@ -96,9 +96,9 @@ export function SwipeSoundSettings() {
     setHapticsEnabled(enabled);
     setHapticPreference(enabled);
     if (enabled) {
-      toast.success('Haptic feedback enabled');
+      appToast.success('Haptic feedback enabled');
     } else {
-      toast.success('Haptic feedback disabled');
+      appToast.success('Haptic feedback disabled');
     }
   };
 

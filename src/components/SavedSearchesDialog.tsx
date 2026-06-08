@@ -15,7 +15,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AlertCircle, Bell, BellOff, Loader2, Plus, Save, Search, Trash2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { toast } from '@/components/ui/sonner';
+import { appToast } from '@/utils/appNotification';
 import { motion } from 'framer-motion';
 
 interface SearchCriteria {
@@ -86,11 +86,7 @@ export function SavedSearchesDialog({ open, onOpenChange }: SavedSearchesDialogP
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to load saved searches';
       setFetchError(errorMessage);
-      toast({
-        title: 'Error Loading Searches',
-        description: errorMessage,
-        variant: 'destructive',
-      });
+      appToast.info('Error Loading Searches');
     } finally {
       setIsFetching(false);
     }
@@ -105,11 +101,7 @@ export function SavedSearchesDialog({ open, onOpenChange }: SavedSearchesDialogP
   const handleSaveSearch = async () => {
     // Validate search name
     if (!searchName.trim()) {
-      toast({
-        title: 'Error',
-        description: 'Please enter a name for your search',
-        variant: 'destructive',
-      });
+      appToast.error('Error', 'Please enter a name for your search');
       return;
     }
 
@@ -119,11 +111,7 @@ export function SavedSearchesDialog({ open, onOpenChange }: SavedSearchesDialogP
 
     if (minPriceNum !== null && maxPriceNum !== null && minPriceNum > maxPriceNum) {
       setPriceError('Minimum price cannot be greater than maximum price');
-      toast({
-        title: 'Invalid Price Range',
-        description: 'Minimum price must be less than maximum price',
-        variant: 'destructive',
-      });
+      appToast.error('Invalid Price Range', 'Minimum price must be less than maximum price');
       return;
     }
 
@@ -159,10 +147,7 @@ export function SavedSearchesDialog({ open, onOpenChange }: SavedSearchesDialogP
 
       if (error) throw error;
 
-      toast({
-        title: 'Search Saved!',
-        description: `"${searchName}" will notify you of new matches.`,
-      });
+      appToast.info('Search Saved!', `"${searchName}" will notify you of new matches.`);
 
       // Reset form
       setSearchName('');
@@ -174,12 +159,8 @@ export function SavedSearchesDialog({ open, onOpenChange }: SavedSearchesDialogP
       setActiveTab('list');
       fetchSavedSearches();
       onOpenChange(false);
-    } catch (error: unknown) {
-      toast({
-        title: 'Error',
-        description: error instanceof Error ? error.message : 'An error occurred',
-        variant: 'destructive',
-      });
+    } catch {
+      appToast.info('Error');
     } finally {
       setIsLoading(false);
     }
@@ -194,18 +175,11 @@ export function SavedSearchesDialog({ open, onOpenChange }: SavedSearchesDialogP
 
       if (error) throw error;
 
-      toast({
-        title: !currentStatus ? 'Alerts Enabled' : 'Alerts Disabled',
-        description: `You will ${!currentStatus ? 'now' : 'no longer'} receive notifications for this search.`,
-      });
+      appToast.info(!currentStatus ? 'Alerts Enabled' : 'Alerts Disabled', `You will ${!currentStatus ? 'now' : 'no longer'} receive notifications for this search.`);
 
       fetchSavedSearches();
-    } catch (error: unknown) {
-      toast({
-        title: 'Error',
-        description: error instanceof Error ? error.message : 'An error occurred',
-        variant: 'destructive',
-      });
+    } catch {
+      appToast.info('Error');
     }
   };
 
@@ -225,18 +199,11 @@ export function SavedSearchesDialog({ open, onOpenChange }: SavedSearchesDialogP
 
       if (error) throw error;
 
-      toast({
-        title: 'Search Deleted',
-        description: `"${deleteTarget.name}" has been removed.`,
-      });
+      appToast.info('Search Deleted', `"${deleteTarget.name}" has been removed.`);
 
       fetchSavedSearches();
-    } catch (error: unknown) {
-      toast({
-        title: 'Error',
-        description: error instanceof Error ? error.message : 'An error occurred',
-        variant: 'destructive',
-      });
+    } catch {
+      appToast.info('Error');
     } finally {
       setDeleteDialogOpen(false);
       setDeleteTarget(null);

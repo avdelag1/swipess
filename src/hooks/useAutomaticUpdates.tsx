@@ -16,7 +16,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { AnimatePresence, motion } from 'framer-motion';
-import { toast } from '@/components/ui/sonner';
+import { appToast } from '@/utils/appNotification';
 import { logger } from '@/utils/prodLogger';
 
 // Get build timestamp from Vite injected environment variable
@@ -105,11 +105,7 @@ export async function unregisterServiceWorkers(): Promise<void> {
  */
 export async function forceAppUpdate(): Promise<void> {
   try {
-    toast({
-      title: 'Updating…',
-      description: 'Fetching the latest version.',
-      duration: 3000,
-    });
+    appToast.info('Updating…', 'Fetching the latest version.');
 
     // Signal any waiting SW to take control immediately (proper update path)
     if ('serviceWorker' in navigator) {
@@ -142,11 +138,7 @@ export async function forceAppUpdate(): Promise<void> {
     window.location.replace(window.location.pathname + '?v=' + Date.now());
   } catch (error) {
     logger.error('Failed to update app:', error);
-    toast({
-      title: 'Update Failed',
-      description: 'Please try clearing your browser cache manually.',
-      variant: 'destructive',
-    });
+    appToast.error('Update Failed', 'Please try clearing your browser cache manually.');
   }
 }
 

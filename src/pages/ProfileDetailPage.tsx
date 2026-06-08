@@ -5,10 +5,10 @@ import { motion } from 'framer-motion';
 import { SimpleOwnerSwipeCard } from '@/components/SimpleOwnerSwipeCard';
 import { triggerHaptic } from '@/utils/haptics';
 import { useMemo, useState } from 'react';
-import { ReportDialog } from '@/components/ReportDialog';
-import { ShareDialog } from '@/components/ShareDialog';
-import { SwipeInsightsModal } from '@/components/SwipeInsightsModal';
-
+import { lazyWithRetry } from '@/utils/lazyRetry';
+const ReportDialog = lazyWithRetry(() => import('@/components/ReportDialog').then(m => ({ default: m.ReportDialog })));
+const ShareDialog = lazyWithRetry(() => import('@/components/ShareDialog').then(m => ({ default: m.ShareDialog })));
+const SwipeInsightsModal = lazyWithRetry(() => import('@/components/SwipeInsightsModal').then(m => ({ default: m.SwipeInsightsModal })));
 export default function ProfileDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -94,25 +94,25 @@ export default function ProfileDetailPage() {
       
       {profile && (
         <>
-          <ReportDialog
+          <Suspense fallback={null}><ReportDialog
             open={showReport}
             onOpenChange={setShowReport}
             reportedUserId={profile.user_id}
             reportedUserName={profile.name || 'User'}
             category="user_profile"
-          />
-          <ShareDialog
+          /></Suspense>
+          <Suspense fallback={null}><ShareDialog
             open={showShare}
             onOpenChange={setShowShare}
             profileId={profile.user_id}
             title={profile.name || 'Profile'}
             description={profile.bio || 'Check out this profile on Swipess'}
-          />
-          <SwipeInsightsModal
+          /></Suspense>
+          <Suspense fallback={null}><SwipeInsightsModal
             open={showInsights}
             onOpenChange={setShowInsights}
             profile={likedClientMock}
-          />
+          /></Suspense>
         </>
       )}
     </motion.div>

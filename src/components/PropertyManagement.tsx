@@ -1,4 +1,5 @@
-import { memo, useEffect, useState } from 'react';
+import { memo, Suspense, useEffect, useState } from 'react';
+import { lazyWithRetry } from '@/utils/lazyRetry';
 import { CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -13,11 +14,11 @@ import { appToast } from '@/utils/appNotification';
 import { useQueryClient } from '@tanstack/react-query';
 import { Bike, Briefcase, CheckCircle, ChevronRight, Edit, Eye, Home, ImageIcon, MapPin, Plus, Search, Share2, Sparkles, ThumbsUp, Trash2, Zap } from 'lucide-react';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
-import { ListingPreviewDialog } from '@/components/ListingPreviewDialog';
+const ListingPreviewDialog = lazyWithRetry(() => import('@/components/ListingPreviewDialog').then(m => ({ default: m.ListingPreviewDialog })));
 import { UnifiedListingForm } from '@/components/UnifiedListingForm';
-import { CategorySelectionDialog } from '@/components/CategorySelectionDialog';
+const CategorySelectionDialog = lazyWithRetry(() => import('@/components/CategorySelectionDialog').then(m => ({ default: m.CategorySelectionDialog })));
 import { OwnerListingsStats } from '@/components/OwnerListingsStats';
-import { ShareDialog } from '@/components/ShareDialog';
+const ShareDialog = lazyWithRetry(() => import('@/components/ShareDialog').then(m => ({ default: m.ShareDialog })));
 import { useModalStore } from '@/state/modalStore';
 import { triggerHaptic } from '@/utils/haptics';
 
@@ -561,20 +562,20 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
       </div>
 
       {/* 🛸 DIALOGS */}
-      <ListingPreviewDialog
+      <Suspense fallback={null}><ListingPreviewDialog
         isOpen={showPreview}
         onClose={handleClosePreview}
         property={viewingProperty}
         onEdit={handleEditFromPreview}
         showEditButton={true}
-      />
+      /></Suspense>
 
-      <CategorySelectionDialog
+      <Suspense fallback={null}><CategorySelectionDialog
         open={showCategoryDialog}
         onOpenChange={setShowCategoryDialog}
         onCategorySelect={handleCategorySelect}
         onAIOpen={() => useModalStore.getState().openAIListing()}
-      />
+      /></Suspense>
 
       <UnifiedListingForm
         isOpen={isFormOpen}
@@ -585,7 +586,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
         editingProperty={editingProperty as any ?? undefined}
       />
 
-      <ShareDialog
+      <Suspense fallback={null}><ShareDialog
         open={showShareDialog}
         onOpenChange={(open) => {
           setShowShareDialog(open);
@@ -595,7 +596,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
         title={sharingListing?.title || 'Listing'}
         description={`${sharingListing?.title} - $${sharingListing?.price?.toLocaleString() || ''}`}
         previewImage={(Array.isArray((sharingListing as any)?.images) && (sharingListing as any).images[0]) || (sharingListing as any)?.image_url || null}
-      />
+      /></Suspense>
 
       <p className="fixed bottom-10 left-10 text-[8px] font-black uppercase tracking-[1em] opacity-10 pointer-events-none z-0">Asset Gallery Terminal v4.0</p>
     </div>

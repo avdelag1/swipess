@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/hooks/useAuth';
 import { triggerHaptic } from '@/utils/haptics';
-import { toast } from 'sonner';
+import { appToast } from '@/utils/appNotification';
 import { cn } from '@/lib/utils';
 
 interface LawyerContactModalProps {
@@ -36,7 +36,7 @@ export function LawyerContactModal({ isOpen, onClose }: LawyerContactModalProps)
       setLoading(false);
       setStep('success');
       triggerHaptic('success');
-      toast.success('Inquiry sent to our legal team');
+      appToast.success('Inquiry sent to our legal team');
     }, 1500);
   };
 

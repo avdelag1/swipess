@@ -1,4 +1,5 @@
 import { lazy, memo, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { lazyWithRetry } from '@/utils/lazyRetry';
 import { cn } from '@/lib/utils';
 // import { } from '@/state/modalStore';
 import { triggerHaptic } from '@/utils/haptics';
@@ -11,8 +12,8 @@ import { normalizeCategoryName } from '@/types/filters';
 import { SimpleOwnerSwipeCard } from './SimpleOwnerSwipeCard';
 
 const MatchCelebrateModal = lazy(() => import('./swipe/MatchCelebrateModal').then(mod => ({ default: mod.MatchCelebrateModal })));
-import { ClientPreferencesDialog } from './ClientPreferencesDialog';
-import { OwnerClientFilterDialog } from './OwnerClientFilterDialog';
+const ClientPreferencesDialog = lazyWithRetry(() => import('./ClientPreferencesDialog').then(m => ({ default: m.ClientPreferencesDialog })));
+const OwnerClientFilterDialog = lazyWithRetry(() => import('./OwnerClientFilterDialog').then(m => ({ default: m.OwnerClientFilterDialog })));
 import { preloadImageToCache } from '@/lib/swipe/imageCache';
 import { imageCache } from '@/lib/swipe/cardImageCache';
 import { PrefetchScheduler } from '@/lib/swipe/PrefetchScheduler';
@@ -40,22 +41,21 @@ import { appToast } from '@/utils/appNotification';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion, useMotionValue } from 'framer-motion';
 import { logger } from '@/utils/prodLogger';
-import { MessageConfirmationDialog } from './MessageConfirmationDialog';
-import { DirectMessageDialog } from './DirectMessageDialog';
+const MessageConfirmationDialog = lazyWithRetry(() => import('./MessageConfirmationDialog').then(m => ({ default: m.MessageConfirmationDialog })));
+const DirectMessageDialog = lazyWithRetry(() => import('./DirectMessageDialog').then(m => ({ default: m.DirectMessageDialog })));
 import { useQueryClient } from '@tanstack/react-query';
 import { BentoCategoryDashboard } from './swipe/BentoCategoryDashboard';
 import { SwipeDeckBackButton } from './swipe/SwipeDeckBackButton';
 import { usePullDownToDismiss } from './swipe/usePullDownToDismiss';
 
-import { ReportDialog } from './ReportDialog';
+const ReportDialog = lazyWithRetry(() => import('./ReportDialog').then(m => ({ default: m.ReportDialog })));
 // Eager-load the card action modals. These were previously lazy-loaded, but a
 // dynamic-import failure (stale service-worker cache / CDN chunk not yet
 // propagated after a deploy) made the Share and Insights buttons silently
 // open nothing — the tap registered but Suspense fell back to null. Bundling
 // them in the main chunk guarantees they always open.
-import { SwipeInsightsModal } from './SwipeInsightsModal';
-import { ShareDialog } from './ShareDialog';
-
+const SwipeInsightsModal = lazyWithRetry(() => import('./SwipeInsightsModal').then(m => ({ default: m.SwipeInsightsModal })));
+const ShareDialog = lazyWithRetry(() => import('./ShareDialog').then(m => ({ default: m.ShareDialog })));
 const _CATEGORY_ICON_MAP: Record<string, any> = {
   property: Home,
   motorcycle: MotorcycleIcon,
@@ -845,9 +845,9 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
           }} />
         </div>
         {dataType === 'people' ? (
-          <OwnerClientFilterDialog open={filterDialogOpen} onOpenChange={setFilterDialogOpen} />
+          <Suspense fallback={null}><OwnerClientFilterDialog open={filterDialogOpen} onOpenChange={setFilterDialogOpen} /></Suspense>
         ) : (
-          <ClientPreferencesDialog open={filterDialogOpen} onOpenChange={setFilterDialogOpen} />
+          <Suspense fallback={null}><ClientPreferencesDialog open={filterDialogOpen} onOpenChange={setFilterDialogOpen} /></Suspense>
         )}
       </>
     );
@@ -1051,15 +1051,15 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
 
       <>
         {insightsModalOpen && topCard && (
-          <SwipeInsightsModal
+          <Suspense fallback={null}><SwipeInsightsModal
             open={insightsModalOpen}
             onOpenChange={setInsightsModalOpen}
             listing={dataType === 'people' ? null : topCard}
             profile={dataType === 'people' ? topCard : null}
-          />
+          /></Suspense>
         )}
         {shareDialogOpen && topCard && (
-          <ShareDialog
+          <Suspense fallback={null}><ShareDialog
             open={shareDialogOpen}
             onOpenChange={setShareDialogOpen}
             listingId={dataType === 'people' ? undefined : topCard.id}
@@ -1069,10 +1069,10 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
             previewImage={dataType === 'people'
               ? (Array.isArray((topCard as any).profile_images) && (topCard as any).profile_images[0]) || null
               : (Array.isArray((topCard as any).images) && (topCard as any).images[0]) || (topCard as any).image_url || null}
-          />
+          /></Suspense>
         )}
         {reportDialogOpen && selectedListing && (
-          <ReportDialog
+          <Suspense fallback={null}><ReportDialog
             open={reportDialogOpen}
             onOpenChange={setReportDialogOpen}
             reportedListingId={dataType === 'people' ? undefined : selectedListing.id}
@@ -1081,31 +1081,31 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
             reportedUserName={dataType === 'people' ? selectedListing.name : undefined}
             reportedUserAge={selectedListing.age || (selectedListing as any).owner_age}
             category={dataType === 'people' ? 'user_profile' : 'listing'}
-          />
+          /></Suspense>
         )}
       </>
 
-      <MessageConfirmationDialog
+      <Suspense fallback={null}><MessageConfirmationDialog
         open={messageDialogOpen}
         onOpenChange={setMessageDialogOpen}
         onConfirm={handleSendMessage}
         recipientName={selectedListing ? `the owner of ${selectedListing.title}` : 'the owner'}
         isLoading={isCreatingConversation}
-      />
+      /></Suspense>
 
-      <DirectMessageDialog
+      <Suspense fallback={null}><DirectMessageDialog
         open={directMessageDialogOpen}
         onOpenChange={setDirectMessageDialogOpen}
         onConfirm={handleSendMessage}
         recipientName={selectedListing ? `the owner of ${selectedListing.title}` : 'the owner'}
         isLoading={isCreatingConversation}
         category={selectedListing?.category}
-      />
+      /></Suspense>
 
       {dataType === 'people' ? (
-        <OwnerClientFilterDialog open={filterDialogOpen} onOpenChange={setFilterDialogOpen} />
+        <Suspense fallback={null}><OwnerClientFilterDialog open={filterDialogOpen} onOpenChange={setFilterDialogOpen} /></Suspense>
       ) : (
-        <ClientPreferencesDialog open={filterDialogOpen} onOpenChange={setFilterDialogOpen} />
+        <Suspense fallback={null}><ClientPreferencesDialog open={filterDialogOpen} onOpenChange={setFilterDialogOpen} /></Suspense>
       )}
 
     </>

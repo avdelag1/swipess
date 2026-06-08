@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { toast } from 'sonner';
+import { appToast } from '@/utils/appNotification';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { logger } from '@/utils/prodLogger';
@@ -80,15 +80,11 @@ export function SupportDialog({ isOpen, onClose, userRole }: SupportDialogProps)
         category: 'general',
         priority: 'medium',
       });
-      toast.success("Support ticket created", {
-        description: "We'll respond to your inquiry as soon as possible via email.",
-      });
+      appToast.success("Support ticket created");
     },
     onError: (error) => {
       logger.error('Error creating ticket:', error);
-      toast.error("Error", {
-        description: "Failed to create support ticket. Please try again.",
-      });
+      appToast.error("Error");
     },
   });
 

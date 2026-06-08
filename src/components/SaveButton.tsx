@@ -6,8 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
-import { toast } from 'sonner';
-
+import { appToast } from '@/utils/appNotification';
 interface SaveButtonProps {
   targetId: string;
   targetType: 'listing' | 'profile';
@@ -55,7 +54,7 @@ export function SaveButton({ targetId, targetType, className, variant = 'circula
     e.preventDefault();
 
     if (!user?.id) {
-      toast.error('Please sign in to save items');
+      appToast.error('Please sign in to save items');
       return;
     }
 
@@ -71,10 +70,7 @@ export function SaveButton({ targetId, targetType, className, variant = 'circula
           targetType,
           direction: 'right'
         });
-        toast.success(`Saved to your favorites!`, {
-            icon: <Heart className="w-4 h-4 fill-rose-500 text-rose-500" />,
-            duration: 2000
-        });
+        appToast.success(`Saved to your favorites!`);
       } else {
         // Dislike/Unsave (direction: 'left')
         // Note: For "Unsaving", we actually just want to delete the record, 
@@ -87,12 +83,12 @@ export function SaveButton({ targetId, targetType, className, variant = 'circula
           .eq('target_type', targetType);
           
         if (error) throw error;
-        toast.info('Removed from favorites');
+        appToast.info('Removed from favorites');
       }
     } catch (_err) {
       // Rollback UI
       setIsSaved(!nextState);
-      toast.error('Could not update favorite');
+      appToast.error('Could not update favorite');
     }
   };
 

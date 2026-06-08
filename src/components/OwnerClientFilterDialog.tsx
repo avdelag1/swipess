@@ -9,7 +9,6 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Check, Filter, Save, X } from 'lucide-react';
 import { useOwnerClientPreferences } from '@/hooks/useOwnerClientPreferences';
 import { useSavedFilters } from '@/hooks/useSavedFilters';
-import { useToast } from '@/hooks/useToast';
 import { AnimatePresence, motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
@@ -36,6 +35,8 @@ import {
   WORK_SCHEDULE_OPTIONS as OCCUPATION_OPTIONS,
   BUDGET_RANGES as OWNER_BUDGET_RANGES,
 } from '@/constants/profileConstants';
+import { appToast } from '@/utils/appNotification';
+
 
 // Category card component matching client style
 function CategoryCard({
@@ -155,8 +156,6 @@ export function OwnerClientFilterDialog({ open, onOpenChange }: OwnerClientFilte
 
   const { preferences, updatePreferences, isUpdating } = useOwnerClientPreferences();
   const { saveFilter } = useSavedFilters();
-  const { toast } = useToast();
-
   const [filterName, setFilterName] = useState('');
   const [showSaveAs, setShowSaveAs] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
@@ -242,7 +241,7 @@ export function OwnerClientFilterDialog({ open, onOpenChange }: OwnerClientFilte
     });
     
     setIsScanning(false);
-    toast({ title: "Filters Applied", description: "Client cards will refresh with your preferences." });
+    appToast.info("Filters Applied", "Client cards will refresh with your preferences.");
     onOpenChange(false);
   };
 
@@ -273,7 +272,7 @@ export function OwnerClientFilterDialog({ open, onOpenChange }: OwnerClientFilte
       min_age: minAge !== 18 ? minAge : null,
       max_age: maxAge !== 65 ? maxAge : null,
     });
-    toast({ title: "Filter Saved!", description: `"${filterName}" saved successfully.` });
+    appToast.info("Filter Saved!", `"${filterName}" saved successfully.`);
     setFilterName('');
     setShowSaveAs(false);
     onOpenChange(false);

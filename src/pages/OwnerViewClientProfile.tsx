@@ -9,7 +9,7 @@ import {
   Eye, Flame, Home, MapPin, MessageCircle, Shield, ShieldCheck, 
   Ship, Sparkles, TrendingUp, User, X, Zap
 } from 'lucide-react';
-import { toast } from 'sonner';
+import { appToast } from '@/utils/appNotification';
 import { ClientFilterPreferences } from '@/hooks/useClientFilterPreferences';
 import { useStartConversation } from '@/hooks/useConversations';
 import { useMemo, useState } from 'react';
@@ -101,7 +101,7 @@ export default function OwnerViewClientProfile() {
     setIsCreatingConversation(true);
     
     try {
-      toast.loading('Starting conversation...', { id: 'start-conv' });
+      appToast.info('Starting conversation...');
       const result = await startConversation.mutateAsync({
         otherUserId: clientId,
         initialMessage: "Hi! I saw your profile and would like to connect.",
@@ -109,7 +109,6 @@ export default function OwnerViewClientProfile() {
       });
 
       if (result?.conversationId) {
-        toast.dismiss('start-conv');
         setIsConnecting(true);
         
         // Premium cinematic delay
@@ -117,7 +116,7 @@ export default function OwnerViewClientProfile() {
         navigate(`/messages?conversationId=${result.conversationId}`);
       }
     } catch (_error) {
-      toast.error('Could not start conversation', { id: 'start-conv' });
+      appToast.error('Could not start conversation');
     } finally {
       setIsCreatingConversation(false);
       setIsConnecting(false);

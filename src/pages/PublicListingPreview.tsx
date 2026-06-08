@@ -1,11 +1,12 @@
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
+import { lazyWithRetry } from '@/utils/lazyRetry';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { DirectMessageDialog } from '@/components/DirectMessageDialog';
+const DirectMessageDialog = lazyWithRetry(() => import('@/components/DirectMessageDialog').then(m => ({ default: m.DirectMessageDialog })));
 import {
   Anchor, Bath, Bed, Bike, ChevronLeft,
   Home, LogIn, MapPin,
@@ -18,7 +19,7 @@ import { cn } from '@/lib/utils';
 import { SwipessLogo } from '@/components/SwipessLogo';
 import { triggerHaptic } from '@/utils/haptics';
 import { SEO } from '@/components/SEO';
-import { ShareDialog } from '@/components/ShareDialog';
+const ShareDialog = lazyWithRetry(() => import('@/components/ShareDialog').then(m => ({ default: m.ShareDialog })));
 import { AtmosphericLayer } from '@/components/AtmosphericLayer';
 import { PreviewSwipeCard } from '@/components/preview/PreviewSwipeCard';
 import { ConnectingOverlay } from '@/components/ConnectingOverlay';
@@ -297,25 +298,25 @@ export default function PublicListingPreview() {
       </div>
 
       {listing && user && (
-        <DirectMessageDialog
+        <Suspense fallback={null}><DirectMessageDialog
           open={showDirectMessageDialog}
           onOpenChange={setShowDirectMessageDialog}
           onConfirm={handleSendMessage}
           recipientName="Asset Authority"
           category={category}
           isLoading={isCreatingConversation}
-        />
+        /></Suspense>
       )}
 
       {listing && (
-        <ShareDialog
+        <Suspense fallback={null}><ShareDialog
           open={showShareDialog}
           onOpenChange={setShowShareDialog}
           listingId={id}
           title={listing.title || 'Swipess Listing'}
           description={`${listing.title || 'Listing'} â€” ${listing.beds || 0}B/${listing.baths || 0}B in ${listing.city || 'Tulum'} for $${listing.price?.toLocaleString() || 'â€”'}.`}
           previewImage={heroImage}
-        />
+        /></Suspense>
       )}
       
       <ConnectingOverlay 

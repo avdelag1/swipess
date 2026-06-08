@@ -5,10 +5,11 @@ import { Link, useNavigate } from 'react-router-dom';
 import { ImagePlus, Loader2, RefreshCw, Trash2, Upload } from 'lucide-react';
 import { PageHeader } from '@/components/PageHeader';
 import { Button } from '@/components/ui/button';
-import { useToast } from '@/hooks/use-toast';
 import { OWNER_INTENT_CARDS, POKER_CARD_PHOTOS, POKER_CARDS } from '@/components/swipe/CardData';
 import { cn } from '@/lib/utils';
 import { useQueryClient } from '@tanstack/react-query';
+import { appToast } from '@/utils/appNotification';
+
 
 const BUCKET = 'admin-uploads';
 
@@ -27,7 +28,6 @@ const ALL_CATEGORIES = [
 export default function AdminCategoryPhotos() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { toast } = useToast();
   const qc = useQueryClient();
   const [selected, setSelected] = useState<string>(POKER_CARDS[0].id);
   const [photos, setPhotos] = useState<CategoryPhoto[]>([]);
@@ -54,7 +54,7 @@ export default function AdminCategoryPhotos() {
       .eq('category_id', selected)
       .order('sort_order', { ascending: true });
     if (error) {
-      toast({ title: 'Failed to load', description: error.message, variant: 'destructive' });
+      appToast.info('Failed to load');
     }
     setPhotos((data as any) || []);
     setLoading(false);
@@ -74,7 +74,7 @@ export default function AdminCategoryPhotos() {
         upsert: false,
       });
       if (up.error) {
-        toast({ title: `Upload failed`, description: up.error.message, variant: 'destructive' });
+        appToast.info(`Upload failed`);
         continue;
       }
       const { data: urlData } = supabase.storage.from(BUCKET).getPublicUrl(path);
@@ -87,12 +87,12 @@ export default function AdminCategoryPhotos() {
           is_active: true,
         });
       if (ins.error) {
-        toast({ title: 'Save failed', description: ins.error.message, variant: 'destructive' });
+        appToast.info('Save failed');
       } else {
         added++;
       }
     }
-    if (added > 0) toast({ title: `${added} photo${added > 1 ? 's' : ''} added` });
+    if (added > 0) appToast.info(`${added} photo${added > 1 ? 's' : ''} added`);
     setUploading(false);
     if (fileRef.current) fileRef.current.value = '';
     qc.invalidateQueries({ queryKey: ['category-photos'] });
@@ -103,7 +103,7 @@ export default function AdminCategoryPhotos() {
     setDeletingId(p.id);
     const { error } = await supabase.from('category_photos' as any).delete().eq('id', p.id);
     if (error) {
-      toast({ title: 'Delete failed', description: error.message, variant: 'destructive' });
+      appToast.info('Delete failed');
     } else {
       setPhotos(prev => prev.filter(x => x.id !== p.id));
       qc.invalidateQueries({ queryKey: ['category-photos'] });

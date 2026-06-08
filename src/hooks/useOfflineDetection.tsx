@@ -1,27 +1,17 @@
 import { useEffect, useState } from 'react';
-import { toast } from '@/components/ui/sonner';
-
+import { appToast } from '@/utils/appNotification';
 export function useOfflineDetection() {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
 
   useEffect(() => {
     const handleOnline = () => {
       setIsOnline(true);
-      toast({
-        title: "Back Online! 🌐",
-        description: "Your connection has been restored.",
-        duration: 3000,
-      });
+      appToast.info("Back Online! 🌐", "Your connection has been restored.");
     };
 
     const handleOffline = () => {
       setIsOnline(false);
-      toast({
-        title: "Connection Lost 📱",
-        description: "You're now offline. Some features may be limited.",
-        variant: "destructive",
-        duration: 5000,
-      });
+      appToast.error("Connection Lost 📱", "You're now offline. Some features may be limited.");
     };
 
     window.addEventListener('online', handleOnline);

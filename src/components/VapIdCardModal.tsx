@@ -1,4 +1,5 @@
-import React, { useMemo, useState } from 'react';
+import React, { Suspense, useMemo, useState } from 'react';
+import { lazyWithRetry } from '@/utils/lazyRetry';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Droplets, Languages, MapPin, Pencil, ShieldCheck, X } from 'lucide-react';
@@ -7,7 +8,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { CARD_THEMES } from './vap-id/cardThemes';
-import { VapIdEditModal } from './VapIdEditModal';
+const VapIdEditModal = lazyWithRetry(() => import('./VapIdEditModal').then(m => ({ default: m.VapIdEditModal })));
 import { useEffect } from 'react';
 import { useVapIdCard } from '@/hooks/useVapIdCard';
 
@@ -234,7 +235,7 @@ export function VapIdCardModal({ isOpen, onClose, role = 'client' }: VapIdProps)
         </motion.div>
       )}
     </AnimatePresence>
-    <VapIdEditModal isOpen={editOpen} onClose={() => setEditOpen(false)} onSaved={() => { refetchVapCard(); }} role={role} />
+    <Suspense fallback={null}><VapIdEditModal isOpen={editOpen} onClose={() => setEditOpen(false)} onSaved={() => { refetchVapCard(); }} role={role} /></Suspense>
     </>,
     document.body
   );

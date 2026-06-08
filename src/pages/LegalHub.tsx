@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { toast } from 'sonner';
+import { appToast } from '@/utils/appNotification';
 import { useAuth } from '@/hooks/useAuth';
 // import { } from '@/components/PageHeader';
 import { haptics } from '@/utils/microPolish';
@@ -184,14 +184,14 @@ const LegalHub = () => {
 
   const handleSubmitRequest = async () => {
     if (!selectedIssue || !description.trim()) {
-      toast.error('Please select an issue type and provide a description');
+      appToast.error('Please select an issue type and provide a description');
       return;
     }
 
     setIsSubmitting(true);
     setIsSubmitting(false);
     setSubmitted(true);
-    toast.success('Legal help request submitted! 🚀');
+    appToast.success('Legal help request submitted! 🚀');
   };
 
   const currentCategory = useMemo(() => 

@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Button } from '@/components/ui/button';
 import { Bell, BellRing, Crown, Flame, MessageSquare } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { toast } from 'sonner';
+import { appToast } from '@/utils/appNotification';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
 
 const NOTIFICATION_PROMPT_KEY = 'notification_prompt_dismissed';
@@ -27,21 +27,12 @@ export function PushNotificationPrompt() {
       const success = await subscribe();
 
       if (success) {
-        toast.success("Notifications Enabled!", { 
-          description: "You'll now receive real-time updates for messages, likes, and more.", 
-          duration: 4000 
-        });
+        appToast.success("Notifications Enabled!");
       } else {
-        toast.error("Notifications Not Enabled", { 
-          description: "You can enable notifications later in your browser settings.", 
-          duration: 5000 
-        });
+        appToast.error("Notifications Not Enabled");
       }
     } catch (_error) {
-      toast.error("Something went wrong", {
-        description: "Please try again later.",
-        duration: 4000
-      });
+      appToast.error("Something went wrong");
     } finally {
       setIsLoading(false);
       setIsOpen(false);

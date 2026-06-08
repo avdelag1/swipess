@@ -9,7 +9,7 @@ import {
   Italic, List, ListOrdered, Minus, Plus, Printer, Redo,
   Underline, Undo
 } from 'lucide-react';
-import { toast } from 'sonner';
+import { appToast } from '@/utils/appNotification';
 import { escapeHTML, sanitizeHTML } from '@/utils/sanitizeHTML';
 
 interface DocumentEditorProps {
@@ -66,13 +66,13 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
 
   const handleExportPDF = () => {
     handlePrint();
-    toast.success('Print dialog opened - Save as PDF from your browser');
+    appToast.success('Print dialog opened - Save as PDF from your browser');
   };
 
   const handleSave = () => {
     const content = sanitizeHTML(editorRef.current?.innerHTML || '');
     onSave?.(content, documentTitle);
-    toast.success('Document saved!');
+    appToast.success('Document saved!');
   };
 
   const increaseFontSize = () => setFontSize(prev => Math.min(prev + 2, 32));

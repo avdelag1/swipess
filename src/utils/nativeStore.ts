@@ -1,7 +1,6 @@
 import { Capacitor } from '@capacitor/core';
 import { haptics } from './microPolish';
-import { toast } from '@/components/ui/sonner';
-
+import { appToast } from '@/utils/appNotification';
 /**
  * 🚀 SWIPESS NATIVE STORE SERVICE
  * Handles Apple/Google In-App Purchases and App Store Ratings.
@@ -32,7 +31,7 @@ export const NativeStore = {
    */
   purchase: async (productId: string) => {
     if (!Capacitor.isNativePlatform()) {
-      toast.error('Native billing is only available on iOS/Android.');
+      appToast.error('Native billing is only available on iOS/Android.');
       return { success: false, error: 'NOT_NATIVE' };
     }
 

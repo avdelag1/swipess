@@ -6,7 +6,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { ChevronDown } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { useSaveClientFilterPreferences } from '@/hooks/useClientFilterPreferences';
-import { toast } from '@/components/ui/sonner';
+import { appToast } from '@/utils/appNotification';
 import { ClientDemographicFilters } from './ClientDemographicFilters';
 import { EmbeddedLocationFilter } from './EmbeddedLocationFilter';
 import { DAYS_OF_WEEK, EXPERIENCE_LEVELS, LOCATION_TYPES, SCHEDULE_TYPES, TIME_SLOTS, WORK_TYPES } from '../WorkerListingForm';
@@ -137,16 +137,9 @@ export function WorkerClientFilters({ onApply, initialFilters = {}, activeCount 
     // Save to localStorage for worker preferences
     try {
       localStorage.setItem('worker_filter_preferences', JSON.stringify(filters));
-      toast({
-        title: 'Filters applied!',
-        description: 'Your worker preferences have been saved.',
-      });
+      appToast.info('Filters applied!', 'Your worker preferences have been saved.');
     } catch (_error) {
-      toast({
-        title: 'Error',
-        description: 'Failed to save preferences.',
-        variant: 'destructive',
-      });
+      appToast.error('Error', 'Failed to save preferences.');
     }
     
     onApply(filters);
@@ -193,16 +186,9 @@ export function WorkerClientFilters({ onApply, initialFilters = {}, activeCount 
         required_languages: requiredLanguages,
       };
       localStorage.setItem('worker_filter_prefs', JSON.stringify(workerPrefs));
-      toast({
-        title: "Preferences Saved",
-        description: "Your worker filter preferences have been saved.",
-      });
+      appToast.info("Preferences Saved", "Your worker filter preferences have been saved.");
     } catch (_error) {
-      toast({
-        title: "Error",
-        description: "Failed to save preferences. Please try again.",
-        variant: "destructive",
-      });
+      appToast.error("Error", "Failed to save preferences. Please try again.");
     }
   };
 

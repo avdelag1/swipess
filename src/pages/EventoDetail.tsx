@@ -6,12 +6,12 @@ import { useAuth } from '@/hooks/useAuth';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowUpRight, Calendar, Heart, Info, MapPin, MessageCircle, Share2, ShieldCheck, Sparkles, User, Users, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useToast } from '@/hooks/use-toast';
 import { useTranslation } from 'react-i18next';
 import { triggerHaptic } from '@/utils/haptics';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { generateShareUrl } from '@/hooks/useSharing';
 import { ConnectingOverlay } from '@/components/ConnectingOverlay';
+import { appToast } from '@/utils/appNotification';
 
 interface EventDetail {
   id: string;
@@ -104,7 +104,6 @@ export default function EventoDetail() {
   const stateEventData = (location.state as any)?.eventData as EventDetail | undefined;
   const { navigate } = useAppNavigate();
   const { user } = useAuth();
-  const { toast } = useToast();
   const { t } = useTranslation();
   const queryClient = useQueryClient();
 
@@ -127,6 +126,7 @@ export default function EventoDetail() {
         
         // Dynamic import to avoid circular dependencies or large initial bundle
         const mod = await import('./EventosFeed') as any;
+
         const found = mod.MOCK_EVENTS?.find((e: any) => e.id === id);
         if (found) return found;
         
@@ -206,7 +206,7 @@ export default function EventoDetail() {
     },
     onError: (err, vars, context) => {
       queryClient.setQueryData(['event-is-favorited', id, user?.id], context?.previousStatus);
-      toast({ title: t('eventos.error'), variant: 'destructive' });
+      appToast.error(t('eventos.error'));
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['event-is-favorited', id, user?.id] });
@@ -216,7 +216,7 @@ export default function EventoDetail() {
 
   const toggleFavorite = () => {
     if (!user) {
-      toast({ title: t('eventos.signInToSave'), variant: 'destructive' });
+      appToast.error(t('eventos.signInToSave'));
       return;
     }
     toggleFavoriteMutation.mutate();
@@ -234,7 +234,7 @@ export default function EventoDetail() {
       }).catch(() => {});
     } else {
       await navigator.clipboard.writeText(shareUrl);
-      toast({ title: t('eventos.linkCopied') });
+      appToast.info(t('eventos.linkCopied'));
     }
   };
 

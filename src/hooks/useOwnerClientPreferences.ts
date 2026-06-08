@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from '@/components/ui/sonner';
+import { appToast } from '@/utils/appNotification';
 import { logger } from '@/utils/prodLogger';
 
 /**
@@ -91,17 +91,10 @@ export function useOwnerClientPreferences() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['owner-client-preferences'] });
-      toast({
-        title: 'Preferences Saved',
-        description: 'Your client filter preferences have been updated.',
-      });
+      appToast.info('Preferences Saved', 'Your client filter preferences have been updated.');
     },
     onError: (error) => {
-      toast({
-        title: 'Error',
-        description: `Failed to save preferences: ${error.message}`,
-        variant: 'destructive',
-      });
+      appToast.error('Error', `Failed to save preferences: ${error.message}`);
     },
   });
 

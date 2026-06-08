@@ -10,7 +10,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { CheckCircle, Clock, File, FileText, Trash2, Upload, XCircle } from "lucide-react";
-import { toast } from "sonner";
+import { appToast } from '@/utils/appNotification';
 import { FILE_SIZE_LIMITS, formatFileSize, validateDocumentFile } from '@/utils/fileValidation';
 
 interface LegalDocument {
@@ -119,15 +119,15 @@ export function LegalDocumentsDialog({ open, onOpenChange }: LegalDocumentsDialo
       return data;
     },
     onSuccess: () => {
-      toast.success("Document Uploaded", { description: "Your legal document has been uploaded successfully and is pending verification." });
+      appToast.success("Document Uploaded");
       setSelectedDocumentType('');
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
       refetch();
     },
-    onError: (error) => {
-      toast.error("Upload Failed", { description: error.message });
+    onError: (_error) => {
+      appToast.error("Upload Failed");
     }
   });
 
@@ -153,11 +153,11 @@ export function LegalDocumentsDialog({ open, onOpenChange }: LegalDocumentsDialo
       if (dbError) throw dbError;
     },
     onSuccess: () => {
-      toast.success("Document Deleted", { description: "The document has been removed successfully." });
+      appToast.success("Document Deleted");
       refetch();
     },
-    onError: (error) => {
-      toast.error("Delete Failed", { description: error.message });
+    onError: (_error) => {
+      appToast.error("Delete Failed");
     }
   });
 
@@ -168,12 +168,12 @@ export function LegalDocumentsDialog({ open, onOpenChange }: LegalDocumentsDialo
     // Use centralized validation
     const validation = validateDocumentFile(file);
     if (!validation.isValid) {
-      toast.error("Invalid File", { description: validation.error });
+      appToast.error("Invalid File");
       return;
     }
 
     if (!selectedDocumentType) {
-      toast.error("Select Document Type", { description: "Please select the type of document you're uploading." });
+      appToast.error("Select Document Type");
       return;
     }
 

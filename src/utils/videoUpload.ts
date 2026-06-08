@@ -1,5 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
+import { appToast } from '@/utils/appNotification';
 import { logger } from '@/utils/prodLogger';
 
 /**
@@ -38,7 +38,7 @@ export async function uploadListingVideo(userId: string, videoBlob: Blob): Promi
         return publicUrl;
     } catch (error) {
         logger.error('Error in uploadListingVideo:', error);
-        toast.error('Failed to upload video');
+        appToast.error('Failed to upload video');
         throw error;
     }
 }

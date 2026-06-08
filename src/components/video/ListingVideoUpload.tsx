@@ -2,8 +2,7 @@ import { useRef, useState } from 'react';
 import { VideoCropper } from './VideoCropper';
 import { Video, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { toast } from 'sonner';
-
+import { appToast } from '@/utils/appNotification';
 interface ListingVideoUploadProps {
     userId: string;
     videoUrl?: string | null;
@@ -28,13 +27,13 @@ export function ListingVideoUpload({
         if (!file) return;
 
         if (!file.type.startsWith('video/')) {
-            toast.error('Please select a valid video file.');
+            appToast.error('Please select a valid video file.');
             return;
         }
 
         // 50MB max file size just to be safe before we crop
         if (file.size > 50 * 1024 * 1024) {
-            toast.error('Video is too large. Please select a video under 50MB.');
+            appToast.error('Video is too large. Please select a video under 50MB.');
             return;
         }
 

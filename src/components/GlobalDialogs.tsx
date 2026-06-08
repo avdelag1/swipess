@@ -1,7 +1,7 @@
 import { lazyWithRetry } from '@/utils/lazyRetry';
-import { memo, useEffect, useState } from 'react';
+import { memo, Suspense, useEffect, useState } from 'react';
 import { useAppTheme } from '@/hooks/useAppTheme';
-import { TokensModal } from './TokensModal';
+const TokensModal = lazyWithRetry(() => import('./TokensModal').then(m => ({ default: m.TokensModal })));
 import { useModalStore } from '@/state/modalStore';
 import { useAuth } from '@/hooks/useAuth';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
@@ -300,7 +300,7 @@ export const GlobalDialogs = memo(({ userRole }: GlobalDialogsProps) => {
         <AIProfileWizard />
       </DeferredDialog>
 
-      <TokensModal userRole={userRole === 'admin' ? 'client' : userRole} />
+      <Suspense fallback={null}><TokensModal userRole={userRole === 'admin' ? 'client' : userRole} /></Suspense>
 
       <DeferredDialog when={reportState.open}>
         <ReportDialog

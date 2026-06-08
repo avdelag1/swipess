@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { lazyWithRetry } from '@/utils/lazyRetry';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -16,7 +17,7 @@ import { useTranslation } from 'react-i18next';
 
 // Modular Components
 import { EventCard } from '@/components/events/EventCard';
-import { ShareModal } from '@/components/events/ShareModal';
+const ShareModal = lazyWithRetry(() => import('@/components/events/ShareModal').then(m => ({ default: m.ShareModal })));
 import { ConnectingOverlay } from '@/components/ConnectingOverlay';
 
 // Static Data
@@ -471,11 +472,11 @@ export default function EventosFeed() {
       )}
 
       {shareEventData && (
-        <ShareModal
+        <Suspense fallback={null}><ShareModal
           open={showShareModal}
           onClose={() => setShowShareModal(false)}
           event={shareEventData as any}
-        />
+        /></Suspense>
       )}
 
       <ConnectingOverlay 

@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AlertCircle, Loader2, MapPin, Navigation } from 'lucide-react';
-import { toast } from 'sonner';
+import { appToast } from '@/utils/appNotification';
 import { logger } from '@/utils/prodLogger';
 
 interface ClientLocationSelectorProps {
@@ -142,7 +142,7 @@ export function ClientLocationSelector({
     setIsLoading(true);
     try {
       if (!navigator.geolocation) {
-        toast.error("Geolocation Not Available", { description: "Your browser doesn't support location services." });
+        appToast.error("Geolocation Not Available");
         setIsLoading(false);
         return;
       }
@@ -168,7 +168,7 @@ export function ClientLocationSelector({
           if (import.meta.env.DEV) {
             logger.error('Geolocation error:', error);
           }
-          toast.error("Location Access Denied", { description: "Please enable location services and try again." });
+          appToast.error("Location Access Denied");
           setIsLoading(false);
         },
         { enableHighAccuracy: true, timeout: 10000 }
@@ -177,7 +177,7 @@ export function ClientLocationSelector({
       if (import.meta.env.DEV) {
         logger.error('Error getting location:', error);
       }
-      toast.error("Error", { description: "Failed to get your location. Please try again." });
+      appToast.error("Error");
       setIsLoading(false);
     }
   };
@@ -218,7 +218,7 @@ export function ClientLocationSelector({
 
   const handleSearch = async () => {
     if (!searchInput.trim()) {
-      toast.error("Enter an Address", { description: "Please type an address to search." });
+      appToast.error("Enter an Address");
       return;
     }
 
@@ -252,15 +252,15 @@ export function ClientLocationSelector({
             locationType: selectedTab,
           });
 
-          toast.success("Location Found", { description: `Latitude: ${lat.toFixed(4)}, Longitude: ${lng.toFixed(4)}` });
+          appToast.success("Location Found");
         } else if (status === 'ZERO_RESULTS') {
-          toast.error("Location Not Found", { description: "No results found for this address. Please check the spelling and try again." });
+          appToast.error("Location Not Found");
         } else if (status === 'OVER_QUERY_LIMIT') {
-          toast.error("Too Many Requests", { description: "Google Maps quota exceeded. Please wait a moment before trying again." });
+          appToast.error("Too Many Requests");
         } else if (status === 'REQUEST_DENIED') {
-          toast.error("API Configuration Error", { description: "Google Maps API key issue. Please check the configuration." });
+          appToast.error("API Configuration Error");
         } else {
-          toast.error("Search Error", { description: `Geocoding error (${status}). Please try again.` });
+          appToast.error("Search Error", `Geocoding error (${status}). Please try again.`);
         }
         setIsLoading(false);
       });
@@ -268,7 +268,7 @@ export function ClientLocationSelector({
       if (import.meta.env.DEV) {
         logger.error('Search error:', error);
       }
-      toast.error("Search Failed", { description: "An error occurred during search." });
+      appToast.error("Search Failed");
       setIsLoading(false);
     }
   };

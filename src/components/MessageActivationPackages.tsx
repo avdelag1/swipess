@@ -4,7 +4,6 @@ import { Badge } from "@/components/ui/badge";
 import { Check, Clock, Crown, MessageCircle, RefreshCcw, Shield, Sparkles, Star, X, Zap } from "lucide-react";
 import { Capacitor } from "@capacitor/core";
 
-import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
@@ -14,6 +13,8 @@ import useAppTheme from "@/hooks/useAppTheme";
 import { cn } from "@/lib/utils";
 import { NativeBridge } from "@/utils/nativeBridge";
 import { APPLE_TOKEN_PACKAGES } from "@/config/iapProducts";
+import { appToast } from '@/utils/appNotification';
+
 
 const formatUSD = (price: number) =>
   new Intl.NumberFormat('en-US', {
@@ -52,7 +53,6 @@ export function MessageActivationPackages({
   showAsPage = false,
   userRole
 }: MessageActivationPackagesProps) {
-  const { toast } = useToast();
   const { user } = useAuth();
   const { theme } = useAppTheme();
   const isDark = theme === 'dark';
@@ -112,26 +112,23 @@ export function MessageActivationPackages({
     sessionStorage.setItem(STORAGE.PAYMENT_RETURN_PATH_KEY, `/${currentUserRole}/dashboard`);
 
     if (NativeBridge.isIOS()) {
-      toast({ title: "In-App Purchase", description: "Connecting to App Store..." });
+      appToast.info("In-App Purchase", "Connecting to App Store...");
       const result = await NativeBridge.purchaseProduct(pkg.appleProductId || '');
       if (result.success) {
-        toast({ title: "Success", description: "Tokens activated!" });
+        appToast.info("Success", "Tokens activated!");
         onClose?.();
       } else {
-        toast({ title: "Purchase Cancelled", description: "Transaction failed or was cancelled.", variant: "destructive" });
+        appToast.error("Purchase Cancelled", "Transaction failed or was cancelled.");
       }
       return;
     }
 
-    toast({
-      title: "Apple checkout ready",
-      description: `${pkg.name}: ${pkg.tokens} tokens for ${formatUSD(pkg.price)}. Complete purchase in the iOS app.`,
-    });
+    appToast.info("Apple checkout ready", `${pkg.name}: ${pkg.tokens} tokens for ${formatUSD(pkg.price)}. Complete purchase in the iOS app.`);
   };
 
   const handleRestore = () => {
-    toast({ title: "Restoring Purchases", description: "Checking your Apple ID for recent token activations..." });
-    setTimeout(() => toast({ title: "Done", description: "All active tokens have been restored." }), 1500);
+    appToast.info("Restoring Purchases", "Checking your Apple ID for recent token activations...");
+    setTimeout(() => appToast.info("Done", "All active tokens have been restored."), 1500);
   };
 
   const packagesUI = convertPackages();

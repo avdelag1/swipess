@@ -4,7 +4,7 @@ import { Check, ChevronLeft, Clock, Crown, RefreshCcw, Shield, Sparkles, Zap } f
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { toast } from "@/components/ui/sonner";
+import { appToast } from '@/utils/appNotification';
 import { STORAGE } from "@/constants/app";
 import { haptics } from "@/utils/microPolish";
 import { cn } from "@/lib/utils";
@@ -133,26 +133,26 @@ export default function SubscriptionPackagesPage() {
 
       if (NativeBridge.isNative()) {
         if (!plan.appleProductId) {
-          toast.error('Plan unavailable on this device.');
+          appToast.error('Plan unavailable on this device.');
           return;
         }
-        toast({ title: 'Connecting to App Store', description: 'Initiating secure In-App Purchase...' });
+        appToast.info('Connecting to App Store', 'Initiating secure In-App Purchase...');
         const result = await NativeBridge.purchaseProduct(plan.appleProductId);
         if (result.success) {
-          toast.success('Subscription Successful!', { description: 'Premium benefits activated.' });
+          appToast.success('Subscription Successful!');
           navigate(`/${userRole}/dashboard`);
           return;
         } else {
           const cancelled = (result as any).error === 'CANCELLED';
           if (!cancelled) {
-            toast.error('Purchase could not be completed', { description: 'Please try again in a moment.' });
+            appToast.error('Purchase could not be completed');
           }
           return;
         }
       }
 
       if (!plan.paypalUrl) {
-        toast.error('Payment link unavailable', { description: 'Please contact support.' });
+        appToast.error('Payment link unavailable');
         return;
       }
 
@@ -164,28 +164,28 @@ export default function SubscriptionPackagesPage() {
         at: new Date().toISOString()
       }));
       window.open(plan.paypalUrl, '_blank');
-      toast.success('Redirecting to Checkout', { description: `Selected: ${plan.name} ($${plan.price} USD)` });
+      appToast.success('Redirecting to Checkout');
     } catch (error) {
       console.error('Payment redirect failed:', error);
-      toast.error('Could not open payment window', { description: 'Please check your browser popup blocker.' });
+      appToast.error('Could not open payment window');
     }
   };
 
   const handleRestore = async () => {
-    toast({ title: 'Restoring Purchases', description: 'Syncing with App Store subscriptions...' });
+    appToast.info('Restoring Purchases', 'Syncing with App Store subscriptions...');
     
     if (NativeBridge.isIOS()) {
       const result = await NativeBridge.restorePurchases();
       if (result.success) {
-        toast.success('Subscription status verified.');
+        appToast.success('Subscription status verified.');
       } else {
-        toast.error('Restoration Failed', { description: 'Please check your internet connection or Apple ID.' });
+        appToast.error('Restoration Failed');
       }
       return;
     }
 
     setTimeout(() => {
-      toast.success('Subscription status verified.');
+      appToast.success('Subscription status verified.');
     }, 1500);
   };
 

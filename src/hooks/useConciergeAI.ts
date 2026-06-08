@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { toast } from '@/components/ui/sonner';
+import { appToast } from '@/utils/appNotification';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserSubscription } from '@/hooks/useSubscription';
 import { useTokens } from '@/hooks/useTokens';
@@ -385,7 +385,7 @@ export function useConciergeAI() {
     if (!content.trim() || isLoading || isSendingRef.current) return;
     isSendingRef.current = true; // Lock immediately to prevent double calls
     if (!canUseAI) {
-      toast.error('Upgrade to Premium to use Swipess AI', { description: 'Subscribe or purchase tokens to unlock the AI concierge.' });
+      appToast.error('Upgrade to Premium to use Swipess AI');
       return;
     }
 
@@ -487,7 +487,7 @@ export function useConciergeAI() {
         } catch { /* empty */ }
         if (resp.status === 429) errorMsg = 'Too many requests. Please wait a moment.';
         if (resp.status === 402) errorMsg = 'AI credits exhausted. Please add funds.';
-        toast.error(errorMsg);
+        appToast.error(errorMsg);
         setIsLoading(false);
         return;
       }
@@ -615,7 +615,7 @@ export function useConciergeAI() {
         );
 
         if (!reply) {
-          toast.error('AI temporarily unavailable. Please try again.');
+          appToast.error('AI temporarily unavailable. Please try again.');
           setIsLoading(false);
           return;
         }
@@ -643,7 +643,7 @@ export function useConciergeAI() {
     } catch (err) {
       if ((err as Error).name !== 'AbortError') {
         console.error('[ConciergeAI]', err);
-        toast.error('AI temporarily unavailable. Please try again.');
+        appToast.error('AI temporarily unavailable. Please try again.');
       }
     } finally {
       clearTimeout(timeoutId);

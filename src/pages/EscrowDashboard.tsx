@@ -5,8 +5,7 @@ import { AlertTriangle, ArrowRight, CheckCircle2, Clock, DollarSign, Shield } fr
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
-import { toast } from 'sonner';
-
+import { appToast } from '@/utils/appNotification';
 interface EscrowDeposit {
   id: string;
   contract_id: string;
@@ -61,8 +60,8 @@ export default function EscrowDashboard() {
         ...(newStatus === 'disputed' ? { disputed_at: new Date().toISOString() } : {}),
       })
       .eq('id', depositId);
-    if (error) { toast.error('Failed to update'); return; }
-    toast.success(`Deposit ${newStatus}`);
+    if (error) { appToast.error('Failed to update'); return; }
+    appToast.success(`Deposit ${newStatus}`);
     fetchDeposits();
   };
 

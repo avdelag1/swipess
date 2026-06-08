@@ -19,7 +19,7 @@ import { StarRatingInput } from './RatingDisplay';
 import { useCanRate, useCreateRating, useHasRated, useRatingCategory } from '@/hooks/useRatingSystem';
 import type { CreateRatingInput } from '@/hooks/useRatingSystem';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { toast } from '@/components/ui/sonner';
+import { appToast } from '@/utils/appNotification';
 import { logger } from '@/utils/prodLogger';
 import { validateContent } from '@/utils/contactInfoValidation';
 
@@ -101,7 +101,7 @@ export function RatingSubmissionDialog({
     for (const text of textsToCheck) {
       const check = validateContent(text);
       if (!check.isClean) {
-        toast.error('Content blocked', { description: check.message || undefined });
+        appToast.error('Content blocked');
         return;
       }
     }

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
+import { appToast } from '@/utils/appNotification';
 import { AlertTriangle, CreditCard, Download, File, FileText, FolderOpen, Plus, ScrollText, Search, Shield, Trash2, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -106,7 +106,7 @@ export default function DocumentVault() {
 
   const processUpload = async (file: globalThis.File, docType: string) => {
     if (!user) return;
-    if (file.size > 10 * 1024 * 1024) { toast.error('Max 10MB'); return; }
+    if (file.size > 10 * 1024 * 1024) { appToast.error('Max 10MB'); return; }
 
     setUploadState({ uploading: true, progress: 10, fileName: file.name });
     try {
@@ -129,10 +129,10 @@ export default function DocumentVault() {
       if (dbErr) throw dbErr;
 
       setUploadState(s => ({ ...s, progress: 100 }));
-      toast.success('Document uploaded');
+      appToast.success('Document uploaded');
       fetchDocuments();
     } catch {
-      toast.error('Upload failed');
+      appToast.error('Upload failed');
     } finally {
       setTimeout(() => setUploadState({ uploading: false, progress: 0, fileName: '' }), 1000);
     }
@@ -161,7 +161,7 @@ export default function DocumentVault() {
     if (!deleteTarget) return;
     await supabase.storage.from('legal-documents').remove([deleteTarget.file_path]);
     await supabase.from('legal_documents').delete().eq('id', deleteTarget.id);
-    toast.success('Document deleted');
+    appToast.success('Document deleted');
     setDeleteTarget(null);
     fetchDocuments();
   };

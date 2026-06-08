@@ -1,6 +1,6 @@
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Check, Clock, Crown, RefreshCcw, Shield, Sparkles } from 'lucide-react';
-import { toast } from '@/components/ui/sonner';
+import { appToast } from '@/utils/appNotification';
 import { STORAGE } from '@/constants/app';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -128,19 +128,19 @@ export function SubscriptionPackages({ isOpen = true, onClose, reason, userRole 
 
     if (NativeBridge.isNative()) {
        if (!plan.appleProductId) {
-         toast.error('Plan unavailable on this device.');
+         appToast.error('Plan unavailable on this device.');
          return;
        }
-       toast({ title: 'Connecting to App Store', description: 'Initiating secure In-App Purchase...' });
+       appToast.info('Connecting to App Store', 'Initiating secure In-App Purchase...');
        const result = await NativeBridge.purchaseProduct(plan.appleProductId);
        if (result.success) {
-         toast.success('Subscription Successful!', { description: 'Your premium benefits are now active.' });
+         appToast.success('Subscription Successful!');
          onClose?.();
          return;
        } else {
          const cancelled = (result as any).error === 'CANCELLED';
          if (!cancelled) {
-           toast.error('Purchase could not be completed', { description: 'Please try again from Settings → Subscriptions.' });
+           appToast.error('Purchase could not be completed');
          }
          return;
        }
@@ -148,15 +148,12 @@ export function SubscriptionPackages({ isOpen = true, onClose, reason, userRole 
 
     // Web fallback (browser only — never on native iOS)
     if (!plan.paypalUrl) {
-      toast.error('Payment link unavailable', { description: 'Please use the App Store to purchase.' });
+      appToast.error('Payment link unavailable');
       return;
     }
     window.open(plan.paypalUrl, '_blank');
 
-    toast({
-      title: 'Redirecting to Checkout',
-      description: `Selected: ${plan.name} (${plan.price} USD)`,
-    });
+    appToast.info('Redirecting to Checkout', `Selected: ${plan.name} (${plan.price} USD)`);
 
     if (user?.id) {
       await supabase.from('notifications').insert([{
@@ -170,9 +167,9 @@ export function SubscriptionPackages({ isOpen = true, onClose, reason, userRole 
   };
 
   const handleRestore = () => {
-    toast({ title: 'Restoring Purchases', description: 'Checking App Store for previous subscriptions...' });
+    appToast.info('Restoring Purchases', 'Checking App Store for previous subscriptions...');
     setTimeout(() => {
-      toast.success('No previous purchases found.');
+      appToast.success('No previous purchases found.');
     }, 1500);
   };
 

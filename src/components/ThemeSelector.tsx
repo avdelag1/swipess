@@ -6,8 +6,7 @@ import type { Theme } from '@/hooks/useAppTheme';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 // import { } from '@/components/ui/button';
-import { toast } from 'sonner';
-
+import { appToast } from '@/utils/appNotification';
 interface ThemeOption {
   id: Theme;
   name: string;
@@ -78,9 +77,7 @@ export function ThemeSelector({ compact = false, showTitle = true }: ThemeSelect
   const handleThemeChange = (newTheme: Theme) => {
     setTheme(newTheme);
     const themeName = themeOptions.find(t => t.id === newTheme)?.name || newTheme;
-    toast.success(`Theme changed to ${themeName}`, {
-      description: "Your preference has been saved"
-    });
+    appToast.success(`Theme changed to ${themeName}`);
   };
 
   if (compact) {

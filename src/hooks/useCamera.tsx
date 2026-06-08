@@ -1,7 +1,7 @@
 import { useCallback, useRef, useState } from 'react';
 import { Camera, CameraDirection, CameraResultType, CameraSource } from '@capacitor/camera';
 import { Capacitor } from '@capacitor/core';
-import { toast } from '@/components/ui/sonner';
+import { appToast } from '@/utils/appNotification';
 import { logger } from '@/utils/prodLogger';
 
 export interface CameraSettings {
@@ -139,11 +139,7 @@ export function useCamera(options: UseCameraOptions) {
         setHasPermission(granted);
 
         if (!granted) {
-          toast({
-            title: 'Camera Permission Required',
-            description: 'Please enable camera access in your device settings to take photos.',
-            variant: 'destructive',
-          });
+          appToast.error('Camera Permission Required', 'Please enable camera access in your device settings to take photos.');
         }
         return granted;
       } else {
@@ -265,11 +261,7 @@ export function useCamera(options: UseCameraOptions) {
     } catch (error) {
       logger.error('Error capturing photo:', error);
       onError?.(error as Error);
-      toast({
-        title: 'Capture Failed',
-        description: 'Failed to take photo. Please try again.',
-        variant: 'destructive',
-      });
+      appToast.error('Capture Failed', 'Failed to take photo. Please try again.');
       return null;
     } finally {
       setIsCapturing(false);
@@ -279,11 +271,7 @@ export function useCamera(options: UseCameraOptions) {
   // Capture photo from video stream (web fallback)
   const captureFromStream = useCallback(async () => {
     if (!videoRef.current || !streamRef.current) {
-      toast({
-        title: 'Camera Not Ready',
-        description: 'Please wait for the camera to initialize.',
-        variant: 'destructive',
-      });
+      appToast.error('Camera Not Ready', 'Please wait for the camera to initialize.');
       return null;
     }
 

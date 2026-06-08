@@ -4,13 +4,14 @@ import { Crown, MessageCircle, RefreshCcw, Sparkles, X, Zap } from 'lucide-react
 import { cn } from '@/lib/utils';
 import useAppTheme from '@/hooks/useAppTheme';
 import { useTokens } from '@/hooks/useTokens';
-import { useToast } from '@/hooks/use-toast';
 import { STORAGE } from '@/constants/app';
 import { useModalStore } from '@/state/modalStore';
 import { haptics } from '@/utils/microPolish';
 import { NativeBridge } from '@/utils/nativeBridge';
 import { useNavigate } from 'react-router-dom';
 import { APPLE_TOKEN_PACKAGES, type AppleTokenPackage, getSafePaymentUrl } from '@/config/iapProducts';
+import { appToast } from '@/utils/appNotification';
+
 
 const formatUSD = (price: number) =>
   new Intl.NumberFormat('en-US', {
@@ -56,7 +57,6 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
   const { theme } = useAppTheme();
   const isLight = theme === 'light';
   const { tokens } = useTokens();
-  const { toast } = useToast();
   const navigate = useNavigate();
 
   const isOpen = useModalStore((s) => s.showTokensModal);
@@ -76,15 +76,15 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
     localStorage.setItem(STORAGE.PAYMENT_RETURN_PATH_KEY, `/${userRole}/dashboard`);
 
     if (NativeBridge.isNative()) {
-      toast({ title: 'Connecting to App Store' });
+      appToast.info('Connecting to App Store');
       const result = await NativeBridge.purchaseProduct(pkg.productId);
       if (result.success) {
-        toast({ title: 'Payment Confirmed', description: `${pkg.tokens} tokens activated.` });
+        appToast.info('Payment Confirmed', `${pkg.tokens} tokens activated.`);
         close();
       } else {
         const cancelled = (result as any).error === 'CANCELLED';
         if (!cancelled) {
-          toast({ title: 'Purchase could not be completed', description: 'Please try again.', variant: 'destructive' });
+          appToast.error('Purchase could not be completed', 'Please try again.');
         }
       }
       return;
@@ -92,26 +92,26 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
 
     const safePaypalUrl = getSafePaymentUrl(pkg.paypalUrl);
     if (!safePaypalUrl) {
-      toast({ title: 'Payment link unavailable', description: 'Please use the App Store to purchase.', variant: 'destructive' });
+      appToast.error('Payment link unavailable', 'Please use the App Store to purchase.');
       return;
     }
 
-    toast({ title: 'Redirecting to PayPal', description: `${pkg.name}: ${pkg.tokens} tokens for ${formatUSD(pkg.priceUsd)} USD.` });
+    appToast.info('Redirecting to PayPal', `${pkg.name}: ${pkg.tokens} tokens for ${formatUSD(pkg.priceUsd)} USD.`);
     window.open(safePaypalUrl, '_blank', 'noopener,noreferrer');
     close();
   };
 
   const handleRestore = async () => {
     if (NativeBridge.isNative()) {
-      toast({ title: 'Restoring Purchases', description: 'Verifying with App Store...' });
+      appToast.info('Restoring Purchases', 'Verifying with App Store...');
       const result = await NativeBridge.restorePurchases();
       if (result.success) {
-        toast({ title: 'Restore Complete', description: 'Your purchases have been restored.' });
+        appToast.info('Restore Complete', 'Your purchases have been restored.');
       } else {
-        toast({ title: 'Nothing to Restore', description: 'No previous purchases found.', variant: 'destructive' });
+        appToast.error('Nothing to Restore', 'No previous purchases found.');
       }
     } else {
-      toast({ title: 'Restore Unavailable', description: 'Purchase restoration is only available in the native app.' });
+      appToast.info('Restore Unavailable', 'Purchase restoration is only available in the native app.');
     }
   };
 

@@ -1,11 +1,12 @@
 /** SPEED OF LIGHT: DashboardLayout is now rendered at route level */
 import { useState } from 'react';
+import { lazyWithRetry } from '@/utils/lazyRetry';
 import { SavedSearches } from "@/components/SavedSearches";
 import { ArrowLeft, Settings, Users } from "lucide-react";
-import { OwnerClientFilterDialog } from "@/components/OwnerClientFilterDialog";
+const OwnerClientFilterDialog = lazyWithRetry(() => import('@/components/OwnerClientFilterDialog').then(m => ({ default: m.OwnerClientFilterDialog })));
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { toast } from '@/components/ui/sonner';
+import { appToast } from '@/utils/appNotification';
 import useAppTheme from "@/hooks/useAppTheme";
 import { cn } from "@/lib/utils";
 
@@ -16,10 +17,7 @@ const OwnerSavedSearches = () => {
   const isLight = theme === 'light';
 
   const handleApplyFilter = (_filterId: string) => {
-    toast({
-      title: "Filter Applied",
-      description: "Navigating to client discovery with your filter...",
-    });
+    appToast.info("Filter Applied", "Navigating to client discovery with your filter...");
     navigate('/owner/dashboard');
   };
 
@@ -78,10 +76,10 @@ const OwnerSavedSearches = () => {
         </div>
       </div>
 
-      <OwnerClientFilterDialog
+      <Suspense fallback={null}><OwnerClientFilterDialog
         open={showFilterDialog}
         onOpenChange={setShowFilterDialog}
-      />
+      /></Suspense>
     </>
   );
 };

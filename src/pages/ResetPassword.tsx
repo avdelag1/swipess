@@ -5,10 +5,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useToast } from "@/hooks/useToast";
 import { ArrowLeft, Check, Eye, EyeOff, Loader2, Lock, Sparkles, X } from "lucide-react";
 import { SwipessLogo } from "@/components/SwipessLogo";
 import { cn } from "@/lib/utils";
+import { appToast } from '@/utils/appNotification';
+
 
 // Password strength checker
 const checkPasswordStrength = (password: string) => {
@@ -64,7 +65,6 @@ const SwipesParticles = () => (
 
 const ResetPassword = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -78,20 +78,12 @@ const ResetPassword = () => {
     e.preventDefault();
 
     if (password !== confirmPassword) {
-      toast({
-        title: "Access Sync Failed",
-        description: "Credentials do not match the target parity.",
-        variant: "destructive",
-      });
+      appToast.error("Access Sync Failed", "Credentials do not match the target parity.");
       return;
     }
 
     if (passwordStrength.score < 4) {
-      toast({
-        title: "Insecure Protocol",
-        description: "Password complexity must meet Swipes standards (8+ chars, Case, Numbers).",
-        variant: "destructive",
-      });
+      appToast.error("Insecure Protocol", "Password complexity must meet Swipes standards (8+ chars, Case, Numbers).");
       return;
     }
 
@@ -104,20 +96,13 @@ const ResetPassword = () => {
 
       if (error) throw error;
 
-      toast({
-        title: "Protocol Updated",
-        description: "Security sync complete. Accessing gateway...",
-      });
+      appToast.info("Protocol Updated", "Security sync complete. Accessing gateway...");
 
       setTimeout(() => {
         navigate("/");
       }, 1500);
-    } catch (error: unknown) {
-      toast({
-        title: "Sync Error",
-        description: error instanceof Error ? error.message : "Please try again or request a new reset link.",
-        variant: "destructive",
-      });
+    } catch {
+      appToast.info("Sync Error");
     } finally {
       setLoading(false);
     }

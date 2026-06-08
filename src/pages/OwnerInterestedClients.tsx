@@ -8,7 +8,7 @@ import { LikesSkeleton } from "@/components/ui/LikesSkeleton";
 import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 // import { } from "@/components/PremiumSortableGrid";
-import { toast } from "sonner";
+import { appToast } from '@/utils/appNotification';
 import { useStartConversation } from "@/hooks/useConversations";
 import { PremiumLikedCard } from "@/components/PremiumLikedCard";
 import { getCardImageUrl, pwaImagePreloader } from "@/utils/imageOptimization";
@@ -154,7 +154,7 @@ const OwnerInterestedClients = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["owner-interested-clients", user?.id] });
-      toast.success("Client dismissed");
+      appToast.success("Client dismissed");
       setShowDeleteDialog(false);
       setClientToDelete(null);
     },
@@ -188,7 +188,7 @@ const OwnerInterestedClients = () => {
           navigate(`/messages?conversationId=${result.conversationId}`);
         }
       } catch {
-        toast.error("Unable to start conversation");
+        appToast.error("Unable to start conversation");
       } finally {
         setIsConnecting(false);
       }

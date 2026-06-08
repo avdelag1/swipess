@@ -11,7 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import useAppTheme from "@/hooks/useAppTheme";
 import { haptics } from "@/utils/microPolish";
-import { toast } from "@/components/ui/sonner";
+import { appToast } from '@/utils/appNotification';
 import { NativeBridge } from "@/utils/nativeBridge";
 import { RefreshCcw } from "lucide-react";
 import { getSafePaymentUrl } from '@/config/iapProducts';
@@ -361,25 +361,25 @@ export default function AdvertisePage() {
     // Always route to the submission form first; payment unlocks after approval.
     if (approvedSubmission) {
       if (NativeBridge.isIOS()) {
-        toast.info("Connecting to App Store...");
+        appToast.info("Connecting to App Store...");
         const result = await NativeBridge.purchaseProduct(pkg.appleProductId as any);
 
         if (result.success) {
-          toast.success("Success!", { description: "Your promotion will be live shortly." });
+          appToast.success("Success!");
         } else if ((result as any).error !== 'CANCELLED') {
-          toast.error("Transaction Error", { description: "Please check your App Store account." });
+          appToast.error("Transaction Error");
         }
         return;
       }
 
       // WEB FALLBACK (Stripe/PayPal)
       window.open(pkg.paypalUrl, '_blank');
-      toast.success("Redirecting to Checkout", { description: `Launching ${pkg.name} package.` });
+      appToast.success("Redirecting to Checkout");
       return;
     }
 
     if (pendingSubmission) {
-      toast.message("Awaiting Review", { description: "Your event is being reviewed. You'll be able to pay once approved." });
+      appToast.message("Awaiting Review");
       return;
     }
 
@@ -387,12 +387,12 @@ export default function AdvertisePage() {
     setForm(f => ({ ...f, packageId: pkg.id }));
     setView("form");
     setStep("type");
-    toast.message("Submit your event for review", { description: "Once approved, you can activate this promotion." });
+    appToast.message("Submit your event for review");
   };
 
   const handleRestore = () => {
-    toast({ title: "Restoring Purchases", description: "Checking for previous promotion activations..." });
-    setTimeout(() => toast.success("Restore complete."), 1500);
+    appToast.info("Restoring Purchases", "Checking for previous promotion activations...");
+    setTimeout(() => appToast.success("Restore complete."), 1500);
   };
 
 
@@ -458,7 +458,7 @@ export default function AdvertisePage() {
       if (error) throw error;
       setDone(true);
     } catch {
-      toast.error("Could not submit. Please try again.");
+      appToast.error("Could not submit. Please try again.");
     } finally {
       setSubmitting(false);
     }

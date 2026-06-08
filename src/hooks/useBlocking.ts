@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
+import { appToast } from '@/utils/appNotification';
 import { logger } from '@/utils/prodLogger';
 
 export function useBlockUser() {
@@ -29,15 +29,11 @@ export function useBlockUser() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['conversations'] });
       queryClient.invalidateQueries({ queryKey: ['user_blocks'] });
-      toast.success('User blocked', {
-        description: 'You will no longer see messages or listings from this entity.',
-      });
+      appToast.success('User blocked');
     },
     onError: (error: Error) => {
       logger.error('Error blocking user:', error);
-      toast.error('Failed to block user', {
-        description: error.message || 'Please try again later',
-      });
+      appToast.error('Failed to block user');
     },
   });
 }
@@ -62,7 +58,7 @@ export function useUnblockUser() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['conversations'] });
       queryClient.invalidateQueries({ queryKey: ['user_blocks'] });
-      toast.success('User unblocked');
+      appToast.success('User unblocked');
     },
   });
 }

@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 // import { } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Camera, Plus, Sparkles, X } from 'lucide-react';
-import { toast } from 'sonner';
+import { appToast } from '@/utils/appNotification';
 import { validateImageFile } from '@/utils/fileValidation';
 import { logger } from '@/utils/prodLogger';
 import { AnimatePresence, motion, Reorder } from 'framer-motion';
@@ -69,7 +69,7 @@ export function PhotoUploadManager({
         effectiveCurrentPhotos = [];
         remainingSlots = maxPhotos;
       } else {
-        toast.error("Capacity Reached", { description: "You've initialized the maximum photo count." });
+        appToast.error("Capacity Reached");
         return;
       }
     }
@@ -78,7 +78,7 @@ export function PhotoUploadManager({
       .slice(0, remainingSlots)
       .filter(f => {
         const v = validateImageFile(f);
-        if (!v.isValid) toast.error("Invalid Asset", { description: `${f.name}: ${v.error}` });
+        if (!v.isValid) appToast.error("Invalid Asset");
         return v.isValid;
       });
 
@@ -100,14 +100,14 @@ export function PhotoUploadManager({
       if (newUrls.length > 0) {
         onPhotosChange([...effectiveCurrentPhotos, ...newUrls]);
         triggerHaptic('success');
-        toast.success("Assets Synced", { description: `${newUrls.length} photos added to your Swipess.` });
+        appToast.success("Assets Synced");
       }
       if (failedCount > 0) {
-        toast.error("Upload Issue", { description: `${failedCount} photo${failedCount > 1 ? 's' : ''} failed to upload. Try again.` });
+        appToast.error("Upload Issue");
       }
     } catch (error) {
       logger.error('Upload Error:', error);
-      toast.error("Transmission Error", { description: "Failed to upload assets. Check your connection." });
+      appToast.error("Transmission Error");
     } finally {
       setUploading(false);
     }

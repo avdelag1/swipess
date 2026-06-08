@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { toast } from '@/components/ui/sonner';
+import { appToast } from '@/utils/appNotification';
 import { Building2, Camera, Cpu, MoreHorizontal, Wind, Wrench, X, Zap } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -45,7 +45,7 @@ export function MaintenanceRequestForm({ onSuccess, onCancel }: MaintenanceReque
     const files = e.target.files;
     if (!files || !user) return;
     if (photos.length + files.length > 5) {
-      toast.error('Maximum 5 photos allowed');
+      appToast.error('Maximum 5 photos allowed');
       return;
     }
 
@@ -64,7 +64,7 @@ export function MaintenanceRequestForm({ onSuccess, onCancel }: MaintenanceReque
         setPhotos(prev => [...prev, urlData.publicUrl]);
       }
     } catch (_err) {
-      toast.error('Failed to upload photo');
+      appToast.error('Failed to upload photo');
     } finally {
       setUploading(false);
     }
@@ -76,7 +76,7 @@ export function MaintenanceRequestForm({ onSuccess, onCancel }: MaintenanceReque
 
   const handleSubmit = async () => {
     if (!user || !title.trim()) {
-      toast.error('Please provide a title');
+      appToast.error('Please provide a title');
       return;
     }
 
@@ -107,10 +107,10 @@ export function MaintenanceRequestForm({ onSuccess, onCancel }: MaintenanceReque
 
       if (error) throw error;
 
-      toast.success('Maintenance request submitted!');
+      appToast.success('Maintenance request submitted!');
       onSuccess();
     } catch (_err) {
-      toast.error('Failed to submit request');
+      appToast.error('Failed to submit request');
     } finally {
       setSubmitting(false);
     }

@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { toast } from '@/components/ui/sonner';
+import { appToast } from '@/utils/appNotification';
 import PhotoCamera from '@/components/PhotoCamera';
 import UploadProgress from '@/components/UploadProgress';
 import { usePhotoCamera } from '@/hooks/usePhotoCamera';
@@ -18,17 +18,10 @@ export default function ClientSelfieCamera() {
   const onCapture = useCallback(async (originalBlob: Blob, croppedBlob: Blob) => {
     try {
       await handleCapture(originalBlob, croppedBlob);
-      toast({
-        title: 'Profile Photo Updated!',
-        description: 'Your new selfie has been saved as your profile photo.',
-      });
+      appToast.info('Profile Photo Updated!', 'Your new selfie has been saved as your profile photo.');
       navigate(returnPath);
     } catch (_error) {
-      toast({
-        title: 'Upload Failed',
-        description: 'Failed to save your photo. Please try again.',
-        variant: 'destructive',
-      });
+      appToast.error('Upload Failed', 'Failed to save your photo. Please try again.');
     }
   }, [handleCapture, navigate, returnPath]);
 

@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
-import { toast } from '@/components/ui/sonner';
+import { appToast } from '@/utils/appNotification';
 import { useAuth } from '@/hooks/useAuth';
 import useAppTheme from '@/hooks/useAppTheme';
 import { useVisualTheme } from '@/contexts/VisualThemeContext';
@@ -78,7 +78,7 @@ export default function EventosLikes() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['event-likes-detailed', user?.id] });
       queryClient.invalidateQueries({ queryKey: ['event-likes', user?.id] });
-      toast.success("Removed from favorites");
+      appToast.success("Removed from favorites");
       triggerHaptic('medium');
     }
   });

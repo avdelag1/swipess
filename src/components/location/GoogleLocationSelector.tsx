@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { AlertCircle, Building, Globe, Loader2, MapPin, Navigation, Search, Star } from 'lucide-react';
-import { toast } from 'sonner';
+import { appToast } from '@/utils/appNotification';
 import { logger } from '@/utils/prodLogger';
 import {
   CityLocation,
@@ -262,7 +262,7 @@ export function GoogleLocationSelector({
     setIsLoading(true);
     try {
       if (!navigator.geolocation) {
-        toast.error("Geolocation Not Available", { description: "Your browser doesn't support location services." });
+        appToast.error("Geolocation Not Available");
         setIsLoading(false);
         return;
       }
@@ -284,13 +284,13 @@ export function GoogleLocationSelector({
           await reverseGeocode(lat, lng);
           setIsLoading(false);
 
-          toast.success("Location Found", { description: "Your current location has been detected." });
+          appToast.success("Location Found");
         },
         (error) => {
           if (import.meta.env.DEV) {
             logger.error('Geolocation error:', error);
           }
-          toast.error("Location Access Denied", { description: "Please enable location services and try again." });
+          appToast.error("Location Access Denied");
           setIsLoading(false);
         },
         { enableHighAccuracy: true, timeout: 10000 }
@@ -299,7 +299,7 @@ export function GoogleLocationSelector({
       if (import.meta.env.DEV) {
         logger.error('Error getting location:', error);
       }
-      toast.error("Error", { description: "Failed to get your location. Please try again." });
+      appToast.error("Error");
       setIsLoading(false);
     }
   };
@@ -372,7 +372,7 @@ export function GoogleLocationSelector({
       locationType: selectedTab,
     });
 
-    toast.success("Location Selected", { description: `${cityData.name}, ${countryName}` });
+    appToast.success("Location Selected");
   };
 
   // Handle neighborhood selection

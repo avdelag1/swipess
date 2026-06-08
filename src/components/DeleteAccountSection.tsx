@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
+import { appToast } from '@/utils/appNotification';
 import { logger } from '@/utils/prodLogger';
 import { useAuth } from '@/hooks/useAuth';
 import { motion } from 'framer-motion';
@@ -20,7 +20,7 @@ export function DeleteAccountSection() {
 
   const handleDelete = async () => {
     if (confirmText !== 'DELETE') {
-      toast.error('Please type DELETE to confirm');
+      appToast.error('Please type DELETE to confirm');
       return;
     }
 
@@ -28,7 +28,7 @@ export function DeleteAccountSection() {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
-        toast.error('Error', { description: 'You must be logged in to delete your account.' });
+        appToast.error('Error');
         return;
       }
 
@@ -40,7 +40,7 @@ export function DeleteAccountSection() {
 
       if (error) throw error;
 
-      toast.success('Account Deleted', { description: 'Your account has been permanently deleted.' });
+      appToast.success('Account Deleted');
 
       if (signOut) {
         await signOut();
@@ -50,7 +50,7 @@ export function DeleteAccountSection() {
       }
     } catch (error: unknown) {
       logger.error('Delete account error:', error);
-      toast.error('Error', { description: error instanceof Error ? error.message : 'Failed to delete account. Please try again.' });
+      appToast.error('Error');
     } finally {
       setIsDeleting(false);
     }

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { toast } from '@/components/ui/sonner';
+import { appToast } from '@/utils/appNotification';
 import { logger } from '@/utils/prodLogger';
 
 /**
@@ -179,15 +179,7 @@ export function useAnonymousDrafts() {
 
     // Show notification
     if (restoredCount > 0) {
-      toast({
-        title: restoredCount === 2 ? 'Your work is restored!' : 'Your work is restored!',
-        description: restoredCount === 2
-          ? 'Your listing and profile have been published.'
-          : restoredCount === 1 && listingDraft
-            ? 'Your listing has been published.'
-            : 'Your profile is now live.',
-        duration: 5000,
-      });
+      appToast.info(restoredCount);
     }
 
     return restoredCount;

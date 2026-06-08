@@ -9,8 +9,9 @@ import {
 } from 'lucide-react';
 import { PageHeader } from '@/components/PageHeader';
 import { Button } from '@/components/ui/button';
-import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { appToast } from '@/utils/appNotification';
+
 
 const BUCKET = 'admin-uploads';
 
@@ -49,7 +50,6 @@ interface EventOption {
 export default function AdminPhotos() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [photos, setPhotos] = useState<StorageFile[]>([]);
@@ -153,7 +153,7 @@ export default function AdminPhotos() {
         upsert: false,
       });
       if (error) {
-        toast({ title: `Failed: ${file.name}`, description: error.message, variant: 'destructive' });
+        appToast.info(`Failed: ${file.name}`);
       } else {
         uploaded++;
       }
@@ -161,7 +161,7 @@ export default function AdminPhotos() {
     }
 
     if (uploaded > 0) {
-      toast({ title: `${uploaded} photo${uploaded > 1 ? 's' : ''} uploaded` });
+      appToast.info(`${uploaded} photo${uploaded > 1 ? 's' : ''} uploaded`);
     }
     setUploading(false);
     setUploadProgress(0);
@@ -179,9 +179,9 @@ export default function AdminPhotos() {
     setDeletingId(photo.id);
     const { error } = await supabase.storage.from(BUCKET).remove([photo.name]);
     if (error) {
-      toast({ title: 'Delete failed', description: error.message, variant: 'destructive' });
+      appToast.info('Delete failed');
     } else {
-      toast({ title: 'Photo deleted' });
+      appToast.info('Photo deleted');
       if (selectedPhoto?.id === photo.id) setSelectedPhoto(null);
       setPhotos(prev => prev.filter(p => p.id !== photo.id));
     }
@@ -197,10 +197,10 @@ export default function AdminPhotos() {
       .eq('id', eventId);
 
     if (error) {
-      toast({ title: 'Assignment failed', description: error.message, variant: 'destructive' });
+      appToast.info('Assignment failed');
     } else {
       const ev = events.find(e => e.id === eventId);
-      toast({ title: `Set as cover for "${ev?.title}"` });
+      appToast.info(`Set as cover for "${ev?.title}"`);
       await loadEvents();
     }
     setAssigningId(null);

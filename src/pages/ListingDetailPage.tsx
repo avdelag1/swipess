@@ -5,10 +5,10 @@ import { motion } from 'framer-motion';
 import { SimpleSwipeCard } from '@/components/SimpleSwipeCard';
 import { triggerHaptic } from '@/utils/haptics';
 import { useState } from 'react';
-import { ReportDialog } from '@/components/ReportDialog';
-import { ShareDialog } from '@/components/ShareDialog';
-import { SwipeInsightsModal } from '@/components/SwipeInsightsModal';
-
+import { lazyWithRetry } from '@/utils/lazyRetry';
+const ReportDialog = lazyWithRetry(() => import('@/components/ReportDialog').then(m => ({ default: m.ReportDialog })));
+const ShareDialog = lazyWithRetry(() => import('@/components/ShareDialog').then(m => ({ default: m.ShareDialog })));
+const SwipeInsightsModal = lazyWithRetry(() => import('@/components/SwipeInsightsModal').then(m => ({ default: m.SwipeInsightsModal })));
 export default function ListingDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -72,7 +72,7 @@ export default function ListingDetailPage() {
         />
       </div>
 
-      <ReportDialog
+      <Suspense fallback={null}><ReportDialog
         open={showReport}
         onOpenChange={setShowReport}
         reportedListingId={l.id}
@@ -80,20 +80,20 @@ export default function ListingDetailPage() {
         reportedUserId={l.owner_id || l.user_id}
         reportedUserAge={l.owner_age}
         category="listing"
-      />
-      <ShareDialog
+      /></Suspense>
+      <Suspense fallback={null}><ShareDialog
         open={showShare}
         onOpenChange={setShowShare}
         listingId={l.id}
         title={l.title || 'Check out this listing'}
         description={l.description}
         previewImage={(Array.isArray(l.images) && l.images[0]) || l.image_url || null}
-      />
-      <SwipeInsightsModal
+      /></Suspense>
+      <Suspense fallback={null}><SwipeInsightsModal
         open={showInsights}
         onOpenChange={setShowInsights}
         listing={listing as any}
-      />
+      /></Suspense>
     </motion.div>
   );
 }

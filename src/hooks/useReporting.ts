@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
+import { appToast } from '@/utils/appNotification';
 import { logger } from '@/utils/prodLogger';
 
 export type ReportType =
@@ -80,15 +80,11 @@ export function useCreateReport() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user-reports'] });
-      toast.success('Report submitted', {
-        description: 'Thank you for reporting. Our team will review this shortly.',
-      });
+      appToast.success('Report submitted');
     },
     onError: (error: Error) => {
       logger.error('Error creating report:', error);
-      toast.error('Failed to submit report', {
-        description: error.message || 'Please try again later',
-      });
+      appToast.error('Failed to submit report');
     },
   });
 }

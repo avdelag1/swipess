@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
+import { appToast } from '@/utils/appNotification';
 import { useAuth } from '@/hooks/useAuth';
 import { STORAGE } from '@/constants/app';
 import { useQueryClient } from '@tanstack/react-query';
@@ -35,7 +35,7 @@ export default function PaymentSuccess() {
 
       if (!pendingPurchase) {
         // No pending purchase - might be a refresh, just redirect
-        toast.error('No pending purchase found. If you completed a payment, please contact support.');
+        appToast.error('No pending purchase found. If you completed a payment, please contact support.');
         navigate(returnPath || '/client/dashboard', { replace: true });
         return;
       }
@@ -57,7 +57,7 @@ export default function PaymentSuccess() {
         }
 
         if (!pkg) {
-          toast.error('Package not found. Please contact support.');
+          appToast.error('Package not found. Please contact support.');
           navigate(returnPath || '/client/dashboard', { replace: true });
           return;
         }
@@ -84,10 +84,7 @@ export default function PaymentSuccess() {
         queryClient.invalidateQueries({ queryKey: ['legal-document-quota'] });
 
         // Show single toast notification - premium, non-intrusive
-        toast.success('Congratulations! Your Premium package is now active.', {
-          duration: 4000,
-          icon: '🎉',
-        });
+        appToast.success('Congratulations! Your Premium package is now active.');
 
         // Silent redirect back to where user was (or dashboard)
         const targetPath = returnPath || `/${role}/dashboard`;
@@ -95,7 +92,7 @@ export default function PaymentSuccess() {
 
       } catch (error) {
         logger.error('Payment processing error:', error);
-        toast.error('Failed to process payment. Please contact support with your PayPal receipt.');
+        appToast.error('Failed to process payment. Please contact support with your PayPal receipt.');
         navigate(returnPath || '/client/dashboard', { replace: true });
       }
     };

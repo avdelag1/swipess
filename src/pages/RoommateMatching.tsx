@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { lazyWithRetry } from '@/utils/lazyRetry';
 import { AnimatePresence, motion } from 'framer-motion';
 import { NativeStore } from '@/utils/nativeStore';
 import {
@@ -13,7 +14,7 @@ import useAppTheme from '@/hooks/useAppTheme';
 import { SimpleOwnerSwipeCard, SimpleOwnerSwipeCardRef } from '@/components/SimpleOwnerSwipeCard';
 // import { } from '@/components/SwipeActionButtonBar';
 import { RoommateFiltersSheet } from '@/components/filters/RoommateFiltersSheet';
-import { MessageConfirmationDialog } from '@/components/MessageConfirmationDialog';
+const MessageConfirmationDialog = lazyWithRetry(() => import('@/components/MessageConfirmationDialog').then(m => ({ default: m.MessageConfirmationDialog })));
 import { useSmartClientMatching } from '@/hooks/useSmartMatching';
 import { useAuth } from '@/hooks/useAuth';
 // import { } from '@/integrations/supabase/client';
@@ -429,13 +430,13 @@ export default function RoommateMatching() {
         profile={matchedProfile} 
         onClose={() => setShowMatch(false)} 
       />
-      <MessageConfirmationDialog
+      <Suspense fallback={null}><MessageConfirmationDialog
         open={messageDialogOpen}
         onOpenChange={setMessageDialogOpen}
         onConfirm={handleSendMessage}
         recipientName={topCard?.name || (topCard as any)?.full_name || 'this roommate'}
         isLoading={isStartingConversation}
-      />
+      /></Suspense>
     </div>
   );
 }

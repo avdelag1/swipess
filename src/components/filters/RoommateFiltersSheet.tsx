@@ -7,7 +7,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { toast } from 'sonner';
+import { appToast } from '@/utils/appNotification';
 import {
   CLEANLINESS_OPTIONS,
   DRINKING_HABIT_OPTIONS,
@@ -123,9 +123,9 @@ export function RoommateFiltersSheet({ open, onClose, onApply, currentFilters }:
       if (error) throw error;
       onApply(filters);
       onClose();
-      toast.success('Roommate preferences saved');
+      appToast.success('Roommate preferences saved');
     } catch (_e: unknown) {
-      toast.error('Failed to save preferences');
+      appToast.error('Failed to save preferences');
     } finally {
       setSaving(false);
     }

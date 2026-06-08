@@ -1,10 +1,11 @@
 /** SPEED OF LIGHT: DashboardLayout is now rendered at route level */
-import { ClientProfileDialog } from "@/components/ClientProfileDialog";
+const ClientProfileDialog = lazyWithRetry(() => import('@/components/ClientProfileDialog').then(m => ({ default: m.ClientProfileDialog })));
 import { PhotoPreview } from "@/components/PhotoPreview";
-import { ShareDialog } from "@/components/ShareDialog";
+const ShareDialog = lazyWithRetry(() => import('@/components/ShareDialog').then(m => ({ default: m.ShareDialog })));
 import { SharedProfileSection } from "@/components/SharedProfileSection";
 import { ThemeSelector } from "@/components/ThemeSelector";
 import { useCallback, useState } from "react";
+import { lazyWithRetry } from '@/utils/lazyRetry';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useClientProfile } from "@/hooks/useClientProfile";
@@ -359,10 +360,10 @@ const ClientProfileNew = () => {
         </div>
       </motion.div>
 
-      <ClientProfileDialog
+      <Suspense fallback={null}><ClientProfileDialog
         open={showEditDialog}
         onOpenChange={setShowEditDialog}
-      />
+      /></Suspense>
 
       <PhotoPreview
         photos={profile?.profile_images || []}
@@ -371,13 +372,13 @@ const ClientProfileNew = () => {
         initialIndex={selectedPhotoIndex}
       />
 
-      <ShareDialog
+      <Suspense fallback={null}><ShareDialog
         open={showShareDialog}
         onOpenChange={setShowShareDialog}
         profileId={user?.id}
         title={profile?.name || 'My Profile'}
         description={`Check out ${profile?.name || 'this profile'} on Zwipes! See their interests, lifestyle, and more.`}
-      />
+      /></Suspense>
     </>
   );
 };

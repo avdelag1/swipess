@@ -1,4 +1,5 @@
-import { memo, useCallback, useEffect, useRef, useState } from 'react';
+import { memo, Suspense, useCallback, useEffect, useRef, useState } from 'react';
+import { lazyWithRetry } from '@/utils/lazyRetry';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 // import { } from '@/components/ui/button';
@@ -16,13 +17,13 @@ import { useAuth } from '@/hooks/useAuth';
 // import { } from '@/utils/timeFormatter';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { SwipeInsightsModal } from '@/components/SwipeInsightsModal';
+const SwipeInsightsModal = lazyWithRetry(() => import('@/components/SwipeInsightsModal').then(m => ({ default: m.SwipeInsightsModal })));
 import { logger } from '@/utils/prodLogger';
 import { VirtualizedMessageList } from '@/components/VirtualizedMessageList';
 import { useContentModeration } from '@/hooks/useContentModeration';
 import { usePrefetchManager } from '@/hooks/usePrefetchManager';
-import { RatingSubmissionDialog } from '@/components/RatingSubmissionDialog';
-import { ShareDialog } from '@/components/ShareDialog';
+const RatingSubmissionDialog = lazyWithRetry(() => import('@/components/RatingSubmissionDialog').then(m => ({ default: m.RatingSubmissionDialog })));
+const ShareDialog = lazyWithRetry(() => import('@/components/ShareDialog').then(m => ({ default: m.ShareDialog })));
 import { useModalStore } from '@/state/modalStore';
 import useAppTheme from '@/hooks/useAppTheme';
 import { cn } from '@/lib/utils';
@@ -481,17 +482,17 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
           </form>
         </div>
 
-        <RatingSubmissionDialog open={showRatingDialog} onOpenChange={setShowRatingDialog} targetId={listing?.id || otherUser.id} targetType={listing?.id ? 'listing' : 'user'} targetName={listing?.title || otherUser.full_name} categoryId={listing?.id ? (listing.category === 'vehicle' ? 'vehicle' : 'property') : 'client'} onSuccess={() => setShowRatingDialog(false)} />
+        <Suspense fallback={null}><RatingSubmissionDialog open={showRatingDialog} onOpenChange={setShowRatingDialog} targetId={listing?.id || otherUser.id} targetType={listing?.id ? 'listing' : 'user'} targetName={listing?.title || otherUser.full_name} categoryId={listing?.id ? (listing.category === 'vehicle' ? 'vehicle' : 'property') : 'client'} onSuccess={() => setShowRatingDialog(false)} /></Suspense>
 
-        <ShareDialog
+        <Suspense fallback={null}><ShareDialog
           open={showShareDialog}
           onOpenChange={setShowShareDialog}
           profileId={otherUser.id}
           title={otherUser.full_name || 'Check out this profile'}
           previewImage={otherUser.avatar_url || null}
-        />
+        /></Suspense>
 
-        <SwipeInsightsModal
+        <Suspense fallback={null}><SwipeInsightsModal
           open={showInsightsModal}
           onOpenChange={setShowInsightsModal}
           profile={{
@@ -516,7 +517,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
             occupation: partnerProfile?.occupation ?? undefined,
             bio: partnerProfile?.bio ?? undefined,
           } as any}
-        />
+        /></Suspense>
 
         <AlertDialog open={showBlockConfirm} onOpenChange={setShowBlockConfirm}>
           <AlertDialogContent className={cn("z-[10000] rounded-[28px]", isThemeLight ? "bg-white text-slate-900 border-slate-200" : "bg-card text-white border-white/10")}>

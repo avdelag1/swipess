@@ -2,12 +2,13 @@ import { useCallback, useRef, useState } from 'react';
 import { Image as ImageIcon, Loader2, MoveVertical, Upload, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/useToast';
 import { motion, Reorder } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { FILE_SIZE_LIMITS, formatFileSize, validateImageFile } from '@/utils/fileValidation';
 import { compressImage, LISTING_COMPRESSION } from '@/utils/imageCompression';
 import { logger } from '@/utils/prodLogger';
+import { appToast } from '@/utils/appNotification';
+
 
 interface ImageUploadProps {
   images: string[];
@@ -27,8 +28,6 @@ export function ImageUpload({
   const [uploading, setUploading] = useState(false);
   const [dragActive, setDragActive] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { toast } = useToast();
-
   const uploadImage = useCallback(async (file: File): Promise<string | null> => {
     try {
       // Validate raw file (size + type). HEIC and large files are accepted —
@@ -65,25 +64,17 @@ export function ImageUpload({
     } catch (error: unknown) {
       const err = error as Error;
       logger.error('Image upload error:', err);
-      toast({
-        title: 'Upload failed',
-        description: err.message || 'Failed to upload image',
-        variant: 'destructive'
-      });
+      appToast.info('Upload failed');
       return null;
     }
-  }, [bucket, folder, toast]);
+  }, [bucket, folder]);
 
   const handleFiles = useCallback(async (files: FileList | null) => {
     if (!files || files.length === 0) return;
 
     const remaining = maxImages - images.length;
     if (remaining <= 0) {
-      toast({
-        title: 'Maximum images reached',
-        description: `You can only upload up to ${maxImages} images`,
-        variant: 'destructive'
-      });
+      appToast.error('Maximum images reached', `You can only upload up to ${maxImages} images`);
       return;
     }
 
@@ -101,15 +92,12 @@ export function ImageUpload({
 
       if (successfulUploads.length > 0) {
         onImagesChange([...images, ...successfulUploads]);
-        toast({
-          title: 'Success!',
-          description: `Uploaded ${successfulUploads.length} image(s)`,
-        });
+        appToast.info('Success!', `Uploaded ${successfulUploads.length} image(s)`);
       }
     } finally {
       setUploading(false);
     }
-  }, [images, maxImages, onImagesChange, toast, uploadImage]);
+  }, [images, maxImages, onImagesChange, uploadImage]);
 
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault();

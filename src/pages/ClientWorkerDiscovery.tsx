@@ -9,7 +9,7 @@ import {
   _MapPin, _MessageCircle, ArrowLeft, CalendarDays, Clock, RefreshCw, 
   Sparkles, X 
 } from 'lucide-react';
-import { toast } from 'sonner';
+import { appToast } from '@/utils/appNotification';
 import { DiscoverySkeleton } from '@/components/ui/DiscoverySkeleton';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -124,7 +124,7 @@ export default function ClientWorkerDiscovery() {
     setContactingId(userId);
 
     try {
-      toast.loading('Starting conversation...', { id: 'contact-worker' });
+      appToast.info('Starting conversation...');
 
       const result = await startConversation.mutateAsync({
         otherUserId: userId,
@@ -133,8 +133,6 @@ export default function ClientWorkerDiscovery() {
       });
 
       if (result?.conversationId) {
-        toast.dismiss('contact-worker');
-        
         // Find the worker listing to get the name for the overlay
         const worker = workers?.find(w => w.owner_id === userId);
         setConnectingRecipient(worker?.owner?.full_name || "Professional");
@@ -144,11 +142,8 @@ export default function ClientWorkerDiscovery() {
         
         navigate(`/messages?conversationId=${result.conversationId}`);
       }
-    } catch (error) {
-      toast.error('Could not start conversation', {
-        id: 'contact-worker',
-        description: error instanceof Error ? error.message : 'Try again'
-      });
+    } catch {
+      appToast.error('Could not start conversation');
     } finally {
       setContactingId(null);
       setIsConnecting(false);

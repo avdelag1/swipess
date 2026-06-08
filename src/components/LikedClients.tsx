@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { lazyWithRetry } from '@/utils/lazyRetry';
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,12 +9,12 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
-import { toast } from "sonner";
+import { appToast } from '@/utils/appNotification';
 import { appToast } from "@/utils/appNotification";
 import useAppTheme from "@/hooks/useAppTheme";
 import { useStartConversation } from "@/hooks/useConversations";
 import { PremiumLikedCard } from "@/components/PremiumLikedCard";
-import { SwipeInsightsModal } from "@/components/SwipeInsightsModal";
+const SwipeInsightsModal = lazyWithRetry(() => import('@/components/SwipeInsightsModal').then(m => ({ default: m.SwipeInsightsModal })));
 import { ConnectingOverlay } from "@/components/ConnectingOverlay";
 import { triggerHaptic } from "@/utils/haptics";
 import { cn } from "@/lib/utils";
@@ -114,7 +115,7 @@ export function LikedClients() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["liked-clients", user?.id] });
-      toast.success("Profile removed");
+      appToast.success("Profile removed");
       setShowDeleteDialog(false);
     },
   });
@@ -291,7 +292,7 @@ export function LikedClients() {
         )}
       </div>
 
-      <SwipeInsightsModal open={showInsightsModal} onOpenChange={setShowInsightsModal} profile={selectedClientForView} />
+      <Suspense fallback={null}><SwipeInsightsModal open={showInsightsModal} onOpenChange={setShowInsightsModal} profile={selectedClientForView} /></Suspense>
       
       <ConnectingOverlay 
         isOpen={isConnecting}

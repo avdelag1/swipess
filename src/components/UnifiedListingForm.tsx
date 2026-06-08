@@ -11,7 +11,7 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { toast } from '@/components/ui/sonner';
+import { appToast } from '@/utils/appNotification';
 import { appToast } from '@/utils/appNotification';
 import { logger } from '@/utils/prodLogger';
 import { Bike, ChevronRight, Shield, Upload, X } from 'lucide-react';
@@ -491,9 +491,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
   const handleImageAdd = () => {
     const totalImages = photoList.length;
     if (totalImages >= maxPhotos) {
-      toast.error('Maximum Photos Reached', {
-        description: `You can upload up to ${maxPhotos} photos.`,
-      });
+      appToast.error('Maximum Photos Reached');
       return;
     }
 
@@ -508,18 +506,14 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
 
       const availableSlots = maxPhotos - totalImages;
       if (files.length > availableSlots) {
-        toast.error('Too Many Photos', {
-          description: `You can only add ${availableSlots} more.`
-        });
+        appToast.error('Too Many Photos');
         files.splice(availableSlots);
       }
 
       const validatedFiles = files.filter(file => {
         const validation = validateImageFile(file);
         if (!validation.isValid) {
-          toast.error('Invalid File', {
-            description: `${file.name}: ${validation.error}`
-          });
+          appToast.error('Invalid File');
         }
         return validation.isValid;
       });
@@ -557,9 +551,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
 
   const handleSubmit = () => {
     if (photoList.length < 1) {
-      toast.error('Photo Required', {
-        description: 'Please upload at least 1 photo.'
-      });
+      appToast.error('Photo Required');
       return;
     }
 
@@ -582,10 +574,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
         timestamp: Date.now(),
       }));
 
-      toast.success('Draft Saved!', {
-        description: 'Create an account to publish your listing.',
-        duration: 5000,
-      });
+      appToast.success('Draft Saved!');
       handleClose();
       return;
     }

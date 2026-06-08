@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
-import { toast } from '@/components/ui/sonner';
+import { appToast } from '@/utils/appNotification';
 import { logger } from '@/utils/prodLogger';
 
 export interface UserSecuritySettings {
@@ -121,18 +121,11 @@ export function useSecuritySettings() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['security-settings', user?.id] });
-      toast({
-        title: 'Settings Updated',
-        description: 'Your security settings have been saved successfully.',
-      });
+      appToast.info('Settings Updated', 'Your security settings have been saved successfully.');
     },
     onError: (error) => {
       logger.error('Error updating security settings:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to update security settings. Please try again.',
-        variant: 'destructive',
-      });
+      appToast.error('Error', 'Failed to update security settings. Please try again.');
     },
   });
 

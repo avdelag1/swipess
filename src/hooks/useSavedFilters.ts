@@ -9,9 +9,10 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/useToast';
 import type { Database, Json } from '@/integrations/supabase/types';
 import { logger } from '@/utils/prodLogger';
+import { appToast } from '@/utils/appNotification';
+
 
 export type SavedFilterRow = Database['public']['Tables']['saved_filters']['Row'];
 
@@ -52,8 +53,6 @@ export function useSavedFilters() {
   const [savedFilters, setSavedFilters] = useState<SavedFilterRow[]>([]);
   const [activeFilter, setActiveFilter] = useState<SavedFilterRow | null>(null);
   const [loading, setLoading] = useState(true);
-  const { toast } = useToast();
-
   const loadSavedFilters = useCallback(async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -77,15 +76,11 @@ export function useSavedFilters() {
       }
     } catch (error) {
       logger.error('Error loading saved filters:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to load saved filters',
-        variant: 'destructive',
-      });
+      appToast.error('Error', 'Failed to load saved filters');
     } finally {
       setLoading(false);
     }
-  }, [toast]);
+  }, []);
 
   useEffect(() => {
     loadSavedFilters();
@@ -95,11 +90,7 @@ export function useSavedFilters() {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        toast({
-          title: 'Error',
-          description: 'You must be logged in to save filters',
-          variant: 'destructive',
-        });
+        appToast.error('Error', 'You must be logged in to save filters');
         return;
       }
 
@@ -124,10 +115,7 @@ export function useSavedFilters() {
 
         if (error) throw error;
 
-        toast({
-          title: 'Filter Updated',
-          description: `"${filter.name}" has been updated successfully`,
-        });
+        appToast.info('Filter Updated', `"${filter.name}" has been updated successfully`);
       } else {
         // Create new filter
         const { error } = await supabase
@@ -142,21 +130,14 @@ export function useSavedFilters() {
 
         if (error) throw error;
 
-        toast({
-          title: 'Filter Saved',
-          description: `"${filter.name}" has been saved successfully`,
-        });
+        appToast.info('Filter Saved', `"${filter.name}" has been saved successfully`);
       }
 
       await loadSavedFilters();
     } catch (error: unknown) {
       const err = error as Error;
       logger.error('Error saving filter:', err);
-      toast({
-        title: 'Error',
-        description: err.message || 'Failed to save filter',
-        variant: 'destructive',
-      });
+      appToast.info('Error');
     }
   };
 
@@ -169,19 +150,12 @@ export function useSavedFilters() {
 
       if (error) throw error;
 
-      toast({
-        title: 'Filter Deleted',
-        description: 'Your saved filter has been deleted',
-      });
+      appToast.info('Filter Deleted', 'Your saved filter has been deleted');
 
       await loadSavedFilters();
     } catch (error) {
       logger.error('Error deleting filter:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to delete filter',
-        variant: 'destructive',
-      });
+      appToast.error('Error', 'Failed to delete filter');
     }
   };
 
@@ -223,19 +197,12 @@ export function useSavedFilters() {
         }
       }
 
-      toast({
-        title: 'Filter Activated',
-        description: 'This filter is now active for client discovery',
-      });
+      appToast.info('Filter Activated', 'This filter is now active for client discovery');
 
       await loadSavedFilters();
     } catch (error) {
       logger.error('Error setting active filter:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to activate filter',
-        variant: 'destructive',
-      });
+      appToast.error('Error', 'Failed to activate filter');
     }
   };
 

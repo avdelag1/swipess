@@ -3,7 +3,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Check, Copy, Gift } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { toast } from 'sonner';
+import { appToast } from '@/utils/appNotification';
 import {
   copyToClipboard,
   generateShareUrl,
@@ -43,9 +43,9 @@ export function SharedProfileSection({
     if (success) {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
-      toast.success('Link copied to clipboard!');
+      appToast.success('Link copied to clipboard!');
     } else {
-      toast.error('Failed to copy link');
+      appToast.error('Failed to copy link');
     }
   };
 
@@ -68,14 +68,14 @@ export function SharedProfileSection({
   // Instagram share (copy link + open Instagram)
   const handleInstagramShare = () => {
     copyToClipboard(shareUrl);
-    toast.success('Link copied! Paste it in your Instagram story or DM.');
+    appToast.success('Link copied! Paste it in your Instagram story or DM.');
     window.open('https://www.instagram.com/', '_blank');
   };
 
   // TikTok share (copy link + open TikTok)
   const handleTikTokShare = () => {
     copyToClipboard(shareUrl);
-    toast.success('Link copied! Paste it in your TikTok bio or message.');
+    appToast.success('Link copied! Paste it in your TikTok bio or message.');
     window.open('https://www.tiktok.com/', '_blank');
   };
 

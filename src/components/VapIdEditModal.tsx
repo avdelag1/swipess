@@ -9,7 +9,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useSaveClientProfile } from '@/hooks/useClientProfile';
-import { toast } from 'sonner';
+import { appToast } from '@/utils/appNotification';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { compressImage, PROFILE_COMPRESSION } from '@/utils/imageCompression';
@@ -123,7 +123,7 @@ export function VapIdEditModal({ isOpen, onClose, onSaved, role = 'client' }: Pr
     input.onchange = async (e) => {
       const file = (e.target as HTMLInputElement).files?.[0];
       if (!file) return;
-      if (file.size > 10 * 1024 * 1024) { toast.error('File too large (max 10MB)'); return; }
+      if (file.size > 10 * 1024 * 1024) { appToast.error('File too large (max 10MB)'); return; }
       setUploading(docType);
       try {
         const ext = file.name.split('.').pop();
@@ -135,9 +135,9 @@ export function VapIdEditModal({ isOpen, onClose, onSaved, role = 'client' }: Pr
           file_path: path, file_size: file.size, mime_type: file.type, status: 'pending',
         });
         if (insertErr) throw insertErr;
-        toast.success('Document uploaded');
+        appToast.success('Document uploaded');
         queryClient.invalidateQueries({ queryKey: ['vap-documents', user.id] });
-      } catch (err: any) { toast.error(err.message || 'Upload failed'); }
+      } catch (err: any) { appToast.error(err.message || 'Upload failed'); }
       finally { setUploading(null); }
     };
     input.click();
@@ -147,7 +147,7 @@ export function VapIdEditModal({ isOpen, onClose, onSaved, role = 'client' }: Pr
   const { save: saveVapCard } = useVapIdCard();
 
   const doSave = useCallback(async () => {
-    if (!user?.id) { toast.error('Not signed in'); return false; }
+    if (!user?.id) { appToast.error('Not signed in'); return false; }
     setSaving(true);
     try {
       const langsArr = csvToArray(languages);
@@ -192,7 +192,7 @@ export function VapIdEditModal({ isOpen, onClose, onSaved, role = 'client' }: Pr
       return true;
     } catch (err: any) {
       console.error('[VapIdEdit] save failed:', err);
-      toast.error('Save failed: ' + (err?.message || 'unknown error'));
+      appToast.error('Save failed: ' + (err?.message || 'unknown error'));
       return false;
     } finally {
       setSaving(false);
@@ -206,7 +206,7 @@ export function VapIdEditModal({ isOpen, onClose, onSaved, role = 'client' }: Pr
   const handleSave = useCallback(async () => {
     const saved = await doSave();
     if (saved) {
-      toast.success('Card saved');
+      appToast.success('Card saved');
       onSaved?.();
     }
     onClose();
@@ -230,8 +230,8 @@ export function VapIdEditModal({ isOpen, onClose, onSaved, role = 'client' }: Pr
         if (uploadErr) throw uploadErr;
         const url = supabase.storage.from('profile-images').getPublicUrl(filePath).data.publicUrl;
         setProfileImages(prev => [...prev, url]);
-        toast.success('Photo added');
-      } catch (err: any) { toast.error(err.message || 'Upload failed'); }
+        appToast.success('Photo added');
+      } catch (err: any) { appToast.error(err.message || 'Upload failed'); }
       finally { setUploadingPhoto(false); }
     };
     input.click();

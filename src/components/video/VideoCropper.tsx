@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { PremiumButton } from '@/visual/PremiumButton';
 import { Loader2, Pause, Play, Scissors } from 'lucide-react';
-import { toast } from 'sonner';
+import { appToast } from '@/utils/appNotification';
 import { uploadListingVideo } from '@/utils/videoUpload';
 const MAX_DURATION = 10; // 10 seconds max
 
@@ -124,7 +124,7 @@ export function VideoCropper({
     const processAndUpload = async () => {
         if (!videoRef.current || !videoUrl) return;
         setIsProcessing(true);
-        toast.info('Cropping and preparing video... Please do not close.');
+        appToast.info('Cropping and preparing video... Please do not close.');
 
         try {
             const video = videoRef.current;
@@ -142,9 +142,9 @@ export function VideoCropper({
             if (!rawStream) {
                 // Safari / iOS fallback: captureStream() is unsupported.
                 // Upload the original file directly — LoopVideo handles ping-pong at display time.
-                toast.info('Uploading video...');
+                appToast.info('Uploading video...');
                 const url = await uploadListingVideo(userId, videoFile!);
-                toast.success('Video uploaded successfully!');
+                appToast.success('Video uploaded successfully!');
                 onUploadSuccess(`${url}#t=${startTime.toFixed(2)},${endTime.toFixed(2)}`);
                 setIsProcessing(false);
                 onClose();
@@ -173,13 +173,13 @@ export function VideoCropper({
             mediaRecorderRef.current.onstop = async () => {
                 try {
                     const blob = new Blob(recordedChunksRef.current, { type: mimeType });
-                    toast.success('Cropped locally! Uploading now...');
+                    appToast.success('Cropped locally! Uploading now...');
                     const url = await uploadListingVideo(userId, blob);
-                    toast.success('Video uploaded successfully!');
+                    appToast.success('Video uploaded successfully!');
                     onUploadSuccess(url);
                     onClose();
                 } catch (err: unknown) {
-                    toast.error(err instanceof Error ? err.message : 'Error uploading video');
+                    appToast.error(err instanceof Error ? err.message : 'Error uploading video');
                 } finally {
                     setIsProcessing(false);
                 }
@@ -198,7 +198,7 @@ export function VideoCropper({
             }, segmentDuration);
 
         } catch (err: unknown) {
-            toast.error(err instanceof Error ? err.message : 'Error processing video.');
+            appToast.error(err instanceof Error ? err.message : 'Error processing video.');
             setIsProcessing(false);
         }
     };

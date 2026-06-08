@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Bed, ChevronDown, DollarSign, Globe, Key, Repeat, Sparkles, Tag } from 'lucide-react';
 import { useSaveClientFilterPreferences } from '@/hooks/useClientFilterPreferences';
-import { toast } from 'sonner';
+import { appToast } from '@/utils/appNotification';
 import { Button } from '@/components/ui/button';
 import { ClientDemographicFilters } from './ClientDemographicFilters';
 import { EmbeddedLocationFilter } from './EmbeddedLocationFilter';
@@ -148,8 +148,8 @@ export const DiscoveryFilters = memo(function DiscoveryFilters({ category, onApp
       setStoreServiceTypes(serviceTypes);
       setStorePropertyTypes(propertyTypes);
       
-      toast.success('Filters applied!');
-    } catch { toast.error('Failed to save preferences'); }
+      appToast.success('Filters applied!');
+    } catch { appToast.error('Failed to save preferences'); }
 
     onApply({
       category, interest_type: interestType, selected_budget_range: selectedBudgetRange,

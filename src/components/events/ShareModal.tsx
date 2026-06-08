@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { ExternalLink, MessageCircle, Share2 } from 'lucide-react';
-import { toast } from '@/components/ui/sonner';
+import { appToast } from '@/utils/appNotification';
 import { EventItem } from '@/types/events';
 import { generateShareUrl } from '@/hooks/useSharing';
 import { useAuth } from '@/hooks/useAuth';
@@ -18,7 +18,7 @@ export function ShareModal({
   
   const handleCopy = () => {
     navigator.clipboard.writeText(url);
-    toast.success("Link copied to clipboard!");
+    appToast.success("Link copied to clipboard!");
     onClose();
   };
 

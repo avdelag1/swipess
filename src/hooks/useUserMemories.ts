@@ -1,8 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
-import { toast } from 'sonner';
-
+import { appToast } from '@/utils/appNotification';
 export type MemoryCategory = 'contact' | 'preference' | 'fact' | 'note';
 
 export interface UserMemory {
@@ -68,7 +67,7 @@ export function useUserMemories() {
       queryClient.invalidateQueries({ queryKey: MEMORIES_QUERY_KEY(user!.id) });
     },
     onError: (err: Error) => {
-      toast.error(`Failed to save memory: ${err.message}`);
+      appToast.error(`Failed to save memory: ${err.message}`);
     },
   });
 
@@ -83,10 +82,10 @@ export function useUserMemories() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: MEMORIES_QUERY_KEY(user!.id) });
-      toast.success('Memory deleted', { duration: 1500 });
+      appToast.success('Memory deleted');
     },
     onError: () => {
-      toast.error('Failed to delete memory');
+      appToast.error('Failed to delete memory');
     },
   });
 

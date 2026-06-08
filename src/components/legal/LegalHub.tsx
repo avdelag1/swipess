@@ -12,7 +12,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { DigitalSignaturePad } from '@/components/DigitalSignaturePad';
 import { triggerHaptic } from '@/utils/haptics';
 import useAppTheme from '@/hooks/useAppTheme';
-import { toast } from 'sonner';
+import { appToast } from '@/utils/appNotification';
 import { cn } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
 import { sanitizeHTML } from '@/utils/sanitizeHTML';
@@ -306,7 +306,7 @@ export function ContractsVault() {
                 <Button 
                   onClick={() => {
                     triggerHaptic('success');
-                    toast.success('Legal Draft Synthesized');
+                    appToast.success('Legal Draft Synthesized');
                     setView('dashboard');
                   }}
                   className="w-full h-20 rounded-[2.5rem] bg-primary hover:bg-primary/90 text-white font-black uppercase tracking-[0.3em] text-[12px] italic shadow-2xl shadow-primary/20 transition-all hover:scale-[1.01]"
@@ -338,7 +338,7 @@ export function ContractsVault() {
 
               <DigitalSignaturePad 
                 onSignatureCapture={(_sig) => {
-                  toast.success('Signature Encrypted Successfully');
+                  appToast.success('Signature Encrypted Successfully');
                   triggerHaptic('success');
                   setView('dashboard');
                 }}

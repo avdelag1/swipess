@@ -12,7 +12,7 @@ import { useAIEnhanceText } from '@/hooks/useAIEnhanceText';
 import { useVoiceTranscribe } from '@/hooks/useVoiceTranscribe';
 import { uploadPhotoBatch } from '@/utils/photoUpload';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
+import { appToast } from '@/utils/appNotification';
 import { appToast } from '@/utils/appNotification';
 
 type Step = 'speak' | 'processing' | 'review';
@@ -36,13 +36,13 @@ export function AIProfileWizard() {
   // ✨ AI Enhance: polishes the raw narrative before building the profile
   const handleEnhanceNarrative = async () => {
     const raw = narrative.trim();
-    if (!raw || raw.length < 10) { toast.error('Write a bit more first!'); return; }
+    if (!raw || raw.length < 10) { appToast.error('Write a bit more first!'); return; }
     triggerHaptic('medium');
     try {
       const improved = await enhanceText(raw, 'profile');
       if (improved) {
         setNarrative(improved);
-        toast.success('✨ Narrative improved!');
+        appToast.success('✨ Narrative improved!');
         triggerHaptic('success');
       }
     } catch (err) {
@@ -104,7 +104,7 @@ export function AIProfileWizard() {
 
   const handleExtract = async () => {
     if (narrative.trim().length < 10) {
-      toast.error('Tell me a bit more about yourself first.');
+      appToast.error('Tell me a bit more about yourself first.');
       return;
     }
     setIsExtracting(true);
@@ -121,7 +121,7 @@ export function AIProfileWizard() {
       triggerHaptic('success');
     } catch (err: any) {
       console.error('extract failed', err);
-      toast.error('Could not build your profile. Try again.');
+      appToast.error('Could not build your profile. Try again.');
       setStep('speak');
     } finally {
       setIsExtracting(false);
@@ -129,9 +129,9 @@ export function AIProfileWizard() {
   };
 
   const handleSave = async () => {
-    if (!user) { toast.error('Not signed in'); return; }
+    if (!user) { appToast.error('Not signed in'); return; }
     if (imageFiles.length === 0) {
-      toast.error('Add one photo to continue.');
+      appToast.error('Add one photo to continue.');
       return;
     }
     setIsSaving(true);

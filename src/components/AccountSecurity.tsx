@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { ChevronRight, Eye, EyeOff, Lock, Shield, Smartphone } from 'lucide-react';
-import { toast } from 'sonner';
+import { appToast } from '@/utils/appNotification';
 import { supabase } from '@/integrations/supabase/client';
 import { useSecuritySettings } from '@/hooks/useSecuritySettings';
 import { useAuth } from '@/hooks/useAuth';
@@ -56,12 +56,12 @@ export function AccountSecurity({ userRole: _userRole }: AccountSecurityProps) {
 
   const handlePasswordChange = async () => {
     if (!currentPassword || !newPassword || !confirmPassword) {
-      toast.error('Validation Error', { description: 'Please fill in all fields.' });
+      appToast.error('Validation Error');
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      toast.error('Validation Error', { description: 'New passwords do not match.' });
+      appToast.error('Validation Error');
       return;
     }
 
@@ -73,21 +73,21 @@ export function AccountSecurity({ userRole: _userRole }: AccountSecurityProps) {
       });
 
       if (signInError) {
-        toast.error('Security Alert', { description: 'Current password verification failed.' });
+        appToast.error('Security Alert');
         return;
       }
 
       const { error } = await supabase.auth.updateUser({ password: newPassword });
       if (error) throw error;
 
-      toast.success('Security Updated', { description: 'Your access credentials have been successfully rotated.' });
+      appToast.success('Security Updated');
       setShowPasswordDialog(false);
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
     } catch (error: any) {
       logger.error('Password change error:', error);
-      toast.error('Error', { description: error.message || 'Failed to update credentials.' });
+      appToast.error('Error');
     } finally {
       setIsChangingPassword(false);
     }

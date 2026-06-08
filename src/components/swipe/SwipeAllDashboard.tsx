@@ -1,5 +1,6 @@
 // cache-bust: 2026-04-18-v14
-import { memo, useCallback, useEffect, useState } from 'react';
+import { memo, Suspense, useCallback, useEffect, useState } from 'react';
+import { lazyWithRetry } from '@/utils/lazyRetry';
 import { useNavigate } from 'react-router-dom';
 import { triggerHaptic } from '@/utils/haptics';
 import { uiSounds } from '@/utils/uiSounds';
@@ -7,7 +8,7 @@ import {
   POKER_CARD_PHOTOS, UNIFIED_CARDS,
 } from './SwipeConstants';
 import { PokerCategoryCard } from './PokerCategoryCard';
-import { VapIdCardModal } from '../VapIdCardModal';
+const VapIdCardModal = lazyWithRetry(() => import('@/components/VapIdCardModal').then(m => ({ default: m.VapIdCardModal })));
 import { AnimatePresence, motion } from 'framer-motion';
 import { deckFadeVariants } from '@/utils/modernAnimations';
 import type { QuickFilterCategory } from '@/types/filters';
@@ -142,10 +143,10 @@ export const SwipeAllDashboard = memo(({ setCategories }: SwipeAllDashboardProps
           })}
         </motion.div>
 
-        <VapIdCardModal
+        <Suspense fallback={null}><VapIdCardModal
           isOpen={showVapModal}
           onClose={() => setShowVapModal(false)}
-        />
+        /></Suspense>
       </motion.div>
     </AnimatePresence>
   );

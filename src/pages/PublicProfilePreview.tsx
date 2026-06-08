@@ -1,6 +1,7 @@
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
+import { lazyWithRetry } from '@/utils/lazyRetry';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -14,7 +15,7 @@ import { triggerHaptic } from '@/utils/haptics';
 import { STORAGE } from '@/constants/app';
 import { SwipessLogo } from '@/components/SwipessLogo';
 import { SEO } from '@/components/SEO';
-import { ShareDialog } from '@/components/ShareDialog';
+const ShareDialog = lazyWithRetry(() => import('@/components/ShareDialog').then(m => ({ default: m.ShareDialog })));
 import { AtmosphericLayer } from '@/components/AtmosphericLayer';
 import { PreviewSwipeCard } from '@/components/preview/PreviewSwipeCard';
 
@@ -253,13 +254,13 @@ export default function PublicProfilePreview() {
         </motion.div>
       </div>
 
-      <ShareDialog
+      <Suspense fallback={null}><ShareDialog
         open={showShareDialog}
         onOpenChange={setShowShareDialog}
         profileId={id}
         title={`${profile.full_name || 'Profile'} on Swipess`}
         description={`Discover ${profile.full_name || 'this profile'} on Swipess.`}
-      />
+      /></Suspense>
     </div>
   );
 }

@@ -10,7 +10,7 @@ import {
   FileText, Italic, List, ListOrdered, Minus, Plus, Printer,
   Redo, Save, Underline, Undo
 } from 'lucide-react';
-import { toast } from 'sonner';
+import { appToast } from '@/utils/appNotification';
 import { ContractTemplate } from '@/data/contractTemplates';
 import { DigitalSignaturePad } from './DigitalSignaturePad';
 import { useCreateContract } from '@/hooks/useContracts';
@@ -95,12 +95,12 @@ export const ContractDocumentDialog: React.FC<ContractDocumentDialogProps> = ({
 
   const handleExportPDF = () => {
     handlePrint();
-    toast.success('Print dialog opened - Save as PDF');
+    appToast.success('Print dialog opened - Save as PDF');
   };
 
   const handleSignatureCapture = (data: string, _type: 'drawn' | 'typed' | 'uploaded') => {
     setSignatureData(data);
-    toast.success('Signature captured!');
+    appToast.success('Signature captured!');
   };
 
   const handleSaveAsFile = async () => {
@@ -143,7 +143,7 @@ export const ContractDocumentDialog: React.FC<ContractDocumentDialogProps> = ({
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    toast.success('Document saved!');
+    appToast.success('Document saved!');
   };
 
   const handleSaveToContracts = async () => {
@@ -193,10 +193,10 @@ export const ContractDocumentDialog: React.FC<ContractDocumentDialogProps> = ({
         terms_and_conditions: signatureData ? 'Document signed digitally' : undefined
       });
 
-      toast.success('Contract saved successfully!');
+      appToast.success('Contract saved successfully!');
       onOpenChange(false);
     } catch (_error) {
-      toast.error('Failed to save contract');
+      appToast.error('Failed to save contract');
     } finally {
       setIsSaving(false);
     }

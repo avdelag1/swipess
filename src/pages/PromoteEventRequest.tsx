@@ -7,8 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { toast } from '@/components/ui/sonner';
-
+import { appToast } from '@/utils/appNotification';
 /**
  * Step 1 of event promotion flow: user submits the event for review.
  * After admin approves, user is routed to /promote-event/packages to pay.
@@ -26,11 +25,11 @@ export default function PromoteEventRequest() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user?.id) {
-      toast.error('Please sign in first.');
+      appToast.error('Please sign in first.');
       return;
     }
     if (!eventName.trim()) {
-      toast.error('Event name is required.');
+      appToast.error('Event name is required.');
       return;
     }
     setSubmitting(true);
@@ -47,12 +46,10 @@ export default function PromoteEventRequest() {
       });
     setSubmitting(false);
     if (error) {
-      toast.error('Could not submit', { description: error.message });
+      appToast.error('Could not submit');
       return;
     }
-    toast.success('Request submitted', {
-      description: 'We will review your event and notify you once approved.',
-    });
+    appToast.success('Request submitted');
     navigate('/client/dashboard');
   };
 
