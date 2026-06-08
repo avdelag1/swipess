@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useLayoutEffect, useMemo, useRef } from 'react';
+import { Suspense, useEffect, useLayoutEffect, useMemo, useRef } from 'react';
 import { lazyWithRetry } from '@/utils/lazyRetry';
 
 import { useLocation } from 'react-router-dom';
@@ -29,7 +29,7 @@ import { useShallow } from 'zustand/react/shallow';
 import { UNIFIED_CARDS } from '@/components/swipe/SwipeConstants';
 
 
-const NotificationSystem = lazy(() =>
+const NotificationSystem = lazyWithRetry(() =>
   import('@/components/NotificationSystem').then(m => ({ default: m.NotificationSystem }))
 );
 
