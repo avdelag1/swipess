@@ -77,14 +77,15 @@ serve(async (req) => {
     let success = 0;
     let failed = 0;
     const now = new Date().toISOString();
+    const CONCURRENCY = 10;
 
-    for (const row of rows as OutboxRow[]) {
+    async function processRow(row: OutboxRow) {
       if (!row.user_id) {
         await adminClient
           .from("push_outbox")
           .update({ processed_at: now, status: "skipped", error: "missing_user_id" })
           .eq("id", row.id);
-        continue;
+        return;
       }
 
       try {
@@ -123,6 +124,12 @@ serve(async (req) => {
         failed += 1;
         console.warn("[process-push-outbox] entry failed:", row.id, message);
       }
+    }
+
+    const rowsArray = rows as OutboxRow[];
+    for (let i = 0; i < rowsArray.length; i += CONCURRENCY) {
+      const batch = rowsArray.slice(i, i + CONCURRENCY);
+      await Promise.all(batch.map(processRow));
     }
 
     return new Response(

@@ -209,10 +209,11 @@ export default function SeekersPage() {
     queryFn: async () => {
       const { data: reqs, error } = await supabase
         .from('listings')
-        .select('*')
+        .select('id, title, category, service_category, description, available_from, time_slots_available, minimum_booking_hours, days_available, price, pricing_unit, location, status, owner_id')
         .eq('listing_type', 'request')
         .eq('mode', 'seek')
         .eq('is_active', true)
+        .neq('owner_id', user?.id)
         .order('created_at', { ascending: false })
         .limit(50);
 
@@ -243,7 +244,7 @@ export default function SeekersPage() {
     if (dir === 'right' && user) {
       // Open message with this user
       const req = requests.find(r => r.id === id);
-      if (req?.owner_id) navigate(`/messages?userId=${req.owner_id}`);
+      if (req?.owner_id) navigate(`/messages?startConversation=${req.owner_id}`);
     }
     setDismissed(prev => new Set([...prev, id]));
   };

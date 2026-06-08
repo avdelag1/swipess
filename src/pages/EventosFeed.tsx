@@ -4,13 +4,11 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 // import { } from 'framer-motion';
-import {
-  _Heart, _Megaphone, _Pause, _Play, ArrowLeft
-} from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
 import { predictivePrefetchEvent } from '@/utils/performance';
-import { toast } from '@/components/ui/sonner';
+import { appToast } from '@/utils/appNotification';
 import { useAuth } from '@/hooks/useAuth';
 import useAppTheme from '@/hooks/useAppTheme';
 import { useVisualTheme } from '@/contexts/VisualThemeContext';
@@ -131,7 +129,7 @@ export default function EventosFeed() {
     },
     onError: (_err, _variables, context) => {
       if (context?.previous) queryClient.setQueryData(['event-likes', user?.id], context.previous);
-      toast.error("Could not update like");
+      appToast.error("Could not update like");
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['event-likes', user?.id] });
@@ -145,7 +143,8 @@ export default function EventosFeed() {
       const { data, error } = await supabase
         .from('events')
         .select('id, title, description, category, image_url, image_urls, video_url, event_date, location, location_detail, organizer_name, organizer_whatsapp, promo_text, discount_tag, is_free, price_text')
-        .order('event_date', { ascending: true });
+        .order('event_date', { ascending: true })
+        .limit(100);
       
       if (error) {
         console.warn('Supabase events fetch error:', error);

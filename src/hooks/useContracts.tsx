@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { toast } from 'sonner';
+import { appToast } from '@/utils/appNotification';
 import { logger } from '@/utils/prodLogger';
 
 export interface DigitalContract {
@@ -58,12 +58,15 @@ export function useContracts() {
       const { data, error } = await supabase
         .from('digital_contracts')
         .select(`
-          *,
-          signatures:contract_signatures(*),
-          deal_status:deal_status_tracking(*)
+          id, title, contract_type, file_path, file_name, file_size, mime_type,
+          created_by, listing_id, client_id, owner_id, status,
+          terms_and_conditions, created_at, updated_at,
+          signatures:contract_signatures(id, contract_id, signer_id, signature_type, signed_at),
+          deal_status:deal_status_tracking(id, contract_id, client_id, owner_id, listing_id, status, signed_by_owner_at, signed_by_client_at, completed_at, created_at, updated_at)
         `)
         .or(`created_by.eq.${user.id},client_id.eq.${user.id},owner_id.eq.${user.id}`)
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .limit(100);
 
       if (error) throw error;
       return (data as unknown) as (DigitalContract & { 
@@ -141,11 +144,11 @@ export function useCreateContract() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['contracts'] });
-      toast.success('Contract created successfully!');
+      appToast.success('Contract created successfully!');
     },
     onError: (error) => {
       logger.error('Error creating contract:', error);
-      toast.error('Failed to create contract');
+      appToast.error('Failed to create contract');
     }
   });
 }
@@ -239,11 +242,11 @@ export function useSignContract() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['contracts'] });
-      toast.success('Contract signed successfully!');
+      appToast.success('Contract signed successfully!');
     },
     onError: (error) => {
       logger.error('Error signing contract:', error);
-      toast.error('Failed to sign contract');
+      appToast.error('Failed to sign contract');
     }
   });
 }
@@ -310,11 +313,11 @@ export function useCreateDisputeReport() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['contracts'] });
       queryClient.invalidateQueries({ queryKey: ['active-deals'] });
-      toast.success('Dispute report submitted successfully!');
+      appToast.success('Dispute report submitted successfully!');
     },
     onError: (error) => {
       logger.error('Error creating dispute report:', error);
-      toast.error('Failed to submit dispute report');
+      appToast.error('Failed to submit dispute report');
     }
   });
 }

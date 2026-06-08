@@ -6,13 +6,10 @@ import { getCardImageUrl } from '@/utils/imageOptimization';
 import { SimpleSwipeCard, SimpleSwipeCardRef } from './SimpleSwipeCard';
 import { SwipeExhaustedState } from './swipe/SwipeExhaustedState';
 import { SwipessLoader } from './swipe/SwipessLoader';
-import type { QuickFilterCategory } from '@/types/filters';
 import { normalizeCategoryName } from '@/types/filters';
 
 import { SimpleOwnerSwipeCard } from './SimpleOwnerSwipeCard';
 
-const UNIFIED_CYCLE: QuickFilterCategory[] = ['property', 'pros', 'motorcycle', 'bicycle', 'events', 'buyers', 'renters', 'leads'];
-import { getActiveCategoryInfo } from './swipe/SwipeConstants';
 const MatchCelebrateModal = lazy(() => import('./swipe/MatchCelebrateModal').then(mod => ({ default: mod.MatchCelebrateModal })));
 import { ClientPreferencesDialog } from './ClientPreferencesDialog';
 import { OwnerClientFilterDialog } from './OwnerClientFilterDialog';
@@ -105,7 +102,7 @@ interface SwipessSwipeContainerProps {
   filters?: ListingFilters;
 }
 
-const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsights: _onInsights, onMessageClick, locationFilter: _locationFilter, filters }: SwipessSwipeContainerProps) => {
+const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsights: _onInsights, onMessageClick, locationFilter: _locationFilter, filters: _filters }: SwipessSwipeContainerProps) => {
   const navigate = useNavigate();
   const { activeMode, switchMode } = useActiveMode();
   const [page, setPage] = useState(0);
@@ -113,7 +110,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   const [isCreatingConversation, setIsCreatingConversation] = useState(false);
   const [insightsModalOpen, setInsightsModalOpen] = useState(false);
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
-  const [_isRefreshing, setIsRefreshing] = useState(false);
   const [isRefreshMode, setIsRefreshMode] = useState(false);
   const [messageDialogOpen, setMessageDialogOpen] = useState(false);
   const [directMessageDialogOpen, setDirectMessageDialogOpen] = useState(false);
@@ -204,7 +200,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
       : (useSwipeDeckStore.getState().clientDecks[storeActiveCategory || 'all']?.currentIndex || 0)
   );
   const swipedIdsRef = useRef<Set<string>>(new Set(useSwipeDeckStore.getState().clientDecks[storeActiveCategory || 'all']?.swipedIds || []));
-  const _initializedRef = useRef(deckQueueRef.current.length > 0);
 
   const cardRef = useRef<SimpleSwipeCardRef>(null);
 
@@ -226,11 +221,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     window.addEventListener('open-filters', handleOpenFilters);
     return () => window.removeEventListener('open-filters', handleOpenFilters);
   }, []);
-
-  const isReturningRef = useRef(
-    deckQueueRef.current.length > 0 && useSwipeDeckStore.getState().clientDecks[storeActiveCategory || 'all']?.isReady
-  );
-  const _hasAnimatedOnceRef = useRef(isReturningRef.current);
 
   const eagerPreloadInitiatedRef = useRef(false);
   if (!eagerPreloadInitiatedRef.current && deckQueueRef.current.length > 0) {
@@ -272,7 +262,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   const hasSwipedRef = useRef(false);
 
   useEffect(() => {
-    try { sessionStorage.removeItem('swipe-deck-client-listings'); } catch (_err) { /* ignore */ }
+    try { sessionStorage.removeItem('swipe-deck-client-listings'); } catch (_err) { console.warn('session storage error', _err); }
   }, []);
 
   useEffect(() => {
@@ -352,7 +342,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     let previousUserId: string | null = null;
     try {
       previousUserId = sessionStorage.getItem('swipe-deck-client-user');
-    } catch (_err) { /* ignore */ }
+    } catch (_err) { console.warn('session storage error', _err); }
 
     if (previousUserId && previousUserId !== user.id) {
       deckQueueRef.current = [];
@@ -368,10 +358,10 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
       try {
         sessionStorage.removeItem('swipe-deck-items');
         sessionStorage.removeItem('swipe-deck-client-listings');
-      } catch (_err) { /* ignore */ }
+      } catch (_err) { console.warn('session storage error', _err); }
     }
 
-    try { sessionStorage.setItem('swipe-deck-client-user', user.id); } catch (_err) { /* ignore */ }
+    try { sessionStorage.setItem('swipe-deck-client-user', user.id); } catch (_err) { console.warn('session storage error', _err); }
   }, [activeMode, user?.id, resetClientDeck, queryClient]);
 
   if (filterSignature !== prevFilterSignatureRef.current) {
@@ -748,45 +738,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     setCurrentIndex(newIndex);
   }, []);
 
-  const _handleButtonLike = useCallback(() => {
-    if (cardRef.current) {
-      cardRef.current.triggerSwipe('right');
-    }
-  }, []);
-
-  const _handleButtonDislike = useCallback(() => {
-    if (cardRef.current) {
-      cardRef.current.triggerSwipe('left');
-    }
-  }, []);
-
-  const _handleRefresh = useCallback(async () => {
-    logger.info('[SwipessSwipeContainer] Manual Refresh Triggered');
-    setIsRefreshing(true);
-    setIsRefreshMode(true);
-    triggerHaptic('heavy');
-
-    currentIndexRef.current = 0;
-    setCurrentIndex(0);
-    setDeckLength(0);
-    deckQueueRef.current = [];
-    swipedIdsRef.current.clear();
-    setPage(0);
-    resetClientDeck(storeActiveCategory || 'all');
-
-    try {
-      await queryClient.invalidateQueries({ queryKey: ['smart-listings'] });
-      await queryClient.invalidateQueries({ queryKey: ['smart-client-matches'] });
-      const refreshCategoryInfo = getActiveCategoryInfo(filters, storeActiveCategory);
-      const refreshLabel = String(refreshCategoryInfo?.plural || 'Listings').toLowerCase();
-      appToast.success(`${String(refreshCategoryInfo?.plural || 'Listings')} Refreshed`, `Showing ${refreshLabel} you passed on. Liked ones stay saved!`);
-    } catch (_err) {
-      appToast.error('Refresh Failed', 'Please try again.');
-    } finally {
-      setIsRefreshing(false);
-    }
-  }, [filters, storeActiveCategory, queryClient, resetClientDeck]);
-
   const handleInsights = () => {
     setInsightsModalOpen(true);
     triggerHaptic('light');
@@ -795,15 +746,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   const handleShare = () => {
     setShareDialogOpen(true);
     triggerHaptic('light');
-  };
-
-  const _handleReport = () => {
-    const listing = deckQueueRef.current[currentIndexRef.current];
-    if (listing) {
-      setSelectedListing(listing);
-      setReportDialogOpen(true);
-      triggerHaptic('medium');
-    }
   };
 
   const handleSoon = () => {
@@ -874,14 +816,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     }
   };
 
-  const _handleCycleCategory = useCallback(() => {
-    triggerHaptic('heavy');
-    const cycle = UNIFIED_CYCLE;
-    const currentIdx = cycle.indexOf(storeActiveCategory as any);
-    const nextIdx = (currentIdx + 1) % cycle.length;
-    setActiveCategory(cycle[nextIdx] as any);
-  }, [storeActiveCategory, userRole, setActiveCategory]);
-
   const pullDown = usePullDownToDismiss();
 
   if (!storeActiveCategory) {
@@ -932,7 +866,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     hire: 'Workers',
   };
   const currentCategoryName = categoryNames[storeActiveCategory] || storeActiveCategory;
-  const _hasCards = deckQueue.length > 0 && currentIndex < deckQueue.length;
 
   return (
     <>

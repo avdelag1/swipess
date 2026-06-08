@@ -54,7 +54,7 @@ export function usePrefetchManager() {
             }));
           }
         } catch (_e) {
-          // RPC unavailable — return empty; the live hook handles its own fallback
+          console.warn('RPC unavailable for prefetch', _e);
         }
         return [];
       },

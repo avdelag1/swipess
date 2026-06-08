@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Check, Link2, Mail, Send, Share2, X } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { toast } from 'sonner';
+import { appToast } from '@/utils/appNotification';
 import {
   copyToClipboard,
   generateShareUrl,
@@ -51,10 +51,10 @@ export function ShareDialog({
     if (success) {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
-      toast.success('Link copied to clipboard!');
+      appToast.success('Link copied to clipboard!');
       await createShare.mutateAsync({ sharedListingId: listingId, sharedProfileId: profileId, shareMethod: 'link_copied' });
     } else {
-      toast.error('Failed to copy link');
+      appToast.error('Failed to copy link');
     }
   };
 
@@ -69,7 +69,7 @@ export function ShareDialog({
       if (ok) {
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
-        toast.success('Link copied to clipboard');
+        appToast.success('Link copied to clipboard');
         await createShare.mutateAsync({ sharedListingId: listingId, sharedProfileId: profileId, shareMethod: 'link_copied' });
       }
     }
@@ -77,7 +77,7 @@ export function ShareDialog({
 
   const handleEmailShare = async () => {
     if (!recipientEmail) {
-      toast.error('Please enter an email address');
+      appToast.error('Please enter an email address');
       return;
     }
     triggerHaptic('light');

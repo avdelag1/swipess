@@ -13,7 +13,6 @@ import { PrefetchScheduler } from '@/lib/swipe/PrefetchScheduler';
 import { useSmartClientMatching } from '@/hooks/useSmartMatching';
 import { useAuth } from '@/hooks/useAuth';
 import { useSwipeWithMatch } from '@/hooks/useSwipeWithMatch';
-import { useCanAccessMessaging } from '@/hooks/useMessaging';
 import { useSwipeUndo } from '@/hooks/useSwipeUndo';
 import { SimpleOwnerSwipeCard, SimpleOwnerSwipeCardRef } from './SimpleOwnerSwipeCard';
 import { useRecordProfileView } from '@/hooks/useProfileRecycling';
@@ -181,19 +180,6 @@ const ClientSwipeContainerComponent = ({
   // kilometer slider interaction). No auto-prompt on mount/sign-in to avoid
   // an invasive permission dialog.
 
-  // CRITICAL: Filter out own profile from cached deck items
-  const _filterOwnProfile = useCallback((items: any[], userId: string | undefined) => {
-    if (!userId) return items;
-    return items.filter(p => {
-      const profileId = p.user_id || p.id;
-      if (profileId === userId) {
-        logger.warn('[ClientSwipeContainer] Filtering own profile from cached deck:', profileId);
-        return false;
-      }
-      return true;
-    });
-  }, []);
-
   // FIX: Don't restore from cache — always start empty and let DB query populate
   // The DB query (with refetchOnMount:'always') excludes swiped items at SQL level
   // Restoring from cache caused swiped cards to reappear across sessions/dashboard switches
@@ -208,7 +194,6 @@ const ClientSwipeContainerComponent = ({
   const currentDeckState = useSwipeDeckStore.getState().ownerDecks[category];
   const currentIndexRef = useRef(currentDeckState?.currentIndex || 0);
   const swipedIdsRef = useRef<Set<string>>(new Set(currentDeckState?.swipedIds || []));
-  const _initializedRef = useRef(deckQueueRef.current.length > 0);
   // Tracks the signature of the profile list we last sync-seeded into the
   // deck so React Query's stale data can't reseed across filter changes.
   const prevProfileIdsRef = useRef<string>('');
@@ -307,14 +292,6 @@ const ClientSwipeContainerComponent = ({
     resetOwnerDeck(category);
   }, [filterSignature, category, resetOwnerDeck]);
 
-  // PERF FIX: Track if we're returning to dashboard (has hydrated data AND is ready)
-  // When true, skip initial animations to prevent "double render" feeling
-  // Use isReady flag from store to determine if deck is fully initialized
-  const isReturningRef = useRef(
-    deckQueueRef.current.length > 0 && useSwipeDeckStore.getState().ownerDecks[category]?.isReady
-  );
-  const _hasAnimatedOnceRef = useRef(isReturningRef.current);
-
   // PERF FIX: Eagerly preload top 5 cards' images when we have hydrated deck data
   // This runs SYNCHRONOUSLY during component initialization (before first paint)
   // The images will be in cache when OwnerClientCard renders, preventing any flash
@@ -370,7 +347,7 @@ const ClientSwipeContainerComponent = ({
   // No need to restore stale cached decks that may contain already-swiped items
   useEffect(() => {
     // Clear any stale session storage on mount
-    try { sessionStorage.removeItem('swipe-deck-items'); } catch (_err) { /* Ignore session storage errors */ }
+    try { sessionStorage.removeItem('swipe-deck-items'); } catch (_err) { console.warn('session storage error', _err); }
   }, [category]);
 
   // ========================================
@@ -386,8 +363,6 @@ const ClientSwipeContainerComponent = ({
     data: internalProfiles = [],
     isLoading: internalIsLoading,
     isFetching: internalIsFetching,
-    refetch: _refetch,
-    isRefetching: _isRefetching,
     error: internalError
   } = useSmartClientMatching(
     user?.id, 
@@ -449,15 +424,14 @@ const ClientSwipeContainerComponent = ({
   }, [externalProfiles, internalProfiles, isLoading, error, category]);
 
   const swipeMutation = useSwipeWithMatch();
-  const { canAccess: _hasPremiumMessaging, needsUpgrade: _needsUpgrade } = useCanAccessMessaging();
-  const { recordSwipe, undoLastSwipe, canUndo, isUndoing: _isUndoing, undoSuccess, resetUndoState } = useSwipeUndo();
+  const { recordSwipe, undoLastSwipe, canUndo, undoSuccess, resetUndoState } = useSwipeUndo();
   const startConversation = useStartConversation();
   const { data: conversations = [] } = useConversations();
   const recordProfileView = useRecordProfileView();
   const { playSwipeSound } = useSwipeSounds();
 
   // Swipe dismissal tracking for client profiles
-  const { dismissedIds, dismissTarget, filterDismissed: _filterDismissed } = useSwipeDismissal('client');
+  const { dismissedIds, dismissTarget } = useSwipeDismissal('client');
 
   // Prefetch manager for client profile details
   const { prefetchClientProfileDetails } = usePrefetchManager();
@@ -933,24 +907,12 @@ const ClientSwipeContainerComponent = ({
   // This ensures the "All Caught Up" screen shows correctly
   const topCard = currentIndex < deckQueue.length ? deckQueue[currentIndex] : null;
   const pullDown = usePullDownToDismiss();
-  const _nextCard = currentIndex + 1 < deckQueue.length ? deckQueue[currentIndex + 1] : null;
-
   // Check if we have hydrated data (from store/session) - prevents blank deck flash
   // isReady means we've fully initialized at least once - skip loading UI on return
   const hasHydratedData = isOwnerHydrated(category) || isOwnerReady(category) || deckQueue.length > 0;
 
-  // Loading skeleton - only show if we have NO data and we are either actually loading OR just mounted
+  // Loading skeleton - only show if we have NO data and we are either actually loading or just mounted
   const showLoadingSkeleton = !hasHydratedData && (isLoading || !isMountSettledRef.current);
-
-  // "All Caught Up" — user has swiped through every card in the current deck
-  // Only true once past initial load and topCard is exhausted
-  const _isDeckFinished = !showLoadingSkeleton && topCard === null && (hasHydratedData || !isLoading || isMountSettledRef.current);
-
-  // showInitialError: Only show if we have NO cards and a hard error occurred during initial load
-  const _showInitialError = !hasHydratedData && error && deckQueue.length === 0;
-
-  // showEmptyState: Only show if loading is DONE and we still have no cards
-  const _showEmptyState = !isLoading && deckQueue.length === 0 && !error && isMountSettledRef.current;
 
   // ========================================
   // 🔥 SINGLE RETURN BLOCK - SAFE ORDER

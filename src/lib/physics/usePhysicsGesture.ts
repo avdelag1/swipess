@@ -176,7 +176,7 @@ export function usePhysicsGesture(
         try {
           elementRef.current.releasePointerCapture(pointerIdRef.current);
         } catch (_e) {
-          // Pointer may already be released
+          /* pointer may already be released */
         }
       }
       pointerIdRef.current = null;

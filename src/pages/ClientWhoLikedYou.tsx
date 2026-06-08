@@ -8,7 +8,7 @@ import { LikesSkeleton } from "@/components/ui/LikesSkeleton";
 import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 // import { } from "@/components/PremiumSortableGrid";
-import { toast } from "sonner";
+import { appToast } from '@/utils/appNotification';
 import { useStartConversation } from "@/hooks/useConversations";
 import { PremiumLikedCard } from "@/components/PremiumLikedCard";
 import { cn } from "@/lib/utils";
@@ -73,11 +73,12 @@ const ClientWhoLikedYou = () => {
       if (!user?.id) return [];
       const { data: likes, error: likesError } = await supabase
         .from("likes")
-        .select("*")
+        .select("user_id, created_at")
         .eq("target_id", user.id)
         .eq("target_type", "profile")
         .eq("direction", "right")
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: false })
+        .limit(100);
 
       if (likesError) throw likesError;
       if (!likes || likes.length === 0) return [];
@@ -85,7 +86,7 @@ const ClientWhoLikedYou = () => {
       const ownerIds = likes.map((l) => l.user_id);
       const { data: profiles, error: profilesError } = await supabase
         .from("profiles")
-        .select("*")
+        .select("user_id, full_name, bio, images, created_at, avatar_url, age, occupation")
         .in("user_id", ownerIds);
 
       if (profilesError) throw profilesError;
@@ -93,13 +94,16 @@ const ClientWhoLikedYou = () => {
       return (profiles || []).map((profile) => {
         const like = likes.find((l) => l.user_id === profile.user_id);
         return {
-          ...profile,
           id: profile.user_id,
           owner_id: profile.user_id,
           owner_name: profile.full_name || "",
           bio: profile.bio || null,
           images: Array.isArray(profile.images) ? (profile.images as string[]) : [],
           created_at: like?.created_at || profile.created_at,
+          full_name: profile.full_name,
+          avatar_url: profile.avatar_url,
+          age: profile.age,
+          occupation: profile.occupation,
           is_super_like: false,
           category: "Interviewer",
         } as InterestedOwner;
@@ -115,7 +119,7 @@ const ClientWhoLikedYou = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["client-who-liked-you", user?.id] });
-      toast.success("Connection dismissed");
+      appToast.success("Connection dismissed");
       setShowDeleteDialog(false);
     },
   });
@@ -148,7 +152,7 @@ const ClientWhoLikedYou = () => {
           navigate(`/messages?conversationId=${result.conversationId}`);
         }
       } catch {
-        toast.error("Unable to start conversation");
+        appToast.error("Unable to start conversation");
       } finally {
         setIsConnecting(false);
       }

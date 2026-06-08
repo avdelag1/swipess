@@ -243,7 +243,7 @@ const ClientProfile = () => {
             {/* Seekers / Hire */}
             <motion.button
               whileTap={{ scale: 0.97 }}
-              onClick={() => { triggerHaptic('medium'); navigate('/explore/services'); }}
+              onClick={() => { triggerHaptic('medium'); navigate('/explore/seekers'); }}
               className={cn("w-full h-24 rounded-3xl flex flex-col items-center justify-center gap-2 border shadow-lg transition-all text-white font-black uppercase italic tracking-[0.2em] text-[12px] md:text-[14px]", isLight ? "bg-slate-900 border-black/10" : "bg-white/[0.08] border-white/10")}
               style={{ background: 'linear-gradient(135deg, #8B5CF6, #EC4899)' }}
             >

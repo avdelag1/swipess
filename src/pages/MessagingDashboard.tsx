@@ -45,7 +45,7 @@ import useAppTheme from '@/hooks/useAppTheme';
 import { AtmosphericLayer } from '@/components/AtmosphericLayer';
 import { X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { toast } from 'sonner';
+import { appToast } from '@/utils/appNotification';
 import { useSiteContent } from '@/hooks/useSiteContent';
 
 export function MessagingDashboard() {
@@ -137,11 +137,11 @@ export function MessagingDashboard() {
           setSelectedConversationId(conversationId);
           setSearchParams({}, { replace: true });
         } else {
-          toast.error('Conversation not found', { description: 'This chat may have been deleted or is no longer available.' });
+          appToast.error('Conversation not found', 'This chat may have been deleted or is no longer available.');
         }
       }
     } catch (_e) {
-      toast.error('Failed to open conversation', { description: _e instanceof Error ? _e.message : 'Please try again.' });
+      appToast.error('Failed to open conversation', _e instanceof Error ? _e.message : 'Please try again.');
       setSearchParams({}, { replace: true });
     } finally {
       clearTimeout(timeout);
@@ -170,7 +170,7 @@ export function MessagingDashboard() {
         setSearchParams({}, { replace: true });
       }
     } catch (_e) {
-      toast.error('Could not start conversation', { description: _e instanceof Error ? _e.message : 'Please try again.' });
+      appToast.error('Could not start conversation', _e instanceof Error ? _e.message : 'Please try again.');
       setSearchParams({}, { replace: true });
     } finally {
       setIsStartingConversation(false);

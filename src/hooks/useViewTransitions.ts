@@ -31,7 +31,7 @@ export function useViewTransitions() {
         const { x, y } = JSON.parse(saved);
         window.scrollTo(x, y);
       } catch (_error) {
-        // Ignore malformed cached scroll payloads
+        console.warn('malformed cached scroll payload', _error);
       }
       sessionStorage.removeItem('scroll-position');
     }

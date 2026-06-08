@@ -24,7 +24,6 @@ export interface DistanceSliderProps {
 export const DistanceSlider = ({ radiusKm, onRadiusChange, onDetectLocation, detecting, detected }: DistanceSliderProps) => {
   const { isLight } = useAppTheme();
   const maxKm = 100;
-  const _clientType = useFilterStore(s => s.clientType);
   const activeCategory = useFilterStore(s => s.activeCategory);
 
   // Local value drives the visual (thumb, fill, label) instantly.
@@ -55,9 +54,6 @@ export const DistanceSlider = ({ radiusKm, onRadiusChange, onDetectLocation, det
     setLocalKm(val);
     displayPct.set((val / maxKm) * 100);
   };
-
-  const _springPctVal = useTransform(springPct, (v) => `${v}%`);
-  const _thumbLeft = useTransform(springPct, (v) => `${v}%`);
 
   return (
     <motion.div

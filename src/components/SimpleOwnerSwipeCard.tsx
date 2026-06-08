@@ -43,7 +43,7 @@ const SKIP_VELOCITY = 150;
 const FALLBACK_PLACEHOLDER = '';
 type DragAxis = 'x' | 'y' | null;
 
-const _getExitDistance = () => typeof window !== 'undefined' ? window.innerWidth * 1.5 : 800;
+
 
 interface ClientProfile {
   user_id: string;
@@ -75,7 +75,6 @@ interface SimpleOwnerSwipeCardProps {
   onSkipBack?: () => void;
   onTap?: () => void;
   onInsights?: () => void;
-  onSoon?: () => void;
   onMessage?: () => void;
   isTop?: boolean;
   onDragStart?: () => void;
@@ -90,6 +89,49 @@ interface SimpleOwnerSwipeCardProps {
   canGoBack?: boolean;
 }
 
+const ActionRailButton = memo(({ icon: Icon, onClick, label }: {
+  icon: React.ElementType;
+  onClick?: () => void;
+  label: string;
+}) => {
+  const handlePointerDown = useCallback((e: React.PointerEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  }, []);
+
+  const handleClick = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    triggerHaptic('light');
+    onClick?.();
+  }, [onClick]);
+
+  return (
+    <button
+      data-no-pull-dismiss
+      data-no-cinematic
+      onPointerDown={handlePointerDown}
+      onClick={handleClick}
+      aria-label={label}
+      className="w-10 h-10 rounded-full flex items-center justify-center border-none p-0 outline-none active:scale-[0.85] transition-transform"
+      style={{
+        background: 'rgba(255,255,255,0.08)',
+        border: 'none',
+        WebkitTapHighlightColor: 'transparent',
+      }}
+    >
+      <Icon
+        color="#FFFFFF"
+        className="w-[18px] h-[18px]"
+        style={{ filter: 'drop-shadow(0 1px 3px rgba(0,0,0,0.5))' }}
+        strokeWidth={1.8}
+      />
+    </button>
+  );
+});
+
+ActionRailButton.displayName = 'ActionRailButton';
+
 const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, SimpleOwnerSwipeCardProps>(({
   profile,
   onSwipe,
@@ -102,7 +144,6 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   onReport,
   onShare,
   onMessage,
-  onSoon: _onSoon,
   disableDrag,
   fullScreen = false,
   canGoBack = true,
@@ -187,9 +228,6 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   }, [isTop]);
 
   const [isZoomed, setIsZoomed] = useState(false);
-  const _floatingIconFilter = isLight
-    ? 'drop-shadow(0 1px 1px hsl(var(--background) / 0.95)) drop-shadow(0 2px 6px hsl(var(--foreground) / 0.42))'
-    : 'drop-shadow(0 2px 7px hsl(var(--background) / 0.9))';
   const { containerRef, pointerHandlers: magnifierPointerHandlers, isActive: isMagnifierActive, wasActive: wasMagnifierActive, isHoldPending: isMagnifierHoldPending } = useMagnifier({
     scale: 2.8,
     holdDelay: 380,
@@ -333,9 +371,17 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
     triggerSwipe: handleButtonSwipe,
   }), [handleButtonSwipe]);
 
+  const preventDrag = useCallback((e: React.DragEvent) => e.preventDefault(), []);
+  const preventContextMenuClick = useCallback((e: React.MouseEvent) => e.preventDefault(), []);
+
+  const actionButtons = useMemo(() => [
+    { icon: Share2, onClick: onShare, label: 'Share' },
+    { icon: MessageCircle, onClick: onMessage, label: 'Message' },
+    { icon: BarChart3, onClick: onInsights, label: 'Insights' },
+    { icon: Flag, onClick: onReport, label: 'Report' },
+  ], [onShare, onMessage, onInsights, onReport]);
+
   if (!profile?.user_id) return null;
-
-
 
   return (
     <div className={cn("absolute inset-0 flex flex-col", isTop ? "pointer-events-auto" : "pointer-events-none")}>
@@ -372,8 +418,8 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           className="absolute inset-0 overflow-hidden"
           style={{ borderRadius: 'inherit', WebkitUserSelect: 'none', userSelect: 'none', touchAction: 'none' }}
           onClick={handleImageTap}
-          onDragStart={(event) => event.preventDefault()}
-          onContextMenu={(event) => event.preventDefault()}
+          onDragStart={preventDrag}
+          onContextMenu={preventContextMenuClick}
         >
           {showVideoSlide ? (
             <LoopVideo src={videoUrl!} className="absolute inset-0 w-full h-full object-cover" active={isTop} />
@@ -503,41 +549,8 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
                   '0 8px 32px -6px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.15)',
               }}
             >
-              {[
-                { icon: Share2, onClick: onShare, label: 'Share' },
-                { icon: MessageCircle, onClick: onMessage, label: 'Message' },
-                { icon: BarChart3, onClick: onInsights, label: 'Insights' },
-                { icon: Flag, onClick: onReport, label: 'Report' },
-              ].map((btn, idx) => (
-                <button
-                  key={idx}
-                  data-no-pull-dismiss
-                  data-no-cinematic
-                  onPointerDown={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                  }}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    triggerHaptic('light');
-                    btn.onClick?.();
-                  }}
-                  aria-label={btn.label}
-                  className="w-10 h-10 rounded-full flex items-center justify-center border-none p-0 outline-none active:scale-[0.85] transition-transform"
-                  style={{
-                    background: 'rgba(255,255,255,0.08)',
-                    border: 'none',
-                    WebkitTapHighlightColor: 'transparent',
-                  }}
-                >
-                  <btn.icon
-                    color="#FFFFFF"
-                    className="w-[18px] h-[18px]"
-                    style={{ filter: 'drop-shadow(0 1px 3px rgba(0,0,0,0.5))' }}
-                    strokeWidth={1.8}
-                  />
-                </button>
+              {actionButtons.map((btn, idx) => (
+                <ActionRailButton key={idx} icon={btn.icon} onClick={btn.onClick} label={btn.label} />
               ))}
             </div>
           </motion.div>

@@ -101,7 +101,8 @@ export default function AdminEventos() {
     const { data } = await supabase
       .from('events')
       .select('id, title, category, image_url, event_date, location, is_published, is_approved, organizer_whatsapp')
-      .order('created_at', { ascending: false });
+      .order('created_at', { ascending: false })
+      .limit(200);
     setEvents((data as EventRow[]) || []);
     setIsLoading(false);
   };
@@ -111,8 +112,9 @@ export default function AdminEventos() {
     try {
       const { data, error } = await supabase
         .from('business_promo_submissions' as any)
-        .select('*')
-        .order('created_at', { ascending: false });
+        .select('id, user_id, title, description, event_type, location, contact_name, contact_phone, status, created_at, website')
+        .order('created_at', { ascending: false })
+        .limit(200);
       
       if (error) throw error;
       setSubmissions((data as any) || []);

@@ -35,7 +35,7 @@ export function FeedbackSection() {
         category,
         message: message.trim(),
       });
-    } catch (_) { /* graceful — table may not exist yet */ }
+    } catch (_) { console.warn('feedback submit failed', _); }
     setSubmitting(false);
     setDone(true);
   };

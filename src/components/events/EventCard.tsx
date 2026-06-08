@@ -8,7 +8,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { EventItem } from '@/types/events';
 import { CATEGORIES } from '@/data/eventsData';
-import { toast } from '@/components/ui/sonner';
+import { appToast } from '@/utils/appNotification';
 
 const AUTOPLAY_DURATION = 6000;
 
@@ -94,7 +94,7 @@ export const EventCard = memo(({
 
   const handleSave = useCallback(async () => {
     if (!user) {
-      toast.error('Sign in to save events');
+      appToast.error('Sign in to save events');
       return;
     }
     triggerHaptic('success');
@@ -105,9 +105,9 @@ export const EventCard = memo(({
       : await supabase.from('event_favorites').delete().eq('user_id', user.id).eq('event_id', event.id);
     if (error) {
       setSaved(!newSaved);
-      toast.error('Could not save event');
+      appToast.error('Could not save event');
     } else {
-      toast.success(newSaved ? 'Event saved!' : 'Removed from saved', { duration: 1500 });
+      appToast.success(newSaved ? 'Event saved!' : 'Removed from saved');
     }
   }, [saved, user, event.id]);
 
@@ -373,7 +373,7 @@ export const EventCard = memo(({
             <div className="relative h-[45dvh]">
               {hasImage ? (
                 <>
-                  <img src={event.image_url!} alt={event.title} className="absolute inset-0 w-full h-full object-cover" />
+                  <img src={event.image_url!} alt={event.title} loading="lazy" className="absolute inset-0 w-full h-full object-cover" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                 </>
               ) : (

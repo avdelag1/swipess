@@ -6,7 +6,7 @@ import { useLikedProperties } from "@/hooks/useLikedProperties";
 import { useStartConversation } from "@/hooks/useConversations";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowUpDown, Bike, Briefcase, Car, Flame, Home, RefreshCw, Search, Users } from "lucide-react";
-import { toast } from "sonner";
+import { appToast } from '@/utils/appNotification';
 import useAppTheme from "@/hooks/useAppTheme";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -159,7 +159,7 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
           navigate("/messages");
         }
       } catch {
-        toast.error("Unable to start conversation");
+        appToast.error("Unable to start conversation");
       } finally {
         setIsConnecting(false);
       }
@@ -179,12 +179,12 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["liked-properties"] });
-      toast.success("Removed from your likes");
+      appToast.success("Removed from your likes");
       setShowDeleteDialog(false);
       setPropertyToDelete(null);
     },
     onError: () => {
-      toast.error("Failed to remove from likes");
+      appToast.error("Failed to remove from likes");
     },
   });
 

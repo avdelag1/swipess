@@ -12,7 +12,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
-import { toast } from '@/components/ui/sonner';
+import { appToast } from '@/utils/appNotification';
 import { logger } from '@/utils/prodLogger';
 
 // ============================================================================
@@ -125,9 +125,7 @@ export function useListingReviews(listingId: string | undefined, options: { limi
         .eq('is_flagged', false)
         .order('created_at', { ascending: false });
 
-      if (options.limit) {
-        query = query.limit(options.limit);
-      }
+      query = query.limit(options.limit ?? 100);
 
       const { data, error } = await query;
 
@@ -249,9 +247,7 @@ export function useUserReviews(userId: string | undefined, options: { limit?: nu
         .eq('is_flagged', false)
         .order('created_at', { ascending: false });
 
-      if (options.limit) {
-        query = query.limit(options.limit);
-      }
+      query = query.limit(options.limit ?? 100);
 
       const { data, error } = await query;
 
@@ -396,9 +392,7 @@ export function useCreateReview() {
         queryClient.invalidateQueries({ queryKey: ['review-aggregate', 'user', variables.reviewed_id] });
       }
 
-      toast.success('Review submitted', {
-        description: 'Thank you for your feedback!',
-      });
+      appToast.success('Review submitted', 'Thank you for your feedback!');
     },
     onError: (error: any) => {
       const message = error.message?.includes('Cannot review your own')
@@ -407,9 +401,7 @@ export function useCreateReview() {
           ? 'You have already reviewed this item'
           : 'Please try again later.';
 
-      toast.error('Failed to submit review', {
-        description: message,
-      });
+      appToast.error('Failed to submit review', message);
     },
   });
 }
@@ -509,14 +501,10 @@ export function useMarkReviewHelpful() {
       // Invalidate review queries to show updated count
       queryClient.invalidateQueries({ queryKey: ['reviews'] });
 
-      toast.success('Thank you', {
-        description: 'Your feedback helps improve our community.',
-      });
+      appToast.success('Thank you', 'Your feedback helps improve our community.');
     },
     onError: () => {
-      toast('Already voted', {
-        description: "You've already marked this review as helpful.",
-      });
+      appToast.info('Already voted', "You've already marked this review as helpful.");
     },
   });
 }

@@ -7,7 +7,7 @@ import { Ban, ChevronLeft, Coins, Info, Mic, MicOff, MoreVertical, Send, Share2,
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { triggerHaptic } from '@/utils/haptics';
 import { uiSounds } from '@/utils/uiSounds';
-import { toast } from 'sonner';
+import { appToast } from '@/utils/appNotification';
 import { useConversationMessages, useSendMessage } from '@/hooks/useConversations';
 import { useRealtimeChat } from '@/hooks/useRealtimeChat';
 import { useMarkMessagesAsRead } from '@/hooks/useMarkMessagesAsRead';
@@ -159,7 +159,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
     // ALWAYS use the robust Whisper backend. Web Speech API is too flaky across browsers.
     const ok = await startVoiceTranscribe();
     if (ok) { setIsListening(true); triggerHaptic('medium'); uiSounds.playMicOn(); }
-    else { toast.error('Microphone Access Denied'); }
+    else { appToast.error('Microphone Access Denied'); }
   }, [startVoiceTranscribe]);
 
   const stopListening = useCallback(async () => {

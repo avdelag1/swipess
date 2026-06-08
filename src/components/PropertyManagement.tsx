@@ -9,7 +9,7 @@ import { useOwnerListingLikes } from '@/hooks/useOwnerListingLikes';
 import { useAuth } from '@/hooks/useAuth';
 import useAppTheme from '@/hooks/useAppTheme';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from '@/components/ui/sonner';
+import { appToast } from '@/utils/appNotification';
 import { useQueryClient } from '@tanstack/react-query';
 import { Bike, Briefcase, CheckCircle, ChevronRight, Edit, Eye, Home, ImageIcon, MapPin, Plus, Search, Share2, Sparkles, ThumbsUp, Trash2, Zap } from 'lucide-react';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
@@ -149,7 +149,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
         return oldData.filter(item => item.id !== listing.id);
       });
 
-      toast('Deleting...', { description: `Removing ${listing.title}` });
+      appToast.info('Deleting...', `Removing ${listing.title}`);
 
       const { error } = await supabase
         .from('listings')
@@ -158,14 +158,14 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
 
       if (error) throw error;
 
-      toast('Deleted', { description: `${listing.title} has been deleted` });
+      appToast.info('Deleted', `${listing.title} has been deleted`);
 
       queryClient.invalidateQueries({ queryKey: ['owner-listings'] });
       queryClient.invalidateQueries({ queryKey: ['listings'] });
 
     } catch (_error: unknown) {
       queryClient.invalidateQueries({ queryKey: ['owner-listings'] });
-      toast.error('Error', { description: 'Failed to delete property' });
+      appToast.error('Error', 'Failed to delete property');
     }
   };
 
@@ -174,7 +174,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
       triggerHaptic('medium');
       setAvailabilityStatus(prev => ({ ...prev, [listing.id]: newStatus }));
 
-      toast('Updating...', { description: `Marking ${listing.title} as ${newStatus}` });
+      appToast.info('Updating...', `Marking ${listing.title} as ${newStatus}`);
 
       const { error } = await supabase
         .from('listings')
@@ -185,14 +185,14 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
 
       if (error) throw error;
 
-      toast('Updated', { description: `${listing.title} is now ${newStatus}` });
+      appToast.info('Updated', `${listing.title} is now ${newStatus}`);
 
       queryClient.invalidateQueries({ queryKey: ['owner-listings'] });
       queryClient.invalidateQueries({ queryKey: ['listings'] });
 
     } catch (_error: unknown) {
       setAvailabilityStatus(prev => ({ ...prev, [listing.id]: listing.status }));
-      toast.error('Error', { description: 'Failed to update availability' });
+      appToast.error('Error', 'Failed to update availability');
     }
   };
 

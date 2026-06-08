@@ -203,16 +203,19 @@ async function searchProfiles(query: string): Promise<string> {
     const serviceKeywords = q.split(/\s+/).filter(w => w.length > 2);
     let matchedUserIds: string[] = [];
     if (serviceKeywords.length > 0) {
-      // Search client_profiles for matching bio, intentions, interests
-      for (const kw of serviceKeywords) {
-        const { data: cpMatches } = await supabase
-          .from("client_profiles")
-          .select("user_id")
-          .or(`bio.ilike.%${kw}%,intentions.cs.{${kw}},interests.cs.{${kw}}`)
-          .limit(20);
-        if (cpMatches) {
-          matchedUserIds.push(...cpMatches.map(c => c.user_id));
-        }
+      // Batched single OR query instead of N separate queries
+      const orFilter = serviceKeywords.flatMap(kw => [
+        `bio.ilike.%${kw}%`,
+        `intentions.cs.{${kw}}`,
+        `interests.cs.{${kw}}`,
+      ]).join(",");
+      const { data: cpMatches } = await supabase
+        .from("client_profiles")
+        .select("user_id")
+        .or(orFilter)
+        .limit(50);
+      if (cpMatches) {
+        matchedUserIds.push(...cpMatches.map(c => c.user_id));
       }
     }
 
@@ -324,7 +327,7 @@ async function searchListings(intent: ReturnType<typeof detectListingIntent>, au
     const base = `${SUPABASE_URL.replace(/\/$/, "")}/rest/v1/listings`;
     // NOTE: listings table has city, neighborhood, address — but NO "location" column
     const cols = "id,title,price,category,bedrooms,bathrooms,images,neighborhood,currency,listing_type,owner_id,created_at,updated_at,status";
-    const restUrl = `${base}?select=${encodeURIComponent(cols)}&is_active=eq.true&status=eq.active&order=updated_at.desc.nullslast,created_at.desc.nullslast&limit=50`;
+    const restUrl = `${base}?select=${encodeURIComponent(cols)}&is_active=eq.true&status=eq.active&order=updated_at.desc.nullslast,created_at.desc.nullslast&limit=10`;
     const res = await fetch(restUrl, {
       headers: {
         "apikey": anonKey,
@@ -455,19 +458,19 @@ Return ONLY the JSON array, no markdown:`;
     if (!Array.isArray(memories) || memories.length === 0) return;
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY || SUPABASE_ANON_KEY);
-    for (const mem of memories.slice(0, 5)) {
-      if (!mem.title || !mem.content) continue;
+    const validMemories = memories.slice(0, 5).filter((m: any) => m.title && m.content);
+    if (validMemories.length > 0) {
       await supabase.from("user_memories").upsert(
-        {
+        validMemories.map((m: any) => ({
           user_id: userId,
-          category: mem.category || "preference",
-          title: mem.title,
-          content: mem.content,
+          category: m.category || "preference",
+          title: m.title,
+          content: m.content,
           source: "ai_extraction",
           updated_at: new Date().toISOString(),
-        },
+        })),
         { onConflict: "user_id,title", ignoreDuplicates: false }
-      ).select();
+      );
     }
   } catch (e) {
     console.error("[AI] Memory extraction error:", e);
@@ -1638,28 +1641,34 @@ Deno.serve(async (req) => {
     let response: Response;
     let aiProvider = "groq";
     
+    const withTimeout = <T>(p: Promise<T>, ms: number): Promise<T> =>
+      Promise.race([
+        p,
+        new Promise<T>((_, reject) => setTimeout(() => reject(new Error(`timeout after ${ms}ms`)), ms)),
+      ]);
+
     try {
       console.log(`[AI] Routing to Groq streaming.`);
-      response = await streamGroq(enrichedMessages);
+      response = await withTimeout(streamGroq(enrichedMessages), 10000);
     } catch (e) {
       console.warn(`[AI] Groq streaming failed, trying non-streaming: ${(e as Error).message}`);
       try {
-        response = await fetchGroq(enrichedMessages);
+        response = await withTimeout(fetchGroq(enrichedMessages), 10000);
       } catch (e2) {
         console.warn(`[AI] Groq non-streaming failed, trying Gemini: ${(e2 as Error).message}`);
         aiProvider = "gemini";
         try {
-          response = stream ? await streamGemini(enrichedMessages) : await fetchGemini(enrichedMessages);
+          response = await withTimeout(stream ? streamGemini(enrichedMessages) : fetchGemini(enrichedMessages), 10000);
         } catch (e3) {
           console.warn(`[AI] Gemini failed, trying Kimi: ${(e3 as Error).message}`);
           aiProvider = "kimi";
           try {
-            response = stream ? await streamKimi(enrichedMessages) : await fetchKimi(enrichedMessages);
+            response = await withTimeout(stream ? streamKimi(enrichedMessages) : fetchKimi(enrichedMessages), 10000);
           } catch (e4) {
             console.warn(`[AI] Kimi failed, trying MiniMax: ${(e4 as Error).message}`);
             aiProvider = "minimax";
             try {
-              response = stream ? await streamMiniMax(enrichedMessages) : await fetchMiniMax(enrichedMessages);
+              response = await withTimeout(stream ? streamMiniMax(enrichedMessages) : fetchMiniMax(enrichedMessages), 10000);
             } catch (e5) {
               console.error("[AI] All providers failed:", (e5 as Error).message);
               return new Response(JSON.stringify({

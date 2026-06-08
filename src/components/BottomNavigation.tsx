@@ -31,8 +31,6 @@ import {
   Zap,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useUnreadMessageCount } from '@/hooks/useUnreadMessageCount';
-import { useUnreadNotifications } from '@/hooks/useUnreadNotifications';
 import { createHoverPrefetch, prefetchRoute } from '@/utils/routePrefetcher';
 import useAppTheme from '@/hooks/useAppTheme';
 import { haptics } from '@/utils/microPolish';
@@ -90,8 +88,6 @@ export const BottomNavigation = memo(({
   const showTokensModal = useModalStore((s) => s.showTokensModal);
   const showFilters = useModalStore((s) => s.showFilters);
   const closeAll = useModalStore((s) => s.closeAll);
-  const { unreadCount: _unreadCount } = useUnreadMessageCount();
-  const { unreadCount: _unreadNotifCount } = useUnreadNotifications();
   const { isLight } = useAppTheme();
 
   // Always visible on every page — no chrome-reveal hiding
@@ -130,22 +126,21 @@ export const BottomNavigation = memo(({
   }, []);
 
 
-  // Unified nav items in the exact order requested:
-  // dashboard -> likes -> ai -> add -> messages -> radio -> filters -> legal -> events
-  const unifiedNavItems: NavItem[] = [
+  const openVapId = useCallback(() => setModal('showVapId', true), [setModal]);
+
+  const navItems: NavItem[] = useMemo(() => [
     { id: 'dashboard', icon: Zap, label: t('nav.dashboard'), path: '/client/dashboard' },
     { id: 'likes', icon: Flame, label: t('nav.likes'), path: '/client/liked-properties' },
     { id: 'ai', icon: Sparkles, label: t('nav.aiBot'), onClick: openAIChat, isSpecial: true },
     { id: 'add', icon: PlusCircle, label: t('nav.add', 'ADD'), path: '/owner/properties', isSpecial: true },
     { id: 'messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages' },
-    { id: 'vapid', icon: ShieldCheck, label: t('nav.idCard', 'ID CARD'), onClick: () => setModal('showVapId', true) },
+    { id: 'vapid', icon: ShieldCheck, label: t('nav.idCard', 'ID CARD'), onClick: openVapId },
     { id: 'radio', icon: Radio, label: t('nav.radio', 'RADIO'), path: '/radio' },
     { id: 'search', icon: SlidersHorizontal, label: t('nav.filter'), onClick: onFilterClick },
     { id: 'legal', icon: ScaleIcon, label: t('nav.legal'), path: '/client/legal-services' },
     { id: 'events', icon: PartyPopper, label: t('nav.events'), path: '/explore/events' },
-  ];
+  ], [t, openAIChat, openVapId, onFilterClick]);
 
-  const navItems = unifiedNavItems;
   const scrollRef = useRef<HTMLDivElement>(null);
 
 
@@ -161,7 +156,6 @@ export const BottomNavigation = memo(({
 
   const isDraggingRef = useRef(false);
   const touchState = useRef<{ x: number; y: number } | null>(null);
-  const [_ripple, setRipple] = useState<{ x: number, id: string } | null>(null);
 
   const handlePointerMove = useCallback((e: React.PointerEvent) => {
     if (!touchState.current) return;
@@ -177,7 +171,7 @@ export const BottomNavigation = memo(({
 
   // Primary navigation handler — fires after pointer events, checks drag state
   const handleNavClick = useCallback(
-    (item: NavItem, event?: React.MouseEvent | React.PointerEvent) => {
+    (item: NavItem, _event?: React.MouseEvent | React.PointerEvent) => {
       if (isDraggingRef.current) {
         isDraggingRef.current = false;
         return;
@@ -196,14 +190,6 @@ export const BottomNavigation = memo(({
         closeAll();
         window.scrollTo({ top: 0, behavior: 'smooth' });
         return;
-      }
-
-      // Trigger ripple at click position
-      if (event && scrollRef.current) {
-        const rect = scrollRef.current.getBoundingClientRect();
-        const x = (event as any).clientX - rect.left;
-        setRipple({ x, id: Math.random().toString() });
-        setTimeout(() => setRipple(null), 800);
       }
 
       // Close other overlays first so the destination is fully visible,

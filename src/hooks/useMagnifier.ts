@@ -145,7 +145,7 @@ export function useMagnifier(config: MagnifierConfig = {}): UseMagnifierReturn {
     if (target && pointerIdRef.current !== null) {
       try {
         (target as HTMLElement).setPointerCapture(pointerIdRef.current);
-      } catch (_err) { /* ignore if already captured */ }
+      } catch (_err) { /* pointer capture may fail if already captured */ }
     }
 
     // Robust fallback: window-level listeners ensure we keep receiving

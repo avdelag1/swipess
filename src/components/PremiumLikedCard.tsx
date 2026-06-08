@@ -40,6 +40,7 @@ export const PremiumLikedCard = memo(({ type, data, onAction, isLight }: Premium
                     <img
                         src={imageUrl}
                         alt={title}
+                        loading="lazy"
                         decoding="async"
                         className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
                     />

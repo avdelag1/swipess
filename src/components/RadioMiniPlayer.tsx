@@ -259,7 +259,7 @@ import { Component, type ReactNode } from 'react';
 class RadioErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean }> {
   state = { hasError: false };
   static getDerivedStateFromError() { return { hasError: true }; }
-  componentDidCatch() {}
+  componentDidCatch(error: Error) { console.error('RadioMiniPlayer error', error); }
   render() { return this.state.hasError ? null : this.props.children; }
 }
 

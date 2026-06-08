@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { toast } from 'sonner';
+import { appToast } from '@/utils/appNotification';
 import { supabase } from '@/integrations/supabase/client';
 
 export function useAIEnhanceText() {
@@ -7,7 +7,7 @@ export function useAIEnhanceText() {
 
   const enhanceText = async (text: string, type: 'profile' | 'listing' = 'profile'): Promise<string | null> => {
     if (!text || text.trim().length < 5) {
-      toast.error('Draft is too short to enhance.');
+      appToast.error('Draft is too short to enhance.');
       return null;
     }
 
@@ -24,7 +24,7 @@ export function useAIEnhanceText() {
       return data.text as string;
     } catch (error) {
       console.error('[useAIEnhanceText] error:', error);
-      toast.error('Could not enhance text.', { description: 'Please try again in a moment.' });
+      appToast.error('Could not enhance text.', 'Please try again in a moment.');
       return null;
     } finally {
       setIsEnhancing(false);
