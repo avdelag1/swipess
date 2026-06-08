@@ -14,8 +14,7 @@ import { AnimatedPage } from "@/components/AnimatedPage";
 import { SuspenseFallback } from "@/components/ui/suspense-fallback";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
-// SpeedOfLightPreloader removed — redundant with WarpPrefetcher in RootProviders
-import Index from "./pages/Index";
+const Index = lazyWithRetry(() => import("./pages/Index"));
 
 // Redirect /messages/:conversationId → /messages?conversationId=:id
 // (Push notifications link to the path form; the dashboard reads query params)

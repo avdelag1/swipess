@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react-swc';
 import path from 'path';
 import { readFileSync, writeFileSync, existsSync } from 'fs';
 
-export default defineConfig(({ mode }) => ({
+export default defineConfig(async ({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
@@ -16,6 +16,12 @@ export default defineConfig(({ mode }) => ({
   } : {}),
   plugins: ([
     react(),
+    ...(process.env.ANALYZE ? [(await import('rollup-plugin-visualizer')).visualizer({
+      filename: 'dist/stats.html',
+      open: true,
+      gzipSize: true,
+      brotliSize: true,
+    })] : []),
     {
       name: 'sw-build-time-plugin',
       writeBundle() {
