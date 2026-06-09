@@ -120,15 +120,26 @@ const LandingView = memo(({
       >
         <button
           onClick={() => { triggerHaptic('medium'); onEnterAuth('login'); }}
-          className="w-full h-14 rounded-full bg-white text-black font-bold text-[15px] tracking-wide shadow-[0_4px_24px_rgba(255,255,255,0.25)] hover:bg-white/90 active:scale-[0.97] transition-all flex items-center justify-center gap-2.5"
+          style={{
+            background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+            color: '#ffffff',
+            textShadow: '0 1px 4px rgba(0,0,0,0.4)',
+            boxShadow: '0 4px 28px rgba(99,102,241,0.55)',
+          }}
+          className="w-full h-14 rounded-full font-black text-[16px] tracking-widest uppercase active:scale-[0.97] transition-all flex items-center justify-center gap-2.5 border border-white/30"
         >
           <LogIn className="w-[18px] h-[18px]" strokeWidth={2.5} />
           Sign In
         </button>
         <button
           onClick={() => { triggerHaptic('medium'); onEnterAuth('signup'); }}
-          style={{ background: btnColor ? btnColor : undefined }}
-          className={`w-full h-14 rounded-full font-bold text-[15px] tracking-wide active:scale-[0.97] transition-all flex items-center justify-center gap-2.5 shadow-[0_4px_24px_rgba(255,77,0,0.35)] hover:shadow-[0_6px_28px_rgba(255,77,0,0.45)] ${btnColor ? 'text-white' : 'bg-[#FF4D00] text-white hover:bg-[#FF6B35]'}`}
+          style={{
+            background: btnColor || 'linear-gradient(135deg, #FF4D00 0%, #FF6B35 100%)',
+            color: '#ffffff',
+            textShadow: '0 1px 4px rgba(0,0,0,0.4)',
+            boxShadow: '0 4px 28px rgba(255,77,0,0.55)',
+          }}
+          className="w-full h-14 rounded-full font-black text-[16px] tracking-widest uppercase active:scale-[0.97] transition-all flex items-center justify-center gap-2.5 border border-white/30"
         >
           <Sparkles className="w-[18px] h-[18px]" strokeWidth={2} />
           {btnText}
@@ -392,14 +403,17 @@ const AuthView = memo(({ onBack, initialMode = 'login', siteContent }: { onBack:
           )}
 
             <div className="pt-2 relative group">
-              <div className="absolute inset-x-4 -bottom-2 h-10 bg-primary/20 blur-[30px] opacity-0 group-hover:opacity-100 transition-opacity rounded-full pointer-events-none" />
+              <div className="absolute inset-x-4 -bottom-2 h-10 bg-white/20 blur-[30px] opacity-0 group-hover:opacity-100 transition-opacity rounded-full pointer-events-none" />
               <button
                 type="submit"
                 disabled={isLoading}
-                style={{ 
-                  background: getContentValue(siteContent, 'auth_primary_btn_color') ? getContentValue(siteContent, 'auth_primary_btn_color') : undefined,
+                style={{
+                  background: getContentValue(siteContent, 'auth_primary_btn_color') || 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+                  color: '#ffffff',
+                  textShadow: '0 1px 4px rgba(0,0,0,0.5)',
+                  boxShadow: '0 4px 28px rgba(99,102,241,0.45)',
                 }}
-                className={`w-full h-14 rounded-full font-bold text-[15px] tracking-wide shadow-[0_4px_28px_rgba(255,255,255,0.18)] active:scale-[0.96] transition-all flex items-center justify-center gap-2.5 disabled:opacity-40 disabled:pointer-events-none relative overflow-hidden ${!getContentValue(siteContent, 'auth_primary_btn_color') ? 'bg-white text-black hover:bg-white/95' : 'text-white'}`}
+                className="w-full h-14 rounded-full font-black text-[16px] tracking-widest uppercase active:scale-[0.96] transition-all flex items-center justify-center gap-2.5 disabled:opacity-40 disabled:pointer-events-none relative overflow-hidden border border-white/30"
               >
                 <Sparkles className="w-[18px] h-[18px]" strokeWidth={2} />
                 {isLoading ? 'Processing...' : isForgotPassword ? 'Send Reset Link' : isLogin ? getContentValue(siteContent, 'auth_login_btn_text', 'Sign In') : getContentValue(siteContent, 'auth_signup_btn_text', 'Create Account')}
@@ -417,7 +431,13 @@ const AuthView = memo(({ onBack, initialMode = 'login', siteContent }: { onBack:
             <button
               type="button"
               onClick={() => { triggerHaptic('light'); setIsLogin(!isLogin); setFieldErrors({}); }}
-              className="w-full h-14 rounded-full bg-white/[0.18] text-white font-bold text-[14px] tracking-wide active:scale-[0.97] transition-all flex items-center justify-center gap-2.5 border border-white/30 hover:bg-white/[0.28] hover:text-white hover:border-white/40 shadow-[0_2px_12px_rgba(255,255,255,0.08)]"
+              className="w-full h-14 rounded-full font-black text-[15px] tracking-widest uppercase active:scale-[0.97] transition-all flex items-center justify-center gap-2.5"
+              style={{
+                backgroundColor: 'rgba(255,255,255,0.18)',
+                color: '#ffffff',
+                textShadow: '0 1px 6px rgba(255,255,255,0.6)',
+                border: '1.5px solid rgba(255,255,255,0.5)',
+              }}
             >
               {isLogin ? 'Create Account' : 'Back to Sign In'}
             </button>
@@ -430,18 +450,30 @@ const AuthView = memo(({ onBack, initialMode = 'login', siteContent }: { onBack:
 
             <button
               onClick={() => { triggerHaptic('medium'); signInWithOAuth('apple'); }}
-              className="flex h-12 w-full items-center justify-center gap-3 rounded-xl bg-black text-white active:scale-[0.97] transition-all border border-white/20 font-semibold"
+              className="flex h-12 w-full items-center justify-center gap-3 rounded-xl active:scale-[0.97] transition-all font-black uppercase tracking-widest text-[13px]"
+              style={{
+                background: 'linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%)',
+                color: '#ffffff',
+                textShadow: '0 1px 4px rgba(0,0,0,0.5)',
+                border: '1.5px solid rgba(255,255,255,0.4)',
+              }}
             >
               <AppleIcon />
-              <span className="text-[15px] font-semibold tracking-tight">Sign in with Apple</span>
+              <span>Sign in with Apple</span>
             </button>
 
             <button
               onClick={() => { triggerHaptic('medium'); signInWithOAuth('google'); }}
-              className="flex h-12 w-full items-center justify-center gap-3 rounded-xl bg-white text-gray-800 active:scale-[0.97] transition-all border border-gray-300 font-semibold shadow-sm"
+              className="flex h-12 w-full items-center justify-center gap-3 rounded-xl active:scale-[0.97] transition-all font-black uppercase tracking-widest text-[13px]"
+              style={{
+                background: 'linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%)',
+                color: '#111111',
+                textShadow: 'none',
+                border: '1.5px solid rgba(0,0,0,0.15)',
+              }}
             >
               <GoogleIcon />
-              <span className="text-[15px] font-semibold tracking-tight">Continue with Google</span>
+              <span>Continue with Google</span>
             </button>
           </motion.div>
         )}

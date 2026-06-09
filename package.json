@@ -1,7 +1,7 @@
 {
   "name": "swipess",
   "private": true,
-  "version": "1.1.0",
+  "version": "1.2.0",
   "type": "module",
   "description": "Elite multi-vertical marketplace for properties, vehicles, and services",
   "author": "Swipess Team",
