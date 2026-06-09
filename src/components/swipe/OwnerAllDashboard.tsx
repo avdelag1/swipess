@@ -84,7 +84,7 @@ export const OwnerAllDashboard = memo(({ onCardSelect }: OwnerAllDashboardProps)
   const handleSelect = useCallback((id: string) => {
     triggerHaptic('medium');
     if (id === 'lawyer') {
-      navigate('/legal');
+      navigate('/legal-services');
       return;
     }
     if (id === 'promote') {

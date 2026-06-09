@@ -35,6 +35,7 @@ import "@/i18n";
 const NotFound = lazyWithRetry(() => import("./pages/NotFound"));
 const ResetPassword = lazyWithRetry(() => import("./pages/ResetPassword"));
 const LegalHub = lazyWithRetry(() => import("./pages/LegalHub"));
+const LawyerServicesPage = lazyWithRetry(() => import("./pages/LawyerServicesPage"));
 const AboutPage = lazyWithRetry(() => import("./pages/AboutPage"));
 const FAQClientPage = lazyWithRetry(() => import("./pages/FAQClientPage"));
 const FAQOwnerPage = lazyWithRetry(() => import("./pages/FAQOwnerPage"));
@@ -164,7 +165,8 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
               <Route path="/client/services" element={<ClientWorkerDiscovery />} />
               <Route path="/client/contracts" element={<ClientContracts />} />
               <Route path="/client/legal" element={<LegalHub />} />
-              <Route path="/client/legal-services" element={<LegalHub />} />
+              <Route path="/client/legal-services" element={<LawyerServicesPage />} />
+              <Route path="/legal-services" element={<LawyerServicesPage />} />
               <Route path="/client/camera" element={<ClientSelfieCamera />} />
               <Route path="/client/filters" element={<ClientFilters />} />
 
@@ -187,7 +189,7 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
               <Route path="/owner/saved-searches" element={<OwnerSavedSearches />} />
               <Route path="/owner/security" element={<OwnerSecurity />} />
               <Route path="/owner/contracts" element={<OwnerContracts />} />
-              <Route path="/owner/legal-services" element={<LegalHub />} />
+              <Route path="/owner/legal-services" element={<LawyerServicesPage />} />
               <Route path="/owner/camera" element={<OwnerProfileCamera />} />
               <Route path="/owner/camera/listing" element={<OwnerListingCamera />} />
               <Route path="/owner/filters" element={<OwnerFilters />} />
