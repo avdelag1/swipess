@@ -19,7 +19,7 @@ import { cn } from '@/lib/utils';
 import { useActiveMode } from '@/hooks/useActiveMode';
 import { AtmosphericLayer } from '@/components/AtmosphericLayer';
 import { Helmet } from 'react-helmet-async';
-import { ArrowLeft, Database, Eye, Globe, ShieldCheck, UserCheck } from "lucide-react";
+import { ArrowLeft, Database, Eye, Globe, Package, ShieldCheck, UserCheck } from "lucide-react";
 import { supabase } from '@/integrations/supabase/client';
 
 interface LegalIssueCategory {
@@ -134,6 +134,42 @@ const ownerLegalCategories: LegalIssueCategory[] = [
   }
 ];
 
+// Service packages data — available for clients/owners to browse and request
+const LEGAL_SERVICE_PACKAGES = [
+  // House Sale
+  { id: 'house-sale-basic', name: 'House Sale — Basic', category: 'house_sale', price: 1500, duration: 30, features: ['Title search & review', 'Purchase agreement preparation', 'Closing document review', '1 attorney consultation (1 hr)'] },
+  { id: 'house-sale-standard', name: 'House Sale — Standard', category: 'house_sale', price: 2500, duration: 45, features: ['Everything in Basic', 'Title insurance assistance', 'Negotiation support', 'Up to 3 consultations', 'Post-closing support (30 days)'] },
+  { id: 'house-sale-premium', name: 'House Sale — Premium', category: 'house_sale', price: 4000, duration: 60, features: ['Everything in Standard', 'Unlimited consultations (90 days)', 'Tax implications review', 'HOA document review', 'Dispute resolution coverage'] },
+  // Rental Agreement
+  { id: 'rental-basic', name: 'Rental Agreement — Basic', category: 'rental', price: 500, duration: 7, features: ['Lease agreement drafting', 'Basic tenant screening review', '1 revision included'] },
+  { id: 'rental-standard', name: 'Rental Agreement — Standard', category: 'rental', price: 900, duration: 14, features: ['Everything in Basic', 'Move-in/out checklist', 'Addendum preparation', 'Up to 3 revisions', '30-min consultation'] },
+  { id: 'rental-full', name: 'Rental Agreement — Full', category: 'rental', price: 1600, duration: 21, features: ['Everything in Standard', 'Multi-unit lease package', 'Section 8 compliance review', 'Unlimited revisions (30 days)', '2 hr consultation'] },
+  // Eviction
+  { id: 'eviction-basic', name: 'Eviction — Basic', category: 'eviction', price: 800, duration: 45, features: ['Pay or Quit notice', 'Unlawful detainer filing', 'Court representation (1 hearing)'] },
+  { id: 'eviction-full', name: 'Eviction — Full', category: 'eviction', price: 1800, duration: 90, features: ['Everything in Basic', 'Full court representation', 'Writ of possession', 'Judgment recovery assistance', 'Up to 3 hearings'] },
+  // Divorce
+  { id: 'divorce-uncontested', name: 'Divorce — Uncontested', category: 'divorce', price: 1200, duration: 60, features: ['Divorce petition drafting', 'Marital settlement agreement', 'Property division documents', 'Court filing assistance'] },
+  { id: 'divorce-children', name: 'Divorce — With Children', category: 'divorce', price: 3500, duration: 120, features: ['Divorce petition', 'Custody & visitation plan', 'Child support calculation', 'Parenting agreement', '3 court hearings'] },
+  { id: 'divorce-contested', name: 'Divorce — Contested', category: 'divorce', price: 5000, duration: 180, features: ['Full legal representation', 'Discovery assistance', 'Mediation support', 'Child custody filing', 'Asset valuation', '5 court appearances'] },
+  // Other
+  { id: 'nda', name: 'NDA Drafting', category: 'nda', price: 350, duration: 3, features: ['Custom NDA drafting', 'Mutual or one-way options', '1 revision included'] },
+  { id: 'business', name: 'Business Formation', category: 'business', price: 1000, duration: 14, features: ['Entity selection consultation', 'Articles of incorporation', 'Operating agreement', 'EIN registration guidance', '1-year registered agent'] },
+  { id: 'dispute', name: 'Property Dispute Resolution', category: 'dispute', price: 2000, duration: 90, features: ['Case evaluation', 'Demand letter', 'Mediation representation', 'Litigation (up to 2 hearings)'] },
+  { id: 'estate-basic', name: 'Estate Planning — Basic', category: 'estate', price: 800, duration: 14, features: ['Simple will drafting', 'Healthcare directive', 'Power of attorney', 'Notarization assistance'] },
+  { id: 'estate-full', name: 'Estate Planning — Full', category: 'estate', price: 2200, duration: 30, features: ['Everything in Basic', 'Living trust setup', 'Trust funding guidance', 'Beneficiary designation review', '1-year plan review'] },
+];
+
+const CATEGORY_LABELS: Record<string, string> = {
+  house_sale: 'House Sale',
+  rental: 'Rental Agreements',
+  eviction: 'Eviction',
+  divorce: 'Divorce',
+  nda: 'NDA',
+  business: 'Business',
+  dispute: 'Disputes',
+  estate: 'Estate Planning',
+};
+
 const LegalHub = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -147,7 +183,7 @@ const LegalHub = () => {
   const docParam = searchParams.get('doc') as 'privacy' | 'terms' | 'agl' | null;
   const currentDoc = docParam || 'hub';
   
-  const setCurrentDoc = (doc: 'hub' | 'privacy' | 'terms' | 'agl') => {
+  const setCurrentDoc = (doc: 'hub' | 'privacy' | 'terms' | 'agl' | 'packages') => {
     if (doc === 'hub') {
       setSearchParams({});
     } else {
@@ -160,6 +196,7 @@ const LegalHub = () => {
   const [description, setDescription] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [requestedPackage, setRequestedPackage] = useState<string | null>(null);
 
   const handleCategoryClick = (categoryId: string) => {
     setExpandedCategory(expandedCategory === categoryId ? null : categoryId);
@@ -175,7 +212,14 @@ const LegalHub = () => {
     setSelectedIssue(null);
     setDescription('');
     setExpandedCategory(null);
+    setRequestedPackage(null);
     setCurrentDoc('hub');
+  };
+
+  const handleRequestPackage = (pkgId: string, pkgName: string) => {
+    setRequestedPackage(pkgId);
+    setSelectedIssue({ category: 'service_package', subcategory: pkgId });
+    setDescription(`I'm interested in the "${pkgName}" legal service package. Please contact me with more details.`);
   };
 
   const handleSubmitRequest = async () => {
@@ -193,6 +237,7 @@ const LegalHub = () => {
         description: description.trim(),
         role: activeMode,
         status: 'pending',
+        package_id: requestedPackage || null,
       });
 
       if (error) {
@@ -233,7 +278,116 @@ const LegalHub = () => {
         
         {/* 🛸 PREMIUM HEADER SECTION */}
         <AnimatePresence mode="wait">
-          {currentDoc !== 'hub' ? (
+          {currentDoc === 'packages' ? (
+            <motion.div 
+              key="packages"
+              initial={{ opacity: 0, y: 20 }} 
+              animate={{ opacity: 1, y: 0 }} 
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+              className="space-y-16"
+            >
+              <button 
+                onClick={() => { haptics.tap(); setCurrentDoc('hub'); }}
+                className={cn(
+                  "flex items-center gap-4 text-[11px] font-black uppercase tracking-[0.5em] italic mb-12 hover:opacity-70 transition-all hover:translate-x-[-4px]",
+                  isLight ? "text-black" : "text-white"
+                )}
+              >
+                <ArrowLeft className="w-4 h-4" /> Back to Legal Hub
+              </button>
+
+              <div className="space-y-6">
+                <h1 className={cn("text-5xl sm:text-7xl font-black uppercase italic tracking-tighter leading-[0.9]", isLight ? "text-black" : "text-white")}>
+                  Service Packages
+                </h1>
+                <p className={cn("text-lg font-bold opacity-50 max-w-2xl", isLight ? "text-black" : "text-white")}>
+                  Browse our legal service packages. Select a package and submit a request — a verified lawyer will contact you.
+                </p>
+              </div>
+
+              {/* Packages grouped by category */}
+              {Object.entries(
+                LEGAL_SERVICE_PACKAGES.reduce((acc, pkg) => {
+                  if (!acc[pkg.category]) acc[pkg.category] = [];
+                  acc[pkg.category].push(pkg);
+                  return acc;
+                }, {} as Record<string, typeof LEGAL_SERVICE_PACKAGES>)
+              ).map(([category, packages]) => (
+                <div key={category} className="space-y-6">
+                  <div className="flex items-center gap-4">
+                    <span className={cn("text-sm font-black uppercase tracking-[0.3em] italic", isLight ? "text-black/80" : "text-white/80")}>
+                      {CATEGORY_LABELS[category] || category}
+                    </span>
+                    <div className={cn("h-[1px] flex-1", isLight ? "bg-black/10" : "bg-white/10")} />
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {packages.map((pkg) => (
+                      <Card key={pkg.id} className={cn(
+                        "rounded-[2.5rem] border overflow-hidden transition-all hover:shadow-xl group",
+                        isLight ? "bg-white border-black/5" : "bg-white/[0.04] border-white/5"
+                      )}>
+                        <div className="p-8 space-y-5">
+                          <div className="flex items-start justify-between gap-4">
+                            <h3 className={cn("text-lg font-black uppercase italic tracking-tight leading-tight", isLight ? "text-black" : "text-white")}>
+                              {pkg.name}
+                            </h3>
+                            <span className={cn("text-xl font-black shrink-0", isOwner ? "text-purple-500" : "text-rose-500")}>
+                              ${pkg.price.toLocaleString()}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <Badge variant="outline" className={cn(
+                              "text-[9px] font-black uppercase tracking-wider px-3 py-1 rounded-full",
+                              isLight ? "bg-black/5 border-black/10" : "bg-white/5 border-white/10"
+                            )}>
+                              {pkg.duration} days
+                            </Badge>
+                          </div>
+                          <ul className="space-y-2">
+                            {pkg.features.map((f, i) => (
+                              <li key={i} className={cn(
+                                "flex items-start gap-2 text-[13px] font-medium",
+                                isLight ? "text-black/60" : "text-white/60"
+                              )}>
+                                <CheckCircle2 className={cn("w-4 h-4 shrink-0 mt-0.5", isOwner ? "text-purple-500" : "text-rose-500")} />
+                                {f}
+                              </li>
+                            ))}
+                          </ul>
+                          <Button
+                            onClick={() => {
+                              haptics.select();
+                              handleRequestPackage(pkg.id, pkg.name);
+                            }}
+                            className={cn(
+                              "w-full h-14 rounded-2xl font-black uppercase italic tracking-wider text-[11px] active:scale-95 transition-all",
+                              isOwner ? "bg-purple-600 hover:bg-purple-500 shadow-purple-500/20" : "bg-rose-600 hover:bg-rose-700 shadow-rose-500/20"
+                            )}
+                          >
+                            Request Service
+                          </Button>
+                        </div>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+              ))}
+
+              <div className="flex justify-center pt-8">
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "h-16 px-12 rounded-2xl font-black uppercase italic tracking-[0.3em] transition-all active:scale-[0.98] border-2 text-[11px] shadow-2xl",
+                    isOwner ? "border-purple-500/30 text-purple-500 bg-purple-500/5" : "border-rose-500/30 text-rose-500 bg-rose-500/5"
+                  )}
+                  onClick={() => { haptics.tap(); setCurrentDoc('hub'); }}
+                >
+                  RETURN TO LEGAL HUB
+                </Button>
+              </div>
+            </motion.div>
+          ) : currentDoc !== 'hub' ? (
             <motion.div 
               key={currentDoc}
               initial={{ opacity: 0, y: 20 }} 
@@ -702,11 +856,12 @@ const LegalHub = () => {
                   <div className={cn("h-[1px] flex-1", isLight ? "bg-black/10" : "bg-white/10")} />
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
                  {[
                    { icon: FileText, label: 'Terms of Use', doc: 'terms', color: 'bg-blue-600 text-white shadow-blue-500/20' },
                    { icon: Shield, label: 'Privacy Protocol', doc: 'privacy', color: 'bg-rose-600 text-white shadow-rose-500/20' },
                    { icon: BookOpen, label: 'AUP Standards', doc: 'agl', color: 'bg-purple-600 text-white shadow-purple-500/20' },
+                   { icon: Package, label: 'Service Packages', doc: 'packages', color: 'bg-amber-500 text-white shadow-amber-500/20' },
                    { icon: ScaleIcon, label: 'Smart Contracts', path: isOwner ? '/owner/contracts' : '/client/contracts', color: 'bg-emerald-600 text-white shadow-emerald-500/20' },
                  ].map((item) => (
                    <button
