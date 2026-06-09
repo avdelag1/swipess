@@ -121,12 +121,11 @@ const LandingView = memo(({
         <button
           onClick={() => { triggerHaptic('medium'); onEnterAuth('login'); }}
           style={{
-            background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
-            color: '#ffffff',
-            textShadow: '0 1px 4px rgba(0,0,0,0.4)',
-            boxShadow: '0 4px 28px rgba(99,102,241,0.55)',
+            backgroundColor: '#ffffff',
+            color: '#000000',
+            boxShadow: '0 0 0 2px rgba(255,255,255,0.9), 0 8px_40px_rgba(255,255,255,0.4)',
           }}
-          className="w-full h-14 rounded-full font-black text-[16px] tracking-widest uppercase active:scale-[0.97] transition-all flex items-center justify-center gap-2.5 border border-white/30"
+          className="w-full h-14 rounded-full font-black text-[16px] tracking-widest uppercase active:scale-[0.97] transition-all flex items-center justify-center gap-2.5"
         >
           <LogIn className="w-[18px] h-[18px]" strokeWidth={2.5} />
           Sign In
@@ -134,12 +133,12 @@ const LandingView = memo(({
         <button
           onClick={() => { triggerHaptic('medium'); onEnterAuth('signup'); }}
           style={{
-            background: btnColor || 'linear-gradient(135deg, #FF4D00 0%, #FF6B35 100%)',
+            background: btnColor || '#FF4D00',
             color: '#ffffff',
-            textShadow: '0 1px 4px rgba(0,0,0,0.4)',
-            boxShadow: '0 4px 28px rgba(255,77,0,0.55)',
+            textShadow: '0 1px 3px rgba(0,0,0,0.5)',
+            boxShadow: '0 0 0 2px rgba(255,77,0,0.8), 0 8px 40px rgba(255,77,0,0.5)',
           }}
-          className="w-full h-14 rounded-full font-black text-[16px] tracking-widest uppercase active:scale-[0.97] transition-all flex items-center justify-center gap-2.5 border border-white/30"
+          className="w-full h-14 rounded-full font-black text-[16px] tracking-widest uppercase active:scale-[0.97] transition-all flex items-center justify-center gap-2.5"
         >
           <Sparkles className="w-[18px] h-[18px]" strokeWidth={2} />
           {btnText}
@@ -408,10 +407,10 @@ const AuthView = memo(({ onBack, initialMode = 'login', siteContent }: { onBack:
                 type="submit"
                 disabled={isLoading}
                 style={{
-                  background: getContentValue(siteContent, 'auth_primary_btn_color') || 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+                  background: getContentValue(siteContent, 'auth_primary_btn_color') || '#FF4D00',
                   color: '#ffffff',
-                  textShadow: '0 1px 4px rgba(0,0,0,0.5)',
-                  boxShadow: '0 4px 28px rgba(99,102,241,0.45)',
+                  textShadow: '0 1px 3px rgba(0,0,0,0.5)',
+                  boxShadow: '0 0 0 2px rgba(255,77,0,0.7), 0 8px 32px rgba(255,77,0,0.4)',
                 }}
                 className="w-full h-14 rounded-full font-black text-[16px] tracking-widest uppercase active:scale-[0.96] transition-all flex items-center justify-center gap-2.5 disabled:opacity-40 disabled:pointer-events-none relative overflow-hidden border border-white/30"
               >
@@ -433,10 +432,11 @@ const AuthView = memo(({ onBack, initialMode = 'login', siteContent }: { onBack:
               onClick={() => { triggerHaptic('light'); setIsLogin(!isLogin); setFieldErrors({}); }}
               className="w-full h-14 rounded-full font-black text-[15px] tracking-widest uppercase active:scale-[0.97] transition-all flex items-center justify-center gap-2.5"
               style={{
-                backgroundColor: 'rgba(255,255,255,0.18)',
+                backgroundColor: 'rgba(255,255,255,0.15)',
                 color: '#ffffff',
-                textShadow: '0 1px 6px rgba(255,255,255,0.6)',
-                border: '1.5px solid rgba(255,255,255,0.5)',
+                textShadow: '0 1px 4px rgba(0,0,0,0.4)',
+                border: '2px solid rgba(255,255,255,0.6)',
+                boxShadow: '0 0 20px rgba(255,255,255,0.15)',
               }}
             >
               {isLogin ? 'Create Account' : 'Back to Sign In'}
@@ -450,13 +450,13 @@ const AuthView = memo(({ onBack, initialMode = 'login', siteContent }: { onBack:
 
             <button
               onClick={() => { triggerHaptic('medium'); signInWithOAuth('apple'); }}
-              className="flex h-12 w-full items-center justify-center gap-3 rounded-xl active:scale-[0.97] transition-all font-black uppercase tracking-widest text-[13px]"
               style={{
-                background: 'linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%)',
-                color: '#ffffff',
-                textShadow: '0 1px 4px rgba(0,0,0,0.5)',
-                border: '1.5px solid rgba(255,255,255,0.4)',
+                backgroundColor: '#ffffff',
+                color: '#000000',
+                border: '2px solid rgba(255,255,255,0.9)',
+                boxShadow: '0 0 0 1px rgba(255,255,255,0.3), 0 6px 24px rgba(255,255,255,0.2)',
               }}
+              className="flex h-12 w-full items-center justify-center gap-3 rounded-xl active:scale-[0.97] transition-all font-black uppercase tracking-widest text-[13px]"
             >
               <AppleIcon />
               <span>Sign in with Apple</span>
@@ -464,13 +464,13 @@ const AuthView = memo(({ onBack, initialMode = 'login', siteContent }: { onBack:
 
             <button
               onClick={() => { triggerHaptic('medium'); signInWithOAuth('google'); }}
-              className="flex h-12 w-full items-center justify-center gap-3 rounded-xl active:scale-[0.97] transition-all font-black uppercase tracking-widest text-[13px]"
               style={{
-                background: 'linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%)',
-                color: '#111111',
-                textShadow: 'none',
-                border: '1.5px solid rgba(0,0,0,0.15)',
+                backgroundColor: '#ffffff',
+                color: '#000000',
+                border: '2px solid rgba(255,255,255,0.9)',
+                boxShadow: '0 0 0 1px rgba(255,255,255,0.3), 0 6px 24px rgba(255,255,255,0.2)',
               }}
+              className="flex h-12 w-full items-center justify-center gap-3 rounded-xl active:scale-[0.97] transition-all font-black uppercase tracking-widest text-[13px]"
             >
               <GoogleIcon />
               <span>Continue with Google</span>

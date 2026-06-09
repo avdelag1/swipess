@@ -21,7 +21,8 @@ function setAccessCode(code: string) {
 }
 
 export function isAccessGranted(): boolean {
-  return !!getAccessCode();
+  // Always show the gate — never skip it
+  return false;
 }
 
 interface Props {
