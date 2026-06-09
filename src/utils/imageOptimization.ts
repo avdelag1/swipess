@@ -177,15 +177,16 @@ export function preloadImage(url: string): Promise<void> {
     img.decoding = 'async';
     img.fetchPriority = 'high';
 
-    img.onload = () => resolve();
+    img.onload = () => {
+      if ('decode' in img) {
+        img.decode().then(resolve).catch(reject);
+      } else {
+        resolve();
+      }
+    };
     img.onerror = () => reject(new Error(`Failed to load image: ${url}`));
 
     img.src = url;
-
-    // Force decode if supported
-    if ('decode' in img) {
-      img.decode().then(resolve).catch(reject);
-    }
   });
 }
 

@@ -8,10 +8,10 @@ export default defineConfig(async ({ mode }) => ({
     host: "::",
     port: 8080,
   },
-  // 🚀 Drop console & debugger in production for clean Lighthouse scores
+  // 🚀 Drop debugger only in production — keep console.warn/error for diagnostics
   ...(mode === 'production' ? {
     esbuild: {
-      drop: ['console', 'debugger'],
+      drop: ['debugger'],
     },
   } : {}),
   plugins: ([

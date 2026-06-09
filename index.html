@@ -9,12 +9,14 @@
   <meta name="msapplication-TileColor" content="#000000">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   
-  <!-- System fonts — no external font loading needed -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <!-- Font preconnects — crossorigin on googleapis so gstatic handshake is CORS-aware -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <!-- Warm up Supabase backend so first API call resolves instantly -->
   <link rel="dns-prefetch" href="https://vplgtcguxujxwrgguxqq.supabase.co">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800;900&family=Caveat:wght@700&display=swap" rel="stylesheet">
+  <!-- Async font loading — non-blocking, text renders instantly in system font -->
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800;900&family=Caveat:wght@700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800;900&family=Caveat:wght@700&display=swap" rel="stylesheet"></noscript>
 
 
 

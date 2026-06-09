@@ -4,6 +4,9 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
+// Import token/themes CSS before index.css so CSS vars are available for Tailwind
+import "./styles/tokens.css";
+import "./styles/matte-themes.css";
 import "./index.css";
 // PERF: Defer non-critical CSS to reduce unused CSS on initial paint (~84 KiB saved total)
 // responsive.css = desktop grids, print styles, sidebar nav
@@ -194,12 +197,16 @@ void bootstrap();
 // the network fetch; this seeds the JS-side cache so the same Image()
 // calls used by PokerCategoryCard hit a warm decode.
 if (typeof window !== 'undefined') {
-  const SWIPE_CARD_PHOTOS = [
+  // 🔥 Critical images only — 5 most-used category photos loaded immediately
+  const CRITICAL_PHOTOS = [
     '/images/filters/property.jpg',
     '/images/filters/scooter.jpg',
     '/images/filters/bicycle.jpg',
     '/images/filters/workers.jpg',
     '/images/filters/all.jpg',
+  ];
+  // 🕐 Secondary photos — loaded after idle to avoid competing with first paint
+  const DEFERRED_PHOTOS = [
     '/images/filters/radio.jpg',
     '/images/filters/resident_card.jpg',
     '/images/filters/owner_all_clients_tulum.png',
@@ -220,14 +227,20 @@ if (typeof window !== 'undefined') {
   ];
   const warmImage = (src: string) => {
     const img = new Image();
-    (img as any).fetchPriority = 'high';
+    (img as any).fetchPriority = 'low';
     img.decoding = 'async';
     img.src = src;
   };
-  // Run after first paint so we don't compete with critical render.
+  // Critical images: load immediately after first paint
   requestAnimationFrame(() => {
-    SWIPE_CARD_PHOTOS.forEach(warmImage);
+    CRITICAL_PHOTOS.forEach(warmImage);
   });
+  // Deferred: load after browser is fully idle
+  if (typeof requestIdleCallback !== 'undefined') {
+    requestIdleCallback(() => { DEFERRED_PHOTOS.forEach(warmImage); }, { timeout: 3000 });
+  } else {
+    setTimeout(() => { DEFERRED_PHOTOS.forEach(warmImage); }, 2000);
+  }
 }
 
 // 3. DEFERRED INITIALIZATION (Quiet Background)
