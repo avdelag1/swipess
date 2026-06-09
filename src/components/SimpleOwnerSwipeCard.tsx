@@ -14,7 +14,7 @@
 
 import { forwardRef, memo, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { animate, AnimatePresence, motion, MotionValue, PanInfo, useMotionValue, useTransform } from 'framer-motion';
-import { ArrowLeft, BarChart3, Flag, MessageCircle, RotateCcw, Share2 } from 'lucide-react';
+import { BarChart3, Flag, MessageCircle, RotateCcw, Share2, Undo2 } from 'lucide-react';
 import { triggerHaptic } from '@/utils/haptics';
 import { getCardImageUrl } from '@/utils/imageOptimization';
 import { cn } from '@/lib/utils';
@@ -467,7 +467,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           {canUndo ? (
             <RotateCcw className="w-[18px] h-[18px] text-amber-400" strokeWidth={2.2} style={{ filter: 'drop-shadow(0 1px 3px rgba(0,0,0,0.6))' }} />
           ) : (
-            <ArrowLeft className="w-[18px] h-[18px] text-white" strokeWidth={2.2} style={{ filter: 'drop-shadow(0 1px 3px rgba(0,0,0,0.6))' }} />
+            <Undo2 className="w-[18px] h-[18px] text-white" strokeWidth={2.2} style={{ filter: 'drop-shadow(0 1px 3px rgba(0,0,0,0.6))' }} />
           )}
         </button>
 
