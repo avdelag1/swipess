@@ -79,8 +79,8 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
 
   // SPEED OF LIGHT: If we've shown content before, keep showing children
   // This prevents flicker during token refresh or transient auth state changes
-  // CRITICAL: Must verify user still exists to avoid logout crashes
-  if (hasShownContent) {
+  // CRITICAL: Must verify user still exists to avoid showing protected content after logout
+  if (hasShownContent && user) {
     return <>{children}</>;
   }
 

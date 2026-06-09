@@ -137,17 +137,10 @@ export function AuthProvider({ children, authPromise }: { children: ReactNode, a
           return;
         }
 
-        if (event === 'SIGNED_OUT' && !(window as any).__swipess_user_signout_requested) {
-          const stableSession = latestSessionRef.current ?? readCachedAuthSession();
-          if (stableSession?.user) {
-            logger.warn('[Auth] Ignoring unexpected SIGNED_OUT while an active session is cached');
-            setSession(stableSession);
-            setUser(stableSession.user);
-            setLoading(false);
-            setInitialized(true);
-            return;
-          }
-        }
+        // SECURITY: Do not suppress SIGNED_OUT events - they may indicate legitimate
+        // session revocation (password change, admin action, or device logout from another tab)
+        // Clear the session flag to ensure proper logout flow
+        (window as any).__swipess_user_signout_requested = false;
 
         logger.log('[Auth] State change:', event, session?.user?.email);
 

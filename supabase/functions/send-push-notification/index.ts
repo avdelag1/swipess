@@ -124,15 +124,16 @@ async function encryptPayload(
   );
 
   const authBytes = urlB64ToUint8Array(authKey);
+  const clientPublicKeyBytes = urlB64ToUint8Array(p256dhKey);
 
-  // HKDF context
+  // HKDF context - must include actual public keys per RFC 8188
   const authInfo = encoder.encode("Content-Encoding: auth\0");
   const keyInfo = new Uint8Array([
     ...encoder.encode("Content-Encoding: aesgcm\0"),
     0x41, // "A"
-    ...new Uint8Array(65), // placeholder for receiver public key
+    ...clientPublicKeyBytes, // receiver (client) public key - 65 bytes uncompressed
     0x41,
-    ...new Uint8Array(65), // placeholder for sender public key
+    ...serverPublicKeyBytes, // sender (server) public key - 65 bytes uncompressed
   ]);
 
   // Use Web Crypto HKDF

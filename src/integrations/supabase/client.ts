@@ -2,19 +2,15 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 // These are the project's PUBLIC keys (anon / publishable). They are safe to
-// ship in the client bundle — they are exposed in every build regardless. We
-// read them from the build-time env when available, but fall back to the known
-// public values so a missing/mis-injected env var can NEVER blank the whole app
-// (a top-level throw here kills the entire bundle and React never mounts).
-const FALLBACK_SUPABASE_URL = 'https://vplgtcguxujxwrgguxqq.supabase.co';
-const FALLBACK_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_FA0BseFSS6zM7Y8K3w8zLQ_d8BXqEuV';
+// ship in the client bundle — they are exposed in every build regardless.
+// Environment variables MUST be set at build time for production.
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || FALLBACK_SUPABASE_URL;
-const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || FALLBACK_SUPABASE_PUBLISHABLE_KEY;
-
-if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY) {
-  // Non-fatal: warn but keep running on the public fallback so the app mounts.
-  console.warn('[supabase] VITE_SUPABASE_URL / VITE_SUPABASE_PUBLISHABLE_KEY not set at build time — using public fallback.');
+if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
+  const msg = '[supabase] FATAL: VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY must be set at build time';
+  console.error(msg);
+  throw new Error(msg);
 }
 
 // Import the supabase client like this:

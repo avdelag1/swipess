@@ -29,12 +29,13 @@ export function useUserRole(userId: string | undefined) {
       return data?.role as 'client' | 'owner' | 'admin' | null;
     },
     enabled: !!userId,
-    // SPEED OF LIGHT: Aggressive caching - role almost never changes
-    staleTime: 30 * 60 * 1000, // 30 minutes
-    gcTime: 60 * 60 * 1000, // 60 minutes (keep in cache)
-    refetchOnMount: false,
-    refetchOnWindowFocus: false,
-    refetchOnReconnect: false,
+    // SECURITY: Reduced staleTime to ensure role changes are reflected quickly
+    // when admin changes user roles or user changes their own role
+    staleTime: 5 * 60 * 1000, // 5 minutes (reduced from 30 for faster updates)
+    gcTime: 15 * 60 * 1000, // 15 minutes (keep in cache for navigation)
+    refetchOnMount: true, // Refetch on mount to catch role changes
+    refetchOnWindowFocus: true, // Refetch when user returns to window
+    refetchOnReconnect: true, // Refetch when reconnecting after offline
   });
 }
 

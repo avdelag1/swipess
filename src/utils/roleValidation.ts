@@ -11,19 +11,23 @@ export async function validateUserRole(
   userId: string,
   requiredRole: UserRole
 ): Promise<boolean> {
-  // validate_user_role_access is a security-definer RPC not yet in generated types
-  const rpc = supabase.rpc as (fn: string, args: Record<string, string>) => ReturnType<typeof supabase.rpc>;
-  const { data, error } = await rpc('validate_user_role_access', {
-    p_user_id: userId,
-    p_required_role: requiredRole,
-  });
+  try {
+    // Call the security-definer RPC function
+    const { data, error } = await supabase.rpc('validate_user_role_access', {
+      p_user_id: userId,
+      p_required_role: requiredRole,
+    });
 
-  if (error) {
-    logger.error('Role validation error:', error);
+    if (error) {
+      logger.error('Role validation error:', error);
+      return false;
+    }
+
+    return data === true;
+  } catch (err) {
+    logger.error('Role validation failed:', err);
     return false;
   }
-
-  return data === true;
 }
 
 /**

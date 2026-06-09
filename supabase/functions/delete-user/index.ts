@@ -76,33 +76,41 @@ serve(async (req) => {
     });
 
     // --- Step 1: Delete conversation messages ---
-    const { data: userConversations } = await adminClient
+    const { data: userConversations, error: convError } = await adminClient
       .from("conversations")
       .select("id")
       .or(`client_id.eq.${userId},owner_id.eq.${userId}`);
 
+    if (convError) {
+      console.error("[delete-user] Failed to fetch conversations:", convError);
+      throw new Error("Failed to fetch conversations");
+    }
+
     if (userConversations && userConversations.length > 0) {
       const convIds = userConversations.map((c: any) => c.id);
-      await adminClient
+      const { error: msgErr } = await adminClient
         .from("conversation_messages")
         .delete()
         .in("conversation_id", convIds);
+      if (msgErr) throw new Error("Failed to delete conversation messages");
     }
 
     // --- Step 2: Delete messages (legacy table) ---
     if (userConversations && userConversations.length > 0) {
       const convIds = userConversations.map((c: any) => c.id);
-      await adminClient
+      const { error: legacyErr } = await adminClient
         .from("messages")
         .delete()
         .in("conversation_id", convIds);
+      if (legacyErr) throw new Error("Failed to delete legacy messages");
     }
 
     // --- Step 3: Delete conversations ---
-    await adminClient
+    const { error: convDeleteErr } = await adminClient
       .from("conversations")
       .delete()
       .or(`client_id.eq.${userId},owner_id.eq.${userId}`);
+    if (convDeleteErr) throw new Error("Failed to delete conversations");
 
     // --- Step 4-6: Delete contract-related data ---
     const { data: userContracts } = await adminClient

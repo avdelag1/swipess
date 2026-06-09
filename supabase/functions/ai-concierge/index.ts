@@ -1197,7 +1197,10 @@ async function streamGemini(messages: ChatMessage[]): Promise<Response> {
   }
 
   // Convert Gemini SSE to OpenAI-compatible SSE
-  const reader = res.body!.getReader();
+  if (!res.body) {
+    throw new Error("Gemini returned response with no body");
+  }
+  const reader = res.body.getReader();
   const decoder = new TextDecoder();
   const stream = new ReadableStream({
     async pull(controller) {
@@ -1279,7 +1282,10 @@ async function streamMiniMax(messages: ChatMessage[]): Promise<Response> {
     throw new Error(`MiniMax ${res.status}: ${errBody}`);
   }
 
-  const reader = res.body!.getReader();
+  if (!res.body) {
+    throw new Error("MiniMax returned response with no body");
+  }
+  const reader = res.body.getReader();
   const decoder = new TextDecoder();
   const { value, done } = await reader.read();
   if (done) throw new Error("MiniMax returned empty stream");

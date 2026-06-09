@@ -70,8 +70,9 @@ Respond ONLY with valid JSON.`;
     );
   } catch (err) {
     console.error("[moderate-image]", err);
+    // On error, flag as unsafe to prevent unverified content from being published
     return new Response(
-      JSON.stringify({ safe: true, reasons: [], confidence: 1.0 }),
+      JSON.stringify({ safe: false, reasons: ["Moderation service unavailable - flagged for manual review"], confidence: 0.0 }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
