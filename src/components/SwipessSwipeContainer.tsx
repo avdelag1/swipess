@@ -753,6 +753,12 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     triggerHaptic('light');
   };
 
+  const handleBack = useCallback(() => {
+    triggerHaptic('light');
+    setActiveCategory(null as any);
+    navigate(`/${activeMode}/dashboard`);
+  }, [navigate, activeMode, setActiveCategory]);
+
   const handleMessage = () => {
     const listing = deckQueueRef.current[currentIndexRef.current];
     if (!canNavigate()) return;
@@ -957,6 +963,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                           canGoBack={currentIndex > 0}
                           onUndo={isTopCard ? undoLastSwipe : undefined}
                           canUndo={canUndo}
+                          onBack={handleBack}
                         />
                       ) : (
                         <SimpleSwipeCard
@@ -981,6 +988,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                           canGoBack={currentIndex > 0}
                           onUndo={isTopCard ? undoLastSwipe : undefined}
                           canUndo={canUndo}
+                          onBack={handleBack}
                         />
                       )}
                     </motion.div>

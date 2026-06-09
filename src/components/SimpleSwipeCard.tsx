@@ -27,7 +27,7 @@ import { LoopVideo } from '@/components/video/LoopVideo';
 import { imageCache } from '@/lib/swipe/cardImageCache';
 import useAppTheme from '@/hooks/useAppTheme';
 import { cn } from '@/lib/utils';
-import { BarChart3, Flag, MessageCircle, RotateCcw, Share2 } from 'lucide-react';
+import { ArrowLeft, BarChart3, Flag, MessageCircle, RotateCcw, Share2 } from 'lucide-react';
 import { PhotoPositionIndicators } from '@/components/swipe/PhotoPositionIndicators';
 import { GestureHints } from '@/components/swipe/GestureHints';
 import { revealChrome, useChromeReveal } from '@/hooks/useChromeReveal';
@@ -58,6 +58,7 @@ interface SimpleSwipeCardProps {
   onMessage?: () => void;
   onUndo?: () => void;
   canUndo?: boolean;
+  onBack?: () => void;
   isTop?: boolean;
   onDragStart?: () => void;
   disableDrag?: boolean;
@@ -122,6 +123,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   onMessage,
   onUndo,
   canUndo,
+  onBack,
   disableDrag,
   canGoBack = true,
   fullScreen = false,
@@ -504,27 +506,29 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           )}
         </div>
 
-        {/* Always-visible undo button — top-right corner, independent of chrome reveal */}
-        {canUndo && onUndo && (
-          <button
-            data-no-cinematic
-            data-no-pull-dismiss
-            onPointerDown={(e) => e.stopPropagation()}
-            onClick={(e) => { e.stopPropagation(); triggerHaptic('medium'); onUndo(); }}
-            aria-label="Undo last swipe"
-            className="absolute z-[60] flex items-center justify-center w-10 h-10 rounded-full pointer-events-auto active:scale-90 transition-all duration-150"
-            style={{
-              right: 12,
-              top: 'calc(var(--safe-top, 0px) + 50px)',
-              background: 'rgba(0,0,0,0.55)',
-              border: '1px solid rgba(255,255,255,0.25)',
-              backdropFilter: 'blur(12px)',
-              WebkitBackdropFilter: 'blur(12px)',
-            }}
-          >
-            <RotateCcw className="w-[18px] h-[18px] text-white" strokeWidth={2.2} style={{ filter: 'drop-shadow(0 1px 3px rgba(0,0,0,0.6))' }} />
-          </button>
-        )}
+        {/* Always-visible back button — top-right corner, returns to dashboard */}
+        <button
+          data-no-cinematic
+          data-no-pull-dismiss
+          onPointerDown={(e) => e.stopPropagation()}
+          onClick={(e) => { e.stopPropagation(); triggerHaptic('light'); if (canUndo && onUndo) { onUndo(); } else { onBack?.(); } }}
+          aria-label="Return to dashboard"
+          className="absolute z-[60] flex items-center justify-center w-10 h-10 rounded-full pointer-events-auto active:scale-90 transition-all duration-150"
+          style={{
+            right: 12,
+            top: 'calc(var(--safe-top, 0px) + 50px)',
+            background: 'rgba(0,0,0,0.55)',
+            border: '1px solid rgba(255,255,255,0.25)',
+            backdropFilter: 'blur(12px)',
+            WebkitBackdropFilter: 'blur(12px)',
+          }}
+        >
+          {canUndo ? (
+            <RotateCcw className="w-[18px] h-[18px] text-amber-400" strokeWidth={2.2} style={{ filter: 'drop-shadow(0 1px 3px rgba(0,0,0,0.6))' }} />
+          ) : (
+            <ArrowLeft className="w-[18px] h-[18px] text-white" strokeWidth={2.2} style={{ filter: 'drop-shadow(0 1px 3px rgba(0,0,0,0.6))' }} />
+          )}
+        </button>
 
         {isTop && (
           <>

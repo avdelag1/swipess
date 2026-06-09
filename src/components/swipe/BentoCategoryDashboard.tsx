@@ -42,7 +42,7 @@ const BENTO_ITEMS = [
     delay: '4s'
   },
   {
-    id: 'rentals',
+    id: 'renters',
     label: 'TENANTS',
     description: 'People looking to rent',
     className: 'col-span-2 row-span-2',
