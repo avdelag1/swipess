@@ -119,7 +119,9 @@ function TopBarComponent({
         transitionTimingFunction: 'cubic-bezier(0.23, 1, 0.32, 1)',
         paddingTop: 'calc(var(--safe-top, 0px) + 6px)',
         height: 'calc(var(--top-bar-height) + var(--safe-top, 0px))',
-        background: isDashboard ? '#000000' : 'transparent',
+        background: isDashboard ? 'rgba(0, 0, 0, 0.4)' : 'transparent',
+        backdropFilter: isDashboard ? 'blur(24px) saturate(180%)' : 'none',
+        WebkitBackdropFilter: isDashboard ? 'blur(24px) saturate(180%)' : 'none',
         border: 'none'
       }}
     >

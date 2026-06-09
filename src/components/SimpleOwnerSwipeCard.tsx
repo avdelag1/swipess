@@ -107,7 +107,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   fullScreen = false,
   canGoBack = true,
 }, ref) => {
-  useChromeReveal();
+  const { isChromeVisible } = useChromeReveal();
   const isDragging = useRef(false);
   const hasExited = useRef(false);
   const isExitingRef = useRef(false);
@@ -481,7 +481,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
       {/* Action rail lives OUTSIDE the draggable motion.div so Framer Motion's
           native drag listener cannot intercept the button pointer events. */}
       <AnimatePresence>
-        {isTop && !isZoomed && (
+        {isTop && !isZoomed && isChromeVisible && (
           <motion.div
             data-no-cinematic
             data-no-pull-dismiss
@@ -495,12 +495,12 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
             <div
               className="flex flex-col gap-1.5 p-1.5 rounded-full"
               style={{
-                // Solid rail — sits over the moving card, so no backdrop-filter
-                // (it would re-blur the card pixels every frame and tile).
-                background: 'rgba(24, 24, 28, 0.72)',
-                border: '1px solid rgba(255, 255, 255, 0.22)',
+                background: 'rgba(0, 0, 0, 0.28)',
+                backdropFilter: 'blur(24px) saturate(180%)',
+                WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+                border: '1px solid rgba(255, 255, 255, 0.18)',
                 boxShadow:
-                  '0 8px 32px -6px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.15)',
+                  '0 8px 32px -6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.12)',
               }}
             >
               {[
@@ -526,7 +526,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
                   aria-label={btn.label}
                   className="w-10 h-10 rounded-full flex items-center justify-center border-none p-0 outline-none active:scale-[0.85] transition-transform"
                   style={{
-                    background: 'rgba(255,255,255,0.08)',
+                    background: 'rgba(255,255,255,0.12)',
                     border: 'none',
                     WebkitTapHighlightColor: 'transparent',
                   }}
