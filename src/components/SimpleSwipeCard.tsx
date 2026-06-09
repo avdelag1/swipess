@@ -343,8 +343,15 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
       triggerHaptic(direction === 'right' ? 'success' : 'warning');
       const exitX = direction === 'right' ? (window.innerWidth || 600) * 1.2 : -(window.innerWidth || 600) * 1.2;
       y.set(0);
-      animate(x, exitX, { ...EXIT_SPRING, velocity: info.velocity.x });
-      onSwipe(direction);
+      let swipeFired = false;
+      const fireSwipe = () => {
+        if (swipeFired) return;
+        swipeFired = true;
+        isExitingRef.current = false;
+        onSwipe(direction);
+      };
+      animate(x, exitX, { ...EXIT_SPRING, velocity: info.velocity.x, onComplete: fireSwipe });
+      setTimeout(fireSwipe, 800);
     } else if (vertCommit && (onSkip || onSkipBack)) {
       const dir = dy > 0 ? 1 : -1;
       if (dir > 0 && !canGoBack) {
@@ -442,9 +449,9 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
         style={{
           x,
           y,
-          rotate,
-          scale,
-          opacity: cardOpacity,
+          rotate: isTop ? rotate : 0,
+          scale: isTop ? scale : 0.95,
+          opacity: isTop ? cardOpacity : 0.6,
           willChange: 'transform, opacity',
           transform: 'translate3d(0,0,0)',
           transformOrigin: '50% 120%', // Pivot from bottom so it feels like a heavy physical card
@@ -496,6 +503,28 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
             </>
           )}
         </div>
+
+        {/* Always-visible undo button — top-right corner, independent of chrome reveal */}
+        {canUndo && onUndo && (
+          <button
+            data-no-cinematic
+            data-no-pull-dismiss
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={(e) => { e.stopPropagation(); triggerHaptic('medium'); onUndo(); }}
+            aria-label="Undo last swipe"
+            className="absolute z-[60] flex items-center justify-center w-10 h-10 rounded-full pointer-events-auto active:scale-90 transition-all duration-150"
+            style={{
+              right: 12,
+              top: 'calc(var(--safe-top, 0px) + 50px)',
+              background: 'rgba(0,0,0,0.55)',
+              border: '1px solid rgba(255,255,255,0.25)',
+              backdropFilter: 'blur(12px)',
+              WebkitBackdropFilter: 'blur(12px)',
+            }}
+          >
+            <RotateCcw className="w-[18px] h-[18px] text-white" strokeWidth={2.2} style={{ filter: 'drop-shadow(0 1px 3px rgba(0,0,0,0.6))' }} />
+          </button>
+        )}
 
         {isTop && (
           <>

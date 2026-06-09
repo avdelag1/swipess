@@ -9,6 +9,8 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Check, Filter, Save, X } from 'lucide-react';
 import { useOwnerClientPreferences } from '@/hooks/useOwnerClientPreferences';
 import { useSavedFilters } from '@/hooks/useSavedFilters';
+import { useFilterStore } from '@/state/filterStore';
+import type { ClientType } from '@/types/filters';
 import { AnimatePresence, motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
@@ -25,8 +27,8 @@ const LISTING_TYPE_OPTIONS = [
 ];
 
 const CLIENT_TYPE_OPTIONS = [
-  { value: 'tenant', label: 'Tenants', emoji: '' },
-  { value: 'buyer', label: 'Buyers', emoji: '' },
+  { value: 'rent', label: 'Tenants', emoji: '' },
+  { value: 'buy', label: 'Buyers', emoji: '' },
 ];
 
 import {
@@ -180,7 +182,7 @@ export function OwnerClientFilterDialog({ open, onOpenChange }: OwnerClientFilte
   });
 
   const [selectedListingTypes, setSelectedListingTypes] = useState<string[]>(['property']);
-  const [selectedClientTypes, setSelectedClientTypes] = useState<string[]>(['tenant']);
+  const [selectedClientTypes, setSelectedClientTypes] = useState<string[]>(['rent']);
   const [selectedInterestTypes, setSelectedInterestTypes] = useState<string[]>(['both']);
 
   useEffect(() => {
@@ -229,6 +231,13 @@ export function OwnerClientFilterDialog({ open, onOpenChange }: OwnerClientFilte
 
   const handleSave = async () => {
     setIsScanning(true);
+    
+    // Push client type to filter store so the swipe deck queries the right profiles
+    if (selectedClientTypes.length === 1) {
+      useFilterStore.getState().setClientType(selectedClientTypes[0] as ClientType);
+    } else {
+      useFilterStore.getState().setClientType('all');
+    }
     
     // Cinematic calibration delay
     await updatePreferences({
