@@ -421,8 +421,8 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
             top: 'calc(var(--safe-top, 0px) + 50px)',
             // Solid fill, no backdrop-filter: this button rides the moving card,
             // and re-blurring the card pixels each frame causes GPU tiling.
-            background: 'rgba(0,0,0,0.55)',
-            border: '1px solid rgba(255,255,255,0.25)',
+            background: 'rgba(0,0,0,0.42)',
+            border: '1px solid rgba(255,255,255,0.22)',
           }}
         >
           {canUndo ? (
@@ -540,8 +540,8 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
               style={{
                 // Solid rail — sits over the moving card, so no backdrop-filter
                 // (it would re-blur the card pixels every frame and tile).
-                background: 'rgba(24, 24, 28, 0.72)',
-                border: '1px solid rgba(255, 255, 255, 0.22)',
+                background: 'rgba(24, 24, 28, 0.55)',
+                border: '1px solid rgba(255, 255, 255, 0.20)',
                 boxShadow:
                   '0 8px 32px -6px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.15)',
               }}

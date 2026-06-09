@@ -139,10 +139,18 @@ export function AppLayout({ children }: AppLayoutProps) {
   // Force dark theme ONLY on the dashboard page for the premium "black filter" experience
   useLayoutEffect(() => {
     document.body.classList.toggle('swipe-deck-active', swipeDeckActive);
-    if (isDashboardOnly) {
+    if (isDashboardOnly && swipeDeckActive) {
+      // Swipe deck open: force the black frame so the rounded card corners sit
+      // on black (no white bleed) and the white action icons stay legible.
       document.documentElement.classList.add('dark', 'black-matte');
       document.documentElement.classList.remove('light', 'white-matte', 'cheers', 'red-matte', 'amber-matte', 'pure-black', 'Swipess-style');
       document.documentElement.style.colorScheme = 'dark';
+    } else if (isDashboardOnly) {
+      // Category picker (quick filters): white frosted dashboard. The deck still
+      // goes black above, so we never see white at the rounded card corners.
+      document.documentElement.classList.add('light', 'white-matte');
+      document.documentElement.classList.remove('dark', 'black-matte', 'grey-matte', 'cheers', 'red-matte', 'amber-matte', 'pure-black', 'Swipess-style');
+      document.documentElement.style.colorScheme = 'light';
     } else {
       // Restore user's actual theme when leaving dashboard
       if (theme === 'light' || theme === 'white-matte') {

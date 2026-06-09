@@ -40,8 +40,8 @@ const BENTO_ITEMS = [
 // Two height tiers. "big" is noticeably taller than "normal" so the staggered
 // columns produce the deliberate size mismatch.
 const SIZE_CLASS: Record<'big' | 'normal', string> = {
-  big: 'h-[230px] sm:h-[270px]',
-  normal: 'h-[155px] sm:h-[185px]',
+  big: 'h-[260px] sm:h-[300px]',
+  normal: 'h-[180px] sm:h-[210px]',
 };
 
 const containerVariants = {
@@ -75,12 +75,14 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
   }, [setCategories, navigate]);
 
   return (
-    <div 
-      className="absolute inset-0 w-full h-full px-2 bg-transparent overflow-y-auto scrollbar-none overscroll-contain"
+    <div
+      className="absolute inset-0 w-full h-full px-2 bg-transparent overflow-y-auto scrollbar-none overscroll-contain scroll-area-momentum"
       style={{
         paddingTop: 'calc(var(--top-bar-height, 64px) + var(--safe-top, 0px) + 8px)',
         paddingBottom: 'calc(env(safe-area-inset-bottom) + 88px)',
         WebkitOverflowScrolling: 'touch',
+        scrollBehavior: 'auto',
+        touchAction: 'pan-y',
       }}
     >
       <motion.div
