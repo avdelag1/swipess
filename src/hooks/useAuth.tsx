@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-import { ReactNode, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { appToast } from '@/utils/appNotification';
@@ -616,16 +616,22 @@ export function AuthProvider({ children, authPromise }: { children: ReactNode, a
     }
   };
 
+  // Memoize auth functions to prevent stale closures in child components
+  const memoizedSignUp = useCallback(signUp, []);
+  const memoizedSignIn = useCallback(signIn, []);
+  const memoizedSignInWithOAuth = useCallback(signInWithOAuth, []);
+  const memoizedSignOut = useCallback(signOut, []);
+
   const value = useMemo(() => ({
     user,
     session,
     loading,
     initialized,
-    signUp,
-    signIn,
-    signInWithOAuth,
-    signOut
-  }), [user, session, loading, initialized]);
+    signUp: memoizedSignUp,
+    signIn: memoizedSignIn,
+    signInWithOAuth: memoizedSignInWithOAuth,
+    signOut: memoizedSignOut
+  }), [user, session, loading, initialized, memoizedSignUp, memoizedSignIn, memoizedSignInWithOAuth, memoizedSignOut]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

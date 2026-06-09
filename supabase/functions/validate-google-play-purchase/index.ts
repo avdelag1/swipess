@@ -200,10 +200,10 @@ Deno.serve(async (req) => {
         user_id: userId,
         product_id: productId,
         purchase_token: purchaseToken,
-        order_id: verification.orderId || clientOrderId || null,
+        order_id: clientOrderId || null,
         purchase_time: purchaseDate,
         environment: 'Production',
-        verified: true,
+        verified: validated,
         raw: rawData || { purchaseToken, productId },
       },
       { onConflict: 'purchase_token' }
