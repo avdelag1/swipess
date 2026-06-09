@@ -386,12 +386,11 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   const preventContextMenuClick = useCallback((e: React.MouseEvent) => e.preventDefault(), []);
 
   const actionButtons = useMemo(() => [
-    canUndo && onUndo ? { icon: RotateCcw, onClick: onUndo, label: 'Undo' } : null,
     { icon: Share2, onClick: onShare, label: 'Share' },
     { icon: MessageCircle, onClick: onMessage, label: 'Message' },
     { icon: BarChart3, onClick: onInsights, label: 'Insights' },
     { icon: Flag, onClick: onReport, label: 'Report' },
-  ].filter(Boolean) as { icon: React.ElementType; onClick?: () => void; label: string }[], [canUndo, onUndo, onShare, onMessage, onInsights, onReport]);
+  ], [onShare, onMessage, onInsights, onReport]);
 
   if (!profile?.user_id) return null;
 

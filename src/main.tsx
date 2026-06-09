@@ -80,7 +80,6 @@ if (typeof window !== 'undefined') {
   requestAnimationFrame(() => {
     import("./styles/PremiumShine.css");
     import("./styles/premium-polish.css");
-    import("./styles/matte-themes.css");
     import("./styles/pwa-performance.css");
   });
 }
