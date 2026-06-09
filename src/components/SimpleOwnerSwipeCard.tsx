@@ -114,7 +114,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   fullScreen = false,
   canGoBack = true,
 }, ref) => {
-  useChromeReveal();
+  const { isRailVisible } = useChromeReveal();
   const isDragging = useRef(false);
   const hasExited = useRef(false);
   const isExitingRef = useRef(false);
@@ -524,7 +524,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
       {/* Action rail lives OUTSIDE the draggable motion.div so Framer Motion's
           native drag listener cannot intercept the button pointer events. */}
       <AnimatePresence>
-        {isTop && !isZoomed && (
+        {isTop && !isZoomed && isRailVisible && (
           <motion.div
             data-no-cinematic
             data-no-pull-dismiss
