@@ -124,10 +124,11 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
 
   return (
     <div 
-      className="absolute inset-0 w-full h-full px-2 bg-transparent overflow-y-auto scrollbar-none"
+      className="absolute inset-0 w-full h-full px-2 bg-transparent overflow-y-auto scrollbar-none overscroll-contain"
       style={{
         paddingTop: 'calc(var(--top-bar-height, 64px) + var(--safe-top, 0px) + 8px)',
-        paddingBottom: 'calc(env(safe-area-inset-bottom) + 88px)'
+        paddingBottom: 'calc(env(safe-area-inset-bottom) + 88px)',
+        WebkitOverflowScrolling: 'touch',
       }}
     >
       <motion.div
@@ -140,13 +141,12 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
           <motion.div
             key={item.id}
             variants={itemVariants}
-            whileTap={{ scale: 0.95 }}
             onClick={() => handleSelect(item.id)}
             className={cn(
               "relative flex flex-col justify-end text-left overflow-hidden rounded-2xl shadow-lg border border-white/10 group cursor-pointer",
               item.className
             )}
-            style={{ contain: 'paint' }}
+            style={{ contain: 'paint', touchAction: 'pan-y' }}
           >
             {/* Background Image — no z-0 so QuickFilterImage's drag overlay (z-20) participates in the card's stacking context and receives pointer events */}
             <div className="absolute inset-0">

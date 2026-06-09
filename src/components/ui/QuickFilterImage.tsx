@@ -55,7 +55,7 @@ export function QuickFilterImage({ src, alt, className, animationDelay = '0s' }:
 
 
   return (
-    <div className="absolute inset-0 w-full h-full overflow-hidden bg-slate-900/50 pointer-events-auto touch-none">
+    <div className="absolute inset-0 w-full h-full overflow-hidden bg-slate-900/50 pointer-events-auto touch-pan-y">
       {/* Invisible drag surface to capture swipes without blocking taps */}
       <motion.div
         drag="x"
