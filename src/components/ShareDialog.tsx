@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Check, Mail, Send, Share2, X } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { appToast } from '@/utils/appNotification';
