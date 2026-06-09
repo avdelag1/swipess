@@ -40,8 +40,8 @@ const BENTO_ITEMS = [
 // Two height tiers. "big" is noticeably taller than "normal" so the staggered
 // columns produce the deliberate size mismatch.
 const SIZE_CLASS: Record<'big' | 'normal', string> = {
-  big: 'h-[260px] sm:h-[300px]',
-  normal: 'h-[180px] sm:h-[210px]',
+  big: 'h-[300px] sm:h-[340px]',
+  normal: 'h-[220px] sm:h-[250px]',
 };
 
 const containerVariants = {
