@@ -59,10 +59,10 @@ function TopBarComponent({
 
   const clusterPillStyle: React.CSSProperties = { overflow: 'visible' };
 
-  // Frameless inner buttons — the cluster pill provides the visible
-  // frame so each icon button itself is transparent.
+  // Frameless inner buttons — the cluster pill provides the visible frame
+  // so each icon button itself is transparent. In light mode, add subtle bg.
   const glassPillStyle: React.CSSProperties = {
-    background: 'transparent',
+    background: isLight ? 'rgba(0,0,0,0.06)' : 'transparent',
     border: 'none',
     boxShadow: 'none',
     backdropFilter: 'none',
