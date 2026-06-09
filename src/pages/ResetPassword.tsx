@@ -127,7 +127,7 @@ const ResetPassword = () => {
         {/* Back Button */}
         <motion.button
           onClick={() => navigate("/")}
-          className="mb-8 flex items-center gap-2 text-white/40 hover:text-white/80 transition-all group"
+          className="mb-8 flex items-center gap-2 text-white/70 hover:text-white transition-all group"
           whileHover={{ x: -4 }}
           whileTap={{ scale: 0.95 }}
         >
@@ -147,29 +147,29 @@ const ResetPassword = () => {
           </div>
 
           <h2 className="text-3xl font-black italic uppercase text-white tracking-tighter mb-2">Reset Password</h2>
-          <p className="text-[11px] font-bold uppercase tracking-[0.3em] text-white/30 italic">
+          <p className="text-[11px] font-bold uppercase tracking-[0.3em] text-white/60 italic">
             Initialize Strong Access Protocol
           </p>
         </motion.div>
 
         {/* Main Card */}
         <motion.div
-          className="bg-white/[0.03] backdrop-blur-3xl border border-white/10 rounded-[2.5rem] p-8 sm:p-10 shadow-2xl relative overflow-hidden"
+          className="bg-white/[0.08] backdrop-blur-3xl border border-white/[0.18] rounded-[2.5rem] p-8 sm:p-10 shadow-2xl relative overflow-hidden"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
           {/* Subtle liquid border overlay */}
-          <div className="absolute inset-0 pointer-events-none border border-white/5 rounded-[2.5rem]" />
+          <div className="absolute inset-0 pointer-events-none border border-white/[0.12] rounded-[2.5rem]" />
           
           <form onSubmit={handleResetPassword} className="space-y-6">
             {/* New Password Field */}
             <div className="space-y-2.5">
-              <Label className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40 ml-1 italic">
+              <Label className="text-[10px] font-black uppercase tracking-[0.3em] text-white/70 ml-1 italic">
                 New Protocol Code
               </Label>
               <div className="relative group">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20 group-focus-within:text-[#FF4D00] transition-colors" />
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/50 group-focus-within:text-[#FF4D00] transition-colors" />
                 <Input
                   id="password"
                   name="password"
@@ -179,12 +179,12 @@ const ResetPassword = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter secret code"
                   required
-                  className="pl-12 pr-12 h-14 bg-white/5 border-white/10 text-white rounded-2xl focus:ring-2 focus:ring-[#FF4D00]/20 focus:border-[#FF4D00]/50 transition-all font-semibold"
+                  className="pl-12 pr-12 h-14 bg-white/[0.10] border-white/[0.18] text-white rounded-2xl focus:ring-2 focus:ring-[#FF4D00]/20 focus:border-[#FF4D00]/50 transition-all font-semibold placeholder:text-white/40"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-white/20 hover:text-white/60 transition-colors"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-white/50 hover:text-white/80 transition-colors"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -198,7 +198,7 @@ const ResetPassword = () => {
                   animate={{ opacity: 1, height: 'auto' }}
                 >
                   <div className="flex items-center gap-4">
-                    <div className="flex-1 h-1 bg-white/5 rounded-full overflow-hidden">
+                    <div className="flex-1 h-1 bg-white/[0.12] rounded-full overflow-hidden">
                       <motion.div
                         className="h-full bg-gradient-to-r from-[#FF4D00] to-[#EB4898] rounded-full"
                         initial={{ width: 0 }}
@@ -224,7 +224,7 @@ const ResetPassword = () => {
                           "flex items-center gap-2 text-[9px] font-black tracking-widest transition-colors",
                           passwordStrength.checks[key as keyof typeof passwordStrength.checks]
                             ? 'text-[#EB4898]'
-                            : 'text-white/10'
+                            : 'text-white/30'
                         )}
                       >
                         {passwordStrength.checks[key as keyof typeof passwordStrength.checks] ? (
@@ -242,11 +242,11 @@ const ResetPassword = () => {
 
             {/* Confirm Password Field */}
             <div className="space-y-2.5">
-              <Label className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40 ml-1 italic">
+              <Label className="text-[10px] font-black uppercase tracking-[0.3em] text-white/70 ml-1 italic">
                 Verify Protocol
               </Label>
               <div className="relative group">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20 group-focus-within:text-[#EB4898] transition-colors" />
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/50 group-focus-within:text-[#EB4898] transition-colors" />
                 <Input
                   id="confirmPassword"
                   name="confirmPassword"
@@ -257,14 +257,14 @@ const ResetPassword = () => {
                   placeholder="Repeat secret code"
                   required
                   className={cn(
-                    "pl-12 pr-12 h-14 bg-white/5 border-white/10 text-white rounded-2xl focus:ring-2 transition-all font-semibold",
+                    "pl-12 pr-12 h-14 bg-white/[0.10] border-white/[0.18] text-white rounded-2xl focus:ring-2 transition-all font-semibold placeholder:text-white/40",
                     confirmPassword && (passwordsMatch ? 'focus:ring-[#EB4898]/20 focus:border-[#EB4898]/50' : 'focus:ring-red-500/20 border-red-500/30 focus:border-red-500')
                   )}
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-white/20 hover:text-white/60 transition-colors"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-white/50 hover:text-white/80 transition-colors"
                 >
                   {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -303,14 +303,14 @@ const ResetPassword = () => {
 
         {/* Security Notice */}
         <motion.div
-          className="flex items-center justify-center gap-3 mt-10 text-white/20"
+          className="flex items-center justify-center gap-3 mt-10 text-white/40"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
         >
-          <div className="w-1 h-1 rounded-full bg-white/20" />
+          <div className="w-1 h-1 rounded-full bg-white/40" />
           <span className="text-[8px] font-black uppercase tracking-[0.4em] italic">Swipes Security Standard E2E</span>
-          <div className="w-1 h-1 rounded-full bg-white/20" />
+          <div className="w-1 h-1 rounded-full bg-white/40" />
         </motion.div>
       </motion.div>
     </div>

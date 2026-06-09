@@ -120,17 +120,17 @@ const LandingView = memo(({
       >
         <button
           onClick={() => { triggerHaptic('medium'); onEnterAuth('login'); }}
-          className="w-full h-14 rounded-full bg-white text-black font-bold text-[14px] tracking-wide shadow-[0_2px_20px_rgba(255,255,255,0.18)] hover:bg-white/90 active:scale-[0.97] transition-all flex items-center justify-center gap-2.5"
+          className="w-full h-14 rounded-full bg-white text-black font-bold text-[15px] tracking-wide shadow-[0_4px_24px_rgba(255,255,255,0.25)] hover:bg-white/90 active:scale-[0.97] transition-all flex items-center justify-center gap-2.5"
         >
-          <LogIn className="w-4 h-4" />
+          <LogIn className="w-[18px] h-[18px]" strokeWidth={2.5} />
           Sign In
         </button>
         <button
           onClick={() => { triggerHaptic('medium'); onEnterAuth('signup'); }}
           style={{ background: btnColor ? btnColor : undefined }}
-          className={`w-full h-14 rounded-full text-white font-bold text-[14px] tracking-wide active:scale-[0.97] transition-all flex items-center justify-center gap-2.5 border border-white/25 hover:border-white/40 ${!btnColor && 'bg-white/20 hover:bg-white/30 backdrop-blur-sm'}`}
+          className={`w-full h-14 rounded-full font-bold text-[15px] tracking-wide active:scale-[0.97] transition-all flex items-center justify-center gap-2.5 shadow-[0_4px_24px_rgba(255,77,0,0.35)] hover:shadow-[0_6px_28px_rgba(255,77,0,0.45)] ${btnColor ? 'text-white' : 'bg-[#FF4D00] text-white hover:bg-[#FF6B35]'}`}
         >
-          <Sparkles className="w-4 h-4" />
+          <Sparkles className="w-[18px] h-[18px]" strokeWidth={2} />
           {btnText}
         </button>
         <motion.p
@@ -263,7 +263,7 @@ const AuthView = memo(({ onBack, initialMode = 'login', siteContent }: { onBack:
       <div className="flex-1 flex flex-col items-center justify-center px-6 w-full max-w-sm mx-auto">
         <button
           onClick={() => { triggerHaptic('light'); if (isForgotPassword) { setIsForgotPassword(false); } else { onBack(); } }}
-          className="absolute top-12 left-6 w-11 h-11 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/60 active:scale-90 transition-all z-30 backdrop-blur-xl"
+          className="absolute top-12 left-6 w-11 h-11 rounded-full bg-white/15 border border-white/25 flex items-center justify-center text-white/80 active:scale-90 transition-all z-30 backdrop-blur-xl hover:bg-white/25 hover:text-white hover:border-white/35"
           aria-label="Go back"
         >
           <ArrowLeft className="w-5 h-5" />
@@ -399,9 +399,9 @@ const AuthView = memo(({ onBack, initialMode = 'login', siteContent }: { onBack:
                 style={{ 
                   background: getContentValue(siteContent, 'auth_primary_btn_color') ? getContentValue(siteContent, 'auth_primary_btn_color') : undefined,
                 }}
-                className={`w-full h-14 rounded-full font-bold text-[14px] tracking-wide shadow-[0_2px_20px_rgba(255,255,255,0.12)] active:scale-[0.96] transition-all flex items-center justify-center gap-2.5 disabled:opacity-40 disabled:pointer-events-none relative overflow-hidden ${!getContentValue(siteContent, 'auth_primary_btn_color') ? 'bg-white text-black' : 'text-white'}`}
+                className={`w-full h-14 rounded-full font-bold text-[15px] tracking-wide shadow-[0_4px_28px_rgba(255,255,255,0.18)] active:scale-[0.96] transition-all flex items-center justify-center gap-2.5 disabled:opacity-40 disabled:pointer-events-none relative overflow-hidden ${!getContentValue(siteContent, 'auth_primary_btn_color') ? 'bg-white text-black hover:bg-white/95' : 'text-white'}`}
               >
-                <Sparkles className="w-4 h-4" />
+                <Sparkles className="w-[18px] h-[18px]" strokeWidth={2} />
                 {isLoading ? 'Processing...' : isForgotPassword ? 'Send Reset Link' : isLogin ? getContentValue(siteContent, 'auth_login_btn_text', 'Sign In') : getContentValue(siteContent, 'auth_signup_btn_text', 'Create Account')}
               </button>
             </div>
@@ -417,7 +417,7 @@ const AuthView = memo(({ onBack, initialMode = 'login', siteContent }: { onBack:
             <button
               type="button"
               onClick={() => { triggerHaptic('light'); setIsLogin(!isLogin); setFieldErrors({}); }}
-              className="w-full h-14 rounded-full bg-white/10 text-white/70 font-bold text-[13px] tracking-wide active:scale-[0.97] transition-all flex items-center justify-center gap-2.5 border border-white/20 hover:bg-white/15 hover:text-white hover:border-white/30"
+              className="w-full h-14 rounded-full bg-white/[0.18] text-white font-bold text-[14px] tracking-wide active:scale-[0.97] transition-all flex items-center justify-center gap-2.5 border border-white/30 hover:bg-white/[0.28] hover:text-white hover:border-white/40 shadow-[0_2px_12px_rgba(255,255,255,0.08)]"
             >
               {isLogin ? 'Create Account' : 'Back to Sign In'}
             </button>

@@ -36,10 +36,10 @@ export interface SimpleOwnerSwipeCardRef {
   triggerSwipe: (direction: 'left' | 'right') => void;
 }
 
-const SWIPE_THRESHOLD = 20;
-const VELOCITY_THRESHOLD = 80;
-const SKIP_THRESHOLD = 50;
-const SKIP_VELOCITY = 150;
+const SWIPE_THRESHOLD = 50;
+const VELOCITY_THRESHOLD = 300;
+const SKIP_THRESHOLD = 80;
+const SKIP_VELOCITY = 350;
 const FALLBACK_PLACEHOLDER = '';
 type DragAxis = 'x' | 'y' | null;
 
@@ -115,7 +115,7 @@ const ActionRailButton = memo(({ icon: Icon, onClick, label }: {
       aria-label={label}
       className="w-10 h-10 rounded-full flex items-center justify-center border-none p-0 outline-none active:scale-[0.85] transition-transform"
       style={{
-        background: 'rgba(255,255,255,0.08)',
+        background: 'rgba(255,255,255,0.18)',
         border: 'none',
         WebkitTapHighlightColor: 'transparent',
       }}
@@ -390,7 +390,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
         dragListener={disableDrag ? false : (isTop ? true : undefined)}
         dragDirectionLock={disableDrag ? false : (isTop ? true : undefined)}
         dragMomentum={false}
-        dragTransition={{ bounceStiffness: 800, bounceDamping: 25 }} // Instantly glues to finger
+        dragTransition={{ bounceStiffness: 350, bounceDamping: 32 }} // Smooth finger tracking with professional feel
         onDragStart={handleDragStart}
         onDrag={handleDrag}
         onDirectionLock={handleDirectionLock}
