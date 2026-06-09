@@ -1,3 +1,4 @@
+import { useLocation } from 'react-router-dom';
 import { memo } from 'react';
 import { useAppNavigate } from "@/hooks/useAppNavigate";
 import { motion } from 'framer-motion';
@@ -43,13 +44,15 @@ function TopBarComponent({
 }: TopBarProps) {
   const { navigate } = useAppNavigate();
   const { user } = useAuth();
+  const location = useLocation();
   const { isLight } = useAppTheme();
   const setModal = useModalStore(s => s.setModal);
 
   // Always visible on every page — no chrome-reveal hiding
   const isActuallyVisible = true;
-  // Color rule: follow theme regardless of dashboard to fix invisible icons
-  const iconColor = !isLight ? '#FFFFFF' : '#0A0A0A';
+  // Dashboard forces dark background regardless of theme — must use white icons there
+  const isDashboard = location.pathname.includes('/dashboard');
+  const iconColor = isDashboard ? '#FFFFFF' : (!isLight ? '#FFFFFF' : '#0A0A0A');
 
   // Note: when an activeCategory is set on the dashboard, the SwipeDeckBackButton
   // already provides the persistent back arrow. Don't render a duplicate here.

@@ -241,10 +241,13 @@ export const BottomNavigation = memo(({
 
 
 
-  const baseColor = isLight ? '#0A0A0A' : '#FFFFFF';
-  const activeGlow = isLight
-    ? 'drop-shadow(0 2px 4px rgba(0,0,0,0.15))'
-    : 'drop-shadow(0 0 8px rgba(255,255,255,0.45))';
+  const isDashboard = location.pathname.includes('/dashboard');
+  const baseColor = isDashboard ? '#FFFFFF' : (isLight ? '#0A0A0A' : '#FFFFFF');
+  const activeGlow = isDashboard
+    ? 'drop-shadow(0 0 8px rgba(255,255,255,0.45))'
+    : (isLight
+      ? 'drop-shadow(0 2px 4px rgba(0,0,0,0.15))'
+      : 'drop-shadow(0 0 8px rgba(255,255,255,0.45))');
   return (
     <nav
       role="navigation"
