@@ -13,8 +13,9 @@ import { triggerHaptic } from '@/utils/haptics';
  * Returns motion values to bind to a wrapper around the deck:
  *   { y, scale, opacity, bind }  — bind is a set of pointer handlers.
  */
-export function usePullDownToDismiss(opts?: { threshold?: number }) {
+export function usePullDownToDismiss(opts?: { threshold?: number; onRefresh?: () => void }) {
   const threshold = opts?.threshold ?? 56;
+  const onRefresh = opts?.onRefresh;
   const y = useMotionValue(0);
   // Curtain: silky fall — eased scale-down with deep fade for a clean reveal.
   const scale = useTransform(y, [0, 200, 500], [1, 0.92, 0.7], { clamp: true });
@@ -137,6 +138,11 @@ export function usePullDownToDismiss(opts?: { threshold?: number }) {
     const flicked = velocity.current > 0.25 && current > 16;
     if (current >= threshold || flicked) {
       commitDismiss();
+    } else if (onRefresh && current > 24) {
+      // Pull-to-refresh: moderate pull triggers data refresh instead of dismiss
+      triggerHaptic('light');
+      onRefresh();
+      reset();
     } else {
       reset();
     }
@@ -192,7 +198,9 @@ export function usePullDownToDismiss(opts?: { threshold?: number }) {
       if (!active.current) { reset(); return; }
       const cur = y.get();
       const flicked = velocity.current > 0.25 && cur > 16;
-      if (cur >= threshold || flicked) { commitDismiss(); } else { reset(); }
+      if (cur >= threshold || flicked) { commitDismiss(); }
+      else if (onRefresh && cur > 24) { triggerHaptic('light'); onRefresh(); reset(); }
+      else { reset(); }
     };
 
     window.addEventListener('touchstart', onTouchStart, { passive: true });

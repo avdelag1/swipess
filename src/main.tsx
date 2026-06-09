@@ -290,6 +290,12 @@ deferredInit(async () => {
           console.warn('[SW] Controller changed');
       });
     }
+
+    // Offline swipe queue — sync queued likes/dislikes when back online
+    try {
+      const { initOfflineSync } = await import('@/utils/offlineSwipeQueue');
+      initOfflineSync();
+    } catch { /* offline queue optional */ }
   } catch { /* intentional */ }
 }, 5000);
 

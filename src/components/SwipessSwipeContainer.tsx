@@ -822,7 +822,12 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     }
   };
 
-  const pullDown = usePullDownToDismiss();
+  const handleRefresh = useCallback(() => {
+    setIsRefreshMode(true);
+    appToast.info('Refreshing', 'Loading latest listings...');
+  }, []);
+
+  const pullDown = usePullDownToDismiss({ onRefresh: handleRefresh });
 
   if (!storeActiveCategory) {
     return (
