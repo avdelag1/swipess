@@ -148,19 +148,15 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
             )}
             style={{ contain: 'paint', touchAction: 'pan-y' }}
           >
-            {/* Background Image with slow breathing animation */}
-            <motion.div
-              className="absolute inset-0"
-              animate={{ scale: [1, 1.04, 1] }}
-              transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
-            >
+            {/* Background Image with slow CSS breathing — doesn't interfere with swipe */}
+            <div className="absolute inset-0 animate-breathe">
               <QuickFilterImage
                 src={POKER_CARD_PHOTOS[item.imageId] || ''} 
                 alt={item.label} 
                 animationDelay={item.delay}
                 className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-700 ease-out" 
               />
-            </motion.div>
+            </div>
 
             {/* Soft gradient from bottom for text readability without obscuring photo */}
             <div className="absolute inset-0 z-[11] bg-gradient-to-t from-black via-black/40 to-transparent" />

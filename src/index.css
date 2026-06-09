@@ -1039,6 +1039,16 @@ button:focus:not(:focus-visible), [role="button"]:focus:not(:focus-visible) {
     will-change: opacity, transform;
   }
 
+  /* 🫁 Dashboard category card photo breathing — slow subtle zoom */
+  @keyframes breathe {
+    0%, 100% { transform: scale(1) translateZ(0); }
+    50%      { transform: scale(1.04) translateZ(0); }
+  }
+  .animate-breathe {
+    animation: breathe 6s ease-in-out infinite;
+    will-change: transform;
+  }
+
   /* Brand logo glow/breathing loading animation */
   @keyframes glow-breathe {
     0%, 100% {
