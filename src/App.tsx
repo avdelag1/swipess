@@ -35,6 +35,7 @@ import "@/i18n";
 const NotFound = lazyWithRetry(() => import("./pages/NotFound"));
 const ResetPassword = lazyWithRetry(() => import("./pages/ResetPassword"));
 const LegalHub = lazyWithRetry(() => import("./pages/LegalHub"));
+const LawyerServicesPage = lazyWithRetry(() => import("./pages/LawyerServicesPage"));
 const AboutPage = lazyWithRetry(() => import("./pages/AboutPage"));
 const FAQClientPage = lazyWithRetry(() => import("./pages/FAQClientPage"));
 const FAQOwnerPage = lazyWithRetry(() => import("./pages/FAQOwnerPage"));
@@ -165,7 +166,8 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
               <Route path="/client/services" element={<ClientWorkerDiscovery />} />
               <Route path="/client/contracts" element={<ClientContracts />} />
               <Route path="/client/legal" element={<LegalHub />} />
-              <Route path="/client/legal-services" element={<LegalHub />} />
+              <Route path="/client/legal-services" element={<ChunkErrorBoundary><Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><LawyerServicesPage /></AnimatedPage></Suspense></ChunkErrorBoundary>} />
+              <Route path="/client/lawyer" element={<ChunkErrorBoundary><Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><LawyerServicesPage /></AnimatedPage></Suspense></ChunkErrorBoundary>} />
               <Route path="/client/camera" element={<ClientSelfieCamera />} />
               <Route path="/client/filters" element={<ClientFilters />} />
 
@@ -188,7 +190,8 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
               <Route path="/owner/saved-searches" element={<OwnerSavedSearches />} />
               <Route path="/owner/security" element={<OwnerSecurity />} />
               <Route path="/owner/contracts" element={<OwnerContracts />} />
-              <Route path="/owner/legal-services" element={<LegalHub />} />
+              <Route path="/owner/legal-services" element={<ChunkErrorBoundary><Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><LawyerServicesPage /></AnimatedPage></Suspense></ChunkErrorBoundary>} />
+              <Route path="/owner/lawyer" element={<ChunkErrorBoundary><Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><LawyerServicesPage /></AnimatedPage></Suspense></ChunkErrorBoundary>} />
               <Route path="/owner/camera" element={<OwnerProfileCamera />} />
               <Route path="/owner/camera/listing" element={<OwnerListingCamera />} />
               <Route path="/owner/filters" element={<OwnerFilters />} />
@@ -228,6 +231,7 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
             <Route path="/terms-of-service" element={<Navigate to="/legal?doc=terms" replace />} />
             <Route path="/agl" element={<Navigate to="/legal?doc=agl" replace />} />
             <Route path="/legal" element={<ChunkErrorBoundary><Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><LegalHub /></AnimatedPage></Suspense></ChunkErrorBoundary>} />
+            <Route path="/legal-services" element={<ChunkErrorBoundary><Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><LawyerServicesPage /></AnimatedPage></Suspense></ChunkErrorBoundary>} />
             <Route path="/dashboard" element={<DashboardRedirect />} />
             <Route path="/about" element={<ChunkErrorBoundary><Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><AboutPage /></AnimatedPage></Suspense></ChunkErrorBoundary>} />
             <Route path="/faq/client" element={<ChunkErrorBoundary><Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><FAQClientPage /></AnimatedPage></Suspense></ChunkErrorBoundary>} />

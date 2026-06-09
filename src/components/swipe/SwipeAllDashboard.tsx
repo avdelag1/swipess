@@ -67,6 +67,7 @@ export const SwipeAllDashboard = memo(({ setCategories }: SwipeAllDashboardProps
     uiSounds.playCategorySelect();
     if (id === 'events') navigate('/explore/events');
     else if (id === 'vap') setShowVapModal(true);
+    else if (id === 'lawyer' || id === 'legal') navigate('/legal-services');
     else setCategories(id as QuickFilterCategory);
   }, [setCategories, navigate]);
 

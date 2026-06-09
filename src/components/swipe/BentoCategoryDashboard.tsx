@@ -125,6 +125,7 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
     
     if (id === 'events') navigate('/explore/events');
     else if (id === 'seekers') navigate('/explore/seekers');
+    else if (id === 'lawyer' || id === 'legal') navigate('/legal-services');
     else setCategories(id as QuickFilterCategory);
   }, [setCategories, navigate]);
 
