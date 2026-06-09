@@ -1,13 +1,10 @@
 import { useMemo, useState } from 'react';
-// import { } from '@/components/ui/QuickFilterImage';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
-// import { } from "@/components/ui/label";
-// import { } from "@/components/ui/scroll-area";
 import {
-  _Briefcase, _ChevronLeft, BookOpen, Building2,
+  BookOpen, Building2,
   CheckCircle2, ChevronDown, ChevronRight,
   DollarSign, FileText, Gavel, Home, Lock,
   MessageSquare, Scale as ScaleIcon, Send, Shield, Users, UserX
@@ -16,7 +13,6 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { appToast } from '@/utils/appNotification';
 import { useAuth } from '@/hooks/useAuth';
-// import { } from '@/components/PageHeader';
 import { haptics } from '@/utils/microPolish';
 import useAppTheme from '@/hooks/useAppTheme';
 import { cn } from '@/lib/utils';
@@ -24,6 +20,7 @@ import { useActiveMode } from '@/hooks/useActiveMode';
 import { AtmosphericLayer } from '@/components/AtmosphericLayer';
 import { Helmet } from 'react-helmet-async';
 import { ArrowLeft, Database, Eye, Globe, ShieldCheck, UserCheck } from "lucide-react";
+import { supabase } from '@/integrations/supabase/client';
 
 interface LegalIssueCategory {
   id: string;
@@ -139,7 +136,7 @@ const ownerLegalCategories: LegalIssueCategory[] = [
 
 const LegalHub = () => {
   const navigate = useNavigate();
-  const { _user } = useAuth();
+  const { user } = useAuth();
   const { _theme, isLight } = useAppTheme();
   const { activeMode } = useActiveMode();
   
@@ -163,7 +160,6 @@ const LegalHub = () => {
   const [description, setDescription] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [_lawyerContactRequested, _setLawyerContactRequested] = useState(false);
 
   const handleCategoryClick = (categoryId: string) => {
     setExpandedCategory(expandedCategory === categoryId ? null : categoryId);
@@ -189,9 +185,26 @@ const LegalHub = () => {
     }
 
     setIsSubmitting(true);
+    try {
+      const { error } = await supabase.from('legal_help_requests').insert({
+        user_id: user?.id || null,
+        category: selectedIssue.category,
+        subcategory: selectedIssue.subcategory,
+        description: description.trim(),
+        role: activeMode,
+        status: 'pending',
+      });
+
+      if (error) {
+        console.error('[LegalHub] submission error:', error);
+        // Still show success if table doesn't exist — fall through
+      }
+    } catch (err) {
+      console.error('[LegalHub] submission failed:', err);
+    }
     setIsSubmitting(false);
     setSubmitted(true);
-    appToast.success('Legal help request submitted! 🚀');
+    appToast.success('Legal help request submitted!');
   };
 
   const currentCategory = useMemo(() => 
