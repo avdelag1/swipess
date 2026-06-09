@@ -286,6 +286,9 @@ export const BottomNavigation = memo(({
           filter: isLight
             ? 'drop-shadow(0 4px 12px rgba(0,0,0,0.12))'
             : 'drop-shadow(0 8px 32px rgba(0,0,0,0.45))',
+          border: isLight
+            ? '1px solid rgba(0, 0, 0, 0.08)'
+            : '1px solid rgba(255, 255, 255, 0.12)',
         }}
       >
         {/* Nav items row — SCROLLABLE SWIPESS ARCHITECTURE */}

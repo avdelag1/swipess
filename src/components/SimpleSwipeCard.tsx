@@ -611,12 +611,12 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
             <div
               className="flex flex-col gap-1.5 p-1.5 rounded-full"
               style={{
-                // Solid rail — sits over the moving card, so no backdrop-filter
-                // (it would re-blur the card pixels every frame and tile).
-                background: 'rgba(24, 24, 28, 0.72)',
-                border: '1px solid rgba(255, 255, 255, 0.22)',
+                background: 'rgba(0, 0, 0, 0.28)',
+                backdropFilter: 'blur(24px) saturate(180%)',
+                WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+                border: '1px solid rgba(255, 255, 255, 0.18)',
                 boxShadow:
-                  '0 8px 32px -6px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.15)',
+                  '0 8px 32px -6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.12)',
               }}
             >
               {[
@@ -642,7 +642,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
                   aria-label={btn.label}
                   className="w-10 h-10 rounded-full flex items-center justify-center border-none p-0 outline-none active:scale-[0.85] transition-transform"
                   style={{
-                    background: 'rgba(255,255,255,0.08)',
+                    background: 'rgba(255,255,255,0.12)',
                     border: 'none',
                     WebkitTapHighlightColor: 'transparent',
                   }}

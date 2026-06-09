@@ -363,11 +363,17 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
                   triggerHaptic('medium');
                   onSelect(card.id);
                 }}
-                className="w-full h-14 rounded-2xl flex items-center justify-center gap-3 font-black uppercase italic tracking-widest transition-all hover:scale-[1.02] active:scale-95 text-black shadow-[0_18px_40px_rgba(0,0,0,0.35)] ring-1 ring-white/40"
-                style={{ background: 'rgba(255,255,255,0.98)' }}
+                className="w-full h-14 rounded-2xl flex items-center justify-center gap-3 font-black uppercase italic tracking-widest transition-all hover:scale-[1.02] active:scale-95 text-white shadow-[0_18px_40px_rgba(0,0,0,0.35)]"
+                style={{
+                  background: 'rgba(255, 255, 255, 0.15)',
+                  backdropFilter: 'blur(20px) saturate(180%)',
+                  WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+                  border: '1px solid rgba(255, 255, 255, 0.25)',
+                  boxShadow: '0 18px 40px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.2)',
+                }}
                 aria-label="Engage Discovery"
               >
-                {card.icon && <card.icon className="w-5 h-5" />}
+                {card.icon && <card.icon className="w-5 h-5 text-white" />}
                 <span>Engage Discovery</span>
               </button>
           </div>
