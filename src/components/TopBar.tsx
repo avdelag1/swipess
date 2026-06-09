@@ -50,9 +50,10 @@ function TopBarComponent({
 
   // Always visible on every page — no chrome-reveal hiding
   const isActuallyVisible = true;
-  // Dashboard forces dark background regardless of theme — must use white icons there
+  // Dashboard forces dark bg — icons must contrast. Light theme uses dark icons.
   const isDashboard = location.pathname.includes('/dashboard');
-  const iconColor = isDashboard ? '#FFFFFF' : (!isLight ? '#FFFFFF' : '#0A0A0A');
+  const useLightIcons = isDashboard || !isLight;
+  const iconColor = useLightIcons ? '#FFFFFF' : '#0A0A0A';
 
   // Note: when an activeCategory is set on the dashboard, the SwipeDeckBackButton
   // already provides the persistent back arrow. Don't render a duplicate here.
@@ -62,10 +63,10 @@ function TopBarComponent({
 
   const clusterPillStyle: React.CSSProperties = { overflow: 'visible' };
 
-  // Frameless inner buttons — the cluster pill provides the visible frame
-  // so each icon button itself is transparent. In light mode, add subtle bg.
+  // Frameless inner buttons — the cluster pill provides the visible frame.
+  // Light mode: stronger bg on dashboard so dark icons stand out against forced-dark bg.
   const glassPillStyle: React.CSSProperties = {
-    background: isLight ? 'rgba(0,0,0,0.06)' : 'transparent',
+    background: isLight ? (isDashboard ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.06)') : 'transparent',
     border: 'none',
     boxShadow: 'none',
     backdropFilter: 'none',
@@ -145,9 +146,9 @@ function TopBarComponent({
                 strokeWidth={2.2}
                 style={{
                   color: iconColor,
-                  filter: isLight
-                    ? 'drop-shadow(0 1px 2px rgba(0,0,0,0.18))'
-                    : 'drop-shadow(0 2px 6px rgba(0,0,0,0.55))',
+                  filter: useLightIcons
+                    ? 'drop-shadow(0 2px 6px rgba(0,0,0,0.55))'
+                    : 'drop-shadow(0 1px 2px rgba(0,0,0,0.18))',
                 }}
               />
             </motion.button>
@@ -219,7 +220,7 @@ function TopBarComponent({
                 className="w-[18px] h-[18px]"
                 style={{
                   color: iconColor,
-                  filter: isLight ? 'none' : 'drop-shadow(0 0 8px rgba(228,0,124,0.65))',
+                  filter: useLightIcons ? 'drop-shadow(0 0 8px rgba(228,0,124,0.65))' : 'none',
                 }}
                 strokeWidth={1.9}
               />
