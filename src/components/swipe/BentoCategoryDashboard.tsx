@@ -10,9 +10,9 @@ import { POKER_CARD_PHOTOS } from './SwipeConstants';
 import {
   Bike,
   Calendar,
+  Crown,
   Home,
   Key,
-  Search,
   ShoppingCart,
   UserCheck
 } from 'lucide-react';
@@ -22,8 +22,7 @@ export interface BentoCategoryDashboardProps {
 }
 
 const BENTO_ITEMS = [
-  // --- GROUP 1: Properties (big left) + Buyers & Tenants (small right) ---
-  // Grid auto-placement: property fills rows 1-2 col 1-2; buyers→row1 col3-4; tenants→row2 col3-4
+  // All cards now uniformly sized — grid is scrollable below
   {
     id: 'property',
     label: 'PROPERTIES',
@@ -37,7 +36,7 @@ const BENTO_ITEMS = [
     id: 'buyers',
     label: 'BUYERS',
     description: 'People looking to buy',
-    className: 'col-span-2 row-span-1',
+    className: 'col-span-2 row-span-2',
     imageId: 'buyers',
     icon: ShoppingCart,
     delay: '4s'
@@ -46,19 +45,16 @@ const BENTO_ITEMS = [
     id: 'rentals',
     label: 'TENANTS',
     description: 'People looking to rent',
-    className: 'col-span-2 row-span-1',
+    className: 'col-span-2 row-span-2',
     imageId: 'renters',
     icon: Key,
     delay: '8s'
   },
-
-  // --- GROUP 2: Bicycles (small left) + Workers (big right) + Motorcycles (small left) ---
-  // bicycle→row3 col1-2; services(2×2)→rows3-4 col3-4; motorcycle→row4 col1-2
   {
     id: 'bicycle',
     label: 'BICYCLES',
     description: 'Bicycles for sale or rent',
-    className: 'col-span-2 row-span-1',
+    className: 'col-span-2 row-span-2',
     imageId: 'bicycle',
     icon: Bike,
     delay: '12s'
@@ -76,27 +72,25 @@ const BENTO_ITEMS = [
     id: 'motorcycle',
     label: 'MOTORCYCLES',
     description: 'Motorcycles for sale or rent',
-    className: 'col-span-2 row-span-1',
+    className: 'col-span-2 row-span-2',
     imageId: 'motorcycle',
     icon: Bike,
     delay: '20s'
   },
-
-  // --- GROUP 3: Seekers (left) + Events (right) ---
   {
-    id: 'seekers',
-    label: 'SEEKERS',
-    description: 'People looking for help',
-    className: 'col-span-2 row-span-1',
+    id: 'premium',
+    label: 'PREMIUM',
+    description: 'Unlock exclusive features',
+    className: 'col-span-2 row-span-2',
     imageId: 'seekers',
-    icon: Search,
+    icon: Crown,
     delay: '24s'
   },
   {
     id: 'events',
     label: 'EVENTS',
     description: 'Discover local events',
-    className: 'col-span-2 row-span-1',
+    className: 'col-span-2 row-span-2',
     imageId: 'events',
     icon: Calendar,
     delay: '28s'
@@ -124,13 +118,13 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
     uiSounds.playCategorySelect();
     
     if (id === 'events') navigate('/explore/events');
-    else if (id === 'seekers') navigate('/explore/seekers');
+    else if (id === 'premium') navigate('/subscription/packages');
     else setCategories(id as QuickFilterCategory);
   }, [setCategories, navigate]);
 
   return (
     <div 
-      className="absolute inset-0 w-full h-full px-2 bg-transparent overflow-hidden"
+      className="absolute inset-0 w-full h-full px-2 bg-transparent overflow-y-auto scrollbar-none"
       style={{
         paddingTop: 'calc(var(--top-bar-height, 64px) + var(--safe-top, 0px) + 8px)',
         paddingBottom: 'calc(env(safe-area-inset-bottom) + 88px)'
@@ -140,7 +134,7 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
         variants={containerVariants}
         initial="hidden"
         animate="show"
-        className="w-full h-full max-w-3xl mx-auto grid grid-cols-4 gap-2 sm:gap-4 grid-rows-[repeat(5,minmax(0,1fr))]"
+        className="w-full max-w-3xl mx-auto grid grid-cols-4 gap-2 sm:gap-4 auto-rows-[minmax(140px,1fr)] pb-4"
       >
         {BENTO_ITEMS.map((item) => (
           <motion.div
