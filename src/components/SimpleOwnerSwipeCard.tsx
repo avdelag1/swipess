@@ -14,7 +14,7 @@
 
 import { forwardRef, memo, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { animate, AnimatePresence, motion, MotionValue, PanInfo, useMotionValue, useTransform } from 'framer-motion';
-import { BarChart3, Flag, MessageCircle, Share2 } from 'lucide-react';
+import { BarChart3, Flag, MessageCircle, RotateCcw, Share2 } from 'lucide-react';
 import { triggerHaptic } from '@/utils/haptics';
 import { getCardImageUrl } from '@/utils/imageOptimization';
 import { cn } from '@/lib/utils';
@@ -144,6 +144,8 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   onReport,
   onShare,
   onMessage,
+  onUndo,
+  canUndo,
   disableDrag,
   fullScreen = false,
   canGoBack = true,
@@ -375,11 +377,12 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   const preventContextMenuClick = useCallback((e: React.MouseEvent) => e.preventDefault(), []);
 
   const actionButtons = useMemo(() => [
+    canUndo && onUndo ? { icon: RotateCcw, onClick: onUndo, label: 'Undo' } : null,
     { icon: Share2, onClick: onShare, label: 'Share' },
     { icon: MessageCircle, onClick: onMessage, label: 'Message' },
     { icon: BarChart3, onClick: onInsights, label: 'Insights' },
     { icon: Flag, onClick: onReport, label: 'Report' },
-  ], [onShare, onMessage, onInsights, onReport]);
+  ].filter(Boolean) as { icon: React.ElementType; onClick?: () => void; label: string }[], [canUndo, onUndo, onShare, onMessage, onInsights, onReport]);
 
   if (!profile?.user_id) return null;
 

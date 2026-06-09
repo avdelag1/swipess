@@ -27,7 +27,7 @@ import { LoopVideo } from '@/components/video/LoopVideo';
 import { imageCache } from '@/lib/swipe/cardImageCache';
 import useAppTheme from '@/hooks/useAppTheme';
 import { cn } from '@/lib/utils';
-import { BarChart3, Flag, MessageCircle, Share2 } from 'lucide-react';
+import { BarChart3, Flag, MessageCircle, RotateCcw, Share2 } from 'lucide-react';
 import { PhotoPositionIndicators } from '@/components/swipe/PhotoPositionIndicators';
 import { GestureHints } from '@/components/swipe/GestureHints';
 import { revealChrome, useChromeReveal } from '@/hooks/useChromeReveal';
@@ -56,6 +56,8 @@ interface SimpleSwipeCardProps {
   onShare?: () => void;
   onReport?: () => void;
   onMessage?: () => void;
+  onUndo?: () => void;
+  canUndo?: boolean;
   isTop?: boolean;
   onDragStart?: () => void;
   disableDrag?: boolean;
@@ -118,6 +120,8 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   onReport,
   onShare,
   onMessage,
+  onUndo,
+  canUndo,
   disableDrag,
   canGoBack = true,
   fullScreen = false,
@@ -411,11 +415,12 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   const preventContextMenuClick = useCallback((e: React.MouseEvent) => e.preventDefault(), []);
 
   const actionButtons = useMemo(() => [
+    canUndo && onUndo ? { icon: RotateCcw, onClick: onUndo, label: 'Undo' } : null,
     { icon: Share2, onClick: onShare, label: 'Share' },
     { icon: MessageCircle, onClick: onMessage, label: 'Message' },
     { icon: BarChart3, onClick: onInsights, label: 'Insights' },
     { icon: Flag, onClick: onReport, label: 'Report' },
-  ], [onShare, onMessage, onInsights, onReport]);
+  ].filter(Boolean) as { icon: React.ElementType; onClick?: () => void; label: string }[], [canUndo, onUndo, onShare, onMessage, onInsights, onReport]);
 
   return (
     <div className={cn("absolute inset-0 flex flex-col", isTop ? "pointer-events-auto" : "pointer-events-none")}>

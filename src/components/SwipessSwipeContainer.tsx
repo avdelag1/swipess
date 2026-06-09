@@ -272,7 +272,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     };
   }, []);
 
-  const { recordSwipe, _undoLastSwipe, _canUndo, isUndoing: _isUndoing, undoSuccess, resetUndoState } = useSwipeUndo();
+  const { recordSwipe, undoLastSwipe, canUndo, isUndoing: _isUndoing, undoSuccess, resetUndoState } = useSwipeUndo();
   const swipeMutation = useSwipeWithMatch({
     onMatch: (clientProfile, ownerProfile) => setMatchData({ client: clientProfile, owner: ownerProfile })
   });
@@ -963,6 +963,8 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                           onDragStart={isTopCard ? handleDragStart : undefined}
                           isTop={isTopCard}
                           canGoBack={currentIndex > 0}
+                          onUndo={isTopCard ? undoLastSwipe : undefined}
+                          canUndo={canUndo}
                         />
                       ) : (
                         <SimpleSwipeCard
@@ -985,6 +987,8 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                           } : undefined}
                           onDragStart={isTopCard ? handleDragStart : undefined}
                           canGoBack={currentIndex > 0}
+                          onUndo={isTopCard ? undoLastSwipe : undefined}
+                          canUndo={canUndo}
                         />
                       )}
                     </motion.div>

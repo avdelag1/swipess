@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 /**
  * Universal voice-to-text hook.
@@ -15,6 +15,8 @@ const TRANSCRIBE_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/voice-
 export interface UseVoiceTranscribeResult {
   isRecording: boolean;
   isTranscribing: boolean;
+  /** Why the last start() call failed, if it did. Null on success. */
+  lastError: string | null;
   start: () => Promise<boolean>;
   stop: () => Promise<string>;
   cancel: () => void;
@@ -56,12 +58,33 @@ async function blobToBase64(blob: Blob): Promise<string> {
 export function useVoiceTranscribe(): UseVoiceTranscribeResult {
   const [isRecording, setIsRecording] = useState(false);
   const [isTranscribing, setIsTranscribing] = useState(false);
+  const [lastError, setLastError] = useState<string | null>(null);
 
   const recorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const mimeRef = useRef<string>('');
   const cancelledRef = useRef(false);
+  const mountedRef = useRef(true);
+
+  // Cleanup on unmount: stop recorder + release media stream
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+      if (recorderRef.current && recorderRef.current.state !== 'inactive') {
+        try { recorderRef.current.stop(); } catch { /* already stopped */ }
+      }
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach((t) => t.stop());
+        streamRef.current = null;
+      }
+      recorderRef.current = null;
+      chunksRef.current = [];
+      setIsRecording(false);
+      setIsTranscribing(false);
+    };
+  }, []);
 
   const cleanupStream = useCallback(() => {
     if (streamRef.current) {
@@ -74,16 +97,18 @@ export function useVoiceTranscribe(): UseVoiceTranscribeResult {
 
   const start = useCallback(async (): Promise<boolean> => {
     if (typeof navigator === 'undefined' || !navigator.mediaDevices?.getUserMedia) {
+      setLastError('Microphone not supported in this browser');
       return false;
     }
     try {
       cancelledRef.current = false;
+      setLastError(null);
       // Pre-check permission state when supported (Chromium/Safari 16+)
       try {
         // @ts-expect-error - permissions API typing varies
         const status = await navigator.permissions?.query?.({ name: 'microphone' as PermissionName });
         if (status?.state === 'denied') {
-          console.warn('[useVoiceTranscribe] Microphone permission previously denied');
+          setLastError('Microphone permission denied — enable in browser settings');
           return false;
         }
       } catch {
@@ -97,6 +122,7 @@ export function useVoiceTranscribe(): UseVoiceTranscribeResult {
         },
       });
       streamRef.current = stream;
+      setLastError(null);
 
       const mimeType = pickMimeType();
       mimeRef.current = mimeType;
@@ -110,12 +136,18 @@ export function useVoiceTranscribe(): UseVoiceTranscribeResult {
       };
       recorder.start(250);
       recorderRef.current = recorder;
-      setIsRecording(true);
+      if (mountedRef.current) setIsRecording(true);
       return true;
     } catch (err) {
+      const msg = err instanceof DOMException && err.name === 'NotAllowedError'
+        ? 'Microphone permission denied — enable in browser settings'
+        : err instanceof DOMException && err.name === 'NotFoundError'
+          ? 'No microphone device found'
+          : 'Microphone access failed — check device permissions';
+      setLastError(msg);
       console.error('[useVoiceTranscribe] start failed', err);
       cleanupStream();
-      setIsRecording(false);
+      if (mountedRef.current) setIsRecording(false);
       return false;
     }
   }, [cleanupStream]);
@@ -124,7 +156,7 @@ export function useVoiceTranscribe(): UseVoiceTranscribeResult {
     const recorder = recorderRef.current;
     if (!recorder) {
       cleanupStream();
-      setIsRecording(false);
+      if (mountedRef.current) setIsRecording(false);
       return '';
     }
 
@@ -141,15 +173,16 @@ export function useVoiceTranscribe(): UseVoiceTranscribeResult {
     });
 
     cleanupStream();
-    setIsRecording(false);
+    if (mountedRef.current) setIsRecording(false);
 
     if (cancelledRef.current) return '';
     if (!finalBlob || finalBlob.size < 800) {
-      // Less than ~0.1s of audio — skip the round trip
+      setLastError('Recording too short — hold the mic button while speaking');
       return '';
     }
 
-    setIsTranscribing(true);
+    if (mountedRef.current) setIsTranscribing(true);
+    setLastError(null);
     try {
       const base64 = await blobToBase64(finalBlob);
       const mimeType = finalBlob.type || mimeRef.current || 'audio/webm';
@@ -167,16 +200,18 @@ export function useVoiceTranscribe(): UseVoiceTranscribeResult {
 
       if (!resp.ok) {
         const errBody = await resp.text();
+        setLastError('Voice transcription service unavailable — try again');
         console.error('[useVoiceTranscribe] gateway error', resp.status, errBody);
         return '';
       }
       const data = await resp.json();
       return typeof data?.text === 'string' ? data.text.trim() : '';
     } catch (err) {
+      setLastError('Network error — check your connection');
       console.error('[useVoiceTranscribe] transcription failed', err);
       return '';
     } finally {
-      setIsTranscribing(false);
+      if (mountedRef.current) setIsTranscribing(false);
     }
   }, [cleanupStream]);
 
@@ -190,9 +225,12 @@ export function useVoiceTranscribe(): UseVoiceTranscribeResult {
       }
     }
     cleanupStream();
-    setIsRecording(false);
-    setIsTranscribing(false);
+    if (mountedRef.current) {
+      setIsRecording(false);
+      setIsTranscribing(false);
+    }
+    setLastError(null);
   }, [cleanupStream]);
 
-  return { isRecording, isTranscribing, start, stop, cancel };
+  return { isRecording, isTranscribing, lastError, start, stop, cancel };
 }
