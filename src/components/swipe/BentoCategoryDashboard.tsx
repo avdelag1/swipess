@@ -141,15 +141,16 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
           <motion.div
             key={item.id}
             variants={itemVariants}
+            whileHover={{ scale: 1.02 }}
             onClick={() => handleSelect(item.id)}
             className={cn(
-              "relative flex flex-col justify-end text-left overflow-hidden rounded-2xl shadow-lg border border-white/10 group cursor-pointer",
+              "relative flex flex-col justify-end text-left overflow-hidden rounded-2xl shadow-lg border border-white/10 group cursor-pointer transition-transform duration-700",
               item.className
             )}
             style={{ contain: 'paint', touchAction: 'pan-y' }}
           >
-            {/* Background Image with slow CSS breathing — doesn't interfere with swipe */}
-            <div className="absolute inset-0 animate-breathe">
+            {/* Background Image */}
+            <div className="absolute inset-0">
               <QuickFilterImage
                 src={POKER_CARD_PHOTOS[item.imageId] || ''} 
                 alt={item.label} 
