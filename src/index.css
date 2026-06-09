@@ -317,7 +317,7 @@ html[data-theme-transition] ::view-transition-new(root) {
 .glass-surface,
 .glass-pill {
   position: relative;
-  background: rgba(235, 248, 255, 0.45); /* Frozen Blue Tint - Less transparent */
+  background: rgba(245, 245, 247, 0.45); /* Neutral frost (YouTube-style, no blue tint) */
   -webkit-backdrop-filter: blur(32px) saturate(180%);
   backdrop-filter: blur(32px) saturate(180%);
   border: 1px solid rgba(255, 255, 255, 0.22);
@@ -361,6 +361,34 @@ html[data-theme-transition] ::view-transition-new(root) {
     0 8px 24px rgba(0, 0, 0, 0.30),
     inset 0 1px 0 rgba(255, 255, 255, 0.55),
     0 0 0 1px rgba(255, 255, 255, 0.12);
+}
+
+/* ─── Unified glass HUD icon button ──────────────────────────────────
+   Frameless icon button shared across floating chrome (swipe-card action
+   rail, header, nav, back / close / FAB controls). Theme-aware by default:
+   the icon takes the foreground colour (white in dark themes, dark in light
+   themes) so it stays legible on the frosted glass. Controls that float over
+   PHOTOS use [data-tone="photo"] to stay white in every theme — exactly like
+   YouTube's player controls sitting over video. The icon floats directly on
+   whatever glass frame contains it (no per-icon circle). */
+.glass-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: hsl(var(--foreground));
+  -webkit-tap-highlight-color: transparent;
+  cursor: pointer;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.18));
+  transition: transform 0.15s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.glass-icon-btn:active { transform: scale(0.85); }
+.glass-icon-btn[data-tone="photo"] {
+  color: #ffffff;
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.55));
 }
 
 @media (prefers-reduced-transparency: reduce) {

@@ -23,6 +23,7 @@ import { CompactRatingDisplay } from '@/components/RatingDisplay';
 import { LoopVideo } from '@/components/video/LoopVideo';
 import { useUserRatingAggregateEnhanced } from '@/hooks/useRatingSystem';
 import { ClientCardInfo } from '@/components/ui/CardInfoHierarchy';
+import { GlassIconButton } from '@/components/ui/GlassIconButton';
 import { SwipeMatchMeter } from '@/components/swipe/SwipeMatchMeter';
 import useAppTheme from '@/hooks/useAppTheme';
 import { imageCache } from '@/lib/swipe/cardImageCache';
@@ -90,48 +91,9 @@ interface SimpleOwnerSwipeCardProps {
   canGoBack?: boolean;
 }
 
-const ActionRailButton = memo(({ icon: Icon, onClick, label }: {
-  icon: React.ElementType;
-  onClick?: () => void;
-  label: string;
-}) => {
-  const handlePointerDown = useCallback((e: React.PointerEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-  }, []);
-
-  const handleClick = useCallback((e: React.MouseEvent) => {
-    e.stopPropagation();
-    e.preventDefault();
-    triggerHaptic('light');
-    onClick?.();
-  }, [onClick]);
-
-  return (
-    <button
-      data-no-pull-dismiss
-      data-no-cinematic
-      onPointerDown={handlePointerDown}
-      onClick={handleClick}
-      aria-label={label}
-      className="w-10 h-10 rounded-full flex items-center justify-center border-none p-0 outline-none active:scale-[0.85] transition-transform"
-      style={{
-        background: 'rgba(255,255,255,0.18)',
-        border: 'none',
-        WebkitTapHighlightColor: 'transparent',
-      }}
-    >
-      <Icon
-        color="#FFFFFF"
-        className="w-[18px] h-[18px]"
-        style={{ filter: 'drop-shadow(0 1px 3px rgba(0,0,0,0.5))' }}
-        strokeWidth={1.8}
-      />
-    </button>
-  );
-});
-
-ActionRailButton.displayName = 'ActionRailButton';
+// ActionRailButton now lives in the shared <GlassIconButton /> primitive
+// (src/components/ui/GlassIconButton.tsx) so the swipe-card rail, header, nav
+// and other floating controls share one frosted-glass + outlined-icon look.
 
 const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, SimpleOwnerSwipeCardProps>(({
   profile,
@@ -457,10 +419,10 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           style={{
             right: 12,
             top: 'calc(var(--safe-top, 0px) + 50px)',
+            // Solid fill, no backdrop-filter: this button rides the moving card,
+            // and re-blurring the card pixels each frame causes GPU tiling.
             background: 'rgba(0,0,0,0.55)',
             border: '1px solid rgba(255,255,255,0.25)',
-            backdropFilter: 'blur(12px)',
-            WebkitBackdropFilter: 'blur(12px)',
           }}
         >
           {canUndo ? (
@@ -585,7 +547,15 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
               }}
             >
               {actionButtons.map((btn, idx) => (
-                <ActionRailButton key={idx} icon={btn.icon} onClick={btn.onClick} label={btn.label} />
+                <GlassIconButton
+                  key={idx}
+                  icon={btn.icon}
+                  onClick={btn.onClick}
+                  label={btn.label}
+                  tone="onPhoto"
+                  size="md"
+                  guardSwipe
+                />
               ))}
             </div>
           </motion.div>
