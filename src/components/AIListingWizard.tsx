@@ -136,10 +136,10 @@ export function AIListingWizard() {
   const modalBg = isLight ? 'bg-white border-black/10' : 'bg-black border-white/10';
   const headerBorder = isLight ? 'border-black/8' : 'border-white/5';
   const textPrimary = isLight ? 'text-black' : 'text-white';
-  const textMuted = isLight ? 'text-black/50' : 'text-white/50';
+  const textMuted = isLight ? 'text-black/70' : 'text-white/80';
   const inputCls = isLight
-    ? 'bg-white border border-black/10 focus:border-rose-500/50 focus:ring-0 text-black placeholder:text-black/30 shadow-[0_2px_8px_rgba(0,0,0,0.04)]'
-    : 'bg-white/5 border border-white/5 focus:border-rose-500/50 focus:ring-0 text-white placeholder:text-white/10';
+    ? 'bg-white border border-black/10 focus:border-rose-500/50 focus:ring-0 text-black placeholder:text-black/50 shadow-[0_2px_8px_rgba(0,0,0,0.04)]'
+    : 'bg-white/10 border border-white/20 focus:border-rose-500/50 focus:ring-0 text-white placeholder:text-white/60';
   const closeBtnCls = isLight
     ? 'bg-white hover:bg-black/5 rounded-2xl transition-all border border-black/10 shadow-[0_2px_8px_rgba(0,0,0,0.06)]'
     : 'bg-white/5 hover:bg-white/10 rounded-2xl transition-all border border-white/5';
@@ -240,7 +240,11 @@ export function AIListingWizard() {
       }
     } else {
       const success = await startVoice();
-      if (success) triggerHaptic('light');
+      if (success) {
+        triggerHaptic('light');
+      } else {
+        setTimeout(() => appToast.error('Microphone permissions denied or device busy.'), 300);
+      }
     }
   };
 
@@ -401,7 +405,7 @@ export function AIListingWizard() {
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.95, opacity: 0, y: 30 }}
             className={cn(
-              "w-full max-w-2xl h-full sm:h-[85vh] overflow-hidden sm:rounded-[3rem] border flex flex-col relative",
+              "w-full h-full mx-auto sm:h-[85vh] sm:max-w-2xl overflow-hidden sm:rounded-[3rem] border flex flex-col relative",
               isLight ? "shadow-[0_40px_100px_rgba(0,0,0,0.2)]" : "shadow-[0_40px_100px_rgba(0,0,0,1)]",
               modalBg
             )}

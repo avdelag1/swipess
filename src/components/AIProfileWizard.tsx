@@ -66,10 +66,10 @@ export function AIProfileWizard() {
 
   const modalBg = isLight ? 'bg-white border-black/10' : 'bg-black border-white/10';
   const textPrimary = isLight ? 'text-black' : 'text-white';
-  const textMuted = isLight ? 'text-black/50' : 'text-white/50';
+  const textMuted = isLight ? 'text-black/70' : 'text-white/80';
   const inputCls = isLight
-    ? 'bg-white border border-black/10 focus:border-rose-500/50 focus:ring-0 text-black placeholder:text-black/30'
-    : 'bg-white/[0.08] border border-white/15 focus:border-rose-500/50 focus:ring-0 text-white placeholder:text-white/40';
+    ? 'bg-white border border-black/10 focus:border-rose-500/50 focus:ring-0 text-black placeholder:text-black/50'
+    : 'bg-white/[0.12] border border-white/20 focus:border-rose-500/50 focus:ring-0 text-white placeholder:text-white/60';
   const closeBtnCls = isLight
     ? 'bg-white hover:bg-black/5 border border-black/10'
     : 'bg-white/5 hover:bg-white/10 border border-white/5';
@@ -92,7 +92,12 @@ export function AIProfileWizard() {
       if (text) setNarrative(prev => prev ? `${prev} ${text}` : text);
     } else {
       const ok = await startVoice();
-      if (ok) triggerHaptic('light');
+      if (ok) {
+        triggerHaptic('light');
+      } else {
+        // useVoiceTranscribe sets lastError, but we want to wait for state to update, or just fire a generic toast since lastError updates asynchronously
+        setTimeout(() => appToast.error('Microphone check failed. Enable permissions or try again.'), 300);
+      }
     }
   };
 
@@ -145,7 +150,7 @@ export function AIProfileWizard() {
           name: draft.name || null,
           age: draft.age || null,
           gender: draft.gender || null,
-          bio: draft.bio || null,
+          bio: draft.bio || narrative, // Fallback to raw voice/text
           city: draft.city || null,
           neighborhood: draft.neighborhood || null,
           country: draft.country || null,
@@ -202,7 +207,7 @@ export function AIProfileWizard() {
         const payload: any = {
           user_id: user.id,
           business_name: draft.business_name || null,
-          business_description: draft.business_description || null,
+          business_description: draft.business_description || narrative, // Fallback
           business_location: draft.business_location || null,
           contact_email: draft.contact_email || null,
           contact_phone: draft.contact_phone || null,
@@ -283,7 +288,7 @@ export function AIProfileWizard() {
           animate={{ scale: 1, opacity: 1, y: 0 }}
           exit={{ scale: 0.95, opacity: 0, y: 30 }}
           className={cn(
-            "w-full max-w-2xl h-full sm:h-[85vh] overflow-hidden sm:rounded-[3rem] border flex flex-col relative",
+            "w-full max-w-2xl mx-auto h-full sm:h-[85vh] overflow-hidden sm:rounded-[3rem] border flex flex-col relative",
             isLight ? "shadow-[0_40px_100px_rgba(0,0,0,0.2)]" : "shadow-[0_40px_100px_rgba(0,0,0,1)]",
             modalBg
           )}

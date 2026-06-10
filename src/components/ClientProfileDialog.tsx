@@ -210,8 +210,6 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
       });
       appToast.success('Identity Updated');
       onOpenChange(false);
-      // Navigate to virtual VAP ID card to show updated data
-      useModalStore.getState().setModal('showVapId', true);
     } catch (_error) {
        appToast.error('Sync Error');
     }
