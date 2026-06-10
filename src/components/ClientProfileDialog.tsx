@@ -50,6 +50,7 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
   const [name, setName] = useState<string>('');
   const [age, setAge] = useState<number | ''>('');
   const [gender, setGender] = useState<string>('');
+  const [bio, setBio] = useState<string>('');
   const [interests, setInterests] = useState<string[]>([]);
   const [activities, setActivities] = useState<string[]>([]);
   const [profileImages, setProfileImages] = useState<string[]>([]);
@@ -147,6 +148,7 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
     setName(data.name ?? '');
     setAge(data.age ?? '');
     setGender(data.gender ?? '');
+    setBio((data as any).bio ?? '');
     setInterests(data.interests ?? []);
     setActivities(data.preferred_activities ?? []);
     setProfileImages(data.profile_images ?? []);
@@ -191,9 +193,13 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
       appToast.error('Content Blocked');
       return;
     }
+    if (bio && !validateContent(bio).isClean) {
+      appToast.error('Content Blocked');
+      return;
+    }
     try {
       await saveMutation.mutateAsync({
-        name, age: age === '' ? null : Number(age), gender,
+        name, age: age === '' ? null : Number(age), gender, bio,
         interests, preferred_activities: activities, profile_images: profileImages,
         video_url: videoUrl,
         nationality, languages, relationship_status: relationshipStatus, has_children: hasChildren,
@@ -352,6 +358,22 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
                         </Select>
                       </div>
                    </div>
+                </div>
+
+                <div className="space-y-2">
+                   <Label className={cn("text-[10px] font-black uppercase tracking-widest italic ml-1", isLight ? "text-slate-400" : "text-white/40")}>About You — shown on your card</Label>
+                   <textarea
+                     value={bio}
+                     onChange={(e) => setBio(e.target.value)}
+                     maxLength={500}
+                     rows={4}
+                     placeholder="Tell owners who you are, what you're looking for, and what makes you a great match…"
+                     className={cn(
+                       "w-full rounded-2xl bg-white/[0.03] font-medium focus:border-[#EB4898]/50 focus:bg-white/[0.05] transition-all px-6 py-4 shadow-sm border resize-none focus:outline-none text-sm leading-relaxed",
+                       isLight ? "text-slate-900 border-slate-200 placeholder:text-slate-400" : "text-white border-white/10 placeholder:text-white/30"
+                     )}
+                   />
+                   <p className={cn("text-[9px] uppercase tracking-widest italic text-right", isLight ? "text-slate-400" : "text-white/30")}>{bio.length}/500</p>
                 </div>
             </section>
 

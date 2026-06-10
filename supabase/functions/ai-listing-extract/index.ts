@@ -78,11 +78,33 @@ serve(async (req) => {
 
     // task === "extract"
     const category = body.category || "property";
+
+    // Canonical chip vocabulary — must mirror src/constants/listingTaxonomies.ts
+    // so the AI maps the user's words onto REAL selectable chips (otherwise the
+    // amenities it returns never register in the form).
+    const AMENITY_VOCAB: Record<string, string[]> = {
+      property: [
+        'Private Pool','Shared Pool','Gym','Parking','Garage','Carport','AC','WiFi','Security 24/7','Security Cameras','Garden','Balcony','Terrace','Rooftop','Elevator','Storage','Workspace','Office Space','2-in-1 Washer/Dryer','Separate Washer & Dryer','Laundry Room','Washer','Dishwasher','Gas Stove','Water Filter / Osmosis','Smart-home','Solar Panels','Backup water','Sea View','Mountain View','Garden View','Outdoor Kitchen','BBQ','Hot Tub','Sauna','Walk-in Closet','Fireplace','Mosquito Net','Sublease Option',
+        'Water','Electricity','Gas','Internet','Cleaning','Maintenance','Trash','Cable TV',
+        'Quiet','Lively','Family-friendly','Pet-friendly','Beachfront','Jungle','Downtown','Gated','Eco',
+      ],
+      motorcycle: ['ABS','ESC','Traction control','Heated grips','Luggage rack','Crash bars','Quick-shifter','Bluetooth','Helmet','Riding gear','Lock','Top case','Charger','Insurance','Roadside assistance'],
+      bicycle: ['Front suspension','Full suspension','Disc brakes','Carbon frame','Aluminum frame','Tubeless','Dropper post','Lock','Lights','Basket','Pump','Helmet','Repair kit'],
+      worker: ['Punctual','Detail-oriented','English-speaking','Spanish-speaking','Insured','Background-checked','Own tools','Own vehicle','Emergency available'],
+    };
+    const vocab = AMENITY_VOCAB[category] || AMENITY_VOCAB.property;
+
     const sys = `You parse natural-language listing intel into structured JSON for a Swipess marketplace listing.
 Category is "${category}". Use the provided base data when present.
 Base price: ${body.price ?? "(unknown)"}
 Base city: ${body.city ?? "(unknown)"}
-Be faithful to the user's words. Do not invent specifics that were not stated.
+
+Rules:
+- Be faithful to the user's words. NEVER invent specifics (price, beds, year, brand, model) that were not stated.
+- If "Base price" is a number, you MUST return it as "price" — it is the seller's chosen price, do not change it.
+- For "amenities": choose ONLY from this exact list, copied verbatim (do not paraphrase, translate, or add new ones). Include every entry the description clearly implies, and omit the rest:
+${JSON.stringify(vocab)}
+- Write "description" as a polished, professional, high-converting paragraph (2-5 sentences) that naturally weaves in the chosen amenities and the user's own details. Confident and factual — no placeholders, no bullet lists.
 
 Return ONLY valid JSON matching this schema, no markdown:
 {
@@ -111,8 +133,13 @@ Return ONLY valid JSON matching this schema, no markdown:
       return json(500, { error: "Extract failed" });
     }
 
-    // Merge fallbacks
-    if (!parsed.price && body.price) parsed.price = Number(body.price) || 0;
+    // The seller's explicitly entered price always wins over anything the model inferred.
+    const userPrice = Number(body.price);
+    if (Number.isFinite(userPrice) && userPrice > 0) {
+      parsed.price = userPrice;
+    } else if (!parsed.price && body.price) {
+      parsed.price = Number(body.price) || 0;
+    }
     if (!parsed.city && body.city) parsed.city = body.city;
 
     return json(200, { data: parsed });

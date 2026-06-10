@@ -1,7 +1,7 @@
 {
   "name": "swipess",
   "private": true,
-  "version": "1.2.3",
+  "version": "1.2.5",
   "type": "module",
   "description": "Elite multi-vertical marketplace for properties, vehicles, and services",
   "author": "Swipess Team",
@@ -26,7 +26,7 @@
     "cap:sync": "npm run build && npx cap sync",
     "cap:update": "npx cap update",
     "generate:icons": "bash scripts/generate-ios-assets.sh",
-    "deploy:ai": "npx supabase functions deploy ai-orchestrator"
+    "deploy:ai": "npx supabase functions deploy ai-concierge voice-transcribe ai-profile-extract ai-enhance-text ai-listing-extract"
   },
   "dependencies": {
     "@capacitor/android": "^7.6.6",

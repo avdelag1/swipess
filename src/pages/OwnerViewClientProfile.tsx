@@ -22,6 +22,7 @@ import { triggerHaptic } from '@/utils/haptics';
 import { useUserRatingAggregate } from '@/hooks/useRatingSystem';
 import { CompactRatingDisplay } from '@/components/RatingDisplay';
 import { ConnectingOverlay } from '@/components/ConnectingOverlay';
+import { CLIENT_INTENTION_OPTIONS } from '@/constants/profileConstants';
 
 export default function OwnerViewClientProfile() {
   const { clientId } = useParams();
@@ -48,7 +49,7 @@ export default function OwnerViewClientProfile() {
 
       const { data: clientProfile } = await supabase
         .from('client_profiles')
-        .select('profile_images, name, age, bio')
+        .select('profile_images, name, age, bio, intentions')
         .eq('user_id', clientId)
         .maybeSingle();
 
@@ -59,6 +60,7 @@ export default function OwnerViewClientProfile() {
       if (clientProfile?.name) profileData.full_name = clientProfile.name;
       if (clientProfile?.age) profileData.age = clientProfile.age;
       if (clientProfile?.bio) profileData.bio = clientProfile.bio;
+      if (Array.isArray((clientProfile as any)?.intentions)) (profileData as any).intentions = (clientProfile as any).intentions;
 
       return profileData;
     },
@@ -232,6 +234,33 @@ export default function OwnerViewClientProfile() {
             </div>
           </div>
         </div>
+
+        {/* 📝 ABOUT + LOOKING FOR — what the client wrote and what they want */}
+        {((client as any).bio || (Array.isArray((client as any).intentions) && (client as any).intentions.length > 0)) && (
+          <div className="p-6 rounded-[32px] bg-zinc-950/40 backdrop-blur-xl border border-white/10 shadow-xl space-y-4">
+            {(client as any).bio && (
+              <div className="space-y-2">
+                <span className="text-[10px] font-black uppercase tracking-widest text-white/30 italic">About</span>
+                <p className="text-sm text-white/80 leading-relaxed whitespace-pre-wrap">{(client as any).bio}</p>
+              </div>
+            )}
+            {Array.isArray((client as any).intentions) && (client as any).intentions.length > 0 && (
+              <div className="space-y-2">
+                <span className="text-[10px] font-black uppercase tracking-widest text-white/30 italic">Looking For</span>
+                <div className="flex flex-wrap gap-2">
+                  {((client as any).intentions as string[]).map((intentionId) => {
+                    const option = CLIENT_INTENTION_OPTIONS.find(o => o.id === intentionId);
+                    return (
+                      <span key={intentionId} className="px-3 py-1.5 rounded-full bg-[#EB4898]/10 border border-[#EB4898]/25 text-[11px] font-bold text-[#EB4898] uppercase tracking-wide">
+                        {option?.label ?? intentionId}
+                      </span>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* ðŸ“Š HERO STATS GRID */}
         <div className="grid grid-cols-2 gap-3">
