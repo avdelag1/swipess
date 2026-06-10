@@ -78,8 +78,15 @@ export function AppLayout({ children }: AppLayoutProps) {
     (isClientDash && selectedCategoriesCount > 0) ||
     (isOwnerDash && ownerPhase === 'swipe') ||
     isRoommatesRoute;
+  // Immersive single-card detail pages (a listing or profile opened on its
+  // own — e.g. a property surfaced by the AI concierge) get the same
+  // auto-hide chrome behaviour as the swipe deck: the header + bottom nav
+  // fade first, then the card's vertical action rail.
+  const isImmersiveCardRoute =
+    location.pathname.startsWith('/listing/') ||
+    location.pathname.startsWith('/profile/');
   const { isChromeVisible } = useChromeReveal();
-  const useRevealMode = swipeDeckActive && !showAIChat;
+  const useRevealMode = (swipeDeckActive || isImmersiveCardRoute) && !showAIChat;
   const hideFloatingForSwipe = useRevealMode && !isChromeVisible;
 
   const userRole = useMemo<'client' | 'owner' | 'admin'>(() => {
