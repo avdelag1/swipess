@@ -13,11 +13,11 @@ interface ChipMultiSelectProps {
 }
 
 const ACCENT_MAP: Record<NonNullable<ChipMultiSelectProps['accent']>, { bg: string; text: string; border: string; shadow: string }> = {
-  rose:    { bg: 'bg-rose-500/20',    text: 'text-rose-300',    border: 'border-rose-500/30',    shadow: 'shadow-rose-500/10' },
-  amber:   { bg: 'bg-amber-500/20',   text: 'text-amber-300',   border: 'border-amber-500/30',   shadow: 'shadow-amber-500/10' },
-  orange:  { bg: 'bg-orange-500/20',  text: 'text-orange-300',  border: 'border-orange-500/30',  shadow: 'shadow-orange-500/10' },
-  cyan:    { bg: 'bg-cyan-500/20',    text: 'text-cyan-300',    border: 'border-cyan-500/30',    shadow: 'shadow-cyan-500/10' },
-  emerald: { bg: 'bg-emerald-500/20', text: 'text-emerald-300', border: 'border-emerald-500/30', shadow: 'shadow-emerald-500/10' },
+  rose:    { bg: 'bg-rose-100 dark:bg-rose-500/20',    text: 'text-rose-700 dark:text-rose-300',    border: 'border-rose-400 dark:border-rose-500/30',    shadow: 'shadow-rose-500/10' },
+  amber:   { bg: 'bg-amber-100 dark:bg-amber-500/20',   text: 'text-amber-700 dark:text-amber-300',   border: 'border-amber-400 dark:border-amber-500/30',   shadow: 'shadow-amber-500/10' },
+  orange:  { bg: 'bg-orange-100 dark:bg-orange-500/20',  text: 'text-orange-700 dark:text-orange-300',  border: 'border-orange-400 dark:border-orange-500/30',  shadow: 'shadow-orange-500/10' },
+  cyan:    { bg: 'bg-cyan-100 dark:bg-cyan-500/20',    text: 'text-cyan-700 dark:text-cyan-300',    border: 'border-cyan-400 dark:border-cyan-500/30',    shadow: 'shadow-cyan-500/10' },
+  emerald: { bg: 'bg-emerald-100 dark:bg-emerald-500/20', text: 'text-emerald-700 dark:text-emerald-300', border: 'border-emerald-400 dark:border-emerald-500/30', shadow: 'shadow-emerald-500/10' },
 };
 
 const springTap = { type: 'spring' as const, stiffness: 500, damping: 30 };

@@ -2617,33 +2617,101 @@ button:disabled,
  * Applied on both .light and .white-matte (both set by ThemeContext).
  * =================================================================== */
 
-/* Transparent-white backgrounds → transparent-black */
-.white-matte .bg-white\/5,  .light .bg-white\/5  { background-color: rgba(0,0,0,0.03) !important; }
-.white-matte .bg-white\/10, .light .bg-white\/10 { background-color: rgba(0,0,0,0.05) !important; }
-.white-matte .bg-white\/20, .light .bg-white\/20 { background-color: rgba(0,0,0,0.07) !important; }
-.white-matte .bg-white\/\[0\.02\], .light .bg-white\/\[0\.02\] { background-color: rgba(0,0,0,0.02) !important; }
-.white-matte .bg-white\/\[0\.03\], .light .bg-white\/\[0\.03\] { background-color: rgba(0,0,0,0.03) !important; }
-.white-matte .bg-white\/\[0\.04\], .light .bg-white\/\[0\.04\] { background-color: rgba(0,0,0,0.04) !important; }
+/* ── bg-white/N → transparent-black ─────────────────────────────────── */
+.white-matte .bg-white\/5,          .light .bg-white\/5          { background-color: rgba(0,0,0,0.03) !important; }
+.white-matte .bg-white\/10,         .light .bg-white\/10         { background-color: rgba(0,0,0,0.05) !important; }
+.white-matte .bg-white\/15,         .light .bg-white\/15         { background-color: rgba(0,0,0,0.05) !important; }
+.white-matte .bg-white\/20,         .light .bg-white\/20         { background-color: rgba(0,0,0,0.07) !important; }
+.white-matte .bg-white\/25,         .light .bg-white\/25         { background-color: rgba(0,0,0,0.07) !important; }
+.white-matte .bg-white\/30,         .light .bg-white\/30         { background-color: rgba(0,0,0,0.08) !important; }
+.white-matte .bg-white\/40,         .light .bg-white\/40         { background-color: rgba(0,0,0,0.09) !important; }
+.white-matte .bg-white\/50,         .light .bg-white\/50         { background-color: rgba(0,0,0,0.09) !important; }
+.white-matte .bg-white\/60,         .light .bg-white\/60         { background-color: rgba(0,0,0,0.08) !important; }
+.white-matte .bg-white\/70,         .light .bg-white\/70         { background-color: rgba(0,0,0,0.09) !important; }
+.white-matte .bg-white\/80,         .light .bg-white\/80         { background-color: rgba(0,0,0,0.07) !important; }
+.white-matte .bg-white\/\[0\.02\],  .light .bg-white\/\[0\.02\]  { background-color: rgba(0,0,0,0.02) !important; }
+.white-matte .bg-white\/\[0\.03\],  .light .bg-white\/\[0\.03\]  { background-color: rgba(0,0,0,0.03) !important; }
+.white-matte .bg-white\/\[0\.04\],  .light .bg-white\/\[0\.04\]  { background-color: rgba(0,0,0,0.04) !important; }
+.white-matte .bg-white\/\[0\.05\],  .light .bg-white\/\[0\.05\]  { background-color: rgba(0,0,0,0.04) !important; }
+.white-matte .bg-white\/\[0\.06\],  .light .bg-white\/\[0\.06\]  { background-color: rgba(0,0,0,0.04) !important; }
+.white-matte .bg-white\/\[0\.07\],  .light .bg-white\/\[0\.07\]  { background-color: rgba(0,0,0,0.04) !important; }
+.white-matte .bg-white\/\[0\.08\],  .light .bg-white\/\[0\.08\]  { background-color: rgba(0,0,0,0.05) !important; }
+.white-matte .bg-white\/\[0\.10\],  .light .bg-white\/\[0\.10\]  { background-color: rgba(0,0,0,0.05) !important; }
+.white-matte .bg-white\/\[0\.12\],  .light .bg-white\/\[0\.12\]  { background-color: rgba(0,0,0,0.05) !important; }
+.white-matte .bg-white\/\[0\.15\],  .light .bg-white\/\[0\.15\]  { background-color: rgba(0,0,0,0.05) !important; }
+.white-matte .bg-white\/\[0\.18\],  .light .bg-white\/\[0\.18\]  { background-color: rgba(0,0,0,0.06) !important; }
+.white-matte .bg-white\/\[0\.25\],  .light .bg-white\/\[0\.25\]  { background-color: rgba(0,0,0,0.06) !important; }
 
-/* Transparent-white borders → transparent-black */
-.white-matte .border-white\/10, .light .border-white\/10 { border-color: rgba(0,0,0,0.10) !important; }
-.white-matte .border-white\/20, .light .border-white\/20 { border-color: rgba(0,0,0,0.12) !important; }
-.white-matte .border-white\/\[0\.06\], .light .border-white\/\[0\.06\] { border-color: rgba(0,0,0,0.06) !important; }
-.white-matte .border-white\/\[0\.07\], .light .border-white\/\[0\.07\] { border-color: rgba(0,0,0,0.07) !important; }
-.white-matte .border-white\/\[0\.08\], .light .border-white\/\[0\.08\] { border-color: rgba(0,0,0,0.09) !important; }
+/* ── hover:bg-white/N → transparent-black on hover ──────────────────── */
+.white-matte .hover\:bg-white\/5:hover,  .light .hover\:bg-white\/5:hover  { background-color: rgba(0,0,0,0.04) !important; }
+.white-matte .hover\:bg-white\/10:hover, .light .hover\:bg-white\/10:hover { background-color: rgba(0,0,0,0.06) !important; }
+.white-matte .hover\:bg-white\/15:hover, .light .hover\:bg-white\/15:hover { background-color: rgba(0,0,0,0.07) !important; }
+.white-matte .hover\:bg-white\/20:hover, .light .hover\:bg-white\/20:hover { background-color: rgba(0,0,0,0.08) !important; }
+.white-matte .hover\:bg-white\/25:hover, .light .hover\:bg-white\/25:hover { background-color: rgba(0,0,0,0.09) !important; }
+.white-matte .hover\:bg-white\/\[0\.08\]:hover, .light .hover\:bg-white\/\[0\.08\]:hover { background-color: rgba(0,0,0,0.05) !important; }
 
-/* Transparent-white text → dark text for legibility */
+/* ── border-white/N → transparent-black ─────────────────────────────── */
+.white-matte .border-white\/5,          .light .border-white\/5          { border-color: rgba(0,0,0,0.06) !important; }
+.white-matte .border-white\/10,         .light .border-white\/10         { border-color: rgba(0,0,0,0.10) !important; }
+.white-matte .border-white\/20,         .light .border-white\/20         { border-color: rgba(0,0,0,0.12) !important; }
+.white-matte .border-white\/30,         .light .border-white\/30         { border-color: rgba(0,0,0,0.13) !important; }
+.white-matte .border-white\/40,         .light .border-white\/40         { border-color: rgba(0,0,0,0.14) !important; }
+.white-matte .border-white\/\[0\.04\],  .light .border-white\/\[0\.04\]  { border-color: rgba(0,0,0,0.05) !important; }
+.white-matte .border-white\/\[0\.06\],  .light .border-white\/\[0\.06\]  { border-color: rgba(0,0,0,0.06) !important; }
+.white-matte .border-white\/\[0\.07\],  .light .border-white\/\[0\.07\]  { border-color: rgba(0,0,0,0.07) !important; }
+.white-matte .border-white\/\[0\.08\],  .light .border-white\/\[0\.08\]  { border-color: rgba(0,0,0,0.09) !important; }
+
+/* ── hover:border-white/N overrides ─────────────────────────────────── */
+.white-matte .hover\:border-white\/10:hover, .light .hover\:border-white\/10:hover { border-color: rgba(0,0,0,0.11) !important; }
+.white-matte .hover\:border-white\/20:hover, .light .hover\:border-white\/20:hover { border-color: rgba(0,0,0,0.13) !important; }
+
+/* ── text-white/N → dark text ────────────────────────────────────────── */
+.white-matte .text-white\/10, .light .text-white\/10 { color: rgba(0,0,0,0.38) !important; }
+.white-matte .text-white\/20, .light .text-white\/20 { color: rgba(0,0,0,0.45) !important; }
+.white-matte .text-white\/30, .light .text-white\/30 { color: rgba(0,0,0,0.50) !important; }
 .white-matte .text-white\/40, .light .text-white\/40 { color: rgba(0,0,0,0.55) !important; }
 .white-matte .text-white\/50, .light .text-white\/50 { color: rgba(0,0,0,0.60) !important; }
+.white-matte .text-white\/55, .light .text-white\/55 { color: rgba(0,0,0,0.62) !important; }
 .white-matte .text-white\/60, .light .text-white\/60 { color: rgba(0,0,0,0.65) !important; }
 .white-matte .text-white\/70, .light .text-white\/70 { color: rgba(0,0,0,0.72) !important; }
 .white-matte .text-white\/80, .light .text-white\/80 { color: rgba(0,0,0,0.82) !important; }
 .white-matte .text-white\/90, .light .text-white\/90 { color: rgba(0,0,0,0.90) !important; }
-/* text-white (full) should stay white only on explicitly colored backgrounds.
-   We specifically exclude dialogs / cards that declare their own bg colour. */
-.white-matte :not(.dark) .text-white:not([class*="bg-"]):not([style*="background"]):not(.force-white),
-.light        :not(.dark) .text-white:not([class*="bg-"]):not([style*="background"]):not(.force-white) {
+
+/* ── text-white (full opacity) ───────────────────────────────────────── *
+ * Default: flip to near-black so it's legible on any white background.   *
+ * Exceptions re-allow white on elements that sit on their own dark bg    *
+ * (gradient buttons, glass-dark cards, swipe deck cards, photo overlays).*
+ * Use .force-white on a parent or the element itself to opt out.          */
+.white-matte .text-white,
+.light .text-white {
   color: #111111 !important;
+}
+/* Re-allow white text on explicitly dark surfaces */
+.white-matte .dark .text-white,
+.white-matte .glass-dark .text-white,
+.white-matte .swipe-live-card .text-white,
+.white-matte .force-white .text-white,
+.white-matte .force-white,
+.white-matte .text-white[class*="bg-gradient"],
+.white-matte .text-white[class*="bg-rose-5"],
+.white-matte .text-white[class*="bg-rose-6"],
+.white-matte .text-white[class*="bg-orange"],
+.white-matte .text-white[class*="bg-black"],
+.white-matte [class*="bg-black"] > .text-white,
+.white-matte [class*="bg-gradient"] > .text-white,
+.light .dark .text-white,
+.light .glass-dark .text-white,
+.light .swipe-live-card .text-white,
+.light .force-white .text-white,
+.light .force-white,
+.light .text-white[class*="bg-gradient"],
+.light .text-white[class*="bg-rose-5"],
+.light .text-white[class*="bg-rose-6"],
+.light .text-white[class*="bg-orange"],
+.light .text-white[class*="bg-black"],
+.light [class*="bg-black"] > .text-white,
+.light [class*="bg-gradient"] > .text-white {
+  color: #ffffff !important;
 }
 
 /* Transparent-white ring/shadow utilities */

@@ -245,7 +245,7 @@ export function PropertyDetails({ listingId, isOpen, onClose, onMessageClick }: 
               <div className="flex gap-3 p-2 bg-background/50 backdrop-blur-3xl border border-white/10 rounded-full shadow-[0_20px_40px_rgba(0,0,0,0.6)] pointer-events-auto">
                 <Button
                   variant="outline"
-                  className="flex-1 gap-2 h-14 rounded-full border-white/5 bg-white/5 hover:bg-white/10 hover:border-white/10"
+                  className="flex-1 gap-2 h-14 rounded-full border-border dark:border-white/5 bg-secondary/50 dark:bg-white/5 hover:bg-secondary dark:hover:bg-white/10 hover:border-border dark:hover:border-white/10"
                   onClick={() => handleSwipe('left')}
                   disabled={swipeMutation.isPending}
                 >
@@ -260,7 +260,7 @@ export function PropertyDetails({ listingId, isOpen, onClose, onMessageClick }: 
                   return (
                     <Button
                       variant="outline"
-                      className="flex-[1.5] gap-2 h-14 rounded-full border-white/5 bg-white/5 hover:bg-white/10 hover:border-white/10"
+                      className="flex-[1.5] gap-2 h-14 rounded-full border-border dark:border-white/5 bg-secondary/50 dark:bg-white/5 hover:bg-secondary dark:hover:bg-white/10 hover:border-border dark:hover:border-white/10"
                       onClick={canMessage ? onMessageClick : () => {}}
                       disabled={!canMessage}
                     >
