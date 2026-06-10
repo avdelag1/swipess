@@ -103,11 +103,11 @@ export const AtmosphericLayer = memo(({ variant = 'default', opacity = 0.08, spe
         }}
       >
         <div className={cn(
-          "absolute top-[-15%] left-[-15%] w-[90%] h-[70%] blur-[160px] rounded-full transition-colors duration-1000",
+          "absolute top-[-15%] left-[-15%] w-[90%] h-[70%] blur-[80px] rounded-full transition-colors duration-1000",
           colors.top
         )} />
         <div className={cn(
-          "absolute bottom-[-10%] right-[-10%] w-[80%] h-[60%] blur-[140px] rounded-full transition-colors duration-1000",
+          "absolute bottom-[-10%] right-[-10%] w-[80%] h-[60%] blur-[70px] rounded-full transition-colors duration-1000",
           colors.bottom
         )} />
       </div>
@@ -115,13 +115,13 @@ export const AtmosphericLayer = memo(({ variant = 'default', opacity = 0.08, spe
       {/* ðŸ§˜ Swipes NODES: Slow drifting particles for liveness */}
       <div className="absolute inset-0 opacity-40">
         <div className={cn(
-          "absolute top-[20%] left-[30%] w-64 h-64 blur-[100px] rounded-full animate-float-slow",
+          "absolute top-[20%] left-[30%] w-64 h-64 blur-[60px] rounded-full",
           isLight ? "bg-[#FF4D00]/5" : "bg-[#FF4D00]/10"
-        )} style={{ animationDelay: '0s' }} />
+        )} />
         <div className={cn(
-          "absolute bottom-[30%] right-[20%] w-80 h-80 blur-[120px] rounded-full animate-float-slow",
+          "absolute bottom-[30%] right-[20%] w-80 h-80 blur-[70px] rounded-full",
           isLight ? "bg-[#EB4898]/5" : "bg-[#EB4898]/10"
-        )} style={{ animationDelay: '-4s', animationDirection: 'reverse' }} />
+        )} />
       </div>
 
       <div className={cn(

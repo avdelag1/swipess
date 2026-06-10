@@ -690,22 +690,29 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     if (!listing) return;
     executeSwipe(direction);
 
-    const imagesToPreload: string[] = [];
-    [1, 2, 3, 4, 5].forEach((offset) => {
-      const futureCard = deckQueueRef.current[currentIndexRef.current + offset];
-      if (futureCard?.images && Array.isArray(futureCard.images)) {
-        futureCard.images.forEach((imgUrl: string) => {
-          if (imgUrl) {
-            imagesToPreload.push(imgUrl);
-            preloadImageToCache(imgUrl);
-            imageCache.set(getCardImageUrl(imgUrl), true);
-          }
-        });
+    // Defer image prefetch off the swipe animation frame so the gesture stays smooth.
+    const runPrefetch = () => {
+      const imagesToPreload: string[] = [];
+      [1, 2, 3, 4, 5].forEach((offset) => {
+        const futureCard = deckQueueRef.current[currentIndexRef.current + offset];
+        if (futureCard?.images && Array.isArray(futureCard.images)) {
+          futureCard.images.forEach((imgUrl: string) => {
+            if (imgUrl) {
+              imagesToPreload.push(imgUrl);
+              preloadImageToCache(imgUrl);
+              imageCache.set(getCardImageUrl(imgUrl), true);
+            }
+          });
+        }
+      });
+      if (imagesToPreload.length > 0) {
+        imagePreloadController.preloadBatch(imagesToPreload);
       }
-    });
-
-    if (imagesToPreload.length > 0) {
-      imagePreloadController.preloadBatch(imagesToPreload);
+    };
+    if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+      (window as typeof window & { requestIdleCallback: (cb: () => void, opts?: { timeout: number }) => void }).requestIdleCallback(runPrefetch, { timeout: 600 });
+    } else {
+      setTimeout(runPrefetch, 0);
     }
   }, [executeSwipe, playSwipeSound]);
 
@@ -898,7 +905,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
         style={{
           opacity: pullDown.backdropOpacity,
           scale: pullDown.backdropScale,
-          filter: pullDown.backdropBlur,
           transformOrigin: 'center center',
           backgroundColor: '#000',
         }}
@@ -917,7 +923,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
         <SwipeDeckBackButton />
         <motion.div
           className="relative w-full h-full mx-auto flex items-stretch justify-stretch pointer-events-auto md:max-w-[640px]"
-          style={{ y: pullDown.y, scale: pullDown.scale, opacity: pullDown.opacity, filter: pullDown.blur, transform: 'translateZ(0)', willChange: 'transform' }}
+          style={{ y: pullDown.y, scale: pullDown.scale, opacity: pullDown.opacity, transform: 'translateZ(0)', willChange: 'transform' }}
         >
           {/* Rounded backdrop matches card corners so deck blends into background */}
           <div
