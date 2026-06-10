@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { appToast } from '@/utils/appNotification';
 
 /**
  * Universal voice-to-text hook.
@@ -41,17 +42,16 @@ function pickMimeType(): string {
 }
 
 async function blobToBase64(blob: Blob): Promise<string> {
-  const buf = await blob.arrayBuffer();
-  const bytes = new Uint8Array(buf);
-  let binary = '';
-  const chunkSize = 0x8000;
-  for (let i = 0; i < bytes.length; i += chunkSize) {
-    binary += String.fromCharCode.apply(
-      null,
-      Array.from(bytes.subarray(i, i + chunkSize)) as unknown as number[],
-    );
-  }
-  return btoa(binary);
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = reader.result as string;
+      const base64 = dataUrl.split(',')[1];
+      resolve(base64);
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
 }
 
 export function useVoiceTranscribe(): UseVoiceTranscribeResult {
@@ -176,7 +176,9 @@ export function useVoiceTranscribe(): UseVoiceTranscribeResult {
 
     if (cancelledRef.current) return '';
     if (!finalBlob || finalBlob.size < 800) {
-      setLastError('Recording too short — hold the mic button while speaking');
+      const msg = 'Recording too short — hold the mic button while speaking';
+      setLastError(msg);
+      appToast.error(msg);
       return '';
     }
 
@@ -193,15 +195,17 @@ export function useVoiceTranscribe(): UseVoiceTranscribeResult {
       });
 
       if (invokeError) {
-        setLastError(
-          'Voice transcription failed — please try again'
-        );
+        const msg = 'Voice transcription failed — please try again';
+        setLastError(msg);
+        appToast.error(msg);
         console.error('[useVoiceTranscribe] invoke error', invokeError);
         return '';
       }
       return typeof respData?.text === 'string' ? respData.text.trim() : '';
     } catch (err) {
-      setLastError('Network error — check your connection');
+      const msg = 'Network error — check your connection';
+      setLastError(msg);
+      appToast.error(msg);
       console.error('[useVoiceTranscribe] transcription failed', err);
       return '';
     } finally {

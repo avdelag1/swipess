@@ -271,7 +271,8 @@ export function AIProfileWizard() {
         setModal('showAIProfile', false);
         openAIListing('property');
       } else {
-        handleClose();
+        setModal('showAIProfile', false);
+        setModal('showProfile', true);
       }
     } catch (err: any) {
       console.error('Process failed', err);
