@@ -370,7 +370,7 @@ export function MessagingDashboard() {
                                <MoreVertical className="w-5 h-5" />
                              </Button>
                            </DropdownMenuTrigger>
-                           <DropdownMenuContent align="end" side="bottom" sideOffset={8} className="rounded-[2rem] bg-[#121214] p-2 shadow-2xl text-white backdrop-blur-xl z-[100003]">
+                           <DropdownMenuContent align="end" side="bottom" sideOffset={8} className="force-white rounded-[2rem] bg-[#121214] p-2 shadow-2xl text-white backdrop-blur-xl z-[100003]">
                             <DropdownMenuItem className="p-4 rounded-[1.2rem] focus:bg-[#EB4898]/20 focus:text-white cursor-pointer font-black uppercase tracking-widest text-[9px]" onClick={e => { e.stopPropagation(); markChatAsRead.mutate(conversation.id); }} disabled={!isUnread}>
                               <Check className="w-4 h-4 mr-3" /> Mark as Read
                             </DropdownMenuItem>

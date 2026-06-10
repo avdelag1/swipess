@@ -191,7 +191,7 @@ export function ShareDialog({
                 shareViaFacebook(shareUrl);
                 createShare.mutateAsync({ sharedListingId: listingId, sharedProfileId: profileId, shareMethod: 'facebook' });
               }}
-              className="flex flex-col items-center justify-center gap-1.5 py-3.5 rounded-2xl bg-[#1877F2] text-white active:scale-95 transition-all shadow-md hover:brightness-110"
+              className="force-white flex flex-col items-center justify-center gap-1.5 py-3.5 rounded-2xl bg-[#1877F2] text-white active:scale-95 transition-all shadow-md hover:brightness-110"
             >
               <FacebookIcon />
               <span className="text-[10px] font-bold uppercase tracking-wider">Facebook</span>

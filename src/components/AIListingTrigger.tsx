@@ -91,7 +91,7 @@ export function AIListingTrigger({ glassPillStyle }: AIListingTriggerProps) {
           exit={{ opacity: 0, scale: 0.9, y: 30 }}
           className={cn(
             "relative w-full rounded-[3.5rem] border overflow-hidden flex flex-col p-10 pb-12 shadow-[0_40px_120px_rgba(0,0,0,0.8)]",
-            "bg-[#050505] border-white/10 text-white"
+            "force-white bg-[#050505] border-white/10 text-white"
           )}
         >
           {/* Subtle Ambient Background */}
