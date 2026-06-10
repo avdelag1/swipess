@@ -10,12 +10,6 @@ import { getContentValue, useSiteContent } from '@/hooks/useSiteContent';
 
 const ACCESS_CODE_KEY = 'swipess_access_granted';
 
-function getAccessCode(): string {
-  try {
-    return localStorage.getItem(ACCESS_CODE_KEY) || '';
-  } catch { return ''; }
-}
-
 function setAccessCode(code: string) {
   try { localStorage.setItem(ACCESS_CODE_KEY, code); } catch { /* empty */ }
 }
