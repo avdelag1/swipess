@@ -226,7 +226,7 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
         backgroundImage: fallbackGradient,
       } as any}
       transition={{ ...PK_SPRING }}
-      className={cn("select-none touch-none relative w-full h-full overflow-hidden border-none gpu-ultra", isTop ? "cursor-grab active:cursor-grabbing" : "cursor-pointer")}
+      className={cn("force-white select-none touch-none relative w-full h-full overflow-hidden border-none gpu-ultra", isTop ? "cursor-grab active:cursor-grabbing" : "cursor-pointer")}
     >
       <div
         className="absolute inset-0 overflow-hidden"

@@ -2629,6 +2629,7 @@ button:disabled,
 .white-matte .bg-white\/60,         .light .bg-white\/60         { background-color: rgba(0,0,0,0.08) !important; }
 .white-matte .bg-white\/70,         .light .bg-white\/70         { background-color: rgba(0,0,0,0.09) !important; }
 .white-matte .bg-white\/80,         .light .bg-white\/80         { background-color: rgba(0,0,0,0.07) !important; }
+.white-matte .bg-white\/\[0\.01\],  .light .bg-white\/\[0\.01\]  { background-color: rgba(0,0,0,0.01) !important; }
 .white-matte .bg-white\/\[0\.02\],  .light .bg-white\/\[0\.02\]  { background-color: rgba(0,0,0,0.02) !important; }
 .white-matte .bg-white\/\[0\.03\],  .light .bg-white\/\[0\.03\]  { background-color: rgba(0,0,0,0.03) !important; }
 .white-matte .bg-white\/\[0\.04\],  .light .bg-white\/\[0\.04\]  { background-color: rgba(0,0,0,0.04) !important; }
@@ -2636,6 +2637,8 @@ button:disabled,
 .white-matte .bg-white\/\[0\.06\],  .light .bg-white\/\[0\.06\]  { background-color: rgba(0,0,0,0.04) !important; }
 .white-matte .bg-white\/\[0\.07\],  .light .bg-white\/\[0\.07\]  { background-color: rgba(0,0,0,0.04) !important; }
 .white-matte .bg-white\/\[0\.08\],  .light .bg-white\/\[0\.08\]  { background-color: rgba(0,0,0,0.05) !important; }
+.white-matte .bg-white\/\[0\.09\],  .light .bg-white\/\[0\.09\]  { background-color: rgba(0,0,0,0.04) !important; }
+.white-matte .bg-white\/\[0\.1\],   .light .bg-white\/\[0\.1\]   { background-color: rgba(0,0,0,0.05) !important; }
 .white-matte .bg-white\/\[0\.10\],  .light .bg-white\/\[0\.10\]  { background-color: rgba(0,0,0,0.05) !important; }
 .white-matte .bg-white\/\[0\.12\],  .light .bg-white\/\[0\.12\]  { background-color: rgba(0,0,0,0.05) !important; }
 .white-matte .bg-white\/\[0\.15\],  .light .bg-white\/\[0\.15\]  { background-color: rgba(0,0,0,0.05) !important; }
@@ -2655,7 +2658,10 @@ button:disabled,
 .white-matte .border-white\/10,         .light .border-white\/10         { border-color: rgba(0,0,0,0.10) !important; }
 .white-matte .border-white\/20,         .light .border-white\/20         { border-color: rgba(0,0,0,0.12) !important; }
 .white-matte .border-white\/30,         .light .border-white\/30         { border-color: rgba(0,0,0,0.13) !important; }
+.white-matte .border-white\/15,         .light .border-white\/15         { border-color: rgba(0,0,0,0.11) !important; }
+.white-matte .border-white\/25,         .light .border-white\/25         { border-color: rgba(0,0,0,0.12) !important; }
 .white-matte .border-white\/40,         .light .border-white\/40         { border-color: rgba(0,0,0,0.14) !important; }
+.white-matte .border-white\/50,         .light .border-white\/50         { border-color: rgba(0,0,0,0.16) !important; }
 .white-matte .border-white\/\[0\.04\],  .light .border-white\/\[0\.04\]  { border-color: rgba(0,0,0,0.05) !important; }
 .white-matte .border-white\/\[0\.06\],  .light .border-white\/\[0\.06\]  { border-color: rgba(0,0,0,0.06) !important; }
 .white-matte .border-white\/\[0\.07\],  .light .border-white\/\[0\.07\]  { border-color: rgba(0,0,0,0.07) !important; }
@@ -2664,6 +2670,10 @@ button:disabled,
 /* ── hover:border-white/N overrides ─────────────────────────────────── */
 .white-matte .hover\:border-white\/10:hover, .light .hover\:border-white\/10:hover { border-color: rgba(0,0,0,0.11) !important; }
 .white-matte .hover\:border-white\/20:hover, .light .hover\:border-white\/20:hover { border-color: rgba(0,0,0,0.13) !important; }
+.white-matte .hover\:border-white\/25:hover, .light .hover\:border-white\/25:hover { border-color: rgba(0,0,0,0.14) !important; }
+.white-matte .hover\:border-white\/30:hover, .light .hover\:border-white\/30:hover { border-color: rgba(0,0,0,0.15) !important; }
+.white-matte .hover\:border-white\/40:hover, .light .hover\:border-white\/40:hover { border-color: rgba(0,0,0,0.16) !important; }
+.white-matte .hover\:border-white\/50:hover, .light .hover\:border-white\/50:hover { border-color: rgba(0,0,0,0.18) !important; }
 
 /* ── text-white/N → dark text ────────────────────────────────────────── */
 .white-matte .text-white\/10, .light .text-white\/10 { color: rgba(0,0,0,0.38) !important; }
@@ -2693,26 +2703,66 @@ button:disabled,
 .white-matte .force-white .text-white,
 .white-matte .force-white,
 .white-matte .text-white[class*="bg-gradient"],
-.white-matte .text-white[class*="bg-rose-5"],
-.white-matte .text-white[class*="bg-rose-6"],
-.white-matte .text-white[class*="bg-orange"],
+.white-matte .text-white[class*="bg-rose-"],
+.white-matte .text-white[class*="bg-orange-"],
+.white-matte .text-white[class*="bg-red-"],
+.white-matte .text-white[class*="bg-pink-"],
+.white-matte .text-white[class*="bg-fuchsia-"],
+.white-matte .text-white[class*="bg-violet-"],
+.white-matte .text-white[class*="bg-purple-"],
+.white-matte .text-white[class*="bg-indigo-"],
+.white-matte .text-white[class*="bg-blue-"],
+.white-matte .text-white[class*="bg-sky-"],
+.white-matte .text-white[class*="bg-cyan-"],
+.white-matte .text-white[class*="bg-teal-"],
+.white-matte .text-white[class*="bg-emerald-"],
+.white-matte .text-white[class*="bg-green-"],
+.white-matte .text-white[class*="bg-lime-"],
+.white-matte .text-white[class*="bg-yellow-"],
+.white-matte .text-white[class*="bg-amber-"],
 .white-matte .text-white[class*="bg-black"],
-.white-matte [class*="bg-black"] > .text-white,
-.white-matte [class*="bg-gradient"] > .text-white,
+.white-matte [class*="bg-black"] .text-white,
+.white-matte [class*="bg-gradient"] .text-white,
 .light .dark .text-white,
 .light .glass-dark .text-white,
 .light .swipe-live-card .text-white,
 .light .force-white .text-white,
 .light .force-white,
 .light .text-white[class*="bg-gradient"],
-.light .text-white[class*="bg-rose-5"],
-.light .text-white[class*="bg-rose-6"],
-.light .text-white[class*="bg-orange"],
+.light .text-white[class*="bg-rose-"],
+.light .text-white[class*="bg-orange-"],
+.light .text-white[class*="bg-red-"],
+.light .text-white[class*="bg-pink-"],
+.light .text-white[class*="bg-fuchsia-"],
+.light .text-white[class*="bg-violet-"],
+.light .text-white[class*="bg-purple-"],
+.light .text-white[class*="bg-indigo-"],
+.light .text-white[class*="bg-blue-"],
+.light .text-white[class*="bg-sky-"],
+.light .text-white[class*="bg-cyan-"],
+.light .text-white[class*="bg-teal-"],
+.light .text-white[class*="bg-emerald-"],
+.light .text-white[class*="bg-green-"],
+.light .text-white[class*="bg-lime-"],
+.light .text-white[class*="bg-yellow-"],
+.light .text-white[class*="bg-amber-"],
 .light .text-white[class*="bg-black"],
-.light [class*="bg-black"] > .text-white,
-.light [class*="bg-gradient"] > .text-white {
+.light [class*="bg-black"] .text-white,
+.light [class*="bg-gradient"] .text-white {
   color: #ffffff !important;
 }
+
+/* Re-allow semi-transparent white text inside dark overlays (bg-black/N) */
+.white-matte [class*="bg-black"] .text-white\/20, .light [class*="bg-black"] .text-white\/20 { color: rgba(255,255,255,0.20) !important; }
+.white-matte [class*="bg-black"] .text-white\/30, .light [class*="bg-black"] .text-white\/30 { color: rgba(255,255,255,0.30) !important; }
+.white-matte [class*="bg-black"] .text-white\/35, .light [class*="bg-black"] .text-white\/35 { color: rgba(255,255,255,0.35) !important; }
+.white-matte [class*="bg-black"] .text-white\/40, .light [class*="bg-black"] .text-white\/40 { color: rgba(255,255,255,0.40) !important; }
+.white-matte [class*="bg-black"] .text-white\/50, .light [class*="bg-black"] .text-white\/50 { color: rgba(255,255,255,0.50) !important; }
+.white-matte [class*="bg-black"] .text-white\/55, .light [class*="bg-black"] .text-white\/55 { color: rgba(255,255,255,0.55) !important; }
+.white-matte [class*="bg-black"] .text-white\/60, .light [class*="bg-black"] .text-white\/60 { color: rgba(255,255,255,0.60) !important; }
+.white-matte [class*="bg-black"] .text-white\/70, .light [class*="bg-black"] .text-white\/70 { color: rgba(255,255,255,0.70) !important; }
+.white-matte [class*="bg-black"] .text-white\/80, .light [class*="bg-black"] .text-white\/80 { color: rgba(255,255,255,0.80) !important; }
+.white-matte [class*="bg-black"] .text-white\/90, .light [class*="bg-black"] .text-white\/90 { color: rgba(255,255,255,0.90) !important; }
 
 /* Transparent-white ring/shadow utilities */
 .white-matte .shadow-white\/\[0\.15\], .light .shadow-white\/\[0\.15\] { box-shadow: none !important; }

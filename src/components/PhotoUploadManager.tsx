@@ -151,7 +151,7 @@ export function PhotoUploadManager({
                 >
                   <motion.div
                     className={cn(
-                      "w-48 h-64 relative rounded-[2rem] overflow-hidden border-2 cursor-grab active:cursor-grabbing shadow-2xl transition-all",
+                      "force-white w-48 h-64 relative rounded-[2rem] overflow-hidden border-2 cursor-grab active:cursor-grabbing shadow-2xl transition-all",
                       index === 0 ? "border-primary/60 shadow-primary/10" : "border-border"
                     )}
                     whileHover={{ scale: 1.05 }}

@@ -89,7 +89,7 @@ function SeekerCard({ req, isTop, onSwipe }: { req: SeekerRequest; isTop: boolea
       dragElastic={0.15}
       onDragStart={() => { isDraggingRef.current = true; }}
       onDragEnd={handleDragEnd}
-      className="rounded-[28px] overflow-hidden shadow-2xl cursor-grab active:cursor-grabbing select-none"
+      className="force-white rounded-[28px] overflow-hidden shadow-2xl cursor-grab active:cursor-grabbing select-none"
     >
       {/* Card background — avatar or gradient */}
       <div className="absolute inset-0">

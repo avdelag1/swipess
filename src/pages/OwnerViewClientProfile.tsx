@@ -135,13 +135,13 @@ export default function OwnerViewClientProfile() {
 
   if (!client) {
     return (
-      <div className="min-h-screen bg-black flex flex-col items-center justify-center p-6 text-center">
-        <div className="w-20 h-20 rounded-3xl bg-white/5 flex items-center justify-center mb-6 border border-white/10">
-           <User className="w-10 h-10 text-white/20" />
+      <div className={cn("min-h-screen flex flex-col items-center justify-center p-6 text-center", isLight ? "bg-background" : "bg-black")}>
+        <div className={cn("w-20 h-20 rounded-3xl flex items-center justify-center mb-6 border", isLight ? "bg-black/5 border-black/10" : "bg-white/5 border-white/10")}>
+           <User className={cn("w-10 h-10", isLight ? "text-black/20" : "text-white/20")} />
         </div>
-        <h2 className="text-2xl font-black text-white uppercase tracking-tight mb-2">Client Not Found</h2>
-        <p className="text-white/40 text-sm mb-8 uppercase tracking-widest">The profile you are looking for is unavailable.</p>
-        <Button onClick={() => navigate(-1)} className="rounded-2xl bg-white text-black font-black px-8 h-14 uppercase tracking-widest">
+        <h2 className="text-2xl font-black uppercase tracking-tight mb-2 text-foreground">Client Not Found</h2>
+        <p className={cn("text-sm mb-8 uppercase tracking-widest", isLight ? "text-black/40" : "text-white/40")}>The profile you are looking for is unavailable.</p>
+        <Button onClick={() => navigate(-1)} className="rounded-2xl bg-foreground text-background font-black px-8 h-14 uppercase tracking-widest">
           Return to Deck
         </Button>
       </div>

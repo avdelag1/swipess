@@ -107,7 +107,7 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
                 whileHover={{ scale: 1.02 }}
                 onClick={() => handleSelect(item.id)}
                 className={cn(
-                  "relative flex flex-col justify-end text-left overflow-hidden rounded-2xl shadow-lg border border-white/10 group cursor-pointer transition-transform duration-700",
+                  "force-white relative flex flex-col justify-end text-left overflow-hidden rounded-2xl shadow-lg border border-white/10 group cursor-pointer transition-transform duration-700",
                   SIZE_CLASS[item.size]
                 )}
                 style={{ contain: 'paint', touchAction: 'pan-y' }}

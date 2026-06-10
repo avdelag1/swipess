@@ -370,7 +370,7 @@ export const BottomNavigation = memo(({
                         animate={{ scale: 1 }}
                         exit={{ scale: 0 }}
                         transition={{ type: 'spring', stiffness: 500, damping: 20 }}
-                        className="absolute -top-1 -right-1 rounded-full min-w-[18px] h-[18px] z-20 flex items-center justify-center text-[11px] font-bold text-white shadow-sm"
+                        className="force-white absolute -top-1 -right-1 rounded-full min-w-[18px] h-[18px] z-20 flex items-center justify-center text-[11px] font-bold text-white shadow-sm"
                         style={{ background: 'linear-gradient(135deg,#FF4D00,#EB4898)' }}
                       >
                         {item.badge}
