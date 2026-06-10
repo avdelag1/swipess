@@ -449,9 +449,9 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
       setUploadProgress(null);
       uiSounds.playUploadComplete();
       if (editingId) {
-        appToast.success('Listing updated');
+        appToast.success('Listing updated!', 'Your changes are live.');
       } else {
-        appToast.success('Listing published');
+        appToast.success('Listing published!', 'Tap to see your listing.');
       }
       if (listing) {
         queryClient.setQueriesData({ queryKey: ['owner-listings'] }, (oldData: any) => {
@@ -459,13 +459,18 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
           const withoutSavedListing = oldData.filter((item) => item.id !== listing.id);
           return [listing, ...withoutSavedListing];
         });
+        queryClient.invalidateQueries({ queryKey: ['listing-detail', listing.id] });
       }
       queryClient.invalidateQueries({ queryKey: ['owner-listings'] });
       queryClient.refetchQueries({ queryKey: ['owner-listings'], type: 'active' });
       queryClient.invalidateQueries({ queryKey: ['listings'] });
       handleClose();
-      // Always return user to the main listings dashboard
-      navigate('/owner/properties', { replace: true });
+      // Navigate to the listing detail page so the user can see their published listing
+      if (listing?.id) {
+        navigate(`/listing/${listing.id}`, { replace: true });
+      } else {
+        navigate('/owner/properties', { replace: true });
+      }
     },
     onError: (error: Error) => {
       setUploadProgress(null);
