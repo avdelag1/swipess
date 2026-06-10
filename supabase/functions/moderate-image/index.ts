@@ -36,7 +36,7 @@ If the image contains explicit nudity, pornography, gore, extreme violence, or i
 If the image is safe, return {"safe": true, "reasons": []}.
 Respond ONLY with valid JSON.`;
 
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`, {
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

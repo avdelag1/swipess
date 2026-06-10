@@ -142,12 +142,17 @@ export function AIProfileWizard() {
       });
       setProgressPct(40);
 
-      // 2. Extract profile
-      const { data, error } = await supabase.functions.invoke('ai-profile-extract', {
-        body: { mode, narrative },
-      });
-      if (error) throw error;
-      const draft = (data as any)?.profile || {};
+      // 2. Extract profile (non-blocking — fall back to raw narrative if AI fails)
+      let draft: Record<string, unknown> = {};
+      try {
+        const { data: extractData, error: extractErr } = await supabase.functions.invoke('ai-profile-extract', {
+          body: { mode, narrative },
+        });
+        if (!extractErr) draft = (extractData as any)?.profile || {};
+        else console.warn('[AIProfileWizard] AI extract failed, saving with raw narrative', extractErr);
+      } catch (e) {
+        console.warn('[AIProfileWizard] AI extract threw, saving with raw narrative', e);
+      }
       setProgressPct(70);
 
       // 3. Save profile as draft to modal store
