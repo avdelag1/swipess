@@ -106,7 +106,7 @@ export function AIListingTrigger({ glassPillStyle }: AIListingTriggerProps) {
                 <div className="w-10 h-10 rounded-full bg-black/40 border border-white/10 flex items-center justify-center shadow-lg">
                    <Sparkles className="w-5 h-5 text-indigo-400" />
                 </div>
-                <h2 className="text-[11px] font-black uppercase tracking-[0.5em] text-white/50">Swipess Intelligence</h2>
+                <h2 className="text-[11px] font-black uppercase tracking-[0.5em] text-white/50">Magic AI Creation</h2>
              </div>
              <DialogClose className="w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 border border-white/5 flex items-center justify-center transition-all group">
                 <X className="w-4 h-4 text-white/70 group-hover:text-white transition-colors" />
@@ -116,10 +116,10 @@ export function AIListingTrigger({ glassPillStyle }: AIListingTriggerProps) {
           {/* Hero Text */}
           <div className="relative z-10 mb-10 max-w-lg">
              <h1 className="text-4xl font-black uppercase tracking-tighter mb-4 italic leading-none">
-               Target Platform
+               Select Category
              </h1>
              <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-white/70 leading-relaxed">
-               Select the deployment sector for your new Swipess artifact. Flagship intelligence will optimize for the target audience.
+               Select the category for your new listing. Our AI will optimize the listing for your target audience.
              </p>
           </div>
 
@@ -161,7 +161,7 @@ export function AIListingTrigger({ glassPillStyle }: AIListingTriggerProps) {
                            {cat.label}
                         </span>
                         <span className="text-[9px] font-black uppercase tracking-[0.2em] text-white/60 group-hover:text-white/60 transition-colors">
-                           Deploy Protocol
+                           Create Listing
                         </span>
                       </div>
                    </div>
@@ -172,7 +172,7 @@ export function AIListingTrigger({ glassPillStyle }: AIListingTriggerProps) {
           {/* Footer Decoration */}
           <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-3 opacity-20">
              <div className="h-[1px] w-8 bg-white/20" />
-             <span className="text-[8px] font-black uppercase tracking-[0.5em]">Secure Protocol Layer 4.0</span>
+             <span className="text-[8px] font-black uppercase tracking-[0.5em]">Smart AI Creation</span>
              <div className="h-[1px] w-8 bg-white/20" />
           </div>
         </motion.div>

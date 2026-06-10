@@ -314,7 +314,7 @@ export default function SubscriptionPackagesPage() {
                     )}>
                       <div className="flex items-center gap-2 mb-3">
                         <Sparkles className={cn("w-4 h-4", style.checkColor)} />
-                        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-foreground/40">Swipess Intelligence Benefits</span>
+                        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-foreground/40">Magic AI Benefits</span>
                       </div>
                       {(plan as any).aiFeatures.map((feature: string, i: number) => (
                         <div key={i} className="flex items-start gap-3">
