@@ -144,28 +144,80 @@ export function useSaveClientProfile() {
       let profileData: ClientProfileLite;
 
       if (existing?.id) {
-        const { data, error } = await supabase
-          .from('client_profiles')
-          .update(cleanUpdates)
-          .eq('user_id', uid)
-          .select()
-          .single();
-        if (error) {
-          logger.error('Error updating profile:', { message: error.message, code: error.code, details: error.details, hint: error.hint });
-          throw new Error(error.message || 'Failed to update profile');
+        // Schema retry loop for updates
+        let retryCount = 0;
+        let currentUpdates = { ...cleanUpdates };
+        let successData: any = null;
+        let lastError: any = null;
+
+        while (retryCount < 3 && !successData) {
+          const { data, error } = await supabase
+            .from('client_profiles')
+            .update(currentUpdates)
+            .eq('user_id', uid)
+            .select()
+            .single();
+
+          if (error) {
+            lastError = error;
+            if (error.code === 'PGRST204' || error.code === '42703') {
+              const match = error.message.match(/column "([^"]+)"/);
+              if (match && match[1]) {
+                const badCol = match[1];
+                logger.warn(`[ClientProfile] Column ${badCol} missing in DB, stripping and retrying...`);
+                delete currentUpdates[badCol];
+                retryCount++;
+                continue;
+              }
+            }
+            logger.error('Error updating profile:', { message: error.message, code: error.code, details: error.details, hint: error.hint });
+            throw new Error(error.message || 'Failed to update profile');
+          }
+          successData = data;
         }
-        profileData = data as ClientProfileLite;
+
+        if (!successData && lastError) {
+           logger.error('Max retries reached for profile update:', lastError);
+           throw new Error(lastError.message || 'Failed to update profile after retries');
+        }
+        profileData = successData as ClientProfileLite;
       } else {
-        const { data, error } = await supabase
-          .from('client_profiles')
-          .insert([{ ...cleanUpdates, user_id: uid }])
-          .select()
-          .single();
-        if (error) {
-          logger.error('Error creating profile:', { message: error.message, code: error.code, details: error.details, hint: error.hint });
-          throw new Error(error.message || 'Failed to create profile');
+        // Schema retry loop for inserts
+        let retryCount = 0;
+        let currentInsert = { ...cleanUpdates, user_id: uid };
+        let successData: any = null;
+        let lastError: any = null;
+
+        while (retryCount < 3 && !successData) {
+          const { data, error } = await supabase
+            .from('client_profiles')
+            .insert([currentInsert])
+            .select()
+            .single();
+
+          if (error) {
+            lastError = error;
+            if (error.code === 'PGRST204' || error.code === '42703') {
+              const match = error.message.match(/column "([^"]+)"/);
+              if (match && match[1]) {
+                const badCol = match[1];
+                logger.warn(`[ClientProfile] Column ${badCol} missing in DB, stripping and retrying...`);
+                delete currentInsert[badCol];
+                retryCount++;
+                continue;
+              }
+            }
+            logger.error('Error creating profile:', { message: error.message, code: error.code, details: error.details, hint: error.hint });
+            throw new Error(error.message || 'Failed to create profile');
+          }
+          successData = data;
         }
-        profileData = data as ClientProfileLite;
+
+        if (!successData && lastError) {
+           logger.error('Max retries reached for profile insert:', lastError);
+           throw new Error(lastError.message || 'Failed to create profile after retries');
+        }
+        profileData = successData as ClientProfileLite;
       }
 
       // SYNC to profiles table - so owner sees updated data on swipe cards!

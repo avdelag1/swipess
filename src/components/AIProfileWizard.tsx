@@ -160,10 +160,34 @@ export function AIProfileWizard() {
           profile_images: urls,
           updated_at: new Date().toISOString(),
         };
-        const { error: upsertErr } = await supabase
-          .from('client_profiles')
-          .upsert(payload, { onConflict: 'user_id' });
-        if (upsertErr) throw upsertErr;
+        // Retry loop for client_profiles upsert to handle missing columns
+        let retryCount = 0;
+        let success = false;
+        let lastErr: any = null;
+
+        while (retryCount < 3 && !success) {
+          const { error: upsertErr } = await supabase
+            .from('client_profiles')
+            .upsert(payload, { onConflict: 'user_id' });
+          
+          if (upsertErr) {
+            lastErr = upsertErr;
+            if (upsertErr.code === 'PGRST204' || upsertErr.code === '42703') {
+              const match = upsertErr.message.match(/column "([^"]+)"/);
+              if (match && match[1]) {
+                const badCol = match[1];
+                console.warn(`[AIProfileWizard] Column ${badCol} missing in client_profiles, stripping and retrying...`);
+                delete payload[badCol];
+                retryCount++;
+                continue;
+              }
+            }
+            throw upsertErr;
+          }
+          success = true;
+        }
+
+        if (!success && lastErr) throw lastErr;
         
         await supabase.from('profiles').update({
           full_name: payload.name,
@@ -186,10 +210,34 @@ export function AIProfileWizard() {
           profile_images: urls,
           updated_at: new Date().toISOString(),
         };
-        const { error: upsertErr } = await supabase
-          .from('owner_profiles')
-          .upsert(payload, { onConflict: 'user_id' });
-        if (upsertErr) throw upsertErr;
+        // Retry loop for owner_profiles upsert to handle missing columns
+        let retryCount = 0;
+        let success = false;
+        let lastErr: any = null;
+
+        while (retryCount < 3 && !success) {
+          const { error: upsertErr } = await supabase
+            .from('owner_profiles')
+            .upsert(payload, { onConflict: 'user_id' });
+            
+          if (upsertErr) {
+            lastErr = upsertErr;
+            if (upsertErr.code === 'PGRST204' || upsertErr.code === '42703') {
+              const match = upsertErr.message.match(/column "([^"]+)"/);
+              if (match && match[1]) {
+                const badCol = match[1];
+                console.warn(`[AIProfileWizard] Column ${badCol} missing in owner_profiles, stripping and retrying...`);
+                delete payload[badCol];
+                retryCount++;
+                continue;
+              }
+            }
+            throw upsertErr;
+          }
+          success = true;
+        }
+
+        if (!success && lastErr) throw lastErr;
         
         await supabase.from('profiles').update({
           full_name: payload.business_name,

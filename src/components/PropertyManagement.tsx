@@ -265,8 +265,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
 
           <button
             onClick={handleAddProperty}
-            className="h-16 px-8 rounded-[2.2rem] font-black uppercase italic tracking-[0.2em] active:scale-95 transition-all text-sm flex items-center"
-            style={{ backgroundColor: '#FF4D00', color: 'white', boxShadow: '0 12px 32px rgba(255,77,0,0.35)' }}
+            className="h-16 px-8 rounded-[2.2rem] bg-rose-600 text-white font-black uppercase italic tracking-[0.2em] active:scale-95 transition-all text-sm flex items-center shadow-[0_12px_32px_rgba(225,29,72,0.35)] hover:bg-rose-700"
           >
             <Plus className="w-5 h-5 mr-2" />
             Deploy Asset
@@ -301,9 +300,9 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
                             onClick={() => { triggerHaptic('light'); setActiveTab(tab.id); }}
                             className="flex-none flex items-center gap-2 px-5 h-11 rounded-[2rem] transition-all whitespace-nowrap font-black uppercase tracking-widest italic text-[11px]"
                             style={activeTab === tab.id ? {
-                            backgroundColor: '#FF4D00',
+                            backgroundColor: '#E4007C',
                             color: 'white',
-                            boxShadow: '0 8px 24px rgba(255,77,0,0.4)'
+                            boxShadow: '0 8px 24px rgba(228,0,124,0.4)'
                             } : {
                             color: isLight ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.5)',
                             backgroundColor: 'transparent'
@@ -547,8 +546,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
               {!searchTerm && (
                 <button
                   onClick={handleAddProperty}
-                  className="h-18 px-12 rounded-[2rem] font-black uppercase italic tracking-[0.2em] text-white transition-all active:scale-95 shadow-2xl"
-                  style={{ background: 'linear-gradient(135deg, #EB4898, #6366f1)' }}
+                  className="h-18 px-12 rounded-[2rem] bg-rose-600 hover:bg-rose-700 font-black uppercase italic tracking-[0.2em] text-white transition-all active:scale-95 shadow-[0_20px_60px_rgba(225,29,72,0.4)]"
                 >
                   <span className="flex items-center gap-3">
                     <Plus className="w-6 h-6" />

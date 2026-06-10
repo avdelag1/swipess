@@ -511,80 +511,10 @@ export function AIListingWizard() {
                         </div>
                       </div>
 
-                      <div className="space-y-4">
-                        <label className={cn("text-[10px] font-black uppercase tracking-[0.2em] ml-2", textMuted)}>3. Quick Details</label>
-                        <div className="grid grid-cols-2 gap-4">
-                           <div className="relative">
-                              <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-rose-400 opacity-70" />
-                              <input
-                                 type="text"
-                                 value={price}
-                                 onChange={(e) => setPrice(e.target.value)}
-                                 placeholder="Price (e.g. 2,500)"
-                                 className={cn("w-full h-14 pl-12 pr-6 rounded-2xl text-sm font-bold transition-all uppercase", inputCls)}
-                              />
-                           </div>
-                           <div className="relative">
-                              <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-rose-400 opacity-70" />
-                              <input
-                                 type="text"
-                                 value={cityLocation}
-                                 onChange={(e) => setCityLocation(e.target.value)}
-                                 placeholder="Location (e.g. Tulum, MX)"
-                                 className={cn("w-full h-14 pl-12 pr-6 rounded-2xl text-sm font-bold transition-all uppercase", inputCls)}
-                              />
-                           </div>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-4">
-                           {category === 'property' && (
-                              <>
-                                 <input
-                                    type="number"
-                                    onChange={(e) => setExtras((prev) => ({ ...prev, beds: Number(e.target.value) }))}
-                                    placeholder="Total Beds (e.g. 2)"
-                                    className={cn("w-full h-12 px-6 rounded-xl text-sm font-bold transition-all uppercase", inputCls)}
-                                 />
-                                 <input
-                                    type="number"
-                                    onChange={(e) => setExtras((prev) => ({ ...prev, baths: Number(e.target.value) }))}
-                                    placeholder="Bathrooms (e.g. 1)"
-                                    className={cn("w-full h-12 px-6 rounded-xl text-sm font-bold transition-all uppercase", inputCls)}
-                                 />
-                              </>
-                           )}
-                           {(category === 'motorcycle' || category === 'bicycle') && (
-                              <>
-                                 <input
-                                    type="text"
-                                    onChange={(e) => setExtras((prev) => ({ ...prev, brand: e.target.value }))}
-                                    placeholder="Brand / Maker"
-                                    className={cn("w-full h-12 px-6 rounded-xl text-sm font-bold transition-all uppercase", inputCls)}
-                                 />
-                                 <input
-                                    type="text"
-                                    onChange={(e) => setExtras((prev) => ({ ...prev, year: e.target.value }))}
-                                    placeholder="Model Year"
-                                    className={cn("w-full h-12 px-6 rounded-xl text-sm font-bold transition-all uppercase", inputCls)}
-                                 />
-                              </>
-                           )}
-                           {category === 'worker' && (
-                              <div className="col-span-2">
-                                 <input
-                                    type="text"
-                                    onChange={(e) => setExtras((prev) => ({ ...prev, service_category: e.target.value }))}
-                                    placeholder="Service Field (e.g. Web Dev / Electrician)"
-                                    className={cn("w-full h-12 px-6 rounded-xl text-sm font-bold transition-all uppercase", inputCls)}
-                                 />
-                              </div>
-                           )}
-                        </div>
-                      </div>
 
                       <div className="space-y-4">
                         <div className="flex items-center justify-between ml-2">
-                           <label className={cn("text-[10px] font-black uppercase tracking-[0.2em]", textMuted)}>4. Description</label>
+                           <label className={cn("text-[10px] font-black uppercase tracking-[0.2em]", textMuted)}>3. Description</label>
                            <button
                              type="button"
                              onClick={handleEnhance}

@@ -5,6 +5,8 @@ import { useFilterStore } from '@/state/filterStore';
 import { cn } from '@/lib/utils';
 import { useSmartListingMatching } from '@/hooks/smartMatching/useSmartListingMatching';
 import { useAuth } from '@/hooks/useAuth';
+import { useOnboardingStore } from '@/state/onboardingStore';
+import { useModalStore } from '@/state/modalStore';
 import { AtmosphericLayer } from '@/components/AtmosphericLayer';
 import { revealChrome } from '@/hooks/useChromeReveal';
 
@@ -15,6 +17,19 @@ interface ClientDashboardProps {
 export default function ClientDashboard({ onMessageClick }: ClientDashboardProps) {
   const { user } = useAuth();
   const navigate = useNavigate();
+
+  const { hasSeenOnboarding, setOnboardingActive, markOnboardingSeen } = useOnboardingStore();
+  const { setModal } = useModalStore();
+
+  useEffect(() => {
+    if (user && !hasSeenOnboarding) {
+      setTimeout(() => {
+        setOnboardingActive(true);
+        setModal('showAIProfile', true);
+        markOnboardingSeen();
+      }, 1000);
+    }
+  }, [user, hasSeenOnboarding, setOnboardingActive, setModal, markOnboardingSeen]);
 
   useEffect(() => {
     // Show the HUD briefly when entering the dashboard

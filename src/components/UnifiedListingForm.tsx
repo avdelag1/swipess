@@ -591,13 +591,22 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
         // Mobile: full screen — covers the entire viewport including the TopBar area
         "!top-0 !left-0 !translate-x-0 !translate-y-0 !w-full !max-w-none !h-[100dvh] !max-h-none !rounded-none",
         // Desktop (sm+): restore centered modal with rounded corners
-        "sm:!top-[50%] sm:!left-[50%] sm:!-translate-x-1/2 sm:!-translate-y-1/2 sm:!w-[calc(100%-24px)] sm:!max-w-5xl sm:!h-[90vh] sm:!max-h-[90vh] sm:!rounded-[var(--radius-xl)]",
-        "flex flex-col p-0 gap-0 overflow-hidden"
+        "sm:!top-[50%] sm:!left-[50%] sm:!-translate-x-1/2 sm:!-translate-y-1/2 sm:!w-[calc(100%-24px)] sm:!max-w-5xl sm:!h-[90vh] sm:!max-h-[90vh] sm:!rounded-[3rem]",
+        "flex flex-col p-0 gap-0 overflow-hidden border dark:bg-black/90 bg-white/80 backdrop-blur-3xl dark:border-white/10 border-black/10 dark:shadow-[0_40px_100px_rgba(0,0,0,1)] shadow-[0_40px_100px_rgba(0,0,0,0.2)]"
       )}>
-        <DialogHeader className="shrink-0 px-4 sm:px-6 pt-[calc(env(safe-area-inset-top)+1rem)] sm:pt-6 pb-2 sm:pb-3 border-b">
-          <DialogTitle className="text-lg sm:text-xl">
-            {editingId ? 'Edit Listing' : 'Create New Listing'}
-          </DialogTitle>
+        <div className="absolute inset-0 pointer-events-none overflow-hidden -z-10">
+           <div className="absolute top-[-20%] left-[-20%] w-[80%] h-[80%] bg-rose-600/5 blur-[150px] rounded-full" />
+           <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-indigo-600/5 blur-[120px] rounded-full" />
+        </div>
+        <DialogHeader className="shrink-0 px-6 sm:px-8 pt-[calc(env(safe-area-inset-top)+1.5rem)] sm:pt-8 pb-4 sm:pb-6 border-b dark:border-white/5 border-black/5 relative z-10 flex flex-row items-center justify-between">
+          <div>
+            <DialogTitle className="text-xl sm:text-2xl font-black uppercase italic tracking-tighter text-foreground">
+              {editingId ? 'Update Asset' : 'Deploy New Asset'}
+            </DialogTitle>
+            <p className="text-xs sm:text-[10px] uppercase tracking-widest font-bold text-muted-foreground mt-1 opacity-70">
+              {editingId ? 'Modify configuration parameters' : 'Configure manual parameters'}
+            </p>
+          </div>
         </DialogHeader>
         {(createListingMutation.isPending || uploadProgress !== null) && (
           <div className="shrink-0 h-[3px] w-full bg-primary/10 overflow-hidden">
@@ -622,11 +631,15 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
               <div className="space-y-4">
                 <div className="flex items-start justify-between px-2">
                   <div className="flex flex-col gap-1.5">
-                    <h3 className="text-xl font-bold">Photos <span className="text-sm font-medium text-muted-foreground ml-2">({photoList.length}/{maxPhotos})</span></h3>
-                    <p className="text-[10px] font-black uppercase tracking-[0.1em] text-indigo-500/80">💡 TIP: Vertical/Portrait photos look best on mobile</p>
+                    <h3 className="text-[14px] font-black uppercase tracking-widest italic text-foreground flex items-center gap-2">
+                       <Upload className="w-4 h-4 text-rose-500" />
+                       Media Upload 
+                       <span className="text-[10px] font-bold text-muted-foreground ml-2 opacity-60">({photoList.length}/{maxPhotos})</span>
+                    </h3>
+                    <p className="text-[9px] font-black uppercase tracking-[0.2em] text-rose-500/80">💡 Vertical/Portrait photos recommended</p>
                   </div>
                   {photoList.length < 1 && (
-                    <Badge variant="destructive" className="animate-pulse bg-[#FF3D00] hover:bg-[#FF3D00]/90 shadow-[0_4px_12px_rgba(255,61,0,0.25)] border-none">Required</Badge>
+                    <Badge variant="destructive" className="bg-rose-500 text-white font-black uppercase tracking-widest text-[9px] border-none shadow-[0_4px_12px_rgba(225,29,72,0.3)]">Required</Badge>
                   )}
                 </div>
                 <div className="p-6 rounded-[2rem] bg-white/[0.02] border border-white/5 shadow-inner">
@@ -685,10 +698,12 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.98 }}
                           onClick={handleImageAdd}
-                          className="w-full max-w-sm aspect-square flex flex-col items-center justify-center gap-2 rounded-[2.2rem] border-2 border-dashed border-primary/20 bg-primary/5 text-primary hover:bg-primary/10 hover:border-primary/30 transition-all group shadow-sm py-12"
+                          className="w-full max-w-sm aspect-square flex flex-col items-center justify-center gap-3 rounded-[3rem] border border-dashed border-rose-500/30 bg-rose-500/5 text-rose-500 hover:bg-rose-500/10 hover:border-rose-500/50 transition-all group shadow-sm py-12"
                         >
-                          <Upload className="w-8 h-8 group-hover:scale-110 transition-transform" strokeWidth={1.5} />
-                          <span className="text-sm font-semibold">Add Photo</span>
+                          <div className="w-16 h-16 rounded-full bg-rose-500/10 flex items-center justify-center shadow-inner group-hover:scale-110 transition-transform">
+                            <Upload className="w-8 h-8 text-rose-500" strokeWidth={1.5} />
+                          </div>
+                          <span className="text-[11px] font-black uppercase tracking-widest italic">Add Media Asset</span>
                         </motion.button>
                       </div>
                     )}
@@ -804,9 +819,9 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
           <motion.button
             whileTap={{ scale: 0.96 }}
             onClick={handleClose}
-            className="text-muted-foreground hover:text-foreground hover:bg-secondary px-6 rounded-2xl h-12 font-semibold transition-all"
+            className="text-muted-foreground hover:text-foreground hover:bg-secondary px-6 rounded-2xl h-12 font-black uppercase tracking-widest italic text-[11px] transition-all"
           >
-            Cancel
+            Abort
           </motion.button>
 
           <div className="flex items-center gap-3">
@@ -816,16 +831,16 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
                 whileTap={{ scale: 0.96 }}
                 onClick={handleSubmit}
                 disabled={createListingMutation.isPending}
-                className="bg-[#FF3D00] hover:bg-[#FF3D00]/90 text-white shadow-[0_8px_24px_rgba(255,61,0,0.35)] px-10 rounded-2xl h-12 font-black transition-all flex items-center gap-3 disabled:opacity-50 relative z-10"
+                className="bg-rose-600 hover:bg-rose-700 text-white shadow-[0_8px_24px_rgba(225,29,72,0.35)] px-10 rounded-2xl h-12 font-black uppercase italic tracking-widest text-[11px] transition-all flex items-center gap-3 disabled:opacity-50 relative z-10"
               >
                 {createListingMutation.isPending ? (
                   <>
                     <Loader2 className="w-5 h-5 animate-spin" />
-                    <span>Publishing...</span>
+                    <span>Synchronizing...</span>
                   </>
                 ) : (
                   <>
-                    <span className="tracking-tight">{editingId ? 'Update Listing' : 'Publish Listing'}</span>
+                    <span className="tracking-widest">{editingId ? 'Update Asset' : 'Deploy Asset'}</span>
                     <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                   </>
                 )}

@@ -56,14 +56,14 @@ const ClientSettings = () => {
           icon: Shield,
           label: t('settings.security'),
           description: t('settings.securityDesc'),
-          bg: 'linear-gradient(135deg, #064e3b, #10b981)',
+          bg: 'linear-gradient(135deg, #E4007C, #ff4b9f)',
           section: 'security',
         },
         {
           icon: ShieldCheck,
           label: t('settings.verification'),
           description: t('settings.verificationDesc'),
-          bg: 'linear-gradient(135deg, #065f46, #34d399)',
+          bg: 'linear-gradient(135deg, #c026d3, #e879f9)',
           section: 'verification',
         },
         {
@@ -89,14 +89,14 @@ const ClientSettings = () => {
           icon: Wrench,
           label: t('settings.maintenance'),
           description: t('settings.maintenanceDesc'),
-          bg: 'linear-gradient(135deg, #92400e, #fbbf24)',
+          bg: 'linear-gradient(135deg, #2dd4bf, #5eead4)',
           route: '/client/maintenance',
         },
         {
           icon: FileText,
           label: t('settings.contracts'),
           description: t('settings.contractsDesc'),
-          bg: 'linear-gradient(135deg, #7c2d12, #f97316)',
+          bg: 'linear-gradient(135deg, #f43f5e, #fb7185)',
           route: '/client/contracts',
         },
         {
@@ -115,7 +115,7 @@ const ClientSettings = () => {
           icon: HelpCircle,
           label: t('settings.faq'),
           description: t('settings.faqDesc'),
-          bg: 'linear-gradient(135deg, #164e63, #06b6d4)',
+          bg: 'linear-gradient(135deg, #0ea5e9, #38bdf8)',
           route: '/faq/client',
         },
         {
@@ -129,7 +129,7 @@ const ClientSettings = () => {
           icon: FileText,
           label: t('settings.legalPage'),
           description: t('settings.legalPageDesc'),
-          bg: 'linear-gradient(135deg, #78350f, #d97706)',
+          bg: 'linear-gradient(135deg, #6366f1, #818cf8)',
           route: '/legal',
         },
         {

@@ -30,8 +30,8 @@ BEGIN
     END IF;
     
     -- 4. Set owner_id to user_id if one is missing
-    UPDATE public.listings SET owner_id = user_id WHERE owner_id IS NULL AND user_id IS NOT NULL;
-    UPDATE public.listings SET user_id = owner_id WHERE user_id IS NULL AND owner_id IS NOT NULL;
+    -- UPDATE public.listings SET owner_id = user_id WHERE owner_id IS NULL AND user_id IS NOT NULL;
+    -- UPDATE public.listings SET user_id = owner_id WHERE user_id IS NULL AND owner_id IS NOT NULL;
 
 END $$;
 

@@ -81,7 +81,7 @@ ALTER TABLE public.listings
   ADD COLUMN IF NOT EXISTS location_type jsonb DEFAULT '[]'::jsonb;
 
 -- Backfill owner_id from user_id for existing rows
-UPDATE public.listings SET owner_id = user_id WHERE owner_id IS NULL;
+-- UPDATE public.listings SET owner_id = user_id WHERE owner_id IS NULL;
 
 -- ============================================================
 -- 2. CLIENT_PROFILES TABLE

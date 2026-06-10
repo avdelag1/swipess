@@ -550,18 +550,18 @@ button:focus:not(:focus-visible), [role="button"]:focus:not(:focus-visible) {
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 0 0% 7%;
-    --primary: 343 99% 62%;
-    --primary-foreground: 0 0% 0%;
-    --secondary: 0 0% 96%;
-    --secondary-foreground: 0 0% 10%;
-    --accent: 343 99% 62%;
+    --foreground: 0 0% 10%;
+    --primary: 327 100% 45%; /* Mexican Pink */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 327 20% 96%;
+    --secondary-foreground: 327 40% 20%;
+    --accent: 327 100% 45%;
     --accent-foreground: 0 0% 100%;
-    --muted: 0 0% 96.1%;
-    --muted-foreground: 0 0% 45.1%;
-    --border: 0 0% 89.8%;
-    --input: 0 0% 89.8%;
-    --ring: 343 99% 62%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 45%;
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 327 100% 45%;
     --radius: 1.25rem;
 
     --nav-bg: transparent;
@@ -574,19 +574,19 @@ button:focus:not(:focus-visible), [role="button"]:focus:not(:focus-visible) {
     --hud-active-bg: rgba(0, 0, 0, 0.05);
   }
   .dark {
-    --background: 216 15% 9%;
-    --foreground: 0 0% 100%;
-    --primary: 352 83% 58%;
+    --background: 327 10% 8%; /* Very dark with a hint of pink */
+    --foreground: 0 0% 98%;
+    --primary: 327 100% 60%; /* Brighter Mexican Pink for dark mode */
     --primary-foreground: 0 0% 100%;
-    --secondary: 212 14% 15%;
-    --secondary-foreground: 0 0% 100%;
-    --accent: 352 83% 58%;
+    --secondary: 327 15% 15%;
+    --secondary-foreground: 0 0% 98%;
+    --accent: 327 100% 60%;
     --accent-foreground: 0 0% 100%;
-    --muted: 212 14% 15%;
-    --muted-foreground: 212 10% 80%;
-    --border: 212 14% 18%;
-    --input: 212 14% 18%;
-    --ring: 352 83% 58%;
+    --muted: 327 15% 15%;
+    --muted-foreground: 327 10% 70%;
+    --border: 327 15% 20%;
+    --input: 327 15% 20%;
+    --ring: 327 100% 60%;
 
     --nav-bg: transparent;
     --nav-border: rgba(255, 255, 255, 0.08);
@@ -719,29 +719,29 @@ button:focus:not(:focus-visible), [role="button"]:focus:not(:focus-visible) {
     --hud-active-bg: rgba(255, 255, 255, 0.15);
   }
 
-  /* THEME 3: WHITE MATTE (Clean minimalist - like Apple/Linear) */
+    /* THEME 3: WHITE MATTE (Clean minimalist - like Apple/Linear) */
   .white-matte {
     /* Background colors - Soft white palette */
     --background: 0 0% 100%;
     --foreground: 0 0% 5%;
-    --card: 40 30% 96%;
+    --card: 327 10% 98%; /* Slightly pink tinted card */
     --card-foreground: 0 0% 5%;
-    --primary: 0 100% 50%;
+    --primary: 327 100% 45%; /* Mexican Pink */
     --primary-foreground: 0 0% 100%;
-    --secondary: 40 25% 93%;
+    --secondary: 327 10% 95%;
     --secondary-foreground: 0 0% 10%;
-    --muted: 40 25% 93%;
+    --muted: 327 10% 95%;
     --muted-foreground: 0 0% 29%;
-    --accent: 0 100% 50%;
+    --accent: 327 100% 45%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-    --border: 40 15% 84%;
-    --input: 0 0% 88%;
-    --ring: 0 100% 50%;
+    --border: 327 10% 88%;
+    --input: 327 10% 88%;
+    --ring: 327 100% 45%;
 
     /* Semantic UI Tokens */
-    --btn-primary-bg: #FF4D00;
+    --btn-primary-bg: #E4007C; /* Mexican Pink */
     --btn-primary-text: #FFFFFF;
     --btn-secondary-bg: rgba(0, 0, 0, 0.05);
     --btn-secondary-text: #111111;
