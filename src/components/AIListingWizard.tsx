@@ -21,6 +21,7 @@ import { useAIEnhanceText } from '@/hooks/useAIEnhanceText';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { supabase } from '@/integrations/supabase/client';
 import { useQueryClient } from '@tanstack/react-query';
+import { useOnboardingStore } from '@/state/onboardingStore';
 
 type WizardStep = 'compose' | 'processing';
 type ProgressPhase = 'upload' | 'optimize' | 'publish' | 'redirect';
@@ -130,6 +131,7 @@ export function AIListingWizard() {
   const location = useLocation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { isOnboardingActive, setOnboardingActive } = useOnboardingStore();
 
   const modalBg = isLight ? 'bg-white border-black/10' : 'bg-black border-white/10';
   const headerBorder = isLight ? 'border-black/8' : 'border-white/5';
@@ -202,6 +204,7 @@ export function AIListingWizard() {
 
   const handleClose = () => {
     setModal('showAIListing', false);
+    if (isOnboardingActive) setOnboardingActive(false);
     setTimeout(() => {
       setStep('compose');
       setCategory('property');
@@ -365,6 +368,7 @@ export function AIListingWizard() {
       queryClient.invalidateQueries({ queryKey: ['listings'] });
       triggerHaptic('success');
       appToast.success('Listing published');
+      if (isOnboardingActive) setOnboardingActive(false);
       handleClose();
       setTimeout(() => navigate('/owner/properties', { replace: true }), 150);
     } catch (error) {
@@ -439,6 +443,20 @@ export function AIListingWizard() {
                       exit={{ opacity: 0, x: -20 }}
                       className="space-y-10"
                     >
+                      {/* Onboarding Banner */}
+                      {isOnboardingActive && (
+                        <div className="bg-rose-500/10 border border-rose-500/20 p-5 rounded-3xl mb-6 shadow-inner relative overflow-hidden">
+                          <div className="absolute top-0 right-0 w-32 h-32 bg-rose-500/10 blur-[50px] rounded-full pointer-events-none" />
+                          <h3 className="text-rose-400 font-black uppercase tracking-widest text-xs mb-1.5 flex items-center gap-2">
+                            <Sparkles className="w-4 h-4" />
+                            Great! Now let's create a listing.
+                          </h3>
+                          <p className={cn("text-xs font-bold leading-relaxed", textPrimary)}>
+                            Upload photos and describe what you are looking for or offering. We'll generate a beautiful listing for you automatically.
+                          </p>
+                        </div>
+                      )}
+                      
                       <div className="space-y-4">
                         <label className={cn("text-[10px] font-black uppercase tracking-[0.2em] ml-2", textMuted)}>1. Category</label>
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">

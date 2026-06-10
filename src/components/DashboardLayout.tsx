@@ -12,6 +12,8 @@ import { PullToRefreshIndicator } from '@/components/PullToRefreshIndicator'
 
 // SPEED OF LIGHT HOOKS
 import { useFocusMode } from '@/hooks/useFocusMode'
+import { useOnboardingStore } from '@/state/onboardingStore'
+import { useModalStore } from '@/state/modalStore'
 
 
 
@@ -29,6 +31,20 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   const { restoreDrafts } = useAnonymousDrafts()
   
   const userId = user?.id
+
+  // ONBOARDING
+  const { hasSeenOnboarding, markOnboardingSeen, setOnboardingActive } = useOnboardingStore()
+  const { openAIProfile } = useModalStore()
+
+  useEffect(() => {
+    if (userRole === 'client' || userRole === 'owner') {
+      if (!hasSeenOnboarding) {
+        markOnboardingSeen()
+        setOnboardingActive(true)
+        openAIProfile(userRole)
+      }
+    }
+  }, [hasSeenOnboarding, userRole, openAIProfile, markOnboardingSeen, setOnboardingActive])
 
   // 🛡️ HUD MASTER RECOVERY: Ensure UI is visible on mount and every navigation
   useEffect(() => {

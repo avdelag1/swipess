@@ -14,6 +14,7 @@ import { uploadPhotoBatch } from '@/utils/photoUpload';
 import { supabase } from '@/integrations/supabase/client';
 import { appToast } from '@/utils/appNotification';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { useOnboardingStore } from '@/state/onboardingStore';
 
 type Step = 'compose' | 'processing';
 type Mode = 'client' | 'owner';
@@ -22,6 +23,8 @@ export function AIProfileWizard() {
   const { showAIProfile, aiProfileMode, setModal } = useModalStore();
   const { isLight } = useAppTheme();
   const { user } = useAuth();
+  const { isOnboardingActive, setOnboardingActive } = useOnboardingStore();
+  const { openAIListing } = useModalStore();
   const mode: Mode = (aiProfileMode || 'client');
 
   const [step, setStep] = useState<Step>('compose');
@@ -73,6 +76,7 @@ export function AIProfileWizard() {
 
   const handleClose = () => {
     setModal('showAIProfile', false);
+    if (isOnboardingActive) setOnboardingActive(false);
     setTimeout(() => {
       setStep('compose');
       setNarrative('');
@@ -199,7 +203,12 @@ export function AIProfileWizard() {
       setProgressPct(100);
       triggerHaptic('success');
       appToast.success('Profile created successfully!');
-      handleClose();
+      if (isOnboardingActive) {
+        setModal('showAIProfile', false);
+        openAIListing('property');
+      } else {
+        handleClose();
+      }
     } catch (err: any) {
       console.error('Process failed', err);
       appToast.error('Could not create your profile. Try again.');
@@ -256,6 +265,20 @@ export function AIProfileWizard() {
               <AnimatePresence mode="wait">
                 {step === 'compose' && (
                   <motion.div key="compose" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-10">
+                    
+                    {/* Onboarding Banner */}
+                    {isOnboardingActive && (
+                      <div className="bg-rose-500/10 border border-rose-500/20 p-5 rounded-3xl mb-6 shadow-inner relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-rose-500/10 blur-[50px] rounded-full pointer-events-none" />
+                        <h3 className="text-rose-400 font-black uppercase tracking-widest text-xs mb-1.5 flex items-center gap-2">
+                          <Sparkles className="w-4 h-4" />
+                          Welcome! Let's get started.
+                        </h3>
+                        <p className={cn("text-xs font-bold leading-relaxed", textPrimary)}>
+                          Upload a photo and tell us a bit about yourself to complete your profile. We'll set everything up for you automatically!
+                        </p>
+                      </div>
+                    )}
                     
                     {/* Photos */}
                     <div className="space-y-4">
