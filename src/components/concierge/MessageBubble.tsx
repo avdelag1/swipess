@@ -1,6 +1,6 @@
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowRight, Check, Copy, Languages, Plus, RefreshCw, Sparkles, Trash2, Volume2, VolumeX, Zap } from 'lucide-react';
+import { Check, Copy, Languages, RefreshCw, Sparkles, Trash2, Volume2, VolumeX } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';

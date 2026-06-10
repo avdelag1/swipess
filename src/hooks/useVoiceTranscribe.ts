@@ -86,7 +86,7 @@ export function useVoiceTranscribe(options?: UseVoiceTranscribeOptions): UseVoic
         try { recorderRef.current.stop(); } catch { /* already stopped */ }
       }
       if (recognitionRef.current) {
-        try { recognitionRef.current.stop(); } catch {}
+        try { recognitionRef.current.stop(); } catch { /* ignore */ }
       }
       if (streamRef.current) {
         streamRef.current.getTracks().forEach((t) => t.stop());
@@ -107,7 +107,7 @@ export function useVoiceTranscribe(options?: UseVoiceTranscribeOptions): UseVoic
       streamRef.current = null;
     }
     if (recognitionRef.current) {
-      try { recognitionRef.current.stop(); } catch {}
+      try { recognitionRef.current.stop(); } catch { /* ignore */ }
     }
     recorderRef.current = null;
     recognitionRef.current = null;
@@ -204,7 +204,7 @@ export function useVoiceTranscribe(options?: UseVoiceTranscribeOptions): UseVoic
             silenceStart = Date.now(); // Reset silence timer if we hear something
           } else {
             if (Date.now() - silenceStart > SILENCE_DURATION_MS) {
-              console.log('[useVoiceTranscribe] 5 seconds of silence detected, stopping...');
+              console.warn('[useVoiceTranscribe] 5 seconds of silence detected, stopping...');
               stop();
               return; // End checking
             }
@@ -366,8 +366,8 @@ export function useVoiceTranscribe(options?: UseVoiceTranscribeOptions): UseVoic
 
     return () => {
       cancelAnimationFrame(animationFrameId);
-      try { source.disconnect(); } catch {}
-      try { audioCtx.close(); } catch {}
+      try { source.disconnect(); } catch { /* ignore */ }
+      try { audioCtx.close(); } catch { /* ignore */ }
     };
   }, [isRecording]);
 

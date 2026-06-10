@@ -146,7 +146,7 @@ export function useSaveClientProfile() {
       if (existing?.id) {
         // Schema retry loop for updates
         let retryCount = 0;
-        let currentUpdates = { ...cleanUpdates };
+        const currentUpdates = { ...cleanUpdates };
         let successData: any = null;
         let lastError: any = null;
 
@@ -184,7 +184,7 @@ export function useSaveClientProfile() {
       } else {
         // Schema retry loop for inserts
         let retryCount = 0;
-        let currentInsert = { ...cleanUpdates, user_id: uid };
+        const currentInsert = { ...cleanUpdates, user_id: uid };
         let successData: any = null;
         let lastError: any = null;
 

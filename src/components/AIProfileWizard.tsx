@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Camera, Check, ChevronRight, Loader2, Mic, Search, Sparkles, Wand2, X } from 'lucide-react';
+import { Camera, Loader2, Mic, Search, Sparkles, Wand2, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
@@ -198,7 +198,31 @@ export function AIProfileWizard() {
         const { error: dbErr } = await supabase.from(tableName).insert(payload);
         if (dbErr) throw dbErr;
       }
-      
+
+      // Best-effort sync to public.profiles so TopBar avatar + swipe cards update too
+      try {
+        const profileSync: any = {
+          images: urls,
+          avatar_url: urls[0] || null,
+          updated_at: new Date().toISOString(),
+        };
+        if (mode === 'client') {
+          if (payload.name) profileSync.full_name = payload.name;
+          if (payload.age) profileSync.age = payload.age;
+          if (payload.gender) profileSync.gender = payload.gender;
+          if (payload.city) profileSync.city = payload.city;
+          if (payload.country) profileSync.country = payload.country;
+          if (payload.nationality) profileSync.nationality = payload.nationality;
+          if (payload.interests?.length) profileSync.interests = payload.interests;
+          if (payload.languages?.length) profileSync.languages_spoken = payload.languages;
+        } else if (payload.business_name) {
+          profileSync.full_name = payload.business_name;
+        }
+        await supabase.from('profiles').update(profileSync).eq('user_id', user.id);
+      } catch (syncErr) {
+        console.warn('[AIProfileWizard] profiles sync skipped', syncErr);
+      }
+
       setProgressPct(100);
       triggerHaptic('success');
       appToast.success('Magic Profile Saved!');

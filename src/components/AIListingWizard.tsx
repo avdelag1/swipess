@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { 
-  Bike, Briefcase, Building2, Camera, ChevronRight,
-  DollarSign, HelpCircle, Loader2, MapPin, Mic, Search, Sparkles, Wand2, X, Zap
+import {
+  Bike, Briefcase, Building2, Camera,
+  Loader2, Mic, Search, Sparkles, Wand2, X, Zap
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -15,12 +15,10 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { appToast } from '@/utils/appNotification';
 import { uploadPhotoBatch } from '@/utils/photoUpload';
 import { useAuth } from '@/hooks/useAuth';
-import { useTranslation } from 'react-i18next';
 import { useVoiceTranscribe } from '@/hooks/useVoiceTranscribe';
 import { useAIEnhanceText } from '@/hooks/useAIEnhanceText';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { supabase } from '@/integrations/supabase/client';
-import { useQueryClient } from '@tanstack/react-query';
 import { useOnboardingStore } from '@/state/onboardingStore';
 
 type WizardStep = 'compose' | 'processing';
@@ -32,12 +30,6 @@ const CATEGORIES = [
   { id: 'bicycle', label: 'Bicycle', icon: Bike, color: 'text-purple-400', bg: 'bg-purple-400/10' },
   { id: 'worker', label: 'Job / Service', icon: Briefcase, color: 'text-amber-400', bg: 'bg-amber-400/10' },
 ] as const;
-
-const getMissingSchemaColumn = (message?: string | null) => {
-  if (!message) return null;
-  const quoted = message.match(/['"]([^'"]+)['"]\s+column|column\s+['"]([^'"]+)['"]|find the ['"]([^'"]+)['"] column/i);
-  return quoted?.[1] || quoted?.[2] || quoted?.[3] || null;
-};
 
 interface FallbackContext {
   category: typeof CATEGORIES[number]['id'] | null;
@@ -93,44 +85,12 @@ const buildFallbackPrompt = ({ category, cityLocation, price, extras }: Fallback
   return parts.join(', ') + '.';
 };
 
-const saveAIListingWithSchemaRetry = async (payload: Record<string, unknown>) => {
-  let safeData = { ...payload };
-  const removedColumns = new Set<string>();
-
-  for (let attempt = 0; attempt < 25; attempt += 1) {
-    const result = await supabase
-      .from('listings')
-      .insert(safeData as never)
-      .select()
-      .single();
-
-    if (!result.error) return result.data;
-
-    const errorMsg = result.error.message?.toLowerCase() || '';
-    const isSchemaError = errorMsg.includes('could not find') || errorMsg.includes('schema cache') || errorMsg.includes('column');
-    const missingColumn = getMissingSchemaColumn(result.error.message);
-
-    if (!isSchemaError || !missingColumn || safeData[missingColumn] === undefined || removedColumns.has(missingColumn)) {
-      throw result.error;
-    }
-
-    removedColumns.add(missingColumn);
-    const { [missingColumn]: _removed, ...nextData } = safeData;
-    safeData = nextData;
-    console.warn(`[AIListing] Live schema rejected "${missingColumn}" — retrying without it.`);
-  }
-
-  throw new Error('Listing publish failed after adapting to the live schema.');
-};
-
 export function AIListingWizard() {
   const { showAIListing, aiListingCategory, aiListingDraft, setModal } = useModalStore();
   const { isLight } = useAppTheme();
   const { user } = useAuth();
-  const { t } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
   const { isOnboardingActive, setOnboardingActive } = useOnboardingStore();
 
   const modalBg = isLight ? 'bg-white border-black/10' : 'bg-[#0f0f13] border-white/20';

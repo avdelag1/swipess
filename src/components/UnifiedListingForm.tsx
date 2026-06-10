@@ -12,7 +12,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { appToast } from '@/utils/appNotification';
-import { appToast } from '@/utils/appNotification';
 import { logger } from '@/utils/prodLogger';
 import { Bike, ChevronRight, Shield, Upload, X } from 'lucide-react';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';

@@ -255,7 +255,7 @@ const ClientSettings = () => {
               </div>
 
               <div className="space-y-3">
-                {group.items.map((item, idx) => (
+                {group.items.map((item, _idx) => (
                   <div key={item.label}>
                     <motion.button
                       whileHover={{ scale: 1.01 }}

@@ -1,10 +1,9 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Camera, X, Check, Save } from 'lucide-react';
-import { useAuth } from '@/hooks/useAuth';
+import { Camera, X } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { appToast } from '@/utils/appNotification';
 import { triggerHaptic } from '@/utils/haptics';
@@ -13,7 +12,7 @@ import { useAppTheme } from '@/hooks/useAppTheme';
 import { useOwnerProfile, useSaveOwnerProfile } from '@/hooks/useOwnerProfile';
 import { cn } from '@/lib/utils';
 import { useModalStore } from '@/state/modalStore';
-import { validateContent } from '@/utils/contentFilter';
+import { validateContent } from '@/utils/contactInfoValidation';
 
 export function OwnerProfileDialog({ open, onOpenChange }: { open: boolean, onOpenChange: (open: boolean) => void }) {
   const { isLight } = useAppTheme();
@@ -67,7 +66,7 @@ export function OwnerProfileDialog({ open, onOpenChange }: { open: boolean, onOp
       try {
         const url = await handleImageUpload(file);
         setProfileImages(prev => [...prev, url]);
-      } catch (err: any) {
+      } catch {
         appToast.error('Upload failed');
       }
     };
