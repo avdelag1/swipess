@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { 
-  ArrowLeft, Bike, Briefcase, Building2, Camera, ChevronRight,
+  Bike, Briefcase, Building2, Camera, ChevronRight,
   DollarSign, HelpCircle, Loader2, MapPin, Mic, Search, Sparkles, Wand2, X, Zap
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -22,7 +22,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { supabase } from '@/integrations/supabase/client';
 import { useQueryClient } from '@tanstack/react-query';
 
-type WizardStep = 'category' | 'photos' | 'details' | 'processing';
+type WizardStep = 'compose' | 'processing';
 type ProgressPhase = 'upload' | 'optimize' | 'publish' | 'redirect';
 
 const CATEGORIES = [
@@ -122,7 +122,6 @@ const saveAIListingWithSchemaRetry = async (payload: Record<string, unknown>) =>
   throw new Error('Listing publish failed after adapting to the live schema.');
 };
 
-
 export function AIListingWizard() {
   const { showAIListing, aiListingCategory, aiListingDraft, setModal } = useModalStore();
   const { isLight } = useAppTheme();
@@ -132,24 +131,19 @@ export function AIListingWizard() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  // Theme-aware class helpers
   const modalBg = isLight ? 'bg-white border-black/10' : 'bg-black border-white/10';
   const headerBorder = isLight ? 'border-black/8' : 'border-white/5';
   const textPrimary = isLight ? 'text-black' : 'text-white';
   const textMuted = isLight ? 'text-black/50' : 'text-white/50';
-  const _textSubtle = isLight ? 'text-black/30' : 'text-white/30';
   const inputCls = isLight
-    ? 'bg-white border border-black/10 focus:border-cyan-500/50 focus:ring-0 text-black placeholder:text-black/30 shadow-[0_2px_8px_rgba(0,0,0,0.04)]'
-    : 'bg-white/5 border border-white/5 focus:border-cyan-500/50 focus:ring-0 text-white placeholder:text-white/10';
-  const cardCls = isLight
-    ? 'bg-white border-black/8 hover:border-cyan-500/40 hover:bg-white shadow-[0_8px_24px_rgba(0,0,0,0.06)]'
-    : 'bg-black/40 border-white/10 hover:border-cyan-500/30 hover:bg-white/10 shadow-[0_4px_20px_rgba(0,0,0,0.5)]';
+    ? 'bg-white border border-black/10 focus:border-rose-500/50 focus:ring-0 text-black placeholder:text-black/30 shadow-[0_2px_8px_rgba(0,0,0,0.04)]'
+    : 'bg-white/5 border border-white/5 focus:border-rose-500/50 focus:ring-0 text-white placeholder:text-white/10';
   const closeBtnCls = isLight
     ? 'bg-white hover:bg-black/5 rounded-2xl transition-all border border-black/10 shadow-[0_2px_8px_rgba(0,0,0,0.06)]'
     : 'bg-white/5 hover:bg-white/10 rounded-2xl transition-all border border-white/5';
   
-  const [step, setStep] = useState<WizardStep>('category');
-  const [category, setCategory] = useState<typeof CATEGORIES[number]['id'] | null>(null);
+  const [step, setStep] = useState<WizardStep>('compose');
+  const [category, setCategory] = useState<typeof CATEGORIES[number]['id'] | null>('property');
   const [prompt, setPrompt] = useState('');
   const [price, setPrice] = useState('');
   const [cityLocation, setCityLocation] = useState('');
@@ -162,7 +156,6 @@ export function AIListingWizard() {
   const [micTipOpen, setMicTipOpen] = useState(false);
   const { enhanceText, isEnhancing } = useAIEnhanceText();
 
-  // ✨ AI Enhance: improves raw text using the ai-enhance-text edge function
   const handleEnhance = async () => {
     const raw = prompt.trim();
     if (!raw) { appToast.error('Type or speak something first!'); return; }
@@ -175,17 +168,17 @@ export function AIListingWizard() {
     }
   };
 
-  // Auto-open mic instructions the first time a user hits the details step
   useEffect(() => {
-    if (step !== 'details') return;
-    try {
-      const seen = localStorage.getItem('swipess.aiListing.micTip.v1');
-      if (!seen) {
-        setMicTipOpen(true);
-        localStorage.setItem('swipess.aiListing.micTip.v1', '1');
+    if (step === 'compose') {
+      try {
+        const seen = localStorage.getItem('swipess.aiListing.micTip.v2');
+        if (!seen) {
+          setMicTipOpen(true);
+          localStorage.setItem('swipess.aiListing.micTip.v2', '1');
+        }
+      } catch {
+        // ignore
       }
-    } catch {
-      // ignore
     }
   }, [step]);
 
@@ -193,27 +186,25 @@ export function AIListingWizard() {
     if (aiListingDraft) {
       setExtras(aiListingDraft);
       if (aiListingDraft.category) setCategory(aiListingDraft.category);
-      setStep('photos');
+      setStep('compose');
     } else if (aiListingCategory) {
       setCategory(aiListingCategory);
-      setStep('photos');
+      setStep('compose');
     }
   }, [aiListingCategory, aiListingDraft]);
 
-  // Close modal automatically when user navigates to another page (skip initial mount)
   const initialPathRef = useRef(location.pathname);
   useEffect(() => {
     if (location.pathname !== initialPathRef.current && showAIListing) {
       setModal('showAIListing', false);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location.pathname]);
+  }, [location.pathname, showAIListing, setModal]);
 
   const handleClose = () => {
     setModal('showAIListing', false);
     setTimeout(() => {
-      setStep('category');
-      setCategory(null);
+      setStep('compose');
+      setCategory('property');
       setPrompt('');
       setPrice('');
       setCityLocation('');
@@ -242,7 +233,7 @@ export function AIListingWizard() {
       const text = await stopVoice();
       if (text) {
         setPrompt(prev => prev ? `${prev} ${text}` : text);
-        appToast.success('Intel Received');
+        appToast.success('Description recorded!');
       }
     } else {
       const success = await startVoice();
@@ -255,14 +246,15 @@ export function AIListingWizard() {
       appToast.error('Please sign in to publish a listing.');
       return;
     }
-    if (imageFiles.length === 0) {
-      appToast.error('At least 1 photo is required');
+    if (!category) {
+      appToast.error('Please select a category.');
       return;
     }
-    // Prompt is no longer hard-required — the wizard can auto-generate a
-    // baseline description from category, city, price, and extras so users
-    // can publish in one tap. If they did type / dictate something it still
-    // takes priority over the fallback.
+    if (imageFiles.length === 0) {
+      appToast.error('At least 1 photo is required.');
+      return;
+    }
+    
     const effectivePrompt = prompt.trim() || buildFallbackPrompt({
       category,
       cityLocation,
@@ -277,7 +269,6 @@ export function AIListingWizard() {
     triggerHaptic('medium');
 
     try {
-      // Phase 1 — Upload photos
       const uploadedUrls = await uploadPhotoBatch(
         user.id,
         imageFiles,
@@ -286,7 +277,6 @@ export function AIListingWizard() {
       );
       setProgressPct(40);
 
-      // Phase 2 — AI extract + polish
       setProgressPhase('optimize');
       let parsed: Record<string, unknown> = {};
       try {
@@ -295,7 +285,7 @@ export function AIListingWizard() {
         });
         const aiTimeout = new Promise<{ data: null; error: Error }>((resolve) =>
           setTimeout(
-            () => resolve({ data: null, error: new Error('AI extract timed out after 15s') }),
+            () => resolve({ data: null, error: new Error('AI extract timed out') }),
             15000
           )
         );
@@ -314,9 +304,8 @@ export function AIListingWizard() {
       }
       setProgressPct(72);
 
-      // Phase 3 — Publish to DB
       setProgressPhase('publish');
-      const cat = category || 'property';
+      const cat = category;
       const numericPrice = (parsed.price as number) || Number(price) || 0;
       const finalCity = (parsed.city as string) || cityLocation || 'Unknown';
       const listingPayload: Record<string, unknown> = {
@@ -359,7 +348,6 @@ export function AIListingWizard() {
         if (sc) listingPayload.service_category = sc;
       }
 
-
       const insertPromise = saveAIListingWithSchemaRetry(listingPayload);
       const insertTimeout = new Promise<never>((_, reject) =>
         setTimeout(() => reject(new Error('Publish timed out after 20s. Please try again.')), 20000)
@@ -371,7 +359,6 @@ export function AIListingWizard() {
       if (!inserted) throw new Error('Failed to publish listing');
       setProgressPct(95);
 
-      // Phase 4 — Redirect
       setProgressPhase('redirect');
       setProgressPct(100);
       queryClient.invalidateQueries({ queryKey: ['owner-listings'] });
@@ -384,7 +371,7 @@ export function AIListingWizard() {
       console.error('AI Listing Publish Error:', error);
       const msg = error instanceof Error ? error.message : 'Something went wrong publishing your listing.';
       appToast.error(msg);
-      setStep('details');
+      setStep('compose');
     } finally {
       setIsProcessing(false);
     }
@@ -415,23 +402,21 @@ export function AIListingWizard() {
               modalBg
             )}
           >
-            {/* Ambient Background */}
             <div className="absolute inset-0 pointer-events-none overflow-hidden">
-               <div className="absolute top-[-20%] left-[-20%] w-[80%] h-[80%] bg-cyan-600/5 blur-[150px] rounded-full" />
-               <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-indigo-600/5 blur-[120px] rounded-full" />
+               <div className="absolute top-[-20%] left-[-20%] w-[80%] h-[80%] bg-rose-600/5 blur-[150px] rounded-full" />
+               <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-pink-600/5 blur-[120px] rounded-full" />
             </div>
 
-            {/* Header */}
             <div className={cn("shrink-0 flex items-center justify-between px-8 py-6 border-b relative z-10", headerBorder)}>
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 flex items-center justify-center border border-cyan-500/20 shadow-inner">
-                  <Sparkles className="w-6 h-6 text-cyan-400" />
+                <div className="w-12 h-12 rounded-2xl bg-rose-500/10 flex items-center justify-center border border-rose-500/20 shadow-inner">
+                  <Sparkles className="w-6 h-6 text-rose-400" />
                 </div>
                 <div>
-                  <h2 className={cn("text-base font-black uppercase tracking-[0.1em] italic", textPrimary)}>Swipess {t('topbar.intelligence')}</h2>
+                  <h2 className={cn("text-base font-black uppercase tracking-[0.1em] italic", textPrimary)}>Magic AI Creation</h2>
                   <div className="flex items-center gap-2 mt-1">
-                    <span className="text-[10px] opacity-70 font-bold uppercase tracking-widest leading-none">{t('topbar.autonomousLayer')}</span>
-                    <div className="w-1 h-1 bg-cyan-500 rounded-full animate-pulse" />
+                    <span className="text-[10px] opacity-70 font-bold uppercase tracking-widest leading-none">One-Step Builder</span>
+                    <div className="w-1 h-1 bg-rose-500 rounded-full animate-pulse" />
                   </div>
                 </div>
               </div>
@@ -443,150 +428,173 @@ export function AIListingWizard() {
               </button>
             </div>
 
-            {/* Content Area */}
             <ScrollArea className="flex-1 overflow-hidden relative z-10">
               <div className="px-8 pt-8 pb-32">
                 <AnimatePresence mode="wait">
-                  {step === 'category' && (
+                  {step === 'compose' && (
                     <motion.div 
-                      key="step-category"
+                      key="step-compose"
                       initial={{ opacity: 0, x: 20 }}
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -20 }}
                       className="space-y-10"
                     >
-                      <div className="space-y-3">
-                        <h3 className={cn("text-3xl font-black tracking-tighter uppercase italic leading-none", textPrimary)}>{t('topbar.targetPlatform')}</h3>
-                        <p className={cn("text-[11px] leading-relaxed uppercase tracking-[0.2em] max-w-sm", textMuted)}>Select the deployment sector for your new Swipess artifact. flagship intelligence will optimize for the target audience.</p>
+                      <div className="space-y-4">
+                        <label className={cn("text-[10px] font-black uppercase tracking-[0.2em] ml-2", textMuted)}>1. Category</label>
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                          {CATEGORIES.map((cat) => (
+                            <button
+                              key={cat.id}
+                              onClick={() => { setCategory(cat.id); triggerHaptic('light'); }}
+                              className={cn(
+                                "flex flex-col items-center gap-2 p-4 rounded-2xl border transition-all active:scale-[0.98]",
+                                category === cat.id
+                                  ? "bg-rose-500/10 border-rose-500/40 shadow-inner"
+                                  : isLight ? "bg-white border-black/10 hover:border-rose-500/30" : "bg-black/40 border-white/10 hover:border-rose-500/30"
+                              )}
+                            >
+                              <cat.icon className={cn("w-6 h-6", category === cat.id ? "text-rose-400" : textMuted)} />
+                              <span className={cn("text-[10px] font-bold uppercase tracking-wider text-center", category === cat.id ? "text-rose-400" : textPrimary)}>{cat.label}</span>
+                            </button>
+                          ))}
+                        </div>
                       </div>
-
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        {CATEGORIES.map((cat) => (
-                          <button
-                            key={cat.id}
-                            onClick={() => {
-                              setCategory(cat.id);
-                              setStep('photos');
-                              triggerHaptic('light');
-                            }}
-                            className={cn(
-                              "flex items-center gap-5 p-6 rounded-[2rem] border transition-all active:scale-[0.98] text-left group relative overflow-hidden",
-                              cardCls
-                            )}
-                          >
-                            <div className={cn("w-16 h-16 rounded-2xl flex items-center justify-center border shadow-inner transition-all group-hover:scale-110", cat.bg, isLight ? "border-black/5" : "border-white/5")}>
-                              <cat.icon className={cn("w-8 h-8", cat.id === 'motorcycle' ? '' : cat.color)} />
-                            </div>
-                            <div>
-                                <span className={cn("text-base font-black uppercase tracking-wider group-hover:text-cyan-400 transition-colors italic", textPrimary)}>{cat.label}</span>
-                                <p className="text-[10px] opacity-50 font-bold uppercase tracking-[0.1em] mt-1">{t('topbar.deployProtocol')}</p>
-                            </div>
-                          </button>
-                        ))}
-                      </div>
-                    </motion.div>
-                  )}
-
-                  {step === 'photos' && (
-                    <motion.div 
-                      key="step-photos"
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -20 }}
-                      className="space-y-10"
-                    >
-                      <button 
-                        onClick={() => setStep('category')}
-                        className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-cyan-400 opacity-70 hover:opacity-100 transition-opacity"
-                      >
-                        <ArrowLeft className="w-4 h-4" />
-                        Re-target Platform
-                      </button>
 
                       <div className="space-y-4">
-                        <h3 className={cn("text-3xl font-black tracking-tighter uppercase italic leading-none", textPrimary)}>Visual Proof</h3>
-                        <p className={cn("text-[11px] leading-relaxed uppercase tracking-[0.2em]", textMuted)}>Upload high-fidelity imagery of the asset. swipess.appputer vision will extract secondary attributes.</p>
-                      </div>
-
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                            <AnimatePresence>
-                              {imageFiles.map((file, i) => (
-                                <motion.div 
-                                  key={`file-${i}`}
-                                  initial={{ scale: 0.8, opacity: 0 }}
-                                  animate={{ scale: 1, opacity: 1 }}
-                                  className={cn("aspect-square rounded-3xl overflow-hidden border relative group shadow-2xl", isLight ? "border-black/10" : "border-white/10")}
+                        <label className={cn("text-[10px] font-black uppercase tracking-[0.2em] ml-2", textMuted)}>2. Photos</label>
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                          <AnimatePresence>
+                            {imageFiles.map((file, i) => (
+                              <motion.div 
+                                key={`file-${i}`}
+                                initial={{ scale: 0.8, opacity: 0 }}
+                                animate={{ scale: 1, opacity: 1 }}
+                                className={cn("aspect-square rounded-3xl overflow-hidden border relative group shadow-2xl", isLight ? "border-black/10" : "border-white/10")}
+                              >
+                                <img src={URL.createObjectURL(file)} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                                <button 
+                                  onClick={() => setImageFiles(prev => prev.filter((_, idx) => idx !== i))}
+                                  className="absolute top-2 right-2 w-8 h-8 flex items-center justify-center bg-black/60 backdrop-blur-md rounded-full opacity-0 group-hover:opacity-100 transition-all border border-white/10"
                                 >
-                                  <img src={URL.createObjectURL(file)} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                                  <button 
-                                    onClick={() => setImageFiles(prev => prev.filter((_, idx) => idx !== i))}
-                                    className="absolute top-2 right-2 w-8 h-8 flex items-center justify-center bg-black/60 backdrop-blur-md rounded-full opacity-0 group-hover:opacity-100 transition-all border border-white/10"
-                                  >
-                                    <X className="w-4 h-4 text-white" />
-                                  </button>
-                                </motion.div>
-                              ))}
-                            </AnimatePresence>
-                            <button
-                              onClick={handleImageAdd}
-                              className={cn("aspect-square rounded-[2rem] border-2 border-dashed flex flex-col items-center justify-center gap-3 hover:bg-cyan-500/5 hover:border-cyan-500/40 transition-all group shadow-inner", isLight ? "border-black/15" : "border-white/10")}
-                            >
-                              <div className={cn("p-3 rounded-2xl border group-hover:bg-cyan-500/20 group-hover:border-cyan-400/30 transition-all", isLight ? "bg-black/5 border-black/5" : "bg-white/5 border-white/5")}>
-                                <Camera className="w-6 h-6 text-cyan-400 opacity-70 group-hover:opacity-100" />
+                                  <X className="w-4 h-4 text-white" />
+                                </button>
+                              </motion.div>
+                            ))}
+                          </AnimatePresence>
+                          <button
+                            onClick={handleImageAdd}
+                            className={cn("aspect-square rounded-[2rem] border-2 border-dashed flex flex-col items-center justify-center gap-3 hover:bg-rose-500/5 hover:border-rose-500/40 transition-all group shadow-inner", isLight ? "border-black/15" : "border-white/10")}
+                          >
+                            <div className={cn("p-3 rounded-2xl border group-hover:bg-rose-500/20 group-hover:border-rose-400/30 transition-all", isLight ? "bg-black/5 border-black/5" : "bg-white/5 border-white/5")}>
+                              <Camera className="w-6 h-6 text-rose-400 opacity-70 group-hover:opacity-100" />
+                            </div>
+                            <span className={cn("text-[9px] font-black uppercase tracking-[0.2em] opacity-70", textPrimary)}>Add Photos</span>
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="space-y-4">
+                        <label className={cn("text-[10px] font-black uppercase tracking-[0.2em] ml-2", textMuted)}>3. Quick Details</label>
+                        <div className="grid grid-cols-2 gap-4">
+                           <div className="relative">
+                              <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-rose-400 opacity-70" />
+                              <input
+                                 type="text"
+                                 value={price}
+                                 onChange={(e) => setPrice(e.target.value)}
+                                 placeholder="Price (e.g. 2,500)"
+                                 className={cn("w-full h-14 pl-12 pr-6 rounded-2xl text-sm font-bold transition-all uppercase", inputCls)}
+                              />
+                           </div>
+                           <div className="relative">
+                              <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-rose-400 opacity-70" />
+                              <input
+                                 type="text"
+                                 value={cityLocation}
+                                 onChange={(e) => setCityLocation(e.target.value)}
+                                 placeholder="Location (e.g. Tulum, MX)"
+                                 className={cn("w-full h-14 pl-12 pr-6 rounded-2xl text-sm font-bold transition-all uppercase", inputCls)}
+                              />
+                           </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                           {category === 'property' && (
+                              <>
+                                 <input
+                                    type="number"
+                                    onChange={(e) => setExtras((prev) => ({ ...prev, beds: Number(e.target.value) }))}
+                                    placeholder="Total Beds (e.g. 2)"
+                                    className={cn("w-full h-12 px-6 rounded-xl text-sm font-bold transition-all uppercase", inputCls)}
+                                 />
+                                 <input
+                                    type="number"
+                                    onChange={(e) => setExtras((prev) => ({ ...prev, baths: Number(e.target.value) }))}
+                                    placeholder="Bathrooms (e.g. 1)"
+                                    className={cn("w-full h-12 px-6 rounded-xl text-sm font-bold transition-all uppercase", inputCls)}
+                                 />
+                              </>
+                           )}
+                           {(category === 'motorcycle' || category === 'bicycle') && (
+                              <>
+                                 <input
+                                    type="text"
+                                    onChange={(e) => setExtras((prev) => ({ ...prev, brand: e.target.value }))}
+                                    placeholder="Brand / Maker"
+                                    className={cn("w-full h-12 px-6 rounded-xl text-sm font-bold transition-all uppercase", inputCls)}
+                                 />
+                                 <input
+                                    type="text"
+                                    onChange={(e) => setExtras((prev) => ({ ...prev, year: e.target.value }))}
+                                    placeholder="Model Year"
+                                    className={cn("w-full h-12 px-6 rounded-xl text-sm font-bold transition-all uppercase", inputCls)}
+                                 />
+                              </>
+                           )}
+                           {category === 'worker' && (
+                              <div className="col-span-2">
+                                 <input
+                                    type="text"
+                                    onChange={(e) => setExtras((prev) => ({ ...prev, service_category: e.target.value }))}
+                                    placeholder="Service Field (e.g. Web Dev / Electrician)"
+                                    className={cn("w-full h-12 px-6 rounded-xl text-sm font-bold transition-all uppercase", inputCls)}
+                                 />
                               </div>
-                              <span className={cn("text-[9px] font-black uppercase tracking-[0.2em] opacity-70", textPrimary)}>Add Intel</span>
-                            </button>
+                           )}
+                        </div>
                       </div>
 
-                      <div className="pt-8">
-                         <Button
-                            onClick={() => { setStep('details'); triggerHaptic('medium'); }}
-                            disabled={imageFiles.length === 0}
-                            className="w-full h-16 rounded-[2rem] bg-primary text-primary-foreground hover:brightness-110 font-black uppercase tracking-[0.2em] text-[11px] transition-all shadow-xl disabled:opacity-30"
-                         >
-                            Proceed to Intelligence
-                            <ChevronRight className="w-4 h-4 ml-3" />
-                         </Button>
-                      </div>
-                    </motion.div>
-                  )}
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between ml-2">
+                           <label className={cn("text-[10px] font-black uppercase tracking-[0.2em]", textMuted)}>4. Description</label>
+                           <button
+                             type="button"
+                             onClick={handleEnhance}
+                             disabled={!prompt.trim() || isEnhancing}
+                             className={cn(
+                               "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all border active:scale-95",
+                               prompt.trim() && !isEnhancing
+                                 ? "bg-rose-500/10 border-rose-500/30 text-rose-400 hover:bg-rose-500/20"
+                                 : "opacity-30 bg-white/5 border-white/10 text-white/50 cursor-not-allowed"
+                             )}
+                           >
+                             {isEnhancing ? (
+                               <Loader2 className="w-3 h-3 animate-spin" />
+                             ) : (
+                               <Wand2 className="w-3 h-3" />
+                             )}
+                             {isEnhancing ? 'Enhancing...' : '✨ Improve Description'}
+                           </button>
+                        </div>
 
-                  {step === 'details' && (
-                    <motion.div 
-                      key="step-details"
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -20 }}
-                      className="space-y-10"
-                    >
-                      <button 
-                        onClick={() => setStep('photos')}
-                        className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-cyan-400 opacity-70 hover:opacity-100 transition-opacity"
-                      >
-                        <ArrowLeft className="w-4 h-4" />
-                        Modify Visual Proof
-                      </button>
-
-                       <div className="space-y-4">
-                        <h3 className={cn("text-3xl font-black tracking-tighter uppercase italic leading-none", textPrimary)}>Intel Stream</h3>
-                        <p className={cn("text-[11px] leading-relaxed uppercase tracking-[0.2em]", textMuted)}>Describe your listing naturally. Our flagship intelligence will categorize, price, and optimize the narrative automatically.</p>
-                      </div>
-
-                      {/* Primary Voice Hub */}
-                      <div className="relative group">
-                        <div className={cn(
-                          "p-8 rounded-[3rem] border-2 border-dashed flex flex-col items-center justify-center gap-6 transition-all duration-500",
-                          isRecording 
-                            ? "bg-red-500/10 border-red-500/40 shadow-[0_0_50px_rgba(239,68,68,0.2)]" 
-                            : "bg-cyan-500/5 border-cyan-500/20 hover:bg-cyan-500/10 hover:border-cyan-500/40"
-                        )}>
+                        <div className="relative group">
                           <Popover open={micTipOpen} onOpenChange={setMicTipOpen}>
                             <PopoverTrigger asChild>
                               <button
                                 onClick={handleVoiceToggle}
                                 className={cn(
-                                  "w-24 h-24 rounded-full flex items-center justify-center transition-all duration-500 shadow-2xl relative overflow-hidden group",
-                                  isRecording ? "bg-red-500 scale-110" : "bg-cyan-500 hover:scale-105"
+                                  "absolute right-4 top-4 w-10 h-10 z-10 rounded-full flex items-center justify-center transition-all duration-500 shadow-2xl overflow-hidden",
+                                  isRecording ? "bg-red-500 scale-110" : "bg-rose-500 hover:scale-105"
                                 )}
                               >
                                 {isRecording ? (
@@ -598,180 +606,51 @@ export function AIListingWizard() {
                                 ) : (
                                   <div className="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                                 )}
-                                <Mic className={cn("w-10 h-10 relative z-10", isRecording ? "text-white animate-pulse" : "text-black")} />
+                                <Mic className={cn("w-5 h-5 relative z-10", isRecording ? "text-white animate-pulse" : "text-white")} />
                               </button>
                             </PopoverTrigger>
                             <PopoverContent
                               side="top"
                               sideOffset={12}
-                              className="w-72 p-4 rounded-2xl border border-cyan-500/30 bg-black/95 text-white shadow-2xl backdrop-blur-xl"
+                              className="w-72 p-4 rounded-2xl border border-rose-500/30 bg-black/95 text-white shadow-2xl backdrop-blur-xl"
                             >
                               <div className="space-y-2">
                                 <div className="flex items-center gap-2">
-                                  <Mic className="w-4 h-4 text-cyan-400" />
-                                  <span className="text-[11px] font-black uppercase tracking-widest text-cyan-400">How to use</span>
+                                  <Mic className="w-4 h-4 text-rose-400" />
+                                  <span className="text-[11px] font-black uppercase tracking-widest text-rose-400">Voice to Text</span>
                                 </div>
                                 <p className="text-[12px] leading-relaxed text-white/85">
-                                  Tap the mic and describe your listing out loud — bedrooms, location, price, anything that matters. Tap again to stop. Swipess will polish your words, generate the listing, and publish it for you in one go.
+                                  Tap the mic and describe your listing out loud. Tap again to stop.
                                 </p>
                               </div>
                             </PopoverContent>
                           </Popover>
-                          
-                          <div className="text-center space-y-1">
-                            <p className={cn("text-[11px] font-black uppercase tracking-[0.3em]", isRecording ? "text-red-400" : "text-cyan-400")}>
-                              {isRecording ? "TRANSMITTING INTEL..." : "TAP TO DESCRIBE"}
-                            </p>
-                            <p className={cn("text-[9px] font-bold uppercase tracking-widest opacity-40", textPrimary)}>
-                              {isRecording ? "TALK NATURALLY NOW" : "VOICE-TO-LISTING ACTIVE"}
-                            </p>
-                            <button
-                              type="button"
-                              onClick={(e) => { e.stopPropagation(); setMicTipOpen(true); }}
-                              className="mx-auto mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-[9px] font-black uppercase tracking-widest text-cyan-400 hover:bg-cyan-500/20 transition-all"
-                            >
-                              <HelpCircle className="w-3 h-3" />
-                              How it works
-                            </button>
+
+                          <div className="relative">
+                            <Search className="absolute left-5 top-5 w-4 h-4 text-rose-400 opacity-60" />
+                            <textarea
+                              value={prompt}
+                              onChange={(e) => setPrompt(e.target.value)}
+                              placeholder={isRecording ? "Listening..." : "Describe your listing or just tap publish. E.g. 'Stunning ocean view property with private pool'..."}
+                              className={cn("w-full h-32 p-5 pl-14 pr-16 rounded-[2rem] transition-all text-sm leading-relaxed resize-none italic outline-none focus:ring-1 focus:ring-rose-500/30", inputCls)}
+                            />
+                            {isTranscribing && (
+                              <div className="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-sm rounded-[2rem]">
+                                <div className="flex items-center gap-3 px-4 py-2 bg-black rounded-full border border-rose-500/30 shadow-2xl">
+                                  <Loader2 className="w-4 h-4 text-rose-400 animate-spin" />
+                                  <span className="text-[10px] font-black uppercase tracking-widest text-rose-400">Transcribing...</span>
+                                </div>
+                              </div>
+                            )}
                           </div>
                         </div>
                       </div>
-
-                      <div className="space-y-6">
-                        <div className="grid grid-cols-2 gap-4">
-                           <div className="space-y-3">
-                              <label className={cn("text-[10px] font-black uppercase tracking-[0.2em] ml-2", textMuted)}>Market Price</label>
-                              <div className="relative">
-                                 <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-cyan-400 opacity-70" />
-                                 <input
-                                    type="text"
-                                    value={price}
-                                    onChange={(e) => setPrice(e.target.value)}
-                                    placeholder="2,500"
-                                    className={cn("w-full h-14 pl-12 pr-6 rounded-2xl text-sm font-bold transition-all uppercase", inputCls)}
-                                 />
-                              </div>
-                           </div>
-                           <div className="space-y-3">
-                              <label className={cn("text-[10px] font-black uppercase tracking-[0.2em] ml-2", textMuted)}>City Node</label>
-                              <div className="relative">
-                                 <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-cyan-400 opacity-70" />
-                                 <input
-                                    type="text"
-                                    value={cityLocation}
-                                    onChange={(e) => setCityLocation(e.target.value)}
-                                    placeholder="Tulum, MX"
-                                    className={cn("w-full h-14 pl-12 pr-6 rounded-2xl text-sm font-bold transition-all uppercase", inputCls)}
-                                 />
-                              </div>
-                           </div>
-                        </div>
-
-                        {/* Survey Questions (Dynamic) */}
-                        <div className="grid grid-cols-2 gap-4">
-                           {category === 'property' && (
-                              <>
-                                 <div className="space-y-3">
-                                    <label className={cn("text-[10px] font-black uppercase tracking-[0.2em] ml-2", textMuted)}>Total Beds</label>
-                                    <input
-                                       type="number"
-                                       onChange={(e) => setExtras((prev) => ({ ...prev, beds: Number(e.target.value) }))}
-                                       placeholder="2"
-                                       className={cn("w-full h-12 px-6 rounded-xl text-sm font-bold transition-all uppercase", inputCls)}
-                                    />
-                                 </div>
-                                 <div className="space-y-3">
-                                    <label className={cn("text-[10px] font-black uppercase tracking-[0.2em] ml-2", textMuted)}>Bathrooms</label>
-                                    <input
-                                       type="number"
-                                       onChange={(e) => setExtras((prev) => ({ ...prev, baths: Number(e.target.value) }))}
-                                       placeholder="1"
-                                       className={cn("w-full h-12 px-6 rounded-xl text-sm font-bold transition-all uppercase", inputCls)}
-                                    />
-                                 </div>
-                              </>
-                           )}
-                           {(category === 'motorcycle' || category === 'bicycle') && (
-                              <>
-                                 <div className="space-y-3">
-                                    <label className={cn("text-[10px] font-black uppercase tracking-[0.2em] ml-2", textMuted)}>Brand / Maker</label>
-                                    <input
-                                       type="text"
-                                       onChange={(e) => setExtras((prev) => ({ ...prev, brand: e.target.value }))}
-                                       placeholder="Honda / BMW"
-                                       className={cn("w-full h-12 px-6 rounded-xl text-sm font-bold transition-all uppercase", inputCls)}
-                                    />
-                                 </div>
-                                 <div className="space-y-3">
-                                    <label className={cn("text-[10px] font-black uppercase tracking-[0.2em] ml-2", textMuted)}>Model Year</label>
-                                    <input
-                                       type="text"
-                                       onChange={(e) => setExtras((prev) => ({ ...prev, year: e.target.value }))}
-                                       placeholder="2023"
-                                       className={cn("w-full h-12 px-6 rounded-xl text-sm font-bold transition-all uppercase", inputCls)}
-                                    />
-                                 </div>
-                              </>
-                           )}
-                           {category === 'worker' && (
-                              <div className="col-span-2 space-y-3">
-                                 <label className={cn("text-[10px] font-black uppercase tracking-[0.2em] ml-2", textMuted)}>Service Field</label>
-                                 <input
-                                    type="text"
-                                    onChange={(e) => setExtras((prev) => ({ ...prev, service_category: e.target.value }))}
-                                    placeholder="Web Dev / Electrician / Designer..."
-                                    className={cn("w-full h-12 px-6 rounded-xl text-sm font-bold transition-all uppercase", inputCls)}
-                                 />
-                              </div>
-                           )}
-                        </div>
-
-                          <div className="flex items-center justify-between ml-2">
-                             <label className={cn("text-[10px] font-black uppercase tracking-[0.2em]", textMuted)}>Manual Override</label>
-                             {/* ✨ AI Enhance Button */}
-                             <button
-                               type="button"
-                               onClick={handleEnhance}
-                               disabled={!prompt.trim() || isEnhancing}
-                               className={cn(
-                                 "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all border active:scale-95",
-                                 prompt.trim() && !isEnhancing
-                                   ? "bg-violet-500/10 border-violet-500/30 text-violet-400 hover:bg-violet-500/20"
-                                   : "opacity-30 bg-white/5 border-white/10 text-white/50 cursor-not-allowed"
-                               )}
-                             >
-                               {isEnhancing ? (
-                                 <Loader2 className="w-3 h-3 animate-spin" />
-                               ) : (
-                                 <Wand2 className="w-3 h-3" />
-                               )}
-                               {isEnhancing ? 'Enhancing...' : '✨ Make it better'}
-                             </button>
-                          </div>
-                          <div className="relative">
-                             <Search className="absolute left-5 top-5 w-4 h-4 text-cyan-400 opacity-60" />
-                             <textarea
-                               value={prompt}
-                               onChange={(e) => setPrompt(e.target.value)}
-                               placeholder={isRecording ? "Listening to your intel..." : "Optional — describe your listing or just tap publish. E.g. 'Stunning ocean view property with private pool'..."}
-                               className={cn("w-full h-40 p-5 pl-14 rounded-[2rem] transition-all text-sm leading-relaxed resize-none italic outline-none focus:ring-1 focus:ring-cyan-500/30", inputCls)}
-                             />
-                             {isTranscribing && (
-                               <div className="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-sm rounded-[2rem]">
-                                 <div className="flex items-center gap-3 px-4 py-2 bg-black rounded-full border border-cyan-500/30 shadow-2xl">
-                                   <Loader2 className="w-4 h-4 text-cyan-400 animate-spin" />
-                                   <span className="text-[10px] font-black uppercase tracking-widest text-cyan-400">Synthesizing...</span>
-                                 </div>
-                               </div>
-                             )}
-                          </div>
-                        </div>
 
                       <div className="pt-4 px-1 pb-10">
                         <Button
                           onClick={handleProcess}
                           disabled={isProcessing || imageFiles.length === 0}
-                          className="w-full h-16 rounded-[2.5rem] bg-primary text-primary-foreground hover:brightness-110 font-black uppercase tracking-[0.3em] text-[12px] transition-all shadow-[0_20px_60px_hsl(var(--primary)/0.4)] disabled:opacity-30"
+                          className="w-full h-16 rounded-[2.5rem] bg-rose-600 text-white hover:brightness-110 font-black uppercase tracking-[0.3em] text-[12px] transition-all shadow-[0_20px_60px_rgba(225,29,72,0.4)] disabled:opacity-30"
                         >
                           {isProcessing ? (
                             <>
@@ -797,13 +676,12 @@ export function AIListingWizard() {
                       exit={{ opacity: 0 }}
                       className="h-full flex flex-col items-center justify-center space-y-10 py-20"
                     >
-                      {/* Circular progress */}
                       <div className="relative w-40 h-40">
                         <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
                           <circle cx="50" cy="50" r="44" stroke="currentColor" strokeWidth="6" fill="none" className={cn(isLight ? "text-black/10" : "text-white/10")} />
                           <motion.circle
                             cx="50" cy="50" r="44"
-                            stroke="hsl(var(--primary))" strokeWidth="6" fill="none"
+                            stroke="#e11d48" strokeWidth="6" fill="none"
                             strokeLinecap="round"
                             strokeDasharray={2 * Math.PI * 44}
                             initial={{ strokeDashoffset: 2 * Math.PI * 44 }}
@@ -830,7 +708,7 @@ export function AIListingWizard() {
                               className={cn(
                                 'text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full border',
                                 progressPhase === p
-                                  ? 'bg-primary text-primary-foreground border-transparent'
+                                  ? 'bg-rose-600 text-white border-transparent'
                                   : isLight ? 'border-black/10 text-black/40' : 'border-white/10 text-white/40'
                               )}
                             >
