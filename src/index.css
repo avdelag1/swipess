@@ -2675,6 +2675,26 @@ button:disabled,
 .white-matte .hover\:border-white\/40:hover, .light .hover\:border-white\/40:hover { border-color: rgba(0,0,0,0.16) !important; }
 .white-matte .hover\:border-white\/50:hover, .light .hover\:border-white\/50:hover { border-color: rgba(0,0,0,0.18) !important; }
 
+/* ── focus-visible:border-white/N overrides (input focus rings) ──────── */
+.white-matte .focus-visible\:border-white\/10:focus-visible, .light .focus-visible\:border-white\/10:focus-visible { border-color: rgba(0,0,0,0.15) !important; }
+.white-matte .focus-visible\:border-white\/20:focus-visible, .light .focus-visible\:border-white\/20:focus-visible { border-color: rgba(0,0,0,0.18) !important; }
+.white-matte .focus-visible\:border-white\/30:focus-visible, .light .focus-visible\:border-white\/30:focus-visible { border-color: rgba(0,0,0,0.20) !important; }
+.white-matte .focus-visible\:border-white\/40:focus-visible, .light .focus-visible\:border-white\/40:focus-visible { border-color: rgba(0,0,0,0.22) !important; }
+.white-matte .focus-visible\:border-white\/50:focus-visible, .light .focus-visible\:border-white\/50:focus-visible { border-color: rgba(0,0,0,0.25) !important; }
+
+/* ── focus:border-white/N overrides ─────────────────────────────────── */
+.white-matte .focus\:border-white\/10:focus, .light .focus\:border-white\/10:focus { border-color: rgba(0,0,0,0.15) !important; }
+.white-matte .focus\:border-white\/20:focus, .light .focus\:border-white\/20:focus { border-color: rgba(0,0,0,0.18) !important; }
+.white-matte .focus\:border-white\/30:focus, .light .focus\:border-white\/30:focus { border-color: rgba(0,0,0,0.20) !important; }
+.white-matte .focus\:border-white\/40:focus, .light .focus\:border-white\/40:focus { border-color: rgba(0,0,0,0.22) !important; }
+.white-matte .focus\:border-white\/50:focus, .light .focus\:border-white\/50:focus { border-color: rgba(0,0,0,0.25) !important; }
+
+/* ── placeholder:text-white/N → dark placeholder ────────────────────── */
+.white-matte .placeholder\:text-white\/20::placeholder, .light .placeholder\:text-white\/20::placeholder { color: rgba(0,0,0,0.30) !important; }
+.white-matte .placeholder\:text-white\/30::placeholder, .light .placeholder\:text-white\/30::placeholder { color: rgba(0,0,0,0.35) !important; }
+.white-matte .placeholder\:text-white\/40::placeholder, .light .placeholder\:text-white\/40::placeholder { color: rgba(0,0,0,0.40) !important; }
+.white-matte .placeholder\:text-white\/70::placeholder, .light .placeholder\:text-white\/70::placeholder { color: rgba(0,0,0,0.55) !important; }
+
 /* ── text-white/N → dark text ────────────────────────────────────────── */
 .white-matte .text-white\/10, .light .text-white\/10 { color: rgba(0,0,0,0.38) !important; }
 .white-matte .text-white\/20, .light .text-white\/20 { color: rgba(0,0,0,0.45) !important; }
