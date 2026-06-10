@@ -16,7 +16,7 @@ if (!SUPABASE_URL) {
   throw new Error("SUPABASE_URL environment variable is required");
 }
 
-const ALLOWED_ORIGIN = Deno.env.get('ALLOWED_ORIGIN') || 'https://swipess.com';
+const ALLOWED_ORIGIN = '*';
 const corsHeaders = {
   "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",

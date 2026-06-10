@@ -14,6 +14,7 @@ import { uploadPhotoBatch } from '@/utils/photoUpload';
 import { supabase } from '@/integrations/supabase/client';
 import { appToast } from '@/utils/appNotification';
 import { useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useOnboardingStore } from '@/state/onboardingStore';
 
@@ -28,6 +29,7 @@ export function AIProfileWizard() {
   const { openAIListing } = useModalStore();
   const mode: Mode = (aiProfileMode || 'client');
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   const [step, setStep] = useState<Step>('compose');
   const [narrative, setNarrative] = useState('');
@@ -70,15 +72,15 @@ export function AIProfileWizard() {
 
   if (!showAIProfile) return null;
 
-  const modalBg = isLight ? 'bg-white border-black/10' : 'bg-black border-white/10';
+  const modalBg = isLight ? 'bg-white border-black/10' : 'bg-[#0f0f13] border-white/20';
   const textPrimary = isLight ? 'text-black' : 'text-white';
-  const textMuted = isLight ? 'text-black/70' : 'text-white/80';
+  const textMuted = isLight ? 'text-black/80' : 'text-white/90';
   const inputCls = isLight
-    ? 'bg-white border border-black/10 focus:border-rose-500/50 focus:ring-0 text-black placeholder:text-black/50'
-    : 'bg-white/[0.12] border border-white/20 focus:border-rose-500/50 focus:ring-0 text-white placeholder:text-white/80';
+    ? 'bg-white border-2 border-black/15 focus:border-rose-500 focus:ring-0 text-black placeholder:text-black/60 font-medium'
+    : 'bg-white/[0.15] border-2 border-white/30 focus:border-rose-400 focus:ring-0 text-white placeholder:text-white/70 font-medium shadow-inner';
   const closeBtnCls = isLight
-    ? 'bg-white hover:bg-black/5 border border-black/10'
-    : 'bg-white/5 hover:bg-white/10 border border-white/5';
+    ? 'bg-white hover:bg-black/5 border border-black/20'
+    : 'bg-white/10 hover:bg-white/20 border border-white/20';
 
   const handleClose = () => {
     setModal('showAIProfile', false);
@@ -148,119 +150,53 @@ export function AIProfileWizard() {
       const draft = (data as any)?.profile || {};
       setProgressPct(70);
 
-      // 3. Save profile
-      if (mode === 'client') {
-        const payload: any = {
-          user_id: user.id,
-          name: draft.name || null,
-          age: draft.age || null,
-          gender: draft.gender || null,
-          bio: draft.bio || narrative, // Fallback to raw voice/text
-          city: draft.city || null,
-          neighborhood: draft.neighborhood || null,
-          country: draft.country || null,
-          nationality: draft.nationality || null,
-          occupation: draft.occupation || null,
-          relationship_status: draft.relationship_status || null,
-          smoking_habit: draft.smoking_habit || null,
-          drinking_habit: draft.drinking_habit || null,
-          languages: draft.languages || [],
-          interests: draft.interests || [],
-          intentions: draft.intentions || [],
-          profile_images: urls,
-          updated_at: new Date().toISOString(),
-        };
-        // Retry loop for client_profiles upsert to handle missing columns
-        let retryCount = 0;
-        let success = false;
-        let lastErr: any = null;
+      // 3. Save profile as draft to modal store
+      const payload: any = mode === 'client' ? {
+        user_id: user.id,
+        name: draft.name || null,
+        age: draft.age || null,
+        gender: draft.gender || null,
+        bio: draft.bio || narrative, // Fallback to raw voice/text
+        city: draft.city || null,
+        neighborhood: draft.neighborhood || null,
+        country: draft.country || null,
+        nationality: draft.nationality || null,
+        occupation: draft.occupation || null,
+        relationship_status: draft.relationship_status || null,
+        smoking_habit: draft.smoking_habit || null,
+        drinking_habit: draft.drinking_habit || null,
+        languages: draft.languages || [],
+        interests: draft.interests || [],
+        intentions: draft.intentions || [],
+        profile_images: urls,
+      } : {
+        user_id: user.id,
+        business_name: draft.business_name || null,
+        business_description: draft.business_description || narrative, // Fallback
+        business_location: draft.business_location || null,
+        contact_email: draft.contact_email || null,
+        contact_phone: draft.contact_phone || null,
+        service_offerings: draft.service_offerings || [],
+        profile_images: urls,
+      };
 
-        while (retryCount < 3 && !success) {
-          const { error: upsertErr } = await supabase
-            .from('client_profiles')
-            .upsert(payload, { onConflict: 'user_id' });
-          
-          if (upsertErr) {
-            lastErr = upsertErr;
-            if (upsertErr.code === 'PGRST204' || upsertErr.code === '42703') {
-              const match = upsertErr.message.match(/column "([^"]+)"/);
-              if (match && match[1]) {
-                const badCol = match[1];
-                console.warn(`[AIProfileWizard] Column ${badCol} missing in client_profiles, stripping and retrying...`);
-                delete payload[badCol];
-                retryCount++;
-                continue;
-              }
-            }
-            throw upsertErr;
-          }
-          success = true;
-        }
-
-        if (!success && lastErr) throw lastErr;
-        
-        await supabase.from('profiles').update({
-          full_name: payload.name,
-          age: payload.age,
-          bio: payload.bio,
-          city: payload.city,
-          avatar_url: urls[0] || null,
-          images: urls,
-          updated_at: new Date().toISOString(),
-        }).eq('user_id', user.id);
+      useModalStore.setState({ aiProfileDraft: payload });
+      
+      // Save the profile immediately into the database
+      const tableName = mode === 'client' ? 'client_profiles' : 'owner_profiles';
+      const { data: existing } = await supabase.from(tableName).select('id').eq('user_id', user.id).maybeSingle();
+      
+      if (existing?.id) {
+        const { error: dbErr } = await supabase.from(tableName).update(payload).eq('user_id', user.id);
+        if (dbErr) throw dbErr;
       } else {
-        const payload: any = {
-          user_id: user.id,
-          business_name: draft.business_name || null,
-          business_description: draft.business_description || narrative, // Fallback
-          business_location: draft.business_location || null,
-          contact_email: draft.contact_email || null,
-          contact_phone: draft.contact_phone || null,
-          service_offerings: draft.service_offerings || [],
-          profile_images: urls,
-          updated_at: new Date().toISOString(),
-        };
-        // Retry loop for owner_profiles upsert to handle missing columns
-        let retryCount = 0;
-        let success = false;
-        let lastErr: any = null;
-
-        while (retryCount < 3 && !success) {
-          const { error: upsertErr } = await supabase
-            .from('owner_profiles')
-            .upsert(payload, { onConflict: 'user_id' });
-            
-          if (upsertErr) {
-            lastErr = upsertErr;
-            if (upsertErr.code === 'PGRST204' || upsertErr.code === '42703') {
-              const match = upsertErr.message.match(/column "([^"]+)"/);
-              if (match && match[1]) {
-                const badCol = match[1];
-                console.warn(`[AIProfileWizard] Column ${badCol} missing in owner_profiles, stripping and retrying...`);
-                delete payload[badCol];
-                retryCount++;
-                continue;
-              }
-            }
-            throw upsertErr;
-          }
-          success = true;
-        }
-
-        if (!success && lastErr) throw lastErr;
-        
-        await supabase.from('profiles').update({
-          full_name: payload.business_name,
-          bio: payload.business_description,
-          avatar_url: urls[0] || null,
-          images: urls,
-          updated_at: new Date().toISOString(),
-        }).eq('user_id', user.id);
+        const { error: dbErr } = await supabase.from(tableName).insert(payload);
+        if (dbErr) throw dbErr;
       }
       
       setProgressPct(100);
       triggerHaptic('success');
-      appToast.success('Profile created successfully!');
+      appToast.success('Magic Profile Saved!');
       
       // Invalidate all profile caches so manual profile form, TopBar, etc. pick up new data
       queryClient.invalidateQueries({ queryKey: ['client-profile-own'] });
@@ -275,7 +211,7 @@ export function AIProfileWizard() {
         openAIListing('property');
       } else {
         setModal('showAIProfile', false);
-        setModal('showProfile', true);
+        navigate(`/profile/${user.id}`);
       }
     } catch (err: any) {
       console.error('Process failed', err);
@@ -304,7 +240,7 @@ export function AIProfileWizard() {
           exit={{ scale: 0.95, opacity: 0, y: 30 }}
           className={cn(
             "w-full max-w-2xl mx-auto h-full sm:h-[85vh] overflow-hidden sm:rounded-[3rem] border flex flex-col relative",
-            isLight ? "shadow-[0_40px_100px_rgba(0,0,0,0.2)]" : "shadow-[0_40px_100px_rgba(0,0,0,1)]",
+            isLight ? "shadow-[0_40px_100px_rgba(0,0,0,0.2)]" : "shadow-[0_40px_100px_rgba(255,255,255,0.05)] shadow-2xl",
             modalBg
           )}
         >
@@ -403,7 +339,7 @@ export function AIProfileWizard() {
                                 "absolute right-4 top-4 w-10 h-10 z-10 rounded-full flex items-center justify-center transition-all duration-300 shadow-2xl overflow-hidden",
                                 isRecording 
                                   ? "bg-red-600 text-white shadow-[0_0_30px_rgba(220,38,38,0.8)] scale-110 animate-pulse" 
-                                  : "bg-rose-500 hover:scale-105"
+                                  : "bg-white/10 hover:bg-white/20 border border-white/20 hover:scale-105"
                               )}
                             >
                               {isRecording ? (

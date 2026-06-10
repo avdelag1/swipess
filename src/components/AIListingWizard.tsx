@@ -133,16 +133,16 @@ export function AIListingWizard() {
   const queryClient = useQueryClient();
   const { isOnboardingActive, setOnboardingActive } = useOnboardingStore();
 
-  const modalBg = isLight ? 'bg-white border-black/10' : 'bg-black border-white/10';
-  const headerBorder = isLight ? 'border-black/8' : 'border-white/5';
+  const modalBg = isLight ? 'bg-white border-black/10' : 'bg-[#0f0f13] border-white/20';
+  const headerBorder = isLight ? 'border-black/10' : 'border-white/10';
   const textPrimary = isLight ? 'text-black' : 'text-white';
-  const textMuted = isLight ? 'text-black/70' : 'text-white/80';
+  const textMuted = isLight ? 'text-black/80' : 'text-white/90';
   const inputCls = isLight
-    ? 'bg-white border border-black/10 focus:border-rose-500/50 focus:ring-0 text-black placeholder:text-black/50 shadow-[0_2px_8px_rgba(0,0,0,0.04)]'
-    : 'bg-white/10 border border-white/20 focus:border-rose-500/50 focus:ring-0 text-white placeholder:text-white/80';
+    ? 'bg-white border-2 border-black/15 focus:border-rose-500 focus:ring-0 text-black placeholder:text-black/60 font-medium shadow-[0_2px_8px_rgba(0,0,0,0.04)]'
+    : 'bg-white/[0.15] border-2 border-white/30 focus:border-rose-400 focus:ring-0 text-white placeholder:text-white/70 font-medium shadow-inner';
   const closeBtnCls = isLight
-    ? 'bg-white hover:bg-black/5 rounded-2xl transition-all border border-black/10 shadow-[0_2px_8px_rgba(0,0,0,0.06)]'
-    : 'bg-white/5 hover:bg-white/10 rounded-2xl transition-all border border-white/5';
+    ? 'bg-white hover:bg-black/5 rounded-2xl transition-all border border-black/20 shadow-[0_2px_8px_rgba(0,0,0,0.06)]'
+    : 'bg-white/10 hover:bg-white/20 rounded-2xl transition-all border border-white/20';
   
   const [step, setStep] = useState<WizardStep>('compose');
   const [category, setCategory] = useState<typeof CATEGORIES[number]['id'] | null>('property');
@@ -337,8 +337,12 @@ export function AIListingWizard() {
       if (cat === 'property') {
         const beds = (extras.beds as number) ?? (parsed.beds as number);
         const baths = (extras.baths as number) ?? (parsed.baths as number);
+        const squareFootage = (extras.square_footage as number) ?? (parsed.square_footage as number);
+        const propertyType = (extras.property_type as string) ?? (parsed.property_type as string);
         if (beds) listingPayload.beds = beds;
         if (baths) listingPayload.baths = baths;
+        if (squareFootage) listingPayload.square_footage = squareFootage;
+        if (propertyType) listingPayload.property_type = propertyType;
         if (Array.isArray(parsed.amenities)) listingPayload.amenities = parsed.amenities;
       }
       if (cat === 'motorcycle' || cat === 'bicycle') {
@@ -355,26 +359,23 @@ export function AIListingWizard() {
         if (sc) listingPayload.service_category = sc;
       }
 
-      const insertPromise = saveAIListingWithSchemaRetry(listingPayload);
-      const insertTimeout = new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error('Publish timed out after 20s. Please try again.')), 20000)
-      );
-      const inserted = await Promise.race([
-        insertPromise,
-        insertTimeout,
-      ]);
-      if (!inserted) throw new Error('Failed to publish listing');
       setProgressPct(95);
+
+      try {
+        sessionStorage.setItem('swipess_ai_listing_draft', JSON.stringify({ data: listingPayload, ts: Date.now() }));
+      } catch (e) {
+        console.error('Failed to set sessionStorage', e);
+      }
 
       setProgressPhase('redirect');
       setProgressPct(100);
-      queryClient.invalidateQueries({ queryKey: ['owner-listings'] });
-      queryClient.invalidateQueries({ queryKey: ['listings'] });
       triggerHaptic('success');
-      appToast.success('Listing published');
+      appToast.success('AI extracted listing info. Please verify details.');
       if (isOnboardingActive) setOnboardingActive(false);
       handleClose();
-      setTimeout(() => navigate('/owner/properties', { replace: true }), 150);
+      
+      const modeQ = cat === 'worker' ? 'worker' : 'sale';
+      setTimeout(() => navigate(`/owner/listings/new?category=${cat}&mode=${modeQ}&fromAI=1`, { replace: true }), 150);
     } catch (error) {
       console.error('AI Listing Publish Error:', error);
       const msg = error instanceof Error ? error.message : 'Something went wrong publishing your listing.';
@@ -405,9 +406,9 @@ export function AIListingWizard() {
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.95, opacity: 0, y: 30 }}
             className={cn(
-              "w-full h-full mx-auto sm:h-[85vh] sm:max-w-2xl overflow-hidden sm:rounded-[3rem] border flex flex-col relative",
-              isLight ? "shadow-[0_40px_100px_rgba(0,0,0,0.2)]" : "shadow-[0_40px_100px_rgba(0,0,0,1)]",
-              modalBg
+              "w-full max-w-2xl mx-auto h-full sm:h-[90vh] overflow-hidden sm:rounded-[3rem] border flex flex-col relative",
+            isLight ? "shadow-[0_40px_100px_rgba(0,0,0,0.2)]" : "shadow-[0_40px_100px_rgba(255,255,255,0.05)] shadow-2xl",
+            modalBg
             )}
           >
             <div className="absolute inset-0 pointer-events-none overflow-hidden">
@@ -548,7 +549,7 @@ export function AIListingWizard() {
                                   "absolute right-4 top-4 w-10 h-10 z-10 rounded-full flex items-center justify-center transition-all duration-300 shadow-2xl overflow-hidden",
                                   isRecording 
                                     ? "bg-red-600 text-white shadow-[0_0_30px_rgba(220,38,38,0.8)] scale-110 animate-pulse" 
-                                    : "bg-rose-500 hover:scale-105"
+                                    : "bg-white/10 hover:bg-white/20 border border-white/20 hover:scale-105"
                                 )}
                               >
                                 {isRecording ? (

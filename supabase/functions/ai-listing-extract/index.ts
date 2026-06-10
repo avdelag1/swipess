@@ -114,6 +114,8 @@ Return ONLY valid JSON matching this schema, no markdown:
   "city": "string",
   "beds": number | null,
   "baths": number | null,
+  "square_footage": number | null,
+  "property_type": "string | null",
   "year": number | null,
   "make": "string | null",
   "model": "string | null",
@@ -127,7 +129,11 @@ Return ONLY valid JSON matching this schema, no markdown:
 
     let parsed: Record<string, unknown>;
     try {
-      parsed = JSON.parse(result);
+      let cleanResult = result.trim();
+      if (cleanResult.startsWith('```')) {
+        cleanResult = cleanResult.replace(/^```(json)?\n?/, '').replace(/\n?```$/, '').trim();
+      }
+      parsed = JSON.parse(cleanResult);
     } catch {
       console.error("[ai-listing-extract] failed to parse gemini JSON:", result);
       return json(500, { error: "Extract failed" });

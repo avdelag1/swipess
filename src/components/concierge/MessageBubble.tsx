@@ -139,31 +139,26 @@ export const MessageBubble = memo(({ message, isUser, isSwipess, isLight, onCopy
             <button
               key={path}
               onClick={(e) => { e.stopPropagation(); onNavigate(path); }}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold tracking-wide bg-primary/10 text-primary hover:bg-primary/20 transition-all"
+              className="flex items-center justify-center px-4 py-2 rounded-full text-[11px] font-black uppercase tracking-widest bg-primary/10 text-primary hover:bg-primary/20 hover:scale-105 transition-all shadow-sm"
             >
               {NAV_LABELS[path] || path}
-              <ArrowRight className="w-3 h-3" />
             </button>
           ))}
           {draftActions.map((draft, idx) => (
             <button
               key={idx}
               onClick={(e) => { e.stopPropagation(); onDraft?.(draft.category, draft.data); }}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-full text-[11px] font-bold tracking-wide bg-primary/10 text-primary hover:bg-primary/20 transition-all"
+              className="flex items-center justify-center px-4 py-2 rounded-full text-[11px] font-black uppercase tracking-widest bg-primary/10 text-primary hover:bg-primary/20 hover:scale-105 transition-all shadow-sm"
             >
-              <Plus className="w-3.5 h-3.5" />
               Review {draft.category} Draft
-              <Sparkles className="w-3 h-3" />
             </button>
           ))}
           {filterAction && (
             <button
               onClick={(e) => { e.stopPropagation(); onFilter?.(filterAction); }}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-full text-[11px] font-bold tracking-wide bg-primary/10 text-primary hover:bg-primary/20 transition-all"
+              className="flex items-center justify-center px-4 py-2 rounded-full text-[11px] font-black uppercase tracking-widest bg-primary/10 text-primary hover:bg-primary/20 hover:scale-105 transition-all shadow-sm"
             >
-              <Zap className="w-3.5 h-3.5" />
               Applying Search Filters
-              <RefreshCw className="w-3 h-3 animate-spin" />
             </button>
           )}
         </div>

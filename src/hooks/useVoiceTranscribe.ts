@@ -143,6 +143,8 @@ export function useVoiceTranscribe(options?: UseVoiceTranscribeOptions): UseVoic
       streamRef.current = stream;
       setLastError(null);
 
+
+
       const mimeType = pickMimeType();
       mimeRef.current = mimeType;
       const recorder = mimeType
@@ -173,6 +175,48 @@ export function useVoiceTranscribe(options?: UseVoiceTranscribeOptions): UseVoic
       
       recorder.start(250);
       recorderRef.current = recorder;
+
+      // --- SILENCE DETECTION (5 Seconds) ---
+      try {
+        const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+        const analyser = audioCtx.createAnalyser();
+        analyser.minDecibels = -60;
+        const source = audioCtx.createMediaStreamSource(stream);
+        source.connect(analyser);
+        analyser.fftSize = 256;
+        const bufferLength = analyser.frequencyBinCount;
+        const dataArray = new Uint8Array(bufferLength);
+        
+        let silenceStart = Date.now();
+        const SILENCE_THRESHOLD = 15; // Increased threshold to avoid ambient noise keeping the mic active
+        const SILENCE_DURATION_MS = 5000;
+        
+        const checkSilence = () => {
+          if (!mountedRef.current || !recorderRef.current || recorderRef.current.state === 'inactive') return;
+          analyser.getByteFrequencyData(dataArray);
+          let sum = 0;
+          for(let i = 0; i < bufferLength; i++) {
+            sum += dataArray[i];
+          }
+          const average = sum / bufferLength;
+          
+          if (average > SILENCE_THRESHOLD) {
+            silenceStart = Date.now(); // Reset silence timer if we hear something
+          } else {
+            if (Date.now() - silenceStart > SILENCE_DURATION_MS) {
+              console.log('[useVoiceTranscribe] 5 seconds of silence detected, stopping...');
+              stop();
+              return; // End checking
+            }
+          }
+          requestAnimationFrame(checkSilence);
+        };
+        requestAnimationFrame(checkSilence);
+      } catch (err) {
+        console.warn('[useVoiceTranscribe] AudioContext silence detection not supported', err);
+      }
+      // -------------------------------------
+
       if (mountedRef.current) setIsRecording(true);
       return true;
     } catch (err) {
@@ -194,6 +238,7 @@ export function useVoiceTranscribe(options?: UseVoiceTranscribeOptions): UseVoic
     if (!recorder) {
       cleanupStream();
       if (mountedRef.current) setIsRecording(false);
+      if (optionsRef.current?.onStop) optionsRef.current.onStop('');
       return '';
     }
 
@@ -214,9 +259,10 @@ export function useVoiceTranscribe(options?: UseVoiceTranscribeOptions): UseVoic
 
     if (cancelledRef.current) return '';
     if (!finalBlob || finalBlob.size < 800) {
-      const msg = 'Recording too short — hold the mic button while speaking';
+      const msg = 'Recording too short — please speak longer';
       setLastError(msg);
       appToast.error(msg);
+      if (optionsRef.current?.onStop) optionsRef.current.onStop('');
       return '';
     }
 

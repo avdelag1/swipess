@@ -26,11 +26,11 @@ interface AdvancedFiltersProps {
 
 type CategoryType = 'property' | 'motorcycle' | 'bicycle' | 'services';
 
-const categoryBase: { id: CategoryType; name: string; icon: React.ElementType }[] = [
-  { id: 'property', name: 'Property', icon: Home },
-  { id: 'motorcycle', name: 'Motos', icon: MotorcycleIcon },
-  { id: 'bicycle', name: 'Bikes', icon: Bike },
-  { id: 'services', name: 'Workers', icon: Briefcase },
+const categoryBase: { id: CategoryType; name: string }[] = [
+  { id: 'property', name: 'Property' },
+  { id: 'motorcycle', name: 'Motos' },
+  { id: 'bicycle', name: 'Bikes' },
+  { id: 'services', name: 'Workers' },
 ];
 
 export function AdvancedFilters({ isOpen, onClose, userRole, onApplyFilters, currentFilters }: AdvancedFiltersProps) {
@@ -141,12 +141,6 @@ export function AdvancedFilters({ isOpen, onClose, userRole, onApplyFilters, cur
         )}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className={cn(
-                "w-12 h-12 rounded-2xl flex items-center justify-center",
-                isDark ? "bg-white text-black shadow-[0_0_20px_rgba(255,255,255,0.2)]" : "bg-black text-white"
-              )}>
-                <Sparkles className="w-6 h-6" />
-              </div>
               <div>
                 <DialogTitle className={cn(
                   "font-black uppercase italic tracking-tight leading-none",
@@ -182,7 +176,6 @@ export function AdvancedFilters({ isOpen, onClose, userRole, onApplyFilters, cur
               "w-full grid grid-cols-4 p-1.5 rounded-[2rem] bg-white/5 border border-white/10 backdrop-blur-xl h-16"
             )}>
               {categoryBase.map((cat) => {
-                const Icon = cat.icon;
                 const count = filterCounts[cat.id];
                 const categoryColor = getCategoryTextColorClass(cat.id, isDark);
                 return (
@@ -191,12 +184,8 @@ export function AdvancedFilters({ isOpen, onClose, userRole, onApplyFilters, cur
                     value={cat.id}
                     className="relative rounded-[1.4rem] data-[state=active]:bg-background data-[state=active]:shadow-lg transition-all duration-300"
                   >
-                    <div className="flex flex-col items-center gap-1">
-                      <Icon className={cn(
-                        activeCategory === cat.id ? categoryColor : 'text-muted-foreground/50',
-                        "w-5 h-5"
-                      )} />
-                      <span className="text-[9px] font-black uppercase tracking-widest truncate">{cat.name}</span>
+                    <div className="flex flex-col items-center justify-center h-full">
+                      <span className={cn("text-[10px] font-black uppercase tracking-widest truncate", activeCategory === cat.id ? categoryColor : 'text-muted-foreground/60')}>{cat.name}</span>
                     </div>
                     <AnimatePresence>
                       {count > 0 && (
@@ -324,7 +313,6 @@ export function AdvancedFilters({ isOpen, onClose, userRole, onApplyFilters, cur
               isMobile && "text-base"
             )}
           >
-            <Sparkles className="w-5 h-5 mr-3" />
             Engage Filters {totalActiveFilters > 0 && `(${totalActiveFilters})`}
           </Button>
         </DialogFooter>

@@ -403,9 +403,7 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                          </Popover>
 
                           <button
-                            onPointerDown={startListening}
-                            onPointerUp={stopListening}
-                            onPointerCancel={stopListening}
+                            onClick={isListening ? stopListening : startListening}
                             className={cn(
                               "p-3 rounded-2xl transition-all relative group overflow-hidden hover:bg-secondary/80",
                               isListening

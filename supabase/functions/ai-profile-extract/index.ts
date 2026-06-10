@@ -92,7 +92,11 @@ serve(async (req) => {
 
     let profile: Record<string, unknown> | null = null;
     try {
-      profile = JSON.parse(text);
+      let cleanText = text.trim();
+      if (cleanText.startsWith('```')) {
+        cleanText = cleanText.replace(/^```(json)?\n?/, '').replace(/\n?```$/, '').trim();
+      }
+      profile = JSON.parse(cleanText);
     } catch {
       console.error("[ai-profile-extract] failed to parse JSON:", text);
       return new Response(JSON.stringify({ error: "Could not parse profile from response" }), {

@@ -6,7 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useOwnerStats } from "@/hooks/useOwnerStats";
 import { useOwnerProfile } from "@/hooks/useOwnerProfile";
 import {
-  Building2, Coins, Crown, Flame, LogOut, Megaphone, Scale as ScaleIcon, Settings, Sparkles, ThumbsUp, Zap
+  Building2, Coins, Crown, Flame, LogOut, Megaphone, Scale as ScaleIcon, Settings, Sparkles, ThumbsUp, Zap, UserCircle
 } from "lucide-react";
 import { ActivityFeed } from "@/components/ActivityFeed";
 import { motion } from "framer-motion";
@@ -141,7 +141,15 @@ const OwnerProfile = () => {
             </div>
           </Button>
 
-
+          <Button
+            onClick={() => { triggerHaptic('medium'); setModal('showOwnerProfile', true); }}
+            className={cn("w-full h-14 rounded-3xl relative overflow-hidden transition-all active:scale-95 border-2 shadow-sm", isLight ? "border-slate-200 bg-white hover:border-slate-300" : "border-white/10 bg-black/40 hover:border-white/20")}
+          >
+            <div className="relative z-10 flex items-center justify-center gap-3">
+              <UserCircle className={cn("w-5 h-5", isLight ? "text-slate-700" : "text-white/80")} />
+              <span className={cn("text-[13px] font-black uppercase tracking-[0.2em]", isLight ? "text-slate-900" : "text-white")}>Edit Profile</span>
+            </div>
+          </Button>
 
           <Button
             onClick={() => { triggerHaptic('medium'); navigate('/client/advertise'); }}

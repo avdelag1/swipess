@@ -143,37 +143,41 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
     }
   };
 
+  const aiProfileDraft = useModalStore(s => s.aiProfileDraft);
+
   useEffect(() => {
-    if (!data) return;
-    setName(data.name ?? '');
-    setAge(data.age ?? '');
-    setGender(data.gender ?? '');
-    setBio((data as any).bio ?? '');
-    setInterests(data.interests ?? []);
-    setActivities(data.preferred_activities ?? []);
-    setProfileImages(data.profile_images ?? []);
-    setVideoUrl((data as any).video_url ?? null);
-    setNationality((data as any).nationality ?? '');
-    setLanguages((data as any).languages ?? []);
-    setRelationshipStatus((data as any).relationship_status ?? '');
-    setHasChildren((data as any).has_children ?? false);
-    setSmokingHabit((data as any).smoking_habit ?? 'never');
-    setDrinkingHabit((data as any).drinking_habit ?? 'never');
-    setCleanlinessLevel((data as any).cleanliness_level ?? 'medium');
-    setNoiseTolerance((data as any).noise_tolerance ?? 'medium');
-    setWorkSchedule((data as any).work_schedule ?? '');
-    const loadedCountry = (data as any).country ?? '';
-    const loadedCity = (data as any).city ?? '';
+    if (!data && !aiProfileDraft) return;
+    const merged: any = { ...(data || {}), ...(aiProfileDraft || {}) };
+    
+    setName(merged.name ?? '');
+    setAge(merged.age ?? '');
+    setGender(merged.gender ?? '');
+    setBio(merged.bio ?? '');
+    setInterests(merged.interests ?? []);
+    setActivities(merged.preferred_activities ?? []);
+    setProfileImages(merged.profile_images ?? []);
+    setVideoUrl(merged.video_url ?? null);
+    setNationality(merged.nationality ?? '');
+    setLanguages(merged.languages ?? []);
+    setRelationshipStatus(merged.relationship_status ?? '');
+    setHasChildren(merged.has_children ?? false);
+    setSmokingHabit(merged.smoking_habit ?? 'never');
+    setDrinkingHabit(merged.drinking_habit ?? 'never');
+    setCleanlinessLevel(merged.cleanliness_level ?? 'medium');
+    setNoiseTolerance(merged.noise_tolerance ?? 'medium');
+    setWorkSchedule(merged.work_schedule ?? '');
+    const loadedCountry = merged.country ?? '';
+    const loadedCity = merged.city ?? '';
     setCountry(loadedCountry);
     setCity(loadedCity);
-    setNeighborhood((data as any).neighborhood ?? '');
-    setLatitude((data as any).latitude ?? null);
-    setLongitude((data as any).longitude ?? null);
-    setIntentions((data as any).intentions ?? []);
-    setOccupation((data as any).occupation ?? '');
-    setYearsInCity((data as any).years_in_city ?? '');
+    setNeighborhood(merged.neighborhood ?? '');
+    setLatitude(merged.latitude ?? null);
+    setLongitude(merged.longitude ?? null);
+    setIntentions(merged.intentions ?? []);
+    setOccupation(merged.occupation ?? '');
+    setYearsInCity(merged.years_in_city ?? '');
     if (loadedCountry) setSelectedRegion(findRegionForCountry(loadedCountry));
-  }, [data]);
+  }, [data, aiProfileDraft]);
 
   const handleImageUpload = async (file: File): Promise<string> => {
     const user = await supabase.auth.getUser();

@@ -206,7 +206,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
         brand: (editingProperty.vehicle_brand as string) || (editingProperty.brand as string) || '',
         model: (editingProperty.vehicle_model as string) || (editingProperty.model as string) || '',
       };
-      setFormData(editingProperty.images ? normalizedData : { mode: editingProperty.mode || 'rent' });
+      setFormData(normalizedData);
       setLocation({ lat: editingProperty.latitude, lng: editingProperty.longitude });
       setVideoUrl((editingProperty.video_url as string) || null);
     } else {

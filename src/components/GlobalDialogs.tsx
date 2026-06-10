@@ -20,6 +20,7 @@ const ClientProfileDialog = lazyWithRetry(() => import("@/components/ClientProfi
 const PropertyDetails = lazyWithRetry(() => import("@/components/PropertyDetails").then(m => ({ default: m.PropertyDetails })));
 const SwipeInsightsModal = lazyWithRetry(() => import("@/components/SwipeInsightsModal").then(m => ({ default: m.SwipeInsightsModal })));
 const OwnerSettingsDialog = lazyWithRetry(() => import('@/components/OwnerSettingsDialog').then(m => ({ default: m.OwnerSettingsDialog })));
+const OwnerProfileDialog = lazyWithRetry(() => import('@/components/OwnerProfileDialog').then(m => ({ default: m.OwnerProfileDialog })));
 const OwnerClientSwipeDialog = lazyWithRetry(() => import('@/components/OwnerClientSwipeDialog'));
 const SupportDialog = lazyWithRetry(() => import('@/components/SupportDialog').then(m => ({ default: m.SupportDialog })));
 const CategorySelectionDialog = lazyWithRetry(() => import('@/components/CategorySelectionDialog').then(m => ({ default: m.CategorySelectionDialog })));
@@ -239,6 +240,13 @@ export const GlobalDialogs = memo(({ userRole }: GlobalDialogsProps) => {
             <OwnerSettingsDialog
               open={store.showOwnerSettings}
               onOpenChange={(val: boolean) => store.setModal('showOwnerSettings', val)}
+            />
+          </DeferredDialog>
+
+          <DeferredDialog when={store.showOwnerProfile}>
+            <OwnerProfileDialog
+              open={store.showOwnerProfile}
+              onOpenChange={(val: boolean) => store.setModal('showOwnerProfile', val)}
             />
           </DeferredDialog>
 
