@@ -2,7 +2,7 @@ import { useLocation } from 'react-router-dom';
 import { memo } from 'react';
 import { useAppNavigate } from "@/hooks/useAppNavigate";
 import { motion } from 'framer-motion';
-import { ChevronLeft, Crown, UserRound } from 'lucide-react';
+import { ChevronLeft, Crown, Sparkles, UserRound } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -221,6 +221,24 @@ function TopBarComponent({
                 style={{
                   color: iconColor,
                   filter: useLightIcons ? 'drop-shadow(0 0 8px rgba(228,0,124,0.65))' : 'none',
+                }}
+                strokeWidth={1.9}
+              />
+            </motion.button>
+
+            <motion.button
+              transition={TAP_SPRING}
+              whileTap={{ scale: 0.92 }}
+              onClick={() => { haptics.tap(); setModal('showAIListing', true); }}
+              className="flex shrink-0 items-center justify-center rounded-full relative h-[32px] w-[32px]"
+              style={glassPillStyle}
+              aria-label="AI Listing"
+            >
+              <Sparkles
+                className="w-[17px] h-[17px]"
+                style={{
+                  color: iconColor,
+                  filter: useLightIcons ? 'drop-shadow(0 0 8px rgba(168,85,247,0.65))' : 'none',
                 }}
                 strokeWidth={1.9}
               />

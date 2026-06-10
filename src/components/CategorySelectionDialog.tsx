@@ -182,9 +182,9 @@ export function CategorySelectionDialog({
   return (
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className={cn(
-        "!top-0 !left-0 !translate-x-0 !translate-y-0 !w-full !max-w-none !h-[100dvh] !max-h-none !rounded-none",
-        "sm:!top-[50%] sm:!left-[50%] sm:!-translate-x-1/2 sm:!-translate-y-1/2 sm:!w-[calc(100%-24px)] sm:!max-w-2xl sm:!h-[85vh] sm:!max-h-[85vh] sm:!rounded-[3rem]",
-        "flex flex-col p-0 gap-0 overflow-hidden border dark:bg-black/90 bg-white/80 backdrop-blur-3xl dark:border-white/10 border-black/10 dark:shadow-[0_40px_100px_rgba(0,0,0,1)] shadow-[0_40px_100px_rgba(0,0,0,0.2)]"
+        "!w-full !max-w-none !h-[100dvh] !max-h-none !rounded-none !p-0",
+        "sm:!w-[calc(100%-24px)] sm:!max-w-2xl sm:!h-[85vh] sm:!max-h-[85vh] sm:!rounded-[3rem]",
+        "flex flex-col p-0 gap-0 overflow-hidden border dark:bg-black/95 bg-white backdrop-blur-3xl dark:border-white/10 border-black/10 dark:shadow-[0_40px_100px_rgba(0,0,0,1)] shadow-[0_40px_100px_rgba(0,0,0,0.2)]"
       )}>
         <div className="absolute inset-0 pointer-events-none overflow-hidden -z-10">
            <div className="absolute top-[-20%] left-[-20%] w-[80%] h-[80%] bg-rose-600/5 blur-[150px] rounded-full" />

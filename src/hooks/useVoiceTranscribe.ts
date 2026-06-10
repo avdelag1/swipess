@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
 /**
  * Universal voice-to-text hook.
@@ -9,8 +10,6 @@ import { useCallback, useEffect, useRef, useState } from 'react';
  * or denied — which is the case on most iOS Safari configurations that Apple
  * App Review will test against.
  */
-
-const TRANSCRIBE_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/voice-transcribe`;
 
 export interface UseVoiceTranscribeResult {
   isRecording: boolean;
@@ -189,29 +188,18 @@ export function useVoiceTranscribe(): UseVoiceTranscribeResult {
       const language =
         typeof navigator !== 'undefined' ? navigator.language || 'en-US' : 'en-US';
 
-      const resp = await fetch(TRANSCRIBE_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-        },
-        body: JSON.stringify({ audio: base64, mimeType, language }),
+      const { data: respData, error: invokeError } = await supabase.functions.invoke('voice-transcribe', {
+        body: { audio: base64, mimeType, language },
       });
 
-      if (!resp.ok) {
-        const errBody = await resp.text();
-        // 5xx usually means the edge function is missing its API key or isn't
-        // deployed — surface that distinctly so it's diagnosable from the UI.
+      if (invokeError) {
         setLastError(
-          resp.status >= 500
-            ? 'Voice service is not set up on the server yet (missing key or not deployed)'
-            : 'Voice transcription failed — please try again'
+          'Voice transcription failed — please try again'
         );
-        console.error('[useVoiceTranscribe] gateway error', resp.status, errBody);
+        console.error('[useVoiceTranscribe] invoke error', invokeError);
         return '';
       }
-      const data = await resp.json();
-      return typeof data?.text === 'string' ? data.text.trim() : '';
+      return typeof respData?.text === 'string' ? respData.text.trim() : '';
     } catch (err) {
       setLastError('Network error — check your connection');
       console.error('[useVoiceTranscribe] transcription failed', err);

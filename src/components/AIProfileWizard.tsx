@@ -13,6 +13,7 @@ import { useVoiceTranscribe } from '@/hooks/useVoiceTranscribe';
 import { uploadPhotoBatch } from '@/utils/photoUpload';
 import { supabase } from '@/integrations/supabase/client';
 import { appToast } from '@/utils/appNotification';
+import { useQueryClient } from '@tanstack/react-query';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useOnboardingStore } from '@/state/onboardingStore';
 
@@ -26,6 +27,7 @@ export function AIProfileWizard() {
   const { isOnboardingActive, setOnboardingActive } = useOnboardingStore();
   const { openAIListing } = useModalStore();
   const mode: Mode = (aiProfileMode || 'client');
+  const queryClient = useQueryClient();
 
   const [step, setStep] = useState<Step>('compose');
   const [narrative, setNarrative] = useState('');
@@ -256,6 +258,15 @@ export function AIProfileWizard() {
       setProgressPct(100);
       triggerHaptic('success');
       appToast.success('Profile created successfully!');
+      
+      // Invalidate all profile caches so manual profile form, TopBar, etc. pick up new data
+      queryClient.invalidateQueries({ queryKey: ['client-profile-own'] });
+      queryClient.invalidateQueries({ queryKey: ['client-profile'] });
+      queryClient.invalidateQueries({ queryKey: ['owner-profile'] });
+      queryClient.invalidateQueries({ queryKey: ['owner-profile-own'] });
+      queryClient.invalidateQueries({ queryKey: ['topbar-user-profile'] });
+      queryClient.invalidateQueries({ queryKey: ['profiles_public'] });
+      
       if (isOnboardingActive) {
         setModal('showAIProfile', false);
         openAIListing('property');
