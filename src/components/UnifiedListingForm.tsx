@@ -120,18 +120,29 @@ interface UnifiedPhoto {
 }
 
 export function UnifiedListingForm({ isOpen, onClose, editingProperty }: UnifiedListingFormProps) {
-  const [selectedCategory, setSelectedCategory] = useState<Category>('property');
-  const [selectedMode, setSelectedMode] = useState<Mode>('rent');
+  const [selectedCategory, setSelectedCategory] = useState<Category>(() =>
+    (editingProperty?.category as Category) || 'property'
+  );
+  const [selectedMode, setSelectedMode] = useState<Mode>(() =>
+    (editingProperty?.mode as Mode) || 'rent'
+  );
   const [photoList, setPhotoList] = useState<UnifiedPhoto[]>([]);
   const [location, setLocation] = useState<{ lat?: number; lng?: number }>({});
-  const [formData, setFormData] = useState<Record<string, unknown>>({});
+  const [formData, setFormData] = useState<Record<string, unknown>>(() => {
+    if (!editingProperty?.category) return { mode: 'rent' };
+    return {
+      ...editingProperty,
+      brand: (editingProperty.vehicle_brand as string) || (editingProperty.brand as string) || '',
+      model: (editingProperty.vehicle_model as string) || (editingProperty.model as string) || '',
+    };
+  });
   const [editingId, setEditingId] = useState<string | null>(null);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
 
   // Use refs to track latest values for mutation (avoids closure staleness)
   const photoListRef = useRef(photoList);
-  const formDataRef = useRef<Record<string, unknown>>({});
+  const formDataRef = useRef(formData);
 
   // Synchronize ref whenever state changes (like on load or reset)
   useEffect(() => {

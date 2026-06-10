@@ -205,13 +205,18 @@ export function AIProfileWizard() {
       queryClient.invalidateQueries({ queryKey: ['owner-profile-own'] });
       queryClient.invalidateQueries({ queryKey: ['topbar-user-profile'] });
       queryClient.invalidateQueries({ queryKey: ['profiles_public'] });
-      
+      queryClient.invalidateQueries({ queryKey: ['profile-detail', user.id] });
+
       if (isOnboardingActive) {
         setModal('showAIProfile', false);
         openAIListing('property');
       } else {
         setModal('showAIProfile', false);
-        navigate(`/profile/${user.id}`);
+        if (mode === 'owner') {
+          navigate('/client/profile');
+        } else {
+          navigate(`/profile/${user.id}`);
+        }
       }
     } catch (err: any) {
       console.error('Process failed', err);
