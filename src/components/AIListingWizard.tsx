@@ -139,7 +139,7 @@ export function AIListingWizard() {
   const textMuted = isLight ? 'text-black/70' : 'text-white/80';
   const inputCls = isLight
     ? 'bg-white border border-black/10 focus:border-rose-500/50 focus:ring-0 text-black placeholder:text-black/50 shadow-[0_2px_8px_rgba(0,0,0,0.04)]'
-    : 'bg-white/10 border border-white/20 focus:border-rose-500/50 focus:ring-0 text-white placeholder:text-white/60';
+    : 'bg-white/10 border border-white/20 focus:border-rose-500/50 focus:ring-0 text-white placeholder:text-white/80';
   const closeBtnCls = isLight
     ? 'bg-white hover:bg-black/5 rounded-2xl transition-all border border-black/10 shadow-[0_2px_8px_rgba(0,0,0,0.06)]'
     : 'bg-white/5 hover:bg-white/10 rounded-2xl transition-all border border-white/5';
@@ -154,7 +154,7 @@ export function AIListingWizard() {
   const [extras, setExtras] = useState<Record<string, unknown>>({});
   const [progressPhase, setProgressPhase] = useState<ProgressPhase>('upload');
   const [progressPct, setProgressPct] = useState(0);
-  const { isRecording, isTranscribing, start: startVoice, stop: stopVoice } = useVoiceTranscribe();
+  const { isRecording, isTranscribing, interimTranscript, start: startVoice, stop: stopVoice } = useVoiceTranscribe();
   const [micTipOpen, setMicTipOpen] = useState(false);
   const { enhanceText, isEnhancing } = useAIEnhanceText();
 
@@ -432,7 +432,7 @@ export function AIListingWizard() {
                 onClick={handleClose} 
                 className={cn("w-11 h-11 flex items-center justify-center", closeBtnCls)}
               >
-                <X className={cn("w-5 h-5", isLight ? "text-black/60" : "text-white/70")} />
+                <X className={cn("w-5 h-5", isLight ? "text-black/80" : "text-white/90")} />
               </button>
             </div>
 
@@ -527,7 +527,7 @@ export function AIListingWizard() {
                                "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all border active:scale-95",
                                prompt.trim() && !isEnhancing
                                  ? "bg-rose-500/10 border-rose-500/30 text-rose-400 hover:bg-rose-500/20"
-                                 : "opacity-30 bg-white/5 border-white/10 text-white/50 cursor-not-allowed"
+                                 : "opacity-40 bg-white/5 border-white/10 text-white/70 cursor-not-allowed"
                              )}
                            >
                              {isEnhancing ? (
@@ -571,7 +571,7 @@ export function AIListingWizard() {
                                   <Mic className="w-4 h-4 text-rose-400" />
                                   <span className="text-[11px] font-black uppercase tracking-widest text-rose-400">Voice to Text</span>
                                 </div>
-                                <p className="text-[12px] leading-relaxed text-white/85">
+                                <p className="text-[12px] leading-relaxed text-white">
                                   Tap the mic and describe your listing out loud. Tap again to stop.
                                 </p>
                               </div>
@@ -579,9 +579,9 @@ export function AIListingWizard() {
                           </Popover>
 
                           <div className="relative">
-                            <Search className="absolute left-5 top-5 w-4 h-4 text-rose-400 opacity-60" />
+                            <Search className="absolute left-5 top-5 w-4 h-4 text-rose-400 opacity-90" />
                             <textarea
-                              value={prompt}
+                              value={isRecording && interimTranscript ? (prompt ? prompt + ' ' + interimTranscript : interimTranscript) : prompt}
                               onChange={(e) => setPrompt(e.target.value)}
                               placeholder={isRecording ? "Listening..." : "Describe your listing or just tap publish. E.g. 'Stunning ocean view property with private pool'..."}
                               className={cn("w-full h-32 p-5 pl-14 pr-16 rounded-[2rem] transition-all text-sm leading-relaxed resize-none italic outline-none focus:ring-1 focus:ring-rose-500/30", inputCls)}
@@ -661,7 +661,7 @@ export function AIListingWizard() {
                                 'text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full border',
                                 progressPhase === p
                                   ? 'bg-rose-600 text-white border-transparent'
-                                  : isLight ? 'border-black/10 text-black/40' : 'border-white/10 text-white/40'
+                                  : isLight ? 'border-black/10 text-black/60' : 'border-white/10 text-white/80'
                               )}
                             >
                               {p}

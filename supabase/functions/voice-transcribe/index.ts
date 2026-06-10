@@ -35,11 +35,6 @@ serve(async (req) => {
     const formData = new FormData();
     formData.append("file", file);
     formData.append("model", "whisper-large-v3-turbo");
-    if (language) {
-      // Groq Whisper supports ISO-639-1 format (e.g. "en", "es")
-      const langCode = language.split('-')[0];
-      formData.append("language", langCode);
-    }
 
     const response = await fetch("https://api.groq.com/openai/v1/audio/transcriptions", {
       method: "POST",

@@ -34,7 +34,7 @@ export function AIProfileWizard() {
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [progressPct, setProgressPct] = useState(0);
-  const { isRecording, isTranscribing, start: startVoice, stop: stopVoice } = useVoiceTranscribe();
+  const { isRecording, isTranscribing, interimTranscript, start: startVoice, stop: stopVoice } = useVoiceTranscribe();
   const { enhanceText, isEnhancing } = useAIEnhanceText();
   const [micTipOpen, setMicTipOpen] = useState(false);
 
@@ -71,7 +71,7 @@ export function AIProfileWizard() {
   const textMuted = isLight ? 'text-black/70' : 'text-white/80';
   const inputCls = isLight
     ? 'bg-white border border-black/10 focus:border-rose-500/50 focus:ring-0 text-black placeholder:text-black/50'
-    : 'bg-white/[0.12] border border-white/20 focus:border-rose-500/50 focus:ring-0 text-white placeholder:text-white/60';
+    : 'bg-white/[0.12] border border-white/20 focus:border-rose-500/50 focus:ring-0 text-white placeholder:text-white/80';
   const closeBtnCls = isLight
     ? 'bg-white hover:bg-black/5 border border-black/10'
     : 'bg-white/5 hover:bg-white/10 border border-white/5';
@@ -321,7 +321,7 @@ export function AIProfileWizard() {
               </div>
             </div>
             <button onClick={handleClose} className={cn("w-11 h-11 flex items-center justify-center rounded-2xl", closeBtnCls)}>
-              <X className={cn("w-5 h-5", isLight ? "text-black/60" : "text-white/70")} />
+              <X className={cn("w-5 h-5", isLight ? "text-black/80" : "text-white/90")} />
             </button>
           </div>
 
@@ -383,7 +383,7 @@ export function AIProfileWizard() {
                             "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all border active:scale-95",
                             narrative.trim() && !isEnhancing
                               ? "bg-rose-500/10 border-rose-500/30 text-rose-400 hover:bg-rose-500/20"
-                              : "opacity-30 bg-white/5 border-white/10 text-white/40 cursor-not-allowed"
+                              : "opacity-40 bg-white/5 border-white/10 text-white/70 cursor-not-allowed"
                           )}
                         >
                           {isEnhancing ? <Loader2 className="w-3 h-3 animate-spin" /> : <Wand2 className="w-3 h-3" />}
@@ -423,7 +423,7 @@ export function AIProfileWizard() {
                                 <Mic className="w-4 h-4 text-rose-400" />
                                 <span className="text-[11px] font-black uppercase tracking-widest text-rose-400">Voice to Text</span>
                               </div>
-                              <p className="text-[12px] leading-relaxed text-white/85">
+                              <p className="text-[12px] leading-relaxed text-white">
                                 Tap the mic and describe yourself out loud. Tap again to stop.
                               </p>
                             </div>
@@ -431,9 +431,9 @@ export function AIProfileWizard() {
                         </Popover>
 
                         <div className="relative">
-                          <Search className="absolute left-5 top-5 w-4 h-4 text-rose-400 opacity-60" />
+                          <Search className="absolute left-5 top-5 w-4 h-4 text-rose-400 opacity-90" />
                           <textarea
-                            value={narrative}
+                            value={isRecording && interimTranscript ? (narrative ? narrative + ' ' + interimTranscript : interimTranscript) : narrative}
                             onChange={(e) => setNarrative(e.target.value)}
                             placeholder={isRecording ? "Listening..." : placeholder}
                             className={cn("w-full h-44 p-5 pl-14 pr-16 rounded-[2rem] text-sm leading-relaxed resize-none italic outline-none focus:ring-1 focus:ring-rose-500/30", inputCls)}

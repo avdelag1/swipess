@@ -15,6 +15,7 @@ import { appToast } from '@/utils/appNotification';
 export interface UseVoiceTranscribeResult {
   isRecording: boolean;
   isTranscribing: boolean;
+  interimTranscript: string;
   /** Why the last start() call failed, if it did. Null on success. */
   lastError: string | null;
   start: () => Promise<boolean>;
@@ -58,8 +59,10 @@ export function useVoiceTranscribe(): UseVoiceTranscribeResult {
   const [isRecording, setIsRecording] = useState(false);
   const [isTranscribing, setIsTranscribing] = useState(false);
   const [lastError, setLastError] = useState<string | null>(null);
+  const [interimTranscript, setInterimTranscript] = useState('');
 
   const recorderRef = useRef<MediaRecorder | null>(null);
+  const recognitionRef = useRef<any>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const mimeRef = useRef<string>('');
@@ -74,14 +77,19 @@ export function useVoiceTranscribe(): UseVoiceTranscribeResult {
       if (recorderRef.current && recorderRef.current.state !== 'inactive') {
         try { recorderRef.current.stop(); } catch { /* already stopped */ }
       }
+      if (recognitionRef.current) {
+        try { recognitionRef.current.stop(); } catch {}
+      }
       if (streamRef.current) {
         streamRef.current.getTracks().forEach((t) => t.stop());
         streamRef.current = null;
       }
       recorderRef.current = null;
+      recognitionRef.current = null;
       chunksRef.current = [];
       setIsRecording(false);
       setIsTranscribing(false);
+      setInterimTranscript('');
     };
   }, []);
 
@@ -90,7 +98,11 @@ export function useVoiceTranscribe(): UseVoiceTranscribeResult {
       streamRef.current.getTracks().forEach((t) => t.stop());
       streamRef.current = null;
     }
+    if (recognitionRef.current) {
+      try { recognitionRef.current.stop(); } catch {}
+    }
     recorderRef.current = null;
+    recognitionRef.current = null;
     chunksRef.current = [];
   }, []);
 
@@ -133,6 +145,24 @@ export function useVoiceTranscribe(): UseVoiceTranscribeResult {
       recorder.ondataavailable = (e) => {
         if (e.data && e.data.size > 0) chunksRef.current.push(e.data);
       };
+      
+      setInterimTranscript('');
+      const SpeechRec = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      if (SpeechRec) {
+        const recognition = new SpeechRec();
+        recognition.continuous = true;
+        recognition.interimResults = true;
+        recognition.onresult = (e: any) => {
+          let currentInterim = '';
+          for (let i = e.resultIndex; i < e.results.length; ++i) {
+            if (!e.results[i].isFinal) currentInterim += e.results[i][0].transcript;
+          }
+          setInterimTranscript(currentInterim);
+        };
+        recognitionRef.current = recognition;
+        try { recognition.start(); } catch (e) { console.error('SpeechRec start failed', e); }
+      }
+      
       recorder.start(250);
       recorderRef.current = recorder;
       if (mountedRef.current) setIsRecording(true);
@@ -227,8 +257,9 @@ export function useVoiceTranscribe(): UseVoiceTranscribeResult {
       setIsRecording(false);
       setIsTranscribing(false);
     }
+    setInterimTranscript('');
     setLastError(null);
   }, [cleanupStream]);
 
-  return { isRecording, isTranscribing, lastError, start, stop, cancel };
+  return { isRecording, isTranscribing, interimTranscript, lastError, start, stop, cancel };
 }
