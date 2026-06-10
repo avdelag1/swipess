@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Camera, Loader2, Mic, Search, Sparkles, Wand2, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -63,12 +63,24 @@ export function AIProfileWizard() {
   const initialOpen = useRef(showAIProfile);
   useEffect(() => {
     if (showAIProfile && !initialOpen.current) {
-      setStep('compose'); 
-      setNarrative(''); 
+      setStep('compose');
+      setNarrative('');
       setImageFiles([]);
     }
     initialOpen.current = showAIProfile;
   }, [showAIProfile]);
+
+  // One stable preview URL per selected file — recreating it every render
+  // leaks a blob URL per keystroke while the user types their narrative.
+  const imagePreview = useMemo(
+    () => (imageFiles[0] ? URL.createObjectURL(imageFiles[0]) : null),
+    [imageFiles]
+  );
+  useEffect(() => {
+    return () => {
+      if (imagePreview) URL.revokeObjectURL(imagePreview);
+    };
+  }, [imagePreview]);
 
   if (!showAIProfile) return null;
 
@@ -136,23 +148,34 @@ export function AIProfileWizard() {
     triggerHaptic('medium');
 
     try {
-      // 1. Upload photos
-      const urls = await uploadPhotoBatch(user.id, imageFiles, 'profile-images', (p) => {
-        setProgressPct(10 + Math.floor(p * 0.3));
+      // Photo upload and AI extraction are independent — run them in parallel
+      // so the user waits for the slower of the two, not the sum of both.
+      const uploadPromise = uploadPhotoBatch(user.id, imageFiles, 'profile-images', (p) => {
+        setProgressPct(10 + Math.floor(p * 0.5));
       });
-      setProgressPct(40);
 
-      // 2. Extract profile (non-blocking — fall back to raw narrative if AI fails)
-      let draft: Record<string, unknown> = {};
-      try {
-        const { data: extractData, error: extractErr } = await supabase.functions.invoke('ai-profile-extract', {
-          body: { mode, narrative },
-        });
-        if (!extractErr) draft = (extractData as any)?.profile || {};
-        else console.warn('[AIProfileWizard] AI extract failed, saving with raw narrative', extractErr);
-      } catch (e) {
-        console.warn('[AIProfileWizard] AI extract threw, saving with raw narrative', e);
-      }
+      // Non-blocking extraction — falls back to the raw narrative if AI fails or stalls.
+      const extractPromise: Promise<Record<string, unknown>> = (async () => {
+        try {
+          const aiCall = supabase.functions.invoke('ai-profile-extract', {
+            body: { mode, narrative },
+          });
+          const aiTimeout = new Promise<{ data: null; error: Error }>((resolve) =>
+            setTimeout(() => resolve({ data: null, error: new Error('AI extract timed out') }), 15000)
+          );
+          const { data: extractData, error: extractErr } = (await Promise.race([aiCall, aiTimeout])) as {
+            data: unknown;
+            error: unknown;
+          };
+          if (!extractErr) return ((extractData as any)?.profile || {}) as Record<string, unknown>;
+          console.warn('[AIProfileWizard] AI extract failed, saving with raw narrative', extractErr);
+        } catch (e) {
+          console.warn('[AIProfileWizard] AI extract threw, saving with raw narrative', e);
+        }
+        return {};
+      })();
+
+      const [urls, draft] = await Promise.all([uploadPromise, extractPromise]);
       setProgressPct(70);
 
       // 3. Save profile as draft to modal store
@@ -320,9 +343,9 @@ export function AIProfileWizard() {
                     <div className="space-y-4">
                       <label className={cn("text-[10px] font-black uppercase tracking-[0.2em] ml-2", textMuted)}>1. Photo</label>
                       <div className="grid grid-cols-2 gap-4">
-                        {imageFiles[0] ? (
+                        {imageFiles[0] && imagePreview ? (
                           <div className={cn("aspect-square rounded-3xl overflow-hidden border relative shadow-2xl", isLight ? "border-black/10" : "border-white/10")}>
-                            <img src={URL.createObjectURL(imageFiles[0])} className="w-full h-full object-cover" />
+                            <img src={imagePreview} className="w-full h-full object-cover" />
                             <button onClick={() => setImageFiles([])} className="absolute top-2 right-2 w-8 h-8 flex items-center justify-center bg-black/60 rounded-full border border-white/10">
                               <X className="w-4 h-4 text-white" />
                             </button>

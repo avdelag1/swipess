@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
@@ -122,6 +122,13 @@ export function AIListingWizard() {
   const [micTipOpen, setMicTipOpen] = useState(false);
   const { enhanceText, isEnhancing } = useAIEnhanceText();
 
+  // One stable preview URL per file — creating them inline in render leaks a
+  // fresh blob URL for every photo on every keystroke of the description.
+  const previewUrls = useMemo(() => imageFiles.map((f) => URL.createObjectURL(f)), [imageFiles]);
+  useEffect(() => {
+    return () => previewUrls.forEach((u) => URL.revokeObjectURL(u));
+  }, [previewUrls]);
+
   const handleEnhance = async () => {
     const raw = prompt.trim();
     if (!raw) { appToast.error('Type or speak something first!'); return; }
@@ -236,39 +243,44 @@ export function AIListingWizard() {
     triggerHaptic('medium');
 
     try {
-      const uploadedUrls = await uploadPhotoBatch(
+      // Photo upload and AI extraction are independent — run them in parallel
+      // so the user waits for the slower of the two, not the sum of both.
+      const uploadPromise = uploadPhotoBatch(
         user.id,
         imageFiles,
         'listing-images',
-        (p) => setProgressPct(8 + Math.floor(p * 0.32)),
+        (p) => setProgressPct(8 + Math.floor(p * 0.56)),
       );
-      setProgressPct(40);
 
-      setProgressPhase('optimize');
-      let parsed: Record<string, unknown> = {};
-      try {
-        const aiPromise = supabase.functions.invoke('ai-listing-extract', {
-          body: { task: 'extract', category, price, city: cityLocation, prompt: effectivePrompt },
-        });
-        const aiTimeout = new Promise<{ data: null; error: Error }>((resolve) =>
-          setTimeout(
-            () => resolve({ data: null, error: new Error('AI extract timed out') }),
-            15000
-          )
-        );
-        const { data, error } = (await Promise.race([aiPromise, aiTimeout])) as {
-          data: unknown;
-          error: unknown;
-        };
-        if (!error) {
-          const payload = data as { data?: Record<string, unknown>; error?: string };
-          if (payload?.data) parsed = payload.data;
-        } else {
-          console.warn('[AIListing] AI extract skipped:', error);
+      const extractPromise: Promise<Record<string, unknown>> = (async () => {
+        try {
+          const aiPromise = supabase.functions.invoke('ai-listing-extract', {
+            body: { task: 'extract', category, price, city: cityLocation, prompt: effectivePrompt },
+          });
+          const aiTimeout = new Promise<{ data: null; error: Error }>((resolve) =>
+            setTimeout(
+              () => resolve({ data: null, error: new Error('AI extract timed out') }),
+              15000
+            )
+          );
+          const { data, error } = (await Promise.race([aiPromise, aiTimeout])) as {
+            data: unknown;
+            error: unknown;
+          };
+          if (!error) {
+            const payload = data as { data?: Record<string, unknown>; error?: string };
+            if (payload?.data) return payload.data;
+          } else {
+            console.warn('[AIListing] AI extract skipped:', error);
+          }
+        } catch (aiErr) {
+          console.warn('[AIListing] AI extract failed, publishing with raw prompt', aiErr);
         }
-      } catch (aiErr) {
-        console.warn('[AIListing] AI extract failed, publishing with raw prompt', aiErr);
-      }
+        return {};
+      })();
+
+      const [uploadedUrls, parsed] = await Promise.all([uploadPromise, extractPromise]);
+      setProgressPhase('optimize');
       setProgressPct(72);
 
       setProgressPhase('publish');
@@ -466,14 +478,14 @@ export function AIListingWizard() {
                         <label className={cn("text-[10px] font-black uppercase tracking-[0.2em] ml-2", textMuted)}>2. Photos</label>
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                           <AnimatePresence>
-                            {imageFiles.map((file, i) => (
-                              <motion.div 
+                            {imageFiles.map((_file, i) => (
+                              <motion.div
                                 key={`file-${i}`}
                                 initial={{ scale: 0.8, opacity: 0 }}
                                 animate={{ scale: 1, opacity: 1 }}
                                 className={cn("aspect-square rounded-3xl overflow-hidden border relative group shadow-2xl", isLight ? "border-black/10" : "border-white/10")}
                               >
-                                <img src={URL.createObjectURL(file)} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                                <img src={previewUrls[i]} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                                 <button 
                                   onClick={() => setImageFiles(prev => prev.filter((_, idx) => idx !== i))}
                                   className="absolute top-2 right-2 w-8 h-8 flex items-center justify-center bg-black/60 backdrop-blur-md rounded-full opacity-0 group-hover:opacity-100 transition-all border border-white/10"
