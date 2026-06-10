@@ -1,5 +1,7 @@
 // AI Listing Extractor — non-streaming, returns structured JSON via prompt
 // Used by AIListingWizard for the "extract" and "refine" tasks.
+// Detects the listing category from the user's words and returns
+// category-specific fields that map 1:1 onto the listing form inputs.
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
@@ -25,6 +27,24 @@ function json(status: number, payload: unknown) {
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
 }
+
+// Canonical chip vocabulary — must mirror src/constants/listingTaxonomies.ts
+const AMENITY_VOCAB: Record<string, string[]> = {
+  property: [
+    'Private Pool','Shared Pool','Gym','Parking','Garage','Carport','AC','WiFi','Security 24/7','Security Cameras','Garden','Balcony','Terrace','Rooftop','Elevator','Storage','Workspace','Office Space','2-in-1 Washer/Dryer','Separate Washer & Dryer','Laundry Room','Washer','Dishwasher','Gas Stove','Water Filter / Osmosis','Smart-home','Solar Panels','Backup water','Sea View','Mountain View','Garden View','Outdoor Kitchen','BBQ','Hot Tub','Sauna','Walk-in Closet','Fireplace','Mosquito Net','Sublease Option',
+    'Water','Electricity','Gas','Internet','Cleaning','Maintenance','Trash','Cable TV',
+    'Quiet','Lively','Family-friendly','Pet-friendly','Beachfront','Jungle','Downtown','Gated','Eco',
+  ],
+  motorcycle: ['ABS','ESC','Traction control','Heated grips','Luggage rack','Crash bars','Quick-shifter','Bluetooth','Helmet','Riding gear','Lock','Top case','Charger','Insurance','Roadside assistance'],
+  bicycle: ['Front suspension','Full suspension','Disc brakes','Carbon frame','Aluminum frame','Tubeless','Dropper post','Lock','Lights','Basket','Pump','Helmet','Repair kit'],
+  worker: ['Punctual','Detail-oriented','English-speaking','Spanish-speaking','Insured','Background-checked','Own tools','Own vehicle','Emergency available'],
+};
+
+// Exact values used by the listing form selects — the AI must return these verbatim.
+const PROPERTY_TYPES = ['penthouse','house','apartment','loft','studio','mobile_home','camper','land','building','glamping','bungalow','mezzanine','room','commercial'];
+const MOTORCYCLE_TYPES = ['Sport Bike','Cruiser','Touring','Adventure','Dual-Sport','Dirt Bike','Standard','Cafe Racer','Chopper','Scooter','Electric','Other'];
+const BICYCLE_TYPES = ['road','mountain','hybrid','electric','cruiser','bmx'];
+const SERVICE_CATEGORIES = ['house_cleaner','handyman','maintenance_tech','house_painter','plumber','electrician','gardener','pool_cleaner','massage_therapist','yoga','meditation_coach','holistic_therapist','personal_trainer','beauty','nutritionist','nanny','pet_care','pet_groomer','driver','mechanic','chef','bartender','event_planner','language_teacher','music_teacher','dance_instructor','scuba_instructor','surf_instructor','snorkeling_guide','sailing_instructor','fishing_guide','photographer','videographer','graphic_designer','it_support','translator','accountant','security','other'];
 
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
@@ -52,7 +72,7 @@ serve(async (req) => {
             { role: "user", content: userContent },
           ],
           temperature: 0.2,
-          max_tokens: 1200,
+          max_tokens: 1500,
           ...(jsonMode ? { response_format: { type: "json_object" } } : {}),
         }),
       });
@@ -76,46 +96,64 @@ serve(async (req) => {
     }
 
     // task === "extract"
-    const category = body.category || "property";
+    const hintCategory = body.category || "property";
 
-    // Canonical chip vocabulary — must mirror src/constants/listingTaxonomies.ts
-    const AMENITY_VOCAB: Record<string, string[]> = {
-      property: [
-        'Private Pool','Shared Pool','Gym','Parking','Garage','Carport','AC','WiFi','Security 24/7','Security Cameras','Garden','Balcony','Terrace','Rooftop','Elevator','Storage','Workspace','Office Space','2-in-1 Washer/Dryer','Separate Washer & Dryer','Laundry Room','Washer','Dishwasher','Gas Stove','Water Filter / Osmosis','Smart-home','Solar Panels','Backup water','Sea View','Mountain View','Garden View','Outdoor Kitchen','BBQ','Hot Tub','Sauna','Walk-in Closet','Fireplace','Mosquito Net','Sublease Option',
-        'Water','Electricity','Gas','Internet','Cleaning','Maintenance','Trash','Cable TV',
-        'Quiet','Lively','Family-friendly','Pet-friendly','Beachfront','Jungle','Downtown','Gated','Eco',
-      ],
-      motorcycle: ['ABS','ESC','Traction control','Heated grips','Luggage rack','Crash bars','Quick-shifter','Bluetooth','Helmet','Riding gear','Lock','Top case','Charger','Insurance','Roadside assistance'],
-      bicycle: ['Front suspension','Full suspension','Disc brakes','Carbon frame','Aluminum frame','Tubeless','Dropper post','Lock','Lights','Basket','Pump','Helmet','Repair kit'],
-      worker: ['Punctual','Detail-oriented','English-speaking','Spanish-speaking','Insured','Background-checked','Own tools','Own vehicle','Emergency available'],
-    };
-    const vocab = AMENITY_VOCAB[category] || AMENITY_VOCAB.property;
+    const sys = `You parse natural-language listing descriptions (often dictated by voice, any language) into structured JSON for a Swipess marketplace listing.
 
-    const sys = `You parse natural-language listing intel into structured JSON for a Swipess marketplace listing.
-Category is "${category}". Use the provided base data when present.
-Base price: ${body.price ?? "(unknown)"}
+STEP 1 — Detect the category from the user's words:
+- "property": penthouse, hotel, apartment, studio, house, condo, villa, room, land, office, any real estate for rent or sale
+- "motorcycle": motorcycle, motorbike, scooter, moped
+- "bicycle": bicycle, bike, e-bike, BMX, mountain bike
+- "worker": a person offering a job, service, or skill (cleaner, plumber, chef, teacher, photographer, massage, etc.)
+The user pre-selected "${hintCategory}" — only override it if their words CLEARLY describe a different category.
+
+STEP 2 — Extract the fields for the detected category. Be faithful to the user's words. NEVER invent specifics (price, beds, year, brand, model) that were not stated. Use null for anything not mentioned.
+
+Base price: ${body.price ?? "(unknown)"} — if this is a number, you MUST return it as "price"; it is the seller's chosen price, do not change it.
 Base city: ${body.city ?? "(unknown)"}
 
-Rules:
-- Be faithful to the user's words. NEVER invent specifics (price, beds, year, brand, model) that were not stated.
-- If "Base price" is a number, you MUST return it as "price" — it is the seller's chosen price, do not change it.
-- For "amenities": choose ONLY from this exact list, copied verbatim (do not paraphrase, translate, or add new ones). Include every entry the description clearly implies, and omit the rest:
-${JSON.stringify(vocab)}
-- Write "description" as a polished, professional, high-converting paragraph (2-5 sentences) that naturally weaves in the chosen amenities and the user's own details. Confident and factual — no placeholders, no bullet lists.
+Field rules:
+- "property_type" must be EXACTLY one of: ${JSON.stringify(PROPERTY_TYPES)} (a hotel/villa/condo maps to the closest: building, house, apartment...)
+- "motorcycle_type" must be EXACTLY one of: ${JSON.stringify(MOTORCYCLE_TYPES)}
+- "bicycle_type" must be EXACTLY one of: ${JSON.stringify(BICYCLE_TYPES)}
+- "service_category" must be EXACTLY one of: ${JSON.stringify(SERVICE_CATEGORIES)}
+- "pricing_unit" one of: hourly, daily, weekly, monthly, project
+- "transmission" one of: manual, automatic, semi-automatic; "fuel_type" one of: gasoline, electric, hybrid; "condition" one of: excellent, good, fair, poor
+- "amenities": choose ONLY from the list below matching the detected category, copied verbatim (no paraphrasing, no translating, no new entries). Include every entry the description clearly implies, omit the rest:
+  property: ${JSON.stringify(AMENITY_VOCAB.property)}
+  motorcycle: ${JSON.stringify(AMENITY_VOCAB.motorcycle)}
+  bicycle: ${JSON.stringify(AMENITY_VOCAB.bicycle)}
+  worker: ${JSON.stringify(AMENITY_VOCAB.worker)}
+- "description": a polished, professional, high-converting paragraph (2-5 sentences) in English that naturally weaves in the user's details and chosen amenities. Confident and factual — no placeholders, no bullet lists.
+- "title": short and catchy, <= 70 chars.
 
-Return ONLY valid JSON matching this schema:
+Return ONLY valid JSON with ALL of these keys (null when not applicable):
 {
-  "title": "Short catchy title (<= 70 chars)",
-  "description": "Polished listing description (2-5 sentences)",
+  "category": "property" | "motorcycle" | "bicycle" | "worker",
+  "title": string,
+  "description": string,
   "price": number,
-  "city": "string",
+  "city": string or null,
   "beds": number or null,
   "baths": number or null,
   "square_footage": number or null,
-  "property_type": "string or null",
+  "property_type": string or null,
+  "furnished": boolean or null,
+  "pet_friendly": boolean or null,
   "year": number or null,
-  "make": "string or null",
-  "model": "string or null",
+  "make": string or null,
+  "model": string or null,
+  "engine_cc": number or null,
+  "mileage": number or null,
+  "motorcycle_type": string or null,
+  "bicycle_type": string or null,
+  "transmission": string or null,
+  "fuel_type": string or null,
+  "condition": string or null,
+  "service_category": string or null,
+  "pricing_unit": string or null,
+  "experience_years": number or null,
+  "skills": [],
   "amenities": []
 }`;
 
@@ -127,6 +165,12 @@ Return ONLY valid JSON matching this schema:
     } catch {
       console.error("[ai-listing-extract] failed to parse groq JSON:", result);
       return json(500, { error: "Extract failed" });
+    }
+
+    // Only accept a detected category we actually support.
+    const validCategories = ["property", "motorcycle", "bicycle", "worker"];
+    if (!validCategories.includes(parsed.category as string)) {
+      parsed.category = hintCategory;
     }
 
     // The seller's explicitly entered price always wins over anything the model inferred.

@@ -241,11 +241,9 @@ export function AIProfileWizard() {
         openAIListing('property');
       } else {
         setModal('showAIProfile', false);
-        if (mode === 'owner') {
-          navigate('/client/profile');
-        } else {
-          navigate(`/profile/${user.id}`);
-        }
+        // Land on the profile management page (photo, Magic AI, edit, roommates)
+        // — never the public swipe-card view of yourself.
+        navigate('/client/profile');
       }
     } catch (err: any) {
       console.error('Process failed', err);

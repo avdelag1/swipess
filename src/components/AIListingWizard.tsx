@@ -272,7 +272,11 @@ export function AIListingWizard() {
       setProgressPct(72);
 
       setProgressPhase('publish');
-      const cat = category;
+      // Trust the AI-detected category when valid — the user may describe a
+      // motorcycle while the default "property" chip is still selected.
+      const validCats = ['property', 'motorcycle', 'bicycle', 'worker'] as const;
+      const detected = parsed.category as typeof CATEGORIES[number]['id'];
+      const cat = validCats.includes(detected) ? detected : category;
       const numericPrice = (parsed.price as number) || Number(price) || 0;
       const finalCity = (parsed.city as string) || cityLocation || 'Unknown';
       const listingPayload: Record<string, unknown> = {
@@ -303,6 +307,8 @@ export function AIListingWizard() {
         if (baths) listingPayload.baths = baths;
         if (squareFootage) listingPayload.square_footage = squareFootage;
         if (propertyType) listingPayload.property_type = propertyType;
+        if (parsed.furnished === true) listingPayload.furnished = true;
+        if (parsed.pet_friendly === true) listingPayload.pet_friendly = true;
         if (Array.isArray(parsed.amenities)) listingPayload.amenities = parsed.amenities;
       }
       if (cat === 'motorcycle' || cat === 'bicycle') {
@@ -313,10 +319,22 @@ export function AIListingWizard() {
         if (brand) listingPayload.vehicle_brand = brand;
         if (model) listingPayload.vehicle_model = model;
         if (year) listingPayload.year = year;
+        if (parsed.mileage) listingPayload.mileage = parsed.mileage;
+        if (parsed.condition) listingPayload.condition = parsed.condition;
+        if (cat === 'motorcycle') {
+          if (parsed.motorcycle_type) listingPayload.motorcycle_type = parsed.motorcycle_type;
+          if (parsed.engine_cc) listingPayload.engine_cc = parsed.engine_cc;
+          if (parsed.transmission) listingPayload.transmission = parsed.transmission;
+          if (parsed.fuel_type) listingPayload.fuel_type = parsed.fuel_type;
+        }
+        if (cat === 'bicycle' && parsed.bicycle_type) listingPayload.bicycle_type = parsed.bicycle_type;
       }
       if (cat === 'worker') {
-        const sc = (extras.service_category as string) || '';
+        const sc = (extras.service_category as string) || (parsed.service_category as string) || '';
         if (sc) listingPayload.service_category = sc;
+        if (parsed.pricing_unit) listingPayload.pricing_unit = parsed.pricing_unit;
+        if (parsed.experience_years) listingPayload.experience_years = parsed.experience_years;
+        if (Array.isArray(parsed.skills) && parsed.skills.length) listingPayload.skills = parsed.skills;
       }
 
       setProgressPct(95);
@@ -330,7 +348,8 @@ export function AIListingWizard() {
       setProgressPhase('redirect');
       setProgressPct(100);
       triggerHaptic('success');
-      appToast.success('AI extracted listing info. Please verify details.');
+      const catLabel = CATEGORIES.find(c => c.id === cat)?.label || cat;
+      appToast.success(`✨ AI built your ${catLabel} listing — verify and publish!`);
       if (isOnboardingActive) setOnboardingActive(false);
       handleClose();
       
