@@ -86,10 +86,13 @@ if (typeof window !== 'undefined') {
 import { supabase } from "@/integrations/supabase/client";
 
 const hostname = window.location.hostname;
-const isPreviewHost = import.meta.env.DEV
+// Native Capacitor serves from localhost — never treat it as a web preview
+// host, so app launches skip the service-worker/cache inspection entirely.
+const isNativeApp = !!(window as any).Capacitor?.isNativePlatform?.();
+const isPreviewHost = !isNativeApp && (import.meta.env.DEV
   || hostname === 'localhost'
   || hostname === '127.0.0.1'
-  || hostname.includes('id-preview--');
+  || hostname.includes('id-preview--'));
 const PREVIEW_CACHE_RESET_KEY = 'Swipess-preview-cache-reset-v1';
 
 // 1. START AUTH CHECK BEFORE RENDERING (Parallel process)
@@ -258,8 +261,10 @@ deferredInit(async () => {
     body.classList.add('hw-high', 'perf-ultra');
     initHaptics();
 
-    // Register service worker with AGGRESSIVE update detection
-    if ('serviceWorker' in navigator && !isPreviewHost) {
+    // Register service worker with AGGRESSIVE update detection.
+    // Never on native: Capacitor serves assets from local disk, so a SW only
+    // adds cache-layer overhead and stale-chunk reload risk inside the app.
+    if ('serviceWorker' in navigator && !isPreviewHost && !isNativeApp) {
       navigator.serviceWorker.register('/sw.js', { scope: '/' })
         .then(reg => {
           // Check for updates once per hour — not every 10s

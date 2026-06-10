@@ -950,7 +950,6 @@ const ClientSwipeContainerComponent = ({
           style={{
             opacity: pullDown.backdropOpacity,
             scale: pullDown.backdropScale,
-            filter: pullDown.backdropBlur,
             transformOrigin: 'center center',
           }}
         >
@@ -970,7 +969,7 @@ const ClientSwipeContainerComponent = ({
         <SwipeDeckBackButton />
         <motion.div
           className="relative w-full h-full mx-auto flex items-center justify-center pointer-events-auto"
-          style={{ y: pullDown.y, scale: pullDown.scale, opacity: pullDown.opacity, filter: pullDown.blur }}
+          style={{ y: pullDown.y, scale: pullDown.scale, opacity: pullDown.opacity, transform: 'translateZ(0)', willChange: 'transform' }}
         >
           <motion.div
             aria-hidden
