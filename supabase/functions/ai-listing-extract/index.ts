@@ -30,49 +30,48 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
-    if (!GEMINI_API_KEY) return json(500, { error: "GEMINI_API_KEY not configured" });
+    const GROQ_API_KEY = Deno.env.get("GROQ_API_KEY");
+    if (!GROQ_API_KEY) return json(500, { error: "GROQ_API_KEY not configured" });
 
     const body = (await req.json().catch(() => ({}))) as Body;
     const task = body.task ?? "extract";
     const prompt = (body.prompt || "").trim();
     if (!prompt) return json(400, { error: "Missing prompt" });
 
-    async function callGemini(messages: { role: string; content: string }[]) {
-      const systemMessages = messages.filter(m => m.role === "system");
-      const nonSystemMessages = messages.filter(m => m.role !== "system");
-      const contents = nonSystemMessages.map(m => ({
-        role: m.role === "assistant" ? "model" : "user",
-        parts: [{ text: m.content }],
-      }));
-      const body: Record<string, unknown> = { contents, generationConfig: { temperature: 0.3 } };
-      if (systemMessages.length > 0) {
-        body.systemInstruction = { parts: systemMessages.map(m => ({ text: m.content })) };
-      }
-      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+    async function callGroq(systemContent: string, userContent: string, jsonMode = true) {
+      const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
+        headers: {
+          "Authorization": `Bearer ${GROQ_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "llama-3.3-70b-versatile",
+          messages: [
+            { role: "system", content: systemContent },
+            { role: "user", content: userContent },
+          ],
+          temperature: 0.2,
+          max_tokens: 1200,
+          ...(jsonMode ? { response_format: { type: "json_object" } } : {}),
+        }),
       });
       if (!res.ok) {
         const t = await res.text();
-        console.error("[ai-listing-extract] gemini error", res.status, t);
+        console.error("[ai-listing-extract] groq error", res.status, t);
         if (res.status === 429) throw new Error("Rate limit");
-        throw new Error(`Gemini ${res.status}: ${t}`);
+        throw new Error(`Groq ${res.status}: ${t}`);
       }
       const data = await res.json();
-      return data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim?.() ?? "";
+      return data?.choices?.[0]?.message?.content?.trim() ?? "";
     }
 
     if (task === "refine") {
-      const text = await callGemini([
-        {
-          role: "system",
-          content:
-            "You are an elite listing copywriter for Swipess. Rewrite the user's raw spoken input into a sharp, professional, high-converting listing description. Keep it concise (2-4 sentences), confident, and factual. Do not invent details. Do not add placeholders. Return ONLY the rewritten description, no preamble.",
-        },
-        { role: "user", content: prompt },
-      ]);
+      const text = await callGroq(
+        "You are an elite listing copywriter for Swipess. Rewrite the user's raw spoken input into a sharp, professional, high-converting listing description. Keep it concise (2-4 sentences), confident, and factual. Do not invent details. Do not add placeholders. Return ONLY the rewritten description, no preamble.",
+        prompt,
+        false
+      );
       return json(200, { text: text || prompt });
     }
 
@@ -80,8 +79,6 @@ serve(async (req) => {
     const category = body.category || "property";
 
     // Canonical chip vocabulary — must mirror src/constants/listingTaxonomies.ts
-    // so the AI maps the user's words onto REAL selectable chips (otherwise the
-    // amenities it returns never register in the form).
     const AMENITY_VOCAB: Record<string, string[]> = {
       property: [
         'Private Pool','Shared Pool','Gym','Parking','Garage','Carport','AC','WiFi','Security 24/7','Security Cameras','Garden','Balcony','Terrace','Rooftop','Elevator','Storage','Workspace','Office Space','2-in-1 Washer/Dryer','Separate Washer & Dryer','Laundry Room','Washer','Dishwasher','Gas Stove','Water Filter / Osmosis','Smart-home','Solar Panels','Backup water','Sea View','Mountain View','Garden View','Outdoor Kitchen','BBQ','Hot Tub','Sauna','Walk-in Closet','Fireplace','Mosquito Net','Sublease Option',
@@ -106,36 +103,29 @@ Rules:
 ${JSON.stringify(vocab)}
 - Write "description" as a polished, professional, high-converting paragraph (2-5 sentences) that naturally weaves in the chosen amenities and the user's own details. Confident and factual — no placeholders, no bullet lists.
 
-Return ONLY valid JSON matching this schema, no markdown:
+Return ONLY valid JSON matching this schema:
 {
   "title": "Short catchy title (<= 70 chars)",
   "description": "Polished listing description (2-5 sentences)",
   "price": number,
   "city": "string",
-  "beds": number | null,
-  "baths": number | null,
-  "square_footage": number | null,
-  "property_type": "string | null",
-  "year": number | null,
-  "make": "string | null",
-  "model": "string | null",
-  "amenities": string[]
+  "beds": number or null,
+  "baths": number or null,
+  "square_footage": number or null,
+  "property_type": "string or null",
+  "year": number or null,
+  "make": "string or null",
+  "model": "string or null",
+  "amenities": []
 }`;
 
-    const result = await callGemini([
-      { role: "system", content: sys },
-      { role: "user", content: prompt },
-    ]);
+    const result = await callGroq(sys, prompt);
 
     let parsed: Record<string, unknown>;
     try {
-      let cleanResult = result.trim();
-      if (cleanResult.startsWith('```')) {
-        cleanResult = cleanResult.replace(/^```(json)?\n?/, '').replace(/\n?```$/, '').trim();
-      }
-      parsed = JSON.parse(cleanResult);
+      parsed = JSON.parse(result);
     } catch {
-      console.error("[ai-listing-extract] failed to parse gemini JSON:", result);
+      console.error("[ai-listing-extract] failed to parse groq JSON:", result);
       return json(500, { error: "Extract failed" });
     }
 

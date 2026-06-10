@@ -14,10 +14,10 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
   try {
-    const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
-    if (!GEMINI_API_KEY) {
+    const GROQ_API_KEY = Deno.env.get("GROQ_API_KEY");
+    if (!GROQ_API_KEY) {
       return new Response(
-        JSON.stringify({ error: "GEMINI_API_KEY not configured" }),
+        JSON.stringify({ error: "GROQ_API_KEY not configured" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
@@ -31,72 +31,69 @@ serve(async (req) => {
     }
 
     const isOwner = mode === "owner";
-    const profileSchema = isOwner
-      ? `{
-  "business_name": "string",
-  "business_description": "Cinematic 2-3 sentence description",
-  "business_location": "string",
-  "contact_email": "string",
-  "contact_phone": "string",
-  "service_offerings": "string[]"
-}`
-      : `{
-  "name": "string | null",
-  "age": "number | null",
-  "gender": "string | null",
-  "bio": "Cinematic 2-3 sentence first-person bio",
-  "intentions": "string[]",
-  "city": "string | null",
-  "neighborhood": "string | null",
-  "country": "string | null",
-  "nationality": "string | null",
-  "languages": "string[]",
-  "interests": "string[]",
-  "lifestyle_tags": "string[]",
-  "occupation": "string | null",
-  "relationship_status": "string | null",
-  "smoking_habit": "string | null",
-  "drinking_habit": "string | null"
-}`;
 
     const systemPrompt = isOwner
-      ? "You are a profile architect for Swipess hosts/owners. Extract structured fields and write a polished business description. Stay faithful to the user's input. Return ONLY valid JSON matching the schema, no markdown."
-      : "You are a profile architect for Swipess users. Extract structured fields and write a cinematic first-person bio (2-3 sentences). Stay faithful to the user's input. Leave fields blank if not mentioned. Return ONLY valid JSON matching the schema, no markdown.";
+      ? `You are a profile architect for Swipess hosts/owners. Extract structured fields from the user's description and write a polished business description. Stay faithful to the user's input. Leave fields null/empty if not mentioned. Return ONLY valid JSON with these exact keys:
+{
+  "business_name": string or null,
+  "business_description": string (2-3 sentence polished description),
+  "business_location": string or null,
+  "contact_email": string or null,
+  "contact_phone": string or null,
+  "service_offerings": string[]
+}`
+      : `You are a profile architect for Swipess users. Extract structured fields from the user's description and write a cinematic first-person bio (2-3 sentences). Stay faithful to the user's input. Leave fields null/empty if not mentioned. Return ONLY valid JSON with these exact keys:
+{
+  "name": string or null,
+  "age": number or null,
+  "gender": string or null,
+  "bio": string (cinematic 2-3 sentence first-person bio),
+  "intentions": string[],
+  "city": string or null,
+  "neighborhood": string or null,
+  "country": string or null,
+  "nationality": string or null,
+  "languages": string[],
+  "interests": string[],
+  "lifestyle_tags": string[],
+  "occupation": string or null,
+  "relationship_status": string or null,
+  "smoking_habit": string or null,
+  "drinking_habit": string or null
+}`;
 
-    const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+    const resp = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: {
+        "Authorization": `Bearer ${GROQ_API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        contents: [
-          { role: "user", parts: [{ text: narrative }] },
+        model: "llama-3.3-70b-versatile",
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: narrative },
         ],
-        systemInstruction: {
-          parts: [{ text: `${systemPrompt}\n\nJSON schema:\n${profileSchema}` }],
-        },
-        generationConfig: { temperature: 0.2 },
+        temperature: 0.2,
+        max_tokens: 1000,
+        response_format: { type: "json_object" },
       }),
     });
 
     if (!resp.ok) {
       const t = await resp.text();
-      console.error("[ai-profile-extract] kimi", resp.status, t);
+      console.error("[ai-profile-extract] groq error", resp.status, t);
       return new Response(JSON.stringify({ error: "Extraction failed" }), {
         status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
     const data = await resp.json();
-    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim?.() ?? "";
+    const text = data?.choices?.[0]?.message?.content?.trim() ?? "";
 
     let profile: Record<string, unknown> | null = null;
     try {
-      let cleanText = text.trim();
-      if (cleanText.startsWith('```')) {
-        cleanText = cleanText.replace(/^```(json)?\n?/, '').replace(/\n?```$/, '').trim();
-      }
-      profile = JSON.parse(cleanText);
+      profile = JSON.parse(text);
     } catch {
       console.error("[ai-profile-extract] failed to parse JSON:", text);
       return new Response(JSON.stringify({ error: "Could not parse profile from response" }), {
