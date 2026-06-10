@@ -55,12 +55,20 @@ async function blobToBase64(blob: Blob): Promise<string> {
   });
 }
 
-export function useVoiceTranscribe(): UseVoiceTranscribeResult {
+export interface UseVoiceTranscribeOptions {
+  onStop?: (text: string) => void;
+}
+
+export function useVoiceTranscribe(options?: UseVoiceTranscribeOptions): UseVoiceTranscribeResult {
   const [isRecording, setIsRecording] = useState(false);
   const [isTranscribing, setIsTranscribing] = useState(false);
   const [lastError, setLastError] = useState<string | null>(null);
   const [interimTranscript, setInterimTranscript] = useState('');
 
+  const optionsRef = useRef(options);
+  useEffect(() => { optionsRef.current = options; }, [options]);
+
+  const stopFunctionRef = useRef<(() => Promise<string>) | null>(null);
   const recorderRef = useRef<MediaRecorder | null>(null);
   const recognitionRef = useRef<any>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -229,14 +237,18 @@ export function useVoiceTranscribe(): UseVoiceTranscribeResult {
         setLastError(msg);
         appToast.error(msg);
         console.error('[useVoiceTranscribe] invoke error', invokeError);
+        if (optionsRef.current?.onStop) optionsRef.current.onStop('');
         return '';
       }
-      return typeof respData?.text === 'string' ? respData.text.trim() : '';
+      const finalTxt = typeof respData?.text === 'string' ? respData.text.trim() : '';
+      if (optionsRef.current?.onStop) optionsRef.current.onStop(finalTxt);
+      return finalTxt;
     } catch (err) {
       const msg = 'Network error — check your connection';
       setLastError(msg);
       appToast.error(msg);
       console.error('[useVoiceTranscribe] transcription failed', err);
+      if (optionsRef.current?.onStop) optionsRef.current.onStop('');
       return '';
     } finally {
       if (mountedRef.current) setIsTranscribing(false);
@@ -260,6 +272,58 @@ export function useVoiceTranscribe(): UseVoiceTranscribeResult {
     setInterimTranscript('');
     setLastError(null);
   }, [cleanupStream]);
+
+  stopFunctionRef.current = stop;
+
+  // Auto-stop on 5 seconds of silence
+  useEffect(() => {
+    if (!isRecording || !streamRef.current) return;
+    
+    const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+    if (!AudioContextClass) return;
+
+    let audioCtx: AudioContext;
+    try { audioCtx = new AudioContextClass(); } catch { return; }
+
+    const analyser = audioCtx.createAnalyser();
+    analyser.fftSize = 256;
+    let source: MediaStreamAudioSourceNode;
+    try {
+      source = audioCtx.createMediaStreamSource(streamRef.current);
+      source.connect(analyser);
+    } catch {
+      return;
+    }
+
+    const dataArray = new Uint8Array(analyser.frequencyBinCount);
+    let lastVoiceTime = Date.now();
+    let animationFrameId: number;
+
+    const checkSilence = () => {
+      analyser.getByteFrequencyData(dataArray);
+      let sum = 0;
+      for (let i = 0; i < dataArray.length; i++) sum += dataArray[i];
+      const avg = sum / dataArray.length;
+
+      if (avg > 5) { // Threshold for speaking
+        lastVoiceTime = Date.now();
+      } else if (Date.now() - lastVoiceTime > 5000) {
+        if (stopFunctionRef.current) {
+          appToast.info('Voice detected silence — auto-stopped');
+          stopFunctionRef.current();
+        }
+        return;
+      }
+      animationFrameId = requestAnimationFrame(checkSilence);
+    };
+    checkSilence();
+
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+      try { source.disconnect(); } catch {}
+      try { audioCtx.close(); } catch {}
+    };
+  }, [isRecording]);
 
   return { isRecording, isTranscribing, interimTranscript, lastError, start, stop, cancel };
 }

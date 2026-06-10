@@ -34,7 +34,11 @@ export function AIProfileWizard() {
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [progressPct, setProgressPct] = useState(0);
-  const { isRecording, isTranscribing, interimTranscript, start: startVoice, stop: stopVoice } = useVoiceTranscribe();
+  const { isRecording, isTranscribing, interimTranscript, start: startVoice, stop: stopVoice } = useVoiceTranscribe({
+    onStop: (text) => {
+      if (text) setNarrative(prev => prev ? `${prev} ${text}` : text);
+    }
+  });
   const { enhanceText, isEnhancing } = useAIEnhanceText();
   const [micTipOpen, setMicTipOpen] = useState(false);
 
@@ -90,8 +94,7 @@ export function AIProfileWizard() {
   const handleVoiceToggle = async () => {
     if (isRecording) {
       triggerHaptic('medium');
-      const text = await stopVoice();
-      if (text) setNarrative(prev => prev ? `${prev} ${text}` : text);
+      stopVoice();
     } else {
       const ok = await startVoice();
       if (ok) {
@@ -397,8 +400,10 @@ export function AIProfileWizard() {
                             <button
                               onClick={handleVoiceToggle}
                               className={cn(
-                                "absolute right-4 top-4 w-10 h-10 z-10 rounded-full flex items-center justify-center transition-all duration-500 shadow-2xl overflow-hidden",
-                                isRecording ? "bg-red-500 scale-110" : "bg-rose-500 hover:scale-105"
+                                "absolute right-4 top-4 w-10 h-10 z-10 rounded-full flex items-center justify-center transition-all duration-300 shadow-2xl overflow-hidden",
+                                isRecording 
+                                  ? "bg-red-600 text-white shadow-[0_0_30px_rgba(220,38,38,0.8)] scale-110 animate-pulse" 
+                                  : "bg-rose-500 hover:scale-105"
                               )}
                             >
                               {isRecording ? (

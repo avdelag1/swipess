@@ -117,7 +117,21 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
   const {
     start: startTranscribe,
     stop: stopTranscribe,
-  } = useVoiceTranscribe();
+  } = useVoiceTranscribe({
+    onStop: (text) => {
+      isListeningRef.current = false;
+      setIsListening(false);
+      cancelCountdown();
+      uiSounds.playMicOff();
+      if (text) {
+        if (autoSendEnabledRef.current) {
+          sendMessage(text);
+        } else {
+          setInput(prev => (prev.trim() + ' ' + text).trim());
+        }
+      }
+    }
+  });
 
   useEffect(() => {
     autoSendEnabledRef.current = autoSendEnabled;
@@ -144,21 +158,8 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
   }, [startTranscribe]);
 
   const stopListening = useCallback(async () => {
-    isListeningRef.current = false;
-    setIsListening(false);
-
-    const text = await stopTranscribe();
-    if (text) {
-      setInput(prev => (prev.trim() + ' ' + text).trim());
-      if (autoSendEnabledRef.current) {
-        sendMessage(text);
-        setInput('');
-      }
-    }
-
-    cancelCountdown();
-    uiSounds.playMicOff();
-  }, [stopTranscribe, cancelCountdown, sendMessage]);
+    stopTranscribe();
+  }, [stopTranscribe]);
 
   const handleSend = () => {
     if (!input.trim() || isLoading) return;

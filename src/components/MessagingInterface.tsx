@@ -132,7 +132,17 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
   useEffect(() => { inputValueRef.current = newMessage; }, [newMessage]);
   useEffect(() => { isListeningRef.current = isListening; }, [isListening]);
 
-  const { start: startVoiceTranscribe, stop: stopVoiceTranscribe, isRecording: isVoiceRecording } = useVoiceTranscribe();
+  const { start: startVoiceTranscribe, stop: stopVoiceTranscribe, isRecording: isVoiceRecording } = useVoiceTranscribe({
+    onStop: (text) => {
+      setIsListening(false);
+      isListeningRef.current = false;
+      if (text) {
+        setNewMessage(prev => (prev + ' ' + text).trim());
+        armSilenceCountdown();
+      }
+      uiSounds.playMicOff();
+    }
+  });
 
   const armSilenceCountdown = useCallback(() => {
     if (countdownRef.current) { clearInterval(countdownRef.current); countdownRef.current = null; }
@@ -164,15 +174,8 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
   }, [startVoiceTranscribe]);
 
   const stopListening = useCallback(async () => {
-    setIsListening(false);
-    isListeningRef.current = false;
-    const text = await stopVoiceTranscribe();
-    if (text) {
-      setNewMessage(prev => (prev + ' ' + text).trim());
-      armSilenceCountdown();
-    }
-    uiSounds.playMicOff();
-  }, [stopVoiceTranscribe, armSilenceCountdown]);
+    stopVoiceTranscribe();
+  }, [stopVoiceTranscribe]);
 
   useEffect(() => {
     const messageCountIncreased = messages.length > previousMessageCountRef.current;
@@ -437,7 +440,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
                 <button
                   type="button"
                   onClick={isListening ? stopListening : startListening}
-                  className={cn("absolute right-2 bottom-1.5 w-9 h-9 rounded-full flex items-center justify-center transition-all", (isListening || isVoiceRecording) ? "bg-red-500 text-white shadow-[0_0_15px_rgba(239,68,68,0.4)] animate-pulse" : (isThemeLight ? "text-black/30 hover:text-rose-500 hover:bg-rose-50" : "text-white/30 hover:text-rose-400 hover:bg-rose-500/10"))}
+                  className={cn("absolute right-2 bottom-1.5 w-9 h-9 rounded-full flex items-center justify-center transition-all", (isListening || isVoiceRecording) ? "bg-red-600 text-white shadow-[0_0_30px_rgba(220,38,38,0.8)] animate-pulse scale-110" : (isThemeLight ? "text-black/30 hover:text-rose-500 hover:bg-rose-50" : "text-white/30 hover:text-rose-400 hover:bg-rose-500/10"))}
                 >
                   {(isListening || isVoiceRecording) ? <MicOff className="z-[10000] w-4 h-4" /> : <Mic className="z-[10000] w-4 h-4" />}
                 </button>

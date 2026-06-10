@@ -22,6 +22,8 @@ html, body, #root {
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   /* 🏎️ GPU ACCELERATION — only on compositing-friendly containers */
   overscroll-behavior-y: none;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
   /* 📱 MOBILE OPTIMIZATION: Prevent text selection and highlight */
   -webkit-user-select: none;
   -webkit-tap-highlight-color: transparent;
