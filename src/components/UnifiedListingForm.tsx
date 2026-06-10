@@ -459,7 +459,9 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
           const withoutSavedListing = oldData.filter((item) => item.id !== listing.id);
           return [listing, ...withoutSavedListing];
         });
-        queryClient.invalidateQueries({ queryKey: ['listing-detail', listing.id] });
+        // Seed the detail cache with the row we just saved so the redirect
+        // to /listing/:id renders instantly with no loading spinner.
+        queryClient.setQueryData(['listing-detail', listing.id], listing);
       }
       queryClient.invalidateQueries({ queryKey: ['owner-listings'] });
       queryClient.refetchQueries({ queryKey: ['owner-listings'], type: 'active' });
