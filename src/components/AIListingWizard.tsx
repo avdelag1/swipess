@@ -21,6 +21,19 @@ import { useAIEnhanceText } from '@/hooks/useAIEnhanceText';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { supabase } from '@/integrations/supabase/client';
 import { useQueryClient } from '@tanstack/react-query';
+import {
+  BIKE_FEATURES, BIKE_INCLUDED,
+  MOTO_FEATURES, MOTO_INCLUDED,
+  PROPERTY_FEATURES, PROPERTY_INCLUDED, PROPERTY_VIBE,
+} from '@/constants/listingTaxonomies';
+
+// Canonical chip vocabulary per category — used to validate AI-extracted
+// amenities so only real, selectable chips are saved on the listing.
+const AMENITY_VOCAB: Record<string, readonly string[]> = {
+  property: [...PROPERTY_FEATURES, ...PROPERTY_INCLUDED, ...PROPERTY_VIBE],
+  motorcycle: [...MOTO_FEATURES, ...MOTO_INCLUDED],
+  bicycle: [...BIKE_FEATURES, ...BIKE_INCLUDED],
+};
 
 type WizardStep = 'category' | 'photos' | 'details' | 'processing';
 type ProgressPhase = 'upload' | 'optimize' | 'publish' | 'redirect';
@@ -317,7 +330,9 @@ export function AIListingWizard() {
       // Phase 3 — Publish to DB
       setProgressPhase('publish');
       const cat = category || 'property';
-      const numericPrice = (parsed.price as number) || Number(price) || 0;
+      // The price the seller typed always wins; the AI's inferred price is only
+      // a fallback for when they left the field blank.
+      const numericPrice = Number(price) || (parsed.price as number) || 0;
       const finalCity = (parsed.city as string) || cityLocation || 'Unknown';
       const listingPayload: Record<string, unknown> = {
         user_id: user.id,
@@ -343,7 +358,6 @@ export function AIListingWizard() {
         const baths = (extras.baths as number) ?? (parsed.baths as number);
         if (beds) listingPayload.beds = beds;
         if (baths) listingPayload.baths = baths;
-        if (Array.isArray(parsed.amenities)) listingPayload.amenities = parsed.amenities;
       }
       if (cat === 'motorcycle' || cat === 'bicycle') {
         listingPayload.vehicle_type = cat;
@@ -357,6 +371,22 @@ export function AIListingWizard() {
       if (cat === 'worker') {
         const sc = (extras.service_category as string) || '';
         if (sc) listingPayload.service_category = sc;
+      }
+
+      // Validate AI-extracted amenities against the app's real chip vocabulary
+      // (case-insensitive) and merge with anything the user picked, so they
+      // actually register as selectable chips on the listing.
+      const vocab = AMENITY_VOCAB[cat];
+      if (vocab) {
+        const canonical = new Map(vocab.map((v) => [v.toLowerCase(), v]));
+        const fromAI = Array.isArray(parsed.amenities)
+          ? (parsed.amenities as unknown[])
+              .map((a) => canonical.get(String(a).toLowerCase().trim()))
+              .filter((v): v is string => !!v)
+          : [];
+        const fromUser = Array.isArray(extras.amenities) ? (extras.amenities as string[]) : [];
+        const merged = Array.from(new Set([...fromUser, ...fromAI]));
+        if (merged.length > 0) listingPayload.amenities = merged;
       }
 
 

@@ -13,7 +13,6 @@ import { useVoiceTranscribe } from '@/hooks/useVoiceTranscribe';
 import { uploadPhotoBatch } from '@/utils/photoUpload';
 import { supabase } from '@/integrations/supabase/client';
 import { appToast } from '@/utils/appNotification';
-import { appToast } from '@/utils/appNotification';
 
 type Step = 'speak' | 'processing' | 'review';
 type Mode = 'client' | 'owner';
