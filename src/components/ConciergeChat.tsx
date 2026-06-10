@@ -236,6 +236,10 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                "relative w-full max-w-4xl h-[100dvh] sm:h-[88vh] flex flex-col sm:rounded-[3.5rem] overflow-hidden border shadow-[0_40px_150px_rgba(0,0,0,0.9)] transition-colors duration-700",
                isLight && !isSwipess ? "bg-white border-black/10" : "bg-black border-white/10"
              )}
+            style={{
+              paddingTop: 'env(safe-area-inset-top, 0px)',
+              paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+            }}
           >
             {isSwipess && (
               <div className="absolute inset-0 pointer-events-none z-0">
@@ -257,7 +261,7 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                 triggerHaptic('success');
               }} isSwipess={isSwipess} />
             ) : (
-              <div className="flex-1 flex flex-col relative z-10 overflow-hidden" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
+              <div className="flex-1 flex flex-col relative z-10 overflow-hidden">
                 <header className={cn(
                   "h-16 shrink-0 flex items-center justify-between px-6 border-b transition-all duration-500 relative z-30",
                   isLight && !isSwipess ? "border-slate-200 bg-white/80 backdrop-blur-md" : "border-white/5 bg-black/60 backdrop-blur-3xl"

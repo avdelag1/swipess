@@ -204,7 +204,7 @@ export function PhotoEditor({ imageDataUrl, onSave, onCancel }: PhotoEditorProps
   return (
     <div className="fixed inset-0 z-[100] bg-black flex flex-col">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 bg-black/80">
+      <div className="flex items-center justify-between px-4 pb-4 bg-black/80" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 1rem)' }}>
         <Button
           variant="ghost"
           size="icon"

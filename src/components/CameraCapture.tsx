@@ -515,7 +515,7 @@ export function CameraCapture({
         </AnimatePresence>
 
         {/* Top Bar */}
-        <div className="absolute top-0 left-0 right-0 p-4 flex items-center justify-between z-20">
+        <div className="absolute top-0 left-0 right-0 px-4 pb-4 flex items-center justify-between z-20" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 1rem)' }}>
           <Button
             variant="ghost"
             size="icon"
