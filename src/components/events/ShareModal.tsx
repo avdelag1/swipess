@@ -61,7 +61,7 @@ export function ShareModal({
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="fixed inset-x-0 bottom-0 z-[110] bg-zinc-900 border-t border-white/10 rounded-t-[2.5rem] px-6 pt-8 pb-[calc(2rem+env(safe-area-inset-bottom))] text-center"
+            className="force-white fixed inset-x-0 bottom-0 z-[110] bg-zinc-900 border-t border-white/10 rounded-t-[2.5rem] px-6 pt-8 pb-[calc(2rem+env(safe-area-inset-bottom))] text-center"
           >
             <div className="w-12 h-1.5 bg-white/20 rounded-full mx-auto mb-8" />
             <div className="w-full aspect-[16/10] rounded-[2rem] mx-auto mb-5 overflow-hidden shadow-2xl bg-card border border-border">

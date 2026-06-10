@@ -142,7 +142,7 @@ export const EventCard = memo(({
   return (
     <div
       className={cn(
-        "relative w-full h-full overflow-hidden transition-colors duration-500 touch-pan-y",
+        "force-white relative w-full h-full overflow-hidden transition-colors duration-500 touch-pan-y",
         isLight ? "bg-white" : "bg-black"
       )}
       data-testid={`event-card-${event.id}`}

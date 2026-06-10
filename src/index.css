@@ -2741,7 +2741,15 @@ button:disabled,
 .white-matte .text-white[class*="bg-yellow-"],
 .white-matte .text-white[class*="bg-amber-"],
 .white-matte .text-white[class*="bg-black"],
+.white-matte .text-white[class*="bg-zinc-9"],
+.white-matte .text-white[class*="bg-gray-9"],
+.white-matte .text-white[class*="bg-slate-9"],
+.white-matte .text-white[class*="bg-neutral-9"],
 .white-matte [class*="bg-black"] .text-white,
+.white-matte [class*="bg-zinc-9"] .text-white,
+.white-matte [class*="bg-gray-9"] .text-white,
+.white-matte [class*="bg-slate-9"] .text-white,
+.white-matte [class*="bg-neutral-9"] .text-white,
 .white-matte [class*="bg-gradient"] .text-white,
 .light .dark .text-white,
 .light .glass-dark .text-white,
@@ -2767,12 +2775,21 @@ button:disabled,
 .light .text-white[class*="bg-yellow-"],
 .light .text-white[class*="bg-amber-"],
 .light .text-white[class*="bg-black"],
+.light .text-white[class*="bg-zinc-9"],
+.light .text-white[class*="bg-gray-9"],
+.light .text-white[class*="bg-slate-9"],
+.light .text-white[class*="bg-neutral-9"],
 .light [class*="bg-black"] .text-white,
+.light [class*="bg-zinc-9"] .text-white,
+.light [class*="bg-gray-9"] .text-white,
+.light [class*="bg-slate-9"] .text-white,
+.light [class*="bg-neutral-9"] .text-white,
 .light [class*="bg-gradient"] .text-white {
   color: #ffffff !important;
 }
 
-/* Re-allow semi-transparent white text inside dark overlays (bg-black/N) */
+/* Re-allow semi-transparent white text inside dark overlays */
+/* bg-black/N contexts */
 .white-matte [class*="bg-black"] .text-white\/20, .light [class*="bg-black"] .text-white\/20 { color: rgba(255,255,255,0.20) !important; }
 .white-matte [class*="bg-black"] .text-white\/30, .light [class*="bg-black"] .text-white\/30 { color: rgba(255,255,255,0.30) !important; }
 .white-matte [class*="bg-black"] .text-white\/35, .light [class*="bg-black"] .text-white\/35 { color: rgba(255,255,255,0.35) !important; }
@@ -2783,6 +2800,24 @@ button:disabled,
 .white-matte [class*="bg-black"] .text-white\/70, .light [class*="bg-black"] .text-white\/70 { color: rgba(255,255,255,0.70) !important; }
 .white-matte [class*="bg-black"] .text-white\/80, .light [class*="bg-black"] .text-white\/80 { color: rgba(255,255,255,0.80) !important; }
 .white-matte [class*="bg-black"] .text-white\/90, .light [class*="bg-black"] .text-white\/90 { color: rgba(255,255,255,0.90) !important; }
+/* bg-zinc-9/bg-gray-9/bg-slate-9 contexts */
+.white-matte [class*="bg-zinc-9"] .text-white\/20,    .light [class*="bg-zinc-9"] .text-white\/20    { color: rgba(255,255,255,0.20) !important; }
+.white-matte [class*="bg-zinc-9"] .text-white\/40,    .light [class*="bg-zinc-9"] .text-white\/40    { color: rgba(255,255,255,0.40) !important; }
+.white-matte [class*="bg-zinc-9"] .text-white\/50,    .light [class*="bg-zinc-9"] .text-white\/50    { color: rgba(255,255,255,0.50) !important; }
+.white-matte [class*="bg-zinc-9"] .text-white\/60,    .light [class*="bg-zinc-9"] .text-white\/60    { color: rgba(255,255,255,0.60) !important; }
+.white-matte [class*="bg-zinc-9"] .text-white\/70,    .light [class*="bg-zinc-9"] .text-white\/70    { color: rgba(255,255,255,0.70) !important; }
+.white-matte [class*="bg-zinc-9"] .text-white\/80,    .light [class*="bg-zinc-9"] .text-white\/80    { color: rgba(255,255,255,0.80) !important; }
+.white-matte [class*="bg-slate-9"] .text-white\/40,   .light [class*="bg-slate-9"] .text-white\/40   { color: rgba(255,255,255,0.40) !important; }
+.white-matte [class*="bg-slate-9"] .text-white\/60,   .light [class*="bg-slate-9"] .text-white\/60   { color: rgba(255,255,255,0.60) !important; }
+.white-matte [class*="bg-slate-9"] .text-white\/80,   .light [class*="bg-slate-9"] .text-white\/80   { color: rgba(255,255,255,0.80) !important; }
+/* bg-gradient contexts */
+.white-matte [class*="bg-gradient"] .text-white\/20,  .light [class*="bg-gradient"] .text-white\/20  { color: rgba(255,255,255,0.20) !important; }
+.white-matte [class*="bg-gradient"] .text-white\/40,  .light [class*="bg-gradient"] .text-white\/40  { color: rgba(255,255,255,0.40) !important; }
+.white-matte [class*="bg-gradient"] .text-white\/50,  .light [class*="bg-gradient"] .text-white\/50  { color: rgba(255,255,255,0.50) !important; }
+.white-matte [class*="bg-gradient"] .text-white\/60,  .light [class*="bg-gradient"] .text-white\/60  { color: rgba(255,255,255,0.60) !important; }
+.white-matte [class*="bg-gradient"] .text-white\/70,  .light [class*="bg-gradient"] .text-white\/70  { color: rgba(255,255,255,0.70) !important; }
+.white-matte [class*="bg-gradient"] .text-white\/80,  .light [class*="bg-gradient"] .text-white\/80  { color: rgba(255,255,255,0.80) !important; }
+.white-matte [class*="bg-gradient"] .text-white\/90,  .light [class*="bg-gradient"] .text-white\/90  { color: rgba(255,255,255,0.90) !important; }
 
 /* Transparent-white ring/shadow utilities */
 .white-matte .shadow-white\/\[0\.15\], .light .shadow-white\/\[0\.15\] { box-shadow: none !important; }
