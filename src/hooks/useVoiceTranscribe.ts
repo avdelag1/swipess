@@ -200,7 +200,13 @@ export function useVoiceTranscribe(): UseVoiceTranscribeResult {
 
       if (!resp.ok) {
         const errBody = await resp.text();
-        setLastError('Voice transcription service unavailable — try again');
+        // 5xx usually means the edge function is missing its API key or isn't
+        // deployed — surface that distinctly so it's diagnosable from the UI.
+        setLastError(
+          resp.status >= 500
+            ? 'Voice service is not set up on the server yet (missing key or not deployed)'
+            : 'Voice transcription failed — please try again'
+        );
         console.error('[useVoiceTranscribe] gateway error', resp.status, errBody);
         return '';
       }

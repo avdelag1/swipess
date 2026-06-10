@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 // import { } from '@/components/ui/card';
@@ -36,6 +36,9 @@ export function PhotoUploadManager({
   const [dragOver, setDragOver] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  // Direct ref to THIS instance's file input. A global getElementById lookup
+  // can hit the wrong element (portals, duplicate mounts) on Android WebView.
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleOpenCamera = () => {
     triggerHaptic('medium');
@@ -188,7 +191,8 @@ export function PhotoUploadManager({
               {/* 🛸 INLINE ADD BUTTON */}
               {currentPhotos.length < maxPhotos && (
                  <button
-                    onClick={() => document.getElementById('photo-upload')?.click()}
+                    type="button"
+                    onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click(); }}
                     className="w-48 h-64 rounded-[2rem] border-2 border-dashed border-primary/35 bg-secondary flex flex-col items-center justify-center gap-3 hover:bg-accent transition-all group shrink-0"
                  >
                     <div className="w-12 h-12 rounded-full bg-background border border-border flex items-center justify-center group-hover:scale-110 group-hover:border-primary/50 transition-all">
@@ -212,7 +216,7 @@ export function PhotoUploadManager({
           onDrop={handleDrop}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
-          onClick={() => document.getElementById('photo-upload')?.click()}
+          onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click(); }}
         >
           {/* BACKGROUND AMBIANCE */}
           <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,rgba(235,72,152,0.05)_0%,transparent_70%)] pointer-events-none" />
@@ -242,13 +246,14 @@ export function PhotoUploadManager({
       )}
 
       <input
+        ref={fileInputRef}
         id="photo-upload"
         type="file"
         multiple
         accept="image/*"
-        // hidden file input is rendered elsewhere; keep `accept` permissive for HEIC/etc.
+        // keep `accept` permissive for HEIC/etc.
         className="hidden"
-        onChange={(e) => handleFileSelect(e.target.files)}
+        onChange={(e) => { handleFileSelect(e.target.files); e.target.value = ''; }}
       />
 
       {/* 🛸 PRO TIPS HUD */}

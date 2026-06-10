@@ -306,14 +306,26 @@ async function searchProfiles(query: string): Promise<string> {
 
 // ─── Listing Search ─────────────────────────────────────────────────────────
 
-function detectListingIntent(query: string): { isListing: boolean; categories?: string[]; maxPrice?: number; bedrooms?: number[]; locations?: string[]; userId?: string } {
+function detectListingIntent(query: string): { isListing: boolean; category?: string; categories?: string[]; maxPrice?: number; bedrooms?: number[]; locations?: string[]; userId?: string } {
   const q = query.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""); // strip accents for fuzzy matching
 
   // Massive catch-all: detect if the user wants to FIND any type of listing, item, service, or person.
   // This covers English, Spanish, French, Portuguese, misspellings, and slang.
   const isListing = /(?:^|\s)(?:find|search|looking|show|browse|pull|give|send|share|preview|open|recommend|available|need|want|quiero|busco|necesito|hay|tienes|mostrar|ver|dame|enseña|recomienda|encuentr|consigu|consigo|consigue|necesit|quisiera|me gustaria|alguna|algun|tiene|tienen|listin|listings|listado|property|properties|propiedad|propiedades|renta|rento|alquilo|alquiler|vendo|vende|compro|compra|oferta|servicio|servicios|trabajador|trabajadores|limpieza|limpiador|mantenimiento|jardinero|cocinero|chofer|niñera|cuidado|ayuda|empleada|empleado|house|apartment|room|studio|villa|condo|penthouse|duplex|loft|townhouse|bungalow|cabin|casa|departamento|cuarto|habitacion|piso|chalet|motorcycle|motorbike|moto|scooter|bicycle|bike|ciclista|ciclismo|bici|bicicleta|worker|cleaner|maid|plumber|electrician|handyman|gardener|cook|chef|driver|nanny|babysitter|tutor|masseuse|masseur|trainer|instructor|contractor|mechanic|painter|carpenter|welder|technician|repair|fix|instal|instalador|plomero|electricista|jardinero|cocinero|chofer|niñera|profesor|maestro|entrenador|mecanico|pintor|carpintero|soldador|tecnico)\b/.test(q);
 
-  return { isListing };
+  // Category detection — values must match listings.category in the DB:
+  // 'property' | 'motorcycle' | 'bicycle' | 'worker'.
+  // Motorcycle is tested BEFORE bicycle so "motorbike" never lands in bicycle.
+  const matched: string[] = [];
+  if (/(?:^|\s)(?:motorcycles?|motorbikes?|motos?|scooters?|vespas?|motonetas?|motocicletas?)\b/.test(q)) matched.push("motorcycle");
+  if (!matched.includes("motorcycle") && /(?:^|\s)(?:bicycles?|bikes?|bicis?|bicicletas?|ciclismo|cycling)\b/.test(q)) matched.push("bicycle");
+  if (/(?:^|\s)(?:houses?|apartments?|rooms?|studios?|villas?|condos?|penthouses?|duplex|lofts?|townhouses?|bungalows?|cabins?|casas?|departamentos?|depa|cuartos?|habitacion|habitaciones|pisos?|chalets?|propert(?:y|ies)|propiedad(?:es)?)\b/.test(q)) matched.push("property");
+  if (/(?:^|\s)(?:workers?|cleaners?|maids?|plumbers?|electricians?|handym[ae]n|gardeners?|cooks?|chefs?|drivers?|nann(?:y|ies)|babysitters?|tutors?|trainers?|contractors?|mechanics?|painters?|carpenters?|welders?|technicians?|trabajador(?:es)?|limpieza|limpiador(?:es)?|plomeros?|electricistas?|jardineros?|cocineros?|chofer(?:es)?|niñeras?|mecanicos?|pintores?|carpinteros?|soldadores?|tecnicos?|emplead[oa]s?)\b/.test(q)) matched.push("worker");
+
+  // Only lock the search to a category when the request is unambiguous.
+  const category = matched.length === 1 ? matched[0] : undefined;
+
+  return { isListing, category, categories: matched.length > 0 ? matched : undefined };
 }
 
 async function searchListings(intent: ReturnType<typeof detectListingIntent>, authToken?: string): Promise<string> {
@@ -327,7 +339,10 @@ async function searchListings(intent: ReturnType<typeof detectListingIntent>, au
     const base = `${SUPABASE_URL.replace(/\/$/, "")}/rest/v1/listings`;
     // NOTE: listings table has city, neighborhood, address — but NO "location" column
     const cols = "id,title,price,category,bedrooms,bathrooms,images,neighborhood,currency,listing_type,owner_id,created_at,updated_at,status";
-    const restUrl = `${base}?select=${encodeURIComponent(cols)}&is_active=eq.true&status=eq.active&order=updated_at.desc.nullslast,created_at.desc.nullslast&limit=10`;
+    // When the user asked for a specific category (bicycles, motos, …) the
+    // query MUST be locked to it — never substitute another category.
+    const categoryFilter = intent.category ? `&category=eq.${encodeURIComponent(intent.category)}` : "";
+    const restUrl = `${base}?select=${encodeURIComponent(cols)}&is_active=eq.true&status=eq.active${categoryFilter}&order=updated_at.desc.nullslast,created_at.desc.nullslast&limit=10`;
     const res = await fetch(restUrl, {
       headers: {
         "apikey": anonKey,
@@ -952,7 +967,7 @@ TONE EXAMPLE:
 
 // ─── Build System Prompt ────────────────────────────────────────────────────
 
-function buildSystemPrompt(opts: { promotedContacts?: string; knowledge?: string; listings?: string; memories?: string; webResults?: string; profileResults?: string; character?: string; egoLevel?: number; charmLevel?: number; wisdomLevel?: number; sassLevel?: number; zenLevel?: number; flowLevel?: number }): string {
+function buildSystemPrompt(opts: { promotedContacts?: string; knowledge?: string; listings?: string; memories?: string; webResults?: string; profileResults?: string; requestedCategory?: string; character?: string; egoLevel?: number; charmLevel?: number; wisdomLevel?: number; sassLevel?: number; zenLevel?: number; flowLevel?: number }): string {
   let prompt: string;
 
   // Always prepend real-time context
@@ -1089,7 +1104,9 @@ TONE EXAMPLES:
     prompt += `\n\n## LIVE SWIPESS LISTINGS (real, active right now):\n${opts.listings}\n\nCRITICAL INSTRUCTION: This data was ALREADY searched for you. Below these bullets you will find a hidden tag like [LISTINGS:[...]] that the chat UI needs to render beautiful preview cards with images and share buttons. You MUST include this tag verbatim in your response so cards appear. When the user asks a general question like "show me apartments" or "send me your best listings", ALWAYS present what's available — do NOT ask for more details first. Only ask clarifying questions if the user's request is something you genuinely can't match from the available results. Limit: maximum 3 results. If the user asks for more, politely say "I can only share up to 3 at a time — want me to narrow it down with more specific criteria?" Format: introduce each in text, then include the tag at the end of your response.`;
   } else {
     // CRITICAL: When no listings found, add EXPLICIT signal so AI doesn't fabricate fake listings
-    prompt += `\n\n## LIVE SWIPESS LISTINGS: NO LISTINGS WERE FOUND BY THE DATABASE SEARCH.\n\nCRITICAL INSTRUCTION: The database search returned zero active listings matching this query. You MUST NOT invent or fabricate any listing URLs, prices, neighborhoods, or details. Respond honestly: "I couldn't find any matching listings right now" and offer to help refine the search. DO NOT create links to non-existent listings.`;
+    const cat = opts.requestedCategory;
+    const catLabel = cat === "worker" ? "workers/services" : cat ? `${cat} listings` : "matching listings";
+    prompt += `\n\n## LIVE SWIPESS LISTINGS: NO LISTINGS WERE FOUND BY THE DATABASE SEARCH${cat ? ` FOR THE "${cat.toUpperCase()}" CATEGORY` : ""}.\n\nCRITICAL INSTRUCTION: The database search returned zero active ${catLabel}. You MUST NOT invent or fabricate any listing URLs, prices, neighborhoods, or details, and you MUST NOT substitute results from a different category than the user asked for. Respond honestly and warmly: tell the user there are no ${catLabel} available right now${cat ? " (the category is empty at the moment)" : ""}, and suggest what they CAN do — try another category, widen the search radius, or check back soon since new listings appear all the time. DO NOT create links to non-existent listings.`;
   }
 
   if (opts.webResults) {
@@ -1628,7 +1645,7 @@ Deno.serve(async (req) => {
     const webResults = (!promotedContacts && !knowledge && !listings && !profileResults) ? await searchWeb(lastUserMessage) : "";
 
     // Build enriched system prompt with character support
-    const systemPrompt = buildSystemPrompt({ promotedContacts, knowledge, listings, memories, webResults, profileResults, character, egoLevel, charmLevel, wisdomLevel, sassLevel, zenLevel, flowLevel });
+    const systemPrompt = buildSystemPrompt({ promotedContacts, knowledge, listings, memories, webResults, profileResults, requestedCategory: listingIntent.isListing ? listingIntent.category : undefined, character, egoLevel, charmLevel, wisdomLevel, sassLevel, zenLevel, flowLevel });
 
     // Prepare messages with enriched system prompt
     const enrichedMessages: ChatMessage[] = [
