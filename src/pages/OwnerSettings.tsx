@@ -242,46 +242,43 @@ const OwnerSettings = () => {
                 <div className="h-[1px] flex-1 bg-gradient-to-r from-muted-foreground/10 to-transparent" />
               </div>
 
-              {/* Group card - Moscow style matte container */}
-              <div className={cn(
-                "rounded-[2.8rem] overflow-hidden border shadow-2xl",
-                isLight ? "bg-white border-black/5" : "bg-background border-white/5"
-              )}>
+              <div className="space-y-3">
                 {group.items.map((item, idx) => (
                   <div key={item.label}>
                     <motion.button
-                      whileHover={{ backgroundColor: isLight ? "rgba(0,0,0,0.02)" : "rgba(255,255,255,0.02)" }}
+                      whileHover={{ scale: 1.01 }}
                       whileTap={{ scale: 0.985 }}
                       onClick={() => {
                         if (item.section) setActiveSection(item.section);
                         else if (item.route) navigate(item.route);
                       }}
-                      className="w-full flex items-center gap-6 py-6 px-8 transition-all text-left group"
+                      className={cn(
+                        "group w-full flex items-center gap-5 p-5 transition-all text-left",
+                        "bg-card/40 backdrop-blur-md border border-border/40 shadow-sm rounded-[2rem]",
+                        "hover:shadow-2xl hover:bg-card/80 hover:border-foreground/20"
+                      )}
                     >
-                      {/* iOS-style colored icon badge with depth */}
                       <div
-                        className="w-12 h-12 rounded-[1.2rem] flex items-center justify-center flex-shrink-0 shadow-2xl border border-white/10"
+                        className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-inner border border-white/10"
                         style={{ background: item.bg }}
                       >
-                        <item.icon className="w-5 h-5 text-white shadow-sm" />
+                        <item.icon className="w-6 h-6 text-white drop-shadow-md" />
                       </div>
 
-                      <div className="flex-1">
-                        <div className="text-[15px] font-black uppercase italic tracking-tight">{item.label}</div>
-                        <div className="text-[11px] font-bold uppercase tracking-widest opacity-30 mt-1 leading-relaxed">{item.description}</div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-[15px] font-black uppercase italic tracking-tighter text-foreground">{item.label}</div>
+                        <div className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground mt-1 opacity-70 leading-relaxed truncate">{item.description}</div>
                       </div>
 
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-4 shrink-0">
                         {item.section && (
-                          <div className="w-2 h-2 rounded-full bg-purple-500 animate-pulse" />
+                          <div className="w-2 h-2 rounded-full bg-purple-500 animate-pulse shadow-[0_0_10px_rgba(168,85,247,0.8)]" />
                         )}
-                        <ChevronRight className="w-5 h-5 opacity-20 group-hover:opacity-100 transition-opacity" />
+                        <div className="w-10 h-10 rounded-full flex items-center justify-center bg-foreground/5 opacity-0 group-hover:opacity-100 transition-all group-hover:translate-x-1 shrink-0">
+                           <ChevronRight className="w-5 h-5 text-foreground/70 flex-shrink-0" />
+                        </div>
                       </div>
                     </motion.button>
-
-                    {idx < group.items.length - 1 && (
-                      <div className={cn("mx-8 h-[1px]", isLight ? "bg-black/5" : "bg-white/5")} />
-                    )}
                   </div>
                 ))}
               </div>

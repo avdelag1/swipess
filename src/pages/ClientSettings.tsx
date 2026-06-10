@@ -254,41 +254,43 @@ const ClientSettings = () => {
                 <div className="h-px flex-1 bg-gradient-to-r from-muted-foreground/20 to-transparent" />
               </div>
 
-              <div className="rounded-[32px] overflow-hidden bg-background border border-border shadow-2xl">
+              <div className="space-y-3">
                 {group.items.map((item, idx) => (
                   <div key={item.label}>
                     <motion.button
-                      whileHover={{ backgroundColor: isLight ? "rgba(0,0,0,0.04)" : "rgba(255,255,255,0.04)" }}
+                      whileHover={{ scale: 1.01 }}
                       whileTap={{ scale: 0.985 }}
                       onClick={() => {
                         if (item.section) setActiveSection(item.section);
                         else if (item.route) navigate(item.route);
                       }}
-                      className="w-full flex items-center gap-5 py-5 px-6 transition-all text-left"
+                      className={cn(
+                        "group w-full flex items-center gap-5 p-5 transition-all text-left",
+                        "bg-card/40 backdrop-blur-md border border-border/40 shadow-sm rounded-[2rem]",
+                        "hover:shadow-2xl hover:bg-card/80 hover:border-foreground/20"
+                      )}
                     >
                       <div
-                        className="w-10 h-10 rounded-[12px] flex items-center justify-center flex-shrink-0 shadow-lg border border-white/10"
+                        className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-inner border border-white/10"
                         style={{ background: item.bg }}
                       >
-                        <item.icon className="w-5 h-5 text-white shadow-sm" />
+                        <item.icon className="w-6 h-6 text-white drop-shadow-md" />
                       </div>
 
-                      <div className="flex-1">
-                        <div className="text-[15px] font-bold text-foreground/95 tracking-tight">{item.label}</div>
-                        <div className="text-[12px] text-muted-foreground font-medium mt-0.5 leading-relaxed">{item.description}</div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-[15px] font-black uppercase italic tracking-tighter text-foreground">{item.label}</div>
+                        <div className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground mt-1 opacity-70 leading-relaxed truncate">{item.description}</div>
                       </div>
 
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-4 shrink-0">
                         {item.section && (
-                          <div className="w-1.5 h-1.5 rounded-full bg-primary/40 animate-pulse" />
+                          <div className="w-2 h-2 rounded-full bg-[#EB4898] animate-pulse shadow-[0_0_10px_rgba(235,72,152,0.8)]" />
                         )}
-                        <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                        <div className="w-10 h-10 rounded-full flex items-center justify-center bg-foreground/5 opacity-0 group-hover:opacity-100 transition-all group-hover:translate-x-1 shrink-0">
+                           <ChevronRight className="w-5 h-5 text-foreground/70 flex-shrink-0" />
+                        </div>
                       </div>
                     </motion.button>
-
-                    {idx < group.items.length - 1 && (
-                      <div className="mx-6 h-px bg-border/50" />
-                    )}
                   </div>
                 ))}
               </div>

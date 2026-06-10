@@ -183,15 +183,20 @@ export function CategorySelectionDialog({
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className={cn(
         "!top-0 !left-0 !translate-x-0 !translate-y-0 !w-full !max-w-none !h-[100dvh] !max-h-none !rounded-none",
-        "sm:!top-[50%] sm:!left-[50%] sm:!-translate-x-1/2 sm:!-translate-y-1/2 sm:!w-[calc(100%-24px)] sm:!max-w-2xl sm:!h-[85vh] sm:!max-h-[85vh] sm:!rounded-[var(--radius-xl)]",
-        "flex flex-col p-0 gap-0 overflow-hidden"
+        "sm:!top-[50%] sm:!left-[50%] sm:!-translate-x-1/2 sm:!-translate-y-1/2 sm:!w-[calc(100%-24px)] sm:!max-w-2xl sm:!h-[85vh] sm:!max-h-[85vh] sm:!rounded-[3rem]",
+        "flex flex-col p-0 gap-0 overflow-hidden border dark:bg-black/90 bg-white/80 backdrop-blur-3xl dark:border-white/10 border-black/10 dark:shadow-[0_40px_100px_rgba(0,0,0,1)] shadow-[0_40px_100px_rgba(0,0,0,0.2)]"
       )}>
-        <DialogHeader className="shrink-0 px-4 sm:px-6 pt-[calc(env(safe-area-inset-top)+1rem)] sm:pt-6 pb-3 sm:pb-4 border-b border-border/40">
+        <div className="absolute inset-0 pointer-events-none overflow-hidden -z-10">
+           <div className="absolute top-[-20%] left-[-20%] w-[80%] h-[80%] bg-rose-600/5 blur-[150px] rounded-full" />
+           <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-indigo-600/5 blur-[120px] rounded-full" />
+        </div>
+        
+        <DialogHeader className="shrink-0 px-6 sm:px-8 pt-[calc(env(safe-area-inset-top)+1.5rem)] sm:pt-8 pb-4 sm:pb-6 border-b dark:border-white/5 border-black/5 relative z-10">
           <div>
-            <DialogTitle className="text-lg sm:text-xl font-semibold text-foreground">
+            <DialogTitle className="text-xl sm:text-2xl font-black uppercase italic tracking-tighter text-foreground">
               {step === 'category' ? 'Create New Listing' : `${selectedCategory?.name} Listing`}
             </DialogTitle>
-            <DialogDescription className="text-xs sm:text-sm text-muted-foreground mt-0.5">
+            <DialogDescription className="text-xs sm:text-[10px] uppercase tracking-widest font-bold text-muted-foreground mt-1 opacity-70">
               {step === 'category'
                 ? 'Select the type of listing you want to create'
                 : 'Choose how you want to list this item'}
@@ -199,8 +204,8 @@ export function CategorySelectionDialog({
           </div>
         </DialogHeader>
 
-        <ScrollArea className="flex-1 min-h-0">
-          <div className="p-4 sm:p-6 pb-6 sm:pb-8">
+        <ScrollArea className="flex-1 min-h-0 relative z-10">
+          <div className="p-6 sm:p-8 pb-10 sm:pb-12">
             <AnimatePresence mode="wait">
               {step === 'category' ? (
                 <div className="space-y-4">
@@ -221,17 +226,17 @@ export function CategorySelectionDialog({
                       <Sparkles className="w-4 h-4 text-indigo-400 animate-pulse" />
                     </div>
                     
-                    <div className="relative w-14 h-14 rounded-xl flex items-center justify-center shrink-0 bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg overflow-hidden">
+                    <div className="relative w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg overflow-hidden">
                       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.4),transparent_70%)] animate-pulse" />
                       <Sparkles className="relative z-10 w-7 h-7 text-white" />
                     </div>
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <h3 className="font-bold text-foreground text-base">Magic AI Listing</h3>
-                        <Badge className="bg-indigo-500 text-[10px] h-4 px-1.5 font-black uppercase tracking-tighter border-none">Fastest</Badge>
+                        <h3 className="font-black uppercase italic tracking-tighter text-foreground text-lg">Magic AI Listing</h3>
+                        <Badge className="bg-indigo-500 text-[9px] h-4 px-1.5 font-black uppercase tracking-[0.2em] border-none shadow-[0_0_10px_rgba(99,102,241,0.5)]">Fastest</Badge>
                       </div>
-                      <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
+                      <p className="text-xs font-medium text-muted-foreground mt-0.5 line-clamp-2">
                         Upload photos & describe your asset. AI generates the entire listing in seconds.
                       </p>
                     </div>
@@ -239,10 +244,10 @@ export function CategorySelectionDialog({
                     <ArrowRight className="w-5 h-5 text-indigo-400/40 group-hover:translate-x-1 transition-transform" />
                   </motion.button>
 
-                  <div className="flex items-center gap-2 px-1">
-                    <div className="h-[1px] flex-1 bg-border/40" />
-                    <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Or create manually</span>
-                    <div className="h-[1px] flex-1 bg-border/40" />
+                  <div className="flex items-center gap-4 px-2 py-2">
+                    <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent via-border to-transparent opacity-40" />
+                    <span className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.3em] opacity-40 italic">Or manual mode</span>
+                    <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent via-border to-transparent opacity-40" />
                   </div>
 
                   <motion.div
@@ -262,35 +267,37 @@ export function CategorySelectionDialog({
                       whileTap={{ scale: 0.98 }}
                       onClick={() => handleCategorySelect(category)}
                       className={cn(
-                        "group relative flex items-center gap-3 sm:gap-4 p-4 sm:p-5 rounded-2xl text-left transition-all duration-200",
-                        "bg-card border border-border/60",
-                        "hover:shadow-md",
+                        "group relative flex items-center gap-4 sm:gap-5 p-5 sm:p-6 rounded-[2rem] text-left transition-all duration-300",
+                        "bg-card/40 backdrop-blur-md border border-border/40",
+                        "hover:shadow-2xl hover:bg-card/80",
                         category.glowColor
                       )}
                     >
                       {category.popular && (
-                        <Badge className="absolute -top-2 right-3 bg-rose-500 text-white text-[10px] px-2 py-0.5 z-10 font-medium">
+                        <Badge className="absolute -top-3 right-4 bg-rose-500 text-white text-[9px] font-black uppercase tracking-widest px-2.5 py-1 z-10 shadow-[0_0_15px_rgba(225,29,72,0.5)] border-none">
                           Popular
                         </Badge>
                       )}
 
                       <div className={cn(
-                        "relative z-10 w-12 h-12 rounded-xl flex items-center justify-center shrink-0",
+                        "relative z-10 w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 shadow-inner",
                         category.iconColor
                       )}>
                         {category.icon}
                       </div>
 
                       <div className="relative z-10 flex-1 min-w-0">
-                        <h3 className="font-semibold text-foreground text-base">
+                        <h3 className="font-black italic uppercase tracking-tight text-foreground text-lg">
                           {category.name}
                         </h3>
-                        <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
+                        <p className="text-[11px] font-bold text-muted-foreground mt-0.5 line-clamp-1 opacity-70">
                           {category.description}
                         </p>
                       </div>
 
-                      <ArrowRight className="relative z-10 w-4 h-4 text-muted-foreground/40 group-hover:translate-x-0.5 transition-transform self-center shrink-0" />
+                      <div className="w-10 h-10 rounded-full flex items-center justify-center bg-foreground/5 opacity-0 group-hover:opacity-100 transition-all group-hover:translate-x-1 shrink-0">
+                        <ArrowRight className="relative z-10 w-4 h-4 text-foreground/70" />
+                      </div>
                     </motion.button>
                   ))}
                 </motion.div>
@@ -308,27 +315,30 @@ export function CategorySelectionDialog({
                     variant="ghost"
                     size="sm"
                     onClick={handleBack}
-                    className="mb-1 sm:mb-2 -ml-2 text-muted-foreground hover:text-foreground text-sm"
+                    className="mb-1 sm:mb-2 -ml-2 text-muted-foreground hover:text-foreground text-[10px] font-black uppercase tracking-widest"
                   >
                     ← Back to categories
                   </Button>
 
                   {selectedCategory && (
                     <div className={cn(
-                      "flex items-center gap-3 p-4 rounded-2xl mb-4 border border-border/60 bg-card"
+                      "flex items-center gap-4 p-5 rounded-[2rem] mb-6 border border-border/40 bg-card/40 backdrop-blur-md shadow-inner"
                     )}>
-                      <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center", selectedCategory.iconColor)}>
+                      <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg", selectedCategory.iconColor)}>
                         {selectedCategory.icon}
                       </div>
                       <div>
-                        <h3 className="font-semibold text-foreground text-sm">{selectedCategory.name}</h3>
-                        <p className="text-xs text-muted-foreground">{selectedCategory.description}</p>
+                        <h3 className="font-black italic uppercase tracking-tighter text-foreground text-base">{selectedCategory.name}</h3>
+                        <p className="text-[10px] font-bold opacity-70 text-muted-foreground uppercase tracking-widest mt-0.5">{selectedCategory.description}</p>
                       </div>
                     </div>
                   )}
 
-                  <div className="space-y-2.5">
-                    <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Listing Type</h4>
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3 pl-2">
+                       <h4 className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.3em] italic">Listing Type</h4>
+                       <div className="h-px flex-1 bg-gradient-to-r from-border/50 to-transparent" />
+                    </div>
                     {modes.map((mode, index) => (
                       <motion.button
                         key={mode.id}
@@ -338,29 +348,31 @@ export function CategorySelectionDialog({
                         whileTap={{ scale: 0.98 }}
                         onClick={() => handleModeSelect(mode.id)}
                         className={cn(
-                          "group w-full flex items-center gap-3 p-4 rounded-2xl text-left transition-all duration-200",
-                          "bg-card border border-border/60",
-                          "hover:border-border hover:shadow-md"
+                          "group w-full flex items-center gap-5 p-5 rounded-[2rem] text-left transition-all duration-300",
+                          "bg-card/40 backdrop-blur-md border border-border/40",
+                          "hover:border-foreground/20 hover:shadow-2xl hover:bg-card/80"
                         )}
                       >
                         <div className={cn(
-                          "w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 shadow-inner",
-                          selectedCategory?.id === 'property' ? 'bg-rose-500/20 text-rose-500 shadow-rose-500/10' :
-                          selectedCategory?.id === 'motorcycle' ? 'bg-orange-500/20 text-orange-500 shadow-orange-500/10' :
-                          selectedCategory?.id === 'bicycle' ? 'bg-violet-500/20 text-violet-500 shadow-violet-500/10' :
-                          'bg-amber-500/20 text-amber-500 shadow-amber-500/10'
+                          "w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-300 shadow-inner",
+                          selectedCategory?.id === 'property' ? 'bg-rose-500/20 text-rose-500 shadow-[0_0_15px_rgba(225,29,72,0.2)]' :
+                          selectedCategory?.id === 'motorcycle' ? 'bg-orange-500/20 text-orange-500 shadow-[0_0_15px_rgba(249,115,22,0.2)]' :
+                          selectedCategory?.id === 'bicycle' ? 'bg-violet-500/20 text-violet-500 shadow-[0_0_15px_rgba(139,92,246,0.2)]' :
+                          'bg-amber-500/20 text-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.2)]'
                         )}>
                           {mode.icon}
                         </div>
                         <div className="flex-1">
-                          <h3 className="font-semibold text-foreground text-sm">
+                          <h3 className="font-black italic uppercase tracking-tighter text-foreground text-base">
                             {mode.label}
                           </h3>
-                          <p className="text-xs text-muted-foreground">
+                          <p className="text-[11px] font-bold text-muted-foreground opacity-70 mt-0.5">
                             {mode.description}
                           </p>
                         </div>
-                        <ArrowRight className="w-4 h-4 text-muted-foreground/40 group-hover:translate-x-0.5 transition-transform shrink-0" />
+                        <div className="w-10 h-10 rounded-full flex items-center justify-center bg-foreground/5 opacity-0 group-hover:opacity-100 transition-all group-hover:translate-x-1 shrink-0">
+                           <ArrowRight className="w-4 h-4 text-foreground/70" />
+                        </div>
                       </motion.button>
                     ))}
                   </div>
