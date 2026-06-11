@@ -55,7 +55,7 @@ export function MaintenanceRequestForm({ onSuccess, onCancel }: MaintenanceReque
         const compressed = await browserImageCompression(file, {
           maxSizeMB: 1,
           maxWidthOrHeight: 1920,
-          useWebWorker: true,
+          useWebWorker: false, // worker loads itself from CDN — blocked by CSP
         });
         const fileName = `maintenance/${user.id}/${Date.now()}-${Math.random().toString(36).slice(2)}.jpg`;
         const { error } = await supabase.storage.from('listing-images').upload(fileName, compressed);

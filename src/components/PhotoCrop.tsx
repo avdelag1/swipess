@@ -243,7 +243,7 @@ const PhotoCrop: React.FC<PhotoCropProps> = ({
       const compressed = await compressImage(file, {
         maxSizeMB: 0.4,
         maxWidthOrHeight: 2048,
-        useWebWorker: true,
+        useWebWorker: false, // worker loads itself from CDN — blocked by CSP
       });
 
       const reader = new FileReader();

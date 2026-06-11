@@ -176,6 +176,13 @@ export function useListings(excludeSwipedIds: string[] = [], options: { enabled?
           // Show all active listings (seed + real)
           .order('created_at', { ascending: false });
 
+        // CRITICAL: Match the RPC's category filter — without this the
+        // fallback returned every category (motorcycles in the property
+        // feed, etc.) whenever the RPC errored or returned empty.
+        if (category !== 'all') {
+          query = query.eq('category', category);
+        }
+
         // CRITICAL: Exclude own listings
         if (user.user) {
           query = query.neq('owner_id', user.user.id);

@@ -245,6 +245,20 @@ self.addEventListener('fetch', (event) => {
   // CRITICAL: Never cache OAuth callback routes — must always hit the network
   if (url.pathname.startsWith('/~oauth')) return;
 
+  // CRITICAL: Never intercept cross-origin requests we don't explicitly
+  // manage (Supabase API/storage, images, fonts). Re-issuing them with
+  // fetch() from SW context subjects them to the SW's connect-src CSP —
+  // e.g. a web worker importing browser-image-compression from
+  // cdn.jsdelivr.net is allowed by the page's script-src but was being
+  // blocked here. Let the browser handle them natively.
+  if (url.origin !== self.location.origin) {
+    const isManagedCrossOrigin =
+      url.hostname.includes('supabase') ||
+      request.destination === 'image' ||
+      request.destination === 'font';
+    if (!isManagedCrossOrigin) return;
+  }
+
   // Network-first for Supabase API calls (always fetch fresh data).
   // EXCEPTION: public Storage objects (/storage/v1/object/public/...) are
   // static images — let them fall through to the image SWR handler below
