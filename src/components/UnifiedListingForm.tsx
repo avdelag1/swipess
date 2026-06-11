@@ -31,8 +31,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { ListingVideoUpload } from './video/ListingVideoUpload';
 import { uiSounds } from '@/utils/uiSounds';
 import { buildDescriptionFromChips } from '@/constants/listingTaxonomies';
-import { Loader2 } from 'lucide-react';
 import { PremiumSortableGrid } from './PremiumSortableGrid';
+import { WaterDropLoader } from './ui/WaterDropLoader';
 
 interface EditingListing {
   id?: string;
@@ -852,7 +852,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
               >
                 {createListingMutation.isPending ? (
                   <>
-                    <Loader2 className="w-5 h-5 animate-spin" />
+                    <WaterDropLoader size="sm" />
                     <span>Synchronizing...</span>
                   </>
                 ) : (
