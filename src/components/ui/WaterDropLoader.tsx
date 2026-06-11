@@ -21,6 +21,7 @@ export function WaterDropLoader({ size = 'md', full = false, className }: WaterD
   const box = cfg.box;
 
   const content = (
+    <div className={cn("inline-flex items-center justify-center", className)}>
       <motion.svg
         viewBox="0 0 100 100"
         width={box}
