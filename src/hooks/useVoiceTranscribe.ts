@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { logger } from '@/utils/prodLogger';
 import { supabase } from '@/integrations/supabase/client';
 import { appToast } from '@/utils/appNotification';
 
@@ -170,7 +171,7 @@ export function useVoiceTranscribe(options?: UseVoiceTranscribeOptions): UseVoic
           setInterimTranscript(currentInterim);
         };
         recognitionRef.current = recognition;
-        try { recognition.start(); } catch (e) { console.error('SpeechRec start failed', e); }
+        try { recognition.start(); } catch (e) { logger.error('SpeechRec start failed', e); }
       }
       
       recorder.start(250);
@@ -189,7 +190,7 @@ export function useVoiceTranscribe(options?: UseVoiceTranscribeOptions): UseVoic
           ? 'No microphone device found'
           : 'Microphone access failed — check device permissions';
       setLastError(msg);
-      console.error('[useVoiceTranscribe] start failed', err);
+      logger.error('[useVoiceTranscribe] start failed', err);
       cleanupStream();
       if (mountedRef.current) setIsRecording(false);
       return false;
@@ -245,7 +246,7 @@ export function useVoiceTranscribe(options?: UseVoiceTranscribeOptions): UseVoic
         const msg = 'Voice transcription failed — please try again';
         setLastError(msg);
         appToast.error(msg);
-        console.error('[useVoiceTranscribe] invoke error', invokeError);
+        logger.error('[useVoiceTranscribe] invoke error', invokeError);
         if (optionsRef.current?.onStop) optionsRef.current.onStop('');
         return '';
       }
@@ -256,7 +257,7 @@ export function useVoiceTranscribe(options?: UseVoiceTranscribeOptions): UseVoic
       const msg = 'Network error — check your connection';
       setLastError(msg);
       appToast.error(msg);
-      console.error('[useVoiceTranscribe] transcription failed', err);
+      logger.error('[useVoiceTranscribe] transcription failed', err);
       if (optionsRef.current?.onStop) optionsRef.current.onStop('');
       return '';
     } finally {

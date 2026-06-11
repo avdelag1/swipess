@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useUserSubscription } from '@/hooks/useSubscription';
 import { useTokens } from '@/hooks/useTokens';
 import { logSupabaseError } from '@/lib/supabaseError';
+import { logger } from '@/utils/prodLogger';
 
 export interface ChatMessage {
   id: string;
@@ -91,7 +92,7 @@ async function loadConversationsCloud(userId: string): Promise<Conversation[]> {
       .in('conversation_id', convoIds)
       .order('created_at', { ascending: true });
 
-    if (msgErr) console.error('[AI Cloud] msg load error:', msgErr);
+    if (msgErr) logger.error('[AI Cloud] msg load error:', msgErr);
 
     const msgsByConvo = new Map<string, ChatMessage[]>();
     for (const m of (msgs ?? [])) {
@@ -113,7 +114,7 @@ async function loadConversationsCloud(userId: string): Promise<Conversation[]> {
       updatedAt: new Date(c.updated_at),
     }));
   } catch (e) {
-    console.error('[AI Cloud] load error:', e);
+    logger.error('[AI Cloud] load error:', e);
     return [];
   }
 }
@@ -128,7 +129,7 @@ async function saveConversationCloud(userId: string, convo: Conversation) {
       created_at: convo.createdAt.toISOString(),
     }, { onConflict: 'id' });
   } catch (e) {
-    console.error('[AI Cloud] save convo error:', e);
+    logger.error('[AI Cloud] save convo error:', e);
   }
 }
 
@@ -143,7 +144,7 @@ async function saveMessageCloud(userId: string, conversationId: string, msg: Cha
       created_at: msg.timestamp.toISOString(),
     }, { onConflict: 'id' });
   } catch (e) {
-    console.error('[AI Cloud] save msg error:', e);
+    logger.error('[AI Cloud] save msg error:', e);
   }
 }
 
@@ -153,7 +154,7 @@ async function deleteConversationCloud(convoId: string) {
     const { error } = await supabase.from('ai_conversations').delete().eq('id', convoId);
     logSupabaseError('ai_conversations.delete', error);
   } catch (e) {
-    console.error('[AI Cloud] delete error:', e);
+    logger.error('[AI Cloud] delete error:', e);
   }
 }
 
@@ -162,7 +163,7 @@ async function clearAllConversationsCloud(userId: string) {
     const { error } = await supabase.from('ai_conversations').delete().eq('user_id', userId);
     logSupabaseError('ai_conversations.deleteAll', error);
   } catch (e) {
-    console.error('[AI Cloud] clear all error:', e);
+    logger.error('[AI Cloud] clear all error:', e);
   }
 }
 
@@ -173,7 +174,7 @@ function generateTitle(content: string): string {
 }
 
 function stripThinkBlocks(text: string): string {
-  return text.replace(/<tool_call>[\s\S]*?<\/think>/g, '').trim();
+  return text.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
 }
 
 function parseLooseJson<T = any>(raw: string): T | null {
@@ -642,7 +643,7 @@ export function useConciergeAI() {
       }
     } catch (err) {
       if ((err as Error).name !== 'AbortError') {
-        console.error('[ConciergeAI]', err);
+        logger.error('[ConciergeAI]', err);
         appToast.error('AI temporarily unavailable. Please try again.');
       }
     } finally {
@@ -700,7 +701,7 @@ export function useConciergeAI() {
         const { error } = await supabase.from('ai_messages').delete().eq('id', messageId);
         logSupabaseError('ai_messages.delete', error);
       } catch (e) {
-        console.error('[AI Cloud] delete message error:', e);
+        logger.error('[AI Cloud] delete message error:', e);
       }
     }
   }, [activeConversationId, updateConversations]);

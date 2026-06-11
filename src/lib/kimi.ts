@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { logger } from '@/utils/prodLogger';
 
 /**
  * Kimi (Moonshot AI) Integration Utility - Server-Side Proxy
@@ -33,7 +34,7 @@ export async function refineWithKimi(text: string): Promise<string> {
     // Since we're calling it via invoke (non-streaming by default), we get the full response
     return data.choices?.[0]?.message?.content || data.reply || text;
   } catch (error) {
-    console.error('Kimi Refinement Proxy Failed:', error);
+    logger.error('Kimi Refinement Proxy Failed:', error);
     return text;
   }
 }
@@ -64,7 +65,7 @@ export async function extractListingWithKimi(text: string, category: string) {
     const jsonMatch = content.match(/\{[\s\S]*\}/);
     return jsonMatch ? JSON.parse(jsonMatch[0]) : null;
   } catch (error) {
-    console.error('Kimi Extraction Proxy Failed:', error);
+    logger.error('Kimi Extraction Proxy Failed:', error);
     return null;
   }
 }

@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { logger } from '@/utils/prodLogger';
 import { supabase } from '@/integrations/supabase/client';
 
 /**
@@ -20,7 +21,7 @@ export function useAdminUserIds() {
                 .eq('role', 'admin');
 
             if (error) {
-                console.error('[useAdminUserIds] Error fetching admins:', error);
+                logger.error('[useAdminUserIds] Error fetching admins:', error);
                 return new Set<string>();
             }
 

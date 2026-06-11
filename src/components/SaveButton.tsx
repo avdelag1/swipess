@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { logger } from '@/utils/prodLogger';
 import { Heart } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useSwipe } from '@/hooks/useSwipe';
@@ -40,7 +41,7 @@ export function SaveButton({ targetId, targetType, className, variant = 'circula
         if (error) throw error;
         setIsSaved(data?.direction === 'right');
       } catch (err) {
-        console.error('[SaveButton] Error checking status:', err);
+        logger.error('[SaveButton] Error checking status:', err);
       } finally {
         setIsLoading(false);
       }

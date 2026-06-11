@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { logger } from '@/utils/prodLogger';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { PremiumButton } from '@/visual/PremiumButton';
 import { Loader2, Pause, Play, Scissors } from 'lucide-react';
@@ -115,7 +116,7 @@ export function VideoCropper({
                 videoRef.current.pause();
             } else {
                 videoRef.current.currentTime = startTime;
-                videoRef.current.play().catch(console.error);
+                videoRef.current.play().catch((e) => logger.error('Video play failed', e));
             }
             setIsPlaying(!isPlaying);
         }
@@ -185,7 +186,7 @@ export function VideoCropper({
                 }
             };
 
-            video.play().catch(console.error);
+            video.play().catch((e) => logger.error('Video play failed', e));
             mediaRecorderRef.current.start();
 
             // Stop recording after the exact duration length

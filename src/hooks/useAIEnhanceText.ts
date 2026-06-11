@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { logger } from '@/utils/prodLogger';
 import { appToast } from '@/utils/appNotification';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -23,7 +24,7 @@ export function useAIEnhanceText() {
 
       return data.text as string;
     } catch (error) {
-      console.error('[useAIEnhanceText] error:', error);
+      logger.error('[useAIEnhanceText] error:', error);
       appToast.error('Could not enhance text.', 'Please try again in a moment.');
       return null;
     } finally {

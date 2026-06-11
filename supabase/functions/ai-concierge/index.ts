@@ -1072,8 +1072,7 @@ When suggesting the user navigate somewhere in the app, include a navigation act
 [NAV:/messages] — Open messages
 [NAV:/notifications] — Notifications
 [NAV:/legal] — Open legal section
-[NAV:/events] — Browse events
-[NAV:/explore/eventos] — Eventos feed
+[NAV:/explore/events] — Browse events & events feed
 [NAV:/explore/prices] — Price tracker
 [NAV:/explore/tours] — Video tours
 [NAV:/explore/intel] — Local intel

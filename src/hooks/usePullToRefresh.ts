@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { logger } from '@/utils/prodLogger';
 import { useQueryClient } from '@tanstack/react-query';
 
 interface PullToRefreshOptions {
@@ -51,7 +52,7 @@ export function usePullToRefresh({
         window.location.replace(url.toString());
       }
     } catch (e) {
-      console.error("Refresh failed", e);
+      logger.error("Refresh failed", e);
     } finally {
       setIsRefreshing(false);
       pullDistanceRef.current = 0;

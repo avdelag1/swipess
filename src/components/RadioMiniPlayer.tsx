@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react';
+import { logger } from '@/utils/prodLogger';
 import { AnimatePresence, m } from 'framer-motion';
 import { useRadio } from '@/contexts/RadioContext';
 import { Heart, Pause, Play, Radio, Shuffle, SkipBack, SkipForward, Star, X } from 'lucide-react';
@@ -259,7 +260,7 @@ import { Component, type ReactNode } from 'react';
 class RadioErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean }> {
   state = { hasError: false };
   static getDerivedStateFromError() { return { hasError: true }; }
-  componentDidCatch(error: Error) { console.error('RadioMiniPlayer error', error); }
+  componentDidCatch(error: Error) { logger.error('RadioMiniPlayer error', error); }
   render() { return this.state.hasError ? null : this.props.children; }
 }
 

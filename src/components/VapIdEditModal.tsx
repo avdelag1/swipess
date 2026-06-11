@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { logger } from '@/utils/prodLogger';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
@@ -69,7 +70,7 @@ export function VapIdEditModal({ isOpen, onClose, onSaved, role = 'client' }: Pr
         .select('vap_bio, vap_occupation, vap_city, vap_nationality, vap_years_in_city, vap_languages, vap_interests, vap_avatar, name, age, country, profile_images')
         .eq('user_id', user.id)
         .maybeSingle();
-      if (error) { console.error('[VapIdEdit] Load error:', error); throw error; }
+      if (error) { logger.error('[VapIdEdit] Load error:', error); throw error; }
       return data;
     },
   });
@@ -191,7 +192,7 @@ export function VapIdEditModal({ isOpen, onClose, onSaved, role = 'client' }: Pr
       queryClient.invalidateQueries({ queryKey: ['vap-id-client-profile', user.id] });
       return true;
     } catch (err: any) {
-      console.error('[VapIdEdit] save failed:', err);
+      logger.error('[VapIdEdit] save failed:', err);
       appToast.error('Save failed: ' + (err?.message || 'unknown error'));
       return false;
     } finally {

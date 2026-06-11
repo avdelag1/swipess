@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { logger } from '@/utils/prodLogger';
 
 /**
  * 🛰️ Swipess Audio Visualizer Hook v1.0
@@ -64,7 +65,7 @@ export function useAudioVisualizer(stream: MediaStream | null) {
 
       rafIdRef.current = requestAnimationFrame(update);
     } catch (err) {
-      console.error('[AudioVisualizer] Failed to initialize:', err);
+      logger.error('[AudioVisualizer] Failed to initialize:', err);
     }
 
     return cleanup;

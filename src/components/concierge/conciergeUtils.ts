@@ -1,3 +1,5 @@
+import { logger } from '@/utils/prodLogger';
+
 export function formatConvoDate(date: Date) {
   return date.toLocaleDateString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 }
@@ -14,7 +16,7 @@ export const NAV_LABELS: Record<string, string> = {
   '/owner/listings': 'My Listings',
   '/owner/properties': 'My Listings',
   '/legal': 'Legal Section',
-  '/events': 'Browse Events',
+  '/explore/events': 'Browse Events',
 };
 
 export function parseNavActions(content: string): {
@@ -41,7 +43,7 @@ export function parseNavActions(content: string): {
     try {
       draftActions.push({ category, data: JSON.parse(jsonData) });
     } catch (e) {
-      console.error('Failed to parse draft JSON:', e);
+      logger.error('Failed to parse draft JSON:', e);
     }
     return '';
   });
@@ -51,7 +53,7 @@ export function parseNavActions(content: string): {
     try {
       filterAction = JSON.parse(jsonData);
     } catch (e) {
-      console.error('Failed to parse filter JSON:', e);
+      logger.error('Failed to parse filter JSON:', e);
     }
     return '';
   });
@@ -62,7 +64,7 @@ export function parseNavActions(content: string): {
       const parsed = JSON.parse(jsonData);
       if (Array.isArray(parsed)) listings = parsed;
     } catch (e) {
-      console.error('Failed to parse listings JSON:', e);
+      logger.error('Failed to parse listings JSON:', e);
     }
     return '';
   });
@@ -73,7 +75,7 @@ export function parseNavActions(content: string): {
       const parsed = JSON.parse(jsonData);
       if (Array.isArray(parsed)) profiles = parsed;
     } catch (e) {
-      console.error('Failed to parse profiles JSON:', e);
+      logger.error('Failed to parse profiles JSON:', e);
     }
     return '';
   });

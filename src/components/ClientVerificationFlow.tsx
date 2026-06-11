@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { logger } from '@/utils/prodLogger';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -71,7 +72,7 @@ export function ClientVerificationFlow({ onComplete }: ClientVerificationFlowPro
       };
       reader.readAsDataURL(file);
     } catch (err) {
-      console.error('[Verification] Upload error:', err);
+      logger.error('[Verification] Upload error:', err);
       appToast.error(`Upload failed. Please try again.`);
     } finally {
       setUploading(false);
@@ -116,7 +117,7 @@ export function ClientVerificationFlow({ onComplete }: ClientVerificationFlowPro
       appToast.success('Identity submitted for review! 🚀');
       onComplete?.();
     } catch (err) {
-      console.error('[Verification] Submission error:', err);
+      logger.error('[Verification] Submission error:', err);
       appToast.error('Submission failed. Please contact support.');
     } finally {
       setSubmitting(false);
