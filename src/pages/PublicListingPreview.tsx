@@ -1,4 +1,5 @@
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { logger } from '@/utils/prodLogger';
 import { useQuery } from '@tanstack/react-query';
 import { Suspense, useEffect, useState } from 'react';
 import { lazyWithRetry } from '@/utils/lazyRetry';
@@ -147,7 +148,7 @@ export default function PublicListingPreview() {
         navigate(`/messages?conversationId=${result.conversationId}`);
       }
     } catch (err) {
-      console.error('[PublicListingPreview] Failed to send message:', err);
+      logger.error('[PublicListingPreview] Failed to send message:', err);
       triggerHaptic('error');
     } finally {
       setIsCreatingConversation(false);

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { logger } from '@/utils/prodLogger';
 import { AnimatePresence, motion, PanInfo, useMotionValue, useTransform } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import {
@@ -348,7 +349,7 @@ export default function AdvertisePage() {
           else if (pending) setPendingSubmission(pending);
         }
       } catch (err) {
-        console.error("Error checking submission status:", err);
+        logger.error("Error checking submission status:", err);
       }
     }
     checkStatus();

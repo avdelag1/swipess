@@ -21,6 +21,7 @@ import { AtmosphericLayer } from '@/components/AtmosphericLayer';
 import { Helmet } from 'react-helmet-async';
 import { ArrowLeft, Database, Eye, Globe, Package, ShieldCheck, UserCheck } from "lucide-react";
 import { supabase } from '@/integrations/supabase/client';
+import { logger } from '@/utils/prodLogger';
 
 interface LegalIssueCategory {
   id: string;
@@ -241,11 +242,11 @@ const LegalHub = () => {
       });
 
       if (error) {
-        console.error('[LegalHub] submission error:', error);
+        logger.error('[LegalHub] submission error:', error);
         // Still show success if table doesn't exist — fall through
       }
     } catch (err) {
-      console.error('[LegalHub] submission failed:', err);
+      logger.error('[LegalHub] submission failed:', err);
     }
     setIsSubmitting(false);
     setSubmitted(true);

@@ -7,6 +7,7 @@
  * is performed by the `validate-apple-receipt` edge function.
  */
 import { Capacitor } from '@capacitor/core';
+import { logger } from '@/utils/prodLogger';
 import { supabase } from '@/integrations/supabase/client';
 import { ALL_APPLE_PRODUCTS, APPLE_SUBSCRIPTION_PRODUCTS } from '@/config/iapProducts';
 
@@ -42,7 +43,7 @@ export const StoreKitService = {
       await ensureDeviceReady();
       const store = getStore();
       if (!store) {
-        console.warn('[IAP] CdvPurchase.store unavailable; skipping init');
+        logger.warn('[IAP] CdvPurchase.store unavailable; skipping init');
         return;
       }
       const cdv = (window as any).CdvPurchase;
@@ -93,7 +94,7 @@ export const StoreKitService = {
       await store.initialize([platformConfig]);
       initialized = true;
     } catch (e) {
-      console.error('[IAP] init failed', e);
+      logger.error('[IAP] init failed', e);
     }
   },
 

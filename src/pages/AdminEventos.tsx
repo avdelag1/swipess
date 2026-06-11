@@ -121,7 +121,7 @@ export default function AdminEventos() {
       if (error) throw error;
       setSubmissions((data as any) || []);
     } catch (err) {
-      console.error('Error fetching submissions:', err);
+      logger.error('Error fetching submissions:', err);
     } finally {
       setIsSubmissionsLoading(false);
     }

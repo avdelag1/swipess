@@ -1,4 +1,5 @@
 import { useAuth } from "@/hooks/useAuth";
+import { logger } from '@/utils/prodLogger';
 import { useActiveMode } from "@/hooks/useActiveMode";
 import { Check, ChevronLeft, Clock, Crown, RefreshCcw, Shield, Sparkles, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -166,7 +167,7 @@ export default function SubscriptionPackagesPage() {
       window.open(plan.paypalUrl, '_blank');
       appToast.success('Redirecting to Checkout');
     } catch (error) {
-      console.error('Payment redirect failed:', error);
+      logger.error('Payment redirect failed:', error);
       appToast.error('Could not open payment window');
     }
   };

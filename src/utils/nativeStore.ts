@@ -1,6 +1,7 @@
 import { Capacitor } from '@capacitor/core';
 import { haptics } from './microPolish';
 import { appToast } from '@/utils/appNotification';
+import { logger } from '@/utils/prodLogger';
 /**
  * 🚀 SWIPESS NATIVE STORE SERVICE
  * Handles Apple/Google In-App Purchases and App Store Ratings.
@@ -18,10 +19,10 @@ export const NativeStore = {
       if ((window as any).WebToNative?.requestReview) {
         await (window as any).WebToNative.requestReview();
       } else {
-        console.warn('[NativeStore] Review requested (stub)');
+        logger.warn('[NativeStore] Review requested (stub)');
       }
     } catch (err) {
-      console.error('[NativeStore] Review request failed:', err);
+      logger.error('[NativeStore] Review request failed:', err);
     }
   },
 
@@ -50,7 +51,7 @@ export const NativeStore = {
       
       return { success: false, error: result.error || 'UNKNOWN' };
     } catch (err) {
-      console.error('[NativeStore] Purchase failed:', err);
+      logger.error('[NativeStore] Purchase failed:', err);
       return { success: false, error: 'CRASHED' };
     }
   }

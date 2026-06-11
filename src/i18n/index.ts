@@ -1,4 +1,5 @@
 import i18n from 'i18next';
+import { logger } from '@/utils/prodLogger';
 import { initReactI18next } from 'react-i18next';
 import en from './locales/en.json';
 
@@ -37,7 +38,7 @@ export const changeLanguage = async (lng: string) => {
       // Wait for bundle to be recognized by i18next
       await new Promise(resolve => setTimeout(resolve, 100)); 
     } catch (err) {
-      console.error(`[i18n] Failed to load ${lng}:`, err);
+      logger.error(`[i18n] Failed to load ${lng}:`, err);
     }
   }
   await i18n.changeLanguage(lng);

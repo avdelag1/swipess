@@ -3,6 +3,7 @@
  * Integrates premium external assets with synthetic fallback.
  * Tuned for a cinematic, tactile user experience.
  */
+import { logger } from '@/utils/prodLogger';
 
 // Sound paths used only by landing-page star/bowl effects (see SoundEngine below)
 
@@ -80,7 +81,7 @@ class SoundEngine {
         // Silently handle autoplay blocks
       });
     } catch (e) {
-      console.error("Audio error:", e);
+      logger.error("Audio error:", e);
     }
   }
 

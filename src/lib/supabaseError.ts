@@ -1,6 +1,8 @@
+import { logger } from '@/utils/prodLogger';
+
 export function logSupabaseError(op: string, error: unknown) {
   if (!error) return;
-  console.error(`[supabase:${op}]`, error);
+  logger.error(`[supabase:${op}]`, error);
 }
 
 
