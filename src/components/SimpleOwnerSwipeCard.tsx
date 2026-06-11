@@ -69,8 +69,6 @@ interface ClientProfile {
 interface SimpleOwnerSwipeCardProps {
   profile: ClientProfile;
   onSwipe: (direction: 'left' | 'right') => void;
-  onSkip?: () => void;
-  onSkipBack?: () => void;
   onTap?: () => void;
   onInsights?: () => void;
   onMessage?: () => void;
@@ -85,7 +83,6 @@ interface SimpleOwnerSwipeCardProps {
   canUndo?: boolean;
   fullScreen?: boolean;
   disableDrag?: boolean;
-  canGoBack?: boolean;
 }
 
 // ActionRailButton now lives in the shared <GlassIconButton /> primitive
@@ -95,8 +92,6 @@ interface SimpleOwnerSwipeCardProps {
 const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, SimpleOwnerSwipeCardProps>(({
   profile,
   onSwipe,
-  onSkip,
-  onSkipBack,
   onTap: onTap,
   onInsights,
   isTop = true,
@@ -109,7 +104,6 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   onBack,
   disableDrag,
   fullScreen = false,
-  canGoBack = true,
 }, ref) => {
   const { isRailVisible } = useChromeReveal();
   const isDragging = useRef(false);

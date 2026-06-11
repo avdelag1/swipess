@@ -67,7 +67,6 @@ export default function ProfileDetailPage() {
           profile={profile as any}
           disableDrag={true}
           onSwipe={() => {}}
-          onSkip={() => {}}
           isTop={true}
           onTap={() => {}}
           onMessage={() => {

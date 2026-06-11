@@ -47,8 +47,6 @@ const FALLBACK_PLACEHOLDER = '';
 interface SimpleSwipeCardProps {
   listing: Listing | MatchedListing | MatchedClientProfile;
   onSwipe: (direction: 'left' | 'right') => void;
-  onSkip?: () => void;
-  onSkipBack?: () => void;
   onCardTap?: () => void;
   onInsights?: () => void;
   onShare?: () => void;
@@ -60,7 +58,6 @@ interface SimpleSwipeCardProps {
   isTop?: boolean;
   onDragStart?: () => void;
   disableDrag?: boolean;
-  canGoBack?: boolean;
   fullScreen?: boolean;
 }
 
@@ -71,8 +68,6 @@ interface SimpleSwipeCardProps {
 const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardProps>(({
   listing,
   onSwipe,
-  onSkip,
-  onSkipBack,
   onCardTap,
   onInsights,
   isTop = true,
@@ -84,7 +79,6 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   canUndo,
   onBack,
   disableDrag,
-  canGoBack = true,
   fullScreen = false,
 }, ref) => {
   const { isLight } = useAppTheme();

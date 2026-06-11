@@ -104,7 +104,6 @@ const ClientSwipeContainerComponent = ({
   const [reportDialogOpen, setReportDialogOpen] = useState(false);
   const [_swipeDirection, setSwipeDirection] = useState<'left' | 'right' | null>(null);
   const swipeDirectionRef = useRef<'left' | 'right'>('right');
-  const skipDirectionRef = useRef<'up' | 'down' | null>(null);
   const [messageDialogOpen, setMessageDialogOpen] = useState(false);
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
   const [isConnecting, setIsConnecting] = useState(false);
@@ -592,7 +591,6 @@ const ClientSwipeContainerComponent = ({
 
     // 1. UPDATE UI STATE FIRST (INSTANT)
     swipeDirectionRef.current = direction;
-    skipDirectionRef.current = null;
     setSwipeDirection(direction);
     currentIndexRef.current = newIndex;
     setCurrentIndex(newIndex); // This triggers re-render with new card
@@ -766,39 +764,6 @@ const ClientSwipeContainerComponent = ({
       });
     }, 200);
   }, [executeSwipe, playSwipeSound]);
-
-  // Vertical swipe = skip to next profile without writing to backend.
-  const handleSkip = useCallback(() => {
-    const profile = deckQueueRef.current[currentIndexRef.current];
-    if (!profile?.user_id) return;
-    triggerHaptic('light');
-    skipDirectionRef.current = 'up';
-    const newIndex = currentIndexRef.current + 1;
-    topCardX.stop();
-    topCardX.set(0);
-    topCardY.stop();
-    topCardY.set(0);
-    currentIndexRef.current = newIndex;
-    setCurrentIndex(newIndex);
-    [1, 2, 3].forEach((offset) => {
-      const future = deckQueueRef.current[newIndex + offset];
-      if (future?.profile_images?.[0]) preloadClientImageToCache(future.profile_images[0]);
-    });
-  }, [topCardX, topCardY]);
-
-  // Vertical-up swipe = rewind to the previously viewed profile without writing.
-  const handleSkipBack = useCallback(() => {
-    if (currentIndexRef.current <= 0) return;
-    triggerHaptic('light');
-    skipDirectionRef.current = 'down';
-    topCardX.stop();
-    topCardX.set(0);
-    topCardY.stop();
-    topCardY.set(0);
-    const newIndex = Math.max(0, currentIndexRef.current - 1);
-    currentIndexRef.current = newIndex;
-    setCurrentIndex(newIndex);
-  }, [topCardX, topCardY]);
 
   const handleButtonLike = useCallback(() => {
     if (cardRef.current) {
@@ -998,7 +963,7 @@ const ClientSwipeContainerComponent = ({
                         // completely off-screen, so it reads as a real card
                         // leaving, not a ghost dissolving.
                         x: swipeDirectionRef.current === 'right' ? (typeof window !== 'undefined' ? window.innerWidth : 600) * 1.2 : (typeof window !== 'undefined' ? -window.innerWidth : -600) * 1.2,
-                        y: skipDirectionRef.current === 'up' ? -(typeof window !== 'undefined' ? window.innerHeight : 800) * 1.2 : skipDirectionRef.current === 'down' ? (typeof window !== 'undefined' ? window.innerHeight : 800) * 1.2 : 0,
+                        y: 0,
                         transition: { duration: 0.28, ease: [0.22, 1, 0.36, 1] }
                       }}
                       className={cn("absolute inset-0 w-full h-full", isTopCard ? "z-20" : "z-10")}
@@ -1007,8 +972,6 @@ const ClientSwipeContainerComponent = ({
                         ref={isTopCard ? cardRef : undefined}
                         profile={profile}
                         onSwipe={isTopCard ? handleSwipe : () => {}}
-                        onSkip={isTopCard ? handleSkip : undefined}
-                        onSkipBack={isTopCard ? handleSkipBack : undefined}
                         onTap={isTopCard ? () => onClientTap(profile.user_id) : undefined}
                         onInsights={isTopCard ? () => handleInsights(profile.user_id) : undefined}
                         onMessage={isTopCard ? () => handleConnect(profile.user_id) : undefined}
@@ -1024,7 +987,6 @@ const ClientSwipeContainerComponent = ({
                         fullScreen={false}
                         externalX={isTopCard ? topCardX : undefined}
                         externalY={isTopCard ? topCardY : undefined}
-                        canGoBack={currentIndex > 0}
                       />
                     </motion.div>
                   );

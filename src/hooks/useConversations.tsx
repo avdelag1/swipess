@@ -411,8 +411,14 @@ export function useConversationMessages(conversationId: string) {
           queryClient.setQueryData(['conversation-messages', conversationId], (prev: any) => {
             if (!Array.isArray(prev)) return prev;
             if (prev.some((m: any) => m.id === newMsg.id)) return prev;
-            const cleaned = prev.filter((m: any) => !(m.is_optimistic && m.sender_id === newMsg.sender_id && (m.content === newMsg.content || m.message_text === newMsg.message_text)));
-            return [...cleaned, newMsg];
+            // Replace only the OLDEST matching optimistic bubble — filtering all
+            // of them made the second of two rapid identical sends vanish until
+            // its own real row arrived.
+            const matchIdx = prev.findIndex((m: any) => m.is_optimistic && m.sender_id === newMsg.sender_id && (m.content === newMsg.content || m.message_text === newMsg.message_text));
+            if (matchIdx === -1) return [...prev, newMsg];
+            const next = prev.slice();
+            next[matchIdx] = { ...newMsg, client_id: prev[matchIdx].client_id, sender: prev[matchIdx].sender };
+            return next;
           });
         }
       )
@@ -538,7 +544,7 @@ export function useSendMessage() {
         ).sort((a, b) => new Date(b.last_message_at || 0).getTime() - new Date(a.last_message_at || 0).getTime());
       });
 
-      return { prevMessages, prevConversations };
+      return { prevMessages, prevConversations, clientId };
     },
     mutationFn: async ({ conversationId, message }: { conversationId: string; message: string }) => {
       if (!user?.id) throw new Error('Not authenticated');
@@ -571,17 +577,18 @@ export function useSendMessage() {
       }
       appToast.error('Failed to send message. Please try again.');
     },
-    onSuccess: (data, variables) => {
+    onSuccess: (data, variables, context) => {
       // Replace the optimistic temp message with the real one in place, preserving
       // the stable client_id so the React key doesn't change and the bubble doesn't
-      // remount/replay its entry animation.
+      // remount/replay its entry animation. Match by client_id — content matching
+      // grabbed the wrong bubble when the same text was sent twice rapidly.
       queryClient.setQueryData(['conversation-messages', variables.conversationId], (old: any[] | undefined) => {
         if (!Array.isArray(old)) return old;
-        // If the real message is already in the list (real-time beat us), drop the optimistic.
+        // If the real message is already in the list (real-time beat us), drop our optimistic.
         if (old.some((m: any) => m.id === data.id)) {
-          return old.filter((m: any) => !(m.is_optimistic && m.sender_id === user?.id && (m.content === variables.message || m.message_text === variables.message)));
+          return old.filter((m: any) => !(m.is_optimistic && m.client_id === context?.clientId));
         }
-        const idx = old.findIndex((m: any) => m.is_optimistic && m.sender_id === user?.id && (m.content === variables.message || m.message_text === variables.message));
+        const idx = old.findIndex((m: any) => m.is_optimistic && m.client_id === context?.clientId);
         if (idx === -1) return [...old, data];
         const next = old.slice();
         next[idx] = { ...data, client_id: old[idx].client_id, sender: old[idx].sender };

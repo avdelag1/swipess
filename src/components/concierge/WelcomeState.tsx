@@ -1,5 +1,5 @@
 import { memo, useState } from 'react';
-import { ArrowRight, Sparkles } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { type FilterCategory, FILTERS } from './filterData';
 import type { QuickFilterCategory } from '@/types/filters';

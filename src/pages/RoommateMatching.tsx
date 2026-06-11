@@ -166,16 +166,6 @@ export default function RoommateMatching() {
     }
   };
 
-  // Vertical swipe = pure pager (no like/dislike).
-  const handleSkip = useCallback(() => {
-    setCurrentIndex(prev => Math.min(prev + 1, profiles.length));
-    triggerHaptic('light');
-  }, [profiles.length]);
-  const handleSkipBack = useCallback(() => {
-    setCurrentIndex(prev => Math.max(prev - 1, 0));
-    triggerHaptic('light');
-  }, []);
-  
   // handleScroll removed as uiVisible was removed
 
   return (
@@ -258,8 +248,6 @@ export default function RoommateMatching() {
                       ref={cardRef}
                       profile={topCard as any}
                       onSwipe={handleSwipe}
-                      onSkip={handleSkip}
-                      onSkipBack={handleSkipBack}
                       onTap={() => setShowDetails(true)}
                       isTop
                       fullScreen={true}

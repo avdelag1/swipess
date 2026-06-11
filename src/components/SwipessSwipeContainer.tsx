@@ -39,7 +39,7 @@ import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { useSwipeSounds } from '@/hooks/useSwipeSounds';
 import { appToast } from '@/utils/appNotification';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { AnimatePresence, motion, useMotionValue } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { logger } from '@/utils/prodLogger';
 const MessageConfirmationDialog = lazyWithRetry(() => import('./MessageConfirmationDialog').then(m => ({ default: m.MessageConfirmationDialog })));
 const DirectMessageDialog = lazyWithRetry(() => import('./DirectMessageDialog').then(m => ({ default: m.DirectMessageDialog })));
@@ -250,10 +250,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   const isFetchingMore = useRef(false);
   const { canNavigate, startNavigation, endNavigation } = useNavigationGuard();
   const swipeDirectionRef = useRef<'left' | 'right' | null>(null);
-  const skipDirectionRef = useRef<'up' | 'down' | null>(null);
-
-  const topCardX = useMotionValue(0);
-  const topCardY = useMotionValue(0);
 
   // The under-card stays fully sized and opaque at all times — it acts as a
   // static backdrop so the top card reveals it cleanly on commit. No reactive
@@ -581,16 +577,8 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     pendingSwipeRef.current = null;
     isSwipeAnimatingRef.current = false;
     swipeDirectionRef.current = null;
-    skipDirectionRef.current = null;
     setSwipeDirection(null);
   }, [topCardIdentity, filterSignature, activeMode]);
-
-  // Clear skip direction ref after exit animation completes
-  useEffect(() => {
-    if (!skipDirectionRef.current) return;
-    const timer = setTimeout(() => { skipDirectionRef.current = null; }, 400);
-    return () => clearTimeout(timer);
-  }, [currentIndex]);
 
   const flushPendingSwipe = useCallback(() => {
     const pending = pendingSwipeRef.current;
@@ -715,35 +703,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
       setTimeout(runPrefetch, 0);
     }
   }, [executeSwipe, playSwipeSound]);
-
-  // Vertical swipe = skip to next card without writing to backend.
-  const handleSkip = useCallback(() => {
-    const listing = deckQueueRef.current[currentIndexRef.current];
-    if (!listing) return;
-    triggerHaptic('light');
-    const newIndex = currentIndexRef.current + 1;
-    currentIndexRef.current = newIndex;
-    skipDirectionRef.current = 'up';
-    setCurrentIndex(newIndex);
-    // Preload upcoming images for smooth browse
-    [1, 2, 3].forEach((offset) => {
-      const futureCard = deckQueueRef.current[newIndex + offset];
-      if (futureCard?.images?.[0]) {
-        preloadImageToCache(futureCard.images[0]);
-        imageCache.set(getCardImageUrl(futureCard.images[0]), true);
-      }
-    });
-  }, [topCardX, topCardY]);
-
-  // Vertical-up swipe = rewind to the previously viewed card without writing.
-  const handleSkipBack = useCallback(() => {
-    if (currentIndexRef.current <= 0) return;
-    triggerHaptic('light');
-    const newIndex = Math.max(0, currentIndexRef.current - 1);
-    currentIndexRef.current = newIndex;
-    skipDirectionRef.current = 'down';
-    setCurrentIndex(newIndex);
-  }, []);
 
   const handleInsights = () => {
     setInsightsModalOpen(true);
@@ -957,8 +916,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                           ref={isTopCard ? cardRef as any : undefined}
                           profile={listing}
                           onSwipe={isTopCard ? handleSwipe : () => {}}
-                          onSkip={isTopCard ? handleSkip : undefined}
-                          onSkipBack={isTopCard ? handleSkipBack : undefined}
                           onTap={isTopCard ? handleInsights : undefined}
                           onInsights={isTopCard ? handleInsights : undefined}
                           onShare={isTopCard ? handleShare : undefined}
@@ -971,7 +928,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                           } : undefined}
                           onDragStart={isTopCard ? handleDragStart : undefined}
                           isTop={isTopCard}
-                          canGoBack={currentIndex > 0}
                           onUndo={isTopCard ? undoLastSwipe : undefined}
                           canUndo={canUndo}
                           onBack={handleBack}
@@ -983,8 +939,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                           isTop={isTopCard}
                           fullScreen={false}
                           onSwipe={isTopCard ? handleSwipe : () => {}}
-                          onSkip={isTopCard ? handleSkip : undefined}
-                          onSkipBack={isTopCard ? handleSkipBack : undefined}
                           onCardTap={isTopCard ? handleInsights : undefined}
                           onInsights={isTopCard ? handleInsights : undefined}
                           onShare={isTopCard ? handleShare : undefined}
@@ -996,7 +950,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                             triggerHaptic('medium');
                           } : undefined}
                           onDragStart={isTopCard ? handleDragStart : undefined}
-                          canGoBack={currentIndex > 0}
                           onUndo={isTopCard ? undoLastSwipe : undefined}
                           canUndo={canUndo}
                           onBack={handleBack}

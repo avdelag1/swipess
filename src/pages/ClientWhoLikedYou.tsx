@@ -113,8 +113,16 @@ const ClientWhoLikedYou = () => {
   });
 
   const removeLikeMutation = useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase.from("likes").delete().eq("id", id);
+    // `likerUserId` is the OTHER user's id — the likes row has its own uuid
+    // pk which we never fetched, so delete by the like's composite identity.
+    mutationFn: async (likerUserId: string) => {
+      if (!user?.id) throw new Error("Not signed in");
+      const { error } = await supabase
+        .from("likes")
+        .delete()
+        .eq("user_id", likerUserId)
+        .eq("target_id", user.id)
+        .eq("target_type", "profile");
       if (error) throw error;
     },
     onSuccess: () => {

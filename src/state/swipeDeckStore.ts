@@ -203,6 +203,9 @@ export const useSwipeDeckStore = create<SwipeDeckSlice>()(
             deckItems = deckItems.slice(offset);
             currentIndex = Math.max(0, currentIndex - offset);
           }
+          // Deck may have been rebuilt shorter than the carried-over index
+          // (filter change, swiped items pruned) — never point past the end.
+          currentIndex = Math.max(0, Math.min(currentIndex, Math.max(0, deckItems.length - 1)));
 
           return {
             clientDecks: {
@@ -355,6 +358,9 @@ export const useSwipeDeckStore = create<SwipeDeckSlice>()(
             deckItems = deckItems.slice(offset);
             currentIndex = Math.max(0, currentIndex - offset);
           }
+          // Deck may have been rebuilt shorter than the carried-over index
+          // (filter change, swiped items pruned) — never point past the end.
+          currentIndex = Math.max(0, Math.min(currentIndex, Math.max(0, deckItems.length - 1)));
 
           return {
             ownerDecks: {

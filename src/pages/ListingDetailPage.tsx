@@ -55,7 +55,6 @@ export default function ListingDetailPage() {
         <SimpleSwipeCard
           listing={listing as any}
           onSwipe={() => {}}
-          onSkip={() => {}}
           isTop={true}
           disableDrag={true}
           onCardTap={() => setShowInsights(true)}

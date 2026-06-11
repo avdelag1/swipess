@@ -66,7 +66,12 @@ export function useMarkMessagesAsRead(conversationId: string, isActive: boolean)
           }
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        // Sweep again once live — a message arriving between the initial
+        // markAsRead() and the channel going active would otherwise stay
+        // unread while the user is looking right at it.
+        if (status === 'SUBSCRIBED') markAsRead();
+      });
 
     return () => {
       // FIX: Use .unsubscribe() instead of .removeChannel() for proper cleanup
