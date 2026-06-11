@@ -1,6 +1,6 @@
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { UnifiedListingForm } from "@/components/UnifiedListingForm";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { lazyWithRetry } from '@/utils/lazyRetry';
 const CategorySelectionDialog = lazyWithRetry(() => import('@/components/CategorySelectionDialog').then(m => ({ default: m.CategorySelectionDialog })));
 import { useAuth } from "@/hooks/useAuth";
@@ -88,6 +88,15 @@ const OwnerNewListing = () => {
     openAIListing();
   };
 
+  const editingProperty = useMemo(() => {
+    if (!initialData) return undefined;
+    return {
+      category: initialData.category,
+      mode: initialData.mode,
+      ...(initialData.aiDraft || {}),
+    };
+  }, [initialData]);
+
   return (
     <>
 
@@ -102,11 +111,7 @@ const OwnerNewListing = () => {
         <UnifiedListingForm
           isOpen={isFormOpen}
           onClose={handleCloseForm}
-          editingProperty={{
-            category: initialData.category,
-            mode: initialData.mode,
-            ...(initialData.aiDraft || {}),
-          }}
+          editingProperty={editingProperty}
         />
       )}
     </>

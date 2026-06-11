@@ -603,7 +603,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
   if (!isOpen) return null;
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
+    <Dialog open={isOpen} onOpenChange={(open) => { if (!open && !createListingMutation.isPending) handleClose(); }}>
       <DialogContent className={cn(
         // Mobile: full screen
         "!w-full !max-w-none !h-[100dvh] !max-h-none !rounded-none !p-0",
