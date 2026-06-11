@@ -125,7 +125,13 @@ export const VirtualizedMessageList = memo(({
     prevLengthRef.current = messages.length;
   }, [messages.length]);
 
-  if (messages.length === 0) return null;
+  if (messages.length === 0) return (
+    <div className="flex-1 min-h-0 flex items-center justify-center py-16">
+      <p className={cn("text-[11px] font-black uppercase tracking-[0.3em] opacity-25", isThemeLight ? "text-black" : "text-white")}>
+        Say hello to start the conversation
+      </p>
+    </div>
+  );
 
   return (
     <div

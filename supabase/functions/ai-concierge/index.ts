@@ -4,6 +4,7 @@ const ALLOWED_ORIGIN = '*';
 const corsHeaders = {
   'Access-Control-Allow-Origin': ALLOWED_ORIGIN,
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
 
 const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY") || "";
@@ -1666,26 +1667,26 @@ Deno.serve(async (req) => {
 
     try {
       console.log(`[AI] Routing to Groq streaming.`);
-      response = await withTimeout(streamGroq(enrichedMessages), 10000);
+      response = await withTimeout(streamGroq(enrichedMessages), 15000);
     } catch (e) {
       console.warn(`[AI] Groq streaming failed, trying non-streaming: ${(e as Error).message}`);
       try {
-        response = await withTimeout(fetchGroq(enrichedMessages), 10000);
+        response = await withTimeout(fetchGroq(enrichedMessages), 15000);
       } catch (e2) {
         console.warn(`[AI] Groq non-streaming failed, trying Gemini: ${(e2 as Error).message}`);
         aiProvider = "gemini";
         try {
-          response = await withTimeout(stream ? streamGemini(enrichedMessages) : fetchGemini(enrichedMessages), 10000);
+          response = await withTimeout(stream ? streamGemini(enrichedMessages) : fetchGemini(enrichedMessages), 15000);
         } catch (e3) {
           console.warn(`[AI] Gemini failed, trying Kimi: ${(e3 as Error).message}`);
           aiProvider = "kimi";
           try {
-            response = await withTimeout(stream ? streamKimi(enrichedMessages) : fetchKimi(enrichedMessages), 10000);
+            response = await withTimeout(stream ? streamKimi(enrichedMessages) : fetchKimi(enrichedMessages), 15000);
           } catch (e4) {
             console.warn(`[AI] Kimi failed, trying MiniMax: ${(e4 as Error).message}`);
             aiProvider = "minimax";
             try {
-              response = await withTimeout(stream ? streamMiniMax(enrichedMessages) : fetchMiniMax(enrichedMessages), 10000);
+              response = await withTimeout(stream ? streamMiniMax(enrichedMessages) : fetchMiniMax(enrichedMessages), 15000);
             } catch (e5) {
               console.error("[AI] All providers failed:", (e5 as Error).message);
               return new Response(JSON.stringify({
