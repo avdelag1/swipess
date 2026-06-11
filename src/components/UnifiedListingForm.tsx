@@ -230,6 +230,18 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
     }
   }, [editingProperty, isOpen]);
 
+  const revokePhotos = () => {
+    photoList.forEach(p => {
+      if (p.type === 'new' && p.url.startsWith('blob:')) {
+        try {
+          URL.revokeObjectURL(p.url);
+        } catch (e) {
+          logger.error('Failed to revoke object URL:', e);
+        }
+      }
+    });
+  };
+
   const createListingMutation = useMutation({
     mutationFn: async () => {
       // Verify session first — common silent failure mode is a refreshing token
@@ -466,11 +478,20 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
       queryClient.invalidateQueries({ queryKey: ['owner-listings'] });
       queryClient.refetchQueries({ queryKey: ['owner-listings'], type: 'active' });
       queryClient.invalidateQueries({ queryKey: ['listings'] });
-      handleClose();
-      // Navigate to the listing detail page so the user can see their published listing
+      // Revoke object URLs and reset state without triggering onClose navigate.
+      // The route change below will unmount this component anyway.
+      revokePhotos();
+      setPhotoList([]);
+      setFormData({});
+      setSelectedCategory('property');
+      setSelectedMode('rent');
+      setEditingId(null);
+      // Single navigate — avoids the double-navigate race that could land on
+      // an intermediate route and trigger unintended redirect effects.
       if (listing?.id) {
         navigate(`/listing/${listing.id}`, { replace: true });
       } else {
+        onClose();
         navigate('/owner/properties', { replace: true });
       }
     },
@@ -487,16 +508,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
   });
 
   const handleClose = () => {
-    // Revoke any local object URLs we created to prevent memory leaks
-    photoList.forEach(p => {
-      if (p.type === 'new' && p.url.startsWith('blob:')) {
-        try {
-          URL.revokeObjectURL(p.url);
-        } catch (e) {
-          logger.error('Failed to revoke object URL:', e);
-        }
-      }
-    });
+    revokePhotos();
     setPhotoList([]);
     setFormData({});
     setSelectedCategory('property');

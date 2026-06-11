@@ -365,8 +365,7 @@ export function AIListingWizard() {
       if (isOnboardingActive) setOnboardingActive(false);
       handleClose();
       
-      const modeQ = cat === 'worker' ? 'worker' : 'sale';
-      setTimeout(() => navigate(`/owner/listings/new?category=${cat}&mode=${modeQ}&fromAI=1`, { replace: true }), 150);
+      setTimeout(() => navigate(`/owner/listings/new?category=${cat}&mode=rent&fromAI=1`, { replace: true }), 150);
     } catch (error) {
       console.error('AI Listing Publish Error:', error);
       const msg = error instanceof Error ? error.message : 'Something went wrong publishing your listing.';
