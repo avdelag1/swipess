@@ -243,7 +243,8 @@ export function AIProfileWizard() {
         } else if (payload.business_name) {
           profileSync.full_name = payload.business_name;
         }
-        await supabase.from('profiles').update(profileSync).eq('user_id', user.id);
+        const { error: syncError } = await supabase.from('profiles').update(profileSync).eq('user_id', user.id);
+        if (syncError) logger.warn('[AIProfileWizard] profiles sync failed', syncError);
       } catch (syncErr) {
         logger.warn('[AIProfileWizard] profiles sync skipped', syncErr);
       }

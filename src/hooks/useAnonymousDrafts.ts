@@ -143,7 +143,7 @@ export function useAnonymousDrafts() {
           .insert({
             user_id: user.id,
             category: listingDraft.category,
-             
+
             ...(listingDraft.data as any),
             status: 'published',
           } as any);
@@ -151,6 +151,8 @@ export function useAnonymousDrafts() {
         if (!error) {
           restoredCount++;
           clearListingDraft();
+        } else {
+          logger.error('Failed to restore listing draft:', error);
         }
       } catch (error) {
         logger.error('Failed to restore listing draft:', error);
@@ -171,6 +173,8 @@ export function useAnonymousDrafts() {
         if (!error) {
           restoredCount++;
           clearProfileDraft();
+        } else {
+          logger.error('Failed to restore profile draft:', error);
         }
       } catch (error) {
         logger.error('Failed to restore profile draft:', error);
@@ -179,7 +183,12 @@ export function useAnonymousDrafts() {
 
     // Show notification
     if (restoredCount > 0) {
-      appToast.info(restoredCount);
+      appToast.info(
+        'Draft restored!',
+        restoredCount === 1
+          ? 'Your saved draft was published to your account.'
+          : `${restoredCount} saved drafts were published to your account.`
+      );
     }
 
     return restoredCount;

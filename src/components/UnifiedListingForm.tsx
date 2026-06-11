@@ -249,7 +249,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
           if (modData && !modData.safe) {
             logger.warn('[Moderation] Unsafe content detected:', modData.reasons);
           }
-        }).catch(() => {});
+        }).catch((e) => logger.warn('[Moderation] check failed:', e));
         
         setUploadProgress(98);
       }

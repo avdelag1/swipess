@@ -71,7 +71,7 @@ export function OwnerClientSwipeDialog({ open, onOpenChange }: OwnerClientSwipeD
               onInsights={handleInsights}
               onMessageClick={(clientId) => {
                 onOpenChange(false);
-                navigate(`/messages/new?profile=${clientId}`);
+                navigate(`/messages?startConversation=${clientId}`);
               }}
               insightsOpen={showInsights}
             />

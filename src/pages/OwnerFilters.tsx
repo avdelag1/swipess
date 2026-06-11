@@ -28,6 +28,7 @@ export default function OwnerFilters({ isEmbedded, onClose }: OwnerFiltersProps)
   const storeActiveCategory = useFilterStore(s => s.activeCategory);
   const clientType = useFilterStore(s => s.clientType);
   const setClientType = useFilterStore(s => s.setClientType);
+  const resetOwnerFilters = useFilterStore(s => s.resetOwnerFilters);
   const [activeCategory, setActiveCategory] = useState<CategoryType>((storeActiveCategory as CategoryType) || 'property');
   const [isScanning, setIsScanning] = useState(false);
 
@@ -49,8 +50,9 @@ export default function OwnerFilters({ isEmbedded, onClose }: OwnerFiltersProps)
 
   const handleReset = useCallback(() => {
     haptics.tap();
-    // Implementation for reset if needed
-  }, []);
+    resetOwnerFilters();
+    setActiveCategory('property');
+  }, [resetOwnerFilters]);
 
   const categories = [
     { id: 'property', name: 'Leads', icon: Home },

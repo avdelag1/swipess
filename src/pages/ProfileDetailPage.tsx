@@ -71,7 +71,7 @@ export default function ProfileDetailPage() {
           onTap={() => {}}
           onMessage={() => {
             triggerHaptic('light');
-            navigate(`/messages/new?profile=${id}`);
+            navigate(`/messages?startConversation=${id}`);
           }}
           onShare={() => {
             triggerHaptic('light');

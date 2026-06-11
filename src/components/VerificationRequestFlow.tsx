@@ -57,10 +57,11 @@ export function VerificationRequestFlow({ open, onOpenChange, currentStatus }: V
       if (dbError) throw dbError;
 
       // Update owner profile verification status
-      await supabase.from('owner_profiles').update({
+      const { error: profileError } = await supabase.from('owner_profiles').update({
         verification_submitted_at: new Date().toISOString(),
         verification_documents: [{ type: selectedType, file_path: filePath, submitted_at: new Date().toISOString() }],
       } as any).eq('user_id', user.id);
+      if (profileError) throw profileError;
 
       appToast.success('Verification document submitted! Review typically takes 24-48 hours.');
       setStep(2);

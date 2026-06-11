@@ -60,7 +60,9 @@ export default function ListingDetailPage() {
           onCardTap={() => setShowInsights(true)}
           onMessage={() => {
             triggerHaptic('light');
-            navigate(`/messages/new?listing=${id}`);
+            const ownerId = l.owner_id || l.user_id;
+            if (ownerId) navigate(`/messages?startConversation=${ownerId}`);
+            else navigate('/messages');
           }}
           onShare={() => {
             triggerHaptic('light');

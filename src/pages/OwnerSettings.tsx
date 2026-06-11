@@ -4,7 +4,7 @@ import { CardContent } from "@/components/ui/card";
 // import { } from "@/components/ui/badge";
 import {
   Building2, ChevronRight, FileText, Globe, HelpCircle,
-  Info, MessageSquarePlus, Scale as ScaleIcon, Shield, Users, Volume2
+  Info, MessageSquarePlus, Scale as ScaleIcon, Shield, Volume2
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -104,13 +104,6 @@ const OwnerSettings = () => {
     {
       label: t('settings.faq'),
       items: [
-        {
-          icon: Users,
-          label: t('settings.partnerSync'),
-          description: t('settings.partnerSyncDesc'),
-          bg: 'linear-gradient(135deg, #db2777, #f472b6)',
-          route: '/partner/sync',
-        },
         {
           icon: HelpCircle,
           label: t('settings.faq'),

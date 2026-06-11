@@ -566,7 +566,8 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       if (updates.isShuffle !== undefined) dbUpdates.radio_is_shuffle = updates.isShuffle;
       if (updates.favorites !== undefined) dbUpdates.radio_favorites = updates.favorites;
       
-      await supabase.from('profiles').update(dbUpdates).eq('user_id', user.id);
+      const { error } = await supabase.from('profiles').update(dbUpdates).eq('user_id', user.id);
+      if (error) logger.info('[RadioPlayer] Error saving preferences:', error);
     } catch (err) {
       logger.info('[RadioPlayer] Error saving preferences:', err);
     }
