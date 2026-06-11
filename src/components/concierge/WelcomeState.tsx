@@ -10,18 +10,13 @@ export const WelcomeState = memo(({ isSwipess, isLight, onPick }: { isSwipess: b
 
   return (
     <div className="h-full flex flex-col max-w-2xl mx-auto w-full">
-      <div className={cn("pb-4 flex items-center gap-3", txtClr)}>
-        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20">
-           {activeCategory ? <activeCategory.icon className="w-5 h-5 text-primary" /> : <Sparkles className="w-5 h-5 text-primary" />}
-        </div>
-        <div>
-          <h2 className="text-lg font-bold tracking-tight">
-            {activeCategory ? activeCategory.label : 'Hey there'}
-          </h2>
-          <p className="text-[11px] font-medium opacity-50 mt-0.5">
-            {activeCategory ? 'Tap an option to search' : 'What are you looking for?'}
-          </p>
-        </div>
+      <div className={cn("pb-6", txtClr)}>
+        <h2 className="text-3xl font-black italic tracking-tighter uppercase mb-2">
+          {activeCategory ? activeCategory.label : 'Intel Core'}
+        </h2>
+        <p className="text-xs font-bold uppercase tracking-widest opacity-50">
+          {activeCategory ? 'Select target trajectory' : 'Initialize search parameters'}
+        </p>
       </div>
 
       {activeCategory ? (
@@ -58,20 +53,16 @@ export const WelcomeState = memo(({ isSwipess, isLight, onPick }: { isSwipess: b
               key={cat.label}
               onClick={() => setActiveCategory(cat)}
               className={cn(
-                "relative overflow-hidden rounded-2xl p-5 text-left transition-all duration-300 group",
-                "active:scale-[0.96]",
+                "relative overflow-hidden rounded-[2rem] p-6 text-center transition-all duration-300 group active:scale-[0.96]",
                 isLight && !isSwipess
-                  ? "bg-white border border-slate-200 shadow-sm hover:shadow-md hover:border-slate-300"
-                  : "bg-white/[0.02] border border-white/10 backdrop-blur-xl shadow-2xl hover:bg-white/[0.05] hover:border-white/20",
+                  ? "bg-white border-2 border-slate-200 shadow-sm hover:shadow-md hover:border-slate-300"
+                  : "bg-white/[0.02] border-2 border-white/10 backdrop-blur-xl shadow-2xl hover:bg-white/[0.05] hover:border-white/20",
                 i === FILTERS.length - 1 && "col-span-2"
               )}
             >
-              <div className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-500" style={{ background: `radial-gradient(circle at right bottom, ${cat.glowColor}, transparent 70%)` }} />
-              <div className="flex items-center gap-4 relative z-10">
-                <div className="w-10 h-10 rounded-full flex items-center justify-center transition-transform group-hover:scale-110 duration-300" style={{ background: `linear-gradient(135deg, ${cat.glowColor}11, transparent)`, border: `1px solid ${cat.glowColor}33`, color: cat.glowColor }}>
-                  <cat.icon className="w-5 h-5 drop-shadow-[0_0_8px_currentColor]" />
-                </div>
-                <span className={cn("text-sm font-bold tracking-wide", isLight && !isSwipess ? "text-slate-800" : "text-white/90")}>
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-500" style={{ background: `radial-gradient(circle at center, ${cat.glowColor}, transparent 80%)` }} />
+              <div className="relative z-10">
+                <span className={cn("text-base font-black uppercase tracking-widest", isLight && !isSwipess ? "text-slate-800" : "text-white/90")}>
                   {cat.label}
                 </span>
               </div>

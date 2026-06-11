@@ -215,11 +215,10 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
                 className={cn(
                   "flex items-center gap-2.5 px-6 py-3.5 rounded-3xl text-sm font-black whitespace-nowrap transition-all flex-shrink-0 border-2",
                   selectedCategory === id
-                    ? isLight
-                      ? "bg-zinc-900 text-white border-zinc-900 shadow-lg"
-                      : "bg-pink-500 text-white border-pink-500 shadow-lg"
+                    ? "border-transparent shadow-[0_8px_24px_rgba(255,77,0,0.3)] text-white"
                     : "bg-card border-border text-foreground hover:bg-secondary shadow-sm"
                 )}
+                style={selectedCategory === id ? { background: 'linear-gradient(135deg, #FF4D00, #EB4898)' } : undefined}
               >
                 <Icon className="w-4 h-4" />
                 {label}
@@ -269,11 +268,10 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
                   className={cn(
                     "px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border-2 transition-all active:scale-95 whitespace-nowrap",
                     sortBy === opt.value
-                      ? isLight
-                        ? "bg-zinc-900 text-white border-zinc-900 shadow-md"
-                        : "bg-pink-500 text-white border-pink-500 shadow-md"
+                      ? "border-transparent text-white shadow-[0_4px_12px_rgba(255,77,0,0.25)]"
                       : "bg-card border-border text-foreground hover:bg-secondary"
                   )}
+                  style={sortBy === opt.value ? { background: 'linear-gradient(135deg, #FF4D00, #EB4898)' } : undefined}
                 >
                   {opt.label}
                 </button>

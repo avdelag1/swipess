@@ -222,18 +222,15 @@ export function LikedClients() {
               key={id}
               onClick={() => setSelectedCategory(id)}
               whileTap={{ scale: 0.96 }}
-              className="flex items-center gap-2.5 px-6 py-3.5 rounded-3xl text-sm font-black whitespace-nowrap transition-all border"
+              className={cn(
+                "flex items-center gap-2.5 px-6 py-3.5 rounded-3xl text-sm font-black whitespace-nowrap transition-all border-2",
+                selectedCategory === id
+                  ? "border-transparent text-white shadow-[0_8px_24px_rgba(255,77,0,0.3)]"
+                  : "bg-card border-border text-foreground hover:bg-secondary shadow-sm"
+              )}
               style={selectedCategory === id ? {
-                backgroundColor: '#FF4D00',
-                borderColor: '#FF4D00',
-                color: 'white',
-                boxShadow: '0 6px 20px rgba(255,77,0,0.35)'
-              } : {
-                backgroundColor: isLight ? '#ffffff' : 'rgba(255,255,255,0.04)',
-                borderColor: isLight ? 'rgba(0,0,0,0.18)' : 'rgba(255,255,255,0.18)',
-                color: isLight ? '#1a1a1a' : '#ffffff',
-                boxShadow: isLight ? '0 4px 12px rgba(0,0,0,0.04)' : 'none'
-              }}
+                background: 'linear-gradient(135deg, #FF4D00, #EB4898)'
+              } : undefined}
             >
               <Icon className="w-4 h-4" />
               {label}
@@ -260,17 +257,15 @@ export function LikedClients() {
             <button
               key={opt}
               onClick={() => setSortBy(opt as SortOption)}
-              className="px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all active:scale-95 whitespace-nowrap"
+              className={cn(
+                "px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border-2 transition-all active:scale-95 whitespace-nowrap",
+                sortBy === opt
+                  ? "border-transparent text-white shadow-[0_4px_12px_rgba(255,77,0,0.25)]"
+                  : "bg-card border-border text-foreground hover:bg-secondary"
+              )}
               style={sortBy === opt ? {
-                backgroundColor: '#FF4D00',
-                borderColor: '#FF4D00',
-                color: 'white'
-              } : {
-                backgroundColor: isLight ? '#ffffff' : 'rgba(255,255,255,0.04)',
-                borderColor: isLight ? 'rgba(0,0,0,0.18)' : 'rgba(255,255,255,0.18)',
-                color: isLight ? '#1a1a1a' : '#ffffff',
-                boxShadow: isLight ? '0 2px 8px rgba(0,0,0,0.04)' : 'none'
-              }}
+                background: 'linear-gradient(135deg, #FF4D00, #EB4898)'
+              } : undefined}
             >
               {opt}
             </button>

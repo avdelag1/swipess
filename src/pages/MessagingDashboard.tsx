@@ -288,11 +288,12 @@ export function MessagingDashboard() {
                 className={cn(
                   "flex items-center gap-2.5 px-6 py-3 rounded-full text-[9px] font-black uppercase tracking-widest transition-all shrink-0 border shadow-sm",
                   activeFilter === filter.id 
-                    ? "bg-foreground text-background border-foreground shadow-[0_8px_24px_rgba(228,0,124,0.4)]" 
+                    ? "border-0" 
                     : (isLight ? "bg-white border-black/10 text-black/50 hover:bg-zinc-50" : "bg-zinc-900 border-white/10 text-white/40 hover:bg-zinc-800")
                 )}
+                style={activeFilter === filter.id ? { background: 'linear-gradient(135deg, #FF4D00, #EB4898)', boxShadow: '0 8px 24px rgba(255, 77, 0, 0.35)', color: 'white' } : {}}
               >
-                <filter.icon className={cn("w-3.5 h-3.5", activeFilter === filter.id ? "text-background" : "text-[#EB4898]")} />
+                <filter.icon className={cn("w-3.5 h-3.5", activeFilter === filter.id ? "text-white" : "text-[#EB4898]")} />
                 {filter.label}
               </button>
             ))}

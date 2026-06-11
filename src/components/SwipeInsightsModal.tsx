@@ -139,7 +139,7 @@ export function SwipeInsightsModal({ open, onOpenChange, listing, profile }: Swi
       <DialogContent
         hideCloseButton
         className={cn(
-          "max-w-[100vw] max-h-[100dvh] w-[100vw] h-[100dvh] p-0 rounded-none border-none flex flex-col",
+          "max-w-[100vw] sm:max-w-md w-full h-[96dvh] mt-[4dvh] sm:mt-0 sm:h-[88vh] p-0 rounded-t-[2.5rem] sm:rounded-[3rem] border-none flex flex-col overflow-hidden shadow-2xl",
           surface
         )}
       >

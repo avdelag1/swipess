@@ -84,8 +84,8 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
 
   return (
     <div
-      className="w-full flex flex-col p-4 pt-[env(safe-area-inset-top)] relative min-h-full bg-background text-foreground"
-      style={{ paddingBottom: 'calc(var(--bottom-nav-height, 72px) + var(--safe-bottom, 0px) + 24px)' }}
+      className="w-full flex flex-col p-4 relative min-h-[100dvh] bg-background text-foreground"
+      style={{ paddingTop: 'calc(var(--safe-top, 0px) + 16px)', paddingBottom: 'calc(var(--bottom-nav-height, 72px) + var(--safe-bottom, 0px) + 24px)' }}
     >
       {!isEmbedded && (
         <div className="mb-6 pt-4 px-4">
@@ -162,9 +162,10 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
                     onClick={() => setActiveCategory(cat.id)}
                     className="px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest border transition-all active:scale-95 whitespace-nowrap"
                     style={activeCategory === cat.id ? {
-                      backgroundColor: 'hsl(var(--foreground))',
-                      borderColor: 'hsl(var(--foreground))',
-                      color: 'hsl(var(--background))'
+                      background: 'linear-gradient(135deg, #FF4D00, #EB4898)',
+                      borderColor: 'transparent',
+                      color: '#ffffff',
+                      boxShadow: '0 8px 24px rgba(255, 77, 0, 0.35)',
                     } : {
                       backgroundColor: 'hsl(var(--card))',
                       borderColor: 'hsl(var(--border))',
@@ -201,11 +202,12 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
                 <button
                   onClick={handleScan}
                   disabled={isScanning}
-                  className="w-full h-20 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.3)] flex items-center justify-center gap-4 group transition-all active:scale-95 bg-foreground text-background hover:bg-primary hover:text-primary-foreground disabled:opacity-50 overflow-hidden relative"
+                  className="w-full h-20 rounded-[2.5rem] shadow-[0_20px_50px_rgba(255,77,0,0.3)] flex items-center justify-center gap-4 group transition-all active:scale-95 disabled:opacity-50 overflow-hidden relative"
+                  style={{ background: 'linear-gradient(135deg, #FF4D00, #EB4898)', color: '#ffffff' }}
                 >
                   {isScanning && (
                     <motion.div 
-                      className="absolute inset-0 bg-primary/20"
+                      className="absolute inset-0 bg-white/20"
                       animate={{ x: ['-100%', '100%'] }}
                       transition={{ duration: 1.5, repeat: Infinity, ease: 'linear' }}
                     />

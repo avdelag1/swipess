@@ -598,9 +598,9 @@ const LegalHub = () => {
                   <Button
                     onClick={() => { haptics.tap(); setSubmitted(false); setCurrentDoc('hub'); }}
                     className={cn(
-                      "w-full h-16 rounded-2xl font-black uppercase italic tracking-[0.2em] text-[12px] shadow-2xl transition-all active:scale-95",
-                      isOwner ? "bg-purple-600 hover:bg-purple-500 shadow-purple-500/30" : "bg-rose-600 hover:bg-rose-700 shadow-rose-500/30"
+                      "w-full h-16 rounded-2xl font-black uppercase italic tracking-[0.2em] text-[12px] shadow-2xl transition-all active:scale-95 border-0 text-white"
                     )}
+                    style={{ background: 'linear-gradient(135deg, #FF4D00, #EB4898)', boxShadow: '0 8px 24px rgba(255, 77, 0, 0.35)' }}
                   >
                     Return to Hub
                   </Button>
@@ -802,9 +802,9 @@ const LegalHub = () => {
                               onClick={() => { haptics.success(); handleSubmitRequest(); }}
                               disabled={isSubmitting || !description.trim()}
                               className={cn(
-                                "h-20 w-full rounded-[2.5rem] text-white font-black uppercase italic tracking-[0.2em] text-[13px] shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] transition-all active:scale-95",
-                                isOwner ? "bg-purple-600 hover:bg-purple-500 shadow-purple-500/30" : "bg-rose-600 hover:bg-rose-700 shadow-rose-500/30"
+                                "h-20 w-full rounded-[2.5rem] text-white font-black uppercase italic tracking-[0.2em] text-[13px] shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] transition-all active:scale-95 border-0"
                               )}
+                              style={{ background: isOwner ? 'linear-gradient(135deg, #8B5CF6, #4F46E5)' : 'linear-gradient(135deg, #FF4D00, #EB4898)', boxShadow: isOwner ? '0 8px 24px rgba(139, 92, 246, 0.35)' : '0 8px 24px rgba(255, 77, 0, 0.35)' }}
                             >
                               {isSubmitting ? (
                                 <div className="flex items-center gap-3">

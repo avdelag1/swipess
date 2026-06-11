@@ -61,19 +61,22 @@ export default function OwnerFilters({ isEmbedded, onClose }: OwnerFiltersProps)
   const content = (
     <div
       className={cn(
-        "flex flex-col transition-colors duration-150 min-h-full",
+        "flex flex-col transition-colors duration-150 min-h-[100dvh]",
         isEmbedded ? "bg-transparent" : "bg-background",
         "text-foreground"
       )}
-      style={!isEmbedded ? { paddingBottom: 'calc(var(--bottom-nav-height, 72px) + var(--safe-bottom, 0px) + 24px)' } : undefined}
+      style={!isEmbedded ? { paddingTop: 'calc(var(--safe-top, 0px) + 8px)', paddingBottom: 'calc(var(--bottom-nav-height, 72px) + var(--safe-bottom, 0px) + 24px)' } : undefined}
     >
       {/* HEADER - Only in standalone */}
       {!isEmbedded && (
-        <div className="pt-8 px-6 flex items-center justify-between">
+        <div className="pt-4 px-6 flex items-center justify-between">
             <div className="flex items-center gap-4">
               <button
                 onClick={() => navigate('/owner/dashboard')}
-                className="w-12 h-12 rounded-full flex items-center justify-center backdrop-blur-xl border border-white/15 bg-black/70 text-white transition-all active:scale-90 shadow-xl"
+                className={cn(
+                  "w-12 h-12 rounded-full flex items-center justify-center backdrop-blur-xl border transition-all active:scale-90 shadow-xl",
+                  _isLight ? "bg-white/70 border-black/10 text-black hover:bg-white/90" : "bg-black/70 border-white/15 text-white hover:bg-black/90"
+                )}
               >
                 <ChevronLeft className="w-6 h-6" />
               </button>
@@ -81,7 +84,10 @@ export default function OwnerFilters({ isEmbedded, onClose }: OwnerFiltersProps)
             </div>
             <button
               onClick={handleReset}
-              className="w-12 h-12 rounded-full flex items-center justify-center backdrop-blur-xl border border-white/15 bg-black/70 text-white transition-all active:scale-90 shadow-lg"
+              className={cn(
+                "w-12 h-12 rounded-full flex items-center justify-center backdrop-blur-xl border transition-all active:scale-90 shadow-lg",
+                _isLight ? "bg-white/70 border-black/10 text-black hover:bg-white/90" : "bg-black/70 border-white/15 text-white hover:bg-black/90"
+              )}
             >
               <RotateCcw className="w-5 h-5" />
             </button>
@@ -106,9 +112,9 @@ export default function OwnerFilters({ isEmbedded, onClose }: OwnerFiltersProps)
                   !active && "text-foreground"
                 )}
                 style={active ? {
-                  backgroundColor: 'hsl(var(--foreground))',
-                  color: 'hsl(var(--background))',
-                  boxShadow: '0 8px 24px hsl(var(--foreground) / 0.35)',
+                  background: 'linear-gradient(135deg, #FF4D00, #EB4898)',
+                  color: '#ffffff',
+                  boxShadow: '0 8px 24px rgba(255, 77, 0, 0.35)',
                   transform: 'scale(1.03)'
                 } : undefined}
                 {...(!active ? { 'data-inactive': true } : {})}
