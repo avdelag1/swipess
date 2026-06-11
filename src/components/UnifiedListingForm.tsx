@@ -438,14 +438,8 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
       setSelectedCategory('property');
       setSelectedMode('rent');
       setEditingId(null);
-      // Single navigate — avoids the double-navigate race that could land on
-      // an intermediate route and trigger unintended redirect effects.
-      if (listing?.id) {
-        navigate(`/listing/${listing.id}`, { replace: true });
-      } else {
-        onClose();
-        navigate('/owner/properties', { replace: true });
-      }
+      // Owners always land on their properties page after save/edit.
+      navigate('/owner/properties', { replace: true });
     },
     onError: (error: Error) => {
       setUploadProgress(null);

@@ -38,7 +38,7 @@ export async function initPerformanceOptimizations() {
       const longTaskObserver = new PerformanceObserver((list) => {
         list.getEntries().forEach((entry) => {
           if (import.meta.env.DEV) {
-            console.warn('[Performance] Long task detected:', entry.duration, 'ms');
+            logger.warn('[Performance] Long task detected:', entry.duration, 'ms');
           }
         });
       });

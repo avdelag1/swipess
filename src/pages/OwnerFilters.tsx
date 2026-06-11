@@ -1,3 +1,4 @@
+import { logger } from '@/utils/prodLogger';
 import { useCallback, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -34,7 +35,7 @@ export default function OwnerFilters({ isEmbedded, onClose }: OwnerFiltersProps)
 
   const handleApply = useCallback((_filters?: any) => {
     // We just want to stay on the page when filters are auto-applied from DiscoveryFilters
-    console.warn('[OwnerFilters] handleApply called, skipping navigation for auto-sync');
+    logger.warn('[OwnerFilters] handleApply called, skipping navigation for auto-sync');
   }, []);
 
   const handleFinalApply = useCallback(() => {

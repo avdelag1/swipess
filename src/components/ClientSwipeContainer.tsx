@@ -347,7 +347,7 @@ const ClientSwipeContainerComponent = ({
   // No need to restore stale cached decks that may contain already-swiped items
   useEffect(() => {
     // Clear any stale session storage on mount
-    try { sessionStorage.removeItem('swipe-deck-items'); } catch (_err) { console.warn('session storage error', _err); }
+    try { sessionStorage.removeItem('swipe-deck-items'); } catch (_err) { logger.warn('session storage error', _err); }
   }, [category]);
 
   // ========================================

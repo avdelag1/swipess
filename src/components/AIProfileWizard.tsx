@@ -17,6 +17,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useOnboardingStore } from '@/state/onboardingStore';
+import { logger } from '@/utils/prodLogger';
 
 type Step = 'compose' | 'processing';
 type Mode = 'client' | 'owner';
@@ -56,7 +57,7 @@ export function AIProfileWizard() {
         triggerHaptic('success');
       }
     } catch (err) {
-      console.warn('[AIProfileEnhance] failed', err);
+      logger.warn('[AIProfileEnhance] failed', err);
     }
   };
 
@@ -168,9 +169,9 @@ export function AIProfileWizard() {
             error: unknown;
           };
           if (!extractErr) return ((extractData as any)?.profile || {}) as Record<string, unknown>;
-          console.warn('[AIProfileWizard] AI extract failed, saving with raw narrative', extractErr);
+          logger.warn('[AIProfileWizard] AI extract failed, saving with raw narrative', extractErr);
         } catch (e) {
-          console.warn('[AIProfileWizard] AI extract threw, saving with raw narrative', e);
+          logger.warn('[AIProfileWizard] AI extract threw, saving with raw narrative', e);
         }
         return {};
       })();
@@ -243,7 +244,7 @@ export function AIProfileWizard() {
         }
         await supabase.from('profiles').update(profileSync).eq('user_id', user.id);
       } catch (syncErr) {
-        console.warn('[AIProfileWizard] profiles sync skipped', syncErr);
+        logger.warn('[AIProfileWizard] profiles sync skipped', syncErr);
       }
 
       setProgressPct(100);
@@ -269,7 +270,7 @@ export function AIProfileWizard() {
         navigate('/client/profile');
       }
     } catch (err: any) {
-      console.error('Process failed', err);
+      logger.error('Process failed', err);
       appToast.error('Could not create your profile. Try again.');
       setStep('compose');
     } finally {

@@ -5,6 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 import useAppTheme from '@/hooks/useAppTheme';
 import { cn } from '@/lib/utils';
 import { CheckCircle2, MessageSquarePlus } from 'lucide-react';
+import { logger } from '@/utils/prodLogger';
 
 const CATEGORIES = [
   { id: 'bug',        label: 'Bug / Issue',       color: '#ef4444' },
@@ -35,7 +36,7 @@ export function FeedbackSection() {
         category,
         message: message.trim(),
       });
-    } catch (_) { console.warn('feedback submit failed', _); }
+    } catch (_) { logger.warn('feedback submit failed', _); }
     setSubmitting(false);
     setDone(true);
   };

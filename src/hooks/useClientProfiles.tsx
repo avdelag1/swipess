@@ -62,7 +62,7 @@ export function useClientProfiles(excludeSwipedIds: string[] = [], options: { en
           }
           if (rpcError) logger.warn('[ClientProfiles] RPC Error:', rpcError.message);
         } catch (_e) {
-          console.warn('RPC failed, falling back to PostgREST', _e);
+          logger.warn('RPC failed, falling back to PostgREST', _e);
         }
 
         // 2. BUILD SECURE POSTGREST QUERY (Fallback)

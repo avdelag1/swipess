@@ -165,7 +165,7 @@ export function useListings(excludeSwipedIds: string[] = [], options: { enabled?
             return sortRealListingsFirst(normalized);
           }
         } catch (_e) {
-            console.warn('RPC failed, falling back to PostgREST', _e);
+            logger.warn('RPC failed, falling back to PostgREST', _e);
         }
 
         // 2. BUILD SECURE POSTGREST QUERY (Fallback)

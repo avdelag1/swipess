@@ -262,7 +262,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   const hasSwipedRef = useRef(false);
 
   useEffect(() => {
-    try { sessionStorage.removeItem('swipe-deck-client-listings'); } catch (_err) { console.warn('session storage error', _err); }
+    try { sessionStorage.removeItem('swipe-deck-client-listings'); } catch (_err) { logger.warn('session storage error', _err); }
   }, []);
 
   useEffect(() => {
@@ -342,7 +342,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     let previousUserId: string | null = null;
     try {
       previousUserId = sessionStorage.getItem('swipe-deck-client-user');
-    } catch (_err) { console.warn('session storage error', _err); }
+    } catch (_err) { logger.warn('session storage error', _err); }
 
     if (previousUserId && previousUserId !== user.id) {
       deckQueueRef.current = [];
@@ -358,10 +358,10 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
       try {
         sessionStorage.removeItem('swipe-deck-items');
         sessionStorage.removeItem('swipe-deck-client-listings');
-      } catch (_err) { console.warn('session storage error', _err); }
+      } catch (_err) { logger.warn('session storage error', _err); }
     }
 
-    try { sessionStorage.setItem('swipe-deck-client-user', user.id); } catch (_err) { console.warn('session storage error', _err); }
+    try { sessionStorage.setItem('swipe-deck-client-user', user.id); } catch (_err) { logger.warn('session storage error', _err); }
   }, [activeMode, user?.id, resetClientDeck, queryClient]);
 
   if (filterSignature !== prevFilterSignatureRef.current) {

@@ -1,3 +1,4 @@
+import { logger } from '@/utils/prodLogger';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
@@ -54,7 +55,7 @@ export function usePrefetchManager() {
             }));
           }
         } catch (_e) {
-          console.warn('RPC unavailable for prefetch', _e);
+          logger.warn('RPC unavailable for prefetch', _e);
         }
         return [];
       },

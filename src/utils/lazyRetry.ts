@@ -1,3 +1,4 @@
+import { logger } from '@/utils/prodLogger';
 import { ComponentType, lazy } from 'react';
 
 /**
@@ -17,7 +18,7 @@ export function lazyWithRetry<T extends ComponentType<any>>(
     try {
       return await componentImport();
     } catch (firstError) {
-      console.warn('[lazyWithRetry] First load failed, retrying…', firstError);
+      logger.warn('[lazyWithRetry] First load failed, retrying…', firstError);
       
       // Delay before first retry
       

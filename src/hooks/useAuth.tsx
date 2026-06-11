@@ -399,7 +399,7 @@ export function AuthProvider({ children, authPromise }: { children: ReactNode, a
           useFilterStore.getState().setCategories([]);
           useFilterStore.getState().setActiveCategory(null);
           useFilterStore.getState().setOwnerPhase('cards');
-        } catch (_e) { console.warn('cleanup error on signout', _e); }
+        } catch (_e) { logger.warn('cleanup error on signout', _e); }
 
         navigate(targetPath, { replace: true });
       }
@@ -456,7 +456,7 @@ export function AuthProvider({ children, authPromise }: { children: ReactNode, a
           useFilterStore.getState().setCategories([]);
           useFilterStore.getState().setActiveCategory(null);
           useFilterStore.getState().setOwnerPhase('cards');
-        } catch (_e) { console.warn('cleanup error on signin', _e); }
+        } catch (_e) { logger.warn('cleanup error on signin', _e); }
 
         // Quick role check to prevent dashboard flash (max 2 seconds)
         let actualRole: 'client' | 'owner' = role;

@@ -9,6 +9,7 @@ import useAppTheme from '@/hooks/useAppTheme'
 import { cn } from '@/lib/utils'
 import { usePullToRefresh } from '@/hooks/usePullToRefresh'
 import { PullToRefreshIndicator } from '@/components/PullToRefreshIndicator'
+import { logger } from '@/utils/prodLogger'
 
 // SPEED OF LIGHT HOOKS
 import { useFocusMode } from '@/hooks/useFocusMode'
@@ -176,7 +177,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
         scrollPositions.current = JSON.parse(stored);
       }
     } catch (e) {
-      console.warn('Failed to load scroll positions:', e);
+      logger.warn('Failed to load scroll positions:', e);
     }
   }, []);
 

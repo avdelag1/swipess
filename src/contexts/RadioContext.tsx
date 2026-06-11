@@ -693,7 +693,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
           loadTimeoutRef.current = null;
           return;
         }
-        console.warn(`[RadioPlayer] Station ${targetStation.id} (${targetStation.name}) timeout after 15s, skipping...`);
+        logger.warn(`[RadioPlayer] Station ${targetStation.id} (${targetStation.name}) timeout after 15s, skipping...`);
         logger.warn(`[RadioPlayer] Station ${targetStation.id} timeout, skipping`);
         failedStationsRef.current.add(targetStation.id);
         setTimeout(() => failedStationsRef.current.delete(targetStation.id), 20000);

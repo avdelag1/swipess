@@ -22,6 +22,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useOnboardingStore } from '@/state/onboardingStore';
 import { useQueryClient } from '@tanstack/react-query';
 import { saveListingWithSchemaRetry } from '@/utils/listingSave';
+import { logger } from '@/utils/prodLogger';
 
 type WizardStep = 'compose' | 'processing';
 type ProgressPhase = 'upload' | 'optimize' | 'publish' | 'redirect';
@@ -274,10 +275,10 @@ export function AIListingWizard() {
             const payload = data as { data?: Record<string, unknown>; error?: string };
             if (payload?.data) return payload.data;
           } else {
-            console.warn('[AIListing] AI extract skipped:', error);
+            logger.warn('[AIListing] AI extract skipped:', error);
           }
         } catch (aiErr) {
-          console.warn('[AIListing] AI extract failed, publishing with raw prompt', aiErr);
+          logger.warn('[AIListing] AI extract failed, publishing with raw prompt', aiErr);
         }
         return {};
       })();
@@ -375,7 +376,7 @@ export function AIListingWizard() {
       } catch (publishErr) {
         // Direct publish failed — fall back to the pre-filled manual form so
         // the user's photos and AI-extracted data aren't lost.
-        console.error('[AIListing] Direct publish failed, falling back to form', publishErr);
+        logger.error('[AIListing] Direct publish failed, falling back to form', publishErr);
         try {
           sessionStorage.setItem('swipess_ai_listing_draft', JSON.stringify({ data: listingPayload, ts: Date.now() }));
         } catch { /* ignore */ }
@@ -388,7 +389,7 @@ export function AIListingWizard() {
         setTimeout(() => navigate(`/owner/listings/new?category=${cat}&mode=rent&fromAI=1`, { replace: true }), 150);
       }
     } catch (error) {
-      console.error('AI Listing Publish Error:', error);
+      logger.error('AI Listing Publish Error:', error);
       const msg = error instanceof Error ? error.message : 'Something went wrong publishing your listing.';
       appToast.error(msg);
       setStep('compose');

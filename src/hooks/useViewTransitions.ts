@@ -1,3 +1,4 @@
+import { logger } from '@/utils/prodLogger';
 import { useCallback, useEffect } from 'react';
 import { useLocation, useNavigate, useNavigationType } from 'react-router-dom';
 
@@ -31,7 +32,7 @@ export function useViewTransitions() {
         const { x, y } = JSON.parse(saved);
         window.scrollTo(x, y);
       } catch (_error) {
-        console.warn('malformed cached scroll payload', _error);
+        logger.warn('malformed cached scroll payload', _error);
       }
       sessionStorage.removeItem('scroll-position');
     }

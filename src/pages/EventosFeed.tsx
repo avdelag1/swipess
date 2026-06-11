@@ -1,3 +1,4 @@
+import { logger } from '@/utils/prodLogger';
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { lazyWithRetry } from '@/utils/lazyRetry';
 import { useVirtualizer } from '@tanstack/react-virtual';
@@ -148,7 +149,7 @@ export default function EventosFeed() {
         .limit(100);
       
       if (error) {
-        console.warn('Supabase events fetch error:', error);
+        logger.warn('Supabase events fetch error:', error);
         return [];
       }
       

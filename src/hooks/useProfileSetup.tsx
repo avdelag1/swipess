@@ -437,7 +437,7 @@ export function useProfileSetup() {
                 }
               }
             } catch (_parseError) {
-              console.warn('invalid JSON in profile setup', _parseError);
+              logger.warn('invalid JSON in profile setup', _parseError);
             }
           }
 
