@@ -12,7 +12,7 @@ export function useTokens() {
 
       try {
         const { data, error } = await supabase
-          .from('message_activations')
+          .from('tokens')
           .select('*')
           .eq('user_id', user.id);
 
@@ -21,7 +21,7 @@ export function useTokens() {
         }
 
         const totalRemaining = data.reduce(
-          (sum: number, row) => sum + (row.activations_remaining || 0),
+          (sum: number, row: any) => sum + (row.remaining_activations || row.activations_remaining || 0),
           0
         );
 

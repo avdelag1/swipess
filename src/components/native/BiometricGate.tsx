@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { logger } from '@/utils/prodLogger';
 import { motion } from 'framer-motion';
 import { Fingerprint, Lock } from 'lucide-react';
 import { haptics } from '@/utils/microPolish';
@@ -36,7 +37,7 @@ export const BiometricGate = ({ children }: { children: React.ReactNode }) => {
         setTimeout(() => setIsLocked(false), 1000);
       }
     } catch (err) {
-      console.error('[BiometricGate] Auth failed:', err);
+      logger.error('[BiometricGate] Auth failed:', err);
     } finally {
       setIsVerifying(false);
     }

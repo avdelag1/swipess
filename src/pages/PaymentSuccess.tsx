@@ -29,9 +29,14 @@ export default function PaymentSuccess() {
     processedRef.current = true;
 
     const processPayment = async () => {
-      const pendingPurchase = sessionStorage.getItem(STORAGE.SELECTED_PLAN_KEY) ||
-                               sessionStorage.getItem(STORAGE.PENDING_ACTIVATION_KEY);
-      const returnPath = sessionStorage.getItem(STORAGE.PAYMENT_RETURN_PATH_KEY);
+      const pendingPurchase =
+        sessionStorage.getItem(STORAGE.SELECTED_PLAN_KEY) ||
+        sessionStorage.getItem(STORAGE.PENDING_ACTIVATION_KEY) ||
+        localStorage.getItem(STORAGE.SELECTED_PLAN_KEY) ||
+        localStorage.getItem(STORAGE.PENDING_ACTIVATION_KEY);
+      const returnPath =
+        sessionStorage.getItem(STORAGE.PAYMENT_RETURN_PATH_KEY) ||
+        localStorage.getItem(STORAGE.PAYMENT_RETURN_PATH_KEY);
 
       if (!pendingPurchase) {
         // No pending purchase - might be a refresh, just redirect
@@ -46,14 +51,36 @@ export default function PaymentSuccess() {
 
         // Fetch package based on what info we have
         if (purchase.packageId) {
-          const { data } = await supabase
-            .from('subscription_packages')
-            .select('*')
-            .eq('id', purchase.packageId)
-            .single();
-          pkg = data;
-        } else if (purchase.planId) {
+          // Try by numeric DB id first, then by apple_product_id string
+          const numericId = Number(purchase.packageId);
+          if (!isNaN(numericId)) {
+            const { data } = await supabase
+              .from('subscription_packages')
+              .select('*')
+              .eq('id', numericId)
+              .maybeSingle();
+            pkg = data;
+          }
+          if (!pkg) {
+            const { data } = await supabase
+              .from('subscription_packages')
+              .select('*')
+              .eq('apple_product_id', purchase.packageId)
+              .maybeSingle();
+            pkg = data;
+          }
+        }
+        if (!pkg && purchase.planId) {
           pkg = await mapMonthlyPlanToPackage(purchase.planId);
+        }
+        // Fallback: build a minimal synthetic package from stored purchase data
+        if (!pkg && purchase.tokens && purchase.package_category) {
+          pkg = {
+            id: null,
+            package_category: purchase.package_category,
+            tokens: purchase.tokens,
+            duration_days: 30,
+          };
         }
 
         if (!pkg) {
@@ -73,10 +100,13 @@ export default function PaymentSuccess() {
           await processPayPerUseActivation(user.id, pkg);
         }
 
-        // Clear all payment-related sessionStorage
+        // Clear all payment-related storage (both session and local)
         sessionStorage.removeItem(STORAGE.SELECTED_PLAN_KEY);
         sessionStorage.removeItem(STORAGE.PENDING_ACTIVATION_KEY);
         sessionStorage.removeItem(STORAGE.PAYMENT_RETURN_PATH_KEY);
+        localStorage.removeItem(STORAGE.SELECTED_PLAN_KEY);
+        localStorage.removeItem(STORAGE.PENDING_ACTIVATION_KEY);
+        localStorage.removeItem(STORAGE.PAYMENT_RETURN_PATH_KEY);
 
         // Invalidate relevant queries for immediate UI update
         queryClient.invalidateQueries({ queryKey: ['tokens'] });

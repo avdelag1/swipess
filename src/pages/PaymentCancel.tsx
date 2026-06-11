@@ -12,6 +12,9 @@ export default function PaymentCancel() {
     sessionStorage.removeItem(STORAGE.SELECTED_PLAN_KEY);
     sessionStorage.removeItem(STORAGE.PENDING_ACTIVATION_KEY);
     sessionStorage.removeItem(STORAGE.PAYMENT_RETURN_PATH_KEY);
+    localStorage.removeItem(STORAGE.SELECTED_PLAN_KEY);
+    localStorage.removeItem(STORAGE.PENDING_ACTIVATION_KEY);
+    localStorage.removeItem(STORAGE.PAYMENT_RETURN_PATH_KEY);
   }, []);
 
   return (
