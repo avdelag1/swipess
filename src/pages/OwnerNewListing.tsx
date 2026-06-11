@@ -3,15 +3,11 @@ import { UnifiedListingForm } from "@/components/UnifiedListingForm";
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { lazyWithRetry } from '@/utils/lazyRetry';
 const CategorySelectionDialog = lazyWithRetry(() => import('@/components/CategorySelectionDialog').then(m => ({ default: m.CategorySelectionDialog })));
-import { useAuth } from "@/hooks/useAuth";
-import { useUserRole } from "@/hooks/useUserRole";
 import { useModalStore } from "@/state/modalStore";
 
 const OwnerNewListing = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
-  const { data: userRole } = useUserRole(user?.id);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isCategorySelectorOpen, setIsCategorySelectorOpen] = useState(false);
   const [initialData, setInitialData] = useState<{
@@ -19,13 +15,12 @@ const OwnerNewListing = () => {
     mode: 'rent' | 'sale';
     aiDraft?: Record<string, unknown> | null;
   } | null>(null);
-  const [_aiGeneratedData, _setAIGeneratedData] = useState<Record<string, unknown> | null>(null);
 
-  useEffect(() => {
-    if (userRole && userRole !== 'owner' && userRole !== 'admin') {
-      navigate('/owner/dashboard', { replace: true });
-    }
-  }, [userRole, navigate]);
+  // NOTE: No role-based redirect here. The app allows any authenticated user
+  // to switch into owner mode (see useActiveMode → canSwitchMode), so gating
+  // this page on the user_roles table kicked legitimate users to the
+  // dashboard a few seconds after the role query resolved — including
+  // mid-save, which aborted the listing publish.
 
   useEffect(() => {
     const categoryParam = searchParams.get('category');

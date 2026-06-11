@@ -20,6 +20,8 @@ import { useAIEnhanceText } from '@/hooks/useAIEnhanceText';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { supabase } from '@/integrations/supabase/client';
 import { useOnboardingStore } from '@/state/onboardingStore';
+import { useQueryClient } from '@tanstack/react-query';
+import { saveListingWithSchemaRetry } from '@/utils/listingSave';
 
 type WizardStep = 'compose' | 'processing';
 type ProgressPhase = 'upload' | 'optimize' | 'publish' | 'redirect';
@@ -91,6 +93,7 @@ export function AIListingWizard() {
   const { user } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { isOnboardingActive, setOnboardingActive } = useOnboardingStore();
 
   const modalBg = isLight ? 'bg-white border-black/10' : 'bg-[#0f0f13] border-white/20';
@@ -296,9 +299,10 @@ export function AIListingWizard() {
         owner_id: user.id,
         category: cat,
         listing_type: cat === 'worker' ? 'service' : 'rent',
-        mode: cat === 'worker' ? 'service' : 'rent',
+        // The manual form saves workers as mode 'rent' + listing_type
+        // 'service' — match it so the direct insert never hits a constraint.
+        mode: 'rent',
         status: 'active',
-        is_active: true,
         title: (parsed.title as string) || buildFallbackTitle({ category: cat, cityLocation, extras }),
         description: (parsed.description as string) || effectivePrompt,
         price: numericPrice,
@@ -334,12 +338,10 @@ export function AIListingWizard() {
         if (parsed.mileage) listingPayload.mileage = parsed.mileage;
         if (parsed.condition) listingPayload.condition = parsed.condition;
         if (cat === 'motorcycle') {
-          if (parsed.motorcycle_type) listingPayload.motorcycle_type = parsed.motorcycle_type;
           if (parsed.engine_cc) listingPayload.engine_cc = parsed.engine_cc;
           if (parsed.transmission) listingPayload.transmission = parsed.transmission;
           if (parsed.fuel_type) listingPayload.fuel_type = parsed.fuel_type;
         }
-        if (cat === 'bicycle' && parsed.bicycle_type) listingPayload.bicycle_type = parsed.bicycle_type;
       }
       if (cat === 'worker') {
         const sc = (extras.service_category as string) || (parsed.service_category as string) || '';
@@ -349,24 +351,42 @@ export function AIListingWizard() {
         if (Array.isArray(parsed.skills) && parsed.skills.length) listingPayload.skills = parsed.skills;
       }
 
-      setProgressPct(95);
+      setProgressPct(90);
 
-      try {
-        sessionStorage.setItem('swipess_ai_listing_draft', JSON.stringify({ data: listingPayload, ts: Date.now() }));
-      } catch (e) {
-        console.error('Failed to set sessionStorage', e);
-      }
-
-      setProgressPhase('redirect');
-      setProgressPct(100);
-      triggerHaptic('success');
       const catLabel = CATEGORIES.find(c => c.id === cat)?.label || cat;
-      appToast.success(`✨ AI built your ${catLabel} listing — verify and publish!`);
-      if (isOnboardingActive) setOnboardingActive(false);
-      handleClose();
-      
-      const modeQ = cat === 'worker' ? 'worker' : 'sale';
-      setTimeout(() => navigate(`/owner/listings/new?category=${cat}&mode=${modeQ}&fromAI=1`, { replace: true }), 150);
+      try {
+        // Publish directly — the user asked the AI to BUILD the listing, so
+        // save it live and show it, no manual verification detour.
+        const listing = await saveListingWithSchemaRetry(listingPayload, null);
+
+        setProgressPhase('redirect');
+        setProgressPct(100);
+        triggerHaptic('success');
+        appToast.success(`✨ Your ${catLabel} listing is live!`, 'Opening it now…');
+
+        if (listing?.id) {
+          queryClient.invalidateQueries({ queryKey: ['owner-listings'] });
+          queryClient.invalidateQueries({ queryKey: ['listings'] });
+        }
+
+        if (isOnboardingActive) setOnboardingActive(false);
+        handleClose();
+        setTimeout(() => navigate('/owner/properties', { replace: true }), 150);
+      } catch (publishErr) {
+        // Direct publish failed — fall back to the pre-filled manual form so
+        // the user's photos and AI-extracted data aren't lost.
+        console.error('[AIListing] Direct publish failed, falling back to form', publishErr);
+        try {
+          sessionStorage.setItem('swipess_ai_listing_draft', JSON.stringify({ data: listingPayload, ts: Date.now() }));
+        } catch { /* ignore */ }
+
+        setProgressPhase('redirect');
+        setProgressPct(100);
+        appToast.info('Almost there!', 'We pre-filled your listing — review and tap publish.');
+        if (isOnboardingActive) setOnboardingActive(false);
+        handleClose();
+        setTimeout(() => navigate(`/owner/listings/new?category=${cat}&mode=rent&fromAI=1`, { replace: true }), 150);
+      }
     } catch (error) {
       console.error('AI Listing Publish Error:', error);
       const msg = error instanceof Error ? error.message : 'Something went wrong publishing your listing.';

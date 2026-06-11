@@ -32,7 +32,11 @@ export function lazyWithRetry<T extends ComponentType<any>>(
           if ('caches' in window) {
             caches.keys().then(names => Promise.all(names.map(n => caches.delete(n)))).catch(() => {});
           }
-          window.location.replace(window.location.pathname + '?v=' + Date.now());
+          // Preserve existing query params (e.g. ?category=…&fromAI=1 on the
+          // listing form) — dropping them loses the user's in-progress flow.
+          const params = new URLSearchParams(window.location.search);
+          params.set('v', String(Date.now()));
+          window.location.replace(window.location.pathname + '?' + params.toString());
           return new Promise(() => {}); // Never resolve to prevent further rendering while reloading
         }
         

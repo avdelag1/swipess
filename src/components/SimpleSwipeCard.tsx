@@ -13,7 +13,7 @@
  */
 
 import { forwardRef, memo, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
-import { animate, AnimatePresence, motion, MotionValue, PanInfo, useMotionValue, useTransform } from 'framer-motion';
+import { animate, AnimatePresence, motion, PanInfo, useMotionValue, useTransform } from 'framer-motion';
 import { triggerHaptic } from '@/utils/haptics';
 import { getCardImageUrl } from '@/utils/imageOptimization';
 import { Listing } from '@/hooks/useListings';
@@ -38,12 +38,9 @@ export interface SimpleSwipeCardRef {
   triggerSwipe: (direction: 'left' | 'right') => void;
 }
 
-const SWIPE_THRESHOLD = 50; // Deliberate swipe distance for intentional feel
-const VELOCITY_THRESHOLD = 300; // Intentional flick velocity
-const SKIP_THRESHOLD = 80;
-const SKIP_VELOCITY = 350;
+const SWIPE_THRESHOLD = 50;
+const VELOCITY_THRESHOLD = 300;
 const FALLBACK_PLACEHOLDER = '';
-type DragAxis = 'x' | 'y' | null;
 
 
 
@@ -99,7 +96,6 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   const lastListingIdRef = useRef(listing.id || (listing as any).user_id);
   const dragStartedRef = useRef(false);
   const storedPointerEventRef = useRef<React.PointerEvent | null>(null);
-  const dragAxisRef = useRef<DragAxis>(null);
 
   const x = useMotionValue(0);
   const y = useMotionValue(0);
@@ -116,7 +112,6 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   );
   const likeOpacity = useTransform(x, [0, SWIPE_THRESHOLD * 0.5, SWIPE_THRESHOLD], [0, 0.5, 1]);
   const passOpacity = useTransform(x, [-SWIPE_THRESHOLD, -SWIPE_THRESHOLD * 0.5, 0], [1, 0.5, 0]);
-  const skipOpacity = useTransform(y as MotionValue<number>, (v: number) => Math.min(1, Math.abs(v) / SKIP_THRESHOLD));
   const rotate = useTransform(x, [-800, 800], [-25, 25]);
   const scale = useTransform(x, [-800, 0, 800], [0.95, 1, 0.95]);
 
@@ -263,21 +258,9 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
 
   const handleDragStart = useCallback(() => {
     isDragging.current = true;
-    dragAxisRef.current = null;
     triggerHaptic('light');
     onDragStart?.();
   }, [onDragStart]);
-
-  const handleDirectionLock = useCallback((axis: 'x' | 'y') => {
-    dragAxisRef.current = axis;
-    if (axis === 'x') y.set(0);
-    if (axis === 'y') x.set(0);
-  }, [x, y]);
-
-  const handleDrag = useCallback(() => {
-    if (dragAxisRef.current === 'x') y.set(0);
-    if (dragAxisRef.current === 'y') x.set(0);
-  }, [x, y]);
 
   // SPEED OF LIGHT: Auto-reveal protocol
   // When a card becomes the top card, briefly reveal the chrome (header/nav/buttons)
@@ -291,15 +274,8 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   const handleDragEnd = useCallback((_: any, info: PanInfo) => {
     if (hasExited.current) return;
     const dx = info.offset.x;
-    const dy = info.offset.y;
     const vx = info.velocity.x;
-    const vy = info.velocity.y;
-    // Freeform 2D swipe: intent is based on whichever axis had the longest movement
-    const axis = Math.abs(dx) >= Math.abs(dy) ? 'x' : 'y';
-
-    const horizCommit = axis === 'x' && (Math.abs(dx) > SWIPE_THRESHOLD || Math.abs(vx) > VELOCITY_THRESHOLD);
-    const vertCommit = axis === 'y' && (Math.abs(dy) > SKIP_THRESHOLD || Math.abs(vy) > SKIP_VELOCITY);
-
+    const horizCommit = Math.abs(dx) > SWIPE_THRESHOLD || Math.abs(vx) > VELOCITY_THRESHOLD;
     if (horizCommit) {
       const direction: 'left' | 'right' = dx > 0 ? 'right' : 'left';
       hasExited.current = true;
@@ -316,26 +292,12 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
       };
       animate(x, exitX, { ...EXIT_SPRING, velocity: info.velocity.x, onComplete: fireSwipe });
       setTimeout(fireSwipe, 800);
-    } else if (vertCommit && (onSkip || onSkipBack)) {
-      const dir = dy > 0 ? 1 : -1;
-      if (dir > 0 && !canGoBack) {
-        triggerHaptic('light');
-        x.set(0);
-        animate(y, 100, { ...SNAP_BACK_SPRING, onComplete: () => animate(y, 0, { ...SNAP_BACK_SPRING }) });
-      } else {
-        hasExited.current = true;
-        triggerHaptic('light');
-        x.set(0);
-        if (dir < 0) onSkip?.();
-        else onSkipBack?.();
-      }
     } else {
       animate(x, 0, { ...SNAP_BACK_SPRING, velocity: info.velocity.x });
-      animate(y, 0, { ...SNAP_BACK_SPRING, velocity: info.velocity.y });
+      animate(y, 0, SNAP_BACK_SPRING);
     }
     isDragging.current = false;
-    dragAxisRef.current = null;
-  }, [onSwipe, onSkip, onSkipBack, canGoBack, x, y]);
+  }, [onSwipe, x, y]);
 
   const handleImageTap = useCallback((e: React.MouseEvent) => {
     if (isMagnifierActive() || wasMagnifierActive()) return;
@@ -395,14 +357,10 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   return (
     <div className={cn("absolute inset-0 flex flex-col", isTop ? "pointer-events-auto" : "pointer-events-none")}>
       <motion.div
-        drag={disableDrag ? false : (isTop ? true : false)}
-        dragListener={disableDrag ? false : (isTop ? true : undefined)}
-        dragDirectionLock={disableDrag ? false : (isTop ? true : undefined)}
+        drag={disableDrag ? false : (isTop ? 'x' : false)}
         dragMomentum={false}
-        dragTransition={{ bounceStiffness: 350, bounceDamping: 32 }} // Smooth finger tracking with professional feel
+        dragTransition={{ bounceStiffness: 350, bounceDamping: 32 }}
         onDragStart={handleDragStart}
-        onDrag={handleDrag}
-        onDirectionLock={handleDirectionLock}
         onDragEnd={handleDragEnd}
         onPointerDown={handleUnifiedPointerDown}
         onPointerMove={handleUnifiedPointerMove}
@@ -511,11 +469,6 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           </div>
         </motion.div>
 
-        <motion.div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 pointer-events-none" style={{ opacity: skipOpacity }}>
-          <div className="glass-pill px-4 py-2">
-            <span className="text-white text-sm font-bold tracking-widest uppercase">Next</span>
-          </div>
-        </motion.div>
 
         <div
           className="absolute left-5 right-5 z-30 pointer-events-none transition-opacity duration-150"

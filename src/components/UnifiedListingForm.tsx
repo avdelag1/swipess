@@ -30,6 +30,7 @@ import { useAnonymousDrafts } from '@/hooks/useAnonymousDrafts';
 import { useAuth } from '@/hooks/useAuth';
 import { ListingVideoUpload } from './video/ListingVideoUpload';
 import { uiSounds } from '@/utils/uiSounds';
+import { saveListingWithSchemaRetry } from '@/utils/listingSave';
 import { buildDescriptionFromChips } from '@/constants/listingTaxonomies';
 import { PremiumSortableGrid } from './PremiumSortableGrid';
 import { WaterDropLoader } from './ui/WaterDropLoader';
@@ -55,55 +56,6 @@ const stagger = { visible: { transition: { staggerChildren: 0.05, delayChildren:
 const itemFadeScale = {
   hidden: { opacity: 0, y: 10, scale: 0.98 },
   visible: { opacity: 1, y: 0, scale: 1, transition: fastSpring }
-};
-
-const getMissingSchemaColumn = (message?: string | null) => {
-  if (!message) return null;
-  const quoted = message.match(/['"]([^'"]+)['"]\s+column|column\s+['"]([^'"]+)['"]|find the ['"]([^'"]+)['"] column/i);
-  return quoted?.[1] || quoted?.[2] || quoted?.[3] || null;
-};
-
-const saveListingWithSchemaRetry = async (
-  payload: Record<string, any>,
-  editingId: string | null
-) => {
-  let safeData = { ...payload };
-  if (editingId) {
-    delete safeData.user_id;
-  }
-  const removedColumns = new Set<string>();
-  const withTimeout = async <T,>(promise: PromiseLike<T>, label: string): Promise<T> => {
-    const timeout = new Promise<never>((_, reject) =>
-      setTimeout(() => reject(new Error(`${label} timed out after 20s. Please try again.`)), 20000)
-    );
-    return Promise.race([Promise.resolve(promise), timeout]);
-  };
-
-  for (let attempt = 0; attempt < 25; attempt += 1) {
-    const result = await withTimeout(
-      editingId
-        ? supabase.from('listings').update(safeData as any).eq('id', editingId).select().single()
-        : supabase.from('listings').insert(safeData as any).select().single(),
-      editingId ? 'Listing update' : 'Listing publish'
-    );
-
-    if (!result.error) return result.data;
-
-    const errorMsg = result.error.message?.toLowerCase() || '';
-    const isSchemaError = errorMsg.includes('could not find') || errorMsg.includes('schema cache') || errorMsg.includes('column');
-    const missingColumn = getMissingSchemaColumn(result.error.message);
-
-    if (!isSchemaError || !missingColumn || safeData[missingColumn] === undefined || removedColumns.has(missingColumn)) {
-      throw result.error;
-    }
-
-    removedColumns.add(missingColumn);
-    const { [missingColumn]: _removed, ...nextData } = safeData;
-    safeData = nextData;
-    logger.warn(`Live listing schema rejected "${missingColumn}" — retrying without it.`);
-  }
-
-  throw new Error('Listing save failed after adapting to the live schema.');
 };
 
 const toIntOrNull = (value: unknown) => {
@@ -229,6 +181,18 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
       setVideoUrl(null);
     }
   }, [editingProperty, isOpen]);
+
+  const revokePhotos = () => {
+    photoList.forEach(p => {
+      if (p.type === 'new' && p.url.startsWith('blob:')) {
+        try {
+          URL.revokeObjectURL(p.url);
+        } catch (e) {
+          logger.error('Failed to revoke object URL:', e);
+        }
+      }
+    });
+  };
 
   const createListingMutation = useMutation({
     mutationFn: async () => {
@@ -466,11 +430,20 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
       queryClient.invalidateQueries({ queryKey: ['owner-listings'] });
       queryClient.refetchQueries({ queryKey: ['owner-listings'], type: 'active' });
       queryClient.invalidateQueries({ queryKey: ['listings'] });
-      handleClose();
-      // Navigate to the listing detail page so the user can see their published listing
+      // Revoke object URLs and reset state without triggering onClose navigate.
+      // The route change below will unmount this component anyway.
+      revokePhotos();
+      setPhotoList([]);
+      setFormData({});
+      setSelectedCategory('property');
+      setSelectedMode('rent');
+      setEditingId(null);
+      // Single navigate — avoids the double-navigate race that could land on
+      // an intermediate route and trigger unintended redirect effects.
       if (listing?.id) {
         navigate(`/listing/${listing.id}`, { replace: true });
       } else {
+        onClose();
         navigate('/owner/properties', { replace: true });
       }
     },
@@ -487,16 +460,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
   });
 
   const handleClose = () => {
-    // Revoke any local object URLs we created to prevent memory leaks
-    photoList.forEach(p => {
-      if (p.type === 'new' && p.url.startsWith('blob:')) {
-        try {
-          URL.revokeObjectURL(p.url);
-        } catch (e) {
-          logger.error('Failed to revoke object URL:', e);
-        }
-      }
-    });
+    revokePhotos();
     setPhotoList([]);
     setFormData({});
     setSelectedCategory('property');

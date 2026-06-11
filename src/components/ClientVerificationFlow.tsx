@@ -37,7 +37,7 @@ export function ClientVerificationFlow({ onComplete }: ClientVerificationFlowPro
     const compressed = await browserImageCompression(file, {
       maxSizeMB: 1,
       maxWidthOrHeight: 1600,
-      useWebWorker: true,
+      useWebWorker: false, // worker loads itself from CDN — blocked by CSP
     });
     
     const path = `verification/${user.id}/${type}-${Date.now()}.jpg`;

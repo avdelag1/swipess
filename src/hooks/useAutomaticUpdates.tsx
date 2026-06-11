@@ -30,6 +30,14 @@ const VERSION_STORAGE_KEY = 'Swipess_app_version';
 const RELOAD_GUARD_KEY = 'Swipess_reload_triggered';
 const _SW_REGISTRATION_KEY = 'Swipess_sw_registration';
 
+// Cache-busted reload URL that PRESERVES existing query params — dropping
+// them loses in-progress flows like /owner/listings/new?category=…&fromAI=1.
+function reloadUrlWithCacheBuster(): string {
+  const params = new URLSearchParams(window.location.search);
+  params.set('v', String(Date.now()));
+  return window.location.pathname + '?' + params.toString();
+}
+
 interface UpdateInfo {
   available: boolean;
   version?: string;
@@ -135,7 +143,7 @@ export async function forceAppUpdate(): Promise<void> {
 
     // Small delay before reload
     // Reload the page
-    window.location.replace(window.location.pathname + '?v=' + Date.now());
+    window.location.replace(reloadUrlWithCacheBuster());
   } catch (error) {
     logger.error('Failed to update app:', error);
     appToast.error('Update Failed', 'Please try clearing your browser cache manually.');
@@ -185,12 +193,12 @@ export function useAutomaticUpdates() {
 
       // Reload with delay for visual feedback
       setTimeout(() => {
-        window.location.replace(window.location.pathname + '?v=' + Date.now());
+        window.location.replace(reloadUrlWithCacheBuster());
       }, 500);
     } catch (error) {
       logger.error('Update failed:', error);
       setIsUpdating(false);
-      window.location.replace(window.location.pathname + '?v=' + Date.now());
+      window.location.replace(reloadUrlWithCacheBuster());
     }
   }, [isUpdating, queryClient]);
 

@@ -18,7 +18,7 @@ interface CompressionOptions {
 const DEFAULT_OPTIONS: CompressionOptions = {
   maxSizeMB: 1.2,
   maxWidthOrHeight: 1920,
-  useWebWorker: true, // Use web worker for non-blocking compression
+  useWebWorker: false, // Web worker causes CSP violation (CDN fetch blocked)
   fileType: 'image/webp', // WebP for better compression
   quality: 0.85, // 85% quality (good balance)
 };
