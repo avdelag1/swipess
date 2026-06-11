@@ -3,8 +3,9 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   Bike, Briefcase, Building2, Camera,
-  Loader2, Mic, Search, Sparkles, Wand2, X, Zap
+  Mic, Search, Sparkles, Wand2, X, Zap
 } from 'lucide-react';
+import { PremiumSpinner } from '@/components/ui/PremiumSpinner';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
@@ -484,12 +485,12 @@ export function AIListingWizard() {
                               className={cn(
                                 "flex flex-col items-center gap-2 p-4 rounded-2xl border transition-all active:scale-[0.98]",
                                 category === cat.id
-                                  ? "bg-rose-500/10 border-rose-500/40 shadow-inner"
-                                  : isLight ? "bg-white border-black/10 hover:border-rose-500/30" : "bg-black/40 border-white/10 hover:border-rose-500/30"
+                                  ? "bg-gradient-to-br from-[#FF4D00] to-[#EB4898] text-white border-transparent shadow-[0_4px_15px_rgba(255,77,0,0.3)]"
+                                  : isLight ? "bg-black/5 border-black/10 hover:border-rose-500/30" : "bg-white/[0.03] border-white/10 hover:border-white/20"
                               )}
                             >
-                              <cat.icon className={cn("w-6 h-6", category === cat.id ? "text-rose-400" : textMuted)} />
-                              <span className={cn("text-[10px] font-bold uppercase tracking-wider text-center", category === cat.id ? "text-rose-400" : textPrimary)}>{cat.label}</span>
+                              <cat.icon className={cn("w-6 h-6", category === cat.id ? "text-white" : textMuted)} />
+                              <span className={cn("text-[10px] font-bold uppercase tracking-wider text-center", category === cat.id ? "text-white" : textPrimary)}>{cat.label}</span>
                             </button>
                           ))}
                         </div>
@@ -544,7 +545,7 @@ export function AIListingWizard() {
                              )}
                            >
                              {isEnhancing ? (
-                               <Loader2 className="w-3 h-3 animate-spin" />
+                               <PremiumSpinner className="w-3 h-3" />
                              ) : (
                                <Wand2 className="w-3 h-3" />
                              )}
@@ -604,7 +605,7 @@ export function AIListingWizard() {
                             {isTranscribing && (
                               <div className="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-sm rounded-[2rem]">
                                 <div className="flex items-center gap-3 px-4 py-2 bg-black rounded-full border border-rose-500/30 shadow-2xl">
-                                  <Loader2 className="w-4 h-4 text-rose-400 animate-spin" />
+                                  <PremiumSpinner className="w-4 h-4" />
                                   <span className="text-[10px] font-black uppercase tracking-widest text-rose-400">Transcribing...</span>
                                 </div>
                               </div>
@@ -617,11 +618,11 @@ export function AIListingWizard() {
                         <Button
                           onClick={handleProcess}
                           disabled={isProcessing || imageFiles.length === 0}
-                          className="w-full h-16 rounded-[2.5rem] bg-rose-600 text-white hover:brightness-110 font-black uppercase tracking-[0.3em] text-[12px] transition-all shadow-[0_20px_60px_rgba(225,29,72,0.4)] disabled:opacity-30"
+                          className="w-full h-16 rounded-[2.5rem] bg-gradient-to-br from-[#FF4D00] to-[#EB4898] text-white hover:brightness-110 font-black uppercase tracking-[0.3em] text-[12px] transition-all shadow-[0_20px_60px_rgba(255,77,0,0.3)] disabled:opacity-30"
                         >
                           {isProcessing ? (
                             <>
-                              <Loader2 className="w-5 h-5 mr-4 animate-spin" />
+                              <PremiumSpinner className="w-5 h-5 mr-4" />
                               Publishing...
                             </>
                           ) : (

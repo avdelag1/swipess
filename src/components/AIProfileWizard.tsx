@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Camera, Loader2, Mic, Search, Sparkles, Wand2, X } from 'lucide-react';
+import { Camera, Mic, Search, Sparkles, Wand2, X } from 'lucide-react';
+import { PremiumSpinner } from '@/components/ui/PremiumSpinner';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
@@ -451,9 +452,9 @@ export function AIProfileWizard() {
                       <Button
                         onClick={handleProcess}
                         disabled={!narrative.trim() || isProcessing || imageFiles.length === 0}
-                        className="w-full h-16 rounded-[2.5rem] bg-rose-600 hover:brightness-110 text-white font-black uppercase tracking-[0.3em] text-[12px] shadow-[0_20px_60px_rgba(225,29,72,0.4)] disabled:opacity-20"
+                        className="w-full h-16 rounded-[2.5rem] bg-gradient-to-br from-[#FF4D00] to-[#EB4898] hover:brightness-110 text-white font-black uppercase tracking-[0.3em] text-[12px] shadow-[0_20px_60px_rgba(255,77,0,0.3)] disabled:opacity-20"
                       >
-                        {isProcessing ? <Loader2 className="w-5 h-5 mr-3 animate-spin" /> : <Wand2 className="w-5 h-5 mr-3" />}
+                        {isProcessing ? <PremiumSpinner className="w-5 h-5 mr-3" /> : <Wand2 className="w-5 h-5 mr-3" />}
                         Create Profile
                       </Button>
                     </div>

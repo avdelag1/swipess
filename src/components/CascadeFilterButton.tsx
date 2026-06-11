@@ -224,7 +224,7 @@ function CascadeFilterButtonComponent({ filters, onChange, userRole = 'client' }
                           'flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium col-span-2',
                           'border select-none touch-manipulation',
                           allSelected
-                            ? 'bg-primary text-primary-foreground border-primary'
+                                ? 'bg-gradient-to-br from-[#FF4D00] to-[#EB4898] text-white border-transparent shadow-[0_4px_15px_rgba(255,77,0,0.3)]'
                             : 'bg-black/[0.03] text-black/70 border-black/[0.05] dark:bg-white/[0.05] dark:text-white/60 dark:border-white/[0.08]'
                         )}
                       >
@@ -278,7 +278,7 @@ function CascadeFilterButtonComponent({ filters, onChange, userRole = 'client' }
                               'flex-1 px-3 py-2.5 rounded-xl text-sm font-medium',
                               'border select-none touch-manipulation',
                               isActive
-                                ? 'bg-primary text-primary-foreground border-primary'
+                                    ? 'bg-gradient-to-br from-[#FF4D00] to-[#EB4898] text-white border-transparent shadow-[0_4px_15px_rgba(255,77,0,0.3)]'
                                 : 'bg-black/[0.03] text-black/70 border-black/[0.05] dark:bg-white/[0.05] dark:text-white/60 dark:border-white/[0.08]'
                             )}
                           >
@@ -309,7 +309,7 @@ function CascadeFilterButtonComponent({ filters, onChange, userRole = 'client' }
                               'flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-sm font-medium',
                               'border select-none touch-manipulation',
                               isActive
-                                ? 'bg-primary text-primary-foreground border-primary'
+                                    ? 'bg-gradient-to-br from-[#FF4D00] to-[#EB4898] text-white border-transparent shadow-[0_4px_15px_rgba(255,77,0,0.3)]'
                                 : 'bg-black/[0.03] text-black/70 border-black/[0.05] dark:bg-white/[0.05] dark:text-white/60 dark:border-white/[0.08]'
                             )}
                           >
@@ -339,7 +339,7 @@ function CascadeFilterButtonComponent({ filters, onChange, userRole = 'client' }
                               'px-3 py-2.5 rounded-xl text-sm font-medium',
                               'border select-none touch-manipulation',
                               isActive
-                                ? 'bg-primary text-primary-foreground border-primary'
+                                    ? 'bg-gradient-to-br from-[#FF4D00] to-[#EB4898] text-white border-transparent shadow-[0_4px_15px_rgba(255,77,0,0.3)]'
                                 : 'bg-black/[0.03] text-black/70 border-black/[0.05] dark:bg-white/[0.05] dark:text-white/60 dark:border-white/[0.08]'
                             )}
                           >
@@ -359,7 +359,7 @@ function CascadeFilterButtonComponent({ filters, onChange, userRole = 'client' }
                 onClick={() => setIsOpen(false)}
                 className={cn(
                   buttonClass,
-                  'w-full py-2.5 rounded-xl bg-primary text-primary-foreground font-medium text-sm'
+                  'w-full py-2.5 rounded-xl bg-gradient-to-br from-[#FF4D00] to-[#EB4898] text-white font-medium text-sm shadow-[0_4px_15px_rgba(255,77,0,0.3)]'
                 )}
               >
                 {t('filters.applyFilters')}

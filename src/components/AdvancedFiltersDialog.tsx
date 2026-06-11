@@ -308,7 +308,7 @@ export function AdvancedFilters({ isOpen, onClose, userRole, onApplyFilters, cur
           <Button
             onClick={handleApply}
             className={cn(
-              "flex-1 h-12 rounded-[1.2rem] bg-primary text-primary-foreground font-black uppercase italic tracking-widest hover:brightness-110 shadow-lg",
+              "flex-1 h-12 rounded-[1.2rem] bg-gradient-to-br from-[#FF4D00] to-[#EB4898] text-white font-black uppercase italic tracking-widest hover:brightness-110 shadow-[0_10px_30px_rgba(255,77,0,0.3)] border-0",
               isMobile && "text-base"
             )}
           >

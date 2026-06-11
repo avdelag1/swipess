@@ -131,8 +131,7 @@ export function FilterDropdown({
         className={cn(
           smoothButtonClass,
           'flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest italic transition-all',
-            isActive
-              ? 'bg-primary text-white shadow-lg shadow-primary/20 scale-[1.02]'
+              ? 'bg-gradient-to-br from-[#FF4D00] to-[#EB4898] text-white shadow-[0_4px_15px_rgba(255,77,0,0.3)] scale-[1.02] border-transparent'
               : isLight
                 ? 'bg-black text-white border-transparent shadow-sm hover:bg-black/80'
                 : 'bg-white/10 border-white/10 text-white hover:bg-white/20'
