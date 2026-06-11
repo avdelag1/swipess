@@ -303,7 +303,6 @@ export function AIListingWizard() {
         // 'service' — match it so the direct insert never hits a constraint.
         mode: 'rent',
         status: 'active',
-        is_active: true,
         title: (parsed.title as string) || buildFallbackTitle({ category: cat, cityLocation, extras }),
         description: (parsed.description as string) || effectivePrompt,
         price: numericPrice,
@@ -339,12 +338,10 @@ export function AIListingWizard() {
         if (parsed.mileage) listingPayload.mileage = parsed.mileage;
         if (parsed.condition) listingPayload.condition = parsed.condition;
         if (cat === 'motorcycle') {
-          if (parsed.motorcycle_type) listingPayload.motorcycle_type = parsed.motorcycle_type;
           if (parsed.engine_cc) listingPayload.engine_cc = parsed.engine_cc;
           if (parsed.transmission) listingPayload.transmission = parsed.transmission;
           if (parsed.fuel_type) listingPayload.fuel_type = parsed.fuel_type;
         }
-        if (cat === 'bicycle' && parsed.bicycle_type) listingPayload.bicycle_type = parsed.bicycle_type;
       }
       if (cat === 'worker') {
         const sc = (extras.service_category as string) || (parsed.service_category as string) || '';
@@ -368,22 +365,13 @@ export function AIListingWizard() {
         appToast.success(`✨ Your ${catLabel} listing is live!`, 'Opening it now…');
 
         if (listing?.id) {
-          // Seed the detail cache so /listing/:id renders instantly,
-          // and refresh the owner's lists so it appears there too.
-          queryClient.setQueryData(['listing-detail', listing.id], listing);
           queryClient.invalidateQueries({ queryKey: ['owner-listings'] });
           queryClient.invalidateQueries({ queryKey: ['listings'] });
         }
 
         if (isOnboardingActive) setOnboardingActive(false);
         handleClose();
-        setTimeout(() => {
-          if (listing?.id) {
-            navigate(`/listing/${listing.id}`, { replace: true });
-          } else {
-            navigate('/owner/properties', { replace: true });
-          }
-        }, 150);
+        setTimeout(() => navigate('/owner/properties', { replace: true }), 150);
       } catch (publishErr) {
         // Direct publish failed — fall back to the pre-filled manual form so
         // the user's photos and AI-extracted data aren't lost.

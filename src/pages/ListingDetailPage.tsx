@@ -1,10 +1,11 @@
 import { useNavigate, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
 import { motion } from 'framer-motion';
 import { SimpleSwipeCard } from '@/components/SimpleSwipeCard';
 import { triggerHaptic } from '@/utils/haptics';
-import { Suspense, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { lazyWithRetry } from '@/utils/lazyRetry';
 const ReportDialog = lazyWithRetry(() => import('@/components/ReportDialog').then(m => ({ default: m.ReportDialog })));
 const ShareDialog = lazyWithRetry(() => import('@/components/ShareDialog').then(m => ({ default: m.ShareDialog })));
@@ -12,6 +13,7 @@ const SwipeInsightsModal = lazyWithRetry(() => import('@/components/SwipeInsight
 export default function ListingDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const [showReport, setShowReport] = useState(false);
   const [showShare, setShowShare] = useState(false);
@@ -28,6 +30,13 @@ export default function ListingDetailPage() {
     },
     enabled: !!id,
   });
+
+  // Owners should manage their listing via the properties page, not see their own swipe card
+  useEffect(() => {
+    if (listing && user && (listing as any).owner_id === user.id) {
+      navigate('/owner/properties', { replace: true });
+    }
+  }, [listing, user, navigate]);
 
   if (isLoading) return <div className="w-full h-screen flex items-center justify-center bg-background"><div className="w-6 h-6 rounded-full border-2 border-primary border-t-transparent animate-spin" /></div>;
 
