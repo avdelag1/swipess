@@ -120,18 +120,10 @@ export default function EventoDetail() {
   const { data: event, isLoading } = useQuery({
     queryKey: ['evento', id],
     queryFn: async () => {
-      // 🚀 SPEED OF LIGHT: Handle mock data IDs (starting with 'm')
-      if (id?.startsWith('m')) {
-        if (stateEventData) return stateEventData;
-        
-        // Dynamic import to avoid circular dependencies or large initial bundle
-        const mod = await import('./EventosFeed') as any;
-
-        const found = mod.MOCK_EVENTS?.find((e: any) => e.id === id);
-        if (found) return found;
-        
-        throw new Error('Mock event not found.');
-      }
+      // Demo events live in the bundle, not the DB — check them first
+      const { MOCK_EVENTS } = await import('@/data/eventsData');
+      const mock = MOCK_EVENTS?.find((e) => e.id === id);
+      if (mock) return mock as EventDetail;
 
       const { data, error } = await supabase
         .from('events')
@@ -198,11 +190,10 @@ export default function EventoDetail() {
     },
     mutationFn: async () => {
       if (!user) throw new Error('Sign in required');
-      if (isFavorited) {
-        return supabase.from('likes').delete().eq('user_id', user.id).eq('target_id', id!).eq('target_type', 'event');
-      } else {
-        return supabase.from('likes').insert({ user_id: user.id, target_id: id!, target_type: 'event' });
-      }
+      const { error } = isFavorited
+        ? await supabase.from('likes').delete().eq('user_id', user.id).eq('target_id', id!).eq('target_type', 'event')
+        : await supabase.from('likes').insert({ user_id: user.id, target_id: id!, target_type: 'event' });
+      if (error) throw error;
     },
     onError: (err, vars, context) => {
       queryClient.setQueryData(['event-is-favorited', id, user?.id], context?.previousStatus);

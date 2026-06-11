@@ -18,16 +18,13 @@ import { useTranslation } from 'react-i18next';
 
 // Modular Components
 import { EventCard } from '@/components/events/EventCard';
+import { PromoteCTACard } from '@/components/events/PromoteCTACard';
 const ShareModal = lazyWithRetry(() => import('@/components/events/ShareModal').then(m => ({ default: m.ShareModal })));
 import { ConnectingOverlay } from '@/components/ConnectingOverlay';
 
 // Static Data
 import { CATEGORIES, MOCK_EVENTS } from '@/data/eventsData';
 import { EventItem } from '@/types/events';
-
-
-
-const AUTOPLAY_DURATION = 6000;
 
 function pickEventImage(ev: Partial<EventItem>): string | null {
   if (typeof ev.image_url === 'string' && ev.image_url.trim()) return ev.image_url;
@@ -52,7 +49,10 @@ export default function EventosFeed() {
   const queryClient = useQueryClient();
   const parentRef = useRef<HTMLDivElement>(null);
   const [activeIdx, setActiveIdx] = useState(0);
-  const [activeCategory, setActiveCategory] = useState('all');
+  // Deep links to /explore/events/likes should open the likes view directly
+  const [activeCategory, setActiveCategory] = useState(() =>
+    typeof window !== 'undefined' && window.location.pathname.endsWith('/likes') ? 'likes' : 'all'
+  );
 
   useEffect(() => {
     const color = CATEGORIES.find(c => c.key === activeCategory)?.color || '#f97316';
@@ -61,11 +61,6 @@ export default function EventosFeed() {
   const [showShareModal, setShowShareModal] = useState(false);
   const [shareEventData, setShareEventData] = useState<EventItem | null>(null);
 
-  // Auto-play state
-  const [autoPlay, _setAutoPlay] = useState(false);
-  const [isPaused, setIsPaused] = useState(false);
-  const [animKey, setAnimKey] = useState(0);
-  const pauseTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [isConnecting, setIsConnecting] = useState(false);
   const [connectingTarget, setConnectingTarget] = useState('');
 
@@ -82,7 +77,6 @@ export default function EventosFeed() {
   const resetFeedPosition = useCallback((behavior: ScrollBehavior = 'auto') => {
     const el = parentRef.current;
     setActiveIdx(0);
-    setAnimKey((key) => key + 1);
 
     if (!el) return;
 
@@ -113,11 +107,10 @@ export default function EventosFeed() {
   const likeMutation = useMutation({
     mutationFn: async ({ id, isLiked }: { id: string; isLiked: boolean }) => {
       if (!user?.id) throw new Error("Not logged in");
-      if (isLiked) {
-        await supabase.from('likes').delete().eq('user_id', user.id).eq('target_id', id).eq('target_type', 'event');
-      } else {
-        await supabase.from('likes').insert({ user_id: user.id, target_id: id, target_type: 'event' });
-      }
+      const { error } = isLiked
+        ? await supabase.from('likes').delete().eq('user_id', user.id).eq('target_id', id).eq('target_type', 'event')
+        : await supabase.from('likes').insert({ user_id: user.id, target_id: id, target_type: 'event' });
+      if (error) throw error;
     },
     onMutate: async ({ id, isLiked }) => {
       await queryClient.cancelQueries({ queryKey: ['event-likes', user?.id] });
@@ -205,10 +198,13 @@ export default function EventosFeed() {
     resetFeedPosition();
   }, [activeCategory, resetFeedPosition]);
 
+  // One extra virtual row at the end: the "Promote My Event" CTA card
+  const totalRows = filteredEvents.length + 1;
+
   useEffect(() => {
-    if (activeIdx < filteredEvents.length) return;
+    if (activeIdx < totalRows) return;
     resetFeedPosition();
-  }, [activeIdx, filteredEvents.length, resetFeedPosition]);
+  }, [activeIdx, totalRows, resetFeedPosition]);
 
   // Scroll & Virtualization
   useEffect(() => {
@@ -218,9 +214,8 @@ export default function EventosFeed() {
     const handleScroll = () => {
       const height = el.clientHeight || window.innerHeight || 1;
       const newIdx = Math.round(el.scrollTop / height);
-      if (newIdx !== activeIdx && newIdx >= 0 && newIdx < filteredEvents.length) {
+      if (newIdx !== activeIdx && newIdx >= 0 && newIdx < totalRows) {
         setActiveIdx(newIdx);
-        setAnimKey(k => k + 1);
       }
     };
 
@@ -228,41 +223,15 @@ export default function EventosFeed() {
     return () => {
       el.removeEventListener('scroll', handleScroll);
     };
-  }, [activeIdx, filteredEvents.length]);
+  }, [activeIdx, totalRows]);
 
   const rowVirtualizer = useVirtualizer({
-    count: filteredEvents.length,
+    count: totalRows,
     getScrollElement: () => parentRef.current,
     estimateSize: () => window.innerHeight || 800,
     overscan: 2,
     initialOffset: 0,
   });
-
-  // Auto-play Logic
-  const _pauseAutoPlay = useCallback(() => {
-    setIsPaused(true);
-    if (pauseTimeoutRef.current) clearTimeout(pauseTimeoutRef.current);
-    pauseTimeoutRef.current = setTimeout(() => {
-      setIsPaused(false);
-      setAnimKey(k => k + 1);
-    }, 3000);
-  }, []);
-
-  useEffect(() => {
-    const el = parentRef.current;
-    if (!el || !autoPlay || isPaused || filteredEvents.length <= 1) return;
-
-    const timeout = setTimeout(() => {
-      const height = el.clientHeight || window.innerHeight || 1;
-      if (activeIdx < filteredEvents.length - 1) {
-        const nextIdx = activeIdx + 1;
-        el.scrollTo({ top: nextIdx * height, behavior: 'smooth' });
-      }
-      setAnimKey(k => k + 1);
-    }, AUTOPLAY_DURATION);
-
-    return () => clearTimeout(timeout);
-  }, [autoPlay, isPaused, activeIdx, filteredEvents.length, animKey]);
 
   useEffect(() => {
     const nextBatch = filteredEvents.slice(activeIdx + 1, activeIdx + 6);
@@ -437,34 +406,33 @@ export default function EventosFeed() {
         >
           <div style={{ height: `${rowVirtualizer.getTotalSize()}px`, position: 'relative' }}>
             {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+              const isPromoteRow = virtualRow.index === filteredEvents.length;
               const event = filteredEvents[virtualRow.index];
-              if (!event) return null;
+              if (!isPromoteRow && !event) return null;
 
               return (
-                <div 
-                  key={virtualRow.key} 
+                <div
+                  key={virtualRow.key}
                   className="absolute top-0 left-0 w-full snap-start snap-always"
-                  style={{ 
+                  style={{
                     height: '100dvh',
                     width: '100%',
                     transform: `translateY(${virtualRow.start}px)`
                   }}
                 >
-                  <EventCard
-                    event={event}
-                    isActive={virtualRow.index === activeIdx}
-                    isPaused={isPaused}
-                    animKey={animKey}
-                    onTickComplete={() => {}} 
-                    liked={likedIds.has(event.id)}
-                    activeColor={CATEGORIES.find(c => c.key === event.category)?.color || '#f97316'}
-                    onLike={() => likeMutation.mutate({ id: event.id, isLiked: likedIds.has(event.id) })}
-                    onChat={() => handleOpenChat(event)}
-                    onShare={() => handleShare(event)}
-                    onMiddleTap={() => handleMiddleTap(event)}
-                    onNextEvent={() => parentRef.current?.scrollBy({ top: parentRef.current?.clientHeight || window.innerHeight, behavior: 'smooth' })}
-                    onPrevEvent={() => parentRef.current?.scrollBy({ top: -(parentRef.current?.clientHeight || window.innerHeight), behavior: 'smooth' })}
-                  />
+                  {isPromoteRow ? (
+                    <PromoteCTACard onPromote={() => navigate('/client/advertise')} />
+                  ) : (
+                    <EventCard
+                      event={event}
+                      liked={likedIds.has(event.id)}
+                      activeColor={CATEGORIES.find(c => c.key === event.category)?.color || '#f97316'}
+                      onLike={() => likeMutation.mutate({ id: event.id, isLiked: likedIds.has(event.id) })}
+                      onChat={() => handleOpenChat(event)}
+                      onShare={() => handleShare(event)}
+                      onMiddleTap={() => handleMiddleTap(event)}
+                    />
+                  )}
                 </div>
               );
             })}

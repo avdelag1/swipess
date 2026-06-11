@@ -56,8 +56,6 @@ const ClientSelfieCamera = lazyWithRetry(() => import("./pages/ClientSelfieCamer
 const ClientFilters = lazyWithRetry(() => import("./pages/ClientFilters"));
 const MaintenanceRequests = lazyWithRetry(() => import("./pages/MaintenanceRequests"));
 const AdvertisePage = lazyWithRetry(() => import("./pages/AdvertisePage"));
-const PromoteEventRequest = lazyWithRetry(() => import("./pages/PromoteEventRequest"));
-const PromoteEventPackages = lazyWithRetry(() => import("./pages/PromoteEventPackages"));
 
 // OWNER PAGES
 const OwnerSettings = lazyWithRetry(() => import("./pages/OwnerSettings"));
@@ -170,8 +168,9 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
 
               <Route path="/client/maintenance" element={<MaintenanceRequests />} />
               <Route path="/client/advertise" element={<AdvertisePage />} />
-              <Route path="/promote-event/request" element={<PromoteEventRequest />} />
-              <Route path="/promote-event/packages" element={<PromoteEventPackages />} />
+              {/* Legacy promo flow — superseded by /client/advertise, which feeds the admin review queue */}
+              <Route path="/promote-event/request" element={<Navigate to="/client/advertise" replace />} />
+              <Route path="/promote-event/packages" element={<Navigate to="/client/advertise" replace />} />
 
               {/* Owner routes */}
               <Route path="/owner/dashboard" element={<Navigate to="/client/dashboard" replace />} />

@@ -390,9 +390,18 @@ export default function AdvertisePage() {
     appToast.message("Submit your event for review");
   };
 
-  const handleRestore = () => {
+  const handleRestore = async () => {
+    if (!NativeBridge.isNative()) {
+      appToast.info("Nothing to restore", "Web purchases are confirmed at checkout — no restore needed.");
+      return;
+    }
     appToast.info("Restoring Purchases", "Checking for previous promotion activations...");
-    setTimeout(() => appToast.success("Restore complete."), 1500);
+    const result = await NativeBridge.restorePurchases();
+    if (result.success) {
+      appToast.success("Restore complete.");
+    } else {
+      appToast.error("Restore failed", "No previous purchases found for this Apple ID.");
+    }
   };
 
 
@@ -443,6 +452,24 @@ export default function AdvertisePage() {
     haptics.success();
     setSubmitting(true);
     try {
+      // Upload the promo photo so the admin review and the published event get the image
+      let imageUrl: string | null = null;
+      if (form.photoUrl?.startsWith("data:")) {
+        try {
+          const blob = await (await fetch(form.photoUrl)).blob();
+          const ext = blob.type.includes("png") ? "png" : "jpg";
+          const path = `promo-submissions/${user?.id || "anon"}-${Date.now()}.${ext}`;
+          const { error: upErr } = await supabase.storage
+            .from("event-images")
+            .upload(path, blob, { contentType: blob.type || "image/jpeg" });
+          if (!upErr) {
+            imageUrl = supabase.storage.from("event-images").getPublicUrl(path).data.publicUrl;
+          }
+        } catch {
+          // Photo is optional — the submission still goes through without it
+        }
+      }
+
       const { error } = await supabase.from("business_promo_submissions" as any).insert({
         user_id: user?.id,
         event_type: form.eventType,
@@ -453,6 +480,7 @@ export default function AdvertisePage() {
         contact_name: form.contactName,
         contact_phone: form.contactPhone,
         website: form.website || null,
+        image_url: imageUrl,
         status: "pending",
       });
       if (error) throw error;

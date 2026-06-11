@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { CheckCircle, ExternalLink, MessageSquare, Search, XCircle } from 'lucide-react';
 import { appToast } from '@/utils/appNotification';
+import { logger } from '@/utils/prodLogger';
 
 
 interface EventRow {
@@ -38,6 +39,7 @@ interface PromoSubmission {
   status: 'pending' | 'approved' | 'rejected';
   created_at: string;
   website?: string;
+  image_url?: string | null;
 }
 
 const CATEGORY_OPTIONS = [
@@ -112,7 +114,7 @@ export default function AdminEventos() {
     try {
       const { data, error } = await supabase
         .from('business_promo_submissions' as any)
-        .select('id, user_id, title, description, event_type, location, contact_name, contact_phone, status, created_at, website')
+        .select('id, user_id, title, description, event_type, location, contact_name, contact_phone, status, created_at, website, image_url')
         .order('created_at', { ascending: false })
         .limit(200);
       
@@ -162,15 +164,26 @@ export default function AdminEventos() {
         .from('business_promo_submissions')
         .update({ status: 'approved' })
         .eq('id', id);
-      
+
       if (error) throw error;
-      
-      appToast.info('Submission approved & Published 🎉');
+
+      // 4. Tell the business owner their event is live (best-effort)
+      if (sub.user_id) {
+        const { error: notifErr } = await (supabase as any).rpc('create_notification_for_user', {
+          p_user_id: sub.user_id,
+          p_notification_type: 'system_announcement',
+          p_title: 'Your event is live! 🎉',
+          p_message: `"${sub.title}" was approved and is now featured in the Events feed.`,
+        });
+        if (notifErr) logger.warn('Approval notification failed', notifErr);
+      }
+
+      appToast.success('Submission approved & Published 🎉');
       fetchSubmissions();
       fetchEvents(); // Refresh events list too
     } catch (err: any) {
-      console.error('Approval error:', err);
-      appToast.info('Approval failed');
+      logger.error('Approval error:', err);
+      appToast.error('Approval failed');
     }
   };
 
@@ -180,12 +193,25 @@ export default function AdminEventos() {
         .from('business_promo_submissions' as any)
         .update({ status: 'rejected' })
         .eq('id', id);
-      
+
       if (error) throw error;
+
+      // Tell the submitter so they can revise and resubmit (best-effort)
+      const sub = submissions.find(s => s.id === id);
+      if (sub?.user_id) {
+        const { error: notifErr } = await (supabase as any).rpc('create_notification_for_user', {
+          p_user_id: sub.user_id,
+          p_notification_type: 'system_announcement',
+          p_title: 'Event submission update',
+          p_message: `"${sub.title}" wasn't approved this time. You can edit and resubmit it from the Advertise page.`,
+        });
+        if (notifErr) logger.warn('Rejection notification failed', notifErr);
+      }
+
       appToast.info('Submission rejected');
       fetchSubmissions();
     } catch (_err) {
-      appToast.info('Rejection failed');
+      appToast.error('Rejection failed');
     }
   };
 
@@ -491,21 +517,31 @@ export default function AdminEventos() {
                 className="p-5 rounded-[2rem] bg-card border border-border/30 shadow-sm space-y-4"
               >
                 <div className="flex justify-between items-start">
-                  <div>
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className={cn(
-                        "text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full border",
-                        sub.status === 'pending' && "bg-orange-500/10 text-orange-400 border-orange-500/20",
-                        sub.status === 'approved' && "bg-green-500/10 text-green-400 border-green-500/20",
-                        sub.status === 'rejected' && "bg-red-500/10 text-red-400 border-red-500/20"
-                      )}>
-                        {sub.status}
-                      </span>
-                      <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">
-                        {new Date(sub.created_at).toLocaleDateString()}
-                      </span>
+                  <div className="flex items-start gap-3 min-w-0">
+                    {sub.image_url && (
+                      <img
+                        src={sub.image_url}
+                        alt={sub.title}
+                        loading="lazy"
+                        className="w-16 h-16 rounded-2xl object-cover border border-border/40 shrink-0"
+                      />
+                    )}
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className={cn(
+                          "text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full border",
+                          sub.status === 'pending' && "bg-orange-500/10 text-orange-400 border-orange-500/20",
+                          sub.status === 'approved' && "bg-green-500/10 text-green-400 border-green-500/20",
+                          sub.status === 'rejected' && "bg-red-500/10 text-red-400 border-red-500/20"
+                        )}>
+                          {sub.status}
+                        </span>
+                        <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">
+                          {new Date(sub.created_at).toLocaleDateString()}
+                        </span>
+                      </div>
+                      <h4 className="font-black text-foreground uppercase tracking-tight italic">{sub.title}</h4>
                     </div>
-                    <h4 className="font-black text-foreground uppercase tracking-tight italic">{sub.title}</h4>
                   </div>
                   <div className="flex gap-2">
                     {sub.status === 'pending' && (

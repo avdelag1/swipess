@@ -1,16 +1,11 @@
 import { memo, useCallback, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Bookmark, Calendar, ChevronUp, Flag, Heart, MapPin, MessageCircle, Share2 } from 'lucide-react';
+import { Calendar, Flag, Heart, MapPin, MessageCircle, Share2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
 import useAppTheme from '@/hooks/useAppTheme';
-import { useAuth } from '@/hooks/useAuth';
-import { supabase } from '@/integrations/supabase/client';
 import { EventItem } from '@/types/events';
 import { CATEGORIES } from '@/data/eventsData';
-import { appToast } from '@/utils/appNotification';
-
-const AUTOPLAY_DURATION = 6000;
 
 function formatDate(str: string | null): string {
   if (!str) return '';
@@ -22,66 +17,18 @@ function formatDate(str: string | null): string {
   return `In ${diff} days`;
 }
 
-function formatFullDate(str: string | null): string {
-  if (!str) return '';
-  return new Date(str).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
-}
-
-// ── STORY PROGRESS BAR ────────────────────────────────────────────────────────
-const StoryProgressBar = memo(({ 
-  duration, 
-  isActive, 
-  isPaused, 
-  onComplete,
-  animKey
-}: { 
-  duration: number; 
-  isActive: boolean; 
-  isPaused: boolean; 
-  onComplete: () => void;
-  animKey: number;
-}) => {
-  const { theme } = useAppTheme();
-  const isLight = theme === 'light';
-
-  return (
-    <div className="absolute top-[calc(env(safe-area-inset-top,0px)+8px)] left-4 right-4 z-[60] flex gap-1.5 h-1">
-      <div className={cn(
-        "relative flex-1 rounded-full overflow-hidden backdrop-blur-md",
-        isLight ? "bg-black/10" : "bg-white/20"
-      )}>
-        <motion.div
-          key={animKey}
-          initial={{ width: '0%' }}
-          animate={isActive ? { width: isPaused ? undefined : '100%' } : { width: '0%' }}
-          transition={isActive && !isPaused ? { duration: duration / 1000, ease: 'linear' } : { duration: 0 }}
-          onAnimationComplete={() => { if (isActive && !isPaused) onComplete(); }}
-          className={cn(
-            "absolute inset-y-0 left-0",
-            isLight ? "bg-black/80 shadow-[0_0_8px_rgba(0,0,0,0.2)]" : "bg-white shadow-[0_0_8px_rgba(255,255,255,0.5)]"
-          )}
-        />
-      </div>
-    </div>
-  );
-});
-
 // ── SINGLE EVENT CARD ─────────────────────────────────────────────────────────
 export const EventCard = memo(({
-  event, isActive, isPaused, animKey, onTickComplete, onLike, liked, onChat, onShare, onMiddleTap, _onNextEvent, _onPrevEvent,
+  event, onLike, liked, onChat, onShare, onMiddleTap,
   activeColor = '#f97316'
 }: {
-  event: EventItem; isActive: boolean; isPaused: boolean; animKey: number; onTickComplete: () => void; onLike: () => void; liked: boolean;
+  event: EventItem; onLike: () => void; liked: boolean;
   onChat: () => void; onShare: () => void; onMiddleTap: () => void;
-  _onNextEvent?: () => void; _onPrevEvent?: () => void;
   activeColor?: string;
 }) => {
   const { theme } = useAppTheme();
   const isLight = theme === 'light';
-  const { user } = useAuth();
-  const [showDetails, setShowDetails] = useState(false);
   const [likeAnim, setLikeAnim] = useState(false);
-  const [saved, setSaved] = useState(false);
   const lastTapRef = useRef(0);
 
   const handleLike = useCallback(() => {
@@ -91,25 +38,6 @@ export const EventCard = memo(({
       setTimeout(() => setLikeAnim(false), 600);
     }
   }, [onLike, liked]);
-
-  const handleSave = useCallback(async () => {
-    if (!user) {
-      appToast.error('Sign in to save events');
-      return;
-    }
-    triggerHaptic('success');
-    const newSaved = !saved;
-    setSaved(newSaved);
-    const { error } = newSaved
-      ? await supabase.from('event_favorites').insert({ user_id: user.id, event_id: event.id })
-      : await supabase.from('event_favorites').delete().eq('user_id', user.id).eq('event_id', event.id);
-    if (error) {
-      setSaved(!newSaved);
-      appToast.error('Could not save event');
-    } else {
-      appToast.success(newSaved ? 'Event saved!' : 'Removed from saved');
-    }
-  }, [saved, user, event.id]);
 
   const handleReport = useCallback(() => {
     triggerHaptic('medium');
@@ -147,15 +75,6 @@ export const EventCard = memo(({
       )}
       data-testid={`event-card-${event.id}`}
     >
-      {/* Story Progress Bar */}
-      <StoryProgressBar 
-        duration={AUTOPLAY_DURATION} 
-        isActive={isActive && !showDetails} 
-        isPaused={isPaused} 
-        animKey={animKey}
-        onComplete={onTickComplete}
-      />
-      
       {/* Background — event image or rich gradient */}
       {hasImage ? (
         <>
@@ -352,106 +271,12 @@ export const EventCard = memo(({
           )}
         </div>
 
-        {/* Swipe hint */}
+        {/* Interaction hint — single tap opens the full event detail page */}
         <div className="flex items-center gap-2 mt-4 opacity-50">
           <div className="w-5 h-[2px] rounded-full bg-white/60" />
-          <span className="text-[9px] font-bold uppercase tracking-[0.3em] text-white/60">Swipe up for more</span>
+          <span className="text-[9px] font-bold uppercase tracking-[0.3em] text-white/60">Tap for details</span>
         </div>
       </div>
-
-      {/* ── DETAILS OVERLAY ────────────────────────────────────────────── */}
-      <AnimatePresence>
-        {showDetails && (
-          <motion.div
-            initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
-            transition={{ type: 'spring', damping: 32, stiffness: 280 }}
-            className={cn(
-              "absolute inset-0 z-50 overflow-y-auto backdrop-blur-[20px]",
-              isLight ? "bg-white/98" : "bg-black/96"
-            )}
-          >
-            <div className="relative h-[45dvh]">
-              {hasImage ? (
-                <>
-                  <img src={event.image_url!} alt={event.title} loading="lazy" className="absolute inset-0 w-full h-full object-cover" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                </>
-              ) : (
-                <div
-                  className="absolute inset-0"
-                  style={{
-                    background: `radial-gradient(ellipse at 30% 50%, ${activeColor}44 0%, transparent 60%),
-                                 linear-gradient(160deg, #0d0d10 0%, #111117 100%)`,
-                  }}
-                />
-              )}
-              <button 
-                onClick={() => setShowDetails(false)} 
-                className="absolute top-4 left-4 w-10 h-10 rounded-full flex items-center justify-center z-10 bg-black/50 backdrop-blur-md border border-white/20"
-                title="Close details"
-              >
-                <ChevronUp className="w-5 h-5 text-white" />
-              </button>
-              <div className="absolute bottom-6 left-5 right-5">
-                <h3 className={cn("text-3xl font-black leading-tight", isLight ? "text-black" : "text-white")}>{event.title}</h3>
-                {event.organizer_name && <p className={cn("text-sm mt-1", isLight ? "text-black/50" : "text-white/50")}>by {event.organizer_name}</p>}
-              </div>
-            </div>
-            <div className="p-5 space-y-5">
-              {event.description && <p className={cn("text-sm leading-relaxed", isLight ? "text-black/80" : "text-white/80")}>{event.description}</p>}
-              <div className="grid grid-cols-2 gap-3">
-                {event.event_date && (
-                  <div className={cn("flex items-start gap-3 p-3 rounded-2xl", isLight ? "bg-black/5" : "bg-white/5")}>
-                    <Calendar className="w-4 h-4 text-orange-400 mt-0.5 flex-shrink-0" />
-                    <div>
-                      <div className={cn("text-[10px] uppercase tracking-widest", isLight ? "text-black/70" : "text-white/70")}>Date</div>
-                      <div className={cn("text-sm font-bold", isLight ? "text-black" : "text-white")}>{formatFullDate(event.event_date)}</div>
-                    </div>
-                  </div>
-                )}
-                {event.location && (
-                  <div className={cn("flex items-start gap-3 p-3 rounded-2xl", isLight ? "bg-black/5" : "bg-white/5")}>
-                    <MapPin className="w-4 h-4 text-orange-400 mt-0.5 flex-shrink-0" />
-                    <div>
-                      <div className={cn("text-[10px] uppercase tracking-widest", isLight ? "text-black/70" : "text-white/70")}>Location</div>
-                      <div className={cn("text-sm font-bold", isLight ? "text-black" : "text-white")}>{event.location}</div>
-                    </div>
-                  </div>
-                )}
-              </div>
-              <div className="flex gap-3 pt-2">
-                <button
-                  onClick={() => { handleSave(); }}
-                  className={cn(
-                    "py-4 px-5 rounded-2xl font-black text-sm flex items-center justify-center gap-2 border transition-all shrink-0",
-                    saved
-                      ? "bg-orange-500/15 border-orange-500/40 text-orange-500"
-                      : isLight ? "text-black bg-black/5 border-black/10" : "text-white bg-white/10 border-white/15"
-                  )}
-                  title={saved ? "Unsave event" : "Save event"}
-                >
-                  <Bookmark className={cn("w-4 h-4", saved && "fill-orange-500")} />
-                  {saved ? 'Saved' : 'Save'}
-                </button>
-                <button
-                  onClick={() => onChat()}
-                  className={cn("flex-1 py-4 rounded-2xl font-black text-sm flex items-center justify-center gap-2 border", isLight ? "text-black bg-black/5 border-black/10" : "text-white bg-white/10 border-white/15")}
-                  title="Chat on WhatsApp"
-                >
-                  <MessageCircle className="w-4 h-4" /> Chat
-                </button>
-                <button
-                  onClick={() => onShare()}
-                  className="flex-1 py-4 rounded-2xl font-black text-white text-sm flex items-center justify-center gap-2 bg-gradient-to-br from-orange-500 to-purple-600"
-                  title="Share event"
-                >
-                  <Share2 className="w-4 h-4" /> Share
-                </button>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 });
