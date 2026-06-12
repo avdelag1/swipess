@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { logger } from '@/utils/prodLogger';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -24,10 +25,11 @@ export function LanguageToggle() {
     await i18nChangeLanguage(code);
 
     if (user) {
-      await supabase
+      const { error } = await supabase
         .from('profiles')
         .update({ language: code })
         .eq('user_id', user.id);
+      if (error) logger.warn('[LanguageToggle] save error:', error);
     }
   };
 

@@ -54,10 +54,11 @@ export function ThemeSyncManager() {
 
     const saveTheme = async () => {
       try {
-        await supabase
+        const { error } = await supabase
           .from('profiles')
           .update({ theme_preference: theme })
           .eq('user_id', user.id);
+        if (error) throw error;
         lastSavedThemeRef.current = theme;
       } catch (error) {
         logger.error('[ThemeSync] Failed to save preference:', error);
