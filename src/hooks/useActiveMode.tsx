@@ -150,13 +150,14 @@ export function ActiveModeProvider({ children }: { children: ReactNode }) {
     if (!user?.id) return;
 
     try {
-      await supabase
+      const { error } = await supabase
         .from('profiles')
         .update({
           active_mode: newMode,
           updated_at: new Date().toISOString()
         })
         .eq('user_id', user.id);
+      if (error) throw error;
 
       // Update query cache
       queryClient.setQueryData(['active-mode', user.id], newMode);
