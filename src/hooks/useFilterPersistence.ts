@@ -118,7 +118,8 @@ export function useFilterPersistence() {
         logger.info('[FilterPersistence] Updated active filter');
       } else {
         // Deactivate any stale active filters before creating a new one
-        await supabase.from('saved_filters').update({ is_active: false }).eq('user_id', user.id);
+        const { error: deactivateErr } = await supabase.from('saved_filters').update({ is_active: false }).eq('user_id', user.id);
+        if (deactivateErr) logger.warn('[FilterPersistence] deactivate error:', deactivateErr);
 
         const { error: insertErr } = await supabase
           .from('saved_filters')
