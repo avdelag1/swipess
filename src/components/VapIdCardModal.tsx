@@ -129,7 +129,7 @@ export function VapIdCardModal({ isOpen, onClose, role = 'client' }: VapIdProps)
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
+          exit={{ opacity: 0, transition: { duration: 0.6 } }}
           className="fixed inset-0 z-[10001] flex items-center justify-center bg-black/70 backdrop-blur-xl p-4"
           onClick={onClose}
         >
@@ -137,13 +137,14 @@ export function VapIdCardModal({ isOpen, onClose, role = 'client' }: VapIdProps)
             initial={{ scale: 0.8, opacity: 0, y: 100 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ 
-              scaleY: [1, 0.6, 0.1],
-              scaleX: [1, 0.2, 0.05],
-              y: [0, 300, 500],
-              opacity: [1, 0.8, 0],
+              scaleY: [1, 0.7, 0.0],
+              scaleX: [1, 0.2, 0.0],
+              y: [0, 200, 800],
+              opacity: [1, 1, 0],
+              filter: ["blur(0px)", "blur(4px)", "blur(12px)"],
               transition: {
-                duration: 0.5,
-                ease: [0.6, -0.05, 0.01, 0.99]
+                duration: 0.6,
+                ease: "anticipate"
               }
             }}
             transition={{ type: 'spring', damping: 25, stiffness: 300, mass: 0.8 }}
