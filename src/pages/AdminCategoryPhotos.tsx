@@ -39,8 +39,8 @@ export default function AdminCategoryPhotos() {
   useEffect(() => {
     (async () => {
       if (!user) { navigate('/'); return; }
-      const { data: ok } = await supabase.rpc('has_role', { _user_id: user.id, _role: 'admin' as any });
-      if (!ok) { navigate('/'); return; }
+      const { data: ok, error: roleError } = await supabase.rpc('has_role', { _user_id: user.id, _role: 'admin' as any });
+      if (roleError || !ok) { navigate('/'); return; }
       await load();
     })();
   // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -121,13 +121,14 @@ async function loadConversationsCloud(userId: string): Promise<Conversation[]> {
 
 async function saveConversationCloud(userId: string, convo: Conversation) {
   try {
-    await supabase.from('ai_conversations').upsert({
+    const { error } = await supabase.from('ai_conversations').upsert({
       id: convo.id,
       user_id: userId,
       title: convo.title,
       updated_at: convo.updatedAt.toISOString(),
       created_at: convo.createdAt.toISOString(),
     }, { onConflict: 'id' });
+    if (error) throw error;
   } catch (e) {
     logger.error('[AI Cloud] save convo error:', e);
   }
@@ -135,7 +136,7 @@ async function saveConversationCloud(userId: string, convo: Conversation) {
 
 async function saveMessageCloud(userId: string, conversationId: string, msg: ChatMessage) {
   try {
-    await supabase.from('ai_messages').upsert({
+    const { error } = await supabase.from('ai_messages').upsert({
       id: msg.id,
       conversation_id: conversationId,
       user_id: userId,
@@ -143,6 +144,7 @@ async function saveMessageCloud(userId: string, conversationId: string, msg: Cha
       content: msg.content,
       created_at: msg.timestamp.toISOString(),
     }, { onConflict: 'id' });
+    if (error) throw error;
   } catch (e) {
     logger.error('[AI Cloud] save msg error:', e);
   }

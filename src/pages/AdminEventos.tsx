@@ -91,8 +91,8 @@ export default function AdminEventos() {
 
   const checkAdmin = async () => {
     if (!user) { navigate('/'); return; }
-    const { data } = await supabase.rpc('has_role', { _user_id: user.id, _role: 'admin' });
-    if (!data) { navigate('/'); return; }
+    const { data, error: roleError } = await supabase.rpc('has_role', { _user_id: user.id, _role: 'admin' });
+    if (roleError || !data) { navigate('/'); return; }
     setIsAdmin(true);
     fetchEvents();
     fetchSubmissions();
@@ -100,11 +100,14 @@ export default function AdminEventos() {
 
   const fetchEvents = async () => {
     // Admin needs to see ALL events (including unpublished), so query without RLS filter
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('events')
       .select('id, title, category, image_url, event_date, location, is_published, is_approved, organizer_whatsapp')
       .order('created_at', { ascending: false })
       .limit(200);
+    if (error) {
+      appToast.error('Failed to load events');
+    }
     setEvents((data as EventRow[]) || []);
     setIsLoading(false);
   };
@@ -275,8 +278,8 @@ export default function AdminEventos() {
   };
 
   const handleEdit = async (eventId: string) => {
-    const { data } = await supabase.from('events').select('*').eq('id', eventId).single();
-    if (!data) return;
+    const { data, error: editError } = await supabase.from('events').select('*').eq('id', eventId).single();
+    if (editError || !data) return;
     const d = data as any;
     setForm({
       title: d.title || '',

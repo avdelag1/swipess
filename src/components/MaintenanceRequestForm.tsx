@@ -83,12 +83,13 @@ export function MaintenanceRequestForm({ onSuccess, onCancel }: MaintenanceReque
     setSubmitting(true);
     try {
       // Find an active contract to link to (get the owner)
-      const { data: contracts } = await supabase
+      const { data: contracts, error: contractsError } = await supabase
         .from('digital_contracts')
         .select('id, owner_id, listing_id')
         .eq('client_id', user.id)
         .eq('status', 'active')
         .limit(1);
+      if (contractsError) throw contractsError;
 
       const contract = contracts?.[0];
       const ownerId = contract?.owner_id || user.id; // fallback

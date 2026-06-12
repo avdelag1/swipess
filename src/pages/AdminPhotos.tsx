@@ -71,8 +71,8 @@ export default function AdminPhotos() {
 
   const checkAdminAndLoad = async () => {
     if (!user) { navigate('/'); return; }
-    const { data } = await supabase.rpc('has_role', { _user_id: user.id, _role: 'admin' });
-    if (!data) { navigate('/'); return; }
+    const { data, error: roleError } = await supabase.rpc('has_role', { _user_id: user.id, _role: 'admin' });
+    if (roleError || !data) { navigate('/'); return; }
     await Promise.all([loadPhotos(), loadEvents()]);
   };
 

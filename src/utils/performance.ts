@@ -35,13 +35,14 @@ export async function warmDiscoveryCache(queryClient: QueryClient, userId: strin
   queryClient.prefetchQuery({
     queryKey: ['smart-listings', userId, defaultFilters, 0, 20, false],
     queryFn: async () => {
-      const { data } = await (supabase as any).rpc('get_smart_listings', {
+      const { data, error } = await (supabase as any).rpc('get_smart_listings', {
         p_user_id: userId,
         p_category: null,
         p_limit: 20,
         p_offset: 0
       });
-      
+      if (error) throw error;
+
       const listings = data as any[];
       if (listings && listings.length > 0) {
         listings.slice(0, imagePrefetchCount).forEach((item: any) => {
@@ -59,12 +60,13 @@ export async function warmDiscoveryCache(queryClient: QueryClient, userId: strin
     queryClient.prefetchQuery({
       queryKey: ['eventos', 'v4'],
       queryFn: async () => {
-        const { data } = await supabase
+        const { data, error } = await supabase
           .from('events')
           .select('id, title, description, category, image_url, event_date, location, location_detail, organizer_name, organizer_whatsapp, promo_text, discount_tag, is_free, price_text')
           .order('event_date', { ascending: true })
           .limit(30);
-        
+        if (error) throw error;
+
         if (data && data.length > 0) {
           const eventImgCount = Math.min(imagePrefetchCount, 3);
           data.slice(0, eventImgCount).forEach((item: any) => {
@@ -81,7 +83,8 @@ export async function warmDiscoveryCache(queryClient: QueryClient, userId: strin
   queryClient.prefetchQuery({
     queryKey: ['profile', userId],
     queryFn: async () => {
-      const { data } = await supabase.from('profiles').select('*').eq('id', userId).single();
+      const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).single();
+      if (error) throw error;
       return data;
     },
     staleTime: 1000 * 60 * 60 * 24,
@@ -103,13 +106,14 @@ export async function predictivePrefetchCategory(queryClient: QueryClient, userI
   queryClient.prefetchQuery({
     queryKey: ['smart-listings', userId, filters, 0, 20, false],
     queryFn: async () => {
-      const { data } = await (supabase as any).rpc('get_smart_listings', {
+      const { data, error } = await (supabase as any).rpc('get_smart_listings', {
         p_user_id: userId,
         p_category: category === 'all' ? null : category,
         p_limit: 20,
         p_offset: 0
       });
-      
+      if (error) throw error;
+
       const listings = data as any[];
       if (listings && listings.length > 0) {
         listings.slice(0, 2).forEach((item: any) => {
@@ -129,12 +133,13 @@ export async function predictivePrefetchEvent(queryClient: QueryClient, eventId:
   queryClient.prefetchQuery({
     queryKey: ['evento', eventId],
     queryFn: async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('events')
         .select('id, title, description, category, image_url, event_date, location, location_detail, organizer_name, organizer_whatsapp, promo_text, discount_tag, is_free, price_text')
         .eq('id', eventId)
         .single();
-      
+      if (error) throw error;
+
       if (data?.image_url) prefetchImage(data.image_url, true);
       return data;
     },
