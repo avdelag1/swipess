@@ -74,7 +74,7 @@ export function OwnerSettingsDialog({ open, onOpenChange }: OwnerSettingsDialogP
                     "justify-between h-16 rounded-[1.5rem] px-6 text-sm font-black uppercase italic tracking-tight transition-all",
                     isLight ? "bg-black/[0.03] hover:bg-black/[0.06]" : "bg-white/[0.03] hover:bg-white/[0.06]"
                   )}
-                  onClick={() => { onOpenChange(false); navigate('/legal'); }}
+                  onClick={() => { onOpenChange(false); navigate('/legal?doc=terms'); }}
                 >
                   <div className="flex items-center gap-4">
                     <FileText className="w-5 h-5 opacity-70" />
@@ -83,13 +83,13 @@ export function OwnerSettingsDialog({ open, onOpenChange }: OwnerSettingsDialogP
                   <ExternalLink className="w-4 h-4 opacity-20" />
                 </Button>
 
-                <Button 
-                  variant="ghost" 
+                <Button
+                  variant="ghost"
                   className={cn(
                     "justify-between h-16 rounded-[1.5rem] px-6 text-sm font-black uppercase italic tracking-tight transition-all",
                     isLight ? "bg-black/[0.03] hover:bg-black/[0.06]" : "bg-white/[0.03] hover:bg-white/[0.06]"
                   )}
-                  onClick={() => { onOpenChange(false); navigate('/legal'); }}
+                  onClick={() => { onOpenChange(false); navigate('/legal?doc=privacy'); }}
                 >
                   <div className="flex items-center gap-4">
                     <Shield className="w-5 h-5 opacity-70" />

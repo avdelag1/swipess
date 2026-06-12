@@ -107,12 +107,13 @@ export function ClientVerificationFlow({ onComplete }: ClientVerificationFlowPro
       if (requestError) throw requestError;
 
       // 2. Update client profile verification timestamp
-      await supabase
+      const { error: profileError } = await supabase
         .from('client_profiles')
         .update({
           verification_submitted_at: new Date().toISOString()
         })
         .eq('user_id', user.id);
+      if (profileError) throw profileError;
 
       appToast.success('Identity submitted for review! 🚀');
       onComplete?.();

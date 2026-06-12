@@ -170,7 +170,7 @@ export function SavedSearchesDialog({ open, onOpenChange }: SavedSearchesDialogP
     try {
       const { error } = await supabase
         .from('saved_searches')
-        .update({ last_matched_at: new Date().toISOString() } as any)
+        .update({ alerts_enabled: !currentStatus } as any)
         .eq('id', searchId);
 
       if (error) throw error;
@@ -178,8 +178,8 @@ export function SavedSearchesDialog({ open, onOpenChange }: SavedSearchesDialogP
       appToast.info(!currentStatus ? 'Alerts Enabled' : 'Alerts Disabled', `You will ${!currentStatus ? 'now' : 'no longer'} receive notifications for this search.`);
 
       fetchSavedSearches();
-    } catch {
-      appToast.info('Error');
+    } catch (err) {
+      appToast.error('Failed to update alerts');
     }
   };
 
