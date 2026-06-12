@@ -42,7 +42,7 @@ export default function ClientSelfieCamera() {
         autoStart={true}
       />
       {uploadStatus !== 'idle' && (
-        <div className="fixed bottom-4 left-4 right-4 z-[60]">
+        <div className="fixed left-4 right-4 z-[60]" style={{ bottom: 'calc(1rem + env(safe-area-inset-bottom, 0px))' }}>
           <UploadProgress
             progress={uploadProgress}
             status={uploadStatus}

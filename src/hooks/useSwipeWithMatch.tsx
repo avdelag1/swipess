@@ -100,7 +100,7 @@ export function useSwipeWithMatch(options?: SwipeWithMatchOptions) {
 
       // CRITICAL: Prevent self-likes (should never happen due to query filtering, but defense in depth)
       if (targetType === 'profile' && targetId === user.id) {
-        logger.error('[useSwipeWithMatch] CRITICAL: Attempted self-like - profile filter failed!', { userId: user.id, targetId });
+        logger.error('[useSwipeWithMatch] CRITICAL: Attempted self-like - profile filter failed!');
         throw new Error('You cannot like your own profile');
       }
 

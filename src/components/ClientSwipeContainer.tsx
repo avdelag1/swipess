@@ -577,7 +577,7 @@ const ClientSwipeContainerComponent = ({
 
     // CRITICAL: Prevent swiping on own profile (should never happen, but defense in depth)
     if (user?.id && profile.user_id === user.id) {
-      logger.error('[ClientSwipeContainer] BLOCKED: Attempted to swipe on own profile!', { userId: user.id });
+      logger.error('[ClientSwipeContainer] BLOCKED: Attempted to swipe on own profile!');
       appToast.error('Oops!', 'You cannot swipe on your own profile');
       return;
     }

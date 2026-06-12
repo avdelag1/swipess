@@ -496,7 +496,7 @@ export default function EventoDetail() {
       </div>
 
       {/* ── STICKY FOOTER CTA ── */}
-      <div className="fixed bottom-0 left-0 right-0 px-6 py-10 bg-gradient-to-t from-slate-50 dark:from-black via-slate-50 dark:via-black/95 to-transparent z-50">
+      <div className="fixed bottom-0 left-0 right-0 px-6 bg-gradient-to-t from-slate-50 dark:from-black via-slate-50 dark:via-black/95 to-transparent z-50" style={{ paddingTop: '2.5rem', paddingBottom: 'calc(2.5rem + env(safe-area-inset-bottom, 0px))' }}>
         <div className="max-w-xl mx-auto flex gap-4">
           {event.organizer_whatsapp && (
             <motion.button
