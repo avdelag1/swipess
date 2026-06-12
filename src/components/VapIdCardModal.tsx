@@ -136,8 +136,18 @@ export function VapIdCardModal({ isOpen, onClose, role = 'client' }: VapIdProps)
           <motion.div
             initial={{ scale: 0.8, opacity: 0, y: 100 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
-            exit={{ scale: 0.8, opacity: 0, y: 100 }}
+            exit={{ 
+              scaleY: [1, 0.6, 0.1],
+              scaleX: [1, 0.2, 0.05],
+              y: [0, 300, 500],
+              opacity: [1, 0.8, 0],
+              transition: {
+                duration: 0.5,
+                ease: [0.6, -0.05, 0.01, 0.99]
+              }
+            }}
             transition={{ type: 'spring', damping: 25, stiffness: 300, mass: 0.8 }}
+            style={{ transformOrigin: 'bottom center' }}
             onClick={(e) => e.stopPropagation()}
             className="relative w-[98vw] max-w-none h-[98dvh] max-h-[98dvh] flex flex-col"
           >
