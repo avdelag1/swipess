@@ -3,6 +3,7 @@ import { Check, Clock, Crown, RefreshCcw, Shield, Sparkles } from 'lucide-react'
 import { appToast } from '@/utils/appNotification';
 import { STORAGE } from '@/constants/app';
 import { supabase } from '@/integrations/supabase/client';
+import { logger } from '@/utils/prodLogger';
 import { useAuth } from '@/hooks/useAuth';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -156,13 +157,15 @@ export function SubscriptionPackages({ isOpen = true, onClose, reason, userRole 
     appToast.info('Redirecting to Checkout', `Selected: ${plan.name} (${plan.price} USD)`);
 
     if (user?.id) {
-      await supabase.from('notifications').insert([{
+      supabase.from('notifications').insert([{
         user_id: user.id,
         notification_type: 'payment_received',
         title: 'Premium Package Selected!',
         message: `You selected the ${plan.name} package (${plan.price}). Complete payment to activate your premium benefits!`,
         is_read: false
-      }]).then(() => {}, () => {});
+      }]).then(({ error }) => {
+        if (error) logger.warn('[SubscriptionPackages] notification insert failed:', error);
+      }).catch(() => {});
     }
   };
 

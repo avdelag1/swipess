@@ -30,12 +30,13 @@ export function FeedbackSection() {
     setSubmitting(true);
     try {
       // Best-effort insert — table may not exist yet; we show success either way
-      await (supabase as any).from('user_feedback').insert({
+      const { error: feedbackErr } = await (supabase as any).from('user_feedback').insert({
         user_id: user?.id ?? null,
         email: user?.email ?? null,
         category,
         message: message.trim(),
       });
+      if (feedbackErr) logger.warn('[FeedbackSection] feedback insert failed:', feedbackErr);
     } catch (_) { logger.warn('feedback submit failed', _); }
     setSubmitting(false);
     setDone(true);
