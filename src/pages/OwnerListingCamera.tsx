@@ -85,7 +85,7 @@ export default function OwnerListingCamera() {
 
         // Upload to Supabase Storage
         const { data: _data, error: uploadError } = await supabase.storage
-          .from('profile-images')
+          .from('listing-images')
           .upload(fileName, blob, {
             contentType: `image/${fileExt}`,
             upsert: false,
@@ -98,7 +98,7 @@ export default function OwnerListingCamera() {
 
         // Get public URL
         const { data: { publicUrl } } = supabase.storage
-          .from('profile-images')
+          .from('listing-images')
           .getPublicUrl(fileName);
 
         uploadedUrls.push(publicUrl);
@@ -131,7 +131,12 @@ export default function OwnerListingCamera() {
       }
 
       if (isMountedRef.current) {
-        appToast.info('Photos Uploaded!', `${uploadedUrls.length} photo(s) have been saved successfully.`);
+        const failedCount = photos.length - uploadedUrls.length;
+        if (failedCount > 0) {
+          appToast.info('Photos Uploaded', `${uploadedUrls.length} saved, ${failedCount} failed — you can retake those.`);
+        } else {
+          appToast.info('Photos Uploaded!', `${uploadedUrls.length} photo(s) have been saved successfully.`);
+        }
 
         // Navigate back with the uploaded URLs in state
         navigate(returnPath, {

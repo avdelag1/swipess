@@ -129,7 +129,7 @@ export function useCreateContract() {
 
       // Create deal status record
       if (contractData.client_id) {
-        await supabase
+        const { error: dealError } = await supabase
           .from('deal_status_tracking')
           .insert({
             contract_id: data.id,
@@ -138,6 +138,7 @@ export function useCreateContract() {
             listing_id: contractData.listing_id,
             status: 'pending'
           });
+        if (dealError) throw dealError;
       }
 
       return data;
@@ -206,12 +207,13 @@ export function useSignContract() {
         updateData.signed_by_owner_at = new Date().toISOString();
       } else if (isClient) {
         // Check if owner already signed
-        const { data: ownerSignature } = await supabase
+        const { data: ownerSignature, error: ownerSigError } = await supabase
           .from('contract_signatures')
           .select('*')
           .eq('contract_id', contractId)
           .eq('signer_id', contract.owner_id)
-          .single();
+          .maybeSingle();
+        if (ownerSigError) throw ownerSigError;
 
         if (ownerSignature) {
           newStatus = 'completed';
@@ -227,16 +229,18 @@ export function useSignContract() {
       updateData.status = newStatus as 'pending' | 'signed_by_owner' | 'signed_by_client' | 'completed' | 'cancelled' | 'disputed';
 
       // Update deal status
-      await supabase
+      const { error: dealUpdateError } = await supabase
         .from('deal_status_tracking')
         .update(updateData)
         .eq('contract_id', contractId);
+      if (dealUpdateError) throw dealUpdateError;
 
       // Update contract status
-      await supabase
+      const { error: contractUpdateError } = await supabase
         .from('digital_contracts')
         .update({ status: newStatus as 'pending' | 'signed_by_owner' | 'signed_by_client' | 'completed' | 'cancelled' | 'disputed' })
         .eq('id', contractId);
+      if (contractUpdateError) throw contractUpdateError;
 
       return signature;
     },

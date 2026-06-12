@@ -10,6 +10,7 @@ import { clientTemplates, ContractTemplate, ownerTemplates } from '@/data/contra
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { DigitalSignaturePad } from '@/components/DigitalSignaturePad';
+import { logger } from '@/utils/prodLogger';
 import { triggerHaptic } from '@/utils/haptics';
 import useAppTheme from '@/hooks/useAppTheme';
 import { appToast } from '@/utils/appNotification';
@@ -40,6 +41,12 @@ export function ContractsVault() {
   const [loading, setLoading] = useState(true);
   const [selectedTemplate, setSelectedTemplate] = useState<ContractTemplate | null>(null);
   const [activeContract, setActiveContract] = useState<any>(null);
+  const [draftTitle, setDraftTitle] = useState('');
+  const [draftEffectiveDate, setDraftEffectiveDate] = useState('');
+  const [draftMonthlyValue, setDraftMonthlyValue] = useState('');
+  const [draftCounterparty, setDraftCounterparty] = useState('');
+  const [isSavingDraft, setIsSavingDraft] = useState(false);
+  const [isSavingSignature, setIsSavingSignature] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -54,7 +61,12 @@ export function ContractsVault() {
       .or(`owner_id.eq.${user?.id},client_id.eq.${user?.id}`)
       .order('updated_at', { ascending: false });
 
-    if (!error) setContracts(data || []);
+    if (error) {
+      logger.error('[ContractsVault] fetch failed:', error);
+      appToast.error('Could not load contracts', 'Pull to refresh or try again later.');
+    } else {
+      setContracts(data || []);
+    }
     setLoading(false);
   };
 
@@ -66,6 +78,10 @@ export function ContractsVault() {
   const handleSelectTemplate = (template: ContractTemplate) => {
     triggerHaptic('heavy');
     setSelectedTemplate(template);
+    setDraftTitle(template.name);
+    setDraftEffectiveDate('');
+    setDraftMonthlyValue('');
+    setDraftCounterparty('');
     setView('editor');
   };
 
@@ -79,6 +95,74 @@ export function ContractsVault() {
     setView('dashboard');
     setSelectedTemplate(null);
     setActiveContract(null);
+  };
+
+  const handleSaveDraft = async () => {
+    if (!user || !selectedTemplate || isSavingDraft) return;
+    setIsSavingDraft(true);
+    try {
+      const { error } = await supabase.from('digital_contracts').insert({
+        title: draftTitle.trim() || selectedTemplate.name,
+        template_type: selectedTemplate.id,
+        content: selectedTemplate.content,
+        owner_id: user.id,
+        client_id: user.id,
+        status: 'draft',
+        metadata: {
+          effective_date: draftEffectiveDate || null,
+          monthly_value: draftMonthlyValue || null,
+          counterparty: draftCounterparty.trim() || null,
+          template_category: selectedTemplate.category,
+        },
+      } as any);
+      if (error) throw error;
+
+      triggerHaptic('success');
+      appToast.success('Legal Draft Synthesized', 'Saved to your vault.');
+      await fetchContracts();
+      handleClose();
+    } catch (err) {
+      logger.error('[ContractsVault] draft save failed:', err);
+      appToast.error('Could not save draft', 'Please try again.');
+    } finally {
+      setIsSavingDraft(false);
+    }
+  };
+
+  const handleSignatureCapture = async (sig: string, signatureType: 'drawn' | 'typed' | 'uploaded' = 'drawn') => {
+    if (!user || !activeContract || isSavingSignature) return;
+    setIsSavingSignature(true);
+    try {
+      const { error: sigError } = await supabase.from('contract_signatures').insert({
+        contract_id: activeContract.id,
+        signer_id: user.id,
+        signature_data: sig,
+        signature_type: signatureType,
+        user_agent: navigator.userAgent,
+      });
+      if (sigError) throw sigError;
+
+      const isOwner = activeContract.owner_id === user.id;
+      const signatureUpdate: Record<string, unknown> = isOwner
+        ? { owner_signature: sig, owner_signed_at: new Date().toISOString(), status: 'signed' }
+        : { client_signature: sig, client_signed_at: new Date().toISOString(), status: 'signed' };
+
+      const { error: updateError } = await supabase
+        .from('digital_contracts')
+        .update(signatureUpdate as any)
+        .eq('id', activeContract.id);
+      if (updateError) throw updateError;
+
+      triggerHaptic('success');
+      appToast.success('Signature Encrypted Successfully', 'Contract recorded in your vault.');
+      await fetchContracts();
+      handleClose();
+    } catch (err) {
+      logger.error('[ContractsVault] signature save failed:', err);
+      appToast.error('Could not save signature', 'Please try again.');
+    } finally {
+      setIsSavingSignature(false);
+    }
   };
 
   return (
@@ -269,28 +353,29 @@ export function ContractsVault() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div className="space-y-3 col-span-full">
                        <label className={cn("text-[10px] font-black uppercase tracking-[0.2em] ml-2 opacity-70", isLight ? "text-black" : "text-white")}>Document Title</label>
-                       <input 
-                         type="text" 
-                         defaultValue={selectedTemplate?.name}
+                       <input
+                         type="text"
+                         value={draftTitle}
+                         onChange={(e) => setDraftTitle(e.target.value)}
                          className={cn("w-full h-16 rounded-2xl border px-8 text-sm outline-none transition-all font-black uppercase tracking-widest", isLight ? "bg-black/[0.04] border-black/5 text-black focus:border-primary" : "bg-white/5 border-white/10 text-white focus:border-primary")}
                        />
                     </div>
 
                     <div className="space-y-3">
                        <label className={cn("text-[10px] font-black uppercase tracking-[0.2em] ml-2 opacity-70", isLight ? "text-black" : "text-white")}>Effective Date</label>
-                       <input type="date" className={cn("w-full h-16 rounded-2xl border px-8 text-sm outline-none", isLight ? "bg-black/[0.04] border-black/5 text-black" : "bg-white/5 border-white/10 text-white")} />
+                       <input type="date" value={draftEffectiveDate} onChange={(e) => setDraftEffectiveDate(e.target.value)} className={cn("w-full h-16 rounded-2xl border px-8 text-sm outline-none", isLight ? "bg-black/[0.04] border-black/5 text-black" : "bg-white/5 border-white/10 text-white")} />
                     </div>
 
                     {selectedTemplate?.category === 'lease' && (
                       <div className="space-y-3">
                          <label className={cn("text-[10px] font-black uppercase tracking-[0.2em] ml-2 opacity-70", isLight ? "text-black" : "text-white")}>Monthly Value</label>
-                         <input type="number" placeholder="$0.00" className={cn("w-full h-16 rounded-2xl border px-8 text-sm outline-none", isLight ? "bg-black/[0.04] border-black/5 text-black" : "bg-white/5 border-white/10 text-white")} />
+                         <input type="number" placeholder="$0.00" value={draftMonthlyValue} onChange={(e) => setDraftMonthlyValue(e.target.value)} className={cn("w-full h-16 rounded-2xl border px-8 text-sm outline-none", isLight ? "bg-black/[0.04] border-black/5 text-black" : "bg-white/5 border-white/10 text-white")} />
                       </div>
                     )}
 
                     <div className="space-y-3 col-span-full">
                        <label className={cn("text-[10px] font-black uppercase tracking-[0.2em] ml-2 opacity-70", isLight ? "text-black" : "text-white")}>Counterparty ID</label>
-                       <input type="text" placeholder="SCAN VERIFIED USERS..." className={cn("w-full h-16 rounded-2xl border px-8 text-[11px] font-black uppercase tracking-widest outline-none", isLight ? "bg-black/[0.04] border-black/5 text-black" : "bg-white/5 border-white/10 text-white")} />
+                       <input type="text" placeholder="SCAN VERIFIED USERS..." value={draftCounterparty} onChange={(e) => setDraftCounterparty(e.target.value)} className={cn("w-full h-16 rounded-2xl border px-8 text-[11px] font-black uppercase tracking-widest outline-none", isLight ? "bg-black/[0.04] border-black/5 text-black" : "bg-white/5 border-white/10 text-white")} />
                     </div>
                   </div>
                   
@@ -303,15 +388,12 @@ export function ContractsVault() {
                   </div>
                </div>
 
-                <Button 
-                  onClick={() => {
-                    triggerHaptic('success');
-                    appToast.success('Legal Draft Synthesized');
-                    setView('dashboard');
-                  }}
-                  className="w-full h-20 rounded-[2.5rem] bg-primary hover:bg-primary/90 text-white font-black uppercase tracking-[0.3em] text-[12px] italic shadow-2xl shadow-primary/20 transition-all hover:scale-[1.01]"
+                <Button
+                  onClick={handleSaveDraft}
+                  disabled={isSavingDraft}
+                  className="w-full h-20 rounded-[2.5rem] bg-primary hover:bg-primary/90 text-white font-black uppercase tracking-[0.3em] text-[12px] italic shadow-2xl shadow-primary/20 transition-all hover:scale-[1.01] disabled:opacity-60"
                 >
-                  Initialize Protocol Draft
+                  {isSavingDraft ? 'Saving…' : 'Initialize Protocol Draft'}
                   <CheckCircle2 className="w-5 h-5 ml-4" />
                 </Button>
             </motion.div>
@@ -336,12 +418,8 @@ export function ContractsVault() {
                  <p className={cn("text-[10px] font-black uppercase tracking-[0.4em] opacity-70 italic", isLight ? "text-black" : "text-white")}>Secure digital signature</p>
               </div>
 
-              <DigitalSignaturePad 
-                onSignatureCapture={(_sig) => {
-                  appToast.success('Signature Encrypted Successfully');
-                  triggerHaptic('success');
-                  setView('dashboard');
-                }}
+              <DigitalSignaturePad
+                onSignatureCapture={handleSignatureCapture}
               />
             </motion.div>
           )}

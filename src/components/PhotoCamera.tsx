@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 import { applyFilter, FilterType } from '@/utils/photoFilters';
 import { triggerHaptic } from '@/utils/haptics';
 import { logger } from '@/utils/prodLogger';
+import { appToast } from '@/utils/appNotification';
 import PhotoCrop from './PhotoCrop';
 
 interface PhotoCameraProps {
@@ -174,14 +175,19 @@ const PhotoCamera: React.FC<PhotoCameraProps> = ({
     startCamera();
   };
 
-  const handleCropComplete = (croppedDataUrl: string) => {
+  const handleCropComplete = async (croppedDataUrl: string) => {
     if (!capturedImage) return;
 
-    fetch(capturedImage).then(res => res.blob()).then(originalBlob => {
-      fetch(croppedDataUrl).then(res => res.blob()).then(croppedBlob => {
-        onCapture(originalBlob, croppedBlob);
-      });
-    });
+    try {
+      const [originalBlob, croppedBlob] = await Promise.all([
+        fetch(capturedImage).then(res => res.blob()),
+        fetch(croppedDataUrl).then(res => res.blob()),
+      ]);
+      onCapture(originalBlob, croppedBlob);
+    } catch (err) {
+      logger.error('[PhotoCamera] crop processing failed:', err);
+      appToast.error('Photo processing failed', 'Please try capturing again.');
+    }
   };
 
   const switchCamera = () => {

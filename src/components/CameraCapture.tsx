@@ -290,9 +290,9 @@ export function CameraCapture({
     }
 
     if (timerSeconds > 0) {
-      setCountdown(timerSeconds);
       for (let i = timerSeconds; i > 0; i--) {
         setCountdown(i);
+        await new Promise((resolve) => setTimeout(resolve, 1000));
       }
       setCountdown(null);
     }
