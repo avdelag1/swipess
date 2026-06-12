@@ -315,7 +315,9 @@ export function useSmartClientMatching(
                 queryClient.invalidateQueries({ queryKey: ['smart-clients'] });
             })
             .subscribe();
-        return () => { channel.unsubscribe(); };
+        // removeChannel unsubscribes AND drops it from the client registry;
+        // unsubscribe() alone leaks the channel.
+        return () => { supabase.removeChannel(channel); };
     }, [userId, queryClient]);
 
     return useQuery<MatchedClientProfile[]>({

@@ -38,7 +38,10 @@ export function usePresence(otherUserId: string | null) {
       });
 
     return () => {
-      channel.unsubscribe();
+      // removeChannel unsubscribes AND drops the channel from the client
+      // registry; unsubscribe() alone leaks it. usePresence runs per chat
+      // partner, so leaked presence channels accumulate quickly.
+      supabase.removeChannel(channel);
     };
   }, [user?.id, otherUserId]);
 
