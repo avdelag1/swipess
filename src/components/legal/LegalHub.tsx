@@ -163,7 +163,8 @@ export function ContractsVault() {
       logger.error('[ContractsVault] signature save failed:', err);
       // Clean up orphaned signature if contract update failed
       if (signatureId) {
-        await supabase.from('contract_signatures').delete().eq('id', signatureId);
+        const { error: cleanupErr } = await supabase.from('contract_signatures').delete().eq('id', signatureId);
+        if (cleanupErr) logger.warn('[LegalHub] orphaned signature cleanup failed:', cleanupErr);
       }
       appToast.error('Could not save signature', 'Please try again.');
     } finally {

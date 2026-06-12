@@ -291,7 +291,7 @@ export function useSmartListingMatching(
                 queryClient.invalidateQueries({ queryKey: ['smart-listings'] });
             })
             .subscribe();
-        return () => { channel.unsubscribe(); };
+        return () => { supabase.removeChannel(channel); };
     }, [userId, queryClient]);
 
     const filtersKey = useMemo(() => {
