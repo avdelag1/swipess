@@ -182,7 +182,7 @@ export default function PaymentSuccess() {
       nextMonth.setMonth(nextMonth.getMonth() + 1);
       nextMonth.setDate(1);
 
-      await supabase
+      const { error: quotaError } = await supabase
         .from('legal_document_quota')
         .upsert({
           user_id: userId,
@@ -190,6 +190,7 @@ export default function PaymentSuccess() {
           used_this_month: 0,
           reset_date: nextMonth.toISOString().split('T')[0],
         });
+      if (quotaError) throw quotaError;
     }
   };
 
