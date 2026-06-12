@@ -257,7 +257,7 @@ export default function EventosFeed() {
     // Premium pause for the connection animation to resonate
     const clean = (event.organizer_whatsapp || '').replace(/[^+\d]/g, '');
     const msg = encodeURIComponent(`Hi! I'm interested in "${event.title}" — I found it on Swipess 🎉`);
-    window.open(`https://wa.me/${clean}?text=${msg}`, '_blank');
+    window.open(`https://wa.me/${clean}?text=${msg}`, '_system');
     
     setIsConnecting(false);
   }, []);

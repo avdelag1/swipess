@@ -69,14 +69,14 @@ export function SharedProfileSection({
   const handleInstagramShare = () => {
     copyToClipboard(shareUrl);
     appToast.success('Link copied! Paste it in your Instagram story or DM.');
-    window.open('https://www.instagram.com/', '_blank');
+    window.open('https://www.instagram.com/', '_system');
   };
 
   // TikTok share (copy link + open TikTok)
   const handleTikTokShare = () => {
     copyToClipboard(shareUrl);
     appToast.success('Link copied! Paste it in your TikTok bio or message.');
-    window.open('https://www.tiktok.com/', '_blank');
+    window.open('https://www.tiktok.com/', '_system');
   };
 
   const socialButtons = [

@@ -238,7 +238,7 @@ export default function EventoDetail() {
     
     const phone = event.organizer_whatsapp.replace(/\D/g, '');
     const message = encodeURIComponent(`Hola, vi tu evento "${event.title}" en Swipess 🔥`);
-    window.open(`https://wa.me/${phone}?text=${message}`, '_blank');
+    window.open(`https://wa.me/${phone}?text=${message}`, '_system');
     
     setIsConnecting(false);
   };

@@ -41,7 +41,7 @@ export function ShareModal({
 
   const handleWhatsAppShare = () => {
     const msg = encodeURIComponent(`🎉 Check out "${event.title}" in Tulum!\n\n${url}`);
-    window.open(`https://wa.me/?text=${msg}`, '_blank');
+    window.open(`https://wa.me/?text=${msg}`, '_system');
     onClose();
   };
 

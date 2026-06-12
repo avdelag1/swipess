@@ -189,19 +189,19 @@ export async function shareViaNavigator(params: {
 export function shareViaWhatsApp(url: string, text: string) {
   const message = encodeURIComponent(`${text}\n${url}`);
   const whatsappUrl = `https://wa.me/?text=${message}`;
-  window.open(whatsappUrl, '_blank');
+  window.open(whatsappUrl, '_system');
 }
 
 // Share via Facebook
 export function shareViaFacebook(url: string) {
   const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
-  window.open(facebookUrl, '_blank', 'width=600,height=400');
+  window.open(facebookUrl, '_system');
 }
 
 // Share via Twitter
 export function shareViaTwitter(url: string, text: string) {
   const twitterUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`;
-  window.open(twitterUrl, '_blank', 'width=600,height=400');
+  window.open(twitterUrl, '_system');
 }
 
 // Share via Email

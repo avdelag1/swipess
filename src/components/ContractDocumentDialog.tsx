@@ -1,4 +1,5 @@
 import React, { useCallback, useMemo, useRef, useState } from 'react';
+import { Capacitor } from '@capacitor/core';
 import { Dialog, DialogContent, DialogHeader } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -59,6 +60,10 @@ export const ContractDocumentDialog: React.FC<ContractDocumentDialogProps> = ({
   };
 
   const handlePrint = () => {
+    if (Capacitor.isNativePlatform()) {
+      appToast.info('Print not available', 'Use the Share button to save your contract as a PDF.');
+      return;
+    }
     const content = sanitizeHTML(editorRef.current?.innerHTML || '');
     const safeTitle = escapeHTML(documentTitle);
     const safeSignature = isValidSignatureDataUrl(signatureData) ? signatureData : null;
