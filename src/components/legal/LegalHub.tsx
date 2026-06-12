@@ -382,7 +382,7 @@ export function ContractsVault() {
 
                     <div className="space-y-3 col-span-full">
                        <label className={cn("text-[10px] font-black uppercase tracking-[0.2em] ml-2 opacity-70", isLight ? "text-black" : "text-white")}>Counterparty ID</label>
-                       <input type="text" placeholder="SCAN VERIFIED USERS..." value={draftCounterparty} onChange={(e) => setDraftCounterparty(e.target.value)} className={cn("w-full h-16 rounded-2xl border px-8 text-[11px] font-black uppercase tracking-widest outline-none", isLight ? "bg-black/[0.04] border-black/5 text-black" : "bg-white/5 border-white/10 text-white")} />
+                       <input type="text" placeholder="SCAN VERIFIED USERS..." value={draftCounterparty} onChange={(e) => setDraftCounterparty(e.target.value)} autoComplete="off" autoCorrect="off" spellCheck={false} className={cn("w-full h-16 rounded-2xl border px-8 text-[11px] font-black uppercase tracking-widest outline-none", isLight ? "bg-black/[0.04] border-black/5 text-black" : "bg-white/5 border-white/10 text-white")} />
                     </div>
                   </div>
                   

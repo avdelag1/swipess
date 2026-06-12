@@ -276,7 +276,7 @@ export default function DocumentVault() {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="fixed top-4 left-4 right-4 z-40 max-w-2xl mx-auto"
+            className="fixed left-4 right-4 z-40 max-w-2xl mx-auto" style={{ top: 'calc(1rem + env(safe-area-inset-top, 0px))' }}
           >
             <div className="bg-card border border-border/50 rounded-xl p-3 shadow-lg">
               <div className="flex items-center justify-between mb-1.5">

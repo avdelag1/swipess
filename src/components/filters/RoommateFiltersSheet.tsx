@@ -151,7 +151,7 @@ export function RoommateFiltersSheet({ open, onClose, onApply, currentFilters }:
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 28, stiffness: 300 }}
-            className="fixed inset-x-0 bottom-0 z-[10000] max-h-[88vh] rounded-t-3xl border-t border-border/30 bg-background/95 backdrop-blur-xl shadow-2xl"
+            className="fixed inset-x-0 bottom-0 z-[10000] max-h-[88vh] rounded-t-3xl border-t border-border/30 bg-background/95 backdrop-blur-xl shadow-2xl pb-[env(safe-area-inset-bottom,0px)]"
           >
             {/* Handle */}
             <div className="flex justify-center pt-3 pb-1">

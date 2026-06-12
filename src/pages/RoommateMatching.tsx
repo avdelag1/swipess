@@ -381,7 +381,7 @@ export default function RoommateMatching() {
             </div>
 
             {/* STICKY BOTTOM ACTIONS */}
-            <div className="fixed bottom-0 left-0 right-0 p-8 pt-12 bg-gradient-to-t from-[#0A0A0B] via-[#0A0A0B] to-transparent z-[210] pointer-events-none">
+            <div className="fixed bottom-0 left-0 right-0 pt-12 bg-gradient-to-t from-[#0A0A0B] via-[#0A0A0B] to-transparent z-[210] pointer-events-none" style={{ paddingLeft: '2rem', paddingRight: '2rem', paddingBottom: 'calc(2rem + env(safe-area-inset-bottom, 0px))' }}>
                <div className="max-w-7xl mx-auto flex gap-4 pointer-events-auto">
                   <motion.button 
                     whileTap={{ scale: 0.95 }}
