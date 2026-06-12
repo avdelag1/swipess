@@ -12,6 +12,7 @@
  */
 
 import { supabase } from '@/integrations/supabase/client';
+import { logger } from '@/utils/prodLogger';
 
 interface QueuedSwipe {
   id: string;
@@ -286,7 +287,7 @@ class SwipeQueueProcessor {
 
           if (ownerLike) {
             // Create match using client_id and owner_id (actual schema)
-            await supabase.from('matches').upsert([{
+            const { error: matchError } = await supabase.from('matches').upsert([{
               client_id: userId,
               owner_id: listing.owner_id!,
               listing_id: swipe.targetId,
@@ -294,9 +295,10 @@ class SwipeQueueProcessor {
               onConflict: 'client_id,owner_id,listing_id',
               ignoreDuplicates: true,
             });
+            if (matchError) logger.warn('[SwipeQueue] match upsert error:', matchError);
 
             // Create conversation
-            await supabase.from('conversations').upsert({
+            const { error: convoError } = await supabase.from('conversations').upsert({
               client_id: userId,
               owner_id: listing.owner_id,
               listing_id: swipe.targetId,
@@ -306,11 +308,12 @@ class SwipeQueueProcessor {
               onConflict: 'client_id,owner_id',
               ignoreDuplicates: true,
             });
+            if (convoError) logger.warn('[SwipeQueue] conversation upsert error:', convoError);
           }
         }
-      } catch {
-        // Silent fail - match detection is non-critical
-        // Matches can be detected on next app load
+      } catch (e) {
+        // Network-level failure - match detection retried on next app load
+        logger.warn('[SwipeQueue] match detection error:', e);
       }
     });
   }

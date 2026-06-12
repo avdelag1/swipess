@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { logger } from '@/utils/prodLogger';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { appToast } from '@/utils/appNotification';
@@ -159,8 +160,14 @@ export default function DocumentVault() {
 
   const handleDelete = async () => {
     if (!deleteTarget) return;
-    await supabase.storage.from('legal-documents').remove([deleteTarget.file_path]);
-    await supabase.from('legal_documents').delete().eq('id', deleteTarget.id);
+    const { error: storageError } = await supabase.storage.from('legal-documents').remove([deleteTarget.file_path]);
+    if (storageError) logger.warn('[DocumentVault] storage remove error:', storageError);
+    const { error: dbError } = await supabase.from('legal_documents').delete().eq('id', deleteTarget.id);
+    if (dbError) {
+      logger.error('[DocumentVault] delete error:', dbError);
+      appToast.error('Failed to delete document');
+      return;
+    }
     appToast.success('Document deleted');
     setDeleteTarget(null);
     fetchDocuments();

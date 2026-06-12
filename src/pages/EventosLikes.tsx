@@ -73,7 +73,8 @@ export default function EventosLikes() {
   const removeLikeMutation = useMutation({
     mutationFn: async (id: string) => {
       if (!user?.id) return;
-      await supabase.from('likes').delete().eq('user_id', user.id).eq('target_id', id).eq('target_type', 'event');
+      const { error } = await supabase.from('likes').delete().eq('user_id', user.id).eq('target_id', id).eq('target_type', 'event');
+      if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['event-likes-detailed', user?.id] });

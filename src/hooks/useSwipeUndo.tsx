@@ -149,6 +149,7 @@ export function useSwipeUndo() {
       queryClient.invalidateQueries({ queryKey: ['swipe-dismissals'] }).catch(err => logger.error('[useSwipeUndo] Invalidation failed:', err));
       queryClient.invalidateQueries({ queryKey: ['listings'] }).catch(err => logger.error('[useSwipeUndo] Invalidation failed:', err));
       queryClient.invalidateQueries({ queryKey: ['liked-properties'] }).catch(err => logger.error('[useSwipeUndo] Invalidation failed:', err));
+      queryClient.invalidateQueries({ queryKey: ['matches'] }).catch(err => logger.error('[useSwipeUndo] Invalidation failed:', err));
 
       appToast.success('↩️ Card Returned', 'The card is back in your deck.');
     },

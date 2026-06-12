@@ -145,7 +145,7 @@ export default function RoommateMatching() {
       return;
     }
     if (!user?.id) {
-      navigate('/auth');
+      navigate('/');
       return;
     }
     setIsStartingConversation(true);

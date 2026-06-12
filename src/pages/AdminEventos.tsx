@@ -258,12 +258,14 @@ export default function AdminEventos() {
     };
 
     if (editingId) {
-      await supabase.from('events').update(payload).eq('id', editingId);
+      const { error } = await supabase.from('events').update(payload).eq('id', editingId);
+      if (error) { logger.error('[AdminEventos] update error:', error); appToast.error('Failed to update event'); return; }
       appToast.info('Event updated');
     } else {
       payload.created_by = user!.id;
-      await supabase.from('events').insert(payload);
-      appToast.info('Event published 🎉');
+      const { error } = await supabase.from('events').insert(payload);
+      if (error) { logger.error('[AdminEventos] insert error:', error); appToast.error('Failed to publish event'); return; }
+      appToast.info('Event published');
     }
 
     setShowForm(false);
@@ -299,13 +301,15 @@ export default function AdminEventos() {
   };
 
   const handleDelete = async (eventId: string) => {
-    await supabase.from('events').delete().eq('id', eventId);
+    const { error } = await supabase.from('events').delete().eq('id', eventId);
+    if (error) { logger.error('[AdminEventos] delete error:', error); appToast.error('Failed to delete event'); return; }
     appToast.info('Event deleted');
     fetchEvents();
   };
 
   const togglePublish = async (eventId: string, current: boolean) => {
-    await supabase.from('events').update({ is_published: !current }).eq('id', eventId);
+    const { error } = await supabase.from('events').update({ is_published: !current }).eq('id', eventId);
+    if (error) logger.error('[AdminEventos] togglePublish error:', error);
     fetchEvents();
   };
 
