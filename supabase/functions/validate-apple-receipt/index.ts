@@ -125,7 +125,7 @@ Deno.serve(async (req) => {
       : null;
 
     // Idempotent record of the transaction
-    await supabase.from('apple_transactions').upsert(
+    const { error: txErr } = await supabase.from('apple_transactions').upsert(
       {
         user_id: userId,
         product_id: productId,
@@ -138,17 +138,19 @@ Deno.serve(async (req) => {
       },
       { onConflict: 'original_transaction_id' }
     );
+    if (txErr) throw new Error(`Transaction record failed: ${txErr.message}`);
 
     // Look up package from DB to get the integer ID and attributes
-    const { data: pkg } = await supabase
+    const { data: pkg, error: pkgErr } = await supabase
       .from('subscription_packages')
       .select('id, tokens, duration_days')
       .eq('apple_product_id', productId)
-      .single();
+      .maybeSingle();
+    if (pkgErr) throw new Error(`Package lookup failed: ${pkgErr.message}`);
 
     // Grant entitlement
     if (SUBSCRIPTION_PRODUCTS.has(productId)) {
-      await supabase
+      const { error: subErr } = await supabase
         .from('user_subscriptions')
         .upsert(
           {
@@ -161,13 +163,14 @@ Deno.serve(async (req) => {
           },
           { onConflict: 'user_id' }
         );
+      if (subErr) throw new Error(`Subscription grant failed: ${subErr.message}`);
     } else if (TOKEN_PRODUCTS[productId]) {
       const amount = pkg?.tokens ?? TOKEN_PRODUCTS[productId];
       const expiryDays = pkg?.duration_days ?? 30;
       const expiresAt = new Date();
       expiresAt.setDate(expiresAt.getDate() + expiryDays);
 
-      await supabase.from('tokens').insert({
+      const { error: tokErr } = await supabase.from('tokens').insert({
         user_id: userId,
         total_activations: amount,
         remaining_activations: amount,
@@ -175,11 +178,12 @@ Deno.serve(async (req) => {
         expires_at: expiresAt.toISOString(),
         notes: `Apple IAP: ${productId}`,
       });
+      if (tokErr) throw new Error(`Token grant failed: ${tokErr.message}`);
     } else if (EVENT_PROMO_PRODUCTS[productId]) {
       const days = EVENT_PROMO_PRODUCTS[productId];
       const startedAt = new Date();
       const endsAt = new Date(startedAt.getTime() + days * 24 * 60 * 60 * 1000);
-      await supabase.from('event_promotions').insert({
+      const { error: promoErr } = await supabase.from('event_promotions').insert({
         user_id: userId,
         product_id: productId,
         started_at: startedAt.toISOString(),
@@ -187,6 +191,7 @@ Deno.serve(async (req) => {
         active: true,
         original_transaction_id: originalTxId,
       });
+      if (promoErr) throw new Error(`Promo grant failed: ${promoErr.message}`);
     }
 
     return new Response(

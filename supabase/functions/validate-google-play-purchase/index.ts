@@ -219,13 +219,14 @@ Deno.serve(async (req) => {
     }
 
     if (SUBSCRIPTION_PRODUCTS.has(productId)) {
-      const { data: pkg } = await supabase
+      const { data: pkg, error: pkgErr } = await supabase
         .from('subscription_packages')
         .select('id')
         .eq('google_play_product_id', productId)
-        .single();
+        .maybeSingle();
+      if (pkgErr) throw new Error(`Package lookup failed: ${pkgErr.message}`);
 
-      await supabase.from('user_subscriptions').upsert(
+      const { error: subErr } = await supabase.from('user_subscriptions').upsert(
         {
           user_id: userId,
           package_id: pkg?.id ?? undefined,
@@ -236,20 +237,22 @@ Deno.serve(async (req) => {
         },
         { onConflict: 'user_id' }
       );
+      if (subErr) throw new Error(`Subscription grant failed: ${subErr.message}`);
     } else if (TOKEN_PRODUCTS[productId]) {
       const amount = TOKEN_PRODUCTS[productId];
-      const { data: pkg } = await supabase
+      const { data: pkg, error: pkgErr } = await supabase
         .from('subscription_packages')
         .select('tokens, duration_days')
         .eq('google_play_product_id', productId)
-        .single();
+        .maybeSingle();
+      if (pkgErr) throw new Error(`Package lookup failed: ${pkgErr.message}`);
 
       const tokenAmount = pkg?.tokens ?? amount;
       const expiryDays = pkg?.duration_days ?? 30;
       const expiresAt = new Date();
       expiresAt.setDate(expiresAt.getDate() + expiryDays);
 
-      await supabase.from('tokens').insert({
+      const { error: tokErr } = await supabase.from('tokens').insert({
         user_id: userId,
         total_activations: tokenAmount,
         remaining_activations: tokenAmount,
@@ -257,11 +260,12 @@ Deno.serve(async (req) => {
         expires_at: expiresAt.toISOString(),
         notes: `Google Play IAP: ${productId}`,
       });
+      if (tokErr) throw new Error(`Token grant failed: ${tokErr.message}`);
     } else if (EVENT_PROMO_PRODUCTS[productId]) {
       const days = EVENT_PROMO_PRODUCTS[productId];
       const startedAt = new Date();
       const endsAt = new Date(startedAt.getTime() + days * 24 * 60 * 60 * 1000);
-      await supabase.from('event_promotions').insert({
+      const { error: promoErr } = await supabase.from('event_promotions').insert({
         user_id: userId,
         product_id: productId,
         started_at: startedAt.toISOString(),
@@ -269,6 +273,7 @@ Deno.serve(async (req) => {
         active: true,
         original_transaction_id: purchaseToken,
       });
+      if (promoErr) throw new Error(`Promo grant failed: ${promoErr.message}`);
     }
 
     return new Response(
