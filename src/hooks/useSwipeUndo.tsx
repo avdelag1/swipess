@@ -108,7 +108,7 @@ export function useSwipeUndo() {
         const count = parseInt(view.action.split(':')[1]) || 1;
         if (count > 1) {
           // Decrement strike
-          await supabase
+          const { error: decrementErr } = await supabase
             .from('profile_views')
             .update({ action: `pass:${count - 1}` })
             .match({
@@ -116,9 +116,10 @@ export function useSwipeUndo() {
               viewed_profile_id: lastSwipe.targetId,
               view_type: lastSwipe.targetType === 'profile' ? 'profile' : 'listing'
             });
+          if (decrementErr) logger.warn('[useSwipeUndo] decrement error:', decrementErr);
         } else {
           // Delete strike
-          await supabase
+          const { error: deleteViewErr } = await supabase
             .from('profile_views')
             .delete()
             .match({
@@ -126,6 +127,7 @@ export function useSwipeUndo() {
               viewed_profile_id: lastSwipe.targetId,
               view_type: lastSwipe.targetType === 'profile' ? 'profile' : 'listing'
             });
+          if (deleteViewErr) logger.warn('[useSwipeUndo] delete view error:', deleteViewErr);
         }
       }
 

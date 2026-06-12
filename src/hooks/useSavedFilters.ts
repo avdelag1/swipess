@@ -165,10 +165,11 @@ export function useSavedFilters() {
       if (!user) return;
 
       // Deactivate all filters first
-      await supabase
+      const { error: deactivateErr } = await supabase
         .from('saved_filters')
         .update({ is_active: false })
         .eq('user_id', user.id);
+      if (deactivateErr) logger.warn('[SavedFilters] deactivate error:', deactivateErr);
 
       // Set selected filter as active
       const { error } = await supabase
@@ -183,7 +184,7 @@ export function useSavedFilters() {
       if (filter) {
         const fd = filter.filter_data as Record<string, unknown> | null;
         if (fd) {
-          await supabase
+          const { error: prefErr } = await supabase
             .from('owner_client_preferences')
             .upsert({
               user_id: user.id,
@@ -194,6 +195,7 @@ export function useSavedFilters() {
               selected_genders: (fd.selected_genders as Json) ?? [],
               preferred_nationalities: (fd.preferred_nationalities as Json) ?? [],
             });
+          if (prefErr) logger.warn('[SavedFilters] preferences upsert error:', prefErr);
         }
       }
 

@@ -107,24 +107,20 @@ export function useFilterPersistence() {
         .maybeSingle();
 
       if (existingActive) {
-        await supabase
+        const { error: updateErr } = await supabase
           .from('saved_filters')
           .update({
             filter_data: filterData,
             updated_at: new Date().toISOString(),
           })
           .eq('id', existingActive.id);
-        
+        if (updateErr) throw updateErr;
         logger.info('[FilterPersistence] Updated active filter');
       } else {
-        // PROACTIVE PERSISTENCE: Ensure clean state by deactivating any existing active filters
-        // though maybeSingle of line 102 suggests there's at most one, we want to be certain.
-        await supabase
-          .from('saved_filters')
-          .update({ is_active: false })
-          .eq('user_id', user.id);
+        // Deactivate any stale active filters before creating a new one
+        await supabase.from('saved_filters').update({ is_active: false }).eq('user_id', user.id);
 
-        await supabase
+        const { error: insertErr } = await supabase
           .from('saved_filters')
           .insert({
             user_id: user.id,
@@ -133,7 +129,7 @@ export function useFilterPersistence() {
             is_active: true,
             user_role: 'client',
           });
-        
+        if (insertErr) throw insertErr;
         logger.info('[FilterPersistence] Created new session filter (including possible All state)');
       }
     } catch (error) {
