@@ -230,7 +230,7 @@ export function useAuthRequired() {
       onAuthComplete();
     } else {
       // Default: redirect to login with return URL
-      navigate('/auth?returnTo=' + encodeURIComponent(window.location.pathname));
+      navigate('/?returnTo=' + encodeURIComponent(window.location.pathname));
     }
   }, [navigate]);
 

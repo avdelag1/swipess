@@ -80,7 +80,7 @@ export function useAccountLinking() {
       } else {
         // No conflict - ensure role exists in user_roles (idempotent)
         // FIXED: Use 'user_id' as onConflict, not 'user_id,role' to prevent multiple roles per user
-        await supabase
+        const { error: roleError } = await supabase
           .from('user_roles')
           .upsert([{
             user_id: existingProfile.id,
@@ -88,6 +88,7 @@ export function useAccountLinking() {
           }], {
             onConflict: 'user_id'  // ✅ Only one role per user
           });
+        if (roleError) logger.warn('[AccountLinking] role upsert error:', roleError);
       }
 
       // Update the OAuth user's metadata to match existing account
@@ -118,10 +119,11 @@ export function useAccountLinking() {
 
       // Only update if we have changes
       if (Object.keys(profileUpdate).length > 1) {
-        await supabase
+        const { error: profileUpdateError } = await supabase
           .from('profiles')
           .update(profileUpdate as any)
           .eq('user_id', existingProfile.id);
+        if (profileUpdateError) logger.warn('[AccountLinking] profile update error:', profileUpdateError);
       }
 
       appToast.success("Account Linked Successfully");
