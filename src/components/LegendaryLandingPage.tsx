@@ -231,7 +231,9 @@ const AuthView = memo(({ onBack, initialMode = 'login', siteContent }: { onBack:
         if (!email.trim()) errs.email = 'Email is required';
         else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errs.email = 'Enter a valid email address';
         if (!password.trim()) errs.password = 'Password is required';
-        else if (password.length < 6) errs.password = 'Must be at least 6 characters';
+        else if (password.length < 8 || !/[a-z]/.test(password) || !/[A-Z]/.test(password) || !/[0-9]/.test(password)) {
+          errs.password = 'Use 8+ characters with upper, lower & a number';
+        }
         if (!confirmPassword.trim()) errs.confirmPassword = 'Please confirm your password';
         else if (password !== confirmPassword) errs.confirmPassword = 'Passwords do not match';
 
