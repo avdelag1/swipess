@@ -537,6 +537,18 @@ export function AuthProvider({ children, authPromise }: { children: ReactNode, a
       // handler reads this to assign the correct role for the new session.
       localStorage.setItem('pendingOAuthRole', role);
 
+      // NATIVE iOS: Google web OAuth redirect cannot complete inside a Capacitor
+      // WKWebView — there is no native Google Sign-In plugin installed.
+      // Surface a clear message so the user knows to use Apple or email instead.
+      if (provider === 'google' && isNativeAppleAvailable()) {
+        localStorage.removeItem('pendingOAuthRole');
+        appToast.error(
+          'Google Sign-In Unavailable',
+          'Please use Sign in with Apple or your email address on this device.'
+        );
+        return { error: new Error('Google OAuth unavailable on native iOS') };
+      }
+
       // NATIVE iOS: the web OAuth redirect cannot complete inside a Capacitor
       // WKWebView, and the App Store requires a native Sign in with Apple.
       // Use the native authorization + signInWithIdToken instead.

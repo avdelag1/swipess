@@ -54,19 +54,21 @@ export default function PaymentSuccess() {
           // Try by numeric DB id first, then by apple_product_id string
           const numericId = Number(purchase.packageId);
           if (!isNaN(numericId)) {
-            const { data } = await supabase
+            const { data, error: pkgErr } = await supabase
               .from('subscription_packages')
               .select('*')
               .eq('id', numericId)
               .maybeSingle();
+            if (pkgErr) logger.warn('[PaymentSuccess] package lookup by id failed:', pkgErr);
             pkg = data;
           }
           if (!pkg) {
-            const { data } = await supabase
+            const { data, error: pkgErr } = await supabase
               .from('subscription_packages')
               .select('*')
               .eq('apple_product_id', purchase.packageId)
               .maybeSingle();
+            if (pkgErr) logger.warn('[PaymentSuccess] package lookup by apple_product_id failed:', pkgErr);
             pkg = data;
           }
         }
@@ -233,12 +235,13 @@ export default function PaymentSuccess() {
     const packageName = planMap[planId];
     if (!packageName) return null;
 
-    const { data } = await supabase
+    const { data, error: pkgErr } = await supabase
       .from('subscription_packages')
       .select('*')
       .eq('name', packageName)
       .maybeSingle();
 
+    if (pkgErr) logger.warn('[PaymentSuccess] mapMonthlyPlanToPackage lookup failed:', pkgErr);
     return data;
   };
 

@@ -176,7 +176,12 @@ export default function DocumentVault() {
   };
 
   const handleDownload = async (doc: DocItem) => {
-    const { data } = await supabase.storage.from('legal-documents').createSignedUrl(doc.file_path, 60);
+    const { data, error } = await supabase.storage.from('legal-documents').createSignedUrl(doc.file_path, 60);
+    if (error) {
+      logger.error('[DocumentVault] createSignedUrl failed:', error);
+      appToast.error('Download failed', 'Could not generate download link. Please try again.');
+      return;
+    }
     if (data?.signedUrl) window.open(data.signedUrl, '_blank');
   };
 
