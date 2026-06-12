@@ -1,23 +1,70 @@
+# Codemagic CI/CD — builds the Swipess iOS app on a cloud Mac (modern Xcode),
+# signs it with your Apple Developer account, and uploads it to TestFlight /
+# App Store Connect. This is what lets you ship even though your local Mac
+# is capped at Xcode 14.2 (which Apple rejects at upload).
+#
+# ONE-TIME SETUP IN THE CODEMAGIC UI (see chat for the click-by-click):
+#   1. Connect this GitHub repo.
+#   2. Team settings -> Integrations -> App Store Connect: add your API key
+#      and name the integration EXACTLY:  AppStoreConnect
+#   3. In App Store Connect, register bundle id  com.swipess.mobile  and
+#      create the app record before the first signed build.
+
 workflows:
-  ios-capacitor:
-    name: iOS Capacitor Build
+  ios-testflight:
+    name: iOS – Build & TestFlight
     max_build_duration: 60
+    integrations:
+      app_store_connect: AppStoreConnect   # must match the integration name set in Codemagic
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: main
+          include: true
+          source: true
     environment:
+      ios_signing:
+        distribution_type: app_store        # Codemagic auto-creates the distribution cert + profile from the API key
+        bundle_identifier: com.swipess.mobile
+      vars:
+        XCODE_WORKSPACE: "ios/App/App.xcworkspace"
+        XCODE_SCHEME: "App"
+        BUNDLE_ID: "com.swipess.mobile"
       node: latest
       xcode: latest
       cocoapods: default
     scripts:
-      - name: Install npm dependencies
+      - name: Install JS dependencies
         script: npm ci || npm install
-      - name: Build Web App and Sync Capacitor
+      - name: Build web + sync Capacitor iOS (+ Info.plist patch)
         script: npm run ios:sync
       - name: Install CocoaPods dependencies
         script: |
           cd ios/App
           pod install --repo-update
-      - name: Build iOS App (Unsigned)
+      - name: Set a unique build number
         script: |
-          cd ios/App
-          xcodebuild build -workspace App.xcworkspace -scheme App -destination 'generic/platform=iOS' CODE_SIGNING_ALLOWED=NO
+          cd "$CM_BUILD_DIR/ios/App"
+          # Codemagic's monotonic counter keeps every upload unique. Non-fatal if agvtool hiccups.
+          agvtool new-version -all "$BUILD_NUMBER" || true
+      - name: Install provisioning profiles into the keychain
+        script: xcode-project use-profiles
+      - name: Build signed .ipa
+        script: |
+          xcode-project build-ipa \
+            --workspace "$XCODE_WORKSPACE" \
+            --scheme "$XCODE_SCHEME"
     artifacts:
-      - ios/App/build/Release-iphoneos/*.app
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true          # lands in TestFlight; submit to App Store review later
+      email:
+        recipients:
+          - onefithealth@gmail.com
+        notify:
+          success: true
+          failure: true
