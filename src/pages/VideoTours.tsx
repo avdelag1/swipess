@@ -28,15 +28,16 @@ export default function VideoTours() {
   useEffect(() => {
     const fetchVideoListings = async () => {
       try {
-        const { data } = await supabase
+        const { data, error } = await supabase
           .from('listings')
           .select('id, title, location, price, currency, images, category')
           .eq('is_active', true)
           .not('images', 'is', null)
           .limit(20);
+        if (error) throw error;
         setListings((data || []) as VideoListing[]);
       } catch (e) {
-        logger.error(e);
+        logger.error('[VideoTours] fetch error:', e);
       } finally {
         setIsLoading(false);
       }
@@ -115,6 +116,16 @@ export default function VideoTours() {
         <motion.button
           whileTap={{ scale: 0.9 }}
           aria-label="Share tour"
+          onClick={() => {
+            const listing = listings[currentIndex];
+            if (!listing) return;
+            const url = `${window.location.origin}/listing/${listing.id}`;
+            if (navigator.share) {
+              navigator.share({ title: listing.title, url }).catch(() => {});
+            } else {
+              navigate(`/listing/${listing.id}`);
+            }
+          }}
           className="w-10 h-10 rounded-2xl bg-black/20 backdrop-blur-xl border border-white/10 flex items-center justify-center text-white pointer-events-auto"
         >
           <Share2 className="w-5 h-5" />

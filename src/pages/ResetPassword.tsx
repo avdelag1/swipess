@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { logger } from "@/utils/prodLogger";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
@@ -101,7 +102,8 @@ const ResetPassword = () => {
       setTimeout(() => {
         navigate("/");
       }, 1500);
-    } catch {
+    } catch (err) {
+      logger.error('[ResetPassword] update error:', err);
       appToast.info("Sync Error");
     } finally {
       setLoading(false);
