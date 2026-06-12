@@ -384,8 +384,8 @@ export function useConversationMessages(conversationId: string) {
     },
     enabled: !!conversationId,
     placeholderData: (prev) => prev,
-    staleTime: 30000,
-    gcTime: 120000,
+    staleTime: 5 * 60 * 1000,  // realtime subscription keeps data fresh; 5 min avoids redundant refetches
+    gcTime: 10 * 60 * 1000,
   });
 
   const { refetch } = query;
