@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { appToast } from '@/utils/appNotification';
+import { logger } from '@/utils/prodLogger';
 interface EscrowDeposit {
   id: string;
   contract_id: string;
@@ -41,12 +42,17 @@ export default function EscrowDashboard() {
 
   const fetchDeposits = async () => {
     if (!user) return;
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('escrow_deposits')
       .select('*')
       .or(`client_id.eq.${user.id},owner_id.eq.${user.id}`)
       .order('created_at', { ascending: false });
-    setDeposits((data as unknown as EscrowDeposit[]) || []);
+    if (error) {
+      logger.error('[EscrowDashboard] fetch error:', error);
+      appToast.error('Could not load escrow deposits');
+    } else {
+      setDeposits((data as unknown as EscrowDeposit[]) || []);
+    }
     setIsLoading(false);
   };
 

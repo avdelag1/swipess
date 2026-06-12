@@ -41,14 +41,15 @@ export default function LocalIntel() {
 
   const fetchPosts = async () => {
     try {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('local_intel_posts')
         .select('*')
         .eq('is_published', true)
         .order('published_at', { ascending: false });
+      if (error) throw error;
       setPosts((data as IntelPost[]) || []);
     } catch (e) {
-      logger.error(e);
+      logger.error('[LocalIntel] fetch error:', e);
     } finally {
       setIsLoading(false);
     }

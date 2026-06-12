@@ -34,7 +34,8 @@ export default function PriceTracker() {
   useEffect(() => {
     const fetchPrices = async () => {
       try {
-        const { data: prices } = await supabase.from('price_history').select('neighborhood, month, year, avg_price, listing_count').order('year').order('month').limit(1000);
+        const { data: prices, error } = await supabase.from('price_history').select('neighborhood, month, year, avg_price, listing_count').order('year').order('month').limit(1000);
+        if (error) throw error;
         setData((prices as any[]) || []);
       } catch (e) {
         logger.error('Failed to fetch prices', e);

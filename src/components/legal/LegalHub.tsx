@@ -132,15 +132,17 @@ export function ContractsVault() {
   const handleSignatureCapture = async (sig: string, signatureType: 'drawn' | 'typed' | 'uploaded' = 'drawn') => {
     if (!user || !activeContract || isSavingSignature) return;
     setIsSavingSignature(true);
+    let signatureId: string | null = null;
     try {
-      const { error: sigError } = await supabase.from('contract_signatures').insert({
+      const { data: sigData, error: sigError } = await supabase.from('contract_signatures').insert({
         contract_id: activeContract.id,
         signer_id: user.id,
         signature_data: sig,
         signature_type: signatureType,
         user_agent: navigator.userAgent,
-      });
+      }).select('id').single();
       if (sigError) throw sigError;
+      signatureId = sigData?.id ?? null;
 
       const isOwner = activeContract.owner_id === user.id;
       const signatureUpdate: Record<string, unknown> = isOwner
@@ -159,6 +161,10 @@ export function ContractsVault() {
       handleClose();
     } catch (err) {
       logger.error('[ContractsVault] signature save failed:', err);
+      // Clean up orphaned signature if contract update failed
+      if (signatureId) {
+        await supabase.from('contract_signatures').delete().eq('id', signatureId);
+      }
       appToast.error('Could not save signature', 'Please try again.');
     } finally {
       setIsSavingSignature(false);
