@@ -406,9 +406,16 @@ export function useProfileSetup() {
             .eq('user_id', userId)
             .eq('activation_type', 'welcome')
             .maybeSingle();
-          const existingWelcome = welcomeResult?.data;
 
-          if (existingWelcome) return;
+          // If the existence check itself failed, do NOT proceed to grant —
+          // a transient error would otherwise risk handing out duplicate
+          // welcome tokens. Bail and let a later run retry cleanly.
+          if (welcomeResult.error) {
+            logger.warn('[ProfileSetup] Welcome token check failed, skipping grant:', welcomeResult.error);
+            return;
+          }
+
+          if (welcomeResult.data) return;
 
           // Check if user signed up via referral code
           const storedData = localStorage.getItem(STORAGE.REFERRAL_CODE_KEY);

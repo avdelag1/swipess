@@ -12,7 +12,9 @@ export function useDeepLinks() {
     const handleUrl = (url: string) => {
       try {
         const parsed = new URL(url);
-        const path = parsed.pathname + parsed.search;
+        // Preserve the hash fragment — OAuth callbacks deliver the access/refresh
+        // tokens there (e.g. #access_token=...). Dropping it loses the session.
+        const path = parsed.pathname + parsed.search + parsed.hash;
         if (path && path !== '/') {
           navigate(path);
         }

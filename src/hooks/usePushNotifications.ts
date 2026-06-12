@@ -80,9 +80,11 @@ export function usePushNotifications() {
       });
     };
 
-    addListeners();
+    addListeners().catch((err) => {
+      logger.error('[PushNative] Failed to register listeners:', err);
+    });
     return () => {
-      PushNotifications.removeAllListeners();
+      PushNotifications.removeAllListeners().catch(() => {});
     };
   }, [user?.id]);
 

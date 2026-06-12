@@ -29,6 +29,7 @@
     "deploy:ai": "npx supabase functions deploy ai-concierge voice-transcribe ai-profile-extract ai-enhance-text ai-listing-extract"
   },
   "dependencies": {
+    "@capacitor-community/apple-sign-in": "^7.1.0",
     "@capacitor/android": "^7.6.6",
     "@capacitor/app": "^7.0.1",
     "@capacitor/camera": "^7.0.3",

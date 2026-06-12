@@ -8,6 +8,7 @@ import { resetProfileCreationLock, useProfileSetup } from './useProfileSetup';
 import { useAccountLinking } from './useAccountLinking';
 import { useQueryClient } from '@tanstack/react-query';
 import { logger } from '@/utils/prodLogger';
+import { isNativeAppleAvailable, isUserCancellation, performNativeAppleSignIn } from '@/lib/auth/nativeAppleAuth';
 
 import { AuthContext, type AuthContextType } from '@/contexts/AuthContext';
 export { AuthContext, type AuthContextType };
@@ -532,8 +533,55 @@ export function AuthProvider({ children, authPromise }: { children: ReactNode, a
 
   const signInWithOAuth = async (provider: 'google' | 'apple', role: 'client' | 'owner' = 'client') => {
     try {
-      // Store role before OAuth redirect
+      // Store role before OAuth redirect / native sign-in. The SIGNED_IN
+      // handler reads this to assign the correct role for the new session.
       localStorage.setItem('pendingOAuthRole', role);
+
+      // NATIVE iOS: the web OAuth redirect cannot complete inside a Capacitor
+      // WKWebView, and the App Store requires a native Sign in with Apple.
+      // Use the native authorization + signInWithIdToken instead.
+      if (provider === 'apple' && isNativeAppleAvailable()) {
+        try {
+          const { identityToken, rawNonce, fullName } = await performNativeAppleSignIn();
+
+          const { error: idTokenError } = await supabase.auth.signInWithIdToken({
+            provider: 'apple',
+            token: identityToken,
+            nonce: rawNonce,
+          });
+
+          if (idTokenError) {
+            logger.error('[Auth] Native Apple signInWithIdToken error:', idTokenError);
+            localStorage.removeItem('pendingOAuthRole');
+            appToast.error('Apple Sign In Failed', idTokenError.message || 'Please try again.');
+            return { error: idTokenError };
+          }
+
+          // Apple returns the user's name ONLY on the first authorization.
+          // Persist it so profile setup can use it (best-effort, non-blocking).
+          if (fullName) {
+            supabase.auth
+              .updateUser({ data: { full_name: fullName, name: fullName } })
+              .then(({ error }) => {
+                if (error) logger.warn('[Auth] Apple name persist failed:', error);
+              })
+              .catch(() => {});
+          }
+
+          // onAuthStateChange (SIGNED_IN) handles profile setup; Index.tsx
+          // performs the dashboard redirect once the user state updates.
+          return { error: null };
+        } catch (nativeErr: unknown) {
+          localStorage.removeItem('pendingOAuthRole');
+          if (isUserCancellation(nativeErr)) {
+            // User dismissed the Apple sheet — not an error worth surfacing.
+            return { error: null };
+          }
+          logger.error('[Auth] Native Apple sign-in error:', nativeErr);
+          appToast.error('Apple Sign In Failed', 'Could not complete Apple sign in. Please try again.');
+          return { error: nativeErr };
+        }
+      }
 
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
