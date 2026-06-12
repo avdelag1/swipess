@@ -3,7 +3,7 @@ workflows:
     name: iOS Capacitor Build
     max_build_duration: 60
     environment:
-      node: 20.x
+      node: latest
       xcode: latest
       cocoapods: default
     scripts:
