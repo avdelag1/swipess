@@ -3,6 +3,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
+import { logger } from "@/utils/prodLogger";
 
 interface AdminProtectedRouteProps {
   children: React.ReactNode;
@@ -30,11 +31,16 @@ export function AdminProtectedRoute({ children }: AdminProtectedRouteProps) {
 
     const checkAdmin = async () => {
       try {
-        const { data } = await supabase.rpc("has_role", {
+        const { data, error: roleError } = await supabase.rpc("has_role", {
           _user_id: user.id,
           _role: "admin",
         });
         if (cancelled) return;
+        if (roleError) {
+          logger.error('[AdminProtectedRoute] RPC error:', roleError);
+          navigate("/client/dashboard", { replace: true });
+          return;
+        }
         if (!data) {
           navigate("/client/dashboard", { replace: true });
           return;

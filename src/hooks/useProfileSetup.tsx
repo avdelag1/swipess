@@ -118,7 +118,8 @@ export function useProfileSetup() {
             message: 'You earned 1 free message for inviting a new user!',
             is_read: false,
           }])
-          .then(() => { });
+          .then(() => { })
+          .catch((e) => logger.warn('[ProfileSetup] referral notification error:', e));
 
         if (import.meta.env.DEV) {
           logger.log('[ProfileSetup] Referral reward granted to:', referrerId);
@@ -185,7 +186,7 @@ export function useProfileSetup() {
           if (import.meta.env.DEV) logger.error(`[ProfileSetup] Role upsert attempt ${attempt}/3 failed:`, roleError.message);
 
           if (attempt < 3) {
-            // Exponential backoff: 500ms, 1000ms
+            await new Promise(resolve => setTimeout(resolve, attempt === 1 ? 500 : 1000));
           }
         }
 
@@ -379,7 +380,7 @@ export function useProfileSetup() {
         });
 
         if (attempt < 3) {
-          // Exponential backoff: 500ms, 1000ms
+          await new Promise(resolve => setTimeout(resolve, attempt === 1 ? 500 : 1000));
         }
       }
 
