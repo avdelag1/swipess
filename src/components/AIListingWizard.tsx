@@ -373,7 +373,7 @@ export function AIListingWizard() {
 
         if (isOnboardingActive) setOnboardingActive(false);
         handleClose();
-        setTimeout(() => navigate('/owner/properties', { replace: true }), 150);
+        setTimeout(() => navigate('/owner/properties', { replace: true }), 50);
       } catch (publishErr) {
         // Direct publish failed — fall back to the pre-filled manual form so
         // the user's photos and AI-extracted data aren't lost.
@@ -387,7 +387,7 @@ export function AIListingWizard() {
         appToast.info('Almost there!', 'We pre-filled your listing — review and tap publish.');
         if (isOnboardingActive) setOnboardingActive(false);
         handleClose();
-        setTimeout(() => navigate(`/owner/listings/new?category=${cat}&mode=rent&fromAI=1`, { replace: true }), 150);
+        setTimeout(() => navigate(`/owner/listings/new?category=${cat}&mode=rent&fromAI=1`, { replace: true }), 50);
       }
     } catch (error) {
       logger.error('AI Listing Publish Error:', error);
