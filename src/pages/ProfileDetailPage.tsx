@@ -23,7 +23,25 @@ export default function ProfileDetailPage() {
       if (!id) return null;
       const { data, error } = await supabase.from('client_profiles').select('*').eq('user_id', id).maybeSingle();
       if (error) throw error;
-      return data;
+      if (data) return data;
+      // Fallback: owner who liked this client may only have an owner_profile
+      const { data: ownerData } = await supabase.from('owner_profiles').select('*').eq('user_id', id).maybeSingle();
+      if (!ownerData) return null;
+      // Map owner_profiles fields to the shape SimpleOwnerSwipeCard expects
+      return {
+        user_id: ownerData.user_id,
+        name: (ownerData as any).business_name || 'Property Owner',
+        age: null,
+        bio: (ownerData as any).business_description || '',
+        profile_images: ownerData.profile_images || [],
+        interests: [],
+        city: (ownerData as any).business_location || '',
+        verified: ownerData.verified_owner,
+        budget_min: null,
+        budget_max: null,
+        work_schedule: null,
+        gender: null,
+      };
     },
     enabled: !!id,
   });
