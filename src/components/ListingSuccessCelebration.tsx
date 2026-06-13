@@ -3,6 +3,7 @@ import { Bike, Check, Home, Sparkles, User } from 'lucide-react';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { cn } from '@/lib/utils';
 import { useEffect, useState } from 'react';
+import { triggerHaptic } from '@/utils/haptics';
 
 interface ListingSuccessCelebrationProps {
   isOpen: boolean;
@@ -45,6 +46,7 @@ export function ListingSuccessCelebration({ isOpen, category, onComplete }: List
   useEffect(() => {
     if (isOpen) {
       setHasStarted(true);
+      triggerHaptic('celebration');
       const timer = setTimeout(() => {
         onComplete();
         setHasStarted(false);
