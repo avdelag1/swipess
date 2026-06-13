@@ -229,14 +229,25 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
 
           <motion.div
             layoutId="concierge-panel"
-            initial={{ scale: 0.95, opacity: 0, y: 40 }}
-            animate={{ scale: 1, opacity: 1, y: 0 }}
-            exit={{ scale: 0.95, opacity: 0, y: 40 }}
+            initial={{ scaleX: 0.05, scaleY: 0.05, y: '45vh', opacity: 0, filter: 'blur(15px)' }}
+            animate={{ 
+              scaleX: 1, scaleY: 1, y: 0, opacity: 1, filter: 'blur(0px)',
+              transition: { type: 'spring', damping: 22, stiffness: 250, mass: 0.8 }
+            }}
+            exit={{ 
+              scaleX: [1, 0.1, 0.05],
+              scaleY: [1, 0.8, 0.05],
+              y: [0, '20vh', '45vh'],
+              opacity: [1, 0.8, 0],
+              filter: ["blur(0px)", "blur(4px)", "blur(15px)"],
+              transition: { duration: 0.5, times: [0, 0.6, 1], ease: "easeInOut" }
+            }}
             className={cn(
                "relative w-full max-w-4xl h-full sm:h-[88vh] flex flex-col rounded-[2.5rem] sm:rounded-[3.5rem] overflow-hidden border shadow-[0_40px_150px_rgba(0,0,0,0.9)] transition-colors duration-700",
                isLight && !isSwipess ? "bg-white border-black/10" : "bg-black border-white/10"
              )}
             style={{
+              transformOrigin: 'bottom center',
               paddingTop: 'env(safe-area-inset-top, 0px)',
               paddingBottom: 'env(safe-area-inset-bottom, 0px)',
             }}

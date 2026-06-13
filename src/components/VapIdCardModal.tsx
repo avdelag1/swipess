@@ -134,20 +134,19 @@ export function VapIdCardModal({ isOpen, onClose, role = 'client' }: VapIdProps)
           onClick={onClose}
         >
           <motion.div
-            initial={{ scale: 0.8, opacity: 0, y: 100 }}
-            animate={{ scale: 1, opacity: 1, y: 0 }}
-            exit={{ 
-              scaleY: [1, 0.7, 0.0],
-              scaleX: [1, 0.2, 0.0],
-              y: [0, 200, 800],
-              opacity: [1, 1, 0],
-              filter: ["blur(0px)", "blur(4px)", "blur(12px)"],
-              transition: {
-                duration: 0.6,
-                ease: "anticipate"
-              }
+            initial={{ scaleX: 0.05, scaleY: 0.05, y: '45vh', opacity: 0, filter: 'blur(15px)' }}
+            animate={{ 
+              scaleX: 1, scaleY: 1, y: 0, opacity: 1, filter: 'blur(0px)',
+              transition: { type: 'spring', damping: 22, stiffness: 250, mass: 0.8 }
             }}
-            transition={{ type: 'spring', damping: 25, stiffness: 300, mass: 0.8 }}
+            exit={{ 
+              scaleX: [1, 0.1, 0.05],
+              scaleY: [1, 0.8, 0.05],
+              y: [0, '20vh', '45vh'],
+              opacity: [1, 0.8, 0],
+              filter: ["blur(0px)", "blur(4px)", "blur(15px)"],
+              transition: { duration: 0.5, times: [0, 0.6, 1], ease: "easeInOut" }
+            }}
             style={{ transformOrigin: 'bottom center' }}
             onClick={(e) => e.stopPropagation()}
             className="relative w-[98vw] max-w-none h-[98dvh] max-h-[98dvh] flex flex-col"

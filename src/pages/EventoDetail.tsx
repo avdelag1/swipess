@@ -287,7 +287,7 @@ export default function EventoDetail() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-black pb-48" style={{ contain: 'paint layout' }}>
       {/* ── HERO GALLERY ── */}
-      <div className="relative h-[65dvh] overflow-hidden">
+      <div className="relative h-[80dvh] min-h-[500px] overflow-hidden">
         <AnimatePresence mode="popLayout">
           {imageGallery.length > 0 ? (
             <motion.img
@@ -333,14 +333,23 @@ export default function EventoDetail() {
         <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-black/60 to-transparent" />
         <div className="absolute inset-x-0 bottom-0 h-64 bg-gradient-to-t from-slate-50 dark:from-black via-slate-50/40 dark:via-black/40 to-transparent" />
 
-        {/* Floating Controls — Adjusted lower to clear 'S' Logo */}
-        <div className="absolute top-[calc(env(safe-area-inset-top,0px)+24px)] left-4 right-4 flex justify-end items-center z-50 py-4">
+        {/* Floating Controls */}
+        <div className="absolute top-[calc(env(safe-area-inset-top,0px)+16px)] left-4 right-4 flex justify-between items-center z-50 py-2">
+          <motion.button
+            whileTap={{ scale: 0.9 }}
+            onClick={() => navigate(-1)}
+            aria-label="Go back"
+            className="w-11 h-11 rounded-2xl bg-black/20 backdrop-blur-xl border border-white/10 flex items-center justify-center text-white shadow-lg"
+          >
+            <ArrowLeft className="w-6 h-6" />
+          </motion.button>
+          
           <div className="flex gap-2">
             <motion.button
               whileTap={{ scale: 0.9 }}
               onClick={toggleFavorite}
               aria-label={isFavorited ? "Remove from favorites" : "Add to favorites"}
-              className="w-11 h-11 rounded-2xl bg-black/20 backdrop-blur-xl border border-white/10 flex items-center justify-center text-white"
+              className="w-11 h-11 rounded-2xl bg-black/20 backdrop-blur-xl border border-white/10 flex items-center justify-center text-white shadow-lg"
             >
               <Heart className={cn("w-5 h-5 transition-colors", isFavorited ? "fill-rose-500 text-rose-500" : "text-white")} />
             </motion.button>
@@ -348,7 +357,7 @@ export default function EventoDetail() {
               whileTap={{ scale: 0.9 }}
               onClick={handleShare}
               aria-label="Share event"
-              className="w-11 h-11 rounded-2xl bg-black/20 backdrop-blur-xl border border-white/10 flex items-center justify-center text-white"
+              className="w-11 h-11 rounded-2xl bg-black/20 backdrop-blur-xl border border-white/10 flex items-center justify-center text-white shadow-lg"
             >
               <Share2 className="w-5 h-5" />
             </motion.button>
