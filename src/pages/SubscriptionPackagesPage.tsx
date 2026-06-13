@@ -95,10 +95,10 @@ const clientPremiumPlans = [
 const accentStyles = {
   blue: {
     border: 'border-white/15',
-    badge: 'bg-white/10 text-foreground border border-white/15',
+    badge: 'bg-white/10 text-white border border-white/15',
     glow: '',
     button: 'bg-gradient-to-r from-zinc-900 to-zinc-700 text-white',
-    checkColor: 'text-foreground',
+    checkColor: 'text-white',
     topGradient: 'from-white/10 via-transparent to-transparent',
     priceShadow: '',
   },
@@ -193,26 +193,26 @@ export default function SubscriptionPackagesPage() {
   if (roleLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-6">
-        <div className="animate-pulse text-muted-foreground font-black uppercase tracking-widest text-xs text-center">Resonating with Hub...</div>
+        <div className="animate-pulse text-white/60 font-black uppercase tracking-widest text-xs text-center">Resonating with Hub...</div>
       </div>
     );
   }
 
   return (
     <PaymentErrorBoundary>
-      <div className="min-h-screen bg-background flex flex-col pb-32 overflow-x-hidden" style={{ contain: 'layout' }}>
+      <div className="min-h-[100dvh] bg-black flex flex-col pb-safe-bottom overflow-x-hidden" style={{ contain: 'layout' }}>
       {/* Background Polish */}
       <div className="fixed inset-0 pointer-events-none">
         <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-brand-accent-2/5 blur-[120px] rounded-full" />
         <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-brand-primary/5 blur-[120px] rounded-full" />
       </div>
 
-      <div className="relative z-10 shrink-0 pt-[env(safe-area-inset-top)] px-4">
-        <div className="max-w-5xl mx-auto py-3 flex items-center justify-between">
+      <div className="relative z-10 shrink-0 pt-safe-top">
+        <div className="max-w-5xl mx-auto py-3 px-4 flex items-center justify-between">
           <motion.button
             whileTap={{ scale: 0.9 }}
             onClick={() => navigate(userRole === 'owner' ? '/owner/dashboard' : '/client/dashboard')}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-full glass-pill text-xs font-black uppercase tracking-widest text-foreground/60 hover:text-foreground transition-colors"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/10 backdrop-blur-md text-xs font-black uppercase tracking-widest text-white/80 hover:text-white transition-colors"
           >
             <ChevronLeft className="w-5 h-5" />
             Back
@@ -227,14 +227,14 @@ export default function SubscriptionPackagesPage() {
         >
           <div className="inline-flex items-center gap-2 mb-6">
             <Zap className="w-8 h-8 text-brand-accent-2 animate-pulse" />
-            <span className="text-xs font-black uppercase tracking-[0.25em] text-muted-foreground/80">
+            <span className="text-xs font-black uppercase tracking-[0.25em] text-white/60/80">
               The Swipess Experience
             </span>
           </div>
-          <h1 className="text-5xl sm:text-6xl font-black tracking-tighter text-foreground mb-8 uppercase">
+          <h1 className="text-5xl sm:text-6xl font-black tracking-tighter text-white mb-8 uppercase">
             Own the <span className="text-brand-accent-2 italic">Network</span>
           </h1>
-          <p className="text-base font-bold text-muted-foreground leading-relaxed max-w-xl mx-auto px-4">
+          <p className="text-base font-bold text-white/60 leading-relaxed max-w-xl mx-auto px-4">
             Stop paying commissions. Start resonating. Unlock direct access to owners, verified legal support, and unlimited AI assistance.
           </p>
         </motion.div>
@@ -270,13 +270,13 @@ export default function SubscriptionPackagesPage() {
                   </div>
 
                   {/* Plan name */}
-                  <h3 className="text-2xl font-black text-foreground mb-2 uppercase tracking-widest">{plan.name}</h3>
+                  <h3 className="text-2xl font-black text-white mb-2 uppercase tracking-widest">{plan.name}</h3>
                   {'aiTier' in plan && (
                     <span className={cn(
                       "inline-flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.2em] px-3 py-1.5 rounded-xl mb-4",
                       plan.accent === 'gold' ? "bg-amber-500/20 text-amber-400" :
                       plan.accent === 'pink' ? "bg-pink-500/20 text-pink-400" :
-                      "bg-white/10 text-foreground"
+                      "bg-white/10 text-white"
                     )}>
                       <Sparkles className="w-4 h-4" />
                       {(plan as any).aiTier}
@@ -285,10 +285,10 @@ export default function SubscriptionPackagesPage() {
 
                   {/* Price */}
                   <div className="flex items-baseline gap-2 mb-8">
-                    <span className="text-5xl sm:text-6xl font-black text-foreground tracking-tighter">
+                    <span className="text-5xl sm:text-6xl font-black text-white tracking-tighter">
                       ${plan.price}
                     </span>
-                    <span className="text-xs font-black text-foreground/40 uppercase tracking-widest leading-loose">
+                    <span className="text-xs font-black text-white/40 uppercase tracking-widest leading-loose">
                       USD {plan.durationText}
                     </span>
                   </div>
@@ -300,7 +300,7 @@ export default function SubscriptionPackagesPage() {
                     {plan.benefits.map((benefit, i) => (
                       <div key={i} className="flex items-start gap-4">
                         <Check className={cn("w-5 h-5 flex-shrink-0 mt-1", style.checkColor)} />
-                        <span className="text-sm font-bold text-foreground/90 leading-snug uppercase tracking-tight">{benefit}</span>
+                        <span className="text-sm font-bold text-white/90 leading-snug uppercase tracking-tight">{benefit}</span>
                       </div>
                     ))}
                   </div>
@@ -315,11 +315,11 @@ export default function SubscriptionPackagesPage() {
                     )}>
                       <div className="flex items-center gap-2 mb-3">
                         <Sparkles className={cn("w-4 h-4", style.checkColor)} />
-                        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-foreground/40">Magic AI Benefits</span>
+                        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40">Magic AI Benefits</span>
                       </div>
                       {(plan as any).aiFeatures.map((feature: string, i: number) => (
                         <div key={i} className="flex items-start gap-3">
-                          <span className="text-sm font-bold text-foreground leading-relaxed">{feature}</span>
+                          <span className="text-sm font-bold text-white leading-relaxed">{feature}</span>
                         </div>
                       ))}
                     </div>
@@ -348,7 +348,7 @@ export default function SubscriptionPackagesPage() {
         <div className="mt-16 pt-8 max-w-5xl mx-auto w-full border-t border-white/5 flex flex-col items-center gap-8 mb-8">
           <button 
             onClick={handleRestore}
-            className="flex items-center gap-2.5 text-xs font-black uppercase tracking-[0.3em] text-muted-foreground/60 hover:text-white transition-colors"
+            className="flex items-center gap-2.5 text-xs font-black uppercase tracking-[0.3em] text-white/60/60 hover:text-white transition-colors"
           >
             <RefreshCcw className="w-5 h-5" />
             Restore Subscriptions
@@ -356,7 +356,7 @@ export default function SubscriptionPackagesPage() {
 
           {/*  App Store Subscription Policy Disclosure (Guideline 3.1.2) */}
           <div className="max-w-2xl text-center px-6 space-y-6">
-            <p className="text-[10px] font-bold text-foreground/30 uppercase tracking-widest leading-relaxed">
+            <p className="text-[10px] font-bold text-white/30 uppercase tracking-widest leading-relaxed">
               Payment will be charged to your Apple ID account at the confirmation of purchase. Subscription automatically renews unless it is canceled at least 24 hours before the end of the current period. Your account will be charged for renewal within 24 hours prior to the end of the current period. You can manage and cancel your subscriptions by going to your account settings on the App Store after purchase.
             </p>
             <div className="flex items-center justify-center gap-8">
@@ -368,23 +368,23 @@ export default function SubscriptionPackagesPage() {
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-12 w-full px-6">
             <div className="space-y-3 text-center group">
               <Shield className="w-8 h-8 text-brand-primary mx-auto mb-3 group-hover:scale-110 transition-transform" />
-              <h5 className="text-xs font-black uppercase text-foreground tracking-[0.2em]">Secure Gateway</h5>
-              <p className="text-[10px] font-bold text-muted-foreground/40 leading-relaxed uppercase tracking-widest">Protected by Enterprise <br />Payment Protocols</p>
+              <h5 className="text-xs font-black uppercase text-white tracking-[0.2em]">Secure Gateway</h5>
+              <p className="text-[10px] font-bold text-white/60/40 leading-relaxed uppercase tracking-widest">Protected by Enterprise <br />Payment Protocols</p>
             </div>
             <div className="space-y-3 text-center group">
               <Clock className="w-8 h-8 text-brand-primary mx-auto mb-3 group-hover:scale-110 transition-transform" />
-              <h5 className="text-xs font-black uppercase text-foreground tracking-[0.2em]">Instant Hydration</h5>
-              <p className="text-[10px] font-bold text-muted-foreground/40 leading-relaxed uppercase tracking-widest">Digital assets unlock <br />immediately</p>
+              <h5 className="text-xs font-black uppercase text-white tracking-[0.2em]">Instant Hydration</h5>
+              <p className="text-[10px] font-bold text-white/60/40 leading-relaxed uppercase tracking-widest">Digital assets unlock <br />immediately</p>
             </div>
             <div className="space-y-3 text-center group">
               <Zap className="w-8 h-8 text-brand-primary mx-auto mb-3 group-hover:scale-110 transition-transform" />
-              <h5 className="text-xs font-black uppercase text-foreground tracking-[0.2em]">Priority Support</h5>
-              <p className="text-[10px] font-bold text-muted-foreground/40 leading-relaxed uppercase tracking-widest">Direct source access <br />unlocked now</p>
+              <h5 className="text-xs font-black uppercase text-white tracking-[0.2em]">Priority Support</h5>
+              <p className="text-[10px] font-bold text-white/60/40 leading-relaxed uppercase tracking-widest">Direct source access <br />unlocked now</p>
             </div>
             <div className="space-y-3 text-center group">
               <Sparkles className="w-8 h-8 text-brand-primary mx-auto mb-3 group-hover:scale-110 transition-transform" />
-              <h5 className="text-xs font-black uppercase text-foreground tracking-[0.2em]">Concierge Elite</h5>
-              <p className="text-[10px] font-bold text-muted-foreground/40 leading-relaxed uppercase tracking-widest">24/7 Human-AI <br />Hybrid Assistance</p>
+              <h5 className="text-xs font-black uppercase text-white tracking-[0.2em]">Concierge Elite</h5>
+              <p className="text-[10px] font-bold text-white/60/40 leading-relaxed uppercase tracking-widest">24/7 Human-AI <br />Hybrid Assistance</p>
             </div>
           </div>
         </div>

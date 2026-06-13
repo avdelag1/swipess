@@ -25,14 +25,19 @@ export const MessageBubble = memo(({ message, isUser, isSwipess, isLight, onCopy
   );
 
   const displayContent = useMemo(() => {
-    return cleanContent
-      .replace(/https?:\/\/swipess\.com\/share\/[^\s)]*/g, '')
-      .replace(/\[LISTINGS:[^\]]*\]?/g, '')
-      .replace(/\[PROFILES:[^\]]*\]?/g, '')
-      .replace(/\[DRAFT:[^\]]*\]?/g, '')
-      .replace(/\[FILTER:[^\]]*\]?/g, '')
-      .replace(/\[NAV:[^\]]*\]?/g, '')
-      .trim();
+    let disp = cleanContent.replace(/https?:\/\/swipess\.com\/share\/[^\s)]*/g, '');
+    const tags = ['[LISTINGS:', '[PROFILES:', '[DRAFT:', '[FILTER:', '[NAV:'];
+    let earliestIndex = -1;
+    tags.forEach(tag => {
+      const idx = disp.indexOf(tag);
+      if (idx !== -1 && (earliestIndex === -1 || idx < earliestIndex)) {
+        earliestIndex = idx;
+      }
+    });
+    if (earliestIndex !== -1) {
+      disp = disp.substring(0, earliestIndex);
+    }
+    return disp.trim();
   }, [cleanContent]);
 
   useEffect(() => {
