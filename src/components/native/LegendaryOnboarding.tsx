@@ -6,7 +6,7 @@ import { haptics } from '@/utils/microPolish';
 
 const SLIDES = [
   {
-    title: "Discover Tulum",
+    title: "Discover the World",
     desc: "The elite marketplace for premium villas, exotic vehicles, and secret events.",
     icon: MapPin,
     color: "from-teal-400 to-emerald-500",
