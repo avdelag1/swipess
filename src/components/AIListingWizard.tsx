@@ -98,16 +98,18 @@ export function AIListingWizard() {
   const queryClient = useQueryClient();
   const { isOnboardingActive, setOnboardingActive } = useOnboardingStore();
 
-  const modalBg = isLight ? 'bg-white border-black/10' : 'bg-[#0f0f13] border-white/20';
+  const modalBg = isLight 
+    ? 'bg-white/90 backdrop-blur-3xl saturate-150 border-black/10' 
+    : 'bg-[#050505]/70 backdrop-blur-[40px] saturate-150 border-t-white/30 border-l-white/20 border-r-white/5 border-b-black';
   const headerBorder = isLight ? 'border-black/10' : 'border-white/10';
   const textPrimary = isLight ? 'text-black' : 'text-white';
-  const textMuted = isLight ? 'text-black/80' : 'text-white/90';
+  const textMuted = isLight ? 'text-black/80' : 'text-white/80';
   const inputCls = isLight
-    ? 'bg-white border-2 border-black/15 focus:border-rose-500 focus:ring-0 text-black placeholder:text-black/60 font-medium shadow-[0_2px_8px_rgba(0,0,0,0.04)]'
-    : 'bg-white/[0.15] border-2 border-white/30 focus:border-rose-400 focus:ring-0 text-white placeholder:text-white/70 font-medium shadow-inner';
+    ? 'bg-white/80 backdrop-blur-md border-2 border-black/15 focus:border-rose-500 focus:ring-0 text-black placeholder:text-black/50 font-medium shadow-[0_2px_8px_rgba(0,0,0,0.04)]'
+    : 'bg-black/40 backdrop-blur-md border border-t-white/20 border-l-white/10 border-r-white/5 border-b-transparent focus:border-rose-400 focus:ring-0 text-white placeholder:text-white/50 font-medium shadow-inner';
   const closeBtnCls = isLight
     ? 'bg-white hover:bg-black/5 rounded-2xl transition-all border border-black/20 shadow-[0_2px_8px_rgba(0,0,0,0.06)]'
-    : 'bg-white/10 hover:bg-white/20 rounded-2xl transition-all border border-white/20';
+    : 'bg-white/10 hover:bg-white/20 rounded-2xl transition-all border border-t-white/30 border-l-white/20 border-r-white/5 border-b-transparent shadow-lg';
   
   const [step, setStep] = useState<WizardStep>('compose');
   const [category, setCategory] = useState<typeof CATEGORIES[number]['id'] | null>('property');
@@ -410,16 +412,15 @@ export function AIListingWizard() {
           exit={{ opacity: 0 }}
           className={cn(
             "fixed inset-0 z-[2147483000] backdrop-blur-2xl flex items-start sm:items-center justify-center p-0 sm:p-6",
-            isLight ? "bg-white/40" : "bg-black/80"
+            isLight ? "bg-white/40" : "bg-black/50"
           )}
-          style={{ paddingBottom: 'calc(var(--bottom-nav-height, 80px) + env(safe-area-inset-bottom, 0px))' }}
         >
           <motion.div
             initial={{ scale: 0.95, opacity: 0, y: 30 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.95, opacity: 0, y: 30 }}
             className={cn(
-              "w-full max-w-2xl mx-auto h-full sm:h-[90vh] overflow-hidden sm:rounded-[3rem] border flex flex-col relative",
+              "w-full max-w-2xl mx-auto h-[100dvh] sm:h-[90vh] overflow-hidden rounded-none sm:rounded-[3rem] border-0 sm:border flex flex-col relative",
             isLight ? "shadow-[0_40px_100px_rgba(0,0,0,0.2)]" : "shadow-[0_40px_100px_rgba(255,255,255,0.05)] shadow-2xl",
             modalBg
             )}
@@ -485,8 +486,8 @@ export function AIListingWizard() {
                               className={cn(
                                 "flex flex-col items-center gap-2 p-4 rounded-2xl border transition-all active:scale-[0.98]",
                                 category === cat.id
-                                  ? "bg-gradient-to-br from-[#FF4D00] to-[#EB4898] text-white border-transparent shadow-[0_4px_15px_rgba(255,77,0,0.3)]"
-                                  : isLight ? "bg-black/5 border-black/10 hover:border-rose-500/30" : "bg-white/[0.03] border-white/10 hover:border-white/20"
+                                  ? "bg-gradient-to-br from-[#FF4D00] to-[#EB4898] text-white border-transparent shadow-[0_4px_25px_rgba(255,77,0,0.4)] ring-1 ring-white/20"
+                                  : isLight ? "bg-black/5 border-black/10 hover:border-rose-500/30" : "bg-white/5 border border-t-white/30 border-l-white/10 border-r-white/5 border-b-transparent hover:border-white/40 shadow-inner"
                               )}
                             >
                               <cat.icon className={cn("w-6 h-6", category === cat.id ? "text-white" : textMuted)} />
@@ -519,7 +520,7 @@ export function AIListingWizard() {
                           </AnimatePresence>
                           <button
                             onClick={handleImageAdd}
-                            className={cn("aspect-square rounded-[2rem] border-2 border-dashed flex flex-col items-center justify-center gap-3 hover:bg-rose-500/5 hover:border-rose-500/40 transition-all group shadow-inner", isLight ? "border-black/15" : "border-white/10")}
+                            className={cn("aspect-square rounded-[2rem] border-2 border-dashed flex flex-col items-center justify-center gap-3 hover:bg-rose-500/5 hover:border-rose-500/40 transition-all group shadow-inner", isLight ? "border-black/15 bg-black/5" : "border-white/20 bg-white/5")}
                           >
                             <div className={cn("p-3 rounded-2xl border group-hover:bg-rose-500/20 group-hover:border-rose-400/30 transition-all", isLight ? "bg-black/5 border-black/5" : "bg-white/5 border-white/5")}>
                               <Camera className="w-6 h-6 text-rose-400 opacity-70 group-hover:opacity-100" />
