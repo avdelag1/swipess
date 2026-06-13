@@ -252,33 +252,30 @@ export const BottomNavigation = memo(({
       role="navigation"
       aria-label="Main navigation"
       className={cn(
-        'app-bottom-bar pb-2 pt-1 transition-all duration-150',
+        'app-bottom-bar transition-all duration-150',
         isActuallyVisible ? 'translate-y-0 opacity-100' : 'opacity-0 translate-y-full',
         className
       )}
       style={{
         transitionTimingFunction: 'ease-out',
-        paddingLeft: 'max(12px, env(safe-area-inset-left))',
-        paddingRight: 'max(12px, env(safe-area-inset-right))',
-        paddingBottom: 'calc(8px + max(0px, env(safe-area-inset-bottom)))',
+        paddingLeft: 'max(0px, env(safe-area-inset-left))',
+        paddingRight: 'max(0px, env(safe-area-inset-right))',
+        paddingBottom: 'max(0px, env(safe-area-inset-bottom))',
         viewTransitionName: 'swipess-bottom-nav',
       }}
     >
-      {/* ── Liquid Glass bar surface ────────────────────────────────────────
-          The bar itself is a glass layer so the swipe card content shows
-          through, reinforcing the "floating above" feeling. */}
+      {/* ── Solid Premium Bar ────────────────────────────────────────
+          The bar sits lower and uses a strong, rich background to feel more premium. */}
       <div
         className={cn(
           "pointer-events-auto",
           "mx-auto w-full",
-          "glass-surface px-1 py-1",
-          "rounded-t-3xl"
+          "px-1 py-1",
+          "rounded-t-[32px] border-t",
+          isLight 
+            ? "bg-white/95 border-black/5 shadow-[0_-8px_30px_rgba(0,0,0,0.08)] backdrop-blur-2xl" 
+            : "bg-[#0A0A0C]/95 border-white/10 shadow-[0_-12px_40px_rgba(0,0,0,0.6)] backdrop-blur-2xl"
         )}
-        style={{
-          filter: isLight
-            ? 'drop-shadow(0 4px 12px rgba(0,0,0,0.12))'
-            : 'drop-shadow(0 8px 32px rgba(0,0,0,0.45))',
-        }}
       >
         {/* Nav items row — SCROLLABLE SWIPESS ARCHITECTURE */}
         <div
