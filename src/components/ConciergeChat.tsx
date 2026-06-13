@@ -224,7 +224,10 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
   return createPortal(
     <AnimatePresence>
       {isOpen && (
-        <div 
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0, transition: { duration: 0.6 } }}
           className={cn("fixed inset-0 z-[10010] flex items-center justify-center p-2 sm:p-6 transition-all duration-500", isLight && !isSwipess ? "bg-black/20" : "bg-black/60")}
           style={{ WebkitBackdropFilter: 'blur(24px)', backdropFilter: 'blur(24px)' }}
         >
@@ -485,7 +488,7 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
             )}
           </motion.div>
 
-        </div>
+        </motion.div>
       )}
     </AnimatePresence>,
     document.body

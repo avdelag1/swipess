@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { triggerHaptic } from '@/utils/haptics';
 import { logger } from '@/utils/prodLogger';
+import { canNativeShare, shareViaNavigator } from '@/hooks/useSharing';
 
 interface VideoListing {
   id: string;
@@ -116,12 +117,12 @@ export default function VideoTours() {
         <motion.button
           whileTap={{ scale: 0.9 }}
           aria-label="Share tour"
-          onClick={() => {
+          onClick={async () => {
             const listing = listings[currentIndex];
             if (!listing) return;
             const url = `${window.location.origin}/listing/${listing.id}`;
-            if (navigator.share) {
-              navigator.share({ title: listing.title, url }).catch(() => {});
+            if (canNativeShare()) {
+              await shareViaNavigator({ title: listing.title, text: listing.title, url });
             } else {
               navigate(`/listing/${listing.id}`);
             }

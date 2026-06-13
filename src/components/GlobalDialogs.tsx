@@ -293,7 +293,7 @@ export const GlobalDialogs = memo(({ userRole }: GlobalDialogsProps) => {
       {/* Top-left WelcomeNotification removed: the centered WelcomeBonusModal
           is now the single source of welcome greeting. */}
 
-      <DeferredDialog when={store.showAIChat} fallback={<ConciergeChatFallback />} threshold={0}>
+      <DeferredDialog when={store.showAIChat} fallback={<ConciergeChatFallback />} threshold={0} keepMounted>
         <ConciergeChat
           isOpen={store.showAIChat}
           onClose={() => store.setModal('showAIChat', false)}

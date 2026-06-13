@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils';
 import { useTranslation } from 'react-i18next';
 import { triggerHaptic } from '@/utils/haptics';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
-import { generateShareUrl } from '@/hooks/useSharing';
+import { canNativeShare, generateShareUrl, shareViaNavigator } from '@/hooks/useSharing';
 import { ConnectingOverlay } from '@/components/ConnectingOverlay';
 import { appToast } from '@/utils/appNotification';
 
@@ -217,12 +217,12 @@ export default function EventoDetail() {
     triggerHaptic('light');
     const shareUrl = generateShareUrl({ eventId: id, referralId: user?.id });
     
-    if (navigator.share && event) {
-      await navigator.share({
+    if (canNativeShare() && event) {
+      await shareViaNavigator({
         title: event.title,
         text: `Check out ${event.title} on Swipess!`,
         url: shareUrl,
-      }).catch(() => {});
+      });
     } else {
       await navigator.clipboard.writeText(shareUrl);
       appToast.info(t('eventos.linkCopied'));

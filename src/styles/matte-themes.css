@@ -15,14 +15,14 @@
     --secondary: 0 0% 10%;
     --secondary-foreground: 0 0% 100%;
     --muted: 0 0% 14%;
-    --muted-foreground: 212 10% 82%;
-    --accent: 343 99% 65%;
+    --muted-foreground: 212 16% 90%;
+    --accent: 343 99% 68%;
     --accent-foreground: 0 0% 100%;
-    --destructive: 0 84% 60%;
+    --destructive: 0 90% 64%;
     --destructive-foreground: 0 0% 100%;
-    --border: 0 0% 18%;
-    --input: 0 0% 10%;
-    --ring: 352 83% 62%;
+    --border: 0 0% 28%;
+    --input: 0 0% 16%;
+    --ring: 352 90% 66%;
 
     /* Semantic UI Tokens */
     --btn-primary-bg: #FF4D00;
@@ -30,19 +30,19 @@
     --btn-secondary-bg: rgba(255, 255, 255, 0.1);
     --btn-secondary-text: #FFFFFF;
     --icon-active: #FF6B35;
-    --icon-inactive: rgba(255, 255, 255, 0.6);
+    --icon-inactive: rgba(255, 255, 255, 0.82);
 
     /* Modern theme variables */
     --bg-primary: 0 0% 0%;
     --bg-secondary: 0 0% 5%;
     --bg-tertiary: 0 0% 10%;
     --text-primary: 0 0% 100%;
-    --text-secondary: 216 10% 78%;
-    --text-tertiary: 216 10% 55%;
-    --border-primary: 0 0% 18%;
-    --border-secondary: 0 0% 23%;
-    --accent-primary: 352 83% 62%;
-    --accent-secondary: 352 83% 72%;
+    --text-secondary: 216 16% 90%;
+    --text-tertiary: 216 12% 68%;
+    --border-primary: 0 0% 28%;
+    --border-secondary: 0 0% 34%;
+    --accent-primary: 352 90% 66%;
+    --accent-secondary: 352 90% 75%;
 
     /* Shadows */
     --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
@@ -157,26 +157,26 @@
     --secondary: 0 0% 13%;
     --secondary-foreground: 0 0% 95%;
     --muted: 0 0% 10%;
-    --muted-foreground: 0 0% 78%;
-    --accent: 18 100% 55%;
+    --muted-foreground: 0 0% 88%;
+    --accent: 18 100% 60%;
     --accent-foreground: 0 0% 100%;
-    --destructive: 0 84% 60%;
+    --destructive: 0 90% 64%;
     --destructive-foreground: 0 0% 100%;
-    --border: 0 0% 12%;
-    --input: 0 0% 12%;
-    --ring: 18 100% 55%;
+    --border: 0 0% 22%;
+    --input: 0 0% 22%;
+    --ring: 18 100% 60%;
 
     /* Modern theme variables */
     --bg-primary: 0 0% 0%;
     --bg-secondary: 0 0% 6%;
     --bg-tertiary: 0 0% 10%;
-    --text-primary: 0 0% 95%;
-    --text-secondary: 0 0% 78%;
-    --text-tertiary: 0 0% 45%;
-    --border-primary: 0 0% 12%;
-    --border-secondary: 0 0% 18%;
-    --accent-primary: 18 100% 55%;
-    --accent-secondary: 18 100% 65%;
+    --text-primary: 0 0% 98%;
+    --text-secondary: 0 0% 88%;
+    --text-tertiary: 0 0% 60%;
+    --border-primary: 0 0% 22%;
+    --border-secondary: 0 0% 30%;
+    --accent-primary: 18 100% 60%;
+    --accent-secondary: 18 100% 68%;
 
     /* Shadows - Maximum depth for AMOLED */
     --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.6);
@@ -201,26 +201,26 @@
     --secondary: 25 55% 16%;
     --secondary-foreground: 42 88% 90%;
     --muted: 25 55% 16%;
-    --muted-foreground: 36 58% 62%;
-    --accent: 38 92% 52%;
+    --muted-foreground: 36 66% 75%;
+    --accent: 38 95% 56%;
     --accent-foreground: 22 90% 6%;
-    --destructive: 0 84% 60%;
+    --destructive: 0 90% 64%;
     --destructive-foreground: 0 0% 100%;
-    --border: 28 48% 18%;
-    --input: 28 48% 18%;
-    --ring: 38 92% 52%;
+    --border: 28 50% 28%;
+    --input: 28 50% 28%;
+    --ring: 38 95% 56%;
 
     /* Modern theme variables */
     --bg-primary: 22 90% 6%;
     --bg-secondary: 22 80% 10%;
     --bg-tertiary: 25 55% 16%;
-    --text-primary: 42 88% 90%;
-    --text-secondary: 36 58% 62%;
-    --text-tertiary: 30 42% 42%;
-    --border-primary: 28 48% 18%;
-    --border-secondary: 28 48% 24%;
-    --accent-primary: 38 92% 52%;
-    --accent-secondary: 40 88% 62%;
+    --text-primary: 42 90% 94%;
+    --text-secondary: 36 66% 75%;
+    --text-tertiary: 30 50% 56%;
+    --border-primary: 28 50% 28%;
+    --border-secondary: 28 50% 34%;
+    --accent-primary: 38 95% 56%;
+    --accent-secondary: 40 92% 66%;
 
     /* Shadows - Warm golden-brown shadows */
     --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.45);
