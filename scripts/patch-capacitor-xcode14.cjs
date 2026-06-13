@@ -6,9 +6,9 @@ console.log('Patching Capacitor for Xcode 14 compatibility...');
 const bridgePath = path.join(__dirname, '../node_modules/@capacitor/ios/Capacitor/Capacitor/CapacitorBridge.swift');
 if (fs.existsSync(bridgePath)) {
   let content = fs.readFileSync(bridgePath, 'utf8');
-  if (content.includes('webView?.isInspectable = true') && !content.includes('#if compiler(>=5.8)')) {
+  if (content.includes('isInspectable') && !content.includes('#if compiler(>=5.8)')) {
     content = content.replace(
-      /if #available\(macOS 13\.3, iOS 16\.4, tvOS 16\.4, \*\) \{\s*webView\?\.isInspectable = true\s*\}/g,
+      /if #available\(macOS 13\.3, iOS 16\.4, tvOS 16\.4, \*\) \{\s*webView\??\.isInspectable = true\s*\}/g,
       '#if compiler(>=5.8)\nif #available(macOS 13.3, iOS 16.4, tvOS 16.4, *) {\n    webView?.isInspectable = true\n}\n#endif'
     );
     fs.writeFileSync(bridgePath, content);
