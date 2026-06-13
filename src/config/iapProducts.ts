@@ -12,9 +12,9 @@ import { Capacitor } from '@capacitor/core';
  */
 
 export const APPLE_SUBSCRIPTION_PRODUCTS = [
-  'Swipess.plus.monthly.v2',
-  'Swipess.plus.semestral.v2',
-  'Swipess.plus.annual.v2',
+  'Swipess.plus.monthly.v3',
+  'Swipess.plus.semestral.v3',
+  'Swipess.plus.annual.v3',
 ] as const;
 
 /** Token (consumable) packs. The number suffix is the token amount. */
