@@ -5,6 +5,7 @@ import { Check, Copy, Gift } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { appToast } from '@/utils/appNotification';
 import {
+  canNativeShare,
   copyToClipboard,
   generateShareUrl,
   shareViaFacebook,
@@ -50,7 +51,7 @@ export function SharedProfileSection({
   };
 
   const handleShare = async () => {
-    if (typeof navigator.share === 'function') {
+    if (canNativeShare()) {
       await shareViaNavigator({
         title: profileName,
         text: shareText,
@@ -80,7 +81,7 @@ export function SharedProfileSection({
   };
 
   const socialButtons = [
-    ...(typeof navigator.share === 'function'
+    ...(canNativeShare()
       ? [{
           onClick: handleShare,
           icon: (
