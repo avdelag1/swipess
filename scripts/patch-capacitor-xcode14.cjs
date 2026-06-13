@@ -16,7 +16,7 @@ if (fs.existsSync(bridgePath)) {
   }
 }
 
-const decoderPath = path.join(__dirname, '../node_modules/@capacitor/ios/Capacitor/Capacitor/JSValueDecoder.swift');
+const decoderPath = path.join(__dirname, '../node_modules/@capacitor/ios/Capacitor/Capacitor/Codable/JSValueDecoder.swift');
 if (fs.existsSync(decoderPath)) {
   let content = fs.readFileSync(decoderPath, 'utf8');
   if (content.includes('MSEC_PER_SEC')) {
@@ -26,7 +26,7 @@ if (fs.existsSync(decoderPath)) {
   }
 }
 
-const encoderPath = path.join(__dirname, '../node_modules/@capacitor/ios/Capacitor/Capacitor/JSValueEncoder.swift');
+const encoderPath = path.join(__dirname, '../node_modules/@capacitor/ios/Capacitor/Capacitor/Codable/JSValueEncoder.swift');
 if (fs.existsSync(encoderPath)) {
   let content = fs.readFileSync(encoderPath, 'utf8');
   if (content.includes('MSEC_PER_SEC')) {
