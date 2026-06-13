@@ -25,6 +25,7 @@ import { VisualThemeProvider } from "@/contexts/VisualThemeContext";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { useForceUpdateOnVersionChange } from "@/hooks/useAutomaticUpdates";
 import { useEnsureSpecializedProfile, useProfileAutoSync } from "@/hooks/useProfileAutoSync";
+import { useReengagementNotifications } from "@/hooks/useReengagementNotifications";
 import { useConnectionHealth } from "@/hooks/useConnectionHealth";
 import { ConnectionErrorScreen } from "@/components/ConnectionErrorScreen";
 // PERF: Lazy-load SwipessPrewarmer — its deps (routePrefetcher, performance) are heavy
@@ -70,6 +71,7 @@ function LifecycleHooks({ children }: { children: React.ReactNode }) {
   useForceUpdateOnVersionChange();
   useProfileAutoSync();
   useEnsureSpecializedProfile();
+  useReengagementNotifications();
   return <>{children}</>;
 }
 

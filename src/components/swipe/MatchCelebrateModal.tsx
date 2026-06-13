@@ -2,6 +2,7 @@ import { memo, useEffect, useRef } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { MessageCircle } from 'lucide-react';
 import { triggerHaptic } from '@/utils/haptics';
+import { maybeRequestReviewAfterMatch } from '@/utils/appReview';
 import { Button } from '@/components/ui/button';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import confetti from 'canvas-confetti';
@@ -44,6 +45,11 @@ function MatchCelebrateModalComponent({ isOpen, onClose, clientProfile, ownerPro
 
       setTimeout(() => triggerHaptic('success'), 300);
       setTimeout(() => triggerHaptic('light'), 600);
+
+      // A mutual match is a genuine happy moment — a good time to (occasionally)
+      // ask for a store review. Gated to 2nd+ match / 90-day spacing, and the OS
+      // throttles further, so this won't nag.
+      void maybeRequestReviewAfterMatch();
     }
     
     if (!isOpen) {
