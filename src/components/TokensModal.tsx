@@ -11,7 +11,7 @@ import { NativeBridge } from '@/utils/nativeBridge';
 import { useNavigate } from 'react-router-dom';
 import { APPLE_TOKEN_PACKAGES, type AppleTokenPackage, getSafePaymentUrl } from '@/config/iapProducts';
 import { appToast } from '@/utils/appNotification';
-
+import { createPortal } from 'react-dom';
 
 const formatUSD = (price: number) =>
   new Intl.NumberFormat('en-US', {
@@ -116,7 +116,7 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
   };
 
 
-  return (
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
         <>
@@ -256,7 +256,8 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
           </motion.div>
         </>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }
 
