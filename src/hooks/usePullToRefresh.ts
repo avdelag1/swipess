@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { logger } from '@/utils/prodLogger';
 import { useQueryClient } from '@tanstack/react-query';
+import { triggerHaptic } from '@/utils/haptics';
 
 interface PullToRefreshOptions {
   /** Element to attach to (defaults to window) */
@@ -33,10 +34,13 @@ export function usePullToRefresh({
   const pulling = useRef(false);
   // Tracks pull distance in handlers without re-triggering the effect on every move
   const pullDistanceRef = useRef(0);
+  // Fires the "release to refresh" haptic detent once per threshold crossing.
+  const thresholdReachedRef = useRef(false);
 
   const handleRefresh = useCallback(async () => {
     setIsRefreshing(true);
-    if ('vibrate' in navigator) navigator.vibrate(15);
+    // Native Haptics on device (Capacitor) with a web-vibrate fallback.
+    triggerHaptic('medium');
 
     // 🚀 MINIMUM DURATION: Ensure the user sees the loader doing its work.
     const minWait = new Promise(resolve => setTimeout(resolve, 900));
@@ -96,6 +100,7 @@ export function usePullToRefresh({
         pulling.current = false;
         pullDistanceRef.current = 0;
         setPullDistance(0);
+        thresholdReachedRef.current = false;
         return;
       }
 
@@ -104,12 +109,20 @@ export function usePullToRefresh({
         const distance = Math.min(dy * 0.45, threshold * 1.8);
         pullDistanceRef.current = distance;
         setPullDistance(distance);
+        // Native detent: a single light tick the moment you cross the threshold.
+        if (distance >= threshold && !thresholdReachedRef.current) {
+          thresholdReachedRef.current = true;
+          triggerHaptic('light');
+        } else if (distance < threshold && thresholdReachedRef.current) {
+          thresholdReachedRef.current = false;
+        }
       }
     };
 
     const onTouchEnd = () => {
       if (!pulling.current || disabled) return;
       pulling.current = false;
+      thresholdReachedRef.current = false;
       // Use ref value so this closure doesn't need pullDistance in the dep array
       if (pullDistanceRef.current >= threshold) {
         handleRefresh();

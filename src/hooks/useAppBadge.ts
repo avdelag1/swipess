@@ -1,18 +1,21 @@
 import { useEffect } from 'react';
 import { Capacitor } from '@capacitor/core';
 import { useUnreadNotifications } from '@/hooks/useUnreadNotifications';
+import { useUnreadMessageCount } from '@/hooks/useUnreadMessageCount';
 
 // Request badge permission at most once per app session (iOS; on Android it's a
 // no-op). Notification permission is normally already granted via the push flow.
 let permissionRequested = false;
 
 /**
- * Mirrors the unread-notifications count onto the native home-screen app icon
- * badge (@capawesome/capacitor-badge). Updates whenever the count changes and
- * clears at zero. No-op on web / when unsupported or unpermitted.
+ * Mirrors total unread (notifications + message conversations) onto the native
+ * home-screen app icon badge (@capawesome/capacitor-badge). Updates whenever the
+ * count changes and clears at zero. No-op on web / when unsupported or unpermitted.
  */
 export function useAppBadge(): void {
-  const { unreadCount } = useUnreadNotifications();
+  const { unreadCount: unreadNotifications } = useUnreadNotifications();
+  const { unreadCount: unreadMessages } = useUnreadMessageCount();
+  const unreadCount = (unreadNotifications || 0) + (unreadMessages || 0);
 
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return;
