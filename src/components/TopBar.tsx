@@ -13,6 +13,7 @@ import { NotificationPopover } from './NotificationPopover';
 import { ThemeToggle } from './ThemeToggle';
 import { useModalStore } from '@/state/modalStore';
 import { TAP_SPRING } from './BottomNavigation';
+import { useTokens } from '@/hooks/useTokens';
 
 interface TopBarProps {
   onNotificationsClick?: () => void;
@@ -47,6 +48,7 @@ function TopBarComponent({
   const location = useLocation();
   const { isLight } = useAppTheme();
   const setModal = useModalStore(s => s.setModal);
+  const { tokens } = useTokens();
 
   // Always visible on every page — no chrome-reveal hiding
   const isActuallyVisible = true;
@@ -212,7 +214,7 @@ function TopBarComponent({
               transition={TAP_SPRING}
               whileTap={{ scale: 0.92 }}
               onClick={() => { haptics.tap(); setModal('showTokensModal', true); }}
-              className="flex shrink-0 items-center justify-center rounded-full relative h-[32px] w-[32px]"
+              className="flex shrink-0 items-center justify-center rounded-full relative h-[32px] px-2 gap-1"
               style={glassPillStyle}
               aria-label="Tokens"
             >
@@ -224,6 +226,7 @@ function TopBarComponent({
                 }}
                 strokeWidth={1.9}
               />
+              <span className="text-[11px] font-black" style={{ color: iconColor }}>{tokens}</span>
             </motion.button>
 
             <motion.button

@@ -253,7 +253,7 @@ export function VapIdEditModal({ isOpen, onClose, onSaved, role = 'client' }: Pr
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: '100%' }}
           transition={{ type: 'spring', damping: 30, stiffness: 350 }}
-          className="fixed inset-0 z-[10002] flex flex-col bg-background overflow-hidden"
+          className="fixed inset-0 z-[10002] flex flex-col bg-background/80 backdrop-blur-3xl saturate-150 overflow-hidden"
         >
           <div className="flex items-center justify-between border-b border-border px-5 py-3 shrink-0">
             <div>

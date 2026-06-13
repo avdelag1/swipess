@@ -354,7 +354,7 @@ export function NotificationPopover({ className, children, glassPillStyle }: Not
             <DialogTitle className="sr-only">Notifications</DialogTitle>
 
             {/* Header */}
-            <div className="px-4 pt-4 pb-3 border-b border-border/40 bg-background">
+            <div className="px-4 pt-4 pb-3 border-b border-border/40 bg-transparent">
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
                   <div className="p-2.5 rounded-xl bg-primary/10">

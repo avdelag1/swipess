@@ -304,7 +304,7 @@ export const BottomNavigation = memo(({
             touchAction: 'pan-x',
             overscrollBehaviorX: 'contain',
             overscrollBehaviorY: 'none',
-            justifyContent: 'safe center',
+            justifyContent: 'space-between',
             scrollBehavior: 'smooth',
           }}
         >
