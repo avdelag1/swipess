@@ -29,8 +29,21 @@ if (fs.existsSync(decoderPath)) {
 const encoderPath = path.join(__dirname, '../node_modules/@capacitor/ios/Capacitor/Capacitor/Codable/JSValueEncoder.swift');
 if (fs.existsSync(encoderPath)) {
   let content = fs.readFileSync(encoderPath, 'utf8');
+  let changed = false;
+  
   if (content.includes('MSEC_PER_SEC')) {
     content = content.replace(/MSEC_PER_SEC/g, '1000');
+    changed = true;
+  }
+  
+  if (content.includes('case .singleValue:\n            "SingleValueContainer"')) {
+    content = content.replace(/case \.singleValue:\n\s+"SingleValueContainer"/g, 'case .singleValue:\n            return "SingleValueContainer"');
+    content = content.replace(/case \.unkeyed:\n\s+"UnkeyedContainer"/g, 'case .unkeyed:\n            return "UnkeyedContainer"');
+    content = content.replace(/case \.keyed:\n\s+"KeyedContainer"/g, 'case .keyed:\n            return "KeyedContainer"');
+    changed = true;
+  }
+  
+  if (changed) {
     fs.writeFileSync(encoderPath, content);
     console.log('Patched JSValueEncoder.swift');
   }
