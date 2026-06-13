@@ -267,12 +267,11 @@ export const BottomNavigation = memo(({
       {/* ── Liquid Glass bar surface ────────────────────────────────────────
           The bar itself is a glass layer so the swipe card content shows
           through, reinforcing the "floating above" feeling. */}
-      <div
         className={cn(
           "pointer-events-auto",
-          "mx-auto w-fit max-w-[95vw]",
-          "glass-surface px-1.5 py-1",
-          "rounded-full"
+          "mx-auto w-full",
+          "glass-surface px-1 py-1",
+          "rounded-t-3xl"
         )}
         style={{
           filter: isLight
@@ -293,9 +292,6 @@ export const BottomNavigation = memo(({
             zIndex: 2,
             transform: 'translateZ(0)',
             overflowX: 'auto',
-            scrollSnapType: 'x proximity',
-            scrollPaddingLeft: '16px',
-            scrollPaddingRight: '16px',
             scrollbarWidth: 'none' as const,
             msOverflowStyle: 'none',
             WebkitOverflowScrolling: 'touch',
@@ -304,7 +300,7 @@ export const BottomNavigation = memo(({
             touchAction: 'pan-x',
             overscrollBehaviorX: 'contain',
             overscrollBehaviorY: 'none',
-            justifyContent: 'space-between',
+            justifyContent: 'flex-start',
             scrollBehavior: 'smooth',
           }}
         >
@@ -338,8 +334,7 @@ export const BottomNavigation = memo(({
                   'touch-manipulation focus-visible:outline-none transform-gpu rounded-full',
                 )}
                 style={{
-                  minWidth: 'clamp(42px, 10vw, 54px)',
-                  scrollSnapAlign: 'center',
+                  minWidth: isTablet ? '64px' : 'calc(100vw / 6.5)', // Let about 6.5 items fit on screen at once
                   minHeight: isTablet ? TOUCH_TARGET_TABLET : TOUCH_TARGET,
                   padding: isTablet ? '8px 14px' : (isNarrow ? '5px' : 'clamp(5px, 1.4vw, 10px)'),
                   cursor: 'pointer',

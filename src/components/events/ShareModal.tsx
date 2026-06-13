@@ -27,7 +27,7 @@ export function ShareModal({
       try {
         await navigator.share({
           title: event.title,
-          text: `Check out ${event.title} in Tulum! Sign up on Swipess to get connected 🎉`,
+          text: `Check out ${event.title} in Miami! Sign up on Swipess to get connected 🎉`,
           url: url
         });
         onClose();
@@ -40,7 +40,7 @@ export function ShareModal({
   };
 
   const handleWhatsAppShare = () => {
-    const msg = encodeURIComponent(`🎉 Check out "${event.title}" in Tulum!\n\n${url}`);
+    const msg = encodeURIComponent(`🎉 Check out "${event.title}" in Miami!\n\n${url}`);
     window.open(`https://wa.me/?text=${msg}`, '_system');
     onClose();
   };

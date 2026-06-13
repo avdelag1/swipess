@@ -76,7 +76,7 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
     { key: 'beaugosse', label: 'Beau Gosse', subtitle: 'Social Alpha', tagline: 'From Los Angeles', icon: Sparkles, color: 'text-purple-400', bgColor: 'bg-purple-500/20' },
     { key: 'donajkiin', label: 'Don Aj K\'iin', subtitle: 'Mayan Wisdom', tagline: 'From Yucatán, México', icon: Sun, color: 'text-emerald-400', bgColor: 'bg-emerald-500/20' },
     { key: 'botbetter', label: 'Bot Better', subtitle: 'Luxury Analyst', tagline: 'From London', icon: Crown, color: 'text-pink-400', bgColor: 'bg-pink-500/20' },
-    { key: 'lunashanti', label: 'Luna Shanti', subtitle: 'Boho Spirit', tagline: 'From Tulum', icon: Moon, color: 'text-violet-300', bgColor: 'bg-violet-500/20' },
+    { key: 'lunashanti', label: 'Luna Shanti', subtitle: 'Boho Spirit', tagline: 'From Miami', icon: Moon, color: 'text-violet-300', bgColor: 'bg-violet-500/20' },
     { key: 'ezriyah', label: 'Ezriyah', subtitle: 'Integration Coach', tagline: 'Local Legend', icon: Sun, color: 'text-teal-400', bgColor: 'bg-teal-500/20' },
   ];
 
@@ -224,7 +224,10 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
   return createPortal(
     <AnimatePresence>
       {isOpen && (
-        <div className={cn("fixed inset-0 z-[10010] flex items-center justify-center p-2 sm:p-6 transition-all duration-500", isLight && !isSwipess ? "bg-black/20 backdrop-blur-sm" : "bg-black/60 backdrop-blur-2xl")}>
+        <div 
+          className={cn("fixed inset-0 z-[10010] flex items-center justify-center p-2 sm:p-6 transition-all duration-500", isLight && !isSwipess ? "bg-black/20" : "bg-black/60")}
+          style={{ WebkitBackdropFilter: 'blur(24px)', backdropFilter: 'blur(24px)' }}
+        >
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="absolute inset-0" />
 
           <motion.div

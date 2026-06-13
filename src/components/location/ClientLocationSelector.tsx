@@ -63,7 +63,7 @@ export function ClientLocationSelector({
       zoom: 13,
       center: currentLocation
         ? { lat: currentLocation.latitude, lng: currentLocation.longitude }
-        : { lat: 20.2111, lng: -87.0739 }, // Default: Tulum, Mexico
+        : { lat: 40.7128, lng: -74.0060 }, // Default: New York City
       mapTypeControl: false,
       fullscreenControl: false,
       streetViewControl: false,

@@ -318,7 +318,7 @@ export function OwnerLocationSelector({
                       {(() => {
                         // Quick list of popular cities generally
                         const popularCities = [
-                          'Mexico City', 'Guadalajara', 'Monterrey', 'Cancún', 'Tulum', 'Playa del Carmen', 'Mérida', 'Querétaro',
+                          'Mexico City', 'Guadalajara', 'Monterrey', 'Cancún', 'Mérida', 'Querétaro',
                           'New York City', 'Los Angeles', 'Chicago', 'Houston', 'Miami', 'San Francisco', 'Las Vegas', 'Austin',
                           'Toronto', 'Montreal', 'Vancouver', 'Calgary',
                           'Paris', 'Marseille', 'Lyon', 'Nice',

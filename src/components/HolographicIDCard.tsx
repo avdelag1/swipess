@@ -181,7 +181,7 @@ export function HolographicIDCard({
             <div className="mt-auto pt-6 border-t border-white/10 flex items-center justify-between">
               <div className="flex flex-col">
                 <span className="text-[10px] font-black uppercase tracking-[0.3em] opacity-40">Swipes Identity Protocol</span>
-                <span className="text-[8px] font-bold uppercase tracking-[0.15em] opacity-30">Swipes â€¢ Tulum â€¢ Swipess</span>
+                <span className="text-[8px] font-bold uppercase tracking-[0.15em] opacity-30">Swipes â€¢ Miami â€¢ Swipess</span>
               </div>
               <div className="flex items-center gap-4">
                  <div className="flex flex-col items-end">

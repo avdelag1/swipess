@@ -283,7 +283,7 @@ export function AIProfileWizard() {
     }
   };
 
-  const placeholder = "e.g. I'm Maria, 28, designer. Looking for a 2-bedroom in Tulum under $1500. I also have a small beachfront condo I host sometimes. Pet-friendly, English & Spanish.";
+  const placeholder = "e.g. I'm Maria, 28, designer. Looking for a 2-bedroom in Miami under $1500. I also have a small beachfront condo I host sometimes. Pet-friendly, English & Spanish.";
 
   return (
     <AnimatePresence>

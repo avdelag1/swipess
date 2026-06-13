@@ -4,7 +4,7 @@ import { useLocation, useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowUpRight, Calendar, Heart, Info, MapPin, MessageCircle, Share2, ShieldCheck, Sparkles, User, Users, Zap } from 'lucide-react';
+import { ArrowLeft, ArrowUpRight, Calendar, Heart, Info, MapPin, MessageCircle, Share2, ShieldCheck, Sparkles, User, Users, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from 'react-i18next';
 import { triggerHaptic } from '@/utils/haptics';
@@ -287,7 +287,7 @@ export default function EventoDetail() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-black pb-48" style={{ contain: 'paint layout' }}>
       {/* ── HERO GALLERY ── */}
-      <div className="relative h-[80dvh] min-h-[500px] overflow-hidden">
+      <div className="relative h-[100dvh] min-h-[500px] overflow-hidden">
         <AnimatePresence mode="popLayout">
           {imageGallery.length > 0 ? (
             <motion.img

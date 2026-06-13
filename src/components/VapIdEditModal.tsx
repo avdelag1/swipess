@@ -305,7 +305,7 @@ export function VapIdEditModal({ isOpen, onClose, onSaved, role = 'client' }: Pr
               <Textarea
                 value={bio}
                 onChange={(e) => setBio(e.target.value)}
-                placeholder={role === 'owner' ? "Premium serviced apartments in Tulum..." : "I work as... I own a business called... I love..."}
+                placeholder={role === 'owner' ? "Premium serviced apartments in Miami..." : "I work as... I own a business called... I love..."}
                 rows={3}
                 maxLength={240}
                 className="min-h-[90px] text-sm"
@@ -340,7 +340,7 @@ export function VapIdEditModal({ isOpen, onClose, onSaved, role = 'client' }: Pr
                   </LabeledField>
                 )}
                 <LabeledField label={role === 'owner' ? 'Location' : 'City'}>
-                  <Input value={city} onChange={(e) => setCity(e.target.value)} placeholder="Tulum" maxLength={60} />
+                  <Input value={city} onChange={(e) => setCity(e.target.value)} placeholder="Miami" maxLength={60} />
                 </LabeledField>
                 {role !== 'owner' && (
                   <>

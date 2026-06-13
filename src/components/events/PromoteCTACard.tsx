@@ -40,7 +40,7 @@ export const PromoteCTACard = memo(({ onPromote }: { onPromote: () => void }) =>
             </span>
           </h2>
           <p className={cn("text-sm leading-relaxed max-w-[260px] mx-auto font-medium", isLight ? "text-black/50" : "text-white/50")}>
-            Reach 15,000+ Tulum locals, expats & tourists with your event, restaurant, or brand
+            Reach 15,000+ Miami locals, expats & tourists with your event, restaurant, or brand
           </p>
         </div>
 

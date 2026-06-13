@@ -343,6 +343,7 @@ export function NotificationPopover({ className, children, glassPillStyle }: Not
             "backdrop-blur-3xl bg-background/70 saturate-150 overflow-hidden gap-0",
             className
           )}
+          style={{ WebkitBackdropFilter: 'blur(64px)', backdropFilter: 'blur(64px)' }}
         >
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 10 }}

@@ -109,7 +109,7 @@ export function GoogleLocationSelector({
 
     const center = currentLocation
       ? { lat: currentLocation.latitude, lng: currentLocation.longitude }
-      : { lat: 20.2111, lng: -87.0739 }; // Default: Tulum, Mexico
+      : { lat: 40.7128, lng: -74.0060 }; // Default: New York City
 
     // Initialize map
     mapInstance.current = new window.google.maps.Map(mapRef.current, {

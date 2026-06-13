@@ -108,7 +108,7 @@ export function SeekerAdSection() {
         days_available: daysAvailable,
         price: form.budget ? parseFloat(form.budget) : 0,
         pricing_unit: form.pricingUnit,
-        location: form.location || 'Tulum',
+        location: form.location || 'Miami',
         status: form.urgency,
       };
 
@@ -410,7 +410,7 @@ export function SeekerAdSection() {
                   {/* Location */}
                   <div>
                     <Label className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground mb-2 block flex items-center gap-1"><MapPin className="w-3 h-3" />Location / Area</Label>
-                    <Input value={form.location} onChange={e => setForm(f => ({ ...f, location: e.target.value }))} placeholder="e.g. Centro Tulum, Aldea Zama..." className="h-11 rounded-xl bg-secondary border-transparent" />
+                    <Input value={form.location} onChange={e => setForm(f => ({ ...f, location: e.target.value }))} placeholder="e.g. Downtown Miami, Aldea Zama..." className="h-11 rounded-xl bg-secondary border-transparent" />
                   </div>
                 </motion.div>
               )}
