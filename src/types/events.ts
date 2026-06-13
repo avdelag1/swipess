@@ -17,6 +17,9 @@ export interface EventItem {
   discount_tag: string | null;
   is_free: boolean;
   price_text: string | null;
+  promo_status?: 'none' | 'pending_approval' | 'pending_payment' | 'active' | 'rejected';
+  selected_promo_package?: string | null;
+  admin_notes?: string | null;
 }
 
 
