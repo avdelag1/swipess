@@ -923,7 +923,7 @@ const ClientSwipeContainerComponent = ({
           </div>
         </motion.div>
 
-        {/* Single back button is owned by SwipeDeckBackButton (rendered below) — no duplicate header here */}
+        {/* Single back button is handled by TopBar now */}
 
         {/* 📡 Radar HUD removed from here — now managed at the Dashboard level for persistence */}
 

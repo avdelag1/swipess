@@ -425,6 +425,7 @@ export default function EventosFeed() {
                   ) : (
                     <EventCard
                       event={event}
+                      imageUrl={pickEventImage(event)}
                       liked={likedIds.has(event.id)}
                       activeColor={CATEGORIES.find(c => c.key === event.category)?.color || '#f97316'}
                       onLike={() => likeMutation.mutate({ id: event.id, isLiked: likedIds.has(event.id) })}

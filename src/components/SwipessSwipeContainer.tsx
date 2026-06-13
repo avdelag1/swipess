@@ -855,7 +855,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
         "bg-swipe-frame"
       )} />
 
-      {/* Single back button is owned by SwipeDeckBackButton — no duplicate radar header here */}
+      {/* Single back button is handled by TopBar now */}
 
       {/* Pull-down backdrop: dashboard category picker revealed behind the deck */}
       <motion.div

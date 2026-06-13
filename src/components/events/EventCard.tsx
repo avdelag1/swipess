@@ -20,11 +20,13 @@ function formatDate(str: string | null): string {
 // ── SINGLE EVENT CARD ─────────────────────────────────────────────────────────
 export const EventCard = memo(({
   event, onLike, liked, onChat, onShare, onMiddleTap,
-  activeColor = '#f97316'
+  activeColor = '#f97316',
+  imageUrl
 }: {
   event: EventItem; onLike: () => void; liked: boolean;
   onChat: () => void; onShare: () => void; onMiddleTap: () => void;
   activeColor?: string;
+  imageUrl?: string | null;
 }) => {
   const { theme } = useAppTheme();
   const isLight = theme === 'light';
@@ -65,7 +67,8 @@ export const EventCard = memo(({
   }, [handleLike, onMiddleTap]);
 
   const categoryMeta = CATEGORIES.find(c => c.key === event.category);
-  const hasImage = !!event.image_url;
+  const finalImageUrl = imageUrl || event.image_url;
+  const hasImage = !!finalImageUrl;
 
   return (
     <div
@@ -79,7 +82,7 @@ export const EventCard = memo(({
       {hasImage ? (
         <>
           <img
-            src={event.image_url!}
+            src={finalImageUrl!}
             alt={event.title}
             className="absolute inset-0 w-full h-full object-cover"
             loading="lazy"

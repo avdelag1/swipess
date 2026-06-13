@@ -14,6 +14,7 @@ import { ThemeToggle } from './ThemeToggle';
 import { useModalStore } from '@/state/modalStore';
 import { TAP_SPRING } from './BottomNavigation';
 import { useTokens } from '@/hooks/useTokens';
+import { useFilterStore } from '@/state/filterStore';
 
 interface TopBarProps {
   onNotificationsClick?: () => void;
@@ -57,11 +58,16 @@ function TopBarComponent({
   const useLightIcons = isDashboard || !isLight;
   const iconColor = useLightIcons ? '#FFFFFF' : '#0A0A0A';
 
-  // Note: when an activeCategory is set on the dashboard, the SwipeDeckBackButton
-  // already provides the persistent back arrow. Don't render a duplicate here.
-  const onBack = propOnBack || (showBack
-    ? () => window.history.length > 2 ? navigate(-1) : navigate('/client/dashboard')
-    : undefined);
+  // Note: when an activeCategory is set on the dashboard, we are in the Swipe Deck.
+  // We need to show the back arrow instead of the Avatar pill to let the user exit the deck.
+  const activeCategory = useFilterStore((s) => s.activeCategory);
+  const isSwipeDeck = isDashboard && activeCategory && activeCategory !== 'all';
+
+  const onBack = propOnBack || (
+    isSwipeDeck 
+      ? () => { useFilterStore.getState().setActiveCategory(null as any); navigate('/client/dashboard'); }
+      : (showBack ? () => window.history.length > 2 ? navigate(-1) : navigate('/client/dashboard') : undefined)
+  );
 
   const clusterPillStyle: React.CSSProperties = { overflow: 'visible' };
 
