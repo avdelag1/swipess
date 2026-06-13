@@ -19,17 +19,17 @@ export const APPLE_SUBSCRIPTION_PRODUCTS = [
 
 /** Token (consumable) packs. The number suffix is the token amount. */
 export const APPLE_TOKEN_PRODUCTS = [
-  'Swipess.tokens.20.v1',
-  'Swipess.tokens.50.v1',
-  'Swipess.tokens.100.v1',
-  'Swipess.tokens.150.v1',
+  'Swipess.tokens.20.v2',
+  'Swipess.tokens.50.v2',
+  'Swipess.tokens.100.v2',
+  'Swipess.tokens.150.v2',
 ] as const;
 
 /** Event promotion (consumable, non-renewing) packs. */
 export const APPLE_EVENT_PROMO_PRODUCTS = [
-  'Swipess.promo.event.week.v2',
-  'Swipess.promo.event.month.v2',
-  'Swipess.promo.event.quarter.v2',
+  'Swipess.promo.event.week.v3',
+  'Swipess.promo.event.month.v3',
+  'Swipess.promo.event.quarter.v3',
 ] as const;
 
 export type AppleProductId =
@@ -56,7 +56,7 @@ export const APPLE_TOKEN_PACKAGES = [
   {
     id: 'starter',
     name: 'Starter',
-    productId: 'Swipess.tokens.20.v1',
+    productId: 'Swipess.tokens.20.v2',
     tokens: 20,
     priceUsd: 9.99,
     priceMxn: 199,
@@ -67,7 +67,7 @@ export const APPLE_TOKEN_PACKAGES = [
   {
     id: 'plus',
     name: 'Plus',
-    productId: 'Swipess.tokens.50.v1',
+    productId: 'Swipess.tokens.50.v2',
     tokens: 50,
     priceUsd: 19.99,
     priceMxn: 399,
@@ -78,7 +78,7 @@ export const APPLE_TOKEN_PACKAGES = [
   {
     id: 'power',
     name: 'Power',
-    productId: 'Swipess.tokens.100.v1',
+    productId: 'Swipess.tokens.100.v2',
     tokens: 100,
     priceUsd: 39.99,
     priceMxn: 799,
@@ -89,7 +89,7 @@ export const APPLE_TOKEN_PACKAGES = [
   {
     id: 'mega',
     name: 'Mega',
-    productId: 'Swipess.tokens.150.v1',
+    productId: 'Swipess.tokens.150.v2',
     tokens: 150,
     priceUsd: 49.99,
     priceMxn: 999,
