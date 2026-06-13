@@ -24,6 +24,11 @@ workflows:
           include: true
           source: true
     environment:
+      ios_signing:
+        provisioning_profiles:
+          - profile
+        certificates:
+          - CERT
       vars:
         XCODE_WORKSPACE: "ios/App/App.xcworkspace"
         XCODE_SCHEME: "App"
