@@ -24,6 +24,9 @@ workflows:
           include: true
           source: true
     environment:
+      ios_signing:
+        distribution_type: app_store        # Codemagic auto-creates the distribution cert + profile from the API key
+        bundle_identifier: com.swipess.mobile
       vars:
         XCODE_WORKSPACE: "ios/App/App.xcworkspace"
         XCODE_SCHEME: "App"
