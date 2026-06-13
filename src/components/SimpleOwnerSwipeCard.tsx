@@ -372,27 +372,28 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           )}
         </div>
 
-        {/* Always-visible back button — top-right corner, returns to dashboard */}
+        {/* Always-visible back button — top-right corner, returns to dashboard.
+            Frameless: bare icon (no circular frame) with a strong drop-shadow so
+            it stays crisp and legible over any photo. */}
         <button
           data-no-cinematic
           data-no-pull-dismiss
           onPointerDown={(e) => e.stopPropagation()}
           onClick={(e) => { e.stopPropagation(); triggerHaptic('light'); if (canUndo && onUndo) { onUndo(); } else { onBack?.(); } }}
           aria-label="Return to dashboard"
-          className="absolute z-[60] flex items-center justify-center w-10 h-10 rounded-full pointer-events-auto active:scale-90 transition-all duration-150"
+          className="absolute z-[60] flex items-center justify-center w-11 h-11 pointer-events-auto active:scale-90 transition-all duration-150"
           style={{
             right: 12,
             top: 'calc(var(--safe-top, 0px) + 64px)',
-            // Solid fill, no backdrop-filter: this button rides the moving card,
-            // and re-blurring the card pixels each frame causes GPU tiling.
-            background: 'rgba(0,0,0,0.42)',
-            border: '1px solid rgba(255,255,255,0.22)',
+            background: 'transparent',
+            border: 'none',
+            boxShadow: 'none',
           }}
         >
           {canUndo ? (
-            <RotateCcw className="w-[18px] h-[18px] text-amber-400" strokeWidth={2.2} style={{ filter: 'drop-shadow(0 1px 3px rgba(0,0,0,0.6))' }} />
+            <RotateCcw className="w-7 h-7 text-amber-400" strokeWidth={2.8} style={{ filter: 'drop-shadow(0 2px 7px rgba(0,0,0,0.9))' }} />
           ) : (
-            <Undo2 className="w-[18px] h-[18px] text-white" strokeWidth={2.2} style={{ filter: 'drop-shadow(0 1px 3px rgba(0,0,0,0.6))' }} />
+            <Undo2 className="w-7 h-7 text-white" strokeWidth={2.8} style={{ filter: 'drop-shadow(0 2px 7px rgba(0,0,0,0.9))' }} />
           )}
         </button>
 
