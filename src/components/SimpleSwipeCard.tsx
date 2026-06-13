@@ -439,7 +439,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           className="absolute z-[60] flex items-center justify-center w-10 h-10 rounded-full pointer-events-auto active:scale-90 transition-all duration-150"
           style={{
             right: 12,
-            top: 'calc(var(--safe-top, 0px) + 16px)',
+            top: 'calc(var(--safe-top, 0px) + 64px)',
             // Solid fill, no backdrop-filter: this button rides the moving card,
             // and re-blurring the card pixels each frame causes GPU tiling.
             background: 'rgba(0,0,0,0.42)',

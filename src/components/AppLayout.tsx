@@ -193,6 +193,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   const isAuthRoute = location.pathname === '/' || location.pathname === '/reset-password';
   const isCameraRoute = location.pathname.includes('/camera');
   const isRadioRoute = location.pathname.includes('/radio');
+  const isSubscriptionRoute = location.pathname.startsWith('/subscription');
 
   const searchParams = new URLSearchParams(location.search);
   const hasActiveChat = searchParams.has('conversationId') || searchParams.has('startConversation');
@@ -210,10 +211,10 @@ export function AppLayout({ children }: AppLayoutProps) {
     const isRoommates = path.startsWith('/explore/roommates');
     const isEvents = path.startsWith('/explore/events');
     const isDirectChatInner = path.startsWith('/messages') && hasActiveChat;
-    return isCamera || isRadio || showAIChat || showAIListing || showAIProfile || isSwipeDashboard || isRoommates || isDirectChatInner || isEvents;
-  }, [location.pathname, hasActiveChat, showAIChat, showAIListing, showAIProfile, isSwipeDashboard]);
+    return isSubscriptionRoute || isCamera || isRadio || showAIChat || showAIListing || showAIProfile || isSwipeDashboard || isRoommates || isDirectChatInner || isEvents;
+  }, [location.pathname, hasActiveChat, showAIChat, showAIListing, showAIProfile, isSwipeDashboard, isSubscriptionRoute]);
 
-  const showAppChrome = !isAuthRoute && !isRadioRoute && !isCameraRoute && !showAIChat && !showAIListing && !showAIProfile && !isEventsRoute && !isDirectChat && (!isPublicPreview || !!user);
+  const showAppChrome = !isSubscriptionRoute && !isAuthRoute && !isRadioRoute && !isCameraRoute && !showAIChat && !showAIListing && !showAIProfile && !isEventsRoute && !isDirectChat && (!isPublicPreview || !!user);
 
   const handleFilterClick = () => {
     if (isRoommatesRoute) {

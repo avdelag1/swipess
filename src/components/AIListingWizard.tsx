@@ -424,6 +424,7 @@ export function AIListingWizard() {
             isLight ? "shadow-[0_40px_100px_rgba(0,0,0,0.2)]" : "shadow-[0_40px_100px_rgba(255,255,255,0.05)] shadow-2xl",
             modalBg
             )}
+            style={{ WebkitBackdropFilter: 'blur(40px) saturate(1.5)' }}
           >
             <div className="absolute inset-0 pointer-events-none overflow-hidden">
                <div className="absolute top-[-20%] left-[-20%] w-[80%] h-[80%] bg-rose-600/5 blur-[150px] rounded-full" />
@@ -436,7 +437,7 @@ export function AIListingWizard() {
                   <Sparkles className="w-6 h-6 text-rose-400" />
                 </div>
                 <div>
-                  <h2 className={cn("text-base font-black uppercase tracking-[0.1em] italic", textPrimary)}>Magic AI Creation</h2>
+                  <h2 className={cn("text-base font-black uppercase tracking-[0.1em] italic", textPrimary)}>AI Uploading. Listing.</h2>
                   <div className="flex items-center gap-2 mt-1">
                     <span className="text-[10px] opacity-70 font-bold uppercase tracking-widest leading-none">One-Step Builder</span>
                     <div className="w-1 h-1 bg-rose-500 rounded-full animate-pulse" />
