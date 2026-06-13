@@ -512,6 +512,15 @@ html {
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --top-bar-height: 72px;
   --bottom-nav-height: 64px;
+  --keyboard-height: 0px;
+}
+
+/* When the native keyboard is open, drop the floating bottom nav so it doesn't
+   hover above the keyboard and steal typing room (toggled by useNativeKeyboard). */
+.keyboard-open .app-bottom-bar {
+  transform: translateY(100%);
+  opacity: 0;
+  pointer-events: none;
 }
 
 html, body {

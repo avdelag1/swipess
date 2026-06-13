@@ -3,6 +3,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { AnimatePresence, motion } from 'framer-motion';
+import { triggerHaptic } from '@/utils/haptics';
 
 /**
  * FILTER CHIPS - Active Filter Display
@@ -61,7 +62,7 @@ export function FilterChips({ chips, onRemove, onClearAll, className }: FilterCh
                 </>
               )}
               <button
-                onClick={() => onRemove(chip.id)}
+                onClick={() => { triggerHaptic('light'); onRemove(chip.id); }}
                 className="ml-1 rounded-full p-0.5 hover:bg-primary/30 transition-colors"
               >
                 <X className="h-3 w-3 text-primary" />
@@ -79,7 +80,7 @@ export function FilterChips({ chips, onRemove, onClearAll, className }: FilterCh
           <Button
             variant="ghost"
             size="sm"
-            onClick={onClearAll}
+            onClick={() => { triggerHaptic('medium'); onClearAll(); }}
             className="text-xs h-7 px-2 text-muted-foreground hover:text-destructive whitespace-nowrap"
           >
             Clear all

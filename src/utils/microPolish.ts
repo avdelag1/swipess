@@ -139,11 +139,19 @@ export const PULL_TO_REFRESH = {
 // STATUS BAR COLOR SYNC (for Capacitor)
 // ============================================
 
-export const setStatusBarColor = async (color: 'light' | 'dark') => {
+export const setStatusBarColor = async (color: 'light' | 'dark', backgroundColor?: string) => {
   try {
     // Dynamic import to avoid errors on web
     const { StatusBar, Style } = await import('@capacitor/status-bar');
     await StatusBar.setStyle({ style: color === 'light' ? Style.Light : Style.Dark });
+    if (backgroundColor) {
+      // setBackgroundColor is Android-only and throws on iOS — isolate it.
+      try {
+        await StatusBar.setBackgroundColor({ color: backgroundColor });
+      } catch {
+        /* iOS / unsupported — ignore */
+      }
+    }
   } catch {
     // Not on native platform, ignore
   }
