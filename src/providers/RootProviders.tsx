@@ -1,6 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 import React, { lazy, Suspense, useEffect, useState } from "react";
-import { QueryCache, QueryClient } from "@tanstack/react-query";
+import { keepPreviousData, QueryCache, QueryClient } from "@tanstack/react-query";
 import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
 import { createIDBPersister } from "@/lib/persister";
 import { BrowserRouter } from "react-router-dom";
@@ -47,9 +47,14 @@ const queryClient = new QueryClient({
       refetchOnWindowFocus: false,
       refetchOnMount: false,
       refetchOnReconnect: true,
-      staleTime: 5 * 60 * 1000, 
-      gcTime: 1000 * 60 * 60 * 24, 
+      staleTime: 5 * 60 * 1000,
+      gcTime: 1000 * 60 * 60 * 24,
       networkMode: 'offlineFirst',
+      // Keep showing the last results while a query with a CHANGED key refetches
+      // (filters, search, pagination) instead of flashing a loading state — the
+      // list stays put and updates in place, which feels instant. Only affects
+      // a mounted query whose key changes; navigating to a new page is unchanged.
+      placeholderData: keepPreviousData,
     },
     mutations: {
       retry: 1,
