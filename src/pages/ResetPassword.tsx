@@ -277,8 +277,8 @@ const ResetPassword = () => {
             <div className="pt-4">
               <Button
                 type="submit"
-                disabled={loading || !passwordsMatch || passwordStrength.score < 4}
-                className="w-full h-16 text-[12px] font-black uppercase italic tracking-[0.25em] bg-[#FF4D00] text-white rounded-2xl shadow-[0_15px_45px_rgba(255,77,0,0.3)] hover:brightness-110 active:scale-[0.96] transition-all relative overflow-hidden group disabled:opacity-30 disabled:pointer-events-none"
+                disabled={loading}
+                className="w-full h-16 text-[12px] font-black uppercase italic tracking-[0.25em] bg-[#FF4D00] text-white rounded-2xl shadow-[0_15px_45px_rgba(255,77,0,0.3)] hover:brightness-110 active:scale-[0.96] transition-all relative overflow-hidden group disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {/* Shimmer effect */}
                 <motion.div
