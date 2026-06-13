@@ -387,23 +387,33 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           onDragStart={preventDrag}
           onContextMenu={preventContextMenuClick}
         >
-          {currentImage === 'video_attachment' && (listing as any).video_url ? (
-            <LoopVideo
-              src={(listing as any).video_url}
-              className="absolute inset-0 w-full h-full object-cover"
-              active={isTop}
-            />
-          ) : (
-            <CardImage
-              src={currentImage}
-              alt={(listing as any).title || 'Listing'}
-              name={(listing as any).title}
-              direction={photoDirection}
-              priority
-              fullScreen={true}
-              animate={!isZoomed}
-            />
-          )}
+          {images.map((imgUrl, idx) => {
+            const isActive = currentImageIndex === idx;
+            if (imgUrl === 'video_attachment' && (listing as any).video_url) {
+              return (
+                <div key={`video-${idx}`} className="absolute inset-0 transition-opacity duration-200 ease-in-out" style={{ opacity: isActive ? 1 : 0, pointerEvents: isActive ? 'auto' : 'none', zIndex: isActive ? 2 : 1 }}>
+                  <LoopVideo
+                    src={(listing as any).video_url}
+                    className="absolute inset-0 w-full h-full object-cover"
+                    active={isTop && isActive}
+                  />
+                </div>
+              );
+            }
+            return (
+              <div key={`img-${idx}`} className="absolute inset-0 transition-opacity duration-200 ease-in-out bg-black" style={{ opacity: isActive ? 1 : 0, pointerEvents: isActive ? 'auto' : 'none', zIndex: isActive ? 2 : 1 }}>
+                <CardImage
+                  src={imgUrl}
+                  alt={(listing as any).title || 'Listing'}
+                  name={(listing as any).title}
+                  direction={photoDirection}
+                  priority={idx === 0 || idx === currentImageIndex}
+                  fullScreen={true}
+                  animate={!isZoomed && isActive}
+                />
+              </div>
+            );
+          })}
           {isTop && (
             <>
               <div
@@ -429,7 +439,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           className="absolute z-[60] flex items-center justify-center w-10 h-10 rounded-full pointer-events-auto active:scale-90 transition-all duration-150"
           style={{
             right: 12,
-            top: 'calc(var(--safe-top, 0px) + 50px)',
+            top: 'calc(var(--safe-top, 0px) + 16px)',
             // Solid fill, no backdrop-filter: this button rides the moving card,
             // and re-blurring the card pixels each frame causes GPU tiling.
             background: 'rgba(0,0,0,0.42)',

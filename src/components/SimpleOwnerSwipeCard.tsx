@@ -347,11 +347,22 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           onDragStart={preventDrag}
           onContextMenu={preventContextMenuClick}
         >
-          {showVideoSlide ? (
-            <LoopVideo src={videoUrl!} className="absolute inset-0 w-full h-full object-cover" active={isTop} />
-          ) : (
-            <SharedCardImage src={currentImage} alt={profile.name || 'Client'} name={profile.name} direction={photoDirection} priority fullScreen={true} animate={!isZoomed} />
-          )}
+          {images.map((imgUrl, idx) => {
+            const isActive = currentImageIndex === idx;
+            const isVideo = !!videoUrl && idx === 0;
+            if (isVideo) {
+              return (
+                <div key={`video-${idx}`} className="absolute inset-0 transition-opacity duration-200 ease-in-out" style={{ opacity: isActive ? 1 : 0, pointerEvents: isActive ? 'auto' : 'none', zIndex: isActive ? 2 : 1 }}>
+                  <LoopVideo src={videoUrl!} className="absolute inset-0 w-full h-full object-cover" active={isTop && isActive} />
+                </div>
+              );
+            }
+            return (
+              <div key={`img-${idx}`} className="absolute inset-0 transition-opacity duration-200 ease-in-out bg-black" style={{ opacity: isActive ? 1 : 0, pointerEvents: isActive ? 'auto' : 'none', zIndex: isActive ? 2 : 1 }}>
+                <SharedCardImage src={imgUrl} alt={profile.name || 'Client'} name={profile.name} direction={photoDirection} priority={idx === 0 || idx === currentImageIndex} fullScreen={true} animate={!isZoomed && isActive} />
+              </div>
+            );
+          })}
           {isTop && (
             <>
               <div className="absolute bottom-0 left-0 right-0 pointer-events-none z-20 transition-opacity duration-200"
@@ -371,7 +382,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           className="absolute z-[60] flex items-center justify-center w-10 h-10 rounded-full pointer-events-auto active:scale-90 transition-all duration-150"
           style={{
             right: 12,
-            top: 'calc(var(--safe-top, 0px) + 50px)',
+            top: 'calc(var(--safe-top, 0px) + 16px)',
             // Solid fill, no backdrop-filter: this button rides the moving card,
             // and re-blurring the card pixels each frame causes GPU tiling.
             background: 'rgba(0,0,0,0.42)',
