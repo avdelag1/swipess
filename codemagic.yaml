@@ -48,11 +48,6 @@ workflows:
           cd "$CM_BUILD_DIR/ios/App"
           # Codemagic's monotonic counter keeps every upload unique. Non-fatal if agvtool hiccups.
           agvtool new-version -all "$BUILD_NUMBER" || true
-      - name: Force generate App Store profile explicitly
-        script: |
-          app-store-connect fetch-signing-files "com.swipess.mobile" \
-            --type IOS_APP_STORE \
-            --create
       - name: Install provisioning profiles into the keychain
         script: xcode-project use-profiles
       - name: Build signed .ipa
