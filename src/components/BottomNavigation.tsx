@@ -267,6 +267,7 @@ export const BottomNavigation = memo(({
       {/* ── Liquid Glass bar surface ────────────────────────────────────────
           The bar itself is a glass layer so the swipe card content shows
           through, reinforcing the "floating above" feeling. */}
+      <div
         className={cn(
           "pointer-events-auto",
           "mx-auto w-full",
