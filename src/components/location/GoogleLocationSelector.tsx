@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { AlertCircle, Building, Globe, Loader2, MapPin, Navigation, Search, Star } from 'lucide-react';
 import { appToast } from '@/utils/appNotification';
 import { logger } from '@/utils/prodLogger';
+import { canGeolocate, getCurrentPosition } from '@/utils/geolocation';
 import {
   CityLocation,
   getCitiesInCountry,
@@ -260,46 +261,32 @@ export function GoogleLocationSelector({
   // Handle real-time location
   const handleGetCurrentLocation = async () => {
     setIsLoading(true);
+    if (!canGeolocate()) {
+      appToast.error("Geolocation Not Available");
+      setIsLoading(false);
+      return;
+    }
     try {
-      if (!navigator.geolocation) {
-        appToast.error("Geolocation Not Available");
-        setIsLoading(false);
-        return;
+      const { latitude: lat, longitude: lng } = await getCurrentPosition({ enableHighAccuracy: true, timeout: 10000 });
+      setCurrentLocation({ latitude: lat, longitude: lng });
+      setSelectedTab('current');
+
+      // Center map
+      if (mapInstance.current) {
+        mapInstance.current.setCenter({ lat, lng });
+        mapInstance.current.setZoom(15);
       }
 
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          const lat = position.coords.latitude;
-          const lng = position.coords.longitude;
-          setCurrentLocation({ latitude: lat, longitude: lng });
-          setSelectedTab('current');
+      // Reverse geocode to get address
+      await reverseGeocode(lat, lng);
+      setIsLoading(false);
 
-          // Center map
-          if (mapInstance.current) {
-            mapInstance.current.setCenter({ lat, lng });
-            mapInstance.current.setZoom(15);
-          }
-
-          // Reverse geocode to get address
-          await reverseGeocode(lat, lng);
-          setIsLoading(false);
-
-          appToast.success("Location Found");
-        },
-        (error) => {
-          if (import.meta.env.DEV) {
-            logger.error('Geolocation error:', error);
-          }
-          appToast.error("Location Access Denied");
-          setIsLoading(false);
-        },
-        { enableHighAccuracy: true, timeout: 10000 }
-      );
+      appToast.success("Location Found");
     } catch (error) {
       if (import.meta.env.DEV) {
-        logger.error('Error getting location:', error);
+        logger.error('Geolocation error:', error);
       }
-      appToast.error("Error");
+      appToast.error("Location Access Denied");
       setIsLoading(false);
     }
   };

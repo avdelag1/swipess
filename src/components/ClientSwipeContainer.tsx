@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { triggerHaptic } from '@/utils/haptics';
 import { getCardImageUrl } from '@/utils/imageOptimization';
+import { canGeolocate, getCurrentPosition } from '@/utils/geolocation';
 import { isClientImageDecodedInCache, preloadClientImageToCache } from '@/lib/swipe/imageCache';
 import { imagePreloadController } from '@/lib/swipe/ImagePreloadController';
 import { imageCache } from '@/lib/swipe/cardImageCache';
@@ -159,20 +160,18 @@ const ClientSwipeContainerComponent = ({
 
 
   const detectLocation = useCallback(() => {
-    if (!navigator.geolocation) return;
+    if (!canGeolocate()) return;
     setLocationDetecting(true);
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        setUserLocation(pos.coords.latitude, pos.coords.longitude);
+    getCurrentPosition({ timeout: 8000, maximumAge: 60000 })
+      .then(({ latitude, longitude }) => {
+        setUserLocation(latitude, longitude);
         setRadiusKm(5); // Auto-set to 5km when location is detected
         setLocationDetected(true);
         setLocationDetecting(false);
-      },
-      () => {
+      })
+      .catch(() => {
         setLocationDetecting(false);
-      },
-      { timeout: 8000, maximumAge: 60000 }
-    );
+      });
   }, [setUserLocation, setRadiusKm]);
 
   // 📍 Location is requested ONLY on explicit user action (filter button or

@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils';
 // import { } from '@/state/modalStore';
 import { triggerHaptic } from '@/utils/haptics';
 import { getCardImageUrl } from '@/utils/imageOptimization';
+import { canGeolocate, getCurrentPosition } from '@/utils/geolocation';
 import { SimpleSwipeCard, SimpleSwipeCardRef } from './SimpleSwipeCard';
 import { SwipeExhaustedState } from './swipe/SwipeExhaustedState';
 import { SwipessLoader } from './swipe/SwipessLoader';
@@ -134,20 +135,18 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   const [locationDetected, setLocationDetected] = useState(false);
 
   const detectLocation = useCallback(() => {
-    if (!navigator.geolocation) return;
+    if (!canGeolocate()) return;
     setLocationDetecting(true);
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        setUserLocation(pos.coords.latitude, pos.coords.longitude);
+    getCurrentPosition({ timeout: 8000, maximumAge: 60000 })
+      .then(({ latitude, longitude }) => {
+        setUserLocation(latitude, longitude);
         setRadiusKm(5); // Auto-set to 5km when location is detected
         setLocationDetected(true);
         setLocationDetecting(false);
-      },
-      () => {
+      })
+      .catch(() => {
         setLocationDetecting(false);
-      },
-      { timeout: 8000, maximumAge: 60000 }
-    );
+      });
   }, [setUserLocation, setRadiusKm]);
 
   // 📍 Location requested only on explicit user gesture (filter / slider).
