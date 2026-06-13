@@ -42,12 +42,14 @@ export async function scheduleReengagementReminders(): Promise<void> {
           title: 'Your matches miss you 👀',
           body: 'New listings and people are waiting for you on Swipess.',
           schedule: { at: new Date(now + 3 * DAY_MS) },
+          extra: { url: '/notifications' },
         },
         {
           id: REENGAGE_IDS[1],
           title: "Don't miss out 🔥",
           body: 'Fresh matches near you — come take a look.',
           schedule: { at: new Date(now + 7 * DAY_MS) },
+          extra: { url: '/notifications' },
         },
       ],
     });

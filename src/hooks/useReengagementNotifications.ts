@@ -1,12 +1,14 @@
 import { useEffect } from 'react';
 import { Capacitor } from '@capacitor/core';
 import { App } from '@capacitor/app';
+import { LocalNotifications } from '@capacitor/local-notifications';
 import { cancelReengagementReminders, scheduleReengagementReminders } from '@/utils/localNotifications';
 
 /**
  * Drives re-engagement local notifications off the native app lifecycle:
  * schedule nudges when the app backgrounds, clear them when it returns to the
- * foreground (and on mount, since the user is obviously here). Native-only.
+ * foreground (and on mount, since the user is obviously here), and route a
+ * tapped nudge into the app. Native-only.
  */
 export function useReengagementNotifications(): void {
   useEffect(() => {
@@ -15,20 +17,32 @@ export function useReengagementNotifications(): void {
     // User is here right now — clear any pending nudges.
     void cancelReengagementReminders();
 
-    let remove: (() => void) | undefined;
-    const sub = App.addListener('appStateChange', ({ isActive }) => {
+    let removeState: (() => void) | undefined;
+    let removeTap: (() => void) | undefined;
+
+    const stateSub = App.addListener('appStateChange', ({ isActive }) => {
       if (isActive) {
         void cancelReengagementReminders();
       } else {
         void scheduleReengagementReminders();
       }
     });
-    Promise.resolve(sub).then((handle) => {
-      remove = () => handle.remove();
+    Promise.resolve(stateSub).then((handle) => {
+      removeState = () => handle.remove();
+    });
+
+    // Tapping a re-engagement nudge routes into the app (mirrors the push handler).
+    const tapSub = LocalNotifications.addListener('localNotificationActionPerformed', (event) => {
+      const url = (event.notification?.extra as { url?: string } | undefined)?.url || '/notifications';
+      window.location.href = url;
+    });
+    Promise.resolve(tapSub).then((handle) => {
+      removeTap = () => handle.remove();
     });
 
     return () => {
-      remove?.();
+      removeState?.();
+      removeTap?.();
     };
   }, []);
 }
