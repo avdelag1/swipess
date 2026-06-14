@@ -129,7 +129,7 @@ const ResetPassword = () => {
         {/* Back Button */}
         <motion.button
           onClick={() => navigate("/")}
-          className="mb-8 flex items-center gap-2 text-white/70 hover:text-white transition-all group"
+          className="mb-8 flex items-center gap-2 text-white transition-all group"
           whileHover={{ x: -4 }}
           whileTap={{ scale: 0.95 }}
         >
@@ -186,7 +186,7 @@ const ResetPassword = () => {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-white/50 hover:text-white/80 transition-colors"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-white transition-colors"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -266,7 +266,7 @@ const ResetPassword = () => {
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-white/50 hover:text-white/80 transition-colors"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-white transition-colors"
                 >
                   {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
