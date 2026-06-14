@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Check, Clock, Crown, RefreshCcw, Shield, Sparkles } from 'lucide-react';
 import { appToast } from '@/utils/appNotification';

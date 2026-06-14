@@ -55,7 +55,7 @@ export function ClientLocationSelector({
 
     // Check if Google Maps API is loaded
     if (!window.google) {
-      toast("Google Maps Not Ready", { description: "Google Maps is loading. Please wait a moment and try again." });
+      appToast.info("Google Maps Not Ready", "Google Maps is loading. Please wait a moment and try again.");
       return;
     }
 
@@ -212,7 +212,7 @@ export function ClientLocationSelector({
     setIsLoading(true);
     try {
       if (!window.google) {
-        toast("Google Maps Not Ready", { description: "Please wait for Google Maps to load." });
+        appToast.info("Google Maps Not Ready", "Please wait for Google Maps to load.");
         setIsLoading(false);
         return;
       }
