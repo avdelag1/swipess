@@ -8,10 +8,18 @@ import { runIdleTask } from '@/lib/utils';
 import { useAdminUserIds } from '../useAdminUserIds';
 
 const CLIENT_FIELDS = `
-    user_id, name, age, gender, city, country, profile_images,
+    user_id, name, age, gender, city, country, latitude, longitude, profile_images,
     interests, personality_traits, smoking_habit, work_schedule, nationality,
     languages, neighborhood, bio, occupation, preferred_activities, roommate_available
 `;
+
+function distanceKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat / 2) ** 2
+        + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) ** 2;
+    return 6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
 
 // Seed/demo user IDs that should always appear AFTER real users.
 const SEED_USER_IDS = new Set([
@@ -486,6 +494,10 @@ export function useSmartClientMatching(
 
                 const finalProfiles = profiles || [];
 
+                const userLat = filters?.userLatitude;
+                const userLon = filters?.userLongitude;
+                const radiusKm = filters?.radiusKm ?? 50;
+
                 let results = finalProfiles
                     .filter(p => !adminIds?.has(p.user_id)) // admin exclusion
                     .filter(p => (p as any).client_type !== 'business') // business/place exclusion
@@ -497,13 +509,24 @@ export function useSmartClientMatching(
                         age: p.age || 0, gender: p.gender || '',
                         interests: p.interests || [], preferred_activities: p.preferred_activities || [],
                         location: { city: p.city }, lifestyle_tags: (p as any).personality_traits || [],
-                        profile_images: finalImgs, 
+                        profile_images: finalImgs,
+                        latitude: p.latitude, longitude: p.longitude,
                         matchPercentage: 80,
                         matchReasons: ['Profile available'], incompatibleReasons: [], verified: true,
                         roommate_available: !!p.roommate_available, city: p.city, country: p.country, work_schedule: p.work_schedule,
                         occupation: p.occupation || ''
                     } as MatchedClientProfile;
                 });
+
+                // Distance filter — same passport/GPS logic as listings
+                if (userLat != null && userLon != null) {
+                    results = results.filter(r => {
+                        const pLat = (r as any).latitude as number | null | undefined;
+                        const pLng = (r as any).longitude as number | null | undefined;
+                        if (pLat == null || pLng == null) return true; // no coords = include
+                        return distanceKm(userLat, userLon, pLat, pLng) <= radiusKm;
+                    });
+                }
 
                 if (isRoommateSection) {
                     results = results.filter(r => r.roommate_available);

@@ -55,6 +55,10 @@ interface FilterState {
   radiusKm: number;
   userLatitude: number | null;
   userLongitude: number | null;
+  /** True when user teleported via Global Passport (not physical GPS). */
+  passportMode: boolean;
+  /** Display label for passport destination, e.g. "Paris, France". */
+  passportLabel: string | null;
 
   // ========== ADVANCED FILTERS ==========
   priceRange: [number, number] | null;
@@ -96,6 +100,7 @@ interface FilterState {
   setClientNationalities: (nationalities: string[]) => void;
   setRadiusKm: (radius: number) => void;
   setUserLocation: (lat: number, lon: number) => void;
+  setPassportLocation: (lat: number, lon: number, label?: string) => void;
   clearUserLocation: () => void;
   setPriceRange: (range: [number, number] | null) => void;
   setBedrooms: (bedrooms: number[]) => void;
@@ -151,6 +156,8 @@ export const useFilterStore = create<FilterState>()(
     radiusKm: 50,
     userLatitude: null,
     userLongitude: null,
+    passportMode: false,
+    passportLabel: null,
     priceRange: null,
     bedrooms: [],
     bathrooms: [],
@@ -186,8 +193,20 @@ export const useFilterStore = create<FilterState>()(
     },
     setUserLocation: (lat, lon) => {
       set((state) => ({
-        userLatitude: lat, 
+        userLatitude: lat,
         userLongitude: lon,
+        passportMode: false,
+        passportLabel: null,
+        filterVersion: state.filterVersion + 1,
+        lastChangedAt: Date.now(),
+      }));
+    },
+    setPassportLocation: (lat, lon, label) => {
+      set((state) => ({
+        userLatitude: lat,
+        userLongitude: lon,
+        passportMode: true,
+        passportLabel: label ?? null,
         filterVersion: state.filterVersion + 1,
         lastChangedAt: Date.now(),
       }));
@@ -226,8 +245,10 @@ export const useFilterStore = create<FilterState>()(
     },
     clearUserLocation: () => {
       set((state) => ({
-        userLatitude: null, 
+        userLatitude: null,
         userLongitude: null,
+        passportMode: false,
+        passportLabel: null,
         filterVersion: state.filterVersion + 1,
         lastChangedAt: Date.now(),
       }));
@@ -495,6 +516,8 @@ export const useFilterStore = create<FilterState>()(
         clientType: state.clientType,
         userLatitude: state.userLatitude,
         userLongitude: state.userLongitude,
+        passportMode: state.passportMode,
+        passportLabel: state.passportLabel,
         radiusKm: state.radiusKm,
         furnished: state.furnished,
         petFriendly: state.petFriendly,
