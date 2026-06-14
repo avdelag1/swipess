@@ -147,8 +147,8 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
             }}
           >
             <div className={cn(
-              "w-full max-w-md h-full sm:max-h-[80vh] rounded-3xl overflow-hidden flex flex-col pointer-events-auto shadow-2xl backdrop-blur-3xl saturate-150",
-              isLight ? "bg-background/80 border border-border/40" : "bg-zinc-900/80 border border-white/10"
+              "w-full max-w-md h-full sm:max-h-[80vh] rounded-3xl overflow-hidden flex flex-col pointer-events-auto shadow-2xl",
+              isLight ? "bg-background border border-border/40" : "bg-zinc-950 border border-white/10"
             )}>
               {/* Header */}
               <div className="flex items-center justify-between px-5 pt-5 pb-3 flex-shrink-0">

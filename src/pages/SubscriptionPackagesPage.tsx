@@ -268,8 +268,8 @@ export default function SubscriptionPackagesPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.05 }}
                 className={cn(
-                  "flex-1 flex flex-col liquid-glass-card refraction-edge glass-nano-texture rounded-[3rem] p-1.5 transition-all duration-500",
-                  isHighlight && "lg:scale-[1.05] lg:z-10 shadow-[0_40px_80px_rgba(0,0,0,0.5)] border-amber-500/40"
+                  "flex-1 flex flex-col bg-[#111111] border border-white/10 rounded-[3rem] p-1.5 transition-all duration-500",
+                  isHighlight && "lg:scale-[1.05] lg:z-10 shadow-[0_40px_80px_rgba(0,0,0,0.5)] border-amber-500/40 bg-[#16130a]"
                 )}
               >
                 <div className="relative flex flex-col flex-1 p-8 sm:p-10">
@@ -346,7 +346,7 @@ export default function SubscriptionPackagesPage() {
                     className={cn(
                       "w-full h-16 rounded-[1.5rem] font-black text-xs uppercase tracking-[0.25em] text-white transition-all active:scale-[0.98] shadow-2xl disabled:opacity-70",
                       style.button,
-                      isHighlight && "shadow-amber-500/20"
+                      isHighlight && "shadow-amber-500/20 text-black"
                     )}
                   >
                     {isPurchasing ? 'Connecting to App Store...' : (NativeBridge.isIOS() 

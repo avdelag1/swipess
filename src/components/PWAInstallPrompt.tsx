@@ -1,3 +1,4 @@
+import { Capacitor } from '@capacitor/core';
 import { useCallback, useEffect, useState } from 'react';
 import { X } from 'lucide-react';
 import { SwipessLogo } from '@/components/SwipessLogo';
@@ -9,6 +10,7 @@ interface BeforeInstallPromptEvent extends Event {
 }
 
 const DISMISSED_KEY = 'Swipess-pwa-install-dismissed';
+const DISMISSED_FOREVER_KEY = 'Swipess-pwa-install-dismissed-forever';
 const SHOW_DELAY_MS = 5000; // Show after 5s of use for immediate accessibility
 
 function isIOS() {
@@ -33,14 +35,18 @@ function wasDismissedRecently(): boolean {
   return Date.now() - parseInt(ts, 10) < 3 * 24 * 60 * 60 * 1000;
 }
 
+function wasDismissedForever(): boolean {
+  return localStorage.getItem(DISMISSED_FOREVER_KEY) === '1';
+}
+
 export function PWAInstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [visible, setVisible] = useState(false);
   const [iosMode, setIosMode] = useState(false);
 
   useEffect(() => {
-    // Skip if already installed or dismissed recently
-    if (isAlreadyInstalled() || wasDismissedRecently()) return;
+    // Skip if already installed or dismissed forever or if running on Native App
+    if (Capacitor.isNativePlatform() || isAlreadyInstalled() || wasDismissedForever() || wasDismissedRecently()) return;
 
     const ios = isIOS();
     setIosMode(ios);
@@ -85,15 +91,20 @@ export function PWAInstallPrompt() {
     localStorage.setItem(DISMISSED_KEY, String(Date.now()));
   }, []);
 
+  const handleDismissForever = useCallback(() => {
+    setVisible(false);
+    localStorage.setItem(DISMISSED_FOREVER_KEY, '1');
+  }, []);
+
   if (!visible) return null;
 
   return (
     <div
       role="dialog"
       aria-label="Install Swipess app"
-      className="fixed top-0 left-0 right-0 z-[10000] bg-black/80 backdrop-blur-md border-b border-white/10 shadow-2xl overflow-hidden"
+      className="fixed bottom-[var(--bottom-nav-height,72px)] pb-safe-bottom left-0 right-0 z-[10000] bg-black/95 border-t border-white/10 shadow-2xl overflow-hidden"
     >
-      <div className="w-full max-w-lg mx-auto flex items-center justify-between px-4 py-3 pt-safe-top">
+      <div className="w-full max-w-lg mx-auto flex items-center justify-between px-4 py-3">
         {/* Left Side: Logo & Text */}
         <div className="flex items-center gap-3">
           <button
