@@ -1,4 +1,4 @@
-import { memo, useCallback, useState } from 'react';
+import { memo, useCallback, useState, useMemo } from 'react';
 import { cn } from '@/lib/utils';
 
 interface ChatListingData {
@@ -30,7 +30,14 @@ export const ChatListingCard = memo(function ChatListingCard({
   onNavigate,
 }: ChatListingCardProps) {
   const [imgError, setImgError] = useState(false);
-  const imageUrl = listing.image || (listing.images?.[0]) || '';
+  const rawImageUrl = listing.image || (listing.images?.[0]) || '';
+  
+  const imageUrl = useMemo(() => {
+    if (!rawImageUrl) return '';
+    if (rawImageUrl.startsWith('http')) return rawImageUrl;
+    const baseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://vnvbxyuawchofksmzzmw.supabase.co';
+    return `${baseUrl}${rawImageUrl.startsWith('/') ? '' : '/'}${rawImageUrl}`;
+  }, [rawImageUrl]);
 
   const handleClick = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
