@@ -17,6 +17,7 @@ import { haptics } from '@/utils/microPolish';
 import useAppTheme from '@/hooks/useAppTheme';
 import { cn } from '@/lib/utils';
 import { useActiveMode } from '@/hooks/useActiveMode';
+import { useAdminUserIds } from '@/hooks/useAdminUserIds';
 import { AtmosphericLayer } from '@/components/AtmosphericLayer';
 import { Helmet } from 'react-helmet-async';
 import { ArrowLeft, Database, Eye, Globe, Package, ShieldCheck, UserCheck } from "lucide-react";
@@ -179,6 +180,11 @@ const LegalHub = () => {
   
   const isOwner = activeMode === 'owner';
   const categories = isOwner ? ownerLegalCategories : clientLegalCategories;
+
+  // Admins get a direct link from here into the review screen where every
+  // submitted service request and smart contract lands.
+  const { data: adminIds } = useAdminUserIds();
+  const isAdmin = !!user && !!adminIds?.has(user.id);
   
   const [searchParams, setSearchParams] = useSearchParams();
   const docParam = searchParams.get('doc') as 'privacy' | 'terms' | 'agl' | null;
@@ -864,6 +870,7 @@ const LegalHub = () => {
                    { icon: BookOpen, label: 'AUP Standards', doc: 'agl', color: 'bg-purple-600 text-white shadow-purple-500/20' },
                    { icon: Package, label: 'Service Packages', doc: 'packages', color: 'bg-amber-500 text-white shadow-amber-500/20' },
                    { icon: ScaleIcon, label: 'Smart Contracts', path: isOwner ? '/owner/contracts' : '/client/contracts', color: 'bg-emerald-600 text-white shadow-emerald-500/20' },
+                   ...(isAdmin ? [{ icon: ShieldCheck, label: 'Admin Review', path: '/admin/legal', color: 'bg-slate-700 text-white shadow-slate-500/20' }] : []),
                  ].map((item) => (
                    <button
                       key={item.label}

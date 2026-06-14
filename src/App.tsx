@@ -81,6 +81,7 @@ const EventosFeed = lazyWithRetry(() => import("./pages/EventosFeed"));
 const EventoDetail = lazyWithRetry(() => import("./pages/EventoDetail"));
 const EventosLikes = lazyWithRetry(() => import("./pages/EventosLikes"));
 const AdminEventos = lazyWithRetry(() => import("./pages/AdminEventos"));
+const AdminLegalRequests = lazyWithRetry(() => import("./pages/AdminLegalRequests"));
 const AdminPhotos = lazyWithRetry(() => import("./pages/AdminPhotos"));
 const AdminCategoryPhotos = lazyWithRetry(() => import("./pages/AdminCategoryPhotos"));
 const AdminPerformanceDashboard = lazyWithRetry(() => import("./pages/AdminPerformanceDashboard"));
@@ -204,6 +205,7 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
               <Route path="/explore/events/likes" element={<EventosLikes />} />
               <Route path="/explore/events/:id" element={<EventoDetail />} />
               <Route path="/admin/eventos" element={<AdminProtectedRoute><AdminEventos /></AdminProtectedRoute>} />
+              <Route path="/admin/legal" element={<AdminProtectedRoute><AdminLegalRequests /></AdminProtectedRoute>} />
               <Route path="/admin/photos" element={<AdminProtectedRoute><AdminPhotos /></AdminProtectedRoute>} />
               <Route path="/admin/category-photos" element={<AdminProtectedRoute><AdminCategoryPhotos /></AdminProtectedRoute>} />
               <Route path="/admin/performance" element={<AdminProtectedRoute><AdminPerformanceDashboard /></AdminProtectedRoute>} />

@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Eye, EyeOff, Images, Pencil, Plus, Trash2, Upload, X } from 'lucide-react';
+import { Eye, EyeOff, Images, Pencil, Plus, Scale, Trash2, Upload, X } from 'lucide-react';
 import { PageHeader } from '@/components/PageHeader';
 import { Link } from 'react-router-dom';
 import { Input } from '@/components/ui/input';
@@ -325,6 +325,11 @@ export default function AdminEventos() {
         subtitle="Create and manage Eventos & Experiencias"
         actions={
           <div className="flex gap-2">
+            <Link to="/admin/legal">
+              <Button variant="outline" size="sm" className="gap-1.5">
+                <Scale className="w-4 h-4" /> Legal
+              </Button>
+            </Link>
             <Link to="/admin/photos">
               <Button variant="outline" size="sm" className="gap-1.5">
                 <Images className="w-4 h-4" /> Photos
