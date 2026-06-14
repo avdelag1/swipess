@@ -214,81 +214,36 @@ export function SwipeInsightsModal({ open, onOpenChange, listing, profile, onCon
           {/* Scrollable body */}
           <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain scrollbar-hide pb-16">
 
-            {/* ── Immersive hero photo — edge-to-edge, rounded bottom (like the events page) ── */}
-            <div className="relative w-full h-[64vh] min-h-[460px] bg-black shrink-0 overflow-hidden rounded-b-[3rem] shadow-2xl">
-              {images.length > 0 ? (
-                <>
+            {/* ── Luxury Card Hero — no gallery, no dots, static image ── */}
+            <div className="px-4 pt-4 pb-2 z-10 shrink-0">
+              <div className="relative overflow-hidden h-[50vh] min-h-[400px] rounded-[2rem] shadow-2xl border border-white/10 bg-black/50">
+                {images.length > 0 ? (
                   <img
-                    src={images[imageIndex]}
+                    src={images[0]} // Always just the first image, no gallery
                     alt={title || ''}
                     className="w-full h-full object-cover"
                   />
-
-                  {/* Tap the photo to open the fullscreen gallery (base layer) */}
-                  <button
-                    type="button"
-                    onClick={openGallery}
-                    aria-label="View photos fullscreen"
-                    className="absolute inset-0 z-[5]"
-                  />
-
-                  {/* Story-style tap zones: left → previous, right → next */}
-                  {images.length > 1 && (
-                    <>
-                      <button
-                        onClick={(e) => { e.stopPropagation(); prevImage(); }}
-                        aria-label="Previous photo"
-                        className="absolute left-0 top-1/4 bottom-1/4 w-1/4 z-10"
-                      />
-                      <button
-                        onClick={(e) => { e.stopPropagation(); nextImage(); }}
-                        aria-label="Next photo"
-                        className="absolute right-0 top-1/4 bottom-1/4 w-1/4 z-10"
-                      />
-                    </>
-                  )}
-
-                  {/* Gradients: top for control legibility, bottom blends into the sheet */}
-                  <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-black/60 to-transparent z-[6] pointer-events-none" />
-                  <div className={cn(
-                    "absolute inset-x-0 bottom-0 h-44 bg-gradient-to-t to-transparent z-[6] pointer-events-none",
-                    isLight ? "from-white" : "from-black"
-                  )} />
-
-                  {/* Gallery dots */}
-                  {images.length > 1 && (
-                    <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex gap-1.5 z-20">
-                      {images.map((_, i) => (
-                        <button
-                          key={i}
-                          aria-label={`Go to photo ${i + 1}`}
-                          onClick={() => { triggerHaptic('light'); setImageIndex(i); }}
-                          className={cn(
-                            "h-1.5 rounded-full transition-all shadow-sm",
-                            i === imageIndex ? "w-6 bg-white" : "w-1.5 bg-white/40"
-                          )}
-                        />
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Category badge overlaid bottom-left (like the events page) */}
-                  <div className="absolute bottom-10 left-6 z-20">
-                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/10 backdrop-blur-md border border-white/20">
-                      <div className="text-[#ff3366]">{meta.icon}</div>
-                      <span className="text-[10px] font-black uppercase tracking-[0.25em] text-white">{meta.label}</span>
-                    </div>
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <div className="text-white/40"><Eye className="w-12 h-12" /></div>
                   </div>
-                </>
-              ) : (
-                <div className="w-full h-full bg-slate-900 flex items-center justify-center">
-                  <div className="text-white/40"><Eye className="w-12 h-12" /></div>
+                )}
+                
+                {/* Elegant Gradient Overlay for text/buttons */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20 pointer-events-none" />
+
+                {/* Category badge overlaid bottom-left */}
+                <div className="absolute bottom-6 left-5 z-20">
+                  <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/10 backdrop-blur-md border border-white/20">
+                    <div className="text-[#ff3366]">{meta.icon}</div>
+                    <span className="text-[10px] font-black uppercase tracking-[0.25em] text-white">{meta.label}</span>
+                  </div>
                 </div>
-              )}
+              </div>
             </div>
 
-            {/* ── Content — pulled up under the rounded hero (like the events page) ── */}
-            <div className="px-5 -mt-6 relative z-10 space-y-8">
+            {/* ── Content ── */}
+            <div className="px-5 mt-2 relative z-10 space-y-8">
 
               {/* Title + location, below the photo */}
               <div className="space-y-3">
