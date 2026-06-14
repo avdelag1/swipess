@@ -2,6 +2,7 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Check, Clock, Crown, MessageCircle, RefreshCcw, Shield, Sparkles, Star, X, Zap } from "lucide-react";
+import { FaApple } from "react-icons/fa";
 import { Capacitor } from "@capacitor/core";
 
 import { useAuth } from "@/hooks/useAuth";
@@ -304,20 +305,27 @@ export function MessageActivationPackages({
 
                   <CardFooter className="pb-8 px-8">
                     <Button
-                      onClick={() => handlePurchase(pkg)}
-                      className={`w-full h-14 rounded-2xl text-base font-black uppercase tracking-tighter transition-all duration-300 ${styles.button}`}
+                      onClick={(e) => { e.preventDefault(); handlePurchase(pkg); }}
+                      className={cn(
+                        "w-full h-14 rounded-2xl text-base font-black transition-all duration-300",
+                        NativeBridge.isIOS() 
+                          ? "bg-black hover:bg-black/90 text-white dark:bg-white dark:hover:bg-white/90 dark:text-black shadow-[0_4px_14px_0_rgba(0,0,0,0.39)] border border-white/10 dark:border-black/10"
+                          : styles.button
+                      )}
                     >
                       {NativeBridge.isIOS() ? (
-                        <div className="flex items-center">
-                          Buy ·  Pay
+                        <div className="flex items-center justify-center gap-1.5 text-[15px]">
+                          <span>Buy with</span>
+                          <FaApple className="w-5 h-5 mb-[2px]" />
+                          <span>Pay</span>
                         </div>
                       ) : (
-                        <>
+                        <div className="flex items-center justify-center uppercase tracking-tighter">
                           <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797H9.603c-.564 0-1.04.408-1.13.964L7.076 21.337z" />
                           </svg>
                           Secure Purchase
-                        </>
+                        </div>
                       )}
                     </Button>
                   </CardFooter>

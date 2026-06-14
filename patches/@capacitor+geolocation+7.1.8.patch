@@ -1,0 +1,63 @@
+diff --git a/node_modules/@capacitor/geolocation/ios/Sources/GeolocationPlugin/GeolocationError.swift b/node_modules/@capacitor/geolocation/ios/Sources/GeolocationPlugin/GeolocationError.swift
+index 26d5496..336a799 100644
+--- a/node_modules/@capacitor/geolocation/ios/Sources/GeolocationPlugin/GeolocationError.swift
++++ b/node_modules/@capacitor/geolocation/ios/Sources/GeolocationPlugin/GeolocationError.swift
+@@ -19,26 +19,26 @@ enum GeolocationError: Error {
+ private extension GeolocationError {
+     var code: Int {
+         switch self {
+-        case .positionUnavailable: 2
+-        case .permissionDenied: 3
+-        case .locationServicesDisabled: 7
+-        case .permissionRestricted: 8
++        case .positionUnavailable: return 2
++        case .permissionDenied: return 3
++        case .locationServicesDisabled: return 7
++        case .permissionRestricted: return 8
+         case .inputArgumentsIssue(let target):
+             switch target {
+-            case .getCurrentPosition: 4
+-            case .watchPosition: 5
+-            case .clearWatch: 6
++            case .getCurrentPosition: return 4
++            case .watchPosition: return 5
++            case .clearWatch: return 6
+             }
+         }
+     }
+ 
+     var description: String {
+         switch self {
+-        case .positionUnavailable: "There was en error trying to obtain the location."
+-        case .permissionDenied: "Location permission request was denied."
+-        case .locationServicesDisabled: "Location services are not enabled."
+-        case .permissionRestricted: "Application's use of location services was restricted."
+-        case .inputArgumentsIssue(let target): "The '\(target.rawValue)' input parameters aren't valid."
++        case .positionUnavailable: return "There was en error trying to obtain the location."
++        case .permissionDenied: return "Location permission request was denied."
++        case .locationServicesDisabled: return "Location services are not enabled."
++        case .permissionRestricted: return "Application's use of location services was restricted."
++        case .inputArgumentsIssue(let target): return "The '\(target.rawValue)' input parameters aren't valid."
+         }
+     }
+ }
+diff --git a/node_modules/@capacitor/geolocation/ios/Sources/GeolocationPlugin/GeolocationPlugin.swift b/node_modules/@capacitor/geolocation/ios/Sources/GeolocationPlugin/GeolocationPlugin.swift
+index bbdf369..d6d528d 100644
+--- a/node_modules/@capacitor/geolocation/ios/Sources/GeolocationPlugin/GeolocationPlugin.swift
++++ b/node_modules/@capacitor/geolocation/ios/Sources/GeolocationPlugin/GeolocationPlugin.swift
+@@ -86,10 +86,11 @@ public class GeolocationPlugin: CAPPlugin, CAPBridgedPlugin {
+     @objc override public func checkPermissions(_ call: CAPPluginCall) {
+         guard checkIfLocationServicesAreEnabled(call) else { return }
+ 
+-        let status = switch locationService?.authorisationStatus {
+-        case .restricted, .denied: Constants.AuthorisationStatus.Status.denied
+-        case .authorisedAlways, .authorisedWhenInUse: Constants.AuthorisationStatus.Status.granted
+-        default: Constants.AuthorisationStatus.Status.prompt
++        let status: String
++        switch locationService?.authorisationStatus {
++        case .restricted, .denied: status = Constants.AuthorisationStatus.Status.denied
++        case .authorisedAlways, .authorisedWhenInUse: status = Constants.AuthorisationStatus.Status.granted
++        default: status = Constants.AuthorisationStatus.Status.prompt
+         }
+ 
+         let callResultData = [

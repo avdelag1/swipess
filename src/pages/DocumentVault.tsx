@@ -3,7 +3,7 @@ import { logger } from '@/utils/prodLogger';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { appToast } from '@/utils/appNotification';
-import { enablePrivacyScreen, disablePrivacyScreen } from '@/utils/privacyScreen';
+import { disablePrivacyScreen, enablePrivacyScreen } from '@/utils/privacyScreen';
 import { AlertTriangle, CreditCard, Download, File, FileText, FolderOpen, Plus, ScrollText, Search, Shield, Trash2, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

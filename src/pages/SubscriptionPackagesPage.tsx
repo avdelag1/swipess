@@ -12,7 +12,9 @@ import { haptics } from "@/utils/microPolish";
 import { cn } from "@/lib/utils";
 import { Browser } from '@capacitor/browser';
 import { NativeBridge } from "@/utils/nativeBridge";
+import { PaymentOrchestrator } from '@/lib/iap/PaymentOrchestrator';
 import { getSafePaymentUrl } from "@/config/iapProducts";
+import { FaApple } from 'react-icons/fa';
 
 import { PaymentErrorBoundary } from "@/components/PaymentErrorBoundary";
 
@@ -134,74 +136,28 @@ export default function SubscriptionPackagesPage() {
 
   const handlePremiumPurchase = async (plan: typeof clientPremiumPlans[0]) => {
     setIsPurchasing(true);
-    try {
-      haptics.tap();
+    haptics.tap();
 
-      if (NativeBridge.isNative()) {
-        if (!plan.appleProductId) {
-          appToast.error('Plan unavailable on this device.');
-          setIsPurchasing(false);
-          return;
-        }
-        // Let the native purchase sheet provide the primary "Apple Pay" / App Store UI.
-        // We restore the toast so the user knows it's loading.
-        appToast.info('Connecting to App Store', 'Initiating secure In-App Purchase...');
-        const result = await NativeBridge.purchaseProduct(plan.appleProductId);
-        if (result.success) {
-          appToast.success('Subscription Activated', 'Welcome to the elite tier.');
-          setIsPurchasing(false);
-          navigate(`/${userRole}/dashboard`);
-          return;
-        } else {
-          const cancelled = (result as any).error === 'CANCELLED';
-          if (cancelled) {
-            setIsPurchasing(false);
-            return; // User closed the sheet — no noise
-          }
-          // IAP not available (common before ASC products are live / approved).
-          // On prod iOS getSafePaymentUrl will have stripped paypalUrl.
-        }
-      }
-
-      if (!plan.paypalUrl) {
-        appToast.error('In-App Purchase Required', 'This plan is only available through the App Store on iOS.');
+    await PaymentOrchestrator.purchase({
+      appleProductId: plan.appleProductId,
+      paypalUrl: plan.paypalUrl,
+      returnPath: `/${userRole}/dashboard`,
+      onSuccess: () => {
+        appToast.success('Subscription Activated', 'Welcome to the elite tier.');
         setIsPurchasing(false);
-        return;
+        navigate(`/${userRole}/dashboard`);
+      },
+      onError: (err) => {
+        setIsPurchasing(false);
+        if (err !== 'CANCELLED') {
+          appToast.error('Purchase Failed', err);
+        }
       }
-
-      sessionStorage.setItem(STORAGE.PAYMENT_RETURN_PATH_KEY, `/${userRole}/dashboard`);
-      sessionStorage.setItem(STORAGE.SELECTED_PLAN_KEY, JSON.stringify({
-        role: userRole,
-        planId: plan.id,
-        name: plan.name,
-        at: new Date().toISOString()
-      }));
-      await Browser.open({ url: plan.paypalUrl, presentationStyle: 'popover' });
-      appToast.success('Redirecting to Checkout');
-      setIsPurchasing(false);
-    } catch (error: any) {
-      logger.error('Payment redirect failed:', error);
-      appToast.error('Could not open payment window');
-      setIsPurchasing(false);
-    }
+    });
   };
 
   const handleRestore = async () => {
-    appToast.info('Restoring Purchases', 'Syncing with App Store subscriptions...');
-    
-    if (NativeBridge.isIOS()) {
-      const result = await NativeBridge.restorePurchases();
-      if (result.success) {
-        appToast.success('Subscription status verified.');
-      } else {
-        appToast.error('Restoration Failed');
-      }
-      return;
-    }
-
-    setTimeout(() => {
-      appToast.success('Subscription status verified.');
-    }, 1500);
+    await PaymentOrchestrator.restore();
   };
 
   if (roleLoading) {
@@ -348,14 +304,23 @@ export default function SubscriptionPackagesPage() {
                     onClick={() => handlePremiumPurchase(plan)}
                     disabled={isPurchasing}
                     className={cn(
-                      "w-full h-16 rounded-[1.5rem] font-black text-[13px] uppercase tracking-[0.1em] text-white transition-all active:scale-[0.98] shadow-2xl disabled:opacity-70 flex items-center justify-center gap-2",
-                      style.button,
-                      isHighlight && "shadow-amber-500/40"
+                      "w-full h-16 rounded-[1.5rem] font-black transition-all active:scale-[0.98] shadow-2xl disabled:opacity-70 flex items-center justify-center gap-1.5",
+                      NativeBridge.isIOS()
+                        ? "bg-black text-white dark:bg-white dark:text-black shadow-[0_4px_14px_0_rgba(0,0,0,0.39)] border border-white/10 dark:border-black/10 text-[16px] tracking-normal"
+                        : cn(style.button, "uppercase tracking-[0.1em] text-[13px] text-white", isHighlight && "shadow-amber-500/40")
                     )}
                   >
-                    {isPurchasing ? 'Connecting to App Store...' : (NativeBridge.isIOS() 
-                      ? <>Subscribe · ${plan.price} · <span className="text-lg"></span> Pay</>
-                      : <>Subscribe · ${plan.price} · Swipess Pro</>)}
+                    {isPurchasing ? 'Connecting to App Store...' : (
+                      NativeBridge.isIOS() ? (
+                        <>
+                          <span>Subscribe with</span>
+                          <FaApple className="w-5 h-5 mb-[2px]" />
+                          <span>Pay</span>
+                        </>
+                      ) : (
+                        <>Subscribe · ${plan.price} · Swipess Pro</>
+                      )
+                    )}
                   </Button>
                 </div>
               </motion.div>

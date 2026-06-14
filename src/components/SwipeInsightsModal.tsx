@@ -3,8 +3,8 @@ import { Listing } from '@/hooks/useListings';
 import { MatchedClientProfile } from '@/hooks/useSmartMatching';
 import {
   Anchor, ArrowLeft, Bath, Bed, Bike, Briefcase, Calendar, Car, CheckCircle,
-  Clock, DollarSign, Eye, Flag, Fuel, Gauge, Home, MapPin, Share2, MessageCircle,
-  Ruler, ShieldCheck, Square, User, Wrench, Zap,
+  Clock, DollarSign, Eye, Flag, Fuel, Gauge, Home, MapPin, MessageCircle, Ruler,
+  Share2, ShieldCheck, Square, User, Wrench, Zap,
 } from 'lucide-react';
 import { GlassIconButton } from '@/components/ui/GlassIconButton';
 import { PropertyImageGallery } from './PropertyImageGallery';
@@ -13,7 +13,7 @@ import { Capacitor } from '@capacitor/core';
 import { cn } from '@/lib/utils';
 import useAppTheme from '@/hooks/useAppTheme';
 import { triggerHaptic } from '@/utils/haptics';
-import { canNativeShare, generateShareUrl, shareViaNavigator, copyToClipboard } from '@/hooks/useSharing';
+import { canNativeShare, copyToClipboard, generateShareUrl, shareViaNavigator } from '@/hooks/useSharing';
 import { appToast } from '@/utils/appNotification';
 
 interface SwipeInsightsModalProps {

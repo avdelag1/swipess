@@ -39,14 +39,11 @@ export function PWAInstallPrompt() {
   const [visible, setVisible] = useState(false);
   const [iosMode, setIosMode] = useState(false);
 
-  // Rule 4: Never show PWA banner inside native Capacitor app
-  if (Capacitor.isNativePlatform()) {
-    return null;
-  }
+  const isNative = Capacitor.isNativePlatform();
 
   useEffect(() => {
-    // Skip if already installed or dismissed recently
-    if (isAlreadyInstalled() || wasDismissedRecently()) return;
+    // Skip if native app, already installed or dismissed recently
+    if (isNative || isAlreadyInstalled() || wasDismissedRecently()) return;
 
     const ios = isIOS();
     setIosMode(ios);
@@ -91,7 +88,7 @@ export function PWAInstallPrompt() {
     localStorage.setItem(DISMISSED_KEY, String(Date.now()));
   }, []);
 
-  if (!visible) return null;
+  if (isNative || !visible) return null;
 
   return (
     <div

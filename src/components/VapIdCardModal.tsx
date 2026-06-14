@@ -11,7 +11,7 @@ import { CARD_THEMES } from './vap-id/cardThemes';
 const VapIdEditModal = lazyWithRetry(() => import('./VapIdEditModal').then(m => ({ default: m.VapIdEditModal })));
 import { useEffect } from 'react';
 import { useVapIdCard } from '@/hooks/useVapIdCard';
-import { enablePrivacyScreen, disablePrivacyScreen } from '@/utils/privacyScreen';
+import { disablePrivacyScreen, enablePrivacyScreen } from '@/utils/privacyScreen';
 import { ensureAbsoluteSupabaseUrl } from '@/utils/imageOptimization';
 
 export interface VapIdProps {

@@ -3,7 +3,7 @@ import { LegendaryOnboarding } from './LegendaryOnboarding';
 import { BiometricGate } from './BiometricGate';
 import { useNativeBridge } from '@/hooks/useNativeBridge';
 import { initPrivacyScreen } from '@/utils/privacyScreen';
-import { nativeStore, migrateCriticalLocalStorageToPreferences } from '@/lib/nativeStore';
+import { migrateCriticalLocalStorageToPreferences, nativeStore } from '@/lib/nativeStore';
 
 export const NativeProvider = ({ children }: { children: React.ReactNode }) => {
   const { isNative } = useNativeBridge();

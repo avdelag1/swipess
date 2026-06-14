@@ -32,6 +32,7 @@ import { Capacitor } from "@capacitor/core";
 import { useConnectionHealth } from "@/hooks/useConnectionHealth";
 import { ConnectionErrorScreen } from "@/components/ConnectionErrorScreen";
 import { registerAppShortcuts } from "@/hooks/useAppShortcuts";
+import { PaymentOrchestrator } from "@/lib/iap/PaymentOrchestrator";
 // PERF: Lazy-load SwipessPrewarmer — its deps (routePrefetcher, performance) are heavy
 // It only activates after auth resolves, so no need in critical boot path
 const SwipessPrewarmer = lazy(() => import("@/components/SwipessPrewarmer").then(m => ({ default: m.SwipessPrewarmer })));
@@ -85,6 +86,10 @@ function LifecycleHooks({ children }: { children: React.ReactNode }) {
   useEnsureSpecializedProfile();
   useReengagementNotifications();
   useNativeKeyboard();
+
+  useEffect(() => {
+    void PaymentOrchestrator.init();
+  }, []);
   return (
     <>
       {Capacitor.isNativePlatform() && <NativeAppBadge />}
