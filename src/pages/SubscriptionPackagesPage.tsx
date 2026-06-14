@@ -1,6 +1,7 @@
 import { useAuth } from "@/hooks/useAuth";
 import { logger } from '@/utils/prodLogger';
 import { useActiveMode } from "@/hooks/useActiveMode";
+import { useState } from 'react';
 import { Check, ChevronLeft, Clock, Crown, RefreshCcw, Shield, Sparkles, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -129,32 +130,41 @@ export default function SubscriptionPackagesPage() {
   const { activeMode, isLoading: roleLoading } = useActiveMode();
   const userRole = activeMode;
 
+  const [isPurchasing, setIsPurchasing] = useState(false);
+
   const handlePremiumPurchase = async (plan: typeof clientPremiumPlans[0]) => {
+    setIsPurchasing(true);
     try {
       haptics.tap();
 
       if (NativeBridge.isNative()) {
         if (!plan.appleProductId) {
           appToast.error('Plan unavailable on this device.');
+          setIsPurchasing(false);
           return;
         }
-        appToast.info('Connecting to App Store', 'Initiating secure In-App Purchase...');
+        // Let the native purchase sheet provide the primary "Apple Pay" / App Store UI.
+        // Avoid extra banners that can cover the sheet or confuse screenshots.
         const result = await NativeBridge.purchaseProduct(plan.appleProductId);
         if (result.success) {
-          appToast.success('Subscription Successful!');
+          appToast.success('Subscription Activated', 'Welcome to the elite tier.');
+          setIsPurchasing(false);
           navigate(`/${userRole}/dashboard`);
           return;
         } else {
           const cancelled = (result as any).error === 'CANCELLED';
-          if (cancelled) return; // User closed the sheet
-          // If Apple Pay fails (e.g., product not found in App Store Connect yet),
-          // show a warning and fallback to PayPal below.
-          appToast.warning('Apple Pay Unavailable', 'Falling back to secure checkout...');
+          if (cancelled) {
+            setIsPurchasing(false);
+            return; // User closed the sheet — no noise
+          }
+          // IAP not available (common before ASC products are live / approved).
+          // On prod iOS getSafePaymentUrl will have stripped paypalUrl.
         }
       }
 
       if (!plan.paypalUrl) {
-        appToast.error('Payment link unavailable');
+        appToast.error('In-App Purchase Required', 'This plan is only available through the App Store on iOS.');
+        setIsPurchasing(false);
         return;
       }
 
@@ -167,9 +177,11 @@ export default function SubscriptionPackagesPage() {
       }));
       await Browser.open({ url: plan.paypalUrl, presentationStyle: 'popover' });
       appToast.success('Redirecting to Checkout');
+      setIsPurchasing(false);
     } catch (error: any) {
       logger.error('Payment redirect failed:', error);
       appToast.error('Could not open payment window');
+      setIsPurchasing(false);
     }
   };
 
@@ -330,15 +342,16 @@ export default function SubscriptionPackagesPage() {
                   {/* CTA */}
                   <Button
                     onClick={() => handlePremiumPurchase(plan)}
+                    disabled={isPurchasing}
                     className={cn(
-                      "w-full h-16 rounded-[1.5rem] font-black text-xs uppercase tracking-[0.25em] text-white transition-all active:scale-[0.98] shadow-2xl",
+                      "w-full h-16 rounded-[1.5rem] font-black text-xs uppercase tracking-[0.25em] text-white transition-all active:scale-[0.98] shadow-2xl disabled:opacity-70",
                       style.button,
                       isHighlight && "shadow-amber-500/20"
                     )}
                   >
-                    {NativeBridge.isIOS() 
+                    {isPurchasing ? 'Connecting to App Store...' : (NativeBridge.isIOS() 
                       ? (isHighlight ? 'Subscribe ·  Pay' : 'Subscribe') 
-                      : (isHighlight ? 'Get Offer · Swipess Pro' : 'Get Offer')}
+                      : (isHighlight ? 'Get Offer · Swipess Pro' : 'Get Offer'))}
                   </Button>
                 </div>
               </motion.div>

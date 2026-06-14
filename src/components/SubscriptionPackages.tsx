@@ -117,12 +117,14 @@ const accentStyles = {
 
 export function SubscriptionPackages({ isOpen = true, onClose, reason, userRole = 'client' }: SubscriptionPackagesProps) {
   const { user } = useAuth();
+  const [isPurchasing, setIsPurchasing] = useState(false);
 
   if (!isOpen) return null;
 
   const plans = clientPlans;
 
   const handleSubscribe = async (plan: Plan) => {
+    setIsPurchasing(true);
     const selection = { role: userRole, planId: plan.id, name: plan.name, price: plan.price, at: new Date().toISOString() };
     sessionStorage.setItem(STORAGE.SELECTED_PLAN_KEY, JSON.stringify(selection));
     sessionStorage.setItem(STORAGE.PAYMENT_RETURN_PATH_KEY, `/${userRole}/dashboard`);
@@ -130,19 +132,24 @@ export function SubscriptionPackages({ isOpen = true, onClose, reason, userRole 
     if (NativeBridge.isNative()) {
        if (!plan.appleProductId) {
          appToast.error('Plan unavailable on this device.');
+         setIsPurchasing(false);
          return;
        }
-       appToast.info('Connecting to App Store', 'Initiating secure In-App Purchase...');
+       // Clean IAP flow — native sheet is the UI
        const result = await NativeBridge.purchaseProduct(plan.appleProductId);
        if (result.success) {
          appToast.success('Subscription Successful!');
+         setIsPurchasing(false);
          onClose?.();
          return;
        } else {
          const cancelled = (result as any).error === 'CANCELLED';
-         if (!cancelled) {
-           appToast.error('Purchase could not be completed');
+         if (cancelled) {
+           setIsPurchasing(false);
+           return;
          }
+         appToast.error('Purchase could not be completed', 'Check App Store Connect products / sandbox.');
+         setIsPurchasing(false);
          return;
        }
     }
@@ -150,11 +157,15 @@ export function SubscriptionPackages({ isOpen = true, onClose, reason, userRole 
     // Web fallback (browser only — never on native iOS)
     if (!plan.paypalUrl) {
       appToast.error('Payment link unavailable');
+      setIsPurchasing(false);
       return;
     }
-    window.open(plan.paypalUrl, '_blank');
+    // Use Browser for Capacitor consistency
+    const { Browser } = await import('@capacitor/browser');
+    await Browser.open({ url: plan.paypalUrl, presentationStyle: 'popover' });
 
     appToast.info('Redirecting to Checkout', `Selected: ${plan.name} (${plan.price} USD)`);
+    setIsPurchasing(false);
 
     if (user?.id) {
       supabase.from('notifications').insert([{
@@ -244,9 +255,9 @@ export function SubscriptionPackages({ isOpen = true, onClose, reason, userRole 
                        isHighlight && "shadow-amber-500/20"
                     )}
                   >
-                    {NativeBridge.isIOS() 
+                    {isPurchasing ? 'Connecting...' : (NativeBridge.isIOS() 
                       ? (isHighlight ? 'Upgrade ·  Pay' : 'Subscribe') 
-                      : (isHighlight ? 'Upgrade to Swipess' : 'Activate Access')}
+                      : (isHighlight ? 'Upgrade to Swipess' : 'Activate Access'))}
                   </motion.button>
                 </div>
               </motion.div>

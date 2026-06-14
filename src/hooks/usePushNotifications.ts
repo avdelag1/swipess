@@ -76,7 +76,20 @@ export function usePushNotifications() {
 
       await PushNotifications.addListener('pushNotificationActionPerformed', (action) => {
         const url = action.notification.data?.url || '/notifications';
-        window.location.href = url;
+        const target = url.startsWith('/') ? url : `/${url}`;
+        // Store for bootstrap / resume handlers + attempt soft nav
+        try { localStorage.setItem('swipess_pending_notif_url', target); } catch (_) { /* ignore */ void 0; }
+        setTimeout(() => {
+          // SPA-friendly: history push + popstate for react-router, fallback reload
+          if (window.history && window.history.pushState) {
+            window.history.pushState({}, '', target);
+            window.dispatchEvent(new PopStateEvent('popstate'));
+          }
+          // Always ensure open even from killed state
+          if (document.visibilityState !== 'visible' || window.location.pathname !== target) {
+            window.location.assign(target);
+          }
+        }, 30);
       });
     };
 

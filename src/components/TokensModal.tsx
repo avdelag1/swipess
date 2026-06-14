@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Crown, MessageCircle, RefreshCcw, Sparkles, X, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -62,9 +62,12 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
   const isOpen = useModalStore((s) => s.showTokensModal);
   const close = () => useModalStore.getState().setModal('showTokensModal', false);
 
+  const [isPurchasing, setIsPurchasing] = useState(false);
+
   const packageCategory = userRole === 'owner' ? 'owner_pay_per_use' : 'client_pay_per_use';
 
   const handlePurchase = async (pkg: AppleTokenPackage) => {
+    setIsPurchasing(true);
     localStorage.setItem(STORAGE.PENDING_ACTIVATION_KEY, JSON.stringify({
       productId: pkg.productId,
       packageId: pkg.productId,
@@ -76,31 +79,33 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
     localStorage.setItem(STORAGE.PAYMENT_RETURN_PATH_KEY, `/${userRole}/dashboard`);
 
     if (NativeBridge.isNative()) {
-      appToast.info('Connecting to App Store');
+      // No noisy banner here — let the native StoreKit sheet be the primary UI feedback
       const result = await NativeBridge.purchaseProduct(pkg.productId);
       if (result.success) {
-        appToast.info('Payment Confirmed', `${pkg.tokens} tokens activated.`);
+        appToast.success('Tokens Purchased', `${pkg.tokens} tokens activated via App Store.`);
+        setIsPurchasing(false);
         close();
+        // The useTokens hook + realtime / server grant will reflect soon; dashboard pull-to-refresh also works
         return;
       } else {
-        const cancelled = (result as any).error === 'CANCELLED';
-        if (cancelled) return;
+        const cancelled = (result as any).error === 'CANCELLED' || (result as any).error === 'CANCELLED';
         if (cancelled) {
           setIsPurchasing(false);
           return;
         }
-        
-        appToast.warning('Apple Pay Unavailable', 'Falling back to secure checkout...');
+        // On iOS prod, getSafe will block external; just error cleanly.
+        // On dev iOS or Android, will fall through to PayPal if available.
       }
     }
 
     const safePaypalUrl = getSafePaymentUrl(pkg.paypalUrl);
     if (!safePaypalUrl) {
-      appToast.error('Payment link unavailable', 'Please use the App Store to purchase.');
+      appToast.error('App Store Only', 'Please purchase using In-App Purchase on iOS.');
       setIsPurchasing(false);
       return;
     }
     await import('@capacitor/browser').then(({ Browser }) => Browser.open({ url: safePaypalUrl, presentationStyle: 'popover' }));
+    setIsPurchasing(false);
     close();
   };
 
@@ -210,15 +215,16 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
                               </div>
                               <button
                                 onClick={() => { haptics.tap(); handlePurchase(pkg); }}
+                                disabled={isPurchasing}
                                 aria-label={`Get offer: ${pkg.tokens} tokens for ${formatUSD(pkg.priceUsd)} USD`}
-                                className="flex-shrink-0 h-11 px-5 rounded-full font-black text-[11px] uppercase tracking-widest active:scale-95 transition-transform whitespace-nowrap"
+                                className="flex-shrink-0 h-11 px-5 rounded-full font-black text-[11px] uppercase tracking-widest active:scale-95 transition-transform whitespace-nowrap disabled:opacity-60 disabled:cursor-not-allowed"
                                 style={{
                                   backgroundColor: '#000000',
                                   color: '#FFFFFF',
                                   boxShadow: '0 12px 28px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.18)',
                                 }}
                               >
-                                {NativeBridge.isIOS() ? 'Buy ·  Pay' : 'Get Offer'}
+                                {isPurchasing ? 'Connecting...' : (NativeBridge.isIOS() ? 'Buy ·  Pay' : 'Get Offer')}
                               </button>
                             </div>
                           </motion.div>

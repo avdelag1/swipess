@@ -34,7 +34,17 @@ export function useReengagementNotifications(): void {
     // Tapping a re-engagement nudge routes into the app (mirrors the push handler).
     const tapSub = LocalNotifications.addListener('localNotificationActionPerformed', (event) => {
       const url = (event.notification?.extra as { url?: string } | undefined)?.url || '/notifications';
-      window.location.href = url;
+      const target = url.startsWith('/') ? url : `/${url}`;
+      try { localStorage.setItem('swipess_pending_notif_url', target); } catch (_) { /* ignore */ void 0; }
+      setTimeout(() => {
+        if (window.history && window.history.pushState) {
+          window.history.pushState({}, '', target);
+          window.dispatchEvent(new PopStateEvent('popstate'));
+        }
+        if (document.visibilityState !== 'visible' || window.location.pathname !== target) {
+          window.location.assign(target);
+        }
+      }, 30);
     });
     Promise.resolve(tapSub).then((handle) => {
       removeTap = () => handle.remove();
