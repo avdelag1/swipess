@@ -85,7 +85,6 @@ export const useModalStore = create<ModalState>((set) => ({
   showVapId: false,
   showTokensModal: false,
   showInviteFriends: false,
-  showInviteFriends: false,
 
   setModal: (key, value) => set({ [key]: value }),
   

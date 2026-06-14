@@ -14,7 +14,7 @@
 
 import { forwardRef, memo, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { animate, AnimatePresence, motion, PanInfo, useMotionValue, useTransform } from 'framer-motion';
-import { BarChart3, Flag, MessageCircle, Share2 } from 'lucide-react';
+import { BarChart3, Flag, MessageCircle, Share2, Undo2 } from 'lucide-react';
 import { triggerHaptic } from '@/utils/haptics';
 import { getCardImageUrl } from '@/utils/imageOptimization';
 import { cn } from '@/lib/utils';
@@ -78,6 +78,10 @@ interface SimpleOwnerSwipeCardProps {
   onReport?: () => void;
   onLike?: () => void;
   onDislike?: () => void;
+  onUndo?: () => void;
+  canUndo?: boolean;
+  onSoon?: () => void;
+  onBack?: () => void;
   fullScreen?: boolean;
   disableDrag?: boolean;
 }
@@ -96,6 +100,10 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   onReport,
   onShare,
   onMessage,
+  onUndo,
+  canUndo = false,
+  onSoon,
+  onBack,
   disableDrag,
   fullScreen = false,
 }, ref) => {
@@ -487,6 +495,32 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
                 />
               ))}
             </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Undo Button */}
+      <AnimatePresence>
+        {isTop && canUndo && !isZoomed && isRailVisible && onUndo && (
+          <motion.div
+            data-no-cinematic
+            data-no-pull-dismiss
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            className="absolute z-50 pointer-events-auto"
+            style={{ 
+              top: 'calc(var(--safe-top, 0px) + 16px)', 
+              right: '16px' 
+            }}
+          >
+            <button
+              onClick={(e) => { e.stopPropagation(); onUndo(); }}
+              className="w-10 h-10 rounded-full flex items-center justify-center active:scale-90 transition-transform"
+              style={{ filter: 'drop-shadow(0px 2px 6px rgba(0,0,0,0.4))' }}
+            >
+              <Undo2 className="w-6 h-6 text-white stroke-[2.5]" />
+            </button>
           </motion.div>
         )}
       </AnimatePresence>

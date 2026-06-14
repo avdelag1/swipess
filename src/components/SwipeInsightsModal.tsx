@@ -185,77 +185,79 @@ export function SwipeInsightsModal({ open, onOpenChange, listing, profile }: Swi
           </div>
 
           {/* Scrollable body */}
-          <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain scrollbar-hide">
+          <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain scrollbar-hide pt-2">
             {/* Photo carousel */}
             {images.length > 0 && (
-              <div className="relative w-full h-[65vh] min-h-[400px] bg-black">
-                <button
-                  type="button"
-                  onClick={() => setGalleryOpen(true)}
-                  className="absolute inset-0 w-full h-full"
-                >
-                  <img
-                    src={images[imageIndex]}
-                    alt={title || ''}
-                    className="w-full h-full object-cover"
-                  />
-                </button>
-                {images.length > 1 && (
-                  <>
-                    <button
-                      onClick={(e) => { e.stopPropagation(); setImageIndex(i => (i - 1 + images.length) % images.length); }}
-                      className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/50 backdrop-blur-md border border-white/20 flex items-center justify-center text-white active:scale-90"
-                    >
-                      <ChevronLeft className="w-5 h-5" />
-                    </button>
-                    <button
-                      onClick={(e) => { e.stopPropagation(); setImageIndex(i => (i + 1) % images.length); }}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/50 backdrop-blur-md border border-white/20 flex items-center justify-center text-white active:scale-90"
-                    >
-                      <ChevronRight className="w-5 h-5" />
-                    </button>
-                    <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
-                      {images.map((_, i) => (
-                        <div
-                          key={i}
-                          className={cn(
-                            "h-1.5 rounded-full transition-all",
-                            i === imageIndex ? "w-6 bg-white" : "w-1.5 bg-white/40"
-                          )}
-                        />
-                      ))}
-                    </div>
-                  </>
-                )}
+              <div className="relative w-full px-3 sm:px-4 mb-6">
+                <div className="relative w-full aspect-[4/5] max-h-[65vh] min-h-[400px] bg-black overflow-hidden rounded-[2.5rem] shadow-[0_20px_40px_-15px_rgba(0,0,0,0.5)]">
+                  <button
+                    type="button"
+                    onClick={() => setGalleryOpen(true)}
+                    className="absolute inset-0 w-full h-full"
+                  >
+                    <img
+                      src={images[imageIndex]}
+                      alt={title || ''}
+                      className="w-full h-full object-cover"
+                    />
+                  </button>
+                  {images.length > 1 && (
+                    <>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setImageIndex(i => (i - 1 + images.length) % images.length); }}
+                        className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/50 backdrop-blur-md border border-white/20 flex items-center justify-center text-white active:scale-90 transition-transform"
+                      >
+                        <ChevronLeft className="w-5 h-5" />
+                      </button>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setImageIndex(i => (i + 1) % images.length); }}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/50 backdrop-blur-md border border-white/20 flex items-center justify-center text-white active:scale-90 transition-transform"
+                      >
+                        <ChevronRight className="w-5 h-5" />
+                      </button>
+                      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 z-10 bg-black/40 backdrop-blur-md px-3 py-2 rounded-full border border-white/10">
+                        {images.map((_, i) => (
+                          <div
+                            key={i}
+                            className={cn(
+                              "h-1.5 rounded-full transition-all",
+                              i === imageIndex ? "w-6 bg-white" : "w-1.5 bg-white/40"
+                            )}
+                          />
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
             )}
 
-            <div className="px-5 pt-5 pb-8 space-y-6">
+            <div className="px-5 pb-8 space-y-6">
               {/* Title */}
               <div className="space-y-1.5">
-                <h2 className={cn("text-2xl font-bold tracking-tight leading-tight", textPri)}>{title}</h2>
+                <h2 className={cn("text-3xl font-black tracking-tight leading-tight", textPri)}>{title}</h2>
                 {subtitle && (
                   <div className="flex items-center gap-1.5">
                     <MapPin className={cn("w-3.5 h-3.5", textTer)} />
-                    <p className={cn("text-sm", textSec)}>{subtitle}</p>
+                    <p className={cn("text-sm font-bold uppercase tracking-wider", textSec)}>{subtitle}</p>
                   </div>
                 )}
               </div>
 
               {/* Specs grid */}
               {specs.length > 0 && (
-                <div className="grid grid-cols-2 gap-2.5">
+                <div className="grid grid-cols-2 gap-3">
                   {specs.map((s, i) => (
-                    <div key={i} className={cn("p-3.5 rounded-2xl border flex items-center gap-3", card)}>
+                    <div key={i} className={cn("p-4 rounded-3xl border flex items-center gap-3.5 shadow-sm", card)}>
                       <div className={cn(
-                        "w-9 h-9 rounded-xl flex items-center justify-center shrink-0",
-                        isLight ? "bg-white text-slate-600 border border-slate-200" : "bg-white/[0.06] text-white/70 border border-white/10"
+                        "w-10 h-10 rounded-[14px] flex items-center justify-center shrink-0",
+                        isLight ? "bg-white text-slate-600 shadow-sm" : "bg-white/[0.08] text-white"
                       )}>
                         {s.icon}
                       </div>
                       <div className="min-w-0">
-                        <p className={cn("text-[10px] font-semibold uppercase tracking-wider", textTer)}>{s.label}</p>
-                        <p className={cn("text-sm font-bold truncate", textPri)}>{s.value}</p>
+                        <p className={cn("text-[10px] font-black uppercase tracking-[0.2em]", textTer)}>{s.label}</p>
+                        <p className={cn("text-[13px] font-bold truncate mt-0.5", textPri)}>{s.value}</p>
                       </div>
                     </div>
                   ))}
@@ -265,31 +267,30 @@ export function SwipeInsightsModal({ open, onOpenChange, listing, profile }: Swi
               {/* Empty state */}
               {specs.length === 0 && !description && tags.length === 0 && (
                 <div className="flex flex-col items-center justify-center py-12 text-center">
-                  <div className={cn("w-14 h-14 rounded-2xl flex items-center justify-center mb-3", isLight ? "bg-slate-100" : "bg-white/5")}>
-                    <Eye className={cn("w-6 h-6", textTer)} />
+                  <div className={cn("w-16 h-16 rounded-[1.5rem] flex items-center justify-center mb-4", isLight ? "bg-slate-100" : "bg-white/5")}>
+                    <Eye className={cn("w-7 h-7", textTer)} />
                   </div>
-                  <p className={cn("text-sm font-medium", textTer)}>No additional details available</p>
-                  <p className={cn("text-xs mt-1", textTer)}>Tap close to go back</p>
+                  <p className={cn("text-sm font-bold", textTer)}>No additional details available</p>
                 </div>
               )}
 
               {/* Description */}
               {description && (
-                <div className="space-y-2">
-                  <h3 className={cn("text-[11px] font-bold uppercase tracking-[0.15em]", textTer)}>About</h3>
-                  <p className={cn("text-sm leading-relaxed whitespace-pre-wrap", textSec)}>{description}</p>
+                <div className="space-y-3 pt-2">
+                  <h3 className={cn("text-[11px] font-black uppercase tracking-[0.25em]", textTer)}>Overview</h3>
+                  <p className={cn("text-[15px] font-medium leading-[1.7] whitespace-pre-wrap", textSec)}>{description}</p>
                 </div>
               )}
 
               {/* Tags */}
               {tags.length > 0 && (
-                <div className="space-y-2">
-                  <h3 className={cn("text-[11px] font-bold uppercase tracking-[0.15em]", textTer)}>
+                <div className="space-y-3 pt-2">
+                  <h3 className={cn("text-[11px] font-black uppercase tracking-[0.25em]", textTer)}>
                     {isClientProfile ? 'Interests' : (category === 'worker' || category === 'services' ? 'Skills' : (listing?.equipment?.length ? 'Equipment' : 'Amenities'))}
                   </h3>
-                  <div className="flex flex-wrap gap-1.5">
+                  <div className="flex flex-wrap gap-2">
                     {tags.map((t, i) => (
-                      <span key={i} className={cn("px-3 py-1.5 rounded-full text-[12px] font-medium border", chipBg)}>{t}</span>
+                      <span key={i} className={cn("px-4 py-2 rounded-xl text-[11px] font-black uppercase tracking-wider shadow-sm", chipBg)}>{t}</span>
                     ))}
                   </div>
                 </div>
@@ -299,18 +300,20 @@ export function SwipeInsightsModal({ open, onOpenChange, listing, profile }: Swi
 
           {/* Footer */}
           <div className={cn(
-            "shrink-0 p-5 pt-3 border-t backdrop-blur-2xl",
-            isLight ? "border-slate-200 bg-white/90" : "border-white/5 bg-black/40"
+            "shrink-0 p-5 pt-4 pb-safe-bottom z-30 shadow-[0_-20px_40px_-15px_rgba(0,0,0,0.1)]",
+            isLight ? "bg-white border-t border-slate-100" : "bg-black border-t border-white/5"
           )}>
-            <Button
-              onClick={() => onOpenChange(false)}
-              className={cn(
-                "w-full h-14 rounded-2xl font-bold text-base tracking-wide active:scale-[0.98] transition-all border-0 shadow-lg",
-                isLight ? "!bg-slate-900 !text-white hover:!bg-slate-800" : "!bg-white !text-black hover:!bg-white/90"
-              )}
-            >
-              Close
-            </Button>
+            <div className="flex gap-3">
+              <Button
+                onClick={() => onOpenChange(false)}
+                className={cn(
+                  "flex-1 h-14 rounded-2xl font-black text-[11px] uppercase tracking-[0.25em] active:scale-[0.98] transition-all border-0 shadow-xl",
+                  isLight ? "!bg-slate-900 !text-white hover:!bg-slate-800" : "!bg-white !text-black hover:!bg-white/90"
+                )}
+              >
+                Close Insight
+              </Button>
+            </div>
           </div>
         </div>
       </DialogContent>
