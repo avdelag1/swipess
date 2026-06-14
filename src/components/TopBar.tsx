@@ -15,6 +15,7 @@ import { useModalStore } from '@/state/modalStore';
 import { TAP_SPRING } from './BottomNavigation';
 import { useTokens } from '@/hooks/useTokens';
 import { useFilterStore } from '@/state/filterStore';
+import { getParentRoute } from '@/utils/sectionNavigation';
 
 interface TopBarProps {
   onNotificationsClick?: () => void;
@@ -63,10 +64,13 @@ function TopBarComponent({
   const activeCategory = useFilterStore((s) => s.activeCategory);
   const isSwipeDeck = isDashboard && activeCategory && activeCategory !== 'all';
 
+  // Hierarchical "up" navigation: a sub-page goes to its section home, a
+  // section home goes to the dashboard — so the user never has to tap back
+  // several times to escape a deep flow.
   const onBack = propOnBack || (
-    isSwipeDeck 
+    isSwipeDeck
       ? () => { useFilterStore.getState().setActiveCategory(null as any); navigate('/client/dashboard'); }
-      : (showBack ? () => window.history.length > 2 ? navigate(-1) : navigate('/client/dashboard') : undefined)
+      : (showBack ? () => navigate(getParentRoute(location.pathname) ?? '/client/dashboard') : undefined)
   );
 
   const clusterPillStyle: React.CSSProperties = { overflow: 'visible' };

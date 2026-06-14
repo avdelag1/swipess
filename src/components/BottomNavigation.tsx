@@ -39,6 +39,7 @@ import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useFilterStore } from '@/state/filterStore';
 import { useModalStore } from '@/state/modalStore';
 import { useGuidedTourActive } from '@/state/guidedTourStore';
+import { broadcastSectionReset } from '@/utils/sectionNavigation';
 
 const ICON_SIZE = 26;
 
@@ -180,15 +181,26 @@ export const BottomNavigation = memo(({
 
       haptics.tap();
 
-      if (item.path === location.pathname) {
-        haptics.tap();
-        // Tapping Dashboard while already on dashboard resets to category selection grid
+      // Re-tapping the nav button for the section you're already in returns you
+      // to that section's home page — and resets any in-page sub-view (e.g. the
+      // Legal hub's editor/signing screens) — so you don't have to tap back
+      // several times to get back to where you started.
+      const withinSection =
+        !!item.path &&
+        (location.pathname === item.path || location.pathname.startsWith(item.path + '/'));
+
+      if (withinSection && item.path) {
+        // Tapping Dashboard while already on dashboard resets to the category grid
         if (item.id === 'dashboard') {
           setCategories([]);
         }
-        // Pressing the current page's nav item also closes any open overlays
         closeAll();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        broadcastSectionReset(item.path);
+        if (location.pathname !== item.path) {
+          navigate(item.path); // pop any deeper route back to the section home
+        } else {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
         return;
       }
 

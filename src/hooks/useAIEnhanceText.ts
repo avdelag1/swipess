@@ -6,7 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 export function useAIEnhanceText() {
   const [isEnhancing, setIsEnhancing] = useState(false);
 
-  const enhanceText = async (text: string, type: 'profile' | 'listing' = 'profile'): Promise<string | null> => {
+  const enhanceText = async (text: string, type: 'profile' | 'listing' | 'legal' = 'profile'): Promise<string | null> => {
     if (!text || text.trim().length < 5) {
       appToast.error('Draft is too short to enhance.');
       return null;

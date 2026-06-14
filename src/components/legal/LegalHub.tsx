@@ -1,15 +1,16 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { 
-  ArrowRight, CheckCircle2, ChevronRight, Clock, 
-  Download, FileText, PenTool, Plus, ShieldCheck,
-  Sparkles, X
+import {
+  ArrowRight, Bold, ChevronRight, Clock,
+  Download, FileText, PenLine, PenTool, Plus, Save, ShieldCheck,
+  Underline, Wand2, X
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { clientTemplates, ContractTemplate, ownerTemplates } from '@/data/contractTemplates';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { DigitalSignaturePad } from '@/components/DigitalSignaturePad';
+import { useAIEnhanceText } from '@/hooks/useAIEnhanceText';
 import { logger } from '@/utils/prodLogger';
 import { triggerHaptic } from '@/utils/haptics';
 import useAppTheme from '@/hooks/useAppTheme';
@@ -17,6 +18,18 @@ import { appToast } from '@/utils/appNotification';
 import { cn } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
 import { sanitizeHTML } from '@/utils/sanitizeHTML';
+import { SECTION_RESET_EVENT } from '@/utils/sectionNavigation';
+
+// Plain text → simple, safe HTML paragraphs (used when the AI returns cleaned
+// plain text that we drop back into the contentEditable document).
+function textToHtml(text: string): string {
+  const escape = (s: string) => s
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  return text
+    .split(/\n{2,}/)
+    .map((para) => `<p>${escape(para).replace(/\n/g, '<br/>')}</p>`)
+    .join('');
+}
 
 type HubView = 'dashboard' | 'browse' | 'editor' | 'signing';
 
@@ -45,13 +58,34 @@ export function ContractsVault() {
   const [draftEffectiveDate, setDraftEffectiveDate] = useState('');
   const [draftMonthlyValue, setDraftMonthlyValue] = useState('');
   const [draftCounterparty, setDraftCounterparty] = useState('');
+  const [draftContent, setDraftContent] = useState('');
   const [isSavingDraft, setIsSavingDraft] = useState(false);
   const [isSavingSignature, setIsSavingSignature] = useState(false);
+  const docRef = useRef<HTMLDivElement>(null);
+  const { enhanceText, isEnhancing } = useAIEnhanceText();
 
   useEffect(() => {
     if (!user) return;
     fetchContracts();
   }, [user]);
+
+  // Re-tapping the Legal nav button (bottom bar) returns the hub to its home
+  // view instead of leaving the user stranded in the editor/signing screens.
+  useEffect(() => {
+    const handleReset = () => setView('dashboard');
+    window.addEventListener(SECTION_RESET_EVENT, handleReset);
+    return () => window.removeEventListener(SECTION_RESET_EVENT, handleReset);
+  }, []);
+
+  // Seed the editable document once when the editor opens for a template.
+  useEffect(() => {
+    if (view === 'editor' && docRef.current) {
+      docRef.current.innerHTML = sanitizeHTML(draftContent || selectedTemplate?.content || '');
+    }
+    // Only re-seed when entering the editor or switching template — NOT on each
+    // keystroke (that would reset the caret).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [view, selectedTemplate?.id]);
 
   const fetchContracts = async () => {
     setLoading(true);
@@ -82,8 +116,36 @@ export function ContractsVault() {
     setDraftEffectiveDate('');
     setDraftMonthlyValue('');
     setDraftCounterparty('');
+    setDraftContent(template.content);
     setView('editor');
   };
+
+  // Rich-text formatting inside the editable document (works in the Android
+  // WebView). execCommand is deprecated but remains the most reliable
+  // contentEditable formatting API across mobile browsers.
+  const applyFormat = useCallback((command: 'bold' | 'underline' | 'insertUnorderedList') => {
+    triggerHaptic('light');
+    docRef.current?.focus();
+    try { document.execCommand(command, false); } catch { /* not supported */ }
+  }, []);
+
+  const handleImproveWithAI = useCallback(async () => {
+    const el = docRef.current;
+    if (!el) return;
+    const plain = (el.innerText || '').trim();
+    if (plain.length < 20) {
+      appToast.error('Add a bit more text before improving.');
+      return;
+    }
+    const improved = await enhanceText(plain, 'legal');
+    if (improved) {
+      const html = textToHtml(improved);
+      el.innerHTML = html;
+      setDraftContent(html);
+      triggerHaptic('success');
+      appToast.success('Document polished', 'Review the cleaned-up wording, then save.');
+    }
+  }, [enhanceText]);
 
   const handleStartSigning = (contract: any) => {
     triggerHaptic('medium');
@@ -95,16 +157,21 @@ export function ContractsVault() {
     setView('dashboard');
     setSelectedTemplate(null);
     setActiveContract(null);
+    setDraftContent('');
   };
 
-  const handleSaveDraft = async () => {
+  const handleSaveDraft = async (thenSign = false) => {
     if (!user || !selectedTemplate || isSavingDraft) return;
     setIsSavingDraft(true);
     try {
-      const { error } = await supabase.from('digital_contracts').insert({
+      // Persist the document AS EDITED by the user (with their fill-ins and AI
+      // polish), not the blank template.
+      const editedContent = sanitizeHTML(docRef.current?.innerHTML || draftContent || selectedTemplate.content);
+
+      const { data, error } = await supabase.from('digital_contracts').insert({
         title: draftTitle.trim() || selectedTemplate.name,
         template_type: selectedTemplate.id,
-        content: selectedTemplate.content,
+        content: editedContent,
         owner_id: user.id,
         client_id: user.id,
         status: 'draft',
@@ -114,16 +181,23 @@ export function ContractsVault() {
           counterparty: draftCounterparty.trim() || null,
           template_category: selectedTemplate.category,
         },
-      } as any);
+      } as any).select('*').single();
       if (error) throw error;
 
       triggerHaptic('success');
-      appToast.success('Legal Draft Synthesized', 'Saved to your vault.');
       await fetchContracts();
-      handleClose();
+
+      if (thenSign && data) {
+        appToast.success('Lease saved', 'Add your signature to finalize.');
+        setActiveContract(data);
+        setView('signing');
+      } else {
+        appToast.success('Lease saved to your vault', 'Open it any time to edit or sign.');
+        handleClose();
+      }
     } catch (err) {
       logger.error('[ContractsVault] draft save failed:', err);
-      appToast.error('Could not save draft', 'Please try again.');
+      appToast.error('Could not save lease', 'Please try again.');
     } finally {
       setIsSavingDraft(false);
     }
@@ -353,8 +427,8 @@ export function ContractsVault() {
             >
                <div className={cn("p-10 rounded-[3rem] border space-y-10", isLight ? "bg-black/[0.02] border-black/5" : "bg-white/[0.03] border-white/5")}>
                   <div className="flex items-center gap-3">
-                    <Sparkles className="w-5 h-5 text-primary" />
-                    <span className={cn("text-[10px] font-black uppercase tracking-[0.3em] opacity-70 italic", isLight ? "text-black" : "text-white")}>AI Protocol Synthesis</span>
+                    <PenLine className="w-5 h-5 text-primary" />
+                    <span className={cn("text-[10px] font-black uppercase tracking-[0.3em] opacity-70 italic", isLight ? "text-black" : "text-white")}>Lease Details</span>
                   </div>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -381,8 +455,8 @@ export function ContractsVault() {
                     )}
 
                     <div className="space-y-3 col-span-full">
-                       <label className={cn("text-[10px] font-black uppercase tracking-[0.2em] ml-2 opacity-70", isLight ? "text-black" : "text-white")}>Counterparty ID</label>
-                       <input type="text" placeholder="SCAN VERIFIED USERS..." value={draftCounterparty} onChange={(e) => setDraftCounterparty(e.target.value)} autoComplete="off" autoCorrect="off" spellCheck={false} className={cn("w-full h-16 rounded-2xl border px-8 text-[11px] font-black uppercase tracking-widest outline-none", isLight ? "bg-black/[0.04] border-black/5 text-black" : "bg-white/5 border-white/10 text-white")} />
+                       <label className={cn("text-[10px] font-black uppercase tracking-[0.2em] ml-2 opacity-70", isLight ? "text-black" : "text-white")}>Other Party — name or email <span className="opacity-50">(optional)</span></label>
+                       <input type="text" placeholder="e.g. Jane Doe or jane@email.com" value={draftCounterparty} onChange={(e) => setDraftCounterparty(e.target.value)} autoComplete="off" autoCorrect="off" spellCheck={false} className={cn("w-full h-16 rounded-2xl border px-8 text-sm outline-none", isLight ? "bg-black/[0.04] border-black/5 text-black focus:border-primary" : "bg-white/5 border-white/10 text-white focus:border-primary")} />
                     </div>
                   </div>
                   
@@ -395,14 +469,58 @@ export function ContractsVault() {
                   </div>
                </div>
 
-                <Button
-                  onClick={handleSaveDraft}
-                  disabled={isSavingDraft}
-                  className="w-full h-20 rounded-[2.5rem] bg-primary hover:bg-primary/90 text-white font-black uppercase tracking-[0.3em] text-[12px] italic shadow-2xl shadow-primary/20 transition-all hover:scale-[1.01] disabled:opacity-60"
-                >
-                  {isSavingDraft ? 'Saving…' : 'Initialize Protocol Draft'}
-                  <CheckCircle2 className="w-5 h-5 ml-4" />
-                </Button>
+               {/* ✍️ EDITABLE LEASE DOCUMENT — tap anywhere to fill blanks / edit */}
+               <div className={cn("rounded-[3rem] border overflow-hidden", isLight ? "bg-black/[0.02] border-black/5" : "bg-white/[0.03] border-white/5")}>
+                 <div className={cn("flex items-center justify-between gap-3 px-6 py-4 border-b flex-wrap", isLight ? "border-black/5" : "border-white/5")}>
+                   <div className="flex items-center gap-2">
+                     <FileText className="w-4 h-4 text-primary" />
+                     <span className={cn("text-[10px] font-black uppercase tracking-[0.25em] opacity-70", isLight ? "text-black" : "text-white")}>Lease Document — tap to edit</span>
+                   </div>
+                   <div className="flex items-center gap-1.5">
+                     <button type="button" onClick={() => applyFormat('bold')} aria-label="Bold" className={cn("w-9 h-9 rounded-xl flex items-center justify-center border", isLight ? "bg-black/[0.04] border-black/5 text-black" : "bg-white/5 border-white/10 text-white")}><Bold className="w-4 h-4" /></button>
+                     <button type="button" onClick={() => applyFormat('underline')} aria-label="Underline" className={cn("w-9 h-9 rounded-xl flex items-center justify-center border", isLight ? "bg-black/[0.04] border-black/5 text-black" : "bg-white/5 border-white/10 text-white")}><Underline className="w-4 h-4" /></button>
+                     <button type="button" onClick={() => applyFormat('insertUnorderedList')} aria-label="Bullet list" className={cn("w-9 h-9 rounded-xl flex items-center justify-center border text-[16px] font-black leading-none", isLight ? "bg-black/[0.04] border-black/5 text-black" : "bg-white/5 border-white/10 text-white")}>•</button>
+                     <button type="button" onClick={handleImproveWithAI} disabled={isEnhancing} aria-label="Improve with AI" className="h-9 px-3.5 rounded-xl flex items-center gap-1.5 bg-primary text-white text-[10px] font-black uppercase tracking-widest disabled:opacity-60 active:scale-95 transition-transform">
+                       <Wand2 className="w-4 h-4" />{isEnhancing ? 'Polishing…' : 'Improve with AI'}
+                     </button>
+                   </div>
+                 </div>
+                 <div
+                   ref={docRef}
+                   contentEditable
+                   suppressContentEditableWarning
+                   role="textbox"
+                   aria-multiline="true"
+                   aria-label="Lease document editor"
+                   spellCheck
+                   className={cn(
+                     "prose max-w-none px-7 py-6 h-[420px] overflow-y-auto outline-none text-[13px] leading-relaxed focus:ring-0",
+                     "[&_h1]:text-lg [&_h2]:text-base [&_u]:underline",
+                     isLight ? "prose-slate text-black/90 bg-white/40" : "prose-invert text-white/90 bg-black/20"
+                   )}
+                   style={{ WebkitUserSelect: 'text', userSelect: 'text', touchAction: 'auto' }}
+                 />
+               </div>
+
+               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                 <Button
+                   onClick={() => handleSaveDraft(false)}
+                   disabled={isSavingDraft}
+                   variant="ghost"
+                   className={cn("h-16 rounded-[2rem] font-black uppercase tracking-[0.2em] text-[11px] italic border transition-all disabled:opacity-60", isLight ? "bg-black/[0.04] border-black/10 text-black hover:bg-black/[0.07]" : "bg-white/5 border-white/10 text-white hover:bg-white/10")}
+                 >
+                   <Save className="w-4 h-4 mr-3" />
+                   {isSavingDraft ? 'Saving…' : 'Save to Vault'}
+                 </Button>
+                 <Button
+                   onClick={() => handleSaveDraft(true)}
+                   disabled={isSavingDraft}
+                   className="h-16 rounded-[2rem] bg-primary hover:bg-primary/90 text-white font-black uppercase tracking-[0.2em] text-[11px] italic shadow-2xl shadow-primary/20 transition-all hover:scale-[1.01] disabled:opacity-60"
+                 >
+                   {isSavingDraft ? 'Saving…' : 'Save & Sign'}
+                   <PenTool className="w-4 h-4 ml-3" />
+                 </Button>
+               </div>
             </motion.div>
           )}
 
