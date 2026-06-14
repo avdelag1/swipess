@@ -10,6 +10,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import { RadioProvider } from "@/contexts/RadioContext";
 import { ThemeSyncManager } from "@/components/ThemeSyncManager";
 import { logger } from '@/utils/prodLogger';
+import { markAppRendered } from '@/utils/bootSplash';
 import { ResponsiveProvider } from "@/contexts/ResponsiveContext";
 import { ActiveModeProvider } from "@/hooks/useActiveMode";
 import { PWAProvider } from "@/hooks/usePWAMode";
@@ -107,12 +108,8 @@ function AuthReadySignal() {
     
     const handleReady = () => {
       if ((window as any).__APP_READY_FIRED__) return;
-      (window as any).__APP_READY_FIRED__ = true;
-      
       logger.log('[BOOT] Received swipess-ready signal from layout shell.');
-      (window as any).__APP_INITIALIZED__ = true;
-      (window as any).__APP_MOUNTED__ = true;
-      window.dispatchEvent(new CustomEvent('app-rendered'));
+      markAppRendered();
     };
 
     // Safety net: force signal after 1 second if layout shell fails to mount
@@ -158,6 +155,30 @@ function ConnectionGuard({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+/**
+ * Splash failsafe — mounted ABOVE <ConnectionGuard> so it always renders, even
+ * when the guard short-circuits to the offline screen (which would otherwise
+ * leave the boot splash covering the screen until the 6s "Something went wrong"
+ * watchdog). Guarantees the splash fades once React has committed, in every
+ * render branch. <AppLayout> still fires the real `swipess-ready` first on a
+ * healthy boot — this only catches the cases where it can't.
+ */
+function BootSplashFailsafe() {
+  useEffect(() => {
+    // Fade as soon as the layout shell signals it painted...
+    window.addEventListener('swipess-ready', markAppRendered);
+    // ...otherwise force it well before the splash watchdog (6s) fires, so the
+    // user sees real UI (e.g. the connection error screen) instead of the
+    // generic "Something went wrong" recovery prompt.
+    const timer = setTimeout(markAppRendered, 2500);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('swipess-ready', markAppRendered);
+    };
+  }, []);
+  return null;
+}
+
 // One-time native app icon shortcuts registration (long-press home icon actions)
 function AppShortcutsRegistrar() {
   useEffect(() => {
@@ -191,7 +212,9 @@ export function RootProviders({ children, authPromise }: RootProvidersProps) {
   const content = React.useMemo(() => children, [children]);
 
   return (
-    <ConnectionGuard>
+    <>
+      <BootSplashFailsafe />
+      <ConnectionGuard>
       <HelmetProvider>
         <PersistQueryClientProvider
           client={queryClient}
@@ -227,7 +250,8 @@ export function RootProviders({ children, authPromise }: RootProvidersProps) {
           </LazyMotion>
         </PersistQueryClientProvider>
       </HelmetProvider>
-    </ConnectionGuard>
+      </ConnectionGuard>
+    </>
   );
 }
 
