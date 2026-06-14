@@ -96,31 +96,31 @@ const clientPremiumPlans = [
 
 const accentStyles = {
   blue: {
-    border: 'border-white/15',
-    badge: 'bg-background text-foreground border border-border',
-    glow: '',
-    button: 'bg-gradient-to-r from-zinc-900 to-zinc-700 text-white',
-    checkColor: 'text-white',
-    topGradient: 'from-white/10 via-transparent to-transparent',
-    priceShadow: '',
+    border: 'border-cyan-500/50',
+    badge: 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30',
+    glow: 'shadow-[0_0_30px_rgba(6,182,212,0.2)]',
+    button: 'bg-gradient-to-r from-cyan-400 to-blue-600 text-white font-black',
+    checkColor: 'text-cyan-400',
+    topGradient: 'from-cyan-500/20 via-transparent to-transparent',
+    priceShadow: 'drop-shadow-[0_0_12px_rgba(6,182,212,0.4)]',
   },
   pink: {
-    border: 'border-pink-500/35',
-    badge: 'bg-pink-500/20 text-pink-400 border border-pink-500/20',
-    glow: 'shadow-[0_0_30px_rgba(236,72,153,0.12)]',
-    button: 'bg-gradient-to-r from-pink-600 to-orange-500',
-    checkColor: 'text-pink-400',
-    topGradient: 'from-pink-500/15 via-transparent to-transparent',
-    priceShadow: '',
+    border: 'border-fuchsia-500/50',
+    badge: 'bg-fuchsia-500/20 text-fuchsia-300 border border-fuchsia-500/30',
+    glow: 'shadow-[0_0_40px_rgba(217,70,239,0.3)]',
+    button: 'bg-gradient-to-r from-fuchsia-500 to-pink-500 text-white font-black',
+    checkColor: 'text-fuchsia-400',
+    topGradient: 'from-fuchsia-500/25 via-transparent to-transparent',
+    priceShadow: 'drop-shadow-[0_0_15px_rgba(217,70,239,0.5)]',
   },
   gold: {
-    border: 'border-amber-500/40',
-    badge: 'bg-amber-500/20 text-amber-400 border border-amber-500/25',
-    glow: 'shadow-[0_0_50px_rgba(245,158,11,0.15)]',
-    button: 'bg-gradient-to-r from-amber-500 to-orange-500',
+    border: 'border-amber-400/60',
+    badge: 'bg-amber-400/20 text-amber-300 border border-amber-400/40',
+    glow: 'shadow-[0_0_60px_rgba(251,191,36,0.35)]',
+    button: 'bg-gradient-to-r from-yellow-400 to-amber-600 text-white font-black',
     checkColor: 'text-amber-400',
-    topGradient: 'from-amber-500/15 via-transparent to-transparent',
-    priceShadow: 'drop-shadow-[0_0_12px_rgba(245,158,11,0.3)]',
+    topGradient: 'from-amber-400/25 via-transparent to-transparent',
+    priceShadow: 'drop-shadow-[0_0_20px_rgba(251,191,36,0.6)]',
   },
 };
 
@@ -269,11 +269,14 @@ export default function SubscriptionPackagesPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.05 }}
                 className={cn(
-                  "flex-1 flex flex-col rounded-[3rem] p-1.5 transition-all duration-500 bg-background border border-border",
-                  isHighlight && "lg:scale-[1.05] lg:z-10 shadow-[0_40px_80px_rgba(0,0,0,0.5)] border-amber-500/40"
+                  "flex-1 flex flex-col rounded-[3rem] p-1.5 transition-all duration-500 bg-background border relative overflow-hidden",
+                  style.border,
+                  style.glow,
+                  isHighlight && "lg:scale-[1.05] lg:z-10 shadow-[0_40px_80px_rgba(0,0,0,0.5)] border-amber-400/60"
                 )}
               >
-                <div className="relative flex flex-col flex-1 p-8 sm:p-10">
+                <div className={cn("absolute inset-0 bg-gradient-to-b pointer-events-none opacity-50", style.topGradient)} />
+                <div className="relative z-10 flex flex-col flex-1 p-8 sm:p-10">
                   {/* Badge */}
                   <div className="flex items-center justify-between mb-8">
                     <span className={cn("text-xs font-black uppercase tracking-[0.25em] px-4 py-1.5 rounded-full", style.badge)}>
@@ -300,7 +303,7 @@ export default function SubscriptionPackagesPage() {
 
                   {/* Price */}
                   <div className="flex items-baseline gap-2 mb-8">
-                    <span className="text-5xl sm:text-6xl font-black text-white tracking-tighter">
+                    <span className={cn("text-5xl sm:text-6xl font-black text-white tracking-tighter", style.priceShadow)}>
                       ${plan.price}
                     </span>
                     <span className="text-xs font-black text-white/40 uppercase tracking-widest leading-loose">
@@ -345,14 +348,14 @@ export default function SubscriptionPackagesPage() {
                     onClick={() => handlePremiumPurchase(plan)}
                     disabled={isPurchasing}
                     className={cn(
-                      "w-full h-16 rounded-[1.5rem] font-black text-xs uppercase tracking-[0.25em] text-white transition-all active:scale-[0.98] shadow-2xl disabled:opacity-70",
+                      "w-full h-16 rounded-[1.5rem] font-black text-[13px] uppercase tracking-[0.1em] text-white transition-all active:scale-[0.98] shadow-2xl disabled:opacity-70 flex items-center justify-center gap-2",
                       style.button,
-                      isHighlight && "shadow-amber-500/20"
+                      isHighlight && "shadow-amber-500/40"
                     )}
                   >
                     {isPurchasing ? 'Connecting to App Store...' : (NativeBridge.isIOS() 
-                      ? (isHighlight ? 'Subscribe ·  Pay' : 'Subscribe') 
-                      : (isHighlight ? 'Get Offer · Swipess Pro' : 'Get Offer'))}
+                      ? <>Subscribe · ${plan.price} · <span className="text-lg"></span> Pay</>
+                      : <>Subscribe · ${plan.price} · Swipess Pro</>)}
                   </Button>
                 </div>
               </motion.div>
