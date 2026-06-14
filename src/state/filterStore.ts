@@ -387,13 +387,28 @@ export const useFilterStore = create<FilterState>()(
         lastChangedAt: Date.now(),
       }));
     },
-    setFilters: (filters) => {
+    setFilters: (filters: Record<string, unknown>) => {
       set((state) => ({
-        ...(filters.categories !== undefined && { categories: filters.categories }),
-        ...(filters.category !== undefined && { activeCategory: filters.category }),
-        ...(filters.listingType !== undefined && { listingType: filters.listingType }),
-        ...(filters.clientGender !== undefined && { clientGender: filters.clientGender }),
-        ...(filters.clientType !== undefined && { clientType: filters.clientType }),
+        ...(filters.categories !== undefined && { categories: filters.categories as QuickFilterCategory[] }),
+        ...((filters.category !== undefined || filters.activeCategory !== undefined) && {
+          activeCategory: (filters.activeCategory ?? filters.category) as QuickFilterCategory | null,
+        }),
+        ...(filters.listingType !== undefined && { listingType: filters.listingType as FilterState['listingType'] }),
+        ...(filters.clientGender !== undefined && { clientGender: filters.clientGender as FilterState['clientGender'] }),
+        ...(filters.clientType !== undefined && { clientType: filters.clientType as FilterState['clientType'] }),
+        ...(filters.userLatitude !== undefined && { userLatitude: filters.userLatitude as number | null }),
+        ...(filters.userLongitude !== undefined && { userLongitude: filters.userLongitude as number | null }),
+        ...(filters.radiusKm !== undefined && { radiusKm: filters.radiusKm as number }),
+        ...(filters.passportMode !== undefined && { passportMode: filters.passportMode as boolean }),
+        ...(filters.passportLabel !== undefined && { passportLabel: filters.passportLabel as string | null }),
+        ...(filters.priceRange !== undefined && { priceRange: filters.priceRange as [number, number] | null }),
+        ...(filters.bedrooms !== undefined && { bedrooms: filters.bedrooms as number[] }),
+        ...(filters.bathrooms !== undefined && { bathrooms: filters.bathrooms as number[] }),
+        ...(filters.amenities !== undefined && { amenities: filters.amenities as string[] }),
+        ...(filters.propertyTypes !== undefined && { propertyTypes: filters.propertyTypes as string[] }),
+        ...(filters.serviceTypes !== undefined && { serviceTypes: filters.serviceTypes as string[] }),
+        ...(filters.furnished !== undefined && { furnished: filters.furnished as boolean }),
+        ...(filters.petFriendly !== undefined && { petFriendly: filters.petFriendly as boolean }),
         filterVersion: state.filterVersion + 1,
         lastChangedAt: Date.now(),
       }));

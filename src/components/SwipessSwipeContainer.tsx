@@ -35,7 +35,8 @@ import { persistDeckToSession, useSwipeDeckStore } from '@/state/swipeDeckStore'
 import { useFilterActions, useFilterStore } from '@/state/filterStore';
 import { useShallow } from 'zustand/react/shallow';
 import { useSwipeDismissal } from '@/hooks/useSwipeDismissal';
-import { Bike, Briefcase, Home } from 'lucide-react';
+import { Bike, Briefcase, Home, Map } from 'lucide-react';
+import { useModalStore } from '@/state/modalStore';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { useSwipeSounds } from '@/hooks/useSwipeSounds';
 import { appToast } from '@/utils/appNotification';
@@ -990,6 +991,10 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                     triggerHaptic('medium');
                     navigate(userRole === 'owner' ? '/owner/filters' : '/client/filters');
                   }}
+                  onOpenMap={() => {
+                    triggerHaptic('heavy');
+                    useModalStore.getState().setModal('showPassportMapModal', true);
+                  }}
                   role={userRole === 'owner' ? 'owner' : 'client'}
                 />
                 )}
@@ -999,7 +1004,23 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
       </motion.div>
     </div>
 
-    {/* Bottom action bar removed — the same actions (Share / Message /
+      {/* Global Passport live map — explore listings & people nearby */}
+      {deckQueue.length > 0 && (
+        <button
+          type="button"
+          onClick={() => {
+            triggerHaptic('medium');
+            useModalStore.getState().setModal('showPassportMapModal', true);
+          }}
+          className="absolute bottom-[calc(env(safe-area-inset-bottom,0px)+88px)] left-4 z-[10008] w-12 h-12 rounded-2xl flex items-center justify-center border backdrop-blur-xl shadow-2xl bg-indigo-500/90 border-indigo-400/50 text-white active:scale-95 transition-transform"
+          aria-label="Open live map"
+          title="Explore on map"
+        >
+          <Map className="w-5 h-5" />
+        </button>
+      )}
+
+      {/* Bottom action bar removed — the same actions (Share / Message /
         Insights / Report) live on the right-side rail in SimpleSwipeCard,
         keeping the card photo unobstructed. */}
     </div>

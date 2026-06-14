@@ -1,6 +1,6 @@
-import { memo, useMemo, useState } from 'react';
+import { memo, useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
-import { X, MapPin, Navigation, Sparkles, Globe2, Search, Loader2 } from 'lucide-react';
+import { X, MapPin, Navigation, Sparkles, Globe2, Search, Loader2, Map } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
 import { useModalStore } from '@/state/modalStore';
@@ -9,6 +9,7 @@ import { appToast } from '@/utils/appNotification';
 import useAppTheme from '@/hooks/useAppTheme';
 import { canGeolocate, getCurrentPosition } from '@/utils/geolocation';
 import { searchCities } from '@/data/worldLocations';
+import { isMapboxPlacesReady, searchMapboxPlaces, type GeocodeResult } from '@/utils/mapboxPlaces';
 
 const PREMIUM_DESTINATIONS = [
   { name: 'Miami', country: 'United States', lat: 25.7617, lng: -80.1918, img: 'https://images.unsplash.com/photo-1514214246283-d427a95c5d2f?q=80&w=800&auto=format&fit=crop' },
@@ -41,11 +42,29 @@ export const PassportModal = memo(() => {
 
   const [searchQuery, setSearchQuery] = useState('');
   const [gpsLoading, setGpsLoading] = useState(false);
+  const [mapboxResults, setMapboxResults] = useState<GeocodeResult[]>([]);
+  const [mapboxSearching, setMapboxSearching] = useState(false);
 
-  const searchResults = useMemo(
-    () => (searchQuery.length >= 2 ? searchCities(searchQuery).slice(0, 12) : []),
+  const localResults = useMemo(
+    () => (searchQuery.length >= 2 ? searchCities(searchQuery).slice(0, 8) : []),
     [searchQuery],
   );
+
+  useEffect(() => {
+    if (searchQuery.length < 2 || !isMapboxPlacesReady()) {
+      setMapboxResults([]);
+      return;
+    }
+    const timer = setTimeout(async () => {
+      setMapboxSearching(true);
+      const results = await searchMapboxPlaces(searchQuery, 6);
+      setMapboxResults(results);
+      setMapboxSearching(false);
+    }, 350);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  const hasSearchResults = localResults.length > 0 || mapboxResults.length > 0;
 
   const onClose = () => {
     triggerHaptic('light');
@@ -53,12 +72,18 @@ export const PassportModal = memo(() => {
     setModal('showPassportModal', false);
   };
 
-  const handleTeleport = (name: string, country: string, lat: number, lng: number) => {
+  const handleTeleport = (label: string, lat: number, lng: number) => {
     triggerHaptic('heavy');
-    setPassportLocation(lat, lng, `${name}, ${country}`);
+    setPassportLocation(lat, lng, label);
     setRadiusKm(50);
-    appToast.success(`Exploring ${name}, ${country}`);
+    appToast.success(`Exploring ${label}`);
     onClose();
+  };
+
+  const openLiveMap = () => {
+    triggerHaptic('medium');
+    setModal('showPassportModal', false);
+    setModal('showPassportMapModal', true);
   };
 
   const handleUseGPS = async () => {
@@ -149,15 +174,26 @@ export const PassportModal = memo(() => {
             )}
           </div>
 
-          {searchQuery.length >= 2 && searchResults.length > 0 && (
+          <button
+            onClick={openLiveMap}
+            className={cn(
+              "w-full mt-3 py-3 rounded-2xl flex items-center justify-center gap-2 text-[11px] font-black uppercase tracking-widest border transition-all",
+              isLight ? "bg-indigo-50 border-indigo-200 text-indigo-700 hover:bg-indigo-100" : "bg-indigo-500/10 border-indigo-500/30 text-indigo-300 hover:bg-indigo-500/20"
+            )}
+          >
+            <Map className="w-4 h-4" />
+            Explore on Live Map
+          </button>
+
+          {searchQuery.length >= 2 && hasSearchResults && (
             <div className={cn(
               "mt-2 rounded-2xl border overflow-hidden max-h-48 overflow-y-auto custom-scrollbar",
               isLight ? "bg-white border-slate-200 shadow-lg" : "bg-[#111] border-white/10"
             )}>
-              {searchResults.map(({ region, country, city }) => (
+              {localResults.map(({ region, country, city }) => (
                 <button
                   key={`${region}-${country}-${city.name}`}
-                  onClick={() => handleTeleport(city.name, country, city.coordinates.lat, city.coordinates.lng)}
+                  onClick={() => handleTeleport(`${city.name}, ${country}`, city.coordinates.lat, city.coordinates.lng)}
                   className={cn(
                     "w-full text-left px-4 py-3 flex items-center justify-between transition-colors border-b last:border-b-0",
                     isLight ? "hover:bg-slate-50 border-slate-100" : "hover:bg-white/5 border-white/5"
@@ -170,12 +206,27 @@ export const PassportModal = memo(() => {
                   <span className={cn("text-[10px] font-bold uppercase tracking-wider shrink-0 ml-2", isLight ? "text-slate-400" : "text-white/40")}>{country}</span>
                 </button>
               ))}
+              {mapboxResults.map((place) => (
+                <button
+                  key={place.label}
+                  onClick={() => handleTeleport(place.label, place.lat, place.lng)}
+                  className={cn(
+                    "w-full text-left px-4 py-3 flex items-center justify-between transition-colors border-b last:border-b-0",
+                    isLight ? "hover:bg-slate-50 border-slate-100" : "hover:bg-white/5 border-white/5"
+                  )}
+                >
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <Globe2 className={cn("w-3.5 h-3.5 shrink-0", isLight ? "text-purple-500" : "text-purple-400")} />
+                    <span className={cn("text-sm font-bold truncate", isLight ? "text-slate-900" : "text-white")}>{place.label}</span>
+                  </div>
+                </button>
+              ))}
             </div>
           )}
 
-          {searchQuery.length >= 2 && searchResults.length === 0 && (
+          {searchQuery.length >= 2 && !hasSearchResults && (
             <p className={cn("mt-2 text-center text-xs font-medium py-2", isLight ? "text-slate-400" : "text-white/40")}>
-              No cities found — try a different spelling
+              {mapboxSearching ? 'Searching worldwide...' : 'No cities found — try Live Map'}
             </p>
           )}
         </div>
@@ -215,7 +266,7 @@ export const PassportModal = memo(() => {
                   return (
                     <button
                       key={dest.name}
-                      onClick={() => handleTeleport(dest.name, dest.country, dest.lat, dest.lng)}
+                      onClick={() => handleTeleport(`${dest.name}, ${dest.country}`, dest.lat, dest.lng)}
                       className="relative group rounded-2xl overflow-hidden aspect-[4/5] shadow-lg active:scale-95 transition-all"
                     >
                       <img src={dest.img} alt={dest.name} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />

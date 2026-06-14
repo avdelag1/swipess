@@ -43,6 +43,7 @@ interface ModalState {
   showVapId: boolean;
   showTokensModal: boolean;
   showPassportModal: boolean;
+  showPassportMapModal: boolean;
   showInviteFriends: boolean;
 
   // Actions
@@ -86,6 +87,7 @@ export const useModalStore = create<ModalState>((set) => ({
   showVapId: false,
   showTokensModal: false,
   showPassportModal: false,
+  showPassportMapModal: false,
   showInviteFriends: false,
 
   setModal: (key, value) => set({ [key]: value }),
@@ -126,6 +128,8 @@ export const useModalStore = create<ModalState>((set) => ({
     showVapId: false,
     showTokensModal: false,
   showInviteFriends: false,
+    showPassportModal: false,
+    showPassportMapModal: false,
   }),
 }));
 

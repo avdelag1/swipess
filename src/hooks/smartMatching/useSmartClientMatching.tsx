@@ -6,20 +6,14 @@ import { ClientFilters, MatchedClientProfile } from './types';
 import { getCardImageUrl, pwaImagePreloader } from '@/utils/imageOptimization';
 import { runIdleTask } from '@/lib/utils';
 import { useAdminUserIds } from '../useAdminUserIds';
+import { filterByDistance, hasActiveLocationFilter } from '@/utils/matchingFilters';
+import { isDemoFeedEnabled } from '@/utils/demoFeed';
 
 const CLIENT_FIELDS = `
     user_id, name, age, gender, city, country, latitude, longitude, profile_images,
     interests, personality_traits, smoking_habit, work_schedule, nationality,
     languages, neighborhood, bio, occupation, preferred_activities, roommate_available
 `;
-
-function distanceKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
-    const dLat = (lat2 - lat1) * Math.PI / 180;
-    const dLon = (lon2 - lon1) * Math.PI / 180;
-    const a = Math.sin(dLat / 2) ** 2
-        + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) ** 2;
-    return 6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-}
 
 // Seed/demo user IDs that should always appear AFTER real users.
 const SEED_USER_IDS = new Set([
@@ -354,7 +348,7 @@ export function useSmartClientMatching(
                 // category (buyers / renters / hire / roommates) so each
                 // owner-side filter shows the right human photos.
                 const appendDemoClients = (real: MatchedClientProfile[]): MatchedClientProfile[] => {
-                    if (page !== 0) return real;
+                    if (!isDemoFeedEnabled() || page !== 0) return real;
                     const realIds = new Set(real.map(r => r.user_id));
                     const demos = filterDemoClientsForCategory(_category, isRoommateSection)
                         .filter(d => !realIds.has(d.user_id))
@@ -399,8 +393,18 @@ export function useSmartClientMatching(
                             };
                         }).filter((c: any) => c.profile_images.length > 0);
 
-                        // Always append demos (real first) so testing data is never lost
-                        const withDemos = appendDemoClients(normalizedClients as any);
+                        let locationFiltered = normalizedClients as any[];
+                        if (hasActiveLocationFilter(filters)) {
+                            locationFiltered = filterByDistance(
+                                locationFiltered,
+                                filters!.userLatitude!,
+                                filters!.userLongitude!,
+                                filters?.radiusKm ?? 50,
+                                true,
+                            );
+                        }
+
+                        const withDemos = appendDemoClients(locationFiltered as MatchedClientProfile[]);
                         if (withDemos.length > 0) {
                             runIdleTask(() => {
                                 const imagesToPrewarm = withDemos.flatMap((p: any) => p.profile_images || p.images || []).slice(0, 5);
@@ -520,12 +524,7 @@ export function useSmartClientMatching(
 
                 // Distance filter — same passport/GPS logic as listings
                 if (userLat != null && userLon != null) {
-                    results = results.filter(r => {
-                        const pLat = (r as any).latitude as number | null | undefined;
-                        const pLng = (r as any).longitude as number | null | undefined;
-                        if (pLat == null || pLng == null) return true; // no coords = include
-                        return distanceKm(userLat, userLon, pLat, pLng) <= radiusKm;
-                    });
+                    results = filterByDistance(results as any[], userLat, userLon, radiusKm, true) as typeof results;
                 }
 
                 if (isRoommateSection) {

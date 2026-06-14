@@ -1,5 +1,5 @@
 import { searchCities } from '@/data/worldLocations';
-import { geocodeWithGoogle } from '@/utils/googlePlaces';
+import { geocodeWithMapbox } from '@/utils/mapboxPlaces';
 
 export interface PassportAction {
   city?: string;
@@ -42,9 +42,9 @@ export async function resolvePassportLocation(
     };
   }
 
-  // Fallback: Google Geocoder when Maps JS API is loaded (any city worldwide)
-  const googleResult = await geocodeWithGoogle(query);
-  if (googleResult) return googleResult;
+  // Fallback: Mapbox Geocoder when available (any city worldwide)
+  const mapboxResult = await geocodeWithMapbox(query);
+  if (mapboxResult) return mapboxResult;
 
   return null;
 }

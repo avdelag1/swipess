@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Camera, Loader2, Mic, Search, Sparkles, Wand2, X } from 'lucide-react';
+import { AudioLines, Camera, Loader2, Search, Sparkles, Wand2, X } from 'lucide-react';
 import { PremiumSpinner } from '@/components/ui/PremiumSpinner';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -38,10 +38,13 @@ export function AIProfileWizard() {
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [progressPct, setProgressPct] = useState(0);
+  const [micVolume, setMicVolume] = useState(0);
   const { isRecording, isTranscribing, interimTranscript, start: startVoice, stop: stopVoice } = useVoiceTranscribe({
     onStop: (text) => {
       if (text) setNarrative(prev => prev ? `${prev} ${text}` : text);
-    }
+      setMicVolume(0);
+    },
+    onVolumeChange: (vol) => setMicVolume(vol)
   });
   const { enhanceText, isEnhancing } = useAIEnhanceText();
   const [micTipOpen, setMicTipOpen] = useState(false);
@@ -306,8 +309,8 @@ export function AIProfileWizard() {
           )}
         >
           <div className="absolute inset-0 pointer-events-none overflow-hidden">
-            <div className="absolute top-[-20%] left-[-20%] w-[80%] h-[80%] bg-rose-600/5 blur-[150px] rounded-full" />
-            <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-pink-600/5 blur-[120px] rounded-full" />
+             <div className="absolute top-[-20%] left-[-20%] w-[80%] h-[80%] bg-gradient-to-br from-rose-500/20 to-orange-500/10 blur-[120px] rounded-full mix-blend-screen" />
+             <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-gradient-to-tr from-pink-500/20 to-purple-500/10 blur-[100px] rounded-full mix-blend-screen" />
           </div>
 
           <div className={cn("shrink-0 flex items-center justify-between px-8 py-6 border-b relative z-10", isLight ? "border-black/8" : "border-white/5")}>
@@ -394,26 +397,36 @@ export function AIProfileWizard() {
                       <div className="relative group">
                         <Popover open={micTipOpen} onOpenChange={setMicTipOpen}>
                           <PopoverTrigger asChild>
-                            <button
-                              onClick={handleVoiceToggle}
-                              className={cn(
-                                "absolute right-4 top-4 w-10 h-10 z-10 rounded-full flex items-center justify-center transition-all duration-300 shadow-2xl overflow-hidden",
-                                isRecording 
-                                  ? "bg-red-600 text-white shadow-[0_0_30px_rgba(220,38,38,0.8)] scale-110 animate-pulse" 
-                                  : "bg-white/10 hover:bg-white/20 border border-white/20 hover:scale-105"
-                              )}
-                            >
-                              {isRecording ? (
-                                <motion.div 
-                                  className="absolute inset-0 bg-white/20"
-                                  animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0, 0.5] }}
-                                  transition={{ duration: 1.5, repeat: Infinity }}
+                            <div className="absolute right-4 top-4 z-10 flex items-center justify-center">
+                              {isRecording && (
+                                <motion.div
+                                  className="absolute inset-0 rounded-full bg-gradient-to-r from-rose-500 to-orange-500 blur-md pointer-events-none"
+                                  animate={{ 
+                                    scale: 1 + (micVolume / 255) * 1.5,
+                                    opacity: 0.4 + (micVolume / 255) * 0.6 
+                                  }}
+                                  transition={{ type: "spring", bounce: 0, duration: 0.1 }}
                                 />
-                              ) : (
-                                <div className="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                               )}
-                              <Mic className={cn("w-5 h-5 relative z-10", isRecording ? "text-white animate-pulse" : "text-white")} />
-                            </button>
+                              <button
+                                onClick={handleVoiceToggle}
+                                className={cn(
+                                  "relative w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 shadow-2xl overflow-hidden",
+                                  isRecording 
+                                    ? "bg-gradient-to-br from-[#FF4D00] to-[#EB4898] text-white shadow-[0_0_30px_rgba(255,77,0,0.6)] scale-110" 
+                                    : "bg-white/10 hover:bg-white/20 border border-white/20 hover:scale-105"
+                                )}
+                              >
+                                {!isRecording && (
+                                  <div className="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                                )}
+                                {isRecording ? (
+                                  <AudioLines className="w-5 h-5 relative z-10 text-white animate-pulse" />
+                                ) : (
+                                  <Sparkles className="w-5 h-5 relative z-10 text-white" />
+                                )}
+                              </button>
+                            </div>
                           </PopoverTrigger>
                           <PopoverContent
                             side="top"
@@ -422,11 +435,11 @@ export function AIProfileWizard() {
                           >
                             <div className="space-y-2">
                               <div className="flex items-center gap-2">
-                                <Mic className="w-4 h-4 text-rose-400" />
+                                <AudioLines className="w-4 h-4 text-rose-400" />
                                 <span className="text-[11px] font-black uppercase tracking-widest text-rose-400">Voice to Text</span>
                               </div>
                               <p className="text-[12px] leading-relaxed text-white">
-                                Tap the mic and describe yourself out loud. Tap again to stop.
+                                Tap to describe yourself out loud. The visualizer reacts to your voice!
                               </p>
                             </div>
                           </PopoverContent>
