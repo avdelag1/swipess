@@ -2,23 +2,38 @@ import React, { useEffect, useState } from 'react';
 import { LegendaryOnboarding } from './LegendaryOnboarding';
 import { BiometricGate } from './BiometricGate';
 import { useNativeBridge } from '@/hooks/useNativeBridge';
+import { initPrivacyScreen } from '@/utils/privacyScreen';
+import { nativeStore, migrateCriticalLocalStorageToPreferences } from '@/lib/nativeStore';
 
 export const NativeProvider = ({ children }: { children: React.ReactNode }) => {
   const { isNative } = useNativeBridge();
   const [showOnboarding, setShowOnboarding] = useState(false);
 
   useEffect(() => {
-    // Only show onboarding on native platforms if not seen before
     if (isNative) {
-      const hasSeen = localStorage.getItem('swipess_onboarding_seen') === 'true';
-      if (!hasSeen) {
-        setShowOnboarding(true);
-      }
+      // Privacy screen util (screenshot block for sensitive flows)
+      void initPrivacyScreen();
+
+      // Migrate critical keys once (onboarding, biometric flags, etc.) then read from reliable store
+      void migrateCriticalLocalStorageToPreferences([
+        'swipess_onboarding_seen',
+        'biometric_enabled',
+        'biometric_setup_complete',
+        // add other session / flag keys as needed
+      ]);
+
+      // Only show onboarding on native platforms if not seen before (now via nativeStore)
+      (async () => {
+        const hasSeen = (await nativeStore.get('swipess_onboarding_seen')) === 'true';
+        if (!hasSeen) {
+          setShowOnboarding(true);
+        }
+      })();
     }
   }, [isNative]);
 
   const finishOnboarding = () => {
-    localStorage.setItem('swipess_onboarding_seen', 'true');
+    void nativeStore.set('swipess_onboarding_seen', 'true');
     setShowOnboarding(false);
   };
 

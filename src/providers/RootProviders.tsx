@@ -31,6 +31,7 @@ import { useAppBadge } from "@/hooks/useAppBadge";
 import { Capacitor } from "@capacitor/core";
 import { useConnectionHealth } from "@/hooks/useConnectionHealth";
 import { ConnectionErrorScreen } from "@/components/ConnectionErrorScreen";
+import { registerAppShortcuts } from "@/hooks/useAppShortcuts";
 // PERF: Lazy-load SwipessPrewarmer — its deps (routePrefetcher, performance) are heavy
 // It only activates after auth resolves, so no need in critical boot path
 const SwipessPrewarmer = lazy(() => import("@/components/SwipessPrewarmer").then(m => ({ default: m.SwipessPrewarmer })));
@@ -152,6 +153,15 @@ function ConnectionGuard({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+// One-time native app icon shortcuts registration (long-press home icon actions)
+function AppShortcutsRegistrar() {
+  useEffect(() => {
+    // Fire and forget; errors are logged inside the util
+    void registerAppShortcuts();
+  }, []);
+  return null;
+}
+
 // ──────────────────────────────────────────────────────────────────────────────
 // Unified Root Providers
 // ──────────────────────────────────────────────────────────────────────────────
@@ -191,6 +201,7 @@ export function RootProviders({ children, authPromise }: RootProvidersProps) {
                   <Suspense fallback={null}>
                     <SwipessPrewarmer />
                   </Suspense>
+                  <AppShortcutsRegistrar />
                   <ActiveModeProvider>
                     <ThemeProvider>
                       <ThemeSyncManager />

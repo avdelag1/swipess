@@ -5,6 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowLeft, ArrowUpRight, Calendar, Heart, Info, MapPin, MessageCircle, Share2, ShieldCheck, Sparkles, User, Users, Zap } from 'lucide-react';
+import { addEventToDeviceCalendar } from '@/utils/calendar';
 import { cn } from '@/lib/utils';
 import { useTranslation } from 'react-i18next';
 import { triggerHaptic } from '@/utils/haptics';
@@ -227,6 +228,20 @@ export default function EventoDetail() {
       await navigator.clipboard.writeText(shareUrl);
       appToast.info(t('eventos.linkCopied'));
     }
+  };
+
+  const handleAddToCalendar = async () => {
+    if (!event) return;
+    triggerHaptic('light');
+    await addEventToDeviceCalendar({
+      title: event.title,
+      event_date: event.event_date,
+      event_end_date: event.event_end_date,
+      location: event.location,
+      location_detail: event.location_detail,
+      description: event.description,
+      id: event.id,
+    });
   };
 
   const handleWhatsApp = async () => {
@@ -520,6 +535,17 @@ export default function EventoDetail() {
             </motion.button>
           )}
           
+          {/* Add to native calendar — high retention win for events */}
+          <motion.button
+             whileTap={{ scale: 0.95 }}
+             onClick={handleAddToCalendar}
+             aria-label="Add event to calendar"
+             className="w-20 h-full aspect-square rounded-[2rem] bg-white dark:bg-zinc-900 border border-slate-100 dark:border-white/10 flex items-center justify-center shadow-xl shadow-black/5 active:scale-90 transition-all"
+             title="Add to Calendar"
+          >
+             <Calendar className="w-6 h-6 text-slate-700 dark:text-white" />
+          </motion.button>
+
           <motion.button
              whileTap={{ scale: 0.95 }}
              onClick={handleShare}

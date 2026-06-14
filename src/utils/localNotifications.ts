@@ -43,6 +43,8 @@ export async function scheduleReengagementReminders(): Promise<void> {
           body: 'New listings and people are waiting for you on Swipess.',
           schedule: { at: new Date(now + 3 * DAY_MS) },
           extra: { url: '/notifications' },
+          // Branded custom sound (place swipess-alert.mp3 in iOS bundle / Android res/raw after cap sync + native build)
+          sound: 'swipess-alert.mp3',
         },
         {
           id: REENGAGE_IDS[1],
@@ -50,6 +52,7 @@ export async function scheduleReengagementReminders(): Promise<void> {
           body: 'Fresh matches near you — come take a look.',
           schedule: { at: new Date(now + 7 * DAY_MS) },
           extra: { url: '/notifications' },
+          sound: 'swipess-alert.mp3',
         },
       ],
     });

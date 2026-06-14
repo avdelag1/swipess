@@ -11,6 +11,7 @@ import { CARD_THEMES } from './vap-id/cardThemes';
 const VapIdEditModal = lazyWithRetry(() => import('./VapIdEditModal').then(m => ({ default: m.VapIdEditModal })));
 import { useEffect } from 'react';
 import { useVapIdCard } from '@/hooks/useVapIdCard';
+import { enablePrivacyScreen, disablePrivacyScreen } from '@/utils/privacyScreen';
 
 export interface VapIdProps {
   isOpen: boolean;
@@ -98,6 +99,19 @@ export function VapIdCardModal({ isOpen, onClose, role = 'client' }: VapIdProps)
       supabase.removeChannel(channel);
     };
   }, [user?.id, isOpen, queryClient, profileTable, profileQueryKey]);
+
+  // Protect this sensitive ID card from screenshots / screen recording (trust feature)
+  useEffect(() => {
+    if (isOpen) {
+      void enablePrivacyScreen('vap-id-card');
+    } else {
+      void disablePrivacyScreen('vap-id-card-closed');
+    }
+    return () => {
+      // Ensure disabled when unmounting while open
+      if (isOpen) void disablePrivacyScreen('vap-id-unmount');
+    };
+  }, [isOpen]);
 
   const name = ext?.name || user?.email?.split('@')[0] || 'Resident';
   const city = ext?.city || '';

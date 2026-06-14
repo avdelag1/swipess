@@ -5,11 +5,18 @@ import { Fingerprint, Lock } from 'lucide-react';
 import { haptics } from '@/utils/microPolish';
 import { Capacitor } from '@capacitor/core';
 import { BiometricAuth } from '@aparajita/capacitor-biometric-auth';
+import { nativeStore } from '@/lib/nativeStore';
 
 export const BiometricGate = ({ children }: { children: React.ReactNode }) => {
-  const [isLocked, setIsLocked] = useState(() => {
-    return localStorage.getItem('swipess_biometric_enabled') === 'true';
-  });
+  const [isLocked, setIsLocked] = useState(false);
+
+  // Async read from reliable native prefs (with localStorage fallback during migration)
+  useEffect(() => {
+    (async () => {
+      const enabled = (await nativeStore.get('swipess_biometric_enabled')) === 'true';
+      setIsLocked(enabled);
+    })();
+  }, []);
   const [isVerifying, setIsVerifying] = useState(false);
 
   const verify = async () => {
