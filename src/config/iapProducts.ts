@@ -48,7 +48,10 @@ export const ALL_APPLE_PRODUCTS: AppleProductId[] = [
  * @param url The PayPal/Web checkout URL
  */
 export const getSafePaymentUrl = (url?: string): string | undefined => {
-  if (Capacitor.getPlatform() === 'ios') return undefined;
+  // IMPORTANT: We must block alternative payment URLs in production iOS to comply 
+  // with Apple App Store Guideline 3.1.1. If Apple sees PayPal, they ban the app.
+  // However, during local development, we allow it so you can test the fallback!
+  if (Capacitor.getPlatform() === 'ios' && !import.meta.env.DEV) return undefined;
   return url;
 };
 
