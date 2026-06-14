@@ -205,7 +205,7 @@ export function SwipeInsightsModal({ open, onOpenChange, listing, profile, onCon
       <DialogContent
         hideCloseButton
         className={cn(
-          "max-w-[100vw] sm:max-w-md w-full h-[100dvh] max-h-[100dvh] p-0 rounded-none border-none flex flex-col overflow-hidden shadow-2xl",
+          "w-full max-w-[100vw] h-[100dvh] max-h-[100dvh] p-0 rounded-none border-none flex flex-col overflow-hidden shadow-2xl",
           isLight ? "bg-white" : "bg-black"
         )}
       >
@@ -214,15 +214,27 @@ export function SwipeInsightsModal({ open, onOpenChange, listing, profile, onCon
           {/* Scrollable body */}
           <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain scrollbar-hide pb-16">
 
-            {/* ── Luxury Card Hero — no gallery, no dots, static image ── */}
-            <div className="px-4 pt-4 pb-2 z-10 shrink-0">
-              <div className="relative overflow-hidden h-[50vh] min-h-[400px] rounded-[2rem] shadow-2xl border border-white/10 bg-black/50">
+            {/* ── Luxury Card Hero ── */}
+            <div className="z-10 shrink-0 relative w-full h-[50vh] min-h-[400px] rounded-b-[2.5rem] overflow-hidden bg-black/50 shadow-2xl">
                 {images.length > 0 ? (
-                  <img
-                    src={images[0]} // Always just the first image, no gallery
-                    alt={title || ''}
-                    className="w-full h-full object-cover"
-                  />
+                  <>
+                    <img
+                      src={images[imageIndex]}
+                      alt={title || ''}
+                      className="w-full h-full object-cover"
+                    />
+                    {images.length > 1 && (
+                      <>
+                        <div className="absolute inset-y-0 left-0 w-1/3 z-20 cursor-pointer" onClick={prevImage} />
+                        <div className="absolute inset-y-0 right-0 w-1/3 z-20 cursor-pointer" onClick={nextImage} />
+                        <div className="absolute top-4 left-0 right-0 flex justify-center gap-1.5 z-30 px-4">
+                          {images.map((_, idx) => (
+                            <div key={idx} className={cn("h-1.5 rounded-full transition-all shadow-[0_1px_2px_rgba(0,0,0,0.5)]", idx === imageIndex ? "bg-white w-4" : "bg-white/40 w-1.5")} />
+                          ))}
+                        </div>
+                      </>
+                    )}
+                  </>
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
                     <div className="text-white/40"><Eye className="w-12 h-12" /></div>
@@ -239,7 +251,6 @@ export function SwipeInsightsModal({ open, onOpenChange, listing, profile, onCon
                     <span className="text-[10px] font-black uppercase tracking-[0.25em] text-white">{meta.label}</span>
                   </div>
                 </div>
-              </div>
             </div>
 
             {/* ── Content ── */}

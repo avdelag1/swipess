@@ -273,8 +273,8 @@ export const BottomNavigation = memo(({
           "px-1 py-1",
           "rounded-t-[32px] border-t",
           isLight 
-            ? "bg-white/95 border-black/5 shadow-[0_-8px_30px_rgba(0,0,0,0.08)] backdrop-blur-2xl" 
-            : "bg-[#0A0A0C]/95 border-white/10 shadow-[0_-12px_40px_rgba(0,0,0,0.6)] backdrop-blur-2xl"
+            ? "bg-white border-black/5 shadow-[0_-8px_30px_rgba(0,0,0,0.08)]" 
+            : "bg-black border-white/10 shadow-[0_-12px_40px_rgba(0,0,0,0.6)]"
         )}
       >
         {/* Nav items row — SCROLLABLE SWIPESS ARCHITECTURE */}
