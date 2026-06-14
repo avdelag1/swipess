@@ -213,19 +213,19 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
                                 </div>
                                 <p className="text-[11px] font-medium text-muted-foreground mt-1">{pkg.description}</p>
                               </div>
-                              <button
-                                onClick={() => { haptics.tap(); handlePurchase(pkg); }}
+                              <motion.button
+                                onTap={() => { haptics.tap(); handlePurchase(pkg); }}
                                 disabled={isPurchasing}
                                 aria-label={`Get offer: ${pkg.tokens} tokens for ${formatUSD(pkg.priceUsd)} USD`}
-                                className="flex-shrink-0 h-11 px-5 rounded-full font-black text-[11px] uppercase tracking-widest active:scale-95 transition-transform whitespace-nowrap disabled:opacity-60 disabled:cursor-not-allowed"
+                                className="flex-shrink-0 h-11 px-5 rounded-full font-black text-[11px] uppercase tracking-widest active:scale-95 transition-transform whitespace-nowrap disabled:opacity-60 disabled:cursor-not-allowed touch-manipulation"
                                 style={{
                                   backgroundColor: '#000000',
                                   color: '#FFFFFF',
                                   boxShadow: '0 12px 28px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.18)',
                                 }}
                               >
-                                {isPurchasing ? 'Connecting...' : (NativeBridge.isIOS() ? 'Buy ·  Pay' : 'Get Offer')}
-                              </button>
+                                {isPurchasing ? 'Connecting...' : (NativeBridge.isIOS() ? `Buy ·  Pay` : 'Get Offer')}
+                              </motion.button>
                             </div>
                           </motion.div>
                         );
