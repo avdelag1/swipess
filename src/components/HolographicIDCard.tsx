@@ -3,6 +3,7 @@ import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { Briefcase, Globe, MapPin, ShieldCheck, Sparkles } from 'lucide-react';
 import { CardTheme } from './vap-id/cardThemes';
 import { cn } from '@/lib/utils';
+import { ensureAbsoluteSupabaseUrl } from '@/utils/imageOptimization';
 
 export interface HolographicIDCardProps {
   name: string;
@@ -107,7 +108,7 @@ export function HolographicIDCard({
             <div className="relative shrink-0" style={{ transform: "translateZ(40px)" }}>
               <div className="glass-surface w-[120px] h-[150px] sm:w-[140px] sm:h-[180px] rounded-[2rem] overflow-hidden shadow-2xl border-2 border-white/20">
                 {avatarUrl ? (
-                  <img src={avatarUrl} alt={name} className="w-full h-full object-cover" />
+                  <img src={ensureAbsoluteSupabaseUrl(avatarUrl)} alt={name} className="w-full h-full object-cover" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-5xl font-black opacity-20">
                     {name.charAt(0)}

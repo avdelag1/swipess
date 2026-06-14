@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { X } from 'lucide-react';
 import { SwipessLogo } from '@/components/SwipessLogo';
+import { Capacitor } from '@capacitor/core';
 
 // BeforeInstallPromptEvent is not in the standard TS lib
 interface BeforeInstallPromptEvent extends Event {
@@ -37,6 +38,11 @@ export function PWAInstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [visible, setVisible] = useState(false);
   const [iosMode, setIosMode] = useState(false);
+
+  // Rule 4: Never show PWA banner inside native Capacitor app
+  if (Capacitor.isNativePlatform()) {
+    return null;
+  }
 
   useEffect(() => {
     // Skip if already installed or dismissed recently
@@ -91,7 +97,7 @@ export function PWAInstallPrompt() {
     <div
       role="dialog"
       aria-label="Install Swipess app"
-      className="fixed top-0 left-0 right-0 z-[10000] bg-black/80 backdrop-blur-md border-b border-white/10 shadow-2xl overflow-hidden"
+      className="fixed bottom-0 left-0 right-0 z-[10000] bg-black/95 border-t border-white/10 shadow-2xl overflow-hidden pb-safe-bottom"
     >
       <div className="w-full max-w-lg mx-auto flex items-center justify-between px-4 py-3 pt-safe-top">
         {/* Left Side: Logo & Text */}

@@ -97,7 +97,7 @@ const clientPremiumPlans = [
 const accentStyles = {
   blue: {
     border: 'border-white/15',
-    badge: 'bg-white/10 text-white border border-white/15',
+    badge: 'bg-background text-foreground border border-border',
     glow: '',
     button: 'bg-gradient-to-r from-zinc-900 to-zinc-700 text-white',
     checkColor: 'text-white',
@@ -226,7 +226,7 @@ export default function SubscriptionPackagesPage() {
           <motion.button
             whileTap={{ scale: 0.9 }}
             onClick={() => navigate(userRole === 'owner' ? '/owner/dashboard' : '/client/dashboard')}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/10 backdrop-blur-md text-xs font-black uppercase tracking-widest text-white/80 hover:text-white transition-colors"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-background border border-border text-xs font-black uppercase tracking-widest text-foreground/80 hover:text-foreground transition-colors"
           >
             <ChevronLeft className="w-5 h-5" />
             Back
@@ -268,7 +268,7 @@ export default function SubscriptionPackagesPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.05 }}
                 className={cn(
-                  "flex-1 flex flex-col liquid-glass-card refraction-edge glass-nano-texture rounded-[3rem] p-1.5 transition-all duration-500",
+                  "flex-1 flex flex-col rounded-[3rem] p-1.5 transition-all duration-500 bg-background border border-border",
                   isHighlight && "lg:scale-[1.05] lg:z-10 shadow-[0_40px_80px_rgba(0,0,0,0.5)] border-amber-500/40"
                 )}
               >
@@ -290,7 +290,7 @@ export default function SubscriptionPackagesPage() {
                       "inline-flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.2em] px-3 py-1.5 rounded-xl mb-4",
                       plan.accent === 'gold' ? "bg-amber-500/20 text-amber-400" :
                       plan.accent === 'pink' ? "bg-pink-500/20 text-pink-400" :
-                      "bg-white/10 text-white"
+                      "bg-background text-foreground"
                     )}>
                       <Sparkles className="w-4 h-4" />
                       {(plan as any).aiTier}
@@ -325,7 +325,7 @@ export default function SubscriptionPackagesPage() {
                       "p-5 rounded-[1.8rem] mb-8 space-y-3.5 border",
                       plan.accent === 'gold' ? "bg-amber-500/10 border-amber-500/20 shadow-[inset_0_0_20px_rgba(245,158,11,0.05)]" :
                       plan.accent === 'pink' ? "bg-pink-500/10 border-pink-500/20 shadow-[inset_0_0_20px_rgba(236,72,153,0.05)]" :
-                      "bg-white/5 border-white/10 shadow-[inset_0_0_20px_rgba(255,255,255,0.04)]"
+                      "bg-background border-border shadow-[inset_0_0_20px_rgba(0,0,0,0.04)]"
                     )}>
                       <div className="flex items-center gap-2 mb-3">
                         <Sparkles className={cn("w-4 h-4", style.checkColor)} />

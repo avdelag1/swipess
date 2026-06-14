@@ -94,7 +94,7 @@ const clientPlans: Plan[] = [
 const accentStyles = {
   blue: {
     border: 'border-white/15',
-    badge: 'bg-white/10 text-foreground',
+    badge: 'bg-background text-foreground border border-border',
     button: 'bg-gradient-to-r from-zinc-900 to-zinc-700 text-white',
     checkColor: 'text-foreground',
     topGradient: 'from-white/10 via-transparent to-transparent',

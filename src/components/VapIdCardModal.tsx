@@ -12,6 +12,7 @@ const VapIdEditModal = lazyWithRetry(() => import('./VapIdEditModal').then(m => 
 import { useEffect } from 'react';
 import { useVapIdCard } from '@/hooks/useVapIdCard';
 import { enablePrivacyScreen, disablePrivacyScreen } from '@/utils/privacyScreen';
+import { ensureAbsoluteSupabaseUrl } from '@/utils/imageOptimization';
 
 export interface VapIdProps {
   isOpen: boolean;
@@ -223,7 +224,7 @@ export function VapIdCardModal({ isOpen, onClose, role = 'client' }: VapIdProps)
                 <div className="flex gap-6 mb-8">
                   <div className="relative shrink-0">
                     <div className="w-[160px] h-[200px] rounded-[2rem] overflow-hidden shadow-2xl border-2 border-white/10">
-                      {avatarUrl ? <img src={avatarUrl} alt={name} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-4xl font-black" style={{ color: theme.accentColor, background: theme.tagBg }}>{name.charAt(0)}</div>}
+                      {avatarUrl ? <img src={ensureAbsoluteSupabaseUrl(avatarUrl)} alt={name} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-4xl font-black" style={{ color: theme.accentColor, background: theme.tagBg }}>{name.charAt(0)}</div>}
                     </div>
                   </div>
 
