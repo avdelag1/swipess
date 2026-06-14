@@ -1023,6 +1023,8 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
             onOpenChange={setInsightsModalOpen}
             listing={dataType === 'people' ? null : topCard}
             profile={dataType === 'people' ? topCard : null}
+            onConnect={handleMessage}
+            onReport={() => { setSelectedListing(topCard); setReportDialogOpen(true); }}
           /></Suspense>
         )}
         {shareDialogOpen && topCard && (

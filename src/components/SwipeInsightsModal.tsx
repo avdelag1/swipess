@@ -1,23 +1,31 @@
-import { motion, PanInfo } from 'framer-motion';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
 import { Listing } from '@/hooks/useListings';
 import { MatchedClientProfile } from '@/hooks/useSmartMatching';
 import {
-  Anchor, ArrowLeft, Bath, Bed, Bike, Briefcase, Calendar, Car, CheckCircle, ChevronLeft,
-  ChevronRight, Clock, DollarSign, Eye, Fuel, Gauge, Home, MapPin, Heart, Share2, MessageCircle,
-  Ruler, ShieldCheck, Square, User, Wrench, X, Zap,
+  Anchor, ArrowLeft, Bath, Bed, Bike, Briefcase, Calendar, Car, CheckCircle,
+  Clock, DollarSign, Eye, Flag, Fuel, Gauge, Home, MapPin, Share2, MessageCircle,
+  Ruler, ShieldCheck, Square, User, Wrench, Zap,
 } from 'lucide-react';
+import { GlassIconButton } from '@/components/ui/GlassIconButton';
 import { PropertyImageGallery } from './PropertyImageGallery';
 import { useMemo, useState } from 'react';
 import { cn } from '@/lib/utils';
 import useAppTheme from '@/hooks/useAppTheme';
+import { triggerHaptic } from '@/utils/haptics';
+import { canNativeShare, generateShareUrl, shareViaNavigator, copyToClipboard } from '@/hooks/useSharing';
+import { appToast } from '@/utils/appNotification';
 
 interface SwipeInsightsModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   listing?: Listing | null;
   profile?: MatchedClientProfile | null;
+  /** Primary action — "Connect" rail button calls this (e.g. start a conversation). */
+  onConnect?: () => void;
+  /** Share rail button. When omitted, falls back to native share / copy link. */
+  onShare?: () => void;
+  /** Report rail button. When provided, a Report action appears in the rail. */
+  onReport?: () => void;
 }
 
 const CATEGORY_META: Record<string, { icon: React.ReactNode; label: string }> = {
@@ -30,7 +38,7 @@ const CATEGORY_META: Record<string, { icon: React.ReactNode; label: string }> = 
   services: { icon: <Briefcase className="w-4 h-4" />, label: 'Service' },
 };
 
-export function SwipeInsightsModal({ open, onOpenChange, listing, profile }: SwipeInsightsModalProps) {
+export function SwipeInsightsModal({ open, onOpenChange, listing, profile, onConnect, onShare, onReport }: SwipeInsightsModalProps) {
   const { isLight } = useAppTheme();
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [imageIndex, setImageIndex] = useState(0);
@@ -48,8 +56,54 @@ export function SwipeInsightsModal({ open, onOpenChange, listing, profile }: Swi
     return [];
   }, [isClientProfile, profile, listing]);
 
-  const handleDragEnd = (_e: any, info: PanInfo) => {
-    if (info.offset.y > 60 || info.velocity.y > 350) onOpenChange(false);
+  const handleClose = () => {
+    triggerHaptic('light');
+    onOpenChange(false);
+  };
+
+  const prevImage = () => {
+    triggerHaptic('light');
+    setImageIndex(i => (i - 1 + images.length) % images.length);
+  };
+
+  const nextImage = () => {
+    triggerHaptic('light');
+    setImageIndex(i => (i + 1) % images.length);
+  };
+
+  const openGallery = () => {
+    if (images.length === 0) return;
+    triggerHaptic('light');
+    setGalleryOpen(true);
+  };
+
+  const handleReport = () => {
+    triggerHaptic('medium');
+    onReport?.();
+    onOpenChange(false);
+  };
+
+  const handleShareClick = async () => {
+    triggerHaptic('light');
+    if (onShare) { onShare(); return; }
+    const shareTitle = profile?.name || listing?.title || 'Check this out on Swipess';
+    const shareUrl = generateShareUrl(
+      profile
+        ? { profileId: (profile as any)?.user_id || (profile as any)?.id }
+        : { listingId: (listing as any)?.id }
+    );
+    if (canNativeShare()) {
+      await shareViaNavigator({ title: shareTitle, text: `Check out ${shareTitle} on Swipess!`, url: shareUrl });
+    } else {
+      const ok = await copyToClipboard(shareUrl);
+      if (ok) appToast.info('Link copied to clipboard');
+    }
+  };
+
+  const handleConnect = () => {
+    triggerHaptic('success');
+    onConnect?.();
+    onOpenChange(false);
   };
 
   if (!listing && !profile) return null;
@@ -127,29 +181,26 @@ export function SwipeInsightsModal({ open, onOpenChange, listing, profile }: Swi
     ? ((profile as any)?.interests || (profile as any)?.lifestyle_tags || [])
     : (listing?.amenities || listing?.equipment || listing?.skills || (listing as any)?.tags || []) as string[];
 
-  const surface = isLight ? 'bg-white' : 'bg-card';
   const textPri = isLight ? 'text-slate-900' : 'text-white';
   const textSec = isLight ? 'text-slate-700' : 'text-white/60';
   const textTer = isLight ? 'text-slate-600' : 'text-white/40';
-  const card = isLight ? 'bg-slate-100/80 border-slate-200' : 'bg-white/[0.04] border-white/10';
-  const chipBg = isLight ? 'bg-slate-100 text-slate-700 border-slate-200' : 'bg-white/[0.06] text-white/80 border-white/10';
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         hideCloseButton
         className={cn(
-          "max-w-[100vw] sm:max-w-md w-full h-[100dvh] p-0 rounded-none border-none flex flex-col overflow-hidden shadow-2xl",
+          "max-w-[100vw] sm:max-w-md w-full h-[100dvh] max-h-[100dvh] p-0 rounded-[2.4rem] border-none flex flex-col overflow-hidden shadow-2xl",
           isLight ? "bg-white" : "bg-black"
         )}
       >
         <div className="flex flex-col h-full min-h-0 relative">
           
           {/* Scrollable body */}
-          <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain scrollbar-hide pb-32">
-            
-            {/* Top Immersive Photo Carousel */}
-            <div className="relative w-full h-[65vh] min-h-[500px] bg-black shrink-0">
+          <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain scrollbar-hide pb-16">
+
+            {/* ── Immersive hero photo — edge-to-edge, rounded bottom (like the events page) ── */}
+            <div className="relative w-full h-[64vh] min-h-[460px] bg-black shrink-0 overflow-hidden rounded-b-[3rem] shadow-2xl">
               {images.length > 0 ? (
                 <>
                   <img
@@ -157,77 +208,61 @@ export function SwipeInsightsModal({ open, onOpenChange, listing, profile }: Swi
                     alt={title || ''}
                     className="w-full h-full object-cover"
                   />
-                  {/* Gradient Overlay for text visibility */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-black/20" />
-                  
-                  {/* Top Floating Buttons */}
-                  <div className="absolute top-0 left-0 w-full p-safe pt-safe-top z-30">
-                    <div className="flex items-center justify-between px-5 pt-4">
-                      <button
-                        onClick={() => onOpenChange(false)}
-                        className="w-11 h-11 rounded-full bg-black/40 backdrop-blur-xl border border-white/10 flex items-center justify-center text-white active:scale-90 transition-transform"
-                      >
-                        <ArrowLeft className="w-6 h-6" />
-                      </button>
-                      <div className="flex items-center gap-3">
-                        <button className="w-11 h-11 rounded-full bg-black/40 backdrop-blur-xl border border-white/10 flex items-center justify-center text-white active:scale-90 transition-transform">
-                          <Heart className="w-5 h-5" />
-                        </button>
-                        <button className="w-11 h-11 rounded-full bg-black/40 backdrop-blur-xl border border-white/10 flex items-center justify-center text-white active:scale-90 transition-transform">
-                          <Share2 className="w-5 h-5" />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
 
-                  {/* Left/Right Carousel Controls */}
+                  {/* Tap the photo to open the fullscreen gallery (base layer) */}
+                  <button
+                    type="button"
+                    onClick={openGallery}
+                    aria-label="View photos fullscreen"
+                    className="absolute inset-0 z-[5]"
+                  />
+
+                  {/* Story-style tap zones: left → previous, right → next */}
                   {images.length > 1 && (
                     <>
                       <button
-                        onClick={(e) => { e.stopPropagation(); setImageIndex(i => (i - 1 + images.length) % images.length); }}
+                        onClick={(e) => { e.stopPropagation(); prevImage(); }}
+                        aria-label="Previous photo"
                         className="absolute left-0 top-1/4 bottom-1/4 w-1/4 z-10"
                       />
                       <button
-                        onClick={(e) => { e.stopPropagation(); setImageIndex(i => (i + 1) % images.length); }}
+                        onClick={(e) => { e.stopPropagation(); nextImage(); }}
+                        aria-label="Next photo"
                         className="absolute right-0 top-1/4 bottom-1/4 w-1/4 z-10"
                       />
-                      <div className="absolute bottom-[20%] left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
-                        {images.map((_, i) => (
-                          <div
-                            key={i}
-                            className={cn(
-                              "h-1.5 rounded-full transition-all shadow-sm",
-                              i === imageIndex ? "w-6 bg-white" : "w-1.5 bg-white/40"
-                            )}
-                          />
-                        ))}
-                      </div>
                     </>
                   )}
 
-                  {/* Title & Meta overlaid at bottom */}
-                  <div className="absolute bottom-6 left-6 right-6 z-20 space-y-3">
-                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/10 backdrop-blur-md border border-white/20">
-                      <div className="text-[#ff3366]">
-                        {meta.icon}
-                      </div>
-                      <span className="text-[10px] font-black uppercase tracking-[0.25em] text-white">
-                        {meta.label}
-                      </span>
+                  {/* Gradients: top for control legibility, bottom blends into the sheet */}
+                  <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-black/60 to-transparent z-[6] pointer-events-none" />
+                  <div className={cn(
+                    "absolute inset-x-0 bottom-0 h-44 bg-gradient-to-t to-transparent z-[6] pointer-events-none",
+                    isLight ? "from-white" : "from-black"
+                  )} />
+
+                  {/* Gallery dots */}
+                  {images.length > 1 && (
+                    <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex gap-1.5 z-20">
+                      {images.map((_, i) => (
+                        <button
+                          key={i}
+                          aria-label={`Go to photo ${i + 1}`}
+                          onClick={() => { triggerHaptic('light'); setImageIndex(i); }}
+                          className={cn(
+                            "h-1.5 rounded-full transition-all shadow-sm",
+                            i === imageIndex ? "w-6 bg-white" : "w-1.5 bg-white/40"
+                          )}
+                        />
+                      ))}
                     </div>
-                    
-                    <h2 className="text-4xl font-black text-white italic uppercase tracking-tighter leading-[0.9]">
-                      {title}
-                    </h2>
-                    
-                    {subtitle && (
-                      <div className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-[#a16b00]/20 border border-[#f5a623]/30 backdrop-blur-md">
-                        <MapPin className="w-4 h-4 text-[#f5a623]" />
-                        <span className="text-[11px] font-black uppercase tracking-[0.2em] text-[#f5a623]">
-                          {subtitle}
-                        </span>
-                      </div>
-                    )}
+                  )}
+
+                  {/* Category badge overlaid bottom-left (like the events page) */}
+                  <div className="absolute bottom-10 left-6 z-20">
+                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/10 backdrop-blur-md border border-white/20">
+                      <div className="text-[#ff3366]">{meta.icon}</div>
+                      <span className="text-[10px] font-black uppercase tracking-[0.25em] text-white">{meta.label}</span>
+                    </div>
                   </div>
                 </>
               ) : (
@@ -237,7 +272,22 @@ export function SwipeInsightsModal({ open, onOpenChange, listing, profile }: Swi
               )}
             </div>
 
-            <div className="px-5 pt-8 space-y-8">
+            {/* ── Content — pulled up under the rounded hero (like the events page) ── */}
+            <div className="px-5 -mt-6 relative z-10 space-y-8">
+
+              {/* Title + location, below the photo */}
+              <div className="space-y-3">
+                <h2 className={cn("text-[2.5rem] font-black italic uppercase tracking-tighter leading-[0.9]", textPri)}>
+                  {title}
+                </h2>
+                {subtitle && (
+                  <div className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-[#a16b00]/15 border border-[#f5a623]/30">
+                    <MapPin className="w-4 h-4 text-[#f5a623]" />
+                    <span className="text-[11px] font-black uppercase tracking-[0.2em] text-[#f5a623]">{subtitle}</span>
+                  </div>
+                )}
+              </div>
+
               {/* Chunky Specs Grid */}
               {specs.length > 0 && (
                 <div className="grid grid-cols-1 gap-4">
@@ -289,17 +339,34 @@ export function SwipeInsightsModal({ open, onOpenChange, listing, profile }: Swi
             </div>
           </div>
 
-          {/* Sticky Footer */}
-          <div className={cn(
-            "absolute bottom-0 left-0 right-0 p-5 pb-safe-bottom z-30",
-            isLight ? "bg-gradient-to-t from-white via-white/90 to-transparent" : "bg-gradient-to-t from-black via-black/90 to-transparent"
-          )}>
-            <div className="flex gap-3">
-              <Button
-                className="flex-1 h-[60px] rounded-[1.8rem] font-black text-[13px] uppercase tracking-[0.25em] active:scale-[0.98] transition-all border-0 shadow-2xl !bg-[#10b981] !text-white hover:!bg-[#059669] flex items-center justify-center gap-3"
+          {/* Floating return button — top-right corner */}
+          <div className="absolute top-0 right-0 p-safe pt-safe-top z-50">
+            <div className="flex justify-end px-5 pt-4">
+              <button
+                onClick={handleClose}
+                aria-label="Close"
+                className="w-11 h-11 rounded-2xl bg-black/30 backdrop-blur-xl border border-white/15 flex items-center justify-center text-white active:scale-90 transition-transform shadow-lg"
               >
-                <MessageCircle className="w-5 h-5" /> Connect Now
-              </Button>
+                <ArrowLeft className="w-6 h-6" />
+              </button>
+            </div>
+          </div>
+
+          {/* Vertical action rail — same icon-button style as the swipe cards */}
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 z-50 pointer-events-auto">
+            <div
+              className="flex flex-col gap-1.5 p-1.5 rounded-full"
+              style={{
+                background: 'rgba(24, 24, 28, 0.55)',
+                border: '1px solid rgba(255, 255, 255, 0.20)',
+                boxShadow: '0 8px 32px -6px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.15)',
+              }}
+            >
+              <GlassIconButton icon={Share2} onClick={handleShareClick} label="Share" tone="onPhoto" size="md" haptic={false} />
+              <GlassIconButton icon={MessageCircle} onClick={handleConnect} label="Connect" tone="onPhoto" size="md" haptic={false} />
+              {onReport && (
+                <GlassIconButton icon={Flag} onClick={handleReport} label="Report" tone="onPhoto" size="md" haptic={false} />
+              )}
             </div>
           </div>
         </div>
