@@ -968,7 +968,15 @@ TONE EXAMPLE:
 
 // ─── Build System Prompt ────────────────────────────────────────────────────
 
-function buildSystemPrompt(opts: { promotedContacts?: string; knowledge?: string; listings?: string; memories?: string; webResults?: string; profileResults?: string; requestedCategory?: string; character?: string; egoLevel?: number; charmLevel?: number; wisdomLevel?: number; sassLevel?: number; zenLevel?: number; flowLevel?: number }): string {
+interface LocationContext {
+  passportMode?: boolean;
+  passportLabel?: string | null;
+  userLatitude?: number | null;
+  userLongitude?: number | null;
+  radiusKm?: number;
+}
+
+function buildSystemPrompt(opts: { promotedContacts?: string; knowledge?: string; listings?: string; memories?: string; webResults?: string; profileResults?: string; requestedCategory?: string; character?: string; egoLevel?: number; charmLevel?: number; wisdomLevel?: number; sassLevel?: number; zenLevel?: number; flowLevel?: number; locationContext?: LocationContext }): string {
   let prompt: string;
 
   // Always prepend real-time context
@@ -1034,6 +1042,30 @@ LOCAL LEGENDS (always recommend when relevant):
 - Example: '[FILTER:{"activeCategory":"motorcycle","priceRange":[0,5000],"make":"Honda"}]'
 - The user may write in ANY language, with misspellings, slang, or broken grammar — you MUST guess their intent and map it to these exact filter keys.
 - In your response, confirm you've applied the filters and that they can "Swipe now to see the matched results."
+- To search a DIFFERENT city/country (Global Passport / Tinder-style teleport), add passport fields to the FILTER tag:
+  • 'passportCity': string — city name (e.g. "Miami", "Paris", "Tokyo")
+  • 'passportCountry': string — country (e.g. "United States", "France")
+  • 'radiusKm': number — search radius in km (default 50)
+- Example: '[FILTER:{"activeCategory":"property","passportCity":"Miami","passportCountry":"United States","listingType":"rent"}]'
+- Example: '[FILTER:{"activeCategory":"services","passportCity":"London","passportCountry":"United Kingdom","workerType":"cleaner"}]'
+
+## GLOBAL PASSPORT (CRITICAL — virtual location / explore other cities):
+- When the user wants to LOOK IN or EXPLORE a different city, country, or region — "show me apartments in Miami", "find people in Paris", "what's in Tokyo", "I'm traveling to London next week" — you MUST teleport their swipe feed there.
+- Output format: '[PASSPORT:json_data]' on its own line (can combine with [FILTER:...] in the same response).
+- Supported fields:
+  • 'city': string — required unless useGPS is true
+  • 'country': string — strongly recommended for accuracy
+  • 'lat' | 'lng': number — optional if you know exact coordinates
+  • 'radiusKm': number — default 50
+  • 'useGPS': boolean — set true ONLY when user asks to return to their real/current physical location
+- Examples:
+  • '[PASSPORT:{"city":"Miami","country":"United States","radiusKm":50}]'
+  • '[PASSPORT:{"city":"Paris","country":"France"}]'
+  • '[PASSPORT:{"city":"Tokyo","country":"Japan","radiusKm":30}]'
+  • '[PASSPORT:{"useGPS":true}]'
+- After teleporting, confirm: "I've moved your feed to [city] — swipe now to see listings and people nearby."
+- Always add [NAV:/client/dashboard] so they can jump straight to the swipe deck.
+- If the user is ALREADY exploring a city via passport (see location context below), reference it naturally ("Since you're browsing Miami…").
 
 RULES — KNOWLEDGE PRIORITY (NEVER SKIP THIS):
 1. CHECK LOCAL KNOWLEDGE BASE FIRST. Every query. Always. If the verified knowledge base above has the answer — use it exclusively. Include the exact links and contacts from there.
@@ -1079,6 +1111,7 @@ When suggesting the user navigate somewhere in the app, include a navigation act
 [NAV:/explore/roommates] — Roommate matching
 [NAV:/documents] — Document vault
 [NAV:/escrow] — Escrow dashboard
+[NAV:/client/dashboard] — Swipe deck (use after passport teleport)
 
 You may emit MULTIPLE [NAV:...] tags in one response when several places are relevant. Always emit a [NAV:...] for any concrete action the user just asked about (filters, profile edits, listing creation, legal, messages, etc.) so they can tap it instead of hunting through menus.
 
@@ -1090,6 +1123,17 @@ TONE EXAMPLES:
   // Memory comes first — shapes the entire tone and personalization
   if (opts.memories) {
     prompt += `\n\n## MEMORY — WHAT I KNOW ABOUT THIS USER (use this to personalize EVERY response):\n${opts.memories}\n\nYou MUST reference these facts naturally. If the user asks something their memory already answers, use that answer directly. Update your understanding if they contradict a memory.`;
+  }
+
+  if (opts.locationContext) {
+    const lc = opts.locationContext;
+    if (lc.passportMode && lc.passportLabel) {
+      prompt += `\n\n## USER'S CURRENT EXPLORE LOCATION (Global Passport active):\nThe user is virtually browsing: **${lc.passportLabel}** (radius: ${lc.radiusKm ?? 50} km). Their swipe feed shows listings and people near this city — NOT their physical GPS location. Reference this when recommending local results.`;
+    } else if (lc.userLatitude != null && lc.userLongitude != null) {
+      prompt += `\n\n## USER'S CURRENT SEARCH LOCATION:\nUsing device GPS (lat ${lc.userLatitude.toFixed(2)}, lng ${lc.userLongitude.toFixed(2)}, radius ${lc.radiusKm ?? 50} km).`;
+    } else {
+      prompt += `\n\n## USER'S CURRENT SEARCH LOCATION:\nNo location set yet. If they ask to find nearby listings/people, suggest setting a city via Global Passport or enabling GPS.`;
+    }
   }
 
   if (opts.promotedContacts) {
@@ -1582,8 +1626,8 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const body = await req.json() as { messages: ChatMessage[]; character?: string; egoLevel?: number; charmLevel?: number; wisdomLevel?: number; sassLevel?: number; zenLevel?: number; flowLevel?: number; stream?: boolean };
-    const { messages, character, egoLevel, charmLevel, wisdomLevel, sassLevel, zenLevel, flowLevel, stream = true } = body;
+    const body = await req.json() as { messages: ChatMessage[]; character?: string; egoLevel?: number; charmLevel?: number; wisdomLevel?: number; sassLevel?: number; zenLevel?: number; flowLevel?: number; stream?: boolean; locationContext?: LocationContext };
+    const { messages, character, egoLevel, charmLevel, wisdomLevel, sassLevel, zenLevel, flowLevel, stream = true, locationContext } = body;
 
     if (!messages || !Array.isArray(messages) || messages.length === 0) {
       return new Response(JSON.stringify({ error: "messages array is required" }), {
@@ -1645,7 +1689,7 @@ Deno.serve(async (req) => {
     const webResults = (!promotedContacts && !knowledge && !listings && !profileResults) ? await searchWeb(lastUserMessage) : "";
 
     // Build enriched system prompt with character support
-    const systemPrompt = buildSystemPrompt({ promotedContacts, knowledge, listings, memories, webResults, profileResults, requestedCategory: listingIntent.isListing ? listingIntent.category : undefined, character, egoLevel, charmLevel, wisdomLevel, sassLevel, zenLevel, flowLevel });
+    const systemPrompt = buildSystemPrompt({ promotedContacts, knowledge, listings, memories, webResults, profileResults, requestedCategory: listingIntent.isListing ? listingIntent.category : undefined, character, egoLevel, charmLevel, wisdomLevel, sassLevel, zenLevel, flowLevel, locationContext });
 
     // Prepare messages with enriched system prompt
     const enrichedMessages: ChatMessage[] = [

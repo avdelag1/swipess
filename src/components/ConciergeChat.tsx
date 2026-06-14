@@ -14,8 +14,9 @@ import { useAppNavigate } from '@/hooks/useAppNavigate';
 import useAppTheme from '@/hooks/useAppTheme';
 import { PERSONA_VOICE_PROFILES, useSpeechSynthesis } from '@/hooks/useSpeechSynthesis';
 import { appToast } from '@/utils/appNotification';
-import { useFilterStore } from '@/state/filterStore';
 import { useModalStore } from '@/state/modalStore';
+import { applyConciergeFilters, applyPassportAction } from '@/utils/conciergeActions';
+import type { PassportAction } from '@/utils/passportLocation';
 import { ConciergePrivacyPortal } from '@/components/concierge/ConciergePrivacyPortal';
 import { WelcomeState } from '@/components/concierge/WelcomeState';
 import { MessageBubble } from '@/components/concierge/MessageBubble';
@@ -203,6 +204,30 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
     onClose();
   };
 
+  const handlePassport = useCallback(async (action: PassportAction) => {
+    triggerHaptic('heavy');
+    const result = await applyPassportAction(action);
+    if (!result.ok) {
+      appToast.error(result.error || 'Could not change location');
+      return;
+    }
+    appToast.success(`Exploring ${result.label}`);
+    appNavigate('/client/dashboard');
+    onClose();
+  }, [appNavigate, onClose]);
+
+  const handleFilter = useCallback(async (filters: Record<string, unknown>) => {
+    triggerHaptic('medium');
+    const { passportLabel } = await applyConciergeFilters(filters);
+    if (passportLabel) {
+      appToast.success(`Exploring ${passportLabel} — swipe to see matches`);
+      appNavigate('/client/dashboard');
+      onClose();
+    } else {
+      appToast.success('Search filters applied — swipe to see matches');
+    }
+  }, [appNavigate, onClose]);
+
   const handleDraft = useCallback((category: string, data: any) => {
     triggerHaptic('heavy');
     if (category === 'profile') {
@@ -386,7 +411,8 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                         onResend={() => resendMessage(m.id)}
                         onNavigate={handleNavigate}
                         onDraft={handleDraft}
-                        onFilter={(f) => { useFilterStore.getState().setFilters(f); appToast.success('Search Logic Updated'); }}
+                        onFilter={handleFilter}
+                        onPassport={handlePassport}
                         onSpeak={handleSpeak}
                         speakingMsgId={speakingMsgId}
                         isSpeaking={isSpeaking}
