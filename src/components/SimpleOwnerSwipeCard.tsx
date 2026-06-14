@@ -369,7 +369,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
                   style={{ height: '42%', background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.6) 25%, rgba(0,0,0,0.3) 55%, rgba(0,0,0,0.1) 80%, transparent 100%)', opacity: isZoomed ? 0 : 1 }} />
               <PhotoPositionIndicators count={imageCount} currentIndex={currentImageIndex} hidden={isZoomed} />
               
-              <div className="absolute top-4 inset-x-4 z-[100] flex items-center justify-between pointer-events-none" style={{ opacity: isZoomed ? 0 : 1 }}>
+              <div className="absolute top-[calc(env(safe-area-inset-top,0px)+24px)] inset-x-4 z-[100] flex items-center justify-between pointer-events-none" style={{ opacity: isZoomed ? 0 : 1 }}>
                 <button
                   data-no-cinematic
                   onClick={(e) => {
@@ -529,31 +529,6 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
         )}
       </AnimatePresence>
 
-      {/* Undo Button */}
-      <AnimatePresence>
-        {isTop && canUndo && !isZoomed && isRailVisible && onUndo && (
-          <motion.div
-            data-no-cinematic
-            data-no-pull-dismiss
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.8 }}
-            className="absolute z-50 pointer-events-auto"
-            style={{ 
-              top: 'calc(var(--safe-top, 0px) + 16px)', 
-              right: '16px' 
-            }}
-          >
-            <button
-              onClick={(e) => { e.stopPropagation(); onUndo(); }}
-              className="w-10 h-10 rounded-full flex items-center justify-center active:scale-90 transition-transform"
-              style={{ filter: 'drop-shadow(0px 2px 6px rgba(0,0,0,0.4))' }}
-            >
-              <Undo2 className="w-6 h-6 text-white stroke-[2.5]" />
-            </button>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 });
