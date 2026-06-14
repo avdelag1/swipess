@@ -190,7 +190,7 @@ export function SwipeInsightsModal({ open, onOpenChange, listing, profile, onCon
       <DialogContent
         hideCloseButton
         className={cn(
-          "max-w-[100vw] sm:max-w-md w-full h-[100dvh] max-h-[100dvh] p-0 rounded-[2.4rem] border-none flex flex-col overflow-hidden shadow-2xl",
+          "max-w-[100vw] sm:max-w-md w-full h-[100dvh] max-h-[100dvh] p-0 rounded-none border-none flex flex-col overflow-hidden shadow-2xl",
           isLight ? "bg-white" : "bg-black"
         )}
       >
