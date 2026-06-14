@@ -31,6 +31,21 @@ html, body, #root {
   touch-action: pan-y;
 }
 
+/* 📷 NO TAP SQUARE OVER PHOTOS
+   The story-style image tap-zones (insights modal, event hero, carousels) are
+   large invisible <button>s layered over the photo. On touch they would flash
+   the OS tap-highlight and show a focus outline the size of the photo. Kill
+   both for pointer activation everywhere, while keeping the focus ring for
+   keyboard users (accessibility). */
+button, a, [role="button"], summary {
+  -webkit-tap-highlight-color: transparent;
+}
+button:focus:not(:focus-visible),
+a:focus:not(:focus-visible),
+[role="button"]:focus:not(:focus-visible) {
+  outline: none;
+}
+
 /* 🚀 FLAGSHIP LAYOUT CONTAINMENT */
 .glass-nano-texture {
   contain: paint layout style;

@@ -8,7 +8,8 @@ import {
 } from 'lucide-react';
 import { GlassIconButton } from '@/components/ui/GlassIconButton';
 import { PropertyImageGallery } from './PropertyImageGallery';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { Capacitor } from '@capacitor/core';
 import { cn } from '@/lib/utils';
 import useAppTheme from '@/hooks/useAppTheme';
 import { triggerHaptic } from '@/utils/haptics';
@@ -55,6 +56,20 @@ export function SwipeInsightsModal({ open, onOpenChange, listing, profile, onCon
     if (single) return [single];
     return [];
   }, [isClientProfile, profile, listing]);
+
+  // On native, let the hero photo draw under the status bar (notch) for a true
+  // full-screen feel while the modal is open; revert to the app default on close.
+  useEffect(() => {
+    if (!open || !Capacitor.isNativePlatform()) return;
+    import('@capacitor/status-bar')
+      .then(({ StatusBar }) => StatusBar.setOverlaysWebView({ overlay: true }))
+      .catch(() => { /* status bar plugin unavailable */ });
+    return () => {
+      import('@capacitor/status-bar')
+        .then(({ StatusBar }) => StatusBar.setOverlaysWebView({ overlay: false }))
+        .catch(() => { /* status bar plugin unavailable */ });
+    };
+  }, [open]);
 
   const handleClose = () => {
     triggerHaptic('light');
