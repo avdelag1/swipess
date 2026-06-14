@@ -28,7 +28,7 @@ import { LoopVideo } from '@/components/video/LoopVideo';
 import { imageCache } from '@/lib/swipe/cardImageCache';
 import useAppTheme from '@/hooks/useAppTheme';
 import { cn } from '@/lib/utils';
-import { BarChart3, Flag, MessageCircle, RotateCcw, Share2, Undo2 } from 'lucide-react';
+import { BarChart3, Flag, MessageCircle, Share2 } from 'lucide-react';
 import { PhotoPositionIndicators } from '@/components/swipe/PhotoPositionIndicators';
 import { GestureHints } from '@/components/swipe/GestureHints';
 import { revealChrome, useChromeReveal } from '@/hooks/useChromeReveal';
@@ -52,9 +52,6 @@ interface SimpleSwipeCardProps {
   onShare?: () => void;
   onReport?: () => void;
   onMessage?: () => void;
-  onUndo?: () => void;
-  canUndo?: boolean;
-  onBack?: () => void;
   isTop?: boolean;
   onDragStart?: () => void;
   disableDrag?: boolean;
@@ -75,9 +72,6 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   onReport,
   onShare,
   onMessage,
-  onUndo,
-  canUndo,
-  onBack,
   disableDrag,
   fullScreen = false,
 }, ref) => {
@@ -168,7 +162,6 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   }, [listing]);
 
   const imageCount = images.length;
-  const currentImage = images[currentImageIndex] || FALLBACK_PLACEHOLDER;
 
   useEffect(() => {
     if (!isTop || images.length <= 1) return;

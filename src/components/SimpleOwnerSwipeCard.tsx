@@ -14,7 +14,7 @@
 
 import { forwardRef, memo, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { animate, AnimatePresence, motion, PanInfo, useMotionValue, useTransform } from 'framer-motion';
-import { BarChart3, Flag, MessageCircle, RotateCcw, Share2, Undo2 } from 'lucide-react';
+import { BarChart3, Flag, MessageCircle, Share2 } from 'lucide-react';
 import { triggerHaptic } from '@/utils/haptics';
 import { getCardImageUrl } from '@/utils/imageOptimization';
 import { cn } from '@/lib/utils';
@@ -76,11 +76,8 @@ interface SimpleOwnerSwipeCardProps {
   onDragStart?: () => void;
   onShare?: () => void;
   onReport?: () => void;
-  onUndo?: () => void;
-  onBack?: () => void;
   onLike?: () => void;
   onDislike?: () => void;
-  canUndo?: boolean;
   fullScreen?: boolean;
   disableDrag?: boolean;
 }
@@ -99,9 +96,6 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   onReport,
   onShare,
   onMessage,
-  onUndo,
-  canUndo,
-  onBack,
   disableDrag,
   fullScreen = false,
 }, ref) => {
@@ -133,9 +127,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   }, [profile]);
 
   const imageCount = images.length;
-  const currentImage = images[currentImageIndex] || FALLBACK_PLACEHOLDER;
   const videoUrl = (profile as any)?.video_url as string | null | undefined;
-  const showVideoSlide = !!videoUrl && currentImageIndex === 0;
 
   useEffect(() => {
     if (!isTop || !images.length) return;

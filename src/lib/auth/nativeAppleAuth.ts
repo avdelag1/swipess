@@ -12,8 +12,6 @@
  *   2. pass its SHA-256 hash to Apple (Apple embeds the hash in the token)
  *   3. pass the RAW nonce to Supabase, which re-hashes and compares
  */
-import { Capacitor } from '@capacitor/core';
-
 // Must match the iOS bundle identifier and be listed as an authorized
 // client id on the Apple provider in the Supabase dashboard.
 const APPLE_BUNDLE_ID = 'com.swipess.mobile';

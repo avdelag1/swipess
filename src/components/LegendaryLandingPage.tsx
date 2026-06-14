@@ -19,7 +19,7 @@ import { getContentValue, useSiteContent } from '@/hooks/useSiteContent';
 import { appToast } from '@/utils/appNotification';
 import { Capacitor } from '@capacitor/core';
 
-const isNativeIOS = Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'ios';
+const _isNativeIOS = Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'ios';
 
 type View = 'landing' | 'auth';
 

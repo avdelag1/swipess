@@ -1,8 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Download, Share, Sparkles, X } from 'lucide-react';
-import useAppTheme from '@/hooks/useAppTheme';
+import { X } from 'lucide-react';
 import { SwipessLogo } from '@/components/SwipessLogo';
-import { cn } from '@/lib/utils';
 
 // BeforeInstallPromptEvent is not in the standard TS lib
 interface BeforeInstallPromptEvent extends Event {
@@ -11,7 +9,6 @@ interface BeforeInstallPromptEvent extends Event {
 }
 
 const DISMISSED_KEY = 'Swipess-pwa-install-dismissed';
-const DISMISSED_FOREVER_KEY = 'Swipess-pwa-install-dismissed-forever';
 const SHOW_DELAY_MS = 5000; // Show after 5s of use for immediate accessibility
 
 function isIOS() {
@@ -36,20 +33,14 @@ function wasDismissedRecently(): boolean {
   return Date.now() - parseInt(ts, 10) < 3 * 24 * 60 * 60 * 1000;
 }
 
-function wasDismissedForever(): boolean {
-  return localStorage.getItem(DISMISSED_FOREVER_KEY) === '1';
-}
-
 export function PWAInstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [visible, setVisible] = useState(false);
   const [iosMode, setIosMode] = useState(false);
-  const { theme } = useAppTheme();
-  const isDark = theme === 'dark';
 
   useEffect(() => {
-    // Skip if already installed or dismissed forever
-    if (isAlreadyInstalled() || wasDismissedForever() || wasDismissedRecently()) return;
+    // Skip if already installed or dismissed recently
+    if (isAlreadyInstalled() || wasDismissedRecently()) return;
 
     const ios = isIOS();
     setIosMode(ios);
@@ -92,11 +83,6 @@ export function PWAInstallPrompt() {
   const handleDismiss = useCallback(() => {
     setVisible(false);
     localStorage.setItem(DISMISSED_KEY, String(Date.now()));
-  }, []);
-
-  const handleDismissForever = useCallback(() => {
-    setVisible(false);
-    localStorage.setItem(DISMISSED_FOREVER_KEY, '1');
   }, []);
 
   if (!visible) return null;

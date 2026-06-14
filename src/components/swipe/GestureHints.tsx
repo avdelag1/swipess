@@ -1,3 +1,3 @@
-export function GestureHints({ hidden = false }: { hidden?: boolean }) {
+export function GestureHints({ hidden: _hidden = false }: { hidden?: boolean }) {
   return null;
 }

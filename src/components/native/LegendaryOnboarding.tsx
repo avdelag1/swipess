@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowRight, Heart, MapPin, ShieldCheck, Sparkles, Users } from 'lucide-react';
+import { ArrowRight, MapPin, ShieldCheck, Sparkles, Users } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { haptics } from '@/utils/microPolish';
 

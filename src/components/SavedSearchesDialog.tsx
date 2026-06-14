@@ -178,7 +178,7 @@ export function SavedSearchesDialog({ open, onOpenChange }: SavedSearchesDialogP
       appToast.info(!currentStatus ? 'Alerts Enabled' : 'Alerts Disabled', `You will ${!currentStatus ? 'now' : 'no longer'} receive notifications for this search.`);
 
       fetchSavedSearches();
-    } catch (err) {
+    } catch (_err) {
       appToast.error('Failed to update alerts');
     }
   };
