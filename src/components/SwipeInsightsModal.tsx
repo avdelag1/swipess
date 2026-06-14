@@ -5,7 +5,7 @@ import { Listing } from '@/hooks/useListings';
 import { MatchedClientProfile } from '@/hooks/useSmartMatching';
 import {
   Anchor, ArrowLeft, Bath, Bed, Bike, Briefcase, Calendar, Car, CheckCircle, ChevronLeft,
-  ChevronRight, Clock, DollarSign, Eye, Fuel, Gauge, Home, MapPin,
+  ChevronRight, Clock, DollarSign, Eye, Fuel, Gauge, Home, MapPin, Heart, Share2, MessageCircle,
   Ruler, ShieldCheck, Square, User, Wrench, X, Zap,
 } from 'lucide-react';
 import { PropertyImageGallery } from './PropertyImageGallery';
@@ -139,88 +139,64 @@ export function SwipeInsightsModal({ open, onOpenChange, listing, profile }: Swi
       <DialogContent
         hideCloseButton
         className={cn(
-          "max-w-[100vw] sm:max-w-md w-full h-[96dvh] mt-[4dvh] sm:mt-0 sm:h-[88vh] p-0 rounded-t-[2.5rem] sm:rounded-[3rem] border-none flex flex-col overflow-hidden shadow-2xl",
-          surface
+          "max-w-[100vw] sm:max-w-md w-full h-[100dvh] p-0 rounded-none border-none flex flex-col overflow-hidden shadow-2xl",
+          isLight ? "bg-white" : "bg-black"
         )}
       >
         <div className="flex flex-col h-full min-h-0 relative">
-          {/* Drag handle */}
-          <motion.div
-            drag="y"
-            dragConstraints={{ top: 0, bottom: 0 }}
-            dragElastic={0.4}
-            onDragEnd={handleDragEnd}
-            className="shrink-0 flex justify-center pt-3 pb-2 cursor-grab active:cursor-grabbing z-30"
-          >
-            <div className={cn("w-12 h-1.5 rounded-full", isLight ? "bg-slate-300" : "bg-white/20")} />
-          </motion.div>
-
-          {/* Header bar */}
-          <div className="px-5 pb-3 flex items-center justify-between z-30">
-            <button
-              onClick={() => onOpenChange(false)}
-              className={cn(
-                "w-10 h-10 rounded-2xl flex items-center justify-center active:scale-90 transition-all",
-                isLight ? "bg-slate-900 text-white border border-slate-900 shadow-md" : "bg-white/10 border border-white/20 text-white"
-              )}
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </button>
-            <div className={cn(
-              "flex items-center gap-2 px-3.5 py-2 rounded-2xl backdrop-blur-xl",
-              isLight ? "bg-slate-900 text-white border border-slate-900 shadow-md" : "bg-white/10 border border-white/20"
-            )}>
-              {meta.icon}
-              <span className={cn("text-[11px] font-semibold uppercase tracking-wider", isLight ? "text-white" : textPri)}>{meta.label}</span>
-            </div>
-            <button
-              onClick={() => onOpenChange(false)}
-              className={cn(
-                "w-10 h-10 rounded-2xl flex items-center justify-center active:scale-90 transition-all",
-                isLight ? "bg-slate-900 text-white border border-slate-900 shadow-md" : "bg-white/10 border border-white/20 text-white"
-              )}
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-
+          
           {/* Scrollable body */}
-          <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain scrollbar-hide pt-2">
-            {/* Photo carousel */}
-            {images.length > 0 && (
-              <div className="relative w-full px-3 sm:px-4 mb-6">
-                <div className="relative w-full aspect-[4/5] max-h-[65vh] min-h-[400px] bg-black overflow-hidden rounded-[2.5rem] shadow-[0_20px_40px_-15px_rgba(0,0,0,0.5)]">
-                  <button
-                    type="button"
-                    onClick={() => setGalleryOpen(true)}
-                    className="absolute inset-0 w-full h-full"
-                  >
-                    <img
-                      src={images[imageIndex]}
-                      alt={title || ''}
-                      className="w-full h-full object-cover"
-                    />
-                  </button>
+          <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain scrollbar-hide pb-32">
+            
+            {/* Top Immersive Photo Carousel */}
+            <div className="relative w-full h-[65vh] min-h-[500px] bg-black shrink-0">
+              {images.length > 0 ? (
+                <>
+                  <img
+                    src={images[imageIndex]}
+                    alt={title || ''}
+                    className="w-full h-full object-cover"
+                  />
+                  {/* Gradient Overlay for text visibility */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-black/20" />
+                  
+                  {/* Top Floating Buttons */}
+                  <div className="absolute top-0 left-0 w-full p-safe pt-safe-top z-30">
+                    <div className="flex items-center justify-between px-5 pt-4">
+                      <button
+                        onClick={() => onOpenChange(false)}
+                        className="w-11 h-11 rounded-full bg-black/40 backdrop-blur-xl border border-white/10 flex items-center justify-center text-white active:scale-90 transition-transform"
+                      >
+                        <ArrowLeft className="w-6 h-6" />
+                      </button>
+                      <div className="flex items-center gap-3">
+                        <button className="w-11 h-11 rounded-full bg-black/40 backdrop-blur-xl border border-white/10 flex items-center justify-center text-white active:scale-90 transition-transform">
+                          <Heart className="w-5 h-5" />
+                        </button>
+                        <button className="w-11 h-11 rounded-full bg-black/40 backdrop-blur-xl border border-white/10 flex items-center justify-center text-white active:scale-90 transition-transform">
+                          <Share2 className="w-5 h-5" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Left/Right Carousel Controls */}
                   {images.length > 1 && (
                     <>
                       <button
                         onClick={(e) => { e.stopPropagation(); setImageIndex(i => (i - 1 + images.length) % images.length); }}
-                        className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/50 backdrop-blur-md border border-white/20 flex items-center justify-center text-white active:scale-90 transition-transform"
-                      >
-                        <ChevronLeft className="w-5 h-5" />
-                      </button>
+                        className="absolute left-0 top-1/4 bottom-1/4 w-1/4 z-10"
+                      />
                       <button
                         onClick={(e) => { e.stopPropagation(); setImageIndex(i => (i + 1) % images.length); }}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/50 backdrop-blur-md border border-white/20 flex items-center justify-center text-white active:scale-90 transition-transform"
-                      >
-                        <ChevronRight className="w-5 h-5" />
-                      </button>
-                      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 z-10 bg-black/40 backdrop-blur-md px-3 py-2 rounded-full border border-white/10">
+                        className="absolute right-0 top-1/4 bottom-1/4 w-1/4 z-10"
+                      />
+                      <div className="absolute bottom-[20%] left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
                         {images.map((_, i) => (
                           <div
                             key={i}
                             className={cn(
-                              "h-1.5 rounded-full transition-all",
+                              "h-1.5 rounded-full transition-all shadow-sm",
                               i === imageIndex ? "w-6 bg-white" : "w-1.5 bg-white/40"
                             )}
                           />
@@ -228,69 +204,84 @@ export function SwipeInsightsModal({ open, onOpenChange, listing, profile }: Swi
                       </div>
                     </>
                   )}
-                </div>
-              </div>
-            )}
 
-            <div className="px-5 pb-8 space-y-6">
-              {/* Title */}
-              <div className="space-y-1.5">
-                <h2 className={cn("text-3xl font-black tracking-tight leading-tight", textPri)}>{title}</h2>
-                {subtitle && (
-                  <div className="flex items-center gap-1.5">
-                    <MapPin className={cn("w-3.5 h-3.5", textTer)} />
-                    <p className={cn("text-sm font-bold uppercase tracking-wider", textSec)}>{subtitle}</p>
+                  {/* Title & Meta overlaid at bottom */}
+                  <div className="absolute bottom-6 left-6 right-6 z-20 space-y-3">
+                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/10 backdrop-blur-md border border-white/20">
+                      <div className="text-[#ff3366]">
+                        {meta.icon}
+                      </div>
+                      <span className="text-[10px] font-black uppercase tracking-[0.25em] text-white">
+                        {meta.label}
+                      </span>
+                    </div>
+                    
+                    <h2 className="text-4xl font-black text-white italic uppercase tracking-tighter leading-[0.9]">
+                      {title}
+                    </h2>
+                    
+                    {subtitle && (
+                      <div className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-[#a16b00]/20 border border-[#f5a623]/30 backdrop-blur-md">
+                        <MapPin className="w-4 h-4 text-[#f5a623]" />
+                        <span className="text-[11px] font-black uppercase tracking-[0.2em] text-[#f5a623]">
+                          {subtitle}
+                        </span>
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
+                </>
+              ) : (
+                <div className="w-full h-full bg-slate-900 flex items-center justify-center">
+                  <div className="text-white/40"><Eye className="w-12 h-12" /></div>
+                </div>
+              )}
+            </div>
 
-              {/* Specs grid */}
+            <div className="px-5 pt-8 space-y-8">
+              {/* Chunky Specs Grid */}
               {specs.length > 0 && (
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 gap-4">
                   {specs.map((s, i) => (
-                    <div key={i} className={cn("p-4 rounded-3xl border flex items-center gap-3.5 shadow-sm", card)}>
+                    <div key={i} className={cn("p-6 rounded-[2.5rem] flex items-center gap-5 shadow-sm", isLight ? "bg-slate-100" : "bg-[#161618]")}>
                       <div className={cn(
-                        "w-10 h-10 rounded-[14px] flex items-center justify-center shrink-0",
-                        isLight ? "bg-white text-slate-600 shadow-sm" : "bg-white/[0.08] text-white"
+                        "w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-inner",
+                        isLight ? "bg-white text-indigo-600" : "bg-[#252528] text-indigo-400"
                       )}>
                         {s.icon}
                       </div>
-                      <div className="min-w-0">
-                        <p className={cn("text-[10px] font-black uppercase tracking-[0.2em]", textTer)}>{s.label}</p>
-                        <p className={cn("text-[13px] font-bold truncate mt-0.5", textPri)}>{s.value}</p>
+                      <div className="flex flex-col gap-1 min-w-0">
+                        <p className={cn("text-[10px] font-black uppercase tracking-[0.25em]", textTer)}>{s.label}</p>
+                        <p className={cn("text-[17px] font-black italic tracking-tight uppercase", textPri)}>{s.value}</p>
                       </div>
                     </div>
                   ))}
                 </div>
               )}
 
-              {/* Empty state */}
-              {specs.length === 0 && !description && tags.length === 0 && (
-                <div className="flex flex-col items-center justify-center py-12 text-center">
-                  <div className={cn("w-16 h-16 rounded-[1.5rem] flex items-center justify-center mb-4", isLight ? "bg-slate-100" : "bg-white/5")}>
-                    <Eye className={cn("w-7 h-7", textTer)} />
-                  </div>
-                  <p className={cn("text-sm font-bold", textTer)}>No additional details available</p>
-                </div>
-              )}
-
-              {/* Description */}
+              {/* Description styled as "The Experience" */}
               {description && (
-                <div className="space-y-3 pt-2">
-                  <h3 className={cn("text-[11px] font-black uppercase tracking-[0.25em]", textTer)}>Overview</h3>
-                  <p className={cn("text-[15px] font-medium leading-[1.7] whitespace-pre-wrap", textSec)}>{description}</p>
+                <div className="space-y-4 pt-4">
+                  <div className="flex items-center gap-4">
+                    <h3 className={cn("text-[11px] font-black uppercase tracking-[0.3em]", textTer)}>Overview</h3>
+                    <div className={cn("flex-1 h-px", isLight ? "bg-slate-200" : "bg-white/10")} />
+                  </div>
+                  <p className={cn("text-[16px] italic leading-[1.6] whitespace-pre-wrap font-medium", textSec)}>
+                    {description}
+                  </p>
                 </div>
               )}
 
               {/* Tags */}
               {tags.length > 0 && (
-                <div className="space-y-3 pt-2">
-                  <h3 className={cn("text-[11px] font-black uppercase tracking-[0.25em]", textTer)}>
+                <div className="space-y-4 pt-4">
+                  <h3 className={cn("text-[11px] font-black uppercase tracking-[0.3em]", textTer)}>
                     {isClientProfile ? 'Interests' : (category === 'worker' || category === 'services' ? 'Skills' : (listing?.equipment?.length ? 'Equipment' : 'Amenities'))}
                   </h3>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-2.5">
                     {tags.map((t, i) => (
-                      <span key={i} className={cn("px-4 py-2 rounded-xl text-[11px] font-black uppercase tracking-wider shadow-sm", chipBg)}>{t}</span>
+                      <span key={i} className={cn("px-5 py-3 rounded-2xl text-[11px] font-black uppercase tracking-wider", isLight ? "bg-slate-100 text-slate-700" : "bg-[#161618] text-white/80")}>
+                        {t}
+                      </span>
                     ))}
                   </div>
                 </div>
@@ -298,20 +289,16 @@ export function SwipeInsightsModal({ open, onOpenChange, listing, profile }: Swi
             </div>
           </div>
 
-          {/* Footer */}
+          {/* Sticky Footer */}
           <div className={cn(
-            "shrink-0 p-5 pt-4 pb-safe-bottom z-30 shadow-[0_-20px_40px_-15px_rgba(0,0,0,0.1)]",
-            isLight ? "bg-white border-t border-slate-100" : "bg-black border-t border-white/5"
+            "absolute bottom-0 left-0 right-0 p-5 pb-safe-bottom z-30",
+            isLight ? "bg-gradient-to-t from-white via-white/90 to-transparent" : "bg-gradient-to-t from-black via-black/90 to-transparent"
           )}>
             <div className="flex gap-3">
               <Button
-                onClick={() => onOpenChange(false)}
-                className={cn(
-                  "flex-1 h-14 rounded-2xl font-black text-[11px] uppercase tracking-[0.25em] active:scale-[0.98] transition-all border-0 shadow-xl",
-                  isLight ? "!bg-slate-900 !text-white hover:!bg-slate-800" : "!bg-white !text-black hover:!bg-white/90"
-                )}
+                className="flex-1 h-[60px] rounded-[1.8rem] font-black text-[13px] uppercase tracking-[0.25em] active:scale-[0.98] transition-all border-0 shadow-2xl !bg-[#10b981] !text-white hover:!bg-[#059669] flex items-center justify-center gap-3"
               >
-                Close Insight
+                <MessageCircle className="w-5 h-5" /> Connect Now
               </Button>
             </div>
           </div>
