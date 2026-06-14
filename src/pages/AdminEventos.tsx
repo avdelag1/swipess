@@ -325,11 +325,7 @@ export default function AdminEventos() {
         subtitle="Create and manage Eventos & Experiencias"
         actions={
           <div className="flex gap-2">
-            <Link to="/admin/legal">
-              <Button variant="outline" size="sm" className="gap-1.5">
-                <Scale className="w-4 h-4" /> Legal
-              </Button>
-            </Link>
+
             <Link to="/admin/photos">
               <Button variant="outline" size="sm" className="gap-1.5">
                 <Images className="w-4 h-4" /> Photos

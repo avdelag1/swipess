@@ -27,6 +27,8 @@ const DOC_TYPES = [
   { key: 'passport', label: 'Passport' },
   { key: 'government_id', label: 'Gov. ID' },
   { key: 'drivers_license', label: 'License' },
+  { key: 'six_month_lease', label: '6-Month Lease' },
+  { key: 'recommendation', label: 'Recommendation' },
 ] as const;
 
 const csvToArray = (csv: string) =>
@@ -131,12 +133,28 @@ export function VapIdEditModal({ isOpen, onClose, onSaved, role = 'client' }: Pr
         const path = `${user.id}/${docType}_${Date.now()}.${ext}`;
         const { error: uploadErr } = await supabase.storage.from('legal-documents').upload(path, file);
         if (uploadErr) throw uploadErr;
-        const { error: insertErr } = await supabase.from('legal_documents').insert({
+        const { error: insertErr } = await supabase.from('legal_documents' as any).insert({
           user_id: user.id, document_type: docType, file_name: file.name,
           file_path: path, file_size: file.size, mime_type: file.type, status: 'pending',
         });
         if (insertErr) throw insertErr;
-        appToast.success('Document uploaded');
+
+        // Create an admin review case for this verification document
+        const publicUrlData = supabase.storage.from('legal-documents').getPublicUrl(path);
+        await supabase.from('legal_cases').insert({
+          case_number: `VER-${Date.now().toString().slice(-6)}`,
+          title: `Resident Verification: ${docType}`,
+          description: `User uploaded a new document (${file.name}) for resident verification.`,
+          case_type: 'compliance',
+          status: 'open',
+          priority: 'medium',
+          parties_involved: { client_id: user.id },
+          documents: [
+            { name: file.name, url: publicUrlData.data.publicUrl, type: docType }
+          ]
+        });
+
+        appToast.success('Document uploaded and sent for review');
         queryClient.invalidateQueries({ queryKey: ['vap-documents', user.id] });
       } catch (err: any) { appToast.error(err.message || 'Upload failed'); }
       finally { setUploading(null); }

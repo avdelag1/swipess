@@ -41,6 +41,8 @@ export const PassportMapModal = memo(() => {
   const { isLight } = useAppTheme();
   const isOpen = useModalStore(s => s.showPassportMapModal);
   const setModal = useModalStore(s => s.setModal);
+  const openPropertyDetails = useModalStore(s => s.openPropertyDetails);
+  const openClientInsights = useModalStore(s => s.openClientInsights);
   const lat = useFilterStore(s => s.userLatitude);
   const lng = useFilterStore(s => s.userLongitude);
   const radiusKm = useFilterStore(s => s.radiusKm);
@@ -310,8 +312,15 @@ export const PassportMapModal = memo(() => {
           <motion.div
             initial={{ y: 80, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
+            onClick={() => {
+              if (selected.type === 'listing') {
+                openPropertyDetails(selected.data.id);
+              } else {
+                openClientInsights(selected.data.id);
+              }
+            }}
             className={cn(
-              'shrink-0 mx-4 mb-[calc(env(safe-area-inset-bottom,0px)+16px)] p-4 rounded-2xl border flex gap-3 items-center z-20',
+              'shrink-0 mx-4 mb-[calc(env(safe-area-inset-bottom,0px)+16px)] p-4 rounded-2xl border flex gap-3 items-center z-20 cursor-pointer',
               isLight ? 'bg-white border-slate-200 shadow-xl' : 'bg-[#141414] border-white/10 shadow-2xl'
             )}
           >
@@ -337,7 +346,10 @@ export const PassportMapModal = memo(() => {
               </p>
             </div>
             <button
-              onClick={() => setSelected(null)}
+              onClick={(e) => {
+                e.stopPropagation();
+                setSelected(null);
+              }}
               className={cn('p-2 rounded-full', isLight ? 'hover:bg-slate-100' : 'hover:bg-white/10')}
             >
               <X className="w-4 h-4" />

@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -136,30 +137,7 @@ const ownerLegalCategories: LegalIssueCategory[] = [
   }
 ];
 
-// Service packages data — available for clients/owners to browse and request
-const LEGAL_SERVICE_PACKAGES = [
-  // House Sale
-  { id: 'house-sale-basic', name: 'House Sale — Basic', category: 'house_sale', price: 1500, duration: 30, features: ['Title search & review', 'Purchase agreement preparation', 'Closing document review', '1 attorney consultation (1 hr)'] },
-  { id: 'house-sale-standard', name: 'House Sale — Standard', category: 'house_sale', price: 2500, duration: 45, features: ['Everything in Basic', 'Title insurance assistance', 'Negotiation support', 'Up to 3 consultations', 'Post-closing support (30 days)'] },
-  { id: 'house-sale-premium', name: 'House Sale — Premium', category: 'house_sale', price: 4000, duration: 60, features: ['Everything in Standard', 'Unlimited consultations (90 days)', 'Tax implications review', 'HOA document review', 'Dispute resolution coverage'] },
-  // Rental Agreement
-  { id: 'rental-basic', name: 'Rental Agreement — Basic', category: 'rental', price: 500, duration: 7, features: ['Lease agreement drafting', 'Basic tenant screening review', '1 revision included'] },
-  { id: 'rental-standard', name: 'Rental Agreement — Standard', category: 'rental', price: 900, duration: 14, features: ['Everything in Basic', 'Move-in/out checklist', 'Addendum preparation', 'Up to 3 revisions', '30-min consultation'] },
-  { id: 'rental-full', name: 'Rental Agreement — Full', category: 'rental', price: 1600, duration: 21, features: ['Everything in Standard', 'Multi-unit lease package', 'Section 8 compliance review', 'Unlimited revisions (30 days)', '2 hr consultation'] },
-  // Eviction
-  { id: 'eviction-basic', name: 'Eviction — Basic', category: 'eviction', price: 800, duration: 45, features: ['Pay or Quit notice', 'Unlawful detainer filing', 'Court representation (1 hearing)'] },
-  { id: 'eviction-full', name: 'Eviction — Full', category: 'eviction', price: 1800, duration: 90, features: ['Everything in Basic', 'Full court representation', 'Writ of possession', 'Judgment recovery assistance', 'Up to 3 hearings'] },
-  // Divorce
-  { id: 'divorce-uncontested', name: 'Divorce — Uncontested', category: 'divorce', price: 1200, duration: 60, features: ['Divorce petition drafting', 'Marital settlement agreement', 'Property division documents', 'Court filing assistance'] },
-  { id: 'divorce-children', name: 'Divorce — With Children', category: 'divorce', price: 3500, duration: 120, features: ['Divorce petition', 'Custody & visitation plan', 'Child support calculation', 'Parenting agreement', '3 court hearings'] },
-  { id: 'divorce-contested', name: 'Divorce — Contested', category: 'divorce', price: 5000, duration: 180, features: ['Full legal representation', 'Discovery assistance', 'Mediation support', 'Child custody filing', 'Asset valuation', '5 court appearances'] },
-  // Other
-  { id: 'nda', name: 'NDA Drafting', category: 'nda', price: 350, duration: 3, features: ['Custom NDA drafting', 'Mutual or one-way options', '1 revision included'] },
-  { id: 'business', name: 'Business Formation', category: 'business', price: 1000, duration: 14, features: ['Entity selection consultation', 'Articles of incorporation', 'Operating agreement', 'EIN registration guidance', '1-year registered agent'] },
-  { id: 'dispute', name: 'Property Dispute Resolution', category: 'dispute', price: 2000, duration: 90, features: ['Case evaluation', 'Demand letter', 'Mediation representation', 'Litigation (up to 2 hearings)'] },
-  { id: 'estate-basic', name: 'Estate Planning — Basic', category: 'estate', price: 800, duration: 14, features: ['Simple will drafting', 'Healthcare directive', 'Power of attorney', 'Notarization assistance'] },
-  { id: 'estate-full', name: 'Estate Planning — Full', category: 'estate', price: 2200, duration: 30, features: ['Everything in Basic', 'Living trust setup', 'Trust funding guidance', 'Beneficiary designation review', '1-year plan review'] },
-];
+// Service packages are now fetched dynamically from legal_service_packages
 
 const CATEGORY_LABELS: Record<string, string> = {
   house_sale: 'House Sale',
@@ -180,6 +158,23 @@ const LegalHub = () => {
   
   const isOwner = activeMode === 'owner';
   const categories = isOwner ? ownerLegalCategories : clientLegalCategories;
+
+  const { data: servicePackages = [], isLoading: packagesLoading } = useQuery({
+    queryKey: ['legal_service_packages'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('legal_service_packages' as any)
+        .select('*')
+        .eq('is_active', true)
+        .order('category')
+        .order('price');
+      if (error) {
+        logger.error('[LegalHub] fetch packages failed', error);
+        return [];
+      }
+      return data || [];
+    }
+  });
 
   // Admins get a direct link from here into the review screen where every
   // submitted service request and smart contract lands.
@@ -237,22 +232,34 @@ const LegalHub = () => {
 
     setIsSubmitting(true);
     try {
-      const { error } = await supabase.from('legal_help_requests').insert({
-        user_id: user?.id || null,
-        category: selectedIssue.category,
-        subcategory: selectedIssue.subcategory,
+      const year = new Date().getFullYear();
+      const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+      const caseNumber = `LC-${year}-${random}`;
+
+      const { error } = await supabase.from('legal_cases' as any).insert({
+        case_number: caseNumber,
+        title: requestedPackage ? `Service Request: ${requestedPackage}` : `Legal Support: ${selectedIssue.category}`,
         description: description.trim(),
-        role: activeMode,
-        status: 'pending',
-        package_id: requestedPackage || null,
+        case_type: 'user_complaint',
+        priority: 'medium',
+        status: 'open',
+        parties_involved: {
+          requester_id: user?.id || null,
+          requester_role: activeMode,
+          requested_package_id: requestedPackage || null,
+          category: selectedIssue.category,
+          subcategory: selectedIssue.subcategory,
+        }
       });
 
       if (error) {
-        logger.error('[LegalHub] submission error:', error);
-        // Still show success if table doesn't exist — fall through
+        throw error;
       }
     } catch (err) {
       logger.error('[LegalHub] submission failed:', err);
+      appToast.error('Failed to submit request');
+      setIsSubmitting(false);
+      return;
     }
     setIsSubmitting(false);
     setSubmitted(true);
@@ -313,13 +320,14 @@ const LegalHub = () => {
                 </p>
               </div>
 
-              {/* Packages grouped by category */}
-              {Object.entries(
-                LEGAL_SERVICE_PACKAGES.reduce((acc, pkg) => {
+              {packagesLoading ? (
+                <div className="text-center py-12 text-white/50">Loading packages...</div>
+              ) : Object.entries(
+                servicePackages.reduce((acc, pkg: any) => {
                   if (!acc[pkg.category]) acc[pkg.category] = [];
                   acc[pkg.category].push(pkg);
                   return acc;
-                }, {} as Record<string, typeof LEGAL_SERVICE_PACKAGES>)
+                }, {} as Record<string, any[]>)
               ).map(([category, packages]) => (
                 <div key={category} className="space-y-6">
                   <div className="flex items-center gap-4">
@@ -870,7 +878,7 @@ const LegalHub = () => {
                    { icon: BookOpen, label: 'AUP Standards', doc: 'agl', color: 'bg-purple-600 text-white shadow-purple-500/20' },
                    { icon: Package, label: 'Service Packages', doc: 'packages', color: 'bg-amber-500 text-white shadow-amber-500/20' },
                    { icon: ScaleIcon, label: 'Smart Contracts', path: isOwner ? '/owner/contracts' : '/client/contracts', color: 'bg-emerald-600 text-white shadow-emerald-500/20' },
-                   ...(isAdmin ? [{ icon: ShieldCheck, label: 'Admin Review', path: '/admin/legal', color: 'bg-slate-700 text-white shadow-slate-500/20' }] : []),
+                   // Removed duplicate Admin Review shortcut as admin-swipess handles admin functionality
                  ].map((item) => (
                    <button
                       key={item.label}
