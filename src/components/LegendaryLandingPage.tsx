@@ -466,21 +466,19 @@ const AuthView = memo(({ onBack, initialMode = 'login', siteContent }: { onBack:
               <span>Sign in with Apple</span>
             </button>
 
-            {!isNativeIOS && (
-              <button
-                onClick={() => { triggerHaptic('medium'); signInWithOAuth('google'); }}
-                style={{
-                  backgroundColor: '#ffffff',
-                  color: '#000000',
-                  border: '2px solid rgba(255,255,255,0.9)',
-                  boxShadow: '0 0 0 1px rgba(255,255,255,0.3), 0 6px 24px rgba(255,255,255,0.2)',
-                }}
-                className="flex h-12 w-full items-center justify-center gap-3 rounded-xl active:scale-[0.97] transition-all font-black uppercase tracking-widest text-[13px]"
-              >
-                <GoogleIcon />
-                <span>Continue with Google</span>
-              </button>
-            )}
+            <button
+              onClick={() => { triggerHaptic('medium'); signInWithOAuth('google'); }}
+              style={{
+                backgroundColor: '#ffffff',
+                color: '#000000',
+                border: '2px solid rgba(255,255,255,0.9)',
+                boxShadow: '0 0 0 1px rgba(255,255,255,0.3), 0 6px 24px rgba(255,255,255,0.2)',
+              }}
+              className="flex h-12 w-full items-center justify-center gap-3 rounded-xl active:scale-[0.97] transition-all font-black uppercase tracking-widest text-[13px]"
+            >
+              <GoogleIcon />
+              <span>Continue with Google</span>
+            </button>
           </motion.div>
         )}
       </div>

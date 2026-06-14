@@ -9,6 +9,7 @@ import { appToast } from '@/utils/appNotification';
 import { STORAGE } from "@/constants/app";
 import { haptics } from "@/utils/microPolish";
 import { cn } from "@/lib/utils";
+import { Browser } from '@capacitor/browser';
 import { NativeBridge } from "@/utils/nativeBridge";
 import { getSafePaymentUrl } from "@/config/iapProducts";
 
@@ -164,9 +165,9 @@ export default function SubscriptionPackagesPage() {
         name: plan.name,
         at: new Date().toISOString()
       }));
-      window.location.href = plan.paypalUrl;
+      await Browser.open({ url: plan.paypalUrl, presentationStyle: 'popover' });
       appToast.success('Redirecting to Checkout');
-    } catch (error) {
+    } catch (error: any) {
       logger.error('Payment redirect failed:', error);
       appToast.error('Could not open payment window');
     }

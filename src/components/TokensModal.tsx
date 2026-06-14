@@ -100,8 +100,7 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
       setIsPurchasing(false);
       return;
     }
-
-    window.location.href = safePaypalUrl;
+    await import('@capacitor/browser').then(({ Browser }) => Browser.open({ url: safePaypalUrl, presentationStyle: 'popover' }));
     close();
   };
 
