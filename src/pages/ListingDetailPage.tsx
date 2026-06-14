@@ -103,6 +103,12 @@ export default function ListingDetailPage() {
         open={showInsights}
         onOpenChange={setShowInsights}
         listing={listing as any}
+        onConnect={() => {
+          const ownerId = l.owner_id || l.user_id;
+          if (ownerId) navigate(`/messages?startConversation=${ownerId}`);
+          else navigate('/messages');
+        }}
+        onReport={() => setShowReport(true)}
       /></Suspense>
     </motion.div>
   );

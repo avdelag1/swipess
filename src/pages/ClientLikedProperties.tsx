@@ -333,6 +333,7 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
             open={showInsightsModal}
             onOpenChange={setShowInsightsModal}
             listing={selectedPropertyForModal}
+            onConnect={() => { if (selectedPropertyForModal) handleAction('message', selectedPropertyForModal); }}
           />
         </Suspense>
       )}

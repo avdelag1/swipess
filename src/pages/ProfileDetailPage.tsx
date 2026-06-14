@@ -129,6 +129,8 @@ export default function ProfileDetailPage() {
             open={showInsights}
             onOpenChange={setShowInsights}
             profile={likedClientMock}
+            onConnect={() => navigate(`/messages?startConversation=${id}`)}
+            onReport={() => setShowReport(true)}
           /></Suspense>
         </>
       )}
