@@ -219,9 +219,8 @@ function TopBarComponent({
             <motion.button
               transition={TAP_SPRING}
               whileTap={{ scale: 0.92 }}
-              onClick={() => { haptics.tap(); setModal('showTokensModal', true); }}
-              onPointerDown={() => { setModal('showTokensModal', true); }}
-              className="flex shrink-0 items-center justify-center rounded-full relative h-[32px] px-2 gap-1"
+              onTap={() => { haptics.tap(); setModal('showTokensModal', true); }}
+              className="flex shrink-0 items-center justify-center rounded-full relative h-[32px] px-2 gap-1 touch-manipulation"
               style={glassPillStyle}
               aria-label="Tokens"
             >
