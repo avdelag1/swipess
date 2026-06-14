@@ -42,6 +42,7 @@ interface ModalState {
   aiProfileDraft: any | null;
   showVapId: boolean;
   showTokensModal: boolean;
+  showPassportModal: boolean;
   showInviteFriends: boolean;
 
   // Actions
@@ -84,6 +85,7 @@ export const useModalStore = create<ModalState>((set) => ({
   aiProfileDraft: null,
   showVapId: false,
   showTokensModal: false,
+  showPassportModal: false,
   showInviteFriends: false,
 
   setModal: (key, value) => set({ [key]: value }),

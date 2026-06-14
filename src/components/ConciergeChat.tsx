@@ -250,7 +250,6 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
               scaleX: 1, scaleY: 1, y: 0, opacity: 1, filter: 'blur(0px)',
               transition: { type: 'spring', damping: 22, stiffness: 250, mass: 0.8 }
             }}
-            style={{ transformOrigin: 'bottom center' }}
             exit={{ 
               scale: 0.04,
               y: 520,
