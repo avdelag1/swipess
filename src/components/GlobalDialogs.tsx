@@ -32,6 +32,7 @@ const AIListingWizard = lazyWithRetry(() => import('@/components/AIListingWizard
 const AIProfileWizard = lazyWithRetry(() => import('@/components/AIProfileWizard').then(m => ({ default: m.AIProfileWizard })));
 const ConciergeChat = lazyWithRetry(() => import('@/components/ConciergeChat').then(m => ({ default: m.ConciergeChat })));
 const ReportDialog = lazyWithRetry(() => import('@/components/ReportDialog').then(m => ({ default: m.ReportDialog })));
+const InviteFriendsDialog = lazyWithRetry(() => import('@/components/InviteFriendsDialog').then(m => ({ default: m.InviteFriendsDialog })));
 
 const ConciergeChatFallback = memo(() => {
   const { isLight, theme } = useAppTheme();
@@ -309,6 +310,7 @@ export const GlobalDialogs = memo(({ userRole }: GlobalDialogsProps) => {
       </DeferredDialog>
 
       <Suspense fallback={null}><TokensModal userRole={userRole === 'admin' ? 'client' : userRole} /></Suspense>
+      <Suspense fallback={null}><InviteFriendsDialog isOpen={store.showInviteFriends} onClose={() => setModal('showInviteFriends', false)} /></Suspense>
 
       <DeferredDialog when={reportState.open}>
         <ReportDialog

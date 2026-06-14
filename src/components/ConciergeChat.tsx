@@ -42,6 +42,7 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
   const [input, setInput] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [characterPanelOpen, setCharacterPanelOpen] = useState(false);
+  const [isExiting, setIsExiting] = useState(false); // Aladdin/genie minimize effect
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -231,7 +232,7 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
           className={cn("fixed inset-0 z-[10010] flex items-center justify-center p-2 sm:p-6 transition-all duration-500", isLight && !isSwipess ? "bg-black/20" : "bg-black/60")}
           style={{ WebkitBackdropFilter: 'blur(24px)', backdropFilter: 'blur(24px)' }}
         >
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="absolute inset-0" />
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={triggerGenieClose} className="absolute inset-0" />
 
           <motion.div
             layoutId="concierge-panel"
@@ -240,13 +241,20 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
               scaleX: 1, scaleY: 1, y: 0, opacity: 1, filter: 'blur(0px)',
               transition: { type: 'spring', damping: 22, stiffness: 250, mass: 0.8 }
             }}
+            style={{ transformOrigin: 'bottom center' }}
             exit={{ 
-              scaleX: [1, 0.1, 0.05],
-              scaleY: [1, 0.8, 0.05],
-              y: [0, '20vh', '45vh'],
-              opacity: [1, 0.8, 0],
-              filter: ["blur(0px)", "blur(4px)", "blur(15px)"],
-              transition: { duration: 0.5, times: [0, 0.6, 1], ease: "easeInOut" }
+              scale: 0.04,
+              y: 520,
+              opacity: 0,
+              filter: "blur(20px)",
+              borderRadius: "999px",
+              transition: { 
+                type: "spring", 
+                stiffness: 180, 
+                damping: 22, 
+                mass: 0.6,
+                duration: 0.42 
+              }
             }}
             className={cn(
                "relative w-full max-w-4xl h-full sm:h-[88vh] flex flex-col rounded-[2.5rem] sm:rounded-[3.5rem] overflow-hidden border shadow-[0_40px_150px_rgba(0,0,0,0.9)] transition-colors duration-700",
@@ -340,7 +348,7 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                       </PopoverContent>
                     </Popover>
 
-                    <button onClick={onClose} className={cn("w-9 h-9 flex items-center justify-center rounded-full transition-all border group active:scale-90", isLight && !isSwipess ? "bg-muted border-border hover:bg-slate-200" : "bg-white/5 border-white/10 hover:bg-white/15")} aria-label="Close">
+                    <button onClick={triggerGenieClose} className={cn("w-9 h-9 flex items-center justify-center rounded-full transition-all border group active:scale-90", isLight && !isSwipess ? "bg-muted border-border hover:bg-slate-200" : "bg-white/5 border-white/10 hover:bg-white/15")} aria-label="Close">
                       <X className={cn("w-[18px] h-[18px]", isLight && !isSwipess ? "text-slate-600" : "text-white/80")} strokeWidth={2.2} />
                     </button>
                   </div>

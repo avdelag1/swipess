@@ -32,6 +32,7 @@ export function VapIdCardModal({ isOpen, onClose, role = 'client' }: VapIdProps)
     } catch { return 0; }
   });
   const [editOpen, setEditOpen] = useState(false);
+  const [isExiting, setIsExiting] = useState(false); // For Aladdin/genie minimize effect
   const theme = CARD_THEMES[themeIndex];
   const isOwner = role === 'owner';
 
@@ -40,6 +41,17 @@ export function VapIdCardModal({ isOpen, onClose, role = 'client' }: VapIdProps)
     try { localStorage.setItem(THEME_STORAGE_KEY, String(next)); } catch { /* empty */ }
     return next;
   });
+
+  // Aladdin / Genie (MacBook minimize) effect: shrink + curve to bottom on close
+  const triggerGenieClose = () => {
+    if (isExiting) return;
+    setIsExiting(true);
+    // Animation duration ~400ms, then actual close
+    setTimeout(() => {
+      setIsExiting(false);
+      onClose();
+    }, 420);
+  };
 
   const profileTable = 'client_profiles';
   const profileQueryKey = 'vap-id-client-profile';
@@ -146,7 +158,7 @@ export function VapIdCardModal({ isOpen, onClose, role = 'client' }: VapIdProps)
           exit={{ opacity: 0, transition: { duration: 0.6 } }}
           className="fixed inset-0 z-[10001] flex items-center justify-center bg-black/70 p-4"
           style={{ WebkitBackdropFilter: 'blur(24px)', backdropFilter: 'blur(24px)' }}
-          onClick={onClose}
+          onClick={triggerGenieClose}
         >
           <motion.div
             initial={{ scaleX: 0.05, scaleY: 0.05, y: '45vh', opacity: 0, filter: 'blur(15px)' }}
@@ -155,12 +167,19 @@ export function VapIdCardModal({ isOpen, onClose, role = 'client' }: VapIdProps)
               transition: { type: 'spring', damping: 22, stiffness: 250, mass: 0.8 }
             }}
             exit={{ 
-              scaleX: [1, 0.1, 0.05],
-              scaleY: [1, 0.8, 0.05],
-              y: [0, '20vh', '45vh'],
-              opacity: [1, 0.8, 0],
-              filter: ["blur(0px)", "blur(4px)", "blur(15px)"],
-              transition: { duration: 0.5, times: [0, 0.6, 1], ease: "easeInOut" }
+              scale: 0.04,
+              y: 520,
+              x: 0,
+              opacity: 0,
+              filter: "blur(20px)",
+              borderRadius: "999px",
+              transition: { 
+                type: "spring", 
+                stiffness: 180, 
+                damping: 22, 
+                mass: 0.6,
+                duration: 0.42 
+              }
             }}
             style={{ transformOrigin: 'bottom center' }}
             onClick={(e) => e.stopPropagation()}
@@ -185,7 +204,7 @@ export function VapIdCardModal({ isOpen, onClose, role = 'client' }: VapIdProps)
                 <Pencil className="h-5 w-5" strokeWidth={2.6} />
               </button>
               <button
-                onClick={onClose}
+                onClick={triggerGenieClose}
                 aria-label="Close card"
                 className="h-11 w-11 flex items-center justify-center rounded-full border shadow-lg active:scale-95 transition bg-white/10 backdrop-blur-md border-white/20 text-white hover:bg-white/20"
               >
