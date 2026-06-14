@@ -246,6 +246,10 @@ export function useNotificationSystem() {
         // Use client-side routing to avoid full page reload
         navigate(url);
       } catch { /* silent */ }
+    } else {
+      // If there's no URL to navigate to, the user wants to see the full description of the notification.
+      // We use a native window.alert to ensure it pops up cleanly over everything in the app.
+      window.alert(`${notification.title}\n\n${notification.message}`);
     }
 
     // Auto-dismiss the banner on click

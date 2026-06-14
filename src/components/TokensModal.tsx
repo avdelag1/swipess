@@ -85,6 +85,10 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
       } else {
         const cancelled = (result as any).error === 'CANCELLED';
         if (cancelled) return;
+        if (cancelled) {
+          setIsPurchasing(false);
+          return;
+        }
         
         appToast.warning('Apple Pay Unavailable', 'Falling back to secure checkout...');
       }
@@ -93,11 +97,11 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
     const safePaypalUrl = getSafePaymentUrl(pkg.paypalUrl);
     if (!safePaypalUrl) {
       appToast.error('Payment link unavailable', 'Please use the App Store to purchase.');
+      setIsPurchasing(false);
       return;
     }
 
-    appToast.info('Redirecting to PayPal', `${pkg.name}: ${pkg.tokens} tokens for ${formatUSD(pkg.priceUsd)} USD.`);
-    window.open(safePaypalUrl, '_blank', 'noopener,noreferrer');
+    window.location.href = safePaypalUrl;
     close();
   };
 

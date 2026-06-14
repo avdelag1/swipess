@@ -164,7 +164,7 @@ export default function SubscriptionPackagesPage() {
         name: plan.name,
         at: new Date().toISOString()
       }));
-      window.open(plan.paypalUrl, '_blank');
+      window.location.href = plan.paypalUrl;
       appToast.success('Redirecting to Checkout');
     } catch (error) {
       logger.error('Payment redirect failed:', error);
