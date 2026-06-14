@@ -29,7 +29,7 @@
 		504EC3131FED79650016851F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		50B271D01FEDC1A000F3C39B /* public */ = {isa = PBXFileReference; lastKnownFileType = folder; path = public; sourceTree = "<group>"; };
 		918684292FDE2A1700E9869C /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
-		941F6B5116958F83D770CE69 /* Configuration.storekit */ = {isa = PBXFileReference; includeInIndex = 1; path = App/Configuration.storekit; sourceTree = "<group>"; };
+		941F6B5116958F83D770CE69 /* App/Configuration.storekit */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = App/Configuration.storekit; sourceTree = "<group>"; };
 		A3F1E28C9D4B7A0F5C62E3D1 /* App.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = App.entitlements; sourceTree = "<group>"; };
 		AF277DCFFFF123FFC6DF26C7 /* Pods_App.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_App.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		AF51FD2D460BCFE21FA515B2 /* Pods-App.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-App.release.xcconfig"; path = "Pods/Target Support Files/Pods-App/Pods-App.release.xcconfig"; sourceTree = "<group>"; };
@@ -65,7 +65,7 @@
 				504EC3051FED79650016851F /* Products */,
 				7F8756D8B27F46E3366F6CEA /* Pods */,
 				27E2DDA53C4D2A4D1A88CE4A /* Frameworks */,
-				941F6B5116958F83D770CE69 /* Configuration.storekit */,
+				941F6B5116958F83D770CE69 /* App/Configuration.storekit */,
 			);
 			sourceTree = "<group>";
 		};
