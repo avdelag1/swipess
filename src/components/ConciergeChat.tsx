@@ -46,6 +46,15 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
+  const triggerGenieClose = () => {
+    triggerHaptic('light');
+    setIsExiting(true);
+    setTimeout(() => {
+      onClose();
+      setIsExiting(false);
+    }, 400);
+  };
+
   const { speak, stop: stopSpeaking, isSpeaking } = useSpeechSynthesis();
   const [speakingMsgId, setSpeakingMsgId] = useState<string | null>(null);
 

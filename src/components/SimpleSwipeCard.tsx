@@ -428,7 +428,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
 
 
 
-        {isTop && (
+        {isTop && (listing as any).category !== 'events' && (
           <>
             <GestureHints hidden={isZoomed} />
 
@@ -447,6 +447,8 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
              </div>
           </div>
         </motion.div>
+          </>
+        )}
 
 
         <div
@@ -563,14 +565,11 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           </div>
         )}
 
-          </>
-        )}
       </motion.div>
 
-      {/* Action rail lives OUTSIDE the draggable motion.div so Framer Motion's
-          native drag listener cannot intercept the button pointer events. */}
+      {/* Action rail lives OUTSIDE the draggable motion.div */}
       <AnimatePresence>
-        {isTop && !isZoomed && isRailVisible && (
+        {isTop && !isZoomed && isRailVisible && (listing as any).category !== 'events' && (
           <motion.div
             data-no-cinematic
             data-no-pull-dismiss
