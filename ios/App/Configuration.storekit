@@ -1,0 +1,214 @@
+{
+  "identifier" : "33A7BB61",
+  "nonRenewingSubscriptions" : [
+    {
+      "displayPrice" : "19.99",
+      "familyShareable" : false,
+      "internalID" : "3A0B1C2D",
+      "localizations" : [
+        {
+          "description" : "Event promotion for a week",
+          "displayName" : "Weekly Promo",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "Swipess.promo.event.week.v3",
+      "referenceName" : "Weekly Promo",
+      "type" : "NonRenewingSubscription"
+    },
+    {
+      "displayPrice" : "49.99",
+      "familyShareable" : false,
+      "internalID" : "4A0B1C2E",
+      "localizations" : [
+        {
+          "description" : "Event promotion for a month",
+          "displayName" : "Monthly Promo",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "Swipess.promo.event.month.v3",
+      "referenceName" : "Monthly Promo",
+      "type" : "NonRenewingSubscription"
+    },
+    {
+      "displayPrice" : "99.99",
+      "familyShareable" : false,
+      "internalID" : "5A0B1C2F",
+      "localizations" : [
+        {
+          "description" : "Event promotion for a quarter",
+          "displayName" : "Quarterly Promo",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "Swipess.promo.event.quarter.v3",
+      "referenceName" : "Quarterly Promo",
+      "type" : "NonRenewingSubscription"
+    }
+  ],
+  "products" : [
+    {
+      "displayPrice" : "9.99",
+      "familyShareable" : false,
+      "internalID" : "6A0B1C30",
+      "localizations" : [
+        {
+          "description" : "20 new conversations",
+          "displayName" : "Starter Tokens",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "Swipess.tokens.20.v2",
+      "referenceName" : "Starter Tokens",
+      "type" : "Consumable"
+    },
+    {
+      "displayPrice" : "19.99",
+      "familyShareable" : false,
+      "internalID" : "7A0B1C31",
+      "localizations" : [
+        {
+          "description" : "50 new conversations",
+          "displayName" : "Plus Tokens",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "Swipess.tokens.50.v2",
+      "referenceName" : "Plus Tokens",
+      "type" : "Consumable"
+    },
+    {
+      "displayPrice" : "39.99",
+      "familyShareable" : false,
+      "internalID" : "8A0B1C32",
+      "localizations" : [
+        {
+          "description" : "100 new conversations",
+          "displayName" : "Power Tokens",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "Swipess.tokens.100.v2",
+      "referenceName" : "Power Tokens",
+      "type" : "Consumable"
+    },
+    {
+      "displayPrice" : "49.99",
+      "familyShareable" : false,
+      "internalID" : "9A0B1C33",
+      "localizations" : [
+        {
+          "description" : "150 new conversations",
+          "displayName" : "Mega Tokens",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "Swipess.tokens.150.v2",
+      "referenceName" : "Mega Tokens",
+      "type" : "Consumable"
+    }
+  ],
+  "settings" : {
+    "_askToBuyEnabled" : false,
+    "_failTransactionsEnabled" : false,
+    "_storeKitErrors" : [
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Load Products"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Purchase"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Verification"
+      }
+    ]
+  },
+  "subscriptionGroups" : [
+    {
+      "id" : "0A0B1C34",
+      "localizations" : [
+
+      ],
+      "name" : "Swipess Plus",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [
+
+          ],
+          "displayPrice" : "14.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "1A0B1C35",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Monthly Premium Features",
+              "displayName" : "Monthly Subscription",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "Swipess.plus.monthly.v3",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "Monthly Subscription",
+          "subscriptionGroupID" : "0A0B1C34",
+          "type" : "RecurringSubscription"
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "displayPrice" : "69.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "2A0B1C36",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "6 Months Premium Features",
+              "displayName" : "Semestral Subscription",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "Swipess.plus.semestral.v3",
+          "recurringSubscriptionPeriod" : "P6M",
+          "reference.Name" : "Semestral Subscription",
+          "subscriptionGroupID" : "0A0B1C34",
+          "type" : "RecurringSubscription"
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "displayPrice" : "119.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "3A0B1C37",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Yearly Premium Features",
+              "displayName" : "Annual Subscription",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "Swipess.plus.annual.v3",
+          "recurringSubscriptionPeriod" : "P1Y",
+          "referenceName" : "Annual Subscription",
+          "subscriptionGroupID" : "0A0B1C34",
+          "type" : "RecurringSubscription"
+        }
+      ]
+    }
+  ],
+  "version" : {
+    "major" : 3,
+    "minor" : 0
+  }
+}
