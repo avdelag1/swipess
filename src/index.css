@@ -112,9 +112,12 @@ body.swipe-deck-active #root {
 .pr-safe       { padding-right:  env(safe-area-inset-right, 0px) !important; }
 
 /* Push page content down while letting background bleed to top */
-.swipess-page-wrapper > *:not(.fixed):not(.absolute) {
+.swipess-page-wrapper > *:not(.fixed):not(.absolute):not(.full-bleed-top) {
   padding-top: calc(var(--top-bar-height) + env(safe-area-inset-top, 0px)) !important;
 }
+/* Immersive detail pages (e.g. event hero) opt out so their photo reaches the
+   very top instead of sitting below a reserved top-bar gap. */
+.swipess-page-wrapper > .full-bleed-top { padding-top: 0 !important; }
 
 /* Bottom padding = fixed nav bar height + home-indicator safe area */
 .swipess-page-wrapper {

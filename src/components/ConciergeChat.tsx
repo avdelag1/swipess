@@ -403,10 +403,10 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
 
                   <div className="max-w-3xl mx-auto flex items-end gap-3 relative">
                     <div className="flex-1 min-w-0 relative flex items-center rounded-2xl transition-all duration-300 border border-border/50 bg-secondary/30 backdrop-blur-xl shadow-inner focus-within:bg-background focus-within:border-foreground/15 group overflow-hidden">
-                       <div className="pl-3 flex items-center gap-1.5 self-center">
+                       <div className="pl-2 flex items-center gap-0.5 self-center">
                            <Popover>
                              <PopoverTrigger asChild>
-                          <button className={cn("p-3 rounded-2xl transition-all hover:bg-secondary/80", isLight ? "text-slate-600 hover:text-slate-900" : "text-white/80 hover:text-white")} aria-label="Auto-send timer">
+                          <button className={cn("p-2 rounded-xl transition-all hover:bg-secondary/80", isLight ? "text-slate-600 hover:text-slate-900" : "text-white/80 hover:text-white")} aria-label="Auto-send timer">
                                     <Timer className="w-5 h-5" strokeWidth={2.5} />
                                </button>
                              </PopoverTrigger>
@@ -426,7 +426,7 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                           <button
                             onClick={isListening ? stopListening : startListening}
                             className={cn(
-                              "p-3 rounded-2xl transition-all relative group overflow-hidden hover:bg-secondary/80",
+                              "p-2 rounded-xl transition-all relative group overflow-hidden hover:bg-secondary/80",
                               isListening
                                 ? "bg-[#FF3D00] text-white shadow-[0_0_24px_rgba(255,61,0,0.4)] scale-110"
                                 : isLight ? "text-slate-600 hover:text-slate-900" : "text-white/80 hover:text-white"
@@ -451,10 +451,10 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                               el.style.height = `${Math.min(el.scrollHeight, 192)}px`;
                             }
                           }}
-                          placeholder={isListening ? "Listening... Speak now" : "Inquire for discovery..."}
+                          placeholder={isListening ? "Listening…" : "Inquire for discovery"}
                           rows={1}
                           className={cn(
-                            "w-full bg-transparent border-none outline-none focus:ring-0 py-4 pl-3 pr-4 text-[16px] resize-none custom-scrollbar min-h-[56px] max-h-48 leading-relaxed self-center font-medium",
+                            "flex-1 min-w-0 bg-transparent border-none outline-none focus:ring-0 py-4 pl-1 pr-3 text-[16px] resize-none custom-scrollbar min-h-[56px] max-h-48 leading-snug self-center font-medium",
                             isListening ? "text-[#FF3D00] placeholder:text-[#FF3D00]/50" : isLight ? "text-slate-900 placeholder:text-slate-400" : "text-white placeholder:text-white/40"
                           )}
                           onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}

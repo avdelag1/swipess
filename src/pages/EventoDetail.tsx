@@ -285,7 +285,7 @@ export default function EventoDetail() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-black pb-safe-bottom" style={{ contain: 'paint layout' }}>
+    <div className="full-bleed-top min-h-screen bg-slate-50 dark:bg-black pb-safe-bottom" style={{ contain: 'paint layout' }}>
       {/* ── HERO GALLERY ── */}
       <div className="relative h-[75vh] min-h-[500px] overflow-hidden rounded-b-[3rem] shadow-2xl z-10 bg-black">
         <AnimatePresence mode="popLayout">

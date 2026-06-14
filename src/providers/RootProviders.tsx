@@ -28,6 +28,7 @@ import { useEnsureSpecializedProfile, useProfileAutoSync } from "@/hooks/useProf
 import { useReengagementNotifications } from "@/hooks/useReengagementNotifications";
 import { useNativeKeyboard } from "@/hooks/useNativeKeyboard";
 import { useAppBadge } from "@/hooks/useAppBadge";
+import { Capacitor } from "@capacitor/core";
 import { useConnectionHealth } from "@/hooks/useConnectionHealth";
 import { ConnectionErrorScreen } from "@/components/ConnectionErrorScreen";
 // PERF: Lazy-load SwipessPrewarmer — its deps (routePrefetcher, performance) are heavy
@@ -68,6 +69,14 @@ const queryClient = new QueryClient({
 
 const persister = createIDBPersister();
 
+// Native-only: drives the home-screen icon badge. Gated behind a component so
+// its two unread-count queries + realtime subscriptions never run on web/PWA,
+// where the badge does nothing.
+function NativeAppBadge() {
+  useAppBadge();
+  return null;
+}
+
 function LifecycleHooks({ children }: { children: React.ReactNode }) {
   usePushNotifications();
   useForceUpdateOnVersionChange();
@@ -75,8 +84,12 @@ function LifecycleHooks({ children }: { children: React.ReactNode }) {
   useEnsureSpecializedProfile();
   useReengagementNotifications();
   useNativeKeyboard();
-  useAppBadge();
-  return <>{children}</>;
+  return (
+    <>
+      {Capacitor.isNativePlatform() && <NativeAppBadge />}
+      {children}
+    </>
+  );
 }
 
 function AuthReadySignal() {
