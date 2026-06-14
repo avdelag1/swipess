@@ -168,7 +168,7 @@ export const NotificationBar = memo(function NotificationBar({ notifications, on
               backdropFilter: 'blur(12px)',
               WebkitBackdropFilter: 'blur(12px)',
             }}
-            onClick={() => {
+            onTap={() => {
               triggerHaptic('medium');
               onNotificationClick(current);
               startDismiss('right');
