@@ -19,7 +19,14 @@ import { Capacitor } from '@capacitor/core';
 const APPLE_BUNDLE_ID = 'com.swipess.mobile';
 
 export function isNativeAppleAvailable(): boolean {
-  return Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'ios';
+  // TEMPORARY BYPASS: Since you are on a Personal Team (free account) and cannot add 
+  // the "Sign In with Apple" capability in Xcode, we force this to return false. 
+  // This tells the app to use the web-based Apple Login instead of the native one, 
+  // bypassing Xcode entirely so you can test!
+  return false; 
+  
+  // Original code:
+  // return Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'ios';
 }
 
 function generateRawNonce(): string {
